@@ -547,6 +547,515 @@ export const COMPOUNDS: readonly Compound[] = [
     parts: [p("ämbliku", "ämblik", "spider"), p("võrk", "võrk", "net")],
     literal: "spider net", means: "spiderweb, cobweb",
     quip: "The same word means your phone's network, so every spider is online.",
+  },  {
+    id: "newspaper", word: "ajaleht",
+    parts: [p("aja", "aeg", "time"), p("leht", "leht", "leaf")],
+    literal: "time leaf", means: "newspaper",
+    quip: "A leaf of the times, fresh every morning and old news by night.",
+  },
+  {
+    id: "toy", word: "mänguasi",
+    parts: [p("mängu", "mäng", "game, play"), p("asi", "asi", "thing")],
+    literal: "game thing", means: "a toy",
+    quip: "Anything at all can be one, as every cardboard box knows.",
+  },
+  {
+    id: "thursday", word: "neljapäev",
+    parts: [p("nelja", "neli", "four"), p("päev", "päev", "day")],
+    literal: "four day", means: "Thursday",
+    quip: "Monday to Thursday are counted off, one to four. Friday gets a name of its own.",
+  },
+  {
+    id: "sandwich", word: "võileib",
+    parts: [p("või", "või", "butter"), p("leib", "leib", "bread")],
+    literal: "butter bread", means: "a sandwich",
+    quip: "The first half also means or, though nobody has ever had to choose between them.",
+  },
+  {
+    id: "cash", word: "sularaha",
+    parts: [p("sula", "sula", "melted, thawed"), p("raha", "raha", "money")],
+    literal: "melted money", means: "cash",
+    quip: "Cash is the liquid kind of money, and it has a way of melting in a wallet.",
+  },
+  {
+    id: "signature", word: "allkiri",
+    parts: [p("all", "all", "below, underneath"), p("kiri", "kiri", "writing, letter")],
+    literal: "under writing", means: "a signature",
+    quip: "Where it goes on every form: at the bottom, below everything you agreed to.",
+  },
+  {
+    id: "sunday", word: "pühapäev",
+    parts: [p("püha", "püha", "holy"), p("päev", "päev", "day")],
+    literal: "holy day", means: "Sunday",
+    quip: "English built its word holiday from the same two pieces.",
+  },
+  {
+    id: "pet", word: "lemmikloom",
+    parts: [p("lemmik", "lemmik", "favourite"), p("loom", "loom", "animal")],
+    literal: "favourite animal", means: "a pet",
+    quip: "Ask any owner. There was never a contest.",
+  },
+  {
+    id: "tablet", word: "tahvelarvuti",
+    parts: [p("tahvel", "tahvel", "blackboard"), p("arvuti", "arvuti", "computer")],
+    literal: "blackboard computer", means: "a tablet",
+    quip: "English tablet first meant a slab to write on too, so both languages named the gadget after something you write on.",
+  },
+  {
+    id: "season", word: "aastaaeg",
+    parts: [p("aasta", "aasta", "year"), p("aeg", "aeg", "time")],
+    literal: "year time", means: "a season",
+    quip: "One boggy national park in the south-west claims a fifth, when spring floods turn its roads into rivers.",
+  },
+  {
+    id: "history", word: "ajalugu",
+    parts: [p("aja", "aeg", "time"), p("lugu", "lugu", "story")],
+    literal: "time story", means: "history",
+    quip: "English hides a story inside its word as well, and the two are related.",
+  },
+  {
+    id: "gingerbread", word: "piparkook",
+    parts: [p("pipar", "pipar", "pepper"), p("kook", "kook", "cake")],
+    literal: "pepper cake", means: "gingerbread",
+    quip: "German bakes it under the same name, and in both countries December smells of it.",
+  },
+  {
+    id: "cousin", word: "onupoeg",
+    parts: [p("onu", "onu", "uncle"), p("poeg", "poeg", "son")],
+    literal: "uncle son", means: "a male cousin",
+    quip: "Through an aunt the word changes, and for a daughter it changes again. Each cousin is named by the route to them.",
+  },
+  {
+    id: "driving-licence", word: "juhiluba",
+    parts: [p("juhi", "juht", "leader, driver"), p("luba", "luba", "permission")],
+    literal: "leader permission", means: "a driving licence",
+    quip: "The same first half leads a choir or a company. On the road it means whoever holds the wheel.",
+  },
+  {
+    id: "gym", word: "jõusaal",
+    parts: [p("jõu", "jõud", "strength"), p("saal", "saal", "hall")],
+    literal: "strength hall", means: "a gym",
+    quip: "You go in hoping the name rubs off.",
+  },
+  {
+    id: "armchair", word: "tugitool",
+    parts: [p("tugi", "tugi", "support"), p("tool", "tool", "chair")],
+    literal: "support chair", means: "an armchair",
+    quip: "The seat that props you up on both sides after a long day.",
+  },
+  {
+    id: "coward", word: "argpüks",
+    parts: [p("arg", "arg", "shy, timid"), p("püks", "püksid", "trousers")],
+    literal: "timid trousers", means: "a coward",
+    quip: "Somehow it is always the trousers that get the blame.",
+  },
+  {
+    id: "gem", word: "kalliskivi",
+    parts: [p("kallis", "kallis", "dear, expensive"), p("kivi", "kivi", "stone")],
+    literal: "dear stone", means: "a gem, jewel",
+    quip: "The first half is also what you call your sweetheart, so every gem is a small endearment.",
+  },
+  {
+    id: "page", word: "lehekülg",
+    parts: [p("lehe", "leht", "leaf"), p("külg", "külg", "side")],
+    literal: "leaf side", means: "a page",
+    quip: "Every leaf has two, which is how a book of a hundred pages is only fifty leaves thick.",
+  },
+  {
+    id: "magazine", word: "ajakiri",
+    parts: [p("aja", "aeg", "time"), p("kiri", "kiri", "letter, writing")],
+    literal: "time letter", means: "a magazine",
+    quip: "A letter from the times that turns up every week or month, whether or not you wrote back.",
+  },
+  {
+    id: "cobbler", word: "kingsepp",
+    parts: [p("king", "king", "shoe"), p("sepp", "sepp", "smith")],
+    literal: "shoe smith", means: "a shoemaker, cobbler",
+    quip: "A smith who swapped the anvil for a last.",
+  },
+  {
+    id: "cornflower", word: "rukkilill",
+    parts: [p("rukki", "rukis", "rye"), p("lill", "lill", "flower")],
+    literal: "rye flower", means: "a cornflower",
+    quip: "English cornflower means the same, since in Britain corn is any grain. It is Estonia's national flower.",
+  },
+  {
+    id: "exclamation-mark", word: "hüüumärk",
+    parts: [p("hüüu", "hüüd", "shout"), p("märk", "märk", "sign")],
+    literal: "shout sign", means: "an exclamation mark",
+    quip: "Every sale sign in town has at least one, and usually three.",
+  },
+  {
+    id: "sink-basin", word: "kraanikauss",
+    parts: [p("kraani", "kraan", "tap"), p("kauss", "kauss", "bowl")],
+    literal: "tap bowl", means: "a sink, washbasin",
+    quip: "The bowl that sits under the tap, named the way a plumber would name it.",
+  },
+  {
+    id: "peninsula", word: "poolsaar",
+    parts: [p("pool", "pool", "half"), p("saar", "saar", "island")],
+    literal: "half island", means: "a peninsula",
+    quip: "Latin said almost an island. Estonian settles for half.",
+  },
+  {
+    id: "bra", word: "rinnahoidja",
+    parts: [p("rinna", "rind", "chest"), p("hoidja", "hoidja", "holder")],
+    literal: "chest holder", means: "a bra",
+    quip: "Says what it does and leaves the French at home.",
+  },
+  {
+    id: "proverb", word: "vanasõna",
+    parts: [p("vana", "vana", "old"), p("sõna", "sõna", "word")],
+    literal: "old word", means: "a proverb",
+    quip: "Advice handed down because it kept turning out to be right.",
+  },
+  {
+    id: "easter", word: "lihavõtted",
+    parts: [p("liha", "liha", "meat"), p("võtted", "võte", "taking", "trick")],
+    literal: "meat takings", means: "Easter",
+    quip: "The usual explanation is that Lent ended and meat could be taken again.",
+  },
+  {
+    id: "skull", word: "pealuu",
+    parts: [p("pea", "pea", "head"), p("luu", "luu", "bone")],
+    literal: "head bone", means: "the skull",
+    quip: "As anatomy goes, it saves a great deal of Latin.",
+  },
+  {
+    id: "cotton", word: "puuvill",
+    parts: [p("puu", "puu", "tree"), p("vill", "vill", "wool")],
+    literal: "tree wool", means: "cotton",
+    quip: "German has the same name for it. Cotton grows on a bush, but both languages saw the fleece first.",
+  },
+  {
+    id: "greenhouse", word: "kasvuhoone",
+    parts: [p("kasvu", "kasv", "growth"), p("hoone", "hoone", "building")],
+    literal: "growth building", means: "a greenhouse",
+    quip: "Tomatoes do their growing in here while summer is making up its mind.",
+  },
+  {
+    id: "lecturer", word: "õppejõud",
+    parts: [p("õppe", "õpe", "study, learning"), p("jõud", "jõud", "strength, force")],
+    literal: "learning force", means: "a lecturer, professor",
+    quip: "The person powering a lecture hall, or trying to, at nine in the morning.",
+  },
+  {
+    id: "oil-shale", word: "põlevkivi",
+    parts: [p("põlev", "põlev", "burning"), p("kivi", "kivi", "stone")],
+    literal: "burning stone", means: "oil shale",
+    quip: "A rock that burns. Estonia has been digging it up for over a century.",
+  },
+  {
+    id: "nickname", word: "hüüdnimi",
+    parts: [p("hüüd", "hüüd", "shout, cry"), p("nimi", "nimi", "name")],
+    literal: "shout name", means: "a nickname",
+    quip: "The name people call across the playground.",
+  },
+  {
+    id: "deskmate", word: "pinginaaber",
+    parts: [p("pingi", "pink", "bench"), p("naaber", "naaber", "neighbour")],
+    literal: "bench neighbour", means: "a deskmate",
+    quip: "The person you share a school bench with, and on a lucky day their answers.",
+  },
+  {
+    id: "christmas-eve", word: "jõululaupäev",
+    parts: [p("jõulu", "jõulud", "Christmas"), p("laupäev", "laupäev", "Saturday")],
+    literal: "Christmas Saturday", means: "Christmas Eve",
+    quip: "It keeps the name even in years when it falls on a Wednesday.",
+  },
+  {
+    id: "revenge", word: "kättemaks",
+    parts: [p("kätte", "käsi", "into the hand"), p("maks", "maks", "payment, tax")],
+    literal: "into-hand payment", means: "revenge",
+    quip: "A debt settled by hand, and nobody ever asks for a receipt.",
+  },
+  {
+    id: "chapter", word: "peatükk",
+    parts: [p("pea", "pea", "head"), p("tükk", "tükk", "piece")],
+    literal: "head piece", means: "a chapter",
+    quip: "English chapter grew from a Latin word for a little head as well.",
+  },
+  {
+    id: "shelter", word: "varjupaik",
+    parts: [p("varju", "vari", "shadow"), p("paik", "paik", "place")],
+    literal: "shadow place", means: "a shelter, refuge",
+    quip: "Somewhere out of the sun, the rain, or trouble.",
+  },
+  {
+    id: "compound", word: "liitsõna",
+    parts: [p("liit", "liit", "union"), p("sõna", "sõna", "word")],
+    literal: "union word", means: "a compound",
+    quip: "Estonian makes them so freely that this very word is one.",
+  },
+  {
+    id: "pleasure", word: "heameel",
+    parts: [p("hea", "hea", "good"), p("meel", "meel", "mind, mood")],
+    literal: "good mind", means: "gladness, pleasure",
+    quip: "The good mood you say yes in, without asking what the favour is.",
+  },
+  {
+    id: "conspiracy", word: "vandenõu",
+    parts: [p("vande", "vanne", "oath"), p("nõu", "nõu", "advice, a plan")],
+    literal: "oath advice", means: "a conspiracy",
+    quip: "A plan sworn to in secret, which is the dangerous part.",
+  },
+  {
+    id: "extended-family", word: "suguvõsa",
+    parts: [p("sugu", "sugu", "kin, gender"), p("võsa", "võsa", "thicket")],
+    literal: "kin thicket", means: "the extended family",
+    quip: "English draws a family tree. Estonian lets the whole thing grow wild.",
+  },
+  {
+    id: "pollen", word: "õietolm",
+    parts: [p("õie", "õis", "blossom, flower"), p("tolm", "tolm", "dust")],
+    literal: "blossom dust", means: "pollen",
+    quip: "Every spring it coats the windowsills and sets half the country sneezing.",
+  },
+  {
+    id: "goal", word: "eesmärk",
+    parts: [p("ees", "ees", "in front of"), p("märk", "märk", "sign, mark")],
+    literal: "front mark", means: "a goal, aim",
+    quip: "It stays out in front however far you walk, which is what an aim is for.",
+  },
+  {
+    id: "standpoint", word: "vaatenurk",
+    parts: [p("vaate", "vaade", "view, look"), p("nurk", "nurk", "corner")],
+    literal: "view corner", means: "a standpoint, angle",
+    quip: "Stand in another one and the whole room looks different.",
+  },
+  {
+    id: "outlaw", word: "lindprii",
+    parts: [p("lind", "lind", "bird"), p("prii", "prii", "free")],
+    literal: "bird free", means: "an outlaw",
+    quip: "Free as a bird sounds lovely. Borrowed from German, it means nobody has to protect you.",
+  },
+  {
+    id: "mercury", word: "elavhõbe",
+    parts: [p("elav", "elav", "lively, living"), p("hõbe", "hõbe", "silver")],
+    literal: "living silver", means: "mercury",
+    quip: "English once said quicksilver, and quick meant alive back then.",
+  },
+  {
+    id: "july", word: "heinakuu",
+    parts: [p("heina", "hein", "hay"), p("kuu", "kuu", "month")],
+    literal: "hay month", means: "July",
+    quip: "From the folk calendar, when there was hay to make and no time to spare.",
+  },
+  {
+    id: "pin", word: "nööpnõel",
+    parts: [p("nööp", "nööp", "button"), p("nõel", "nõel", "needle")],
+    literal: "button needle", means: "a pin",
+    quip: "A needle that went to the trouble of growing a head.",
+  },
+  {
+    id: "horseshoe", word: "hobuseraud",
+    parts: [p("hobuse", "hobune", "horse"), p("raud", "raud", "iron")],
+    literal: "horse iron", means: "a horseshoe",
+    quip: "Hung over doors for luck across half of Europe.",
+  },
+  {
+    id: "beehive", word: "mesipuu",
+    parts: [p("mesi", "mesi", "honey"), p("puu", "puu", "tree")],
+    literal: "honey tree", means: "a beehive",
+    quip: "The first hives were hollow trees, and the name never moved out.",
+  },
+  {
+    id: "february", word: "küünlakuu",
+    parts: [p("küünla", "küünal", "candle"), p("kuu", "kuu", "month")],
+    literal: "candle month", means: "February",
+    quip: "A folk name for the month, since Candlemas falls early in it.",
+  },
+  {
+    id: "orca", word: "mõõkvaal",
+    parts: [p("mõõk", "mõõk", "sword"), p("vaal", "vaal", "whale")],
+    literal: "sword whale", means: "an orca",
+    quip: "That tall fin on its back does look like a blade.",
+  },
+  {
+    id: "special-day", word: "tähtpäev",
+    parts: [p("täht", "täht", "mark, fixed point", "letter"), p("päev", "päev", "day")],
+    literal: "marked day", means: "a special date, anniversary",
+    quip: "A birthday, an anniversary, a national holiday: the days it is unwise to forget.",
+  },
+  {
+    id: "amber", word: "merevaik",
+    parts: [p("mere", "meri", "sea"), p("vaik", "vaik", "resin")],
+    literal: "sea resin", means: "amber",
+    quip: "Resin from forests long gone. Now and then a fly is trapped inside.",
+  },
+  {
+    id: "namesake", word: "nimekaim",
+    parts: [p("nime", "nimi", "name"), p("kaim", "kaim", "relative")],
+    literal: "name relative", means: "a namesake",
+    quip: "Related by name only, the one relative who never asks you to help them move.",
+  },
+  {
+    id: "youngest-child", word: "pesamuna",
+    parts: [p("pesa", "pesa", "nest"), p("muna", "muna", "egg")],
+    literal: "nest egg", means: "the lastborn, youngest child",
+    quip: "English uses the same two words for savings. Here they mean the baby of the family.",
+  },
+  {
+    id: "crowbar", word: "sõrgkang",
+    parts: [p("sõrg", "sõrg", "cloven hoof"), p("kang", "kang", "bar")],
+    literal: "hoof bar", means: "a crowbar",
+    quip: "English named it after a crow instead, probably for the bent, beak-like end.",
+  },
+  {
+    id: "bumper", word: "põrkeraud",
+    parts: [p("põrke", "põrge", "bounce"), p("raud", "raud", "iron")],
+    literal: "bounce iron", means: "a bumper",
+    quip: "Optimistic about the metal: on a modern car it is mostly plastic.",
+  },
+  {
+    id: "thyme", word: "liivatee",
+    parts: [p("liiva", "liiv", "sand"), p("tee", "tee", "tea")],
+    literal: "sand tea", means: "wild thyme",
+    quip: "It grows on sandy ground and makes a fine herbal brew.",
+  },
+  {
+    id: "cap", word: "nokamüts",
+    parts: [p("noka", "nokk", "beak"), p("müts", "müts", "hat")],
+    literal: "beak hat", means: "a baseball cap",
+    quip: "Seen in profile, the peak sticks out like a bird's.",
+  },
+  {
+    id: "spinal-cord", word: "seljaaju",
+    parts: [p("selja", "selg", "back"), p("aju", "aju", "brain")],
+    literal: "back brain", means: "the spinal cord",
+    quip: "It handles your reflexes before your brain has even heard about it.",
+  },
+  {
+    id: "library", word: "raamatukogu",
+    parts: [p("raamatu", "raamat", "book"), p("kogu", "kogu", "the whole, a gathering")],
+    literal: "book gathering", means: "a library",
+    quip: "The second half also means the whole, so in principle every book. The shelves are working on it.",
+  },
+  {
+    id: "forget-me-not", word: "lõosilm",
+    parts: [p("lõo", "lõo", "lark"), p("silm", "silm", "eye")],
+    literal: "lark eye", means: "a forget-me-not",
+    quip: "The English name begs to be remembered. This one only notices the bright yellow eye in the middle.",
+  },
+  {
+    id: "pioneer", word: "teerajaja",
+    parts: [p("tee", "tee", "road"), p("rajaja", "rajaja", "founder")],
+    literal: "road founder", means: "a pioneer, trailblazer",
+    quip: "The second half clears a path or founds a town, and a pioneer does both.",
+  },
+  {
+    id: "department-store", word: "kaubamaja",
+    parts: [p("kauba", "kaup", "goods"), p("maja", "maja", "house")],
+    literal: "goods house", means: "a department store",
+    quip: "Everything in the house is for sale, apart from the house.",
+  },
+  {
+    id: "glowworm", word: "jaaniuss",
+    parts: [p("jaani", "jaan", "Midsummer"), p("uss", "uss", "worm")],
+    literal: "Midsummer worm", means: "a glowworm",
+    quip: "It is a beetle, not a worm, but the date is right: it glows in the warm nights around Midsummer.",
+  },
+  {
+    id: "crown", word: "pealagi",
+    parts: [p("pea", "pea", "head"), p("lagi", "lagi", "ceiling")],
+    literal: "head ceiling", means: "the crown (top of the skull)",
+    quip: "If your head has a ceiling, a hat is the roof over it.",
+  },
+  {
+    id: "infinitive", word: "tegevusnimi",
+    parts: [p("tegevus", "tegevus", "activity"), p("nimi", "nimi", "name")],
+    literal: "activity name", means: "the infinitive",
+    quip: "Latin named it the unbounded form, since it is tied to no person and no number.",
+  },
+  {
+    id: "hammock", word: "võrkkiik",
+    parts: [p("võrk", "võrk", "net"), p("kiik", "kiik", "swing")],
+    literal: "net swing", means: "a hammock",
+    quip: "Built for summer afternoons with nothing planned.",
+  },
+  {
+    id: "loofah", word: "käsnkõrvits",
+    parts: [p("käsn", "käsn", "sponge"), p("kõrvits", "kõrvits", "pumpkin")],
+    literal: "sponge pumpkin", means: "a loofah",
+    quip: "It grows on a vine as a gourd, dries out, and ends up scrubbing your back.",
+  },
+  {
+    id: "reindeer", word: "põhjapõder",
+    parts: [p("põhja", "põhi", "north"), p("põder", "põder", "elk, moose")],
+    literal: "north elk", means: "a reindeer",
+    quip: "The only deer whose females grow antlers too.",
+  },
+  {
+    id: "nacre", word: "pärlmutter",
+    parts: [p("pärl", "pärl", "pearl"), p("mutter", "mutter", "mother (the German word)", "nut")],
+    literal: "pearl mother", means: "nacre",
+    quip: "Borrowed whole from German. German calls a bolt's nut a mother too, which is how the hardware ended up with the same word.",
+  },
+  {
+    id: "pupil", word: "silmatera",
+    parts: [p("silma", "silm", "eye"), p("tera", "tera", "blade, grain")],
+    literal: "eye grain", means: "the pupil",
+    quip: "It also means the person you love most, and the English apple of the eye first meant the pupil too.",
+  },
+  {
+    id: "guesthouse", word: "võõrastemaja",
+    parts: [p("võõraste", "võõras", "the unfamiliar, strangers"), p("maja", "maja", "house")],
+    literal: "strangers' house", means: "a guesthouse, inn",
+    quip: "You check in a stranger and leave a guest.",
+  },
+  {
+    id: "kettle", word: "veekeetja",
+    parts: [p("vee", "vesi", "water"), p("keetja", "keetja", "boiler")],
+    literal: "water boiler", means: "a kettle",
+    quip: "Every office has one, and every office argues about who refills it.",
+  },
+  {
+    id: "rifle", word: "vintpüss",
+    parts: [p("vint", "vint", "screw, spiral", "finch"), p("püss", "püss", "gun")],
+    literal: "screw gun", means: "a rifle",
+    quip: "The screw is the spiral cut inside the barrel that spins the bullet. Russian named its rifle after the same screw.",
+  },
+  {
+    id: "burglar", word: "murdvaras",
+    parts: [p("murd", "murd", "breaking, fracture"), p("varas", "varas", "thief")],
+    literal: "break thief", means: "a burglar",
+    quip: "Breaking is the job description. Entering is implied.",
+  },
+  {
+    id: "gooseberry", word: "karusmari",
+    parts: [p("karus", "karus", "hair, pile"), p("mari", "mari", "berry")],
+    literal: "hair berry", means: "a gooseberry",
+    quip: "Gooseberry skins are faintly hairy, which is the likely reason for the name. Why English brought a goose into it has never been settled.",
+  },
+  {
+    id: "werewolf", word: "libahunt",
+    parts: [p("liba", "liba", "werewolf", "fake"), p("hunt", "hunt", "wolf")],
+    literal: "werewolf wolf", means: "a werewolf",
+    quip: "The first half alone already means a werewolf, so the wolf is said twice. Folklore agrees there is a person underneath.",
+  },
+  {
+    id: "allspice", word: "nelkpipar",
+    parts: [p("nelk", "nelk", "clove", "carnation"), p("pipar", "pipar", "pepper")],
+    literal: "clove pepper", means: "allspice, pimento",
+    quip: "German gave it the same name, and cloves are much of what it tastes of.",
+  },
+  {
+    id: "archer", word: "vibukütt",
+    parts: [p("vibu", "vibu", "bow"), p("kütt", "kütt", "hunter")],
+    literal: "bow hunter", means: "an archer",
+    quip: "Robin Hood, summed up.",
+  },
+  {
+    id: "aphid", word: "lehetäi",
+    parts: [p("lehe", "leht", "leaf"), p("täi", "täi", "louse")],
+    literal: "leaf louse", means: "an aphid",
+    quip: "One rosebush can host thousands of them by midsummer.",
+  },
+  {
+    id: "bookmark", word: "järjehoidja",
+    parts: [p("järje", "järg", "one's place in a row"), p("hoidja", "hoidja", "keeper")],
+    literal: "place keeper", means: "a bookmark",
+    quip: "It remembers where you stopped reading better than you do.",
   },
 ];
 
@@ -666,6 +1175,269 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   {
     id: "mood", word: "mood", looksLike: "mood", means: "fashion",
     quip: "The right coat can do wonders for your mood as well.",
+  },  {
+    id: "pink", word: "pink", looksLike: "pink", means: "bench",
+    quip: "Paint one rose-coloured and you've covered both meanings.",
+  },
+  {
+    id: "sai", word: "sai", looksLike: "sigh", means: "white bread",
+    quip: "Breathe out at a bakery counter and you've half ordered a loaf.",
+  },
+  {
+    id: "laud", word: "laud", looksLike: "laud", means: "table",
+    quip: "Set a good one for your guests and they will praise you to the skies.",
+  },
+  {
+    id: "king", word: "king", looksLike: "king", means: "shoe",
+    quip: "Cinderella lost one and became royalty.",
+  },
+  {
+    id: "lai", word: "lai", looksLike: "lie", means: "wide",
+    quip: "The fish that got away was always this wide, and the story that goes with it is usually a lie.",
+  },
+  {
+    id: "laps", word: "laps", looksLike: "laps", means: "child",
+    quip: "One will happily run them round the garden all afternoon.",
+  },
+  {
+    id: "lips", word: "lips", looksLike: "lips", means: "tie, necktie",
+    quip: "Worn a little lower down, from the collar to the belt.",
+  },
+  {
+    id: "rand", word: "rand", looksLike: "rand", means: "beach",
+    quip: "In South Africa it's money. Here it's sand and the Baltic.",
+  },
+  {
+    id: "hall", word: "hall", looksLike: "hall", means: "grey",
+    quip: "It is frost as well. An unheated hall in January manages both at once.",
+  },
+  {
+    id: "kuu", word: "kuu", looksLike: "coo", means: "moon, month",
+    quip: "Lovers coo under it about once a month, give or take.",
+  },
+  {
+    id: "see", word: "see", looksLike: "see", means: "this, it",
+    quip: "English see points with the eyes. This one points with a finger.",
+  },
+  {
+    id: "tort", word: "tort", looksLike: "tort", means: "layer cake",
+    quip: "Lawyers in Estonia have one at birthdays, like everybody else.",
+  },
+  {
+    id: "suu", word: "suu", looksLike: "sue", means: "mouth",
+    quip: "Open it carefully, before anybody decides to take you to court.",
+  },
+  {
+    id: "loss", word: "loss", looksLike: "loss", means: "castle",
+    quip: "Owning one would be anything but.",
+  },
+  {
+    id: "miks", word: "miks", looksLike: "mix", means: "why",
+    quip: "Jumble a sentence and this is what comes back from the front of the class.",
+  },
+  {
+    id: "tall", word: "tall", looksLike: "tall", means: "lamb",
+    quip: "The newest member of the flock, which is short by any measure.",
+  },
+  {
+    id: "rong", word: "rong", looksLike: "wrong", means: "train",
+    quip: "Get on the wrong one and you will have said both words before the next stop.",
+  },
+  {
+    id: "lukk", word: "lukk", looksLike: "look", means: "lock",
+    quip: "Locked out, you give it a very long look.",
+  },
+  {
+    id: "siis", word: "siis", looksLike: "cease", means: "then",
+    quip: "It never stops anything. It only leads on to what comes next.",
+  },
+  {
+    id: "lend", word: "lend", looksLike: "lend", means: "flight",
+    quip: "No airline will lend you one. It is paid for before you board.",
+  },
+  {
+    id: "pruun", word: "pruun", looksLike: "prune", means: "brown",
+    quip: "Dried plums are this colour, which helps it stick.",
+  },
+  {
+    id: "till", word: "till", looksLike: "till", means: "dill",
+    quip: "Till the garden in May and you'll have it on new potatoes by July.",
+  },
+  {
+    id: "nii", word: "nii", looksLike: "knee", means: "so, like this",
+    quip: "Show how a thing is done and say it. Kneeling is optional.",
+  },
+  {
+    id: "kallis", word: "kallis", looksLike: "callous", means: "dear, expensive",
+    quip: "The look-alike means unfeeling, the very last thing to call somebody you love.",
+  },
+  {
+    id: "mull", word: "mull", looksLike: "mull", means: "bubble",
+    quip: "Blow one and watch it think things over before it pops.",
+  },
+  {
+    id: "ammu", word: "ammu", looksLike: "ammo", means: "long ago",
+    quip: "Grandparents load their best stories with it.",
+  },
+  {
+    id: "kivi", word: "kivi", looksLike: "kiwi", means: "stone",
+    quip: "Bite into one and you'll soon find out it isn't fruit.",
+  },
+  {
+    id: "pull", word: "pull", looksLike: "pull", means: "bull",
+    quip: "Grab one by the horns and you'll be doing a lot of that too.",
+  },
+  {
+    id: "vali", word: "vali", looksLike: "valley", means: "loud",
+    quip: "Shout across one and the echo agrees with you.",
+  },
+  {
+    id: "mis", word: "mis", looksLike: "miss", means: "what",
+    quip: "Fail to catch a word and this is what you'll ask.",
+  },
+  {
+    id: "hull", word: "hull", looksLike: "hull", means: "crazy, mad",
+    quip: "Weeks at sea inside one can do that to a sailor.",
+  },
+  {
+    id: "tädi", word: "tädi", looksLike: "teddy", means: "aunt",
+    quip: "Some are as cuddly as the bear.",
+  },
+  {
+    id: "kauss", word: "kauss", looksLike: "cows", means: "bowl",
+    quip: "A farm would need an enormous one for the herd.",
+  },
+  {
+    id: "hell", word: "hell", looksLike: "hell", means: "gentle, tender",
+    quip: "Its look-alike is the hottest place going. This one is a soft touch.",
+  },
+  {
+    id: "luud", word: "luud", looksLike: "lewd", means: "broom",
+    quip: "The plural of bone looks identical. Sweep those up with this one.",
+  },
+  {
+    id: "hani", word: "hani", looksLike: "honey", means: "goose",
+    quip: "Geese are many things, but sweet is rarely one of them.",
+  },
+  {
+    id: "pant", word: "pant", looksLike: "pant", means: "pledge, deposit",
+    quip: "Lug the empties back to the shop and you'll pant, but you get it back.",
+  },
+  {
+    id: "mutt", word: "mutt", looksLike: "mutt", means: "mole",
+    quip: "Like a scruffy dog it digs up the lawn, but it never comes when called.",
+  },
+  {
+    id: "sool", word: "sool", looksLike: "soul", means: "salt",
+    quip: "Good for the soup and, some cooks swear, the soul.",
+  },
+  {
+    id: "vats", word: "vats", looksLike: "vats", means: "belly",
+    quip: "After a big dinner it can feel the size of a barrel.",
+  },
+  {
+    id: "laut", word: "laut", looksLike: "lout", means: "cowshed, barn",
+    quip: "The cows live in here, whatever their manners.",
+  },
+  {
+    id: "koi", word: "koi", looksLike: "koi", means: "clothes moth",
+    quip: "Keep your woollens well away from this one. The pond fish is harmless.",
+  },
+  {
+    id: "lint", word: "lint", looksLike: "lint", means: "ribbon, tape",
+    quip: "It ties up presents instead of clogging the dryer.",
+  },
+  {
+    id: "kruus", word: "kruus", looksLike: "cruise", means: "mug, gravel",
+    quip: "Gravel and a mug share the word. Only one of them is welcome on a cruise.",
+  },
+  {
+    id: "ämber", word: "ämber", looksLike: "amber", means: "bucket",
+    quip: "To step into a bucket is the Estonian way to blunder, much as English puts a foot in it. Amber only traps insects.",
+  },
+  {
+    id: "tint", word: "tint", looksLike: "tint", means: "smelt, ink",
+    quip: "The ink will tint anything it touches. The fish is silver, with fins.",
+  },
+  {
+    id: "peal", word: "peal", looksLike: "peal", means: "on top of",
+    quip: "Church bells ring from up there, which suits the look-alike.",
+  },
+  {
+    id: "jook", word: "jook", looksLike: "yoke", means: "drink",
+    quip: "Far lighter than what oxen wear, and better company once evening comes.",
+  },
+  {
+    id: "mutter", word: "mutter", looksLike: "mutter", means: "nut (for a bolt)",
+    quip: "Tighten it properly and nobody grumbles under their breath.",
+  },
+  {
+    id: "vann", word: "vann", looksLike: "van", means: "bath, bathtub",
+    quip: "Fit one inside a van and you'd have a camper.",
+  },
+  {
+    id: "keel", word: "keel", looksLike: "keel", means: "language, tongue",
+    quip: "The English one keeps a ship on course. This one keeps a conversation going.",
+  },
+  {
+    id: "part", word: "part", looksLike: "part", means: "duck",
+    quip: "Every pond has one or two playing their part.",
+  },
+  {
+    id: "male", word: "male", looksLike: "male", means: "chess",
+    quip: "Kings and queens both play, so the look-alike gets it only half right.",
+  },
+  {
+    id: "vein", word: "vein", looksLike: "vein", means: "wine",
+    quip: "Red runs through the English one too.",
+  },
+  {
+    id: "manner", word: "manner", looksLike: "manner", means: "continent",
+    quip: "Each has its own, as anybody who has crossed one will tell you.",
+  },
+  {
+    id: "menu", word: "menu", looksLike: "menu", means: "success",
+    quip: "Every chef hopes a good menu leads to one.",
+  },
+  {
+    id: "mall", word: "mall", looksLike: "mall", means: "a protractor, a pattern",
+    quip: "Found in pencil cases, not on the edge of town.",
+  },
+  {
+    id: "lame", word: "lame", looksLike: "lame", means: "flat",
+    quip: "A flat joke is a lame one in English too, so the two do meet.",
+  },
+  {
+    id: "auk", word: "auk", looksLike: "auk", means: "hole",
+    quip: "The great auk died out long ago and left one in the list of birds.",
+  },
+  {
+    id: "seller", word: "seller", looksLike: "seller", means: "celery",
+    quip: "Ask the greengrocer for some and you are talking to a seller of seller.",
+  },
+  {
+    id: "soon", word: "soon", looksLike: "soon", means: "vein",
+    quip: "A nurse will find one, sooner or later.",
+  },
+  {
+    id: "last", word: "last", looksLike: "last", means: "cargo",
+    quip: "The last thing a ship wants is to lose it overboard.",
+  },
+  {
+    id: "keep", word: "keep", looksLike: "keep", means: "cloak",
+    quip: "A good one keeps the rain off.",
+  },
+  {
+    id: "pale", word: "pale", looksLike: "pale", means: "cheek",
+    quip: "Turn pale and it shows there first.",
+  },
+  {
+    id: "purse", word: "purse", looksLike: "purse", means: "outburst",
+    quip: "Lose your purse and you may well have one.",
+  },
+  {
+    id: "maks", word: "maks", looksLike: "max", means: "tax, liver",
+    quip: "Neither the tax nor the liver enjoys being squeezed to the max.",
   },
 ];
 
@@ -736,7 +1508,7 @@ function meansWhatIsShown(means: string, gloss: string | null | undefined): bool
 }
 
 /** The spellings American and British English disagree on, folded so two glosses can be compared. */
-const SPELLING: Readonly<Record<string, string>> = { grey: "gray", racoon: "raccoon", colour: "color", favourite: "favorite" };
+const SPELLING: Readonly<Record<string, string>> = { grey: "gray", racoon: "raccoon", neighbour: "neighbor", colour: "color", favourite: "favorite" };
 const FILLER = new Set(["a", "an", "the", "of", "or", "and", "any", "one", "who", "that", "it", "is", "to", "in", "on", "for", "with", "somebody"]);
 
 /** The words of a line of English that carry meaning, lower case and folded. */
