@@ -14962,6 +14962,10 @@ check("the game of the day comes from the one table of them", () => {
     page, /<SonadPreview /,
     "the game of the day is Sõnad and it is drawn with its example board, which is what makes it worth pressing",
   );
+  assert.match(
+    page, /<TahedPreview /,
+    "the stand-in for a beginner's mornings is Tähed and it is drawn with its example round, like Sõnad",
+  );
 
   const table = code("lib/ux/weekGames.ts");
   assert.doesNotMatch(

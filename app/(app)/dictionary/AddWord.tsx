@@ -86,12 +86,29 @@ export interface WordDraft {
  * Editing matters as much as adding: the built-in dictionary is hand-written and
  * will contain mistakes, and a wrong form that cannot be fixed gets drilled.
  */
-export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; edit?: WordDraft }) {
+export function AddWord({ initialLemma = "", initialTranslation = "", startOpen, edit }: {
+  initialLemma?: string;
+  /**
+   * The meaning, where what was searched for was English. A learner who typed
+   * `championship` was asking for the Estonian, so the form files their word
+   * as the meaning and leaves the headword for them, rather than recording an
+   * English word as an Estonian one.
+   */
+  initialTranslation?: string;
+  /**
+   * Whether the form opens straight away. It does on a search that found
+   * nothing at all, and it does not where the dictionary has offered words
+   * close to it: a form for adding a word the app may already have is the
+   * last thing to put in front of somebody, not the first.
+   */
+  startOpen?: boolean;
+  edit?: WordDraft;
+}) {
   const t = useT();
-  const [open, setOpen] = useState(Boolean(initialLemma));
+  const [open, setOpen] = useState(startOpen ?? Boolean(initialLemma || initialTranslation));
   const [pos, setPos] = useState(edit?.pos ?? "NOUN");
   const [lemma, setLemma] = useState(edit?.lemma ?? initialLemma);
-  const [translation, setTranslation] = useState(edit?.translation ?? "");
+  const [translation, setTranslation] = useState(edit?.translation ?? initialTranslation);
   const [cefr, setCefr] = useState(edit?.cefr ?? "");
   const [government, setGovernment] = useState(edit?.government ?? "");
   const [forms, setForms] = useState<Record<string, string>>(

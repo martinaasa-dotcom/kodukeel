@@ -636,7 +636,7 @@ export function QuestSession({
                 <div className="mt-2 flex w-full max-w-sm flex-col gap-3">
                   <p
                     role="status"
-                    className={`${check.verdict === "correct" ? "pop-in" : "shake"} ${VERDICT_CLASS[verdictOfCheck(check.verdict)]} verdict-panel`}
+                    className={`${check.verdict === "correct" ? "pop-in" : "shake"} ${VERDICT_CLASS[verdictOfCheck(check)]} verdict-panel`}
                   >
                     {check.verdict === "correct" ? t("Right.") : answerNote(check.note, locale) || fill(t("It's {answer}."), { answer: primaryAnswer(card.back) })}
                   </p>

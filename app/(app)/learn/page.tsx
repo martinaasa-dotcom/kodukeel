@@ -18,6 +18,7 @@ import { learnerModuleScope } from "@/lib/progress/moduleScope";
 import { programmeFor } from "@/lib/progress/course";
 import { LEARN_BATCH } from "@/lib/learn/ladder";
 import { Explain } from "@/components/Explain";
+import { splitIntoLessons } from "@/lib/collections/lesson";
 
 export async function generateMetadata() {
   return { title: tr(await localeFor(await requireUserId()), "Learn") };
@@ -66,7 +67,20 @@ export default async function LearnPage() {
 
   const doneIds = new Set(units.filter((u) => u.state === "done").map((u) => u.unit.id));
   const startedIds = new Set(units.filter((u) => u.state === "learning").map((u) => u.unit.id));
-  const next = nextUnit({ doneUnitIds: doneIds, startedUnitIds: startedIds, placement });
+  /*
+    A unit every word of which has been through a lesson is not finished, since
+    "known" waits on the scheduler, and it is not something to continue either:
+    the button would open the lesson just done. It reads "done for now" and the
+    course moves on to the next unit.
+  */
+  const restingIds = new Set(units.filter((u) => u.through).map((u) => u.unit.id));
+  const next = nextUnit({ doneUnitIds: doneIds, startedUnitIds: startedIds, restingUnitIds: restingIds, placement });
+  /* The first lesson of a unit with a word nobody has asked about yet, so a
+     unit of several lessons carries on rather than reopening the first. */
+  const lessonFor = (u: (typeof units)[number]) => {
+    const at = splitIntoLessons(u.lemmas).findIndex((words) => words.some((l) => !snapshot.seenLemmas.has(l)));
+    return at < 1 ? "" : `?part=${at + 1}`;
+  };
 
   const countWords = (rows: typeof units) => courseWordCount(rows, snapshot.knownLemmas);
 
@@ -187,6 +201,11 @@ export default async function LearnPage() {
                             {t(u.unit.canDo)}
                           </span>
                         )}
+                        {u.through && !complete && (
+                          <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
+                            {t("Done for now. The words come back in Practice.")}
+                          </span>
+                        )}
                         {/* Under the name in a narrow row, beside it in a wide
                             one: beside it at 320 left "sustainability" a box
                             too narrow for the word. */}
@@ -205,7 +224,7 @@ export default async function LearnPage() {
                     {isNext && (
                       <span className="w-full @md:w-auto">
                         <ButtonLink
-                          href={u.available > 0 ? `/learn/${u.unit.id}/lesson` : `/learn/${u.unit.id}`}
+                          href={u.available > 0 ? `/learn/${u.unit.id}/lesson${lessonFor(u)}` : `/learn/${u.unit.id}`}
                           variant="primary"
                           size="sm"
                           className="w-full justify-center @md:w-32"

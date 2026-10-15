@@ -68,32 +68,3 @@ export function soundKey(word: string): string {
   }
   return out;
 }
-
-/**
- * The words that could be what somebody heard, from a list of lemmas.
- *
- * Ordered by lemma and capped, because the caller prints them: an order that
- * comes out of a `Set`'s insertion is a fact about the query that filled it,
- * and two identical searches showing different suggestions is the fault this
- * repository has a rule about one layer up.
- *
- * The query itself is never offered back: a word that matched exactly did not
- * reach this path, so a lemma equal to the query is a duplicate of a search
- * that already failed.
- */
-export function soundAlike(
-  query: string,
-  lemmas: Iterable<string>,
-  limit = 6,
-): string[] {
-  const key = soundKey(query);
-  if (key.length < 2) return [];
-  const wanted = query.trim().toLocaleLowerCase("et");
-
-  const hits: string[] = [];
-  for (const lemma of lemmas) {
-    if (lemma.toLocaleLowerCase("et") === wanted) continue;
-    if (soundKey(lemma) === key) hits.push(lemma);
-  }
-  return hits.sort((a, b) => a.localeCompare(b, "et")).slice(0, limit);
-}

@@ -34,10 +34,15 @@ export function inEditable(target: object | null): boolean {
   return typeof el.tagName === "string" && EDITABLE.has(el.tagName);
 }
 
-/** Enter anywhere, or Space outside a text box: the key that moves forward. */
-export function isAdvanceKey(e: KeyLike): boolean {
+/**
+ * Enter anywhere, or Space outside a text box: the key that moves forward.
+ *
+ * `spacePlays` is for a screen whose audio answers Space (the cap beside the
+ * speaker says so), where only Enter moves on.
+ */
+export function isAdvanceKey(e: KeyLike, spacePlays = false): boolean {
   if (e.key === "Enter") return true;
-  if (e.key === " ") return !inEditable(e.target);
+  if (e.key === " ") return !spacePlays && !inEditable(e.target);
   return false;
 }
 

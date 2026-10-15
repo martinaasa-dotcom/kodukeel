@@ -3482,3 +3482,35 @@ persona in a conversation is introduced with a line of its own rather than a des
 for the model. Forty-five authored sentences at A1 and A2 swapped a flat example for a small
 story, still built only from words taught by that evening. And a review with nothing due says
 the cards are having a rest.
+
+## 60. The fifty-fourth pass: a search that misses says what you probably meant
+
+A learner answered Today's question about yesterday, typed `championship` into "Was there a word
+you wanted and couldn't find?", and the dictionary said nothing was found and opened a form for
+adding the word. Searching `meistrivõistlus` a minute later found `meistrivõistlused`, glossed
+"championships". Two faults: an English word the dictionary holds no gloss for had no route to
+Ekilex at all, and every miss led with the add form, so the app asked somebody to do its job.
+
+**A miss is answered with what is close** (`lib/dict/nearby.ts`), over the entries the facts cache
+already holds, so no query: the English in another shape or with a slip in a long word
+(`lib/dict/english.ts`), the Estonian a letter or two off, scaled to its length, written the way
+it sounds, which leads (`pois` offers `poiss` before `õis`), or a compound whose last part the
+dictionary has. Once the English matches, nothing else is offered: `houses` was a letter from
+"mouse" and "louse". Every suggestion carries its own English and the reason it is there. The add
+form waits closed behind "None of these?", and the old sound-alike row is gone since this
+subsumes it.
+
+**An English word the dictionary lacks is asked of Wiktionary's translation table**
+(`lib/dict/englishToEstonian.ts`), the same CC BY-SA source the glosses already come from. It
+proposes and the forms list decides, ADR-021's rule: only a spelling Ekilex holds as a headword is
+offered, nothing is stored, and pressing it is an ordinary search that fetches the entry. One
+page per word, two when the table is on a subpage, held a day, behind a 2.5 second deadline, and
+only where Ekilex is configured. `/privacy` and `docs/26-subprocessors.md` name it.
+
+**And a plural gloss is a hit, not a suggestion.** The search reads the English shapes too, so
+`championships` finds a gloss reading "championship" and `running` finds "to run". A gloss that is
+the shape alone outranks one that leads with it, so `houses` opens `maja` before `elamu`.
+
+What it cannot do yet is correct a misspelled English word the dictionary holds no gloss for:
+Wiktionary has no page for `chamiponship`, and its search API's spelling suggestion could not be
+checked against a live answer from the build machine.

@@ -1024,6 +1024,12 @@ export interface LineMark {
   reached: string | null;
   /** What to say, as a key and its values, so a screen can say it in the reader's language. */
   note: LineNote;
+  /**
+   * A miss within reach: the right word in another form, or most of the
+   * letters there (`nearMiss`). Painted nearly rather than as a blank; the
+   * outcome and the grade are untouched.
+   */
+  close?: boolean;
 }
 
 export type LineNote =
@@ -1071,7 +1077,7 @@ export function markLine(item: SheetItem, typed: string): LineMark {
   */
   const copied = tidyForm(written) === tidyForm(item.cue);
   if (copied && !accepted.some((a) => tidyForm(a) === tidyForm(written))) {
-    return { right: false, slip: false, reached: null, note: { kind: "unchanged" } };
+    return { right: false, slip: false, reached: null, note: { kind: "unchanged" }, close: true };
   }
   const mark: FlashMark = markForm({ accepted, slot: item.slot, label: item.slot, index: item.index }, written);
   if (mark.right) {
@@ -1086,7 +1092,7 @@ export function markLine(item: SheetItem, typed: string): LineMark {
   if (got && got !== item.slot) {
     const gotCase = caseByKey(got);
     if (gotCase && item.caseKey) {
-      return { right: false, slip: false, reached: got, note: { kind: "otherCase", got: gotCase.key, wanted: item.caseKey } };
+      return { right: false, slip: false, reached: got, note: { kind: "otherCase", got: gotCase.key, wanted: item.caseKey }, close: true };
     }
     const gotVerb = verbSlot(got);
     if (gotVerb && item.tense && item.person) {
@@ -1095,6 +1101,7 @@ export function markLine(item: SheetItem, typed: string): LineMark {
         note: gotVerb.tense === item.tense
           ? { kind: "otherPerson", got: gotVerb.person, wanted: item.person }
           : { kind: "otherTense", got: gotVerb.tense, wanted: item.tense },
+        close: true,
       };
     }
   }
@@ -1105,7 +1112,7 @@ export function markLine(item: SheetItem, typed: string): LineMark {
     printed under the box is the second go answered for the learner. The
     answer is shown once the second pass is over, by the screen.
   */
-  return { right: false, slip: false, reached: null, note: { kind: "wrong" } };
+  return { right: false, slip: false, reached: null, note: { kind: "wrong" }, close: mark.close ?? false };
 }
 
 /**

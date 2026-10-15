@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { soundAlike, soundKey } from "./sounds";
+import { soundKey } from "./sounds";
 
 describe("soundKey", () => {
   /*
@@ -50,31 +50,5 @@ describe("soundKey", () => {
   it("folds a word's own length alternation together", () => {
     expect(soundKey("tuba")).toBe(soundKey("tuppa"));
     expect(soundKey("linna")).toBe(soundKey("lina"));
-  });
-});
-
-describe("soundAlike", () => {
-  const lemmas = ["poiss", "pois", "padi", "pati", "õun", "maja", "kohv"];
-
-  it("offers what the learner could have meant", () => {
-    expect(soundAlike("pois", lemmas)).toEqual(["poiss"]);
-    expect(soundAlike("pady", lemmas)).toEqual([]);
-    expect(soundAlike("padi", lemmas)).toEqual(["pati"]);
-  });
-
-  it("never offers back the word that was searched for", () => {
-    expect(soundAlike("õun", lemmas)).toEqual([]);
-    expect(soundAlike("oun", lemmas)).toEqual(["õun"]);
-  });
-
-  it("answers in the same order however the lemmas arrive", () => {
-    const a = soundAlike("padi", [...lemmas]);
-    const b = soundAlike("padi", [...lemmas].reverse());
-    expect(a).toEqual(b);
-  });
-
-  it("says nothing about a query too short to be a word", () => {
-    expect(soundAlike("a", lemmas)).toEqual([]);
-    expect(soundAlike("", lemmas)).toEqual([]);
   });
 });

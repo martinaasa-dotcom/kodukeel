@@ -224,8 +224,8 @@ export const TODAY: Area = {
     "Кроссворд для субботы, когда есть свободное время.",
   "A quiet round on the words you've met, typed from their meaning.":
     "Спокойный раунд на знакомые слова: вы печатаете их по значению.",
-  "Unscramble a word you've met. Every letter has its place.":
-    "Соберите знакомое слово из букв. У каждой буквы своё место.",
+  "Unscramble a word you've met.":
+    "Соберите знакомое слово из букв.",
   "Midweek, train your ear: hear a word and pick what it means.":
     "Середина недели, тренируем слух: послушайте слово и выберите, что оно значит.",
   "It's Friday: say this week's words out loud, then hear them said.":
@@ -974,6 +974,10 @@ export const TODAY: Area = {
     "около {minutes}",
   "Play a word game":
     "Сыграйте в словесную игру",
+  "An example round: the word for sun, two letters in place and three still to put in order.":
+    "Пример раунда: слово «солнце», две буквы уже на месте, три ещё нужно расставить.",
+  "sun":
+    "солнце",
   "An example board: three guesses, each circle marked {here}, {elsewhere} or {absent}.":
     "Пример поля: три попытки, у каждого кружка пометка: {here}, {elsewhere} или {absent}.",
   "Play {e1}":
@@ -1238,8 +1242,8 @@ export const TODAY: Area = {
     "Кросворд для суботи, коли є вільний час.",
   "A quiet round on the words you've met, typed from their meaning.":
     "Спокійний раунд на знайомі слова: ви друкуєте їх за значенням.",
-  "Unscramble a word you've met. Every letter has its place.":
-    "Складіть знайоме слово з літер. Кожна літера має своє місце.",
+  "Unscramble a word you've met.":
+    "Складіть знайоме слово з літер.",
   "Midweek, train your ear: hear a word and pick what it means.":
     "Середина тижня, тренуємо слух: послухайте слово й виберіть, що воно означає.",
   "It's Friday: say this week's words out loud, then hear them said.":
@@ -1992,6 +1996,10 @@ export const TODAY: Area = {
     "близько {minutes}",
   "Play a word game":
     "Зіграйте в словесну гру",
+  "An example round: the word for sun, two letters in place and three still to put in order.":
+    "Приклад раунду: слово «сонце», дві літери вже на місці, три ще треба розставити.",
+  "sun":
+    "сонце",
   "An example board: three guesses, each circle marked {here}, {elsewhere} or {absent}.":
     "Приклад поля: три спроби, кожен кружок позначено: {here}, {elsewhere} або {absent}.",
   "Play {e1}":

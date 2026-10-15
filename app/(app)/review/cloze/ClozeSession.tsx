@@ -15,6 +15,7 @@ import {
   BLANK, MAX_PASSAGE_CHARS, type ClozeItem, isClozeCorrect, isDiacriticSlip,
 } from "@/lib/estonian/passage";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
+import { nearMiss } from "@/lib/estonian/answer";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { WayOut } from "@/components/round/RoundExit";
 import { RoundProgress } from "@/components/round/RoundProgress";
@@ -219,8 +220,9 @@ export function ClozeSession() {
   const right = isClozeCorrect(attempt, item.answer);
   const slip = isDiacriticSlip(attempt, item.answer);
   // The same three the grade above sends: a slip is graded Hard and painted
-  // nearly, rather than the peach a blank gets.
-  const verdict = right ? "right" : slip ? "nearly" : "wrong";
+  // nearly, rather than the blush a blank gets. A miss most of the way there
+  // is painted nearly too (`nearMiss`), though it is still graded Again.
+  const verdict = right ? "right" : slip || nearMiss(attempt, item.answer) ? "nearly" : "wrong";
   const [before = "", after = ""] = item.masked.split(BLANK.trim());
 
   return (

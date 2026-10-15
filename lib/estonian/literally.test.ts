@@ -57,11 +57,13 @@ function words(text: string): string[] {
   cold, a bat from a mouse, a kindergarten from children and a garden, a
   pronoun from "instead", an ambulance from quick help, a railway from
   an iron road, a dictionary from words, a rhinoceros from a nose
-  and a horn, a vacuum cleaner from dust and sucking. Recognising
-  it is the fun, there is no other honest reading, and the line says so where
-  it is the joke.
+  and a horn, a vacuum cleaner from dust and sucking, pollen from dust,
+  the spinal cord from the back and the brain, a reindeer from the north,
+  allspice from pepper, and a rifle from the screw cut inside its barrel,
+  which the rifle's own line says out loud. Recognising it is the fun, there
+  is no other honest reading, and the line says so where it is the joke.
 */
-const SAME_IMAGE_BOTH = ["külmkapp", "uksekell", "liivakell", "silmamuna", "nahkhiir", "raamatukoi", "lasteaed", "käekell", "tolmuimeja", "kiirabi", "raudtee"];
+const SAME_IMAGE_BOTH = ["külmkapp", "uksekell", "liivakell", "silmamuna", "nahkhiir", "raamatukoi", "lasteaed", "käekell", "tolmuimeja", "kiirabi", "raudtee", "õietolm", "seljaaju", "põhjapõder", "nelkpipar", "vintpüss"];
 const SAME_IMAGE: Record<"ru" | "uk", ReadonlySet<string>> = {
   ru: new Set([...SAME_IMAGE_BOTH, "asesõna", "sõnaraamat", "ninasarvik"]),
   uk: new Set([...SAME_IMAGE_BOTH, "ööliblikas", "lumememm", "linnapea", "sõnaraamat", "ninasarvik"]),
@@ -129,7 +131,7 @@ describe("compounds", () => {
     compared rather than the spelling, since a case ending is not a new word.
   */
   it("never carries the meaning's own word in its reading in Russian or Ukrainian either", () => {
-    const meant = new Set(["üleeile", "ülehomme", "tulekahju", "kõhutuul", "merisiga"]);
+    const meant = new Set(["üleeile", "ülehomme", "tulekahju", "kõhutuul", "merisiga", "jõululaupäev", "libahunt"]);
     // SAME_IMAGE is the words both languages build from the very picture
     // Estonian does, where there is no other honest reading.
     for (const locale of ["ru", "uk"] as const) {
@@ -150,12 +152,14 @@ describe("compounds", () => {
   /*
     The round asks what a word really means right under its word-for-word
     reading, so a reading carrying the answer's own word is a question with
-    the answer printed above it. These five are the exception and each is the
+    the answer printed above it. These seven are the exception and each is the
     joke itself: the brevity of the two days, the fire named after its bill,
-    the wind both languages call wind, and the pig English also gets wrong.
+    the wind both languages call wind, the pig English also gets wrong, the
+    Christmas Eve that is called a Saturday whatever day it falls on, and the
+    werewolf whose first half is already a werewolf.
   */
-  it("never carries the meaning's own word in its reading, but for the five where that is the joke", () => {
-    const meant = new Set(["üleeile", "ülehomme", "tulekahju", "kõhutuul", "merisiga"]);
+  it("never carries the meaning's own word in its reading, but for the seven where that is the joke", () => {
+    const meant = new Set(["üleeile", "ülehomme", "tulekahju", "kõhutuul", "merisiga", "jõululaupäev", "libahunt"]);
     const sharing = COMPOUNDS.filter((c) => sharesAWord(c.literal, c.means)).map((c) => c.word);
     expect(sharing.filter((w) => !meant.has(w))).toEqual([]);
     expect([...meant].filter((w) => !sharing.includes(w))).toEqual([]);

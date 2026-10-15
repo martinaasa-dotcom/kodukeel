@@ -1,5 +1,7 @@
 import { launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
+import { newPrismaClient } from "./lib/db.mjs";
+import { requireLocalDatabase } from "./lib/local-db.mjs";
 
 /**
  * The level check and the onboarding it sits inside.
@@ -16,12 +18,22 @@ import { baseUrl, suite } from "./lib/checks.mjs";
  * how few questions it came from.
  */
 const B = baseUrl();
-// Floor: 52, measured in the state CI seeds, with first run not yet done.
+// Floor: 54, measured in the state CI seeds, with first run not yet done.
 /*
   Raised by one: first run now asks what language a meaning should be given in,
   on the screen before any Estonian is shown.
 */
-const { check, absent, done } = suite("Level check", { floor: 53 });
+const { check, absent, done } = suite("Level check", { floor: 55 });
+
+/*
+  The sittings already stored, counted before this run sits one. "It comes back"
+  read off the hub cannot tell this run's row from a row an earlier run left, so
+  on any database that had been used before it passed with the save still in
+  flight, and only CI's fresh database ever saw the race. A count is falsifiable
+  wherever the suite runs.
+*/
+const prisma = newPrismaClient(requireLocalDatabase("count the level checks this suite stores"));
+const sittingsBefore = await prisma.assessment.count();
 
 const browser = await launchChromium();
 const context = await browser.newContext({ viewport: { width: 1280, height: 1100 } });
@@ -220,6 +232,18 @@ check("the writing section is a gap in a real sentence, not an essay prompt", sa
 
 await page.waitForTimeout(600);
 check("it ends on a result", (await page.getByText("Skill by skill").count()) > 0);
+/*
+  The result is drawn before the save lands, because the server marks the paper
+  again to store it and that takes as long as it takes. A fixed wait here raced
+  it: on a slow runner the hub below was opened with the save still in flight
+  and read as nothing stored. The screen says when it is saving, so wait on that,
+  with a budget, and say how long it took if it never finishes.
+*/
+const saveStarted = Date.now();
+const settled = await page.locator("[data-saving]").waitFor({ state: "detached", timeout: 20_000 })
+  .then(() => true, () => false);
+check("the result finishes saving before anything reads it", settled,
+  settled ? `${Date.now() - saveStarted}ms` : "still saving after 20s");
 check("the result says how few questions it came from",
   // Matched to the end of the count rather than to a full stop: the sentence
   // now carries on to say how many of those questions were at the levels the
@@ -233,6 +257,8 @@ check("it keeps speaking out of the level",
 // ─── It was kept, and it drives the plan ──────────────────────────────────────
 
 await page.goto(`${B}/assess`, { waitUntil: "networkidle" });
+const sittingsAfter = await prisma.assessment.count();
+check("the sitting was stored, once", sittingsAfter === sittingsBefore + 1, `${sittingsBefore} before, ${sittingsAfter} after`);
 check("the result was stored and comes back", (await page.getByText("Skill by skill").count()) > 0);
 check("the hub offers the check again", (await page.getByText(/Take it again/i).count()) > 0);
 check("the plan is on the same screen as the level",
@@ -312,16 +338,20 @@ if (onboarded) {
     calls between here and the end of the else below.
   */
   /*
-    24 is the checks inside the `else` branch below, minus the one this branch
+    27 is the checks inside the `else` branch below, minus the one this branch
     runs in their place. It was 18, which is the figure from before #58 rewrote
     the deck step: that turned two checks into nine inside that branch and took
     it from 17 to 25, and the waiver was never recounted. The floor read 52 and
     a waived run reached 28, so the suite failed reporting a block having
     stopped running when nothing had. Recount it whenever the branch changes:
-    the else branch holds 27 and this one holds 1, so the gap is 26. (It held
-    26 until TB-17 asked whether the unit list is still one press away.)
+    the else branch holds 29 and this one holds 1, so the gap is 28 and the
+    floor is the 26 outside both plus the 29 inside. It said 25 for a while
+    against a gap of 26, so a waived run fell one short of its own floor on
+    every machine with a deck, which is exactly where this branch is taken.
+    (It held 28 until TB-17 asked whether the unit list is still one press
+    away.)
   */
-  absent(26, "a learner who has not been through first run: this database has a deck, " +
+  absent(28, "a learner who has not been through first run: this database has a deck, " +
     "so /start correctly redirects. CI runs this suite before the demo fixture");
   /*
     A learner who has already been through it is sent to Today, which is the
@@ -486,4 +516,5 @@ console.log("");
 check("no page error anywhere in the flow", errors.length === 0, errors.slice(0, 2).join(" | "));
 
 await browser.close();
+await prisma.$disconnect();
 done();
