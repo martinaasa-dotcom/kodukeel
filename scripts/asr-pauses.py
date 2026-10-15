@@ -19,6 +19,10 @@ What is tried on them:
   as said      the recording, 0.5 s of silence before it
   squeezed     every pause longer than `GAP` cut down to `KEEP`, measured
                against the clip's own loudest frame, nothing inside a word touched
+  no ee        squeezed, and every stretch between two pauses that the model
+               hears on its own as nothing but a hesitation taken out first
+  and every transcript is read again with the hesitation marks taken out
+  (`clean`): the model writes an `ee` down as `e`, `e-` or glued to a word
   continuous   the same sentences said normally, as the floor to aim at
 
 Local only; every clip is a synthetic native voice.
@@ -26,6 +30,7 @@ Local only; every clip is a synthetic native voice.
 import importlib.util
 import json
 import os
+import re
 import sys
 
 import numpy as np
@@ -82,6 +87,51 @@ def squeeze(a, keep=KEEP, gap=GAP, db=QUIET_DB):
     return np.concatenate(out).astype(np.float32)
 
 
+FILLER = re.compile(r"^(e+|ö+|õ+|m+|hm+|ah+|eh+|äh+)$")
+
+
+def clean(text):
+    """A transcript without the hesitations the model wrote down: `e`, `ee`, `öö`, and `e-` before a word."""
+    text = re.sub(r"(?i)\be-+\s*", " ", text)
+    return " ".join(w for w in text.split() if not FILLER.match(re.sub(r"[^\wõäöü]", "", w.lower())))
+
+
+def islands(a, gap=GAP, db=QUIET_DB):
+    """The stretches of sound between pauses, as (start, end) sample offsets."""
+    level, frame = energy(a)
+    quiet = level < db
+    out, start, run = [], None, 0
+    for k, q in enumerate(quiet):
+        if not q:
+            if start is None:
+                start = k
+            run = 0
+        elif start is not None:
+            run += 1
+            if run * frame >= gap * RATE:
+                out.append((start * frame, (k - run + 1) * frame))
+                start, run = None, 0
+    if start is not None:
+        out.append((start * frame, len(a)))
+    return out
+
+
+def without_hesitations(a, z, keep=KEEP):
+    """Hear each stretch alone; drop the ones that are only a hesitation; join the rest with short pauses."""
+    kept = []
+    for s, e in islands(a):
+        piece = a[max(0, s - RATE // 20): min(len(a), e + RATE // 20)]
+        if clean(z.hear(piece, lead=0.3)["text"]):
+            kept.append(piece)
+    if not kept:
+        return a
+    gap = np.zeros(int(RATE * keep), dtype=np.float32)
+    out = []
+    for k, piece in enumerate(kept):
+        out += [piece] + ([gap] if k < len(kept) - 1 else [])
+    return np.concatenate(out)
+
+
 def build():
     rng = np.random.default_rng(39)
     sentences = X.base_sentences()
@@ -133,6 +183,11 @@ def run():
                     if model not in models:
                         models[model] = X.Zipformer(mid)
                     heard[key] = models[model].hear(fn(X.load(r["file"])), lead=0.5)["text"]
+            key = f"{model}|no ee|{r['file']}"
+            if key not in heard:
+                if model not in models:
+                    models[model] = X.Zipformer(mid)
+                heard[key] = models[model].hear(without_hesitations(X.load(r["file"]), models[model]), lead=0.5)["text"]
             key = f"{model}|continuous|{r['continuous']}"
             if key not in heard:
                 if model not in models:
@@ -151,9 +206,10 @@ def report():
         cont = [(r["text"], heard[f"{model}|continuous|{r['continuous']}"]) for r in rows if r["set"] == "plain"]
         print(f"{model:6} said normally                      {X.wer(cont):5.1f}%")
         for s in ("plain", "ee"):
-            for name in VARIANTS:
+            for name in list(VARIANTS) + ["no ee"]:
                 pairs = [(r["text"], heard[f"{model}|{name}|{r['file']}"]) for r in rows if r["set"] == s]
-                print(f"{model:6} word by word{', with ee' if s == 'ee' else '         '} {name:12} {X.wer(pairs):5.1f}%")
+                print(f"{model:6} word by word{', with ee' if s == 'ee' else '         '} {name:12} {X.wer(pairs):5.1f}%"
+                      f"   cleaned {X.wer([(a, clean(b)) for a, b in pairs]):5.1f}%")
         print()
 
 
