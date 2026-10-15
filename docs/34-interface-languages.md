@@ -219,3 +219,22 @@ Both languages were translated with AI, and nobody who speaks either as a first 
 them yet. Settings says so beside the choice, in the language itself and in English, and the app
 says it once when the language is first chosen. `REVIEWED` in `lib/copy/locale.ts` turns that off
 for a language, and is set only in a commit naming the person who read it.
+
+### Reading only what changed since a release
+
+A reviewer who has read a language once should not have to read ten thousand lines again for twenty
+new ones. `npx tsx scripts/export-translations.ts --since <git ref> --out <directory>` writes, one file
+per language, only the lines that are new or have a different translation since that ref, in the same
+shape as `docs/translations/` and grouped by area. Use the tag or commit of the last release the
+reviewer read. A line whose English changed has a new key and appears as new, which it is. A ref from
+before the generated tables existed lists every line and says so. Without `--since` the script writes
+the full files, exactly as before.
+
+Corrections come back the same way they would for the full files:
+
+1. The reviewer sends the numbers of the lines they changed and the corrected text.
+2. Each correction is made by hand in the area file named under that line's heading.
+3. `npm run i18n:tables` regenerates the tables, and the change is committed with both.
+
+Neither file marks a language as reviewed, and nothing in a commit or a document may describe one as
+reviewed until a fluent reader has said so (`REVIEWED` above).

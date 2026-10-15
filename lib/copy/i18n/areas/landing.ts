@@ -372,6 +372,10 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["For learners aged 13 and older. Younger pupils need an agreement with their school first.",
     "Для учеников от 13 лет. Для младших учеников сначала нужен договор со школой.",
     "Для учнів від 13 років. Для молодших учнів спершу потрібна угода зі школою."],
+  ["See what a teacher sees", "Посмотреть, что видит преподаватель", "Подивитися, що бачить викладач"],
+  // /pilots is English only, so the Russian and Ukrainian say where the link goes.
+  ["How a pilot works", "Как устроен пилотный проект (на английском)", "Як влаштований пілотний проєкт (англійською)"],
+  ["Running a pilot", "Пилотный проект (на английском)", "Пілотний проєкт (англійською)"],
   ["How the data is handled", "Как мы обращаемся с данными", "Як ми обробляємо дані"],
   ["Write to us about a pilot", "Напишите нам о пилотном проекте", "Напишіть нам про пілотний проєкт"],
   ["A Kodukeel pilot", "Пилотный проект Kodukeel", "Пілотний проєкт Kodukeel"],
@@ -404,6 +408,8 @@ export const LANDING: Area = {
 export const LANDING_BORROWS: readonly string[] = [
   // The word card.
   "The word", "plus", "makes", "Endings", "Ask Anu",
+  // The footer's way to /help, translated with that page's own lines.
+  "Help",
   // The first evening.
   "{n} min", "What it means", "That\u2019s the one.",
   // The café.

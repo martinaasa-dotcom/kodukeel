@@ -18,3 +18,21 @@ export async function posterClassFor(ownerId: string, classroomId: string) {
   if (!classroom || classroom.ownerId !== ownerId || classroom.archived) return null;
   return classroom;
 }
+
+/**
+ * The class a roster file may be downloaded for: one this account runs,
+ * archived or not, since a teacher may want the records of a class that has
+ * ended. The same membership read as the poster's, and the same null for a
+ * student, a stranger or a guessed id, so the route answers each of them with
+ * one not-found.
+ */
+export async function rosterClassFor(ownerId: string, classroomId: string) {
+  if (typeof classroomId !== "string" || classroomId.length === 0) return null;
+  const membership = await prisma.classroomMember.findUnique({
+    where: { classroomId_ownerId: { classroomId, ownerId } },
+    select: { classroom: { select: { id: true, name: true, ownerId: true, kind: true, targetLevel: true } } },
+  });
+  const classroom = membership?.classroom;
+  if (!classroom || classroom.ownerId !== ownerId) return null;
+  return classroom;
+}

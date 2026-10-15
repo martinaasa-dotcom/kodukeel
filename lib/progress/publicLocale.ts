@@ -39,12 +39,62 @@ export async function resolvePublicLocale(searchParams: PublicSearch): Promise<P
   }
 }
 
-/** A public page's tab title in the language it is drawn in. */
+/** What a public page says about itself where it is shared, rather than the landing page's pitch. */
+export interface PublicPageCard {
+  /** One sentence in English, translated like every other line on the page. */
+  description: string;
+  /** The page's own path, so a share card does not point at /welcome. */
+  path: string;
+}
+
+/**
+ * The picture every share card carries: `app/opengraph-image.tsx`, the app's
+ * own card. Named here because a page that sets `openGraph` replaces the
+ * root's whole object, and the file-based image goes with it, so a page with
+ * a description of its own shared as a grey row with no picture. Its size and
+ * alt are the route's, which a test holds them to.
+ */
+export const SHARE_IMAGE = {
+  url: "/opengraph-image",
+  width: 1200,
+  height: 630,
+  alt: "kodukeel. Estonian that finally sticks",
+} as const;
+
+/** A page's own description, Open Graph and Twitter card, in the language it is drawn in. */
+export function shareCard(locale: Locale, title: string, description: string, path: string): Metadata {
+  const titled = `${title} | kodukeel`;
+  return {
+    description,
+    openGraph: {
+      title: titled,
+      description,
+      url: path,
+      type: "website",
+      siteName: "kodukeel",
+      // The card is in the language the page is drawn in, read in Estonia.
+      locale: `${locale}_EE`,
+      images: [SHARE_IMAGE],
+    },
+    twitter: { card: "summary_large_image", title: titled, description, images: [SHARE_IMAGE] },
+  };
+}
+
+/**
+ * A public page's tab title in the language it is drawn in, and, where the
+ * page says what it is, its own description and share card. Without one, a
+ * page inherits the root layout's description, which is the pitch to a
+ * learner: a teacher pasting /teachers into a staffroom chat would get a card
+ * about the shop counter, pointing at /welcome.
+ */
 export async function publicTitle(
   searchParams: PublicSearch,
   english: string,
   extra?: Omit<Metadata, "title">,
+  card?: PublicPageCard,
 ): Promise<Metadata> {
   const { locale } = await resolvePublicLocale(searchParams);
-  return { ...extra, title: tr(locale, english) };
+  const title = tr(locale, english);
+  if (!card) return { ...extra, title };
+  return { ...extra, title, ...shareCard(locale, title, tr(locale, card.description), card.path) };
 }

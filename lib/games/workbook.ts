@@ -1055,6 +1055,24 @@ export function markLine(item: SheetItem, typed: string): LineMark {
   // The answer as the sentence spells it leads, so a capital at the front of
   // the line is no reason to mark anybody wrong (`Mul on külm.` typed `mul`).
   const accepted = [item.answer, ...item.accepted.filter((a) => tidyForm(a) !== tidyForm(item.answer))];
+  /*
+    THE BRACKET COPIED OUT. Writing the word as it stands is the first thing a
+    learner does when they have not yet seen that the line wants it changed,
+    and for a verb `markForm` has nothing to call it, since the infinitive is
+    no person. So it is named for what it is, ahead of any other reading: for
+    a noun "that's the nimetav" is true and less use than this.
+
+    Ahead of the typo rule too. From eight letters it forgives one letter put
+    in or left out, and a noun whose answer is its headword plus one letter
+    (`raamatukogu` for `raamatukogus`) is exactly that, so the copied word was
+    marked right with a slip and wrote a recall for somebody who had not
+    changed it. An exact match still counts, since a sentence can want the
+    word as it stands.
+  */
+  const copied = tidyForm(written) === tidyForm(item.cue);
+  if (copied && !accepted.some((a) => tidyForm(a) === tidyForm(written))) {
+    return { right: false, slip: false, reached: null, note: { kind: "unchanged" } };
+  }
   const mark: FlashMark = markForm({ accepted, slot: item.slot, label: item.slot, index: item.index }, written);
   if (mark.right) {
     return {
@@ -1063,16 +1081,6 @@ export function markLine(item: SheetItem, typed: string): LineMark {
       reached: null,
       note: mark.rating < 3 && mark.note ? { kind: "checker", text: mark.note } : { kind: "none" },
     };
-  }
-  /*
-    THE BRACKET COPIED OUT. Writing the word as it stands is the first thing a
-    learner does when they have not yet seen that the line wants it changed,
-    and for a verb `markForm` has nothing to call it, since the infinitive is
-    no person. So it is named for what it is, ahead of any other reading: for
-    a noun "that's the nimetav" is true and less use than this.
-  */
-  if (tidyForm(written) === tidyForm(item.cue)) {
-    return { right: false, slip: false, reached: null, note: { kind: "unchanged" } };
   }
   const got = mark.wroteSlot;
   if (got && got !== item.slot) {

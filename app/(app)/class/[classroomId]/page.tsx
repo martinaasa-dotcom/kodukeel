@@ -1,16 +1,18 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Flame, GraduationCap, Printer, Target, Trophy } from "lucide-react";
+import { ArrowLeft, Download, Printer, Target } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { classworkHistory } from "@/app/actions";
 import { PATH } from "@/lib/collections/syllabus";
 import { classRoster, workplaceRoster } from "@/lib/classroom/roster";
+import { rosterPath } from "@/lib/classroom/rosterCsv";
 import { emailPrefsFrom, wants } from "@/lib/email/prefs";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { cohortKind } from "@/lib/classroom/cohort";
 import type { ExamLevel } from "@/lib/exam/spec";
 import { WorkplaceView } from "./WorkplaceView";
+import { RosterList } from "@/components/class/RosterList";
 import { LocalDate } from "@/components/LocalDate";
 import { DUE_DATE_FORMAT } from "@/lib/ux/agenda";
 import { Card, Empty, Meter, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
@@ -133,6 +135,10 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
             {t("This class has been archived, so the join code doesn’t work any more. Everything here stays put.")}
           </Note>
         )}
+        {/* The records of a class that has ended are still the owner's to keep. */}
+        {isTeacher && classroom.archived && (
+          <div><RosterDownload classroomId={classroom.id} label={t("Download the roster")} /></div>
+        )}
 
         {isTeacher && !classroom.archived && (
           <Card tone="night">
@@ -157,6 +163,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                 >
                   <Printer size={14} aria-hidden /> {t("Print the join poster")}
                 </Link>
+                <RosterDownload classroomId={classroom.id} label={t("Download the roster")} />
                 <CopyCode code={classroom.code} />
               </div>
             </div>
@@ -183,64 +190,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                 : "Your classmates will show up here as they join.")}
             />
           ) : (
-            <ul className="flex flex-col gap-1.5">
-              {roster.entries.map((entry, i) => {
-                const isYou = entry.ownerId === ownerId;
-                const quiet = entry.daysSinceLastReview === null || entry.daysSinceLastReview > 6;
-                return (
-                  <li
-                    key={entry.ownerId}
-                    className="flex flex-wrap items-center gap-3 rounded-[var(--r)] border px-4 py-3"
-                    style={{
-                      borderColor: isYou ? "transparent" : "var(--edge)",
-                      background: isYou ? "var(--accent-soft)" : "var(--surface)",
-                      boxShadow: isYou ? "none" : "var(--depth-sm)",
-                    }}
-                  >
-                    <span className="tnum w-6 text-xs" style={{ color: "var(--ink-3)" }}>{i + 1}</span>
-                    {i === 0 && entry.reviewsThisWeek > 0
-                      ? <Trophy size={16} aria-hidden style={{ color: "var(--hard-ink)" }} />
-                      : <span className="w-4" aria-hidden />}
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-base" style={{ color: "var(--ink)" }}>
-                        {entry.displayName}
-                        {entry.role === "TEACHER" && (
-                          <GraduationCap size={13} aria-label={t("teacher")} className="ml-1.5 inline" style={{ color: "var(--ink-3)" }} />
-                        )}
-                      </span>
-                      {isTeacher && (
-                        <span className="block text-xs" style={{ color: quiet ? "var(--hard-ink)" : "var(--ink-3)" }}>
-                          {entry.daysSinceLastReview === null
-                            ? t("no reviews yet")
-                            : entry.daysSinceLastReview === 0
-                              ? t("reviewed today")
-                              : fill(t("last review {days} ago"), { days: countOf(locale, entry.daysSinceLastReview, "day") })}
-                          {", "}{fill(t("{words} known"), { words: countOf(locale, entry.wordsKnown, "word") })}
-                          {entry.weakestCase && (
-                            <>
-                              {", "}
-                              {filled(t("weakest: {case}"), {
-                                case: (
-                                  <span style={{ color: "var(--hard-ink)" }}>
-                                    <span lang="et">{caseName(entry.weakestCase.grammCase)}</span> ({entry.weakestCase.accuracy}%)
-                                  </span>
-                                ),
-                              })}
-                            </>
-                          )}
-                        </span>
-                      )}
-                    </span>
-                    <span className="flex items-center gap-1 text-xs" style={{ color: "var(--ink-2)" }}>
-                      {entry.streak}<Flame size={13} aria-hidden style={{ color: entry.streak > 0 ? "var(--hard-ink)" : "var(--ink-3)" }} />
-                    </span>
-                    <span className="tnum w-24 text-right text-sm" style={{ color: "var(--ink)" }}>
-                      {countOf(locale, entry.reviewsThisWeek, "review")}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
+            <RosterList entries={roster.entries} viewerId={ownerId} isTeacher={isTeacher} locale={locale} />
           )}
           {you && leader && you.ownerId !== leader.ownerId && (
             <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
@@ -385,5 +335,23 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
         </Card>
       </Stack>
     </Page>
+  );
+}
+
+/**
+ * The roster as a file, for the owner alone. A plain anchor rather than the
+ * app's prefetching link, because a link that fetches on hover would download
+ * the file for a pointer resting on it.
+ */
+function RosterDownload({ classroomId, label }: { classroomId: string; label: string }) {
+  return (
+    <a
+      href={rosterPath(classroomId)}
+      className="tap-tint inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full px-3 text-sm font-semibold underline underline-offset-4"
+      style={{ color: "var(--ink-2)" }}
+      data-roster-download
+    >
+      <Download size={14} aria-hidden /> {label}
+    </a>
   );
 }

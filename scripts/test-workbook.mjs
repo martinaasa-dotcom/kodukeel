@@ -154,19 +154,19 @@ await checkButton.click({ force: true, timeout: 2000 }).catch(() => {});
 await page.waitForTimeout(600);
 
 /*
-  Copying the bracket word out is usually wrong, and not always: the page is
-  dealt at random, and where a line's answer is the bracket word itself, or a
-  letter from it, the marker takes the copy as right or as a slip and the line
-  settles on the first pass. CI dealt one such page and the suite, which had
-  assumed every line opens, failed with the app behaving correctly. So what is
-  asserted is the fault itself: the second tap marks nothing missed, and
-  whatever the first pass did not settle is still open.
+  Copying the bracket word out is wrong, and never forgiven as a slip: a
+  word one letter from its answer was once marked right with a slip, which
+  is the fault #829 fixed in markLine. The one copy that settles is a line
+  whose answer is the bracket word exactly, which is right, so what is
+  asserted is the double tap itself: the second tap marks nothing missed,
+  nothing is a slip, and whatever the first pass did not settle is still
+  open.
 */
 const afterDouble = await lines.evaluateAll((els) => els.map((e) => e.getAttribute("data-outcome")));
 const openAfter = afterDouble.filter((o) => o === "open").length;
 check(
   "a second tap on Check checks the page once and leaves the misses open",
-  afterDouble.length === n && openAfter > 0 && afterDouble.every((o) => o === "open" || o === "right" || o === "slip"),
+  afterDouble.length === n && openAfter > 0 && afterDouble.every((o) => o === "open" || o === "right"),
   JSON.stringify(afterDouble),
 );
 check("the second check waits until an answer has changed", await page.locator("[data-workbook-check]").isDisabled());
@@ -285,7 +285,7 @@ const written = (await prisma.review.findMany({
   select: { id: true, cardId: true, slot: true, rating: true },
 })).filter((row) => !alreadyThere.has(row.id));
 check("the page wrote its grades to the review log", written.length > 0, `${written.length} rows`);
-// A line the first pass settled as right or slipped is graded on its own terms; every other line was missed twice.
+// A line the first pass settled as right is graded on its own terms; every other line was missed twice.
 const settledFirst = n - openAfter;
 check(
   "every line missed twice is graded Again",

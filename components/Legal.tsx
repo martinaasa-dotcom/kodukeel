@@ -33,7 +33,7 @@ export function switcherHrefs(path: string): Record<Locale, string> {
  * reader chose. `legal` is the two pages whose translation has to say that the
  * English prevails.
  */
-export function Legal({ title, updated, children, locale = "en", explicit = false, path, legal = false }: {
+export function Legal({ title, updated, children, locale = "en", explicit = false, path, legal = false, oneLanguage = false }: {
   title: string;
   updated: string;
   children: ReactNode;
@@ -42,6 +42,8 @@ export function Legal({ title, updated, children, locale = "en", explicit = fals
   /** This page's own address, for the language switcher. */
   path: string;
   legal?: boolean;
+  /** A page written in English only, which offers no language it would not draw. */
+  oneLanguage?: boolean;
 }) {
   const t = (english: string) => tr(locale, english);
   const href = (to: string) => localeHref(to, locale, explicit);
@@ -54,7 +56,7 @@ export function Legal({ title, updated, children, locale = "en", explicit = fals
   */
   return (
     <main lang={locale} className="mx-auto max-w-2xl px-5 py-10 md:px-8 md:py-16">
-      <PublicHeader locale={locale} path={path} />
+      <PublicHeader locale={locale} path={path} oneLanguage={oneLanguage} />
       <h1
         className="mt-8 text-3xl font-bold leading-tight tracking-tight"
         style={{ color: "var(--ink)" }}
@@ -81,7 +83,7 @@ export function Legal({ title, updated, children, locale = "en", explicit = fals
  * Quiet on purpose: the page is a document and the reader's one job on it is
  * reading, so the loud action stays the landing page's.
  */
-export function PublicHeader({ locale, path }: { locale: Locale; path: string }) {
+export function PublicHeader({ locale, path, oneLanguage = false }: { locale: Locale; path: string; oneLanguage?: boolean }) {
   const t = (english: string) => tr(locale, english);
   return (
     /*
@@ -93,7 +95,9 @@ export function PublicHeader({ locale, path }: { locale: Locale; path: string })
       <BrandLink href={LANDING_HREF[locale]} label={t("Kodukeel, home")} className="flex min-h-11 items-center">
         <Wordmark size={28} />
       </BrandLink>
-      <LanguageSwitcher locale={locale} hrefs={switcherHrefs(path)} className="order-3 w-full sm:order-2 sm:ml-auto sm:w-auto" />
+      {oneLanguage
+        ? <span className="order-3 sm:order-2 sm:ml-auto" />
+        : <LanguageSwitcher locale={locale} hrefs={switcherHrefs(path)} className="order-3 w-full sm:order-2 sm:ml-auto sm:w-auto" />}
       <ButtonLink
         href={locale === "en" ? "/sign-in" : `/sign-in?lang=${locale}`}
         variant="secondary"
@@ -124,8 +128,8 @@ export function PublicFooter({ locale, href, short = false }: {
   const links: readonly (readonly [string, string])[] = short
     ? [["/privacy", "Privacy"], ["/terms", "Terms"], ["/accessibility", "Accessibility"]]
     : [
-        ["/privacy", "Privacy"], ["/terms", "Terms"], ["/funding", "Funding"], ["/trust", "Trust"],
-        ["/accessibility", "Accessibility"], ["/state-exam", "The state examination"],
+        ["/privacy", "Privacy"], ["/terms", "Terms"], ["/funding", "Funding"], ["/trust", "Trust"], ["/teachers", "For teachers"], ["/pilots", "Running a pilot"],
+        ["/accessibility", "Accessibility"], ["/state-exam", "The state examination"], ["/help", "Help"],
       ];
   return (
     <p className="mt-14 text-sm" style={{ color: "var(--ink-3)" }}>

@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
 import { reportError } from "@/lib/observability/report";
+import { after } from "next/server";
+import { SPEND_MESSAGE, thresholdCrossed, type SpendThreshold } from "./spendAlert";
 import { type UsageKind, estimateCostMicros, reserveMicros } from "./pricing";
 import {
   type QuotaDecision, type UsageSnapshot, checkQuota, readLimits, utcDay,
@@ -350,8 +352,11 @@ export async function authoriseCall(
       reserveCallsPerUser: limits.reserveCallsPerUser * allowance.daily,
     };
     const micros = reserveMicros(kind);
+    // Set inside the transaction from figures it already holds, and said only
+    // once it has committed, so a booking that rolled back is never announced.
+    let alert: SpendAlert | null = null;
 
-    return await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       await tx.$executeRaw`SET LOCAL lock_timeout = '3s'`;
       // `$executeRaw`, not `$queryRaw`: this function returns void, and asking
       // Prisma to read a row out of it fails at the driver with a message
@@ -369,6 +374,18 @@ export async function authoriseCall(
       const fallbackAllowed = snapshot.globalFallbackMicros < limits.dailyMicrosFallback;
       const decision = checkQuota(snapshot, scaled, now);
       if (!decision.allowed) return { ...decision, fallbackAllowed };
+
+      const before = snapshot.globalMicros;
+      alert = {
+        crossed: thresholdCrossed(before, before + micros, limits.dailyMicrosGlobal),
+        fallbackSpent: limits.dailyMicrosFallback > 0 && !fallbackAllowed,
+        before,
+        after: before + micros,
+        cap: limits.dailyMicrosGlobal,
+        fallbackMicros: snapshot.globalFallbackMicros,
+        fallbackCap: limits.dailyMicrosFallback,
+        day: utcDay(now),
+      };
 
       const row = await tx.usageEvent.create({
         data: {
@@ -394,6 +411,8 @@ export async function authoriseCall(
         reservation: { id: row.id, ownerId, kind, micros, day: utcDay(now) },
       };
     });
+    if (alert) announceSpend(alert);
+    return result;
   } catch (error) {
     reportError(error, { at: "usage/authoriseCall", ownerId, extra: { kind } });
     return {
@@ -406,6 +425,71 @@ export async function authoriseCall(
       // is the one guess that costs money.
       fallbackAllowed: false,
     };
+  }
+}
+
+interface SpendAlert {
+  crossed: SpendThreshold | null;
+  fallbackSpent: boolean;
+  before: number;
+  after: number;
+  cap: number;
+  fallbackMicros: number;
+  fallbackCap: number;
+  day: string;
+}
+
+/**
+ * What this instance has already said today. A line is crossed once a day in
+ * the ordinary course, and again only where a released reservation took the
+ * total back under it, which is the same news; the fallback budget, once
+ * spent, is spent on every call after it. Either is said once a day here, and
+ * the error log's own rule keeps the mail to one a kind a day across instances.
+ */
+let announcedDay: string | null = null;
+const announced = new Set<string>();
+
+/**
+ * Tells the operator the day's spend crossed a line, through the error log,
+ * which keeps every record and mails the admins the first of each kind in a
+ * day. One fixed message per line (`SPEND_MESSAGE`), the figures in `extra`.
+ *
+ * The figure is the reservation's estimate rather than what the call will
+ * cost, and the estimate is generous, so a line can be announced a little
+ * before the real spend reaches it. That is the safe side to be early on.
+ *
+ * Handed to `after()` so the learner's request never waits on it; outside a
+ * request, which is a script or a test, `after` throws and the report simply
+ * runs.
+ */
+function announceSpend(alert: SpendAlert): void {
+  if (announcedDay !== alert.day) {
+    announcedDay = alert.day;
+    announced.clear();
+  }
+  const crossed = alert.crossed !== null && !announced.has(String(alert.crossed)) ? alert.crossed : null;
+  const fallback = alert.fallbackSpent && !announced.has("fallback");
+  if (crossed === null && !fallback) return;
+  if (crossed !== null) announced.add(String(crossed));
+  if (fallback) announced.add("fallback");
+  const say = () => {
+    if (crossed !== null) {
+      reportError(new Error(SPEND_MESSAGE[crossed]), {
+        at: "usage/spend",
+        extra: { threshold: crossed, beforeMicros: alert.before, afterMicros: alert.after, capMicros: alert.cap, day: alert.day },
+      });
+    }
+    if (fallback) {
+      reportError(new Error(SPEND_MESSAGE.fallback), {
+        at: "usage/spend",
+        extra: { fallbackMicros: alert.fallbackMicros, fallbackCapMicros: alert.fallbackCap, day: alert.day },
+      });
+    }
+  };
+  try {
+    after(say);
+  } catch {
+    say();
   }
 }
 

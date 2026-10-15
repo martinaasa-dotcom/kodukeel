@@ -91,10 +91,12 @@ export function CreateClass() {
   );
 }
 
-export function JoinClass({ suggestedName }: { suggestedName: string }) {
+export function JoinClass({ suggestedName, initialCode = "" }: { suggestedName: string; initialCode?: string }) {
   const t = useT();
   const router = useRouter();
-  const [code, setCode] = useState("");
+  // Filled from a join link, never joined from one: the sentence about what a
+  // class can see sits above the button, and pressing it is the decision.
+  const [code, setCode] = useState(initialCode);
   const [name, setName] = useState(suggestedName);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -165,6 +167,8 @@ export function JoinClass({ suggestedName }: { suggestedName: string }) {
       </Button>
       <Explain label={t("Exactly what a class sees")}>
         {t("Your teacher and classmates see your name, your streak, how many reviews you did this week, when you last practiced and how many words you know. Your teacher alone also sees the one case you find hardest, as a single percentage across your reviews, never a specific answer. A workplace group sees less: your name, whether you’ve been practicing, and one of four bands for the exam the group is working toward. Never your deck, your searches or your mistakes one by one. If you leave, all of it stops straight away.")}
+        {" "}
+        {t("Whoever runs the class can download what they see as a spreadsheet, and nothing beyond it.")}
       </Explain>
     </div>
   );

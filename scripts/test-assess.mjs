@@ -18,12 +18,12 @@ import { requireLocalDatabase } from "./lib/local-db.mjs";
  * how few questions it came from.
  */
 const B = baseUrl();
-// Floor: 53, measured in the state CI seeds, with first run not yet done.
+// Floor: 54, measured in the state CI seeds, with first run not yet done.
 /*
   Raised by one: first run now asks what language a meaning should be given in,
   on the screen before any Estonian is shown.
 */
-const { check, absent, done } = suite("Level check", { floor: 53 });
+const { check, absent, done } = suite("Level check", { floor: 54 });
 
 /*
   The sittings already stored, counted before this run sits one. "It comes back"
@@ -338,18 +338,18 @@ if (onboarded) {
     calls between here and the end of the else below.
   */
   /*
-    26 is the checks inside the `else` branch below, minus the one this branch
+    27 is the checks inside the `else` branch below, minus the one this branch
     runs in their place. It was 18, which is the figure from before #58 rewrote
     the deck step: that turned two checks into nine inside that branch and took
     it from 17 to 25, and the waiver was never recounted. The floor read 52 and
     a waived run reached 28, so the suite failed reporting a block having
     stopped running when nothing had. Recount it whenever the branch changes:
-    the else branch holds 27 and this one holds 1, so the gap is 26 and the
-    floor is the 25 outside both plus the 27 inside. It said 25 for a while
+    the else branch holds 28 and this one holds 1, so the gap is 27 and the
+    floor is the 26 outside both plus the 28 inside. It said 25 for a while
     against a gap of 26, so a waived run fell one short of its own floor on
     every machine with a deck, which is exactly where this branch is taken.
   */
-  absent(26, "a learner who has not been through first run: this database has a deck, " +
+  absent(27, "a learner who has not been through first run: this database has a deck, " +
     "so /start correctly redirects. CI runs this suite before the demo fixture");
   /*
     A learner who has already been through it is sent to Today, which is the
@@ -409,6 +409,15 @@ if (onboarded) {
   await page.getByRole("button", { name: /Citizenship or residence/ }).click();
   await page.getByRole("button", { name: /^Work/ }).click();
 
+  /*
+    The plan is one line here and the panel is behind a press, because open it
+    was most of the height of this step on a phone. The working is still on
+    the screen before a word goes into a deck, which is the property this
+    suite holds, so the press is made and the panel read.
+  */
+  check("the plan's verdict is on the step in one line",
+    ((await page.locator("[data-plan-headline]").textContent()) ?? "").trim().length > 0);
+  await page.getByText(/How we worked that out/).click();
   const goalStep = await page.locator("body").innerText();
   check("more than one reason can be true at once",
     (await page.locator('[aria-pressed="true"]').count()) >= 2);

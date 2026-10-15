@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Compass, Languages, Loader2 } from "lucide-react";
 import { completeOnboarding } from "@/app/actions";
 import { AssessmentRunner } from "@/components/assessment/AssessmentRunner";
-import { PlanPanel, minutesFor } from "@/components/assessment/PlanPanel";
+import { PlanPanel, minutesFor, planHeadline } from "@/components/assessment/PlanPanel";
 import { ResultPanel } from "@/components/assessment/ResultPanel";
 import { Button } from "@/components/Button";
 import { LetterBarScope, LetterSample } from "@/components/DiacriticBar";
@@ -787,7 +787,11 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                     onSelect={() => toggleReason(r.id)}
                     icon={<NamedIcon name={r.icon} size={18} aria-hidden />}
                     title={t(r.label)}
-                    detail={t(r.detail)}
+                    // The line under a reason only once it is picked: eight
+                    // explanations under eight titles were most of the
+                    // height of this step on a phone, and the title is what
+                    // somebody choosing reads.
+                    detail={reasons.includes(r.id) ? t(r.detail) : undefined}
                   />
                 );
               })}
@@ -861,8 +865,27 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                 </div>
               )}
               {/* On the course, which first run always opens: the plan counts
-                  the evening it is about to promise on the next screen. */}
-              <PlanPanel standing={standing} goals={goals} dailyGoal={goal} onCourse compact />
+                  the evening it is about to promise on the next screen.
+
+                  The verdict in a line, and the panel behind a press. Open on
+                  the page it was nine hundred pixels of a phone, under the four
+                  questions that built it, on a step a stranger has to get to
+                  the end of. The headline is the part that changes a decision;
+                  the working is one press away for whoever wants to argue. */}
+              {(() => {
+                const headline = planHeadline({ standing, goals, dailyGoal: goal, onCourse: true, locale });
+                if (!headline) return <PlanPanel standing={standing} goals={goals} dailyGoal={goal} onCourse compact />;
+                return (
+                  <>
+                    <p className="text-lg font-semibold leading-snug" style={{ color: "var(--ink)" }} data-plan-headline>
+                      {headline}
+                    </p>
+                    <Explain label={t("How we worked that out")}>
+                      <PlanPanel standing={standing} goals={goals} dailyGoal={goal} onCourse compact />
+                    </Explain>
+                  </>
+                );
+              })()}
             </div>
           </section>
         )}
@@ -1119,7 +1142,18 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
           </section>
         )}
 
-        <div className="mt-10 flex items-center gap-3">
+        {/*
+          Pinned to the foot of the window, so the way on is on the screen
+          whatever the step's height: on a phone the last two steps run to
+          several screens, and a Continue somebody has to scroll to find reads
+          as a form that never ends. The card's own ground behind it and a rule
+          above it, so what scrolls under it is not read through it.
+        */}
+        <div
+          className="sticky bottom-0 z-10 -mx-7 mt-10 flex items-center gap-3 border-t px-7 py-3 md:-mx-10 md:px-10"
+          style={{ background: "var(--surface)", borderColor: "var(--rule-soft)" }}
+          data-wizard-nav
+        >
           {step > 0 && (
             <Button variant="ghost" onClick={() => go((s) => s - 1)} disabled={pending}>
               <ArrowLeft size={15} aria-hidden /> {t("Back")}

@@ -388,6 +388,24 @@ describe("markLine, against what a learner actually types", () => {
       expect(markLine(line, line.cue.toLocaleUpperCase("et")).note).toEqual({ kind: "unchanged" });
     }
   });
+
+  it("does not forgive the bracket copied out as a slip, however near the answer it is", () => {
+    // Eight letters and over, the typo rule forgives one letter put in or left
+    // out, and a noun whose answer is its headword plus one letter is exactly
+    // that: `raamatukogu` copied out for `raamatukogus` was marked right with a
+    // slip and wrote a recall for a learner who had not changed the word.
+    const line = { ...fake(1, "INESSIVE", "raamatukogu"), answer: "raamatukogus", accepted: ["raamatukogus"] };
+    const copied = markLine(line, "raamatukogu");
+    expect(copied.right).toBe(false);
+    expect(copied.note).toEqual({ kind: "unchanged" });
+    // A real slip on the answer is still a slip.
+    expect(markLine(line, "raamatukgus")).toMatchObject({ right: true, slip: true });
+  });
+
+  it("marks the bracket word right where the sentence really wants it unchanged", () => {
+    const line = { ...fake(2, "NOMINATIVE", "raamatukogu"), answer: "raamatukogu", accepted: ["raamatukogu"] };
+    expect(markLine(line, "raamatukogu")).toMatchObject({ right: true, slip: false });
+  });
 });
 
 describe("whoFor", () => {

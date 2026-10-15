@@ -1,6 +1,7 @@
-import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { prisma } from "@/lib/db";
 import { authoriseCall, recordUsage, releaseReservation, snapshotUsage } from "./ledger";
+import { reserveMicros } from "./pricing";
 
 /**
  * The spend cap, against the database, because the thing that was wrong with it
@@ -187,5 +188,48 @@ describe("authoriseCall", () => {
     const refused = results.filter((r) => !r.allowed);
     expect(refused.length).toBeGreaterThan(0);
     expect(refused.every((r) => r.reservation === undefined)).toBe(true);
+  });
+});
+
+describe("telling the operator about the day's spend", () => {
+  /*
+    The error log is what keeps the record and mails the admins, and it only
+    writes to the database inside Next's Node runtime, so the test says it is
+    one. The cap is set from the day's real total so that one booking carries
+    it across four fifths and not across the whole, whatever else this
+    database has spent today.
+  */
+  const since = new Date();
+  const spendRows = () =>
+    prisma.errorEvent.count({ where: { at: "usage/spend", createdAt: { gte: since } } });
+
+  afterEach(async () => {
+    vi.unstubAllEnvs();
+    await prisma.errorEvent.deleteMany({ where: { at: "usage/spend", createdAt: { gte: since } } });
+  });
+
+  it("writes one record for the booking that crosses a line, and none when it is crossed again that day", async () => {
+    vi.stubEnv("NEXT_RUNTIME", "nodejs");
+    const { globalMicros } = await snapshotUsage(MINE, "TUTOR");
+    const booking = reserveMicros("TUTOR");
+    // Four fifths of the cap lands inside this one booking, and the whole cap beyond it.
+    const cap = (globalMicros + booking * 0.9) / 0.8;
+    vi.stubEnv("AI_DAILY_USD_GLOBAL", String(cap / 1e6));
+
+    const first = await authoriseCall(MINE, "TUTOR");
+    expect(first.allowed).toBe(true);
+    const deadline = Date.now() + 5000;
+    while ((await spendRows()) === 0 && Date.now() < deadline) await new Promise((r) => setTimeout(r, 50));
+    const rows = await prisma.errorEvent.findMany({ where: { at: "usage/spend", createdAt: { gte: since } } });
+    expect(rows.map((r) => r.message)).toEqual(["Daily model spend passed four fifths of the cap"]);
+    expect(rows[0]!.extra).toContain("capMicros");
+
+    // The call never happened, so its booking comes back, which takes the
+    // day's total under the line again; the next booking crosses it a second
+    // time, which is the same news and is not said twice.
+    await releaseReservation(first.reservation!);
+    expect((await authoriseCall(MINE, "TUTOR")).allowed).toBe(true);
+    await new Promise((r) => setTimeout(r, 500));
+    expect(await spendRows()).toBe(1);
   });
 });

@@ -322,7 +322,7 @@ async function entryPages(locale) {
   const pages = [
     `/welcome/${locale}`, `/privacy?lang=${locale}`, `/terms?lang=${locale}`, `/trust?lang=${locale}`,
     `/accessibility?lang=${locale}`, `/funding?lang=${locale}`, `/state-exam?lang=${locale}`,
-    `/sign-in?lang=${locale}`,
+    `/teachers?lang=${locale}`, `/help?lang=${locale}`, `/sign-in?lang=${locale}`,
   ];
   for (const path of pages) {
     thrown.length = 0;
@@ -330,6 +330,21 @@ async function entryPages(locale) {
     await page.goto(`${B}${path}`, { waitUntil: "networkidle", timeout: 60_000 });
     await page.waitForTimeout(400);
     check(`${path} hydrates without a mismatch`, thrown.length === 0, thrown.slice(0, 2).join(" · "));
+    /*
+      The cost calculator carries the public area as a slice rather than the
+      whole language, so a line the slice misses draws in English on the client
+      against the server's Russian, which the hydration check above names. Its
+      choices are pressed too, since a press redraws the bill in other words.
+    */
+    if (path.startsWith("/funding")) {
+      check(`${path} arrives without the whole ${locale} table`, tableLoads === 0, `${tableLoads} table chunk(s) loaded`);
+      const chips = page.locator("[role=radiogroup] [role=radio]");
+      const count = await chips.count();
+      for (let i = 0; i < Math.min(count, 6); i++) await chips.nth(i).click({ timeout: 5_000 }).catch(() => {});
+      await page.waitForTimeout(300);
+      check(`${path} draws its calculator again in ${locale} without the whole table`, count > 0 && tableLoads === 0 && thrown.length === 0,
+        `${count} choices, ${tableLoads} table chunk(s), ${thrown.slice(0, 1).join("")}`);
+    }
     if (path.startsWith("/welcome")) {
       check(`${path} arrives without the whole ${locale} table`, tableLoads === 0, `${tableLoads} table chunk(s) loaded`);
       // A press on the plan calculator asks for the rest of the language.
@@ -348,6 +363,48 @@ async function entryPages(locale) {
       check(`${path} loads the whole ${locale} table once a demo is reached for`, tableLoads === 1, `${tableLoads} table chunk(s) loaded`);
       check(`${path} draws again in ${locale} without throwing`, thrown.length === 0, thrown.slice(0, 2).join(" · "));
     }
+  }
+  await ctx.close();
+}
+
+/**
+ * /teachers draws the class page's own roster over an invented class, signed
+ * out, in every language. What it may never draw is a real learner: the names
+ * in its roster rows are held against every display name a class in this
+ * database knows.
+ */
+async function teachersPage() {
+  const real = new Set((await prisma.classroomMember.findMany({ select: { displayName: true } })).map((m) => m.displayName));
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
+  const page = await ctx.newPage();
+  for (const locale of ["en", ...LOCALES]) {
+    const path = locale === "en" ? "/teachers?lang=en" : `/teachers?lang=${locale}`;
+    const response = await page.goto(`${B}${path}`, { waitUntil: "load", timeout: 60_000 });
+    await page.locator("[data-sample-roster]").waitFor({ timeout: 15_000 }).catch(() => {});
+    check(`${path} answers signed out`, response?.status() === 200 && !page.url().includes("/sign-in"), `${response?.status()} at ${page.url()}`);
+    check(`${path} has one h1`, (await page.locator("h1").count()) === 1);
+    const heading = (await page.locator("#sample-class").textContent().catch(() => ""))?.trim() ?? "";
+    check(`${path} draws the sample class in ${locale}`, locale === "en" ? heading === "A sample class" : heading.length > 0 && heading !== "A sample class", heading);
+    const names = await page.locator("[data-sample-roster] li .block.text-base").allTextContents();
+    const shown = names.map((n) => n.trim()).filter(Boolean);
+    check(`${path} draws the eight invented learners`, shown.length === 8, `${shown.length} rows`);
+    const leaked = shown.filter((n) => real.has(n));
+    check(`${path} draws no real learner's name`, shown.length > 0 && leaked.length === 0, leaked.join(", "));
+  }
+  await ctx.close();
+}
+
+/** /help loads signed out in every language, with one heading and its status line. */
+async function helpPage() {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
+  const page = await ctx.newPage();
+  for (const locale of ["en", ...LOCALES]) {
+    const path = `/help?lang=${locale}`;
+    const response = await page.goto(`${B}${path}`, { waitUntil: "load", timeout: 60_000 });
+    await page.locator("[data-status]").waitFor({ timeout: 15_000 }).catch(() => {});
+    check(`${path} answers signed out`, response?.status() === 200 && !page.url().includes("/sign-in"), `${response?.status()} at ${page.url()}`);
+    check(`${path} has one h1`, (await page.locator("h1").count()) === 1);
+    check(`${path} says whether the app is working`, (await page.locator("[data-status=working]").count()) === 1);
   }
   await ctx.close();
 }
@@ -393,6 +450,8 @@ const started = Date.now();
 try {
   for (const p of unmade) absent(40, `a row for ${p}, which scripts/test-containment.mjs makes before this in CI`);
   for (const locale of LOCALES) await entryPages(locale);
+  await helpPage();
+  await teachersPage();
   for (const locale of LOCALES) {
     await setLocale(locale);
     for (const pass of PASSES) {

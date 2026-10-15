@@ -20,6 +20,7 @@ export const START: Area = {
   ru: {
     // SIGN-IN.
     "Back to the front page": "На главную страницу",
+    "Trouble signing in?": "Не получается войти?",
     "New here? Signing in is all it takes to start, and it’s free. Coming back? Everything you’ve learned is right where you left it.":
       "Вы здесь впервые? Чтобы начать, достаточно войти, и это бесплатно. Вернулись? Всё, что вы выучили, на своём месте.",
     "That address cannot use this copy of Kodukeel, because it’s set up for one particular group. Try the account you were invited with, or ask {email} to add you.":
@@ -158,6 +159,7 @@ export const START: Area = {
       "В эстонском есть четыре буквы, которых нет в русском алфавите: {a}, {b}, {c} и {d}. Они встречаются повсюду. Не переживайте, если пока не получается их правильно произносить. Это придёт со временем.",
 
     // FIRST RUN: GOAL.
+    "How we worked that out": "Как мы это посчитали",
     "Why Estonian?": "Зачем вам эстонский?",
     "Pick every one that’s true. We’ll suggest a level to aim for, and the plan at the bottom changes as you answer.":
       "Отметьте всё, что подходит. Мы предложим уровень, к которому стоит стремиться, а план внизу будет меняться вместе с вашими ответами.",
@@ -307,6 +309,7 @@ export const START: Area = {
   uk: {
     // SIGN-IN.
     "Back to the front page": "На головну сторінку",
+    "Trouble signing in?": "Не вдається увійти?",
     "New here? Signing in is all it takes to start, and it’s free. Coming back? Everything you’ve learned is right where you left it.":
       "Ви тут уперше? Щоб почати, досить увійти, і це безкоштовно. Повернулися? Усе, що ви вивчили, на своєму місці.",
     "That address cannot use this copy of Kodukeel, because it’s set up for one particular group. Try the account you were invited with, or ask {email} to add you.":
@@ -445,6 +448,7 @@ export const START: Area = {
       "В естонській є чотири літери, яких немає в українській абетці: {a}, {b}, {c} і {d}. Вони трапляються всюди. Не хвилюйтеся, якщо поки не виходить правильно їх вимовляти. Це прийде з часом.",
 
     // FIRST RUN: GOAL.
+    "How we worked that out": "Як ми це порахували",
     "Why Estonian?": "Навіщо вам естонська?",
     "Pick every one that’s true. We’ll suggest a level to aim for, and the plan at the bottom changes as you answer.":
       "Позначте все, що підходить. Ми запропонуємо рівень, до якого варто прагнути, а план унизу змінюватиметься разом із вашими відповідями.",

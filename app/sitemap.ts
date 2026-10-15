@@ -33,6 +33,9 @@ const PUBLIC_PATHS = [
   // The two written for somebody deciding whether to put this in front of a
   // class, and the one written for somebody deciding whether to fund it.
   { path: "/trust", priority: 0.8 },
+  { path: "/help", priority: 0.6 },
+  { path: "/teachers", priority: 0.8 },
+  { path: "/pilots", priority: 0.6 },
   { path: "/accessibility", priority: 0.6 },
   { path: "/funding", priority: 0.6 },
   // What the state examination is and how to register, for somebody who has

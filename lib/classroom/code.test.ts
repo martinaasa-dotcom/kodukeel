@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CODE_ALPHABET, CODE_LENGTH, generateCode, isValidCode, normaliseCode } from "./code";
+import { CODE_ALPHABET, CODE_LENGTH, generateCode, isValidCode, joinCodeFrom, normaliseCode } from "./code";
 
 describe("generateCode", () => {
   it("is the right length and uses only the safe alphabet", () => {
@@ -50,5 +50,29 @@ describe("isValidCode", () => {
     expect(isValidCode("ABC23")).toBe(false);
     expect(isValidCode("ABCO23")).toBe(false);
     expect(isValidCode("")).toBe(false);
+  });
+});
+
+describe("joinCodeFrom, what a join link carried", () => {
+  it("reads a code in lower case, with spaces or with dashes", () => {
+    expect(joinCodeFrom("abc234")).toBe("ABC234");
+    expect(joinCodeFrom(" abc 234 ")).toBe("ABC234");
+    expect(joinCodeFrom("abc-234")).toBe("ABC234");
+  });
+
+  it("takes the first of a repeated parameter", () => {
+    expect(joinCodeFrom(["xyz789", "ABC234"])).toBe("XYZ789");
+    expect(joinCodeFrom([])).toBe("");
+    expect(joinCodeFrom([42, "ABC234"])).toBe("");
+  });
+
+  it("gives an empty box for anything that is not a code", () => {
+    expect(joinCodeFrom("ABC23")).toBe("");
+    expect(joinCodeFrom("ABC2345")).toBe("");
+    expect(joinCodeFrom("ABC0O1")).toBe("");
+    expect(joinCodeFrom("ABC<23")).toBe("");
+    expect(joinCodeFrom(123456)).toBe("");
+    expect(joinCodeFrom(undefined)).toBe("");
+    expect(joinCodeFrom(null)).toBe("");
   });
 });
