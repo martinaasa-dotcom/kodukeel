@@ -141,7 +141,7 @@ export const CLAIMS: readonly Claim[] = [
     script: "test:load",
     assertedBy: "scripts/load-test.mjs",
     assertedHow: "fails a query over 400 ms or a page over 1,500 ms at the 95th percentile",
-    recorded: { figure: "LOAD", on: "2026-10-15", where: "a local run, 40 learners and 5,000 reviews each" },
+    recorded: { figure: "Every query under 32 ms and every page under 610 ms at the 95th percentile", on: "2026-10-15", where: "a local run, 40 learners and 5,000 reviews each" },
   },
   {
     id: "restore",

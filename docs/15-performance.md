@@ -60,6 +60,27 @@ to 32ms and `resolveStreakFor` from 4ms to 28ms. Both scale with that learner's
 own log, which is what deriving progress means, and both have three orders of
 magnitude of headroom before anybody notices.
 
+## Measured again on 2026-10-15, at 5,000 reviews for each of 40 learners
+
+This is the fixture `/how-we-know` cites, 200,000 reviews in all, run against a
+production build of the third batch. Same machine shape, same twelve runs.
+
+| What runs on a page load | p50 | p95 | Budget |
+|---|---|---|---|
+| `deckSnapshot` | 6ms | 12ms | 400ms |
+| `dailySummary` | 8ms | 11ms | 400ms |
+| `resolveStreakFor` | 8ms | 10ms | 400ms |
+| the review log behind the charts | 25ms | 31ms | 400ms |
+| the population scan behind `/api/metrics` | 152ms | 281ms | 3000ms |
+
+| Route | p50 | p95 |
+|---|---|---|
+| `/` | 268ms | 609ms |
+| `/progress` | 363ms | 414ms |
+| `/words` | 254ms | 326ms |
+| `/review` | 268ms | 419ms |
+| `/dictionary?q=tuba` | 337ms | 429ms |
+
 ## The plans, so the next person does not have to guess
 
 Every query that matters uses an index on `ownerId`:

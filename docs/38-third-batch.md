@@ -163,7 +163,7 @@ If pages start returning 503, Postgres has stopped with your shell: start it aga
 | TB-14 Wave E, discussion (5 scenes) | Done: kuulsin (on `nominalisatsioon`), elanike-koosolek, graafik, raamatuklubi, kolm-palvet (#852) |
 | TB-15 Wave F, exam practice (2 scenes) | Done: eksam-b1 (on `iseloom`), eksam-b2 (#852) |
 | TB-16 Share cards and small cleanups | Done (#852) |
-| TB-17 First run, step 4 | Not started |
+| TB-17 First run, step 4 | Both cuts made (#852), target not reached: at 390 px step 4 went from 3,239 to 2,657 px in English and from 3,628 to 3,025 px in Russian, so 957 and 1,325 px over. The opening-part card (710 and 926 px) is the tallest block left, and D10 keeps it. Step 3 is 2,381 and 2,519 px; its tallest blocks are the level choice and the reason cards, not the plan verdict line (318 and 364 px) |
 | TB-18 Sign-in on a phone | Done (#852); docs/15-performance.md says the largest paint did not move |
 
 For TB-10 to TB-15, write the scene ids done beside the row, for example "Done: uus-kolleeg (#851)".
