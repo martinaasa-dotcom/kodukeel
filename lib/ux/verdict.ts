@@ -92,11 +92,29 @@ export function verdictOfRating(rating: number): Verdict {
  * one-letter slip and the right word in another form are all the word,
  * nearly, which is what `countsAsRecalled` already says about them one module
  * over.
+ *
+ * And a miss within reach is nearly too (`nearMiss`): blush is for an answer
+ * nowhere near, or a blank. That is the colour only; the grade the round sends
+ * is still the marker's.
  */
-export function verdictOfCheck(check: "correct" | "diacritics" | "typo" | "form" | "wrong"): Verdict {
-  if (check === "correct") return "right";
-  if (check === "wrong") return "wrong";
+export function verdictOfCheck(check: {
+  verdict: "correct" | "diacritics" | "typo" | "form" | "wrong";
+  close?: boolean;
+}): Verdict {
+  if (check.verdict === "correct") return "right";
+  if (check.verdict === "wrong") return check.close ? "nearly" : "wrong";
   return "nearly";
+}
+
+/**
+ * A typed form marked by the flash round's marker (`markForm`), as a verdict:
+ * right is right, a miss within reach is nearly, and otherwise the rating
+ * decides, as it always did.
+ */
+export function verdictOfMark(mark: { right: boolean; rating: number; close?: boolean }): Verdict {
+  if (mark.right) return "right";
+  if (mark.close) return "nearly";
+  return verdictOfRating(mark.rating);
 }
 
 /**

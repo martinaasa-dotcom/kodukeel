@@ -1317,7 +1317,7 @@ export function LearnSession({
                time, so this is the one panel a learner most needs read back. */
             <div
               role="status"
-              className={`${result.outcome === "right" ? "pop-in" : ""} ${VERDICT_CLASS[result.outcome === "right" ? "right" : verdict && countsAsRecalled(verdict.verdict) ? "nearly" : "wrong"]} verdict-panel mt-2 w-full max-w-md text-left`}
+              className={`${result.outcome === "right" ? "pop-in" : ""} ${VERDICT_CLASS[result.outcome === "right" ? "right" : verdict && (countsAsRecalled(verdict.verdict) || verdict.close) ? "nearly" : "wrong"]} verdict-panel mt-2 w-full max-w-md text-left`}
             >
               {/*
                 THE ANSWER, SAID ONCE.

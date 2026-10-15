@@ -401,6 +401,12 @@ export interface OpenerMark {
   note: string;
   /** Whether what was written is the other opener's form. */
   wrote: "answer" | "other" | "neither";
+  /**
+   * A typed miss within reach (`nearMiss`), painted nearly rather than as a
+   * blank. Never the other opener's form, which is the one choice this round
+   * drills and stays a plain miss.
+   */
+  close?: boolean;
 }
 
 /** What a picked form was worth. The two options are exactly the two forms. */
@@ -424,7 +430,7 @@ export function markTyped(q: OpenerQuestion, typed: string): OpenerMark {
     return { right: false, rating: 2, note: check.note, wrote: "answer" };
   }
   if (wrote === "other") return { right: false, rating: 1, note: wrongNote(q), wrote };
-  return { right: false, rating: 1, note: check.note || `This one wanted “${q.answer}”.`, wrote };
+  return { right: false, rating: 1, note: check.note || `This one wanted “${q.answer}”.`, wrote, close: check.close ?? false };
 }
 
 function wrongNote(q: OpenerQuestion): string {

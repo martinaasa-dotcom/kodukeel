@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  OPTION_CLASS, VERDICT_CLASS, VERDICT_INK, optionState, verdictLine, verdictOfCheck, verdictOfRating,
+  OPTION_CLASS, VERDICT_CLASS, VERDICT_INK, optionState, verdictLine, verdictOfCheck, verdictOfMark, verdictOfRating,
 } from "./verdict";
 
 /**
@@ -27,11 +27,20 @@ describe("the verdict vocabulary", () => {
   });
 
   it("reads a slip as nearly, the way countsAsRecalled does", () => {
-    expect(verdictOfCheck("correct")).toBe("right");
-    expect(verdictOfCheck("diacritics")).toBe("nearly");
-    expect(verdictOfCheck("typo")).toBe("nearly");
-    expect(verdictOfCheck("form")).toBe("nearly");
-    expect(verdictOfCheck("wrong")).toBe("wrong");
+    expect(verdictOfCheck({ verdict: "correct" })).toBe("right");
+    expect(verdictOfCheck({ verdict: "diacritics" })).toBe("nearly");
+    expect(verdictOfCheck({ verdict: "typo" })).toBe("nearly");
+    expect(verdictOfCheck({ verdict: "form" })).toBe("nearly");
+    expect(verdictOfCheck({ verdict: "wrong" })).toBe("wrong");
+  });
+
+  it("paints a miss most of the way there as nearly, and a far miss as missed", () => {
+    expect(verdictOfCheck({ verdict: "wrong", close: true })).toBe("nearly");
+    expect(verdictOfCheck({ verdict: "wrong", close: false })).toBe("wrong");
+    expect(verdictOfMark({ right: false, rating: 1, close: true })).toBe("nearly");
+    expect(verdictOfMark({ right: false, rating: 1 })).toBe("wrong");
+    expect(verdictOfMark({ right: false, rating: 2 })).toBe("nearly");
+    expect(verdictOfMark({ right: true, rating: 2 })).toBe("right");
   });
 
   it("lights the answer whoever pressed what", () => {

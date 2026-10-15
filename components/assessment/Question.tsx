@@ -495,7 +495,7 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
             rule every other marking screen in the app already follows, and
             this screen was the one that had not caught up.
           */}
-          <div className={`${VERDICT_CLASS[verdictOfCredit(mark.credit)]} verdict-panel`}>
+          <div className={`${VERDICT_CLASS[mark.close ? "nearly" : verdictOfCredit(mark.credit)]} verdict-panel`}>
             {writeNote(mark.note, item.lemma, t)}
           </div>
           {/*

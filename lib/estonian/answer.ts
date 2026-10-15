@@ -77,6 +77,13 @@ export interface AnswerCheck {
    * marker's tests and the screens not yet translated read.
    */
   say?: NoteSay;
+  /**
+   * A miss that was within reach: most of the letters are there, or it is
+   * another form of the right word. It changes how the miss is painted and
+   * nothing else, so the grade above stays exactly what it was. See
+   * `nearMiss` for where the line is drawn.
+   */
+  close?: boolean;
 }
 
 /** What `noteIn` needs to rebuild a note in another language. */
@@ -150,6 +157,38 @@ export function acceptedForms(expected: string, language: "et" | "en"): Accepted
 /** Every spelling a marker lets through, flattened for comparison. */
 export function acceptedAnswers(expected: string, language: "et" | "en"): string[] {
   return acceptedForms(expected, language).map((accepted) => accepted.compared);
+}
+
+/**
+ * WHETHER A WRONG ANSWER WAS WITHIN REACH, WHICH DECIDES ITS COLOUR AND NOT ITS GRADE.
+ *
+ * A miss used to be painted blush whatever it was, so `muudama` typed for
+ * `muutuma`, six of seven letters in place, looked exactly like a blank box
+ * or a different word altogether. It was reported off the daily path: blush
+ * should mean nowhere near, or nothing at all, and an answer most of the way
+ * there is the butter "nearly" the palette already has.
+ *
+ * Within reach is at most a third of the letters out, counted as edits
+ * against the closest accepted spelling with diacritics folded away, so a
+ * dropped õ does not count against it twice. Below three letters a third is
+ * nothing, which is right: `me` for `ma` is half the word.
+ *
+ * THIS IS NOT THE TYPO RULE, AND MAY NOT BECOME IT. The typo rule decides a
+ * grade and is held to eight letters, because a different word graded Hard is
+ * a recall written into the one table that is never repaired. This decides a
+ * colour only: `sina` typed for `mina` is still Again and still says "Not
+ * quite", and is painted as the near miss it was.
+ */
+export function nearMiss(typed: string, expected: string, language: "et" | "en" = "et"): boolean {
+  const given = fold(normalise(typed, language));
+  if (!given) return false;
+  return acceptedForms(expected, language).some((answer) => {
+    const target = fold(answer.compared);
+    const allowance = Math.floor(target.length / 3);
+    if (allowance < 1) return false;
+    const distance = editDistance(given, target, allowance);
+    return distance > 0 && distance <= allowance;
+  });
 }
 
 /** Levenshtein distance, bailing out once it is past `max` (we only care about 1–2). */
@@ -351,6 +390,8 @@ export function checkAnswer(
           expected: primary,
           ...said({ template: "That's another form of the word. This one wanted {form}", form: primary }),
           suggestedRating: 1,
+          // The right word, in the wrong ending: wrong, and nowhere near a blank.
+          close: true,
         };
       }
     }
@@ -414,6 +455,7 @@ export function checkAnswer(
     expected: primary,
     ...said({ template: "Not quite, it's {form}", form: primary }),
     suggestedRating: 1,
+    close: nearMiss(typed, expected, language),
   };
 }
 
