@@ -61,7 +61,7 @@ const OFF_PORT = PORT + 1;
 const GSI_PORT = PORT + 2;
 const DIST = ".next-signin";
 
-const { check, done, absent } = suite("The sign-in screen", { floor: 39 });
+const { check, done, absent } = suite("The sign-in screen", { floor: 40 });
 
 /*
   A project ref and a key shaped like the real thing, signed with nothing.
@@ -556,6 +556,26 @@ const frame = await gsiPage.evaluate(() => {
 check("Google's own frame keeps the width it was laid out at, twenty past the column it sits in",
   !!frame && Math.abs(frame.painted - frame.laid) < 0.5,
   frame ? `laid out at ${frame.laid} and painted at ${frame.painted}, in a column of ${frame.column}` : "never drawn");
+
+/*
+  The dark theme declares `color-scheme: dark`, and an iframe whose document
+  does not share it is painted onto an opaque white backdrop: a white slab
+  round Google's button on a dark card. The frame says it is light, which is
+  what keeps it transparent, and that is read with the dark theme on.
+*/
+const scheme = await gsiPage.evaluate(() => {
+  const root = document.documentElement;
+  const before = root.dataset.theme;
+  root.dataset.theme = "dark";
+  const f = document.querySelector("[data-stub-frame]");
+  const page = getComputedStyle(root).colorScheme;
+  const framed = f ? getComputedStyle(f).colorScheme : null;
+  if (before === undefined) delete root.dataset.theme; else root.dataset.theme = before;
+  return { page, framed };
+});
+check("Google's frame is light-schemed, so the dark theme paints no white backdrop round it",
+  scheme.page === "dark" && scheme.framed === "light",
+  `page ${scheme.page}, frame ${scheme.framed ?? "never drawn"}`);
 
 /*
   A pixel width is right for one column and no other, so a column that changes
