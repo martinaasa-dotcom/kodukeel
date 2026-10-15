@@ -17,7 +17,7 @@ export const restoranisTellimine: ScenePicks = {
   ],
   contents: [
     { et: "Mis seal sees on?", en: "What's in it?" },
-    { et: "Kas seal on liha sees?", en: "Is there meat in it?" },
+    { et: "Kas supis on liha?", en: "Is there meat in the soup?" },
   ],
   drink: [
     { et: "{drink:PARTITIVE}, palun.", en: "Some {drink}, please." },
@@ -27,6 +27,10 @@ export const restoranisTellimine: ScenePicks = {
     { et: "Arve, palun.", en: "The bill, please." },
     { et: "Väga maitsev, aitäh. Kas ma saaksin arve?", en: "Delicious, thank you. Could I have the bill?" },
     { et: "Jah, väga hea. Ma tahaksin maksta.", en: "Yes, very good. I'd like to pay." },
+  ],
+  pay: [
+    { et: "Kaardiga, palun.", en: "By card, please." },
+    { et: "Sularahaga.", en: "In cash." },
   ],
   close: [
     { et: "Aitäh, head aega!", en: "Thanks, goodbye!" },

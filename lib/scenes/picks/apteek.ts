@@ -27,6 +27,10 @@ export const apteek: ScenePicks = {
     { et: "Jah, ma võtan selle.", en: "Yes, I'll take it." },
     { et: "Hästi, aitäh. Kui palju see maksab?", en: "Great, thanks. How much is it?" },
   ],
+  card: [
+    { et: "Kaardiga, palun.", en: "By card, please." },
+    { et: "Sularahaga.", en: "In cash." },
+  ],
   close: [
     { et: "Aitäh, head aega!", en: "Thanks, goodbye!" },
     { et: "Suur aitäh, nägemist!", en: "Thank you so much, bye!" },

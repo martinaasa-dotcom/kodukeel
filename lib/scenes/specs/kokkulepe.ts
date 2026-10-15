@@ -34,7 +34,7 @@ const ARRANGING: SceneSpec = {
     },
     { kind: "time", slot: "time", from: 17, to: 20, theirs: true },
   ],
-  curveballs: ["slot-gone", "not-possible", "small-talk", "faster"],
+  curveballs: ["small-talk", "faster"],
   beats: [
     {
       id: "greet",
@@ -63,7 +63,7 @@ const ARRANGING: SceneSpec = {
       id: "day",
       goal: "You're busy that evening. Say it doesn't suit you.",
       they: "They suggest tomorrow at {time}.",
-      feel: "sorry",
+      feel: "noted",
       move: "offer",
       topic: ["sobima", "õhtu", "kell", "päev"],
       says: [{ lemma: "homme" }, { lemma: "kell" }, { slot: "time" }],
@@ -86,10 +86,11 @@ const ARRANGING: SceneSpec = {
     {
       id: "time",
       goal: "Say yes to the time, so it's settled.",
-      they: "They say that works, at the same time: {time}.",
-      move: "confirm",
+      they: "They say that works, and ask whether {time} is fine.",
+      feel: "glad",
+      move: "offer",
       topic: ["kell", "aeg", "sobima"],
-      says: [{ lemma: "kell" }, { slot: "time" }],
+      says: [{ lemma: "siis" }, { lemma: "kell" }, { slot: "time" }],
       needs: [{ kind: "anyOf", of: [
         { kind: "datum", slot: "time" },
         { kind: "lemma", oneOf: ["sobima", "jah", "hästi", "nõus", "hea"] },

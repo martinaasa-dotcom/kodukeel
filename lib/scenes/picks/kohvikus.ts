@@ -20,6 +20,10 @@ export const kohvikus: ScenePicks = {
     { et: "Jah, aitäh. Kui palju see maksab?", en: "Yes, thanks. How much is it?" },
     { et: "Jah, ma tahaksin maksta.", en: "Yes, I'd like to pay." },
   ],
+  pay: [
+    { et: "Kaardiga, palun.", en: "By card, please." },
+    { et: "Sularahaga.", en: "In cash." },
+  ],
   close: [
     { et: "Aitäh, head aega!", en: "Thanks, bye!" },
     { et: "Suur aitäh, nägemist!", en: "Thanks a lot, see you!" },

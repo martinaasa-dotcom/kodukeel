@@ -9,10 +9,11 @@ const DIRECTIONS: SceneSpec = {
   /*
     `kohasonad` for `lähedal` and `kõrval`, `korraldused` for `aitama`, which
     is how a stranger offers to help, and `reisimine` for `leidma` and
-    `kõndima`. The place on the card is a `word` prop, so the learner has to
+    `kõndima`, and `viisisonad` for `umbes`, since "about five minutes" is
+    how anybody says how far. The place on the card is a `word` prop, so the learner has to
     produce it, in the case the question wants.
   */
-  units: [...COMMON, "kus-ja-kuhu", "ostmine", "kohasonad", "korraldused", "reisimine", "linn-ja-teenused", "omadussonad"],
+  units: [...COMMON, "kus-ja-kuhu", "ostmine", "kohasonad", "korraldused", "reisimine", "linn-ja-teenused", "omadussonad", "viisisonad"],
   register: "teie",
   role: "You're new in town and looking for somewhere. Your card says where you're going. You stop somebody on the street.",
   props: [
@@ -44,7 +45,8 @@ const DIRECTIONS: SceneSpec = {
       goal: "Say hello, or say sorry for stopping them.",
       they: "They stop and say hello.",
       move: "greet",
-      topic: [...HELLOS, "Vabandust!"],
+      // Not `Vabandust!` in the topic: the learner stops them, so the stranger never opens with an apology.
+      topic: [...HELLOS],
       needs: [{ kind: "lemma", oneOf: [...HELLOS, "Vabandust!"] }],
       required: true,
       patience: 2,
@@ -74,7 +76,7 @@ const DIRECTIONS: SceneSpec = {
     {
       id: "way",
       goal: "Say the directions back to check you've got them, or just thank them.",
-      they: "They tell you the way: straight on, then left.",
+      they: "They tell you which way to go.",
       move: "instruct",
       topic: ["otse", "vasak", "vasakul", "paremal", "edasi", "kõrval"],
       needs: [{ kind: "lemma", oneOf: ["otse", "vasak", "vasakul", "paremal", "edasi", "Aitäh!", "aitäh"] }],

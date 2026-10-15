@@ -1,5 +1,5 @@
 import type { SceneSpec } from "../types";
-import { COMMON, HELLOS, CLOSING_WORDS, FAREWELLS } from "./shared";
+import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 
 const COURSE: SceneSpec = {
   id: "keeletund",
@@ -19,8 +19,9 @@ const COURSE: SceneSpec = {
       says: "Where you're from.",
     },
     {
-      kind: "word", slot: "why", oneOf: ["töö", "pere", "kool", "sõber"],
+      kind: "word", slot: "why", oneOf: ["töö", "pere", "kool", "sõber", "abikaasa", "naine", "mees", "huvi"],
       says: "Why you're learning Estonian.",
+      means: { abikaasa: "spouse", naine: "wife", mees: "husband" },
     },
   ],
   curveballs: ["faster", "english", "small-talk", "interrupted", "other-register", "misheard"],
@@ -42,10 +43,15 @@ const COURSE: SceneSpec = {
       they: "They ask your name.",
       move: "ask",
       topic: ["nimi", "kes", "olema"],
-      needs: [{ kind: "lemma", oneOf: ["nimi", "olema", "mina"] }],
+      /*
+        A name is the learner's own and nobody checks it: "Anna." on its own
+        is how half a classroom answers, and it is an answer. The sentence
+        with `nimi` in it is still what is graded where it is said.
+      */
+      needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["nimi", "olema", "mina"] }, { kind: "any" }] }],
       required: true,
       patience: 2,
-      shape: "sentence",
+      shape: "word",
     },
     {
       id: "from",
@@ -74,11 +80,19 @@ const COURSE: SceneSpec = {
     {
       id: "word",
       goal: "They used a word you don't know. Ask what it means, or ask them to say it again.",
-      they: "They continue with the lesson, using a less common word you probably don't know yet, and don't explain it.",
-      answer: "They say the word again, slowly, and explain it with other Estonian words.",
+      they: "They go on with the lesson and say you'll do an exercise on page ten of the textbook, without explaining what an exercise is.",
+      answer: "They explain that an exercise is a short task you do in class, like writing sentences or answering questions.",
       move: "instruct",
-      topic: ["sõna", "lause", "harjutus", "näide", "kordama"],
-      needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["sõna", "kordama", "seletama", "uuesti", "aeglane", "tõlkima"] }],
+      /*
+        The line names the word, `harjutus`, because a beat that asks the
+        learner about a word nobody said is a beat they cannot do. The answer
+        explains that word and no other, so the two have to agree.
+      */
+      topic: ["sõna", "harjutus", "õpik", "lehekülg"],
+      needs: [{ kind: "question" }, {
+        kind: "lemma",
+        oneOf: ["harjutus", "tähendama", "sõna", "kordama", "seletama", "uuesti", "aeglane", "tõlkima", "õpik", "lehekülg"],
+      }],
       required: true,
       patience: 2,
       shape: "sentence",
@@ -89,7 +103,8 @@ const COURSE: SceneSpec = {
       they: "They ask how long you've been studying Estonian.",
       move: "ask",
       topic: ["kaua", "õppima", "aasta", "kuu", "nädal"],
-      needs: [{ kind: "lemma", oneOf: ["aasta", "kuu", "nädal", "päev", "kaua", "juba", "veel", "alati", "ammu"] }],
+      /* Not `kaua`: "Kaua?" is the question said back, and it was read as the answer. */
+      needs: [{ kind: "lemma", oneOf: ["aasta", "kuu", "nädal", "päev", "juba", "veel", "alati", "ammu"] }],
       choice: ["kuu", "aasta"],
       required: false,
       patience: 2,
@@ -98,9 +113,15 @@ const COURSE: SceneSpec = {
     {
       id: "close",
       goal: "Thank them before they turn to the next person.",
-      they: "They thank you and turn to the next person.",
+      they: "They thank you and turn to the next person in the room.",
       move: "close",
-      topic: [...FAREWELLS],
+      /*
+        Not the farewells: the class is not over, and a teacher who says
+        `Head aega!` to one student in the middle of the first evening has
+        sent them home. The topic names no phrase, so the line comes off the
+        bank, where the teacher thanks them and moves on.
+      */
+      topic: ["tänama", "järgmine"],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,

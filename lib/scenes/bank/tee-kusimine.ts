@@ -17,8 +17,9 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `tee-kusimine`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "tee-kusimine", beat: "answer:far", text: "Jah, see on lähedal.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "tee-kusimine", beat: "answer:far", text: "See on siin lähedal, viis minutit.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
+  { scene: "tee-kusimine", beat: "answer:far", text: "See ei ole kaugel, umbes viis minutit.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "tee-kusimine", beat: "answer:far", text: "Umbes viis minutit, see on siin lähedal.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "tee-kusimine", beat: "hurdle:faster", text: "Kiire on, mul ei ole aega.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "tee-kusimine", beat: "hurdle:faster", text: "Kiire on, öelge kohe.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "tee-kusimine", beat: "hurdle:interrupted", text: "Üks minut, keegi räägib.", model: "authored", draftedAt: "2026-09-12", reviewedAt: "2026-10-15" },

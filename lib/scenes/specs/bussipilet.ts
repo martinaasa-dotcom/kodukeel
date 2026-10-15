@@ -87,6 +87,7 @@ const TICKET: SceneSpec = {
           */
           { kind: "case", lemma: "kaart", grammCase: "COMITATIVE" },
           { kind: "case", lemma: "raha", grammCase: "COMITATIVE" },
+          { kind: "case", lemma: "sularaha", grammCase: "COMITATIVE" },
           /*
             Not `maksma`: "card or cash?" is not answered by "I'm paying",
             and any form of the verb met it, so `Kui palju see maksab?`,

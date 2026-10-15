@@ -13,7 +13,9 @@ const INTERVIEW: SceneSpec = {
     for `sobima` and `nõustuma`, `haridus` for the course you did, and
     `too-ja-raha` for `palk` and `leping`.
   */
-  units: [...COMMON, "too-ja-raha", "haridus", "kool-ja-keel", "kus-ja-kuhu", "ostmine", "kodu", "minevik", "plaanid", "omadussonad", "inimesed"],
+  units: [...COMMON, "too-ja-raha", "haridus", "kool-ja-keel", "kus-ja-kuhu", "ostmine", "kodu", "minevik", "plaanid", "omadussonad", "inimesed",
+    /* `tugev` for what you are strong at, `pakkuma` for what they offer, `meeldima` for why you want it. */
+    "vordlemine", "tingiv", "rektsioon"],
   register: "teie",
   role: "You're being interviewed for a job. Your card says where you worked before, what you're good at and when you could start. None of it is about your real life.",
   props: [
@@ -45,7 +47,11 @@ const INTERVIEW: SceneSpec = {
     { kind: "price", slot: "wage", min: 1400, max: 1700, says: "The monthly wage they offer, in euros.", theirs: true, pay: true },
     { kind: "price", slot: "wage2", min: 1750, max: 2000, says: "What they go up to if you ask for more, in euros a month.", theirs: true, pay: true },
   ],
-  curveballs: ["faster", "english", "small-talk", "interrupted", "other-register", "not-possible", "contradiction", "their-order"],
+  /*
+    Not `contradiction`: the interviewer asks rather than tells, so there is
+    nothing said two turns earlier for them to go back on.
+  */
+  curveballs: ["faster", "english", "small-talk", "interrupted", "other-register", "not-possible", "their-order"],
   beats: [
     {
       id: "greet",
@@ -92,7 +98,7 @@ const INTERVIEW: SceneSpec = {
         says it on the beat before this one (`ma olen hea projektiga`), and
         the look-ahead credited this beat from there.
       */
-      needs: [{ kind: "lemma", oneOf: ["sest", "tahtma", "töö", "ettevõte", "kogemus", "uus"] }],
+      needs: [{ kind: "lemma", oneOf: ["sest", "tahtma", "töö", "ettevõte", "kogemus", "uus", "raha", "huvitav", "meeldima", "huvi"] }],
       required: true,
       patience: 2,
       shape: "sentence",
@@ -109,7 +115,14 @@ const INTERVIEW: SceneSpec = {
       id: "pay",
       goal: "They asked if you've got any questions. Ask what the pay is.",
       they: "They ask if you've got any questions for them.",
-      answeredNext: true,
+      /*
+        Answered rather than left to the next move, because the question is
+        asked early as often as on cue: a learner who asks about the money
+        while they are still being asked about their skills is told it is a
+        good question and that the pay is coming, and on cue the same words
+        lead straight into the offer.
+      */
+      answer: "They say it's a good question and that they'll come to the pay.",
       move: "ask",
       topic: ["küsimus", "küsima", "palk", "leping"],
       needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["palk", "raha", "maksma", "leping"] }],
@@ -138,8 +151,9 @@ const INTERVIEW: SceneSpec = {
       ],
       counter: {
         they: "They go up to {wage2} euros a month and ask if that works for you.",
+        // `Siis pakume 1850 eurot kuus?`: a counter-offer, said as one.
         says: [
-          { lemma: "palk" }, { lemma: "olema", verb: "IndPrSg3" }, { slot: "wage2" },
+          { lemma: "siis" }, { lemma: "pakkuma", verb: "IndPrPl1" }, { slot: "wage2" },
           { lemma: "euro", grammCase: "PARTITIVE" }, { lemma: "kuu", grammCase: "INESSIVE" },
         ],
         replaces: [["wage", "wage2"]],

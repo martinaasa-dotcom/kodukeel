@@ -94,13 +94,13 @@ const FRIENDS_WORRY: SceneSpec = {
     {
       id: "meet",
       goal: "They'd like to meet again. Say yes to the day they suggest, or say it doesn't suit.",
-      they: "They thank you and ask if you could meet again on {day}.",
+      they: "They suggest meeting again on {day}.",
       move: "offer",
       topic: ["kohtuma", "päev"],
-      says: [{ lemma: "kohtuma", verb: "IndPrPl1" }, { slot: "day", grammCase: "ADESSIVE" }],
+      says: [{ lemma: "kohtuma", verb: "IndPrPl1" }, { lemma: "siis" }, { slot: "day", grammCase: "ADESSIVE" }, { lemma: "uuesti" }],
       counter: {
         they: "They suggest {day2} instead.",
-        says: [{ lemma: "kohtuma", verb: "IndPrPl1" }, { slot: "day2", grammCase: "ADESSIVE" }],
+        says: [{ lemma: "siis" }, { lemma: "kohtuma", verb: "IndPrPl1" }, { slot: "day2", grammCase: "ADESSIVE" }],
         replaces: [["day", "day2"]],
       },
       needs: [{ kind: "anyOf", of: [
@@ -115,7 +115,7 @@ const FRIENDS_WORRY: SceneSpec = {
     {
       id: "close",
       goal: "Say goodbye, and that you will see them then.",
-      they: "They give you a hug and say goodbye.",
+      they: "They say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],

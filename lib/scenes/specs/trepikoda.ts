@@ -10,8 +10,9 @@ const NEIGHBOR: SceneSpec = {
     `riigid` for where you are from, which is the second question anybody in
     a stairwell asks, and `kodu` for the flat and the floor. `teie`, because
     a neighbor you met last week is not yet a friend on the phone.
+    `eluase` for `kolima`, which is how anybody says they have just moved in.
   */
-  units: [...COMMON, "inimesed", "kodu", "riigid", "omadussonad"],
+  units: [...COMMON, "inimesed", "kodu", "riigid", "omadussonad", "eluase"],
   register: "teie",
   role: "You moved into the building last week. On the stairs you bump into the person from the apartment opposite, who stops to say hello. Your card says where you're from and who lives with you.",
   props: [
@@ -52,7 +53,7 @@ const NEIGHBOR: SceneSpec = {
       feel: "glad",
       move: "ask",
       topic: ["uus", "korter", "maja", "elama"],
-      needs: [{ kind: "lemma", oneOf: ["uus", "jah", "elama", "korter", "nüüd"] }],
+      needs: [{ kind: "lemma", oneOf: ["uus", "jah", "elama", "korter", "nüüd", "kolima"] }],
       required: true,
       patience: 2,
       shape: "word",
@@ -83,10 +84,12 @@ const NEIGHBOR: SceneSpec = {
     {
       id: "with",
       goal: "Tell them who you live with.",
-      they: "They ask if you live on your own.",
+      they: "They ask whether you live on your own or with somebody.",
+      feel: "noted",
       move: "ask",
       topic: ["pere", "inimene", "elama", "ise"],
-      needs: [{ kind: "datum", slot: "with" }],
+      // `Üksi` is an answer to "do you live on your own?", and was waited on as half of one.
+      needs: [{ kind: "anyOf", of: [{ kind: "datum", slot: "with" }, { kind: "lemma", oneOf: ["üksi"] }] }],
       required: true,
       patience: 2,
       shape: "sentence",

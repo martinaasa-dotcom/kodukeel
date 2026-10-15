@@ -12,7 +12,7 @@ export const lastevanemad: ScenePicks = {
   ],
   how: [
     { et: "Kas vead on suured?", en: "Are the mistakes big?" },
-    { et: "Mida ma saan kodus teha?", en: "What can I do at home?" },
+    { et: "Kas need on suured vead?", en: "Are they big mistakes?" },
   ],
   home: [
     { et: "Ta on kodus {home}.", en: "At home they're {home}." },

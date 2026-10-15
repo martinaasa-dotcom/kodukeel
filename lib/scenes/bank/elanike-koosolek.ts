@@ -17,6 +17,8 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `elanike-koosolek`. */
 const LINES: readonly ScriptedLine[] = [
+  { scene: "elanike-koosolek", beat: "greet", text: "Tere õhtust! Alustame koosolekut.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "elanike-koosolek", beat: "greet", text: "Tere! Kõik on koos, alustame koosolekut.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "elanike-koosolek", beat: "idea", text: "Kellel on mõni mõte?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elanike-koosolek", beat: "idea", text: "Mida me maja taga teha võiksime?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elanike-koosolek", beat: "why", text: "Miks just see?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
@@ -27,12 +29,14 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "elanike-koosolek", beat: "vote", text: "Kas paneme selle hääletusele?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elanike-koosolek", beat: "hurdle:interrupted", text: "Üks minut, palun.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elanike-koosolek", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "elanike-koosolek", beat: "hurdle:contradiction", text: "Ei, raha meil ei ole.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "elanike-koosolek", beat: "hurdle:contradiction", text: "Ei, see ei ole ohutu.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "elanike-koosolek", beat: "hurdle:other-register", text: "Miks sa nii arvad?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "elanike-koosolek", beat: "hurdle:other-register", text: "Kas sa aitad ise ka?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elanike-koosolek", beat: "hurdle:faster", text: "Meil on kiire, rääkige kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elanike-koosolek", beat: "hurdle:faster", text: "Kiire on, öelge kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "elanike-koosolek", beat: "close", text: "Hästi, kõik on nõus. Otsus on tehtud! Aitäh, head aega!", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "elanike-koosolek", beat: "close", text: "Otsus on vastu võetud. Aitäh, koosolek on lõppenud. Head aega!", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "elanike-koosolek", beat: "hurdle:contradiction", text: "Ei, täna me ei hääleta.", model: "authored", draftedAt: "2026-10-15", about: "vote" },
+  { scene: "elanike-koosolek", beat: "hurdle:contradiction", text: "Tegelikult ei ole täna aega hääletada.", model: "authored", draftedAt: "2026-10-15", about: "vote" },
+  { scene: "elanike-koosolek", beat: "hurdle:other-register", text: "Kas sa aitad ise ka?", model: "authored", draftedAt: "2026-10-15", about: "cost" },
+  { scene: "elanike-koosolek", beat: "hurdle:other-register", text: "Kas sul on veel mõtteid?", model: "authored", draftedAt: "2026-10-15", about: "why" },
 ];
 
 export default LINES;

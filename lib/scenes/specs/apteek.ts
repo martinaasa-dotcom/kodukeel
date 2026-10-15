@@ -13,15 +13,17 @@ const PHARMACY: SceneSpec = {
     often: most of what hurts never reaches a doctor.
   */
   // `minevik` for `ootama`: a pharmacist says "one moment, wait here", and
-  // the eval withheld a line over the polite imperative of it.
-  units: [...COMMON, "keha-ja-tervis", "restoranis", "plaanid", "ostmine", "omadussonad", "linn-ja-teenused", "minevik"],
+  // the eval withheld a line over the polite imperative of it. `kool-ja-keel`
+  // for `viga` ("Mis teil viga on?") and `reisimine` for `kaart`, because
+  // "kaardiga" is how most people pay.
+  units: [...COMMON, "keha-ja-tervis", "restoranis", "plaanid", "ostmine", "omadussonad", "linn-ja-teenused", "minevik", "kool-ja-keel", "reisimine"],
   register: "teie",
   role: "Something's been hurting since earlier in the week and you'd rather not see a doctor about it. You're at the pharmacy counter. Your card says what hurts and since when.",
   props: [
     {
-      kind: "word", slot: "hurts", oneOf: ["pea", "kõrv", "selg", "jalg", "käsi", "silm"],
+      kind: "word", slot: "hurts", oneOf: ["pea", "kõrv", "selg", "jalg", "käsi", "silm", "kõht", "hammas", "kael"],
       says: "What hurts.",
-      means: { jalg: "leg", "käsi": "hand" },
+      means: { jalg: "leg", "käsi": "hand", "kõht": "stomach" },
     },
     {
       kind: "weekday", slot: "since",
@@ -52,24 +54,28 @@ const PHARMACY: SceneSpec = {
     },
     {
       id: "what",
-      goal: "Tell them what's hurting.",
+      goal: "Tell them what's wrong, and what hurts.",
       feel: "noted",
-      they: "They ask how they can help.",
+      they: "They ask what's wrong.",
       move: "ask",
-      topic: ["aitama", "valu", "valutama", "tervis", "haige"],
-      needs: [{ kind: "datum", slot: "hurts" }],
+      topic: ["aitama", "valu", "valutama", "tervis", "haige", "viga"],
+      /*
+        "Mul on peavalu" and "Ma olen haige" are how people open at a
+        pharmacy counter, and both were refused for not naming a body part.
+      */
+      needs: [{ kind: "anyOf", of: [{ kind: "datum", slot: "hurts" }, { kind: "lemma", oneOf: ["valu", "haige", "palavik", "haigus"] }] }],
       required: true,
       patience: 3,
       shape: "sentence",
     },
     {
       id: "since",
-      goal: "Tell them which day it started hurting.",
+      goal: "Tell them which day it started, or how long it's been.",
       feel: "noted",
       they: "They ask how long it's been like this.",
       move: "ask",
       topic: ["kaua", "päev", "aeg", "kestma", "eile"],
-      needs: [{ kind: "datum", slot: "since" }],
+      needs: [{ kind: "anyOf", of: [{ kind: "datum", slot: "since" }, { kind: "lemma", oneOf: ["päev", "nädal", "eile"] }] }],
       required: true,
       patience: 2,
       shape: "word",
@@ -81,7 +87,7 @@ const PHARMACY: SceneSpec = {
       answeredNext: true,
       move: "confirm",
       topic: ["ravim", "hea", "aitama", "soovitama"],
-      needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["ravim", "soovitama", "hea", "aitama", "mis"] }],
+      needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["ravim", "soovitama", "hea", "aitama", "mis", "miski", "tablett"] }],
       required: true,
       patience: 2,
       shape: "sentence",
@@ -100,11 +106,36 @@ const PHARMACY: SceneSpec = {
     },
     {
       id: "pay",
-      goal: "Tell them you'll take it, and pay.",
-      they: "They explain how to take it and tell you the price.",
+      goal: "Tell them you'll take it.",
+      they: "They tell you how to take it.",
       move: "instruct",
-      topic: ["hommik", "õhtu", "päev", "hind", "maksma"],
-      needs: [{ kind: "lemma", oneOf: ["maksma", "raha", "jah", "aitäh"] }],
+      topic: ["hommik", "õhtu", "päev", "võtma"],
+      needs: [{ kind: "lemma", oneOf: ["võtma", "jah", "hästi", "selge", "aitäh"] }],
+      required: true,
+      patience: 2,
+      shape: "word",
+    },
+    {
+      /*
+        AND THEN THEY ASK HOW YOU ARE PAYING, which is the half of a pharmacy
+        counter that was missing: the box went on the counter and the next
+        thing anybody said was goodbye. The amount is the one on the card; the
+        till asks what it does not know. No yes or no here: "Jah, ma võtan
+        selle" one beat earlier would otherwise pay with its "jah".
+      */
+      id: "card",
+      goal: "Tell them how you're paying: by card or in cash.",
+      they: "They ask if you're paying by card or in cash.",
+      move: "ask",
+      topic: ["maksma", "kaart", "sularaha"],
+      needs: [{
+        kind: "anyOf",
+        of: [
+          { kind: "case", lemma: "kaart", grammCase: "COMITATIVE" },
+          { kind: "case", lemma: "sularaha", grammCase: "COMITATIVE" },
+          { kind: "case", lemma: "raha", grammCase: "COMITATIVE" },
+        ],
+      }],
       required: true,
       patience: 2,
       shape: "word",
@@ -122,8 +153,8 @@ const PHARMACY: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "sorted", when: ["greet", "what", "since", "medicine", "how", "pay", "close"], says: "You've got something for it and you know how to take it. Nobody switched to English, and the line survived." },
-    { id: "sorted-thin", when: ["what", "medicine", "pay"], says: "You've got something for it. You didn't ask how often, so read the box before you take one." },
+    { id: "sorted", when: ["greet", "what", "since", "medicine", "how", "pay", "card", "close"], says: "You've got something for it and you know how to take it. Nobody switched to English, and the line survived." },
+    { id: "sorted-thin", when: ["what", "medicine", "card"], says: "You've got something for it. You didn't ask how often, so read the box before you take one." },
     { id: "see-doctor", when: ["greet", "what", "since"], says: "They said this one needs a doctor, not a pharmacy. You explained it well enough for them to tell." },
     { id: "left", when: [], says: "You stepped out of the line. Pharmacies are open late, and you can come back." },
   ],

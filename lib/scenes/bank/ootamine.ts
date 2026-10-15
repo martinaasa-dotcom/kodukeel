@@ -17,9 +17,9 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `ootamine`. */
 const LINES: readonly ScriptedLine[] = [
+  { scene: "ootamine", beat: "time", text: "Ma vaatan kella. Me oleme siin juba kaua oodanud.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "ootamine", beat: "weather", text: "Milline ilm täna jälle!", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "ootamine", beat: "weather", text: "Täna on jälle selline ilm, eks?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "ootamine", beat: "time", text: "Kas teil on kiire?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "ootamine", beat: "time", text: "Me ootame juba kaua, eks?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "ootamine", beat: "when", text: "See buss hilineb alati.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "ootamine", beat: "when", text: "Buss hilineb jälle.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },

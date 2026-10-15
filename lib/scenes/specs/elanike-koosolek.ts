@@ -1,5 +1,5 @@
 import type { SceneSpec } from "../types";
-import { COMMON, HELLOS, CLOSING_WORDS, FAREWELLS } from "./shared";
+import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 
 const RESIDENTS_MEETING: SceneSpec = {
   id: "elanike-koosolek",
@@ -12,14 +12,15 @@ const RESIDENTS_MEETING: SceneSpec = {
     `keskkond` for what makes a yard better, `arvamus` for giving a reason,
     `loodus` for the trees and flowers, `kirjeldamine` for safe, `inimesed`
     for the children, `plaanid` for agreeing, `ostmine` for what it costs,
-    `kodu` for the building, and `omadussonad` for slowly.
+    `kodu` for the building, `too-ja-raha` for the meeting itself,
+    `minevik` for starting it, and `omadussonad` for slowly.
     `teie`, because a meeting of neighbours speaks to everybody at once.
 
     The course does not teach a word for the yard itself, so the learner
     proposes what goes in it (trees, flowers) and the stage directions say
     where.
   */
-  units: [...COMMON, "uhiskond", "poliitika", "keskkond", "arvamus", "loodus", "kirjeldamine", "inimesed", "plaanid", "ostmine", "kodu", "omadussonad"],
+  units: [...COMMON, "uhiskond", "poliitika", "keskkond", "arvamus", "loodus", "kirjeldamine", "inimesed", "plaanid", "ostmine", "kodu", "too-ja-raha", "minevik", "omadussonad"],
   register: "teie",
   role: "This is a role. The yard behind your building is bare and muddy, and there's a residents' meeting tonight. You want to persuade the neighbours to plant something.",
   props: [],
@@ -28,9 +29,10 @@ const RESIDENTS_MEETING: SceneSpec = {
     {
       id: "greet",
       goal: "Say hello to the room.",
-      they: "The chair of the meeting says hello to everybody.",
+      they: "The chair of the meeting says hello to everybody and opens the meeting.",
       move: "greet",
-      topic: [...HELLOS],
+      // Not `HELLOS`: the chair opens the meeting as well, and the bank is what says it.
+      topic: ["koosolek", "alustama"],
       needs: [{ kind: "lemma", oneOf: [...HELLOS] }],
       required: true,
       patience: 2,
@@ -40,6 +42,7 @@ const RESIDENTS_MEETING: SceneSpec = {
       id: "idea",
       goal: "Say what you'd like for the yard: trees, say, or flowers.",
       they: "They ask whether anybody has a proposal for the yard.",
+      feel: "glad",
       move: "ask",
       topic: ["puu", "lill", "ilus"],
       needs: [{ kind: "lemma", oneOf: ["puu", "lill", "park", "ilus"] }],
@@ -62,6 +65,7 @@ const RESIDENTS_MEETING: SceneSpec = {
       id: "cost",
       goal: "A neighbour says it costs too much. Answer them: you could do it together.",
       they: "A neighbour says it would cost too much.",
+      feel: "noted",
       move: "ask",
       topic: ["raha", "maksma", "kallis"],
       needs: [{ kind: "anyOf", of: [
@@ -86,9 +90,13 @@ const RESIDENTS_MEETING: SceneSpec = {
     {
       id: "close",
       goal: "Say goodbye as the meeting ends.",
-      they: "The chair thanks everybody and closes the meeting.",
+      they: "The chair says the vote is yes, thanks everybody and closes the meeting.",
       move: "close",
-      topic: [...FAREWELLS],
+      /*
+        Not `FAREWELLS`: the chair says how the vote went before the goodbye,
+        which a bare `Head aega!` never did, and the bank is what says it.
+      */
+      topic: ["otsus", "koosolek"],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,

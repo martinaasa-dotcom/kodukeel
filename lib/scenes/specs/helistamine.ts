@@ -9,11 +9,12 @@ const PHONE: SceneSpec = {
   /*
     `kodu` for the thing you are after, `plaanid` for `sobima`, `ostmine` for
     the shop and the money. `linn-ja-teenused` because a shop that has a thing
-    is a shop that has it in stock, which is `kaup`.
+    is a shop that has it in stock, which is `kaup`. `kool-ja-keel` for
+    `küsimus`, because "Mul on küsimus" is how most calls like this open.
   */
   // `kodutood` for `avama` and `sulgema`, which is what a shop's opening
   // hours are said with and the one thing this call is about.
-  units: [...COMMON, "suhtlemine", "kodu", "ostmine", "linn-ja-teenused", "plaanid", "omadussonad", "kodutood"],
+  units: [...COMMON, "suhtlemine", "kodu", "ostmine", "linn-ja-teenused", "plaanid", "omadussonad", "kodutood", "kool-ja-keel"],
   register: "teie",
   role: "You need something from a shop across town before the weekend, so you call first rather than turn up and find it shut. Your card says what you're after.",
   props: [
@@ -33,7 +34,7 @@ const PHONE: SceneSpec = {
     {
       id: "greet",
       goal: "Say hello back down the phone.",
-      they: "Somebody answers the phone and says the name of the shop.",
+      they: "Somebody at the shop picks up and says hello.",
       move: "greet",
       topic: [...HELLOS],
       needs: [{ kind: "lemma", oneOf: [...HELLOS] }],
@@ -45,9 +46,19 @@ const PHONE: SceneSpec = {
       id: "why",
       goal: "Tell them why you're calling: you'd like to ask about something, or buy something.",
       they: "They ask what it's about.",
+      // Asked straight out, "Kas teil on arvuti?" is answered by the next move, "Jah, meil on see."
+      answeredNext: true,
       move: "ask",
       topic: ["helistama", "küsima", "aitama", "soovima"],
-      needs: [{ kind: "lemma", oneOf: ["helistama", "küsima", "soovima", "tahtma", "ostma"] }],
+      /*
+        Asking straight out is telling them why you called: "Kas teil on
+        arvuti?" is the reason, and it was answered with "how can I help?"
+        again, as though nothing had been said.
+      */
+      needs: [{
+        kind: "anyOf",
+        of: [{ kind: "lemma", oneOf: ["helistama", "küsima", "küsimus", "soovima", "tahtma", "ostma"] }, { kind: "question" }],
+      }],
       required: true,
       patience: 3,
       shape: "sentence",
@@ -81,7 +92,8 @@ const PHONE: SceneSpec = {
       they: "They tell you when they open tomorrow: {open}.",
       move: "offer",
       topic: ["kell", "aeg", "homme"],
-      says: [{ lemma: "homme" }, { lemma: "kell" }, { slot: "open" }],
+      // A statement, which the verb makes it: "Homme kell 9?" read as the shop unsure of its own hours.
+      says: [{ lemma: "avama", verb: "IndPrPl1" }, { lemma: "homme" }, { lemma: "kell" }, { slot: "open" }],
       needs: [{ kind: "datum", slot: "open" }],
       required: true,
       patience: 2,

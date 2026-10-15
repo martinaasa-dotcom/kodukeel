@@ -18,7 +18,11 @@ const WEEKEND: SceneSpec = {
   role: "It's Monday morning. A colleague you get on with is making coffee and asks about your weekend. Your card says what you did.",
   props: [
     {
-      kind: "word", slot: "did", oneOf: ["saun", "kino", "kontsert", "teater", "pidu", "näitus"],
+      /*
+        Not the theatre or a party: those are what the colleague mishears, so
+        neither can be the learner's own.
+      */
+      kind: "word", slot: "did", oneOf: ["saun", "kino", "kontsert", "näitus"],
       says: "Where you went at the weekend.",
     },
   ],
@@ -26,8 +30,8 @@ const WEEKEND: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say good morning back.",
-      they: "Your colleague says good morning.",
+      goal: "Say hello back.",
+      they: "Your colleague says hello.",
       move: "greet",
       topic: ["Tere hommikust!", "Tere!"],
       needs: [{ kind: "lemma", oneOf: ["Tere hommikust!", "Tere!"] }],
@@ -62,10 +66,14 @@ const WEEKEND: SceneSpec = {
     {
       id: "back",
       goal: "Ask them about their weekend.",
-      they: "They pour the coffee and wait, in case you ask about theirs.",
+      /*
+        Not `awaits`: a colleague who has just been told about your weekend
+        says something about it rather than standing there in silence, and
+        "mine was good too" is what invites the question back.
+      */
+      they: "They say their weekend was good too, and wait in case you ask about it.",
       answer: "They say they went to the countryside and it was lovely.",
       move: "offer",
-      awaits: true,
       topic: ["nädalavahetus", "sina", "tegema", "kuidas"],
       needs: [{ kind: "question" }],
       required: true,

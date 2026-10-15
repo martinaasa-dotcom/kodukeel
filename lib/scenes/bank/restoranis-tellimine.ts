@@ -17,16 +17,18 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `restoranis-tellimine`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "restoranis-tellimine", beat: "answer:contents", text: "Selles roas on kala ja salat.", model: "authored", draftedAt: "2026-09-11", reviewedAt: "2026-10-15" },
-  { scene: "restoranis-tellimine", beat: "answer:contents", text: "Selles roas on liha ja kartul.", model: "authored", draftedAt: "2026-09-11", reviewedAt: "2026-10-15" },
+  { scene: "restoranis-tellimine", beat: "answer:contents", text: "Supis on kala ja kartul.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "restoranis-tellimine", beat: "answer:contents", text: "Selles supis on liha ja köögiviljad.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "restoranis-tellimine", beat: "answer:hurdle:not-possible", text: "Homme saab.", model: "authored", draftedAt: "2026-10-02", reviewedAt: "2026-10-15" },
   { scene: "restoranis-tellimine", beat: "answer:hurdle:not-possible", text: "Homme.", model: "authored", draftedAt: "2026-10-02", reviewedAt: "2026-10-15" },
   { scene: "restoranis-tellimine", beat: "bill", text: "Kas kõik oli hea?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "restoranis-tellimine", beat: "bill", text: "Kas toit oli hea?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
+  { scene: "restoranis-tellimine", beat: "bill", text: "Kas kõik maitses hästi?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "restoranis-tellimine", beat: "contents", text: "Ma soovitan suppi.", model: "authored", draftedAt: "2026-10-02", reviewedAt: "2026-10-15" },
   { scene: "restoranis-tellimine", beat: "contents", text: "Proovige suppi, see on väga hea.", model: "authored", draftedAt: "2026-10-02", reviewedAt: "2026-10-15" },
   { scene: "restoranis-tellimine", beat: "contents", text: "Supp on täna väga hea.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "restoranis-tellimine", beat: "contents", text: "Täna soovitan ma suppi.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
+  { scene: "restoranis-tellimine", beat: "contents", text: "Täna soovitan ma suppi, see on väga hea.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "restoranis-tellimine", beat: "drink", text: "Ja mida te juua soovite?", model: "authored", draftedAt: "2026-09-12", reviewedAt: "2026-10-15" },
   { scene: "restoranis-tellimine", beat: "drink", text: "Mida te joote?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "restoranis-tellimine", beat: "drink", text: "Mida te soovite juua?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
@@ -44,6 +46,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "restoranis-tellimine", beat: "hurdle:their-order", text: "Enne tuleb jook, siis toit.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "restoranis-tellimine", beat: "order", text: "Mida te soovite süüa?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "restoranis-tellimine", beat: "order", text: "Mida te tellite?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
+  { scene: "restoranis-tellimine", beat: "pay", text: "Kaardiga või sularahaga?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "restoranis-tellimine", beat: "pay", text: "Kas maksate kaardiga või sularahaga?", model: "authored", draftedAt: "2026-10-15" },
 ];
 
 export default LINES;

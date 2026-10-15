@@ -49,14 +49,6 @@ const LANDLORD: SceneSpec = {
       says: "The other day they can come.",
     },
     { kind: "time", slot: "time2", from: 8, to: 18, differentFrom: "time", theirs: true },
-    /*
-      THE PRICE, TOLD AND THEN CHANGED. `wrong-price` says the amount is not
-      the one the learner was told, so the card tells them one, and the other
-      side holds the one it has now, drawn to differ and never printed: the
-      curveball says it off the card and "how much?" is answered with it.
-    */
-    { kind: "price", slot: "price", min: 20, max: 60, says: "What they said the repair would cost, in euros." },
-    { kind: "price", slot: "price2", min: 20, max: 60, says: "What it costs now.", theirs: true, differentFrom: "price" },
   ],
   /*
     No queue: this one is a telephone call, so the only curveball in the
@@ -64,9 +56,14 @@ const LANDLORD: SceneSpec = {
     could actually occur in it, which is the same discipline as declaring the
     units its words come from.
   */
+  /*
+    Not `missing-document`, which asked for a document down a telephone, and
+    not `wrong-price`, which put a price on a repair the landlord pays for.
+    A scene admits what could happen in it.
+  */
   curveballs: [
     "slot-gone", "not-possible", "faster", "small-talk", "interrupted",
-    "english", "wrong-price", "other-register", "missing-document", "contradiction",
+    "english", "other-register", "contradiction",
   ],
   beats: [
     {
@@ -105,6 +102,7 @@ const LANDLORD: SceneSpec = {
       id: "where",
       goal: "Tell them which room it's in, and which floor you're on.",
       they: "They ask which room it's in, and which floor.",
+      feel: "noted",
       move: "ask",
       /*
         `korrus` is the floor of a building and `kord` is not: it is an
@@ -141,7 +139,7 @@ const LANDLORD: SceneSpec = {
       id: "refuse",
       goal: "Nobody can come this week. Ask when somebody can.",
       they: "They sigh. Nobody can come this week.",
-      answer: "They say somebody can come soon, then offer a day and a time.",
+      answer: "They say there's a lot of work this week, but somebody can come next week.",
       move: "refuse",
       topic: ["remont", "aeg", "nädal", "üür", "millal"],
       needs: [{ kind: "question" }],

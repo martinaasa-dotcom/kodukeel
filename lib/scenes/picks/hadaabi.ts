@@ -10,9 +10,17 @@ export const hadaabi: ScenePicks = {
     { et: "Keegi kukkus. Tal valutab {what}.", en: "Somebody fell. Their {what} hurts." },
     { et: "Keegi kukkus ja tal on {what} haige.", en: "Somebody fell and hurt their {what}." },
   ],
+  part: [
+    { et: "{what}.", en: "Their {what}." },
+    { et: "Tal valutab {what}.", en: "Their {what} hurts." },
+  ],
   where: [
     { et: "{where:GENITIVE} juures, maja number {house}.", en: "By the {where}, house number {house}." },
-    { et: "Me oleme {where:GENITIVE} kõrval, maja {house}.", en: "We're next to the {where}, house {house}." },
+    { et: "Me oleme {where:GENITIVE} kõrval.", en: "We're next to the {where}." },
+  ],
+  house: [
+    { et: "Maja number {house}.", en: "House number {house}." },
+    { et: "{house}.", en: "{house}." },
   ],
   hurt: [
     { et: "Ei.", en: "No." },

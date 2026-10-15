@@ -78,7 +78,7 @@ const PARENTS_EVENING: SceneSpec = {
       id: "home",
       goal: "Tell them how your child seems at home lately.",
       they: "They ask how your child seems at home.",
-      feel: "sorry",
+      feel: "noted",
       move: "ask",
       topic: ["kodu", "tunduma", "tuju"],
       needs: [{ kind: "datum", slot: "home" }],
@@ -92,7 +92,11 @@ const PARENTS_EVENING: SceneSpec = {
       they: "They suggest reading together at home, a little every day.",
       move: "instruct",
       topic: ["lugema", "kodu", "päev"],
-      needs: [{ kind: "lemma", oneOf: ["lugema", "jah", "hästi", "selge"] }],
+      /*
+        Agreeing to read is the beat, and "Hea mõte", "Kindlasti" and a plain
+        thanks are how a parent agrees to a teacher's suggestion.
+      */
+      needs: [{ kind: "lemma", oneOf: ["lugema", "jah", "hästi", "selge", "hea", "kindlasti", "proovima", "Aitäh!"] }],
       required: true,
       patience: 2,
       shape: "sentence",

@@ -1,5 +1,5 @@
 import type { SceneSpec } from "../types";
-import { COMMON, HELLOS, CLOSING_WORDS, FAREWELLS } from "./shared";
+import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 
 const EXAM_B2: SceneSpec = {
   id: "eksam-b2",
@@ -41,7 +41,8 @@ const EXAM_B2: SceneSpec = {
       goal: "Say hello to the examiner.",
       they: "The examiner says hello and asks you to sit down.",
       move: "greet",
-      topic: [...HELLOS],
+      // Not `HELLOS`: the examiner asks you to sit down as well, and the bank is what says it.
+      topic: ["istuma"],
       needs: [{ kind: "lemma", oneOf: [...HELLOS] }],
       required: true,
       patience: 2,
@@ -53,15 +54,23 @@ const EXAM_B2: SceneSpec = {
       they: "They ask about your work or your studies.",
       move: "ask",
       topic: ["töö", "õppima"],
-      needs: [{ kind: "lemma", oneOf: ["töötama", "õppima", "töö", "amet", "eriala", "firma", "ülikool", "meeskond"] }],
+      /*
+        The jobs the course teaches, because `Ma olen õpetaja` is how anybody
+        answers. Not `meeskond`: a team is what somebody likes about the work,
+        which is the next beat, and here it credited that beat in passing.
+      */
+      needs: [{ kind: "lemma", oneOf: [
+        "töötama", "õppima", "töö", "amet", "eriala", "firma", "ülikool", "ettevõte", "ametikoht",
+        "õpetaja", "õpilane", "arst", "töötaja", "juht", "kandidaat",
+      ] }],
       required: true,
       patience: 3,
       shape: "sentence",
     },
     {
       id: "like",
-      goal: "Tell them why you do it: one thing you like about it.",
-      they: "They ask why you do that work.",
+      goal: "Tell them one thing you like about it.",
+      they: "They ask what you like about it.",
       move: "ask",
       topic: ["meeldima", "töö"],
       needs: [{ kind: "lemma", oneOf: ["meeldima", "huvitav", "hea", "tore", "kolleeg", "meeskond", "inimene", "palk", "sest"] }],
@@ -74,6 +83,7 @@ const EXAM_B2: SceneSpec = {
       meanwhile: "Part two, the discussion. The topic is a four-day working week, and the examiner asks what you think.",
       goal: "Say whether you think a four-day week is a good idea or not.",
       they: "They ask whether a four-day working week is a good idea.",
+      feel: "noted",
       move: "ask",
       topic: ["nädal", "neli", "päev", "seisukoht"],
       needs: [{ kind: "anyOf", of: [
@@ -123,9 +133,10 @@ const EXAM_B2: SceneSpec = {
     {
       id: "close",
       goal: "Thank them and say goodbye.",
-      they: "They say that is the end, thank you, and goodbye.",
+      they: "They say that is the end of the exam, thank you, and goodbye.",
       move: "close",
-      topic: [...FAREWELLS],
+      // Not `FAREWELLS`: the examiner says the exam is over before the goodbye.
+      topic: ["eksam", "läbi"],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,

@@ -25,11 +25,13 @@ const FAMILY_DOCTOR: SceneSpec = {
   role: "This is a role. You're seeing your family doctor because something has been hurting for a few days. Your card says what hurts and since when.",
   props: [
     {
+      // Never the arm: that is what the doctor mishears, and contradicts.
       kind: "word", slot: "hurts", oneOf: ["pea", "kõht", "selg", "kõrv", "hammas"],
       says: "What hurts.",
       means: { kõht: "stomach" },
     },
     {
+      // Never Friday: that is the day the doctor mishears.
       kind: "weekday", slot: "since",
       oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev"],
       says: "The day it started.",
@@ -45,6 +47,13 @@ const FAMILY_DOCTOR: SceneSpec = {
       says: "The day they want to see you again.",
     },
     { kind: "time", slot: "time", from: 9, to: 15, theirs: true },
+    /* The second offer, made only where the learner says the first does not suit. */
+    {
+      kind: "weekday", slot: "back2", theirs: true, differentFrom: "back",
+      oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede"],
+      says: "The other day they offer.",
+    },
+    { kind: "time", slot: "time2", from: 9, to: 15, theirs: true, differentFrom: "time" },
     /*
       HOW OFTEN THE TABLETS ARE TAKEN IS THE DOCTOR'S FACT, NOT THE LEARNER'S.
       It was a number written into two banked lines while the beat accepted
@@ -55,7 +64,14 @@ const FAMILY_DOCTOR: SceneSpec = {
     */
     { kind: "number", slot: "times", min: 2, max: 3, theirs: true, says: "How many times a day you take the tablets." },
   ],
-  curveballs: ["slot-gone", "misheard", "faster", "contradiction"],
+  /*
+    No `slot-gone`: the doctor offers the follow-up time, so it went straight
+    after the patient said yes to it, and "that time doesn't suit any more"
+    from the person who had just offered it was answered with "later is
+    free", which settled nothing. A no to the offer gets a second day
+    (`counter`), which is the reschedule this scene has room for.
+  */
+  curveballs: ["misheard", "faster", "contradiction"],
   beats: [
     {
       id: "greet",
@@ -108,7 +124,17 @@ const FAMILY_DOCTOR: SceneSpec = {
       they: "They write a prescription and tell you to take the tablets {times} times a day, while eating.",
       move: "instruct",
       topic: ["tablett", "võtma", "sööma", "kord", "päev"],
-      says: [{ slot: "times" }, { lemma: "kord", grammCase: "PARTITIVE" }, { lemma: "päev", grammCase: "INESSIVE" }],
+      /*
+        "Üks tablett 2 korda päevas söögi ajal." is how a doctor says a
+        prescription, and "while eating" is in the stage direction, so it is
+        in the line. It was the bare count, "2 korda päevas.", which read as
+        the doctor muttering to themselves.
+      */
+      says: [
+        { lemma: "üks" }, { lemma: "tablett" }, { slot: "times" },
+        { lemma: "kord", grammCase: "PARTITIVE" }, { lemma: "päev", grammCase: "INESSIVE" },
+        { lemma: "söök", grammCase: "GENITIVE" }, { lemma: "aeg", grammCase: "ADESSIVE" },
+      ],
       needs: [{ kind: "datum", slot: "times" }],
       required: true,
       patience: 2,
@@ -121,9 +147,21 @@ const FAMILY_DOCTOR: SceneSpec = {
       move: "offer",
       topic: ["tagasi", "tulema", "nädal", "aeg"],
       says: [{ slot: "back", grammCase: "ADESSIVE" }, { lemma: "kell" }, { slot: "time" }],
+      /*
+        A no gets another day rather than the end of the visit: "ei sobi" was
+        read as off the point, where the goal says it is a right answer. A
+        second no meets the beat, which is the learner saying neither will do.
+      */
+      counter: {
+        they: "They offer {back2} at {time2} instead.",
+        says: [{ slot: "back2", grammCase: "ADESSIVE" }, { lemma: "kell" }, { slot: "time2" }],
+        replaces: [["back", "back2"], ["time", "time2"]],
+      },
       needs: [{ kind: "anyOf", of: [
         { kind: "datum", slot: "time" },
         { kind: "datum", slot: "back" },
+        { kind: "datum", slot: "time2" },
+        { kind: "datum", slot: "back2" },
         { kind: "lemma", oneOf: ["sobima", "jah", "hästi"] },
       ] }],
       required: true,

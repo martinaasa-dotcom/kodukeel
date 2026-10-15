@@ -17,24 +17,28 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `raamatuklubi`. */
 const LINES: readonly ScriptedLine[] = [
+  { scene: "raamatuklubi", beat: "greet", text: "Tere, tere! Kõik on koos, võime alustada.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "raamatuklubi", beat: "greet", text: "Tere! Kõik on kohal, alustame.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "raamatuklubi", beat: "thought", text: "Mis sa sellest arvad?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "raamatuklubi", beat: "thought", text: "Kuidas sulle raamat meeldis?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "raamatuklubi", beat: "hero", text: "Mis sa peategelasest arvad?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "raamatuklubi", beat: "hero", text: "Ja peategelane?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "raamatuklubi", beat: "hero", text: "Kas peategelane meeldis sulle?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "raamatuklubi", beat: "change", text: "Mida sa selles muudaksid?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "raamatuklubi", beat: "change", text: "Kas sa muudaksid raamatus midagi?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "raamatuklubi", beat: "agree", text: "Mulle meeldis lõpp kõige rohkem.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "raamatuklubi", beat: "agree", text: "Lõpp oli väga hea, ma arvan.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "raamatuklubi", beat: "hurdle:interrupted", text: "Üks minut, palun.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "raamatuklubi", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "raamatuklubi", beat: "hurdle:contradiction", text: "Ei, lõpp oli igav.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "raamatuklubi", beat: "hurdle:contradiction", text: "Ei, peategelane oli halb.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "raamatuklubi", beat: "hurdle:other-register", text: "Mis te sellest arvate?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "raamatuklubi", beat: "hurdle:other-register", text: "Kas teile meeldis?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "raamatuklubi", beat: "hurdle:faster", text: "Mul on kiire, räägi kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "raamatuklubi", beat: "hurdle:faster", text: "Kiire on, räägi kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "raamatuklubi", beat: "hurdle:misheard", text: "Igav või huvitav?", model: "authored", draftedAt: "2026-10-15", about: "thought", reviewedAt: "2026-10-15" },
   { scene: "raamatuklubi", beat: "hurdle:misheard", text: "Lõpp või algus?", model: "authored", draftedAt: "2026-10-15", about: "change", reviewedAt: "2026-10-15" },
+  { scene: "raamatuklubi", beat: "close", text: "Järgmisel kuul loeme uut raamatut. Head aega!", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "raamatuklubi", beat: "close", text: "See oli tore! Järgmise raamatu valime koos. Nägemist!", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "raamatuklubi", beat: "hurdle:contradiction", text: "Ei, tegelikult oli lõpp igav.", model: "authored", draftedAt: "2026-10-15", about: "agree" },
+  { scene: "raamatuklubi", beat: "hurdle:contradiction", text: "Tead, ma arvan nüüd, et lõpp ei olnud hea.", model: "authored", draftedAt: "2026-10-15", about: "agree" },
+  { scene: "raamatuklubi", beat: "hurdle:other-register", text: "Kas te loete palju?", model: "authored", draftedAt: "2026-10-15", about: "thought" },
+  { scene: "raamatuklubi", beat: "hurdle:other-register", text: "Kas teile meeldis ka algus?", model: "authored", draftedAt: "2026-10-15", about: "hero" },
 ];
 
 export default LINES;

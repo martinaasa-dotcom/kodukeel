@@ -23,7 +23,7 @@ const RESIDENCE_PERMIT: SceneSpec = {
     The booking reference is dealt on the card and is fiction; no real
     document number is ever asked for (CLAUDE.md).
   */
-  units: [...COMMON, "linn-ja-teenused", "umbisikuline", "suhtlemine", "reisimine", "plaanid", "too-ja-raha", "omadussonad"],
+  units: [...COMMON, "linn-ja-teenused", "umbisikuline", "suhtlemine", "reisimine", "plaanid", "too-ja-raha", "omadussonad", "kodu"],
   register: "teie",
   role: "This is a role. Your residence permit runs out soon and you've booked a time to renew it. Your card has your booking reference and what you've brought.",
   props: [
@@ -100,10 +100,16 @@ const RESIDENCE_PERMIT: SceneSpec = {
     {
       id: "collect",
       goal: "Say back the day you can collect the card, or just say that's fine.",
-      they: "They say the card can be collected on {ready}.",
-      move: "confirm",
+      they: "They say the card will be ready on {ready}.",
+      /*
+        An offer rather than a confirmation, because nobody can take it before
+        it is said: as a confirmation it was credited from a distance, so a
+        learner who said "Hästi" to the instruction above had this beat ticked,
+        asked when the card would be ready, and was told goodbye instead.
+      */
+      move: "offer",
       topic: ["kaart", "päev"],
-      says: [{ slot: "ready", grammCase: "ADESSIVE" }],
+      says: [{ lemma: "kaart" }, { lemma: "olema", verb: "IndPrSg3" }, { lemma: "valmis" }, { slot: "ready", grammCase: "ADESSIVE" }],
       needs: [{ kind: "anyOf", of: [
         { kind: "datum", slot: "ready" },
         { kind: "lemma", oneOf: ["jah", "hästi", "selge", "sobima"] },

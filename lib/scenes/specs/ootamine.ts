@@ -30,8 +30,8 @@ const WAITING: SceneSpec = {
     /* Both times are theirs: they have the phone and the app. It is eight
        now, and the bus is due at half past or at nine, so the time it should
        come is always still ahead of the time on the phone. */
-    { kind: "time", slot: "time", from: 8, to: 8, theirs: true },
-    { kind: "time", slot: "bus", from: 8, to: 9, theirs: true, differentFrom: "time" },
+    { kind: "time", slot: "time", from: 8, to: 8, theirs: true, says: "The time on their phone" },
+    { kind: "time", slot: "bus", from: 8, to: 9, theirs: true, differentFrom: "time", says: "When the bus should come" },
   ],
   curveballs: ["faster", "english", "interrupted", "contradiction"],
   beats: [
@@ -52,7 +52,15 @@ const WAITING: SceneSpec = {
       they: "They make a remark about the weather and wait for you to agree.",
       move: "offer",
       topic: ["ilm", "täna", "väljas", "külm", "soe"],
-      needs: [{ kind: "datum", slot: "weather" }],
+      /*
+        The card's weather, or any other word for what it is doing outside:
+        "Jah, külm" is agreeing and saying what the weather is doing, and was
+        read as a learner who had not finished.
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "datum", slot: "weather" },
+        { kind: "lemma", oneOf: ["külm", "soe", "kuum", "märg", "kuiv", "pilv", "torm", "ilus", "halb", "paistma"] },
+      ] }],
       required: true,
       patience: 2,
       shape: "sentence",
@@ -60,7 +68,7 @@ const WAITING: SceneSpec = {
     {
       id: "time",
       goal: "Ask them what time it is.",
-      they: "They check their phone, in case you want to know the time.",
+      they: "They look at their watch and say you have both been waiting a long time.",
       move: "offer",
       topic: ["kell", "aeg", "praegu"],
       says: [{ lemma: "kell" }, { slot: "time" }],

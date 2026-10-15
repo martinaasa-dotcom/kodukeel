@@ -1,5 +1,5 @@
 import type { SceneSpec } from "../types";
-import { COMMON, HELLOS, CLOSING_WORDS, FAREWELLS } from "./shared";
+import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 
 const EXAM_B1: SceneSpec = {
   id: "eksam-b1",
@@ -32,15 +32,16 @@ const EXAM_B1: SceneSpec = {
     `vaba-aeg` for the places on the card, `suhtlemine` for the call,
     `plaanid` for what suits and agreeing, `tingiv` for what you would rather,
     `kodu`, `loodus`, `linn-ja-teenused`, `kohad-ja-ametid`, `iga-paev`,
-    `minevik`, `ostmine` and `rektsioon` for the words an answer about yourself
-    reaches for, and `omadussonad` for slowly. `teie`, because it is an
+    `minevik`, `ostmine`, `rektsioon` and `inimesed` (which is where the jobs
+    are, `õpetaja` and `arst`) for the words an answer about yourself reaches
+    for, and `omadussonad` for slowly. `teie`, because it is an
     examiner, who never small talks, and the curveballs are the three D8
     allows.
   */
   units: [
     ...COMMON, "haridus", "too-ja-raha", "kool-ja-keel", "vaba-aeg", "suhtlemine",
     "plaanid", "tingiv", "kodu", "kohad-ja-ametid", "iga-paev", "minevik", "ostmine", "omadussonad", "loodus",
-    "linn-ja-teenused", "rektsioon",
+    "linn-ja-teenused", "rektsioon", "inimesed",
   ],
   register: "teie",
   examPractice: "B1",
@@ -71,7 +72,8 @@ const EXAM_B1: SceneSpec = {
       goal: "Say hello to the examiner.",
       they: "The examiner says hello and asks you to sit down.",
       move: "greet",
-      topic: [...HELLOS],
+      // Not `HELLOS`: the examiner asks you to sit down as well, and the bank is what says it.
+      topic: ["istuma"],
       needs: [{ kind: "lemma", oneOf: [...HELLOS] }],
       required: true,
       patience: 2,
@@ -83,7 +85,7 @@ const EXAM_B1: SceneSpec = {
       they: "They ask where you live.",
       move: "ask",
       topic: ["elama", "kodu"],
-      needs: [{ kind: "lemma", oneOf: ["elama", "linn", "maa", "kodu", "korter", "maja"] }],
+      needs: [{ kind: "lemma", oneOf: ["elama", "linn", "maa", "kodu", "korter", "maja", "elukoht", "küla", "pealinn", "vanalinn"] }],
       required: true,
       patience: 3,
       shape: "sentence",
@@ -92,9 +94,17 @@ const EXAM_B1: SceneSpec = {
       id: "work",
       goal: "Tell them whether you work or study, and what.",
       they: "They ask whether you work or study.",
+      feel: "noted",
       move: "ask",
       topic: ["töötama", "õppima"],
-      needs: [{ kind: "lemma", oneOf: ["töötama", "õppima", "töö", "kool", "ülikool", "amet", "eriala"] }],
+      /*
+        And the jobs the course teaches, because `Ma olen õpetaja` is how
+        anybody answers and it was refused for not naming work or study.
+      */
+      needs: [{ kind: "lemma", oneOf: [
+        "töötama", "õppima", "töö", "kool", "ülikool", "amet", "eriala", "firma", "ettevõte",
+        "õpetaja", "õpilane", "arst", "kokk", "näitleja", "laulja", "politseinik", "töötaja", "juht",
+      ] }],
       required: true,
       patience: 3,
       shape: "sentence",
@@ -115,6 +125,7 @@ const EXAM_B1: SceneSpec = {
       id: "why",
       goal: "Give them one reason for your choice.",
       they: "They ask why there.",
+      feel: "noted",
       move: "ask",
       topic: ["miks"],
       needs: [{ kind: "lemma", oneOf: ["sest", "kuna", "huvitav", "tore", "ilus", "meeldima", "hea"] }],
@@ -172,9 +183,10 @@ const EXAM_B1: SceneSpec = {
     {
       id: "close",
       goal: "Thank them and say goodbye.",
-      they: "They say that is the end, thank you, and goodbye.",
+      they: "They say that is the end of the exam, thank you, and goodbye.",
       move: "close",
-      topic: [...FAREWELLS],
+      // Not `FAREWELLS`: the examiner says the exam is over before the goodbye.
+      topic: ["eksam", "läbi"],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,

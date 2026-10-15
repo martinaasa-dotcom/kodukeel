@@ -1,5 +1,5 @@
 import type { SceneSpec } from "../types";
-import { COMMON, HELLOS, CLOSING_WORDS, FAREWELLS } from "./shared";
+import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 
 const BANK: SceneSpec = {
   id: "pangas",
@@ -100,7 +100,12 @@ const BANK: SceneSpec = {
       goal: "Thank them and say goodbye.",
       they: "They say the card will come in the post, and goodbye.",
       move: "close",
-      topic: [...FAREWELLS],
+      /*
+        The card and the post rather than the farewells alone: a recorded
+        `Head aega!` outranks the bank, and the clerk then said goodbye
+        without ever saying where the card was going to come from.
+      */
+      topic: ["kaart", "post"],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,

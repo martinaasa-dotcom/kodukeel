@@ -121,7 +121,7 @@ const CLOTHES: SceneSpec = {
         why the prop is `theirs` and why this beat utters it: a learner who
         arrives knowing the price has nothing to ask, and asking is the beat.
       */
-      says: [{ slot: "price" }, { lemma: "euro" }],
+      says: [{ lemma: "see" }, { lemma: "maksma", verb: "IndPrSg3" }, { slot: "price" }, { lemma: "euro", grammCase: "PARTITIVE" }],
       needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["hind", "maksma", "palju", "raha", "euro"] }],
       answer: "They read the price off the tag.",
       required: true,

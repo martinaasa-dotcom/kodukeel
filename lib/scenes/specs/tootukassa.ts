@@ -51,7 +51,15 @@ const UNEMPLOYMENT_FUND: SceneSpec = {
     },
     { kind: "time", slot: "time2", from: 9, to: 15, theirs: true, differentFrom: "time" },
   ],
-  curveballs: ["missing-document", "queue", "not-possible", "other-register", "english", "slot-gone"],
+  /*
+    No `not-possible` and no `slot-gone`. The first stood in the middle of
+    registering, "not today, come tomorrow", and then the consultant carried
+    on registering; the second came straight after the learner had accepted
+    the consultant's own offer and was answered "later is free", which
+    settled no time at all. A no to the offer gets a second day
+    (`counter`), which is the reschedule this scene has room for.
+  */
+  curveballs: ["missing-document", "queue", "other-register", "english"],
   beats: [
     {
       id: "greet",
@@ -93,7 +101,8 @@ const UNEMPLOYMENT_FUND: SceneSpec = {
       they: "They ask since when you have been without work.",
       move: "ask",
       topic: ["kuu", "alates", "lõppema"],
-      needs: [{ kind: "datum", slot: "ended" }],
+      // "Mis kuus?" is answered "märtsis", and the recast says that ending back.
+      needs: [{ kind: "datum", slot: "ended", grammCase: "INESSIVE" }],
       required: true,
       patience: 2,
       shape: "word",

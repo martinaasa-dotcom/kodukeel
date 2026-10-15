@@ -17,6 +17,8 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `eksam-b1`. */
 const LINES: readonly ScriptedLine[] = [
+  { scene: "eksam-b1", beat: "greet", text: "Tere! Palun istuge.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "eksam-b1", beat: "greet", text: "Tere päevast! Istuge, palun.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "eksam-b1", beat: "home", text: "Kus te elate?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "eksam-b1", beat: "home", text: "Palun öelge, kus te elate?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "eksam-b1", beat: "work", text: "Kas te töötate või õpite?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
@@ -29,13 +31,15 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "eksam-b1", beat: "agree", text: "Olen nõus. Läheme siis sinna.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "eksam-b1", beat: "call", text: "Tere, kool kuuleb. Mida te soovite teada?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "eksam-b1", beat: "hurdle:misheard", text: "Te elate maal, eks?", model: "authored", draftedAt: "2026-10-15", about: "home", reviewedAt: "2026-10-15" },
-  { scene: "eksam-b1", beat: "hurdle:other-register", text: "Kus sa elad?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "eksam-b1", beat: "hurdle:faster", text: "Meil on kiire, jätkame kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "eksam-b1", beat: "hurdle:faster", text: "Aega pole palju, rääkige kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "eksam-b1", beat: "hurdle:misheard", text: "Te õpite ülikoolis, eks?", model: "authored", draftedAt: "2026-10-15", about: "work", reviewedAt: "2026-10-15" },
-  { scene: "eksam-b1", beat: "hurdle:other-register", text: "Kas sa töötad või õpid?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "eksam-b1", beat: "hurdle:misheard", text: "Te elate linnas, eks?", model: "authored", draftedAt: "2026-10-15", about: "home", reviewedAt: "2026-10-15" },
   { scene: "eksam-b1", beat: "call", text: "Jah, kool kuuleb. Kuidas ma saan teid aidata?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "eksam-b1", beat: "close", text: "Aitäh, sellega on eksam läbi. Head aega!", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "eksam-b1", beat: "close", text: "Aitäh teile, eksam on läbi. Nägemist!", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "eksam-b1", beat: "hurdle:other-register", text: "Kas sul on kõik selge?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "eksam-b1", beat: "hurdle:other-register", text: "Kas sa oled valmis? Jätkame.", model: "authored", draftedAt: "2026-10-15" },
 ];
 
 export default LINES;

@@ -1,5 +1,5 @@
 import type { SceneSpec } from "../types";
-import { COMMON, HELLOS, CLOSING_WORDS, FAREWELLS } from "./shared";
+import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 
 const HEARSAY: SceneSpec = {
   id: "kuulsin",
@@ -14,7 +14,8 @@ const HEARSAY: SceneSpec = {
     and every other B2 evening already holds a scene. `meedia` and
     `kool-ja-keel` for the article, the news and the paper, `kodus` for the
     radio, `kodutood` for opening, `ostmine` for the shop and the park,
-    `iga-paev` for hearing and reading, and `omadussonad` for slowly. `teie`,
+    `iga-paev` for hearing and reading, `eluase` for the neighbour, and
+    `omadussonad` for slowly. `teie`,
     because neighbours on the stairs start there, as in `trepikoda`.
 
     THE QUOTATIVE IS NOT MARKED HERE. Telling the quotative from the
@@ -25,7 +26,7 @@ const HEARSAY: SceneSpec = {
     are not sure; the quotative is drilled in the reading the evening opens
     with.
   */
-  units: [...COMMON, "kaudne", "meedia", "kool-ja-keel", "kodus", "kodutood", "ostmine", "iga-paev", "omadussonad"],
+  units: [...COMMON, "kaudne", "meedia", "kool-ja-keel", "kodus", "kodutood", "ostmine", "iga-paev", "eluase", "omadussonad"],
   register: "teie",
   role: "This is a role. You read in the local news that something new is opening nearby. On the stairs you meet a neighbour. Your card says what and when.",
   props: [
@@ -39,14 +40,20 @@ const HEARSAY: SceneSpec = {
       says: "The day it opens, you read.",
     },
   ],
-  curveballs: ["interrupted", "contradiction", "other-register", "faster", "misheard"],
+  /*
+    No `contradiction`: it is the other side going back on what they said, and
+    the neighbour says nothing here but questions, so its line could only
+    contradict the learner's news, which is not what the learner is told.
+  */
+  curveballs: ["interrupted", "other-register", "faster", "misheard"],
   beats: [
     {
       id: "greet",
       goal: "Say hello back to your neighbour.",
-      they: "Your neighbour says hello on the stairs.",
+      they: "Your neighbour says hello on the stairs and asks how you are.",
       move: "greet",
-      topic: [...HELLOS],
+      // Not `HELLOS`: a neighbour says more than `Tere!`, and the bank is what says it.
+      topic: ["naaber", "minema"],
       needs: [{ kind: "lemma", oneOf: [...HELLOS] }],
       required: true,
       patience: 2,
@@ -56,6 +63,7 @@ const HEARSAY: SceneSpec = {
       id: "news",
       goal: "Tell them what you read is opening nearby.",
       they: "They ask if there's any news.",
+      feel: "glad",
       move: "ask",
       topic: ["uudis", "uus", "avama"],
       needs: [{ kind: "datum", slot: "news" }],
@@ -66,8 +74,7 @@ const HEARSAY: SceneSpec = {
     {
       id: "when",
       goal: "Tell them which day it opens, as something you read.",
-      they: "They ask when.",
-      feel: "glad",
+      they: "They ask when it opens.",
       move: "ask",
       topic: ["millal", "päev", "avama"],
       needs: [{ kind: "datum", slot: "when" }],
@@ -105,7 +112,8 @@ const HEARSAY: SceneSpec = {
       goal: "Thank your neighbour and say goodbye.",
       they: "They thank you for the news and say goodbye.",
       move: "close",
-      topic: [...FAREWELLS],
+      // Not `FAREWELLS`: they thank you for the news first, and the bank is what says it.
+      topic: ["uudis", "tore"],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,

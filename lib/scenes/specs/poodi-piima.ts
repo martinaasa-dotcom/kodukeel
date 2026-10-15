@@ -54,8 +54,9 @@ const SHOP: SceneSpec = {
     {
       id: "inside",
       goal: "Tell them you've made it and you're in the shop now.",
+      feel: "noted",
       meanwhile: "Five minutes later, you've walked to the shop and you're inside.",
-      they: "A little later they call again and ask where you are.",
+      they: "They ask where you are now.",
       move: "ask",
       topic: ["pood", "olema", "kus"],
       needs: [{ kind: "case", lemma: "pood", grammCase: "INESSIVE" }],
@@ -77,8 +78,9 @@ const SHOP: SceneSpec = {
     {
       id: "back",
       goal: "Tell them you've left the shop and you're heading home.",
+      feel: "glad",
       meanwhile: "You've paid, and you're walking home with the milk.",
-      they: "They call once more on your way home and ask where you're coming from.",
+      they: "They ask where you're coming from.",
       move: "ask",
       topic: ["pood", "tulema", "kust"],
       needs: [{ kind: "case", lemma: "pood", grammCase: "ELATIVE" }],

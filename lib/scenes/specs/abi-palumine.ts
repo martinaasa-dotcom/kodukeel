@@ -82,8 +82,8 @@ const ASKING_FOR_HELP: SceneSpec = {
          what a learner who is lost is handed first is a farewell and not the
          other side thanking them back. */
       id: "thanks",
-      goal: "Thank them, say sorry for keeping them, and say goodbye.",
-      they: "The bag is in. They say it was no trouble at all, and turn to go.",
+      goal: "Thank them and say goodbye.",
+      they: "The bag is in. They say it was easy, and turn to go.",
       meanwhile: "A minute later, the bag is inside and the door has shut behind it.",
       move: "close",
       /*
@@ -93,10 +93,15 @@ const ASKING_FOR_HELP: SceneSpec = {
         in apologise to the learner instead (FB-5, replayed keyless).
       */
       topic: ["kott"],
-      needs: [
+      /*
+        Thanks, or sorry for keeping them, or both: "Suur aitäh, head aega"
+        is a whole goodbye, and asking for the apology on top of it held a
+        learner at the door who had already said everything a person says.
+      */
+      needs: [{ kind: "anyOf", of: [
         { kind: "lemma", oneOf: [...CLOSING_WORDS, "aitäh", "tänama"] },
         { kind: "lemma", oneOf: ["Vabandust!", "vabandama"] },
-      ],
+      ] }],
       required: true,
       patience: 2,
       shape: "sentence",

@@ -25,10 +25,10 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "tehniline-tugi", beat: "screen", text: "Mis ekraanil on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "tehniline-tugi", beat: "tried", text: "Mida te olete juba proovinud?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "tehniline-tugi", beat: "tried", text: "Kas te olete juba midagi proovinud?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "tehniline-tugi", beat: "fix", text: "Pange see kinni, oodake üks minut ja pange uuesti lahti.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "tehniline-tugi", beat: "fix", text: "Palun pange seade kinni. Siis oodake minut ja pange lahti.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "tehniline-tugi", beat: "answer:fix", text: "Ühendus peaks paari minuti pärast tagasi tulema.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "tehniline-tugi", beat: "answer:fix", text: "Mõne minuti pärast peaks kõik töötama.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "tehniline-tugi", beat: "fix", text: "Siis uuendage palun tarkvara ja proovige uuesti.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "tehniline-tugi", beat: "fix", text: "Siis palun seadistage ühendus uuesti, see võtab paar minutit.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "tehniline-tugi", beat: "answer:fix", text: "Ühendus peaks paari minuti pärast tagasi tulema. Kui ei tule, helistage uuesti.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "tehniline-tugi", beat: "answer:fix", text: "Mõne minuti pärast peaks kõik töötama. Kui ei tööta, helistage meile uuesti.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "tehniline-tugi", beat: "hurdle:faster", text: "Mul on palju tööd, öelge kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "tehniline-tugi", beat: "hurdle:faster", text: "Kiire on, öelge kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "tehniline-tugi", beat: "hurdle:not-possible", text: "Täna seda teha ei saa.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
@@ -39,8 +39,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "tehniline-tugi", beat: "hurdle:other-register", text: "Kas sa oled juba midagi proovinud?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "tehniline-tugi", beat: "hurdle:interrupted", text: "Üks minut, palun.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "tehniline-tugi", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "tehniline-tugi", beat: "hurdle:contradiction", text: "Ei, ühendus töötab.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "tehniline-tugi", beat: "hurdle:contradiction", text: "Ei, meil töötab kõik.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "tehniline-tugi", beat: "hurdle:contradiction", text: "Aga minu ekraanil ühendus töötab.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "tehniline-tugi", beat: "hurdle:contradiction", text: "Aga meil on näha, et teie ühendus töötab.", model: "authored", draftedAt: "2026-10-15" },
 ];
 
 export default LINES;
