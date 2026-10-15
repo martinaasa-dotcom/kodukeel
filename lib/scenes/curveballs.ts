@@ -224,6 +224,13 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
       about (`ScriptedLine.about`), so it stands only straight after one of
       those (`fitsIn`) and says a line about the beat just answered.
     */
+    /*
+      And never before the learner has said what they came for, whether or not
+      the bank says which beat a line is about: a scene with no `about` rows
+      put it after the greeting, and the shopkeeper asked "milk or water?"
+      about nothing (`follows`).
+    */
+    follows: "request",
     says: "They've misheard you and caught a different word that sounds like yours.",
     out: "Tell them no, that's not it, and say your word again.",
     needs: [{ kind: "negation" }],
@@ -395,6 +402,8 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     id: "contradiction",
     move: "confirm",
     cost: 3,
+    /* After something has been said worth contradicting, never straight after hello. */
+    follows: "request",
     says: "They say the opposite of what they told you two turns ago.",
     out: "Tell them no, that's not what they said before.",
     needs: [{ kind: "negation" }],
