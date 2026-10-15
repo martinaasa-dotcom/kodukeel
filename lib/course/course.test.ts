@@ -142,13 +142,13 @@ describe("the programme is a request against the course, never a copy of it", ()
 
     it("uses the declaration when every word is still to teach", () => {
       expect(evenings(verbs, verbs.lemmas, 5)).toEqual([
-        ["olema", "see", "too", "elama", "õppima"],
+        ["olema", "see", "elama", "õppima"],
         ["rääkima", "töötama", "tahtma", "minema", "tulema"],
       ]);
     });
 
     it("drops a word an earlier unit already taught, and the group with it", () => {
-      const left = verbs.lemmas.filter((l) => l !== "see" && l !== "too");
+      const left = verbs.lemmas.filter((l) => l !== "see");
       expect(evenings(verbs, left, 5)).toEqual([
         ["olema", "elama", "õppima"],
         ["rääkima", "töötama", "tahtma", "minema", "tulema"],
@@ -169,17 +169,17 @@ describe("the programme is a request against the course, never a copy of it", ()
 
     it("falls back rather than teaching a word twice on a repeated declaration", () => {
       /* Length alone would accept this: two groups naming `see` and none
-         naming `too` is still ten words. The result has to be a partition. */
+         naming `õppima` is still nine words. The result has to be a partition. */
       const repeated = {
         ...verbs,
         evenings: [
-          ["olema", "see"], ["see", "too", "elama", "õppima"],
+          ["olema", "see"], ["see", "elama"],
           ["rääkima", "töötama", "tahtma", "minema", "tulema"],
         ],
       } as typeof verbs;
       const got = evenings(repeated, verbs.lemmas, 5);
       expect(got.flat()).toEqual(verbs.lemmas);
-      expect(got.map((g) => g.length), "the even slice, not the declaration").toEqual([5, 5]);
+      expect(got.map((g) => g.length), "the even slice, not the declaration").toEqual([5, 4]);
     });
 
     it("falls back to the even slice for a unit that declares nothing", () => {
