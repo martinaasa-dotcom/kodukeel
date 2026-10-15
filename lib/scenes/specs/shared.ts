@@ -143,6 +143,10 @@ export const REACTIONS = {
     read as taking something.
   */
   letGo: ["hästi"],
+  /* "Later": a question the scene cannot answer yet, heard and put off. `millal`. */
+  later: ["hiljem"],
+  /* "A little": the answer to "do you speak English?". `maaramine`. */
+  aLittle: ["natuke"],
 } as const;
 
 /**

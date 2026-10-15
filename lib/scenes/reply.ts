@@ -1226,7 +1226,15 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       `Selge.` says "got it", and the question that follows
       says what is still wanted. `Vabandust!` stays for a turn nobody could read.
     */
-    out.push(reaction(REACTIONS.heard[0], "."));
+    /*
+      AND A QUESTION THE SCENE HAS NO ANSWER FOR IS PUT OFF, NOT IGNORED.
+      "Mida te soovitate?" asked while the waiter is still seating people got
+      "Selge, aga kui palju teid on?", which is a person who heard the question
+      and walked past it. `Hiljem.` ("later") says it was heard and will come,
+      then the question in front is asked; a course word every scene teaches.
+    */
+    const askedSomething = /\?\s*$/.test(input.said ?? "");
+    out.push(reaction(askedSomething ? REACTIONS.later[0] : REACTIONS.heard[0], "."));
   }
 
   /*
@@ -1565,7 +1573,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     the honest version of "a little": the helpful persona adds the English
     under it, as before.
   */
-  if (response === "english" && input.askedForEnglish && !composed) out.push(reaction("natuke", "."));
+  if (response === "english" && input.askedForEnglish && !composed) out.push(reaction(REACTIONS.aLittle[0], "."));
 
   const narrowed = input.tries === NUDGE_AFTER && !advancing(response) && !composed ? input.choice : null;
   if (narrowed) {
