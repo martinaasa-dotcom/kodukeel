@@ -967,7 +967,17 @@
     height of the window, and the title steps up only where the window is
     wide *and* tall enough to give it room, which is `.round-word`'s rule.
   */
-  .round-brief { padding-block: clamp(0.75rem, 4vh, 3rem); }
+  .round-brief {
+    padding-top: clamp(1rem, 5vh, 3rem);
+    padding-bottom: clamp(0.75rem, 4vh, 3rem);
+  }
+  /* Where the rail is drawn, the panel starts below the wordmark rather than
+     level with the top of the window: about 12% of the height, so on an
+     ordinary laptop it sits near the first nav row and the button is still
+     on screen. */
+  @media (min-width: 768px) {
+    .round-brief { padding-top: clamp(1.5rem, 12vh, 7.5rem); }
+  }
   .round-brief-panel {
     padding-block: clamp(1.25rem, 4vh, 2.25rem);
     padding-inline: clamp(1.25rem, 4vw, 2rem);
