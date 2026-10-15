@@ -41,7 +41,7 @@ spec.loader.exec_module(X)
 os.makedirs(OUT, exist_ok=True)
 
 
-def run(prefix="", model=None):
+def run(prefix="", model=None, method="greedy_search"):
     sets = json.load(open(os.path.join(X.EXP, "sets.json")))
     rows = sets["voices"]
     others = [X.load(c["file"]) for c in json.load(open(os.path.join(ROOT, "corpus.json"))) if c["kind"] == "sentence"]
@@ -50,7 +50,7 @@ def run(prefix="", model=None):
         path = os.path.join(OUT, f"{prefix}{room}.json")
         if os.path.exists(path):
             continue
-        z = z or X.Zipformer(model or X.LARGE)
+        z = z or X.Zipformer(model or X.LARGE, method=method)
         out = []
         for r in rows:
             a = X.load(r["file"])
@@ -153,11 +153,15 @@ def flags():
         heard = json.load(open(os.path.join(OUT, f"{room}.json")))
         small_path = os.path.join(OUT, f"small_{room}.json")
         small = json.load(open(small_path)) if os.path.exists(small_path) else [None] * len(heard)
-        for r, h, s in zip(rows, heard, small):
+        beam_path = os.path.join(OUT, f"beam_{room}.json")
+        beam = json.load(open(beam_path)) if os.path.exists(beam_path) else [None] * len(heard)
+        for r, h, s, b in zip(rows, heard, small, beam):
             second = set(X.words(s["text"])) if s else None
+            other_way = set(X.words(b["text"])) if b else None
             for f in word_features(r["text"], h, forms):
                 f["voice"] = r["voice"]
                 f["agree"] = second is None or f["w"] in second
+                f["beam"] = other_way is None or f["w"] in other_way
                 data.append(f)
     train_voices = set(X.VOICES[::2])
     train = [d for d in data if d["voice"] in train_voices]
@@ -191,6 +195,8 @@ def flags():
     judge("not a word, or the small model disagrees", lambda d: not d["real"] or not d["agree"])
     judge("small disagrees and lowest under -0.5", lambda d: not d["agree"] and d["min"] < -0.5)
     judge("small disagrees or lowest under -2.0", lambda d: not d["agree"] or d["min"] < -2.0)
+    judge("beam search on the large model disagrees", lambda d: not d["beam"])
+    judge("beam disagrees and lowest under -0.5", lambda d: not d["beam"] and d["min"] < -0.5)
     for cut in (0.3, 0.4, 0.5):
         judge(f"combined weights, chance over {cut}", lambda d, c=cut: 1 / (1 + np.exp(-np.dot(feats(d), w))) > c)
     print("\n  weights (min, mean, log tokens, log letters, not a word, small disagrees, bias):", " ".join(f"{x:+.2f}" for x in w))
@@ -198,4 +204,5 @@ def flags():
 
 if __name__ == "__main__":
     {"run": run, "small": lambda: run("small_", "TalTechNLP/streaming-zipformer.et-en"),
+     "beam": lambda: run("beam_", X.LARGE, "modified_beam_search"),
      "report": report, "flags": flags}[sys.argv[1] if len(sys.argv) > 1 else "report"]()
