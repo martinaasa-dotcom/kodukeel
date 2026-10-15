@@ -7,6 +7,7 @@ import { areaTable } from "@/lib/copy/i18n/tables";
 import { fill, tr } from "@/lib/copy/locale";
 import { localeHref } from "@/lib/copy/publicLocale";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicCard } from "@/lib/copy/publicCards";
 import { resolveOperator } from "@/lib/legal/operator";
 import { audioCacheIsDurable } from "@/lib/audio/store";
 import { supabaseConfigured } from "@/lib/auth/mode";
@@ -22,7 +23,7 @@ import {
 } from "@/lib/funding/facts";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicTitle(searchParams, "Funding");
+  return publicTitle(searchParams, "Funding", undefined, publicCard("/funding"));
 }
 
 /*

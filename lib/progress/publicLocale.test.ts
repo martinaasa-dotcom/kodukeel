@@ -51,3 +51,47 @@ describe("publicTitle", () => {
     expect(route).toContain(`alt = "${SHARE_IMAGE.alt}"`);
   });
 });
+
+/*
+  EVERY PUBLIC PAGE SHARES ITSELF. The paths are read off the sitemap's own
+  list, so a page added there without a card of its own fails here rather than
+  sharing the landing page's pitch pointing at /welcome. The landing page is the
+  one exception, since the root layout's card is its card.
+*/
+const { PUBLIC_CARDS, publicCard } = await import("@/lib/copy/publicCards");
+const { entryMetadata } = await import("@/app/(chromeless)/welcome/entryMetadata");
+
+const sitemapPaths = [...readFileSync("app/sitemap.ts", "utf8").matchAll(/\{ path: "([^"]+)", priority/g)].map((m) => m[1]!);
+const englishOnly = new Set(["/pilots"]);
+
+describe("every public page has a share card of its own", () => {
+  it("reads the paths it checks from the sitemap", () => {
+    expect(sitemapPaths.length).toBeGreaterThanOrEqual(12);
+    expect(sitemapPaths).toContain("/welcome");
+  });
+
+  for (const path of sitemapPaths.filter((p) => p !== "/welcome")) {
+    it(`${path} shares its own description at its own address, with the picture`, async () => {
+      if (path === "/welcome/ru" || path === "/welcome/uk") {
+        const meta = entryMetadata(path.endsWith("ru") ? "ru" : "uk");
+        expect(meta.openGraph).toMatchObject({ url: path, description: meta.description });
+        expect((meta.openGraph as { images?: unknown[] }).images).toEqual([SHARE_IMAGE]);
+        return;
+      }
+      expect(Object.keys(PUBLIC_CARDS)).toContain(path);
+      const card = publicCard(path as keyof typeof PUBLIC_CARDS);
+      // The page itself has to hand that card over, by its own path.
+      const page = readFileSync(`app${path}/page.tsx`, "utf8");
+      expect(page.includes(`publicCard("${path}")`) || page.includes(`PUBLIC_CARDS["${path}"]`)).toBe(true);
+      const meta = await publicTitle(Promise.resolve({}), "A page", undefined, card);
+      expect(meta.openGraph).toMatchObject({ url: path, description: card.description });
+      expect((meta.openGraph as { images?: unknown[] }).images).toEqual([SHARE_IMAGE]);
+      if (englishOnly.has(path)) return;
+      for (const lang of ["ru", "uk"] as const) {
+        const translated = await publicTitle(Promise.resolve({ lang }), "A page", undefined, card);
+        expect(translated.description, `${path} in ${lang}`).not.toBe(card.description);
+        expect(translated.openGraph).toMatchObject({ url: path, locale: `${lang}_EE` });
+      }
+    });
+  }
+});

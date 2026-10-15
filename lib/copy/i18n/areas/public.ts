@@ -19,6 +19,26 @@ import type { Area } from "../area";
  * (ADR-005): a place name with õ, ä, ö or ü travels in an `{e1}` slot.
  */
 const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
+  // SHARE CARDS: what each page says about itself where a link to it is
+  // pasted (lib/copy/publicCards.ts). /teachers and /help are further down.
+  ["Whether Kodukeel is safe for a class, a team or a grant. The short answers come first, then the detail behind each one.",
+    "Безопасен ли Kodukeel для класса, команды или гранта. Сначала короткие ответы, затем подробности к каждому из них.",
+    "Чи безпечний Kodukeel для класу, команди чи гранту. Спершу короткі відповіді, потім подробиці до кожної з них."],
+  ["Kodukeel is free and nothing about you is sold. This page shows what it runs on, what each piece costs and who pays.",
+    "Kodukeel бесплатный, и ничего о вас не продаётся. Здесь показано, на чём он работает, сколько стоит каждая часть и кто платит.",
+    "Kodukeel безкоштовний, і нічого про вас не продається. Тут показано, на чому він працює, скільки коштує кожна частина і хто платить."],
+  ["Exactly what Kodukeel keeps about you, why it’s allowed to, who else gets to see it, and how to make it go away.",
+    "Что именно Kodukeel хранит о вас, на каком основании, кто ещё это видит и как всё это удалить.",
+    "Що саме Kodukeel зберігає про вас, на якій підставі, хто ще це бачить і як усе це видалити."],
+  ["The accessibility standard Kodukeel aims for, what we’ve checked and how, where it falls short today, and how to tell us.",
+    "К какому стандарту доступности стремится Kodukeel, что и как мы проверили, где он пока не дотягивает и как нам об этом сообщить.",
+    "До якого стандарту доступності прагне Kodukeel, що і як ми перевірили, де він поки не дотягує і як нам про це повідомити."],
+  ["The terms for using Kodukeel, kept short: use it to learn Estonian, don’t abuse the shared services, and know what it can promise.",
+    "Условия использования Kodukeel, коротко: учите с ним эстонский, не злоупотребляйте общими сервисами и знайте, что он может обещать.",
+    "Умови користування Kodukeel, коротко: вивчайте з ним естонську, не зловживайте спільними сервісами і знайте, що він може обіцяти."],
+  ["What the Estonian language examination is, who needs which level, how to register, and what happens after.",
+    "Что такое экзамен по эстонскому языку, кому нужен какой уровень, как зарегистрироваться и что происходит потом.",
+    "Що таке іспит з естонської мови, кому потрібен який рівень, як зареєструватися і що відбувається потім."],
   // HELP.
   ["Whether Kodukeel is working, what to try when you cannot sign in, and where your data is.",
     "Работает ли Kodukeel, что делать, если не получается войти, и где ваши данные.",

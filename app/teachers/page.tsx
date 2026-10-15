@@ -7,12 +7,10 @@ import { localeHref } from "@/lib/copy/publicLocale";
 import { SAMPLE_CLASS } from "@/lib/classroom/sample";
 import { resolveOperator } from "@/lib/legal/operator";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicCard } from "@/lib/copy/publicCards";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicTitle(searchParams, "For teachers", undefined, {
-    description: "Put a code on the board. See who is practising and what the group keeps getting wrong.",
-    path: "/teachers",
-  });
+  return publicTitle(searchParams, "For teachers", undefined, publicCard("/teachers"));
 }
 
 /*
