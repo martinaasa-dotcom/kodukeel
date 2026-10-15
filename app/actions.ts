@@ -8,6 +8,8 @@ import { prisma } from "@/lib/db";
 import { busyMessage, throttleAction, type ActionRefusal } from "@/lib/security/actionLimits";
 import { recordSuggestion } from "@/lib/suggestions/record";
 import { visibleLine, visibleProse } from "@/lib/security/visibleText";
+import { glossSentences } from "@/lib/dict/glossed";
+import { MAX_READING_CHARS, readingParagraphs } from "@/lib/estonian/readingText";
 import { setTaskDone } from "@/lib/progress/tasks";
 import { deferredDues, deferWord, undoDeferral } from "@/lib/progress/deferrals";
 import { keepBest } from "@/lib/progress/personalBest";
@@ -3356,6 +3358,38 @@ function dayKeyOrNull(value: unknown): string | null {
  * The passage is never stored. It is somebody's homework, a news article or a
  * private message, and the app has no reason to keep it.
  */
+/**
+ * A PASTED TEXT, WITH THE DICTIONARY UNDER EVERY WORD IT WILL VOUCH FOR.
+ *
+ * Reading mode (`/read`). The text is cleaned the way any note a learner types
+ * is (`visibleProse`), split into paragraphs of sentences with every character
+ * kept, and glossed through `glossSentences`, which asks `matchEstonianForm`
+ * about each word at the same `VOUCHED_SCORE` a photographed page and a
+ * headline clear (ADR-021): a word it will not vouch for is printed plain.
+ * `glossSentences` rather than `annotateTexts` because the panel a word opens
+ * needs the reading, the headword and the form, and the gate under both is the
+ * one function. Nothing is stored and no model is asked (docs/38, D13): the
+ * text goes back to the screen that sent it and is gone with the request.
+ */
+export async function readEstonian(textIn: unknown) {
+  const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "readText");
+  if (busy) return await sayRefusal(ownerId, busy);
+  const cleaned = visibleProse(textIn, MAX_READING_CHARS);
+  const paragraphs = readingParagraphs(cleaned);
+  if (paragraphs.length === 0) return { ok: false as const, error: "Paste some Estonian first." };
+  const sentences = paragraphs.flat();
+  const glossed = await glossSentences(sentences.map((et) => ({ et, form: null })), READING_WORD_BUDGET);
+  let at = 0;
+  return {
+    ok: true as const,
+    paragraphs: paragraphs.map((p) => p.map((sentence) => ({ sentence, tokens: glossed[at++] ?? [] }))),
+  };
+}
+
+/** Distinct words reading mode asks the dictionary about; a 4,000 character text holds fewer. */
+const READING_WORD_BUDGET = 900;
+
 export async function buildClozeFromText(passageIn: string) {
   const ownerId = await requireUserId();
   const raw = text(passageIn);

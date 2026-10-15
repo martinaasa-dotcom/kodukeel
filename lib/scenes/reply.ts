@@ -1574,6 +1574,18 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   }
 
   /*
+    AND NEVER THE SAME LINE TWICE IN ONE BREATH. "Vabandust, mida?" on a beat
+    it does not answer is a miss that asked a question: the line comes back as
+    the answer to the question and then again as the move, and the keyless
+    transcripts printed that sentence twice in a row on five scenes of eleven
+    played lost. Once is the whole of the answer, so the reaction goes and the
+    move stays, since the move is what the learner is still being asked.
+  */
+  const said = out.at(-1);
+  const before = out.at(-2);
+  if (said && before && before.reaction && before.text === said.text) out.splice(out.length - 2, 1);
+
+  /*
     A helpful persona translates the question for somebody who wrote English
     (§8); a brisk one has already repeated it in Estonian above and says no
     more. Never scolded, and the turn has already cost its try.

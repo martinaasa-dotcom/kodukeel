@@ -21,7 +21,7 @@ const B = baseUrl();
   Raised by one: first run now asks what language a meaning should be given in,
   on the screen before any Estonian is shown.
 */
-const { check, absent, done } = suite("Level check", { floor: 52 });
+const { check, absent, done } = suite("Level check", { floor: 53 });
 
 const browser = await launchChromium();
 const context = await browser.newContext({ viewport: { width: 1280, height: 1100 } });
@@ -318,10 +318,10 @@ if (onboarded) {
     it from 17 to 25, and the waiver was never recounted. The floor read 52 and
     a waived run reached 28, so the suite failed reporting a block having
     stopped running when nothing had. Recount it whenever the branch changes:
-    the else branch holds 26 and this one holds 1, so the gap is 25 and the
-    floor is the 22 outside both plus the 26 inside.
+    the else branch holds 27 and this one holds 1, so the gap is 26. (It held
+    26 until TB-17 asked whether the unit list is still one press away.)
   */
-  absent(25, "a learner who has not been through first run: this database has a deck, " +
+  absent(26, "a learner who has not been through first run: this database has a deck, " +
     "so /start correctly redirects. CI runs this suite before the demo fixture");
   /*
     A learner who has already been through it is sent to Today, which is the
@@ -403,8 +403,17 @@ if (onboarded) {
     /Take the level check whenever you like/i.test(goalStep));
   await page.getByRole("button", { name: /^Continue$/ }).click();
 
-  const deckStep = await page.locator("body").innerText();
   check("the deck step comes last", (await page.getByText(/Your first words/i).count()) > 0);
+  /*
+    The unit list and the rest of the course sit behind a press since TB-17,
+    so the step fits a phone; the count stays on the page. A closed details
+    is not in innerText, so it is opened before the step is read, and the
+    press is itself a check that the list is still offered.
+  */
+  const unitsPress = page.locator("summary", { hasText: /The words, unit by unit/ });
+  check("the units are one press away", (await unitsPress.count()) === 1);
+  if (await unitsPress.count()) await unitsPress.click();
+  const deckStep = await page.locator("body").innerText();
 
   /*
     The deck is stated, not chosen. It used to be fourteen units with

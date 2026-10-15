@@ -42,7 +42,8 @@ const UNKNOWN = "kodukeeltestsona";
 
 const prisma = newPrismaClient(requireLocalDatabase("write and delete a scanned page and its cards"));
 
-const { check, done } = suite("The paper path", { floor: 16 });
+/* 20 rather than 16: reading mode's four, which run with or without a key. */
+const { check, done } = suite("The paper path", { floor: 20 });
 
 /** A word the seed definitely holds, with its real id, for the matched row. */
 const known = await prisma.lexeme.findFirst({
@@ -79,6 +80,33 @@ const page = await ctx.newPage();
 
 const errors = [];
 page.on("pageerror", (e) => errors.push(String(e)));
+
+/*
+  READING MODE FIRST, because it needs no camera and no key: a pasted line with
+  a word the dictionary holds and a word nobody has, read back with the first
+  underlined and the second plain, and nothing written anywhere for it
+  (docs/38-third-batch.md, TB-8 and D13).
+*/
+{
+  const rowsBefore = await prisma.scan.count() + await prisma.lexeme.count();
+  await page.goto(`${B}/read`, { waitUntil: "networkidle" });
+  await page.locator("#reading").fill(`${known.lemma} ${UNKNOWN}.`);
+  await page.getByRole("button", { name: /^Read it$/ }).click();
+  const reading = page.locator("[data-reading]");
+  await reading.waitFor({ timeout: 20_000 }).catch(() => {});
+  const underlined = reading.getByRole("button", { name: known.lemma, exact: true });
+  check("reading mode underlines a word the dictionary vouches for", (await underlined.count()) === 1,
+    `${await underlined.count()} buttons named ${known.lemma}`);
+  const plain = await reading.getByRole("button", { name: UNKNOWN, exact: true }).count();
+  const shown = (await reading.innerText().catch(() => "")).includes(UNKNOWN);
+  check("and prints a word nothing vouches for plain, still in the text", plain === 0 && shown,
+    `${plain} buttons, ${shown ? "shown" : "missing from the text"}`);
+  if (await underlined.count()) await underlined.first().click();
+  const opened = await reading.locator("[data-word-meaning]").count();
+  check("pressing an underlined word opens its panel", opened > 0, `${opened} panels`);
+  const rowsAfter = await prisma.scan.count() + await prisma.lexeme.count();
+  check("and nothing pasted is stored", rowsAfter === rowsBefore, `${rowsBefore} rows before, ${rowsAfter} after`);
+}
 
 // The only stub in the file. Everything downstream of it is the real thing.
 let sentBytes = 0;

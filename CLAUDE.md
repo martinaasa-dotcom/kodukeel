@@ -10366,8 +10366,8 @@ shape that breaks this and it is the natural thing to write, so the invariant re
 ## Conventions
 
 - TypeScript `strict` plus `noUncheckedIndexedAccess`. No `any` without a comment justifying it.
-- `lib/assessment/`, `lib/collections/`, `lib/copy/`, `lib/course/`, `lib/email/`,
-  `lib/estonian/`, `lib/exam/`, `lib/funding/`, `lib/games/`, `lib/learn/`, `lib/offline/`,
+- `lib/assessment/`, `lib/collections/`, `lib/copy/`, `lib/course/`, `lib/curriculum/`,
+  `lib/email/`, `lib/estonian/`, `lib/evidence/`, `lib/exam/`, `lib/funding/`, `lib/games/`, `lib/learn/`, `lib/offline/`,
   `lib/questions/`, `lib/random/`, `lib/readiness/`, `lib/research/`, `lib/scan/`, `lib/scenes/`,
   `lib/security/`, `lib/stats/`, `lib/time/` and `lib/ux/` stay free of React, Next.js and Prisma,
   however many imports away: pure functions, unit tested. Anything that

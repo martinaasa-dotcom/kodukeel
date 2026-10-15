@@ -47,12 +47,24 @@ import COURSE from "./specs/keeletund";
 import INTERVIEW from "./specs/toovestlus";
 import COMPLAINT from "./specs/kaebus";
 import CLOTHES from "./specs/riidepood";
+import NEW_COLLEAGUE from "./specs/uus-kolleeg";
+import ASKING_FOR_HELP from "./specs/abi-palumine";
+import WAITING from "./specs/ootamine";
+import ARRANGING from "./specs/kokkulepe";
+import MARKET from "./specs/turul";
+import BUS_STOP from "./specs/bussipeatus";
+import LIBRARY from "./specs/raamatukogu";
+import WEEKEND from "./specs/nadalavahetus";
+import EMERGENCY from "./specs/hadaabi";
+import BANK from "./specs/pangas";
+import FAMILY_DOCTOR from "./specs/perearst";
 
 export { FAREWELLS, REACTIONS, LOST, ASIDES, FEELINGS, FALLBACK_PHRASE, ASK_ENGLISH } from "./specs/shared";
 
 export const SCENES: readonly SceneSpec[] = [
   SHOP, DOCTOR, LANDLORD, COUNTER, CAFE, DIRECTIONS, TICKET,
   RESTAURANT, PHONE, NEIGHBOR, PHARMACY, COURSE, INTERVIEW, COMPLAINT, CLOTHES,
+  NEW_COLLEAGUE, ASKING_FOR_HELP, WAITING, ARRANGING, MARKET, BUS_STOP, LIBRARY, WEEKEND, EMERGENCY, BANK, FAMILY_DOCTOR,
 ];
 
 export function sceneById(id: string): SceneSpec | undefined {

@@ -1,6 +1,6 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Download, Printer, Target } from "lucide-react";
+import { ArrowLeft, Download, FileText, Printer, Target } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { classworkHistory } from "@/app/actions";
@@ -137,7 +137,10 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
         )}
         {/* The records of a class that has ended are still the owner's to keep. */}
         {isTeacher && classroom.archived && (
-          <div><RosterDownload classroomId={classroom.id} label={t("Download the roster")} /></div>
+          <div className="flex flex-wrap items-center gap-3">
+            <RosterDownload classroomId={classroom.id} label={t("Download the roster")} />
+            <ReportLink classroomId={classroom.id} label={t("Term report")} />
+          </div>
         )}
 
         {isTeacher && !classroom.archived && (
@@ -164,6 +167,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                   <Printer size={14} aria-hidden /> {t("Print the join poster")}
                 </Link>
                 <RosterDownload classroomId={classroom.id} label={t("Download the roster")} />
+                <ReportLink classroomId={classroom.id} label={t("Term report")} />
                 <CopyCode code={classroom.code} />
               </div>
             </div>
@@ -343,6 +347,19 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
  * app's prefetching link, because a link that fetches on hover would download
  * the file for a pointer resting on it.
  */
+/** The printable page for a range of weeks, beside the roster: totals there, names here. */
+function ReportLink({ classroomId, label }: { classroomId: string; label: string }) {
+  return (
+    <Link
+      href={`/class/${classroomId}/report`}
+      className="tap-tint inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full px-3 text-sm font-semibold underline underline-offset-4"
+      style={{ color: "var(--ink-2)" }}
+    >
+      <FileText size={14} aria-hidden /> {label}
+    </Link>
+  );
+}
+
 function RosterDownload({ classroomId, label }: { classroomId: string; label: string }) {
   return (
     <a

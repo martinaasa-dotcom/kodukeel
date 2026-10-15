@@ -62,7 +62,7 @@ const { PUBLIC_CARDS, publicCard } = await import("@/lib/copy/publicCards");
 const { entryMetadata } = await import("@/app/(chromeless)/welcome/entryMetadata");
 
 const sitemapPaths = [...readFileSync("app/sitemap.ts", "utf8").matchAll(/\{ path: "([^"]+)", priority/g)].map((m) => m[1]!);
-const englishOnly = new Set(["/pilots"]);
+const englishOnly = new Set(["/pilots", "/how-we-know", "/curriculum"]);
 
 describe("every public page has a share card of its own", () => {
   it("reads the paths it checks from the sitemap", () => {

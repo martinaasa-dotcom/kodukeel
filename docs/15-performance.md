@@ -267,6 +267,44 @@ what to do when the two can move together, which for an app whose learners are
 almost all in Estonia means Stockholm, and says plainly that moving the easy
 half first is the worst of the three arrangements.
 
+## The sign-in page on a phone, and what moved it and what did not
+
+PageSpeed put the sign-in page's largest paint at 5.1 seconds on its phone
+profile on 2026-10-14, against 2.7 for the landing page. It was measured again
+locally on 2026-10-15, with Lighthouse 12.8.2's simulated phone profile against
+a hosted-mode production build on this machine, before and after one change,
+interleaved seven times each so that a slow minute on the machine lands on both.
+
+| Build | Largest paint, seven runs (ms) | Median | Layout shift |
+| --- | --- | --- | --- |
+| Before | 2878, 2284, 3018, 1838, 2135, 3457, 2589 | 2589 | 0 |
+| After | 2659, 2896, 3196, 2610, 2936, 2630, 3021 | 2896 | 0 |
+
+**The largest element is not Google's button.** It is the "Back to the front
+page" link, painted 241 ms into the trace, and the button's slot is already
+reserved at 52 px, which is why the shift is nought. What the simulation adds on
+top of that is the script the page evaluates before it could paint: the render
+delay was 2,558 ms of a 3,021 ms paint, and the time to first byte the rest. So
+loading Google's script later (`lazyOnload`) was not tried, since it starts after
+hydration and is not in that window, and it would put the redirect button on
+screen more often on exactly the slow phone this is about, because the four
+second deadline starts at mount.
+
+**The change is the Supabase browser client**, 68 KB compressed and 258 KB
+parsed, which the sign-in form imported at the top and so every phone parsed
+before the page was interactive. It is fetched on idle now, and again on the
+press if idle never came (`supabaseClient` in `SignInForm.tsx`, and the
+invariant that no client file imports it up front). The page's HTML no longer
+names that chunk.
+
+**It is not shown to make the paint faster.** The two medians are inside one
+another's noise, which runs from 1.8 to 3.5 seconds on this machine, and the
+later median is the higher of the two. Neither build is reliably under the 2.5
+second target here. The change stays because it takes a quarter of a megabyte of
+parsing off the page and costs nothing, and because the production figure is
+the one that counts: it has to be read again on PageSpeed after a deploy, beside
+the 5.1, before anybody claims this item is done.
+
 ## What this does not measure
 
 This runs one Postgres on the same machine as the app. It measures the shape of

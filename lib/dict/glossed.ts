@@ -142,12 +142,14 @@ const WORD_BUDGET = 320;
  */
 export async function glossSentences(
   sentences: readonly { et: string; form: string | null }[],
+  /** Reading mode asks about a whole pasted text, which is wider than a session's first meetings. */
+  budget = WORD_BUDGET,
 ): Promise<GlossedToken[][]> {
   const wanted = new Set<string>();
   const covered: boolean[] = [];
   for (const sentence of sentences) {
     const words = wordsIn(sentence.et, sentence.form);
-    const room = words.every((w) => wanted.has(w)) || wanted.size + words.length <= WORD_BUDGET;
+    const room = words.every((w) => wanted.has(w)) || wanted.size + words.length <= budget;
     covered.push(room);
     if (room) words.forEach((w) => wanted.add(w));
   }

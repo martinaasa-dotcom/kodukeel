@@ -362,6 +362,16 @@ export const TODAY: Area = {
     "Представьтесь новому человеку: как вас зовут, где вы живёте и чем занимаетесь.",
   "Say a price or which floor you live on out loud in Estonian, and ask them to say it back.":
     "Назовите вслух по-эстонски цену или этаж, на котором живёте, и попросите повторить.",
+  "Ask for something politely with would: could I, would you.":
+    "Попросите о чём-нибудь вежливо, в условном наклонении: не могли бы вы, можно было бы.",
+  "Find out what number to call in an emergency, and say your address out loud in Estonian.":
+    "Узнайте, по какому номеру звонить в экстренном случае, и произнесите свой адрес вслух по-эстонски.",
+  "Ask at a bank or a counter what you need to bring, in Estonian.":
+    "Спросите в банке или у окошка по-эстонски, что нужно принести с собой.",
+  "Ask how often to take something, and say it back.":
+    "Спросите, как часто что-то принимать, и повторите ответ.",
+  "A desk, a shop, work":
+    "Окошко, магазин, работа",
   "Anywhere":
     "Где угодно",
   "A bus stop":
@@ -1366,6 +1376,20 @@ export const TODAY: Area = {
     "Представтеся новій людині: як вас звати, де ви живете і чим займаєтеся.",
   "Say a price or which floor you live on out loud in Estonian, and ask them to say it back.":
     "Назвіть уголос естонською ціну або поверх, на якому живете, і попросіть повторити.",
+  "Ask for something politely with would: could I, would you.":
+    "Попросіть про щось ввічливо, в умовному способі: чи не могли б ви, чи можна було б.",
+  "Find out what number to call in an emergency, and say your address out loud in Estonian.":
+    "Дізнайтеся, за яким номером дзвонити в разі надзвичайної ситуації, і промовте свою адресу вголос естонською.",
+  "Ask at a bank or a counter what you need to bring, in Estonian.":
+    "Запитайте в банку чи біля віконця естонською, що треба принести з собою.",
+  "A bank, an office":
+    "Банк, установа",
+  "Ask how often to take something, and say it back.":
+    "Запитайте, як часто щось приймати, і повторіть відповідь.",
+  "A doctor, a pharmacy":
+    "Лікар, аптека",
+  "A desk, a shop, work":
+    "Віконце, магазин, робота",
   "Anywhere":
     "Будь-де",
   "A bus stop":

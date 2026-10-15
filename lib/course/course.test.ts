@@ -485,7 +485,15 @@ describe("what a day reads and where it goes", () => {
         if (!day.grammarCase) return;
         const taught = taughtBy(programme, day.index);
         if (!supportedRounds(programme.level, taught).includes("workbook")) return;
-        const before = at > 0 ? programme.days[at - 1]!.practice : [];
+        /*
+          What last night ran, not what it listed: a conversation evening keeps
+          its rotation's pair in `practice` and runs neither, since the talk
+          step stands in for the reading and both rounds. Read as having had
+          the workbook, it hid the case evening after every conversation from
+          this walk.
+        */
+        const prev = at > 0 ? programme.days[at - 1]! : undefined;
+        const before = prev && !prev.steps.some((s) => s.kind === "talk") ? prev.practice : [];
         if (before.includes("workbook")) return;
         walked += 1;
         expect(day.practice, `${day.id} reads ${day.grammarCase}`).toContain("workbook");

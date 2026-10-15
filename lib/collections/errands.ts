@@ -83,23 +83,23 @@ export interface Errand {
 }
 
 export const ERRANDS: readonly Errand[] = [
-  { id: "hello", says: "Say hello to the first person you deal with today, and thank them on your way out.", where: "Anywhere", unit: "tervitused" },
-  { id: "sorry", says: "Say sorry in Estonian for something tiny, and tell them you're learning.", where: "Anywhere", unit: "tervitused" },
+  { id: "hello", says: "Say hello to the first person you deal with today, and thank them on your way out.", where: "Anywhere", unit: "tervitused", scene: "uus-kolleeg" },
+  { id: "sorry", says: "Say sorry in Estonian for something tiny, and tell them you're learning.", where: "Anywhere", unit: "tervitused", scene: "abi-palumine" },
   { id: "coffee", says: "Order your coffee in Estonian today. Don't forget the please.", where: "A café", unit: "sook-ja-jook", scene: "kohvikus" },
   { id: "bread", says: "Ask for bread at the counter and say how much you want. Pointing doesn't count.", where: "A shop or a market", unit: "sook-ja-jook", scene: "poodi-piima" },
   { id: "price", says: "Ask what something costs before you peek at the label.", where: "A shop", unit: "ostmine", scene: "poodi-piima" },
-  { id: "time", says: "Ask somebody the time, even if you know it perfectly well.", where: "A bus stop, a corridor", unit: "aeg" },
+  { id: "time", says: "Ask somebody the time, even if you know it perfectly well.", where: "A bus stop, a corridor", unit: "aeg", scene: "ootamine" },
   { id: "where", says: "Ask somebody where something is, and follow the answer without falling back on English.", where: "Town", unit: "kus-ja-kuhu", scene: "tee-kusimine" },
-  { id: "weather", says: "Say one sentence about the weather to whoever's waiting next to you.", where: "A line, an elevator", unit: "ilm" },
+  { id: "weather", says: "Say one sentence about the weather to whoever's waiting next to you.", where: "A line, an elevator", unit: "ilm", scene: "ootamine" },
   { id: "family", says: "Tell a colleague or a neighbor one thing about your family.", where: "Work, the stairwell", unit: "inimesed", scene: "trepikoda" },
-  { id: "day", says: "Tell somebody what you did today. Three sentences is plenty.", where: "Home, a friend", unit: "iga-paev" },
-  { id: "number", says: "Give your phone number in Estonian, digit by digit, and ask them to read it back to you.", where: "A form, a friend", unit: "arvud" },
+  { id: "day", says: "Tell somebody what you did today. Three sentences is plenty.", where: "Home, a friend", unit: "iga-paev", scene: "nadalavahetus" },
+  { id: "number", says: "Give your phone number in Estonian, digit by digit, and ask them to read it back to you.", where: "A form, a friend", unit: "arvud", scene: "raamatukogu" },
   { id: "clothes", says: "In a clothes shop, ask for another size or another color.", where: "A clothes shop", unit: "riided", scene: "riidepood" },
   { id: "call", says: "Make one phone call in Estonian. A short one counts.", where: "The phone", unit: "suhtlemine", scene: "helistamine" },
   { id: "appointment", says: "Book an appointment in Estonian, or just ask about one, and stay in Estonian even if they switch to English.", where: "A health center, a salon", unit: "keha-ja-tervis", scene: "arsti-aeg" },
-  { id: "plan", says: "Arrange to meet somebody in Estonian, with a day and a time.", where: "Work, a friend", unit: "plaanid" },
+  { id: "plan", says: "Arrange to meet somebody in Estonian, with a day and a time.", where: "Work, a friend", unit: "plaanid", scene: "kokkulepe" },
   { id: "flat", says: "Tell somebody one thing about your apartment, or ask about theirs.", where: "A neighbor, a colleague", unit: "kodu", scene: "uuri-remont" },
-  { id: "help", says: "Ask somebody for a hand with one small thing, in Estonian.", where: "Anywhere", unit: "korraldused" },
+  { id: "help", says: "Ask somebody for a hand with one small thing, in Estonian.", where: "Anywhere", unit: "korraldused", scene: "abi-palumine" },
   { id: "post", says: "Mail a letter or pick up a package, and do the whole thing in Estonian.", where: "The post office", unit: "linn-ja-teenused", scene: "ametiasutus" },
   { id: "ticket", says: "Buy a bus ticket at the window, and say where you're going and when.", where: "A bus station", unit: "reisimine", scene: "bussipilet" },
   { id: "meal", says: "Order a whole meal in Estonian, and ask what's in one of the dishes.", where: "A restaurant", unit: "restoranis", scene: "restoranis-tellimine" },
@@ -113,19 +113,24 @@ export const ERRANDS: readonly Errand[] = [
     Transport, asking for help and saying who you are are the three things
     somebody does in their first month here and cannot do from inside an app,
     so a unit for each of them with no errand beside it is the rehearsal
-    without the door out of it. None names a scene, because none of the
-    fourteen declares these units and the test refuses a rehearsal that could
-    not vouch for the errand's words.
+    without the door out of it. None named a scene while none of the
+    fourteen declared these units, since the test refuses a rehearsal that
+    could not vouch for the errand's words; the everyday scenes of the third
+    batch each declare one, and each of the four names its own now.
 
     `repeat` is deliberately not `help` one row up, which is asking somebody to
     do something for you. This is the move that keeps a conversation in
     Estonian once it has gone wrong, which is the one the switch to English
     costs, and the switch is the figure Progress says to watch.
   */
-  { id: "bus", says: "Before you get on, ask whether this bus or tram goes where you're going.", where: "A stop, a platform", unit: "transport" },
-  { id: "repeat", says: "When you don't catch something, ask them to say it again instead of switching to English.", where: "Anywhere", unit: "abi" },
-  { id: "introduce", says: "Introduce yourself to somebody new: your name, where you live and what you do.", where: "Work, a class, a stairwell", unit: "tutvumine" },
-  { id: "count", says: "Say a price or which floor you live on out loud in Estonian, and ask them to say it back.", where: "A shop, an elevator", unit: "suured-arvud" },
+  { id: "bus", says: "Before you get on, ask whether this bus or tram goes where you're going.", where: "A stop, a platform", unit: "transport", scene: "bussipeatus" },
+  { id: "repeat", says: "When you don't catch something, ask them to say it again instead of switching to English.", where: "Anywhere", unit: "abi", scene: "abi-palumine" },
+  { id: "introduce", says: "Introduce yourself to somebody new: your name, where you live and what you do.", where: "Work, a class, a stairwell", unit: "tutvumine", scene: "uus-kolleeg" },
+  { id: "count", says: "Say a price or which floor you live on out loud in Estonian, and ask them to say it back.", where: "A shop, an elevator", unit: "suured-arvud", scene: "turul" },
+  { id: "would", says: "Ask for something politely with would: could I, would you.", where: "A desk, a shop, work", unit: "tingiv", scene: "raamatukogu" },
+  { id: "emergency", says: "Find out what number to call in an emergency, and say your address out loud in Estonian.", where: "Home", unit: "abi", scene: "hadaabi" },
+  { id: "bring", says: "Ask at a bank or a counter what you need to bring, in Estonian.", where: "A bank, an office", unit: "linn-ja-teenused", scene: "pangas" },
+  { id: "dose", says: "Ask how often to take something, and say it back.", where: "A doctor, a pharmacy", unit: "keha-ja-tervis", scene: "perearst" },
 ];
 
 /**

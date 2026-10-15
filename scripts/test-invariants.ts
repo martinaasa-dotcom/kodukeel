@@ -343,7 +343,7 @@ function chainTo(start: string, target: string): string | null {
  * which still named `lib/gamification/` a year after it was deleted.
  */
 const PURE_LAYERS = [
-  "assessment", "collections", "copy", "course", "email", "estonian", "exam", "funding", "games",
+  "assessment", "collections", "copy", "course", "curriculum", "email", "estonian", "evidence", "exam", "funding", "games",
   "learn", "offline", "questions", "random", "readiness", "research", "scan", "scenes", "security",
   "stats", "time", "ux",
 ] as const;
@@ -565,22 +565,21 @@ check("the errand module Today's card renders from does not import the syllabus"
   The rail on every signed-in page imported it at the top of the file for its
   Sign out button, so every page downloaded 254 KB of `@supabase/supabase-js`
   and the Buffer polyfill it brings for a press most visits never make. The
-  sign-in form is the one screen whose job is the client, so it may import it;
-  everything else asks for it with `import()` at the moment it is needed.
+  sign-in form was the one exception, and it went the same way for TB-18: the
+  client is 68 KB compressed that a phone parsed before the first paint of a
+  page whose first job is to be read, so the form fetches it on idle and again
+  on the press. No client file imports it at the top now.
 */
-check("only the sign-in form imports the Supabase browser client up front", () => {
+check("no client file imports the Supabase browser client up front", () => {
   const STATIC = /(?:^|\n)\s*import\s+(?!type\b)[^;]*?\bfrom\s+["'](?:@\/lib\/supabase\/client|@supabase\/(?:ssr|supabase-js))["']/;
-  const ALLOWED = ["app/(chromeless)/sign-in/SignInForm.tsx"];
-  const offenders = CLIENT.filter((file) => !ALLOWED.includes(file) && STATIC.test(code(file)));
+  const offenders = CLIENT.filter((file) => STATIC.test(code(file)));
   assert.deepEqual(
     offenders, [],
     `a client file imports the Supabase browser client at the top, so every page that renders it downloads 254 KB for it: ${offenders.join(", ")}`,
   );
-  for (const file of ALLOWED) {
-    assert.ok(STATIC.test(code(file)), `${file} is allowed the client and no longer imports it; take it off the list`);
-  }
   const lazy = CLIENT.filter((file) => /\bimport\(\s*["']@\/lib\/supabase\/client["']\s*\)/.test(code(file)));
-  assert.ok(lazy.length >= 2, `only ${lazy.length} files fetch the client on demand, so this has lost the ones it was about`);
+  assert.ok(lazy.length >= 3, `only ${lazy.length} files fetch the client on demand, so this has lost the ones it was about`);
+  assert.ok(lazy.includes("app/(chromeless)/sign-in/SignInForm.tsx"), "the sign-in form no longer fetches the client on demand; this check has lost its subject");
 });
 
 /*
@@ -3612,6 +3611,16 @@ check("a page a stranger may read is a page the landing page links to", () => {
     // and the directory a crawler looks in for an agent catalog, which here
     // answers 404 (app/llms.txt/route.ts says why).
     "/llms.txt", "/.well-known/",
+    /*
+      Readable, and linked from nowhere until it has something to say: /impact
+      lists itself (the public footer, the sitemap, llms.txt) only once its head
+      count over the last thirty days clears the research floors, and until then
+      it carries noindex (docs/38-third-batch.md, D3). A link from the front
+      door would send every stranger to a page of "not enough data yet". The
+      footer that every public page carries is where it appears, and
+      scripts/invariants/an-agent-is-told-what-the-site-is.ts holds that half.
+    */
+    "/impact",
   ];
 
   const allowed = [...middleware.matchAll(/path\.startsWith\("(\/[^"]*)"\)/g)]
@@ -7771,6 +7780,7 @@ check("every environment variable the app reads is in .env.example", () => {
     VERCEL: "set by the platform on its own builder and functions",
     VERCEL_GIT_COMMIT_SHA: "set by the platform to the commit it deployed",
     NEXT_DIST_DIR: "a test harness's build directory, never a deployment setting",
+    EVIDENCE_MEASURING: "set by `npm run evidence` while it re-runs the unit suite, never a deployment setting",
     NEXT_PUBLIC_ENABLE_SW: "turns the service worker on in `next dev`, where it is off by default",
     SCENE_MODEL: "retired and read only to warn that it is ignored; .env.example says so in prose",
   };
@@ -27522,6 +27532,7 @@ check("every route the app has is walked by the containment and accessibility sw
   const MADE: Record<string, string> = {
     "/class/[classroomId]": "a classroom the demo fixture lays down, read off /class",
     "/class/[classroomId]/poster": "the join poster of each classroom the account teaches, asked of the server",
+    "/class/[classroomId]/report": "the term report of each classroom the account teaches, asked of the server",
     "/exam/result/[id]": "a paper the containment suite sits and hands in",
     "/scan/[scanId]": "a scanned page the containment suite makes with the model stubbed",
     "/review/deck/[deckId]": "a shelf the demo fixture lays down, read off /words/decks",
@@ -27538,7 +27549,7 @@ check("every route the app has is walked by the containment and accessibility sw
 
   for (const [file, made] of [
     ["scripts/test-containment.mjs", [...Object.keys(MADE), "/exam/[level]"]],
-    ["scripts/a11y-check.mjs", ["/review/deck/[deckId]", "/class/[classroomId]", "/class/[classroomId]/poster", ...NOT_BY_AXE]],
+    ["scripts/a11y-check.mjs", ["/review/deck/[deckId]", "/class/[classroomId]", "/class/[classroomId]/poster", "/class/[classroomId]/report", ...NOT_BY_AXE]],
   ] as const) {
     const entries = listed(file);
     const missing = routes.filter((r) => !made.includes(r) && !entries.some((e) => matches(r, e)));

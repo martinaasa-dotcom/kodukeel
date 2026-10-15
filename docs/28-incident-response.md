@@ -210,7 +210,13 @@ Steps:
 Symptom: the provider bill or the daily spend is far above the `AI_DAILY_USD_GLOBAL` cap, or learners
 are being refused when they should not be.
 
-1. Read the ledger. It is the record and it is append-only.
+1. **Switch the feature off first.** `PAID_OFF` is a comma-separated list of `tutor`, `scenes`,
+   `scan`, `grader` and `translate` (`lib/usage/switches.ts`). Set it in the deployment's
+   environment and redeploy the same build: each named feature behaves exactly as it does on a
+   deployment with no key, so nothing it would have called is asked, and everything else keeps
+   working. It never touches the ledger, which stays on for whatever is still on. A typo in a name
+   switches nothing off and says so in the log. Then work out why.
+2. Read the ledger. It is the record and it is append-only.
 
    ```sql
    SELECT "day", "kind", "entry", count(*), sum("costMicros")
@@ -218,18 +224,18 @@ are being refused when they should not be.
    GROUP BY 1,2,3 ORDER BY 1 DESC, 5 DESC;
    ```
 
-2. Find the owner. `SELECT "ownerId", count(*), sum("costMicros") FROM "UsageEvent" WHERE "day" =
+3. Find the owner. `SELECT "ownerId", count(*), sum("costMicros") FROM "UsageEvent" WHERE "day" =
    current_date GROUP BY 1 ORDER BY 3 DESC LIMIT 20;`
-3. Two shapes of fault, told apart by the rows. Many `CALL` rows with no matching `SETTLEMENT` means
+4. Two shapes of fault, told apart by the rows. Many `CALL` rows with no matching `SETTLEMENT` means
    a route is booking and not settling, so the reservations are standing and the estimate is what is
    being charged. `CALL` rows with no reservation at all, written by `recordUsage` without one, means
    a path reached a provider without going through `authoriseCall`, which is the fault the invariant
    in `scripts/test-invariants.ts` exists to prevent.
-4. Contain by lowering `AI_DAILY_USD_GLOBAL` and redeploying. It has no off switch and it fails
+5. Contain by lowering `AI_DAILY_USD_GLOBAL` and redeploying. It has no off switch and it fails
    closed, so lowering it to near zero stops the spending without stopping the app: everything except
    the tutor, the grader, the scanner and speech works with no model at all.
-5. If a key is the cause rather than a route, rotate it under 7.1.
-6. Eradicate with an invariant, not a comment.
+6. If a key is the cause rather than a route, rotate it under 7.1.
+7. Eradicate with an invariant, not a comment.
 
 ### 7.3 Restoring the database
 
@@ -341,6 +347,17 @@ That is the single largest gap in this section and it is the one worth closing f
   plan that is up to 24 hours of review history.
 - *Recovery time objective, as it stands:* untested. The steps in 7.3 are minutes of work plus
   however long Supabase takes to restore, and nobody has measured the second part on a real database.
+
+**A local restore drill.** `npm run drill:restore` dumps a local database with `pg_dump`, restores it
+into a fresh database with `pg_restore`, compares the row count of every table and starts the built
+app against the copy until `/api/health` answers. It refuses anything not on loopback. Run on
+2026-10-15 against the seeded dictionary with two months of demo history, on the sandbox this
+repository is developed in: 30 tables and 202,023 rows in a 3.1 MB dump, every table matching, the
+app healthy against the copy, 10.2 seconds in all (2.4 to count the original, 0.7 to dump, 0.1 to
+create, 1.5 to restore, 2.5 to count the copy, 2.8 for the app to answer). Run it on an idle
+database: a count taken while somebody is writing will differ between the two passes. What this
+proves is that the schema, the data and the app survive a dump and a restore. It says nothing about
+how long a Supabase restore takes, so the sentence above stays true.
 
 **The learner's own backup.** Tested, and it is the one recovery path that is exercised on every CI
 run. `scripts/test-restore.mjs` empties every table and restores from an export, and it runs in the

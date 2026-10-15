@@ -16,7 +16,7 @@ import { GovernmentSession, type GovernmentQuestion } from "./GovernmentSession"
 import { BeforeYouStart } from "@/components/round/Briefing";
 import type { CaseKey } from "@/lib/estonian/types";
 import { shuffle } from "@/lib/random/shuffle";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { offered } from "@/lib/tutor/provider";
 import { byRecency, recentLemmas } from "@/lib/course/scope";
 import { practiceScope } from "@/lib/progress/moduleScope";
 
@@ -58,7 +58,7 @@ export default async function GovernmentPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const ownerId = await requireUserId();
-  const canTranslate = resolveProvider() !== null;
+  const canTranslate = offered("translate");
 
   // Opened from the module, the verbs are the taught ones that carry a
   // government, whatever their band, and the round is dealt only once the

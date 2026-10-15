@@ -177,6 +177,9 @@ export function ClozeSession() {
           <p className="mt-4 text-xs" style={{ color: "var(--ink-3)" }}>
             {t("We don’t keep your text. We look for your words in it, then throw it away.")}
           </p>
+          <p className="mt-2 text-sm">
+            <ButtonLink href="/read" variant="ghost" size="sm">{t("Just read it with the dictionary")}</ButtonLink>
+          </p>
         </div>
       </Page>
     );

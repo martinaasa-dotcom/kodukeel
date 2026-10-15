@@ -2,7 +2,7 @@ import { titleFor } from "@/lib/progress/locale";
 import { requireUserId } from "@/lib/auth/session";
 import { practiceScope } from "@/lib/progress/moduleScope";
 import { twinsRound } from "@/lib/progress/twins";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { offered } from "@/lib/tutor/provider";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { TwinsSession } from "./TwinsSession";
 
@@ -41,7 +41,7 @@ export default async function TwinsPage({
     <BeforeYouStart id="twins" ready={questions.length > 0} count={{ n: questions.length, noun: "question" }}>
       <TwinsSession
         questions={questions}
-        canTranslate={resolveProvider() !== null}
+        canTranslate={offered("translate")}
         focusTitle={focus ? focus.words.map((w) => w.lemma).join(", ") : null}
       />
     </BeforeYouStart>

@@ -12,7 +12,7 @@ import { didYouMean, knownAs as knownLemmas } from "@/lib/dict/known";
 import { backfillClozeCards } from "@/lib/srs/backfill";
 import { ekilexConfigured } from "@/lib/ekilex/client";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
-import { resolveProvider, resolveProviders } from "@/lib/tutor/provider";
+import { offered, resolveProviders } from "@/lib/tutor/provider";
 import { suggestWords, type Suggestions } from "@/lib/dict/suggest";
 import { readableHeadlines } from "@/lib/dict/headlines";
 import { feedHost } from "@/lib/news/feed";
@@ -196,7 +196,7 @@ export default async function DictionaryPage({
         // Anu's own chain: this offers a question to her, and her route reads
         // nothing else.
         tutorReady={resolveProviders({ purpose: "tutor" }).length > 0}
-        canScan={resolveProvider() !== null}
+        canScan={offered("scan")}
         justFetched={fetched}
         initialQuery={q}
         hits={hits}

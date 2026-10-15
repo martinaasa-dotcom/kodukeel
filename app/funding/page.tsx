@@ -172,6 +172,11 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
             pilots: <Link href="/pilots" className="underline underline-offset-2">{t("what a pilot is")}</Link>,
           })}
         </P>
+        <P>
+          {rich(t("Every claim this project makes about itself is listed on {how}, with its figure, the day it was measured and the command that measures it again."), {
+            how: <Link href="/how-we-know" className="underline underline-offset-2">{t("how we know")}</Link>,
+          })}
+        </P>
       </S>
 
       <S title={t("What it runs on")}>

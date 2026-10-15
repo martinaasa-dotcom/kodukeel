@@ -16,7 +16,7 @@ import { exceptionRound, pickWords, type ExceptionWord } from "@/lib/games/excep
 import { formIndex } from "@/lib/games/flash";
 import { naturalSentencesFor } from "@/lib/srs/cards";
 import { shuffle } from "@/lib/random/shuffle";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { offered } from "@/lib/tutor/provider";
 import { ButtonLink } from "@/components/Button";
 import { Chip, Empty, Page, Stack } from "@/components/ui";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
@@ -64,7 +64,7 @@ export default async function ExceptionsRoundPage({
   }>;
 }) {
   const ownerId = await requireUserId();
-  const canTranslate = resolveProvider() !== null;
+  const canTranslate = offered("translate");
   const params = firstParams(await searchParams);
   const { kind } = params;
   // Opened from the module, the words are the taught ones. See lib/course/scope.ts.

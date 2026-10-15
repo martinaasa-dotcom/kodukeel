@@ -3,7 +3,7 @@ import { tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { starredAmong } from "@/lib/progress/stars";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { offered } from "@/lib/tutor/provider";
 import { writingTasksFor } from "@/lib/estonian/writing";
 import { sayPhrase } from "@/lib/estonian/sayIt";
 import { sentenceAsk } from "@/lib/estonian/caseReading";
@@ -254,7 +254,7 @@ export default async function WritePage({
     <BeforeYouStart id="write" ready={round.length > 0} count={{ n: round.length, noun: "word" }}>
       <WriteSession
         prompts={round.map((p) => ({ ...p, starred: starred.has(p.lexemeId) }))}
-        aiAvailable={resolveProvider() !== null}
+        aiAvailable={offered("grader")}
       />
     </BeforeYouStart>
   );

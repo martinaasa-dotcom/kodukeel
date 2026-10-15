@@ -211,6 +211,28 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
   akadeemiline: "keeletund",
   register: "uuri-remont",
   rahvusvaheline: "helistamine",
+  /*
+    THE THIRD BATCH'S EVERYDAY SCENES (docs/38-third-batch.md, TB-10), each on
+    the last evening of the unit the brief names for it (D6): the errands with
+    no rehearsal until now, from the first day at work to the library desk.
+  */
+  vordlemine: "uus-kolleeg",
+  kodutood: "abi-palumine",
+  loodus: "ootamine",
+  kuivord: "kokkulepe",
+  objekt: "turul",
+  rektsioon: "bussipeatus",
+  tingiv: "raamatukogu",
+  /*
+    Not on `kesksonad`, which the brief named: that unit has two evenings and
+    the second is its only reading of the perfect, which a scene evening would
+    take (course.test.ts refuses it). Every B1 unit after it is the evening of a
+    later scene in the same batch, so per D6 this is the next free one.
+  */
+  teadus: "nadalavahetus",
+  "keha-ja-tervis": "hadaabi",
+  "too-ja-raha": "pangas",
+  "des-vorm": "perearst",
 };
 
 /**

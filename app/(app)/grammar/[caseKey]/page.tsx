@@ -19,7 +19,7 @@ import { Speak } from "@/components/Speak";
 import { EstonianSentence } from "@/components/EstonianSentence";
 import { PointExamples } from "@/components/grammar/PointExamples";
 import { pinnedExamples } from "@/lib/progress/grammarExamples";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { offered } from "@/lib/tutor/provider";
 import { SuggestFix } from "@/components/SuggestFix";
 import { NO_VALUE } from "@/lib/copy/values";
 import { focusFrom } from "@/lib/course";
@@ -150,7 +150,7 @@ export default async function CasePage({
   const next = index < all.length - 1 ? all[index + 1] : undefined;
 
   const withSentence = examples.filter((e) => e.sentence).slice(0, SENTENCES);
-  const canTranslate = resolveProvider() !== null;
+  const canTranslate = offered("translate");
   const pinned = await pinnedExamples("case", ref.key);
 
   return (

@@ -171,6 +171,16 @@ export default async function TrustPage({ searchParams }: { searchParams: Public
             pilots: <Link href="/pilots" className="underline underline-offset-2">{t("what a pilot is")}</Link>,
           })}
         </P>
+        <P>
+          {rich(t("Every claim this project makes about itself is listed on {how}, with its figure, the day it was measured and the command that measures it again."), {
+            how: <Link href="/how-we-know" className="underline underline-offset-2">{t("how we know")}</Link>,
+          })}
+        </P>
+        <P>
+          {rich(t("Which part of the state examination each unit of the course prepares for, and where it has nothing, is on {curriculum}."), {
+            curriculum: <Link href="/curriculum" className="underline underline-offset-2">{t("what the course covers")}</Link>,
+          })}
+        </P>
       </S>
 
       <S id="security" title={t("Security posture")}>

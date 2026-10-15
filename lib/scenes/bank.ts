@@ -29,6 +29,17 @@ import teeKusimine from "./bank/tee-kusimine";
 import toovestlus from "./bank/toovestlus";
 import trepikoda from "./bank/trepikoda";
 import uuriRemont from "./bank/uuri-remont";
+import uusKolleeg from "./bank/uus-kolleeg";
+import abiPalumine from "./bank/abi-palumine";
+import ootamine from "./bank/ootamine";
+import kokkulepe from "./bank/kokkulepe";
+import turul from "./bank/turul";
+import bussipeatus from "./bank/bussipeatus";
+import raamatukogu from "./bank/raamatukogu";
+import nadalavahetus from "./bank/nadalavahetus";
+import hadaabi from "./bank/hadaabi";
+import pangas from "./bank/pangas";
+import perearst from "./bank/perearst";
 
 /** Every scene's prepared lines, one file a scene under `lib/scenes/bank/`, in scene order. */
 export const BANK: readonly ScriptedLine[] = [
@@ -47,4 +58,15 @@ export const BANK: readonly ScriptedLine[] = [
   ...toovestlus,
   ...trepikoda,
   ...uuriRemont,
+  ...uusKolleeg,
+  ...abiPalumine,
+  ...ootamine,
+  ...kokkulepe,
+  ...turul,
+  ...bussipeatus,
+  ...raamatukogu,
+  ...nadalavahetus,
+  ...hadaabi,
+  ...pangas,
+  ...perearst,
 ];

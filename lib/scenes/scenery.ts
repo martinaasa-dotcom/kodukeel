@@ -139,6 +139,17 @@ export const SCENERY: Readonly<Record<string, Scenery>> = {
     one starts at the rail and ends at the till, and both are the same room.
   */
   riidepood: { icon: "Shirt", setting: "shop" },
+  "uus-kolleeg": { icon: "Users", setting: "meeting" },
+  "abi-palumine": { icon: "HeartHandshake", setting: "street" },
+  ootamine: { icon: "CloudSun", setting: "street" },
+  kokkulepe: { icon: "CalendarCheck", setting: "home_phone" },
+  turul: { icon: "Scale", setting: "shop" },
+  bussipeatus: { icon: "Bus", setting: "street" },
+  raamatukogu: { icon: "Library", setting: "office" },
+  nadalavahetus: { icon: "Sunrise", setting: "meeting" },
+  hadaabi: { icon: "LifeBuoy", setting: "home_phone" },
+  pangas: { icon: "Landmark", setting: "office" },
+  perearst: { icon: "Stethoscope", setting: "clinic" },
 };
 
 /**
@@ -179,6 +190,8 @@ export function sceneryFor(sceneId: string): Scenery {
  */
 export const MOVES: Readonly<Record<string, Readonly<Record<string, Setting>>>> = {
   "poodi-piima": { inside: "shop", back: "walking" },
+  /* The stop, then the bus: the question about stops is asked of the driver. */
+  bussipeatus: { stops: "bus" },
 };
 
 /** The room a beat moves into, where it moves you at all. */

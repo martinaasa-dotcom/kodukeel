@@ -16,7 +16,7 @@ import { WatchOut } from "@/components/RuleNote";
 import { DrillLink } from "@/components/DrillLink";
 import { PointExamples } from "@/components/grammar/PointExamples";
 import { VerbTable } from "./VerbTable";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { offered } from "@/lib/tutor/provider";
 import { pinnedExamples } from "@/lib/progress/grammarExamples";
 import { verbExamples } from "@/lib/progress/verbExamples";
 import { focusFrom } from "@/lib/course";
@@ -169,7 +169,7 @@ export default async function TopicPage({
     dictionary. Each form says which. The other topics keep to English.
   */
   const pinned = await pinnedExamples("topic", id);
-  const canTranslate = resolveProvider() !== null;
+  const canTranslate = offered("translate");
 
   const shown = VERB_TOPICS[id];
   const only = ONLY_VERB[id];

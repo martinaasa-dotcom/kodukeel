@@ -20,7 +20,7 @@ import { parseExamples, teachingSentence, usableExamples } from "@/lib/dict/exam
 import { authoredFor, isAuthored } from "@/lib/dict/authored";
 import { glossSentences, type GlossedToken } from "@/lib/dict/glossed";
 import { isPhrase } from "@/lib/dict/pos";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { offered } from "@/lib/tutor/provider";
 import { buildCloze, mentions, nominalOpener } from "@/lib/estonian/cloze";
 import { readableFor, type SentenceReader } from "@/lib/collections/levels";
 import { APP_CHOSE } from "@/lib/srs/sources";
@@ -767,7 +767,7 @@ export async function learnBatch(
       // Filled below, in one read for the whole batch rather than one a word.
       tokens: null as GlossedToken[] | null,
       alsoSaid: null as string | null,
-      canTranslate: resolveProvider() !== null,
+      canTranslate: offered("translate"),
       gap,
       choices: picked ? picked.options : null,
       /*

@@ -2,7 +2,7 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Camera, ChevronRight, ClipboardPaste, Layers } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { offered } from "@/lib/tutor/provider";
 import { MAX_ITEMS } from "@/lib/scan/extract";
 import { parseItems, summarise } from "@/lib/scan/items";
 import { ButtonLink } from "@/components/Button";
@@ -47,7 +47,7 @@ export default async function ScanPage() {
   ]);
   const t = (english: string) => tr(locale, english);
 
-  const configured = resolveProvider() !== null;
+  const configured = offered("scan");
 
   return (
     <Page route="/scan"
@@ -85,6 +85,12 @@ export default async function ScanPage() {
         )}
 
         {configured && <ScanCapture />}
+
+        {/* A page of running text rather than a word list is read, not scanned into cards. */}
+        <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+          {t("Got a whole text rather than a list?")}{" "}
+          <Link href="/read" className="underline underline-offset-2" style={{ color: "var(--accent-deep)" }}>{t("Read it with the dictionary")}</Link>
+        </p>
 
         <section>
           <SectionTitle hint={scans.length > 0 ? fill(t("{n} saved"), { n: scans.length }) : undefined}>
