@@ -271,6 +271,18 @@ MODELS = {
     "TalTechNLP/whisper-medium-et": whisper,
     "TalTechNLP/xls-r-300m-et": ctc,
     "TalTechNLP/streaming-zipformer-large.et-en": zipformer,
+    "TalTechNLP/streaming-zipformer.et-en": zipformer,
+    # Small enough to consider running in a phone's browser: Whisper small is a
+    # third of the size of turbo. Community fine-tunes, so measured, not trusted.
+    "rristo/whisper-small-et-cv-fleurs": whisper,
+    "rristo/whisper-small-et": whisper,
+    "aajaani/whisper-small-et": whisper,
+    "Siim303/whisper-small-et": whisper,
+    "splendid678/whisper-small-et": whisper,
+    "SaulGoodmens/whisper-small-et": whisper,
+    "agnesluhtaru/whisper-small-et": whisper,
+    "agnesluhtaru/whisper-small-et-ERR2020": whisper,
+    "rristo/whisper-medium-et": whisper,
     "TalTechNLP/Voxtral-Mini-3B-2507-estonian": voxtral,
     "TalTechNLP/Voxtral-Mini-4B-Realtime-estonian-2609": voxtral_realtime,
     # Multilingual models that name Estonian among their languages.
