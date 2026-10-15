@@ -121,7 +121,10 @@ def without_hesitations(a, z, keep=KEEP):
     kept = []
     for s, e in islands(a):
         piece = a[max(0, s - RATE // 20): min(len(a), e + RATE // 20)]
-        if clean(z.hear(piece, lead=0.3)["text"]):
+        alone = z.hear(piece, lead=0.3)["text"]
+        # Dropped only when the model wrote it down and what it wrote is all hesitation: a short
+        # word heard alone often comes back empty, and an empty stretch is kept.
+        if not (alone.strip() and not clean(alone)):
             kept.append(piece)
     if not kept:
         return a
