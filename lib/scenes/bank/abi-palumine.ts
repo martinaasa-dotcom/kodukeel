@@ -17,20 +17,20 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `abi-palumine`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "abi-palumine", beat: "ask", text: "Jah, kuidas saan aidata?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "abi-palumine", beat: "ask", text: "Jah? Mis teil vaja on?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "abi-palumine", beat: "ask", text: "Jah, kuidas saan aidata?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "abi-palumine", beat: "ask", text: "Jah? Mis teil vaja on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "abi-palumine", beat: "how", text: "Muidugi, hoidke kotti all, mina võtan teiselt poolt ja kanname koos üles.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "abi-palumine", beat: "how", text: "Kindlasti, teie hoiate ust lahti ja mina kannan koti sisse.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "abi-palumine", beat: "how", text: "Kindlasti, teie hoiate ust lahti ja mina kannan koti sisse.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "abi-palumine", beat: "again", text: "Teie hoiate kotti all. Mina võtan teiselt poolt.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "abi-palumine", beat: "again", text: "Hoidke ust lahti. Mina kannan koti sisse.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "abi-palumine", beat: "again", text: "Hoidke ust lahti. Mina kannan koti sisse.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "abi-palumine", beat: "thanks", text: "Nii, kott on sees. See oli lihtne.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "abi-palumine", beat: "thanks", text: "Pole midagi, kott on sees.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "abi-palumine", beat: "hurdle:faster", text: "Kiire on, öelge kohe.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "abi-palumine", beat: "hurdle:faster", text: "Mul on kiire, öelge palun kohe.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "abi-palumine", beat: "hurdle:interrupted", text: "Üks minut, keegi helistab.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "abi-palumine", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "abi-palumine", beat: "hurdle:misheard", text: "Kas teil on vaja apteeki?", model: "authored", draftedAt: "2026-10-15", about: "ask" },
-  { scene: "abi-palumine", beat: "hurdle:misheard", text: "Kas teil on vaja politseid?", model: "authored", draftedAt: "2026-10-15", about: "ask" },
+  { scene: "abi-palumine", beat: "thanks", text: "Pole midagi, kott on sees.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "abi-palumine", beat: "hurdle:faster", text: "Kiire on, öelge kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "abi-palumine", beat: "hurdle:faster", text: "Mul on kiire, öelge palun kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "abi-palumine", beat: "hurdle:interrupted", text: "Üks minut, keegi helistab.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "abi-palumine", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "abi-palumine", beat: "hurdle:misheard", text: "Kas teil on vaja apteeki?", model: "authored", draftedAt: "2026-10-15", about: "ask", reviewedAt: "2026-10-15" },
+  { scene: "abi-palumine", beat: "hurdle:misheard", text: "Kas teil on vaja politseid?", model: "authored", draftedAt: "2026-10-15", about: "ask", reviewedAt: "2026-10-15" },
 ];
 
 export default LINES;

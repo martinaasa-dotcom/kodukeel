@@ -169,7 +169,7 @@ export const START: Area = {
       "Магазин, врач, автобус, соседи, бланки. Жизнь на языке, который звучит вокруг.",
     "Citizenship or residence": "Гражданство или ВНЖ",
     "There's a state exam at the end of this one, and it picks the level for you.":
-      "В конце государственный экзамен, и уровень выбирает он.",
+      "В конце вас ждёт государственный экзамен, он и определит ваш уровень.",
     "Work": "Работа",
     "Meetings, emails and colleagues who talk at full speed. At work you need to be understood exactly, not roughly.":
       "Совещания, письма и коллеги, которые говорят быстро. На работе вас должны понимать точно.",
@@ -178,7 +178,7 @@ export const START: Area = {
       "Программа, домашние задания и оценка в конце семестра.",
     "Family or a partner": "Семья или партнёр",
     "The people you most want to understand won't slow down for you forever.":
-      "Самые важные для вас люди не будут вечно говорить медленнее.",
+      "Люди, которых вы больше всего хотите понимать, не будут вечно говорить медленно.",
     "Roots and heritage": "Корни и семейная история",
     "A language your family spoke, or a country you keep coming back to.":
       "Язык вашей семьи или страна, в которую вы всё время возвращаетесь.",
@@ -459,9 +459,9 @@ export const START: Area = {
     "I live in Estonia": "Я живу в Естонії",
     "The shop, the doctor, the bus, the neighbors, the forms. Everyday life, in the language all around you.":
       "Магазин, лікар, автобус, сусіди, бланки. Життя мовою, яка звучить довкола.",
-    "Citizenship or residence": "Громадянство або посвідка",
+    "Citizenship or residence": "Громадянство або посвідка на проживання",
     "There's a state exam at the end of this one, and it picks the level for you.":
-      "Наприкінці державний іспит, і рівень обирає він.",
+      "Наприкінці на вас чекає державний іспит, він і визначить ваш рівень.",
     "Work": "Робота",
     "Meetings, emails and colleagues who talk at full speed. At work you need to be understood exactly, not roughly.":
       "Наради, листи й колеги, які говорять швидко. На роботі вас мають розуміти точно.",
@@ -470,7 +470,7 @@ export const START: Area = {
       "Програма, домашні завдання й оцінка наприкінці семестру.",
     "Family or a partner": "Родина або партнер",
     "The people you most want to understand won't slow down for you forever.":
-      "Найважливіші для вас люди не говоритимуть повільно вічно.",
+      "Люди, яких ви найбільше хочете розуміти, не говоритимуть повільно вічно.",
     "Roots and heritage": "Коріння й родинна історія",
     "A language your family spoke, or a country you keep coming back to.":
       "Мова вашої родини або країна, до якої ви постійно повертаєтеся.",

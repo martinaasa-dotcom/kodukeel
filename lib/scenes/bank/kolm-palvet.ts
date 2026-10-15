@@ -17,18 +17,18 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `kolm-palvet`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "kolm-palvet", beat: "friend", text: "Mis on?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "kolm-palvet", beat: "friend", text: "Mis sul vaja on?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "kolm-palvet", beat: "friend", text: "Mis on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "kolm-palvet", beat: "friend", text: "Mis sul vaja on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "kolm-palvet", beat: "manager", text: "Jah, mida te soovite?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "kolm-palvet", beat: "manager", text: "Jah? Mida te tahate?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "kolm-palvet", beat: "official", text: "Mida te soovite?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "kolm-palvet", beat: "official", text: "Jah, palun. Mida te soovite?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "kolm-palvet", beat: "hurdle:interrupted", text: "Üks minut, palun.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "kolm-palvet", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "kolm-palvet", beat: "hurdle:misheard", text: "Abi? Mis abi?", model: "authored", draftedAt: "2026-10-15", about: "friend" },
-  { scene: "kolm-palvet", beat: "hurdle:misheard", text: "Abi? Millist abi?", model: "authored", draftedAt: "2026-10-15", about: "manager" },
-  { scene: "kolm-palvet", beat: "hurdle:faster", text: "Mul on kiire.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "kolm-palvet", beat: "hurdle:faster", text: "Mul on täna väga kiire.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "kolm-palvet", beat: "manager", text: "Jah? Mis teil on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "kolm-palvet", beat: "official", text: "Mida te soovite?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "kolm-palvet", beat: "official", text: "Jah, palun. Mida te soovite?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "kolm-palvet", beat: "hurdle:interrupted", text: "Üks minut, palun.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "kolm-palvet", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "kolm-palvet", beat: "hurdle:misheard", text: "Abi? Mis abi?", model: "authored", draftedAt: "2026-10-15", about: "friend", reviewedAt: "2026-10-15" },
+  { scene: "kolm-palvet", beat: "hurdle:misheard", text: "Abi? Millist abi?", model: "authored", draftedAt: "2026-10-15", about: "manager", reviewedAt: "2026-10-15" },
+  { scene: "kolm-palvet", beat: "hurdle:faster", text: "Mul on kiire.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "kolm-palvet", beat: "hurdle:faster", text: "Mul on täna väga kiire.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
 ];
 
 export default LINES;

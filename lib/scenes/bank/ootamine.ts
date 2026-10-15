@@ -17,18 +17,18 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `ootamine`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "ootamine", beat: "weather", text: "Milline ilm täna jälle!", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "ootamine", beat: "weather", text: "Täna on jälle selline ilm, eks?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "ootamine", beat: "weather", text: "Milline ilm täna jälle!", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "ootamine", beat: "weather", text: "Täna on jälle selline ilm, eks?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "ootamine", beat: "time", text: "Kas teil on kiire?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "ootamine", beat: "time", text: "Me ootame juba kaua, eks?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "ootamine", beat: "when", text: "See buss hilineb alati.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "ootamine", beat: "when", text: "Buss hilineb jälle.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "ootamine", beat: "hurdle:contradiction", text: "Ei, tegelikult tuleb buss poole tunni pärast.", model: "authored", draftedAt: "2026-10-15", about: "when" },
-  { scene: "ootamine", beat: "hurdle:contradiction", text: "Tegelikult see buss täna ei tule.", model: "authored", draftedAt: "2026-10-15", about: "when" },
-  { scene: "ootamine", beat: "hurdle:faster", text: "Kiire on, ma pean kohe minema.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "ootamine", beat: "hurdle:faster", text: "Mul on kiire, öelge kohe.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "ootamine", beat: "hurdle:interrupted", text: "Oodake üks minut.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "ootamine", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "ootamine", beat: "when", text: "See buss hilineb alati.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "ootamine", beat: "when", text: "Buss hilineb jälle.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "ootamine", beat: "hurdle:contradiction", text: "Ei, tegelikult tuleb buss poole tunni pärast.", model: "authored", draftedAt: "2026-10-15", about: "when", reviewedAt: "2026-10-15" },
+  { scene: "ootamine", beat: "hurdle:contradiction", text: "Tegelikult see buss täna ei tule.", model: "authored", draftedAt: "2026-10-15", about: "when", reviewedAt: "2026-10-15" },
+  { scene: "ootamine", beat: "hurdle:faster", text: "Kiire on, ma pean kohe minema.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "ootamine", beat: "hurdle:faster", text: "Mul on kiire, öelge kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "ootamine", beat: "hurdle:interrupted", text: "Oodake üks minut.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "ootamine", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
 ];
 
 export default LINES;

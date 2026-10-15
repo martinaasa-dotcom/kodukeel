@@ -957,7 +957,7 @@ export const TODAY: Area = {
   "Eating out, making plans, keeping in touch, and how you feel":
     "Кафе и рестораны, планы, общение и чувства",
   "Talking about what hasn't happened yet, keeping in touch, and saying how you feel about it all. It's full of conversations. By the end you can get through a whole meal in Estonian, book an appointment and call somebody about it.":
-    "Разговор о том, что ещё не случилось, общение с людьми и как сказать, что вы обо всём этом чувствуете. Здесь много разговоров. К концу вы сможете пообедать в ресторане целиком по-эстонски, записаться на приём и позвонить, чтобы о нём договориться.",
+    "Разговор о том, что ещё не случилось, общение с людьми и как сказать, что вы обо всём этом чувствуете. Здесь много разговоров. К концу вы сможете пообедать в ресторане целиком по-эстонски, записаться на приём и позвонить по этому поводу.",
   "Objects, the people in your life, what each verb asks for, money, and would":
     "Дополнение, люди в вашей жизни, чего требует каждый глагол, деньги и «бы»",
   "School, two new past forms, renting, what people are like, and the news":
@@ -2039,7 +2039,7 @@ export const TODAY: Area = {
   "Eating out, making plans, keeping in touch, and how you feel":
     "Кафе й ресторани, плани, спілкування і почуття",
   "Talking about what hasn't happened yet, keeping in touch, and saying how you feel about it all. It's full of conversations. By the end you can get through a whole meal in Estonian, book an appointment and call somebody about it.":
-    "Розмова про те, що ще не сталося, спілкування з людьми і як сказати, що ви про все це відчуваєте. Тут багато розмов. Наприкінці ви зможете пообідати в ресторані цілком естонською, записатися на прийом і зателефонувати, щоб про нього домовитися.",
+    "Розмова про те, що ще не сталося, спілкування з людьми і як сказати, що ви про все це відчуваєте. Тут багато розмов. Наприкінці ви зможете пообідати в ресторані цілком естонською, записатися на прийом і зателефонувати з цього приводу.",
   "Objects, the people in your life, what each verb asks for, money, and would":
     "Додаток у реченні, люди у вашому житті, чого вимагає кожне дієслово, гроші й «б»",
   "School, two new past forms, renting, what people are like, and the news":

@@ -2318,7 +2318,7 @@ export const PROGRESS: Area = {
     "In Estonia, the only proof of a language level is the state examination, which Harno runs.": "В Естонії рівень мови підтверджує лише державний іспит, який проводить Harno.",
     "I live in Estonia": "Я живу в Естонії",
     "live in Estonia": "живете в Естонії",
-    "Citizenship or residence": "Громадянство або посвідка",
+    "Citizenship or residence": "Громадянство або посвідка на проживання",
     "Work": "Робота",
     "Meetings, emails and colleagues who talk at full speed. At work you need to be understood exactly, not roughly.": "Наради, листи й колеги, які говорять швидко. На роботі вас мають розуміти точно.",
     "work in Estonian": "працюєте естонською",

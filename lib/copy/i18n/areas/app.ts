@@ -1401,7 +1401,7 @@ export const APP: Area = {
     "Why you're learning Estonian": "Навіщо ви вчите естонську",
     "pick all that apply": "позначте все, що підходить",
     "I live in Estonia": "Я живу в Естонії",
-    "Citizenship or residence": "Громадянство або посвідка",
+    "Citizenship or residence": "Громадянство або посвідка на проживання",
     "Work": "Робота",
     "School or university": "Школа або університет",
     "Family or a partner": "Родина або партнер",

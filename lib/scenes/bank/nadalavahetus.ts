@@ -17,18 +17,18 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `nadalavahetus`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "nadalavahetus", beat: "how", text: "Kuidas su nädalavahetus läks?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "nadalavahetus", beat: "how", text: "Kuidas nädalavahetus oli?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "nadalavahetus", beat: "did", text: "Mis huvitavat nädalavahetusel oli?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "nadalavahetus", beat: "did", text: "Kas oli midagi toredat?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "nadalavahetus", beat: "answer:back", text: "Ma käisin maal. Väga ilus oli.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "nadalavahetus", beat: "answer:back", text: "Mina olin maal, see oli tore.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "nadalavahetus", beat: "hurdle:faster", text: "Mul on kiire, räägi kohe.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "nadalavahetus", beat: "hurdle:faster", text: "Kiire on, ma pean kohe minema.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "nadalavahetus", beat: "hurdle:misheard", text: "Kas see oli kinos või teatris?", model: "authored", draftedAt: "2026-10-15", about: "did" },
-  { scene: "nadalavahetus", beat: "hurdle:misheard", text: "Kas see oli pidu või kontsert?", model: "authored", draftedAt: "2026-10-15", about: "did" },
-  { scene: "nadalavahetus", beat: "hurdle:small-talk", text: "Täna on külm, eks?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "nadalavahetus", beat: "hurdle:small-talk", text: "Täna on ilus ilm, eks?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "nadalavahetus", beat: "how", text: "Kuidas su nädalavahetus läks?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "nadalavahetus", beat: "how", text: "Kuidas nädalavahetus oli?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "nadalavahetus", beat: "did", text: "Mis huvitavat nädalavahetusel oli?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "nadalavahetus", beat: "did", text: "Kas oli midagi toredat?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "nadalavahetus", beat: "answer:back", text: "Ma käisin maal. Väga ilus oli.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "nadalavahetus", beat: "answer:back", text: "Mina olin maal, see oli tore.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "nadalavahetus", beat: "hurdle:faster", text: "Mul on kiire, räägi kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "nadalavahetus", beat: "hurdle:faster", text: "Kiire on, ma pean kohe minema.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "nadalavahetus", beat: "hurdle:misheard", text: "Kas see oli kinos või teatris?", model: "authored", draftedAt: "2026-10-15", about: "did", reviewedAt: "2026-10-15" },
+  { scene: "nadalavahetus", beat: "hurdle:misheard", text: "Kas see oli pidu või kontsert?", model: "authored", draftedAt: "2026-10-15", about: "did", reviewedAt: "2026-10-15" },
+  { scene: "nadalavahetus", beat: "hurdle:small-talk", text: "Täna on külm, eks?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "nadalavahetus", beat: "hurdle:small-talk", text: "Täna on ilus ilm, eks?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
 ];
 
 export default LINES;

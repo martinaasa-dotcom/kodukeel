@@ -153,8 +153,8 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   // "You said:" and "They said:" are the conversation screen's own (situations.ts).
   ["And that’s the whole conversation.", "Вот и весь разговор.", "Ось і вся розмова."],
   ["Inside there are {n} of these, from the doctor’s to the landlord’s, and there you type your answers yourself.",
-    "Внутри их {n}, от врача до арендодателя, и там ответы вы пишете сами.",
-    "Усередині їх {n}, від лікаря до орендодавця, і там відповіді ви пишете самі."],
+    "Внутри таких разговоров {n}, от врача до арендодателя, и ответы вы пишете сами.",
+    "Усередині таких розмов {n}, від лікаря до орендодавця, і відповіді ви пишете самі."],
   ["Order again", "Заказать ещё раз", "Замовити ще раз"],
   ["Your turn.", "Ваша очередь.", "Ваша черга."],
   ["They’re about to say something.", "Сейчас вам что-то скажут.", "Зараз вам щось скажуть."],

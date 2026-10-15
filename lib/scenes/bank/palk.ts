@@ -17,22 +17,22 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `palk`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "palk", beat: "topic", text: "Millest te tahate rääkida?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "palk", beat: "topic", text: "Mis teid täna toob?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "palk", beat: "did", text: "Miks te arvate, et peaksite rohkem saama?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "palk", beat: "did", text: "Mida te olete sel aastal teinud?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "palk", beat: "amount", text: "Kui palju rohkem te sooviksite?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "palk", beat: "amount", text: "Kui palju rohkem te tahate?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "palk", beat: "hurdle:not-possible", text: "Sel aastal ei saa, eelarves ei ole raha.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "palk", beat: "hurdle:not-possible", text: "Vabandust, sel aastal raha ei ole.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "palk", beat: "answer:hurdle:not-possible", text: "Järgmisel aastal saab.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "palk", beat: "answer:hurdle:not-possible", text: "Järgmisel aastal saab vaadata.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "palk", beat: "hurdle:contradiction", text: "Ei, see ei ole õige.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "palk", beat: "hurdle:contradiction", text: "Ei, see projekt ei ole teie töö.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "palk", beat: "hurdle:other-register", text: "Kui palju sa sooviksid?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "palk", beat: "hurdle:other-register", text: "Miks sa arvad, et peaksid rohkem saama?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "palk", beat: "hurdle:interrupted", text: "Üks minut, palun.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "palk", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "palk", beat: "topic", text: "Millest te tahate rääkida?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "palk", beat: "topic", text: "Mis teid täna toob?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "palk", beat: "did", text: "Miks te arvate, et peaksite rohkem saama?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "palk", beat: "did", text: "Mida te olete sel aastal teinud?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "palk", beat: "amount", text: "Kui palju rohkem te sooviksite?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "palk", beat: "amount", text: "Kui palju rohkem te tahate?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "palk", beat: "hurdle:not-possible", text: "Sel aastal ei saa, eelarves ei ole raha.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "palk", beat: "hurdle:not-possible", text: "Vabandust, sel aastal raha ei ole.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "palk", beat: "answer:hurdle:not-possible", text: "Järgmisel aastal saab.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "palk", beat: "answer:hurdle:not-possible", text: "Järgmisel aastal saab vaadata.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "palk", beat: "hurdle:contradiction", text: "Ei, see ei ole õige.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "palk", beat: "hurdle:contradiction", text: "Ei, see projekt ei ole teie töö.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "palk", beat: "hurdle:other-register", text: "Kui palju sa sooviksid?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "palk", beat: "hurdle:other-register", text: "Miks sa arvad, et peaksid rohkem saama?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "palk", beat: "hurdle:interrupted", text: "Üks minut, palun.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "palk", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
 ];
 
 export default LINES;

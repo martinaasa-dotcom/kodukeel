@@ -17,20 +17,20 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `graafik`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "graafik", beat: "what", text: "Kuidas meil läks?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "graafik", beat: "what", text: "Mida see näitab?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "graafik", beat: "much", text: "Kui palju?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "graafik", beat: "much", text: "Kui palju protsenti?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "graafik", beat: "why", text: "Miks see nii on?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "graafik", beat: "why", text: "Mis on põhjus?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "graafik", beat: "hurdle:interrupted", text: "Üks minut, palun.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "graafik", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "graafik", beat: "hurdle:contradiction", text: "Ei, eelmisel kuul oli teine number.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "graafik", beat: "hurdle:contradiction", text: "Ei, see ei ole õige.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "graafik", beat: "hurdle:other-register", text: "Mida te arvate?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "graafik", beat: "hurdle:other-register", text: "Miks te nii arvate?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "graafik", beat: "hurdle:faster", text: "Meil on palju teha, räägi kohe.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "graafik", beat: "hurdle:faster", text: "Räägi kohe, meil on kiire.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "graafik", beat: "what", text: "Kuidas meil läks?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "graafik", beat: "what", text: "Mida see näitab?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "graafik", beat: "much", text: "Kui palju?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "graafik", beat: "much", text: "Mitu protsenti?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "graafik", beat: "why", text: "Miks see nii on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "graafik", beat: "why", text: "Mis on põhjus?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "graafik", beat: "hurdle:interrupted", text: "Üks minut, palun.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "graafik", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "graafik", beat: "hurdle:contradiction", text: "Ei, eelmisel kuul oli teine number.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "graafik", beat: "hurdle:contradiction", text: "Ei, see ei ole õige.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "graafik", beat: "hurdle:other-register", text: "Mida te arvate?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "graafik", beat: "hurdle:other-register", text: "Miks te nii arvate?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "graafik", beat: "hurdle:faster", text: "Meil on palju teha, räägi kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "graafik", beat: "hurdle:faster", text: "Räägi kohe, meil on kiire.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
 ];
 
 export default LINES;
