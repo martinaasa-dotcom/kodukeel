@@ -73,6 +73,7 @@
     "measure:speech": "tsx scripts/measure-speech.ts",
     "measure:placement": "tsx scripts/measure-placement.ts",
     "measure:workbook": "tsx scripts/measure-workbook.ts",
+    "measure:picked": "tsx scripts/measure-picked.ts",
     "audit:workbook": "tsx scripts/audit-workbook.ts",
     "reading:workbook": "tsx scripts/workbook-reading-list.ts",
     "apply:workbook-review": "tsx scripts/apply-workbook-review.ts",
