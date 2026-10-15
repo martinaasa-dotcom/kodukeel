@@ -18,6 +18,7 @@ import { PointExamples } from "@/components/grammar/PointExamples";
 import { VerbTable } from "./VerbTable";
 import { offered } from "@/lib/tutor/provider";
 import { pinnedExamples } from "@/lib/progress/grammarExamples";
+import { moduleTopicExamples } from "@/lib/progress/moduleExamples";
 import { verbExamples } from "@/lib/progress/verbExamples";
 import { focusFrom } from "@/lib/course";
 import { moduleScopeFrom } from "@/lib/course/scope";
@@ -168,7 +169,15 @@ export default async function TopicPage({
     `scripts/audit-verbs.ts` checked against Ekilex for every verb in the
     dictionary. Each form says which. The other topics keep to English.
   */
-  const pinned = await pinnedExamples("topic", id);
+  /*
+    INSIDE A MODULE THE SENTENCES ARE ABOUT WORDS THE LEARNER HAS MET. The
+    pins are chosen for how well they show the point, and on the fourth
+    evening of A1 they showed the present tense on `alustama` and `sööma`
+    with the verb marked, to somebody who had met neither. See
+    `lib/progress/moduleExamples.ts`. The reference is exactly what it was.
+  */
+  const allPinned = await pinnedExamples("topic", id);
+  const pinned = scope ? await moduleTopicExamples(id, scope, allPinned) : allPinned;
   const canTranslate = offered("translate");
 
   const shown = VERB_TOPICS[id];
