@@ -119,10 +119,11 @@ export default async function TermReportPage({ params, searchParams }: { params:
           <Figure label={t("Answers in all")} value={grouped(locale, figures.totalReviews)} />
         </dl>
 
-        <h2 className="mt-8 text-lg font-bold" style={{ color: "var(--ink)" }}>
+        <h2 id="term-periods" className="mt-8 text-lg font-bold" style={{ color: "var(--ink)" }}>
           {t(figures.periods.length < range.weeks ? "Fortnight by fortnight" : "Week by week")}
         </h2>
-        <div className="mt-3 overflow-x-auto">
+        {/* A scroller a keyboard can reach, named by the heading over it. */}
+        <div className="mt-3 overflow-x-auto" tabIndex={0} role="region" aria-labelledby="term-periods">
           <table className="w-full text-sm" style={{ color: "var(--ink-2)" }}>
             <thead>
               <tr className="text-left" style={{ color: "var(--ink)" }}>
@@ -154,9 +155,12 @@ export default async function TermReportPage({ params, searchParams }: { params:
 }
 
 function Figure({ label, value }: { label: string; value: string | number }) {
+  // The label and the figure are two rows every figure in the line shares, so
+  // a label that wraps (four across at a tablet's width) does not push its own
+  // figure below the ones beside it: a reader compares the numbers across.
   return (
-    <div>
-      <dt className="text-sm" style={{ color: "var(--ink-2)" }}>{label}</dt>
+    <div className="row-span-2 grid grid-rows-subgrid gap-0.5">
+      <dt className="self-end text-sm" style={{ color: "var(--ink-2)" }}>{label}</dt>
       <dd className="tnum font-display text-2xl font-bold" style={{ color: "var(--ink)" }}>{value}</dd>
     </div>
   );
