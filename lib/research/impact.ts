@@ -344,3 +344,16 @@ export function withheldBecause(reason: SuppressionReason): string {
       return `one person is more than ${Math.round(MAX_LEARNER_SHARE * 100)}% of it`;
   }
 }
+
+/**
+ * Whether a public page of these figures is worth listing anywhere.
+ *
+ * The headline is the head count over the last thirty days. Until it clears the
+ * floors the page exists, says why it is nearly empty, and asks nobody to find
+ * it: it carries `noindex` and is in no sitemap, no `llms.txt` and no footer
+ * (docs/38-third-batch.md, D3). Once it clears, it lists itself with no code
+ * change, which is the whole point of deciding it here off the same gate.
+ */
+export function impactListable(impact: Pick<Impact, "activeLearners">): boolean {
+  return !isWithheld(impact.activeLearners);
+}

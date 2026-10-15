@@ -86,7 +86,7 @@ function wordOf(r: (typeof rows)[number], beginner: boolean): FlashWord {
     lexemeId: keyOf(r), lemma: r.lemma, translation: r.translation, pos: r.pos,
     semanticTypes: r.semanticTypes, forms: r.forms,
     examples: [
-      ...(beginner ? authoredFor(r.lemma) : []),
+      ...(beginner ? authoredFor(r.lemma, "SEED") : []),
       ...usableExamples(recorded, plainerFirst(r.cefr, reach)),
       ...(borrowed.get(keyOf(r)) ?? []),
     ],
@@ -261,7 +261,7 @@ if (!statsOnly) {
     sentence: `${t.item.before}[${t.item.answer}]${t.item.after}`,
     cue: t.item.cue,
     english: t.item.sentenceEn ?? "",
-    written: authoredFor(t.item.cue).some((e) => e.et === t.item.sentence),
+    written: authoredFor(t.item.cue, "SEED").some((e) => e.et === t.item.sentence),
   }));
   let text: string;
   if (out?.endsWith(".md")) {

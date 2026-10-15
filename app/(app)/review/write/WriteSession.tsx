@@ -2,6 +2,7 @@
 
 import { EnterKeyCap } from "@/components/KeyCaps";
 import { useLocale, useT } from "@/components/Locale";
+import { useFocusAnswer } from "@/components/round/useFocusAnswer";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { fill } from "@/lib/copy/locale";
 import { rich } from "@/components/round/rich";
@@ -113,6 +114,9 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
   /* The way back to the word before this one. See `lib/ux/lookBack.ts`. */
   const look = useLookBack();
   const finished = !prompt;
+  const answerBox = useRef<HTMLTextAreaElement>(null);
+  useFocusAnswer(answerBox, !marked && !look.looking, index);
+
   // What the sentence has to say, `in the room`, and whether that already
   // carries the word's meaning so its gloss need not be printed twice.
   // On a Russian or Ukrainian screen the phrase is that language's short one,
@@ -299,6 +303,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
               rows={3}
               maxLength={MAX_SENTENCE_CHARS}
               disabled={!!marked}
+              ref={answerBox}
               autoFocus
               onChange={(e) => setSentence(e.target.value)}
               onKeyDown={(e) => {

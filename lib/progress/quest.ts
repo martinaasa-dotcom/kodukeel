@@ -8,7 +8,7 @@ import { caseIndex, readCase } from "@/lib/estonian/whichCase";
 import { caseFormChoices, verbFormChoices, verbFormSlots } from "@/lib/questions/caseChoices";
 import { parseExamples, sentenceEnglish } from "@/lib/dict/examples";
 import { BLANK, filledSentence } from "@/lib/estonian/cloze";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { offered } from "@/lib/tutor/provider";
 import { learnerScopeSoFar, moduleSpellings } from "@/lib/progress/moduleScope";
 import { reviewable } from "@/lib/course/scope";
 
@@ -189,7 +189,7 @@ export async function questFor(ownerId: string): Promise<Quest> {
       sentenceEn: c.front.includes(BLANK) && c.lexeme
         ? sentenceEnglish(parseExamples(c.lexeme.examples), filledSentence(c.front, c.back))
         : null,
-      canTranslate: resolveProvider() !== null,
+      canTranslate: offered("translate"),
       targetsWeakCase: Boolean(c.targetCase && weakKeys.includes(c.targetCase)),
       choices: options.get(c.id) ?? null,
       typed: !options.has(c.id) && TYPED.has(c.cardType),

@@ -1709,6 +1709,8 @@ function Footer({ say, copy }: { say: Say; copy: (typeof ENTRY_COPY)[EntryLocale
               <FootLink say={say} href="/trust">{t("Security and trust")}</FootLink>
               <FootLink say={say} href="/teachers">{t("For teachers")}</FootLink>
               <FootLink say={say} href="/pilots">{t("Running a pilot")}</FootLink>
+              <FootLink say={say} href="/curriculum">{t("What the course covers")}</FootLink>
+              <FootLink say={say} href="/how-we-know">{t("How we know")}</FootLink>
               <FootLink say={say} href="/accessibility">{t("Accessibility")}</FootLink>
               <FootLink say={say} href="/state-exam">{t("The state examination")}</FootLink>
               <FootLink say={say} href="/help">{t("Help")}</FootLink>

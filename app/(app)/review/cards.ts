@@ -7,7 +7,7 @@ import { BLANK, filledSentence, primaryAnswer } from "@/lib/estonian/cloze";
 import { sayLine } from "@/lib/estonian/sayIt";
 import { conjugationSlotFromFront } from "@/lib/srs/slots";
 import { glossSentences } from "@/lib/dict/glossed";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { offered } from "@/lib/tutor/provider";
 import { isPhrase } from "@/lib/dict/pos";
 import {
   equivalentIn, firstSenses, meaningShown, meaningsShown, type MeaningPrefs,
@@ -75,6 +75,9 @@ export const include = {
   lexeme: {
     select: {
       lemma: true, translation: true, pos: true, examples: true, cefr: true,
+      // Whether a sentence written for the course's word may stand for this
+      // one: a learner's own row of the same spelling gets none.
+      provenance: true,
       // For the one-line ask on a case card: "with the bird" rather than
       // "with it" needs to know whether the word is a person or a thing.
       semanticTypes: true,
@@ -91,6 +94,7 @@ export const include = {
 export type CardRow = Awaited<ReturnType<typeof prisma.card.findMany>>[number] & {
   lexeme: {
     lemma: string; translation: string; pos: string; examples: string; cefr: string | null;
+    provenance: string;
     semanticTypes: string | null;
     translationRu: string | null; translationUk: string | null;
   } | null;
@@ -131,7 +135,7 @@ function introFor(
     is the one kind `WordIntro` shows an A1 word with and is made of words the
     course teaches before this one, then the dictionary's own.
   */
-  const found = teachingSentence(authoredFor(c.lexeme.lemma), [asked, c.lexeme.lemma])
+  const found = teachingSentence(authoredFor(c.lexeme.lemma, c.lexeme.provenance), [asked, c.lexeme.lemma])
     ?? teachingSentence(parseExamples(c.lexeme.examples), [asked, c.lexeme.lemma], undefined, plainest);
 
   const equivalent = equivalentIn(c.lexeme, prefs.lead);
@@ -166,7 +170,7 @@ function introFor(
       about. The default deployment has none, and then nothing is offered at
       all rather than offered and refused.
     */
-    canTranslate: resolveProvider() !== null,
+    canTranslate: offered("translate"),
     isPhrase: isPhrase(c.lexeme.pos),
     cefr: c.lexeme.cefr,
     firstCardEver,
@@ -346,7 +350,7 @@ function toReviewCard(
     choiceMeanings: null,
     sentenceEn: clozeSentenceEn(c),
     say: sayFor(c),
-    canTranslate: resolveProvider() !== null,
+    canTranslate: offered("translate"),
     // Filled in by `withNeighbours`, which reads every neighbour in one query.
     contrast: null,
     choices: null,

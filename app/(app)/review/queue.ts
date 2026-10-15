@@ -12,8 +12,10 @@ import { spaceSiblings } from "@/lib/srs/queue";
 import { reviewable, type ModuleScope } from "@/lib/course/scope";
 import { learnerScopeSoFar, moduleSpellings } from "@/lib/progress/moduleScope";
 import {
-  MAX_SESSION, MODULE_SESSION, NEW_CANDIDATES, dueWhere, roomFor, taughtWhere, unseenWhere,
+  MAX_SESSION, MODULE_SESSION, NEW_CANDIDATES, dueWhere, roomFor, taughtWhere, tonightWhere, unseenWhere,
 } from "@/lib/srs/reviewQueue";
+import { deferredWordIds } from "@/lib/progress/deferrals";
+import { closingOpenedAt } from "@/lib/progress/course";
 import { askableRows, include, type CardRow } from "./cards";
 
 /**
@@ -125,6 +127,36 @@ export const reviewQueue = cache(async (
   fresh = inTeachingOrder(fresh);
 
   const queued = [...due, ...fresh];
+  /*
+    AND THE EVENING'S OWN WORDS FILL THE REST OF THE CLOSING ROUND. What is due
+    is the scheduler's and on the evening a word is met none of it is, so a
+    round that asked only that was empty on the first evening of the course: "a
+    quick review" that held nothing. See `tonightWhere`, which the module's own
+    count of this round reads too. Gated and made askable like everything else
+    here, so what is counted is what is shown.
+  */
+  if (scope && queued.length < MODULE_SESSION) {
+    const taken = new Set(queued.map((card) => card.id));
+    const [aside, openedAt] = await Promise.all([
+      deferredWordIds(ownerId, now), closingOpenedAt(ownerId, scope.programme, scope.day.id),
+    ]);
+    const tonight = await prisma.card.findMany({
+      where: {
+        AND: [
+          tonightWhere(ownerId, now, scope.day.words, aside, openedAt),
+          taughtWhere(scope),
+        ],
+      },
+      // The longest since each was last asked first; the id settles a tie.
+      orderBy: [{ lastReview: "asc" }, { id: "asc" }],
+      take: MODULE_SESSION * 2,
+      include,
+    });
+    queued.push(...spaceSiblings(
+      await askableRows(tonight.filter((card) => !taken.has(card.id) && allowed(card))),
+      (card) => card.lexemeId,
+    ));
+  }
   // The module's closing round stops at `MODULE_SESSION`; see its header.
   const cards = scope ? queued.slice(0, MODULE_SESSION) : queued;
   return { due, dueMore, fresh, cards, taught };

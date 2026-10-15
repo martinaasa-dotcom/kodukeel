@@ -24,6 +24,7 @@ import { geminiCachedReply } from "./geminiCache";
 import { liveLinks, noteRefusal } from "./exhausted";
 import { reportError } from "@/lib/observability/report";
 import { estimateTokens } from "@/lib/usage/pricing";
+import { isOff, type PaidFeature } from "@/lib/usage/switches";
 
 export type ProviderName = "groq" | "gemini" | "openai" | "anthropic";
 
@@ -596,6 +597,8 @@ export function resolveProviders(options: ChainOptions = {}): ProviderConfig[] {
   const allowFallback = options.allowFallback ?? true;
 
   if (options.purpose) {
+    // Switched off with `PAID_OFF`: the chain a deployment with no key has.
+    if (purposeOff(options.purpose)) return [];
     const chain: ProviderConfig[] = [];
     PURPOSE_CHAINS[options.purpose](chain);
     /*
@@ -780,6 +783,40 @@ function configuredModels(raw: string | undefined, fallback: readonly string[]):
 /** The head of the chain, for the places that only need to say whether Anu is set up at all. */
 export function resolveProvider(): ProviderConfig | null {
   return resolveProviders()[0] ?? null;
+}
+
+/**
+ * WHETHER A PURPOSE IS SWITCHED OFF (`PAID_OFF`, lib/usage/switches.ts).
+ *
+ * Asked at the top of a purpose's chain, so every route that already answers
+ * "no key" for an empty chain answers the same way for a switched one, and
+ * before it books anything with the ledger. The general chain is not switched:
+ * it is what the privacy page lists as recipients and what a screen asks when
+ * it wants to know whether any model is configured, and `offered` is how such
+ * a screen asks about one feature instead.
+ */
+function purposeOff(purpose: ProviderPurpose): boolean {
+  switch (purpose) {
+    case "tutor": return isOff("tutor");
+    case "scene": return isOff("scenes");
+    case "grader": return isOff("grader");
+  }
+}
+
+/**
+ * Whether a screen should offer a feature: a model is configured, and the
+ * feature is not switched off. Translation rides the grader's chain
+ * (`lib/tutor/translate.ts`), so switching the grader off takes it too, and a
+ * scan needs a model that can see (`visionProviders`).
+ */
+export function offered(feature: PaidFeature): boolean {
+  switch (feature) {
+    case "scan": return visionProviders().length > 0;
+    case "translate": return !isOff("translate") && !isOff("grader") && resolveProvider() !== null;
+    case "tutor": return !isOff("tutor") && resolveProvider() !== null;
+    case "scenes": return !isOff("scenes") && resolveProvider() !== null;
+    case "grader": return !isOff("grader") && resolveProvider() !== null;
+  }
 }
 
 /**
@@ -1567,6 +1604,8 @@ export function sceneProviders(options: ChainOptions = {}): ProviderConfig[] {
  * that has them.
  */
 export function visionProviders(options: ChainOptions = {}): ProviderConfig[] {
+  // Switched off with `PAID_OFF`: the scanner says what it says with no key.
+  if (isOff("scan")) return [];
   /*
     THE ONE MODEL THAT WAS MEASURED READING ESTONIAN LEADS, AND THE REST OF THE
     CHAIN STAYS BEHIND IT.

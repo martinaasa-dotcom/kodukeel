@@ -28,6 +28,7 @@ import { splitOnForm } from "@/lib/dict/examples";
 import { askLine, isForm, markFlash, plainAskFor, type FlashMark, type FlashTask } from "@/lib/games/flash";
 import { hintLadder } from "@/lib/questions/hints";
 import { HintLadder } from "@/components/round/HintLadder";
+import { useFocusAnswer } from "@/components/round/useFocusAnswer";
 import { useHints } from "@/components/round/useHints";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import { asksInEnglish } from "@/lib/games/flash";
@@ -234,6 +235,9 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     shownAt.current = Date.now();
   }, [task, look]);
 
+  const answerBox = useRef<HTMLElement | null>(null);
+  useFocusAnswer(answerBox, !mark && !look.looking, index);
+
   /*
     Enter checks, and then Enter moves on. One key for the whole round, which
     is what makes a typed round fast enough to be worth doing on a phone.
@@ -345,6 +349,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
                 maxLength={MAX_SENTENCE_CHARS}
                 disabled={!!mark}
                 autoFocus
+                ref={(el) => { answerBox.current = el; }}
                 onChange={(e) => setTyped(e.target.value)}
                 placeholder="Kirjuta oma lause siia…"
                 className="field-lg mt-2 w-full resize-none text-md disabled:opacity-70"
@@ -360,6 +365,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
                 autoCapitalize="off"
                 spellCheck={false}
                 disabled={!!mark}
+                ref={(el) => { answerBox.current = el; }}
                 onChange={(e) => setTyped(e.target.value)}
                 className="field-lg mt-2 w-full text-lg disabled:opacity-70"
                 style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}

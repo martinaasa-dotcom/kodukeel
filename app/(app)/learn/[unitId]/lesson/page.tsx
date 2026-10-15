@@ -23,7 +23,7 @@ import { BeforeYouStart } from "@/components/round/Briefing";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import { glossSentences, type GlossedToken } from "@/lib/dict/glossed";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { offered } from "@/lib/tutor/provider";
 import { orderContextFor } from "@/lib/dict/wordOrder";
 import { ordinaryStarters } from "@/lib/dict/openers";
 import { firstParams } from "@/lib/ux/queryParam";
@@ -194,7 +194,7 @@ export default async function LessonPage({
       it and the gap steps, which read `readable`, can use it like any other.
     */
     examples: [
-      ...authoredFor(row.lemma).map((e) => ({ et: e.et, en: e.en ?? null, authored: true })),
+      ...authoredFor(row.lemma, row.provenance).map((e) => ({ et: e.et, en: e.en ?? null, authored: true })),
       ...teachableSentences(
         parseExamples(row.examples),
         nominalOpener(row.pos, [row.lemma, ...row.forms.map((f) => f.value)]),
@@ -325,7 +325,7 @@ export default async function LessonPage({
         unitLevel={unit.level}
         initialSteps={steps}
         tokens={tokens}
-        canTranslate={resolveProvider() !== null}
+        canTranslate={offered("translate")}
         starred={[...starred]}
         part={index + 1}
         parts={lessons.length}

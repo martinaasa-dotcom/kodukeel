@@ -35,7 +35,7 @@ import { taughtAtDayStart } from "@/lib/progress/moduleScope";
 import { puzzleFor } from "@/lib/progress/sonad";
 import { crosswordFor } from "@/lib/progress/crossword";
 import { WordOfDayCard } from "@/components/WordOfDay";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { offered } from "@/lib/tutor/provider";
 import { SayItToday } from "@/components/SayItToday";
 import { errandForDay } from "@/lib/collections/errands";
 import { startedUnits } from "@/lib/collections/syllabus";
@@ -802,7 +802,7 @@ export default async function TodayPage() {
 
   /* The one panel here that is not about this learner's own deck. */
   const wordCard = shows(stage, "word")
-    ? <WordOfDayCard word={word} canTranslate={resolveProvider() !== null} locale={locale} />
+    ? <WordOfDayCard word={word} canTranslate={offered("translate")} locale={locale} />
     : null;
 
   /*

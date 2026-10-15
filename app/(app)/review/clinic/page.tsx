@@ -4,7 +4,7 @@ import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { readableFront } from "@/lib/copy/caseHint";
 import { requireUserId } from "@/lib/auth/session";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { offered } from "@/lib/tutor/provider";
 import { LEECH_LAPSES, findConfusable, rankLeeches, type LeechCandidate } from "@/lib/analysis/leeches";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
@@ -127,5 +127,5 @@ export default async function ClinicPage() {
     confusable: findConfusable(leech.lemma ?? leech.front, lemmas),
   }));
 
-  return <ClinicList items={items} aiAvailable={resolveProvider() !== null} />;
+  return <ClinicList items={items} aiAvailable={offered("tutor")} />;
 }

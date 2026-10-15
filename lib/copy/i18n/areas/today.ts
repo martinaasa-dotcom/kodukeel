@@ -362,6 +362,50 @@ export const TODAY: Area = {
     "Представьтесь новому человеку: как вас зовут, где вы живёте и чем занимаетесь.",
   "Say a price or which floor you live on out loud in Estonian, and ask them to say it back.":
     "Назовите вслух по-эстонски цену или этаж, на котором живёте, и попросите повторить.",
+  "Ask for something politely with would: could I, would you.":
+    "Попросите о чём-нибудь вежливо, в условном наклонении: не могли бы вы, можно было бы.",
+  "Talk about yourself for one minute in Estonian without stopping.":
+    "Расскажите о себе по-эстонски одну минуту без остановки.",
+  "Explain a decision you made and one reason against it.":
+    "Объясните одно своё решение и один довод против него.",
+  "Ask the same thing twice today: once of somebody you say sina to, and once of somebody you say teie to.":
+    "Сегодня попросите об одном и том же дважды: один раз того, кому говорите sina, и один раз того, кому говорите teie.",
+  "Tell somebody one piece of news you read, as something you heard.":
+    "Расскажите кому-нибудь одну новость, которую вы прочитали, как то, что вы слышали.",
+  "Give one reason for something you want, in Estonian, to more than one person.":
+    "Назовите по-эстонски одну причину того, чего вы хотите, сразу нескольким людям.",
+  "Say one number and what it means out loud: it rose, it fell, by how much.":
+    "Скажите вслух одно число и что оно значит: выросло, упало, на сколько.",
+  "Say what you thought of something you read or watched, and one reason.":
+    "Скажите, что вы думаете о прочитанном или увиденном, и назовите одну причину.",
+  "Describe a problem with a device in Estonian: one sentence for what it does, and one for what you tried.":
+    "Опишите по-эстонски проблему с каким-нибудь устройством: одно предложение о том, что происходит, и одно о том, что вы пробовали.",
+  "Say you disagree with something, politely, in Estonian.":
+    "Вежливо скажите по-эстонски, что вы с чем-то не согласны.",
+  "Recommend something to somebody and say why it's better than another.":
+    "Посоветуйте кому-нибудь что-нибудь и скажите, чем это лучше другого.",
+  "Ask somebody how they are, and ask one more question about the answer.":
+    "Спросите кого-нибудь, как дела, и задайте ещё один вопрос о его ответе.",
+  "Ask for something at work using would: I would like, could we.":
+    "Попросите о чём-нибудь на работе, используя условное наклонение: я бы хотел, не могли бы мы.",
+  "Hold your ground politely when somebody says no.":
+    "Вежливо стойте на своём, когда вам говорят «нет».",
+  "Ask an office what happens next and when, and stay in Estonian.":
+    "Спросите в учреждении, что будет дальше и когда, и не переходите на английский.",
+  "Read one official letter or notice and tell somebody what it asks of you.":
+    "Прочитайте одно официальное письмо или объявление и расскажите кому-нибудь, чего от вас в нём хотят.",
+  "Make one call to an office and give a reference number in Estonian.":
+    "Позвоните в одно учреждение и назовите номер дела по-эстонски.",
+  "Ask a teacher or a colleague one follow-up question rather than nodding.":
+    "Задайте учителю или коллеге один уточняющий вопрос, а не просто кивайте.",
+  "Find out what number to call in an emergency, and say your address out loud in Estonian.":
+    "Узнайте, по какому номеру звонить в экстренном случае, и произнесите свой адрес вслух по-эстонски.",
+  "Ask at a bank or a counter what you need to bring, in Estonian.":
+    "Спросите в банке или у окошка по-эстонски, что нужно принести с собой.",
+  "Ask how often to take something, and say it back.":
+    "Спросите, как часто что-то принимать, и повторите ответ.",
+  "A desk, a shop, work":
+    "Окошко, магазин, работа",
   "Anywhere":
     "Где угодно",
   "A bus stop":
@@ -1370,6 +1414,74 @@ export const TODAY: Area = {
     "Представтеся новій людині: як вас звати, де ви живете і чим займаєтеся.",
   "Say a price or which floor you live on out loud in Estonian, and ask them to say it back.":
     "Назвіть уголос естонською ціну або поверх, на якому живете, і попросіть повторити.",
+  "Ask for something politely with would: could I, would you.":
+    "Попросіть про щось ввічливо, в умовному способі: чи не могли б ви, чи можна було б.",
+  "Talk about yourself for one minute in Estonian without stopping.":
+    "Розкажіть про себе естонською одну хвилину без зупинки.",
+  "Explain a decision you made and one reason against it.":
+    "Поясніть одне своє рішення й один аргумент проти нього.",
+  "Ask the same thing twice today: once of somebody you say sina to, and once of somebody you say teie to.":
+    "Сьогодні попросіть про одне й те саме двічі: один раз того, кому кажете sina, і один раз того, кому кажете teie.",
+  "Tell somebody one piece of news you read, as something you heard.":
+    "Розкажіть комусь одну новину, яку ви прочитали, як те, що ви чули.",
+  "Give one reason for something you want, in Estonian, to more than one person.":
+    "Назвіть естонською одну причину того, чого ви хочете, одразу кільком людям.",
+  "A meeting, a group":
+    "Збори, група",
+  "Say one number and what it means out loud: it rose, it fell, by how much.":
+    "Скажіть уголос одне число і що воно означає: зросло, впало, на скільки.",
+  "Work, the news":
+    "Робота, новини",
+  "Say what you thought of something you read or watched, and one reason.":
+    "Скажіть, що ви думаєте про прочитане чи побачене, і назвіть одну причину.",
+  "Describe a problem with a device in Estonian: one sentence for what it does, and one for what you tried.":
+    "Опишіть естонською проблему з якимось пристроєм: одне речення про те, що відбувається, і одне про те, що ви пробували.",
+  "Home, a shop":
+    "Удома, крамниця",
+  "Say you disagree with something, politely, in Estonian.":
+    "Ввічливо скажіть естонською, що ви з чимось не згодні.",
+  "Work, a class":
+    "Робота, заняття",
+  "Recommend something to somebody and say why it's better than another.":
+    "Порадьте комусь щось і скажіть, чим це краще за інше.",
+  "With a friend":
+    "З другом",
+  "Ask somebody how they are, and ask one more question about the answer.":
+    "Запитайте когось, як справи, і поставте ще одне запитання про відповідь.",
+  "With a friend, work":
+    "З другом, робота",
+  "Ask for something at work using would: I would like, could we.":
+    "Попросіть про щось на роботі, використовуючи умовний спосіб: я б хотів, чи не могли б ми.",
+  "Hold your ground politely when somebody says no.":
+    "Ввічливо стійте на своєму, коли вам кажуть «ні».",
+  "Ask an office what happens next and when, and stay in Estonian.":
+    "Запитайте в установі, що буде далі й коли, і не переходьте на англійську.",
+  "An office":
+    "Установа",
+  "Read one official letter or notice and tell somebody what it asks of you.":
+    "Прочитайте один офіційний лист чи оголошення і розкажіть комусь, чого від вас у ньому хочуть.",
+  "Home, an office":
+    "Удома, установа",
+  "Make one call to an office and give a reference number in Estonian.":
+    "Зателефонуйте в одну установу і назвіть номер справи естонською.",
+  "On the phone":
+    "Телефоном",
+  "Ask a teacher or a colleague one follow-up question rather than nodding.":
+    "Поставте вчителеві чи колезі одне уточнювальне запитання, а не просто кивайте.",
+  "A school, work":
+    "Школа, робота",
+  "Find out what number to call in an emergency, and say your address out loud in Estonian.":
+    "Дізнайтеся, за яким номером дзвонити в разі надзвичайної ситуації, і промовте свою адресу вголос естонською.",
+  "Ask at a bank or a counter what you need to bring, in Estonian.":
+    "Запитайте в банку чи біля віконця естонською, що треба принести з собою.",
+  "A bank, an office":
+    "Банк, установа",
+  "Ask how often to take something, and say it back.":
+    "Запитайте, як часто щось приймати, і повторіть відповідь.",
+  "A doctor, a pharmacy":
+    "Лікар, аптека",
+  "A desk, a shop, work":
+    "Віконце, магазин, робота",
   "Anywhere":
     "Будь-де",
   "A bus stop":

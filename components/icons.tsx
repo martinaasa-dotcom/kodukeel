@@ -1,5 +1,5 @@
 import {
-  Award, Bike, Blocks, BookCheck, BookmarkCheck, BookOpen, Brain, BrainCircuit, Briefcase, Broom, Building2,
+  Award, Bike, Blocks, BookCheck, BookmarkCheck, BookOpen, BookOpenText, Brain, BrainCircuit, Briefcase, Broom, Building2,
   Bus, Calculator, CalendarCheck, CalendarDays, CalendarRange, Camera, ChartLine, ChartNoAxesColumn,
   CheckCheck, ChefHat, CircleDot, CircleHelp, ClipboardCheck, Clock, CloudSun, Combine, Compass, Cpu,
   Crosshair, Drama, Ear, Eye, Flame, FlaskConical, Focus, Footprints, Gauge, Gavel, GitBranch, Globe,
@@ -22,7 +22,7 @@ import { createElement } from "react";
  * string means, and the fallback keeps a typo from crashing a page.
  */
 export const ICONS: Record<string, LucideIcon> = {
-  Award, Bike, Blocks, BookCheck, BookmarkCheck, BookOpen, Brain, BrainCircuit, Briefcase, Broom, Building2,
+  Award, Bike, Blocks, BookCheck, BookmarkCheck, BookOpen, BookOpenText, Brain, BrainCircuit, Briefcase, Broom, Building2,
   Bus, Calculator, CalendarCheck, CalendarDays, CalendarRange, Camera, ChartLine, ChartNoAxesColumn,
   CheckCheck, ChefHat, CircleDot, CircleHelp, ClipboardCheck, Clock, CloudSun, Combine, Compass, Cpu,
   Crosshair, Drama, Ear, Eye, Flame, FlaskConical, Focus, Footprints, Gauge, Gavel, GitBranch, Globe,

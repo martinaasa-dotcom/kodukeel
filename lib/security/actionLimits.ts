@@ -31,6 +31,8 @@ import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 export const ACTION_LIMITS = {
   /** Reads the deck and scans a pasted passage against the dictionary. */
   buildCloze: { perMinute: 10 },
+  /** Asks the dictionary about every word of a pasted text, up to 4,000 characters, for reading mode. */
+  readText: { perMinute: 10 },
   /** Writes a row and a card per line of a pasted list. */
   importWords: { perMinute: 10 },
   /**

@@ -234,7 +234,11 @@ function latinRuns() {
     return `${el.tagName.toLowerCase()}${cls ? "." + cls : ""}`;
   };
   const take = (text, el) => {
-    for (const m of text.matchAll(/[A-Za-z][A-Za-z0-9'’]*(?:[ ,.:;!?()"-]+[A-Za-z][A-Za-z0-9'’]*)+/g)) {
+    /*
+      Whole words only: a run may not start or end inside a word, or the tail of
+      an Estonian word after its õ or ü reads as English ("süüa teha" gave "a teha").
+    */
+    for (const m of text.matchAll(/(?<!\p{L})[A-Za-z][A-Za-z0-9'’]*(?:[ ,.:;!?()"-]+[A-Za-z][A-Za-z0-9'’]*)+(?![\p{L}\p{M}])/gu)) {
       runs.push({ text: m[0], where: where(el) });
     }
   };

@@ -343,7 +343,7 @@ function chainTo(start: string, target: string): string | null {
  * which still named `lib/gamification/` a year after it was deleted.
  */
 const PURE_LAYERS = [
-  "assessment", "collections", "copy", "course", "email", "estonian", "exam", "funding", "games",
+  "assessment", "collections", "copy", "course", "curriculum", "email", "estonian", "evidence", "exam", "funding", "games",
   "learn", "offline", "questions", "random", "readiness", "research", "scan", "scenes", "security",
   "stats", "time", "ux",
 ] as const;
@@ -565,22 +565,21 @@ check("the errand module Today's card renders from does not import the syllabus"
   The rail on every signed-in page imported it at the top of the file for its
   Sign out button, so every page downloaded 254 KB of `@supabase/supabase-js`
   and the Buffer polyfill it brings for a press most visits never make. The
-  sign-in form is the one screen whose job is the client, so it may import it;
-  everything else asks for it with `import()` at the moment it is needed.
+  sign-in form was the one exception, and it went the same way for TB-18: the
+  client is 68 KB compressed that a phone parsed before the first paint of a
+  page whose first job is to be read, so the form fetches it on idle and again
+  on the press. No client file imports it at the top now.
 */
-check("only the sign-in form imports the Supabase browser client up front", () => {
+check("no client file imports the Supabase browser client up front", () => {
   const STATIC = /(?:^|\n)\s*import\s+(?!type\b)[^;]*?\bfrom\s+["'](?:@\/lib\/supabase\/client|@supabase\/(?:ssr|supabase-js))["']/;
-  const ALLOWED = ["app/(chromeless)/sign-in/SignInForm.tsx"];
-  const offenders = CLIENT.filter((file) => !ALLOWED.includes(file) && STATIC.test(code(file)));
+  const offenders = CLIENT.filter((file) => STATIC.test(code(file)));
   assert.deepEqual(
     offenders, [],
     `a client file imports the Supabase browser client at the top, so every page that renders it downloads 254 KB for it: ${offenders.join(", ")}`,
   );
-  for (const file of ALLOWED) {
-    assert.ok(STATIC.test(code(file)), `${file} is allowed the client and no longer imports it; take it off the list`);
-  }
   const lazy = CLIENT.filter((file) => /\bimport\(\s*["']@\/lib\/supabase\/client["']\s*\)/.test(code(file)));
-  assert.ok(lazy.length >= 2, `only ${lazy.length} files fetch the client on demand, so this has lost the ones it was about`);
+  assert.ok(lazy.length >= 3, `only ${lazy.length} files fetch the client on demand, so this has lost the ones it was about`);
+  assert.ok(lazy.includes("app/(chromeless)/sign-in/SignInForm.tsx"), "the sign-in form no longer fetches the client on demand; this check has lost its subject");
 });
 
 /*
@@ -3612,6 +3611,16 @@ check("a page a stranger may read is a page the landing page links to", () => {
     // and the directory a crawler looks in for an agent catalog, which here
     // answers 404 (app/llms.txt/route.ts says why).
     "/llms.txt", "/.well-known/",
+    /*
+      Readable, and linked from nowhere until it has something to say: /impact
+      lists itself (the public footer, the sitemap, llms.txt) only once its head
+      count over the last thirty days clears the research floors, and until then
+      it carries noindex (docs/38-third-batch.md, D3). A link from the front
+      door would send every stranger to a page of "not enough data yet". The
+      footer that every public page carries is where it appears, and
+      scripts/invariants/an-agent-is-told-what-the-site-is.ts holds that half.
+    */
+    "/impact",
   ];
 
   const allowed = [...middleware.matchAll(/path\.startsWith\("(\/[^"]*)"\)/g)]
@@ -7771,6 +7780,7 @@ check("every environment variable the app reads is in .env.example", () => {
     VERCEL: "set by the platform on its own builder and functions",
     VERCEL_GIT_COMMIT_SHA: "set by the platform to the commit it deployed",
     NEXT_DIST_DIR: "a test harness's build directory, never a deployment setting",
+    EVIDENCE_MEASURING: "set by `npm run evidence` while it re-runs the unit suite, never a deployment setting",
     NEXT_PUBLIC_ENABLE_SW: "turns the service worker on in `next dev`, where it is off by default",
     SCENE_MODEL: "retired and read only to warn that it is ignored; .env.example says so in prose",
   };
@@ -9227,6 +9237,7 @@ check("the other side talks like a person: short pronouns, feelings, and hello i
   for (const file of [
     "lib/scenes/reply.ts", "lib/scenes/line.ts", "lib/scenes/bank.ts", "lib/scenes/grades.ts",
     "lib/scenes/retrieval.ts", "lib/scenes/gate.ts", "lib/scenes/scripted.ts", "lib/scenes/aside.ts",
+    ...sourceFiles("lib/scenes/bank"),
   ]) {
     assert.doesNotMatch(code(file), /from "\.\/casual"/, `${file} reads the casual greetings, which are accept-only`);
   }
@@ -9293,7 +9304,10 @@ check("the other side talks at the run's band, and every composer says which ban
   // An empty slice passes the next line whatever SceneSpec holds, so its absence is a failure.
   assert.ok(spec, "SceneSpec is no longer an interface in lib/scenes/types.ts, so the band check reads nothing");
   assert.doesNotMatch(spec, /\blevel\b/, "SceneSpec carries a band again");
-  assert.doesNotMatch(code("lib/scenes/catalogue.ts"), /^\s*level: "/m, "a scene in the catalogue names a band");
+  // Each scene is a file of its own (lib/scenes/specs/), so every one of them is read.
+  const specFiles = sourceFiles("lib/scenes/specs");
+  assert.ok(specFiles.length >= 15, `only ${specFiles.length} scene files under lib/scenes/specs, so the band check reads too little`);
+  for (const file of specFiles) assert.doesNotMatch(code(file), /^\s*level: "/m, `${file} names a band`);
   assert.match(
     code("app/actions.ts"), /level: pitched,/,
     "beginScene stopped opening the run at the band the learner chose",
@@ -18878,12 +18892,25 @@ check("the scene prompt is served off a cache entry, by one module, on the route
 });
 
 check("a scripted line is drafted by a script, said after a recorded one, and marks nothing", () => {
-  const bank = prose("lib/scenes/bank.ts");
-  assert.match(bank, /^\/\* GENERATED by scripts\/draft-lines\.ts/, "lib/scenes/bank.ts no longer says it is generated");
+  /*
+    One file a scene under lib/scenes/bank/, and lib/scenes/bank.ts the list of
+    them (scripts/lib/bankFiles.ts). Every one says it is generated, and the
+    drafter writes all of them through the one renderer.
+  */
+  const bankFiles = ["lib/scenes/bank.ts", ...sourceFiles("lib/scenes/bank")];
+  assert.ok(bankFiles.length >= 16, `only ${bankFiles.length - 1} scene files under lib/scenes/bank`);
+  for (const file of bankFiles) {
+    assert.match(prose(file), /^\/\* GENERATED by scripts\/draft-lines\.ts/, `${file} no longer says it is generated`);
+  }
   assert.match(
     code("scripts/draft-lines.ts"),
-    /writeFileSync\(OUT, render\(kept\)\)/,
+    /writeBank\(kept\)/,
     "scripts/draft-lines.ts no longer writes the bank, so a line could only get there by hand",
+  );
+  assert.match(
+    code("scripts/lib/bankFiles.ts"),
+    /for \(const \[path, text\] of files\) writeFileSync\(path, text\)/,
+    "the bank renderer no longer writes the files it renders",
   );
 
   /*
@@ -19866,7 +19893,7 @@ check("a learner who says they are lost is handed the word, never the question a
     "a beat that wanted a no reads `ma ei tea` as the answer again",
   );
   assert.match(
-    code("lib/scenes/catalogue.ts"), /export const LOST = \{/,
+    code("lib/scenes/specs/shared.ts"), /export const LOST = \{/,
     "the words a learner says when lost are no longer a table beside the reactions",
   );
   assert.match(
@@ -20134,14 +20161,14 @@ check("a learner who says they are lost is handed the word, never the question a
   {
     const readers = ["lib/srs", "lib/exam", "lib/assessment", "lib/scan", "lib/tutor", "lib/games"]
       .flatMap((dir) => sourceFiles(dir))
-      .concat(["lib/scenes/gate.ts", "lib/scenes/retrieval.ts", "lib/scenes/line.ts", "lib/scenes/bank.ts"])
+      .concat(["lib/scenes/gate.ts", "lib/scenes/retrieval.ts", "lib/scenes/line.ts", "lib/scenes/bank.ts", ...sourceFiles("lib/scenes/bank")])
       .filter((file) => /substitutesFrom|\bsubstitutes\(|context\.substitutes/.test(code(file)));
     assert.deepEqual(readers, [], "a module on the answer side reads the substitution relation");
     // And none of them reaches the module, which a helper in between would
     // otherwise carry past the name check above.
     const reach = ["lib/srs", "lib/exam", "lib/assessment", "lib/scan", "lib/tutor", "lib/games"]
       .flatMap((dir) => sourceFiles(dir))
-      .concat(["lib/scenes/gate.ts", "lib/scenes/retrieval.ts", "lib/scenes/line.ts", "lib/scenes/bank.ts"])
+      .concat(["lib/scenes/gate.ts", "lib/scenes/retrieval.ts", "lib/scenes/line.ts", "lib/scenes/bank.ts", ...sourceFiles("lib/scenes/bank")])
       .map((file) => chainTo(file, synonyms))
       .filter((chain): chain is string => chain !== null);
     assert.deepEqual(reach, [], `a module on the answer side reaches the substitution relation: ${reach.join("; ")}`);
@@ -20345,7 +20372,8 @@ check("a learner who says they are lost is handed the word, never the question a
   */
   const vouch = code("lib/progress/scene.ts").match(/export async function sceneVouch[\s\S]*?\n\}/)?.[0] ?? "";
   assert.match(vouch, /courseForms\(\)/, "sceneVouch stopped reading the course");
-  assert.match(vouch, /isKnownForm\(/, "sceneVouch stopped reading the forms list");
+  // Exactly, so a line with a dropped diacritic is not vouched for as the word it meant.
+  assert.match(vouch, /isExactForm\(/, "sceneVouch stopped reading the forms list exactly");
   assert.doesNotMatch(
     vouch, /compose|provider|openWithFallback/,
     "sceneVouch reaches a model to decide whether a word is Estonian, which is the app vouching for "
@@ -23091,8 +23119,7 @@ check("a farewell is withheld off the close beat, and the goodbye stays off the 
 });
 
 check("the interview settles the wage before it asks for a start day, off the card", () => {
-  const catalogue = code("lib/scenes/catalogue.ts");
-  const interview = catalogue.slice(catalogue.indexOf('id: "toovestlus"'), catalogue.indexOf('id: "kaebus"'));
+  const interview = code("lib/scenes/specs/toovestlus.ts");
   const order = ["id: \"pay\"", "id: \"wage\"", "id: \"start\"", "id: \"close\""].map((id) => interview.indexOf(id));
   assert.ok(order.every((at) => at >= 0), "the interview lost one of its pay, wage, start or close beats");
   assert.deepEqual([...order].sort((a, b) => a - b), order, "the interview asks for a start day before the wage is settled");
@@ -23985,7 +24012,7 @@ check("the Learn ladder introduces nothing the module has not taught", () => {
 check("every card read on the review page asks about the Learn ladder", () => {
   const src = (code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts"));
   const blocks = src.split("prisma.card.findMany(").slice(1).map((b) => b.slice(0, 700));
-  const guard = /\b(dueWhere|unseenWhere|notOnLadder|meetingFirst)\(ownerId/;
+  const guard = /\b(dueWhere|unseenWhere|notOnLadder|meetingFirst|tonightWhere)\(ownerId/;
   const loose = blocks.filter((b) => !guard.test(b));
   // Five: the three drills, the due read and the unseen read, which now
   // carries the in-band read as a parameter rather than a second query.
@@ -27505,6 +27532,7 @@ check("every route the app has is walked by the containment and accessibility sw
   const MADE: Record<string, string> = {
     "/class/[classroomId]": "a classroom the demo fixture lays down, read off /class",
     "/class/[classroomId]/poster": "the join poster of each classroom the account teaches, asked of the server",
+    "/class/[classroomId]/report": "the term report of each classroom the account teaches, asked of the server",
     "/exam/result/[id]": "a paper the containment suite sits and hands in",
     "/scan/[scanId]": "a scanned page the containment suite makes with the model stubbed",
     "/review/deck/[deckId]": "a shelf the demo fixture lays down, read off /words/decks",
@@ -27521,7 +27549,7 @@ check("every route the app has is walked by the containment and accessibility sw
 
   for (const [file, made] of [
     ["scripts/test-containment.mjs", [...Object.keys(MADE), "/exam/[level]"]],
-    ["scripts/a11y-check.mjs", ["/review/deck/[deckId]", "/class/[classroomId]", "/class/[classroomId]/poster", ...NOT_BY_AXE]],
+    ["scripts/a11y-check.mjs", ["/review/deck/[deckId]", "/class/[classroomId]", "/class/[classroomId]/poster", "/class/[classroomId]/report", ...NOT_BY_AXE]],
   ] as const) {
     const entries = listed(file);
     const missing = routes.filter((r) => !made.includes(r) && !entries.some((e) => matches(r, e)));

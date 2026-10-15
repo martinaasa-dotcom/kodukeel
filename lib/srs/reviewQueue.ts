@@ -161,6 +161,57 @@ export function dueWhere(
 export const MODULE_SESSION = 8;
 
 /**
+ * TONIGHT'S OWN WORDS, ASKED ONCE MORE, WHICH IS WHAT A QUICK REVIEW AT THE END
+ * OF AN EVENING MEANS.
+ *
+ * The closing round used to ask what is *due* and nothing else, and on the
+ * evening a word is met nothing of it ever is: Learn walks the recognition card
+ * to Review, Tähed and the flash round do the same to the production card, and
+ * the scheduler puts both days out. So the first evening of the course, and
+ * every evening whose words were not already in the deck, ended in a screen
+ * saying "That's today's review done" over a round that held no card at all.
+ * It was reported exactly so: the step said a quick review was next, took the
+ * learner there, and there was none.
+ *
+ * What a learner needs at that point is to say the evening's words once more,
+ * after a game and a page of reading, which is the retrieval the whole evening
+ * is built to end on. So the round tops up from them, not-yet-due, after
+ * everything that really is due and every unseen card, up to
+ * `MODULE_SESSION`.
+ *
+ * ONLY THE EVENING'S OWN WORDS (`day.words`), not everything taught so far:
+ * the rest of the deck is the scheduler's and comes back when it is due. A
+ * card the learner has not met stays out (`state: { not: 0 }`), a word they
+ * put aside is theirs to have refused (`asideIds`), and the recognition card
+ * is out while it is still on the Learn ladder for the reason `dueWhere` gives.
+ * Grading one early is what every practice round already does (ADR-016), and
+ * the scheduler handles a card answered ahead of its date.
+ */
+export function tonightWhere(
+  ownerId: string,
+  now: Date,
+  words: readonly string[],
+  asideIds: ReadonlySet<string>,
+  /**
+   * When this evening's closing round opened, or null before it has. A card
+   * answered since then has been asked tonight's review already, so it is not
+   * asked again: that is what lets a round with only two cards to give be over
+   * after two answers instead of asking the same pair for the rest of the five.
+   */
+  openedAt: Date | null = null,
+): Prisma.CardWhereInput {
+  return {
+    ownerId, suspended: false, due: { gt: now }, state: { not: 0 },
+    ...(openedAt ? { OR: [{ lastReview: null }, { lastReview: { lt: openedAt } }] } : {}),
+    NOT: [
+      { cardType: LADDER_CARD_TYPE, state: 1 },
+      ...(asideIds.size > 0 ? [{ lexemeId: { in: [...asideIds] } }] : []),
+    ],
+    lexeme: { lemma: { in: [...words] } },
+  };
+}
+
+/**
  * The unseen window, narrowed to what the module has taught where anything
  * has.
  *
