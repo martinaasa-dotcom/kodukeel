@@ -114,6 +114,32 @@ function verdictFor(plan: Projection, locale: Locale): { tone: "neutral" | "good
   }
 }
 
+/**
+ * The plan's verdict in one line, worked out from exactly what `PlanPanel`
+ * works it out from, for a screen that puts the whole panel behind a press.
+ * Null where no level is being aimed at, since there is no verdict to give.
+ */
+export function planHeadline({ standing, goals, dailyGoal, onCourse, now = new Date(), locale = "en" }: {
+  standing: Standing;
+  goals: Goals;
+  dailyGoal: number;
+  onCourse: boolean;
+  now?: Date;
+  locale?: Locale;
+}): string | null {
+  if (!goals.target) return null;
+  const plan = project({
+    standing,
+    to: goals.target,
+    minutesPerDay: minutesPerStudyDay(dailyGoal, onCourse),
+    daysPerWeek: goals.daysPerWeek,
+    weeksAvailable: weeksUntil(goals.deadline, now),
+    found: foundHours(reasonsFor(goals.reason)),
+    pace: null,
+  });
+  return verdictFor(plan, locale).headline;
+}
+
 export function PlanPanel({ standing, goals, dailyGoal, onCourse, pace = null, now = new Date(), compact = false, locale = "en" }: {
   /** Where the learner is, and whether a paper measured it or they guessed. */
   standing: Standing;
