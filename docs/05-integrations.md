@@ -122,7 +122,7 @@ v4.0 promises microphone input to Anu. Browser `SpeechRecognition` does not depe
 Estonian, and the TartuNLP speech-to-text path did not resolve on probe, so this was planned as a
 timeboxed spike rather than a feature.
 
-The spike ran and the answer was no. `scripts/measure-asr.mjs` puts the best reachable recognizer at
+The spike ran and the answer was no. `scripts/measure-asr.ts` puts the best reachable recognizer at
 a 14.6% word error rate on clean native audio, and its mistakes land on consonant length, voicing and
 word boundaries, which is where a learner is weakest: showing that transcript would mark correct
 pronunciation wrong. So the fallback planned here is what shipped (ADR-018): speaking practice

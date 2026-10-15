@@ -233,7 +233,7 @@ native rendering in the browser and the learner judges it. Nothing recorded leav
 no audio is stored anywhere (ADR-018). The reason is measured rather than asserted: a recogniser was
 benchmarked at a 14.6 percent word error rate on clean native audio, with errors landing exactly
 where an Estonian learner is weakest, so a transcript would report correct pronunciation as an error
-four times in five. `scripts/measure-asr.mjs` is the measurement.
+four times in five. `scripts/measure-asr.ts` is the measurement.
 
 **Progress is derived, never stored.** The streak, the goal and every chart are computed from the
 review log on each request. There is no counter column to be wrong, to drift, or to survive a

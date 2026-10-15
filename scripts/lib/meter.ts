@@ -222,7 +222,17 @@ export function installMeter(defaults: { replay: boolean }): Readonly<Meter> {
     const text = await res.text();
     const spent = spentIn(text);
     const model = modelOf(url, body);
-    spend(spent ? costOf(model, spent) : estimateCostMicros(model, estimateTokens(body), estimateTokens(text)));
+    /*
+      A refusal is not a call: a 4xx carries no usage and no provider here bills
+      one. Estimated from the body it was priced as the whole request read as
+      text, and a request carrying audio or an image is base64 megabytes, so on
+      2026-10-15 a transcription model's quota refusals (429s) were booked at
+      $0.21 each against a real call of 47 audio tokens and filled the machine's
+      day ceiling with spend nobody was charged. A 5xx, or a 2xx with no usage,
+      is still estimated, since those can have done the work.
+    */
+    const refusedUnbilled = !spent && res.status >= 400 && res.status < 500;
+    spend(spent ? costOf(model, spent) : refusedUnbilled ? 0 : estimateCostMicros(model, estimateTokens(body), estimateTokens(text)));
     if (res.ok && key) keep(key, text, res.headers.get("content-type") ?? "application/json");
     return new Response(text, { status: res.status, statusText: res.statusText, headers: res.headers });
   };

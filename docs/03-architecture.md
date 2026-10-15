@@ -469,7 +469,7 @@ measures the wrong thing and dresses it as a score.
 The availability half of the problem statement above is now out of date: TartuNLP do publish a
 speech-to-text service, and Groq serve `whisper-large-v3` on a free key, which takes Estonian audio
 happily. So the question stopped being "is there a recognizer" and became "is it good enough to
-tell somebody their own pronunciation was wrong", and `scripts/measure-asr.mjs` answers it.
+tell somebody their own pronunciation was wrong", and `scripts/measure-asr.ts` answers it.
 
 The method is deliberately generous. Every utterance is a sentence the dictionary already carries
 from Ekilex, spoken by the University of Tartu's own Estonian voice: clean, native, correctly
@@ -489,7 +489,7 @@ the time, and would do it most often on the distinctions the app exists to teach
 than no feature: it teaches a learner to distrust themselves when they were right. The decision is
 unchanged and the mode stays comparison-only.
 
-**This is now re-checkable rather than re-arguable.** Run `node scripts/measure-asr.mjs` against a
+**This is now re-checkable rather than re-arguable.** Run `npm run measure:asr` against a
 newer model when one appears. The bar it prints is a 5% word error rate, which is the point at
 which a transcript could be shown with its caveat stated; anything above that stays out of the
 learner's way. Nothing about this decision needs to be taken on trust again.
