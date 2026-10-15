@@ -34,6 +34,7 @@ const FILES = [
   "app/privacy/page.tsx",
   "app/terms/page.tsx",
   "app/trust/page.tsx",
+  "app/help/page.tsx",
   "app/teachers/page.tsx",
   "app/accessibility/page.tsx",
   "app/offline/page.tsx",

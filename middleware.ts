@@ -136,6 +136,9 @@ export async function middleware(request: NextRequest) {
     // is sent to. Both are written for a reader who has no account here and is
     // not going to make one to read them.
     path.startsWith("/trust") ||
+    // What to try when somebody cannot sign in, and whether the app is working,
+    // for exactly the reader who has no session to read anything else with.
+    path.startsWith("/help") ||
     // What a teacher sees, drawn over an invented class, for somebody deciding
     // whether to put a code on a board before they have a class.
     path.startsWith("/teachers") ||

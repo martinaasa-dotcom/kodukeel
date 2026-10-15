@@ -322,7 +322,7 @@ async function entryPages(locale) {
   const pages = [
     `/welcome/${locale}`, `/privacy?lang=${locale}`, `/terms?lang=${locale}`, `/trust?lang=${locale}`,
     `/accessibility?lang=${locale}`, `/funding?lang=${locale}`, `/state-exam?lang=${locale}`,
-    `/teachers?lang=${locale}`, `/sign-in?lang=${locale}`,
+    `/teachers?lang=${locale}`, `/help?lang=${locale}`, `/sign-in?lang=${locale}`,
   ];
   for (const path of pages) {
     thrown.length = 0;
@@ -379,6 +379,21 @@ async function teachersPage() {
   await ctx.close();
 }
 
+/** /help loads signed out in every language, with one heading and its status line. */
+async function helpPage() {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
+  const page = await ctx.newPage();
+  for (const locale of ["en", ...LOCALES]) {
+    const path = `/help?lang=${locale}`;
+    const response = await page.goto(`${B}${path}`, { waitUntil: "load", timeout: 60_000 });
+    await page.locator("[data-status]").waitFor({ timeout: 15_000 }).catch(() => {});
+    check(`${path} answers signed out`, response?.status() === 200 && !page.url().includes("/sign-in"), `${response?.status()} at ${page.url()}`);
+    check(`${path} has one h1`, (await page.locator("h1").count()) === 1);
+    check(`${path} says whether the app is working`, (await page.locator("[data-status=working]").count()) === 1);
+  }
+  await ctx.close();
+}
+
 async function measure(page, label, { english }) {
   const rest = await page.evaluate(survey, { stress: false });
   check(`nothing is cut off on ${label}`, rest.cut === 0 && rest.counted >= 4,
@@ -420,6 +435,7 @@ const started = Date.now();
 try {
   for (const p of unmade) absent(40, `a row for ${p}, which scripts/test-containment.mjs makes before this in CI`);
   for (const locale of LOCALES) await entryPages(locale);
+  await helpPage();
   await teachersPage();
   for (const locale of LOCALES) {
     await setLocale(locale);

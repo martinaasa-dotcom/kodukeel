@@ -12792,13 +12792,17 @@ check("the health check asks the database at most once a window, however often i
     of pooler connections. The answer is remembered for a window and
     concurrent checks share one query. Asserted on the code: the handler reads
     through the window, and the only query goes through the single flight.
+    The asking lives in `lib/health.ts`, which /help's status line reads too,
+    so that file is where the window and the single flight are held.
   */
   const src = code("app/api/health/route.ts");
+  const lib = code("lib/health.ts");
   const handler = src.slice(src.indexOf("export async function GET"));
   assert.match(handler, /databaseAnswersRecently\(\)/, "GET no longer reads the database through the freshness window");
   assert.doesNotMatch(handler, /\bdatabaseAnswers\(\)/, "GET asks the database directly, once per request");
-  assert.match(src, /singleFlight\("health:database", databaseAnswers\)/, "concurrent health checks no longer share one query");
-  assert.match(src, /const FRESH_MS = [\d_]+;/, "the freshness window is gone");
+  assert.doesNotMatch(src, /\bprisma\b/, "the route queries the database itself rather than through lib/health.ts");
+  assert.match(lib, /singleFlight\("health:database", databaseAnswers\)/, "concurrent health checks no longer share one query");
+  assert.match(lib, /const FRESH_MS = [\d_]+;/, "the freshness window is gone");
 });
 
 check("a route that spends something is throttled", () => {
@@ -12937,7 +12941,7 @@ check("every route group says it is loading rather than showing nothing", () => 
       as having none.
     */
     ...Object.fromEntries(
-      ["privacy", "terms", "accessibility", "trust", "funding", "state-exam", "teachers", "pilots"].map((page) => [
+      ["privacy", "terms", "accessibility", "trust", "funding", "state-exam", "teachers", "pilots", "help"].map((page) => [
         join("app", page),
         (src: string) =>
           !/@\/lib\/db|\bprisma\.|requireUserId|@\/lib\/progress\/(?!publicLocale")/.test(src),
