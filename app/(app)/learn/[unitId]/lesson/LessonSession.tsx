@@ -260,11 +260,11 @@ export function LessonSession({
 }
 
 /** Feedback shown after an answer, in the palette's fixed meanings (lib/ux/verdict.ts). */
-function Verdict({ ok, note }: { ok: boolean; note?: string }) {
+function Verdict({ ok, close, note }: { ok: boolean; close?: boolean; note?: string }) {
   const t = useT();
   return (
     <div
-      className={`${VERDICT_CLASS[ok ? "right" : "wrong"]} verdict-panel flex items-start gap-2`}
+      className={`${VERDICT_CLASS[ok ? "right" : close ? "nearly" : "wrong"]} verdict-panel flex items-start gap-2`}
       role="status"
     >
       {ok ? <Check size={18} aria-hidden /> : <X size={18} aria-hidden />}
@@ -336,7 +336,7 @@ function Options({
   }, [chosen, onChoose, options.length]);
 
   return (
-    <div className="choice-grid">
+    <div className="flex flex-col gap-2">
       {options.map((option, i) => {
         const isAnswer = i === answer;
         const picked = chosen === i;
@@ -382,7 +382,7 @@ function StepCard({
   const locale = useLocale();
   const [chosen, setChosen] = useState<number | null>(null);
   const [typed, setTyped] = useState("");
-  const [checked, setChecked] = useState<{ ok: boolean; note: string } | null>(null);
+  const [checked, setChecked] = useState<{ ok: boolean; note: string; close?: boolean } | null>(null);
   const [built, setBuilt] = useState<number[]>([]);
 
   /*
@@ -438,6 +438,8 @@ function StepCard({
     const ok = countsAsRecalled(result.verdict);
     setChecked({
       ok,
+      // A miss most of the way there is painted nearly, not as a blank (`nearMiss`).
+      close: !ok && result.close === true,
       note: noteIn(result, locale)
         || (ok ? t("Correct.") : fill(t("The answer is {form}."), { form: quoted(result.expected, locale) })),
     });
@@ -604,7 +606,7 @@ function StepCard({
               {t("Check")}
             </Button>
           )}
-          {checked && <Verdict ok={checked.ok} note={checked.note} />}
+          {checked && <Verdict ok={checked.ok} close={checked.close} note={checked.note} />}
           {checked && <Continue onNext={onNext} />}
         </Card>
       );
@@ -696,7 +698,7 @@ function StepCard({
           )}
           {checked && (
             <>
-              <Verdict ok={checked.ok} note={checked.note} />
+              <Verdict ok={checked.ok} close={checked.close} note={checked.note} />
               {/* A gap is answered by a word and learned as a sentence, so the
                   reveal is the whole recorded line with what it means under
                   it, the same rule and the same drawing as every other
@@ -747,7 +749,7 @@ function StepCard({
               {t("Check")}
             </Button>
           )}
-          {checked && <Verdict ok={checked.ok} note={checked.note} />}
+          {checked && <Verdict ok={checked.ok} close={checked.close} note={checked.note} />}
           {/* The ending's name, once the answer is in, as the thing to keep. */}
           {checked && (
             <span className="text-sm" style={{ color: "var(--ink-2)" }}>
@@ -850,7 +852,7 @@ function StepCard({
           </div>
           {done && (
             <>
-              <Verdict ok={checked.ok} note={checked.note} />
+              <Verdict ok={checked.ok} close={checked.close} note={checked.note} />
               {/* The sentence they just put back together, and what it says. */}
               <div className="rounded-[var(--r)] px-3.5 py-3" style={{ background: "var(--raised)" }}>
                 <EstonianSentence

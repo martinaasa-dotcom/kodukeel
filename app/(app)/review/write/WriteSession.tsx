@@ -65,7 +65,7 @@ export interface WritingPrompt {
 }
 
 interface Marked {
-  formCheck: { used: boolean; usedAnotherForm: boolean };
+  formCheck: { used: boolean; usedAnotherForm: boolean; close?: boolean };
   graded: GradedSentence | null;
   aiAvailable: boolean;
   quotaMessage?: string;
@@ -384,7 +384,7 @@ function Feedback({ marked, caseName, form }: { marked: Marked; caseName: string
 
   return (
     <div className="mt-6 flex flex-col gap-3" aria-live="polite">
-      <div className={`${VERDICT_CLASS[verdictOfRating(writeRating(formCheck))]} verdict-panel flex items-start gap-2.5`}>
+      <div className={`${VERDICT_CLASS[formCheck.close ? "nearly" : verdictOfRating(writeRating(formCheck))]} verdict-panel flex items-start gap-2.5`}>
         {formCheck.used
           ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
@@ -395,7 +395,9 @@ function Feedback({ marked, caseName, form }: { marked: Marked; caseName: string
             ? t("Yes, that's the right ending.")
             : formCheck.usedAnotherForm
               ? rich(t("Right word, but not the ending we asked for. It’s {form}."), { form: <strong lang="et">{form}</strong> })
-              : rich(t("The word we asked for isn’t in your sentence. It’s {form}."), { form: <strong lang="et">{form}</strong> })}
+              : formCheck.close
+                ? rich(t("Nearly, a letter or two out. It’s {form}."), { form: <strong lang="et">{form}</strong> })
+                : rich(t("The word we asked for isn’t in your sentence. It’s {form}."), { form: <strong lang="et">{form}</strong> })}
           {/* The ending's name, once the answer is in: here it is the thing to
               remember, where before the answer it was a thing to decode. */}
           <span className="mt-1 block text-sm">

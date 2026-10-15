@@ -21,7 +21,7 @@ import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/Lo
 import { useKeepInView } from "@/components/round/useKeepInView";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import { hintLadder, narrowLadder, struckOptions } from "@/lib/questions/hints";
-import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
+import { OPTION_CLASS, VERDICT_CLASS, optionState, verdictOfMark } from "@/lib/ux/verdict";
 import { MAP_CASES } from "@/lib/games/map";
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { markForm, type FlashMark } from "@/lib/games/flash";
@@ -322,7 +322,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
 
           {answered && (
             <div className="flex flex-col gap-4 border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
-              <p className={`verdict-panel ${VERDICT_CLASS[wasRight ? "right" : "wrong"]}`}>
+              <p className={`verdict-panel ${VERDICT_CLASS[typedRung && mark ? verdictOfMark(mark) : wasRight ? "right" : "wrong"]}`}>
                 {/* Where the marker's own line already names the form, it is the whole
                     sentence: saying the answer and then the answer again is noise. */}
                 {said && said.includes(correct) ? said : (<>

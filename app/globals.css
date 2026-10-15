@@ -967,7 +967,17 @@
     height of the window, and the title steps up only where the window is
     wide *and* tall enough to give it room, which is `.round-word`'s rule.
   */
-  .round-brief { padding-block: clamp(0.75rem, 4vh, 3rem); }
+  .round-brief {
+    padding-top: clamp(1rem, 5vh, 3rem);
+    padding-bottom: clamp(0.75rem, 4vh, 3rem);
+  }
+  /* Where the rail is drawn, the panel starts below the wordmark rather than
+     level with the top of the window: about 12% of the height, so on an
+     ordinary laptop it sits near the first nav row and the button is still
+     on screen. */
+  @media (min-width: 768px) {
+    .round-brief { padding-top: clamp(1.5rem, 12vh, 7.5rem); }
+  }
   .round-brief-panel {
     padding-block: clamp(1.25rem, 4vh, 2.25rem);
     padding-inline: clamp(1.25rem, 4vw, 2rem);
@@ -1219,23 +1229,22 @@
   .field:focus, .field-lg:focus { box-shadow: var(--shadow); }
 
   /*
-    A SET OF CHOICE CARDS TAKES AS MANY COLUMNS AS ITS OWN WIDTH HOLDS.
+    A SET OF ANSWER OPTIONS IS ONE COLUMN, 1 THEN 2 THEN 3 THEN 4.
 
-    Eleven groups on Settings were `grid sm:grid-cols-2` or `sm:grid-cols-3`,
-    which asks the window how wide it is. At 768 the window says 768 and the
-    rail, the gutter kept for Anu's button and the page padding leave 368px
-    of it, which Settings then splits into two columns of panels, so a group
-    of three cards was drawn in about 170px: 19px for "Always" and 43px for
-    "English". `overflow-wrap: anywhere` broke every title into letters
-    rather than let it overflow, which is why the containment sweep read the
-    page as clean. The count comes from the room the group actually has:
-    12rem is a card's icon, a two-word title and its tick, and `min(100%,
-    ...)` keeps a single column inside anything narrower than that.
+    It was `auto-fit`, which counted columns from the room the group had and
+    drew four options as three on a row with the fourth alone underneath.
+    The numbers are keys (1 to 4 press them), so the order a learner reads
+    them in has to be the order they press them in, and a stray option on a
+    row of its own reads as a layout fault rather than as a choice. One
+    column is also what the review card does. The width is no longer a
+    question, which is what the 12rem minimum was answering: a single column
+    takes whatever its card has, so a long Estonian form never gets squeezed
+    into a sliver beside its neighbour.
   */
   .choice-grid {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: 0.5rem;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
   }
 
   /*
@@ -1482,6 +1491,9 @@
     color: var(--again-ink);
   }
   .wb-gap-again:focus { box-shadow: 0 2px 0 0 var(--again-ink); }
+  /* A miss most of the way there (`nearMiss`) is nearly rather than missed. */
+  .wb-gap-again.wb-gap-close { border-bottom-color: var(--hard-ink); color: var(--hard-ink); }
+  .wb-gap-again.wb-gap-close:focus { box-shadow: 0 2px 0 0 var(--hard-ink); }
   /*
     A TYPED GAP GROWS WITH ITS WORD. The box and a hidden copy of what is typed
     share one grid cell, so the cell is as wide as the wider of the two: the
@@ -1546,6 +1558,8 @@
   .wb-filled-right { --wb-line: var(--good-ink); }
   .wb-filled-missed { --wb-line: var(--again-ink); }
   .wb-struck { font-weight: 500; color: var(--again-ink); }
+  .wb-filled-missed.wb-filled-close { --wb-line: var(--hard-ink); }
+  .wb-filled-close .wb-struck { color: var(--hard-ink); }
   /* A gap or a filled word with a comma or a full stop straight after it sits against it, as the word did. */
   .wb-tight { margin-right: 0; }
   .wb-stamp { animation: wb-stamp 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }

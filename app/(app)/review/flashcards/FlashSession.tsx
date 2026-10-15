@@ -32,7 +32,7 @@ import { useHints } from "@/components/round/useHints";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import { asksInEnglish } from "@/lib/games/flash";
 import { caseByKey } from "@/lib/estonian/cases";
-import { VERDICT_CLASS, verdictLine, verdictOfRating } from "@/lib/ux/verdict";
+import { VERDICT_CLASS, verdictLine, verdictOfMark } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { WayOut } from "@/components/round/RoundExit";
 import { RoundProgress } from "@/components/round/RoundProgress";
@@ -642,7 +642,7 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
   */
   const t = useT();
   const locale = useLocale();
-  const verdict = mark.right ? "right" : verdictOfRating(mark.rating);
+  const verdict = verdictOfMark(mark);
   const head = t({ right: "That's it", nearly: "Nearly", wrong: "Not quite" }[verdict]);
   const note = answerNote(mark.note, locale);
 

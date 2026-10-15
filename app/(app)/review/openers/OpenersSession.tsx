@@ -214,7 +214,7 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
     );
   }
 
-  const verdict = mark ? verdictOfRating(mark.rating) : null;
+  const verdict = mark ? (mark.close ? "nearly" : verdictOfRating(mark.rating)) : null;
   /*
     What is said about a wrong answer, in the reader's language. The mark
     carries an English sentence with the Estonian in it; it is rebuilt here
