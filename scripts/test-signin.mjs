@@ -61,7 +61,7 @@ const OFF_PORT = PORT + 1;
 const GSI_PORT = PORT + 2;
 const DIST = ".next-signin";
 
-const { check, done, absent } = suite("The sign-in screen", { floor: 39 });
+const { check, done, absent } = suite("The sign-in screen", { floor: 55 });
 
 /*
   A project ref and a key shaped like the real thing, signed with nothing.
@@ -686,6 +686,39 @@ await hiddenPage.waitForTimeout(GOOGLE_FALLBACK_MS + 400);
 check("and the redirect door does not open over it once the fallback's own deadline has passed",
   (await hiddenPage.getByRole("button", { name: /Continue with Google/ }).count()) === 0);
 await hiddenCtx.close();
+
+/*
+  THE GRAMMAR REFERENCE, READ BY SOMEBODY WITH NO ACCOUNT (FB-8). Local mode
+  always has a learner, so a hosted build is the only place this can be seen:
+  each public page answers rather than redirecting, draws one heading inside
+  the public frame, offers the way in, and links nowhere a stranger would be
+  sent to sign in from, the dictionary included. The pages beside them that
+  read a learner's own words still redirect.
+*/
+const refCtx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+const refPage = await refCtx.newPage();
+refPage.on("pageerror", (e) => errors.push(e.message));
+const ACCOUNT_ONLY = /^\/(review|practice|tutor|learn|dictionary|words|progress|course|grammar\/(exceptions|twins|ukrainian))\b/;
+for (const path of ["/grammar", "/grammar/cases", "/grammar/inessive", "/grammar/topic/olema", "/grammar/build-a-word?lang=ru"]) {
+  const res = await refPage.goto(`${B}${path}`);
+  await refPage.locator("main h1").first().waitFor({ timeout: 15_000 }).catch(() => {});
+  const where = new URL(refPage.url()).pathname;
+  check(`${path} answers a stranger inside the public frame`,
+    res?.status() === 200 && where === path.split("?")[0] && (await refPage.locator("[data-public-reference]").count()) === 1,
+    `${res?.status()} at ${where}`);
+  check(`${path} has one heading`, (await refPage.locator("h1").count()) === 1);
+  const hrefs = await refPage.locator("main a").evaluateAll((as) => as.map((a) => a.getAttribute("href") ?? ""));
+  const shut = hrefs.filter((h) => ACCOUNT_ONLY.test(h));
+  check(`${path} offers the way in and links nowhere that needs an account`,
+    shut.length === 0 && (await refPage.locator('a[href*="/sign-in"]').count()) > 0, shut.slice(0, 3).join(" "));
+}
+const stillIn = [];
+for (const path of ["/grammar/exceptions", "/grammar/twins"]) {
+  await refPage.goto(`${B}${path}`);
+  if (!new URL(refPage.url()).pathname.startsWith("/sign-in")) stillIn.push(path);
+}
+check("the grammar pages that read a learner's own words still ask them to sign in", stillIn.length === 0, stillIn.join(" "));
+await refCtx.close();
 
 check("no page error on the way through", errors.length === 0, errors[0] ?? "");
 

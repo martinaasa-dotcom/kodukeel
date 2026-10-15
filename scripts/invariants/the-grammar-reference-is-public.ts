@@ -106,6 +106,9 @@ export default function theGrammarReferenceIsPublic({ check, code }: InvariantKi
         assert.match(source, /ownerId === null \? \[\]/, `${file} reads a deck for a reader with no account`);
       }
     }
+    // A word on the reference opens the dictionary, which needs an account: for a stranger it is the word alone.
+    assert.match(code("components/course/WordLink.tsx"), /usePublicReader\(\)[\s\S]*?if \(focus \|\| publicReader\)/,
+      "WordLink links a reader with no account into the dictionary");
     const layout = code("app/(app)/layout.tsx");
     assert.match(layout, /if \(!viewer\) return <>\{children\}<\/>/, "the shell no longer stands down for a reader with no account");
   });
