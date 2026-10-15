@@ -5865,6 +5865,25 @@ read rather than against what the sitting shows**, and inside a module the two d
 for a single new word and produced the empty round in the first place. `roomFor` takes the shown
 count.
 
+**And on the evening a word is met, none of its cards is due, so the quick review asks them anyway.**
+Reported off a real module: the last step said a quick review was next, took the learner there,
+and the round held no card. Learn takes the recognition card to Review, Tähed and the flash round do
+the same to the production card, and the scheduler puts both days out, so a first evening, or any
+evening whose words were not already in the deck, had nothing due by the time it reached its own
+review. Measured against a real database: ten cards after five words, all of them two days away.
+The earlier answer to an empty round was to call the step finished, which is true of the counter and
+not of the evening, since a learner who is sent to a review and shown none has been told something
+false. A quick review of an evening is that evening's own words once more, after a game and a page
+of reading. So the round fills what is left of `MODULE_SESSION` from `day.words`
+(`tonightWhere`), after everything really due and every unseen card: not-yet-due, never a card still
+on the Learn ladder, never a word put aside, never a card answered since the closing round opened
+(`closingOpenedAt`), so a round with two cards to give is over after two. The page and the step's
+own count (`closingLeft`) read the same clause, which is the rule `lib/srs/reviewQueue.ts` is built
+on. Grading a card ahead of its date is what every practice round already does (ADR-016), and only
+this evening's words are touched: the rest of the deck stays the scheduler's. And the empty state
+inside a module is a way on rather than a dead end: `Empty` only draws `WayOut` where it is handed
+an action, so on a wide screen, with no bar underneath, it showed no button at all.
+
 **Meeting the words has the same shape of way out**, which is worth naming because it is the same
 sentence one step up: `cards.length > 0` is what stops that step ticking before anybody presses
 Start, and on a deployment whose dictionary holds none of the day's words it was also what stopped

@@ -1492,6 +1492,11 @@ export function ReviewSession({
           <Empty
             title={t("That's today's review done")}
             body={t("You've been through every word today's module had for you. On to the next step.")}
+            /* `Empty` draws a way out only where it is handed one, and inside a
+               module `WayOut` swaps whatever it is handed for the module's own
+               "Next". Without one this was a dead end on a wide screen, where
+               there is no bar underneath to carry the evening on. */
+            action={<></>}
           />
         ) : totalCards === 0 ? (
           <Empty

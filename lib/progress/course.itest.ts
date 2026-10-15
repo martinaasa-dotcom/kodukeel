@@ -154,7 +154,12 @@ async function unseenTaught(words: readonly string[]): Promise<void> {
 async function scheduleAway(ids: readonly string[]) {
   await prisma.card.updateMany({
     where: { ownerId: OWNER, id: { in: [...ids] } },
-    data: { due: new Date(NOW.getTime() + 24 * 3600_000) },
+    data: {
+      due: new Date(NOW.getTime() + 24 * 3600_000),
+      /* Grading stamps the card too, and the closing round leaves out what it
+         has already asked since it opened. */
+      lastReview: new Date(EVENING.getTime() + 60_000),
+    },
   });
 }
 
@@ -771,6 +776,9 @@ describe("the closing round's own counter", () => {
        word's other cards out of the unseen window and there is nothing to
        count either way. */
     await deck(one.words, 2);
+    /* Suspended, so the evening's own words cannot top the round up either
+       (`tonightWhere`): this is about the unseen half alone. */
+    await prisma.card.updateMany({ where: { ownerId: OWNER }, data: { suspended: true } });
     await unseenTaught(one.words);
     await recordCourseLevel(OWNER, "C1", NOW);
     await tick(one.id, ticked(one), EVENING);
@@ -801,6 +809,26 @@ describe("the closing round's own counter", () => {
     expect(reading.current?.day.index).toBe(1);
     expect(await closingProgress(OWNER, PROGRAMME, one.id, NOW))
       .toEqual({ graded: 2, needed: CLOSING_REVIEW });
+  });
+
+  /*
+    A FIRST EVENING'S WORDS ARE ALL SCHEDULED DAYS OUT BY THE TIME IT ENDS, AND
+    THE QUICK REVIEW STILL HAS SOMETHING TO ASK.
+
+    Reported off a real module: Learn, Tähed and the flash round had taken
+    every card of the five words to Review, nothing was due, and the closing
+    step led to a screen saying today's review was done over a round with no
+    card in it. A quick review of an evening is that evening's own words once
+    more, so the round tops up from them (`tonightWhere`).
+  */
+  it("asks tonight's own words once more when nothing is due", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 2);
+    await tick(one.id, ticked(one), EVENING);
+
+    expect(await closingProgress(OWNER, PROGRAMME, one.id, NOW))
+      .toEqual({ graded: 0, needed: CLOSING_REVIEW });
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.day.index).toBe(1);
   });
 
   /* Two cards left is two answers, and then the evening is over. */
