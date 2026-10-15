@@ -4,6 +4,7 @@ Five sentences at setup: does tuning the "unsure word" line to one learner beat 
 
     python3 scripts/asr-calibrate.py run      # every learner's twenty sentences, heard (cached)
     python3 scripts/asr-calibrate.py report
+    python3 scripts/asr-calibrate.py flags    # a better unsure-word signal than one log probability
 
 The Zipformer gives every word a log probability, and docs/39-speech.md marks
 a word unsure under -1.0, a line drawn on everybody's speech at once. A
@@ -40,16 +41,16 @@ spec.loader.exec_module(X)
 os.makedirs(OUT, exist_ok=True)
 
 
-def run():
+def run(prefix="", model=None):
     sets = json.load(open(os.path.join(X.EXP, "sets.json")))
     rows = sets["voices"]
     others = [X.load(c["file"]) for c in json.load(open(os.path.join(ROOT, "corpus.json"))) if c["kind"] == "sentence"]
     z = None
     for room in ROOMS:
-        path = os.path.join(OUT, f"{room}.json")
+        path = os.path.join(OUT, f"{prefix}{room}.json")
         if os.path.exists(path):
             continue
-        z = z or X.Zipformer()
+        z = z or X.Zipformer(model or X.LARGE)
         out = []
         for r in rows:
             a = X.load(r["file"])
@@ -118,5 +119,74 @@ def report():
         print(f"  {room:9} {np.mean(shifts):+.2f}")
 
 
+# ------------------------------------------------------------------ a better unsure-word signal
+
+def word_features(text, heard, forms):
+    """Per heard word: lowest and mean token log probability, token count, letters, and whether
+    the forms list (prisma/data/forms, the accept side of ADR-005) holds the spelling at all."""
+    ref = set(X.words(text))
+    out, cur, ps = [], "", []
+
+    def close():
+        w = re.sub(r"[^\wõäöüšž]", "", cur.lower())
+        if w:
+            out.append({"w": w, "min": min(ps), "mean": float(np.mean(ps)), "n": len(ps), "len": len(w),
+                        "real": w in forms, "ok": w in ref})
+
+    for tok, p in zip(heard["tokens"], heard["ys_probs"]):
+        if tok.startswith(" ") and cur:
+            close()
+            cur, ps = "", []
+        cur += tok.strip()
+        ps.append(p)
+    if cur:
+        close()
+    return out
+
+
+def flags():
+    """Train on five voices, judge on the other five, every room. A rule a phone can run in microseconds."""
+    rows = json.load(open(os.path.join(X.EXP, "sets.json")))["voices"]
+    forms = X.forms()
+    data = []
+    for room in ROOMS:
+        heard = json.load(open(os.path.join(OUT, f"{room}.json")))
+        for r, h in zip(rows, heard):
+            for f in word_features(r["text"], h, forms):
+                f["voice"] = r["voice"]
+                data.append(f)
+    train_voices = set(X.VOICES[::2])
+    train = [d for d in data if d["voice"] in train_voices]
+    test = [d for d in data if d["voice"] not in train_voices]
+
+    def judge(name, rule):
+        flagged = [d for d in test if rule(d)]
+        caught = sum(1 for d in flagged if not d["ok"])
+        wrong = sum(1 for d in test if not d["ok"])
+        prec = caught / len(flagged) if flagged else 1
+        rec = caught / wrong if wrong else 1
+        f = 2 * prec * rec / (prec + rec) if prec + rec else 0
+        print(f"  {name:44} flags {len(flagged):4}, catches {caught:4} of {wrong}: precision {100 * prec:5.1f}%, recall {100 * rec:5.1f}%, F1 {100 * f:5.1f}")
+
+    def feats(d):
+        return [d["min"], d["mean"], np.log(d["n"]), np.log(d["len"]), 0.0 if d["real"] else 1.0, 1.0]
+
+    # Logistic regression by plain gradient descent: six weights, nothing to ship but the weights.
+    A = np.array([feats(d) for d in train])
+    y = np.array([0.0 if d["ok"] else 1.0 for d in train])
+    w = np.zeros(A.shape[1])
+    for _ in range(4000):
+        p = 1 / (1 + np.exp(-A @ w))
+        w -= 0.05 * (A.T @ (p - y) / len(y) + 1e-3 * w)
+    print(f"{len(test)} heard words on the held-out voices, {sum(1 for d in test if not d['ok'])} of them wrong\n")
+    judge("lowest log probability under -1.0", lambda d: d["min"] < -1.0)
+    judge("not a word the forms list holds", lambda d: not d["real"])
+    judge("either of those", lambda d: d["min"] < -1.0 or not d["real"])
+    for cut in (0.3, 0.4, 0.5):
+        judge(f"combined weights, chance over {cut}", lambda d, c=cut: 1 / (1 + np.exp(-np.dot(feats(d), w))) > c)
+    print("\n  weights (min, mean, log tokens, log letters, not a word, bias):", " ".join(f"{x:+.2f}" for x in w))
+
+
 if __name__ == "__main__":
-    {"run": run, "report": report}[sys.argv[1] if len(sys.argv) > 1 else "report"]()
+    {"run": run, "small": lambda: run("small_", "TalTechNLP/streaming-zipformer.et-en"),
+     "report": report, "flags": flags}[sys.argv[1] if len(sys.argv) > 1 else "report"]()
