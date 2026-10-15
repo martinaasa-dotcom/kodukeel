@@ -6,6 +6,9 @@ Which of two words was said? A forced choice, scored by TalTech's xls-r.
     python3 scripts/asr-verdict.py run      # letter probabilities for every clip (cached)
     python3 scripts/asr-verdict.py report   # the verdict tables
     python3 scripts/asr-verdict.py say      # "did they say this word", both models
+    python3 scripts/asr-verdict.py refs     # native references in four more voices (free, cached)
+    python3 scripts/asr-verdict.py runrefs  # letter probabilities for the references
+    python3 scripts/asr-verdict.py judge    # each pair judged against its own references
 
 `scripts/asr-experiments.py` asked whether a recognizer *writes down* a
 mispronounced word as it was said, and neither model does often enough for
@@ -39,6 +42,7 @@ RATE = 16_000
 TTS = "https://api.tartunlp.ai/text-to-speech/v2"
 DEV = ("mari", "tambet")
 HELD = ("kalev", "liivika")
+REF = ("vesta", "peeter", "albert", "indrek")  # never a test voice
 ROOMS = ("clean", "babble10", "phone")
 MODEL = "TalTechNLP/xls-r-300m-et"
 
@@ -309,5 +313,65 @@ def say():
             print(f"{room:9} {name:44} cut {cut:5.2f}: accept the word {100 * acc:5.1f}%, accept its pair {100 * near:5.1f}%, accept another word 1.0%")
 
 
+# ------------------------------------------------------------------ judged against native references
+
+"""
+Scored alone, a recording of `adress` still prefers the spelling `aadress`
+for most mistakes: the model knows which words exist. But it moves toward
+the wrong spelling by a steady amount. So each pair gets its own line, drawn
+between where native speakers saying it right and saying it wrong land. The
+app can make those references for every exercise in advance, from TartuNLP's
+voices, which is what this does with four voices no test clip is in.
+"""
+
+
+def refs():
+    sets = json.load(open(os.path.join(OUT, "sets.json")))
+    pairs = sorted({(r["text"], r["said"]) for r in sets["sentences"]})
+    out = {"sentences": {}, "words": {}}
+    for text, said in pairs:
+        out["sentences"][f"{text}|{said}"] = {v: [X.tartu(text, v), X.tartu(said, v)] for v in REF}
+    for w in sorted({w["text"] for w in sets["words"]}):
+        out["words"][w] = {v: X.tartu(w, v) for v in REF}
+    json.dump(out, open(os.path.join(OUT, "refs.json"), "w"), ensure_ascii=False)
+    print(len(pairs), "sentence pairs,", len(out["words"]), "words, in", len(REF), "voices", file=sys.stderr)
+
+
+def runrefs():
+    r = json.load(open(os.path.join(OUT, "refs.json")))
+    files = [f for d in r["sentences"].values() for pair in d.values() for f in pair]
+    files += [f for d in r["words"].values() for f in d.values()]
+    todo = [f for f in dict.fromkeys(files) if not os.path.exists(cache_path(f))]
+    print(len(todo), "references to hear", file=sys.stderr, flush=True)
+    m = Model() if todo else None
+    for k, f in enumerate(todo):
+        np.save(cache_path(f), m.logprobs(X.load(f)))
+        if k % 50 == 0:
+            print("ref", k, file=sys.stderr, flush=True)
+
+
+def judge(frac=0.5):
+    sets = json.load(open(os.path.join(OUT, "sets.json")))
+    r = json.load(open(os.path.join(OUT, "refs.json")))
+    rooms = [room for room in ROOMS if ready(room)]
+    print(f"each pair's line {frac:.0%} of the way from its native right to its native wrong references ({len(REF)} voices)\n")
+    for room in rooms:
+        tot = {}
+        for row in sets["sentences"]:
+            ok, bad = letters(row["text"]), letters(row["said"])
+            ref = r["sentences"][f"{row['text']}|{row['said']}"]
+            rr = np.mean([margin(load_lp(a), ok, bad) for a, _ in ref.values()])
+            rw = np.mean([margin(load_lp(b), ok, bad) for _, b in ref.values()])
+            line = rr + frac * (rw - rr)
+            t = tot.setdefault(row["kind"], [0, 0, 0])
+            t[0] += margin(load_lp(room_file(row["wrong_file"], room)), ok, bad) > line
+            t[1] += margin(load_lp(room_file(row["right_file"], room)), ok, bad) > line
+            t[2] += 1
+        c, f, n = (sum(t[i] for t in tot.values()) for i in range(3))
+        print(f"{room:9} sentences: caught {c}/{n} ({100 * c / n:.1f}%), false alarm {f}/{n} ({100 * f / n:.1f}%)   " +
+              "  ".join(f"{k} {a}/{z} false {b}" for k, (a, b, z) in sorted(tot.items())))
+
+
 if __name__ == "__main__":
-    {"build": build, "run": run, "report": report, "say": say}[sys.argv[1] if len(sys.argv) > 1 else "report"]()
+    {"build": build, "run": run, "report": report, "say": say, "refs": refs, "runrefs": runrefs,
+     "judge": judge}[sys.argv[1] if len(sys.argv) > 1 else "report"]()
