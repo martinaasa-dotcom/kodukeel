@@ -20,7 +20,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "graafik", beat: "what", text: "Kuidas meil läks?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "graafik", beat: "what", text: "Mida see näitab?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "graafik", beat: "much", text: "Kui palju?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "graafik", beat: "much", text: "Kui palju protsenti?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "graafik", beat: "much", text: "Mitu protsenti?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "graafik", beat: "why", text: "Miks see nii on?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "graafik", beat: "why", text: "Mis on põhjus?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "graafik", beat: "hurdle:interrupted", text: "Üks minut, palun.", model: "authored", draftedAt: "2026-10-15" },

@@ -26,7 +26,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "hadaabi", beat: "hurt", text: "Kas ta saab seista?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "hadaabi", beat: "hurt", text: "Kas ta saab ise seista?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "hadaabi", beat: "wait", text: "Kiirabi tuleb kohe. Palun jääge sinna.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "hadaabi", beat: "wait", text: "Abi tuleb. Palun oodake seal, kus te olete.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "hadaabi", beat: "wait", text: "Abi on teel. Palun oodake seal, kus te olete.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "hadaabi", beat: "hurdle:faster", text: "Öelge kohe aadress, palun.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "hadaabi", beat: "hurdle:faster", text: "Rääkige kohe, mis juhtus.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "hadaabi", beat: "hurdle:misheard", text: "Kas te olete kooli või poe juures?", model: "authored", draftedAt: "2026-10-15", about: "where" },

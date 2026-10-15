@@ -16,21 +16,45 @@ export default function reviewRepeatsOnlyWhatWasTaught(kit: InvariantKit) {
   const { check, code } = kit;
   aNewLevelStartsOver(kit);
   check("the daily review asks every card, due or new, through `reviewable`", () => {
-    const page = code("app/(app)/review/page.tsx");
-    assert.match(page, /const within = \(card: CardRow\) => reviewable\(taught, card, spellings\)/,
+    const queue = code("app/(app)/review/queue.ts");
+    assert.match(queue, /const allowed = \(card: CardRow\) => reviewable\(taught, card, spellings\)/,
+      "the review queue no longer holds its cards to what the module has taught");
+    assert.match(queue, /askableRows\(rows\.filter\(allowed\)\)/,
       "the due list on /review is no longer held to what the module has taught");
-    assert.match(page, /const introducible = \(card: CardRow\) => reviewable\(taught, card, spellings\)/,
+    assert.match(queue, /kept\.push\(\.\.\.rows\.filter\(allowed\)\)/,
       "the new cards on /review are no longer held to what the module has taught");
-    assert.match(page, /taughtWhere\(taughtFirst\)/,
+    assert.match(queue, /taughtWhere\(taught\)/,
       "the due read on the daily path is no longer narrowed in the query, so old cards can fill it and empty the round");
-    assert.doesNotMatch(page, /\bcardWithin\(/,
+    assert.doesNotMatch(queue + code("app/(app)/review/page.tsx"), /\bcardWithin\(/,
       "/review asks `cardWithin` directly, which skips the word gate `reviewable` adds");
   });
 
-  check("Today counts as due only what Review will ask", () => {
+  /*
+    TODAY'S NUMBER IS THE LENGTH OF REVIEW'S OWN LIST. Reported live: Today
+    said "20 due", the session asked one card and said all caught up, and Today
+    then said 19. The count was a tally over the whole deck reasoning about the
+    queue, and it disagreed with it in four places. So no screen may reason
+    about the queue any more: each counts `reviewQueue`, the one function the
+    review page builds its session from, and the snapshot carries no due tally
+    for a screen to reach for by mistake.
+  */
+  check("Today counts as due exactly the cards Review will ask", () => {
+    const page = code("app/(app)/review/page.tsx");
+    assert.match(page, /reviewQueue\(ownerId, scope, now\)/, "the review page no longer builds its session from `reviewQueue`");
+    assert.match(page, /withChoices\(queue\.cards,/, "the review page shows something other than the queue it counted");
+    const today = code("app/(app)/page.tsx");
+    assert.match(today, /reviewQueue\(ownerId, null, now\)/, "Today no longer counts Review's own queue");
+    assert.match(today, /const toReview = review\.cards\.length;/, "Today's review count is not the length of Review's queue");
+    const practice = code("app/(app)/practice/page.tsx");
+    assert.match(practice, /const ready = review\.cards\.length;/, "Practice's review count is not the length of Review's queue");
+    for (const [file, src] of [["app/(app)/page.tsx", today], ["app/(app)/practice/page.tsx", practice]] as const) {
+      assert.doesNotMatch(src, /snapshot\.(dueCount|newForPractice)/, `${file} counts Review off a whole-deck tally again`);
+    }
     const summary = code("lib/progress/summary.ts");
-    assert.match(summary, /dueCount\+\+/, "the due count moved; re-read this check");
-    assert.match(summary, /reviewable\(taught,/, "Today's due count no longer asks `reviewable`, so it can promise an empty round");
+    assert.doesNotMatch(summary, /\b(dueCount|newForPractice)\b/,
+      "deckSnapshot carries a due tally again, which is a second reading of Review's queue");
+    const queue = code("app/(app)/review/queue.ts");
+    assert.match(queue, /askableRows\(/, "the queue counts cards `withChoices` will then drop");
   });
 
   check("a case card it cannot place is refused, not waved through", () => {
