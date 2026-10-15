@@ -32,7 +32,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "perearst", beat: "hurdle:contradiction", text: "Ei, tegelikult võtke tablett ainult üks kord päevas.", model: "authored", draftedAt: "2026-10-15", about: "take" },
   { scene: "perearst", beat: "hurdle:contradiction", text: "Tegelikult võtke seda hommikul, mitte õhtul.", model: "authored", draftedAt: "2026-10-15", about: "take" },
   { scene: "perearst", beat: "hurdle:slot-gone", text: "Vabandust, see aeg on juba võetud.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "perearst", beat: "hurdle:slot-gone", text: "See aeg ei sobi enam, vabandust.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "perearst", beat: "hurdle:slot-gone", text: "See aeg on juba võetud, vabandust.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "perearst", beat: "answer:hurdle:slot-gone", text: "Hiljem on veel vaba aeg.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "perearst", beat: "answer:hurdle:slot-gone", text: "Natuke hiljem on veel aega.", model: "authored", draftedAt: "2026-10-15" },
 ];

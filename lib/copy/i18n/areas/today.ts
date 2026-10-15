@@ -363,7 +363,7 @@ export const TODAY: Area = {
   "Say a price or which floor you live on out loud in Estonian, and ask them to say it back.":
     "Назовите вслух по-эстонски цену или этаж, на котором живёте, и попросите повторить.",
   "Ask for something politely with would: could I, would you.":
-    "Попросите о чём-нибудь вежливо, в условном наклонении: не могли бы вы, можно было бы.",
+    "Попросите о чём-нибудь вежливо, в условном наклонении: не могли бы вы, нельзя ли мне.",
   "Talk about yourself for one minute in Estonian without stopping.":
     "Расскажите о себе по-эстонски одну минуту без остановки.",
   "Explain a decision you made and one reason against it.":
@@ -387,7 +387,7 @@ export const TODAY: Area = {
   "Ask somebody how they are, and ask one more question about the answer.":
     "Спросите кого-нибудь, как дела, и задайте ещё один вопрос о его ответе.",
   "Ask for something at work using would: I would like, could we.":
-    "Попросите о чём-нибудь на работе, используя условное наклонение: я бы хотел, не могли бы мы.",
+    "Попросите о чём-нибудь на работе, используя условное наклонение: я бы хотел(а), не могли бы мы.",
   "Hold your ground politely when somebody says no.":
     "Вежливо стойте на своём, когда вам говорят «нет».",
   "Ask an office what happens next and when, and stay in Estonian.":
@@ -1415,7 +1415,7 @@ export const TODAY: Area = {
   "Say a price or which floor you live on out loud in Estonian, and ask them to say it back.":
     "Назвіть уголос естонською ціну або поверх, на якому живете, і попросіть повторити.",
   "Ask for something politely with would: could I, would you.":
-    "Попросіть про щось ввічливо, в умовному способі: чи не могли б ви, чи можна було б.",
+    "Попросіть про щось ввічливо, в умовному способі: чи не могли б ви, чи можна мені.",
   "Talk about yourself for one minute in Estonian without stopping.":
     "Розкажіть про себе естонською одну хвилину без зупинки.",
   "Explain a decision you made and one reason against it.":
@@ -1451,7 +1451,7 @@ export const TODAY: Area = {
   "With a friend, work":
     "З другом, робота",
   "Ask for something at work using would: I would like, could we.":
-    "Попросіть про щось на роботі, використовуючи умовний спосіб: я б хотів, чи не могли б ми.",
+    "Попросіть про щось на роботі, використовуючи умовний спосіб: я б хотів (хотіла), чи не могли б ми.",
   "Hold your ground politely when somebody says no.":
     "Ввічливо стійте на своєму, коли вам кажуть «ні».",
   "Ask an office what happens next and when, and stay in Estonian.":
