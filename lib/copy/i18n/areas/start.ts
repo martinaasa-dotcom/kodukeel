@@ -166,28 +166,28 @@ export const START: Area = {
     "Why you are learning Estonian": "Зачем вы учите эстонский",
     "I live in Estonia": "Я живу в Эстонии",
     "The shop, the doctor, the bus, the neighbors, the forms. Everyday life, in the language all around you.":
-      "Магазин, врач, автобус, соседи, бланки. Повседневная жизнь на языке, который звучит вокруг.",
-    "Citizenship or residence": "Гражданство или вид на жительство",
+      "Магазин, врач, автобус, соседи, бланки. Жизнь на языке, который звучит вокруг.",
+    "Citizenship or residence": "Гражданство или ВНЖ",
     "There's a state exam at the end of this one, and it picks the level for you.":
-      "В конце вас ждёт государственный экзамен, и нужный уровень задаёт он.",
+      "В конце государственный экзамен, и уровень выбирает он.",
     "Work": "Работа",
     "Meetings, emails and colleagues who talk at full speed. At work you need to be understood exactly, not roughly.":
-      "Совещания, письма и коллеги, которые говорят на полной скорости. На работе вас должны понимать точно, а не приблизительно.",
+      "Совещания, письма и коллеги, которые говорят быстро. На работе вас должны понимать точно.",
     "School or university": "Школа или университет",
     "A course with a syllabus, homework, and a mark waiting at the end of term.":
-      "Курс с программой, домашними заданиями и оценкой в конце семестра.",
+      "Программа, домашние задания и оценка в конце семестра.",
     "Family or a partner": "Семья или партнёр",
     "The people you most want to understand won't slow down for you forever.":
-      "Люди, которых вам больше всего хочется понимать, не будут вечно говорить медленнее ради вас.",
+      "Самые важные для вас люди не будут вечно говорить медленнее.",
     "Roots and heritage": "Корни и семейная история",
     "A language your family spoke, or a country you keep coming back to.":
-      "Язык, на котором говорили в вашей семье, или страна, в которую вы снова и снова возвращаетесь.",
+      "Язык вашей семьи или страна, в которую вы всё время возвращаетесь.",
     "Travel": "Путешествия",
     "Enough to order, ask, say thanks and read a sign without reaching for your phone.":
-      "Достаточно, чтобы заказать, спросить, поблагодарить и прочитать вывеску, не хватаясь за телефон.",
+      "Заказать, спросить, поблагодарить и прочитать вывеску без телефона.",
     "Curiosity": "Любопытство",
     "Fourteen cases, and words that change shape when you're not looking. Reason enough.":
-      "Четырнадцать падежей и слова, которые меняют форму, стоит только отвернуться. Вполне достаточная причина.",
+      "Четырнадцать падежей и слова, меняющие форму, пока вы не смотрите. Чем не причина?",
     "What level are you aiming for?": "Какого уровня вы хотите достичь?",
     "What level are you aiming for": "Какого уровня вы хотите достичь",
     "Get by": "Объясняться",
@@ -458,28 +458,28 @@ export const START: Area = {
     "Why you are learning Estonian": "Навіщо ви вчите естонську",
     "I live in Estonia": "Я живу в Естонії",
     "The shop, the doctor, the bus, the neighbors, the forms. Everyday life, in the language all around you.":
-      "Магазин, лікар, автобус, сусіди, бланки. Повсякденне життя мовою, яка звучить довкола.",
-    "Citizenship or residence": "Громадянство або посвідка на проживання",
+      "Магазин, лікар, автобус, сусіди, бланки. Життя мовою, яка звучить довкола.",
+    "Citizenship or residence": "Громадянство або посвідка",
     "There's a state exam at the end of this one, and it picks the level for you.":
-      "Наприкінці на вас чекає державний іспит, і рівень за вас обере він.",
+      "Наприкінці державний іспит, і рівень обирає він.",
     "Work": "Робота",
     "Meetings, emails and colleagues who talk at full speed. At work you need to be understood exactly, not roughly.":
-      "Наради, листи й колеги, які говорять на повній швидкості. На роботі вас мають розуміти точно, а не приблизно.",
+      "Наради, листи й колеги, які говорять швидко. На роботі вас мають розуміти точно.",
     "School or university": "Школа або університет",
     "A course with a syllabus, homework, and a mark waiting at the end of term.":
-      "Курс із програмою, домашніми завданнями й оцінкою наприкінці семестру.",
+      "Програма, домашні завдання й оцінка наприкінці семестру.",
     "Family or a partner": "Родина або партнер",
     "The people you most want to understand won't slow down for you forever.":
-      "Ті, кого ви найбільше хочете розуміти, не говоритимуть повільно заради вас вічно.",
+      "Найважливіші для вас люди не говоритимуть повільно вічно.",
     "Roots and heritage": "Коріння й родинна історія",
     "A language your family spoke, or a country you keep coming back to.":
-      "Мова, якою говорили у вашій родині, або країна, до якої ви знову й знову повертаєтеся.",
+      "Мова вашої родини або країна, до якої ви постійно повертаєтеся.",
     "Travel": "Подорожі",
     "Enough to order, ask, say thanks and read a sign without reaching for your phone.":
-      "Досить, щоб замовити, запитати, подякувати й прочитати вивіску, не хапаючись за телефон.",
+      "Замовити, запитати, подякувати й прочитати вивіску без телефона.",
     "Curiosity": "Цікавість",
     "Fourteen cases, and words that change shape when you're not looking. Reason enough.":
-      "Чотирнадцять відмінків і слова, які змінюють форму, щойно ви відвернетеся. Цілком достатня причина.",
+      "Чотирнадцять відмінків і слова, що змінюють форму, поки ви не дивитеся. Чим не причина?",
     "What level are you aiming for?": "До якого рівня ви прагнете?",
     "What level are you aiming for": "До якого рівня ви прагнете",
     "Get by": "Порозумітися",
