@@ -576,3 +576,26 @@ describe("matchEstonianForm — a spelling English happens to share", () => {
     expect(matchEstonianForm([room], "room")).toBe(null);
   });
 });
+
+describe("rankCandidates: the English in another shape", () => {
+  const championship = lexeme("meistrivõistlused", "championships", "NOUN", []);
+  const run = lexeme("jooksma", "to run", "VERB", []);
+  const wife = lexeme("naine", "woman, wife", "NOUN", []);
+
+  it("finds a plural gloss from the singular query and the other way round", () => {
+    // The reported search: the gloss is plural because Ekilex files it so.
+    expect(rankCandidates([championship], "championship")[0]?.lemma).toBe("meistrivõistlused");
+    const singular = lexeme("meistrivõistlus", "championship", "NOUN", []);
+    expect(rankCandidates([singular], "championships")[0]?.lemma).toBe("meistrivõistlus");
+  });
+
+  it("reads a verb under -ing, and a later sense", () => {
+    expect(rankCandidates([run], "running")[0]?.lemma).toBe("jooksma");
+    expect(rankCandidates([wife], "wives")[0]?.lemma).toBe("naine");
+  });
+
+  it("is never what vouches for an Estonian word", () => {
+    // `matchEstonianForm` skips English, shapes included.
+    expect(matchEstonianForm([championship], "championship")).toBeNull();
+  });
+});
