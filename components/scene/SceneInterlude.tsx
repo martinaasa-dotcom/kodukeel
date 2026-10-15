@@ -1,5 +1,6 @@
 "use client";
 
+import { EnterKeyCap } from "@/components/KeyCaps";
 import { useCallback, useEffect, useId, useRef, type CSSProperties } from "react";
 import { Button } from "@/components/Button";
 import { useLocale, useT } from "@/components/Locale";
@@ -230,7 +231,7 @@ export function SceneInterlude({ sceneId, from, to, text, onDone }: {
           by looking.
         */}
         <Button ref={carryOn} variant="primary" size="lg" onClick={() => finish()}>
-          {t("Keep going")}
+          {t("Keep going")} <EnterKeyCap className="ml-1" />
         </Button>
       </div>
     </div>

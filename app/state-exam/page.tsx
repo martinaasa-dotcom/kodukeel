@@ -6,11 +6,10 @@ import { tr, type Locale } from "@/lib/copy/locale";
 import { localeHref } from "@/lib/copy/publicLocale";
 import { GUIDE, MATERIALS, READ_ON, SOURCES, type Fact } from "@/lib/exam/official";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicCard } from "@/lib/copy/publicCards";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicTitle(searchParams, "The state examination", {
-    description: "What the Estonian language examination is, who needs which level, how to register, and what happens after.",
-  });
+  return publicTitle(searchParams, "The state examination", undefined, publicCard("/state-exam"));
 }
 
 const MONTHS = [

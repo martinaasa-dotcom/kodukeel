@@ -483,11 +483,23 @@ async function closingGraded(ownerId: string, ticks: Ticks, dayId: string): Prom
  * two queries on Today to confirm something already true.
  */
 async function closingNeeded(
-  ownerId: string, programme: Programme, day: CourseDay, graded: number, now: Date,
+  ownerId: string, programme: Programme, ticks: Ticks, day: CourseDay, graded: number, now: Date,
 ): Promise<number> {
   if (graded >= CLOSING_REVIEW) return CLOSING_REVIEW;
-  const left = await closingLeft(ownerId, scopeFor(programme, day), CLOSING_REVIEW - graded, now);
+  const left = await closingLeft(
+    ownerId, scopeFor(programme, day), CLOSING_REVIEW - graded, now, closingOpensAt(ticks, day.id) ?? null,
+  );
   return Math.min(CLOSING_REVIEW, graded + left);
+}
+
+/**
+ * When a day's closing round opened, which is the page's way of leaving out
+ * what has been asked since (`tonightWhere`). Null before it has.
+ */
+export async function closingOpenedAt(
+  ownerId: string, programme: Programme, dayId: string,
+): Promise<Date | null> {
+  return closingOpensAt(await ticksFor(ownerId, programme), dayId) ?? null;
 }
 
 /** Whether the closing round is the one step of the evening still outstanding. */
@@ -530,7 +542,7 @@ async function withDerivedSteps(
   */
   if (graded >= CLOSING_REVIEW) withDerived.add(REVIEW_STEP);
   else if (onlyClosingLeft(day, withDerived)
-    && graded >= await closingNeeded(ownerId, programme, day, graded, now)) {
+    && graded >= await closingNeeded(ownerId, programme, ticks, day, graded, now)) {
     withDerived.add(REVIEW_STEP);
   }
   await latchDerived(ownerId, programme, ticks, day, withDerived);
@@ -792,7 +804,7 @@ export async function closingProgress(
     }
   }
   const needed = day && lastStanding
-    ? await closingNeeded(ownerId, programme, day, graded, now)
+    ? await closingNeeded(ownerId, programme, ticks, day, graded, now)
     : CLOSING_REVIEW;
   return { graded: Math.min(needed, graded), needed };
 }

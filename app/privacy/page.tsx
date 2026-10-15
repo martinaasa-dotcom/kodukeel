@@ -7,9 +7,10 @@ import { resolveOperator, SUPERVISORY_AUTHORITY } from "@/lib/legal/operator";
 import { resolveRecipients, transfersOutsideEea } from "@/lib/legal/recipients";
 import { recipientIn } from "@/lib/legal/recipientCopy";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicCard } from "@/lib/copy/publicCards";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicTitle(searchParams, "Privacy");
+  return publicTitle(searchParams, "Privacy", undefined, publicCard("/privacy"));
 }
 
 /*

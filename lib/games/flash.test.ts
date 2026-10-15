@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  askableSlots, flashTask, formIndex, markFlash, shapeFor, shapesFor, type FlashWord,
+  askableSlots, beginnerSlot, flashTask, formIndex, markFlash, mayWriteOwnSentence, shapeFor, shapesFor, type FlashWord,
 } from "./flash";
 
 /** `tuba`, as the seed holds it: five principal parts and two sentences. */
@@ -221,6 +221,37 @@ describe("shapesFor", () => {
 
   it("asks a word with no forms the one question it has", () => {
     expect(shapesFor(TERE, askableSlots(TERE)[0]!)).toEqual(["recall"]);
+  });
+
+  it("never asks a beginner to write a sentence of their own", () => {
+    const comitative = askableSlots(TUBA).find((s) => s.slot === "COMITATIVE")!;
+    const shapes = [
+      shapesFor(TUBA, inessive(), { beginner: true }),
+      shapesFor(TUBA, comitative, { beginner: true }),
+    ];
+    expect(shapes).toEqual([["gap", "heard"], ["inflect"]]);
+    // However many times the word has been right, the hardest shape stays shut.
+    for (let step = 0; step < 12; step++) {
+      for (const slot of [inessive(), comitative]) {
+        expect(flashTask({ word: TUBA, slot, cardId: "c", step, beginner: true })!.shape).not.toBe("build");
+      }
+    }
+  });
+
+  it("draws the line at A2, where ordering words starts too", () => {
+    expect(mayWriteOwnSentence("A1")).toBe(false);
+    expect(mayWriteOwnSentence("A2")).toBe(true);
+  });
+
+  it("asks a beginner a verb in the present and nothing harder", () => {
+    const asked = askableSlots(LUGEMA).filter((s) => beginnerSlot(LUGEMA, s)).map((s) => s.slot);
+    expect(asked.length).toBeGreaterThan(3);
+    expect(asked).toContain("IndPrSg3");
+    expect(asked).toContain("PRODUCTION");
+    expect(asked).not.toContain("IndPrPs_");
+    expect(asked.every((k) => k === "PRODUCTION" || k.startsWith("IndPrSg") || k.startsWith("IndPrPl"))).toBe(true);
+    // A noun's slots are the module's own gates to decide, not this filter's.
+    expect(askableSlots(TUBA).every((s) => beginnerSlot(TUBA, s))).toBe(true);
   });
 });
 

@@ -4,6 +4,7 @@ import { CASES } from "@/lib/estonian/cases";
 import { derivedVerbForms, possibleFirstPersons } from "@/lib/estonian/conjugate";
 import { formLabel, morphCodeFor } from "@/lib/estonian/morph";
 import { fold, FOLD_FROM, FOLD_TO } from "@/lib/estonian/fold";
+import { englishMatch, englishVariants, looksEnglish } from "./english";
 
 
 export interface SearchHit {
@@ -163,6 +164,26 @@ export async function searchLexemes(query: string, limit = 40): Promise<SearchHi
   // and must not have backslashes inserted into them.
   const foldedLike = likeLiteral(folded);
   const rawLike = likeLiteral(raw);
+  /*
+    AND THE OTHER SHAPES THE ENGLISH COULD HAVE.
+
+    The broad branch below finds a gloss that *contains* what was typed, so
+    `championship` found "championships" and `championships` could not find
+    "championship", because the longer string is not inside the shorter one.
+    A learner does not know which number a gloss happens to be in, so the
+    shapes `lib/dict/english.ts` reads off the query are looked for too, and
+    `rank` decides what they are worth. Capped, because each is a substring
+    scan of the glosses.
+  */
+  const shapes = looksEnglish(q)
+    ? englishVariants(q).filter((v) => v !== raw && v.length >= 3).slice(0, 6)
+    : [];
+  const shapeMatch = shapes.length
+    ? Prisma.join(
+      shapes.map((shape) => Prisma.sql`lower(l.translation) LIKE ${`%${likeLiteral(shape)}%`} ESCAPE '\\'`),
+      " OR ",
+    )
+    : Prisma.sql`FALSE`;
 
   /*
     A union of four branches rather than one WHERE with four ORs.
@@ -216,6 +237,9 @@ export async function searchLexemes(query: string, limit = 40): Promise<SearchHi
         UNION
         SELECT l.id FROM "Lexeme" l
           WHERE lower(l.translation) LIKE ${`%${rawLike}%`} ESCAPE '\\'
+        UNION
+        SELECT l.id FROM "Lexeme" l
+          WHERE ${shapeMatch}
       ) AS broad
       -- Ordered because it is truncated. Which 600 of a broad match you got was
       -- otherwise decided by the plan, so one query could answer differently
@@ -524,6 +548,20 @@ function rank(
   // An exact English match beats a merely diacritic-folded Estonian one: typing
   // "room" almost always means the English word, not rõõm (joy).
   if (english && t === r) return { score: 95 };
+  /*
+    The English in another shape: "championships" for `championship`, "to
+    run" for `running`. A sense the entry leads with is nearly as good as the
+    gloss spelled exactly, and a sense further along is still a meaning the
+    word has, so it beats a mere substring.
+  */
+  if (english) {
+    const shaped = englishMatch(raw, c.translation);
+    // A gloss that is the shape and nothing else outranks one that leads with
+    // it and goes on, so `houses` opens `maja`, "house", ahead of `elamu`,
+    // "house, place to live in", the way `house` already does at 95.
+    if (shaped === "first") return { score: c.translation.includes(",") ? 86 : 87 };
+    if (shaped === "later") return { score: 75 };
+  }
 
   if (!FOLD_COLLISION_LOSES.has(c.lemma.toLowerCase())) {
     if (l === folded && meantBy(r, c.lemma)) return { score: 90 };

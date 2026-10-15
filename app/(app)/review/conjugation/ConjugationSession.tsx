@@ -85,6 +85,8 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
   const [index, setIndex] = useState(0);
   const [typed, setTyped] = useState<string[]>([]);
   const [verdicts, setVerdicts] = useState<AnswerCheck[] | null>(null);
+  /* The row a learner tapped to say where the next form goes (matching). */
+  const [target, setTarget] = useState<number | null>(null);
   const [cellsRight, setCellsRight] = useState(0);
   const [tablesRight, setTablesRight] = useState(0);
   const [added, setAdded] = useState<string | null>(null);
@@ -141,6 +143,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
   useEffect(() => {
     setTyped(question ? question.blanks.map(() => "") : []);
     setVerdicts(null);
+    setTarget(null);
     setAdded(null);
     // Focus the first blank once the row has drawn. A matched table has no
     // box to focus; its chips are buttons and the first one takes the caret
@@ -200,17 +203,25 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     }
     return used;
   }, [typed, bank]);
+  /*
+    The row the next form lands in: the one the learner tapped if it is still
+    empty, otherwise the first empty row. It is drawn, so nobody has to guess.
+  */
+  const active = useMemo(() => {
+    if (target !== null && typed[target] === "") return target;
+    const first = typed.findIndex((v) => v === "");
+    return first < 0 ? null : first;
+  }, [target, typed]);
   const place = useCallback((form: string) => {
-    if (verdicts) return;
-    setTyped((t) => {
-      const at = t.findIndex((v) => v === "");
-      if (at < 0) return t;
-      return t.map((v, j) => (j === at ? form : v));
-    });
-  }, [verdicts]);
+    if (verdicts || active === null) return;
+    setTyped((t) => t.map((v, j) => (j === active ? form : v)));
+    setTarget(null);
+  }, [verdicts, active]);
   const unplace = useCallback((row: number) => {
     if (verdicts) return;
     setTyped((t) => t.map((v, j) => (j === row ? "" : v)));
+    // The form handed back leaves its row open for the next pick.
+    setTarget(row);
   }, [verdicts]);
 
   const check = useCallback(() => {
@@ -352,12 +363,35 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
           <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>{question.translation}</p>
           <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
             {question.shape === "match"
-              ? t("We've filled in the first one for you. Put each of the other five next to its person.")
+              ? t("We've filled in the first one for you. Tap a form to drop it into the highlighted row, or tap a row first to choose where it goes.")
               : question.tense === "present"
                 ? t("We've filled in the first one for you. Type the other five.")
                 : t("This time it's the \"would\" form, as in \"I would go\". Type the other five.")}
           </p>
         </div>
+
+        {!revealed && question.shape === "match" && (
+          <div className="match-bank mx-6 mt-5 p-4">
+            <p className="label-xs mb-3 text-center" style={{ color: "var(--accent-deep)" }} id="conjugation-bank">
+              {t("Tap a form to place it")}
+            </p>
+            <div className="flex flex-wrap justify-center gap-3" role="group" aria-labelledby="conjugation-bank">
+              {bank.map(({ slot, form }) => (
+                <button
+                  key={slot}
+                  type="button"
+                  lang="et"
+                  className="choice-btn match-chip rounded-full px-5 py-2 text-lg"
+                  disabled={spent.has(slot)}
+                  aria-label={spent.has(slot) ? fill(t("{letter}, placed"), { letter: form }) : form}
+                  onClick={() => place(form)}
+                >
+                  {form}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="overflow-x-auto px-6 py-5">
           <table className="w-full text-sm">
@@ -387,14 +421,20 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
                         <button
                           type="button"
                           lang={typed[i] ? "et" : undefined}
-                          className="choice-btn field w-full text-left text-lg"
+                          className="choice-btn match-slot flex w-full items-center justify-between gap-3 text-left text-lg"
+                          data-empty={typed[i] ? undefined : ""}
+                          data-active={active === i ? "" : undefined}
                           aria-label={typed[i]
                             ? fill(t("{person}: {form}. Press to put it back."), { person: blank.person, form: typed[i] })
                             : fill(t("{person}: nothing yet"), { person: blank.person })}
-                          onClick={() => (typed[i] ? unplace(i) : undefined)}
+                          aria-current={active === i ? "true" : undefined}
+                          onClick={() => (typed[i] ? unplace(i) : setTarget(i))}
                         >
                           {typed[i] ? <Ending stem={question.given.value} form={typed[i]!} /> : (
-                            <span aria-hidden style={{ color: "var(--ink-3)" }}>…</span>
+                            <span aria-hidden>…</span>
+                          )}
+                          {!typed[i] && active === i && (
+                            <span className="text-sm font-semibold" aria-hidden>{t("Goes here")}</span>
                           )}
                         </button>
                       ) : !mark ? (
@@ -457,26 +497,6 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
                 open={hints.open}
                 label={question.lemma}
               />
-            </div>
-          )}
-          {!revealed && question.shape === "match" && (
-            <div className="under-field pl-16">
-              <p className="sr-only" id="conjugation-bank">{t("The forms to place")}</p>
-              <div className="flex flex-wrap gap-2" role="group" aria-labelledby="conjugation-bank">
-                {bank.map(({ slot, form }) => (
-                  <button
-                    key={slot}
-                    type="button"
-                    lang="et"
-                    className="choice-btn rounded-full px-3 py-1.5 text-base"
-                    disabled={spent.has(slot)}
-                    aria-label={spent.has(slot) ? fill(t("{letter}, placed"), { letter: form }) : form}
-                    onClick={() => place(form)}
-                  >
-                    {form}
-                  </button>
-                ))}
-              </div>
             </div>
           )}
         </div>

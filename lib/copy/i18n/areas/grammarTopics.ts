@@ -20,7 +20,7 @@ import type { Area } from "../area";
  * ONE WHO KNOWS ENGLISH. The English explains Estonian against English, and a
  * line that tells a Russian speaker what English does is a line about the
  * wrong language. Where the comparison carries over honestly it is made with
- * their own language instead: "at me is" is simply «у меня есть», the -des
+ * their own language instead: "I have" is built just like «у меня есть», the -des
  * form follows the same rule as a деепричастие and breaks the same way, a
  * finished object is what the perfective aspect does in Russian and an
  * ending does here, and the commas fall where Russian puts them. Where it
@@ -66,21 +66,21 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["To be, and having things",
     "Быть и иметь",
     "Бути й мати"],
-  ["There's no verb for \"have\". You say the thing is \"at you\" instead.",
-    "Отдельного глагола «иметь» нет. Говорят, что вещь «у вас», как в русском «у меня есть».",
-    "Окремого дієслова «мати» немає. Кажуть, що річ «у вас», як в українському «у мене є»."],
+  ["There's no verb for \"have\". The owner gets -l, and \"is\" follows.",
+    "Отдельного глагола «иметь» нет. Владелец получает -l, а следом идёт «есть», как в русском «у меня есть».",
+    "Окремого дієслова «мати» немає. Власник отримує -l, а далі йде «є», як в українському «у мене є»."],
   ["The verb you'll use in every conversation, and it's irregular",
     "Глагол, который понадобится в любом разговоре, и он неправильный",
     "Потрібне в кожній розмові й неправильне. На відміну від української, його не пропускають: «я студент» без нього не скажеш"],
-  ["For \"I have\", you say \"at me is\", with -l on the owner",
-    "Вместо «я имею» говорят «у меня есть», а владелец получает -l",
-    "Замість «я маю» кажуть «у мене є», а власник отримує -l"],
+  ["The owner gets -l, which already says \"has\". \"Is\" always follows",
+    "Владелец получает -l, и оно уже значит «имеет». Дальше всегда идёт «есть»",
+    "Власник отримує -l, і воно вже означає «має». Далі завжди йде «є»"],
   ["Being sleepy or hungry, or having to do something, works the same way",
     "Так же устроены «мне хочется спать», «я голоден» и «мне надо что-то сделать»",
     "Так само влаштовані «мені хочеться спати», «я голодний» і «мені треба щось зробити»"],
-  ["You'll reach for a \"have\" that isn't there. Instead the owner gets -l and the thing stays as it is: literally \"at me is a car\".",
-    "Глагола «иметь» здесь нет. Владелец получает -l, а вещь остаётся как есть, точно как в русском «у меня есть машина», так что эта конструкция вам уже знакома.",
-    "Дієслова «мати» тут немає. Власник отримує -l, а річ лишається як є, точнісінько як в українському «у мене є машина». А от звичного «я маю» естонська не знає."],
+  ["You'll reach for a \"have\" that isn't there. Put -l on the owner, then \"is\", then the thing. That whole pattern is how Estonian says \"I have a car\".",
+    "Глагола «иметь» здесь нет. Владелец получает -l, потом идёт «есть», потом сама вещь, как в русском «у меня есть машина», так что конструкция вам уже знакома.",
+    "Дієслова «мати» тут немає. Власник отримує -l, потім іде «є», потім сама річ, точнісінько як в українському «у мене є машина». А от звичного «я маю» естонська не знає."],
 
   // present-tense
   ["Talking about now",

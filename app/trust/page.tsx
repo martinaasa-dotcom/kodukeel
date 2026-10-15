@@ -9,9 +9,10 @@ import { resolveOperator, SUPERVISORY_AUTHORITY } from "@/lib/legal/operator";
 import { resolveRecipients, transfersOutsideEea } from "@/lib/legal/recipients";
 import { recipientIn } from "@/lib/legal/recipientCopy";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicCard } from "@/lib/copy/publicCards";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicTitle(searchParams, "Trust");
+  return publicTitle(searchParams, "Trust", undefined, publicCard("/trust"));
 }
 
 /*
@@ -168,6 +169,16 @@ export default async function TrustPage({ searchParams }: { searchParams: Public
         <P>
           {rich(t("An organisation deciding whether to try it with a group can read {pilots}, including what it is not ready for."), {
             pilots: <Link href="/pilots" className="underline underline-offset-2">{t("what a pilot is")}</Link>,
+          })}
+        </P>
+        <P>
+          {rich(t("Every claim this project makes about itself is listed on {how}, with its figure, the day it was measured and the command that measures it again."), {
+            how: <Link href="/how-we-know" className="underline underline-offset-2">{t("how we know")}</Link>,
+          })}
+        </P>
+        <P>
+          {rich(t("Which part of the state examination each unit of the course prepares for, and where it has nothing, is on {curriculum}."), {
+            curriculum: <Link href="/curriculum" className="underline underline-offset-2">{t("what the course covers")}</Link>,
           })}
         </P>
       </S>

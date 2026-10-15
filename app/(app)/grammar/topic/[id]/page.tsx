@@ -16,7 +16,7 @@ import { WatchOut } from "@/components/RuleNote";
 import { DrillLink } from "@/components/DrillLink";
 import { PointExamples } from "@/components/grammar/PointExamples";
 import { VerbTable } from "./VerbTable";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { offered } from "@/lib/tutor/provider";
 import { pinnedExamples } from "@/lib/progress/grammarExamples";
 import { moduleTopicExamples } from "@/lib/progress/moduleExamples";
 import { verbExamples } from "@/lib/progress/verbExamples";
@@ -178,7 +178,7 @@ export default async function TopicPage({
   */
   const allPinned = await pinnedExamples("topic", id);
   const pinned = scope ? await moduleTopicExamples(id, scope, allPinned) : allPinned;
-  const canTranslate = resolveProvider() !== null;
+  const canTranslate = offered("translate");
 
   const shown = VERB_TOPICS[id];
   const only = ONLY_VERB[id];

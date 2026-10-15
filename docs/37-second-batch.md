@@ -46,7 +46,7 @@ Start your branch from `origin/main` after that check, not from an older checkou
 | --- | --- | --- |
 | D1 | The app is for learners aged 13 and older, with teacher-managed classes, until a school asks and signs a data processing agreement. No pupil accounts, no sign-in by code. | Every public page and the poster say "13 and older". |
 | D2 | The roster file carries each learner's weakest case. It is for the class owner only. A workplace group's file has no case column at all, as its screen has none. | SB-2. |
-| D3 | The QR code uses the qrcode-generator package (MIT, version 2.0.4, no dependencies), drawn as inline SVG on the server. The test decodes it with the jsqr package (MIT), a dev dependency used by that one test. | SB-1. |
+| D3 | The QR code uses the qrcode-generator package (MIT, version 2.0.4, no dependencies), drawn as inline SVG on the server. The test decodes it with the jsqr package (Apache-2.0, not MIT as this line first said), a dev dependency used by that one test, which the licence check allows: it reads production dependencies only, and Apache-2.0 is not on its list in any case. | SB-1. |
 | D4 | `/pilots` is English only, and the page is the source of its text. `docs/30-pilots.md` becomes a half-page summary that links to it. | SB-4. |
 | D5 | The roster file's headers are in the teacher's interface language. The file is UTF-8 with a byte order mark and CRLF line ends, so a spreadsheet opens Cyrillic and Estonian letters correctly. | SB-2. |
 | D6 | The roster file is served from `/api/class/<id>/roster`, not from a page path. It is allowed for an archived class: a teacher may want the records of a class that has ended. | SB-2. |

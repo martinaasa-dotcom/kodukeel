@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { caseWalk } from "@/lib/progress/caseWalk";
 import { Empty, Page, Stack } from "@/components/ui";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { offered } from "@/lib/tutor/provider";
 import { BuildWalk } from "./BuildWalk";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
@@ -76,7 +76,7 @@ export default async function BuildPage() {
           />
         </Stack>
       ) : (
-        <BuildWalk canTranslate={resolveProvider() !== null} walk={walk} />
+        <BuildWalk canTranslate={offered("translate")} walk={walk} />
       )}
     </Page>
   );

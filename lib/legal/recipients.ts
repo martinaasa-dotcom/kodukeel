@@ -77,11 +77,14 @@ export function resolveRecipients(): Recipient[] {
       the same lookup: Ekilex carries no English on a reader key, so a word it
       answers for is then asked about at Wikimedia. One request, one word, no
       account. It was missing from this list while the lookup that makes it has
-      been in the app from the beginning.
+      been in the app from the beginning. An English search the dictionary
+      has nothing for goes the same way, asked for its Estonian
+      (`lib/dict/englishToEstonian.ts`), and only on this same trigger, since
+      an entry it names can only be opened through Ekilex.
     */
     recipients.push({
       name: "Wikimedia, which runs Wiktionary",
-      what: "the same single word, asked for its English meaning, with no account attached",
+      what: "the same single word, asked for its English meaning, or an English word you searched for, asked for its Estonian, with no account attached",
       // Wikimedia Foundation is established in the United States.
       eea: false,
     });

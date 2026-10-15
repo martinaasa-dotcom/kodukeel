@@ -37,7 +37,10 @@ import { cache } from "react";
 
 import { prisma } from "@/lib/db";
 
-import { MAX_SESSION, NEW_CANDIDATES, dueWhere, roomFor, taughtWhere, unseenWhere } from "@/lib/srs/reviewQueue";
+import {
+  MAX_SESSION, MODULE_SESSION, NEW_CANDIDATES, dueWhere, roomFor, taughtWhere, tonightWhere, unseenWhere,
+} from "@/lib/srs/reviewQueue";
+import { deferredWordIds } from "@/lib/progress/deferrals";
 import { cardWithin, scopeFor, type ModuleScope } from "@/lib/course/scope";
 import { dayById, programmeById } from "@/lib/course";
 import { moduleSpellings } from "@/lib/progress/moduleScope";
@@ -103,7 +106,7 @@ const UNSEEN_SELECT = { ...SELECT, lexeme: { select: { lemma: true, cefr: true }
  * give, and it is bounded by `CLOSING_REVIEW` whatever happens.
  */
 const reachable = cache(async (
-  ownerId: string, programmeId: string, dayId: string, nowMs: number,
+  ownerId: string, programmeId: string, dayId: string, nowMs: number, openedMs: number,
 ): Promise<number> => {
   const programme = programmeById(programmeId);
   const day = programme ? dayById(programme, dayId) : undefined;
@@ -111,7 +114,7 @@ const reachable = cache(async (
   const scope: ModuleScope = scopeFor(programme, day);
   const now = new Date(nowMs);
 
-  const [due, fresh, spellings, level] = await Promise.all([
+  const [due, fresh, spellings, level, aside] = await Promise.all([
     prisma.card.findMany({
       // The round's own read, narrowed the same way (`taughtWhere`), so the
       // count can never see a card the round refuses in the query.
@@ -128,6 +131,7 @@ const reachable = cache(async (
     }),
     moduleSpellings(scope),
     courseLevelFor(ownerId),
+    deferredWordIds(ownerId, now),
   ]);
 
   const within = (card: { cardType: string; targetCase: string | null; front: string; back: string; slot: string | null }) =>
@@ -139,7 +143,21 @@ const reachable = cache(async (
   const dueWithin = due.filter(within).length;
   const room = roomFor(dueWithin);
   const freshWithin = fresh.filter((c) => within(c) && isAround(c.lexeme?.cefr, level)).length;
-  return dueWithin + Math.min(room, freshWithin);
+  const shown = dueWithin + Math.min(room, freshWithin);
+  /* AND TONIGHT'S OWN WORDS FILL WHAT IS LEFT OF THE SITTING, the same top-up
+     the round makes (`tonightWhere`). Without it a first evening, whose words
+     are all scheduled days out the moment the evening has taught them, read as
+     a closing round with nothing to ask and was handed a screen saying so. */
+  const spare = MODULE_SESSION - shown;
+  if (spare <= 0) return shown;
+  const tonight = await prisma.card.findMany({
+    where: { AND: [tonightWhere(ownerId, now, scope.day.words, aside, openedMs > 0 ? new Date(openedMs) : null), taughtWhere(scope)] },
+    // The longest since each was last asked first; the id settles a tie.
+    orderBy: [{ lastReview: "asc" }, { id: "asc" }],
+    take: MODULE_SESSION * 2,
+    select: SELECT,
+  });
+  return shown + Math.min(spare, tonight.filter(within).length);
 });
 
 /**
@@ -150,8 +168,10 @@ const reachable = cache(async (
  * many there are.
  */
 export async function closingLeft(
-  ownerId: string, scope: ModuleScope, cap: number, now = new Date(),
+  ownerId: string, scope: ModuleScope, cap: number, now = new Date(), openedAt: Date | null = null,
 ): Promise<number> {
   if (cap <= 0) return 0;
-  return Math.min(cap, await reachable(ownerId, scope.programme.id, scope.day.id, now.getTime()));
+  return Math.min(
+    cap, await reachable(ownerId, scope.programme.id, scope.day.id, now.getTime(), openedAt?.getTime() ?? 0),
+  );
 }

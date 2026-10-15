@@ -1,4 +1,5 @@
 import { canonicalOrigin } from "@/lib/auth/canonical";
+import { impactIsListed } from "@/lib/progress/impactListed";
 
 /**
  * WHAT KODUKEEL IS, FOR A LANGUAGE MODEL READING THE SITE.
@@ -13,7 +14,13 @@ import { canonicalOrigin } from "@/lib/auth/canonical";
  * links are absolute where `NEXT_PUBLIC_SITE_URL` says where the app lives,
  * and relative where nobody has said, for the reason `app/sitemap.ts` gives.
  */
-export const dynamic = "force-static";
+/*
+  Dynamic for one line: /impact is listed only once its head count clears the
+  research floors (docs/38-third-batch.md, D3), which is a fact about this
+  deployment's database rather than about the build. The answer is held an
+  hour per instance and the response says it may be cached for that hour.
+*/
+export const dynamic = "force-dynamic";
 
 const PAGES: readonly (readonly [string, string, string])[] = [
   ["/welcome", "What Kodukeel is", "the course, the dictionary, the conversations and who it is for"],
@@ -24,13 +31,18 @@ const PAGES: readonly (readonly [string, string, string])[] = [
   ["/help", "Help", "what to try when you cannot sign in, and whether the app is working"],
   ["/teachers", "For teachers", "what a teacher sees of a class, shown over an invented one"],
   ["/pilots", "Running a pilot", "what a pilot costs, what is asked, and what is not ready yet"],
+  ["/curriculum", "What the course covers", "every unit by CEFR level, what it claims a learner can do, and which part of the state examination it prepares for"],
+  ["/how-we-know", "How we know", "each claim the project makes about itself, with its figure, its date and the command that measures it"],
   ["/accessibility", "Accessibility", "how far the app meets WCAG 2.2, and where it falls short"],
   ["/funding", "Funding", "what it costs to run, and where every figure comes from"],
   ["/welcome/ru", "Kodukeel in Russian", "the front page for somebody who reads Russian first"],
   ["/welcome/uk", "Kodukeel in Ukrainian", "the front page for somebody who reads Ukrainian first"],
 ];
 
-export function GET(): Response {
+/** Listed only while `impactIsListed` says so, which is why it is not in PAGES. */
+const IMPACT: readonly [string, string, string] = ["/impact", "What this installation has done", "how many people use it and how they are getting on, in figures that cannot identify anybody"];
+
+export async function GET(): Promise<Response> {
   const origin = canonicalOrigin();
   const at = (path: string) => (origin ? new URL(path, origin).toString() : path);
   const body = [
@@ -44,7 +56,7 @@ export function GET(): Response {
     "",
     "## Public pages",
     "",
-    ...PAGES.map(([path, title, what]) => `- [${title}](${at(path)}): ${what}`),
+    ...(await impactIsListed() ? [...PAGES, IMPACT] : PAGES).map(([path, title, what]) => `- [${title}](${at(path)}): ${what}`),
     "",
   ].join("\n");
   return new Response(body, {

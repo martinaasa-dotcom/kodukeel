@@ -609,6 +609,26 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
         </section>
       )}
 
+      {scene.examPractice && (
+        <section className="recap-panel">
+          {/*
+            PRACTICE, SAID A THIRD TIME, AND THE PART THIS ROOM CANNOT HOLD.
+
+            The title and the role card have already said this is not the
+            exam; the debrief is where somebody decides what the run meant, so
+            it says so once more, in one line, before anything else could be
+            read as a result (D8). The real speaking part also has a picture
+            to describe, which is the Describe round's, so the drill for it is
+            linked here rather than imitated in a conversation.
+          */}
+          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Practice, not the exam")}</h3>
+          <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
+            {t("Nothing here was marked as an exam. The real speaking exam also asks you to describe a picture, which you can practise here.")}
+          </p>
+          <DrillLink href="/review/describe" />
+        </section>
+      )}
+
       {errand && (
         <section>
           {/*

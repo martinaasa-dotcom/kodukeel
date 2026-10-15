@@ -376,6 +376,8 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   // /pilots is English only, so the Russian and Ukrainian say where the link goes.
   ["How a pilot works", "Как устроен пилотный проект (на английском)", "Як влаштований пілотний проєкт (англійською)"],
   ["Running a pilot", "Пилотный проект (на английском)", "Пілотний проєкт (англійською)"],
+  ["What the course covers", "Что охватывает курс (на английском)", "Що охоплює курс (англійською)"],
+  ["How we know", "Как мы это знаем (на английском)", "Як ми це знаємо (англійською)"],
   ["How the data is handled", "Как мы обращаемся с данными", "Як ми обробляємо дані"],
   ["Write to us about a pilot", "Напишите нам о пилотном проекте", "Напишіть нам про пілотний проєкт"],
   ["A Kodukeel pilot", "Пилотный проект Kodukeel", "Пілотний проєкт Kodukeel"],

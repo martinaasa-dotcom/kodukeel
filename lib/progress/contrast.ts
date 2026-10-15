@@ -37,6 +37,7 @@ interface ContrastLexeme {
   translation: string;
   examples: string;
   cefr: string | null;
+  provenance: string;
 }
 
 /** What a caller hands in about each word it asks for. */
@@ -49,7 +50,7 @@ export interface ContrastAsk {
 
 function side(lexemeId: string | null, lex: ContrastLexeme, reach: PlainReach | null): ContrastWord {
   // Ranked for a beginner where the word is one, the way a first meeting is.
-  const found = teachingSentence(authoredFor(lex.lemma), [lex.lemma])
+  const found = teachingSentence(authoredFor(lex.lemma, lex.provenance), [lex.lemma])
     ?? teachingSentence(
       parseExamples(lex.examples), [lex.lemma], undefined,
       reach ? plainerFirst(lex.cefr, reach) : undefined,
@@ -90,7 +91,7 @@ export async function contrastsFor(
   const ids = [...new Set(found.flatMap((f) => f.near.map((n) => n.id)))];
   const entries = await prisma.lexeme.findMany({
     where: { id: { in: ids } },
-    select: { id: true, lemma: true, pos: true, translation: true, examples: true, cefr: true },
+    select: { id: true, lemma: true, pos: true, translation: true, examples: true, cefr: true, provenance: true },
   });
   const byId = new Map(entries.map((e) => [e.id, e]));
 

@@ -32,6 +32,7 @@ import { casualBye, casualHello } from "./casual";
 import { fold } from "@/lib/estonian/fold";
 import { ESTONIAN_WORD } from "@/lib/estonian/cloze";
 import type { CaseKey } from "@/lib/estonian/types";
+import type { DerivedVerbCode } from "@/lib/estonian/conjugate";
 import { clausesOf, words, type Lexicon } from "./lexicon";
 import { caseKeyFor, caseOfForm } from "./lexicon";
 import { compoundOf, foldedOnly, nearlyInflected, nearlySpelled, personAsked } from "./nearly";
@@ -242,6 +243,13 @@ export interface TurnContext {
   readonly tooLittle?: ReadonlySet<string>;
   /** Every form of the pronoun this scene's register expects. */
   readonly registerForms: ReadonlySet<string>;
+  /**
+   * Every form of each register's pronoun, read only on a beat that names a
+   * register of its own (`BeatSpec.register`). Absent on a caller that never
+   * meets one, and then such a beat's requirement cannot be met by a pronoun,
+   * only by a verb in its person.
+   */
+  readonly pronounForms?: { readonly teie: ReadonlySet<string>; readonly sina: ReadonlySet<string> };
   /** Prop slot to every spelling that counts as that value, off the role card. */
   readonly data: ReadonlyMap<string, ReadonlySet<string>>;
   /**
@@ -283,6 +291,20 @@ export interface TurnContext {
    * the scene's own list rules a word out.
    */
   readonly course?: (word: string) => boolean;
+  /**
+   * A spelling the forms list holds only with its diacritics put back, which
+   * is Estonian the learner meant and not a word they wrote.
+   *
+   * `known` is asked "is this a real word" by the slip rule, and it has to be
+   * asked exactly: the forms list is indexed folded, so read through
+   * `isKnownForm` it said yes to `vaike` because `väike` is a word, the slip
+   * rule took that to mean `vaike` was a different real word, and a learner
+   * on a keyboard with no ä who wrote "see on väike" without it was refused in
+   * every scene. So `known` holds exact spellings and this holds the folded
+   * ones, which still count as Estonian somebody could read (`isEstonian`)
+   * and never as a word that rules out a slip.
+   */
+  readonly understood?: (word: string) => boolean;
   /**
    * WHAT ELSE THE LEARNER COULD HAVE SAID AND MEANT THE SAME THING.
    *
@@ -457,7 +479,7 @@ export function readTurn(
   */
   const asksForEnglish = spoken.includes(ASK_ENGLISH) || spoken.includes("english");
   const found = beat.needs
-    .map((need) => (asksWhich(need, text, spoken, context) ? null : satisfies(need, text, spoken, context)))
+    .map((need) => (asksWhich(need, text, spoken, context) ? null : satisfies(need, text, spoken, context, beat.register)))
     .map((hit) => (negatedIn(hit, text, beat, context) ? null : hit))
     .map((hit, i) => (asksForEnglish && hit === YES && beat.needs[i]?.kind === "question" ? null : hit));
   const met = found.map((hit) => hit !== null);
@@ -866,6 +888,8 @@ function satisfies(
   text: string,
   spoken: readonly string[],
   context: TurnContext,
+  /** The beat's own register, where it names one (`BeatSpec.register`). */
+  register?: "teie" | "sina",
 ): Hit | typeof YES | null {
   const exact = (forms: ReadonlySet<string> | undefined): string | null =>
     forms === undefined ? null : spoken.find((word) => forms.has(word)) ?? null;
@@ -1309,6 +1333,32 @@ function satisfies(
       not one of English's own commonest, in a turn that is not English.
     */
     case "register": {
+      /*
+        A BEAT WITH A REGISTER OF ITS OWN IS ASKING FOR THAT REGISTER. Asked
+        to put the favour to a friend, `Kas te saaksite aidata?` is perfect
+        Estonian and the wrong thing to say, so on such a beat the lenient
+        reading below does not apply: the turn is met by this register's
+        pronoun or by a second person verb in it, and refused outright where
+        it holds the other register's pronoun. The persons are the derived
+        ones the lexicon already holds (ADR-005 amendment 1), so nothing here
+        names a form.
+      */
+      if (register) {
+        const other = register === "teie" ? "sina" : "teie";
+        if (context.pronounForms && exact(context.pronounForms[other])) return null;
+        if (context.pronounForms && exact(context.pronounForms[register])) return YES;
+        const codes: readonly DerivedVerbCode[] = register === "teie"
+          ? ["IndPrPl2", "KndPrPl2"]
+          : ["IndPrSg2", "KndPrSg2", "ImpPrSg2"];
+        const own = new Set<string>();
+        for (const forms of context.lexicon.persons.values()) {
+          for (const code of codes) {
+            const form = forms.get(code);
+            if (form) own.add(form);
+          }
+        }
+        return exact(own) ? YES : null;
+      }
       if (exact(context.registerForms)) return YES;
       const marked = spoken.map((word) => ({ word, vouched: isEstonian(word, context) }));
       return !isEnglish(spoken, marked) && marked.some((w) => w.vouched && !ENGLISH.has(w.word)) ? YES : null;
@@ -1319,7 +1369,7 @@ function satisfies(
     */
     case "anyOf": {
       for (const option of need.of) {
-        const hit = satisfies(option, text, spoken, context);
+        const hit = satisfies(option, text, spoken, context, register);
         if (hit) return hit;
       }
       return null;
@@ -1516,7 +1566,8 @@ function placeName(text: string, context: TurnContext): string | null {
 function isEstonian(word: string, context: TurnContext): boolean {
   return context.lexicon.forms.has(word)
     || context.lexicon.folded.has(fold(word))
-    || Boolean(context.known?.(word));
+    || Boolean(context.known?.(word))
+    || Boolean(context.understood?.(word));
 }
 
 /** Two English function words and nothing the scene's list could vouch for. */

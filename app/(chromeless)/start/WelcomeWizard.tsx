@@ -1011,62 +1011,73 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
             <div className="mt-7">
               <SectionTitle hint={t("picked for your level")}>{t("Your first words")}</SectionTitle>
             </div>
-            <p className="mt-1 max-w-[54ch] text-sm" style={{ color: "var(--ink-2)" }}>
-              {fill(t("Today’s words come from your first {units} at {level}. Each word becomes a flashcard you can hear read aloud, with all its forms."), {
-                units: countOf(locale, deck.units.length, "unit"),
-                level: openLevel,
-              })}
-            </p>
-
             {/*
-              WHAT THIS SCREEN USED TO BE, AND WHY IT IS NOT THAT ANY MORE.
-
-              Fourteen units with checkboxes, three ticked, and `words * 2`
-              underneath as the card count. Somebody ninety seconds into an app
-              cannot tell whether they need `Riided` before `Ilm`, so the honest
-              reading of that list is "tick everything", and ticking everything
-              built two thousand cards: at the pace this app itself calls
-              sustainable, a backlog into 2028 assembled by accident on a
-              Tuesday evening. The count under it said four hundred, because two
-              cards a word is only true of a unit that drills nothing.
-
-              So the course picks, the server counts, and the screen says what
-              it is handing over. The units are named rather than hidden, and
-              the sentence under them says where to change it, because a default
-              somebody cannot see is indistinguishable from no choice at all.
+              THE COUNT STAYS ON THE PAGE AND THE LIST GOES BEHIND A PRESS.
+              Step 4 was two screens long on a phone (docs/38-third-batch.md,
+              TB-17), and what a stranger needs from this block before pressing
+              Start is how much they are being handed. Which units, and where
+              the rest of the course is, are one press away and still named.
             */}
-            <ul className="mt-5 flex flex-col gap-2">
-              {deck.units.map((u) => {
-                return (
-                  <li
-                    key={u.id}
-                    className="flex items-center gap-3 rounded-[var(--r-lg)] border px-4 py-3"
-                    style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
-                  >
-                    <NamedIcon name={u.icon} size={18} aria-hidden style={{ color: "var(--accent-deep)" }} />
-                    <div className="min-w-0">
-                      <p lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>
-                        {u.title}
-                      </p>
-                      <p className="text-xs" style={{ color: "var(--ink-3)" }}>{t(u.subtitle)}</p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-            <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
+            <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
               {fill(t("{words}, {cards}."), {
                 words: countOf(locale, deck.words, "word"),
                 cards: countOf(locale, deck.cards, "card"),
-              })}{" "}
-              {deck.remaining > 0 && (
-                <>{fill(t("The other {units} at {level}, and every other level, are on the path whenever you want them."), {
-                  units: countOf(locale, deck.remaining, "unit"),
-                  level: openLevel,
-                })} </>
-              )}
-              {t("Nothing here is locked in.")}
+              })}
             </p>
+            <Explain label={t("The words, unit by unit")}>
+              <p className="max-w-[54ch]">
+                {fill(t("Today’s words come from your first {units} at {level}. Each word becomes a flashcard you can hear read aloud, with all its forms."), {
+                  units: countOf(locale, deck.units.length, "unit"),
+                  level: openLevel,
+                })}
+              </p>
+
+              {/*
+                WHAT THIS SCREEN USED TO BE, AND WHY IT IS NOT THAT ANY MORE.
+
+                Fourteen units with checkboxes, three ticked, and `words * 2`
+                underneath as the card count. Somebody ninety seconds into an app
+                cannot tell whether they need `Riided` before `Ilm`, so the honest
+                reading of that list is "tick everything", and ticking everything
+                built two thousand cards: at the pace this app itself calls
+                sustainable, a backlog into 2028 assembled by accident on a
+                Tuesday evening. The count under it said four hundred, because two
+                cards a word is only true of a unit that drills nothing.
+
+                So the course picks, the server counts, and the screen says what
+                it is handing over. The units are named rather than hidden, and
+                the sentence under them says where to change it, because a default
+                somebody cannot see is indistinguishable from no choice at all.
+              */}
+              <ul className="mt-3 flex flex-col gap-2">
+                {deck.units.map((u) => {
+                  return (
+                    <li
+                      key={u.id}
+                      className="flex items-center gap-3 rounded-[var(--r-lg)] border px-4 py-3"
+                      style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
+                    >
+                      <NamedIcon name={u.icon} size={18} aria-hidden style={{ color: "var(--accent-deep)" }} />
+                      <div className="min-w-0">
+                        <p lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>
+                          {u.title}
+                        </p>
+                        <p className="text-xs" style={{ color: "var(--ink-3)" }}>{t(u.subtitle)}</p>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+              <p className="mt-3">
+                {deck.remaining > 0 && (
+                  <>{fill(t("The other {units} at {level}, and every other level, are on the path whenever you want them."), {
+                    units: countOf(locale, deck.remaining, "unit"),
+                    level: openLevel,
+                  })} </>
+                )}
+                {t("Nothing here is locked in.")}
+              </p>
+            </Explain>
 
             {/*
               THE FIRST CONVERSATION, OFF THE REASON. The wizard used to turn
@@ -1082,12 +1093,18 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                 style={{ borderColor: "var(--rule)", background: "var(--sky-soft)" }}
               >
                 <p className="label-xs" style={{ color: "var(--sky-ink)" }}>{t("Your first conversation")}</p>
-                <p className="mt-1 text-base font-semibold" style={{ color: "var(--sky-ink)" }}>{t(firstScene.title)}</p>
+                {/*
+                  The scene and where it happens stay on the page; how the
+                  rehearsal works is one press away (TB-17), since it is an
+                  explanation a stranger can ask for rather than a fact they
+                  need before pressing Start.
+                */}
                 <p className="mt-1 text-sm" style={{ color: "var(--sky-ink)" }}>
-                  {fill(t("{place}. Once you know these words, you can practice this exact conversation here, typing your side to a stranger who wants something from you. Then go and have the real one."), {
-                    place: t(firstScene.place),
-                  })}
+                  <span className="text-base font-semibold">{t(firstScene.title)}</span>. {t(firstScene.place)}.
                 </p>
+                <Explain label={t("How you’ll practice it")}>
+                  <p>{t("Once you know these words, you can practice this exact conversation here, typing your side to a stranger who wants something from you. Then go and have the real one.")}</p>
+                </Explain>
               </div>
             )}
 

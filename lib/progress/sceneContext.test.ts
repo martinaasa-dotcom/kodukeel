@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { contextFromRows, type Row } from "./scene";
+import { contextFromRows, knowing, type Row } from "./scene";
 import { sceneById } from "@/lib/scenes/catalogue";
 
 /*
@@ -53,5 +53,22 @@ describe("what a scene reads as a no", () => {
     expect(ctx.marker.negators.has("ei")).toBe(true);
     expect(ctx.marker.negators.has("mitte")).toBe(true);
     expect(ctx.marker.negators.has("ega")).toBe(false);
+  });
+});
+
+/*
+  A WORD TYPED WITHOUT ITS DIACRITIC IS NOT A DIFFERENT REAL WORD. The forms
+  list is indexed folded, so asking it whether `jareldus` is a word said yes
+  because `järeldus` is, the slip rule read that as a real word of its own,
+  and "ma tahan jareldus" met nothing on a beat that wanted `järeldus`. Known
+  is the exact spelling; the folded one is understood and never rules out a
+  slip (`TurnContext.understood`).
+*/
+describe("what the forms list says about a learner's spelling", () => {
+  it("holds an exact spelling as known and a folded one as understood only", async () => {
+    const ctx = await knowing(contextFromRows(sceneById("kohvikus")!, []), ["jareldus järeldus"]);
+    expect(ctx.marker.known?.("järeldus")).toBe(true);
+    expect(ctx.marker.known?.("jareldus")).toBe(false);
+    expect(ctx.marker.understood?.("jareldus")).toBe(true);
   });
 });

@@ -776,3 +776,30 @@ describe("a window asking what you need", () => {
     expect(scene.units).toContain("abi");
   });
 });
+
+/*
+  D8: the two exam scenes are practice and say so wherever a learner meets
+  one, and the examiner is somebody you say `teie` to who throws only what an
+  examiner can, a faster question, a word misheard, or the other pronoun.
+*/
+describe("an exam practice scene", () => {
+  const practice = SCENES.filter((scene) => scene.examPractice);
+
+  it("exists for B1 and for B2", () => {
+    expect(practice).toHaveLength(2);
+    expect(practice.map((scene) => scene.examPractice).sort()).toEqual(["B1", "B2"]);
+  });
+
+  it("says it is practice in its title and on its card, and is held by an examiner", () => {
+    for (const scene of practice) {
+      expect(scene.title, scene.id).toMatch(/\(practice\)$/);
+      expect(scene.role, scene.id).toMatch(/not the exam itself/);
+      expect(scene.register, scene.id).toBe("teie");
+      for (const id of scene.curveballs) expect(["faster", "misheard", "other-register"], `${scene.id}: ${id}`).toContain(id);
+    }
+  });
+
+  it("is the only kind of scene that calls itself practice", () => {
+    for (const scene of SCENES.filter((one) => !one.examPractice)) expect(scene.title, scene.id).not.toMatch(/\(practice\)/);
+  });
+});

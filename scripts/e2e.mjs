@@ -71,7 +71,7 @@ await ensureLetterBar(browser, B, "on");
 */
 {
   const cases = [
-    ["uudishmulik", /No word is spelled quite like that/, "a near miss offers the spelling"],
+    ["uudishmulik", /Did you mean/, "a near miss offers the spelling"],
     ["kontrollimatusonaxyz", /Nothing found/, "a string that is not a word says so"],
   ];
   for (const [query, wanted, label] of cases) {

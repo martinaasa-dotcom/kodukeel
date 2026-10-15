@@ -5,9 +5,11 @@ import { tr } from "@/lib/copy/locale";
 import { localeHref } from "@/lib/copy/publicLocale";
 import { resolveOperator, SUPERVISORY_AUTHORITY } from "@/lib/legal/operator";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicCard } from "@/lib/copy/publicCards";
+import { CRITERIA, clauseOf, REASON_TEXT, STATUS_TEXT } from "@/lib/legal/en301549";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicTitle(searchParams, "Accessibility");
+  return publicTitle(searchParams, "Accessibility", undefined, publicCard("/accessibility"));
 }
 
 /*
@@ -73,7 +75,7 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
   );
 
   return (
-    <Legal title={t("Accessibility statement")} updated="5 September 2026" locale={locale} explicit={explicit} path="/accessibility">
+    <Legal title={t("Accessibility statement")} updated="15 October 2026" locale={locale} explicit={explicit} path="/accessibility">
       <P>
         {t("Kodukeel is for people learning Estonian, and plenty of them are learning it because they have to. If somebody can’t use the app, it has let them down exactly when it mattered most. This page says what standard we’re aiming for, what we’ve checked and how, where we fall short today, and how to tell us.")}
       </P>
@@ -110,6 +112,11 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
           </li>
           <li>
             {rich(t("**Every target measured against 44px.** {suite} drives the app at 360, 390, 430, 768 and 1280 pixels wide with a coarse pointer, which is the only condition under which that rule is real, and fails on a control below the floor."), {
+              suite: suite("test-mobile.mjs"),
+            })}
+          </li>
+          <li>
+            {rich(t("**Reflow at 320 pixels.** {suite} opens every route 320 CSS pixels wide, which is what 400% zoom means in a 1280 window, and fails on anything drawn past the edge of the screen outside a scroller of its own, such as a table of forms."), {
               suite: suite("test-mobile.mjs"),
             })}
           </li>
@@ -151,7 +158,13 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
             {rich(t("**Screens behind data are less covered.** The automated sweep sees each page as it loads, plus one state a learner has to reach by doing something. A class roster with students in it, an examination part in progress and the puzzle grids in play are all reachable and all less tested than the pages around them."))}
           </li>
           <li>
-            {rich(t("**Reflow is checked at three widths rather than at 400% zoom.** The widths are 360, 768 and 1280, which covers the cases the app was designed for. WCAG asks the question in terms of zoom, and that exact test has not been run."))}
+            {rich(t("**Single-key shortcuts cannot be turned off** (WCAG 2.1.4, Character Key Shortcuts). A round answers a number to grade a card or B to look back, which helps on a keyboard and can be set off by speech input saying one letter. There is no setting yet to turn them off."))}
+          </li>
+          <li>
+            {rich(t("**Some decorative letters keep moving** (WCAG 2.2.2, Pause, Stop, Hide). The four letters on the landing page’s case card wander for as long as the page is open. They stop for anybody whose system asks for reduced motion, and there is no control on the page itself."))}
+          </li>
+          <li>
+            {rich(t("**A word plays on its own when a card appears** (WCAG 1.4.2, Audio Control). Settings turns that off, and a clip is one word or one sentence, but nothing checks that every clip is under three seconds."))}
           </li>
         </ul>
         <P>
@@ -159,9 +172,46 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
         </P>
       </S>
 
+      <S title={t("Criterion by criterion")}>
+        <P>
+          {t("Every WCAG 2.2 criterion at levels A and AA, and where the app stands on it. EN 301 549 adopts them as its chapter 9, one clause each. A criterion is marked as supported only where a check in the build asserts it, and the check is named. Everywhere else the row says why not.")}
+        </P>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm" style={{ color: "var(--ink-2)" }} data-en301549>
+            <thead>
+              <tr className="text-left" style={{ color: "var(--ink)" }}>
+                <th scope="col" className="py-2 pr-3 font-semibold">{t("Criterion")}</th>
+                <th scope="col" className="py-2 pr-3 font-semibold">EN 301 549</th>
+                <th scope="col" className="py-2 pr-3 font-semibold">{t("Where it stands")}</th>
+                <th scope="col" className="py-2 font-semibold">{t("Checked by, or why not")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {CRITERIA.map((c) => (
+                <tr key={c.id} className="border-t align-top" style={{ borderColor: "var(--rule)" }}>
+                  <th scope="row" className="py-2 pr-3 text-left font-normal">
+                    <span className="tnum">{c.id}</span> <span lang="en">{c.name}</span> <span className="whitespace-nowrap">({c.level})</span>
+                  </th>
+                  <td className="tnum py-2 pr-3 whitespace-nowrap">{clauseOf(c) ?? t("Not yet a clause")}</td>
+                  <td className="py-2 pr-3">{t(STATUS_TEXT[c.status])}</td>
+                  <td className="py-2">
+                    {c.checkedBy
+                      ? <a href={`${REPO}/${c.checkedBy}`} className="underline underline-offset-2" rel="noreferrer"><code>{c.checkedBy}</code></a>
+                      : t(REASON_TEXT[c.reason!])}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <P>
+          {t("Six of these criteria are new in WCAG 2.2 and are not yet clauses of EN 301 549 version 3.2.1, which adopts WCAG 2.1. Chapter 11 of the standard is for software that is not a web page, so it does not apply to an app used in a browser.")}
+        </P>
+      </S>
+
       <S title={t("When this was prepared")}>
         <P>
-          {t("Prepared on 5 September 2026 by the people who wrote the app, from the automated suites described above and from reading the source. It is reviewed whenever a screen changes enough to move one of the claims on it. There has been no external review.")}
+          {t("Prepared on 5 September 2026 by the people who wrote the app, from the automated suites described above and from reading the source, and the table of criteria was added on 15 October 2026. It is reviewed whenever a screen changes enough to move one of the claims on it. There has been no external review.")}
         </P>
       </S>
 

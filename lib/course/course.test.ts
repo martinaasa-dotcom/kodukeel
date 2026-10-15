@@ -142,13 +142,13 @@ describe("the programme is a request against the course, never a copy of it", ()
 
     it("uses the declaration when every word is still to teach", () => {
       expect(evenings(verbs, verbs.lemmas, 5)).toEqual([
-        ["olema", "see", "too", "elama", "õppima"],
+        ["olema", "see", "elama", "õppima"],
         ["rääkima", "töötama", "tahtma", "minema", "tulema"],
       ]);
     });
 
     it("drops a word an earlier unit already taught, and the group with it", () => {
-      const left = verbs.lemmas.filter((l) => l !== "see" && l !== "too");
+      const left = verbs.lemmas.filter((l) => l !== "see");
       expect(evenings(verbs, left, 5)).toEqual([
         ["olema", "elama", "õppima"],
         ["rääkima", "töötama", "tahtma", "minema", "tulema"],
@@ -169,17 +169,17 @@ describe("the programme is a request against the course, never a copy of it", ()
 
     it("falls back rather than teaching a word twice on a repeated declaration", () => {
       /* Length alone would accept this: two groups naming `see` and none
-         naming `too` is still ten words. The result has to be a partition. */
+         naming `õppima` is still nine words. The result has to be a partition. */
       const repeated = {
         ...verbs,
         evenings: [
-          ["olema", "see"], ["see", "too", "elama", "õppima"],
+          ["olema", "see"], ["see", "elama"],
           ["rääkima", "töötama", "tahtma", "minema", "tulema"],
         ],
       } as typeof verbs;
       const got = evenings(repeated, verbs.lemmas, 5);
       expect(got.flat()).toEqual(verbs.lemmas);
-      expect(got.map((g) => g.length), "the even slice, not the declaration").toEqual([5, 5]);
+      expect(got.map((g) => g.length), "the even slice, not the declaration").toEqual([5, 4]);
     });
 
     it("falls back to the even slice for a unit that declares nothing", () => {
@@ -485,7 +485,15 @@ describe("what a day reads and where it goes", () => {
         if (!day.grammarCase) return;
         const taught = taughtBy(programme, day.index);
         if (!supportedRounds(programme.level, taught).includes("workbook")) return;
-        const before = at > 0 ? programme.days[at - 1]!.practice : [];
+        /*
+          What last night ran, not what it listed: a conversation evening keeps
+          its rotation's pair in `practice` and runs neither, since the talk
+          step stands in for the reading and both rounds. Read as having had
+          the workbook, it hid the case evening after every conversation from
+          this walk.
+        */
+        const prev = at > 0 ? programme.days[at - 1]! : undefined;
+        const before = prev && !prev.steps.some((s) => s.kind === "talk") ? prev.practice : [];
         if (before.includes("workbook")) return;
         walked += 1;
         expect(day.practice, `${day.id} reads ${day.grammarCase}`).toContain("workbook");
@@ -760,7 +768,9 @@ describe("what a day reads and where it goes", () => {
         // since the step shows the polite imperative beside the past.
         expect(readPast, day.id).toBe(true);
         expect(imperativeRead, day.id).toBe(true);
-        expect(forms.length, day.id).toBeLessThanOrEqual(FORMS_PER_EVENING);
+        // A handful, except on the ladder's last evening, which shows
+        // whatever is still waiting because no evening comes after it.
+        if (day !== DAYS.at(-1)!.day) expect(forms.length, day.id).toBeLessThanOrEqual(FORMS_PER_EVENING);
         expect(day.steps.some((s) => s.id === FORMS_STEP), day.id).toBe(true);
         // One round rather than two: the evening is the same fifteen minutes.
         expect(day.practice.length, day.id).toBe(1);

@@ -51,10 +51,21 @@ describe("the sentences written for a beginner", () => {
   });
 
   it("hands a screen its sentences marked as written, never as recorded", () => {
-    const [first] = authoredFor("isa");
+    const [first] = authoredFor("isa", "SEED");
     expect(first).toBeDefined();
     expect(isAuthored(first!)).toBe(true);
     expect(first!.en).toBeTruthy();
-    expect(authoredFor("no such word")).toEqual([]);
+    expect(authoredFor("no such word", "SEED")).toEqual([]);
+  });
+
+  it("gives a learner's own row of the same spelling nothing, and the seed's and Ekilex's the lot", () => {
+    const seeded = authoredFor("isa", "SEED");
+    expect(seeded.length).toBeGreaterThan(0);
+    expect(authoredFor("isa", "EKILEX")).toEqual(seeded);
+    // `Lexeme` is unique on (lemma, pos), so a hand-added `isa` is a different word.
+    expect(authoredFor("isa", "USER")).toEqual([]);
+    expect(authoredFor("isa", "AI")).toEqual([]);
+    // A provenance nobody has named is refused rather than trusted.
+    expect(authoredFor("isa", "")).toEqual([]);
   });
 });
