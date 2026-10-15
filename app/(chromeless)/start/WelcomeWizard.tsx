@@ -960,20 +960,16 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                 <p lang="et" className="mt-1 text-xl font-bold" style={{ color: "var(--ink)" }}>
                   {openingPart.title}
                 </p>
-                <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  {t(openingPart.blurb)}
-                </p>
                 {/*
-                  WHY THIS PART, SAID WHERE THE PART IS NAMED. A B1 speaker who
-                  is shown B2.1 without a word about it reads a jump, and one
-                  aiming at B1 who is shown B1.1 reads the app ignoring what
-                  they said. One sentence each, and the last half of it is the
-                  promise the course keeps: if the guess was wrong either way,
-                  it notices and offers to move them (`lib/course/adapt.ts`).
+                  WHY THIS PART, AND WHAT IS IN IT, ONE PRESS AWAY (docs/39, D3).
+                  The card keeps what somebody deciding needs at a glance: which
+                  part, its name, and how many evenings of how long. The part's
+                  paragraph and the sentence on why it is this one went behind a
+                  press, because together they were most of the tallest block on
+                  the screen a stranger has to scroll to the end of. Neither is
+                  an assurance: the why says the course will offer a move if the
+                  guess was wrong, which is true whether or not it is read now.
                 */}
-                <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }} data-opening-why>
-                  {openingWhy(held, openLevel, measured !== null, t)}
-                </p>
                 <p className="mt-3 text-sm" style={{ color: "var(--accent-deep)" }}>
                   {fill(t("{evenings}, about {minutes} each."), {
                     evenings: countOf(locale, openingPart.days, "evening"),
@@ -987,6 +983,10 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                     })}</>
                   )}
                 </p>
+                <Explain label={t("Why this part, and what’s in it")}>
+                  <p>{t(openingPart.blurb)}</p>
+                  <p data-opening-why>{openingWhy(held, openLevel, measured !== null, t)}</p>
+                </Explain>
               </div>
             )}
 

@@ -224,6 +224,7 @@ export const START: Area = {
     "You never have to work out what to study. Kodukeel plans each evening for you: which words, in what order, and which games. About fifteen minutes, and then it tells you you’re done.":
       "Вам никогда не придётся решать, что учить. Kodukeel планирует за вас каждый вечер: какие слова, в каком порядке и какие игры. Примерно пятнадцать минут, а потом он скажет, что на сегодня всё.",
     "You start at {part}": "Вы начинаете с части {part}",
+    "Why this part, and what’s in it": "Почему эта часть и что в ней",
     "{evenings}, about {minutes} each.": "{evenings}, каждый около {minutes}.",
     "The whole way to C1": "Весь путь до C1",
     "{evenings} in all, and every word in the course turns up in one of them. You can step off the plan whenever you like and use the app your own way. Nothing disappears, and everything you do still counts.":
@@ -515,6 +516,7 @@ export const START: Area = {
     "You never have to work out what to study. Kodukeel plans each evening for you: which words, in what order, and which games. About fifteen minutes, and then it tells you you’re done.":
       "Вам ніколи не доведеться вирішувати, що вчити. Kodukeel планує за вас кожен вечір: які слова, у якому порядку і які ігри. Приблизно п'ятнадцять хвилин, а потім він скаже, що на сьогодні все.",
     "You start at {part}": "Ви починаєте з частини {part}",
+    "Why this part, and what’s in it": "Чому ця частина і що в ній",
     "{evenings}, about {minutes} each.": "{evenings}, кожен близько {minutes}.",
     "The whole way to C1": "Увесь шлях до C1",
     "{evenings} in all, and every word in the course turns up in one of them. You can step off the plan whenever you like and use the app your own way. Nothing disappears, and everything you do still counts.":
