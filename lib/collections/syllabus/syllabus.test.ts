@@ -428,6 +428,7 @@ describe("unitProgress", () => {
 
   it("counts a started word as half learned", () => {
     const p = unitProgress({ availableLemmas: ["a", "b"], startedLemmas: ["a"], knownLemmas: [] });
+    expect(p.through).toBe(false);
     expect(p.pct).toBe(25);
     expect(p.state).toBe("learning");
   });
@@ -467,6 +468,23 @@ describe("what is open to a learner", () => {
   });
 });
 
+describe("unitProgress, gone through", () => {
+  it("is through once every word has been asked about and not every one is known", () => {
+    const p = unitProgress({ availableLemmas: ["a", "b"], startedLemmas: ["a", "b"], seenLemmas: ["a", "b"], knownLemmas: [] });
+    expect(p).toMatchObject({ seen: 2, through: true, state: "learning" });
+  });
+
+  it("is not through while a word has a card nobody has been asked about", () => {
+    const p = unitProgress({ availableLemmas: ["a", "b"], startedLemmas: ["a", "b"], seenLemmas: ["a"], knownLemmas: [] });
+    expect(p.through).toBe(false);
+  });
+
+  it("is done rather than through once every word is known", () => {
+    const p = unitProgress({ availableLemmas: ["a"], startedLemmas: ["a"], seenLemmas: ["a"], knownLemmas: ["a"] });
+    expect(p).toMatchObject({ through: false, state: "done" });
+  });
+});
+
 describe("nextUnit", () => {
   const empty = new Set<string>();
 
@@ -487,6 +505,21 @@ describe("nextUnit", () => {
     const started = new Set([unitOf("kodu").id]);
     const next = nextUnit({ doneUnitIds: empty, startedUnitIds: started, placement: "B1" });
     expect(next?.id).toBe("kodu");
+  });
+
+  it("passes over a unit every word of which has been through a lesson", () => {
+    const first = SYLLABUS[0]!.id;
+    const started = new Set([first]);
+    const resting = new Set([first]);
+    const next = nextUnit({ doneUnitIds: empty, startedUnitIds: started, restingUnitIds: resting, placement: "A1" });
+    expect(next).toBeTruthy();
+    expect(next!.id).not.toBe(first);
+  });
+
+  it("falls back to a resting unit rather than to nothing", () => {
+    const rest = new Set(SYLLABUS.map((u) => u.id));
+    expect(nextUnit({ doneUnitIds: empty, startedUnitIds: empty, restingUnitIds: rest, placement: "A1" })?.id)
+      .toBe(SYLLABUS[0]!.id);
   });
 
   it("runs out honestly when the whole course is done", () => {

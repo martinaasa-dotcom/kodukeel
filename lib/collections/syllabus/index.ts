@@ -352,6 +352,15 @@ export interface UnitProgress {
   started: number;
   /** Unit words whose cards have all reached the FSRS Review state. */
   known: number;
+  /** Unit words the learner has been asked about at least once. */
+  seen: number;
+  /**
+   * Every word has been through a lesson or the ladder and the scheduler has
+   * not yet graduated them all. Nothing more is asked of the learner here:
+   * the words come back in Practice, so the unit reads "done for now" rather
+   * than "continue".
+   */
+  through: boolean;
   /** 0-100, weighting a known word fully and a started one half. */
   pct: number;
   state: UnitState;
@@ -367,6 +376,8 @@ export interface UnitProgress {
 export function unitProgress(input: {
   availableLemmas: readonly string[];
   startedLemmas: readonly string[];
+  /** Left out by a caller that does not ask whether a unit is gone through. */
+  seenLemmas?: readonly string[];
   knownLemmas: readonly string[];
 }): UnitProgress {
   const available = input.availableLemmas.length;
@@ -374,13 +385,15 @@ export function unitProgress(input: {
   const knownSet = new Set(input.knownLemmas);
   const started = input.availableLemmas.filter((l) => startedSet.has(l)).length;
   const known = input.availableLemmas.filter((l) => knownSet.has(l)).length;
+  const seenSet = new Set(input.seenLemmas ?? []);
+  const seen = input.availableLemmas.filter((l) => seenSet.has(l)).length;
 
-  if (available === 0) return { available, started: 0, known: 0, pct: 0, state: "locked" };
+  if (available === 0) return { available, started: 0, known: 0, seen: 0, through: false, pct: 0, state: "locked" };
 
   const pct = Math.min(100, Math.round(((known + (started - known) * 0.5) / available) * 100));
   const state: UnitState = known === available ? "done" : started > 0 ? "learning" : "available";
 
-  return { available, started, known, pct, state };
+  return { available, started, known, seen, through: seen === available && known < available, pct, state };
 }
 
 /**
@@ -410,10 +423,20 @@ export function isUnitOpen(input: {
 export function nextUnit(input: {
   doneUnitIds: ReadonlySet<string>;
   startedUnitIds: ReadonlySet<string>;
+  /**
+   * Units every word of which has been through a lesson already. They are not
+   * finished, since the scheduler has not graduated the words, but there is
+   * nothing left to teach in them, so offering one again is the lesson the
+   * learner just did. They are passed over unless nothing else is left.
+   */
+  restingUnitIds?: ReadonlySet<string>;
   placement: Level;
 }): SyllabusUnit | undefined {
   const open = (u: SyllabusUnit) => isUnitOpen({ unit: u, ...input });
-  const unfinished = SYLLABUS.filter((u) => !input.doneUnitIds.has(u.id) && open(u));
+  const allUnfinished = SYLLABUS.filter((u) => !input.doneUnitIds.has(u.id) && open(u));
+  const resting = input.restingUnitIds;
+  const fresh = resting ? allUnfinished.filter((u) => !resting.has(u.id)) : allUnfinished;
+  const unfinished = fresh.length > 0 ? fresh : allUnfinished;
 
   // Something already in progress beats something new: finishing beats starting.
   const inProgress = unfinished.find((u) => input.startedUnitIds.has(u.id));
