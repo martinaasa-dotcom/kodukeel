@@ -37,6 +37,9 @@ const PAGES: readonly (readonly [string, string, string])[] = [
   ["/funding", "Funding", "what it costs to run, and where every figure comes from"],
   ["/welcome/ru", "Kodukeel in Russian", "the front page for somebody who reads Russian first"],
   ["/welcome/uk", "Kodukeel in Ukrainian", "the front page for somebody who reads Ukrainian first"],
+  ["/grammar", "Estonian grammar", "how the grammar works in four stops, readable with no account"],
+  ["/grammar/cases", "The fourteen cases", "every ending, what it means and the question it answers, with a page per case and per verb topic"],
+  ["/grammar/build-a-word", "Build a word", "one word walked through the three stored forms and the eleven endings, with real sentences"],
 ];
 
 /** Listed only while `impactIsListed` says so, which is why it is not in PAGES. */
@@ -52,7 +55,7 @@ export async function GET(): Promise<Response> {
     "",
     "No language model writes the Estonian it teaches: the forms and the dictionary sentences come from Ekilex, the dictionary of the Institute of the Estonian Language. It is for people living in Estonia, and it explains Estonian in English, Russian or Ukrainian.",
     "",
-    "Everything past these pages needs an account, so an agent following a link into the app reaches a sign-in form. There is no public API.",
+    "The grammar reference under /grammar is readable with no account, apart from three pages that read a learner's own words. Everything else past these pages needs an account, so an agent following a link into the app reaches a sign-in form. There is no public API.",
     "",
     "## Public pages",
     "",

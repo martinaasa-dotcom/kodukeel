@@ -5,7 +5,9 @@ import { fold } from "@/lib/estonian/fold";
 import {
   ArrowLeft, ArrowRight, BookOpen, MessageCircleQuestion, PenLine, Target,
 } from "lucide-react";
-import { requireUserId } from "@/lib/auth/session";
+import { viewerId } from "@/lib/auth/session";
+import { PublicReference, referenceHref } from "@/components/grammar/PublicReference";
+import { resolvePublicLocale, shareCard } from "@/lib/progress/publicLocale";
 import { CASES, caseQuestionReading } from "@/lib/estonian/cases";
 import { localeFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
@@ -49,15 +51,18 @@ function asTitle(plain: string): string {
   return plain.charAt(0).toUpperCase() + plain.slice(1);
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ caseKey: string }> }) {
+export async function generateMetadata({ params, searchParams }: {
+  params: Promise<{ caseKey: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { caseKey } = await params;
   const ref = caseReference(caseKey.toUpperCase());
-  const locale = await localeFor(await requireUserId());
+  // The learner's own language signed in, the address's or English signed out.
+  const { locale } = await resolvePublicLocale(searchParams);
   if (!ref) return { title: tr(locale, "Grammar") };
-  return {
-    title: fill(tr(locale, "{ending} means {meaning}, {name}"), { ending: endingOf(ref), meaning: tr(locale, ref.plain), name: ref.spec.et }),
-    description: tr(locale, ref.summary),
-  };
+  const title = fill(tr(locale, "{ending} means {meaning}, {name}"), { ending: endingOf(ref), meaning: tr(locale, ref.plain), name: ref.spec.et });
+  // Its own share card, off the reference's own summary (FB-8).
+  return { title, ...shareCard(locale, title, tr(locale, ref.summary), `/grammar/${ref.key.toLowerCase()}`) };
 }
 
 const ORIGIN_LABEL: Record<CaseExample["origin"], { label: string; title: string }> = {
@@ -121,9 +126,15 @@ export default async function CasePage({
 }) {
   const { caseKey } = await params;
   const query = await searchParams;
-  const inModule = focusFrom(query) !== null;
+  /*
+    Signed out this is the public reference (FB-8): the dictionary's own words
+    (D7), no module, and nothing linked that needs an account. A module marker
+    on the address of a signed-out reader is ignored, since there is no module.
+  */
+  const viewer = await viewerId();
+  const inModule = viewer !== null && focusFrom(query) !== null;
   // The words on the page are the module's own when it is opened from a step.
-  const scope = moduleScopeFrom(query);
+  const scope = viewer ? moduleScopeFrom(query) : null;
   const ref = caseReference(caseKey.toUpperCase());
   if (!ref) {
     /* The app names a case by its Estonian name everywhere, so that is the
@@ -137,12 +148,13 @@ export default async function CasePage({
     notFound();
   }
 
-  const ownerId = await requireUserId();
-  const [examples, locale] = await Promise.all([
-    caseExamples(ownerId, ref.key, 6, scope?.lemmas),
-    localeFor(ownerId),
+  const [examples, place] = await Promise.all([
+    caseExamples(viewer, ref.key, 6, scope?.lemmas),
+    viewer ? localeFor(viewer).then((locale) => ({ locale, explicit: false })) : resolvePublicLocale(Promise.resolve(query)),
   ]);
+  const { locale, explicit } = place;
   const t = (english: string) => tr(locale, english);
+  const go = viewer ? (to: string) => to : referenceHref(locale, explicit);
 
   const all = allCaseReferences();
   const index = all.findIndex((c) => c.key === ref.key);
@@ -150,10 +162,10 @@ export default async function CasePage({
   const next = index < all.length - 1 ? all[index + 1] : undefined;
 
   const withSentence = examples.filter((e) => e.sentence).slice(0, SENTENCES);
-  const canTranslate = offered("translate");
+  const canTranslate = viewer !== null && offered("translate");
   const pinned = await pinnedExamples("case", ref.key);
 
-  return (
+  const page = (
     <Page
       eyebrow={
         // As written. `label-xs` uppercases, and an ending is a piece of
@@ -165,7 +177,7 @@ export default async function CasePage({
       lead={t(ref.summary)}
       actions={inModule ? undefined : (
         <Link
-          href="/grammar/cases"
+          href={go("/grammar/cases")}
           className="press inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
         >
@@ -263,7 +275,7 @@ export default async function CasePage({
             <Empty
               title={t("No words to show it with yet")}
               body={t("Every example here comes from the dictionary. Look up a noun and this will fill in.")}
-              action={<ButtonLink href="/dictionary" variant="primary">{t("Open the dictionary")}</ButtonLink>}
+              action={viewer ? <ButtonLink href="/dictionary" variant="primary">{t("Open the dictionary")}</ButtonLink> : undefined}
             />
           ) : (
             <div
@@ -408,7 +420,7 @@ export default async function CasePage({
 
         {/* The drill and the three ways off this page, which a module step may
             not carry: see the header. */}
-        {!inModule && (
+        {!inModule && viewer && (
           <>
             <div className="flex flex-wrap gap-3">
               <ButtonLink href="/review/write">
@@ -440,7 +452,7 @@ export default async function CasePage({
           and the reader is frequently in a class with somebody who will tell
           them so that afternoon.
         */}
-        <div className="flex flex-wrap items-center gap-3 border-t pt-5" style={{ borderColor: "var(--rule-soft)" }}>
+        {viewer && <div className="flex flex-wrap items-center gap-3 border-t pt-5" style={{ borderColor: "var(--rule-soft)" }}>
           <p className="text-sm" style={{ color: "var(--ink-3)" }}>
             {t("Doesn't match what your teacher says?")}
           </p>
@@ -449,7 +461,7 @@ export default async function CasePage({
             trigger={`The grammar reference for ${ref.spec.et}`}
             label={t("Tell us what's wrong")}
           />
-        </div>
+        </div>}
 
         {/* And the ending after this one, which is the course's business
             tonight rather than the reader's. */}
@@ -461,7 +473,7 @@ export default async function CasePage({
         >
           {previous ? (
             <Link
-              href={`/grammar/${previous.key.toLowerCase()}`}
+              href={go(`/grammar/${previous.key.toLowerCase()}`)}
               className="flex items-center gap-1.5 text-sm"
               style={{ color: "var(--ink-2)" }}
             >
@@ -471,7 +483,7 @@ export default async function CasePage({
           ) : <span />}
           {next && (
             <Link
-              href={`/grammar/${next.key.toLowerCase()}`}
+              href={go(`/grammar/${next.key.toLowerCase()}`)}
               className="flex items-center gap-1.5 text-sm"
               style={{ color: "var(--ink-2)" }}
             >
@@ -485,4 +497,6 @@ export default async function CasePage({
       </Stack>
     </Page>
   );
+  if (viewer) return page;
+  return <PublicReference locale={locale} explicit={explicit} path={`/grammar/${ref.key.toLowerCase()}`}>{page}</PublicReference>;
 }

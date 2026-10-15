@@ -1,5 +1,6 @@
 "use client";
 
+import { usePublicReader } from "@/components/PublicReader";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { useLocale, useT } from "@/components/Locale";
 import { modeAt } from "@/lib/ux/modes";
@@ -28,7 +29,10 @@ import { toneInk } from "@/components/ui";
 export function DrillLink({ href }: { href: string }) {
   const t = useT();
   const locale = useLocale();
+  // A round is the app's; a reader with no account is reading the reference (FB-8).
+  const publicReader = usePublicReader();
   const mode = modeAt(href);
+  if (publicReader) return null;
   // Rather than throwing on a page whose drill has been retired. The invariant
   // suite is what catches a stale href; a learner should not meet it.
   if (!mode) return null;

@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
 
 // The address names the language in every case below, so neither the cookie
@@ -81,7 +81,9 @@ describe("every public page has a share card of its own", () => {
       expect(Object.keys(PUBLIC_CARDS)).toContain(path);
       const card = publicCard(path as keyof typeof PUBLIC_CARDS);
       // The page itself has to hand that card over, by its own path.
-      const page = readFileSync(`app${path}/page.tsx`, "utf8");
+      // The grammar reference lives in the signed-in group and draws a public frame signed out (FB-8).
+      const file = [`app${path}/page.tsx`, `app/(app)${path}/page.tsx`].find((f) => existsSync(f)) ?? `app${path}/page.tsx`;
+      const page = readFileSync(file, "utf8");
       expect(page.includes(`publicCard("${path}")`) || page.includes(`PUBLIC_CARDS["${path}"]`)).toBe(true);
       const meta = await publicTitle(Promise.resolve({}), "A page", undefined, card);
       expect(meta.openGraph).toMatchObject({ url: path, description: card.description });

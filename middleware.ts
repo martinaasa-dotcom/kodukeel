@@ -6,6 +6,7 @@ import { canonicalRedirect } from "@/lib/auth/canonical";
 import { boundedTransport, hasSessionCookie, readIdentity } from "@/lib/auth/identity";
 import { buildContentSecurityPolicy } from "@/lib/security/headers";
 import { isMutatingRequest, isSameOriginMutation } from "@/lib/security/sameOrigin";
+import { isPublicReference } from "@/lib/ux/publicReference";
 
 /**
  * Three jobs, in the order they have to happen.
@@ -249,7 +250,18 @@ export async function middleware(request: NextRequest) {
     // learner, so neither can be reached by resolving one: a session here
     // would be a session with nothing to say about whether the caller may
     // read a deployment-wide aggregate.
-    path.startsWith("/api/research");
+    path.startsWith("/api/research") ||
+    /*
+      THE GRAMMAR REFERENCE, READ BY SOMEBODY ARRIVING FROM A SEARCH (FB-8).
+
+      An exact predicate rather than a prefix, because three pages under
+      `/grammar` read a learner's own words deeply and stay signed in: a
+      `startsWith("/grammar")` here would serve them to anybody. These paths
+      are not answered by the early skip below, because a learner who is signed
+      in sees their own reference on them and the session has to be read and
+      refreshed for that. See lib/ux/publicReference.ts.
+    */
+    isPublicReference(path);
 
   /*
     What a signed-out request gets, in one place because two branches need it.
@@ -279,7 +291,7 @@ export async function middleware(request: NextRequest) {
     The session refresh goes with it on those paths, which is fine: it happens
     on the next request that is actually gated, and none of these is.
   */
-  if (isPublicPath && !path.startsWith("/sign-in")) {
+  if (isPublicPath && !path.startsWith("/sign-in") && !isPublicReference(path)) {
     return withCsp(NextResponse.next({ request }));
   }
 

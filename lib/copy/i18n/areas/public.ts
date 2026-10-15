@@ -21,6 +21,21 @@ import type { Area } from "../area";
 const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   // SHARE CARDS: what each page says about itself where a link to it is
   // pasted (lib/copy/publicCards.ts). /teachers and /help are further down.
+  ["How Estonian grammar works, in order: three forms you learn, eleven endings you work out, the words that break the rules, and the verb.",
+    "Как устроена эстонская грамматика, по порядку: три формы, которые учат наизусть, одиннадцать окончаний, которые выводят сами, слова, нарушающие правила, и глагол.",
+    "Як влаштована естонська граматика, по порядку: три форми, які вчать напам’ять, одинадцять закінчень, які виводять самі, слова, що порушують правила, і дієслово."],
+  ["All fourteen Estonian cases in plain English, each with the name your teacher uses and the question it answers, shown on real words.",
+    "Все четырнадцать эстонских падежей простыми словами, у каждого название, которым пользуется ваш преподаватель, и вопрос, на который он отвечает, на настоящих словах.",
+    "Усі чотирнадцять естонських відмінків простими словами, у кожного назва, якою користується ваш викладач, і питання, на яке він відповідає, на справжніх словах."],
+  ["See how Estonian cases work on one word: the three forms you learn by heart, the one the endings go on, and each of the eleven endings in a real sentence.",
+    "Как работают эстонские падежи, на одном слове: три формы, которые учат наизусть, та, к которой прибавляются окончания, и каждое из одиннадцати окончаний в настоящем предложении.",
+    "Як працюють естонські відмінки, на одному слові: три форми, які вчать напам’ять, та, до якої додаються закінчення, і кожне з одинадцяти закінчень у справжньому реченні."],
+  // THE GRAMMAR REFERENCE SIGNED OUT (components/grammar/PublicReference.tsx).
+  ["Practise these in the app, on words you are learning, with every answer marked.",
+    "Тренируйте это в приложении, на словах, которые вы учите, и каждый ответ будет проверен.",
+    "Тренуйте це в застосунку, на словах, які ви вчите, і кожну відповідь буде перевірено."],
+  ["Sign in, it’s free", "Войти, это бесплатно", "Увійти, це безкоштовно"],
+  ["In the app", "В приложении", "У застосунку"],
   ["Whether Kodukeel is safe for a class, a team or a grant. The short answers come first, then the detail behind each one.",
     "Безопасен ли Kodukeel для класса, команды или гранта. Сначала короткие ответы, затем подробности к каждому из них.",
     "Чи безпечний Kodukeel для класу, команди чи гранту. Спершу короткі відповіді, потім подробиці до кожної з них."],

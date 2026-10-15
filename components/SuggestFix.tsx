@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, useTransition } from "react";
+import { usePublicReader } from "@/components/PublicReader";
 import { Check, MessageSquareWarning, X } from "lucide-react";
 import { submitSuggestion } from "@/app/actions";
 import { Button } from "@/components/Button";
@@ -57,7 +58,17 @@ function whereWeAre(): string {
   return `${window.location.pathname}${window.location.search}`;
 }
 
-export function SuggestFix({
+/**
+ * The report button, or nothing for a reader with no account: a report is
+ * written by a signed-in learner (components/PublicReader.tsx). Somebody on
+ * the public reference who disagrees with it reaches the same button by
+ * signing in, which the frame's foot offers.
+ */
+export function SuggestFix(props: Parameters<typeof SuggestFixButton>[0]) {
+  return usePublicReader() ? null : <SuggestFixButton {...props} />;
+}
+
+function SuggestFixButton({
   category,
   categories,
   lemma,

@@ -1,6 +1,10 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowRight, Languages, Puzzle, TriangleAlert, Waypoints } from "lucide-react";
-import { requireUserId } from "@/lib/auth/session";
+import { viewerId } from "@/lib/auth/session";
+import { PublicReference, referenceHref } from "@/components/grammar/PublicReference";
+import { isPublicReference } from "@/lib/ux/publicReference";
+import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicCard } from "@/lib/copy/publicCards";
 import { caseReference, grammarTopic, TOPIC_GROUPS } from "@/lib/estonian/grammar";
 import { CASES } from "@/lib/estonian/cases";
 import { caseAccuracy } from "@/lib/stats/history";
@@ -9,16 +13,13 @@ import { exceptionScale } from "@/lib/progress/exceptions";
 import { familyStandings } from "@/lib/progress/exceptionStanding";
 import { FAMILY_ORDER } from "@/lib/games/exceptionPaths";
 import { Card, Chip, Meter, Page, Stack } from "@/components/ui";
-import { localeFor, titleFor } from "@/lib/progress/locale";
+import { localeFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata() {
-  return titleFor("Grammar: four short stops", {
-    description:
-      "How Estonian grammar works, in order: three forms you learn, eleven endings you work out, the words that break the rules, and the verb.",
-  });
+export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
+  return publicTitle(searchParams, "Grammar: four short stops", undefined, publicCard("/grammar"));
 }
 
 /**
@@ -38,15 +39,26 @@ export async function generateMetadata() {
  */
 const CASES_TOTAL = CASES.length;
 
-export default async function GrammarHubPage() {
-  const ownerId = await requireUserId();
-  const [reviews, standings, scale, locale] = await Promise.all([
-    caseReviewsFor(ownerId), familyStandings(ownerId), exceptionScale(), localeFor(ownerId),
+export default async function GrammarHubPage({ searchParams }: { searchParams: PublicSearch }) {
+  /*
+    Signed out, this is the public reference (FB-8): nobody's log is read, so
+    there is no "where you are", the next stop is the first, and the
+    exceptions stop is named without a link, since that area reads a
+    learner's own words and stays signed in.
+  */
+  const viewer = await viewerId();
+  const [reviews, standings, scale, place] = await Promise.all([
+    viewer ? caseReviewsFor(viewer) : Promise.resolve([]),
+    viewer ? familyStandings(viewer) : Promise.resolve(null),
+    exceptionScale(),
+    viewer ? localeFor(viewer).then((locale) => ({ locale, explicit: false })) : resolvePublicLocale(searchParams),
   ]);
+  const { locale, explicit } = place;
   const t = (english: string) => tr(locale, english);
+  const go = viewer ? (to: string) => to : referenceHref(locale, explicit);
 
   const practised = caseAccuracy(reviews, 1).length;
-  const knownAreas = FAMILY_ORDER.filter((f) => standings[f].state === "known").length;
+  const knownAreas = standings ? FAMILY_ORDER.filter((f) => standings[f].state === "known").length : 0;
 
   // First stop that has something left in it, going by what the log can show.
   const next: 1 | 2 | 3 | 4 =
@@ -73,14 +85,14 @@ export default async function GrammarHubPage() {
       title: t("The fourteen cases"),
       line: t("What each ending means, with real sentences for every one."),
       peek: casePeek.map((c) => c.text),
-      meter: { pct: Math.round((practised / CASES_TOTAL) * 100), label: fill(t("{n} of {total} cases you have answered on"), { n: practised, total: CASES_TOTAL }) },
+      meter: viewer ? { pct: Math.round((practised / CASES_TOTAL) * 100), label: fill(t("{n} of {total} cases you have answered on"), { n: practised, total: CASES_TOTAL }) } : null,
     },
     {
       n: 3 as const, href: "/grammar/exceptions", Icon: TriangleAlert,
       title: t("Where the rules break"),
       line: t("Some words go their own way. Which ones, and how to learn them."),
       peek: [fill(t("{n} words in the dictionary"), { n: scale })],
-      meter: { pct: Math.round((knownAreas / FAMILY_ORDER.length) * 100), label: fill(t("{n} of {total} areas known"), { n: knownAreas, total: FAMILY_ORDER.length }) },
+      meter: viewer ? { pct: Math.round((knownAreas / FAMILY_ORDER.length) * 100), label: fill(t("{n} of {total} areas known"), { n: knownAreas, total: FAMILY_ORDER.length }) } : null,
     },
     {
       n: 4 as const, href: verbTopics[0] ? `/grammar/topic/${verbTopics[0].id}` : "/grammar/cases", Icon: Waypoints,
@@ -90,8 +102,11 @@ export default async function GrammarHubPage() {
     },
   ];
   const nextStop = stops[next - 1]!;
+  // Signed out, the exceptions area is named and not linked: it reads a learner's own words.
+  const locked = (href: string) => !viewer && !isPublicReference(href);
+  const boxClass = "mb-1 flex min-w-0 flex-1 flex-col gap-2 rounded-[var(--r-lg)] border p-5";
 
-  return (
+  const page = (
     <Page route="/grammar"
       eyebrow={t("Reference")}
       title={t("Grammar")}
@@ -110,7 +125,7 @@ export default async function GrammarHubPage() {
               </p>
             </div>
             <Link
-              href={nextStop.href}
+              href={go(nextStop.href)}
               className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold"
               style={{ background: "var(--cta)", color: "var(--cta-ink)" }}
             >
@@ -134,9 +149,9 @@ export default async function GrammarHubPage() {
                 </span>
                 {i < stops.length - 1 && <span aria-hidden className="mt-1 w-0.5 flex-1" style={{ background: "var(--edge)" }} />}
               </div>
-              <Link
-                href={s.href}
-                className="lift mb-1 flex min-w-0 flex-1 flex-col gap-2 rounded-[var(--r-lg)] border p-5"
+              <StopBox
+                href={locked(s.href) ? null : go(s.href)}
+                className={boxClass}
                 style={{
                   borderColor: s.n === next ? "var(--accent-deep)" : "var(--edge)",
                   background: "var(--surface)",
@@ -148,6 +163,7 @@ export default async function GrammarHubPage() {
                     <s.Icon size={18} aria-hidden style={{ color: "var(--accent-deep)" }} /> {s.title}
                   </span>
                   {s.n === next && <Chip tone="accent">{t("Next up")}</Chip>}
+                  {locked(s.href) && <Chip>{t("In the app")}</Chip>}
                 </span>
                 <span className="text-md" style={{ color: "var(--ink-2)" }}>{s.line}</span>
                 {s.peek.length > 0 && (
@@ -163,7 +179,7 @@ export default async function GrammarHubPage() {
                     <span className="tnum mt-1 block text-sm" style={{ color: "var(--ink-3)" }}>{s.meter.label}</span>
                   </span>
                 )}
-              </Link>
+              </StopBox>
             </li>
           ))}
         </ol>
@@ -171,13 +187,25 @@ export default async function GrammarHubPage() {
         <Card>
           <p className="text-md font-bold" style={{ color: "var(--ink)" }}>{t("Looking for something specific?")}</p>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-            <Link href="/grammar/cases" className="underline" style={{ color: "var(--accent-deep)" }}>{t("Every ending and every grammar topic, in one list")}</Link>
+            <Link href={go("/grammar/cases")} className="underline" style={{ color: "var(--accent-deep)" }}>{t("Every ending and every grammar topic, in one list")}</Link>
           </p>
-          <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-            <Link href="/grammar/twins" className="underline" style={{ color: "var(--accent-deep)" }}>{t("Words that look alike, and how to tell them apart")}</Link>
-          </p>
+          {viewer && (
+            <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
+              <Link href="/grammar/twins" className="underline" style={{ color: "var(--accent-deep)" }}>{t("Words that look alike, and how to tell them apart")}</Link>
+            </p>
+          )}
         </Card>
       </Stack>
     </Page>
   );
+  if (viewer) return page;
+  return <PublicReference locale={locale} explicit={explicit} path="/grammar">{page}</PublicReference>;
+}
+
+/** A stop: a link to it, or, where it needs an account, the same card with nothing to press. */
+function StopBox({ href, className, style, children }: {
+  href: string | null; className: string; style: React.CSSProperties; children: React.ReactNode;
+}) {
+  if (href === null) return <div className={className} style={style}>{children}</div>;
+  return <Link href={href} className={`lift ${className}`} style={style}>{children}</Link>;
 }

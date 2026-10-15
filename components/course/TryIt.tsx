@@ -1,5 +1,6 @@
 "use client";
 
+import { usePublicReader } from "@/components/PublicReader";
 import { useState } from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/Button";
@@ -42,6 +43,7 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
   const [over, setOver] = useState(false);
   const sound = useFeedbackSound();
   const t = useT();
+  const publicReader = usePublicReader();
   const locale = useLocale();
 
   if (asks.length === 0) return null;
@@ -137,9 +139,12 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
           {/* The form heard once, right after it was picked: the one moment a
               beginner wants the sound of a word is when it has just surprised
               them. */}
-          <span className="inline-flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-            <Speak text={ask.answer} size={15} /> {t("hear it")}
-          </span>
+          {/* Speech is the app's, so a reader with no account gets no speaker and no label for one. */}
+          {!publicReader && (
+            <span className="inline-flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
+              <Speak text={ask.answer} size={15} /> {t("hear it")}
+            </span>
+          )}
           <Button variant="primary" onClick={next}>
             {last ? t("Done") : t("Next")} <ArrowRight size={15} aria-hidden />
           </Button>

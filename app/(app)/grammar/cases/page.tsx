@@ -1,7 +1,10 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { CaseLabel } from "@/components/CaseLabel";
 import { ChevronRight, Languages, Puzzle, Sparkles, Target, TriangleAlert } from "lucide-react";
-import { requireUserId } from "@/lib/auth/session";
+import { viewerId } from "@/lib/auth/session";
+import { PublicReference, referenceHref } from "@/components/grammar/PublicReference";
+import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicCard } from "@/lib/copy/publicCards";
 import { prisma } from "@/lib/db";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import { DEMO_STEMS } from "@/lib/collections/demoWords";
@@ -14,7 +17,7 @@ import { caseAccuracy } from "@/lib/stats/history";
 import { caseReviewsFor } from "@/lib/progress/cases";
 import { Card, Chip, Meter, Note, Page, SectionTitle, Stack } from "@/components/ui";
 import { Lettered } from "@/components/HeroLetters";
-import { localeFor, titleFor } from "@/lib/progress/locale";
+import { localeFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { fillNodes } from "@/components/reference/fillNodes";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
@@ -22,11 +25,8 @@ import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata() {
-  return titleFor("The fourteen cases: the endings and what they mean", {
-    description:
-      "All fourteen Estonian cases in plain English, each with the name your teacher uses and the question it answers, shown on real words.",
-  });
+export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
+  return publicTitle(searchParams, "The fourteen cases: the endings and what they mean", undefined, publicCard("/grammar/cases"));
 }
 
 /**
@@ -49,18 +49,22 @@ export async function generateMetadata() {
    reads on the dark panel. */
 const ENDING_HUES = ["var(--butter-ink)", "var(--blush-ink)", "var(--sky-ink)", "var(--accent-deep)"];
 
-export default async function GrammarIndexPage() {
-  const ownerId = await requireUserId();
+export default async function GrammarIndexPage({ searchParams }: { searchParams: PublicSearch }) {
+  // Signed out this is the public reference (FB-8): no reviews, no settings,
+  // and nothing linked that needs an account.
+  const viewer = await viewerId();
 
-  const [reviews, demo, locale, settings] = await Promise.all([
+  const [reviews, demo, place, settings] = await Promise.all([
     // Through the one reader, so this page and Practice and Progress cannot
     // name three different weakest cases at the same learner. See
     // lib/progress/cases.ts.
-    caseReviewsFor(ownerId),
+    viewer ? caseReviewsFor(viewer) : Promise.resolve([]),
     endingStrip(),
-    localeFor(ownerId),
-    readSettings(ownerId, [SETTING_KEYS.glossLanguage]),
+    viewer ? localeFor(viewer).then((locale) => ({ locale, explicit: false })) : resolvePublicLocale(searchParams),
+    viewer ? readSettings(viewer, [SETTING_KEYS.glossLanguage]) : Promise.resolve({} as Record<string, string | undefined>),
   ]);
+  const { locale, explicit } = place;
+  const go = viewer ? (to: string) => to : referenceHref(locale, explicit);
   const t = (english: string, context?: string) => tr(locale, english, context);
   /*
     UKRAINIAN IS READ TWO WAYS, AND EITHER IS ENOUGH.
@@ -73,10 +77,10 @@ export default async function GrammarIndexPage() {
   */
   // Never in a Russian interface: a Russian screen does not name Ukrainian, and
   // the page itself sends a Russian reader back here.
-  const ukrainian = locale !== "ru" && (locale === "uk" || glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]) === "uk");
+  const ukrainian = viewer !== null && locale !== "ru" && (locale === "uk" || glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]) === "uk");
   const weakest = caseAccuracy(reviews).slice(0, 3);
 
-  return (
+  const page = (
     <Page route="/grammar"
       eyebrow={t("Reference")}
       title={t("The fourteen cases")}
@@ -167,7 +171,7 @@ export default async function GrammarIndexPage() {
           for rather than a mode beside it.
         */}
         <Link
-          href="/grammar/build-a-word"
+          href={go("/grammar/build-a-word")}
           className="lift flex items-start gap-4 rounded-[var(--r-lg)] border p-5"
           style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
         >
@@ -197,7 +201,7 @@ export default async function GrammarIndexPage() {
           `sse`. A learner who is not told where the rule ends has been handed
           a pattern presented as more reliable than it is.
         */}
-        <Link
+        {viewer && (<Link
           href="/grammar/exceptions"
           className="lift flex items-start gap-4 rounded-[var(--r-lg)] border p-5"
           style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
@@ -216,7 +220,7 @@ export default async function GrammarIndexPage() {
               {t("Some words go their own way, like tuba becoming tuppa, and when a word's stem changes, eleven cases change with it. Here's which words do that, and how to practice them.")}
             </span>
           </span>
-        </Link>
+        </Link>)}
 
         {weakest.length > 0 && (
           <section>
@@ -295,7 +299,7 @@ export default async function GrammarIndexPage() {
                 return (
                   <li key={key}>
                     <Link
-                      href={`/grammar/${key.toLowerCase()}`}
+                      href={go(`/grammar/${key.toLowerCase()}`)}
                       className="lift flex h-full flex-col gap-2 rounded-[var(--r-lg)] border p-4"
                       style={{
                         borderColor: "var(--edge)",
@@ -407,7 +411,7 @@ export default async function GrammarIndexPage() {
                       return (
                         <li key={id}>
                           <Link
-                            href={`/grammar/topic/${id}`}
+                            href={go(`/grammar/topic/${id}`)}
                             className="tap-tint group flex min-h-11 items-center gap-3 rounded-[var(--r-sm)] px-2.5 py-2"
                           >
                             <span className="min-w-0 flex-1">
@@ -440,7 +444,7 @@ export default async function GrammarIndexPage() {
           {t("The singular endings go on the omastav singular, and the plural ones on the omastav plural. If the dictionary has no omastav plural for a word, its table shows a gap rather than a guess.")}
         </Note>
 
-        <p className="text-xs" style={{ color: "var(--ink-3)" }}>
+        {viewer && <p className="text-xs" style={{ color: "var(--ink-3)" }}>
           {fillNodes(t("Still stuck on one? {ask} and she'll explain the rule behind a sentence you wrote."), {
             ask: (
               <Link href="/tutor" className="underline" style={{ color: "var(--accent-deep)" }}>
@@ -448,10 +452,12 @@ export default async function GrammarIndexPage() {
               </Link>
             ),
           })}
-        </p>
+        </p>}
       </Stack>
     </Page>
   );
+  if (viewer) return page;
+  return <PublicReference locale={locale} explicit={explicit} path="/grammar/cases">{page}</PublicReference>;
 }
 
 interface StripRow {

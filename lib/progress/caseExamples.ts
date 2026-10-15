@@ -98,7 +98,7 @@ interface Candidate {
  * The examples for one case. See `caseExamplesFor`, which this is one key of.
  */
 export async function caseExamples(
-  ownerId: string,
+  ownerId: string | null,
   key: CaseKey,
   limit = 6,
   within?: readonly string[],
@@ -118,7 +118,12 @@ export async function caseExamples(
  * where the illative page led with a form nobody says.
  */
 export async function caseExamplesFor(
-  ownerId: string,
+  /**
+   * Null for the public reference (FB-8, D7): nobody's deck is read and the
+   * page shows the dictionary's own words, exactly as it does for a learner
+   * whose deck is empty.
+   */
+  ownerId: string | null,
   keys: readonly CaseKey[],
   limit = 6,
   /**
@@ -172,7 +177,7 @@ export async function caseExamplesFor(
     The top-up below stays on cefr and lemma. That is the empty-deck case, where
     easiest-first is the right answer and there is no better order to preserve.
   */
-  const deckIds = await prisma.card.findMany({
+  const deckIds = ownerId === null ? [] : await prisma.card.findMany({
     where: { ownerId, suspended: false, lexemeId: { not: null }, lexeme: { pos: "NOUN", ...scoped } },
     distinct: ["lexemeId"],
     orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }, { id: "asc" }],

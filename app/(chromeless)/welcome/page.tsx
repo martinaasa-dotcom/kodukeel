@@ -1721,6 +1721,7 @@ function Footer({ say, copy }: { say: Say; copy: (typeof ENTRY_COPY)[EntryLocale
               <FootLink say={say} href="/how-we-know">{t("How we know")}</FootLink>
               <FootLink say={say} href="/accessibility">{t("Accessibility")}</FootLink>
               <FootLink say={say} href="/state-exam">{t("The state examination")}</FootLink>
+              <FootLink say={say} href="/grammar">{t("Estonian grammar")}</FootLink>
               <FootLink say={say} href="/help">{t("Help")}</FootLink>
               {locale !== "en" && (
                 <li><Link href="/welcome" lang="en" hrefLang="en" className="underline underline-offset-4 transition-opacity hover:opacity-70">English</Link></li>

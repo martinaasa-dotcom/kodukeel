@@ -1,21 +1,20 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowLeft } from "lucide-react";
-import { requireUserId } from "@/lib/auth/session";
+import { viewerId } from "@/lib/auth/session";
+import { PublicReference, referenceHref } from "@/components/grammar/PublicReference";
+import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicCard } from "@/lib/copy/publicCards";
 import { caseWalk } from "@/lib/progress/caseWalk";
 import { Empty, Page, Stack } from "@/components/ui";
 import { offered } from "@/lib/tutor/provider";
 import { BuildWalk } from "./BuildWalk";
-import { localeFor, titleFor } from "@/lib/progress/locale";
+import { localeFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata() {
-  return titleFor("Build a word from three forms and eleven endings", {
-    description:
-      "See how Estonian cases work on one word: the three forms you learn by heart, the one the endings "
-      + "go on, and each of the eleven endings in a real sentence.",
-  });
+export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
+  return publicTitle(searchParams, "Build a word from three forms and eleven endings", undefined, publicCard("/grammar/build-a-word"));
 }
 
 /**
@@ -41,19 +40,26 @@ export async function generateMetadata() {
  * this was written, typechecked, driven in a browser and reported clean by
  * `git status`, because git had never seen it.
  */
-export default async function BuildPage() {
-  const ownerId = await requireUserId();
-  const [walk, locale] = await Promise.all([caseWalk(ownerId), localeFor(ownerId)]);
+export default async function BuildPage({ searchParams }: { searchParams: PublicSearch }) {
+  // Signed out this is the public reference (FB-8): the sentences are the
+  // dictionary's own and nobody's deck is read (D7).
+  const viewer = await viewerId();
+  const [walk, place] = await Promise.all([
+    caseWalk(viewer),
+    viewer ? localeFor(viewer).then((locale) => ({ locale, explicit: false })) : resolvePublicLocale(searchParams),
+  ]);
+  const { locale, explicit } = place;
   const t = (english: string) => tr(locale, english);
+  const go = viewer ? (to: string) => to : referenceHref(locale, explicit);
 
-  return (
+  const page = (
     <Page route="/grammar/build-a-word"
       eyebrow={t("Start here")}
       title={t("Build a word")}
       lead={t("Learn three forms by heart. Every other case is one of them plus an ending.")}
       actions={
         <Link
-          href="/grammar"
+          href={go("/grammar")}
           className="press inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
         >
@@ -72,12 +78,14 @@ export default async function BuildPage() {
           <Empty
             title={t("The dictionary isn't answering")}
             body={t("Every word here comes from the dictionary, so without it there's nothing to build.")}
-            action={<Link href="/grammar/cases" className="underline" style={{ color: "var(--accent-deep)" }}>{t("Read the endings instead")}</Link>}
+            action={<Link href={go("/grammar/cases")} className="underline" style={{ color: "var(--accent-deep)" }}>{t("Read the endings instead")}</Link>}
           />
         </Stack>
       ) : (
-        <BuildWalk canTranslate={offered("translate")} walk={walk} />
+        <BuildWalk canTranslate={viewer !== null && offered("translate")} walk={walk} />
       )}
     </Page>
   );
+  if (viewer) return page;
+  return <PublicReference locale={locale} explicit={explicit} path="/grammar/build-a-word">{page}</PublicReference>;
 }

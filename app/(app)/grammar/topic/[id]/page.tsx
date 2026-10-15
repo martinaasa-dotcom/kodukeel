@@ -5,7 +5,9 @@ import { localeFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { notFound } from "next/navigation";
 import { ArrowLeft, BookOpen } from "lucide-react";
-import { requireUserId } from "@/lib/auth/session";
+import { viewerId } from "@/lib/auth/session";
+import { PublicReference, referenceHref } from "@/components/grammar/PublicReference";
+import { resolvePublicLocale, shareCard } from "@/lib/progress/publicLocale";
 import { TOPIC_NOTES, grammarTopic } from "@/lib/estonian/grammar";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { SYLLABUS } from "@/lib/collections/syllabus";
@@ -86,18 +88,21 @@ export function generateStaticParams() {
   return TOPIC_NOTES.map((t) => ({ id: t.id }));
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+export async function generateMetadata({ params, searchParams }: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { id } = await params;
   const topic = grammarTopic(id);
-  const locale = await localeFor(await requireUserId());
+  // The learner's own language signed in, the address's or English signed out.
+  const { locale } = await resolvePublicLocale(searchParams);
   if (!topic) return { title: tr(locale, "Grammar") };
   const term = grammarTerm(id);
-  return {
-    title: term
-      ? fill(tr(locale, "Grammar, {topic}, or {term}"), { topic: tr(locale, topic.title).toLowerCase(), term: term.et })
-      : fill(tr(locale, "Grammar, {topic}"), { topic: tr(locale, topic.title) }),
-    description: tr(locale, topic.summary),
-  };
+  const title = term
+    ? fill(tr(locale, "Grammar, {topic}, or {term}"), { topic: tr(locale, topic.title).toLowerCase(), term: term.et })
+    : fill(tr(locale, "Grammar, {topic}"), { topic: tr(locale, topic.title) });
+  // Its own share card, off the reference's own summary (FB-8).
+  return { title, ...shareCard(locale, title, tr(locale, topic.summary), `/grammar/topic/${id}`) };
 }
 
 /**
@@ -143,15 +148,25 @@ export default async function TopicPage({
 }) {
   const { id } = await params;
   const query = await searchParams;
-  const inModule = focusFrom(query) !== null;
+  /*
+    Signed out this is the public reference (FB-8): the dictionary's own verbs
+    (D7), no module, the units named without a link, and no drill.
+  */
+  const viewer = await viewerId();
+  const inModule = viewer !== null && focusFrom(query) !== null;
   // The verbs on the page are the module's own when it is opened from a step.
-  const scope = moduleScopeFrom(query);
+  const scope = viewer ? moduleScopeFrom(query) : null;
   const topic = grammarTopic(id);
   if (!topic) notFound();
 
-  const ownerId = await requireUserId();
-  const [placement, locale] = await Promise.all([courseLevelFor(ownerId), localeFor(ownerId)]);
+  const [placement, place] = await Promise.all([
+    // A reader with no level is shown the units by their English names, which is what A1 reads.
+    viewer ? courseLevelFor(viewer) : Promise.resolve("A1" as const),
+    viewer ? localeFor(viewer).then((locale) => ({ locale, explicit: false })) : resolvePublicLocale(Promise.resolve(query)),
+  ]);
+  const { locale, explicit } = place;
   const t = (english: string) => tr(locale, english);
+  const go = viewer ? (to: string) => to : referenceHref(locale, explicit);
 
   const term = grammarTerm(id);
 
@@ -169,12 +184,12 @@ export default async function TopicPage({
     dictionary. Each form says which. The other topics keep to English.
   */
   const pinned = await pinnedExamples("topic", id);
-  const canTranslate = offered("translate");
+  const canTranslate = viewer !== null && offered("translate");
 
   const shown = VERB_TOPICS[id];
   const only = ONLY_VERB[id];
   const verbs = shown
-    ? await verbExamples(ownerId, only ? 1 : 4, only ? [only] : scope?.lemmas)
+    ? await verbExamples(viewer, only ? 1 : 4, only ? [only] : scope?.lemmas)
     : [];
 
   const table = shown && verbs.length > 0 && (
@@ -188,13 +203,13 @@ export default async function TopicPage({
   /* The taps sit under the table they ask about, wherever the table is. */
   const tryIt = shown && verbs.length > 0 && <TryIt asks={verbAsks(verbs, shown)} />;
 
-  return (
+  const page = (
     <Page
       eyebrow={t("Reference")}
       title={t(topic.title)}
       lead={t(topic.summary)}
       actions={inModule ? undefined : (
-        <Link href="/grammar" className="flex items-center gap-1.5 text-sm" style={{ color: "var(--accent-deep)" }}>
+        <Link href={go("/grammar")} className="flex items-center gap-1.5 text-sm" style={{ color: "var(--accent-deep)" }}>
           <ArrowLeft size={14} aria-hidden /> {t("All grammar")}
         </Link>
       )}
@@ -306,26 +321,30 @@ export default async function TopicPage({
                   style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
                 >
                   <span className="flex flex-wrap items-baseline gap-2">
-                    <Link
-                      href={`/learn/${unit.id}`}
-                      lang={uiWantsEnglish(placement) ? undefined : "et"}
-                      className="text-md font-bold hover:underline"
-                      style={{ color: "var(--ink)" }}
-                    >
-                      {uiText(placement, unit.title, t(unit.subtitle))}
-                    </Link>
+                    {viewer ? (
+                      <Link
+                        href={`/learn/${unit.id}`}
+                        lang={uiWantsEnglish(placement) ? undefined : "et"}
+                        className="text-md font-bold hover:underline"
+                        style={{ color: "var(--ink)" }}
+                      >
+                        {uiText(placement, unit.title, t(unit.subtitle))}
+                      </Link>
+                    ) : (
+                      <span className="text-md font-bold" style={{ color: "var(--ink)" }}>{t(unit.subtitle)}</span>
+                    )}
                     <Chip tone="sky">{unit.level}</Chip>
                   </span>
                   <span className="mt-1 block text-sm" style={{ color: "var(--ink-2)" }}>
                     {t(unit.canDo)}
                   </span>
-                  <Link
+                  {viewer && <Link
                     href={`/learn/${unit.id}/lesson`}
                     className="mt-2 inline-flex items-center gap-1.5 text-sm underline"
                     style={{ color: "var(--accent-deep)" }}
                   >
                     <BookOpen size={14} aria-hidden /> {t("Take the lesson")}
-                  </Link>
+                  </Link>}
                 </li>
               ))}
             </ul>
@@ -333,7 +352,7 @@ export default async function TopicPage({
         </section>
         )}
 
-        {!inModule && TOPIC_DRILL[id] && (
+        {!inModule && TOPIC_DRILL[id] && viewer && (
           <section>
             <SectionTitle hint={t("from your own deck")}>{t("Drill it")}</SectionTitle>
             <div className="flex flex-col gap-3">
@@ -346,4 +365,6 @@ export default async function TopicPage({
       </Stack>
     </Page>
   );
+  if (viewer) return page;
+  return <PublicReference locale={locale} explicit={explicit} path={`/grammar/topic/${id}`}>{page}</PublicReference>;
 }

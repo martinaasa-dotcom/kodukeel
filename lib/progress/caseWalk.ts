@@ -79,7 +79,8 @@ export interface CaseWalk {
  */
 const PER_CASE = 6;
 
-export async function caseWalk(ownerId: string): Promise<CaseWalk> {
+/** `ownerId` is null for the public reference, which reads no deck (FB-8). */
+export async function caseWalk(ownerId: string | null): Promise<CaseWalk> {
   /*
     All fourteen, the three memorized included. The first act of the screen
     explains what the nimetav, the omastav and the osastav are *for*, and a

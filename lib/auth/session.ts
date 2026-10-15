@@ -85,3 +85,22 @@ export const currentLearner = cache(async (): Promise<Learner> => {
   if (!isAllowedEmail(who.learner.email)) throw new Error("Not allowed.");
   return who.learner;
 });
+
+/**
+ * The signed-in learner's id, or null for a reader with no account.
+ *
+ * Only the public grammar reference asks this (FB-8): the five pages a
+ * stranger arriving from a search can read signed out, drawn off the
+ * dictionary's own words, and drawn exactly as before for a learner. Every
+ * other page, action and route resolves its owner through `requireUserId`,
+ * which throws rather than answering null, and that is still the check that
+ * decides who may read what. A session that cannot be verified, an expired one
+ * or one whose address has left the allowlist reads as nobody here, which on
+ * these pages means the reference rather than an error.
+ */
+export const viewerId = cache(async (): Promise<string | null> => {
+  if (!supabaseConfigured()) return LOCAL_USER_ID;
+  const who = await identity();
+  if (who.state !== "in" || !isAllowedEmail(who.learner.email)) return null;
+  return who.learner.id;
+});
