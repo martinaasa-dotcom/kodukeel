@@ -71,6 +71,16 @@ export interface ScriptedLine {
    * about the beat just answered (`sayableAfterHurdles`).
    */
   readonly about?: string;
+  /**
+   * THE DAY THE NATIVE SPEAKER WHO DEVELOPS THIS APP READ IT, ISO date.
+   *
+   * Written only by `npm run apply:scene-review`, off a sheet the reviewer
+   * filled in (`npm run review:scenes` writes it): a row they ticked, or a row
+   * they corrected and whose correction passed the gate. A row without one has
+   * not been read yet and is on the next sheet. Nothing reads it to decide
+   * what is said; it is the record of who has looked.
+   */
+  readonly reviewedAt?: string;
 }
 
 /**

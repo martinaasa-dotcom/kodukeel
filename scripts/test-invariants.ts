@@ -344,7 +344,7 @@ function chainTo(start: string, target: string): string | null {
  */
 const PURE_LAYERS = [
   "assessment", "collections", "copy", "course", "curriculum", "email", "estonian", "evidence", "exam", "funding", "games",
-  "learn", "offline", "questions", "random", "readiness", "research", "scan", "scenes", "security",
+  "learn", "offline", "questions", "random", "readiness", "research", "review", "scan", "scenes", "security",
   "stats", "time", "ux",
 ] as const;
 
@@ -19120,7 +19120,7 @@ check("the repair move is only used on a turn nobody understood", () => {
     "no curveball declares that it switches pronoun, so the register check refuses its own line again",
   );
   for (const file of [
-    "lib/progress/sceneTurn.ts", "scripts/check-lines.ts", "scripts/draft-lines.ts", "lib/scenes/bank.test.ts",
+    "lib/progress/sceneTurn.ts", "scripts/lib/lineCheck.ts", "scripts/draft-lines.ts", "lib/scenes/bank.test.ts",
   ]) {
     assert.match(
       code(file), /gateFor\(/,

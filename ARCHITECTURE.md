@@ -54,6 +54,7 @@ tested without a database (`PURE_LAYERS` in `scripts/test-invariants.ts` asserts
 | `lib/random/` | pure | The one shuffle and the daily walk. |
 | `lib/readiness/` | pure | How ready somebody is for a situation, on three rungs. |
 | `lib/research/` | pure | The research export and the impact figures, behind one anonymity gate. |
+| `lib/review/` | pure | The review sheets a native or fluent reader fills in, for the conversation lines and the translations, and applying them. |
 | `lib/scan/` | pure | Reading a photographed page into candidates. |
 | `lib/scenes/` | pure | Situations: the catalogue (`specs/`), the prepared lines (`bank/`), the turn reader, the state machine, the reply and the gate. |
 | `lib/security/` | pure | Same-origin checks, rate limits, headers and cleaning visible text. |

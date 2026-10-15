@@ -17,7 +17,15 @@
  * language in the same shape, into the directory named, and leaves
  * `docs/translations/` alone. The earlier table is the generated file at the
  * ref (`lib/copy/i18n/generated/`); a ref that has none lists every line as new
- * and says so. The English for each line is found by walking the areas and
+ * and says so.
+ *
+ *   npx tsx scripts/export-translations.ts --csv [--since <git ref>] [--out <directory>]
+ *
+ * writes the same lines as a sheet, `ru.csv` and `uk.csv`, into the directory
+ * named (`translation-review/` by default, which nothing commits): one row per
+ * line with its exact area key, the English, the translation, and `ok`,
+ * `correction` and `why` left empty for the reader.
+ * `npm run apply:translation-review -- ru.csv` reads a filled one back. The English for each line is found by walking the areas and
  * hashing each key with `lineKey`, since a key is a hash and never inverted.
  */
 import { execFileSync } from "node:child_process";
@@ -29,6 +37,8 @@ import { keyOf, lineKey } from "@/lib/copy/i18n/table";
 import { ENTRY_COPY } from "@/lib/copy/entryLocales";
 import { MACHINE_NOTICE, MACHINE_NOTICE_EN, MACHINE_SHORT } from "@/lib/copy/locale";
 import { COUNTED_CORE } from "@/lib/copy/i18n/counted";
+import { translationSheet } from "@/lib/review/translationSheet";
+import { csvCell } from "./lib/csv";
 
 type L = "ru" | "uk";
 const NAMES: Record<L, string> = { ru: "Russian", uk: "Ukrainian" };
@@ -209,7 +219,22 @@ function buildSince(locale: L, ref: string): { text: string; lines: number } {
 const since = arg("--since");
 const outDir = arg("--out");
 
-if (since === null) {
+if (process.argv.includes("--csv")) {
+  const dir = outDir ?? "translation-review";
+  mkdirSync(dir, { recursive: true });
+  for (const locale of ["ru", "uk"] as const) {
+    let rows = translationSheet(locale, AREAS);
+    if (since !== null) {
+      const now = (JSON.parse(readFileSync(`lib/copy/i18n/generated/${locale}.json`, "utf8")) as { lines: Record<string, string> }).lines;
+      const { added, changed } = changedLines(linesAt(since, locale) ?? {}, now);
+      const moved = new Set([...added, ...changed]);
+      rows = [rows[0]!, ...rows.slice(1).filter((r) => moved.has(lineKey(keyOf(r[2]!))))];
+    }
+    const file = join(dir, `${locale}.csv`);
+    writeFileSync(file, "\uFEFF" + rows.map((r) => r.map(csvCell).join(",")).join("\n") + "\n");
+    console.log(`${file}: ${rows.length - 1} lines${since !== null ? ` new or changed since ${since}` : ""}`);
+  }
+} else if (since === null) {
   if (outDir !== null) throw new Error("--out goes with --since; without it the files are docs/translations/");
   mkdirSync("docs/translations", { recursive: true });
   for (const locale of ["ru", "uk"] as const) {
