@@ -235,6 +235,18 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
   }, [task, look]);
 
   /*
+    The box is one element for the whole round, so `autoFocus` only fires for
+    the first card. Pressing Next removes the button that held the caret and
+    leaves it on the body; the box is enabled again by the same render, so the
+    caret is handed back to it here once the mark has cleared.
+  */
+  const answerBox = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (mark || look.looking) return;
+    answerBox.current?.focus({ preventScroll: true });
+  }, [index, mark, look.looking]);
+
+  /*
     Enter checks, and then Enter moves on. One key for the whole round, which
     is what makes a typed round fast enough to be worth doing on a phone.
     `build` is a textarea and takes the modifier, since a sentence sometimes
@@ -345,6 +357,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
                 maxLength={MAX_SENTENCE_CHARS}
                 disabled={!!mark}
                 autoFocus
+                ref={(el) => { answerBox.current = el; }}
                 onChange={(e) => setTyped(e.target.value)}
                 placeholder="Kirjuta oma lause siia…"
                 className="field-lg mt-2 w-full resize-none text-md disabled:opacity-70"
@@ -360,6 +373,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
                 autoCapitalize="off"
                 spellCheck={false}
                 disabled={!!mark}
+                ref={(el) => { answerBox.current = el; }}
                 onChange={(e) => setTyped(e.target.value)}
                 className="field-lg mt-2 w-full text-lg disabled:opacity-70"
                 style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
