@@ -28,7 +28,7 @@
  */
 import { clip } from "@/lib/copy/clip";
 import { clockInPlay, moneyInPlay, type SceneContext, type StoredDraw } from "@/lib/progress/scene";
-import { asideFor, asideOwed, asksToHearAgain, priceAsked, shrug } from "@/lib/scenes/aside";
+import { asideFor, asideOwed, asksToHearAgain, priceAsked, questionAhead, sameFact, shrug } from "@/lib/scenes/aside";
 import { asksSlower, saysGoodbye, LEAVING } from "@/lib/scenes/casual";
 import { FAREWELLS } from "@/lib/scenes/catalogue";
 import { choiceOf } from "@/lib/scenes/choice";
@@ -221,6 +221,8 @@ export function planTurn(input: TurnInput) {
   const bank = (id: string | undefined): readonly string[] =>
     id ? sayableAfterHurdles(context.scripted.get(id) ?? [], state, context.lexicon, context.marker.negators, scene) : [];
   const fresh = (id: string | undefined) => bank(id).filter((text) => !used.has(text));
+  // An answer is a fact, so asked again it is the same fact (`sameFact`, FB-5).
+  const answersOf = (beat: BeatSpec): readonly string[] => sameFact(bank(answerBeatId(beat)), used);
   const asking = {
     asked: askedNow,
     spoken: words(last?.said ?? ""),
@@ -229,7 +231,11 @@ export function planTurn(input: TurnInput) {
     card,
     lexicon: context.lexicon,
     more: fresh(answered?.id),
-    answers: answered ? fresh(answerBeatId(answered)) : [],
+    answers: answered ? answersOf(answered) : [],
+    ahead: (() => {
+      const later = questionAhead(sceneBeats(scene), answered, words(last?.said ?? ""), context.lexicon);
+      return later && !state.done.includes(later.id) ? answersOf(later) : [];
+    })(),
     missed: !landedNow,
     already: used,
   };

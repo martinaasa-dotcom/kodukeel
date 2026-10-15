@@ -62,6 +62,11 @@ export interface AsideInput {
    */
   readonly answers: readonly string[];
   /**
+   * The banked answers of a beat further on that this question belongs to
+   * (`questionAhead`), answered now rather than ignored.
+   */
+  readonly ahead?: readonly string[];
+  /**
    * Whether the question came on a turn that missed the beat. Then only a
    * fact can answer it: the bank's answer and "more of what they said" are
    * both about a beat the learner has not met, and stacking either on the
@@ -156,6 +161,10 @@ export function asideFor(input: AsideInput): SpokenLine | null {
     if (answered.answeredNext) return null;
   }
 
+  // A question the scene asks for further on, answered now (`questionAhead`).
+  const early = input.ahead?.[0];
+  if (early && !input.missed) return { text: early, provenance: "scripted" };
+
   /*
     "Kuidas läheb?" is the one question everybody can answer, and the answer
     is two course words. Read as the question word beside a form of `minema`,
@@ -242,6 +251,48 @@ export function asideOwed(input: AsideInput): boolean {
   const beat = input.answered;
   if (beat && wantsQuestion(beat) && (beat.answeredNext || input.answers.length > 0)) return false;
   return true;
+}
+
+/**
+ * The beat further on that this question belongs to, if any (FB-5).
+ *
+ * At the bus stop a learner thanked the person who said it was the right bus
+ * and asked in the same breath where to get off, which is the question the
+ * scene asks for two beats on, past the break where they get on. Nothing may
+ * be credited across a break that has not happened (§76), so the beat waits,
+ * and the question went unanswered: `Jah, see buss läheb sinna.` and the doors
+ * closing. Somebody asked a question answers it whenever it comes, so the
+ * answer is the later beat's own banked answer. The first beat ahead that
+ * wants a question, carries an `answer`, and names a word this turn used.
+ */
+export function questionAhead(
+  beats: readonly BeatSpec[],
+  answered: BeatSpec | null,
+  spoken: readonly string[],
+  lexicon: Lexicon,
+): BeatSpec | null {
+  if (!answered) return null;
+  const from = beats.findIndex((b) => b.id === answered.id);
+  if (from < 0) return null;
+  const said = new Set(spoken.map((w) => w.toLowerCase()));
+  for (const beat of beats.slice(from + 1)) {
+    if (!wantsQuestion(beat) || !beat.answer) continue;
+    const named = leafNeeds(beat.needs).some(({ need }) =>
+      need.kind === "lemma" && need.oneOf.some((lemma) => [...(lexicon.byLemma.get(lemma) ?? [lemma])].some((form) => said.has(form.toLowerCase()))));
+    if (named) return beat;
+  }
+  return null;
+}
+
+/**
+ * A beat's banked answers, once one of them has been said this run, narrowed
+ * to that one: an answer is a fact, so asked again it is the same fact. The
+ * bus stop's bank holds `Neli peatust.` and `Kolm peatust, siis minge maha.`,
+ * and drawing a fresh one had the driver say four and then three (FB-5).
+ */
+export function sameFact(all: readonly string[], used: ReadonlySet<string>): readonly string[] {
+  const before = all.find((text) => used.has(text));
+  return before ? [before] : all;
 }
 
 function wantsQuestion(beat: BeatSpec): boolean {

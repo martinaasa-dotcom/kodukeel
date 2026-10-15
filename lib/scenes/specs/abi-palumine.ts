@@ -86,7 +86,13 @@ const ASKING_FOR_HELP: SceneSpec = {
       they: "The bag is in. They say it was no trouble at all, and turn to go.",
       meanwhile: "A minute later, the bag is inside and the door has shut behind it.",
       move: "close",
-      topic: ["kott", "aitäh", "Aitäh!", "Vabandust!"],
+      /*
+        What the other side's line is about, which is the bag. The thanks and
+        the apology are the learner's, and with "Vabandust!" in the topic the
+        recorded-courtesy rung had the neighbour who had just carried the bag
+        in apologise to the learner instead (FB-5, replayed keyless).
+      */
+      topic: ["kott"],
       needs: [
         { kind: "lemma", oneOf: [...CLOSING_WORDS, "aitäh", "tänama"] },
         { kind: "lemma", oneOf: ["Vabandust!", "vabandama"] },

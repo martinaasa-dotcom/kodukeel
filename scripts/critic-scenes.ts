@@ -44,7 +44,8 @@ let jobCount = 0;
 const arg = (name: string) => { const i = process.argv.indexOf(`--${name}`); return i >= 0 ? process.argv[i + 1] : undefined; };
 const kinds = (arg("kinds") ?? "shy,chatty,offtrack,confused,english,good").split(",");
 const seeds = Number(arg("seeds") ?? "1");
-const only = arg("scene");
+// One id, or several separated by commas: a batch of new scenes is read in one round under one budget.
+const only = arg("scene")?.split(",").map((id) => id.trim()).filter(Boolean);
 const out = arg("out") ?? "critic-report.md";
 /*
   `--model <id>` pins the composer to one link of the scene chain, as play-scene
@@ -139,7 +140,7 @@ async function critique(text: string): Promise<Issue[] | null> {
 
 (async () => {
   const jobs: { scene: string; kind: string; seed: number }[] = [];
-  for (const scene of SCENES) if (!only || scene.id === only) {
+  for (const scene of SCENES) if (!only || only.includes(scene.id)) {
     for (const kind of kinds) for (let seed = 1; seed <= seeds; seed += 1) jobs.push({ scene: scene.id, kind, seed });
   }
   jobCount = jobs.length;

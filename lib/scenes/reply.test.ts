@@ -631,7 +631,73 @@ describe("a question asked on the way out", () => {
   });
 });
 
+/*
+  A bus driver said `Nägemist!`, the learner answered `jah`, and the driver said
+  `Selge. Nägemist!`, then `Hästi. Head aega!`: three goodbyes to a passenger
+  still on the bus, read by the critic as a premature end (FB-5). Replayed
+  keyless through `npm run replay:scene` on `bussipeatus` before this was fixed.
+*/
+describe("a goodbye already said at the closing beat", () => {
+  const CLOSE: BeatSpec = { ...ASK, id: "close", move: "close", they: "They say goodbye.", needs: [{ kind: "lemma", oneOf: ["aitäh", "Head aega!"] }] };
+  const BYE: SpokenLine = { text: "Nägemist!", provenance: "attested" };
+
+  it("is not said again after a turn that missed it", () => {
+    const lines = replyFor(input({
+      answered: CLOSE, beat: CLOSE, response: "narrow", reading: "offtarget", line: BYE, heard: "Nägemist!", said: "jah",
+    }));
+    expect(lines.length).toBeGreaterThan(0);
+    expect(texts(lines).filter((text) => /aega|nägemist/i.test(text))).toEqual([]);
+  });
+
+  it("is not said a second time when the beat is let go", () => {
+    const lines = replyFor(input({
+      answered: CLOSE, beat: undefined, response: "moveOn", reading: "offtarget",
+      line: { text: "Head aega!", provenance: "attested" }, offer: "Head aega", heard: "Nägemist!", said: "jah",
+    }));
+    expect(texts(lines).filter((text) => /aega|nägemist/i.test(text))).toEqual([]);
+  });
+
+  it("is still said the first time, where nobody has said it yet", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: CLOSE, response: "answer", reading: "complete", line: BYE, heard: "Kas te soovite veel midagi?", said: "ei, aitäh",
+    }));
+    expect(texts(lines)).toContain("Nägemist!");
+  });
+
+  // FB-5, replayed on abi-palumine: "Aitäh, vabandust, head aega" was answered "Nii, kott on sees."
+  it("answers the learner's goodbye with a goodbye where the closing line is not one", () => {
+    const lines = replyFor(input({
+      answered: CLOSE, beat: undefined, response: "answer", reading: "complete",
+      line: { text: "Nii, kott on sees.", provenance: "scripted" }, heard: "Kas veel midagi?", said: "Aitäh, vabandust, head aega",
+    }));
+    expect(texts(lines).some((text) => /head aega/i.test(text))).toBe(true);
+    expect(texts(lines)).not.toContain("Nii, kott on sees.");
+  });
+
+  it("says the learner's goodbye back when the closing beat is let go, not the word they left out", () => {
+    const lines = replyFor(input({
+      answered: CLOSE, beat: undefined, response: "moveOn", reading: "incomplete",
+      line: null, offer: "Vabandust", heard: "Pole midagi, kott on sees.", said: "Aitäh, head aega",
+    }));
+    expect(texts(lines)).toEqual(["Head aega!"]);
+  });
+
+  it("keeps the closing line where the learner said no goodbye", () => {
+    const lines = replyFor(input({
+      answered: CLOSE, beat: undefined, response: "answer", reading: "complete",
+      line: { text: "Nii, kott on sees.", provenance: "scripted" }, heard: "Kas veel midagi?", said: "aitäh",
+    }));
+    expect(texts(lines)).toContain("Nii, kott on sees.");
+  });
+});
+
 describe("one word where a sentence was due", () => {
+  // FB-5: `jah`, then `Jah?`, was the critic's commonest stall. Replayed on bussipeatus.
+  it("answers a bare yes with got it, never with the same yes handed back", () => {
+    const lines = replyFor(input({ answered: ASK, beat: ASK, response: "wait", reading: "fragment", echo: null, said: "jah" }));
+    expect(texts(lines)).toEqual(["Selge."]);
+  });
+
   it("gets a look and a wait: one word with a question mark, and no new question", () => {
     const lines = replyFor(input({ answered: ASK, beat: ASK, response: "wait", reading: "fragment", echo: null }));
     expect(lines).toHaveLength(1);

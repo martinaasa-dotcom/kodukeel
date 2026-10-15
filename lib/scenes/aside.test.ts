@@ -375,3 +375,50 @@ describe("the list as it is spoken", () => {
     expect(lex.forms.has("ma")).toBe(true);
   });
 });
+
+/*
+  FB-5, replayed keyless on bussipeatus: "Aitäh! Kus ma pean maha minema?"
+  thanked them and asked where to get off, which the scene asks for past the
+  break where the learner gets on. The question was ignored.
+*/
+describe("a question the scene asks for further on", () => {
+  const YES: BeatSpec = {
+    id: "yes", goal: "Say yes.", they: "They say yes.", move: "confirm",
+    topic: ["jah"], needs: [{ kind: "lemma", oneOf: ["jah", "aitäh"] }], required: true, patience: 2, shape: "word",
+  };
+  const STOPS: BeatSpec = {
+    id: "stops", goal: "Ask where to get off.", they: "The driver waits.", move: "offer",
+    meanwhile: "You get on.", answer: "They tell you how many stops it is.",
+    topic: ["kus"], needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["kus", "maha"] }], required: true, patience: 2, shape: "sentence",
+  };
+  const PLAIN: BeatSpec = { ...STOPS, id: "plain", answer: undefined };
+
+  it("is found when the turn names a word that beat wants", async () => {
+    const { questionAhead } = await import("./aside");
+    expect(questionAhead([YES, STOPS], YES, words("Aitäh! Kus ma pean maha minema?"), LEX)?.id).toBe("stops");
+  });
+
+  it("is not found for a turn that names none of it, nor for a beat with no answer of its own", async () => {
+    const { questionAhead } = await import("./aside");
+    expect(questionAhead([YES, STOPS], YES, words("Aitäh!"), LEX)).toBeNull();
+    expect(questionAhead([YES, PLAIN], YES, words("Kus ma pean maha minema?"), LEX)).toBeNull();
+  });
+
+  it("is answered with that beat's own banked answer rather than ignored", () => {
+    const early = { text: "Neli peatust.", provenance: "scripted" as const };
+    const answer = asideFor({
+      asked: "kus", spoken: words("Aitäh! Kus ma pean maha minema?"), said: "Aitäh! Kus ma pean maha minema?",
+      answered: YES, card: null, lexicon: LEX, more: [], answers: [], ahead: [early.text],
+    });
+    expect(answer).toEqual(early);
+  });
+});
+
+describe("an answer asked for twice", () => {
+  it("is the same fact the second time, never the other banked one", async () => {
+    const { sameFact } = await import("./aside");
+    const bank = ["Neli peatust.", "Kolm peatust, siis minge maha."];
+    expect(sameFact(bank, new Set())).toEqual(bank);
+    expect(sameFact(bank, new Set(["Neli peatust."]))).toEqual(["Neli peatust."]);
+  });
+});

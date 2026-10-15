@@ -1056,9 +1056,17 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     const theirs = input.echo && !/\d/.test(input.echo) && !FLAT_WORDS.has(input.echo)
       ? input.echo
       : null;
+    /*
+      AND NOT `Jah?` TO A `jah`. The look is the waiting word, and where the
+      learner's whole turn was that same word the look is their own word handed
+      back with a question mark, which the critic read as the other side
+      stalling on a learner who had only said yes (FB-5, 21 of its 228 notes).
+      Somebody told "yes" says "got it" and goes on waiting.
+    */
+    const saidWait = plainWord(input.said) === plainWord(REACTIONS.waiting[0]!);
     return [theirs
       ? { ...reaction(theirs, "?"), provenance: "echo" as const }
-      : reaction(REACTIONS.waiting[0], "?")];
+      : saidWait ? reaction(REACTIONS.heard[0], ".") : reaction(REACTIONS.waiting[0], "?")];
   }
 
   /*
@@ -1361,7 +1369,22 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       rotation this could come out as `Aitäh.` or `Jah.`, the other side
       thanking somebody for an answer they never gave.
     */
-    if (input.offer) out.push({ ...reaction(input.offer, "?"), provenance: "offered" });
+    /*
+      Except the goodbye, where it has already been said on this beat: the
+      farewell handed over as the word is a second goodbye to somebody the
+      other side has already said goodbye to (`Nägemist!`, then `Head aega!`),
+      and the one already said is what ends the conversation (FB-5).
+    */
+    const byeSaid = answered?.move === "close" && heard !== null && isFarewell(heard, answered);
+    /*
+      And where the learner's own turn said goodbye, the goodbye is said back
+      rather than the word they left out: told "Aitäh, head aega" without the
+      sorry, the neighbour answered "Vabandust!" and walked off (FB-5).
+    */
+    const theirBye = answered?.move === "close" ? FAREWELLS.find((bye) => plainWord(input.said).includes(plainWord(bye))) : undefined;
+    if (byeSaid) { /* the goodbye already said stands */ }
+    else if (theirBye) out.push({ text: theirBye, provenance: "attested" });
+    else if (input.offer) out.push({ ...reaction(input.offer, "?"), provenance: "offered" });
     else out.push(reaction(REACTIONS.letGo[0], "."));
   }
 
@@ -1387,9 +1410,24 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   */
   if (!beat) {
     const last = out.at(-1)?.text;
-    if (answered?.move === "close" && line && line.provenance !== "fallback"
-        && line.text.toLowerCase() !== last?.toLowerCase() && !(last !== undefined && isFarewell(last, answered))) {
-      out.push(line);
+    /*
+      A GOODBYE IS ANSWERED WITH A GOODBYE. Where the learner said one and the
+      closing beat's own line is not one, the line said back was the beat's
+      remark: at the stairwell the learner said "Aitäh, vabandust, head aega"
+      and the neighbour answered "Nii, kott on sees.", walking off without a
+      word (FB-5). The goodbye they used, or the course's first, is said back
+      instead; it is a phrase every scene teaches, so nothing is written here.
+    */
+    let closing = line;
+    if (answered?.move === "close" && closing && !isFarewell(closing.text, answered)) {
+      const theirs = FAREWELLS.find((bye) => plainWord(input.said).includes(plainWord(bye)));
+      if (theirs) closing = { text: theirs, provenance: "attested" };
+    }
+    if (answered?.move === "close" && closing && closing.provenance !== "fallback"
+        && closing.text.toLowerCase() !== last?.toLowerCase() && !(last !== undefined && isFarewell(last, answered))
+        // Nor where the goodbye was already said on the closing beat, a turn or two ago (FB-5).
+        && !(heard !== null && isFarewell(heard, answered))) {
+      out.push(closing);
     }
     return out;
   }
@@ -1574,6 +1612,21 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   }
 
   /*
+    AND A GOODBYE IS SAID ONCE. At the closing beat the move is the farewell,
+    and a turn that missed it (a bare `jah` where the goal is to thank them)
+    had the farewell said again, and again on the next miss: a bus driver read
+    `Selge. Nägemist!` twice after the first `Nägemist!`, which the critic
+    read as somebody saying goodbye to a passenger still on the bus (FB-5).
+    Somebody who has said goodbye and hears one more word nods; the reaction
+    is that nod, and the goodbye already said stands. The learner can still
+    thank them, which is what meets the beat.
+  */
+  if (beat.move === "close" && !advancing(response) && again !== null && isFarewell(again, beat)) {
+    const last = out.at(-1);
+    if (last && out.length > 1 && isFarewell(last.text, beat)) out.pop();
+  }
+
+  /*
     AND NEVER THE SAME LINE TWICE IN ONE BREATH. "Vabandust, mida?" on a beat
     it does not answer is a miss that asked a question: the line comes back as
     the answer to the question and then again as the move, and the keyless
@@ -1645,6 +1698,11 @@ const ENGLISH_LINES: ReadonlySet<string> = new Set(
 );
 export function saidAgain(text: string): SpokenLine {
   return { text, provenance: ENGLISH_LINES.has(text) ? "english" : "again" };
+}
+
+/** A turn or a word reduced to its letters, for asking whether a turn was one word. */
+function plainWord(text: string | null | undefined): string {
+  return (text ?? "").toLowerCase().match(/\p{L}+/gu)?.join(" ") ?? "";
 }
 
 function sayAgainWanted(
