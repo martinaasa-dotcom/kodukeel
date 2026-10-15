@@ -197,7 +197,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["There's no verb for \"have\". The owner takes this ending and the thing they own becomes the subject, so the sentence feels inside out at first.",
     "Глагола «иметь» здесь нет. Окончание получает владелец, а то, что у него есть, становится подлежащим, совсем как в русском «у меня есть». Англоязычным это поначалу кажется странным, а знакомое «у меня есть» здесь только поможет.",
     "Дієслова «мати» тут немає. Закінчення отримує власник, а те, що в нього є, стає підметом, як в українському «у мене є». Англомовним це спершу здається дивним, а знайоме «у мене є» тут лише допоможе."],
-  ["On the table. \"I have a cat\" comes out as \"at me is a cat\".",
+  ["On the table. The owner takes this ending to say \"I have a cat\".",
     "На столе. А «у меня есть кошка» строится ровно как по-русски.",
     "На столі. А «у мене є кішка» будується так само, як українською."],
 

@@ -112,7 +112,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
       { lemma: "kurb", et: "Olen natuke kurb.", form: "Olen", slot: "VERB:IndPrSg1" },
       { lemma: "õde", et: "Nad on õde ja vend.", form: "on", slot: "VERB:IndPrPl3" },
     ],
-    "For \"I have\", you say \"at me is\", with -l on the owner": [
+    "The owner gets -l, which already says \"has\". \"Is\" always follows": [
       { lemma: "oma", et: "Mul on oma maja.", form: "Mul", slot: "CASE:ADESSIVE" },
       { lemma: "perekond", et: "Tal on suur perekond.", form: "Tal", slot: "CASE:ADESSIVE" },
     ],

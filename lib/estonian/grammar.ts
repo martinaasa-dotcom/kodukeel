@@ -149,7 +149,7 @@ export const CASE_NOTES: readonly CaseNote[] = [
     ],
     watchOut:
       "There's no verb for \"have\". The owner takes this ending and the thing they own becomes the subject, so the sentence feels inside out at first.",
-    englishHook: "On the table. \"I have a cat\" comes out as \"at me is a cat\".",
+    englishHook: "On the table. The owner takes this ending to say \"I have a cat\".",
   },
   {
     key: "ABLATIVE",
@@ -310,14 +310,14 @@ export const TOPIC_NOTES: readonly TopicNote[] = [
   {
     id: "olema",
     title: "To be, and having things",
-    summary: "There's no verb for \"have\". You say the thing is \"at you\" instead.",
+    summary: "There's no verb for \"have\". The owner gets -l, and \"is\" follows.",
     points: [
       "The verb you'll use in every conversation, and it's irregular",
-      "For \"I have\", you say \"at me is\", with -l on the owner",
+      "The owner gets -l, which already says \"has\". \"Is\" always follows",
       "Being sleepy or hungry, or having to do something, works the same way",
     ],
     watchOut:
-      "You'll reach for a \"have\" that isn't there. Instead the owner gets -l and the thing stays as it is: literally \"at me is a car\".",
+      "You'll reach for a \"have\" that isn't there. Put -l on the owner, then \"is\", then the thing. That whole pattern is how Estonian says \"I have a car\".",
   },
   {
     id: "present-tense",
