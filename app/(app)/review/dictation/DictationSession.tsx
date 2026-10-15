@@ -1,5 +1,6 @@
 "use client";
 
+import { EnterKeyCap } from "@/components/KeyCaps";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { useGrade } from "@/components/round/useGrade";
@@ -398,7 +399,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
           {result ? (
             <Button variant="primary" size="lg" className="w-full" onClick={next}>
-              {t("Next sentence")} <ArrowRight size={15} aria-hidden />
+              {t("Next sentence")} <ArrowRight size={15} aria-hidden /> <EnterKeyCap className="ml-1" />
             </Button>
           ) : (
             <Button
@@ -408,7 +409,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
               onClick={() => void submit()}
               disabled={busy}
             >
-              <Check size={15} aria-hidden /> {t("Check what I wrote")}
+              <Check size={15} aria-hidden /> {t("Check what I wrote")} <EnterKeyCap className="ml-1" />
             </Button>
           )}
         </div>

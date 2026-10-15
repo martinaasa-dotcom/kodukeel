@@ -1,5 +1,6 @@
 "use client";
 
+import { EnterKeyCap } from "@/components/KeyCaps";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { useGrade } from "@/components/round/useGrade";
@@ -435,7 +436,7 @@ export function SentenceSession(
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
           {checked ? (
             <Button variant="primary" size="lg" className="w-full" onClick={next}>
-              {t("Next sentence")} <ArrowRight size={15} aria-hidden />
+              {t("Next sentence")} <ArrowRight size={15} aria-hidden /> <EnterKeyCap className="ml-1" />
             </Button>
           ) : (
             <div className="flex flex-col gap-3">

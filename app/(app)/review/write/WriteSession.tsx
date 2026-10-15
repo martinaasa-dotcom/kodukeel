@@ -1,5 +1,6 @@
 "use client";
 
+import { EnterKeyCap } from "@/components/KeyCaps";
 import { useLocale, useT } from "@/components/Locale";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { fill } from "@/lib/copy/locale";
@@ -348,7 +349,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
             </Button>
           ) : (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
-              {t("Next")}
+              {t("Next")} <EnterKeyCap className="ml-1" />
             </Button>
           )}
         </div>
