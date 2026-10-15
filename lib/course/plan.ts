@@ -22,7 +22,7 @@
  *
  * What is decided here is the shape of the thing: where the parts break, how
  * many words an evening carries at each level, which rounds a level rotates
- * through, and which of the fifteen conversations belongs to which unit.
+ * through, and which of the conversations belongs to which unit.
  *
  * THE ROUNDS ALTERNATE, AND THAT IS LOAD-BEARING. Each level's rotation runs
  * game, drill, game, drill, and an evening takes two neighbours off it, so
@@ -160,16 +160,16 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
 /**
  * Which conversation belongs to which unit, on the last evening of it.
  *
- * All fifteen the app has, each on the unit whose words it needs and none
- * before the words exist, and seven of them a second time a level up (below). A scene declares the units it may draw on, and
+ * Every one the app has (`SCENES`), each on the unit whose words it needs and
+ * none before the words exist, and seven of them a second time a level up (below). A scene declares the units it may draw on, and
  * `course.test.ts` checks that every unit it declares has been taught by the
  * time the programme opens it, which is the whole of what makes a conversation
  * at this point fair rather than a wall.
  *
- * A unit with no entry has no conversation, which is most of them: fifteen
- * scenes over a hundred and eighty evenings is roughly one a fortnight, and
- * that is the right rhythm for the one step that takes six minutes and some
- * nerve.
+ * A unit with no entry has no conversation, which is most of them: a scene
+ * every few evenings rather than every evening, which is the right rhythm for
+ * the one step that takes six minutes and some nerve. `course.test.ts` holds
+ * every scene in the catalogue to an entry here, so the count is the table's.
  */
 export const SCENE_FOR_UNIT: Record<string, string> = {
   korraldused: "poodi-piima",
@@ -194,8 +194,8 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
   */
   "vaba-aeg": "riidepood",
   /*
-    AND B1, B2 AND C1 COME BACK TO SEVEN OF THEM, because the fifteen thin
-    out above A2 and C1 used to go six weeks without a single conversation,
+    AND B1, B2 AND C1 COME BACK TO SEVEN OF THEM, because the first fifteen
+    thinned out above A2 and C1 used to go six weeks without a single conversation,
     in a course whose whole point is the conversation somebody has outside
     it. Nothing about the scene changes and everything about the run does: a
     run is pitched at the learner's own level (`lib/scenes/pitch.ts`), so the
@@ -265,7 +265,7 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
  * AND WHY THERE IS NO CONVERSATION IN THE WHOLE OF A1, WHICH IS A FINDING
  * RATHER THAN AN OMISSION.
  *
- * Every one of the fifteen scenes declares `korraldused` among the units it
+ * Every scene in the catalogue declares `korraldused` among the units it
  * may draw on, which is the unit for asking, telling and offering, and it sits
  * in A2. That is not a mistake in the scenes: you cannot ask anybody for
  * anything without it, so a conversation before it is a conversation the
@@ -276,8 +276,8 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
  *
  * What it changed is where A2 starts. `korraldused` used to sit near the end
  * of A2 and now opens it, because it is the unit that makes a conversation
- * possible and everything after it is better for having it. Ten of the
- * fifteen scenes fall inside A2 as a result, which is the right shape: A1 is
+ * possible and everything after it is better for having it. The first
+ * conversations fall inside A2 as a result, which is the right shape: A1 is
  * where you get the words, A2 is where you start using them on people.
  *
  * A1 is not left without anything to enjoy. Every A1 evening carries a game
@@ -413,7 +413,7 @@ export const PARTS: readonly PartSpec[] = [
       "A2 starts with what makes a conversation possible: asking for something without sounding "
       + "like a robot. Then the past tense, and your first case endings, starting with the one "
       + "all the others are built on. By the end you can say what you did yesterday and what's "
-      + "wrong with you, and your first two conversations are waiting.",
+      + "wrong with you, and your first conversations are waiting.",
     units: ["korraldused", "minevik", "loodus", "keha-ja-tervis", "kodutood"],
   },
   {
@@ -421,7 +421,7 @@ export const PARTS: readonly PartSpec[] = [
     title: "Linn ja liikumine", subtitle: "School, travel, the town, a free afternoon, and comparing things",
     blurb:
       "Life outside your front door: school, trips, the town, your weekends, and saying which "
-      + "of two things is better. There are four conversations to practice on along the way. By "
+      + "of two things is better. There are conversations to practice on along the way. By "
       + "the end you can buy a ticket, ask the way and say what you did on Saturday.",
     units: ["kool-ja-keel", "reisimine", "linn-ja-teenused", "vaba-aeg", "vordlemine"],
   },
@@ -430,7 +430,7 @@ export const PARTS: readonly PartSpec[] = [
     title: "Söök, plaanid ja tunded", subtitle: "Eating out, making plans, keeping in touch, and how you feel",
     blurb:
       "Talking about what hasn't happened yet, keeping in touch, and saying how you feel about "
-      + "it all. It has five conversations, more than any other part. By the end you can get "
+      + "it all. It's full of conversations. By the end you can get "
       + "through a whole meal in Estonian, book an appointment and call somebody about it.",
     units: ["restoranis", "plaanid", "suhtlemine", "tunded", "kirjeldamine", "kuivord"],
   },

@@ -946,12 +946,12 @@ export const TODAY: Area = {
     "Просьбы, вчерашний день, природа, тело и дом",
   "School, travel, the town, a free afternoon, and comparing things":
     "Учёба, поездки, город, свободный день и сравнение",
-  "Life outside your front door: school, trips, the town, your weekends, and saying which of two things is better. There are four conversations to practice on along the way. By the end you can buy a ticket, ask the way and say what you did on Saturday.":
-    "Жизнь за порогом дома: учёба, поездки, город, ваши выходные и как сказать, какая из двух вещей лучше. По пути вас ждут четыре разговора для практики. К концу вы сможете купить билет, спросить дорогу и рассказать, что делали в субботу.",
+  "Life outside your front door: school, trips, the town, your weekends, and saying which of two things is better. There are conversations to practice on along the way. By the end you can buy a ticket, ask the way and say what you did on Saturday.":
+    "Жизнь за порогом дома: учёба, поездки, город, ваши выходные и как сказать, какая из двух вещей лучше. По пути вас ждут разговоры для практики. К концу вы сможете купить билет, спросить дорогу и рассказать, что делали в субботу.",
   "Eating out, making plans, keeping in touch, and how you feel":
     "Кафе и рестораны, планы, общение и чувства",
-  "Talking about what hasn't happened yet, keeping in touch, and saying how you feel about it all. It has five conversations, more than any other part. By the end you can get through a whole meal in Estonian, book an appointment and call somebody about it.":
-    "Разговор о том, что ещё не случилось, общение с людьми и как сказать, что вы обо всём этом чувствуете. Здесь пять разговоров, больше, чем в любой другой части. К концу вы сможете пообедать в ресторане целиком по-эстонски, записаться на приём и позвонить, чтобы о нём договориться.",
+  "Talking about what hasn't happened yet, keeping in touch, and saying how you feel about it all. It's full of conversations. By the end you can get through a whole meal in Estonian, book an appointment and call somebody about it.":
+    "Разговор о том, что ещё не случилось, общение с людьми и как сказать, что вы обо всём этом чувствуете. Здесь много разговоров. К концу вы сможете пообедать в ресторане целиком по-эстонски, записаться на приём и позвонить, чтобы о нём договориться.",
   "Objects, the people in your life, what each verb asks for, money, and would":
     "Дополнение, люди в вашей жизни, чего требует каждый глагол, деньги и «бы»",
   "School, two new past forms, renting, what people are like, and the news":
@@ -2022,12 +2022,12 @@ export const TODAY: Area = {
     "Прохання, учорашній день, природа, тіло і дім",
   "School, travel, the town, a free afternoon, and comparing things":
     "Навчання, подорожі, місто, вільний день і порівняння",
-  "Life outside your front door: school, trips, the town, your weekends, and saying which of two things is better. There are four conversations to practice on along the way. By the end you can buy a ticket, ask the way and say what you did on Saturday.":
-    "Життя за порогом дому: навчання, подорожі, місто, ваші вихідні і як сказати, яка з двох речей краща. Дорогою на вас чекають чотири розмови для практики. Наприкінці ви зможете купити квиток, спитати дорогу й розповісти, що робили в суботу.",
+  "Life outside your front door: school, trips, the town, your weekends, and saying which of two things is better. There are conversations to practice on along the way. By the end you can buy a ticket, ask the way and say what you did on Saturday.":
+    "Життя за порогом дому: навчання, подорожі, місто, ваші вихідні і як сказати, яка з двох речей краща. Дорогою на вас чекають розмови для практики. Наприкінці ви зможете купити квиток, спитати дорогу й розповісти, що робили в суботу.",
   "Eating out, making plans, keeping in touch, and how you feel":
     "Кафе й ресторани, плани, спілкування і почуття",
-  "Talking about what hasn't happened yet, keeping in touch, and saying how you feel about it all. It has five conversations, more than any other part. By the end you can get through a whole meal in Estonian, book an appointment and call somebody about it.":
-    "Розмова про те, що ще не сталося, спілкування з людьми і як сказати, що ви про все це відчуваєте. Тут п'ять розмов, більше, ніж у будь-якій іншій частині. Наприкінці ви зможете пообідати в ресторані цілком естонською, записатися на прийом і зателефонувати, щоб про нього домовитися.",
+  "Talking about what hasn't happened yet, keeping in touch, and saying how you feel about it all. It's full of conversations. By the end you can get through a whole meal in Estonian, book an appointment and call somebody about it.":
+    "Розмова про те, що ще не сталося, спілкування з людьми і як сказати, що ви про все це відчуваєте. Тут багато розмов. Наприкінці ви зможете пообідати в ресторані цілком естонською, записатися на прийом і зателефонувати, щоб про нього домовитися.",
   "Objects, the people in your life, what each verb asks for, money, and would":
     "Додаток у реченні, люди у вашому житті, чого вимагає кожне дієслово, гроші й «б»",
   "School, two new past forms, renting, what people are like, and the news":

@@ -289,6 +289,14 @@ describe("what a day reads and where it goes", () => {
     }
   });
 
+  // The other direction, which is what lets a screen say "every conversation
+  // the app has" with a count read off the catalogue: a scene with no evening
+  // is a scene the module never opens.
+  it("puts every conversation the app has on an evening", () => {
+    const placed = new Set(Object.values(SCENE_FOR_UNIT));
+    for (const scene of SCENES) expect(placed.has(scene.id), `${scene.id} has no evening`).toBe(true);
+  });
+
   /*
     A CONVERSATION NEVER ARRIVES BEFORE ITS WORDS, which is the whole of what
     makes one fair at this point rather than a wall. A scene declares the units

@@ -52,7 +52,7 @@ function reducedMotion(): boolean {
  * end carries on down the page rather than stopping dead (CLAUDE.md, "a page
  * that scrolls holds no second scroller" is about exactly that contain rule).
  */
-export function CafeScene() {
+export function CafeScene({ scenes }: { readonly scenes: number }) {
   const t = useT();
   // A press here can draw a line the page did not arrive with. See components/Locale.tsx.
   const reach = useWholeLanguage();
@@ -302,7 +302,7 @@ export function CafeScene() {
                       {en(reply.outcome) ?? t("And that’s the whole conversation.")}
                     </p>
                     <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                      {t("Inside there are fifteen of these, from the doctor’s to the landlord’s, and there you type your answers yourself.")}
+                      {fill(t("Inside there are {n} of these, from the doctor’s to the landlord’s, and there you type your answers yourself."), { n: scenes })}
                     </p>
                   </div>
                 )}

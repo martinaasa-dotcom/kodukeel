@@ -8,7 +8,7 @@
  *
  * THE TAGS ARE WHAT TELLS ONE SCENE FROM ANOTHER, SO A TAG EVERY SCENE CARRIES
  * IS A TAG THAT SAYS NOTHING. The first version tagged the register, and
- * fourteen of fifteen scenes are held in the formal you, so every tile read
+ * all but one scene were then held in the formal you, so every tile read
  * "the polite you" beside "a word off your card" and "asking a question",
  * which is three chips describing the module rather than the scene. So:
  *
@@ -17,8 +17,9 @@
  *     value it asks for;
  *   - a case is how a task is done rather than the task, so it is named only
  *     where a beat has no tag, which `practises.test.ts` makes never;
- *   - the register is named only where it is the exception, which is the one
- *     scene played with a friend; and
+ *   - the register is named only where it is the exception, the scenes
+ *     played with a friend or a colleague (about a quarter of them since the
+ *     third batch, which still leaves it the rarer of the two); and
  *   - the tile orders its chips by how few scenes share them (`distinctive`),
  *     so what a scene has that the others do not is what a learner reads.
  *

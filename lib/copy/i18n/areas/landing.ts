@@ -122,9 +122,10 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   // THE CAFÉ.
   ["Say it to somebody", "Скажите это кому-нибудь", "Скажіть це комусь"],
   ["Order a drink in Estonian. Right now, no account needed.", "Закажите напиток по-эстонски. Прямо сейчас, без регистрации.", "Замовте напій естонською. Просто зараз, без реєстрації."],
-  ["This is one of the fifteen conversations inside: a café counter, and somebody waiting for your order. Here you pick what to say, from hello to paying. Inside the app, you type it yourself.",
-    "Это один из пятнадцати разговоров внутри: стойка в кафе и человек, который ждёт вашего заказа. Здесь вы выбираете, что сказать, от приветствия до оплаты. В самом приложении вы пишете это сами.",
-    "Це одна з п'ятнадцяти розмов усередині: стійка в кав'ярні й людина, яка чекає на ваше замовлення. Тут ви вибираєте, що сказати, від привітання до оплати. У самому застосунку ви пишете це самі."],
+  // {conversations} is countOf(..., "conversation", "gen"): "43 разговоров", "43 розмов".
+  ["This is one of the {conversations} inside: a café counter, and somebody waiting for your order. Here you pick what to say, from hello to paying. Inside the app, you type it yourself.",
+    "Это один из {conversations} внутри: стойка в кафе и человек, который ждёт вашего заказа. Здесь вы выбираете, что сказать, от приветствия до оплаты. В самом приложении вы пишете это сами.",
+    "Це одна з {conversations} усередині: стійка в кав'ярні й людина, яка чекає на ваше замовлення. Тут ви вибираєте, що сказати, від привітання до оплати. У самому застосунку ви пишете це самі."],
   ["A small café, early", "Маленькое кафе, раннее утро", "Маленька кав'ярня, ранній ранок"],
   ["Your bus leaves in ten minutes.", "Ваш автобус уходит через десять минут.", "Ваш автобус відходить за десять хвилин."],
   ["Step {n} of {all}", "Шаг {n} из {all}", "Крок {n} з {all}"],
@@ -151,9 +152,9 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Walk up to the counter", "Подойти к стойке", "Підійти до стійки"],
   // "You said:" and "They said:" are the conversation screen's own (situations.ts).
   ["And that’s the whole conversation.", "Вот и весь разговор.", "Ось і вся розмова."],
-  ["Inside there are fifteen of these, from the doctor’s to the landlord’s, and there you type your answers yourself.",
-    "Внутри таких пятнадцать, от врача до арендодателя, и там ответы вы пишете сами.",
-    "Усередині таких п'ятнадцять, від лікаря до орендодавця, і там відповіді ви пишете самі."],
+  ["Inside there are {n} of these, from the doctor’s to the landlord’s, and there you type your answers yourself.",
+    "Внутри их {n}, от врача до арендодателя, и там ответы вы пишете сами.",
+    "Усередині їх {n}, від лікаря до орендодавця, і там відповіді ви пишете самі."],
   ["Order again", "Заказать ещё раз", "Замовити ще раз"],
   ["Your turn.", "Ваша очередь.", "Ваша черга."],
   ["They’re about to say something.", "Сейчас вам что-то скажут.", "Зараз вам щось скажуть."],
