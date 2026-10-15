@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
+import { useFocusAnswer } from "@/components/round/useFocusAnswer";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { fill } from "@/lib/copy/locale";
 import { answerNote } from "@/lib/copy/answerNote";
@@ -80,6 +81,9 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
   /* The way back to the word before this one. See `lib/ux/lookBack.ts`. */
   const look = useLookBack();
   const finished = !task;
+  const answerBox = useRef<HTMLInputElement>(null);
+  useFocusAnswer(answerBox, !mark && !look.looking, index);
+
   const meeting = task?.rung === "meet";
 
   /*
@@ -269,6 +273,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
               </label>
               <input
                 id="answer"
+                ref={answerBox}
                 value={typed}
                 lang="et"
                 autoFocus

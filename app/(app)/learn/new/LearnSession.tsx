@@ -36,6 +36,7 @@ import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
 import { hintLadder, narrowLadder, struckOptions } from "@/lib/questions/hints";
 import { FIRST_TRY_NOTE, isFirstProduction } from "@/lib/copy/firstTry";
 import { HintLadder } from "@/components/round/HintLadder";
+import { useFocusAnswer } from "@/components/round/useFocusAnswer";
 import { useHints } from "@/components/round/useHints";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { useUiText } from "@/components/UiLanguage";
@@ -342,6 +343,8 @@ export function LearnSession({
   const free = word !== undefined && word.gap !== null && sameSpelling(word.lemma, word.gloss);
   const rung: Rung = seat?.rung === "choice" && free ? "gap" : seat?.rung ?? "meet";
   const finished = !word;
+  const answerBox = useRef<HTMLInputElement>(null);
+  useFocusAnswer(answerBox, phase === "ask" && rung === "gap" && !look.looking, `${seat?.cardId}:${seat?.rung}`);
   const total = words.length;
   const left = queue.length;
 
@@ -1263,6 +1266,7 @@ export function LearnSession({
                   value={typed}
                   onChange={setTyped}
                   onEnter={phase === "feedback" ? carryOn : answerGap}
+                  inputRef={answerBox}
                   autoFocus
                   ariaLabel={word.gap ? t("The word that goes in the gap") : t("The Estonian word")}
                   placeholder={t("Type in Estonian")}

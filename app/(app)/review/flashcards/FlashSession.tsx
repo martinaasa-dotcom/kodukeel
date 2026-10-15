@@ -28,6 +28,7 @@ import { splitOnForm } from "@/lib/dict/examples";
 import { askLine, isForm, markFlash, plainAskFor, type FlashMark, type FlashTask } from "@/lib/games/flash";
 import { hintLadder } from "@/lib/questions/hints";
 import { HintLadder } from "@/components/round/HintLadder";
+import { useFocusAnswer } from "@/components/round/useFocusAnswer";
 import { useHints } from "@/components/round/useHints";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import { asksInEnglish } from "@/lib/games/flash";
@@ -234,17 +235,8 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     shownAt.current = Date.now();
   }, [task, look]);
 
-  /*
-    The box is one element for the whole round, so `autoFocus` only fires for
-    the first card. Pressing Next removes the button that held the caret and
-    leaves it on the body; the box is enabled again by the same render, so the
-    caret is handed back to it here once the mark has cleared.
-  */
   const answerBox = useRef<HTMLElement | null>(null);
-  useEffect(() => {
-    if (mark || look.looking) return;
-    answerBox.current?.focus({ preventScroll: true });
-  }, [index, mark, look.looking]);
+  useFocusAnswer(answerBox, !mark && !look.looking, index);
 
   /*
     Enter checks, and then Enter moves on. One key for the whole round, which
