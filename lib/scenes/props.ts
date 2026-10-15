@@ -139,8 +139,12 @@ export type PropSpec =
       /** An earlier slot this one may not repeat: the second day offered is another day. */
       readonly differentFrom?: string;
     }
-  /** A plain number: a floor, a room, an amount. */
-  | { readonly kind: "number"; readonly slot: string; readonly min: number; readonly max: number; readonly says: string }
+  /**
+   * A plain number: a floor, a room, an amount. `theirs` where the number is
+   * the other side's to give, a dose the doctor sets, so the learner reading
+   * back another is corrected rather than credited with changing it.
+   */
+  | { readonly kind: "number"; readonly slot: string; readonly min: number; readonly max: number; readonly says: string; readonly theirs?: true }
   /**
    * A PRICE, IN WHOLE EUROS, WHICH IS THE FACT THE PRICE CURVEBALL CHANGES.
    *
@@ -325,6 +329,7 @@ export function drawProp(
       const value = pick(span, random, avoid);
       return {
         slot: spec.slot, card: spec.says, literal: [value], lemmas: numberWords(value), shown: [value], value,
+        ...(spec.theirs ? { theirs: true as const } : {}),
         ...worn(value, avoid),
       };
     }
@@ -657,7 +662,7 @@ export function slotKinds(specs: readonly PropSpec[]): Map<string, SlotKind> {
   for (const spec of specs) {
     switch (spec.kind) {
       case "word":
-        out.set(spec.slot, { kind: "word", oneOf: spec.oneOf, ...(spec.places ? { places: true as const } : {}) });
+        out.set(spec.slot, { kind: "word", oneOf: spec.oneOf, ...(spec.places ? { places: true as const } : {}), ...("theirs" in spec && spec.theirs ? { theirs: true as const } : {}) });
         break;
       case "weekday":
         out.set(spec.slot, { kind: "weekday", oneOf: spec.oneOf, ...(spec.theirs ? { theirs: true as const } : {}) });
@@ -666,7 +671,7 @@ export function slotKinds(specs: readonly PropSpec[]): Map<string, SlotKind> {
         out.set(spec.slot, { kind: "time", from: spec.from, to: spec.to, ...(spec.theirs ? { theirs: true as const } : {}) });
         break;
       case "number":
-        out.set(spec.slot, { kind: "number", min: spec.min, max: spec.max });
+        out.set(spec.slot, { kind: "number", min: spec.min, max: spec.max, ...(spec.theirs ? { theirs: true as const } : {}) });
         break;
       case "price":
         out.set(spec.slot, { kind: "price", min: spec.min, max: spec.max, ...(spec.theirs ? { theirs: true as const } : {}) });

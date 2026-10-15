@@ -44,6 +44,11 @@ const ENTRIES: DictEntry[] = [
     usages: [],
   },
   { lemma: "Head aega!", pos: "PHRASE", cefr: "A1", parts: {}, usages: [] },
+  {
+    lemma: "hea", pos: "ADJECTIVE", cefr: "A1",
+    parts: { NOM_SG: "hea", GEN_SG: "hea", PART_SG: "head", NOM_PL: "head", PART_PL: "häid", GEN_PL: "heade" },
+    usages: [],
+  },
 ];
 
 const LEX = buildLexicon(ENTRIES);
@@ -70,6 +75,36 @@ function beat(over: Partial<BeatSpec> = {}): BeatSpec {
     ...over,
   };
 }
+
+describe("a goodbye on a beat that is not the goodbye (FB-5)", () => {
+  // "Head aega" holds a form of `hea`; an examiner went on with the exam after it.
+  it("does not meet a word the farewell happens to hold", () => {
+    const good = beat({ needs: [{ kind: "lemma", oneOf: ["hea"] }] });
+    expect(readTurn("Head aega", good, context()).met).toEqual([false]);
+    expect(readTurn("Ei, aitäh, head aega", good, context()).met).toEqual([false]);
+    expect(readTurn("See on hea", good, context()).met).toEqual([true]);
+  });
+
+  it("still meets the closing beat with it", () => {
+    const close = beat({ move: "close", needs: [{ kind: "lemma", oneOf: ["Head aega!"] }] });
+    expect(readTurn("Head aega", close, context()).met).toEqual([true]);
+  });
+});
+
+describe("a number that is the other side's to give", () => {
+  // A dose read back wrong was credited as the learner changing it (perearst).
+  const take = beat({ needs: [{ kind: "datum", slot: "times" }], shape: "sentence" });
+  const data = new Map([["times", new Set(["3"])]]);
+  it("is not the learner's to change", () => {
+    const theirs = context({ data, slots: new Map([["times", { kind: "number", min: 2, max: 3, theirs: true } as const]]) });
+    expect(readTurn("2 korda päevas", take, theirs).met).toEqual([false]);
+    expect(readTurn("3 korda päevas", take, theirs).met).toEqual([true]);
+  });
+  it("where it is the learner's own, another value in its span is their choice", () => {
+    const own = context({ data, slots: new Map([["times", { kind: "number", min: 2, max: 3 } as const]]) });
+    expect(readTurn("2 korda päevas", take, own).met).toEqual([true]);
+  });
+});
 
 describe("reading a turn", () => {
   it("meets a lemma requirement through any form of the word", () => {

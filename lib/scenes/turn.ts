@@ -441,6 +441,23 @@ function caughtSomething(marked: readonly TurnWord[]): boolean {
  * scene without ever building one. It is not marked wrong. It gets the response
  * a person gives, which is a look and a wait.
  */
+/** Fixed farewells, as words, whose parts are no other answer (`withoutFarewells`). */
+const FAREWELL_PHRASES: readonly (readonly string[])[] = [
+  ["head", "aega"], ["head", "ööd"], ["head", "päeva"], ["head", "õhtut"], ["head", "nädalavahetust"],
+  ["kõike", "head"], ["ilusat", "päeva"], ["ilusat", "õhtut"],
+];
+
+/** A turn's words with every fixed farewell taken out, so `head aega` cannot meet `hea` or `aeg`. */
+export function withoutFarewells(spoken: readonly string[]): string[] {
+  const out: string[] = [];
+  for (let i = 0; i < spoken.length; i++) {
+    const phrase = FAREWELL_PHRASES.find((p) => p.every((w, k) => spoken[i + k] === w));
+    if (phrase) { i += phrase.length - 1; continue; }
+    out.push(spoken[i]!);
+  }
+  return out;
+}
+
 export function readTurn(
   text: string,
   beat: BeatSpec,
@@ -478,8 +495,17 @@ export function readTurn(
     is the request rather than the question.
   */
   const asksForEnglish = spoken.includes(ASK_ENGLISH) || spoken.includes("english");
+  /*
+    A GOODBYE IS NOT AN ANSWER TO ANYTHING BUT THE GOODBYE. `Head aega` holds
+    a form of `hea` and a form of `aeg`, so on a beat asking whether something
+    was good, or for a time, a learner leaving was read as answering: an
+    examiner went on with the exam after "Head aega", a friend took "Ei,
+    aitäh, head aega" as yes, and a shop assistant kept selling. Off the
+    closing beat the farewell's words are taken out before anything is matched.
+  */
+  const matching = beat.move === "close" ? spoken : withoutFarewells(spoken);
   const found = beat.needs
-    .map((need) => (asksWhich(need, text, spoken, context) ? null : satisfies(need, text, spoken, context, beat.register)))
+    .map((need) => (asksWhich(need, text, matching, context) ? null : satisfies(need, text, matching, context, beat.register)))
     .map((hit) => (negatedIn(hit, text, beat, context) ? null : hit))
     .map((hit, i) => (asksForEnglish && hit === YES && beat.needs[i]?.kind === "question" ? null : hit));
   const met = found.map((hit) => hit !== null);

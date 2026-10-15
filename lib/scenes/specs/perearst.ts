@@ -45,6 +45,15 @@ const FAMILY_DOCTOR: SceneSpec = {
       says: "The day they want to see you again.",
     },
     { kind: "time", slot: "time", from: 9, to: 15, theirs: true },
+    /*
+      HOW OFTEN THE TABLETS ARE TAKEN IS THE DOCTOR'S FACT, NOT THE LEARNER'S.
+      It was a number written into two banked lines while the beat accepted
+      any `kord` or `päev`, so a patient reading back "two times a day" after
+      being told three was told they had it right, which is the one mistake a
+      health scene may not wave through. On the card as theirs, said off it,
+      and read back only as itself.
+    */
+    { kind: "number", slot: "times", min: 2, max: 3, theirs: true, says: "How many times a day you take the tablets." },
   ],
   curveballs: ["slot-gone", "misheard", "faster", "contradiction"],
   beats: [
@@ -96,10 +105,11 @@ const FAMILY_DOCTOR: SceneSpec = {
     {
       id: "take",
       goal: "Say back how often you should take it, so you're sure.",
-      they: "They write a prescription and tell you how often to take the tablets, while eating.",
+      they: "They write a prescription and tell you to take the tablets {times} times a day, while eating.",
       move: "instruct",
       topic: ["tablett", "võtma", "sööma", "kord", "päev"],
-      needs: [{ kind: "lemma", oneOf: ["kord", "päev", "hommik", "õhtu"] }],
+      says: [{ slot: "times" }, { lemma: "kord", grammCase: "PARTITIVE" }, { lemma: "päev", grammCase: "INESSIVE" }],
+      needs: [{ kind: "datum", slot: "times" }],
       required: true,
       patience: 2,
       shape: "sentence",
