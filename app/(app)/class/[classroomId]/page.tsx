@@ -1,11 +1,12 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Flame, GraduationCap, Printer, Target, Trophy } from "lucide-react";
+import { ArrowLeft, Download, Flame, GraduationCap, Printer, Target, Trophy } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { classworkHistory } from "@/app/actions";
 import { PATH } from "@/lib/collections/syllabus";
 import { classRoster, workplaceRoster } from "@/lib/classroom/roster";
+import { rosterPath } from "@/lib/classroom/rosterCsv";
 import { emailPrefsFrom, wants } from "@/lib/email/prefs";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { cohortKind } from "@/lib/classroom/cohort";
@@ -133,6 +134,10 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
             {t("This class has been archived, so the join code doesn’t work any more. Everything here stays put.")}
           </Note>
         )}
+        {/* The records of a class that has ended are still the owner's to keep. */}
+        {isTeacher && classroom.archived && (
+          <div><RosterDownload classroomId={classroom.id} label={t("Download the roster")} /></div>
+        )}
 
         {isTeacher && !classroom.archived && (
           <Card tone="night">
@@ -157,6 +162,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                 >
                   <Printer size={14} aria-hidden /> {t("Print the join poster")}
                 </Link>
+                <RosterDownload classroomId={classroom.id} label={t("Download the roster")} />
                 <CopyCode code={classroom.code} />
               </div>
             </div>
@@ -385,5 +391,23 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
         </Card>
       </Stack>
     </Page>
+  );
+}
+
+/**
+ * The roster as a file, for the owner alone. A plain anchor rather than the
+ * app's prefetching link, because a link that fetches on hover would download
+ * the file for a pointer resting on it.
+ */
+function RosterDownload({ classroomId, label }: { classroomId: string; label: string }) {
+  return (
+    <a
+      href={rosterPath(classroomId)}
+      className="tap-tint inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full px-3 text-sm font-semibold underline underline-offset-4"
+      style={{ color: "var(--ink-2)" }}
+      data-roster-download
+    >
+      <Download size={14} aria-hidden /> {label}
+    </a>
   );
 }
