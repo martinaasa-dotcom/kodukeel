@@ -224,8 +224,8 @@ export const TODAY: Area = {
     "Кроссворд для субботы, когда есть свободное время.",
   "A quiet round on the words you've met, typed from their meaning.":
     "Спокойный раунд на знакомые слова: вы печатаете их по значению.",
-  "Unscramble a word you've met. Every letter has its place.":
-    "Соберите знакомое слово из букв. У каждой буквы своё место.",
+  "Unscramble a word you've met.":
+    "Соберите знакомое слово из букв.",
   "Midweek, train your ear: hear a word and pick what it means.":
     "Середина недели, тренируем слух: послушайте слово и выберите, что оно значит.",
   "It's Friday: say this week's words out loud, then hear them said.":
@@ -1232,8 +1232,8 @@ export const TODAY: Area = {
     "Кросворд для суботи, коли є вільний час.",
   "A quiet round on the words you've met, typed from their meaning.":
     "Спокійний раунд на знайомі слова: ви друкуєте їх за значенням.",
-  "Unscramble a word you've met. Every letter has its place.":
-    "Складіть знайоме слово з літер. Кожна літера має своє місце.",
+  "Unscramble a word you've met.":
+    "Складіть знайоме слово з літер.",
   "Midweek, train your ear: hear a word and pick what it means.":
     "Середина тижня, тренуємо слух: послухайте слово й виберіть, що воно означає.",
   "It's Friday: say this week's words out loud, then hear them said.":
