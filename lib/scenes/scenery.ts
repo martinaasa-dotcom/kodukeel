@@ -154,6 +154,12 @@ export const SCENERY: Readonly<Record<string, Scenery>> = {
   elamisluba: { icon: "Stamp", setting: "office" },
   peretoetus: { icon: "MessageCircleQuestion", setting: "home_phone" },
   lastevanemad: { icon: "GraduationCap", setting: "classroom" },
+  "tehniline-tugi": { icon: "MessageSquareWarning", setting: "home_phone" },
+  koosolek: { icon: "MessagesSquare", setting: "meeting" },
+  soovitus: { icon: "Camera", setting: "cafe" },
+  "sobra-mure": { icon: "Heart", setting: "cafe" },
+  palk: { icon: "TrendingUp", setting: "meeting" },
+  tagatisraha: { icon: "KeyRound", setting: "home_phone" },
 };
 
 /**

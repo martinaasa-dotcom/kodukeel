@@ -44,6 +44,12 @@ import TOOTUKASSA_LINES from "./bank/tootukassa";
 import ELAMISLUBA_LINES from "./bank/elamisluba";
 import PERETOETUS_LINES from "./bank/peretoetus";
 import LASTEVANEMAD_LINES from "./bank/lastevanemad";
+import TEHNILINE_TUGI_LINES from "./bank/tehniline-tugi";
+import KOOSOLEK_LINES from "./bank/koosolek";
+import SOOVITUS_LINES from "./bank/soovitus";
+import SOBRA_MURE_LINES from "./bank/sobra-mure";
+import PALK_LINES from "./bank/palk";
+import TAGATISRAHA_LINES from "./bank/tagatisraha";
 
 /** Every scene's prepared lines, one file a scene under `lib/scenes/bank/`, in scene order. */
 export const BANK: readonly ScriptedLine[] = [
@@ -77,4 +83,10 @@ export const BANK: readonly ScriptedLine[] = [
   ...ELAMISLUBA_LINES,
   ...PERETOETUS_LINES,
   ...LASTEVANEMAD_LINES,
+  ...TEHNILINE_TUGI_LINES,
+  ...KOOSOLEK_LINES,
+  ...SOOVITUS_LINES,
+  ...SOBRA_MURE_LINES,
+  ...PALK_LINES,
+  ...TAGATISRAHA_LINES,
 ];

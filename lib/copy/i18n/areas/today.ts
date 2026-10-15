@@ -364,6 +364,18 @@ export const TODAY: Area = {
     "Назовите вслух по-эстонски цену или этаж, на котором живёте, и попросите повторить.",
   "Ask for something politely with would: could I, would you.":
     "Попросите о чём-нибудь вежливо, в условном наклонении: не могли бы вы, можно было бы.",
+  "Describe a problem with a device in Estonian: one sentence for what it does, and one for what you tried.":
+    "Опишите по-эстонски проблему с каким-нибудь устройством: одно предложение о том, что происходит, и одно о том, что вы пробовали.",
+  "Say you disagree with something, politely, in Estonian.":
+    "Вежливо скажите по-эстонски, что вы с чем-то не согласны.",
+  "Recommend something to somebody and say why it's better than another.":
+    "Посоветуйте кому-нибудь что-нибудь и скажите, чем это лучше другого.",
+  "Ask somebody how they are, and ask one more question about the answer.":
+    "Спросите кого-нибудь, как дела, и задайте ещё один вопрос о его ответе.",
+  "Ask for something at work using would: I would like, could we.":
+    "Попросите о чём-нибудь на работе, используя условное наклонение: я бы хотел, не могли бы мы.",
+  "Hold your ground politely when somebody says no.":
+    "Вежливо стойте на своём, когда вам говорят «нет».",
   "Ask an office what happens next and when, and stay in Estonian.":
     "Спросите в учреждении, что будет дальше и когда, и не переходите на английский.",
   "Read one official letter or notice and tell somebody what it asks of you.":
@@ -1390,6 +1402,26 @@ export const TODAY: Area = {
     "Назвіть уголос естонською ціну або поверх, на якому живете, і попросіть повторити.",
   "Ask for something politely with would: could I, would you.":
     "Попросіть про щось ввічливо, в умовному способі: чи не могли б ви, чи можна було б.",
+  "Describe a problem with a device in Estonian: one sentence for what it does, and one for what you tried.":
+    "Опишіть естонською проблему з якимось пристроєм: одне речення про те, що відбувається, і одне про те, що ви пробували.",
+  "Home, a shop":
+    "Удома, крамниця",
+  "Say you disagree with something, politely, in Estonian.":
+    "Ввічливо скажіть естонською, що ви з чимось не згодні.",
+  "Work, a class":
+    "Робота, заняття",
+  "Recommend something to somebody and say why it's better than another.":
+    "Порадьте комусь щось і скажіть, чим це краще за інше.",
+  "With a friend":
+    "З другом",
+  "Ask somebody how they are, and ask one more question about the answer.":
+    "Запитайте когось, як справи, і поставте ще одне запитання про відповідь.",
+  "With a friend, work":
+    "З другом, робота",
+  "Ask for something at work using would: I would like, could we.":
+    "Попросіть про щось на роботі, використовуючи умовний спосіб: я б хотів, чи не могли б ми.",
+  "Hold your ground politely when somebody says no.":
+    "Ввічливо стійте на своєму, коли вам кажуть «ні».",
   "Ask an office what happens next and when, and stay in Estonian.":
     "Запитайте в установі, що буде далі й коли, і не переходьте на англійську.",
   "An office":

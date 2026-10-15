@@ -237,6 +237,12 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
   umbisikuline: "elamisluba",
   ajalugu: "peretoetus",
   keskkond: "lastevanemad",
+  tehnoloogia: "tehniline-tugi",
+  arvamus: "koosolek",
+  meedia: "soovitus",
+  kunst: "sobra-mure",
+  sonamoodustus: "palk",
+  psuhholoogia: "tagatisraha",
 };
 
 /**

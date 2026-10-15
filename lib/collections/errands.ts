@@ -135,6 +135,12 @@ export const ERRANDS: readonly Errand[] = [
   { id: "letter", says: "Read one official letter or notice and tell somebody what it asks of you.", where: "Home, an office", unit: "umbisikuline", scene: "elamisluba" },
   { id: "reference", says: "Make one call to an office and give a reference number in Estonian.", where: "On the phone", unit: "suhtlemine", scene: "peretoetus" },
   { id: "followup", says: "Ask a teacher or a colleague one follow-up question rather than nodding.", where: "A school, work", unit: "haridus", scene: "lastevanemad" },
+  { id: "device", says: "Describe a problem with a device in Estonian: one sentence for what it does, and one for what you tried.", where: "Home, a shop", unit: "tehnoloogia", scene: "tehniline-tugi" },
+  { id: "disagree", says: "Say you disagree with something, politely, in Estonian.", where: "Work, a class", unit: "arvamus", scene: "koosolek" },
+  { id: "recommend", says: "Recommend something to somebody and say why it's better than another.", where: "With a friend", unit: "vordlemine", scene: "soovitus" },
+  { id: "askmore", says: "Ask somebody how they are, and ask one more question about the answer.", where: "With a friend, work", unit: "tunded", scene: "sobra-mure" },
+  { id: "wouldwork", says: "Ask for something at work using would: I would like, could we.", where: "Work", unit: "tingiv", scene: "palk" },
+  { id: "ground", says: "Hold your ground politely when somebody says no.", where: "Anywhere", unit: "eluase", scene: "tagatisraha" },
 ];
 
 /**
