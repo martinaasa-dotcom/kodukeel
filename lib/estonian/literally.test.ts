@@ -131,7 +131,7 @@ describe("compounds", () => {
     compared rather than the spelling, since a case ending is not a new word.
   */
   it("never carries the meaning's own word in its reading in Russian or Ukrainian either", () => {
-    const meant = new Set(["üleeile", "ülehomme", "tulekahju", "kõhutuul", "merisiga", "jõululaupäev"]);
+    const meant = new Set(["üleeile", "ülehomme", "tulekahju", "kõhutuul", "merisiga", "jõululaupäev", "libahunt"]);
     // SAME_IMAGE is the words both languages build from the very picture
     // Estonian does, where there is no other honest reading.
     for (const locale of ["ru", "uk"] as const) {
@@ -152,13 +152,14 @@ describe("compounds", () => {
   /*
     The round asks what a word really means right under its word-for-word
     reading, so a reading carrying the answer's own word is a question with
-    the answer printed above it. These six are the exception and each is the
+    the answer printed above it. These seven are the exception and each is the
     joke itself: the brevity of the two days, the fire named after its bill,
-    the wind both languages call wind, the pig English also gets wrong, and
-    the Christmas Eve that is called a Saturday whatever day it falls on.
+    the wind both languages call wind, the pig English also gets wrong, the
+    Christmas Eve that is called a Saturday whatever day it falls on, and the
+    werewolf whose first half is already a werewolf.
   */
-  it("never carries the meaning's own word in its reading, but for the six where that is the joke", () => {
-    const meant = new Set(["üleeile", "ülehomme", "tulekahju", "kõhutuul", "merisiga", "jõululaupäev"]);
+  it("never carries the meaning's own word in its reading, but for the seven where that is the joke", () => {
+    const meant = new Set(["üleeile", "ülehomme", "tulekahju", "kõhutuul", "merisiga", "jõululaupäev", "libahunt"]);
     const sharing = COMPOUNDS.filter((c) => sharesAWord(c.literal, c.means)).map((c) => c.word);
     expect(sharing.filter((w) => !meant.has(w))).toEqual([]);
     expect([...meant].filter((w) => !sharing.includes(w))).toEqual([]);

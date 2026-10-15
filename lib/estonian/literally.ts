@@ -573,9 +573,9 @@ export const COMPOUNDS: readonly Compound[] = [
   },
   {
     id: "cash", word: "sularaha",
-    parts: [p("sula", "sula", "pure, sheer", "melted"), p("raha", "raha", "money")],
-    literal: "pure money", means: "cash",
-    quip: "Read another way, the first half is melted, and cash does have a way of melting in a wallet.",
+    parts: [p("sula", "sula", "melted, thawed"), p("raha", "raha", "money")],
+    literal: "melted money", means: "cash",
+    quip: "Cash is the liquid kind of money, and it has a way of melting in a wallet.",
   },
   {
     id: "signature", word: "allkiri",
@@ -638,12 +638,6 @@ export const COMPOUNDS: readonly Compound[] = [
     quip: "You go in hoping the name rubs off.",
   },
   {
-    id: "headline", word: "pealkiri",
-    parts: [p("peal", "peal", "on top of"), p("kiri", "kiri", "writing, letter")],
-    literal: "on-top writing", means: "a headline, title",
-    quip: "The signature waits at the bottom of the page. This sits at the top, and everything else goes between.",
-  },
-  {
     id: "armchair", word: "tugitool",
     parts: [p("tugi", "tugi", "support"), p("tool", "tool", "chair")],
     literal: "support chair", means: "an armchair",
@@ -676,7 +670,7 @@ export const COMPOUNDS: readonly Compound[] = [
   {
     id: "cobbler", word: "kingsepp",
     parts: [p("king", "king", "shoe"), p("sepp", "sepp", "smith")],
-    literal: "shoe smith", means: "a cobbler",
+    literal: "shoe smith", means: "a shoemaker, cobbler",
     quip: "A smith who swapped the anvil for a last.",
   },
   {
@@ -717,9 +711,9 @@ export const COMPOUNDS: readonly Compound[] = [
   },
   {
     id: "easter", word: "lihavõtted",
-    parts: [p("liha", "liha", "meat"), p("võtted", "võte", "taking, a way")],
+    parts: [p("liha", "liha", "meat"), p("võtted", "võte", "taking", "trick")],
     literal: "meat takings", means: "Easter",
-    quip: "After weeks of fasting, this is when meat came back to the table.",
+    quip: "The usual explanation is that Lent ended and meat could be taken again.",
   },
   {
     id: "skull", word: "pealuu",
@@ -854,12 +848,6 @@ export const COMPOUNDS: readonly Compound[] = [
     quip: "A needle that went to the trouble of growing a head.",
   },
   {
-    id: "resentment", word: "pahameel",
-    parts: [p("paha", "paha", "bad"), p("meel", "meel", "mood, mind")],
-    literal: "bad mind", means: "resentment, displeasure",
-    quip: "The grumpy twin of a word that means pleasure.",
-  },
-  {
     id: "horseshoe", word: "hobuseraud",
     parts: [p("hobuse", "hobune", "horse"), p("raud", "raud", "iron")],
     literal: "horse iron", means: "a horseshoe",
@@ -875,13 +863,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "february", word: "küünlakuu",
     parts: [p("küünla", "küünal", "candle"), p("kuu", "kuu", "month")],
     literal: "candle month", means: "February",
-    quip: "An old name for the month, since Candlemas falls early in it.",
-  },
-  {
-    id: "marionette", word: "hüpiknukk",
-    parts: [p("hüpik", "hüpik", "jumper, hopper"), p("nukk", "nukk", "doll")],
-    literal: "hopping doll", means: "a marionette",
-    quip: "It hops about on strings while somebody above does all the work.",
+    quip: "A folk name for the month, since Candlemas falls early in it.",
   },
   {
     id: "orca", word: "mõõkvaal",
@@ -917,7 +899,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "crowbar", word: "sõrgkang",
     parts: [p("sõrg", "sõrg", "cloven hoof"), p("kang", "kang", "bar")],
     literal: "hoof bar", means: "a crowbar",
-    quip: "English blamed a crow instead, for the forked end.",
+    quip: "English named it after a crow instead, probably for the bent, beak-like end.",
   },
   {
     id: "bumper", word: "põrkeraud",
@@ -948,12 +930,6 @@ export const COMPOUNDS: readonly Compound[] = [
     parts: [p("raamatu", "raamat", "book"), p("kogu", "kogu", "the whole, a gathering")],
     literal: "book gathering", means: "a library",
     quip: "The second half also means the whole, so in principle every book. The shelves are working on it.",
-  },
-  {
-    id: "shrew", word: "karihiir",
-    parts: [p("kari", "kari", "herd, cattle"), p("hiir", "hiir", "mouse")],
-    literal: "herd mouse", means: "a shrew",
-    quip: "A shrew keeps no herd whatsoever. The name is a small mystery.",
   },
   {
     id: "forget-me-not", word: "lõosilm",
@@ -1011,9 +987,9 @@ export const COMPOUNDS: readonly Compound[] = [
   },
   {
     id: "nacre", word: "pärlmutter",
-    parts: [p("pärl", "pärl", "pearl"), p("mutter", "mutter", "nut (for a bolt)")],
-    literal: "pearl nut", means: "nacre",
-    quip: "Borrowed whole from German, where it is pearl mother. German calls a bolt's nut a mother too, hence the hardware.",
+    parts: [p("pärl", "pärl", "pearl"), p("mutter", "mutter", "mother (the German word)", "nut")],
+    literal: "pearl mother", means: "nacre",
+    quip: "Borrowed whole from German. German calls a bolt's nut a mother too, which is how the hardware ended up with the same word.",
   },
   {
     id: "pupil", word: "silmatera",
@@ -1047,27 +1023,21 @@ export const COMPOUNDS: readonly Compound[] = [
   },
   {
     id: "gooseberry", word: "karusmari",
-    parts: [p("karus", "karus", "furry"), p("mari", "mari", "berry")],
-    literal: "furry berry", means: "a gooseberry",
-    quip: "Rub one and the skin is faintly hairy. Why English brought a goose into it has never been settled.",
+    parts: [p("karus", "karus", "hair, pile"), p("mari", "mari", "berry")],
+    literal: "hair berry", means: "a gooseberry",
+    quip: "Gooseberry skins are faintly hairy, which is the likely reason for the name. Why English brought a goose into it has never been settled.",
   },
   {
     id: "werewolf", word: "libahunt",
-    parts: [p("liba", "liba", "fake"), p("hunt", "hunt", "wolf")],
-    literal: "fake wolf", means: "a werewolf",
-    quip: "Folklore agrees it's no real wolf: there is a person underneath.",
-  },
-  {
-    id: "fern", word: "sõnajalg",
-    parts: [p("sõna", "sõna", "word"), p("jalg", "jalg", "foot, leg")],
-    literal: "word foot", means: "a fern",
-    quip: "Why a fern should stand on a word is anybody's guess.",
+    parts: [p("liba", "liba", "werewolf", "fake"), p("hunt", "hunt", "wolf")],
+    literal: "werewolf wolf", means: "a werewolf",
+    quip: "The first half alone already means a werewolf, so the wolf is said twice. Folklore agrees there is a person underneath.",
   },
   {
     id: "allspice", word: "nelkpipar",
-    parts: [p("nelk", "nelk", "carnation, clove"), p("pipar", "pipar", "pepper")],
-    literal: "carnation pepper", means: "allspice, pimento",
-    quip: "German calls it clove pepper too, and clove is much of what it tastes of.",
+    parts: [p("nelk", "nelk", "clove", "carnation"), p("pipar", "pipar", "pepper")],
+    literal: "clove pepper", means: "allspice, pimento",
+    quip: "German gave it the same name, and cloves are much of what it tastes of.",
   },
   {
     id: "archer", word: "vibukütt",
@@ -1223,7 +1193,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "lai", word: "lai", looksLike: "lie", means: "wide",
-    quip: "The one that got away is always this, and the look-alike usually comes with it.",
+    quip: "The fish that got away was always this wide, and the story that goes with it is usually a lie.",
   },
   {
     id: "laps", word: "laps", looksLike: "laps", means: "child",
@@ -1378,16 +1348,16 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
     quip: "It ties up presents instead of clogging the dryer.",
   },
   {
-    id: "kruus", word: "kruus", looksLike: "cruise", means: "gravel",
-    quip: "It is also a mug, which is the half you would rather be handed on a cruise.",
+    id: "kruus", word: "kruus", looksLike: "cruise", means: "mug, gravel",
+    quip: "Gravel and a mug share the word. Only one of them is welcome on a cruise.",
   },
   {
     id: "ämber", word: "ämber", looksLike: "amber", means: "bucket",
-    quip: "Slang uses it for a blunder too, so stepping in one means putting your foot in it. Amber only ever trapped flies.",
+    quip: "To step into a bucket is the Estonian way to blunder, much as English puts a foot in it. Amber only traps insects.",
   },
   {
-    id: "tint", word: "tint", looksLike: "tint", means: "smelt, a small fish",
-    quip: "It is ink as well, which will tint anything it touches. This one is silver, with fins.",
+    id: "tint", word: "tint", looksLike: "tint", means: "smelt, ink",
+    quip: "The ink will tint anything it touches. The fish is silver, with fins.",
   },
   {
     id: "peal", word: "peal", looksLike: "peal", means: "on top of",
@@ -1430,7 +1400,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
     quip: "Every chef hopes a good menu leads to one.",
   },
   {
-    id: "mall", word: "mall", looksLike: "mall", means: "a template, protractor",
+    id: "mall", word: "mall", looksLike: "mall", means: "a protractor, a pattern",
     quip: "Found in pencil cases, not on the edge of town.",
   },
   {
@@ -1466,8 +1436,8 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
     quip: "Lose your purse and you may well have one.",
   },
   {
-    id: "maks", word: "maks", looksLike: "max", means: "tax",
-    quip: "The same word is your liver, and neither enjoys being squeezed to the max.",
+    id: "maks", word: "maks", looksLike: "max", means: "tax, liver",
+    quip: "Neither the tax nor the liver enjoys being squeezed to the max.",
   },
 ];
 
