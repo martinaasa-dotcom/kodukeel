@@ -326,6 +326,54 @@ parsing off the page and costs nothing, and because the production figure is
 the one that counts: it has to be read again on PageSpeed after a deploy, beside
 the 5.1, before anybody claims this item is done.
 
+### What the 5.1 seconds actually was (2026-10-15, FB-2)
+
+PageSpeed's keyless API answered 429 for the whole day (the shared daily quota
+was spent), so production was measured with the same Lighthouse 12.8.2 phone
+profile PageSpeed runs, from this machine against `https://kodukeel.ee`, three
+runs per page, and with a `PerformanceObserver` in a real browser for what was
+painted when.
+
+| Page | Largest paint, three runs (ms) | Element | Time to first byte (simulated) | Render delay | Observed largest paint |
+| --- | --- | --- | --- | --- | --- |
+| `/sign-in` | 4938, 4926, 4877 | `<p class="mt-2 text-xs">`, the line under the email form | 600 | 4274 to 4338 | 2471 ms, after `load` at 1250 |
+| `/welcome` | 2805, 2730, 2792 | the hero heading | 600 | 2130 to 2205 | 1032 ms, at first paint |
+
+The server is not it. Measured with `curl` past the TLS handshake, `/sign-in`
+answers in about 170 to 210 ms (dynamic, a cache miss) and `/welcome` in 90 to
+140 ms (a cache hit): a tenth of a second between them, against two seconds of
+difference in the paint. Nor is the amount of script: `/sign-in` loads 15 files
+and 146 KB compressed, the landing page 17 files and 230 KB, and the landing
+page is the faster of the two.
+
+**The cause was the card's entrance.** The sign-in card carried `pop-in`, which
+starts at opacity 0. Chrome does not count a box at opacity 0 as painted, and an
+opacity animation runs on the compositor rather than the main thread, so the
+card's words were first recorded as painted on some later main-thread paint. In
+the browser on production that was 2,296 ms in, 1.3 seconds after the back link
+had painted at 988; Lighthouse's simulation charges everything the page did
+before that moment, which is how a 1.1 second first paint became a 4.9 second
+largest one. Against a local hosted-mode build the card's text never registered
+at all within four seconds, and the largest paint fell to the back link.
+
+**The fix is an entrance that moves and never hides.** `.arrive` in
+`app/globals.css` lifts the card with a transform and no opacity, and the
+first-run wizard's card, which had the same class, takes it too.
+`scripts/invariants/a-page-card-is-visible-at-first-paint.ts` holds every screen
+under `app/(chromeless)/` to it and `@keyframes arrive` to no opacity.
+
+| Local hosted build, `/sign-in` | Largest paint candidate | When |
+| --- | --- | --- |
+| Before | the back link (3,591 px²); the card never registers | 188 ms |
+| After | the card's paragraph (11,160 px²) | 212 ms, at first paint |
+
+Lighthouse's local simulation does not move with it (five runs before 1978 to
+3215 ms, after 2619 to 3215 ms), because locally the back link was already
+painting at first paint and the simulation was charging the same work either
+way. Production is where the old element waited 2.3 seconds, so production is
+where the figure should move. **That figure is still to come**: re-run
+PageSpeed on `/sign-in` once this is deployed and write it here beside the 5.1.
+
 ## What this does not measure
 
 This runs one Postgres on the same machine as the app. It measures the shape of

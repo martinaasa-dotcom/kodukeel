@@ -459,7 +459,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
 
       <div
         ref={card}
-        className="pop-in relative mx-auto w-full max-w-2xl rounded-[var(--r-xl)] border p-7 md:p-10"
+        className="arrive relative mx-auto w-full max-w-2xl rounded-[var(--r-xl)] border p-7 md:p-10"
         style={{ background: "var(--surface)", borderColor: "var(--rule)", boxShadow: "var(--shadow-lg)" }}
       >
         <div className="mb-8 flex items-center gap-4">
