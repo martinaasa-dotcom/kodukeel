@@ -79,7 +79,7 @@ const CHOICES = 4;
 const INCLUDE = {
   lexeme: {
     select: {
-      id: true, lemma: true, translation: true, pos: true, examples: true, cefr: true,
+      id: true, lemma: true, translation: true, pos: true, examples: true, cefr: true, provenance: true,
       translationRu: true, translationUk: true,
       forms: { select: { formType: true, value: true, morphCode: true } },
     },
@@ -89,7 +89,7 @@ const INCLUDE = {
 type LearnRow = Awaited<ReturnType<typeof prisma.card.findMany>>[number] & {
   lexeme: {
     id: string; lemma: string; translation: string; pos: string; examples: string;
-    cefr: string | null; translationRu: string | null; translationUk: string | null;
+    provenance: string; cefr: string | null; translationRu: string | null; translationUk: string | null;
     forms: { formType: string; value: string; morphCode: string | null }[];
   } | null;
 };
@@ -352,7 +352,7 @@ function sentenceAndGap(
     walk the course differently, and a recorded sentence the learner can read
     is the next best thing.
   */
-  const written = authoredFor(lexeme.lemma);
+  const written = authoredFor(lexeme.lemma, lexeme.provenance);
   const taught = teachingSentence(written.filter((e) => readable(e.et)), [lexeme.lemma], opener)
     ?? teachingSentence(examples.filter((e) => readable(e.et)), [lexeme.lemma], opener, plainest)
     ?? teachingSentence(examples, [lexeme.lemma], opener, plainest);

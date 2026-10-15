@@ -27,7 +27,6 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   // esimesed-verbid
   ["olema", "See olen mina.", "That's me."],
   ["see", "See on tema.", "This is her."],
-  ["too", "Too on tema, see olen mina.", "That one over there is him, and this is me."],
   ["elama", "Mina elan, sina elad.", "I live, you live."],
   ["õppima", "Mina õpin, tema ei õpi.", "I study, he doesn't."],
   ["rääkima", "Ma tahan rääkida.", "I want to talk."],
@@ -64,7 +63,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   // inimesed
   ["inimene", "Ta on hea inimene.", "She's a good person."],
   ["naine", "See on minu naine.", "This is my wife."],
-  ["mees", "Too mees elab siin.", "That man lives here."],
+  ["mees", "See mees elab siin.", "This man lives here."],
   ["laps", "Laps tahab minna.", "The child wants to go."],
   ["sõber", "Ta on minu sõber.", "He's my friend."],
   ["ema", "Minu ema elab siin.", "My mother lives here."],

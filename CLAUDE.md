@@ -5501,6 +5501,17 @@ as contributed sentences land, and the two ways out are both worse than saying i
 readability rule open for the words that need it least, or inventing a question the dictionary
 cannot support.
 
+**And a B2 word spelled like a verb is not an A1 word.** `too`, the pronoun "that one over there", was
+the third word of the course's first evening. Ekilex bands it B2, and it is spelled exactly like the
+imperative of `tooma`, so `Too on tema, see olen mina.` under a card reading "bring" was unreadable even
+to a B1 learner, who reported it. It is out of `esimesed-verbid` and in `retired.ts`, so the dictionary
+keeps it and no evening teaches it, and `see` carries "this, it" for everything an A1 sentence needs. The
+first evening is four words and the second is still five, so no day id moved. The sentence written for it
+went too, and a second written row that used it (`Too mees elab siin.`) now says `See mees elab siin.`,
+which `npm run check:authored` found. **What was not reproduced is the gloss.** Nothing shipped glosses
+`too` as "bring", so a deployment showing that has a second `too` row older than the course, and written
+sentences are filed by lemma alone, which is how the pronoun's sentence reached it. It was found on 2026-10-15: a learner had added `too` by hand as "bring" (USER, part of speech OTHER, no forms), beside the seed's pronoun, and the pronoun's sentence reached it by lemma. So `authoredFor` takes the entry's provenance, required, and gives a USER or AI row nothing: the rows are written for the words the seed and Ekilex supplied, and `Lexeme` is unique on `(lemma, pos)`, so a spelling is not a word. The learner's row and its two cards are theirs and were left alone.
+
 **What is still outside the rule and is named rather than hidden**: dictation and the picture round
 stay in the A1 rotation and both put an attested sentence in front of a beginner, dictation asking
 for every word of it typed; and the grammar page a day reads prints attested examples. Each is a

@@ -51,7 +51,7 @@ function wordOf(r: (typeof rows)[number], authored: boolean): FlashWord {
   return {
     lexemeId: keyOf(r), lemma: r.lemma, translation: r.translation, pos: r.pos,
     semanticTypes: r.semanticTypes, forms: r.forms,
-    examples: [...(authored ? authoredFor(r.lemma) : []), ...usableExamples(recorded), ...(borrowed.get(keyOf(r)) ?? [])],
+    examples: [...(authored ? authoredFor(r.lemma, "SEED") : []), ...usableExamples(recorded), ...(borrowed.get(keyOf(r)) ?? [])],
   };
 }
 
