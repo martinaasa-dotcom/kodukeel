@@ -7,6 +7,8 @@ import { ArrowRight, Flame, Shield } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { dailySummary, deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
+import { reviewQueue } from "./review/queue";
+import { KeepCurrent } from "@/components/KeepCurrent";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { measuredPaceFor } from "@/lib/progress/plan";
 import { minutesForCards, ownCardsPerMinute } from "@/lib/stats/pace";
@@ -152,7 +154,7 @@ export default async function TodayPage() {
   // with a deck or a finished setup never sees it again.
   if (!settings[SETTING_KEYS.onboardedAt] && snapshot.totalCards === 0) redirect("/start");
 
-  const [summary, units, tasks, openTasks, lateTasks, events, weekReviews, learner, pace, [programme, courseNow]] = await Promise.all([
+  const [summary, units, tasks, openTasks, lateTasks, events, weekReviews, learner, pace, [programme, courseNow], review] = await Promise.all([
     dailySummary(ownerId, now, clock),
     pathWithProgress(ownerId, snapshot),
     /*
@@ -214,6 +216,13 @@ export default async function TodayPage() {
       programme,
       programme ? await courseReading(ownerId, programme, clock, now) : null,
     ] as const),
+    /*
+      THE SITTING REVIEW WILL HOLD, built by the review page's own builder,
+      because "20 due" over a session of one card is the app contradicting
+      itself on the one press it asks for. Counting the list is the only
+      count that cannot drift from it (see app/(app)/review/queue.ts).
+    */
+    reviewQueue(ownerId, null, now),
   ]);
 
   const stage = stageOf({ totalCards: snapshot.totalCards, reviewsAllTime: summary.reviewsAllTime });
@@ -267,16 +276,14 @@ export default async function TodayPage() {
 
   const today = dateLine(now, clock.zone);
   /*
-    What Practice will actually put in front of them.
-
-    Due cards, plus the unseen ones a session trickles in, which is what it has
-    always been. What changed is which unseen ones count: the ladder owns a
-    word until its recognition card graduates, so every card of a word being
-    learned is Learn's and none of them is offered here. Both figures draw the
-    same line the review queue draws, so a number on this page is a number that
-    screen will fill.
+    What Review will actually put in front of them: the length of the very
+    list that screen builds, due cards and the unseen ones a session trickles
+    in. It was a tally over the whole deck reasoning about that list, and it
+    printed "20 due" over a session that asked one card.
   */
-  const toReview = Math.min(snapshot.dueCount + Math.min(snapshot.newForPractice, 10), 60);
+  const toReview = review.cards.length;
+  // What is due, as Review will ask it, marked where more is due than a sitting holds.
+  const dueNow = review.dueMore ? `${review.due.length}+` : review.due.length;
   /** Words waiting on the ladder, in words rather than in cards. */
   const toLearn = snapshot.learnCount;
   const name = settings[SETTING_KEYS.displayName]?.trim() || (learner.name === "you" ? "" : learner.name);
@@ -329,7 +336,7 @@ export default async function TodayPage() {
   const figures = shows(stage, "streak") ? (
     <div className="flex flex-wrap items-center gap-4">
       <div className="grid w-full grid-cols-2 gap-3 sm:w-auto sm:min-w-[200px] sm:flex-1">
-        <StatTile value={snapshot.dueCount} label={t("Due now")} tone="accent" />
+        <StatTile value={dueNow} label={t("Due now")} tone="accent" />
         <StatTile value={toLearn} label={t("New words")} tone="sky" />
       </div>
       {/* On a phone the ring wraps onto its own line, where a bare
@@ -1043,6 +1050,9 @@ export default async function TodayPage() {
         the rail and in the palette; nothing here is the only way to reach
         anything.
       */}
+      {/* Asks the server again when this page is shown from a copy, so the
+          review count above is the session Review is about to hold. */}
+      <KeepCurrent renderedAt={now.getTime()} />
       <Stack className="min-w-0">
         {/* Today's card is the one big thing on this page, and the only one
             the letters lie on here, calm rather than hopping, since it is opened every

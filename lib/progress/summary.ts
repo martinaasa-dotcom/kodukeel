@@ -8,8 +8,6 @@ import {
 } from "@/lib/settings/store";
 import { dayClock, type DayClock } from "@/lib/time/day";
 import { isLearningWord, LADDER_CARD_TYPE } from "@/lib/learn/ladder";
-import { reviewable } from "@/lib/course/scope";
-import { learnerScopeSoFar, moduleSpellings } from "@/lib/progress/moduleScope";
 
 /**
  * One read of "where is this learner", shared by Today, the path, the progress
@@ -27,28 +25,13 @@ const KNOWN_STATE = 2;
 
 export interface DeckSnapshot {
   totalCards: number;
-  /**
-   * Cards Practice will actually serve: due, seen before, and not a word Learn
-   * still has hold of.
-   *
-   * The last clause is why this is not simply `due <= now && state !== 0`. The
-   * ladder walks a new word on its recognition card and the scheduler puts
-   * that card ten minutes out between rungs, so a word being learned this
-   * evening is technically due. Counting it here would put a number on Today
-   * that the review queue then refuses to fill, which is the worst kind of
-   * wrong: it looks like a counting fault in the app rather than a rule.
-   */
-  dueCount: number;
-  /**
-   * Unseen cards Practice will introduce: the ones belonging to words the
-   * ladder has finished with.
-   *
-   * Every card of a word arrives unseen in one insert, so a deck of fifty words
-   * holds hundreds of these and almost all of them are Learn's. Counting the
-   * lot would put a number on Today that the review queue refuses to fill,
-   * which is the fault `dueCount` is written the way it is to avoid.
-   */
-  newForPractice: number;
+  /*
+    How many cards Review holds is not a field here. It was (`dueCount` and
+    `newForPractice`), a tally over the whole deck reasoning about the review
+    queue, and it printed "20 due" over a session that asked one card. Every
+    screen that says how many cards Review holds now counts the queue itself:
+    see app/(app)/review/queue.ts.
+  */
   /**
    * Words waiting on the Learn ladder, counted as words rather than cards.
    *
@@ -119,12 +102,7 @@ export async function deckSnapshot(ownerId: string, now = new Date()): Promise<D
       // `cardType` rides along for the ladder count: which card a word is
       // being learned on is a fact about the card type (lib/learn/ladder.ts),
       // and asking for it separately would be a second read of the same rows.
-      // `source`, `targetCase`, `slot` and `front` are what `reviewable` reads,
-      // so the count Today prints is the round Review will actually ask.
-      select: {
-        state: true, due: true, suspended: true, lexemeId: true, cardType: true,
-        source: true, targetCase: true, slot: true, front: true, back: true,
-      },
+      select: { state: true, due: true, suspended: true, lexemeId: true, cardType: true },
     }),
     /*
       Which words this learner has put aside, which the counts below have to
@@ -138,31 +116,13 @@ export async function deckSnapshot(ownerId: string, now = new Date()): Promise<D
     // here rather than on the line below keeps the round trips at one.
     gradedLemmas(),
   ]);
-  const [entries, taught] = await Promise.all([
-    lemmasByCardLexeme(cards.map((card) => card.lexemeId)),
-    learnerScopeSoFar(ownerId),
-  ]);
-  const spellings = await moduleSpellings(taught);
+  const entries = await lemmasByCardLexeme(cards.map((card) => card.lexemeId));
 
   const perLemma = new Map<string, { total: number; known: number }>();
   const seenLemmas = new Set<string>();
-  let dueCount = 0;
   let newCount = 0;
-  let newForPractice = 0;
   let learnCount = 0;
   let knownCards = 0;
-
-  /*
-    Which words the ladder still has hold of, read off the rows already
-    fetched. The review queue asks the database the same question with a `none`
-    clause; here the whole deck is in hand, so it is one pass over it.
-  */
-  const onLadder = new Set<string>();
-  for (const card of cards) {
-    if (card.cardType === LADDER_CARD_TYPE && isLearningWord(card.state) && card.lexemeId) {
-      onLadder.add(card.lexemeId);
-    }
-  }
 
   for (const card of cards) {
     if (card.state === KNOWN_STATE) knownCards++;
@@ -176,21 +136,8 @@ export async function deckSnapshot(ownerId: string, now = new Date()): Promise<D
       if (card.state === 0) {
         // `due` on an unseen card is the moment it was written, so this reads
         // as it always did until somebody presses "too complicated".
-        if (card.due <= now) {
-          newCount++;
-          if (!onLadder.has(card.lexemeId ?? "")) newForPractice++;
-        }
-      // The same line the review queue draws, for the reason `dueCount` gives.
-      //
-      // And only a card Review may ask: one the module has not taught waits,
-      // so counting it would promise "6 due" over an empty round.
-      } else if (card.due <= now && !ladderCard && reviewable(taught, {
-        ...card,
-        lexeme: card.lexemeId === null ? null : (() => {
-          const lemma = entries.get(card.lexemeId)?.lemma;
-          return lemma ? { lemma } : null;
-        })(),
-      }, spellings)) dueCount++;
+        if (card.due <= now) newCount++;
+      }
     }
     const lemma = card.lexemeId === null ? undefined : entries.get(card.lexemeId)?.lemma;
     if (!lemma) continue;
@@ -203,8 +150,6 @@ export async function deckSnapshot(ownerId: string, now = new Date()): Promise<D
 
   return {
     totalCards: cards.length,
-    dueCount,
-    newForPractice,
     learnCount,
     newCount,
     knownCards,

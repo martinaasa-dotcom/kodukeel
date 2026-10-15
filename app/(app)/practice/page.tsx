@@ -5,7 +5,7 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
-import { deckSnapshot } from "@/lib/progress/summary";
+import { reviewQueue } from "../review/queue";
 import { listDecks } from "@/lib/progress/decks";
 import { masteryCounts, masteryFor } from "@/lib/progress/mastery";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
@@ -42,8 +42,11 @@ const EXTRAS: Record<string, ShelfItem> = {
  */
 export default async function PracticePage() {
   const ownerId = await requireUserId();
-  const [snapshot, settings, sentenceReady, words, decks, level, locale] = await Promise.all([
-    deckSnapshot(ownerId),
+  const [review, totalCards, settings, sentenceReady, words, decks, level, locale] = await Promise.all([
+    // The sitting Review will hold, counted rather than reasoned about: see
+    // app/(app)/review/queue.ts for what two readings of it cost.
+    reviewQueue(ownerId, null, new Date()),
+    prisma.card.count({ where: { ownerId } }),
     readSettings(ownerId, [SETTING_KEYS.matchBest]),
     /*
       The learner's own words, asked for as words.
@@ -108,7 +111,7 @@ export default async function PracticePage() {
     "Nothing due" over a session with ten cards in it is the sort of small
     inconsistency a reader catches once and then stops trusting.
   */
-  const ready = Math.min(snapshot.dueCount + Math.min(snapshot.newForPractice, 10), 60);
+  const ready = review.cards.length;
 
   const counts = masteryCounts(words);
   const unfinished = counts.struggling + counts.almost + counts.learning;
@@ -161,7 +164,7 @@ export default async function PracticePage() {
 
   return (
     <Page route="/practice" title={tr(locale, "Practice")} lead={tr(locale, "The words you've met, asked every which way until they stick.")}>
-      {snapshot.totalCards === 0 ? (
+      {totalCards === 0 ? (
         <Empty
           title={tr(locale, "Nothing to practice yet")}
           body={tr(locale, "Every round here uses words from your own deck, so meet a few first.")}
@@ -196,8 +199,8 @@ export default async function PracticePage() {
             text={tr(locale, "Each word comes back just before you'd forget it.")}
             cardsLabel={tr(locale, "Where your cards stand")}
             cards={[
-              { figure: String(snapshot.dueCount), label: tr(locale, "Due now"), icon: "Clock" },
-              { figure: String(Math.min(snapshot.newForPractice, 10)), label: tr(locale, "New to meet"), icon: "Sparkles" },
+              { figure: review.dueMore ? `${review.due.length}+` : String(review.due.length), label: tr(locale, "Due now"), icon: "Clock" },
+              { figure: String(review.fresh.length), label: tr(locale, "New to meet"), icon: "Sparkles" },
               { figure: String(unfinished), label: tr(locale, "To work on"), icon: "Target" },
             ]}
             action={
