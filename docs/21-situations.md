@@ -5497,3 +5497,13 @@ It reads every required beat for what a picked line has to hold, generously: the
 | `nadalavahetus` | 4 of 5 | `did`: none of saun, kino, kontsert, teater or pidu is taught in A1 |
 
 Two of eight, against a gate of four, so nothing was built and nothing in the course moved. The script prints the per-part table as well (`WORDS ALONE`), which shows when each blocking word arrives. What would change the answer is the course rather than the mode: the cases arrive at A2, and the same scenes are open to typing there. The café on the landing page stays as it is, because it is a showcase of one conversation for somebody deciding whether to start, not an evening of a course that promises to show a form before asking for it.
+
+## 84. Pick a line or type it, in every conversation
+
+The operator read §83 and overruled the gate: every situation is to be excellent with no model at all, and picking is how a beginner holds a whole conversation before they can produce one. So the mode was built for every scene rather than for A1 alone, and the §83 measurement stands as the record of why it is not the only way in.
+
+`lib/scenes/picks/` holds two or three lines per beat for each of the 43 scenes, written as templates: literal Estonian, plus slots off the card (`{from}`, or `{from:ELATIVE}` for a case read off the dictionary's own table). `lib/scenes/picks/curveballs.ts` holds the shared answers to the curveballs, and a scene may override them. Every literal word is one the scene's own dictionary holds, and every slot is one its card deals. The lines were typed in a session and are for the native speaker to read in the pull request, like the bank's authored rows (ADR-025 amendment 1). `picks.test.ts` walks each scene keyless on four cards: every pick has to meet its beat, the first pick at each beat has to finish the scene, and every admitted curveball's picks have to deal with it.
+
+The route sends the picks for the beat in front with every turn. The screen offers them behind a Pick a line / Type it switch, picking by default at A1 and typing everywhere else. A picked line is read by the same marker as a typed one, so the conversation goes on the same way, and it grades nothing (`SentTurn.picked`): choosing the right sentence out of three is recognition, and the review log may not record a recall that never happened.
+
+What the templates cannot say yet: a country in the seestütlev where the dictionary builds `Saksamaast` for `Saksamaalt` (`uus-kolleeg`, `keeletund` say "Minu kodumaa on {from}" instead), and a plural a singular slot cannot give (`toovestlus`'s skill line). Both are noted beside the pick.
