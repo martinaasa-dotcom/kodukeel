@@ -49,7 +49,7 @@ const COMPLAINT: SceneSpec = {
       id: "problem",
       goal: "Tell them what you bought and what's wrong with it.",
       they: "They ask what the problem is.",
-      feel: "sorry",
+      feel: "noted",
       move: "ask",
       topic: ["probleem", "viga", "katki", "kaebus", "aitama"],
       /*

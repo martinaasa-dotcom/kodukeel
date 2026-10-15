@@ -26,7 +26,6 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "arsti-aeg", beat: "close", text: "Head aega ja aitäh!", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewedAt: "2026-10-15" },
   { scene: "arsti-aeg", beat: "close", text: "Head aega ja tänan!", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewedAt: "2026-10-15" },
   { scene: "arsti-aeg", beat: "close", text: "Head aega!", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewedAt: "2026-10-15" },
-  { scene: "arsti-aeg", beat: "greet", text: "Tere hommikust!", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewedAt: "2026-10-15" },
   { scene: "arsti-aeg", beat: "greet", text: "Tere!", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewedAt: "2026-10-15" },
   { scene: "arsti-aeg", beat: "hurdle:contradiction", text: "Ei, arst on täna ikka siin.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "arsti-aeg", beat: "hurdle:contradiction", text: "Ei, see aeg on ikka vaba.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },

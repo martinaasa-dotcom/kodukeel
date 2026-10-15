@@ -97,6 +97,14 @@ export const FALLBACK_PHRASE = "Ma ei saa aru";
 export const FEELINGS: Readonly<Record<Feel, { readonly word: string; readonly mark: "." | "?" | "!" }>> = {
   sorry: { word: "tõesti", mark: "?" },
   glad: { word: "tore", mark: "!" },
+  /*
+    A problem told to somebody whose job is to deal with it. A pharmacist
+    told "my head hurts", an operator told somebody has fallen and a clerk
+    told the money has not come are not moved and are not glad: "Hästi." is
+    "good" said to a symptom, and "Tõesti?" from a professional reads as
+    doubting it. "Selge." is "understood", which is what they say.
+  */
+  noted: { word: "selge", mark: "." },
 };
 
 export const REACTIONS = {

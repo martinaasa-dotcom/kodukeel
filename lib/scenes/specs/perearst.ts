@@ -72,7 +72,7 @@ const FAMILY_DOCTOR: SceneSpec = {
       id: "hurts",
       goal: "Tell them what hurts.",
       they: "They ask what's wrong.",
-      feel: "sorry",
+      feel: "noted",
       move: "ask",
       topic: ["valu", "valutama", "haige", "tervis"],
       needs: [{ kind: "datum", slot: "hurts" }],

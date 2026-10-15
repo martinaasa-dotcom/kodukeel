@@ -35,7 +35,6 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "ametiasutus", beat: "document", text: "Kas teil on see dokument kaasas?", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewedAt: "2026-10-15" },
   { scene: "ametiasutus", beat: "fill", text: "Palun täitke avaldus ise ja pange oma allkiri siia.", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewedAt: "2026-10-15" },
   { scene: "ametiasutus", beat: "fill", text: "Pange palun oma allkiri siia ja täitke avaldus ise.", model: "authored", draftedAt: "2026-09-06", reviewedAt: "2026-10-15" },
-  { scene: "ametiasutus", beat: "greet", text: "Tere hommikust!", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewedAt: "2026-10-15" },
   { scene: "ametiasutus", beat: "greet", text: "Tere!", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewedAt: "2026-10-15" },
   { scene: "ametiasutus", beat: "hurdle:contradiction", text: "Ei, see dokument ikka sobib.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "ametiasutus", beat: "hurdle:contradiction", text: "Ei, täna ikka saab.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },

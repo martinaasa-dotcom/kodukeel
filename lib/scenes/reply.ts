@@ -281,7 +281,7 @@ export function partsLine(
     const prop = input.card ? propBySlot(input.card, part.slot) : undefined;
     if (!prop?.value) return null;
     if (!part.grammCase) {
-      pieces.push(prop.value);
+      pieces.push(spokenClock(prop.value));
       continue;
     }
     /*
@@ -301,6 +301,21 @@ export function partsLine(
     provenance: "attested",
     ...(from ? { from } : {}),
   };
+}
+
+/**
+ * A clock time as a person writes it in a sentence: `kell 9.30` and `kell 14`
+ * rather than the timetable's `09:30` and `14:00`. The card keeps the
+ * timetable spelling, which is how the learner reads it off a slip, and the
+ * marker takes every spelling either way (`timeSpellings`); what changed is
+ * only what the other side is shown saying, which a reviewer read as a
+ * person reciting a display.
+ */
+export function spokenClock(value: string): string {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(value);
+  if (!m) return value;
+  const hour = String(Number(m[1]));
+  return m[2] === "00" ? hour : `${hour}.${m[2]}`;
 }
 
 /**
@@ -745,6 +760,9 @@ function ownReaction(line: SpokenLine | null): boolean {
  * side handing back somebody's own yes. It was reported as a response that
  * makes zero sense, and it is the echo rule arriving through another door.
  */
+/** The stems of the course's verbs of wanting, and `palun`: a turn holding one asks for something. */
+const WANTING = /^(taha|tahtsin|tahaksin|soovi|vaja|palu)/;
+
 function acknowledgements(heard: string | null, said: string | null): readonly string[] {
   /*
     A question opening on `kas` is a yes-or-no question unless it offers two
@@ -762,7 +780,14 @@ function acknowledgements(heard: string | null, said: string | null): readonly s
     rather than the reaction going, which is what it did before any of this.
   */
   const theirs = new Set(words(said ?? ""));
-  const fresh = mine.filter((word) => !theirs.has(word));
+  /*
+    AND NO THANKS FOR BEING ASKED FOR SOMETHING. `Aitäh.` is thanks for a fact,
+    and said back to "Ma tahan raha tagasi" it read as the clerk thanking the
+    customer for a demand. A turn that wants something (a form of `tahtma`,
+    `soovima` or `vajama`, or `palun`) is acknowledged with `hästi` instead.
+  */
+  const wants = [...theirs].some((word) => WANTING.test(word));
+  const fresh = mine.filter((word) => !theirs.has(word) && !(wants && word === "aitäh"));
   return fresh.length > 0 ? fresh : mine;
 }
 
@@ -1384,7 +1409,16 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     const theirBye = answered?.move === "close" ? FAREWELLS.find((bye) => plainWord(input.said).includes(plainWord(bye))) : undefined;
     if (byeSaid) { /* the goodbye already said stands */ }
     else if (theirBye) out.push({ text: theirBye, provenance: "attested" });
-    else if (input.offer) out.push({ ...reaction(input.offer, "?"), provenance: "offered" });
+    /*
+      AND NOT THE BARE WORD ON THE WAY PAST. `Pea?` said to somebody who had
+      just described a stomach ache, `Kinni?` and `Kuu?` were read by every
+      reviewer as the other side blurting a noun: on the way past it is a
+      question nobody is waiting for an answer to. The word is handed over
+      where the learner said they were lost (`help`, above), the app says in
+      English what was wanted once they are stuck (`coachFor`), and the
+      review after the scene names every beat let go; here the other side
+      only says it is moving on.
+    */
     else out.push(reaction(REACTIONS.letGo[0], "."));
   }
 
@@ -1522,6 +1556,17 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   */
   if (beat.move === "close" && aside) return out;
 
+  /*
+    "DO YOU SPEAK ENGLISH?" IS A QUESTION, AND IT IS ANSWERED. Everybody asks
+    it in their first month, and the other side used to say its own line again
+    as though nothing had been asked. `Natuke.` ("a little") is what most
+    people behind a counter here would say, it is a word every scene teaches
+    (`maaramine`), and the question that follows stays in Estonian, which is
+    the honest version of "a little": the helpful persona adds the English
+    under it, as before.
+  */
+  if (response === "english" && input.askedForEnglish && !composed) out.push(reaction("natuke", "."));
+
   const narrowed = input.tries === NUDGE_AFTER && !advancing(response) && !composed ? input.choice : null;
   if (narrowed) {
     out.push({ text: narrowed, provenance: "attested", from: CHOICE_WORD });
@@ -1639,6 +1684,20 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   if (said && before && before.reaction && before.text === said.text) out.splice(out.length - 2, 1);
 
   /*
+    "GOT IT, BUT" IS ONE SENTENCE. `Selge.` on its own and then the same
+    question again was the commonest line in every keyless transcript, and
+    the reviewers read it as the other side saying it understood and then
+    behaving as though it had not: "got it" closes a point, and the question
+    after it reopens the same one. What a person says is `Selge, aga kus teil
+    valutab?`, which is the word for having understood and the word for "the
+    thing I asked is still open" in one breath, both words every scene
+    teaches. Joined only where the line opens on a word that is never a name
+    (`OPENS_LOWER`), since lowering the first letter of a sentence that opens
+    on `Tallinna?` would be this module misspelling a place.
+  */
+  butAfterHeard(out);
+
+  /*
     A helpful persona translates the question for somebody who wrote English
     (§8); a brisk one has already repeated it in Estonian above and says no
     more. Never scolded, and the turn has already cost its try.
@@ -1754,6 +1813,33 @@ export function stageFor(
  */
 export function feltAt(answered: BeatSpec | null, response: Response | null): Feel | undefined {
   return response === "answer" && answered?.feel ? answered.feel : undefined;
+}
+
+/**
+ * Words a re-asked line may open on that are never a name, so its first
+ * letter may be lowered after `Selge, aga`: the question words, the pronouns
+ * and the polite opener. A line opening on anything else keeps `Selge.` as a
+ * sentence of its own rather than risk lowering a place or a person.
+ */
+const OPENS_LOWER = new Set([
+  "kus", "kuhu", "kust", "mis", "mida", "millal", "kas", "kui", "kuidas", "kes", "keda", "kellele", "kelle",
+  "mitu", "milline", "millist", "mille", "millega", "miks", "kaua", "mitmendal", "mitmes", "palun", "aga",
+  "ma", "mina", "sa", "sina", "te", "teie", "me", "meie", "ta", "tema", "mul", "sul", "teil", "meil", "tal",
+  "see", "seda", "siin", "seal", "nüüd", "ja", "kell", "jah", "ei",
+]);
+
+function butAfterHeard(out: SpokenLine[]): void {
+  const heardText = reaction(REACTIONS.heard[0], ".").text;
+  for (let i = 0; i < out.length - 1; i++) {
+    const first = out[i]!;
+    const next = out[i + 1]!;
+    if (!first.reaction || first.text !== heardText || next.reaction) continue;
+    if (!(["again", "scripted", "attested"] as const).some((p) => p === next.provenance)) continue;
+    const opener = (next.text.match(/^\p{L}+/u)?.[0] ?? "").toLowerCase();
+    if (!OPENS_LOWER.has(opener)) continue;
+    const butWord = heardText.slice(0, -1);
+    out.splice(i, 2, { ...next, text: `${butWord}, aga ${next.text.charAt(0).toLowerCase()}${next.text.slice(1)}` });
+  }
 }
 
 export function reaction(lemma: string, mark: "." | "?" | "!"): SpokenLine {

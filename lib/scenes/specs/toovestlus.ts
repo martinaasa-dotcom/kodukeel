@@ -42,8 +42,8 @@ const INTERVIEW: SceneSpec = {
       when asked for more, drawn from a higher span so a counter-offer is
       never a cut.
     */
-    { kind: "price", slot: "wage", min: 1400, max: 1700, says: "The monthly wage they offer, in euros.", theirs: true },
-    { kind: "price", slot: "wage2", min: 1750, max: 2000, says: "What they go up to if you ask for more, in euros a month.", theirs: true },
+    { kind: "price", slot: "wage", min: 1400, max: 1700, says: "The monthly wage they offer, in euros.", theirs: true, pay: true },
+    { kind: "price", slot: "wage2", min: 1750, max: 2000, says: "What they go up to if you ask for more, in euros a month.", theirs: true, pay: true },
   ],
   curveballs: ["faster", "english", "small-talk", "interrupted", "other-register", "not-possible", "contradiction", "their-order"],
   beats: [

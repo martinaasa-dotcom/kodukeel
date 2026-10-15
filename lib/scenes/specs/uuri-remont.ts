@@ -84,7 +84,7 @@ const LANDLORD: SceneSpec = {
       id: "problem",
       goal: "Tell them what's broken.",
       they: "They ask what's gone wrong.",
-      feel: "sorry",
+      feel: "noted",
       move: "ask",
       topic: ["küte", "elekter", "remont", "lekkima", "mööbel"],
       /*

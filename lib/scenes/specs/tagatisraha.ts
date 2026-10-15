@@ -72,6 +72,7 @@ const DEPOSIT: SceneSpec = {
     {
       id: "clean",
       goal: "They say the flat wasn't left clean. Tell them it was: you cleaned it.",
+      feel: "noted",
       they: "They say the flat wasn't left clean.",
       move: "ask",
       topic: ["puhas", "koristama", "korter"],

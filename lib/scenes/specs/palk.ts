@@ -28,10 +28,10 @@ const RAISE: SceneSpec = {
       kind: "word", slot: "did", oneOf: ["projekt", "aruanne", "toode"],
       says: "What you did this year.",
     },
-    { kind: "price", slot: "ask", min: 150, max: 300, says: "How much more you'd like a month, in euros." },
+    { kind: "price", slot: "ask", min: 150, max: 300, says: "How much more you'd like a month, in euros.", pay: true },
     /* What the manager offers, and what they go up to when asked for more: both theirs, never on your card. */
-    { kind: "price", slot: "offer", min: 50, max: 100, says: "What they offer first, in euros a month.", theirs: true },
-    { kind: "price", slot: "offer2", min: 110, max: 140, says: "What they go up to, in euros a month.", theirs: true },
+    { kind: "price", slot: "offer", min: 50, max: 100, says: "What they offer first, in euros a month.", theirs: true, pay: true },
+    { kind: "price", slot: "offer2", min: 110, max: 140, says: "What they go up to, in euros a month.", theirs: true, pay: true },
   ],
   curveballs: ["not-possible", "contradiction", "other-register", "interrupted"],
   beats: [

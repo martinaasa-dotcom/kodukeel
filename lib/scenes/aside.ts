@@ -404,9 +404,17 @@ export function shrugFits(input: Pick<AsideInput, "said" | "spoken" | "lexicon">
 export function asksToHearAgain(spoken: readonly string[], questionWords: ReadonlySet<string>, lexicon: Lexicon): boolean {
   if (spoken.length === 0 || spoken.length > 3) return false;
   const sorry = lexicon.byLemma.get(SORRY) ?? new Set<string>();
-  return spoken.every((word) => questionWords.has(word) || sorry.has(word))
-    && spoken.some((word) => questionWords.has(word));
+  /*
+    Only the words that ask for the whole line. `Mis?` and `Kuidas?` are
+    "sorry, what?"; `Millal?`, `Kus?` and `Kui palju?` ask for one fact, and
+    answering "when do I come back?" with the instruction the learner had just
+    read is the line said at somebody who asked something else.
+  */
+  const whole = (word: string) => questionWords.has(word) && HEAR_AGAIN.has(word);
+  return spoken.every((word) => whole(word) || sorry.has(word))
+    && spoken.some(whole);
 }
+const HEAR_AGAIN: ReadonlySet<string> = new Set(["mis", "mida", "kuidas"]);
 const SORRY = "Vabandust!";
 
 /** Whether the turn asks what something costs: a money word, or "how much/many". */

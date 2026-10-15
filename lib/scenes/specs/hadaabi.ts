@@ -55,6 +55,7 @@ const EMERGENCY: SceneSpec = {
     {
       id: "what",
       goal: "Tell them somebody has fallen and hurt their leg, arm, head or back.",
+      feel: "noted",
       they: "They ask what has happened.",
       move: "ask",
       topic: ["valu", "juhtuma", "abi", "kukkuma"],
@@ -77,6 +78,7 @@ const EMERGENCY: SceneSpec = {
     {
       id: "hurt",
       goal: "Tell them whether they can stand up: yes or no.",
+      feel: "noted",
       they: "They ask whether the person can stand up.",
       move: "ask",
       topic: ["seisma", "jalg", "valu", "haige"],

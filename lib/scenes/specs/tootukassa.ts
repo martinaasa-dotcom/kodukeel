@@ -67,6 +67,7 @@ const UNEMPLOYMENT_FUND: SceneSpec = {
     {
       id: "why",
       goal: "Tell them you've lost your job and want to register.",
+      feel: "noted",
       they: "They ask how they can help.",
       move: "ask",
       topic: ["töö", "tööpuudus", "aitama"],

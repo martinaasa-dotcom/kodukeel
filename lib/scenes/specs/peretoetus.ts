@@ -46,6 +46,7 @@ const FAMILY_BENEFIT: SceneSpec = {
     {
       id: "why",
       goal: "Tell them the money for your child hasn't come this month.",
+      feel: "noted",
       they: "They ask how they can help.",
       move: "ask",
       topic: ["raha", "laps", "aitama"],

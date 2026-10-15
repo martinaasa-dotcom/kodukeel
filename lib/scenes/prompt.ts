@@ -625,6 +625,9 @@ export function composeLive(ask: ComposeAsk): string {
         + " words, before your move."
       : ask.feel === "glad"
         ? "What they just told you is good news: be glad for them, in a few words, before your move."
-        : "",
+        : ask.feel === "noted"
+          ? "What they just told you is the problem they have come to you about: take it seriously and"
+            + " calmly, in a few words, before your move. Never call it good."
+          : "",
   ].filter(Boolean).join("\n");
 }

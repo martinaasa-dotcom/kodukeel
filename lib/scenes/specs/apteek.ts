@@ -53,6 +53,7 @@ const PHARMACY: SceneSpec = {
     {
       id: "what",
       goal: "Tell them what's hurting.",
+      feel: "noted",
       they: "They ask how they can help.",
       move: "ask",
       topic: ["aitama", "valu", "valutama", "tervis", "haige"],
@@ -64,6 +65,7 @@ const PHARMACY: SceneSpec = {
     {
       id: "since",
       goal: "Tell them which day it started hurting.",
+      feel: "noted",
       they: "They ask how long it's been like this.",
       move: "ask",
       topic: ["kaua", "päev", "aeg", "kestma", "eile"],

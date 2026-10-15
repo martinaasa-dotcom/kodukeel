@@ -742,6 +742,9 @@ function finiteVerbs(rows: readonly Row[]): (word: string) => boolean {
  * beat is the scripted bank's and the composer's, both of which were told what
  * the beat is for (ADR-025 amendment 2, `docs/21-situations.md` §32).
  */
+/** A greeting or a goodbye that names a time of day, which no scene states. */
+const TIME_OF_DAY = /hommikust|päevast|õhtust|\bööd\b|head ööd/i;
+
 function poolsFor(scene: SceneSpec, rows: readonly Row[]): Map<string, Line[]> {
   const byLemma = new Map(rows.map((row) => [row.lemma, row]));
   const out = new Map<string, Line[]>();
@@ -751,6 +754,14 @@ function poolsFor(scene: SceneSpec, rows: readonly Row[]): Map<string, Line[]> {
       const row = byLemma.get(lemma);
       if (!row) continue;
       if (isPhrase(row.pos)) {
+        /*
+          Not a greeting that names the time of day. No scene says what time
+          it is, so `Tere hommikust!` opened parents' evenings, a friend's
+          café at dusk and an evening book club, which every reviewer noticed
+          first. `Tere!` is right at every hour; the learner may still say any
+          of them, since this is only what the other side says.
+        */
+        if (TIME_OF_DAY.test(row.lemma)) continue;
         lines.push({ text: row.lemma, lemma: row.lemma, cefr: row.cefr });
         continue;
       }

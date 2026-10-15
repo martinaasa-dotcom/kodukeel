@@ -171,6 +171,13 @@ export type PropSpec =
       readonly max: number;
       readonly says: string;
       readonly theirs?: true;
+      /**
+       * A sum of money that is pay rather than a price: a wage, a raise. It is
+       * dealt and read back like a price, and it is never what a question about
+       * what something costs is answered with, since "See maksab 1649 eurot."
+       * at a job interview is the interviewer pricing the job (`priceOnCard`).
+       */
+      readonly pay?: true;
       readonly differentFrom?: string;
     }
   /** A fictional reference, which is the only kind of code this module ever holds. */
@@ -219,6 +226,8 @@ export interface DrawnProp {
   readonly theirs?: true;
   /** A price, so a question about money can find it (`priceOffCard`). */
   readonly price?: true;
+  /** Pay rather than a price (`PropSpec.pay`): never the answer to "how much does it cost". */
+  readonly pay?: true;
   /**
    * The English of a drawn lemma, for a stage direction that names it: "They
    * offer Tuesday at 14:00" rather than the lemma inside an English sentence.
@@ -345,6 +354,7 @@ export function drawProp(
       return {
         slot: spec.slot, card: spec.says, literal: [value], lemmas: numberWords(value), shown: [`${value} €`], value,
         price: true,
+        ...(spec.pay ? { pay: true as const } : {}),
         ...worn(value, avoid),
         ...(spec.theirs ? { theirs: true as const } : {}),
       };
@@ -431,8 +441,8 @@ export function propBySlot(card: RoleCard, slot: string): DrawnProp | undefined 
  * raised (`cardAfterHurdles`).
  */
 export function priceOnCard(card: RoleCard | null): DrawnProp | undefined {
-  return card?.props.find((prop) => prop.price && !prop.theirs)
-    ?? card?.props.find((prop) => prop.price && prop.theirs);
+  return card?.props.find((prop) => prop.price && !prop.pay && !prop.theirs)
+    ?? card?.props.find((prop) => prop.price && !prop.pay && prop.theirs);
 }
 
 /**

@@ -76,6 +76,7 @@ const DOCTOR: SceneSpec = {
     {
       id: "reason",
       goal: "Tell them what's wrong: a pain, a fever, feeling ill or tired, whatever it is.",
+      feel: "noted",
       they: "They ask what brings you in.",
       move: "ask",
       topic: ["valu", "haigus", "tervis", "haige", "palavik"],
@@ -94,6 +95,7 @@ const DOCTOR: SceneSpec = {
     {
       id: "where",
       goal: "Tell them where it hurts.",
+      feel: "noted",
       they: "They ask where it hurts.",
       move: "ask",
       topic: ["pea", "kõrv", "käsi", "jalg", "selg", "silm", "nina", "suu", "keha"],
@@ -106,6 +108,7 @@ const DOCTOR: SceneSpec = {
     {
       id: "since",
       goal: "Tell them which day it started.",
+      feel: "noted",
       they: "They ask how long it's been going on.",
       move: "ask",
       topic: ["päev", "nädal", "hommik", "aeg", "esmaspäev", "teisipäev", "kolmapäev"],

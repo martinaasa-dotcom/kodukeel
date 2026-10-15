@@ -44,6 +44,7 @@ const TECH_SUPPORT: SceneSpec = {
     {
       id: "problem",
       goal: "Tell them the connection at home isn't working.",
+      feel: "noted",
       they: "They ask what the problem is.",
       move: "ask",
       topic: ["ühendus", "võrk"],
@@ -66,6 +67,7 @@ const TECH_SUPPORT: SceneSpec = {
     {
       id: "screen",
       goal: "Tell them what you see on the screen: an error, or that it's empty.",
+      feel: "noted",
       they: "They ask what you see on the screen.",
       move: "ask",
       topic: ["ekraan", "nägema"],
