@@ -592,8 +592,22 @@
     where it lands: ten pixels of transparent shadow inside the card's own
     padding.
   */
+  /*
+    AND THE FRAME CARRIES THE COLOUR SCHEME OF THE PAGE INSIDE IT, NOT OURS.
+
+    The dark theme sets `color-scheme: dark` on the root, and an iframe whose
+    own document declares no dark scheme is then painted onto an opaque
+    backdrop in that document's canvas colour, which is white: the browser
+    does it so a light page is never laid transparent over a dark one. Google's
+    frame is twenty pixels wider than its button and two taller, so what that
+    backdrop drew was a white slab round the button on a dark card, reported
+    as a frame the button had not asked for. Telling the frame its scheme is
+    light matches Google's document, and the frame is transparent again, in
+    both themes, with only Google's own button and shadow painted.
+  */
   .gsi-button iframe {
     max-width: none;
+    color-scheme: light;
   }
 
   /*
