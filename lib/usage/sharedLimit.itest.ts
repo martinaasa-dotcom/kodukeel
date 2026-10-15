@@ -1,6 +1,6 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
-import { bucketDigest, resetRateLimitForTests } from "@/lib/security/rateLimit";
+import { bucketDigest, resetRateLimitForTests, windowStartMs } from "@/lib/security/rateLimit";
 import { checkSharedRateLimit } from "./sharedLimit";
 
 /**
@@ -18,6 +18,19 @@ import { checkSharedRateLimit } from "./sharedLimit";
 
 const KEY = "itest:shared-limit";
 const WINDOW_MS = 60_000;
+
+/**
+ * A moment one second into the current window, so every call a test makes
+ * lands in the same row.
+ *
+ * The windows are aligned to the clock, so a test reading `Date.now()` on each
+ * call is split across two rows whenever it runs over a minute boundary, and
+ * the second row brings a fresh allowance: CI ran the first test below at
+ * 16:19:59.98 to 16:20:00.07 and its fourth call, which has to be refused, was
+ * let through. Only the shared half needs pinning. The Map reads its own clock,
+ * but it only ever refuses, and a cold start empties it.
+ */
+const inOneWindow = () => windowStartMs(Date.now(), WINDOW_MS) + 1_000;
 
 async function wipe() {
   await prisma.$executeRaw`DELETE FROM "RateLimit" WHERE "bucket" = ${bucketDigest(KEY)}`;
@@ -37,15 +50,16 @@ afterAll(async () => { await wipe(); await prisma.$disconnect(); });
 
 describe("a limit every instance shares", () => {
   it("survives the instance forgetting, which is the whole point", async () => {
-    expect((await checkSharedRateLimit(KEY, 3, WINDOW_MS)).ok).toBe(true);
-    expect((await checkSharedRateLimit(KEY, 3, WINDOW_MS)).ok).toBe(true);
+    const now = inOneWindow();
+    expect((await checkSharedRateLimit(KEY, 3, WINDOW_MS, now)).ok).toBe(true);
+    expect((await checkSharedRateLimit(KEY, 3, WINDOW_MS, now)).ok).toBe(true);
 
     // A cold instance picks the request up with an empty Map. Before this
     // module, that was two more requests and then two more after that.
     coldStart();
 
-    expect((await checkSharedRateLimit(KEY, 3, WINDOW_MS)).ok).toBe(true);
-    const over = await checkSharedRateLimit(KEY, 3, WINDOW_MS);
+    expect((await checkSharedRateLimit(KEY, 3, WINDOW_MS, now)).ok).toBe(true);
+    const over = await checkSharedRateLimit(KEY, 3, WINDOW_MS, now);
     expect(over.ok).toBe(false);
     expect(over.retryAfterSec).toBeGreaterThan(0);
   });
@@ -57,8 +71,9 @@ describe("a limit every instance shares", () => {
       the verdict, so the statement is atomic on its own and exactly six are
       refused.
     */
+    const now = inOneWindow();
     const verdicts = await Promise.all(
-      Array.from({ length: 10 }, () => checkSharedRateLimit(KEY, 4, WINDOW_MS)),
+      Array.from({ length: 10 }, () => checkSharedRateLimit(KEY, 4, WINDOW_MS, now)),
     );
     expect(verdicts.filter((v) => v.ok).length).toBe(4);
     expect(verdicts.filter((v) => !v.ok).length).toBe(6);
@@ -80,7 +95,7 @@ describe("a limit every instance shares", () => {
   });
 
   it("gives a new window a new allowance", async () => {
-    const now = Date.now();
+    const now = inOneWindow();
     expect((await checkSharedRateLimit(KEY, 1, WINDOW_MS, now)).ok).toBe(true);
     coldStart();
     expect((await checkSharedRateLimit(KEY, 1, WINDOW_MS, now)).ok).toBe(false);
@@ -91,9 +106,10 @@ describe("a limit every instance shares", () => {
   });
 
   it("stops counting one past the limit, so a hammered endpoint bounds its own row", async () => {
+    const now = inOneWindow();
     for (let i = 0; i < 8; i += 1) {
       coldStart();
-      await checkSharedRateLimit(KEY, 2, WINDOW_MS);
+      await checkSharedRateLimit(KEY, 2, WINDOW_MS, now);
     }
     const rows = await prisma.$queryRaw<{ count: number }[]>`
       SELECT "count" FROM "RateLimit" WHERE "bucket" = ${bucketDigest(KEY)}
