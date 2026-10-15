@@ -3126,6 +3126,58 @@ export async function assignHomework(
 }
 
 /**
+ * Sets one of the conversations as homework (FB-6, D4).
+ *
+ * The shape of `assignHomework`: one task per member, nobody's deck touched,
+ * and the teacher's own copy is the record of what the class was sent. The
+ * task carries the scene's id, which is what lets Today link straight to the
+ * conversation and lets "done" be read off the learner's own runs rather than
+ * ticked (`lib/progress/homework.ts`). The title is the scene's English title,
+ * which every screen puts through `t()` like the catalogue's own.
+ */
+export async function assignScene(rawClassroomId: unknown, rawSceneId: unknown, rawDueAt?: unknown) {
+  const ownerId = await requireUserId();
+  const classroomId = text(rawClassroomId).slice(0, 64);
+  const sceneId = text(rawSceneId).slice(0, 64);
+  const dueAt = text(rawDueAt).slice(0, 32) || undefined;
+  if (!classroomId) return { ok: false as const, error: "Only the person who runs this class can do that." };
+
+  const busy = throttleAction(ownerId, "assignScene");
+  if (busy) return await sayRefusal(ownerId, busy);
+  const classroom = await prisma.classroom.findFirst({
+    where: { id: classroomId, ownerId },
+    select: { id: true, name: true, archived: true },
+  });
+  if (!classroom) return { ok: false as const, error: "Only the person who runs this class can do that." };
+  if (classroom.archived) return { ok: false as const, error: "That class has been archived, so it can't be changed." };
+
+  // A public endpoint: a scene id the catalogue does not hold is refused, never stored.
+  const scene = sceneById(sceneId);
+  if (!scene) return { ok: false as const, error: "We couldn't find that conversation." };
+
+  const members = await prisma.classroomMember.findMany({
+    where: { classroomId: classroom.id },
+    select: { ownerId: true },
+  });
+
+  const due = dueAt ? new Date(dueAt) : null;
+  await prisma.task.createMany({
+    data: members.map((m) => ({
+      ownerId: m.ownerId,
+      title: scene.title,
+      // The marker alone: the conversation is the whole instruction, and a sentence here would reach a screen in English.
+      notes: classworkMarker(classroom.name),
+      tag: "CONVERSATION",
+      sceneId: scene.id,
+      dueAt: due && !Number.isNaN(due.getTime()) ? due : null,
+    })),
+  });
+
+  revalidatePath("/class");
+  return { ok: true as const, assigned: members.length };
+}
+
+/**
  * What a teacher has sent this class, most recent first.
  *
  * There is no table for this, deliberately: an assignment is a `Task` on
@@ -3154,11 +3206,12 @@ export async function classworkHistory(rawClassroomId: unknown) {
     where: { ownerId, notes: { startsWith: marker } },
     orderBy: { createdAt: "desc" },
     take: 20,
-    select: { id: true, title: true, notes: true, dueAt: true, createdAt: true },
+    select: { id: true, title: true, notes: true, dueAt: true, createdAt: true, sceneId: true },
   });
   return tasks.map((t) => ({
     id: t.id,
     title: t.title,
+    sceneId: t.sceneId,
     detail: t.notes?.slice(marker.length).trim() || null,
     dueAt: t.dueAt,
     createdAt: t.createdAt,

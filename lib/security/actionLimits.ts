@@ -105,6 +105,8 @@ export const ACTION_LIMITS = {
   assignUnit: { perMinute: 10 },
   /** Writes a task per member of a class. */
   assignHomework: { perMinute: 10 },
+  /** Writes a task per member of a class, naming one of the conversations. */
+  assignScene: { perMinute: 10 },
   /**
    * Handing in a mock paper, which rebuilds it on the server to mark it.
    *

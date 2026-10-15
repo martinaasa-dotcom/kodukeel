@@ -84,7 +84,7 @@ SceneGap    ASKED STALLED REACHED  (the help button, a beat that could not be me
             and a word said in English)
 DeferReason SOON BAND  (a few days, or it waits for a band: lib/srs/defer.ts;
             rows older than the three-day wait say WEEKS and are read as SOON)
-TaskTag     HOMEWORK VOCABULARY  (declared in TASK_TAGS, lib/ux/agenda.ts)
+TaskTag     HOMEWORK VOCABULARY CONVERSATION  (declared in TASK_TAGS, lib/ux/agenda.ts; a CONVERSATION task carries Task.sceneId)
 FormType    NOM_SG GEN_SG PART_SG ILL_SG_SHORT NOM_PL PART_PL GEN_PL
             INF_MA INF_DA PRES_1SG PAST_1SG PART_TUD
             EKILEX:<morphCode> for anything retrieved

@@ -168,6 +168,12 @@ export const TODAY: Area = {
     "Домашнее задание",
   "Vocabulary":
     "Слова",
+  "Conversation":
+    "Разговор",
+  "Done once you've had it":
+    "Засчитывается, когда вы его проведёте",
+  "Open the conversation \"{task}\"":
+    "Открыть разговор «{task}»",
   "Overdue since {date}":
     "Просрочено с {date}",
   "Due {date}":
@@ -1220,6 +1226,12 @@ export const TODAY: Area = {
     "Домашнє завдання",
   "Vocabulary":
     "Слова",
+  "Conversation":
+    "Розмова",
+  "Done once you've had it":
+    "Зараховується, коли ви її проведете",
+  "Open the conversation \"{task}\"":
+    "Відкрити розмову «{task}»",
   "Overdue since {date}":
     "Прострочено з {date}",
   "Due {date}":

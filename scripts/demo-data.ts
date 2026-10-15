@@ -356,7 +356,7 @@ async function main() {
   await prisma.task.createMany({
     data: [
       /*
-        The two tags a deployment can actually write, from `TASK_TAGS`.
+        The three tags a deployment can actually write, from `TASK_TAGS`.
 
         This wrote GRAMMAR and LISTENING as well, which no action in the app
         produces: they are the remains of the cut `/tasks` page, and the fixture
@@ -369,6 +369,8 @@ async function main() {
       { ownerId, title: "Learn week 6 vocabulary (24 words)", tag: "VOCABULARY", dueAt: new Date(Date.now() - 86400000) },
       { ownerId, title: "Listen to Vikerraadio for 20 minutes", tag: "HOMEWORK" },
       { ownerId, title: "Write 5 sentences using the comitative", tag: "HOMEWORK", completed: true, completedAt: new Date() },
+      // A conversation a class set (FB-6): a row that opens the scene and is done by having it.
+      { ownerId, title: "Ordering a drink", tag: "CONVERSATION", sceneId: "kohvikus", dueAt: new Date(Date.now() + 3 * 86400000) },
     ],
   });
 
