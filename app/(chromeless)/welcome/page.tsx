@@ -1603,6 +1603,11 @@ function ForTeachers({ say, contact }: { say: Say; contact: string | null }) {
         </p>
         <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold">
           <li>
+            <Link href={say.href("/teachers")} className="underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>
+              {t("See what a teacher sees")}
+            </Link>
+          </li>
+          <li>
             <Link href={say.href("/trust")} className="underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>
               {t("How the data is handled")}
             </Link>
@@ -1697,6 +1702,7 @@ function Footer({ say, copy }: { say: Say; copy: (typeof ENTRY_COPY)[EntryLocale
               <FootLink say={say} href="/terms">{t("Terms")}</FootLink>
               <FootLink say={say} href="/funding">{t("What it costs to run")}</FootLink>
               <FootLink say={say} href="/trust">{t("Security and trust")}</FootLink>
+              <FootLink say={say} href="/teachers">{t("For teachers")}</FootLink>
               <FootLink say={say} href="/accessibility">{t("Accessibility")}</FootLink>
               <FootLink say={say} href="/state-exam">{t("The state examination")}</FootLink>
               {locale !== "en" && (

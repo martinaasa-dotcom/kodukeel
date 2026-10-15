@@ -136,6 +136,9 @@ export async function middleware(request: NextRequest) {
     // is sent to. Both are written for a reader who has no account here and is
     // not going to make one to read them.
     path.startsWith("/trust") ||
+    // What a teacher sees, drawn over an invented class, for somebody deciding
+    // whether to put a code on a board before they have a class.
+    path.startsWith("/teachers") ||
     path.startsWith("/accessibility") ||
     // What the state examination is and how to register for it, which is the
     // question somebody told they need B1 asks before deciding anything else,
