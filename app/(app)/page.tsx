@@ -8,6 +8,7 @@ import { prisma } from "@/lib/db";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { dailySummary, deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
 import { reviewQueue } from "./review/queue";
+import { KeepCurrent } from "@/components/KeepCurrent";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { measuredPaceFor } from "@/lib/progress/plan";
 import { minutesForCards, ownCardsPerMinute } from "@/lib/stats/pace";
@@ -1042,6 +1043,9 @@ export default async function TodayPage() {
         the rail and in the palette; nothing here is the only way to reach
         anything.
       */}
+      {/* Asks the server again when this page is shown from a copy, so the
+          review count above is the session Review is about to hold. */}
+      <KeepCurrent renderedAt={now.getTime()} />
       <Stack className="min-w-0">
         {/* Today's card is the one big thing on this page, and the only one
             the letters lie on here, calm rather than hopping, since it is opened every
