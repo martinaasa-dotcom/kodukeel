@@ -149,7 +149,7 @@ def evaluate(name):
     json.dump(out, open(path, "w"), ensure_ascii=False)
     print(name, len(out), file=sys.stderr)
 
-ANCHOR = 1200
+ANCHOR = int(os.environ.get("ANCHOR", "1200"))  # 3600 for the stronger run
 
 
 def anchor():
@@ -211,7 +211,7 @@ def anchor():
         print(len(rows), file=sys.stderr, flush=True)
 
 
-def train(name="after", steps=600, batch=4, lr=2e-5, every=50, anchored=0):
+def train(name="after", steps=600, batch=4, lr=2e-5, every=50, anchored=0, real_rooms=False):
     """The asr-finetune.py data and rooms, a transducer loss in place of CTC, every weight trainable.
 
     Resumable like the xls-r run: weights and optimizer saved every `every` steps, the batch of a
@@ -245,7 +245,7 @@ def train(name="after", steps=600, batch=4, lr=2e-5, every=50, anchored=0):
         feats, ys = [], []
         for k, r in enumerate(sample):
             a = audio[r["file"]]
-            if k < batch - anchored and rng.random() < 0.5:
+            if (k < batch - anchored or real_rooms) and rng.random() < 0.5:
                 a = X.condition(rng.choice(ROOMS), a, others)
             a = np.concatenate([np.zeros(int(RATE * 0.3), np.float32), a, np.zeros(int(RATE * 0.5), np.float32)])
             feats.append(fbank(a))
@@ -380,9 +380,86 @@ def export(name):
     print("exported", d, file=sys.stderr)
 
 
+# ------------------------------------------------------------------ combining two models
+
+def align(base, other):
+    """For each word of `base`, the word of `other` aligned to it, or None where `other` left it out."""
+    n, m = len(base), len(other)
+    d = [[0] * (m + 1) for _ in range(n + 1)]
+    for i in range(n + 1):
+        d[i][0] = i
+    for j in range(m + 1):
+        d[0][j] = j
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            d[i][j] = min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (base[i - 1] != other[j - 1]))
+    out, i, j = [None] * n, n, m
+    while i > 0 and j > 0:
+        if d[i][j] == d[i - 1][j - 1] + (base[i - 1] != other[j - 1]):
+            out[i - 1] = other[j - 1]
+            i, j = i - 1, j - 1
+        elif d[i][j] == d[i - 1][j] + 1:
+            i -= 1
+        else:
+            j -= 1
+    return out
+
+
+def rover(first, *rest):
+    """A word changes from the first hypothesis only where every other hypothesis agrees on something else."""
+    base = X.words(first)
+    aligned = [align(base, X.words(h)) for h in rest]
+    out = []
+    for i, w in enumerate(base):
+        alts = {a[i] for a in aligned}
+        if len(alts) == 1 and (alt := alts.pop()) != w:
+            if alt is not None:
+                out.append(alt)
+        else:
+            out.append(w)
+    return " ".join(out)
+
+
+def combine():
+    """Is "understood" better heard by two models than by one? Every output here is already cached."""
+    spec = importlib.util.spec_from_file_location("asr_hesitations", os.path.join(os.path.dirname(__file__), "asr-hesitations.py"))
+    H = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(H)
+    large = json.load(open(os.path.join(OUT, "eval_large.json")))
+    tuned = json.load(open(os.path.join(OUT, "eval_anchored-onnx.json")))
+    heard = json.load(open(os.path.join(ROOT, "taltech", "hesitations", "heard.json")))
+    real = json.load(open(os.path.join(ROOT, "taltech", "hesitations", "sets.json")))[:REAL]
+    small = {r["file"]: heard[f"small|as said|{r['file']}"] for r in real}
+    systems = {
+        "large": lambda f: large["real|" + f],
+        "anchored": lambda f: tuned["real|" + f],
+        "small": lambda f: small[f],
+        "vote: large, anchored, small": lambda f: rover(large["real|" + f], tuned["real|" + f], small[f]),
+        "vote: anchored, large, small": lambda f: rover(tuned["real|" + f], large["real|" + f], small[f]),
+        "large unless the other two agree on a word": lambda f: rover(large["real|" + f], tuned["real|" + f]),
+    }
+    print(f"{len(real)} real segments held out by recording\n")
+    for name, fn in systems.items():
+        e = n = 0
+        for r in real:
+            a, b = H.errors(H.ref_tokens(r["text"]), fn(r["file"]))
+            e, n = e + a, n + b
+        print(f"  {name:45} words wrong {100 * e / n:5.2f}%")
+    rows = held()
+    syn = {"large": large, "anchored": tuned}
+    print("\nsynthetic sentences said right, clean and in babble (no small model on these)")
+    for name in ("large", "anchored", "vote of the two, large first"):
+        for room in ("", "babble10|"):
+            if name.startswith("vote"):
+                pairs = [(r["text"], rover(large[room + r["right_file"]], tuned[room + r["right_file"]])) for r in rows]
+            else:
+                pairs = [(r["text"], syn[name][room + r["right_file"]]) for r in rows]
+            print(f"  {name:30} {room or 'clean':10} {X.wer(pairs):5.2f}%")
+
+
 def report():
     rows = held()
-    for name in ("large", "before", "after", "anchored", "anchored-onnx"):
+    for name in ("large", "before", "after", "anchored", "anchored-onnx", "anchored2", "anchored2-onnx"):
         path = os.path.join(OUT, f"eval_{name}.json")
         if not os.path.exists(path):
             continue
@@ -420,6 +497,8 @@ if __name__ == "__main__":
     elif cmd == "export":
         export(sys.argv[2] if len(sys.argv) > 2 else "after")
     else:
-        {"train": train, "report": report, "anchor": anchor,
+        {"train": train, "report": report, "anchor": anchor, "combine": combine,
          # the same recipe, half of every batch real native speech, at half the learning rate
-         "train-anchored": lambda: train("anchored", lr=1e-5, anchored=2)}[cmd]()
+         "train-anchored": lambda: train("anchored", lr=1e-5, anchored=2),
+         # three times the real speech, the rooms on it too, twice the steps
+         "train-anchored2": lambda: train("anchored2", steps=1200, lr=1e-5, anchored=2, real_rooms=True)}[cmd]()

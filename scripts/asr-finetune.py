@@ -282,5 +282,36 @@ def verdict():
             print(f"{room:9} {name:7} words {n}: caught {100 * caught / n:5.1f}%  false alarm {100 * false / n:4.1f}%  asked again {100 * again / (2 * n):4.1f}%", flush=True)
 
 
+def real():
+    """Real native speech, before and after: the 200 TalTech segments scripts/asr-icefall.py reads, held
+    out by recording. The synthetic eval above cannot show a model forgetting real speech; this can."""
+    import torch
+    from transformers import AutoModelForCTC, AutoProcessor
+    torch.set_num_threads(os.cpu_count() or 4)
+    spec = importlib.util.spec_from_file_location("asr_hesitations", os.path.join(os.path.dirname(__file__), "asr-hesitations.py"))
+    H = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(H)
+    segs = json.load(open(os.path.join(ROOT, "taltech", "hesitations", "sets.json")))[:200]
+    for name, mid in (("before", MODEL), ("after", os.path.join(OUT, "model")), ("anchored", os.path.join(OUT, "model-anchored"))):
+        if not os.path.isdir(mid) and name != "before":
+            continue
+        path = os.path.join(OUT, f"real_{name}.json")
+        out = json.load(open(path)) if os.path.exists(path) else {}
+        if len(out) < len(segs):
+            proc = AutoProcessor.from_pretrained(mid)
+            model = AutoModelForCTC.from_pretrained(mid).eval()
+            for r in segs:
+                if r["file"] not in out:
+                    inputs = proc(X.load(r["file"]), sampling_rate=RATE, return_tensors="pt")
+                    with torch.inference_mode():
+                        out[r["file"]] = proc.batch_decode(model(**inputs).logits.argmax(-1))[0]
+            json.dump(out, open(path, "w"), ensure_ascii=False)
+        e = n = 0
+        for r in segs:
+            a, b = H.errors(H.ref_tokens(r["text"]), out[r["file"]])
+            e, n = e + a, n + b
+        print(f"{name:9} real native speech, {n} words: word errors {100 * e / n:5.1f}%")
+
+
 if __name__ == "__main__":
-    {"data": data, "train": train, "eval": evaluate, "verdict": verdict}[sys.argv[1] if len(sys.argv) > 1 else "eval"]()
+    {"data": data, "train": train, "eval": evaluate, "verdict": verdict, "real": real}[sys.argv[1] if len(sys.argv) > 1 else "eval"]()
