@@ -981,6 +981,8 @@ export const A1 = [
         reader corrected the complaint scene's receipt lines to it twice over.
       */
       ["tšekk", "receipt (from a shop)"],
+      // What a market stall weighs things out in, and what "kui palju?" is answered with.
+      ["kilo", "kilo, kilogram"],
     ],
   }),
 

@@ -11,6 +11,11 @@ export const turul: ScenePicks = {
     { et: "Kas teil on {some:PARTITIVE}?", en: "Do you have any {some}?" },
     { et: "Ma tahaksin {some:PARTITIVE}.", en: "I'd like some {some}." },
   ],
+  weight: [
+    { et: "{kilos} kilo, palun.", en: "{kilos} kilos, please." },
+    { et: "Pool kilo, palun.", en: "Half a kilo, please." },
+    { et: "Natuke, palun.", en: "Just a little, please." },
+  ],
   pieces: [
     { et: "Ja {many} {pieces:PARTITIVE}, palun.", en: "And {pieces}, {many} of them, please." },
     { et: "Jah, palun veel {many} {pieces:PARTITIVE}.", en: "Yes, and {many} {pieces} as well, please." },

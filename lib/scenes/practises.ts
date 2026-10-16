@@ -150,6 +150,7 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "kokkulepe:free": "offering your own day",
   "kokkulepe:time": "settling a time",
   "turul:some": "asking for some, by weight",
+  "turul:weight": "saying how much you want",
   "turul:pieces": "asking for a few, by the piece",
   "turul:many": "saying how many",
   "turul:price": "asking what it comes to",

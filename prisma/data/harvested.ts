@@ -12,7 +12,7 @@
  * first time a word is viewed — storing it here would be a second source of
  * truth that goes stale.
  *
- * 1864 words, harvested 2026-10-07, the game words 2026-10-09, and five more 2026-10-16.
+ * 1867 words, harvested 2026-10-07, the game words 2026-10-09, and eight more 2026-10-16.
  */
 
 export interface HarvestedWord {
@@ -5754,6 +5754,18 @@ export const HARVESTED: readonly HarvestedWord[] = [
     note: "lühikese ajaga, ilma pikemata",
     semanticTypes: ["ADV_aeg", "ADV_viis", "aeg"],
     rus: ["быстро", "скоро"], ukr: ["швидко", "прудко"],
+  },
+  {
+    lemma: "kilo", gloss: "kilo, kilogram", pos: "NOUN", cefr: "A1",
+    ekilexWordId: 181076,
+    ekilexPos: ["s"],
+    parts: { NOM_SG: "kilo", GEN_SG: "kilo", PART_SG: "kilo", NOM_PL: "kilod", PART_PL: "kilosid", GEN_PL: "kilode" },
+    extraForms: [],
+    government: null,
+    usages: ["Rasedusega kogunenud kilod kadusid treeningu ja köögiviljadega.", "Ostsin kaks kilo kartuleid.", "Ta kaalub 80 kilo."],
+    note: "massi mõõtühik, 1000 grammi",
+    semanticTypes: ["esitus_mõõt"],
+    rus: ["килограмм", "кило"], ukr: ["кілограм"],
   },
   {
     lemma: "kilomeeter", gloss: "kilometre", pos: "NOUN", cefr: "A2",
@@ -14228,6 +14240,18 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["реформа", "преобразование"], ukr: ["реформа"],
   },
   {
+    lemma: "registreerima", gloss: "to register", pos: "VERB", cefr: "A2",
+    ekilexWordId: 226655,
+    ekilexPos: ["v"],
+    parts: { INF_MA: "registreerima", INF_DA: "registreerida", PRES_1SG: "registreerin", PAST_1SG: "registreerisin", PART_TUD: "registreeritud" },
+    extraForms: [{ code: "ImpPrPl2", value: "registreerige" }, { code: "IndIpfSg3", value: "registreeris" }, { code: "PtsPtPs", value: "registreerinud" }, { code: "PtsPrPs", value: "registreeriv" }],
+    government: null,
+    usages: ["Kaubamärk registreeriti must-valgena.", "Ravim registreeriti Eestis selle aasta augustis.", "Registreerisin end raamatukogus lugejaks.", "Töötuks jäädes tuleks end tööotsijaks registreerida."],
+    note: "toodet, kaubamärki vm ametlikku nimekirja või registrisse kandma",
+    semanticTypes: ["VERB_tegevus"],
+    rus: ["регистрировать", "зарегистрировать"], ukr: ["реєструвати", "зареєструвати"],
+  },
+  {
     lemma: "reis", gloss: "trip, journey", pos: "NOUN", cefr: "A2",
     ekilexWordId: 226782,
     ekilexPos: ["s"],
@@ -19134,6 +19158,18 @@ export const HARVESTED: readonly HarvestedWord[] = [
     note: "vaeva nägema, pingutama selle nimel, et elatusvahendeid luua või midagi ära teha",
     semanticTypes: ["VERB_tegevus"],
     rus: ["работать", "трудиться"], ukr: ["працювати"],
+  },
+  {
+    lemma: "töötu", gloss: "unemployed", pos: "ADJECTIVE", cefr: "A2",
+    ekilexWordId: 250339,
+    ekilexPos: ["adj", "s"],
+    parts: { NOM_SG: "töötu", GEN_SG: "töötu", PART_SG: "töötut", NOM_PL: "töötud", PART_PL: "töötuid", GEN_PL: "töötute" },
+    extraForms: [],
+    government: null,
+    usages: ["Töötute arv kahaneb.", "Aastaga on töötute arv vähenenud.", "Töötu naine.", "Ttöötute inimeste arv järgmisel aastal kasvab."],
+    note: "inimene, kes on töövõimeline ja soovib tööd teha, ent on tööta",
+    semanticTypes: ["in_roll"],
+    rus: ["безработный", "безработная"], ukr: ["безробітний", "безробітна"],
   },
   {
     lemma: "tüdruk", gloss: "girl", pos: "NOUN", cefr: "A1",

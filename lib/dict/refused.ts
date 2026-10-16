@@ -659,6 +659,13 @@ export const REFUSED_SENTENCES: readonly RefusedSentence[] = [
     et: "Kes selle sitase kõne kirjutas?",
     why: "Sitane (shitty) is a vulgar word for a learner line. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
   },
+  {
+    et: "Ttöötute inimeste arv järgmisel aastal kasvab.",
+    why:
+      "A typo in the source, the first letter doubled: Ttöötute for töötute. " +
+      "Found on reading the usages Ekilex returned for töötu when the job-centre " +
+      "scene's words were harvested.",
+  },
 ];
 
 /**

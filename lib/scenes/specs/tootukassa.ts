@@ -78,9 +78,14 @@ const UNEMPLOYMENT_FUND: SceneSpec = {
       feel: "noted",
       they: "They ask how they can help.",
       move: "ask",
-      topic: ["töö", "tööpuudus", "aitama"],
+      topic: ["töö", "tööpuudus", "töötu", "registreerima", "aitama"],
       // "Ma töötasin kokana" is the answer to "how can I help" at this desk as often as "töö" is: it says why they have come.
-      needs: [{ kind: "lemma", oneOf: ["töö", "tööpuudus", "avaldus", "töötama"] }],
+      /*
+        And "Ma olen töötu" and "Ma tahan end registreerida", which is what people
+        say first at this desk: the beat could not take either without a model,
+        because no unit taught the words.
+      */
+      needs: [{ kind: "lemma", oneOf: ["töö", "tööpuudus", "töötu", "registreerima", "avaldus", "töötama"] }],
       required: true,
       patience: 3,
       shape: "sentence",

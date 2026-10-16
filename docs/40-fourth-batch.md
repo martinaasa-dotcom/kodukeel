@@ -429,6 +429,17 @@ scripts, keyless:
   moved. The four new lemmas were harvested from Ekilex and spliced into the harvest alone; the
   rest of the file was kept as it was rather than rewritten with a day's drift.
 
+Two things the keyless review had left open went in after it:
+
+- **The job centre understands `Ma olen töötu`.** `töötu` and `registreerima` are taught in
+  `too-ja-raha`, and the "why are you here" beat takes either. One usage Ekilex returned for
+  `töötu` carries a typo (`Ttöötute`) and is refused in `lib/dict/refused.ts`.
+- **The market asks how much.** `turul` has a `weight` beat, "Kui palju te soovite?", met by the
+  card's number of kilos, any `kilo`, `pool` or `natuke`, and credited from a distance when
+  somebody says "kaks kilo porgandeid" in one breath. `kilo` is taught in `ostmine`. Its two bank
+  lines, its three picks and the label "saying how much you want" in Russian and Ukrainian were
+  typed in the session and carry no `reviewedAt`.
+
 ## 9. A brief to paste into a fresh session
 
 > You are working on Kodukeel. Read `CLAUDE.md`, then `docs/40-fourth-batch.md`. Do item FB-n of that
