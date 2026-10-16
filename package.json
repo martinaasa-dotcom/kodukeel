@@ -13,9 +13,9 @@
     "node": ">=22.12"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/vendor-asr-runtime.mjs && next dev",
     "prebuild": "npm run lint",
-    "build": "node scripts/schema-guard.mjs && prisma generate && prisma db push && npm run db:seed:ensure && next build",
+    "build": "node scripts/schema-guard.mjs && prisma generate && prisma db push && npm run db:seed:ensure && node scripts/vendor-asr-runtime.mjs && next build",
     "start": "next start",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit",
@@ -109,7 +109,10 @@
     "audit:pins": "tsx scripts/audit-grammar-pins.ts",
     "check:authored": "tsx scripts/check-authored.ts",
     "export:translations": "tsx scripts/export-translations.ts",
-    "i18n:tables": "tsx scripts/build-locale-tables.ts"
+    "i18n:tables": "tsx scripts/build-locale-tables.ts",
+    "asr:runtime": "node scripts/vendor-asr-runtime.mjs",
+    "asr:fetch": "tsx scripts/fetch-asr-model.ts",
+    "asr:fixtures": "tsx scripts/make-speech-fixtures.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",
@@ -131,11 +134,13 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "axe-core": "^4.13.0",
+    "esbuild": "0.28.2",
     "eslint": "^10.10.0",
     "eslint-config-next": "^16.4.0",
     "jsqr": "1.4.0",
     "playwright": "^1.63.0",
     "prisma": "^7.10.0",
+    "sherpa-onnx": "1.13.8",
     "tailwindcss": "^4.0.0",
     "tsx": "^4.23.13",
     "typescript": "^5.9.3",

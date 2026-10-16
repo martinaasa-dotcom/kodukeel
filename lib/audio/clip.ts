@@ -251,18 +251,38 @@ export type PlayOutcome = "played" | "blocked";
 */
 let inFlight = 0;
 let onQuiet: Array<() => void> = [];
+const speakingListeners = new Set<(speaking: boolean) => void>();
 
 function beginSpeech(): () => void {
   inFlight += 1;
+  if (inFlight === 1) for (const listener of speakingListeners) listener(true);
   let ended = false;
   return () => {
     if (ended) return;
     ended = true;
     inFlight -= 1;
     if (inFlight > 0) return;
+    for (const listener of speakingListeners) listener(false);
     const waiting = onQuiet;
     onQuiet = [];
     for (const resume of waiting) resume();
+  };
+}
+
+/**
+ * Whether the app is saying something aloud, and a way to hear when that
+ * changes. The microphone stays closed while it is, so it never listens to the
+ * app's own voice (docs/41-fifth-batch.md, D14): `components/speech/` reads
+ * this, and a call-mode turn opens the microphone when it goes quiet.
+ */
+export function isSpeaking(): boolean {
+  return inFlight > 0;
+}
+
+export function onSpeakingChange(listener: (speaking: boolean) => void): () => void {
+  speakingListeners.add(listener);
+  return () => {
+    speakingListeners.delete(listener);
   };
 }
 
