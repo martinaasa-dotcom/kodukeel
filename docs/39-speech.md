@@ -468,8 +468,10 @@ The word-by-word preparation is safe on real speech:
 | All 640 segments | 6.1% | 6.0% | 6.0% |
 | Interviews / talk shows / Riigikogu / news | 4.8 / 7.6 / 5.3 / 6.2% | 4.9 / 7.3 / 5.3 / 6.2% | 4.8 / 7.5 / 5.3 / 6.1% |
 | The 115 with a false start or a repeat | 4.8% | 4.8% | 4.8% |
+| Small Zipformer, all 640 | 6.8% | 6.8% | 6.9% |
 
-So the preparation stays on for every recording. A learner hesitates longer and more often than a
+The small model writes a hesitation twice in 640 segments. On it the stretch removal costs a tenth of
+a point, so on the small model only the squeeze runs. So the preparation stays on for every recording. A learner hesitates longer and more often than a
 native speaker, and that is still SP-0's to measure.
 
 **A Zipformer that can be trained.** TalTech's large model is published as ONNX only. Their older
