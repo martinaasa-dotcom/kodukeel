@@ -464,12 +464,13 @@ def falsealarm(split, only=None):
     they said the partner? Positions are on the exercise scale, 0 where the references say it right
     and 1 where they say it wrong; above 0.6 is a false alarm, 0.4 to 0.6 asks again."""
     ps = json.load(open(os.path.join(OUT, f"pairs-{split}.json")))
-    path = os.path.join(OUT, f"verdict-{split}.json")
+    chunk = os.environ.get("CHUNK")
+    path = os.path.join(OUT, f"verdict-{split}{'-c' + chunk if chunk else ''}.json")
     res = json.load(open(path)) if os.path.exists(path) else {}
     for name, build in SCORERS.items():
         if only and name not in only:
             continue
-        if name in res and len(res[name]) == len(ps):
+        if name in res and len(res[name]) == len(ps) and res[name][-1] is not None:
             continue
         if "anchored" in name and not os.path.exists(os.path.join(FT, "model-anchored") if "xls" in name else os.path.join(ROOT, "icefall", "anchored.pt")):
             continue
@@ -478,12 +479,17 @@ def falsealarm(split, only=None):
         if name == "student" and not os.path.exists(os.path.join(ROOT, "icefall", "student.sd.pt")):
             continue
         margin = build()
-        rows = []
-        for p in ps:
+        # Saved every few pairs and resumed from there: a container restart cost 37 minutes of this
+        # once, held only in memory.
+        rows = res.get(name, [])
+        for p in ps[len(rows):]:
             rr = np.mean([margin(a, p["text"], p["wrong"]) for a, _ in p["refs"].values()])
             rw = np.mean([margin(b, p["text"], p["wrong"]) for _, b in p["refs"].values()])
             m = margin(p["file"], p["text"], p["wrong"])
             rows.append({"pos": (m - rr) / (rw - rr) if rw != rr else 0.0, "sep": float(rw - rr)})
+            if len(rows) % 5 == 0:
+                res[name] = rows
+                json.dump(res, open(path, "w"))
         res[name] = rows
         json.dump(res, open(path, "w"))
         print(split, name, "scored", file=sys.stderr, flush=True)
@@ -552,4 +558,8 @@ def speed(split):
 if __name__ == "__main__":
     cmd, split = sys.argv[1], (sys.argv[2] if len(sys.argv) > 2 else "dev")
     assert split in ("dev", "test"), "dev or test"
+    only = sys.argv[3:] or None  # hear and falsealarm: just these systems
+    if cmd in ("hear", "falsealarm"):
+        {"hear": hear, "falsealarm": falsealarm}[cmd](split, only)
+        sys.exit(0)
     {"pick": pick, "babble": babble, "hear": hear, "report": report, "pairs": pairs, "falsealarm": falsealarm, "speed": speed}[cmd](split)

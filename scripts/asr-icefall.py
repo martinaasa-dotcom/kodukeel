@@ -517,11 +517,16 @@ class Scorer:
             state = torch.load(os.path.join(OUT, f"{name}.sd.pt"), weights_only=False)
             self.m = eager(name, tuple(state["layers"]), int(os.environ.get("CHUNK", "32")))
             _, self.sp = model_and_pieces()
+        elif os.environ.get("CHUNK"):
+            # scored at the chunk the app would ship, not the one TalTech's file was scripted at
+            self.m = eager(name, FULL, int(os.environ["CHUNK"]))
+            _, self.sp = model_and_pieces()
         else:
             self.m, self.sp = model_and_pieces(None if name == "before" else os.path.join(OUT, f"{name}.pt"))
         self.m.eval()
         self.enc = {}
-        path = os.path.join(OUT, f"nll-{name}.json")
+        chunk = os.environ.get("CHUNK")
+        path = os.path.join(OUT, f"nll-{name}{'-c' + chunk if chunk and not name.startswith('student') else ''}.json")
         self.path = path
         self.cache = json.load(open(path)) if os.path.exists(path) else {}
 
