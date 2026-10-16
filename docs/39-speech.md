@@ -363,6 +363,7 @@ one, at a line that lets through 1 percent of other words:
 | Engine | Expected word accepted | Its contrast partner accepted |
 | --- | --- | --- |
 | `xls-r-300m-et`, expected spelling against its own free reading | 100% | 99.7% |
+| Zipformer large greedy or beam, or the small Zipformer, after `soundKey` folding | 95.0% | |
 | Zipformer large, greedy or beam text, compared after `soundKey` folding | 91.6% | 91.6% |
 | Zipformer large, greedy text alone | 87.8% | 82.2% |
 | Zipformer large, the expected word as a hotword (score 1) | 75.9% | 69.7% |
@@ -614,7 +615,8 @@ Speaking belongs in the evening, in three places, each small:
 **The say-it check** in all three places is section 3.6's: on a device that holds `xls-r-300m-et`,
 the expected spelling scored against the model's own free reading (every right word accepted, 1 in
 100 other words let through); elsewhere the Zipformer's greedy and beam text compared after
-`soundKey` folding (91.6% of right words, under 1 in 100 others). Never a hotword for the expected
+`soundKey` folding (91.6% of right words, under 1 in 100 others), or 95.0% where the device can also
+hold the small Zipformer (72 MB) and either model's reading counts. Never a hotword for the expected
 word, which makes it worse (D7). A word not accepted is not a mistake: it does not light up, and the
 learner says it again or carries on, because a meeting grades nothing and D6 only grades up.
 
