@@ -67,7 +67,7 @@ export function Bench({ availability }: { readonly availability: SpeechAvailabil
 /** The fixture clip, or a file of your own, through the same hook every screen listens with. */
 function FileCard({ speech }: { readonly speech: Speech }) {
   const [progress, setProgress] = useState<string>("");
-  const [result, setResult] = useState<{ text: string; matches: boolean | null; ms: number; seconds: number } | null>(null);
+  const [result, setResult] = useState<{ text: string; matches: boolean | null; ms: number; seconds: number; raw: RawTurn[] } | null>(null);
   const [failed, setFailed] = useState("");
 
   const run = async (bytes: ArrayBuffer, expected: string | null) => {
@@ -88,6 +88,7 @@ function FileCard({ speech }: { readonly speech: Speech }) {
         matches: expected ? shareLit(lightUp(lineWords(expected), text)) === 1 : null,
         ms: Math.round(performance.now() - started),
         seconds: decoded.duration,
+        raw: pieces.map((p) => p.turn),
       });
     } catch (e) {
       setFailed(String(e));
@@ -131,6 +132,8 @@ function FileCard({ speech }: { readonly speech: Speech }) {
       {result && (
         <div className="mt-3 text-sm" data-bench-file>
           <p lang="et" className="text-md" data-bench-transcript>{result.text || "(nothing heard)"}</p>
+          {/* What the engine itself returned, read by `npm run asr:golden` (VB-3). */}
+          <pre hidden data-bench-raw>{JSON.stringify(result.raw)}</pre>
           <p style={{ color: "var(--ink-2)" }}>
             {result.seconds.toFixed(2)} s of audio in {result.ms} ms
             {result.matches !== null && (result.matches ? ", and it says what the clip says." : ", and it does not match the clip.")}

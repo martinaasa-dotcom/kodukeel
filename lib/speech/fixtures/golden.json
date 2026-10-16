@@ -1,0 +1,327 @@
+{
+  "engine": "web: sherpa-onnx 1.13.8, single-threaded WebAssembly in a worker",
+  "model": "TalTechNLP/streaming-zipformer.et-en@7edbacc1d13a4bc8fba21307753569e8334938a0",
+  "recorded": "2026-10-16",
+  "clips": [
+    {
+      "file": "public/asr/check.wav",
+      "says": "Tere hommikust! Kuidas läheb?",
+      "turns": [
+        {
+          "greedy": {
+            "text": "",
+            "tokens": [],
+            "timestamps": [],
+            "logProbs": []
+          },
+          "beam": {
+            "text": "",
+            "tokens": [],
+            "timestamps": [],
+            "logProbs": []
+          },
+          "seconds": 0.15
+        },
+        {
+          "greedy": {
+            "text": "Tere hommikust",
+            "tokens": [
+              " Tere",
+              " ho",
+              "mmi",
+              "ku",
+              "st"
+            ],
+            "timestamps": [
+              0.88,
+              1.08,
+              1.12,
+              1.16,
+              1.2
+            ],
+            "logProbs": [
+              -0.244705,
+              -0.411903,
+              -0.041233,
+              -0.701438,
+              -0.462995
+            ]
+          },
+          "beam": {
+            "text": "Tere hommikust,",
+            "tokens": [
+              " Tere",
+              " ho",
+              "mmi",
+              "ku",
+              "st",
+              ","
+            ],
+            "timestamps": [
+              0.88,
+              1.08,
+              1.12,
+              1.2,
+              1.24,
+              1.44
+            ],
+            "logProbs": [
+              -0.241669,
+              -0.4165,
+              -0.041233,
+              -0.119423,
+              -0.173456,
+              -1.533063
+            ]
+          },
+          "seconds": 0.97
+        },
+        {
+          "greedy": {
+            "text": "Kuidas läheb",
+            "tokens": [
+              " Kuidas",
+              " läheb"
+            ],
+            "timestamps": [
+              1.08,
+              1.44
+            ],
+            "logProbs": [
+              -1.087533,
+              -0.628477
+            ]
+          },
+          "beam": {
+            "text": "Kuidas läheb",
+            "tokens": [
+              " Kuidas",
+              " läheb"
+            ],
+            "timestamps": [
+              1.08,
+              1.44
+            ],
+            "logProbs": [
+              -1.08799,
+              -0.628147
+            ]
+          },
+          "seconds": 1.15
+        }
+      ],
+      "expect": {
+        "heard": "Tere hommikust Kuidas läheb",
+        "understood": "Tere hommikust Kuidas läheb",
+        "words": [
+          {
+            "text": "Tere",
+            "heard": "Tere",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "hommikust",
+            "heard": "hommikust",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "Kuidas",
+            "heard": "Kuidas",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "läheb",
+            "heard": "läheb",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          }
+        ],
+        "verdict": {
+          "kind": "good"
+        },
+        "pick": null
+      }
+    },
+    {
+      "file": "scripts/fixtures/speech/tere.wav",
+      "says": "Tere!",
+      "turns": [
+        {
+          "greedy": {
+            "text": "Tere",
+            "tokens": [
+              " Tere"
+            ],
+            "timestamps": [
+              1
+            ],
+            "logProbs": [
+              -0.658693
+            ]
+          },
+          "beam": {
+            "text": "Tere",
+            "tokens": [
+              " Tere"
+            ],
+            "timestamps": [
+              1
+            ],
+            "logProbs": [
+              -0.66003
+            ]
+          },
+          "seconds": 0.69
+        }
+      ],
+      "expect": {
+        "heard": "Tere",
+        "understood": "Tere",
+        "words": [
+          {
+            "text": "Tere",
+            "heard": "Tere",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          }
+        ],
+        "verdict": {
+          "kind": "good"
+        },
+        "pick": 0
+      }
+    },
+    {
+      "file": "scripts/fixtures/speech/aitah.wav",
+      "says": "Aitäh!",
+      "turns": [
+        {
+          "greedy": {
+            "text": "aitäh",
+            "tokens": [
+              " aitäh"
+            ],
+            "timestamps": [
+              1
+            ],
+            "logProbs": [
+              -1.099092
+            ]
+          },
+          "beam": {
+            "text": "Aitäh teile",
+            "tokens": [
+              " Aitäh",
+              " teile"
+            ],
+            "timestamps": [
+              1,
+              1.52
+            ],
+            "logProbs": [
+              -1.42323,
+              -3.040916
+            ]
+          },
+          "seconds": 0.8
+        }
+      ],
+      "expect": {
+        "heard": "aitäh",
+        "understood": "aitäh",
+        "words": [
+          {
+            "text": "aitäh",
+            "heard": "aitäh",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          }
+        ],
+        "verdict": {
+          "kind": "good"
+        },
+        "pick": 1
+      }
+    },
+    {
+      "file": "scripts/fixtures/speech/kuidas-laheb.wav",
+      "says": "Kuidas läheb?",
+      "turns": [
+        {
+          "greedy": {
+            "text": "kuidas läheb",
+            "tokens": [
+              " kuidas",
+              " läheb"
+            ],
+            "timestamps": [
+              0.92,
+              1.32
+            ],
+            "logProbs": [
+              -0.60028,
+              -0.119488
+            ]
+          },
+          "beam": {
+            "text": "kuidas läheb",
+            "tokens": [
+              " kuidas",
+              " läheb"
+            ],
+            "timestamps": [
+              0.92,
+              1.28
+            ],
+            "logProbs": [
+              -0.602644,
+              -0.860876
+            ]
+          },
+          "seconds": 0.93
+        }
+      ],
+      "expect": {
+        "heard": "kuidas läheb",
+        "understood": "kuidas läheb",
+        "words": [
+          {
+            "text": "kuidas",
+            "heard": "kuidas",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "läheb",
+            "heard": "läheb",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          }
+        ],
+        "verdict": {
+          "kind": "good"
+        },
+        "pick": 2
+      }
+    }
+  ]
+}

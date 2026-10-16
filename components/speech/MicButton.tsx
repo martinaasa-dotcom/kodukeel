@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Loader2, Mic, Square } from "lucide-react";
 import { useT } from "@/components/Locale";
 import { Button } from "@/components/Button";
@@ -94,8 +94,7 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
     };
-    // `press` reads the latest speech through a ref.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // `press` reads the latest speech through a ref, so it is not a dependency.
   }, [shortcut, offered]);
 
   if (!offered) return null;
@@ -159,7 +158,7 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
           onPointerCancel={() => {
             pressedAt.current = 0;
           }}
-          style={{ ["--mic-level" as string]: String(level) }}
+          style={{ "--mic-level": String(level) } as CSSProperties}
         >
           {listening && <span aria-hidden className="speech-mic-ring" />}
           {busy ? (

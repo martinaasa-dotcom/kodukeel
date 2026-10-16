@@ -2124,6 +2124,29 @@ export async function setUiLocale(value: string) {
   return { ok: true as const, value: normalised };
 }
 
+/**
+ * The two choices about speaking (docs/41-fifth-batch.md, VB-2): whether a
+ * line the microphone matched is sent without the countdown ring, and whether
+ * the microphone appears in answer boxes once the model is on the device.
+ * Each is stored as "on" or "off" and nothing else, whatever arrives, and the
+ * layout is revalidated because the shell publishes both.
+ */
+export async function setSpeechSendAtOnce(value: string) {
+  const ownerId = await requireUserId();
+  const normalised = value === "on" ? "on" : "off";
+  await writeSetting(ownerId, SETTING_KEYS.speechSendAtOnce, normalised);
+  revalidatePath("/", "layout");
+  return { ok: true as const, value: normalised };
+}
+
+export async function setSpeechInBoxes(value: string) {
+  const ownerId = await requireUserId();
+  const normalised = value === "off" ? "off" : "on";
+  await writeSetting(ownerId, SETTING_KEYS.speechInBoxes, normalised);
+  revalidatePath("/", "layout");
+  return { ok: true as const, value: normalised };
+}
+
 export async function setWordGloss(value: WordGloss) {
   const ownerId = await requireUserId();
   const normalised = wordGlossFrom(value);

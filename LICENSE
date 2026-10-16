@@ -70,6 +70,18 @@ terms set by the people who made it:
       cached. Not redistributed as part of this repository.
       https://tartunlp.ai
 
+  Hearing Estonian
+      The speech model is TalTech's streaming Zipformer for Estonian,
+      licensed MIT by the Laboratory of Language Technology at Tallinn
+      University of Technology. Attribution required. It runs in sherpa-onnx,
+      licensed Apache 2.0, whose WebAssembly build `npm run asr:runtime`
+      vendors into public/asr/runtime and whose notice travels with it.
+      Neither is committed: the model is fetched by `npm run asr:fetch` and
+      served from the deployment's own storage. TalTech's pair judge, which
+      this app pins and does not yet load, is CC BY-SA 4.0.
+      https://huggingface.co/TalTechNLP/streaming-zipformer.et-en
+      https://github.com/k2-fsa/sherpa-onnx
+
   Typefaces
       `app/fonts/` holds Onest and Schibsted Grotesk as served by Google
       Fonts, one file per subset. Both are under the SIL Open Font License

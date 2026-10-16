@@ -19,7 +19,7 @@ import { core, coresOf, type Hearing, type HeardWord } from "./reconcile";
  * dictionary's spelling of what they meant is not something they produced.
  *
  * Good means the word was recalled, never that it was said well: the model hears
- * most mispronounced words as the right word, which is fine for recall and is
+ * most words said with an accent as the right word, which is fine for recall and is
  * why nothing about a sound is ever graded here.
  */
 

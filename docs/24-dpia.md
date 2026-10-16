@@ -194,6 +194,7 @@ rather than with the schema.
 | The browser, localStorage | An unfinished exam paper: answers, which part, when each clock runs out. Never a mark and never a question (`app/(app)/exam/[level]/resume.ts`). Today's word puzzle guesses. A short digest of which account last used this browser | Until the paper is handed in, or until sign-out |
 | The browser, Cache API | Pages the service worker cached, which are somebody's own rendered deck and progress | Until sign-out |
 | The browser, cookie | One session cookie | Session lifetime |
+| The browser, Cache API and localStorage | The speech model, 71 MB, the same file for every learner, and one line saying it was downloaded once (`components/speech/webEngine.ts`). Nothing about the person | Until the learner deletes it in Settings or the browser clears it. Signing out leaves it, because it is about the device |
 | Error log | Message, location, user id, redacted of anything shaped like a credential | Short-lived, and the hosting provider's own window |
 
 Signing out removes the first four through `forgetThisDevice` in `lib/offline/forget.ts`. What it
@@ -575,6 +576,26 @@ screen it is a copy of, and that is asserted in both directions.
 **Residual: low**, plus the transfer, which is R5's: the address goes to Resend in the United States
 under its standard contractual clauses, and it is named on the generated recipients list whenever
 the transport is configured.
+
+### R17. A learner's voice is recorded or sent
+
+**Likelihood before: medium if nothing were done. Severity: high.** A voice identifies a person, and a
+recording made in a kitchen carries whoever else is in it. Speaking (ADR-028, `docs/41-fifth-batch.md`)
+is the first feature that listens.
+
+**Mitigation.** The microphone opens only on a press, through one hook and one engine
+(`components/speech/useSpeech.tsx`, `components/speech/webEngine.ts`), held by
+`scripts/invariants/one-microphone.ts`. The sound goes from an `AudioWorklet` to a worker on the same
+page and is decoded there by a model the device downloaded from the deployment's own storage; no
+route takes audio and no table has a column for it. What leaves the device is text the learner chose
+to send, stored as typed text is, and the words of a turn checked against the forms list by
+`/api/speech/forms`, which stores nothing. The microphone is closed while the app speaks (D14), and
+`PAID_OFF=speech` removes every microphone without a deploy (D15). `/privacy` says each of these in
+those terms (D21).
+
+**Residual: low.** What remains is the browser itself, which shows its own microphone indicator and
+asks its own permission, and a learner sending text they did not mean to: every transcript lands in a
+box they can change before it counts (D3).
 
 ### Risks recorded and not separately mitigated
 

@@ -163,6 +163,25 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
         </P>
       </S>
 
+      {/*
+        WHAT SPEAKING DOES WITH YOUR VOICE (docs/41-fifth-batch.md, D21), in
+        exactly those terms: a press before the microphone opens, the sound
+        turned into text on the device and never stored or sent, and the text
+        then sent treated as typed text is. The model is the deployment's own
+        file, so no recipient is added to the list below.
+      */}
+      <S title={t("When you speak")}>
+        <P>
+          {t("The microphone is used only after you press it, and it closes while the app itself is speaking. What you say is turned into text on this device. The sound is never stored and never sent, to us or to anybody else.")}
+        </P>
+        <P>
+          {t("The text is yours to change before it counts. Once you send it, a turn in a conversation or an answer to a card, it is stored exactly as typed text is. To mark which heard words are real Estonian spellings, the words alone are checked against the dictionary on the server and not kept there.")}
+        </P>
+        <P>
+          {t("The speech model is downloaded from this installation's own storage the first time you ask for it, and it stays on your device so hearing works offline. It is the same file for everybody and says nothing about you. Settings deletes it, and signing out leaves it, because it belongs to the device rather than to you.")}
+        </P>
+      </S>
+
       <S title={t("Who else sees it")}>
         <P>
           {t("This installation only talks to the services below, and nobody else. Each one gets only what’s described beside it, and none of them is paid to profile you.")}

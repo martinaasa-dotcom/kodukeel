@@ -965,3 +965,43 @@ about the switch rate stays true of any further answer that is not a switch. *Re
 what was said or how it felt in free text, which is the diary the decision above already refuses; a
 fourth tier of praise, since the reply names what happened rather than grading it; and offering the
 errand on a day that held a conversation, which amendment 1 settles.
+
+**ADR-028: The app hears Estonian on the device, says which words it understood, and grades a
+recall up from that. It still never scores a sound.**
+*Context:* ADR-018 refused a recognizer because the one measured was not accurate enough to tell
+somebody their own pronunciation was wrong, and that measurement still stands. `docs/39-speech.md`
+measured a different question: whether a small streaming model running in the browser hears
+*which words* were said well enough to be useful. TalTech's streaming Zipformer for Estonian does,
+at 0.057 seconds per second of audio on one core, in 71 MB, offline after one download. What it
+cannot do is the half ADR-018 was about: it writes most words said with an accent as the right
+word, which makes it a fair judge of recall and no judge at all of a sound.
+*Decision:* this amends ADR-018 rather than reversing it, and states `docs/41-fifth-batch.md`'s D1,
+D3, D4 and D13 in place of the speech order's D3, D7 and D9.
+- **Everything runs on the device** (D1). The sound goes from an `AudioWorklet` to a worker on the
+  same page, single-threaded (D18), and is never stored or sent. The model comes from the
+  deployment's own storage and is checked byte for byte against the hashes in
+  `lib/speech/model.ts`. Recognition never calls a model, and hotwords stay off, because a hint made
+  the right word harder to hear.
+- **Two transcripts** (D1). `heard` is the model's own greedy reading; `understood` takes out
+  hesitations and lets the dictionary repair a non-word into its spelling. Nothing about a sound is
+  ever read from either: "heard" is the verb, and `lib/copy/voice.ts` fails on copy that tells a
+  learner how a word of theirs sounded.
+- **The bar is the edit** (D3). Every transcript lands in a box the learner can change before it
+  counts, so a misheard word costs one edit and never a grade. Claims about which *sound* somebody
+  made wait for the operator (VB-16).
+- **Speech only grades up** (D4, D19). A spoken answer goes through the same marker as a typed one
+  and grades through `gradeCard`; `lib/speech/verdict.ts` returns "good" only where every word was
+  heard as it is spelled, and otherwise fills the box. Nothing spoken writes Again or Hard on its
+  own, because `Review` is append-only and a misheard word would be a lapse the learner never made.
+- **A repaired word earns nothing** (D13). It can meet a beat, as a slip does, and writes no review
+  row.
+- **One microphone** (D5): `useSpeech()` over one engine interface (`lib/speech/engine.ts`), which
+  the native apps implement with the same model and the same hashes (D24), and
+  `components/speech/MicButton.tsx` for every screen.
+*Consequences:* the app has a microphone without a lie in it, and the native apps start from a
+contract and a golden file (`lib/speech/fixtures/golden.json`) rather than from the web code.
+`PAID_OFF=speech` removes every microphone without a deploy (D15), and with it off the app is
+exactly what it was. *Rejected:* a hosted recognizer, which would send a voice off the device;
+biasing the decoder toward the lines on screen, which made the right line harder to hear and a
+garbled one easier to accept (a line is matched after decoding instead, `lib/speech/matchPick.ts`);
+and a threaded build, which needs cross-origin isolation and would stop Google's sign-in.

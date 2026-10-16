@@ -349,6 +349,9 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["every spelling of every word", "все написания всех слов", "усі написання всіх слів"],
   ["University of Tartu", "Тартуский университет", "Тартуський університет"],
   ["the speech", "озвучка", "озвучення"],
+  ["Tallinn University of Technology", "Таллинский технический университет", "Таллінський технічний університет"],
+  ["the hearing, on your device", "распознавание речи на вашем устройстве", "розпізнавання мовлення на вашому пристрої"],
+  ["the engine the hearing runs in", "движок, на котором оно работает", "рушій, на якому воно працює"],
 
   // ANU, DOWN THE PAGE.
   ["Hi, I’m Anu, the tutor. Mind if I walk down the page with you?", "Привет, я Ану, репетитор. Можно я пройдусь с вами по странице?", "Привіт, я Ану, репетиторка. Можна я пройдуся з вами сторінкою?"],

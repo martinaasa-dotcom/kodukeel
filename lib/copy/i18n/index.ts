@@ -29,6 +29,7 @@ import { SAYINGS } from "./areas/sayings";
 import { TWINS } from "./areas/twins";
 import { WORKBOOK } from "./areas/workbook";
 import { WORDPLAY } from "./areas/wordplay";
+import { SPEAKING } from "./areas/speaking";
 
 /**
  * Every area of the interface that has been translated. The first is the
@@ -65,4 +66,5 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["twins", TWINS],
   ["workbook", WORKBOOK],
   ["wordplay", WORDPLAY],
+  ["speaking", SPEAKING],
 ];

@@ -8,7 +8,7 @@ import type { Decoding, RawTurn } from "./engine";
  *
  *   `heard` is the model's own greedy reading, exactly as it came back. It is
  *   the only text anything about *sounds* may ever be read from, and in this
- *   batch nothing is: the model writes most mispronounced words as the right
+ *   batch nothing is: the model writes most words said with an accent as the right
  *   word, so a transcript says whether the words came across and nothing
  *   reliable about how they were said.
  *

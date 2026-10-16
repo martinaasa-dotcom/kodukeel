@@ -36,6 +36,7 @@
 import { SEED_SET_SIZE } from "@/lib/collections/seedSize";
 import { reserveMicros } from "@/lib/usage/pricing";
 import { DEFAULT_LIMITS } from "@/lib/usage/quota";
+import { megabytes, modelBytes } from "@/lib/speech/model";
 import {
   CLIP_KB, DAYS_PER_MONTH, DEVTOOLS, DOMAIN, EMAIL, ERRORS,
   HTML_KB, REQUESTS_PER_PAGE, SHARED_JS_KB, SPEECH_MARKET, SUPABASE,
@@ -258,6 +259,39 @@ export const SERVICES: readonly Service[] = [
         wouldCostUsd: shape.audio
           ? round2((v.spokenCharacters / 1e6) * SPEECH_MARKET.usdPerMillionCharacters)
           : 0,
+      };
+    },
+  },
+
+  {
+    id: "hearing",
+    name: "Hearing Estonian",
+    who: "This deployment's own storage, serving TalTech's speech model",
+    does: "Turns what a learner says into text on their own device. The model is downloaded once per device and kept, so this line is the download and nothing else.",
+    whenItIsGone: "Every microphone disappears and everything is typed, exactly as before speaking existed.",
+    setBy: "NEXT_PUBLIC_ASR_MODEL_BASE",
+    ref: SUPABASE.ref,
+    bill(_v: Volume, shape: Shape): ServiceCost {
+      // Priced at the storage's egress rate with none of the plan's allowance
+      // counted, because the database line already counts that allowance and
+      // a bill is never allowed to come out lower than the truth.
+      const downloads = shape.learners * assumed("speechDevices");
+      // A fraction of a download is what a handful of learners comes to, so it is said as one.
+      const said = downloads < 10 ? Math.round(downloads * 10) / 10 : Math.round(downloads);
+      const egressGb = gbOf((downloads * modelBytes()) / 1000);
+      return {
+        kind: "charged",
+        plan: "Storage egress",
+        // Up to the next cent rather than to the nearest: a few learners'
+        // downloads come to a fraction of one, and a bill that rounds a real
+        // charge to nothing is lower than the truth.
+        usd: Math.ceil(egressGb * SUPABASE.overage.perEgressGb * 100) / 100,
+        why: `About ${said.toLocaleString("en-GB")} downloads of ${megabytes(modelBytes())} MB a month, at the storage's egress rate.`,
+        whyAs: {
+          template: "About {downloads} downloads of {mb} MB a month, at the storage's egress rate.",
+          values: { downloads: said, mb: megabytes(modelBytes()) },
+        },
+        meters: [{ label: "Model downloaded", used: egressGb, included: 0, as: "gb" }],
       };
     },
   },

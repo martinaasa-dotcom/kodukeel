@@ -15,7 +15,7 @@
  * Single-threaded on purpose (D18): a threaded build needs the page to be
  * cross-origin isolated, which would stop Google's sign-in from loading.
  */
-import { prepareTurn, squeezePauses, loudFrames } from "@/lib/speech/prepare";
+import { prepareTurn, spokenSeconds, loudFrames } from "@/lib/speech/prepare";
 import { resample } from "@/lib/speech/resample";
 import { SPEECH_SETTINGS as S } from "@/lib/speech/settings";
 import type { Decoding, EngineError, RawTurn } from "@/lib/speech/engine";
@@ -229,7 +229,7 @@ function decodeWhole(recognizer: SherpaRecognizer, samples: Float32Array): Decod
 }
 
 async function finalTurn(samples: Float32Array): Promise<RawTurn | null> {
-  const seconds = squeezePauses(samples).length / S.sampleRate;
+  const seconds = spokenSeconds(samples);
   if (seconds === 0) return null;
   const prepared = prepareTurn(samples);
   const first = decodeWhole(greedy!, prepared);

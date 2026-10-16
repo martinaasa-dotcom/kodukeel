@@ -51,6 +51,7 @@ import { UsagePanel } from "./UsagePanel";
 import { DangerZone } from "./DangerZone";
 import { SetupGuide } from "./SetupGuide";
 import { providerResilience } from "@/lib/tutor/provider";
+import { SpeakingPanel } from "./SpeakingPanel";
 
 export async function generateMetadata() {
   return titleFor("Settings");
@@ -89,6 +90,7 @@ const SHORTCUTS: [string, string][] = [
   ["1-4", "Say how it went: Again, Hard, Good or Easy"],
   ["U", "Take back the last answer you graded"],
   ["1-4 (listening, choice)", "Pick one of the numbered answers"],
+  ["Ctrl M", "Start or stop the microphone, or hold it to talk"],
 ];
 
 /**
@@ -452,6 +454,18 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("In a conversation")}</h3>
                 <SupportPanel current={support} />
               </div>
+            </Card>
+          </section>
+
+          {/*
+            SPEAKING: whether this device can hear Estonian, the one download it
+            needs, and the two choices about the microphone (VB-2). Beside the
+            voice because both are about Estonian out loud, one each way.
+          */}
+          <section id="speaking">
+            <SectionTitle>{t("Speaking")}</SectionTitle>
+            <Card>
+              <SpeakingPanel />
             </Card>
           </section>
 

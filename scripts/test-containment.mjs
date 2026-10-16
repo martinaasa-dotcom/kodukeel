@@ -221,6 +221,8 @@ const ROUTES = [
   "/suggestions",
   "/admin/suggestions",
   "/admin/errors",
+  // The speech bench draws the microphone in every state it has (VB-2); CI sets ASR_BENCH=1.
+  "/dev/asr",
 
   /*
     The conversations. The briefing at 360 is a role card, a four-cell dial of

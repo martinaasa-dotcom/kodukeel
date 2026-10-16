@@ -47,6 +47,7 @@ reference. Three keys work anywhere:
 | `Cmd/Ctrl-K` | Command palette |
 | `?` | Keyboard shortcut help |
 | `Esc` | Close whatever is open |
+| `Ctrl+M` | Start or stop the microphone, or hold it to talk (`components/speech/MicButton.tsx`) |
 
 A `g`-prefixed jump map, `/` to focus search and `n` for a new task were planned here and not built:
 the palette reaches every one of those in two keystrokes. Review-session keys, undo among them, are

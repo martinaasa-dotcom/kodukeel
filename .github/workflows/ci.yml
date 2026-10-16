@@ -387,6 +387,7 @@ jobs:
               scripts/test-suggestions.mjs
               scripts/test-scene.mjs
               scripts/test-module.mjs
+              scripts/test-speech.mjs
 
           # The suites that write, in the order they can be run in. The
           # calendar and the deck shelves add rows and take them off again;
@@ -430,6 +431,18 @@ jobs:
         with: { node-version: "22", cache: npm }
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      # THE SPEECH MODEL, CACHED UNDER WHAT PINS IT (docs/41-fifth-batch.md,
+      # section 3). 71 MB from Hugging Face is not a download a run makes: the
+      # key is the file that holds the revision and the SHA-256 of every file,
+      # so a model update is a cache miss and nothing else is. Fetched before
+      # the build, because `next start` serves only what `public/` held when it
+      # was built, and checked byte for byte by the script either way.
+      - name: The speech model, from the cache
+        uses: actions/cache@v6
+        with:
+          path: public/asr/model
+          key: asr-model-${{ hashFiles('lib/speech/model.ts') }}
+      - run: npm run asr:fetch
       # Next keeps its own build cache here, and five shards each building the
       # same tree is five cold builds without it. Restore only: the `build`
       # job is the one that writes it, so five jobs do not race to save the
@@ -449,8 +462,13 @@ jobs:
         # A provider key has to be *present* or the scan page correctly offers
         # no camera. It may be nonsense: scripts/test-scan.mjs intercepts the
         # route it would authenticate, so no request ever leaves the runner.
+        #
+        # ASR_BENCH opens /dev/asr on a production build, where the speech
+        # bench draws the microphone in every state it has, so the containment
+        # and accessibility sweeps measure all of them in both themes (VB-2).
         env:
           GROQ_API_KEY: stubbed-by-the-test
+          ASR_BENCH: "1"
         run: |
           npm start &
           for _ in $(seq 1 60); do

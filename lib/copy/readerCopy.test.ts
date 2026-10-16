@@ -109,6 +109,22 @@ const ALLOWED = new Map<string, { rules: Rule[]; only?: string[]; why: string }>
     },
   ],
   [
+    "docs/39-speech.md",
+    {
+      rules: ["tell"],
+      only: ["mispronounced"],
+      why: "Is the speech order, which states the rule that the app never says a learner mispronounced anything, and has to name the word to forbid it.",
+    },
+  ],
+  [
+    "docs/41-fifth-batch.md",
+    {
+      rules: ["tell"],
+      only: ["mispronounced", "wrong pronunciation", "judging an accent"],
+      why: "Is the fifth batch's work order, whose section 3 lists the phrases this table bans and whose section 0 says what the recognizer does with a word said with an accent.",
+    },
+  ],
+  [
     "lib/ekilex/client.ts",
     {
       rules: ["tell"],
@@ -1053,6 +1069,9 @@ describe("the voice table catches what it claims to and nothing else", () => {
       "Amazing work! That was fantastic.",
       "As an AI, I cannot be certain about that form.",
       "Learn the genitive and the rest of the paradigm follows.",
+      "You mispronounced kala.",
+      "That was the wrong pronunciation.",
+      "Work on your accent before the exam.",
     ];
     for (const line of generated) {
       expect(findTells(line).map((t) => t.name), `nothing caught: ${line}`).not.toEqual([]);
@@ -1070,6 +1089,9 @@ describe("the voice table catches what it claims to and nothing else", () => {
       "Six days in a row. Your longest run so far.",
       "We could not reach Ekilex, so this word has no forms yet.",
       "Fill in what you know. The genitive alone unlocks all eleven regular cases.",
+      "Nothing here scores your pronunciation, and nothing pretends to.",
+      "Heard: kala. Every word was heard.",
+      "No machine grades your accent.",
     ];
     for (const line of written) {
       expect(findTells(line).map((t) => t.name), `false positive: ${line}`).toEqual([]);
