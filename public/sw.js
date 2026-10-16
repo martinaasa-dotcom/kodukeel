@@ -61,6 +61,25 @@ const STATIC = `${VERSION}-static`;
 const PAGES = `${VERSION}-pages`;
 const AUDIO = `${VERSION}-audio`;
 
+/*
+  THE SPEECH MODEL'S CACHE, WHICH NO VERSION BUMP TOUCHES.
+
+  71 MB the learner chose to download (docs/41-fifth-batch.md, D7), kept in a
+  cache of its own that the speech worker writes and reads directly. It is
+  never trimmed, and `activate` leaves it alone whatever `VERSION` says,
+  because throwing it away would cost the learner the download again for a
+  change that had nothing to do with it. It goes only when the model changes,
+  which is when this name does: it is `ASR_CACHE` from lib/speech/model.ts,
+  derived from the model's hashes, and an invariant holds the two equal,
+  because this file is plain JavaScript and cannot import it.
+
+  The runtime the worker loads (`/asr/runtime/`) is network first and kept
+  here too, so a model that has loaded once works offline, which is the daily
+  path's rule (ADR-015), and a deploy with a new worker is picked up online.
+*/
+const ASR = "kodukeel-asr-7edbac37b1ef";
+const ASR_PREFIX = "kodukeel-asr-";
+
 /** The page shown when a navigation cannot be served any other way. */
 const OFFLINE_URL = "/offline";
 
@@ -159,7 +178,9 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
       .then((keys) => Promise.all(
-        keys.filter((k) => k.startsWith("kodukeel-") && !k.startsWith(VERSION))
+        keys.filter((k) => k.startsWith(ASR_PREFIX)
+          ? k !== ASR
+          : k.startsWith("kodukeel-") && !k.startsWith(VERSION))
           .map((k) => caches.delete(k)),
       ))
       .then(() => self.clients.claim())
@@ -224,6 +245,13 @@ self.addEventListener("fetch", (event) => {
   // Everything else under /api/ is live data and must never be served stale.
   if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/auth/")) return;
 
+  // The speech runtime: fresh online, the last copy offline. The model files
+  // under /asr/model/ are the worker's own to fetch, check and keep.
+  if (url.pathname.startsWith("/asr/runtime/") || url.pathname === "/asr/check.wav") {
+    event.respondWith(networkThenAsrCache(request));
+    return;
+  }
+
   // Build output is immutable and hashed: cache-first is safe and makes a
   // repeat visit instant.
   if (url.pathname.startsWith("/_next/static/")) {
@@ -242,6 +270,20 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(navigateWithFallback(request));
   }
 });
+
+async function networkThenAsrCache(request) {
+  try {
+    const response = await fetch(request);
+    if (keepable(response)) {
+      const copy = response.clone();
+      caches.open(ASR).then((cache) => cache.put(request, copy)).catch(() => undefined);
+    }
+    return response;
+  } catch {
+    const cached = await caches.open(ASR).then((cache) => cache.match(request)).catch(() => undefined);
+    return keepable(cached) ? cached : Response.error();
+  }
+}
 
 async function staleWhileRevalidate(request, cacheName) {
   const cached = await caches.match(request);

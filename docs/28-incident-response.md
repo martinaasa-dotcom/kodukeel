@@ -216,6 +216,11 @@ are being refused when they should not be.
    deployment with no key, so nothing it would have called is asked, and everything else keeps
    working. It never touches the ledger, which stays on for whatever is still on. A typo in a name
    switches nothing off and says so in the log. Then work out why.
+
+   The same list takes `speech`, which costs nothing: hearing runs on the learner's own device and
+   calls no model. It hides every microphone, and the app is exactly as it was before speaking
+   arrived (`docs/41-fifth-batch.md`, D15). Reach for it if what the machine hears is reported as
+   wrong often enough to do harm, or if the model files are suspected of having been changed.
 2. Read the ledger. It is the record and it is append-only.
 
    ```sql

@@ -98,7 +98,10 @@ for (const [path, what] of [["/welcome", "a public page"], ["/api/health", "an A
   check("the policy allows no plugins and no base tag rewrite",
     /object-src 'none'/.test(csp) && /base-uri 'self'/.test(csp));
   check("a form cannot post itself to another origin", /form-action 'self'/.test(csp));
-  check("no unsafe-eval anywhere in the policy", !/unsafe-eval/.test(csp));
+  // As whole tokens: `'wasm-unsafe-eval'` compiles the speech model's WebAssembly
+  // and evaluates no script, and it contains the word the old check matched.
+  check("no unsafe-eval anywhere in the policy, only the WebAssembly allowance",
+    !csp.split(/[\s;]+/).includes("'unsafe-eval'") && csp.split(/[\s;]+/).includes("'wasm-unsafe-eval'"));
   /*
     `script-src` carries 'unsafe-inline' and that is argued at length in
     lib/security/headers.ts: the shell is prerendered and CDN-cached and Next

@@ -5466,3 +5466,88 @@ a:focus-visible .wave-word::after {
 @media (min-width: 768px) {
   .recap-panel { padding: 1.5rem 1.75rem 1.625rem; }
 }
+
+/*
+  THE ONE MICROPHONE (components/speech/MicButton.tsx).
+
+  At rest it is the accent's tint with the accent's ink, which is how a
+  secondary control that matters reads here. Listening, it is the solid
+  accent, the one loud object on the screen, with a ring behind it that grows
+  with the level coming in (`--mic-level`, nought to one, written by the
+  component), so a learner can see the app hearing them before any word
+  arrives. Busy is the raised ground: the model is loading or reading. Closed
+  while the app speaks (D14), it goes to the quiet ink rather than fading,
+  since a fade is how a control that is switched off is drawn and this one is
+  only waiting. Nothing moves under `prefers-reduced-motion` except the ring's
+  size, which is information rather than decoration, and even that steps
+  rather than glides.
+*/
+.speech-mic {
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  transition-property: background-color, color, box-shadow, transform;
+  transition-duration: 160ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (hover: hover) {
+  .speech-mic:hover:not(:disabled) {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent);
+  }
+}
+.speech-mic[data-state="listening"] {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+}
+.speech-mic[data-state="busy"] {
+  background: var(--raised);
+  color: var(--ink-2);
+}
+.speech-mic:disabled {
+  background: var(--raised);
+  color: var(--ink-3);
+  border-color: var(--edge);
+}
+.speech-mic-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  transform: scale(calc(0.85 + var(--mic-level, 0) * 0.55));
+  transition: transform 90ms linear;
+  z-index: -1;
+  pointer-events: none;
+}
+.speech-partial {
+  max-width: 40ch;
+  animation: speech-partial-in 160ms ease-out;
+}
+@keyframes speech-partial-in {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}
+
+/*
+  A LINE SAID ALONG (components/speech/ReadAloud.tsx). A word lights as the
+  recognizer hears it: the accent's tint behind it and the accent's ink on it,
+  with a tick-free weight change so the light carries in more than hue. An
+  unlit word is the ordinary ink; nothing is ever red, because not being heard
+  is not a mistake (VB-2).
+*/
+.read-aloud-word {
+  border-radius: 0.375rem;
+  padding: 0.05em 0.2em;
+  transition-property: background-color, color;
+  transition-duration: 200ms;
+}
+.read-aloud-word[data-lit="true"] {
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-weight: 600;
+}
+@media (prefers-reduced-motion: reduce) {
+  .speech-mic, .read-aloud-word { transition: none; }
+  .speech-mic-ring { transition: none; }
+  .speech-partial { animation: none; }
+}

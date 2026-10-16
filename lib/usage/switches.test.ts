@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { PAID_FEATURES, isOff, readSwitches } from "./switches";
+import { FREE_FEATURES, PAID_FEATURES, isOff, readSwitches } from "./switches";
 
 describe("readSwitches", () => {
   it("switches nothing off when the variable is empty or absent", () => {
@@ -25,6 +25,11 @@ describe("readSwitches", () => {
 
   it("knows exactly the five features the decision names", () => {
     expect([...PAID_FEATURES].sort()).toEqual(["grader", "scan", "scenes", "translate", "tutor"]);
+  });
+
+  it("can switch speech off too, which costs nothing and is kept out of the paid list", () => {
+    expect([...FREE_FEATURES]).toEqual(["speech"]);
+    expect([...readSwitches("speech, tutor").off].sort()).toEqual(["speech", "tutor"]);
   });
 });
 

@@ -125,10 +125,29 @@ describe("the policy says what the app actually needs", () => {
     expect(directive("default-src")).toBe("default-src 'self'");
   });
 
-  it("does not allow eval in a production build", () => {
+  it("does not allow eval in a production build, only WebAssembly", () => {
     vi.stubEnv("NODE_ENV", "production");
     try {
-      expect(directive("script-src")).not.toContain("unsafe-eval");
+      /*
+        Read as whole tokens, because the one source speech needs contains the
+        word: `'wasm-unsafe-eval'` lets a page compile WebAssembly, which the
+        speech worker runs the model in (docs/41-fifth-batch.md, VB-1), and
+        lets nothing evaluate a string as script. `'unsafe-eval'` would, and
+        stays refused.
+      */
+      const tokens = directive("script-src").split(/\s+/);
+      expect(tokens).not.toContain("'unsafe-eval'");
+      expect(tokens).toContain("'wasm-unsafe-eval'");
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
+  it("lets the page fetch the speech model from the deployment's own storage and nowhere else", () => {
+    vi.stubEnv("NEXT_PUBLIC_ASR_MODEL_BASE", "https://models.example.org/asr/");
+    try {
+      expect(directive("connect-src")).toContain("https://models.example.org");
+      expect(directive("connect-src")).not.toContain("huggingface");
     } finally {
       vi.unstubAllEnvs();
     }

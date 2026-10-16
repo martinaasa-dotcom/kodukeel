@@ -34,7 +34,7 @@ const scope = globalThis as unknown as WorkerScope;
 
 /* What the vendored runtime puts on the global scope (sherpa-onnx-asr.js). */
 interface SherpaModule {
-  readonly FS: { writeFile(path: string, data: Uint8Array): void; unlink(path: string): void };
+  readonly FS: { writeFile(path: string, data: Uint8Array): void; mkdir(path: string): void; unlink(path: string): void };
 }
 interface SherpaStream {
   acceptWaveform(rate: number, samples: Float32Array): void;
@@ -66,6 +66,19 @@ let partialText = "";
 
 function post(message: FromWorker): void {
   scope.postMessage(message);
+}
+
+/** Whatever was thrown, in words: emscripten throws plain objects and numbers as well as errors. */
+function describe(error: unknown): string {
+  if (error instanceof Error) return `${error.name}: ${error.message}`;
+  if (typeof error === "object" && error !== null) {
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return Object.prototype.toString.call(error);
+    }
+  }
+  return String(error);
 }
 
 function fail(error: EngineError, detail?: string): void {
@@ -165,6 +178,12 @@ async function load(files: readonly WorkerFile[], cacheName: string, runtimeBase
     sherpa = moduleArg as unknown as SherpaModule;
   }
   const cache = await scope.caches.open(cacheName);
+  // The model's own directory in the in-memory file system, made once per worker.
+  try {
+    sherpa.FS.mkdir("/m");
+  } catch {
+    // Already there from an earlier load in this worker.
+  }
   for (const file of files) {
     const hit = await cache.match(file.key);
     if (!hit) throw new EngineFailure("cleared");
@@ -347,6 +366,6 @@ scope.onmessage = (event) => {
   };
   run().catch((error: unknown) => {
     if (error instanceof EngineFailure) fail(error.error, error.message);
-    else fail("failed", error instanceof Error ? error.message : String(error));
+    else fail("failed", describe(error));
   });
 };

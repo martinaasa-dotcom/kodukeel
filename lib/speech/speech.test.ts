@@ -6,6 +6,8 @@ import { loudFrames, normalize, pad, peakOf, prepareTurn, squeezePauses } from "
 import { core, reconcile, type Hearing } from "./reconcile";
 import { cardVerdict, saidIt } from "./verdict";
 import type { Decoding, RawTurn } from "./engine";
+import { lineWords, lightUp, shareLit, wordInGap } from "./lightUp";
+import { matchPick, MATCH_AT, MATCH_MARGIN } from "./matchPick";
 
 const RATE = 16_000;
 
@@ -278,5 +280,54 @@ describe("the say-it check", () => {
   it("does not accept another word", () => {
     expect(saidIt(turn("kool"), "poodi")).toBe(false);
     expect(saidIt(turn(""), "poodi")).toBe(false);
+  });
+});
+
+describe("lighting a line as it is heard (VB-2)", () => {
+  const line = lineWords("Kas see on kõik või soovite veel midagi?");
+  it("lights words heard in order and leaves the rest unlit", () => {
+    expect(lightUp(line, "kas see on kõik")).toEqual([true, true, true, true, false, false, false, false]);
+  });
+  it("lights through the folds an English ear makes", () => {
+    // `kõik` heard without its õ, and `soovite` with a short vowel.
+    expect(lightUp(line, "kas see on koik voi sovite veel midagi").every(Boolean)).toBe(true);
+  });
+  it("never lights a word heard before the last lit one", () => {
+    expect(lightUp(lineWords("Üks minut, palun."), "palun üks minut")).toEqual([true, true, false]);
+  });
+  it("is nothing when nothing is heard", () => {
+    expect(shareLit(lightUp(line, ""))).toBe(0);
+  });
+  it("finds the word said in a gap, and only when the words around it were heard", () => {
+    expect(wordInGap(["Kas", "te", "soovite"], ["või", "vett?"], "kas te soovite teed või vett")).toBe("teed");
+    expect(wordInGap(["Kas", "te", "soovite"], ["või", "vett?"], "kas te teed")).toBeNull();
+    expect(wordInGap([], ["minut,", "palun."], "üks minut palun")).toBe("üks");
+  });
+});
+
+describe("matching a line on screen (D20)", () => {
+  const picks = ["Üks kohv, palun.", "Kas see on kõik?", "Seda meil täna ei ole."];
+  it("holds the two numbers the work order set", () => {
+    expect(MATCH_AT).toBe(0.7);
+    expect(MATCH_MARGIN).toBe(0.2);
+  });
+  it("lights the pick that was clearly said", () => {
+    expect(matchPick(picks, "üks kohv palun").index).toBe(0);
+    expect(matchPick(picks, "kas see on kõik").index).toBe(1);
+  });
+  it("lights nothing under seventy percent", () => {
+    expect(matchPick(picks, "see on").index).toBeNull();
+  });
+  it("lights nothing where two picks are within twenty points", () => {
+    // Heard up to the last word, both are six words in seven, so neither is lit.
+    const close = ["Kas te soovite teed või kohvi?", "Kas te soovite teed või vett?"];
+    expect(matchPick(close, "kas te soovite teed või").index).toBeNull();
+    // Said whole, the other is still six in seven, inside the margin: two picks
+    // that differ by one word are left to the person who said them.
+    expect(matchPick(close, "kas te soovite teed või vett").index).toBeNull();
+  });
+  it("never matches an utterance that is not one of the picks", () => {
+    expect(matchPick(picks, "ma tahan teed").index).toBeNull();
+    expect(matchPick(picks, "").index).toBeNull();
   });
 });

@@ -179,6 +179,13 @@ export const SETTING_KEYS = {
    */
   wordGloss: "wordGloss",
   /**
+   * "Send what I say straight away", and "Show the microphone in answer
+   * boxes": two choices about speaking, both read through lib/ux/speechPrefs.ts,
+   * where the defaults and the reasons are.
+   */
+  speechSendAtOnce: "speechSendAtOnce",
+  speechInBoxes: "speechInBoxes",
+  /**
    * Whether the English reading of a case question (`in what? where?`) shows
    * beside the Estonian one (`milles? kus?`).
    *
