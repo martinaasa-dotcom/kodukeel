@@ -1978,9 +1978,9 @@ the counter said goodbye with nobody having paid: right for a rehearsal and wron
 every step offers two to four lines to pick, each built off the dictionary (a lemma, a case form or a
 person off the scene's own tables, never typed), the browser sends the pick's id and never its text,
 and a pick not on offer is refused. The picks still go through `knowing` and `replay`, and the itest
-walks **every** path on several seeds and fails on one that does not end with all five beats met,
-the price said, and no repair line. `pay` is a step of the page only, because a café where nobody says
-the price was the fault. The panel says in words that inside the app you type your own answers. And
+walks **every** path on several seeds and fails on one that does not end with every beat met,
+the price said, and no repair line. The price is said after the bill and the payment is the scene's
+own `pay` beat, because a café where nobody says the price was the fault. The panel says in words that inside the app you type your own answers. And
 the conversation is a window of fixed height that scrolls itself, never the page, with no
 `overscroll-behavior`, so the section keeps its size as lines arrive. What the visitor built and ordered is
 held in memory for the tab (`app/(chromeless)/welcome/visit.ts`) and said back at the close; nothing

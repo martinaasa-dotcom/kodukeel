@@ -26,16 +26,16 @@ import { knowing, replay, sceneContext, type SentTurn, type StoredDraw } from "@
  * every line on the other side is a dictionary lemma, a form off the scene's
  * own case table or person table, or a line out of the bank a native speaker
  * has read, and a line whose form is missing is withheld rather than guessed.
- * The one thing added beyond the scene's five beats is the payment, since a
- * café where nobody says the price is the fault being fixed: `pay` is a step
- * of this page only, and its line is `see maksab N eurot` built the way the
- * `wrong-price` curveball builds it.
+ * The price is said on the way to the payment, since a café where nobody says
+ * the price is the fault being fixed: after the bill the other side says
+ * `see maksab N eurot`, built the way the `wrong-price` curveball builds it,
+ * and the payment itself is the scene's own `pay` beat.
  *
  * AND THE APP'S OWN READER STILL MARKS EVERY PICK. The picks are sent through
  * `knowing` and `replay` exactly as typed turns are, so a visitor finishing
  * the scene has met the beats the scene says they met, and
  * `demoScene.itest.ts` walks every path through every seed and fails on one
- * that does not end with all five beats met.
+ * that does not end with every beat met.
  *
  * Stateless like the route: the browser sends the picks it has made and the
  * seed it was dealt, and the run is rebuilt. A pick that is not on offer, or
@@ -51,8 +51,8 @@ export type DemoStep = (typeof DEMO_STEPS)[number];
 /** One pick per step and no more. */
 export const DEMO_MAX_TURNS = DEMO_STEPS.length;
 
-/** What the visitor is doing at each step, in English. The beat's own goal where it is a beat. */
-const PAY_GOAL = "Now pay for it.";
+/** What the visitor is doing at a step the scene has no beat for, which today is none. */
+const FALLBACK_GOAL = "Say it.";
 
 export interface DemoOption {
   /** What the browser sends back: never the text, which the server rebuilds. */
@@ -170,8 +170,13 @@ const cap = (s: string) => `${s.charAt(0).toUpperCase()}${s.slice(1)}`;
  * kõik" answers "is that everything?" and is the wrong answer to "anything
  * else?", so the bill is asked only by the lines that hold `kõik`.
  */
-function banked(scripted: ReadonlyMap<string, readonly string[]>, beat: string, seed: string, holding?: string): string | null {
-  const lines = (scripted.get(beat) ?? []).filter((l) => !holding || l.toLowerCase().split(/[^\p{L}]+/u).includes(holding));
+function banked(
+  scripted: ReadonlyMap<string, readonly string[]>, beat: string, seed: string, holding?: string, without?: string,
+): string | null {
+  const lines = (scripted.get(beat) ?? []).filter((l) => {
+    const words = l.toLowerCase().split(/[^\p{L}]+/u);
+    return (!holding || words.includes(holding)) && (!without || !words.includes(without));
+  });
   if (lines.length === 0) return null;
   return lines[seedFrom(`${beat}:${seed}`) % lines.length] ?? null;
 }
@@ -184,7 +189,7 @@ interface Built {
 /** Every pick a step offers, built off the dictionary. A pick whose form is missing is not offered. */
 function optionsFor(step: DemoStep, lexicon: Lexicon, menu: readonly DemoMenuItem[], goals: ReadonlyMap<string, string>): Built {
   const opt = (id: string, et: string | null, en: string): DemoOption[] => (et ? [{ id, et, en }] : []);
-  const goal = goals.get(step) ?? PAY_GOAL;
+  const goal = goals.get(step) ?? FALLBACK_GOAL;
   switch (step) {
     case "greet":
       return {
@@ -220,8 +225,7 @@ function optionsFor(step: DemoStep, lexicon: Lexicon, menu: readonly DemoMenuIte
       return {
         goal,
         options: [
-          // Holding out a card: `Palun` is what anybody says as they hand something over.
-          ...opt("card", say(lexicon, [{ lemma: "Palun" }, "."]), "Here you are. (You hold out your card.)"),
+          ...opt("card", say(lexicon, [{ lemma: "kaart", grammCase: "COMITATIVE" }, ",", PLEASE, "."]), "By card, please."),
           ...opt("cash", say(lexicon, [{ lemma: "sularaha", grammCase: "COMITATIVE" }, ",", PLEASE, "."]), "In cash, please."),
         ],
       };
@@ -295,9 +299,7 @@ export async function demoTurn(seed: string, sent: readonly DemoTurn[]): Promise
     lines: "scripted",
     patience: run.patience,
   };
-  const turns: SentTurn[] = picks
-    .filter((p) => p.step !== "pay")
-    .map((p) => ({ beatId: p.step, said: p.option.et, helped: false, heard: "" }));
+  const turns: SentTurn[] = picks.map((p) => ({ beatId: p.step, said: p.option.et, helped: false, heard: "" }));
   const marking = await knowing(context, turns.map((t) => t.said));
   const { state } = replay(marking, draw, turns);
 
@@ -325,7 +327,8 @@ export async function demoTurn(seed: string, sent: readonly DemoTurn[]): Promise
     case "size": {
       const bill = scene.beats.find((b) => b.id === "bill");
       if (bill?.meanwhile) lines.push({ text: bill.meanwhile, aside: true });
-      add(banked(scripted, "bill", seed, "kõik"));
+      // A yes-or-no question, since both picks answer it with a yes: "või" makes it a choice of two.
+      add(banked(scripted, "bill", seed, "kõik", "või"));
       break;
     }
     case "bill":
