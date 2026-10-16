@@ -49,9 +49,10 @@ const DOCTOR: SceneSpec = {
       knew a second slot was coming. Drawn and stored exactly as before, so a
       reload offers the same appointment.
     */
-    { kind: "time", slot: "time", from: 9, to: 16, theirs: true },
+    { kind: "time", slot: "time", from: 9, to: 15, theirs: true },
     // The second slot they offer when the first will not do, and never the same one.
-    { kind: "time", slot: "time2", from: 8, to: 16, differentFrom: "time", theirs: true },
+    // Later, since a slot gone is answered "there is time later" (the bank's own line).
+    { kind: "time", slot: "time2", from: 8, to: 16, differentFrom: "time", later: true, theirs: true },
   ],
   /*
     `misheard` because a symptom is the one prop here a receptionist could

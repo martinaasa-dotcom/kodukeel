@@ -15,7 +15,9 @@ const TICKET: SceneSpec = {
       says: "Where you're going.",
       places: true,
     },
-    { kind: "time", slot: "time", from: 8, to: 20, says: "When your bus leaves." },
+    { kind: "time", slot: "time", from: 8, to: 19, says: "When your bus leaves." },
+    // The later bus, which stands in for the first once that one has gone (`slot-gone`).
+    { kind: "time", slot: "time2", from: 9, to: 20, differentFrom: "time", later: true, theirs: true },
     /*
       THE PRICE, TOLD AND THEN CHANGED. `wrong-price` says the amount is not
       the one the learner was told, so the card tells them one, and the other

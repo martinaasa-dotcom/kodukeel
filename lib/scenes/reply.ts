@@ -1438,7 +1438,9 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
         rather than run through `ownReaction`.
       */
       out.push(reaction(REACTIONS.missed[0], "."));
-    } else if (!aside && input.acknowledges && response === "answer" && !ownReaction(line)) {
+    } else if (!aside && input.acknowledges && response === "answer" && !ownReaction(line)
+        // A question nothing answered is not acknowledged "Hästi.", which reads as agreeing to it.
+        && !(asking && answered?.move === "confirm")) {
       /*
         NEWS IS FELT BEFORE IT IS FILED. Where the beat says what kind of news
         its answer is, the word is the feeling's rather than the rotation's:
@@ -1457,6 +1459,13 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       const felt = feltAt(answered, response);
       const feeling = negated && felt === "glad" ? "noted" : felt;
       if (feeling) out.push(reaction(FEELINGS[feeling].word, FEELINGS[feeling].mark));
+      /*
+        AND NOT "AITÄH." TO A TIME THEY ARE ABOUT TO REFUSE. Told yes to the
+        appointment, the receptionist said `Aitäh. Seda aega enam ei ole.`,
+        thanking the patient for a slot that had just gone. A curveball that
+        refuses comes straight after the answer it refuses.
+      */
+      else if (input.hurdle?.fresh && input.hurdle.beat.move === "refuse") { /* nothing before the refusal */ }
       else {
         const choices = acknowledgements(heard, input.said);
         out.push(reaction(choices[input.met % choices.length] ?? REACTIONS.acknowledge[0], "."));

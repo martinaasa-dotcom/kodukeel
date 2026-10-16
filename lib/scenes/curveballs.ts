@@ -209,6 +209,8 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
       holds it, and the composer is handed the same sentence.
     */
     answer: "They say a later time is still free.",
+    // And the time read back after it is the later one, where the scene deals one.
+    replaces: [["time", "time2"]],
     needs: [{ kind: "question" }],
   },
   {

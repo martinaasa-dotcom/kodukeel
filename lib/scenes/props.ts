@@ -116,6 +116,11 @@ export type PropSpec =
       readonly from: number;
       readonly to: number;
       readonly differentFrom?: string;
+      /**
+       * Later in the day than the `differentFrom` slot, so "there is time
+       * later" said of a slot that has gone is true of the one offered next.
+       */
+      readonly later?: true;
       readonly theirs?: true;
       /** How the card labels it. The value is printed under it like every other. */
       readonly says?: string;
@@ -276,6 +281,8 @@ export function drawProp(
   random: () => number,
   avoid: ReadonlySet<string> = new Set(),
   prefer: ReadonlySet<string> = new Set(),
+  /** The value of the `differentFrom` slot, which a `later` time is drawn after. */
+  after?: string,
 ): DrawnProp {
   switch (spec.kind) {
     case "word": {
@@ -303,7 +310,9 @@ export function drawProp(
       };
     }
     case "time": {
-      const slots = halfHours(spec.from, spec.to);
+      const all = halfHours(spec.from, spec.to);
+      const afterIt = spec.later && after ? all.filter((slot) => slot > after) : all;
+      const slots = afterIt.length > 0 ? afterIt : all;
       const value = pick(slots, random, avoid);
       return {
         ...worn(value, avoid),
@@ -414,7 +423,7 @@ export function drawCard(
       ? props.find((p) => p.slot === spec.differentFrom)?.value
       : undefined;
     const shun = other ? new Set([...avoid, other]) : avoid;
-    props.push(drawProp(spec, random, shun, prefer));
+    props.push(drawProp(spec, random, shun, prefer, other));
   }
   return { you, props };
 }

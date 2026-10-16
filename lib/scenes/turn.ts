@@ -1793,6 +1793,8 @@ export function onlyAsks(text: string, beat: BeatSpec, questionWords: ReadonlySe
 function handsBackWhole(spoken: readonly string[], previous: string, beat: BeatSpec): boolean {
   if (spoken.includes(CHOICE_WORD)) return true;
   if (beat.move === "instruct") return false;
+  // Nor on a read-back: "Homme kell 11.30." said back is the check the beat is for, and it was answered "Ma ei saa aru."
+  if (beat.move === "confirm") return false;
   const said = new Set(spoken);
   return previous.split(/(?<=[.!?])\s+/).some((sentence) => {
     const its = words(sentence);
