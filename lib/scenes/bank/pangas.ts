@@ -33,8 +33,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "pangas", beat: "hurdle:missing-document", text: "Kas teil on mõni teine dokument ka?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "pangas", beat: "hurdle:other-register", text: "Kas sul on juba konto?", model: "authored", draftedAt: "2026-10-16", about: "want" },
   { scene: "pangas", beat: "hurdle:other-register", text: "Kas sul on uus töö?", model: "authored", draftedAt: "2026-10-16", about: "want" },
-  { scene: "pangas", beat: "hurdle:place-instruction", text: "Palun minge enne teise laua juurde.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "pangas", beat: "hurdle:place-instruction", text: "Palun kirjutage enne avaldus.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "pangas", beat: "hurdle:place-instruction", text: "Palun minge enne teise laua juurde.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15", about: "want" },
+  { scene: "pangas", beat: "hurdle:place-instruction", text: "Palun kirjutage enne avaldus.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15", about: "want" },
   { scene: "pangas", beat: "answer:hurdle:place-instruction", text: "See on siin kõrval.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "pangas", beat: "answer:hurdle:place-instruction", text: "Seal, vasakul.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
 ];

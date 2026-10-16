@@ -53,6 +53,7 @@ const BANK: SceneSpec = {
     },
     {
       id: "for",
+      feel: "noted",
       goal: "Tell them it's for your wages.",
       they: "They ask what the account is for.",
       move: "ask",
@@ -64,6 +65,7 @@ const BANK: SceneSpec = {
     },
     {
       id: "brought",
+      feel: "noted",
       goal: "Tell them what you've brought with you.",
       they: "They ask what you've brought with you.",
       move: "ask",

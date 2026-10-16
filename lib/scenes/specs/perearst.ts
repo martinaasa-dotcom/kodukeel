@@ -1,5 +1,5 @@
 import type { SceneSpec } from "../types";
-import { COMMON, HELLOS, CLOSING_WORDS, FAREWELLS } from "./shared";
+import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 
 const FAMILY_DOCTOR: SceneSpec = {
   id: "perearst",
@@ -147,7 +147,7 @@ const FAMILY_DOCTOR: SceneSpec = {
       they: "They want to see you again next week, on {back} at {time}.",
       move: "offer",
       topic: ["tagasi", "tulema", "nädal", "aeg"],
-      says: [{ slot: "back", grammCase: "ADESSIVE" }, { lemma: "kell" }, { slot: "time" }],
+      says: [{ lemma: "järgmine", grammCase: "ADESSIVE" }, { lemma: "nädal", grammCase: "ADESSIVE" }, { slot: "back", grammCase: "ADESSIVE" }, { lemma: "kell" }, { slot: "time" }],
       /*
         A no gets another day rather than the end of the visit: "ei sobi" was
         read as off the point, where the goal says it is a right answer. A
@@ -155,7 +155,7 @@ const FAMILY_DOCTOR: SceneSpec = {
       */
       counter: {
         they: "They offer {back2} at {time2} instead.",
-        says: [{ slot: "back2", grammCase: "ADESSIVE" }, { lemma: "kell" }, { slot: "time2" }],
+        says: [{ lemma: "aga" }, { slot: "back2", grammCase: "ADESSIVE" }, { lemma: "kell" }, { slot: "time2" }],
         replaces: [["back", "back2"], ["time", "time2"]],
       },
       needs: [{ kind: "anyOf", of: [
@@ -174,7 +174,8 @@ const FAMILY_DOCTOR: SceneSpec = {
       goal: "Thank them and say goodbye.",
       they: "They say get well soon, and goodbye.",
       move: "close",
-      topic: [...FAREWELLS],
+      // Getting well rather than the farewells alone: a recorded `Head aega!` outranks the bank, and the doctor then left without the "get well" the direction says.
+      topic: ["terve"],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,

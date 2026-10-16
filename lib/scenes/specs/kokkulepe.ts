@@ -54,7 +54,7 @@ const ARRANGING: SceneSpec = {
       feel: "glad",
       move: "ask",
       topic: ["kino", "teater", "kontsert", "plaan", "tahtma"],
-      needs: [{ kind: "lemma", oneOf: ["jah", "tahtma", "hea", "muidugi", "tore", "nõus"] }],
+      needs: [{ kind: "lemma", oneOf: ["jah", "tahtma", "hea", "muidugi", "tore", "nõus", "tulema", "minema"] }],
       required: true,
       patience: 2,
       shape: "word",
@@ -67,7 +67,15 @@ const ARRANGING: SceneSpec = {
       move: "offer",
       topic: ["homme", "sobima", "õhtu", "kell", "päev"],
       says: [{ lemma: "homme" }, { lemma: "kell" }, { slot: "time" }],
-      needs: [{ kind: "negation" }],
+      /*
+        "Homme olen tööl" and "Homme on halb" are a no without an `ei` in them.
+        Not `kiire`: the reviewed hurry line says "Mul on kiire", and a hurry
+        line may not name what a later beat asks for.
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "negation" },
+        { kind: "lemma", oneOf: ["halb", "töö"] },
+      ] }],
       required: true,
       patience: 2,
       shape: "sentence",

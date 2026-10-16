@@ -30,8 +30,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "bussipeatus", beat: "hurdle:faster", text: "Mul on kiire, buss peab minema.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "bussipeatus", beat: "hurdle:misheard", text: "Kas te sõidate lennujaama?", model: "authored", draftedAt: "2026-10-15", about: "this" },
   { scene: "bussipeatus", beat: "hurdle:misheard", text: "Kas te sõidate kooli?", model: "authored", draftedAt: "2026-10-15", about: "this" },
-  { scene: "bussipeatus", beat: "hurdle:place-instruction", text: "Pilet tuleb enne osta, seal ees.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "bussipeatus", beat: "hurdle:place-instruction", text: "Palun ostke enne pilet.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "bussipeatus", beat: "hurdle:place-instruction", text: "Pilet tuleb enne osta, seal ees.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15", about: "greet" },
+  { scene: "bussipeatus", beat: "hurdle:place-instruction", text: "Palun ostke enne pilet.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15", about: "greet" },
   { scene: "bussipeatus", beat: "answer:hurdle:place-instruction", text: "See on seal ees.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "bussipeatus", beat: "answer:hurdle:place-instruction", text: "Siin kõrval, vaadake.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
 ];

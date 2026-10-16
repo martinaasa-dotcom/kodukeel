@@ -49,7 +49,11 @@ const WEEKEND: SceneSpec = {
       feel: "glad",
       move: "ask",
       topic: ["nädalavahetus", "hea", "tore", "kuidas"],
-      needs: [{ kind: "lemma", oneOf: ["hea", "tore", "hästi", "rõõmus", "ilus", "rahulik"] }],
+      // A no ("Ei olnud hea") is an answer too, taken in with `Selge.` rather than asked again.
+      needs: [{ kind: "anyOf", of: [
+        { kind: "lemma", oneOf: ["hea", "tore", "hästi", "rõõmus", "ilus", "rahulik"] },
+        { kind: "negation" },
+      ] }],
       required: true,
       patience: 2,
       shape: "word",

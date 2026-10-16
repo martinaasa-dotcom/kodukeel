@@ -79,13 +79,15 @@ const UNEMPLOYMENT_FUND: SceneSpec = {
       they: "They ask how they can help.",
       move: "ask",
       topic: ["töö", "tööpuudus", "aitama"],
-      needs: [{ kind: "lemma", oneOf: ["töö", "tööpuudus", "avaldus"] }],
+      // "Ma töötasin kokana" is the answer to "how can I help" at this desk as often as "töö" is: it says why they have come.
+      needs: [{ kind: "lemma", oneOf: ["töö", "tööpuudus", "avaldus", "töötama"] }],
       required: true,
       patience: 3,
       shape: "sentence",
     },
     {
       id: "job",
+      feel: "noted",
       goal: "Tell them what you did in your last job.",
       they: "They ask what you did before.",
       move: "ask",
@@ -109,6 +111,7 @@ const UNEMPLOYMENT_FUND: SceneSpec = {
     },
     {
       id: "looking",
+      feel: "noted",
       goal: "Tell them what kind of work you're looking for: the same, or something else.",
       they: "They ask what kind of work you are looking for.",
       move: "ask",
@@ -142,7 +145,7 @@ const UNEMPLOYMENT_FUND: SceneSpec = {
       says: [{ slot: "day", grammCase: "ADESSIVE" }, { lemma: "kell" }, { slot: "time" }],
       counter: {
         they: "They offer {day2} at {time2} instead.",
-        says: [{ slot: "day2", grammCase: "ADESSIVE" }, { lemma: "kell" }, { slot: "time2" }],
+        says: [{ lemma: "aga" }, { slot: "day2", grammCase: "ADESSIVE" }, { lemma: "kell" }, { slot: "time2" }],
         replaces: [["day", "day2"], ["time", "time2"]],
       },
       needs: [{ kind: "anyOf", of: [
