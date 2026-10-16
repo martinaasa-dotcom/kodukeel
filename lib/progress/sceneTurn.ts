@@ -35,7 +35,7 @@ import { choiceOf } from "@/lib/scenes/choice";
 import { repeatsItself, type buildConsistencyUserPrompt } from "@/lib/scenes/consistency";
 import { ASKS_ON } from "@/lib/scenes/curveballs";
 import { gateFor } from "@/lib/scenes/gate";
-import { offerFor } from "@/lib/scenes/grades";
+import { OFFER_CHOICE, offerFor } from "@/lib/scenes/grades";
 import { words, type Lexicon } from "@/lib/scenes/lexicon";
 import { sceneLine, type LineRequest, type SpokenLine } from "@/lib/scenes/line";
 import type { PersonaSpec } from "@/lib/scenes/personas";
@@ -419,7 +419,7 @@ export function planTurn(input: TurnInput) {
     const anticipated = askedNow && answered?.answer ? stageFor({ ...answered, they: answered.answer }, card) : null;
     /* The word the beat was waiting for, where the other side is letting it go or was asked for help. */
     const handing = (response === "help" || response === "moveOn") && answered
-      ? offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives)
+      ? helpWith(response, offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives))
       : null;
     /*
       A closing beat where the learner is still asking: the goodbye waits, so
@@ -569,6 +569,8 @@ export function planTurn(input: TurnInput) {
       // A slip the dictionary could not put right leaves the turn's own words wrong, so none of them is said back.
       slipped: Boolean(last?.slips?.some((slip) => !slip.form)),
       holding: asksToWait(words(last?.said ?? "")),
+      // And whether the turn before asked them to wait too, so the second "oota" is not "Hästi." again.
+      heldBefore: asksToWait(words(state.turns.findLast((t) => t.said !== last?.said)?.said ?? "")),
       askedLater: namesLaterBeat(sceneBeats(scene), answered, state.done, words(last?.said ?? ""), context.lexicon),
       echo: last?.matched?.[0] ?? null,
       /*
@@ -591,7 +593,7 @@ export function planTurn(input: TurnInput) {
         the question they were asked.
       */
       offer: !composing && (response === "help" || response === "moveOn") && answered
-        ? offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives)
+        ? helpWith(response, offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives))
         : null,
       met: state.done.length,
       metLast: last?.met ?? [],
@@ -1039,4 +1041,9 @@ function withoutRepeatedReaction(lines: SpokenLine[], reactedBefore: string | nu
   const plain = (text: string) => text.toLowerCase().replace(/[^\p{L}]+/gu, " ").trim();
   if (REACTIONS.missed.some((word) => plain(word) === plain(first.text))) return lines;
   return plain(reactedBefore) === plain(first.text) ? lines.slice(1) : lines;
+}
+
+/** The yes-or-no handed over at an offer is for somebody who asked for help, never a word said on the way past. */
+function helpWith(response: Response, offer: string | null): string | null {
+  return offer === OFFER_CHOICE && response !== "help" ? null : offer;
 }

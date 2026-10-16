@@ -334,6 +334,9 @@ export function stalledWords(scene: SceneSpec, state: SceneState): string[] {
  * second rule about "which word does this beat want" is how the two would
  * come apart.
  */
+/** What a person asks somebody stuck at an offer: the two answers it takes. */
+export const OFFER_CHOICE = "jah või ei";
+
 /** A yes, a no and a thank-you, which are never a hint (`offerFor`): `Aitäh?` reads as being thanked. */
 const YES_NO: ReadonlySet<string> = new Set(["jah", "ei", "jaa", "Aitäh!", "aitäh"]);
 
@@ -376,7 +379,13 @@ export function offerFor(
     `Jah?`, `Sobima?`) is anything but the other side seeming to answer for
     them: somebody lost at an offer is owed the offer again.
   */
-  if (beat.move === "offer" || beat.counter) return null;
+  /*
+    And then put as the choice it is. Owed the offer again and nothing else,
+    a learner who said "ma ei tea" heard the same offer six times running:
+    what a person says next is "yes or no?", which hands them nothing but the
+    two answers the offer takes, both words every scene teaches.
+  */
+  if (beat.move === "offer" || beat.counter) return OFFER_CHOICE;
   const wanted = leafNeeds(beat.needs).filter(({ index }) => met[index] !== true);
   for (const { need } of (wanted.length > 0 ? wanted : leafNeeds(beat.needs))) {
     if (need.kind === "lemma") {

@@ -19900,7 +19900,8 @@ check("a learner who says they are lost is handed the word, never the question a
     "the words a learner says when lost are no longer a table beside the reactions",
   );
   assert.match(
-    code("lib/scenes/state.ts"), /evidence\.reading === "lost" && !waitedAlready/,
+    // Free the first time it is said on a beat, and after a pause too ("ma mõtlen", then "ma ei tea").
+    code("lib/scenes/state.ts"), /evidence\.reading === "lost" && !helpedAlready/,
     "saying you are lost costs a try the first time, which charges somebody for asking",
   );
   assert.match(

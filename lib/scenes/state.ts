@@ -286,7 +286,13 @@ export function advance(
     that, so a scene cannot be held for ever by one phrase, which is the
     rule the fuzz harness proved was needed for the fragment.
   */
-  if (evidence.reading === "lost" && !waitedAlready) {
+  /*
+    The word was handed over already only where the turn before was a cry for
+    it too: "ma mõtlen" and then "ma ei tea" is somebody who thought and could
+    not find it, and they were answered with the question and no word.
+  */
+  const helpedAlready = previous?.beatId === beat.id && previous.reading === "lost";
+  if (evidence.reading === "lost" && !helpedAlready) {
     return { state: { ...state, turns }, response: "help" };
   }
 
@@ -600,7 +606,7 @@ export function advanceHurdle(
       response: "answer",
     };
   }
-  if (evidence.reading === "lost" && !waitedAlready) {
+  if (evidence.reading === "lost" && !(previous?.beatId === `hurdle:${hurdle.id}` && previous.reading === "lost")) {
     return { state: { ...state, turns }, response: "help" };
   }
   if ((evidence.reading === "fragment" || evidence.reading === "echo") && (!waitedAlready || evidence.holds)) {

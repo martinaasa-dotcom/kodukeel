@@ -227,6 +227,8 @@ export interface ReplyInput {
   /** The word that met the beat is one of the beat's own verbs, which is never said back. */
   readonly verbAnswer?: boolean;
   /** The turn asked them to wait ("oota", "ma mõtlen"), read by the caller off the accept-only table. */
+  /** Whether the learner's turn before this one asked them to wait as well. */
+  readonly heldBefore?: boolean;
   readonly holding?: boolean;
   /** The turn carried a slip the dictionary could not recast, so nothing of it is said back as it was. */
   readonly slipped?: boolean;
@@ -1123,7 +1125,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     // A line written for this turn already took the word and asked for the rest.
     if (line?.provenance === "composed") return [line];
     // Asked for a moment, they say all right and give it (`asksToWait`).
-    if (input.holding) return [reaction(REACTIONS.letGo[0], ".")];
+    if (input.holding) return [reaction(input.heldBefore ? REACTIONS.waiting[0] : REACTIONS.letGo[0], ".")];
     /*
       AND A WORD THAT ANSWERED ANOTHER QUESTION IS TAKEN, NOT DOUBTED. Asked
       where it hurts, a patient said `Esmaspäevast.`, which answers how long,
@@ -1200,6 +1202,11 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   if (response === "help") {
     const word = input.offer;
     const offered = word ? { ...reaction(word, "?"), provenance: "offered" as const } : null;
+    // At an offer the offer comes first and then "jah või ei?", since the choice is about it.
+    if (offered && !composed && (answered?.move === "offer" || answered?.counter) && again) {
+      out.push(otherWay ? { text: otherWay, provenance: "scripted" } : sayAgainLine(), offered);
+      return out;
+    }
     if (offered && !composed) out.push(offered);
     /*
       And the question again, unless the word *was* the question: a greeting
