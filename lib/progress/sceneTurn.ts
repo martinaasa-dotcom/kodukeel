@@ -390,6 +390,16 @@ export function planTurn(input: TurnInput) {
     */
     || (!composing && !wantsFreshLine(sent ? response : null, heard, reading))
     /*
+      A LEARNER WHO ASKED FOR A MOMENT IS GIVEN IT, IN A RUN THAT COMPOSES
+      TOO (`docs/21-situations.md` §85, row `wait-holding`). `oota` is read
+      as a holding wait, and a line built for it booked a call whose note
+      told the model to ask for the rest of the answer: the learner asked for
+      a moment and was pressed. There is nothing for a model to add to "all
+      right, take your time", so no line is built and the reply is the
+      keyless one.
+    */
+    || (sent && response === "wait" && asksToWait(words(last?.said ?? "")))
+    /*
       A CURVEBALL SAID IN ENGLISH IS SAID IN ENGLISH. "They switch to English"
       carries its own line (`said`) and no Estonian is wanted for it; composed,
       it came back as `Kas te räägite inglise keelt?`, which is the other side

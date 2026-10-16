@@ -5575,9 +5575,9 @@ name. A ternary inside an arm belongs to that arm's row.
 | `aside-more-asked` | A place question, or "sorry, what?", after directions, an offer or a refusal | Nothing yet; the row below decides | Not called |
 | `aside-more` | The bank holds another line for that beat | That line | Not called |
 | `aside-nothing` | Nothing above answered | No aside; the route may ask a model, then shrug | Not called |
-| `wait` | The response `wait` | Every arm below returns | Its first arm is the line |
+| `wait` | The response `wait` | Every arm below returns | Its second arm is the line |
+| `wait-holding` | They asked for a moment | `Hästi.`, or `Jah.` the second time | Stays: the route builds no line for it |
 | `wait-composed` | A composed line | The composed line alone | Is the line |
-| `wait-holding` | They asked for a moment | `Jah.`, or `Hästi.` the second time | Stands down |
 | `wait-landed` | The turn met a beat elsewhere | `Selge.` and the line | Stands down |
 | `wait-wanting` | A bare yes to a question that named an indefinite | The paired question word (`Mida?`) | Stands down |
 | `wait-look` | Anything else | Their word back with a question mark, `Selge.` to a yes, or `Jah?` | Stands down |
@@ -5597,7 +5597,7 @@ name. A ternary inside an arm belongs to that arm's row.
 | `offtarget-later` | A question a later beat answers | `Hiljem.` | Stands down |
 | `ack` | A turn that landed, with no aside or with a recast, not answering a greeting, and not a question the beat wanted | Nothing yet; the rows below decide | Stays |
 | `ack-echo` | A short answer, a recast, or a word reached for in English | Their word back, or the dictionary's form of it | Stands down |
-| `ack-misheard` | The answer to a mishearing curveball | `Vabandust.` | Stays |
+| `ack-misheard` | The answer to a mishearing curveball | `Vabandust!` | Stands down |
 | `ack-acknowledge` | An answer, where the line opens with no reaction and no question is left | Nothing yet; the rows below decide | Stands down |
 | `ack-felt` | The beat says what kind of news its answer is | `Tõesti?`, `Tore!` or `Selge.` | Stands down |
 | `ack-before-refusal` | A curveball about to refuse | Nothing | Stands down |
@@ -5622,9 +5622,9 @@ name. A ternary inside an arm belongs to that arm's row.
 | `meanwhile` | A beat with a break in time, arriving | The break in time | Stays |
 | `close-waits` | The closing beat, and an aside was said | Nothing more; the goodbye waits | Stays |
 | `a-little` | An English turn that asked for English | `Natuke.` | Stands down |
-| `narrowed` | The nudge turn, a miss, and a choice could be built | The choice (`Valu või palavik?`), and nothing after | Stands down |
-| `coach` | The nudge turn and a miss | Nothing yet; the row below decides | Stands down |
+| `coach` | The nudge turn and a miss, and no choice could be built | Nothing yet; the row below decides | Stands down |
 | `coach-hint` | The app has a hint for the beat | The app's hint, in English | Stands down |
+| `narrowed` | The nudge turn, a miss, and a choice could be built | The choice (`Valu või palavik?`) in the move's place; the passes below still run | Stands down |
 | `move-composed` | A composed line | The composed line | Is the line |
 | `move-recital` | A long line to say again, and a shorter one for the beat | The shorter line | Stands down |
 | `move-another` | The nudge reached, and another banked way of asking | That line | Stands down |
@@ -5638,16 +5638,26 @@ name. A ternary inside an arm belongs to that arm's row.
 | `join` | A `Selge.` marked to join, before a question | One sentence: `Selge, aga` and the question | Stands down: it never joins onto a composed line |
 | `translate` | An English turn, and a persona who translates | The beat's stage direction in English | Stays |
 
-**What writing the table found.** Three cases where one row shadows another. None is fixed here; each
-waits for its own pull request with a failing test first.
+**What writing the table found.** Three cases where one row shadows another. None was fixed in the
+pull request that wrote the table; all three were fixed in the next one (C-2 in
+`docs/41-fifth-batch.md`), each with a failing test first, and the rows above already say what the
+code does now. What each was, and what was done:
 
 - **`wait-composed` shadows `wait-holding` wherever a model answers.** A learner who writes `oota` is
   read `fragment` and holding, and `wantsFreshLine` composes on every `wait`. `composeNote` then tells
   the model to ask for the rest of the answer. So a learner asking for a moment is pressed rather than
-  given it; keyless, they get `Jah.` as the row says.
+  given it; keyless, they get `Hästi.`. **Fixed by not composing at all**: a holding wait builds no
+  line in `planTurn`, so no call is booked, and `wait-holding` now sits above `wait-composed` so the
+  reply holds to that whatever a caller hands in. Telling the model to give them the moment was the
+  other option and was not taken, because "all right, take your time" is the whole of the reply and
+  there is nothing a model could add to it except the pressing this row exists to stop.
 - **`ack-misheard` stays when a line was composed.** It is the one reaction in the acknowledgment
   that does not ask whether the line reacted for itself. A composed line answering a corrected
-  mishearing arrives with `Vabandust.` in front of it, against the rule §70 sets.
+  mishearing arrives with `Vabandust!` in front of it, against the rule §70 sets. **Fixed**: it
+  stands down where the line was composed. It still skips `ownReaction`, on purpose, because the
+  reason it skipped it was a banked line opening on `Jah`, and that line still gets the apology.
 - **`narrowed` returns before `translate` and the three tidy passes.** On the nudge turn an English
   turn gets the choice, and a persona who translates does not translate. A `Selge.` pushed before a
-  choice is not joined into one sentence, since `join` never runs.
+  choice is not joined into one sentence, since `join` never runs. **Fixed**: the choice is the first
+  arm of the move rather than a return, the hint above it stands down where a choice exists (as the
+  return made it), and `close-once`, `no-twice`, `join` and `translate` run over it.

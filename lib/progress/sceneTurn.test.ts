@@ -146,3 +146,25 @@ describe("composeTurn", () => {
     }
   });
 });
+
+/*
+  A LEARNER WHO ASKS FOR A MOMENT IS GIVEN IT (`docs/21-situations.md` §85,
+  row `wait-holding`). A run that composes used to build a line for every
+  turn, so `oota` booked a call and the model was told to press for the rest
+  of the answer. A holding wait builds no line, and the reply is the keyless
+  one: "all right", and the floor stays theirs.
+*/
+describe("a turn asking for a moment", () => {
+  it("builds no line and books no call in a run that composes", async () => {
+    const scene = sceneById("poodi-piima")!;
+    const { planFor } = setUp(scene, "composed");
+    const plan = await planFor(["Tere!", "oota"], true);
+    expect(plan.response).toBe("wait");
+    expect(plan.line, "a line is built for a learner who asked for a moment").toBeNull();
+    let asked = 0;
+    const { lines } = await speakTurn(plan, async () => { asked += 1; return { kind: "none" }; });
+    expect(asked).toBe(0);
+    expect(lines).toHaveLength(1);
+    expect(lines[0]?.reaction).toBe(true);
+  });
+});
