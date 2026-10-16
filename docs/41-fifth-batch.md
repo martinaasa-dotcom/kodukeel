@@ -277,7 +277,7 @@ stops. Size is the work in one pull request: S is a day, M a few days, L a week 
 | --- | --- | --- | --- |
 | C-1 Sign-in's largest paint, measured on production | 0: what batch 4 left | S | Not started, needs #856 deployed |
 | C-2 One capped play of the composed path | 0 | S | Not started |
-| C-3 The reply's decision order, written and asserted | 0 | M | Not started |
+| C-3 The reply's decision order, written and asserted | 0 | M | Done: 95 rows in `docs/21-situations.md` §85, held by `scripts/invariants/the-reply-decides-in-order.ts`, three shadowing findings left open there |
 | C-4 Teach `kolima`, then the reader's wording | 0 | S | Not started |
 | VB-1 The engine and the hearing rules | 1: a conversation out loud | L | Not started |
 | VB-2 One microphone for the whole app | 1 | M | Not started |
