@@ -1887,6 +1887,11 @@ export function advances(reading: TurnReading): boolean {
  * which mean one thing. A cascade or a credit at a distance may still be won
  * on a real word; it may never be won on `jah` or `ei` alone.
  */
+/** Whether a beat was met by a word and not by a bare yes or no, which every yes-or-no question takes. */
+export function metByWord(next: Evidence): boolean {
+  return next.satisfiedBy.length > 0 && next.satisfiedBy.every((word) => !BARE_POLARITY.has(word));
+}
+
 export function addsEvidence(next: Evidence, spent: ReadonlySet<string>): boolean {
   return next.satisfiedBy.some((word) => !spent.has(word) && !BARE_POLARITY.has(word));
 }

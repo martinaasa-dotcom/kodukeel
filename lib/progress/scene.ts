@@ -51,7 +51,7 @@ import {
 import { gradesFor, stalledWords, type SceneGrade } from "@/lib/scenes/grades";
 import { reviewOf, type SceneReview } from "@/lib/scenes/review";
 import { recapOf, type SceneRecap } from "@/lib/scenes/recap";
-import { addsEvidence, concede, onlyAsks, readTurn } from "@/lib/scenes/turn";
+import { addsEvidence, concede, metByWord, onlyAsks, readTurn } from "@/lib/scenes/turn";
 import { saysGoodbye, CLOSING_WORDS } from "@/lib/scenes/casual";
 import { clip } from "@/lib/copy/clip";
 import { localeFor } from "@/lib/progress/locale";
@@ -1433,7 +1433,8 @@ export function replay(
       turn stopped there, and the clerk asked where they were going three times
       running. `spent` is the words this turn has already used.
     */
-    const further = (spent: Set<string>, heard: string, answering = true) => {
+    const further = (spent: Set<string>, heard: string, answering = true, metBeat?: BeatSpec) => {
+      let last = metBeat;
       while (response === "answer" || response === "moveOn") {
         state = raiseHurdle(context.scene, state, drawn);
         if (state.hurdle || response === "moveOn") break;
@@ -1463,7 +1464,16 @@ export function replay(
         const vouchedAhead = sent.alsoDone?.includes(next.id) && read.reading !== "complete";
         const more = vouchedAhead ? concede(read, read.missing) : read;
         if (more.reading !== "complete") break;
-        if (!vouchedAhead && !addsEvidence(more, spent)) break;
+        /*
+          A WORD ALREADY SPENT ANSWERS THE NEXT QUESTION TOO WHERE BOTH ASK FOR
+          THAT VERY FORM. Asked whether that was everything, a customer said
+          `Kaardiga.`, which is yes and how they are paying, and the till then
+          asked "card or cash?" of somebody who had just said. Two beats naming
+          one lemma in one case are one answer, so the two-words rule stands
+          down for those and for nothing else.
+        */
+        const sameForm = last !== undefined && sharedCaseForm(last, next) && metByWord(more);
+        if (!vouchedAhead && !sameForm && !addsEvidence(more, spent)) break;
         /*
           AND A SECOND WORD FOR THE SAME THING ANSWERS THE QUESTION THAT WAS
           ASKED, NOT ONE NOBODY HAS ASKED YET. A synonym meets a requirement
@@ -1476,6 +1486,7 @@ export function replay(
         if (!vouchedAhead && more.substituted.length > 0) break;
         for (const word of more.satisfiedBy) spent.add(word);
         ({ state, response } = advance(context.scene, state, more, said, false, heard));
+        last = next;
       }
       /*
         AND A BEAT FURTHER DOWN THE SCENE IS CREDITED WHERE IT STANDS.
@@ -1680,7 +1691,7 @@ export function replay(
       and offered the lost learner `Üks?`. A turn read as lost, as English,
       as an echo or as nothing anybody could read answered nothing else.
     */
-    further(new Set(evidence.satisfiedBy), heard, !["lost", "english", "echo", "unrecognised"].includes(evidence.reading));
+    further(new Set(evidence.satisfiedBy), heard, !["lost", "english", "echo", "unrecognised"].includes(evidence.reading), beat);
     previous = heard;
   }
   return { state, response, elsewhere };
@@ -1810,4 +1821,14 @@ export async function sceneHistoryFor(ownerId: string): Promise<ReadonlyMap<stri
     out.set(row.sceneId, { plays: 1, last, lastAt: row.endedAt });
   }
   return out;
+}
+
+/** Whether two beats both ask for one lemma in one case, so that one word in that form answers both (the cascade's exception). */
+function sharedCaseForm(a: BeatSpec, b: BeatSpec): boolean {
+  const key = (need: BeatSpec["needs"][number]) => (need.kind === "case" ? `${need.lemma}|${need.grammCase}` : null);
+  const ours = new Set(leafNeeds(a.needs).map(({ need }) => key(need)).filter((k) => k !== null));
+  return leafNeeds(b.needs).some(({ need }) => {
+    const k = key(need);
+    return k !== null && ours.has(k);
+  });
 }

@@ -1124,6 +1124,14 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     if (line?.provenance === "composed") return [line];
     // Asked for a moment, they say all right and give it (`asksToWait`).
     if (input.holding) return [reaction(REACTIONS.letGo[0], ".")];
+    /*
+      AND A WORD THAT ANSWERED ANOTHER QUESTION IS TAKEN, NOT DOUBTED. Asked
+      where it hurts, a patient said `Esmaspäevast.`, which answers how long,
+      and was handed `Esmaspäevast?` as though the receptionist did not believe
+      them. The turn met a beat elsewhere, so they say they have it and ask
+      what they asked again.
+    */
+    if (input.landed && line) return [reaction(REACTIONS.heard[0], "."), line];
     const theirs = input.echo && !/\d/.test(input.echo) && !FLAT_WORDS.has(input.echo)
       ? input.echo
       : null;

@@ -114,7 +114,15 @@ const CAFE: SceneSpec = {
         take `jah` and `ei` beside their drawn value.
       */
       // And "ei": "Kas see on kõik või soovite veel midagi?" is answered "Ei, aitäh" as often as "Jah".
-      needs: [{ kind: "lemma", oneOf: ["arve", "maksma", "raha", "jah", "ei"] }],
+      // And "Kaardiga" is how anybody says it is everything: they are paying, and how.
+      needs: [{
+        kind: "anyOf",
+        of: [
+          { kind: "lemma", oneOf: ["arve", "maksma", "raha", "jah", "ei"] },
+          { kind: "case", lemma: "kaart", grammCase: "COMITATIVE" },
+          { kind: "case", lemma: "sularaha", grammCase: "COMITATIVE" },
+        ],
+      }],
       required: true,
       patience: 2,
       shape: "sentence",

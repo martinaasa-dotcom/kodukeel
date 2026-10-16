@@ -42,7 +42,8 @@ export const CASUAL = {
     other: ["hi", "hello", "hey", "ciao", "hallo", "hej", "moi", "privet", "salut", "hola", "yo"],
   },
   bye: {
-    et: ["tsau", "tšau", "tsauki", "pakaa", "hüvasti", "nägemiseni", "kohtumiseni", "davai", "näeme"],
+    // "Tänan!" at the till is a thanks on the way out, as "Aitäh!" is, from the verb a later unit teaches.
+    et: ["tsau", "tšau", "tsauki", "pakaa", "hüvasti", "nägemiseni", "kohtumiseni", "davai", "näeme", "tänan", "tänud"],
     other: ["bye", "goodbye", "ciao", "tschüss", "adieu", "adios", "hejdå", "poka", "cheers", "later"],
   },
 } as const;

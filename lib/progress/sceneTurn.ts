@@ -30,7 +30,7 @@ import { clip } from "@/lib/copy/clip";
 import { clockInPlay, moneyInPlay, type SceneContext, type StoredDraw } from "@/lib/progress/scene";
 import { CHECK_GLUE, asideFor, asideOwed, readBackCorrection, asksPermission, asksToHearAgain, namesLaterBeat, priceAsked, questionAhead, sameFact, shrug } from "@/lib/scenes/aside";
 import { asksSlower, asksToWait, saysGoodbye, LEAVING } from "@/lib/scenes/casual";
-import { FAREWELLS } from "@/lib/scenes/catalogue";
+import { FAREWELLS, FEELINGS, REACTIONS } from "@/lib/scenes/catalogue";
 import { choiceOf } from "@/lib/scenes/choice";
 import { repeatsItself, type buildConsistencyUserPrompt } from "@/lib/scenes/consistency";
 import { ASKS_ON } from "@/lib/scenes/curveballs";
@@ -511,11 +511,38 @@ export function planTurn(input: TurnInput) {
     answered gets the shrug, and an answer written before a break in time
     still goes first.
   */
+  /*
+    What the last reply most likely opened with. Only the move line travels
+    with a turn, so the reaction is read off what each turn before this one
+    did: a beat that landed is felt the beat's way, and a turn off the point
+    was answered "got it". Walked from the start, so a reaction that was left
+    out last time (`withoutRepeatedReaction`) is not counted as said.
+  */
+  const reactedBefore = (() => {
+    const blocks: SceneState["turns"][number][] = [];
+    state.turns.forEach((t, i) => {
+      if (i > 0 && state.turns[i - 1]!.said === t.said) blocks[blocks.length - 1] = t;
+      else blocks.push(t);
+    });
+    const guess = (t: SceneState["turns"][number]) => {
+      const feel = sceneBeats(scene).find((b) => b.id === t.beatId)?.feel;
+      return t.reading === "complete" && feel ? FEELINGS[feel].word
+        : t.reading === "offtarget" ? REACTIONS.heard[0] ?? null
+        : null;
+    };
+    let said: string | null = null;
+    for (const t of blocks.slice(0, -1)) {
+      const would = guess(t);
+      said = would !== null && would === said ? null : would;
+    }
+    return said;
+  })();
+
   function respond(said: SpokenLine | null, preBreak: SpokenLine | null = null): SpokenLine[] {
     const before = said?.provenance === "composed"
       ? preBreak
       : preBreak ?? (shrugOwed ? shrug(asking) : aside);
-    return withoutRestatedCorrection(replyFor({
+    return withoutRepeatedReaction(withoutRestatedCorrection(replyFor({
       beat: speaking,
       // A turn that answered a beat the other side had moved past is not a miss.
       landed: elsewhere > 0,
@@ -618,7 +645,7 @@ export function planTurn(input: TurnInput) {
             roll: state.turns.length, met: last?.met ?? [],
           })
         : null,
-    }));
+    })), reactedBefore);
   }
 
   /*
@@ -997,4 +1024,19 @@ function withoutRestatedCorrection(lines: SpokenLine[]): SpokenLine[] {
     if (!before || !/^ei,\s/i.test(before.text)) return true;
     return plain(before.text.replace(/^ei,\s*/i, "")) !== plain(line.text);
   });
+}
+
+/**
+ * Nobody says "Selge." at the start of every turn. A receptionist who said it
+ * over the last answer goes straight to the next question over this one, so a
+ * reaction word that most likely opened the last reply too is dropped where a
+ * line follows it. The repair word is kept, since saying sorry twice running
+ * is what somebody does who is still not following.
+ */
+function withoutRepeatedReaction(lines: SpokenLine[], reactedBefore: string | null): SpokenLine[] {
+  const first = lines[0];
+  if (!first?.reaction || lines.length < 2 || !reactedBefore) return lines;
+  const plain = (text: string) => text.toLowerCase().replace(/[^\p{L}]+/gu, " ").trim();
+  if (REACTIONS.missed.some((word) => plain(word) === plain(first.text))) return lines;
+  return plain(reactedBefore) === plain(first.text) ? lines.slice(1) : lines;
 }
