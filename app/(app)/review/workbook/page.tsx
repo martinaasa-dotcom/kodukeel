@@ -21,6 +21,7 @@ import { offered } from "@/lib/tutor/provider";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { dayOrdinal } from "@/lib/random/dayHash";
 import { roundOf } from "@/lib/ux/again";
+import { SET_FOR_YOU } from "@/lib/ux/workbookDone";
 import {
   MIN_LINES, canFill, cardForLine, composeSheet, linesFor, parseTheme, themeOrder, whoFor,
   type ExercisePlan, type LineQuality, type SheetItem, type Theme,
@@ -403,6 +404,7 @@ export default async function WorkbookPage({
         missed={requested && !exercises.some((e) => e.theme === requested) ? requested : null}
         themes={fillable.slice(0, THEME_CHOICES)}
         canTranslate={offered("translate")}
+        doneKey={opened ? null : requested && exercises.some((e) => e.theme === requested) ? requested : SET_FOR_YOU}
       />
     </BeforeYouStart>
   );
