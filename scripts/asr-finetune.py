@@ -5,6 +5,7 @@ Teach TalTech's xls-r to write down what was said, mistakes included, on a CPU.
     python3 scripts/asr-finetune.py data     # training clips, TartuNLP voices (free, cached)
     python3 scripts/asr-finetune.py train    # fine-tune the top layers (hours on four cores)
     python3 scripts/asr-finetune.py eval     # before and after, on voices and sentences it never saw
+    python3 scripts/asr-finetune.py verdict  # the minimal-pair verdict of asr-verdict.py, on the tuned model
 
 The Zipformer cannot be trained here: TalTech publish it as ONNX only, and a
 fine-tune needs their PyTorch checkpoint and Icefall recipe (docs/39-speech.md
@@ -213,5 +214,49 @@ def evaluate():
             print(f"        {kind:8} wrote the mistake {bad:3}/{n}, corrected it {ok:3}/{n}")
 
 
+def verdict():
+    """The single-word forced choice of scripts/asr-verdict.py, held-out voices, clean and babble, before and after."""
+    import torch
+    from transformers import AutoModelForCTC, AutoProcessor
+    torch.set_num_threads(os.cpu_count() or 4)
+    spec = importlib.util.spec_from_file_location("asr_verdict", os.path.join(os.path.dirname(__file__), "asr-verdict.py"))
+    V = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(V)
+    sets = json.load(open(os.path.join(V.OUT, "sets.json")))
+    refs = json.load(open(os.path.join(V.OUT, "refs.json")))
+    words = [w for w in sets["words"] if w["voice"] in V.HELD]
+    mid = os.path.join(OUT, "model")
+    proc = AutoProcessor.from_pretrained(mid)
+    model = AutoModelForCTC.from_pretrained(mid).eval()
+    cache = os.path.join(OUT, "lp")
+    os.makedirs(cache, exist_ok=True)
+
+    def lp(path):
+        f = os.path.join(cache, os.path.basename(V.cache_path(path)))
+        if not os.path.exists(f):
+            inputs = proc(X.load(path), sampling_rate=RATE, return_tensors="pt")
+            with torch.inference_mode():
+                out = torch.log_softmax(model(**inputs).logits[0].float(), -1).numpy().astype(np.float16)
+            np.save(f, out)
+        return np.load(f).astype(np.float32)
+
+    for room in ("clean", "babble10"):
+        for name, load in (("before", V.load_lp), ("after", lp)):
+            rows = []
+            for w in words:
+                a, b = V.letters(w["text"]), V.letters(w["partner"])
+                ra = np.mean([V.margin(load(f), a, b) for f in refs["words"][w["text"]].values()])
+                rb = np.mean([V.margin(load(f), a, b) for f in refs["words"][w["partner"]].values()])
+                if abs(rb - ra) < V.SEPARATION:
+                    continue
+                m = V.margin(load(V.room_file(w["file"], room, word=True)), a, b)
+                rows.append(((m - ra) / (rb - ra), (m - rb) / (ra - rb)))
+            n = len(rows)
+            caught = sum(x[1] > 0.65 for x in rows)
+            false = sum(x[0] > 0.65 for x in rows)
+            again = sum(0.35 <= x[0] <= 0.65 for x in rows) + sum(0.35 <= x[1] <= 0.65 for x in rows)
+            print(f"{room:9} {name:7} words {n}: caught {100 * caught / n:5.1f}%  false alarm {100 * false / n:4.1f}%  asked again {100 * again / (2 * n):4.1f}%", flush=True)
+
+
 if __name__ == "__main__":
-    {"data": data, "train": train, "eval": evaluate}[sys.argv[1] if len(sys.argv) > 1 else "eval"]()
+    {"data": data, "train": train, "eval": evaluate, "verdict": verdict}[sys.argv[1] if len(sys.argv) > 1 else "eval"]()
