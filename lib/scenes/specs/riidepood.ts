@@ -39,7 +39,12 @@ const CLOTHES: SceneSpec = {
     */
     { kind: "price", slot: "price", min: 15, max: 80, says: "What it costs.", theirs: true },
   ],
-  curveballs: ["not-possible", "queue", "english", "faster", "small-talk", "interrupted", "misheard"],
+  /*
+    Not `not-possible`: its lines said "we can't do that today" to "do you have
+    a jacket?", one named a shirt whatever the card dealt, and the shop then
+    sold the thing anyway. Nothing in your size is the `not-in-stock` outcome.
+  */
+  curveballs: ["queue", "english", "faster", "small-talk", "interrupted", "misheard"],
   beats: [
     {
       id: "greet",
@@ -101,7 +106,8 @@ const CLOTHES: SceneSpec = {
       goal: "Come out of the fitting room and say whether it fits.",
       meanwhile: "A few minutes later, you come out of the fitting room wearing it.",
       they: "They ask how it went.",
-      feel: "glad",
+      /* Taken in, not celebrated: "See on liiga väike." is an answer too, and it was met with "Tore!". */
+      feel: "noted",
       move: "ask",
       topic: ["suur", "väike", "pikk", "lühike", "hea"],
       needs: [{ kind: "lemma", oneOf: ["suur", "väike", "pikk", "lühike", "hea", "ilus", "halb"] }],
@@ -125,7 +131,8 @@ const CLOTHES: SceneSpec = {
       needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["hind", "maksma", "palju", "raha", "euro"] }],
       answer: "They read the price off the tag.",
       required: true,
-      patience: 2,
+      /* Three, because nobody at a till lets a customer go unpaid after one muddled answer: a brisk clerk with one try did. */
+      patience: 3,
       shape: "word",
     },
     {

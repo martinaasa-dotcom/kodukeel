@@ -10,7 +10,8 @@ const FRIENDS_WORRY: SceneSpec = {
     `tunded` for worry and sadness, which is the claim it tests. `inimsuhted`
     for supporting somebody, `iseloom` for how they are, `abi` for
     helping, `probleemid` for `kahju` ("I'm sorry"), `minevik` for what
-    happened, `plaanid` for when to meet, `ostmine` for money, and
+    happened, `plaanid` for when to meet, `ostmine` for money, `kirjeldamine`
+    for `vaene` ("Oi sa vaene!"), and
     `omadussonad` for slowly.
     `sina`, because it is a friend.
 
@@ -25,7 +26,7 @@ const FRIENDS_WORRY: SceneSpec = {
     a learner's answer as news the other side reacts to, and here it would
     have the friend say "really?" to the learner's own sympathy.
   */
-  units: [...COMMON, "tunded", "inimsuhted", "iseloom", "abi", "probleemid", "minevik", "plaanid", "ostmine", "omadussonad"],
+  units: [...COMMON, "tunded", "inimsuhted", "iseloom", "abi", "probleemid", "minevik", "plaanid", "ostmine", "omadussonad", "kirjeldamine"],
   register: "sina",
   role: "This is a role. A friend asked to meet for coffee, and they don't look happy. Listen, ask what happened and offer to help.",
   props: [
@@ -75,7 +76,8 @@ const FRIENDS_WORRY: SceneSpec = {
       they: "They say they're worried about money now.",
       move: "instruct",
       topic: ["mure", "raha", "muretsema"],
-      needs: [{ kind: "lemma", oneOf: ["kahju", "kurb", "mure", "muretsema"] }],
+      /* "Oi sa vaene!" and "See on nii halb" are how a friend says it as often as "Kahju". */
+      needs: [{ kind: "lemma", oneOf: ["kahju", "kurb", "mure", "muretsema", "vaene", "halb"] }],
       required: true,
       patience: 2,
       shape: "sentence",

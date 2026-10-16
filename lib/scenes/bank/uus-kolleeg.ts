@@ -34,7 +34,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "uus-kolleeg", beat: "hurdle:other-register", text: "Vabandust, kas te olete siin uus?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "uus-kolleeg", beat: "hurdle:other-register", text: "Kust te pärit olete?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "uus-kolleeg", beat: "name", text: "Mina olen Mari. Ja sina?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "uus-kolleeg", beat: "name", text: "Tere, mina olen Mari. Mis su nimi on?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "uus-kolleeg", beat: "name", text: "Mina olen Mari. Mis su nimi on?", model: "authored", draftedAt: "2026-10-16" },
 ];
 
 export default LINES;

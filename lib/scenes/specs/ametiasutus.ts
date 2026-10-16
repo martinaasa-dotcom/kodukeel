@@ -106,7 +106,11 @@ const COUNTER: SceneSpec = {
       answer: "They tell you roughly how long the wait is.",
       move: "instruct",
       topic: ["järjekord", "aeg", "klient"],
-      needs: [{ kind: "question" }],
+      /*
+        A question about the wait, not any question at all: "Kas siin on WC?"
+        met this beat and was answered "ten minutes".
+      */
+      needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["kaua", "aeg", "minut", "tund", "ootama", "millal", "kiiresti"] }],
       required: false,
       patience: 2,
       shape: "sentence",
@@ -131,7 +135,12 @@ const COUNTER: SceneSpec = {
       answer: "They tell you how long it'll be until the form is ready.",
       move: "confirm",
       topic: ["aeg", "päev", "nädal", "avaldus", "millal"],
-      needs: [{ kind: "question" }],
+      /*
+        A question about when, not any question: "Kas te helistate mulle?"
+        met this beat and was answered "in a week", and the learner's real
+        "Millal see valmis on?" one turn later got "Later."
+      */
+      needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["millal", "valmis", "kaua", "aeg", "päev", "nädal", "kiiresti", "varsti"] }],
       required: true,
       patience: 2,
       shape: "sentence",

@@ -31,10 +31,10 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "elamisluba", beat: "hurdle:place-instruction", text: "Enne minge palun teise tuppa, sealt saate numbri.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "elamisluba", beat: "answer:hurdle:place-instruction", text: "See on siin kõrval.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elamisluba", beat: "answer:hurdle:place-instruction", text: "Siin kõrval.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "elamisluba", beat: "hurdle:contradiction", text: "Ei, see dokument ei sobi.", model: "authored", draftedAt: "2026-10-15", about: "brought" },
+  { scene: "elamisluba", beat: "hurdle:contradiction", text: "Ei, vabandust, siis ei ole kaart veel valmis.", model: "authored", draftedAt: "2026-10-16", about: "collect" },
   { scene: "elamisluba", beat: "hurdle:contradiction", text: "Ei, kaart ei ole veel valmis.", model: "authored", draftedAt: "2026-10-15", about: "collect" },
-  { scene: "elamisluba", beat: "hurdle:other-register", text: "Kas sul on kõik kaasas?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "elamisluba", beat: "hurdle:other-register", text: "Mis su broneeritud aja number on?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "elamisluba", beat: "hurdle:other-register", text: "Kas sul on kõik kaasas?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15", about: "booking" },
+  { scene: "elamisluba", beat: "hurdle:other-register", text: "Mis su broneeritud aja number on?", model: "authored", draftedAt: "2026-10-16", about: "want" },
 ];
 
 export default LINES;

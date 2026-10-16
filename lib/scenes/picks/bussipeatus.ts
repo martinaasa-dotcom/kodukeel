@@ -8,9 +8,9 @@ export const bussipeatus: ScenePicks = {
     { et: "Tere, vabandust!", en: "Hello, excuse me!" },
   ],
   this: [
-    { et: "Kas see buss läheb {to:TERMINATIVE}?", en: "Does this bus go to the {to}?" },
-    { et: "Kas see on {to:GENITIVE} buss?", en: "Is this the bus for the {to}?" },
-    { et: "Ma pean minema {to:TERMINATIVE}. Kas see on õige buss?", en: "I need to get to the {to}. Is this the right bus?" },
+    { et: "Kas see buss sõidab {to:TERMINATIVE}?", en: "Does this bus go as far as the {to}?" },
+    { et: "Kas see buss läheb {to:GENITIVE} poole?", en: "Is this bus going towards the {to}?" },
+    { et: "Vabandust, kas selle bussiga saab {to:TERMINATIVE}?", en: "Excuse me, can I get to the {to} on this bus?" },
   ],
   yes: [
     { et: "Aitäh!", en: "Thanks!" },
@@ -18,7 +18,7 @@ export const bussipeatus: ScenePicks = {
     { et: "Selge, aitäh!", en: "Got it, thanks!" },
   ],
   stops: [
-    { et: "Mitu peatust {to:TERMINATIVE} on?", en: "How many stops is it to the {to}?" },
+    { et: "Mitu peatust on {to:TERMINATIVE}?", en: "How many stops is it to the {to}?" },
     { et: "Kus ma pean maha minema?", en: "Where do I need to get off?" },
     { et: "Palun öelge, millal ma pean väljuma?", en: "Could you tell me when to get off?" },
   ],

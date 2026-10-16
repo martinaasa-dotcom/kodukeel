@@ -97,7 +97,8 @@ const TICKET: SceneSpec = {
         ],
       }],
       required: true,
-      patience: 2,
+      /* Three, because nobody at a till lets a customer go unpaid after one muddled answer: a brisk clerk with one try did. */
+      patience: 3,
       shape: "word",
     },
     {

@@ -18,7 +18,12 @@ const LANDLORD: SceneSpec = {
   role: "You rent an apartment. Something in it stopped working earlier this week, so you're calling your landlord.",
   props: [
     {
-      kind: "word", slot: "problem", oneOf: ["küte", "elekter", "remont", "mööbel", "aken", "uks"],
+      /*
+        Things that break. Not `remont`, which is the repair rather than the
+        broken thing: a card reading "What's broken: repair" dealt a tenant
+        `Remont on katki`, which nobody says.
+      */
+      kind: "word", slot: "problem", oneOf: ["küte", "elekter", "mööbel", "aken", "uks", "voodi"],
       says: "What's broken.",
     },
     {
@@ -89,11 +94,17 @@ const LANDLORD: SceneSpec = {
         them. `aken` and `uks` were dealt and refused, so a third of runs
         handed somebody a card whose problem the landlord would not hear.
       */
+      /*
+        Every word the card can deal, and the two ways of saying it without
+        naming the thing. A list rather than the card's slot, so that a
+        learner who is lost is handed the card's own word (`Uks?`); there is
+        no fixed pair to offer, because `Elekter või küte?` to somebody whose
+        card says the window points them at the wrong thing.
+      */
       needs: [{
         kind: "lemma",
-        oneOf: ["küte", "elekter", "remont", "mööbel", "aken", "uks", "lekkima", "ruum"],
+        oneOf: ["küte", "elekter", "mööbel", "aken", "uks", "voodi", "lekkima", "remont"],
       }],
-      choice: ["küte", "elekter"],
       required: true,
       patience: 3,
       shape: "sentence",
@@ -127,10 +138,18 @@ const LANDLORD: SceneSpec = {
     {
       id: "since",
       goal: "Tell them which day it stopped working.",
-      they: "They ask how long it's been like that.",
+      they: "They ask since which day it's been like that.",
       move: "ask",
       topic: ["päev", "nädal", "aeg", "õhtu"],
-      needs: [{ kind: "datum", slot: "since" }],
+      /*
+        The day off the card, or how long in any words a person would use:
+        "juba nädal aega" and "eilsest" answer "since when" as well as a
+        weekday does.
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "datum", slot: "since" },
+        { kind: "lemma", oneOf: ["päev", "nädal", "eile", "üleeile", "ammu"] },
+      ] }],
       required: true,
       patience: 2,
       shape: "word",

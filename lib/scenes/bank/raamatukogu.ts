@@ -21,8 +21,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "raamatukogu", beat: "want", text: "Mida te soovite?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "raamatukogu", beat: "month", text: "Mis kuus on teie sünnipäev?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "raamatukogu", beat: "month", text: "Mis kuus te olete sündinud?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "raamatukogu", beat: "phone", text: "Mis teie telefon on?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "raamatukogu", beat: "phone", text: "Teie telefon, palun?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "raamatukogu", beat: "phone", text: "Mis on teie telefoni number?", model: "authored", draftedAt: "2026-10-16" },
+  { scene: "raamatukogu", beat: "phone", text: "Teie telefoni number, palun?", model: "authored", draftedAt: "2026-10-16" },
   { scene: "raamatukogu", beat: "check", text: "Vabandust, ma ei kuulnud lõppu. Palun korrake.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "raamatukogu", beat: "check", text: "Palun öelge uuesti, aeglaselt.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "raamatukogu", beat: "close", text: "Siin on teie kaart. Head aega!", model: "authored", draftedAt: "2026-10-15" },
@@ -31,8 +31,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "raamatukogu", beat: "hurdle:missing-document", text: "Kas teil on mõni dokument kaasas?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "raamatukogu", beat: "hurdle:misheard", text: "Vabandust, kas mais?", model: "authored", draftedAt: "2026-10-15", about: "month" },
   { scene: "raamatukogu", beat: "hurdle:misheard", text: "Juunis, jah?", model: "authored", draftedAt: "2026-10-15", about: "month" },
-  { scene: "raamatukogu", beat: "hurdle:other-register", text: "Mis su telefon on?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "raamatukogu", beat: "hurdle:other-register", text: "Kas sul on dokument kaasas?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "raamatukogu", beat: "hurdle:other-register", text: "Kas sa oled siin esimest korda?", model: "authored", draftedAt: "2026-10-16", about: "want" },
+  { scene: "raamatukogu", beat: "hurdle:other-register", text: "Kas sul on dokument kaasas?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15", about: "want" },
 ];
 
 export default LINES;

@@ -16,7 +16,7 @@ export const pangas: ScenePicks = {
   ],
   brought: [
     { et: "Siin on {brought}.", en: "Here's the {brought}." },
-    { et: "Mul on kaasas {brought}.", en: "I've brought the {brought} with me." },
+    { et: "Mul on {brought} kaasas.", en: "I've got the {brought} with me." },
   ],
   card: [
     { et: "Jah, palun.", en: "Yes, please." },

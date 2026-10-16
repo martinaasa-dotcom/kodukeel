@@ -17,8 +17,6 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `riidepood`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "riidepood", beat: "answer:hurdle:not-possible", text: "Homme saab.", model: "authored", draftedAt: "2026-10-02", reviewedAt: "2026-10-15" },
-  { scene: "riidepood", beat: "answer:hurdle:not-possible", text: "Homme.", model: "authored", draftedAt: "2026-10-02", reviewedAt: "2026-10-15" },
   { scene: "riidepood", beat: "close", text: "Palun, need riided on siin. Head aega!", model: "gemini-3.8-flash", draftedAt: "2026-09-22", level: "A1", reviewedAt: "2026-10-15" },
   { scene: "riidepood", beat: "close", text: "Palun, siin on teie riided. Head aega!", model: "gemini-3.8-flash", draftedAt: "2026-09-22", level: "A1", reviewedAt: "2026-10-15" },
   { scene: "riidepood", beat: "close", text: "Palun, siin on teie riided. Aitäh ja head aega!", model: "gemini-3.8-flash", draftedAt: "2026-09-22", level: "A2", reviewedAt: "2026-10-15" },
@@ -47,11 +45,6 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "riidepood", beat: "hurdle:misheard", text: "Kas te soovite salli? Kas see on õige?", model: "gemini-3.8-flash", draftedAt: "2026-09-22", level: "A2", about: "want", reviewedAt: "2026-10-15" },
   { scene: "riidepood", beat: "hurdle:misheard", text: "Kas te soovite salli? Ma kuulsin, et te tahate salli.", model: "gemini-3.8-flash", draftedAt: "2026-09-22", level: "A2", about: "want", reviewedAt: "2026-10-15" },
   { scene: "riidepood", beat: "hurdle:misheard", text: "Kas te soovite uut salli? Ma kuulsin, et te tahate salli. Kas see on õige, või te küsite särki?", model: "gemini-3.8-flash", draftedAt: "2026-09-22", level: "B1", about: "want", reviewedAt: "2026-10-15" },
-  { scene: "riidepood", beat: "hurdle:not-possible", text: "Vabandust, täna ei saa seda teha.", model: "gemini-3.8-flash", draftedAt: "2026-09-22", level: "A1", reviewedAt: "2026-10-15" },
-  { scene: "riidepood", beat: "hurdle:not-possible", text: "Vabandust, täna me seda teha ei saa. Seda ei ole praegu poes.", model: "gemini-3.8-flash", draftedAt: "2026-09-22", level: "A1", reviewedAt: "2026-10-15" },
-  { scene: "riidepood", beat: "hurdle:not-possible", text: "Vabandust, aga täna me ei saa seda teha.", model: "gemini-3.8-flash", draftedAt: "2026-09-22", level: "A2", reviewedAt: "2026-10-15" },
-  { scene: "riidepood", beat: "hurdle:not-possible", text: "Vabandust, aga täna me ei saa seda teha. Te ei saa seda särki praegu osta.", model: "gemini-3.8-flash", draftedAt: "2026-09-22", level: "A2", reviewedAt: "2026-10-15" },
-  { scene: "riidepood", beat: "hurdle:not-possible", text: "Vabandust, täna me ei saa seda teha, sest see riie ei ole veel valmis. Te peate siia tagasi tulema hiljem või homme.", model: "gemini-3.8-flash", draftedAt: "2026-09-22", level: "B1", reviewedAt: "2026-10-15" },
   { scene: "riidepood", beat: "hurdle:small-talk", text: "Kas täna on külm ilm?", model: "gemini-3.8-flash", draftedAt: "2026-09-22", level: "A1", reviewedAt: "2026-10-15" },
   { scene: "riidepood", beat: "hurdle:small-talk", text: "Kas täna on tõesti nii külm ilm?", model: "gemini-3.8-flash", draftedAt: "2026-09-22", level: "A2", reviewedAt: "2026-10-15" },
   { scene: "riidepood", beat: "hurdle:small-talk", text: "Täna on väga külm ilm, kas teile meeldib lumi või vihm?", model: "gemini-3.8-flash", draftedAt: "2026-09-22", level: "A2", reviewedAt: "2026-10-15" },

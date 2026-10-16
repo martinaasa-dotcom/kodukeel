@@ -17,8 +17,10 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `bussipilet`. */
 const LINES: readonly ScriptedLine[] = [
+  { scene: "bussipilet", beat: "answer:hurdle:not-possible", text: "Homme hommikul läheb.", model: "authored", draftedAt: "2026-10-16" },
   { scene: "bussipilet", beat: "answer:hurdle:not-possible", text: "Homme saab.", model: "authored", draftedAt: "2026-10-02", reviewedAt: "2026-10-15" },
   { scene: "bussipilet", beat: "answer:hurdle:not-possible", text: "Homme.", model: "authored", draftedAt: "2026-10-02", reviewedAt: "2026-10-15" },
+  { scene: "bussipilet", beat: "answer:hurdle:slot-gone", text: "Järgmine läheb tunni pärast.", model: "authored", draftedAt: "2026-10-16" },
   { scene: "bussipilet", beat: "answer:hurdle:slot-gone", text: "Hiljem läheb veel üks.", model: "authored", draftedAt: "2026-10-02", reviewedAt: "2026-10-15" },
   { scene: "bussipilet", beat: "answer:hurdle:slot-gone", text: "Järgmine läheb hiljem.", model: "authored", draftedAt: "2026-10-02", reviewedAt: "2026-10-15" },
   { scene: "bussipilet", beat: "hurdle:faster", text: "Kiire on, öelge kohe.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },

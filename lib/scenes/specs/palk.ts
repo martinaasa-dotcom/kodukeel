@@ -38,7 +38,7 @@ const RAISE: SceneSpec = {
     {
       id: "greet",
       goal: "Say hello back to your manager.",
-      they: "Your manager says hello and asks you to sit down.",
+      they: "Your manager says hello.",
       move: "greet",
       topic: [...HELLOS],
       needs: [{ kind: "lemma", oneOf: [...HELLOS] }],

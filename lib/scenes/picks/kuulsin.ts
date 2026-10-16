@@ -4,7 +4,7 @@ import type { ScenePicks } from "../picks";
 export const kuulsin: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hello!" },
-    { et: "Tere, kuidas läheb?", en: "Hello, how are you?" },
+    { et: "Tere! Hästi, aitäh. Kuidas teil läheb?", en: "Hello! Fine, thanks. How are you?" },
   ],
   news: [
     { et: "Siin lähedal tuleb uus {news}.", en: "There's a new {news} coming nearby." },
@@ -17,9 +17,9 @@ export const kuulsin: ScenePicks = {
     { et: "Lugesin, et juba {when:ADESSIVE}.", en: "I read it's as soon as {when}." },
   ],
   source: [
-    { et: "Ajalehest.", en: "In the paper." },
     { et: "Lugesin seda ajalehest.", en: "I read it in the paper." },
     { et: "Kuulsin seda raadiost, uudistes.", en: "I heard it on the radio, on the news." },
+    { et: "Sõber rääkis.", en: "A friend told me." },
   ],
   sure: [
     { et: "Ei, ma ei ole kindel.", en: "No, I'm not sure." },

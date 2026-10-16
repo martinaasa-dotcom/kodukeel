@@ -81,7 +81,15 @@ const COMPLAINT: SceneSpec = {
       they: "They ask when you bought it.",
       move: "ask",
       topic: ["millal", "ostma", "päev", "eile"],
-      needs: [{ kind: "datum", slot: "bought" }],
+      /*
+        The day off the card, or yesterday in a word. Not `nädal`: "Eelmisel
+        nädalal" does not say which day, and asking again which day is what
+        the person at the desk would do.
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "datum", slot: "bought" },
+        { kind: "lemma", oneOf: ["eile", "üleeile"] },
+      ] }],
       required: true,
       patience: 2,
       shape: "word",

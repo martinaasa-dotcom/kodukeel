@@ -17,8 +17,6 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `apteek`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "apteek", beat: "answer:hurdle:not-possible", text: "Homme saab.", model: "authored", draftedAt: "2026-10-02", reviewedAt: "2026-10-15" },
-  { scene: "apteek", beat: "answer:hurdle:not-possible", text: "Homme.", model: "authored", draftedAt: "2026-10-02", reviewedAt: "2026-10-15" },
   { scene: "apteek", beat: "answer:hurdle:place-instruction", text: "See on siin kõrval.", model: "authored", draftedAt: "2026-10-02", reviewedAt: "2026-10-15" },
   { scene: "apteek", beat: "answer:hurdle:place-instruction", text: "Siin kõrval.", model: "authored", draftedAt: "2026-10-02", reviewedAt: "2026-10-15" },
   { scene: "apteek", beat: "card", text: "Kaardiga või sularahaga?", model: "authored", draftedAt: "2026-10-15" },
@@ -31,8 +29,6 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "apteek", beat: "hurdle:misheard", text: "Kas teil valutab pea või käsi?", model: "authored", draftedAt: "2026-09-05", about: "what", reviewedAt: "2026-10-15" },
   { scene: "apteek", beat: "hurdle:missing-document", text: "Kas teil on dokument kaasas?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "apteek", beat: "hurdle:missing-document", text: "Kas teil on mõni dokument kaasas?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
-  { scene: "apteek", beat: "hurdle:not-possible", text: "Seda ravimit meil täna ei ole.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
-  { scene: "apteek", beat: "hurdle:not-possible", text: "Täna seda ei ole.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "apteek", beat: "hurdle:place-instruction", text: "Enne minge palun sinna.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "apteek", beat: "hurdle:place-instruction", text: "Palun minge enne sinna.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "apteek", beat: "hurdle:small-talk", text: "Kuidas ilm täna on?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },

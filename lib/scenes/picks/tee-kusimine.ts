@@ -12,7 +12,7 @@ export const teeKusimine: ScenePicks = {
     { et: "Kas {place} on siin lähedal?", en: "Is the {place} near here?" },
   ],
   way: [
-    { et: "Otse ja siis vasakule?", en: "Straight on and then left?" },
+    { et: "Otse ja siis vasakule, eks?", en: "Straight on and then left, right?" },
     { et: "Selge, aitäh!", en: "Got it, thanks!" },
   ],
   far: [

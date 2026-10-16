@@ -26,7 +26,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "hadaabi", beat: "where", text: "Kus te praegu olete?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "hadaabi", beat: "where", text: "Kus te täpselt olete?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "hadaabi", beat: "house", text: "Mis on maja number?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "hadaabi", beat: "house", text: "Kas te teate maja numbrit?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "hadaabi", beat: "house", text: "Maja number, palun?", model: "authored", draftedAt: "2026-10-16" },
   { scene: "hadaabi", beat: "hurt", text: "Kas ta saab seista?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "hadaabi", beat: "hurt", text: "Kas ta saab ise seista?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "hadaabi", beat: "wait", text: "Kiirabi tuleb kohe. Palun jääge sinna.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },

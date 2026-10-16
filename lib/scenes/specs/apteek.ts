@@ -39,7 +39,14 @@ const PHARMACY: SceneSpec = {
     { kind: "price", slot: "price", min: 3, max: 12, says: "What you were told it costs, in euros." },
     { kind: "price", slot: "price2", min: 3, max: 12, says: "What it costs now.", theirs: true, differentFrom: "price" },
   ],
-  curveballs: ["not-possible", "wrong-price", "queue", "faster", "english", "small-talk", "misheard", "place-instruction", "missing-document"],
+  /*
+    Not `not-possible`: at this counter it stood after "what do you
+    recommend?" and said "we don't have that medicine today" about a medicine
+    nobody had named, and then the next beat sold one anyway, which is two
+    turns contradicting each other. A pharmacy that cannot help sends you to
+    a doctor, and that is the `see-doctor` outcome rather than a curveball.
+  */
+  curveballs: ["wrong-price", "queue", "faster", "english", "small-talk", "misheard", "place-instruction", "missing-document"],
   beats: [
     {
       id: "greet",
@@ -137,7 +144,8 @@ const PHARMACY: SceneSpec = {
         ],
       }],
       required: true,
-      patience: 2,
+      /* Three, because nobody at a till lets a customer go unpaid after one muddled answer: a brisk clerk with one try did. */
+      patience: 3,
       shape: "word",
     },
     {

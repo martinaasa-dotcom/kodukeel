@@ -20,9 +20,12 @@ const WEEKEND: SceneSpec = {
     {
       /*
         Not the theatre or a party: those are what the colleague mishears, so
-        neither can be the learner's own.
+        neither can be the learner's own. And only places you are in rather
+        than at, so "where did you go" is answered in the inessive every time
+        (`saunas`, `kinos`, `metsas`, `rannas`) and the recast can say it: a
+        concert and an exhibition take `-l`, which one case cannot hold.
       */
-      kind: "word", slot: "did", oneOf: ["saun", "kino", "kontsert", "näitus"],
+      kind: "word", slot: "did", oneOf: ["saun", "kino", "mets", "rand"],
       says: "Where you went at the weekend.",
     },
   ],
@@ -58,7 +61,8 @@ const WEEKEND: SceneSpec = {
       feel: "glad",
       move: "ask",
       topic: ["tegema", "käima", "nädalavahetus"],
-      needs: [{ kind: "datum", slot: "did" }],
+      // "Kus sa käisid?" is answered "kinos", and the recast says that ending back.
+      needs: [{ kind: "datum", slot: "did", grammCase: "INESSIVE" }],
       required: true,
       patience: 2,
       shape: "sentence",

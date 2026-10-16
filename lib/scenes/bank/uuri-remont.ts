@@ -41,7 +41,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "uuri-remont", beat: "hurdle:small-talk", text: "Kuidas ilm täna on?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "uuri-remont", beat: "problem", text: "Jah, ma kuulan. Mis teil katki on?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "uuri-remont", beat: "problem", text: "Mis teil seal katki läks?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "uuri-remont", beat: "problem", text: "Tere, mis juhtus? Mis on katki?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "uuri-remont", beat: "problem", text: "Mis juhtus? Mis on katki?", model: "authored", draftedAt: "2026-10-16" },
   { scene: "uuri-remont", beat: "refuse", text: "Sel nädalal ei ole aega.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "uuri-remont", beat: "refuse", text: "Sel nädalal ei ole kellelgi aega.", model: "authored", draftedAt: "2026-09-12", reviewedAt: "2026-10-15" },
   { scene: "uuri-remont", beat: "refuse", text: "Sel nädalal ei saa keegi tulla.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },

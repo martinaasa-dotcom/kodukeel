@@ -4,7 +4,7 @@ import type { ScenePicks } from "../picks";
 export const palk: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hello!" },
-    { et: "Tere, tere!", en: "Hello, hello!" },
+    { et: "Tere päevast!", en: "Good afternoon!" },
   ],
   topic: [
     { et: "Ma tahan rääkida palgast.", en: "I want to talk about my pay." },
@@ -20,7 +20,7 @@ export const palk: ScenePicks = {
   ],
   offer: [
     { et: "Jah, see sobib.", en: "Yes, that works." },
-    { et: "Hea, olen nõus.", en: "Good, I agree." },
+    { et: "Hea küll, olen nõus.", en: "All right, I agree." },
   ],
   close: [
     { et: "Aitäh, head aega!", en: "Thank you, goodbye!" },

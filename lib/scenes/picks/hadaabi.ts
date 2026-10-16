@@ -8,7 +8,7 @@ export const hadaabi: ScenePicks = {
   ],
   what: [
     { et: "Keegi kukkus. Tal valutab {what}.", en: "Somebody fell. Their {what} hurts." },
-    { et: "Keegi kukkus ja tal on {what} haige.", en: "Somebody fell and hurt their {what}." },
+    { et: "Keegi kukkus ja sai haiget.", en: "Somebody fell and got hurt." },
   ],
   part: [
     { et: "{what}.", en: "Their {what}." },

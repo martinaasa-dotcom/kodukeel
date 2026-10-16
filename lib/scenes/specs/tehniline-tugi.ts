@@ -81,7 +81,12 @@ const TECH_SUPPORT: SceneSpec = {
       they: "They ask what you see on the screen.",
       move: "ask",
       topic: ["ekraan", "nägema"],
-      needs: [{ kind: "lemma", oneOf: ["viga", "tühi", "must", "ühendus"] }],
+      /*
+        Not `ühendus`: that is the problem itself, and "Ühendus ei tööta"
+        said late was read as an answer to what is on the screen. A message
+        on the screen is a `kiri`.
+      */
+      needs: [{ kind: "lemma", oneOf: ["viga", "tühi", "must", "kiri"] }],
       required: true,
       patience: 2,
       shape: "sentence",
@@ -109,6 +114,8 @@ const TECH_SUPPORT: SceneSpec = {
       id: "fix",
       goal: "They tell you what to do. Do it and say it works now, or ask what happens next.",
       they: "They tell you what to try next: update the software, or set the connection up again.",
+      /* "Nüüd töötab" is good news on a support line, and they are glad to hear it. */
+      feel: "glad",
       answer: "They say the connection should come back within a few minutes, and to call again if it does not.",
       move: "instruct",
       topic: ["minut", "ootama", "kinni", "lahti"],

@@ -59,7 +59,12 @@ const WAITING: SceneSpec = {
       */
       needs: [{ kind: "anyOf", of: [
         { kind: "datum", slot: "weather" },
-        { kind: "lemma", oneOf: ["külm", "soe", "kuum", "märg", "kuiv", "pilv", "torm", "ilus", "halb", "paistma"] },
+        /*
+          The card's own weather leads the list, so a learner who is lost is
+          handed the card's word (`Vihm?`) rather than `Külm?` on a day the
+          card says it is sunny.
+        */
+        { kind: "lemma", oneOf: ["vihm", "lumi", "tuul", "päike", "udu", "külm", "soe", "kuum", "märg", "kuiv", "pilv", "torm", "ilus", "halb", "paistma"] },
       ] }],
       required: true,
       patience: 2,
@@ -72,7 +77,11 @@ const WAITING: SceneSpec = {
       move: "offer",
       topic: ["kell", "aeg", "praegu"],
       says: [{ lemma: "kell" }, { slot: "time" }],
-      needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["kell", "aeg", "palju", "mis"] }],
+      /*
+        A question about the time. `mis` and `palju` came off: "Mis buss see
+        on?" met this beat and was answered with the time.
+      */
+      needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["kell", "aeg", "kellaaeg"] }],
       answer: "They read the time off their phone.",
       required: true,
       patience: 2,
@@ -85,7 +94,8 @@ const WAITING: SceneSpec = {
       move: "offer",
       topic: ["buss", "tulema", "hilinema", "millal"],
       says: [{ lemma: "kell" }, { slot: "bus" }],
-      needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["buss", "tulema", "millal", "kell", "kaua"] }],
+      /* Not `kell`: "Mis kell on?" asked a second time met this beat and was told when the bus comes. */
+      needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["buss", "tulema", "millal", "kaua"] }],
       answer: "They tell you when it should come now, going by the app on their phone.",
       required: true,
       patience: 2,
@@ -95,7 +105,7 @@ const WAITING: SceneSpec = {
       id: "close",
       goal: "The bus is here. Say goodbye.",
       they: "The bus pulls in, and they say goodbye.",
-      meanwhile: "A few minutes later, the bus comes round the corner.",
+      meanwhile: "A while later, the bus finally comes round the corner.",
       move: "close",
       topic: [...FAREWELLS],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],

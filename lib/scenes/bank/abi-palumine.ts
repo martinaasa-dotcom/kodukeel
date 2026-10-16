@@ -19,11 +19,11 @@ import type { ScriptedLine } from "../scripted";
 const LINES: readonly ScriptedLine[] = [
   { scene: "abi-palumine", beat: "ask", text: "Jah, kuidas saan aidata?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "abi-palumine", beat: "ask", text: "Jah? Mis teil vaja on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "abi-palumine", beat: "how", text: "Muidugi, teie võtate ühelt poolt, mina teiselt, ja kanname koos sisse.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "abi-palumine", beat: "how", text: "Jah, muidugi! Teie võtate ühelt poolt, mina teiselt, ja kanname koos sisse.", model: "authored", draftedAt: "2026-10-16" },
   { scene: "abi-palumine", beat: "how", text: "Kindlasti, teie hoiate ust lahti ja mina kannan koti sisse.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "abi-palumine", beat: "again", text: "Teie võtate ühelt poolt. Mina võtan teiselt poolt.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "abi-palumine", beat: "again", text: "Hoidke ust lahti. Mina kannan koti sisse.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "abi-palumine", beat: "thanks", text: "Nii, kott on sees. Pole midagi.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "abi-palumine", beat: "thanks", text: "Nii, kott on sees. See oli lihtne.", model: "authored", draftedAt: "2026-10-16" },
   { scene: "abi-palumine", beat: "hurdle:faster", text: "Kiire on, öelge kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "abi-palumine", beat: "hurdle:faster", text: "Mul on kiire, öelge palun kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "abi-palumine", beat: "hurdle:interrupted", text: "Üks minut, keegi helistab.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },

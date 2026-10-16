@@ -4,7 +4,7 @@ import type { ScenePicks } from "../picks";
 export const abiPalumine: ScenePicks = {
   greet: [
     { et: "Vabandust!", en: "Excuse me!" },
-    { et: "Tere, vabandust!", en: "Hello, excuse me!" },
+    { et: "Vabandust, üks hetk!", en: "Excuse me, one moment!" },
   ],
   ask: [
     { et: "Kas te saate mind aidata?", en: "Could you help me?" },

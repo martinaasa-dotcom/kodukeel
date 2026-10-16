@@ -11,13 +11,15 @@ const CHART: SceneSpec = {
     tests and the evening it sits on. `majandus` for the reasons a figure
     moves (the market, demand, prices), `too-ja-raha` for the work around it,
     `ostmine` for prices, `arvamus` and `plaanid` for reasons and what
-    people think, and `omadussonad` for slowly. `sina`, because it is
+    people think, and `omadussonad` for slowly. `linn-ja-teenused`, `loodus`,
+    `reisimine`, `meedia` and `kuivord` are for the reasons people actually
+    give: fewer clients, the summer, the holidays, the advert. `sina`, because it is
     your own team.
 
     The figure is on the card and the learner says it; nothing here asks for
     a number the card did not deal.
   */
-  units: [...COMMON, "statistika", "majandus", "too-ja-raha", "ostmine", "arvamus", "plaanid", "minevik", "omadussonad"],
+  units: [...COMMON, "statistika", "majandus", "too-ja-raha", "ostmine", "arvamus", "plaanid", "minevik", "omadussonad", "linn-ja-teenused", "loodus", "reisimine", "meedia", "kuivord"],
   register: "sina",
   role: "This is a role. It's your turn to present this month's chart to your team. Your card says what it shows and by how much.",
   props: [
@@ -77,6 +79,7 @@ const CHART: SceneSpec = {
       id: "much",
       goal: "Tell them by how much, in per cent.",
       they: "They ask by how much.",
+      feel: "noted",
       move: "ask",
       topic: ["protsent", "palju"],
       needs: [{ kind: "datum", slot: "percent" }],
@@ -90,7 +93,8 @@ const CHART: SceneSpec = {
       they: "Somebody in the room asks why that happened.",
       move: "ask",
       topic: ["miks", "põhjus"],
-      needs: [{ kind: "lemma", oneOf: ["sest", "kuna", "põhjus", "hind", "turg", "nõudlus", "kriis", "konkurents", "maks", "inflatsioon", "majandus", "hinnatõus"] }],
+      // `hind` first: it is the word a learner who is lost is handed.
+      needs: [{ kind: "lemma", oneOf: ["hind", "turg", "sest", "kuna", "põhjus", "nõudlus", "pakkumine", "kriis", "konkurents", "maks", "inflatsioon", "majandus", "hinnatõus", "tööpuudus", "klient", "toode", "reklaam", "suvi", "talv", "puhkus", "ilm", "vähem", "rohkem"] }],
       required: true,
       patience: 2,
       shape: "sentence",

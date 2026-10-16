@@ -27,6 +27,14 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "kuulsin", beat: "source", text: "Kust te seda kuulnud olete?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "kuulsin", beat: "sure", text: "Kas see on kindel?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "kuulsin", beat: "sure", text: "Kas see on päris kindel?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "kuulsin", beat: "greet", text: "Tere! Kas kõik on hästi?", model: "authored", draftedAt: "2026-10-16" },
+  { scene: "kuulsin", beat: "news", text: "Kas olete midagi uut kuulnud?", model: "authored", draftedAt: "2026-10-16" },
+  { scene: "kuulsin", beat: "news", text: "Mis siin kandis uut on?", model: "authored", draftedAt: "2026-10-16" },
+  { scene: "kuulsin", beat: "when", text: "Kas te teate, mis päeval?", model: "authored", draftedAt: "2026-10-16" },
+  { scene: "kuulsin", beat: "source", text: "Kust te seda lugenud olete?", model: "authored", draftedAt: "2026-10-16" },
+  { scene: "kuulsin", beat: "sure", text: "Kas te olete kindel?", model: "authored", draftedAt: "2026-10-16" },
+  { scene: "kuulsin", beat: "sure", text: "Kas see on ikka õige?", model: "authored", draftedAt: "2026-10-16" },
+  { scene: "kuulsin", beat: "close", text: "Aitäh uudise eest! Head päeva!", model: "authored", draftedAt: "2026-10-16" },
   { scene: "kuulsin", beat: "hurdle:interrupted", text: "Üks minut, palun.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "kuulsin", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "kuulsin", beat: "hurdle:faster", text: "Mul on kiire, öelge kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
@@ -35,8 +43,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "kuulsin", beat: "hurdle:misheard", text: "Kas esmaspäeval või reedel?", model: "authored", draftedAt: "2026-10-15", about: "when", reviewedAt: "2026-10-15" },
   { scene: "kuulsin", beat: "close", text: "Tore uudis, aitäh! Nägemist!", model: "authored", draftedAt: "2026-10-15" },
   { scene: "kuulsin", beat: "close", text: "Aitäh, see on hea uudis! Head aega!", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "kuulsin", beat: "hurdle:other-register", text: "Kas sa tead veel midagi?", model: "authored", draftedAt: "2026-10-15", about: "when" },
-  { scene: "kuulsin", beat: "hurdle:other-register", text: "Kust sa kõike tead?", model: "authored", draftedAt: "2026-10-15", about: "source" },
+  { scene: "kuulsin", beat: "hurdle:other-register", text: "Kas sa tead, mis päeval see avab?", model: "authored", draftedAt: "2026-10-16", about: "when" },
+  { scene: "kuulsin", beat: "hurdle:other-register", text: "Kust sa seda kuulnud oled?", model: "authored", draftedAt: "2026-10-16", about: "source" },
 ];
 
 export default LINES;

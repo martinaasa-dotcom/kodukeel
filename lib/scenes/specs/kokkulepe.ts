@@ -29,7 +29,7 @@ const ARRANGING: SceneSpec = {
   role: "A friend rings to make a plan for this week. Your card says which evening you're free. Tomorrow, and every other evening, you're busy.",
   props: [
     {
-      kind: "weekday", slot: "free", oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede"],
+      kind: "weekday", slot: "free", oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede", "laupäev", "pühapäev"],
       says: "The evening you're free this week.",
     },
     { kind: "time", slot: "time", from: 17, to: 20, theirs: true },
@@ -65,7 +65,7 @@ const ARRANGING: SceneSpec = {
       they: "They suggest tomorrow at {time}.",
       feel: "noted",
       move: "offer",
-      topic: ["sobima", "õhtu", "kell", "päev"],
+      topic: ["homme", "sobima", "õhtu", "kell", "päev"],
       says: [{ lemma: "homme" }, { lemma: "kell" }, { slot: "time" }],
       needs: [{ kind: "negation" }],
       required: true,

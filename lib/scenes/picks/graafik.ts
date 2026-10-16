@@ -22,7 +22,6 @@ export const graafik: ScenePicks = {
     { et: "Ma arvan, et põhjus on nõudluses.", en: "I think the reason is demand." },
   ],
   close: [
-    { et: "Aitäh, see on kõik!", en: "Thanks, that's all!" },
     { et: "Aitäh, head aega!", en: "Thanks, bye!" },
     { et: "Nägemist!", en: "See you!" },
   ],

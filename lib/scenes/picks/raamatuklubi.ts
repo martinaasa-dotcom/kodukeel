@@ -9,7 +9,7 @@ export const raamatuklubi: ScenePicks = {
   thought: [
     { et: "Väga huvitav.", en: "Really interesting." },
     { et: "Mulle tundus see raamat väga huvitav.", en: "I found the book really interesting." },
-    { et: "Alguses natuke igav, aga lõpp oli hea.", en: "A bit boring at first, but the ending was good." },
+    { et: "Huvitav, aga natuke liiga pikk.", en: "Interesting, but a bit too long." },
   ],
   hero: [
     { et: "Jah, ta meeldis mulle.", en: "Yes, I liked them." },

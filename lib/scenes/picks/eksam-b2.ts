@@ -27,9 +27,9 @@ export const eksamB2: ScenePicks = {
     { et: "Sest tööd on sama palju, aga aega on vähem.", en: "Because there's the same amount of work, but less time." },
   ],
   counter: [
-    { et: "See on õige, aga õnnelikud inimesed teevad rohkem tööd.", en: "That's true, but happy people get more work done." },
-    { et: "Kuigi aega on vähem, saab töö tehtud.", en: "Even with less time, the work gets done." },
-    { et: "Ei, sest väsinud inimene töötab aeglaselt.", en: "No, because a tired person works slowly." },
+    { et: "See on õige, aga ma arvan ikka nii.", en: "That's true, but I still think so." },
+    { et: "Kuigi see ei ole lihtne, arvan ma ikka sama.", en: "Even though it isn't simple, I still think the same." },
+    { et: "Ma saan aru, aga minu põhjus on ikka sama.", en: "I understand, but my reason is still the same." },
   ],
   decide: [
     { et: "Jah, võiks proovida.", en: "Yes, it's worth a try." },

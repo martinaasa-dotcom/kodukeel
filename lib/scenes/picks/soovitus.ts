@@ -8,7 +8,7 @@ export const soovitus: ScenePicks = {
   ],
   seen: [
     { et: "Jah, üks väga hea {what}.", en: "Yes, a really good {what}." },
-    { et: "Jah! Eelmisel nädalal oli üks hea {what}.", en: "Yes! Last week there was a good {what}." },
+    { et: "Jah, ma tean üht väga head {what:PARTITIVE}.", en: "Yes, I know a really good {what}." },
   ],
   like: [
     { et: "Väga huvitav!", en: "Really interesting!" },

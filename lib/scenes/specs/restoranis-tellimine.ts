@@ -81,12 +81,19 @@ const RESTAURANT: SceneSpec = {
         soup, so what is in it is said about soup.
       */
       id: "contents",
-      goal: "They recommend the soup. Ask them what's in it.",
+      goal: "They recommend the soup. Ask what's in it, or tell them whether you'll have it.",
       they: "They recommend the soup today and wait to see what you think.",
       answer: "They tell you what's in the soup.",
       move: "offer",
       topic: ["soovitama", "roog", "maitse", "hea", "supp"],
-      needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["supp", "sees", "mis", "roog", "liha", "kala", "köögivili", "salat", "maitse"] }],
+      /*
+        A question about it, or an answer to the recommendation: "Hästi, siis
+        suppi" and "Ei, aitäh, ma võtan kala" are what anybody says to a
+        waiter recommending the soup, and held to a question they were let go
+        with "Hästi." and then asked what they would like to eat, having just
+        said. Met by the yes or the no, the dish in the same turn is the order.
+      */
+      needs: [{ kind: "anyOf", of: [{ kind: "question" }, { kind: "lemma", oneOf: ["jah", "ei", "hästi"] }] }],
       required: true,
       patience: 2,
       shape: "sentence",
@@ -108,7 +115,12 @@ const RESTAURANT: SceneSpec = {
       they: "They ask what you'd like to drink.",
       move: "ask",
       topic: ["jook", "jooma", "vesi", "mahl"],
-      needs: [{ kind: "datum", slot: "drink" }],
+      /*
+        Or another dish, because the one they ordered can be off today
+        (`not-possible`) and "Siis suppi, palun." is the answer: refused and
+        asked what they will drink, the learner was left with nothing to eat.
+      */
+      needs: [{ kind: "anyOf", of: [{ kind: "datum", slot: "drink" }, { kind: "datum", slot: "dish" }] }],
       required: true,
       patience: 2,
       shape: "word",
@@ -151,7 +163,8 @@ const RESTAURANT: SceneSpec = {
         ],
       }],
       required: true,
-      patience: 2,
+      /* Three, because nobody at a till lets a customer go unpaid after one muddled answer: a brisk clerk with one try did. */
+      patience: 3,
       shape: "word",
     },
     {

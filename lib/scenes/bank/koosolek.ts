@@ -29,8 +29,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "koosolek", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "koosolek", beat: "hurdle:contradiction", text: "Ei, aruanne peab ikka varem valmis olema.", model: "authored", draftedAt: "2026-10-15", about: "propose" },
   { scene: "koosolek", beat: "hurdle:contradiction", text: "Ei, see päev ei sobi meile.", model: "authored", draftedAt: "2026-10-15", about: "agree" },
-  { scene: "koosolek", beat: "hurdle:other-register", text: "Miks te nii arvate?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "koosolek", beat: "hurdle:other-register", text: "Mis päev teile sobib?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "koosolek", beat: "hurdle:other-register", text: "Miks te nii arvate?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15", about: "idea" },
+  { scene: "koosolek", beat: "hurdle:other-register", text: "Mis päev teile sobib?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15", about: "why" },
   { scene: "koosolek", beat: "hurdle:faster", text: "Meil on palju teha, räägi kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "koosolek", beat: "hurdle:faster", text: "Räägi kohe, meil on veel palju teha.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
 ];

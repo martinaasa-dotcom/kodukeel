@@ -66,11 +66,13 @@ const EMERGENCY: SceneSpec = {
       /*
         Falling, or the hurt itself: "Mees kukkus" is what happened, and so is
         "jalg valutab", and an operator takes either and asks the next thing.
+        Not the bare body part: "Selg" said alone answers what hurts, which is
+        the next beat, and read as what happened it left the operator asking
+        "Mis tal valutab?" of somebody who had just said. Credited to the
+        next beat instead, the operator asks what happened, which is the
+        question still open.
       */
-      needs: [{ kind: "anyOf", of: [
-        { kind: "lemma", oneOf: ["kukkuma", "valutama", "valu", "haige"] },
-        { kind: "datum", slot: "what" },
-      ] }],
+      needs: [{ kind: "lemma", oneOf: ["kukkuma", "valutama", "valu", "haige"] }],
       required: true,
       patience: 3,
       shape: "sentence",

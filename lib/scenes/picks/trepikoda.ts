@@ -20,7 +20,7 @@ export const trepikoda: ScenePicks = {
   ],
   with: [
     { et: "Koos {with:COMITATIVE}.", en: "With my {with}." },
-    { et: "Ei, ma elan koos {with:COMITATIVE}.", en: "No, I live with my {with}." },
+    { et: "Ma elan siin koos {with:COMITATIVE}.", en: "I live here with my {with}." },
   ],
   weather: [
     { et: "Jah, täna on ilus ilm.", en: "Yes, it's lovely weather today." },

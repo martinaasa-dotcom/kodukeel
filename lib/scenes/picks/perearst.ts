@@ -11,9 +11,9 @@ export const perearst: ScenePicks = {
     { et: "{hurts} valutab juba mitu päeva.", en: "My {hurts} has been hurting for several days." },
   ],
   since: [
-    { et: "{since:ABLATIVE}.", en: "Since {since}." },
-    { et: "Juba {since:ABLATIVE} peale.", en: "Since {since} already." },
-    { et: "Alates {since:ABLATIVE}.", en: "Starting from {since}." },
+    { et: "{since:ELATIVE}.", en: "Since {since}." },
+    { et: "Juba {since:ELATIVE} peale.", en: "Since {since} already." },
+    { et: "Alates {since:ELATIVE}.", en: "Starting from {since}." },
   ],
   bad: [
     { et: "Väga tugev.", en: "Very bad." },

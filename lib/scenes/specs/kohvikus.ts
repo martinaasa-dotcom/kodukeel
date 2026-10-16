@@ -84,7 +84,16 @@ const CAFE: SceneSpec = {
       they: "They ask if you'd like a large or a small one.",
       move: "ask",
       topic: ["suur", "väike"],
-      needs: [{ kind: "lemma", oneOf: ["suur", "väike"] }],
+      /*
+        Or another drink altogether, because the drink they asked for can be
+        off today (`not-possible`), and "Siis teed, palun." is the answer
+        anybody gives: refusing it and asking "large or small?" again is the
+        barista ignoring the new order.
+      */
+      needs: [{
+        kind: "anyOf",
+        of: [{ kind: "lemma", oneOf: ["suur", "väike"] }, { kind: "datum", slot: "drink", grammCase: "PARTITIVE" }],
+      }],
       choice: ["suur", "väike"],
       required: true,
       patience: 2,
@@ -133,7 +142,8 @@ const CAFE: SceneSpec = {
         ],
       }],
       required: true,
-      patience: 2,
+      /* Three, because nobody at a till lets a customer go unpaid after one muddled answer: a brisk clerk with one try did. */
+      patience: 3,
       shape: "word",
     },
     {

@@ -107,13 +107,19 @@ const EXAM_B2: SceneSpec = {
     },
     {
       id: "counter",
-      goal: "They give a counter-argument. Answer it: agree with part of it, or say why it doesn't hold.",
-      they: "They give a counter-argument: there would be less time to get the work done.",
+      goal: "They push back on what you said. Answer them: agree with part of it, or say why your view holds.",
+      /*
+        Pushed back on, not handed one argument. The learner may take either
+        side, and a fixed counter ("there'd be less time for the work") is
+        the examiner agreeing with somebody who argued against the idea.
+      */
+      they: "They push back: not everybody would agree, it isn't that simple.",
       move: "correct",
       topic: ["vastuväide", "aeg", "töö"],
       needs: [{ kind: "anyOf", of: [
         { kind: "negation" },
-        { kind: "lemma", oneOf: ["aga", "ent", "ometi", "kuigi", "nõustuma", "vastuväide", "õige", "seevastu", "sest"] },
+        // `sest` first: it is the word a learner who is lost is handed, and "because?" asks for the answer.
+        { kind: "lemma", oneOf: ["sest", "aga", "ent", "ometi", "kuigi", "nõustuma", "vastuväide", "õige", "seevastu"] },
       ] }],
       required: true,
       patience: 3,

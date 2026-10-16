@@ -12,8 +12,8 @@ export const nadalavahetus: ScenePicks = {
     { et: "Hästi, rahulik.", en: "Fine, nice and quiet." },
   ],
   did: [
-    { et: "{did} oli väga tore!", en: "The {did} was really nice!" },
-    { et: "Laupäeval oli {did}. Väga tore!", en: "On Saturday there was a {did}. Really nice!" },
+    { et: "Ma käisin {did:INESSIVE}.", en: "I went to the {did}." },
+    { et: "Laupäeval olin {did:INESSIVE}. Väga tore oli!", en: "On Saturday I was at the {did}. It was really nice!" },
   ],
   back: [
     { et: "Aga sina?", en: "And you?" },

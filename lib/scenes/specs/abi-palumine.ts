@@ -42,6 +42,8 @@ const ASKING_FOR_HELP: SceneSpec = {
       move: "ask",
       topic: ["aitama", "abi", "kott", "uks"],
       needs: [{ kind: "lemma", oneOf: ["aitama", "abi", "kandma", "hoidma", "kott", "uks"] }],
+      /* What somebody stopped in the street says to a request they did not catch: the bag, or the door? */
+      choice: ["kott", "uks"],
       required: true,
       patience: 3,
       shape: "sentence",
@@ -58,8 +60,13 @@ const ASKING_FOR_HELP: SceneSpec = {
       answeredNext: true,
       move: "instruct",
       topic: ["hoidma", "kott", "kandma", "üles"],
+      /*
+        `uuesti` first, since the first word is what a lost learner is
+        handed, and a passer-by offering `Ma ei saa aru?` is saying they do
+        not understand.
+      */
       needs: [{ kind: "anyOf", of: [
-        { kind: "lemma", oneOf: ["Ma ei saa aru", "uuesti", "aeglaselt", "Vabandust!", "jah", "hästi", "selge"] },
+        { kind: "lemma", oneOf: ["uuesti", "aeglaselt", "Ma ei saa aru", "Vabandust!", "jah", "hästi", "selge"] },
         { kind: "question" },
       ] }],
       required: true,

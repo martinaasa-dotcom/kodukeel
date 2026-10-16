@@ -22,7 +22,7 @@ export const uusKolleeg: ScenePicks = {
   back: [
     { et: "Kui kaua sa siin töötad?", en: "How long have you worked here?" },
     { et: "Kas sulle meeldib siin?", en: "Do you like it here?" },
-    { et: "Ja mida sina siin teed?", en: "And what do you do here?" },
+    { et: "Kas sa oled siin kaua töötanud?", en: "Have you worked here long?" },
   ],
   close: [
     { et: "Nägemist!", en: "See you!" },

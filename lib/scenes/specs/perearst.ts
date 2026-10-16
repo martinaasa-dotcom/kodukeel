@@ -102,7 +102,8 @@ const FAMILY_DOCTOR: SceneSpec = {
       they: "They ask how long it has been hurting.",
       move: "ask",
       topic: ["päev", "alates", "nädal", "kaua"],
-      needs: [{ kind: "datum", slot: "since" }],
+      // "Millest alates?" is answered "teisipäevast", and the recast says that ending back.
+      needs: [{ kind: "datum", slot: "since", grammCase: "ELATIVE" }],
       required: true,
       patience: 2,
       shape: "word",

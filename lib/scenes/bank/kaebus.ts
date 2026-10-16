@@ -30,7 +30,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "kaebus", beat: "insist", text: "Täna see ei ole võimalik.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "kaebus", beat: "problem", text: "Jah, palun. Mis juhtus?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "kaebus", beat: "problem", text: "Mis probleem teil on?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
-  { scene: "kaebus", beat: "problem", text: "Tere, millega ma saan teid aidata?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "kaebus", beat: "problem", text: "Millega ma saan teid aidata?", model: "authored", draftedAt: "2026-10-16" },
   { scene: "kaebus", beat: "receipt", text: "Kas arve on teil kaasas?", model: "authored", draftedAt: "2026-09-12" },
   { scene: "kaebus", beat: "receipt", text: "Kas teil on arve kaasas?", model: "authored", draftedAt: "2026-09-05" },
   { scene: "kaebus", beat: "want", text: "Kas soovite raha tagasi või uue?", model: "authored", draftedAt: "2026-09-12", reviewedAt: "2026-10-15" },

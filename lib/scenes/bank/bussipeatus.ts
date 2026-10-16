@@ -25,6 +25,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "bussipeatus", beat: "stops", text: "Aitäh, palun minge edasi.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "bussipeatus", beat: "answer:stops", text: "Neli peatust.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "bussipeatus", beat: "answer:stops", text: "Kolm peatust, siis minge maha.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "bussipeatus", beat: "answer:stops", text: "Viis peatust. Ma ütlen teile, kus maha minna.", model: "authored", draftedAt: "2026-10-16" },
   { scene: "bussipeatus", beat: "hurdle:faster", text: "Kiire on, buss läheb kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "bussipeatus", beat: "hurdle:faster", text: "Mul on kiire, buss peab minema.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "bussipeatus", beat: "hurdle:misheard", text: "Kas te sõidate lennujaama?", model: "authored", draftedAt: "2026-10-15", about: "this" },

@@ -7,9 +7,9 @@ export const ametiasutus: ScenePicks = {
     { et: "Tere päevast!", en: "Good afternoon!" },
   ],
   purpose: [
-    { et: "Mul on avaldus.", en: "I have an application." },
-    { et: "Ma tulin avaldusega.", en: "I've come with an application." },
-    { et: "Ma tahan esitada avalduse.", en: "I'd like to hand in an application." },
+    { et: "Ma tahan {paper:GENITIVE} ära anda.", en: "I'd like to hand in my {paper}." },
+    { et: "Ma tulin {paper:COMITATIVE}.", en: "I've come with my {paper}." },
+    { et: "Mul on siin {paper}.", en: "I've got my {paper} here." },
   ],
   document: [
     { et: "Jah, see on siin.", en: "Yes, it's here." },
@@ -18,7 +18,7 @@ export const ametiasutus: ScenePicks = {
   ],
   wait: [
     { et: "Kui kaua ma pean ootama?", en: "How long do I have to wait?" },
-    { et: "Kui pikk järjekord on?", en: "How long is the line?" },
+    { et: "Mitu minutit see umbes võtab?", en: "About how many minutes will it take?" },
     { et: "Kas see võtab kaua aega?", en: "Will it take long?" },
   ],
   fill: [

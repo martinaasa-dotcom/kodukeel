@@ -91,7 +91,15 @@ const RESIDENCE_PERMIT: SceneSpec = {
       they: "They say the application will be looked at, and that you'll be told by letter.",
       move: "instruct",
       topic: ["kaart", "valmis", "millal"],
-      needs: [{ kind: "question" }],
+      /*
+        A question is what the goal asks for, and "Selge." or "Hästi." is
+        what anybody says to an official who has just told them what happens
+        next: the official then says when the card will be ready anyway.
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "question" },
+        { kind: "lemma", oneOf: ["selge", "hästi", "jah"] },
+      ] }],
       answeredNext: true,
       required: true,
       patience: 2,

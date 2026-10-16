@@ -14,7 +14,7 @@ export const turul: ScenePicks = {
   pieces: [
     { et: "Ja {many} {pieces:PARTITIVE}, palun.", en: "And {pieces}, {many} of them, please." },
     { et: "Jah, palun veel {many} {pieces:PARTITIVE}.", en: "Yes, and {many} {pieces} as well, please." },
-    { et: "Jah, {pieces:PARTITIVE} ka.", en: "Yes, some {pieces} too." },
+    { et: "Jah, mõni {pieces} ka.", en: "Yes, a few {pieces} too." },
   ],
   many: [
     { et: "{many}, palun.", en: "{many}, please." },

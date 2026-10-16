@@ -66,7 +66,8 @@ const NEW_COLLEAGUE: SceneSpec = {
       they: "They ask where you're from.",
       feel: "glad",
       move: "ask",
-      topic: ["kust", "pärit", "kodumaa", "Eesti"],
+      // `kodumaa` before `pärit`, since the first noun is what a lost learner is handed, and `Pärit?` is no help.
+      topic: ["kust", "kodumaa", "pärit", "Eesti"],
       needs: [{ kind: "datum", slot: "from" }],
       required: true,
       patience: 2,

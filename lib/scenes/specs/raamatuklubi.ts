@@ -12,10 +12,11 @@ const BOOK_CLUB: SceneSpec = {
     and disagreeing, `idioomid` for saying what you thought in more than one
     way, `kirjeldamine` and `tunded` for what it was like, `kodu` for the
     book, `minevik` for changing something, `rektsioon` for liking it,
-    `plaanid` for what you think and for agreeing, and `omadussonad` for slowly. `sina`,
+    `plaanid` for what you think and for agreeing, `omadussonad` for slowly,
+    and `iseloom` and `inimesed` for what the main character was like. `sina`,
     because it is a club of friends.
   */
-  units: [...COMMON, "kirjandus", "arvamus", "idioomid", "kirjeldamine", "tunded", "kodu", "minevik", "rektsioon", "plaanid", "omadussonad"],
+  units: [...COMMON, "kirjandus", "arvamus", "idioomid", "kirjeldamine", "tunded", "kodu", "minevik", "rektsioon", "plaanid", "omadussonad", "iseloom", "inimesed"],
   register: "sina",
   role: "This is a role. Your book club is talking about this month's novel. You've read it, and you have opinions.",
   props: [],
@@ -50,9 +51,17 @@ const BOOK_CLUB: SceneSpec = {
       they: "They ask whether you liked the main character.",
       move: "ask",
       topic: ["peategelane", "tegelane", "meeldima"],
+      /*
+        Words about a person, and not the words about the book. A verdict on
+        the book with two of these in it (`Mulle meeldis, see oli huvitav`)
+        met this beat as well as the one before, so the club never asked
+        about the main character at all. `tore` and `igav` stay, because
+        they are the bare answer anybody gives; `tema` (which takes `ta`) and `jah` carry
+        `Jah, ta meeldis mulle`.
+      */
       needs: [{ kind: "anyOf", of: [
         { kind: "negation" },
-        { kind: "lemma", oneOf: ["meeldima", "jah", "tore", "huvitav", "igav", "hea", "halb", "lõbus", "kurb"] },
+        { kind: "lemma", oneOf: ["jah", "tema", "peategelane", "tegelane", "inimene", "tore", "igav", "tark", "rumal", "julge", "sõbralik", "naljakas"] },
       ] }],
       required: true,
       patience: 2,

@@ -1,5 +1,5 @@
 import type { SceneSpec } from "../types";
-import { COMMON, HELLOS, CLOSING_WORDS, FAREWELLS } from "./shared";
+import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 
 const INTERVIEW: SceneSpec = {
   id: "toovestlus",
@@ -24,9 +24,14 @@ const INTERVIEW: SceneSpec = {
       says: "Where you worked before.",
     },
     {
-      kind: "word", slot: "skill", oneOf: ["keel", "arvuti", "projekt", "inimene"],
+      /*
+        Not `inimene`: what a person is good at is people, plural, and every
+        line a card can build says it in the singular (`inimesega`), which
+        nobody says. These three read in the singular.
+      */
+      kind: "word", slot: "skill", oneOf: ["keel", "arvuti", "projekt"],
       says: "What you're good at.",
-      means: { keel: "language", inimene: "person" },
+      means: { keel: "language" },
     },
     {
       kind: "weekday", slot: "start",
@@ -98,7 +103,8 @@ const INTERVIEW: SceneSpec = {
         says it on the beat before this one (`ma olen hea projektiga`), and
         the look-ahead credited this beat from there.
       */
-      needs: [{ kind: "lemma", oneOf: ["sest", "tahtma", "töö", "ettevõte", "kogemus", "uus", "raha", "huvitav", "meeldima", "huvi"] }],
+      /* `huvi` first, since the first word that is not a verb is what a lost learner is handed, and `Sest?` is no help. */
+      needs: [{ kind: "lemma", oneOf: ["huvi", "huvitav", "sest", "tahtma", "töö", "ettevõte", "kogemus", "uus", "raha", "meeldima"] }],
       required: true,
       patience: 2,
       shape: "sentence",
@@ -122,7 +128,7 @@ const INTERVIEW: SceneSpec = {
         good question and that the pay is coming, and on cue the same words
         lead straight into the offer.
       */
-      answer: "They say it's a good question and that they'll come to the pay.",
+      answer: "They say it's a good question and that they'll come to the pay in a moment.",
       move: "ask",
       topic: ["küsimus", "küsima", "palk", "leping"],
       needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["palk", "raha", "maksma", "leping"] }],
@@ -181,9 +187,14 @@ const INTERVIEW: SceneSpec = {
     {
       id: "close",
       goal: "Thank them and say goodbye.",
-      they: "They thank you for coming and say goodbye.",
+      they: "They thank you, say they'll let you know, and say goodbye.",
       move: "close",
-      topic: [...FAREWELLS],
+      /*
+        Not the farewells, or the line comes off the recorded courtesies and
+        an interview ends on a bare `Head aega!`. The bank's lines thank the
+        learner and say they will hear back, which is how an interview ends.
+      */
+      topic: ["tänama", "teadma"],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,

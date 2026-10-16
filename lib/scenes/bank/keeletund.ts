@@ -19,8 +19,8 @@ import type { ScriptedLine } from "../scripted";
 const LINES: readonly ScriptedLine[] = [
   { scene: "keeletund", beat: "answer:word", text: "Harjutus on väike töö, mida me tunnis teeme. Näiteks kirjutame lauseid või vastame küsimustele.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "keeletund", beat: "answer:word", text: "Harjutus. Me loeme, kirjutame ja vastame küsimustele, see on harjutus.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "keeletund", beat: "close", text: "Aitäh! Nüüd järgmine, palun.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "keeletund", beat: "close", text: "Väga tore, aitäh teile! Nüüd läheme edasi.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "keeletund", beat: "close", text: "Nii, nüüd järgmine, palun.", model: "authored", draftedAt: "2026-10-16" },
+  { scene: "keeletund", beat: "close", text: "Väga tore, aitäh teile!", model: "authored", draftedAt: "2026-10-16" },
   { scene: "keeletund", beat: "from", text: "Ja kust te pärit olete?", model: "authored", draftedAt: "2026-09-12", reviewedAt: "2026-10-15" },
   { scene: "keeletund", beat: "from", text: "Kust te olete?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "keeletund", beat: "from", text: "Kust te tulete?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },

@@ -15,7 +15,9 @@ const HEARSAY: SceneSpec = {
     `kool-ja-keel` for the article, the news and the paper, `kodus` for the
     radio, `kodutood` for opening, `ostmine` for the shop and the park,
     `iga-paev` for hearing and reading, `eluase` for the neighbour, and
-    `omadussonad` for slowly. `teie`,
+    `omadussonad` for slowly, `inimesed` and `suhtlemine` for hearing it from a
+    friend or reading it in the paper (`leht`), and `plaanid` for "I think so".
+    `teie`,
     because neighbours on the stairs start there, as in `trepikoda`.
 
     THE QUOTATIVE IS NOT MARKED HERE. Telling the quotative from the
@@ -26,7 +28,7 @@ const HEARSAY: SceneSpec = {
     are not sure; the quotative is drilled in the reading the evening opens
     with.
   */
-  units: [...COMMON, "kaudne", "meedia", "kool-ja-keel", "kodus", "kodutood", "ostmine", "iga-paev", "eluase", "omadussonad"],
+  units: [...COMMON, "kaudne", "meedia", "kool-ja-keel", "kodus", "kodutood", "ostmine", "iga-paev", "eluase", "omadussonad", "inimesed", "suhtlemine", "plaanid"],
   register: "teie",
   role: "This is a role. You read in the local news that something new is opening nearby. On the stairs you meet a neighbour. Your card says what and when.",
   props: [
@@ -86,9 +88,10 @@ const HEARSAY: SceneSpec = {
       id: "source",
       goal: "Tell them where you read it: in the paper, say, or the news.",
       they: "They ask where you heard that.",
+      feel: "noted",
       move: "ask",
       topic: ["kuulma", "lugema", "uudis"],
-      needs: [{ kind: "lemma", oneOf: ["ajaleht", "uudis", "raadio", "artikkel", "saade", "teade"] }],
+      needs: [{ kind: "lemma", oneOf: ["ajaleht", "leht", "uudis", "raadio", "artikkel", "saade", "teade", "sõber", "naaber"] }],
       required: true,
       patience: 2,
       shape: "sentence",
@@ -97,11 +100,13 @@ const HEARSAY: SceneSpec = {
       id: "sure",
       goal: "They ask if it's certain. Say you're not sure: it's only what you read.",
       they: "They ask whether it's certain.",
+      feel: "noted",
       move: "ask",
       topic: ["kindel", "kindlasti"],
       needs: [{ kind: "anyOf", of: [
         { kind: "negation" },
-        { kind: "lemma", oneOf: ["vist", "kuulduma", "väitma"] },
+        // "Arvan küll" is how anybody says they think so and are not sure.
+        { kind: "lemma", oneOf: ["vist", "kuulduma", "väitma", "arvama"] },
       ] }],
       required: true,
       patience: 2,

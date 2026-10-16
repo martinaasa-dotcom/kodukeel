@@ -20,13 +20,13 @@ export const tehnilineTugi: ScenePicks = {
     { et: "Ekraan on tühi.", en: "The screen is empty." },
   ],
   tried: [
-    { et: "Proovisin juba uuesti.", en: "I've already tried again." },
+    { et: "Ma ei ole veel midagi proovinud.", en: "I haven't tried anything yet." },
     { et: "Panin kinni ja uuesti käima.", en: "I switched it off and on again." },
   ],
   fix: [
     { et: "Hästi, nüüd töötab.", en: "Right, it works now." },
     { et: "Jah, aitäh, töötab!", en: "Yes, thanks, it works!" },
-    { et: "Kaua ma pean ootama?", en: "How long do I have to wait?" },
+    { et: "Kui kaua ma pean ootama?", en: "How long do I have to wait?" },
   ],
   close: [
     { et: "Aitäh, head aega!", en: "Thank you, goodbye!" },

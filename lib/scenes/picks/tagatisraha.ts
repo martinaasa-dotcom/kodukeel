@@ -22,7 +22,7 @@ export const tagatisraha: ScenePicks = {
   ],
   offer: [
     { et: "Jah, see sobib.", en: "Yes, that works." },
-    { et: "Hea, olen nõus.", en: "Fine, I agree." },
+    { et: "Hea küll, olen nõus.", en: "All right, I agree." },
   ],
   close: [
     { et: "Aitäh, head aega!", en: "Thank you, goodbye!" },

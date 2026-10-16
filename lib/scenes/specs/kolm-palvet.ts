@@ -28,7 +28,12 @@ const THREE_ASKS: SceneSpec = {
   register: "sina",
   role: "This is a role. You need help with the same thing three times today: from a friend, then from your manager, then from an official. Ask each of them the way you'd really speak to them.",
   props: [],
-  curveballs: ["interrupted", "misheard", "faster"],
+  /*
+    No `misheard`: every ask here is answered with a yes before anything else
+    can happen, so a line after it asking "help? what help?" is the friend,
+    the manager or the official forgetting what they just agreed to.
+  */
+  curveballs: ["interrupted", "faster"],
   beats: [
     {
       id: "greet",
@@ -73,7 +78,8 @@ const THREE_ASKS: SceneSpec = {
     {
       id: "manager",
       goal: "Ask your manager for the same help, politely: with the formal you.",
-      meanwhile: "Your friend helps you out. Later that day, at work, you need the same help from your manager.",
+      // Not "your friend helps you": the line is printed whether or not the learner asked.
+      meanwhile: "Later that day, at work, you need the same help from your manager.",
       they: "Your manager looks up and asks what you need.",
       answer: "They say yes, of course, they'll help you.",
       move: "ask",
@@ -91,7 +97,7 @@ const THREE_ASKS: SceneSpec = {
     {
       id: "official",
       goal: "Ask the official for the same help, as politely as you can: with the formal you, and with would.",
-      meanwhile: "Your manager helps you too. The next morning you're at a service desk, asking an official the same thing.",
+      meanwhile: "The next morning you're at a service desk, needing the same thing from an official.",
       they: "The official at the desk asks how they can help.",
       answer: "They say yes, they can help, and they'll do it right away.",
       move: "ask",

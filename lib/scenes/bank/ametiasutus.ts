@@ -46,7 +46,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "ametiasutus", beat: "hurdle:their-order", text: "Enne palun teie nimi ja siis allkiri.", model: "authored", draftedAt: "2026-10-15", about: "fill" },
   { scene: "ametiasutus", beat: "hurdle:their-order", text: "Enne palun teie nimi, siis allkiri.", model: "authored", draftedAt: "2026-10-15", about: "fill" },
   { scene: "ametiasutus", beat: "purpose", text: "Jah, palun. Mida te soovite ära anda?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "ametiasutus", beat: "purpose", text: "Tere, millega ma saan teid aidata?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "ametiasutus", beat: "purpose", text: "Millega ma saan teid aidata?", model: "authored", draftedAt: "2026-10-16" },
   { scene: "ametiasutus", beat: "wait", text: "Järjekord on pikk, oodake palun.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "ametiasutus", beat: "wait", text: "Oodake palun, järjekord on pikk.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "ametiasutus", beat: "wait", text: "Palun oodake natuke, järjekord on pikk.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },

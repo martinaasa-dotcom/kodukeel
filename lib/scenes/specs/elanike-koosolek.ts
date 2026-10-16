@@ -13,14 +13,16 @@ const RESIDENTS_MEETING: SceneSpec = {
     `loodus` for the trees and flowers, `kirjeldamine` for safe, `inimesed`
     for the children, `plaanid` for agreeing, `ostmine` for what it costs,
     `kodu` for the building, `too-ja-raha` for the meeting itself,
-    `minevik` for starting it, and `omadussonad` for slowly.
+    `minevik` for starting it, and `omadussonad` for slowly. `vaba-aeg`,
+    `vordlemine` and `varvid` are for the reasons people actually give: the
+    children could play there, the air would be cleaner, it would be green.
     `teie`, because a meeting of neighbours speaks to everybody at once.
 
     The course does not teach a word for the yard itself, so the learner
     proposes what goes in it (trees, flowers) and the stage directions say
     where.
   */
-  units: [...COMMON, "uhiskond", "poliitika", "keskkond", "arvamus", "loodus", "kirjeldamine", "inimesed", "plaanid", "ostmine", "kodu", "too-ja-raha", "minevik", "omadussonad"],
+  units: [...COMMON, "uhiskond", "poliitika", "keskkond", "arvamus", "loodus", "kirjeldamine", "inimesed", "plaanid", "ostmine", "kodu", "too-ja-raha", "minevik", "omadussonad", "vaba-aeg", "vordlemine", "varvid"],
   register: "teie",
   role: "This is a role. The yard behind your building is bare and muddy, and there's a residents' meeting tonight. You want to persuade the neighbours to plant something.",
   props: [],
@@ -45,7 +47,7 @@ const RESIDENTS_MEETING: SceneSpec = {
       feel: "glad",
       move: "ask",
       topic: ["puu", "lill", "ilus"],
-      needs: [{ kind: "lemma", oneOf: ["puu", "lill", "park", "ilus"] }],
+      needs: [{ kind: "lemma", oneOf: ["puu", "lill", "park", "ilus", "aed", "roheline"] }],
       required: true,
       patience: 3,
       shape: "sentence",
@@ -56,7 +58,7 @@ const RESIDENTS_MEETING: SceneSpec = {
       they: "They ask why.",
       move: "ask",
       topic: ["põhjus", "miks"],
-      needs: [{ kind: "lemma", oneOf: ["sest", "laps", "ohutu", "ilus", "kogukond", "keskkond"] }],
+      needs: [{ kind: "lemma", oneOf: ["sest", "laps", "ohutu", "ilus", "kogukond", "keskkond", "mängima", "puhas", "õhk", "lind", "roheline", "hea"] }],
       required: true,
       patience: 2,
       shape: "sentence",
@@ -65,12 +67,12 @@ const RESIDENTS_MEETING: SceneSpec = {
       id: "cost",
       goal: "A neighbour says it costs too much. Answer them: you could do it together.",
       they: "A neighbour says it would cost too much.",
-      feel: "noted",
+      feel: "glad",
       move: "ask",
       topic: ["raha", "maksma", "kallis"],
       needs: [{ kind: "anyOf", of: [
         { kind: "negation" },
-        { kind: "lemma", oneOf: ["koos", "ise", "odav", "aitama"] },
+        { kind: "lemma", oneOf: ["koos", "ise", "odav", "aitama", "koguma"] },
       ] }],
       required: true,
       patience: 2,
@@ -82,7 +84,7 @@ const RESIDENTS_MEETING: SceneSpec = {
       they: "The chair asks whether everybody agrees to vote on it.",
       move: "offer",
       topic: ["hääletama", "nõus"],
-      needs: [{ kind: "lemma", oneOf: ["jah", "nõus", "nõustuma"] }],
+      needs: [{ kind: "lemma", oneOf: ["jah", "nõus", "nõustuma", "hääletama", "muidugi", "kindlasti"] }],
       required: true,
       patience: 2,
       shape: "word",

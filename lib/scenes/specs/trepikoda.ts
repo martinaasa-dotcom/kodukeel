@@ -52,7 +52,11 @@ const NEIGHBOR: SceneSpec = {
       feel: "glad",
       move: "ask",
       topic: ["uus", "korter", "maja", "elama"],
-      needs: [{ kind: "lemma", oneOf: ["uus", "jah", "elama", "korter", "nüüd"] }],
+      /*
+        Not `elama`: "Kas te elate ka siin?", the learner asking the neighbor,
+        was read as the learner saying they had moved in.
+      */
+      needs: [{ kind: "lemma", oneOf: ["uus", "jah", "korter", "nüüd"] }],
       required: true,
       patience: 2,
       shape: "word",
@@ -84,6 +88,7 @@ const NEIGHBOR: SceneSpec = {
       id: "with",
       goal: "Tell them who you live with.",
       they: "They ask whether you live on your own or with somebody.",
+      feel: "glad",
       move: "ask",
       topic: ["pere", "inimene", "elama", "ise"],
       // `Üksi` is an answer to "do you live on your own?", and was waited on as half of one.
