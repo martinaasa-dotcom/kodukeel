@@ -240,7 +240,9 @@ There is no learner speech in any training set these models were built from, so 
 
 What the app does in the meantime is layer 3.3, and layer 3.2 if SP-0 shows it helps a learner's
 voice: both work by knowing what the moment could contain, which helps an accent more than it helps
-a native, because a native was already heard.
+a native, because a native was already heard. Stage 3 has a working recipe for `xls-r-300m-et`
+already (section 3.6, `scripts/asr-finetune.py`), proven on synthetic mistakes to move the model the
+right way without costing accuracy; for the Zipformer it waits on TalTech's checkpoint.
 
 ### 3.5 Measured settings and limits
 
@@ -413,6 +415,30 @@ judged on five voices it was not chosen on:
 The bold row needs one model and two decodings of the same audio, and a dotted word under it is wrong
 four times in five where the old line's was wrong one time in three. What it misses is mostly the
 echo room, where the model invents real words confidently and both decodings agree.
+
+**Fine-tuning `xls-r-300m-et` on a CPU, and what it buys.** The Zipformer cannot be fine-tuned here:
+TalTech publish it as ONNX only, and a fine-tune needs their PyTorch checkpoint and Icefall recipe
+(section 9). `xls-r-300m-et` is published as PyTorch, so `scripts/asr-finetune.py` is the recipe for
+it: 300 attested sentences none of the test sentences, each said right and with each kind of mistake
+(1,089 clips in six voices none of the test voices), labelled with what was said, half of each batch
+sent through a room (babble, phone line, echo, white noise), the top eight layers trained for 800
+steps on four cores in about an hour, resumable from a checkpoint every 100 steps. Before and after,
+on voices and sentences it never saw:
+
+| Held out (kalev, liivika) | Before | After |
+| --- | --- | --- |
+| Sentences said right, words wrong | 5.3% | 5.3% |
+| A mistake written as said: length / voicing / vowel / dropped h | 17/66, 8/70, 20/50, 0/10 | 24/66, 13/70, 27/50, 0/10 |
+| Pair verdict, single words, clean: caught / false alarm / asked again | 95.9% / 0.0% / 4.1% | 99.3% / 0.0% / 0.7% |
+| The same in café babble at 10 dB | 87.8% / 0.7% / 11.5% | 94.3% / 0.7% / 5.0% |
+
+It costs nothing in ordinary accuracy, writes mistakes down a third more often (still far from a
+transcript anyone could mark sounds from), and makes the verdict more decisive, half as many repeats
+in noise. Two cautions: the reference voices were among the training voices, which is how the app
+would build its references anyway but flatters the after column a little; and every clip on both
+sides is synthetic, so the fine-tune is a recipe proven to move the model the right way, not a model
+to ship. What it is for is SP-9: real learners' recordings drop into the `data` step and nothing else
+changes.
 
 ## 4. Status
 
