@@ -1725,6 +1725,29 @@ function isEnglish(spoken: readonly string[], marked: readonly TurnWord[]): bool
  */
 const ECHO_FLOOR = 2;
 /**
+ * WHETHER A TURN ONLY ASKS, SO IT ANSWERED NOTHING FURTHER ON.
+ *
+ * Read by the two places that credit a turn with a beat other than the one it
+ * was aimed at (`lib/progress/scene.ts`). "Kuidas ma seda võtan?" asked on the
+ * beat for asking it also met the pharmacy's "say you'll take it" on `võtma`,
+ * two beats early, and the answer that beat waits for was never given: the
+ * question was read as the statement it borrowed a word from. On the beat a
+ * turn is aimed at, a question is often how the business is stated ("Millal te
+ * raha tagasi maksate?" is a call about a deposit), so this is for the
+ * look-ahead alone. Every sentence a question opening on a question word and
+ * ending on its mark; not `kas`, whose question often is the answer ("Kas
+ * kaardiga saab?"), and the mark because `kui` opens "if" as often as "how".
+ */
+export function onlyAsks(text: string, beat: BeatSpec, questionWords: ReadonlySet<string>): boolean {
+  if (leafNeeds(beat.needs).some(({ need }) => need.kind === "question")) return false;
+  const sentences = text.split(/(?<=[.!?])\s+/).filter((sentence) => words(sentence).length > 0);
+  return sentences.length > 0 && sentences.every((sentence) => {
+    const said = words(sentence);
+    return /\?\s*$/.test(sentence) && said[0] !== undefined && said[0] !== "kas" && questionWords.has(said[0]);
+  });
+}
+
+/**
  * Whether a turn that met the beat did it by handing back a whole sentence of
  * the line, or the whole choice the line offered, which is still parroting:
  * a bank line that answers its own question ("Kus teil on valu? Mul on

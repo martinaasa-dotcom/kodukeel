@@ -110,6 +110,8 @@ const MONEY = ["hind", "maksma", "euro", "palk", "raha"] as const;
   money word anywhere in the turn it is.
 */
 const HOW_MUCH = ["kui", "palju"] as const;
+/** Question words a price is never the answer to. */
+const NOT_PRICE: ReadonlySet<string> = new Set(["millal", "kus", "kuhu", "kust", "miks", "kes", "kuidas"]);
 
 /**
  * Moves on which the other side was giving information, so "more" is more of
@@ -554,6 +556,12 @@ export function priceAsked(said: string, lexicon: Lexicon): string | null {
       const spoken = words(clause);
       const question = (marked && at === clauses.length - 1) || (spoken[0] !== undefined && opens.has(spoken[0]));
       if (!question) continue;
+      /*
+        A question asking when, where or why is about that, whatever money is
+        in it: "Millal te raha tagasi maksate?" asks a date, and was answered
+        `See maksab 174 eurot.`, which also gave the landlord's offer away.
+      */
+      if (spoken.some((word) => NOT_PRICE.has(word))) continue;
       const checksFigure = figureCount(clause, lexicon) > 0;
       const howMuch = spoken.some((word, i) => word === HOW_MUCH[0] && spoken[i + 1] === HOW_MUCH[1]);
       const aboutMoney = spoken.some((word) => named.has(word) || costs.has(word))

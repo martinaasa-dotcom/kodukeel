@@ -51,7 +51,7 @@ import {
 import { gradesFor, stalledWords, type SceneGrade } from "@/lib/scenes/grades";
 import { reviewOf, type SceneReview } from "@/lib/scenes/review";
 import { recapOf, type SceneRecap } from "@/lib/scenes/recap";
-import { addsEvidence, concede, readTurn } from "@/lib/scenes/turn";
+import { addsEvidence, concede, onlyAsks, readTurn } from "@/lib/scenes/turn";
 import { saysGoodbye, CLOSING_WORDS } from "@/lib/scenes/casual";
 import { clip } from "@/lib/copy/clip";
 import { localeFor } from "@/lib/progress/locale";
@@ -1440,6 +1440,8 @@ export function replay(
         if (next.move === "offer" && !offerAlreadyMade(next, draw, heard)) break;
         // Nor across a break in time: the meal has to be eaten before the bill (the look-ahead's rule).
         if (next.meanwhile) break;
+        // A question answers nothing further on (`onlyAsks`).
+        if (onlyAsks(said, next, marker.questionWords)) break;
         const read = readTurn(said, next, marker);
         /*
           A judge may have said this same turn met the next beat too, in a word
@@ -1536,6 +1538,7 @@ export function replay(
             told `Nägemist!`. The offer guard above is this rule for one move.
           */
           if (SAYS_FIRST.has(other.move) && at > state.beat) continue;
+          if (onlyAsks(said, other, marker.questionWords)) continue;
           const also = readTurn(said, other, marker);
           // Not through a second word for the same thing, for the cascade's reason.
           if (also.reading !== "complete" || !addsEvidence(also, spent) || also.substituted.length > 0) continue;
