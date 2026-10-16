@@ -76,7 +76,12 @@ const WAITING: SceneSpec = {
       they: "They look at their watch and say you have both been waiting a long time.",
       move: "offer",
       topic: ["kell", "aeg", "praegu"],
-      says: [{ lemma: "kell" }, { slot: "time" }],
+      /*
+        A sentence rather than a bare value, so the line said off the card is
+        a person telling the time (`Kell on 8.`) and not `Kell 8?`, which is
+        how an offer comes out and read as them asking the learner.
+      */
+      says: [{ lemma: "kell" }, { lemma: "olema", verb: "IndPrSg3" }, { slot: "time" }],
       /*
         A question about the time. `mis` and `palju` came off: "Mis buss see
         on?" met this beat and was answered with the time.
@@ -93,7 +98,7 @@ const WAITING: SceneSpec = {
       they: "They sigh that the bus is late again.",
       move: "offer",
       topic: ["buss", "tulema", "hilinema", "millal"],
-      says: [{ lemma: "kell" }, { slot: "bus" }],
+      says: [{ lemma: "buss" }, { lemma: "tulema", verb: "IndPrSg3" }, { lemma: "kell" }, { slot: "bus" }],
       /* Not `kell`: "Mis kell on?" asked a second time met this beat and was told when the bus comes. */
       needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["buss", "tulema", "millal", "kaua"] }],
       answer: "They tell you when it should come now, going by the app on their phone.",

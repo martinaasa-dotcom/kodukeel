@@ -73,6 +73,7 @@ const INTERVIEW: SceneSpec = {
       id: "before",
       goal: "Tell them where you worked before this.",
       they: "They ask what you did before this.",
+      feel: "noted",
       move: "ask",
       topic: ["töö", "töötama", "varem", "kogemus", "ettevõte"],
       needs: [{ kind: "datum", slot: "before" }],
@@ -84,7 +85,7 @@ const INTERVIEW: SceneSpec = {
       id: "skill",
       goal: "Tell them what you're good at.",
       they: "They ask what you're really good at.",
-      feel: "glad",
+      feel: "noted",
       move: "ask",
       topic: ["oskus", "hästi", "teadma", "kogemus"],
       needs: [{ kind: "datum", slot: "skill" }],
@@ -96,6 +97,8 @@ const INTERVIEW: SceneSpec = {
       id: "why",
       goal: "Tell them why you want this job.",
       they: "They ask why you want this job.",
+      /* Somebody who says the job interests them is told that's good to hear, never thanked for it. */
+      feel: "glad",
       move: "ask",
       topic: ["miks", "tahtma", "töö", "ettevõte"],
       /*
@@ -104,7 +107,15 @@ const INTERVIEW: SceneSpec = {
         the look-ahead credited this beat from there.
       */
       /* `huvi` first, since the first word that is not a verb is what a lost learner is handed, and `Sest?` is no help. */
-      needs: [{ kind: "lemma", oneOf: ["huvi", "huvitav", "sest", "tahtma", "töö", "ettevõte", "kogemus", "uus", "raha", "meeldima"] }],
+      /*
+        Not `tahtma` either, for the same reason: `ma tahan hotell` on the beat
+        before was read as the reason, and the interviewer never asked why.
+        "Ma tahan uut tööd" still meets it on `uus` and `töö`. And not
+        `meeldima`: `Tere, meeldiv tutvuda!` is read as a form of it, and the
+        greeting answered a question nobody had asked yet. "Mulle meeldib teie
+        ettevõte" meets it on `ettevõte`.
+      */
+      needs: [{ kind: "lemma", oneOf: ["huvi", "huvitav", "sest", "töö", "ettevõte", "kogemus", "uus", "raha"] }],
       required: true,
       patience: 2,
       shape: "sentence",

@@ -65,6 +65,8 @@ const NEIGHBOR: SceneSpec = {
       id: "floor",
       goal: "Tell them which floor your apartment is on.",
       they: "They ask which floor you are on.",
+      // A floor said as a digit is not echoed, and a neighbor told it says "right" rather than thanking you for it.
+      feel: "noted",
       move: "ask",
       topic: ["korrus", "korter", "kus", "elama"],
       needs: [{ kind: "datum", slot: "floor" }],
@@ -88,7 +90,8 @@ const NEIGHBOR: SceneSpec = {
       id: "with",
       goal: "Tell them who you live with.",
       they: "They ask whether you live on your own or with somebody.",
-      feel: "glad",
+      // Not "glad": `Üksi.` answered `Tore!` is a neighbor pleased you live alone.
+      feel: "noted",
       move: "ask",
       topic: ["pere", "inimene", "elama", "ise"],
       // `Üksi` is an answer to "do you live on your own?", and was waited on as half of one.

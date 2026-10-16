@@ -54,7 +54,12 @@ const ASKING_FOR_HELP: SceneSpec = {
          a learner who caught it and says yes. */
       id: "how",
       goal: "They said it too quickly. Tell them you didn't catch it, or ask them to say it again.",
-      they: "They say yes, and tell you in one quick breath how to hold the bag between you.",
+      /*
+        One plan, said twice: you hold the door, they carry the bag. Two plans
+        in the bank meant a learner who asked again heard a different one,
+        and the slow version could contradict the quick one.
+      */
+      they: "They say yes, and tell you in one quick breath that you hold the door and they'll carry the bag in.",
       /* A learner who asks "what?" is answered by the next beat, which is the
          same instruction again, slowly. */
       answeredNext: true,
@@ -76,7 +81,7 @@ const ASKING_FOR_HELP: SceneSpec = {
     {
       id: "again",
       goal: "Say yes or okay, so they know you've got it now.",
-      they: "They say it again, slowly: you hold the bag at the bottom, they'll take the top.",
+      they: "They say it again, slowly: you hold the door open, and they carry the bag in.",
       move: "instruct",
       topic: ["hoidma", "kott", "kandma", "üles", "aeglaselt"],
       needs: [{ kind: "lemma", oneOf: ["jah", "hästi", "selge", "aitäh", "Aitäh!"] }],

@@ -98,7 +98,11 @@ const COMPLAINT: SceneSpec = {
       id: "receipt",
       goal: "Tell them if you've got the receipt with you.",
       they: "They ask if you've got the receipt.",
-      feel: "noted",
+      /*
+        No `feel`: with one the desk said `Selge.` after the problem, the
+        receipt and the request, four turns running, which is a machine
+        filing answers. A receipt handed over is thanked for.
+      */
       move: "ask",
       topic: ["dokument", "arve", "kaasas"],
       needs: [{ kind: "lemma", oneOf: ["jah", "ei", "arve", "dokument", "kaasas"] }],

@@ -66,9 +66,17 @@ const LANDLORD: SceneSpec = {
     not `wrong-price`, which put a price on a repair the landlord pays for.
     A scene admits what could happen in it.
   */
+  /*
+    Not `slot-gone` and not `contradiction` either. Both are about a time the
+    other side named, and here the landlord names the only time there is: the
+    first stood after the tenant had said yes and took the appointment back
+    with no other day to offer, so the call ended on "Hiljem on aega." and a
+    goodbye, and the second had the landlord offer tomorrow after all and
+    asked the tenant to object to a better offer.
+  */
   curveballs: [
-    "slot-gone", "not-possible", "faster", "small-talk", "interrupted",
-    "english", "other-register", "contradiction",
+    "not-possible", "faster", "small-talk", "interrupted",
+    "english", "other-register",
   ],
   beats: [
     {

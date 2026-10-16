@@ -19,9 +19,9 @@ import type { ScriptedLine } from "../scripted";
 const LINES: readonly ScriptedLine[] = [
   { scene: "abi-palumine", beat: "ask", text: "Jah, kuidas saan aidata?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "abi-palumine", beat: "ask", text: "Jah? Mis teil vaja on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "abi-palumine", beat: "how", text: "Jah, muidugi! Teie võtate ühelt poolt, mina teiselt, ja kanname koos sisse.", model: "authored", draftedAt: "2026-10-16" },
+  { scene: "abi-palumine", beat: "how", text: "Jah, muidugi! Teie hoiate ust lahti, mina võtan koti ja kannan sisse.", model: "authored", draftedAt: "2026-10-16" },
   { scene: "abi-palumine", beat: "how", text: "Kindlasti, teie hoiate ust lahti ja mina kannan koti sisse.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "abi-palumine", beat: "again", text: "Teie võtate ühelt poolt. Mina võtan teiselt poolt.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "abi-palumine", beat: "again", text: "Teie hoiate ust. Mina võtan koti ja kannan selle sisse.", model: "authored", draftedAt: "2026-10-16" },
   { scene: "abi-palumine", beat: "again", text: "Hoidke ust lahti. Mina kannan koti sisse.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "abi-palumine", beat: "thanks", text: "Nii, kott on sees. See oli lihtne.", model: "authored", draftedAt: "2026-10-16" },
   { scene: "abi-palumine", beat: "hurdle:faster", text: "Kiire on, öelge kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
@@ -30,7 +30,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "abi-palumine", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "abi-palumine", beat: "hurdle:misheard", text: "Kas teil on vaja apteeki?", model: "authored", draftedAt: "2026-10-15", about: "ask", reviewedAt: "2026-10-15" },
   { scene: "abi-palumine", beat: "hurdle:misheard", text: "Kas teil on vaja politseid?", model: "authored", draftedAt: "2026-10-15", about: "ask", reviewedAt: "2026-10-15" },
-  { scene: "abi-palumine", beat: "thanks", text: "Pole midagi. Head aega!", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "abi-palumine", beat: "thanks", text: "Nii, valmis! Head aega!", model: "authored", draftedAt: "2026-10-16" },
 ];
 
 export default LINES;
