@@ -270,6 +270,13 @@ export const SETTING_KEYS = {
    */
   sayingsServed: "sayingsServed",
   /**
+   * Which Töövihik pages the learner has finished today, as their day key and
+   * then the choices, space separated. A fact no log can reconstruct (a
+   * sitting writes no row of its own) and deliberately only today's:
+   * `lib/ux/workbookDone.ts` reads a value from another day as empty.
+   */
+  workbookDone: "workbookDone",
+  /**
    * Set once the sending provider has refused this address outright.
    *
    * Not a preference and never shown as one: it is a fact about the address

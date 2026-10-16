@@ -2,7 +2,7 @@ import { HeroFan } from "@/components/HeroFan";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight, Check, ChevronRight } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { reviewQueue } from "../review/queue";
@@ -18,6 +18,8 @@ import { ButtonLink } from "@/components/Button";
 import { NamedIcon } from "@/components/icons";
 import { Empty, Page, SectionTitle, Stack, toneInk } from "@/components/ui";
 import { courseLevelFor } from "@/lib/progress/level";
+import { SET_FOR_YOU, doneToday } from "@/lib/ux/workbookDone";
+import { learnerDayClock } from "@/lib/progress/dayClock";
 import { BUILD_FROM, maySortWords } from "@/lib/collections/levels";
 
 export async function generateMetadata() {
@@ -42,12 +44,12 @@ const EXTRAS: Record<string, ShelfItem> = {
  */
 export default async function PracticePage() {
   const ownerId = await requireUserId();
-  const [review, totalCards, settings, sentenceReady, words, decks, level, locale] = await Promise.all([
+  const [review, totalCards, settings, sentenceReady, words, decks, level, locale, clock] = await Promise.all([
     // The sitting Review will hold, counted rather than reasoned about: see
     // app/(app)/review/queue.ts for what two readings of it cost.
     reviewQueue(ownerId, null, new Date()),
     prisma.card.count({ where: { ownerId } }),
-    readSettings(ownerId, [SETTING_KEYS.matchBest]),
+    readSettings(ownerId, [SETTING_KEYS.matchBest, SETTING_KEYS.workbookDone]),
     /*
       The learner's own words, asked for as words.
 
@@ -86,7 +88,10 @@ export default async function PracticePage() {
     // sentences ready on a round that will open on "from A2".
     courseLevelFor(ownerId),
     localeFor(ownerId),
+    learnerDayClock(ownerId),
   ]);
+  /* The workbook pages finished since the learner's day began. */
+  const workbookDone = doneToday(settings[SETTING_KEYS.workbookDone], clock.dayKey());
 
   /*
     Parsed once and asked twice. Each of these used to call `parseExamples` for
@@ -288,6 +293,7 @@ export default async function PracticePage() {
                     href={choice.theme ? `${workbook.href}?theme=${choice.theme}` : workbook.href}
                     title={tr(locale, choice.title)}
                     meta={tr(locale, choice.meta)}
+                    done={workbookDone.has(choice.theme ?? SET_FOR_YOU) ? tr(locale, "Done today") : undefined}
                     label={fill(tr(locale, "{round}: {list}, {group}"), {
                       round: workbook.title,
                       list: tr(locale, choice.title).toLowerCase(),
@@ -409,16 +415,31 @@ function ChoiceGroup({ label, href, children }: { label: string; href?: string; 
  * "Describing words", wrapped its name under its dot at every width, which
  * is the fault `scripts/test-containment.mjs` now asks about on every page.
  */
-function Choice({ href, title, meta, label }: { href: string; title: string; meta?: string; label?: string }) {
+function Choice({ href, title, meta, label, done }: {
+  href: string; title: string; meta?: string; label?: string;
+  /** Said under the name where this one has been finished today. */
+  done?: string;
+}) {
+  const aria = [label, meta, done].filter(Boolean).join(", ");
   return (
     <Link
       href={href}
-      aria-label={label && meta ? `${label}, ${meta}` : undefined}
+      aria-label={label && meta ? aria : undefined}
+      data-done={done ? "" : undefined}
       className="tap-tint flex min-h-11 flex-col justify-center rounded-[var(--r)] border px-3.5 py-2.5"
-      style={{ borderColor: "var(--rule-soft)", background: "var(--raised)" }}
+      style={done
+        ? { borderColor: "var(--accent)", background: "var(--accent-soft)" }
+        : { borderColor: "var(--rule-soft)", background: "var(--raised)" }}
     >
-      <span className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{title}</span>
-      {meta ? <span className="text-xs" style={{ color: "var(--ink-3)" }}>{meta}</span> : null}
+      {/* Balanced, so a line that has to wrap splits in the middle rather than leaving one word alone. */}
+      <span className="text-balance text-sm font-semibold" style={{ color: "var(--ink)" }}>{title}</span>
+      {meta ? <span className="text-balance text-xs" style={{ color: "var(--ink-3)" }}>{meta}</span> : null}
+      {done ? (
+        <span className="mt-1 flex items-center gap-1 text-xs font-semibold" style={{ color: "var(--accent-deep)" }}>
+          <Check size={13} aria-hidden className="shrink-0" />
+          <span>{done}</span>
+        </span>
+      ) : null}
     </Link>
   );
 }
