@@ -43,7 +43,7 @@ import type { ComposeAsk, ComposeScene } from "@/lib/scenes/prompt";
 import { dealtNumbers } from "@/lib/scenes/props";
 import {
   cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, establishedBy, factsFor, feltAt, saidAgain,
-  heldBack, heldNumbers, replyFor, sayableAfterHurdles, sceneMovedOn, stageFor, timesAnswered, wantsAsideFor,
+  heldBack, heldNumbers, partsLine, replyFor, sayableAfterHurdles, sceneMovedOn, stageFor, timesAnswered, wantsAsideFor,
   wantsFreshLine,
 } from "@/lib/scenes/reply";
 import { answerBeatId, sceneBeats } from "@/lib/scenes/scripted";
@@ -223,6 +223,26 @@ export function planTurn(input: TurnInput) {
   const fresh = (id: string | undefined) => bank(id).filter((text) => !used.has(text));
   // An answer is a fact, so asked again it is the same fact (`sameFact`, FB-5).
   const answersOf = (beat: BeatSpec): readonly string[] => sameFact(bank(answerBeatId(beat)), used);
+  /*
+    A question the scene asks for further on, answered now. Where that beat is
+    answered by the move after it (`answeredNext`) and the bank holds nothing,
+    the answer is that move's own fact off the card: asked "Mis kell te
+    avate?" while still saying what they wanted, a learner heard nothing about
+    the hours, guessed `Kell 10`, and the shop never said when it opened.
+  */
+  const aheadNow = ((): { lines: readonly string[]; fact: boolean } => {
+    // The question's own beat, where the turn met it: its answer is still the move after it.
+    const later = questionAhead(sceneBeats(scene), answered, words(last?.said ?? ""), context.lexicon)
+      ?? (askedNow && answered?.answeredNext ? answered : null);
+    if (!later) return { lines: [], fact: false };
+    const banked = answersOf(later);
+    if (banked.length > 0 || !later.answeredNext) return { lines: state.done.includes(later.id) ? [] : banked, fact: false };
+    // The question beat may have been credited by this very turn; what matters is whether the answer has been said.
+    const next = scene.beats[scene.beats.findIndex((b) => b.id === later.id) + 1];
+    if (!next || state.done.includes(next.id)) return { lines: [], fact: false };
+    const said = next?.says ? partsLine(next.says, { card, lexicon: context.lexicon, mark: "." }) : null;
+    return said ? { lines: [said.text], fact: true } : { lines: [], fact: false };
+  })();
   const asking = {
     asked: askedNow,
     spoken: words(last?.said ?? ""),
@@ -232,10 +252,8 @@ export function planTurn(input: TurnInput) {
     lexicon: context.lexicon,
     more: fresh(answered?.id),
     answers: answered ? answersOf(answered) : [],
-    ahead: (() => {
-      const later = questionAhead(sceneBeats(scene), answered, words(last?.said ?? ""), context.lexicon);
-      return later && !state.done.includes(later.id) ? answersOf(later) : [];
-    })(),
+    ahead: aheadNow.lines,
+    aheadIsFact: aheadNow.fact,
     missed: !landedNow,
     landedCheck: reading !== "complete" ? undefined
       : words(last?.said ?? "").every((word) => CHECK_GLUE.has(word) || words(heard ?? "").includes(word)) ? "same" as const : "differs" as const,

@@ -67,6 +67,11 @@ export interface AsideInput {
    */
   readonly ahead?: readonly string[];
   /**
+   * Whether `ahead` is a fact said off the card rather than a banked line,
+   * which is owed even on a turn that missed the beat it was aimed at.
+   */
+  readonly aheadIsFact?: boolean;
+  /**
    * The turn met the beat it answered in full, so a bare `?` on it is the
    * learner checking what they heard: `same` where every word of it was in
    * the line they heard, `differs` where it named something the line did not.
@@ -178,13 +183,15 @@ export function asideFor(input: AsideInput): SpokenLine | null {
       to the model and the shrug (`asideOwed`). Silence is the one thing
       nobody does with a question.
     */
+    // Answered by the move after it, which says a fact off the card: said now where that move is not next (`aheadNow`).
+    if (answered.answeredNext && input.aheadIsFact && input.ahead?.[0]) return { text: input.ahead[0], provenance: "attested" };
     if (banked) return { text: banked, provenance: "scripted" };
     if (answered.answeredNext) return null;
   }
 
   // A question the scene asks for further on, answered now (`questionAhead`).
   const early = input.ahead?.[0];
-  if (early && !input.missed) return { text: early, provenance: "scripted" };
+  if (early && (!input.missed || input.aheadIsFact)) return { text: early, provenance: input.aheadIsFact ? "attested" : "scripted" };
 
   /*
     "Kuidas läheb?" is the one question everybody can answer, and the answer
@@ -318,7 +325,8 @@ export function questionAhead(
   if (from < 0) return null;
   const said = new Set(spoken.map((w) => w.toLowerCase()));
   for (const beat of beats.slice(from + 1)) {
-    if (!wantsQuestion(beat) || !beat.answer) continue;
+    // A beat answered by the move after it counts too: that move says the fact off the card (`aheadNow`).
+    if (!wantsQuestion(beat) || (!beat.answer && !beat.answeredNext)) continue;
     const named = leafNeeds(beat.needs).some(({ need }) =>
       need.kind === "lemma" && need.oneOf.some((lemma) => [...(lexicon.byLemma.get(lemma) ?? [lemma])].some((form) => said.has(form.toLowerCase()))));
     if (named) return beat;

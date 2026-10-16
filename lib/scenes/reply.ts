@@ -829,6 +829,13 @@ function acknowledgements(heard: string | null, said: string | null): readonly s
     acknowledged with the word for having understood it, and nothing else.
   */
   if ([...theirs].some((word) => NOES.has(word))) return REACTIONS.heard;
+  /*
+    AND A YES-OR-NO QUESTION THAT LANDED IS ANSWERED YES. "Kas teil on
+    telefoni?" met the beat it asked, which is the shop having one, and was
+    acknowledged `Hästi.`; what the person on the phone says is `Jah.`.
+  */
+  const theirWords = words(said ?? "");
+  if (theirWords[0] === "kas" && /\?\s*$/.test(said ?? "") && !theirWords.includes(CHOICE_WORD)) return REACTIONS.waiting;
   const fresh = mine.filter((word) => !theirs.has(word) && !(wants && word === "aitäh"));
   return fresh.length > 0 ? fresh : mine;
 }
