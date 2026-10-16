@@ -198,8 +198,10 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
         look.open();
         return;
       }
-      /* A miss waits for its retype, which the box handles itself on Enter. */
-      if (mark || meeting) { if (!needsRetype && isAdvanceKey(e)) { e.preventDefault(); next(); } return; }
+      /* A miss waits for its retype, which the box handles itself on Enter, and
+         a key from that box is the box's: its render and effects are flushed
+         inside the keydown, so `needsRetype` already reads false by now. */
+      if (mark || meeting) { if (!needsRetype && !inEditable(e.target) && isAdvanceKey(e)) { e.preventDefault(); next(); } return; }
       if (e.key !== "Enter") return;
       e.preventDefault();
       void check();

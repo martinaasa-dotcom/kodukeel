@@ -43,8 +43,26 @@ export default function aMissedFormIsTypedAgain({ check, code }: InvariantKit) {
       // retype also moves the round on.
       assert.match(
         src,
-        /!needsRetype\s*&&\s*isAdvanceKey|if \(!check \|\| needsRetype\)|if \(!answered \|\| needsRetype\)|if \(checked\) \{ if \(!needsRetype\)/,
+        /!needsRetype\s*&&[^;]*isAdvanceKey|if \(!check \|\| needsRetype\)|if \(!answered \|\| needsRetype\)|if \(checked\) \{ if \(!needsRetype\)/,
         `${file} advances on a key without asking whether a retype is owed`,
+      );
+    }
+  });
+
+  check("a key from the retype box is the box's, not the round's", () => {
+    /*
+      The retype's render and effects are flushed inside the keydown that
+      checked it, so by the time the round's window listener runs,
+      `needsRetype` already reads false. Without a guard on the target, one
+      Enter checked the copy and also moved the round on, and the learner never
+      saw the confirmation. The quest and the lesson are guarded by their own
+      shape (a key from an input is ignored); the other three need the check.
+    */
+    for (const file of rounds.slice(0, 3)) {
+      assert.match(
+        code(file),
+        /!needsRetype\s*&&\s*!inEditable\(e\.target\)\s*&&\s*isAdvanceKey/,
+        `${file} lets the Enter that checks a retype also move the round on`,
       );
     }
   });

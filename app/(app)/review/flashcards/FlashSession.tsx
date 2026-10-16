@@ -269,8 +269,11 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
         return;
       }
       /* A miss waits for its retype, which the box handles itself on Enter;
-         the same keystroke must not also carry the round on. */
-      if (mark) { if (!needsRetype && isAdvanceKey(e)) { e.preventDefault(); next(); } return; }
+         the same keystroke must not also carry the round on. By the time this
+         runs the retype's render and effects have been flushed inside that
+         keydown, so `needsRetype` already reads false: a key from the box is
+         the box's, exactly as it is on the daily quest. */
+      if (mark) { if (!needsRetype && !inEditable(e.target) && isAdvanceKey(e)) { e.preventDefault(); next(); } return; }
       if (e.key !== "Enter") return;
       if (shape === "build" && !(e.metaKey || e.ctrlKey)) return;
       e.preventDefault();

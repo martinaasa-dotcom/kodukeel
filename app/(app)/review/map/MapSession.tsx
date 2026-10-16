@@ -170,8 +170,10 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
       }
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (!inEditable(e.target) && e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
-      /* A miss waits for its retype, which the box handles itself on Enter. */
-      if (answered) { if (!needsRetype && isAdvanceKey(e)) { e.preventDefault(); next(); } return; }
+      /* A miss waits for its retype, which the box handles itself on Enter, and
+         a key from that box is the box's: its render and effects are flushed
+         inside the keydown, so `needsRetype` already reads false by now. */
+      if (answered) { if (!needsRetype && !inEditable(e.target) && isAdvanceKey(e)) { e.preventDefault(); next(); } return; }
       // Typing a form: Enter checks, and then Enter moves on, one key for the round.
       if (typedRung) {
         if (e.key !== "Enter") return;

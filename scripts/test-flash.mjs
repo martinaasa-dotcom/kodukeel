@@ -344,6 +344,7 @@ let retypeMissing = 0;
 let retypeLetGo = 0;
 let retypeAcceptedWrong = 0;
 let retypeStuck = 0;
+let retypeSkipped = 0;
 
 for (let i = 0; i < 12; i++) {
   const state = await question();
@@ -377,6 +378,9 @@ for (let i = 0; i < 12; i++) {
       await retypeBox.fill(form);
       await page.keyboard.press("Enter");
       if (!(await eventually(async () => (await retypeBox.count()) === 0))) retypeStuck += 1;
+      /* The Enter that passed the copy must not also have moved the round on:
+         the learner reads the confirmation and presses Next themselves. */
+      else if (!(await next.count()) || !(await page.getByText("That's the one.").count())) retypeSkipped += 1;
     }
   }
   if (!(await next.count())) break;
@@ -396,8 +400,8 @@ check(
 );
 check(
   "copying the answer letter for letter does",
-  retypeAsked > 0 && retypeStuck === 0,
-  `${retypeStuck} stuck`,
+  retypeAsked > 0 && retypeStuck === 0 && retypeSkipped === 0,
+  `${retypeStuck} stuck, ${retypeSkipped} moved on by the same Enter`,
 );
 
 check("it asks a full round rather than one question", asked >= 5, `${asked} asked`);
