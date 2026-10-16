@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { useFocusAnswer } from "@/components/round/useFocusAnswer";
+import { RetypeBox, useRetype } from "@/components/round/Retype";
+import { PARTS } from "@/lib/copy/values";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { Check, Keyboard, Map as MapIcon, X } from "lucide-react";
 import { useT } from "@/components/Locale";
@@ -71,6 +73,10 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
   const [busy, setBusy] = useState(false);
   const [typed, setTyped] = useState("");
   const [mark, setMark] = useState<FlashMark | null>(null);
+  /* A typed answer short of a clean hit is typed again before the card lets
+     go. Held beside `mark` because a hint lowers the mark's rating, and a
+     right answer that cost a hint is not a miss. */
+  const [owesRetype, setOwesRetype] = useState(false);
   const shownAt = useRef(Date.now());
 
   const q = questions[index];
@@ -81,6 +87,8 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
   useFocusAnswer(answerBox, !answered && !look.looking, index);
 
   const typedRung = q?.rung === 3;
+  const retype = useRetype(q ? q.accepted.join(PARTS) : "", q ? `${q.lexemeId}:${q.caseKey}:${index}` : "");
+  const needsRetype = typedRung && owesRetype && !retype.ok;
   const footer = useKeepInView<HTMLDivElement>(answered ? index : null);
 
   /*
@@ -99,7 +107,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
   const hints = useHints({ word: q?.lexemeId ?? null, question: q ? `${q.lexemeId}:${q.caseKey}` : null, ladder });
   const struck = q && !typedRung ? struckOptions(texts, correct, hints.taken) : [];
 
-  useEffect(() => { shownAt.current = Date.now(); setPicked(null); setMark(null); setTyped(""); }, [index]);
+  useEffect(() => { shownAt.current = Date.now(); setPicked(null); setMark(null); setOwesRetype(false); setTyped(""); }, [index]);
 
   const pick = useCallback(async (i: number) => {
     if (!q || answered || busy) return;
@@ -128,6 +136,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
     const result = { ...marked, rating: Math.min(marked.rating, hints.ceiling) as FlashMark["rating"] };
     const duration = Date.now() - shownAt.current;
     setMark(result);
+    setOwesRetype(marked.rating < 3);
     sound(result.right ? "right" : "wrong");
     if (!result.right) hints.noteMiss();
     if (q.cardId) {
@@ -141,7 +150,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
   }, [q, mark, busy, typed, hints, grade, sound]);
 
   const next = useCallback(() => {
-    if (!answered) return;
+    if (!answered || needsRetype) return;
     if (q) {
       look.record({
         of: q.lexemeId, label: "Map", question: `${q.lemma}: ${q.rung === 1 ? q.scene.ask : q.ask}`, answer: correct,
@@ -149,7 +158,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
       });
     }
     setIndex((i) => i + 1);
-  }, [answered, q, correct, look]);
+  }, [answered, q, correct, look, needsRetype]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -161,7 +170,8 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
       }
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (!inEditable(e.target) && e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
-      if (answered) { if (isAdvanceKey(e)) { e.preventDefault(); next(); } return; }
+      /* A miss waits for its retype, which the box handles itself on Enter. */
+      if (answered) { if (!needsRetype && isAdvanceKey(e)) { e.preventDefault(); next(); } return; }
       // Typing a form: Enter checks, and then Enter moves on, one key for the round.
       if (typedRung) {
         if (e.key !== "Enter") return;
@@ -174,7 +184,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [finished, answered, q, typedRung, pick, check, next, look]);
+  }, [finished, answered, q, typedRung, pick, check, next, look, needsRetype]);
 
   if (wasEmptyAtStart) {
     return (
@@ -331,11 +341,13 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
                     sentence: saying the answer and then the answer again is noise. */}
                 {said && said.includes(correct) ? said : (<>
                   {wasRight ? "Yes. " : "Not that one. "}
-                  <span lang="et" className="font-semibold">{correct}</span>
+                  <span lang="et" data-answer="" className="font-semibold">{correct}</span>
                   {typedRung ? " is the form." : " is what the picture shows."}
                   {said ? ` ${said}` : ""}
                 </>)}
               </p>
+
+              {typedRung && owesRetype && <RetypeBox retype={retype} />}
 
               <div className="grid grid-cols-3 gap-2">
                 {[...q.options].sort((a, b) => MAP_CASES.indexOf(a.key) - MAP_CASES.indexOf(b.key)).map((o) => {
@@ -376,8 +388,8 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
 
           {answered && (
             <div ref={footer} className="dock-clear border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
-              <Button variant="primary" size="lg" className="w-full" autoFocus onClick={next}>
-                Continue
+              <Button variant="primary" size="lg" className="w-full" autoFocus onClick={needsRetype ? retype.check : next}>
+                {needsRetype ? t("Check it again") : "Continue"}
                 <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
               </Button>
             </div>

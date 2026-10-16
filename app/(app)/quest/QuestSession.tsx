@@ -21,6 +21,7 @@ import { useFeedbackSound } from "@/components/AudioPrefs";
 import type { QuestCard } from "@/lib/progress/quest";
 import { acceptedAnswers, checkAnswer, type AnswerCheck } from "@/lib/estonian/answer";
 import { EstonianInput } from "@/components/EstonianInput";
+import { RetypeBox, useRetype } from "@/components/round/Retype";
 import { caseByKey } from "@/lib/estonian/cases";
 import { BLANK, filledSentence, primaryAnswer } from "@/lib/estonian/cloze";
 import { OPTION_CLASS, VERDICT_CLASS, optionState, verdictOfCheck } from "@/lib/ux/verdict";
@@ -193,6 +194,10 @@ export function QuestSession({
   // What a typed card has in its box, and the mark it got (`markTyped` below).
   const [typed, setTyped] = useState("");
   const [check, setCheck] = useState<AnswerCheck | null>(null);
+  /* A typed miss, or a near one, is typed again before the card is graded and
+     lets go. The grade is what the marker said, so this is rehearsal only. */
+  const retype = useRetype(card?.back ?? "", index);
+  const needsRetype = !!card?.typed && !!check && check.verdict !== "correct" && !retype.ok;
   const answer = useCallback(async (got: boolean, reached?: string | null, rating?: 1 | 2 | 3) => {
     if (!card || busy) return;
     setBusy(true);
@@ -288,9 +293,9 @@ export function QuestSession({
     setRevealed(true);
   }, [card, revealed, busy, typed]);
   const nextTyped = useCallback(() => {
-    if (!check) return;
+    if (!check || needsRetype) return;
     void answer(check.suggestedRating > 1, null, check.suggestedRating);
-  }, [check, answer]);
+  }, [check, answer, needsRetype]);
 
   /* Keys, because a two-minute round is one a keyboard should be able to play:
      space or enter turns the card, then space says missed and enter says had it. Same two answers as a flip
@@ -317,7 +322,7 @@ export function QuestSession({
         const target = e.target as HTMLElement | null;
         // A focused button answers its own Enter, which would be two grades.
         if (target?.closest("input, textarea, button")) return;
-        if (revealed && isAdvanceKey(e)) { e.preventDefault(); nextTyped(); }
+        if (revealed && !needsRetype && isAdvanceKey(e)) { e.preventDefault(); nextTyped(); }
         return;
       }
       const options = card?.choices;
@@ -339,7 +344,7 @@ export function QuestSession({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [phase, revealed, answer, card, choose, nextTyped]);
+  }, [phase, revealed, answer, card, choose, nextTyped, needsRetype]);
 
   if (cards.length === 0) {
     return (
@@ -640,8 +645,9 @@ export function QuestSession({
                   >
                     {check.verdict === "correct" ? t("Right.") : answerNote(check.note, locale) || fill(t("It's {answer}."), { answer: primaryAnswer(card.back) })}
                   </p>
-                  <Button variant="primary" size="lg" autoFocus disabled={busy} onClick={nextTyped}>
-                    {t("Next")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+                  {check.verdict !== "correct" && <RetypeBox retype={retype} />}
+                  <Button variant="primary" size="lg" autoFocus disabled={busy} onClick={needsRetype ? retype.check : nextTyped}>
+                    {needsRetype ? t("Check it again") : t("Next")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
                   </Button>
                 </div>
               ) : (

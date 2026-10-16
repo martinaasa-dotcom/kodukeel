@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { launchChromium } from "./lib/browser.mjs";
+import { eventually, launchChromium } from "./lib/browser.mjs";
 import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 
@@ -41,7 +41,7 @@ const OWNER = "local-single-user";
 
 const prisma = newPrismaClient(requireLocalDatabase("write and delete the reviews this round grades"));
 
-const { check, absent, done } = suite("The flash round", { floor: 18 });
+const { check, absent, done } = suite("The flash round", { floor: 21 });
 
 /** Every slot the app may write, which is `lib/srs/slots.ts` read from outside. */
 const CASES = [
@@ -235,7 +235,7 @@ const opening = await question();
 
 check("the round opens with something to answer", opening.hasBox, opening.text.slice(0, 60));
 if (!opening.hasBox) {
-  absent(16, "a deck with words already met: npm run db:seed && npm run demo");
+  absent(19, "a deck with words already met: npm run db:seed && npm run demo");
   await browser.close();
   await prisma.$disconnect();
   done();
@@ -339,6 +339,11 @@ const learned = new Map();
 const shapes = new Set();
 const slotsAsked = new Set();
 let asked = 0;
+let retypeAsked = 0;
+let retypeMissing = 0;
+let retypeLetGo = 0;
+let retypeAcceptedWrong = 0;
+let retypeStuck = 0;
 
 for (let i = 0; i < 12; i++) {
   const state = await question();
@@ -351,11 +356,49 @@ for (let i = 0; i < 12; i++) {
   if (label) slotsAsked.add(label.trim());
   learned.set(`${state.word}|${label}`, marked.told);
 
+  /*
+    A MISSED FORM IS TYPED AGAIN BEFORE THE CARD LETS GO. The sentence shape is
+    the exception: there is no one form to copy, so it keeps its plain Next.
+    Everything else must offer "Check it again" in Next's place, refuse a wrong
+    copy, and only then hand over Next.
+  */
   const next = page.getByRole("button", { name: /^Next/ });
+  const retypeBox = page.getByLabel(/Type the answer again/);
+  if (!marksSentence(state.text)) {
+    retypeAsked += 1;
+    if (!(await retypeBox.count())) retypeMissing += 1;
+    else {
+      if (await next.count()) retypeLetGo += 1;
+      await retypeBox.fill("zzz");
+      await page.keyboard.press("Enter");
+      await page.waitForTimeout(200);
+      if (!(await retypeBox.count())) retypeAcceptedWrong += 1;
+      const form = ((await page.locator("[data-flash-answer]").first().innerText().catch(() => "")).split(" / ")[0] ?? "").trim();
+      await retypeBox.fill(form);
+      await page.keyboard.press("Enter");
+      if (!(await eventually(async () => (await retypeBox.count()) === 0))) retypeStuck += 1;
+    }
+  }
   if (!(await next.count())) break;
   await next.click();
   await page.waitForTimeout(250);
 }
+
+check(
+  "a missed form is asked for again before the card lets go",
+  retypeAsked > 0 && retypeMissing === 0 && retypeLetGo === 0,
+  `${retypeAsked} missed, ${retypeMissing} with no retype box, ${retypeLetGo} offering Next first`,
+);
+check(
+  "a wrong copy does not satisfy the retype",
+  retypeAsked > 0 && retypeAcceptedWrong === 0,
+  `${retypeAcceptedWrong} accepted`,
+);
+check(
+  "copying the answer letter for letter does",
+  retypeAsked > 0 && retypeStuck === 0,
+  `${retypeStuck} stuck`,
+);
 
 check("it asks a full round rather than one question", asked >= 5, `${asked} asked`);
 check(

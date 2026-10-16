@@ -2,6 +2,7 @@
 
 import { useLocale, useT } from "@/components/Locale";
 import { useFocusAnswer } from "@/components/round/useFocusAnswer";
+import { RetypeBox, useRetype } from "@/components/round/Retype";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { fill } from "@/lib/copy/locale";
 import { answerNote } from "@/lib/copy/answerNote";
@@ -72,6 +73,10 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
   const [mark, setMark] = useState<FlashMark | null>(null);
   const [right, setRight] = useState(0);
   const [asked, setAsked] = useState(0);
+  /* Anything short of a clean hit is typed again before the card lets go. Held
+     beside `mark` because a hint lowers the mark's rating, and a right answer
+     that cost a hint is not a miss. */
+  const [owesRetype, setOwesRetype] = useState(false);
   const shownAt = useRef(Date.now());
   const startedAt = useRef(Date.now());
   const sound = useFeedbackSound();
@@ -81,6 +86,8 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
   /* The way back to the word before this one. See `lib/ux/lookBack.ts`. */
   const look = useLookBack();
   const finished = !task;
+  const retype = useRetype(task ? task.accepted.join(PARTS) : "", task?.id ?? "");
+  const needsRetype = owesRetype && !retype.ok;
   const answerBox = useRef<HTMLInputElement>(null);
   useFocusAnswer(answerBox, !mark && !look.looking, index);
 
@@ -114,6 +121,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
     // A hint is paid for: see `lib/questions/hints.ts`.
     const result = { ...marked, rating: Math.min(marked.rating, hints.ceiling) as typeof marked.rating };
     setMark(result);
+    setOwesRetype(marked.rating < 3);
     if (!result.right) hints.noteMiss();
     setAsked((n) => n + 1);
     sound(result.right ? "right" : "wrong", 0);
@@ -172,6 +180,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
       });
     }
     setMark(null);
+    setOwesRetype(false);
     setTyped("");
     setIndex((i) => i + 1);
     shownAt.current = Date.now();
@@ -189,14 +198,15 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
         look.open();
         return;
       }
-      if (mark || meeting) { if (isAdvanceKey(e)) { e.preventDefault(); next(); } return; }
+      /* A miss waits for its retype, which the box handles itself on Enter. */
+      if (mark || meeting) { if (!needsRetype && isAdvanceKey(e)) { e.preventDefault(); next(); } return; }
       if (e.key !== "Enter") return;
       e.preventDefault();
       void check();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [mark, meeting, next, check, look]);
+  }, [mark, meeting, next, check, look, needsRetype]);
 
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
@@ -303,6 +313,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
           )}
 
           {mark && <Feedback task={task} mark={mark} />}
+          {mark && owesRetype && <RetypeBox retype={retype} />}
         </div>
 
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
@@ -320,8 +331,8 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
               {t("Check it")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
-            <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
-              {t("Next")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+            <Button variant="primary" className="w-full py-3" onClick={needsRetype ? retype.check : next} autoFocus>
+              {needsRetype ? t("Check it again") : t("Next")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           )}
         </div>
@@ -564,6 +575,7 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
         <p
           lang="et"
           data-exception-answer=""
+          data-answer=""
           className="text-xl font-semibold leading-tight"
           style={{ color: "var(--ink)" }}
         >
