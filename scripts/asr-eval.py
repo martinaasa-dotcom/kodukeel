@@ -179,10 +179,11 @@ SYSTEMS = {
     "trainable zipformer": onnx_system("onnx-before"),
     "trainable zipformer, anchored": onnx_system("onnx-anchored"),
     "trainable zipformer, anchored, chunk 32": onnx_system("onnx-anchored-c32"),
+    "trainable zipformer, anchored, chunk 48": onnx_system("onnx-anchored-c48"),
     "trainable zipformer, anchored, chunk 64": onnx_system("onnx-anchored-c64"),
     "student": onnx_system("onnx-student"),
     "student, chunk 32": onnx_system("onnx-student-c32"),
-    "student, chunk 64": onnx_system("onnx-student-c64"),
+    "student, chunk 48": onnx_system("onnx-student-c48"),
 }
 
 
