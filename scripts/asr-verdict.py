@@ -300,7 +300,7 @@ def say():
     every other word of the corpus (reject). Two engines: xls-r scoring, and the Zipformer's text."""
     sets = json.load(open(os.path.join(OUT, "sets.json")))
     allwords = sorted({w["text"] for w in sets["words"]})
-    for room in ROOMS:
+    for room in [room for room in ROOMS if ready(room)]:
         heard = zipformer_heard(room)
         res = {"x": {"self": [], "near": [], "other": []}, "z": {"self": [], "near": [], "other": []}}
         for w in sets["words"]:
