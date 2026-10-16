@@ -102,7 +102,8 @@ const EMERGENCY: SceneSpec = {
       they: "They ask where you are.",
       move: "ask",
       topic: ["kus", "aadress", "tänav", "maja"],
-      needs: [{ kind: "datum", slot: "where" }],
+      // Or the street, which is what most people give first: "Pärnu maantee 10" was asked where they were again.
+      needs: [{ kind: "anyOf", of: [{ kind: "datum", slot: "where" }, { kind: "lemma", oneOf: ["tänav", "tee"] }] }],
       required: true,
       patience: 3,
       shape: "sentence",

@@ -1470,7 +1470,7 @@ export function replay(
           the next line read a time back to somebody who had never been offered
           one. The offer is said, and the learner's yes is read against it then.
         */
-        if (next.move === "offer" && !offerAlreadyMade(next, draw, heard)) break;
+        if (next.move === "offer" && !asksForIt(next) && !offerAlreadyMade(next, draw, heard)) break;
         // Nor across a break in time: the meal has to be eaten before the bill (the look-ahead's rule).
         if (next.meanwhile) break;
         // A question answers nothing further on (`onlyAsks`).
@@ -1571,7 +1571,10 @@ export function replay(
             interviewer never named the figure at all. Behind the pointer the
             offer has been made, and taking it late is taking it.
           */
-          if (other.move === "offer" && at > state.beat && !offerAlreadyMade(other, draw, heard)) continue;
+          // Asking about an offer is not taking it (`asksForIt`).
+          if (!asksForIt(other)) {
+            if (other.move === "offer" && at > state.beat && !offerAlreadyMade(other, draw, heard)) continue;
+          }
           /*
             AND NOTHING IS TAKEN THAT THE OTHER SIDE HAS NOT YET SAID. A beat whose
             move is to explain, refuse or correct carries its line to the learner,
@@ -1858,4 +1861,14 @@ function sharedCaseForm(a: BeatSpec, b: BeatSpec): boolean {
     const k = key(need);
     return k !== null && ours.has(k);
   });
+}
+
+/**
+ * An offer the learner has to ask for, which a question asked early meets: the
+ * shop's price is said at the till when asked, and "Kui palju see maksab?" in
+ * the fitting room was answered and then asked for again. An offer nobody has
+ * made is never taken, but asking about it is not taking it.
+ */
+function asksForIt(beat: BeatSpec): boolean {
+  return leafNeeds(beat.needs).some(({ need }) => need.kind === "question");
 }
