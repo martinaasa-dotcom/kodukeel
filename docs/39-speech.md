@@ -242,7 +242,9 @@ What the app does in the meantime is layer 3.3, and layer 3.2 if SP-0 shows it h
 voice: both work by knowing what the moment could contain, which helps an accent more than it helps
 a native, because a native was already heard. Stage 3 has a working recipe for `xls-r-300m-et`
 already (section 3.6, `scripts/asr-finetune.py`), proven on synthetic mistakes to move the model the
-right way without costing accuracy; for the Zipformer it waits on TalTech's checkpoint.
+right way without costing accuracy. Section 3.7 runs the same recipe on a trainable Zipformer from
+TalTech, with real speech in every batch, and exports the result to the int8 ONNX a phone runs. The
+large model trained the same way waits on TalTech's checkpoint.
 
 ### 3.5 Measured settings and limits
 
@@ -397,7 +399,8 @@ apply to every cut the app makes, not only this one:
 What is left is mostly words the model also misses said normally (the loanword `dušš`, the name
 `Eva`) and short words between long pauses. The synthetic hesitation is the weak part of this set:
 TartuNLP says `ee` as a short word with its own intonation, not as a held vowel, so a steadiness test
-does not separate it from words (and should not be tuned against it). Real hesitations are SP-0's.
+does not separate it from words (and should not be tuned against it). Section 3.7 measures real
+hesitations: the model leaves them out itself, and the preparation costs nothing on real speech.
 
 **Unsure words: two decodings beat one number, and calibration buys nothing.** Fifty learners (ten
 voices in five rooms) each read five sentences first, and the unsure line was tuned to them. It does
@@ -417,9 +420,9 @@ The bold row needs one model and two decodings of the same audio, and a dotted w
 four times in five where the old line's was wrong one time in three. What it misses is mostly the
 echo room, where the model invents real words confidently and both decodings agree.
 
-**Fine-tuning `xls-r-300m-et` on a CPU, and what it buys.** The Zipformer cannot be fine-tuned here:
-TalTech publish it as ONNX only, and a fine-tune needs their PyTorch checkpoint and Icefall recipe
-(section 9). `xls-r-300m-et` is published as PyTorch, so `scripts/asr-finetune.py` is the recipe for
+**Fine-tuning `xls-r-300m-et` on a CPU, and what it buys.** The large Zipformer cannot be fine-tuned
+here: TalTech publish it as ONNX only, and a fine-tune needs their PyTorch checkpoint and Icefall
+recipe (section 9). Section 3.7 fine-tunes TalTech's older trainable Zipformer instead. `xls-r-300m-et` is published as PyTorch, so `scripts/asr-finetune.py` is the recipe for
 it: 300 attested sentences none of the test sentences, each said right and with each kind of mistake
 (1,089 clips in six voices none of the test voices), labelled with what was said, half of each batch
 sent through a room (babble, phone line, echo, white noise), the top eight layers trained for 800
@@ -441,12 +444,87 @@ sides is synthetic, so the fine-tune is a recipe proven to move the model the ri
 to ship. What it is for is SP-9: real learners' recordings drop into the `data` step and nothing else
 changes.
 
+### 3.7 Round four: real speech, and a Zipformer trained here
+
+Everything above is synthetic. Round four adds two things that are not: real Estonian speech, and a
+Zipformer that can be trained.
+
+**The real speech** is TalTech's Estonian Speech Dataset 1.0 (CC BY-SA 4.0): 1,300 hours of
+broadcast, interviews and the Riigikogu, transcribed by hand. `scripts/asr-hesitations.py` reads it
+out of the 159 GB archive by byte range, so nothing like the whole dataset is downloaded. 640 segments
+of 3 to 12 seconds, 160 each from interviews, talk shows, the Riigikogu and the news. Its scoring
+transcripts suit this question exactly:
+
+- filled pauses are not written, so the reference is what was meant;
+- a false start or a repeated word sits in brackets, and sclite reads a bracketed word as optional.
+
+**Real hesitations need nothing from the app.** On those 640 segments the large Zipformer writes a
+hesitation (`öö`, `e`) 3 times in all. It was trained on transcripts that leave them out, so it
+learned to leave them out too. The `ee` that cost so much in section 3.6 was TartuNLP saying a word.
+The word-by-word preparation is safe on real speech:
+
+| Large Zipformer, words wrong | As said | Pauses squeezed | Stretches heard as hesitation removed |
+| --- | --- | --- | --- |
+| All 640 segments | 6.1% | 6.0% | 6.0% |
+| Interviews / talk shows / Riigikogu / news | 4.8 / 7.6 / 5.3 / 6.2% | 4.9 / 7.3 / 5.3 / 6.2% | 4.8 / 7.5 / 5.3 / 6.1% |
+| The 115 with a false start or a repeat | 4.8% | 4.8% | 4.8% |
+
+So the preparation stays on for every recording. A learner hesitates longer and more often than a
+native speaker, and that is still SP-0's to measure.
+
+**A Zipformer that can be trained.** TalTech's large model is published as ONNX only. Their older
+`icefall_pruned_transducer_stateless7_streaming_et` is a smaller model of the same architecture
+(about 800 hours transcribed by hand and 2,500 transcribed automatically). It ships as an Icefall
+TorchScript file with the training code still inside. `scripts/asr-icefall.py` does three things with
+it:
+
+- decodes it;
+- fine-tunes it with a transducer loss on the recipe of section 3.6;
+- exports it with Icefall's own export code to the int8 ONNX that sherpa-onnx runs.
+
+Exported, it writes the same words as the TorchScript original on 40 of 40 sentences, so a model
+trained here reaches a phone unchanged. The run below is 600 steps on four CPU cores in about 45
+minutes. Each batch is two of section 3.6's 1,089 synthetic clips (half through a room) and two of
+1,202 real segments. None of those real segments comes from a recording the 200 real test segments
+come from.
+
+| Held out | Large (default) | Trainable, before | Synthetic only | **Anchored with real speech** |
+| --- | --- | --- | --- | --- |
+| Real native speech, 200 segments, 3,155 words | 5.5% | 6.9% | 10.5% | **6.8%** |
+| Synthetic sentences said right (kalev, liivika) | 4.8% | 3.1% | 5.6% | **3.4%** |
+| The same in café babble at 10 dB | 11.2% | 18.3% | 21.9% | **11.5%** |
+| A length mistake written as said | 7/66 | 2/66 | 24/66 | **21/66** |
+| A voicing mistake written as said | 2/70 | 2/70 | 10/70 | **10/70** |
+| `õ`, `ä`, `ö`, `ü` said plain, written as said | 15/50 | 10/50 | 16/50 | **28/50** |
+
+The first three rows are words wrong. Trained on synthetic speech alone, the model learns to write a
+learner's mistake as said and forgets real speech. With real speech in every batch it forgets
+nothing:
+
+- real native speech stays at 6.8% against 6.9%;
+- noise errors fall from 18.3% to 11.5%, level with the large model;
+- it writes mistakes as said three to ten times as often as before, and more often than the large
+  model on every kind.
+
+The int8 ONNX export of the anchored model, run through sherpa-onnx, is being measured on the same rows.
+
+What this does and does not show:
+
+- **It does not show the large model trained the same way.** That needs TalTech's checkpoint, and
+  this run is the evidence to ask for it with (section 9).
+- **The mistakes are still synthetic.** The voices and sentences are held out, but the voices are
+  TartuNLP's. What an English or Russian speaker's `õ` does is SP-0's.
+- **The anchored model is a candidate to ship, not a decision.** It is close to the large model on
+  real speech (6.8% against 5.5%) and better at the one thing a language app needs that the large
+  model does worst. Whether that wins depends on SP-0's real learners.
+
 ## 4. Status
 
 | Item | Status |
 | --- | --- |
 | Measurement (`measure-asr.ts`, `asr-local.py`, meter fix) | On branch `claude/serene-lovelace-e0dcf2` |
 | Round three experiments (`asr-verdict.py`, `asr-pauses.py`, `asr-calibrate.py`, `asr-finetune.py`) | On the same branch, section 3.6 |
+| Round four: real speech and a trainable Zipformer (`asr-hesitations.py`, `asr-icefall.py`) | On the same branch, section 3.7 |
 | SP-0 Real voices and devices | Not started |
 | SP-1 The engine in the browser | Not started |
 | SP-2 Hearing rules and ADR-028 | Not started |
@@ -753,8 +831,10 @@ Estonian written, tokens, one loud action, invariants in their own files), plus:
 
 - **Sign off D3's bars**, and accept or move them once SP-0 reports.
 - **Recruit the SP-0 voices** and hold their consent.
-- **Decide SP-9**, and whether to approach TalTech (the model's authors, Tanel Alumäe's group) about
-  adapting it to learner speech.
+- **Decide SP-9**, and whether to approach TalTech (the model's authors, Tanel Alumäe's group) for
+  the large model's PyTorch checkpoint. Section 3.7 is the case for asking. The same recipe on their
+  older trainable Zipformer kept its accuracy on real speech and wrote learner mistakes as said three
+  to ten times as often. The large model trained that way needs their checkpoint.
 - **Create the storage bucket** for D10 and set `NEXT_PUBLIC_ASR_MODEL_BASE`.
 
 ## 10. A brief to paste into a fresh session

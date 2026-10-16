@@ -109,8 +109,18 @@ def evaluate(name):
     rows = held()
     path = os.path.join(OUT, f"eval_{name}.json")
     out = json.load(open(path)) if os.path.exists(path) else {}
-    if name == "large":
-        z = X.Zipformer(X.LARGE)
+    if name == "large" or name.endswith("-onnx"):
+        # The large model, or one of ours as exported: the int8 files sherpa-onnx runs on a device.
+        if name == "large":
+            z = X.Zipformer(X.LARGE)
+        else:
+            import sherpa_onnx
+            d = os.path.join(OUT, "onnx-" + name[: -len("-onnx")])
+            z = X.Zipformer.__new__(X.Zipformer)
+            z.r = sherpa_onnx.OnlineRecognizer.from_transducer(
+                tokens=f"{d}/tokens.txt", encoder=f"{d}/encoder.int8.onnx", decoder=f"{d}/decoder.onnx",
+                joiner=f"{d}/joiner.int8.onnx", num_threads=os.cpu_count() or 4, sample_rate=RATE,
+                feature_dim=80, decoding_method="greedy_search")
         hear = lambda f: z.hear(X.load(f), lead=0.5)["text"]
     else:
         m, sp = model_and_pieces(None if name == "before" else os.path.join(OUT, f"{name}.pt"))
@@ -124,7 +134,7 @@ def evaluate(name):
                 out[key] = hear(key)
             noisy = "babble10|" + key
             if which == "right_file" and noisy not in out:
-                if name == "large":
+                if name == "large" or name.endswith("-onnx"):
                     out[noisy] = z.hear(X.condition("babble10", X.load(key), others), lead=0.5)["text"]
                 else:
                     out[noisy] = greedy(m, sp, X.condition("babble10", X.load(key), others))
@@ -135,7 +145,7 @@ def evaluate(name):
     for r in (json.load(open(real)) if os.path.exists(real) else [])[:REAL]:
         key = "real|" + r["file"]
         if key not in out:
-            out[key] = z.hear(X.load(r["file"]), lead=0.5)["text"] if name == "large" else greedy(m, sp, X.load(r["file"]))
+            out[key] = z.hear(X.load(r["file"]), lead=0.5)["text"] if (name == "large" or name.endswith("-onnx")) else greedy(m, sp, X.load(r["file"]))
     json.dump(out, open(path, "w"), ensure_ascii=False)
     print(name, len(out), file=sys.stderr)
 
@@ -372,7 +382,7 @@ def export(name):
 
 def report():
     rows = held()
-    for name in ("large", "before", "after", "anchored"):
+    for name in ("large", "before", "after", "anchored", "anchored-onnx"):
         path = os.path.join(OUT, f"eval_{name}.json")
         if not os.path.exists(path):
             continue
