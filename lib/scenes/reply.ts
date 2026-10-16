@@ -794,9 +794,11 @@ const WANTING = /^(taha|tahtsin|tahaksin|soovi|vaja|palu)/;
 /** The learner talking about themselves, which is never said back to them (`replyFor`'s echo). */
 const FIRST_PERSON: ReadonlySet<string> = new Set(["ma", "mina", "me", "meie", "mul", "minul", "meil", "minu", "mu"]);
 /** A courtesy or a hedge on an answer, taken off before it is said back: "Teed, palun." is answered "Teed.". */
-const ECHO_TRIM: ReadonlySet<string> = new Set(["palun", "vist", "äkki", "ehk", "küll", "ka", "ju", "noh", "no"]);
+const ECHO_TRIM: ReadonlySet<string> = new Set(["palun", "aitäh", "tänan", "vist", "äkki", "ehk", "küll", "ka", "ju", "noh", "no"]);
 /** The words a no is said with, as lemma requests against the course. */
 const NOES: ReadonlySet<string> = new Set(["ei", "pole", "mitte", "ega"]);
+/** The words a thanks is said with: `aitäh`, `tänan`, `tänud`, `tänu`. */
+const THANKS: ReadonlySet<string> = new Set(["aitäh", "tänan", "tänud", "tänu"]);
 
 function acknowledgements(heard: string | null, said: string | null): readonly string[] {
   /*
@@ -830,6 +832,12 @@ function acknowledgements(heard: string | null, said: string | null): readonly s
   */
   if ([...theirs].some((word) => NOES.has(word))) return REACTIONS.heard;
   /*
+    AND A THANKS IS ANSWERED, NOT RETURNED. "Aitäh, ma tulen kell kaks" met
+    `Aitäh.`, two people thanking each other at a counter, or `Hästi.`, which
+    approves of being thanked. What anybody says is "you're welcome".
+  */
+  if ([...theirs].some((word) => THANKS.has(word))) return REACTIONS.welcome;
+  /*
     AND A YES-OR-NO QUESTION THAT LANDED IS ANSWERED YES. "Kas teil on
     telefoni?" met the beat it asked, which is the shop having one, and was
     acknowledged `Hästi.`; what the person on the phone says is `Jah.`.
@@ -858,7 +866,7 @@ function opensWithReaction(line: SpokenLine | null): boolean {
   if (!first) return false;
   const said = new Set<string>([
     ...REACTIONS.acknowledge, ...REACTIONS.heard, ...REACTIONS.waiting, ...REACTIONS.missed, ...REACTIONS.letGo,
-    ...Object.values(FEELINGS).map((f) => f.word),
+    ...REACTIONS.welcome, ...Object.values(FEELINGS).map((f) => f.word),
   ].map((word) => word.toLowerCase().replace(/[.!?]$/, "")));
   return said.has(first);
 }
@@ -1096,7 +1104,7 @@ const ECHO_WORDS = 2;
  * `acknowledgements` was corrected for one function up.
  */
 const FLAT_WORDS = new Set<string>([
-  ...REACTIONS.acknowledge, ...REACTIONS.waiting, ...REACTIONS.heard, "ei",
+  ...REACTIONS.acknowledge, ...REACTIONS.waiting, ...REACTIONS.heard, "ei", "palun",
   // And the words of agreeing, which said back are "Hea." to "Hea küll" and "Olgu." to "Olgu".
   "hea", "küll", "olgu", "okei", "ok", "nõus", "sobib", "tore", "muidugi", "kindlasti",
 ]);

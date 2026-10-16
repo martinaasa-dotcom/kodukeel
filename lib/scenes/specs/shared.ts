@@ -144,6 +144,13 @@ export const REACTIONS = {
     read as taking something.
   */
   letGo: ["hästi"],
+  /*
+    "You're welcome", to a turn that thanked them. A thanks met with `Aitäh.`
+    is two people thanking each other, and met with `Hästi.` is somebody
+    approving of being thanked. `Palun` is `tervitused`, which every scene
+    declares, and the phrase carries its own spelling.
+  */
+  welcome: ["Palun"],
   /* "Later": a question the scene cannot answer yet, heard and put off. `millal`. */
   later: ["hiljem"],
   /* "A little": the answer to "do you speak English?". `maaramine`. */

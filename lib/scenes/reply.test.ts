@@ -159,7 +159,13 @@ describe("a turn that landed", () => {
   it("keeps the rotation rather than emptying it where every word was said", () => {
     const said = REACTIONS.acknowledge.join(" ");
     const line = replyFor(input({ answered: ASK, heard: "Kas teil on valu?", said }))[0]!.text;
-    expect(REACTIONS.acknowledge).toContain(line.toLowerCase().replace(".", ""));
+    // A turn holding `aitäh` is a thanks, and a thanks is answered "Palun." rather than returned.
+    expect([...REACTIONS.acknowledge, ...REACTIONS.welcome.map((w) => w.toLowerCase())]).toContain(line.toLowerCase().replace(".", ""));
+  });
+
+  it("answers a thanks with you're welcome rather than a thanks back", () => {
+    const line = replyFor(input({ answered: ASK, heard: "Kus te elate?", said: "Aitäh, ma elan siin" }))[0]!.text;
+    expect(line).toBe("Palun.");
   });
 
   it("leaves it out rather than guessing where there is no question to read", () => {
