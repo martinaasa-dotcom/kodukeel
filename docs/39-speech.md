@@ -506,7 +506,14 @@ nothing:
 - it writes mistakes as said three to ten times as often as before, and more often than the large
   model on every kind.
 
-The int8 ONNX export of the anchored model, run through sherpa-onnx, is being measured on the same rows.
+The int8 ONNX export of the anchored model, run through sherpa-onnx the way a phone runs it, keeps
+it:
+
+- real native speech 6.9%;
+- synthetic sentences 3.9%, babble 12.1%;
+- mistakes written as said: length 20/66, voicing 12/70, vowels 27/50.
+
+The model that would ship is the model measured.
 
 What this does and does not show:
 
