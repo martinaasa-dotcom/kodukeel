@@ -219,7 +219,7 @@ export function planTurn(input: TurnInput) {
     mishearing says a line about a beat nobody has reached.
   */
   const bank = (id: string | undefined): readonly string[] =>
-    id ? sayableAfterHurdles(context.scripted.get(id) ?? [], state, context.lexicon, context.marker.negators, scene) : [];
+    id ? sayableAfterHurdles(context.scripted.get(id) ?? [], state, context.lexicon, context.marker.negators, scene, last?.said) : [];
   const fresh = (id: string | undefined) => bank(id).filter((text) => !used.has(text));
   // An answer is a fact, so asked again it is the same fact (`sameFact`, FB-5).
   const answersOf = (beat: BeatSpec): readonly string[] => sameFact(bank(answerBeatId(beat)), used);
@@ -258,11 +258,10 @@ export function planTurn(input: TurnInput) {
     and the shrug is what a landed turn gets where nothing composed and no
     fact answered.
   */
-  let aside: SpokenLine | null = wantsAside && !composing ? asideFor(asking) : null;
-  // A time read back wrong is put right before anything else is said (`readBackCorrection`).
-  if (!composing && aside === null && sent && response === "answer") {
-    aside = readBackCorrection(answered, last?.said ?? "", card, context.lexicon);
-  }
+  // A time or a count read back is confirmed or put right before anything else is said (`readBackCorrection`).
+  const readBack = !composing && sent && (response === "answer" || response === "narrow" || response === "repeat")
+    ? readBackCorrection(answered, last?.said ?? "", card, context.lexicon) : null;
+  let aside: SpokenLine | null = readBack ?? (wantsAside && !composing ? asideFor(asking) : null);
   /*
     AND "SORRY, WHAT?" IS ANSWERED WITH THE LINE AGAIN, NEVER WITH A SHRUG.
     On a beat that takes anything the turn lands, the question word is left
@@ -516,7 +515,7 @@ export function planTurn(input: TurnInput) {
     const before = said?.provenance === "composed"
       ? preBreak
       : preBreak ?? (shrugOwed ? shrug(asking) : aside);
-    return replyFor({
+    return withoutRestatedCorrection(replyFor({
       beat: speaking,
       // A turn that answered a beat the other side had moved past is not a miss.
       landed: elsewhere > 0,
@@ -619,7 +618,7 @@ export function planTurn(input: TurnInput) {
             roll: state.turns.length, met: last?.met ?? [],
           })
         : null,
-    });
+    }));
   }
 
   /*
@@ -983,4 +982,19 @@ function verbAnswered(beat: BeatSpec | null, word: string | null, lexicon: Lexic
   return leafNeeds(beat.needs).some(({ need }) => need.kind === "lemma" && need.oneOf.some((lemma) =>
     [...(lexicon.persons.get(lemma)?.values() ?? [])].some((form) => form.toLowerCase() === said)
     || [...(lexicon.infinitives.get(lemma) ?? [])].some((form) => form.toLowerCase() === said)));
+}
+
+/**
+ * A correction is said once. "Ei, üks tablett 2 korda päevas söögi ajal." in
+ * front of the same instruction said again is the doctor repeating
+ * themselves; the "Ei," line already says it, so the bare restatement after it
+ * goes (`readBackCorrection`).
+ */
+function withoutRestatedCorrection(lines: SpokenLine[]): SpokenLine[] {
+  const plain = (text: string) => text.toLowerCase().replace(/[^\p{L}\d]+/gu, " ").trim();
+  return lines.filter((line, i) => {
+    const before = lines[i - 1];
+    if (!before || !/^ei,\s/i.test(before.text)) return true;
+    return plain(before.text.replace(/^ei,\s*/i, "")) !== plain(line.text);
+  });
 }

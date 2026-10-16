@@ -839,7 +839,7 @@ export function readTurn(
     const forms = context.lexicon.byLemma.get(verb);
     return Boolean(forms) && spoken.some((word) => forms!.has(word)) && [...previous].some((word) => forms!.has(word));
   });
-  if ((missing.length === beat.needs.length || metByBarePolarity) && (!wantsNo || lostOnly) && !answersVerb && isLost(spoken, context)) {
+  if (!answersVerb && (missing.length === beat.needs.length || metByBarePolarity) && (!wantsNo || lostOnly) && isLost(spoken, context)) {
     return shape("lost");
   }
 

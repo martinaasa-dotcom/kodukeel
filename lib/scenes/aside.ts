@@ -33,7 +33,7 @@
 import { ASIDES } from "./catalogue";
 import type { SpokenLine } from "./line";
 import { caseKeyFor, words, type Lexicon } from "./lexicon";
-import { CLOCK_LEMMA, numberWords, priceOnCard, timeFromText, type RoleCard } from "./props";
+import { CLOCK_LEMMA, numberFromText, numberWords, spokenNumbers, priceOnCard, timeFromText, type RoleCard } from "./props";
 import { partsLine, reaction } from "./reply";
 import { leafNeeds, type BeatSpec, type MoveKind } from "./types";
 
@@ -96,6 +96,10 @@ export interface AsideInput {
 const PLACE = new Set(["kus", "kuhu", "kust"]);
 const TIME = new Set(["millal"]);
 const HOW = new Set(["kuidas"]);
+/** "You" in the have-case, which is how "and you?" is asked after how-are-you. */
+const YOU_HAVE: ReadonlySet<string> = new Set(["sul", "sinul", "teil", "teie"]);
+/** The words a learner says how they are with. */
+const FINE: ReadonlySet<string> = new Set(["hästi", "hea", "normaalselt", "aitäh", "tänan", "okei"]);
 /**
  * The words a question about money is made of, as lemma requests against
  * `ostmine` and `kusisonad`: `kui palju`, `mis hind`, `maksab`, `eurot`.
@@ -189,6 +193,16 @@ export function asideFor(input: AsideInput): SpokenLine | null {
   */
   const goes = lexicon.byLemma.get("minema");
   if (HOW.has(asked) && goes && spoken.some((w) => goes.has(w))) {
+    return partsLine(ASIDES.howAreYou, { lexicon, mark: ".", join: ", " });
+  }
+  /*
+    AND "JA SUL?" ASKS IT BACK. "Hästi, aitäh. Ja sul?" answers how they are
+    and returns the question, and the friend went straight to "Mis on?". A
+    short turn that says how the learner is and then names "you" in the
+    have-case asks the same thing, and gets the same two words back.
+  */
+  const fine = spoken.some((w) => FINE.has(w));
+  if (asked === "?" && fine && spoken.length <= 6 && spoken.some((w) => YOU_HAVE.has(w))) {
     return partsLine(ASIDES.howAreYou, { lexicon, mark: ".", join: ", " });
   }
 
@@ -681,18 +695,38 @@ function confirmed(line: SpokenLine, named: boolean | null, already: ReadonlySet
 export function readBackCorrection(
   answered: BeatSpec | null, said: string, card: RoleCard | null, lexicon: Lexicon,
 ): SpokenLine | null {
-  if (!answered || answered.move !== "confirm" || !answered.says || !card) return null;
+  if (!answered || !READ_BACK.has(answered.move) || !answered.says || !card) return null;
   const slot = answered.says.find((part): part is Extract<typeof part, { slot: string }> => "slot" in part);
   const prop = slot ? card.props.find((p) => p.slot === slot.slot) : undefined;
-  if (!prop || !/^\d{1,2}:\d{2}$/.test(prop.value)) return null;
-  const named = timeFromText(said, { from: 0, to: 23 });
-  if (!named) return null;
-  const want = prop.value.padStart(5, "0");
-  const twelve = `${String((Number(named.slice(0, 2)) + 12) % 24).padStart(2, "0")}${named.slice(2)}`;
-  if (named === want || twelve === want) return null;
+  if (!prop) return null;
+  const asks = /\?\s*$/.test(said);
+  // At an offer a question naming another time is the learner proposing one, not reading the offer back.
+  if (answered.move === "offer" && asks) return null;
+  let right: boolean | null = null;
+  if (/^\d{1,2}:\d{2}$/.test(prop.value)) {
+    const named = timeFromText(said, { from: 0, to: 23 });
+    if (!named) return null;
+    const want = prop.value.padStart(5, "0");
+    const twelve = `${String((Number(named.slice(0, 2)) + 12) % 24).padStart(2, "0")}${named.slice(2)}`;
+    right = named === want || twelve === want;
+  } else if (/^\d+$/.test(prop.value)) {
+    /*
+      A COUNT READ BACK WRONG IS PUT RIGHT TOO, AND THAT ONE MATTERS. Told
+      to take the tablets twice a day, a learner who said "Kolm korda päevas"
+      was answered `Selge.`, which agrees to a dose nobody prescribed.
+    */
+    const named = numberFromText(said, { min: 0, max: 999 }, (lemma) => lexicon.byLemma.get(lemma))?.value
+      ?? spokenNumbers(said)[0] ?? null;
+    if (named === null) return null;
+    right = Number(named) === Number(prop.value);
+  } else return null;
+  if (right) return asks ? reaction("jah", ".") : null;
   const line = partsLine(answered.says, { card, lexicon, mark: "." });
   return line ? confirmed(line, false, undefined, lexicon) : null;
 }
+
+/** The moves whose line states a fact off the card that a learner reads back. */
+const READ_BACK: ReadonlySet<MoveKind> = new Set(["confirm", "instruct", "offer"]);
 
 /** The sentences of a turn that end on a question mark. */
 function questionsIn(said: string): string[] {

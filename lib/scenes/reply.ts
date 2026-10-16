@@ -646,6 +646,8 @@ export function sayableAfterHurdles(
   lexicon: Lexicon,
   negators: ReadonlySet<string>,
   scene?: SceneSpec,
+  /** What the learner last said, so a mishearing is never of exactly that. */
+  lastSaid?: string,
 ): readonly string[] {
   const raised = [...state.hurdles.map((h) => h.id), ...(state.hurdle ? [state.hurdle.id] : [])];
   const unsaid = new Set<string>();
@@ -659,7 +661,18 @@ export function sayableAfterHurdles(
     const said = words(line);
     return !said.some((word) => unsaid.has(word)) || said.some((word) => negators.has(word));
   });
-  return scene ? aboutWhatWasSaid(kept, state, scene) : kept;
+  /*
+    A MISHEARING IS OF SOMETHING ELSE. "Te elate linnas, eks?" after "Ma elan
+    linnas." is the other side getting it right and checking, and the
+    learner's "jah" then read as nothing; "Kas pood või kohvik?" after
+    "Kohvik." asks a question the learner just answered. A misheard line
+    naming a word the learner has just said stands down where another is left.
+  */
+  const heard = state.hurdle?.id === "misheard" && lastSaid
+    ? new Set(words(lastSaid).filter((word) => word.length >= 4)) : null;
+  const apart = heard && heard.size > 0 ? kept.filter((line) => !words(line).some((word) => heard.has(word))) : kept;
+  const chosen = apart.length > 0 ? apart : kept;
+  return scene ? aboutWhatWasSaid(chosen, state, scene) : chosen;
 }
 
 /**
@@ -1979,7 +1992,7 @@ const BUT_NEXT = new WeakSet<SpokenLine>();
  * Openers the join may never lower into: an `aga` would say "aga" twice and
  * a yes or a no is an answer of its own rather than the question reopened.
  */
-const NEVER_JOINED = new Set(["aga", "jah", "ei"]);
+const NEVER_JOINED = new Set(["aga", "jah", "ei", "ja", "palun", "see"]);
 
 function butAfterHeard(out: SpokenLine[]): void {
   for (let i = 0; i < out.length - 1; i++) {
@@ -1989,6 +2002,8 @@ function butAfterHeard(out: SpokenLine[]): void {
     if (!(["again", "scripted", "attested"] as const).some((p) => p === next.provenance)) continue;
     const opener = (next.text.match(/^\p{L}+/u)?.[0] ?? "").toLowerCase();
     if (!OPENS_LOWER.has(opener) || NEVER_JOINED.has(opener)) continue;
+    // Only onto a question, which is what "the thing I asked is still open" reopens: "Selge, aga me ootame siin juba nii kaua." is not.
+    if (!/\?\s*$/.test(next.text)) continue;
     const butWord = first.text.slice(0, -1);
     out.splice(i, 2, { ...next, text: `${butWord}, aga ${next.text.charAt(0).toLowerCase()}${next.text.slice(1)}` });
   }
