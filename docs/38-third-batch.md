@@ -715,7 +715,7 @@ TB-6, TB-7, TB-1, TB-2, TB-4, TB-3, TB-8 and TB-5 last.
 ## 8. Not here, and what would bring each back
 
 - **Spoken scene turns** (the learner speaks instead of types). Needs a recognizer good enough for
-  Estonian learners; `scripts/measure-asr.mjs` says none is (ADR-018). Triggered by a measurement that
+  Estonian learners; `scripts/measure-asr.ts` says none is (ADR-018). Triggered by a measurement that
   says otherwise.
 - **Scheduler tuning** (fitting FSRS parameters to this deployment's log). Triggered by enough reviews
   to fit on; the research export's floors are a fair first bar.

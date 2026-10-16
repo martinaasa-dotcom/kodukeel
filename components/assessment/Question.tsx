@@ -544,7 +544,7 @@ const SELF_RATINGS = [
  * Speaking, judged by the only person qualified to judge it here.
  *
  * There is no verified Estonian speech recognizer available to this app
- * (ADR-018), so nothing scores anything: `scripts/measure-asr.mjs` puts the
+ * (ADR-018), so nothing scores anything: `scripts/measure-asr.ts` puts the
  * best reachable one at a 14.6% word error rate on clean native audio, with
  * its mistakes landing on consonant length and word boundaries, which is
  * exactly where an Estonian learner is weakest. A transcript like that would

@@ -44,3 +44,4 @@ prisma/data/.cache/
 # Review sheets written for a reader and sent back (npm run review:scenes, export-translations --csv)
 /scene-review.csv
 /translation-review/
+__pycache__/

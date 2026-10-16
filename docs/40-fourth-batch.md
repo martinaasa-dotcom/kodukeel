@@ -389,7 +389,7 @@ With two sessions: one takes FB-1, FB-3, FB-8 and FB-6; the other takes FB-2, FB
 
 - **An iOS app.** D5. Triggered by the operator deciding on an App Store build.
 - **Spoken conversation turns.** No recognizer is good enough for Estonian learners
-  (`scripts/measure-asr.mjs`, ADR-018). Triggered by a measurement that says otherwise.
+  (`scripts/measure-asr.ts`, ADR-018). Triggered by a measurement that says otherwise.
 - **Scheduler tuning.** Triggered by enough reviews to fit FSRS parameters on.
 - **TARA sign-in.** Triggered by a school or an office that requires it.
 - **A penetration test or SOC 2.** Triggered by a buyer who requires one.
@@ -407,7 +407,7 @@ With two sessions: one takes FB-1, FB-3, FB-8 and FB-6; the other takes FB-2, FB
 
 ## 9. A brief to paste into a fresh session
 
-> You are working on Kodukeel. Read `CLAUDE.md`, then `docs/39-fourth-batch.md`. Do item FB-n of that
+> You are working on Kodukeel. Read `CLAUDE.md`, then `docs/40-fourth-batch.md`. Do item FB-n of that
 > page and nothing else: run its preflight, follow its section 1 and its brief, honour the decisions in
 > its section 2 and the rules in its section 3 (and the third batch's section 3, which it points to),
 > write the tests it names first, and run every check in its Verify list. Work against a local
