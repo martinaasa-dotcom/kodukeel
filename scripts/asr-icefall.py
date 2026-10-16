@@ -315,6 +315,7 @@ def _recipe():
                            "argparse": __import__("argparse"), "contextmanager": __import__("contextlib").contextmanager,
                            "version": __import__("packaging.version", fromlist=["version"]), "Optional": None, "Union": None, "Any": None,
                            "List": list, "Stub": Stub})
+    utils.TORCH_VERSION = utils.version.parse(utils.torch.__version__)
     for n in keep:
         n.returns = None
         for a in n.args.args + n.args.kwonlyargs:
