@@ -29,6 +29,7 @@ import { askLine, isForm, markFlash, plainAskFor, type FlashMark, type FlashTask
 import { hintLadder } from "@/lib/questions/hints";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useFocusAnswer } from "@/components/round/useFocusAnswer";
+import { RetypeBox, useRetype } from "@/components/round/Retype";
 import { useHints } from "@/components/round/useHints";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import { asksInEnglish } from "@/lib/games/flash";
@@ -93,6 +94,11 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
   const [right, setRight] = useState(0);
   const [streak, setStreak] = useState(0);
   const [heardLost, setHeardLost] = useState(false);
+  /* Whether the answer just marked has to be typed again before the card lets
+     go: anything short of a clean hit, on every shape that asks for one form.
+     Held beside `mark` because the mark's rating is lowered by a hint, and a
+     right answer that cost a hint is not a miss. */
+  const [owesRetype, setOwesRetype] = useState(false);
   const shownAt = useRef(Date.now());
   const startedAt = useRef(Date.now());
   const sound = useFeedbackSound();
@@ -100,6 +106,8 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
 
   const task = prompts[index];
   const finished = !task;
+  const retype = useRetype(task ? task.accepted.join(PARTS) : "", task?.id ?? "");
+  const needsRetype = owesRetype && !retype.ok;
   /*
     The way back to the word before this one. `lib/ux/lookBack.ts` is the rule
     and says why it is not undo: nothing here grades, reorders or requeues.
@@ -165,6 +173,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     */
     const result = { ...marked, rating: Math.min(marked.rating, hints.ceiling) as FlashMark["rating"] };
     setMark(result);
+    setOwesRetype(task.shape !== "build" && marked.rating < 3);
     sound(result.right ? "right" : "wrong", result.right ? streak + 1 : 0);
     if (result.right) { setRight((n) => n + 1); setStreak((s) => s + 1); } else setStreak(0);
     if (!result.right) hints.noteMiss();
@@ -229,6 +238,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
       });
     }
     setMark(null);
+    setOwesRetype(false);
     setTyped("");
     setHeardLost(false);
     setIndex((i) => i + 1);
@@ -258,7 +268,12 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
         look.open();
         return;
       }
-      if (mark) { if (isAdvanceKey(e)) { e.preventDefault(); next(); } return; }
+      /* A miss waits for its retype, which the box handles itself on Enter;
+         the same keystroke must not also carry the round on. By the time this
+         runs the retype's render and effects have been flushed inside that
+         keydown, so `needsRetype` already reads false: a key from the box is
+         the box's, exactly as it is on the daily quest. */
+      if (mark) { if (!needsRetype && !inEditable(e.target) && isAdvanceKey(e)) { e.preventDefault(); next(); } return; }
       if (e.key !== "Enter") return;
       if (shape === "build" && !(e.metaKey || e.ctrlKey)) return;
       e.preventDefault();
@@ -266,7 +281,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [mark, next, check, shape, look]);
+  }, [mark, next, check, shape, look, needsRetype]);
 
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
@@ -386,6 +401,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
           </div>
 
           {mark && <Feedback task={task} mark={mark} />}
+          {mark && owesRetype && <RetypeBox retype={retype} />}
         </div>
 
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
@@ -399,8 +415,8 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
               {t("Check it")} <KeyCap className="ml-1">{shape === "build" ? `⌘ ${ADVANCE_KEY_GLYPH}` : ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
-            <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
-              {t("Next")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+            <Button variant="primary" className="w-full py-3" onClick={needsRetype ? retype.check : next} autoFocus>
+              {needsRetype ? t("Check it again") : t("Next")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           )}
         </div>
@@ -678,6 +694,7 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
         <p
           lang="et"
           data-flash-answer=""
+          data-answer=""
           className="text-xl font-semibold leading-tight"
           style={{ color: "var(--ink)" }}
         >

@@ -10,6 +10,7 @@ import { Button, ButtonLink } from "@/components/Button";
 import { Confetti } from "@/components/Confetti";
 import { Et } from "@/components/Et";
 import { EstonianInput } from "@/components/EstonianInput";
+import { RetypeBox, useRetype } from "@/components/round/Retype";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
 import { hintLadder } from "@/lib/questions/hints";
@@ -389,7 +390,7 @@ function StepCard({
   const locale = useLocale();
   const [chosen, setChosen] = useState<number | null>(null);
   const [typed, setTyped] = useState("");
-  const [checked, setChecked] = useState<{ ok: boolean; note: string; close?: boolean } | null>(null);
+  const [checked, setChecked] = useState<{ ok: boolean; note: string; close?: boolean; exact?: boolean } | null>(null);
   const [built, setBuilt] = useState<number[]>([]);
 
   /*
@@ -417,6 +418,27 @@ function StepCard({
     })
     : [];
   const hints = useHints({ word: step.lemma ?? step.id, question: step.id, ladder, missedBefore });
+  /*
+    A typed step marked short of a clean hit is typed again before the lesson
+    moves on, as the review card and the ladder do. The answer was already
+    recorded as what the marker said; this is rehearsal, and it only decides
+    whether Continue is offered.
+  */
+  const retype = useRetype(typeof hintAnswer === "string" ? hintAnswer : "", step.id);
+  const needsRetype = !!checked && checked.exact === false && typeof hintAnswer === "string" && !retype.ok;
+  const afterTyped = checked && (
+    <>
+      {checked.exact === false && typeof hintAnswer === "string" && <RetypeBox retype={retype} />}
+      {needsRetype ? (
+        <Button variant="primary" onClick={retype.check} className="self-start">
+          {t("Check it again")}
+          <EnterKeyCap className="ml-1" />
+        </Button>
+      ) : (
+        <Continue onNext={onNext} />
+      )}
+    </>
+  );
   const hint = !checked && ladder.length > 0
     ? (
       <HintLadder
@@ -440,13 +462,14 @@ function StepCard({
   ) => {
     // Once marked, the box's Enter is "carry on": `Continue` leaves a key
     // from the box alone, because that is also the key that marked it.
-    if (checked) { onNext(); return; }
+    if (checked) { if (!needsRetype) onNext(); return; }
     const result = checkAnswer(typed, expected, "et", rivals, kin);
     const ok = countsAsRecalled(result.verdict);
     setChecked({
       ok,
       // A miss most of the way there is painted nearly, not as a blank (`nearMiss`).
       close: !ok && result.close === true,
+      exact: result.verdict === "correct",
       note: noteIn(result, locale)
         || (ok ? t("Correct.") : fill(t("The answer is {form}."), { form: quoted(result.expected, locale) })),
     });
@@ -615,7 +638,7 @@ function StepCard({
             </Button>
           )}
           {checked && <Verdict ok={checked.ok} close={checked.close} note={checked.note} />}
-          {checked && <Continue onNext={onNext} />}
+          {afterTyped}
         </Card>
       );
 
@@ -722,7 +745,7 @@ function StepCard({
                   className="flex-1 text-base leading-snug"
                 />
               </div>
-              <Continue onNext={onNext} />
+              {afterTyped}
             </>
           )}
         </Card>
@@ -766,7 +789,7 @@ function StepCard({
               <span lang="et">{endingName(step.caseKey) ?? step.caseName}</span>
             </span>
           )}
-          {checked && <Continue onNext={onNext} />}
+          {afterTyped}
         </Card>
       );
 
