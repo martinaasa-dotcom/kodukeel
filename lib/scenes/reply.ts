@@ -1415,9 +1415,20 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     and then `See maksab nüüd 2 eurot.`, which is one fact said twice: the
     curveball's line already answers the question, so the answer stands down.
   */
-  const figures = aside?.text.match(/\d+/g) ?? [];
-  const statedNext = Boolean(input.hurdle?.line) && figures.length > 0
-    && figures.every((n) => new RegExp(`(^|\\D)${n}(\\D|$)`).test(input.hurdle!.line!.text));
+  /*
+    AND NOT A FIGURE THE LINE IT STANDS IN FRONT OF SAYS ANYWAY. Asked when
+    the shop opens, the keyless answer said `Kell 10:00.` and the line said
+    again after it was `Avame homme kell 10.`: one fact, twice, in two
+    spellings. Whole hours are compared without their `:00`, which is the
+    one difference between those two.
+  */
+  const figures = aside?.text.replace(/[:.]00(?!\d)/g, "").match(/\d+/g) ?? [];
+  const holds = (text: string | undefined | null) => Boolean(text) && figures.length > 0
+    && figures.every((n) => new RegExp(`(^|\\D)${n}(\\D|$)`).test(text!));
+  // A yes or a no in front of the figure is a verdict on what they said, which the line after it does not repeat.
+  const verdict = /^(ei|jah)\b/i.test(aside?.text ?? "");
+  const statedNext = holds(input.hurdle?.line?.text)
+    || (!verdict && aside?.provenance !== "scripted" && (holds(line?.text) || holds(heard)));
   if (aside && !statedNext) out.push({ ...aside, reaction: true });
 
   /*

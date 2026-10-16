@@ -713,7 +713,8 @@ export function timeFromText(text: string, span: { from: number; to: number }): 
     const minute = Number(digits[2]);
     if (hour <= 23 && minute <= 59) return `${pad(hour)}:${pad(minute)}`;
   }
-  const bare = /\bkell\s+(\d{1,2})(?![:.\d])/.exec(lower);
+  // A dot that ends the sentence is not a minute: `Kell 10.` is ten o'clock, `kell 10.30` is not.
+  const bare = /\bkell\s+(\d{1,2})(?![:.]\d|\d)/.exec(lower);
   if (bare) {
     const hour = Number(bare[1]);
     if (hour <= 23) return `${pad(hour)}:00`;

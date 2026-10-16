@@ -28,7 +28,7 @@
  */
 import { clip } from "@/lib/copy/clip";
 import { clockInPlay, moneyInPlay, type SceneContext, type StoredDraw } from "@/lib/progress/scene";
-import { CHECK_GLUE, asideFor, asideOwed, asksPermission, asksToHearAgain, namesLaterBeat, priceAsked, questionAhead, sameFact, shrug } from "@/lib/scenes/aside";
+import { CHECK_GLUE, asideFor, asideOwed, readBackCorrection, asksPermission, asksToHearAgain, namesLaterBeat, priceAsked, questionAhead, sameFact, shrug } from "@/lib/scenes/aside";
 import { asksSlower, saysGoodbye, LEAVING } from "@/lib/scenes/casual";
 import { FAREWELLS } from "@/lib/scenes/catalogue";
 import { choiceOf } from "@/lib/scenes/choice";
@@ -259,6 +259,10 @@ export function planTurn(input: TurnInput) {
     fact answered.
   */
   let aside: SpokenLine | null = wantsAside && !composing ? asideFor(asking) : null;
+  // A time read back wrong is put right before anything else is said (`readBackCorrection`).
+  if (!composing && aside === null && sent && response === "answer") {
+    aside = readBackCorrection(answered, last?.said ?? "", card, context.lexicon);
+  }
   /*
     AND "SORRY, WHAT?" IS ANSWERED WITH THE LINE AGAIN, NEVER WITH A SHRUG.
     On a beat that takes anything the turn lands, the question word is left

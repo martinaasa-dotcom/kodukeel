@@ -652,6 +652,31 @@ function confirmed(line: SpokenLine, named: boolean | null, already: ReadonlySet
   return { ...line, text: `${word.text.slice(0, -1)}, ${line.text.charAt(0).toLowerCase()}${line.text.slice(1)}` };
 }
 
+/**
+ * A READ-BACK THAT GOT THE TIME WRONG IS PUT RIGHT.
+ *
+ * On a beat that reads the time back, a learner who said "Kell kümme, selge."
+ * about an appointment at eleven was answered `Hästi.`, which agrees to a time
+ * nobody offered; a receptionist says "no, at eleven". Only on a `confirm` beat
+ * whose own line says a time off the card, only where the turn names a clock
+ * time, and only where that time is not the card's, twelve hours either way.
+ */
+export function readBackCorrection(
+  answered: BeatSpec | null, said: string, card: RoleCard | null, lexicon: Lexicon,
+): SpokenLine | null {
+  if (!answered || answered.move !== "confirm" || !answered.says || !card) return null;
+  const slot = answered.says.find((part): part is Extract<typeof part, { slot: string }> => "slot" in part);
+  const prop = slot ? card.props.find((p) => p.slot === slot.slot) : undefined;
+  if (!prop || !/^\d{1,2}:\d{2}$/.test(prop.value)) return null;
+  const named = timeFromText(said, { from: 0, to: 23 });
+  if (!named) return null;
+  const want = prop.value.padStart(5, "0");
+  const twelve = `${String((Number(named.slice(0, 2)) + 12) % 24).padStart(2, "0")}${named.slice(2)}`;
+  if (named === want || twelve === want) return null;
+  const line = partsLine(answered.says, { card, lexicon, mark: "." });
+  return line ? confirmed(line, false, undefined, lexicon) : null;
+}
+
 /** The sentences of a turn that end on a question mark. */
 function questionsIn(said: string): string[] {
   return said.split(/(?<=[?.!])\s+/).map((part) => part.trim()).filter((part) => part.endsWith("?"));
@@ -673,7 +698,15 @@ function timeNamed(said: string | undefined, card: RoleCard | null): boolean | n
   if (!said || !time) return null;
   const named = questionsIn(said).map((question) => timeFromText(question, { from: 0, to: 23 })).filter((t): t is string => t !== null);
   if (named.length === 0) return null;
-  return named.includes(time.value.padStart(5, "0"));
+  /*
+    A time said in words carries no half of the day: "kell kümme" is ten in the
+    morning or the evening, and read against the whole day it came out 22:00,
+    so a learner reading back the shop's ten o'clock was told no. Twelve hours
+    apart is the same time said.
+  */
+  const want = time.value.padStart(5, "0");
+  const twelve = (t: string) => `${String((Number(t.slice(0, 2)) + 12) % 24).padStart(2, "0")}${t.slice(2)}`;
+  return named.some((t) => t === want || twelve(t) === want);
 }
 
 function whenOffCard(card: RoleCard | null, lexicon: Lexicon): SpokenLine | null {
