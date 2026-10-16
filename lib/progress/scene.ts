@@ -33,6 +33,8 @@ import {
   CLOCK_LEMMA, HOUR_LEMMAS, NUMBER_LEMMAS, dealtHours, numberWords, slotKinds, timeWords, type RoleCard,
 } from "@/lib/scenes/props";
 import { leafNeeds, type BeatSpec, type SceneSpec } from "@/lib/scenes/types";
+import { SYLLABUS } from "@/lib/collections/syllabus";
+import { readableSpellings } from "@/lib/estonian/gapForms";
 import { isPhrase } from "@/lib/dict/pos";
 import { courseForms } from "@/lib/dict/facts";
 import { substitutes } from "@/lib/dict/acceptFacts";
@@ -488,17 +490,36 @@ export function sceneLemmas(scene: SceneSpec): Set<string> {
 export function acceptFromRows(
   scene: SceneSpec,
   all: readonly Row[],
-): Pick<SceneContext["marker"], "substitutes" | "englishFor"> {
+): Pick<SceneContext["marker"], "substitutes" | "englishFor" | "course"> {
   const mine = sceneLemmas(scene);
   const wanted = standingFor(scene, substitutesFrom(all.map((row) => ({
     lemma: row.lemma, pos: row.pos, gloss: row.gloss ?? "",
   }))));
   const standing = new Set([...wanted.values()].flat());
-  return acceptWith(
-    all.filter((row) => mine.has(row.lemma)),
-    wanted,
-    all.filter((row) => standing.has(row.lemma)),
-  );
+  /*
+    AND WHAT THE COURSE TEACHES, which the route reads off `courseForms` and
+    the harnesses were never handed. Without it a capitalised word at the
+    front of a sentence is a word nobody can place, so every harness read
+    `Ma tahan pilet` as a ticket to a town called Ma and skipped "where to?".
+  */
+  const taught = new Set(SYLLABUS.flatMap((unit) => unit.lemmas));
+  const course = new Set<string>();
+  for (const row of all) {
+    if (!taught.has(row.lemma)) continue;
+    const forms = [
+      ...Object.entries(row.parts).map(([formType, value]) => ({ formType, value })),
+      ...(row.extraForms ?? []).map(({ code, value }) => ({ formType: `EKILEX:${code}`, value, morphCode: code })),
+    ];
+    for (const word of readableSpellings({ lemma: row.lemma, pos: row.pos, forms })) course.add(word);
+  }
+  return {
+    ...acceptWith(
+      all.filter((row) => mine.has(row.lemma)),
+      wanted,
+      all.filter((row) => standing.has(row.lemma)),
+    ),
+    course: (word: string) => course.has(word),
+  };
 }
 
 /**

@@ -1491,8 +1491,14 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     && figures.every((n) => new RegExp(`(^|\\D)${n}(\\D|$)`).test(text!));
   // A yes or a no in front of the figure is a verdict on what they said, which the line after it does not repeat.
   const verdict = /^(ei|jah)\b/i.test(aside?.text ?? "");
+  /*
+    Not the line they were answering, though: asked "Kui palju?" straight
+    after `See maksab nüüd 4 eurot.`, a clerk says the price again, since being
+    asked is the reason to, and the clerk went on to "card or cash?" as though
+    nothing had been asked.
+  */
   const statedNext = holds(input.hurdle?.line?.text)
-    || (!verdict && aside?.provenance !== "scripted" && (holds(line?.text) || holds(heard)));
+    || (!verdict && aside?.provenance !== "scripted" && holds(line?.text));
   if (aside && !statedNext) out.push({ ...aside, reaction: true });
 
   /*
