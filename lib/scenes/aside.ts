@@ -139,6 +139,33 @@ const INFORMING: ReadonlySet<MoveKind> = new Set(["instruct", "offer", "confirm"
 /** The words beside "kuidas" and "läheb" in a how-are-you: the person asked and the glue. */
 const HOW_ABOUT_YOU: ReadonlySet<string> = new Set(["sul", "sinul", "teil", "teie", "teile", "ka", "siis", "ja", "nüüd", "täna", "tere", "noh", "aga"]);
 
+/** The small words of a question, which say nothing about what it is about. */
+const QUESTION_GLUE: ReadonlySet<string> = new Set([
+  "kas", "kus", "kuhu", "kust", "mis", "mida", "millal", "kes", "keda", "kuidas", "miks", "mitu", "kui", "palju",
+  "kaua", "milline", "millist", "mille", "ja", "aga", "siis", "ka", "on", "see", "seda", "te", "teie", "teil", "sa",
+  "sina", "sul", "ma", "mina", "mul", "me", "meil", "ta", "tal", "nad", "neil", "siin", "seal", "nüüd", "veel",
+  "juba", "ikka", "väga", "ei", "jah", "olete", "oled", "olen", "oli", "olid",
+]);
+
+/**
+ * Whether a question is about the beat whose banked answer would answer it:
+ * a question with no word of its own ("Ja sina?") is the beat's own, and any
+ * other has to share a word, or the first four letters of one, with the beat's
+ * topic, its requirements or the answer itself.
+ */
+function aboutTheBeat(beat: BeatSpec, spoken: readonly string[], answer: string | undefined, lexicon: Lexicon): boolean {
+  if (!answer) return false;
+  // A curveball's question is about the curveball whatever it names: "Millal siis saab?" after "not today".
+  if (beat.id.startsWith("hurdle:")) return true;
+  const content = spoken.map((w) => w.toLowerCase()).filter((w) => w.length > 2 && !QUESTION_GLUE.has(w));
+  if (content.length === 0) return true;
+  const lemmas = [...beat.topic, ...leafNeeds(beat.needs).flatMap(({ need }) => (need.kind === "lemma" ? need.oneOf : need.kind === "case" ? [need.lemma] : []))];
+  const known = new Set<string>(words(answer));
+  for (const lemma of lemmas) for (const form of lexicon.byLemma.get(lemma) ?? [lemma]) known.add(form.toLowerCase());
+  const stems = new Set([...known].filter((w) => w.length >= 4).map((w) => w.slice(0, 4)));
+  return content.some((w) => known.has(w) || (w.length >= 4 && stems.has(w.slice(0, 4))));
+}
+
 /**
  * The aside, or null where the route should try a model and then the shrug.
  * `shrug` is what to say when both of those have nothing.
@@ -168,7 +195,14 @@ export function asideFor(input: AsideInput): SpokenLine | null {
         : partsLine(answered.says, { card, lexicon, mark: "." });
       if (fact) return fact;
     }
-    const banked = input.answers[0];
+    /*
+      AND THE BANKED ANSWER ONLY TO A QUESTION ABOUT IT. A beat that waits for
+      a question takes any question, and its banked answer was given to all of
+      them: "Kus on kohvimasin?" was told the colleague has worked there three
+      years. A question naming none of the beat's own words, nor the answer's,
+      is a different question, and gets what any other question gets.
+    */
+    const banked = aboutTheBeat(answered, spoken, input.answers[0], lexicon) ? input.answers[0] : undefined;
     /*
       AND WHERE THE BANK HOLDS NONE, THIS RETURNED NOTHING AND SAID NOTHING
       WAS OWED, WHICH IS HOW A QUESTION CAME TO BE IGNORED.
@@ -309,7 +343,9 @@ export function asideOwed(input: AsideInput): boolean {
     answered with nothing at all.
   */
   const beat = input.answered;
-  if (beat && wantsQuestion(beat) && (beat.answeredNext || input.answers.length > 0)) return false;
+  // A banked answer counts only where it is about this question (`aboutTheBeat`), the gate `asideFor` reads.
+  const banked = beat ? aboutTheBeat(beat, input.spoken, input.answers[0], input.lexicon) : false;
+  if (beat && wantsQuestion(beat) && (beat.answeredNext || banked)) return false;
   return true;
 }
 

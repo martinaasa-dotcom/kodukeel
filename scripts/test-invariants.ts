@@ -19769,7 +19769,7 @@ check("every question a beat asks the learner for is answered by somebody", () =
     "a question on a beat with nothing banked returns nothing again, whatever the scene said about it",
   );
   assert.match(
-    aside, /wantsQuestion\(beat\) && \(beat\.answeredNext \|\| input\.answers\.length > 0\)/,
+    aside, /wantsQuestion\(beat\) && \(beat\.answeredNext \|\| (?:input\.answers\.length > 0|banked)\)/,
     "asideOwed reports that nothing is owed for a question the beat asked for and nobody answered",
   );
   /*

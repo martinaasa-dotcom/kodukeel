@@ -1276,6 +1276,25 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     "ei tea". It is the reaction, so no echo or "hästi" is stacked on it.
   */
   const aside = input.aside && reading !== "unrecognised" && reading !== "echo" ? input.aside : null;
+  /*
+    A TURN THAT ENDED ON A QUESTION NOTHING ANSWERED GETS NO REACTION WORD.
+    "Kas see on midagi tõsist?" was met with `Aitäh.`, "Kas mul on palavik?"
+    with `Hästi.` and "Kas teie olete eestlane?" with `Tore!`, which read as
+    the other side agreeing to, thanking for or delighting in a question.
+    Where nothing keyless can answer it, a person goes on with what they were
+    doing, and the move that follows is what they say.
+  */
+  const lastSentence = (input.said ?? "").trim().split(/(?<=[.!?])\s+/).pop() ?? "";
+  /*
+    Except a yes-or-no question that was the whole turn and met the beat: "Kas
+    teil on telefoni?" asked what the beat wanted asked, and the answer is the
+    `Jah.` its acknowledgement gives (`acknowledgements`). Beside a statement
+    the question is a second thing ("Kõht valutab. Kas see on midagi tõsist?"),
+    and a yes there would answer it.
+  */
+  const wholeTurn = (input.said ?? "").trim().split(/(?<=[.!?])\s+/).length === 1;
+  const askedWhatWasWanted = wholeTurn && response === "answer" && words(lastSentence)[0] === "kas" && !words(lastSentence).includes(CHOICE_WORD);
+  const unansweredQuestion = !aside && /\?\s*$/.test(lastSentence) && !askedWhatWasWanted;
 
   /*
     AND NEVER "SORRY?" IN FRONT OF AN ANSWER. A turn that missed the beat and
@@ -1480,7 +1499,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       out.push(reaction(REACTIONS.missed[0], "."));
     } else if (!aside && input.acknowledges && response === "answer" && !ownReaction(line)
         // A question nothing answered is not acknowledged "Hästi.", which reads as agreeing to it.
-        && !(asking && answered?.move === "confirm")) {
+        && !unansweredQuestion) {
       /*
         NEWS IS FELT BEFORE IT IS FILED. Where the beat says what kind of news
         its answer is, the word is the feeling's rather than the rotation's:
@@ -1603,7 +1622,8 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       review after the scene names every beat let go; here the other side
       only says it is moving on.
     */
-    else out.push(reaction(REACTIONS.letGo[0], "."));
+    // Not to a question: "Hästi." said to "kas te olete laupäeval avatud?" reads as a yes nobody gave.
+    else if (!unansweredQuestion) out.push(reaction(REACTIONS.letGo[0], "."));
   }
 
   /*
