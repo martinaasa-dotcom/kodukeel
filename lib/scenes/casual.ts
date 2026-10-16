@@ -176,6 +176,28 @@ export const AGAIN = {
 const AGAIN_WORDS = new Set([...AGAIN.et, ...AGAIN.other].map(fold));
 
 /** Whether the turn asks the other side to slow down or say it again. */
+/**
+ * HOW A LEARNER ASKS THE OTHER SIDE TO WAIT, WHICH IS NOT A MISS.
+ *
+ * "oota", "üks hetk" and "ma mõtlen" were read as real Estonian off the
+ * point: the other side said "Selge.", the app stepped in with a tip, and the
+ * question came again, at somebody who had only asked for a moment. A person
+ * says "Hästi." and waits. Accept only, like `AGAIN`: a short turn made of
+ * these and nothing else, with at least one word that asks for the time.
+ */
+export const HOLD = {
+  asks: ["oota", "oodake", "ootke", "hetk", "hetke", "hetkeks", "moment", "momendike", "mõtlen", "mõtleme"],
+  around: ["üks", "ma", "me", "palun", "natuke", "korraks", "nüüd", "kohe", "las"],
+} as const;
+const HOLD_ASKS = new Set(HOLD.asks.map(fold));
+const HOLD_AROUND = new Set(HOLD.around.map(fold));
+
+export function asksToWait(spoken: readonly string[]): boolean {
+  return spoken.length > 0 && spoken.length <= 4
+    && spoken.every((word) => HOLD_ASKS.has(fold(word)) || HOLD_AROUND.has(fold(word)))
+    && spoken.some((word) => HOLD_ASKS.has(fold(word)));
+}
+
 export function asksSlower(spoken: readonly string[]): boolean {
   return spoken.some((word) => AGAIN_WORDS.has(fold(word)));
 }

@@ -28,7 +28,7 @@
 import { looksLikeSentence } from "@/lib/estonian/writing";
 import { whereWhole } from "@/lib/estonian/cloze";
 import { ASK_ENGLISH, LOST } from "./catalogue";
-import { casualBye, casualHello, casualYes } from "./casual";
+import { asksToWait, casualBye, casualHello, casualYes } from "./casual";
 import { fold } from "@/lib/estonian/fold";
 import { ESTONIAN_WORD } from "@/lib/estonian/cloze";
 import type { CaseKey } from "@/lib/estonian/types";
@@ -120,6 +120,8 @@ export interface Slip {
  */
 export interface Evidence {
   readonly reading: TurnReading;
+  /** The turn asked them to wait (`asksToWait`), which is waited for however often it is asked. */
+  readonly holds?: boolean;
   /** One per requirement, in the order the beat asked them. */
   readonly met: readonly boolean[];
   /** The indices of the requirements not met, for a narrow re-ask. */
@@ -713,6 +715,8 @@ export function readTurn(
     side's line rather than the learner's own previous turn, which is what it
     had been comparing against all along.
   */
+  // "Oota" and "ma mõtlen" ask for a moment: a look and a wait, which costs nothing once (`asksToWait`).
+  if (missing.length > 0 && asksToWait(spoken)) return shape("fragment", { holds: true });
   const phraseBeat = beat.move === "greet" || beat.move === "close";
   /*
     AND A TURN THAT MEETS EVERYTHING THE BEAT ASKED IS AN ANSWER, WHATEVER
@@ -823,7 +827,19 @@ export function readTurn(
     no other negator is lost; `Ei, ma ei tea` says no as well and is a no.
   */
   const lostOnly = spoken.filter((word) => context.negators.has(word)).length <= 1;
-  if ((missing.length === beat.needs.length || metByBarePolarity) && (!wantsNo || lostOnly) && isLost(spoken, context)) {
+  /*
+    AND "EI SAA" TO "KAS TA SAAB…?" IS THE ANSWER. Asked whether the man who
+    fell can stand, a learner who wrote "Ei saa" was read as lost, because
+    `ei` beside `saama` is half of "Ma ei saa aru", and the operator asked the
+    same question again. Where the line they are answering asks with the same
+    verb, the negated verb answers it; "aru" in the turn still makes it lost.
+  */
+  const previous = new Set(words(context.previous));
+  const answersVerb = !spoken.includes(UNDERSTAND ?? "") && LOST.verbs.some((verb) => {
+    const forms = context.lexicon.byLemma.get(verb);
+    return Boolean(forms) && spoken.some((word) => forms!.has(word)) && [...previous].some((word) => forms!.has(word));
+  });
+  if ((missing.length === beat.needs.length || metByBarePolarity) && (!wantsNo || lostOnly) && !answersVerb && isLost(spoken, context)) {
     return shape("lost");
   }
 

@@ -29,14 +29,14 @@
 import { clip } from "@/lib/copy/clip";
 import { clockInPlay, moneyInPlay, type SceneContext, type StoredDraw } from "@/lib/progress/scene";
 import { CHECK_GLUE, asideFor, asideOwed, readBackCorrection, asksPermission, asksToHearAgain, namesLaterBeat, priceAsked, questionAhead, sameFact, shrug } from "@/lib/scenes/aside";
-import { asksSlower, saysGoodbye, LEAVING } from "@/lib/scenes/casual";
+import { asksSlower, asksToWait, saysGoodbye, LEAVING } from "@/lib/scenes/casual";
 import { FAREWELLS } from "@/lib/scenes/catalogue";
 import { choiceOf } from "@/lib/scenes/choice";
 import { repeatsItself, type buildConsistencyUserPrompt } from "@/lib/scenes/consistency";
 import { ASKS_ON } from "@/lib/scenes/curveballs";
 import { gateFor } from "@/lib/scenes/gate";
 import { offerFor } from "@/lib/scenes/grades";
-import { words } from "@/lib/scenes/lexicon";
+import { words, type Lexicon } from "@/lib/scenes/lexicon";
 import { sceneLine, type LineRequest, type SpokenLine } from "@/lib/scenes/line";
 import type { PersonaSpec } from "@/lib/scenes/personas";
 import type { ComposeAsk, ComposeScene } from "@/lib/scenes/prompt";
@@ -48,7 +48,7 @@ import {
 } from "@/lib/scenes/reply";
 import { answerBeatId, sceneBeats } from "@/lib/scenes/scripted";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver, type Response, type SceneState } from "@/lib/scenes/state";
-import type { BeatSpec, SceneSpec } from "@/lib/scenes/types";
+import { leafNeeds, type BeatSpec, type SceneSpec } from "@/lib/scenes/types";
 import type { Level } from "@/lib/collections/syllabus/types";
 import type { ChatMessage } from "@/lib/tutor/provider";
 
@@ -538,6 +538,11 @@ export function planTurn(input: TurnInput) {
       askedForEnglish: last?.wantsEnglish === true,
       acknowledges: persona?.acknowledges ?? true,
       permission: asksPermission(last?.said ?? "", context.lexicon),
+      finiteForms: finiteFormsOf(context.lexicon),
+      verbAnswer: verbAnswered(answered, last?.matched?.[0] ?? null, context.lexicon),
+      // A slip the dictionary could not put right leaves the turn's own words wrong, so none of them is said back.
+      slipped: Boolean(last?.slips?.some((slip) => !slip.form)),
+      holding: asksToWait(words(last?.said ?? "")),
       askedLater: namesLaterBeat(sceneBeats(scene), answered, state.done, words(last?.said ?? ""), context.lexicon),
       echo: last?.matched?.[0] ?? null,
       /*
@@ -952,4 +957,30 @@ export async function composeTurn(
     }, preBreak ? [...conversation, { role: "assistant" as const, content: preBreak.text }] : conversation, avoid),
   });
   return { line: said, preBreak };
+}
+
+/** Every person of every verb the scene's words hold (`ReplyInput.finiteForms`), cached per lexicon. */
+const FINITE = new WeakMap<Lexicon, ReadonlySet<string>>();
+function finiteFormsOf(lexicon: Lexicon): ReadonlySet<string> {
+  let held = FINITE.get(lexicon);
+  if (!held) {
+    held = new Set([...lexicon.persons.values()].flatMap((persons) => [...persons.values()].map((form) => form.toLowerCase())));
+    FINITE.set(lexicon, held);
+  }
+  return held;
+}
+
+/**
+ * Whether the word that met the beat is a form of one of the beat's own verbs
+ * (`ReplyInput.verbAnswer`): "võtan" at the pharmacy's "say you'll take it" is
+ * the learner's own sentence, and said back it reads as the other side
+ * repeating them. A noun spelled like a verb person ("teed", tea, beside "sa
+ * teed") is not this, because the beat named the noun.
+ */
+function verbAnswered(beat: BeatSpec | null, word: string | null, lexicon: Lexicon): boolean {
+  if (!beat || !word) return false;
+  const said = word.toLowerCase();
+  return leafNeeds(beat.needs).some(({ need }) => need.kind === "lemma" && need.oneOf.some((lemma) =>
+    [...(lexicon.persons.get(lemma)?.values() ?? [])].some((form) => form.toLowerCase() === said)
+    || [...(lexicon.infinitives.get(lemma) ?? [])].some((form) => form.toLowerCase() === said)));
 }

@@ -81,6 +81,17 @@ const QUESTION_UNIT = "kusisonad";
  */
 const NEGATORS = ["ei", "mitte"] as const;
 /**
+ * And `pole`, which is `ei ole` in one word and is stored as a form of `olema`
+ * rather than as a headword: "Pole paha" and "Ma pole kindel" are a no, and
+ * read without it they were real Estonian off the point.
+ */
+function negatorsFrom(rows: readonly Row[]): ReadonlySet<string> {
+  const olema = rows.find((row) => row.lemma === "olema");
+  const pole = Object.values(olema?.parts ?? {}).concat((olema?.extraForms ?? []).map((f) => f.value))
+    .filter((value) => value.toLowerCase() === "pole");
+  return new Set([...formsOfLemmas(rows, NEGATORS), ...pole.map((value) => value.toLowerCase())]);
+}
+/**
  * The verbs that name the act of asking: "I want to ask about the pay", "I am
  * looking for the bank". Lemma requests against the course, `küsima` in
  * `iga-paev`, which every scene declares, and `otsima` in `reisimine`, so a
@@ -510,7 +521,7 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[], level?: 
     slots: slotKinds(scene.props),
     questionWords: formsOfUnit(rows, QUESTION_UNIT),
     askingForms: formsOfLemmas(rows, ASKING),
-    negators: formsOfLemmas(rows, NEGATORS),
+    negators: negatorsFrom(rows),
     tooLittle: formsOfLemmas(rows, TOO_LITTLE),
     registerForms: formsOfLemmas(rows, [REGISTER_PRONOUN[scene.register]]),
     pronounForms,

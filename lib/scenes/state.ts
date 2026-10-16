@@ -349,7 +349,7 @@ export function advance(
     person waits once. The second fragment in a row on the same beat is read
     as a turn that missed, and spends a try like one.
   */
-  if ((evidence.reading === "fragment" || evidence.reading === "echo") && !waitedAlready) {
+  if ((evidence.reading === "fragment" || evidence.reading === "echo") && (!waitedAlready || evidence.holds)) {
     return {
       state: { ...state, turns },
       response: evidence.reading === "echo" ? "repeat" : "wait",
@@ -603,7 +603,7 @@ export function advanceHurdle(
   if (evidence.reading === "lost" && !waitedAlready) {
     return { state: { ...state, turns }, response: "help" };
   }
-  if ((evidence.reading === "fragment" || evidence.reading === "echo") && !waitedAlready) {
+  if ((evidence.reading === "fragment" || evidence.reading === "echo") && (!waitedAlready || evidence.holds)) {
     return { state: { ...state, turns }, response: evidence.reading === "echo" ? "repeat" : "wait" };
   }
   const tries = hurdle.tries + 1;

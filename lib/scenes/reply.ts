@@ -222,6 +222,14 @@ export interface ReplyInput {
   readonly permission?: boolean;
   /** The question names what a beat ahead is about, so "later" is true (`namesLaterBeat`). */
   readonly askedLater?: boolean;
+  /** Every finite verb form the scene's words hold, so an echo never says a verb back. */
+  readonly finiteForms?: ReadonlySet<string>;
+  /** The word that met the beat is one of the beat's own verbs, which is never said back. */
+  readonly verbAnswer?: boolean;
+  /** The turn asked them to wait ("oota", "ma mõtlen"), read by the caller off the accept-only table. */
+  readonly holding?: boolean;
+  /** The turn carried a slip the dictionary could not recast, so nothing of it is said back as it was. */
+  readonly slipped?: boolean;
 }
 
 /**
@@ -768,6 +776,10 @@ function ownReaction(line: SpokenLine | null): boolean {
  */
 /** The stems of the course's verbs of wanting, and `palun`: a turn holding one asks for something. */
 const WANTING = /^(taha|tahtsin|tahaksin|soovi|vaja|palu)/;
+/** The learner talking about themselves, which is never said back to them (`replyFor`'s echo). */
+const FIRST_PERSON: ReadonlySet<string> = new Set(["ma", "mina", "me", "meie", "mul", "minul", "meil", "minu", "mu"]);
+/** A courtesy or a hedge on an answer, taken off before it is said back: "Teed, palun." is answered "Teed.". */
+const ECHO_TRIM: ReadonlySet<string> = new Set(["palun", "vist", "äkki", "ehk", "küll", "ka", "ju", "noh", "no"]);
 /** The words a no is said with, as lemma requests against the course. */
 const NOES: ReadonlySet<string> = new Set(["ei", "pole", "mitte", "ega"]);
 
@@ -1097,6 +1109,8 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   if (response === "wait") {
     // A line written for this turn already took the word and asked for the rest.
     if (line?.provenance === "composed") return [line];
+    // Asked for a moment, they say all right and give it (`asksToWait`).
+    if (input.holding) return [reaction(REACTIONS.letGo[0], ".")];
     const theirs = input.echo && !/\d/.test(input.echo) && !FLAT_WORDS.has(input.echo)
       ? input.echo
       : null;
@@ -1352,12 +1366,31 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       it its meaning, which reads as the other side mishearing. A two-word
       answer with nothing to correct is said back as it was said.
     */
+    /*
+      AND NOT ANYTHING A PERSON WOULD NOT SAY BACK. Round two of the keyless
+      review counted them: a question handed back as a statement ("Aga
+      sina."), the learner's own first person ("Ma tulen.", "Ma mõtlen."), a
+      courtesy or a hedge kept on ("Teed, palun.", "Vist esmaspäeval."), a verb
+      ("Lugesin ajalehest."), and a slip said back uncorrected ("Ma täitma.").
+      What is said back is the answer, with the courtesy and the hedge taken
+      off, and only where nothing else in the turn is the learner talking
+      rather than answering.
+    */
     const turnWords = input.said === null ? [] : words(input.said);
-    const whole = !input.recast && !input.english && brief && turnWords.length > 1 && input.said
-      && !/\d/.test(input.said) && !turnWords.some((word) => flat.has(word))
-      ? input.said.replace(/[\s.!?,;:]+$/u, "").trim() : null;
-    const echo = !worth ? null
-      : whole ?? (input.echo && !/\d/.test(input.echo) && !flat.has(input.echo) ? input.echo : null);
+    const asking = /\?\s*$/.test(input.said ?? "");
+    // The answering word itself is never the evidence: "teed" is tea and also "sa teed".
+    const answerWord = input.echo?.toLowerCase();
+    const speaking = turnWords.some((word) => FIRST_PERSON.has(word)
+      || (word !== answerWord && (input.finiteForms?.has(word) ?? false)));
+    const bare = turnWords.filter((word) => !ECHO_TRIM.has(word));
+    const whole = !input.recast && !input.english && !input.slipped && brief && bare.length > 1 && !asking && !speaking
+      && input.said && !/\d/.test(input.said) && !bare.some((word) => flat.has(word))
+      ? bare.join(" ") : null;
+    // And not the verb the beat asked for: "Võtan." back to "võtan" is the learner's own sentence, said again.
+    const single = input.echo && !/\d/.test(input.echo) && !flat.has(input.echo) && !input.verbAnswer
+      ? input.echo : null;
+    const plainEcho = !asking && !speaking && !input.slipped ? whole ?? single : null;
+    const echo = !worth ? null : input.recast || input.english ? single ?? input.echo : plainEcho;
     if (echo) {
       out.push({
         text: echo.charAt(0).toUpperCase() + echo.slice(1) + ".",
@@ -1796,6 +1829,15 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
  * closing beat takes as one, compared on its letters so `Head aega` offered
  * with a question mark is the same goodbye as `Head aega!`.
  */
+/**
+ * Goodbyes a line may end on that the course does not teach as phrases, read
+ * and never said: a closing line ending "Head päeva!" was not taken for a
+ * goodbye, so a second one followed the learner's thanks.
+ */
+const HEARD_FAREWELLS: readonly string[] = [
+  "head päeva", "head õhtut", "head ööd", "head nädalavahetust", "kõike head", "ilusat päeva", "ilusat õhtut",
+];
+
 function isFarewell(text: string, close: BeatSpec): boolean {
   const letters = (s: string) => (s.match(/\p{L}+/gu) ?? []).join(" ").toLowerCase();
   const said = letters(text);
@@ -1808,7 +1850,7 @@ function isFarewell(text: string, close: BeatSpec): boolean {
     the learner's thanks. A farewell standing as a sentence of its own counts;
     thanks does not, since "aitäh" inside a line is gratitude, not leaving.
   */
-  const leaving = FAREWELLS.map(letters);
+  const leaving = [...FAREWELLS.map(letters), ...HEARD_FAREWELLS];
   return text.split(/(?<=[.!?])\s+/).some((sentence) => {
     const its = letters(sentence);
     // "Aitäh, head aega!" ends on one, which is leaving with thanks in front.
