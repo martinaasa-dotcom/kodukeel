@@ -1,22 +1,30 @@
 #!/usr/bin/env python3
 """
-TalTech's trainable Zipformer: decode it, measure it, and fine-tune it on a CPU.
+TalTech's trainable Zipformer: decode it, fine-tune it on a CPU, and export what Kodukeel ships.
 
-    python3 scripts/asr-icefall.py eval before   # held-out voices, the large ONNX Zipformer beside it
-    python3 scripts/asr-icefall.py train         # the asr-finetune.py recipe, as a transducer (resumable)
-    python3 scripts/asr-icefall.py eval after
+The model docs/39-speech.md section 3.8 chose (D1), rebuilt from nothing:
+
+    python3 scripts/asr-finetune.py data                   # the synthetic clips, said right and with mistakes
+    python3 scripts/asr-icefall.py anchor                  # real TalTech segments to train beside them
+    python3 scripts/asr-icefall.py train-anchored          # half of every batch real speech (resumable)
+    ICEFALL=<icefall checkout> CHUNK=32 python3 scripts/asr-icefall.py export anchored
+    python3 scripts/asr-eval.py hear dev                   # the held-out comparison of section 3.8
+
+Also here, as the record of what was tried:
+
+    python3 scripts/asr-icefall.py eval before|after|anchored|anchored-c32-onnx
+    python3 scripts/asr-icefall.py train                   # synthetic only: it forgets real speech
+    ICEFALL=... CHUNK=32 python3 scripts/asr-icefall.py student   # half the layers: far worse, dropped
+    python3 scripts/asr-icefall.py verdict anchored        # the pair verdict on the synthetic sets
     python3 scripts/asr-icefall.py report
 
-docs/39-speech.md section 9 says the Zipformer cannot be trained here, because
-TalTech publish the large one as ONNX only. That is true of the large one.
+TalTech publish their large Zipformer as ONNX only, so it cannot be trained.
 `TalTechNLP/icefall_pruned_transducer_stateless7_streaming_et` is the same
 architecture, smaller and older (about 800 hours of transcribed speech and
-2,500 of TV transcribed automatically), published as an Icefall TorchScript
-file with the training branch still inside it: `cpu_jit.pt` holds the encoder,
-the stateless decoder, the joiner and both projections, and the encoder still
-draws a random chunk size when it is put in training mode. So the recipe that
-moved xls-r can be run on a Zipformer, and what it shows is what the same run
-would do to the large one once TalTech hand over its checkpoint.
+2,500 of TV transcribed automatically, CC BY-SA 4.0), published as an Icefall
+TorchScript file with the training branch still inside it: `cpu_jit.pt` holds
+the encoder, the stateless decoder, the joiner and both projections, and the
+encoder still draws a random chunk size when it is put in training mode.
 
 What is measured is what `scripts/asr-finetune.py eval` measures, on the same
 held-out voices (kalev and liivika) and the same sentences:
@@ -211,7 +219,7 @@ def anchor():
         print(len(rows), file=sys.stderr, flush=True)
 
 
-def train(name="after", steps=600, batch=4, lr=2e-5, every=50, anchored=0, real_rooms=False):
+def train(name="after", steps=600, batch=4, lr=2e-5, every=50, anchored=0):
     """The asr-finetune.py data and rooms, a transducer loss in place of CTC, every weight trainable.
 
     Resumable like the xls-r run: weights and optimizer saved every `every` steps, the batch of a
@@ -245,7 +253,7 @@ def train(name="after", steps=600, batch=4, lr=2e-5, every=50, anchored=0, real_
         feats, ys = [], []
         for k, r in enumerate(sample):
             a = audio[r["file"]]
-            if (k < batch - anchored or real_rooms) and rng.random() < 0.5:
+            if k < batch - anchored and rng.random() < 0.5:
                 a = X.condition(rng.choice(ROOMS), a, others)
             a = np.concatenate([np.zeros(int(RATE * 0.3), np.float32), a, np.zeros(int(RATE * 0.5), np.float32)])
             feats.append(fbank(a))
@@ -421,83 +429,6 @@ def export(name):
     import shutil
     shutil.copy(os.path.join(SNAP, "data", "lang_bpe_1000", "tokens.txt"), os.path.join(d, "tokens.txt"))
     print("exported", d, file=sys.stderr)
-
-
-# ------------------------------------------------------------------ combining two models
-
-def align(base, other):
-    """For each word of `base`, the word of `other` aligned to it, or None where `other` left it out."""
-    n, m = len(base), len(other)
-    d = [[0] * (m + 1) for _ in range(n + 1)]
-    for i in range(n + 1):
-        d[i][0] = i
-    for j in range(m + 1):
-        d[0][j] = j
-    for i in range(1, n + 1):
-        for j in range(1, m + 1):
-            d[i][j] = min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (base[i - 1] != other[j - 1]))
-    out, i, j = [None] * n, n, m
-    while i > 0 and j > 0:
-        if d[i][j] == d[i - 1][j - 1] + (base[i - 1] != other[j - 1]):
-            out[i - 1] = other[j - 1]
-            i, j = i - 1, j - 1
-        elif d[i][j] == d[i - 1][j] + 1:
-            i -= 1
-        else:
-            j -= 1
-    return out
-
-
-def rover(first, *rest):
-    """A word changes from the first hypothesis only where every other hypothesis agrees on something else."""
-    base = X.words(first)
-    aligned = [align(base, X.words(h)) for h in rest]
-    out = []
-    for i, w in enumerate(base):
-        alts = {a[i] for a in aligned}
-        if len(alts) == 1 and (alt := alts.pop()) != w:
-            if alt is not None:
-                out.append(alt)
-        else:
-            out.append(w)
-    return " ".join(out)
-
-
-def combine():
-    """Is "understood" better heard by two models than by one? Every output here is already cached."""
-    spec = importlib.util.spec_from_file_location("asr_hesitations", os.path.join(os.path.dirname(__file__), "asr-hesitations.py"))
-    H = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(H)
-    large = json.load(open(os.path.join(OUT, "eval_large.json")))
-    tuned = json.load(open(os.path.join(OUT, "eval_anchored-onnx.json")))
-    heard = json.load(open(os.path.join(ROOT, "taltech", "hesitations", "heard.json")))
-    real = json.load(open(os.path.join(ROOT, "taltech", "hesitations", "sets.json")))[:REAL]
-    small = {r["file"]: heard[f"small|as said|{r['file']}"] for r in real}
-    systems = {
-        "large": lambda f: large["real|" + f],
-        "anchored": lambda f: tuned["real|" + f],
-        "small": lambda f: small[f],
-        "vote: large, anchored, small": lambda f: rover(large["real|" + f], tuned["real|" + f], small[f]),
-        "vote: anchored, large, small": lambda f: rover(tuned["real|" + f], large["real|" + f], small[f]),
-        "large unless the other two agree on a word": lambda f: rover(large["real|" + f], tuned["real|" + f]),
-    }
-    print(f"{len(real)} real segments held out by recording\n")
-    for name, fn in systems.items():
-        e = n = 0
-        for r in real:
-            a, b = H.errors(H.ref_tokens(r["text"]), fn(r["file"]))
-            e, n = e + a, n + b
-        print(f"  {name:45} words wrong {100 * e / n:5.2f}%")
-    rows = held()
-    syn = {"large": large, "anchored": tuned}
-    print("\nsynthetic sentences said right, clean and in babble (no small model on these)")
-    for name in ("large", "anchored", "vote of the two, large first"):
-        for room in ("", "babble10|"):
-            if name.startswith("vote"):
-                pairs = [(r["text"], rover(large[room + r["right_file"]], tuned[room + r["right_file"]])) for r in rows]
-            else:
-                pairs = [(r["text"], syn[name][room + r["right_file"]]) for r in rows]
-            print(f"  {name:30} {room or 'clean':10} {X.wer(pairs):5.2f}%")
 
 
 # ------------------------------------------------------------------ the pronunciation verdict, by the transducer
@@ -715,7 +646,7 @@ def student(name="student", layers=(1, 2, 2, 1, 2), teacher="anchored", steps=20
 
 def report():
     rows = held()
-    for name in ("large", "before", "after", "anchored", "anchored-onnx", "anchored-c32-onnx", "anchored2", "anchored2-onnx"):
+    for name in ("large", "before", "after", "anchored", "anchored-onnx", "anchored-c32-onnx"):
         path = os.path.join(OUT, f"eval_{name}.json")
         if not os.path.exists(path):
             continue
@@ -755,9 +686,8 @@ if __name__ == "__main__":
     elif cmd == "export":
         export(sys.argv[2] if len(sys.argv) > 2 else "after")
     else:
-        {"train": train, "report": report, "anchor": anchor, "combine": combine,
+        {"train": train, "report": report, "anchor": anchor,
          # the same recipe, half of every batch real native speech, at half the learning rate
          "train-anchored": lambda: train("anchored", lr=1e-5, anchored=2),
-         # three times the real speech, the rooms on it too, twice the steps
-         "student": lambda: student(),
-         "train-anchored2": lambda: train("anchored2", steps=1200, lr=1e-5, anchored=2, real_rooms=True)}[cmd]()
+         # a half-size student distilled from the anchored model (section 3.8: far worse, dropped)
+         "student": lambda: student()}[cmd]()

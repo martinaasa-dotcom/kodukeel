@@ -30,9 +30,9 @@ its pair: that is the verdict a pronunciation feature would hand a learner who s
 | Groq `whisper-large-v3` | Groq, paid | 20.1% | 50/80 | 5 | | 0.4 |
 | `whisper-small-et`, eight community fine-tunes | on device | 14.0 to 64.6% | 17 to 59/80 | 3 to 12 | ~250 MB | 2.5 to 4.3 |
 
-The Zipformer large is the default (D1). It is within a point of the best on sentences, it hears the
-contrasts nearly as well, it is a fifth of the size and twenty times faster than the Whisper model,
-it costs nothing to run, it is MIT licensed, and the audio never leaves the device.
+The Zipformer large was the first default. It is within a point of the best on sentences, it hears
+the contrasts nearly as well, it is a fifth of the size and twenty times faster than the Whisper
+model, it costs nothing to run, and the audio never leaves the device. Section 3.8 replaces it with the small one, which held-out recordings show is as good (D1).
 
 **A noisy room** (`asr-local.py --babble 10`: every clip with three other corpus sentences talking
 under it at 10 dB, which is a café or a classroom):
@@ -118,7 +118,7 @@ git cat-file -e origin/main:lib/speech/reconcile.ts 2>/dev/null \
 
 | # | Decision | Where it bites |
 | --- | --- | --- |
-| D1 | **The recognizer is TalTech's `streaming-zipformer-large.et-en`, int8, run on the learner's device through sherpa-onnx.** The small Zipformer is the fallback where a device cannot hold the large one (SP-0 measures where that line is). **Everything runs locally; no recognition is ever done on a server, ours or anybody's.** That is the operator's rule and it rules out the Whisper models for good: they need a server-class machine (10 seconds a clip on a server CPU). The one other model is `xls-r-300m-et` (about 320 MB int8), and it has two jobs the Zipformer cannot do, both measured in section 3.6: the forced choice that judges a minimal pair (SP-6) and the say-it check where a device can hold it (SP-4). It is never used to understand a turn. Pin the Hugging Face revision and the SHA-256 of every file. | SP-1, SP-10 |
+| D1 | **The recognizer is TalTech's small `streaming-zipformer.et-en`, int8 (74 MB), run on the learner's device through sherpa-onnx.** On held-out recordings it is level with the large model at half the size (section 3.8). **The pair judge is a second model, loaded only when a pair exercise opens:** TalTech's trainable Zipformer after the anchored fine-tune of section 3.7, exported at chunk 32, int8 (131 MB). It is never used to understand a turn, and it replaces `xls-r-300m-et`. **Everything runs locally; no recognition is ever done on a server, ours or anybody's.** That is the operator's rule and it rules out the Whisper models for good. Pin the revision and the SHA-256 of every file, and credit TalTech (MIT for the small model, CC BY-SA 4.0 for the judge). | SP-1, SP-10 |
 | D2 | **No audio leaves the device, and no audio is stored.** A clip lives in memory for the turn or the card and is released when it changes, which is `Recorder`'s rule today. Transcripts are stored only where typed text is stored already (a scene turn, an answer). No new recipient goes on `/privacy`. The one exception is SP-9's voice donation, which is its own consent, its own table and its own erasure. | Every item |
 | D3 | **Bars before features.** SP-0 measures real voices. A transcript is shown to learners only if correctly said test sentences are misheard under 8 percent of words. A contrast is judged (SP-6) only if a correctly said contrast word is heard as its partner under 2 percent of the time and a deliberately wrong one is caught at least 80 percent of the time. These are the operator's numbers to move; nobody else moves them. | SP-3 to SP-7 |
 | D4 | **Two transcripts, two jobs.** `heard` is decoded with no hotwords and no repair and is the only text any feedback about sounds may come from. `understood` is decoded with hotwords where SP-0 shows they help a learner's voice (off by default, section 3.2) and repaired against the dictionary (section 3.3), and is what a conversation advances on. They are computed from the same audio in one pass where the runtime allows, two where it does not. **Measured (section 3.5): the Zipformer writes a sound mistake as said only rarely** (a voicing slip once in 70, a length slip 7 times in 66) and corrects the rest into the right word, so its `heard` is no evidence about sounds. A line about a sound is never read off any transcript: it comes from the forced choice of section 3.6, which scores the recording against the two spellings a pair offers, and only for a pair that passes the gate there. | SP-2, SP-3, SP-5, SP-6 |
@@ -449,6 +449,10 @@ changes.
 Everything above is synthetic. Round four adds two things that are not: real Estonian speech, and a
 Zipformer that can be trained.
 
+**Section 3.8 corrects this section.** The "real native speech" below is 200 segments of TalTech's
+train split, which the models were trained on, and the babble is synthetic voices. Read the held-out
+figures there.
+
 **The real speech** is TalTech's Estonian Speech Dataset 1.0 (CC BY-SA 4.0): 1,300 hours of
 broadcast, interviews and the Riigikogu, transcribed by hand. `scripts/asr-hesitations.py` reads it
 out of the 159 GB archive by byte range, so nothing like the whole dataset is downloaded. 640 segments
@@ -527,6 +531,95 @@ What this does and does not show:
   real speech (6.8% against 5.5%) and better at the one thing a language app needs that the large
   model does worst. Whether that wins depends on SP-0's real learners.
 
+### 3.8 Round five: held-out recordings, and the decision
+
+**This section corrects 3.7.** Its "real native speech" was 200 segments of TalTech's *train* split,
+which both base models were trained on, and its café babble was TartuNLP voices. Both flattered the
+fine-tune. Round five measures on TalTech's dev and test splits, which no model here has seen, with
+real talkers as the babble (three other recordings at 10 dB). The protocol was fixed before anything
+was run (`scripts/asr-eval.py`): dev decides, test is read once, and every difference carries a 95%
+interval from resampling whole recordings.
+
+**Understanding, dev split** (414 segments, 69 recordings, 5,538 words), int8 under sherpa-onnx:
+
+| Model | Words wrong, quiet | Real babble, 10 dB | Size | Seconds per second of audio, one core |
+| --- | --- | --- | --- | --- |
+| Large (TalTech, ONNX only) | 8.3% | 11.3% | 159 MB | 0.078 |
+| **Small (TalTech, ONNX only)** | **8.3%** | **11.2%** | **74 MB** | **0.057** |
+| Trainable, as TalTech ship it | 9.0% | 12.5% | 131 MB | 0.086 |
+| Trainable, anchored fine-tune, chunk 32 | 8.4% | 11.6% | 131 MB | 0.052 |
+| Anchored, chunk 16 / 48 / 64 | 9.1 / 8.7 / 15.9% | 12.9 / 12.0 / 22.7% | 131 MB | 0.082 / 0.038 / 0.037 |
+| A half-size student distilled from it, chunk 32 | 14.8% | 21.9% | 80 MB | 0.026 |
+| Vote of large, anchored and small | 7.6% | 9.9% | three models | three times the work |
+
+**The same, test split, read once after dev had decided** (456 segments, 76 recordings, 6,246 words):
+
+| Model | Words wrong, quiet | Real babble, 10 dB |
+| --- | --- | --- |
+| Large | 8.1% | 11.1% |
+| Small | 7.7% (-0.4, interval -1.1 to +0.3) | 11.0% (-0.0, -1.2 to +1.1) |
+| Trainable, as TalTech ship it | 8.3% (+0.2, -0.5 to +1.0) | 12.2% (+1.2, +0.1 to +2.3, worse) |
+| Anchored, chunk 32 | 8.8% (+0.7, -0.2 to +1.6) | 12.7% (+1.7, +0.4 to +2.9, worse) |
+
+- On dev the anchored model at chunk 32 looked level with the large one (+0.1 points quiet, +0.2 in
+  babble). The test split, read once, says otherwise in noise: +1.7 points, interval clear of zero.
+  So the trainable family hears a noisy room slightly worse than the large one, and the fine-tune
+  does not close that. Chunk 32 still beats 16 on dev (-0.7 and -1.3 points); 48 is no better and
+  64 collapses.
+- The small model is level with the large one on both splits, in quiet and in babble, at half the
+  size. For understanding a turn it is the better buy.
+- Against the trainable model as shipped, the fine-tune's effect on native speech is inside the
+  noise (+0.1 points, interval -0.6 to +0.8). It neither helped nor hurt understanding.
+- The student, every other layer kept and trained to match the anchored model for 2,000 steps on a
+  CPU, is far worse and is dropped. TalTech's own small model already gives the small, fast option.
+- A vote of three models is the only thing that beats one model, by about one point, at three times
+  the work on a phone. Not worth it for an MVP.
+
+**Judging a pair, real native speakers** (dev split, 204 words that have a real partner in the
+dictionary, 65 recordings, references from two TartuNLP voices). Each speaker says the word right; a
+false alarm is the judge placing it nearer the partner. Pairs whose native references are at least 5
+nats apart, the gate of 3.6:
+
+| Judge | Pairs | False alarm | Asked again |
+| --- | --- | --- | --- |
+| `xls-r-300m-et` | 143 | 2.8% [0.7, 5.6] | 1.4% |
+| `xls-r-300m-et`, fine-tuned on synthetic mistakes | 140 | 2.1% [0.0, 4.8] | 0.7% |
+| Trainable Zipformer as shipped, chunk 32 | 133 | 0.8% [0.0, 2.4] | 0.0% |
+| **Anchored Zipformer, chunk 32** | **141** | **0.7% [0.0, 2.5]** | **1.4%** |
+
+The transducer scores a recording against both spellings with its own loss, the same forced choice
+3.6 runs on xls-r. On real speakers it is at least as quiet as xls-r.
+On the synthetic mistakes of 3.6 (chunk 16) the anchored model catches 98.3% of word mistakes at
+0.3% false alarm in a quiet room and 97.0% at 0.3% in babble, against 96.4% and 89.5% before the
+fine-tune, and writes a length mistake as said 21 times in 66 where the large model writes it 7.
+
+**The decision (D1 is amended to it).** Two jobs, two models, the second loaded only when needed:
+
+- **Understanding a turn: TalTech's small Zipformer, int8, 74 MB.** Level with the large model on
+  both held-out splits, in quiet and in babble, and faster. This is the MVP: every speaking feature
+  that is about what was said runs on it alone.
+- **Judging a minimal pair (SP-6, and the say-it check of SP-4): the anchored trainable Zipformer,
+  chunk 32, int8, 131 MB**, downloaded the first time a pair exercise opens. On real native speakers
+  it raises the fewest false alarms of any judge measured, and on synthetic mistakes it catches the
+  most. It is never used to understand a turn. It replaces `xls-r-300m-et` (about 320 MB).
+
+One thing points the other way and SP-0 settles it. On the synthetic clips of section 0 the small
+model was behind the large one (4.7% of sentence words wrong against 2.7%, 53 contrast words right
+against 68). On real Estonian, two held-out splits, it is not. Real speech is the better evidence,
+so the small model ships; if SP-0's learners show the gap, the large model (159 MB) is a drop-in
+swap, since both are sherpa-onnx streaming Zipformers.
+
+The settings of 3.5 and 3.6 stand: 0.5 s lead and 0.8 s tail, level normalized, pauses over 0.25 s
+squeezed to 0.15 s, an unsure word is one the forms list does not hold or two decodings disagree
+on, and a pair is judged only past the 5-nat gate, with the unsure band.
+
+**Licence.** The small model is MIT. The trainable model is CC BY-SA 4.0, and so is the dataset the
+fine-tune used, so the judge's weights are published under CC BY-SA 4.0 and credited to TalTech, the
+way the Wiktionary glosses are.
+
+**Still unmeasured.** Every learner mistake here is synthetic and every real voice is native. SP-0's
+recordings of real learners decide whether the pair exercises ship. Phones and browsers are SP-1's.
+
 ## 4. Status
 
 | Item | Status |
@@ -534,6 +627,7 @@ What this does and does not show:
 | Measurement (`measure-asr.ts`, `asr-local.py`, meter fix) | On branch `claude/serene-lovelace-e0dcf2` |
 | Round three experiments (`asr-verdict.py`, `asr-pauses.py`, `asr-calibrate.py`, `asr-finetune.py`) | On the same branch, section 3.6 |
 | Round four: real speech and a trainable Zipformer (`asr-hesitations.py`, `asr-icefall.py`) | On the same branch, section 3.7 |
+| Round five: held-out recordings and the decision (`asr-eval.py`) | On the same branch, section 3.8 |
 | SP-0 Real voices and devices | Not started |
 | SP-1 The engine in the browser | Not started |
 | SP-2 Hearing rules and ADR-028 | Not started |
@@ -567,7 +661,7 @@ on a server.
   on a fixed clip. Run it on: a recent iPhone in Safari, a mid-range Android in Chrome (around 200
   euros new), a desktop Chrome and Firefox. Record memory where the browser reports it.
 - **Decide the thresholds** D3 leaves to SP-0: the confidence cut-off for a dotted word, and on which
-  devices the small model is used instead of the large.
+  devices, if any, the large model is worth its extra size over the small one (D1).
 
 **Verify.** The report prints for every set; the numbers go in this page's section 0 in the same pull
 request.
@@ -699,8 +793,9 @@ Speaking belongs in the evening, in three places, each small:
 3. **The closing review answers aloud where it is typed**, by choice: a microphone in the answer box of
    a production card, filling it, marked by D6.
 
-**The say-it check** in all three places is section 3.6's: on a device that holds `xls-r-300m-et`,
-the expected spelling scored against the model's own free reading (every right word accepted, 1 in
+**The say-it check** in all three places is section 3.6's: on a device that holds the pair judge
+(D1; section 3.6 measured this with `xls-r-300m-et`, which the judge replaces), the expected spelling
+scored against the model's own free reading (every right word accepted, 1 in
 100 other words let through); elsewhere the Zipformer's greedy and beam text compared after
 `soundKey` folding (91.6% of right words, under 1 in 100 others), or 95.0% where the device can also
 hold the small Zipformer (72 MB) and either model's reading counts. Never a hotword for the expected
@@ -744,11 +839,11 @@ halves as hotwords (D7), says which it heard. Right is shown as "Heard `linna`";
 one thing the app teaches that a learner cannot check alone, and its whole value is that the machine
 is right about it, which is what the bar is for.
 
-**How it judges** is section 3.6's forced choice, not a transcript and not hotwords: `xls-r-300m-et`
-scores the recording against both spellings and places it between the pair's own native references,
+**How it judges** is section 3.6's forced choice, not a transcript and not hotwords: the pair judge
+of D1 (the anchored trainable Zipformer, section 3.8) scores the recording against both spellings and places it between the pair's own native references,
 with an unsure band from 0.35 to 0.65 that asks for the word again. On synthetic voices it already
-clears D3 in every room measured (97.3% caught, no false alarm, clean; 91.2% and 0.7% in café
-babble). What is left is the real-voice half of D3, which SP-0 measures, and D3 is not met until it
+clears D3 in every room measured (98.3% caught at 0.3% false alarm, clean; 97.0% and 0.3% in
+café babble), and on real native speakers it raised a false alarm 0.7% of the time (section 3.8). What is left is the real-voice half of D3, which SP-0 measures, and D3 is not met until it
 does.
 
 - **References are built with the exercise, not at runtime**: each pair said by four of TartuNLP's
@@ -799,10 +894,9 @@ ever sent to TalTech. Built only after the operator signs off section 9's first 
 
 The same model and the same rules, in each platform's own runtime:
 
-- **iOS**: sherpa-onnx's iOS framework with the Zipformer large; Core ML is optional and measured
-  first.
-- **Android**: sherpa-onnx's Android library with the Zipformer large, the small model on devices
-  SP-0 finds too slow.
+- **iOS**: sherpa-onnx's iOS framework with the small Zipformer and the pair judge of D1; Core ML is
+  optional and measured first.
+- **Android**: sherpa-onnx's Android library with the same two models.
 - **Shared**: everything under `lib/speech/` (to be written) is pure TypeScript; whichever framework the apps are
   built in either runs it as is or ports it with its tests, so both clients give the same `understood`
   for the same `heard`.
