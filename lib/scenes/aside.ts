@@ -418,6 +418,8 @@ export function shrug(input: AsideInput): SpokenLine | null {
 const INFORMATION = ["kes", "mis", "kus", "kuhu", "kust", "millal", "miks", "kuidas", "milline", "kumb", "mitu"] as const;
 /** The two words for "you". A question naming the person asked is about them. */
 const YOU = ["sina", "teie"] as const;
+/** The words for "I" and "we". A question naming them asks the other side what to do. */
+const ME = ["mina", "meie"] as const;
 /** The verb a "do you know?" is made of, whose honest answer is the shrug itself. */
 const KNOW = "teadma";
 /** The persons of a verb said to the person asked: `oled`, `olete`, `oleksite`. */
@@ -458,6 +460,7 @@ export function shrugFits(input: Pick<AsideInput, "said" | "spoken" | "lexicon">
   const information = formsOf(INFORMATION);
   const opens = new Set([...information, ...formsOf(["kas"])]);
   const you = formsOf(YOU);
+  const me = formsOf(ME);
   const addressed = new Set<string>();
   const knowing = new Set<string>();
   for (const [lemma, persons] of lexicon.persons) {
@@ -474,6 +477,12 @@ export function shrugFits(input: Pick<AsideInput, "said" | "spoken" | "lexicon">
     if (!question) return false;
     if (spoken.some((word) => knowing.has(word))) return true;
     if (spoken.some((word) => you.has(word) || addressed.has(word))) return false;
+    /*
+      A question about what the learner should do is put to the person whose
+      place this is: "Kus ma pean ootama?", "Mida ma peaksin proovima?", "Kus ma
+      võin istuda?". Nobody running a desk says they don't know where you wait.
+    */
+    if (spoken.some((word) => me.has(word))) return false;
     return spoken.some((word) => information.has(word));
   });
 }
