@@ -305,9 +305,9 @@ stops. Size is the work in one pull request: S is a day, M a few days, L a week 
 | C-2 One capped play of the composed path | 0 | S | Done: eight scenes in two styles plus two `lost` runs for $0.86, no doubled reaction, and C-3's three shadows fixed first with failing tests (§85) |
 | C-3 The reply's decision order, written and asserted | 0 | M | Done: 95 rows in `docs/21-situations.md` §85, held by `scripts/invariants/the-reply-decides-in-order.ts`, three shadowing findings left open there |
 | C-4 Teach `kolima`, then the reader's wording | 0 | S | Done: `kolima` taught a second time, last in `umbmaarased` (its harvest row was already there from B1), and "Kas te olete siia just kolinud?" applied through `apply:scene-review`; no day id moved, $0 spent |
-| VB-1 The engine and the hearing rules | 1: a conversation out loud | L | Not started |
-| VB-2 One microphone for the whole app | 1 | M | Not started |
-| VB-3 Ready for the native apps | 1, before November | S | Not started |
+| VB-1 The engine and the hearing rules | 1: a conversation out loud | L | Done: sherpa-onnx 1.13.8 single-threaded in a worker, the 71 MB model checked by hash and kept offline, `/dev/asr` hearing the fixture clips online and with the network cut, ADR-028, `PAID_OFF=speech`, the first-load check, `scripts/test-speech.mjs` 16 of 16 |
+| VB-2 One microphone for the whole app | 1 | M | Done: `MicButton` in every state on the bench, `ReadAloud`, `lightUp` and `matchPick` (D20) unit tested, Settings' Speaking section, Ctrl+M on both shortcut lists, the three phrases in `lib/copy/voice.ts`, `scripts/invariants/one-microphone.ts` |
+| VB-3 Ready for the native apps | 1, before November | S | Done: `docs/42-native-apps.md`, and `lib/speech/fixtures/golden.json` recorded off the web engine with `npm run asr:golden` and held by `lib/speech/golden.test.ts` |
 | VB-4 Conversations, spoken | 1 | L | Not started |
 | VB-5 The Speaking round, rebuilt, and hands-free | 1 | M | Not started |
 | VB-6 Saying it on the daily path | 2: speaking everywhere it teaches | M | Not started |
