@@ -1188,7 +1188,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   */
   if (response === "repeat" && (reading === "unrecognised" || reading === "echo") && !composed) {
     // Said as a sentence: the course spells the phrase bare, and a bubble reading `Ma ei saa aru` with no stop reads as cut off.
-    out.push({ ...fallbackLine(`${FALLBACK_PHRASE}.`, line?.withheld ?? []), reaction: true });
+    out.push({ ...fallbackLine(FALLBACK_PHRASE + ".", line?.withheld ?? []), reaction: true });
   }
 
   /*
@@ -1400,8 +1400,9 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
         wrong about which way the news went.
       */
       const negated = words(input.said ?? "").some((word) => NOES.has(word));
-      const felt = negated && feltAt(answered, response) === "glad" ? "noted" : feltAt(answered, response);
-      if (felt) out.push(reaction(FEELINGS[felt].word, FEELINGS[felt].mark));
+      const felt = feltAt(answered, response);
+      const feeling = negated && felt === "glad" ? "noted" : felt;
+      if (feeling) out.push(reaction(FEELINGS[feeling].word, FEELINGS[feeling].mark));
       else {
         const choices = acknowledgements(heard, input.said);
         out.push(reaction(choices[input.met % choices.length] ?? REACTIONS.acknowledge[0], "."));
