@@ -1538,8 +1538,11 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       */
       else if (input.hurdle?.fresh && input.hurdle.beat.move === "refuse") { /* nothing before the refusal */ }
       else {
+        // An instruction or a fact read back correctly is confirmed, "Jah.", never thanked: the doctor said `Aitäh.` to the dose.
         const choices = acknowledgements(heard, input.said);
-        out.push(reaction(choices[input.met % choices.length] ?? REACTIONS.acknowledge[0], "."));
+        const readBack = (answered?.move === "confirm" || answered?.move === "instruct") && !words(input.said ?? "").includes("jah");
+        const pool = readBack ? REACTIONS.waiting : choices;
+        out.push(reaction(pool[input.met % pool.length] ?? REACTIONS.acknowledge[0], "."));
       }
     }
   }

@@ -31,7 +31,7 @@
  * Pure: no React, no Next, no Prisma, no clock.
  */
 import type { CaseKey } from "@/lib/estonian/types";
-import type { Lexicon } from "./lexicon";
+import { caseKeyFor, type Lexicon } from "./lexicon";
 import type { RoleCard } from "./props";
 import type { SceneState } from "./state";
 import { leafNeeds, type BeatSpec, type LeafRequirement, type SceneSpec } from "./types";
@@ -360,6 +360,12 @@ export function offerFor(
    * verb the dictionary can inflect).
    */
   verbs: { has(lemma: string): boolean } = new Set<string>(),
+  /**
+   * The scene's printed case forms (`Lexicon.caseForm`), so a beat that wants
+   * `poest` hands over `Poest?` rather than `Pood?`: a person helping says the
+   * word as the sentence needs it, and the turn is graded as help either way.
+   */
+  caseForm: ReadonlyMap<string, string> = new Map(),
 ): string | null {
   /*
     THE HINT IS FOR WHAT IS STILL MISSING, NEVER FOR WHAT THEY ALREADY SAID.
@@ -421,7 +427,7 @@ export function offerFor(
       if (sayable.length === 0 || sayable.length < need.oneOf.length) return null;
       return sayable[0] ?? null;
     }
-    if (need.kind === "case") return need.lemma;
+    if (need.kind === "case") return caseForm.get(caseKeyFor(need.lemma, need.grammCase)) ?? need.lemma;
   }
   /*
     AND WHERE THE BEAT WANTS A VALUE OFF THE CARD, THE WORD IS THE KIND OF

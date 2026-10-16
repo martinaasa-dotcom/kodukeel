@@ -50,7 +50,7 @@ import {
   type Objectives, type Response, type SceneState, type TurnRecord, advanceHurdle, hurdleBeat, raiseHurdle,
   type HurdleRecord,
 } from "@/lib/scenes/state";
-import { gradesFor, stalledWords, type SceneGrade } from "@/lib/scenes/grades";
+import { OFFER_CHOICE, gradesFor, offerFor, stalledWords, type SceneGrade } from "@/lib/scenes/grades";
 import { reviewOf, type SceneReview } from "@/lib/scenes/review";
 import { recapOf, type SceneRecap } from "@/lib/scenes/recap";
 import { addsEvidence, answerPart, concede, metByWord, onlyAsks, readTurn } from "@/lib/scenes/turn";
@@ -1395,6 +1395,15 @@ export async function beatNow(input: {
   return currentBeat(context.scene, state) ?? null;
 }
 
+/** The words a learner takes an offered word with. */
+const TAKING: ReadonlySet<string> = new Set(["jah", "jaa", "jah,", "just", "õige", "täpselt", "mhm", "nojah"]);
+
+/** Whether a turn is a yes and nothing else: "Jah.", "jah, just". */
+function isBareYes(said: string): boolean {
+  const spoken = said.toLowerCase().split(/[^\p{L}]+/u).filter((w) => w.length > 0);
+  return spoken.length > 0 && spoken.length <= 3 && spoken.every((w) => TAKING.has(w));
+}
+
 /**
  * Reads a whole transcript back through the marker.
  *
@@ -1435,6 +1444,14 @@ export function replay(
   let state = raiseHurdle(context.scene, startScene(context.scene, draw?.patience), drawn);
   let response: Response = "answer";
   let previous = "";
+  /*
+    THE WORD THE OTHER SIDE JUST HANDED OVER, so a yes takes it. Lost, a
+    learner was offered `Poodi?` and answered `Jah`, which is how anybody
+    takes a word they were offered, and was read as having said nothing about
+    where they were going. Only on the beat it was offered for, only on the
+    turn straight after, and the turn is helped, so it grades as help.
+  */
+  let handed: { beatId: string; word: string } | null = null;
   for (const sent of turns.slice(0, MAX_TURNS)) {
     // Per turn, not per run: the reply asks about the turn that has just been taken.
     elsewhere = 0;
@@ -1687,11 +1704,18 @@ export function replay(
       refused can be conceded, so the same turn re-marked at the end of the
       run reaches the same state the learner saw.
     */
-    const read = readTurn(said, beat, marker);
+    const yesToIt = handed?.beatId === beat.id && isBareYes(said) ? handed.word : null;
+    handed = null;
+    const read = readTurn(yesToIt ?? said, beat, marker);
     const evidence = sent.conceded && sent.conceded.length > 0 ? concede(read, sent.conceded) : read;
     ({ state, response } = advance(
-      context.scene, state, evidence, said, Boolean(sent.helped), heard,
+      context.scene, state, evidence, said, Boolean(sent.helped) || yesToIt !== null, heard,
     ));
+    if (response === "help") {
+      const word = offerFor(beat, draw?.card ?? null, context.marker.questionWords, evidence.met,
+        context.lexicon.infinitives, context.lexicon.caseForm);
+      if (word && word !== OFFER_CHOICE) handed = { beatId: beat.id, word };
+    }
     /*
       ONE TURN CAN ANSWER MORE THAN ONE BEAT. "Tere, ma lähen poodi" greets and
       says where you are going, and a friend who heard it does not then ask

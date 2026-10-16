@@ -437,7 +437,7 @@ export function planTurn(input: TurnInput) {
     const anticipated = askedNow && answered?.answer ? stageFor({ ...answered, they: answered.answer }, card) : null;
     /* The word the beat was waiting for, where the other side is letting it go or was asked for help. */
     const handing = (response === "help" || response === "moveOn") && answered
-      ? helpWith(response, offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives))
+      ? helpWith(response, offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives, context.lexicon.caseForm))
       : null;
     /*
       A closing beat where the learner is still asking: the goodbye waits, so
@@ -610,7 +610,7 @@ export function planTurn(input: TurnInput) {
         the question they were asked.
       */
       offer: !composing && (response === "help" || response === "moveOn") && answered
-        ? helpWith(response, offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives))
+        ? helpWith(response, offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives, context.lexicon.caseForm))
         : null,
       met: state.done.length,
       metLast: last?.met ?? [],
