@@ -98,12 +98,19 @@ const FAMILY_DOCTOR: SceneSpec = {
     },
     {
       id: "since",
-      goal: "Tell them which day it started.",
+      goal: "Tell them how long it's been hurting, or which day it started.",
       they: "They ask how long it has been hurting.",
       move: "ask",
       topic: ["päev", "alates", "nädal", "kaua"],
-      // "Millest alates?" is answered "teisipäevast", and the recast says that ending back.
-      needs: [{ kind: "datum", slot: "since", grammCase: "ELATIVE" }],
+      /*
+        "Millest alates?" is answered "teisipäevast", and the recast says that
+        ending back. And the line asks how long, which is answered "eile" or
+        "kolm päeva" as often as with a weekday, so both meet it too.
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "datum", slot: "since", grammCase: "ELATIVE" },
+        { kind: "lemma", oneOf: ["eile", "päev", "nädal"] },
+      ] }],
       required: true,
       patience: 2,
       shape: "word",

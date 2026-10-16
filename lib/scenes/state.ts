@@ -19,6 +19,8 @@
 import { advances, type Chosen, type Evidence, type Slip, type TurnReading } from "./turn";
 import { curveballById, type CurveballId, type CurveballSpec } from "./curveballs";
 import type { BeatSpec, SceneSpec } from "./types";
+import { asksSlower } from "./casual";
+import { words } from "./lexicon";
 
 /** What the other side does about the turn just read. */
 export type Response =
@@ -312,6 +314,17 @@ export function advance(
   */
   if (evidence.wantsEnglish && evidence.missing.length === beat.needs.length) {
     return { state: { ...state, turns }, response: "english" };
+  }
+
+  /*
+    AND "PLEASE SAY IT AGAIN, SLOWER" IS THE SAME KIND OF TURN. `Palun
+    aeglasemalt` was read as Estonian off the point, cost a try and was
+    answered `Selge, aga` and the question. The first such turn on a beat costs
+    nothing and hears the line again (`replyFor`'s `asksAgain`).
+  */
+  if (asksSlower(words(said)) && evidence.missing.length === beat.needs.length
+      && !(previous?.beatId === beat.id && asksSlower(words(previous.said)))) {
+    return { state: { ...state, turns }, response: "narrow" };
   }
 
   if (advances(evidence.reading)) {

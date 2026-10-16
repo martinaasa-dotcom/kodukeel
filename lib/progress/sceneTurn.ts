@@ -573,6 +573,7 @@ export function planTurn(input: TurnInput) {
       answered: sent ? answered : null,
       response: sent ? response : null,
       reading,
+      asksAgain: asksSlower(words(last?.said ?? "")),
       line: said,
       heard,
       said: last?.said ?? null,

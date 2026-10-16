@@ -138,6 +138,8 @@ export interface ReplyInput {
    * answer to what they asked a minute ago does not open with "sorry".
    */
   readonly landed?: boolean;
+  /** The turn asked them to say it again or slower (`asksSlower`), and nothing in it landed. */
+  readonly asksAgain?: boolean;
   readonly echo: string | null;
   /**
    * Whether `echo` is the learner's word put right rather than repeated: the
@@ -797,6 +799,12 @@ const FIRST_PERSON: ReadonlySet<string> = new Set(["ma", "mina", "me", "meie", "
 const ECHO_TRIM: ReadonlySet<string> = new Set(["palun", "aitäh", "tänan", "vist", "äkki", "ehk", "küll", "ka", "ju", "noh", "no"]);
 /** The words a no is said with, as lemma requests against the course. */
 const NOES: ReadonlySet<string> = new Set(["ei", "pole", "mitte", "ega"]);
+/** An indefinite in their question, and the question word a learner's bare yes is followed up with. */
+const ASKED_FOR: ReadonlyMap<string, string> = new Map([
+  ["midagi", "mida"], ["kedagi", "keda"], ["kuskil", "kus"], ["kusagil", "kus"], ["kuhugi", "kuhu"],
+  ["kuskile", "kuhu"], ["kunagi", "millal"],
+]);
+
 /** The words a thanks is said with: `aitäh`, `tänan`, `tänud`, `tänu`. */
 const THANKS: ReadonlySet<string> = new Set(["aitäh", "tänan", "tänud", "tänu"]);
 
@@ -1160,6 +1168,14 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       Somebody told "yes" says "got it" and goes on waiting.
     */
     const saidWait = plainWord(input.said) === plainWord(REACTIONS.waiting[0]!);
+    /*
+      AND A YES TO "HAVE YOU SEEN ANYTHING GOOD?" IS ASKED WHAT. The question
+      named the thing it wanted with an indefinite (`midagi`, `kuskil`), and
+      somebody told "yes" asks for it with the question word that pairs with
+      it: `Mida?`. Both halves are words the common units teach.
+    */
+    const wanting = saidWait ? words(heard ?? "").map((word) => ASKED_FOR.get(word)).find(Boolean) : undefined;
+    if (wanting) return [reaction(wanting, "?")];
     return [theirs
       ? { ...reaction(theirs, "?"), provenance: "echo" as const }
       : saidWait ? reaction(REACTIONS.heard[0], ".") : reaction(REACTIONS.waiting[0], "?")];
@@ -1189,6 +1205,10 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     where nothing did, which is the keyless deployment.
   */
   const composed = line?.provenance === "composed";
+  // Asked to say it again or slower, a person says it again, and nothing in front of it.
+  if (input.asksAgain && !input.landed && heard && !composed && !input.hurdle && response === "narrow") {
+    return [saidAgain(heard)];
+  }
   /*
     AT THE CLOSING BEAT, WHAT IS SAID AGAIN IS THE GOODBYE. A question on the
     way out is answered and the goodbye waits (below), so the last move the
