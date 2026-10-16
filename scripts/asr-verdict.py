@@ -43,6 +43,15 @@ TTS = "https://api.tartunlp.ai/text-to-speech/v2"
 DEV = ("mari", "tambet")
 HELD = ("kalev", "liivika")
 REF = ("vesta", "peeter", "albert", "indrek")  # never a test voice
+SEPARATION = 5.0  # nats between a pair's native right and wrong references, under which it is no exercise
+
+"""
+The gate matters more than any line. `seitse` and `seidse`, `lapse` and `labse`,
+`bussist` and `bussisd` are spelled differently and said the same: every false
+alarm on sentences was such a pair. An exercise may only be built on a pair its
+own native references tell apart, which the app checks when it builds the
+exercise, not when the learner speaks.
+"""
 ROOMS = ("clean", "babble10", "phone")
 MODEL = "TalTechNLP/xls-r-300m-et"
 
@@ -350,40 +359,49 @@ def runrefs():
             print("ref", k, file=sys.stderr, flush=True)
 
 
-def judge(frac=0.5):
+def judged(room):
+    """Every comparison, scaled so 0 is where native speakers saying it right land and 1 where saying it wrong does.
+    Each row: (unit, kind, voice, position of a right answer, position of a mistake, separation in nats)."""
     sets = json.load(open(os.path.join(OUT, "sets.json")))
     r = json.load(open(os.path.join(OUT, "refs.json")))
+    out = []
+    for row in sets["sentences"]:
+        ok, bad = letters(row["text"]), letters(row["said"])
+        ref = r["sentences"][f"{row['text']}|{row['said']}"]
+        rr = np.mean([margin(load_lp(a), ok, bad) for a, _ in ref.values()])
+        rw = np.mean([margin(load_lp(b), ok, bad) for _, b in ref.values()])
+        scale = lambda m: (m - rr) / (rw - rr) if rw != rr else 0.0
+        out.append(("sentence", row["kind"], row["voice"],
+                    scale(margin(load_lp(room_file(row["right_file"], room)), ok, bad)),
+                    scale(margin(load_lp(room_file(row["wrong_file"], room)), ok, bad)), rw - rr))
+    for w in sets["words"]:
+        a, b = letters(w["text"]), letters(w["partner"])
+        ra = np.mean([margin(load_lp(f), a, b) for f in r["words"][w["text"]].values()])
+        rb = np.mean([margin(load_lp(f), a, b) for f in r["words"][w["partner"]].values()])
+        m = margin(load_lp(room_file(w["file"], room, word=True)), a, b)
+        # A clip of `text`: a right answer to "say text", and a mistake in "say partner".
+        out.append(("word", w["contrast"], w["voice"], (m - ra) / (rb - ra), (m - rb) / (ra - rb), abs(rb - ra)))
+    return out
+
+
+def judge():
     rooms = [room for room in ROOMS if ready(room)]
-    print(f"each pair's line {frac:.0%} of the way from its native right to its native wrong references ({len(REF)} voices)\n")
+    print(f"each pair placed between its native right (0) and wrong (1) references, {len(REF)} voices none of them tested\n")
     for room in rooms:
-        tot = {}
-        for row in sets["sentences"]:
-            ok, bad = letters(row["text"]), letters(row["said"])
-            ref = r["sentences"][f"{row['text']}|{row['said']}"]
-            rr = np.mean([margin(load_lp(a), ok, bad) for a, _ in ref.values()])
-            rw = np.mean([margin(load_lp(b), ok, bad) for _, b in ref.values()])
-            line = rr + frac * (rw - rr)
-            t = tot.setdefault(row["kind"], [0, 0, 0])
-            t[0] += margin(load_lp(room_file(row["wrong_file"], room)), ok, bad) > line
-            t[1] += margin(load_lp(room_file(row["right_file"], room)), ok, bad) > line
-            t[2] += 1
-        c, f, n = (sum(t[i] for t in tot.values()) for i in range(3))
-        print(f"{room:9} sentences: caught {c}/{n} ({100 * c / n:.1f}%), false alarm {f}/{n} ({100 * f / n:.1f}%)   " +
-              "  ".join(f"{k} {a}/{z} false {b}" for k, (a, b, z) in sorted(tot.items())))
-        # Single words: the minimal-pairs exercise. A clip of `text` is a right answer when the
-        # exercise asked for `text`, and a caught mistake when it asked for `partner`.
-        words_tot = [0, 0, 0]
-        for w in sets["words"]:
-            a, b = letters(w["text"]), letters(w["partner"])
-            ra = [margin(load_lp(f), a, b) for f in r["words"][w["text"]].values()]
-            rb = [margin(load_lp(f), a, b) for f in r["words"][w["partner"]].values()]
-            line = np.mean(ra) + frac * (np.mean(rb) - np.mean(ra))
-            m = margin(load_lp(room_file(w["file"], room, word=True)), a, b)
-            words_tot[1] += m > line          # asked for text, said text, judged partner: a false alarm
-            words_tot[0] += -m > -line        # asked for partner, said text, judged text: caught
-            words_tot[2] += 1
-        c, f, n = words_tot
-        print(f"{room:9} words:     caught {c}/{n} ({100 * c / n:.1f}%), false alarm {f}/{n} ({100 * f / n:.1f}%)")
+        rows = judged(room)
+        for unit, gate in (("word", 0), ("word", SEPARATION), ("sentence", 0), ("sentence", SEPARATION)):
+            sub = [x for x in rows if x[0] == unit and x[5] >= gate]
+            n = len(sub)
+            whole = sum(1 for x in rows if x[0] == unit)
+            kept = f", only pairs native speakers separate by {gate} nats: {n} of {whole}" if gate else ""
+            print(f"{room} {unit}s ({n} right answers, {n} mistakes{kept})")
+            for lo, hi in ((0.5, 0.5), (0.4, 0.6), (0.35, 0.65), (0.3, 0.7), (0.25, 0.75)):
+                caught = sum(x[4] > hi for x in sub)
+                false = sum(x[3] > hi for x in sub)
+                unsure = sum(lo <= x[3] <= hi for x in sub) + sum(lo <= x[4] <= hi for x in sub)
+                label = f"line {lo}" if lo == hi else f"unsure {lo} to {hi}"
+                print(f"  {label:20} caught {100 * caught / n:5.1f}%  false alarm {100 * false / n:4.1f}%  asked again {100 * unsure / (2 * n):4.1f}%")
+        print()
 
 
 if __name__ == "__main__":
