@@ -72,6 +72,7 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "kohvikus:order": "ordering a drink",
   "kohvikus:size": "large or small",
   "kohvikus:bill": "asking to pay",
+  "kohvikus:pay": "card or cash",
 
   "tee-kusimine:where": "asking the way",
   "tee-kusimine:way": "checking directions",
@@ -87,6 +88,7 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "restoranis-tellimine:contents": "asking what's in a dish",
   "restoranis-tellimine:drink": "ordering a drink",
   "restoranis-tellimine:bill": "asking for the bill",
+  "restoranis-tellimine:pay": "card or cash",
 
   "helistamine:why": "saying why you're calling",
   "helistamine:have": "asking if they have it",
@@ -103,7 +105,8 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "apteek:since": "saying when it started",
   "apteek:medicine": "asking what to take",
   "apteek:how": "asking how often",
-  "apteek:pay": "paying at the counter",
+  "apteek:pay": "saying you'll take it",
+  "apteek:card": "card or cash",
 
   "keeletund:name": "saying your name",
   "keeletund:from": "where you're from",
@@ -148,6 +151,7 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "kokkulepe:time": "settling a time",
   "turul:some": "asking for some, by weight",
   "turul:pieces": "asking for a few, by the piece",
+  "turul:many": "saying how many",
   "turul:price": "asking what it comes to",
   "bussipeatus:this": "checking it's the right bus",
   "bussipeatus:yes": "thanking for an answer",
@@ -160,7 +164,9 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "nadalavahetus:did": "saying where you went",
   "nadalavahetus:back": "asking about their weekend",
   "hadaabi:what": "saying what happened",
+  "hadaabi:part": "saying what they've hurt",
   "hadaabi:where": "giving an address",
+  "hadaabi:house": "giving the house number",
   "hadaabi:hurt": "saying whether they can stand",
   "hadaabi:wait": "following instructions on the phone",
   "pangas:want": "asking to open an account",
