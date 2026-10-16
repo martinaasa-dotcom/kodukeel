@@ -1284,6 +1284,18 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     itself in one breath, and it was the whole of what a learner read when
     they asked the price at a ticket window.
   */
+  /*
+    AND A TURN THAT ANSWERED A LATER QUESTION IS TAKEN BEFORE THIS ONE IS ASKED
+    AGAIN. Asked what they are good at, a candidate said they could start on
+    Monday; that was credited, and the interviewer asked the same thing again
+    with no sign of having heard. "Selge, aga" says both.
+  */
+  if ((response === "narrow" || response === "repeat") && input.landed && reading === "complete"
+      && !ownReaction(line) && !aside && !/\?\s*$/.test(input.said ?? "")) {
+    const heardIt = reaction(REACTIONS.heard[0], ".");
+    BUT_NEXT.add(heardIt);
+    out.push(heardIt);
+  }
   if ((response === "narrow" || response === "repeat") && reading === "offtarget"
       && !input.landed && !ownReaction(line) && !aside) {
     /*
@@ -1472,7 +1484,11 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       const negated = words(input.said ?? "").some((word) => NOES.has(word));
       const felt = feltAt(answered, response);
       const feeling = negated && felt === "glad" ? "noted" : felt;
-      if (feeling) out.push(reaction(FEELINGS[feeling].word, FEELINGS[feeling].mark));
+      if (feeling) {
+        const felt = reaction(FEELINGS[feeling].word, FEELINGS[feeling].mark);
+        FELT.add(felt);
+        out.push(felt);
+      }
       /*
         AND NOT "AITÄH." TO A TIME THEY ARE ABOUT TO REFUSE. Told yes to the
         appointment, the receptionist said `Aitäh. Seda aega enam ei ole.`,
@@ -2011,6 +2027,9 @@ export function feltAt(answered: BeatSpec | null, response: Response | null): Fe
 const OPENS_LOWER = new Set([
   "kus", "kuhu", "kust", "mis", "mida", "millal", "kas", "kui", "kuidas", "kes", "keda", "kellele", "kelle",
   "mitu", "milline", "millist", "mille", "millega", "miks", "kaua", "mitmendal", "mitmes", "palun", "aga",
+  // Every case of the question words, since a question opens on whichever the beat asks: "Selge, aga milles te tugev olete?".
+  "milles", "millest", "millesse", "millel", "millelt", "millele", "milleks", "milleni", "milleta", "millise", "milliseid",
+  "kellega", "kellel", "kellelt", "kellest", "kellesse", "kelleks", "mitmenda", "mitmendat",
   "ma", "mina", "sa", "sina", "te", "teie", "me", "meie", "ta", "tema", "mul", "sul", "teil", "meil", "tal",
   "see", "seda", "siin", "seal", "nüüd", "ja", "kell", "jah", "ei",
 ]);
@@ -2024,6 +2043,16 @@ const OPENS_LOWER = new Set([
   one whose next line reopens a point the learner has not closed.
 */
 const BUT_NEXT = new WeakSet<SpokenLine>();
+
+/**
+ * The reactions that are a feeling about the answer (`FEELINGS`), which is the
+ * one kind a person does not say at the top of every turn. "Got it, but" and a
+ * plain acknowledgement are not in it: those say how the turn went.
+ */
+const FELT = new WeakSet<SpokenLine>();
+export function isFelt(line: SpokenLine): boolean {
+  return FELT.has(line);
+}
 
 /**
  * Openers the join may never lower into: an `aga` would say "aga" twice and

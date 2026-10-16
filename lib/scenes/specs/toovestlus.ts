@@ -88,7 +88,8 @@ const INTERVIEW: SceneSpec = {
       feel: "noted",
       move: "ask",
       topic: ["oskus", "hästi", "teadma", "kogemus"],
-      needs: [{ kind: "datum", slot: "skill" }],
+      // And working with people, which is what half of all candidates say: "Ma oskan inimestega suhelda" was refused.
+      needs: [{ kind: "anyOf", of: [{ kind: "datum", slot: "skill" }, { kind: "lemma", oneOf: ["inimene"] }] }],
       required: true,
       patience: 3,
       shape: "sentence",

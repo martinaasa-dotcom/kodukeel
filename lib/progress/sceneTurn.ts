@@ -30,7 +30,7 @@ import { clip } from "@/lib/copy/clip";
 import { clockInPlay, moneyInPlay, type SceneContext, type StoredDraw } from "@/lib/progress/scene";
 import { CHECK_GLUE, asideFor, asideOwed, readBackCorrection, asksPermission, asksToHearAgain, namesLaterBeat, priceAsked, questionAhead, sameFact, shrug } from "@/lib/scenes/aside";
 import { asksSlower, asksToWait, saysGoodbye, LEAVING } from "@/lib/scenes/casual";
-import { FAREWELLS, FEELINGS, REACTIONS } from "@/lib/scenes/catalogue";
+import { FAREWELLS, FEELINGS } from "@/lib/scenes/catalogue";
 import { choiceOf } from "@/lib/scenes/choice";
 import { repeatsItself, type buildConsistencyUserPrompt } from "@/lib/scenes/consistency";
 import { ASKS_ON } from "@/lib/scenes/curveballs";
@@ -43,7 +43,7 @@ import type { ComposeAsk, ComposeScene } from "@/lib/scenes/prompt";
 import { dealtNumbers } from "@/lib/scenes/props";
 import {
   cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, establishedBy, factsFor, feltAt, saidAgain,
-  heldBack, heldNumbers, partsLine, replyFor, sayableAfterHurdles, sceneMovedOn, stageFor, timesAnswered, wantsAsideFor,
+  heldBack, heldNumbers, isFelt, partsLine, replyFor, sayableAfterHurdles, sceneMovedOn, stageFor, timesAnswered, wantsAsideFor,
   wantsFreshLine,
 } from "@/lib/scenes/reply";
 import { answerBeatId, sceneBeats } from "@/lib/scenes/scripted";
@@ -544,9 +544,7 @@ export function planTurn(input: TurnInput) {
     });
     const guess = (t: SceneState["turns"][number]) => {
       const feel = sceneBeats(scene).find((b) => b.id === t.beatId)?.feel;
-      return t.reading === "complete" && feel ? FEELINGS[feel].word
-        : t.reading === "offtarget" ? REACTIONS.heard[0] ?? null
-        : null;
+      return t.reading === "complete" && feel ? FEELINGS[feel].word : null;
     };
     let said: string | null = null;
     for (const t of blocks.slice(0, -1)) {
@@ -1047,17 +1045,17 @@ function withoutRestatedCorrection(lines: SpokenLine[]): SpokenLine[] {
 }
 
 /**
- * Nobody says "Selge." at the start of every turn. A receptionist who said it
- * over the last answer goes straight to the next question over this one, so a
- * reaction word that most likely opened the last reply too is dropped where a
- * line follows it. The repair word is kept, since saying sorry twice running
- * is what somebody does who is still not following.
+ * Nobody says "Selge." at the start of every turn. A receptionist who felt the
+ * last answer that way goes straight to the next question over this one, so a
+ * feeling (`isFelt`) that most likely opened the last reply too is dropped
+ * where a line follows it. "Got it, but" and an acknowledgement are never
+ * dropped: they say how this turn went, and without "Selge, aga" a learner off
+ * the point heard the question again as though nothing had been said.
  */
 function withoutRepeatedReaction(lines: SpokenLine[], reactedBefore: string | null): SpokenLine[] {
   const first = lines[0];
-  if (!first?.reaction || lines.length < 2 || !reactedBefore) return lines;
+  if (!first || !isFelt(first) || lines.length < 2 || !reactedBefore) return lines;
   const plain = (text: string) => text.toLowerCase().replace(/[^\p{L}]+/gu, " ").trim();
-  if (REACTIONS.missed.some((word) => plain(word) === plain(first.text))) return lines;
   return plain(reactedBefore) === plain(first.text) ? lines.slice(1) : lines;
 }
 
