@@ -7,8 +7,8 @@ export const riidepood: ScenePicks = {
     { et: "Tere, tere!", en: "Hello, hello!" },
   ],
   want: [
-    { et: "Kas teil on {item}?", en: "Do you have a {item}?" },
-    { et: "Kas teil on {item} ka minu suuruses?", en: "Do you have a {item} in my size?" },
+    { et: "Kas teil on {item:PARTITIVE}?", en: "Do you have a {item}?" },
+    { et: "Kas teil on {item:PARTITIVE} ka minu suuruses?", en: "Do you have a {item} in my size?" },
   ],
   size: [
     { et: "Suurus {size}.", en: "Size {size}." },

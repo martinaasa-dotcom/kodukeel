@@ -1,5 +1,5 @@
 import type { SceneSpec } from "../types";
-import { COMMON, HELLOS, CLOSING_WORDS, FAREWELLS } from "./shared";
+import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 
 const FRIENDS_WORRY: SceneSpec = {
   id: "sobra-mure",
@@ -119,7 +119,8 @@ const FRIENDS_WORRY: SceneSpec = {
       goal: "Say goodbye, and that you will see them then.",
       they: "They say goodbye.",
       move: "close",
-      topic: [...FAREWELLS],
+      // A friend says "Nägemist!"; "Head aega!" is what you say to a clerk.
+      topic: ["Nägemist!"],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,

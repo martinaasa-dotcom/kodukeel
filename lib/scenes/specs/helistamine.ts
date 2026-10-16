@@ -14,7 +14,7 @@ const PHONE: SceneSpec = {
   */
   // `kodutood` for `avama` and `sulgema`, which is what a shop's opening
   // hours are said with and the one thing this call is about.
-  units: [...COMMON, "suhtlemine", "kodu", "ostmine", "linn-ja-teenused", "plaanid", "omadussonad", "kodutood", "kool-ja-keel"],
+  units: [...COMMON, "suhtlemine", "kodu", "ostmine", "linn-ja-teenused", "plaanid", "omadussonad", "kodutood", "kool-ja-keel", "abi"],
   register: "teie",
   role: "You need something from a shop across town before the weekend, so you call first rather than turn up and find it shut. Your card says what you're after.",
   props: [
@@ -57,7 +57,7 @@ const PHONE: SceneSpec = {
       */
       needs: [{
         kind: "anyOf",
-        of: [{ kind: "lemma", oneOf: ["helistama", "küsima", "küsimus", "soovima", "tahtma", "ostma"] }, { kind: "question" }],
+        of: [{ kind: "lemma", oneOf: ["helistama", "küsima", "küsimus", "soovima", "tahtma", "ostma", "vaja"] }, { kind: "question" }],
       }],
       required: true,
       patience: 3,

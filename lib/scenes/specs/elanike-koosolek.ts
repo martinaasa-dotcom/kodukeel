@@ -26,7 +26,12 @@ const RESIDENTS_MEETING: SceneSpec = {
   register: "teie",
   role: "This is a role. The yard behind your building is bare and muddy, and there's a residents' meeting tonight. You want to persuade the neighbours to plant something.",
   props: [],
-  curveballs: ["interrupted", "contradiction", "other-register", "faster"],
+  /*
+    No `contradiction`: its lines had the chair announce there would be no
+    vote today, and every closing line then says the vote is yes, so the
+    meeting went back on itself twice in two turns.
+  */
+  curveballs: ["interrupted", "other-register", "faster"],
   beats: [
     {
       id: "greet",
@@ -70,9 +75,10 @@ const RESIDENTS_MEETING: SceneSpec = {
       feel: "glad",
       move: "ask",
       topic: ["raha", "maksma", "kallis"],
+      // The lemma first: a tip for somebody stuck names `koos`, which is the goal, rather than "try saying no".
       needs: [{ kind: "anyOf", of: [
-        { kind: "negation" },
         { kind: "lemma", oneOf: ["koos", "ise", "odav", "aitama", "koguma"] },
+        { kind: "negation" },
       ] }],
       required: true,
       patience: 2,

@@ -103,10 +103,11 @@ const HEARSAY: SceneSpec = {
       feel: "noted",
       move: "ask",
       topic: ["kindel", "kindlasti"],
+      // The lemma first, so a tip names `vist`, which is the goal, rather than "try saying no".
       needs: [{ kind: "anyOf", of: [
-        { kind: "negation" },
         // "Arvan küll" is how anybody says they think so and are not sure.
-        { kind: "lemma", oneOf: ["vist", "kuulduma", "väitma", "arvama"] },
+        { kind: "lemma", oneOf: ["vist", "kuulduma", "väitma", "arvama", "äkki", "ehk"] },
+        { kind: "negation" },
       ] }],
       required: true,
       patience: 2,

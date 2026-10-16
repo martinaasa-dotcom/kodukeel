@@ -70,7 +70,7 @@ const TEAM_MEETING: SceneSpec = {
       they: "They ask why not.",
       move: "ask",
       topic: ["põhjus", "miks"],
-      needs: [{ kind: "lemma", oneOf: ["sest", "aeg", "kiire", "raske", "põhjus", "projekt", "töö"] }],
+      needs: [{ kind: "lemma", oneOf: ["kiire", "aeg", "sest", "raske", "põhjus", "projekt", "töö"] }],
       required: true,
       patience: 2,
       shape: "sentence",

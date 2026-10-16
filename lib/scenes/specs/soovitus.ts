@@ -1,5 +1,5 @@
 import type { SceneSpec } from "../types";
-import { COMMON, HELLOS, CLOSING_WORDS, FAREWELLS } from "./shared";
+import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 
 const RECOMMENDATION: SceneSpec = {
   id: "soovitus",
@@ -89,7 +89,8 @@ const RECOMMENDATION: SceneSpec = {
       goal: "Say goodbye, and see you soon.",
       they: "They say goodbye.",
       move: "close",
-      topic: [...FAREWELLS],
+      // A friend says "Nägemist!"; "Head aega!" is what you say to a clerk.
+      topic: ["Nägemist!"],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,

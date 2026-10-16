@@ -83,9 +83,15 @@ const BOOK_CLUB: SceneSpec = {
         the list it was refused, because a verb said under a negator is read
         as the learner declining to say it.
       */
+      /*
+        Not `algus` either, for the reason the characters went: "it was
+        interesting, though the beginning was long" is a verdict on the book,
+        and it met this beat in passing so the club never asked. The lemma
+        comes before the negation so a tip names the ending, not "try saying no".
+      */
       needs: [{ kind: "anyOf", of: [
+        { kind: "lemma", oneOf: ["lõpp", "muutma"] },
         { kind: "negation" },
-        { kind: "lemma", oneOf: ["lõpp", "algus", "muutma"] },
       ] }],
       required: true,
       patience: 2,
@@ -97,9 +103,10 @@ const BOOK_CLUB: SceneSpec = {
       they: "Somebody else says the ending was the best part.",
       move: "confirm",
       topic: ["lõpp", "nõustuma"],
+      // The lemma first, so a tip says to agree rather than to say no.
       needs: [{ kind: "anyOf", of: [
-        { kind: "negation" },
         { kind: "lemma", oneOf: ["nõustuma", "nõus", "jah", "arvama", "muidugi"] },
+        { kind: "negation" },
       ] }],
       required: true,
       patience: 2,

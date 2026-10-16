@@ -54,7 +54,7 @@ const TICKET: SceneSpec = {
       goal: "Tell them where you're traveling to.",
       they: "They ask where you're headed.",
       move: "ask",
-      topic: ["kuhu", "sõitma", "buss"],
+      topic: ["kuhu", "sõitma"],
       needs: [{ kind: "datum", slot: "to", grammCase: "ILLATIVE" }],
       required: true,
       patience: 3,

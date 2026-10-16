@@ -42,7 +42,6 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "poodi-piima", beat: "hurdle:small-talk", text: "Kas täna on soe ilm?", model: "gemini-3.8-flash", draftedAt: "2026-09-12", level: "A1", reviewedAt: "2026-10-15" },
   { scene: "poodi-piima", beat: "inside", text: "Kus sa nüüd oled?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "poodi-piima", beat: "inside", text: "Kus sa praegu oled?", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewedAt: "2026-10-15" },
-  { scene: "poodi-piima", beat: "inside", text: "Ja kus sa nüüd oled?", model: "authored", draftedAt: "2026-10-16" },
   { scene: "poodi-piima", beat: "item", text: "Mida sa soovid osta?", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewedAt: "2026-10-15" },
   { scene: "poodi-piima", beat: "item", text: "Mida sa tahad osta?", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewedAt: "2026-10-15" },
   { scene: "poodi-piima", beat: "item", text: "Mida sa poest osta tahad?", model: "gemini-3.8-flash", draftedAt: "2026-09-12", level: "A1", reviewedAt: "2026-10-15" },

@@ -98,13 +98,22 @@ const PARENTS_EVENING: SceneSpec = {
       id: "practise",
       goal: "Say you'll read with them at home every day.",
       they: "They suggest reading together at home, a little every day.",
+      /*
+        A parent asks back as often as they agree ("Kas iga päev?"), and a
+        question that names reading meets the beat: it is answered rather
+        than thanked.
+      */
+      answer: "They say yes, a little every day is enough.",
       move: "instruct",
       topic: ["lugema", "kodu", "päev"],
       /*
         Agreeing to read is the beat, and "Hea mõte", "Kindlasti" and a plain
         thanks are how a parent agrees to a teacher's suggestion.
       */
-      needs: [{ kind: "lemma", oneOf: ["lugema", "jah", "hästi", "selge", "hea", "kindlasti", "proovima", "Aitäh!"] }],
+      needs: [{ kind: "anyOf", of: [
+        { kind: "lemma", oneOf: ["lugema", "jah", "hästi", "selge", "hea", "kindlasti", "proovima", "Aitäh!"] },
+        { kind: "question" },
+      ] }],
       required: true,
       patience: 2,
       shape: "sentence",

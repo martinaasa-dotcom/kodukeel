@@ -96,7 +96,7 @@ const CLOTHES: SceneSpec = {
       they: "They hold it out and ask if you'd like to try it on.",
       move: "ask",
       topic: ["proovima", "riie"],
-      needs: [{ kind: "lemma", oneOf: ["proovima", "jah", "soovima", "tahtma"] }],
+      needs: [{ kind: "lemma", oneOf: ["proovima", "jah"] }],
       required: true,
       patience: 2,
       shape: "word",

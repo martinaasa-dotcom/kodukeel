@@ -44,8 +44,10 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "eksam-b1", beat: "call", text: "Jah, kool kuuleb. Kuidas ma saan teid aidata?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "eksam-b1", beat: "close", text: "Aitäh, sellega on eksam läbi. Head aega!", model: "authored", draftedAt: "2026-10-15" },
   { scene: "eksam-b1", beat: "close", text: "Aitäh teile, eksam on läbi. Nägemist!", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "eksam-b1", beat: "hurdle:other-register", text: "Kas sul on kõik selge?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "eksam-b1", beat: "hurdle:other-register", text: "Kas sa oled valmis? Jätkame.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "eksam-b1", beat: "hurdle:other-register", text: "Kas sul on kõik selge?", model: "authored", draftedAt: "2026-10-15", about: "greet" },
+  { scene: "eksam-b1", beat: "hurdle:other-register", text: "Kas sulle meeldib seal elada?", model: "authored", draftedAt: "2026-10-16", about: "home" },
+  { scene: "eksam-b1", beat: "hurdle:other-register", text: "Miks sa just sinna läheksid?", model: "authored", draftedAt: "2026-10-16", about: "plan" },
+  { scene: "eksam-b1", beat: "hurdle:other-register", text: "Kas sa oled seal varem käinud?", model: "authored", draftedAt: "2026-10-16", about: "why" },
 ];
 
 export default LINES;

@@ -38,7 +38,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "kolm-palvet", beat: "answer:official", text: "Jah, see on võimalik. Üks hetk, palun.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "kolm-palvet", beat: "answer:official", text: "Muidugi, sellega ma saan aidata.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "kolm-palvet", beat: "close", text: "Palun! Head aega!", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "kolm-palvet", beat: "close", text: "Kõik on tehtud. Head päeva!", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "kolm-palvet", beat: "close", text: "Kõik on tehtud. Nägemist!", model: "authored", draftedAt: "2026-10-15" },
 ];
 
 export default LINES;

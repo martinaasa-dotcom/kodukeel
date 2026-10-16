@@ -104,6 +104,8 @@ const EXAM_B1: SceneSpec = {
       needs: [{ kind: "lemma", oneOf: [
         "töötama", "õppima", "töö", "kool", "ülikool", "amet", "eriala", "firma", "ettevõte",
         "õpetaja", "õpilane", "arst", "kokk", "näitleja", "laulja", "politseinik", "töötaja", "juht",
+        // And not working: `Ma ei tööta, olen kodus lastega`. Not `kodu`, which is the answer to where you live.
+        "laps",
       ] }],
       required: true,
       patience: 3,

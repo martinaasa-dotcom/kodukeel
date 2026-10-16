@@ -79,7 +79,7 @@ const DIRECTIONS: SceneSpec = {
       they: "They tell you which way to go.",
       move: "instruct",
       topic: ["otse", "vasak", "vasakul", "paremal", "edasi", "kõrval"],
-      needs: [{ kind: "lemma", oneOf: ["otse", "vasak", "vasakul", "paremal", "edasi", "Aitäh!", "aitäh"] }],
+      needs: [{ kind: "lemma", oneOf: ["otse", "vasak", "vasakul", "paremal", "edasi", "Aitäh!", "aitäh", "selge", "hästi", "jah"] }],
       required: true,
       patience: 2,
       shape: "word",

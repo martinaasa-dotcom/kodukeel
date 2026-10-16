@@ -117,7 +117,7 @@ const PHARMACY: SceneSpec = {
       they: "They tell you how to take it.",
       move: "instruct",
       topic: ["hommik", "õhtu", "päev", "võtma"],
-      needs: [{ kind: "lemma", oneOf: ["võtma", "jah", "hästi", "selge", "aitäh"] }],
+      needs: [{ kind: "lemma", oneOf: ["võtma", "jah", "hästi", "selge", "aitäh", "maksma"] }],
       required: true,
       patience: 2,
       shape: "word",

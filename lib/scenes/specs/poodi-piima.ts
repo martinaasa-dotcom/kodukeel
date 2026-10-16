@@ -77,7 +77,7 @@ const SHOP: SceneSpec = {
     },
     {
       id: "back",
-      goal: "Tell them you've left the shop and you're heading home.",
+      goal: "Tell them you're on your way back from the shop.",
       feel: "glad",
       meanwhile: "You've paid, and you're walking home with the milk.",
       they: "They ask where you're coming from.",

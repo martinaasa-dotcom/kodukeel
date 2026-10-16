@@ -38,8 +38,6 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "elanike-koosolek", beat: "hurdle:faster", text: "Kiire on, öelge kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elanike-koosolek", beat: "close", text: "Hästi, kõik on nõus. Otsus on tehtud! Aitäh, head aega!", model: "authored", draftedAt: "2026-10-15" },
   { scene: "elanike-koosolek", beat: "close", text: "Otsus on vastu võetud. Aitäh, koosolek on lõppenud. Head aega!", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "elanike-koosolek", beat: "hurdle:contradiction", text: "Ei, täna me ei hääleta.", model: "authored", draftedAt: "2026-10-15", about: "vote" },
-  { scene: "elanike-koosolek", beat: "hurdle:contradiction", text: "Tegelikult ei ole täna aega hääletada.", model: "authored", draftedAt: "2026-10-15", about: "vote" },
   { scene: "elanike-koosolek", beat: "hurdle:other-register", text: "Kas sa aitad ise ka?", model: "authored", draftedAt: "2026-10-15", about: "cost" },
   { scene: "elanike-koosolek", beat: "hurdle:other-register", text: "Kas sul on veel mõtteid?", model: "authored", draftedAt: "2026-10-15", about: "why" },
 ];

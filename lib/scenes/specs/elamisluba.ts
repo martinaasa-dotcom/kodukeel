@@ -80,7 +80,14 @@ const RESIDENCE_PERMIT: SceneSpec = {
       they: "They ask what you've brought.",
       move: "ask",
       topic: ["kaasas", "dokument"],
-      needs: [{ kind: "datum", slot: "brought" }],
+      /*
+        Or that they have everything: "Kas teil on kõik kaasas?" is one of the
+        two ways the official asks, and "Jah, kõik on kaasas" answers it.
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "datum", slot: "brought" },
+        { kind: "lemma", oneOf: ["kõik"] },
+      ] }],
       required: true,
       patience: 2,
       shape: "word",
@@ -117,7 +124,7 @@ const RESIDENCE_PERMIT: SceneSpec = {
       */
       move: "offer",
       topic: ["kaart", "päev"],
-      says: [{ lemma: "kaart" }, { lemma: "olema", verb: "IndPrSg3" }, { lemma: "valmis" }, { slot: "ready", grammCase: "ADESSIVE" }],
+      says: [{ lemma: "kaart" }, { lemma: "olema", verb: "IndPrSg3" }, { slot: "ready", grammCase: "ADESSIVE" }, { lemma: "valmis" }],
       needs: [{ kind: "anyOf", of: [
         { kind: "datum", slot: "ready" },
         { kind: "lemma", oneOf: ["jah", "hästi", "selge", "sobima"] },

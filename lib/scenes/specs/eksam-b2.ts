@@ -62,6 +62,8 @@ const EXAM_B2: SceneSpec = {
       needs: [{ kind: "lemma", oneOf: [
         "töötama", "õppima", "töö", "amet", "eriala", "firma", "ülikool", "ettevõte", "ametikoht",
         "õpetaja", "õpilane", "arst", "töötaja", "juht", "kandidaat",
+        // And not working: `Ma ei tööta, olen lastega kodus` is an answer, and `töötama` under a negator is not read as one.
+        "laps",
       ] }],
       required: true,
       patience: 3,
@@ -86,9 +88,10 @@ const EXAM_B2: SceneSpec = {
       feel: "noted",
       move: "ask",
       topic: ["nädal", "neli", "päev", "seisukoht"],
+      // The lemma first, so a tip names a side to take rather than "try saying no".
       needs: [{ kind: "anyOf", of: [
-        { kind: "negation" },
         { kind: "lemma", oneOf: ["jah", "hea", "halb", "arvama", "nõustuma", "seisukoht", "õige"] },
+        { kind: "negation" },
       ] }],
       required: true,
       patience: 3,
@@ -117,9 +120,9 @@ const EXAM_B2: SceneSpec = {
       move: "correct",
       topic: ["vastuväide", "aeg", "töö"],
       needs: [{ kind: "anyOf", of: [
-        { kind: "negation" },
-        // `sest` first: it is the word a learner who is lost is handed, and "because?" asks for the answer.
+        // `sest` first: it is the word a learner who is lost is handed, and "because?" asks for the answer; and before the negation, or the tip said "try saying no" to a pushback.
         { kind: "lemma", oneOf: ["sest", "aga", "ent", "ometi", "kuigi", "nõustuma", "vastuväide", "õige", "seevastu"] },
+        { kind: "negation" },
       ] }],
       required: true,
       patience: 3,

@@ -39,8 +39,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "tehniline-tugi", beat: "hurdle:other-register", text: "Kas sa oled juba midagi proovinud?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15", about: "screen" },
   { scene: "tehniline-tugi", beat: "hurdle:interrupted", text: "Üks minut, palun.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "tehniline-tugi", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "tehniline-tugi", beat: "hurdle:contradiction", text: "Aga minu ekraanil ühendus töötab.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "tehniline-tugi", beat: "hurdle:contradiction", text: "Aga meil on näha, et teie ühendus töötab.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "tehniline-tugi", beat: "hurdle:contradiction", text: "Aga minu ekraanil ühendus töötab.", model: "authored", draftedAt: "2026-10-15", about: "problem" },
+  { scene: "tehniline-tugi", beat: "hurdle:contradiction", text: "Aga meil on näha, et teie ühendus töötab.", model: "authored", draftedAt: "2026-10-15", about: "screen" },
 ];
 
 export default LINES;
