@@ -608,7 +608,8 @@ def student(name="student", layers=(1, 2, 2, 1, 2), teacher="anchored", steps=20
       * the transducer loss on the transcripts, so it stays a recognizer in its own right;
       * the data the app needs: half of every batch real native speech (TalTech's train split, from
         recordings no dev or test segment comes from), half Kodukeel's own dictionary sentences said
-        right and with learner mistakes (scripts/asr-finetune.py data), a room on half of all of it.
+        right and with learner mistakes (scripts/asr-finetune.py data), a room on half of all of it,
+        the babble in those rooms made of real talkers.
 
     Both models run at the decoding chunk the app will use (CHUNK), in inference mode for the masks,
     so what is learned is what is deployed. Resumable: weights, optimizer and step every `every`."""
@@ -637,7 +638,10 @@ def student(name="student", layers=(1, 2, 2, 1, 2), teacher="anchored", steps=20
         print(f"resumed at step {start}", file=sys.stderr, flush=True)
     synth = json.load(open(os.path.join(ROOT, "finetune", "train.json")))
     real = json.load(open(os.path.join(OUT, "anchor", "rows.json")))
-    others = [X.load(c["file"]) for c in json.load(open(os.path.join(ROOT, "corpus.json"))) if c["kind"] == "sentence"]
+    # Background talkers are real speech from the train split, never TTS: the anchored run learned to
+    # ignore TTS babble and gained nothing on real babble (scripts/asr-eval.py, dev). The test noise is
+    # other dev and test recordings, so training and test noise never share a source.
+    others = [X.load(r["file"]) for r in random.Random(9).sample(real, 300)]
     audio = {}
     t0 = time.time()
     for step in range(start, steps):
