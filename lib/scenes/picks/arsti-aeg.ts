@@ -4,7 +4,7 @@ import type { ScenePicks } from "../picks";
 export const arstiAeg: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hello!" },
-    { et: "Tere hommikust!", en: "Good morning!" },
+    { et: "Tere, tere!", en: "Hello, hello!" },
   ],
   reason: [
     { et: "Ma olen haige.", en: "I'm ill." },

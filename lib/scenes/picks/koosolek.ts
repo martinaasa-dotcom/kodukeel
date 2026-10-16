@@ -4,7 +4,7 @@ import type { ScenePicks } from "../picks";
 export const koosolek: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hi!" },
-    { et: "Tere hommikust!", en: "Good morning!" },
+    { et: "Tere, tere!", en: "Hello, hello!" },
   ],
   idea: [
     { et: "Ma ei ole nõus.", en: "I don't agree." },

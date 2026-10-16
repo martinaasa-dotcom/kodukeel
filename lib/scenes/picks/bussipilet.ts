@@ -4,7 +4,7 @@ import type { ScenePicks } from "../picks";
 export const bussipilet: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hi!" },
-    { et: "Tere hommikust!", en: "Good morning!" },
+    { et: "Tere, tere!", en: "Hello, hello!" },
   ],
   want: [
     { et: "Üks pilet, palun.", en: "One ticket, please." },

@@ -3,7 +3,7 @@ import type { ScenePicks } from "../picks";
 /** What a learner may pick to say in `nadalavahetus`, beat by beat. See `lib/scenes/picks.ts`. */
 export const nadalavahetus: ScenePicks = {
   greet: [
-    { et: "Tere hommikust!", en: "Good morning!" },
+    { et: "Tere, tere!", en: "Hello, hello!" },
     { et: "Tere!", en: "Hi!" },
   ],
   how: [

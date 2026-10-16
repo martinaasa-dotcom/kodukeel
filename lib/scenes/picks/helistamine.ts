@@ -4,7 +4,7 @@ import type { ScenePicks } from "../picks";
 export const helistamine: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hello!" },
-    { et: "Tere hommikust!", en: "Good morning!" },
+    { et: "Tere, tere!", en: "Hello, hello!" },
   ],
   why: [
     { et: "Ma tahaksin midagi küsida.", en: "I'd like to ask something." },

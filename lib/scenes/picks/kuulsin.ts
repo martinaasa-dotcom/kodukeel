@@ -4,7 +4,6 @@ import type { ScenePicks } from "../picks";
 export const kuulsin: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hello!" },
-    { et: "Tere hommikust!", en: "Good morning!" },
     { et: "Tere, kuidas läheb?", en: "Hello, how are you?" },
   ],
   news: [

@@ -4,7 +4,7 @@ import type { ScenePicks } from "../picks";
 export const graafik: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hi!" },
-    { et: "Tere hommikust!", en: "Good morning!" },
+    { et: "Tere, tere!", en: "Hello, hello!" },
   ],
   what: [
     { et: "Sel kuul on {trend}.", en: "This month there's a {trend}." },

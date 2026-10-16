@@ -4,7 +4,7 @@ import type { ScenePicks } from "../picks";
 export const elamisluba: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hello!" },
-    { et: "Tere hommikust!", en: "Good morning!" },
+    { et: "Tere, tere!", en: "Hello, hello!" },
   ],
   want: [
     { et: "Ma tulin uue loa pärast.", en: "I've come about a new permit." },

@@ -4,7 +4,7 @@ import type { ScenePicks } from "../picks";
 export const trepikoda: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hi!" },
-    { et: "Tere hommikust!", en: "Good morning!" },
+    { et: "Tere, tere!", en: "Hello, hello!" },
   ],
   new: [
     { et: "Jah, ma olen uus.", en: "Yes, I'm new." },

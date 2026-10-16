@@ -4,7 +4,7 @@ import type { ScenePicks } from "../picks";
 export const pangas: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hello!" },
-    { et: "Tere hommikust!", en: "Good morning!" },
+    { et: "Tere, tere!", en: "Hello, hello!" },
   ],
   want: [
     { et: "Ma tahaksin kontot avada.", en: "I'd like to open an account." },

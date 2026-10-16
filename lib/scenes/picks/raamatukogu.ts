@@ -4,7 +4,7 @@ import type { ScenePicks } from "../picks";
 export const raamatukogu: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hello!" },
-    { et: "Tere hommikust!", en: "Good morning!" },
+    { et: "Tere, tere!", en: "Hello, hello!" },
   ],
   want: [
     { et: "Kas ma saaksin raamatukogu kaardi?", en: "Could I get a library card?" },

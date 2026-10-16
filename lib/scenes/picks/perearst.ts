@@ -4,7 +4,7 @@ import type { ScenePicks } from "../picks";
 export const perearst: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hello!" },
-    { et: "Tere hommikust!", en: "Good morning!" },
+    { et: "Tere, tere!", en: "Hello, hello!" },
   ],
   hurts: [
     { et: "Mul valutab {hurts}.", en: "My {hurts} hurts." },

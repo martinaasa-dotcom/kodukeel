@@ -4,7 +4,7 @@ import type { ScenePicks } from "../picks";
 export const eksamB2: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hello!" },
-    { et: "Tere hommikust!", en: "Good morning!" },
+    { et: "Tere, tere!", en: "Hello, hello!" },
   ],
   work: [
     { et: "Ma töötan ühes firmas.", en: "I work at a company." },

@@ -4,7 +4,7 @@ import type { ScenePicks } from "../picks";
 export const apteek: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hello!" },
-    { et: "Tere hommikust!", en: "Good morning!" },
+    { et: "Tere, tere!", en: "Hello, hello!" },
   ],
   what: [
     { et: "Mul valutab {hurts}.", en: "My {hurts} hurts." },

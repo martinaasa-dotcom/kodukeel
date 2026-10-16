@@ -4,7 +4,7 @@ import type { ScenePicks } from "../picks";
 export const turul: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hello!" },
-    { et: "Tere hommikust!", en: "Good morning!" },
+    { et: "Tere, tere!", en: "Hello, hello!" },
   ],
   some: [
     { et: "Palun natuke {some:PARTITIVE}.", en: "Some {some}, please." },

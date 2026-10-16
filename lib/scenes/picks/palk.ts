@@ -4,7 +4,7 @@ import type { ScenePicks } from "../picks";
 export const palk: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hello!" },
-    { et: "Tere hommikust!", en: "Good morning!" },
+    { et: "Tere, tere!", en: "Hello, hello!" },
   ],
   topic: [
     { et: "Ma tahan rääkida palgast.", en: "I want to talk about my pay." },
