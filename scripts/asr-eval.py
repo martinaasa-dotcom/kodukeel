@@ -455,6 +455,7 @@ SCORERS = {
     "xls-r, anchored": lambda: xlsr_scorer(os.path.join(FT, "model-anchored")),
     "trainable zipformer": lambda: transducer_scorer("before"),
     "trainable zipformer, anchored": lambda: transducer_scorer("anchored"),
+    "student": lambda: transducer_scorer("student"),
 }
 
 
@@ -473,6 +474,8 @@ def falsealarm(split, only=None):
         if "anchored" in name and not os.path.exists(os.path.join(FT, "model-anchored") if "xls" in name else os.path.join(ROOT, "icefall", "anchored.pt")):
             continue
         if name == "xls-r, synthetic only" and not os.path.isdir(os.path.join(FT, "model")):
+            continue
+        if name == "student" and not os.path.exists(os.path.join(ROOT, "icefall", "student.sd.pt")):
             continue
         margin = build()
         rows = []

@@ -512,7 +512,13 @@ class Scorer:
         import torch
         torch.set_num_threads(os.cpu_count() or 4)
         self.torch = torch
-        self.m, self.sp = model_and_pieces(None if name == "before" else os.path.join(OUT, f"{name}.pt"))
+        if name.startswith("student"):
+            # a student is saved as Icefall's own modules; it is scored at the chunk it was trained at
+            state = torch.load(os.path.join(OUT, f"{name}.sd.pt"), weights_only=False)
+            self.m = eager(name, tuple(state["layers"]), int(os.environ.get("CHUNK", "32")))
+            _, self.sp = model_and_pieces()
+        else:
+            self.m, self.sp = model_and_pieces(None if name == "before" else os.path.join(OUT, f"{name}.pt"))
         self.m.eval()
         self.enc = {}
         path = os.path.join(OUT, f"nll-{name}.json")
