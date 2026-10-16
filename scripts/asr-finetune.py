@@ -124,7 +124,7 @@ def data():
 ROOMS = ("babble10", "phone", "echo", "white10")
 
 
-def train(steps=800, batch=4, lr=3e-5, unfrozen=8, every=100):
+def train(steps=800, batch=4, lr=3e-5, unfrozen=8, every=100, name="model", anchored=0):
     """Resumable: the trainable weights and the optimizer are saved every `every` steps, and a run
     started again picks up there. Each step draws its batch from a generator seeded by the step, so
     a resumed run sees the same batches an unbroken one would."""
@@ -148,7 +148,10 @@ def train(steps=800, batch=4, lr=3e-5, unfrozen=8, every=100):
     trainable = [p for p in model.parameters() if p.requires_grad]
     names = [n for n, p in model.named_parameters() if p.requires_grad]
     opt = torch.optim.AdamW(trainable, lr=lr)
-    ckpt = os.path.join(OUT, "checkpoint.pt")
+    ckpt = os.path.join(OUT, "checkpoint.pt" if name == "model" else f"checkpoint-{name}.pt")
+    # Real native speech beside the synthetic clips (the anchor set scripts/asr-icefall.py fetches,
+    # from recordings the 200 real test segments never come from), so the model keeps what it knew.
+    real = json.load(open(os.path.join(ROOT, "icefall", "anchor", "rows.json"))) if anchored else []
     start = 0
     if os.path.exists(ckpt):
         state = torch.load(ckpt, weights_only=False)
@@ -160,12 +163,12 @@ def train(steps=800, batch=4, lr=3e-5, unfrozen=8, every=100):
         start = state["step"]
         print(f"resumed at step {start}", file=sys.stderr, flush=True)
     others = [X.load(c["file"]) for c in json.load(open(os.path.join(ROOT, "corpus.json"))) if c["kind"] == "sentence"]
-    audio = {r["file"]: X.load(r["file"]) for r in rows}
+    audio = {r["file"]: X.load(r["file"]) for r in rows + real}
     vocab = proc.tokenizer.get_vocab()
     t0 = time.time()
     for step in range(start, steps):
         rng = random.Random(1000 + step)
-        sample = rng.sample(rows, batch)
+        sample = rng.sample(rows, batch - anchored) + rng.sample(real, anchored)
         waves, labels = [], []
         for r in sample:
             a = audio[r["file"]]
@@ -194,8 +197,8 @@ def train(steps=800, batch=4, lr=3e-5, unfrozen=8, every=100):
                         "optimizer": opt.state_dict()}, tmp)
             os.replace(tmp, ckpt)
             print(f"checkpoint at step {step + 1}", file=sys.stderr, flush=True)
-    model.save_pretrained(os.path.join(OUT, "model"))
-    proc.save_pretrained(os.path.join(OUT, "model"))
+    model.save_pretrained(os.path.join(OUT, name))
+    proc.save_pretrained(os.path.join(OUT, name))
     if os.path.exists(ckpt):
         os.remove(ckpt)
     print("saved", file=sys.stderr)
@@ -211,7 +214,9 @@ def evaluate():
     sets = json.load(open(os.path.join(ROOT, "verdict", "sets.json")))["sentences"]
     held = [r for r in sets if r["voice"] in ("kalev", "liivika")]
     clean = {(r["text"], r["voice"]): r["right_file"] for r in held}
-    for name, mid in (("before", MODEL), ("after", os.path.join(OUT, "model"))):
+    for name, mid in (("before", MODEL), ("after", os.path.join(OUT, "model")), ("anchored", os.path.join(OUT, "model-anchored"))):
+        if name == "anchored" and not os.path.isdir(mid):
+            continue
         path = os.path.join(OUT, f"eval_{name}.json")
         if not os.path.exists(path):
             proc = AutoProcessor.from_pretrained(mid)
@@ -249,10 +254,11 @@ def verdict():
     sets = json.load(open(os.path.join(V.OUT, "sets.json")))
     refs = json.load(open(os.path.join(V.OUT, "refs.json")))
     words = [w for w in sets["words"] if w["voice"] in V.HELD]
-    mid = os.path.join(OUT, "model")
+    tuned = os.environ.get("TUNED", "model")  # model-anchored for the anchored run
+    mid = os.path.join(OUT, tuned)
     proc = AutoProcessor.from_pretrained(mid)
     model = AutoModelForCTC.from_pretrained(mid).eval()
-    cache = os.path.join(OUT, "lp")
+    cache = os.path.join(OUT, "lp" if tuned == "model" else f"lp-{tuned}")
     os.makedirs(cache, exist_ok=True)
 
     def lp(path):
@@ -314,4 +320,6 @@ def real():
 
 
 if __name__ == "__main__":
-    {"data": data, "train": train, "eval": evaluate, "verdict": verdict, "real": real}[sys.argv[1] if len(sys.argv) > 1 else "eval"]()
+    {"data": data, "train": train, "eval": evaluate, "verdict": verdict, "real": real,
+     # half of every batch real speech, which the run above lacked and forgot real speech without
+     "train-anchored": lambda: train(name="model-anchored", anchored=2)}[sys.argv[1] if len(sys.argv) > 1 else "eval"]()
