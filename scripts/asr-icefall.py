@@ -715,7 +715,7 @@ def student(name="student", layers=(1, 2, 2, 1, 2), teacher="anchored", steps=20
 
 def report():
     rows = held()
-    for name in ("large", "before", "after", "anchored", "anchored-onnx", "anchored2", "anchored2-onnx"):
+    for name in ("large", "before", "after", "anchored", "anchored-onnx", "anchored-c32-onnx", "anchored2", "anchored2-onnx"):
         path = os.path.join(OUT, f"eval_{name}.json")
         if not os.path.exists(path):
             continue
