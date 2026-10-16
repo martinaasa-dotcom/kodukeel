@@ -1316,9 +1316,21 @@ function satisfies(
       const said = spokenNumbers(text);
       const runs: string[] = [...(text.toLowerCase().match(/\d{1,2}[:.]\d{2}|\d+/g) ?? []), ...said];
       const isDigits = (value: string) => /^\d{1,2}([:.]\d{2})?$/.test(value);
+      /*
+        AND A REFERENCE TYPED WITH ITS SPACES OR WITHOUT ITS DASH IS THE SAME
+        REFERENCE. Told to give the number one digit at a time, a learner who
+        wrote `7 8 5 0` was answered as off the point, and `kk7850` as a
+        fragment. A value holding three or more digits is compared with the
+        separators taken out of both sides, and never with a digit beside it.
+      */
+      const compact = text.toLowerCase().replace(/[\s\-\u2013.,]+/g, "");
+      const typedTogether = (value: string) => {
+        const bare = value.toLowerCase().replace(/[\s\-\u2013]+/g, "");
+        return /\d{3}/.test(bare) && new RegExp(`(^|\\D)${bare.replace(/[^\p{L}\d]/gu, "")}(\\D|$)`, "u").test(compact);
+      };
       const literal = [...accepted].find((value) => (isDigits(value)
         ? runs.includes(value)
-        : /\d|\s/.test(value) && (wholeLiteral(lower, value) || said.includes(value.replace(/\D/g, "")))));
+        : /\d|\s/.test(value) && (wholeLiteral(lower, value) || said.includes(value.replace(/\D/g, "")) || typedTogether(value))));
       if (literal) return { word: literal };
       const near = nearly(accepted);
       if (near) return { word: near.form, slip: { kind: "spelling", said: near.said, form: near.form, lemma: near.form } };
