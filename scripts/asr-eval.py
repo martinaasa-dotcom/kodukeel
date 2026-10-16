@@ -340,6 +340,7 @@ def report(split):
 VOWEL_SWAP = {"õ": "o", "ä": "a", "ö": "o", "ü": "u", "o": "õ", "a": "ä", "u": "ü"}
 VOICE_SWAP = {"b": "p", "p": "b", "d": "t", "t": "d", "g": "k", "k": "g"}
 REF_VOICES = ("vesta", "peeter")
+PAIRS_PER_SEGMENT = 3
 
 
 def partners(w, forms):
@@ -359,11 +360,33 @@ def partners(w, forms):
     return sorted((k, p) for k, p in out if p != w and p in forms)
 
 
+CASE_ENDINGS = ("s", "st", "sse", "l", "lt", "le", "ks", "ni", "na", "ta", "ga")
+PERSON_ENDINGS = ("n", "d", "b", "me", "te", "vad")
+
+
+def dictionary_words():
+    """The spellings a Kodukeel exercise could be built on: every word of the built dictionary, its
+    stored forms, the ten cases on its genitive stem and the present persons on its first person (the
+    rules `lib/estonian/gapForms.ts` applies). A pair whose partner is only a rare spelling in the
+    5.7 million word forms list is a pair no exercise would ever use."""
+    out = set()
+    for e in json.load(open(os.path.join("prisma", "data", "expanded.json"))):
+        out.add(e["lemma"].lower())
+        f = {x["formType"]: x["value"].lower() for x in e.get("forms", [])}
+        out.update(f.values())
+        if "GEN_SG" in f:
+            out.update(f["GEN_SG"] + end for end in CASE_ENDINGS)
+        if "PRES_1SG" in f and f["PRES_1SG"].endswith("n"):
+            out.update(f["PRES_1SG"][:-1] + end for end in PERSON_ENDINGS)
+    return out
+
+
 def pairs(split):
-    """One word a segment with a real partner, the segment's text said both ways by two reference
-    voices (TartuNLP, free, cached): the references the app would build for an exercise."""
+    """One word a segment with a partner, both words ones the app's dictionary reaches, the segment's
+    text said both ways by two reference voices (TartuNLP, free, cached): the references the app
+    would build for an exercise."""
     rows = json.load(open(os.path.join(OUT, f"{split}.json")))
-    forms = X.forms()
+    forms = X.forms() & dictionary_words()
     rng = random.Random(f"pairs-{split}")
     path = os.path.join(OUT, f"pairs-{split}.json")
     out = json.load(open(path)) if os.path.exists(path) else []
@@ -376,17 +399,23 @@ def pairs(split):
         cands = []
         for i, tok in enumerate(toks):
             core = re.sub(r"[^\wõäöüšž]", "", tok.lower())
-            if len(core) >= 3:
+            if len(core) >= 3 and core in forms:
                 cands += [(i, core, k, p) for k, p in partners(core, forms)]
         if not cands:
             continue
-        i, core, kind, partner = rng.choice(cands)
-        wrong = list(toks)
-        wrong[i] = toks[i].lower().replace(core, partner)
-        wrong = " ".join(wrong)
-        refs = {v: [X.tartu(text, v), X.tartu(wrong, v)] for v in REF_VOICES}
-        out.append({"file": r["file"], "source": r["source"], "text": text, "wrong": wrong, "word": core,
-                    "partner": partner, "kind": kind, "refs": refs})
+        # Up to three different words a segment; the interval resamples whole recordings, so pairs from
+        # one speaker are not counted as independent evidence.
+        by_word = {}
+        for c in cands:
+            by_word.setdefault(c[0], []).append(c)
+        for i in rng.sample(sorted(by_word), min(PAIRS_PER_SEGMENT, len(by_word))):
+            _, core, kind, partner = rng.choice(by_word[i])
+            wrong = list(toks)
+            wrong[i] = toks[i].lower().replace(core, partner)
+            wrong = " ".join(wrong)
+            refs = {v: [X.tartu(text, v), X.tartu(wrong, v)] for v in REF_VOICES}
+            out.append({"file": r["file"], "source": r["source"], "text": text, "wrong": wrong, "word": core,
+                        "partner": partner, "kind": kind, "refs": refs})
         json.dump(out, open(path, "w"), ensure_ascii=False)
     print(split, len(out), "pairs from", len(rows), "segments", file=sys.stderr)
 
