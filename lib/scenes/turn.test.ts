@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildLexicon, caseKeyFor, type DictEntry } from "./lexicon";
-import { addsEvidence, advances, readTurn, type TurnContext } from "./turn";
+import { addsEvidence, advances, answerPart, readTurn, type TurnContext } from "./turn";
 import type { BeatSpec } from "./types";
 
 /**
@@ -1399,5 +1399,22 @@ describe("the way is asked for by saying what you are looking for", () => {
     expect(readTurn("ma otsin panka", where, seen).reading).toBe("complete");
     // And a question still does, which is the half that was already right.
     expect(readTurn("kus on pank?", where, seen).reading).toBe("complete");
+  });
+});
+
+describe("the answer part of a turn", () => {
+  const floor = {
+    id: "floor", goal: "Say which floor.", they: "They ask which floor.", move: "ask", topic: ["korrus"],
+    needs: [{ kind: "datum", slot: "floor" }], required: true, patience: 2, shape: "word",
+  } as unknown as BeatSpec;
+  const questionWords = new Set(["kus", "mis", "kust"]);
+
+  // `words` holds letters only, so a bare number read as an empty sentence and a late "5" credited nothing.
+  it("keeps a sentence that is only a number", () => {
+    expect(answerPart("5", floor, questionWords)).toBe("5");
+  });
+
+  it("still drops a question asked beside the answer", () => {
+    expect(answerPart("Viiendal. Kust te olete?", floor, questionWords)).toBe("Viiendal.");
   });
 });

@@ -1810,7 +1810,9 @@ export function answerPart(text: string, beat: BeatSpec, questionWords: Readonly
   return text.split(/(?<=[.!?])\s+/)
     .filter((sentence) => {
       const said = words(sentence);
-      return said.length > 0 && !(/\?\s*$/.test(sentence) && said[0] !== "kas" && questionWords.has(said[0]!));
+      // Not `said.length > 0`: `words` holds no digits, and "5" is a floor answered late.
+      if (sentence.trim().length === 0) return false;
+      return !(/\?\s*$/.test(sentence) && said[0] !== undefined && said[0] !== "kas" && questionWords.has(said[0]));
     })
     .join(" ");
 }
