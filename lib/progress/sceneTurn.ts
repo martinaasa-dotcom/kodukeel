@@ -517,7 +517,11 @@ export function planTurn(input: TurnInput) {
       // A turn that answered a beat the other side had moved past is not a miss.
       landed: elsewhere > 0,
       hurdle: standing
-        ? { beat: standing, line: standing === spokenFor ? said : null, said: hurdleSpec(state)?.said, then: askedOn }
+        ? {
+          beat: standing, line: standing === spokenFor ? said : null, said: hurdleSpec(state)?.said, then: askedOn,
+          // Raised on this turn, rather than standing since an earlier one.
+          fresh: state.turns.at(-1)?.beatId !== standing.id,
+        }
         : null,
       answered: sent ? answered : null,
       response: sent ? response : null,
@@ -561,7 +565,14 @@ export function planTurn(input: TurnInput) {
         spoken, which is what the break in time is printed on: a scene that
         walks somebody to a shop has to say so before it asks where they are.
       */
-      arriving: speaking ? !state.turns.some((turn) => turn.beatId === speaking.id) : false,
+      /*
+        And not on the turn after a curveball stood in front of it: the break
+        was printed when the curveball arrived (`hurdle.fresh`), and a break
+        in time said twice is two breaks.
+      */
+      arriving: speaking
+        ? !state.turns.some((turn) => turn.beatId === speaking.id) && !(state.turns.at(-1)?.beatId.startsWith("hurdle:") ?? false)
+        : false,
       /*
         How long they have been on this beat, so the app knows when to step
         out of character and say what is wanted (`lib/scenes/coach.ts`). Turns

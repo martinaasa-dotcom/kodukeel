@@ -124,6 +124,8 @@ function flagsFor(scene: SceneSpec, events: readonly Event[], label: string, car
   let sawThem = 0;
   let notPossibleSaid = false;
   let over = false;
+  // The line after a break in time opens a new encounter, where a hello is what anybody says (eksam-b1's phone call).
+  let afterBreak = false;
   const where = () => `${label} after "${lastYou}"`;
   for (const e of events) {
     if (e.kind === "you") { lastYou = e.said; lastTarget = e.target; for (const d of e.said.match(/\d+/g) ?? []) dealt.add(d); continue; }
@@ -132,6 +134,8 @@ function flagsFor(scene: SceneSpec, events: readonly Event[], label: string, car
     const { line } = e;
     const text = line.text;
     sawThem += 1;
+    const newEncounter = afterBreak;
+    afterBreak = line.provenance === "meanwhile";
     const asked = lastRead?.asked ?? null;
     const landed = lastRead?.response === "answer";
     const youSaidBye = FAREWELL.test(lastYou);
@@ -151,7 +155,7 @@ function flagsFor(scene: SceneSpec, events: readonly Event[], label: string, car
       if (!closing) flags.push({ rule: "farewell-early", at: where(), text, context: "scene goes on" });
     }
     // Not the greeting offered or said again to somebody who has not greeted yet.
-    if (sawThem > 1 && GREETING.test(text) && line.provenance !== "offered" && line.provenance !== "again") flags.push({ rule: "greeting-midscene", at: where(), text, context: line.provenance });
+    if (sawThem > 1 && !newEncounter && GREETING.test(text) && line.provenance !== "offered" && line.provenance !== "again") flags.push({ rule: "greeting-midscene", at: where(), text, context: line.provenance });
     // 4. A number nobody dealt.
     for (const d of text.match(/\d+/g) ?? []) {
       if (!dealt.has(d)) flags.push({ rule: "number-not-dealt", at: where(), text, context: d });

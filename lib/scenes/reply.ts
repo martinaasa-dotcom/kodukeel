@@ -116,6 +116,8 @@ export interface ReplyInput {
      * question nobody had asked them; a person in a hurry still asks it.
      */
     readonly then?: string | null;
+    /** The curveball was raised on this turn, so a break in time behind it is printed now. */
+    readonly fresh?: boolean;
   } | null;
   /**
    * The learner's own word that met the beat, to be repeated back: "Poodi."
@@ -1510,6 +1512,17 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     again where the learner did not answer it, like any other move.
   */
   if (input.hurdle) {
+    /*
+      THE BREAK IN TIME COMES FIRST. A curveball standing in front of a beat
+      that walks the learner somewhere took the beat's place on the screen, and
+      the line saying where they now were went with it: "Part three, a phone
+      call" was never printed, and the school answering the phone read as a
+      greeting in the middle of an examination. Time passes, then the thing
+      goes wrong.
+    */
+    if (input.hurdle.fresh && beat.meanwhile && beat !== answered && input.arriving) {
+      out.push({ text: stageFor({ ...beat, they: beat.meanwhile }, card), provenance: "meanwhile" });
+    }
     // A line composed for this turn wins over the repeat here too, and for its reason.
     if (input.hurdle.line?.provenance === "composed") out.push(input.hurdle.line);
     else if (sayAgainWanted(response, reading, heard)) out.push(saidAgain(heard!));
@@ -1755,7 +1768,20 @@ function isFarewell(text: string, close: BeatSpec): boolean {
   const letters = (s: string) => (s.match(/\p{L}+/gu) ?? []).join(" ").toLowerCase();
   const said = letters(text);
   const goodbyes = [...FAREWELLS, ...leafNeeds(close.needs).flatMap(({ need }) => (need.kind === "lemma" ? need.oneOf : []))];
-  return said.length > 0 && goodbyes.some((bye) => letters(bye) === said);
+  if (said.length > 0 && goodbyes.some((bye) => letters(bye) === said)) return true;
+  /*
+    A SENTENCE OF THE LINE IS ENOUGH. "Väga tore, aitäh! Me anname teada. Head
+    aega!" ends on a goodbye and was not read as one, because the whole line
+    had to be a farewell, so the interviewer said a second closing line after
+    the learner's thanks. A farewell standing as a sentence of its own counts;
+    thanks does not, since "aitäh" inside a line is gratitude, not leaving.
+  */
+  const leaving = FAREWELLS.map(letters);
+  return text.split(/(?<=[.!?])\s+/).some((sentence) => {
+    const its = letters(sentence);
+    // "Aitäh, head aega!" ends on one, which is leaving with thanks in front.
+    return leaving.some((bye) => its === bye || its.endsWith(` ${bye}`));
+  });
 }
 
 /**

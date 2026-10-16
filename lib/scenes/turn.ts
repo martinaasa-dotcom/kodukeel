@@ -1059,6 +1059,18 @@ function satisfies(
       return YES;
     case "lemma": {
       for (const lemma of need.oneOf) {
+        /*
+          A PHRASE IS MET WHOLE. A phrase's forms are its own words
+          (`formsOf`), so `Head aega!` was met by `aega` alone, and "Kui kaua
+          see aega võtab?" ended a call with the other side's goodbye. Its
+          words in order, then, the way `LOST` already reads its phrase.
+        */
+        const parts = words(lemma);
+        if (parts.length > 1) {
+          const at = spoken.findIndex((_, i) => parts.every((part, k) => spoken[i + k] === part));
+          if (at >= 0) return { word: spoken[at]! };
+          continue;
+        }
         const forms = context.lexicon.byLemma.get(lemma);
         const hit = exact(forms);
         if (hit) return { word: hit, ...personSlip(hit, lemma, spoken, context) };

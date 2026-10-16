@@ -169,6 +169,14 @@ export function fitsIn(scene: SceneSpec): (id: CurveballId, at: number) => boole
     about.set(id, new Set([...(about.get(id) ?? []), row.about]));
   }
   return (id, at) => {
+    /*
+      NEVER IN FRONT OF A BEAT THAT OPENS A NEW ENCOUNTER. A beat with a break
+      in time is often somebody new: the examination's third part is a school
+      answering the phone. A curveball standing there spoke before the phone
+      was answered, and the school's "Tere, kool kuuleb" then read as a hello
+      in the middle of a call already going.
+    */
+    if (scene.beats[at]?.meanwhile) return false;
     const beats = about.get(id);
     return !beats || beats.has(scene.beats[at - 1]?.id ?? "");
   };
