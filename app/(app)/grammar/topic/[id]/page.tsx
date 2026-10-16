@@ -240,7 +240,7 @@ export default async function TopicPage({
                   <dt className="label-xs" style={{ color: "var(--cta)" }}>{t("Called")}</dt>
                   <FitText as="dd" text={term.et} lang="et" className="font-display mt-1 font-bold leading-tight [--fit-max:var(--text-2xl)] xl:[--fit-max:var(--text-3xl)]" style={{ color: "var(--ink)" }} />
                   {term.alsoCalled && (
-                    <dd className="mt-0.5 text-sm" style={{ color: "var(--ink-2)" }}>
+                    <dd className="mt-0.5 text-sm text-balance" style={{ color: "var(--ink-2)" }}>
                       {fill(t("{name} in an English grammar book"), { name: t(term.alsoCalled) })}
                     </dd>
                   )}
@@ -257,7 +257,7 @@ export default async function TopicPage({
                       point taught in a language the reader came here to
                       learn. See `lib/estonian/cases.ts`. */}
                   {questionReading(term.question, locale) && (
-                    <dd className="mt-0.5 text-sm" style={{ color: "var(--ink-2)" }}>
+                    <dd className="mt-0.5 text-sm text-balance" style={{ color: "var(--ink-2)" }}>
                       {questionReading(term.question, locale)}
                     </dd>
                   )}

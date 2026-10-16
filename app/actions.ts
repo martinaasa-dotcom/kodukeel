@@ -95,6 +95,7 @@ import {
 import { localeFor } from "@/lib/progress/locale";
 import { courseReading, dayIsInPlay, openingPart, openingPartFor, programmeFor } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
+import { doneKeyFrom, doneToday, withDone } from "@/lib/ux/workbookDone";
 import { adaptOfferFor, SNOOZE_DAYS } from "@/lib/progress/adapt";
 import { clip } from "@/lib/copy/clip";
 import { isConfirmed } from "@/lib/copy/confirmWord";
@@ -1436,6 +1437,26 @@ export async function recordWorkbookGrades(grades: unknown) {
   revalidatePath("/");
   revalidatePath("/words");
   return { ok: true as const, graded: result.settled.length };
+}
+
+/**
+ * Says a workbook page was finished today, so its button on Practice can show
+ * it. Only the choice (`set` or a theme) is taken from the caller, checked
+ * against what a page can be; the day is the learner's own, worked out here.
+ */
+export async function markWorkbookDone(choice: unknown) {
+  const ownerId = await requireUserId();
+  const key = doneKeyFrom(choice);
+  if (!key) return { ok: false as const };
+  const [clock, stored] = await Promise.all([
+    learnerDayClock(ownerId),
+    readSetting(ownerId, SETTING_KEYS.workbookDone),
+  ]);
+  const today = clock.dayKey();
+  if (doneToday(stored, today).has(key)) return { ok: true as const };
+  await writeSetting(ownerId, SETTING_KEYS.workbookDone, withDone(stored, today, key));
+  revalidatePath("/practice");
+  return { ok: true as const };
 }
 
 /**

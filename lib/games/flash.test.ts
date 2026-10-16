@@ -400,6 +400,23 @@ describe("markFlash", () => {
     expect(markFlash(inflect, "toas").rating).toBe(3);
   });
 
+  it("takes a verb form with its subject pronoun in front, and only the right one", () => {
+    const verbTask = (slot: string) => flashTask({
+      word: LUGEMA,
+      slot: askableSlots(LUGEMA).find((s) => s.slot === slot)!,
+      cardId: "card-2",
+      step: 0,
+    })!;
+    const first = verbTask("IndPrSg1");
+    expect(markFlash(first, "loen").right).toBe(true);
+    expect(markFlash(first, "ma loen").right).toBe(true);
+    expect(markFlash(first, "Mina loen").right).toBe(true);
+    expect(markFlash(first, "sa loen").right).toBe(false);
+    const third = verbTask("IndPrSg3");
+    expect(markFlash(third, "ta loeb").right).toBe(true);
+    expect(markFlash(third, "ma loeb").right).toBe(false);
+  });
+
   it("names the ending the learner reached for instead", () => {
     const mark = markFlash(inflect, "toast");
     expect(mark.right).toBe(false);
