@@ -329,41 +329,83 @@ def _recipe():
     return recipe
 
 
-def export(name):
-    """A trained .pt as the three ONNX files sherpa-onnx reads, through icefall's own export code."""
-    import importlib
-    import torch
+FULL = (2, 4, 3, 2, 4)          # encoder layers per stack, as TalTech trained it
+KEEP = {(1, 2, 2, 1, 2): ((1,), (1, 3), (0, 2), (1,), (1, 3))}  # which teacher layers a student starts from
+
+
+def eager(name="before", layers=FULL, chunk=16):
+    """The model as Icefall's own Python modules, weights loaded: from TalTech's TorchScript file or a
+    fine-tune of it (`name`), or from a student's saved state (`student*`). A student keeps every other
+    layer of each stack (`KEEP`), so it starts from the teacher's own weights rather than from nothing.
+
+    TalTech's file was scripted after Icefall's inference conversion (balancers and whitening gone,
+    each norm's learned epsilon folded into a constant), so the conversion comes first, then the
+    weights, then the constants."""
     _recipe()
     from decoder import Decoder
     from joiner import Joiner
     from model import Transducer
     from scaling_converter import convert_scaled_to_non_scaled
     from zipformer import Zipformer
-    ex = importlib.import_module("export-onnx")
-    m, _ = model_and_pieces(None if name == "before" else os.path.join(OUT, f"{name}.pt"))
     encoder = Zipformer(num_features=80, output_downsampling_factor=2,
                         zipformer_downsampling_factors=(1, 2, 4, 8, 2), encoder_dims=(384,) * 5,
                         attention_dim=(192,) * 5, encoder_unmasked_dims=(256,) * 5, nhead=(8,) * 5,
                         feedforward_dim=(1024, 1024, 2048, 2048, 1024), cnn_module_kernels=(31,) * 5,
-                        num_encoder_layers=(2, 4, 3, 2, 4), num_left_chunks=4, short_chunk_size=50,
-                        decode_chunk_size=16)
+                        num_encoder_layers=layers, num_left_chunks=4, short_chunk_size=50,
+                        decode_chunk_size=chunk)
     model = Transducer(encoder=encoder, decoder=Decoder(vocab_size=1000, decoder_dim=512, blank_id=0, context_size=2),
                        joiner=Joiner(encoder_dim=384, decoder_dim=512, joiner_dim=512, vocab_size=1000),
                        encoder_dim=384, decoder_dim=512, joiner_dim=512, vocab_size=1000)
-    # TalTech's file was scripted after icefall's own inference conversion (balancers and whitening
-    # gone, each norm's learned epsilon folded into a constant), so the conversion comes first here,
-    # then the weights, then the constants read off the scripted norms one by one.
     model.eval()
     convert_scaled_to_non_scaled(model, inplace=True)
-    model.load_state_dict(m.state_dict(), strict=True)
-    scripted = dict(m.named_modules())
-    folded = 0
+    if name.startswith("student"):
+        import torch
+        state = torch.load(os.path.join(OUT, f"{name}.sd.pt"), weights_only=False)
+        model.load_state_dict(state["weights"], strict=True)
+        eps = state["eps"]
+    else:
+        m, _ = model_and_pieces(None if name == "before" else os.path.join(OUT, f"{name}.pt"))
+        sd = m.state_dict()
+        eps = {p: float(mod.eps_exp) for p, mod in m.named_modules() if hasattr(mod, "eps_exp")}
+        if layers != FULL:
+            sd, eps = _prune(sd, eps, KEEP[layers])
+        model.load_state_dict(sd, strict=True)
     for path, mod in model.named_modules():
         if hasattr(mod, "eps_exp"):
-            mod.eps_exp = float(scripted[path].eps_exp)
-            folded += 1
-    print("norm constants copied:", folded, file=sys.stderr)
-    d = os.path.join(OUT, f"onnx-{name}")
+            mod.eps_exp = eps[path]
+    return model
+
+
+def _layer_prefix(stack):
+    return f"encoder.encoders.{stack}.layers." if stack == 0 else f"encoder.encoders.{stack}.encoder.layers."
+
+
+def _prune(sd, eps, keep):
+    """The teacher's state with only the kept layers of each stack, renumbered from 0."""
+    out, out_eps = {}, {}
+    for table, dst in ((sd, out), (eps, out_eps)):
+        for k, v in table.items():
+            for stack, kept in enumerate(keep):
+                pre = _layer_prefix(stack)
+                if k.startswith(pre):
+                    i, rest = k[len(pre):].split(".", 1) if "." in k[len(pre):] else (k[len(pre):], "")
+                    if int(i) in kept:
+                        dst[pre + str(kept.index(int(i))) + ("." + rest if rest else "")] = v
+                    break
+            else:
+                dst[k] = v
+    return out, out_eps
+
+
+def export(name):
+    """A model as the three int8 ONNX files sherpa-onnx reads, through Icefall's own export code.
+    CHUNK (frames of 10 ms halved, default 16) is the decoding chunk; a student also reads LAYERS."""
+    import importlib
+    chunk = int(os.environ.get("CHUNK", "16"))
+    layers = tuple(int(x) for x in os.environ.get("LAYERS", ",".join(map(str, FULL))).split(","))
+    model = eager(name, layers, chunk)
+    ex = importlib.import_module("export-onnx")
+    d = os.path.join(OUT, f"onnx-{name}" + (f"-c{chunk}" if chunk != 16 else ""))
     os.makedirs(d, exist_ok=True)
     ex.export_encoder_model_onnx(ex.OnnxEncoder(encoder=model.encoder, encoder_proj=model.joiner.encoder_proj),
                                  os.path.join(d, "encoder.onnx"), opset_version=13)
@@ -457,6 +499,204 @@ def combine():
             print(f"  {name:30} {room or 'clean':10} {X.wer(pairs):5.2f}%")
 
 
+# ------------------------------------------------------------------ the pronunciation verdict, by the transducer
+
+class Scorer:
+    """How well a transcript explains a recording, as the transducer's own negative log likelihood.
+
+    The same question `scripts/asr-verdict.py` asks of xls-r with CTC: the recording is scored against
+    the two spellings of a pair and placed between native references of each. If a Zipformer can do
+    this as well as xls-r, the app ships one model instead of two."""
+
+    def __init__(self, name):
+        import torch
+        torch.set_num_threads(os.cpu_count() or 4)
+        self.torch = torch
+        self.m, self.sp = model_and_pieces(None if name == "before" else os.path.join(OUT, f"{name}.pt"))
+        self.m.eval()
+        self.enc = {}
+        path = os.path.join(OUT, f"nll-{name}.json")
+        self.path = path
+        self.cache = json.load(open(path)) if os.path.exists(path) else {}
+
+    def encode(self, f):
+        if f not in self.enc:
+            if len(self.enc) > 64:
+                self.enc.clear()
+            a = np.concatenate([np.zeros(int(RATE * 0.3), np.float32), X.load(f), np.zeros(int(RATE * 0.8), np.float32)])
+            feat = fbank(a)
+            with self.torch.inference_mode():
+                e, el = self.m.encoder(feat.unsqueeze(0), self.torch.tensor([feat.shape[0]]))
+                self.enc[f] = (self.m.joiner.encoder_proj(e), el)
+        return self.enc[f]
+
+    def nll(self, f, text):
+        key = f"{f}|{text}"
+        if key not in self.cache:
+            import torchaudio.functional as F
+            torch = self.torch
+            e, el = self.encode(f)
+            y = self.sp.encode(label(text))
+            with torch.inference_mode():
+                sos = torch.tensor([[0] + y])
+                dec = self.m.joiner.decoder_proj(self.m.decoder(sos, need_pad=True))
+                logits = self.m.joiner.output_linear(torch.tanh(e.unsqueeze(2) + dec.unsqueeze(1)))
+                loss = F.rnnt_loss(logits, torch.tensor([y], dtype=torch.int32), el.int(),
+                                   torch.tensor([len(y)], dtype=torch.int32), blank=0, reduction="sum")
+            self.cache[key] = float(loss)
+        return self.cache[key]
+
+    def margin(self, f, a, b):
+        """How much better spelling `b` explains the audio than `a`, in nats. Positive means `b`."""
+        return self.nll(f, a) - self.nll(f, b)
+
+    def save(self):
+        json.dump(self.cache, open(self.path, "w"), ensure_ascii=False)
+
+
+def verdict(name):
+    """The table `scripts/asr-verdict.py judge` prints for xls-r, from the transducer, same pairs, same
+    references, same 5-nat gate, same unsure bands."""
+    spec = importlib.util.spec_from_file_location("asr_verdict", os.path.join(os.path.dirname(__file__), "asr-verdict.py"))
+    V = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(V)
+    sc = Scorer(name)
+    sets = json.load(open(os.path.join(V.OUT, "sets.json")))
+    r = json.load(open(os.path.join(V.OUT, "refs.json")))
+    for room in ("clean", "babble10", "phone"):
+        rows = []
+        for k, row in enumerate(sets["sentences"]):
+            ok, bad = row["text"], row["said"]
+            ref = r["sentences"][f"{row['text']}|{row['said']}"]
+            rr = np.mean([sc.margin(a, ok, bad) for a, _ in ref.values()])
+            rw = np.mean([sc.margin(b, ok, bad) for _, b in ref.values()])
+            scale = (lambda m, rr=rr, rw=rw: (m - rr) / (rw - rr) if rw != rr else 0.0)
+            rows.append(("sentence", scale(sc.margin(V.room_file(row["right_file"], room), ok, bad)),
+                         scale(sc.margin(V.room_file(row["wrong_file"], room), ok, bad)), rw - rr))
+            if k % 50 == 0:
+                sc.save()
+        for w in sets["words"]:
+            a, b = w["text"], w["partner"]
+            ra = np.mean([sc.margin(f, a, b) for f in r["words"][w["text"]].values()])
+            rb = np.mean([sc.margin(f, a, b) for f in r["words"][w["partner"]].values()])
+            m = sc.margin(V.room_file(w["file"], room, word=True), a, b)
+            rows.append(("word", (m - ra) / (rb - ra) if rb != ra else 0.0, (m - rb) / (ra - rb) if ra != rb else 0.0, abs(rb - ra)))
+        sc.save()
+        for unit, band in (("word", (0.35, 0.65)), ("sentence", (0.4, 0.6))):
+            for gate in (0, V.SEPARATION):
+                sub = [x for x in rows if x[0] == unit and x[3] >= gate]
+                n, whole = len(sub), sum(1 for x in rows if x[0] == unit)
+                lo, hi = band
+                caught = sum(x[2] > hi for x in sub)
+                false = sum(x[1] > hi for x in sub)
+                again = sum(lo <= x[1] <= hi for x in sub) + sum(lo <= x[2] <= hi for x in sub)
+                print(f"{name:10} {room:9} {unit:8} gate {gate:3.0f}: {n:3} of {whole} pairs  caught {100 * caught / max(n, 1):5.1f}%  "
+                      f"false alarm {100 * false / max(n, 1):4.1f}%  asked again {100 * again / max(2 * n, 1):4.1f}%", flush=True)
+
+
+# ------------------------------------------------------------------ a smaller, faster student
+
+def student(name="student", layers=(1, 2, 2, 1, 2), teacher="anchored", steps=2000, batch=4, lr=5e-5, every=100):
+    """A Zipformer with about half the encoder layers, taught by the full one.
+
+    The recipe is the standard way to shrink a speech model without starting over:
+
+      * start from the teacher's own weights, every other layer of each stack (`KEEP`), so the
+        student begins close to a working model;
+      * distillation: the student's encoder output is pulled toward the teacher's on the same audio
+        (mean squared error, frame by frame), which carries far more than a transcript does;
+      * the transducer loss on the transcripts, so it stays a recognizer in its own right;
+      * the data the app needs: half of every batch real native speech (TalTech's train split, from
+        recordings no dev or test segment comes from), half Kodukeel's own dictionary sentences said
+        right and with learner mistakes (scripts/asr-finetune.py data), a room on half of all of it.
+
+    Both models run at the decoding chunk the app will use (CHUNK), in inference mode for the masks,
+    so what is learned is what is deployed. Resumable: weights, optimizer and step every `every`."""
+    import torch
+    import torchaudio.functional as F
+    torch.set_num_threads(os.cpu_count() or 4)
+    torch.manual_seed(0)
+    chunk = int(os.environ.get("CHUNK", "16"))
+    _, sp = model_and_pieces()
+    t = eager(teacher, FULL, chunk)
+    for p in t.parameters():
+        p.requires_grad = False
+    sm = eager(teacher, layers, chunk)
+    params = [p for p in sm.parameters()]
+    for p in params:
+        p.requires_grad = True
+    opt = torch.optim.AdamW(params, lr=lr, weight_decay=0.0)
+    eps = {p: float(m.eps_exp) for p, m in sm.named_modules() if hasattr(m, "eps_exp")}
+    ckpt = os.path.join(OUT, f"checkpoint-{name}.pt")
+    start, scale = 0, None
+    if os.path.exists(ckpt):
+        state = torch.load(ckpt, weights_only=False)
+        sm.load_state_dict(state["weights"])
+        opt.load_state_dict(state["optimizer"])
+        start, scale = state["step"], state["scale"]
+        print(f"resumed at step {start}", file=sys.stderr, flush=True)
+    synth = json.load(open(os.path.join(ROOT, "finetune", "train.json")))
+    real = json.load(open(os.path.join(OUT, "anchor", "rows.json")))
+    others = [X.load(c["file"]) for c in json.load(open(os.path.join(ROOT, "corpus.json"))) if c["kind"] == "sentence"]
+    audio = {}
+    t0 = time.time()
+    for step in range(start, steps):
+        rng = random.Random(5000 + step)
+        sample = rng.sample(synth, batch // 2) + rng.sample(real, batch - batch // 2)
+        feats, ys = [], []
+        for r in sample:
+            if r["file"] not in audio:
+                audio[r["file"]] = X.load(r["file"])
+            a = audio[r["file"]]
+            if rng.random() < 0.5:
+                a = X.condition(rng.choice(ROOMS), a, others)
+            a = np.concatenate([np.zeros(int(RATE * 0.3), np.float32), a, np.zeros(int(RATE * 0.5), np.float32)])
+            feats.append(fbank(a))
+            ys.append(sp.encode(label(r["label"])))
+        lens = torch.tensor([f.shape[0] for f in feats])
+        x = torch.full((batch, int(lens.max()), 80), LOG_EPS)
+        for k, f in enumerate(feats):
+            x[k, : f.shape[0]] = f
+        with torch.no_grad():
+            te, _ = t.encoder(x, lens)
+        enc, enc_lens = sm.encoder(x, lens)
+        mask = (torch.arange(enc.shape[1])[None, :] < enc_lens[:, None]).float().unsqueeze(-1)
+        distil = (((enc - te) ** 2) * mask).sum() / (mask.sum() * enc.shape[-1])
+        u = max(len(y) for y in ys)
+        y = torch.zeros((batch, u), dtype=torch.long)
+        for k, tt in enumerate(ys):
+            y[k, : len(tt)] = torch.tensor(tt)
+        sos = torch.cat([torch.zeros((batch, 1), dtype=torch.long), y], dim=1)
+        dec = sm.decoder(sos)
+        logits = sm.joiner.output_linear(torch.tanh(sm.joiner.encoder_proj(enc).unsqueeze(2)
+                                                    + sm.joiner.decoder_proj(dec).unsqueeze(1)))
+        rnnt = F.rnnt_loss(logits, y.int(), enc_lens.int(), torch.tensor([len(tt) for tt in ys], dtype=torch.int32),
+                           blank=0, reduction="mean")
+        if scale is None:
+            # the two losses weighted equally at the start, and the weight fixed from then on
+            scale = float(rnnt.detach() / max(distil.detach(), 1e-6))
+        loss = rnnt + scale * distil
+        loss.backward()
+        torch.nn.utils.clip_grad_norm_(params, 5.0)
+        warm = min(1.0, (step + 1) / 100)
+        decay = 0.5 * (1 + np.cos(np.pi * step / steps))
+        for g in opt.param_groups:
+            g["lr"] = lr * warm * max(decay, 0.05)
+        opt.step()
+        opt.zero_grad()
+        if step % 20 == 0:
+            print(f"step {step} rnnt {rnnt.item():.3f} distil {distil.item():.4f} {time.time() - t0:.0f}s", file=sys.stderr, flush=True)
+        if (step + 1) % every == 0 and step + 1 < steps:
+            tmp = ckpt + ".tmp"
+            torch.save({"step": step + 1, "weights": sm.state_dict(), "optimizer": opt.state_dict(), "scale": scale}, tmp)
+            os.replace(tmp, ckpt)
+            print(f"checkpoint at step {step + 1}", file=sys.stderr, flush=True)
+    torch.save({"weights": sm.state_dict(), "eps": eps, "layers": layers}, os.path.join(OUT, f"{name}.sd.pt"))
+    if os.path.exists(ckpt):
+        os.remove(ckpt)
+    print("saved", file=sys.stderr)
+
+
 def report():
     rows = held()
     for name in ("large", "before", "after", "anchored", "anchored-onnx", "anchored2", "anchored2-onnx"):
@@ -494,6 +734,8 @@ if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "report"
     if cmd == "eval":
         evaluate(sys.argv[2] if len(sys.argv) > 2 else "before")
+    elif cmd == "verdict":
+        verdict(sys.argv[2] if len(sys.argv) > 2 else "before")
     elif cmd == "export":
         export(sys.argv[2] if len(sys.argv) > 2 else "after")
     else:
@@ -501,4 +743,5 @@ if __name__ == "__main__":
          # the same recipe, half of every batch real native speech, at half the learning rate
          "train-anchored": lambda: train("anchored", lr=1e-5, anchored=2),
          # three times the real speech, the rooms on it too, twice the steps
+         "student": lambda: student(),
          "train-anchored2": lambda: train("anchored2", steps=1200, lr=1e-5, anchored=2, real_rooms=True)}[cmd]()
