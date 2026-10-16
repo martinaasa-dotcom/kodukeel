@@ -28,7 +28,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "trepikoda", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-09-06", reviewedAt: "2026-10-15" },
   { scene: "trepikoda", beat: "hurdle:misheard", text: "Vabandust, te elate koos isaga?", model: "authored", draftedAt: "2026-10-15", about: "with", reviewedAt: "2026-10-16" },
   { scene: "trepikoda", beat: "hurdle:misheard", text: "Vabandust, te olete Prantsusmaalt?", model: "authored", draftedAt: "2026-10-15", about: "from", reviewedAt: "2026-10-16" },
-  { scene: "trepikoda", beat: "new", text: "Kas te olete just siia tulnud?", model: "authored", draftedAt: "2026-09-05" },
+  { scene: "trepikoda", beat: "new", text: "Kas te olete just siia tulnud?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-16" },
   { scene: "trepikoda", beat: "new", text: "Kas te olete siin uus?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "trepikoda", beat: "weather", text: "Täna on ilus ilm.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "trepikoda", beat: "weather", text: "Täna on palju tuult.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },

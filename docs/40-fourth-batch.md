@@ -440,6 +440,14 @@ Two things the keyless review had left open went in after it:
   lines, its three picks and the label "saying how much you want" in Russian and Ukrainian were
   typed in the session and carry no `reviewedAt`.
 
+A sixth sheet went back the same day with those seventeen lines, and they are all confirmed. The
+scene lines carry `reviewedAt`. The picks need no mark. The sentence for `sobima` and the phrase
+`Pole tänu väärt!` stand as they are. One correction came back, on the funding line in both
+languages: `6 280` with a space, to match `40 355`, and `словоформ` for "forms". The reader suggested
+`Kas te olete siia just kolinud?`, which says "moved in" more exactly, as an option rather than a
+correction. It stays out for now: the course does not teach `kolima`, so the scene cannot vouch for
+`kolinud`.
+
 ## 9. A brief to paste into a fresh session
 
 > You are working on Kodukeel. Read `CLAUDE.md`, then `docs/40-fourth-batch.md`. Do item FB-n of that

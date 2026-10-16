@@ -19,8 +19,8 @@ import type { ScriptedLine } from "../scripted";
 const LINES: readonly ScriptedLine[] = [
   { scene: "turul", beat: "some", text: "Mida te soovite?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "turul", beat: "some", text: "Mida teile täna?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "turul", beat: "weight", text: "Kui palju teile?", model: "authored", draftedAt: "2026-10-16" },
-  { scene: "turul", beat: "weight", text: "Kui palju te soovite?", model: "authored", draftedAt: "2026-10-16" },
+  { scene: "turul", beat: "weight", text: "Kui palju teile?", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
+  { scene: "turul", beat: "weight", text: "Kui palju te soovite?", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
   { scene: "turul", beat: "pieces", text: "Kas veel midagi?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "turul", beat: "pieces", text: "Kas soovite veel midagi?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "turul", beat: "many", text: "Mitu tükki?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },

@@ -37,8 +37,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "kaebus", beat: "want", text: "Kas te soovite, et me parandame, või soovite raha tagasi?", model: "authored", draftedAt: "2026-09-12", reviewedAt: "2026-10-15" },
   { scene: "kaebus", beat: "want", text: "Mida te nüüd soovite?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "kaebus", beat: "want", text: "Mis lahendus teile sobib?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
-  { scene: "kaebus", beat: "when", text: "Millal te selle ostnud olete?", model: "authored", draftedAt: "2026-09-05" },
-  { scene: "kaebus", beat: "when", text: "Mis päeval te selle ostnud olete?", model: "authored", draftedAt: "2026-09-05" },
+  { scene: "kaebus", beat: "when", text: "Millal te selle ostnud olete?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-16" },
+  { scene: "kaebus", beat: "when", text: "Mis päeval te selle ostnud olete?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-16" },
 ];
 
 export default LINES;
