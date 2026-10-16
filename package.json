@@ -93,6 +93,8 @@
     "check:lines": "tsx scripts/check-lines.ts",
     "review:scenes": "tsx scripts/review-scene-lines.ts",
     "apply:scene-review": "tsx scripts/apply-scene-review.ts",
+    "review:picks": "tsx scripts/review-picks.ts",
+    "apply:picks-review": "tsx scripts/apply-picks-review.ts",
     "apply:translation-review": "tsx scripts/apply-translation-review.ts",
     "fuzz:scenes": "tsx scripts/fuzz-scenes.ts",
     "audit:questions": "tsx scripts/audit-questions.ts",
