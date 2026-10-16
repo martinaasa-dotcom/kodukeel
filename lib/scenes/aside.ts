@@ -34,7 +34,7 @@ import { ASIDES } from "./catalogue";
 import type { SpokenLine } from "./line";
 import { caseKeyFor, words, type Lexicon } from "./lexicon";
 import { CLOCK_LEMMA, numberWords, priceOnCard, timeFromText, type RoleCard } from "./props";
-import { partsLine } from "./reply";
+import { partsLine, reaction } from "./reply";
 import { leafNeeds, type BeatSpec, type MoveKind } from "./types";
 
 export interface AsideInput {
@@ -66,6 +66,14 @@ export interface AsideInput {
    * (`questionAhead`), answered now rather than ignored.
    */
   readonly ahead?: readonly string[];
+  /**
+   * The turn met the beat it answered in full, so a bare `?` on it is the
+   * learner checking what they heard: `same` where every word of it was in
+   * the line they heard, `differs` where it named something the line did not.
+   */
+  readonly landedCheck?: "same" | "differs";
+  /** The line the learner was answering, said again where their check got it wrong. */
+  readonly heardLine?: string;
   /**
    * Whether the question came on a turn that missed the beat. Then only a
    * fact can answer it: the bank's answer and "more of what they said" are
@@ -108,6 +116,13 @@ const HOW_MUCH = ["kui", "palju"] as const;
  * it. A question after a greeting or after they asked something is not
  * answered with a second greeting.
  */
+/**
+ * Words a read-back carries that are not part of what is being checked:
+ * "otse ja siis vasakule, eks?" checks two directions, not four words.
+ * Lemma requests against the course's connectives.
+ */
+export const CHECK_GLUE: ReadonlySet<string> = new Set(["ja", "siis", "eks", "ning", "nii", "et", "jah", "okei", "ok"]);
+
 const INFORMING: ReadonlySet<MoveKind> = new Set(["instruct", "offer", "confirm", "refuse", "correct"]);
 
 /**
@@ -225,6 +240,17 @@ export function asideFor(input: AsideInput): SpokenLine | null {
     a `mis` too, since those are "sorry, what?" as often as anything.
   */
   const about = answered && INFORMING.has(answered.move) && !input.missed;
+  /*
+    AND A CHECK IS CONFIRMED, NOT ANSWERED WITH MORE. "Otse edasi?" after the
+    directions met the beat and asked nothing but its own mark: it is the
+    learner reading back what they heard, and the bank's second directions
+    line said there ("Minge otse edasi.") could contradict the first. A turn
+    that landed and asks with no question word is a check, and the answer to a
+    check that landed is yes.
+  */
+  if (about && asked === "?" && input.landedCheck === "same") return reaction("jah", ".");
+  // A check that got it wrong is put right with what was said, which is the one line that cannot contradict it.
+  if (about && asked === "?" && input.landedCheck === "differs" && input.heardLine) return { text: input.heardLine, provenance: "again" };
   if (about && (PLACE.has(asked) || asked === "?" || asked === "mis" || asked === "kuidas")) {
     const next = input.more[0];
     if (next) return { text: next, provenance: "scripted" };
@@ -282,6 +308,66 @@ export function questionAhead(
     if (named) return beat;
   }
   return null;
+}
+
+/**
+ * WHETHER A LATER BEAT IS ABOUT WHAT THIS QUESTION ASKS, SO "LATER" IS TRUE.
+ *
+ * `Hiljem.` was said to every question the scene could not answer on a turn
+ * that missed the beat, and the reviewers met it after "Kas ma võin
+ * alustada?", "Kus ma pean ootama?" and "Kas arst on täna siin?", none of
+ * which anything later in the scene answers. Putting a question off is only
+ * honest where the scene really is coming to it, which is a beat ahead that
+ * nobody has met and whose own words the question names. A question naming
+ * none of them gets no reaction at all, and the question in front is asked;
+ * that is a person getting on with what they were doing, not one promising an
+ * answer they never give.
+ */
+export function namesLaterBeat(
+  beats: readonly BeatSpec[],
+  answered: BeatSpec | null,
+  done: readonly string[],
+  spoken: readonly string[],
+  lexicon: Lexicon,
+): boolean {
+  const from = answered ? beats.findIndex((b) => b.id === answered.id) : -1;
+  const said = new Set(spoken.map((w) => w.toLowerCase()));
+  for (const beat of beats.slice(from + 1)) {
+    if (done.includes(beat.id) || beat.move === "close") continue;
+    const named = leafNeeds(beat.needs).some(({ need }) =>
+      need.kind === "lemma" && need.oneOf.some((lemma) =>
+        [lemma, ...(lexicon.byLemma.get(lemma) ?? [])].some((form) => said.has(form.toLowerCase()))));
+    if (named) return true;
+  }
+  return false;
+}
+
+/** The two verbs a "may I?" is asked with, as lemma requests against the course. */
+const MAY = ["võima", "tohtima"] as const;
+/** First persons, singular and plural: `võin`, `võime`, `tohin`. */
+const FIRST_PERSON: ReadonlySet<string> = new Set(["IndPrSg1", "IndPrPl1"]);
+
+/**
+ * WHETHER THE QUESTION ASKS PERMISSION, WHICH A YES ANSWERS.
+ *
+ * "Kas ma võin alustada?" before a presentation was answered `Hiljem.`, which
+ * tells somebody they may not start the thing the scene is for. A "may I?"
+ * asked of the person running the conversation is answered yes by anybody
+ * with an agenda of their own, and the agenda then goes on. A `kas` question
+ * carrying the first person of `võima` or `tohtima`, and nothing else: `saama`
+ * is left out because "kas ma saan raha tagasi?" asks for a fact rather than
+ * leave, and saying yes to it would be this module promising money.
+ */
+export function asksPermission(said: string, lexicon: Lexicon): boolean {
+  const may = new Set<string>();
+  for (const lemma of MAY) {
+    for (const [code, form] of lexicon.persons.get(lemma) ?? []) if (FIRST_PERSON.has(code)) may.add(form);
+  }
+  const kas = new Set(["kas", ...(lexicon.byLemma.get("kas") ?? [])]);
+  return (said.match(/[^.!?]+\?/g) ?? []).some((sentence) => {
+    const spoken = words(sentence);
+    return spoken[0] !== undefined && kas.has(spoken[0]) && spoken.some((word) => may.has(word));
+  });
 }
 
 /**

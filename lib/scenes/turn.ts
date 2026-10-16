@@ -714,7 +714,18 @@ export function readTurn(
     had been comparing against all along.
   */
   const phraseBeat = beat.move === "greet" || beat.move === "close";
-  if (!phraseBeat && isEcho(spoken, context.previous)) return shape("echo");
+  /*
+    AND A TURN THAT MEETS EVERYTHING THE BEAT ASKED IS AN ANSWER, WHATEVER
+    WORDS IT BORROWED. The directions said back on the beat whose goal is to
+    say them back, "Maja number 7" to "Mis maja number?" and "3 korda päevas"
+    to the dose were each made of the line's own words and each read as
+    parroting, so the other side said "I don't understand" to the one turn in
+    the scene that was exactly right. Handing the question back meets nothing,
+    so it is still an echo; a turn that says what was wanted is not.
+  */
+  if (!phraseBeat && (missing.length > 0 || handsBackWhole(spoken, context.previous, beat)) && isEcho(spoken, context.previous)) {
+    return shape("echo");
+  }
   /*
     A NO ON AN OFFER IS A NO, WHATEVER ELSE IS IN THE TURN. `Ei sobi` holds a
     form of `sobima`, which is the word that accepts the offer, so read by the
@@ -1695,6 +1706,23 @@ function isEnglish(spoken: readonly string[], marked: readonly TurnWord[]): bool
  * `Neljapäev?` after they said `neljapäev` is what a person says.
  */
 const ECHO_FLOOR = 2;
+/**
+ * Whether a turn that met the beat did it by handing back a whole sentence of
+ * the line, or the whole choice the line offered, which is still parroting:
+ * a bank line that answers its own question ("Kus teil on valu? Mul on
+ * valu.") cannot be met by copying its second half. Not on a beat that gave
+ * instructions, whose goal is often to say them back.
+ */
+function handsBackWhole(spoken: readonly string[], previous: string, beat: BeatSpec): boolean {
+  if (spoken.includes(CHOICE_WORD)) return true;
+  if (beat.move === "instruct") return false;
+  const said = new Set(spoken);
+  return previous.split(/(?<=[.!?])\s+/).some((sentence) => {
+    const its = words(sentence);
+    return its.length >= ECHO_FLOOR && its.every((word) => said.has(word));
+  });
+}
+
 function isEcho(spoken: readonly string[], previous: string): boolean {
   if (spoken.length < ECHO_FLOOR || !previous) return false;
   const said = words(previous);

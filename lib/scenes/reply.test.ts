@@ -212,7 +212,7 @@ describe("a turn that landed", () => {
   */
   it("never says the repair phrase, whatever the ladder had", () => {
     const lines = replyFor(input({ answered: ASK, line: NOTHING }));
-    expect(texts(lines)).not.toContain(FALLBACK_PHRASE);
+    expect(texts(lines)).not.toContain(`${FALLBACK_PHRASE}.`);
     expect(lines.at(-1)?.provenance).toBe("unspoken");
     expect(lines.at(-1)?.text).toBe("They ask where it hurts.");
   });
@@ -224,7 +224,7 @@ describe("a turn nobody could read", () => {
       answered: ASK, beat: ASK, response: "repeat", reading: "unrecognised",
       heard: "Kus teil valutab?", line: null,
     }));
-    expect(texts(lines)).toEqual([FALLBACK_PHRASE, "Kus teil valutab?"]);
+    expect(texts(lines)).toEqual([`${FALLBACK_PHRASE}.`, "Kus teil valutab?"]);
     expect(lines[0]?.provenance).toBe("fallback");
     expect(lines[0]?.reaction).toBe(true);
     expect(lines[1]?.provenance).toBe("again");
@@ -234,14 +234,14 @@ describe("a turn nobody could read", () => {
     const lines = replyFor(input({
       answered: ASK, beat: ASK, response: "repeat", reading: "echo", heard: "Kus teil valutab?", line: null,
     }));
-    expect(lines[0]?.text).toBe(FALLBACK_PHRASE);
+    expect(lines[0]?.text).toBe(`${FALLBACK_PHRASE}.`);
   });
 
   it("falls to the stage direction where there was never an Estonian line to repeat", () => {
     const lines = replyFor(input({
       answered: ASK, beat: ASK, response: "repeat", reading: "unrecognised", heard: null, line: NOTHING,
     }));
-    expect(texts(lines)).toEqual([FALLBACK_PHRASE, "They ask where it hurts."]);
+    expect(texts(lines)).toEqual([`${FALLBACK_PHRASE}.`, "They ask where it hurts."]);
   });
 
   it("does not want a fresh line from the ladder, so no booking is spent on one", () => {
@@ -516,7 +516,7 @@ describe("a turn that was understood and missed the point", () => {
   it("is never told they were not understood", () => {
     for (const reading of ["offtarget", "incomplete"] as const) {
       const lines = replyFor(input({ answered: ASK, beat: ASK, response: "narrow", reading, line: NOTHING }));
-      expect(texts(lines)).not.toContain(FALLBACK_PHRASE);
+      expect(texts(lines)).not.toContain(`${FALLBACK_PHRASE}.`);
     }
   });
 });
@@ -586,7 +586,7 @@ describe("a question the scene did not anticipate", () => {
   it("is not answered on a turn nobody understood, where the repair phrase is the whole reaction", () => {
     const lines = replyFor(input({ answered: ASK, beat: ASK, response: "repeat", reading: "unrecognised", aside, line: NOTHING }));
     expect(texts(lines)).not.toContain(aside.text);
-    expect(texts(lines)).toContain(FALLBACK_PHRASE);
+    expect(texts(lines)).toContain(`${FALLBACK_PHRASE}.`);
   });
 });
 
@@ -774,7 +774,7 @@ describe("a learner who said they were not following", () => {
     const lines = replyFor(input({
       answered: ASK, beat: ASK, response: "help", reading: "lost", heard: "Kus teil valutab?", offer: "pea", line: NOTHING,
     }));
-    expect(texts(lines)).not.toContain(FALLBACK_PHRASE);
+    expect(texts(lines)).not.toContain(`${FALLBACK_PHRASE}.`);
   });
 });
 
@@ -1190,7 +1190,7 @@ describe("a line a model wrote for this turn", () => {
     const lines = replyFor(input({ answered: ASK, beat: ASK, response: "repeat", reading: "unrecognised", line: composed }));
     expect(texts(lines)).toEqual([composed.text]);
     const keyless = replyFor(input({ answered: ASK, beat: ASK, response: "repeat", reading: "unrecognised", line: NOTHING }));
-    expect(texts(keyless)[0]).toBe(FALLBACK_PHRASE);
+    expect(texts(keyless)[0]).toBe(`${FALLBACK_PHRASE}.`);
   });
 
   it("hands the word over inside the sentence where the learner was lost", () => {

@@ -216,6 +216,10 @@ export interface ReplyInput {
    * makes them read as brisk rather than as a slightly smaller number.
    */
   readonly acknowledges: boolean;
+  /** The question asks leave ("Kas ma võin…?"), which a yes answers (`asksPermission`). */
+  readonly permission?: boolean;
+  /** The question names what a beat ahead is about, so "later" is true (`namesLaterBeat`). */
+  readonly askedLater?: boolean;
 }
 
 /**
@@ -1168,7 +1172,8 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     reaction to it is the same: they did not get what they asked for.
   */
   if (response === "repeat" && (reading === "unrecognised" || reading === "echo") && !composed) {
-    out.push({ ...fallbackLine(FALLBACK_PHRASE, line?.withheld ?? []), reaction: true });
+    // Said as a sentence: the course spells the phrase bare, and a bubble reading `Ma ei saa aru` with no stop reads as cut off.
+    out.push({ ...fallbackLine(`${FALLBACK_PHRASE}.`, line?.withheld ?? []), reaction: true });
   }
 
   /*
@@ -1234,7 +1239,19 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       then the question in front is asked; a course word every scene teaches.
     */
     const askedSomething = /\?\s*$/.test(input.said ?? "");
-    out.push(reaction(askedSomething ? REACTIONS.later[0] : REACTIONS.heard[0], "."));
+    /*
+      AND ONLY WHERE "LATER" IS TRUE. A "may I?" gets the yes it asks for
+      (`asksPermission`), a question about something a beat ahead covers is put
+      off (`namesLaterBeat`), and any other question gets no word in front of
+      the question that follows: "Hiljem." to "Kas arst on täna siin?" was a
+      promise nothing in the scene keeps.
+    */
+    if (!askedSomething) {
+      const heardIt = reaction(REACTIONS.heard[0], ".");
+      BUT_NEXT.add(heardIt);
+      out.push(heardIt);
+    } else if (input.permission) out.push(reaction(REACTIONS.waiting[0], "."));
+    else if (input.askedLater) out.push(reaction(REACTIONS.later[0], "."));
   }
 
   /*
@@ -1313,7 +1330,19 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       bare word first ("Tahtma.") read as the other side blurting a lemma.
     */
     const worth = !composed && (input.recast || input.english || brief);
-    const echo = worth && input.echo && !/\d/.test(input.echo) && !flat.has(input.echo) ? input.echo : null;
+    /*
+      AND THE WHOLE OF A SHORT ANSWER, NOT ONE WORD OUT OF IT. "Kooli juures"
+      came back "Kooli.", "Ainult mina." as "Mina." and "Eelmisel nädalal" as
+      "Nädalal.": the word that met the beat, cut out of the phrase that gave
+      it its meaning, which reads as the other side mishearing. A two-word
+      answer with nothing to correct is said back as it was said.
+    */
+    const turnWords = input.said === null ? [] : words(input.said);
+    const whole = !input.recast && !input.english && brief && turnWords.length > 1 && input.said
+      && !/\d/.test(input.said) && !turnWords.some((word) => flat.has(word))
+      ? input.said.replace(/[\s.!?,;:]+$/u, "").trim() : null;
+    const echo = !worth ? null
+      : whole ?? (input.echo && !/\d/.test(input.echo) && !flat.has(input.echo) ? input.echo : null);
     if (echo) {
       out.push({
         text: echo.charAt(0).toUpperCase() + echo.slice(1) + ".",
@@ -1836,16 +1865,31 @@ const OPENS_LOWER = new Set([
   "see", "seda", "siin", "seal", "nüüd", "ja", "kell", "jah", "ei",
 ]);
 
+/*
+  ONLY THE "GOT IT" THAT IS FOLLOWED BY THE SAME QUESTION AGAIN. `Selge.` is
+  also what a beat's own `feel: "noted"` says after an answer that landed, and
+  joining that one to the next beat's question read every correct answer as an
+  objection: "Ma olen poes." answered "Selge, aga mis sa ostad?". So the join
+  is offered only to the reaction the off-target branch pushes, which is the
+  one whose next line reopens a point the learner has not closed.
+*/
+const BUT_NEXT = new WeakSet<SpokenLine>();
+
+/**
+ * Openers the join may never lower into: an `aga` would say "aga" twice and
+ * a yes or a no is an answer of its own rather than the question reopened.
+ */
+const NEVER_JOINED = new Set(["aga", "jah", "ei"]);
+
 function butAfterHeard(out: SpokenLine[]): void {
-  const heardText = reaction(REACTIONS.heard[0], ".").text;
   for (let i = 0; i < out.length - 1; i++) {
     const first = out[i]!;
     const next = out[i + 1]!;
-    if (!first.reaction || first.text !== heardText || next.reaction) continue;
+    if (!BUT_NEXT.has(first) || next.reaction) continue;
     if (!(["again", "scripted", "attested"] as const).some((p) => p === next.provenance)) continue;
     const opener = (next.text.match(/^\p{L}+/u)?.[0] ?? "").toLowerCase();
-    if (!OPENS_LOWER.has(opener)) continue;
-    const butWord = heardText.slice(0, -1);
+    if (!OPENS_LOWER.has(opener) || NEVER_JOINED.has(opener)) continue;
+    const butWord = first.text.slice(0, -1);
     out.splice(i, 2, { ...next, text: `${butWord}, aga ${next.text.charAt(0).toLowerCase()}${next.text.slice(1)}` });
   }
 }

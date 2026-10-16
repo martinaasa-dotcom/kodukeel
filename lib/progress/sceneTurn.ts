@@ -28,7 +28,7 @@
  */
 import { clip } from "@/lib/copy/clip";
 import { clockInPlay, moneyInPlay, type SceneContext, type StoredDraw } from "@/lib/progress/scene";
-import { asideFor, asideOwed, asksToHearAgain, priceAsked, questionAhead, sameFact, shrug } from "@/lib/scenes/aside";
+import { CHECK_GLUE, asideFor, asideOwed, asksPermission, asksToHearAgain, namesLaterBeat, priceAsked, questionAhead, sameFact, shrug } from "@/lib/scenes/aside";
 import { asksSlower, saysGoodbye, LEAVING } from "@/lib/scenes/casual";
 import { FAREWELLS } from "@/lib/scenes/catalogue";
 import { choiceOf } from "@/lib/scenes/choice";
@@ -237,6 +237,9 @@ export function planTurn(input: TurnInput) {
       return later && !state.done.includes(later.id) ? answersOf(later) : [];
     })(),
     missed: !landedNow,
+    landedCheck: reading !== "complete" ? undefined
+      : words(last?.said ?? "").every((word) => CHECK_GLUE.has(word) || words(heard ?? "").includes(word)) ? "same" as const : "differs" as const,
+    heardLine: heard ?? undefined,
     already: used,
   };
   /*
@@ -526,6 +529,8 @@ export function planTurn(input: TurnInput) {
       translates: persona?.translates ?? false,
       askedForEnglish: last?.wantsEnglish === true,
       acknowledges: persona?.acknowledges ?? true,
+      permission: asksPermission(last?.said ?? "", context.lexicon),
+      askedLater: namesLaterBeat(sceneBeats(scene), answered, state.done, words(last?.said ?? ""), context.lexicon),
       echo: last?.matched?.[0] ?? null,
       /*
         The word the other side repeats is the learner's own, or, where it was
