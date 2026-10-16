@@ -162,6 +162,12 @@ who asked for English, not a reaction in Estonian, and the table already says th
 (the consistency check withholding the pharmacist's lines over the queue number, an interviewer
 answering "kas küsimus?" with a question back), which is the composer's and not the reply's order.
 
+**C-1, the sign-in page on production, 2026-10-16.** PageSpeed's keyless API answered 429, so
+production was read with the same Lighthouse 12.8.2 phone profile PageSpeed runs, three times against
+`https://kodukeel.ee/sign-in` once the `.arrive` entrance was deployed: **2,208, 2,462 and 1,576 ms**,
+against 4,938, 4,926 and 4,877 before, and the largest element is now the card's own paragraph, the one
+the opacity entrance was hiding. The fix holds; `docs/15-performance.md` has the table.
+
 ## 1. How to use this page
 
 1. Pick one item, in the milestone order of section 4. Do that item and nothing else in the same pull
@@ -295,7 +301,7 @@ stops. Size is the work in one pull request: S is a day, M a few days, L a week 
 
 | Item | Milestone | Size | Status |
 | --- | --- | --- | --- |
-| C-1 Sign-in's largest paint, measured on production | 0: what batch 4 left | S | Not started, needs #856 deployed |
+| C-1 Sign-in's largest paint, measured on production | 0: what batch 4 left | S | Done: 2,208, 2,462 and 1,576 ms on production against 4,938, 4,926 and 4,877 before, the card's own paragraph painting first; Lighthouse 12.8.2's phone profile, since PageSpeed's keyless API answered 429 (`docs/15-performance.md`) |
 | C-2 One capped play of the composed path | 0 | S | Done: eight scenes in two styles plus two `lost` runs for $0.86, no doubled reaction, and C-3's three shadows fixed first with failing tests (§85) |
 | C-3 The reply's decision order, written and asserted | 0 | M | Done: 95 rows in `docs/21-situations.md` §85, held by `scripts/invariants/the-reply-decides-in-order.ts`, three shadowing findings left open there |
 | C-4 Teach `kolima`, then the reader's wording | 0 | S | Done: `kolima` taught a second time, last in `umbmaarased` (its harvest row was already there from B1), and "Kas te olete siia just kolinud?" applied through `apply:scene-review`; no day id moved, $0 spent |
