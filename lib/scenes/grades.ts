@@ -334,6 +334,9 @@ export function stalledWords(scene: SceneSpec, state: SceneState): string[] {
  * second rule about "which word does this beat want" is how the two would
  * come apart.
  */
+/** The words a yes-or-no answer is, which are never a hint (`offerFor`). */
+const YES_NO: ReadonlySet<string> = new Set(["jah", "ei", "jaa"]);
+
 export function offerFor(
   beat: BeatSpec,
   card: RoleCard | null = null,
@@ -368,6 +371,12 @@ export function offerFor(
     about the turn, or everything was met and the beat is unmet for some other
     reason, the walk is what it was.
   */
+  /*
+    An offer is answered yes or no, and nothing a hint could hold (`Hea?`,
+    `Jah?`, `Sobima?`) is anything but the other side seeming to answer for
+    them: somebody lost at an offer is owed the offer again.
+  */
+  if (beat.move === "offer" || beat.counter) return null;
   const wanted = leafNeeds(beat.needs).filter(({ index }) => met[index] !== true);
   for (const { need } of (wanted.length > 0 ? wanted : leafNeeds(beat.needs))) {
     if (need.kind === "lemma") {
@@ -389,7 +398,19 @@ export function offerFor(
         where `Jah?`, `Allkiri?` and `Raha?` stood beside them. A list of
         nothing but verbs keeps its first, since the word is still the answer.
       */
-      return drawn ?? need.oneOf.find((lemma) => !verbs.has(lemma)) ?? need.oneOf[0] ?? null;
+      if (drawn) return drawn;
+      /*
+        AND NEVER A YES OR A NO. `Jah?` handed to somebody lost at an offer
+        reads as the other side saying "yes?", not as a hint: there is nothing
+        in it to take hold of. Where yes and no are all the list holds, the
+        question said again is the help, which is what the caller does.
+      */
+      const sayable = need.oneOf.filter((lemma) => !YES_NO.has(lemma));
+      const noun = sayable.find((lemma) => !verbs.has(lemma));
+      if (noun) return noun;
+      // A beat that takes a yes is a beat to be said yes to, and `Sobima?` is no more a hint there than `Jah?`.
+      if (sayable.length === 0 || sayable.length < need.oneOf.length) return null;
+      return sayable[0] ?? null;
     }
     if (need.kind === "case") return need.lemma;
   }

@@ -768,6 +768,8 @@ function ownReaction(line: SpokenLine | null): boolean {
  */
 /** The stems of the course's verbs of wanting, and `palun`: a turn holding one asks for something. */
 const WANTING = /^(taha|tahtsin|tahaksin|soovi|vaja|palu)/;
+/** The words a no is said with, as lemma requests against the course. */
+const NOES: ReadonlySet<string> = new Set(["ei", "pole", "mitte", "ega"]);
 
 function acknowledgements(heard: string | null, said: string | null): readonly string[] {
   /*
@@ -793,6 +795,13 @@ function acknowledgements(heard: string | null, said: string | null): readonly s
     `soovima` or `vajama`, or `palun`) is acknowledged with `hästi` instead.
   */
   const wants = [...theirs].some((word) => WANTING.test(word));
+  /*
+    AND A NO IS NOT MET WITH A YES OR A THANKS. "Ei, ma ei ole nõus" was
+    acknowledged `Jah.`, and "Ei, see ei sobi" `Aitäh.`: the other side
+    agreeing with, or thanking somebody for, a refusal. A turn holding a no is
+    acknowledged with the word for having understood it, and nothing else.
+  */
+  if ([...theirs].some((word) => NOES.has(word))) return REACTIONS.heard;
   const fresh = mine.filter((word) => !theirs.has(word) && !(wants && word === "aitäh"));
   return fresh.length > 0 ? fresh : mine;
 }
@@ -1052,7 +1061,11 @@ const ECHO_WORDS = 2;
  * one is the other side handing a learner their own noise, which is the fault
  * `acknowledgements` was corrected for one function up.
  */
-const FLAT_WORDS = new Set<string>([...REACTIONS.acknowledge, ...REACTIONS.waiting, "ei"]);
+const FLAT_WORDS = new Set<string>([
+  ...REACTIONS.acknowledge, ...REACTIONS.waiting, ...REACTIONS.heard, "ei",
+  // And the words of agreeing, which said back are "Hea." to "Hea küll" and "Olgu." to "Olgu".
+  "hea", "küll", "olgu", "okei", "ok", "nõus", "sobib", "tore", "muidugi", "kindlasti",
+]);
 
 /** The reply, in the order it is said. Empty once the scene is over and nothing is owed. */
 export function replyFor(input: ReplyInput): SpokenLine[] {
@@ -1380,7 +1393,14 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
         that landed, because a feeling about an answer nobody gave is the
         machine showing through the other way (`feltAt`).
       */
-      const felt = feltAt(answered, response);
+      /*
+        AND GOOD NEWS IS NOT GOOD WITH A NO IN IT. "Ei olnud hea" to "how was
+        your weekend?" met `Tore!`, which is gladness at a bad weekend. A glad
+        beat answered with a no is taken in with `Selge.`, which is never
+        wrong about which way the news went.
+      */
+      const negated = words(input.said ?? "").some((word) => NOES.has(word));
+      const felt = negated && feltAt(answered, response) === "glad" ? "noted" : feltAt(answered, response);
       if (felt) out.push(reaction(FEELINGS[felt].word, FEELINGS[felt].mark));
       else {
         const choices = acknowledgements(heard, input.said);

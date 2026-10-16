@@ -762,7 +762,13 @@ export function readTurn(
     const said = words(clause);
     return said.some((word) => context.tooLittle!.has(word)) && !said.some((word) => context.negators.has(word));
   });
-  if (beat.counter && (short || (!accepts && spoken.some((word) => context.negators.has(word))))) {
+  /*
+    AND "I DON'T FOLLOW" IS NOT A NO. `Ma ei saa aru` holds a negator, so at
+    an offer it was read as turning the figure down and the higher offer came
+    out, to somebody who had only asked to hear it again. The lost reading
+    below takes it.
+  */
+  if (beat.counter && !isLost(spoken, context) && (short || (!accepts && spoken.some((word) => context.negators.has(word))))) {
     return shape("declined", {
       met: beat.needs.map(() => false), missing: beat.needs.map((_, i) => i),
       matched: [], satisfiedBy: [], slips: [], substituted: [], chose: [],
