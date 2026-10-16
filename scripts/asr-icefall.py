@@ -47,6 +47,7 @@ SNAP = (glob.glob(os.path.expanduser(
 HELD = ("kalev", "liivika")
 ROOMS = ("babble10", "phone", "echo", "white10")
 LOG_EPS = -23.0259  # what Lhotse pads a feature matrix with
+REAL = 200          # real segments read before and after
 
 spec = importlib.util.spec_from_file_location("asr_experiments", os.path.join(os.path.dirname(__file__), "asr-experiments.py"))
 X = importlib.util.module_from_spec(spec)
@@ -128,6 +129,14 @@ def evaluate(name):
                 else:
                     out[noisy] = greedy(m, sp, X.condition("babble10", X.load(key), others))
         json.dump(out, open(path, "w"), ensure_ascii=False)
+    # Real speech, which no step of the recipe has seen: TalTech's own interviews, talk shows, news and
+    # Riigikogu (scripts/asr-hesitations.py picks them), so a fine-tune that forgets shows up here.
+    real = os.path.join(ROOT, "taltech", "hesitations", "sets.json")
+    for r in (json.load(open(real)) if os.path.exists(real) else [])[:REAL]:
+        key = "real|" + r["file"]
+        if key not in out:
+            out[key] = z.hear(X.load(r["file"]), lead=0.5)["text"] if name == "large" else greedy(m, sp, X.load(r["file"]))
+    json.dump(out, open(path, "w"), ensure_ascii=False)
     print(name, len(out), file=sys.stderr)
 
 
@@ -310,6 +319,17 @@ def report():
         w = X.wer([(t, out[f]) for (t, _), f in right.items()])
         wn = X.wer([(t, out["babble10|" + f]) for (t, _), f in right.items()])
         print(f"{name:7} said right: word errors {w:5.1f}%, in babble {wn:5.1f}%")
+        real = os.path.join(ROOT, "taltech", "hesitations", "sets.json")
+        if os.path.exists(real):
+            spec = importlib.util.spec_from_file_location("asr_hesitations", os.path.join(os.path.dirname(__file__), "asr-hesitations.py"))
+            H = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(H)
+            e = n = 0
+            for r in json.load(open(real))[:REAL]:
+                if "real|" + r["file"] in out:
+                    a, b = H.errors(H.ref_tokens(r["text"]), out["real|" + r["file"]])
+                    e, n = e + a, n + b
+            print(f"        real native speech (TalTech corpus, {n} words): word errors {100 * e / max(n, 1):5.1f}%")
         stats = {}
         for r in rows:
             hw = X.words(out[r["wrong_file"]])
