@@ -334,8 +334,8 @@ export function stalledWords(scene: SceneSpec, state: SceneState): string[] {
  * second rule about "which word does this beat want" is how the two would
  * come apart.
  */
-/** The words a yes-or-no answer is, which are never a hint (`offerFor`). */
-const YES_NO: ReadonlySet<string> = new Set(["jah", "ei", "jaa"]);
+/** A yes, a no and a thank-you, which are never a hint (`offerFor`): `Aitäh?` reads as being thanked. */
+const YES_NO: ReadonlySet<string> = new Set(["jah", "ei", "jaa", "Aitäh!", "aitäh"]);
 
 export function offerFor(
   beat: BeatSpec,
