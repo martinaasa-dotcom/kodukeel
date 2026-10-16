@@ -139,8 +139,69 @@ def evaluate(name):
     json.dump(out, open(path, "w"), ensure_ascii=False)
     print(name, len(out), file=sys.stderr)
 
+ANCHOR = 1200
 
-def train(steps=600, batch=4, lr=2e-5, every=50):
+
+def anchor():
+    """Real native speech to train beside the synthetic clips, so the model keeps what it knew.
+
+    Segments out of the TalTech corpus by the same byte-range reading `scripts/asr-hesitations.py`
+    does, from recordings none of the 200 real test segments come from (no speaker, no programme
+    and no session is on both sides). The label is the hand transcript with sclite's brackets taken
+    off: a bracketed word was said, so it is what the model should write."""
+    spec = importlib.util.spec_from_file_location("asr_hesitations", os.path.join(os.path.dirname(__file__), "asr-hesitations.py"))
+    H = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(H)
+    test = {r["source"] for r in json.load(open(os.path.join(ROOT, "taltech", "hesitations", "sets.json")))[:REAL]}
+    index = json.load(open(os.path.join(ROOT, "taltech", "index.json")))["members"]
+    where = {n: (o, sz) for n, o, sz in index}
+    audio = [n for n in where if n.startswith("train/audio/") and n.endswith(".wav") and n not in test]
+    rng = random.Random(40)
+    rng.shuffle(audio)
+    d = os.path.join(OUT, "anchor")
+    os.makedirs(d, exist_ok=True)
+    path = os.path.join(d, "rows.json")
+    rows = json.load(open(path)) if os.path.exists(path) else []
+    done = {r["source"] for r in rows}
+    for name in audio:
+        if len(rows) >= ANCHOR:
+            break
+        if name in done:
+            continue
+        stm = name.replace("train/audio/", "train/transcriptions/stm/")[:-4] + ".stm"
+        if stm not in where:
+            continue
+        segs = []
+        for line in H.fetch(*where[stm]).decode("utf-8", "replace").splitlines():
+            parts = line.split(None, 6)
+            if line.startswith(";;") or len(parts) < 7 or parts[2] == "inter_segment_gap":
+                continue
+            start, end = float(parts[3]), float(parts[4])
+            text = re.sub(r"^<[^>]*>\s*", "", parts[6]).strip()
+            if 2.0 <= end - start <= 8.0 and len(text.split()) >= 3 and not re.search(r"\d", text):
+                segs.append((start, end, text.replace("(", "").replace(")", "")))
+        if not segs:
+            continue
+        try:
+            (rate, ch, bits), data = H.wav_layout(where[name][0])
+        except (AssertionError, ValueError):
+            continue
+        width = ch * bits // 8
+        for start, end, text in rng.sample(segs, min(8, len(segs))):
+            raw = H.fetch(data + int(start * rate) * width, int((end - start) * rate) * width)
+            a = np.frombuffer(raw, dtype="<i2" if bits == 16 else "<i4").astype(np.float32)
+            a = a.reshape(-1, ch).mean(axis=1) / (2 ** (bits - 1))
+            if rate != RATE:
+                import librosa
+                a = librosa.resample(a, orig_sr=rate, target_sr=RATE)
+            f = os.path.join(d, f"{os.path.basename(name)[:-4]}_{start:.2f}.wav")
+            X.save(f, a)
+            rows.append({"label": text, "file": f, "source": name})
+        json.dump(rows, open(path, "w"), ensure_ascii=False)
+        print(len(rows), file=sys.stderr, flush=True)
+
+
+def train(name="after", steps=600, batch=4, lr=2e-5, every=50, anchored=0):
     """The asr-finetune.py data and rooms, a transducer loss in place of CTC, every weight trainable.
 
     Resumable like the xls-r run: weights and optimizer saved every `every` steps, the batch of a
@@ -155,7 +216,8 @@ def train(steps=600, batch=4, lr=2e-5, every=50):
     for p in params:
         p.requires_grad = True
     opt = torch.optim.AdamW(params, lr=lr, weight_decay=0.0)
-    ckpt = os.path.join(OUT, "checkpoint.pt")
+    ckpt = os.path.join(OUT, f"checkpoint-{name}.pt")
+    real = json.load(open(os.path.join(OUT, "anchor", "rows.json"))) if anchored else []
     start = 0
     if os.path.exists(ckpt):
         state = torch.load(ckpt, weights_only=False)
@@ -164,16 +226,16 @@ def train(steps=600, batch=4, lr=2e-5, every=50):
         start = state["step"]
         print(f"resumed at step {start}", file=sys.stderr, flush=True)
     others = [X.load(c["file"]) for c in json.load(open(os.path.join(ROOT, "corpus.json"))) if c["kind"] == "sentence"]
-    audio = {r["file"]: X.load(r["file"]) for r in rows}
+    audio = {r["file"]: X.load(r["file"]) for r in rows + real}
     m.train()
     t0 = time.time()
     for step in range(start, steps):
         rng = random.Random(1000 + step)
-        sample = rng.sample(rows, batch)
+        sample = rng.sample(rows, batch - anchored) + rng.sample(real, anchored)
         feats, ys = [], []
-        for r in sample:
+        for k, r in enumerate(sample):
             a = audio[r["file"]]
-            if rng.random() < 0.5:
+            if k < batch - anchored and rng.random() < 0.5:
                 a = X.condition(rng.choice(ROOMS), a, others)
             a = np.concatenate([np.zeros(int(RATE * 0.3), np.float32), a, np.zeros(int(RATE * 0.5), np.float32)])
             feats.append(fbank(a))
@@ -207,7 +269,7 @@ def train(steps=600, batch=4, lr=2e-5, every=50):
             os.replace(tmp, ckpt)
             print(f"checkpoint at step {step + 1}", file=sys.stderr, flush=True)
     m.eval()
-    m.save(os.path.join(OUT, "after.pt"))
+    m.save(os.path.join(OUT, f"{name}.pt"))
     if os.path.exists(ckpt):
         os.remove(ckpt)
     print("saved", file=sys.stderr)
@@ -310,7 +372,7 @@ def export(name):
 
 def report():
     rows = held()
-    for name in ("large", "before", "after"):
+    for name in ("large", "before", "after", "anchored"):
         path = os.path.join(OUT, f"eval_{name}.json")
         if not os.path.exists(path):
             continue
@@ -348,4 +410,6 @@ if __name__ == "__main__":
     elif cmd == "export":
         export(sys.argv[2] if len(sys.argv) > 2 else "after")
     else:
-        {"train": train, "report": report}[cmd]()
+        {"train": train, "report": report, "anchor": anchor,
+         # the same recipe, half of every batch real native speech, at half the learning rate
+         "train-anchored": lambda: train("anchored", lr=1e-5, anchored=2)}[cmd]()
