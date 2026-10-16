@@ -93,7 +93,11 @@ const RESTAURANT: SceneSpec = {
         with "Hästi." and then asked what they would like to eat, having just
         said. Met by the yes or the no, the dish in the same turn is the order.
       */
-      needs: [{ kind: "anyOf", of: [{ kind: "question" }, { kind: "lemma", oneOf: ["jah", "ei", "hästi"] }] }],
+      /*
+        And the dish itself, which is how anybody takes it: "Ma võtan supi" was
+        read as off the point and the waiter recommended the soup again.
+      */
+      needs: [{ kind: "anyOf", of: [{ kind: "question" }, { kind: "lemma", oneOf: ["jah", "ei", "hästi"] }, { kind: "datum", slot: "dish" }] }],
       required: true,
       patience: 2,
       shape: "sentence",

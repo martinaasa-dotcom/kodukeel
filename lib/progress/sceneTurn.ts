@@ -43,7 +43,7 @@ import type { ComposeAsk, ComposeScene } from "@/lib/scenes/prompt";
 import { dealtNumbers } from "@/lib/scenes/props";
 import {
   cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, establishedBy, factsFor, feltAt, saidAgain,
-  heldBack, heldNumbers, isFelt, partsLine, replyFor, sayableAfterHurdles, sceneMovedOn, stageFor, timesAnswered, wantsAsideFor,
+  answersTheirYesNo, heldBack, heldNumbers, isFelt, partsLine, replyFor, sayableAfterHurdles, sceneMovedOn, stageFor, timesAnswered, wantsAsideFor,
   wantsFreshLine,
 } from "@/lib/scenes/reply";
 import { answerBeatId, sceneBeats } from "@/lib/scenes/scripted";
@@ -544,7 +544,8 @@ export function planTurn(input: TurnInput) {
     });
     const guess = (t: SceneState["turns"][number]) => {
       const feel = sceneBeats(scene).find((b) => b.id === t.beatId)?.feel;
-      return t.reading === "complete" && feel ? FEELINGS[feel].word : null;
+      return feel && (t.reading === "complete" || (t.reading === "offtarget" && answersTheirYesNo(t.heard ?? null, t.said)))
+        ? FEELINGS[feel].word : null;
     };
     let said: string | null = null;
     for (const t of blocks.slice(0, -1)) {

@@ -1493,7 +1493,8 @@ export function replay(
           one lemma in one case are one answer, so the two-words rule stands
           down for those and for nothing else.
         */
-        const sameForm = last !== undefined && sharedCaseForm(last, next) && metByWord(more);
+        // Once a turn, from the beat it was aimed at: "supi" takes the soup and orders it, and does not then order a drink.
+        const sameForm = last !== undefined && last === metBeat && sharedCaseForm(last, next) && metByWord(more);
         if (!vouchedAhead && !sameForm && !addsEvidence(more, spent)) break;
         /*
           AND A SECOND WORD FOR THE SAME THING ANSWERS THE QUESTION THAT WAS
@@ -1844,9 +1845,14 @@ export async function sceneHistoryFor(ownerId: string): Promise<ReadonlyMap<stri
   return out;
 }
 
-/** Whether two beats both ask for one lemma in one case, so that one word in that form answers both (the cascade's exception). */
+/**
+ * Whether two beats both ask for one lemma in one case, or for one value off
+ * the card, so that one word answers both (the cascade's exception): "Ma võtan
+ * supi" takes the soup recommended and orders it.
+ */
 function sharedCaseForm(a: BeatSpec, b: BeatSpec): boolean {
-  const key = (need: BeatSpec["needs"][number]) => (need.kind === "case" ? `${need.lemma}|${need.grammCase}` : null);
+  const key = (need: BeatSpec["needs"][number]) => (need.kind === "case" ? `${need.lemma}|${need.grammCase}`
+    : need.kind === "datum" ? `datum|${need.slot}|${need.grammCase ?? ""}` : null);
   const ours = new Set(leafNeeds(a.needs).map(({ need }) => key(need)).filter((k) => k !== null));
   return leafNeeds(b.needs).some(({ need }) => {
     const k = key(need);

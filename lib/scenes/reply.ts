@@ -1322,6 +1322,20 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       the question that follows: "Hiljem." to "Kas arst on täna siin?" was a
       promise nothing in the scene keeps.
     */
+    if (!askedSomething && answersTheirYesNo(heard, input.said)) {
+      /*
+        A YES OR A NO TO THEIR OWN YES-OR-NO QUESTION IS AN ANSWER, EVEN WHERE
+        THE BEAT WAITS ON SOMETHING ELSE. "Kas kõik oli hea?" answered "Jah,
+        väga hea, aitäh" was met with "Selge, aga kas kõik oli hea?", the waiter
+        asking what they had just been told. They are glad, or say got it, and
+        leave the floor to the learner, whose goal is on the screen.
+      */
+      const felt = beat?.feel ? FEELINGS[beat.feel] : null;
+      const said = felt ? reaction(felt.word, felt.mark) : reaction(REACTIONS.heard[0], ".");
+      if (felt) FELT.add(said);
+      out.push(said);
+      return out;
+    }
     if (!askedSomething) {
       const heardIt = reaction(REACTIONS.heard[0], ".");
       BUT_NEXT.add(heardIt);
@@ -2059,6 +2073,16 @@ export function isFelt(line: SpokenLine): boolean {
  * a yes or a no is an answer of its own rather than the question reopened.
  */
 const NEVER_JOINED = new Set(["aga", "jah", "ei", "ja", "palun", "see"]);
+
+/** Whether the turn is a yes or a no to the yes-or-no question the other side last asked. */
+export function answersTheirYesNo(heard: string | null, said: string | null): boolean {
+  if (!heard || !said) return false;
+  const question = heard.split(/(?<=[.!?])\s+/).reverse().find((sentence) => /\?\s*$/.test(sentence)) ?? "";
+  const asked = words(question);
+  if (asked[0] !== "kas" || asked.includes(CHOICE_WORD)) return false;
+  const reply = words(said);
+  return reply.length > 0 && (reply[0] === "jah" || reply[0] === "jaa" || reply[0] === "ei");
+}
 
 function butAfterHeard(out: SpokenLine[]): void {
   for (let i = 0; i < out.length - 1; i++) {
