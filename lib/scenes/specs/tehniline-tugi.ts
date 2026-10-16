@@ -44,10 +44,21 @@ const TECH_SUPPORT: SceneSpec = {
     {
       id: "problem",
       goal: "Tell them the connection at home isn't working.",
+      feel: "noted",
       they: "They ask what the problem is.",
       move: "ask",
       topic: ["ühendus", "võrk"],
-      needs: [{ kind: "lemma", oneOf: ["ühendus", "võrk"] }],
+      /*
+        Or anything that says something is not working. "Internet ei tööta"
+        and "Wifi ei tööta" are how everybody says it, and neither word is
+        one the course teaches, so the lemma list alone refused the commonest
+        sentence anybody calls support with. A one-word turn is still not
+        enough here (`shape`), so a bare `Ei.` does not meet it.
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "lemma", oneOf: ["ühendus", "võrk"] },
+        { kind: "negation" },
+      ] }],
       required: true,
       patience: 3,
       shape: "sentence",
@@ -66,10 +77,16 @@ const TECH_SUPPORT: SceneSpec = {
     {
       id: "screen",
       goal: "Tell them what you see on the screen: an error, or that it's empty.",
+      feel: "noted",
       they: "They ask what you see on the screen.",
       move: "ask",
       topic: ["ekraan", "nägema"],
-      needs: [{ kind: "lemma", oneOf: ["viga", "tühi", "must", "ühendus"] }],
+      /*
+        Not `ühendus`: that is the problem itself, and "Ühendus ei tööta"
+        said late was read as an answer to what is on the screen. A message
+        on the screen is a `kiri`.
+      */
+      needs: [{ kind: "lemma", oneOf: ["viga", "tühi", "must", "kiri"] }],
       required: true,
       patience: 2,
       shape: "sentence",
@@ -77,10 +94,18 @@ const TECH_SUPPORT: SceneSpec = {
     {
       id: "tried",
       goal: "Tell them what you've already tried: switching it off and on again.",
+      feel: "noted",
       they: "They ask what you've already tried.",
       move: "ask",
       topic: ["proovima", "juba"],
-      needs: [{ kind: "lemma", oneOf: ["kinni", "lahti", "uuesti", "proovima", "laadima", "uuendama"] }],
+      /*
+        Or that they have tried nothing yet: "Ei midagi" is an answer, and the
+        next move (what to try) is right after it as well.
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "lemma", oneOf: ["kinni", "lahti", "uuesti", "proovima", "laadima", "uuendama"] },
+        { kind: "negation" },
+      ] }],
       required: true,
       patience: 2,
       shape: "sentence",
@@ -88,8 +113,10 @@ const TECH_SUPPORT: SceneSpec = {
     {
       id: "fix",
       goal: "They tell you what to do. Do it and say it works now, or ask what happens next.",
-      they: "They tell you to switch the box off, wait a minute and switch it on again.",
-      answer: "They say the connection should come back within a few minutes.",
+      they: "They tell you what to try next: update the software, or set the connection up again.",
+      /* "Nüüd töötab" is good news on a support line, and they are glad to hear it. */
+      feel: "glad",
+      answer: "They say the connection should come back within a few minutes, and to call again if it does not.",
       move: "instruct",
       topic: ["minut", "ootama", "kinni", "lahti"],
       needs: [{ kind: "anyOf", of: [
@@ -103,7 +130,7 @@ const TECH_SUPPORT: SceneSpec = {
     {
       id: "close",
       goal: "Thank them and say goodbye.",
-      they: "They ask you to call again if it stops, and say goodbye.",
+      they: "They say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],

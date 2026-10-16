@@ -1,5 +1,5 @@
 import type { SceneSpec } from "../types";
-import { COMMON, HELLOS, CLOSING_WORDS, FAREWELLS } from "./shared";
+import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 
 const CHART: SceneSpec = {
   id: "graafik",
@@ -11,13 +11,15 @@ const CHART: SceneSpec = {
     tests and the evening it sits on. `majandus` for the reasons a figure
     moves (the market, demand, prices), `too-ja-raha` for the work around it,
     `ostmine` for prices, `arvamus` and `plaanid` for reasons and what
-    people think, and `omadussonad` for slowly. `sina`, because it is
+    people think, and `omadussonad` for slowly. `linn-ja-teenused`, `loodus`,
+    `reisimine`, `meedia` and `kuivord` are for the reasons people actually
+    give: fewer clients, the summer, the holidays, the advert. `sina`, because it is
     your own team.
 
     The figure is on the card and the learner says it; nothing here asks for
     a number the card did not deal.
   */
-  units: [...COMMON, "statistika", "majandus", "too-ja-raha", "ostmine", "arvamus", "plaanid", "omadussonad"],
+  units: [...COMMON, "statistika", "majandus", "too-ja-raha", "ostmine", "arvamus", "plaanid", "minevik", "omadussonad", "linn-ja-teenused", "loodus", "reisimine", "meedia", "kuivord"],
   register: "sina",
   role: "This is a role. It's your turn to present this month's chart to your team. Your card says what it shows and by how much.",
   props: [
@@ -27,14 +29,25 @@ const CHART: SceneSpec = {
     },
     { kind: "number", slot: "percent", min: 5, max: 30, says: "By how much, in per cent." },
   ],
-  curveballs: ["interrupted", "contradiction", "other-register", "faster"],
+  /*
+    No `contradiction`: it is the other side going back on something they
+    said, and nobody in this room says anything but questions, so its line
+    could only ever contradict the learner, which is not what the learner is
+    told is happening.
+  */
+  curveballs: ["interrupted", "other-register", "faster"],
   beats: [
     {
       id: "greet",
       goal: "Say hello to your team.",
       they: "Your team lead says hello and hands over to you.",
       move: "greet",
-      topic: [...HELLOS],
+      /*
+        Not `HELLOS`, which would have the lead say a bare `Tere!` and nothing
+        else: the topic is the starting, so the line is the bank's, which says
+        hello and hands the meeting over.
+      */
+      topic: ["alustama"],
       needs: [{ kind: "lemma", oneOf: [...HELLOS] }],
       required: true,
       patience: 2,
@@ -44,9 +57,20 @@ const CHART: SceneSpec = {
       id: "what",
       goal: "Tell them what the chart shows: a rise, or a fall.",
       they: "They ask what the chart shows.",
+      feel: "noted",
       move: "ask",
       topic: ["näitaja", "suundumus"],
-      needs: [{ kind: "datum", slot: "trend" }],
+      /*
+        The card's word, or the verb anybody actually uses for a chart:
+        `Müük tõusis` is the whole answer and was refused for not being the
+        noun. The nouns are on the list as well as on the card so that a
+        learner who is lost is handed the card's own word (`offerFor`) rather
+        than a bare infinitive.
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "datum", slot: "trend" },
+        { kind: "lemma", oneOf: ["tõus", "langus", "tõusma", "langema", "kasvama"] },
+      ] }],
       required: true,
       patience: 3,
       shape: "sentence",
@@ -55,6 +79,7 @@ const CHART: SceneSpec = {
       id: "much",
       goal: "Tell them by how much, in per cent.",
       they: "They ask by how much.",
+      feel: "noted",
       move: "ask",
       topic: ["protsent", "palju"],
       needs: [{ kind: "datum", slot: "percent" }],
@@ -68,7 +93,8 @@ const CHART: SceneSpec = {
       they: "Somebody in the room asks why that happened.",
       move: "ask",
       topic: ["miks", "põhjus"],
-      needs: [{ kind: "lemma", oneOf: ["sest", "hind", "turg", "nõudlus", "kriis", "konkurents", "maks", "inflatsioon"] }],
+      // `hind` first: it is the word a learner who is lost is handed.
+      needs: [{ kind: "lemma", oneOf: ["hind", "turg", "sest", "kuna", "põhjus", "nõudlus", "pakkumine", "kriis", "konkurents", "maks", "inflatsioon", "majandus", "hinnatõus", "tööpuudus", "klient", "toode", "reklaam", "suvi", "talv", "puhkus", "ilm", "vähem", "rohkem"] }],
       required: true,
       patience: 2,
       shape: "sentence",
@@ -76,9 +102,10 @@ const CHART: SceneSpec = {
     {
       id: "close",
       goal: "Thank everybody and say goodbye.",
-      they: "Your lead thanks you and closes the meeting.",
+      they: "Your lead thanks you, says that's all for today, and closes the meeting.",
       move: "close",
-      topic: [...FAREWELLS],
+      // Not `FAREWELLS`: the lead says more than goodbye, and the bank is what says it.
+      topic: ["järgmine", "kõik"],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,

@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Archive, Check, Copy, LogOut, Plus, Printer } from "lucide-react";
-import { archiveClassroom, assignHomework, assignUnit, createClassroom, joinClassroom, leaveClassroom, setEmailKind } from "@/app/actions";
+import { archiveClassroom, assignHomework, assignScene, assignUnit, createClassroom, joinClassroom, leaveClassroom, setEmailKind } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { COPY_LABEL, useCopy } from "@/components/useCopy";
 import { ChoiceCard, ChoiceChip, ChoiceGroup } from "@/components/Choice";
@@ -314,6 +314,73 @@ export function AssignUnit({ classroomId, units }: {
       >
         <Printer size={14} aria-hidden /> {t("Print a worksheet")}
       </Link>
+      {message && <p role="status" className="w-full text-xs" style={{ color: "var(--ink-3)" }}>{message}</p>}
+    </div>
+  );
+}
+
+/**
+ * One of the conversations as homework (FB-6). The shape of `AssignUnit`: pick
+ * one, an optional date, send. What makes it different is after, not here:
+ * nobody ticks it, since it is done when a learner finishes a run of it, and
+ * the class page counts how many have.
+ */
+export function AssignScene({ classroomId, scenes }: {
+  classroomId: string;
+  /** Every conversation, its title already in the reader's language. */
+  scenes: { id: string; title: string }[];
+}) {
+  const t = useT();
+  const locale = useLocale();
+  const router = useRouter();
+  const [sceneId, setSceneId] = useState(scenes[0]?.id ?? "");
+  const [due, setDue] = useState("");
+  const [message, setMessage] = useState<string | null>(null);
+  const [pending, start] = useTransition();
+
+  return (
+    <div className="flex flex-wrap items-end gap-2">
+      <div className="min-w-[210px] flex-1">
+        <label htmlFor="assign-scene" className="label-xs mb-1 block" style={{ color: "var(--ink-3)" }}>
+          {t("Set a conversation as homework")}
+        </label>
+        <select
+          id="assign-scene"
+          value={sceneId}
+          onChange={(e) => setSceneId(e.target.value)}
+          className="w-full rounded-[var(--r)] border px-3 py-2 text-sm"
+          style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
+        >
+          {scenes.map((s) => (
+            <option key={s.id} value={s.id}>{s.title}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label htmlFor="assign-scene-due" className="label-xs mb-1 block" style={{ color: "var(--ink-3)" }}>
+          {t("Due (optional)")}
+        </label>
+        <input
+          id="assign-scene-due"
+          type="date"
+          value={due}
+          onChange={(e) => setDue(e.target.value)}
+          className="field text-sm"
+          style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
+        />
+      </div>
+      <Button
+        variant="primary"
+        disabled={pending || !sceneId}
+        onClick={() => start(async () => {
+          const result = await assignScene(classroomId, sceneId, due || undefined).catch(() => null);
+          if (!result) { setMessage(t(NOT_REACHED)); return; }
+          setMessage(result.ok ? fill(t("Sent to {people}."), { people: countOf(locale, result.assigned, "person") }) : t(result.error));
+          router.refresh();
+        })}
+      >
+        {t(pending ? "Sending…" : "Send it to the class")}
+      </Button>
       {message && <p role="status" className="w-full text-xs" style={{ color: "var(--ink-3)" }}>{message}</p>}
     </div>
   );

@@ -20,7 +20,7 @@ const FAMILY_BENEFIT: SceneSpec = {
     is how anybody says it on the phone anyway. The reference number is dealt
     on the card and is fiction.
   */
-  units: [...COMMON, "suhtlemine", "uhiskond", "linn-ja-teenused", "inimesed", "ostmine", "kuud", "eluase", "omadussonad"],
+  units: [...COMMON, "suhtlemine", "uhiskond", "linn-ja-teenused", "inimesed", "ostmine", "kuud", "eluase", "omadussonad", "probleemid"],
   register: "teie",
   role: "This is a role. The money you get every month for your child hasn't arrived, and you're calling the office that pays it. Your card has your reference number and the month it last came.",
   props: [
@@ -46,10 +46,20 @@ const FAMILY_BENEFIT: SceneSpec = {
     {
       id: "why",
       goal: "Tell them the money for your child hasn't come this month.",
+      feel: "noted",
       they: "They ask how they can help.",
       move: "ask",
       topic: ["raha", "laps", "aitama"],
-      needs: [{ kind: "lemma", oneOf: ["raha", "laps"] }],
+      /*
+        Or anything said not to have come. "Lapsetoetus ei ole tulnud" is how
+        most people say it, and `lapsetoetus` ends in `toetus`, which the
+        course does not teach, so neither word on the list was in it. A
+        one-word turn is still not enough (`shape`).
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "lemma", oneOf: ["raha", "laps"] },
+        { kind: "negation" },
+      ] }],
       required: true,
       patience: 3,
       shape: "sentence",

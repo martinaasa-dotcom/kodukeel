@@ -28,27 +28,27 @@
  */
 import { clip } from "@/lib/copy/clip";
 import { clockInPlay, moneyInPlay, type SceneContext, type StoredDraw } from "@/lib/progress/scene";
-import { asideFor, asideOwed, asksToHearAgain, priceAsked, shrug } from "@/lib/scenes/aside";
-import { asksSlower, saysGoodbye, LEAVING } from "@/lib/scenes/casual";
-import { FAREWELLS } from "@/lib/scenes/catalogue";
+import { CHECK_GLUE, asideFor, asideOwed, readBackCorrection, asksPermission, asksToHearAgain, namesLaterBeat, priceAsked, questionAhead, sameFact, shrug } from "@/lib/scenes/aside";
+import { asksSlower, asksToWait, saysGoodbye, LEAVING } from "@/lib/scenes/casual";
+import { FAREWELLS, FEELINGS } from "@/lib/scenes/catalogue";
 import { choiceOf } from "@/lib/scenes/choice";
 import { repeatsItself, type buildConsistencyUserPrompt } from "@/lib/scenes/consistency";
 import { ASKS_ON } from "@/lib/scenes/curveballs";
 import { gateFor } from "@/lib/scenes/gate";
-import { offerFor } from "@/lib/scenes/grades";
-import { words } from "@/lib/scenes/lexicon";
+import { OFFER_CHOICE, offerFor } from "@/lib/scenes/grades";
+import { words, type Lexicon } from "@/lib/scenes/lexicon";
 import { sceneLine, type LineRequest, type SpokenLine } from "@/lib/scenes/line";
 import type { PersonaSpec } from "@/lib/scenes/personas";
 import type { ComposeAsk, ComposeScene } from "@/lib/scenes/prompt";
 import { dealtNumbers } from "@/lib/scenes/props";
 import {
   cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, establishedBy, factsFor, feltAt, saidAgain,
-  heldBack, heldNumbers, replyFor, sayableAfterHurdles, sceneMovedOn, stageFor, timesAnswered, wantsAsideFor,
+  answersTheirYesNo, heldBack, heldNumbers, isFelt, partsLine, replyFor, sayableAfterHurdles, sceneMovedOn, stageFor, timesAnswered, wantsAsideFor,
   wantsFreshLine,
 } from "@/lib/scenes/reply";
 import { answerBeatId, sceneBeats } from "@/lib/scenes/scripted";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver, type Response, type SceneState } from "@/lib/scenes/state";
-import type { BeatSpec, SceneSpec } from "@/lib/scenes/types";
+import { leafNeeds, type BeatSpec, type SceneSpec } from "@/lib/scenes/types";
 import type { Level } from "@/lib/collections/syllabus/types";
 import type { ChatMessage } from "@/lib/tutor/provider";
 
@@ -219,8 +219,30 @@ export function planTurn(input: TurnInput) {
     mishearing says a line about a beat nobody has reached.
   */
   const bank = (id: string | undefined): readonly string[] =>
-    id ? sayableAfterHurdles(context.scripted.get(id) ?? [], state, context.lexicon, context.marker.negators, scene) : [];
+    id ? sayableAfterHurdles(context.scripted.get(id) ?? [], state, context.lexicon, context.marker.negators, scene, last?.said) : [];
   const fresh = (id: string | undefined) => bank(id).filter((text) => !used.has(text));
+  // An answer is a fact, so asked again it is the same fact (`sameFact`, FB-5).
+  const answersOf = (beat: BeatSpec): readonly string[] => sameFact(bank(answerBeatId(beat)), used);
+  /*
+    A question the scene asks for further on, answered now. Where that beat is
+    answered by the move after it (`answeredNext`) and the bank holds nothing,
+    the answer is that move's own fact off the card: asked "Mis kell te
+    avate?" while still saying what they wanted, a learner heard nothing about
+    the hours, guessed `Kell 10`, and the shop never said when it opened.
+  */
+  const aheadNow = ((): { lines: readonly string[]; fact: boolean } => {
+    // The question's own beat, where the turn met it: its answer is still the move after it.
+    const later = questionAhead(sceneBeats(scene), answered, words(last?.said ?? ""), context.lexicon)
+      ?? (askedNow && answered?.answeredNext ? answered : null);
+    if (!later) return { lines: [], fact: false };
+    const banked = answersOf(later);
+    if (banked.length > 0 || !later.answeredNext) return { lines: state.done.includes(later.id) ? [] : banked, fact: false };
+    // The question beat may have been credited by this very turn; what matters is whether the answer has been said.
+    const next = scene.beats[scene.beats.findIndex((b) => b.id === later.id) + 1];
+    if (!next || state.done.includes(next.id)) return { lines: [], fact: false };
+    const said = next?.says ? partsLine(next.says, { card, lexicon: context.lexicon, mark: "." }) : null;
+    return said ? { lines: [said.text], fact: true } : { lines: [], fact: false };
+  })();
   const asking = {
     asked: askedNow,
     spoken: words(last?.said ?? ""),
@@ -229,8 +251,13 @@ export function planTurn(input: TurnInput) {
     card,
     lexicon: context.lexicon,
     more: fresh(answered?.id),
-    answers: answered ? fresh(answerBeatId(answered)) : [],
+    answers: answered ? answersOf(answered) : [],
+    ahead: aheadNow.lines,
+    aheadIsFact: aheadNow.fact,
     missed: !landedNow,
+    landedCheck: reading !== "complete" ? undefined
+      : words(last?.said ?? "").every((word) => CHECK_GLUE.has(word) || words(heard ?? "").includes(word)) ? "same" as const : "differs" as const,
+    heardLine: heard ?? undefined,
     already: used,
   };
   /*
@@ -249,7 +276,10 @@ export function planTurn(input: TurnInput) {
     and the shrug is what a landed turn gets where nothing composed and no
     fact answered.
   */
-  let aside: SpokenLine | null = wantsAside && !composing ? asideFor(asking) : null;
+  // A time or a count read back is confirmed or put right before anything else is said (`readBackCorrection`).
+  const readBack = !composing && sent && (response === "answer" || response === "narrow" || response === "repeat")
+    ? readBackCorrection(answered, last?.said ?? "", card, context.lexicon) : null;
+  let aside: SpokenLine | null = readBack ?? (wantsAside && !composing ? asideFor(asking) : null);
   /*
     AND "SORRY, WHAT?" IS ANSWERED WITH THE LINE AGAIN, NEVER WITH A SHRUG.
     On a beat that takes anything the turn lands, the question word is left
@@ -407,7 +437,7 @@ export function planTurn(input: TurnInput) {
     const anticipated = askedNow && answered?.answer ? stageFor({ ...answered, they: answered.answer }, card) : null;
     /* The word the beat was waiting for, where the other side is letting it go or was asked for help. */
     const handing = (response === "help" || response === "moveOn") && answered
-      ? offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives)
+      ? helpWith(response, offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives, context.lexicon.caseForm))
       : null;
     /*
       A closing beat where the learner is still asking: the goodbye waits, so
@@ -499,20 +529,51 @@ export function planTurn(input: TurnInput) {
     answered gets the shrug, and an answer written before a break in time
     still goes first.
   */
+  /*
+    What the last reply most likely opened with. Only the move line travels
+    with a turn, so the reaction is read off what each turn before this one
+    did: a beat that landed is felt the beat's way, and a turn off the point
+    was answered "got it". Walked from the start, so a reaction that was left
+    out last time (`withoutRepeatedReaction`) is not counted as said.
+  */
+  const reactedBefore = (() => {
+    const blocks: SceneState["turns"][number][] = [];
+    state.turns.forEach((t, i) => {
+      if (i > 0 && state.turns[i - 1]!.said === t.said) blocks[blocks.length - 1] = t;
+      else blocks.push(t);
+    });
+    const guess = (t: SceneState["turns"][number]) => {
+      const feel = sceneBeats(scene).find((b) => b.id === t.beatId)?.feel;
+      return feel && (t.reading === "complete" || (t.reading === "offtarget" && answersTheirYesNo(t.heard ?? null, t.said)))
+        ? FEELINGS[feel].word : null;
+    };
+    let said: string | null = null;
+    for (const t of blocks.slice(0, -1)) {
+      const would = guess(t);
+      said = would !== null && would === said ? null : would;
+    }
+    return said;
+  })();
+
   function respond(said: SpokenLine | null, preBreak: SpokenLine | null = null): SpokenLine[] {
     const before = said?.provenance === "composed"
       ? preBreak
       : preBreak ?? (shrugOwed ? shrug(asking) : aside);
-    return replyFor({
+    return withoutRepeatedReaction(withoutRestatedCorrection(replyFor({
       beat: speaking,
       // A turn that answered a beat the other side had moved past is not a miss.
       landed: elsewhere > 0,
       hurdle: standing
-        ? { beat: standing, line: standing === spokenFor ? said : null, said: hurdleSpec(state)?.said, then: askedOn }
+        ? {
+          beat: standing, line: standing === spokenFor ? said : null, said: hurdleSpec(state)?.said, then: askedOn,
+          // Raised on this turn, rather than standing since an earlier one.
+          fresh: state.turns.at(-1)?.beatId !== standing.id,
+        }
         : null,
       answered: sent ? answered : null,
       response: sent ? response : null,
       reading,
+      asksAgain: asksSlower(words(last?.said ?? "")),
       line: said,
       heard,
       said: last?.said ?? null,
@@ -520,6 +581,15 @@ export function planTurn(input: TurnInput) {
       translates: persona?.translates ?? false,
       askedForEnglish: last?.wantsEnglish === true,
       acknowledges: persona?.acknowledges ?? true,
+      permission: asksPermission(last?.said ?? "", context.lexicon),
+      finiteForms: finiteFormsOf(context.lexicon),
+      verbAnswer: verbAnswered(answered, last?.matched?.[0] ?? null, context.lexicon),
+      // A slip the dictionary could not put right leaves the turn's own words wrong, so none of them is said back.
+      slipped: Boolean(last?.slips?.some((slip) => !slip.form)),
+      holding: asksToWait(words(last?.said ?? "")),
+      // And whether the turn before asked them to wait too, so the second "oota" is not "Hästi." again.
+      heldBefore: asksToWait(words(state.turns.findLast((t) => t.said !== last?.said)?.said ?? "")),
+      askedLater: namesLaterBeat(sceneBeats(scene), answered, state.done, words(last?.said ?? ""), context.lexicon),
       echo: last?.matched?.[0] ?? null,
       /*
         The word the other side repeats is the learner's own, or, where it was
@@ -541,7 +611,7 @@ export function planTurn(input: TurnInput) {
         the question they were asked.
       */
       offer: !composing && (response === "help" || response === "moveOn") && answered
-        ? offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives)
+        ? helpWith(response, offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives, context.lexicon.caseForm))
         : null,
       met: state.done.length,
       metLast: last?.met ?? [],
@@ -550,7 +620,14 @@ export function planTurn(input: TurnInput) {
         spoken, which is what the break in time is printed on: a scene that
         walks somebody to a shop has to say so before it asks where they are.
       */
-      arriving: speaking ? !state.turns.some((turn) => turn.beatId === speaking.id) : false,
+      /*
+        And not on the turn after a curveball stood in front of it: the break
+        was printed when the curveball arrived (`hurdle.fresh`), and a break
+        in time said twice is two breaks.
+      */
+      arriving: speaking
+        ? !state.turns.some((turn) => turn.beatId === speaking.id) && !(state.turns.at(-1)?.beatId.startsWith("hurdle:") ?? false)
+        : false,
       /*
         How long they have been on this beat, so the app knows when to step
         out of character and say what is wanted (`lib/scenes/coach.ts`). Turns
@@ -588,7 +665,7 @@ export function planTurn(input: TurnInput) {
             roll: state.turns.length, met: last?.met ?? [],
           })
         : null,
-    });
+    })), reactedBefore);
   }
 
   /*
@@ -926,4 +1003,65 @@ export async function composeTurn(
     }, preBreak ? [...conversation, { role: "assistant" as const, content: preBreak.text }] : conversation, avoid),
   });
   return { line: said, preBreak };
+}
+
+/** Every person of every verb the scene's words hold (`ReplyInput.finiteForms`), cached per lexicon. */
+const FINITE = new WeakMap<Lexicon, ReadonlySet<string>>();
+function finiteFormsOf(lexicon: Lexicon): ReadonlySet<string> {
+  let held = FINITE.get(lexicon);
+  if (!held) {
+    held = new Set([...lexicon.persons.values()].flatMap((persons) => [...persons.values()].map((form) => form.toLowerCase())));
+    FINITE.set(lexicon, held);
+  }
+  return held;
+}
+
+/**
+ * Whether the word that met the beat is a form of one of the beat's own verbs
+ * (`ReplyInput.verbAnswer`): "võtan" at the pharmacy's "say you'll take it" is
+ * the learner's own sentence, and said back it reads as the other side
+ * repeating them. A noun spelled like a verb person ("teed", tea, beside "sa
+ * teed") is not this, because the beat named the noun.
+ */
+function verbAnswered(beat: BeatSpec | null, word: string | null, lexicon: Lexicon): boolean {
+  if (!beat || !word) return false;
+  const said = word.toLowerCase();
+  return leafNeeds(beat.needs).some(({ need }) => need.kind === "lemma" && need.oneOf.some((lemma) =>
+    [...(lexicon.persons.get(lemma)?.values() ?? [])].some((form) => form.toLowerCase() === said)
+    || [...(lexicon.infinitives.get(lemma) ?? [])].some((form) => form.toLowerCase() === said)));
+}
+
+/**
+ * A correction is said once. "Ei, üks tablett 2 korda päevas söögi ajal." in
+ * front of the same instruction said again is the doctor repeating
+ * themselves; the "Ei," line already says it, so the bare restatement after it
+ * goes (`readBackCorrection`).
+ */
+function withoutRestatedCorrection(lines: SpokenLine[]): SpokenLine[] {
+  const plain = (text: string) => text.toLowerCase().replace(/[^\p{L}\d]+/gu, " ").trim();
+  return lines.filter((line, i) => {
+    const before = lines[i - 1];
+    if (!before || !/^ei,\s/i.test(before.text)) return true;
+    return plain(before.text.replace(/^ei,\s*/i, "")) !== plain(line.text);
+  });
+}
+
+/**
+ * Nobody says "Selge." at the start of every turn. A receptionist who felt the
+ * last answer that way goes straight to the next question over this one, so a
+ * feeling (`isFelt`) that most likely opened the last reply too is dropped
+ * where a line follows it. "Got it, but" and an acknowledgement are never
+ * dropped: they say how this turn went, and without "Selge, aga" a learner off
+ * the point heard the question again as though nothing had been said.
+ */
+function withoutRepeatedReaction(lines: SpokenLine[], reactedBefore: string | null): SpokenLine[] {
+  const first = lines[0];
+  if (!first || !isFelt(first) || lines.length < 2 || !reactedBefore) return lines;
+  const plain = (text: string) => text.toLowerCase().replace(/[^\p{L}]+/gu, " ").trim();
+  return plain(reactedBefore) === plain(first.text) ? lines.slice(1) : lines;
+}
+
+/** The yes-or-no handed over at an offer is for somebody who asked for help, never a word said on the way past. */
+function helpWith(response: Response, offer: string | null): string | null {
+  return offer === OFFER_CHOICE && response !== "help" ? null : offer;
 }

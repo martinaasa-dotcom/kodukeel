@@ -61,7 +61,8 @@ interface Candidate {
  * standalone reference passes nothing and is unchanged.
  */
 export async function verbExamples(
-  ownerId: string, limit = 4, within?: readonly string[],
+  /** Null for the public reference (FB-8, D7), which reads no deck. */
+  ownerId: string | null, limit = 4, within?: readonly string[],
 ): Promise<VerbExample[]> {
   const scoped = within ? { lemma: { in: [...within] } } : {};
   const select = {
@@ -73,7 +74,7 @@ export async function verbExamples(
     forms: { select: { formType: true, value: true, morphCode: true }, orderBy: { orderIndex: "asc" as const } },
   } as const;
 
-  const deck = await prisma.card.findMany({
+  const deck = ownerId === null ? [] : await prisma.card.findMany({
     where: { ownerId, suspended: false, lexemeId: { not: null }, lexeme: { pos: "VERB", ...scoped } },
     distinct: ["lexemeId"],
     orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }, { id: "asc" }],

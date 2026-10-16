@@ -51,6 +51,7 @@ const DEPOSIT: SceneSpec = {
       id: "why",
       goal: "Tell them you're calling about getting your deposit back.",
       they: "They ask what it's about.",
+      feel: "noted",
       move: "ask",
       topic: ["raha", "tagasi", "korter"],
       needs: [{ kind: "lemma", oneOf: ["raha", "tagasi", "tagastama"] }],
@@ -72,33 +73,39 @@ const DEPOSIT: SceneSpec = {
     {
       id: "clean",
       goal: "They say the flat wasn't left clean. Tell them it was: you cleaned it.",
-      they: "They say the flat wasn't left clean.",
+      feel: "noted",
+      they: "They say the flat wasn't left clean, and that a wall is damaged.",
       move: "ask",
       topic: ["puhas", "koristama", "korter"],
       /*
-        Both lines say the flat was dirty and ask the learner to agree, so a
-        no is the learner standing their ground and a yes would be agreeing
-        with the landlord: `jah` is deliberately not on the list, and no line
-        may ask "was it clean?", which turns the same no into a confession.
+        Both lines say the flat was dirty, so what answers them is the learner
+        saying it was clean or that they cleaned it. A bare no used to meet the
+        beat as well, and so did any turn with `ei` in it, which took "Ma ei
+        koristanud" as the learner standing their ground when it is the
+        opposite. `jah` is deliberately not on the list, and no line may ask
+        "was it clean?", which turns a no into a confession.
       */
-      needs: [{ kind: "anyOf", of: [
-        { kind: "negation" },
-        { kind: "lemma", oneOf: ["puhas", "koristama"] },
-      ] }],
+      needs: [{ kind: "lemma", oneOf: ["puhas", "koristama"] }],
       required: true,
-      patience: 2,
+      patience: 3,
       shape: "sentence",
     },
     {
       id: "offer",
       goal: "They offer back only part of it. Say it's not enough, or say yes if you'll take it.",
-      they: "They say they'll only give back {offer} euros, because of a mark on the wall.",
+      they: "They say that because of the wall they'll only pay back {offer} euros.",
       move: "offer",
       topic: ["raha", "euro", "tagasi"],
-      says: [{ slot: "offer" }, { lemma: "euro", grammCase: "PARTITIVE" }],
+      says: [
+        { lemma: "sein", grammCase: "GENITIVE" }, { lemma: "pärast" }, { lemma: "maksma", verb: "IndPrSg1" },
+        { lemma: "tagasi" }, { lemma: "ainult" }, { slot: "offer" }, { lemma: "euro", grammCase: "PARTITIVE" },
+      ],
       counter: {
-        they: "They think about it and offer {offer2} euros instead.",
-        says: [{ slot: "offer2" }, { lemma: "euro", grammCase: "PARTITIVE" }],
+        they: "They think about it and say that then they'll pay back {offer2} euros.",
+        says: [
+          { lemma: "siis" }, { lemma: "maksma", verb: "IndPrSg1" }, { lemma: "tagasi" },
+          { slot: "offer2" }, { lemma: "euro", grammCase: "PARTITIVE" },
+        ],
         replaces: [["offer", "offer2"]],
       },
       needs: [{ kind: "anyOf", of: [
@@ -107,13 +114,13 @@ const DEPOSIT: SceneSpec = {
         { kind: "lemma", oneOf: ["jah", "hea", "nõus", "sobima"] },
       ] }],
       required: true,
-      patience: 2,
+      patience: 3,
       shape: "word",
     },
     {
       id: "close",
       goal: "Thank them and say goodbye.",
-      they: "They say they'll send the money this week, and goodbye.",
+      they: "They say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
@@ -123,7 +130,7 @@ const DEPOSIT: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "paid", when: ["greet", "why", "moved", "clean", "offer", "close"], says: "You stood up for yourself, politely, and got your money back. Holding your ground when somebody says no is the hardest Estonian there is." },
+    { id: "paid", when: ["greet", "why", "moved", "clean", "offer", "close"], says: "You stood up for yourself, politely, said the flat was clean and settled the money. Holding your ground when somebody says no is the hardest Estonian there is." },
     { id: "paid-thin", when: ["why", "offer"], says: "They're paying something back. Saying you left it clean is what gets the rest." },
     { id: "stand-off", when: ["greet", "why"], says: "They wouldn't agree to anything on the phone. That's them, not your Estonian; put it in writing next." },
     { id: "left", when: [], says: "You hung up before you'd asked. The deposit is still yours to ask for." },

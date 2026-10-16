@@ -5478,3 +5478,32 @@ recognizer hears learner Estonian.
 Reported off `poodi-piima`: "Hästi.", the cover saying five minutes had passed, and the next question all landed into each other. The cover came up in the same frame as the line before it and cut its voice off, and the line after the cover arrived and spoke in the frame the cover left. `lib/scenes/pacing.ts` is the two beats: before a break the line is heard to its end (`untilQuiet` in `lib/audio/clip.ts`, capped) and then left up long enough to read, scaled by its length; after Continue the cover fades onto the move alone, and only `AFTER_BREAK_MS` later does the next line arrive and speak. Measured in a browser: "Hästi." stays up about three to four seconds, the next line arrives a second after Continue.
 
 The rung and a Report button under every line were taken off on the operator's word, as a second conversation under the first; the model composing is still named once at the top (ADR-025), and the rung rides on `data-rung` for the suite. And every persona speaks in `SCENE_VOICE`, Tambet, measured: all ten voices read eight short scene lines to a recognizer, the five that heard every word read eight long ones, and Tambet's came back word for word bar a digit for a spoken number. Külli and Indrek, two of the old persona voices, were misheard on the short lines already.
+
+## 83. Picked conversations for A1: measured, and not built
+
+The landing page's café is played by picking, two to four lines a step, each built off the dictionary (`lib/progress/demoScene.ts`). The fourth batch asked whether an A1 learner could have the same inside the course, and set the gate in advance (D9): build a picked mode only if at least four of the eight wave A scenes can be picked through on every required beat by the last part of A1. `npm run measure:picked` is the count, keyless, over `taughtThrough` at each A1 part's last evening.
+
+It reads every required beat for what a picked line has to hold, generously: the one word the beat needs is counted as a line, the way "Kohvi, palun." is one, and a beat qualifies where its alternatives make at least two lines. Read on the words alone, five scenes qualify by a1.7. That reading is wrong for this question, and the reason is the difference between typing and picking. A typed turn is read generously, so these beats take the bare word in any form and say it back put right. A picked line is something the app offers as correct, so it has to be what a person would say, and for four of these slots that holds a case: the country you are from is in the seestütlev, some carrots and three apples are in the osastav, and the bus going to the centre is in the sisseütlev. A1 reads no case page, and the module's rule is that a form is shown before it is practised. The script holds each such slot to the case a natural answer takes (`NATURAL_CASE`, case keys and English only) and to the pages the course has read by then (`grammarThrough`).
+
+| Scene | Beats that qualify by a1.7 | What blocks the rest |
+| --- | --- | --- |
+| `uus-kolleeg` | 5 of 6 | `from`: the seestütlev, whose page A1 has not read |
+| `abi-palumine` | 5 of 5 | none |
+| `ootamine` | 5 of 5 | none (the sun, the wind and the fog are said in the nominative) |
+| `kokkulepe` | 5 of 6 | `day`: only one line can be built, which is not a pick |
+| `turul` | 3 of 5 | `some` and `pieces`: the osastav, whose page A1 has not read |
+| `bussipeatus` | 4 of 5 | `this`: the sisseütlev, whose page A1 has not read |
+| `raamatukogu` | 5 of 6 | `want`: only one line can be built, which is not a pick |
+| `nadalavahetus` | 4 of 5 | `did`: none of saun, kino, kontsert, teater or pidu is taught in A1 |
+
+Two of eight, against a gate of four, so nothing was built and nothing in the course moved. The script prints the per-part table as well (`WORDS ALONE`), which shows when each blocking word arrives. What would change the answer is the course rather than the mode: the cases arrive at A2, and the same scenes are open to typing there. The café on the landing page stays as it is, because it is a showcase of one conversation for somebody deciding whether to start, not an evening of a course that promises to show a form before asking for it.
+
+## 84. Pick a line or type it, in every conversation
+
+The operator read §83 and overruled the gate: every situation is to be excellent with no model at all, and picking is how a beginner holds a whole conversation before they can produce one. So the mode was built for every scene rather than for A1 alone, and the §83 measurement stands as the record of why it is not the only way in.
+
+`lib/scenes/picks/` holds two or three lines per beat for each of the 43 scenes, written as templates: literal Estonian, plus slots off the card (`{from}`, or `{from:ELATIVE}` for a case read off the dictionary's own table). `lib/scenes/picks/curveballs.ts` holds the shared answers to the curveballs, and a scene may override them. Every literal word is one the scene's own dictionary holds, and every slot is one its card deals. The lines were typed in a session and are for the native speaker to read in the pull request, like the bank's authored rows (ADR-025 amendment 1). `picks.test.ts` walks each scene keyless on four cards: every pick has to meet its beat, the first pick at each beat has to finish the scene, and every admitted curveball's picks have to deal with it.
+
+The route sends the picks for the beat in front with every turn. The screen offers them behind a Pick a line / Type it switch, picking by default at A1 and typing everywhere else. A picked line is read by the same marker as a typed one, so the conversation goes on the same way, and it grades nothing (`SentTurn.picked`): choosing the right sentence out of three is recognition, and the review log may not record a recall that never happened.
+
+What the templates cannot say yet: a country in the seestütlev where the dictionary builds `Saksamaast` for `Saksamaalt` (`uus-kolleeg`, `keeletund` say "Minu kodumaa on {from}" instead), and a plural a singular slot cannot give (`toovestlus`'s skill line). Both are noted beside the pick.

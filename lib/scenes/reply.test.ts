@@ -159,7 +159,13 @@ describe("a turn that landed", () => {
   it("keeps the rotation rather than emptying it where every word was said", () => {
     const said = REACTIONS.acknowledge.join(" ");
     const line = replyFor(input({ answered: ASK, heard: "Kas teil on valu?", said }))[0]!.text;
-    expect(REACTIONS.acknowledge).toContain(line.toLowerCase().replace(".", ""));
+    // A turn holding `aitäh` is a thanks, and a thanks is answered "Palun." rather than returned.
+    expect([...REACTIONS.acknowledge, ...REACTIONS.welcome.map((w) => w.toLowerCase())]).toContain(line.toLowerCase().replace(".", ""));
+  });
+
+  it("answers a thanks with you're welcome rather than a thanks back", () => {
+    const line = replyFor(input({ answered: ASK, heard: "Kus te elate?", said: "Aitäh, ma elan siin" }))[0]!.text;
+    expect(line).toBe("Palun.");
   });
 
   it("leaves it out rather than guessing where there is no question to read", () => {
@@ -212,7 +218,7 @@ describe("a turn that landed", () => {
   */
   it("never says the repair phrase, whatever the ladder had", () => {
     const lines = replyFor(input({ answered: ASK, line: NOTHING }));
-    expect(texts(lines)).not.toContain(FALLBACK_PHRASE);
+    expect(texts(lines)).not.toContain(`${FALLBACK_PHRASE}.`);
     expect(lines.at(-1)?.provenance).toBe("unspoken");
     expect(lines.at(-1)?.text).toBe("They ask where it hurts.");
   });
@@ -224,7 +230,7 @@ describe("a turn nobody could read", () => {
       answered: ASK, beat: ASK, response: "repeat", reading: "unrecognised",
       heard: "Kus teil valutab?", line: null,
     }));
-    expect(texts(lines)).toEqual([FALLBACK_PHRASE, "Kus teil valutab?"]);
+    expect(texts(lines)).toEqual([`${FALLBACK_PHRASE}.`, "Kus teil valutab?"]);
     expect(lines[0]?.provenance).toBe("fallback");
     expect(lines[0]?.reaction).toBe(true);
     expect(lines[1]?.provenance).toBe("again");
@@ -234,14 +240,14 @@ describe("a turn nobody could read", () => {
     const lines = replyFor(input({
       answered: ASK, beat: ASK, response: "repeat", reading: "echo", heard: "Kus teil valutab?", line: null,
     }));
-    expect(lines[0]?.text).toBe(FALLBACK_PHRASE);
+    expect(lines[0]?.text).toBe(`${FALLBACK_PHRASE}.`);
   });
 
   it("falls to the stage direction where there was never an Estonian line to repeat", () => {
     const lines = replyFor(input({
       answered: ASK, beat: ASK, response: "repeat", reading: "unrecognised", heard: null, line: NOTHING,
     }));
-    expect(texts(lines)).toEqual([FALLBACK_PHRASE, "They ask where it hurts."]);
+    expect(texts(lines)).toEqual([`${FALLBACK_PHRASE}.`, "They ask where it hurts."]);
   });
 
   it("does not want a fresh line from the ladder, so no booking is spent on one", () => {
@@ -267,12 +273,12 @@ describe("a learner who asks for English", () => {
     expect(texts(lines)).toContain("They ask where it hurts.");
   });
 
-  it("still hears it in Estonian first, because that is what they came for", () => {
+  it("is answered, a little, and still hears the question in Estonian first, because that is what they came for", () => {
     const lines = replyFor(input({
       answered: ASK, beat: ASK, response: "english", reading: "offtarget",
       heard: "Kus teil valutab?", line: NOTHING, translates: false, askedForEnglish: true,
     }));
-    expect(texts(lines)[0]).toBe("Kus teil valutab?");
+    expect(texts(lines).slice(0, 2)).toEqual(["Natuke.", "Kus teil valutab?"]);
   });
 
   it("does not put a brisk persona into English for somebody who merely wrote it", () => {
@@ -391,9 +397,8 @@ describe("a turn that was understood and missed the point", () => {
     const lines = replyFor(input({
       answered: ASK, beat: ASK, response: "narrow", reading: "offtarget", heard: "Kus teil valutab?", line: other,
     }));
-    expect(texts(lines)).toEqual(["Selge.", "Kus teil valutab?"]);
-    expect(lines[0]?.reaction).toBe(true);
-    expect(lines[1]?.provenance).toBe("again");
+    expect(texts(lines)).toEqual(["Selge, aga kus teil valutab?"]);
+    expect(lines[0]?.provenance).toBe("again");
   });
 
   /*
@@ -421,7 +426,7 @@ describe("a turn that was understood and missed the point", () => {
       answered: ASK, beat: ASK, response: "narrow", reading: "offtarget",
       heard: "Kus teil valutab?", line: NOTHING,
     }));
-    expect(texts(lines)).toEqual(["Selge.", "Kus teil valutab?"]);
+    expect(texts(lines)).toEqual(["Selge, aga kus teil valutab?"]);
   });
 
   /*
@@ -467,7 +472,7 @@ describe("a turn that was understood and missed the point", () => {
       answered: ASK, beat: ASK, response: "narrow", reading: "offtarget",
       heard: "Kus teil valutab?", line: banked,
     }));
-    expect(texts(lines)).toContain("Kus teil valutab?");
+    expect(texts(lines).join(" ")).toMatch(/kus teil valutab\?/i);
     expect(texts(lines)).not.toContain(banked.text);
   });
 
@@ -494,7 +499,7 @@ describe("a turn that was understood and missed the point", () => {
       answered: ASK, beat: ASK, response: "narrow", reading: "offtarget",
       heard: "Kus teil valutab?", line: NOTHING, tries: 1, others: ["Kus valu on?"],
     }));
-    expect(texts(lines)).toEqual(["Selge.", "Kus teil valutab?"]);
+    expect(texts(lines)).toEqual(["Selge, aga kus teil valutab?"]);
   });
 
   it("is put another way once repeating and narrowing have both been tried", () => {
@@ -502,7 +507,7 @@ describe("a turn that was understood and missed the point", () => {
       answered: ASK, beat: ASK, response: "narrow", reading: "offtarget",
       heard: "Kus teil valutab?", line: NOTHING, tries: NUDGE_AFTER + 1, others: ["Kus valu on?"],
     }));
-    expect(texts(lines)).toContain("Kus valu on?");
+    expect(texts(lines).join(" ")).toMatch(/kus valu on\?/i);
     expect(texts(lines)).not.toContain("Kus teil valutab?");
   });
 
@@ -511,13 +516,13 @@ describe("a turn that was understood and missed the point", () => {
       answered: ASK, beat: ASK, response: "narrow", reading: "offtarget",
       heard: "Kus teil valutab?", line: NOTHING, tries: NUDGE_AFTER + 1, others: [],
     }));
-    expect(texts(lines)).toContain("Kus teil valutab?");
+    expect(texts(lines).join(" ")).toMatch(/kus teil valutab\?/i);
   });
 
   it("is never told they were not understood", () => {
     for (const reading of ["offtarget", "incomplete"] as const) {
       const lines = replyFor(input({ answered: ASK, beat: ASK, response: "narrow", reading, line: NOTHING }));
-      expect(texts(lines)).not.toContain(FALLBACK_PHRASE);
+      expect(texts(lines)).not.toContain(`${FALLBACK_PHRASE}.`);
     }
   });
 });
@@ -587,7 +592,7 @@ describe("a question the scene did not anticipate", () => {
   it("is not answered on a turn nobody understood, where the repair phrase is the whole reaction", () => {
     const lines = replyFor(input({ answered: ASK, beat: ASK, response: "repeat", reading: "unrecognised", aside, line: NOTHING }));
     expect(texts(lines)).not.toContain(aside.text);
-    expect(texts(lines)).toContain(FALLBACK_PHRASE);
+    expect(texts(lines)).toContain(`${FALLBACK_PHRASE}.`);
   });
 });
 
@@ -631,7 +636,73 @@ describe("a question asked on the way out", () => {
   });
 });
 
+/*
+  A bus driver said `Nägemist!`, the learner answered `jah`, and the driver said
+  `Selge. Nägemist!`, then `Hästi. Head aega!`: three goodbyes to a passenger
+  still on the bus, read by the critic as a premature end (FB-5). Replayed
+  keyless through `npm run replay:scene` on `bussipeatus` before this was fixed.
+*/
+describe("a goodbye already said at the closing beat", () => {
+  const CLOSE: BeatSpec = { ...ASK, id: "close", move: "close", they: "They say goodbye.", needs: [{ kind: "lemma", oneOf: ["aitäh", "Head aega!"] }] };
+  const BYE: SpokenLine = { text: "Nägemist!", provenance: "attested" };
+
+  it("is not said again after a turn that missed it", () => {
+    const lines = replyFor(input({
+      answered: CLOSE, beat: CLOSE, response: "narrow", reading: "offtarget", line: BYE, heard: "Nägemist!", said: "jah",
+    }));
+    expect(lines.length).toBeGreaterThan(0);
+    expect(texts(lines).filter((text) => /aega|nägemist/i.test(text))).toEqual([]);
+  });
+
+  it("is not said a second time when the beat is let go", () => {
+    const lines = replyFor(input({
+      answered: CLOSE, beat: undefined, response: "moveOn", reading: "offtarget",
+      line: { text: "Head aega!", provenance: "attested" }, offer: "Head aega", heard: "Nägemist!", said: "jah",
+    }));
+    expect(texts(lines).filter((text) => /aega|nägemist/i.test(text))).toEqual([]);
+  });
+
+  it("is still said the first time, where nobody has said it yet", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: CLOSE, response: "answer", reading: "complete", line: BYE, heard: "Kas te soovite veel midagi?", said: "ei, aitäh",
+    }));
+    expect(texts(lines)).toContain("Nägemist!");
+  });
+
+  // FB-5, replayed on abi-palumine: "Aitäh, vabandust, head aega" was answered "Nii, kott on sees."
+  it("answers the learner's goodbye with a goodbye where the closing line is not one", () => {
+    const lines = replyFor(input({
+      answered: CLOSE, beat: undefined, response: "answer", reading: "complete",
+      line: { text: "Nii, kott on sees.", provenance: "scripted" }, heard: "Kas veel midagi?", said: "Aitäh, vabandust, head aega",
+    }));
+    expect(texts(lines).some((text) => /head aega/i.test(text))).toBe(true);
+    expect(texts(lines)).not.toContain("Nii, kott on sees.");
+  });
+
+  it("says the learner's goodbye back when the closing beat is let go, not the word they left out", () => {
+    const lines = replyFor(input({
+      answered: CLOSE, beat: undefined, response: "moveOn", reading: "incomplete",
+      line: null, offer: "Vabandust", heard: "Pole midagi, kott on sees.", said: "Aitäh, head aega",
+    }));
+    expect(texts(lines)).toEqual(["Head aega!"]);
+  });
+
+  it("keeps the closing line where the learner said no goodbye", () => {
+    const lines = replyFor(input({
+      answered: CLOSE, beat: undefined, response: "answer", reading: "complete",
+      line: { text: "Nii, kott on sees.", provenance: "scripted" }, heard: "Kas veel midagi?", said: "aitäh",
+    }));
+    expect(texts(lines)).toContain("Nii, kott on sees.");
+  });
+});
+
 describe("one word where a sentence was due", () => {
+  // FB-5: `jah`, then `Jah?`, was the critic's commonest stall. Replayed on bussipeatus.
+  it("answers a bare yes with got it, never with the same yes handed back", () => {
+    const lines = replyFor(input({ answered: ASK, beat: ASK, response: "wait", reading: "fragment", echo: null, said: "jah" }));
+    expect(texts(lines)).toEqual(["Selge."]);
+  });
+
   it("gets a look and a wait: one word with a question mark, and no new question", () => {
     const lines = replyFor(input({ answered: ASK, beat: ASK, response: "wait", reading: "fragment", echo: null }));
     expect(lines).toHaveLength(1);
@@ -709,7 +780,7 @@ describe("a learner who said they were not following", () => {
     const lines = replyFor(input({
       answered: ASK, beat: ASK, response: "help", reading: "lost", heard: "Kus teil valutab?", offer: "pea", line: NOTHING,
     }));
-    expect(texts(lines)).not.toContain(FALLBACK_PHRASE);
+    expect(texts(lines)).not.toContain(`${FALLBACK_PHRASE}.`);
   });
 });
 
@@ -780,7 +851,7 @@ describe("a line off the card", () => {
   const offers: BeatSpec = { ...OFFER, says: [{ lemma: "kell" }, { slot: "time" }] };
 
   it("is one course word and the value the card dealt, asked", () => {
-    expect(datumLine(offers, CARD)).toMatchObject({ text: "Kell 14:30?", provenance: "attested", from: "kell" });
+    expect(datumLine(offers, CARD)).toMatchObject({ text: "Kell 14.30?", provenance: "attested", from: "kell" });
   });
 
   it("is nothing where the beat says none or the card holds no such value", () => {
@@ -814,7 +885,7 @@ describe("a line off the card", () => {
   };
 
   it("names the day in the case a day is said in, off the dictionary's own table", () => {
-    expect(datumLine(dated, withDay, lexicon)).toMatchObject({ text: "Teisipäeval kell 14:30?", from: "kell" });
+    expect(datumLine(dated, withDay, lexicon)).toMatchObject({ text: "Teisipäeval kell 14.30?", from: "kell" });
   });
 
   it("is withheld whole rather than said without the day where the table has no form", () => {
@@ -915,7 +986,7 @@ describe("a second offer", () => {
   it("is spoken as the beat's counter, under an id of its own, off the second slot", () => {
     const second = counterBeat(offers);
     expect(second.id).toBe("offer:counter");
-    expect(datumLine(second, card)?.text).toBe("Kell 10:00?");
+    expect(datumLine(second, card)?.text).toBe("Kell 10?");
     expect(stageFor(second, card)).toBe("They offer 10:00 instead and ask whether that one works.");
     expect(counterBeat(OFFER)).toBe(OFFER);
   });
@@ -923,10 +994,10 @@ describe("a second offer", () => {
   it("is said fresh and never as the first offer again", () => {
     const line = datumLine(counterBeat(offers), card)!;
     const lines = replyFor(input({ beat: counterBeat(offers), answered: offers, response: "counter", reading: "declined", line, heard: "Kell 14:30?" }));
-    expect(texts(lines)).toEqual(["Kell 10:00?"]);
+    expect(texts(lines)).toEqual(["Kell 10?"]);
     const none = replyFor(input({ beat: counterBeat(offers), answered: offers, response: "counter", reading: "declined", line: NOTHING, heard: "Kell 14:30?" }));
     expect(none.at(-1)).toMatchObject({ provenance: "unspoken" });
-    expect(texts(none)).not.toContain("Kell 14:30?");
+    expect(texts(none)).not.toContain("Kell 14.30?");
   });
 
   it("stands the second offer's values in for the first on every later line, and leaves the card itself alone", () => {
@@ -935,7 +1006,7 @@ describe("a second offer", () => {
     expect(card.props.find((p) => p.slot === "time")?.value).toBe("14:30");
     expect(cardInPlay(card, [offers], [])).toBe(card);
     expect(cardInPlay(card, [offers], undefined)).toBe(card);
-    expect(datumLine(offers, inPlay)?.text).toBe("Kell 10:00?");
+    expect(datumLine(offers, inPlay)?.text).toBe("Kell 10?");
   });
 });
 
@@ -994,7 +1065,7 @@ describe("a question asked on a turn that missed", () => {
     expect(texts(lines)).toEqual([aside.text, "Kas te maksate kaardiga?"]);
     // Where nothing answered it, the miss is still said as a miss.
     const bare = replyFor(input({ answered: ASK, beat: ASK, response: "narrow", reading: "offtarget", line: NOTHING, heard: "Kas te maksate kaardiga?" }));
-    expect(texts(bare)).toEqual(["Selge.", "Kas te maksate kaardiga?"]);
+    expect(texts(bare)).toEqual(["Selge, aga kas te maksate kaardiga?"]);
   });
 
   it("tells the model a question was asked, on a hit and on a miss alike", () => {
@@ -1125,7 +1196,7 @@ describe("a line a model wrote for this turn", () => {
     const lines = replyFor(input({ answered: ASK, beat: ASK, response: "repeat", reading: "unrecognised", line: composed }));
     expect(texts(lines)).toEqual([composed.text]);
     const keyless = replyFor(input({ answered: ASK, beat: ASK, response: "repeat", reading: "unrecognised", line: NOTHING }));
-    expect(texts(keyless)[0]).toBe(FALLBACK_PHRASE);
+    expect(texts(keyless)[0]).toBe(`${FALLBACK_PHRASE}.`);
   });
 
   it("hands the word over inside the sentence where the learner was lost", () => {
@@ -1189,12 +1260,12 @@ describe("a long line said again", () => {
 
   it("is swapped for the scene's own line where that one is shorter", () => {
     const short: SpokenLine = { text: "Mida te soovite?", provenance: "scripted" };
-    expect(replyFor(input({ ...miss, line: short })).at(-1)).toEqual(short);
+    expect(replyFor(input({ ...miss, line: short })).at(-1)).toEqual({ ...short, text: "Selge, aga mida te soovite?" });
   });
 
   it("and not for one that is as long, which is the same recital in an older wording", () => {
     const lines = replyFor(input({ ...miss, line: { text: longer, provenance: "scripted" } }));
-    expect(lines.at(-1)).toEqual({ text: long, provenance: "again" });
+    expect(lines.at(-1)).toEqual({ text: `Selge, aga k${long.slice(1)}`, provenance: "again" });
   });
 });
 
@@ -1208,7 +1279,8 @@ describe("a line the learner has already heard twice", () => {
       answered: ASK, beat: ASK, response: "narrow", reading: "offtarget", heard, line: NOTHING,
       tries: 1, answeredTimes: NUDGE_AFTER + 1, others: [other],
     }));
-    expect(lines.at(-1)).toEqual({ text: other, provenance: "scripted" });
+    expect(lines.at(-1)?.provenance).toBe("scripted");
+    expect(lines.at(-1)?.text.toLowerCase()).toContain(other.toLowerCase());
   });
 
   it("on a turn that said they were lost as on one that missed", () => {
@@ -1216,7 +1288,8 @@ describe("a line the learner has already heard twice", () => {
       answered: ASK, beat: ASK, response: "help", reading: "lost", heard, line: NOTHING, offer: "jah",
       tries: 1, answeredTimes: NUDGE_AFTER + 1, others: [other],
     }));
-    expect(lines.at(-1)).toEqual({ text: other, provenance: "scripted" });
+    expect(lines.at(-1)?.provenance).toBe("scripted");
+    expect(lines.at(-1)?.text.toLowerCase()).toContain(other.toLowerCase());
   });
 
   it("and is said again as it was while it has been heard once", () => {

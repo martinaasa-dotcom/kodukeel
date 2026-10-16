@@ -17,7 +17,7 @@ async function demoTurn(seed: string, turns: DemoTurn[]): Promise<DemoReply | nu
  * It is the one conversation a stranger judges the app by, so "most picks
  * work" is not the bar: every pick on every step, on several seeds, is played
  * to the end and each one has to finish with the app's own reader counting
- * all five beats met, a line from the other side after every pick, and no
+ * every beat met, a line from the other side after every pick, and no
  * repair line anywhere. It writes nothing, which is asserted too, since the
  * route it sits behind is open to anybody.
  */
@@ -63,7 +63,7 @@ describe("the landing page's café", () => {
     expect(reply!.over).toBe(true);
   });
 
-  it("ends every path on every seed with all five beats met and nothing to repair", async () => {
+  it("ends every path on every seed with every beat met and nothing to repair", async () => {
     // Depth first over the tree of picks, so each prefix is asked once.
     let walked = 0;
     const go = async (seed: string, turns: DemoTurn[], transcript: string[]): Promise<void> => {

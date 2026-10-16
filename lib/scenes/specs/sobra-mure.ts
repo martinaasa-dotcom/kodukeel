@@ -1,5 +1,5 @@
 import type { SceneSpec } from "../types";
-import { COMMON, HELLOS, CLOSING_WORDS, FAREWELLS } from "./shared";
+import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 
 const FRIENDS_WORRY: SceneSpec = {
   id: "sobra-mure",
@@ -10,7 +10,8 @@ const FRIENDS_WORRY: SceneSpec = {
     `tunded` for worry and sadness, which is the claim it tests. `inimsuhted`
     for supporting somebody, `iseloom` for how they are, `abi` for
     helping, `probleemid` for `kahju` ("I'm sorry"), `minevik` for what
-    happened, `plaanid` for when to meet, `ostmine` for money, and
+    happened, `plaanid` for when to meet, `ostmine` for money, `kirjeldamine`
+    for `vaene` ("Oi sa vaene!"), and
     `omadussonad` for slowly.
     `sina`, because it is a friend.
 
@@ -25,7 +26,7 @@ const FRIENDS_WORRY: SceneSpec = {
     a learner's answer as news the other side reacts to, and here it would
     have the friend say "really?" to the learner's own sympathy.
   */
-  units: [...COMMON, "tunded", "inimsuhted", "iseloom", "abi", "probleemid", "minevik", "plaanid", "ostmine", "omadussonad"],
+  units: [...COMMON, "tunded", "inimsuhted", "iseloom", "abi", "probleemid", "minevik", "plaanid", "ostmine", "omadussonad", "kirjeldamine"],
   register: "sina",
   role: "This is a role. A friend asked to meet for coffee, and they don't look happy. Listen, ask what happened and offer to help.",
   props: [
@@ -34,6 +35,14 @@ const FRIENDS_WORRY: SceneSpec = {
       kind: "weekday", slot: "day", theirs: true,
       oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede"],
       says: "The day they suggest.",
+    },
+    /* A second day, for a learner who says the first will not do: a friend
+       who hears "I can't on Wednesday" offers another rather than asking the
+       same thing again. */
+    {
+      kind: "weekday", slot: "day2", theirs: true, differentFrom: "day",
+      oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede"],
+      says: "The other day they suggest.",
     },
   ],
   curveballs: ["interrupted", "misheard", "english"],
@@ -67,7 +76,8 @@ const FRIENDS_WORRY: SceneSpec = {
       they: "They say they're worried about money now.",
       move: "instruct",
       topic: ["mure", "raha", "muretsema"],
-      needs: [{ kind: "lemma", oneOf: ["kahju", "kurb", "mure", "muretsema"] }],
+      /* "Oi sa vaene!" and "See on nii halb" are how a friend says it as often as "Kahju". */
+      needs: [{ kind: "lemma", oneOf: ["kahju", "kurb", "mure", "muretsema", "vaene", "halb"] }],
       required: true,
       patience: 2,
       shape: "sentence",
@@ -85,13 +95,19 @@ const FRIENDS_WORRY: SceneSpec = {
     },
     {
       id: "meet",
-      goal: "They'd like to meet again. Say yes to the day they suggest.",
-      they: "They thank you and ask if you could meet again on {day}.",
+      goal: "They'd like to meet again. Say yes to the day they suggest, or say it doesn't suit.",
+      they: "They suggest meeting again on {day}.",
       move: "offer",
       topic: ["kohtuma", "päev"],
-      says: [{ lemma: "kohtuma", verb: "IndPrPl1" }, { slot: "day", grammCase: "ADESSIVE" }],
+      says: [{ lemma: "kohtuma", verb: "IndPrPl1" }, { lemma: "siis" }, { slot: "day", grammCase: "ADESSIVE" }, { lemma: "uuesti" }],
+      counter: {
+        they: "They suggest {day2} instead.",
+        says: [{ lemma: "siis" }, { lemma: "kohtuma", verb: "IndPrPl1" }, { slot: "day2", grammCase: "ADESSIVE" }],
+        replaces: [["day", "day2"]],
+      },
       needs: [{ kind: "anyOf", of: [
         { kind: "datum", slot: "day" },
+        { kind: "datum", slot: "day2" },
         { kind: "lemma", oneOf: ["jah", "hästi", "sobima", "kindlasti"] },
       ] }],
       required: true,
@@ -101,9 +117,10 @@ const FRIENDS_WORRY: SceneSpec = {
     {
       id: "close",
       goal: "Say goodbye, and that you will see them then.",
-      they: "They give you a hug and say goodbye.",
+      they: "They say goodbye.",
       move: "close",
-      topic: [...FAREWELLS],
+      // A friend says "Nägemist!"; "Head aega!" is what you say to a clerk.
+      topic: ["Nägemist!"],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,

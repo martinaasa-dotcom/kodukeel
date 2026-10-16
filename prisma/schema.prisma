@@ -335,6 +335,11 @@ model Task {
   tag         String    @default("HOMEWORK")
   /// Cut with `/week`, like Card.classWeek above. Kept, unread, unwritten.
   classWeek   Int?
+  /// A conversation set as homework (`assignScene`), as a scene id in
+  /// `lib/scenes/catalogue.ts`. No relation, since a scene is code. Done is
+  /// never stored for one: it is a finished `SceneRun` of that scene after
+  /// `createdAt`, read on each request (`lib/progress/homework.ts`, ADR-014).
+  sceneId     String?
   dueAt       DateTime?
   completed   Boolean   @default(false)
   completedAt DateTime?

@@ -97,6 +97,15 @@ export const FALLBACK_PHRASE = "Ma ei saa aru";
 export const FEELINGS: Readonly<Record<Feel, { readonly word: string; readonly mark: "." | "?" | "!" }>> = {
   sorry: { word: "tõesti", mark: "?" },
   glad: { word: "tore", mark: "!" },
+  /*
+    A fact taken in rather than news reacted to. A pharmacist told "my head
+    hurts", an operator told somebody has fallen, an examiner told what the
+    candidate studies and a friend told "that day doesn't suit me" are not
+    moved and are not glad: "Hästi." is "good" said to a symptom, "Aitäh."
+    thanks somebody for a refusal, and "Tõesti?" from a professional reads as
+    doubting it. "Selge." is "understood", which is what they say.
+  */
+  noted: { word: "selge", mark: "." },
 };
 
 export const REACTIONS = {
@@ -135,6 +144,17 @@ export const REACTIONS = {
     read as taking something.
   */
   letGo: ["hästi"],
+  /*
+    "You're welcome", to a turn that thanked them. A thanks met with `Aitäh.`
+    is two people thanking each other, and met with `Hästi.` is somebody
+    approving of being thanked. `Palun` is `tervitused`, which every scene
+    declares, and the phrase carries its own spelling.
+  */
+  welcome: ["Palun"],
+  /* "Later": a question the scene cannot answer yet, heard and put off. `millal`. */
+  later: ["hiljem"],
+  /* "A little": the answer to "do you speak English?". `maaramine`. */
+  aLittle: ["natuke"],
 } as const;
 
 /**

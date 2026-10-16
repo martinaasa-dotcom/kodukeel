@@ -152,7 +152,7 @@ export function askedLemmas(scene: SceneSpec, beat: BeatSpec): string[] {
  * is named, as the dictionary's form of the drawn word in that case.
  */
 /** The kind of news a beat's answer is: bad for the learner, or good. */
-export type Feel = "sorry" | "glad";
+export type Feel = "sorry" | "glad" | "noted";
 
 export type SaysPart =
   | { readonly lemma: string }

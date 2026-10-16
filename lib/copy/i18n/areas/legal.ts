@@ -28,6 +28,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Trust", "Доверие", "Довіра"],
   ["Accessibility", "Доступность", "Доступність"],
   ["The state examination", "Государственный экзамен", "Державний іспит"],
+  ["Estonian grammar", "Эстонская грамматика", "Естонська граматика"],
   ["Language", "Язык", "Мова"],
   ["January@date", "января", "січня"],
   ["February@date", "февраля", "лютого"],

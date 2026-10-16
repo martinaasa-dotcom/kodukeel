@@ -33,8 +33,8 @@
 import { ASIDES } from "./catalogue";
 import type { SpokenLine } from "./line";
 import { caseKeyFor, words, type Lexicon } from "./lexicon";
-import { CLOCK_LEMMA, numberWords, priceOnCard, timeFromText, type RoleCard } from "./props";
-import { partsLine } from "./reply";
+import { CLOCK_LEMMA, numberFromText, numberWords, spokenNumbers, priceOnCard, timeFromText, type RoleCard } from "./props";
+import { partsLine, reaction } from "./reply";
 import { leafNeeds, type BeatSpec, type MoveKind } from "./types";
 
 export interface AsideInput {
@@ -62,6 +62,24 @@ export interface AsideInput {
    */
   readonly answers: readonly string[];
   /**
+   * The banked answers of a beat further on that this question belongs to
+   * (`questionAhead`), answered now rather than ignored.
+   */
+  readonly ahead?: readonly string[];
+  /**
+   * Whether `ahead` is a fact said off the card rather than a banked line,
+   * which is owed even on a turn that missed the beat it was aimed at.
+   */
+  readonly aheadIsFact?: boolean;
+  /**
+   * The turn met the beat it answered in full, so a bare `?` on it is the
+   * learner checking what they heard: `same` where every word of it was in
+   * the line they heard, `differs` where it named something the line did not.
+   */
+  readonly landedCheck?: "same" | "differs";
+  /** The line the learner was answering, said again where their check got it wrong. */
+  readonly heardLine?: string;
+  /**
    * Whether the question came on a turn that missed the beat. Then only a
    * fact can answer it: the bank's answer and "more of what they said" are
    * both about a beat the learner has not met, and stacking either on the
@@ -83,6 +101,10 @@ export interface AsideInput {
 const PLACE = new Set(["kus", "kuhu", "kust"]);
 const TIME = new Set(["millal"]);
 const HOW = new Set(["kuidas"]);
+/** "You" in the have-case, which is how "and you?" is asked after how-are-you. */
+const YOU_HAVE: ReadonlySet<string> = new Set(["sul", "sinul", "teil", "teie"]);
+/** The words a learner says how they are with. */
+const FINE: ReadonlySet<string> = new Set(["hästi", "hea", "normaalselt", "aitäh", "tänan", "okei"]);
 /**
  * The words a question about money is made of, as lemma requests against
  * `ostmine` and `kusisonad`: `kui palju`, `mis hind`, `maksab`, `eurot`.
@@ -97,13 +119,52 @@ const MONEY = ["hind", "maksma", "euro", "palk", "raha"] as const;
   money word anywhere in the turn it is.
 */
 const HOW_MUCH = ["kui", "palju"] as const;
+/** Question words a price is never the answer to. */
+const NOT_PRICE: ReadonlySet<string> = new Set(["millal", "kus", "kuhu", "kust", "miks", "kes", "kuidas"]);
 
 /**
  * Moves on which the other side was giving information, so "more" is more of
  * it. A question after a greeting or after they asked something is not
  * answered with a second greeting.
  */
+/**
+ * Words a read-back carries that are not part of what is being checked:
+ * "otse ja siis vasakule, eks?" checks two directions, not four words.
+ * Lemma requests against the course's connectives.
+ */
+export const CHECK_GLUE: ReadonlySet<string> = new Set(["ja", "siis", "eks", "ning", "nii", "et", "jah", "okei", "ok"]);
+
 const INFORMING: ReadonlySet<MoveKind> = new Set(["instruct", "offer", "confirm", "refuse", "correct"]);
+
+/** The words beside "kuidas" and "läheb" in a how-are-you: the person asked and the glue. */
+const HOW_ABOUT_YOU: ReadonlySet<string> = new Set(["sul", "sinul", "teil", "teie", "teile", "ka", "siis", "ja", "nüüd", "täna", "tere", "noh", "aga"]);
+
+/** The small words of a question, which say nothing about what it is about. */
+const QUESTION_GLUE: ReadonlySet<string> = new Set([
+  "kas", "kus", "kuhu", "kust", "mis", "mida", "millal", "kes", "keda", "kuidas", "miks", "mitu", "kui", "palju",
+  "kaua", "milline", "millist", "mille", "ja", "aga", "siis", "ka", "on", "see", "seda", "te", "teie", "teil", "sa",
+  "sina", "sul", "ma", "mina", "mul", "me", "meil", "ta", "tal", "nad", "neil", "siin", "seal", "nüüd", "veel",
+  "juba", "ikka", "väga", "ei", "jah", "olete", "oled", "olen", "oli", "olid",
+]);
+
+/**
+ * Whether a question is about the beat whose banked answer would answer it:
+ * a question with no word of its own ("Ja sina?") is the beat's own, and any
+ * other has to share a word, or the first four letters of one, with the beat's
+ * topic, its requirements or the answer itself.
+ */
+function aboutTheBeat(beat: BeatSpec, spoken: readonly string[], answer: string | undefined, lexicon: Lexicon): boolean {
+  if (!answer) return false;
+  // A curveball's question is about the curveball whatever it names: "Millal siis saab?" after "not today".
+  if (beat.id.startsWith("hurdle:")) return true;
+  const content = spoken.map((w) => w.toLowerCase()).filter((w) => w.length > 2 && !QUESTION_GLUE.has(w));
+  if (content.length === 0) return true;
+  const lemmas = [...beat.topic, ...leafNeeds(beat.needs).flatMap(({ need }) => (need.kind === "lemma" ? need.oneOf : need.kind === "case" ? [need.lemma] : []))];
+  const known = new Set<string>(words(answer));
+  for (const lemma of lemmas) for (const form of lexicon.byLemma.get(lemma) ?? [lemma]) known.add(form.toLowerCase());
+  const stems = new Set([...known].filter((w) => w.length >= 4).map((w) => w.slice(0, 4)));
+  return content.some((w) => known.has(w) || (w.length >= 4 && stems.has(w.slice(0, 4))));
+}
 
 /**
  * The aside, or null where the route should try a model and then the shrug.
@@ -134,7 +195,14 @@ export function asideFor(input: AsideInput): SpokenLine | null {
         : partsLine(answered.says, { card, lexicon, mark: "." });
       if (fact) return fact;
     }
-    const banked = input.answers[0];
+    /*
+      AND THE BANKED ANSWER ONLY TO A QUESTION ABOUT IT. A beat that waits for
+      a question takes any question, and its banked answer was given to all of
+      them: "Kus on kohvimasin?" was told the colleague has worked there three
+      years. A question naming none of the beat's own words, nor the answer's,
+      is a different question, and gets what any other question gets.
+    */
+    const banked = aboutTheBeat(answered, spoken, input.answers[0], lexicon) ? input.answers[0] : undefined;
     /*
       AND WHERE THE BANK HOLDS NONE, THIS RETURNED NOTHING AND SAID NOTHING
       WAS OWED, WHICH IS HOW A QUESTION CAME TO BE IGNORED.
@@ -152,9 +220,15 @@ export function asideFor(input: AsideInput): SpokenLine | null {
       to the model and the shrug (`asideOwed`). Silence is the one thing
       nobody does with a question.
     */
+    // Answered by the move after it, which says a fact off the card: said now where that move is not next (`aheadNow`).
+    if (answered.answeredNext && input.aheadIsFact && input.ahead?.[0]) return { text: input.ahead[0], provenance: "attested" };
     if (banked) return { text: banked, provenance: "scripted" };
     if (answered.answeredNext) return null;
   }
+
+  // A question the scene asks for further on, answered now (`questionAhead`).
+  const early = input.ahead?.[0];
+  if (early && (!input.missed || input.aheadIsFact)) return { text: early, provenance: input.aheadIsFact ? "attested" : "scripted" };
 
   /*
     "Kuidas läheb?" is the one question everybody can answer, and the answer
@@ -162,7 +236,25 @@ export function asideFor(input: AsideInput): SpokenLine | null {
     since `Kuidas?` on its own is somebody asking to hear it again.
   */
   const goes = lexicon.byLemma.get("minema");
-  if (HOW.has(asked) && goes && spoken.some((w) => goes.has(w))) {
+  /*
+    And only where the question is about them: "Kuidas mu tütar koolis
+    läheb?" asked a teacher about a child and was answered `Hästi, aitäh.`.
+    The sentence holding the question word carries nothing but the verb, the
+    person asked, and the small words round them.
+  */
+  const howSentence = (input.said ?? spoken.join(" ")).split(/(?<=[.!?])\s+/).find((sentence) => words(sentence).some((w) => HOW.has(w))) ?? "";
+  const aboutThem = words(howSentence).every((w) => HOW.has(w) || goes?.has(w) || HOW_ABOUT_YOU.has(w));
+  if (HOW.has(asked) && goes && aboutThem && spoken.some((w) => goes.has(w))) {
+    return partsLine(ASIDES.howAreYou, { lexicon, mark: ".", join: ", " });
+  }
+  /*
+    AND "JA SUL?" ASKS IT BACK. "Hästi, aitäh. Ja sul?" answers how they are
+    and returns the question, and the friend went straight to "Mis on?". A
+    short turn that says how the learner is and then names "you" in the
+    have-case asks the same thing, and gets the same two words back.
+  */
+  const fine = spoken.some((w) => FINE.has(w));
+  if (asked === "?" && fine && spoken.length <= 6 && spoken.some((w) => YOU_HAVE.has(w))) {
     return partsLine(ASIDES.howAreYou, { lexicon, mark: ".", join: ", " });
   }
 
@@ -216,6 +308,17 @@ export function asideFor(input: AsideInput): SpokenLine | null {
     a `mis` too, since those are "sorry, what?" as often as anything.
   */
   const about = answered && INFORMING.has(answered.move) && !input.missed;
+  /*
+    AND A CHECK IS CONFIRMED, NOT ANSWERED WITH MORE. "Otse edasi?" after the
+    directions met the beat and asked nothing but its own mark: it is the
+    learner reading back what they heard, and the bank's second directions
+    line said there ("Minge otse edasi.") could contradict the first. A turn
+    that landed and asks with no question word is a check, and the answer to a
+    check that landed is yes.
+  */
+  if (about && asked === "?" && input.landedCheck === "same") return reaction("jah", ".");
+  // A check that got it wrong is put right with what was said, which is the one line that cannot contradict it.
+  if (about && asked === "?" && input.landedCheck === "differs" && input.heardLine) return { text: input.heardLine, provenance: "again" };
   if (about && (PLACE.has(asked) || asked === "?" || asked === "mis" || asked === "kuidas")) {
     const next = input.more[0];
     if (next) return { text: next, provenance: "scripted" };
@@ -240,8 +343,113 @@ export function asideOwed(input: AsideInput): boolean {
     answered with nothing at all.
   */
   const beat = input.answered;
-  if (beat && wantsQuestion(beat) && (beat.answeredNext || input.answers.length > 0)) return false;
+  // A banked answer counts only where it is about this question (`aboutTheBeat`), the gate `asideFor` reads.
+  const banked = beat ? aboutTheBeat(beat, input.spoken, input.answers[0], input.lexicon) : false;
+  if (beat && wantsQuestion(beat) && (beat.answeredNext || banked)) return false;
   return true;
+}
+
+/**
+ * The beat further on that this question belongs to, if any (FB-5).
+ *
+ * At the bus stop a learner thanked the person who said it was the right bus
+ * and asked in the same breath where to get off, which is the question the
+ * scene asks for two beats on, past the break where they get on. Nothing may
+ * be credited across a break that has not happened (§76), so the beat waits,
+ * and the question went unanswered: `Jah, see buss läheb sinna.` and the doors
+ * closing. Somebody asked a question answers it whenever it comes, so the
+ * answer is the later beat's own banked answer. The first beat ahead that
+ * wants a question, carries an `answer`, and names a word this turn used.
+ */
+export function questionAhead(
+  beats: readonly BeatSpec[],
+  answered: BeatSpec | null,
+  spoken: readonly string[],
+  lexicon: Lexicon,
+): BeatSpec | null {
+  if (!answered) return null;
+  const from = beats.findIndex((b) => b.id === answered.id);
+  if (from < 0) return null;
+  const said = new Set(spoken.map((w) => w.toLowerCase()));
+  for (const beat of beats.slice(from + 1)) {
+    // A beat answered by the move after it counts too: that move says the fact off the card (`aheadNow`).
+    if (!wantsQuestion(beat) || (!beat.answer && !beat.answeredNext)) continue;
+    const named = leafNeeds(beat.needs).some(({ need }) =>
+      need.kind === "lemma" && need.oneOf.some((lemma) => [...(lexicon.byLemma.get(lemma) ?? [lemma])].some((form) => said.has(form.toLowerCase()))));
+    if (named) return beat;
+  }
+  return null;
+}
+
+/**
+ * WHETHER A LATER BEAT IS ABOUT WHAT THIS QUESTION ASKS, SO "LATER" IS TRUE.
+ *
+ * `Hiljem.` was said to every question the scene could not answer on a turn
+ * that missed the beat, and the reviewers met it after "Kas ma võin
+ * alustada?", "Kus ma pean ootama?" and "Kas arst on täna siin?", none of
+ * which anything later in the scene answers. Putting a question off is only
+ * honest where the scene really is coming to it, which is a beat ahead that
+ * nobody has met and whose own words the question names. A question naming
+ * none of them gets no reaction at all, and the question in front is asked;
+ * that is a person getting on with what they were doing, not one promising an
+ * answer they never give.
+ */
+export function namesLaterBeat(
+  beats: readonly BeatSpec[],
+  answered: BeatSpec | null,
+  done: readonly string[],
+  spoken: readonly string[],
+  lexicon: Lexicon,
+): boolean {
+  const from = answered ? beats.findIndex((b) => b.id === answered.id) : -1;
+  const said = new Set(spoken.map((w) => w.toLowerCase()));
+  for (const beat of beats.slice(from + 1)) {
+    if (done.includes(beat.id) || beat.move === "close") continue;
+    const named = leafNeeds(beat.needs).some(({ need }) =>
+      need.kind === "lemma" && need.oneOf.some((lemma) =>
+        [lemma, ...(lexicon.byLemma.get(lemma) ?? [])].some((form) => said.has(form.toLowerCase()))));
+    if (named) return true;
+  }
+  return false;
+}
+
+/** The two verbs a "may I?" is asked with, as lemma requests against the course. */
+const MAY = ["võima", "tohtima"] as const;
+/** First persons, singular and plural: `võin`, `võime`, `tohin`. */
+const FIRST_PERSON: ReadonlySet<string> = new Set(["IndPrSg1", "IndPrPl1"]);
+
+/**
+ * WHETHER THE QUESTION ASKS PERMISSION, WHICH A YES ANSWERS.
+ *
+ * "Kas ma võin alustada?" before a presentation was answered `Hiljem.`, which
+ * tells somebody they may not start the thing the scene is for. A "may I?"
+ * asked of the person running the conversation is answered yes by anybody
+ * with an agenda of their own, and the agenda then goes on. A `kas` question
+ * carrying the first person of `võima` or `tohtima`, and nothing else: `saama`
+ * is left out because "kas ma saan raha tagasi?" asks for a fact rather than
+ * leave, and saying yes to it would be this module promising money.
+ */
+export function asksPermission(said: string, lexicon: Lexicon): boolean {
+  const may = new Set<string>();
+  for (const lemma of MAY) {
+    for (const [code, form] of lexicon.persons.get(lemma) ?? []) if (FIRST_PERSON.has(code)) may.add(form);
+  }
+  const kas = new Set(["kas", ...(lexicon.byLemma.get("kas") ?? [])]);
+  return (said.match(/[^.!?]+\?/g) ?? []).some((sentence) => {
+    const spoken = words(sentence);
+    return spoken[0] !== undefined && kas.has(spoken[0]) && spoken.some((word) => may.has(word));
+  });
+}
+
+/**
+ * A beat's banked answers, once one of them has been said this run, narrowed
+ * to that one: an answer is a fact, so asked again it is the same fact. The
+ * bus stop's bank holds `Neli peatust.` and `Kolm peatust, siis minge maha.`,
+ * and drawing a fresh one had the driver say four and then three (FB-5).
+ */
+export function sameFact(all: readonly string[], used: ReadonlySet<string>): readonly string[] {
+  const before = all.find((text) => used.has(text));
+  return before ? [before] : all;
 }
 
 function wantsQuestion(beat: BeatSpec): boolean {
@@ -279,6 +487,8 @@ export function shrug(input: AsideInput): SpokenLine | null {
 const INFORMATION = ["kes", "mis", "kus", "kuhu", "kust", "millal", "miks", "kuidas", "milline", "kumb", "mitu"] as const;
 /** The two words for "you". A question naming the person asked is about them. */
 const YOU = ["sina", "teie"] as const;
+/** The words for "I" and "we". A question naming them asks the other side what to do. */
+const ME = ["mina", "meie"] as const;
 /** The verb a "do you know?" is made of, whose honest answer is the shrug itself. */
 const KNOW = "teadma";
 /** The persons of a verb said to the person asked: `oled`, `olete`, `oleksite`. */
@@ -319,6 +529,7 @@ export function shrugFits(input: Pick<AsideInput, "said" | "spoken" | "lexicon">
   const information = formsOf(INFORMATION);
   const opens = new Set([...information, ...formsOf(["kas"])]);
   const you = formsOf(YOU);
+  const me = formsOf(ME);
   const addressed = new Set<string>();
   const knowing = new Set<string>();
   for (const [lemma, persons] of lexicon.persons) {
@@ -335,6 +546,12 @@ export function shrugFits(input: Pick<AsideInput, "said" | "spoken" | "lexicon">
     if (!question) return false;
     if (spoken.some((word) => knowing.has(word))) return true;
     if (spoken.some((word) => you.has(word) || addressed.has(word))) return false;
+    /*
+      A question about what the learner should do is put to the person whose
+      place this is: "Kus ma pean ootama?", "Mida ma peaksin proovima?", "Kus ma
+      võin istuda?". Nobody running a desk says they don't know where you wait.
+    */
+    if (spoken.some((word) => me.has(word))) return false;
     return spoken.some((word) => information.has(word));
   });
 }
@@ -353,9 +570,17 @@ export function shrugFits(input: Pick<AsideInput, "said" | "spoken" | "lexicon">
 export function asksToHearAgain(spoken: readonly string[], questionWords: ReadonlySet<string>, lexicon: Lexicon): boolean {
   if (spoken.length === 0 || spoken.length > 3) return false;
   const sorry = lexicon.byLemma.get(SORRY) ?? new Set<string>();
-  return spoken.every((word) => questionWords.has(word) || sorry.has(word))
-    && spoken.some((word) => questionWords.has(word));
+  /*
+    Only the words that ask for the whole line. `Mis?` and `Kuidas?` are
+    "sorry, what?"; `Millal?`, `Kus?` and `Kui palju?` ask for one fact, and
+    answering "when do I come back?" with the instruction the learner had just
+    read is the line said at somebody who asked something else.
+  */
+  const whole = (word: string) => questionWords.has(word) && HEAR_AGAIN.has(word);
+  return spoken.every((word) => whole(word) || sorry.has(word))
+    && spoken.some(whole);
 }
+const HEAR_AGAIN: ReadonlySet<string> = new Set(["mis", "mida", "kuidas"]);
 const SORRY = "Vabandust!";
 
 /** Whether the turn asks what something costs: a money word, or "how much/many". */
@@ -409,6 +634,12 @@ export function priceAsked(said: string, lexicon: Lexicon): string | null {
       const spoken = words(clause);
       const question = (marked && at === clauses.length - 1) || (spoken[0] !== undefined && opens.has(spoken[0]));
       if (!question) continue;
+      /*
+        A question asking when, where or why is about that, whatever money is
+        in it: "Millal te raha tagasi maksate?" asks a date, and was answered
+        `See maksab 174 eurot.`, which also gave the landlord's offer away.
+      */
+      if (spoken.some((word) => NOT_PRICE.has(word))) continue;
       const checksFigure = figureCount(clause, lexicon) > 0;
       const howMuch = spoken.some((word, i) => word === HOW_MUCH[0] && spoken[i + 1] === HOW_MUCH[1]);
       const aboutMoney = spoken.some((word) => named.has(word) || costs.has(word))
@@ -507,6 +738,51 @@ function confirmed(line: SpokenLine, named: boolean | null, already: ReadonlySet
   return { ...line, text: `${word.text.slice(0, -1)}, ${line.text.charAt(0).toLowerCase()}${line.text.slice(1)}` };
 }
 
+/**
+ * A READ-BACK THAT GOT THE TIME WRONG IS PUT RIGHT.
+ *
+ * On a beat that reads the time back, a learner who said "Kell kümme, selge."
+ * about an appointment at eleven was answered `Hästi.`, which agrees to a time
+ * nobody offered; a receptionist says "no, at eleven". Only on a `confirm` beat
+ * whose own line says a time off the card, only where the turn names a clock
+ * time, and only where that time is not the card's, twelve hours either way.
+ */
+export function readBackCorrection(
+  answered: BeatSpec | null, said: string, card: RoleCard | null, lexicon: Lexicon,
+): SpokenLine | null {
+  if (!answered || !READ_BACK.has(answered.move) || !answered.says || !card) return null;
+  const slot = answered.says.find((part): part is Extract<typeof part, { slot: string }> => "slot" in part);
+  const prop = slot ? card.props.find((p) => p.slot === slot.slot) : undefined;
+  if (!prop) return null;
+  const asks = /\?\s*$/.test(said);
+  // At an offer a question naming another time is the learner proposing one, not reading the offer back.
+  if (answered.move === "offer" && asks) return null;
+  let right: boolean | null = null;
+  if (/^\d{1,2}:\d{2}$/.test(prop.value)) {
+    const named = timeFromText(said, { from: 0, to: 23 });
+    if (!named) return null;
+    const want = prop.value.padStart(5, "0");
+    const twelve = `${String((Number(named.slice(0, 2)) + 12) % 24).padStart(2, "0")}${named.slice(2)}`;
+    right = named === want || twelve === want;
+  } else if (/^\d+$/.test(prop.value)) {
+    /*
+      A COUNT READ BACK WRONG IS PUT RIGHT TOO, AND THAT ONE MATTERS. Told
+      to take the tablets twice a day, a learner who said "Kolm korda päevas"
+      was answered `Selge.`, which agrees to a dose nobody prescribed.
+    */
+    const named = numberFromText(said, { min: 0, max: 999 }, (lemma) => lexicon.byLemma.get(lemma))?.value
+      ?? spokenNumbers(said)[0] ?? null;
+    if (named === null) return null;
+    right = Number(named) === Number(prop.value);
+  } else return null;
+  if (right) return asks ? reaction("jah", ".") : null;
+  const line = partsLine(answered.says, { card, lexicon, mark: "." });
+  return line ? confirmed(line, false, undefined, lexicon) : null;
+}
+
+/** The moves whose line states a fact off the card that a learner reads back. */
+const READ_BACK: ReadonlySet<MoveKind> = new Set(["confirm", "instruct", "offer"]);
+
 /** The sentences of a turn that end on a question mark. */
 function questionsIn(said: string): string[] {
   return said.split(/(?<=[?.!])\s+/).map((part) => part.trim()).filter((part) => part.endsWith("?"));
@@ -528,7 +804,15 @@ function timeNamed(said: string | undefined, card: RoleCard | null): boolean | n
   if (!said || !time) return null;
   const named = questionsIn(said).map((question) => timeFromText(question, { from: 0, to: 23 })).filter((t): t is string => t !== null);
   if (named.length === 0) return null;
-  return named.includes(time.value.padStart(5, "0"));
+  /*
+    A time said in words carries no half of the day: "kell kümme" is ten in the
+    morning or the evening, and read against the whole day it came out 22:00,
+    so a learner reading back the shop's ten o'clock was told no. Twelve hours
+    apart is the same time said.
+  */
+  const want = time.value.padStart(5, "0");
+  const twelve = (t: string) => `${String((Number(t.slice(0, 2)) + 12) % 24).padStart(2, "0")}${t.slice(2)}`;
+  return named.some((t) => t === want || twelve(t) === want);
 }
 
 function whenOffCard(card: RoleCard | null, lexicon: Lexicon): SpokenLine | null {

@@ -1,7 +1,8 @@
 "use client";
 
 import { useTransition } from "react";
-import { Check } from "lucide-react";
+import { Check, MessageCircle } from "lucide-react";
+import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { toggleTask } from "@/app/actions";
 import { DUE_DATE_FORMAT, TASK_TAGS, bucketFor } from "@/lib/ux/agenda";
 import { dayClock } from "@/lib/time/day";
@@ -16,6 +17,12 @@ export interface TaskView {
   tag: string;
   completed: boolean;
   dueAt: string | null;
+  /**
+   * Where a conversation a class set is had (`/situations/<id>`), or null.
+   * Such a task is done by finishing a run of it (`lib/progress/homework.ts`),
+   * so its row is a way in and carries no box to tick.
+   */
+  href?: string | null;
 }
 
 export function TaskRow({ task }: { task: TaskView }) {
@@ -45,6 +52,15 @@ export function TaskRow({ task }: { task: TaskView }) {
         boxShadow: "var(--depth-sm)", opacity: pending ? 0.5 : 1,
       }}
     >
+      {task.href ? (
+        <span
+          aria-hidden
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
+          style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
+        >
+          <MessageCircle size={13} />
+        </span>
+      ) : (
       <button
         type="button"
         onClick={() => start(() => void toggleTask(task.id, !task.completed).catch(() => {}))}
@@ -57,6 +73,7 @@ export function TaskRow({ task }: { task: TaskView }) {
       >
         {task.completed && <Check size={13} strokeWidth={3} color="var(--surface)" aria-hidden />}
       </button>
+      )}
 
       <div className="min-w-0 flex-1">
         <p
@@ -66,13 +83,23 @@ export function TaskRow({ task }: { task: TaskView }) {
             textDecoration: task.completed ? "line-through" : "none",
           }}
         >
-          {task.title}
+          {task.href ? (
+            <Link
+              href={task.href}
+              aria-label={fill(t("Open the conversation \"{task}\""), { task: task.title })}
+              className="underline underline-offset-2"
+              style={{ color: "var(--ink)" }}
+            >
+              {task.title}
+            </Link>
+          ) : task.title}
         </p>
         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs" style={{ color: "var(--ink-3)" }}>
           {/* The tag a deployment can actually write, from the one table.
               A row restored from an old backup may carry a kind that was cut,
               and printing it as it stands is better than printing nothing. */}
           <span>{TASK_TAGS[task.tag] ? t(TASK_TAGS[task.tag]!) : task.tag}</span>
+          {task.href && <span>{t("Done once you've had it")}</span>}
           {due && (
             <span style={{ color: overdue ? "var(--again-ink)" : undefined }}>
               {/* One sentence with the date in its slot, since "Overdue, " and a

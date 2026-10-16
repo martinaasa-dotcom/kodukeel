@@ -1,5 +1,6 @@
 "use client";
 
+import { usePublicReader } from "@/components/PublicReader";
 import { Volume2, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { inEditable } from "@/lib/ux/advanceKey";
@@ -25,7 +26,15 @@ import { fill } from "@/lib/copy/locale";
  * button in place to be pressed, where a clip that could not be fetched at all
  * takes the button away.
  */
-export function Speak({
+/**
+ * A speaker button, or nothing for a reader with no account: speech is asked
+ * of `/api/tts`, which a session guards (components/PublicReader.tsx).
+ */
+export function Speak(props: Parameters<typeof SpeakButton>[0]) {
+  return usePublicReader() ? null : <SpeakButton {...props} />;
+}
+
+function SpeakButton({
   text, slow, label, size = 15, className, style, onUnavailable, onPlay, disabled, children, autoplay, insist, voice: askedVoice, condition, rate, spaceKey,
 }: {
   text: string; slow?: boolean; label?: string;
@@ -242,7 +251,12 @@ export function Speak({
  * and letting one half vanish on its own would leave a stray divider against a
  * lone button.
  */
-export function SpeakPair({
+/** The pair, or nothing for a reader with no account. See `Speak`. */
+export function SpeakPair(props: Parameters<typeof SpeakPairButtons>[0]) {
+  return usePublicReader() ? null : <SpeakPairButtons {...props} />;
+}
+
+function SpeakPairButtons({
   text, label, slowLabel, disabled, onPlay, onUnavailable, size = 15, className = "", autoplay, voice, spaceKey,
 }: {
   text: string;

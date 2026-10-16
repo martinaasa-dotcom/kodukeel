@@ -484,7 +484,8 @@ describe("the word the other side offers", () => {
   /* `Sobima?` was handed over where `Jah?` would have met the beat too. */
   it("hands over a word of the list that is not a verb, where there is one", () => {
     const agree = { ...SCENE.beats[2]!, needs: [{ kind: "lemma" as const, oneOf: ["sobima", "jah"] }] };
-    expect(offerFor(agree, null, new Set(), [], new Set(["sobima"]))).toBe("jah");
+    // A yes is never the hint, and a verb beside it is no better: the question said again is.
+    expect(offerFor(agree, null, new Set(), [], new Set(["sobima"]))).toBeNull();
     const verbs = { ...SCENE.beats[2]!, needs: [{ kind: "lemma" as const, oneOf: ["helistama", "küsima"] }] };
     expect(offerFor(verbs, null, new Set(), [], new Set(["helistama", "küsima"]))).toBe("helistama");
   });

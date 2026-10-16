@@ -23,7 +23,7 @@ const RESIDENCE_PERMIT: SceneSpec = {
     The booking reference is dealt on the card and is fiction; no real
     document number is ever asked for (CLAUDE.md).
   */
-  units: [...COMMON, "linn-ja-teenused", "umbisikuline", "suhtlemine", "reisimine", "plaanid", "too-ja-raha", "omadussonad"],
+  units: [...COMMON, "linn-ja-teenused", "umbisikuline", "suhtlemine", "reisimine", "plaanid", "too-ja-raha", "omadussonad", "kodu"],
   register: "teie",
   role: "This is a role. Your residence permit runs out soon and you've booked a time to renew it. Your card has your booking reference and what you've brought.",
   props: [
@@ -80,7 +80,14 @@ const RESIDENCE_PERMIT: SceneSpec = {
       they: "They ask what you've brought.",
       move: "ask",
       topic: ["kaasas", "dokument"],
-      needs: [{ kind: "datum", slot: "brought" }],
+      /*
+        Or that they have everything: "Kas teil on kõik kaasas?" is one of the
+        two ways the official asks, and "Jah, kõik on kaasas" answers it.
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "datum", slot: "brought" },
+        { kind: "lemma", oneOf: ["kõik"] },
+      ] }],
       required: true,
       patience: 2,
       shape: "word",
@@ -91,7 +98,15 @@ const RESIDENCE_PERMIT: SceneSpec = {
       they: "They say the application will be looked at, and that you'll be told by letter.",
       move: "instruct",
       topic: ["kaart", "valmis", "millal"],
-      needs: [{ kind: "question" }],
+      /*
+        A question is what the goal asks for, and "Selge." or "Hästi." is
+        what anybody says to an official who has just told them what happens
+        next: the official then says when the card will be ready anyway.
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "question" },
+        { kind: "lemma", oneOf: ["selge", "hästi", "jah"] },
+      ] }],
       answeredNext: true,
       required: true,
       patience: 2,
@@ -100,10 +115,16 @@ const RESIDENCE_PERMIT: SceneSpec = {
     {
       id: "collect",
       goal: "Say back the day you can collect the card, or just say that's fine.",
-      they: "They say the card can be collected on {ready}.",
-      move: "confirm",
+      they: "They say the card will be ready on {ready}.",
+      /*
+        An offer rather than a confirmation, because nobody can take it before
+        it is said: as a confirmation it was credited from a distance, so a
+        learner who said "Hästi" to the instruction above had this beat ticked,
+        asked when the card would be ready, and was told goodbye instead.
+      */
+      move: "offer",
       topic: ["kaart", "päev"],
-      says: [{ slot: "ready", grammCase: "ADESSIVE" }],
+      says: [{ lemma: "kaart" }, { lemma: "olema", verb: "IndPrSg3" }, { slot: "ready", grammCase: "ADESSIVE" }, { lemma: "valmis" }],
       needs: [{ kind: "anyOf", of: [
         { kind: "datum", slot: "ready" },
         { kind: "lemma", oneOf: ["jah", "hästi", "selge", "sobima"] },

@@ -41,7 +41,8 @@ import { errandForDay } from "@/lib/collections/errands";
 import { startedUnits } from "@/lib/collections/syllabus";
 import { courseReading, ladderPosition, moduleReached, programmeFor, targetFrom } from "@/lib/progress/course";
 import { unitsThrough } from "@/lib/course";
-import { SCENES } from "@/lib/scenes/catalogue";
+import { SCENES, sceneById } from "@/lib/scenes/catalogue";
+import { doneSceneTasks } from "@/lib/progress/homework";
 import { minutesFor } from "@/lib/scenes/run";
 import { sceneOfDay } from "@/lib/scenes/ofTheDay";
 import { SonadPreview } from "@/components/SonadPreview";
@@ -155,7 +156,7 @@ export default async function TodayPage() {
   // with a deck or a finished setup never sees it again.
   if (!settings[SETTING_KEYS.onboardedAt] && snapshot.totalCards === 0) redirect("/start");
 
-  const [summary, units, tasks, openTasks, lateTasks, events, weekReviews, learner, pace, [programme, courseNow], review] = await Promise.all([
+  const [summary, units, fetchedTasks, countedOpen, countedLate, conversations, events, weekReviews, learner, pace, [programme, courseNow], review] = await Promise.all([
     dailySummary(ownerId, now, clock),
     pathWithProgress(ownerId, snapshot),
     /*
@@ -178,6 +179,18 @@ export default async function TodayPage() {
     */
     prisma.task.count({ where: { ownerId, completed: false } }),
     prisma.task.count({ where: { ownerId, completed: false, dueAt: { lt: clock.startOfDay(now) } } }),
+    /*
+      Every open conversation a class set, because "done" for one is a run of
+      it rather than a tick (D4) and the counts above cannot see that. A class
+      sets a handful, so this is a small read; which are done is one more
+      query after the batch, and none where there are none.
+    */
+    prisma.task.findMany({
+      where: { ownerId, completed: false, sceneId: { not: null } },
+      select: { id: true, sceneId: true, createdAt: true, dueAt: true },
+      orderBy: [{ createdAt: "desc" }, { id: "asc" }],
+      take: 50,
+    }),
     /*
       The learner's own calendar. In this batch for the same reason the tasks
       are: it is one indexed read on a small table, and a second round trip to
@@ -227,6 +240,12 @@ export default async function TodayPage() {
   ]);
 
   const stage = stageOf({ totalCards: snapshot.totalCards, reviewsAllTime: summary.reviewsAllTime });
+
+  // A conversation the class set is off the list the moment a run of it is finished.
+  const conversationsDone = await doneSceneTasks(ownerId, conversations);
+  const tasks = fetchedTasks.filter((task) => !conversationsDone.has(task.id));
+  const openTasks = countedOpen - conversationsDone.size;
+  const lateTasks = countedLate - conversations.filter((c) => conversationsDone.has(c.id) && c.dueAt !== null && c.dueAt < clock.startOfDay(now)).length;
 
   /*
     Everything below here is asked for only where it is shown. The point of the
@@ -784,7 +803,7 @@ export default async function TodayPage() {
      drawn when there is something in it: the manual homework list is gone, so
      a learner studying alone has nothing to put here and no reason to see it. */
   const planCard = shows(stage, "tasks") && tasks.length > 0 ? (
-    <TodayPlan tasks={tasks.map(taskView)} open={openTasks} late={lateTasks} clock={clock} now={now} locale={locale} />
+    <TodayPlan tasks={tasks.map((task) => taskView(task, locale))} open={openTasks} late={lateTasks} clock={clock} now={now} locale={locale} />
   ) : null;
 
   /*
@@ -1204,13 +1223,23 @@ function daysInARow(locale: Locale, n: number): string {
   return fill(tr(locale, "{days} in a row"), { days: countOf(locale, n, "day") }).replace(/^\d+\s/, "");
 }
 
-/** A `Task` row in the shape `TaskRow` can hold, which is a client component. */
+/**
+ * A `Task` row in the shape `TaskRow` can hold, which is a client component.
+ *
+ * A conversation a class set carries the scene's own title, in the reader's
+ * language, and the address that opens it: it is done by having it, so the
+ * row is a way in rather than a box to tick.
+ */
 function taskView(task: {
-  id: string; title: string; tag: string; completed: boolean; dueAt: Date | null;
-}): TaskView {
+  id: string; title: string; tag: string; completed: boolean; dueAt: Date | null; sceneId: string | null;
+}, locale: Locale): TaskView {
+  const scene = task.sceneId ? sceneById(task.sceneId) : undefined;
   return {
-    id: task.id, title: task.title, tag: task.tag, completed: task.completed,
+    id: task.id,
+    title: scene ? tr(locale, scene.title) : task.title,
+    tag: task.tag, completed: task.completed,
     dueAt: task.dueAt ? task.dueAt.toISOString() : null,
+    href: scene ? `/situations/${scene.id}` : null,
   };
 }
 

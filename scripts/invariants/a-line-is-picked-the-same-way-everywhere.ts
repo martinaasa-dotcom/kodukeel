@@ -59,7 +59,8 @@ export default function aLineIsPickedTheSameWayEverywhere({ check, code, sourceF
     const calls = [...source.matchAll(/sayableAfterHurdles\(([^;]*?)\)\s*:/g)];
     assert.ok(calls.length > 0, `${ASSEMBLY}: no call to sayableAfterHurdles found; the pattern stopped matching`);
     for (const [, args] of calls) {
-      assert.equal(args!.split(",").length, 5, `${ASSEMBLY}: sayableAfterHurdles is called without the scene, so a mishearing can be about a beat nobody reached`);
+      // The scene is the fifth argument; what the learner last said may follow it.
+      assert.ok(args!.split(",").length >= 5, `${ASSEMBLY}: sayableAfterHurdles is called without the scene, so a mishearing can be about a beat nobody reached`);
     }
     assert.match(source, /answeredTimes: timesAnswered\(state\.turns, heard\)/,
       `${ASSEMBLY}: replyFor is not told how often the learner heard the line, so a question carried on behind a curveball is asked a fourth time verbatim`);

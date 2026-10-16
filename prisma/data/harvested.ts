@@ -12,7 +12,7 @@
  * first time a word is viewed — storing it here would be a second source of
  * truth that goes stale.
  *
- * 1859 words, harvested 2026-10-07, and the game words 2026-10-09.
+ * 1867 words, harvested 2026-10-07, the game words 2026-10-09, and eight more 2026-10-16.
  */
 
 export interface HarvestedWord {
@@ -5754,6 +5754,18 @@ export const HARVESTED: readonly HarvestedWord[] = [
     note: "lühikese ajaga, ilma pikemata",
     semanticTypes: ["ADV_aeg", "ADV_viis", "aeg"],
     rus: ["быстро", "скоро"], ukr: ["швидко", "прудко"],
+  },
+  {
+    lemma: "kilo", gloss: "kilo, kilogram", pos: "NOUN", cefr: "A1",
+    ekilexWordId: 181076,
+    ekilexPos: ["s"],
+    parts: { NOM_SG: "kilo", GEN_SG: "kilo", PART_SG: "kilo", NOM_PL: "kilod", PART_PL: "kilosid", GEN_PL: "kilode" },
+    extraForms: [],
+    government: null,
+    usages: ["Rasedusega kogunenud kilod kadusid treeningu ja köögiviljadega.", "Ostsin kaks kilo kartuleid.", "Ta kaalub 80 kilo."],
+    note: "massi mõõtühik, 1000 grammi",
+    semanticTypes: ["esitus_mõõt"],
+    rus: ["килограмм", "кило"], ukr: ["кілограм"],
   },
   {
     lemma: "kilomeeter", gloss: "kilometre", pos: "NOUN", cefr: "A2",
@@ -13904,6 +13916,18 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["библиотека", "б-ка"], ukr: ["бібліотека"],
   },
   {
+    lemma: "raamatukogukaart", gloss: "library card", pos: "NOUN", cefr: null,
+    ekilexWordId: 224727,
+    ekilexPos: ["s"],
+    parts: { NOM_SG: "raamatukogukaart", GEN_SG: "raamatukogukaardi", PART_SG: "raamatukogukaarti", ILL_SG_SHORT: "raamatukogukaarti", NOM_PL: "raamatukogukaardid", PART_PL: "raamatukogukaarte", GEN_PL: "raamatukogukaartide" },
+    extraForms: [],
+    government: null,
+    usages: [],
+    note: "dokument, mis annab õiguse kasutada raamatukogu teenuseid",
+    semanticTypes: ["ese_semio"],
+    rus: ["абонементная карточка", "читательский билет"], ukr: [],
+  },
+  {
     lemma: "raamistik", gloss: "framework", pos: "NOUN", cefr: "B2",
     ekilexWordId: 224762,
     ekilexPos: ["s"],
@@ -14214,6 +14238,18 @@ export const HARVESTED: readonly HarvestedWord[] = [
     note: "mingil ühiskonnaelu alal tehtav ümberkorraldus või uuendus, millega soovitakse olemasolevat süsteemi edendada, efektiivsemaks muuta",
     semanticTypes: ["abstr/konkr"],
     rus: ["реформа", "преобразование"], ukr: ["реформа"],
+  },
+  {
+    lemma: "registreerima", gloss: "to register", pos: "VERB", cefr: "A2",
+    ekilexWordId: 226655,
+    ekilexPos: ["v"],
+    parts: { INF_MA: "registreerima", INF_DA: "registreerida", PRES_1SG: "registreerin", PAST_1SG: "registreerisin", PART_TUD: "registreeritud" },
+    extraForms: [{ code: "ImpPrPl2", value: "registreerige" }, { code: "IndIpfSg3", value: "registreeris" }, { code: "PtsPtPs", value: "registreerinud" }, { code: "PtsPrPs", value: "registreeriv" }],
+    government: null,
+    usages: ["Kaubamärk registreeriti must-valgena.", "Ravim registreeriti Eestis selle aasta augustis.", "Registreerisin end raamatukogus lugejaks.", "Töötuks jäädes tuleks end tööotsijaks registreerida."],
+    note: "toodet, kaubamärki vm ametlikku nimekirja või registrisse kandma",
+    semanticTypes: ["VERB_tegevus"],
+    rus: ["регистрировать", "зарегистрировать"], ukr: ["реєструвати", "зареєструвати"],
   },
   {
     lemma: "reis", gloss: "trip, journey", pos: "NOUN", cefr: "A2",
@@ -14670,6 +14706,18 @@ export const HARVESTED: readonly HarvestedWord[] = [
     note: "rahvastiku ümberasumine omal maal või ühelt maalt teisele",
     semanticTypes: ["nähtus", "tegevus"],
     rus: ["миграция", "кочёвка"], ukr: [],
+  },
+  {
+    lemma: "räpane", gloss: "dirty, messy", pos: "ADJECTIVE", cefr: "B2",
+    ekilexWordId: 229593,
+    ekilexPos: ["adj"],
+    parts: { NOM_SG: "räpane", GEN_SG: "räpase", PART_SG: "räpast", NOM_PL: "räpased", PART_PL: "räpaseid", GEN_PL: "räpaste" },
+    extraForms: [],
+    government: null,
+    usages: ["Limas Ranch oli haisev ja räpane urgas.", "Pime ja räpane trepikoda.", "Kiusati tüdrukut, kellel olid täid peas ja kes oli räpane.", "Räpased poliitilised võtted."],
+    note: "mitte puhas, kasimata, mustust või prügi täis",
+    semanticTypes: ["omadus_füüs", "omadus_kval", "omadus"],
+    rus: ["грязный", "нечистый"], ukr: ["брудний", "нечистий"],
   },
   {
     lemma: "rääkima", gloss: "to speak", pos: "VERB", cefr: "A1",
@@ -15800,7 +15848,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["сленг", "арго"], ukr: [],
   },
   {
-    lemma: "sobima", gloss: "to suit, to be convenient", pos: "VERB", cefr: "A1",
+    lemma: "sobima", gloss: "to suit, to fit, to be convenient", pos: "VERB", cefr: "A1",
     ekilexWordId: 234867,
     ekilexPos: ["v"],
     parts: { INF_MA: "sobima", INF_DA: "sobida", PRES_1SG: "sobin", PAST_1SG: "sobisin", PART_TUD: "sobitud" },
@@ -17636,6 +17684,18 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["телефонный аппарат", "телефон"], ukr: ["телефон", "номер телефону"],
   },
   {
+    lemma: "telefoninumber", gloss: "phone number", pos: "NOUN", cefr: "B1",
+    ekilexWordId: 243636,
+    ekilexPos: ["s"],
+    parts: { NOM_SG: "telefoninumber", GEN_SG: "telefoninumbri", PART_SG: "telefoninumbrit", NOM_PL: "telefoninumbrid", PART_PL: "telefoninumbreid", GEN_PL: "telefoninumbrite" },
+    extraForms: [],
+    government: null,
+    usages: ["Kirjuta mu aadress ja telefoninumber üles."],
+    note: "numbrikombinatsioon, mis tuleb valida soovikohase telefoniühenduse saamiseks",
+    semanticTypes: ["esitus_arv"],
+    rus: ["телефонный номер", "номер телефона"], ukr: ["номер телефону"],
+  },
+  {
     lemma: "tellima", gloss: "to order", pos: "VERB", cefr: "A2",
     ekilexWordId: 243828,
     ekilexPos: ["v"],
@@ -18138,6 +18198,18 @@ export const HARVESTED: readonly HarvestedWord[] = [
     note: "lame sõõrikujuline löökpill, mida mängitakse pulkade või sõrmedega pinguldatud nahast või tehiskilest membraanile lüües",
     semanticTypes: ["ese_instru"],
     rus: ["барабан"], ukr: ["барабан"],
+  },
+  {
+    lemma: "tšekk", gloss: "receipt (from a shop)", pos: "NOUN", cefr: "B2",
+    ekilexWordId: 247334,
+    ekilexPos: ["s"],
+    parts: { NOM_SG: "tšekk", GEN_SG: "tšeki", PART_SG: "tšekki", ILL_SG_SHORT: "tšekki", NOM_PL: "tšekid", PART_PL: "tšekke", GEN_PL: "tšekkide" },
+    extraForms: [],
+    government: null,
+    usages: ["Mees kirjutas kogudusele tšeki.", "Tšekk tuleks kauplusest lahkumiseni alles hoida.", "Hoia tšekk alles, muidu garantii ei kehti.", "Väärtpaberiteks käesoleva seaduse tähenduses ei loeta veksleid, tšekke ja muid maksevahendeid."],
+    note: "raha valdaja kirjalik korraldus, mille järgi pank maksab selle esitajale välja korraldusel märgitud summa",
+    semanticTypes: ["ese_semio"],
+    rus: ["чек", "банковский чек"], ukr: ["чек", "банківський чек"],
   },
   {
     lemma: "tuba", gloss: "room", pos: "NOUN", cefr: "A1",
@@ -19086,6 +19158,18 @@ export const HARVESTED: readonly HarvestedWord[] = [
     note: "vaeva nägema, pingutama selle nimel, et elatusvahendeid luua või midagi ära teha",
     semanticTypes: ["VERB_tegevus"],
     rus: ["работать", "трудиться"], ukr: ["працювати"],
+  },
+  {
+    lemma: "töötu", gloss: "unemployed", pos: "ADJECTIVE", cefr: "A2",
+    ekilexWordId: 250339,
+    ekilexPos: ["adj", "s"],
+    parts: { NOM_SG: "töötu", GEN_SG: "töötu", PART_SG: "töötut", NOM_PL: "töötud", PART_PL: "töötuid", GEN_PL: "töötute" },
+    extraForms: [],
+    government: null,
+    usages: ["Töötute arv kahaneb.", "Aastaga on töötute arv vähenenud.", "Töötu naine.", "Ttöötute inimeste arv järgmisel aastal kasvab."],
+    note: "inimene, kes on töövõimeline ja soovib tööd teha, ent on tööta",
+    semanticTypes: ["in_roll"],
+    rus: ["безработный", "безработная"], ukr: ["безробітний", "безробітна"],
   },
   {
     lemma: "tüdruk", gloss: "girl", pos: "NOUN", cefr: "A1",
@@ -20562,6 +20646,18 @@ export const HARVESTED: readonly HarvestedWord[] = [
     note: "ruumiliselt millegi lõpus, tagaotsas olev, järjestust, loendit või rida lõpetav",
     semanticTypes: ["koht", "omadus"],
     rus: ["последний", "крайний"], ukr: ["останній", "крайній"],
+  },
+  {
+    lemma: "viimati", gloss: "last time, most recently", pos: "ADVERB", cefr: "B2",
+    ekilexWordId: 256546,
+    ekilexPos: ["adv"],
+    parts: {  },
+    extraForms: [],
+    government: null,
+    usages: ["Maja lapiti viimati kolme aasta eest.", "Millal sa viimati kodus käisid?", "Ma ei mäleta, kus ma teda viimati nägin.", "Millal sa viimati hambaarsti juures käisid?"],
+    note: "viimasel korral, viimast korda",
+    semanticTypes: ["ADV_aeg"],
+    rus: ["в прошлый раз", "в последний раз"], ukr: ["минулого разу", "останнього разу"],
   },
   {
     lemma: "viis", gloss: "five", pos: "NOUN", cefr: "A1",

@@ -12,7 +12,7 @@ import { TimeZoneSync } from "@/components/TimeZoneSync";
 import { LetterBarScope } from "@/components/DiacriticBar";
 import { ModuleScope } from "@/components/course/ModuleScope";
 import { resolveProviders } from "@/lib/tutor/provider";
-import { requireUserId } from "@/lib/auth/session";
+import { viewerId } from "@/lib/auth/session";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { supabaseConfigured } from "@/lib/auth/mode";
 import { REVIEWED, localeFrom, tr } from "@/lib/copy/locale";
@@ -69,7 +69,20 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     See lib/ux/letterBar.ts for why the bar is a question at all, and
     lib/time/day.ts for what the zone is worth.
   */
-  const ownerId = await requireUserId();
+  /*
+    NOBODY SIGNED IN IS A READER OF THE GRAMMAR REFERENCE, AND NOBODY ELSE.
+
+    The middleware lets a signed-out request into this group on exactly five
+    paths (lib/ux/publicReference.ts), and each of those pages draws its own
+    public frame round itself: a header, the one line saying the practice is in
+    the app, and the public footer. So the shell, the rail, Anu and everything
+    that reads a learner's settings stand down here. Any other page in this
+    group still resolves its owner through `requireUserId`, which throws for a
+    reader with no session, so this cannot open one of them.
+  */
+  const viewer = await viewerId();
+  if (!viewer) return <>{children}</>;
+  const ownerId = viewer;
   /*
     The level is here for the pace Estonian is read aloud at, which the shell
     publishes with the rest of the audio settings so that every speaker button

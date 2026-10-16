@@ -39,10 +39,11 @@ import { resolveOperator } from "@/lib/legal/operator";
 import { areaTable } from "@/lib/copy/i18n/tables";
 import { LANDING_BORROWS } from "@/lib/copy/i18n/areas/landing";
 import { rich } from "@/components/Rich";
-import { MACHINE_SHORT, countGrouped, grouped, languagesBeside, fill, tr, type Locale } from "@/lib/copy/locale";
+import { MACHINE_SHORT, countGrouped, countOf, grouped, languagesBeside, fill, tr, type Locale } from "@/lib/copy/locale";
 import { LANDING_HREF, langParam, localeHref } from "@/lib/copy/publicLocale";
 import { ENTRY_COPY, ENTRY_LOCALES, MACHINE_TRANSLATED_EN, type EntryLocale } from "@/lib/copy/entryLocales";
 import { questionReading } from "@/lib/estonian/cases";
+import { SCENES } from "@/lib/scenes/catalogue";
 import { stepText } from "@/lib/course/stepText";
 
 export const metadata: Metadata = {
@@ -886,7 +887,11 @@ function Evening({ say }: { say: Say }) {
 /* ────────────────────────────────────────────────────────── talk ── */
 
 /**
- * One of the fifteen conversations, playable with no account.
+ * One of the app's conversations, playable with no account.
+ *
+ * How many there are is `SCENES.length`, read here and handed to the café
+ * rather than typed: the sentence said fifteen for a whole batch after there
+ * were forty-three (scripts/invariants/a-count-is-derived.ts).
  *
  * The page's closing line says to say it to somebody, and until now nothing
  * on it let a visitor say anything to anybody. This is the café scene through
@@ -894,6 +899,7 @@ function Evening({ say }: { say: Say }) {
  */
 function Talk({ say }: { say: Say }) {
   const { t } = say;
+  const scenes = SCENES.length;
   return (
     <section id="talk" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
       <Reveal>
@@ -903,13 +909,15 @@ function Talk({ say }: { say: Say }) {
             {t("Order a drink in Estonian. Right now, no account needed.")}
           </h2>
           <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {t("This is one of the fifteen conversations inside: a café counter, and somebody waiting for your order. Here you pick what to say, from hello to paying. Inside the app, you type it yourself.")}
+            {fill(t("This is one of the {conversations} inside: a café counter, and somebody waiting for your order. Here you pick what to say, from hello to paying. Inside the app, you type it yourself."), {
+              conversations: countOf(say.locale, scenes, "conversation", "gen"),
+            })}
           </p>
         </div>
       </Reveal>
       <Reveal>
         <div className="mt-10 md:mt-12">
-          <CafeScene />
+          <CafeScene scenes={scenes} />
         </div>
       </Reveal>
     </section>
@@ -1713,6 +1721,7 @@ function Footer({ say, copy }: { say: Say; copy: (typeof ENTRY_COPY)[EntryLocale
               <FootLink say={say} href="/how-we-know">{t("How we know")}</FootLink>
               <FootLink say={say} href="/accessibility">{t("Accessibility")}</FootLink>
               <FootLink say={say} href="/state-exam">{t("The state examination")}</FootLink>
+              <FootLink say={say} href="/grammar">{t("Estonian grammar")}</FootLink>
               <FootLink say={say} href="/help">{t("Help")}</FootLink>
               {locale !== "en" && (
                 <li><Link href="/welcome" lang="en" hrefLang="en" className="underline underline-offset-4 transition-opacity hover:opacity-70">English</Link></li>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildLexicon, caseKeyFor, type DictEntry } from "./lexicon";
-import { addsEvidence, advances, readTurn, type TurnContext } from "./turn";
+import { addsEvidence, advances, answerPart, readTurn, type TurnContext } from "./turn";
 import type { BeatSpec } from "./types";
 
 /**
@@ -44,6 +44,16 @@ const ENTRIES: DictEntry[] = [
     usages: [],
   },
   { lemma: "Head aega!", pos: "PHRASE", cefr: "A1", parts: {}, usages: [] },
+  {
+    lemma: "tahtma", pos: "VERB", cefr: "A1",
+    parts: { INF_MA: "tahtma", INF_DA: "tahta", PRES_1SG: "tahan", PAST_1SG: "tahtsin" },
+    usages: [],
+  },
+  {
+    lemma: "hea", pos: "ADJECTIVE", cefr: "A1",
+    parts: { NOM_SG: "hea", GEN_SG: "hea", PART_SG: "head", NOM_PL: "head", PART_PL: "häid", GEN_PL: "heade" },
+    usages: [],
+  },
 ];
 
 const LEX = buildLexicon(ENTRIES);
@@ -70,6 +80,36 @@ function beat(over: Partial<BeatSpec> = {}): BeatSpec {
     ...over,
   };
 }
+
+describe("a goodbye on a beat that is not the goodbye (FB-5)", () => {
+  // "Head aega" holds a form of `hea`; an examiner went on with the exam after it.
+  it("does not meet a word the farewell happens to hold", () => {
+    const good = beat({ needs: [{ kind: "lemma", oneOf: ["hea"] }] });
+    expect(readTurn("Head aega", good, context()).met).toEqual([false]);
+    expect(readTurn("Ei, aitäh, head aega", good, context()).met).toEqual([false]);
+    expect(readTurn("See on hea", good, context()).met).toEqual([true]);
+  });
+
+  it("still meets the closing beat with it", () => {
+    const close = beat({ move: "close", needs: [{ kind: "lemma", oneOf: ["Head aega!"] }] });
+    expect(readTurn("Head aega", close, context()).met).toEqual([true]);
+  });
+});
+
+describe("a number that is the other side's to give", () => {
+  // A dose read back wrong was credited as the learner changing it (perearst).
+  const take = beat({ needs: [{ kind: "datum", slot: "times" }], shape: "sentence" });
+  const data = new Map([["times", new Set(["3"])]]);
+  it("is not the learner's to change", () => {
+    const theirs = context({ data, slots: new Map([["times", { kind: "number", min: 2, max: 3, theirs: true } as const]]) });
+    expect(readTurn("2 korda päevas", take, theirs).met).toEqual([false]);
+    expect(readTurn("3 korda päevas", take, theirs).met).toEqual([true]);
+  });
+  it("where it is the learner's own, another value in its span is their choice", () => {
+    const own = context({ data, slots: new Map([["times", { kind: "number", min: 2, max: 3 } as const]]) });
+    expect(readTurn("2 korda päevas", take, own).met).toEqual([true]);
+  });
+});
 
 describe("reading a turn", () => {
   it("meets a lemma requirement through any form of the word", () => {
@@ -1215,6 +1255,17 @@ describe("a word the learner negated", () => {
     learner who wrote "Ei. Mul on valu." was answered as though they had said
     nothing.
   */
+  // "Mul ei ole tööd" says what is wrong; only wanting, suiting or being able turns a word down.
+  it("meets a word the beat names where the no states a problem rather than turning it down", () => {
+    expect(readTurn("mul ei ole valu", beat({ shape: "sentence" }), ctx).reading).toBe("complete");
+  });
+
+  it("passes over a negated word and reads the rest of the turn", () => {
+    const either = beat({ needs: [{ kind: "lemma", oneOf: ["valu", "kõrv"] }], shape: "sentence" });
+    const real = context({ negators: new Set(["ei", "mitte"]) });
+    expect(readTurn("kõrv, mitte valu", either, real).satisfiedBy).toEqual(["kõrv"]);
+  });
+
   it("meets it where the no is a sentence of its own before the yes", () => {
     for (const text of ["Ei. Mul on valu.", "Ei! Mul on valu", "Ma ei tea. Mul on valu."]) {
       expect(readTurn(text, beat({ shape: "sentence" }), ctx).reading, text).toBe("complete");
@@ -1348,5 +1399,22 @@ describe("the way is asked for by saying what you are looking for", () => {
     expect(readTurn("ma otsin panka", where, seen).reading).toBe("complete");
     // And a question still does, which is the half that was already right.
     expect(readTurn("kus on pank?", where, seen).reading).toBe("complete");
+  });
+});
+
+describe("the answer part of a turn", () => {
+  const floor = {
+    id: "floor", goal: "Say which floor.", they: "They ask which floor.", move: "ask", topic: ["korrus"],
+    needs: [{ kind: "datum", slot: "floor" }], required: true, patience: 2, shape: "word",
+  } as unknown as BeatSpec;
+  const questionWords = new Set(["kus", "mis", "kust"]);
+
+  // `words` holds letters only, so a bare number read as an empty sentence and a late "5" credited nothing.
+  it("keeps a sentence that is only a number", () => {
+    expect(answerPart("5", floor, questionWords)).toBe("5");
+  });
+
+  it("still drops a question asked beside the answer", () => {
+    expect(answerPart("Viiendal. Kust te olete?", floor, questionWords)).toBe("Viiendal.");
   });
 });

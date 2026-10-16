@@ -1,0 +1,26 @@
+import type { ScenePicks } from "../picks";
+
+/** What a learner may pick to say in `tee-kusimine`, beat by beat. See `lib/scenes/picks.ts`. */
+export const teeKusimine: ScenePicks = {
+  greet: [
+    { et: "Vabandust!", en: "Excuse me!" },
+    { et: "Tere! Vabandust.", en: "Hi! Sorry to bother you." },
+  ],
+  where: [
+    { et: "Kus on {place}?", en: "Where's the {place}?" },
+    { et: "Ma otsin {place:PARTITIVE}.", en: "I'm looking for the {place}." },
+    { et: "Kas {place} on siin lähedal?", en: "Is the {place} near here?" },
+  ],
+  way: [
+    { et: "Otse ja siis vasakule, eks?", en: "Straight on and then left, right?" },
+    { et: "Selge, aitäh!", en: "Got it, thanks!" },
+  ],
+  far: [
+    { et: "Kas see on kaugel?", en: "Is it far?" },
+    { et: "Kas sinna saab jalgsi minna?", en: "Can you get there on foot?" },
+  ],
+  close: [
+    { et: "Aitäh, head aega!", en: "Thanks, bye!" },
+    { et: "Suur aitäh! Nägemist!", en: "Thanks a lot! Bye!" },
+  ],
+};

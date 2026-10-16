@@ -8,7 +8,7 @@
  *
  * THE TAGS ARE WHAT TELLS ONE SCENE FROM ANOTHER, SO A TAG EVERY SCENE CARRIES
  * IS A TAG THAT SAYS NOTHING. The first version tagged the register, and
- * fourteen of fifteen scenes are held in the formal you, so every tile read
+ * all but one scene were then held in the formal you, so every tile read
  * "the polite you" beside "a word off your card" and "asking a question",
  * which is three chips describing the module rather than the scene. So:
  *
@@ -17,8 +17,9 @@
  *     value it asks for;
  *   - a case is how a task is done rather than the task, so it is named only
  *     where a beat has no tag, which `practises.test.ts` makes never;
- *   - the register is named only where it is the exception, which is the one
- *     scene played with a friend; and
+ *   - the register is named only where it is the exception, the scenes
+ *     played with a friend or a colleague (about a quarter of them since the
+ *     third batch, which still leaves it the rarer of the two); and
  *   - the tile orders its chips by how few scenes share them (`distinctive`),
  *     so what a scene has that the others do not is what a learner reads.
  *
@@ -71,6 +72,7 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "kohvikus:order": "ordering a drink",
   "kohvikus:size": "large or small",
   "kohvikus:bill": "asking to pay",
+  "kohvikus:pay": "card or cash",
 
   "tee-kusimine:where": "asking the way",
   "tee-kusimine:way": "checking directions",
@@ -86,6 +88,7 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "restoranis-tellimine:contents": "asking what's in a dish",
   "restoranis-tellimine:drink": "ordering a drink",
   "restoranis-tellimine:bill": "asking for the bill",
+  "restoranis-tellimine:pay": "card or cash",
 
   "helistamine:why": "saying why you're calling",
   "helistamine:have": "asking if they have it",
@@ -102,7 +105,8 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "apteek:since": "saying when it started",
   "apteek:medicine": "asking what to take",
   "apteek:how": "asking how often",
-  "apteek:pay": "paying at the counter",
+  "apteek:pay": "saying you'll take it",
+  "apteek:card": "card or cash",
 
   "keeletund:name": "saying your name",
   "keeletund:from": "where you're from",
@@ -146,7 +150,9 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "kokkulepe:free": "offering your own day",
   "kokkulepe:time": "settling a time",
   "turul:some": "asking for some, by weight",
+  "turul:weight": "saying how much you want",
   "turul:pieces": "asking for a few, by the piece",
+  "turul:many": "saying how many",
   "turul:price": "asking what it comes to",
   "bussipeatus:this": "checking it's the right bus",
   "bussipeatus:yes": "thanking for an answer",
@@ -159,7 +165,9 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "nadalavahetus:did": "saying where you went",
   "nadalavahetus:back": "asking about their weekend",
   "hadaabi:what": "saying what happened",
+  "hadaabi:part": "saying what they've hurt",
   "hadaabi:where": "giving an address",
+  "hadaabi:house": "giving the house number",
   "hadaabi:hurt": "saying whether they can stand",
   "hadaabi:wait": "following instructions on the phone",
   "pangas:want": "asking to open an account",

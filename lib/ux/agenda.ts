@@ -37,7 +37,7 @@ export const BUCKET_LABEL: Record<Bucket, string> = {
 const ORDER: readonly Bucket[] = ["overdue", "today", "tomorrow", "week", "later", "undated"];
 
 /**
- * WHAT KIND OF WORK A TASK IS, AND THERE ARE TWO.
+ * WHAT KIND OF WORK A TASK IS, AND THERE ARE THREE.
  *
  * This was written down in four places and no two agreed. The schema's comment
  * said `HOMEWORK | VOCABULARY`; `docs/04-data-model.md` said the same;
@@ -50,7 +50,8 @@ const ORDER: readonly Bucket[] = ["overdue", "today", "tomorrow", "week", "later
  *
  * They are the remains of the `/tasks` page, which was cut in the eighteenth
  * pass along with the calendar beside it. What stays is one card on Today for
- * work a teacher assigns, and a teacher assigns homework or a unit's words.
+ * work a teacher assigns, and a teacher assigns homework, a unit's words, or
+ * one of the conversations (`assignScene`, which also writes `Task.sceneId`).
  *
  * One table, read by the row that draws it and by the fixture that seeds it, so
  * a third kind cannot arrive in one and not the other.
@@ -58,6 +59,7 @@ const ORDER: readonly Bucket[] = ["overdue", "today", "tomorrow", "week", "later
 export const TASK_TAGS: Readonly<Record<string, string>> = {
   HOMEWORK: "Homework",
   VOCABULARY: "Vocabulary",
+  CONVERSATION: "Conversation",
 };
 
 export interface AgendaGroup<T> {

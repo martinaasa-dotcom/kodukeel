@@ -18,7 +18,12 @@ const LANDLORD: SceneSpec = {
   role: "You rent an apartment. Something in it stopped working earlier this week, so you're calling your landlord.",
   props: [
     {
-      kind: "word", slot: "problem", oneOf: ["küte", "elekter", "remont", "mööbel", "aken", "uks"],
+      /*
+        Things that break. Not `remont`, which is the repair rather than the
+        broken thing: a card reading "What's broken: repair" dealt a tenant
+        `Remont on katki`, which nobody says.
+      */
+      kind: "word", slot: "problem", oneOf: ["küte", "elekter", "mööbel", "aken", "uks", "voodi"],
       says: "What's broken.",
     },
     {
@@ -49,14 +54,6 @@ const LANDLORD: SceneSpec = {
       says: "The other day they can come.",
     },
     { kind: "time", slot: "time2", from: 8, to: 18, differentFrom: "time", theirs: true },
-    /*
-      THE PRICE, TOLD AND THEN CHANGED. `wrong-price` says the amount is not
-      the one the learner was told, so the card tells them one, and the other
-      side holds the one it has now, drawn to differ and never printed: the
-      curveball says it off the card and "how much?" is answered with it.
-    */
-    { kind: "price", slot: "price", min: 20, max: 60, says: "What they said the repair would cost, in euros." },
-    { kind: "price", slot: "price2", min: 20, max: 60, says: "What it costs now.", theirs: true, differentFrom: "price" },
   ],
   /*
     No queue: this one is a telephone call, so the only curveball in the
@@ -64,9 +61,22 @@ const LANDLORD: SceneSpec = {
     could actually occur in it, which is the same discipline as declaring the
     units its words come from.
   */
+  /*
+    Not `missing-document`, which asked for a document down a telephone, and
+    not `wrong-price`, which put a price on a repair the landlord pays for.
+    A scene admits what could happen in it.
+  */
+  /*
+    Not `slot-gone` and not `contradiction` either. Both are about a time the
+    other side named, and here the landlord names the only time there is: the
+    first stood after the tenant had said yes and took the appointment back
+    with no other day to offer, so the call ended on "Hiljem on aega." and a
+    goodbye, and the second had the landlord offer tomorrow after all and
+    asked the tenant to object to a better offer.
+  */
   curveballs: [
-    "slot-gone", "not-possible", "faster", "small-talk", "interrupted",
-    "english", "wrong-price", "other-register", "missing-document", "contradiction",
+    "not-possible", "faster", "small-talk", "interrupted",
+    "english", "other-register",
   ],
   beats: [
     {
@@ -84,7 +94,7 @@ const LANDLORD: SceneSpec = {
       id: "problem",
       goal: "Tell them what's broken.",
       they: "They ask what's gone wrong.",
-      feel: "sorry",
+      feel: "noted",
       move: "ask",
       topic: ["küte", "elekter", "remont", "lekkima", "mööbel"],
       /*
@@ -92,11 +102,17 @@ const LANDLORD: SceneSpec = {
         them. `aken` and `uks` were dealt and refused, so a third of runs
         handed somebody a card whose problem the landlord would not hear.
       */
+      /*
+        Every word the card can deal, and the two ways of saying it without
+        naming the thing. A list rather than the card's slot, so that a
+        learner who is lost is handed the card's own word (`Uks?`); there is
+        no fixed pair to offer, because `Elekter või küte?` to somebody whose
+        card says the window points them at the wrong thing.
+      */
       needs: [{
         kind: "lemma",
-        oneOf: ["küte", "elekter", "remont", "mööbel", "aken", "uks", "lekkima", "ruum"],
+        oneOf: ["küte", "elekter", "mööbel", "aken", "uks", "voodi", "lekkima", "remont"],
       }],
-      choice: ["küte", "elekter"],
       required: true,
       patience: 3,
       shape: "sentence",
@@ -105,6 +121,7 @@ const LANDLORD: SceneSpec = {
       id: "where",
       goal: "Tell them which room it's in, and which floor you're on.",
       they: "They ask which room it's in, and which floor.",
+      feel: "noted",
       move: "ask",
       /*
         `korrus` is the floor of a building and `kord` is not: it is an
@@ -129,10 +146,18 @@ const LANDLORD: SceneSpec = {
     {
       id: "since",
       goal: "Tell them which day it stopped working.",
-      they: "They ask how long it's been like that.",
+      they: "They ask since which day it's been like that.",
       move: "ask",
       topic: ["päev", "nädal", "aeg", "õhtu"],
-      needs: [{ kind: "datum", slot: "since" }],
+      /*
+        The day off the card, or how long in any words a person would use:
+        "juba nädal aega" and "eilsest" answer "since when" as well as a
+        weekday does.
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "datum", slot: "since" },
+        { kind: "lemma", oneOf: ["päev", "nädal", "eile", "üleeile", "ammu"] },
+      ] }],
       required: true,
       patience: 2,
       shape: "word",
@@ -141,7 +166,7 @@ const LANDLORD: SceneSpec = {
       id: "refuse",
       goal: "Nobody can come this week. Ask when somebody can.",
       they: "They sigh. Nobody can come this week.",
-      answer: "They say somebody can come soon, then offer a day and a time.",
+      answer: "They say there's a lot of work this week, but somebody can come next week.",
       move: "refuse",
       topic: ["remont", "aeg", "nädal", "üür", "millal"],
       needs: [{ kind: "question" }],

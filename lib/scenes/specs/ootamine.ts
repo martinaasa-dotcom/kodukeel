@@ -30,8 +30,8 @@ const WAITING: SceneSpec = {
     /* Both times are theirs: they have the phone and the app. It is eight
        now, and the bus is due at half past or at nine, so the time it should
        come is always still ahead of the time on the phone. */
-    { kind: "time", slot: "time", from: 8, to: 8, theirs: true },
-    { kind: "time", slot: "bus", from: 8, to: 9, theirs: true, differentFrom: "time" },
+    { kind: "time", slot: "time", from: 8, to: 8, theirs: true, says: "The time on their phone" },
+    { kind: "time", slot: "bus", from: 8, to: 9, theirs: true, differentFrom: "time", says: "When the bus should come" },
   ],
   curveballs: ["faster", "english", "interrupted", "contradiction"],
   beats: [
@@ -52,7 +52,20 @@ const WAITING: SceneSpec = {
       they: "They make a remark about the weather and wait for you to agree.",
       move: "offer",
       topic: ["ilm", "täna", "väljas", "külm", "soe"],
-      needs: [{ kind: "datum", slot: "weather" }],
+      /*
+        The card's weather, or any other word for what it is doing outside:
+        "Jah, külm" is agreeing and saying what the weather is doing, and was
+        read as a learner who had not finished.
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "datum", slot: "weather" },
+        /*
+          The card's own weather leads the list, so a learner who is lost is
+          handed the card's word (`Vihm?`) rather than `Külm?` on a day the
+          card says it is sunny.
+        */
+        { kind: "lemma", oneOf: ["vihm", "lumi", "tuul", "päike", "udu", "külm", "soe", "kuum", "märg", "kuiv", "pilv", "torm", "ilus", "halb", "paistma"] },
+      ] }],
       required: true,
       patience: 2,
       shape: "sentence",
@@ -60,11 +73,20 @@ const WAITING: SceneSpec = {
     {
       id: "time",
       goal: "Ask them what time it is.",
-      they: "They check their phone, in case you want to know the time.",
+      they: "They look at their watch and say you have both been waiting a long time.",
       move: "offer",
       topic: ["kell", "aeg", "praegu"],
-      says: [{ lemma: "kell" }, { slot: "time" }],
-      needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["kell", "aeg", "palju", "mis"] }],
+      /*
+        A sentence rather than a bare value, so the line said off the card is
+        a person telling the time (`Kell on 8.`) and not `Kell 8?`, which is
+        how an offer comes out and read as them asking the learner.
+      */
+      says: [{ lemma: "kell" }, { lemma: "olema", verb: "IndPrSg3" }, { slot: "time" }],
+      /*
+        A question about the time. `mis` and `palju` came off: "Mis buss see
+        on?" met this beat and was answered with the time.
+      */
+      needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["kell", "aeg", "kellaaeg"] }],
       answer: "They read the time off their phone.",
       required: true,
       patience: 2,
@@ -76,8 +98,9 @@ const WAITING: SceneSpec = {
       they: "They sigh that the bus is late again.",
       move: "offer",
       topic: ["buss", "tulema", "hilinema", "millal"],
-      says: [{ lemma: "kell" }, { slot: "bus" }],
-      needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["buss", "tulema", "millal", "kell", "kaua"] }],
+      says: [{ lemma: "buss" }, { lemma: "tulema", verb: "IndPrSg3" }, { lemma: "kell" }, { slot: "bus" }],
+      /* Not `kell`: "Mis kell on?" asked a second time met this beat and was told when the bus comes. */
+      needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["buss", "tulema", "millal", "kaua"] }],
       answer: "They tell you when it should come now, going by the app on their phone.",
       required: true,
       patience: 2,
@@ -87,7 +110,7 @@ const WAITING: SceneSpec = {
       id: "close",
       goal: "The bus is here. Say goodbye.",
       they: "The bus pulls in, and they say goodbye.",
-      meanwhile: "A few minutes later, the bus comes round the corner.",
+      meanwhile: "A while later, the bus finally comes round the corner.",
       move: "close",
       topic: [...FAREWELLS],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],

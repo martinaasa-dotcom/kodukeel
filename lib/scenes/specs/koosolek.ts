@@ -9,7 +9,8 @@ const TEAM_MEETING: SceneSpec = {
   /*
     `arvamus` for disagreeing, giving a reason and agreeing in the end, which
     is the claim it tests and the evening it sits on. `too-ja-raha` for the
-    report and the project, `plaanid` for what suits, and `omadussonad` for
+    report and the project, `plaanid` for what suits, `tingiv` for offering
+    another day (`pakkuma`), and `omadussonad` for
     slowly. `sina`, because colleagues round a table in an Estonian workplace
     say `sina`; the curveball that switches register is the one who does not.
 
@@ -18,7 +19,7 @@ const TEAM_MEETING: SceneSpec = {
     "and what do you suggest?", which is how a meeting hands somebody the
     floor anyway.
   */
-  units: [...COMMON, "arvamus", "too-ja-raha", "plaanid", "omadussonad"],
+  units: [...COMMON, "arvamus", "too-ja-raha", "plaanid", "omadussonad", "rektsioon", "tingiv"],
   register: "sina",
   role: "This is a role. Your team lead wants the report finished sooner than you think is possible. Your card says the day you'd suggest instead.",
   props: [
@@ -44,13 +45,19 @@ const TEAM_MEETING: SceneSpec = {
     {
       id: "idea",
       goal: "They want the report by tomorrow. Say politely that you don't agree.",
+      feel: "noted",
       they: "They say the report should be ready tomorrow, and ask what you think.",
       move: "ask",
       topic: ["aruanne", "arvama", "tähtaeg"],
-      says: [{ lemma: "aruanne" }, { lemma: "homme" }],
+      /*
+        Said from the bank rather than off parts: `Aruanne homme?` was the
+        whole of the lead's opening, which read as a telegram. And "too soon"
+        is a disagreement too, so `liiga` answers it ("Homme on liiga vara").
+      */
       needs: [{ kind: "anyOf", of: [
         { kind: "negation" },
-        { kind: "lemma", oneOf: ["arvama", "nõustuma", "kahtlema", "raske"] },
+        // Putting another day on the table is disagreeing too ("Ma pakun neljapäeva").
+        { kind: "lemma", oneOf: ["arvama", "nõustuma", "kahtlema", "raske", "liiga", "keeruline", "pakkuma"] },
       ] }],
       required: true,
       patience: 3,
@@ -59,10 +66,11 @@ const TEAM_MEETING: SceneSpec = {
     {
       id: "why",
       goal: "Give them one reason: there isn't enough time, say.",
+      feel: "noted",
       they: "They ask why not.",
       move: "ask",
       topic: ["põhjus", "miks"],
-      needs: [{ kind: "lemma", oneOf: ["sest", "aeg", "kiire", "raske", "põhjus", "projekt", "töö"] }],
+      needs: [{ kind: "lemma", oneOf: ["kiire", "aeg", "sest", "raske", "põhjus", "projekt", "töö"] }],
       required: true,
       patience: 2,
       shape: "sentence",

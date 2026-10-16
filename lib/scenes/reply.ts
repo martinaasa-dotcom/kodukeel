@@ -116,6 +116,8 @@ export interface ReplyInput {
      * question nobody had asked them; a person in a hurry still asks it.
      */
     readonly then?: string | null;
+    /** The curveball was raised on this turn, so a break in time behind it is printed now. */
+    readonly fresh?: boolean;
   } | null;
   /**
    * The learner's own word that met the beat, to be repeated back: "Poodi."
@@ -136,6 +138,8 @@ export interface ReplyInput {
    * answer to what they asked a minute ago does not open with "sorry".
    */
   readonly landed?: boolean;
+  /** The turn asked them to say it again or slower (`asksSlower`), and nothing in it landed. */
+  readonly asksAgain?: boolean;
   readonly echo: string | null;
   /**
    * Whether `echo` is the learner's word put right rather than repeated: the
@@ -216,6 +220,20 @@ export interface ReplyInput {
    * makes them read as brisk rather than as a slightly smaller number.
    */
   readonly acknowledges: boolean;
+  /** The question asks leave ("Kas ma võin…?"), which a yes answers (`asksPermission`). */
+  readonly permission?: boolean;
+  /** The question names what a beat ahead is about, so "later" is true (`namesLaterBeat`). */
+  readonly askedLater?: boolean;
+  /** Every finite verb form the scene's words hold, so an echo never says a verb back. */
+  readonly finiteForms?: ReadonlySet<string>;
+  /** The word that met the beat is one of the beat's own verbs, which is never said back. */
+  readonly verbAnswer?: boolean;
+  /** The turn asked them to wait ("oota", "ma mõtlen"), read by the caller off the accept-only table. */
+  /** Whether the learner's turn before this one asked them to wait as well. */
+  readonly heldBefore?: boolean;
+  readonly holding?: boolean;
+  /** The turn carried a slip the dictionary could not recast, so nothing of it is said back as it was. */
+  readonly slipped?: boolean;
 }
 
 /**
@@ -281,7 +299,7 @@ export function partsLine(
     const prop = input.card ? propBySlot(input.card, part.slot) : undefined;
     if (!prop?.value) return null;
     if (!part.grammCase) {
-      pieces.push(prop.value);
+      pieces.push(spokenClock(prop.value));
       continue;
     }
     /*
@@ -301,6 +319,21 @@ export function partsLine(
     provenance: "attested",
     ...(from ? { from } : {}),
   };
+}
+
+/**
+ * A clock time as a person writes it in a sentence: `kell 9.30` and `kell 14`
+ * rather than the timetable's `09:30` and `14:00`. The card keeps the
+ * timetable spelling, which is how the learner reads it off a slip, and the
+ * marker takes every spelling either way (`timeSpellings`); what changed is
+ * only what the other side is shown saying, which a reviewer read as a
+ * person reciting a display.
+ */
+export function spokenClock(value: string): string {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(value);
+  if (!m) return value;
+  const hour = String(Number(m[1]));
+  return m[2] === "00" ? hour : `${hour}.${m[2]}`;
 }
 
 /**
@@ -617,6 +650,8 @@ export function sayableAfterHurdles(
   lexicon: Lexicon,
   negators: ReadonlySet<string>,
   scene?: SceneSpec,
+  /** What the learner last said, so a mishearing is never of exactly that. */
+  lastSaid?: string,
 ): readonly string[] {
   const raised = [...state.hurdles.map((h) => h.id), ...(state.hurdle ? [state.hurdle.id] : [])];
   const unsaid = new Set<string>();
@@ -630,7 +665,18 @@ export function sayableAfterHurdles(
     const said = words(line);
     return !said.some((word) => unsaid.has(word)) || said.some((word) => negators.has(word));
   });
-  return scene ? aboutWhatWasSaid(kept, state, scene) : kept;
+  /*
+    A MISHEARING IS OF SOMETHING ELSE. "Te elate linnas, eks?" after "Ma elan
+    linnas." is the other side getting it right and checking, and the
+    learner's "jah" then read as nothing; "Kas pood või kohvik?" after
+    "Kohvik." asks a question the learner just answered. A misheard line
+    naming a word the learner has just said stands down where another is left.
+  */
+  const heard = state.hurdle?.id === "misheard" && lastSaid
+    ? new Set(words(lastSaid).filter((word) => word.length >= 4)) : null;
+  const apart = heard && heard.size > 0 ? kept.filter((line) => !words(line).some((word) => heard.has(word))) : kept;
+  const chosen = apart.length > 0 ? apart : kept;
+  return scene ? aboutWhatWasSaid(chosen, state, scene) : chosen;
 }
 
 /**
@@ -745,6 +791,23 @@ function ownReaction(line: SpokenLine | null): boolean {
  * side handing back somebody's own yes. It was reported as a response that
  * makes zero sense, and it is the echo rule arriving through another door.
  */
+/** The stems of the course's verbs of wanting, and `palun`: a turn holding one asks for something. */
+const WANTING = /^(taha|tahtsin|tahaksin|soovi|vaja|palu)/;
+/** The learner talking about themselves, which is never said back to them (`replyFor`'s echo). */
+const FIRST_PERSON: ReadonlySet<string> = new Set(["ma", "mina", "me", "meie", "mul", "minul", "meil", "minu", "mu"]);
+/** A courtesy or a hedge on an answer, taken off before it is said back: "Teed, palun." is answered "Teed.". */
+const ECHO_TRIM: ReadonlySet<string> = new Set(["palun", "aitäh", "tänan", "vist", "äkki", "ehk", "küll", "ka", "ju", "noh", "no"]);
+/** The words a no is said with, as lemma requests against the course. */
+const NOES: ReadonlySet<string> = new Set(["ei", "pole", "mitte", "ega"]);
+/** An indefinite in their question, and the question word a learner's bare yes is followed up with. */
+const ASKED_FOR: ReadonlyMap<string, string> = new Map([
+  ["midagi", "mida"], ["kedagi", "keda"], ["kuskil", "kus"], ["kusagil", "kus"], ["kuhugi", "kuhu"],
+  ["kuskile", "kuhu"], ["kunagi", "millal"],
+]);
+
+/** The words a thanks is said with: `aitäh`, `tänan`, `tänud`, `tänu`. */
+const THANKS: ReadonlySet<string> = new Set(["aitäh", "tänan", "tänud", "tänu"]);
+
 function acknowledgements(heard: string | null, said: string | null): readonly string[] {
   /*
     A question opening on `kas` is a yes-or-no question unless it offers two
@@ -762,7 +825,34 @@ function acknowledgements(heard: string | null, said: string | null): readonly s
     rather than the reaction going, which is what it did before any of this.
   */
   const theirs = new Set(words(said ?? ""));
-  const fresh = mine.filter((word) => !theirs.has(word));
+  /*
+    AND NO THANKS FOR BEING ASKED FOR SOMETHING. `Aitäh.` is thanks for a fact,
+    and said back to "Ma tahan raha tagasi" it read as the clerk thanking the
+    customer for a demand. A turn that wants something (a form of `tahtma`,
+    `soovima` or `vajama`, or `palun`) is acknowledged with `hästi` instead.
+  */
+  const wants = [...theirs].some((word) => WANTING.test(word));
+  /*
+    AND A NO IS NOT MET WITH A YES OR A THANKS. "Ei, ma ei ole nõus" was
+    acknowledged `Jah.`, and "Ei, see ei sobi" `Aitäh.`: the other side
+    agreeing with, or thanking somebody for, a refusal. A turn holding a no is
+    acknowledged with the word for having understood it, and nothing else.
+  */
+  if ([...theirs].some((word) => NOES.has(word))) return REACTIONS.heard;
+  /*
+    AND A THANKS IS ANSWERED, NOT RETURNED. "Aitäh, ma tulen kell kaks" met
+    `Aitäh.`, two people thanking each other at a counter, or `Hästi.`, which
+    approves of being thanked. What anybody says is "you're welcome".
+  */
+  if ([...theirs].some((word) => THANKS.has(word))) return REACTIONS.welcome;
+  /*
+    AND A YES-OR-NO QUESTION THAT LANDED IS ANSWERED YES. "Kas teil on
+    telefoni?" met the beat it asked, which is the shop having one, and was
+    acknowledged `Hästi.`; what the person on the phone says is `Jah.`.
+  */
+  const theirWords = words(said ?? "");
+  if (theirWords[0] === "kas" && /\?\s*$/.test(said ?? "") && !theirWords.includes(CHOICE_WORD)) return REACTIONS.waiting;
+  const fresh = mine.filter((word) => !theirs.has(word) && !(wants && word === "aitäh"));
   return fresh.length > 0 ? fresh : mine;
 }
 
@@ -784,7 +874,7 @@ function opensWithReaction(line: SpokenLine | null): boolean {
   if (!first) return false;
   const said = new Set<string>([
     ...REACTIONS.acknowledge, ...REACTIONS.heard, ...REACTIONS.waiting, ...REACTIONS.missed, ...REACTIONS.letGo,
-    ...Object.values(FEELINGS).map((f) => f.word),
+    ...REACTIONS.welcome, ...Object.values(FEELINGS).map((f) => f.word),
   ].map((word) => word.toLowerCase().replace(/[.!?]$/, "")));
   return said.has(first);
 }
@@ -1021,7 +1111,11 @@ const ECHO_WORDS = 2;
  * one is the other side handing a learner their own noise, which is the fault
  * `acknowledgements` was corrected for one function up.
  */
-const FLAT_WORDS = new Set<string>([...REACTIONS.acknowledge, ...REACTIONS.waiting, "ei"]);
+const FLAT_WORDS = new Set<string>([
+  ...REACTIONS.acknowledge, ...REACTIONS.waiting, ...REACTIONS.heard, "ei", "palun",
+  // And the words of agreeing, which said back are "Hea." to "Hea küll" and "Olgu." to "Olgu".
+  "hea", "küll", "olgu", "okei", "ok", "nõus", "sobib", "tore", "muidugi", "kindlasti",
+]);
 
 /** The reply, in the order it is said. Empty once the scene is over and nothing is owed. */
 export function replyFor(input: ReplyInput): SpokenLine[] {
@@ -1053,12 +1147,38 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   if (response === "wait") {
     // A line written for this turn already took the word and asked for the rest.
     if (line?.provenance === "composed") return [line];
+    // Asked for a moment, they say all right and give it (`asksToWait`).
+    if (input.holding) return [reaction(input.heldBefore ? REACTIONS.waiting[0] : REACTIONS.letGo[0], ".")];
+    /*
+      AND A WORD THAT ANSWERED ANOTHER QUESTION IS TAKEN, NOT DOUBTED. Asked
+      where it hurts, a patient said `Esmaspäevast.`, which answers how long,
+      and was handed `Esmaspäevast?` as though the receptionist did not believe
+      them. The turn met a beat elsewhere, so they say they have it and ask
+      what they asked again.
+    */
+    if (input.landed && line) return [reaction(REACTIONS.heard[0], "."), line];
     const theirs = input.echo && !/\d/.test(input.echo) && !FLAT_WORDS.has(input.echo)
       ? input.echo
       : null;
+    /*
+      AND NOT `Jah?` TO A `jah`. The look is the waiting word, and where the
+      learner's whole turn was that same word the look is their own word handed
+      back with a question mark, which the critic read as the other side
+      stalling on a learner who had only said yes (FB-5, 21 of its 228 notes).
+      Somebody told "yes" says "got it" and goes on waiting.
+    */
+    const saidWait = plainWord(input.said) === plainWord(REACTIONS.waiting[0]!);
+    /*
+      AND A YES TO "HAVE YOU SEEN ANYTHING GOOD?" IS ASKED WHAT. The question
+      named the thing it wanted with an indefinite (`midagi`, `kuskil`), and
+      somebody told "yes" asks for it with the question word that pairs with
+      it: `Mida?`. Both halves are words the common units teach.
+    */
+    const wanting = saidWait ? words(heard ?? "").map((word) => ASKED_FOR.get(word)).find(Boolean) : undefined;
+    if (wanting) return [reaction(wanting, "?")];
     return [theirs
       ? { ...reaction(theirs, "?"), provenance: "echo" as const }
-      : reaction(REACTIONS.waiting[0], "?")];
+      : saidWait ? reaction(REACTIONS.heard[0], ".") : reaction(REACTIONS.waiting[0], "?")];
   }
 
   /*
@@ -1085,6 +1205,10 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     where nothing did, which is the keyless deployment.
   */
   const composed = line?.provenance === "composed";
+  // Asked to say it again or slower, a person says it again, and nothing in front of it.
+  if (input.asksAgain && !input.landed && heard && !composed && !input.hurdle && response === "narrow") {
+    return [saidAgain(heard)];
+  }
   /*
     AT THE CLOSING BEAT, WHAT IS SAID AGAIN IS THE GOODBYE. A question on the
     way out is answered and the goodbye waits (below), so the last move the
@@ -1113,6 +1237,11 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   if (response === "help") {
     const word = input.offer;
     const offered = word ? { ...reaction(word, "?"), provenance: "offered" as const } : null;
+    // At an offer the offer comes first and then "jah või ei?", since the choice is about it.
+    if (offered && !composed && (answered?.move === "offer" || answered?.counter) && again) {
+      out.push(otherWay ? { text: otherWay, provenance: "scripted" } : sayAgainLine(), offered);
+      return out;
+    }
     if (offered && !composed) out.push(offered);
     /*
       And the question again, unless the word *was* the question: a greeting
@@ -1135,7 +1264,8 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     reaction to it is the same: they did not get what they asked for.
   */
   if (response === "repeat" && (reading === "unrecognised" || reading === "echo") && !composed) {
-    out.push({ ...fallbackLine(FALLBACK_PHRASE, line?.withheld ?? []), reaction: true });
+    // Said as a sentence: the course spells the phrase bare, and a bubble reading `Ma ei saa aru` with no stop reads as cut off.
+    out.push({ ...fallbackLine(FALLBACK_PHRASE + ".", line?.withheld ?? []), reaction: true });
   }
 
   /*
@@ -1174,6 +1304,25 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     "ei tea". It is the reaction, so no echo or "hästi" is stacked on it.
   */
   const aside = input.aside && reading !== "unrecognised" && reading !== "echo" ? input.aside : null;
+  /*
+    A TURN THAT ENDED ON A QUESTION NOTHING ANSWERED GETS NO REACTION WORD.
+    "Kas see on midagi tõsist?" was met with `Aitäh.`, "Kas mul on palavik?"
+    with `Hästi.` and "Kas teie olete eestlane?" with `Tore!`, which read as
+    the other side agreeing to, thanking for or delighting in a question.
+    Where nothing keyless can answer it, a person goes on with what they were
+    doing, and the move that follows is what they say.
+  */
+  const lastSentence = (input.said ?? "").trim().split(/(?<=[.!?])\s+/).pop() ?? "";
+  /*
+    Except a yes-or-no question that was the whole turn and met the beat: "Kas
+    teil on telefoni?" asked what the beat wanted asked, and the answer is the
+    `Jah.` its acknowledgement gives (`acknowledgements`). Beside a statement
+    the question is a second thing ("Kõht valutab. Kas see on midagi tõsist?"),
+    and a yes there would answer it.
+  */
+  const wholeTurn = (input.said ?? "").trim().split(/(?<=[.!?])\s+/).length === 1;
+  const askedWhatWasWanted = wholeTurn && response === "answer" && words(lastSentence)[0] === "kas" && !words(lastSentence).includes(CHOICE_WORD);
+  const unansweredQuestion = !aside && /\?\s*$/.test(lastSentence) && !askedWhatWasWanted;
 
   /*
     AND NEVER "SORRY?" IN FRONT OF AN ANSWER. A turn that missed the beat and
@@ -1182,6 +1331,18 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     itself in one breath, and it was the whole of what a learner read when
     they asked the price at a ticket window.
   */
+  /*
+    AND A TURN THAT ANSWERED A LATER QUESTION IS TAKEN BEFORE THIS ONE IS ASKED
+    AGAIN. Asked what they are good at, a candidate said they could start on
+    Monday; that was credited, and the interviewer asked the same thing again
+    with no sign of having heard. "Selge, aga" says both.
+  */
+  if ((response === "narrow" || response === "repeat") && input.landed && reading === "complete"
+      && !ownReaction(line) && !aside && !/\?\s*$/.test(input.said ?? "")) {
+    const heardIt = reaction(REACTIONS.heard[0], ".");
+    BUT_NEXT.add(heardIt);
+    out.push(heardIt);
+  }
   if ((response === "narrow" || response === "repeat") && reading === "offtarget"
       && !input.landed && !ownReaction(line) && !aside) {
     /*
@@ -1193,7 +1354,41 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       `Selge.` says "got it", and the question that follows
       says what is still wanted. `Vabandust!` stays for a turn nobody could read.
     */
-    out.push(reaction(REACTIONS.heard[0], "."));
+    /*
+      AND A QUESTION THE SCENE HAS NO ANSWER FOR IS PUT OFF, NOT IGNORED.
+      "Mida te soovitate?" asked while the waiter is still seating people got
+      "Selge, aga kui palju teid on?", which is a person who heard the question
+      and walked past it. `Hiljem.` ("later") says it was heard and will come,
+      then the question in front is asked; a course word every scene teaches.
+    */
+    const askedSomething = /\?\s*$/.test(input.said ?? "");
+    /*
+      AND ONLY WHERE "LATER" IS TRUE. A "may I?" gets the yes it asks for
+      (`asksPermission`), a question about something a beat ahead covers is put
+      off (`namesLaterBeat`), and any other question gets no word in front of
+      the question that follows: "Hiljem." to "Kas arst on täna siin?" was a
+      promise nothing in the scene keeps.
+    */
+    if (!askedSomething && answersTheirYesNo(heard, input.said)) {
+      /*
+        A YES OR A NO TO THEIR OWN YES-OR-NO QUESTION IS AN ANSWER, EVEN WHERE
+        THE BEAT WAITS ON SOMETHING ELSE. "Kas kõik oli hea?" answered "Jah,
+        väga hea, aitäh" was met with "Selge, aga kas kõik oli hea?", the waiter
+        asking what they had just been told. They are glad, or say got it, and
+        leave the floor to the learner, whose goal is on the screen.
+      */
+      const felt = beat?.feel ? FEELINGS[beat.feel] : null;
+      const said = felt ? reaction(felt.word, felt.mark) : reaction(REACTIONS.heard[0], ".");
+      if (felt) FELT.add(said);
+      out.push(said);
+      return out;
+    }
+    if (!askedSomething) {
+      const heardIt = reaction(REACTIONS.heard[0], ".");
+      BUT_NEXT.add(heardIt);
+      out.push(heardIt);
+    } else if (input.permission) out.push(reaction(REACTIONS.waiting[0], "."));
+    else if (input.askedLater) out.push(reaction(REACTIONS.later[0], "."));
   }
 
   /*
@@ -1272,7 +1467,38 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       bare word first ("Tahtma.") read as the other side blurting a lemma.
     */
     const worth = !composed && (input.recast || input.english || brief);
-    const echo = worth && input.echo && !/\d/.test(input.echo) && !flat.has(input.echo) ? input.echo : null;
+    /*
+      AND THE WHOLE OF A SHORT ANSWER, NOT ONE WORD OUT OF IT. "Kooli juures"
+      came back "Kooli.", "Ainult mina." as "Mina." and "Eelmisel nädalal" as
+      "Nädalal.": the word that met the beat, cut out of the phrase that gave
+      it its meaning, which reads as the other side mishearing. A two-word
+      answer with nothing to correct is said back as it was said.
+    */
+    /*
+      AND NOT ANYTHING A PERSON WOULD NOT SAY BACK. Round two of the keyless
+      review counted them: a question handed back as a statement ("Aga
+      sina."), the learner's own first person ("Ma tulen.", "Ma mõtlen."), a
+      courtesy or a hedge kept on ("Teed, palun.", "Vist esmaspäeval."), a verb
+      ("Lugesin ajalehest."), and a slip said back uncorrected ("Ma täitma.").
+      What is said back is the answer, with the courtesy and the hedge taken
+      off, and only where nothing else in the turn is the learner talking
+      rather than answering.
+    */
+    const turnWords = input.said === null ? [] : words(input.said);
+    const asking = /\?\s*$/.test(input.said ?? "");
+    // The answering word itself is never the evidence: "teed" is tea and also "sa teed".
+    const answerWord = input.echo?.toLowerCase();
+    const speaking = turnWords.some((word) => FIRST_PERSON.has(word)
+      || (word !== answerWord && (input.finiteForms?.has(word) ?? false)));
+    const bare = turnWords.filter((word) => !ECHO_TRIM.has(word));
+    const whole = !input.recast && !input.english && !input.slipped && brief && bare.length > 1 && !asking && !speaking
+      && input.said && !/\d/.test(input.said) && !bare.some((word) => flat.has(word))
+      ? bare.join(" ") : null;
+    // And not the verb the beat asked for: "Võtan." back to "võtan" is the learner's own sentence, said again.
+    const single = input.echo && !/\d/.test(input.echo) && !flat.has(input.echo) && !input.verbAnswer
+      ? input.echo : null;
+    const plainEcho = !asking && !speaking && !input.slipped ? whole ?? single : null;
+    const echo = !worth ? null : input.recast || input.english ? single ?? input.echo : plainEcho;
     if (echo) {
       out.push({
         text: echo.charAt(0).toUpperCase() + echo.slice(1) + ".",
@@ -1299,7 +1525,9 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
         rather than run through `ownReaction`.
       */
       out.push(reaction(REACTIONS.missed[0], "."));
-    } else if (!aside && input.acknowledges && response === "answer" && !ownReaction(line)) {
+    } else if (!aside && input.acknowledges && response === "answer" && !ownReaction(line)
+        // A question nothing answered is not acknowledged "Hästi.", which reads as agreeing to it.
+        && !unansweredQuestion) {
       /*
         NEWS IS FELT BEFORE IT IS FILED. Where the beat says what kind of news
         its answer is, the word is the feeling's rather than the rotation's:
@@ -1308,11 +1536,33 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
         that landed, because a feeling about an answer nobody gave is the
         machine showing through the other way (`feltAt`).
       */
+      /*
+        AND GOOD NEWS IS NOT GOOD WITH A NO IN IT. "Ei olnud hea" to "how was
+        your weekend?" met `Tore!`, which is gladness at a bad weekend. A glad
+        beat answered with a no is taken in with `Selge.`, which is never
+        wrong about which way the news went.
+      */
+      const negated = words(input.said ?? "").some((word) => NOES.has(word));
       const felt = feltAt(answered, response);
-      if (felt) out.push(reaction(FEELINGS[felt].word, FEELINGS[felt].mark));
+      const feeling = negated && felt === "glad" ? "noted" : felt;
+      if (feeling) {
+        const felt = reaction(FEELINGS[feeling].word, FEELINGS[feeling].mark);
+        FELT.add(felt);
+        out.push(felt);
+      }
+      /*
+        AND NOT "AITÄH." TO A TIME THEY ARE ABOUT TO REFUSE. Told yes to the
+        appointment, the receptionist said `Aitäh. Seda aega enam ei ole.`,
+        thanking the patient for a slot that had just gone. A curveball that
+        refuses comes straight after the answer it refuses.
+      */
+      else if (input.hurdle?.fresh && input.hurdle.beat.move === "refuse") { /* nothing before the refusal */ }
       else {
+        // An instruction or a fact read back correctly is confirmed, "Jah.", never thanked: the doctor said `Aitäh.` to the dose.
         const choices = acknowledgements(heard, input.said);
-        out.push(reaction(choices[input.met % choices.length] ?? REACTIONS.acknowledge[0], "."));
+        const readBack = (answered?.move === "confirm" || answered?.move === "instruct") && !words(input.said ?? "").includes("jah");
+        const pool = readBack ? REACTIONS.waiting : choices;
+        out.push(reaction(pool[input.met % pool.length] ?? REACTIONS.acknowledge[0], "."));
       }
     }
   }
@@ -1323,9 +1573,26 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     and then `See maksab nüüd 2 eurot.`, which is one fact said twice: the
     curveball's line already answers the question, so the answer stands down.
   */
-  const figures = aside?.text.match(/\d+/g) ?? [];
-  const statedNext = Boolean(input.hurdle?.line) && figures.length > 0
-    && figures.every((n) => new RegExp(`(^|\\D)${n}(\\D|$)`).test(input.hurdle!.line!.text));
+  /*
+    AND NOT A FIGURE THE LINE IT STANDS IN FRONT OF SAYS ANYWAY. Asked when
+    the shop opens, the keyless answer said `Kell 10:00.` and the line said
+    again after it was `Avame homme kell 10.`: one fact, twice, in two
+    spellings. Whole hours are compared without their `:00`, which is the
+    one difference between those two.
+  */
+  const figures = aside?.text.replace(/[:.]00(?!\d)/g, "").match(/\d+/g) ?? [];
+  const holds = (text: string | undefined | null) => Boolean(text) && figures.length > 0
+    && figures.every((n) => new RegExp(`(^|\\D)${n}(\\D|$)`).test(text!));
+  // A yes or a no in front of the figure is a verdict on what they said, which the line after it does not repeat.
+  const verdict = /^(ei|jah)\b/i.test(aside?.text ?? "");
+  /*
+    Not the line they were answering, though: asked "Kui palju?" straight
+    after `See maksab nüüd 4 eurot.`, a clerk says the price again, since being
+    asked is the reason to, and the clerk went on to "card or cash?" as though
+    nothing had been asked.
+  */
+  const statedNext = holds(input.hurdle?.line?.text)
+    || (!verdict && aside?.provenance !== "scripted" && holds(line?.text));
   if (aside && !statedNext) out.push({ ...aside, reaction: true });
 
   /*
@@ -1361,8 +1628,33 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       rotation this could come out as `Aitäh.` or `Jah.`, the other side
       thanking somebody for an answer they never gave.
     */
-    if (input.offer) out.push({ ...reaction(input.offer, "?"), provenance: "offered" });
-    else out.push(reaction(REACTIONS.letGo[0], "."));
+    /*
+      Except the goodbye, where it has already been said on this beat: the
+      farewell handed over as the word is a second goodbye to somebody the
+      other side has already said goodbye to (`Nägemist!`, then `Head aega!`),
+      and the one already said is what ends the conversation (FB-5).
+    */
+    const byeSaid = answered?.move === "close" && heard !== null && isFarewell(heard, answered);
+    /*
+      And where the learner's own turn said goodbye, the goodbye is said back
+      rather than the word they left out: told "Aitäh, head aega" without the
+      sorry, the neighbour answered "Vabandust!" and walked off (FB-5).
+    */
+    const theirBye = answered?.move === "close" ? FAREWELLS.find((bye) => plainWord(input.said).includes(plainWord(bye))) : undefined;
+    if (byeSaid) { /* the goodbye already said stands */ }
+    else if (theirBye) out.push({ text: theirBye, provenance: "attested" });
+    /*
+      AND NOT THE BARE WORD ON THE WAY PAST. `Pea?` said to somebody who had
+      just described a stomach ache, `Kinni?` and `Kuu?` were read by every
+      reviewer as the other side blurting a noun: on the way past it is a
+      question nobody is waiting for an answer to. The word is handed over
+      where the learner said they were lost (`help`, above), the app says in
+      English what was wanted once they are stuck (`coachFor`), and the
+      review after the scene names every beat let go; here the other side
+      only says it is moving on.
+    */
+    // Not to a question: "Hästi." said to "kas te olete laupäeval avatud?" reads as a yes nobody gave.
+    else if (!unansweredQuestion) out.push(reaction(REACTIONS.letGo[0], "."));
   }
 
   /*
@@ -1387,9 +1679,24 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   */
   if (!beat) {
     const last = out.at(-1)?.text;
-    if (answered?.move === "close" && line && line.provenance !== "fallback"
-        && line.text.toLowerCase() !== last?.toLowerCase() && !(last !== undefined && isFarewell(last, answered))) {
-      out.push(line);
+    /*
+      A GOODBYE IS ANSWERED WITH A GOODBYE. Where the learner said one and the
+      closing beat's own line is not one, the line said back was the beat's
+      remark: at the stairwell the learner said "Aitäh, vabandust, head aega"
+      and the neighbour answered "Nii, kott on sees.", walking off without a
+      word (FB-5). The goodbye they used, or the course's first, is said back
+      instead; it is a phrase every scene teaches, so nothing is written here.
+    */
+    let closing = line;
+    if (answered?.move === "close" && closing && !isFarewell(closing.text, answered)) {
+      const theirs = FAREWELLS.find((bye) => plainWord(input.said).includes(plainWord(bye)));
+      if (theirs) closing = { text: theirs, provenance: "attested" };
+    }
+    if (answered?.move === "close" && closing && closing.provenance !== "fallback"
+        && closing.text.toLowerCase() !== last?.toLowerCase() && !(last !== undefined && isFarewell(last, answered))
+        // Nor where the goodbye was already said on the closing beat, a turn or two ago (FB-5).
+        && !(heard !== null && isFarewell(heard, answered))) {
+      out.push(closing);
     }
     return out;
   }
@@ -1401,6 +1708,17 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     again where the learner did not answer it, like any other move.
   */
   if (input.hurdle) {
+    /*
+      THE BREAK IN TIME COMES FIRST. A curveball standing in front of a beat
+      that walks the learner somewhere took the beat's place on the screen, and
+      the line saying where they now were went with it: "Part three, a phone
+      call" was never printed, and the school answering the phone read as a
+      greeting in the middle of an examination. Time passes, then the thing
+      goes wrong.
+    */
+    if (input.hurdle.fresh && beat.meanwhile && beat !== answered && input.arriving) {
+      out.push({ text: stageFor({ ...beat, they: beat.meanwhile }, card), provenance: "meanwhile" });
+    }
     // A line composed for this turn wins over the repeat here too, and for its reason.
     if (input.hurdle.line?.provenance === "composed") out.push(input.hurdle.line);
     else if (sayAgainWanted(response, reading, heard)) out.push(saidAgain(heard!));
@@ -1483,6 +1801,17 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     above says it back.
   */
   if (beat.move === "close" && aside) return out;
+
+  /*
+    "DO YOU SPEAK ENGLISH?" IS A QUESTION, AND IT IS ANSWERED. Everybody asks
+    it in their first month, and the other side used to say its own line again
+    as though nothing had been asked. `Natuke.` ("a little") is what most
+    people behind a counter here would say, it is a word every scene teaches
+    (`maaramine`), and the question that follows stays in Estonian, which is
+    the honest version of "a little": the helpful persona adds the English
+    under it, as before.
+  */
+  if (response === "english" && input.askedForEnglish && !composed) out.push(reaction(REACTIONS.aLittle[0], "."));
 
   const narrowed = input.tries === NUDGE_AFTER && !advancing(response) && !composed ? input.choice : null;
   if (narrowed) {
@@ -1574,6 +1903,21 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   }
 
   /*
+    AND A GOODBYE IS SAID ONCE. At the closing beat the move is the farewell,
+    and a turn that missed it (a bare `jah` where the goal is to thank them)
+    had the farewell said again, and again on the next miss: a bus driver read
+    `Selge. Nägemist!` twice after the first `Nägemist!`, which the critic
+    read as somebody saying goodbye to a passenger still on the bus (FB-5).
+    Somebody who has said goodbye and hears one more word nods; the reaction
+    is that nod, and the goodbye already said stands. The learner can still
+    thank them, which is what meets the beat.
+  */
+  if (beat.move === "close" && !advancing(response) && again !== null && isFarewell(again, beat)) {
+    const last = out.at(-1);
+    if (last && out.length > 1 && isFarewell(last.text, beat)) out.pop();
+  }
+
+  /*
     AND NEVER THE SAME LINE TWICE IN ONE BREATH. "Vabandust, mida?" on a beat
     it does not answer is a miss that asked a question: the line comes back as
     the answer to the question and then again as the move, and the keyless
@@ -1584,6 +1928,20 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   const said = out.at(-1);
   const before = out.at(-2);
   if (said && before && before.reaction && before.text === said.text) out.splice(out.length - 2, 1);
+
+  /*
+    "GOT IT, BUT" IS ONE SENTENCE. `Selge.` on its own and then the same
+    question again was the commonest line in every keyless transcript, and
+    the reviewers read it as the other side saying it understood and then
+    behaving as though it had not: "got it" closes a point, and the question
+    after it reopens the same one. What a person says is `Selge, aga kus teil
+    valutab?`, which is the word for having understood and the word for "the
+    thing I asked is still open" in one breath, both words every scene
+    teaches. Joined only where the line opens on a word that is never a name
+    (`OPENS_LOWER`), since lowering the first letter of a sentence that opens
+    on `Tallinna?` would be this module misspelling a place.
+  */
+  butAfterHeard(out);
 
   /*
     A helpful persona translates the question for somebody who wrote English
@@ -1602,11 +1960,33 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
  * closing beat takes as one, compared on its letters so `Head aega` offered
  * with a question mark is the same goodbye as `Head aega!`.
  */
+/**
+ * Goodbyes a line may end on that the course does not teach as phrases, read
+ * and never said: a closing line ending "Head päeva!" was not taken for a
+ * goodbye, so a second one followed the learner's thanks.
+ */
+const HEARD_FAREWELLS: readonly string[] = [
+  "head päeva", "head õhtut", "head ööd", "head nädalavahetust", "kõike head", "ilusat päeva", "ilusat õhtut",
+];
+
 function isFarewell(text: string, close: BeatSpec): boolean {
   const letters = (s: string) => (s.match(/\p{L}+/gu) ?? []).join(" ").toLowerCase();
   const said = letters(text);
   const goodbyes = [...FAREWELLS, ...leafNeeds(close.needs).flatMap(({ need }) => (need.kind === "lemma" ? need.oneOf : []))];
-  return said.length > 0 && goodbyes.some((bye) => letters(bye) === said);
+  if (said.length > 0 && goodbyes.some((bye) => letters(bye) === said)) return true;
+  /*
+    A SENTENCE OF THE LINE IS ENOUGH. "Väga tore, aitäh! Me anname teada. Head
+    aega!" ends on a goodbye and was not read as one, because the whole line
+    had to be a farewell, so the interviewer said a second closing line after
+    the learner's thanks. A farewell standing as a sentence of its own counts;
+    thanks does not, since "aitäh" inside a line is gratitude, not leaving.
+  */
+  const leaving = [...FAREWELLS.map(letters), ...HEARD_FAREWELLS];
+  return text.split(/(?<=[.!?])\s+/).some((sentence) => {
+    const its = letters(sentence);
+    // "Aitäh, head aega!" ends on one, which is leaving with thanks in front.
+    return leaving.some((bye) => its === bye || its.endsWith(` ${bye}`));
+  });
 }
 
 /**
@@ -1645,6 +2025,11 @@ const ENGLISH_LINES: ReadonlySet<string> = new Set(
 );
 export function saidAgain(text: string): SpokenLine {
   return { text, provenance: ENGLISH_LINES.has(text) ? "english" : "again" };
+}
+
+/** A turn or a word reduced to its letters, for asking whether a turn was one word. */
+function plainWord(text: string | null | undefined): string {
+  return (text ?? "").toLowerCase().match(/\p{L}+/gu)?.join(" ") ?? "";
 }
 
 function sayAgainWanted(
@@ -1696,6 +2081,73 @@ export function stageFor(
  */
 export function feltAt(answered: BeatSpec | null, response: Response | null): Feel | undefined {
   return response === "answer" && answered?.feel ? answered.feel : undefined;
+}
+
+/**
+ * Words a re-asked line may open on that are never a name, so its first
+ * letter may be lowered after `Selge, aga`: the question words, the pronouns
+ * and the polite opener. A line opening on anything else keeps `Selge.` as a
+ * sentence of its own rather than risk lowering a place or a person.
+ */
+const OPENS_LOWER = new Set([
+  "kus", "kuhu", "kust", "mis", "mida", "millal", "kas", "kui", "kuidas", "kes", "keda", "kellele", "kelle",
+  "mitu", "milline", "millist", "mille", "millega", "miks", "kaua", "mitmendal", "mitmes", "palun", "aga",
+  // Every case of the question words, since a question opens on whichever the beat asks: "Selge, aga milles te tugev olete?".
+  "milles", "millest", "millesse", "millel", "millelt", "millele", "milleks", "milleni", "milleta", "millise", "milliseid",
+  "kellega", "kellel", "kellelt", "kellest", "kellesse", "kelleks", "mitmenda", "mitmendat",
+  "ma", "mina", "sa", "sina", "te", "teie", "me", "meie", "ta", "tema", "mul", "sul", "teil", "meil", "tal",
+  "see", "seda", "siin", "seal", "nüüd", "ja", "kell", "jah", "ei",
+]);
+
+/*
+  ONLY THE "GOT IT" THAT IS FOLLOWED BY THE SAME QUESTION AGAIN. `Selge.` is
+  also what a beat's own `feel: "noted"` says after an answer that landed, and
+  joining that one to the next beat's question read every correct answer as an
+  objection: "Ma olen poes." answered "Selge, aga mis sa ostad?". So the join
+  is offered only to the reaction the off-target branch pushes, which is the
+  one whose next line reopens a point the learner has not closed.
+*/
+const BUT_NEXT = new WeakSet<SpokenLine>();
+
+/**
+ * The reactions that are a feeling about the answer (`FEELINGS`), which is the
+ * one kind a person does not say at the top of every turn. "Got it, but" and a
+ * plain acknowledgement are not in it: those say how the turn went.
+ */
+const FELT = new WeakSet<SpokenLine>();
+export function isFelt(line: SpokenLine): boolean {
+  return FELT.has(line);
+}
+
+/**
+ * Openers the join may never lower into: an `aga` would say "aga" twice and
+ * a yes or a no is an answer of its own rather than the question reopened.
+ */
+const NEVER_JOINED = new Set(["aga", "jah", "ei", "ja", "palun", "see"]);
+
+/** Whether the turn is a yes or a no to the yes-or-no question the other side last asked. */
+export function answersTheirYesNo(heard: string | null, said: string | null): boolean {
+  if (!heard || !said) return false;
+  const question = heard.split(/(?<=[.!?])\s+/).reverse().find((sentence) => /\?\s*$/.test(sentence)) ?? "";
+  const asked = words(question);
+  if (asked[0] !== "kas" || asked.includes(CHOICE_WORD)) return false;
+  const reply = words(said);
+  return reply.length > 0 && (reply[0] === "jah" || reply[0] === "jaa" || reply[0] === "ei");
+}
+
+function butAfterHeard(out: SpokenLine[]): void {
+  for (let i = 0; i < out.length - 1; i++) {
+    const first = out[i]!;
+    const next = out[i + 1]!;
+    if (!BUT_NEXT.has(first) || next.reaction) continue;
+    if (!(["again", "scripted", "attested"] as const).some((p) => p === next.provenance)) continue;
+    const opener = (next.text.match(/^\p{L}+/u)?.[0] ?? "").toLowerCase();
+    if (!OPENS_LOWER.has(opener) || NEVER_JOINED.has(opener)) continue;
+    // Only onto a question, which is what "the thing I asked is still open" reopens: "Selge, aga me ootame siin juba nii kaua." is not.
+    if (!/\?\s*$/.test(next.text)) continue;
+    const butWord = first.text.slice(0, -1);
+    out.splice(i, 2, { ...next, text: `${butWord}, aga ${next.text.charAt(0).toLowerCase()}${next.text.slice(1)}` });
+  }
 }
 
 export function reaction(lemma: string, mark: "." | "?" | "!"): SpokenLine {

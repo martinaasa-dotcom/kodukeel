@@ -34,6 +34,7 @@ import { wordGlossFrom } from "@/lib/ux/wordGloss";
 import { clip } from "@/lib/copy/clip";
 import { NO_STORE } from "@/lib/security/headers";
 import { composeTurn, planTurn, speakTurn, type TurnAsk } from "@/lib/progress/sceneTurn";
+import { picksFor } from "@/lib/scenes/picks";
 
 /**
  * One line of one turn, walked up the ladder.
@@ -184,6 +185,7 @@ export async function POST(request: Request) {
           beatId: textField(one.beatId, 64),
           said: textField(one.said, MAX_TURN_CHARS),
           helped: one.helped === true,
+          ...(one.picked === true ? { picked: true } : {}),
           heard: textField(one.heard, MAX_TURN_CHARS),
           conceded: concededOf(one.conceded),
           alsoDone: alsoDoneOf(one.alsoDone),
@@ -454,6 +456,14 @@ export async function POST(request: Request) {
     /* Beats further along the judge said this turn met, for the client to echo like `conceded`. */
     alsoDone: turns[turns.length - 1]?.alsoDone ?? null,
     chosen,
+    /*
+      THE LINES THE LEARNER MAY PICK INSTEAD OF TYPING (`lib/scenes/picks.ts`):
+      two or three right answers to the beat standing now, built off this run's
+      card and the scene's own dictionary. Sent on every turn so the screen can
+      offer them whichever way the learner is answering; empty once the scene
+      is over. A picked line comes back as an ordinary turn marked `picked`.
+    */
+    picks: isOver(scene, state) ? [] : picksFor(scene, standing ?? current, card, marking.lexicon),
     /*
       WHAT HAS COME UP, WHICH THE SCREEN CANNOT WORK OUT FOR ITSELF.
 

@@ -238,3 +238,29 @@ Corrections come back the same way they would for the full files:
 
 Neither file marks a language as reviewed, and nothing in a commit or a document may describe one as
 reviewed until a fluent reader has said so (`REVIEWED` above).
+
+### A sheet instead of line numbers
+
+`npx tsx scripts/export-translations.ts --csv` writes the same lines as `ru.csv` and `uk.csv`
+(into `translation-review/`, or `--out`), one row per line with its exact area key and three empty
+columns: `ok` for a line that is right as it stands, `correction` for one that is not, and `why`.
+Add `--since <git ref>` for only the lines that moved. A filled sheet goes back in one command:
+
+```
+npm run apply:translation-review -- ru.csv            # what it would do
+npm run apply:translation-review -- ru.csv --write    # do it
+```
+
+A correction replaces the translation in every area file holding that English and rebuilds the
+tables; a row is refused, with the reason printed, where the line has changed since the sheet was
+written, where a `{slot}` was lost, or where an Estonian letter or a long dash crept in. Each
+confirmed or corrected line is recorded in `docs/translations/confirmed.json`, and the count below
+is rewritten from it. The count is evidence a reader has been through the lines; it is not
+`REVIEWED`, which only a commit naming the reader sets.
+
+<!-- confirmed-lines:start -->
+Lines a fluent reader has confirmed or corrected, counted by `npm run apply:translation-review` from
+`docs/translations/confirmed.json` against the tables as they stand: a line counts only while it still reads
+the way it was confirmed. Russian: 39 of 12186. Ukrainian: 39 of 12248.
+This count is not `REVIEWED`, which only a commit naming the reader sets.
+<!-- confirmed-lines:end -->

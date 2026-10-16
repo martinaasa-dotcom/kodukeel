@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { useModuleFocus } from "@/components/course/moduleFocus";
+import { usePublicReader } from "@/components/PublicReader";
 
 /**
  * A WORD THAT OPENS ITS OWN ENTRY, OR JUST THE WORD INSIDE A MODULE.
@@ -44,7 +45,9 @@ export function WordLink({ lemma, className = "", linkClass = "", style, lang = 
   children: ReactNode;
 }) {
   const focus = useModuleFocus();
-  if (focus) return <span lang={lang} className={className} style={style}>{children}</span>;
+  // A reader with no account is not let into the dictionary, so the word is just the word (FB-8).
+  const publicReader = usePublicReader();
+  if (focus || publicReader) return <span lang={lang} className={className} style={style}>{children}</span>;
   return (
     <Link
       href={`/dictionary?q=${encodeURIComponent(lemma)}`}

@@ -17,20 +17,20 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `soovitus`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "soovitus", beat: "seen", text: "Kas sa oled midagi head näinud?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "soovitus", beat: "seen", text: "Mis huvitavat sa viimasel ajal näinud oled?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "soovitus", beat: "like", text: "Milline see oli?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "soovitus", beat: "like", text: "Kas see oli hea?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "soovitus", beat: "compare", text: "Kas see oli parem kui eelmine?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "soovitus", beat: "compare", text: "Kas eelmine oli parem?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "soovitus", beat: "recommend", text: "Kas ma peaksin seda nägema?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "soovitus", beat: "recommend", text: "Kas sa soovitad seda?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "soovitus", beat: "hurdle:faster", text: "Mul on kiire, räägi kohe.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "soovitus", beat: "hurdle:faster", text: "Kiire on, räägi kohe.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "soovitus", beat: "hurdle:interrupted", text: "Üks minut, palun.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "soovitus", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "soovitus", beat: "hurdle:contradiction", text: "Ei, see oli igav.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "soovitus", beat: "hurdle:contradiction", text: "Ei, eelmine oli parem.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "soovitus", beat: "seen", text: "Kas sa oled viimasel ajal midagi head näinud või lugenud?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "soovitus", beat: "seen", text: "Mis huvitavat sa viimasel ajal näinud oled?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "soovitus", beat: "like", text: "Milline see oli?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "soovitus", beat: "like", text: "Kuidas see sulle meeldis?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "soovitus", beat: "compare", text: "Kas see oli parem kui eelmine?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "soovitus", beat: "compare", text: "Kas eelmine oli parem?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "soovitus", beat: "recommend", text: "Kas see meeldiks mulle ka?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "soovitus", beat: "recommend", text: "Kas sa soovitad seda?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "soovitus", beat: "hurdle:faster", text: "Mul on kiire, räägi kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "soovitus", beat: "hurdle:faster", text: "Kiire on, räägi kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "soovitus", beat: "hurdle:interrupted", text: "Üks minut, palun.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "soovitus", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "soovitus", beat: "hurdle:contradiction", text: "Aga ma kuulsin, et see on igav.", model: "authored", draftedAt: "2026-10-15", about: "like", reviewedAt: "2026-10-16" },
+  { scene: "soovitus", beat: "hurdle:contradiction", text: "Aga eelmine oli ju parem, eks?", model: "authored", draftedAt: "2026-10-15", about: "compare", reviewedAt: "2026-10-16" },
 ];
 
 export default LINES;

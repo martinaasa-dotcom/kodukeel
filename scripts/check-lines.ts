@@ -16,12 +16,8 @@
  * thing rather than a promise.
  */
 import { readFileSync } from "node:fs";
-import { SCENES, FALLBACK_PHRASE } from "../lib/scenes/catalogue";
-import { gateFor, runGate } from "../lib/scenes/gate";
-import { words } from "../lib/scenes/lexicon";
-import { beatById } from "../lib/scenes/scripted";
-import { answerForms, keylessContext, lacksFiniteVerb } from "./lib/sceneDraft";
 import { installMeter } from "./lib/meter";
+import { lineRefusals } from "./lib/lineCheck";
 
 // What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay on, because it reads transcripts, so a turn asked before is answered from the record.
 installMeter({ replay: true });
@@ -32,20 +28,10 @@ if (!file) {
   process.exit(1);
 }
 const rows = JSON.parse(readFileSync(file, "utf8")) as [string, string, string][];
-const contexts = new Map(SCENES.map((scene) => [scene.id, keylessContext(scene)]));
 let failed = 0;
 for (const [sceneId, beatId, text] of rows) {
-  const scene = SCENES.find((s) => s.id === sceneId);
-  const beat = scene ? beatById(scene, beatId) : undefined;
-  if (!scene || !beat) { console.log(`??   ${sceneId}/${beatId}: no such beat`); failed++; continue; }
-  const context = contexts.get(scene.id)!;
-  const verdict = runGate(text, beat, gateFor(beatId, context.gate));
-  const why = verdict.failed.map((f) => (f === "vouching" ? `vouching [${verdict.unknown.join(" ")}]` : f));
-  if (/\d/.test(text)) why.push("digit");
-  if (/[–—:;]/.test(text)) why.push("dash or colon");
-  if (words(text).some((w) => answerForms(beat, context.lexicon).has(w))) why.push("hands over the answer");
-  if (lacksFiniteVerb(text, beat)) why.push("no finite verb");
-  if (words(text).join(" ") === words(FALLBACK_PHRASE).join(" ")) why.push("the way out");
+  const why = lineRefusals(sceneId, beatId, text);
+  if (why[0] === "no such beat") { console.log(`??   ${sceneId}/${beatId}: no such beat`); failed++; continue; }
   if (why.length > 0) failed++;
   console.log(`${why.length ? "FAIL" : "ok  "} ${sceneId}/${beatId}: ${text}${why.length ? "   <- " + why.join(", ") : ""}`);
 }

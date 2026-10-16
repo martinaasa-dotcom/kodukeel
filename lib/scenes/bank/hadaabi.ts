@@ -17,20 +17,24 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `hadaabi`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "hadaabi", beat: "greet", text: "Hädaabi, kuulan.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "hadaabi", beat: "greet", text: "Hädaabi. Tere, kuulan.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "hadaabi", beat: "what", text: "Mis juhtus?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "hadaabi", beat: "what", text: "Mis on juhtunud?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "hadaabi", beat: "where", text: "Kus te praegu olete?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "hadaabi", beat: "where", text: "Mis aadressil te olete?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "hadaabi", beat: "hurt", text: "Kas ta saab seista?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "hadaabi", beat: "hurt", text: "Kas ta saab ise seista?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "hadaabi", beat: "wait", text: "Kiirabi tuleb kohe. Palun jääge sinna.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "hadaabi", beat: "wait", text: "Abi on teel. Palun oodake seal, kus te olete.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "hadaabi", beat: "hurdle:faster", text: "Öelge kohe aadress, palun.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "hadaabi", beat: "hurdle:faster", text: "Rääkige kohe, mis juhtus.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "hadaabi", beat: "hurdle:misheard", text: "Kas te olete kooli või poe juures?", model: "authored", draftedAt: "2026-10-15", about: "where" },
-  { scene: "hadaabi", beat: "hurdle:misheard", text: "Kas ta lõi pead või selga?", model: "authored", draftedAt: "2026-10-15", about: "what" },
+  { scene: "hadaabi", beat: "greet", text: "Hädaabi, kuulan.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "hadaabi", beat: "greet", text: "Hädaabi. Tere, kuulan.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "hadaabi", beat: "what", text: "Mis juhtus?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "hadaabi", beat: "what", text: "Mis on juhtunud?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "hadaabi", beat: "part", text: "Mis tal valutab?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "hadaabi", beat: "part", text: "Kus tal valu on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "hadaabi", beat: "where", text: "Kus te praegu olete?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "hadaabi", beat: "where", text: "Kus te täpselt olete?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "hadaabi", beat: "house", text: "Mis on maja number?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "hadaabi", beat: "house", text: "Maja number, palun?", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
+  { scene: "hadaabi", beat: "hurt", text: "Kas ta saab seista?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "hadaabi", beat: "hurt", text: "Kas ta saab ise seista?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "hadaabi", beat: "wait", text: "Kiirabi tuleb kohe. Palun jääge sinna.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "hadaabi", beat: "wait", text: "Abi on teel. Palun oodake seal, kus te olete.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "hadaabi", beat: "hurdle:faster", text: "Palun rääkige kiiresti.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "hadaabi", beat: "hurdle:faster", text: "Kiiresti, palun!", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "hadaabi", beat: "hurdle:misheard", text: "Kiriku juures, jah?", model: "authored", draftedAt: "2026-10-15", about: "where", reviewedAt: "2026-10-16" },
+  { scene: "hadaabi", beat: "hurdle:misheard", text: "Kas tal valutab kõht?", model: "authored", draftedAt: "2026-10-15", about: "part", reviewedAt: "2026-10-16" },
 ];
 
 export default LINES;

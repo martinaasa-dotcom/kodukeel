@@ -33,6 +33,8 @@ import {
   CLOCK_LEMMA, HOUR_LEMMAS, NUMBER_LEMMAS, dealtHours, numberWords, slotKinds, timeWords, type RoleCard,
 } from "@/lib/scenes/props";
 import { leafNeeds, type BeatSpec, type SceneSpec } from "@/lib/scenes/types";
+import { SYLLABUS } from "@/lib/collections/syllabus";
+import { readableSpellings } from "@/lib/estonian/gapForms";
 import { isPhrase } from "@/lib/dict/pos";
 import { courseForms } from "@/lib/dict/facts";
 import { substitutes } from "@/lib/dict/acceptFacts";
@@ -48,10 +50,10 @@ import {
   type Objectives, type Response, type SceneState, type TurnRecord, advanceHurdle, hurdleBeat, raiseHurdle,
   type HurdleRecord,
 } from "@/lib/scenes/state";
-import { gradesFor, stalledWords, type SceneGrade } from "@/lib/scenes/grades";
+import { OFFER_CHOICE, gradesFor, offerFor, stalledWords, type SceneGrade } from "@/lib/scenes/grades";
 import { reviewOf, type SceneReview } from "@/lib/scenes/review";
 import { recapOf, type SceneRecap } from "@/lib/scenes/recap";
-import { addsEvidence, concede, readTurn } from "@/lib/scenes/turn";
+import { addsEvidence, answerPart, concede, metByWord, onlyAsks, readTurn } from "@/lib/scenes/turn";
 import { saysGoodbye, CLOSING_WORDS } from "@/lib/scenes/casual";
 import { clip } from "@/lib/copy/clip";
 import { localeFor } from "@/lib/progress/locale";
@@ -80,6 +82,17 @@ const QUESTION_UNIT = "kusisonad";
  * they say no" true of `jah`.
  */
 const NEGATORS = ["ei", "mitte"] as const;
+/**
+ * And `pole`, which is `ei ole` in one word and is stored as a form of `olema`
+ * rather than as a headword: "Pole paha" and "Ma pole kindel" are a no, and
+ * read without it they were real Estonian off the point.
+ */
+function negatorsFrom(rows: readonly Row[]): ReadonlySet<string> {
+  const olema = rows.find((row) => row.lemma === "olema");
+  const pole = Object.values(olema?.parts ?? {}).concat((olema?.extraForms ?? []).map((f) => f.value))
+    .filter((value) => value.toLowerCase() === "pole");
+  return new Set([...formsOfLemmas(rows, NEGATORS), ...pole.map((value) => value.toLowerCase())]);
+}
 /**
  * The verbs that name the act of asking: "I want to ask about the pay", "I am
  * looking for the bank". Lemma requests against the course, `küsima` in
@@ -477,17 +490,36 @@ export function sceneLemmas(scene: SceneSpec): Set<string> {
 export function acceptFromRows(
   scene: SceneSpec,
   all: readonly Row[],
-): Pick<SceneContext["marker"], "substitutes" | "englishFor"> {
+): Pick<SceneContext["marker"], "substitutes" | "englishFor" | "course"> {
   const mine = sceneLemmas(scene);
   const wanted = standingFor(scene, substitutesFrom(all.map((row) => ({
     lemma: row.lemma, pos: row.pos, gloss: row.gloss ?? "",
   }))));
   const standing = new Set([...wanted.values()].flat());
-  return acceptWith(
-    all.filter((row) => mine.has(row.lemma)),
-    wanted,
-    all.filter((row) => standing.has(row.lemma)),
-  );
+  /*
+    AND WHAT THE COURSE TEACHES, which the route reads off `courseForms` and
+    the harnesses were never handed. Without it a capitalised word at the
+    front of a sentence is a word nobody can place, so every harness read
+    `Ma tahan pilet` as a ticket to a town called Ma and skipped "where to?".
+  */
+  const taught = new Set(SYLLABUS.flatMap((unit) => unit.lemmas));
+  const course = new Set<string>();
+  for (const row of all) {
+    if (!taught.has(row.lemma)) continue;
+    const forms = [
+      ...Object.entries(row.parts).map(([formType, value]) => ({ formType, value })),
+      ...(row.extraForms ?? []).map(({ code, value }) => ({ formType: `EKILEX:${code}`, value, morphCode: code })),
+    ];
+    for (const word of readableSpellings({ lemma: row.lemma, pos: row.pos, forms })) course.add(word);
+  }
+  return {
+    ...acceptWith(
+      all.filter((row) => mine.has(row.lemma)),
+      wanted,
+      all.filter((row) => standing.has(row.lemma)),
+    ),
+    course: (word: string) => course.has(word),
+  };
 }
 
 /**
@@ -510,7 +542,7 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[], level?: 
     slots: slotKinds(scene.props),
     questionWords: formsOfUnit(rows, QUESTION_UNIT),
     askingForms: formsOfLemmas(rows, ASKING),
-    negators: formsOfLemmas(rows, NEGATORS),
+    negators: negatorsFrom(rows),
     tooLittle: formsOfLemmas(rows, TOO_LITTLE),
     registerForms: formsOfLemmas(rows, [REGISTER_PRONOUN[scene.register]]),
     pronounForms,
@@ -742,6 +774,9 @@ function finiteVerbs(rows: readonly Row[]): (word: string) => boolean {
  * beat is the scripted bank's and the composer's, both of which were told what
  * the beat is for (ADR-025 amendment 2, `docs/21-situations.md` §32).
  */
+/** A greeting or a goodbye that names a time of day, which no scene states. */
+const TIME_OF_DAY = /hommikust|päevast|õhtust|\bööd\b|head ööd/i;
+
 function poolsFor(scene: SceneSpec, rows: readonly Row[]): Map<string, Line[]> {
   const byLemma = new Map(rows.map((row) => [row.lemma, row]));
   const out = new Map<string, Line[]>();
@@ -751,6 +786,14 @@ function poolsFor(scene: SceneSpec, rows: readonly Row[]): Map<string, Line[]> {
       const row = byLemma.get(lemma);
       if (!row) continue;
       if (isPhrase(row.pos)) {
+        /*
+          Not a greeting that names the time of day. No scene says what time
+          it is, so `Tere hommikust!` opened parents' evenings, a friend's
+          café at dusk and an evening book club, which every reviewer noticed
+          first. `Tere!` is right at every hour; the learner may still say any
+          of them, since this is only what the other side says.
+        */
+        if (TIME_OF_DAY.test(row.lemma)) continue;
         lines.push({ text: row.lemma, lemma: row.lemma, cefr: row.cefr });
         continue;
       }
@@ -884,6 +927,17 @@ export interface SentTurn {
    * `conceded`, and read only where the cascade reaches that beat.
    */
   readonly alsoDone?: readonly string[];
+  /**
+   * Whether the learner picked this turn off the lines the screen offered
+   * rather than typing it (`lib/scenes/picks.ts`). A picked line is read like
+   * any other, so the conversation goes on the same way, and it grades
+   * nothing: choosing the right sentence out of three is recognition, and a
+   * row saying the learner produced the word would be a recall that never
+   * happened, in the one table that is never repaired. The client's word,
+   * like `helped`, and a client that lies about it only withholds its own
+   * grades.
+   */
+  readonly picked?: boolean;
 }
 
 /** The `alsoDone` field off the wire: beat ids only, deduplicated, bounded. */
@@ -1206,7 +1260,14 @@ export async function finishRun(input: {
 
   const objectives = objectivesOf(scene, state);
   const outcome = outcomeOf(scene, state);
-  const grades = gradesFor(scene, state, draw?.card ?? null, context.lexicon);
+  /*
+    A BEAT ANSWERED BY PICKING GRADES NOTHING. The reading is the same and the
+    conversation went on the same way; what the log may not hold is a recall
+    of a sentence the learner chose rather than said (`SentTurn.picked`).
+  */
+  const pickedBeats = new Set(input.turns.filter((turn) => turn.picked).map((turn) => turn.beatId));
+  const grades = gradesFor(scene, state, draw?.card ?? null, context.lexicon)
+    .filter((grade) => !pickedBeats.has(grade.beatId));
   const locale = await localeFor(input.ownerId);
   const review = reviewOf(scene, state, locale);
 
@@ -1334,6 +1395,15 @@ export async function beatNow(input: {
   return currentBeat(context.scene, state) ?? null;
 }
 
+/** The words a learner takes an offered word with. */
+const TAKING: ReadonlySet<string> = new Set(["jah", "jaa", "jah,", "just", "õige", "täpselt", "mhm", "nojah"]);
+
+/** Whether a turn is a yes and nothing else: "Jah.", "jah, just". */
+function isBareYes(said: string): boolean {
+  const spoken = said.toLowerCase().split(/[^\p{L}]+/u).filter((w) => w.length > 0);
+  return spoken.length > 0 && spoken.length <= 3 && spoken.every((w) => TAKING.has(w));
+}
+
 /**
  * Reads a whole transcript back through the marker.
  *
@@ -1374,6 +1444,14 @@ export function replay(
   let state = raiseHurdle(context.scene, startScene(context.scene, draw?.patience), drawn);
   let response: Response = "answer";
   let previous = "";
+  /*
+    THE WORD THE OTHER SIDE JUST HANDED OVER, so a yes takes it. Lost, a
+    learner was offered `Poodi?` and answered `Jah`, which is how anybody
+    takes a word they were offered, and was read as having said nothing about
+    where they were going. Only on the beat it was offered for, only on the
+    turn straight after, and the turn is helped, so it grades as help.
+  */
+  let handed: { beatId: string; word: string } | null = null;
   for (const sent of turns.slice(0, MAX_TURNS)) {
     // Per turn, not per run: the reply asks about the turn that has just been taken.
     elsewhere = 0;
@@ -1393,7 +1471,8 @@ export function replay(
       turn stopped there, and the clerk asked where they were going three times
       running. `spent` is the words this turn has already used.
     */
-    const further = (spent: Set<string>, heard: string, answering = true) => {
+    const further = (spent: Set<string>, heard: string, answering = true, metBeat?: BeatSpec) => {
+      let last = metBeat;
       while (response === "answer" || response === "moveOn") {
         state = raiseHurdle(context.scene, state, drawn);
         if (state.hurdle || response === "moveOn") break;
@@ -1408,10 +1487,13 @@ export function replay(
           the next line read a time back to somebody who had never been offered
           one. The offer is said, and the learner's yes is read against it then.
         */
-        if (next.move === "offer" && !offerAlreadyMade(next, draw, heard)) break;
+        if (next.move === "offer" && !asksForIt(next) && !offerAlreadyMade(next, draw, heard)) break;
         // Nor across a break in time: the meal has to be eaten before the bill (the look-ahead's rule).
         if (next.meanwhile) break;
-        const read = readTurn(said, next, marker);
+        // A question answers nothing further on (`onlyAsks`).
+        if (onlyAsks(said, next, marker.questionWords)) break;
+        // And a question inside it counts for nothing further on (`answerPart`).
+        const read = readTurn(answerPart(said, next, marker.questionWords), next, marker);
         /*
           A judge may have said this same turn met the next beat too, in a word
           the dictionary could not read (`alsoDone`). Then the beat is conceded
@@ -1421,7 +1503,17 @@ export function replay(
         const vouchedAhead = sent.alsoDone?.includes(next.id) && read.reading !== "complete";
         const more = vouchedAhead ? concede(read, read.missing) : read;
         if (more.reading !== "complete") break;
-        if (!vouchedAhead && !addsEvidence(more, spent)) break;
+        /*
+          A WORD ALREADY SPENT ANSWERS THE NEXT QUESTION TOO WHERE BOTH ASK FOR
+          THAT VERY FORM. Asked whether that was everything, a customer said
+          `Kaardiga.`, which is yes and how they are paying, and the till then
+          asked "card or cash?" of somebody who had just said. Two beats naming
+          one lemma in one case are one answer, so the two-words rule stands
+          down for those and for nothing else.
+        */
+        // Once a turn, from the beat it was aimed at: "supi" takes the soup and orders it, and does not then order a drink.
+        const sameForm = last !== undefined && last === metBeat && sharedCaseForm(last, next) && metByWord(more);
+        if (!vouchedAhead && !sameForm && !addsEvidence(more, spent)) break;
         /*
           AND A SECOND WORD FOR THE SAME THING ANSWERS THE QUESTION THAT WAS
           ASKED, NOT ONE NOBODY HAS ASKED YET. A synonym meets a requirement
@@ -1434,6 +1526,7 @@ export function replay(
         if (!vouchedAhead && more.substituted.length > 0) break;
         for (const word of more.satisfiedBy) spent.add(word);
         ({ state, response } = advance(context.scene, state, more, said, false, heard));
+        last = next;
       }
       /*
         AND A BEAT FURTHER DOWN THE SCENE IS CREDITED WHERE IT STANDS.
@@ -1496,7 +1589,10 @@ export function replay(
             interviewer never named the figure at all. Behind the pointer the
             offer has been made, and taking it late is taking it.
           */
-          if (other.move === "offer" && at > state.beat && !offerAlreadyMade(other, draw, heard)) continue;
+          // Asking about an offer is not taking it (`asksForIt`).
+          if (!asksForIt(other)) {
+            if (other.move === "offer" && at > state.beat && !offerAlreadyMade(other, draw, heard)) continue;
+          }
           /*
             AND NOTHING IS TAKEN THAT THE OTHER SIDE HAS NOT YET SAID. A beat whose
             move is to explain, refuse or correct carries its line to the learner,
@@ -1507,7 +1603,8 @@ export function replay(
             told `Nägemist!`. The offer guard above is this rule for one move.
           */
           if (SAYS_FIRST.has(other.move) && at > state.beat) continue;
-          const also = readTurn(said, other, marker);
+          if (onlyAsks(said, other, marker.questionWords)) continue;
+          const also = readTurn(answerPart(said, other, marker.questionWords), other, marker);
           // Not through a second word for the same thing, for the cascade's reason.
           if (also.reading !== "complete" || !addsEvidence(also, spent) || also.substituted.length > 0) continue;
           for (const word of also.satisfiedBy) spent.add(word);
@@ -1607,11 +1704,18 @@ export function replay(
       refused can be conceded, so the same turn re-marked at the end of the
       run reaches the same state the learner saw.
     */
-    const read = readTurn(said, beat, marker);
+    const yesToIt = handed?.beatId === beat.id && isBareYes(said) ? handed.word : null;
+    handed = null;
+    const read = readTurn(yesToIt ?? said, beat, marker);
     const evidence = sent.conceded && sent.conceded.length > 0 ? concede(read, sent.conceded) : read;
     ({ state, response } = advance(
-      context.scene, state, evidence, said, Boolean(sent.helped), heard,
+      context.scene, state, evidence, said, Boolean(sent.helped) || yesToIt !== null, heard,
     ));
+    if (response === "help") {
+      const word = offerFor(beat, draw?.card ?? null, context.marker.questionWords, evidence.met,
+        context.lexicon.infinitives, context.lexicon.caseForm);
+      if (word && word !== OFFER_CHOICE) handed = { beatId: beat.id, word };
+    }
     /*
       ONE TURN CAN ANSWER MORE THAN ONE BEAT. "Tere, ma lähen poodi" greets and
       says where you are going, and a friend who heard it does not then ask
@@ -1637,7 +1741,7 @@ export function replay(
       and offered the lost learner `Üks?`. A turn read as lost, as English,
       as an echo or as nothing anybody could read answered nothing else.
     */
-    further(new Set(evidence.satisfiedBy), heard, !["lost", "english", "echo", "unrecognised"].includes(evidence.reading));
+    further(new Set(evidence.satisfiedBy), heard, !["lost", "english", "echo", "unrecognised"].includes(evidence.reading), beat);
     previous = heard;
   }
   return { state, response, elsewhere };
@@ -1767,4 +1871,36 @@ export async function sceneHistoryFor(ownerId: string): Promise<ReadonlyMap<stri
     out.set(row.sceneId, { plays: 1, last, lastAt: row.endedAt });
   }
   return out;
+}
+
+/**
+ * Whether two beats both ask for one lemma in one case, so that one word in
+ * that form answers both (the cascade's exception): "Kaardiga" answers "is
+ * that everything?" and "card or cash?". A value off the card counts only
+ * where the beat just met took it as one answer among several and the next
+ * asks for nothing else: "Ma võtan supi" takes the soup recommended and orders
+ * it, while a phone number given is not the same number read back to check,
+ * and a dish ordered is not the drink.
+ */
+function sharedCaseForm(a: BeatSpec, b: BeatSpec): boolean {
+  const caseKey = (need: BeatSpec["needs"][number]) => (need.kind === "case" ? `${need.lemma}|${need.grammCase}` : null);
+  const ours = new Set(leafNeeds(a.needs).map(({ need }) => caseKey(need)).filter((k) => k !== null));
+  if (leafNeeds(b.needs).some(({ need }) => {
+    const k = caseKey(need);
+    return k !== null && ours.has(k);
+  })) return true;
+  const only = b.needs.length === 1 ? b.needs[0] : undefined;
+  if (!only || only.kind !== "datum" || leafNeeds(a.needs).length < 2) return false;
+  return leafNeeds(a.needs).some(({ need }) =>
+    need.kind === "datum" && need.slot === only.slot && (need.grammCase ?? null) === (only.grammCase ?? null));
+}
+
+/**
+ * An offer the learner has to ask for, which a question asked early meets: the
+ * shop's price is said at the till when asked, and "Kui palju see maksab?" in
+ * the fitting room was answered and then asked for again. An offer nobody has
+ * made is never taken, but asking about it is not taking it.
+ */
+function asksForIt(beat: BeatSpec): boolean {
+  return leafNeeds(beat.needs).some(({ need }) => need.kind === "question");
 }

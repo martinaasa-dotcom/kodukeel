@@ -754,7 +754,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["arvama", "Mida sa arvad?", "What do you think?"],
   ["nõustuma", "Ma nõustun sinuga.", "I agree with you."],
   ["nõus", "Ma olen nõus.", "I agree."],
-  ["sobima", "Kas homme sobib?", "Does tomorrow suit you?"],
+  ["sobima", "See kleit sobib mulle hästi.", "This dress fits me well."],
   ["kestma", "Film kestab kaks tundi.", "The film lasts two hours."],
   // A2: suhtlemine
   ["saabuma", "Rong saabub kell kolm.", "The train arrives at three."],

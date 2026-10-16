@@ -156,6 +156,8 @@ export const A2 = [
       ["paber", "paper"],
       ["õpik", "textbook"],
       ["lehekülg", "page"],
+      // One word (Sõnaveeb), which is what the library scene's reader corrected `raamatukogu kaart` to.
+      ["raamatukogukaart", "library card"],
     ],
   }),
 
@@ -229,6 +231,8 @@ export const A2 = [
       ["nõu", "dish, advice", "NOUN", 209724],
       ["prügi", "rubbish"],
       ["katki", "broken", "ADVERB"],
+      // A flat left dirty is `räpane`; `must` is the colour as much as the state.
+      ["räpane", "dirty, messy", "ADJECTIVE"],
     ],
   }),
 
@@ -516,7 +520,7 @@ export const A2 = [
       ["arvama", "to think, to reckon"],
       ["nõustuma", "to agree"],
       ["nõus", "in agreement (ma olen nõus: I agree)", "ADVERB"],
-      ["sobima", "to suit, to be convenient"],
+      ["sobima", "to suit, to fit, to be convenient"],
       ["kestma", "to last, to go on"],
       ["plaanima", "to plan"],
       ["tegevus", "activity"],

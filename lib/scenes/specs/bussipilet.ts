@@ -15,7 +15,9 @@ const TICKET: SceneSpec = {
       says: "Where you're going.",
       places: true,
     },
-    { kind: "time", slot: "time", from: 8, to: 20, says: "When your bus leaves." },
+    { kind: "time", slot: "time", from: 8, to: 19, says: "When your bus leaves." },
+    // The later bus, which stands in for the first once that one has gone (`slot-gone`).
+    { kind: "time", slot: "time2", from: 9, to: 20, differentFrom: "time", later: true, theirs: true },
     /*
       THE PRICE, TOLD AND THEN CHANGED. `wrong-price` says the amount is not
       the one the learner was told, so the card tells them one, and the other
@@ -54,7 +56,7 @@ const TICKET: SceneSpec = {
       goal: "Tell them where you're traveling to.",
       they: "They ask where you're headed.",
       move: "ask",
-      topic: ["kuhu", "sõitma", "buss"],
+      topic: ["kuhu", "sõitma"],
       needs: [{ kind: "datum", slot: "to", grammCase: "ILLATIVE" }],
       required: true,
       patience: 3,
@@ -87,6 +89,7 @@ const TICKET: SceneSpec = {
           */
           { kind: "case", lemma: "kaart", grammCase: "COMITATIVE" },
           { kind: "case", lemma: "raha", grammCase: "COMITATIVE" },
+          { kind: "case", lemma: "sularaha", grammCase: "COMITATIVE" },
           /*
             Not `maksma`: "card or cash?" is not answered by "I'm paying",
             and any form of the verb met it, so `Kui palju see maksab?`,
@@ -96,7 +99,8 @@ const TICKET: SceneSpec = {
         ],
       }],
       required: true,
-      patience: 2,
+      /* Three, because nobody at a till lets a customer go unpaid after one muddled answer: a brisk clerk with one try did. */
+      patience: 3,
       shape: "word",
     },
     {

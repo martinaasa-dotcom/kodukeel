@@ -42,6 +42,8 @@ const ASKING_FOR_HELP: SceneSpec = {
       move: "ask",
       topic: ["aitama", "abi", "kott", "uks"],
       needs: [{ kind: "lemma", oneOf: ["aitama", "abi", "kandma", "hoidma", "kott", "uks"] }],
+      /* What somebody stopped in the street says to a request they did not catch: the bag, or the door? */
+      choice: ["kott", "uks"],
       required: true,
       patience: 3,
       shape: "sentence",
@@ -52,14 +54,24 @@ const ASKING_FOR_HELP: SceneSpec = {
          a learner who caught it and says yes. */
       id: "how",
       goal: "They said it too quickly. Tell them you didn't catch it, or ask them to say it again.",
-      they: "They say yes, and tell you in one quick breath how to hold the bag between you.",
+      /*
+        One plan, said twice: you hold the door, they carry the bag. Two plans
+        in the bank meant a learner who asked again heard a different one,
+        and the slow version could contradict the quick one.
+      */
+      they: "They say yes, and tell you in one quick breath that you hold the door and they'll carry the bag in.",
       /* A learner who asks "what?" is answered by the next beat, which is the
          same instruction again, slowly. */
       answeredNext: true,
       move: "instruct",
       topic: ["hoidma", "kott", "kandma", "üles"],
+      /*
+        `uuesti` first, since the first word is what a lost learner is
+        handed, and a passer-by offering `Ma ei saa aru?` is saying they do
+        not understand.
+      */
       needs: [{ kind: "anyOf", of: [
-        { kind: "lemma", oneOf: ["Ma ei saa aru", "uuesti", "aeglaselt", "Vabandust!", "jah", "hästi", "selge"] },
+        { kind: "lemma", oneOf: ["uuesti", "aeglaselt", "Ma ei saa aru", "Vabandust!", "jah", "hästi", "selge"] },
         { kind: "question" },
       ] }],
       required: true,
@@ -69,7 +81,7 @@ const ASKING_FOR_HELP: SceneSpec = {
     {
       id: "again",
       goal: "Say yes or okay, so they know you've got it now.",
-      they: "They say it again, slowly: you hold the bag at the bottom, they'll take the top.",
+      they: "They say it again, slowly: you hold the door open, and they carry the bag in.",
       move: "instruct",
       topic: ["hoidma", "kott", "kandma", "üles", "aeglaselt"],
       needs: [{ kind: "lemma", oneOf: ["jah", "hästi", "selge", "aitäh", "Aitäh!"] }],
@@ -82,15 +94,26 @@ const ASKING_FOR_HELP: SceneSpec = {
          what a learner who is lost is handed first is a farewell and not the
          other side thanking them back. */
       id: "thanks",
-      goal: "Thank them, say sorry for keeping them, and say goodbye.",
-      they: "The bag is in. They say it was no trouble at all, and turn to go.",
+      goal: "Thank them and say goodbye.",
+      they: "The bag is in. They say it was easy, and turn to go.",
       meanwhile: "A minute later, the bag is inside and the door has shut behind it.",
       move: "close",
-      topic: ["kott", "aitäh", "Aitäh!", "Vabandust!"],
-      needs: [
+      /*
+        What the other side's line is about, which is the bag. The thanks and
+        the apology are the learner's, and with "Vabandust!" in the topic the
+        recorded-courtesy rung had the neighbour who had just carried the bag
+        in apologise to the learner instead (FB-5, replayed keyless).
+      */
+      topic: ["kott"],
+      /*
+        Thanks, or sorry for keeping them, or both: "Suur aitäh, head aega"
+        is a whole goodbye, and asking for the apology on top of it held a
+        learner at the door who had already said everything a person says.
+      */
+      needs: [{ kind: "anyOf", of: [
         { kind: "lemma", oneOf: [...CLOSING_WORDS, "aitäh", "tänama"] },
         { kind: "lemma", oneOf: ["Vabandust!", "vabandama"] },
-      ],
+      ] }],
       required: true,
       patience: 2,
       shape: "sentence",

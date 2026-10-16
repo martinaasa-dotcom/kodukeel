@@ -14,12 +14,12 @@ const COUNTER: SceneSpec = {
     `minevik`: nothing at this counter happened in the past, which is what says
     these three are declared per scene rather than added to `COMMON`.
   */
-  units: [...COMMON, "linn-ja-teenused", "suhtlemine", "plaanid", "omadussonad", "inimesed", "minevik", "ostmine"],
+  units: [...COMMON, "linn-ja-teenused", "suhtlemine", "plaanid", "omadussonad", "inimesed", "minevik", "ostmine", "osakesed", "viisisonad", "abi"],
   register: "teie",
   role: "You've got a form to hand in, and a reference number that came with it. You're at the desk where they take forms.",
   props: [
     {
-      kind: "word", slot: "paper", oneOf: ["avaldus", "dokument", "luba", "arve", "allkiri"],
+      kind: "word", slot: "paper", oneOf: ["avaldus", "dokument", "luba", "arve"],
       says: "What you've come to hand in.",
       means: { luba: "permit", arve: "bill" },
     },
@@ -39,9 +39,15 @@ const COUNTER: SceneSpec = {
     { kind: "price", slot: "price", min: 5, max: 20, says: "The fee you were told about, in euros." },
     { kind: "price", slot: "price2", min: 5, max: 20, says: "What it costs now.", theirs: true, differentFrom: "price" },
   ],
+  /*
+    Not `missing-document`: the `document` beat already asks for the paper
+    that goes with it, so a second ask was the clerk repeating themselves.
+    Not `not-possible`: every beat after it takes the form and processes it,
+    which a counter that has just said "not today" would not do.
+  */
   curveballs: [
-    "missing-document", "their-order", "place-instruction", "queue", "faster",
-    "not-possible", "english", "small-talk", "other-register", "wrong-price", "contradiction",
+    "their-order", "place-instruction", "queue", "faster",
+    "english", "small-talk", "other-register", "wrong-price", "contradiction",
   ],
   beats: [
     {
@@ -61,7 +67,15 @@ const COUNTER: SceneSpec = {
       they: "They ask what you've come for.",
       move: "ask",
       topic: ["avaldus", "dokument", "luba", "teenus", "amet"],
-      needs: [{ kind: "lemma", oneOf: ["avaldus", "dokument", "luba", "teenus"] }],
+      /*
+        The card's paper, or any paper the card could have dealt: what the
+        learner hands over is theirs to name. `allkiri` came off the card,
+        since nobody comes to a counter to hand in a signature.
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "datum", slot: "paper" },
+        { kind: "lemma", oneOf: ["avaldus", "dokument", "luba", "arve", "teenus"] },
+      ] }],
       required: true,
       patience: 3,
       shape: "sentence",
@@ -69,7 +83,8 @@ const COUNTER: SceneSpec = {
     {
       id: "document",
       goal: "They want another paper to go with it. Say you've brought it, or that you haven't.",
-      they: "They ask for the paper that goes with it.",
+      they: "They say another document has to go with it, and ask if you've brought it.",
+      feel: "noted",
       move: "ask",
       topic: ["dokument", "allkiri", "arve", "konto", "number"],
       /*
@@ -91,7 +106,11 @@ const COUNTER: SceneSpec = {
       answer: "They tell you roughly how long the wait is.",
       move: "instruct",
       topic: ["järjekord", "aeg", "klient"],
-      needs: [{ kind: "question" }],
+      /*
+        A question about the wait, not any question at all: "Kas siin on WC?"
+        met this beat and was answered "ten minutes".
+      */
+      needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["kaua", "aeg", "minut", "tund", "ootama", "millal", "kiiresti"] }],
       required: false,
       patience: 2,
       shape: "sentence",
@@ -100,10 +119,11 @@ const COUNTER: SceneSpec = {
       id: "fill",
       goal: "Tell them you'll fill in the form and sign it.",
       meanwhile: "Twenty minutes later, your number comes up and you're back at the desk.",
-      they: "They tell you what to fill in, and in what order.",
+      they: "They ask you to fill in this part and then sign it.",
       move: "instruct",
       topic: ["täitma", "avaldus", "allkiri"],
-      needs: [{ kind: "lemma", oneOf: ["täitma", "allkiri", "avaldus"] }],
+      // "Jah, kohe" and "Hästi" are how anybody says they'll do it.
+      needs: [{ kind: "lemma", oneOf: ["täitma", "allkiri", "kirjutama", "jah", "hästi", "selge", "kohe"] }],
       required: true,
       patience: 2,
       shape: "sentence",
@@ -111,11 +131,16 @@ const COUNTER: SceneSpec = {
     {
       id: "confirm",
       goal: "Ask when it'll be ready.",
-      they: "They take the form and read the details back to you.",
+      they: "They take the form and say they'll look it over.",
       answer: "They tell you how long it'll be until the form is ready.",
       move: "confirm",
       topic: ["aeg", "päev", "nädal", "avaldus", "millal"],
-      needs: [{ kind: "question" }],
+      /*
+        A question about when, not any question: "Kas te helistate mulle?"
+        met this beat and was answered "in a week", and the learner's real
+        "Millal see valmis on?" one turn later got "Later."
+      */
+      needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["millal", "valmis", "kaua", "aeg", "päev", "nädal", "kiiresti", "varsti"] }],
       required: true,
       patience: 2,
       shape: "sentence",

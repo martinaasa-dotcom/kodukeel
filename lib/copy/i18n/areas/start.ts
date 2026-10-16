@@ -166,28 +166,28 @@ export const START: Area = {
     "Why you are learning Estonian": "Зачем вы учите эстонский",
     "I live in Estonia": "Я живу в Эстонии",
     "The shop, the doctor, the bus, the neighbors, the forms. Everyday life, in the language all around you.":
-      "Магазин, врач, автобус, соседи, бланки. Повседневная жизнь на языке, который звучит вокруг.",
-    "Citizenship or residence": "Гражданство или вид на жительство",
+      "Магазин, врач, автобус, соседи, бланки. Жизнь на языке, который звучит вокруг.",
+    "Citizenship or residence": "Гражданство или ВНЖ",
     "There's a state exam at the end of this one, and it picks the level for you.":
-      "В конце вас ждёт государственный экзамен, и нужный уровень задаёт он.",
+      "В конце вас ждёт государственный экзамен, он и определит ваш уровень.",
     "Work": "Работа",
     "Meetings, emails and colleagues who talk at full speed. At work you need to be understood exactly, not roughly.":
-      "Совещания, письма и коллеги, которые говорят на полной скорости. На работе вас должны понимать точно, а не приблизительно.",
+      "Совещания, письма и коллеги, которые говорят быстро. На работе вас должны понимать точно.",
     "School or university": "Школа или университет",
     "A course with a syllabus, homework, and a mark waiting at the end of term.":
-      "Курс с программой, домашними заданиями и оценкой в конце семестра.",
+      "Программа, домашние задания и оценка в конце семестра.",
     "Family or a partner": "Семья или партнёр",
     "The people you most want to understand won't slow down for you forever.":
-      "Люди, которых вам больше всего хочется понимать, не будут вечно говорить медленнее ради вас.",
+      "Люди, которых вы больше всего хотите понимать, не будут вечно говорить медленно.",
     "Roots and heritage": "Корни и семейная история",
     "A language your family spoke, or a country you keep coming back to.":
-      "Язык, на котором говорили в вашей семье, или страна, в которую вы снова и снова возвращаетесь.",
+      "Язык вашей семьи или страна, в которую вы всё время возвращаетесь.",
     "Travel": "Путешествия",
     "Enough to order, ask, say thanks and read a sign without reaching for your phone.":
-      "Достаточно, чтобы заказать, спросить, поблагодарить и прочитать вывеску, не хватаясь за телефон.",
+      "Заказать, спросить, поблагодарить и прочитать вывеску без телефона.",
     "Curiosity": "Любопытство",
     "Fourteen cases, and words that change shape when you're not looking. Reason enough.":
-      "Четырнадцать падежей и слова, которые меняют форму, стоит только отвернуться. Вполне достаточная причина.",
+      "Четырнадцать падежей и слова, меняющие форму, пока вы не смотрите. Чем не причина?",
     "What level are you aiming for?": "Какого уровня вы хотите достичь?",
     "What level are you aiming for": "Какого уровня вы хотите достичь",
     "Get by": "Объясняться",
@@ -224,6 +224,7 @@ export const START: Area = {
     "You never have to work out what to study. Kodukeel plans each evening for you: which words, in what order, and which games. About fifteen minutes, and then it tells you you’re done.":
       "Вам никогда не придётся решать, что учить. Kodukeel планирует за вас каждый вечер: какие слова, в каком порядке и какие игры. Примерно пятнадцать минут, а потом он скажет, что на сегодня всё.",
     "You start at {part}": "Вы начинаете с части {part}",
+    "Why this part, and what’s in it": "Почему эта часть и что в ней",
     "{evenings}, about {minutes} each.": "{evenings}, каждый около {minutes}.",
     "The whole way to C1": "Весь путь до C1",
     "{evenings} in all, and every word in the course turns up in one of them. You can step off the plan whenever you like and use the app your own way. Nothing disappears, and everything you do still counts.":
@@ -295,8 +296,8 @@ export const START: Area = {
     // THE FIRST PART OF EACH LEVEL.
     "You start from nothing and build up the way a sentence does. Five words on the first evening, then I, you, he and she, then the verb to be, with a form for each person. After that come the little words that hold a sentence together, a few greetings and questions, and the people in your life. By the end you can say hello, ask where somebody lives and tell them who's in your family.":
       "Вы начинаете с нуля и строите язык так же, как строится предложение. Пять слов в первый вечер, потом я, ты, он и она, потом глагол «быть» с формой для каждого лица. Дальше маленькие слова, которые скрепляют предложение, несколько приветствий и вопросов и люди в вашей жизни. В конце вы сможете поздороваться, спросить, где человек живёт, и рассказать, кто входит в вашу семью.",
-    "A2 starts with what makes a conversation possible: asking for something without sounding like a robot. Then the past tense, and your first case endings, starting with the one all the others are built on. By the end you can say what you did yesterday and what's wrong with you, and your first two conversations are waiting.":
-      "A2 начинается с того, без чего разговор невозможен: как попросить что-то и не звучать как робот. Потом прошедшее время и первые падежные окончания, начиная с того, на котором строятся все остальные. В конце вы сможете рассказать, что делали вчера и что у вас болит, а вас будут ждать первые два разговора.",
+    "A2 starts with what makes a conversation possible: asking for something without sounding like a robot. Then the past tense, and your first case endings, starting with the one all the others are built on. By the end you can say what you did yesterday and what's wrong with you, and your first conversations are waiting.":
+      "A2 начинается с того, без чего разговор невозможен: как попросить что-то и не звучать как робот. Потом прошедшее время и первые падежные окончания, начиная с того, на котором строятся все остальные. В конце вы сможете рассказать, что делали вчера и что у вас болит, а вас будут ждать первые разговоры.",
     "Two things separate knowing Estonian words from knowing Estonian: getting the object of a sentence right, and knowing which ending each verb wants after it. You learn each one on everyday words, first the people in your life, then work and money. Then comes would, for wishes and polite requests. Grammar and new words take turns, so it's never two weeks of tables.":
       "Знание эстонских слов отличается от знания эстонского двумя вещами: правильным падежом дополнения и тем, какой падеж требует после себя каждый глагол. Каждую вы учите на повседневных словах: сначала на людях вокруг вас, потом на работе и деньгах. Затем условное наклонение для желаний и вежливых просьб. Грамматика и новые слова чередуются, так что двух недель сплошных таблиц не будет.",
     "Estonian has three forms you learn here: one for when nobody is named, one for passing on what you heard, and one for doing two things at once. Each comes with the words it usually goes with: the impersonal with society, the reported form with the economy, and the last on its own. By the end you can read a report that never names anybody.":
@@ -457,28 +458,28 @@ export const START: Area = {
     "Why you are learning Estonian": "Навіщо ви вчите естонську",
     "I live in Estonia": "Я живу в Естонії",
     "The shop, the doctor, the bus, the neighbors, the forms. Everyday life, in the language all around you.":
-      "Магазин, лікар, автобус, сусіди, бланки. Повсякденне життя мовою, яка звучить довкола.",
+      "Магазин, лікар, автобус, сусіди, бланки. Життя мовою, яка звучить довкола.",
     "Citizenship or residence": "Громадянство або посвідка на проживання",
     "There's a state exam at the end of this one, and it picks the level for you.":
-      "Наприкінці на вас чекає державний іспит, і рівень за вас обере він.",
+      "Наприкінці на вас чекає державний іспит, він і визначить ваш рівень.",
     "Work": "Робота",
     "Meetings, emails and colleagues who talk at full speed. At work you need to be understood exactly, not roughly.":
-      "Наради, листи й колеги, які говорять на повній швидкості. На роботі вас мають розуміти точно, а не приблизно.",
+      "Наради, листи й колеги, які говорять швидко. На роботі вас мають розуміти точно.",
     "School or university": "Школа або університет",
     "A course with a syllabus, homework, and a mark waiting at the end of term.":
-      "Курс із програмою, домашніми завданнями й оцінкою наприкінці семестру.",
+      "Програма, домашні завдання й оцінка наприкінці семестру.",
     "Family or a partner": "Родина або партнер",
     "The people you most want to understand won't slow down for you forever.":
-      "Ті, кого ви найбільше хочете розуміти, не говоритимуть повільно заради вас вічно.",
+      "Люди, яких ви найбільше хочете розуміти, не говоритимуть повільно вічно.",
     "Roots and heritage": "Коріння й родинна історія",
     "A language your family spoke, or a country you keep coming back to.":
-      "Мова, якою говорили у вашій родині, або країна, до якої ви знову й знову повертаєтеся.",
+      "Мова вашої родини або країна, до якої ви постійно повертаєтеся.",
     "Travel": "Подорожі",
     "Enough to order, ask, say thanks and read a sign without reaching for your phone.":
-      "Досить, щоб замовити, запитати, подякувати й прочитати вивіску, не хапаючись за телефон.",
+      "Замовити, запитати, подякувати й прочитати вивіску без телефона.",
     "Curiosity": "Цікавість",
     "Fourteen cases, and words that change shape when you're not looking. Reason enough.":
-      "Чотирнадцять відмінків і слова, які змінюють форму, щойно ви відвернетеся. Цілком достатня причина.",
+      "Чотирнадцять відмінків і слова, що змінюють форму, поки ви не дивитеся. Чим не причина?",
     "What level are you aiming for?": "До якого рівня ви прагнете?",
     "What level are you aiming for": "До якого рівня ви прагнете",
     "Get by": "Порозумітися",
@@ -515,6 +516,7 @@ export const START: Area = {
     "You never have to work out what to study. Kodukeel plans each evening for you: which words, in what order, and which games. About fifteen minutes, and then it tells you you’re done.":
       "Вам ніколи не доведеться вирішувати, що вчити. Kodukeel планує за вас кожен вечір: які слова, у якому порядку і які ігри. Приблизно п'ятнадцять хвилин, а потім він скаже, що на сьогодні все.",
     "You start at {part}": "Ви починаєте з частини {part}",
+    "Why this part, and what’s in it": "Чому ця частина і що в ній",
     "{evenings}, about {minutes} each.": "{evenings}, кожен близько {minutes}.",
     "The whole way to C1": "Увесь шлях до C1",
     "{evenings} in all, and every word in the course turns up in one of them. You can step off the plan whenever you like and use the app your own way. Nothing disappears, and everything you do still counts.":
@@ -586,8 +588,8 @@ export const START: Area = {
     // THE FIRST PART OF EACH LEVEL.
     "You start from nothing and build up the way a sentence does. Five words on the first evening, then I, you, he and she, then the verb to be, with a form for each person. After that come the little words that hold a sentence together, a few greetings and questions, and the people in your life. By the end you can say hello, ask where somebody lives and tell them who's in your family.":
       "Ви починаєте з нуля й будуєте мову так само, як будується речення. П'ять слів першого вечора, потім я, ти, він і вона, потім дієслово «бути» з формою для кожної особи. Далі маленькі слова, що скріплюють речення, кілька привітань і запитань і люди у вашому житті. Наприкінці ви зможете привітатися, запитати, де людина живе, і розповісти, хто є у вашій родині.",
-    "A2 starts with what makes a conversation possible: asking for something without sounding like a robot. Then the past tense, and your first case endings, starting with the one all the others are built on. By the end you can say what you did yesterday and what's wrong with you, and your first two conversations are waiting.":
-      "A2 починається з того, без чого розмова неможлива: як попросити щось і не звучати як робот. Потім минулий час і перші відмінкові закінчення, починаючи з того, на якому будуються всі інші. Наприкінці ви зможете розповісти, що робили вчора і що у вас болить, а на вас чекатимуть перші дві розмови.",
+    "A2 starts with what makes a conversation possible: asking for something without sounding like a robot. Then the past tense, and your first case endings, starting with the one all the others are built on. By the end you can say what you did yesterday and what's wrong with you, and your first conversations are waiting.":
+      "A2 починається з того, без чого розмова неможлива: як попросити щось і не звучати як робот. Потім минулий час і перші відмінкові закінчення, починаючи з того, на якому будуються всі інші. Наприкінці ви зможете розповісти, що робили вчора і що у вас болить, а на вас чекатимуть перші розмови.",
     "Two things separate knowing Estonian words from knowing Estonian: getting the object of a sentence right, and knowing which ending each verb wants after it. You learn each one on everyday words, first the people in your life, then work and money. Then comes would, for wishes and polite requests. Grammar and new words take turns, so it's never two weeks of tables.":
       "Знати естонські слова і знати естонську відрізняють дві речі: правильний додаток у реченні й знання того, якого закінчення вимагає після себе кожне дієслово. Кожну з них ви вчите на повсякденних словах: спершу люди у вашому житті, потім робота й гроші. Далі умовний спосіб, для побажань і ввічливих прохань. Граматика й нові слова чергуються, тож двох тижнів суцільних таблиць не буде.",
     "Estonian has three forms you learn here: one for when nobody is named, one for passing on what you heard, and one for doing two things at once. Each comes with the words it usually goes with: the impersonal with society, the reported form with the economy, and the last on its own. By the end you can read a report that never names anybody.":

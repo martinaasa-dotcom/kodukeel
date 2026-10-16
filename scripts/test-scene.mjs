@@ -427,7 +427,16 @@ async function listen() {
 /** Says one thing and waits for the desk to answer. */
 async function say(text) {
   const before = await page.locator('[role="log"] p').count();
-  await page.getByLabel("What you say").fill(text);
+  /*
+    An A1 run opens on lines to pick rather than a box (`answerBy` in
+    SceneSession), so a suite that types has to ask for the box first. That is
+    the learner's own press, one control away, and not a fault to report.
+  */
+  const box = page.getByLabel("What you say");
+  if (!(await box.isVisible().catch(() => false))) {
+    await page.getByRole("radio", { name: /Type it/i }).click().catch(() => {});
+  }
+  await box.fill(text);
   await page.getByRole("button", { name: /Say it/i }).click();
   const began = Date.now();
   await page.waitForFunction(

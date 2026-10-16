@@ -1,5 +1,5 @@
 import type { SceneSpec } from "../types";
-import { COMMON, HELLOS, CLOSING_WORDS, FAREWELLS } from "./shared";
+import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 
 const THREE_ASKS: SceneSpec = {
   id: "kolm-palvet",
@@ -28,14 +28,20 @@ const THREE_ASKS: SceneSpec = {
   register: "sina",
   role: "This is a role. You need help with the same thing three times today: from a friend, then from your manager, then from an official. Ask each of them the way you'd really speak to them.",
   props: [],
-  curveballs: ["interrupted", "misheard", "faster"],
+  /*
+    No `misheard`: every ask here is answered with a yes before anything else
+    can happen, so a line after it asking "help? what help?" is the friend,
+    the manager or the official forgetting what they just agreed to.
+  */
+  curveballs: ["interrupted", "faster"],
   beats: [
     {
       id: "greet",
       goal: "Say hello to your friend.",
-      they: "Your friend says hello across the café table.",
+      they: "Your friend says hello across the café table and asks how you are.",
       move: "greet",
-      topic: [...HELLOS],
+      // Not `HELLOS`: a friend asks how you are as well, and the bank is what says it.
+      topic: ["minema"],
       needs: [{ kind: "lemma", oneOf: [...HELLOS] }],
       required: true,
       patience: 2,
@@ -45,10 +51,26 @@ const THREE_ASKS: SceneSpec = {
       id: "friend",
       goal: "Ask your friend to help you, the way you'd ask a friend: with the informal you.",
       they: "They ask what's up.",
+      answer: "They say of course they'll help, gladly.",
       move: "ask",
       topic: ["aitama", "abi"],
       register: "sina",
-      needs: [{ kind: "register" }, { kind: "lemma", oneOf: ["aitama", "abi"] }],
+      /*
+        THE THIRD REQUIREMENT ASKS NOTHING THE SECOND DID NOT, ON PURPOSE.
+        Asked for help, a friend says yes, and for a year nobody here did:
+        the learner asked and the next thing on the screen was the manager.
+        The yes is the beat's `answer`, which is said when the learner's ask
+        is a question, and a beat says an answer only where it can be met
+        by one (`catalogue.test.ts`). So the question is one way to meet it,
+        beside the request itself, which keeps `Palun aita mind` exactly as
+        right as it was. Not the question alone: `Kuidas sul läheb?` on the
+        greeting would then have asked the favour for them.
+      */
+      needs: [
+        { kind: "register" },
+        { kind: "lemma", oneOf: ["aitama", "abi"] },
+        { kind: "anyOf", of: [{ kind: "question" }, { kind: "lemma", oneOf: ["aitama", "abi"] }] },
+      ],
       required: true,
       patience: 3,
       shape: "sentence",
@@ -56,12 +78,18 @@ const THREE_ASKS: SceneSpec = {
     {
       id: "manager",
       goal: "Ask your manager for the same help, politely: with the formal you.",
-      meanwhile: "Your friend says yes, of course. Later that day, at work, you need the same help from your manager.",
+      // Not "your friend helps you": the line is printed whether or not the learner asked.
+      meanwhile: "Later that day, at work, you need the same help from your manager.",
       they: "Your manager looks up and asks what you need.",
+      answer: "They say yes, of course, they'll help you.",
       move: "ask",
       topic: ["aitama", "abi", "ülemus"],
       register: "teie",
-      needs: [{ kind: "register" }, { kind: "lemma", oneOf: ["aitama", "abi"] }],
+      needs: [
+        { kind: "register" },
+        { kind: "lemma", oneOf: ["aitama", "abi"] },
+        { kind: "anyOf", of: [{ kind: "question" }, { kind: "lemma", oneOf: ["aitama", "abi"] }] },
+      ],
       required: true,
       patience: 3,
       shape: "sentence",
@@ -69,12 +97,17 @@ const THREE_ASKS: SceneSpec = {
     {
       id: "official",
       goal: "Ask the official for the same help, as politely as you can: with the formal you, and with would.",
-      meanwhile: "Your manager agrees. The next morning you're at a service desk, asking an official the same thing.",
+      meanwhile: "The next morning you're at a service desk, needing the same thing from an official.",
       they: "The official at the desk asks how they can help.",
+      answer: "They say yes, they can help, and they'll do it right away.",
       move: "ask",
       topic: ["aitama", "abi", "amet"],
       register: "teie",
-      needs: [{ kind: "register" }, { kind: "lemma", oneOf: ["aitama", "abi"] }],
+      needs: [
+        { kind: "register" },
+        { kind: "lemma", oneOf: ["aitama", "abi"] },
+        { kind: "anyOf", of: [{ kind: "question" }, { kind: "lemma", oneOf: ["aitama", "abi"] }] },
+      ],
       required: true,
       patience: 3,
       shape: "sentence",
@@ -82,9 +115,10 @@ const THREE_ASKS: SceneSpec = {
     {
       id: "close",
       goal: "Thank the official and say goodbye.",
-      they: "They say they'll help, and goodbye.",
+      they: "They say it's all done, and goodbye.",
       move: "close",
-      topic: [...FAREWELLS],
+      // Not `FAREWELLS`: the official says the thing is done before the goodbye.
+      topic: ["kõik", "tegema"],
       register: "teie",
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,

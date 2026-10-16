@@ -28,7 +28,7 @@
 import { looksLikeSentence } from "@/lib/estonian/writing";
 import { whereWhole } from "@/lib/estonian/cloze";
 import { ASK_ENGLISH, LOST } from "./catalogue";
-import { casualBye, casualHello } from "./casual";
+import { asksToWait, casualBye, casualHello, casualYes } from "./casual";
 import { fold } from "@/lib/estonian/fold";
 import { ESTONIAN_WORD } from "@/lib/estonian/cloze";
 import type { CaseKey } from "@/lib/estonian/types";
@@ -36,7 +36,7 @@ import type { DerivedVerbCode } from "@/lib/estonian/conjugate";
 import { clausesOf, words, type Lexicon } from "./lexicon";
 import { caseKeyFor, caseOfForm } from "./lexicon";
 import { compoundOf, foldedOnly, nearlyInflected, nearlySpelled, personAsked } from "./nearly";
-import { numberFromText, timeFromText, type SlotKind } from "./props";
+import { numberFromText, spokenNumbers, timeFromText, type SlotKind } from "./props";
 import { CHOICE_WORD } from "./choice";
 import { leafNeeds, type BeatSpec, type Requirement } from "./types";
 
@@ -120,6 +120,8 @@ export interface Slip {
  */
 export interface Evidence {
   readonly reading: TurnReading;
+  /** The turn asked them to wait (`asksToWait`), which is waited for however often it is asked. */
+  readonly holds?: boolean;
   /** One per requirement, in the order the beat asked them. */
   readonly met: readonly boolean[];
   /** The indices of the requirements not met, for a narrow re-ask. */
@@ -441,6 +443,29 @@ function caughtSomething(marked: readonly TurnWord[]): boolean {
  * scene without ever building one. It is not marked wrong. It gets the response
  * a person gives, which is a look and a wait.
  */
+/** Fixed farewells, as words, whose parts are no other answer (`withoutFarewells`). */
+const FAREWELL_PHRASES: readonly (readonly string[])[] = [
+  ["head", "aega"], ["head", "ööd"], ["head", "päeva"], ["head", "õhtut"], ["head", "nädalavahetust"],
+  ["kõike", "head"], ["ilusat", "päeva"], ["ilusat", "õhtut"],
+];
+
+/** A turn's words with every fixed farewell taken out, so `head aega` cannot meet `hea` or `aeg`. */
+/** Whether the beat takes a plain yes: one of its requirements is a word list holding `jah`, `hästi` or `selge`. */
+function agreementBeat(beat: BeatSpec): boolean {
+  return leafNeeds(beat.needs).some(({ need }) => need.kind === "lemma" && need.oneOf.some((w) => YES_WORDS.has(w)));
+}
+const YES_WORDS: ReadonlySet<string> = new Set(["jah", "hästi", "selge", "sobima", "nõus"]);
+
+export function withoutFarewells(spoken: readonly string[]): string[] {
+  const out: string[] = [];
+  for (let i = 0; i < spoken.length; i++) {
+    const phrase = FAREWELL_PHRASES.find((p) => p.every((w, k) => spoken[i + k] === w));
+    if (phrase) { i += phrase.length - 1; continue; }
+    out.push(spoken[i]!);
+  }
+  return out;
+}
+
 export function readTurn(
   text: string,
   beat: BeatSpec,
@@ -478,9 +503,33 @@ export function readTurn(
     is the request rather than the question.
   */
   const asksForEnglish = spoken.includes(ASK_ENGLISH) || spoken.includes("english");
+  /*
+    A GOODBYE IS NOT AN ANSWER TO ANYTHING BUT THE GOODBYE. `Head aega` holds
+    a form of `hea` and a form of `aeg`, so on a beat asking whether something
+    was good, or for a time, a learner leaving was read as answering: an
+    examiner went on with the exam after "Head aega", a friend took "Ei,
+    aitäh, head aega" as yes, and a shop assistant kept selling. Off the
+    closing beat the farewell's words are taken out before anything is matched.
+  */
+  const matching = beat.move === "close" ? spoken : withoutFarewells(spoken);
+  /*
+    A word the learner negated is passed over and the rest of the turn read
+    again, once: "Kodus on ta vihane, mitte kurb" found the card's `kurb`,
+    refused it for the `mitte`, and never looked at `vihane`, which is the
+    word the learner chose.
+  */
+  const reading = (need: Requirement) => {
+    if (asksWhich(need, text, matching, context)) return null;
+    const first = satisfies(need, text, matching, context, beat.register);
+    if (!negatedIn(first, text, beat, context, need)) return first;
+    if (!first || first === YES) return null;
+    const passed = new Set([first.word, ...(first.slip ? words(first.slip.said) : [])].map((w) => w.toLowerCase()));
+    const rest = matching.filter((word) => !passed.has(word));
+    const again = satisfies(need, text, rest, context, beat.register);
+    return negatedIn(again, text, beat, context, need) ? null : again;
+  };
   const found = beat.needs
-    .map((need) => (asksWhich(need, text, spoken, context) ? null : satisfies(need, text, spoken, context, beat.register)))
-    .map((hit) => (negatedIn(hit, text, beat, context) ? null : hit))
+    .map((need) => reading(need))
     .map((hit, i) => (asksForEnglish && hit === YES && beat.needs[i]?.kind === "question" ? null : hit));
   const met = found.map((hit) => hit !== null);
   const missing = met.flatMap((ok, i) => (ok ? [] : [i]));
@@ -641,6 +690,22 @@ export function readTurn(
       substituted: beat.needs.map((_, i) => i), chose: [],
     });
   }
+  /*
+    AND "OK" IS YES. A beat that takes agreement names the course's words for
+    it, `jah`, `hästi`, `selge`, and a learner who said "ok", "olgu" or "hea
+    küll" was asked the same thing again, which every reviewer counted. Only
+    where the beat's own list holds a yes, only on a short turn, and never
+    with a no in it: "ei, aitäh" is a refusal and stays one. Met as a
+    substitution, so nothing is graded as the course's word.
+  */
+  const agreeing = missing.length > 0 && agreementBeat(beat) && !spoken.some((word) => context.negators.has(word))
+    ? casualYes(spoken) : null;
+  if (agreeing !== null) {
+    return shape("complete", {
+      met: beat.needs.map(() => true), missing: [], matched: [], satisfiedBy: [agreeing], slips: [],
+      substituted: beat.needs.map((_, i) => i), chose: [],
+    });
+  }
 
   /*
     Not on a beat whose answer *is* the other side's line. `Tere!` is answered
@@ -650,8 +715,21 @@ export function readTurn(
     side's line rather than the learner's own previous turn, which is what it
     had been comparing against all along.
   */
+  // "Oota" and "ma mõtlen" ask for a moment: a look and a wait, which costs nothing once (`asksToWait`).
+  if (missing.length > 0 && asksToWait(spoken)) return shape("fragment", { holds: true });
   const phraseBeat = beat.move === "greet" || beat.move === "close";
-  if (!phraseBeat && isEcho(spoken, context.previous)) return shape("echo");
+  /*
+    AND A TURN THAT MEETS EVERYTHING THE BEAT ASKED IS AN ANSWER, WHATEVER
+    WORDS IT BORROWED. The directions said back on the beat whose goal is to
+    say them back, "Maja number 7" to "Mis maja number?" and "3 korda päevas"
+    to the dose were each made of the line's own words and each read as
+    parroting, so the other side said "I don't understand" to the one turn in
+    the scene that was exactly right. Handing the question back meets nothing,
+    so it is still an echo; a turn that says what was wanted is not.
+  */
+  if (!phraseBeat && (missing.length > 0 || handsBackWhole(spoken, context.previous, beat)) && isEcho(spoken, context.previous)) {
+    return shape("echo");
+  }
   /*
     A NO ON AN OFFER IS A NO, WHATEVER ELSE IS IN THE TURN. `Ei sobi` holds a
     form of `sobima`, which is the word that accepts the offer, so read by the
@@ -688,7 +766,13 @@ export function readTurn(
     const said = words(clause);
     return said.some((word) => context.tooLittle!.has(word)) && !said.some((word) => context.negators.has(word));
   });
-  if (beat.counter && (short || (!accepts && spoken.some((word) => context.negators.has(word))))) {
+  /*
+    AND "I DON'T FOLLOW" IS NOT A NO. `Ma ei saa aru` holds a negator, so at
+    an offer it was read as turning the figure down and the higher offer came
+    out, to somebody who had only asked to hear it again. The lost reading
+    below takes it.
+  */
+  if (beat.counter && !isLost(spoken, context) && (short || (!accepts && spoken.some((word) => context.negators.has(word))))) {
     return shape("declined", {
       met: beat.needs.map(() => false), missing: beat.needs.map((_, i) => i),
       matched: [], satisfiedBy: [], slips: [], substituted: [], chose: [],
@@ -743,7 +827,19 @@ export function readTurn(
     no other negator is lost; `Ei, ma ei tea` says no as well and is a no.
   */
   const lostOnly = spoken.filter((word) => context.negators.has(word)).length <= 1;
-  if ((missing.length === beat.needs.length || metByBarePolarity) && (!wantsNo || lostOnly) && isLost(spoken, context)) {
+  /*
+    AND "EI SAA" TO "KAS TA SAAB…?" IS THE ANSWER. Asked whether the man who
+    fell can stand, a learner who wrote "Ei saa" was read as lost, because
+    `ei` beside `saama` is half of "Ma ei saa aru", and the operator asked the
+    same question again. Where the line they are answering asks with the same
+    verb, the negated verb answers it; "aru" in the turn still makes it lost.
+  */
+  const previous = new Set(words(context.previous));
+  const answersVerb = !spoken.includes(UNDERSTAND ?? "") && LOST.verbs.some((verb) => {
+    const forms = context.lexicon.byLemma.get(verb);
+    return Boolean(forms) && spoken.some((word) => forms!.has(word)) && [...previous].some((word) => forms!.has(word));
+  });
+  if (!answersVerb && (missing.length === beat.needs.length || metByBarePolarity) && (!wantsNo || lostOnly) && isLost(spoken, context)) {
     return shape("lost");
   }
 
@@ -985,6 +1081,18 @@ function satisfies(
       return YES;
     case "lemma": {
       for (const lemma of need.oneOf) {
+        /*
+          A PHRASE IS MET WHOLE. A phrase's forms are its own words
+          (`formsOf`), so `Head aega!` was met by `aega` alone, and "Kui kaua
+          see aega võtab?" ended a call with the other side's goodbye. Its
+          words in order, then, the way `LOST` already reads its phrase.
+        */
+        const parts = words(lemma);
+        if (parts.length > 1) {
+          const at = spoken.findIndex((_, i) => parts.every((part, k) => spoken[i + k] === part));
+          if (at >= 0) return { word: spoken[at]! };
+          continue;
+        }
         const forms = context.lexicon.byLemma.get(lemma);
         const hit = exact(forms);
         if (hit) return { word: hit, ...personSlip(hit, lemma, spoken, context) };
@@ -1200,11 +1308,29 @@ function satisfies(
         `pool kaks` (13:30) inside `pool kaksteist` (11:30) and `KK-1234`
         inside `KK-12345`.
       */
-      const runs: string[] = text.toLowerCase().match(/\d{1,2}[:.]\d{2}|\d+/g) ?? [];
+      /*
+        And a number said in words counts as its digits: `kakskümmend viis`
+        for 25, and a reference read out digit by digit, `kolm kaks üks
+        kaheksa`, for the 3218 the card holds (`spokenNumbers`).
+      */
+      const said = spokenNumbers(text);
+      const runs: string[] = [...(text.toLowerCase().match(/\d{1,2}[:.]\d{2}|\d+/g) ?? []), ...said];
       const isDigits = (value: string) => /^\d{1,2}([:.]\d{2})?$/.test(value);
+      /*
+        AND A REFERENCE TYPED WITH ITS SPACES OR WITHOUT ITS DASH IS THE SAME
+        REFERENCE. Told to give the number one digit at a time, a learner who
+        wrote `7 8 5 0` was answered as off the point, and `kk7850` as a
+        fragment. A value holding three or more digits is compared with the
+        separators taken out of both sides, and never with a digit beside it.
+      */
+      const compact = text.toLowerCase().replace(/[\s\-\u2013.,]+/g, "");
+      const typedTogether = (value: string) => {
+        const bare = value.toLowerCase().replace(/[\s\-\u2013]+/g, "");
+        return /\d{3}/.test(bare) && new RegExp(`(^|\\D)${bare.replace(/[^\p{L}\d]/gu, "")}(\\D|$)`, "u").test(compact);
+      };
       const literal = [...accepted].find((value) => (isDigits(value)
         ? runs.includes(value)
-        : /\d|\s/.test(value) && wholeLiteral(lower, value)));
+        : /\d|\s/.test(value) && (wholeLiteral(lower, value) || said.includes(value.replace(/\D/g, "")) || typedTogether(value))));
       if (literal) return { word: literal };
       const near = nearly(accepted);
       if (near) return { word: near.form, slip: { kind: "spelling", said: near.said, form: near.form, lemma: near.form } };
@@ -1280,8 +1406,21 @@ function satisfies(
             const near = folded(forms) ?? nearly(forms);
             if (near) return chosen(lemma, { word: near.form, slip: { kind: "spelling", said: near.said, form: near.form, lemma } });
           }
+          /*
+            And another of the slot's words reached for in English: "coffee"
+            at a counter whose card said tea is a drink chosen, in the language
+            the learner had for it, and the Estonian is said back.
+          */
+          for (const lemma of [...card, ...others]) {
+            const said = englishFor(lemma, context, spoken);
+            if (!said) continue;
+            // Said back in the case the beat wanted, where the table holds it: "coffee" is answered `Kohvi?`.
+            const form = (need.grammCase && context.lexicon.caseForm.get(caseKeyFor(lemma, need.grammCase))) || lemma;
+            const hit: Hit = { word: form, stoodIn: true, slip: { kind: "english", said, form, lemma } };
+            return card.includes(lemma) ? hit : chosen(lemma, hit);
+          }
           if (kind.kind === "word" && kind.places) {
-            const place = placeName(text, context);
+            const place = placeName(text, context, need.grammCase === "ILLATIVE");
             if (place) return { word: place.toLowerCase(), quiet: true, chose: { slot: need.slot, value: place } };
           }
         }
@@ -1388,7 +1527,14 @@ function englishFor(
   spoken: readonly string[],
 ): string | null {
   for (const sense of context.englishFor?.get(lemma) ?? []) {
-    const hit = spoken.find((word) => word === sense);
+    /*
+      And its plural, since a word reached for in English comes as often as
+      not in the plural: "flowers" for `lill` was read as off the point.
+    */
+    const plurals = sense.length >= 3
+      ? [`${sense}s`, `${sense}es`, ...(sense.endsWith("y") ? [`${sense.slice(0, -1)}ies`] : [])]
+      : [];
+    const hit = spoken.find((word) => word === sense || plurals.includes(word));
     if (hit) return hit;
   }
   return null;
@@ -1469,16 +1615,39 @@ function personSlip(
  * soovite piima?" takes `ei` as a whole answer, and reading a no there as a
  * turn that met nothing would be the app refusing the word it asked for.
  */
+/** The verbs whose negation turns an answer down rather than stating a problem. */
+const DECLINING = ["tahtma", "soovima", "sobima", "saama", "vajama"] as const;
+
 function negatedIn(
   hit: Hit | typeof YES | null,
   text: string,
   beat: BeatSpec,
   context: TurnContext,
+  need?: Requirement,
 ): boolean {
   if (!hit || hit === YES) return false;
   const takesNo = leafNeeds(beat.needs).some(({ need }) =>
-    need.kind === "lemma" && need.oneOf.some((lemma) => context.negators.has(lemma.toLowerCase())));
+    need.kind === "lemma" && need.oneOf.some((lemma) => words(lemma).some((word) => context.negators.has(word))));
+  // A phrase the beat names that holds its own no, `Ma ei saa aru`, is not refused by that no.
   if (takesNo) return false;
+  /*
+    WHAT IS NEGATED DECIDES WHETHER THE ANSWER IS REFUSED. "Ma ei taha
+    piima" turns the milk down, and "Mul ei ole tööd" is somebody saying
+    what is wrong, which is the answer the job centre asked for; read the
+    same way, the second was refused in perfect Estonian, and so were "Ma ei
+    ole kindel" and "mul ei ole seda dokumenti". So a word the beat names in
+    any form is refused only where wanting, suiting or being able is what was
+    negated. A case or a value off the card stays strict, since "ma ei ole
+    poes" is not being in the shop. And a negated "suits" or "can" after the
+    word in its clause refuses it too: "Kolmapäeval ma ei saa" turns
+    Wednesday down, and was read as taking it.
+  */
+  const strict = need === undefined || need.kind === "case" || need.kind === "datum"
+    || (need.kind === "anyOf" && need.of.some((leaf) => leaf.kind === "case" || leaf.kind === "datum"));
+  const declining = new Set(DECLINING.flatMap((lemma) => {
+    const form = context.lexicon.persons.get(lemma)?.get("IndPrPs_");
+    return form ? [form] : [];
+  }));
   /*
     The learner's own spelling as well as the dictionary's, because a hit
     that came with a slip carries the form it was read as in `word`: looked
@@ -1491,7 +1660,15 @@ function negatedIn(
     const said = words(clause);
     const at = said.findIndex((word) => spelled.has(word));
     if (at < 0) continue;
-    if (said.slice(0, at).some((word) => context.negators.has(word))) return true;
+    const before = said.slice(0, at);
+    const negatedAt = before.findIndex((word) => context.negators.has(word));
+    if (negatedAt >= 0 && (strict || before.slice(negatedAt + 1).some((word) => declining.has(word)))) return true;
+    // A negator straight in front of the word negates the word itself: "vihane, mitte kurb".
+    if (at > 0 && context.negators.has(said[at - 1]!)) return true;
+    // "Kolmapäeval ma ei saa": the word first, then the negated verb that turns it down.
+    const after = said.slice(at + 1);
+    const no = after.findIndex((word) => context.negators.has(word));
+    if (no >= 0 && after.slice(no + 1).some((word) => declining.has(word))) return true;
   }
   return false;
 }
@@ -1546,9 +1723,18 @@ const SHORT_LOST = 3;
  * is claimed, which is why the hit that carries it is `quiet`.
  */
 const PLACE_NAME = /^\p{Lu}\p{Ll}{2,}$/u;
-function placeName(text: string, context: TurnContext): string | null {
+/*
+  And typed in lower case where the beat asks where to: most people type
+  `tartusse` on a phone, and the capital was the only thing letting it through.
+  Only a spelling ending in the illative's own `sse`, which the forms list has to
+  vouch for below, so a stray word is still not a destination.
+*/
+const PLACE_TO = /^\p{Ll}{2,}sse$/u;
+function placeName(text: string, context: TurnContext, wantsTo = false): string | null {
   for (const token of text.match(ESTONIAN_WORD) ?? []) {
-    if (!PLACE_NAME.test(token)) continue;
+    const lowered = wantsTo && PLACE_TO.test(token);
+    if (!PLACE_NAME.test(token) && !lowered) continue;
+    if (lowered && !context.known?.(token)) continue;
     const word = token.toLowerCase();
     if (ENGLISH.has(word)) continue;
     if (context.lexicon.forms.has(word) || context.lexicon.folded.has(fold(word))) continue;
@@ -1595,6 +1781,70 @@ function isEnglish(spoken: readonly string[], marked: readonly TurnWord[]): bool
  * `Neljapäev?` after they said `neljapäev` is what a person says.
  */
 const ECHO_FLOOR = 2;
+/**
+ * WHETHER A TURN ONLY ASKS, SO IT ANSWERED NOTHING FURTHER ON.
+ *
+ * Read by the two places that credit a turn with a beat other than the one it
+ * was aimed at (`lib/progress/scene.ts`). "Kuidas ma seda võtan?" asked on the
+ * beat for asking it also met the pharmacy's "say you'll take it" on `võtma`,
+ * two beats early, and the answer that beat waits for was never given: the
+ * question was read as the statement it borrowed a word from. On the beat a
+ * turn is aimed at, a question is often how the business is stated ("Millal te
+ * raha tagasi maksate?" is a call about a deposit), so this is for the
+ * look-ahead alone. Every sentence a question opening on a question word and
+ * ending on its mark; not `kas`, whose question often is the answer ("Kas
+ * kaardiga saab?"), and the mark because `kui` opens "if" as often as "how".
+ */
+/**
+ * What a turn told rather than asked, for reading it against a beat it was not
+ * aimed at: the sentences that are not a question opening on a question word.
+ * "Tere! Kuidas sul läheb?" greeted, and its `läheb` met a friend's "say you'd
+ * like to come" from two beats away; "Raadiost kuulsin. Mis te arvate?" said
+ * where the news came from, and its `arvate` met "say you're not sure". The
+ * question is answered or not by the rules for questions, never read as the
+ * learner having said what it asks about. A beat that wants a question keeps
+ * the whole turn. Empty where the turn did nothing but ask (`onlyAsks`).
+ */
+export function answerPart(text: string, beat: BeatSpec, questionWords: ReadonlySet<string>): string {
+  if (leafNeeds(beat.needs).some(({ need }) => need.kind === "question")) return text;
+  return text.split(/(?<=[.!?])\s+/)
+    .filter((sentence) => {
+      const said = words(sentence);
+      // Not `said.length > 0`: `words` holds no digits, and "5" is a floor answered late.
+      if (sentence.trim().length === 0) return false;
+      return !(/\?\s*$/.test(sentence) && said[0] !== undefined && said[0] !== "kas" && questionWords.has(said[0]));
+    })
+    .join(" ");
+}
+
+export function onlyAsks(text: string, beat: BeatSpec, questionWords: ReadonlySet<string>): boolean {
+  if (leafNeeds(beat.needs).some(({ need }) => need.kind === "question")) return false;
+  const sentences = text.split(/(?<=[.!?])\s+/).filter((sentence) => words(sentence).length > 0);
+  return sentences.length > 0 && sentences.every((sentence) => {
+    const said = words(sentence);
+    return /\?\s*$/.test(sentence) && said[0] !== undefined && said[0] !== "kas" && questionWords.has(said[0]);
+  });
+}
+
+/**
+ * Whether a turn that met the beat did it by handing back a whole sentence of
+ * the line, or the whole choice the line offered, which is still parroting:
+ * a bank line that answers its own question ("Kus teil on valu? Mul on
+ * valu.") cannot be met by copying its second half. Not on a beat that gave
+ * instructions, whose goal is often to say them back.
+ */
+function handsBackWhole(spoken: readonly string[], previous: string, beat: BeatSpec): boolean {
+  if (spoken.includes(CHOICE_WORD)) return true;
+  if (beat.move === "instruct") return false;
+  // Nor on a read-back: "Homme kell 11.30." said back is the check the beat is for, and it was answered "Ma ei saa aru."
+  if (beat.move === "confirm") return false;
+  const said = new Set(spoken);
+  return previous.split(/(?<=[.!?])\s+/).some((sentence) => {
+    const its = words(sentence);
+    return its.length >= ECHO_FLOOR && its.every((word) => said.has(word));
+  });
+}
+
 function isEcho(spoken: readonly string[], previous: string): boolean {
   if (spoken.length < ECHO_FLOOR || !previous) return false;
   const said = words(previous);
@@ -1682,6 +1932,11 @@ export function advances(reading: TurnReading): boolean {
  * which mean one thing. A cascade or a credit at a distance may still be won
  * on a real word; it may never be won on `jah` or `ei` alone.
  */
+/** Whether a beat was met by a word and not by a bare yes or no, which every yes-or-no question takes. */
+export function metByWord(next: Evidence): boolean {
+  return next.satisfiedBy.length > 0 && next.satisfiedBy.every((word) => !BARE_POLARITY.has(word));
+}
+
 export function addsEvidence(next: Evidence, spent: ReadonlySet<string>): boolean {
   return next.satisfiedBy.some((word) => !spent.has(word) && !BARE_POLARITY.has(word));
 }

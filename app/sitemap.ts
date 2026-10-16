@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 
 import { canonicalOrigin } from "@/lib/auth/canonical";
 import { impactIsListed } from "@/lib/progress/impactListed";
+import { TOPIC_NOTES, allCaseReferences } from "@/lib/estonian/grammar";
 
 /**
  * The pages a stranger can read without an account, listed for whoever is
@@ -46,7 +47,23 @@ const PUBLIC_PATHS = [
   { path: "/state-exam", priority: 0.8 },
   { path: "/welcome/ru", priority: 0.7 },
   { path: "/welcome/uk", priority: 0.7 },
+  // The grammar reference, readable with no account (FB-8): what somebody
+  // searching "Estonian cases" or "seesütlev" is looking for.
+  { path: "/grammar", priority: 0.8 },
+  { path: "/grammar/cases", priority: 0.8 },
+  { path: "/grammar/build-a-word", priority: 0.7 },
 ] as const;
+
+/*
+  And a page per case and per topic, read off the reference's own tables so a
+  case or a topic added there is listed with no edit here. Kept out of the
+  literal list above, which is what `llms.txt` is held to: that file names the
+  three pages a reader starts from rather than all forty.
+*/
+const REFERENCE_PAGES = [
+  ...allCaseReferences().map((ref) => ({ path: `/grammar/${ref.key.toLowerCase()}`, priority: 0.6 })),
+  ...TOPIC_NOTES.map((topic) => ({ path: `/grammar/topic/${topic.id}`, priority: 0.5 })),
+];
 
 /*
   /impact is the one public page that lists itself only once it has something
@@ -64,7 +81,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const origin = canonicalOrigin();
   if (!origin) return [];
   const lastModified = new Date();
-  const paths = await impactIsListed() ? [...PUBLIC_PATHS, IMPACT_PAGE] : PUBLIC_PATHS;
+  const paths = [...(await impactIsListed() ? [...PUBLIC_PATHS, IMPACT_PAGE] : PUBLIC_PATHS), ...REFERENCE_PAGES];
   return paths.map(({ path, priority }) => ({
     url: new URL(path, origin).toString(),
     lastModified,

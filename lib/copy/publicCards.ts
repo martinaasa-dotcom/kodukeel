@@ -32,6 +32,12 @@ export const PUBLIC_CARDS = {
   "/curriculum": "Every unit of the Kodukeel course by level, what it says a learner can do, and which part of the state examination it prepares for.",
   "/how-we-know": "Each claim Kodukeel makes about itself, the figure behind it, the day it was measured and the command that measures it again.",
   "/pilots": "What a Kodukeel pilot is, what it costs, what is asked of you and what happens to your people’s data.",
+  // The grammar reference, readable with no account (FB-8). Each case page and
+  // each topic page carries its own summary as its card, off the reference's
+  // own table, so only the three pages with no summary of their own are here.
+  "/grammar": "How Estonian grammar works, in order: three forms you learn, eleven endings you work out, the words that break the rules, and the verb.",
+  "/grammar/cases": "All fourteen Estonian cases in plain English, each with the name your teacher uses and the question it answers, shown on real words.",
+  "/grammar/build-a-word": "See how Estonian cases work on one word: the three forms you learn by heart, the one the endings go on, and each of the eleven endings in a real sentence.",
 } as const;
 
 export type CardedPath = keyof typeof PUBLIC_CARDS;

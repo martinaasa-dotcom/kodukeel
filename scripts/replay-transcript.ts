@@ -3,6 +3,7 @@
  * ladder, and prints what the other side says at each turn.
  *
  *   npm run replay:scene
+ *   npm run replay:scene -- --scene bussipilet --level A1 --seed 3 --say "Tere"
  *   npm run replay:scene -- --scene bussipilet --curveball wrong-price@pay \
  *       --say "Tervist" --say "Ma tahan pilet" --say "Kui palju?"
  *
@@ -50,8 +51,10 @@ async function main() {
   const level = (arg("level") ?? HARNESS_LEVEL) as Level;
   const base = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)), level);
   const context = { ...base, marker: { ...base.marker, ...acceptFromRows(scene, rows) } };
-  const run = planRun(scene, "repro", level, "textbook");
-  const card: RoleCard = {
+  // `--seed` deals another card and persona; the report's own card is pinned only for its own scene.
+  const run = planRun(scene, arg("seed") ?? "repro", level, "textbook");
+  const pinned = scene.id === "bussipilet" && !arg("seed");
+  const card: RoleCard = !pinned ? run.card : {
     ...run.card,
     props: run.card.props.map((p) => p.slot === "to"
       ? { ...p, lemmas: ["jaam"], value: "jaam" }

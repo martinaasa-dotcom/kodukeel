@@ -17,18 +17,20 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `turul`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "turul", beat: "some", text: "Mida te soovite?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "turul", beat: "some", text: "Mida teile täna?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "turul", beat: "pieces", text: "Kas veel midagi?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "turul", beat: "pieces", text: "Palun. Kas soovite veel midagi?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "turul", beat: "price", text: "Nii, kõik on valmis.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "turul", beat: "price", text: "Palun, siin on kõik.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "turul", beat: "hurdle:faster", text: "Mul on täna väga kiire.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "turul", beat: "hurdle:faster", text: "Mul on kiire, öelge kohe.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "turul", beat: "hurdle:misheard", text: "Kas te soovite porgandeid või kartuleid?", model: "authored", draftedAt: "2026-10-15", about: "some" },
-  { scene: "turul", beat: "hurdle:misheard", text: "Kas te soovite õunu või mune?", model: "authored", draftedAt: "2026-10-15", about: "pieces" },
-  { scene: "turul", beat: "hurdle:small-talk", text: "Täna on ilus ilm, eks?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "turul", beat: "hurdle:small-talk", text: "Täna on turul külm, eks?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "turul", beat: "some", text: "Mida te soovite?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "turul", beat: "some", text: "Mida teile täna?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "turul", beat: "weight", text: "Kui palju teile?", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
+  { scene: "turul", beat: "weight", text: "Kui palju te soovite?", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
+  { scene: "turul", beat: "pieces", text: "Kas veel midagi?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "turul", beat: "pieces", text: "Kas soovite veel midagi?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "turul", beat: "many", text: "Mitu tükki?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "turul", beat: "many", text: "Mitu tükki teile?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "turul", beat: "price", text: "Nii, kõik on valmis.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "turul", beat: "price", text: "Palun, siin on kõik.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "turul", beat: "hurdle:faster", text: "Mul on täna väga kiire.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "turul", beat: "hurdle:faster", text: "Mul on kiire, öelge kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "turul", beat: "hurdle:small-talk", text: "Täna on ilus ilm, eks?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "turul", beat: "hurdle:small-talk", text: "Täna on turul külm, eks?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
 ];
 
 export default LINES;

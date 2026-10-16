@@ -1,5 +1,5 @@
 import type { SceneSpec } from "../types";
-import { COMMON, HELLOS, CLOSING_WORDS, FAREWELLS } from "./shared";
+import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 
 const COMPLAINT: SceneSpec = {
   id: "kaebus",
@@ -23,16 +23,17 @@ const COMPLAINT: SceneSpec = {
       oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede"],
       says: "The day you bought it.",
     },
-    /*
-      THE PRICE, TOLD AND THEN CHANGED. `wrong-price` says the amount is not
-      the one the learner was told, so the card tells them one, and the other
-      side holds the one it has now, drawn to differ and never printed: the
-      curveball says it off the card and "how much?" is answered with it.
-    */
-    { kind: "price", slot: "price", min: 15, max: 60, says: "What you paid for it, in euros." },
-    { kind: "price", slot: "price2", min: 15, max: 60, says: "What it costs now.", theirs: true, differentFrom: "price" },
   ],
-  curveballs: ["not-possible", "contradiction", "their-order", "missing-document", "queue", "english", "faster", "wrong-price", "small-talk"],
+  /*
+    Only what does not repeat a beat. The desk already refuses at `insist`,
+    so `not-possible` was a second refusal on top of the first and the
+    learner went round in a circle; it already asks for the receipt, so
+    `missing-document` and `their-order` asked for it twice; a price that
+    changes means nothing when the thing is coming back; and `contradiction`
+    took back a refusal in the learner's favour, which is not a thing anybody
+    argues with.
+  */
+  curveballs: ["queue", "english", "faster", "small-talk"],
   beats: [
     {
       id: "greet",
@@ -48,8 +49,8 @@ const COMPLAINT: SceneSpec = {
     {
       id: "problem",
       goal: "Tell them what you bought and what's wrong with it.",
-      they: "They ask what the problem is.",
-      feel: "sorry",
+      they: "They ask how they can help.",
+      feel: "noted",
       move: "ask",
       topic: ["probleem", "viga", "katki", "kaebus", "aitama"],
       /*
@@ -61,7 +62,15 @@ const COMPLAINT: SceneSpec = {
         same reason.
       */
       // `katki` first, because the first option is the word a stuck learner is handed and "broken" is what anybody says.
-      needs: [{ kind: "datum", slot: "item" }, { kind: "lemma", oneOf: ["katki", "viga", "probleem", "halb", "kahju", "töötama", "vana"] }],
+      /*
+        Or a negation: `Arvuti ei tööta` is the commonest way to say what is
+        wrong, and the negator took `töötama` off the turn, so the clerk asked
+        again what the problem was.
+      */
+      needs: [{ kind: "datum", slot: "item" }, { kind: "anyOf", of: [
+        { kind: "lemma", oneOf: ["katki", "viga", "probleem", "halb", "kahju", "töötama", "vana"] },
+        { kind: "negation" },
+      ] }],
       required: true,
       patience: 3,
       shape: "sentence",
@@ -72,7 +81,15 @@ const COMPLAINT: SceneSpec = {
       they: "They ask when you bought it.",
       move: "ask",
       topic: ["millal", "ostma", "päev", "eile"],
-      needs: [{ kind: "datum", slot: "bought" }],
+      /*
+        The day off the card, or yesterday in a word. Not `nädal`: "Eelmisel
+        nädalal" does not say which day, and asking again which day is what
+        the person at the desk would do.
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "datum", slot: "bought" },
+        { kind: "lemma", oneOf: ["eile", "üleeile"] },
+      ] }],
       required: true,
       patience: 2,
       shape: "word",
@@ -81,6 +98,11 @@ const COMPLAINT: SceneSpec = {
       id: "receipt",
       goal: "Tell them if you've got the receipt with you.",
       they: "They ask if you've got the receipt.",
+      /*
+        No `feel`: with one the desk said `Selge.` after the problem, the
+        receipt and the request, four turns running, which is a machine
+        filing answers. A receipt handed over is thanked for.
+      */
       move: "ask",
       topic: ["dokument", "arve", "kaasas"],
       needs: [{ kind: "lemma", oneOf: ["jah", "ei", "arve", "dokument", "kaasas"] }],
@@ -92,6 +114,7 @@ const COMPLAINT: SceneSpec = {
       id: "want",
       goal: "Tell them what you'd like: your money back, or to have it repaired.",
       they: "They ask what you'd like them to do.",
+      feel: "noted",
       move: "ask",
       topic: ["raha", "parandama", "lahendus", "uus", "hüvitis"],
       needs: [{ kind: "lemma", oneOf: ["raha", "parandama", "uus", "lahendus", "hüvitis"] }],
@@ -112,7 +135,7 @@ const COMPLAINT: SceneSpec = {
         is a way through now, and is answered.
       */
       needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["kaebus", "kaebama", "lahendus", "hüvitis", "probleem", "klient"] }, { kind: "question" }] }],
-      answer: "They say they can repair it, or you can write a complaint.",
+      answer: "They say you can write a complaint, and they will see what can be done.",
       required: false,
       patience: 2,
       shape: "sentence",
@@ -120,9 +143,14 @@ const COMPLAINT: SceneSpec = {
     {
       id: "close",
       goal: "Thank them and say goodbye.",
-      they: "They say goodbye.",
+      they: "They say that's settled, thank you, and say goodbye.",
       move: "close",
-      topic: [...FAREWELLS],
+      /*
+        Not the farewells as a topic, which put a bare `Nägemist!` straight
+        after a learner said they would write a complaint: the clerk says it
+        is settled first, off the bank, and then goodbye.
+      */
+      topic: ["hea", "aeg"],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,

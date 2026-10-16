@@ -40,7 +40,7 @@ const PARENTS_EVENING: SceneSpec = {
     {
       id: "greet",
       goal: "Say hello back to the teacher.",
-      they: "The teacher says hello and asks you to sit down.",
+      they: "The teacher says hello.",
       move: "greet",
       topic: [...HELLOS],
       needs: [{ kind: "lemma", oneOf: [...HELLOS] }],
@@ -65,7 +65,7 @@ const PARENTS_EVENING: SceneSpec = {
     {
       id: "how",
       goal: "They tell you how your child is doing. Ask them one question about it.",
-      they: "They say your child is hard-working and friendly, but makes mistakes when writing.",
+      they: "They say your child is hard-working and friendly, but makes a lot of mistakes.",
       answer: "They say the mistakes are small, and that your child is learning well.",
       move: "instruct",
       topic: ["viga", "kirjutama", "hinne"],
@@ -78,10 +78,18 @@ const PARENTS_EVENING: SceneSpec = {
       id: "home",
       goal: "Tell them how your child seems at home lately.",
       they: "They ask how your child seems at home.",
+      /* A child who is sad, worried or angry at home is news a teacher takes with concern. */
       feel: "sorry",
       move: "ask",
       topic: ["kodu", "tunduma", "tuju"],
-      needs: [{ kind: "datum", slot: "home" }],
+      /*
+        The card deals a worry, and a parent who says the child is happy at
+        home has answered the question just as well.
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "datum", slot: "home" },
+        { kind: "lemma", oneOf: ["rõõmus", "rahulik", "õnnelik"] },
+      ] }],
       required: true,
       patience: 2,
       shape: "sentence",
@@ -90,9 +98,22 @@ const PARENTS_EVENING: SceneSpec = {
       id: "practise",
       goal: "Say you'll read with them at home every day.",
       they: "They suggest reading together at home, a little every day.",
+      /*
+        A parent asks back as often as they agree ("Kas iga päev?"), and a
+        question that names reading meets the beat: it is answered rather
+        than thanked.
+      */
+      answer: "They say yes, a little every day is enough.",
       move: "instruct",
       topic: ["lugema", "kodu", "päev"],
-      needs: [{ kind: "lemma", oneOf: ["lugema", "jah", "hästi", "selge"] }],
+      /*
+        Agreeing to read is the beat, and "Hea mõte", "Kindlasti" and a plain
+        thanks are how a parent agrees to a teacher's suggestion.
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "lemma", oneOf: ["lugema", "jah", "hästi", "selge", "hea", "kindlasti", "proovima", "Aitäh!"] },
+        { kind: "question" },
+      ] }],
       required: true,
       patience: 2,
       shape: "sentence",

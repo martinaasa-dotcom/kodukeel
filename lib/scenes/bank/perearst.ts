@@ -17,24 +17,20 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `perearst`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "perearst", beat: "hurts", text: "Mis teil valutab?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "perearst", beat: "hurts", text: "Mis valutab?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "perearst", beat: "since", text: "Kui kaua see on valutanud?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "perearst", beat: "since", text: "Millest alates see valutab?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "perearst", beat: "bad", text: "Kui tugev valu on?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "perearst", beat: "bad", text: "Kui halb see on?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "perearst", beat: "take", text: "Võtke üks tablett kolm korda päevas, söögi ajal.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "perearst", beat: "take", text: "Võtke kaks korda päevas üks tablett, alati söögi ajal.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "perearst", beat: "hurdle:faster", text: "Mul on kiire, rääkige kohe.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "perearst", beat: "hurdle:faster", text: "Kiire on, öelge kohe.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "perearst", beat: "hurdle:misheard", text: "Kas teil valutab pea või kõht?", model: "authored", draftedAt: "2026-10-15", about: "hurts" },
-  { scene: "perearst", beat: "hurdle:misheard", text: "Kas see oli esmaspäeval või teisipäeval?", model: "authored", draftedAt: "2026-10-15", about: "since" },
-  { scene: "perearst", beat: "hurdle:contradiction", text: "Ei, tegelikult võtke tablett ainult üks kord päevas.", model: "authored", draftedAt: "2026-10-15", about: "take" },
-  { scene: "perearst", beat: "hurdle:contradiction", text: "Tegelikult võtke seda hommikul, mitte õhtul.", model: "authored", draftedAt: "2026-10-15", about: "take" },
-  { scene: "perearst", beat: "hurdle:slot-gone", text: "Vabandust, see aeg on juba võetud.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "perearst", beat: "hurdle:slot-gone", text: "See aeg on juba võetud, vabandust.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "perearst", beat: "answer:hurdle:slot-gone", text: "Hiljem on veel vaba aeg.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "perearst", beat: "answer:hurdle:slot-gone", text: "Natuke hiljem on veel aega.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "perearst", beat: "hurts", text: "Mis teil valutab?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "perearst", beat: "hurts", text: "Mis valutab?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "perearst", beat: "since", text: "Kui kaua see on valutanud?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "perearst", beat: "since", text: "Millest alates see valutab?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "perearst", beat: "bad", text: "Kui tugev valu on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "perearst", beat: "bad", text: "Kui halb see on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "perearst", beat: "close", text: "Saage terveks! Nägemist!", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
+  { scene: "perearst", beat: "close", text: "Saage terveks! Head aega!", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
+  { scene: "perearst", beat: "hurdle:faster", text: "Mul on kiire, rääkige kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "perearst", beat: "hurdle:faster", text: "Kiire on, öelge kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "perearst", beat: "hurdle:misheard", text: "Kas teil valutab käsi?", model: "authored", draftedAt: "2026-10-15", about: "hurts", reviewedAt: "2026-10-16" },
+  { scene: "perearst", beat: "hurdle:misheard", text: "Alates reedest, jah?", model: "authored", draftedAt: "2026-10-15", about: "since", reviewedAt: "2026-10-16" },
+  { scene: "perearst", beat: "hurdle:contradiction", text: "Nii, teil valutab käsi, eks?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "perearst", beat: "hurdle:contradiction", text: "See valutab juba kuu aega, eks?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
 ];
 
 export default LINES;

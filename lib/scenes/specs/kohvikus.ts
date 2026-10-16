@@ -24,9 +24,10 @@ const CAFE: SceneSpec = {
     `restoranis` for `arve` and `tellima`, which is how the bill is asked for
     and the order taken; `kus-ja-kuhu` for the café itself; `omadussonad` for
     "large" and "small", which is what the beat below asks about rather than
-    milk, for the reason given there.
+    milk, for the reason given there. `reisimine` for `kaart`, because
+    "kaardiga" is how almost everybody pays for a coffee.
   */
-  units: [...COMMON, "sook-ja-jook", "ostmine", "kus-ja-kuhu", "restoranis", "omadussonad"],
+  units: [...COMMON, "sook-ja-jook", "ostmine", "kus-ja-kuhu", "restoranis", "omadussonad", "reisimine"],
   register: "teie",
   role: "You've got ten minutes before your bus and you'd like something to drink. Your card says what you feel like.",
   props: [
@@ -83,7 +84,16 @@ const CAFE: SceneSpec = {
       they: "They ask if you'd like a large or a small one.",
       move: "ask",
       topic: ["suur", "väike"],
-      needs: [{ kind: "lemma", oneOf: ["suur", "väike"] }],
+      /*
+        Or another drink altogether, because the drink they asked for can be
+        off today (`not-possible`), and "Siis teed, palun." is the answer
+        anybody gives: refusing it and asking "large or small?" again is the
+        barista ignoring the new order.
+      */
+      needs: [{
+        kind: "anyOf",
+        of: [{ kind: "lemma", oneOf: ["suur", "väike"] }, { kind: "datum", slot: "drink", grammCase: "PARTITIVE" }],
+      }],
       choice: ["suur", "väike"],
       required: true,
       patience: 2,
@@ -103,10 +113,46 @@ const CAFE: SceneSpec = {
         `arve`/`maksma`/`raha` the way the offer beats in this file already
         take `jah` and `ei` beside their drawn value.
       */
-      needs: [{ kind: "lemma", oneOf: ["jah", "arve", "maksma", "raha"] }],
+      // And "ei": "Kas see on kõik või soovite veel midagi?" is answered "Ei, aitäh" as often as "Jah".
+      // And "Kaardiga" is how anybody says it is everything: they are paying, and how.
+      needs: [{
+        kind: "anyOf",
+        of: [
+          { kind: "lemma", oneOf: ["arve", "maksma", "raha", "jah", "ei"] },
+          { kind: "case", lemma: "kaart", grammCase: "COMITATIVE" },
+          { kind: "case", lemma: "sularaha", grammCase: "COMITATIVE" },
+        ],
+      }],
       required: true,
       patience: 2,
       shape: "sentence",
+    },
+    {
+      /*
+        AND THEN THEY ASK HOW YOU ARE PAYING. The bill beat asked whether that
+        was everything and went straight to goodbye, so nobody ever paid. The
+        amount is on the board, which is on the card, so the till asks the
+        one thing it does not know: card or cash. "Jah" and "ei" answer the
+        yes-or-no version of the same question.
+      */
+      id: "pay",
+      goal: "Tell them how you're paying: by card or in cash.",
+      they: "They ask if you're paying by card or in cash.",
+      move: "ask",
+      topic: ["maksma", "kaart", "sularaha"],
+      needs: [{
+        kind: "anyOf",
+        of: [
+          { kind: "case", lemma: "kaart", grammCase: "COMITATIVE" },
+          { kind: "case", lemma: "sularaha", grammCase: "COMITATIVE" },
+          { kind: "case", lemma: "raha", grammCase: "COMITATIVE" },
+          { kind: "lemma", oneOf: ["jah", "ei"] },
+        ],
+      }],
+      required: true,
+      /* Three, because nobody at a till lets a customer go unpaid after one muddled answer: a brisk clerk with one try did. */
+      patience: 3,
+      shape: "word",
     },
     {
       id: "close",
@@ -121,8 +167,8 @@ const CAFE: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "served", when: ["greet", "order", "size", "bill", "close"], says: "You've got your drink, you've paid, and you made the bus." },
-    { id: "served-quiet", when: ["order", "bill"], says: "You got your drink and you paid. Not much was said, and in a café that's fine." },
+    { id: "served", when: ["greet", "order", "size", "bill", "pay", "close"], says: "You've got your drink, you've paid, and you made the bus." },
+    { id: "served-quiet", when: ["order", "pay"], says: "You got your drink and you paid. Not much was said, and in a café that's fine." },
     { id: "out", when: ["greet", "order"], says: "They'd run out of it today. You asked for what you wanted, and that was your part done." },
     { id: "left", when: [], says: "You left the counter before it was done. People do, and the café will be there tomorrow." },
   ],

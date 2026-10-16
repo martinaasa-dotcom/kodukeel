@@ -1795,7 +1795,7 @@ boundary between them, so the obvious spelling misses the words this language is
 **And Ekilex's own part of speech was being discarded**, so a deliberate coarsening could not be
 told from a mistake. `ekilexPos` records it. The table of legitimate coarsenings was set by
 narrowing until something honest complained rather than widening until nothing did, and with it
-written down the course's label and Ekilex's agree on all 1,859 words. `PRONOUN` is a part of speech for it, harvested as a nominal
+written down the course's label and Ekilex's agree on all 1,867 words. `PRONOUN` is a part of speech for it, harvested as a nominal
 because it declines like one (`kes`, `kelle`, `keda`), and a pronoun with no singular (`meie`,
 `nemad`) is kept the way an adverb is, attested and formless, rather than dropped.
 `lib/collections/syllabus/retired.ts` is the other half: the ten C2 units were cut in §19 of the
@@ -1978,9 +1978,9 @@ the counter said goodbye with nobody having paid: right for a rehearsal and wron
 every step offers two to four lines to pick, each built off the dictionary (a lemma, a case form or a
 person off the scene's own tables, never typed), the browser sends the pick's id and never its text,
 and a pick not on offer is refused. The picks still go through `knowing` and `replay`, and the itest
-walks **every** path on several seeds and fails on one that does not end with all five beats met,
-the price said, and no repair line. `pay` is a step of the page only, because a café where nobody says
-the price was the fault. The panel says in words that inside the app you type your own answers. And
+walks **every** path on several seeds and fails on one that does not end with every beat met,
+the price said, and no repair line. The price is said after the bill and the payment is the scene's
+own `pay` beat, because a café where nobody says the price was the fault. The panel says in words that inside the app you type your own answers. And
 the conversation is a window of fixed height that scrolls itself, never the page, with no
 `overscroll-behavior`, so the section keeps its size as lines arrive. What the visitor built and ordered is
 held in memory for the tab (`app/(chromeless)/welcome/visit.ts`) and said back at the close; nothing
@@ -2044,8 +2044,8 @@ So the harvest stores what the rules miss, and it **asks the rules rather than c
 `unreachableSlots` in `conjugate.ts` and `unreachableCaseForms` in `derive.ts`, each living beside
 the rule it is the complement of. A list would be two copies of one fact and the copy in the
 builder is the one that rots, because a missing form does not look like an error, it looks like a
-word that inflects less. Asserted on the call in both builders. That is 1,954 forms across 427 of the
-1,859 course words. Four codes are nearly all of it, and the fact that they are the four is the
+word that inflects less. Asserted on the call in both builders. That is 1,958 forms across 428 of the
+1,867 course words. Four codes are nearly all of it, and the fact that they are the four is the
 argument: the simple past third person (310), the polite imperative (312) and both participles
 (313 past, 309 present), which are exactly the slots the two paragraphs below record the evals
 finding one at a time. The rest is `olema`'s present, `minema`'s imperative, `pole`, and the short
@@ -10439,7 +10439,7 @@ shape that breaks this and it is the natural thing to write, so the invariant re
 - TypeScript `strict` plus `noUncheckedIndexedAccess`. No `any` without a comment justifying it.
 - `lib/assessment/`, `lib/collections/`, `lib/copy/`, `lib/course/`, `lib/curriculum/`,
   `lib/email/`, `lib/estonian/`, `lib/evidence/`, `lib/exam/`, `lib/funding/`, `lib/games/`, `lib/learn/`, `lib/offline/`,
-  `lib/questions/`, `lib/random/`, `lib/readiness/`, `lib/research/`, `lib/scan/`, `lib/scenes/`,
+  `lib/questions/`, `lib/random/`, `lib/readiness/`, `lib/research/`, `lib/review/`, `lib/scan/`, `lib/scenes/`,
   `lib/security/`, `lib/stats/`, `lib/time/` and `lib/ux/` stay free of React, Next.js and Prisma,
   however many imports away: pure functions, unit tested. Anything that
   needs the database lives in `lib/progress/` or a route. Asserted, because it

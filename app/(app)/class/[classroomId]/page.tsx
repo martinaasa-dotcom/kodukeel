@@ -16,7 +16,9 @@ import { RosterList } from "@/components/class/RosterList";
 import { LocalDate } from "@/components/LocalDate";
 import { DUE_DATE_FORMAT } from "@/lib/ux/agenda";
 import { Card, Empty, Meter, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
-import { ArchiveClass, AssignHomework, AssignUnit, ClassDigest, CopyCode, LeaveClass } from "../ClassForms";
+import { ArchiveClass, AssignHomework, AssignScene, AssignUnit, ClassDigest, CopyCode, LeaveClass } from "../ClassForms";
+import { SCENES } from "@/lib/scenes/catalogue";
+import { sceneHomeworkCount } from "@/lib/progress/homework";
 import { localeFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { fillNodes } from "@/components/TemplateNodes";
@@ -103,6 +105,15 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
   const leader = roster?.entries[0];
   const you = roster?.entries.find((e) => e.ownerId === ownerId);
   const units = PATH.map((u) => ({ id: u.id, title: u.title, subtitle: u.subtitle }));
+  const scenes = SCENES.map((scene) => ({ id: scene.id, title: t(scene.title) }));
+  /*
+    How far the class has got with each conversation it was sent, counted off
+    the runs (D4) rather than ticked. A count and never a list of who has not:
+    this page is shown and printed, and the term report's rule holds here.
+  */
+  const sceneCounts = new Map(await Promise.all(
+    history.filter((h) => h.sceneId).map(async (h) => [h.id, await sceneHomeworkCount(classroomId, h.sceneId!, h.createdAt)] as const),
+  ));
 
   return (
     <Page
@@ -248,6 +259,13 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
             </Card>
 
             <Card className="mt-3">
+              <AssignScene classroomId={classroomId} scenes={scenes} />
+              <Explain label={t("When it counts as done")}>
+                {t("Each student gets it on Today with a button that opens it. It counts as done once they finish the conversation, so nobody has to tick anything.")}
+              </Explain>
+            </Card>
+
+            <Card className="mt-3">
               <SectionTitle hint={t("a textbook page, an exercise, anything outside the course")}>
                 {t("Set other homework")}
               </SectionTitle>
@@ -265,7 +283,9 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                       style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
                     >
                       <div className="flex flex-wrap items-baseline justify-between gap-2">
-                        <span className="text-sm font-medium" style={{ color: "var(--ink)" }}>{h.title}</span>
+                        <span className="text-sm font-medium" style={{ color: "var(--ink)" }}>
+                          {scenes.find((scene) => scene.id === h.sceneId)?.title ?? h.title}
+                        </span>
                         {/*
                           Through LocalDate, like the joined date below it. These
                           two were formatted on the server with the locale left
@@ -302,6 +322,14 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                       </div>
                       {h.detail && (
                         <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>{h.detail}</p>
+                      )}
+                      {sceneCounts.has(h.id) && (
+                        <p className="mt-1 text-xs tnum" style={{ color: "var(--ink-2)" }}>
+                          {fill(t("{done} of {all} have done it"), {
+                            done: sceneCounts.get(h.id)!.done,
+                            all: sceneCounts.get(h.id)!.of,
+                          })}
+                        </p>
                       )}
                     </li>
                   ))}

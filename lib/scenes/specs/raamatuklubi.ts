@@ -1,5 +1,5 @@
 import type { SceneSpec } from "../types";
-import { COMMON, HELLOS, CLOSING_WORDS, FAREWELLS } from "./shared";
+import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 
 const BOOK_CLUB: SceneSpec = {
   id: "raamatuklubi",
@@ -12,10 +12,11 @@ const BOOK_CLUB: SceneSpec = {
     and disagreeing, `idioomid` for saying what you thought in more than one
     way, `kirjeldamine` and `tunded` for what it was like, `kodu` for the
     book, `minevik` for changing something, `rektsioon` for liking it,
-    `plaanid` for what you think, and `omadussonad` for slowly. `sina`,
+    `plaanid` for what you think and for agreeing, `omadussonad` for slowly,
+    and `iseloom` and `inimesed` for what the main character was like. `sina`,
     because it is a club of friends.
   */
-  units: [...COMMON, "kirjandus", "arvamus", "idioomid", "kirjeldamine", "tunded", "kodu", "minevik", "rektsioon", "plaanid", "omadussonad"],
+  units: [...COMMON, "kirjandus", "arvamus", "idioomid", "kirjeldamine", "tunded", "kodu", "minevik", "rektsioon", "plaanid", "omadussonad", "iseloom", "inimesed"],
   register: "sina",
   role: "This is a role. Your book club is talking about this month's novel. You've read it, and you have opinions.",
   props: [],
@@ -24,9 +25,10 @@ const BOOK_CLUB: SceneSpec = {
     {
       id: "greet",
       goal: "Say hello to the club.",
-      they: "The others say hello and open the book.",
+      they: "The others say hello and say everybody's here, so you can start.",
       move: "greet",
-      topic: [...HELLOS],
+      // Not `HELLOS`: the line says hello and starts the evening, and the bank is what says it.
+      topic: ["alustama", "kõik"],
       needs: [{ kind: "lemma", oneOf: [...HELLOS] }],
       required: true,
       patience: 2,
@@ -38,7 +40,7 @@ const BOOK_CLUB: SceneSpec = {
       they: "They ask what you thought of it.",
       move: "ask",
       topic: ["raamat", "arvama"],
-      needs: [{ kind: "lemma", oneOf: ["huvitav", "igav", "ilus", "hea", "kurb", "lõbus", "tore"] }],
+      needs: [{ kind: "lemma", oneOf: ["huvitav", "igav", "ilus", "hea", "halb", "kurb", "lõbus", "tore", "meeldima", "mõjuv"] }],
       required: true,
       patience: 3,
       shape: "sentence",
@@ -49,9 +51,17 @@ const BOOK_CLUB: SceneSpec = {
       they: "They ask whether you liked the main character.",
       move: "ask",
       topic: ["peategelane", "tegelane", "meeldima"],
+      /*
+        Words about a person, and not the words about the book. A verdict on
+        the book with two of these in it (`Mulle meeldis, see oli huvitav`)
+        met this beat as well as the one before, so the club never asked
+        about the main character at all. `tore` and `igav` stay, because
+        they are the bare answer anybody gives; `tema` (which takes `ta`) and `jah` carry
+        `Jah, ta meeldis mulle`.
+      */
       needs: [{ kind: "anyOf", of: [
         { kind: "negation" },
-        { kind: "lemma", oneOf: ["meeldima", "jah", "tore", "huvitav", "igav"] },
+        { kind: "lemma", oneOf: ["jah", "tema", "peategelane", "tegelane", "inimene", "tore", "igav", "tark", "rumal", "julge", "sõbralik", "naljakas"] },
       ] }],
       required: true,
       patience: 2,
@@ -59,11 +69,30 @@ const BOOK_CLUB: SceneSpec = {
     },
     {
       id: "change",
-      goal: "Say what you'd change about it: the ending, say.",
+      goal: "Say what you'd change about it: the ending, say, or nothing at all.",
       they: "They ask what you'd change if you could.",
       move: "ask",
       topic: ["muutma", "lõpp"],
-      needs: [{ kind: "lemma", oneOf: ["lõpp", "algus", "muutma", "tegelane", "peategelane"] }],
+      /*
+        Not the characters any more. The book's people come up on every beat
+        before this one, so `tegelane` and `peategelane` on this list met it
+        in passing: "the main character was boring" answered what you would
+        change, and the club never asked. The ending and the beginning stay,
+        because `Lõppu.` is the whole answer to "what would you change?". And
+        a no: `Ma ei muudaks midagi` is an answer, and with `muutma` alone on
+        the list it was refused, because a verb said under a negator is read
+        as the learner declining to say it.
+      */
+      /*
+        Not `algus` either, for the reason the characters went: "it was
+        interesting, though the beginning was long" is a verdict on the book,
+        and it met this beat in passing so the club never asked. The lemma
+        comes before the negation so a tip names the ending, not "try saying no".
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "lemma", oneOf: ["lõpp", "muutma"] },
+        { kind: "negation" },
+      ] }],
       required: true,
       patience: 2,
       shape: "sentence",
@@ -74,9 +103,10 @@ const BOOK_CLUB: SceneSpec = {
       they: "Somebody else says the ending was the best part.",
       move: "confirm",
       topic: ["lõpp", "nõustuma"],
+      // The lemma first, so a tip says to agree rather than to say no.
       needs: [{ kind: "anyOf", of: [
+        { kind: "lemma", oneOf: ["nõustuma", "nõus", "jah", "arvama", "muidugi"] },
         { kind: "negation" },
-        { kind: "lemma", oneOf: ["nõustuma", "jah", "arvama"] },
       ] }],
       required: true,
       patience: 2,
@@ -85,9 +115,10 @@ const BOOK_CLUB: SceneSpec = {
     {
       id: "close",
       goal: "Say goodbye until next month.",
-      they: "They pick next month's book and say goodbye.",
+      they: "They say next month there's a new book, and say goodbye.",
       move: "close",
-      topic: [...FAREWELLS],
+      // Not `FAREWELLS`: the line names next month's book before the goodbye.
+      topic: ["järgmine", "raamat"],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,

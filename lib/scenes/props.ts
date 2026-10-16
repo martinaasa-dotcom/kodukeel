@@ -116,6 +116,11 @@ export type PropSpec =
       readonly from: number;
       readonly to: number;
       readonly differentFrom?: string;
+      /**
+       * Later in the day than the `differentFrom` slot, so "there is time
+       * later" said of a slot that has gone is true of the one offered next.
+       */
+      readonly later?: true;
       readonly theirs?: true;
       /** How the card labels it. The value is printed under it like every other. */
       readonly says?: string;
@@ -139,8 +144,12 @@ export type PropSpec =
       /** An earlier slot this one may not repeat: the second day offered is another day. */
       readonly differentFrom?: string;
     }
-  /** A plain number: a floor, a room, an amount. */
-  | { readonly kind: "number"; readonly slot: string; readonly min: number; readonly max: number; readonly says: string }
+  /**
+   * A plain number: a floor, a room, an amount. `theirs` where the number is
+   * the other side's to give, a dose the doctor sets, so the learner reading
+   * back another is corrected rather than credited with changing it.
+   */
+  | { readonly kind: "number"; readonly slot: string; readonly min: number; readonly max: number; readonly says: string; readonly theirs?: true }
   /**
    * A PRICE, IN WHOLE EUROS, WHICH IS THE FACT THE PRICE CURVEBALL CHANGES.
    *
@@ -167,6 +176,13 @@ export type PropSpec =
       readonly max: number;
       readonly says: string;
       readonly theirs?: true;
+      /**
+       * A sum of money that is pay rather than a price: a wage, a raise. It is
+       * dealt and read back like a price, and it is never what a question about
+       * what something costs is answered with, since "See maksab 1649 eurot."
+       * at a job interview is the interviewer pricing the job (`priceOnCard`).
+       */
+      readonly pay?: true;
       readonly differentFrom?: string;
     }
   /** A fictional reference, which is the only kind of code this module ever holds. */
@@ -215,6 +231,8 @@ export interface DrawnProp {
   readonly theirs?: true;
   /** A price, so a question about money can find it (`priceOffCard`). */
   readonly price?: true;
+  /** Pay rather than a price (`PropSpec.pay`): never the answer to "how much does it cost". */
+  readonly pay?: true;
   /**
    * The English of a drawn lemma, for a stage direction that names it: "They
    * offer Tuesday at 14:00" rather than the lemma inside an English sentence.
@@ -263,6 +281,8 @@ export function drawProp(
   random: () => number,
   avoid: ReadonlySet<string> = new Set(),
   prefer: ReadonlySet<string> = new Set(),
+  /** The value of the `differentFrom` slot, which a `later` time is drawn after. */
+  after?: string,
 ): DrawnProp {
   switch (spec.kind) {
     case "word": {
@@ -290,7 +310,9 @@ export function drawProp(
       };
     }
     case "time": {
-      const slots = halfHours(spec.from, spec.to);
+      const all = halfHours(spec.from, spec.to);
+      const afterIt = spec.later && after ? all.filter((slot) => slot > after) : all;
+      const slots = afterIt.length > 0 ? afterIt : all;
       const value = pick(slots, random, avoid);
       return {
         ...worn(value, avoid),
@@ -325,6 +347,7 @@ export function drawProp(
       const value = pick(span, random, avoid);
       return {
         slot: spec.slot, card: spec.says, literal: [value], lemmas: numberWords(value), shown: [value], value,
+        ...(spec.theirs ? { theirs: true as const } : {}),
         ...worn(value, avoid),
       };
     }
@@ -340,6 +363,7 @@ export function drawProp(
       return {
         slot: spec.slot, card: spec.says, literal: [value], lemmas: numberWords(value), shown: [`${value} €`], value,
         price: true,
+        ...(spec.pay ? { pay: true as const } : {}),
         ...worn(value, avoid),
         ...(spec.theirs ? { theirs: true as const } : {}),
       };
@@ -399,7 +423,7 @@ export function drawCard(
       ? props.find((p) => p.slot === spec.differentFrom)?.value
       : undefined;
     const shun = other ? new Set([...avoid, other]) : avoid;
-    props.push(drawProp(spec, random, shun, prefer));
+    props.push(drawProp(spec, random, shun, prefer, other));
   }
   return { you, props };
 }
@@ -426,8 +450,8 @@ export function propBySlot(card: RoleCard, slot: string): DrawnProp | undefined 
  * raised (`cardAfterHurdles`).
  */
 export function priceOnCard(card: RoleCard | null): DrawnProp | undefined {
-  return card?.props.find((prop) => prop.price && !prop.theirs)
-    ?? card?.props.find((prop) => prop.price && prop.theirs);
+  return card?.props.find((prop) => prop.price && !prop.pay && !prop.theirs)
+    ?? card?.props.find((prop) => prop.price && !prop.pay && prop.theirs);
 }
 
 /**
@@ -657,7 +681,7 @@ export function slotKinds(specs: readonly PropSpec[]): Map<string, SlotKind> {
   for (const spec of specs) {
     switch (spec.kind) {
       case "word":
-        out.set(spec.slot, { kind: "word", oneOf: spec.oneOf, ...(spec.places ? { places: true as const } : {}) });
+        out.set(spec.slot, { kind: "word", oneOf: spec.oneOf, ...(spec.places ? { places: true as const } : {}), ...("theirs" in spec && spec.theirs ? { theirs: true as const } : {}) });
         break;
       case "weekday":
         out.set(spec.slot, { kind: "weekday", oneOf: spec.oneOf, ...(spec.theirs ? { theirs: true as const } : {}) });
@@ -666,7 +690,7 @@ export function slotKinds(specs: readonly PropSpec[]): Map<string, SlotKind> {
         out.set(spec.slot, { kind: "time", from: spec.from, to: spec.to, ...(spec.theirs ? { theirs: true as const } : {}) });
         break;
       case "number":
-        out.set(spec.slot, { kind: "number", min: spec.min, max: spec.max });
+        out.set(spec.slot, { kind: "number", min: spec.min, max: spec.max, ...(spec.theirs ? { theirs: true as const } : {}) });
         break;
       case "price":
         out.set(spec.slot, { kind: "price", min: spec.min, max: spec.max, ...(spec.theirs ? { theirs: true as const } : {}) });
@@ -698,7 +722,8 @@ export function timeFromText(text: string, span: { from: number; to: number }): 
     const minute = Number(digits[2]);
     if (hour <= 23 && minute <= 59) return `${pad(hour)}:${pad(minute)}`;
   }
-  const bare = /\bkell\s+(\d{1,2})(?![:.\d])/.exec(lower);
+  // A dot that ends the sentence is not a minute: `Kell 10.` is ten o'clock, `kell 10.30` is not.
+  const bare = /\bkell\s+(\d{1,2})(?![:.]\d|\d)/.exec(lower);
   if (bare) {
     const hour = Number(bare[1]);
     if (hour <= 23) return `${pad(hour)}:00`;
@@ -728,6 +753,70 @@ export function timeFromText(text: string, span: { from: number; to: number }): 
  * said with, so `kolmandal` reads as 3 exactly as `kolmas` on the card does.
  * Bounded to the slot's own span, so a house number is not read as a floor.
  */
+/**
+ * The numbers a turn says in words, as digits: `kakskümmend viis` is 25,
+ * `sada kakskümmend` is 120, and a run of single digits read one by one,
+ * `null viis neli null` or `kolm kaks üks kaheksa`, is the digit string a
+ * phone number or a reference is read out as.
+ *
+ * Only the nominative, which is how a number is read out, and only the
+ * compounds the language builds by plain concatenation of a digit's own
+ * nominative: `-teist` for the teens, `-kümmend` for the tens, `-sada` for
+ * the hundreds. Nothing here is a form to show anybody: it is read to
+ * accept, the way a learner's digits are (ADR-005).
+ */
+export function spokenNumbers(text: string): string[] {
+  const words = text.toLowerCase().split(/[^a-zõäöüšž]+/).filter(Boolean);
+  const unit = (word: string): number | null => {
+    const at = CARDINALS.indexOf(word as (typeof CARDINALS)[number]);
+    return at >= 0 && at <= 9 ? at : null;
+  };
+  const value = (word: string): { n: number; kind: "unit" | "teen" | "ten" | "hundred" | "thousand" } | null => {
+    if (word === "kümme") return { n: 10, kind: "teen" };
+    if (word === "sada") return { n: 100, kind: "hundred" };
+    if (word === "tuhat") return { n: 1000, kind: "thousand" };
+    const u = unit(word);
+    if (u !== null) return { n: u, kind: "unit" };
+    for (const [suffix, kind, scale] of [["teist", "teen", 0], ["kümmend", "ten", 10], ["sada", "hundred", 100]] as const) {
+      if (word.endsWith(suffix)) {
+        const head = unit(word.slice(0, -suffix.length));
+        if (head !== null && head > 0) return { n: kind === "teen" ? 10 + head : head * scale, kind };
+      }
+    }
+    return null;
+  };
+  const out: string[] = [];
+  let i = 0;
+  while (i < words.length) {
+    const first = value(words[i]!);
+    if (!first) { i += 1; continue; }
+    // A run of bare digits read one at a time: three or more is a number read out.
+    let j = i;
+    let digits = "";
+    while (j < words.length && unit(words[j]!) !== null) { digits += String(unit(words[j]!)); j += 1; }
+    if (j - i >= 3) { out.push(digits); i = j; continue; }
+    // A composed number: hundreds, then tens or a teen, then a unit.
+    let total = 0;
+    let last: string | null = null;
+    j = i;
+    while (j < words.length) {
+      const part = value(words[j]!);
+      if (!part) break;
+      const order = { thousand: 4, hundred: 3, ten: 2, teen: 1, unit: 0 }[part.kind];
+      if (last !== null) {
+        const before = { thousand: 4, hundred: 3, ten: 2, teen: 1, unit: 0 }[last as "unit"];
+        if (order >= before || (last === "teen" && part.kind === "unit")) break;
+      }
+      total = part.kind === "thousand" ? (total || 1) * 1000 : total + part.n;
+      last = part.kind;
+      j += 1;
+    }
+    out.push(String(total));
+    i = Math.max(j, i + 1);
+  }
+  return out;
+}
+
 export function numberFromText(
   text: string,
   span: { min: number; max: number },
@@ -737,6 +826,13 @@ export function numberFromText(
   for (const run of text.match(/\d+/g) ?? []) {
     if (fits(Number(run))) return { value: String(Number(run)) };
   }
+  // A number said in words past the ones a card names a lemma for: `kakskümmend viis`.
+  const composed = spokenNumbers(text).filter((said) => Number(said) > 10);
+  for (const said of composed) {
+    if (fits(Number(said))) return { value: String(Number(said)) };
+  }
+  // `kakskümmend viis` is 25 and not the 5 inside it.
+  if (composed.length > 0) return null;
   const spoken = new Set(text.toLowerCase().split(/[^a-zõäöüšž]+/).filter(Boolean));
   for (let n = span.min; n <= span.max; n += 1) {
     for (const lemma of numberWords(String(n))) {

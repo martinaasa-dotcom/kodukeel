@@ -491,6 +491,8 @@ describe("the scene catalog", () => {
         const ball = curveballById(id);
         for (const part of ball?.line ?? []) if ("slot" in part) uttered.add(part.slot);
         for (const found of `${ball?.they ?? ""} ${ball?.answer ?? ""}`.matchAll(/\{(\w+)\}/g)) uttered.add(found[1]!);
+        // And what one stands in for a fact of the learner's is the other side's, since they are the one changing it.
+        for (const [, to] of ball?.replaces ?? []) uttered.add(to);
       }
       for (const prop of scene.props) {
         expect(

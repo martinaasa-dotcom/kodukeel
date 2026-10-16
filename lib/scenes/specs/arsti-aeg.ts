@@ -17,8 +17,11 @@ const DOCTOR: SceneSpec = {
     gate withheld a line over. `minevik` because the `since` beat asks how long
     this has been going on, which is a past tense. `omadussonad` because saying
     what is wrong with you is a sentence with an adjective in it.
+    `kool-ja-keel` for `viga`, because "Mis teil viga on?" is what a
+    receptionist asks, and `osakesed` for `kinni`, which is what a booked
+    slot is.
   */
-  units: [...COMMON, "keha-ja-tervis", "inimesed", "plaanid", "minevik", "omadussonad", "linn-ja-teenused"],
+  units: [...COMMON, "keha-ja-tervis", "inimesed", "plaanid", "minevik", "omadussonad", "linn-ja-teenused", "kool-ja-keel", "osakesed"],
   register: "teie",
   /*
     THE LEARNER NEVER PLAYS THEMSELVES (§3), and at a health center that is a
@@ -46,9 +49,10 @@ const DOCTOR: SceneSpec = {
       knew a second slot was coming. Drawn and stored exactly as before, so a
       reload offers the same appointment.
     */
-    { kind: "time", slot: "time", from: 9, to: 16, theirs: true },
+    { kind: "time", slot: "time", from: 9, to: 15, theirs: true },
     // The second slot they offer when the first will not do, and never the same one.
-    { kind: "time", slot: "time2", from: 8, to: 16, differentFrom: "time", theirs: true },
+    // Later, since a slot gone is answered "there is time later" (the bank's own line).
+    { kind: "time", slot: "time2", from: 8, to: 16, differentFrom: "time", later: true, theirs: true },
   ],
   /*
     `misheard` because a symptom is the one prop here a receptionist could
@@ -76,6 +80,7 @@ const DOCTOR: SceneSpec = {
     {
       id: "reason",
       goal: "Tell them what's wrong: a pain, a fever, feeling ill or tired, whatever it is.",
+      feel: "noted",
       they: "They ask what brings you in.",
       move: "ask",
       topic: ["valu", "haigus", "tervis", "haige", "palavik"],
@@ -93,11 +98,17 @@ const DOCTOR: SceneSpec = {
     },
     {
       id: "where",
-      goal: "Tell them where it hurts.",
-      they: "They ask where it hurts.",
+      goal: "Tell them where it hurts, or that nothing does.",
+      feel: "noted",
+      they: "They ask whether anything hurts, and where.",
       move: "ask",
-      topic: ["pea", "kõrv", "käsi", "jalg", "selg", "silm", "nina", "suu", "keha"],
-      needs: [{ kind: "lemma", oneOf: ["pea", "kõrv", "käsi", "jalg", "selg", "silm", "nina", "suu", "süda", "keha"] }],
+      topic: ["pea", "kõrv", "käsi", "jalg", "selg", "silm", "nina", "suu", "keha", "kõht"],
+      /*
+        `kõht` because a stomach ache is the commonest reason anybody books
+        a doctor, and a no because the card's trouble may be a fever or
+        tiredness with nothing hurting at all.
+      */
+      needs: [{ kind: "lemma", oneOf: ["pea", "kõrv", "käsi", "jalg", "selg", "silm", "nina", "suu", "süda", "keha", "kõht", "ei"] }],
       choice: ["pea", "selg"],
       required: true,
       patience: 2,
@@ -105,11 +116,17 @@ const DOCTOR: SceneSpec = {
     },
     {
       id: "since",
-      goal: "Tell them which day it started.",
+      goal: "Tell them which day it started, or how long it's been.",
+      feel: "noted",
       they: "They ask how long it's been going on.",
       move: "ask",
       topic: ["päev", "nädal", "hommik", "aeg", "esmaspäev", "teisipäev", "kolmapäev"],
-      needs: [{ kind: "datum", slot: "since" }],
+      /*
+        "How long?" is answered "three days" or "since yesterday" as often
+        as with the day on the card, and both were refused for not being a
+        weekday.
+      */
+      needs: [{ kind: "anyOf", of: [{ kind: "datum", slot: "since" }, { kind: "lemma", oneOf: ["päev", "nädal", "eile"] }] }],
       required: true,
       patience: 2,
       shape: "word",
@@ -117,10 +134,11 @@ const DOCTOR: SceneSpec = {
     {
       id: "offer",
       goal: "Say yes to the time they offer, or tell them it doesn't suit you.",
-      they: "They offer you an appointment at {time}.",
+      they: "They offer you an appointment tomorrow at {time}.",
       move: "offer",
       topic: ["aeg", "kell", "tund", "päev"],
-      says: [{ lemma: "kell" }, { slot: "time" }],
+      // With the day: a bare "Kell 12?" read as an appointment on no day in particular.
+      says: [{ lemma: "homme" }, { lemma: "kell" }, { slot: "time" }],
       /*
         The time back, or a yes, or a no. "Does 14:30 suit you?" is answered
         `Sobib` far more often than `14:30`, and the first version took the
@@ -132,8 +150,8 @@ const DOCTOR: SceneSpec = {
         a receptionist who hears "ei sobi" looks for the next free slot.
       */
       counter: {
-        they: "They look again, offer {time2} instead, and ask if that works.",
-        says: [{ lemma: "kell" }, { slot: "time2" }],
+        they: "They look again, offer {time2} tomorrow instead, and ask if that works.",
+        says: [{ lemma: "homme" }, { lemma: "kell" }, { slot: "time2" }],
         replaces: [["time", "time2"]],
       },
       needs: [{ kind: "anyOf", of: [
@@ -148,10 +166,10 @@ const DOCTOR: SceneSpec = {
     {
       id: "confirm",
       goal: "Say the time back, so you both know you've got it right.",
-      they: "They read the time back to be sure: {time}.",
+      they: "They read the time back to be sure: tomorrow at {time}.",
       move: "confirm",
       topic: ["aeg", "kell", "päev"],
-      says: [{ lemma: "kell" }, { slot: "time" }],
+      says: [{ lemma: "homme" }, { lemma: "kell" }, { slot: "time" }],
       needs: [{ kind: "any" }],
       required: false,
       patience: 1,

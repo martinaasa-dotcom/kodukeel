@@ -1,5 +1,5 @@
 import type { SceneSpec } from "../types";
-import { COMMON, HELLOS, CLOSING_WORDS, FAREWELLS } from "./shared";
+import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 
 const RECOMMENDATION: SceneSpec = {
   id: "soovitus",
@@ -14,7 +14,7 @@ const RECOMMENDATION: SceneSpec = {
     for slowly. `sina`,
     because it is a friend.
   */
-  units: [...COMMON, "vaba-aeg", "meedia", "kirjeldamine", "vordlemine", "kodu", "tingiv", "iga-paev", "omadussonad"],
+  units: [...COMMON, "vaba-aeg", "meedia", "kirjeldamine", "vordlemine", "kodu", "tingiv", "iga-paev", "omadussonad", "rektsioon"],
   register: "sina",
   role: "This is a role. You're having coffee with a friend, and you saw something good recently. Your card says what it was.",
   props: [
@@ -40,7 +40,8 @@ const RECOMMENDATION: SceneSpec = {
     {
       id: "seen",
       goal: "Tell them about something good you saw or read recently.",
-      they: "They ask if you've seen anything good lately.",
+      they: "They ask if you've seen or read anything good lately.",
+      feel: "glad",
       move: "ask",
       topic: ["hea", "nägema", "huvitav"],
       needs: [{ kind: "datum", slot: "what" }],
@@ -55,7 +56,7 @@ const RECOMMENDATION: SceneSpec = {
       feel: "glad",
       move: "ask",
       topic: ["huvitav", "lõbus", "ilus"],
-      needs: [{ kind: "lemma", oneOf: ["huvitav", "lõbus", "tore", "ilus", "hea"] }],
+      needs: [{ kind: "lemma", oneOf: ["huvitav", "lõbus", "tore", "ilus", "hea", "meeldima"] }],
       required: true,
       patience: 2,
       shape: "word",
@@ -74,7 +75,8 @@ const RECOMMENDATION: SceneSpec = {
     {
       id: "recommend",
       goal: "Tell them they should definitely see it.",
-      they: "They ask whether they should go and see it.",
+      they: "They ask whether you recommend it, or whether they would like it too.",
+      feel: "glad",
       move: "ask",
       topic: ["soovitama", "kindlasti", "pidama"],
       needs: [{ kind: "lemma", oneOf: ["soovitama", "kindlasti", "jah", "pidama"] }],
@@ -85,9 +87,10 @@ const RECOMMENDATION: SceneSpec = {
     {
       id: "close",
       goal: "Say goodbye, and see you soon.",
-      they: "They thank you for the tip and say goodbye.",
+      they: "They say goodbye.",
       move: "close",
-      topic: [...FAREWELLS],
+      // A friend says "Nägemist!"; "Head aega!" is what you say to a clerk.
+      topic: ["Nägemist!"],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,

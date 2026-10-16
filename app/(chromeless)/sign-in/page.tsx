@@ -131,7 +131,7 @@ export default async function SignInPage({ searchParams }: {
         </Link>
 
         <div
-          className="pop-in rounded-[var(--r-xl)] border p-8 text-center"
+          className="arrive rounded-[var(--r-xl)] border p-8 text-center"
           style={{
             background: "rgb(255 255 255 / 0.06)",
             borderColor: "rgb(255 255 255 / 0.14)",

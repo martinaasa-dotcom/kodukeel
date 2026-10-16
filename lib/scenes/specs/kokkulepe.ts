@@ -29,12 +29,12 @@ const ARRANGING: SceneSpec = {
   role: "A friend rings to make a plan for this week. Your card says which evening you're free. Tomorrow, and every other evening, you're busy.",
   props: [
     {
-      kind: "weekday", slot: "free", oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede"],
+      kind: "weekday", slot: "free", oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede", "laupäev", "pühapäev"],
       says: "The evening you're free this week.",
     },
     { kind: "time", slot: "time", from: 17, to: 20, theirs: true },
   ],
-  curveballs: ["slot-gone", "not-possible", "small-talk", "faster"],
+  curveballs: ["small-talk", "faster"],
   beats: [
     {
       id: "greet",
@@ -54,7 +54,7 @@ const ARRANGING: SceneSpec = {
       feel: "glad",
       move: "ask",
       topic: ["kino", "teater", "kontsert", "plaan", "tahtma"],
-      needs: [{ kind: "lemma", oneOf: ["jah", "tahtma", "hea", "muidugi", "tore", "nõus"] }],
+      needs: [{ kind: "lemma", oneOf: ["jah", "tahtma", "hea", "muidugi", "tore", "nõus", "tulema", "minema"] }],
       required: true,
       patience: 2,
       shape: "word",
@@ -63,11 +63,19 @@ const ARRANGING: SceneSpec = {
       id: "day",
       goal: "You're busy that evening. Say it doesn't suit you.",
       they: "They suggest tomorrow at {time}.",
-      feel: "sorry",
+      feel: "noted",
       move: "offer",
-      topic: ["sobima", "õhtu", "kell", "päev"],
+      topic: ["homme", "sobima", "õhtu", "kell", "päev"],
       says: [{ lemma: "homme" }, { lemma: "kell" }, { slot: "time" }],
-      needs: [{ kind: "negation" }],
+      /*
+        "Homme olen tööl" and "Homme on halb" are a no without an `ei` in them.
+        Not `kiire`: the reviewed hurry line says "Mul on kiire", and a hurry
+        line may not name what a later beat asks for.
+      */
+      needs: [{ kind: "anyOf", of: [
+        { kind: "negation" },
+        { kind: "lemma", oneOf: ["halb", "töö"] },
+      ] }],
       required: true,
       patience: 2,
       shape: "sentence",
@@ -86,10 +94,11 @@ const ARRANGING: SceneSpec = {
     {
       id: "time",
       goal: "Say yes to the time, so it's settled.",
-      they: "They say that works, at the same time: {time}.",
-      move: "confirm",
+      they: "They say that works, and ask whether {time} is fine.",
+      feel: "glad",
+      move: "offer",
       topic: ["kell", "aeg", "sobima"],
-      says: [{ lemma: "kell" }, { slot: "time" }],
+      says: [{ lemma: "siis" }, { lemma: "kell" }, { slot: "time" }],
       needs: [{ kind: "anyOf", of: [
         { kind: "datum", slot: "time" },
         { kind: "lemma", oneOf: ["sobima", "jah", "hästi", "nõus", "hea"] },

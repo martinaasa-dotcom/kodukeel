@@ -1,5 +1,5 @@
 import type { SceneSpec } from "../types";
-import { COMMON, HELLOS, CLOSING_WORDS, FAREWELLS } from "./shared";
+import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 
 const LIBRARY: SceneSpec = {
   id: "raamatukogu",
@@ -25,7 +25,13 @@ const LIBRARY: SceneSpec = {
   props: [
     {
       kind: "word", slot: "month",
-      oneOf: ["jaanuar", "veebruar", "märts", "aprill", "mai", "juuni", "juuli", "august", "september", "oktoober", "november", "detsember"],
+      /*
+        Ten months, not twelve: May and June are the two the librarian
+        mishears, so neither can be the learner's own, or "Kas te ütlesite
+        mais?" asked of somebody born in May is a question they have to say
+        yes to.
+      */
+      oneOf: ["jaanuar", "veebruar", "märts", "aprill", "juuli", "august", "september", "oktoober", "november", "detsember"],
       says: "The month you were born.",
     },
     { kind: "code", slot: "phone", says: "The phone number to give them." },
@@ -60,7 +66,8 @@ const LIBRARY: SceneSpec = {
       they: "They start a form and ask which month you were born in.",
       move: "ask",
       topic: ["kuu", "sündima", "sünnipäev", "kuupäev"],
-      needs: [{ kind: "datum", slot: "month" }],
+      // "Mis kuus?" is answered "märtsis", and the recast says that ending back.
+      needs: [{ kind: "datum", slot: "month", grammCase: "INESSIVE" }],
       required: true,
       patience: 2,
       shape: "word",
@@ -92,7 +99,8 @@ const LIBRARY: SceneSpec = {
       goal: "Thank them and say goodbye.",
       they: "They hand you the new card and say goodbye.",
       move: "close",
-      topic: [...FAREWELLS],
+      // The card first, so the librarian hands it over rather than only saying goodbye.
+      topic: ["kaart", "raamatukogu"],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,

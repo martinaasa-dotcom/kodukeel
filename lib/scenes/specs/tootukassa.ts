@@ -51,7 +51,15 @@ const UNEMPLOYMENT_FUND: SceneSpec = {
     },
     { kind: "time", slot: "time2", from: 9, to: 15, theirs: true, differentFrom: "time" },
   ],
-  curveballs: ["missing-document", "queue", "not-possible", "other-register", "english", "slot-gone"],
+  /*
+    No `not-possible` and no `slot-gone`. The first stood in the middle of
+    registering, "not today, come tomorrow", and then the consultant carried
+    on registering; the second came straight after the learner had accepted
+    the consultant's own offer and was answered "later is free", which
+    settled no time at all. A no to the offer gets a second day
+    (`counter`), which is the reschedule this scene has room for.
+  */
+  curveballs: ["missing-document", "queue", "other-register", "english"],
   beats: [
     {
       id: "greet",
@@ -67,16 +75,24 @@ const UNEMPLOYMENT_FUND: SceneSpec = {
     {
       id: "why",
       goal: "Tell them you've lost your job and want to register.",
+      feel: "noted",
       they: "They ask how they can help.",
       move: "ask",
-      topic: ["töö", "tööpuudus", "aitama"],
-      needs: [{ kind: "lemma", oneOf: ["töö", "tööpuudus", "avaldus"] }],
+      topic: ["töö", "tööpuudus", "töötu", "registreerima", "aitama"],
+      // "Ma töötasin kokana" is the answer to "how can I help" at this desk as often as "töö" is: it says why they have come.
+      /*
+        And "Ma olen töötu" and "Ma tahan end registreerida", which is what people
+        say first at this desk: the beat could not take either without a model,
+        because no unit taught the words.
+      */
+      needs: [{ kind: "lemma", oneOf: ["töö", "tööpuudus", "töötu", "registreerima", "avaldus", "töötama"] }],
       required: true,
       patience: 3,
       shape: "sentence",
     },
     {
       id: "job",
+      feel: "noted",
       goal: "Tell them what you did in your last job.",
       they: "They ask what you did before.",
       move: "ask",
@@ -92,13 +108,15 @@ const UNEMPLOYMENT_FUND: SceneSpec = {
       they: "They ask since when you have been without work.",
       move: "ask",
       topic: ["kuu", "alates", "lõppema"],
-      needs: [{ kind: "datum", slot: "ended" }],
+      // "Mis kuus?" is answered "märtsis", and the recast says that ending back.
+      needs: [{ kind: "datum", slot: "ended", grammCase: "INESSIVE" }],
       required: true,
       patience: 2,
       shape: "word",
     },
     {
       id: "looking",
+      feel: "noted",
       goal: "Tell them what kind of work you're looking for: the same, or something else.",
       they: "They ask what kind of work you are looking for.",
       move: "ask",
@@ -132,7 +150,7 @@ const UNEMPLOYMENT_FUND: SceneSpec = {
       says: [{ slot: "day", grammCase: "ADESSIVE" }, { lemma: "kell" }, { slot: "time" }],
       counter: {
         they: "They offer {day2} at {time2} instead.",
-        says: [{ slot: "day2", grammCase: "ADESSIVE" }, { lemma: "kell" }, { slot: "time2" }],
+        says: [{ lemma: "aga" }, { slot: "day2", grammCase: "ADESSIVE" }, { lemma: "kell" }, { slot: "time2" }],
         replaces: [["day", "day2"], ["time", "time2"]],
       },
       needs: [{ kind: "anyOf", of: [

@@ -754,6 +754,10 @@ for (const theme of ["light", "dark"]) {
       await scene.goto(`${BASE}/situations/arsti-aeg`, { waitUntil: "networkidle" });
       await scene.getByRole("button", { name: /Start the conversation/i }).click({ timeout: 8_000 });
       const box = scene.getByLabel("What you say");
+      // An A1 run opens on lines to pick; the box is one press away.
+      const typeIt = scene.getByRole("radio", { name: /Type it/i });
+      await Promise.race([box.waitFor({ timeout: 20_000 }), typeIt.waitFor({ timeout: 20_000 })]);
+      if (!(await box.isVisible().catch(() => false))) await typeIt.click();
       await box.waitFor({ timeout: 20_000 });
       for (const said of ["Tere!", "Mul on valu."]) {
         const before = await scene.locator('[role="log"] p').count();
