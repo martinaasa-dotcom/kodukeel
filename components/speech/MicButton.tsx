@@ -95,7 +95,6 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
       window.removeEventListener("keyup", up);
     };
     // `press` reads the latest speech through a ref.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shortcut, offered]);
 
   if (!offered) return null;

@@ -1146,12 +1146,20 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   */
   // reply-row: wait
   if (response === "wait") {
+    /*
+      Asked for a moment, they say all right and give it (`asksToWait`).
+      Above the composed line, because a line written for this turn was
+      written to ask for the rest of the answer, and somebody who asked for a
+      moment is given it rather than pressed (§85: this row was shadowed by
+      `wait-composed` wherever a model answered). The route builds no line for
+      a holding wait at all; this order holds the reply to it whatever a
+      caller hands in.
+    */
+    // reply-row: wait-holding
+    if (input.holding) return [reaction(input.heldBefore ? REACTIONS.waiting[0] : REACTIONS.letGo[0], ".")];
     // A line written for this turn already took the word and asked for the rest.
     // reply-row: wait-composed
     if (line?.provenance === "composed") return [line];
-    // Asked for a moment, they say all right and give it (`asksToWait`).
-    // reply-row: wait-holding
-    if (input.holding) return [reaction(input.heldBefore ? REACTIONS.waiting[0] : REACTIONS.letGo[0], ".")];
     /*
       AND A WORD THAT ANSWERED ANOTHER QUESTION IS TAKEN, NOT DOUBTED. Asked
       where it hurts, a patient said `Esmaspäevast.`, which answers how long,
@@ -1524,7 +1532,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
         text: echo.charAt(0).toUpperCase() + echo.slice(1) + ".",
         provenance: input.english ? "offered" : input.recast ? "recast" : "echo", reaction: true,
       });
-    } else if (!aside && input.acknowledges && response === "answer" && answered?.id === "hurdle:misheard") { // reply-row: ack-misheard
+    } else if (!aside && !composed && input.acknowledges && response === "answer" && answered?.id === "hurdle:misheard") { // reply-row: ack-misheard
       /*
         A CORRECTION IS NOT A YES, AND THE GENERIC ROTATION DOES NOT KNOW
         THAT.
@@ -1543,6 +1551,14 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
         "that was not what I meant" (`REACTIONS.missed`), and it is never
         going to collide with a beat's own opener, so it is said outright
         rather than run through `ownReaction`.
+
+        AND NOT IN FRONT OF A LINE A MODEL WROTE (§85, row `ack-misheard`).
+        That line had the correction in front of it when it was written, so
+        it says sorry, or does not, for itself, and a `Vabandust.` bolted on
+        ahead of it is the keyless reaction stacked on a composed one, which
+        §70 rules out for every other acknowledgment. The reason for skipping
+        `ownReaction` was a banked opener, so the guard is the composed line
+        alone, and a banked `Jah, palun?` still gets the apology.
       */
       out.push(reaction(REACTIONS.missed[0], "."));
     } else if (!aside && input.acknowledges && response === "answer" && !ownReaction(line) // reply-row: ack-acknowledge
@@ -1856,14 +1872,15 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   // reply-row: a-little
   if (response === "english" && input.askedForEnglish && !composed) out.push(reaction(REACTIONS.aLittle[0], "."));
 
+  /*
+    The choice stands in the move's place (row `narrowed`, after the hint),
+    and the passes after the move still run over it. It used to return here,
+    so an English turn on the nudge got the choice and no translation, and a
+    `Selge.` in front of it was never joined to it (§85).
+  */
   const narrowed = input.tries === NUDGE_AFTER && !advancing(response) && !composed ? input.choice : null;
-  // reply-row: narrowed
-  if (narrowed) {
-    out.push({ text: narrowed, provenance: "attested", from: CHOICE_WORD });
-    return out;
-  }
   // reply-row: coach
-  if (input.tries === NUDGE_AFTER && !advancing(response) && !composed) {
+  if (!narrowed && input.tries === NUDGE_AFTER && !advancing(response) && !composed) {
     const hint = coachFor(beat, card, input.metLast ?? []);
     // reply-row: coach-hint
     if (hint) out.push({ text: hint, provenance: "coach" });
@@ -1932,8 +1949,10 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   const recital = sayAgain && again !== null && words(again).length > REPEAT_WORDS
     && line !== null && line.provenance !== "fallback" && line.text !== again
     && words(line.text).length < words(again).length;
-  // reply-row: move-composed
-  if (fresh) {
+  // reply-row: narrowed
+  if (narrowed) {
+    out.push({ text: narrowed, provenance: "attested", from: CHOICE_WORD });
+  } else if (fresh) { // reply-row: move-composed
     out.push(fresh);
   } else if (recital) { // reply-row: move-recital
     out.push(line!);

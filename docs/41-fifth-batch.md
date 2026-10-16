@@ -142,6 +142,26 @@ with every claim's page and date. In short:
 - **Left for the operator, as before:** native-speaker video (Memrise) and corrections from a person
   (Busuu). Both need people, not code.
 
+**C-2, the composed play, 2026-10-16.** `npm run play:scenes -- --compose` on the scene chain
+(`gemini-3.8-flash`, the Lite behind it), every run with `--difficulty ordinary` so curveballs were
+raised, over eight scenes in two styles each: `kohvikus`, `tee-kusimine`, `helistamine`, `trepikoda`,
+`apteek`, `riidepood`, `toovestlus` and `arsti-aeg`, each played `curious` and `sloppy` at $0.08 a run
+($0.61 for the sixteen). Two `lost` runs were added because that style asks for a moment and asks for
+English, which the other two never do: `poodi-piima` ($0.10) and `kohvikus` ($0.15), both cut at their
+budget. **Spent: $0.86 in all, on 603 metered calls**, under the $2 cap. The three shadows C-3 recorded
+in `docs/21-situations.md` §85 were fixed first, each with a failing test, so the play measured the
+fixed reply: a holding wait builds no line and is given its moment (`Hästi.`, then `Jah.`) in a run that
+composes, a composed line answering a corrected mishearing arrives with no `Vabandust!` in front of it
+(`trepikoda`: "Ah, Ameerikast, vabandust!" alone), and the narrowed choice is the move's first arm, so
+the tidy passes run over it. **Read line by line, no transcript says a keyless reaction beside a
+composed line.** One thing came close and is not one: where the learner asked "do you speak English?",
+the composed line answered it ("Natuke räägin, jah. Aga proovime eesti keeles!") and the `translate`
+row still drew the beat's stage direction in English under it. That is a note in English for somebody
+who asked for English, not a reaction in Estonian, and the table already says the row stays; the keyless
+`Natuke.` beside it stood down as it should. What the transcripts do show is the model's own wobble
+(the consistency check withholding the pharmacist's lines over the queue number, an interviewer
+answering "kas küsimus?" with a question back), which is the composer's and not the reply's order.
+
 ## 1. How to use this page
 
 1. Pick one item, in the milestone order of section 4. Do that item and nothing else in the same pull
@@ -276,7 +296,7 @@ stops. Size is the work in one pull request: S is a day, M a few days, L a week 
 | Item | Milestone | Size | Status |
 | --- | --- | --- | --- |
 | C-1 Sign-in's largest paint, measured on production | 0: what batch 4 left | S | Not started, needs #856 deployed |
-| C-2 One capped play of the composed path | 0 | S | Not started |
+| C-2 One capped play of the composed path | 0 | S | Done: eight scenes in two styles plus two `lost` runs for $0.86, no doubled reaction, and C-3's three shadows fixed first with failing tests (§85) |
 | C-3 The reply's decision order, written and asserted | 0 | M | Done: 95 rows in `docs/21-situations.md` §85, held by `scripts/invariants/the-reply-decides-in-order.ts`, three shadowing findings left open there |
 | C-4 Teach `kolima`, then the reader's wording | 0 | S | Done: `kolima` taught a second time, last in `umbmaarased` (its harvest row was already there from B1), and "Kas te olete siia just kolinud?" applied through `apply:scene-review`; no day id moved, $0 spent |
 | VB-1 The engine and the hearing rules | 1: a conversation out loud | L | Not started |
