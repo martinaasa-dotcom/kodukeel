@@ -1378,6 +1378,19 @@ function satisfies(
             const near = folded(forms) ?? nearly(forms);
             if (near) return chosen(lemma, { word: near.form, slip: { kind: "spelling", said: near.said, form: near.form, lemma } });
           }
+          /*
+            And another of the slot's words reached for in English: "coffee"
+            at a counter whose card said tea is a drink chosen, in the language
+            the learner had for it, and the Estonian is said back.
+          */
+          for (const lemma of [...card, ...others]) {
+            const said = englishFor(lemma, context, spoken);
+            if (!said) continue;
+            // Said back in the case the beat wanted, where the table holds it: "coffee" is answered `Kohvi?`.
+            const form = (need.grammCase && context.lexicon.caseForm.get(caseKeyFor(lemma, need.grammCase))) || lemma;
+            const hit: Hit = { word: form, stoodIn: true, slip: { kind: "english", said, form, lemma } };
+            return card.includes(lemma) ? hit : chosen(lemma, hit);
+          }
           if (kind.kind === "word" && kind.places) {
             const place = placeName(text, context);
             if (place) return { word: place.toLowerCase(), quiet: true, chose: { slot: need.slot, value: place } };
@@ -1486,7 +1499,14 @@ function englishFor(
   spoken: readonly string[],
 ): string | null {
   for (const sense of context.englishFor?.get(lemma) ?? []) {
-    const hit = spoken.find((word) => word === sense);
+    /*
+      And its plural, since a word reached for in English comes as often as
+      not in the plural: "flowers" for `lill` was read as off the point.
+    */
+    const plurals = sense.length >= 3
+      ? [`${sense}s`, `${sense}es`, ...(sense.endsWith("y") ? [`${sense.slice(0, -1)}ies`] : [])]
+      : [];
+    const hit = spoken.find((word) => word === sense || plurals.includes(word));
     if (hit) return hit;
   }
   return null;
