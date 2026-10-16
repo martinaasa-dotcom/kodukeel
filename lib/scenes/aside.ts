@@ -136,6 +136,9 @@ export const CHECK_GLUE: ReadonlySet<string> = new Set(["ja", "siis", "eks", "ni
 
 const INFORMING: ReadonlySet<MoveKind> = new Set(["instruct", "offer", "confirm", "refuse", "correct"]);
 
+/** The words beside "kuidas" and "läheb" in a how-are-you: the person asked and the glue. */
+const HOW_ABOUT_YOU: ReadonlySet<string> = new Set(["sul", "sinul", "teil", "teie", "teile", "ka", "siis", "ja", "nüüd", "täna", "tere", "noh", "aga"]);
+
 /**
  * The aside, or null where the route should try a model and then the shrug.
  * `shrug` is what to say when both of those have nothing.
@@ -199,7 +202,15 @@ export function asideFor(input: AsideInput): SpokenLine | null {
     since `Kuidas?` on its own is somebody asking to hear it again.
   */
   const goes = lexicon.byLemma.get("minema");
-  if (HOW.has(asked) && goes && spoken.some((w) => goes.has(w))) {
+  /*
+    And only where the question is about them: "Kuidas mu tütar koolis
+    läheb?" asked a teacher about a child and was answered `Hästi, aitäh.`.
+    The sentence holding the question word carries nothing but the verb, the
+    person asked, and the small words round them.
+  */
+  const howSentence = (input.said ?? spoken.join(" ")).split(/(?<=[.!?])\s+/).find((sentence) => words(sentence).some((w) => HOW.has(w))) ?? "";
+  const aboutThem = words(howSentence).every((w) => HOW.has(w) || goes?.has(w) || HOW_ABOUT_YOU.has(w));
+  if (HOW.has(asked) && goes && aboutThem && spoken.some((w) => goes.has(w))) {
     return partsLine(ASIDES.howAreYou, { lexicon, mark: ".", join: ", " });
   }
   /*

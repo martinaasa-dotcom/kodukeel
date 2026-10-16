@@ -53,7 +53,7 @@ import {
 import { gradesFor, stalledWords, type SceneGrade } from "@/lib/scenes/grades";
 import { reviewOf, type SceneReview } from "@/lib/scenes/review";
 import { recapOf, type SceneRecap } from "@/lib/scenes/recap";
-import { addsEvidence, concede, metByWord, onlyAsks, readTurn } from "@/lib/scenes/turn";
+import { addsEvidence, answerPart, concede, metByWord, onlyAsks, readTurn } from "@/lib/scenes/turn";
 import { saysGoodbye, CLOSING_WORDS } from "@/lib/scenes/casual";
 import { clip } from "@/lib/copy/clip";
 import { localeFor } from "@/lib/progress/locale";
@@ -1475,7 +1475,8 @@ export function replay(
         if (next.meanwhile) break;
         // A question answers nothing further on (`onlyAsks`).
         if (onlyAsks(said, next, marker.questionWords)) break;
-        const read = readTurn(said, next, marker);
+        // And a question inside it counts for nothing further on (`answerPart`).
+        const read = readTurn(answerPart(said, next, marker.questionWords), next, marker);
         /*
           A judge may have said this same turn met the next beat too, in a word
           the dictionary could not read (`alsoDone`). Then the beat is conceded
@@ -1586,7 +1587,7 @@ export function replay(
           */
           if (SAYS_FIRST.has(other.move) && at > state.beat) continue;
           if (onlyAsks(said, other, marker.questionWords)) continue;
-          const also = readTurn(said, other, marker);
+          const also = readTurn(answerPart(said, other, marker.questionWords), other, marker);
           // Not through a second word for the same thing, for the cascade's reason.
           if (also.reading !== "complete" || !addsEvidence(also, spent) || also.substituted.length > 0) continue;
           for (const word of also.satisfiedBy) spent.add(word);
@@ -1849,18 +1850,25 @@ export async function sceneHistoryFor(ownerId: string): Promise<ReadonlyMap<stri
 }
 
 /**
- * Whether two beats both ask for one lemma in one case, or for one value off
- * the card, so that one word answers both (the cascade's exception): "Ma võtan
- * supi" takes the soup recommended and orders it.
+ * Whether two beats both ask for one lemma in one case, so that one word in
+ * that form answers both (the cascade's exception): "Kaardiga" answers "is
+ * that everything?" and "card or cash?". A value off the card counts only
+ * where the beat just met took it as one answer among several and the next
+ * asks for nothing else: "Ma võtan supi" takes the soup recommended and orders
+ * it, while a phone number given is not the same number read back to check,
+ * and a dish ordered is not the drink.
  */
 function sharedCaseForm(a: BeatSpec, b: BeatSpec): boolean {
-  const key = (need: BeatSpec["needs"][number]) => (need.kind === "case" ? `${need.lemma}|${need.grammCase}`
-    : need.kind === "datum" ? `datum|${need.slot}|${need.grammCase ?? ""}` : null);
-  const ours = new Set(leafNeeds(a.needs).map(({ need }) => key(need)).filter((k) => k !== null));
-  return leafNeeds(b.needs).some(({ need }) => {
-    const k = key(need);
+  const caseKey = (need: BeatSpec["needs"][number]) => (need.kind === "case" ? `${need.lemma}|${need.grammCase}` : null);
+  const ours = new Set(leafNeeds(a.needs).map(({ need }) => caseKey(need)).filter((k) => k !== null));
+  if (leafNeeds(b.needs).some(({ need }) => {
+    const k = caseKey(need);
     return k !== null && ours.has(k);
-  });
+  })) return true;
+  const only = b.needs.length === 1 ? b.needs[0] : undefined;
+  if (!only || only.kind !== "datum" || leafNeeds(a.needs).length < 2) return false;
+  return leafNeeds(a.needs).some(({ need }) =>
+    need.kind === "datum" && need.slot === only.slot && (need.grammCase ?? null) === (only.grammCase ?? null));
 }
 
 /**

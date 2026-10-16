@@ -1795,6 +1795,26 @@ const ECHO_FLOOR = 2;
  * ending on its mark; not `kas`, whose question often is the answer ("Kas
  * kaardiga saab?"), and the mark because `kui` opens "if" as often as "how".
  */
+/**
+ * What a turn told rather than asked, for reading it against a beat it was not
+ * aimed at: the sentences that are not a question opening on a question word.
+ * "Tere! Kuidas sul läheb?" greeted, and its `läheb` met a friend's "say you'd
+ * like to come" from two beats away; "Raadiost kuulsin. Mis te arvate?" said
+ * where the news came from, and its `arvate` met "say you're not sure". The
+ * question is answered or not by the rules for questions, never read as the
+ * learner having said what it asks about. A beat that wants a question keeps
+ * the whole turn. Empty where the turn did nothing but ask (`onlyAsks`).
+ */
+export function answerPart(text: string, beat: BeatSpec, questionWords: ReadonlySet<string>): string {
+  if (leafNeeds(beat.needs).some(({ need }) => need.kind === "question")) return text;
+  return text.split(/(?<=[.!?])\s+/)
+    .filter((sentence) => {
+      const said = words(sentence);
+      return said.length > 0 && !(/\?\s*$/.test(sentence) && said[0] !== "kas" && questionWords.has(said[0]!));
+    })
+    .join(" ");
+}
+
 export function onlyAsks(text: string, beat: BeatSpec, questionWords: ReadonlySet<string>): boolean {
   if (leafNeeds(beat.needs).some(({ need }) => need.kind === "question")) return false;
   const sentences = text.split(/(?<=[.!?])\s+/).filter((sentence) => words(sentence).length > 0);
