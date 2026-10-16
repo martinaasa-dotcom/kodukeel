@@ -118,13 +118,13 @@ git cat-file -e origin/main:lib/speech/reconcile.ts 2>/dev/null \
 
 | # | Decision | Where it bites |
 | --- | --- | --- |
-| D1 | **The recognizer is TalTech's `streaming-zipformer-large.et-en`, int8, run on the learner's device through sherpa-onnx.** The small Zipformer is the fallback where a device cannot hold the large one (SP-0 measures where that line is). **Everything runs locally; no recognition is ever done on a server, ours or anybody's.** That is the operator's rule and it rules out the Whisper models for good: they need a server-class machine (10 seconds a clip on a server CPU). The one other candidate is `xls-r-300m-et`, which SP-0 measures on real voices as the possible engine for SP-6 alone, on the devices that can hold it. Pin the Hugging Face revision and the SHA-256 of every file. | SP-1, SP-10 |
+| D1 | **The recognizer is TalTech's `streaming-zipformer-large.et-en`, int8, run on the learner's device through sherpa-onnx.** The small Zipformer is the fallback where a device cannot hold the large one (SP-0 measures where that line is). **Everything runs locally; no recognition is ever done on a server, ours or anybody's.** That is the operator's rule and it rules out the Whisper models for good: they need a server-class machine (10 seconds a clip on a server CPU). The one other model is `xls-r-300m-et` (about 320 MB int8), and it has two jobs the Zipformer cannot do, both measured in section 3.6: the forced choice that judges a minimal pair (SP-6) and the say-it check where a device can hold it (SP-4). It is never used to understand a turn. Pin the Hugging Face revision and the SHA-256 of every file. | SP-1, SP-10 |
 | D2 | **No audio leaves the device, and no audio is stored.** A clip lives in memory for the turn or the card and is released when it changes, which is `Recorder`'s rule today. Transcripts are stored only where typed text is stored already (a scene turn, an answer). No new recipient goes on `/privacy`. The one exception is SP-9's voice donation, which is its own consent, its own table and its own erasure. | Every item |
 | D3 | **Bars before features.** SP-0 measures real voices. A transcript is shown to learners only if correctly said test sentences are misheard under 8 percent of words. A contrast is judged (SP-6) only if a correctly said contrast word is heard as its partner under 2 percent of the time and a deliberately wrong one is caught at least 80 percent of the time. These are the operator's numbers to move; nobody else moves them. | SP-3 to SP-7 |
-| D4 | **Two transcripts, two jobs.** `heard` is decoded with no hotwords and no repair and is the only text any feedback about sounds may come from. `understood` is decoded with hotwords where SP-0 shows they help a learner's voice (off by default, section 3.2) and repaired against the dictionary (section 3.3), and is what a conversation advances on. They are computed from the same audio in one pass where the runtime allows, two where it does not. **Measured (section 3.5): the Zipformer writes a sound mistake as said only rarely** (a voicing slip once in 70, a length slip 7 times in 66) and corrects the rest into the right word, so its `heard` is no evidence about sounds. Where a line about a sound is shown at all (SP-5, SP-6), `heard` comes from `xls-r-300m-et`, which writes mistakes two to ten times as often, and only once SP-0 shows it clears D3. | SP-2, SP-3, SP-5, SP-6 |
-| D5 | **The app never says a learner mispronounced anything.** It may say what the recognizer heard ("Heard: lina"), and where `heard` is the other half of a known pair, what tells the two apart ("linna has a longer n"). Every such line says it is the machine's hearing. This is an amendment to ADR-018, written as ADR-028 in SP-2, not a reversal of it: nothing is scored, and the learner stays the judge of their own voice. | SP-2, SP-5, SP-6 |
+| D4 | **Two transcripts, two jobs.** `heard` is decoded with no hotwords and no repair and is the only text any feedback about sounds may come from. `understood` is decoded with hotwords where SP-0 shows they help a learner's voice (off by default, section 3.2) and repaired against the dictionary (section 3.3), and is what a conversation advances on. They are computed from the same audio in one pass where the runtime allows, two where it does not. **Measured (section 3.5): the Zipformer writes a sound mistake as said only rarely** (a voicing slip once in 70, a length slip 7 times in 66) and corrects the rest into the right word, so its `heard` is no evidence about sounds. A line about a sound is never read off any transcript: it comes from the forced choice of section 3.6, which scores the recording against the two spellings a pair offers, and only for a pair that passes the gate there. | SP-2, SP-3, SP-5, SP-6 |
+| D5 | **The app never says a learner mispronounced anything.** It may say which of a pair the machine heard ("Heard: lina"), and what tells the two apart in words ("in linna the n is held longer"), with both native recordings played. It never gives a measured duration: section 3.6 found the alignment cannot measure one. Every such line says it is the machine's hearing. This is an amendment to ADR-018, written as ADR-028 in SP-2, not a reversal of it: nothing is scored, and the learner stays the judge of their own voice. | SP-2, SP-5, SP-6 |
 | D6 | **The machine may only ever grade up.** A spoken answer whose `heard` is a confident exact match for the card's answer grades Good through `gradeCard`. Anything else is put into the answer box, editable, and is marked only when the learner presses Check, by the same `checkAnswer` a typed answer meets. Recognition never writes Again or Hard on its own, because `Review` is append-only and a misheard word would be a lapse the learner never made. Good means the word was **recalled**, never that it was said well: the model hears most mispronounced words as the right word (section 3.5), which is fine for recall and is why nothing about the sound is ever graded. | SP-3, SP-4, SP-5 |
-| D7 | **Bias toward a set, never toward the answer.** Hotwords for a turn are the words the turn could honestly contain: the scene's list, the beat's requirements, the card's own forms *and* their contrast partners. Biasing toward the one expected answer would turn a wrong word into the right one, which is the fault D5 exists to prevent. Section 3.2 has the measurement. | SP-2 |
+| D7 | **Bias toward a set, never toward the answer.** Hotwords for a turn are the words the turn could honestly contain: the scene's list, the beat's requirements, the card's own forms *and* their contrast partners. Biasing toward the one expected answer would turn a wrong word into the right one, which is the fault D5 exists to prevent, and it also makes the right word harder to hear (75.9% accepted against 87.8% with no hint, section 3.6). Section 3.2 has the rest of the measurement. | SP-2 |
 | D8 | **Speaking is offered, never required.** Every screen that takes speech still takes typing, and the keyboard is never further than one press. A learner who will not or cannot speak meets the app exactly as it is today. The microphone is asked for on the first press of a microphone button, never on arrival. | Every item |
 | D9 | **No paid model call in this batch.** The scene judge (ADR-025 amendment 2) already reads a turn's meaning on the grader chain; it reads `understood` like a typed turn and is not asked anything new. Nobody re-runs a Gemini row of `measure:asr`. | Every item |
 | D10 | **The model files are served from the deployment's own storage**, not from Hugging Face, so a learner's IP address reaches no new company. `NEXT_PUBLIC_ASR_MODEL_BASE` names the base URL; Supabase Storage in the project's own region is the default; local development reads `public/asr/` (to be written), filled by a fetch script SP-1 adds, and git-ignored. | SP-1 |
@@ -143,7 +143,11 @@ Ask `getUserMedia` for `{ echoCancellation: true, noiseSuppression: true, autoGa
 channelCount: 1 }`, resample to 16 kHz mono in an `AudioWorklet`, and feed the recognizer as the
 learner speaks: it is a streaming model, so the words appear while they are still talking, which is
 the single most alive thing this whole batch can do. Endpointing (sherpa-onnx's own rules) decides
-when a turn is over; a press ends it too. Echo cancellation matters most in a scene, where the other
+when a turn is over; a press ends it too. Before decoding, a finished turn is prepared the way section
+3.6 measured: 0.5 s of silence in front, 0.8 s after, every pause over 0.25 s cut to 0.15 s, pauses
+measured against the clip's own loudest frame (-40 dB), and never a cut closer than 150 ms to the
+last loud frame of a word. The live partial text is decoded as it streams and is not prepared; only
+the final text is. Echo cancellation matters most in a scene, where the other
 side's line is playing from the same device a moment earlier. What the recognizer is fed around the
 speech (silence before and after, the level) was measured and is in section 3.5.
 
@@ -204,10 +208,12 @@ not a model:
    four vowels an English ear folds), and only where exactly one candidate qualifies. `kirjutusretsepti`
    is not a word; `kirjutas retsepti` is two words from the scene's list one boundary away, and a
    boundary repair is the commonest fix the measurement shows.
-3. **Low confidence is carried, not hidden.** sherpa-onnx returns per-token log probabilities and
-   timestamps. A word whose tokens fall under a threshold (-1.0 to start, from section 3.5; SP-0 confirms it on real voices) is marked uncertain; the
-   screen draws it dotted, and a tap on it opens the alternatives the repair considered and the
-   keyboard.
+3. **Uncertainty is carried, not hidden.** A word is marked uncertain where the forms list does not
+   hold it or where beam search and greedy decoding of the same audio disagree on it: four in five
+   such words are wrong, where a log-probability line was right about one in three (section 3.6).
+   SP-0 confirms it on real voices. The screen draws an uncertain word dotted, and a tap on it opens
+   the alternatives the repair considered and the keyboard. Hesitation marks the model writes (`e`,
+   `ee`, `e-` before a word) are taken out first.
 4. **Meaning stays with the code that already reads it.** `readTurn` already forgives a dropped
    letter, a wrong ending, a compound, an English word and a second word for the same thing
    (`lib/scenes/nearly.ts`, `lib/dict/synonyms.ts`). `understood` goes through it exactly as a typed
@@ -312,18 +318,115 @@ a learner's half-way sound, so real voices could go either way; SP-0 decides. Th
 3. **Grading up stays safe** (D6): a mispronounced word heard as the right one grades Good for
    recall, which is what the card asks, and the sound is never graded.
 
+### 3.6 Round three: a forced choice, pauses, unsure words, and the say-it check
+
+Four more local, free harnesses, the same caveat as section 0 (synthetic voices, no learner yet):
+`scripts/asr-verdict.py`, `scripts/asr-pauses.py`, `scripts/asr-calibrate.py` and
+`scripts/asr-finetune.py`. Each says what it builds and how to run it in its own header.
+
+**Which of two words was said: a forced choice beats a transcript.** Section 3.5 asked a recognizer
+to write a mistake down, and none does often enough. A minimal-pairs exercise does not need that: the
+screen already knows both candidates. `xls-r-300m-et` scores the recording against both spellings
+(the CTC likelihood of each, a forced alignment, the standard technique in pronunciation training),
+and the recording is placed on a line between where native speakers saying that same pair right (0)
+and wrong (1) land. Those references are TartuNLP's own voices, made once when the exercise is built.
+The test voices (mari, tambet, kalev, liivika) are never reference voices (vesta, peeter, albert,
+indrek), so nothing here is judged against its own voice.
+
+| Pairs that pass the gate below | Clean | Café babble, 10 dB | Phone line |
+| --- | --- | --- | --- |
+| Single words (296 of 320): caught / false alarm / asked again | 97.3% / 0.0% / 2.7% | 91.2% / 0.7% / 8.1% | 98.0% / 0.7% / 1.4% |
+| A mistake inside a sentence (284 of 392) | 91.2% / 0.0% / 2.3% | 90.8% / 0.0% / 3.7% | 88.7% / 0.0% / 3.9% |
+
+Single words use an unsure band from 0.35 to 0.65 and sentences one from 0.4 to 0.6: a recording
+landing inside it is neither judged right nor wrong, and the screen asks for it again. That is what a
+teacher does, and it is why noise raises "asked again" rather than false alarms. Scored alone, with
+one line for every pair, the same recordings caught 40 to 50 percent of sentence mistakes: the model
+knows which words exist and leans toward them, and the references cancel that lean pair by pair.
+
+**The gate matters more than any line.** Every false alarm on sentences before it was a pair spelled
+apart and said alike: `seitse` and `seidse`, `lapse` and `labse`, `bussist` and `bussisd`. An
+exercise is built only on a pair whose own native references are at least 5 nats apart, which the
+app checks when it builds the exercise and never when the learner speaks. Without the gate the same
+sentences carry about 6 percent false alarms in every room.
+
+**No millisecond figure.** Measuring how long a learner held the n of `linna` from the alignment was
+tried and does not separate long from short (median 0.89 against 0.65 of the word's average letter,
+overlapping almost entirely): a CTC model marks a letter with a spike, not with its sound. The
+explanation after a verdict is the two native recordings, played, never a number.
+
+**Did they say this word (the say-it check).** A spoken single word checked against the expected
+one, at a line that lets through 1 percent of other words:
+
+| Engine | Expected word accepted | Its contrast partner accepted |
+| --- | --- | --- |
+| `xls-r-300m-et`, expected spelling against its own free reading | 100% | 99.7% |
+| Zipformer large, greedy or beam text, compared after `soundKey` folding | 91.6% | 91.6% |
+| Zipformer large, greedy text alone | 87.8% | 82.2% |
+| Zipformer large, the expected word as a hotword (score 1) | 75.9% | 69.7% |
+
+Accepting the partner is right for a say-it drill, which grades nothing; the forced choice above is
+what judges the pair. The hotword row is D7 measured from the other side: a hint toward the one
+expected word makes the model worse at hearing it.
+
+**Word by word, with pauses.** 228 clips, 546 words, three voices, each word recorded alone and
+joined with a pause of 0.3 to 1.5 seconds, and in half of them a hesitation `ee` in some gaps:
+
+| Large Zipformer | Words wrong |
+| --- | --- |
+| The same sentences said normally | 3.7% |
+| Word by word, as said | 14.7% |
+| Every pause over 0.25 s cut to 0.15 s ("squeezed") | 7.7% |
+| Squeezed, and every stretch heard alone as only a hesitation taken out | 6.4% |
+| With hesitations: as said / squeezed and cleaned / stretches taken out and cleaned | 32.4% / 12.1% / 10.4% |
+
+"Cleaned" is the transcript with the hesitation marks the model writes (`e`, `ee`, `e-` glued to a
+word) taken out. The small Zipformer squeezed reaches 5.7%, better than its own 9.5% on the
+sentences said normally, which is worth knowing for the phones that run it. Two rules fall out and
+apply to every cut the app makes, not only this one:
+
+- **Keep 150 ms after the last loud frame of a word.** Cut 50 ms after it, the Zipformer drops the
+  word's last syllable (`aeglane` heard as `aegla`) in 4 of 12 words; at 150 ms it drops none. A
+  first run of this set blamed the model for exactly that and was the test set.
+- **Pause is measured against the clip's own loudest frame (-40 dB), never against an absolute
+  level**, so a quiet microphone and a loud one squeeze the same pauses.
+
+What is left is mostly words the model also misses said normally (the loanword `dušš`, the name
+`Eva`) and short words between long pauses. The synthetic hesitation is the weak part of this set:
+TartuNLP says `ee` as a short word with its own intonation, not as a held vowel, so a steadiness test
+does not separate it from words (and should not be tuned against it). Real hesitations are SP-0's.
+
+**Unsure words: two decodings beat one number, and calibration buys nothing.** Fifty learners (ten
+voices in five rooms) each read five sentences first, and the unsure line was tuned to them. It does
+not help: a room moves the log probability of a learner's correctly heard words by under a tenth of a
+nat, so one line for everybody scores best (F1 50.4, tuned 40.1). What does help is a better signal,
+judged on five voices it was not chosen on:
+
+| Mark a word unsure where | Precision | Recall |
+| --- | --- | --- |
+| its lowest token log probability is under -1.0 | 34.8% | 75.2% |
+| the forms list does not hold it | 100% | 13.1% |
+| beam search and greedy decoding of the same model disagree | 81.6% | 58.4% |
+| **either of the two above** | **83.2%** | **65.0%** |
+| the small model hears something else | 48.3% | 83.2% |
+
+The bold row needs one model and two decodings of the same audio, and a dotted word under it is wrong
+four times in five where the old line's was wrong one time in three. What it misses is mostly the
+echo room, where the model invents real words confidently and both decodings agree.
+
 ## 4. Status
 
 | Item | Status |
 | --- | --- |
 | Measurement (`measure-asr.ts`, `asr-local.py`, meter fix) | On branch `claude/serene-lovelace-e0dcf2` |
+| Round three experiments (`asr-verdict.py`, `asr-pauses.py`, `asr-calibrate.py`, `asr-finetune.py`) | On the same branch, section 3.6 |
 | SP-0 Real voices and devices | Not started |
 | SP-1 The engine in the browser | Not started |
 | SP-2 Hearing rules and ADR-028 | Not started |
 | SP-3 Speaking in situations | Not started, waits on SP-0 bars |
 | SP-4 Say it, in the daily module | Not started, waits on SP-0 bars |
 | SP-5 Speaking practice and the spoken exam show what was heard | Not started, waits on SP-0 bars |
-| SP-6 Minimal pairs, said aloud | Not started, waits on the contrast bars |
+| SP-6 Minimal pairs, said aloud | Not started; method clears D3 on synthetic voices (section 3.6), waits on SP-0 |
 | SP-7 Voice where it is quick | Not started |
 | SP-8 Measuring it, for good | Not started |
 | SP-9 Lend your voice | Not started, operator decision first (section 9) |
@@ -482,6 +585,13 @@ Speaking belongs in the evening, in three places, each small:
 3. **The closing review answers aloud where it is typed**, by choice: a microphone in the answer box of
    a production card, filling it, marked by D6.
 
+**The say-it check** in all three places is section 3.6's: on a device that holds `xls-r-300m-et`,
+the expected spelling scored against the model's own free reading (every right word accepted, 1 in
+100 other words let through); elsewhere the Zipformer's greedy and beam text compared after
+`soundKey` folding (91.6% of right words, under 1 in 100 others). Never a hotword for the expected
+word, which makes it worse (D7). A word not accepted is not a mistake: it does not light up, and the
+learner says it again or carries on, because a meeting grades nothing and D6 only grades up.
+
 **Verify.** `course.test.ts`, the module walk in `scripts/test-module.mjs` with the fake microphone,
 and the fifteen-minute evening test.
 
@@ -492,11 +602,15 @@ and the present persons only, the same narrowing the flash round uses (`beginner
 
 ### SP-5. Speaking practice and the spoken exam show what was heard
 
-- `/review/speaking`: after the learner records, show `heard` beside the target, word by word, with a
-  word that differs marked by a dotted underline and a word, never by colour alone. Where a differing
-  word is the contrast partner of the target word, one line says what tells them apart, read off
-  `contrastLetter` (`lib/estonian/quantity.ts`): "Heard as `lina`. In `linna` the n is held longer."
-  The learner still grades themselves (ADR-018); the machine's hearing is evidence they may weigh.
+- `/review/speaking`: after the learner records, show what the Zipformer understood beside the
+  target, word by word, with a word that differs marked by a dotted underline and a word, never by
+  colour alone. That transcript says whether the words came across; it says nothing about sounds,
+  because it corrects most of them (section 3.5). Where the target holds a word with a contrast
+  partner whose pair passes section 3.6's gate, the forced choice judges that one word and one line
+  says what it heard and what tells the two apart, read off `contrastLetter`
+  (`lib/estonian/quantity.ts`): "Heard as `lina`. In `linna` the n is held longer." Both native
+  recordings play. The learner still grades themselves (ADR-018); the machine's hearing is evidence
+  they may weigh.
 - The mock exam's spoken part and the level check's speaking section show the same, and stay
   self-marked and excluded from `SCORED_SKILLS`, asserted as today.
 
@@ -513,10 +627,26 @@ other direction: the screen shows one of a pair, you say it, and the recognizer,
 halves as hotwords (D7), says which it heard. Right is shown as "Heard `linna`"; the other is "Heard
 `lina`: the n in `linna` is held longer", with both played. It grades nothing: it is practice of the
 one thing the app teaches that a learner cannot check alone, and its whole value is that the machine
-is right about it, which is what the bar is for. On what has been measured so far no model clears it
-(section 3.5): the Zipformer writes a length slip as said 7 times in 66 and `xls-r-300m-et` 19 times
-in 66. Use `xls-r-300m-et` here and not the Zipformer, and do not build this until SP-0 shows a model
-catching a deliberately wrong word 80 percent of the time.
+is right about it, which is what the bar is for.
+
+**How it judges** is section 3.6's forced choice, not a transcript and not hotwords: `xls-r-300m-et`
+scores the recording against both spellings and places it between the pair's own native references,
+with an unsure band from 0.35 to 0.65 that asks for the word again. On synthetic voices it already
+clears D3 in every room measured (97.3% caught, no false alarm, clean; 91.2% and 0.7% in café
+babble). What is left is the real-voice half of D3, which SP-0 measures, and D3 is not met until it
+does.
+
+- **References are built with the exercise, not at runtime**: each pair said by four of TartuNLP's
+  voices, scored once, stored as two numbers per pair (where right and wrong land) beside the
+  exercise. No recording is shipped for the verdict; the two played after it are the clips the speech
+  route already serves.
+- **The gate is a build step**: a pair whose references are under 5 nats apart is not offered,
+  because it is spelled apart and said alike. `asr-verdict.py judge` is the measurement; the gate in
+  the app is `lib/speech/pairs.ts` (to be written), asserted against a list of pairs the harness
+  found unseparable.
+- **Desktop and capable devices only**, because the model is about 320 MB. Where it cannot load, the
+  exercise is not offered, rather than run on the Zipformer, which corrects the very mistake it is
+  practising.
 
 ### SP-7. Voice where it is quick
 
