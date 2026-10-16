@@ -124,7 +124,10 @@ def data():
 ROOMS = ("babble10", "phone", "echo", "white10")
 
 
-def train(steps=1200, batch=4, lr=3e-5, unfrozen=8):
+def train(steps=800, batch=4, lr=3e-5, unfrozen=8, every=100):
+    """Resumable: the trainable weights and the optimizer are saved every `every` steps, and a run
+    started again picks up there. Each step draws its batch from a generator seeded by the step, so
+    a resumed run sees the same batches an unbroken one would."""
     import torch
     from transformers import AutoModelForCTC, AutoProcessor
     torch.set_num_threads(os.cpu_count() or 4)
@@ -142,13 +145,26 @@ def train(steps=1200, batch=4, lr=3e-5, unfrozen=8):
     for p in model.lm_head.parameters():
         p.requires_grad = True
     model.train()
-    opt = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=lr)
+    trainable = [p for p in model.parameters() if p.requires_grad]
+    names = [n for n, p in model.named_parameters() if p.requires_grad]
+    opt = torch.optim.AdamW(trainable, lr=lr)
+    ckpt = os.path.join(OUT, "checkpoint.pt")
+    start = 0
+    if os.path.exists(ckpt):
+        state = torch.load(ckpt, weights_only=False)
+        params = dict(model.named_parameters())
+        with torch.no_grad():
+            for n in names:
+                params[n].copy_(state["weights"][n])
+        opt.load_state_dict(state["optimizer"])
+        start = state["step"]
+        print(f"resumed at step {start}", file=sys.stderr, flush=True)
     others = [X.load(c["file"]) for c in json.load(open(os.path.join(ROOT, "corpus.json"))) if c["kind"] == "sentence"]
     audio = {r["file"]: X.load(r["file"]) for r in rows}
-    rng = random.Random(1)
     vocab = proc.tokenizer.get_vocab()
     t0 = time.time()
-    for step in range(steps):
+    for step in range(start, steps):
+        rng = random.Random(1000 + step)
         sample = rng.sample(rows, batch)
         waves, labels = [], []
         for r in sample:
@@ -171,9 +187,17 @@ def train(steps=1200, batch=4, lr=3e-5, unfrozen=8):
         opt.zero_grad()
         if step % 25 == 0:
             print(f"step {step} loss {loss.item():.3f} {time.time() - t0:.0f}s", file=sys.stderr, flush=True)
-        if (step + 1) % 400 == 0 or step + 1 == steps:
-            model.save_pretrained(os.path.join(OUT, "model"))
-            proc.save_pretrained(os.path.join(OUT, "model"))
+        if (step + 1) % every == 0 and step + 1 < steps:
+            params = dict(model.named_parameters())
+            tmp = ckpt + ".tmp"
+            torch.save({"step": step + 1, "weights": {n: params[n].detach() for n in names},
+                        "optimizer": opt.state_dict()}, tmp)
+            os.replace(tmp, ckpt)
+            print(f"checkpoint at step {step + 1}", file=sys.stderr, flush=True)
+    model.save_pretrained(os.path.join(OUT, "model"))
+    proc.save_pretrained(os.path.join(OUT, "model"))
+    if os.path.exists(ckpt):
+        os.remove(ckpt)
     print("saved", file=sys.stderr)
 
 
