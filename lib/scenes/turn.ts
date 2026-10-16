@@ -1420,7 +1420,7 @@ function satisfies(
             return card.includes(lemma) ? hit : chosen(lemma, hit);
           }
           if (kind.kind === "word" && kind.places) {
-            const place = placeName(text, context);
+            const place = placeName(text, context, need.grammCase === "ILLATIVE");
             if (place) return { word: place.toLowerCase(), quiet: true, chose: { slot: need.slot, value: place } };
           }
         }
@@ -1723,9 +1723,18 @@ const SHORT_LOST = 3;
  * is claimed, which is why the hit that carries it is `quiet`.
  */
 const PLACE_NAME = /^\p{Lu}\p{Ll}{2,}$/u;
-function placeName(text: string, context: TurnContext): string | null {
+/*
+  And typed in lower case where the beat asks where to: most people type
+  `tartusse` on a phone, and the capital was the only thing letting it through.
+  Only a spelling ending in the illative's own `sse`, which the forms list has to
+  vouch for below, so a stray word is still not a destination.
+*/
+const PLACE_TO = /^\p{Ll}{2,}sse$/u;
+function placeName(text: string, context: TurnContext, wantsTo = false): string | null {
   for (const token of text.match(ESTONIAN_WORD) ?? []) {
-    if (!PLACE_NAME.test(token)) continue;
+    const lowered = wantsTo && PLACE_TO.test(token);
+    if (!PLACE_NAME.test(token) && !lowered) continue;
+    if (lowered && !context.known?.(token)) continue;
     const word = token.toLowerCase();
     if (ENGLISH.has(word)) continue;
     if (context.lexicon.forms.has(word) || context.lexicon.folded.has(fold(word))) continue;

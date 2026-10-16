@@ -25,9 +25,10 @@ const NEIGHBOR: SceneSpec = {
       says: "Where you're from.",
     },
     {
-      kind: "word", slot: "with", oneOf: ["naine", "mees", "laps", "sõber", "ema", "vend", "õde"],
+      // `abikaasa` because "koos oma abikaasaga" is how a husband or a wife is said to a neighbor, and was refused.
+      kind: "word", slot: "with", oneOf: ["naine", "mees", "abikaasa", "laps", "sõber", "ema", "vend", "õde"],
       says: "Who lives with you.",
-      means: { naine: "wife", mees: "husband" },
+      means: { naine: "wife", mees: "husband", abikaasa: "spouse" },
     },
   ],
   /* Not "small-talk": the weather is a beat of this scene already, so the
