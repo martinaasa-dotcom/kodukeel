@@ -94,7 +94,7 @@ Each of these is a decision, not an omission.
   times and reminders, and `/api/reminder`, a daily reminder served as a calendar file. Neither
   syncs a class schedule, because there is still none to sync.
 - **Speech-to-text.** ~~Unverified for Estonian (audit A5).~~ **Measured since, and still not
-  built.** `scripts/measure-asr.mjs` puts the best reachable recognizer at a 14.6% word error rate
+  built.** `scripts/measure-asr.ts` puts the best reachable recognizer at a 14.6% word error rate
   on clean native audio, with its mistakes on consonant length and voicing, which is where a learner
   is weakest; showing that transcript would mark correct pronunciation wrong (ADR-018).
 - **Anki export.** JSON export and restore both ship; the Anki format is a nice-to-have, not a

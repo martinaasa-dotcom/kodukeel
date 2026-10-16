@@ -547,7 +547,7 @@ things and nobody is evenly bad at all four.
 
 ## 11. Speaking
 
-ADR-018 stands and nothing here scores pronunciation. `scripts/measure-asr.mjs` measured
+ADR-018 stands and nothing here scores pronunciation. `scripts/measure-asr.ts` measured
 `whisper-large-v3` at a 14.6% word error rate on clean native audio, with its errors landing on
 consonant length, voicing and word boundaries, which is precisely where a learner is weakest. Using
 that to decide whether a scene advances would be scoring pronunciation with extra steps, and it
@@ -563,7 +563,7 @@ So there are two ways to take a turn, and both are honest about what they are:
   one, and it is the mode somebody uses on the walk to an appointment they are dreading. Rehearsal
   does not need a verdict.
 
-Reopening this needs a re-run of `measure-asr.mjs` against a recognizer that clears the bar, and the
+Reopening this needs a re-run of `measure-asr.ts` against a recognizer that clears the bar, and the
 bar is not "good": a false stall has to be rarer than a real one, or the app tells a learner they
 were wrong when they were right, on the screen where that costs the most.
 

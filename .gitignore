@@ -40,3 +40,4 @@ prisma/data/.cache/
 
 # What the harnesses paid a model for, so the same question is not bought twice (scripts/lib/meter.ts).
 .cache/
+__pycache__/

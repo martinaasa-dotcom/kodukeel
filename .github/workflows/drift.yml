@@ -10,7 +10,7 @@ name: Drift
 # "someone happened to run the script that week".
 #
 # Only the checks that need no credential live here, which today is one of
-# them. `scripts/test-ekilex.mjs` needs EKILEX_API_KEY, `scripts/measure-asr.mjs`
+# them. `scripts/test-ekilex.mjs` needs EKILEX_API_KEY, `scripts/measure-asr.ts`
 # and `npm run eval:anu` need a provider key, and ci.yml's own comment says of
 # itself that nothing in it maps a repository secret into a job. Buying a weekly
 # check by making that untrue is the wrong trade, and .github/workflows/

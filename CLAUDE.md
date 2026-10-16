@@ -11407,7 +11407,7 @@ shows them and somebody who stopped a year ago is not reported as never having r
 
 **Never score pronunciation.** Not because none is reachable, which stopped being true, but
 because the reachable one is not good enough and that was measured rather than assumed.
-`scripts/measure-asr.mjs` runs `whisper-large-v3` over sentences the dictionary already carries,
+`scripts/measure-asr.ts` runs `whisper-large-v3` over sentences the dictionary already carries,
 spoken by a native synthetic voice: clean audio, no accent, no noise, which is easier than any
 learner's recording. It comes back at a 14.6% word error rate, and its mistakes land on consonant
 length (`Poiss` as `Pois`), voicing (`abikaasaga` as `abigaasaga`) and word boundaries, which is
