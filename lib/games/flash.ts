@@ -4,7 +4,7 @@ import { checkAnswer } from "@/lib/estonian/answer";
 import { CASES, caseByKey } from "@/lib/estonian/cases";
 import { caseFits, caseQuestionFor, type CaseSubject } from "@/lib/estonian/caseQuestion";
 import { buildCloze, mentions } from "@/lib/estonian/cloze";
-import { derivedVerbForms, pres1sgFrom } from "@/lib/estonian/conjugate";
+import { derivedVerbForms, isFiniteVerbCode, pres1sgFrom } from "@/lib/estonian/conjugate";
 import { caseAnswer, shownForms, stemsFrom } from "@/lib/estonian/derive";
 import { gapForms } from "@/lib/estonian/gapForms";
 import { caseIndex, readCase, tidyForm } from "@/lib/estonian/whichCase";
@@ -651,8 +651,40 @@ export interface FormAsk {
   index: Readonly<Record<string, readonly string[]>>;
 }
 
+/**
+ * The subject pronouns a learner may put in front of a verb form, by the
+ * person of the slot asked for. Both the short spoken form and the dictionary
+ * one are Estonian, so both count.
+ *
+ * Asked for "I work", `ma töötan` is the whole answer and `töötan` is the
+ * form inside it, so the pronoun is read off before the comparison and never
+ * counted against the learner. A pronoun for a different person is left in
+ * place, so `sa töötan` for the first person still fails.
+ */
+const PRONOUNS_BY_PERSON: Record<string, readonly string[]> = {
+  Sg1: ["ma", "mina"],
+  Sg2: ["sa", "sina"],
+  Sg3: ["ta", "tema"],
+  Pl1: ["me", "meie"],
+  Pl2: ["te", "teie"],
+  Pl3: ["nad", "nemad"],
+};
+
+function withoutSubject(slot: string, written: string): string {
+  if (!isFiniteVerbCode(slot)) return written;
+  // The negative is one form for every person, so any pronoun may lead it.
+  const person = /(Sg|Pl)[123]$/.exec(slot)?.[0];
+  const allowed = person
+    ? (PRONOUNS_BY_PERSON[person] ?? [])
+    : Object.values(PRONOUNS_BY_PERSON).flat();
+  const match = /^(\p{L}+)\s+(.+)$/u.exec(written);
+  if (!match) return written;
+  const lead = match[1]!.toLowerCase();
+  return allowed.includes(lead) ? match[2]!.trim() : written;
+}
+
 export function markForm(task: FormAsk, typed: string): FlashMark {
-  const written = typed.trim();
+  const written = withoutSubject(task.slot, typed.trim());
   if (!written) {
     return { right: false, rating: 1, wrote: null, wroteSlot: null, note: "Nothing typed." };
   }

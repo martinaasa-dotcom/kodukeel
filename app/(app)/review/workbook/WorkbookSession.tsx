@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { BookOpen, Check, Eye, EyeOff, Info, Lightbulb, PenLine, RotateCcw, Sparkles, X } from "lucide-react";
-import { recordWorkbookGrades } from "@/app/actions";
+import { markWorkbookDone, recordWorkbookGrades } from "@/app/actions";
 import { useLocale, useT } from "@/components/Locale";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { WayOut } from "@/components/round/RoundExit";
@@ -192,7 +192,7 @@ const verdictOf = (outcome: Outcome | undefined, mark: LineMark | undefined): Ve
  * one thing worth saying about the page, which is the slot they kept reaching
  * for instead of the one wanted, where that happened twice.
  */
-export function WorkbookSession({ exercises: initial, missed, themes, canTranslate, practice = false, onBack }: {
+export function WorkbookSession({ exercises: initial, missed, themes, canTranslate, doneKey = null, practice = false, onBack }: {
   exercises: WorkbookExercise[];
   /**
    * A theme somebody asked for by name that their words cannot fill a page of
@@ -203,6 +203,12 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
   /** The themes this learner's words can fill a page of, for the finish screen. */
   themes: Theme[];
   canTranslate: boolean;
+  /**
+   * The choice on Practice this page was opened from (`set` or a theme), told
+   * to the server once the page is finished so that button can say so. Null
+   * inside a module, where the evening records its own steps.
+   */
+  doneKey?: string | null;
   /**
    * The lines missed, set again once the page is corrected. Nothing is graded
    * (every line arrives with no card) and nothing is kept on the device, since
@@ -280,6 +286,13 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
       exercises, at, pass, typed, marks, firstMarks, checkedAs, outcomes, english, sent: [...sent.current],
     });
   }, [looked, practice, finished, address, exercises, at, pass, typed, marks, firstMarks, checkedAs, outcomes, english]);
+
+  /* Finishing the page is what marks its button on Practice. A failure here
+     costs a tick on a list and is not worth saying anything about. */
+  useEffect(() => {
+    if (!finished || practice || !doneKey) return;
+    void markWorkbookDone(doneKey).catch(() => null);
+  }, [finished, practice, doneKey]);
 
   const exercise = exercises[at];
   const kind: ExerciseKind = exercise?.kind ?? "write";
