@@ -278,7 +278,7 @@ stops. Size is the work in one pull request: S is a day, M a few days, L a week 
 | C-1 Sign-in's largest paint, measured on production | 0: what batch 4 left | S | Not started, needs #856 deployed |
 | C-2 One capped play of the composed path | 0 | S | Not started |
 | C-3 The reply's decision order, written and asserted | 0 | M | Not started |
-| C-4 Teach `kolima`, then the reader's wording | 0 | S | Not started |
+| C-4 Teach `kolima`, then the reader's wording | 0 | S | Done: `kolima` taught a second time, last in `umbmaarased` (its harvest row was already there from B1), and "Kas te olete siia just kolinud?" applied through `apply:scene-review`; no day id moved, $0 spent |
 | VB-1 The engine and the hearing rules | 1: a conversation out loud | L | Not started |
 | VB-2 One microphone for the whole app | 1 | M | Not started |
 | VB-3 Ready for the native apps | 1, before November | S | Not started |

@@ -1122,6 +1122,16 @@ export const A1 = [
       // Three Ekilex entries carry this; 211037 is the possessive.
       ["kogu", "the whole, all of", "PRONOUN"],
       ["selline", "such, like this", "PRONOUN"],
+      /*
+        The neighbor on the stairs asks whether you have just moved in, and the
+        native reader's wording of it is `kolinud`. The verb was taught only in
+        B1's renting unit, which the stairwell does not declare, so it is taught
+        here as well, the way `sobima` is taught twice. Not in `kodu`, which is
+        at the ceiling a sitting allows, nor in any unit before `uus`, since the
+        verb's own beginner sentence says "a new flat". Last, so it lands on the
+        unit's second evening and adds none.
+      */
+      ["kolima", "to move house"],
     ],
   }),
 
