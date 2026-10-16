@@ -7,6 +7,8 @@ import { ArrowRight, Flame, Shield } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { dailySummary, deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
+import { reviewQueue } from "./review/queue";
+import { KeepCurrent } from "@/components/KeepCurrent";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { measuredPaceFor } from "@/lib/progress/plan";
 import { minutesForCards, ownCardsPerMinute } from "@/lib/stats/pace";
@@ -53,7 +55,8 @@ import { stepCard, stepsIn } from "@/lib/course";
 import { HeroFan } from "@/components/HeroFan";
 import { JokeOfDayCard } from "@/components/JokeOfDay";
 import { GoodNewsSlot } from "@/components/GoodNewsSlot";
-import { jokesToday } from "@/lib/progress/jokeOfDay";
+import { jokesForThisVisit } from "@/lib/progress/jokeOfDay";
+import { wordGlossFrom } from "@/lib/ux/wordGloss";
 
 export async function generateMetadata() {
   return titleFor("Today");
@@ -125,7 +128,7 @@ export default async function TodayPage() {
     deckSnapshot(ownerId, now),
     readSettings(ownerId, [
       SETTING_KEYS.onboardedAt, SETTING_KEYS.displayName, SETTING_KEYS.cefrPlacement,
-      SETTING_KEYS.todayOrder, SETTING_KEYS.goalTarget,
+      SETTING_KEYS.todayOrder, SETTING_KEYS.goalTarget, SETTING_KEYS.wordGloss,
     ]),
     /*
       Which level the course opens at. It was read last, after everything else
@@ -153,7 +156,7 @@ export default async function TodayPage() {
   // with a deck or a finished setup never sees it again.
   if (!settings[SETTING_KEYS.onboardedAt] && snapshot.totalCards === 0) redirect("/start");
 
-  const [summary, units, fetchedTasks, countedOpen, countedLate, conversations, events, weekReviews, learner, pace, [programme, courseNow]] = await Promise.all([
+  const [summary, units, fetchedTasks, countedOpen, countedLate, conversations, events, weekReviews, learner, pace, [programme, courseNow], review] = await Promise.all([
     dailySummary(ownerId, now, clock),
     pathWithProgress(ownerId, snapshot),
     /*
@@ -227,6 +230,13 @@ export default async function TodayPage() {
       programme,
       programme ? await courseReading(ownerId, programme, clock, now) : null,
     ] as const),
+    /*
+      THE SITTING REVIEW WILL HOLD, built by the review page's own builder,
+      because "20 due" over a session of one card is the app contradicting
+      itself on the one press it asks for. Counting the list is the only
+      count that cannot drift from it (see app/(app)/review/queue.ts).
+    */
+    reviewQueue(ownerId, null, now),
   ]);
 
   const stage = stageOf({ totalCards: snapshot.totalCards, reviewsAllTime: summary.reviewsAllTime });
@@ -257,6 +267,10 @@ export default async function TodayPage() {
   // The cards the learner hid in Settings: not dealt, and the two that cost a
   // read are not even asked for.
   const hiddenCards = hiddenSlotsFrom(settings[SETTING_KEYS.todayOrder]);
+  /* Whether the joke and the good news put the dictionary under their words,
+     which is the learner's own underline setting (lib/ux/wordGloss.ts) and
+     off unless they turned it on. */
+  const linked = wordGlossFrom(settings[SETTING_KEYS.wordGloss]) === "on";
   const [word, outside, ladder, jokes] = await Promise.all([
     shows(stage, "word") ? wordOfDay(ownerId, summary.dayKey, clock.startOfDay(now), placement, { forLevel: true }) : null,
     // Whether the day's question has been answered, and the month behind it,
@@ -275,27 +289,26 @@ export default async function TodayPage() {
       ? ladderPosition(ownerId, targetFrom(settings[SETTING_KEYS.goalTarget]))
       : null,
     /*
-      The joke, one of the two cards that ask nothing of anybody: a table and
-      one dictionary read, held for the day. The good news is not awaited here
+      The joke, one of the two cards that ask nothing of anybody: a table and,
+      where the underlines are on, one dictionary read. A new draw on every
+      visit, so coming back to Today or reloading it is another joke. The good news is not awaited here
       at all; it streams in on its own (`GoodNewsSlot`), because it is three
       feeds and a model and this page may not wait on somebody else's server
       for the one card that is a pleasure rather than the point.
     */
-    shows(stage, "joke") && !hiddenCards.has("joke") ? jokesToday(summary.dayKey) : null,
+    shows(stage, "joke") && !hiddenCards.has("joke") ? jokesForThisVisit({ linked }) : null,
   ]);
 
   const today = dateLine(now, clock.zone);
   /*
-    What Practice will actually put in front of them.
-
-    Due cards, plus the unseen ones a session trickles in, which is what it has
-    always been. What changed is which unseen ones count: the ladder owns a
-    word until its recognition card graduates, so every card of a word being
-    learned is Learn's and none of them is offered here. Both figures draw the
-    same line the review queue draws, so a number on this page is a number that
-    screen will fill.
+    What Review will actually put in front of them: the length of the very
+    list that screen builds, due cards and the unseen ones a session trickles
+    in. It was a tally over the whole deck reasoning about that list, and it
+    printed "20 due" over a session that asked one card.
   */
-  const toReview = Math.min(snapshot.dueCount + Math.min(snapshot.newForPractice, 10), 60);
+  const toReview = review.cards.length;
+  // What is due, as Review will ask it, marked where more is due than a sitting holds.
+  const dueNow = review.dueMore ? `${review.due.length}+` : review.due.length;
   /** Words waiting on the ladder, in words rather than in cards. */
   const toLearn = snapshot.learnCount;
   const name = settings[SETTING_KEYS.displayName]?.trim() || (learner.name === "you" ? "" : learner.name);
@@ -348,7 +361,7 @@ export default async function TodayPage() {
   const figures = shows(stage, "streak") ? (
     <div className="flex flex-wrap items-center gap-4">
       <div className="grid w-full grid-cols-2 gap-3 sm:w-auto sm:min-w-[200px] sm:flex-1">
-        <StatTile value={snapshot.dueCount} label={t("Due now")} tone="accent" />
+        <StatTile value={dueNow} label={t("Due now")} tone="accent" />
         <StatTile value={toLearn} label={t("New words")} tone="sky" />
       </div>
       {/* On a phone the ring wraps onto its own line, where a bare
@@ -900,12 +913,13 @@ export default async function TodayPage() {
     Two cards that are there to make the morning a little better and teach a
     little on the way: a Juku joke out of `lib/collections/jokes.ts`, and one
     happy headline from ERR (and two behind it) picked by `lib/news/goodNews.ts`. Both put the
-    dictionary under every word, both are true on the first morning, and the
+    dictionary under every word where the learner turned the underlines on
+    (lib/ux/wordGloss.ts), both are true on the first morning, and the
     news card is simply absent on an hour it found nothing good to say.
   */
-  const jokeCard = jokes && jokes.length > 0 ? <JokeOfDayCard jokes={jokes} /> : null;
+  const jokeCard = jokes && jokes.length > 0 ? <JokeOfDayCard jokes={jokes} linked={linked} /> : null;
   const newsCard = shows(stage, "news") && !hiddenCards.has("news")
-    ? <Suspense fallback={null}><GoodNewsSlot /></Suspense>
+    ? <Suspense fallback={null}><GoodNewsSlot linked={linked} /></Suspense>
     : null;
 
   /*
@@ -1062,6 +1076,9 @@ export default async function TodayPage() {
         the rail and in the palette; nothing here is the only way to reach
         anything.
       */}
+      {/* Asks the server again when this page is shown from a copy, so the
+          review count above is the session Review is about to hold. */}
+      <KeepCurrent renderedAt={now.getTime()} />
       <Stack className="min-w-0">
         {/* Today's card is the one big thing on this page, and the only one
             the letters lie on here, calm rather than hopping, since it is opened every

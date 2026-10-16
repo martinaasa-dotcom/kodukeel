@@ -1,20 +1,20 @@
-import { JOKES, jokesFor, splitLine, voiceFor } from "@/lib/collections/jokes";
+import { JOKES, jokesForVisit, splitLine, voiceFor } from "@/lib/collections/jokes";
 import { annotateTexts, plainTexts, type ReadableHeadline } from "@/lib/dict/headlines";
 
 /**
- * THE JOKE OF THE DAY, READY TO DRAW: TODAY'S AND A FEW SPARES.
+ * THE JOKE ON TODAY, READY TO DRAW: A NEW ONE EACH VISIT AND A FEW SPARES.
  *
- * The card shows today's joke and offers "another one", so it is handed the
- * next few off the same walk (`jokesFor`) rather than a server action per
+ * The card shows one joke and offers "another one", so it is handed a few
+ * drawn at once (`jokesForVisit`) rather than a server action per
  * press: five more jokes is a few hundred bytes, and a button that has to ask
  * the server for a joke is a button that can fail. Each line comes with the
  * dictionary under every word it vouches for, through the same gate the news
  * headlines go through (`annotateTexts`), so a learner can tap `kodutöö` in
  * the middle of a joke and land on its entry.
  *
- * Held in memory per day for the instance, since a day's jokes are the same
- * for everybody whose day it is, and for a few days at once, because learners
- * in two time zones are on two different days for part of every day.
+ * A new draw on every visit, which is what the operator asked for: a joke
+ * already read is spent. What is held for the instance is each joke's
+ * dictionary reading, keyed on the joke, since that is the same for everybody.
  *
  * NEVER THE REASON TODAY DOES NOT LOAD. The dictionary is asked once for all
  * the lines, and where it cannot answer the joke is drawn with plain words
@@ -36,39 +36,66 @@ export interface DrawnLine {
 
 export type DrawnJoke = DrawnLine[];
 
-/** Today's and five more, which is more than anybody presses for over breakfast. */
+/** The one the card opens with and five more, which is more than anybody presses for over breakfast. */
 export const JOKES_ON_THE_CARD = 6;
 
-/** Days held at once: yesterday, today and tomorrow somewhere in the world. */
-const DAYS_HELD = 3;
-const memo = new Map<string, DrawnJoke[]>();
+/**
+ * Each joke drawn with its dictionary, remembered by its index for the life of
+ * the instance. Bounded by the table itself, a few hundred lines, and a joke is
+ * the same joke for everybody, so the second visit to draw it reads it from here.
+ */
+const memo = new Map<number, DrawnJoke>();
 
-export async function jokesToday(dayKey: string): Promise<DrawnJoke[]> {
-  const held = memo.get(dayKey);
-  if (held) return held;
-  const picked = jokesFor(dayKey, JOKES_ON_THE_CARD).map((i) => JOKES[i]!);
-  const lines = picked.flatMap((joke) => joke.map(([et, en]) => ({ et: splitLine(et), en: splitLine(en) })));
-  const texts = lines.map((l) => l.et.text);
-  let annotated: ReadableHeadline[];
-  let keep = true;
-  try {
-    annotated = await annotateTexts(texts);
-  } catch {
-    annotated = plainTexts(texts);
-    keep = false;
+/**
+ * A fresh handful for this visit: a new draw on every render of Today, so a
+ * learner coming back to the page or reloading it meets another joke.
+ *
+ * `linked` is the learner's word-gloss setting (`lib/ux/wordGloss.ts`): off,
+ * which is the default, means the words are drawn plain and the dictionary is
+ * not asked at all, because off is the producer not looking rather than a
+ * screen hiding what it found.
+ */
+export async function jokesForThisVisit(
+  { linked, random = Math.random }: { linked: boolean; random?: () => number },
+): Promise<DrawnJoke[]> {
+  const picked = jokesForVisit(JOKES_ON_THE_CARD, random);
+  if (!linked) return picked.map((i) => draw(i, plainTexts(JOKES[i]!.map(([et]) => splitLine(et).text))));
+  const missing = picked.filter((i) => !memo.has(i));
+  if (missing.length > 0) {
+    const texts = missing.flatMap((i) => JOKES[i]!.map(([et]) => splitLine(et).text));
+    let annotated: ReadableHeadline[];
+    let keep = true;
+    try {
+      annotated = await annotateTexts(texts);
+    } catch {
+      annotated = plainTexts(texts);
+      keep = false;
+    }
+    let at = 0;
+    const drawn = new Map<number, DrawnJoke>();
+    for (const i of missing) {
+      const count = JOKES[i]!.length;
+      drawn.set(i, draw(i, annotated.slice(at, at + count)));
+      at += count;
+    }
+    if (!keep) return picked.map((i) => memo.get(i) ?? drawn.get(i)!);
+    for (const [i, joke] of drawn) memo.set(i, joke);
   }
-  let at = 0;
-  const jokes = picked.map((joke) =>
-    joke.map(() => {
-      const line = lines[at]!;
-      const tokens = annotated[at]!.tokens;
-      at += 1;
-      return { by: line.et.by, byEn: line.en.by, tokens, said: line.et.text, voice: voiceFor(line.et.by), en: line.en.text };
-    }),
-  );
-  if (keep) {
-    memo.set(dayKey, jokes);
-    while (memo.size > DAYS_HELD) memo.delete(memo.keys().next().value!);
-  }
-  return jokes;
+  return picked.map((i) => memo.get(i)!);
+}
+
+/** One joke's lines, each with the reading the dictionary gave it (or a plain one). */
+function draw(index: number, readings: ReadableHeadline[]): DrawnJoke {
+  return JOKES[index]!.map(([et, en], j) => {
+    const said = splitLine(et);
+    const english = splitLine(en);
+    return {
+      by: said.by,
+      byEn: english.by,
+      tokens: readings[j]!.tokens,
+      said: said.text,
+      voice: voiceFor(said.by),
+      en: english.text,
+    };
+  });
 }

@@ -19,12 +19,12 @@ import type { ScriptedLine } from "../scripted";
 const LINES: readonly ScriptedLine[] = [
   { scene: "peretoetus", beat: "why", text: "Kuidas ma saan teid aidata?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "peretoetus", beat: "why", text: "Mida te soovite?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "peretoetus", beat: "ref", text: "Mis on teie number?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "peretoetus", beat: "ref", text: "Kas ma saan teie numbrit, palun?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "peretoetus", beat: "last", text: "Mis kuus raha viimane kord tuli?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "peretoetus", beat: "last", text: "Millal raha viimane kord tuli?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "peretoetus", beat: "ref", text: "Mis on teie avalduse number?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "peretoetus", beat: "ref", text: "Kas ma saan teie avalduse numbrit, palun?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "peretoetus", beat: "last", text: "Mis kuus raha viimast korda tuli?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "peretoetus", beat: "last", text: "Millal raha viimast korda tuli?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "peretoetus", beat: "check", text: "Ma vaatasin, meil puudub üks dokument. Palun saatke see meile.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "peretoetus", beat: "check", text: "Raha ei tulnud, sest üks dokument puudub. Palun saatke see.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "peretoetus", beat: "check", text: "Raha ei tulnud, sest üht dokumenti ei ole veel. Palun saatke see.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "peretoetus", beat: "answer:check", text: "Saatke see kirjaga.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "peretoetus", beat: "answer:check", text: "Te võite selle kirjaga saata.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "peretoetus", beat: "hurdle:missing-document", text: "Kas te olete meie kirja saanud?", model: "authored", draftedAt: "2026-10-15" },
@@ -35,7 +35,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "peretoetus", beat: "answer:hurdle:not-possible", text: "Homme hommikul saab.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "peretoetus", beat: "hurdle:contradiction", text: "Aga raha on teile juba saadetud.", model: "authored", draftedAt: "2026-10-15", about: "last" },
   { scene: "peretoetus", beat: "hurdle:contradiction", text: "Ei, vabandust, kõik dokumendid on meil.", model: "authored", draftedAt: "2026-10-15", about: "check" },
-  { scene: "peretoetus", beat: "hurdle:other-register", text: "Mis su number on?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "peretoetus", beat: "hurdle:other-register", text: "Mis su avalduse number on?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "peretoetus", beat: "hurdle:other-register", text: "Kas sa saad selle saata?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
 ];
 

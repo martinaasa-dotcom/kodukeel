@@ -16,7 +16,7 @@ import { goodNewsWithin } from "@/lib/dict/goodNews";
  */
 const STREAM_MS = 8000;
 
-export async function GoodNewsSlot() {
+export async function GoodNewsSlot({ linked }: { linked: boolean }) {
   const stories = await goodNewsWithin(STREAM_MS);
-  return stories && stories.length > 0 ? <GoodNewsCard stories={stories} /> : null;
+  return stories && stories.length > 0 ? <GoodNewsCard stories={stories} linked={linked} /> : null;
 }

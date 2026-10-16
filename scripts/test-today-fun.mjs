@@ -17,6 +17,11 @@ import { requireAppShell } from "./lib/prefs.mjs";
  *   NEXT_PUBLIC_SUPABASE_URL= NEXT_PUBLIC_SUPABASE_ANON_KEY= npm run dev
  *   node scripts/test-today-fun.mjs
  *
+ * THE UNDERLINES ARE A SETTING. The joke and the news put the dictionary under
+ * their words only where the learner turned that on (`lib/ux/wordGloss.ts`),
+ * and it is off unless stored, so the suite stores "on" for the checks that
+ * open a word, then "off" to see the plain card, and puts back what was there.
+ *
  * PUT FIRST FOR THE LENGTH OF THE SUITE. Today draws eight cards and on the CI
  * fixture the eight above the news always have something to say, so the
  * suite stores the order a learner would choose in Settings to put both cards
@@ -30,12 +35,16 @@ const AXE = readFileSync(createRequire(import.meta.url).resolve("axe-core/axe.mi
 
 const prisma = newPrismaClient(requireLocalDatabase("set the order of Today's cards"));
 // Read off a real run; a waived news block lowers it by exactly its count.
-const { check, absent, done } = suite("The joke and the good news", { floor: 25 });
+const { check, absent, done } = suite("The joke and the good news", { floor: 29 });
 
 const ORDER = { ownerId: OWNER, key: "todayOrder" };
 const orderBefore = await prisma.setting.findUnique({ where: { ownerId_key: ORDER } });
 const setOrder = (value) =>
   prisma.setting.upsert({ where: { ownerId_key: ORDER }, create: { ...ORDER, value }, update: { value } });
+const GLOSS = { ownerId: OWNER, key: "wordGloss" };
+const glossBefore = await prisma.setting.findUnique({ where: { ownerId_key: GLOSS } });
+const setGloss = (value) =>
+  prisma.setting.upsert({ where: { ownerId_key: GLOSS }, create: { ...GLOSS, value }, update: { value } });
 
 const browser = await launchChromium();
 const page = await (await browser.newContext({ viewport: { width: 1280, height: 1000 } })).newPage();
@@ -63,6 +72,7 @@ async function axeOn(selector) {
 
 try {
   await setOrder("joke news");
+  await setGloss("on");
   await page.goto(`${B}/`);
   await requireAppShell(page);
 
@@ -97,6 +107,7 @@ try {
       els.map((e) => e.getAttribute("aria-label") || e.textContent?.trim()))).join(" | ")}`);
   check("the joke's words open their dictionary entries",
     (await joke.locator('a[href^="/dictionary"]').count()) > 0);
+  check("the joke's title carries no icon", (await card.locator("h2 svg, h3 svg").count()) === 0);
   const heldAxe = await axeOn("[data-joke]");
   check("the joke card passes axe with the punchline held", heldAxe.length === 0, heldAxe.join(", "));
 
@@ -148,6 +159,24 @@ try {
     check("the news card passes axe", (await axeOn("[data-good-news]")).length === 0);
   }
 
+  // ── A new joke each visit, and no underlines where they are off ───────────
+  await setGloss("off");
+  const opened = new Set();
+  for (let visit = 0; visit < 4; visit++) {
+    await page.goto(`${B}/`);
+    await eventually(async () => (await joke.count()) === 1 && (await joke.isVisible()));
+    opened.add(await joke.innerText());
+  }
+  check("a reload opens on another joke", opened.size > 1, `${opened.size} different joke(s) over 4 loads`);
+  check("with the underlines off, no word of the joke is a link",
+    (await joke.locator("a").count()) === 0 && (await joke.innerText()).length > 0);
+  const firstNews = page.locator("[data-good-news]");
+  if (await eventually(async () => (await firstNews.count()) === 1, { timeoutMs: 20_000 })) {
+    check("with the underlines off, no word of the news is a link", (await firstNews.locator("a").count()) === 0);
+  } else {
+    absent(1, "no good news arrived to read plain");
+  }
+
   // ── Hidden in Settings ──────────────────────────────────────────────────
   await setOrder("-joke news");
   await page.goto(`${B}/`);
@@ -173,6 +202,8 @@ try {
 } finally {
   if (orderBefore) await prisma.setting.update({ where: { ownerId_key: ORDER }, data: { value: orderBefore.value } });
   else await prisma.setting.deleteMany({ where: ORDER });
+  if (glossBefore) await prisma.setting.update({ where: { ownerId_key: GLOSS }, data: { value: glossBefore.value } });
+  else await prisma.setting.deleteMany({ where: GLOSS });
   await browser.close();
   await prisma.$disconnect();
 }

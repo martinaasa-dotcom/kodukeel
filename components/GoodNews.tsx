@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowUpRight, Shuffle, Sun } from "lucide-react";
+import { ArrowUpRight, Shuffle } from "lucide-react";
 import { Card, SectionTitle } from "@/components/ui";
 import { Button } from "@/components/Button";
 import { LinkedWords } from "@/components/LinkedWords";
@@ -13,8 +13,10 @@ import type { GoodNews } from "@/lib/dict/goodNews";
  *
  * Real Estonian from this morning, chosen to be a reason to smile
  * (`lib/news/goodNews.ts` says how strictly). The headline is ERR's, word for
- * word, with the dictionary under every word it knows, so it is a few minutes
- * of reading somebody actually wrote today. No English is written for it: a
+ * word, with the dictionary under every word it knows where the learner has
+ * turned the underlines on (`lib/ux/wordGloss.ts`), so it is a few minutes of
+ * reading somebody actually wrote today. The title carries no icon: a sun next
+ * to a heading that already says "good news" is decoration saying it twice. No English is written for it: a
  * word that will not open is the article's to explain, and the link goes to
  * the article, named as ERR's because these are somebody else's words.
  *
@@ -24,7 +26,7 @@ import type { GoodNews } from "@/lib/dict/goodNews";
  * Absent rather than empty: a morning with no good news found is a morning
  * this card is not drawn, which is better than a card saying so.
  */
-export function GoodNewsCard({ stories }: { stories: GoodNews[] }) {
+export function GoodNewsCard({ stories, linked }: { stories: GoodNews[]; linked: boolean }) {
   const t = useT();
   const [at, setAt] = useState(0);
   const news = stories[at % stories.length];
@@ -33,9 +35,7 @@ export function GoodNewsCard({ stories }: { stories: GoodNews[] }) {
   const errs = news.link !== null && /(^|\.)err\.ee$/.test(hostOf(news.link));
   return (
     <Card className="flex h-full flex-col">
-      <SectionTitle hint={<Sun size={18} aria-hidden style={{ color: "var(--accent-deep)" }} />}>
-        {t("Good news today")}
-      </SectionTitle>
+      <SectionTitle>{t("Good news today")}</SectionTitle>
       {/* The region stays put and the headline inside it changes, which is
           what a screen reader announces; a remounted region says nothing. */}
       <div aria-live="polite">
@@ -46,7 +46,7 @@ export function GoodNewsCard({ stories }: { stories: GoodNews[] }) {
           data-good-news
         >
           <blockquote lang="et" className="text-md font-semibold leading-relaxed" style={{ color: "var(--ink)" }}>
-            <LinkedWords tokens={news.tokens} />
+            <LinkedWords tokens={news.tokens} linked={linked} />
           </blockquote>
         </figure>
       </div>

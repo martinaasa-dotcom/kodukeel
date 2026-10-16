@@ -29,7 +29,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "pangas", beat: "sign", text: "Teie allkiri tuleb siia alla.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "pangas", beat: "close", text: "Kaart tuleb postiga. Head aega!", model: "authored", draftedAt: "2026-10-15" },
   { scene: "pangas", beat: "close", text: "Kaardi saadame teile postiga. Nägemist!", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "pangas", beat: "hurdle:missing-document", text: "Kas teil on ka arve kaasas?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "pangas", beat: "hurdle:missing-document", text: "Kas teil on ka leping kaasas?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "pangas", beat: "hurdle:missing-document", text: "Kas teil on mõni teine dokument ka?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "pangas", beat: "hurdle:other-register", text: "Kas sul on ka kaarti vaja?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "pangas", beat: "hurdle:other-register", text: "Kas sa tahad ka kaarti?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },

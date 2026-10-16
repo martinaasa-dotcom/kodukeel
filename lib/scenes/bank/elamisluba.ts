@@ -19,8 +19,8 @@ import type { ScriptedLine } from "../scripted";
 const LINES: readonly ScriptedLine[] = [
   { scene: "elamisluba", beat: "want", text: "Mida te soovite?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elamisluba", beat: "want", text: "Kuidas ma saan teid aidata?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "elamisluba", beat: "booking", text: "Mis teie number on?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "elamisluba", beat: "booking", text: "Kas ma saan teie numbrit, palun?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "elamisluba", beat: "booking", text: "Mis on teie broneeritud aja number?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "elamisluba", beat: "booking", text: "Teie broneeritud aja number, palun?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "elamisluba", beat: "brought", text: "Mis teil kaasas on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elamisluba", beat: "brought", text: "Kas teil on kõik kaasas?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elamisluba", beat: "next", text: "Me vaatame taotluse läbi ja saadame teile kirja.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
@@ -34,7 +34,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "elamisluba", beat: "hurdle:contradiction", text: "Ei, see dokument ei sobi.", model: "authored", draftedAt: "2026-10-15", about: "brought" },
   { scene: "elamisluba", beat: "hurdle:contradiction", text: "Ei, kaart ei ole veel valmis.", model: "authored", draftedAt: "2026-10-15", about: "collect" },
   { scene: "elamisluba", beat: "hurdle:other-register", text: "Kas sul on kõik kaasas?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "elamisluba", beat: "hurdle:other-register", text: "Mis su number on?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "elamisluba", beat: "hurdle:other-register", text: "Mis su broneeritud aja number on?", model: "authored", draftedAt: "2026-10-15" },
 ];
 
 export default LINES;
