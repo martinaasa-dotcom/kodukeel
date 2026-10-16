@@ -58,4 +58,5 @@ export const PHRASES: readonly PhraseSeed[] = [
   ["Kas ma võin küsida?", "May I ask?", "A2"],
   ["Ma ei tea veel", "I don't know yet", "A1"],
   ["See on väga hea mõte", "That's a very good idea", "A2"],
+  ["Pole tänu väärt!", "Don't mention it!", "A1", "What you say back to a thank you after helping somebody. Literally 'it isn't worth thanks'."],
 ] as const;

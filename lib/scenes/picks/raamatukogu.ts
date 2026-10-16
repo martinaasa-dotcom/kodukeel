@@ -7,8 +7,8 @@ export const raamatukogu: ScenePicks = {
     { et: "Tere, tere!", en: "Hello, hello!" },
   ],
   want: [
-    { et: "Kas ma saaksin raamatukogu kaardi?", en: "Could I get a library card?" },
-    { et: "Ma tahaksin raamatukogu kaardi teha.", en: "I'd like to get a library card." },
+    { et: "Kas ma saaksin raamatukogukaardi?", en: "Could I get a library card?" },
+    { et: "Ma tahaksin raamatukogukaardi teha.", en: "I'd like to get a library card." },
   ],
   month: [
     { et: "{month:INESSIVE}.", en: "In {month}." },

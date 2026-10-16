@@ -12,11 +12,11 @@ export const peretoetus: ScenePicks = {
   ],
   ref: [
     { et: "{ref}", en: "{ref}" },
-    { et: "Minu number on {ref}.", en: "My number is {ref}." },
+    { et: "Minu avalduse number on {ref}.", en: "My application number is {ref}." },
   ],
   last: [
     { et: "{last:INESSIVE}.", en: "In {last}." },
-    { et: "Viimane kord {last:INESSIVE}.", en: "The last time was in {last}." },
+    { et: "Viimati {last:INESSIVE}.", en: "Last in {last}." },
   ],
   check: [
     { et: "Hästi, ma saadan selle.", en: "All right, I'll send it." },

@@ -140,5 +140,11 @@
  * the things it can be thinking of and the words a learner reaches for to ask
  * about them, `krokodill`, `kaelkirjak`, `soomus`, `ronima`, `läbipaistev`, each
  * a request the harvest honored like any other.
+ *
+ * Three more came with the fifth language review, which corrected scene lines to
+ * words no unit taught: `tšekk`, `viimati`, `räpane`, `telefoninumber`,
+ * `raamatukogukaart` and the phrase `Pole tänu väärt!`. Three of the five were
+ * already in the built expansion, so the course harvest took their rows over
+ * rather than adding to the count, and the seven forms are the other two's.
  */
-export const SEED_SET_SIZE = { words: 6_274, forms: 40_327 };
+export const SEED_SET_SIZE = { words: 6_277, forms: 40_334 };

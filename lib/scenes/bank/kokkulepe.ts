@@ -18,7 +18,7 @@ import type { ScriptedLine } from "../scripted";
 /** The prepared lines of `kokkulepe`. */
 const LINES: readonly ScriptedLine[] = [
   { scene: "kokkulepe", beat: "idea", text: "Kas tuled sel nädalal minuga kinno?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "kokkulepe", beat: "idea", text: "Kas tahad sel nädalal kinno minna?", model: "authored", draftedAt: "2026-10-16" },
+  { scene: "kokkulepe", beat: "idea", text: "Kas tahad sel nädalal kinno minna?", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
   { scene: "kokkulepe", beat: "free", text: "Millal sul siis sobib?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "kokkulepe", beat: "free", text: "Mis õhtu sulle sobib?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "kokkulepe", beat: "hurdle:small-talk", text: "Täna on ilus ilm, eks?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },

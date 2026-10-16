@@ -17,7 +17,7 @@ export const teeKusimine: ScenePicks = {
   ],
   far: [
     { et: "Kas see on kaugel?", en: "Is it far?" },
-    { et: "Kas ma saan sinna kõndida?", en: "Can I walk there?" },
+    { et: "Kas sinna saab jalgsi minna?", en: "Can you get there on foot?" },
   ],
   close: [
     { et: "Aitäh, head aega!", en: "Thanks, bye!" },

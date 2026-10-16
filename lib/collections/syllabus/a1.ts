@@ -858,6 +858,12 @@ export const A1 = [
       ["kampsun", "jumper, sweater"],
       ["saabas", "boot"],
       ["riideese", "article of clothing"],
+      /*
+        Whether something fits is `sobib`, and the clothes shop could not say it:
+        the verb was taught only in `plaanid`, at the end of A2. Taught here as
+        well, the way `ostma` is taught twice.
+      */
+      ["sobima", "to suit, to fit, to be convenient"],
     ],
   }),
 
@@ -970,6 +976,11 @@ export const A1 = [
       // The currency every counter names, and the dictionary held `sent` and not
       // this. `npm run eval:scene` withheld a pharmacy line over it twice.
       ["euro", "euro", "NOUN", 165434],
+      /*
+        A shop receipt is a `tšekk`; `arve` is a bill or an invoice. The native
+        reader corrected the complaint scene's receipt lines to it twice over.
+      */
+      ["tšekk", "receipt (from a shop)"],
     ],
   }),
 
@@ -1144,6 +1155,8 @@ export const A1 = [
       ["ammu", "long ago, for a long time", "ADVERB"],
       ["vanasti", "in the old days, once", "ADVERB"],
       ["tänapäev", "today, the present day"],
+      // "When did the money last come" is `viimati`; `viimast korda` is "for the last time ever".
+      ["viimati", "last time, most recently", "ADVERB"],
     ],
   }),
 
@@ -1376,6 +1389,12 @@ export const A1 = [
       ["nädalavahetus", "weekend"],
       ["puhkepäev", "day off"],
       ["jõulud", "Christmas"],
+      /*
+        The other thing a form at a desk asks for beside your birthday, and one
+        word as the reviewer wrote it. `arvud` would be its home and is at the
+        ceiling a sitting allows; here it adds no evening.
+      */
+      ["telefoninumber", "phone number"],
     ],
   }),
 
@@ -1499,6 +1518,8 @@ export const A1 = [
       ["vaja", "necessary, needed", "ADVERB"],
       ["päästma", "to save, to rescue"],
       ["jaoks", "for (somebody)", "ADVERB"],
+      // What anybody says after helping, which the help scene's last line was missing.
+      ["Pole tänu väärt!", "Don't mention it!", "PHRASE"],
     ],
   }),
 

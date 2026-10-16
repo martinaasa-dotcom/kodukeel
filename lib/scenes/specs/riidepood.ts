@@ -109,8 +109,8 @@ const CLOTHES: SceneSpec = {
       /* Taken in, not celebrated: "See on liiga väike." is an answer too, and it was met with "Tore!". */
       feel: "noted",
       move: "ask",
-      topic: ["suur", "väike", "pikk", "lühike", "hea"],
-      needs: [{ kind: "lemma", oneOf: ["suur", "väike", "pikk", "lühike", "hea", "ilus", "halb"] }],
+      topic: ["suur", "väike", "pikk", "lühike", "hea", "sobima"],
+      needs: [{ kind: "lemma", oneOf: ["sobima", "suur", "väike", "pikk", "lühike", "hea", "ilus", "halb"] }],
       choice: ["suur", "väike"],
       required: true,
       patience: 2,

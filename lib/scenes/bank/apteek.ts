@@ -19,8 +19,8 @@ import type { ScriptedLine } from "../scripted";
 const LINES: readonly ScriptedLine[] = [
   { scene: "apteek", beat: "answer:hurdle:place-instruction", text: "See on siin kõrval.", model: "authored", draftedAt: "2026-10-02", reviewedAt: "2026-10-15" },
   { scene: "apteek", beat: "answer:hurdle:place-instruction", text: "Siin kõrval.", model: "authored", draftedAt: "2026-10-02", reviewedAt: "2026-10-15" },
-  { scene: "apteek", beat: "card", text: "Kaardiga või sularahaga?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "apteek", beat: "card", text: "Kas maksate kaardiga või sularahaga?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "apteek", beat: "card", text: "Kaardiga või sularahaga?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "apteek", beat: "card", text: "Kas maksate kaardiga või sularahaga?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "apteek", beat: "how", text: "See on hea ravim, aitab kohe.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "apteek", beat: "how", text: "See ravim on väga hea.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "apteek", beat: "hurdle:faster", text: "Kiire on, järjekord on pikk.", model: "authored", draftedAt: "2026-09-06", reviewedAt: "2026-10-15" },
@@ -37,12 +37,12 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "apteek", beat: "medicine", text: "Jah, meil on midagi.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "apteek", beat: "medicine", text: "Jah, meil on ravim selle vastu.", model: "authored", draftedAt: "2026-09-12", reviewedAt: "2026-10-15" },
   { scene: "apteek", beat: "pay", text: "Võtke seda hommikul ja õhtul.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
-  { scene: "apteek", beat: "pay", text: "Võtke üks tablett hommikul ja üks õhtul.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "apteek", beat: "pay", text: "Võtke üks tablett hommikul ja üks õhtul.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "apteek", beat: "since", text: "Kui kaua see juba valutab?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "apteek", beat: "since", text: "Kui kaua teil valu on?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "apteek", beat: "what", text: "Mis teil valutab või kas olete haige?", model: "authored", draftedAt: "2026-09-12", reviewedAt: "2026-10-15" },
   { scene: "apteek", beat: "what", text: "Mis teil valutab?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
-  { scene: "apteek", beat: "what", text: "Mis teil viga on?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "apteek", beat: "what", text: "Mis teil viga on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
 ];
 
 export default LINES;

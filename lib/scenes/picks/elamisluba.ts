@@ -12,7 +12,7 @@ export const elamisluba: ScenePicks = {
   ],
   booking: [
     { et: "Palun, {ref}.", en: "Here you are, {ref}." },
-    { et: "Minu number on {ref}.", en: "My number is {ref}." },
+    { et: "Minu broneeritud aja number on {ref}.", en: "My booking number is {ref}." },
   ],
   brought: [
     { et: "Siin on {brought}.", en: "Here's the {brought}." },

@@ -17,28 +17,28 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `kaebus`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "kaebus", beat: "answer:insist", text: "Te võite kirjutada kaebuse, siis me vaatame, mida teha.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "kaebus", beat: "answer:insist", text: "Te võite kirjutada kaebuse, siis me vaatame, mida teha.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "kaebus", beat: "answer:insist", text: "Te võite kirjutada kaebuse.", model: "authored", draftedAt: "2026-10-02", reviewedAt: "2026-10-15" },
-  { scene: "kaebus", beat: "close", text: "Hästi, nii me teeme. Head aega!", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "kaebus", beat: "close", text: "Selge, aitäh teile. Head aega!", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "kaebus", beat: "close", text: "Hästi, nii me teeme. Head aega!", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "kaebus", beat: "close", text: "Selge, aitäh teile. Head aega!", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "kaebus", beat: "hurdle:faster", text: "Kiire on, järjekord on pikk.", model: "authored", draftedAt: "2026-09-06", reviewedAt: "2026-10-15" },
   { scene: "kaebus", beat: "hurdle:faster", text: "Kiire on, palun öelge kohe.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "kaebus", beat: "hurdle:small-talk", text: "Kuidas ilm täna on?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "kaebus", beat: "hurdle:small-talk", text: "Täna on ilus ilm, eks?", model: "authored", draftedAt: "2026-09-06", reviewedAt: "2026-10-15" },
   { scene: "kaebus", beat: "insist", text: "Täna me seda ei tee.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
-  { scene: "kaebus", beat: "insist", text: "Täna me seda teha ei saa.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "kaebus", beat: "insist", text: "Täna me seda teha ei saa.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "kaebus", beat: "insist", text: "Täna see ei ole võimalik.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
-  { scene: "kaebus", beat: "problem", text: "Jah, palun. Mis juhtus?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "kaebus", beat: "problem", text: "Jah, palun. Mis juhtus?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "kaebus", beat: "problem", text: "Mis probleem teil on?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
-  { scene: "kaebus", beat: "problem", text: "Millega ma saan teid aidata?", model: "authored", draftedAt: "2026-10-16" },
-  { scene: "kaebus", beat: "receipt", text: "Kas arve on teil kaasas?", model: "authored", draftedAt: "2026-09-12" },
-  { scene: "kaebus", beat: "receipt", text: "Kas teil on arve kaasas?", model: "authored", draftedAt: "2026-09-05" },
+  { scene: "kaebus", beat: "problem", text: "Millega ma saan teid aidata?", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
+  { scene: "kaebus", beat: "receipt", text: "Kas tšekk on teil kaasas?", model: "authored", draftedAt: "2026-09-12", reviewedAt: "2026-10-16" },
+  { scene: "kaebus", beat: "receipt", text: "Kas teil on tšekk kaasas?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-16" },
   { scene: "kaebus", beat: "want", text: "Kas soovite raha tagasi või uue?", model: "authored", draftedAt: "2026-09-12", reviewedAt: "2026-10-15" },
   { scene: "kaebus", beat: "want", text: "Kas te soovite, et me parandame, või soovite raha tagasi?", model: "authored", draftedAt: "2026-09-12", reviewedAt: "2026-10-15" },
   { scene: "kaebus", beat: "want", text: "Mida te nüüd soovite?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "kaebus", beat: "want", text: "Mis lahendus teile sobib?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
-  { scene: "kaebus", beat: "when", text: "Millal see oli?", model: "authored", draftedAt: "2026-09-05" },
-  { scene: "kaebus", beat: "when", text: "Mis päev see oli?", model: "authored", draftedAt: "2026-09-05" },
+  { scene: "kaebus", beat: "when", text: "Millal te selle ostnud olete?", model: "authored", draftedAt: "2026-09-05" },
+  { scene: "kaebus", beat: "when", text: "Mis päeval te selle ostnud olete?", model: "authored", draftedAt: "2026-09-05" },
 ];
 
 export default LINES;

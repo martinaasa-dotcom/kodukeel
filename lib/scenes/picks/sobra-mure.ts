@@ -13,7 +13,7 @@ export const sobraMure: ScenePicks = {
   sorry: [
     { et: "Mul on väga kahju.", en: "I'm really sorry." },
     { et: "Kahju kuulda.", en: "Sorry to hear that." },
-    { et: "See on nii kurb. Ära muretse.", en: "That's so sad. Don't worry." },
+    { et: "See on nii kurb. Mul on sinust väga kahju.", en: "That's so sad. I feel so sorry for you." },
   ],
   help: [
     { et: "Ma aitan sind.", en: "I'll help you." },

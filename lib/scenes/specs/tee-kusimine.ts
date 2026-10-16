@@ -13,7 +13,7 @@ const DIRECTIONS: SceneSpec = {
     how anybody says how far. The place on the card is a `word` prop, so the learner has to
     produce it, in the case the question wants.
   */
-  units: [...COMMON, "kus-ja-kuhu", "ostmine", "kohasonad", "korraldused", "reisimine", "linn-ja-teenused", "omadussonad", "viisisonad"],
+  units: [...COMMON, "kus-ja-kuhu", "ostmine", "kohasonad", "korraldused", "reisimine", "linn-ja-teenused", "omadussonad", "viisisonad", "transport"],
   register: "teie",
   role: "You're new in town and looking for somewhere. Your card says where you're going. You stop somebody on the street.",
   props: [

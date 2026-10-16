@@ -16,7 +16,7 @@ export const poodiPiima: ScenePicks = {
   ],
   item: [
     { et: "Ma ostan piima.", en: "I'm buying milk." },
-    { et: "Piima, see on kõik.", en: "Milk, that's all." },
+    { et: "Ainult piima.", en: "Only milk." },
   ],
   back: [
     { et: "Ma tulen poest.", en: "I'm coming from the shop." },

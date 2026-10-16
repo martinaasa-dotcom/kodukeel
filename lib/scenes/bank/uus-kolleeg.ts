@@ -17,11 +17,11 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `uus-kolleeg`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "uus-kolleeg", beat: "answer:back", text: "Siin on tore, ma töötan siin juba kolm aastat.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "uus-kolleeg", beat: "answer:back", text: "Siin on tore, ma töötan siin juba kolm aastat.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "uus-kolleeg", beat: "from", text: "Meeldiv tutvuda! Kust sa pärit oled?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "uus-kolleeg", beat: "from", text: "Kust sa pärit oled?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "uus-kolleeg", beat: "hurdle:misheard", text: "Vabandust, sa oled Eestist?", model: "authored", draftedAt: "2026-10-15", about: "from" },
-  { scene: "uus-kolleeg", beat: "hurdle:misheard", text: "Vabandust, sa oled politseinik?", model: "authored", draftedAt: "2026-10-15", about: "job" },
+  { scene: "uus-kolleeg", beat: "hurdle:misheard", text: "Vabandust, sa oled Eestist?", model: "authored", draftedAt: "2026-10-15", about: "from", reviewedAt: "2026-10-16" },
+  { scene: "uus-kolleeg", beat: "hurdle:misheard", text: "Vabandust, sa oled politseinik?", model: "authored", draftedAt: "2026-10-15", about: "job", reviewedAt: "2026-10-16" },
   { scene: "uus-kolleeg", beat: "job", text: "Mis tööd sa siin hakkad tegema?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "uus-kolleeg", beat: "job", text: "Mis tööd sa siin teed?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "uus-kolleeg", beat: "back", text: "Kas sa tahad minult midagi küsida?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
@@ -33,8 +33,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "uus-kolleeg", beat: "hurdle:small-talk", text: "Täna on ilus ilm, eks?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "uus-kolleeg", beat: "hurdle:other-register", text: "Vabandust, kas te olete siin uus?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "uus-kolleeg", beat: "hurdle:other-register", text: "Kust te pärit olete?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "uus-kolleeg", beat: "name", text: "Mina olen Mari. Ja sina?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "uus-kolleeg", beat: "name", text: "Mina olen Mari. Mis su nimi on?", model: "authored", draftedAt: "2026-10-16" },
+  { scene: "uus-kolleeg", beat: "name", text: "Mina olen Mari. Ja sina?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "uus-kolleeg", beat: "name", text: "Mina olen Mari. Mis su nimi on?", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
 ];
 
 export default LINES;

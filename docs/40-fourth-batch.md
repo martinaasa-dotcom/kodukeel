@@ -405,6 +405,30 @@ With two sessions: one takes FB-1, FB-3, FB-8 and FB-6; the other takes FB-2, FB
 - Run one production restore from a Supabase backup and write the date in
   `docs/28-incident-response.md`.
 
+## 8a. The fifth language review, applied
+
+The native reader returned four sheets on 2026-10-16 and all of it is in, through the three apply
+scripts, keyless:
+
+- **Picked lines**: 12 corrections, and the English beside each corrected to match. Three were
+  reworded once more so the scene can vouch for every word, and are for the reader to confirm:
+  `Kas sinna saab jalgsi minna?` (the scene now declares `transport`, where `jalgsi` is taught),
+  `Minu broneeritud aja number on {ref}.` and `Minu avalduse number on {ref}.`, which answer in the
+  words the other side asks with.
+- **Scene lines**: 276 confirmed and 15 corrected as written. The other three corrections needed the
+  simple past's second person plural (`ostsite`, `kolisite`), which this app does not store or
+  derive, so they went in as `Millal te selle ostnud olete?`, `Mis päeval te selle ostnud olete?`
+  and `Kas te olete just siia tulnud?`, carrying no `reviewedAt` until the reader confirms them.
+- **Russian and Ukrainian**: "saying what they've hurt" corrected in both. The `{conversations}`
+  rows are confirmed: the landing page fills that placeholder with `countOf(..., "gen")`, so it reads
+  "из 43 разговоров", "из 21 разговора", "з 43 розмов".
+- **Words the corrections needed, taught now**: `tšekk` (ostmine), `viimati` (millal),
+  `telefoninumber` (kuud, since `arvud` is at its ceiling), `raamatukogukaart` (kool-ja-keel),
+  `räpane` (kodutood), `sobima` taught a second time in `riided` so the clothes shop can say
+  `sobib`, and the phrase `Pole tänu väärt!`. Each placed where it adds no evening, so no day id
+  moved. The four new lemmas were harvested from Ekilex and spliced into the harvest alone; the
+  rest of the file was kept as it was rather than rewritten with a day's drift.
+
 ## 9. A brief to paste into a fresh session
 
 > You are working on Kodukeel. Read `CLAUDE.md`, then `docs/40-fourth-batch.md`. Do item FB-n of that

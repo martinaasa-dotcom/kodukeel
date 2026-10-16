@@ -60,6 +60,6 @@ export const curveballPicks: Readonly<Record<string, readonly PickSpec[]>> = {
   ],
   "slot-gone": [
     { et: "Millal veel saab?", en: "When else is possible?" },
-    { et: "Mis aeg siis saab?", en: "What time works, then?" },
+    { et: "Mis aegu teil veel on?", en: "What other times do you have?" },
   ],
 };

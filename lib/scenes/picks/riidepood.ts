@@ -16,7 +16,7 @@ export const riidepood: ScenePicks = {
   ],
   colour: [
     { et: "{colour}, palun.", en: "In {colour}, please." },
-    { et: "Kas teil on {colour:PARTITIVE}?", en: "Do you have it in {colour}?" },
+    { et: "Kas teil on seda {colour:PARTITIVE}?", en: "Do you have it in {colour}?" },
   ],
   proov: [
     { et: "Jah, palun.", en: "Yes, please." },
@@ -24,7 +24,7 @@ export const riidepood: ScenePicks = {
     { et: "Jah, kus ma saan proovida?", en: "Yes, where can I try it on?" },
   ],
   sobib: [
-    { et: "See on hea.", en: "It's good." },
+    { et: "See sobib hästi.", en: "It fits well." },
     { et: "See on natuke suur.", en: "It's a bit big." },
     { et: "See on liiga väike.", en: "It's too small." },
   ],

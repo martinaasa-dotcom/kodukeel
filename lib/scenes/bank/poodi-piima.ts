@@ -32,10 +32,10 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "poodi-piima", beat: "hurdle:interrupted", text: "Üks minut, keegi räägib.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "poodi-piima", beat: "hurdle:interrupted", text: "Üks hetk, palun.", model: "gemini-3.8-flash", draftedAt: "2026-09-12", level: "A1", reviewedAt: "2026-10-15" },
   { scene: "poodi-piima", beat: "hurdle:misheard", text: "Kas see on sai?", model: "gemini-3.8-flash", draftedAt: "2026-09-12", level: "A1", about: "item", reviewedAt: "2026-10-15" },
-  { scene: "poodi-piima", beat: "hurdle:misheard", text: "Koju? Kas sa lähed koju?", model: "authored", draftedAt: "2026-10-15", about: "going" },
-  { scene: "poodi-piima", beat: "hurdle:misheard", text: "Kodus? Kas sa oled veel kodus?", model: "authored", draftedAt: "2026-10-16", about: "inside" },
-  { scene: "poodi-piima", beat: "hurdle:misheard", text: "Kodust? Kas sa tuled kodust?", model: "authored", draftedAt: "2026-10-16", about: "back" },
-  { scene: "poodi-piima", beat: "hurdle:misheard", text: "Leiba? Kas sa ostad leiba?", model: "authored", draftedAt: "2026-10-15", about: "item" },
+  { scene: "poodi-piima", beat: "hurdle:misheard", text: "Koju? Kas sa lähed koju?", model: "authored", draftedAt: "2026-10-15", about: "going", reviewedAt: "2026-10-16" },
+  { scene: "poodi-piima", beat: "hurdle:misheard", text: "Kodus? Kas sa oled veel kodus?", model: "authored", draftedAt: "2026-10-16", about: "inside", reviewedAt: "2026-10-16" },
+  { scene: "poodi-piima", beat: "hurdle:misheard", text: "Kodust? Kas sa tuled kodust?", model: "authored", draftedAt: "2026-10-16", about: "back", reviewedAt: "2026-10-16" },
+  { scene: "poodi-piima", beat: "hurdle:misheard", text: "Leiba? Kas sa ostad leiba?", model: "authored", draftedAt: "2026-10-15", about: "item", reviewedAt: "2026-10-16" },
   { scene: "poodi-piima", beat: "hurdle:small-talk", text: "Kas sul on täna külm?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "poodi-piima", beat: "hurdle:small-talk", text: "Kuidas ilm täna on?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "poodi-piima", beat: "hurdle:small-talk", text: "Kas täna on ilus ilm?", model: "gemini-3.8-flash", draftedAt: "2026-09-12", level: "A1", reviewedAt: "2026-10-15" },
@@ -45,7 +45,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "poodi-piima", beat: "item", text: "Mida sa soovid osta?", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewedAt: "2026-10-15" },
   { scene: "poodi-piima", beat: "item", text: "Mida sa tahad osta?", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewedAt: "2026-10-15" },
   { scene: "poodi-piima", beat: "item", text: "Mida sa poest osta tahad?", model: "gemini-3.8-flash", draftedAt: "2026-09-12", level: "A1", reviewedAt: "2026-10-15" },
-  { scene: "poodi-piima", beat: "item", text: "Mis sa ostad?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "poodi-piima", beat: "item", text: "Mida sa ostad?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
 ];
 
 export default LINES;

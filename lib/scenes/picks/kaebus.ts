@@ -18,7 +18,7 @@ export const kaebus: ScenePicks = {
   ],
   receipt: [
     { et: "Jah, siin.", en: "Yes, here." },
-    { et: "Jah, arve on mul kaasas.", en: "Yes, I've got the receipt with me." },
+    { et: "Jah, tšekk on mul kaasas.", en: "Yes, I've got the receipt with me." },
     { et: "Ei, kahjuks mitte.", en: "No, unfortunately not." },
   ],
   want: [
