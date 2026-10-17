@@ -176,8 +176,9 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
         WHAT SPEAKING DOES WITH YOUR VOICE (docs/41-fifth-batch.md, D21), in
         exactly those terms: a press before the microphone opens, the sound
         turned into text on the device and never stored or sent, and the text
-        then sent treated as typed text is. The model is the deployment's own
-        file, so no recipient is added to the list below.
+        then sent treated as typed text is. The model is a file this site serves
+        itself, fetched in the background on every device, so no recipient is
+        added to the list below.
       */}
       <S title={t("When you speak")}>
         <P>
@@ -190,7 +191,7 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
           {t("A recording you open on the reading page, such as a voice message somebody sent you, holds another person's voice, so it is treated more carefully still. It is heard on your device in the same way, and the sound is never uploaded, stored or sent, to us, to the speech service or to anybody else. Only the words it was heard as go to the dictionary to be underlined, and they are not kept there, just as a pasted text is not.")}
         </P>
         <P>
-          {t("The speech model is downloaded from this installation's own storage the first time you ask for it, and it stays on your device so hearing works offline. It is the same file for everybody and says nothing about you. Settings deletes it, and signing out leaves it, because it belongs to the device rather than to you.")}
+          {t("The speech model is downloaded quietly in the background from this site, once per device, and it stays on your device so hearing works offline. It is the same file for everybody and says nothing about you. Signing out leaves it, because it belongs to the device rather than to you.")}
         </P>
       </S>
 

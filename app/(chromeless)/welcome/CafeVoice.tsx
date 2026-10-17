@@ -2,15 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useT } from "@/components/Locale";
-import { Button } from "@/components/Button";
 import { MicButton } from "@/components/speech/MicButton";
 import { SpeechProvider, useSpeech } from "@/components/speech/useSpeech";
 import { fill } from "@/lib/copy/locale";
 import { matchPick } from "@/lib/speech/matchPick";
 import { lineWords } from "@/lib/speech/lightUp";
 import { core } from "@/lib/speech/reconcile";
-import { megabytes, modelBytes } from "@/lib/speech/model";
-import { keepUnits } from "@/lib/copy/values";
 
 /**
  * THE CAFÉ, SAID OUT LOUD (docs/41-fifth-batch.md, VB-15).
@@ -18,7 +15,9 @@ import { keepUnits } from "@/lib/copy/values";
  * Loaded only when a visitor presses "Say it instead", by a dynamic import, so
  * nothing here (the hook, the engine's main-thread half, the microphone) is in
  * the landing page's first load and `npm run check:landing` does not grow. The
- * model itself downloads only after a sentence saying how large it is (D7).
+ * press is the visitor asking to talk, so the model is fetched then with its
+ * progress on the button, and listening starts the moment it is here; nothing
+ * is fetched for a visitor who never presses.
  *
  * What was heard is matched to the step's own lines after decoding (D8, D20):
  * a line lights only when most of its words were heard in order and no other
@@ -55,7 +54,6 @@ function Listening({ picks, onMatch, onListen }: CafeVoiceProps) {
   );
   const [said, setSaid] = useState<{ readonly text: string; readonly matched: boolean } | null>(null);
   const [nothing, setNothing] = useState(false);
-  const [asking, setAsking] = useState(false);
   const latest = useRef({ picks, onMatch });
   latest.current = { picks, onMatch };
 
@@ -70,13 +68,18 @@ function Listening({ picks, onMatch, onListen }: CafeVoiceProps) {
     onNothing: () => setNothing(true),
   });
 
-  // The press that loaded this was a press to talk: once the device has been looked at, talk, or ask for the download.
+  // The press that loaded this was a press to talk: once the device has been looked at, talk, fetching the model first where it is missing.
   const started = useRef(false);
   useEffect(() => {
     if (started.current || speech.phase === "checking") return;
     started.current = true;
     if (speech.phase === "ready") void speech.start();
-    else if (speech.phase === "needs-download" || speech.phase === "cleared") setAsking(true);
+    else if (speech.phase === "needs-download" || speech.phase === "cleared") {
+      void (async () => {
+        await speech.download();
+        void speech.start();
+      })();
+    }
   }, [speech]);
 
   // A new step is a new turn: what was said about the last one is gone.
@@ -93,26 +96,6 @@ function Listening({ picks, onMatch, onListen }: CafeVoiceProps) {
     }
   }, [speech.listening, onListen]);
 
-  const mb = megabytes(modelBytes());
-  const download = async () => {
-    setAsking(false);
-    await speech.download();
-    void speech.start();
-  };
-
-  if (asking) {
-    return (
-      <div className="explain-panel flex flex-col gap-3" role="group" aria-label={t("Download for speaking")}>
-        <p className="text-sm" style={{ color: "var(--ink)" }}>
-          {keepUnits(fill(t("To hear you, Kodukeel needs a one-time download of {mb} MB. It stays in this browser, and what you say never leaves your device."), { mb }))}
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="ghost" size="sm" onClick={() => setAsking(false)}>{t("Not now")}</Button>
-          <Button variant="primary" size="sm" onClick={() => void download()}>{keepUnits(fill(t("Download {mb} MB"), { mb }))}</Button>
-        </div>
-      </div>
-    );
-  }
 
   const refused = speech.error === "refused" || speech.error === "no-microphone";
   return (

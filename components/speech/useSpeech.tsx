@@ -90,6 +90,92 @@ async function checkDevice(base: string): Promise<void> {
   else set({ phase: "needs-download", error: null });
 }
 
+let downloading: Promise<void> | null = null;
+
+/**
+ * Fetch the model onto this device, once per tab however many screens ask.
+ *
+ * `quiet` is the background download every learner gets (below): a failure
+ * puts the phase back where it was rather than showing an error on whatever
+ * screen they are on, and the next visit, the next time the device comes back
+ * online, or a press of a microphone tries again.
+ */
+function downloadModel(base: string, quiet: boolean): Promise<void> {
+  if (downloading) return downloading;
+  set({ phase: "downloading", done: 0, total: 0, error: null });
+  downloading = (async () => {
+    try {
+      await engineFor(base).download((done, total) => set({ done, total }));
+      set({ phase: "ready", error: null });
+    } catch (e) {
+      const why = errorOf(e);
+      if (quiet) set({ phase: "needs-download", error: null });
+      else set({ phase: "error", error: why });
+    } finally {
+      downloading = null;
+    }
+  })();
+  return downloading;
+}
+
+/**
+ * EVERY LEARNER HAS THE MODEL BEFORE THEY REACH FOR A MICROPHONE.
+ *
+ * The operator's call (docs/41-fifth-batch.md, section 8b): asking before a
+ * download put a decision about 71 MB between somebody and the first thing
+ * they said, and a microphone that answers "download first" is a microphone
+ * nobody presses twice. So the signed-in shell mounts this, and once the page
+ * has settled it fetches the model quietly in the background, once per
+ * device. Two tabs do not both fetch: a Web Lock holds the download to one,
+ * and the other finds the files there when it gets the lock.
+ *
+ * Nothing about what is heard changes. The sound still never leaves the
+ * device, and the microphone still opens only on a press.
+ *
+ * A browser driven by a test (`navigator.webdriver`) does not fetch it on its
+ * own: every suite opens fresh browsers, and 71 MB behind each of them would
+ * be a suite measuring its own download. `scripts/test-speech.mjs` clears the
+ * flag on one page to check the background download itself.
+ */
+export function SpeechPrefetch() {
+  const config = useSpeechConfig();
+  const base = config.unavailable === null ? config.modelBase : null;
+  useEffect(() => {
+    if (!base) return;
+    let gone = false;
+    const run = async () => {
+      if (gone || !navigator.onLine || navigator.webdriver) return;
+      await checkDevice(base);
+      if (gone || (shared.phase !== "needs-download" && shared.phase !== "cleared")) return;
+      const fetchOnce = async () => {
+        // Another tab may have fetched it while this one waited for the lock.
+        if (await engineFor(base).isDownloaded()) {
+          set({ phase: "ready", error: null });
+          return;
+        }
+        await downloadModel(base, true);
+      };
+      const locks = (navigator as Navigator & { locks?: LockManager }).locks;
+      if (locks) await locks.request("kodukeel-asr-download", fetchOnce);
+      else await fetchOnce();
+    };
+    // After the page a learner opened has had the network to itself.
+    const idle = (window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number }).requestIdleCallback;
+    const timer = setTimeout(() => (idle ? idle(() => void run(), { timeout: 10_000 }) : void run()), PREFETCH_AFTER_MS);
+    const online = () => void run();
+    window.addEventListener("online", online);
+    return () => {
+      gone = true;
+      clearTimeout(timer);
+      window.removeEventListener("online", online);
+    };
+  }, [base]);
+  return null;
+}
+
+/** How long after a page loads the background download waits, so it never slows the page itself. */
+const PREFETCH_AFTER_MS = 3_000;
+
 function useShared(): Shared {
   return useSyncExternalStore(
     (notify) => {
@@ -212,13 +298,7 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
 
   const download = useCallback(async () => {
     if (!base) return;
-    set({ phase: "downloading", done: 0, total: 0, error: null });
-    try {
-      await engineFor(base).download((done, total) => set({ done, total }));
-      set({ phase: "ready", error: null });
-    } catch (e) {
-      set({ phase: "error", error: errorOf(e) });
-    }
+    await downloadModel(base, false);
   }, [base]);
 
   const start = useCallback(async () => {

@@ -12,7 +12,7 @@ import { EngineFailure } from "@/components/speech/webEngine";
 import { Note } from "@/components/ui";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import type { TranscribedPiece } from "@/lib/speech/engine";
-import { megabytes, modelBytes } from "@/lib/speech/model";
+import { megabytes } from "@/lib/speech/model";
 import {
   MAX_RECORDING_BYTES, MAX_RECORDING_SECONDS, WORDS_WRONG_QUIET, clock, doubtfulTokens, isOggOpus,
   looksLikeAudio, mono, oneIn, sliceOf, transcriptLines, type HeardLine,
@@ -27,7 +27,6 @@ const DECODE_RATE = 16_000;
 
 type Stage =
   | { readonly kind: "idle" }
-  | { readonly kind: "asking"; readonly file: File }
   | { readonly kind: "downloading"; readonly file: File }
   | { readonly kind: "opening"; readonly name: string }
   | { readonly kind: "hearing"; readonly name: string; readonly done: number; readonly total: number }
@@ -90,6 +89,7 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
   const player = useRef<PlayingRecording | null>(null);
   const stopping = useRef(false);
   const latest = useRef(speech);
+  const downloadThenHear = useRef<(file: File) => Promise<void>>(async () => undefined);
   latest.current = speech;
 
   const active = stage.kind !== "idle";
@@ -160,7 +160,7 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
     } catch (failure) {
       const why = failure instanceof EngineFailure ? failure.error : "failed";
       if (why === "not-downloaded" || why === "cleared" || why === "hash-failed") {
-        setStage({ kind: "asking", file });
+        void downloadThenHear.current(file);
         return;
       }
       setError(why === "too-slow"
@@ -184,7 +184,7 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
     setStage({ kind: "done" });
   }, [lookUp, t]);
 
-  /** A file picked or dropped: checked, the download asked for where it is missing, then heard. */
+  /** A file picked or dropped: checked, the model fetched where it is still missing, then heard. */
   const take = useCallback((file: File) => {
     setError(null);
     if (!looksLikeAudio(file.name, file.type)) {
@@ -196,13 +196,15 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
       return;
     }
     const phase = latest.current.phase;
-    if (phase === "needs-download" || phase === "cleared" || phase === "error") {
-      setStage({ kind: "asking", file });
+    if (phase === "needs-download" || phase === "cleared" || phase === "error" || phase === "downloading") {
+      void downloadThenHear.current(file);
       return;
     }
     void hear(file);
   }, [hear, t]);
 
+  // The model usually arrived in the background (SpeechPrefetch); where it has
+  // not, it is fetched here with its progress on screen, and then the file is heard.
   const download = async (file: File) => {
     setStage({ kind: "downloading", file });
     await latest.current.download();
@@ -212,6 +214,7 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
       setStage({ kind: "idle" });
     }
   };
+  downloadThenHear.current = download;
 
   // A file dragged over the window lands on the page, which is how a desktop shares a voice message (D25).
   useEffect(() => {
@@ -401,8 +404,7 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
     );
   }
 
-  if (stage.kind === "asking" || stage.kind === "downloading") {
-    const total = megabytes(modelBytes());
+  if (stage.kind === "downloading") {
     const progress = speech.progress;
     return (
       <Panel>
@@ -410,21 +412,6 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
           <FileAudio size={16} aria-hidden className="shrink-0" />
           <span className="min-w-0">{stage.file.name}</span>
         </p>
-        {stage.kind === "asking" ? (
-          <div className="mt-3 flex flex-col gap-3" role="group" aria-label={t("Download for speaking")}>
-            <p className="text-base" style={{ color: "var(--ink)" }}>
-              {speech.phase === "cleared"
-                ? keepUnits(fill(t("Your browser cleared the speaking download to save space. Getting it back is {mb} MB, once."), { mb: total }))
-                : keepUnits(fill(t("Hearing a recording needs a one-time download of {mb} MB. It stays on this device, so nothing you open is ever sent anywhere."), { mb: total }))}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <Button variant="ghost" size="sm" onClick={reset}>{t("Not now")}</Button>
-              <Button size="sm" variant="primary" onClick={() => void download(stage.file)}>
-                {keepUnits(fill(t("Download {mb} MB"), { mb: total }))}
-              </Button>
-            </div>
-          </div>
-        ) : (
           <>
             <p className="mt-3 flex items-center gap-2 font-semibold" role="status" style={{ color: "var(--ink)" }}>
               <Loader2 size={16} className="animate-spin" aria-hidden />
@@ -436,7 +423,6 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
               <span style={{ width: `${progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : 0}%` }} />
             </div>
           </>
-        )}
       </Panel>
     );
   }

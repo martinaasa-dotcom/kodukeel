@@ -1188,8 +1188,9 @@ went.
 - **Time the engine on phones**: open `/dev/asr` with `ASR_BENCH=1` on a recent iPhone in Safari and a
   mid-range Android in Chrome, and paste the numbers into the pull request VB-1 opens. Try VB-5's
   hands-free run on both, screen on, phone in a pocket.
-- **Create the storage bucket** for the model files and set `NEXT_PUBLIC_ASR_MODEL_BASE`. The native
-  apps will read the same bucket.
+- ~~**Create the storage bucket** for the model files and set `NEXT_PUBLIC_ASR_MODEL_BASE`.~~ Nobody did,
+  and production showed no microphone anywhere for as long as it stayed undone. The build ships the
+  model now (section 8b), so there is nothing to do; the variable still wins where somebody sets it.
 - **Generate the VAPID key pair** for VB-10 and set it on the deployment.
 - **Try the desktop as a learner would**: a laptop with a headset, the hands-free round in a background
   tab, a voice message dragged onto the reading page. It is the one client nobody gets for free.
@@ -1200,6 +1201,40 @@ went.
   and put its figures in section 0 beside the local run, which only proves the reading works.
 - **Watch the edit rate** once VB-14 has printed it over a few weeks of real learners, and decide from it
   whether to keep speech on (D15) and whether to lift D3 for VB-16.
+
+## 8b. After the batch: the model ships with the site, and every device fetches it quietly
+
+Reported by the operator on 2026-10-17, the day after the batch merged: the microphone never asked for
+permission and voice was nowhere to be seen. Both were true. `lib/audio/speechAvailability.ts` offers
+speech only where it can find the model, the model was left to an operator step (the bucket in section
+8), and with that step undone every microphone in the app was hidden, which is the fallback D15 designed
+and looked, on the live site, exactly like a batch that had built nothing.
+
+Two things changed, both the operator's call.
+
+- **The build ships the model.** `npm run build` runs `scripts/fetch-asr-model.ts --for-build`, which
+  fetches the four pinned files from Hugging Face into public/asr/model, in a folder named
+  for the revision, checks each
+  against its hash, and lets the CDN serve them beside the pages, with a year's `immutable` cache since
+  the path names the revision. A hosted function cannot see `public/`, so `next.config.ts` looks for the
+  files when the build starts and inlines `ASR_MODEL_BUNDLED`. A build that cannot reach Hugging Face
+  carries on without the model and says so in its log, which leaves the app as it was before speaking.
+  No recipient is added (D10's reason for a bucket was that a learner's address reaches no new company,
+  and this site's host already serves every page). The cost moved from storage egress to the host's
+  transfer rate and the funding page and the grant case say so.
+- **Every device fetches it in the background, with no question asked.** `SpeechPrefetch`, mounted in
+  the signed-in shell, waits three seconds and an idle moment after a page loads, then downloads the
+  model once per device, behind a Web Lock so two tabs do not both fetch it, and silently: a failure
+  puts nothing on screen and is tried again on the next visit or when the device comes back online.
+  The download prompts are gone from the microphone, the reading page's recordings and the landing café,
+  and Settings says where the device stands with no button to fetch or delete it. A press before the
+  background download finishes fetches it, or waits for the fetch under way, with progress on the
+  button, and then listens. The landing café fetches nothing for a visitor who never presses.
+
+This supersedes D7's "asked once, with its size, before anything is fetched". What did not change: the
+microphone opens only on a press, the sound never leaves the device, and speech only grades up. A
+browser driven by a test (`navigator.webdriver`) is skipped by the background download, so every suite
+does not fetch 71 MB; `scripts/test-speech.mjs` clears the flag on one page to check the download itself.
 
 ## 9. A brief to paste into a fresh session
 

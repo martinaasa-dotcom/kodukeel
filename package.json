@@ -15,7 +15,7 @@
   "scripts": {
     "dev": "node scripts/vendor-asr-runtime.mjs && next dev",
     "prebuild": "npm run lint",
-    "build": "node scripts/schema-guard.mjs && prisma generate && prisma db push && npm run db:seed:ensure && node scripts/vendor-asr-runtime.mjs && next build",
+    "build": "node scripts/schema-guard.mjs && prisma generate && prisma db push && npm run db:seed:ensure && node scripts/vendor-asr-runtime.mjs && tsx scripts/fetch-asr-model.ts --for-build && next build",
     "start": "next start",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit",
