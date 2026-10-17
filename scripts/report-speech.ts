@@ -15,9 +15,12 @@
 import { prisma } from "../lib/db";
 import { SETTING_KEYS } from "../lib/settings/store";
 import {
-  EDIT_ALARM_SHARE, EDIT_ALARM_TURNS, editReading, percent, recallReading, spokenTurnCounts,
-  type EditRow, type SpokenTurn,
+  CHAT_NEXT_AFTER_MS, EDIT_ALARM_SHARE, EDIT_ALARM_TURNS, chatReading, editReading, percent, recallReading, spokenTurnCounts,
+  type ChatEveningRow, type ChatRun, type EditRow, type SpokenTurn,
 } from "../lib/stats/speechReport";
+import { dayById, newWordsIn, programmeById } from "../lib/course";
+import { CHAT_ID, CHAT_MIN_NEW } from "../lib/scenes/specs/chat";
+import { readChatPlan } from "../lib/progress/chat";
 
 function turnsOf(transcript: string): unknown[] {
   try {
@@ -52,6 +55,72 @@ async function main() {
     }
   }
   const edits = editReading(turns);
+
+  /*
+    TONIGHT'S CHAT (VB-11). An evening could have had one where every step a
+    learner ticks was ticked and it met at least three new words; the two
+    steps the log proves are left out, since they are not always written.
+  */
+  const [steps, chatRuns] = await Promise.all([
+    prisma.courseStep.findMany({ select: { ownerId: true, programmeId: true, dayId: true, stepId: true } }),
+    prisma.sceneRun.findMany({
+      where: { sceneId: CHAT_ID },
+      select: { ownerId: true, transcript: true, endedAt: true },
+      orderBy: [{ startedAt: "asc" }, { id: "asc" }],
+    }),
+  ]);
+  const ticked = new Map<string, Set<string>>();
+  for (const step of steps) {
+    const key = `${step.ownerId}|${step.programmeId}|${step.dayId}`;
+    ticked.set(key, (ticked.get(key) ?? new Set<string>()).add(step.stepId));
+  }
+  const offered: ChatEveningRow[] = [];
+  for (const [key, done] of ticked) {
+    const [ownerId, programmeId, dayId] = key.split("|") as [string, string, string];
+    const programme = programmeById(programmeId);
+    const day = programme ? dayById(programme, dayId) : undefined;
+    if (!day || newWordsIn(day) < CHAT_MIN_NEW) continue;
+    if (day.steps.filter((s) => !s.derived).every((s) => done.has(s.id))) offered.push({ ownerId, dayId });
+  }
+  const opened: ChatEveningRow[] = [];
+  const chats: ChatRun[] = [];
+  for (const run of chatRuns) {
+    let plan = null;
+    try {
+      plan = readChatPlan((JSON.parse(run.transcript) as { chat?: unknown }).chat);
+    } catch {
+      plan = null;
+    }
+    if (!plan) continue;
+    opened.push({ ownerId: run.ownerId, dayId: plan.dayId });
+    const programme = programmeById(plan.programmeId);
+    const day = programme ? dayById(programme, plan.dayId) : undefined;
+    if (run.endedAt && day) {
+      chats.push({ ownerId: run.ownerId, dayId: plan.dayId, evening: day.words, asked: plan.words.map((w) => w.lemma), endedAt: run.endedAt });
+    }
+  }
+  // `Review` has no relation to `Lexeme` on purpose, so the lemmas are read apart.
+  const chatOwners = [...new Set(chats.map((c) => c.ownerId))];
+  const eveningLemmas = [...new Set(chats.flatMap((c) => c.evening))];
+  const lexemes = eveningLemmas.length === 0 ? [] : await prisma.lexeme.findMany({
+    where: { lemma: { in: eveningLemmas } },
+    select: { id: true, lemma: true },
+  });
+  const lemmaOf = new Map(lexemes.map((l) => [l.id, l.lemma]));
+  const wordAnswers = chatOwners.length === 0 || lemmaOf.size === 0 ? [] : await prisma.review.findMany({
+    where: { ownerId: { in: chatOwners }, lexemeId: { in: [...lemmaOf.keys()] } },
+    select: { ownerId: true, reviewedAt: true, rating: true, lexemeId: true },
+    orderBy: [{ reviewedAt: "asc" }, { id: "asc" }],
+  });
+  const chat = chatReading({
+    offered,
+    opened,
+    chats,
+    answers: wordAnswers.flatMap((a) => {
+      const lemma = a.lexemeId ? lemmaOf.get(a.lexemeId) : undefined;
+      return lemma ? [{ ownerId: a.ownerId, lemma, reviewedAt: a.reviewedAt, rating: a.rating }] : [];
+    }),
+  });
   const recall = recallReading(answers);
   const spokenAnswers = answers.filter((a) => a.spoken).length;
 
@@ -84,7 +153,15 @@ async function main() {
     "  Observational and confounded: people choose when to speak, and an easy card is likelier to be said aloud. Not a trial.",
     "",
     "3. Tonight's chat (VB-11).",
-    "  Not on this installation yet: the chat is built in VB-11, and this reading is filled in when it lands.",
+    `  ${chat.offered} finished ${chat.offered === 1 ? "evening" : "evenings"} met at least ${CHAT_MIN_NEW} new words, the most that could have offered a chat`
+      + " (an upper bound: this report cannot tell whether a model was configured that night).",
+    `  A chat was opened for ${chat.took} of them and finished for ${chat.finished}.`,
+    chat.chatWords.pairs === 0
+      ? "  No word a chat asked for has come back for review yet, so there is nothing to compare."
+      : `  At the next answer at least ${Math.round(CHAT_NEXT_AFTER_MS / 60_000)} minutes after the chat, the words it asked for were recalled`
+        + ` ${percent(chat.chatWords.share)} of the time (${chat.chatWords.recalled} of ${chat.chatWords.pairs}),`
+        + ` and the same evenings' other words ${percent(chat.otherWords.share)} (${chat.otherWords.recalled} of ${chat.otherWords.pairs}).`,
+    "  Observational: a chat asks the words it can, which are not a random half of the evening. Not a trial.",
   );
   console.log(out.join("\n"));
 }

@@ -423,6 +423,7 @@ jobs:
           # last, for the reason its own comment gives.
           - name: what writes, and the backup last
             suites: >-
+              scripts/test-chat.mjs
               scripts/test-calendar.mjs
               scripts/test-decks.mjs
               scripts/smoke-interact.mjs

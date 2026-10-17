@@ -209,9 +209,40 @@ next answer to the same card recalled 67% of the time after a spoken one (4 of 6
 one (203 of 267, from the same learner).** Those are the fixture's own numbers and say nothing about
 learners: what they show is that the report reads `Review.spoken`, pairs each answer with the next one
 on its card, and draws the typed baseline from the same people. The edit rate reads "no spoken
-conversation turn carries its counts yet", because the counts on `SceneRun` are VB-4's to store, and
-tonight's chat waits on VB-11. **The deployment run is the operator's** (section 8): it needs the
-production connection string, which no session holds.
+conversation turn carries its counts yet", because the counts on `SceneRun` are VB-4's to store.
+Tonight's chat has its reading since VB-11 (below). **The deployment run is the operator's** (section
+8): it needs the production connection string, which no session holds.
+
+**VB-11, tonight's chat, measured 2026-10-17.** Four readings, and the spend is all of one critic round.
+
+- **The browser suite**, `scripts/test-chat.mjs`, 27 checks against a production build with a stand-in
+  composer loaded into a server of its own (`scripts/lib/stub-model.mjs`, which answers Google's host
+  from inside the process, so nothing left the machine and nothing was spent): no offer and no page on
+  a keyless server, the offer after a finished evening, the briefing with no difficulty dial and no
+  lines to pick, every word beat met by the evening's own word while no line on screen ever said that
+  word (the stand-in's first draft on each beat is the word itself, and the gate's `giveaway` withheld
+  every one), the debrief naming every word used and putting them in the reviews, and the next
+  evening's chat opening on the meaning of a word used well last time, never the learner's Estonian
+  and never the word it is about to ask for.
+- **One critic round**, `scripts/critic-scenes.ts --scene chat --day a1.1-03 --budget 2`, composed and
+  read on `gemini-3.1-flash-lite`, six simulated learners (shy, good, chatty, offtrack, English,
+  confused). **Spent: $0.0672 of the $2.00 cap.** The critic listed 18 issues over the six: repeat 7,
+  stall 5, premature end 3, one each of non-sequitur, ignored question and unnatural. Read rather than
+  counted, the repeats were one fault: a learner who answered a chat question well without the word
+  was asked the same question again, because a miss on any scene is told to ask again for the same
+  thing. A chat beat waits on a word rather than a fact, so `composeNote` now tells it to react and ask
+  something different that invites the word (`elicit`). The stalls are the line withheld three times
+  and the beat falling to its English stage direction, which is the stated fallback with no bank
+  under a chat; the premature ends are the neighbour leaving once patience ran out on the last word.
+  Not run again after the fix, since the order allows one round.
+- **`npm run report:speech`** now reads the chat (`chatReading`): evenings that could have offered one,
+  evenings that took it and finished it, and the words it asked for against the same evenings' other
+  words at their first review an hour or more later. Locally it reads nought of each, which is the
+  fixture having no finished evening; the arithmetic is unit tested.
+- **The unit side**: beats built from a day's words, held to the taught words and skipping a word the
+  forms list cannot read (`lib/scenes/chat.test.ts`, `lib/progress/chat.test.ts`), the new kind walked
+  in `catalogue.test.ts`, and an invariant that every door asks `chatOffered` first
+  (`scripts/invariants/tonights-chat-is-never-keyless.ts`).
 
 **VB-7, what TartuNLP says for a number written in digits, 2026-10-17.** `npm run measure:numbers` sends
 every shape the round can play to TartuNLP the way `/api/tts` sends it, then hears the clip with the
@@ -396,7 +427,7 @@ stops. Size is the work in one pull request: S is a day, M a few days, L a week 
 | VB-8 The rounds that already ask you to speak | 2 | M | Done: the chant (`lib/speech/chant.ts`), Say what you see said into its boxes, 20 küsimust asked aloud and answered aloud hands-free behind the D20 countdown, Töövihik read aloud through `wordInGap` and `whichGap` |
 | VB-9 A word you heard and cannot spell | 2 | S | Done: the dictionary searched by voice as typed, Anu's box on the panel and the page, and the reading page read aloud a paragraph at a time |
 | VB-10 Reminders on the desktop, through Web Push | 2 | M | Done |
-| VB-11 Tonight's chat | 3: Estonian from real life | L | Not started |
+| VB-11 Tonight's chat | 3: Estonian from real life | L | Done: "Talk it over" under a finished evening that met at least three new words, on the scene chain only (`chatOffered`), one `chat` scene built at run time from the evening's words (`lib/scenes/specs/chat.ts`, `BeatSpec.elicits`), the same neighbour every time, memory derived from earlier chat runs, `report:speech` reading it, `scripts/test-chat.mjs`; one critic round at $0.0672 (section 0); ADR-025 amendment 4 |
 | VB-12 Something real to listen to | 3 | M | Done: "Or open a recording" on the reading page (`app/(app)/read/Recording.tsx`), decoded and heard on the device in pieces with a stop, glossed through `readHeard` in one request, each line played from the recording through `playRecording` in `lib/audio/clip.ts`; unsure words carry a **wavy** underline rather than the dotted one this page asked for, since dotted already means "a dictionary word"; `/privacy` and DPIA R19; `scripts/test-recordings.mjs` |
 | VB-13 What is around you | 3 | M | Done: "Things around me" beside "A page of words" on the scanner, camera, webcam (video only, named in `one-microphone.ts`), file or drop, English names off the `scan` chain resolved by `lib/progress/things.ts`, other entries on the row to choose and homographs never offered, saved as a scan, "Say them" ungraded |
 | VB-14 Speaking as evidence | 4: knowing whether it works | M | Done: `Review.spoken` stored, exported and erased, "Said aloud this week" on Progress, `npm run report:speech` run once locally (section 0); the deployment run is the operator's (section 8) |

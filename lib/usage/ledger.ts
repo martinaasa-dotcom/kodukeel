@@ -327,6 +327,41 @@ export async function snapshotUsage(
  * then is the fail-closed path below — a refusal a learner can retry — rather
  * than a request that hangs until the platform kills it.
  */
+/** A kind's limits, scaled by its allowance, exactly as `authoriseCall` decides with them. */
+function scaledLimits(limits: ReturnType<typeof readLimits>, kind: UsageKind) {
+  const allowance = ALLOWANCE[kind];
+  return {
+    ...limits,
+    burstCalls: limits.burstCalls * allowance.burst,
+    dailyCallsPerUser: limits.dailyCallsPerUser * allowance.daily,
+    // The reserve is counted in the same currency as the daily allowance, so
+    // it scales with it. Otherwise three TTS misses would look like a heavy
+    // user and mute a listening round on a busy day.
+    reserveCallsPerUser: limits.reserveCallsPerUser * allowance.daily,
+  };
+}
+
+/**
+ * WHETHER A CALL OF THIS KIND WOULD BE ALLOWED NOW, ASKED WITHOUT BOOKING ONE.
+ *
+ * For a screen deciding whether to offer something that is nothing without a
+ * model (tonight's chat, VB-11): offered on a day whose allowance is spent, it
+ * would fall to a stage direction on every turn. Read outside the lock and so
+ * only advice, which is why nothing may be spent on its answer: the call
+ * itself still goes through `authoriseCall`. A burst is a few seconds' wait
+ * rather than a spent day, so it does not count against an offer, and a read
+ * that fails says no, since offering a chat that cannot be had is the worse
+ * of the two mistakes.
+ */
+export async function wouldAuthorise(ownerId: string, kind: UsageKind, now = new Date()): Promise<boolean> {
+  try {
+    const decision = checkQuota(await snapshotUsage(ownerId, kind, now), scaledLimits(readLimits(process.env, kind), kind), now);
+    return decision.allowed || decision.reason === "BURST";
+  } catch {
+    return false;
+  }
+}
+
 export async function authoriseCall(
   ownerId: string,
   kind: UsageKind,
@@ -341,16 +376,7 @@ export async function authoriseCall(
       is never reached.
     */
     const limits = readLimits(process.env, kind);
-    const allowance = ALLOWANCE[kind];
-    const scaled = {
-      ...limits,
-      burstCalls: limits.burstCalls * allowance.burst,
-      dailyCallsPerUser: limits.dailyCallsPerUser * allowance.daily,
-      // The reserve is counted in the same currency as the daily allowance, so
-      // it scales with it. Otherwise three TTS misses would look like a heavy
-      // user and mute a listening round on a busy day.
-      reserveCallsPerUser: limits.reserveCallsPerUser * allowance.daily,
-    };
+    const scaled = scaledLimits(limits, kind);
     const micros = reserveMicros(kind);
     // Set inside the transaction from figures it already holds, and said only
     // once it has committed, so a booking that rolled back is never announced.

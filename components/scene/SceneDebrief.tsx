@@ -24,6 +24,8 @@ import { caseLabelOf } from "@/lib/copy/caseLabel";
 import { useLocale, useT } from "@/components/Locale";
 import { countOf, fill, type Locale } from "@/lib/copy/locale";
 import { around, withLink } from "./inPlace";
+import { onScreen, sceneTemplates } from "@/lib/scenes/onScreen";
+import { CHAT_ID } from "@/lib/scenes/specs/chat";
 
 /** So "words your conversations needed" is a query and never a counter (ADR-014). */
 export const SCENE_SOURCE = "SCENE";
@@ -71,6 +73,8 @@ export const SCENE_SOURCE = "SCENE";
  */
 export interface Debrief {
   scene: SceneSpec;
+  /** The run, which is how tonight's chat is found again: its beats are in no catalogue. */
+  runId?: string;
   objectives: { met: readonly string[]; missed: readonly string[] };
   hurdles: readonly { id: string; beat: number; met: boolean }[];
   outcome: { id: string; says: string } | null;
@@ -159,6 +163,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         sceneId: scene.id,
+        runId: debrief.runId,
         turns: turns.map((turn) => ({ who: turn.who, text: turn.text })),
         fixes: recap.moments.flatMap((moment) => moment.fixes),
         met: objectives.met,
@@ -297,7 +302,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                 <span aria-hidden style={{ color: met ? "var(--sky-ink)" : "var(--ink-3)" }}>
                   {met ? "✓" : "○"}
                 </span>
-                <span style={{ color: met ? "var(--ink)" : "var(--ink-3)" }}>{t(beat.goal)}</span>
+                <span style={{ color: met ? "var(--ink)" : "var(--ink-3)" }}>{onScreen(locale, beat.goal, sceneTemplates(scene))}</span>
                 <span className="sr-only">{t(met ? "done" : "not this time")}</span>
               </li>
             );
@@ -758,7 +763,18 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
           is to say how it went.
         */}
         <NextStep />
-        {!inModule && (
+        {!inModule && scene.id === CHAT_ID && (
+          /*
+            TONIGHT'S CHAT ENDS THE EVENING, SO ITS WAY ON IS OUT OF IT. There is
+            no other chat to pick and the same one again is the same four words:
+            the evening is done, and Today is where the learner goes next.
+          */
+          <div className="flex flex-wrap gap-2">
+            <ButtonLink href="/course" variant="ghost">{t("Back to today's module")}</ButtonLink>
+            <ButtonLink href="/" variant="primary">{t("Back to Today")} <ArrowRight size={15} aria-hidden /></ButtonLink>
+          </div>
+        )}
+        {!inModule && scene.id !== CHAT_ID && (
           <div className="flex flex-wrap gap-2">
             <ButtonLink href="/situations" variant="ghost">{t("Rehearse a different conversation")}</ButtonLink>
             {/* Redoing it keeps this scene and redraws everything else. */}

@@ -985,6 +985,8 @@ export function composeNote(
     readonly answer?: string | null;
     /** They asked to hear the last line again ("vabandust, mida?"). */
     readonly again?: boolean;
+    /** The word a chat beat hopes they will use (`BeatSpec.elicits`, VB-11). */
+    readonly elicit?: string | null;
   } = {},
 ): string | undefined {
   /*
@@ -1038,6 +1040,22 @@ export function composeNote(
     return "They have just answered something you asked earlier, after you had moved on."
       + " Take it, say briefly that you have it, and then ask again for what you asked them"
       + " last. Never tell them you did not understand: they answered you." + question;
+  }
+  if (reading === "offtarget" && (response === "narrow" || response === "repeat") && extra.elicit) {
+    /*
+      TONIGHT'S CHAT (VB-11): AN ANSWER WITHOUT THE WORD IS STILL AN ANSWER.
+      What a chat beat waits for is a word, not a fact, so a learner who said
+      "jah, kõik korras" answered the neighbour perfectly well and simply did
+      not use it. Read in the one capped critic round, the instruction below
+      had the neighbour asking the same answered question three times; a
+      person asks something else instead, which is also a second chance at
+      the word.
+    */
+    return "What they just said is real Estonian and answers you, but without the word you hoped they"
+      + " would use. React to what they said in one short natural sentence, then ask them something"
+      + " different from your last question, about their own life, whose natural answer uses that word."
+      + " Never ask a question they have already answered, never say the word yourself, and never"
+      + " comment on their Estonian." + question;
   }
   if (reading === "offtarget" && (response === "narrow" || response === "repeat")) {
     /*

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { EDIT_ALARM_TURNS, editReading, recallReading, spokenTurnCounts, type LoggedAnswer, type SpokenTurn } from "./speechReport";
+import {
+  CHAT_NEXT_AFTER_MS, EDIT_ALARM_TURNS, chatReading, editReading, recallReading, spokenTurnCounts,
+  type LoggedAnswer, type SpokenTurn, type WordAnswer,
+} from "./speechReport";
 
 const turn = (band: string, glossLanguage: string, wordsHeard: number, wordsChanged: number): SpokenTurn =>
   ({ band, glossLanguage, wordsHeard, wordsChanged });
@@ -44,5 +47,48 @@ describe("recall after a spoken answer", () => {
     expect(reading.speakers).toBe(1);
     expect(reading.spoken).toEqual({ pairs: 1, recalled: 1, share: 1 });
     expect(reading.typed).toEqual({ pairs: 2, recalled: 1, share: 0.5 });
+  });
+});
+
+describe("tonight's chat", () => {
+  const ended = new Date("2026-10-01T19:00:00Z");
+  const at = (ms: number) => new Date(ended.getTime() + ms);
+  const answer = (lemma: string, ms: number, rating: number, ownerId = "a"): WordAnswer => ({ ownerId, lemma, reviewedAt: at(ms), rating });
+  const chat = { ownerId: "a", dayId: "d1", evening: ["w1", "w2", "w3", "w4"], asked: ["w1", "w2"], endedAt: ended };
+
+  it("counts evenings offered, taken and finished, once each", () => {
+    const reading = chatReading({
+      offered: [{ ownerId: "a", dayId: "d1" }, { ownerId: "a", dayId: "d2" }, { ownerId: "a", dayId: "d1" }],
+      opened: [{ ownerId: "a", dayId: "d1" }, { ownerId: "a", dayId: "d1" }],
+      chats: [chat, chat],
+      answers: [],
+    });
+    expect(reading).toMatchObject({ offered: 2, took: 1, finished: 1 });
+  });
+
+  it("reads the first answer past the gap, apart for the words the chat asked", () => {
+    const reading = chatReading({
+      offered: [],
+      opened: [],
+      chats: [chat],
+      answers: [
+        // The chat's own grades, a moment after it closed: not the next review.
+        answer("w1", 1000, 1),
+        answer("w1", CHAT_NEXT_AFTER_MS, 3),
+        answer("w1", CHAT_NEXT_AFTER_MS * 5, 1),
+        answer("w2", CHAT_NEXT_AFTER_MS * 2, 1),
+        answer("w3", CHAT_NEXT_AFTER_MS * 2, 3),
+        // Somebody else's answer to the same word is not this learner's.
+        answer("w4", CHAT_NEXT_AFTER_MS * 2, 3, "b"),
+      ],
+    });
+    expect(reading.chatWords).toEqual({ pairs: 2, recalled: 1, share: 0.5 });
+    expect(reading.otherWords).toEqual({ pairs: 1, recalled: 1, share: 1 });
+  });
+
+  it("says nothing rather than nought where no word has come back", () => {
+    const reading = chatReading({ offered: [], opened: [], chats: [chat], answers: [] });
+    expect(reading.chatWords.share).toBeNull();
+    expect(reading.otherWords.share).toBeNull();
   });
 });
