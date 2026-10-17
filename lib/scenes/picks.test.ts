@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { SCENES } from "./catalogue";
+import { SCENES as LISTED } from "./catalogue";
+import { LESSON_SCENES } from "./lessonScenes";
+import { lessonGate } from "./inLesson";
+
+// The lessons' own conversations offer picks too, held to the same rules.
+const SCENES = [...LISTED, ...LESSON_SCENES];
 import { planRun, fitsIn, notBeforeIn } from "./run";
 import { hurdleBeat, isOver } from "./state";
 import { words } from "./lexicon";
@@ -57,12 +62,15 @@ describe.each(SCENES.map((s) => [s.id, s] as const))("picks in %s", (_id, scene)
   });
 
   it("writes no word the scene's own dictionary does not hold, and names only slots on its card", () => {
+    const lessonVouched = (lessonGate(scene, context.lexicon) as { vouched?: (word: string) => boolean }).vouched;
     const slots = new Set(scene.props.map((p) => p.slot));
     const ids = [...scene.beats.map((b) => b.id), ...scene.curveballs.map((c) => `hurdle:${c}`)];
     for (const id of ids) {
       for (const spec of pickSpecsFor(scene, id)) {
         for (const word of words(literalOf(spec.et))) {
-          expect(context.lexicon.forms.has(word), `${id}: "${word}" in "${spec.et}" is not a form the scene holds`).toBe(true);
+          // A lesson's scene vouches too for the words its lessons taught inside a phrase, `õhtust` of `Tere õhtust!`.
+          const vouched = context.lexicon.forms.has(word) || (lessonVouched?.(word) ?? false);
+          expect(vouched, `${id}: "${word}" in "${spec.et}" is not a form the scene holds`).toBe(true);
         }
         for (const { slot } of [...slotsOf(spec.et), ...slotsOf(spec.en)]) {
           expect(slots.has(slot), `${id}: "${spec.et}" names {${slot}}, which the card does not deal`).toBe(true);

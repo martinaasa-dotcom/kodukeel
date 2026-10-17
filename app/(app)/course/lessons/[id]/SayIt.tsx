@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { ArrowRight, Keyboard, Mic } from "lucide-react";
-import { Button } from "@/components/Button";
+import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { Speak } from "@/components/Speak";
 import { MicButton } from "@/components/speech/MicButton";
@@ -35,6 +35,13 @@ import { wordsOf, type LessonSpec, type Prompt } from "@/lib/course/lessons";
  * them to read and change, and one way to say it is shown afterwards beside
  * it. Words light up when they are understood, and an unlit word is only
  * unlit.
+ *
+ * AND WHERE THE LESSON HAS A CONVERSATION OF ITS OWN, THE END OFFERS IT
+ * (`lib/scenes/lessonScenes.ts`). The role-play above is a script with one
+ * way to say each turn; the scene is the same situation with somebody who
+ * answers whatever was said, held to the words this lesson has taught. It is
+ * offered after the step is done rather than inside it, because a link out
+ * of the middle of the step is a way of not finishing it.
  */
 type Mode = "say" | "type";
 
@@ -42,7 +49,7 @@ type SayCard =
   | { readonly kind: "lines" }
   | { readonly kind: "answer"; readonly prompt: Prompt; readonly label: string; readonly scene?: string };
 
-export function SayIt({ lesson, onComplete }: { lesson: LessonSpec; onComplete: () => void }) {
+export function SayIt({ lesson, scene, onComplete }: { lesson: LessonSpec; scene: string | null; onComplete: () => void }) {
   const t = useT();
   const [mode, setMode] = useState<Mode | null>(null);
   const [at, setAt] = useState(0);
@@ -86,6 +93,14 @@ export function SayIt({ lesson, onComplete }: { lesson: LessonSpec; onComplete: 
           <p role="status" className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
             {mode === "say" ? t("You said tonight's Estonian out loud. That's the step most people skip, and the one that counts.") : t("Done. Tomorrow, try it out loud if you're somewhere you can.")}
           </p>
+          {scene && (
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3" data-lesson-scene={scene}>
+              <p className="max-w-[48ch] text-base" style={{ color: "var(--ink-2)" }}>
+                {t("The role-play is a real conversation too: they answer whatever you say, in words you've been taught.")}
+              </p>
+              <ButtonLink href={`/situations/${scene}`}>{t("Have the conversation")} <ArrowRight size={15} aria-hidden /></ButtonLink>
+            </div>
+          )}
         </Card>
       </div>
     );

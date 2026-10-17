@@ -67,6 +67,7 @@ export const LESSONS_AREA: Area = {
     "Show one way to say it": "Показать, как можно сказать",
     "You said tonight's Estonian out loud. That's the step most people skip, and the one that counts.": "Вы произнесли сегодняшний эстонский вслух. Этот шаг пропускают чаще всего, а он самый важный.",
     "Done. Tomorrow, try it out loud if you're somewhere you can.": "Готово. Завтра попробуйте вслух, если будете там, где это удобно.",
+    "The role-play is a real conversation too: they answer whatever you say, in words you've been taught.": "Эта ролевая игра есть и как настоящий разговор: вам отвечают на всё, что вы скажете, теми словами, которые вы уже прошли.",
   },
   uk: {
     "The new lessons": "Нові уроки",
@@ -122,5 +123,6 @@ export const LESSONS_AREA: Area = {
     "Show one way to say it": "Показати, як можна сказати",
     "You said tonight's Estonian out loud. That's the step most people skip, and the one that counts.": "Ви вимовили сьогоднішню естонську вголос. Цей крок пропускають найчастіше, а він найважливіший.",
     "Done. Tomorrow, try it out loud if you're somewhere you can.": "Готово. Завтра спробуйте вголос, якщо будете там, де це зручно.",
+    "The role-play is a real conversation too: they answer whatever you say, in words you've been taught.": "Ця рольова гра є і як справжня розмова: вам відповідають на все, що ви скажете, тими словами, які ви вже вивчили.",
   },
 };

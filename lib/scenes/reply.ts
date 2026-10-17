@@ -30,7 +30,7 @@
  *
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
-import { FALLBACK_PHRASE, FAREWELLS, FEELINGS, REACTIONS } from "./catalogue";
+import { FALLBACK_PHRASE, FAREWELLS, FEELINGS, MEETING, REACTIONS } from "./catalogue";
 import type { Feel } from "./types";
 import { CHOICE_WORD } from "./choice";
 import { coachFor, NUDGE_AFTER } from "./coach";
@@ -185,6 +185,13 @@ export interface ReplyInput {
    * them in their kitchen. Absent on the opening line.
    */
   readonly arriving?: boolean;
+  /**
+   * Whether the scene's own words hold `aga`, which "Selge, aga ..." needs.
+   * A conversation inside an early lesson has not taught it, and there the
+   * "got it" and the question again stay two sentences. Absent reads as yes,
+   * which is every catalogue scene.
+   */
+  readonly but?: boolean;
   /**
    * How many turns the learner has already spent on the beat they were just
    * answering, so the app knows when they are stuck rather than merely
@@ -869,9 +876,13 @@ function acknowledgements(heard: string | null, said: string | null): readonly s
  * word: a line that happens to hold `jah` in the middle of a sentence is a
  * sentence, not a yes.
  */
+const MET = new RegExp(`^${MEETING}[.!]`, "iu");
+
 function opensWithReaction(line: SpokenLine | null): boolean {
   const first = line ? words(line.text)[0] : undefined;
   if (!first) return false;
+  // "Nice to meet you" is the reaction to a name, so "Hästi." in front of it is a second one.
+  if (MET.test(line!.text)) return true;
   const said = new Set<string>([
     ...REACTIONS.acknowledge, ...REACTIONS.heard, ...REACTIONS.waiting, ...REACTIONS.missed, ...REACTIONS.letGo,
     ...REACTIONS.welcome, ...Object.values(FEELINGS).map((f) => f.word),
@@ -2037,7 +2048,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     on `Tallinna?` would be this module misspelling a place.
   */
   // reply-row: join
-  butAfterHeard(out);
+  if (input.but !== false) butAfterHeard(out);
 
   /*
     A helpful persona translates the question for somebody who wrote English

@@ -22,6 +22,8 @@ const LEX = buildLexicon([
   { lemma: "ei", pos: "ADVERB", cefr: "A1", usages: [], parts: {} },
   { lemma: "Tere!", pos: "PHRASE", cefr: "A1", usages: [], parts: {} },
   { lemma: "Tere hommikust!", pos: "PHRASE", cefr: "A1", usages: [], parts: {} },
+  // The word between the two is itself a word a scene has to have taught.
+  { lemma: "või", pos: "ADVERB", cefr: "A1", usages: [], parts: {} },
 ]);
 
 const BEAT: BeatSpec = {
@@ -40,6 +42,18 @@ describe("narrowing a question to two", () => {
   });
 
   /*
+    A scene inside an early lesson has not taught the word that joins the two,
+    and offering "Valu või palavik?" there says a word nobody has been shown.
+  */
+  it("offers nothing where the scene's own words do not hold the word between the two", () => {
+    const without = buildLexicon([
+      { lemma: "valu", pos: "NOUN", cefr: "A2", usages: [], parts: { NOM_SG: "valu", GEN_SG: "valu", PART_SG: "valu" } },
+      { lemma: "palavik", pos: "NOUN", cefr: "A2", usages: [], parts: { NOM_SG: "palavik", GEN_SG: "palaviku", PART_SG: "palavikku" } },
+    ]);
+    expect(choiceOf({ beat: BEAT, card: CARD, lexicon: without, roll: 0 })).toBeNull();
+  });
+
+  /*
     A lemma can carry its own closing mark, and joined as printed two of them
     came out `Tere! või Tere hommikust!?`. That pair is no longer offered at
     all (a greeting is one thing said, below), but the join still ends the
@@ -49,6 +63,7 @@ describe("narrowing a question to two", () => {
     const lex = buildLexicon([
       { lemma: "Appi!", pos: "NOUN", cefr: "A1", usages: [], parts: {} },
       { lemma: "Tuli!", pos: "NOUN", cefr: "A1", usages: [], parts: {} },
+      { lemma: "või", pos: "ADVERB", cefr: "A1", usages: [], parts: {} },
     ]);
     const shout: BeatSpec = { ...BEAT, needs: [{ kind: "lemma", oneOf: ["Appi!", "Tuli!"] }], choice: ["Appi!", "Tuli!"] };
     expect(choiceOf({ beat: shout, card: CARD, lexicon: lex, roll: 0 })).toBe(`Appi ${CHOICE_WORD} Tuli?`);

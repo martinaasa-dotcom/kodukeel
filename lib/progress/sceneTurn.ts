@@ -31,7 +31,7 @@ import { clockInPlay, moneyInPlay, type SceneContext, type StoredDraw } from "@/
 import { CHECK_GLUE, asideFor, asideOwed, readBackCorrection, asksPermission, asksToHearAgain, namesLaterBeat, priceAsked, questionAhead, sameFact, shrug } from "@/lib/scenes/aside";
 import { asksSlower, asksToWait, saysGoodbye, LEAVING } from "@/lib/scenes/casual";
 import { FAREWELLS, FEELINGS } from "@/lib/scenes/catalogue";
-import { choiceOf } from "@/lib/scenes/choice";
+import { CHOICE_WORD, choiceOf } from "@/lib/scenes/choice";
 import { repeatsItself, type buildConsistencyUserPrompt } from "@/lib/scenes/consistency";
 import { ASKS_ON } from "@/lib/scenes/curveballs";
 import { gateFor } from "@/lib/scenes/gate";
@@ -447,7 +447,7 @@ export function planTurn(input: TurnInput) {
     const anticipated = askedNow && answered?.answer ? stageFor({ ...answered, they: answered.answer }, card) : null;
     /* The word the beat was waiting for, where the other side is letting it go or was asked for help. */
     const handing = (response === "help" || response === "moveOn") && answered
-      ? helpWith(response, offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives, context.lexicon.caseForm))
+      ? helpWith(response, offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives, context.lexicon.caseForm), context.lexicon)
       : null;
     /*
       A closing beat where the learner is still asking: the goodbye waits, so
@@ -606,6 +606,7 @@ export function planTurn(input: TurnInput) {
       acknowledges: persona?.acknowledges ?? true,
       permission: asksPermission(last?.said ?? "", context.lexicon),
       finiteForms: finiteFormsOf(context.lexicon),
+      but: context.lexicon.forms.has("aga"),
       verbAnswer: verbAnswered(answered, last?.matched?.[0] ?? null, context.lexicon),
       // A slip the dictionary could not put right leaves the turn's own words wrong, so none of them is said back.
       slipped: Boolean(last?.slips?.some((slip) => !slip.form)),
@@ -634,7 +635,7 @@ export function planTurn(input: TurnInput) {
         the question they were asked.
       */
       offer: !composing && (response === "help" || response === "moveOn") && answered
-        ? helpWith(response, offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives, context.lexicon.caseForm))
+        ? helpWith(response, offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives, context.lexicon.caseForm), context.lexicon)
         : null,
       met: state.done.length,
       metLast: last?.met ?? [],
@@ -1086,7 +1087,12 @@ function withoutRepeatedReaction(lines: SpokenLine[], reactedBefore: string | nu
   return plain(reactedBefore) === plain(first.text) ? lines.slice(1) : lines;
 }
 
-/** The yes-or-no handed over at an offer is for somebody who asked for help, never a word said on the way past. */
-function helpWith(response: Response, offer: string | null): string | null {
-  return offer === OFFER_CHOICE && response !== "help" ? null : offer;
+/**
+ * The yes-or-no handed over at an offer is for somebody who asked for help,
+ * never a word said on the way past, and never in a scene whose list cannot
+ * say "or": a lesson's own conversation before the lesson that teaches `või`.
+ */
+function helpWith(response: Response, offer: string | null, lexicon: Lexicon): string | null {
+  if (offer !== OFFER_CHOICE) return offer;
+  return response === "help" && lexicon.forms.has(CHOICE_WORD) ? offer : null;
 }

@@ -32,6 +32,7 @@
   tables so no importer had to change.
 */
 import type { SceneSpec } from "./types";
+import { LESSON_SCENES } from "./lessonScenes";
 import SHOP from "./specs/poodi-piima";
 import DOCTOR from "./specs/arsti-aeg";
 import LANDLORD from "./specs/uuri-remont";
@@ -76,7 +77,7 @@ import BOOK_CLUB from "./specs/raamatuklubi";
 import EXAM_B1 from "./specs/eksam-b1";
 import EXAM_B2 from "./specs/eksam-b2";
 
-export { FAREWELLS, REACTIONS, LOST, ASIDES, FEELINGS, FALLBACK_PHRASE, ASK_ENGLISH } from "./specs/shared";
+export { FAREWELLS, REACTIONS, LOST, ASIDES, FEELINGS, FALLBACK_PHRASE, ASK_ENGLISH, MEETING } from "./specs/shared";
 
 export const SCENES: readonly SceneSpec[] = [
   SHOP, DOCTOR, LANDLORD, COUNTER, CAFE, DIRECTIONS, TICKET,
@@ -85,7 +86,8 @@ export const SCENES: readonly SceneSpec[] = [
 ];
 
 export function sceneById(id: string): SceneSpec | undefined {
-  return SCENES.find((s) => s.id === id);
+  // And a lesson's own conversation, which is in no listing but runs like any scene.
+  return SCENES.find((s) => s.id === id) ?? LESSON_SCENES.find((s) => s.id === id);
 }
 
 /**

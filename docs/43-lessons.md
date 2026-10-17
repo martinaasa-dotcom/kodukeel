@@ -352,8 +352,24 @@ Each phase is its own pull request or several, and none starts before the one ab
   leans on rather than the ones it names (the conjunctions, the particles, the postpositions, the
   `-sti` adverbs), which need the cases A2 teaches; the rest are the less common nouns of each
   topic (`trepp`, `sadam`, `lehm`). Both are A2's first work rather than more A1 evenings, and the
-  measurement is the list to read when A2's lessons are planned. What is left of P2 is the A1 role-play scenes on the scene
-  engine; the role-plays above are the scripted questions of Say it. **Read on 2026-10-17** (ADR-005 amendment 6), through
+  measurement is the list to read when A2's lessons are planned. **The A1 role-play scenes are built**, one for each of the eight lessons that end in a role-play
+  (`lib/scenes/lessonScenes.ts`): the neighbour on the stairs (8), the first evening of a course
+  (17), a friend's plan for Saturday (23), the café (29), asking the way (35), a hat on a cold day
+  (40), the weekend (45) and a new neighbour's invitation (49). Each is the scene engine with its
+  word list read off the lessons through its own lesson (`inLesson`) rather than off the old
+  units, so everything the other side says is held to the ledger: a prepared line by
+  `lessonScenes.test.ts`, which plays every scene keyless as seven kinds of beginner and reads every
+  word said, and a composed line by the gate's `taught` check. Say it ends by offering the scene
+  once the scripted turns are done, and the scenes stay off the situations listing. Playing them
+  found what the ledger alone could not: the engine's own "Jah või ei?" and "Selge, aga" reached
+  for `või` and `aga` before the lessons teach them (both now stand down where the scene's words
+  lack them), `selge` was used by the engine and taught by no lesson (lesson 2 teaches it now),
+  `kaardiga` and `sularahas` were taught as phrases so the café could not take `kaart`
+  (lesson 27 teaches them as forms), and `Ukraina`, `normaalselt`, `vasakule` and `paremale` are
+  taught and have no dictionary entry, so a card may not deal them and a beat may not require them.
+  Each scene offers two or three lines to pick per beat, most of them the lesson's own role-play
+  answers, held to the ledger the same way, and the review sheets (`npm run review:scenes`,
+  `npm run review:picks`) read these scenes as well. **Read on 2026-10-17** (ADR-005 amendment 6), through
   `npm run review:lessons`, which prints every lesson's Estonian as one file with a box per line:
   1,480 of 1,490 lines passed as written and ten were corrected. Three were wrong: a rule about
   `ka` that its own later lessons contradicted, a `Jah` answering an either-or question, and a

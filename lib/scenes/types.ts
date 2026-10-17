@@ -447,6 +447,15 @@ export interface SceneSpec {
    * Absent on every catalogue scene.
    */
   readonly lemmas?: readonly string[];
+  /**
+   * THE LESSON THIS CONVERSATION IS THE ROLE-PLAY OF, ON A SCENE PLAYED INSIDE
+   * ONE (docs/43-lessons.md). Its `lemmas` are what the lessons have taught
+   * through it, and every line the other side says is held, spelling by
+   * spelling, to that lesson's ledger: a banked line by a test, a composed one
+   * by the gate's `taught` check. A lesson id, which `lessonProblems` already
+   * holds to a lesson that exists. Absent on every catalogue scene.
+   */
+  readonly lesson?: string;
   /** What the other side calls you, and expects back. */
   readonly register: "teie" | "sina";
   /**

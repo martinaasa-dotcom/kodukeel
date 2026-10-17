@@ -80,6 +80,13 @@ export interface ChoiceInput {
 
 /** The narrowed question, or null where the beat has no two options to offer. */
 export function choiceOf(input: ChoiceInput): string | null {
+  /*
+    A scene whose list cannot say "or" offers no choice. Every catalogue scene
+    can, through the connectives every one of them declares; a lesson's own
+    conversation before the lesson that teaches `või` cannot, and offering one
+    there is the other side using a word the learner was never shown.
+  */
+  if (!input.lexicon.forms.has(CHOICE_WORD)) return null;
   const options = optionsFor(input);
   if (options.length < OPTIONS) return null;
   /*
