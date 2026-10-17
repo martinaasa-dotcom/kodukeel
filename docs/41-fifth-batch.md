@@ -162,6 +162,12 @@ who asked for English, not a reaction in Estonian, and the table already says th
 (the consistency check withholding the pharmacist's lines over the queue number, an interviewer
 answering "kas küsimus?" with a question back), which is the composer's and not the reply's order.
 
+**C-1, the sign-in page on production, 2026-10-16.** PageSpeed's keyless API answered 429, so
+production was read with the same Lighthouse 12.8.2 phone profile PageSpeed runs, three times against
+`https://kodukeel.ee/sign-in` once the `.arrive` entrance was deployed: **2,208, 2,462 and 1,576 ms**,
+against 4,938, 4,926 and 4,877 before, and the largest element is now the card's own paragraph, the one
+the opacity entrance was hiding. The fix holds; `docs/15-performance.md` has the table.
+
 ## 1. How to use this page
 
 1. Pick one item, in the milestone order of section 4. Do that item and nothing else in the same pull
@@ -295,20 +301,20 @@ stops. Size is the work in one pull request: S is a day, M a few days, L a week 
 
 | Item | Milestone | Size | Status |
 | --- | --- | --- | --- |
-| C-1 Sign-in's largest paint, measured on production | 0: what batch 4 left | S | Not started, needs #856 deployed |
+| C-1 Sign-in's largest paint, measured on production | 0: what batch 4 left | S | Done: 2,208, 2,462 and 1,576 ms on production against 4,938, 4,926 and 4,877 before, the card's own paragraph painting first; Lighthouse 12.8.2's phone profile, since PageSpeed's keyless API answered 429 (`docs/15-performance.md`) |
 | C-2 One capped play of the composed path | 0 | S | Done: eight scenes in two styles plus two `lost` runs for $0.86, no doubled reaction, and C-3's three shadows fixed first with failing tests (§85) |
 | C-3 The reply's decision order, written and asserted | 0 | M | Done: 95 rows in `docs/21-situations.md` §85, held by `scripts/invariants/the-reply-decides-in-order.ts`, three shadowing findings left open there |
 | C-4 Teach `kolima`, then the reader's wording | 0 | S | Done: `kolima` taught a second time, last in `umbmaarased` (its harvest row was already there from B1), and "Kas te olete siia just kolinud?" applied through `apply:scene-review`; no day id moved, $0 spent |
-| VB-1 The engine and the hearing rules | 1: a conversation out loud | L | Not started |
-| VB-2 One microphone for the whole app | 1 | M | Not started |
-| VB-3 Ready for the native apps | 1, before November | S | Not started |
+| VB-1 The engine and the hearing rules | 1: a conversation out loud | L | Done: sherpa-onnx 1.13.8 single-threaded in a worker, the 71 MB model checked by hash and kept offline, `/dev/asr` hearing the fixture clips online and with the network cut, ADR-028, `PAID_OFF=speech`, the first-load check, `scripts/test-speech.mjs` 16 of 16 |
+| VB-2 One microphone for the whole app | 1 | M | Done: `MicButton` in every state on the bench, `ReadAloud`, `lightUp` and `matchPick` (D20) unit tested, Settings' Speaking section, Ctrl+M on both shortcut lists, the three phrases in `lib/copy/voice.ts`, `scripts/invariants/one-microphone.ts` |
+| VB-3 Ready for the native apps | 1, before November | S | Done: `docs/42-native-apps.md`, and `lib/speech/fixtures/golden.json` recorded off the web engine with `npm run asr:golden` and held by `lib/speech/golden.test.ts` |
 | VB-4 Conversations, spoken | 1 | L | Not started |
 | VB-5 The Speaking round, rebuilt, and hands-free | 1 | M | Not started |
 | VB-6 Saying it on the daily path | 2: speaking everywhere it teaches | M | Not started |
 | VB-7 Numbers out loud | 2 | M | Not started |
 | VB-8 The rounds that already ask you to speak | 2 | M | Not started |
 | VB-9 A word you heard and cannot spell | 2 | S | Not started |
-| VB-10 Reminders on the desktop, through Web Push | 2 | M | Not started |
+| VB-10 Reminders on the desktop, through Web Push | 2 | M | Done |
 | VB-11 Tonight's chat | 3: Estonian from real life | L | Not started |
 | VB-12 Something real to listen to | 3 | M | Not started |
 | VB-13 What is around you | 3 | M | Not started |
@@ -758,10 +764,10 @@ one with the app on a phone (D25). Web Push works in Chrome, Edge and Firefox on
 Safari on a Mac, and in an iPhone's Safari once the app is installed to the home screen.
 
 **Files.**
-- `prisma/schema.prisma`: `PushSubscription` (to be written as a model), owner-scoped, holding the
+- `prisma/schema.prisma`: `PushSubscription`, owner-scoped, holding the
   browser's endpoint and keys and nothing else. It is in the export and the erasure, and a subscription
   the push service reports gone is deleted.
-- `lib/push/` (to be written): sending, through the `web-push` protocol with VAPID keys held server-side
+- `lib/push/`: sending, through the `web-push` protocol with VAPID keys held server-side
   (`VAPID_PRIVATE_KEY` never gets a `NEXT_PUBLIC_` prefix; the public key is genuinely public). The
   payload is encrypted end to end as the protocol requires.
 - **Same kinds as the letters.** A notification is a short form of a letter the app already sends

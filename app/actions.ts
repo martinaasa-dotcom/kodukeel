@@ -65,6 +65,9 @@ import {
 import { isEmailKind } from "@/lib/email/letter";
 import { switchOff, switchOn } from "@/lib/email/prefs";
 import { changeEmailPrefs } from "@/lib/progress/emailPrefs";
+import { deviceKnown, forgetDevice, rememberDevice } from "@/lib/progress/push";
+import { pushConfigured } from "@/lib/push/config";
+import { readEndpoint, readSubscription } from "@/lib/push/subscription";
 import { parseReminderTime } from "@/lib/time/reminder";
 import { letterBarFrom, type LetterBar } from "@/lib/ux/letterBar";
 import { wordGlossFrom, type WordGloss } from "@/lib/ux/wordGloss";
@@ -2369,6 +2372,61 @@ export async function setReminderHour(input: { at: string }) {
 }
 
 /**
+ * Remind this learner on the browser that just said yes (VB-10).
+ *
+ * Reached only from the press in Settings, after the browser's own permission
+ * prompt has answered: nothing calls this on arrival. What arrives is the
+ * browser's `PushSubscription.toJSON()`, off the wire like every argument here,
+ * so it is read by `readSubscription` rather than trusted: an address this
+ * server will later post to has to be https on a push service one of the four
+ * browser makers runs, and the keys have to be keys. Throttled, because the
+ * row it writes is a request the scheduled run makes on the learner's behalf.
+ *
+ * It does not revalidate Settings, which is the suggestion queue's lesson: the
+ * panel that pressed it says what happened, and a re-render would replace it.
+ */
+export async function rememberPushDevice(subscription: unknown) {
+  const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "rememberPushDevice");
+  if (busy) return await sayRefusal(ownerId, busy);
+  if (!pushConfigured()) {
+    return { ok: false as const, error: "This copy of Kodukeel isn't set up to send notifications." };
+  }
+  const device = readSubscription(subscription);
+  if (!device) {
+    return { ok: false as const, error: "This browser sent something we can't use for reminders, so nothing has changed." };
+  }
+  await rememberDevice(ownerId, device);
+  return { ok: true as const };
+}
+
+/**
+ * Stop reminding this learner on one browser. Only ever their own: the row is
+ * matched on the owner as well as the address, so naming somebody else's
+ * address deletes nothing.
+ */
+export async function forgetPushDevice(endpoint: unknown) {
+  const ownerId = await requireUserId();
+  const address = readEndpoint(endpoint);
+  if (address) await forgetDevice(ownerId, address);
+  return { ok: true as const };
+}
+
+/**
+ * Whether this learner is reminded on the browser with this address.
+ *
+ * Asked by the Settings panel when it opens, because the browser keeping a
+ * subscription and this server keeping the row are two facts: a learner told
+ * "on" where the server has nothing would wait for reminders that never come.
+ * A read, and the cheapest one there is, so it carries no throttle.
+ */
+export async function pushDeviceStatus(endpoint: unknown) {
+  const ownerId = await requireUserId();
+  const address = readEndpoint(endpoint);
+  return { ok: true as const, known: address ? await deviceKnown(ownerId, address) : false };
+}
+
+/**
  * The name a class sees, which is the learner's own text and not their
  * Google account name.
  *
@@ -3625,6 +3683,9 @@ export async function deleteMyAccount(confirmation: string) {
         next line, so no setting outlives the account.
       */
       await tx.emailSend.deleteMany({ where: { ownerId } });
+      // Every browser they asked to be reminded on, so nothing is pushed to
+      // a person who is no longer here.
+      await tx.pushSubscription.deleteMany({ where: { ownerId } });
       await tx.setting.deleteMany({ where: { ownerId } });
       forgetSettings(ownerId);
       await tx.usageEvent.deleteMany({ where: { ownerId } });

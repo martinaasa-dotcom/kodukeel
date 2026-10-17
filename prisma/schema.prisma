@@ -1018,6 +1018,13 @@ model EmailSend {
   /// today" means their today and not the deployment's. Same discipline as
   /// the streak: a server's midnight is nobody's.
   dayKey    String
+  /// How it went: `email`, or `push` for the short form a learner asked to
+  /// have on a computer instead (VB-10, `lib/push/kinds.ts`). One booking
+  /// table for both, so the per-kind gap, the weekly ceiling and the unique
+  /// key below are one rule rather than two that could disagree: a kind is
+  /// booked once a day whichever way it goes, which is what makes "a
+  /// notification or a letter, never both" a property of the schema.
+  channel   String   @default("email")
   sentAt    DateTime @default(now())
   /// What the provider called it, where it said. Kept so a bounce or a
   /// complaint reported later can be traced to a send without keeping the
@@ -1045,6 +1052,47 @@ model EmailSend {
   @@index([ownerId, kind, sentAt])
   /// And the run's own "who has already had one today", which walks a day.
   @@index([dayKey])
+}
+
+/// A browser a learner asked to be reminded on (VB-10).
+///
+/// Web Push is the desktop's version of a native app's notification, so a
+/// learner at a computer is reminded as well as one with the app on a phone.
+/// The browser hands over three things when somebody presses "Remind me on
+/// this computer" and the browser's own prompt says yes: an address at the
+/// push service its maker runs, and two keys to encrypt a message to it. The
+/// row holds exactly those.
+///
+/// WHAT IT DELIBERATELY DOES NOT HOLD, which is `EmailSend`'s rule one model
+/// up: no browser name, no device name, no record of a notification being
+/// delivered, shown or clicked. A reminder that went is booked in `EmailSend`
+/// with `channel` set to `push`, and that is the whole of what is written
+/// down about it.
+///
+/// `createdAt` is here for one job: a learner may keep `MAX_DEVICES` browsers
+/// (`lib/progress/push.ts`), and the oldest is the one let go when another
+/// arrives.
+///
+/// Deleted when the learner turns it off, when the push service answers that
+/// the address is gone (404 or 410), and with the account. In the export and
+/// in the erasure; never restored from a backup, because a file restored on
+/// another machine must not switch notifications back on in a browser nobody
+/// asked about.
+model PushSubscription {
+  id        String   @id @default(uuid())
+  ownerId   String
+  /// The push service's address for this one browser, https only, on a host
+  /// `lib/push/subscription.ts` names. Unique, because it belongs to one
+  /// browser profile: whoever last turned reminders on in it is who it
+  /// reminds.
+  endpoint  String   @unique
+  /// The browser's public key (P-256, base64url) a message is encrypted to.
+  p256dh    String
+  /// The browser's 16-byte authentication secret, base64url (RFC 8291).
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@index([ownerId, createdAt])
 }
 
 /// A word the question game could not read, as learners asked it.

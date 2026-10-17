@@ -41,6 +41,7 @@ than inheriting this one.
 | An AI provider, one entry per provider in the chain | That provider's key is set. With none set the tutor and the page scanner do not exist |
 | Supabase | `NEXT_PUBLIC_SUPABASE_URL` is set. With no Supabase keys the app runs as a single local learner (ADR-013) |
 | Resend | `RESEND_API_KEY` is set. With none, the app sends no letters |
+| The push services run by Google, Mozilla, Apple and Microsoft | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` are both set. With either unset nobody is offered reminders on a computer |
 | An error reporting endpoint | `ERROR_WEBHOOK_URL` is set |
 | Vercel | `VERCEL` is set by the platform itself, so it appears when somebody else owns the machine and not when the operator does |
 
@@ -179,6 +180,31 @@ Resend without setting `RESEND_API_KEY` sends addresses to Resend and does not n
 That is a gap and it is stated rather than closed.
 
 **Role.** Processor.
+
+### The push services run by Google, Mozilla, Apple and Microsoft
+
+**Conditional**, on `NEXT_PUBLIC_VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` both being set (VB-10).
+
+**What they process.** A reminder a learner asked to have on a computer: the short form of a letter
+the app already sends (`PUSH_KINDS` in `lib/push/kinds.ts`), encrypted to that one browser's own key
+(RFC 8291), so the service carries ciphertext it cannot read. What it does see is the address it
+issued to the browser, that this deployment sent it something, when, and how large it was. The
+address names a browser rather than a person, and no account or email address goes with it. Which
+of the four carries a learner's reminders depends on their browser: Chrome, Edge and the browsers
+built on them use Google's, Firefox Mozilla's, Safari Apple's, and Windows' own notifications
+Microsoft's. This deployment posts to those four hosts and refuses an address anywhere else
+(`lib/push/subscription.ts`).
+
+**Where established.** Google LLC, Mozilla Corporation, Apple Inc. and Microsoft Corporation are all
+established in the United States. Outside the EEA.
+
+**Safeguard.** None of the four offers this deployment a contract: the push service is part of the
+browser the learner chose, and its terms are between them and the browser's maker. What this app
+controls is what goes through it, which is encrypted end to end and carries nothing that names the
+learner. No transfer impact assessment has been carried out, the same open item as the model
+providers.
+
+**Role.** Recipient rather than processor: each runs the service for its own browser's users.
 
 ### The error reporting endpoint
 

@@ -5509,15 +5509,14 @@ a:focus-visible .wave-word::after {
   color: var(--ink-3);
   border-color: var(--edge);
 }
-.speech-mic-ring {
-  position: absolute;
-  inset: -6px;
-  border-radius: 9999px;
-  background: color-mix(in srgb, var(--accent) 22%, transparent);
-  transform: scale(calc(0.85 + var(--mic-level, 0) * 0.55));
-  transition: transform 90ms linear;
-  z-index: -1;
-  pointer-events: none;
+.speech-mic[data-state="listening"]:not(:disabled) {
+  /* The level ring is the button's own shadow rather than a box behind it: a
+     box at a negative z-index paints under the card the button sits on and is
+     never seen. It grows with the level coming in, nought to one. */
+  box-shadow:
+    0 0 0 calc(3px + var(--mic-level, 0) * 9px) color-mix(in srgb, var(--accent) 22%, transparent),
+    0 0 0 calc(4px + var(--mic-level, 0) * 14px) color-mix(in srgb, var(--accent) 10%, transparent);
+  transition: box-shadow 90ms linear, background-color 160ms;
 }
 .speech-partial {
   max-width: 40ch;
@@ -5548,6 +5547,5 @@ a:focus-visible .wave-word::after {
 }
 @media (prefers-reduced-motion: reduce) {
   .speech-mic, .read-aloud-word { transition: none; }
-  .speech-mic-ring { transition: none; }
   .speech-partial { animation: none; }
 }
