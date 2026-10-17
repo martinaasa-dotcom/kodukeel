@@ -386,7 +386,12 @@ Each phase is its own pull request or several, and none starts before the one ab
   first evening), and a link to an A1 unit lands on the lessons. **L4 was not needed**: nobody was
   on the old A1 yet, so the operator's call was to break it rather than place anybody, and day ids
   of the old A1 were dropped rather than mapped. A beginner's first run builds no starter deck,
-  since the first lesson hands the deck its words. The language gap below is still open.
+  since the first lesson hands the deck its words. Every lesson item has a card behind it
+  (`lib/course/lessonHeads.ts`): a headword where the dictionary has one and the headword has
+  been taught, and otherwise an entry of the lesson's own, glossed with its English, which the
+  seed writes before its early return so a deploy adds it. The lessons' own English is machine
+  translated into Russian and Ukrainian (`lib/copy/i18n/areas/lessonText.ts`), which closes the
+  language gap below until somebody fluent reads it.
   As first written it said: learners placed per L4, the old A1 parts retired, `course.test.ts` and the
   browser suites (`test-module.mjs`) rewritten for lessons. **And the lessons' own English in
   Russian and Ukrainian**, which nothing yet translates: the screens around a lesson are in

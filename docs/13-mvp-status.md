@@ -3611,5 +3611,16 @@ hands the deck its words. 671 authored A1 sentences no longer pass the checker a
 of teaching and were dropped rather than loosened; 1,003 remain. The landing page's "your first
 evening" is lesson 1.
 
-**Still open.** The lessons' own English (titles, goals, rules, the line under each Estonian line)
-is not in Russian or Ukrainian yet, which the language sweep reports on every run.
+**Every lesson item has a card.** 81 of the 429 things the lessons teach had no dictionary entry,
+so finishing a lesson gave the deck nothing for them. `lib/course/lessonHeads.ts` resolves each: a
+headword where the dictionary has one (`ma` is `mina`, `Tere!` is `tere`), a stored form to its
+headword only once that headword has been taught (lesson 3's `minu` is "my" a lesson before "you",
+so it is its own entry), and otherwise an entry of the lesson's own glossed with its English, which
+the seed writes before its early return so a deploy adds it. The module walk presses a whole lesson
+through and checks that the evening ticks and every word it taught has a card.
+
+**The lessons in Russian and Ukrainian, machine translated.** 1,633 and 1,630 lines, the operator's
+call, not yet read by anybody fluent (`lib/copy/i18n/areas/lessonText.ts`). A line naming Ukraine
+stays English in Russian and a line naming Russia stays English in Ukrainian, as the purity rules
+ask, and the language rule accepts Estonian a translation copies verbatim from the English line's
+braces.

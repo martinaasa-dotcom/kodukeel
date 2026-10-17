@@ -15,9 +15,12 @@
  *      sentence taken off (`Tere!` is the word `tere`), then without its
  *      mark (`Palun`), then as written (`Tere hommikust!`).
  *   2. A word that is a stored form of exactly one headword is that headword
- *      (`ma` is `mina`, `kingad` is `king`, `raamatut` is `raamat`). A form
- *      two headwords share is neither, which is `readCase`'s rule one module
- *      over.
+ *      (`ma` is `mina`), but only where that headword has been taught by this
+ *      lesson or an earlier one. Lesson 3 teaches `minu` and `sinu`, "my" and
+ *      "your", a lesson before "you": a card of `sina` there would ask a word
+ *      nobody had been shown, so `minu` is an entry of its own with the
+ *      lesson's meaning. A form two headwords share is neither, which is
+ *      `readCase`'s rule one module over.
  *   3. Anything else is the lesson's own entry, spelled as the lesson says it
  *      and glossed with the lesson's English (`lessonEntries`), which the seed
  *      writes into the dictionary. A chunk like `hommikul` is taught as a
@@ -66,30 +69,65 @@ const FORM_OF: ReadonlyMap<string, ReadonlySet<string>> = (() => {
 const stripped = (text: string) => text.trim().replace(/[.!?]+$/, "");
 const lowerFirst = (text: string) => text.charAt(0).toLocaleLowerCase("et") + text.slice(1);
 
-/** The headword a lesson item is a card of, or null where it is an entry of its own. */
-function headword(item: Item): string | null {
+/** A headword as the dictionary spells it, without asking what has been taught. */
+function spelledHead(item: Item): string | null {
   if (item.kind === "form") return item.of;
   const bare = stripped(item.et);
   for (const candidate of [lowerFirst(bare), bare, item.et.trim()]) {
     if (HEADWORDS.has(candidate)) return candidate;
   }
-  if (!/\s/.test(bare)) {
-    for (const spelling of [bare, lowerFirst(bare)]) {
-      const owners = FORM_OF.get(spelling);
-      if (owners?.size === 1) return [...owners][0]!;
-    }
-  }
   return null;
 }
 
-/** What a lesson item is a card of: a headword, or the lesson's own spelling. */
-export function lessonHead(item: Item): string {
-  return headword(item) ?? item.et.trim();
+/** The one headword a single-word spelling is a stored form of, if exactly one. */
+function formOf(item: Item): string | null {
+  if (item.kind === "form") return null;
+  const bare = stripped(item.et);
+  if (/\s/.test(bare)) return null;
+  for (const spelling of [bare, lowerFirst(bare)]) {
+    const owners = FORM_OF.get(spelling);
+    if (owners?.size === 1) return [...owners][0]!;
+  }
+  return null;
 }
 
 /** Every lesson item, in teaching order, unfolded the way the Words step lists it. */
 function items(lesson: LessonSpec): readonly Item[] {
   return lesson.teaches.flatMap(unfold);
+}
+
+/**
+ * What each item of each lesson is a card of, worked out once in teaching
+ * order, since whether a form may stand for its headword depends on what the
+ * lessons before it taught. Null is an entry of the lesson's own.
+ */
+const RESOLVED: ReadonlyMap<Item, string | null> = (() => {
+  const out = new Map<Item, string | null>();
+  const taught = new Set<string>();
+  for (const lesson of LESSONS) {
+    const own = items(lesson);
+    for (const item of own) {
+      const head = spelledHead(item);
+      if (head !== null) taught.add(head);
+    }
+    for (const item of own) {
+      const spelled = spelledHead(item);
+      if (spelled !== null) { out.set(item, spelled); continue; }
+      const owner = formOf(item);
+      out.set(item, owner !== null && taught.has(owner) ? owner : null);
+    }
+  }
+  return out;
+})();
+
+/** The headword a lesson item is a card of, or null where it is an entry of its own. */
+function headword(item: Item): string | null {
+  return RESOLVED.has(item) ? RESOLVED.get(item)! : spelledHead(item);
+}
+
+/** What a lesson item is a card of: a headword, or the lesson's own spelling. */
+export function lessonHead(item: Item): string {
+  return headword(item) ?? item.et.trim();
 }
 
 /** What a lesson teaches, as the dictionary heads it, once each. */

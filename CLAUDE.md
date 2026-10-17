@@ -10460,7 +10460,10 @@ of the course with one step, finishing it ticks the evening and hands its words 
 (`finishLesson`), and the builder's ledger is seeded with every lesson before A2 (`teachLessons`). The
 A1 units stay as the dictionary's request list and are no longer walked, so a link to one lands on
 `/course/lessons`, and a beginner's first run builds no starter deck. Nobody was on the old A1, so the
-switch broke it rather than placing anybody (L4 not needed).
+switch broke it rather than placing anybody (L4 not needed). Every lesson item becomes a card of
+something the seed writes (`lessonHeads.ts`): a headword once it has been taught, or the lesson's own
+entry. The lessons' English is machine translated into Russian and Ukrainian (`areas/lessonText.ts`),
+the operator's call, until somebody fluent reads it.
 
 **A lesson's role-play is also a live scene, and it says only what that lesson has taught.**
 `lib/scenes/lessonScenes.ts` holds one scene per A1 lesson that ends in a role-play, off the situations
