@@ -274,7 +274,10 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </Card>
           </section>
 
-          <section id="level">
+          {/* Every section with an id is a link's landing (`/settings#course`
+              from the module, `#goals` from the plan), so each keeps a little
+              room above its heading rather than arriving cut at the top edge. */}
+          <section id="level" className="scroll-mt-6">
             {/* The chips below already say which level is set, so the hint says
                 whether a check has measured one, which used to sit over the
                 goals section where it answered nothing on that card. */}
@@ -288,7 +291,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </Card>
           </section>
 
-          <section id="goals">
+          <section id="goals" className="scroll-mt-6">
             <SectionTitle>{t("Why you’re learning")}</SectionTitle>
             <Card>
               <p className="mb-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
@@ -326,7 +329,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             back on, because the two steps a review log can prove are read off
             the log whichever screen the answers came from.
           */}
-          <section id="course">
+          <section id="course" className="scroll-mt-6">
             <SectionTitle hint={programme ? fill(t("day {day} of {total}"), { day: programmeDay, total: programme.days.length }) : tr(locale, "off", "setting")}>
               {t("The planned course")}
             </SectionTitle>
@@ -347,7 +350,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </Card>
           </section>
 
-          <section id="today">
+          <section id="today" className="scroll-mt-6">
             <SectionTitle hint={t(isDefaultTodayOrder(todayOrder) && todayHidden.size === 0 ? "the usual order" : "your order")}>
               {t("Your Today page")}
             </SectionTitle>
@@ -371,7 +374,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             adjusting rather than removing. The mock examination keeps its own
             clock, because a paper is imitating a timed examination.
           */}
-          <section id="round-pace">
+          <section id="round-pace" className="scroll-mt-6">
             <SectionTitle hint={roundPaceName}>{t("Time on the clock")}</SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
@@ -384,7 +387,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </Card>
           </section>
 
-          <section id="case-questions">
+          <section id="case-questions" className="scroll-mt-6">
             <SectionTitle
               hint={
                 t(caseGlossPref
@@ -470,7 +473,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             needs, and the two choices about the microphone (VB-2). Beside the
             voice because both are about Estonian out loud, one each way.
           */}
-          <section id="speaking">
+          <section id="speaking" className="scroll-mt-6">
             <SectionTitle>{t("Speaking")}</SectionTitle>
             <Card>
               <SpeakingPanel />
@@ -495,7 +498,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             were machine translated, and the full notice is here for good once
             one of them is chosen. See lib/copy/locale.ts.
           */}
-          <section id="language">
+          <section id="language" className="scroll-mt-6">
             <SectionTitle hint={LOCALE_NAMES[locale]}>
               <span lang={locale}>{tr(locale, "Language of the app")}</span>
             </SectionTitle>
@@ -513,7 +516,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </Card>
           </section>
 
-          <section id="meanings">
+          <section id="meanings" className="scroll-mt-6">
             <SectionTitle hint={wordGloss === "off" ? fill(t("{language}, no underlines"), { language: glossLanguageName }) : glossLanguageName}>
               {t("Meanings")}
             </SectionTitle>
@@ -587,7 +590,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         )}
         {tab === "words" && (
           <div className="flex flex-col gap-8">
-          <section id="import">
+          <section id="import" className="scroll-mt-6">
             <SectionTitle>{t("Import words")}</SectionTitle>
             <ImportPanel />
           </section>
@@ -619,7 +622,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               )}
             </Card>
           </section>
-          <section id="anu">
+          <section id="anu" className="scroll-mt-6">
             {/* Named the way every other screen names her. "AI tutor" here
                 against "Anu" everywhere else made two things out of one. */}
             <SectionTitle hint={provider ? undefined : t("off until you add a key")}>{t("Anu")}</SectionTitle>
@@ -678,7 +681,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               <ClassNamePanel currentName={displayName} />
             </Card>
           </section>
-          <section id="email">
+          <section id="email" className="scroll-mt-6">
             <SectionTitle hint={t("you choose which ones, and when")}>{t("Emails and reminders")}</SectionTitle>
             <Card>
               <EmailPanel
