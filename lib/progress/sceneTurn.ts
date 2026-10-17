@@ -922,10 +922,12 @@ export async function composeTurn(
     */
     note: composeNote(
       plan.sent ? plan.response : null, plan.reading, input.elsewhere > 0, preBreak ? null : askedNow,
-      { offer: handing, answer: anticipated, again: plan.hearAgain && plan.heard !== null },
+      { offer: handing, answer: anticipated, again: plan.hearAgain && plan.heard !== null, elicit: beat.elicits ?? null },
     ),
     /* How many times this move has already been made, so a question answered is not asked a third time. */
     madeBefore: state.turns.filter((turn) => turn.beatId === beat.id).length,
+    /* The word a chat beat is for, which the stage direction names only by its meaning (`elicits`). */
+    ...(beat.elicits ? { elicit: beat.elicits } : {}),
     // And what that turn was to this person, so the model feels what the keyless reply feels.
     feel: feltAt(answered, plan.sent ? plan.response : null),
   });

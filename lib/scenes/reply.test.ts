@@ -1231,6 +1231,15 @@ describe("a line a model wrote for this turn", () => {
     expect(composeNote("answer", "complete", false, "kui", { answer: "They say it costs 5 euros now." }))
       .toMatch(/What you say when asked this: They say it costs 5 euros now\./);
   });
+
+  it("on tonight's chat, asks something different rather than the answered question again", () => {
+    const note = composeNote("narrow", "offtarget", false, null, { elicit: "elama" });
+    expect(note).toMatch(/something different from your last question/);
+    expect(note).toMatch(/[Nn]ever ask a question they have already answered/);
+    expect(note).not.toMatch(/ask again for the same thing/);
+    // Everywhere else the miss still asks again for the same thing.
+    expect(composeNote("narrow", "offtarget")).toMatch(/ask again for the same/);
+  });
 });
 
 describe("a curveball standing at the goodbye", () => {

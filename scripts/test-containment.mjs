@@ -195,6 +195,12 @@ const ROUTES = [
   "/course",
   "/course/learn",
   "/course/forms",
+  /*
+    Tonight's chat. On a keyless server, which is every server these sweeps
+    run against, it goes back to the module, and the chat screen itself is
+    measured by scripts/test-chat.mjs on a server of its own with a model stubbed.
+  */
+  "/course/chat",
 
   // Measurement, and the things built on it.
   "/progress",

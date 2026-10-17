@@ -16,7 +16,7 @@ import { hidesLines, speaksAloud, type SceneVoice } from "@/lib/audio/sceneVoice
 import { GlossedSentence } from "@/components/GlossedSentence";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { useAudioPrefs } from "@/components/AudioPrefs";
-import { beginScene, finishScene, sceneHelp, setSceneAnswer, setSceneVoice } from "@/app/actions";
+import { beginChat, beginScene, finishScene, sceneHelp, setSceneAnswer, setSceneVoice } from "@/app/actions";
 import { leafNeeds, type SceneSpec } from "@/lib/scenes/types";
 import type { Difficulty } from "@/lib/scenes/curveballs";
 import { BUDGETS, defaultDifficultyFor } from "@/lib/scenes/curveballs";
@@ -210,6 +210,22 @@ const HOW_IT_GOES: { title: string; line: string; hue: "sky" | "cta" | "blush"; 
   },
 ];
 
+/*
+  TONIGHT'S CHAT SAYS SOMETHING ELSE IN THE MIDDLE (VB-11). It deals no card,
+  so "your card is a suggestion" would point at nothing; what a learner cannot
+  guess about a chat is that it is about tonight's words.
+*/
+const HOW_A_CHAT_GOES: typeof HOW_IT_GOES = [
+  HOW_IT_GOES[0]!,
+  {
+    title: "It's about tonight",
+    line: "They ask about the things tonight's words are for. Use them in your answers.",
+    hue: "cta",
+    icon: <MessageCircle size={16} />,
+  },
+  HOW_IT_GOES[2]!,
+];
+
 const DIFFICULTIES: { id: Difficulty; label: string; blurb: string }[] = [
   { id: "textbook", label: "Easy", blurb: "Everything goes just like it did in the lesson." },
   { id: "good", label: "Fairly easy", blurb: "One thing will catch you out." },
@@ -294,7 +310,7 @@ function moveIn(lines: readonly Line[]): string | null {
   return null;
 }
 
-export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answeredLast, finishedOnce, opening }: {
+export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answeredLast, finishedOnce, opening, chat }: {
   scene: SceneSpec;
   /** How long it takes, printed on the briefing beside where you are standing. */
   minutes: number;
@@ -344,6 +360,14 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
    * on the briefing (`lib/scenes/rehearse.ts`). Shown and spoken, never marked.
    */
   opening: readonly string[];
+  /**
+   * TONIGHT'S CHAT (docs/41-fifth-batch.md, VB-11): the meanings of the words
+   * it asks for, in English, for the briefing. Present only on `/course/chat`.
+   * A chat opens through `beginChat`, which decides on the server which
+   * evening it is about; it has no card, no curveballs and no lines to pick,
+   * so the difficulty dial and "Pick a line" stand down.
+   */
+  chat?: { words: readonly string[] };
 }) {
   /* From `lg` the card is open in the column beside the conversation; below it
      it stays the one pinned line it was. One element either way. */
@@ -435,7 +459,12 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
   const speechConfig = useSpeechConfig();
   const speechHere = speechConfig.modelBase !== null && speechConfig.unavailable === null;
   const remembered = useRef<SceneAnswer | null>(answeredLast);
-  const [answerBy, setAnswerBy] = useState<SceneAnswer>(() => openingAnswer(answeredLast, openAt, speechHere));
+  /* A chat has no lines to pick, so where picking would open it, typing does. */
+  const opensWith = useCallback((stored: SceneAnswer | null, at: Level): SceneAnswer => {
+    const one = openingAnswer(stored, at, speechHere);
+    return chat && one === "pick" ? "type" : one;
+  }, [chat, speechHere]);
+  const [answerBy, setAnswerBy] = useState<SceneAnswer>(() => opensWith(answeredLast, openAt));
   const chooseAnswer = useCallback((next: SceneAnswer) => {
     setAnswerBy(next);
     remembered.current = next;
@@ -1021,10 +1050,12 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
   async function start(talkThrough = false) {
     setBusy(true);
     setError(null);
-    const result = await beginScene(scene.id, difficulty, level).catch(() => null);
+    const result = chat
+      ? await beginChat(level).catch(() => null)
+      : await beginScene(scene.id, difficulty, level).catch(() => null);
     setBusy(false);
     setTalk(talkThrough);
-    setAnswerBy(talkThrough ? "say" : openingAnswer(remembered.current, level, speechHere));
+    setAnswerBy(talkThrough ? "say" : opensWith(remembered.current, level));
     if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
 
     /*
@@ -1153,6 +1184,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
     if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
     setDebrief({
       scene,
+      runId: opened?.runId,
       objectives: result.objectives,
       hurdles: result.hurdles,
       outcome: result.outcome,
@@ -1240,7 +1272,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
   const progress = objectives.map((beat) => ({
     met: done.includes(beat.id),
     now: !done.includes(beat.id) && beat.id === beatId,
-    goal: t(beat.goal),
+    goal: onStage(beat.goal),
   }));
 
   /*
@@ -1340,7 +1372,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
             {/* The kind in words beside its dot, the way the board names it. */}
             <span className="situation-glass label-xs inline-flex items-center gap-2 rounded-full px-3 py-1">
               <span aria-hidden className="situation-dot" style={{ background: `var(--${kind.hue})` }} />
-              {t(kind.label)}
+              {t(chat ? "Tonight's words" : kind.label)}
             </span>
             {/*
               WHO YOU ARE, AND NOT WHERE YOU ARE AGAIN. The page above prints
@@ -1376,7 +1408,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
             {t("You'll practice")}
           </h2>
           <ul className="flex flex-wrap gap-2">
-            {practises(scene).map((one) => (
+            {(chat ? chat.words : practises(scene)).map((one) => (
               <li
                 key={one}
                 className="rounded-full px-3 py-1.5 text-sm font-medium"
@@ -1401,7 +1433,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
           of the three it is, which is `Briefing.tsx`'s step on a light page.
         */}
         <ul className="grid gap-2.5 sm:grid-cols-3">
-          {HOW_IT_GOES.map((one) => (
+          {(chat ? HOW_A_CHAT_GOES : HOW_IT_GOES).map((one) => (
             <li key={one.title}>
               {/* A row on a phone, where three tall cards are a screen of
                   scrolling, and a column of three from `sm` up. */}
@@ -1504,6 +1536,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
         */}
         <SceneVoiceChoice value={voiceMode} onSelect={chooseVoice} />
 
+        {/* A chat throws nothing at anybody, so it has no dial for how much. */}
+        {!chat && (
         <ChoiceGroup
           label={t("How tricky should it be?")}
           className="grid gap-2 sm:grid-cols-2"
@@ -1519,6 +1553,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
             />
           ))}
         </ChoiceGroup>
+        )}
         </Card>
 
         {error && <p className="text-sm" style={{ color: "var(--blush-ink)" }}>{t(error)}</p>}
@@ -1541,7 +1576,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
           </div>
         )}
         <Button onClick={() => start()} disabled={busy} variant="primary" size="lg">
-          {busy ? t("Getting ready…") : t("Start the conversation")}
+          {busy ? t("Getting ready…") : t(chat ? "Start the chat" : "Start the conversation")}
         </Button>
       </div>
       </SceneStage>
@@ -1756,7 +1791,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                     </span>
                     <span className="flex min-w-0 flex-wrap items-center gap-x-2">
                       <span style={{ color: met || now ? "var(--ink)" : "var(--ink-3)" }} className={now ? "font-medium" : undefined}>
-                        {t(beat.goal)}
+                        {onStage(beat.goal)}
                       </span>
                       {/*
                         AND WHAT THE CARD DEALT FOR IT, HERE RATHER THAN
@@ -2398,7 +2433,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
               </button>
             ) : (
               <p className="mt-1 text-lg font-medium leading-snug">
-                {goal ? t(goal) : t("Answer them.")}
+                {goal ? onStage(goal) : t("Answer them.")}
                 {/*
                   AND THE VALUE THE CARD DEALT FOR IT, IN THE ONE PLACE THE
                   LEARNER IS LOOKING WHEN THEY TYPE. Behind the same press as
@@ -2443,7 +2478,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
           {!talk && (
             <ChoiceGroup ariaLabel={t("How you answer")} className="flex flex-wrap gap-2">
               {([
-                { id: "pick", title: t("Pick a line"), icon: <ListChecks size={15} aria-hidden /> },
+                ...(chat ? [] : [{ id: "pick" as const, title: t("Pick a line"), icon: <ListChecks size={15} aria-hidden /> }]),
                 ...(speechHere ? [{ id: "say" as const, title: t("Say it"), icon: <Mic size={15} aria-hidden /> }] : []),
                 { id: "type", title: t("Type it"), icon: <CornerDownLeft size={15} aria-hidden /> },
               ] as const).map((one) => (

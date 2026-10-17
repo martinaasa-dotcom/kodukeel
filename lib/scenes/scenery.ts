@@ -167,6 +167,11 @@ export const SCENERY: Readonly<Record<string, Scenery>> = {
   raamatuklubi: { icon: "BookOpen", setting: "cafe" },
   "eksam-b1": { icon: "GraduationCap", setting: "meeting" },
   "eksam-b2": { icon: "Mic", setting: "meeting" },
+  /*
+    Tonight's chat is with a neighbour on the stairs, which is a room this app
+    already draws (D17): the stairwell `trepikoda` opens in.
+  */
+  chat: { icon: "MessageCircle", setting: "stairwell" },
 };
 
 /**

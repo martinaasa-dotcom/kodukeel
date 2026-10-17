@@ -388,6 +388,7 @@ jobs:
               scripts/test-exam.mjs
               scripts/test-suggestions.mjs
               scripts/test-scene.mjs
+              scripts/test-chat.mjs
               scripts/test-module.mjs
               scripts/test-speech.mjs
               scripts/test-recordings.mjs

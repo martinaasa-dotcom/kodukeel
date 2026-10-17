@@ -58,6 +58,9 @@ import { saysGoodbye, CLOSING_WORDS } from "@/lib/scenes/casual";
 import { clip } from "@/lib/copy/clip";
 import { core } from "@/lib/speech/reconcile";
 import { localeFor } from "@/lib/progress/locale";
+import { CHAT_ID, type ChatPlan } from "@/lib/scenes/specs/chat";
+import { chatSceneOf, readChatPlan } from "@/lib/progress/chat";
+import { patienceFor, type PersonaSpec } from "@/lib/scenes/personas";
 
 /**
  * The units that supply the machinery every scene's marker needs.
@@ -146,8 +149,13 @@ export type Row = DictEntry & {
  * this app where reading everything is the correct answer rather than the lazy
  * one.
  */
-export async function sceneContext(sceneId: string, level?: Level): Promise<SceneContext | null> {
-  const scene = sceneById(sceneId);
+export async function sceneContext(sceneOrId: string | SceneSpec, level?: Level): Promise<SceneContext | null> {
+  /*
+    A catalogue scene by id, or a scene already built: tonight's chat is
+    assembled per evening off its run's own draw and is in no catalogue
+    (`sceneOfRun`).
+  */
+  const scene = typeof sceneOrId === "string" ? sceneById(sceneOrId) : sceneOrId;
   if (!scene) return null;
   const [rows, known, stand] = await Promise.all([
     readEntries([...sceneLemmas(scene)]),
@@ -448,6 +456,7 @@ const MONEY_UNIT = "euro";
 export function sceneLemmas(scene: SceneSpec): Set<string> {
   const lemmas = new Set<string>();
   for (const unit of scene.units) for (const lemma of unitById(unit)?.lemmas ?? []) lemmas.add(lemma);
+  for (const lemma of scene.lemmas ?? []) lemmas.add(lemma);
   for (const beat of scene.beats) for (const word of beat.topic) lemmas.add(word);
   for (const prop of scene.props) {
     if (prop.kind === "word" || prop.kind === "weekday") for (const w of prop.oneOf) lemmas.add(w);
@@ -1040,6 +1049,29 @@ export interface StoredDraw {
    * brisker under the learner having it.
    */
   readonly patience?: readonly number[];
+  /**
+   * The evening a chat was built for and the words it asks for, on a chat run
+   * only (`lib/progress/chat.ts`). The scene is rebuilt from this on every
+   * turn and at the finish, so the conversation marked is the one the learner
+   * had.
+   */
+  readonly chat?: ChatPlan;
+}
+
+/**
+ * THE SCENE A RUN IS, WHICH FOR A CHAT IS NOT IN THE CATALOGUE.
+ *
+ * Every reader of a run used to ask `sceneById(row.sceneId)`, and a chat's
+ * beats are built per evening (`lib/scenes/specs/chat.ts`), so the id alone
+ * says nothing about them. Its plan rides on the draw and this rebuilds it;
+ * every other run is the catalogue's, exactly as before.
+ */
+export function sceneOfRun(sceneId: string, transcript: string): SceneSpec | undefined {
+  const known = sceneById(sceneId);
+  if (known) return known;
+  if (sceneId !== CHAT_ID) return undefined;
+  const plan = readDraw(transcript)?.chat;
+  return plan ? chatSceneOf(plan) : undefined;
 }
 
 export interface FinishedRun {
@@ -1221,8 +1253,14 @@ export async function beginRun(input: {
    * halfway through (`LineMode`).
    */
   lines: LineMode;
+  /**
+   * Tonight's chat: the plan the scene is built from and the one persona the
+   * learner always talks to there (`lib/progress/chat.ts`). Absent on every
+   * catalogue scene.
+   */
+  chat?: { plan: ChatPlan; persona: PersonaSpec };
 }): Promise<{ runId: string; seed: string; run: SceneRunPlan; plays: number; briefing: Briefing; lines: LineMode } | null> {
-  const scene = sceneById(input.sceneId);
+  const scene = input.chat ? chatSceneOf(input.chat.plan) : sceneById(input.sceneId);
   if (!scene) return null;
 
   const seed = randomUUID();
@@ -1239,7 +1277,18 @@ export async function beginRun(input: {
     recencyFor(input.ownerId, scene.id),
     prisma.sceneRun.count({ where: { ownerId: input.ownerId, sceneId: scene.id } }),
   ]);
-  const run = planRun(scene, seed, input.level, input.difficulty, recent);
+  const drawn = planRun(scene, seed, input.level, input.difficulty, recent);
+  /*
+    A chat is always with the same person, so the persona the plan drew is
+    replaced by the learner's own, and the tries each beat gives follow it.
+  */
+  const run: SceneRunPlan = input.chat
+    ? {
+        ...drawn,
+        persona: input.chat.persona,
+        patience: scene.beats.map((beat) => patienceFor(beat.patience, input.chat!.persona)),
+      }
+    : drawn;
 
   /*
     The card is stored with the English of every drawn word beside it, off the
@@ -1256,6 +1305,7 @@ export async function beginRun(input: {
     curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })),
     lines: input.lines,
     patience: run.patience,
+    ...(input.chat ? { chat: input.chat.plan } : {}),
   };
 
   const created = await prisma.sceneRun.create({
@@ -1306,7 +1356,8 @@ export async function finishRun(input: {
   // are written once, which is what append-only means for this table.
   if (!row || row.endedAt) return null;
 
-  const context = await sceneContext(row.sceneId);
+  const spec = sceneOfRun(row.sceneId, row.transcript);
+  const context = spec ? await sceneContext(spec) : null;
   if (!context) return null;
 
   const { scene } = context;
@@ -1449,7 +1500,8 @@ export async function beatNow(input: {
   });
   if (!row) return null;
 
-  const context = await sceneContext(row.sceneId);
+  const spec = sceneOfRun(row.sceneId, row.transcript);
+  const context = spec ? await sceneContext(spec) : null;
   if (!context) return null;
 
   const widened = await knowing(context, input.turns.map((t) => t.said));
@@ -1904,6 +1956,10 @@ export function readDraw(transcript: string): StoredDraw | null {
       ...(Array.isArray(parsed.patience) && parsed.patience.every((n) => typeof n === "number" && n >= 1)
         ? { patience: parsed.patience }
         : {}),
+      ...(() => {
+        const chat = readChatPlan(parsed.chat);
+        return chat ? { chat } : {};
+      })(),
     };
   } catch {
     return null;

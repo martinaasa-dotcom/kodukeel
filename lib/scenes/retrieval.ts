@@ -130,6 +130,12 @@ export function answerForms(beat: BeatSpec, lexicon: Lexicon): ReadonlySet<strin
     if (need.kind !== "case") continue;
     for (const form of lexicon.byCase.get(caseKeyFor(need.lemma, need.grammCase)) ?? []) out.add(form);
   }
+  /*
+    And every form of the word a chat beat is there for the learner to use:
+    a line that says the word for them has done the beat for them, in any
+    case (`BeatSpec.elicits`).
+  */
+  if (beat.elicits) for (const form of lexicon.byLemma.get(beat.elicits) ?? []) out.add(form);
   return out;
 }
 

@@ -145,6 +145,103 @@ export function recallReading(answers: readonly LoggedAnswer[]): RecallReading {
   return { spoken: side(tally.spoken), typed: side(tally.typed), speakers: speakers.size };
 }
 
+/**
+ * TONIGHT'S CHAT (VB-11): HOW MANY EVENINGS COULD HAVE HAD ONE, HOW MANY DID,
+ * AND WHETHER ITS WORDS WERE REMEMBERED BETTER.
+ *
+ * An evening could have had one where it was finished and met at least three
+ * new words, which is an upper bound on "offered": the report cannot know
+ * whether this deployment had a model on a given night, and says so. An
+ * evening took one where a chat run was opened for it, and finished one where
+ * that run ended.
+ *
+ * The words: for each finished chat, the first answer to each of the
+ * evening's words that came at least `CHAT_NEXT_AFTER_MS` after the chat
+ * ended, recalled or not, read apart for the words the chat asked for and the
+ * evening's other words. The gap is what keeps the chat's own grades out of
+ * it: `finishScene` grades the words a moment after the run closes, and that
+ * is the chat, not the next review. Observational, like the recall reading
+ * above, and for the same reason: the chat asks the words it can, which are
+ * not a random half of the evening.
+ */
+export const CHAT_NEXT_AFTER_MS = 60 * 60 * 1000;
+
+/** An evening that could have offered a chat, and whether one was opened or finished for it. */
+export interface ChatEveningRow {
+  readonly ownerId: string;
+  readonly dayId: string;
+}
+
+/** A finished chat: whose, which evening, all of the evening's words and the ones the chat asked for. */
+export interface ChatRun {
+  readonly ownerId: string;
+  readonly dayId: string;
+  readonly evening: readonly string[];
+  readonly asked: readonly string[];
+  readonly endedAt: Date;
+}
+
+/** An answer to a word, which is all the chat reading needs of the log. */
+export interface WordAnswer {
+  readonly ownerId: string;
+  readonly lemma: string;
+  readonly reviewedAt: Date;
+  readonly rating: number;
+}
+
+export interface ChatReading {
+  /** Finished evenings with at least three new words: the most that could have offered a chat. */
+  readonly offered: number;
+  /** Evenings a chat was opened for. */
+  readonly took: number;
+  /** Evenings a chat was finished for. */
+  readonly finished: number;
+  /** Next answers to the words the chat asked for. */
+  readonly chatWords: RecallSide;
+  /** Next answers to the same evenings' other words. */
+  readonly otherWords: RecallSide;
+}
+
+export function chatReading(input: {
+  offered: readonly ChatEveningRow[];
+  opened: readonly ChatEveningRow[];
+  chats: readonly ChatRun[];
+  answers: readonly WordAnswer[];
+}): ChatReading {
+  const evening = (r: ChatEveningRow) => `${r.ownerId}|${r.dayId}`;
+  const byWord = new Map<string, WordAnswer[]>();
+  for (const answer of input.answers) {
+    const key = `${answer.ownerId}|${answer.lemma}`;
+    byWord.set(key, [...(byWord.get(key) ?? []), answer]);
+  }
+  for (const list of byWord.values()) list.sort((a, b) => a.reviewedAt.getTime() - b.reviewedAt.getTime());
+
+  const tally = { chat: { pairs: 0, recalled: 0 }, other: { pairs: 0, recalled: 0 } };
+  const seen = new Set<string>();
+  for (const chat of input.chats) {
+    // One finished chat per evening is read: a second chat about the same words is the same evening.
+    if (seen.has(evening(chat))) continue;
+    seen.add(evening(chat));
+    const asked = new Set(chat.asked);
+    for (const lemma of new Set(chat.evening)) {
+      const after = chat.endedAt.getTime() + CHAT_NEXT_AFTER_MS;
+      const next = (byWord.get(`${chat.ownerId}|${lemma}`) ?? []).find((a) => a.reviewedAt.getTime() >= after);
+      if (!next) continue;
+      const side = asked.has(lemma) ? tally.chat : tally.other;
+      side.pairs += 1;
+      if (next.rating >= 2) side.recalled += 1;
+    }
+  }
+  const side = (s: { pairs: number; recalled: number }): RecallSide => ({ ...s, share: s.pairs === 0 ? null : s.recalled / s.pairs });
+  return {
+    offered: new Set(input.offered.map(evening)).size,
+    took: new Set(input.opened.map(evening)).size,
+    finished: seen.size,
+    chatWords: side(tally.chat),
+    otherWords: side(tally.other),
+  };
+}
+
 /** A share as a whole percentage, or a dash in words where there is none. */
 export function percent(share: number | null): string {
   return share === null ? "n/a" : `${Math.round(share * 100)}%`;

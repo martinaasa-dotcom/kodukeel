@@ -19,6 +19,9 @@ import { sceneById } from "@/lib/scenes/catalogue";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
 import { cardsForGrades } from "@/lib/scenes/grades";
 import { alsoDoneOf, beatNow, beginRun, concededOf, finishRun, MAX_TURNS, MAX_TURN_CHARS, spokenOf } from "@/lib/progress/scene";
+import { chatOffered, chatPersona, planChat } from "@/lib/progress/chat";
+import { chatDay } from "@/lib/progress/chatDay";
+import { CHAT_ID } from "@/lib/scenes/specs/chat";
 import { sceneProviders } from "@/lib/tutor/provider";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { formName } from "@/lib/estonian/morph";
@@ -1713,6 +1716,53 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
 }
 
 /**
+ * Starts tonight's chat (docs/41-fifth-batch.md, VB-11).
+ *
+ * `beginScene`'s shape, with the three things a chat decides differently, and
+ * every one of them decided here rather than taken from the caller. WHICH
+ * EVENING: the one this learner finished today (`chatDay`), never a day id off
+ * the wire, which could name an evening whose words nobody has met. WHETHER
+ * AT ALL: only on a deployment whose scene chain has a model on it and with
+ * `PAID_OFF=scenes` not set (`chatOffered`), since the bank cannot hold lines
+ * for words nobody knew in advance, so a keyless deployment is refused here as
+ * well as never shown the button. WHO: always the same persona for this
+ * learner (`chatPersona`), so the neighbour who remembers you is one person.
+ *
+ * The band is the learner's, or the one they chose on the briefing, checked
+ * against the closed list as `beginScene` checks it.
+ */
+export async function beginChat(level?: unknown) {
+  const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "beginScene");
+  if (busy) return await sayRefusal(ownerId, busy);
+
+  if (!chatOffered()) return { ok: false as const, error: "Tonight's chat needs a model, and this app has none set up." };
+  const pitched = level === undefined ? await courseLevelFor(ownerId) : text(level);
+  if (!(LEVELS as readonly string[]).includes(pitched)) return { ok: false as const, error: "Pick a level from the list." };
+
+  const evening = await chatDay(ownerId);
+  const plan = evening ? await planChat(ownerId, evening.programme, evening.day) : null;
+  if (!plan) return { ok: false as const, error: "There's no chat to have tonight. It comes after an evening with new words." };
+
+  const opened = await beginRun({
+    ownerId,
+    sceneId: CHAT_ID,
+    level: pitched,
+    difficulty: "textbook",
+    lines: "composed",
+    chat: { plan, persona: chatPersona(ownerId) },
+  });
+  if (!opened) return { ok: false as const, error: "We couldn't set up that conversation. Try again in a moment." };
+  return {
+    ok: true as const,
+    runId: opened.runId,
+    briefing: opened.briefing,
+    plays: opened.plays,
+    composed: true,
+  };
+}
+
+/**
  * One word the current beat is about, for the "I need a word" button.
  *
  * A LEARNER WHO ASKS IS NOT PENALIZED, and this is where that is paid for: the
@@ -1767,8 +1817,13 @@ export async function sceneHelp(runId: unknown, turns: unknown) {
     debrief offers exactly one to keep.
   */
   const typed = said.map((one) => one.said.toLowerCase()).join(" ");
-  const fresh = beat.topic.filter((lemma: string) => !typed.includes(lemma.toLowerCase()));
-  const wanted = (fresh.length > 0 ? fresh : beat.topic).slice(0, 12);
+  /*
+    A beat of tonight's chat has no topic of its own: it is there for one of
+    tonight's words, and that word is the one a stuck learner is handed.
+  */
+  const topic = beat.elicits ? [beat.elicits] : beat.topic;
+  const fresh = topic.filter((lemma: string) => !typed.includes(lemma.toLowerCase()));
+  const wanted = (fresh.length > 0 ? fresh : topic).slice(0, 12);
   if (wanted.length === 0) return { ok: false as const, error: "There's no word to hand you here." };
 
   /*

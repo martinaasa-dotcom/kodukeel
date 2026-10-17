@@ -24,6 +24,9 @@ import { LEFT_OUTCOME, QUESTION_SHAPE, leafNeeds } from "./types";
 import { unitById } from "@/lib/collections/syllabus";
 import { CLOCK_LEMMA, TIME_LEMMAS } from "./props";
 import { CHOICE_WORD, OFFERABLE } from "./choice";
+import { CHAT_ID, CHAT_MIN_NEW, chatScene, chatWords } from "./specs/chat";
+import { PROGRAMMES, newWordsIn } from "@/lib/course";
+import { scopeFor } from "@/lib/course/scope";
 
 /** Every lemma a scene names, from its beats' topics and its requirements. */
 function lemmasOf(scene: (typeof SCENES)[number]): string[] {
@@ -803,5 +806,87 @@ describe("an exam practice scene", () => {
 
   it("is the only kind of scene that calls itself practice", () => {
     for (const scene of SCENES.filter((one) => !one.examPractice)) expect(scene.title, scene.id).not.toMatch(/\(practice\)/);
+  });
+});
+
+/*
+  TONIGHT'S CHAT IS A SCENE OF A NEW KIND, built per evening and in no
+  catalogue (`lib/scenes/specs/chat.ts`, docs/41-fifth-batch.md VB-11). The
+  rules above iterate the catalogue, so the ones that hold of any scene are
+  asked again here of a chat built for every evening that offers one, read
+  through the same shipped harvest: it opens and closes, its beats have goals
+  and directions from the other side's side, its endings are reachable and
+  include walking out, and every lemma it names is a word its own closed list
+  holds, so a chat can no more introduce vocabulary than a scene can.
+*/
+describe("tonight's chat, the new kind", () => {
+  const gloss = new Map(HARVESTED.map((w) => [w.lemma, w.gloss.split(/[,;]/)[0]!.trim()]));
+  const known = new Set(HARVESTED.map((w) => w.lemma));
+  const chats = PROGRAMMES.flatMap((programme) => programme.days
+    .filter((day) => newWordsIn(day) >= CHAT_MIN_NEW)
+    .map((day) => {
+      const words = chatWords(day.words.map((lemma) => ({ lemma, gloss: gloss.get(lemma) ?? "" })), new Set(), (l) => known.has(l));
+      return words.length === 0 ? null : chatScene(
+        { programmeId: programme.id, dayId: day.id, unitId: day.unitId, words, remembered: null },
+        scopeFor(programme, day).lemmas,
+      );
+    })
+    .filter((scene): scene is NonNullable<typeof scene> => scene !== null));
+
+  it("is built for most evenings that offer one", () => {
+    expect(chats.length).toBeGreaterThan(150);
+  });
+
+  it("is in no catalogue, so the listing and the bank never meet it", () => {
+    expect(sceneById(CHAT_ID)).toBeUndefined();
+    expect(SCENES.map((s) => s.id)).not.toContain(CHAT_ID);
+  });
+
+  it("tests a unit that exists, and names only words its own closed list holds", () => {
+    for (const scene of chats) {
+      expect(unitById(scene.tests), scene.tests).toBeDefined();
+      const list = new Set(scene.lemmas);
+      const strangers = [...new Set(lemmasOf(scene))].filter((lemma) => !list.has(lemma));
+      expect(strangers, `${scene.tests} chat names words its list does not hold`).toEqual([]);
+      expect(list.has(FALLBACK_PHRASE), "a chat has no way to say it did not catch that").toBe(true);
+    }
+  });
+
+  it("opens, closes, and has something to get done, with a goal and a direction on every beat", () => {
+    for (const scene of chats) {
+      expect(scene.beats[0]?.move).toBe("greet");
+      expect(scene.beats[scene.beats.length - 1]?.move).toBe("close");
+      expect(scene.beats.filter((b) => b.required).length).toBeGreaterThan(2);
+      const ids = scene.beats.map((b) => b.id);
+      expect(new Set(ids).size).toBe(ids.length);
+      for (const beat of scene.beats) {
+        expect(QUESTION_SHAPE[beat.move]).toBeDefined();
+        expect(beat.goal.length).toBeGreaterThan(0);
+        expect(beat.needs.length).toBeGreaterThan(0);
+        expect(beat.they).toMatch(/^[A-Z].*\.$/);
+        expect(beat.they).not.toMatch(/[õäöüšž]/i);
+        expect(beat.goal).not.toMatch(/[õäöüšž]/i);
+      }
+    }
+  });
+
+  it("can end well, can end badly through nobody's fault, and can be walked out of", () => {
+    for (const scene of chats) {
+      const beats = new Set(scene.beats.map((b) => b.id));
+      const required = scene.beats.filter((b) => b.required).map((b) => b.id);
+      for (const outcome of scene.outcomes) for (const id of outcome.when) expect(beats).toContain(id);
+      expect(scene.outcomes.map((o) => o.id)).toContain(LEFT_OUTCOME);
+      expect(scene.outcomes.find((o) => required.every((id) => o.when.includes(id)))).toBeDefined();
+      expect(scene.outcomes.filter((o) => o.id !== LEFT_OUTCOME && !required.every((id) => o.when.includes(id))).length)
+        .toBeGreaterThan(0);
+    }
+  });
+
+  it("deals no card and throws nothing, so it cannot ask for a value nobody was given", () => {
+    for (const scene of chats) {
+      expect(scene.props).toEqual([]);
+      expect(scene.curveballs).toEqual([]);
+      for (const beat of scene.beats) for (const { need } of leafNeeds(beat.needs)) expect(need.kind).not.toBe("datum");
+    }
   });
 });

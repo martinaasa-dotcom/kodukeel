@@ -27,6 +27,9 @@ import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 import { stepCard, stepsIn } from "@/lib/course";
 import { HeroFan } from "@/components/HeroFan";
+import { TalkItOver } from "@/components/course/TalkItOver";
+import { chatFits } from "@/lib/progress/chat";
+import { finishedEvening } from "@/lib/progress/chatDay";
 
 export async function generateMetadata() {
   return titleFor("Today's module");
@@ -135,6 +138,14 @@ export default async function CoursePage({
     adaptOfferFor(ownerId, programme, now),
   ]);
   const total = programme.days.length;
+  /*
+    TONIGHT'S CHAT, WHERE THE EVENING FINISHED TODAY MET ENOUGH NEW WORDS AND
+    THIS DEPLOYMENT HAS A MODEL TO HOLD IT (VB-11). The same evening the
+    action opens it for (`finishedEvening`), so the offer and the chat cannot
+    be about two different nights.
+  */
+  const chatEvening = finishedEvening(programme, reading);
+  const talkOver = chatEvening !== null && chatFits(chatEvening);
 
   if (reading.finished) {
     const after = programmeAfter(programme);
@@ -213,6 +224,7 @@ export default async function CoursePage({
               </>
             )}
           </Card>
+          {talkOver && <TalkItOver locale={locale} />}
         </Stack>
       </Page>
     );
@@ -334,6 +346,8 @@ export default async function CoursePage({
               </div>
             </Card>
           </Lettered>
+
+          {talkOver && <TalkItOver locale={locale} />}
 
           <CourseFit offer={fit.offer} tilt={fit.tilt} snoozed={fit.snoozed} effects={fit.effects} locale={locale} />
 

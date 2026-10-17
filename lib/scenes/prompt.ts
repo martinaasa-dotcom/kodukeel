@@ -232,6 +232,15 @@ export interface ComposeAsk {
    * keyless one react to the same turn the same way.
    */
   readonly feel?: Feel;
+  /**
+   * THE WORD THIS BEAT IS THERE FOR THE LEARNER TO USE, on tonight's chat
+   * (`BeatSpec.elicits`). The stage direction names it by its meaning, since
+   * a learner may read that line, and a meaning is not enough for a model
+   * that has to ask something whose natural answer uses one particular word:
+   * "to happen" could be three of them. So the model is told the lemma, and
+   * told not to say it, which the gate's `giveaway` check holds it to.
+   */
+  readonly elicit?: string;
 }
 
 /*
@@ -547,6 +556,14 @@ export function composeLive(ask: ComposeAsk): string {
     */
     ask.move !== "greet"
       ? "You have already greeted each other, so do not greet them again."
+      : "",
+    /*
+      A chat's word: ask so that the natural answer uses it, and never say it.
+      Said by name here because the stage direction gives only its meaning.
+    */
+    ask.elicit
+      ? `The word they should get to use is "${ask.elicit}". Ask something whose natural answer uses it,`
+        + " about their own life, and never say that word yourself in any form."
       : "",
     (ask.madeBefore ?? 0) >= 2
       ? "You have already made this move more than once in this conversation. Do not make it again"

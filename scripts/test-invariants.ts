@@ -9339,7 +9339,7 @@ check("the other side talks at the run's band, and every composer says which ban
     one deployment that has no model to fall back on.
   */
   assert.match(
-    code("app/api/scene/route.ts"), /sceneContext\(scene\.id, level\)/,
+    code("app/api/scene/route.ts"), /sceneContext\(scene(?:\.id)?, level\)/,
     "the scene route builds its context for no band, so the bank's pitched lines are never read first",
   );
   /*

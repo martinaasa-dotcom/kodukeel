@@ -11,14 +11,13 @@ import {
 } from "@/lib/tutor/provider";
 import { callChainForJson } from "@/lib/tutor/grader";
 import {
-  MAX_TURNS, MAX_TURN_CHARS, alsoDoneOf, concededOf, growDictionary, spokenOf, knowing, readDraw, replay, sceneContext, sceneVouch,
+  MAX_TURNS, MAX_TURN_CHARS, alsoDoneOf, concededOf, growDictionary, spokenOf, knowing, readDraw, replay, sceneContext, sceneOfRun, sceneVouch,
 } from "@/lib/progress/scene";
 import { JUDGE_REPLY_TOKENS, buildJudgeSystemPrompt, buildJudgeUserPrompt, earlierLines, parseJudgement } from "@/lib/scenes/judge";
 import {
   CONSISTENCY_REPLY_TOKENS, buildConsistencySystemPrompt, buildConsistencyUserPrompt, parseConsistency,
 } from "@/lib/scenes/consistency";
 import { leafNeeds } from "@/lib/scenes/types";
-import { sceneById } from "@/lib/scenes/catalogue";
 import { isSpokenEstonian, unwrapLine, type SpokenLine } from "@/lib/scenes/line";
 import { composeLive, composeSystem } from "@/lib/scenes/prompt";
 import { LEVELS, type Level } from "@/lib/collections/syllabus/types";
@@ -142,7 +141,7 @@ export async function POST(request: Request) {
         select: { sceneId: true, transcript: true, level: true },
       })
     : null;
-  const scene = row ? sceneById(row.sceneId) : null;
+  const scene = row ? sceneOfRun(row.sceneId, row.transcript) : null;
   if (!scene) {
     return Response.json({ error: "That doesn't look like a turn in this conversation." }, { headers: NO_STORE, status: 400 });
   }
@@ -160,7 +159,7 @@ export async function POST(request: Request) {
     ? (row!.level as Level)
     : await courseLevelFor(ownerId);
 
-  const context = await sceneContext(scene.id, level);
+  const context = await sceneContext(scene, level);
   if (!context) {
     return Response.json({ error: "We couldn't set up that conversation." }, { headers: NO_STORE, status: 400 });
   }
