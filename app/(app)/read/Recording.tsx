@@ -49,8 +49,14 @@ interface Opened {
 
 /** What came back from the dictionary, or null where it could not be asked (offline). */
 interface Glossed {
-  readonly tokens: readonly GlossedToken[][];
+  /** One per heard line, in order; null for a line the dictionary did not answer for. */
+  readonly tokens: readonly (GlossedToken[] | null)[];
   readonly known: (word: string) => boolean | undefined;
+}
+
+/** A line as compared between what was sent to the dictionary and what came back. */
+function same(text: string): string {
+  return text.normalize("NFC").trim().replace(/\s+/g, " ");
 }
 
 /** Safari opens an Ogg voice message only partly; said before and after, never left to a silent failure. */
@@ -87,18 +93,32 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
   const [error, setError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const [playing, setPlaying] = useState<{ readonly line: number | "all"; readonly slow: boolean } | null>(null);
+  const [unplayable, setUnplayable] = useState(false);
+  const [lookingUp, setLookingUp] = useState(false);
+  const [stillOffline, setStillOffline] = useState(false);
+  /* Read after mount: the server cannot know the browser, and a line that differed between the two would not hydrate. */
+  const [safari, setSafari] = useState(false);
   const player = useRef<PlayingRecording | null>(null);
   const stopping = useRef(false);
+  /* A recording is being heard right now, so leaving the page has a transcription to stop. */
+  const hearingNow = useRef(false);
   const latest = useRef(speech);
   latest.current = speech;
 
   const active = stage.kind !== "idle";
   useEffect(() => onActive(active), [active, onActive]);
-  useEffect(() => () => player.current?.stop(), []);
+  useEffect(() => setSafari(onSafari()), []);
+  useEffect(() => () => {
+    player.current?.stop();
+    // The engine is shared by the tab: a recording heard for a page somebody left would go on using it.
+    if (hearingNow.current) latest.current.cancel();
+  }, []);
 
   const reset = () => {
     player.current?.stop();
     setPlaying(null);
+    setUnplayable(false);
+    setStillOffline(false);
     setOpened(null);
     setGlossed(null);
     setError(null);
@@ -115,8 +135,15 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
     if (!result || !result.ok) return null;
     const asked = new Set(result.asked);
     const yes = new Set(result.known);
+    /*
+      Matched on the text rather than on position alone: a line the server
+      could not take would otherwise move every line after it onto another
+      line's dictionary. A line with no match is drawn plain rather than wrong.
+    */
+    const byText = new Map<string, GlossedToken[]>();
+    for (const line of result.lines) byText.set(same(line.sentence), line.tokens);
     return {
-      tokens: result.lines.map((line) => line.tokens),
+      tokens: heard.map((line) => byText.get(same(line.hearing.understood)) ?? null),
       known: (word: string) => (asked.has(word) ? yes.has(word) : undefined),
     } satisfies Glossed;
   }, []);
@@ -140,9 +167,16 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
       rate = decoded.sampleRate;
       samples = mono(Array.from({ length: decoded.numberOfChannels }, (_, c) => decoded.getChannelData(c)));
     } catch {
-      setError(isOggOpus(file.name, file.type)
-        ? t("This browser couldn't open an Ogg voice message. Safari opens them only partly: open this page in Chrome or Firefox, or save the message as MP3 or M4A.")
-        : t("That file couldn't be opened as sound. A voice message saved as MP3, M4A, Ogg or WAV works."));
+      /*
+        Safari is named only to somebody using it: told to open the page in
+        Chrome while already in Chrome, a learner has been handed the wrong
+        cause and no way on.
+      */
+      setError(!isOggOpus(file.name, file.type)
+        ? t("That file couldn't be opened as sound. A voice message saved as MP3, M4A, Ogg or WAV works.")
+        : safari
+          ? t("This browser couldn't open an Ogg voice message. Safari opens them only partly: open this page in Chrome or Firefox, or save the message as MP3 or M4A.")
+          : t("This Ogg voice message couldn't be opened. It may be damaged or only partly saved. Saving it again as MP3 or M4A usually works."));
       setStage({ kind: "idle" });
       return;
     }
@@ -153,11 +187,13 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
 
     setStage({ kind: "hearing", name: file.name, done: 0, total: 0 });
     stopping.current = false;
+    hearingNow.current = true;
     let pieces: TranscribedPiece[];
     try {
       pieces = await latest.current.transcribe(samples, rate, (done, total) =>
         setStage({ kind: "hearing", name: file.name, done, total }));
     } catch (failure) {
+      hearingNow.current = false;
       const why = failure instanceof EngineFailure ? failure.error : "failed";
       if (why === "not-downloaded" || why === "cleared" || why === "hash-failed") {
         setStage({ kind: "asking", file });
@@ -169,6 +205,7 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
       setStage({ kind: "idle" });
       return;
     }
+    hearingNow.current = false;
     const stopped = stopping.current;
     const first = transcriptLines(pieces, { maxChars: MAX_READING_CHARS }).lines;
     if (first.length === 0) {
@@ -182,7 +219,7 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
     setStage({ kind: "reading", name: file.name });
     setGlossed(await lookUp(first));
     setStage({ kind: "done" });
-  }, [lookUp, t]);
+  }, [lookUp, safari, t]);
 
   /** A file picked or dropped: checked, the download asked for where it is missing, then heard. */
   const take = useCallback((file: File) => {
@@ -213,18 +250,32 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
     }
   };
 
-  // A file dragged over the window lands on the page, which is how a desktop shares a voice message (D25).
+  /*
+    A file dragged over the window lands on the page, which is how a desktop
+    shares a voice message (D25). Taken while nothing is open and while a
+    transcript is being read, where it opens in place of the one on screen.
+    While a recording is being opened or heard a drop is refused rather than
+    left to the browser, whose own answer is to navigate to the file and throw
+    away the page somebody was in the middle of.
+  */
+  const accepts = stage.kind === "idle" || stage.kind === "done";
+  const takeRef = useRef(take);
+  takeRef.current = take;
+  const resetRef = useRef(reset);
+  resetRef.current = reset;
   useEffect(() => {
-    if (stage.kind !== "idle" || !speech.offered) return;
+    if (!speech.offered) return;
     const carriesFiles = (e: DragEvent) => Array.from(e.dataTransfer?.types ?? []).includes("Files");
     let depth = 0;
     const enter = (e: DragEvent) => {
-      if (!carriesFiles(e)) return;
+      if (!carriesFiles(e) || !accepts) return;
       depth += 1;
       setDragging(true);
     };
     const over = (e: DragEvent) => {
-      if (carriesFiles(e)) e.preventDefault();
+      if (!carriesFiles(e)) return;
+      e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = accepts ? "copy" : "none";
     };
     const leave = (e: DragEvent) => {
       if (!carriesFiles(e)) return;
@@ -237,7 +288,9 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
       depth = 0;
       setDragging(false);
       const file = e.dataTransfer?.files?.[0];
-      if (file) take(file);
+      if (!file || !accepts) return;
+      if (stage.kind === "done") resetRef.current();
+      takeRef.current(file);
     };
     window.addEventListener("dragenter", enter);
     window.addEventListener("dragover", over);
@@ -250,7 +303,7 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
       window.removeEventListener("drop", drop);
       setDragging(false);
     };
-  }, [stage.kind, speech.offered, take]);
+  }, [accepts, stage.kind, speech.offered]);
 
   const play = (line: number | "all", slow: boolean) => {
     if (!opened) return;
@@ -263,10 +316,15 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
     }
     const target = line === "all" ? null : lines[line];
     const samples = target ? sliceOf(opened.samples, opened.rate, target) : opened.samples;
+    setUnplayable(false);
     const handle = playRecording({ samples, rate: opened.rate }, { pace, slow, asItWas: line === "all" });
     player.current = handle;
     setPlaying({ line, slow });
-    void handle.ended.catch(() => "played").then(() => {
+    void handle.ended.catch(() => {
+      // Said rather than left as a button that did nothing: the browser would not play what was handed to it.
+      if (player.current === handle) setUnplayable(true);
+      return "played" as const;
+    }).then(() => {
       if (player.current === handle) {
         player.current = null;
         setPlaying(null);
@@ -302,8 +360,7 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
             <button
               type="button"
               onClick={() => play("all", false)}
-              aria-pressed={playing?.line === "all"}
-              className="press tap-tint inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold"
+              className="press tap-tint inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-semibold"
               style={{ color: "var(--ink-2)" }}
             >
               {playing?.line === "all" ? <Square size={13} fill="currentColor" aria-hidden /> : <Play size={14} aria-hidden />}
@@ -311,7 +368,7 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
             </button>
           </div>
           {lines.map((line, i) => {
-            const tokens = glossed?.tokens[i];
+            const tokens = glossed?.tokens[i] ?? null;
             const now = playing?.line === i;
             return (
               <div key={i} className="recording-line flex items-start gap-3 rounded-[var(--r)] px-2 py-2" data-playing={now ? "true" : "false"}>
@@ -348,22 +405,45 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
             {t("You stopped it partway, so this is the beginning of the recording.")}
           </p>
         )}
+        {unplayable && (
+          <p role="alert" className="text-sm" style={{ color: "var(--again-ink)" }}>
+            {t("This browser wouldn't play that line. The words are still here to read.")}
+          </p>
+        )}
         {!glossed && (
-          <div className="flex flex-wrap items-center gap-3" role="status">
-            <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-              {t("The dictionary needs a connection, so the words aren't underlined yet.")}
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="min-w-0 flex-1 text-sm" style={{ color: "var(--ink-2)" }} role="status">
+              {stillOffline
+                ? t("Still no connection. The words are here to read, and the dictionary will be when you're back online.")
+                : t("The dictionary needs a connection, so the words aren't underlined yet.")}
             </p>
-            <Button variant="secondary" size="sm" onClick={async () => setGlossed(await lookUp(lines))}>
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={lookingUp}
+              onClick={async () => {
+                setLookingUp(true);
+                const found = await lookUp(lines);
+                setLookingUp(false);
+                setStillOffline(found === null);
+                setGlossed(found);
+              }}
+            >
+              {lookingUp && <Loader2 size={14} className="animate-spin" aria-hidden />}
               {t("Look the words up")}
             </Button>
           </div>
         )}
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-          {t("The sound stayed on this device. Only the words went to the dictionary, and nothing was kept.")}
+          {/* Said as it happened: offline, the words have not gone to the dictionary either. */}
+          {glossed
+            ? t("The sound stayed on this device. Only the words went to the dictionary, and nothing was kept.")
+            : t("The sound stayed on this device, and so far nothing has been sent anywhere.")}
         </p>
         <div className="flex flex-wrap gap-3">
           <Button variant="primary" onClick={reset}>{t("Open another recording")}</Button>
         </div>
+        {dragging && <DropHere label={t("Drop the recording to hear it")} />}
       </div>
     );
   }
@@ -475,7 +555,7 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
             </label>
             <span className="recording-drop-hint text-sm" style={{ color: "var(--ink-3)" }}>{t("or drop one onto this page")}</span>
           </div>
-          {onSafari() && (
+          {safari && (
             <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
               {t("Safari opens Ogg voice messages only partly. MP3 and M4A always open.")}
             </p>
@@ -483,14 +563,19 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
         </>
       )}
       {error && <p role="alert" className="mt-3 text-sm" style={{ color: "var(--again-ink)" }}>{error}</p>}
-      {dragging && (
-        <div className="recording-drop" aria-hidden>
-          <span className="flex items-center gap-2 text-lg font-bold" style={{ color: "var(--accent-deep)" }}>
-            <Upload size={20} /> {t("Drop the recording to hear it")}
-          </span>
-        </div>
-      )}
+      {dragging && <DropHere label={t("Drop the recording to hear it")} />}
     </Panel>
+  );
+}
+
+/** The whole column as a place to let go of a file, while one is dragged over the window. */
+function DropHere({ label }: { readonly label: string }) {
+  return (
+    <div className="recording-drop" aria-hidden>
+      <span className="flex items-center gap-2 px-4 text-center text-lg font-bold" style={{ color: "var(--accent-deep)" }}>
+        <Upload size={20} /> {label}
+      </span>
+    </div>
   );
 }
 
@@ -522,7 +607,6 @@ function LinePlay({ at, playing, onPlay }: {
           type="button"
           className={`${half} px-2.5 py-1.5`}
           style={{ color: "var(--ink-2)" }}
-          aria-pressed={playing === false}
           aria-label={playing === false ? t("Stop") : fill(t("Play from {at}, at your pace"), { at })}
           onClick={() => onPlay(false)}
         >
@@ -533,7 +617,6 @@ function LinePlay({ at, playing, onPlay }: {
           type="button"
           className={`${half} whitespace-nowrap px-2.5 py-1.5 text-sm font-semibold`}
           style={{ color: "var(--ink-3)" }}
-          aria-pressed={playing === true}
           aria-label={playing === true ? t("Stop") : fill(t("Play from {at}, slowly"), { at })}
           onClick={() => onPlay(true)}
         >

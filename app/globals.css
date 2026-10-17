@@ -5637,6 +5637,10 @@ a:focus-visible .wave-word::after {
   background: color-mix(in srgb, var(--ground) 82%, transparent);
   pointer-events: none;
 }
+/* A phone has nowhere to drag a file from, so the offer is not made there. */
+@media (pointer: coarse) {
+  .recording-drop-hint { display: none; }
+}
 .recording-meter {
   height: 6px;
   border-radius: 9999px;

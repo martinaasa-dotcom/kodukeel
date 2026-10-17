@@ -60,12 +60,15 @@ describe("the things in a photo, looked up on the English side", () => {
     });
     const [thing] = await resolveThings(["kodukeeltestfrost"]);
     expect(thing!.entries).toEqual([]);
+    // And the row says so, rather than that the dictionary has nothing.
+    expect(thing!.spelledLikeAnother).toBe(true);
   });
 
   it("offers nothing for a name no vouched entry carries", async () => {
     const [thing] = await resolveThings(["kodukeeltestnothingatall"]);
     expect(thing!.entries).toEqual([]);
     expect(thing!.picture).toBeNull();
+    expect(thing!.spelledLikeAnother).toBe(false);
   });
 
   it("finds an everyday thing in the shipped dictionary, with its picture", async () => {
