@@ -1,12 +1,11 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { sceneTesting } from "@/lib/scenes/catalogue";
-import { ArrowLeft } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { LEVELS, LEVEL_INFO, type Level } from "@/lib/collections/syllabus";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import { readinessPicture } from "@/lib/progress/readiness";
 import { ButtonLink } from "@/components/Button";
-import { Card, Empty, Page, SectionTitle, Stack } from "@/components/ui";
+import { BackLink, Card, Empty, Page, SectionTitle, Stack } from "@/components/ui";
 import { CommonestTrip } from "@/components/readiness/Summary";
 import { HeroFan } from "@/components/HeroFan";
 import { SituationRow } from "@/components/readiness/SituationRow";
@@ -67,9 +66,7 @@ export default async function ReadinessPage() {
       title={t("In real life")}
       lead={t("Which situations you could follow, take part in or lead, based on your own answers.")}
       actions={
-        <Link href="/progress" className="flex items-center gap-1.5 text-sm" style={{ color: "var(--accent-deep)" }}>
-          <ArrowLeft size={14} aria-hidden /> {t("Back to progress")}
-        </Link>
+        <BackLink href="/progress">{t("Back to progress")}</BackLink>
       }
     >
       <Stack>

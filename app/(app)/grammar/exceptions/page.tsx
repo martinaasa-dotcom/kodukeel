@@ -89,7 +89,9 @@ export default async function ExceptionsPage() {
                   // check on the screen they are already looking at.
                   const sample = group.entries.slice(0, 3);
                   return (
-                    <li key={group.kind}>
+                    // A card left alone on its row takes the whole row, or a
+                    // family of one stood beside half a page of nothing.
+                    <li key={group.kind} className="sm:odd:last:col-span-2">
                       <Link
                         href={`/grammar/exceptions/${group.kind.toLowerCase()}`}
                         className="lift flex h-full flex-col gap-2 rounded-[var(--r-lg)] border p-4"

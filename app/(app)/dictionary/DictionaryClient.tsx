@@ -838,7 +838,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                   */}
                   {label.question ? (
                     <span className="mt-1.5 block text-2xs">
-                      <CaseLabel label={{ et: label.et, question: label.question }} />
+                      <CaseLabel label={{ et: label.et, question: label.question }} className="case-label-stack" />
                     </span>
                   ) : (
                     <span lang="et" className="label-xs mt-1.5 block" style={{ color: "var(--ink-3)", textTransform: "none" }}>{label.et}</span>

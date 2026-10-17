@@ -1,6 +1,6 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Check, GraduationCap, PlayCircle, MessagesSquare, Printer } from "lucide-react";
+import { Check, GraduationCap, PlayCircle, MessagesSquare, Printer } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { unitById } from "@/lib/collections/syllabus";
@@ -14,7 +14,7 @@ import { grammarPoint } from "@/lib/estonian/grammar";
 import { ButtonLink } from "@/components/Button";
 import { NamedIcon } from "@/components/icons";
 import { sceneTesting } from "@/lib/scenes/catalogue";
-import { Card, Chip, Meter, Page, Ring } from "@/components/ui";
+import { BackLink, Card, Chip, Meter, Page, Ring } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import { readingFor } from "@/lib/progress/readiness";
@@ -100,9 +100,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
       titleLang={uiWantsEnglish(placement) ? undefined : "et"}
       lead={t(unit.blurb)}
       actions={
-        <Link href="/learn" className="flex items-center gap-1.5 text-sm" style={{ color: "var(--accent-deep)" }}>
-          <ArrowLeft size={14} aria-hidden /> {t("Back to the course")}
-        </Link>
+        <BackLink href="/learn">{t("Back to the course")}</BackLink>
       }
     >
       <div className="flex flex-col gap-5">

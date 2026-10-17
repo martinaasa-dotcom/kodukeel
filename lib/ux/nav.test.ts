@@ -216,6 +216,12 @@ describe("litRow", () => {
     expect(litRow(CORE, "/")).toBe("/");
   });
 
+  it("lights Practice for a round whose address is not under /review", () => {
+    expect(litRow(CORE, "/quest")).toBe("/practice");
+    expect(litRow(CORE, "/sonad")).toBe("/practice");
+    expect(litRow(CORE, "/crossword")).toBe("/practice");
+  });
+
   it("lights a pinned row over its home", () => {
     const rows = [...CORE, DESTINATIONS.find((d) => d.href === "/calendar")!];
     expect(litRow(rows, "/calendar")).toBe("/calendar");
