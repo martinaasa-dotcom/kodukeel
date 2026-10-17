@@ -3,7 +3,7 @@ import { CLEAN, type Condition } from "./conditions";
 import { needsMixer, playThrough } from "./mixer";
 import { stretch } from "./stretch";
 import { DEFAULT_PACE, SLOWEST, SLOW_OF_NORMAL, type Pace } from "./pace";
-import { decodeWav, encodeWav16 } from "./wav";
+import { decodeWav, encodeWav16, normaliseLoudness } from "./wav";
 
 /**
  * One clip, fetched once.
@@ -338,4 +338,80 @@ export async function playClip(
     end();
     throw error;
   }
+}
+
+/** A stretch of a recording somebody opened, playing, and the way to stop it. */
+export interface PlayingRecording {
+  stop(): void;
+  /** Settles when the piece has finished, was stopped, or was refused; rejects where it could not play at all. */
+  readonly ended: Promise<PlayOutcome>;
+}
+
+/** Silence written either side of a piece of a recording, so its first sound is not swallowed opening the stream. */
+const RECORDING_LEAD_S = 0.12;
+const RECORDING_TRAIL_S = 0.25;
+/** The fade over each cut edge, so a piece cut out of the middle of a recording does not click. */
+const RECORDING_FADE_S = 0.008;
+
+/**
+ * A PIECE OF A RECORDING THE LEARNER OPENED, PLAYED AT THEIR OWN PACE
+ * (docs/41-fifth-batch.md, VB-12).
+ *
+ * A voice message is somebody talking at a native speed, which is the whole
+ * reason to slow it down, and the slowing is the one every clip in the app
+ * gets: `rateFor` reads the learner's pace and `stretch` spends it on the
+ * vowels and the pauses. So this is `playClip` for samples already in hand:
+ * nothing is fetched, nothing is sent, and the stretched copy lives exactly as
+ * long as the play does. The level is brought to the app's own, because a
+ * message recorded on a phone at arm's length is quieter than anything else
+ * the learner hears here. `asItWas` plays the recording at its own speed.
+ */
+export function playRecording(
+  piece: { readonly samples: Float32Array; readonly rate: number },
+  request: { readonly pace?: Pace; readonly slow?: boolean; readonly asItWas?: boolean },
+): PlayingRecording {
+  const end = beginSpeech();
+  const speed = request.asItWas ? 1 : rateFor({ text: "", pace: request.pace, slow: request.slow });
+  const lead = Math.round(piece.rate * RECORDING_LEAD_S);
+  const trail = Math.round(piece.rate * RECORDING_TRAIL_S);
+  const fade = Math.min(Math.round(piece.rate * RECORDING_FADE_S), Math.floor(piece.samples.length / 2));
+  const padded = new Float32Array(lead + piece.samples.length + trail);
+  padded.set(piece.samples, lead);
+  for (let i = 0; i < fade; i++) {
+    const gain = i / fade;
+    padded[lead + i] = (padded[lead + i] ?? 0) * gain;
+    const back = lead + piece.samples.length - 1 - i;
+    padded[back] = (padded[back] ?? 0) * gain;
+  }
+  let audio: HTMLAudioElement | null = null;
+  let stopped = false;
+  const ended = (async (): Promise<PlayOutcome> => {
+    let url: string | null = null;
+    try {
+      const out = encodeWav16(stretch(normaliseLoudness({ rate: piece.rate, samples: padded }), speed));
+      if (stopped) return "played";
+      url = URL.createObjectURL(new Blob([out.buffer as ArrayBuffer], { type: "audio/wav" }));
+      const element = new Audio(url);
+      audio = element;
+      await new Promise<void>((resolve, reject) => {
+        for (const event of ["ended", "pause"] as const) element.addEventListener(event, () => resolve(), { once: true });
+        element.addEventListener("error", () => reject(new Error("the recording would not play")), { once: true });
+        element.play().catch(reject);
+      });
+      return "played";
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "NotAllowedError") return "blocked";
+      throw error;
+    } finally {
+      if (url) URL.revokeObjectURL(url);
+      end();
+    }
+  })();
+  return {
+    stop() {
+      stopped = true;
+      audio?.pause();
+    },
+    ended,
+  };
 }

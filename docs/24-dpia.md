@@ -622,6 +622,28 @@ those terms (D21).
 asks its own permission, and a learner sending text they did not mean to: every transcript lands in a
 box they can change before it counts (D3).
 
+### R19. A recording of somebody else, or a photo of somebody's home, leaves the device
+
+**Likelihood before: medium if nothing were done. Severity: high.** The reading page opens a voice
+message (`docs/41-fifth-batch.md`, VB-12), which is another person's voice, often a landlord's, a
+colleague's or a child's teacher's, none of whom agreed to anything. The scanner's "things around me"
+(VB-13) reads a photo of a kitchen or a street, which can show people, an address or a document.
+
+**Mitigation.** A recording is decoded in the browser (`app/(app)/read/Recording.tsx`) and heard by the
+same on-device engine as the microphone (R18): no route takes audio, it is never uploaded, stored or
+sent, TartuNLP included, and it lives in the page's memory until the learner leaves (D16). What leaves
+is the transcript's text, to the same glossing a pasted text gets (`readHeard` in `app/actions.ts`),
+which keeps nothing, and the transcript is labelled as what a machine heard and never becomes a card,
+a sentence or an example. A photo of the learner's surroundings takes the scanner's existing path: it
+is shrunk on the device, read once by the configured vision model and dropped, the scanner's invariant
+holds that `Scan` has no column it could go in, and the model is asked for English names of objects
+only, never people (`lib/scan/things.ts`). The webcam is opened by one component with `audio: false`,
+held by `scripts/invariants/one-microphone.ts`. `/privacy` says both in those terms.
+
+**Residual: low** for recordings, since nothing leaves but text the learner can see. **Medium** for the
+photo, which crosses to the vision provider like any scanned page (R5); the screen says the picture is
+read once and never saved, and the feature is absent where there is no key.
+
 ### Risks recorded and not separately mitigated
 
 Two things are named here rather than assessed as controlled, because saying so is the point of the

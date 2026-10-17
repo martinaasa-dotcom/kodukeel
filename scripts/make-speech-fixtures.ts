@@ -28,6 +28,13 @@ export const SPEECH_FIXTURES = [
   { file: "scripts/fixtures/speech/tere.wav", text: "Tere!", voice: "tambet", trail: 2 },
   { file: "scripts/fixtures/speech/aitah.wav", text: "Aitäh!", voice: "mari", trail: 2 },
   { file: "scripts/fixtures/speech/kuidas-laheb.wav", text: "Kuidas läheb?", voice: "kalev", trail: 2 },
+  // A voice message to open on the reading page (VB-12): two lines the parents' evening's bank already holds, one voice, one message.
+  {
+    file: "scripts/fixtures/speech/voice-message.wav",
+    text: "Ta on klassis rõõmus ja õpib hästi. Vead on väikesed. Palun lugege temaga kodus iga päev.",
+    voice: "mari",
+    trail: 0,
+  },
 ] as const;
 
 async function make(text: string, voice: string): Promise<Float32Array> {

@@ -129,6 +129,9 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
           {rich(t("**Pages you photograph.** When you scan a page, what is kept is the word list you confirmed: the Estonian, the English, and which dictionary entry each word matched. **The photograph itself is never stored.** It is read once, on the way through, and dropped. It is not written to a database, not put in file storage, and not written to a log. A picture of your homework has your name at the top of it."))}
         </P>
         <P>
+          {rich(t("**Photos of the things around you.** A photo of your kitchen or your street goes the same way: shrunk on your device, read once by the AI and dropped. It is asked only for the English names of the objects in it, never about people. What is kept is the words you tick, exactly as for a page."))}
+        </P>
+        <P>
           {rich(t("**What the tutor cost.** For every request to the AI, we keep a record: which model answered, roughly how much text went in and out, and what it is estimated to have cost. The tutor runs on somebody’s paid key and anyone can sign up, so a daily allowance per person is the only thing standing between an open door and an endless bill. We keep this because there’s a legitimate interest in a free service surviving the week, and there’s no way to run that cap without counting."))}
         </P>
         <P>
@@ -182,6 +185,9 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
         </P>
         <P>
           {t("The text is yours to change before it counts. Once you send it, a turn in a conversation or an answer to a card, it is stored exactly as typed text is. To mark which heard words are real Estonian spellings, the words alone are checked against the dictionary on the server and not kept there.")}
+        </P>
+        <P>
+          {t("A recording you open on the reading page, such as a voice message somebody sent you, holds another person's voice, so it is treated more carefully still. It is heard on your device in the same way, and the sound is never uploaded, stored or sent, to us, to the speech service or to anybody else. Only the words it was heard as go to the dictionary to be underlined, and they are not kept there, just as a pasted text is not.")}
         </P>
         <P>
           {t("The speech model is downloaded from this installation's own storage the first time you ask for it, and it stays on your device so hearing works offline. It is the same file for everybody and says nothing about you. Settings deletes it, and signing out leaves it, because it belongs to the device rather than to you.")}
