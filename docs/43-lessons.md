@@ -332,7 +332,11 @@ Each phase is its own pull request or several, and none starts before the one ab
   `lib/course/lessons/a1-pood.ts`: describing words and their opposites, colours, clothes with
   `mul on vaja`, the weather, and a clothes shop on a cold day. The ledger refused lesson 39's rule
   for quoting `sajab` on its own when only the two weather phrases had taught it, so `sajab` is
-  taught as a word.
+  taught as a word. **Part 7 (lessons 41 to 45, `{Eile ja homme}`) is built**, in
+  `lib/course/lessons/a1-eile.ts`. Tomorrow comes first because there is no future tense to
+  learn; the past follows, and every past form is taught by name, since the app's own conjugation
+  rightly derives none of it (`tegin` and `lugesin` follow nothing a learner could guess). The
+  past's `ta` form is taught with each verb for the same reason: `käis`, but `oli` and `tegi`.
 - **P3. The switch.** Learners placed per L4, the old A1 parts retired, `course.test.ts` and the
   browser suites (`test-module.mjs`) rewritten for lessons. **And the lessons' own English in
   Russian and Ukrainian**, which nothing yet translates: the screens around a lesson are in
