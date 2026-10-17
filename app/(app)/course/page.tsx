@@ -1,6 +1,7 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowRight, CalendarCheck, Check } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
+import { isAdmin } from "@/lib/auth/admin";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import {
   closingProgress, courseReading, hasChosenProgramme, ladderReading, missingWords, openingPartFor,
@@ -376,9 +377,10 @@ export default async function CoursePage({
     );
   }
 
-  const [closing, missing] = await Promise.all([
+  const [closing, missing, reviewer] = await Promise.all([
     closingProgress(ownerId, programme, day.id, now),
     missingWords(ownerId, day),
+    isAdmin(),
   ]);
   const unit = unitOf(day);
   const done = day.steps.filter((s) => standing.done.has(s.id)).map((s) => s.id);
@@ -611,6 +613,15 @@ export default async function CoursePage({
             ? <><Link href="/settings#course" className="underline">Turn it off</Link> whenever you&apos;d rather choose for yourself.</>
             : <Linked template={t("{link} whenever you'd rather choose for yourself.")} href="/settings#course" label={t("Turn it off")} />}
         </p>
+
+        {/* The rebuilt A1 is read by reviewers before it reaches anybody
+            (docs/43-lessons.md, decision L6), so the door is drawn for them alone. */}
+        {reviewer && (
+          <p className="text-sm" style={{ color: "var(--ink-3)" }}>
+            {t("For reviewers:")}{" "}
+            <Link href="/course/lessons" className="underline">{t("the new A1 lessons, in preview")}</Link>
+          </p>
+        )}
       </Stack>
     </Page>
   );

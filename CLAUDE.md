@@ -10446,6 +10446,17 @@ because the middleware is not the check that decides: every page, action and rou
 owner through `requireUserId()`, which throws when the session cannot be verified. `!== "in"` is the
 shape that breaks this and it is the natural thing to write, so the invariant reads for it.
 
+**The course is being rebuilt as lessons, and nothing in a lesson is shown before it is taught.**
+An A1 evening was a unit's word list cut into fives in typed order, so "who, what, where" taught
+`kes, mis, kus, kuhu, kust` one night and `kuidas` the next, with nothing saying what tied them
+together. `docs/43-lessons.md` is the approved plan: one evening is one lesson with one goal, in six
+steps (Listen, Words, How it works, Practise, Say it, Review), the first three asking nothing.
+`lib/course/lessons/` is the engine and `lessonProblems` is the rule: every spelling on every screen
+of a lesson has to be in the ledger by then, a phrase covering its words only where they stand
+together, and the unit suite fails otherwise. The conversations are written and read by the native
+speaker (ADR-005 amendment 6). Lessons are at `/course/lessons` for reviewers only until A1 is whole
+(decision L6), and record nothing; the old parts stay the course until then.
+
 ## Conventions
 
 - TypeScript `strict` plus `noUncheckedIndexedAccess`. No `any` without a comment justifying it.
