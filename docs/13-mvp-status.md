@@ -3514,3 +3514,43 @@ the shape alone outranks one that leads with it, so `houses` opens `maja` before
 What it cannot do yet is correct a misspelled English word the dictionary holds no gloss for:
 Wiktionary has no page for `chamiponship`, and its search API's spelling suggestion could not be
 checked against a live answer from the build machine.
+
+## 61. The fifty-fifth pass: Estonian out loud
+
+The fifth batch (`docs/41-fifth-batch.md`, which holds every measurement and the decisions D1 to
+D26). The app hears Estonian now, on the device, and the rule that held speaking back is kept
+whole: it says which words it understood and never how a word sounded.
+
+**The engine** is TalTech's streaming model, 71 MB, run by sherpa-onnx in a worker
+(`components/speech/`), downloaded once on a press that says its size, kept in its own cache and
+checked against its hashes. Nothing it hears leaves the device, and nothing is stored but what a
+learner chooses to send. `lib/speech/` is pure and is the contract the native apps take up
+(`docs/42-native-apps.md`, the golden file). ADR-028 records it, and ADR-018's refusal stands: a
+spoken verdict is "good" or "fill", so speech only ever grades up, and a word the dictionary
+repaired grades nothing (D13).
+
+**Where it reaches.** A conversation can be answered by picking, saying or typing a line, with a
+call mode in the phone rooms (VB-4). The Speaking round is three steps and has a hands-free mode
+(VB-5). The answer boxes on the daily path take a spoken answer (VB-6). A new numbers round asks
+for prices, clock times and counts out loud (VB-7). The conjugation table, Say what you see, 20
+küsimust and the workbook take speech (VB-8), and so do the dictionary search, Anu and the reading
+page (VB-9). A recording opened on the reading page is transcribed on the device (VB-12), the
+scanner names the things around you (VB-13), and the landing café can be answered by voice
+(VB-15). Reminders reach a computer through Web Push (VB-10).
+
+**Tonight's chat** (VB-11) is a conversation of a new kind about the evening's own words, with
+the same neighbour each time, who remembers which words the two of you have talked about. It is
+offered only where a model is set up and the day's allowance would still let a scene call
+through, since a chat has no bank of lines under it.
+
+**Whether it helps is counted, not assumed** (VB-14). `Review.spoken` marks every answer said
+aloud, on the cards, in the rounds and in a conversation's grades, and a spoken conversation turn
+carries how many words were heard and how many the learner changed before sending. `npm run
+report:speech` reads the edit rate, recall after a spoken answer against a typed one, and what
+tonight's chat did for its words. Every figure in it so far is a fixture's; the deployment run is
+the operator's.
+
+**What is not verified.** Only Chromium was available, so Safari and Firefox are untested, Safari's
+Ogg handling included. No phone was timed. Nobody has measured the engine on learners' own voices,
+which is why the edit rate exists and why Pairs said aloud (VB-16) stays parked.
+
