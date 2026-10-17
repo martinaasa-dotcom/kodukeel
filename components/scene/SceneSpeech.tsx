@@ -102,10 +102,34 @@ export function SceneMic({ box, expect, onHeard, call, cue, closed, label, size 
     if (speech.listening) writeInto(box?.current ?? null, speech.partial);
   }, [box, speech.partial, speech.listening]);
 
-  // Closed the moment the app starts speaking: it never listens to its own voice (D14).
+  /*
+    Closed the moment the app starts speaking: it never listens to its own
+    voice (D14). And opened again once it has finished, because the commonest
+    way to meet this is a learner pressing in the gap between their line
+    arriving and its clip starting to play: closing it for good would throw
+    their press away with nothing on the screen saying so.
+  */
+  const reopen = useRef(false);
   useEffect(() => {
-    if (speech.listening && speech.appSpeaking) speech.cancel();
+    if (speech.listening && speech.appSpeaking) {
+      reopen.current = true;
+      speech.cancel();
+    }
   }, [speech]);
+  useEffect(() => {
+    if (speech.appSpeaking || !reopen.current) return;
+    let live = true;
+    void (async () => {
+      await untilQuiet(VOICE_CAP_MS);
+      await new Promise((resume) => window.setTimeout(resume, AFTER_LINE_MS));
+      const s = latest.current;
+      if (!live || !reopen.current) return;
+      reopen.current = false;
+      if (shut.current || s.listening || s.thinking || s.appSpeaking || s.phase !== "ready") return;
+      void s.start();
+    })();
+    return () => { live = false; };
+  }, [speech.appSpeaking]);
 
   const reported = useRef<string>("");
   const report = useRef(onState);

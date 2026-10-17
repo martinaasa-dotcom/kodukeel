@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import { BookOpen, Clock, CornerDownLeft, DoorOpen, Heart, Info, LifeBuoy, ListChecks, MessageCircle, Mic, Phone, RotateCcw, Shuffle } from "lucide-react";
 import { RoundChip } from "@/components/round/RoundStart";
 import { Button } from "@/components/Button";
-import { ChoiceCard, ChoiceChip, ChoiceGroup, ChoiceSegment } from "@/components/Choice";
+import { ChoiceCard, ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Card, CardLink, toneInk } from "@/components/ui";
 import { kindOf } from "@/lib/scenes/kinds";
@@ -2434,17 +2434,29 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
             wherever this deployment can hear, and talking it through hides the
             switch, because the answers in that mode are said.
           */}
+          {/*
+            Small chips with the icons hidden on a phone, the way the row
+            above it is drawn: three ways at full size broke onto two lines at
+            360, which read as two choices and an afterthought.
+          */}
           {!talk && (
-            <ChoiceSegment
-              ariaLabel={t("How you answer")}
-              value={answerBy}
-              onSelect={chooseAnswer}
-              options={[
-                { id: "pick", title: t("Pick a line"), icon: <ListChecks size={16} aria-hidden /> },
-                ...(speechHere ? [{ id: "say" as const, title: t("Say it"), icon: <Mic size={16} aria-hidden /> }] : []),
-                { id: "type", title: t("Type it"), icon: <CornerDownLeft size={16} aria-hidden /> },
-              ]}
-            />
+            <ChoiceGroup ariaLabel={t("How you answer")} className="flex flex-wrap gap-2">
+              {([
+                { id: "pick", title: t("Pick a line"), icon: <ListChecks size={15} aria-hidden /> },
+                ...(speechHere ? [{ id: "say" as const, title: t("Say it"), icon: <Mic size={15} aria-hidden /> }] : []),
+                { id: "type", title: t("Type it"), icon: <CornerDownLeft size={15} aria-hidden /> },
+              ] as const).map((one) => (
+                <ChoiceChip
+                  key={one.id}
+                  selected={answerBy === one.id}
+                  onSelect={() => chooseAnswer(one.id)}
+                  icon={<span className="hidden sm:inline-flex">{one.icon}</span>}
+                  small
+                >
+                  {one.title}
+                </ChoiceChip>
+              ))}
+            </ChoiceGroup>
           )}
           {answerBy === "pick" && picks.length > 0 ? (
             /*
@@ -2551,7 +2563,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                 inputRef={box}
                 disabled={moving}
                 ariaLabel={t("What you say")}
-                placeholder={moving ? t("Just a moment…") : speaking ? t("Your words appear here as you speak") : t("Say it in Estonian")}
+                placeholder={moving ? t("Just a moment…") : speaking ? t("Your words appear here") : t("Say it in Estonian")}
               />
               {/*
                 Alone in its row, so the one action a learner takes every turn is the

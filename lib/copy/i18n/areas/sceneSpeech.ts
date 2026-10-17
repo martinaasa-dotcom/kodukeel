@@ -24,7 +24,7 @@ export const SCENE_SPEECH: Area = {
     "That wasn't one of these lines, so it's in the box to change and send.":
       "Это не одна из этих фраз, поэтому она в поле, где её можно изменить и отправить.",
     "Say your answer": "Скажите свой ответ",
-    "Your words appear here as you speak": "Ваши слова появляются здесь, пока вы говорите",
+    "Your words appear here": "Здесь появятся ваши слова",
     "This goes in a moment. Touch the screen to stop it and change the words.":
       "Это отправится через мгновение. Коснитесь экрана, чтобы остановить и изменить слова.",
     "Sending in a moment. Touch the screen to stop it.": "Отправка через мгновение. Коснитесь экрана, чтобы остановить.",
@@ -75,7 +75,7 @@ export const SCENE_SPEECH: Area = {
     "That wasn't one of these lines, so it's in the box to change and send.":
       "Це не одна з цих фраз, тому вона в полі, де її можна змінити й надіслати.",
     "Say your answer": "Скажіть свою відповідь",
-    "Your words appear here as you speak": "Ваші слова з'являються тут, поки ви говорите",
+    "Your words appear here": "Тут з'являться ваші слова",
     "This goes in a moment. Touch the screen to stop it and change the words.":
       "Це надішлеться за мить. Торкніться екрана, щоб зупинити й змінити слова.",
     "Sending in a moment. Touch the screen to stop it.": "Надсилання за мить. Торкніться екрана, щоб зупинити.",
