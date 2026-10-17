@@ -256,30 +256,39 @@ export default async function ProgressPage() {
           action={<ShareProgress />}
         />
 
-        {aloud.answers > 0 && (
-          <p className="text-md" style={{ color: "var(--ink-2)" }} data-said-aloud>
-            {aloud.minutes === null
-              ? fill(t("Said aloud this week: {answers}."), { answers: countOf(locale, aloud.answers, "answer") })
-              : fill(t("Said aloud this week: {answers}, about {minutes}."), {
-                answers: countOf(locale, aloud.answers, "answer"),
-                minutes: countOf(locale, aloud.minutes, "minute"),
-              })}
-          </p>
-        )}
-        {lengths.length > 0 && (
-          <p className="text-md" style={{ color: "var(--ink-2)" }} data-spoken-length>
-            {t("Words per spoken answer in a conversation, month by month:")}{" "}
-            {lengths.map((month, at) => (
-              <span key={month.month}>
-                {at > 0 && ", "}
-                <span className="whitespace-nowrap">
-                  {/* Mid-month at noon, so no zone on earth reads it as the month either side. */}
-                  <DateText iso={`${month.month}-15T12:00:00.000Z`} zone={clock.zone} options={{ month: "short" }} />{" "}
-                  <span className="tnum">{month.median}</span>
-                </span>
-              </span>
-            ))}
-          </p>
+        {/*
+          WHAT WAS SAID ALOUD, AS ONE BLOCK. The week's count and how long a
+          spoken answer runs month by month are one subject, so they sit
+          together at the body's own rhythm rather than a section apart (VB-14).
+        */}
+        {(aloud.answers > 0 || lengths.length > 0) && (
+          <div className="flex flex-col gap-1.5 text-md" style={{ color: "var(--ink-2)" }}>
+            {aloud.answers > 0 && (
+              <p data-said-aloud>
+                {aloud.minutes === null
+                  ? fill(t("Said aloud this week: {answers}."), { answers: countOf(locale, aloud.answers, "answer") })
+                  : fill(t("Said aloud this week: {answers}, about {minutes}."), {
+                    answers: countOf(locale, aloud.answers, "answer"),
+                    minutes: countOf(locale, aloud.minutes, "minute"),
+                  })}
+              </p>
+            )}
+            {lengths.length > 0 && (
+              <p data-spoken-length>
+                {t("Words per spoken answer in conversations:")}{" "}
+                {lengths.map((month, at) => (
+                  <span key={month.month}>
+                    {at > 0 && ", "}
+                    <span className="whitespace-nowrap">
+                      {/* Mid-month at noon, so no zone on earth reads it as the month either side. */}
+                      <DateText iso={`${month.month}-15T12:00:00.000Z`} zone={clock.zone} options={{ month: "short" }} />{" "}
+                      <span className="tnum">{month.median}</span>
+                    </span>
+                  </span>
+                ))}
+              </p>
+            )}
+          </div>
         )}
 
         {/*

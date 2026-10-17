@@ -33,7 +33,9 @@ describe("A1 lessons", () => {
       }
     }
     expect(unknown).toEqual([]);
-  });
+    // It reads a forms-list shard per word off disk, which under the whole suite's load
+    // runs past the default twenty seconds; jokes.test.ts gives the same read a minute.
+  }, 60_000);
 
   it("keep Estonian out of the English, except in braces", () => {
     const leaks: string[] = [];

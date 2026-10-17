@@ -8320,7 +8320,8 @@ between them they answer the honest version. `lib/readiness/` reads each claim o
 recognition for the first, production more than once and the last time for the second, and for the
 third production with variety and at pace, plus the cases the encounter turns on, the machinery it
 runs on (numbers, question words, the clock) and, for a live exchange, some evidence the learner can
-follow *speech*, which only the level check and a sat paper supply. **Recognition alone never clears
+follow *speech*, which the level check, a sat paper or ten conversation turns answered out loud to a
+line only heard, at that band, supply (VB-14). **Recognition alone never clears
 the second rung**, driven in the invariant suite with two hundred perfect flips of every card. The
 bars are shares of words rather than averages of scores, because the one word you are missing is the
 one the other person says. Thin evidence caps the rung itself rather than a confidence, since there
