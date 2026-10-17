@@ -417,7 +417,7 @@ function ThingRow({ row, onToggle, onChoose }: {
       style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth-sm)" }}
     >
       {entry ? (
-        <label className="flex min-h-11 cursor-pointer items-center gap-3" style={{ opacity: row.keep ? 1 : 0.5 }}>
+        <label className="flex min-h-11 cursor-pointer items-center gap-3">
           <input
             type="checkbox"
             checked={row.keep}
@@ -427,7 +427,7 @@ function ThingRow({ row, onToggle, onChoose }: {
           />
           <span aria-hidden className="w-8 shrink-0 text-center text-2xl leading-none">{picture ?? ""}</span>
           <span className="min-w-0 flex-1">
-            <span lang="et" className="block text-base font-semibold" style={{ color: "var(--ink)" }}>{entry.lemma}</span>
+            <span lang="et" className="block text-base font-semibold" style={{ color: row.keep ? "var(--ink)" : "var(--ink-3)" }}>{entry.lemma}</span>
             <span className="block text-sm" style={{ color: "var(--ink-3)" }}>{entry.translation}</span>
           </span>
         </label>
@@ -442,14 +442,14 @@ function ThingRow({ row, onToggle, onChoose }: {
         </div>
       )}
       {row.thing.entries.length > 1 && (
-        <div className="flex flex-wrap items-center gap-2 pb-2 pl-[5.75rem]" role="group" aria-label={fill(t("Other words for {thing}"), { thing: row.thing.english })}>
+        <div className="flex flex-wrap items-center gap-2 pb-2 sm:pl-20" role="group" aria-label={fill(t("Other words for {thing}"), { thing: row.thing.english })}>
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>{fill(t("{thing} can also be:"), { thing: row.thing.english })}</span>
           {row.thing.entries.map((other, i) => i === row.chosen ? null : (
             <button
               key={other.lexemeId}
               type="button"
               onClick={() => onChoose(i)}
-              className="choice-btn rounded-full border px-3 py-1 text-sm"
+              className="choice-btn rounded-[var(--r)] border px-3 py-1 text-left text-sm"
               aria-label={fill(t("Use {word}, {meaning}"), { word: other.lemma, meaning: other.translation })}
             >
               <span lang="et" className="font-semibold">{other.lemma}</span>

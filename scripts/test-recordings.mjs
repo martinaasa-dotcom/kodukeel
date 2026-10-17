@@ -29,6 +29,7 @@
  * before the build); without it every check here is waived by name.
  */
 import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
+import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { launchChromium, eventually } from "./lib/browser.mjs";
@@ -38,7 +39,7 @@ import { requireLocalDatabase } from "./lib/local-db.mjs";
 
 const B = baseUrl();
 const OWNER = "local-single-user";
-const { check, absent, done } = suite("Recordings, things and the café out loud", { floor: 40 });
+const { check, absent, done } = suite("Recordings, things and the café out loud", { floor: 45 });
 
 const FIXTURE = "scripts/fixtures/speech/voice-message.ogg";
 const SAID = "Ta on klassis rõõmus ja õpib hästi. Vead on väikesed. Palun lugege temaga kodus iga päev.";
@@ -88,6 +89,30 @@ function longWav(seconds) {
   return path;
 }
 
+const AXE = readFileSync(createRequire(import.meta.url).resolve("axe-core/axe.min.js"), "utf8");
+
+/**
+ * axe over the screen as it stands, in the light theme and then the dark one:
+ * the transcript and the things list are states no route arrives in, so the
+ * sweep in `a11y-check.mjs` never sees them.
+ */
+async function axeBothThemes(page) {
+  await page.addScriptTag({ content: AXE });
+  const found = [];
+  for (const theme of ["light", "dark"]) {
+    const lines = await page.evaluate(async (dark) => {
+      if (dark) document.documentElement.dataset.theme = "dark";
+      else delete document.documentElement.dataset.theme;
+      await new Promise((r) => setTimeout(r, 300));
+      const run = await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"] } });
+      return run.violations.map((v) => `${v.id} (${v.nodes.length}): ${v.nodes[0]?.target.join(" ")}`);
+    }, theme === "dark");
+    found.push(...lines.map((l) => `${theme}: ${l}`));
+  }
+  await page.evaluate(() => { delete document.documentElement.dataset.theme; });
+  return found;
+}
+
 /** One pixel of PNG, which the scanner's shrink can decode like any photo. */
 const PIXEL = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
 
@@ -107,13 +132,18 @@ try {
   const panel = page.locator("section[data-recording]");
   const offered = await panel.first().waitFor({ timeout: 20_000 }).then(() => true).catch(() => false);
   if (!offered) {
-    absent(40, "no speech model this server can serve: run npm run asr:fetch before the build");
+    absent(45, "no speech model this server can serve: run npm run asr:fetch before the build");
     done();
   }
   const intro = await panel.first().innerText();
   check("the three-minute cap is said before a file is chosen", /up to 3 minutes/.test(intro), intro.slice(0, 160));
   check("and that the sound never leaves the device", /never leaves it/.test(intro));
 
+  // The one request a page makes of its own on a fresh account is telling the
+  // server the browser's zone (`TimeZoneSync`), which carries no sound and no
+  // transcript; it is set aside by its exact body rather than by its timing.
+  const zone = await page.evaluate(() => Intl.DateTimeFormat().resolvedOptions().timeZone);
+  const zoneSync = JSON.stringify([zone]);
   const sent = [];
   page.on("request", (r) => {
     if (r.method() === "GET") {
@@ -140,10 +170,13 @@ try {
   const linked = heardIt ? await page.locator(".recording-line p[lang=et] button").count() : 0;
   check("the dictionary is under the words", linked > 0, `${linked} words open an entry`);
   check("no speaker of the app's own voice is offered for a stranger's words", (await page.locator(".recording-line").getByRole("button", { name: "Hear the sentence" }).count()) === 0);
+  const transcriptAxe = heardIt ? await axeBothThemes(page) : ["no transcript"];
+  check("axe finds nothing on the transcript, light or dark", transcriptAxe.length === 0, transcriptAxe.join(" | "));
 
   const audio = sent.filter((r) => r.tts || /^(RIFF|OggS|ID3)/.test(r.body.subarray(0, 4).toString("latin1")) || r.body.length > 60_000);
   check("no request carrying audio leaves the page, and none goes to the speech service", audio.length === 0, audio.map((r) => r.url).join(", "));
-  const posts = sent.filter((r) => !r.tts);
+  const ownPosts = () => sent.filter((r) => !r.tts && r.body.toString("utf8") !== zoneSync);
+  const posts = ownPosts();
   check("the one request is the glossing call, with the transcript's text in it",
     posts.length === 1 && posts[0].action && /klassis/.test(posts[0].body.toString("utf8")),
     posts.map((r) => `${r.url} ${r.body.length}B`).join(", "));
@@ -151,12 +184,12 @@ try {
   // A line played back from the recording, at the learner's pace.
   if (heardIt) {
     const first = page.locator(".recording-line").first();
-    await first.getByRole("button", { name: /^Play from 0:00, at your pace/ }).click();
+    await first.getByRole("button", { name: /^Play from \d+:\d\d, at your pace/ }).click();
     const playing = await eventually(async () => (await first.getAttribute("data-playing")) === "true", { timeoutMs: 8_000 });
     check("a line plays from the recording itself", playing);
     const ended = await eventually(async () => (await first.getAttribute("data-playing")) === "false", { timeoutMs: 30_000 });
     check("and stops when it has been said", ended);
-    check("playing it sent nothing anywhere", sent.filter((r) => !r.tts).length === 1 && !sent.some((r) => r.tts));
+    check("playing it sent nothing anywhere", ownPosts().length === 1 && !sent.some((r) => r.tts));
   } else {
     absent(3, "a transcript to play a line of");
   }
@@ -232,7 +265,7 @@ try {
   const pick = async (lemma) => prisma.lexeme.findFirst({ where: { lemma, provenance: "SEED" }, select: { id: true, lemma: true, translation: true, pos: true, cefr: true } });
   const [aken, tool, esimees] = [await pick("aken"), await pick("tool"), await prisma.lexeme.findFirst({ where: { lemma: "esimees" }, select: { id: true, lemma: true, translation: true, pos: true, cefr: true } })];
   if (!aken || !tool || !esimees) {
-    absent(9, "the seeded words aken, tool and esimees: npm run db:seed");
+    absent(11, "the seeded words aken, tool and esimees: npm run db:seed");
   } else {
     const entry = (l) => ({ lexemeId: l.id, lemma: l.lemma, translation: l.translation, pos: l.pos, cefr: l.cefr });
     let asked = null;
@@ -253,7 +286,7 @@ try {
     await page.goto(`${B}/scan`, { waitUntil: "domcontentloaded" });
     const things = page.getByRole("radio", { name: "Things around me" });
     if (!(await things.count())) {
-      absent(9, "a provider key on the server, so the scanner offers a camera (any string: the route is stubbed)");
+      absent(11, "a provider key on the server, so the scanner offers a camera (any string: the route is stubbed)");
     } else {
       await things.click();
       await page.getByRole("button", { name: "Use the webcam" }).click();
@@ -266,6 +299,8 @@ try {
       const list = await page.locator("[data-things]").innerText();
       check("the dictionary's own Estonian is offered for each thing it vouches for", /aken/.test(list) && /tool/.test(list));
       check("a thing the dictionary has no entry for is shown in English, with nothing to tick", /kodukeeltestgadget/.test(list) && /Not in the dictionary/.test(list) && (await page.locator('[data-things] input[type="checkbox"]').count()) === 2);
+      const thingsAxe = await axeBothThemes(page);
+      check("axe finds nothing on the things list, light or dark", thingsAxe.length === 0, thingsAxe.join(" | "));
       const other = page.getByRole("button", { name: /^Use esimees/ });
       check("where a name could be two words, the other is on the screen to choose", (await other.count()) === 1);
       await other.click();
@@ -285,6 +320,12 @@ try {
       check("Say them reads the ticked words along, once", lineShown && heard, (await say.innerText()).slice(0, 120));
       const graded = await prisma.review.count({ where: { ownerId: OWNER, lexemeId: { in: [aken.id, esimees.id] }, reviewedAt: { gte: startedAt } } });
       check("and grades nothing", graded === 0, `${graded} reviews`);
+      // A picture chosen from a file goes the same way as the webcam's.
+      await page.getByRole("button", { name: "Another photo" }).click();
+      asked = null;
+      await page.locator('input[type="file"][accept="image/*"]').last().setInputFiles({ name: "kitchen.png", mimeType: "image/png", buffer: PIXEL });
+      const fromFile = await page.locator("[data-things]").waitFor({ timeout: 20_000 }).then(() => true).catch(() => false);
+      check("a picture chosen from a file is shrunk on the device and read the same way", fromFile && /^data:image\/jpeg/.test(asked?.image ?? ""));
       if (scan) await prisma.scan.delete({ where: { id: scan.id } });
       await prisma.card.deleteMany({ where: { ownerId: OWNER, lexemeId: { in: [aken.id, esimees.id] }, source: "SCAN", createdAt: { gte: startedAt } } });
     }
@@ -306,6 +347,9 @@ try {
   await page.getByRole("button", { name: "Say it instead" }).click();
   const voiceLoaded = await eventually(async () => (await page.locator("[data-cafe-voice]").count()) > 0, { timeoutMs: 20_000 });
   check("the voice loads on the press, as a script the page did not arrive with", voiceLoaded && scripts.length > before, `${scripts.length - before} scripts after the press`);
+  const lit = await page.locator("[data-lit]").waitFor({ timeout: 120_000 }).then(() => true).catch(() => false);
+  const status = lit ? await page.locator("[data-cafe-voice]").innerText().catch(() => "") : "";
+  check("while the heard line is lit, the café says what it heard and that the line is lit", /Heard .*Tere.*that line is lit/.test(status), status);
   const said = await eventually(async () => (await page.locator('.cafe-line[data-who="you"]').count()) > 0, { timeoutMs: 120_000 });
   const youSaid = said ? await page.locator('.cafe-line[data-who="you"]').first().innerText() : "";
   check("the fixture clip is heard, matched to its line, lit and said", said && /Tere!/.test(youSaid), youSaid);
@@ -338,10 +382,16 @@ try {
   await prisma?.$disconnect();
 }
 
-// With the microphone refused: a browser that does not answer the prompt for us.
+// With the microphone refused. A headless browser left to its own prompt
+// leaves the request pending for ever rather than refusing it, which is not
+// what a person who presses "Block" does. So the browser answers the way that
+// press makes it answer: `getUserMedia` rejects with NotAllowedError.
 const refusing = await launchChromium({ args: ["--use-fake-device-for-media-stream"] });
 try {
   const context = await refusing.newContext({ viewport: { width: 1280, height: 900 } });
+  await context.addInitScript(() => {
+    navigator.mediaDevices.getUserMedia = () => Promise.reject(new DOMException("Permission denied", "NotAllowedError"));
+  });
   const page = await context.newPage();
   await page.goto(`${B}/welcome`, { waitUntil: "domcontentloaded" });
   await page.locator("#talk").scrollIntoViewIfNeeded();

@@ -25,7 +25,7 @@ export function ScanModes() {
         value={mode}
         onSelect={setMode}
         options={[
-          { id: "page", title: t("A page"), icon: <FileText size={15} aria-hidden /> },
+          { id: "page", title: t("A page of words"), icon: <FileText size={15} aria-hidden /> },
           { id: "things", title: t("Things around me"), icon: <Sofa size={15} aria-hidden /> },
         ]}
       />

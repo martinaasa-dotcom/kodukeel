@@ -71,7 +71,7 @@ export const RECORDINGS: Area = {
 
     // The scanner: things around me.
     "What to photograph": "Что сфотографировать",
-    "A page": "Страницу",
+    "A page of words": "Страницу со словами",
     "Things around me": "Вещи вокруг меня",
     "Photograph your kitchen, your desk or the street outside, and get the Estonian for what's in it. The things are named in English, and every Estonian word comes from the dictionary.":
       "Сфотографируйте свою кухню, стол или улицу за окном и узнайте, как всё это называется по-эстонски. Вещи называются по-английски, а каждое эстонское слово берётся из словаря.",
@@ -167,7 +167,7 @@ export const RECORDINGS: Area = {
     "Open another recording": "Відкрити інший запис",
 
     "What to photograph": "Що сфотографувати",
-    "A page": "Сторінку",
+    "A page of words": "Сторінку зі словами",
     "Things around me": "Речі навколо мене",
     "Photograph your kitchen, your desk or the street outside, and get the Estonian for what's in it. The things are named in English, and every Estonian word comes from the dictionary.":
       "Сфотографуйте свою кухню, стіл чи вулицю за вікном і дізнайтеся, як усе це називається естонською. Речі називаються англійською, а кожне естонське слово береться зі словника.",

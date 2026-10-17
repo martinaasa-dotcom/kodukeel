@@ -4093,6 +4093,26 @@
     }
   }
   .cafe-pick:focus-visible { outline: 3px solid var(--cta); outline-offset: 2px; }
+  /*
+    A line heard out loud (VB-15): lit the way a hovered pick is, and held there,
+    with a bar along its foot that fills while it waits to be said. The bar is
+    information, so under reduced motion it is drawn full rather than removed.
+  */
+  .cafe-pick[data-lit] {
+    border-color: var(--cta);
+    background: color-mix(in srgb, var(--cta) 18%, transparent);
+    box-shadow: 0 0 0 1px var(--cta);
+  }
+  .cafe-send {
+    position: absolute; left: 0; bottom: 0; height: 3px; width: 100%;
+    background: var(--cta);
+    transform-origin: left center;
+    animation: cafe-send var(--send-ms, 2500ms) linear both;
+  }
+  @keyframes cafe-send { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @media (prefers-reduced-motion: reduce) {
+    .cafe-send { animation: none; }
+  }
   .cafe-done {
     position: relative; overflow: hidden;
     background: rgb(255 255 255 / 0.07);

@@ -295,7 +295,7 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
           <div className="flex flex-wrap items-center justify-between gap-3 px-2 pb-3">
             <span className="flex min-w-0 items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
               <FileAudio size={16} aria-hidden className="shrink-0" />
-              <span className="min-w-0 truncate">{opened.name}</span>
+              <span className="min-w-0">{opened.name}</span>
               <span className="tnum shrink-0" style={{ color: "var(--ink-3)" }}>{clock(opened.seconds)}</span>
             </span>
             <button
@@ -380,7 +380,7 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
       <Panel>
         <p className="flex min-w-0 items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
           <FileAudio size={16} aria-hidden className="shrink-0" />
-          <span className="min-w-0 truncate">{stage.name}</span>
+          <span className="min-w-0">{stage.name}</span>
         </p>
         <p className="mt-3 flex items-center gap-2 font-semibold" role="status" style={{ color: "var(--ink)" }}>
           <Loader2 size={16} className="animate-spin" aria-hidden /> {line}
@@ -407,7 +407,7 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
       <Panel>
         <p className="flex min-w-0 items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
           <FileAudio size={16} aria-hidden className="shrink-0" />
-          <span className="min-w-0 truncate">{stage.file.name}</span>
+          <span className="min-w-0">{stage.file.name}</span>
         </p>
         {stage.kind === "asking" ? (
           <div className="mt-3 flex flex-col gap-3" role="group" aria-label={t("Download for speaking")}>

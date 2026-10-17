@@ -51,6 +51,17 @@ describe("the things in a photo, looked up on the English side", () => {
     expect(thing!.entries.map((e) => e.lemma)).toEqual([`${PREFIX}vidin`, `${PREFIX}seade`]);
   });
 
+  it("offers no entry spelled like another, since the page is saved by its spelling", async () => {
+    await prisma.lexeme.createMany({
+      data: [
+        { lemma: `${PREFIX}hall`, pos: "NOUN", translation: "kodukeeltestfrost", provenance: "SEED" },
+        { lemma: `${PREFIX}hall`, pos: "ADJECTIVE", translation: "kodukeeltestgrey", provenance: "SEED" },
+      ],
+    });
+    const [thing] = await resolveThings(["kodukeeltestfrost"]);
+    expect(thing!.entries).toEqual([]);
+  });
+
   it("offers nothing for a name no vouched entry carries", async () => {
     const [thing] = await resolveThings(["kodukeeltestnothingatall"]);
     expect(thing!.entries).toEqual([]);

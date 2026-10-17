@@ -45,9 +45,12 @@ export interface CafeVoiceProps {
 
 function Listening({ picks, onMatch, onListen }: CafeVoiceProps) {
   const t = useT();
+  // The step's lines as one value: the café hands a fresh array on every
+  // render, and a new array is not a new step (lighting a line re-renders it).
+  const step = picks.join("\n");
   const expect = useMemo(
-    () => new Set(picks.flatMap((pick) => lineWords(pick).map((w) => core(w.text))).filter(Boolean)),
-    [picks],
+    () => new Set(step.split("\n").flatMap((pick) => lineWords(pick).map((w) => core(w.text))).filter(Boolean)),
+    [step],
   );
   const [said, setSaid] = useState<{ readonly text: string; readonly matched: boolean } | null>(null);
   const [nothing, setNothing] = useState(false);
@@ -79,7 +82,7 @@ function Listening({ picks, onMatch, onListen }: CafeVoiceProps) {
   useEffect(() => {
     setSaid(null);
     setNothing(false);
-  }, [picks]);
+  }, [step]);
 
   useEffect(() => {
     if (speech.listening) {
@@ -116,14 +119,16 @@ function Listening({ picks, onMatch, onListen }: CafeVoiceProps) {
       <div className="flex flex-wrap items-center gap-3">
         <MicButton speech={speech} label={t("Say one of the lines")} shortcut quietErrors />
         {!speech.listening && !speech.thinking && speech.phase !== "downloading" && speech.phase !== "loading" && (
-          <p className="min-w-0 flex-1 text-sm" style={{ color: "var(--ink-2)" }} role="status">
+          // A lit line is announced by the café itself, with what happens next
+          // (CafeScene's own status), so this line is not a second voice saying it.
+          <p className="min-w-0 flex-1 text-sm" style={{ color: "var(--ink-2)" }} role={said?.matched ? undefined : "status"}>
             {refused
               ? t("The microphone is blocked for this site, so picking a line is the way on.")
               : speech.error
                 ? t("Hearing didn't work just now. Picking a line works the same.")
                 : said
                   ? said.matched
-                    ? fill(t("Heard “{text}”. Press the lit line to say it, or wait a moment."), { text: said.text })
+                    ? fill(t("Heard “{text}”, and that line is lit."), { text: said.text })
                     : fill(t("Heard “{text}”, which isn't close enough to one of these lines. Try again, or pick one."), { text: said.text })
                   : nothing
                     ? t("Nothing was heard. Press the microphone and say one of the lines.")
