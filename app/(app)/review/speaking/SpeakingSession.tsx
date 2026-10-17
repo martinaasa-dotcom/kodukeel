@@ -403,7 +403,9 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
               <MicButton speech={shadow} label={step === "along" ? t("Say it along") : t("Say it back")} shortcut showPartial={false} size="lg" />
               <p className="text-sm" style={{ color: "var(--ink-2)" }} role="status">
                 {lit
-                  ? share === 1 ? t("Every word was heard.") : fill(t("{n} of {total} words were heard."), { n: litFlags.filter(Boolean).length, total: words.length })
+                  ? words.length === 1
+                    ? share === 1 ? t("Heard. That's the word.") : t("That wasn't heard as the word this time. Say it again whenever you like.")
+                    : share === 1 ? t("Every word was heard.") : fill(t("{n} of {total} words were heard."), { n: litFlags.filter(Boolean).length, total: words.length })
                   : ""}
               </p>
             </div>
@@ -411,7 +413,7 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
 
           {step === "meaning" && (
             <div className="flex w-full max-w-sm flex-col items-center gap-3">
-              <MicButton speech={box.speech} label={t("Answer out loud")} shortcut showPartial size="lg" />
+              {!check && <MicButton speech={box.speech} label={t("Answer out loud")} shortcut showPartial size="lg" />}
               <div className="w-full text-left">
                 <label htmlFor="speaking-answer" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
                   {t("Or type it")}

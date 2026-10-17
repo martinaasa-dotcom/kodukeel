@@ -128,6 +128,11 @@ export class WebSpeechEngine implements SpeechEngine {
   async isDownloaded(): Promise<boolean> {
     if (typeof caches === "undefined") return false;
     try {
+      /* Asked before it is opened, because `caches.open` creates what it
+         cannot find: every screen with an answer box asks this on mount
+         (VB-6), and an empty speech cache appearing on a device that never
+         said yes to speech is a cache nothing will ever clear. */
+      if (!(await caches.has(ASR_CACHE))) return false;
       const cache = await caches.open(ASR_CACHE);
       for (const file of ASR_MODEL.files) if (!(await cache.match(CACHE_KEY(file.name)))) return false;
       return true;

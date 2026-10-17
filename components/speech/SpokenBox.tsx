@@ -96,5 +96,17 @@ export function useSpokenBox({ accepted, always = false, judge, onGood, onFill, 
 export function AnswerMic({ box, label, shortcut = true }: { box: SpokenBox; label?: string; shortcut?: boolean }) {
   const t = useT();
   if (!box.shown) return null;
-  return <MicButton speech={box.speech} label={label ?? t("Answer out loud")} shortcut={shortcut} />;
+  return (
+    <>
+      <MicButton speech={box.speech} label={label ?? t("Answer out loud")} shortcut={shortcut} />
+      {/* What was heard went into the box and is not marked until Check: said
+          once, where the screen is still asking, so nobody reads a filled box
+          as an answer the app has already taken. */}
+      {box.spoken && (
+        <p className="max-w-sm text-sm" style={{ color: "var(--ink-2)" }}>
+          {t("This is what was heard. Change anything that is not what you said, then check it.")}
+        </p>
+      )}
+    </>
+  );
 }

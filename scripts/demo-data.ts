@@ -328,7 +328,7 @@ async function main() {
           lastReview: s.lastReview, elapsedDays: s.elapsedDays, scheduledDays: s.scheduledDays,
         },
       });
-      for (const r of reviews) {
+      for (const [i, r] of reviews.entries()) {
         /*
           Written the way `writeGrade` writes them, because a fixture that
           fills a column differently from the app is a fixture that tests a
@@ -349,8 +349,10 @@ async function main() {
             reachedSlot: swapped && swapped !== slot ? swapped : null,
             /* Some production answers in the last fortnight said aloud, so the
                "Said aloud this week" reading and `npm run report:speech` have a
-               real shape to read in a fixture rather than nothing (VB-14). */
-            spoken: c.cardType === "PRODUCTION" && Date.now() - r.at.getTime() < 14 * 86_400_000 && r.at.getMinutes() % 3 === 0,
+               real shape to read in a fixture rather than nothing (VB-14). Every
+               other one, by its place in the card's history, so the fixture
+               is the same whatever the hour it is run. */
+            spoken: c.cardType === "PRODUCTION" && Date.now() - r.at.getTime() < 14 * 86_400_000 && i % 2 === 0,
           },
         });
       }

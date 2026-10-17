@@ -406,8 +406,9 @@ await page.getByRole("button", { name: /^Hand in$/ }).click();
 await page.waitForTimeout(500);
 
 /*
-  The spoken part cannot be answered by a browser with no microphone, so the
-  paper always reaches this point with blanks on it, which is the state the
+  This suite never speaks into the spoken part (it is the one microphone every
+  round uses, driven in `test-speaking.mjs`), so the paper always reaches this point with
+  blanks on it, which is the state the
   query exists for: on the real paper you cannot come back, and a blank left by
   accident is the one thing a mock can still save somebody from.
 */

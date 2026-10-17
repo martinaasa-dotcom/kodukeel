@@ -33,6 +33,8 @@ export const SPEAKING_ROUND: Area = {
     "Hear what was heard": "Послушать, что было услышано",
     "Said aloud": "Вслух",
     "From memory": "По памяти",
+    "That wasn't heard as the word this time. Say it again whenever you like.":
+      "На этот раз это не было услышано как это слово. Скажите ещё раз, когда захотите.",
 
     // Hands-free.
     "Hands-free": "Без рук",
@@ -90,6 +92,8 @@ export const SPEAKING_ROUND: Area = {
     "Hear what was heard": "Послухати, що почуто",
     "Said aloud": "Уголос",
     "From memory": "З пам'яті",
+    "That wasn't heard as the word this time. Say it again whenever you like.":
+      "Цього разу це не почуто як те слово. Скажіть ще раз, коли захочете.",
 
     // Hands-free.
     "Hands-free": "Без рук",
