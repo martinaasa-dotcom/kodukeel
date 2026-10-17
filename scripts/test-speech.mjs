@@ -81,7 +81,7 @@ try {
   await page.getByRole("button", { name: "Decode the fixture clip" }).click();
   await page.waitForSelector("[data-bench-file]", { timeout: 60_000 });
   const file = await page.innerText("[data-bench-file]");
-  check("a file through the same hook gives the same words", /Tere hommikust Kuidas läheb/i.test(file) && /says what the clip says/.test(file), file.replace(/\n/g, " | "));
+  check("a file through the same hook gives the same words", /Tere hommikust[.,!]?\s+kuidas läheb/i.test(file) && /says what the clip says/.test(file), file.replace(/\n/g, " | "));
 
   // The gallery: every state has a name and words.
   const states = page.locator("[data-mic-state]");

@@ -5537,10 +5537,12 @@ a:focus-visible .wave-word::after {
 .speech-mic[data-state="listening"]:not(:disabled) {
   /* The level ring is the button's own shadow rather than a box behind it: a
      box at a negative z-index paints under the card the button sits on and is
-     never seen. It grows with the level coming in, nought to one. */
+     never seen. It grows with the level coming in, nought to one, and at its
+     widest (12px) stays inside the gaps MicButton leaves around the button,
+     so it never draws over the words beside or under it. */
   box-shadow:
-    0 0 0 calc(3px + var(--mic-level, 0) * 9px) color-mix(in srgb, var(--accent) 22%, transparent),
-    0 0 0 calc(4px + var(--mic-level, 0) * 14px) color-mix(in srgb, var(--accent) 10%, transparent);
+    0 0 0 calc(3px + var(--mic-level, 0) * 6px) color-mix(in srgb, var(--accent) 24%, transparent),
+    0 0 0 calc(4px + var(--mic-level, 0) * 8px) color-mix(in srgb, var(--accent) 12%, transparent);
   transition: box-shadow 90ms linear, background-color 160ms;
 }
 .speech-partial {

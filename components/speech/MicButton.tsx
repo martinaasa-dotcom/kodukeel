@@ -136,9 +136,12 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
     : null;
 
   return (
-    <div className="flex flex-col items-start gap-2">
-      {/* Wraps rather than squeezing: beside a 44px button in a narrow column the status line would otherwise break inside a word. */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+    <div className="flex flex-col items-start gap-3">
+      {/* The status line stays beside the button and wraps inside its own
+          column, by words: wrapped under the button, it sat inside the level
+          ring and the ring drew over its first words. The gap clears the ring
+          at its widest (`.speech-mic` in globals.css). */}
+      <div className="flex max-w-full items-center gap-4">
         <button
           type="button"
           className={`speech-mic press relative inline-flex shrink-0 items-center justify-center rounded-full ${dim}`}
@@ -197,7 +200,7 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
             <Mic size={big ? 24 : 20} aria-hidden />
           )}
         </button>
-        {status && <p className="text-sm" style={{ color: "var(--ink-2)" }}>{status}</p>}
+        {status && <p className="min-w-0 flex-1 text-sm" style={{ color: "var(--ink-2)" }}>{status}</p>}
       </div>
 
       {listening && showPartial && partial && (
