@@ -347,7 +347,7 @@ stops. Size is the work in one pull request: S is a day, M a few days, L a week 
 | VB-4 Conversations, spoken | 1 | L | Not started |
 | VB-5 The Speaking round, rebuilt, and hands-free | 1 | M | Not started |
 | VB-6 Saying it on the daily path | 2: speaking everywhere it teaches | M | Not started |
-| VB-7 Numbers out loud | 2 | M | Done: `lib/games/numbers.ts`, `ClockFace`, `/review/numbers` on Practice and on A2's rotation in writing's place, three accept-only readings in `props.ts` with the one-answer assertion, every shape TartuNLP plays checked first (section 0) |
+| VB-7 Numbers out loud | 2 | M | Done: `lib/games/numbers.ts`, `ClockFace`, `/review/numbers` on Practice and on A2's rotation in writing's place, three accept-only readings in `props.ts` with the one-answer assertion, every shape TartuNLP plays checked first (section 0), `scripts/test-voice-rounds.mjs` 23 of 23 with the fake microphone and with it refused |
 | VB-8 The rounds that already ask you to speak | 2 | M | Done: the chant (`lib/speech/chant.ts`), Say what you see said into its boxes, 20 küsimust asked aloud and answered aloud hands-free behind the D20 countdown, Töövihik read aloud through `wordInGap` and `whichGap` |
 | VB-9 A word you heard and cannot spell | 2 | S | Done: the dictionary searched by voice as typed, Anu's box on the panel and the page, and the reading page read aloud a paragraph at a time |
 | VB-10 Reminders on the desktop, through Web Push | 2 | M | Done |
