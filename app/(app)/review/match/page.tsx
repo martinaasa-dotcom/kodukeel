@@ -112,6 +112,11 @@ export default async function MatchPage({
     // Two tiles that mean the same cannot both be on the board, whatever the
     // inflection: "carrying out" and "to carry out" would each be right.
     if (chosen.some((c) => sameMeaning(c.pair.english, english))) continue;
+    /* Two tiles reading the same word are one tile twice: `hall` the frost and
+       `hall` the colour, side by side, and the right meaning tapped against
+       the wrong one of them is marked a miss for knowing the word. */
+    const spelled = estonian.toLocaleLowerCase("et");
+    if (chosen.some((c) => c.pair.estonian.toLocaleLowerCase("et") === spelled)) continue;
     chosen.push({ pair: { cardId: card.id, estonian, english }, entry: card.lexeme });
     if (chosen.length === PAIRS) break;
   }
