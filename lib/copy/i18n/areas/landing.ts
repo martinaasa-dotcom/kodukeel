@@ -270,9 +270,9 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
 
   // YOUR PLAN.
   ["When could you get there?", "Когда вы этого достигнете?", "Коли ви цього досягнете?"],
-  ["Answer four questions and we’ll do the same math the app does inside. You get a range, because anyone who gives you one exact number is guessing.",
-    "Ответьте на четыре вопроса, и мы сделаем тот же расчёт, что и приложение внутри. Вы получите приблизительную оценку, ведь тот, кто называет одно точное число, просто гадает.",
-    "Дайте відповідь на чотири запитання, і ми зробимо той самий розрахунок, що й застосунок усередині. Ви отримаєте приблизну оцінку, адже той, хто називає одне точне число, просто вгадує."],
+  ["Answer four questions and we’ll do the same math the app does inside. It’s an estimate, because anyone who promises you an exact date is guessing.",
+    "Ответьте на четыре вопроса, и мы сделаем тот же расчёт, что и приложение внутри. Это оценка, ведь тот, кто обещает точную дату, просто гадает.",
+    "Дайте відповідь на чотири запитання, і ми зробимо той самий розрахунок, що й застосунок усередині. Це оцінка, адже той, хто обіцяє точну дату, просто вгадує."],
   ["Where the hours come from", "Откуда берутся часы", "Звідки беруться години"],
   ["We start from the study hours usually published for each level, add extra where Estonian’s cases start to bite, and keep the total inside what the US Foreign Service Institute estimates for the language. It isn’t measured on people using this app. Once you’re inside, the same math runs on your own pace instead.",
     "Мы берём часы учёбы, которые обычно публикуют для каждого уровня, добавляем там, где эстонские падежи начинают давать о себе знать, и держим итог в пределах оценки Института дипломатической службы США для этого языка. Это не измерено на людях, которые пользуются приложением. Когда вы внутри, тот же расчёт идёт уже по вашему собственному темпу.",

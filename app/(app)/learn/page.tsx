@@ -136,7 +136,7 @@ export default async function LearnPage() {
         the explanation are at the foot of the page, where somebody who wants
         them goes looking.
       */}
-      <SectionTitle hint={fill(t("{level}, {known} of {total} words known"), { level: placement, known: grouped(locale, knownWords), total: grouped(locale, totalWords) })}>{t("The course")}</SectionTitle>
+      <SectionTitle hint={fill(t("{known} of {total} course words known"), { known: grouped(locale, knownWords), total: grouped(locale, totalWords) })}>{t("The course")}</SectionTitle>
 
       <div className="flex flex-col gap-3">
         {byLevel.map(({ level, rows, words, known, pct, finished }) => {

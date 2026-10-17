@@ -1982,7 +1982,18 @@ export function ReviewSession({
                     word: <span lang="et" className="font-semibold">{verdict.twin.own.lemma}</span>,
                     wanted: t(verdict.twin.own.means),
                   }} />
-                ) : verdictNote}
+                ) : verdictNote.includes(shownAnswer) || countsAsRecalled(verdict.verdict) ? verdictNote : (
+                  /* WHAT THE SCREEN READER WAS ALREADY TOLD. "Nothing typed."
+                     named no answer, so the box under it asked somebody to
+                     "copy the answer above" with nothing above to copy: the
+                     form was drawn below the box instead. */
+                  <>
+                    {verdictNote}{" "}
+                    <TrParts template="The answer is {answer}." parts={{
+                      answer: <span lang={backLang} className="font-semibold">{shownAnswer}</span>,
+                    }} />
+                  </>
+                )}
               </p>
               {verdict.twin && !inModule && (
                 <p className="mt-2 text-sm">
@@ -2012,7 +2023,10 @@ export function ReviewSession({
                 the screen at exactly this moment. Sending it does not change
                 the grade they are about to give, which stays theirs.
               */}
-              {verdict.verdict !== "correct" && (
+              {/* Not where nothing was typed: there is no answer of theirs to
+                  defend, and "I think that was right" under "Nothing typed"
+                  says the opposite of what happened. */}
+              {verdict.verdict !== "correct" && typed.trim() !== "" && (
                 <div className="mt-3">
                   <SuggestFix
                     category="MARKED_WRONG"

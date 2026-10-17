@@ -9,7 +9,7 @@ import {
 import { courseLevelFor } from "@/lib/progress/level";
 import type { Level } from "@/lib/collections/syllabus";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
-import { PROGRAMMES, dayById, holdAdvice, holdReason, newWordsIn, programmeAfter, unitOf } from "@/lib/course";
+import { MEET_STEP, PROGRAMMES, dayById, holdAdvice, holdReason, newWordsIn, programmeAfter, unitOf } from "@/lib/course";
 import { ButtonLink } from "@/components/Button";
 import { Card, Chip, Meter, Page, SectionTitle, Stack } from "@/components/ui";
 import { Explain } from "@/components/Explain";
@@ -27,6 +27,7 @@ import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 import { stepCard, stepsIn } from "@/lib/course";
 import { HeroFan } from "@/components/HeroFan";
+import { fillNodes } from "@/components/TemplateNodes";
 import { TalkItOver } from "@/components/course/TalkItOver";
 import { chatAffordable, chatFits, chattedAbout, planChat } from "@/lib/progress/chat";
 import { finishedEvening } from "@/lib/progress/chatDay";
@@ -304,11 +305,15 @@ export default async function CoursePage({
                     changes it names the new one.
                   */}
                   <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                    {/* The unit's name in bold, because at A1 it is a phrase of
+                        its own ("I, you, he or she, we, you, they") and read
+                        flat into the sentence it read as the sentence going
+                        wrong. */}
                     {justDone && justDone.unitId === day.unitId
-                      ? fill(t("Tomorrow you'll continue with {unit}, part {n} of {of}."), { unit: ui(day.title, day.subtitle), n: day.part.n, of: day.part.of })
+                      ? fillNodes(t("Tomorrow you'll continue with {unit}, part {n} of {of}."), { unit: <b lang={uiWantsEnglish(level) ? undefined : "et"}>{ui(day.title, day.subtitle)}</b>, n: day.part.n, of: day.part.of })
                       : uiWantsEnglish(level)
-                        ? fill(t("Come back tomorrow for {unit}."), { unit: t(day.subtitle) })
-                        : fill(t("Come back tomorrow for {unit} ({english})."), { unit: day.title, english: t(day.subtitle) })}
+                        ? fillNodes(t("Come back tomorrow for {unit}."), { unit: <b>{t(day.subtitle)}</b> })
+                        : fillNodes(t("Come back tomorrow for {unit} ({english})."), { unit: <b lang="et">{day.title}</b>, english: t(day.subtitle) })}
                     {" "}{t("Sleep does half the work of making today's words stick, so stopping here is part of the plan.")}
                   </p>
                 </div>
@@ -419,6 +424,11 @@ export default async function CoursePage({
           title={t(day.canDo)}
           text={standing.complete
             ? t("All of today’s steps are done.")
+            /* Once the words are met they are not new any more, and "5 new
+               words" over a list whose first step is ticked read as five more
+               still to come. */
+            : standing.done.has(MEET_STEP)
+            ? fill(t("{minutes} min to go today"), { minutes: standing.minutesLeft })
             : fill(t("{words}, and {minutes} min to go."), {
               words: newWordsIn(day) > 0
                 ? countOf(locale, newWordsIn(day), "new word")
@@ -438,7 +448,9 @@ export default async function CoursePage({
         />
 
         <div>
-          <SectionTitle hint={unit ? ui(unit.title, unit.subtitle) : undefined}>
+          {/* The unit's name only where it says something the page title
+              does not: nearly always the two are the same words. */}
+          <SectionTitle hint={unit && ui(unit.title, unit.subtitle) !== ui(day.title, day.subtitle) ? ui(unit.title, unit.subtitle) : undefined}>
             {t("Today’s words")}
           </SectionTitle>
           {/*

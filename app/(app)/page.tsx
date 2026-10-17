@@ -54,6 +54,7 @@ import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 import { stepCard, stepsIn } from "@/lib/course";
 import { HeroFan } from "@/components/HeroFan";
+import { fillNodes } from "@/components/TemplateNodes";
 import { JokeOfDayCard } from "@/components/JokeOfDay";
 import { GoodNewsSlot } from "@/components/GoodNewsSlot";
 import { jokesForThisVisit } from "@/lib/progress/jokeOfDay";
@@ -577,12 +578,13 @@ export default async function TodayPage() {
         <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {courseDay
             ? courseDay.day.part.n > 1
-              ? fill(t("Tomorrow you’ll continue with {unit}, part {n} of {of}."), {
-                unit: ui(courseDay.day.title, courseDay.day.subtitle), n: courseDay.day.part.n, of: courseDay.day.part.of,
+              ? fillNodes(t("Tomorrow you’ll continue with {unit}, part {n} of {of}."), {
+                unit: <b lang={uiWantsEnglish(placement) ? undefined : "et"}>{ui(courseDay.day.title, courseDay.day.subtitle)}</b>,
+                n: courseDay.day.part.n, of: courseDay.day.part.of,
               })
               : uiWantsEnglish(placement)
-                ? fill(t("See you tomorrow for {unit}."), { unit: t(courseDay.day.subtitle) })
-                : fill(t("See you tomorrow for {unit} ({english})."), { unit: courseDay.day.title, english: t(courseDay.day.subtitle) })
+                ? fillNodes(t("See you tomorrow for {unit}."), { unit: <b>{t(courseDay.day.subtitle)}</b> })
+                : fillNodes(t("See you tomorrow for {unit} ({english})."), { unit: <b lang="et">{courseDay.day.title}</b>, english: t(courseDay.day.subtitle) })
             : t("That was the very last evening of the course. Every word you met along the way will keep coming back in your reviews.")}
         </p>
       </div>
