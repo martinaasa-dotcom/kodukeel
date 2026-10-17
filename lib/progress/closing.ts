@@ -29,31 +29,25 @@
  * Counting low ticks a step with a card or two still answerable, which the
  * learner can simply answer; counting high asks for evidence the round will
  * not produce, which is the bug this module exists to end. Every place the two
- * readings could differ is therefore resolved downwards, and the three that
- * can are named on `reachable` below.
+ * readings could differ is therefore resolved downwards.
  */
 
 import { cache } from "react";
 
 import { prisma } from "@/lib/db";
 
-import {
-  MAX_SESSION, MODULE_SESSION, NEW_CANDIDATES, dueWhere, roomFor, taughtWhere, tonightWhere, unseenWhere,
-} from "@/lib/srs/reviewQueue";
+import { MODULE_SESSION, taughtWhere, tonightWhere } from "@/lib/srs/reviewQueue";
 import { deferredWordIds } from "@/lib/progress/deferrals";
 import { cardWithin, scopeFor, type ModuleScope } from "@/lib/course/scope";
 import { dayById, programmeById } from "@/lib/course";
 import { moduleSpellings } from "@/lib/progress/moduleScope";
-import { courseLevelFor } from "@/lib/progress/level";
-import { isAround } from "@/lib/collections/levels";
 
 /**
  * The columns `cardWithin` reads, and nothing else.
  *
  * The review page selects a word's gloss, its sentences and its band because
  * it is about to draw them. This only has to decide whether a card may be
- * asked, so the rows stay four short columns and the count costs a page of
- * them rather than a page of examples.
+ * asked, so the rows stay a few short columns rather than a page of examples.
  */
 const SELECT = {
   cardType: true, targetCase: true, front: true, back: true, slot: true,
@@ -61,49 +55,26 @@ const SELECT = {
   lexeme: { select: { lemma: true } },
 } as const;
 
-/** The same, plus the one thing the unseen window is also chosen on. */
-const UNSEEN_SELECT = { ...SELECT, lexeme: { select: { lemma: true, cefr: true } } } as const;
-
 /**
  * How many answers this evening's closing round still has in it.
  *
- * The same two windows the round reads, in the same order, filtered the same
- * way, and then the same arithmetic: everything due that the evening may ask,
- * plus as many unseen words as there is room for after it.
+ * The round is tonight's own words (`tonightWhere`), so this is the same read,
+ * filtered the same way (`cardWithin`), cut at the same size. The review page
+ * also drops a bare form card it cannot ask (`askableRows`), which this does
+ * not see, and that is the direction this count may err in: at or under what
+ * the round shows, never over it.
  *
  * MEMOISED FOR THE REQUEST, because two readings want it. The module screen
  * asks `courseReading` whether the day is finished and `closingProgress` what
- * the step's own line should say, and without this that is four page-reads of
- * the deck where two will do, on the screen a learner opens every evening.
- * Keyed on the learner, the day and the instant rather than on the scope
- * object, since `scopeFor` builds a fresh one per call and an identity key
- * would never hit; the scope is rebuilt here from the two ids, which is a walk
- * over the programme in memory and no query at all.
+ * the step's own line should say, and without this that is two reads of the
+ * deck where one will do, on the screen a learner opens every evening. Keyed
+ * on the learner, the day and the instant rather than on the scope object,
+ * since `scopeFor` builds a fresh one per call and an identity key would never
+ * hit; the scope is rebuilt here from the two ids, which is a walk over the
+ * programme in memory and no query at all.
  *
- * THREE THINGS IT DELIBERATELY READS LOW, each of which would otherwise be a
- * way for the ask to exceed what the round can give.
- *
- * The unseen window counts only words around the learner's band. The round
- * widens its own window when the first sixty rows hold nothing near their
- * level, and the widening *replaces* the window rather than adding to it
- * (`inBandPool`), so the rows the round ends up showing can be neither a
- * subset nor a superset of the ones read here. Counting the in-band ones alone
- * is at or under what the round will show in every one of those cases, where
- * counting all of them could exceed it and hand the evening straight back its
- * original fault.
- *
- * The due window is the whole deck's first sixty by due date, exactly as the
- * round reads it, and is then filtered to what tonight may ask. A learner with
- * a long backlog whose taught words sit past row sixty therefore closes the
- * evening having answered nothing. That is the round agreeing with itself
- * rather than a miscount, since the screen would show them the same nothing,
- * and it is the price of the two readings being one set of clauses.
- *
- * And the ask is recomputed on each render rather than remembered, so a card
- * answered wrongly, which comes straight back due, is counted again: the line
- * can read "1 of 3" having read "0 of 2". That is honest rather than a
- * goalpost moving, because a missed card really is another answer still to
- * give, and it is bounded by `CLOSING_REVIEW` whatever happens.
+ * And the ask is recomputed on each render rather than remembered, which is
+ * bounded by `CLOSING_REVIEW` whatever happens.
  */
 const reachable = cache(async (
   ownerId: string, programmeId: string, dayId: string, nowMs: number, openedMs: number,
@@ -114,50 +85,15 @@ const reachable = cache(async (
   const scope: ModuleScope = scopeFor(programme, day);
   const now = new Date(nowMs);
 
-  const [due, fresh, spellings, level, aside] = await Promise.all([
-    prisma.card.findMany({
-      // The round's own read, narrowed the same way (`taughtWhere`), so the
-      // count can never see a card the round refuses in the query.
-      where: { AND: [dueWhere(ownerId, now, scope.lemmas), taughtWhere(scope)] },
-      orderBy: [{ due: "asc" }, { id: "asc" }],
-      take: MAX_SESSION,
-      select: SELECT,
-    }),
-    prisma.card.findMany({
-      where: unseenWhere(ownerId, now, scope.lemmas),
-      orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }, { id: "asc" }],
-      take: NEW_CANDIDATES,
-      select: UNSEEN_SELECT,
-    }),
-    moduleSpellings(scope),
-    courseLevelFor(ownerId),
-    deferredWordIds(ownerId, now),
-  ]);
-
-  const within = (card: { cardType: string; targetCase: string | null; front: string; back: string; slot: string | null }) =>
-    cardWithin(scope, card, spellings);
-  /* The round asks the same question of a card about to be introduced, against
-     what the module has taught. Inside a module that is this same scope, which
-     is the only place this count is ever made, so one predicate answers both
-     halves here where the round needs two. */
-  const dueWithin = due.filter(within).length;
-  const room = roomFor(dueWithin);
-  const freshWithin = fresh.filter((c) => within(c) && isAround(c.lexeme?.cefr, level)).length;
-  const shown = dueWithin + Math.min(room, freshWithin);
-  /* AND TONIGHT'S OWN WORDS FILL WHAT IS LEFT OF THE SITTING, the same top-up
-     the round makes (`tonightWhere`). Without it a first evening, whose words
-     are all scheduled days out the moment the evening has taught them, read as
-     a closing round with nothing to ask and was handed a screen saying so. */
-  const spare = MODULE_SESSION - shown;
-  if (spare <= 0) return shown;
+  const [spellings, aside] = await Promise.all([moduleSpellings(scope), deferredWordIds(ownerId, now)]);
   const tonight = await prisma.card.findMany({
     where: { AND: [tonightWhere(ownerId, now, scope.day.words, aside, openedMs > 0 ? new Date(openedMs) : null), taughtWhere(scope)] },
-    // The longest since each was last asked first; the id settles a tie.
-    orderBy: [{ lastReview: "asc" }, { id: "asc" }],
+    // The round's own order (`app/(app)/review/queue.ts`).
+    orderBy: [{ due: "asc" }, { id: "asc" }],
     take: MODULE_SESSION * 2,
     select: SELECT,
   });
-  return shown + Math.min(spare, tonight.filter(within).length);
+  return Math.min(MODULE_SESSION, tonight.filter((card) => cardWithin(scope, card, spellings)).length);
 });
 
 /**
