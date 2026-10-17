@@ -131,15 +131,10 @@ export const NEW_CANDIDATES = 60;
  * this is the hottest read in the app and the overlap is exactly this one
  * shape.
  */
-export function dueWhere(
-  ownerId: string,
-  now: Date,
-  only: readonly string[] | null = null,
-): Prisma.CardWhereInput {
+export function dueWhere(ownerId: string, now: Date): Prisma.CardWhereInput {
   return {
     ownerId, suspended: false, due: { lte: now }, state: { not: 0 },
     NOT: { cardType: LADDER_CARD_TYPE, state: 1 },
-    ...(only ? { lexeme: { lemma: { in: [...only] } } } : {}),
   };
 }
 
@@ -147,13 +142,13 @@ export function dueWhere(
  * HOW MANY CARDS THE MODULE'S CLOSING ROUND SHOWS, AT MOST.
  *
  * The step is "Quick review, and you are done" and is finished by five
- * answers, and it used to open the whole queue: up to sixty cards due from
- * anywhere in the deck plus ten new ones. A beginner on an evening of five
- * words read "18 left" and a verb from another level, which is not quick and
- * is not today's evening. So inside the module the due read is narrowed to
- * the words the ladder has taught (`dueWhere`'s `only`), and the round stops
- * here. Everything else that is due is still due, on Review, where a learner
- * who opens it themselves chooses to meet it.
+ * answers. It used to open the whole queue, up to sixty cards due from
+ * anywhere in the deck plus ten new ones, and then the whole queue narrowed to
+ * everything the module had taught so far, which on the fortieth evening is
+ * still most of the deck. Neither is quick and neither is tonight's evening.
+ * So it is tonight's words (`tonightWhere`) and it stops here. Everything else
+ * that is due is still due, on Review, where a learner who opens it from Today
+ * chooses to meet it.
  *
  * Above `CLOSING_REVIEW` on purpose: the step's own count may only ever read
  * at or under what the round shows (`lib/progress/closing.ts`).
@@ -161,31 +156,27 @@ export function dueWhere(
 export const MODULE_SESSION = 8;
 
 /**
- * TONIGHT'S OWN WORDS, ASKED ONCE MORE, WHICH IS WHAT A QUICK REVIEW AT THE END
- * OF AN EVENING MEANS.
+ * THE MODULE'S CLOSING ROUND IS TONIGHT'S OWN WORDS ASKED ONCE MORE, AND
+ * NOTHING ELSE, WHICH IS WHAT A QUICK REVIEW AT THE END OF AN EVENING MEANS.
  *
- * The closing round used to ask what is *due* and nothing else, and on the
- * evening a word is met nothing of it ever is: Learn walks the recognition card
- * to Review, Tähed and the flash round do the same to the production card, and
- * the scheduler puts both days out. So the first evening of the course, and
- * every evening whose words were not already in the deck, ended in a screen
- * saying "That's today's review done" over a round that held no card at all.
- * It was reported exactly so: the step said a quick review was next, took the
- * learner there, and there was none.
+ * It was the queue narrowed to what the module had taught so far, with these
+ * words only filling what that left, so the last step of an evening was a mix
+ * of every word the learner had met since the first one. The operator's call
+ * is that it reviews the batch this evening taught: the rest of the deck is
+ * the scheduler's and comes back on Review when it is due.
  *
- * What a learner needs at that point is to say the evening's words once more,
- * after a game and a page of reading, which is the retrieval the whole evening
- * is built to end on. So the round tops up from them, not-yet-due, after
- * everything that really is due and every unseen card, up to
- * `MODULE_SESSION`.
+ * Due or not. On the evening a word is met nothing of it is due, because Learn
+ * walks the recognition card to Review and Tähed and the flash round do the
+ * same to the production card, and a round that asked only what was due was
+ * empty on the first evening of the course. A card of tonight's words that is
+ * due (one missed earlier tonight, back in relearning) is asked first.
  *
- * ONLY THE EVENING'S OWN WORDS (`day.words`), not everything taught so far:
- * the rest of the deck is the scheduler's and comes back when it is due. A
- * card the learner has not met stays out (`state: { not: 0 }`), a word they
- * put aside is theirs to have refused (`asideIds`), and the recognition card
- * is out while it is still on the Learn ladder for the reason `dueWhere` gives.
- * Grading one early is what every practice round already does (ADR-016), and
- * the scheduler handles a card answered ahead of its date.
+ * A card the learner has not met stays out (`state: { not: 0 }`), because a
+ * review introduces nothing. A word they put aside is theirs to have refused
+ * (`asideIds`), and the recognition card is out while it is still on the
+ * Learn ladder for the reason `dueWhere` gives. Grading one early is what
+ * every practice round already does (ADR-016), and the scheduler handles a
+ * card answered ahead of its date.
  */
 export function tonightWhere(
   ownerId: string,
@@ -201,7 +192,7 @@ export function tonightWhere(
   openedAt: Date | null = null,
 ): Prisma.CardWhereInput {
   return {
-    ownerId, suspended: false, due: { gt: now }, state: { not: 0 },
+    ownerId, suspended: false, state: { not: 0 },
     ...(openedAt ? { OR: [{ lastReview: null }, { lastReview: { lt: openedAt } }] } : {}),
     NOT: [
       { cardType: LADDER_CARD_TYPE, state: 1 },
@@ -220,10 +211,10 @@ export function tonightWhere(
  * a deferral moves, and without it a word put aside would be introduced again
  * on the next session (`lib/srs/defer.ts`).
  *
- * `theirOwnToo` is the daily path, where the gate is over this app's own
- * material alone: a word somebody looked up, photographed or pasted in is
- * theirs and is taught whatever the module has reached. Inside the module it
- * is false, because there the round is the module's own choosing.
+ * The gate is over this app's own material alone: a word somebody looked up,
+ * photographed or pasted in is theirs and is taught whatever the module has
+ * reached. Only the daily path reads this; the module's closing round
+ * introduces nothing.
  *
  * UNDER `AND`, BECAUSE `pastTheLadder` IS ITSELF AN `OR` AND A SECOND ONE
  * SPREAD BESIDE IT DELETES THE FIRST. Two `...` of `{ OR }` into one object
@@ -235,7 +226,6 @@ export function unseenWhere(
   ownerId: string,
   now: Date,
   only: readonly string[] | null = null,
-  theirOwnToo = false,
 ): Prisma.CardWhereInput {
   return {
     ownerId, suspended: false, state: 0, due: { lte: now },
@@ -244,7 +234,7 @@ export function unseenWhere(
       ...(only
         ? [{
             OR: [
-              ...(theirOwnToo ? [{ source: { notIn: [...APP_CHOSE] } }] : []),
+              { source: { notIn: [...APP_CHOSE] } },
               { lexeme: { lemma: { in: [...only] } } },
             ],
           }]

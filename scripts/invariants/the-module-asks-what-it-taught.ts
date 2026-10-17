@@ -4,7 +4,7 @@ import type { InvariantKit } from "../lib/invariantKit";
 
 /**
  * TODAY'S MODULE IS THE LEVEL THE LEARNER SAID, AND ITS CLOSING ROUND IS
- * TODAY'S WORDS.
+ * TONIGHT'S WORDS.
  *
  * Reported off one screen: a learner who had set A1 was asked for the simple
  * past of `juhtuma`, an A2 verb, in a closing review eighteen cards long. Three
@@ -20,12 +20,16 @@ export default function theModuleAsksWhatItTaught({ check, code }: InvariantKit)
     assert.match(body, /SETTING_KEYS\.programme,\s*opening\.id/, "setCourseLevel no longer moves the course");
   });
 
-  check("the module's closing round reads only taught words, and stops at MODULE_SESSION", () => {
-    const review = (code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts"));
-    assert.match(review, /dueWhere\(ownerId, now, scope\?\.lemmas \?\? null\)/, "the review page reads the whole deck's due cards inside a module");
-    assert.match(review, /scope \? queued\.slice\(0, MODULE_SESSION\)/, "the module's closing round is no longer capped");
-    // The count the step keeps has to be drawn over the same narrowed read.
-    assert.match(code("lib/progress/closing.ts"), /dueWhere\(ownerId, now, scope\.lemmas\), taughtWhere\(scope\)/, "the closing count reads a wider queue than the round shows");
+  check("the module's closing round reads only tonight's words, and stops at MODULE_SESSION", () => {
+    const round = code("app/(app)/review/queue.ts");
+    assert.match(round, /if \(scope\) \{/, "the review queue no longer has a closing round of its own");
+    const closing = round.slice(round.indexOf("if (scope) {"), round.indexOf("const dueWindow"));
+    assert.match(closing, /tonightWhere\(ownerId, now, scope\.day\.words,/, "the closing round reads more than tonight's words");
+    assert.doesNotMatch(closing, /dueWhere\(|unseenWhere\(|unseenPool\(/, "the closing round reads the wider queue again");
+    assert.match(closing, /\.slice\(0, MODULE_SESSION\)/, "the module's closing round is no longer capped");
+    assert.doesNotMatch(code("lib/srs/reviewQueue.ts"), /due: \{ gt: now \}/, "the closing round asks only tonight's cards that are not yet due, so one missed tonight is never asked");
+    // The count the step keeps has to be drawn over the same read.
+    assert.match(code("lib/progress/closing.ts"), /tonightWhere\(ownerId, now, scope\.day\.words,/, "the closing count reads a different queue than the round shows");
   });
 
   check("a verb form learned verb by verb is asked inside the module only once an evening showed it", () => {
