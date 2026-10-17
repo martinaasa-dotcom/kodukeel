@@ -188,6 +188,9 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
           {t("The text is yours to change before it counts. Once you send it, a turn in a conversation or an answer to a card, it is stored exactly as typed text is. To mark which heard words are real Estonian spellings, the words alone are checked against the dictionary on the server and not kept there.")}
         </P>
         <P>
+          {t("One more thing is kept beside it: whether you said it. An answer sent just as it was heard is marked as spoken, and a conversation turn keeps two numbers, how many words were heard and how many you changed, never the words themselves. That is what the said-aloud count on Progress is read from.")}
+        </P>
+        <P>
           {t("A recording you open on the reading page, such as a voice message somebody sent you, holds another person's voice, so it is treated more carefully still. It is heard on your device in the same way, and the sound is never uploaded, stored or sent, to us, to the speech service or to anybody else. Only the words it was heard as go to the dictionary to be underlined, and they are not kept there, just as a pasted text is not.")}
         </P>
         <P>

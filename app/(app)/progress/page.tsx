@@ -250,10 +250,12 @@ export default async function ProgressPage() {
 
         {aloud.answers > 0 && (
           <p className="text-md" style={{ color: "var(--ink-2)" }} data-said-aloud>
-            {fill(t("Said aloud this week: {answers}, about {minutes}."), {
-              answers: countOf(locale, aloud.answers, "answer"),
-              minutes: countOf(locale, aloud.minutes, "minute"),
-            })}
+            {aloud.minutes === null
+              ? fill(t("Said aloud this week: {answers}."), { answers: countOf(locale, aloud.answers, "answer") })
+              : fill(t("Said aloud this week: {answers}, about {minutes}."), {
+                answers: countOf(locale, aloud.answers, "answer"),
+                minutes: countOf(locale, aloud.minutes, "minute"),
+              })}
           </p>
         )}
 

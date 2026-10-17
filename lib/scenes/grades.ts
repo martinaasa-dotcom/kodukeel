@@ -151,12 +151,16 @@ export function gradesFor(
       return leafNeeds(beat.needs).some((leaf) => leaf.index === index && tookOption(leaf.need, words, card, lexicon));
     };
     /*
-      Said aloud where a turn that met this requirement was said aloud. Not
-      "any turn on the beat": a learner who said a miss and then typed the
-      answer typed the recall, and the review log's `spoken` column is what
-      `npm run report:speech` compares spoken recall against typed recall on.
+      WRITTEN AS SPOKEN WHERE THE TURN THAT MET THE REQUIREMENT WAS SAID AND
+      SENT AS HEARD, and nowhere else. It was any spoken turn on the beat, so a
+      miss said aloud and the answer typed after it wrote the typed answer down
+      as said aloud, and a turn the learner rewrote before sending did the same:
+      `Review.spoken` is "said aloud and marked on what was heard" (D4), which
+      is what Progress and `npm run report:speech` read it as.
     */
-    const spokenFor = (index: number) => turns.some((turn) => turn.met[index] && turn.repaired !== undefined);
+    const spokenFor = (index: number) => turns.some(
+      (turn) => turn.met[index] && turn.repaired !== undefined && turn.edited !== true,
+    );
 
     const answered = (index: number) => turns.some(
       (turn) => turn.met[index]

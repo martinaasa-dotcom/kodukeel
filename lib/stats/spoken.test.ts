@@ -16,7 +16,14 @@ describe("said aloud this week", () => {
   });
 
   it("says nothing was said, rather than rounding a few seconds up to nought", () => {
-    expect(spokenThisWeek([], now)).toEqual({ answers: 0, minutes: 0 });
+    expect(spokenThisWeek([], now)).toEqual({ answers: 0, minutes: null });
     expect(spokenThisWeek([{ reviewedAt: ago(0), durationMs: 4_000, spoken: true }], now)).toEqual({ answers: 1, minutes: 1 });
+  });
+
+  it("claims no minutes for answers nobody timed, which a conversation's grades are", () => {
+    expect(spokenThisWeek([
+      { reviewedAt: ago(1), durationMs: 0, spoken: true },
+      { reviewedAt: ago(2), durationMs: 0, spoken: true },
+    ], now)).toEqual({ answers: 2, minutes: null });
   });
 });

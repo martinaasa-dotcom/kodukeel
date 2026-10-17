@@ -57,6 +57,7 @@ import { addsEvidence, answerPart, concede, metByWord, onlyAsks, readTurn } from
 import { saysGoodbye, CLOSING_WORDS } from "@/lib/scenes/casual";
 import { clip } from "@/lib/copy/clip";
 import { core } from "@/lib/speech/reconcile";
+import { wordCount } from "@/lib/speech/edits";
 import { localeFor } from "@/lib/progress/locale";
 import { CHAT_ID, type ChatPlan } from "@/lib/scenes/specs/chat";
 import { chatSceneOf, readChatPlan } from "@/lib/progress/chat";
@@ -1576,14 +1577,24 @@ export function replay(
   */
   let marked = state.turns.length;
   let speaking: SpokenTurn | undefined;
+  let speakingSaid = "";
   const markSpoken = () => {
     if (speaking && state.turns.length > marked) {
       const { repaired, wordsHeard, wordsChanged } = speaking;
       // The counts ride on the turn's first record only, so a turn that made several is counted once.
       const counts = wordsHeard !== undefined && wordsChanged !== undefined ? { spoken: true as const, wordsHeard, wordsChanged } : {};
+      /*
+        And a turn sent other than as it was heard is marked on every record it
+        made, so a grade it earns is written as typed (D4): a word changed, or
+        the count of words sent differing from the count heard, which is a word
+        added or dropped by hand that `editCounts` alone does not count.
+      */
+      const edited = wordsHeard !== undefined && wordsChanged !== undefined
+        && (wordsChanged > 0 || wordCount(speakingSaid) !== wordsHeard)
+        ? { edited: true as const } : {};
       state = {
         ...state,
-        turns: state.turns.map((turn, at) => (at > marked ? { ...turn, repaired } : at === marked ? { ...turn, repaired, ...counts } : turn)),
+        turns: state.turns.map((turn, at) => (at > marked ? { ...turn, repaired, ...edited } : at === marked ? { ...turn, repaired, ...counts, ...edited } : turn)),
       };
     }
     marked = state.turns.length;
@@ -1591,6 +1602,7 @@ export function replay(
   for (const sent of turns.slice(0, MAX_TURNS)) {
     markSpoken();
     speaking = sent.spoken;
+    speakingSaid = String(sent.said ?? "");
     // Per turn, not per run: the reply asks about the turn that has just been taken.
     elsewhere = 0;
     const beat = currentBeat(context.scene, state);

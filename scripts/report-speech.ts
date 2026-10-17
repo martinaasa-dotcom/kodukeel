@@ -36,7 +36,7 @@ function rowLine(r: EditRow): string {
 }
 
 async function main() {
-  const day = new Date().toISOString().slice(0, 10);
+  const measuredOn = new Date().toISOString().slice(0, 10);
   const [runs, languages, answers] = await Promise.all([
     prisma.sceneRun.findMany({ select: { ownerId: true, level: true, transcript: true } }),
     prisma.setting.findMany({ where: { key: SETTING_KEYS.glossLanguage }, select: { ownerId: true, value: true } }),
@@ -124,7 +124,7 @@ async function main() {
   const recall = recallReading(answers);
   const spokenAnswers = answers.filter((a) => a.spoken).length;
 
-  const out: string[] = [`Kodukeel: does saying it help? Measured on ${day}, from this installation's own log.`, ""];
+  const out: string[] = [`Kodukeel: does saying it help? Measured on ${measuredOn}, from this installation's own log.`, ""];
   if (edits.alarm) {
     out.push(
       `ATTENTION: learners changed ${percent(edits.all.share)} of heard words over ${edits.all.turns} spoken turns,`,
@@ -150,6 +150,7 @@ async function main() {
     `  ${spokenAnswers} answers were given aloud, by ${recall.speakers} ${recall.speakers === 1 ? "learner" : "learners"}.`,
     `  After a spoken answer, the next answer to the same card was recalled ${percent(recall.spoken.share)} of the time (${recall.spoken.recalled} of ${recall.spoken.pairs}).`,
     `  After a typed answer, from the same learners: ${percent(recall.typed.share)} (${recall.typed.recalled} of ${recall.typed.pairs}).`,
+    "  An answer is spoken where what was marked is what was heard; one the learner changed first is counted as typed.",
     "  Observational and confounded: people choose when to speak, and an easy card is likelier to be said aloud. Not a trial.",
     "",
     "3. Tonight's chat (VB-11).",

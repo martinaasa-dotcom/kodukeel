@@ -284,6 +284,12 @@ try {
     });
     await page.goto(`${B}/scan`, { waitUntil: "domcontentloaded" });
     const things = page.getByRole("radio", { name: "Things around me" });
+    /*
+      Waited for, either way. The choice streams in after the page's first
+      bytes, so a count taken at domcontentloaded read nought on every CI run
+      and waived these eleven checks for a provider key the server did have.
+    */
+    await things.or(page.getByText("The camera isn’t set up here")).first().waitFor({ timeout: 20_000 }).catch(() => {});
     if (!(await things.count())) {
       absent(11, "a provider key on the server, so the scanner offers a camera (any string: the route is stubbed)");
     } else {

@@ -185,7 +185,8 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
     if (rating === 3) setRecalled((n) => n + 1);
     if (rating && item.cardId) {
       setGraded(rating === 3 ? "good" : "hard");
-      void writeGrade(rating, box.spoken);
+      // Written as spoken only where the answer marked is what was heard, unedited (D4).
+      void writeGrade(rating, box.saidAsIs(typed));
     } else {
       setGraded("none");
     }

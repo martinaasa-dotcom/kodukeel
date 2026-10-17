@@ -5,6 +5,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { useT } from "@/components/Locale";
 import { cardVerdict, repairedInAnswer, type SpokenVerdict } from "@/lib/speech/verdict";
 import { core, type Hearing } from "@/lib/speech/reconcile";
+import { keptAsHeard } from "@/lib/speech/edits";
 import { MicButton } from "./MicButton";
 import { useSpeech, useSpeechConfig, type Speech } from "./useSpeech";
 
@@ -24,9 +25,14 @@ import { useSpeech, useSpeechConfig, type Speech } from "./useSpeech";
  * kept the setting on (D6), so nobody meets a microphone in a box before
  * choosing speech somewhere.
  *
- * `spoken` says the box was last filled by the microphone. Edits after that
- * keep it spoken: the learner said it and then corrected what was heard, which
- * is the edit D3 counts, and the answer marked is still the one they said.
+ * `spoken` says the box was last filled by the microphone, which is what the
+ * screen reads to say "this is what was heard". Whether the answer is written
+ * to the log as spoken is a stricter question, `saidAsIs`: the text marked has
+ * to be what the microphone put in the box, word for word. An answer the
+ * learner corrected is partly typed and one they cleared and typed over is not
+ * spoken at all, and `Review.spoken` is read as "said aloud and marked on what
+ * was heard" (D4) by Progress and by `npm run report:speech`, so neither may
+ * be written as spoken. The numbers round reads its own box the same way.
  */
 export interface SpokenBox {
   readonly speech: Speech;
@@ -38,6 +44,8 @@ export interface SpokenBox {
   readonly hearing: Hearing | null;
   /** Whether the text about to be marked still holds a word the dictionary repaired (D13). */
   carriesRepair(text: string): boolean;
+  /** Whether the text about to be marked is what the microphone put in the box, unedited (D4). */
+  saidAsIs(text: string): boolean;
   /** A new question: forget what was heard. */
   reset(): void;
 }
@@ -60,6 +68,8 @@ export interface SpokenBoxOptions {
 export function useSpokenBox({ accepted, always = false, judge, onGood, onFill, keepAudio }: SpokenBoxOptions): SpokenBox {
   const config = useSpeechConfig();
   const [spoken, setSpoken] = useState(false);
+  // What the microphone last put in the box, so `saidAsIs` can tell it from an answer edited after.
+  const [filled, setFilled] = useState("");
   const latest = useRef({ accepted, judge, onGood, onFill });
   latest.current = { accepted, judge, onGood, onFill };
   // The answers are what a repair may land on: the dictionary's spelling of what they meant, never a word from nowhere.
@@ -76,21 +86,28 @@ export function useSpokenBox({ accepted, always = false, judge, onGood, onFill, 
       if (!hearing.understood.trim()) return;
       const verdict = decide ? decide(hearing) : cardVerdict(hearing, answers);
       setSpoken(true);
-      if (verdict.kind === "good") good(hearing.understood, hearing);
-      else fill(verdict.text, hearing);
+      if (verdict.kind === "good") {
+        setFilled(hearing.understood);
+        good(hearing.understood, hearing);
+      } else {
+        setFilled(verdict.text);
+        fill(verdict.text, hearing);
+      }
     },
   });
   // The one rule for a microphone beside a box (D6), shared with the rounds that draw their own.
   const shown = speech.offered && (always || micInAnswerBox(speech, config));
   const hearing = speech.hearing;
   const carriesRepair = useCallback((text: string) => repairedInAnswer(hearing, text), [hearing]);
+  const saidAsIs = useCallback((text: string) => spoken && keptAsHeard(filled, text), [spoken, filled]);
   const reset = useCallback(() => {
     setSpoken(false);
+    setFilled("");
     speech.cancel();
   }, [speech]);
   return useMemo(
-    () => ({ speech, shown, spoken, hearing, carriesRepair, reset }),
-    [speech, shown, spoken, hearing, carriesRepair, reset],
+    () => ({ speech, shown, spoken, hearing, carriesRepair, saidAsIs, reset }),
+    [speech, shown, spoken, hearing, carriesRepair, saidAsIs, reset],
   );
 }
 
