@@ -237,7 +237,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
               return (
                 <li
                   key={l.id}
-                  className="flex items-center gap-3 rounded-[var(--r-lg)] border px-4 py-2.5"
+                  className="flex items-start gap-3 rounded-[var(--r-lg)] border px-4 py-2.5"
                   style={{
                     borderColor: "var(--rule)",
                     background: known ? "var(--good-soft)" : "var(--surface)",
@@ -266,13 +266,19 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
                       </span>
                     )}
                   </span>
-                  {l.gradationNote && <Chip tone="hard" caseSensitive>{l.gradationNote}</Chip>}
-                  <Speak text={l.lemma} />
-                  {known ? (
-                    <Check size={16} aria-label={t("Known")} style={{ color: "var(--good-ink)" }} />
-                  ) : started ? (
-                    <span className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Learning")}</span>
-                  ) : null}
+                  {/* Top-aligned: the grid stretches every word to the
+                      tallest in its row, and a centred one put its lemma
+                      lower than the word beside it. The controls stay in one
+                      row of their own, level with each other. */}
+                  <span className="flex shrink-0 items-center gap-3">
+                    {l.gradationNote && <Chip tone="hard" caseSensitive>{l.gradationNote}</Chip>}
+                    <Speak text={l.lemma} />
+                    {known ? (
+                      <Check size={16} aria-label={t("Known")} style={{ color: "var(--good-ink)" }} />
+                    ) : started ? (
+                      <span className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Learning")}</span>
+                    ) : null}
+                  </span>
                 </li>
               );
             })}

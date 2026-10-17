@@ -21,7 +21,7 @@ export function SituationRow({ reading, locale }: { reading: Reading; locale: Lo
   return (
     <Link
       href={`/progress/readiness/${situation.id}`}
-      className="lift flex h-full items-center gap-4 rounded-[var(--r-lg)] border px-4 py-3.5"
+      className="lift flex h-full items-start gap-4 rounded-[var(--r-lg)] border px-4 py-3.5"
       style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
     >
       <span className="min-w-0 flex-1">
@@ -35,7 +35,12 @@ export function SituationRow({ reading, locale }: { reading: Reading; locale: Lo
           )}
         </span>
       </span>
-      <ArrowRight size={16} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
+      {/* Top-aligned, with the arrow on the claim's first line: the tiles sit
+          two to a row and stretch to the taller, so a centred tile put its
+          claim lower than the one beside it. */}
+      <span aria-hidden className="flex shrink-0 items-center text-base" style={{ height: "1lh" }}>
+        <ArrowRight size={16} aria-hidden style={{ color: "var(--ink-3)" }} />
+      </span>
     </Link>
   );
 }

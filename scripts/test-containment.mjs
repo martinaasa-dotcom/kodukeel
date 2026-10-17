@@ -1090,14 +1090,85 @@ function relatives() {
       }
     }
   }
+  /*
+    BOXES SIDE BY SIDE START THEIR WORDS ON ONE LINE.
+
+    Reported twice off Practice: a row of boxes, each a title and a line under
+    it, where the box whose line fitted on one line had its title lower than
+    the box beside it, because the grid stretched every box to the tallest and
+    each box centred its own words in that height. And three shelves whose
+    coloured headers were of different heights, so the first round under each
+    started at a different height. Nothing above can see either: nothing is
+    cut, no word breaks and every box is the size it was given. So among
+    siblings sharing a parent and a class, drawn side by side (tops level)
+    and each holding more than one line of words, the first line starts at
+    the same height in all of them, and so does the first line of every
+    child they hold in the same position.
+  */
+  const misaligned = [];
+  const sets = new Map();
+  for (const el of document.querySelectorAll("body *")) {
+    if (el.closest("[aria-hidden='true'], .sr-only, table, svg")) continue;
+    const cls = el.getAttribute("class");
+    if (!cls || !el.parentElement || !shown(el) || !(el.textContent || "").trim()) continue;
+    const list = sets.get(el.parentElement) ?? new Map();
+    const same = list.get(cls) ?? [];
+    same.push(el);
+    list.set(cls, same);
+    sets.set(el.parentElement, list);
+  }
+  for (const list of sets.values()) {
+    for (const same of list.values()) {
+      if (same.length < 2) continue;
+      // Side by side: grouped by the top of the box, so a wrapped grid is
+      // compared row by row and a stacked list is never compared at all.
+      const rowsOf = new Map();
+      for (const el of same) {
+        const r = el.getBoundingClientRect();
+        const key = [...rowsOf.keys()].find((t) => Math.abs(t - r.top) <= EPS) ?? r.top;
+        const row = rowsOf.get(key) ?? [];
+        row.push(el);
+        rowsOf.set(key, row);
+      }
+      for (const row of rowsOf.values()) {
+        if (row.length < 2) continue;
+        // A box of one line is a chip or a button, and a row of those centred
+        // on one another is the right drawing.
+        if (!row.every((el) => linesOf(el) > 1)) continue;
+        const lineTop = (el) => firstLine(el)?.top;
+        const offs = row.map(lineTop);
+        if (offs.some((t) => t == null)) continue;
+        if (Math.max(...offs) - Math.min(...offs) > EPS) {
+          const odd = row[offs.indexOf(Math.max(...offs))];
+          misaligned.push(`${named(odd)} starts its words ${Math.round(Math.max(...offs) - Math.min(...offs))}px below the box beside it`);
+          continue;
+        }
+        // The same question one level in: the second child of each box (the
+        // list under a shelf's header, the line under a title) starts level.
+        const kids = row.map((el) => [...el.children].filter(shown));
+        const n = Math.min(...kids.map((k) => k.length));
+        for (let i = 1; i < n; i += 1) {
+          const tops = kids.map((k) => firstLine(k[i])?.top);
+          if (tops.some((t) => t == null)) break;
+          if (Math.max(...tops) - Math.min(...tops) > EPS) {
+            const odd = kids[tops.indexOf(Math.max(...tops))][i];
+            misaligned.push(`${named(odd)} starts ${Math.round(Math.max(...tops) - Math.min(...tops))}px below its counterpart beside it`);
+            break;
+          }
+        }
+      }
+    }
+  }
+
   const first = (list) => [...new Set(list)].slice(0, 3).join(" · ");
   return {
+    misaligned: [...new Set(misaligned)].length,
     wrapped: [...new Set(wrapped)].length,
     unlike: [...new Set(unlike)].length,
     unbalanced: [...new Set(unbalanced)].length,
     unevenly: [...new Set(unevenly)].length,
     rows: rows.length,
-    say: { wrapped: first(wrapped), unlike: first(unlike), unbalanced: first(unbalanced), unevenly: first(unevenly) },
+    say: { misaligned: first(misaligned), wrapped: first(wrapped), unlike: first(unlike), unbalanced: first(unbalanced), unevenly: first(unevenly) },
   };
 }
 
@@ -1140,6 +1211,7 @@ async function measure(page, label, atLeast = 25) {
   check(`relatives sit alike, marker to label, on ${label}`, kin.unlike === 0, kin.say.unlike);
   check(`every mark beside a heading is balanced against it on ${label}`, kin.unbalanced === 0, kin.say.unbalanced);
   check(`a set of labels sits one line each or none of it does, on ${label}`, kin.unevenly === 0, kin.say.unevenly);
+  check(`boxes side by side start their words on one line, on ${label}`, kin.misaligned === 0, kin.say.misaligned);
   /*
     The middot is on no screen, and this is the half the source check cannot
     reach: a hint or a government string stored in somebody's deck before the
