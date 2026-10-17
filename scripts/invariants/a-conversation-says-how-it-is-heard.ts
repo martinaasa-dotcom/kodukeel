@@ -30,7 +30,7 @@ export default function aConversationSaysHowItIsHeard({ check, code }: Invariant
       seen++;
       const before = src.slice(Math.max(0, (m.index ?? 0) - 700), m.index);
       const gated = /aloud &&\s*(?:spokenEstonian\(line\) &&\s*\(\s*)?$/.test(before)
-        || /hidesLines\(voiceMode\)[\s\S]*$/.test(before) && !/\) : \(/.test(before.slice(before.lastIndexOf("hidesLines(voiceMode)")));
+        || /hidesLines\(heardMode\)[\s\S]*$/.test(before) && !/\) : \(/.test(before.slice(before.lastIndexOf("hidesLines(heardMode)")));
       assert.ok(gated, `${SESSION} draws a speaker at offset ${m.index} that the text-only mode does not take away`);
     }
     assert.ok(seen >= 3, `only ${seen} speakers found in ${SESSION}; the sweep is reading the wrong file`);
@@ -39,7 +39,8 @@ export default function aConversationSaysHowItIsHeard({ check, code }: Invariant
 
   check("a line whose words are hidden is played by a speaker that does not read them out", () => {
     const src = code(SESSION);
-    const branch = src.slice(src.indexOf("hidesLines(voiceMode)"));
+    // `heardMode` is the voice mode, or "listen" for a run talked through (VB-4).
+    const branch = src.slice(src.indexOf("hidesLines(heardMode) && spokenEstonian(line)"));
     const speaker = /<Speak\b([\s\S]*?)\/>/.exec(branch)?.[1] ?? "";
     // A written label, or the same label put through the translator: either way not the words it hides.
     assert.match(speaker, /\blabel=(?:"[^"]+"|\{t\("[^"]+"\)\})/, "the hidden line's speaker falls back to a label built from the words it is hiding");

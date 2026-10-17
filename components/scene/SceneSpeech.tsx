@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
 import { MicButton, MicError } from "@/components/speech/MicButton";
 import { useSpeech } from "@/components/speech/useSpeech";
 import { useT } from "@/components/Locale";
@@ -189,7 +189,7 @@ export function SendRing({ onDone, onStop }: { readonly onDone: () => void; read
   }, []);
   return (
     <span className="inline-flex items-center gap-2" data-send-ring>
-      <svg aria-hidden viewBox="0 0 20 20" className="send-ring h-5 w-5 shrink-0" style={{ ["--ring-ms" as string]: `${SEND_RING_MS}ms` }}>
+      <svg aria-hidden viewBox="0 0 20 20" className="send-ring h-5 w-5 shrink-0" style={{ "--ring-ms": `${SEND_RING_MS}ms` } as CSSProperties}>
         <circle cx="10" cy="10" r="8" className="send-ring-track" />
         <circle cx="10" cy="10" r="8" className="send-ring-fill" pathLength={100} />
       </svg>

@@ -61,8 +61,6 @@ export default async function ScenePage({ params }: { params: Promise<{ id: stri
     readSetting(ownerId, SETTING_KEYS.sceneAnswer),
     finishedScene(ownerId, scene.id),
   ]);
-  const openAt = tiltedLevel(learnerLevel, tilt);
-
   /*
     Three things about speaking a conversation, resolved here because each is a
     read the client may not do: how this learner answered last time, whether
@@ -76,10 +74,10 @@ export default async function ScenePage({ params }: { params: Promise<{ id: stri
       minutes={minutesFor(scene)}
       unit={unit ? { id: unit.id, title: uiText(learnerLevel, unit.title, tr(locale, unit.subtitle)) } : null}
       learnerLevel={learnerLevel}
-      openAt={openAt}
+      openAt={tiltedLevel(learnerLevel, tilt)}
       answeredLast={sceneAnswerFrom(answer)}
       finishedOnce={finished}
-      opening={openingLines(scene, openAt)}
+      opening={openingLines(scene, tiltedLevel(learnerLevel, tilt))}
     />
   );
 }

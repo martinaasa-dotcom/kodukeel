@@ -2016,13 +2016,13 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                         heard: (
                           <span className="inline-flex items-center gap-0.5">
                             <span lang="et" className="font-medium" style={{ color: "var(--ink-2)" }}>{repair.from}</span>
-                            <Speak text={repair.from} voice={voice} size={12} label={t("Hear it")} className="press inline-flex h-6 w-6 items-center justify-center rounded-full hover:bg-[var(--raised)]" />
+                            {aloud && <Speak text={repair.from} voice={voice} size={12} label={t("Hear it")} className="press inline-flex h-6 w-6 items-center justify-center rounded-full hover:bg-[var(--raised)]" />}
                           </span>
                         ),
                         said: (
                           <span className="inline-flex items-center gap-0.5">
                             <span lang="et" className="font-medium" style={{ color: "var(--ink-2)" }}>{repair.to}</span>
-                            <Speak text={repair.to} voice={voice} size={12} label={t("Hear it")} className="press inline-flex h-6 w-6 items-center justify-center rounded-full hover:bg-[var(--raised)]" />
+                            {aloud && <Speak text={repair.to} voice={voice} size={12} label={t("Hear it")} className="press inline-flex h-6 w-6 items-center justify-center rounded-full hover:bg-[var(--raised)]" />}
                           </span>
                         ),
                       })}
