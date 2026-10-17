@@ -84,8 +84,8 @@ export default inLesson("a1-49-invite", {
       they: "She asks you round on Saturday, and says she's cooking.",
       /* "Mis kell?" asked here is answered by the next beat, which says the time. */
       answeredNext: true,
-      /* A question, not an offer: a question put to an offer is answered with more of the offer (`asideFor`). */
-      move: "ask",
+      /* The invitation is an offer: "Tule laupäeval meile!" asks nothing, and "Mis kell?" put to it is answered by the next beat (`answeredNext`). */
+      move: "offer",
       topic: ["tulema", "laupäev"],
       needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["Aitäh!", "jah", "tulema", "muidugi", "kindlasti"] }, { kind: "question" }] }],
       required: true,

@@ -42,7 +42,8 @@ export default inLesson("a1-35-the-way", {
       goal: "Ask them where the place on your card is.",
       they: "They wait for your question.",
       answeredNext: true,
-      move: "ask",
+      /* Either shape: "Jah?" asks for the question, "Jah, ma kuulan." invites it. */
+      move: "confirm",
       topic: ["kus"],
       needs: [{ kind: "question" }, { kind: "datum", slot: "place" }],
       required: true,

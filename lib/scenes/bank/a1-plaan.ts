@@ -17,18 +17,18 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `a1-plaan`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "a1-plaan", beat: "greet", text: "Tere!", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-plaan", beat: "greet", text: "Tere päevast!", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-plaan", beat: "saturday", text: "Mida sa teed laupäeval?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-plaan", beat: "saturday", text: "Ja mida sa teed laupäeval?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-plaan", beat: "invite", text: "Kas sa tahad tulla? Mina teen süüa.", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-plaan", beat: "invite", text: "Mina teen süüa. Kas sa tahad tulla?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-plaan", beat: "time", text: "Kell kuus. Kas sa saad?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-plaan", beat: "time", text: "Kell seitse. Kas sa saad?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-plaan", beat: "close", text: "Head aega!", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-plaan", beat: "close", text: "Aitäh! Head aega!", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-plaan", beat: "answer:time", text: "Hästi!", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-plaan", beat: "answer:time", text: "Hästi, aitäh!", model: "authored", draftedAt: "2026-10-17" },
+  { scene: "a1-plaan", beat: "greet", text: "Tere!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-plaan", beat: "greet", text: "Tere päevast!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-plaan", beat: "saturday", text: "Mida sa teed laupäeval?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-plaan", beat: "saturday", text: "Ja mida sa teed laupäeval?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-plaan", beat: "invite", text: "Kas sa tahad tulla? Mina teen süüa.", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-plaan", beat: "invite", text: "Mina teen süüa. Kas sa tahad tulla?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-plaan", beat: "time", text: "Kell kuus. Kas sa saad?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-plaan", beat: "time", text: "Kell seitse. Kas sa saad?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-plaan", beat: "close", text: "Head aega!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-plaan", beat: "close", text: "Aitäh! Head aega!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-plaan", beat: "answer:time", text: "Hästi!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-plaan", beat: "answer:time", text: "Hästi, aitäh!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
 ];
 
 export default LINES;

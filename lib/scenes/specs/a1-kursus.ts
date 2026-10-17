@@ -102,7 +102,13 @@ export default inLesson("a1-17-course", {
     },
     {
       id: "close",
-      goal: "They thank you. Say you're welcome.",
+      /*
+        "Pole tänu väärt!" is what the native reader would have the learner say,
+        and no lesson by 17 teaches it; until one does, thanking back is the
+        other answer, and the goal says so rather than offering a pick it
+        then calls wrong.
+      */
+      goal: "They thank you. Say you're welcome, or thank them back.",
       they: "They say well done and thank you, and turn to the next person.",
       move: "close",
       topic: ["Aitäh!"],

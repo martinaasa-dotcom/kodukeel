@@ -17,16 +17,16 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `a1-trepil`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "a1-trepil", beat: "greet", text: "Tere õhtust!", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-trepil", beat: "greet", text: "Tere!", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-trepil", beat: "name", text: "Mina olen Mari. Mis su nimi on?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-trepil", beat: "name", text: "Mis su nimi on?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-trepil", beat: "estonian", text: "Väga meeldiv! Kas sa oled eestlane?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-trepil", beat: "estonian", text: "Kas sa oled eestlane?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-trepil", beat: "how", text: "Kuidas läheb?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-trepil", beat: "how", text: "Ja kuidas läheb?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-trepil", beat: "close", text: "Head aega!", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-trepil", beat: "close", text: "Nägemist!", model: "authored", draftedAt: "2026-10-17" },
+  { scene: "a1-trepil", beat: "greet", text: "Tere õhtust!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-trepil", beat: "greet", text: "Tere!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-trepil", beat: "name", text: "Mina olen Mari. Mis su nimi on?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-trepil", beat: "name", text: "Mis su nimi on?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-trepil", beat: "estonian", text: "Väga meeldiv! Kas sa oled eestlane?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-trepil", beat: "estonian", text: "Kas sa oled eestlane?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-trepil", beat: "how", text: "Kuidas läheb?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-trepil", beat: "how", text: "Ja kuidas läheb?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-trepil", beat: "close", text: "Head aega!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-trepil", beat: "close", text: "Nägemist!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
 ];
 
 export default LINES;

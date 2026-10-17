@@ -59,7 +59,8 @@ export default inLesson("a1-29-cafe-evening", {
       topic: ["veel", "kook", "sai"],
       needs: [{ kind: "anyOf", of: [{ kind: "datum", slot: "food" }, { kind: "lemma", oneOf: ["kook", "sai", "ei", "jah"] }] }],
       required: false,
-      patience: 2,
+      /* Asked once: it has one line, and "Kas veel midagi?" twice is a waiter not listening. */
+      patience: 1,
       shape: "word",
     },
     {
@@ -76,7 +77,8 @@ export default inLesson("a1-29-cafe-evening", {
       topic: ["maksma", "euro"],
       needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["maksma"] }],
       required: true,
-      patience: 2,
+      /* Waited on once: the line is the order put down, and the total comes next whether or not they asked. */
+      patience: 1,
       shape: "sentence",
     },
     {

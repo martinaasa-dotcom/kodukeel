@@ -17,20 +17,20 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `a1-kursus`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "a1-kursus", beat: "greet", text: "Tere õhtust!", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-kursus", beat: "greet", text: "Tere!", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-kursus", beat: "name", text: "Mis teie nimi on?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-kursus", beat: "name", text: "Ja mis teie nimi on?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-kursus", beat: "from", text: "Väga meeldiv! Kust te pärit olete?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-kursus", beat: "from", text: "Kust te pärit olete?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-kursus", beat: "live", text: "Kus te elate?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-kursus", beat: "live", text: "Ja kus te elate?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-kursus", beat: "family", text: "Kas teil on pere?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-kursus", beat: "family", text: "Kas teil on perekond?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-kursus", beat: "speak", text: "Kas te räägite eesti keelt?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-kursus", beat: "speak", text: "Ja kas te räägite eesti keelt?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-kursus", beat: "close", text: "Väga hästi! Aitäh!", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-kursus", beat: "close", text: "Aitäh!", model: "authored", draftedAt: "2026-10-17" },
+  { scene: "a1-kursus", beat: "greet", text: "Tere õhtust!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-kursus", beat: "greet", text: "Tere!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-kursus", beat: "name", text: "Mis teie nimi on?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-kursus", beat: "name", text: "Ja mis teie nimi on?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-kursus", beat: "from", text: "Väga meeldiv! Kust te pärit olete?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-kursus", beat: "from", text: "Kust te pärit olete?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-kursus", beat: "live", text: "Kus te elate?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-kursus", beat: "live", text: "Ja kus te elate?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-kursus", beat: "family", text: "Kas teil on pere?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-kursus", beat: "family", text: "Kas teil on perekond?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-kursus", beat: "speak", text: "Kas te räägite eesti keelt?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-kursus", beat: "speak", text: "Ja kas te räägite eesti keelt?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-kursus", beat: "close", text: "Väga hästi! Aitäh!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-kursus", beat: "close", text: "Aitäh!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
 ];
 
 export default LINES;

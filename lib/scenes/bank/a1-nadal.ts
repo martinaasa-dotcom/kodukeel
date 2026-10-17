@@ -17,18 +17,18 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `a1-nadal`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "a1-nadal", beat: "greet", text: "Tere!", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-nadal", beat: "greet", text: "Tere päevast!", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-nadal", beat: "how", text: "Kuidas läheb?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-nadal", beat: "how", text: "Ja kuidas läheb?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-nadal", beat: "saturday", text: "Mida sa laupäeval tegid?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-nadal", beat: "saturday", text: "Ja mida sa laupäeval tegid?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-nadal", beat: "sunday", text: "Ja pühapäeval?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-nadal", beat: "sunday", text: "Mida sa pühapäeval tegid?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-nadal", beat: "meet", text: "Saame järgmisel nädalal kokku?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-nadal", beat: "meet", text: "Kas saame järgmisel nädalal kokku?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-nadal", beat: "close", text: "Tore! Head aega!", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-nadal", beat: "close", text: "Head aega!", model: "authored", draftedAt: "2026-10-17" },
+  { scene: "a1-nadal", beat: "greet", text: "Tere!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-nadal", beat: "greet", text: "Tere päevast!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-nadal", beat: "how", text: "Kuidas läheb?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-nadal", beat: "how", text: "Ja kuidas läheb?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-nadal", beat: "saturday", text: "Mida sa laupäeval tegid?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-nadal", beat: "saturday", text: "Ja mida sa laupäeval tegid?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-nadal", beat: "sunday", text: "Ja pühapäeval?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-nadal", beat: "sunday", text: "Mida sa pühapäeval tegid?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-nadal", beat: "meet", text: "Saame järgmisel nädalal kokku?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-nadal", beat: "meet", text: "Kas saame järgmisel nädalal kokku?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-nadal", beat: "close", text: "Tore! Head aega!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-nadal", beat: "close", text: "Head aega!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
 ];
 
 export default LINES;

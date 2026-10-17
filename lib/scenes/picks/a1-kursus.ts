@@ -16,7 +16,7 @@ export const a1Kursus: ScenePicks = {
   ],
   from: [
     { et: "Ma olen pärit {from:ABLATIVE}.", en: "I'm from {from}." },
-    { et: "{from}.", en: "{from}." },
+    { et: "{from:ABLATIVE}.", en: "From {from}." },
   ],
   live: [
     { et: "Ma elan Tallinnas.", en: "I live in Tallinn." },

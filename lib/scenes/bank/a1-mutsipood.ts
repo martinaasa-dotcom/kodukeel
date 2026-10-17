@@ -17,16 +17,16 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `a1-mutsipood`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "a1-mutsipood", beat: "greet", text: "Tere!", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-mutsipood", beat: "greet", text: "Tere päevast!", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-mutsipood", beat: "item", text: "Mida soovite?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-mutsipood", beat: "item", text: "Mida te soovite?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-mutsipood", beat: "colour", text: "Jah, väljas on külm! Mis värvi?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-mutsipood", beat: "colour", text: "Mis värvi?", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-mutsipood", beat: "price", text: "See on ilus.", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-mutsipood", beat: "price", text: "Palun, see on ilus.", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-mutsipood", beat: "close", text: "Aitäh! Head aega!", model: "authored", draftedAt: "2026-10-17" },
-  { scene: "a1-mutsipood", beat: "close", text: "Head aega!", model: "authored", draftedAt: "2026-10-17" },
+  { scene: "a1-mutsipood", beat: "greet", text: "Tere!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-mutsipood", beat: "greet", text: "Tere päevast!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-mutsipood", beat: "item", text: "Mida soovite?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-mutsipood", beat: "item", text: "Mida te soovite?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-mutsipood", beat: "colour", text: "Jah, väljas on külm! Mis värvi?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-mutsipood", beat: "colour", text: "Mis värvi?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-mutsipood", beat: "price", text: "See on ilus.", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-mutsipood", beat: "price", text: "Palun, see on ilus.", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-mutsipood", beat: "close", text: "Aitäh! Head aega!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-mutsipood", beat: "close", text: "Head aega!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
 ];
 
 export default LINES;
