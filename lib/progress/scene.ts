@@ -56,6 +56,7 @@ import { recapOf, type SceneRecap } from "@/lib/scenes/recap";
 import { addsEvidence, answerPart, concede, metByWord, onlyAsks, readTurn } from "@/lib/scenes/turn";
 import { saysGoodbye, CLOSING_WORDS } from "@/lib/scenes/casual";
 import { clip } from "@/lib/copy/clip";
+import { core } from "@/lib/speech/reconcile";
 import { localeFor } from "@/lib/progress/locale";
 
 /**
@@ -938,6 +939,67 @@ export interface SentTurn {
    * grades.
    */
   readonly picked?: boolean;
+  /**
+   * SAID ALOUD RATHER THAN TYPED (docs/41-fifth-batch.md, VB-4), where it was.
+   *
+   * A spoken turn is read exactly as a typed one: `said` is what the learner
+   * saw in the box and sent, and the conversation goes on the same way. The one
+   * thing that changes is the grade. The recognizer's reading is repaired
+   * against the dictionary where it heard a word that is not a word
+   * (`lib/speech/reconcile.ts`), and a repaired word is the dictionary's
+   * spelling of what the learner meant rather than something they produced, so
+   * it earns no row (D13). `repaired` is those spellings, as compared, and only
+   * the ones still in `said`: a learner who changed the word in the box before
+   * sending it wrote it themselves.
+   *
+   * The client's word, like `picked`, and a forged one can only ever remove
+   * grades. What the recognizer heard is not sent: the transcript keeps what
+   * was said, as for any turn (D21).
+   */
+  readonly spoken?: SpokenTurn;
+}
+
+/** What the transcript keeps about a turn said aloud. */
+export interface SpokenTurn {
+  /** The words the dictionary repaired that the learner sent unchanged, lower-cased, as compared. */
+  readonly repaired: readonly string[];
+  /**
+   * How many words the recognizer heard and how many of them the learner
+   * changed before sending (`editCounts` in `lib/speech/edits.ts`), for the edit rate
+   * `npm run report:speech` reads (D3). Two numbers and never the words, and
+   * absent where the client sent none.
+   */
+  readonly wordsHeard?: number;
+  readonly wordsChanged?: number;
+}
+
+/** A count off the wire: a whole number, bounded, or nothing. */
+function countOf(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0 ? Math.min(value, 200) : undefined;
+}
+
+/**
+ * The `spoken` field off the wire, or nothing on a typed turn. The repairs
+ * arrive as the recognizer's own (`Repair`), and only the spellings each one
+ * wrote into the box are kept, and only where `said` still holds them.
+ */
+export function spokenOf(input: unknown, said: string): SpokenTurn | undefined {
+  if (!input || typeof input !== "object") return undefined;
+  const repairs = (input as { repairs?: unknown }).repairs;
+  const sent = new Set(said.split(/\s+/).map(core).filter(Boolean));
+  const repaired = Array.isArray(repairs)
+    ? [...new Set(repairs.slice(0, 16).flatMap((one) => {
+        const row = (one ?? {}) as { to?: unknown; rule?: unknown };
+        if (row.rule === "hesitation" || typeof row.to !== "string") return [];
+        return row.to.slice(0, 64).split(/\s+/).map(core).filter((word) => word && sent.has(word));
+      }))]
+    : [];
+  const o = input as { wordsHeard?: unknown; wordsChanged?: unknown };
+  const heard = countOf(o.wordsHeard);
+  const changed = countOf(o.wordsChanged);
+  return heard !== undefined && changed !== undefined
+    ? { repaired, wordsHeard: heard, wordsChanged: Math.min(changed, heard) }
+    : { repaired };
 }
 
 /** The `alsoDone` field off the wire: beat ids only, deduplicated, bounded. */
@@ -1452,7 +1514,31 @@ export function replay(
     turn straight after, and the turn is helped, so it grades as help.
   */
   let handed: { beatId: string; word: string } | null = null;
+  /*
+    A TURN SAID ALOUD CARRIES ITS REPAIRED WORDS ONTO EVERY RECORD IT MADE
+    (D13), and only `gradesFor` reads them. One turn can make several records
+    (a beat met, the next met by the same words, a beat credited from a
+    distance), and the paths that make them leave the loop by `continue` from a
+    dozen places, so the records a turn made are marked at the top of the next
+    turn and once more after the last, rather than at every exit.
+  */
+  let marked = state.turns.length;
+  let speaking: SpokenTurn | undefined;
+  const markSpoken = () => {
+    if (speaking && state.turns.length > marked) {
+      const { repaired, wordsHeard, wordsChanged } = speaking;
+      // The counts ride on the turn's first record only, so a turn that made several is counted once.
+      const counts = wordsHeard !== undefined && wordsChanged !== undefined ? { spoken: true as const, wordsHeard, wordsChanged } : {};
+      state = {
+        ...state,
+        turns: state.turns.map((turn, at) => (at > marked ? { ...turn, repaired } : at === marked ? { ...turn, repaired, ...counts } : turn)),
+      };
+    }
+    marked = state.turns.length;
+  };
   for (const sent of turns.slice(0, MAX_TURNS)) {
+    markSpoken();
+    speaking = sent.spoken;
     // Per turn, not per run: the reply asks about the turn that has just been taken.
     elsewhere = 0;
     const beat = currentBeat(context.scene, state);
@@ -1744,6 +1830,7 @@ export function replay(
     further(new Set(evidence.satisfiedBy), heard, !["lost", "english", "echo", "unrecognised"].includes(evidence.reading), beat);
     previous = heard;
   }
+  markSpoken();
   return { state, response, elsewhere };
 }
 
@@ -1871,6 +1958,32 @@ export async function sceneHistoryFor(ownerId: string): Promise<ReadonlyMap<stri
     out.set(row.sceneId, { plays: 1, last, lastAt: row.endedAt });
   }
   return out;
+}
+
+/**
+ * WHETHER THIS LEARNER HAS FINISHED THIS SCENE, which is what offers "Talk it
+ * through" on its briefing (docs/41-fifth-batch.md, VB-4): cold plus speaking
+ * is the closest the app comes to the real thing, and it is for a conversation
+ * somebody has already got through once with the words on screen. Finished is
+ * every objective met, read off the run's own outcome, so a run somebody
+ * walked out of does not count. Derived on each render (ADR-014): a handful of
+ * the newest finished runs of one scene, on the index that holds them.
+ */
+export async function finishedScene(ownerId: string, sceneId: string): Promise<boolean> {
+  const rows = await prisma.sceneRun.findMany({
+    where: { ownerId, sceneId, endedAt: { not: null } },
+    select: { outcome: true },
+    orderBy: [{ startedAt: "desc" }, { id: "desc" }],
+    take: 20,
+  });
+  return rows.some((row) => {
+    try {
+      const parsed = JSON.parse(row.outcome ?? "{}") as { met?: unknown; missed?: unknown };
+      return Array.isArray(parsed.met) && parsed.met.length > 0 && Array.isArray(parsed.missed) && parsed.missed.length === 0;
+    } catch {
+      return false;
+    }
+  });
 }
 
 /**

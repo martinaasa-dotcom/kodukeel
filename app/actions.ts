@@ -18,7 +18,7 @@ import { classworkMarker } from "@/lib/ux/agenda";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
 import { cardsForGrades } from "@/lib/scenes/grades";
-import { alsoDoneOf, beatNow, beginRun, concededOf, finishRun, MAX_TURNS, MAX_TURN_CHARS } from "@/lib/progress/scene";
+import { alsoDoneOf, beatNow, beginRun, concededOf, finishRun, MAX_TURNS, MAX_TURN_CHARS, spokenOf } from "@/lib/progress/scene";
 import { sceneProviders } from "@/lib/tutor/provider";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { formName } from "@/lib/estonian/morph";
@@ -75,6 +75,7 @@ import { caseGlossFrom } from "@/lib/estonian/caseGloss";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
 import { hearingFrom, hidesWords, supportFrom } from "@/lib/audio/conditions";
 import { sceneVoiceFrom } from "@/lib/audio/sceneVoice";
+import { sceneAnswerFrom } from "@/lib/ux/sceneAnswer";
 import { SPEECH_PACES } from "@/lib/audio/pace";
 import { kindFrom } from "@/lib/ux/schedule";
 import { participationValue } from "@/lib/research/participation";
@@ -601,7 +602,7 @@ async function gradeFor(
  */
 async function gradeOnce(
   ownerId: string, cardId: string, rating: RatingValue, reviewId: string,
-  slots: { practisedSlot?: string; reachedSlot?: string } = {},
+  slots: { practisedSlot?: string; reachedSlot?: string; spoken?: boolean } = {},
 ) {
   /*
     Asked first rather than only caught, so the answer does not depend on how
@@ -1742,11 +1743,14 @@ export async function sceneHelp(runId: unknown, turns: unknown) {
   const said = Array.isArray(turns)
     ? turns.slice(0, MAX_TURNS).map((one) => {
         const row = (one ?? {}) as Record<string, unknown>;
+        const said = clip(text(row.said), MAX_TURN_CHARS);
+        const spoken = spokenOf(row.spoken, said);
         return {
           beatId: text(row.beatId).slice(0, 64),
-          said: clip(text(row.said), MAX_TURN_CHARS),
+          said,
           helped: row.helped === true,
           ...(row.picked === true ? { picked: true } : {}),
+          ...(spoken ? { spoken } : {}),
           heard: clip(text(row.heard), MAX_TURN_CHARS),
           conceded: concededOf(row.conceded),
           alsoDone: alsoDoneOf(row.alsoDone),
@@ -1830,11 +1834,14 @@ export async function finishScene(input: {
   const turns = Array.isArray(input.turns)
     ? input.turns.slice(0, MAX_TURNS).map((turn) => {
         const row = (turn ?? {}) as Record<string, unknown>;
+        const said = clip(text(row.said), MAX_TURN_CHARS);
+        const spoken = spokenOf(row.spoken, said);
         return {
           beatId: text(row.beatId).slice(0, 64),
-          said: clip(text(row.said), MAX_TURN_CHARS),
+          said,
           helped: row.helped === true,
           ...(row.picked === true ? { picked: true } : {}),
+          ...(spoken ? { spoken } : {}),
           heard: clip(text(row.heard), MAX_TURN_CHARS),
           conceded: concededOf(row.conceded),
           alsoDone: alsoDoneOf(row.alsoDone),
@@ -1895,12 +1902,18 @@ export async function finishScene(input: {
       is graded once. `finishRun` closes a run once and a second finish gets
       nothing to grade; the id is the second lock on the same door.
     */
+    /*
+      A turn said aloud writes its row as spoken, so `npm run report:speech`
+      counts a conversation's spoken recalls beside the cards'. A requirement
+      met by a word the dictionary repaired never reaches here (D13).
+    */
     const result = await gradeOnce(
       ownerId, cardId, grade.rating as RatingValue,
       stableReviewId("scene", ownerId, finished.runId, String(index)),
       {
         ...(grade.grammCase ? { practisedSlot: grade.grammCase } : {}),
         ...(grade.reachedCase ? { reachedSlot: grade.reachedCase } : {}),
+        ...(grade.spoken ? { spoken: true } : {}),
       },
     );
     if (result.ok && !result.repeat) graded += 1;
@@ -2280,6 +2293,20 @@ export async function setSceneVoice(value: unknown) {
   const normalised = sceneVoiceFrom(value, "guided");
   await writeSetting(ownerId, SETTING_KEYS.sceneVoice, normalised);
   revalidatePath("/", "layout");
+  return { ok: true as const, value: normalised };
+}
+
+/**
+ * How the learner answers in a conversation, picked on the switch above the
+ * box and remembered for the next one (lib/ux/sceneAnswer.ts). Normalized on
+ * the way in, and not revalidated: the conversation the switch was pressed in
+ * is already under way, and the next one reads it when its page renders.
+ */
+export async function setSceneAnswer(value: unknown) {
+  const ownerId = await requireUserId();
+  const normalised = sceneAnswerFrom(value);
+  if (!normalised) return { ok: false as const };
+  await writeSetting(ownerId, SETTING_KEYS.sceneAnswer, normalised);
   return { ok: true as const, value: normalised };
 }
 

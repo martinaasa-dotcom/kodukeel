@@ -162,6 +162,20 @@ who asked for English, not a reaction in Estonian, and the table already says th
 (the consistency check withholding the pharmacist's lines over the queue number, an interviewer
 answering "kas küsimus?" with a question back), which is the composer's and not the reply's order.
 
+**VB-4, a conversation said aloud, 2026-10-17.** `scripts/test-scene-speech.mjs` plays the café start
+to finish into Chromium's fake microphone, five new fixture clips made by TartuNLP from lines the
+café's own picks offer, and a telephone room hands-free after one press: 28 checks, 28 passed, twice
+in a row on a production build. The typed and picked runs are unchanged (`scripts/test-scene.mjs` 63
+of 63), and `npm run play:scenes` and `npm run sweep:fallback` print byte for byte what the base
+branch prints (6,312 conversations, 0 flags). The suite found one fault in the product rather than in
+itself: a learner who pressed the microphone in the gap between the other side's line arriving and its
+clip starting had their press thrown away, because D14 closed the microphone and nothing opened it
+again. It now reopens once the app has finished speaking. **The one capped composed play** fed the
+café the turns as the recognizer hands them back (lower case, no punctuation, `--say`), since the
+harness types and a spoken turn reaches the reply as a typed one (D26): six turns, six beats met,
+every composed line taking the turn it was given. **Spent: $0.0126 on 11 metered calls**, under the
+$1 cap.
+
 **C-1, the sign-in page on production, 2026-10-16.** PageSpeed's keyless API answered 429, so
 production was read with the same Lighthouse 12.8.2 phone profile PageSpeed runs, three times against
 `https://kodukeel.ee/sign-in` once the `.arrive` entrance was deployed: **2,208, 2,462 and 1,576 ms**,
@@ -339,7 +353,7 @@ stops. Size is the work in one pull request: S is a day, M a few days, L a week 
 | VB-1 The engine and the hearing rules | 1: a conversation out loud | L | Done: sherpa-onnx 1.13.8 single-threaded in a worker, the 71 MB model checked by hash and kept offline, `/dev/asr` hearing the fixture clips online and with the network cut, ADR-028, `PAID_OFF=speech`, the first-load check, `scripts/test-speech.mjs` 16 of 16 |
 | VB-2 One microphone for the whole app | 1 | M | Done: `MicButton` in every state on the bench, `ReadAloud`, `lightUp` and `matchPick` (D20) unit tested, Settings' Speaking section, Ctrl+M on both shortcut lists, the three phrases in `lib/copy/voice.ts`, `scripts/invariants/one-microphone.ts` |
 | VB-3 Ready for the native apps | 1, before November | S | Done: `docs/42-native-apps.md`, and `lib/speech/fixtures/golden.json` recorded off the web engine with `npm run asr:golden` and held by `lib/speech/golden.test.ts` |
-| VB-4 Conversations, spoken | 1 | L | Not started |
+| VB-4 Conversations, spoken | 1 | L | Done: a third way to answer, "Say it", remembered; a said line lights its pick and the 2.5 s ring sends it; repaired words grade nothing (D13); call mode on the telephone rooms; "Hear them first", "Talk it through" and "Say it once"; `scripts/test-scene-speech.mjs` 28 of 28; $0.01 composed |
 | VB-5 The Speaking round, rebuilt, and hands-free | 1 | M | Done: three steps in `lib/games/speaking.ts` (12 tests), only the recall grades and a miss writes nothing, the read-back of `heard` metered and stored nowhere, hands-free with the wake lock and Media Session, the exam's spoken part heard on the device and still self-marked, and the module's A1 `flash` slot dealt to it; `scripts/test-speaking.mjs` 22 of 22 |
 | VB-6 Saying it on the daily path | 2: speaking everywhere it teaches | M | Done: "Your turn" on the meet rung, and the microphone in the answer boxes of the review card, the closing review, the Learn ladder and the flash round (D6); heard as spelled grades Good, anything else fills the box for Check, a repaired word writes nothing, and `spoken` reaches the outbox offline, asserted in a browser |
 | VB-7 Numbers out loud | 2 | M | Not started |

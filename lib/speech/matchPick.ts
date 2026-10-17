@@ -19,6 +19,15 @@ import { lineWords, lightUp, shareLit } from "./lightUp";
 export const MATCH_AT = 0.7;
 export const MATCH_MARGIN = 0.2;
 
+/**
+ * How long a lit line, or a heard turn in the box, waits before it is sent on
+ * its own: the countdown ring of D20. Long enough to read what was heard and
+ * touch the screen to stop it, short enough that a conversation still flows.
+ * Any touch of the screen or the box stops it, and "Send what I say straight
+ * away" skips it (`lib/ux/speechPrefs.ts`).
+ */
+export const SEND_RING_MS = 2500;
+
 export interface PickMatch {
   /** The index of the pick that was said, or null where none clearly was. */
   readonly index: number | null;

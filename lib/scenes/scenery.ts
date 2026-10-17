@@ -182,6 +182,26 @@ export function sceneryFor(sceneId: string): Scenery {
 }
 
 /**
+ * THE CONVERSATIONS THAT ARE A TELEPHONE CALL, WHICH CAN BE HAD HANDS-FREE.
+ *
+ * On a call nobody presses a button to speak: the other side finishes and it
+ * is your turn. So in these, once the learner has pressed the microphone once,
+ * it opens by itself after each of the other side's lines
+ * (docs/41-fifth-batch.md, VB-4 call mode).
+ *
+ * Read off the room a conversation *opens* in, because a call stays a call
+ * when the room moves: `poodi-piima` rings in a kitchen, walks into a shop and
+ * walks home again, and the friend is on the line the whole way (the shop is
+ * drawn with the phone at your ear for that reason). The same shop is an
+ * ordinary counter in `riidepood`, so a room alone could not say which.
+ */
+const TELEPHONES: ReadonlySet<Setting> = new Set<Setting>(["home_phone"]);
+
+export function isCall(sceneId: string): boolean {
+  return TELEPHONES.has(sceneryFor(sceneId).setting);
+}
+
+/**
  * WHERE A SCENE MOVES YOU TO, WHICH IS THE HALF A SINGLE SETTING CANNOT SAY.
  *
  * `BeatSpec.meanwhile` is one line of English about time passing, and for one

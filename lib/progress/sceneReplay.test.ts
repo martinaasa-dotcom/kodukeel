@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { planRun } from "@/lib/scenes/run";
-import { acceptFromRows, contextFromRows, replay, sceneLemmas, type Row } from "./scene";
+import { acceptFromRows, contextFromRows, replay, sceneLemmas, spokenOf, type Row, type SentTurn } from "./scene";
+import { gradesFor } from "@/lib/scenes/grades";
+import { spokenTurnCounts } from "@/lib/stats/speechReport";
 import { shippedDictionary } from "../../scripts/lib/dictionary";
 
 /*
@@ -156,5 +158,69 @@ describe("a turn read in front of a curveball", () => {
     const state = play(["Tere!", "Ma tahaksin osta ühe pileti haiglasse."]);
     expect(state.done).toEqual(expect.arrayContaining(["want", "to"]));
     expect(scene.beats[state.beat]?.id).toBe("when");
+  });
+});
+
+/*
+  A TURN SAID ALOUD IS READ AS A TYPED ONE, AND A REPAIRED WORD GRADES NOTHING
+  (docs/41-fifth-batch.md, VB-4, D13). The recognizer heard a non-word and the
+  dictionary read it as a word the moment could hold; the turn still meets its
+  beat, and the review log may not hold a recall of a spelling the learner
+  never produced.
+*/
+describe("a turn said aloud", () => {
+  const rows: Row[] = shippedDictionary().map((e) => ({
+    id: e.lemma, lemma: e.lemma, pos: e.pos, cefr: e.cefr, parts: e.parts,
+    extraForms: e.extraForms, usages: e.usages, government: e.government, gloss: e.gloss,
+  }));
+  const scene = sceneById("arsti-aeg")!;
+  const context = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)), "A2");
+  const run = planRun(scene, "spoken-turn", "A2", "textbook");
+  const draw = { persona: run.persona.id, card: run.card, curveballs: [], lines: "scripted" as const, patience: run.patience };
+  const turns = (spoken?: SentTurn["spoken"]): SentTurn[] => [
+    { beatId: "greet", said: "Tere!", helped: false, heard: "" },
+    { beatId: "reason", said: "Mul on valu.", helped: false, heard: "", ...(spoken ? { spoken } : {}) },
+  ];
+
+  it("meets its beat exactly as typed, and carries its repairs onto the record", () => {
+    const typed = replay(context, draw, turns()).state;
+    const said = replay(context, draw, turns({ repaired: ["valu"] })).state;
+    expect(said.done).toEqual(typed.done);
+    expect(said.done).toContain("reason");
+    expect(said.turns.find((turn) => turn.beatId === "reason")?.repaired).toEqual(["valu"]);
+    expect(typed.turns.find((turn) => turn.beatId === "reason")?.repaired).toBeUndefined();
+  });
+
+  it("puts the edit counts on the turn's first record, once, where the report reads them", () => {
+    const said = replay(context, draw, turns({ repaired: [], wordsHeard: 3, wordsChanged: 1 })).state;
+    const spoken = said.turns.filter((turn) => turn.spoken);
+    expect(spoken).toHaveLength(1);
+    expect(spokenTurnCounts(spoken[0])).toEqual({ wordsHeard: 3, wordsChanged: 1 });
+    expect(said.turns.filter((turn) => turn.repaired !== undefined).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("writes no review for the word the dictionary repaired, and does for the same word heard as spelled", () => {
+    const lemmas = (spoken?: SentTurn["spoken"]) =>
+      gradesFor(scene, replay(context, draw, turns(spoken)).state, run.card, context.lexicon).map((grade) => grade.lemma);
+    expect(lemmas({ repaired: ["valu"] })).not.toContain("valu");
+    expect(lemmas({ repaired: [] })).toContain("valu");
+    expect(lemmas()).toContain("valu");
+  });
+
+  it("keeps only the repairs whose word was sent, and never a filled pause", () => {
+    expect(spokenOf({ repairs: [
+      { from: "valuu", to: "valu", rule: "sound" },
+      { from: "poed", to: "poodi", rule: "sound" },
+      { from: "ee", to: "", rule: "hesitation" },
+    ] }, "Mul on valu.")).toEqual({ repaired: ["valu"] });
+    expect(spokenOf(undefined, "Mul on valu.")).toBeUndefined();
+    expect(spokenOf({}, "Mul on valu.")).toEqual({ repaired: [] });
+  });
+
+  it("keeps the edit counts as two bounded numbers, and never more changed than heard", () => {
+    expect(spokenOf({ repairs: [], wordsHeard: 3, wordsChanged: 1 }, "Mul on valu.")).toEqual({ repaired: [], wordsHeard: 3, wordsChanged: 1 });
+    expect(spokenOf({ repairs: [], wordsHeard: 2, wordsChanged: 9 }, "x")).toEqual({ repaired: [], wordsHeard: 2, wordsChanged: 2 });
+    expect(spokenOf({ repairs: [], wordsHeard: "3", wordsChanged: 1 }, "x")).toEqual({ repaired: [] });
+    expect(spokenOf({ repairs: [], wordsHeard: -1, wordsChanged: 0 }, "x")).toEqual({ repaired: [] });
   });
 });

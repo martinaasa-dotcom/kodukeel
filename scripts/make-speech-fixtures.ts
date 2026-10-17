@@ -35,6 +35,11 @@ export const SPEECH_FIXTURES = [
     voice: "mari",
     trail: 0,
   },
+  // A café played start to finish by voice (VB-4): each is a line `lib/scenes/picks/kohvikus.ts` offers.
+  { file: "scripts/fixtures/speech/kohvi-palun.wav", text: "Kohvi, palun.", voice: "tambet", trail: 2 },
+  { file: "scripts/fixtures/speech/jah-see-on-koik.wav", text: "Jah, see on kõik.", voice: "tambet", trail: 2 },
+  { file: "scripts/fixtures/speech/kaardiga-palun.wav", text: "Kaardiga, palun.", voice: "tambet", trail: 2 },
+  { file: "scripts/fixtures/speech/aitah-head-aega.wav", text: "Aitäh, head aega!", voice: "tambet", trail: 2 },
 ] as const;
 
 async function make(text: string, voice: string): Promise<Float32Array> {
