@@ -123,7 +123,8 @@ try {
         const q = new URL(page.url()).searchParams.get("q") ?? "";
         check("a word said into the dictionary is searched exactly as typed", q !== "", q);
         const box2 = await page.getByRole("textbox", { name: "Search the dictionary" }).inputValue().catch(() => "");
-        check("and the box shows what was heard, as it would show what was typed", box2.trim() === q.trim(), `${box2} / ${q}`);
+        // Two empty strings are equal, and a search that never ran is not a box showing what was heard.
+        check("and the box shows what was heard, as it would show what was typed", q.trim() !== "" && box2.trim() === q.trim(), `${box2} / ${q}`);
       } else {
         absent(2, "the dictionary drew no microphone, which the check above already reports");
       }

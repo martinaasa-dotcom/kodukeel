@@ -1956,10 +1956,11 @@ function buildSpeak(spec: TaskSpec, ctx: BuildContext, which: number): ExamTask 
 
   /*
     One item, marked out of the task's several marks by the learner themselves.
-    ADR-018: there is no verified Estonian speech recognizer available here, so
-    nothing scores a recording. The exam screen says that where it cannot be
-    missed, because a self-marked part sitting silently inside a percentage
-    would make the whole percentage a lie.
+    ADR-018 as ADR-028 amends it: the device now hears which words were said
+    (`SpokenAnswer` shows them), and nothing still scores a sound or a
+    recording. The exam screen says that where it cannot be missed, because a
+    self-marked part sitting silently inside a percentage would make the whole
+    percentage a lie.
   */
   const items: SpeakItem[] = [{
     id: `${spec.id}-0`,

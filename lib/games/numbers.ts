@@ -2,6 +2,8 @@ import { unitById } from "@/lib/collections/syllabus";
 import { fold } from "@/lib/estonian/fold";
 import { shuffle } from "@/lib/random/shuffle";
 import { CLOCK_LEMMA, clockFromText, priceFromText, spokenNumbers } from "@/lib/scenes/props";
+import { core, type HeardWord } from "@/lib/speech/reconcile";
+import { heardAsSpelled } from "@/lib/speech/verdict";
 
 /**
  * ARVUD: NUMBERS, TIMES AND PRICES, SAID OUT LOUD (docs/41-fifth-batch.md, VB-7).
@@ -341,6 +343,32 @@ export function wordsRecalled(text: string): string[] {
     if (lemma && !folded.includes(lemma) && !out.includes(lemma)) out.push(lemma);
   }
   return out;
+}
+
+/** Every number word under a hundred and the two words a time and a price are said with, for the dictionary's repairs. */
+export const NUMBER_SPELLINGS: ReadonlySet<string> = new Set([
+  CLOCK_LEMMA, EURO_LEMMA,
+  ...Array.from({ length: 101 }, (_, n) => numberLemmas(n) ?? []).flat(),
+]);
+
+/**
+ * The number words a right answer grades (D4, D13, D19).
+ *
+ * Typed, every number word spelled with its letters. Said, only those heard
+ * as they are spelled and not repaired, each on its own: a word is matched to
+ * the word heard, never to the start of one, because `kaks` is the start of
+ * `kakskümmend` and `kolm` of `kolmteist`, and a repaired `kolm` graded on a
+ * clean `kolmteist` would be D13 broken by a shortcut. `euro` is the one
+ * lemma said with an ending (`eurot`), so it alone is matched as a prefix.
+ * A wrong answer grades nothing.
+ */
+export function wordsGraded(answer: string, right: boolean, heard: readonly HeardWord[] | null): string[] {
+  if (!right) return [];
+  const words = wordsRecalled(answer);
+  if (!heard) return words;
+  const asSpelled = new Set(heard.filter((w) => heardAsSpelled(w, NUMBER_SPELLINGS.has(core(w.text)))).map((w) => core(w.text)));
+  return words.filter((lemma) =>
+    asSpelled.has(lemma) || (lemma === EURO_LEMMA && [...asSpelled].some((w) => w.startsWith(EURO_LEMMA))));
 }
 
 /* ------------------------------------------------------------------------ */
