@@ -19,7 +19,8 @@
  * Pure: no React, no Prisma, no clock.
  */
 
-import { LESSONS, LESSON_PARTS, unfold, type LessonSpec, type PatternId } from "./lessons";
+import { LESSONS, LESSON_PARTS, type LessonSpec, type PatternId } from "./lessons";
+import { lessonHeads } from "./lessonHeads";
 import { lessonLabel } from "./lessons/label";
 import { LESSON_STEP, type CourseDay, type Programme } from "./types";
 
@@ -72,29 +73,12 @@ export const LESSON_PAGES: Readonly<Record<string, { cases?: readonly string[]; 
 };
 
 /**
- * How the dictionary heads what a lesson taught: a word as it is spelled, a
- * form by the word it is a form of, and a phrase as the phrase. A phrase of
- * one word is taught as it is said, `Tere!`, and the dictionary heads it
- * as a word, `tere`, so its mark and its capital come off; a phrase of
- * several words keeps both, which is how the dictionary heads `Tere
- * hommikust!`. A spelling the dictionary does not hold is still what the
- * lesson taught, and simply gets no card.
+ * What a lesson taught, as the dictionary heads it: a headword where the
+ * dictionary has one (`ma` is `mina`), and the lesson's own entry where it
+ * does not (`Tere päevast!`), which the seed writes. See `lessonHeads.ts`.
  */
 export function lessonWords(lesson: LessonSpec): string[] {
-  const out: string[] = [];
-  for (const item of lesson.teaches.flatMap(unfold)) {
-    const head = item.kind === "form" ? item.of
-      : item.kind === "phrase" && !/\s/.test(item.et.trim()) ? asWord(item.et)
-      : item.et;
-    if (!out.includes(head)) out.push(head);
-  }
-  return out;
-}
-
-/** A one-word phrase as a dictionary word: no mark, and no capital it took for starting a sentence. */
-function asWord(said: string): string {
-  const bare = said.trim().replace(/[.!?]+$/, "");
-  return bare.charAt(0).toLocaleLowerCase("et") + bare.slice(1);
+  return lessonHeads(lesson);
 }
 
 /** Braces mark Estonian inside English for a screen; a sentence printed plain drops them. */

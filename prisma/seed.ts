@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { PrismaClient } from "@prisma/client";
 import { newPrismaClient } from "../lib/db";
 import { NOUNS } from "./data/nouns";
@@ -20,6 +21,7 @@ import { classifyGradation, classifyVerbGradation, gradates } from "../lib/eston
 import { courseWords } from "../lib/collections/syllabus/index";
 import { englishFor } from "../lib/dict/exampleEnglish";
 import { isRefusedSentence } from "../lib/dict/refused";
+import { lessonEntries } from "../lib/course/lessonHeads";
 
 const prisma = newPrismaClient();
 
@@ -200,6 +202,17 @@ async function main() {
   if (unbanded > 0) {
     console.log(`Took the band off ${unbanded} words a model suggested and nobody has checked.`);
   }
+
+  /*
+    The A1 lessons' own entries: a phrase or a chunk the course harvest does
+    not head (`Tere päevast!`, `hommikul`), so a finished lesson has a card to
+    hand the deck for it (lib/course/lessonHeads.ts). Before the early return,
+    because the deploy runs `--only-if-empty` and an existing deployment needs
+    these as much as a new one. Added and never updated: a hand edit or a
+    learner's correction to one wins over the lesson's English.
+  */
+  const lessonAdded = await writeLessonEntries(prisma);
+  if (lessonAdded > 0) console.log(`Added ${lessonAdded} entries the A1 lessons teach.`);
 
   if (process.argv.includes("--only-if-empty")) {
     const existing = await prisma.lexeme.count();
@@ -449,3 +462,27 @@ main()
     await prisma.$disconnect();
     process.exit(1);
   });
+
+
+/**
+ * Every entry the lessons need that no row heads yet, by lemma whatever its
+ * part of speech, so a lesson never writes a second entry beside one a learner
+ * or a lookup already made.
+ */
+async function writeLessonEntries(client: PrismaClient): Promise<number> {
+  /* What the built expansion heads, which loads after this on an empty database. */
+  const expanded = new Set(
+    (JSON.parse(readFileSync("prisma/data/expanded.json", "utf8")) as { lemma: string }[]).map((e) => e.lemma),
+  );
+  const entries = lessonEntries(expanded);
+  const held = new Set((await client.lexeme.findMany({
+    where: { lemma: { in: entries.map((e) => e.lemma) } }, select: { lemma: true },
+  })).map((r) => r.lemma));
+  const fresh = entries.filter((e) => !held.has(e.lemma));
+  if (fresh.length === 0) return 0;
+  const { count } = await client.lexeme.createMany({
+    data: fresh.map((e) => ({ lemma: e.lemma, pos: e.pos, translation: e.translation, cefr: "A1", provenance: "SEED" })),
+    skipDuplicates: true,
+  });
+  return count;
+}

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { execFileSync } from "node:child_process";
 import { launchChromium } from "./lib/browser.mjs";
 import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
@@ -657,8 +658,42 @@ try {
     await page.goto(`${B}${lessonHref}`, { waitUntil: "domcontentloaded" });
     await page.waitForSelector("main h1", { timeout: 20_000 });
     check("and the lesson is drawn as a step of tonight's module", await page.locator(".module-step").count() > 0);
+
+    /*
+      AND FINISHING IT FINISHES THE EVENING AND FILLS THE DECK.
+
+      Six steps, pressed through the way a learner presses them, and then the
+      two things nothing short of a browser and a database can say: the
+      evening is ticked, and every word the lesson taught has a card behind
+      it, so it comes back in Review. A fifth of A1 once had no card at all.
+    */
+    const lessonId = lessonHref.split("?")[0].split("/").at(-1);
+    const heads = JSON.parse(execFileSync("npx", ["tsx", "-e",
+      `import { LESSONS } from "./lib/course/lessons"; import { lessonHeads } from "./lib/course/lessonHeads";
+       process.stdout.write(JSON.stringify(lessonHeads(LESSONS.find((l) => l.id === ${JSON.stringify(lessonId)}))));`,
+    ], { encoding: "utf8" }));
+    const onward = page.getByRole("button", { name: /^(Continue|Skip this step|Finish the lesson)/ }).last();
+    for (let i = 0; i < 6 && (await onward.count()) > 0; i++) {
+      await onward.click();
+      await page.waitForTimeout(400);
+    }
+    await page.getByRole("heading", { name: "Lesson done" }).waitFor({ timeout: 20_000 }).catch(() => {});
+    check("pressing through all six steps ends the lesson", await page.getByRole("heading", { name: "Lesson done" }).count() === 1);
+    let ticked = 0;
+    for (let i = 0; i < 40 && ticked === 0; i++) {
+      ticked = await prisma.courseStep.count({ where: { ownerId: OWNER, programmeId: "a1.1", dayId: lessonId, stepId: "lesson" } });
+      if (ticked === 0) await page.waitForTimeout(250);
+    }
+    check("and ticks the evening it is", ticked === 1, `${ticked} tick(s) on ${lessonId}`);
+    const carded = new Set((await prisma.card.findMany({
+      where: { ownerId: OWNER, cardType: "RECOGNITION", lexeme: { lemma: { in: heads } } },
+      select: { lexeme: { select: { lemma: true } } },
+    })).map((c) => c.lexeme.lemma));
+    const cardless = heads.filter((h) => !carded.has(h));
+    check("and every word it taught has a card in the deck", heads.length > 0 && cardless.length === 0,
+      `${heads.length} taught, no card for: ${cardless.join(", ")}`);
   } else {
-    absent(1, "the lesson step carried no address to open");
+    absent(4, "the lesson step carried no address to open");
   }
 } finally {
   /*
