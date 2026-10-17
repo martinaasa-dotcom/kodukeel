@@ -84,7 +84,7 @@ let unitCommands: Command[] | null = null;
 function loadUnitCommands(): Promise<Command[]> {
   if (unitCommands) return Promise.resolve(unitCommands);
   return import("@/lib/collections/syllabus").then(({ PATH }) => {
-    unitCommands = PATH.map((u) => ({
+    unitCommands = PATH.filter((u) => u.level !== "A1").map((u) => ({
       id: `unit-${u.id}`,
       label: u.title,
       detail: u.subtitle,

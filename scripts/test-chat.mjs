@@ -45,7 +45,7 @@ const { check, done, absent } = suite("Tonight's chat", {
   /*
     Two keyless checks, five on the offer and the briefing, and per word one
     objective met and one line clean of the word, then the goodbye, the
-    debrief, the grades and the memory. The A1.1 evening this ticks asks four
+    debrief, the grades and the memory. The A2.1 evening this ticks asks four
     words, so a run reaches 24.
   */
   floor: 27,

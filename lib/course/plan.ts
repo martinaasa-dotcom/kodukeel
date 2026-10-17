@@ -45,79 +45,18 @@ export const VERB_HEAVY = 0.5;
 /**
  * The rounds each level rotates through, alternating a game and a drill.
  *
- * They get harder down the file rather than merely different. A1 spends its
- * drills on hearing and spelling, which is where a beginner's difficulty
- * actually is; from B1 the rotation carries writing a sentence of your own and
- * verb government, which are the two things that stop being optional there;
- * and above A1 the game slot the picture board used to fill is Tähed, which
- * scrambles the level's own longer words.
+ * They get harder down the file rather than merely different: from B1 the
+ * rotation carries writing a sentence of your own and verb government, which
+ * are the two things that stop being optional there, and the game slot the
+ * picture board used to fill is Tähed, which scrambles the level's own longer
+ * words. A1 has none, since it is the lessons.
  */
 export const ROTATION: Record<string, readonly ActivityKey[]> = {
   /*
-    A1 IS SIX ROUNDS, AND EVERY ONE OF THEM IS PLAYED ON THE WORDS THE MODULE
-    HAS TAUGHT AND NOTHING ELSE.
-
-    It was ten, and the second evening of the module was measured at forty
-    minutes against a promise of sixteen. Eight of the ten put something in
-    front of a beginner that nobody had taught them: Sõnad deals a word off
-    the dictionary, and dealt an A2 verb on the second evening; the picture board
-    asks for a case; dictation and
-    speaking put a whole attested sentence up, which at A1 is a sentence made
-    of words further up the course (`npm run audit:readable`). None of that is
-    a fault in the round. Each is the right round for somebody who opened it
-    from Practice and the wrong one for somebody the module sent there with
-    eleven words.
-
-    What is left is what a beginner's own words can carry: Match and
-    Listening ask the words back as meanings; the conjugation table asks the
-    verbs in its matching shape. Each of the four reads the module's
-    own taught list off the address it was opened from
-    (`lib/course/scope.ts`), so the words on the board are the words met. And
-    a round is scheduled only once the words behind it exist: `rounds()` in
-    `build.ts` swaps the table for Listening until a verb has been taught and
-    Tähed for Match until four spellable words have, which is why the first
-    evenings can be the same pair and `course.test.ts` allows exactly that.
-
-    AND THEN IT WAS FOUR, AND THE EVENINGS WERE REPORTED AS THE SAME EVENING.
-    Match and Listening are what a handful of words can carry and both ask
-    the words back as meanings, so most of A1 was the one pair with a table
-    on the verb units, and A1 is where people give up. Tähed is the game the
-    words can carry from the first evening: the letters of a taught word,
-    scrambled, put back in order (`lib/games/letters.ts`), which is the one
-    thing about Estonian a beginner has to notice before anything else. And
-    the flash round is the drill beside it, held inside the module to the
-    taught words, the taught verb pages and nothing else (`slotWithin`), so at
-    A1 it is the word typed from its meaning and, once the present tense has
-    been read, a person of a verb. Three pairs rather than one, walked two an
-    evening, so a fortnight of A1 is not the same fortnight three times.
-
-    Sõnad and the rest stay on Practice, in the palette and as the
-    game of the day, where a learner chooses them.
-
-    AND THE PICTURE BOARD WENT, WHICH LEFT A1 WITH TWO GAMES. The operator
-    called it pointless and took it out of the app: matching an emoji to a
-    word the learner met an hour ago asks nothing Match does not already ask,
-    and it drew the evening's game slot on one night in three. Two games
-    alternating with two drills is four rounds, so the drills are Listening
-    and the flash round; the conjugation table still comes on the evenings a
-    unit of verbs pins it (`rounds()`'s `table`), which is where a beginner
-    meets a verb, and Listening stands in for it until one has been taught.
-
-    AND THE SPEAKING ROUND TAKES THE FLASH ROUND'S SLOT, WHICH IS SP-4'S `ütle`
-    (docs/41-fifth-batch.md VB-5). At A1 the flash round asked a word typed
-    from its meaning and, once the present tense was read, a person of a verb;
-    the rebuilt Speaking round asks exactly that from its meaning, said aloud,
-    after saying the word along with a native voice and back from the
-    recording, and it narrows a beginner through the flash round's own
-    `beginnerSlot` rule. With no microphone the recall is typed into the same
-    box, so it is the flash round's drill for anybody who cannot speak and the
-    better one for everybody who can. One speaking round in the app rather
-    than two, as the batch asks; the flash round stays on Practice. Above A1
-    every drill on the lists below is a case, a sentence or a page of them,
-    which is what those evenings read, so the Speaking round stays on
-    Practice there and the closing review takes answers aloud instead (VB-6).
+    A1 HAS NO ROTATION: it is the lessons (`lessonCourse.ts`), and a lesson
+    is its own six steps, practice and speaking included, rather than an
+    evening of two rounds. These start at A2.
   */
-  A1: ["match", "listening", "letters", "speaking"],
   /*
     AND SÕNAD IS ON NONE OF THEM. Its word is dealt off the dictionary at the
     learner's band by design, and `recordSonad` rebuilds the day's puzzle from
@@ -331,110 +270,29 @@ export interface PartSpec {
 }
 
 /**
- * The eighteen parts.
+ * The parts from A2 up. A1 is the lessons (`lessonCourse.ts`).
  *
  * WHERE THE BREAKS FALL IS THE ONE THING ARITHMETIC COULD NOT DECIDE. A part
  * is two to three weeks of fifteen-minute evenings, which is short enough to
  * see the end of from the first night and long enough to be worth finishing,
  * and every break lands between two units rather than inside one. They land on
- * a change of subject as well: A1.2 ends on the everyday verbs and A1.3 opens
- * on describing things, B2.1 ends on word-building and B2.2 opens on society.
+ * a change of subject as well: B2.1 ends on word-building and B2.2 opens on
+ * society.
  *
  * HOW MANY EVENINGS A PART TAKES IS NOT WRITTEN DOWN HERE, and that is
  * deliberate: it falls out of how many words its units hold and how long a
  * word takes to meet at that level, so a number typed into a blurb would be a
  * second answer waiting to go stale. Every screen that says how long a part is
  * counts its days.
- *
- * A1 is six parts because A1 is the biggest level in this course by a long
- * way, over four hundred words against 235 at A2, and that is the language
- * rather than an imbalance: a beginner needs the words for a room before
- * anything else can be said about one. Six rather than five since the
- * evenings got shorter: five words a night at A1 is the Learn ladder's own
- * batch, and a part is held to under four weeks of them.
  */
 export const PARTS: readonly PartSpec[] = [
-  {
-    id: "a1.1", level: "A1",
-    title: "Esimesed sõnad", subtitle: "Hello, you and me, the verb to be, and the people around you",
-    blurb:
-      "You start from nothing and build up the way a sentence does. Five words on the first "
-      + "evening, then I, you, he and she, then the verb to be, with a form for each person. After that "
-      + "come the little words that hold a sentence together, a few greetings and questions, and "
-      + "the people in your life. By the end you can say hello, ask where somebody lives and tell "
-      + "them who's in your family.",
-    units: ["vastused", "asesonad", "esimesed-verbid", "vaikesed-sonad", "tervitused", "kusisonad", "inimesed"],
-  },
-  {
-    id: "a1.2", level: "A1",
-    title: "Sina, arvud ja kodu", subtitle: "Your name, numbers, your home, and the verbs you'll use every day",
-    blurb:
-      "Your name and where you live, how to count, the rooms of your home, and the eleven verbs "
-      + "you'll need in almost every sentence you ever say. By the end you can introduce "
-      + "yourself, count, and describe where you live.",
-    units: ["tutvumine", "arvud", "kodu", "pohiverbid", "veel-verbe"],
-  },
-  {
-    id: "a1.3", level: "A1",
-    title: "Söök, aeg ja tegevused", subtitle: "Food, the time, your day, and what things are like",
-    blurb:
-      "Food and drink, the days and the clock, what you do from morning to night, and your "
-      + "first words for what things look like, colors included. By the end you can say what "
-      + "you're doing, when, and what it's like.",
-    units: ["sook-ja-jook", "aeg", "iga-paev", "omadussonad", "varvid", "tahtsad-sonad"],
-  },
-  {
-    id: "a1.4", level: "A1",
-    title: "Riided, ilm ja pood", subtitle: "Clothes, weather, prices, and a shop",
-    blurb:
-      "What you're wearing, what the weather's doing, the bigger numbers you need for prices, "
-      + "and then a shop to put it all to work in. By the end you can describe what you want and "
-      + "buy it.",
-    units: ["riided", "ilm", "suured-arvud", "ostmine", "kodus"],
-  },
-  {
-    id: "a1.5", level: "A1",
-    title: "Kus ja millal", subtitle: "Where things are, the bus, somebody and something, and when",
-    blurb:
-      "Where things are and where you're heading, getting around by bus, words like somebody "
-      + "and nothing, and talking about when. By the end you can ask where something is, catch a "
-      + "bus there, and say when you arrived.",
-    units: ["kus-ja-kuhu", "transport", "umbmaarased", "millal", "kohasonad"],
-  },
-  {
-    id: "a1.6", level: "A1",
-    title: "Sidesõnad, kuud ja riigid", subtitle: "Joining words, the calendar, and where people are from",
-    blurb:
-      "Words for joining two thoughts or saying how sure you are, the months and the holidays, "
-      + "where people come from, and a few animals and parts of the body. By the end you can link "
-      + "two ideas and say when something happens.",
-    units: ["sidesonad", "kindlus", "maaramine", "kuud", "riigid", "loomad-ja-keha"],
-  },
-  {
-    id: "a1.7", level: "A1",
-    title: "Kuidas, kinni ja abi", subtitle: "How things are done, more everyday words, and asking for help",
-    /*
-      A seventh part rather than two more units inside the sixth, and that is
-      about the day ids rather than about the shape. `CourseStep` rows are
-      keyed on a day id, so inserting a unit into the middle of a part moves
-      every evening after it onto an id somebody else's ticks already point at.
-      Taking the last unit of a1.6 and standing it at the end of a new part
-      moves no evening that anybody has reached: a1.6 keeps its own ids and
-      simply stops earlier.
-
-      The order inside it is the argument. The manner words and the particles
-      are the last of the machinery, then the everyday words the course had
-      been missing (the market, the town, ten verbs and ten adjectives), and
-      A1 still ends on asking for help, which is where it ended before.
-    */
-    blurb:
-      "The last of A1. Words for how something was done, and the small words that change what "
-      + "a verb means. Then more of the everyday: food, places in town and the people who work "
-      + "there, ten verbs every child knows and ten more describing words. It ends on asking for "
-      + "help, and by then you have every word A1 asks for.",
-    units: ["viisisonad", "osakesed", "rohkem-toitu", "kohad-ja-ametid", "tegusonad", "veel-omadussonu", "abi"],
-  },
-
+  /*
+    A1 IS THE LESSONS (docs/43-lessons.md, phase P3), built by
+    `lessonProgrammes` in `lessonCourse.ts`, and these parts start at A2. The
+    builder's ledger is handed what the lessons taught before A2.1 is built
+    (`teachLessons` in `build.ts`), so A2's first evening is dealt against the
+    A1 a learner actually had.
+  */
   {
     id: "a2.1", level: "A2",
     title: "Palved ja eile", subtitle: "Asking for things, yesterday, the outdoors, the body and the house",

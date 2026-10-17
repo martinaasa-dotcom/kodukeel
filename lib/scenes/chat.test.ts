@@ -27,7 +27,7 @@ const words = (lemmas: readonly string[]): ChatWord[] => lemmas.map((lemma) => (
 
 /** Every evening a chat could be offered after: at least three new words met. */
 const EVENINGS = PROGRAMMES.flatMap((programme) =>
-  programme.days.filter((day) => newWordsIn(day) >= CHAT_MIN_NEW).map((day) => ({ programme, day })));
+  programme.days.filter((day) => !day.lesson && newWordsIn(day) >= CHAT_MIN_NEW).map((day) => ({ programme, day })));
 
 function planFor(programmeId: string, day: (typeof EVENINGS)[number]["day"], talked = new Set<string>()): ChatPlan {
   return {

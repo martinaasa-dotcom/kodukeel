@@ -3582,3 +3582,34 @@ The scanner's empty list no longer says "take a photo" under a card saying the c
 Settings lost a lone play button under the voice card that every voice chip already carries, and the
 third conversation setting reads "Hear it, no hints" on one line. The forms-list test in the lessons
 engine has the minute the jokes test has, since it timed out under the full suite.
+
+
+## 63. The fifty-seventh pass: A1 is the lessons
+
+The 61 lessons (`docs/43-lessons.md`) were built beside the old A1 and shown to reviewers only. This
+makes them the course and removes the old A1 parts. Nobody was on the old A1 yet, so nobody is placed
+or migrated: its day ids are gone rather than mapped, which was the operator's call (L4 not needed).
+
+**One evening, one lesson.** `lib/course/lessonCourse.ts` turns each lesson into a `CourseDay` with a
+single step, the lesson itself, and the parts `a1.1` to `a1.8` follow the lesson parts. The lesson's
+own six steps happen inside the lesson screen, so the module list shows one row and the evening's
+length is the lesson's eighteen minutes. Finishing the last step calls `finishLesson`, which ticks
+the evening when it is the one in play and hands the lesson's words to the deck, recognition and
+production, the same cards a met word gets. A lesson evening has no tonight's chat; the lesson's own
+role-play is the conversation.
+
+**What a lesson teaches counts as taught.** A finished lesson credits its words in `scopeSoFar`, and
+the pages a lesson explains (the partitive, `-s`, `-ga` and the rest, `LESSON_PAGES`) count as read,
+so Review asks a case card only after the lesson that explained the case. The builder's ledger is
+seeded with every lesson before A2's first evening (`teachLessons`), so A2 marks a word met in a
+lesson as met before.
+
+**What went.** The A1 parts in `plan.ts` and the A1 rotation. A link to an A1 unit lands on the
+lessons, the A1 units leave the command palette and Today's "next unit", `/learn` shows A1 as the
+eight lesson parts, and a beginner's first run builds no starter deck, because the first lesson
+hands the deck its words. 671 authored A1 sentences no longer pass the checker against the new order
+of teaching and were dropped rather than loosened; 1,003 remain. The landing page's "your first
+evening" is lesson 1.
+
+**Still open.** The lessons' own English (titles, goals, rules, the line under each Estonian line)
+is not in Russian or Ukrainian yet, which the language sweep reports on every run.

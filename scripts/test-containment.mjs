@@ -204,9 +204,9 @@ const ROUTES = [
   // The course.
   "/learn",
   "/learn/new",
-  "/learn/kodu",
-  "/learn/kodu/lesson",
-  "/learn/kodu/worksheet",
+  "/learn/loodus",
+  "/learn/loodus/lesson",
+  "/learn/loodus/worksheet",
   "/learn/checkpoint/A1",
   "/course",
   "/course/learn",

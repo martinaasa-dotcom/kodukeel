@@ -1,7 +1,5 @@
-import { notFound } from "next/navigation";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { requireUserId } from "@/lib/auth/session";
-import { isAdmin } from "@/lib/auth/admin";
 import { LESSON_PARTS, LESSONS, lessonLabel } from "@/lib/course/lessons";
 import { Braced } from "@/components/Braced";
 import { LessonText } from "@/components/course/LessonText";
@@ -10,41 +8,34 @@ import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 
 export async function generateMetadata() {
-  return titleFor("The new lessons");
+  return titleFor("The A1 lessons");
 }
 
 export const dynamic = "force-dynamic";
 
 /**
- * THE COURSE AS LESSONS, IN PREVIEW (docs/43-lessons.md, phase P1).
+ * EVERY A1 LESSON, IN THE ORDER THEY ARE TAUGHT (docs/43-lessons.md).
  *
- * The rebuilt A1 is released whole rather than part by part (decision L6),
- * because half a new A1 beside half an old one is two courses. Until it is
- * whole, the lessons are read here by whoever reviews this deployment
- * (`ADMIN_EMAILS`, or anybody on a local install), which is also the native
- * speaker who reads every line before it reaches a learner. Everybody else is
- * shown nothing, not a page saying there is something they cannot have.
- *
- * Nothing here is recorded: a lesson in preview ticks no step and grades no
- * card, so reading it changes nobody's course.
+ * A1 is the lessons (phase P3): the planned course walks them one evening at a
+ * time, and this is the whole list, for somebody who wants to look back at one
+ * or read ahead. Reading ahead records nothing, since the course reaches a
+ * lesson when the course reaches it (`finishLesson`).
  */
 export default async function LessonsPage() {
-  const [ownerId, admin] = await Promise.all([requireUserId(), isAdmin()]);
-  if (!admin) notFound();
+  const ownerId = await requireUserId();
   const locale = await localeFor(ownerId);
   const t = (english: string) => tr(locale, english);
 
   return (
     <Page
-      eyebrow={t("Preview")}
-      title={t("The new lessons")}
-      lead={t("A1 as lessons: each teaches a whole idea before it asks a thing. Reviewers only, for now.")}
+      title={t("The A1 lessons")}
+      lead={t("Each lesson teaches a whole idea before it asks you anything.")}
     >
       <Stack>
         {LESSON_PARTS.map((part) => {
           const lessons = LESSONS.filter((l) => l.part === part.id);
           return (
-            <section key={part.id}>
+            <section key={part.id} id={part.id} className="scroll-mt-20">
               <SectionTitle hint={<LessonText text={part.about} locale={locale} />}><Braced text={part.title} /></SectionTitle>
               <ol className="flex flex-col gap-3">
                 {lessons.map((lesson) => (

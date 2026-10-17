@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { requireUserId } from "@/lib/auth/session";
-import { isAdmin } from "@/lib/auth/admin";
 import { lessonById, ledgersBefore, LESSONS, practiceFor, reviewFor } from "@/lib/course/lessons";
 import { titleFor } from "@/lib/progress/locale";
 import { sceneForLesson } from "@/lib/scenes/lessonScenes";
@@ -14,17 +13,17 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export const dynamic = "force-dynamic";
 
 /**
- * ONE LESSON, IN ITS SIX STEPS (docs/43-lessons.md §1), IN PREVIEW.
+ * ONE LESSON, IN ITS SIX STEPS (docs/43-lessons.md §1).
  *
  * Listen, Words, How it works, Practise, Say it, Review. The page works out
  * what the lesson may ask from what the lessons before it taught, and hands the
  * screen the questions already built, so nothing on the client decides what a
- * learner is asked. Reviewers only until A1 is whole (decision L6), and it
- * records nothing.
+ * learner is asked. A1 is the lessons (phase P3): each one is an evening of the
+ * planned course, and finishing it records the evening (`finishLesson`).
  */
 export default async function LessonPage({ params }: { params: Promise<{ id: string }> }) {
-  const [, admin, { id }] = await Promise.all([requireUserId(), isAdmin(), params]);
-  const lesson = admin ? lessonById(id) : null;
+  const [, { id }] = await Promise.all([requireUserId(), params]);
+  const lesson = lessonById(id);
   if (!lesson) notFound();
   const before = ledgersBefore(LESSONS).get(lesson.id)!;
   // The one after it in teaching order, which after lesson 26 may be 26a; never into another level.

@@ -3,8 +3,10 @@ import { CASE_NOTES, grammarTopic } from "@/lib/estonian/grammar";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { countOf, fill, tr, translated, type Locale } from "@/lib/copy/locale";
 import { modeAt } from "@/lib/ux/modes";
+import { lessonById } from "./lessons";
+import { lessonLabel } from "./lessons/label";
 import {
-  ACTIVITIES, activityTitle, newWordsIn, FORMS_STEP, MEET_STEP, READ_STEP, REVIEW_STEP, TALK_STEP,
+  ACTIVITIES, activityTitle, newWordsIn, FORMS_STEP, LESSON_STEP, MEET_STEP, READ_STEP, REVIEW_STEP, TALK_STEP,
   type ActivityKey, type CourseDay, type CourseStep,
 } from "./types";
 
@@ -33,6 +35,10 @@ export function stepsIn(day: CourseDay, locale: Locale): CourseStep[] {
 }
 
 function titleOf(day: CourseDay, step: CourseStep, locale: Locale): string {
+  if (step.id === LESSON_STEP && day.lesson) {
+    const lesson = lessonById(day.lesson);
+    if (lesson) return fill(tr(locale, "Lesson {n}: {title}"), { n: lessonLabel(lesson), title: lesson.title });
+  }
   if (step.id === MEET_STEP) {
     const fresh = newWordsIn(day);
     const met = day.words.length - fresh;
@@ -115,6 +121,7 @@ function caseTitle(key: string, locale: Locale): string | null {
  * what the step is otherwise.
  */
 export function stepCard(step: CourseStep, locale: Locale): { label: string; icon: string } {
+  if (step.id === LESSON_STEP) return { label: tr(locale, "Lesson"), icon: "GraduationCap" };
   if (step.id === MEET_STEP) return { label: tr(locale, "New words"), icon: "BookOpen" };
   if (step.id === READ_STEP) return { label: tr(locale, "Reading"), icon: "Library" };
   if (step.id === FORMS_STEP) return { label: tr(locale, "Past tense"), icon: "History" };
