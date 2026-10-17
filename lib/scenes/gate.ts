@@ -48,7 +48,7 @@ import { switchesRegisterAt } from "./curveballs";
  */
 export const CHECKS = [
   "shape", "vouching", "register", "government", "facts", "ahead", "agreement", "topic", "giveaway",
-  "stretch", "clause", "infinitive", "consistency", "negation", "farewell", "question",
+  "stretch", "clause", "infinitive", "consistency", "negation", "farewell", "question", "taught",
 ] as const;
 
 /**
@@ -324,6 +324,20 @@ export interface GateContext {
    * holds no Estonian (ADR-005); absent, the check says nothing.
    */
   readonly farewells?: readonly (readonly string[])[];
+  /**
+   * THE WORDS OF A LINE THE LESSON HAS NOT TAUGHT, ON A SCENE PLAYED INSIDE ONE.
+   *
+   * A role-play at the end of an A1 lesson (`SceneSpec.lesson`) holds the
+   * other side to the course's own rule, that nothing is shown before it is
+   * taught (docs/43-lessons.md): `stretch` lets a catalogue scene reach a word
+   * or two past its list, which is right for somebody choosing a situation and
+   * wrong for somebody three weeks in being walked through one. Spelling by
+   * spelling against the lesson's ledger, a phrase's words only where they
+   * stand together, so a form of a taught word the lessons have not shown is
+   * refused as well. Handed in resolved; absent on every other scene, and then
+   * the check says nothing.
+   */
+  readonly untaught?: (text: string) => readonly string[];
   readonly times?: {
     readonly clock: ReadonlySet<string>;
     readonly hours: ReadonlySet<string>;
@@ -388,6 +402,8 @@ export interface Verdict {
    * the dictionary holds the word by the time anybody meets it again.
    */
   readonly stretched: readonly string[];
+  /** The words a lesson has not taught yet, on a scene played inside one (`GateContext.untaught`). */
+  readonly untaught?: readonly string[];
 }
 
 /**
@@ -539,6 +555,8 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
   if (inflectedAfterEi(text, context)) failed.push("negation");
   if (saysGoodbye(tokens, beat, context)) failed.push("farewell");
   if (verblessQuestion(text, context)) failed.push("question");
+  const untaught = context.untaught ? [...context.untaught(text)] : [];
+  if (untaught.length > 0) failed.push("taught");
 
   /*
     A NUMBER IN THE LINE IS A CLAIM ABOUT THE RUN, so it has to be one the run
@@ -568,7 +586,7 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
     if (runs.some((run) => context.held!.has(run))) failed.push("ahead");
   }
 
-  return { failed, unknown, stretched };
+  return { failed, unknown, stretched, untaught };
 }
 
 /**

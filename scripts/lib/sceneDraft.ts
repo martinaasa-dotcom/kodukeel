@@ -44,6 +44,7 @@ import { SCENE_REPLY_TOKENS, sceneProviders, type ProviderConfig, type ProviderN
 import { composeLive, composeSystem } from "../../lib/scenes/prompt";
 import { geminiCachedReply } from "../../lib/tutor/geminiCache";
 import { FAREWELLS } from "../../lib/scenes/catalogue";
+import { lessonGate } from "../../lib/scenes/inLesson";
 import { buildLexicon, formsOf, subjectsIn, words, type DictEntry, type Lexicon } from "../../lib/scenes/lexicon";
 import { FINITE_VERB_FLOOR, gateFor, governedWord, type GateContext, type GovernedWord } from "../../lib/scenes/gate";
 import { MAX_WORDS, answerForms, topicForms } from "../../lib/scenes/retrieval";
@@ -168,6 +169,8 @@ export function sceneLemmas(scene: SceneSpec, allowlist: Allowlist = "units", up
   for (const id of scene.units) {
     for (const spec of unitById(id)?.words ?? []) out.add(spec[0]);
   }
+  // A scene that names its list directly: a lesson's role-play, or tonight's chat (`SceneSpec.lemmas`).
+  for (const lemma of scene.lemmas ?? []) out.add(lemma);
   return [...out];
 }
 
@@ -401,7 +404,8 @@ export function keylessContext(scene: SceneSpec, allowlist: Allowlist = "units")
   const entries = sceneEntries(scene, allowlist);
   const lexicon = buildLexicon(entries);
   const lemmas = sceneLemmas(scene, allowlist);
-  return { lexicon, lemmas, gate: gateContext(lexicon, wrongRegisterForms(scene), entries) };
+  // A lesson's role-play is held to its lesson, here as in the app (`lessonGate`).
+  return { lexicon, lemmas, gate: { ...gateContext(lexicon, wrongRegisterForms(scene), entries), ...lessonGate(scene, lexicon) } };
 }
 
 /* ------------------------------------------------------------------ *

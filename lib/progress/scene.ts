@@ -37,6 +37,7 @@ import { SYLLABUS } from "@/lib/collections/syllabus";
 import { readableSpellings } from "@/lib/estonian/gapForms";
 import { isPhrase } from "@/lib/dict/pos";
 import { courseForms } from "@/lib/dict/facts";
+import { lessonGate } from "@/lib/scenes/inLesson";
 import { substitutes } from "@/lib/dict/acceptFacts";
 import { sensesOf, substitutesFrom } from "@/lib/dict/synonyms";
 import { isExactForm, isKnownForm, lemmasOfForm } from "@/lib/dict/forms";
@@ -586,6 +587,8 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[], level?: 
         reason the question words are: the gate holds no Estonian.
       */
       farewells: [...FAREWELLS.map(words), ...CLOSING_WORDS.map((word) => [word])],
+      // On a lesson's role-play, nothing the lessons have not taught by then (`SceneSpec.lesson`).
+      ...lessonGate(scene, lexicon),
     },
     marker,
     pool: poolsFor(scene, rows),

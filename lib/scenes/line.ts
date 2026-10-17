@@ -584,7 +584,9 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
 export function retryNote(verdict: Verdict | null): readonly string[] {
   if (!verdict) return [];
   if (verdict.unknown.length > 0) return verdict.unknown;
-  return verdict.failed.includes("stretch") ? verdict.stretched : [];
+  // A word the lesson has not taught yet is a word to drop, like one past the budget.
+  const untaught = verdict.failed.includes("taught") ? verdict.untaught ?? [] : [];
+  return [...new Set([...(verdict.failed.includes("stretch") ? verdict.stretched : []), ...untaught])];
 }
 
 /**
@@ -634,6 +636,7 @@ export function whyWithheld(verdict: Verdict | null, move?: string): string | un
     government: "a noun was in a case the verb beside it does not take",
     question: "it was a question with a question word and a pronoun but no verb, which is not how anybody asks; say it as a whole question with its verb",
     farewell: "it said goodbye, and the conversation is not over: you still have things to settle, so do not thank them for coming or take your leave until you do",
+    taught: "it used a word, or a form of one, they have not been taught yet; use only the words in your list, in forms already in front of you in this conversation, and say less rather than reach",
   };
   const said = verdict.failed.flatMap((check) =>
     check === "vouching" || check === "stretch" ? [] : [reasons[check]]);

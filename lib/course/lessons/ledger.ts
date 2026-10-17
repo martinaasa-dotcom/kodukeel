@@ -219,6 +219,52 @@ export function ledgersBefore(lessons: readonly LessonSpec[]): Map<string, Ledge
 }
 
 /**
+ * THE LEDGER AT THE END OF A LESSON, ITS OWN ITEMS INCLUDED.
+ *
+ * What a conversation played inside that lesson may use: everything the
+ * lessons before it taught and everything it taught itself. Null for a lesson
+ * id the list does not hold.
+ */
+export function ledgerThrough(lessons: readonly LessonSpec[], lessonId: string): Ledger | null {
+  let ledger = EMPTY_LEDGER;
+  for (const lesson of lessons) {
+    ledger = teach(ledger, lesson.teaches, lesson.n, lesson.patterns);
+    if (lesson.id === lessonId) return ledger;
+  }
+  return null;
+}
+
+/**
+ * The words a ledger teaches, as the dictionary heads them: a word and a verb
+ * by their own spelling, a form by the word it is a form of, and a phrase as
+ * the phrase, which is how the dictionary heads `Tere hommikust!`. This is the
+ * closed list a scene played inside a lesson composes in (`SceneSpec.lemmas`);
+ * the ledger itself, spelling by spelling, is what holds the line to it.
+ */
+export function ledgerLemmas(ledger: Ledger): string[] {
+  const out = new Set<string>();
+  for (const { item } of ledger.items) out.add(item.kind === "form" ? item.of : item.et);
+  for (const verb of ledger.verbs) out.add(verb.lemma);
+  return [...out];
+}
+
+/**
+ * The words of a line a ledger does not cover, for the gate. A word written
+ * with a capital after the first of its sentence is a name, which nobody is
+ * taught and anybody may be called, so a line answering "what is your name?"
+ * with the learner's own is not refused for it.
+ */
+export function untaughtIn(ledger: Ledger): (text: string) => string[] {
+  return (text) => {
+    const names = new Set<string>(NAMES);
+    for (const sentence of text.split(/[.!?]+/)) {
+      for (const [at, token] of wordsOf(sentence).entries()) if (at > 0 && /^\p{Lu}/u.test(token.raw)) names.add(token.raw);
+    }
+    return uncovered(text, ledger, names);
+  };
+}
+
+/**
  * Everything wrong with a level's lessons, as sentences naming the lesson,
  * where, and the words. Empty means a learner walking them in order is never
  * shown a word they have not been taught.

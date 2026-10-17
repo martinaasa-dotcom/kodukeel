@@ -273,8 +273,8 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "sent", en: "cent" },
       { kind: "form", et: "senti", of: "sent", en: "cents, after a number" },
       { kind: "word", et: "kokku", en: "altogether, in total" },
-      { kind: "phrase", et: "kaardiga", en: "by card" },
-      { kind: "phrase", et: "sularahas", en: "in cash" },
+      { kind: "form", et: "kaardiga", of: "kaart", en: "by card" },
+      { kind: "form", et: "sularahas", of: "sularaha", en: "in cash" },
     ],
     how: {
       point: "A price is a number and {eurot}, the {osastav} from lesson 26: {kolm eurot}.",
