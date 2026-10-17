@@ -50,13 +50,6 @@ export function lookGames(live: Record<string, string | undefined> = {}): LookGa
 
 export const LOOK_SHELVES = SHELVES;
 
-/** The game the page leads with. Sõnad, as on Today. */
-export const FEATURED = "/sonad";
-
 export const OPTIONS = [
-  { n: 1, name: "Poster wall", line: "Every game a poster with its board on it." },
-  { n: 2, name: "Night arcade", line: "A spotlight and three rows to scroll, on the night stage." },
   { n: 3, name: "Bento", line: "One board of tiles, the big games big." },
-  { n: 4, name: "Teasers", line: "Every game leads with the question it asks." },
-  { n: 5, name: "Console home", line: "Pick a token, the spotlight shows the game." },
 ] as const;
