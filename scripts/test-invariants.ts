@@ -21274,7 +21274,7 @@ check("recognizing a word on cards never clears the second rung of a situation",
     evidence,
     available: new Set(lemmas),
     cases: new Map(doctor.cases.map((c) => [c, { pct: 100, reviews: 50 }])),
-    listening: { placed: "C1", sittings: 3 },
+    listening: { placed: "C1", sittings: 3, heardTurns: new Map() },
   });
   assert.equal(reading.uncapped, "follow", `every word recognised perfectly read as "${reading.uncapped}"`);
   assert.equal(reading.tryThis, null, "a situation only ever followed was offered as something to try");
@@ -21323,7 +21323,7 @@ check("every drill a readiness struggle points at is a route the app has", () =>
     for (const e of contexts) {
       const evidence = new Map<string, WordEvidence>();
       for (const lemma of situation.lemmas) evidence.set(lemma, e);
-      for (const listening of [{ placed: null, sittings: 0 }, { placed: "A1", sittings: 0 }]) {
+      for (const listening of [{ placed: null, sittings: 0, heardTurns: new Map<string, number>() }, { placed: "A1", sittings: 0, heardTurns: new Map<string, number>() }]) {
         const reading = readSituation(situation, {
           evidence, available: new Set(situation.lemmas), cases: new Map(), listening,
         });

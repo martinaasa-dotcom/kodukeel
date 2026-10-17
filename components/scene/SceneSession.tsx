@@ -166,7 +166,7 @@ interface Sent {
    * earns no grade (`SentTurn.spoken`, D13). What the recognizer heard is not
    * sent; only which words it could not take as said.
    */
-  spoken?: { repairs: readonly Repair[]; wordsHeard?: number; wordsChanged?: number };
+  spoken?: { repairs: readonly Repair[]; wordsHeard?: number; wordsChanged?: number; unseen?: true };
 }
 
 /** A line the learner may pick instead of typing, as the server built it (`lib/scenes/picks.ts`). */
@@ -1121,6 +1121,22 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
     under the bubble and the debrief; it is read on the server exactly as a
     typed turn, because what is sent is what the learner saw in the box.
   */
+  /*
+    WHETHER THE LINE BEING ANSWERED WAS ONLY HEARD (VB-14). The other side's
+    newest Estonian, its words behind a press that was never pressed. A spoken
+    answer to it is the one evidence a conversation gives that somebody can
+    follow speech, and the readiness rungs count it (`SpokenTurn.unseen`).
+    Looking stays free: a turn after a look is an ordinary turn, it simply is
+    not this evidence.
+  */
+  function answeredUnseen(): boolean {
+    if (!hidesLines(heardMode)) return false;
+    const last = [...turns].reverse().find((turn) => turn.who === "them");
+    if (!last || last.who !== "them") return false;
+    const estonian = last.lines.filter(spokenEstonian);
+    return estonian.length > 0 && estonian.every((line) => !shown.has(line.text));
+  }
+
   async function answer(said: string, picked: boolean, spokenAs: Hearing | null = null) {
     if (!said || !beatId || busy) return;
     /*
@@ -1144,7 +1160,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
         learner changed would read the app's match as the recognizer's misses
         in the edit rate `report:speech` watches (D3).
       */
-      ...(spokenAs ? { spoken: picked ? { repairs } : { repairs, ...editCounts(spokenAs.understood, said) } } : {}),
+      ...(spokenAs ? { spoken: picked ? { repairs } : { repairs, ...editCounts(spokenAs.understood, said), ...(answeredUnseen() ? { unseen: true } : {}) } } : {}),
     }];
     setSent(next);
     setTurns((was) => [...was, {

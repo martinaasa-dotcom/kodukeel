@@ -229,6 +229,17 @@ describe("a turn said aloud", () => {
     expect(spokenOf({}, "Mul on valu.")).toEqual({ repaired: [] });
   });
 
+  it("keeps a line only heard as exactly `true`, and carries it to the turn's first record (VB-14)", () => {
+    expect(spokenOf({ repairs: [], wordsHeard: 3, wordsChanged: 0, unseen: true }, "Mul on valu.")).toEqual({ repaired: [], wordsHeard: 3, wordsChanged: 0, unseen: true });
+    expect(spokenOf({ repairs: [], wordsHeard: 3, wordsChanged: 0, unseen: "yes" }, "Mul on valu.")).toEqual({ repaired: [], wordsHeard: 3, wordsChanged: 0 });
+    const heard = replay(context, draw, turns({ repaired: [], wordsHeard: 3, wordsChanged: 0, unseen: true })).state;
+    const first = heard.turns.filter((turn) => turn.spoken);
+    expect(first).toHaveLength(1);
+    expect(first[0]?.unseen).toBe(true);
+    const seen = replay(context, draw, turns({ repaired: [], wordsHeard: 3, wordsChanged: 0 })).state;
+    expect(seen.turns.some((turn) => turn.unseen)).toBe(false);
+  });
+
   it("keeps the edit counts as two bounded numbers, and never more changed than heard", () => {
     expect(spokenOf({ repairs: [], wordsHeard: 3, wordsChanged: 1 }, "Mul on valu.")).toEqual({ repaired: [], wordsHeard: 3, wordsChanged: 1 });
     expect(spokenOf({ repairs: [], wordsHeard: 2, wordsChanged: 9 }, "x")).toEqual({ repaired: [], wordsHeard: 2, wordsChanged: 2 });
