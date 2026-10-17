@@ -1,7 +1,6 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowRight, CalendarCheck, Check } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
-import { isAdmin } from "@/lib/auth/admin";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import {
   closingProgress, courseReading, hasChosenProgramme, ladderReading, missingWords, openingPartFor,
@@ -377,10 +376,9 @@ export default async function CoursePage({
     );
   }
 
-  const [closing, missing, reviewer] = await Promise.all([
+  const [closing, missing] = await Promise.all([
     closingProgress(ownerId, programme, day.id, now),
     missingWords(ownerId, day),
-    isAdmin(),
   ]);
   const unit = unitOf(day);
   const done = day.steps.filter((s) => standing.done.has(s.id)).map((s) => s.id);
@@ -470,7 +468,7 @@ export default async function CoursePage({
               </li>
             ))}
           </ul>
-          {missing.length > 0 && missing.length < day.words.length && (
+          {!day.lesson && missing.length > 0 && missing.length < day.words.length && (
             <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
               {t("A few of these aren't in your deck yet. The first step adds them.")}
             </p>
@@ -497,9 +495,11 @@ export default async function CoursePage({
           is worth knowing and it is not worth the room, which is the rule
           `components/Explain.tsx` exists for.
         */}
-        <Explain label={t("How a step gets checked off")}>
-          {t("Meeting the words and the review at the end check themselves off as you answer. The others you check off yourself, because we can't tell which exercise an answer came from, and we'd rather admit that than pretend we were watching.")}
-        </Explain>
+        {!day.lesson && (
+          <Explain label={t("How a step gets checked off")}>
+            {t("Meeting the words and the review at the end check themselves off as you answer. The others you check off yourself, because we can't tell which exercise an answer came from, and we'd rather admit that than pretend we were watching.")}
+          </Explain>
+        )}
 
         <Card>
           <SectionTitle hint={fill(t("{done} of {total} evenings"), { done: reading.daysDone, total })}>{t("This part")}</SectionTitle>
@@ -614,12 +614,11 @@ export default async function CoursePage({
             : <Linked template={t("{link} whenever you'd rather choose for yourself.")} href="/settings#course" label={t("Turn it off")} />}
         </p>
 
-        {/* The rebuilt A1 is read by reviewers before it reaches anybody
-            (docs/43-lessons.md, decision L6), so the door is drawn for them alone. */}
-        {reviewer && (
+        {/* A1 is the lessons, and every one of them can be read again, or
+            ahead, from the whole list. */}
+        {day.lesson && (
           <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-            {t("For reviewers:")}{" "}
-            <Link href="/course/lessons" className="underline">{t("the new A1 lessons, in preview")}</Link>
+            <Link href="/course/lessons" className="underline">{t("Every A1 lesson, in order")}</Link>
           </p>
         )}
       </Stack>

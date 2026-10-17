@@ -26,9 +26,11 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-const PROGRAMME = PROGRAMMES[0]!;
+// The first part built from units: A1 is the lessons, which end on their own conversation.
+const PROGRAMME = PROGRAMMES.find((p) => !p.days[0]?.lesson)!;
 const RICH = PROGRAMME.days.find((day) => newWordsIn(day) >= CHAT_MIN_NEW)!;
-const THIN = PROGRAMMES.flatMap((p) => p.days).find((day) => newWordsIn(day) < CHAT_MIN_NEW)!;
+const THIN = PROGRAMMES.flatMap((p) => p.days).find((day) => !day.lesson && newWordsIn(day) < CHAT_MIN_NEW)!;
+const LESSON = PROGRAMMES[0]!.days.find((day) => newWordsIn(day) >= CHAT_MIN_NEW)!;
 
 describe("whether a chat is offered", () => {
   it("never on a deployment with no model", () => {
@@ -41,6 +43,9 @@ describe("whether a chat is offered", () => {
     expect(chatOffered()).toBe(true);
     expect(chatFits(RICH)).toBe(true);
     expect(chatFits(THIN)).toBe(false);
+    // A lesson ends on its own Say it, so no chat follows it.
+    expect(LESSON.lesson).toBeTruthy();
+    expect(chatFits(LESSON)).toBe(false);
   });
 
   it("and not where scenes are switched off, which is the switch the operator reaches for", () => {

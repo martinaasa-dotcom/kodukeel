@@ -33,7 +33,7 @@ import { conjugationSlotFromFront } from "@/lib/srs/slots";
 import { isAppsChoice } from "@/lib/srs/sources";
 import { caseFromFront } from "@/lib/copy/caseHint";
 import { refusedCardSentence } from "@/lib/srs/refusedCards";
-import { FORMS_STEP, READ_STEP, type CourseDay, type Programme } from "./types";
+import { FORMS_STEP, LESSON_STEP, READ_STEP, type CourseDay, type Programme } from "./types";
 
 export interface ModuleScope {
   programme: Programme;
@@ -115,19 +115,24 @@ export function scopeSoFar(
   own: readonly string[] = [],
 ): ModuleScope {
   const before = day.index - 1;
-  const read = done.has(READ_STEP);
+  /* A lesson evening is taught whole by its one step: the lesson shows every
+     word and every page before it asks anything (docs/43-lessons.md §1). */
+  const lessonDone = Boolean(day.lesson) && done.has(LESSON_STEP);
+  const read = done.has(READ_STEP) || lessonDone;
   const shown = done.has(FORMS_STEP);
-  const metSet = new Set(met);
+  const metSet = new Set(lessonDone ? day.words : met);
   const tonight = day.words.filter((w) => metSet.has(w));
   const course = [...new Set([...taughtThrough(programme, before), ...tonight, ...met])];
   const courseSet = new Set(course);
   const lemmas = [...new Set(own.filter((w) => !courseSet.has(w))), ...course];
-  const { grammar: _grammar, grammarCase: _case, forms: _forms, ...rest } = day;
+  const { grammar: _grammar, grammarCase: _case, forms: _forms, cases: _cases, topics: _topics, ...rest } = day;
   const trimmed: CourseDay = {
     ...rest,
     words: tonight,
     ...(read && day.grammar ? { grammar: day.grammar } : {}),
     ...(read && day.grammarCase ? { grammarCase: day.grammarCase } : {}),
+    ...(read && day.cases ? { cases: day.cases } : {}),
+    ...(read && day.topics ? { topics: day.topics } : {}),
     ...(shown && day.forms ? { forms: day.forms } : {}),
   };
   return {

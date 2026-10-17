@@ -14,12 +14,14 @@ import type { Area } from "../area";
  */
 export const LESSONS_AREA: Area = {
   ru: {
-    "The new lessons": "Новые уроки",
-    "A1 as lessons: each teaches a whole idea before it asks a thing. Reviewers only, for now.": "A1 в виде уроков: каждый объясняет целую идею, прежде чем что-то спросить. Пока только для проверяющих.",
-    "For reviewers:": "Для проверяющих:",
-    "the new A1 lessons, in preview": "новые уроки A1, предварительный просмотр",
+    "The A1 lessons": "Уроки A1",
+    "Each lesson teaches a whole idea before it asks you anything.": "Каждый урок объясняет целую идею, прежде чем о чём-то спросить.",
+    "Every A1 lesson, in order": "Все уроки A1 по порядку",
+    "{lessons}, {known}/{total} words": "{lessons}, слов: {known}/{total}",
+    "Lesson {n}: {title}": "Урок {n}: {title}",
+    "Lesson": "Урок",
+    "Hear it, meet the words, see how it works, then try it yourself.": "Послушайте, познакомьтесь со словами, посмотрите, как это устроено, и попробуйте сами.",
     "All lessons": "Все уроки",
-    "Preview": "Предпросмотр",
     "Check-in": "Повторение пройденного",
     "End of part": "Конец части",
     "Lesson {n}": "Урок {n}",
@@ -70,12 +72,14 @@ export const LESSONS_AREA: Area = {
     "The role-play is a real conversation too: they answer whatever you say, in words you've been taught.": "Эта ролевая игра есть и как настоящий разговор: вам отвечают на всё, что вы скажете, теми словами, которые вы уже прошли.",
   },
   uk: {
-    "The new lessons": "Нові уроки",
-    "A1 as lessons: each teaches a whole idea before it asks a thing. Reviewers only, for now.": "A1 у вигляді уроків: кожен пояснює цілу ідею, перш ніж щось запитати. Поки що лише для тих, хто перевіряє.",
-    "For reviewers:": "Для тих, хто перевіряє:",
-    "the new A1 lessons, in preview": "нові уроки A1, попередній перегляд",
+    "The A1 lessons": "Уроки A1",
+    "Each lesson teaches a whole idea before it asks you anything.": "Кожен урок пояснює цілу ідею, перш ніж про щось запитати.",
+    "Every A1 lesson, in order": "Усі уроки A1 по порядку",
+    "{lessons}, {known}/{total} words": "{lessons}, слів: {known}/{total}",
+    "Lesson {n}: {title}": "Урок {n}: {title}",
+    "Lesson": "Урок",
+    "Hear it, meet the words, see how it works, then try it yourself.": "Послухайте, познайомтеся зі словами, подивіться, як це влаштовано, і спробуйте самі.",
     "All lessons": "Усі уроки",
-    "Preview": "Попередній перегляд",
     "Check-in": "Повторення пройденого",
     "End of part": "Кінець частини",
     "Lesson {n}": "Урок {n}",
@@ -124,5 +128,8 @@ export const LESSONS_AREA: Area = {
     "You said tonight's Estonian out loud. That's the step most people skip, and the one that counts.": "Ви вимовили сьогоднішню естонську вголос. Цей крок пропускають найчастіше, а він найважливіший.",
     "Done. Tomorrow, try it out loud if you're somewhere you can.": "Готово. Завтра спробуйте вголос, якщо будете там, де це зручно.",
     "The role-play is a real conversation too: they answer whatever you say, in words you've been taught.": "Ця рольова гра є і як справжня розмова: вам відповідають на все, що ви скажете, тими словами, які ви вже вивчили.",
+  },
+  counted: {
+    "lesson": { en: ["lesson", "lessons"], ru: ["урок", "урока", "уроков"], uk: ["урок", "уроки", "уроків"] },
   },
 };

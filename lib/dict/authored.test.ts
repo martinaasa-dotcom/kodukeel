@@ -33,25 +33,25 @@ describe("the sentences written for a beginner", () => {
   });
 
   it("reports a sentence carrying no form of its own word", () => {
-    const [fault] = checkAuthored([["isa", "Ema töötab täna.", "Mum is working today."]]);
+    const [fault] = checkAuthored([["isa", "Ema elab siin.", "Mum lives here."]]);
     expect(fault?.why).toMatch(/no form of isa/);
   });
 
   it("reports an English line with Estonian in it, and a missing one", () => {
-    expect(checkAuthored([["isa", "Isa töötab täna siin.", "Dad is working here today."]])).toEqual([]);
-    expect(checkAuthored([["isa", "Isa töötab täna siin.", "Dad works here, õ."]])[0]?.why)
+    expect(checkAuthored([["isa", "Isa elab siin.", "Dad lives here."]])).toEqual([]);
+    expect(checkAuthored([["isa", "Isa elab siin.", "Dad lives here, õ."]])[0]?.why)
       .toMatch(/Estonian letter/);
-    expect(checkAuthored([["isa", "Isa töötab täna siin.", " "]]).map((f) => f.why))
+    expect(checkAuthored([["isa", "Isa elab siin.", " "]]).map((f) => f.why))
       .toContain("no English line");
   });
 
   it("reports a fragment, and a sentence Ekilex already recorded", () => {
-    expect(checkAuthored([["isa", "Isa töötab", "Dad works."]])[0]?.why).toMatch(/naturalSentence/);
+    expect(checkAuthored([["isa", "Isa elab", "Dad lives."]])[0]?.why).toMatch(/naturalSentence/);
     expect(checkAuthored([["kes", "Kes see on?", "Who is that?"]])[0]?.why).toMatch(/already recorded/);
   });
 
   it("hands a screen its sentences marked as written, never as recorded", () => {
-    const [first] = authoredFor("isa", "SEED");
+    const [first] = authoredFor("ema", "SEED");
     expect(first).toBeDefined();
     expect(isAuthored(first!)).toBe(true);
     expect(first!.en).toBeTruthy();
@@ -59,13 +59,13 @@ describe("the sentences written for a beginner", () => {
   });
 
   it("gives a learner's own row of the same spelling nothing, and the seed's and Ekilex's the lot", () => {
-    const seeded = authoredFor("isa", "SEED");
+    const seeded = authoredFor("ema", "SEED");
     expect(seeded.length).toBeGreaterThan(0);
-    expect(authoredFor("isa", "EKILEX")).toEqual(seeded);
-    // `Lexeme` is unique on (lemma, pos), so a hand-added `isa` is a different word.
-    expect(authoredFor("isa", "USER")).toEqual([]);
-    expect(authoredFor("isa", "AI")).toEqual([]);
+    expect(authoredFor("ema", "EKILEX")).toEqual(seeded);
+    // `Lexeme` is unique on (lemma, pos), so a hand-added `ema` is a different word.
+    expect(authoredFor("ema", "USER")).toEqual([]);
+    expect(authoredFor("ema", "AI")).toEqual([]);
     // A provenance nobody has named is refused rather than trusted.
-    expect(authoredFor("isa", "")).toEqual([]);
+    expect(authoredFor("ema", "")).toEqual([]);
   });
 });

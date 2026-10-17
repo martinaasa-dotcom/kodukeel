@@ -37,13 +37,6 @@ import { LEVELS, unitsAtLevel, type Level, type SyllabusUnit } from "./syllabus"
  * deck is roughly the next nine months at the default pace. Two units would
  * be under six and read as a demo; the whole level is over two years and is
  * the wall this replaced.
- *
- * A1 opens with a fourth unit now, `vastused`, thirteen single words (`tere`,
- * `aitäh`, `jah`, `ei` and nine more) ahead of `tervitused`, whose words are
- * all whole phrases. Four is what keeps `tervitused`, `inimesed` and `arvud`
- * all still arriving on day one rather than `arvud` being quietly dropped to
- * make room for it, and it barely moves the arithmetic above: `vastused`
- * builds about two dozen cards against roughly four hundred.
  */
 export const STARTER_UNITS = 4;
 
@@ -60,13 +53,20 @@ export const MAX_STARTER_UNITS = 6;
 /**
  * The units a learner at this level starts with.
  *
- * Below A1 starts where A1 does, because the first sensible thing to do is the
- * same either way. A level the course does not carry falls back to A1 rather
- * than to nothing: an empty starter deck is the one outcome first run must not
- * produce, since every screen in the app is behind "add some words first".
+ * NONE AT A1, BECAUSE A1 IS THE LESSONS (docs/43-lessons.md). A lesson
+ * teaches its words before it asks anything and hands them to the deck when it
+ * is finished (`finishLesson`), so a beginner's deck grows one evening at a
+ * time from the first lesson rather than arriving as four units of words
+ * nobody has met. Building those cards anyway would put words on Review that
+ * the module then holds back until a lesson teaches them, which is a deck that
+ * says it is full and asks nothing. Below A1 and a level the course does not
+ * carry start where A1 does, which is the first lesson.
+ *
+ * From A2 up the course is still units, and the first ones at the level are
+ * the starter deck.
  */
 export function starterUnitsFor(level: string | null): readonly SyllabusUnit[] {
   const band = (LEVELS as readonly string[]).includes(level ?? "") ? (level as Level) : "A1";
-  const units = unitsAtLevel(band).slice(0, STARTER_UNITS);
-  return units.length > 0 ? units : unitsAtLevel("A1").slice(0, STARTER_UNITS);
+  if (band === "A1") return [];
+  return unitsAtLevel(band).slice(0, STARTER_UNITS);
 }

@@ -62,6 +62,27 @@ const prisma = newPrismaClient();
 await requireLocalDatabase(prisma);
 
 /*
+  THE WALK RUNS ON A PART BUILT OUT OF UNITS, AND A1 IS THE LESSONS.
+
+  An A1 evening is one step, the lesson, whose own six steps happen inside the
+  lesson screen (docs/43-lessons.md, P3), so a fixture whose learner opens on
+  A1 would hand this walk a one-step evening and nothing to walk. The learner's
+  part is pinned to the first part built out of units for the walk and put back
+  afterwards; the A1 evening is asked its own two questions at the end.
+*/
+const PROGRAMME_KEY = "programme";
+const keptProgramme = await prisma.setting.findUnique({ where: { ownerId_key: { ownerId: OWNER, key: PROGRAMME_KEY } } });
+async function pinProgramme(value) {
+  await prisma.courseStep.deleteMany({ where: { ownerId: OWNER } });
+  await prisma.setting.upsert({
+    where: { ownerId_key: { ownerId: OWNER, key: PROGRAMME_KEY } },
+    create: { ownerId: OWNER, key: PROGRAMME_KEY, value },
+    update: { value },
+  });
+}
+await pinProgramme("a2.1");
+
+/*
   THE FLOOR IS WHAT THE SHORTEST HONEST EVENING REACHES, NOT WHAT TONIGHT DID.
 
   The walk asks five things at every step, and how many steps an evening has is
@@ -618,6 +639,27 @@ try {
   check("the reference outside a module keeps its rail", await page.locator('[data-chrome="rail"]').isVisible());
   check("and its drill", await page.getByText("Drill it", { exact: true }).count() === 1);
   check("and no frame is drawn over it", await page.locator(".module-step").count() === 0);
+
+  /*
+    AN A1 EVENING IS ONE LESSON.
+
+    One step on the list, opening the lesson inside the module, so the way on
+    and the evening's place are drawn round it like any other step.
+  */
+  await pinProgramme("a1.1");
+  await openModule(page);
+  const lessonSteps = await stepsOn(page);
+  check("an A1 evening lists one step, the lesson", lessonSteps.length === 1
+    && /^Lesson /.test(lessonSteps[0]?.title ?? ""), JSON.stringify(lessonSteps));
+  const lessonHref = lessonSteps[0]?.open ?? "";
+  check("which opens the lesson inside the module", /^\/course\/lessons\/[^?]+\?module=/.test(lessonHref), lessonHref);
+  if (lessonHref.startsWith("/")) {
+    await page.goto(`${B}${lessonHref}`, { waitUntil: "domcontentloaded" });
+    await page.waitForSelector("main h1", { timeout: 20_000 });
+    check("and the lesson is drawn as a step of tonight's module", await page.locator(".module-step").count() > 0);
+  } else {
+    absent(1, "the lesson step carried no address to open");
+  }
 } finally {
   /*
     THE COURSE PUT BACK WHERE IT WAS FOUND.
@@ -630,6 +672,11 @@ try {
     allowed to remove one, which is why `requireLocalDatabase` guards it.
   */
   await prisma.courseStep.deleteMany({ where: { ownerId: OWNER } });
+  if (keptProgramme) {
+    await prisma.setting.update({ where: { ownerId_key: { ownerId: OWNER, key: PROGRAMME_KEY } }, data: { value: keptProgramme.value } });
+  } else {
+    await prisma.setting.deleteMany({ where: { ownerId: OWNER, key: PROGRAMME_KEY } });
+  }
   await browser.close();
   await prisma.$disconnect();
 }

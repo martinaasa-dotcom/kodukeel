@@ -19,7 +19,8 @@ export default function tonightsChatIsNeverKeyless({ check, code }: InvariantKit
   check("offered means the scene chain has a link, and nothing else", () => {
     const chat = code("lib/progress/chat.ts");
     assert.match(chat, /export function chatOffered\(\): boolean \{\s*return sceneProviders\(\)\.length > 0;\s*\}/, "a chat is offered on something other than the scene chain having a link");
-    assert.match(chat, /export function chatFits\([^)]*\): boolean \{\s*return chatOffered\(\) && newWordsIn\(day\) >= CHAT_MIN_NEW;/, "the module offers a chat without asking whether a model is there");
+    // Never after a lesson, which ends on its own Say it (docs/43-lessons.md, phase P3).
+    assert.match(chat, /export function chatFits\([^)]*\): boolean \{\s*return chatOffered\(\) && !day\.lesson && newWordsIn\(day\) >= CHAT_MIN_NEW;/, "the module offers a chat without asking whether a model is there, or after a lesson");
   });
 
   check("every door asks before it does anything", () => {
