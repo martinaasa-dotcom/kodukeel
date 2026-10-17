@@ -530,7 +530,11 @@ export default async function CoursePage({
                       >
                         {ui(first.title, first.subtitle)}
                       </span>
-                      {state === "now" && <Chip tone="accent">{t("Today")}</Chip>}
+                      {/* Pulled into the title's line rather than setting
+                          its height: the chip is taller than a line of text,
+                          so tonight's title sat 3px below the titles beside
+                          it in the other column. */}
+                      {state === "now" && <span className="-my-1 inline-flex"><Chip tone="accent">{t("Today")}</Chip></span>}
                     </span>
                   </div>
                   {!uiWantsEnglish(level) && (
