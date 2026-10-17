@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   EURO_LEMMA, NUMBERS_ROUND, SPOKEN, dealRound, dealable, dealableCount, everyItem, itemKey, lemmaFor,
-  markNumber, numberLemmas, readAnswer, shapeOf, shown, spokenAs, unfolded, wordsFor, wordsRecalled,
+  markNumber, numberLemmas, readAnswer, shapeOf, shown, spokenAs, unfolded, wordsFor, wordsGraded, wordsRecalled,
   type NumberItem, type NumberShape,
 } from "./numbers";
 import { CLOCK_LEMMA } from "@/lib/scenes/props";
@@ -213,5 +213,32 @@ describe("what a round hands in", () => {
       { id: "a", cardId: "c1", rating: 3, durationMs: 0, reviewedAt: 5, spoken: true },
       { id: "b", cardId: "c2", rating: 3, durationMs: 0, reviewedAt: 5 },
     ]);
+  });
+});
+
+describe("wordsGraded", () => {
+  /** A word as the recognizer hands it over, clean unless told otherwise. */
+  const heard = (text: string, over: Partial<{ repaired: boolean; agreed: boolean; unsure: boolean }> = {}) => ({
+    text, heard: text, unsure: over.unsure ?? false, repaired: over.repaired ?? false, agreed: over.agreed ?? true, known: true,
+  });
+  // Twenty-two, said as the course's own words: a ten that begins with the unit.
+  const [tens, unit] = numberLemmas(22)!;
+
+  it("grades every number word of a right answer typed in words, and nothing of a wrong one", () => {
+    expect(tens!.startsWith(unit!)).toBe(true);
+    expect(wordsGraded(`${tens} ${unit}`, true, null)).toEqual([tens, unit]);
+    expect(wordsGraded(`${tens} ${unit}`, false, null)).toEqual([]);
+  });
+
+  it("never grades a repaired word because a longer word heard cleanly begins with it (D13)", () => {
+    const words = wordsGraded(`${tens} ${unit}`, true, [heard(tens!), heard(unit!, { repaired: true })]);
+    expect(words).toEqual([tens]);
+  });
+
+  it("grades euro on the ending it is said with, and only euro that way", () => {
+    const price = wordsFor({ kind: "price", cents: 300 })!;
+    const euros = price[0]!;
+    const said = [heard(euros), heard(`${EURO_LEMMA}t`)];
+    expect(wordsGraded(`${euros} ${EURO_LEMMA}t`, true, said)).toEqual([euros, EURO_LEMMA]);
   });
 });

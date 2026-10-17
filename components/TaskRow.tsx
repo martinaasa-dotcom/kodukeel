@@ -44,9 +44,12 @@ export function TaskRow({ task }: { task: TaskView }) {
   */
   const overdue = !task.completed && bucketFor(due, dayClock(), new Date()) === "overdue";
 
+  // The mark sits on the title's first line rather than the middle of the
+  // row: a title that runs to two lines and a date under it put the circle
+  // beside the date, which read as the date being the thing to tick.
   return (
     <li
-      className="lift flex items-center gap-3 rounded-[var(--r-lg)] border px-4 py-3.5"
+      className="lift flex items-start gap-3 rounded-[var(--r-lg)] border px-4 py-3.5"
       style={{
         borderColor: "var(--edge)", background: "var(--surface)",
         boxShadow: "var(--depth-sm)", opacity: pending ? 0.5 : 1,
@@ -55,7 +58,7 @@ export function TaskRow({ task }: { task: TaskView }) {
       {task.href ? (
         <span
           aria-hidden
-          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
+          className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
           style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
         >
           <MessageCircle size={13} />
@@ -65,7 +68,7 @@ export function TaskRow({ task }: { task: TaskView }) {
         type="button"
         onClick={() => start(() => void toggleTask(task.id, !task.completed).catch(() => {}))}
         aria-label={fill(t(task.completed ? "Mark \"{task}\" as not done" : "Mark \"{task}\" as done"), { task: task.title })}
-        className="press flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-colors"
+        className="press mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-colors"
         style={{
           borderColor: task.completed ? "var(--good)" : "var(--rule)",
           background: task.completed ? "var(--good)" : "transparent",

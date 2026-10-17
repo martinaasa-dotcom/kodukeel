@@ -18,16 +18,17 @@ export const SCENE_SPEECH: Area = {
     "Pick what you'd say, or say it out loud. Picked lines don't count toward your words.":
       "Выберите, что бы вы сказали, или скажите это вслух. Выбранные фразы не засчитываются в ваши слова.",
     "Say one of these": "Скажите одну из этих фраз",
-    "That's the line you said. It goes in a moment, or touch the screen to stop it.":
-      "Это фраза, которую вы сказали. Она отправится через мгновение, или коснитесь экрана, чтобы остановить.",
-    "That's the line you said. Press it to say it.": "Это фраза, которую вы сказали. Нажмите на неё, чтобы её произнести.",
+    "That's the line you said. It goes in a moment. Press anywhere or any key to stop it.":
+      "Это фраза, которую вы сказали. Она отправится через мгновение. Чтобы остановить, нажмите в любом месте или любую клавишу.",
+    "That's the line you said. Press it to send it.": "Это фраза, которую вы сказали. Нажмите на неё, чтобы отправить.",
     "That wasn't one of these lines, so it's in the box to change and send.":
       "Это не одна из этих фраз, поэтому она в поле, где её можно изменить и отправить.",
     "Say your answer": "Скажите свой ответ",
     "Your words appear here": "Здесь появятся ваши слова",
-    "This goes in a moment. Touch the screen to stop it and change the words.":
-      "Это отправится через мгновение. Коснитесь экрана, чтобы остановить и изменить слова.",
-    "Sending in a moment. Touch the screen to stop it.": "Отправка через мгновение. Коснитесь экрана, чтобы остановить.",
+    "This goes in a moment. Press anywhere or any key to stop it and change the words.":
+      "Это отправится через мгновение. Чтобы остановить и изменить слова, нажмите в любом месте или любую клавишу.",
+    "Sending in a moment. Press anywhere or any key to stop it.":
+      "Отправка через мгновение. Чтобы остановить, нажмите в любом месте или любую клавишу.",
     "We heard {heard}. They say {said}.": "Мы услышали {heard}. Они говорят {said}.",
     "Hear it": "Послушать",
 
@@ -41,9 +42,9 @@ export const SCENE_SPEECH: Area = {
     // Before the conversation.
     "Hear them first": "Сначала послушать их",
     "Their opening lines, one at a time, to say along with. Nothing is marked.":
-      "Их первые фразы, по одной, чтобы повторять вслед. Ничего не оценивается.",
+      "Их первые фразы, по одной, чтобы повторять за ними. Ничего не оценивается.",
     "Line {n} of {total}": "Фраза {n} из {total}",
-    "Listen, then say it along.": "Послушайте, затем повторите.",
+    "Listen, then say it along.": "Послушайте, затем скажите вместе с ними.",
     "Previous line": "Предыдущая фраза",
     "Next line": "Следующая фраза",
     "Talk it through": "Поговорить вслух",
@@ -69,16 +70,17 @@ export const SCENE_SPEECH: Area = {
     "Pick what you'd say, or say it out loud. Picked lines don't count toward your words.":
       "Виберіть, що б ви сказали, або скажіть це вголос. Вибрані фрази не зараховуються до ваших слів.",
     "Say one of these": "Скажіть одну з цих фраз",
-    "That's the line you said. It goes in a moment, or touch the screen to stop it.":
-      "Це фраза, яку ви сказали. Вона надішлеться за мить, або торкніться екрана, щоб зупинити.",
-    "That's the line you said. Press it to say it.": "Це фраза, яку ви сказали. Натисніть на неї, щоб її промовити.",
+    "That's the line you said. It goes in a moment. Press anywhere or any key to stop it.":
+      "Це фраза, яку ви сказали. Вона надішлеться за мить. Щоб зупинити, натисніть будь-де або будь-яку клавішу.",
+    "That's the line you said. Press it to send it.": "Це фраза, яку ви сказали. Натисніть на неї, щоб надіслати.",
     "That wasn't one of these lines, so it's in the box to change and send.":
       "Це не одна з цих фраз, тому вона в полі, де її можна змінити й надіслати.",
     "Say your answer": "Скажіть свою відповідь",
     "Your words appear here": "Тут з'являться ваші слова",
-    "This goes in a moment. Touch the screen to stop it and change the words.":
-      "Це надішлеться за мить. Торкніться екрана, щоб зупинити й змінити слова.",
-    "Sending in a moment. Touch the screen to stop it.": "Надсилання за мить. Торкніться екрана, щоб зупинити.",
+    "This goes in a moment. Press anywhere or any key to stop it and change the words.":
+      "Це надішлеться за мить. Щоб зупинити й змінити слова, натисніть будь-де або будь-яку клавішу.",
+    "Sending in a moment. Press anywhere or any key to stop it.":
+      "Надсилання за мить. Щоб зупинити, натисніть будь-де або будь-яку клавішу.",
     "We heard {heard}. They say {said}.": "Ми почули {heard}. Вони кажуть {said}.",
     "Hear it": "Послухати",
 
@@ -92,9 +94,9 @@ export const SCENE_SPEECH: Area = {
     // Before the conversation.
     "Hear them first": "Спершу послухати їх",
     "Their opening lines, one at a time, to say along with. Nothing is marked.":
-      "Їхні перші фрази, по одній, щоб повторювати слідом. Нічого не оцінюється.",
+      "Їхні перші фрази, по одній, щоб повторювати за ними. Нічого не оцінюється.",
     "Line {n} of {total}": "Фраза {n} з {total}",
-    "Listen, then say it along.": "Послухайте, потім повторіть.",
+    "Listen, then say it along.": "Послухайте, потім скажіть разом із ними.",
     "Previous line": "Попередня фраза",
     "Next line": "Наступна фраза",
     "Talk it through": "Поговорити вголос",

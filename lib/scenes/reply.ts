@@ -36,7 +36,7 @@ import { CHOICE_WORD } from "./choice";
 import { coachFor, NUDGE_AFTER } from "./coach";
 import type { Check } from "./gate";
 import { fallbackLine, type SpokenLine } from "./line";
-import { caseKeyFor, words, type Lexicon } from "./lexicon";
+import { caseKeyFor, sentenceCount, words, type Lexicon } from "./lexicon";
 import { BANK } from "./bank";
 
 /** How long a line may be and still be said again word for word (see `recital`). */
@@ -1028,9 +1028,17 @@ export function composeNote(
     time for something the scene has given up on.
   */
   if (extra.again) {
+    /*
+      And with no apology in front of it and no word defined inside it: read by
+      the native reader, "Vabandust, ma vist ütlesin segaselt" stacked in front
+      of the question and "Töö on see, mida sa teed. See on selge." defining a
+      word were both this branch, and a person asked to say it again just says
+      it again, plainer.
+    */
     return "They asked you to say that again. Say your last line once more, more slowly and in"
-      + " simpler words, not word for word, and kindly. Add nothing it did not say, and do not"
-      + " explain a word that was not in it; you may answer anything else they asked as well.";
+      + " simpler words, not word for word, and kindly. Do not apologise for how you said it, add"
+      + " nothing it did not say, and do not define or explain any word; you may answer anything"
+      + " else they asked as well.";
   }
   if (response === "moveOn") {
     return "You have asked for something a few times and not got it. Let it go the way a"
@@ -2245,6 +2253,16 @@ function butAfterHeard(out: SpokenLine[]): void {
     if (!OPENS_LOWER.has(opener) || NEVER_JOINED.has(opener)) continue;
     // Only onto a question, which is what "the thing I asked is still open" reopens: "Selge, aga me ootame siin juba nii kaua." is not.
     if (!/\?\s*$/.test(next.text)) continue;
+    /*
+      And only onto a line that is the question and nothing before it. A
+      composed line said again carries whatever it opened with, so tonight's
+      chat read `Selge, aga mul läheb hästi, aitäh! Kas sa tuled töölt?`: a
+      "but" joined to the neighbour's answer to an old question, contrasting
+      nothing, which is the fault the native reader marked on two composed
+      lines (docs/41-fifth-batch.md, section 0). `Selge.` stays a sentence of
+      its own there.
+    */
+    if (sentenceCount(next.text) > 1) continue;
     const butWord = first.text.slice(0, -1);
     out.splice(i, 2, { ...next, text: `${butWord}, aga ${next.text.charAt(0).toLowerCase()}${next.text.slice(1)}` });
   }

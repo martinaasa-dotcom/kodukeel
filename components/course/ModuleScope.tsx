@@ -230,7 +230,7 @@ function ModuleNext({ focus, steps, onShown }: {
         ) : (
           <>
             {next
-              ? fill(t("Next, step {n}: {title}"), { n: focus.n + 1, title: next.title })
+              ? fill(t("Next, step {n}: {title}"), { n: focus.n + 1, title: next.short ?? next.title })
               : fill(t("Next, step {n}"), { n: focus.n + 1 })}
             <ArrowRight size={16} aria-hidden />
           </>
@@ -438,7 +438,7 @@ function ModuleBar({ focus, atEnd }: { focus: ModuleFocus; atEnd: boolean }) {
             <X size={16} aria-hidden />
             <span className="hidden sm:inline">{t("Leave")}</span>
           </Link>
-          <div className="min-w-[4rem] flex-1">
+          <div className="min-w-[3rem] flex-1">
             <p className="label-xs whitespace-nowrap" style={{ color: "var(--ink-3)" }}>
               {fill(t("Step {n} of {of}"), { n: focus.n, of: focus.of })}
             </p>
@@ -466,8 +466,18 @@ function ModuleBar({ focus, atEnd }: { focus: ModuleFocus; atEnd: boolean }) {
               {focus.n >= focus.of ? t("Finish") : t("Next step")}
             </Button>
           )}
+          {/*
+            THE WORD FITS THE ROW, OR THE ROW LOSES ITS EDGE. With "Next step"
+            beside it, "Today's module" ran the bar past the right of a 390px
+            phone and the label was cut to "Today's mod". Below `sm` it says
+            "Steps", which is what the list it opens is, without the icon, so
+            the row fits a 360px phone; the full name is still what a screen
+            reader hears.
+          */}
           <ButtonLink href={MODULE_HOME} variant="secondary" className="shrink-0">
-            <ListChecks size={15} aria-hidden /> {t("Today’s module")}
+            <ListChecks size={15} aria-hidden className="hidden sm:block" />
+            <span className="sm:hidden" aria-hidden>{t("Steps")}</span>
+            <span className="sr-only sm:not-sr-only">{t("Today’s module")}</span>
           </ButtonLink>
         </div>
         {failed && (

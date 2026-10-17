@@ -154,7 +154,7 @@ export function EmailPanel({
         {LETTERS.map((letter) => (
           <label
             key={letter.kind}
-            className="choice-btn flex cursor-pointer items-start gap-3 rounded-xl p-3 text-left"
+            className="choice-btn flex cursor-pointer border items-start gap-3 rounded-xl p-3 text-left"
           >
             <input
               type="checkbox"

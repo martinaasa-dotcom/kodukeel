@@ -73,7 +73,9 @@ export function CalendarWeek({
       <Card tone="night">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <SectionTitle hint={weekLabel(days, offset, locale, t)}>{t("This week")}</SectionTitle>
-          <div className="flex items-center gap-2">
+          {/* The arrows keep to the right when a phone puts them on a line of
+              their own, where a step forward reads as one. */}
+          <div className="ml-auto flex items-center gap-2">
             <WeekStep to={offset - 1} label={t("Previous week")}><ChevronLeft size={16} aria-hidden /></WeekStep>
             {offset !== 0 && (
               <Link href="/calendar" className="tap-tint rounded-full px-3 py-1.5 text-xs font-semibold"
@@ -432,7 +434,7 @@ function AddPanel({ days, opensAs, onDone }: {
                 type="button"
                 aria-pressed={weekdays.includes(d)}
                 onClick={() => setWeekdays((w) => w.includes(d) ? w.filter((x) => x !== d) : [...w, d])}
-                className="choice-btn min-h-11 rounded-full px-3 text-sm font-semibold"
+                className="choice-btn min-h-11 rounded-full border px-3 text-sm font-semibold"
                 style={weekdays.includes(d)
                   ? { ["--choice-bg" as string]: "var(--accent-soft)", color: "var(--accent-deep)" }
                   : undefined}

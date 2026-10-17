@@ -780,6 +780,11 @@ describe("the closing round's own counter", () => {
     The reading settles for what the round can give only once the closing
     round is the one step left; until then it wants five. The line settled
     early, so it read "2 of 2 answers in" over a step that was not finished.
+
+    And the answers given while that step is open are that step's, not the
+    closing round's: a round grades as it goes and is ticked at its end, so
+    reading them as the closing round's let the listening round finish the
+    evening by itself and the quick review was never asked.
   */
   it("asks for five while another step of the evening is still open", async () => {
     const one = PROGRAMME.days[0]!;
@@ -794,7 +799,27 @@ describe("the closing round's own counter", () => {
     const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
     expect(reading.current?.day.index).toBe(1);
     expect(await closingProgress(OWNER, PROGRAMME, one.id, NOW))
-      .toEqual({ graded: 2, needed: CLOSING_REVIEW });
+      .toEqual({ graded: 0, needed: CLOSING_REVIEW });
+  });
+
+  it("opens the closing round only once every step in front of it is ticked", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    await reviewable(CLOSING_REVIEW);
+    const manual = ticked(one);
+    /* Every step but the last ticked, then a whole round's answers given
+       before that last step's own tick: the round in front of the review. */
+    await tick(one.id, manual.slice(0, -1), EVENING);
+    await review(CLOSING_REVIEW, new Date(EVENING.getTime() + 60_000));
+    let reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.current?.day.index, "a round's own answers do not close the evening").toBe(1);
+    expect(reading.current?.done.has(REVIEW_STEP)).toBe(false);
+    /* Ticking that last step opens the window, and the answers before it stay
+       the round's own. */
+    await tick(one.id, manual.slice(-1), new Date(EVENING.getTime() + 120_000));
+    reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.current?.day.index).toBe(1);
+    expect(reading.current?.done.has(REVIEW_STEP)).toBe(false);
   });
 
   /*

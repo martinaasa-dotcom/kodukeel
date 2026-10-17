@@ -267,7 +267,20 @@ describe("the stored string, as a learner should read it", () => {
   it("rewrites the bracket to what the question word is asking", () => {
     expect(readableGovernment("kellelt (ablative), kelle käest"))
       .toBe("kellelt (from whom?), kelle käest");
-    expect(readableGovernment("keda* (partitive)")).toBe("keda* (whom?)");
+    // The asterisk is Ekilex's mark for the primary government, notation a
+    // learner has no key to, so the reading drops it; `parseGovernment` still
+    // reads it off the stored string, which is never rewritten.
+    expect(readableGovernment("keda* (partitive)")).toBe("keda (whom?)");
+    expect(readableGovernment("keda/mida* (partitive) · kellel + mida teha · millest (elative)"))
+      .toBe("keda/mida (whom? what?), kellel + mida teha, millest (out of what?)");
+  });
+
+  it("brings a back written in the old shape to the new one, and leaves the new one alone", () => {
+    // What a government card built before this carries, read by the repair.
+    const old = "keda/mida* (whom? what? (some of it)), kellel + mida teha";
+    const now = readableGovernment(old);
+    expect(now).toBe("keda/mida (whom? what?), kellel + mida teha");
+    expect(readableGovernment(now)).toBe(now);
     expect(readableGovernment("kellest/millest (elative), kellega (comitative)"))
       .toBe("kellest/millest (about whom? out of what?), kellega (with whom?)");
   });

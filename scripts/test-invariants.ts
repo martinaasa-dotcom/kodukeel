@@ -941,9 +941,11 @@ check("no browser suite finds a field by a placeholder another field shares", ()
   every Safari a learner opening it was told their connection was the problem
   and never shown the 80px play button behind that screen.
 
-  `playClip` is the one answer. `components/Recorder.tsx` is exempt by name: it
-  plays back the learner's own recording, from a blob it already holds, on a
-  click, so there is no clip to fetch and no autoplay to be refused.
+  `playClip` is the one answer. `components/Recorder.tsx` used to be exempt by
+  name, playing the learner's own recording from a blob it held; it plays
+  through `playRecording` in that module now, which is what makes it count as
+  the app speaking so the microphone stays closed while it plays (D14), and
+  the exemption went with it.
 */
 /*
   EVERY CASE A GOVERNMENT CAN NAME IS A CASE THE TABLE KNOWS.
@@ -1271,7 +1273,6 @@ check("nothing plays a clip outside lib/audio/clip.ts", () => {
   const offenders = ["app", "lib", "components"]
     .flatMap((dir) => sourceFiles(dir))
     .filter((file) => file !== join("lib", "audio", "clip.ts"))
-    .filter((file) => file !== join("components", "Recorder.tsx"))
     .filter((file) => /new Audio\([^)]*\)\s*\.play\(|new Audio\(/.test(code(file)));
   assert.deepEqual(
     offenders,
@@ -8931,7 +8932,7 @@ check("audio a page has fetched is released, not merely remembered", () => {
 
   for (const file of ALL) {
     if (/\.(test|itest)\.tsx?$/.test(file)) continue;
-    if (file === "lib/audio/clipCache.ts" || file === "components/Recorder.tsx") continue;
+    if (file === "lib/audio/clipCache.ts") continue;
     const source = code(file);
     if (!/createObjectURL/.test(source)) continue;
     assert.match(
@@ -21273,7 +21274,7 @@ check("recognizing a word on cards never clears the second rung of a situation",
     evidence,
     available: new Set(lemmas),
     cases: new Map(doctor.cases.map((c) => [c, { pct: 100, reviews: 50 }])),
-    listening: { placed: "C1", sittings: 3 },
+    listening: { placed: "C1", sittings: 3, heardTurns: new Map() },
   });
   assert.equal(reading.uncapped, "follow", `every word recognised perfectly read as "${reading.uncapped}"`);
   assert.equal(reading.tryThis, null, "a situation only ever followed was offered as something to try");
@@ -21322,7 +21323,7 @@ check("every drill a readiness struggle points at is a route the app has", () =>
     for (const e of contexts) {
       const evidence = new Map<string, WordEvidence>();
       for (const lemma of situation.lemmas) evidence.set(lemma, e);
-      for (const listening of [{ placed: null, sittings: 0 }, { placed: "A1", sittings: 0 }]) {
+      for (const listening of [{ placed: null, sittings: 0, heardTurns: new Map<string, number>() }, { placed: "A1", sittings: 0, heardTurns: new Map<string, number>() }]) {
         const reading = readSituation(situation, {
           evidence, available: new Set(situation.lemmas), cases: new Map(), listening,
         });
@@ -23729,7 +23730,7 @@ check("a finished module stays finished after midnight", () => {
   const half = code("lib/progress/course.ts");
   const window = half.slice(half.indexOf("const closingOpensAt"));
   assert.match(
-    window.slice(0, 400), /ticks\.lastAt\.get\(dayId\);/,
+    window.slice(0, 600), /ticks\.lastAt\.get\(day(?:Id|\.id)\)/,
     "the closing round's window is no longer the day's own last tick",
   );
   assert.ok(

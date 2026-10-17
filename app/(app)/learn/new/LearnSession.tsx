@@ -576,7 +576,7 @@ export function LearnSession({
        repaired and the learner left in the box writes nothing (D13): the word
        stays where it was on the ladder and comes back. */
     const spoken = outcome !== "known" && spokenAnswer.current;
-    const unwritten = spoken && repairedAnswer.current;
+    const unwritten = outcome !== "known" && repairedAnswer.current;
     try {
     // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
     const reviewId = crypto.randomUUID();
@@ -661,9 +661,11 @@ export function LearnSession({
     if (!word || busy || phase === "feedback") return;
     const expected = word.gap ? word.gap.answer : word.lemma;
     const answer = said ?? typed;
-    // Answered aloud where the microphone filled the box, edited or not (VB-6).
-    spokenAnswer.current = said !== undefined || spokenBox.current.spoken;
-    repairedAnswer.current = spokenAnswer.current && spokenBox.current.carriesRepair(answer);
+    /* Written as spoken only where what is marked is what was heard (`saidAsIs`,
+       D4, VB-6); a repaired word left in the box writes nothing, edited or not (D13). */
+    const heardInBox = said !== undefined || spokenBox.current.spoken;
+    spokenAnswer.current = said !== undefined || spokenBox.current.saidAsIs(answer);
+    repairedAnswer.current = heardInBox && spokenBox.current.carriesRepair(answer);
     // On the gap another form is the wrong answer; asked from the meaning, it is the word.
     const check = checkAnswer(answer, expected, "et", word.gap?.rivals ?? [], word.gap ? [] : word.kin);
     /*
@@ -826,10 +828,11 @@ export function LearnSession({
 
   if (showMeetIntro) {
     return (
-      <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
-          <Mascot size={72} className="mx-auto" />
-          <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
+      // The briefing panel every round opens on; see the turn screen below.
+      <div className="round-brief mx-auto max-w-lg px-4 sm:px-5">
+        <div className="round-brief-panel night pop-in rounded-[var(--r-xl)] border text-center">
+          <Mascot size={44} className="mx-auto" />
+          <h1 className="round-brief-title round-brief-gap font-display font-bold tracking-tight" style={{ color: "var(--ink)", textWrap: "balance" }}>
             {t("First, just meet them")}
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
@@ -837,11 +840,11 @@ export function LearnSession({
               count: countOf(locale, total, noun),
             })}
           </p>
-        </div>
-        <div className="mt-8 flex justify-center">
-          <Button variant="primary" size="lg" onClick={() => setShowMeetIntro(false)}>
-            {t("Show me")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
-          </Button>
+          <div className="round-brief-gap flex justify-center">
+            <Button variant="primary" onClick={() => setShowMeetIntro(false)}>
+              {t("Show me")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -967,10 +970,14 @@ export function LearnSession({
   */
   if (showAnswerIntro && rung !== "meet") {
     return (
-      <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
-          <Mascot size={72} className="mx-auto" />
-          <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
+      // The same panel every other round opens on (`components/round/Briefing.tsx`),
+      // with its button inside it: this one was a wider card at another size
+      // with the button left outside under it, so the one screen where the
+      // round changes its question looked like it came from another app.
+      <div className="round-brief mx-auto max-w-lg px-4 sm:px-5">
+        <div className="round-brief-panel night pop-in rounded-[var(--r-xl)] border text-center">
+          <Mascot size={44} className="mx-auto" />
+          <h1 className="round-brief-title round-brief-gap font-display font-bold tracking-tight" style={{ color: "var(--ink)", textWrap: "balance" }}>
             {t("Now it’s your turn")}
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
@@ -986,11 +993,11 @@ export function LearnSession({
                 ? "Same phrases. First you pick what each one means, then you type it yourself, in Estonian."
                 : "Same words. First you pick what each one means, then you type it yourself, in Estonian."))}
           </p>
-        </div>
-        <div className="mt-8 flex justify-center">
-          <Button variant="primary" size="lg" onClick={() => setShowAnswerIntro(false)}>
-            {t("Ready")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
-          </Button>
+          <div className="round-brief-gap flex justify-center">
+            <Button variant="primary" onClick={() => setShowAnswerIntro(false)}>
+              {t("Ready")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+            </Button>
+          </div>
         </div>
       </div>
     );

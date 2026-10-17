@@ -98,7 +98,7 @@ import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { ONE_PER_WORD, addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
 import {
-  DEFAULT_PROGRAMME, MODULE_HOME, continueHref, dayById, focusedSteps, levelHeldOnHandOff, programmeById, stepText,
+  DEFAULT_PROGRAMME, MODULE_HOME, continueHref, dayById, focusedSteps, levelHeldOnHandOff, programmeById, stepCard, stepText,
 } from "@/lib/course";
 import { localeFor } from "@/lib/progress/locale";
 import { courseReading, dayIsInPlay, openingPart, openingPartFor, programmeFor } from "@/lib/progress/course";
@@ -4624,6 +4624,9 @@ export async function tonightSteps(programmeId: string, dayId: string) {
     id: f.step.id,
     // Worded for this learner, since the rail draws it as it comes.
     title: stepText(day, f.step, locale).title,
+    /* The step's short name, "Review" rather than "A quick review, then
+       you're done", for a button that has to fit a phone (`ModuleNext`). */
+    short: stepCard(f.step, locale).label,
     href: f.href,
     done: done(f.step.id),
   }));

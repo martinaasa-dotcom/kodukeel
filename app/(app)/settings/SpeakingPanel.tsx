@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useT } from "@/components/Locale";
-import { Button } from "@/components/Button";
 import { ChoiceSegment } from "@/components/Choice";
 import { MicError } from "@/components/speech/MicButton";
 import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
@@ -18,7 +17,8 @@ import { megabytes, modelBytes } from "@/lib/speech/model";
  * What a learner can decide about the microphone, and what the device says
  * about it. Whether the model is downloaded is read from where it is kept
  * (D7), never stored, so the line here is the same answer every microphone
- * in the app is drawn from. It says once that speaking is new and that what
+ * in the app is drawn from. The download itself is nobody's decision: the
+ * shell fetches it in the background on every device. It says once that speaking is new and that what
  * appears is the machine's hearing (D23), and where this deployment or this
  * device cannot hear Estonian it says why in one line rather than showing
  * controls that do nothing.
@@ -65,6 +65,9 @@ export function SpeakingPanel() {
     });
   };
 
+  // There is no button to download or delete: every device fetches the model
+  // on its own in the background (SpeechPrefetch), which is the operator's
+  // call, so this line only says where the device stands.
   const downloaded = speech.phase === "ready" || speech.phase === "loading";
 
   return (
@@ -81,19 +84,8 @@ export function SpeakingPanel() {
               ? keepUnits(fill(t("Downloaded on this device ({mb} MB)."), { mb }))
               : speech.phase === "downloading"
                 ? keepUnits(fill(t("Downloading {done} of {total} MB"), { done: megabytes(speech.progress.done), total: megabytes(speech.progress.total || modelBytes()) }))
-                : speech.phase === "cleared"
-                  ? t("Your browser cleared the download to save space.")
-                  : keepUnits(fill(t("Not downloaded on this device. It is {mb} MB, once."), { mb }))}
+                : keepUnits(fill(t("The speech model is not on this device yet. It downloads by itself in the background, {mb} MB once."), { mb }))}
         </p>
-        {downloaded ? (
-          <Button variant="secondary" size="sm" onClick={() => void speech.forget()}>
-            {t("Delete the download")}
-          </Button>
-        ) : speech.phase === "needs-download" || speech.phase === "cleared" || speech.phase === "error" ? (
-          <Button size="sm" onClick={() => void speech.download()}>
-            {keepUnits(fill(t("Download {mb} MB"), { mb }))}
-          </Button>
-        ) : null}
       </div>
       {speech.error && speech.error !== "too-slow" && <MicError error={speech.error} onRetry={null} />}
 

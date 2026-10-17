@@ -14,6 +14,8 @@ import {
 } from "@/lib/readiness/rungs";
 import { SITUATIONS, situationById } from "@/lib/readiness/situations";
 import { slotOfCard } from "@/lib/srs/slots";
+import { spokenTurnsFor } from "@/lib/progress/spokenTurns";
+import { heardTurnsByLevel } from "@/lib/stats/spoken";
 
 /**
  * The learner's readiness for every situation the course promises, read off
@@ -21,7 +23,8 @@ import { slotOfCard } from "@/lib/srs/slots";
  *
  * Nothing is stored (ADR-014). Every reading is derived on the request from
  * the append-only review log, the learner's cases over the shared half-year
- * window, the most recent level check and the mock papers they have sat.
+ * window, the most recent level check, the mock papers they have sat, and
+ * the conversation turns they answered out loud to a line only heard (VB-14).
  * Five reads that do not need each other, at once, and one that does.
  *
  * WHY THE CASES COME THROUGH `caseReviewsFor`. "Your weakest cases" is one
@@ -87,13 +90,14 @@ async function evidenceByLemma(ownerId: string, now: Date): Promise<Map<string, 
 
 /** Memoised for the render: Progress, the list and a unit page may all ask. */
 export const readinessPicture = cache(async (ownerId: string, now = new Date()): Promise<ReadinessPicture> => {
-  const [evidence, available, caseRows, placement, attempts, level] = await Promise.all([
+  const [evidence, available, caseRows, placement, attempts, level, spoken] = await Promise.all([
     evidenceByLemma(ownerId, now),
     dictionaryLemmas(),
     caseReviewsFor(ownerId, now),
     latestFor(ownerId),
     recentAttempts(ownerId, { measured: true }),
     courseLevelFor(ownerId),
+    spokenTurnsFor(ownerId, now),
   ]);
 
   const cases = new Map(caseAccuracy(caseRows, 1).map((c) => [c.grammCase, { pct: c.accuracy, reviews: c.total }]));
@@ -105,6 +109,7 @@ export const readinessPicture = cache(async (ownerId: string, now = new Date()):
     listening: {
       placed: placement?.listening ?? null,
       sittings: attempts.filter((a) => typeof a.parts?.listening === "number").length,
+      heardTurns: heardTurnsByLevel(spoken),
     },
   };
 

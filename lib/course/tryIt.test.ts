@@ -55,7 +55,7 @@ describe("the reading asks back", () => {
     expect(shared).toBeDefined();
     expect(shared!.options.filter((o) => o === "on")).toHaveLength(1);
     expect(shared!.yes).toMatch(/for (ta|nad), and for (nad|ta) too/);
-    expect(shared!.no).toMatch(/and so does (ta|nad)\./);
+    expect(shared!.no).toMatch(/and the same with (ta|nad)\./);
   });
 
   it("asks the no-form and the do-it form across the verbs on the page", () => {

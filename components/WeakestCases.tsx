@@ -5,7 +5,7 @@ import { caseByKey } from "@/lib/estonian/cases";
 import { questionIn } from "@/lib/copy/questionReading";
 import type { CaseKey } from "@/lib/estonian/types";
 import { Meter } from "@/components/ui";
-import { fill, tr, type Locale } from "@/lib/copy/locale";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * The cases a learner keeps missing, worst first, with a way in to each.
@@ -128,8 +128,11 @@ export function WeakestCases({ cases, empty, locale }: {
                   height={5}
                 />
               </span>
-              <span className="tnum w-20 shrink-0 whitespace-nowrap text-right text-xs" style={{ color: "var(--ink-3)" }}>
-                {c.accuracy}%, {c.total}
+              {/* The figure, and under it what it is out of. "60%, 5" left a
+                  reader to guess what the five was. */}
+              <span className="tnum flex w-16 shrink-0 flex-col whitespace-nowrap text-right leading-tight">
+                <span className="text-sm font-semibold" style={{ color: "var(--ink-2)" }}>{c.accuracy}%</span>
+                <span className="text-2xs" style={{ color: "var(--ink-3)" }}>{countOf(locale, c.total, "answer")}</span>
               </span>
             </Link>
             <Link

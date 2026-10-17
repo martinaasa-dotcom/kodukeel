@@ -1,11 +1,11 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Download, FileText, Printer, Target } from "lucide-react";
+import { Download, FileText, Printer, Target } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { classworkHistory } from "@/app/actions";
 import { PATH } from "@/lib/collections/syllabus";
-import { classRoster, workplaceRoster } from "@/lib/classroom/roster";
+import { classRoster, joinedMember, workplaceRoster } from "@/lib/classroom/roster";
 import { rosterPath } from "@/lib/classroom/rosterCsv";
 import { emailPrefsFrom, wants } from "@/lib/email/prefs";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
@@ -13,9 +13,10 @@ import { cohortKind } from "@/lib/classroom/cohort";
 import type { ExamLevel } from "@/lib/exam/spec";
 import { WorkplaceView } from "./WorkplaceView";
 import { RosterList } from "@/components/class/RosterList";
+import { ClassFigures } from "@/components/class/ClassFigures";
 import { LocalDate } from "@/components/LocalDate";
 import { DUE_DATE_FORMAT } from "@/lib/ux/agenda";
-import { Card, Empty, Meter, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
+import { BackLink, Card, Empty, Meter, Note, Page, SectionTitle, Stack } from "@/components/ui";
 import { ArchiveClass, AssignHomework, AssignScene, AssignUnit, ClassDigest, CopyCode, LeaveClass } from "../ClassForms";
 import { SCENES } from "@/lib/scenes/catalogue";
 import { sceneHomeworkCount } from "@/lib/progress/homework";
@@ -104,6 +105,14 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
 
   const leader = roster?.entries[0];
   const you = roster?.entries.find((e) => e.ownerId === ownerId);
+  /*
+    Whose rows a seat sees. A student's leaderboard is everybody, the teacher
+    included with a cap beside their name; a teacher's roster is the people who
+    joined, which is what the figures above it count, so "Nobody has joined
+    yet" is never drawn under a count of one that is the teacher.
+  */
+  const rows = roster ? (isTeacher ? roster.entries.filter(joinedMember) : roster.entries) : [];
+  const nobodyElse = roster ? (isTeacher ? roster.joined === 0 : roster.joined <= 1) : true;
   const units = PATH.map((u) => ({ id: u.id, title: u.title, subtitle: u.subtitle }));
   const scenes = SCENES.map((scene) => ({ id: scene.id, title: t(scene.title) }));
   /*
@@ -131,13 +140,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
             ? "Who's keeping up, and what the whole class keeps tripping over."
             : "How your class is doing this week.")}
       actions={
-        <Link
-          href="/class"
-          className="press inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
-          style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
-        >
-          <ArrowLeft size={14} aria-hidden /> {t(workplace ? "All groups" : "All classes")}
-        </Link>
+        <BackLink href="/class">{t(workplace ? "All groups" : "All classes")}</BackLink>
       }
     >
       <Stack>
@@ -189,15 +192,11 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
 
         {roster && (
           <>
-        <div className="grid gap-3 sm:grid-cols-3">
-          <StatTile value={roster.entries.length} label={t("Members")} tone="sky" />
-          <StatTile value={roster.activeThisWeek} label={t("Active this week")} tone="sky" />
-          <StatTile value={roster.totalReviewsThisWeek} label={t("Reviews this week")} tone="accent" />
-        </div>
+        <ClassFigures joined={roster.joined} active={roster.activeThisWeek} reviews={roster.totalReviewsThisWeek} locale={locale} />
 
         <section>
           <SectionTitle hint={t("this week")}>{t(isTeacher ? "Roster" : "Class leaderboard")}</SectionTitle>
-          {roster.entries.length <= 1 ? (
+          {nobodyElse ? (
             <Empty
               title={t(isTeacher ? "Nobody has joined yet" : "You're the first one here")}
               body={t(isTeacher
@@ -205,9 +204,9 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                 : "Your classmates will show up here as they join.")}
             />
           ) : (
-            <RosterList entries={roster.entries} viewerId={ownerId} isTeacher={isTeacher} locale={locale} />
+            <RosterList entries={rows} viewerId={ownerId} isTeacher={isTeacher} locale={locale} />
           )}
-          {you && leader && you.ownerId !== leader.ownerId && (
+          {!isTeacher && !nobodyElse && you && leader && you.ownerId !== leader.ownerId && (
             <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
               {fill(t("{reviews} behind the top of the class this week."), { reviews: countOf(locale, leader.reviewsThisWeek - you.reviewsThisWeek, "review") })}
             </p>

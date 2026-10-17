@@ -29,6 +29,12 @@ describe("a duration on its way to a screen", () => {
   it("treats a negative as nothing rather than printing one", () => {
     expect(formatDuration(-3)).toBe("0 min");
   });
+
+  it("never rounds a real stretch of study down to nothing", () => {
+    expect(formatDuration(0)).toBe("0 min");
+    expect(formatDuration(0.4 / 60)).toBe("1 min");
+    expect(formatDuration(0.4 / 60, "long")).toBe("1 minute");
+  });
 });
 
 describe("an hour figure past ten", () => {

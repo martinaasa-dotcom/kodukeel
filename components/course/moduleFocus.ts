@@ -50,6 +50,8 @@ export function useModuleFocus(): ModuleFocus | null {
 export interface ModuleStepRow {
   id: string;
   title: string;
+  /** The short name the fan on Today draws, for a label that has to fit a phone. */
+  short?: string;
   href: string;
   done: boolean;
 }

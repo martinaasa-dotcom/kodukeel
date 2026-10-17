@@ -215,9 +215,16 @@ if (hosted) {
     resets inside a minute, which is what keeps this from spending an allowance
     a later suite needs: the export's is six an hour and `test-restore.mjs`
     wants it.
+
+    Up to twice the allowance and two over, because the window is a fixed
+    minute: thirteen requests that straddle the turn of a window split, say,
+    five and eight, and neither half reaches twelve. Twenty-six cannot be
+    split that way across one turn, and a loop of them takes seconds rather
+    than a minute, so it crosses at most one. Measured as a flake on CI with
+    fourteen, on a commit that touched no limiter.
   */
   let refused = false;
-  for (let i = 0; i < 14 && !refused; i += 1) {
+  for (let i = 0; i < 26 && !refused; i += 1) {
     const code = await status("/api/restore", {
       method: "POST",
       headers: { "sec-fetch-site": "same-origin", "content-type": "application/json" },

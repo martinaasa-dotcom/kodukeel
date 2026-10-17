@@ -2,7 +2,6 @@
 
 import { EnterKeyCap } from "@/components/KeyCaps";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AnotherRound } from "@/components/round/AnotherRound";
 import { useGrade } from "@/components/round/useGrade";
 import { ArrowRight, Check, Ear, Volume2 } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
@@ -10,10 +9,9 @@ import { EstonianInput } from "@/components/EstonianInput";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
 import { hintLadder } from "@/lib/questions/hints";
-import { Chip, Empty, Page, StatTile } from "@/components/ui";
+import { Chip, Empty, Page } from "@/components/ui";
 import { StarWord } from "@/components/StarWord";
 import { useResumeCard } from "@/components/useResumeCard";
-import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
 import { useAudioPrefs } from "@/components/AudioPrefs";
 import { conditionFor, describeHearing } from "@/lib/audio/conditions";
@@ -25,7 +23,7 @@ import type { RatingValue } from "@/lib/srs/scheduler";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfDictation } from "@/lib/ux/verdict";
 import { inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
-import { WayOut } from "@/components/round/RoundExit";
+import { RoundDone } from "@/components/round/RoundDone";
 import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { WordLink } from "@/components/course/WordLink";
@@ -110,6 +108,8 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
   const [noAudio, setNoAudio] = useState(false);
   const [done, setDone] = useState(0);
   const [correct, setCorrect] = useState(0);
+  /* The sentences that were not word perfect, for the last screen. */
+  const [missed, setMissed] = useState<DictationTask[]>([]);
   const [busy, setBusy] = useState(false);
   const startedAt = useRef(Date.now());
   const shownAt = useRef(Date.now());
@@ -163,6 +163,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
     setResult(marked);
     setDone((d) => d + 1);
     if (marked.verdict === "correct") setCorrect((c) => c + 1);
+    else setMissed((m) => [...m, task]);
     if (marked.verdict === "wrong" && typeof navigator !== "undefined" && "vibrate" in navigator) {
       navigator.vibrate?.(60);
     }
@@ -233,33 +234,23 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
     const accuracy = done > 0 ? Math.round((correct / done) * 100) : 0;
+    /*
+      No paragraph under the title. The first sentence was this app telling
+      somebody who has just finished a round why the round was worth doing,
+      and the second was the provenance disclaimer, which is off every screen
+      in the app now. The tiles say how it went, and the sentences that were
+      not word perfect say what to hear again.
+    */
     return (
-      <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
-          <Mascot size={68} mood="cheer" className="float mx-auto" />
-          <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
-            {t("Dictation done")}
-          </h1>
-          {/*
-            No paragraph here. The first sentence was this app telling somebody
-            who has just finished a round why the round was worth doing, and
-            the second was the provenance disclaimer, which is off every screen
-            in the app now: it is a claim worth making once, where somebody is
-            deciding whether to trust this, and not at the foot of a drill.
-            Three tiles say how it went, which is what the screen is for.
-          */}
-        </div>
-        <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
-          <StatTile value={done} label={t("Written")} tone="accent" />
-          <StatTile value={`${accuracy}%`} label={t("Word perfect")} tone={accuracy >= 50 ? "sky" : "butter"} />
-          <StatTile value={fill(t("{n}m"), { n: minutes })} label={t("Time")} tone="sky" />
-        </div>
-        <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
-          <ButtonLink href="/practice" size="lg">{t("Try something else")}</ButtonLink>
-          <ButtonLink href="/" size="lg">{t("Back to Today")}</ButtonLink>
-          <AnotherRound variant="primary" size="lg">{t("Another round")}</AnotherRound>
-        </WayOut>
-      </div>
+      <RoundDone
+        title={t("Dictation done")}
+        figures={[
+          { value: done, label: t("Written") },
+          { value: `${accuracy}%`, label: t("Word perfect") },
+          { value: fill(t("{n}m"), { n: minutes }), label: t("Time") },
+        ]}
+        missed={missed.map((m) => ({ et: m.et, lemma: m.lemma, note: m.en ?? m.lemma }))}
+      />
     );
   }
 

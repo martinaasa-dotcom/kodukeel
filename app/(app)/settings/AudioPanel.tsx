@@ -338,7 +338,7 @@ const SUPPORT_LEVELS: { value: Support; label: string; detail: string; icon: typ
   },
   {
     value: "cold",
-    label: "Hear it, and work out what to say",
+    label: "Hear it, no hints",
     detail: "Even what you're meant to say is hidden until you ask. It's as close to the real thing as it gets, so it's best for a conversation you've had before.",
     icon: Sparkles,
   },
@@ -370,8 +370,3 @@ export function SupportPanel({ current }: { current: Support }) {
   );
 }
 
-/** A speaker for the sample line in the learner's own current voice. */
-export function CurrentVoiceSample() {
-  const t = useT();
-  return <Speak text={SAMPLE} label={t("Hear the voice you've chosen")} />;
-}

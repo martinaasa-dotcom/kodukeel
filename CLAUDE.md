@@ -8320,7 +8320,8 @@ between them they answer the honest version. `lib/readiness/` reads each claim o
 recognition for the first, production more than once and the last time for the second, and for the
 third production with variety and at pace, plus the cases the encounter turns on, the machinery it
 runs on (numbers, question words, the clock) and, for a live exchange, some evidence the learner can
-follow *speech*, which only the level check and a sat paper supply. **Recognition alone never clears
+follow *speech*, which the level check, a sat paper or ten conversation turns answered out loud to a
+line only heard, at that band, supply (VB-14). **Recognition alone never clears
 the second rung**, driven in the invariant suite with two hundred perfect flips of every card. The
 bars are shares of words rather than averages of scores, because the one word you are missing is the
 one the other person says. Thin evidence caps the rung itself rather than a confidence, since there
@@ -12135,6 +12136,12 @@ npm run wordlist         # rebuild the 155k headword list in 32 requests (cached
 npm run forms            # rebuild the forms list: every spelling of every word, from Ekilex and Vabamorf (cached, needs python3 with estnltk)
 npm run report:impact    # people, study, retention and conversations outside the app, as text for a funder
 npm run report:spend     # what the models cost, by kind, model and day, off the ledger (--days)
+npm run report:speech    # does saying it help: the edit rate, recall after a spoken answer, tonight's chat
+npm run asr:fetch        # the 71 MB speech model, for the app to serve itself, every file checked by hash
+npm run asr:runtime      # build the pinned sherpa-onnx runtime the app serves (dev and build run it)
+npm run asr:fixtures     # remake the fixture clips the browser suites feed the fake microphone (TartuNLP)
+npm run asr:golden       # record lib/speech/fixtures/golden.json off the web engine, the native apps' first test
+npm run measure:numbers  # what TartuNLP says for every number shape the numbers round plays, heard back
 npm run measure:scenes   # how much of a conversation the dictionary can already carry
 npm run play:scenes      # every scene played keyless as a sloppy or curious learner; read the transcripts (--scene, --style)
 npm run sweep:fallback   # every scene, keyless, eight scripted learners and every curveball at every beat; read the flags (--scene)

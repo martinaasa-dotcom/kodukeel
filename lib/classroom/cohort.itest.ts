@@ -122,6 +122,47 @@ describe("what a sponsor's query reads", () => {
     expect(serialised).not.toContain("confidence");
   });
 
+  it("counts the people who joined, never the teacher who made the class", async () => {
+    // The teacher practises and the one student has not started: the board's
+    // figures and its "Nobody has joined yet" have to describe the same class.
+    await history(BOSS, 30, 1, "ELATIVE");
+    const alone = await classRoster(classroomId);
+    expect(alone.entries.map((e) => e.ownerId)).toContain(BOSS);
+    expect(alone.joined).toBe(1);
+    expect(alone.totalReviewsThisWeek).toBe(0);
+    expect(alone.activeThisWeek).toBe(0);
+    expect(alone.weakestCases).toEqual([]);
+
+    await history(ANU, 12, 1);
+    const started = await classRoster(classroomId);
+    expect(started.totalReviewsThisWeek).toBe(12);
+    expect(started.activeThisWeek).toBe(1);
+    expect(started.weakestCases.map((c) => c.grammCase)).toEqual(["INESSIVE"]);
+  });
+
+  it("counts the answers said aloud this week, and carries nothing of what was said (VB-14)", async () => {
+    await history(ANU, 5, 3);
+    const card = await prisma.card.findFirstOrThrow({ where: { ownerId: ANU } });
+    await prisma.review.createMany({
+      data: [0, 1, 2].map((i) => ({
+        ownerId: ANU, cardId: card.id, lexemeId, rating: 3, stateBefore: 2, spoken: true,
+        reviewedAt: new Date(Date.now() - (i + 1) * 60_000),
+      })),
+    });
+    // One said aloud last month, which is not this week.
+    await prisma.review.create({
+      data: {
+        ownerId: ANU, cardId: card.id, lexemeId, rating: 3, stateBefore: 2, spoken: true,
+        reviewedAt: new Date(Date.now() - 30 * 86_400_000),
+      },
+    });
+    const board = await classRoster(classroomId);
+    const anu = board.entries.find((e) => e.ownerId === ANU);
+    expect(anu?.reviewsThisWeek).toBe(8);
+    expect(anu?.spokenThisWeek).toBe(3);
+    expect(board.entries.find((e) => e.ownerId === BOSS)?.spokenThisWeek).toBe(0);
+  });
+
   it("names everybody who joined, with a band and the tier behind it", async () => {
     await history(ANU, 200, 4);
 

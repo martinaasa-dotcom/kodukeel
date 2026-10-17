@@ -78,7 +78,7 @@ export function TutorChat({
           </p>
         )}
         {readerCanConfigure && (
-          <ButtonLink href="/settings" variant="primary">{t("Get a free key in Settings")}</ButtonLink>
+          <ButtonLink href="/settings?tab=words#anu" variant="primary">{t("Get a free key in Settings")}</ButtonLink>
         )}
       </Card>
     );

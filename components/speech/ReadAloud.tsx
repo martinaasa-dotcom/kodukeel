@@ -46,6 +46,9 @@ export function ReadAloud({ line, label, onHeard, shortcut = false }: ReadAloudP
   const lit = lightUp(words, speech.listening ? speech.partial : heard);
   const share = shareLit(lit);
   const all = words.length > 0 && share === 1;
+  // A dash standing on its own is not a word anybody says, so the count is of words.
+  const spoken = words.filter((w) => w.key);
+  const litWords = words.filter((w, i) => w.key && lit[i]).length;
 
   return (
     <div className="flex flex-col gap-3">
@@ -62,7 +65,7 @@ export function ReadAloud({ line, label, onHeard, shortcut = false }: ReadAloudP
           <MicButton speech={speech} label={label ?? t("Say it along")} shortcut={shortcut} showPartial={false} />
           {!speech.listening && heard && (
             <p className="text-sm" style={{ color: "var(--ink-2)" }} role="status">
-              {all ? t("Every word was heard.") : fill(t("{n} of {total} words were heard."), { n: lit.filter(Boolean).length, total: words.length })}
+              {all ? t("Every word was heard.") : fill(t("{n} of {total} words were heard."), { n: litWords, total: spoken.length })}
             </p>
           )}
         </div>

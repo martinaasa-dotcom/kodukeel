@@ -100,6 +100,12 @@ export interface Thing {
   readonly picture: string | null;
   /** Leading entry first; empty where the dictionary vouches for none, and the row says so in English. */
   readonly entries: readonly ThingEntry[];
+  /**
+   * The dictionary does hold a word for it, spelled exactly like another
+   * entry (`hall` is grey and frost), so it is held back rather than offered.
+   * Said on the row, because "not in the dictionary" would be untrue.
+   */
+  readonly spelledLikeAnother: boolean;
 }
 
 /**

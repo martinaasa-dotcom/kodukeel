@@ -9,9 +9,10 @@
  * "Show the microphone in answer boxes" decides whether a microphone appears
  * where speaking is not the task, which is every box that takes an Estonian
  * answer (D6). On by default, and it only ever applies once the model is on the
- * device: nobody meets a microphone in an answer box before choosing speech
- * somewhere. Whether the model is downloaded is read from where it is kept,
- * never stored here.
+ * device, which the signed-in shell fetches in the background
+ * (`SpeechPrefetch`), so a microphone never appears in a box that would answer
+ * "download first". Whether the model is downloaded is read from where it is
+ * kept, never stored here.
  */
 export type OnOff = "on" | "off";
 

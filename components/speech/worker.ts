@@ -15,7 +15,7 @@
  * Single-threaded on purpose (D18): a threaded build needs the page to be
  * cross-origin isolated, which would stop Google's sign-in from loading.
  */
-import { prepareTurn, spokenSeconds, loudFrames } from "@/lib/speech/prepare";
+import { prepareTurn, spokenSeconds, piecesOf } from "@/lib/speech/prepare";
 import { resample } from "@/lib/speech/resample";
 import { SPEECH_SETTINGS as S } from "@/lib/speech/settings";
 import type { Decoding, EngineError, RawTurn } from "@/lib/speech/engine";
@@ -63,6 +63,8 @@ let heardLength = 0;
 let spoke = false;
 let endpointOn = false;
 let partialText = "";
+/** The turn being heard, echoed on everything it says (protocol.ts). */
+let turnId = 0;
 
 function post(message: FromWorker): void {
   scope.postMessage(message);
@@ -194,15 +196,33 @@ async function load(files: readonly WorkerFile[], cacheName: string, runtimeBase
     }
     sherpa.FS.writeFile(`/m/${file.name}`, bytes);
   }
+  // A load after a failed one in the same worker (a device check that ran
+  // slow once) lets the recognizers that load made go before making new ones.
+  live?.free();
+  live = null;
+  greedy?.free();
+  greedy = null;
+  beam?.free();
+  beam = null;
   try {
     greedy = createOnlineRecognizer(sherpa, config(S.decoding));
   } catch (error) {
     throw new EngineFailure("too-slow", `the model would not fit: ${String(error)}`);
   }
   // The device check: the shipped clip, decoded once, timed against its own length.
-  const started = performance.now();
-  decodeWhole(greedy, check);
-  const rtf = (performance.now() - started) / 1000 / (check.length / S.sampleRate);
+  const timed = (): number => {
+    const started = performance.now();
+    decodeWhole(greedy!, check);
+    return (performance.now() - started) / 1000 / (check.length / S.sampleRate);
+  };
+  /* The first decoding in a fresh worker pays for the WebAssembly warming up,
+     on a page that is itself still loading, and a busy moment is not a slow
+     device: one reading over the line once marked a capable machine "too slow"
+     for the rest of the tab. So a slow first pass is decoded again and the
+     faster of the two decides. A device that is really slower than real time
+     is slow both times. */
+  let rtf = timed();
+  if (!(rtf <= S.maxRealTimeFactor)) rtf = Math.min(rtf, timed());
   if (!(rtf <= S.maxRealTimeFactor)) throw new EngineFailure("too-slow", `${rtf.toFixed(2)} of real time`);
   // The second reading is made only when a turn ends, but it is loaded now, so
   // the screen says "getting ready" once rather than stalling the first turn.
@@ -243,8 +263,9 @@ async function finalTurn(samples: Float32Array): Promise<RawTurn | null> {
 let turnLimitSeconds: number = S.maxTurnSeconds;
 let keepAudio = false;
 
-function startTurn(endpoint: boolean, maxSeconds?: number, keep?: boolean): void {
+function startTurn(id: number, endpoint: boolean, maxSeconds?: number, keep?: boolean): void {
   live?.free();
+  turnId = id;
   live = greedy!.createStream();
   heard = [];
   heardLength = 0;
@@ -268,9 +289,9 @@ function accept(samples: Float32Array): void {
     partialText = text;
     if (text && !spoke) {
       spoke = true;
-      post({ type: "speech" });
+      post({ type: "speech", id: turnId });
     }
-    post({ type: "partial", text });
+    post({ type: "partial", id: turnId, text });
   }
   if (heardLength / S.sampleRate >= turnLimitSeconds) {
     void endTurn("too-long");
@@ -281,6 +302,7 @@ function accept(samples: Float32Array): void {
 
 async function endTurn(why: "pressed" | "silence" | "nothing-said" | "too-long"): Promise<void> {
   if (!live) return;
+  const id = turnId;
   live.free();
   live = null;
   const all = new Float32Array(heardLength);
@@ -291,15 +313,15 @@ async function endTurn(why: "pressed" | "silence" | "nothing-said" | "too-long")
   }
   heard = [];
   heardLength = 0;
-  post({ type: "thinking" });
+  post({ type: "thinking", id });
   const turn = why === "nothing-said" ? null : await finalTurn(all);
   // The learner's own voice goes back only where the screen asked to play it to them.
   if (keepAudio && turn) {
-    const message: FromWorker = { type: "final", turn, why, audio: all };
+    const message: FromWorker = { type: "final", id, turn, why, audio: all };
     scope.postMessage(message, [all.buffer]);
     return;
   }
-  post({ type: "final", turn, why });
+  post({ type: "final", id, turn, why });
 }
 
 /** Set by "cancel" while a recording is being heard: stop after the piece in hand, keeping what was heard. */
@@ -312,29 +334,14 @@ let stopTranscribing = false;
 async function transcribe(samples: Float32Array, rate: number): Promise<void> {
   stopTranscribing = false;
   const audio = resample(samples, rate, S.sampleRate);
-  const frames = loudFrames(audio);
-  const frame = Math.round(S.sampleRate * S.frameSeconds);
-  const maxFrames = Math.round(20 / S.frameSeconds);
-  const minPause = Math.round(0.3 / S.frameSeconds);
-  const pieces: Array<[number, number]> = [];
-  let start = 0;
-  let quiet = 0;
-  for (let f = 0; f < frames.length; f++) {
-    quiet = frames[f] ? 0 : quiet + 1;
-    const long = f - start >= maxFrames;
-    if ((quiet >= minPause && f - start > minPause * 2) || long) {
-      pieces.push([start, f + 1]);
-      start = f + 1;
-      quiet = 0;
-    }
-  }
-  if (start < frames.length) pieces.push([start, frames.length]);
+  // Where the recording is cut is decided in lib/speech/, so a native app cuts in the same places.
+  const pieces = piecesOf(audio);
   const total = pieces.length;
   let done = 0;
-  for (const [a, b] of pieces) {
-    const turn = await finalTurn(audio.subarray(a * frame, Math.min(audio.length, b * frame)));
+  for (const [from, to] of pieces) {
+    const turn = await finalTurn(audio.subarray(from, to));
     done += 1;
-    post({ type: "segment", turn, from: (a * frame) / S.sampleRate, to: Math.min(audio.length, b * frame) / S.sampleRate, done, total });
+    post({ type: "segment", turn, from: from / S.sampleRate, to: to / S.sampleRate, done, total });
     // A real pause between pieces, so a "cancel" sent while this runs is read
     // before the next piece rather than after the last one: decoding is
     // synchronous, and a resolved await gives the message queue no turn.
@@ -360,7 +367,7 @@ scope.onmessage = (event) => {
         return;
       case "listen":
         if (!greedy) throw new EngineFailure("not-downloaded");
-        startTurn(message.endpoint, message.maxSeconds, message.keepAudio);
+        startTurn(message.id, message.endpoint, message.maxSeconds, message.keepAudio);
         audioPort?.close();
         audioPort = event.ports[0] ?? null;
         if (audioPort) {

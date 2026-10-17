@@ -5466,6 +5466,11 @@ a:focus-visible .wave-word::after {
 }
 .case-label-ask { font-weight: 500; color: var(--ink); }
 .case-label-means { color: var(--ink-3); }
+/* In a narrow tile the three runs take a line each: run together they broke
+   wherever the width ran out, so a tile read "nimetav ainsus kes?" over
+   "mis? who? what?", a question split across the name and its English. */
+.case-label-stack .case-label-ask,
+.case-label-stack .case-label-means { display: block; margin-inline-start: 0; margin-top: 0.125rem; }
 
 /*
   A PART OF THE DEBRIEF IS A PANEL, NOT A HEADING AND SOME LOOSE LINES.
@@ -5506,6 +5511,11 @@ a:focus-visible .wave-word::after {
   background: var(--accent-soft);
   color: var(--accent-deep);
   border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  /* Held to talk under a finger: a long press is the gesture, not a request
+     for the browser's callout, a selection or a double-tap zoom. */
+  -webkit-touch-callout: none;
+  user-select: none;
+  touch-action: manipulation;
   transition-property: background-color, color, box-shadow, transform;
   transition-duration: 160ms;
   transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
@@ -5532,10 +5542,12 @@ a:focus-visible .wave-word::after {
 .speech-mic[data-state="listening"]:not(:disabled) {
   /* The level ring is the button's own shadow rather than a box behind it: a
      box at a negative z-index paints under the card the button sits on and is
-     never seen. It grows with the level coming in, nought to one. */
+     never seen. It grows with the level coming in, nought to one, and at its
+     widest (12px) stays inside the gaps MicButton leaves around the button,
+     so it never draws over the words beside or under it. */
   box-shadow:
-    0 0 0 calc(3px + var(--mic-level, 0) * 9px) color-mix(in srgb, var(--accent) 22%, transparent),
-    0 0 0 calc(4px + var(--mic-level, 0) * 14px) color-mix(in srgb, var(--accent) 10%, transparent);
+    0 0 0 calc(3px + var(--mic-level, 0) * 6px) color-mix(in srgb, var(--accent) 24%, transparent),
+    0 0 0 calc(4px + var(--mic-level, 0) * 8px) color-mix(in srgb, var(--accent) 12%, transparent);
   transition: box-shadow 90ms linear, background-color 160ms;
 }
 .speech-partial {
@@ -5643,6 +5655,10 @@ a:focus-visible .wave-word::after {
   border-radius: var(--r-xl);
   background: color-mix(in srgb, var(--ground) 82%, transparent);
   pointer-events: none;
+}
+/* A phone has nowhere to drag a file from, so the offer is not made there. */
+@media (pointer: coarse) {
+  .recording-drop-hint { display: none; }
 }
 .recording-meter {
   height: 6px;

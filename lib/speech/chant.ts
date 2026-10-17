@@ -68,3 +68,19 @@ export function splitChant(heard: string, rows: readonly ChantRow[]): (string | 
   }
   return out;
 }
+
+/**
+ * The rows a learner is asked for, when the table's first row is already on
+ * the screen: the chant split against all six, the given row dropped.
+ *
+ * Chanting without the pronouns, a learner often says the five forms that are
+ * asked and not the one printed for them, which is five words for six rows and
+ * fills nothing. So where the six gave nothing, the same words are read
+ * against the five rows alone. A chant with any pronoun in it was read by the
+ * six already, so this changes nothing about one.
+ */
+export function splitAsked(heard: string, rows: readonly ChantRow[]): (string | null)[] {
+  const all = splitChant(heard, rows).slice(1);
+  if (all.some((row) => row !== null)) return all;
+  return splitChant(heard, rows.slice(1));
+}

@@ -199,6 +199,18 @@ describe("a turn said aloud", () => {
     expect(said.turns.filter((turn) => turn.repaired !== undefined).length).toBeGreaterThanOrEqual(1);
   });
 
+  it("writes the grade as spoken only where the turn was sent as heard (D4)", () => {
+    const spokenOfReason = (spoken: SentTurn["spoken"]) =>
+      gradesFor(scene, replay(context, draw, turns(spoken)).state, run.card, context.lexicon)
+        .filter((grade) => grade.lemma === "valu").map((grade) => grade.spoken);
+    // "Mul on valu." is three words: sent as the three heard, a word changed, or a word added by hand.
+    expect(spokenOfReason({ repaired: [], wordsHeard: 3, wordsChanged: 0 })).toEqual([true]);
+    expect(spokenOfReason({ repaired: [], wordsHeard: 3, wordsChanged: 1 })).toEqual([false]);
+    expect(spokenOfReason({ repaired: [], wordsHeard: 2, wordsChanged: 0 })).toEqual([false]);
+    // A row written before the counts existed is read as it always was.
+    expect(spokenOfReason({ repaired: [] })).toEqual([true]);
+  });
+
   it("writes no review for the word the dictionary repaired, and does for the same word heard as spelled", () => {
     const lemmas = (spoken?: SentTurn["spoken"]) =>
       gradesFor(scene, replay(context, draw, turns(spoken)).state, run.card, context.lexicon).map((grade) => grade.lemma);
@@ -215,6 +227,17 @@ describe("a turn said aloud", () => {
     ] }, "Mul on valu.")).toEqual({ repaired: ["valu"] });
     expect(spokenOf(undefined, "Mul on valu.")).toBeUndefined();
     expect(spokenOf({}, "Mul on valu.")).toEqual({ repaired: [] });
+  });
+
+  it("keeps a line only heard as exactly `true`, and carries it to the turn's first record (VB-14)", () => {
+    expect(spokenOf({ repairs: [], wordsHeard: 3, wordsChanged: 0, unseen: true }, "Mul on valu.")).toEqual({ repaired: [], wordsHeard: 3, wordsChanged: 0, unseen: true });
+    expect(spokenOf({ repairs: [], wordsHeard: 3, wordsChanged: 0, unseen: "yes" }, "Mul on valu.")).toEqual({ repaired: [], wordsHeard: 3, wordsChanged: 0 });
+    const heard = replay(context, draw, turns({ repaired: [], wordsHeard: 3, wordsChanged: 0, unseen: true })).state;
+    const first = heard.turns.filter((turn) => turn.spoken);
+    expect(first).toHaveLength(1);
+    expect(first[0]?.unseen).toBe(true);
+    const seen = replay(context, draw, turns({ repaired: [], wordsHeard: 3, wordsChanged: 0 })).state;
+    expect(seen.turns.some((turn) => turn.unseen)).toBe(false);
   });
 
   it("keeps the edit counts as two bounded numbers, and never more changed than heard", () => {

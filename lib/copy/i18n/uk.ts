@@ -139,7 +139,7 @@ export const UK: Readonly<Record<string, string>> = {
   "Pick it. There's nothing to type and no clock.": "Виберіть його. Друкувати нічого не треба, і час не обмежено.",
   "Put the word back together": "Зберіть слово",
   "A word you know, read out loud with its meaning shown, and its letters jumbled up on tiles.":
-    "Знайоме вам слово звучить уголос, його значення показано, а літери перемішані на плитках.",
+    "Знайоме вам слово звучить вголос, його значення показано, а літери перемішані на плитках.",
   "Tap the letters in the right order. Miss once and we'll put the first letter in for you.":
     "Натискайте на літери в правильному порядку. Якщо помилитеся, ми поставимо першу літеру за вас.",
   "Hear a word, pick what it means": "Послухайте слово й виберіть його значення",
@@ -159,7 +159,7 @@ export const UK: Readonly<Record<string, string>> = {
   "A real sentence, cut up into words and shuffled.": "Справжнє речення, розрізане на слова й перемішане.",
   "Tap the words into order. Estonian often allows more than one order, and we'll accept those too.":
     "Розставте слова по порядку. В естонській часто можливий не один порядок слів, і такі варіанти ми теж зарахуємо.",
-  "Say it out loud": "Скажіть уголос",
+  "Say it out loud": "Скажіть вголос",
   "A word or a line, three ways: say it along with a native speaker, say it back from the recording, then say it from its English meaning.":
     "Слово або фраза, трьома способами: разом із носієм мови, за записом і за значенням англійською.",
   "Speak, and see which words were heard. Nothing scores how they sounded, and a miss is never written down. Typing works too.":

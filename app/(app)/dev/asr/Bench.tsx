@@ -8,6 +8,7 @@ import { ReadAloud } from "@/components/speech/ReadAloud";
 import { useSpeech, type Speech } from "@/components/speech/useSpeech";
 import { reconcile, type Hearing } from "@/lib/speech/reconcile";
 import { lineWords, lightUp, shareLit } from "@/lib/speech/lightUp";
+import { readWav } from "@/lib/speech/wav";
 import { ENGINE_ERRORS, type EngineError, type RawTurn } from "@/lib/speech/engine";
 import type { SpeechAvailability } from "@/lib/audio/speechAvailability";
 
@@ -74,9 +75,22 @@ function FileCard({ speech }: { readonly speech: Speech }) {
     setFailed("");
     setResult(null);
     try {
-      // An offline context decodes without asking for a device, at the file's own rate.
-      const decoded = await new OfflineAudioContext(1, 1, 44_100).decodeAudioData(bytes);
-      const samples = decoded.getChannelData(0);
+      /* A WAV is read sample for sample (`lib/speech/wav.ts`, which is pure),
+         so the golden file's turns come from exactly the bytes a native app
+         reads; a browser decoder would resample the fixture to its context's
+         rate and back, and the turns would hold the browser's resampler. Any
+         other format goes through an offline context, which asks for no device. */
+      const wav = (() => {
+        try {
+          return readWav(new Uint8Array(bytes));
+        } catch {
+          return null; // Not a mono WAV this module reads: the browser's decoder takes it.
+        }
+      })();
+      const decoded = wav
+        ? { samples: wav.samples, sampleRate: wav.rate, duration: wav.samples.length / wav.rate }
+        : await new OfflineAudioContext(1, 1, 44_100).decodeAudioData(bytes).then((b) => ({ samples: b.getChannelData(0), sampleRate: b.sampleRate, duration: b.duration }));
+      const samples = decoded.samples;
       const started = performance.now();
       const pieces = await speech.transcribe(samples, decoded.sampleRate, (done, total) =>
         setProgress(`${done.toFixed(1)} of ${total.toFixed(1)} s`),
@@ -191,6 +205,7 @@ function fake(overrides: Partial<Speech>): Speech {
     hearing: null,
     audio: null,
     appSpeaking: false,
+    silent: false,
     download: nothing,
     start: nothing,
     stop: () => {},
@@ -210,5 +225,6 @@ const GALLERY: readonly (readonly [string, Partial<Speech>])[] = [
   ["Listening, too loud", { listening: true, level: 1, clipping: true, partial: "tere" }],
   ["Reading what was said", { thinking: true }],
   ["The app is speaking", { appSpeaking: true }],
+  ["Nothing was heard", { silent: true }],
   ...ENGINE_ERRORS.map((error): readonly [string, Partial<Speech>] => [`Error: ${error}`, { error: error as EngineError, phase: "error" }]),
 ];

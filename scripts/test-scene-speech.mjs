@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { eventually, launchChromium } from "./lib/browser.mjs";
 import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
@@ -35,7 +37,7 @@ import { requireLocalDatabase } from "./lib/local-db.mjs";
  */
 const B = baseUrl();
 const OWNER = "local-single-user";
-const { check, absent, done } = suite("A conversation, said aloud", { floor: 28 });
+const { check, absent, done } = suite("A conversation, said aloud", { floor: 30 });
 const prisma = newPrismaClient(requireLocalDatabase("play a conversation by voice and read its debrief"));
 
 const CLIPS = ["kohvi-palun", "jah-see-on-koik", "kaardiga-palun", "aitah-head-aega", "tere"];
@@ -153,11 +155,8 @@ async function pressMic(page, name) {
   const mic = page.getByRole("button", { name });
   await eventually(async () => (await mic.count()) > 0 && await mic.first().isEnabled(), { timeoutMs: 30_000 });
   await mic.first().click();
-  // A browser that has never spoken asks for the download first, a frame or two after the press.
-  const prompt = page.getByRole("group", { name: "Download for speaking" });
-  if (await prompt.waitFor({ state: "visible", timeout: 3_000 }).then(() => true).catch(() => false)) {
-    await prompt.getByRole("button", { name: /^Download/ }).click();
-  }
+  // No download question comes first: a press fetches the model where it is
+  // missing and then listens (docs/41-fifth-batch.md section 8b).
 }
 
 const browser = await launchChromium({
@@ -177,7 +176,7 @@ try {
 
   await open(page, "kohvikus", /^Voice and text/i);
   if ((await page.getByRole("button", { name: /Hear them first/i }).count()) === 0 && !(await page.locator("[data-hear-first]").count())) {
-    absent(28, "this server offers no speech (no model to serve): run npm run asr:fetch before the build");
+    absent(30, "this server offers no speech (no model to serve): run npm run asr:fetch before the build");
     done();
     process.exit(process.exitCode ?? 0);
   }
@@ -221,6 +220,7 @@ try {
   turns = lastTurns();
   turn = turns[turns.length - 1] ?? {};
   check("the ring sends a heard turn, marked spoken and not picked", /kohvi/i.test(turn.said ?? "") && turn.spoken && !turn.picked, JSON.stringify(turn).slice(0, 160));
+  check("with the other side's words on screen, it is not a turn answered by ear (VB-14)", turn.spoken && turn.spoken.unseen !== true, JSON.stringify(turn.spoken));
 
   // ── Matching no line ─────────────────────────────────────────────────────
   await choose(page, "radio", /^Pick a line/i);
@@ -287,6 +287,9 @@ try {
   was = await theirCount(page);
   await pressMic(page, /Say your answer/i);
   await waitForReply(page, was);
+  turns = lastTurns();
+  turn = turns[turns.length - 1] ?? {};
+  check("answered out loud to a line only heard, the turn says so for the readiness rungs (VB-14)", turn.spoken?.unseen === true, JSON.stringify(turn.spoken));
   await queue(page, "aitah-head-aega");
   const opened = await page.waitForSelector('[data-scene-mic="listening"]', { timeout: 30_000 }).then(() => true).catch(() => false);
   check("after one press, the microphone opens by itself once they have spoken", opened);
@@ -310,7 +313,8 @@ try {
       await page.getByRole("button", { name: /Say your answer/i }).count(),
     ];
     check("talking it through hides the switch and what to do, and leads with the microphone", shape.join() === "0,1,1", `switch, goal button, microphone: ${shape.join()}`);
-    if (shape.join() !== "0,1,1") await page.screenshot({ path: "/tmp/claude-0/-home-user-kodukeel/bc3098c9-e9ff-58ea-9fed-8aa7f5872a41/scratchpad/vb4/talk.png", fullPage: true });
+    // A picture of what was there instead, in the machine's own temporary directory rather than one session's.
+    if (shape.join() !== "0,1,1") await page.screenshot({ path: join(tmpdir(), "scene-speech-talk-through.png"), fullPage: true });
   } else {
     absent(2, "the café run above did not meet every objective, so Talk it through is rightly not offered");
   }
@@ -328,7 +332,7 @@ try {
     await pressMic(p2, /Say your answer/i);
     const said = await p2.waitForSelector("text=/microphone is blocked/i", { timeout: 240_000 }).then(() => true).catch(() => false);
     check("with the microphone refused, the button says so in words", said, said ? "" : (await p2.locator("[data-scene-mic]").innerText().catch(() => "no microphone drawn")).slice(0, 160));
-    if (!said) await p2.screenshot({ path: "/tmp/claude-0/-home-user-kodukeel/bc3098c9-e9ff-58ea-9fed-8aa7f5872a41/scratchpad/vb4/refused.png" });
+    if (!said) await p2.screenshot({ path: join(tmpdir(), "scene-speech-refused.png") });
     const was2 = await theirCount(p2);
     await p2.getByLabel("What you say").fill("Tere!");
     await p2.getByRole("button", { name: /^Say it$/ }).click();

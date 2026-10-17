@@ -61,7 +61,7 @@ export function TwentyLearnedPanel({ waiting, learned }: { waiting: readonly Wai
           <ul className="mt-2 flex flex-col gap-2">
             {waiting.map((row) => (
               <li key={row.spelling} className="flex flex-wrap items-center gap-2 rounded-[var(--r)] border px-3 py-2" style={{ borderColor: "var(--rule-soft)", background: "var(--surface)" }}>
-                <span lang="et" className="min-w-0 flex-1 text-base font-semibold" style={{ color: "var(--ink)" }}>{row.spelling}</span>
+                <span lang="et" className="min-w-0 flex-1 basis-32 text-base font-semibold" style={{ color: "var(--ink)" }}>{row.spelling}</span>
                 <span className="tnum text-sm" style={{ color: "var(--ink-2)" }}>{fill(t("{n} asked"), { n: row.reports })}</span>
                 {row.status === "FAILED" && <Chip tone="hard">{t("didn’t learn")}</Chip>}
                 <Button size="sm" variant="secondary" disabled={pending} onClick={() => act(row.spelling, { action: "relearn", spelling: row.spelling })}>
@@ -81,7 +81,7 @@ export function TwentyLearnedPanel({ waiting, learned }: { waiting: readonly Wai
             {learned.map((row) => (
               <li key={row.lemma} className="flex flex-wrap items-center gap-2 rounded-[var(--r)] border px-3 py-2" style={{ borderColor: "var(--rule-soft)", background: "var(--surface)" }}>
                 <span lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>{row.lemma}</span>
-                <span className="min-w-0 flex-1 text-base" style={{ color: "var(--ink-2)" }}>{row.en}</span>
+                <span className="min-w-0 flex-1 basis-32 text-base" style={{ color: "var(--ink-2)" }}>{row.en}</span>
                 <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>{fill(t("{n} things answered"), { n: row.answered })}</span>
                 {row.retired ? (
                   <Button size="sm" variant="secondary" disabled={pending} onClick={() => act(row.lemma, { action: "relearn", spelling: row.lemma })}>

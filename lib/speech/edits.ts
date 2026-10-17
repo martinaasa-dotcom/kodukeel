@@ -32,3 +32,26 @@ export function editCounts(heard: string, sent: string): EditCounts {
   }
   return { wordsHeard: heardWords.length, wordsChanged: changed };
 }
+
+/** How many words a text holds, read the way `editCounts` reads them. */
+export function wordCount(text: string): number {
+  return wordsOf(text).length;
+}
+
+/**
+ * WHETHER WHAT IS ABOUT TO BE MARKED IS WHAT WAS HEARD, word for word.
+ *
+ * `Review.spoken` says an answer was said aloud and marked on what was heard
+ * (D4), and it is what the "said aloud" reading on Progress and the recall
+ * comparison in `npm run report:speech` both read. An answer the learner
+ * changed after the microphone filled the box is partly typed, and one they
+ * cleared and typed over is not spoken at all, so neither is written as spoken.
+ * The same words in the same order, with case and the punctuation round a word
+ * ignored as `editCounts` ignores them: a capital the box wrote and a full stop
+ * a learner added are not an edit. Where nothing was heard, nothing was said.
+ */
+export function keptAsHeard(heard: string, sent: string): boolean {
+  const said = wordsOf(heard);
+  const marked = wordsOf(sent);
+  return said.length > 0 && said.length === marked.length && said.every((w, i) => w === marked[i]);
+}

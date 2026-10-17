@@ -6,7 +6,7 @@ import { isExamLevel, PASS_PCT, specFor } from "@/lib/exam/spec";
 import { PAPERS_PER_LEVEL } from "@/lib/exam/seed";
 import { SKILLS, SKILL_LABEL } from "@/lib/exam/types";
 import { ButtonLink } from "@/components/Button";
-import { Page } from "@/components/ui";
+import { BackLink, Page } from "@/components/ui";
 import { Explain } from "@/components/Explain";
 import { localeFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
@@ -48,7 +48,7 @@ export default async function NumberedPapersPage({ params }: { params: Promise<{
       eyebrow={fill(t("Mock examination, {level}"), { level: upper })}
       title={t("Numbered papers")}
       lead={t("Each paper keeps the same questions, so you can sit it again and see how you've moved.")}
-      actions={<ButtonLink href="/exam" variant="secondary">{t("Back to the exam")}</ButtonLink>}
+      actions={<BackLink href="/exam">{t("Back to the exam")}</BackLink>}
     >
       <Explain label={t("Sitting one part on its own")}>
         {fill(t("You can sit any part on its own, with its own clock. That gives you a mark for the part, but never a pass or a fail. The real paper marks all four together, and you pass with {pct} percent of the total."), { pct: PASS_PCT })}

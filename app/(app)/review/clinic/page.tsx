@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { readableFront } from "@/lib/copy/caseHint";
+import { readableBack } from "@/lib/estonian/government";
 import { requireUserId } from "@/lib/auth/session";
 import { offered } from "@/lib/tutor/provider";
 import { LEECH_LAPSES, findConfusable, rankLeeches, type LeechCandidate } from "@/lib/analysis/leeches";
@@ -107,7 +108,7 @@ export default async function ClinicPage() {
   const candidates: LeechCandidate[] = cards.filter((c) => refusedCardSentence(c) === null).map((c) => ({
     cardId: c.id,
     front: readableFront(c.front),
-    back: c.back,
+    back: readableBack(c.cardType, c.back),
     cardType: c.cardType,
     targetCase: c.targetCase,
     lemma: c.lexeme?.lemma ?? null,

@@ -3,7 +3,6 @@
 import { useLocale, useT } from "@/components/Locale";
 import { useFocusAnswer } from "@/components/round/useFocusAnswer";
 import { RetypeBox, useRetype } from "@/components/round/Retype";
-import { AnotherRound } from "@/components/round/AnotherRound";
 import { fill } from "@/lib/copy/locale";
 import { answerNote } from "@/lib/copy/answerNote";
 import { rich } from "@/components/round/rich";
@@ -14,7 +13,7 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { GapMeaning } from "@/components/GapMeaning";
 import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { gradeCard } from "@/app/actions";
-import { Button, ButtonLink } from "@/components/Button";
+import { Button } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
@@ -23,7 +22,7 @@ import { SpeakPair } from "@/components/Speak";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import { useOffline } from "@/components/OfflineProvider";
 import { enqueueGrade } from "@/lib/offline/db";
-import { Chip, KeyCap, Stat } from "@/components/ui";
+import { Chip, KeyCap } from "@/components/ui";
 import { StarWord } from "@/components/StarWord";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { markForm, type FlashMark } from "@/lib/games/flash";
@@ -34,7 +33,7 @@ import { sayLine } from "@/lib/estonian/sayIt";
 import { sayLineIn } from "@/lib/estonian/plainAsk";
 import { VERDICT_CLASS, verdictLine, verdictOfMark } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
-import { WayOut } from "@/components/round/RoundExit";
+import { RoundDone } from "@/components/round/RoundDone";
 import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { useModuleFocus } from "@/components/course/moduleFocus";
@@ -73,6 +72,8 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
   const [mark, setMark] = useState<FlashMark | null>(null);
   const [right, setRight] = useState(0);
   const [asked, setAsked] = useState(0);
+  /* What came out wrong, in the order it was asked, for the last screen. */
+  const [missed, setMissed] = useState<ExceptionTask[]>([]);
   /* Anything short of a clean hit is typed again before the card lets go. Held
      beside `mark` because a hint lowers the mark's rating, and a right answer
      that cost a hint is not a miss. */
@@ -122,7 +123,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
     const result = { ...marked, rating: Math.min(marked.rating, hints.ceiling) as typeof marked.rating };
     setMark(result);
     setOwesRetype(marked.rating < 3);
-    if (!result.right) hints.noteMiss();
+    if (!result.right) { hints.noteMiss(); setMissed((m) => [...m, task]); }
     setAsked((n) => n + 1);
     sound(result.right ? "right" : "wrong", 0);
     if (result.right) setRight((n) => n + 1);
@@ -213,29 +214,21 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
     return (
-      <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          {t("That’s the round done")}
-        </h1>
-        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          {t("These are the ones the rules don’t cover. A few at a time, little and often, is how they stick.")}
-        </p>
-        <div
-          className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
-          style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
-        >
-          <Stat value={asked} label={t("Asked")} />
-          <Stat
-            value={asked > 0 ? `${Math.round((right / asked) * 100)}%` : "0%"}
-            label={t("Right")}
-          />
-          <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
-        </div>
-        <WayOut className="mt-8 flex flex-wrap gap-3">
-          <AnotherRound>{t("Another round")}</AnotherRound>
-          <ButtonLink href="/grammar/exceptions" variant="primary">{t("See the whole list")}</ButtonLink>
-        </WayOut>
-      </div>
+      <RoundDone
+        title={t("That’s the round done")}
+        line={t("These are the ones the rules don’t cover. A few at a time, little and often, is how they stick.")}
+        figures={[
+          { value: asked, label: t("Asked") },
+          { value: asked > 0 ? `${Math.round((right / asked) * 100)}%` : "0%", label: t("Right") },
+          { value: fill(t("{n}m"), { n: minutes }), label: t("Time") },
+        ]}
+        missed={missed.map((m) => ({
+          et: m.accepted.join(PARTS),
+          lemma: m.lemma,
+          note: <><span lang="et">{m.lemma}</span>{m.translation ? `, ${m.translation}` : null}</>,
+        }))}
+        also={{ href: "/grammar/exceptions", label: t("See the whole list") }}
+      />
     );
   }
 

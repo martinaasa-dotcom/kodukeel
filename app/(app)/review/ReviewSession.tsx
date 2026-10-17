@@ -1159,7 +1159,7 @@ export function ReviewSession({
     /* Said aloud and marked on what was heard (D4). A word the dictionary
        repaired, left in the box as the microphone put it, writes nothing (D13). */
     const saidAloud = ask === "type" && spokenAnswer.current;
-    const unwritten = saidAloud && repairedAnswer.current;
+    const unwritten = ask === "type" && repairedAnswer.current;
     if (!unwritten) try {
       await drainFirst();
       const result = await gradeCard(card.id, rating, duration, answeredAt, undefined, undefined, reviewId, saidAloud);
@@ -1270,8 +1270,11 @@ export function ReviewSession({
   const checkTyped = useCallback((said?: string) => {
     if (!card || verdict) return;
     const answer = said ?? typed;
-    spokenAnswer.current = said !== undefined || spokenBox.current.spoken;
-    repairedAnswer.current = spokenAnswer.current && spokenBox.current.carriesRepair(answer);
+    /* Written as spoken only where what is marked is what was heard (`saidAsIs`,
+       D4); a repaired word left in the box writes nothing, edited or not (D13). */
+    const heardInBox = said !== undefined || spokenBox.current.spoken;
+    spokenAnswer.current = said !== undefined || spokenBox.current.saidAsIs(answer);
+    repairedAnswer.current = heardInBox && spokenBox.current.carriesRepair(answer);
     const language = card.cardType === "RECOGNITION" ? "en" : "et";
     const marked = checkAnswer(answer, card.back, language, card.rivals, card.kin);
     /*
@@ -1620,7 +1623,7 @@ export function ReviewSession({
 
         <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
           <StatTile value={done} label={t("Reviewed")} tone="accent" />
-          <StatTile value={`${accuracy}%`} label={t("Recalled")} tone={accuracy >= 85 ? "sky" : "butter"} />
+          <StatTile value={`${accuracy}%`} label={t("Recalled")} tone="accent" />
           <StatTile value={fill(t("{n}m"), { n: minutes })} label={t("Time")} tone="sky" />
         </div>
         {/* A word put aside as the last card of a session ends it, so the note
@@ -1979,7 +1982,18 @@ export function ReviewSession({
                     word: <span lang="et" className="font-semibold">{verdict.twin.own.lemma}</span>,
                     wanted: t(verdict.twin.own.means),
                   }} />
-                ) : verdictNote}
+                ) : verdictNote.includes(shownAnswer) || countsAsRecalled(verdict.verdict) ? verdictNote : (
+                  /* WHAT THE SCREEN READER WAS ALREADY TOLD. "Nothing typed."
+                     named no answer, so the box under it asked somebody to
+                     "copy the answer above" with nothing above to copy: the
+                     form was drawn below the box instead. */
+                  <>
+                    {verdictNote}{" "}
+                    <TrParts template="The answer is {answer}." parts={{
+                      answer: <span lang={backLang} className="font-semibold">{shownAnswer}</span>,
+                    }} />
+                  </>
+                )}
               </p>
               {verdict.twin && !inModule && (
                 <p className="mt-2 text-sm">
@@ -2009,7 +2023,10 @@ export function ReviewSession({
                 the screen at exactly this moment. Sending it does not change
                 the grade they are about to give, which stays theirs.
               */}
-              {verdict.verdict !== "correct" && (
+              {/* Not where nothing was typed: there is no answer of theirs to
+                  defend, and "I think that was right" under "Nothing typed"
+                  says the opposite of what happened. */}
+              {verdict.verdict !== "correct" && typed.trim() !== "" && (
                 <div className="mt-3">
                   <SuggestFix
                     category="MARKED_WRONG"

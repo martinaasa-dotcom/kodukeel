@@ -28,8 +28,12 @@ export type ToWorker =
       /** The shipped two-second clip the device check decodes, at 16 kHz. */
       readonly check: Float32Array;
     }
-  /** Start a turn; its audio arrives through the port sent with this message. */
-  | { readonly type: "listen"; readonly endpoint: boolean; readonly maxSeconds?: number; readonly keepAudio?: boolean }
+  /**
+   * Start a turn; its audio arrives through the port sent with this message.
+   * `id` is echoed on everything the turn says, so a turn cancelled while it
+   * was being read cannot land its final on the turn that replaced it.
+   */
+  | { readonly type: "listen"; readonly id: number; readonly endpoint: boolean; readonly maxSeconds?: number; readonly keepAudio?: boolean }
   | { readonly type: "stop" }
   | { readonly type: "cancel" }
   | { readonly type: "transcribe"; readonly samples: Float32Array; readonly rate: number };
@@ -38,10 +42,10 @@ export type FromWorker =
   | { readonly type: "progress"; readonly done: number; readonly total: number }
   | { readonly type: "downloaded" }
   | { readonly type: "loaded"; readonly rtf: number }
-  | { readonly type: "partial"; readonly text: string }
-  | { readonly type: "speech" }
-  | { readonly type: "thinking" }
-  | { readonly type: "final"; readonly turn: RawTurn | null; readonly why: "pressed" | "silence" | "nothing-said" | "too-long"; readonly audio?: Float32Array }
+  | { readonly type: "partial"; readonly id: number; readonly text: string }
+  | { readonly type: "speech"; readonly id: number }
+  | { readonly type: "thinking"; readonly id: number }
+  | { readonly type: "final"; readonly id: number; readonly turn: RawTurn | null; readonly why: "pressed" | "silence" | "nothing-said" | "too-long"; readonly audio?: Float32Array }
   | { readonly type: "segment"; readonly turn: RawTurn | null; readonly from: number; readonly to: number; readonly done: number; readonly total: number }
   | { readonly type: "transcribed" }
   | { readonly type: "error"; readonly error: EngineError; readonly detail?: string };

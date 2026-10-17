@@ -11,7 +11,9 @@
  * have to reproduce. Writes nothing when any clip fails to decode.
  */
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { dirname } from "node:path";
+import { SPEECH_FIXTURES } from "./make-speech-fixtures";
 // @ts-expect-error - a .mjs helper with no declarations, like the suites use it.
 import { launchChromium } from "./lib/browser.mjs";
 import { ASR_MODEL } from "../lib/speech/model";
@@ -20,12 +22,12 @@ import type { RawTurn } from "../lib/speech/engine";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3000";
 const OUT = "lib/speech/fixtures/golden.json";
-const CLIPS: readonly { file: string; says: string }[] = [
-  { file: "public/asr/check.wav", says: "Tere hommikust! Kuidas läheb?" },
-  { file: "scripts/fixtures/speech/tere.wav", says: "Tere!" },
-  { file: "scripts/fixtures/speech/aitah.wav", says: "Aitäh!" },
-  { file: "scripts/fixtures/speech/kuidas-laheb.wav", says: "Kuidas läheb?" },
-];
+/*
+  Every clip the fixtures script makes, read off its own list rather than
+  typed here: the file is the native apps' first test, and a clip the web
+  hears and the file leaves out is a clip nobody checks the native engine on.
+*/
+const CLIPS: readonly { file: string; says: string }[] = SPEECH_FIXTURES.map((f) => ({ file: f.file, says: f.text }));
 
 async function main(): Promise<void> {
   const browser = await launchChromium();
@@ -46,11 +48,16 @@ async function main(): Promise<void> {
     const clips: GoldenClip[] = [];
     for (const clip of CLIPS) {
       await page.locator('input[type="file"]').setInputFiles(clip.file);
-      await page.waitForSelector("[data-bench-raw]", { state: "attached", timeout: 60_000 });
+      await page.waitForSelector("[data-bench-raw]", { state: "attached", timeout: 180_000 }).catch(async (error: unknown) => {
+        // Say what the bench said rather than only that the wait ran out.
+        const said = await page.locator("[role=alert]").allInnerTexts().catch(() => []);
+        throw new Error(`${clip.file}: no reading came back${said.length > 0 ? `; the bench said: ${said.join(" | ")}` : ""} (${String(error).split("\n")[0]})`);
+      });
       const raw = await page.locator("[data-bench-raw]").textContent();
       const turns = JSON.parse(raw ?? "[]") as RawTurn[];
       if (turns.length === 0) throw new Error(`${clip.file}: the engine heard nothing`);
-      clips.push({ ...clip, turns, expect: decide(turns, clip.says) });
+      const sha256 = createHash("sha256").update(readFileSync(clip.file)).digest("hex");
+      clips.push({ ...clip, sha256, turns, expect: decide(turns, clip.says) });
       console.log(`${clip.file}: ${clips.at(-1)!.expect.understood}`);
       // Clear the result so the next clip's is not read as this one's.
       await page.reload();

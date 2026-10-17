@@ -26,6 +26,7 @@ import { loadTable, tableReady } from "@/lib/copy/i18n/load";
 import { fillNodes } from "@/components/TemplateNodes";
 import { DAY_MINUTES as COURSE_DAY_MINUTES } from "@/lib/course/types";
 import { heldLevel, startingLevel } from "@/lib/course/placement";
+import { uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import {
   DEFAULT_GLOSS_LANGUAGE, GLOSS_LANGUAGES, type GlossLanguage,
 } from "@/lib/collections/glossLanguage";
@@ -54,7 +55,7 @@ export interface CoursePart {
   subtitle: string;
   blurb: string;
   days: number;
-  firstDay: { title: string; subtitle: string; words: number } | null;
+  firstDay: { title: string; subtitle: string; words: number; steps: number } | null;
 }
 
 export interface StarterDeck {
@@ -548,6 +549,11 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
               thing standing between the welcome and the name field.
             */}
             <FitText as="h1" text="Tere tulemast!" max="var(--text-3xl)" tabIndex={-1} lang="et" className="font-bold leading-tight outline-none" style={{ color: "var(--ink)" }} />
+            {/* The first Estonian anybody meets here, so it says what it means:
+                a heading a beginner cannot read is a heading they skip. */}
+            <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
+              {t("That means “welcome”, your first words of Estonian.")}
+            </p>
 
             <label htmlFor="learner-name" className="label-xs mt-8 block" style={{ color: "var(--ink-3)" }}>
               {t("What should we call you?")}
@@ -960,6 +966,12 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                 <p lang="et" className="mt-1 text-xl font-bold" style={{ color: "var(--ink)" }}>
                   {openingPart.title}
                 </p>
+                {/* A beginner cannot read the part's name yet, so it says what
+                    it means under it, the way the course itself is drawn in
+                    English at A1 (`uiWantsEnglish`). */}
+                {uiWantsEnglish(openLevel) && (
+                  <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t(openingPart.subtitle)}</p>
+                )}
                 {/*
                   WHY THIS PART, AND WHAT IS IN IT, ONE PRESS AWAY (docs/39, D3).
                   The card keeps what somebody deciding needs at a glance: which
@@ -977,9 +989,12 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                     minutes: countOf(locale, COURSE_DAY_MINUTES, "minute", "gen"),
                   })}
                   {openingPart.firstDay && (
-                    <> {fillNodes(t("Today’s module is {title}, {words} and one short round."), {
-                      title: <span lang="et">{openingPart.firstDay.title}</span>,
+                    <> {fillNodes(t("Today’s module is {title}: {words}, then {steps} that put them to use."), {
+                      title: uiWantsEnglish(openLevel)
+                        ? <span className="font-semibold">{t(openingPart.firstDay.subtitle)}</span>
+                        : <span lang="et" className="font-semibold">{openingPart.firstDay.title}</span>,
                       words: countOf(locale, openingPart.firstDay.words, "new word"),
+                      steps: countOf(locale, openingPart.firstDay.steps, "step"),
                     })}</>
                   )}
                 </p>

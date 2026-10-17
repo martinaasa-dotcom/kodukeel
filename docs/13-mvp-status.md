@@ -3543,14 +3543,42 @@ the same neighbour each time, who remembers which words the two of you have talk
 offered only where a model is set up and the day's allowance would still let a scene call
 through, since a chat has no bank of lines under it.
 
-**Whether it helps is counted, not assumed** (VB-14). `Review.spoken` marks every answer said
-aloud, on the cards, in the rounds and in a conversation's grades, and a spoken conversation turn
-carries how many words were heard and how many the learner changed before sending. `npm run
+**Whether it helps is counted, not assumed** (VB-14). `Review.spoken` marks an answer said aloud
+and marked on what was heard, on the cards, in the rounds that grade cards and in a conversation's
+grades; an answer the learner changed after the microphone filled the box is written as typed, and
+the workbook's lines read aloud are marked as typed by design. A spoken conversation turn carries
+how many words were heard and how many the learner changed before sending. `npm run
 report:speech` reads the edit rate, recall after a spoken answer against a typed one, and what
 tonight's chat did for its words. Every figure in it so far is a fixture's; the deployment run is
-the operator's.
+the operator's. Three readings the order asked for were left unbuilt here and are built in §62.
 
 **What is not verified.** Only Chromium was available, so Safari and Firefox are untested, Safari's
 Ogg handling included. No phone was timed. Nobody has measured the engine on learners' own voices,
 which is why the edit rate exists and why Pairs said aloud (VB-16) stays parked.
 
+
+## 62. The fifty-sixth pass: speaking as evidence, finished
+
+The fifty-fifth pass left three of VB-14's readings unbuilt, and this builds them, so the fifth batch
+is done in code (`docs/41-fifth-batch.md` section 4); what is left of it is the operator's (section 8).
+
+**How long a spoken answer runs.** Progress prints the median words per spoken answer in conversations,
+month by month, beside "Said aloud this week", in the learner's own months and only once two months each
+hold three spoken turns (`lib/stats/spoken.ts`, read through `lib/progress/spokenTurns.ts`). It is the
+one fluency figure the log can honestly give: how much somebody says in one go, never whether it was
+right, which a conversation does not mark.
+
+**Following speech, counted.** A conversation turn said aloud records whether the line it answered was
+only heard (`SpokenTurn.unseen`). Ten such turns that met their beat, at or above a situation's band,
+count as evidence the learner can follow speech, beside the level check and a sat paper, and lift the
+"ear" blocker on the readiness rungs. Looking at the words stays free: a turn after a look is an
+ordinary turn, it is simply not this evidence.
+
+**A class sees speech as a count.** The roster shows each student's answers said aloud this week and
+the roster file carries the column; nothing of what was said reaches the teacher, asserted.
+
+**Polish.** The speaking lines on Progress are one block rather than two paragraphs a section apart.
+The scanner's empty list no longer says "take a photo" under a card saying the camera is not set up.
+Settings lost a lone play button under the voice card that every voice chip already carries, and the
+third conversation setting reads "Hear it, no hints" on one line. The forms-list test in the lessons
+engine has the minute the jokes test has, since it timed out under the full suite.

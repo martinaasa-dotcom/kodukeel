@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildLexicon, subjectsIn, type DictEntry } from "./lexicon";
-import { MAX_COMPOSED_WORDS, NEW_WORDS, disagrees, governedWord, governmentSuspect, passes, runGate, withoutFarewell, type GateContext } from "./gate";
+import { MAX_COMPOSED_WORDS, NEW_WORDS, disagrees, governedWord, governmentSuspect, passes, runGate, unparallel, withoutFarewell, type GateContext } from "./gate";
+import { whyWithheld } from "./line";
 import type { BeatSpec } from "./types";
 import type { CaseKey } from "@/lib/estonian/types";
 
@@ -985,5 +986,49 @@ describe("a verb whose first person arrived under Ekilex's own code", () => {
       expect(lexicon.forms.has(form), form).toBe(true);
     }
     expect([...(lexicon.persons.get("helistama")?.values() ?? [])]).toContain("helistab");
+  });
+});
+
+describe("a choice offered in two shapes (parallel)", () => {
+  /*
+    The native reader's line off the café, and the four shapes the check has to
+    leave alone, each a sentence people say. The cases are given by hand, the
+    way `caseOf` hands them over from the dictionary.
+  */
+  const caseOf = new Map<string, ReadonlySet<CaseKey>>([
+    ["kaardiga", new Set<CaseKey>(["COMITATIVE"])],
+    ["sularahas", new Set<CaseKey>(["INESSIVE"])],
+    ["sularahaga", new Set<CaseKey>(["COMITATIVE"])],
+    ["kaardi", new Set<CaseKey>(["GENITIVE"])],
+    ["kodus", new Set<CaseKey>(["INESSIVE"])],
+    ["tööl", new Set<CaseKey>(["ADESSIVE"])],
+    ["abielus", new Set<CaseKey>(["INESSIVE"])],
+    ["vallaline", new Set<CaseKey>(["NOMINATIVE"])],
+    ["aknal", new Set<CaseKey>(["ADESSIVE"])],
+    ["laua", new Set<CaseKey>(["GENITIVE"])],
+  ]);
+
+  it("withholds a choice of two adverbials in two different cases", () => {
+    expect(unparallel("Selge, see teeb 4 eurot. Kas te maksate kaardiga või sularahas?", { caseOf })).toEqual(["kaardiga", "sularahas"]);
+  });
+
+  it("passes the same choice put in parallel", () => {
+    expect(unparallel("Kas te maksate kaardiga või sularahaga?", { caseOf })).toBeNull();
+  });
+
+  it("passes two cases that answer one question, a stored case, and an ending two nouns share", () => {
+    expect(unparallel("Kas sa oled kodus või tööl?", { caseOf })).toBeNull();
+    expect(unparallel("Kas olete abielus või vallaline?", { caseOf })).toBeNull();
+    expect(unparallel("Kas maksate kaardi või sularahaga?", { caseOf })).toBeNull();
+  });
+
+  it("never reads a noun that belongs to the word after it as an option", () => {
+    expect(unparallel("Kas istume aknal või laua taga?", { caseOf })).toBeNull();
+  });
+
+  it("is told to the retry by name, as a reason a model can act on", () => {
+    expect(whyWithheld({ failed: ["parallel"], unknown: [], stretched: [] })).toMatch(/same case/);
+    expect(whyWithheld({ failed: ["parallel"], unknown: [], stretched: [], offered: ["kaardiga", "sularahas"] }))
+      .toMatch(/"kaardiga" and "sularahas"/);
   });
 });

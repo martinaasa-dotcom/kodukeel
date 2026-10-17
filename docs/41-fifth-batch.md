@@ -197,10 +197,19 @@ the opacity entrance was hiding. The fix holds; `docs/15-performance.md` has the
   for the dynamic import, and the rest is the button and the lit line in the café's own chunk. Pressing
   "Say it instead" fetches about 15 KB gzip more (`CafeVoice` and the speech hook); the runtime and the
   71 MB model come only after the download is agreed to. So the first load grew by 1 KB gzip rather
-  than staying the same, and nothing of the engine is in it.
+  than staying the same, and nothing of the engine is in it. Read again in the review pass that
+  followed: the 215 bytes are the loader Turbopack emits as a chunk of its own for every dynamic
+  import, and only a build-wide setting would fold it into the café's chunk, which is a larger change
+  than the request it costs. What is left of the kilobyte is the button, the lit line and its
+  countdown, which have to be on the page for the press to exist.
 - **Not verified:** Firefox (only Chromium is installed where this was built), Safari's Ogg Opus
   decoding (the page says it may not open there, and the message is tested by feeding Chromium a
   broken Ogg), and a real phone's speed over a three-minute file.
+- **Found in the review of 2026-10-17:** the eleven checks on "Things around me" in
+  `scripts/test-recordings.mjs` had been waived on every CI run, the batch's own green head included,
+  because the suite counted the scanner's choice before it had streamed in and read the miss as a
+  server with no provider key. It waits for the choice now, and against a production build with a
+  stubbed key the eleven pass.
 
 **VB-14, the report run once locally, 2026-10-17.** `npm run report:speech` against a local database
 seeded and given `scripts/demo-data.ts`, whose fixture now says every other production answer of the
@@ -209,8 +218,34 @@ next answer to the same card recalled 67% of the time after a spoken one (4 of 6
 one (203 of 267, from the same learner).** Those are the fixture's own numbers and say nothing about
 learners: what they show is that the report reads `Review.spoken`, pairs each answer with the next one
 on its card, and draws the typed baseline from the same people. The edit rate reads "no spoken
-conversation turn carries its counts yet", because the counts on `SceneRun` are VB-4's to store.
-Tonight's chat has its reading since VB-11 (below). **The deployment run is the operator's** (section
+conversation turn carries its counts yet": VB-4 stores the counts on every spoken turn, and the
+demo fixture holds no conversation, so the reading is held by its unit test rather than by this run.
+Tonight's chat has its reading since VB-11 (below).
+
+**VB-14 finished, 2026-10-17.** The three readings the item asked for and the first pass left
+unbuilt are built. A conversation turn said aloud records whether the line it answered was only heard,
+its words behind a press never pressed (`SpokenTurn.unseen`, set by the conversation screen and read
+off the wire as an exact `true`). Progress prints the median words per spoken answer in conversations,
+month by month in the learner's own months, once two months each hold three spoken turns. The
+readiness rungs count spoken turns to a line only heard that met their beat, by the band the run was
+played at, and ten at or above a situation's band lift its "ear" blocker the way a level check or a sat
+paper does; a check that put listening lower is outranked, since the turns are the later evidence. The
+class roster counts answers said aloud this week, a number off `Review.spoken` and nothing else, shown
+to the teacher and as a column in the roster file. The demo fixture now holds three spoken
+conversations a month apart, so `report:speech`'s edit rate reads them: **12 turns, 0 of 47 heard
+words changed**, the fixture's own figures. `scripts/test-scene-speech.mjs` asserts both halves of the
+flag in a browser: a turn with the words on screen is not one by ear, and a call heard unseen is.
+
+**What "spoken" means was tightened in the review of 2026-10-17.** The numbers round and the chant
+wrote an answer as spoken only where it was sent as heard; the answer boxes on the daily path, the
+Speaking round and a conversation wrote any box the microphone had ever filled, edited or cleared and
+retyped, and a conversation wrote every grade on a beat as spoken where any turn on it was said. All
+of them now write spoken where what was marked is what was heard, word for word, and a conversation
+reads it off the turn that met the requirement; a repaired word left in an edited box still writes
+nothing (D13). The workbook's lines read aloud write no `spoken` at all, by design: the word in each
+gap is placed by aligning the line, not heard as spelled, and is marked as typed (VB-8). The minutes
+in "Said aloud this week" are left out where none of the week's spoken answers was timed, since a
+conversation's grades and a numbers round write no time. **The deployment run is the operator's** (section
 8): it needs the production connection string, which no session holds.
 
 **VB-11, tonight's chat, measured 2026-10-17.** Four readings, and the spend is all of one critic round.
@@ -243,6 +278,48 @@ Tonight's chat has its reading since VB-11 (below). **The deployment run is the 
   forms list cannot read (`lib/scenes/chat.test.ts`, `lib/progress/chat.test.ts`), the new kind walked
   in `catalogue.test.ts`, and an invariant that every door asks `chatOffered` first
   (`scripts/invariants/tonights-chat-is-never-keyless.ts`).
+
+**The native reader's five composed lines, and what changed, 2026-10-17.** The reader read lines the scene
+composer wrote during the capped plays and corrected five: a choice offered in two cases (`kaardiga või
+sularahas`), a café wishing a good journey (`head reisi`), a "but" with nothing to contrast, twice, a
+filler apology and a word defined by its meaning stacked in front of the question, and a question built
+from an English idiom (`kus sa oled oma eluga`). None is a fault the gate could see. The composer's rules
+now say, in English, to phrase offered options alike, to wish what fits the place and the person, to use a
+word for "but" only where something is contrasted, to put no filler sentence and no definition before the
+move, and to ask a question the way people ask it (`COMPOSE_RULES` in `lib/scenes/prompt.ts`); a request
+to hear a line again now says not to apologise or define (`composeNote`). The first fault is also a
+mechanical one, so the gate has a seventeenth check, `parallel`: a pair joined by the choice word, each
+the one case the dictionary gives it, both adverbial, answering two different questions, the second
+ending its clause. `npm run measure:parallel` read it over every sentence the shipped dictionary holds,
+every banked line and every pick: **17,271 sentences, 213 with the choice word, 1 refused**, a usage
+recorded under `pangakaart` in exactly the shape the reader called wrong (`Kas maksate pangakaardiga või
+sularahas?`), which is the reader's to keep or refuse. Measured with Gemini, each through
+`scripts/lib/meter.ts`:
+
+- **The café, `npm run play:scenes -- --compose --scene kohvikus --budget 0.5`, $0.0161.** The composer
+  wrote `Kas te maksate kaardiga või sularahas?` four times running, told the pair by name on the retry,
+  and the gate withheld every one, so the bank answered `Kaardiga või sularahaga?`. That line is the
+  model's habit and an attested shape, so the check is what holds it, not the prompt. The goodbye was
+  `Bussipeatus on kohe siit uksest vasakul. Ilusat päeva ja head teed!` to somebody who had just asked
+  the way, which is the one case a wish for the road fits.
+- **Tonight's chat, the critic round `scripts/critic-scenes.ts --scene chat --day a1.1-03 --budget 0.5`
+  read on the Lite model, $0.1821.** 15 issues over six conversations, and the raw transcripts named the
+  cause of most of them: on every word beat every draft was withheld for `topic`, because a chat beat has
+  no topic words on purpose and the learner's own last words were added as the topic on every turn, so
+  `Kuidas sul läheb, kas sa tuled töölt?` after `Tere.` was off the point three times and the beat fell
+  to the last line said again, which the critic counted as repeats and stalls. A beat that elicits a word
+  now hands the gate no topic (`planTurn`, asserted in
+  `scripts/invariants/tonights-chat-is-never-keyless.ts`). The round also showed the neighbour praising
+  the learner's Estonian when the word was "to learn", and the elicit line now says not to.
+- **The chat once more after the fix, `npm run play:scenes -- --compose --scene chat --day a1.1-03
+  --budget 0.1`, $0.0172.** Seven composed lines and none withheld: `Kuidas sul läheb, kas väsitav päev
+  seljataga?`, `Ma tulin just poest koju. Mis sul seal suures kotis on?`, `Selge! Kas sa muidu oled pikalt
+  siin majas olnud või kolisid alles hiljuti?`, `Tore, hea teada! Mina lähen tuppa. Aga sina, mida sa siin
+  linnas teed, kas ülikoolis?`, every beat met. The "but" there contrasts the neighbour with the learner,
+  which is the use the rule keeps. That is one play past the one the order allowed, to see the fault
+  found in the first gone, and it is stated here for that reason.
+
+**Spent: $0.2154 across the three**, under the $1 cap.
 
 **VB-7, what TartuNLP says for a number written in digits, 2026-10-17.** `npm run measure:numbers` sends
 every shape the round can play to TartuNLP the way `/api/tts` sends it, then hears the clip with the
@@ -428,10 +505,10 @@ stops. Size is the work in one pull request: S is a day, M a few days, L a week 
 | VB-9 A word you heard and cannot spell | 2 | S | Done: the dictionary searched by voice as typed, Anu's box on the panel and the page, and the reading page read aloud a paragraph at a time |
 | VB-10 Reminders on the desktop, through Web Push | 2 | M | Done: `PushSubscription` and `lib/push/` (pure), VAPID keys, the same kinds and per-kind switches as the letters, a kind sent on one channel a day (`EmailSend.channel`), DPIA R17, `scripts/test-push.mjs` |
 | VB-11 Tonight's chat | 3: Estonian from real life | L | Done: "Talk it over" under a finished evening that met at least three new words, on the scene chain only (`chatOffered`), one `chat` scene built at run time from the evening's words (`lib/scenes/specs/chat.ts`, `BeatSpec.elicits`), the same neighbour every time, memory derived from earlier chat runs, `report:speech` reading it, `scripts/test-chat.mjs`; one critic round at $0.0672 (section 0); ADR-025 amendment 4 |
-| VB-12 Something real to listen to | 3 | M | Done: "Or open a recording" on the reading page (`app/(app)/read/Recording.tsx`), decoded and heard on the device in pieces with a stop, glossed through `readHeard` in one request, each line played from the recording through `playRecording` in `lib/audio/clip.ts`; unsure words carry a **wavy** underline rather than the dotted one this page asked for, since dotted already means "a dictionary word"; `/privacy` and DPIA R19; `scripts/test-recordings.mjs` |
-| VB-13 What is around you | 3 | M | Done: "Things around me" beside "A page of words" on the scanner, camera, webcam (video only, named in `one-microphone.ts`), file or drop, English names off the `scan` chain resolved by `lib/progress/things.ts`, other entries on the row to choose and homographs never offered, saved as a scan, "Say them" ungraded |
-| VB-14 Speaking as evidence | 4: knowing whether it works | M | Done: `Review.spoken` stored, exported and erased, "Said aloud this week" on Progress, `npm run report:speech` run once locally (section 0); the deployment run is the operator's (section 8) |
-| VB-15 The landing café, by voice | 4 | S | Done: "Say it instead" under each step's picks, `CafeVoice` loaded by a dynamic import on the press, the size asked first, `matchPick` lighting a line that is said after 2.5 s unless the screen is touched, the café still sent a pick's id; landing FAQ rewritten in three languages |
+| VB-12 Something real to listen to | 3 | M | Done: "Or open a recording" on the reading page (`app/(app)/read/Recording.tsx`), decoded and heard on the device in pieces with a stop, glossed through `readHeard` in one request, each line played from the recording through `playRecording` in `lib/audio/clip.ts`; unsure words carry a **wavy** underline rather than the dotted one this page asked for, since dotted already means "a dictionary word"; a file dropped anywhere on the page is taken or refused and never left to the browser, Safari is named only on Safari, and offline the page says nothing has been sent; `/privacy` and DPIA R19; `scripts/test-recordings.mjs` |
+| VB-13 What is around you | 3 | M | Done: "Things around me" beside "A page of words" on the scanner, camera, webcam (video only, named in `one-microphone.ts`), file or drop, English names off the `scan` chain resolved by `lib/progress/things.ts`, other entries on the row to choose and homographs never offered (the row says the word is spelled like another rather than that the dictionary lacks it: `või` is butter and "or"), saved as a scan, "Say them" ungraded; switching between a page and things keeps the other's work, and a hidden camera is closed |
+| VB-14 Speaking as evidence | 4: knowing whether it works | M | Done: `Review.spoken` stored, exported, restored and erased, written only where what was marked is what was heard (`scripts/invariants/spoken-means-sent-as-heard.ts`); "Said aloud this week" and the median words per spoken answer in conversations by month on Progress (`spokenLengthByMonth`); a spoken turn to a line only heard (`SpokenTurn.unseen`) counted as evidence of following speech, ten at the situation's band lifting the readiness rungs' "ear" blocker (`HEARD_TURNS_FOR_EAR`); "said aloud" as a count on the class roster and its file (`scripts/invariants/a-class-sees-speech-as-a-count.ts`); `npm run report:speech` run locally (section 0). The deployment run is the operator's (section 8) |
+| VB-15 The landing café, by voice | 4 | S | Done: "Say it instead" under each step's picks, `CafeVoice` loaded by a dynamic import on the press, the model fetched on that press with no question (section 8b), `matchPick` lighting a line that is said after 2.5 s unless the screen is touched (anywhere on the page, a key or a scroll included), the café still sent a pick's id; the press is answered once, so a later step opens the microphone only on a press of its own and a "Not now" stays said; landing FAQ rewritten in three languages |
 | VB-16 Pairs, said aloud | Parked | M | Waits on the operator (D3, section 8) |
 
 **The batch is done** when C-1 to C-3 are done, milestones 1 and 2 are on main, VB-3 has been handed to
@@ -1047,7 +1124,7 @@ whether it helps.
   turn by month, which is the one fluency figure the log can honestly give.
 - **Readiness** (`lib/readiness/`): a spoken scene turn answered to a line that was only heard (the
   `listen` or `cold` setting, words not revealed) is evidence the learner can follow speech. That is the
-  evidence the "lead it" rung asks for, which only the level check and a sat paper supply today. Counted,
+  evidence the "lead it" rung asks for, which only the level check and a sat paper supplied before this. Counted,
   never scored, and the rung chip still prints its evidence tier.
 - **Class**: `lib/classroom/roster.ts` adds "spoken this week" to each student's effort row, a count,
   under ADR-019's rule that a class shows effort and never contents. Batch 4's conversation homework
@@ -1188,8 +1265,9 @@ went.
 - **Time the engine on phones**: open `/dev/asr` with `ASR_BENCH=1` on a recent iPhone in Safari and a
   mid-range Android in Chrome, and paste the numbers into the pull request VB-1 opens. Try VB-5's
   hands-free run on both, screen on, phone in a pocket.
-- **Create the storage bucket** for the model files and set `NEXT_PUBLIC_ASR_MODEL_BASE`. The native
-  apps will read the same bucket.
+- ~~**Create the storage bucket** for the model files and set `NEXT_PUBLIC_ASR_MODEL_BASE`.~~ Nobody did,
+  and production showed no microphone anywhere for as long as it stayed undone. The build ships the
+  model now (section 8b), so there is nothing to do; the variable still wins where somebody sets it.
 - **Generate the VAPID key pair** for VB-10 and set it on the deployment.
 - **Try the desktop as a learner would**: a laptop with a headset, the hands-free round in a background
   tab, a voice message dragged onto the reading page. It is the one client nobody gets for free.
@@ -1200,6 +1278,40 @@ went.
   and put its figures in section 0 beside the local run, which only proves the reading works.
 - **Watch the edit rate** once VB-14 has printed it over a few weeks of real learners, and decide from it
   whether to keep speech on (D15) and whether to lift D3 for VB-16.
+
+## 8b. After the batch: the model ships with the site, and every device fetches it quietly
+
+Reported by the operator on 2026-10-17, the day after the batch merged: the microphone never asked for
+permission and voice was nowhere to be seen. Both were true. `lib/audio/speechAvailability.ts` offers
+speech only where it can find the model, the model was left to an operator step (the bucket in section
+8), and with that step undone every microphone in the app was hidden, which is the fallback D15 designed
+and looked, on the live site, exactly like a batch that had built nothing.
+
+Two things changed, both the operator's call.
+
+- **The build ships the model.** `npm run build` runs `scripts/fetch-asr-model.ts --for-build`, which
+  fetches the four pinned files from Hugging Face into public/asr/model, in a folder named
+  for the revision, checks each
+  against its hash, and lets the CDN serve them beside the pages, with a year's `immutable` cache since
+  the path names the revision. A hosted function cannot see `public/`, so `next.config.ts` looks for the
+  files when the build starts and inlines `ASR_MODEL_BUNDLED`. A build that cannot reach Hugging Face
+  carries on without the model and says so in its log, which leaves the app as it was before speaking.
+  No recipient is added (D10's reason for a bucket was that a learner's address reaches no new company,
+  and this site's host already serves every page). The cost moved from storage egress to the host's
+  transfer rate and the funding page and the grant case say so.
+- **Every device fetches it in the background, with no question asked.** `SpeechPrefetch`, mounted in
+  the signed-in shell, waits three seconds and an idle moment after a page loads, then downloads the
+  model once per device, behind a Web Lock so two tabs do not both fetch it, and silently: a failure
+  puts nothing on screen and is tried again on the next visit or when the device comes back online.
+  The download prompts are gone from the microphone, the reading page's recordings and the landing café,
+  and Settings says where the device stands with no button to fetch or delete it. A press before the
+  background download finishes fetches it, or waits for the fetch under way, with progress on the
+  button, and then listens. The landing café fetches nothing for a visitor who never presses.
+
+This supersedes D7's "asked once, with its size, before anything is fetched". What did not change: the
+microphone opens only on a press, the sound never leaves the device, and speech only grades up. A
+browser driven by a test (`navigator.webdriver`) is skipped by the background download, so every suite
+does not fetch 71 MB; `scripts/test-speech.mjs` clears the flag on one page to check the download itself.
 
 ## 9. A brief to paste into a fresh session
 

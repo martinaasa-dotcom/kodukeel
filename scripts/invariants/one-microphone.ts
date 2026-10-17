@@ -10,7 +10,8 @@ import type { InvariantKit } from "../lib/invariantKit";
  *   - D5: the one way a screen listens is `useSpeech()` over the engine, so
  *     nothing but the web engine opens the microphone. `components/Recorder.tsx`
  *     was the one other door until VB-5 took its capture away: it plays back
- *     the audio of a turn the engine heard, and opens nothing.
+ *     the audio of a turn the engine heard, through `playRecording`, and
+ *     opens nothing.
  *   - The service worker's name for the model cache is `ASR_CACHE`, or a model
  *     update leaves the old 71 MB on every phone and the trim deletes the new.
  *   - D15: `speech` is a name `PAID_OFF` can switch off.

@@ -1,3 +1,5 @@
+import { PRACTICE_MODES } from "./modes";
+
 /**
  * Every destination in the app, and which of six places it lives in.
  *
@@ -482,6 +484,11 @@ export function litRow(rows: readonly Destination[], pathname: string): string |
     consider(d.href, d.href);
     if (d.within?.startsWith("/")) consider(d.within, d.href);
   }
+  // A round lives on Practice whatever its address. Most are under `/review`
+  // and light it by the loop above; the daily quest, Sõnad and the crossword
+  // have addresses of their own, and lit nothing at all, so a learner in the
+  // middle of one looked at a rail and a phone bar that said they were nowhere.
+  for (const m of PRACTICE_MODES) if (isUnder(m.href, pathname)) consider("/practice", m.href);
   // A row the table does not hold, which is a class the learner belongs to
   // (`lib/ux/classRows.ts`), lights for its own page and everything under it.
   for (const r of rows) if (isUnder(r.href, pathname)) consider(r.href, r.href);

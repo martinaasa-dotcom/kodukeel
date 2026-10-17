@@ -266,29 +266,30 @@ export const SERVICES: readonly Service[] = [
   {
     id: "hearing",
     name: "Hearing Estonian",
-    who: "This deployment's own storage, serving TalTech's speech model",
-    does: "Turns what a learner says into text on their own device. The model is downloaded once per device and kept, so this line is the download and nothing else.",
+    who: "This site's own hosting, serving TalTech's speech model beside the pages",
+    does: "Turns what a learner says into text on their own device. The model is fetched once per device in the background and kept, so this line is the download and nothing else.",
     whenItIsGone: "Every microphone disappears and everything is typed, exactly as before speaking existed.",
     setBy: "NEXT_PUBLIC_ASR_MODEL_BASE",
-    ref: SUPABASE.ref,
+    ref: VERCEL.ref,
     bill(_v: Volume, shape: Shape): ServiceCost {
-      // Priced at the storage's egress rate with none of the plan's allowance
-      // counted, because the database line already counts that allowance and
-      // a bill is never allowed to come out lower than the truth.
+      // Priced at the host's transfer rate with none of the plan's allowance
+      // counted, because the hosting line already counts that allowance and a
+      // bill is never allowed to come out lower than the truth. Every learner
+      // fetches it now, not only those who reach for a microphone.
       const downloads = shape.learners * assumed("speechDevices");
       // A fraction of a download is what a handful of learners comes to, so it is said as one.
       const said = downloads < 10 ? Math.round(downloads * 10) / 10 : Math.round(downloads);
       const egressGb = gbOf((downloads * modelBytes()) / 1000);
       return {
         kind: "charged",
-        plan: "Storage egress",
+        plan: "Hosting transfer",
         // Up to the next cent rather than to the nearest: a few learners'
         // downloads come to a fraction of one, and a bill that rounds a real
         // charge to nothing is lower than the truth.
-        usd: Math.ceil(egressGb * SUPABASE.overage.perEgressGb * 100) / 100,
-        why: `About ${said.toLocaleString("en-GB")} downloads of ${megabytes(modelBytes())} MB a month, at the storage's egress rate.`,
+        usd: Math.ceil(egressGb * VERCEL.overage.perTransferGb * 100) / 100,
+        why: `About ${said.toLocaleString("en-GB")} downloads of ${megabytes(modelBytes())} MB a month, at the host's transfer rate.`,
         whyAs: {
-          template: "About {downloads} downloads of {mb} MB a month, at the storage's egress rate.",
+          template: "About {downloads} downloads of {mb} MB a month, at the host's transfer rate.",
           values: { downloads: said, mb: megabytes(modelBytes()) },
         },
         meters: [{ label: "Model downloaded", used: egressGb, included: 0, as: "gb" }],
