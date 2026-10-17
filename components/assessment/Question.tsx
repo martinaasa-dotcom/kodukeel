@@ -601,7 +601,7 @@ export function SpeakQuestion({ item, onAnswer }: { item: SpeakItem; onAnswer: (
             key={rating.value}
             type="button"
             onClick={() => onAnswer({ kind: "rated", rating: rating.value })}
-            className="choice-btn min-h-[52px] rounded-[var(--r-lg)] border px-4 py-3 text-left"
+            className="choice-btn flex min-h-[52px] flex-col justify-start rounded-[var(--r-lg)] border px-4 py-3 text-left"
           >
             <span className="block text-base font-medium" style={{ color: "var(--ink)" }}>{t(rating.label)}</span>
             <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{t(rating.detail)}</span>

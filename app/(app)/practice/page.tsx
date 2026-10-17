@@ -322,12 +322,18 @@ export default async function PracticePage() {
             {/* Columns by the room the page has rather than by the window:
                 at 768 the rail takes a column and a viewport breakpoint laid
                 out three cards where two fit. */}
-            <div className="@container"><div className="grid grid-cols-1 gap-4 @3xl:grid-cols-3">
+            {/* Each shelf spans two rows of the grid and takes them as a
+                subgrid, so the coloured headers are one height across a row
+                and the first round under each starts on one line. Without it
+                a shelf whose line fits on one line started its list higher
+                than the shelf beside it. `gap-y-0` keeps the header and its
+                list touching; the shelves are spaced by the column gap. */}
+            <div className="@container"><div className="grid grid-cols-1 gap-x-4 gap-y-0 [&>section+section]:mt-4 @3xl:grid-cols-3 @3xl:[&>section+section]:mt-0">
               {SHELVES.map((shelf) => (
                 <section
                   key={shelf.id}
                   aria-labelledby={`practice-shelf-${shelf.id}`}
-                  className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
+                  className="row-span-2 grid grid-rows-subgrid overflow-hidden rounded-[var(--r-xl)] border"
                   style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
                 >
                   <div className="px-5 pb-4 pt-5" style={{ background: `var(--${shelf.tone}-soft)` }}>
@@ -356,8 +362,10 @@ export default async function PracticePage() {
 /**
  * One round on a shelf, drawn exactly like every other one.
  *
- * The icon sits against the title's line rather than the middle of the row, so
- * a row whose second line wraps puts its icon where every other row puts it.
+ * Top-aligned: the icon is level with the top of the title and the chevron is
+ * centred on the icon, so a row whose second line wraps puts its title, its
+ * icon and its chevron where every other row puts them. Centring the row put
+ * a wrapped row's title half a line above its neighbour's.
  * One line under the title, never two: what the round is, and a live figure
  * after it where there is one.
  */
@@ -365,7 +373,7 @@ function ShelfRow({ mode, line }: { mode: Pick<PracticeMode, "href" | "tone" | "
   return (
     <Link
       href={mode.href}
-      className="tap-tint glow flex items-center gap-3 rounded-[var(--r)] px-3 py-3"
+      className="tap-tint glow flex items-start gap-3 rounded-[var(--r)] px-3 py-3"
     >
       <span
         aria-hidden
@@ -379,7 +387,9 @@ function ShelfRow({ mode, line }: { mode: Pick<PracticeMode, "href" | "tone" | "
         <span className="block text-base font-semibold leading-snug" style={{ color: "var(--ink)" }}>{mode.title}</span>
         <span className="block text-sm" style={{ color: "var(--ink-3)" }}>{line}</span>
       </span>
-      <ChevronRight size={16} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
+      <span aria-hidden className="flex h-9 shrink-0 items-center">
+        <ChevronRight size={16} aria-hidden style={{ color: "var(--ink-3)" }} />
+      </span>
     </Link>
   );
 }
@@ -414,6 +424,10 @@ function ChoiceGroup({ label, href, children }: { label: string; href?: string; 
  * icon. The four frequency lists used to carry a dot apiece and one of them,
  * "Describing words", wrapped its name under its dot at every width, which
  * is the fault `scripts/test-containment.mjs` now asks about on every page.
+ *
+ * Top-aligned rather than centred: the grid stretches every box in a row to
+ * the tallest, so a centred box whose line fits on one line dropped its name
+ * below the names beside it.
  */
 function Choice({ href, title, meta, label, done }: {
   href: string; title: string; meta?: string; label?: string;
@@ -426,7 +440,7 @@ function Choice({ href, title, meta, label, done }: {
       href={href}
       aria-label={label && meta ? aria : undefined}
       data-done={done ? "" : undefined}
-      className="tap-tint flex min-h-11 flex-col justify-center rounded-[var(--r)] border px-3.5 py-2.5"
+      className="tap-tint flex min-h-11 flex-col justify-start rounded-[var(--r)] border px-3.5 py-2.5"
       style={done
         ? { borderColor: "var(--accent)", background: "var(--accent-soft)" }
         : { borderColor: "var(--rule-soft)", background: "var(--raised)" }}
