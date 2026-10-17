@@ -16,13 +16,17 @@ export const dynamic = "force-dynamic";
  * drawn in every state it has. It is a tool for whoever builds and checks
  * speech, not a screen a learner meets, so it answers 404 on a production
  * build unless `ASR_BENCH=1` says otherwise, and its words are not translated.
+ * So it says it is English, which is what a screen reader set to Russian needs
+ * told and what the locales suite reads as a page left in English on purpose.
  */
 export default function SpeechBench() {
   if (process.env.NODE_ENV === "production" && process.env.ASR_BENCH !== "1") notFound();
   const availability = speechAvailability();
   return (
-    <Page title="Speech bench" lead="The engine, the hearing rules and the one microphone, on this device.">
-      <Bench availability={availability} />
-    </Page>
+    <div lang="en">
+      <Page title="Speech bench" lead="The engine, the hearing rules and the one microphone, on this device.">
+        <Bench availability={availability} />
+      </Page>
+    </div>
   );
 }
