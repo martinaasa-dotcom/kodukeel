@@ -183,7 +183,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
 
         {roster && (
           <>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           <StatTile value={roster.entries.length} label={t("Members")} tone="sky" />
           <StatTile value={roster.activeThisWeek} label={t("Active this week")} tone="sky" />
           <StatTile value={roster.totalReviewsThisWeek} label={t("Reviews this week")} tone="accent" />
