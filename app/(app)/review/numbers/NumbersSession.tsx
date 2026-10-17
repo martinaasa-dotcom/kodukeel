@@ -284,8 +284,9 @@ function Card({ entry, onSettled, onNext }: {
                 onChange={(next) => {
                   setText(next);
                 }}
+                id="number-answer"
                 ariaLabel={t("Your answer, in words or digits")}
-                placeholder={t("Or type it, in words or digits")}
+                placeholder={t("Or type it")}
                 inputRef={inputRef}
                 onEnter={check}
                 large
@@ -293,7 +294,7 @@ function Card({ entry, onSettled, onNext }: {
             </div>
           </div>
         ) : (
-          <div className={`${VERDICT_CLASS[answered.verdict]} verdict-panel pop-in w-full max-w-md text-left`}>
+          <div className={`${VERDICT_CLASS[answered.verdict]} verdict-panel pop-in w-full max-w-md text-left`} data-numbers-verdict={answered.verdict}>
             <p className="font-semibold">
               {answered.mark.right
                 ? answered.verdict === "nearly"
@@ -319,7 +320,7 @@ function Card({ entry, onSettled, onNext }: {
             {item.kind === "clock" && item.face === "analog" && (
               <p className="mt-1 text-sm">
                 {fill(t("A clock face has no afternoon, so {morning} and {afternoon} both count."), {
-                  morning: entry.shown,
+                  morning: `${String(item.hour % 12).padStart(2, "0")}:${String(item.minute).padStart(2, "0")}`,
                   afternoon: `${(item.hour % 12) + 12}:${String(item.minute).padStart(2, "0")}`,
                 })}
               </p>

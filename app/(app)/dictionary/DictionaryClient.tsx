@@ -304,15 +304,13 @@ export function DictionaryClient({
               autoFocus={!initialQuery}
             />
           </div>
-          {searchAloud && (
-            <div className="shrink-0">
-              <MicButton speech={speech} label={t("Say the word to look it up")} shortcut showPartial={false} />
-            </div>
-          )}
           <Button variant="primary" onClick={() => go(query)} disabled={pending} className="shrink-0 py-3" aria-label={t("Search")}>
             <Search size={16} aria-hidden /> <span className="hidden sm:inline">{t("Search")}</span>
           </Button>
         </div>
+        {searchAloud && (
+          <MicButton speech={speech} label={t("Say the word to look it up")} shortcut showPartial={false} />
+        )}
         {!initialQuery && suggestions.words.length > 0 && (
           <div className="flex flex-col gap-2">
             <p id="try-these" className="label-xs" style={{ color: "var(--ink-3)" }}>

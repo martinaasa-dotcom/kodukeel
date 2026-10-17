@@ -19,8 +19,35 @@ import { mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { dirname } from "node:path";
 import { readWav, writeWav } from "../lib/speech/wav";
 import { resample } from "../lib/speech/resample";
+import { derivedVerbForms } from "../lib/estonian/conjugate";
+import { SUBJECT_PRONOUN } from "../lib/scenes/lexicon";
+import { shippedDictionary } from "./lib/dictionary";
 
 const TARTU_NLP = "https://api.tartunlp.ai/text-to-speech/v2";
+
+/**
+ * A conjugation table said as a class chants it, built off the dictionary:
+ * each person's shortest nominative and the verb's present off its stored
+ * first person (`derivedVerbForms`), so nothing in this file types the
+ * Estonian (VB-8). Read by TartuNLP like any other line.
+ */
+function chantOf(verb: string): string {
+  const dictionary = shippedDictionary();
+  const entry = (lemma: string) => {
+    const found = dictionary.find((e) => e.lemma === lemma);
+    if (!found) throw new Error(`${lemma} is not in the shipped dictionary`);
+    return found;
+  };
+  const forms = derivedVerbForms({ lemma: verb, pres1sg: entry(verb).parts.PRES_1SG });
+  const codes = ["IndPrSg1", "IndPrSg2", "IndPrSg3", "IndPrPl1", "IndPrPl2", "IndPrPl3"];
+  return Object.keys(SUBJECT_PRONOUN).map((lemma, i) => {
+    const spellings = [lemma, ...entry(lemma).extraForms.filter((f) => f.code === "SgN" || f.code === "PlN").map((f) => f.value)];
+    const short = [...spellings].sort((a, b) => a.length - b.length)[0]!;
+    const form = forms.find((f) => f.morphCode === codes[i])?.value;
+    if (!form) throw new Error(`${verb} has no ${codes[i]}`);
+    return `${short} ${form}`;
+  }).join(", ") + ".";
+}
 
 export const SPEECH_FIXTURES = [
   // The device check: two greetings, about two seconds, both phrase entries of the first unit.
@@ -28,6 +55,10 @@ export const SPEECH_FIXTURES = [
   { file: "scripts/fixtures/speech/tere.wav", text: "Tere!", voice: "tambet", trail: 2 },
   { file: "scripts/fixtures/speech/aitah.wav", text: "Aitäh!", voice: "mari", trail: 2 },
   { file: "scripts/fixtures/speech/kuidas-laheb.wav", text: "Kuidas läheb?", voice: "kalev", trail: 2 },
+  // The numbers round (VB-7): a number read from its digits, never written out here (D10).
+  { file: "scripts/fixtures/speech/number.wav", text: "15", voice: "mari", trail: 2 },
+  // The conjugation chant (VB-8): one verb's present, pronouns and all, off the dictionary.
+  { file: "scripts/fixtures/speech/chant.wav", text: chantOf("elama"), voice: "mari", trail: 2 },
 ] as const;
 
 async function make(text: string, voice: string): Promise<Float32Array> {

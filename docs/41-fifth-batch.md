@@ -168,6 +168,42 @@ production was read with the same Lighthouse 12.8.2 phone profile PageSpeed runs
 against 4,938, 4,926 and 4,877 before, and the largest element is now the card's own paragraph, the one
 the opacity entrance was hiding. The fix holds; `docs/15-performance.md` has the table.
 
+**VB-7, what TartuNLP says for a number written in digits, 2026-10-17.** `npm run measure:numbers` sends
+every shape the round can play to TartuNLP the way `/api/tts` sends it, then hears the clip with the
+app's own recognizer (sherpa-onnx, greedy, the shipped model, a tail of room tone because zeros made it
+write a word into the silence), 237 readings in three voices (`lib/games/fixtures/number-speech.json`).
+Counts read clean at every size, 18 of 18 per tier. A timetable time padded with a zero is read with the
+zero (`08:00` as "null kaheksa null null"), so the round sends it unpadded and reads `8:00` as an
+Estonian would. An analogue time on the hour is sent as the hour alone, since `3:00` came back as "kolm
+null null". A price with a decimal comma is read with the word for comma (`3,50 €`, 0 of 15 clean), so a
+price with cents is played as `3 € 50`, 15 of 15 as euros then cents; a whole price, 12 of 12. A shape
+that reads wrongly is shown and not played, and the unit test holds every sample's rows to clean. A
+native reader should hear "kolm eurot viiskümmend" and "neliteist viisteist", the two phrasings this
+choice puts in a learner's ear.
+
+**VB-7, the three new readings did not move a scene, 2026-10-17.** `npm run play:scenes`,
+`npm run sweep:fallback` (0 flags over 6,312 conversations) and `npm run probe:turns` wrote byte for
+byte the same output before and after `lib/scenes/props.ts` changed. Read over 26,373 strings (every
+scene literal, every usage in the dictionary and every key of the shipped English), 24 readings changed
+value and every one was a misreading put right: "kaks sada" was 100 and is 200, "kuus tuhat eurot" was
+two numbers and is 6,000, "kell 14 15" was 14:00 and is 14:15, "kell kaks kolmkümmend" was 14:00 and is
+14:30. Nine strings are read that read as nothing before ("kell kuusteist"), and none of them was a
+refusal a scene depended on.
+
+**VB-8, the gap a line is read into, 2026-10-17.** Over the 1,278 lines `linesFor` cuts from the course
+harvest, read back whole the way a recognizer writes them, the first version of `wordInGap` found the
+word in 940: 338 lines have a full stop or a comma straight after the gap, and a mark was taken as a
+word somebody would say. Landmarks are words now, and 1,268 lines give the answer exactly. The other ten
+have a figure beside the gap (`300 ____ .`), which a recognizer writes out as a number word, and those
+leave the box for typing rather than guessing where the number ends. `whichGap` finds the line read on
+every page of four tried, 400 lines, and a reading of one line never fills the box with the caret.
+
+**VB-9, a word said into the dictionary, 2026-10-17.** The course's headwords written the way somebody
+who only heard them might (lenis stops written as fortis ones, long sounds written short): 978 such
+spellings that are not words themselves. The dead end offers the intended entry for 970, and first for
+all 916 whose sound no other entry shares. The eight it does not are English words before they are
+anything misheard (`home`, `like`, `sit`, `paper`), answered as English spoken or typed alike.
+
 ## 1. How to use this page
 
 1. Pick one item, in the milestone order of section 4. Do that item and nothing else in the same pull
@@ -311,9 +347,9 @@ stops. Size is the work in one pull request: S is a day, M a few days, L a week 
 | VB-4 Conversations, spoken | 1 | L | Not started |
 | VB-5 The Speaking round, rebuilt, and hands-free | 1 | M | Not started |
 | VB-6 Saying it on the daily path | 2: speaking everywhere it teaches | M | Not started |
-| VB-7 Numbers out loud | 2 | M | Not started |
-| VB-8 The rounds that already ask you to speak | 2 | M | Not started |
-| VB-9 A word you heard and cannot spell | 2 | S | Not started |
+| VB-7 Numbers out loud | 2 | M | Done: `lib/games/numbers.ts`, `ClockFace`, `/review/numbers` on Practice and on A2's rotation in writing's place, three accept-only readings in `props.ts` with the one-answer assertion, every shape TartuNLP plays checked first (section 0) |
+| VB-8 The rounds that already ask you to speak | 2 | M | Done: the chant (`lib/speech/chant.ts`), Say what you see said into its boxes, 20 küsimust asked aloud and answered aloud hands-free behind the D20 countdown, Töövihik read aloud through `wordInGap` and `whichGap` |
+| VB-9 A word you heard and cannot spell | 2 | S | Done: the dictionary searched by voice as typed, Anu's box on the panel and the page, and the reading page read aloud a paragraph at a time |
 | VB-10 Reminders on the desktop, through Web Push | 2 | M | Done |
 | VB-11 Tonight's chat | 3: Estonian from real life | L | Not started |
 | VB-12 Something real to listen to | 3 | M | Not started |
