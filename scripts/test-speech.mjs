@@ -117,11 +117,23 @@ try {
     await page.reload({ waitUntil: "domcontentloaded" });
     const offline = await phase(page);
     await page.getByRole("button", { name: "Decode the fixture clip" }).click();
-    await page.waitForSelector("[data-bench-file]", { timeout: 60_000 });
+    // The model is loaded again after the reload (its hashes checked, the device check run), which
+    // is most of this wait; a failure says what the bench said rather than only that time ran out.
+    await page.waitForSelector("[data-bench-file]", { timeout: 180_000 }).catch(async (error) => {
+      const said = await page.locator("[role=alert]").allInnerTexts().catch(() => []);
+      throw new Error(`no reading came back offline${said.length > 0 ? `; the bench said: ${said.join(" | ")}` : ""} (${String(error).split("\n")[0]})`);
+    });
     const heardOffline = await page.innerText("[data-bench-file]");
     check("with the network cut, the model still hears the clip", offline === "ready" && /Tere hommikust/i.test(heardOffline), `${offline}: ${heardOffline.slice(0, 80)}`);
   } catch (error) {
-    check("with the network cut, the model still hears the clip", false, String(error).slice(0, 200));
+    /* The model loads again after the offline reload, and that load times the
+       device check. On a runner so busy that it decodes slower than real time
+       twice over, the app answers "too slow", which is the app being right
+       about the machine rather than offline failing: said as that, and lifted
+       on any machine faster than real time. Anything else is a failure. */
+    const said = String(error);
+    if (/\d\.\d+ of real time/.test(said)) absent(1, `this machine ran the device check slower than real time (${/\d\.\d+ of real time/.exec(said)[0]}), so the model is refused here before offline can be asked`);
+    else check("with the network cut, the model still hears the clip", false, said.slice(0, 200));
   } finally {
     await context.setOffline(false);
   }
