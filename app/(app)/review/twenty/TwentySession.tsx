@@ -25,6 +25,12 @@ import { useLocale, useT } from "@/components/Locale";
 import { Meaning } from "@/components/Meaning";
 import { countOf, fill, type Locale } from "@/lib/copy/locale";
 import type { ShownMeaning } from "@/lib/collections/glossLanguage";
+import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
+import { MicButton } from "@/components/speech/MicButton";
+import { micInAnswerBox } from "@/components/speech/answerBoxMic";
+import { SendCountdown, SEND_COUNTDOWN_MS } from "@/components/speech/SendCountdown";
+import { useAudioPrefs } from "@/components/AudioPrefs";
+import { playClip } from "@/lib/audio/clip";
 
 interface Turn {
   id: number;
@@ -111,6 +117,25 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
   const real = useRef(new Set<string>());
   const checked = useRef(new Set<string>());
   const quiet = useRef(false);
+  /*
+    ASKED OUT LOUD (docs/41-fifth-batch.md, VB-8). The microphone sits beside
+    the box once the model is downloaded (D6), and what it heard goes into the
+    box as typed text: the game's own reading, `repairFrom` included, is what
+    decides what the question was, and nothing biases the decoder toward the
+    game's words. A question that was said is answered out loud as well, the
+    engine's own reply read by TartuNLP, and once the learner has said one
+    question the microphone opens again on its own when that answer has
+    finished playing (D14), so a round can be played without touching the
+    screen. Typing turns that off again. Without the model nothing here is drawn.
+  */
+  const prefs = useAudioPrefs();
+  const speechConfig = useSpeechConfig();
+  const handsFree = useRef(false);
+  const heardText = useRef<string | null>(null);
+  const [sendAt, setSendAt] = useState<number | null>(null);
+  const [reopen, setReopen] = useState(false);
+  const speech = useSpeech({ endpoint: true, onHeard: (hearing) => heardQuestion(hearing.understood) });
+  const micOffered = micInAnswerBox(speech, speechConfig);
   useEffect(() => {
     quiet.current = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
   }, []);
@@ -148,15 +173,42 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
     setTimeout(() => field.current?.focus(), 0);
   }
 
-  async function submit() {
-    const question = text.trim();
+  function heardQuestion(understood: string) {
+    const said = understood.trim();
+    if (!said || over || offer || busy || thinking !== null) return;
+    handsFree.current = true;
+    heardText.current = said;
+    setText(said);
+    // D20: a heard line waits two and a half seconds, so the person who said it can catch a mishearing.
+    if (speechConfig.sendAtOnce) void submit(said);
+    else setSendAt(Date.now() + SEND_COUNTDOWN_MS);
+  }
+
+  /** Touching the box or the card stops the countdown and leaves the question to be sent by hand. */
+  function holdIt() {
+    if (sendAt !== null) setSendAt(null);
+  }
+
+  /** The engine's own reply, read aloud, then the microphone again for the next question (D14). */
+  function sayAnswer(answer: Answer) {
+    void playClip({ text: ANSWER_ET[answer], voice: prefs.voice, pace: prefs.pace })
+      .catch(() => "blocked" as const)
+      .then(() => { if (handsFree.current) setReopen(true); });
+  }
+
+  async function submit(asked?: string) {
+    setSendAt(null);
+    const question = (asked ?? text).trim();
     if (!question || over || offer || busy || thinking !== null) return;
+    const spoken = heardText.current !== null && heardText.current === question;
+    heardText.current = null;
     // A question in English is met with the Estonian for it, and costs nothing.
     const english = inEstonian(question, glosses);
     if (english) {
       setTurns([...turns, { id: nextId.current++, typed: question, reply: { kind: "english", example: english.example } }]);
       setText("");
       field.current?.focus();
+      if (spoken && handsFree.current) setReopen(true);
       return;
     }
     setBusy(true);
@@ -193,8 +245,15 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
     setBusy(false);
     field.current?.focus();
     const counted = reply.kind === "answer" && reply.counts;
+    // A question that was said is answered out loud; a refusal is English and is read on the screen.
+    const answerAloud = () => {
+      if (!spoken) return;
+      if (reply.kind === "answer") sayAnswer(reply.answer);
+      else if (handsFree.current) setReopen(true);
+    };
     if (quiet.current || !counted) {
       settle([...turns, { id, typed: question, reply }], reply.kind === "answer" && reply.won);
+      answerAloud();
       return;
     }
     setTurns([...turns, { id, typed: question, reply }]);
@@ -202,6 +261,7 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
     setTimeout(() => {
       setThinking(null);
       settle([...turns, { id, typed: question, reply }], reply.kind === "answer" && reply.won);
+      answerAloud();
     }, THINKING_MS);
   }
 
@@ -215,6 +275,15 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
     setText(et);
     field.current?.focus();
   }
+
+  // Hands-free: the answer has finished playing, so the microphone opens for the next question.
+  useEffect(() => {
+    if (!reopen) return;
+    if (over || offer || !micOffered) { setReopen(false); return; }
+    if (thinking !== null || speech.appSpeaking || speech.listening || speech.phase !== "ready") return;
+    setReopen(false);
+    void speech.start();
+  }, [reopen, over, offer, micOffered, thinking, speech]);
 
   const lastTurn = thinking === null ? turns[turns.length - 1] : turns[turns.length - 2];
   const announced = lastTurn
@@ -250,6 +319,7 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
       <div
         className="rounded-xl border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
+        onPointerDown={holdIt}
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
           <Chip tone="accent"><MessageCircleQuestion size={12} aria-hidden /> 20 küsimust</Chip>
@@ -317,12 +387,19 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
               autoComplete="off"
               autoCapitalize="sentences"
               spellCheck={false}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) => { setText(e.target.value); holdIt(); handsFree.current = false; }}
+              onFocus={holdIt}
               onKeyDown={(e) => { if (isAdvanceKey(e)) { e.preventDefault(); e.stopPropagation(); void submit(); } }}
               className="field-lg mt-2 w-full text-lg"
               style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
             />
             <div className="under-field"><DiacriticBar /></div>
+            {micOffered && (
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <MicButton speech={speech} label={t("Ask your question out loud")} shortcut showPartial />
+                {sendAt !== null && <SendCountdown key={sendAt} label={t("Asking in a moment. Touch anything to change it first.")} onDone={() => void submit()} />}
+              </div>
+            )}
             {suggestions.length > 0 && (
               <TryThese suggestions={suggestions} opening={turns.length === 0} onPick={idea} />
             )}
@@ -409,7 +486,7 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
 
       <p className="sr-only" role="status">{announced}</p>
       <p className="mt-4 text-center text-2xs" style={{ color: "var(--ink-3)" }}>
-        {over ? t("Nothing here is scored.") : t("Type your question, then press Enter")}
+        {over ? t("Nothing here is scored.") : micOffered ? t("Say or type your question, then press Enter") : t("Type your question, then press Enter")}
       </p>
     </div>
   );

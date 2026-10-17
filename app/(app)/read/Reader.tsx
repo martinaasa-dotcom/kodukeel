@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Loader2, Mic } from "lucide-react";
 import { readEstonian } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
@@ -11,6 +11,11 @@ import { useT } from "@/components/Locale";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { MAX_READING_CHARS } from "@/lib/estonian/readingText";
 import { NOT_REACHED } from "@/lib/copy/values";
+import { fill } from "@/lib/copy/locale";
+import { lightUp, lineWords, shareLit } from "@/lib/speech/lightUp";
+import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
+import { MicButton } from "@/components/speech/MicButton";
+import { micInAnswerBox } from "@/components/speech/answerBoxMic";
 
 type Read = { sentence: string; tokens: GlossedToken[] }[][];
 
@@ -40,6 +45,34 @@ export function Reader() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  /*
+    READ IT ALOUD (docs/41-fifth-batch.md, VB-9). Once the model is downloaded
+    (D6) the page can be read aloud, a paragraph at a time, each word lighting
+    as it is heard (`lib/speech/lightUp.ts`). Lit means understood and nothing
+    more: nothing is marked and nothing is graded. A paragraph is read over as
+    many breaths as it takes, each turn's words added to the last, and the next
+    one opens once every word has been heard or on a press. The sound stays on
+    the device, and the text is still only in this component's state.
+  */
+  const speechConfig = useSpeechConfig();
+  const [along, setAlong] = useState(false);
+  const [at, setAt] = useState(0);
+  const [heard, setHeard] = useState<string[]>([]);
+  const paragraphs = useMemo(() => (read ?? []).map((ps) => ps.map((x) => x.sentence).join(" ")), [read]);
+  const words = useMemo(() => paragraphs.map(lineWords), [paragraphs]);
+  const speech = useSpeech({
+    endpoint: true,
+    onHeard: (hearing) => {
+      const said = hearing.understood.trim();
+      if (!said) return;
+      const sofar = `${heard[at] ?? ""} ${said}`.trim();
+      setHeard((all) => { const next = [...all]; next[at] = sofar; return next; });
+      if (shareLit(lightUp(words[at] ?? [], sofar)) === 1 && at + 1 < paragraphs.length) setAt(at + 1);
+    },
+  });
+  const canReadAloud = micInAnswerBox(speech, speechConfig) && paragraphs.length > 0;
+  const startAlong = () => { setAlong(true); setAt(0); setHeard([]); };
+
   const submit = async () => {
     setBusy(true);
     setError(null);
@@ -48,7 +81,59 @@ export function Reader() {
     if (!result) { setError(t(NOT_REACHED)); return; }
     if (!result.ok) { setError(t(result.error)); return; }
     setRead(result.paragraphs);
+    setAlong(false);
   };
+
+  if (read && along) {
+    const lit = (i: number) => lightUp(words[i] ?? [], i === at && speech.listening ? `${heard[i] ?? ""} ${speech.partial}` : heard[i] ?? "");
+    const here = lit(at);
+    return (
+      <Page title={t("Read with the dictionary")} lead={t("Read it aloud, a paragraph at a time. Each word lights up as it's heard.")}>
+        <div className="flex flex-col gap-6">
+          <article
+            className="flex flex-col gap-5 rounded-lg border p-5"
+            style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
+            data-reading-aloud
+          >
+            {words.map((line, i) => {
+              const shown = lit(i);
+              return (
+                <p
+                  key={i}
+                  lang="et"
+                  className="text-lg leading-relaxed"
+                  style={{ color: i === at ? "var(--ink)" : "var(--ink-3)" }}
+                  aria-current={i === at ? "step" : undefined}
+                  data-read-paragraph={i === at ? "now" : i < at ? "read" : "ahead"}
+                >
+                  {line.map((w, j) => (
+                    <span key={`${j}-${w.text}`}>
+                      <span className="read-aloud-word" data-lit={shown[j] ? "true" : "false"}>{w.text}</span>
+                      {j < line.length - 1 ? " " : ""}
+                    </span>
+                  ))}
+                </p>
+              );
+            })}
+          </article>
+          <div className="flex flex-wrap items-center gap-3">
+            <MicButton speech={speech} label={t("Read this paragraph aloud")} shortcut showPartial={false} />
+            <p className="min-w-0 flex-1 text-sm" style={{ color: "var(--ink-2)" }} role="status">
+              {fill(t("Paragraph {n} of {total}: {heard} of {words} words heard."), {
+                n: at + 1, total: paragraphs.length, heard: here.filter(Boolean).length, words: here.length,
+              })}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Button variant="secondary" onClick={() => setAlong(false)}>{t("Back to the dictionary view")}</Button>
+            {at + 1 < paragraphs.length
+              ? <Button variant="primary" onClick={() => setAt(at + 1)}>{t("Next paragraph")}</Button>
+              : <Button variant="primary" onClick={() => setAlong(false)}>{t("Done reading")}</Button>}
+          </div>
+        </div>
+      </Page>
+    );
+  }
 
   return (
     <Page title={t("Read with the dictionary")} lead={t("Paste a letter, an article or a message, and tap any underlined word.")}>
@@ -68,6 +153,11 @@ export function Reader() {
             ))}
           </article>
           <div className="flex flex-wrap gap-3">
+            {canReadAloud && (
+              <Button variant="secondary" onClick={startAlong} data-read-aloud-start="">
+                <Mic size={15} aria-hidden /> {t("Read it aloud")}
+              </Button>
+            )}
             <Button variant="primary" onClick={() => { setRead(null); setText(""); }}>{t("Read something else")}</Button>
           </div>
         </div>

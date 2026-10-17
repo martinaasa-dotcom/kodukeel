@@ -5588,3 +5588,22 @@ a:focus-visible .wave-word::after {
   background: var(--raised);
   border: 2px solid var(--rule);
 }
+
+/*
+  THE COUNTDOWN A HEARD LINE WAITS ON (components/speech/SendCountdown.tsx, D20).
+  A bar running out from full to empty. Under reduced motion it stands full and
+  the line beside it says what is about to happen.
+*/
+.send-countdown {
+  transform-origin: left;
+  animation-name: send-countdown;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+@keyframes send-countdown {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .send-countdown { animation: none; }
+}

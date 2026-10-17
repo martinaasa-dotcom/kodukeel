@@ -12,6 +12,7 @@ import { useAnuChat } from "./useAnuChat";
 import { useStickToBottom } from "./useStickToBottom";
 import { readScreen } from "./readScreen";
 import { useModalFocus } from "@/components/useModalFocus";
+import { AnuMic } from "./AnuMic";
 import { useT } from "@/components/Locale";
 import { AnuFailure, Bubble, CheckStarter, Provenance, SentenceCheck, Starters, sentenceCheckPrompt, AnuOffline } from "./AnuParts";
 
@@ -305,6 +306,7 @@ export function AnuPanel({
                 inputRef={boxRef}
               />
             </div>
+            <AnuMic current={input} onHeard={setInput} />
             <Button
               variant="primary"
               onClick={() => { if (send(input)) setInput(""); }}

@@ -65,20 +65,101 @@ export function shareLit(lit: readonly boolean[]): number {
 export function wordInGap(before: readonly string[], after: readonly string[], heard: string): string | null {
   const said = heard.normalize("NFC").split(/\s+/).filter(Boolean);
   const keys = said.map((w) => soundKey(core(w)));
+  /*
+    Only words count as landmarks. A line's text around a gap carries its
+    punctuation as tokens of their own (`.` after a gap at the end, `, kultuur`
+    after one mid-sentence), and nobody says a full stop, so a landmark that is
+    a mark would never be found and the box would never be filled. Measured on
+    the workbook's own lines: a quarter of them end in a mark straight after
+    the gap.
+  */
+  const spoken = (words: readonly string[]) => words.map(core).filter(Boolean);
+  const beforeWords = spoken(before);
+  const afterWords = spoken(after);
+  /*
+    A figure beside the gap is no landmark either: the line writes `300` and a
+    recognizer writes the number out in words, so what lies between the
+    landmarks would be the number and the word together. Rather than guess
+    where one ends, the box is left for typing.
+  */
+  const figure = (w: string | undefined) => w !== undefined && !/\p{L}/u.test(w);
+  if (figure(beforeWords[beforeWords.length - 1]) || figure(afterWords[0])) return null;
+  const beforeKeys = beforeWords.map(soundKey).filter(Boolean);
+  const afterKeys = afterWords.map(soundKey).filter(Boolean);
   let start = 0;
-  if (before.length > 0) {
-    const last = soundKey(core(before[before.length - 1]!));
-    const at = keys.lastIndexOf(last);
+  if (beforeKeys.length > 0) {
+    /*
+      The words before the gap are walked in order, the way `lightUp` walks a
+      line, so a word said again after the gap ("Ma ... ja ma ...") is not
+      taken for the one before it. Where the walk loses the last of them (a
+      word skipped while reading) its last occurrence anywhere stands in.
+    */
+    let from = 0;
+    let lastAt = -1;
+    beforeKeys.forEach((key, i) => {
+      const at = keys.indexOf(key, from);
+      if (at === -1) return;
+      from = at + 1;
+      if (i === beforeKeys.length - 1) lastAt = at;
+    });
+    const at = lastAt !== -1 ? lastAt : keys.lastIndexOf(beforeKeys[beforeKeys.length - 1]!);
     if (at === -1) return null;
     start = at + 1;
   }
   let end = said.length;
-  if (after.length > 0) {
-    const next = soundKey(core(after[0]!));
-    const at = keys.indexOf(next, start);
+  if (afterKeys.length > 0) {
+    const at = keys.indexOf(afterKeys[0]!, start);
     if (at === -1) return null;
     end = at;
   }
   const between = said.slice(start, end).map((w) => w.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, "")).filter(Boolean);
   return between.length > 0 ? between.join(" ") : null;
+}
+
+/** A line with a gap, as `whichGap` reads it: the text either side of the gap. */
+export interface GapLine {
+  readonly id: string;
+  readonly before: string;
+  readonly after: string;
+}
+
+/** Less of a line's own words than this, heard, and a reading is not taken to be that line. */
+export const GAP_LINE_SHARE = 0.5;
+
+/**
+ * Which line of a page was read aloud, and the word said in its gap.
+ *
+ * A page has several gaps and a learner reads one line at a time. The line
+ * whose box has the caret is taken first, since that is where they are
+ * looking; otherwise the line most of whose own words were heard, provided at
+ * least half were, so a reading of one line never fills another's box. `null`
+ * where no line fits or no gap can be aligned, and the box waits for typing.
+ */
+export function whichGap(
+  lines: readonly GapLine[], heard: string, focused: string | null = null,
+): { readonly id: string; readonly word: string } | null {
+  const split = (text: string) => text.split(/\s+/).filter(Boolean);
+  const share = (line: GapLine) => shareLit(lightUp(lineWords(`${line.before} ${line.after}`).filter((w) => w.key), heard));
+  const read = (line: GapLine) => {
+    const word = wordInGap(split(line.before), split(line.after), heard);
+    return word === null ? null : { id: line.id, word };
+  };
+  const mine = focused === null ? undefined : lines.find((l) => l.id === focused);
+  if (mine && share(mine) >= GAP_LINE_SHARE) {
+    const got = read(mine);
+    if (got) return got;
+  }
+  let best: { id: string; word: string } | null = null;
+  let bestShare = GAP_LINE_SHARE;
+  for (const line of lines) {
+    const s = share(line);
+    if (s < bestShare) continue;
+    const got = read(line);
+    if (!got) continue;
+    if (best === null || s > bestShare) {
+      best = got;
+      bestShare = s;
+    }
+  }
+  return best;
 }
