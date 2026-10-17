@@ -258,7 +258,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       { who: "Anna", et: "Mul on vaja mantlit ja salli.", en: "I need a coat and a scarf." },
       { who: "Liis", et: "Mis suurus?", en: "What size?" },
       { who: "Anna", et: "Väike, palun.", en: "Small, please." },
-      { who: "Liis", et: "See hall mantel on väike. Ja see sall on ka hall.", en: "This grey coat is small. And this scarf is grey too." },
+      { who: "Liis", et: "Siin on hall mantel, väike suurus. Ja see sall on ka hall.", en: "Here's a grey coat, in small. And this scarf is grey too." },
       { who: "Anna", et: "Väga ilus! Aga mul on vaja ka kampsunit.", en: "Very nice! But I need a sweater too." },
       { who: "Liis", et: "Kampsunid on seal.", en: "The sweaters are over there." },
     ],

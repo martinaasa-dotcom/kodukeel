@@ -155,13 +155,14 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
       { who: "Tom", et: "Tere! Mul on vaja abi!", en: "Hello! I need help!", stage: "On the phone, calling 112." },
-      { who: "Liis", et: "Mis teil viga on?", en: "What's the matter?" },
+      { who: "Liis", et: "Mis on juhtunud?", en: "What's happened?" },
       { who: "Tom", et: "Minu sõber on haige. Tal valutab pea ja kõht.", en: "My friend is ill. His head and stomach hurt." },
       { who: "Liis", et: "Kus te olete?", en: "Where are you?" },
       { who: "Tom", et: "Kodus, kesklinnas.", en: "At home, in the town centre." },
       { who: "Liis", et: "Kiirabi tuleb kohe.", en: "The ambulance is coming right away." },
     ],
     teaches: [
+      { kind: "phrase", et: "Mis on juhtunud?", en: "What's happened?" },
       { kind: "word", et: "abi", en: "help" },
       { kind: "word", et: "kiirabi", en: "ambulance" },
       { kind: "word", et: "politsei", en: "police" },
@@ -182,6 +183,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
+        "{Mis on juhtunud?} is what's happened, which is what the person answering 112 asks. {Mis teil viga on?} from lesson 47 is the doctor's question.",
         "In Estonia one number, 112, reaches all three, and the people who answer speak English too.",
         "After {vaja}, {politsei} takes the {osastav}, {politseid}. {Abi} and {kiirabi} look the same either way.",
         "{Kiirabi} is quick help, {kiire} and {abi} in one word. {Appi!} from lesson 46 is the shout, and {abi} is the word.",
@@ -190,7 +192,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
       examples: [0, 2, 5],
     },
     answers: [
-      { ask: { et: "Mis teil viga on?", en: "What's the matter?" }, cue: "Say you need help.", model: { et: "Mul on vaja abi!", en: "I need help!" } },
+      { ask: { et: "Mis on juhtunud?", en: "What's happened?" }, cue: "Say you need help.", model: { et: "Mul on vaja abi!", en: "I need help!" } },
       { cue: "Say you need the police.", model: { et: "Mul on vaja politseid!", en: "I need the police!" } },
       { ask: { et: "Kus te olete?", en: "Where are you?" }, cue: "Say you're at home.", model: { et: "Kodus.", en: "At home." } },
     ],

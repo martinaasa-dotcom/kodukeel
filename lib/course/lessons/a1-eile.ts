@@ -59,7 +59,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The word for when often goes first, and then the verb comes straight after it: {Homme ma töötan}.",
+        "The word for when often goes first, and the rest follows as in any sentence: {Homme ma töötan}.",
         "{Saame kokku} is let's meet up. {Kokku} with {saama} is getting together, not the total at the till from lesson 27.",
         "{Võib-olla} is maybe, and the line in the middle is part of how it's written.",
       ],
@@ -158,7 +158,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kohvikus", of: "kohvik", en: "in a café" },
     ],
     how: {
-      point: "The past has six endings, -in, -id, -s, -ime, -ite, -id, though for {ta} some verbs drop the s: {käis}, but {oli} and {tegi}.",
+      point: "The past has six forms, -in, -id, -s or -i, -ime, -ite, -id. For {ta} some verbs end in -s and some in -i: {käis}, but {oli} and {tegi}.",
       table: {
         head: ["", "{olema}", "{käima}", "{tegema}"],
         rows: [
@@ -322,12 +322,15 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Kakskümmend üheksa!", en: "Twenty-nine!" },
       { who: "Tom", et: "Tõesti? Mida sa nädalavahetusel teed?", en: "Really? What are you doing at the weekend?" },
       { who: "Mari", et: "Laupäeval me sööme kooki ja joome veini.", en: "On Saturday we're eating cake and drinking wine." },
-      { who: "Tom", et: "Väga hea! Head isu!", en: "Very good! Enjoy!" },
+      { who: "Tom", et: "Väga tore! Head pidu!", en: "Lovely! Have a good party!" },
     ],
     teaches: [
       { kind: "word", et: "sünnipäev", en: "birthday" },
       { kind: "phrase", et: "Palju õnne!", en: "Happy birthday! Congratulations!" },
       { kind: "phrase", et: "Head isu!", en: "Enjoy your meal!" },
+      { kind: "word", et: "pidu", en: "party" },
+      { kind: "phrase", et: "Head pidu!", en: "Have a good party!" },
+      { kind: "phrase", et: "Palju õnne sünnipäevaks!", en: "Happy birthday! (the full wish)" },
       { kind: "word", et: "nädalavahetus", en: "weekend" },
       { kind: "form", et: "nädalavahetusel", of: "nädalavahetus", en: "at the weekend" },
       { kind: "word", et: "puhkepäev", en: "day off" },
@@ -341,7 +344,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
         "{Jaanipäev} is 24 June, the biggest summer holiday in Estonia, and {jõulud} is Christmas, a plural word like {püksid}.",
         "{Head isu!} is what you say before anybody eats, at home or in a café.",
       ],
-      watchOut: "{Palju õnne!} word for word is a lot of luck. There is no separate phrase for happy birthday: this is it.",
+      watchOut: "{Palju õnne!} word for word is a lot of luck. It is the wish for a birthday and for any happy day. The full birthday wish is {Palju õnne sünnipäevaks!}, but people usually just say {Palju õnne!}",
       examples: [0, 1, 3],
     },
     answers: [

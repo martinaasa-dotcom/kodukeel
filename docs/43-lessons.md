@@ -353,7 +353,14 @@ Each phase is its own pull request or several, and none starts before the one ab
   `-sti` adverbs), which need the cases A2 teaches; the rest are the less common nouns of each
   topic (`trepp`, `sadam`, `lehm`). Both are A2's first work rather than more A1 evenings, and the
   measurement is the list to read when A2's lessons are planned. What is left of P2 is the A1 role-play scenes on the scene
-  engine; the role-plays above are the scripted questions of Say it.
+  engine; the role-plays above are the scripted questions of Say it. **Read on 2026-10-17** (ADR-005 amendment 6), through
+  `npm run review:lessons`, which prints every lesson's Estonian as one file with a box per line:
+  1,480 of 1,490 lines passed as written and ten were corrected. Three were wrong: a rule about
+  `ka` that its own later lessons contradicted, a `Jah` answering an either-or question, and a
+  rule about the past saying "drop the s" over `käis`. The rest were words a person would not
+  choose there: `Väga hästi` after news, a coat called small rather than offered in small, `Head
+  isu!` about a party on Saturday, and a 112 operator asking the doctor's `Mis teil viga on?`
+  where they ask `Mis on juhtunud?`.
 - **P3. The switch.** Learners placed per L4, the old A1 parts retired, `course.test.ts` and the
   browser suites (`test-module.mjs`) rewritten for lessons. **And the lessons' own English in
   Russian and Ukrainian**, which nothing yet translates: the screens around a lesson are in

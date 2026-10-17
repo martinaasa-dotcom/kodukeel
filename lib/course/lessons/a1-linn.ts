@@ -320,8 +320,8 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Bussiga. Ja sina?", en: "By bus. And you?" },
       { who: "Mari", et: "Mina sõidan trammiga. Aga homme ma sõidan Tartusse.", en: "I go by tram. But tomorrow I'm going to Tartu." },
       { who: "Tom", et: "Rongiga või bussiga?", en: "By train or by bus?" },
-      { who: "Mari", et: "Jah, rongiga. Pilet maksab üheksa eurot.", en: "Yes, by train. The ticket's nine euros." },
-      { who: "Tom", et: "Väga hästi!", en: "Very good!" },
+      { who: "Mari", et: "Rongiga. Pilet maksab üheksa eurot.", en: "By train. The ticket's nine euros." },
+      { who: "Tom", et: "Tore!", en: "Nice!" },
     ],
     teaches: [
       { kind: "word", et: "kuidas", en: "how" },
@@ -337,6 +337,7 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "Tartusse", en: "to Tartu" },
       { kind: "phrase", et: "kui palju", en: "how much" },
       { kind: "word", et: "või", en: "or" },
+      { kind: "word", et: "tore", en: "nice, lovely" },
     ],
     how: {
       point: "The ending -ga means with, and with a bus or a train it means by: {bussiga}, {rongiga}.",
