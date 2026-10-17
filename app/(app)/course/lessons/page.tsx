@@ -4,9 +4,10 @@ import { requireUserId } from "@/lib/auth/session";
 import { isAdmin } from "@/lib/auth/admin";
 import { LESSON_PARTS, LESSONS } from "@/lib/course/lessons";
 import { Braced } from "@/components/Braced";
+import { LessonText } from "@/components/course/LessonText";
 import { Card, Chip, Page, SectionTitle, Stack } from "@/components/ui";
 import { localeFor, titleFor } from "@/lib/progress/locale";
-import { fill, tr } from "@/lib/copy/locale";
+import { tr } from "@/lib/copy/locale";
 
 export async function generateMetadata() {
   return titleFor("The new lessons");
@@ -44,7 +45,7 @@ export default async function LessonsPage() {
           const lessons = LESSONS.filter((l) => l.part === part.id);
           return (
             <section key={part.id}>
-              <SectionTitle hint={t(part.about)}><Braced text={part.title} /></SectionTitle>
+              <SectionTitle hint={<LessonText text={part.about} locale={locale} />}><Braced text={part.title} /></SectionTitle>
               <ol className="flex flex-col gap-3">
                 {lessons.map((lesson) => (
                   <li key={lesson.id}>
@@ -52,13 +53,13 @@ export default async function LessonsPage() {
                       <Card hover dense>
                         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                           <p className="text-lg font-bold" style={{ color: "var(--ink)" }}>
-                            {fill(t("{n}. {title}"), { n: String(lesson.n), title: t(lesson.title) })}
+                            {lesson.n}. <LessonText text={lesson.title} locale={locale} />
                           </p>
                           {lesson.kind !== "lesson" && (
                             <Chip tone="accent">{lesson.kind === "checkin" ? t("Check-in") : t("End of part")}</Chip>
                           )}
                         </div>
-                        <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>{t(lesson.goal)}</p>
+                        <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}><LessonText text={lesson.goal} locale={locale} /></p>
                       </Card>
                     </Link>
                   </li>

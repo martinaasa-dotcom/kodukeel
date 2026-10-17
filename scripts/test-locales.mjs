@@ -159,6 +159,7 @@ for (const template of routes(new URL("../app/(app)", import.meta.url).pathname)
     .replace("/grammar/topic/[id]", "/grammar/topic/object")
     .replace("/situations/[id]", "/situations/arsti-aeg")
     .replace("/learn/checkpoint/[level]", "/learn/checkpoint/A1")
+    .replace("/course/lessons/[id]", "/course/lessons/a1-04-persons")
     .replace(/\[[^\]]+\]/g, (m) => SEGMENT[m] ?? "x");
   ROUTES.push(route);
 }

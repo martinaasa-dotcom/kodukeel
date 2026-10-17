@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
-import { Braced } from "@/components/Braced";
 import { RuleNote } from "@/components/RuleNote";
 import { Speak } from "@/components/Speak";
-import { useT } from "@/components/Locale";
+import { useLocale, useT } from "@/components/Locale";
+import { LessonText, lessonTextLang } from "@/components/course/LessonText";
 import { Card, Chip, Page, SectionTitle, Stack } from "@/components/ui";
 import { fill } from "@/lib/copy/locale";
 import type { LessonSpec, PracticeItem, Taught } from "@/lib/course/lessons";
@@ -54,6 +54,7 @@ export function LessonRunner({ lesson, practice, review, next }: {
   next: { id: string; title: string } | null;
 }) {
   const t = useT();
+  const locale = useLocale();
   const [at, setAt] = useState(0);
   const [finished, setFinished] = useState<ReadonlySet<Step>>(new Set());
   const [over, setOver] = useState(false);
@@ -77,19 +78,19 @@ export function LessonRunner({ lesson, practice, review, next }: {
 
   if (over) {
     return (
-      <Page eyebrow={fill(t("Lesson {n}"), { n: String(lesson.n) })} title={t(lesson.title)}>
+      <Page eyebrow={fill(t("Lesson {n}"), { n: String(lesson.n) })} title={t(lesson.title)} titleLang={lessonTextLang(lesson.title, locale)}>
         <Stack>
           <section aria-labelledby="lesson-done">
             <h2 id="lesson-done" ref={heading} tabIndex={-1} className="text-xl font-bold" style={{ color: "var(--ink)" }}>
               {t("Lesson done")}
             </h2>
             <p className="mt-3 label-xs" style={{ color: "var(--ink-3)" }}>{t("What you can do now")}</p>
-            <p className="mt-1 text-md" style={{ color: "var(--ink)" }}>{t(lesson.goal)}</p>
+            <p className="mt-1 text-md" style={{ color: "var(--ink)" }}><LessonText text={lesson.goal} locale={locale} /></p>
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <ButtonLink href="/course/lessons">{t("All lessons")}</ButtonLink>
               {next && (
                 <ButtonLink variant="primary" href={`/course/lessons/${next.id}`}>
-                  {fill(t("Next: {title}"), { title: t(next.title) })} <ArrowRight size={15} aria-hidden />
+                  {t("Next:")} <LessonText text={next.title} locale={locale} /> <ArrowRight size={15} aria-hidden />
                 </ButtonLink>
               )}
             </div>
@@ -100,7 +101,7 @@ export function LessonRunner({ lesson, practice, review, next }: {
   }
 
   return (
-    <Page eyebrow={fill(t("Lesson {n}"), { n: String(lesson.n) })} title={t(lesson.title)} lead={t(lesson.goal)}>
+    <Page eyebrow={fill(t("Lesson {n}"), { n: String(lesson.n) })} title={t(lesson.title)} titleLang={lessonTextLang(lesson.title, locale)} lead={t(lesson.goal)} leadLang={lessonTextLang(lesson.goal, locale)}>
       <Stack>
         <nav aria-label={t("Tonight's steps")}>
           <ol className="flex flex-wrap gap-2" data-lesson-steps>
@@ -155,6 +156,7 @@ export function LessonRunner({ lesson, practice, review, next }: {
 /** Step 1: the conversation, in the cast's voices, with the English under each line. */
 function Listen({ lesson }: { lesson: LessonSpec }) {
   const t = useT();
+  const locale = useLocale();
   const [english, setEnglish] = useState(true);
   return (
     <Card>
@@ -175,10 +177,10 @@ function Listen({ lesson }: { lesson: LessonSpec }) {
               </div>
             )}
             {line.et && english && line.en && (
-              <p className="text-base" style={{ color: "var(--ink-2)" }}><Braced text={t(line.en)} /></p>
+              <p className="text-base" style={{ color: "var(--ink-2)" }}><LessonText text={line.en} locale={locale} /></p>
             )}
             {line.stage && (
-              <p className="text-base italic" style={{ color: "var(--ink-3)" }}><Braced text={t(line.stage)} /></p>
+              <p className="text-base italic" style={{ color: "var(--ink-3)" }}><LessonText text={line.stage} locale={locale} /></p>
             )}
           </li>
         ))}
@@ -213,6 +215,7 @@ function rowsOf(items: readonly Taught[]): Taught[][] {
 /** Step 2: everything new tonight, in one table, with nothing asked. */
 function Words({ lesson }: { lesson: LessonSpec }) {
   const t = useT();
+  const locale = useLocale();
   if (lesson.teaches.length === 0) {
     return (
       <Card>
@@ -248,9 +251,9 @@ function Words({ lesson }: { lesson: LessonSpec }) {
                   {kind && <span className="mt-0.5 block text-sm" style={{ color: "var(--ink-3)" }}>{kind}</span>}
                 </td>
                 <td className="px-4 py-3 align-top" style={{ color: "var(--ink-2)" }}>
-                  <Braced text={t(row[0]!.en)} />
+                  <LessonText text={row[0]!.en} locale={locale} />
                   {row[0]!.kind === "verb" && (
-                    <span className="mt-0.5 block"><Braced text={fill(t("{first}: {meaning}"), { first: `{${row[0]!.first}}`, meaning: t(row[0]!.firstEn) })} /></span>
+                    <span className="mt-0.5 block"><span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{row[0]!.first}</span>: <LessonText text={row[0]!.firstEn} locale={locale} /></span>
                   )}
                 </td>
               </tr>
@@ -265,6 +268,7 @@ function Words({ lesson }: { lesson: LessonSpec }) {
 /** Step 3: the one idea of the evening, shown on tonight's own lines. */
 function How({ lesson }: { lesson: LessonSpec }) {
   const t = useT();
+  const locale = useLocale();
   const { how } = lesson;
   const examples = (how.examples ?? []).map((i) => lesson.conversation[i]).filter((l) => l?.et);
   return (
@@ -275,7 +279,7 @@ function How({ lesson }: { lesson: LessonSpec }) {
       {how.notes && how.notes.length > 0 && (
         <ul className="flex max-w-[65ch] flex-col gap-3">
           {how.notes.map((note) => (
-            <li key={note} className="text-base leading-relaxed" style={{ color: "var(--ink)" }}><Braced text={t(note)} /></li>
+            <li key={note} className="text-base leading-relaxed" style={{ color: "var(--ink)" }}><LessonText text={note} locale={locale} /></li>
           ))}
         </ul>
       )}
@@ -285,7 +289,7 @@ function How({ lesson }: { lesson: LessonSpec }) {
             <thead>
               <tr style={{ color: "var(--ink-3)" }}>
                 {how.table.head.map((h, i) => (
-                  <th key={i} scope="col" className="label-xs px-4 py-3 text-left"><Braced text={t(h)} /></th>
+                  <th key={i} scope="col" className="label-xs px-4 py-3 text-left"><LessonText text={h} locale={locale} /></th>
                 ))}
               </tr>
             </thead>
@@ -296,7 +300,7 @@ function How({ lesson }: { lesson: LessonSpec }) {
                     <td key={c} className="px-4 py-3 align-top">
                       {"et" in cell
                         ? <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{cell.et}</span>
-                        : <span style={{ color: "var(--ink-2)" }}><Braced text={t(cell.en)} /></span>}
+                        : <span style={{ color: "var(--ink-2)" }}><LessonText text={cell.en} locale={locale} /></span>}
                     </td>
                   ))}
                 </tr>
@@ -315,7 +319,7 @@ function How({ lesson }: { lesson: LessonSpec }) {
                   <Speak text={line!.et!} voice={lesson.cast[line!.who]} size={15} />
                   <span lang="et" className="text-lg font-semibold" style={{ color: "var(--ink)" }}>{line!.et}</span>
                 </span>
-                <span className="text-base" style={{ color: "var(--ink-2)" }}><Braced text={t(line!.en ?? "")} /></span>
+                <span className="text-base" style={{ color: "var(--ink-2)" }}><LessonText text={line!.en ?? ""} locale={locale} /></span>
               </li>
             ))}
           </ul>

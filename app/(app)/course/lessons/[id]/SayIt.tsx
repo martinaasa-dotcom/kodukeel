@@ -3,13 +3,13 @@
 import { useMemo, useRef, useState } from "react";
 import { ArrowRight, Keyboard, Mic } from "lucide-react";
 import { Button } from "@/components/Button";
-import { Braced } from "@/components/Braced";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { Speak } from "@/components/Speak";
 import { MicButton } from "@/components/speech/MicButton";
 import { ReadAloud } from "@/components/speech/ReadAloud";
 import { useSpeech } from "@/components/speech/useSpeech";
-import { useT } from "@/components/Locale";
+import { useLocale, useT } from "@/components/Locale";
+import { LessonText } from "@/components/course/LessonText";
 import { Card, Note, SectionTitle } from "@/components/ui";
 import { fill } from "@/lib/copy/locale";
 import { wordsOf, type LessonSpec, type Prompt } from "@/lib/course/lessons";
@@ -118,6 +118,7 @@ export function SayIt({ lesson, onComplete }: { lesson: LessonSpec; onComplete: 
 /** Part one: every spoken line of tonight's conversation, heard and then said along. */
 function SayTheLines({ lesson, onNext }: { lesson: LessonSpec; onNext: () => void }) {
   const t = useT();
+  const locale = useLocale();
   const lines = lesson.conversation.filter((l) => l.et);
   return (
     <Card>
@@ -130,7 +131,7 @@ function SayTheLines({ lesson, onNext }: { lesson: LessonSpec; onNext: () => voi
               <Speak text={line.et!} voice={lesson.cast[line.who]} size={16} label={fill(t("Hear {who} say it"), { who: line.who })} />
             </div>
             <ReadAloud line={line.et!} />
-            <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t(line.en ?? "")}</p>
+            <p className="text-sm" style={{ color: "var(--ink-2)" }}><LessonText text={line.en ?? ""} locale={locale} /></p>
           </li>
         ))}
       </ol>
@@ -152,6 +153,7 @@ function AnswerCard({ card, mode, voice, onNext, last }: {
   last: boolean;
 }) {
   const t = useT();
+  const locale = useLocale();
   const { prompt } = card;
   const [text, setText] = useState("");
   const [shown, setShown] = useState(false);
@@ -168,17 +170,17 @@ function AnswerCard({ card, mode, voice, onNext, last }: {
   return (
     <Card>
       <SectionTitle hint={card.label}>{prompt.ask ? t("They say") : t("Your turn")}</SectionTitle>
-      {card.scene && <p className="mb-4 text-base" style={{ color: "var(--ink-2)" }}><Braced text={t(card.scene)} /></p>}
+      {card.scene && <p className="mb-4 text-base" style={{ color: "var(--ink-2)" }}><LessonText text={card.scene} locale={locale} /></p>}
       {prompt.ask && (
         <div className="mb-4 flex flex-col gap-1">
           <div className="flex items-center gap-3">
             <Speak text={prompt.ask.et} voice={voice} size={18} autoplay />
             <p lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>{prompt.ask.et}</p>
           </div>
-          <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t(prompt.ask.en)}</p>
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}><LessonText text={prompt.ask.en} locale={locale} /></p>
         </div>
       )}
-      <p className="text-base font-semibold" style={{ color: "var(--ink)" }}><Braced text={t(prompt.cue)} /></p>
+      <p className="text-base font-semibold" style={{ color: "var(--ink)" }}><LessonText text={prompt.cue} locale={locale} /></p>
 
       <div className="mt-3 flex flex-col gap-3">
         {mic && (
@@ -213,7 +215,7 @@ function AnswerCard({ card, mode, voice, onNext, last }: {
             <Speak text={prompt.model.et} size={16} />
             <p lang="et" className="text-lg font-bold" style={{ color: "var(--ink)" }}>{prompt.model.et}</p>
           </div>
-          <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t(prompt.model.en)}</p>
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}><LessonText text={prompt.model.en} locale={locale} /></p>
         </div>
       )}
 

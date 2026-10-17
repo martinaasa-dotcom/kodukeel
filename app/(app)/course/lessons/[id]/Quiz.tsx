@@ -3,12 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/Button";
-import { Braced } from "@/components/Braced";
 import { ChoiceGroup } from "@/components/Choice";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { Speak } from "@/components/Speak";
 import { useFeedbackSound } from "@/components/AudioPrefs";
-import { useT } from "@/components/Locale";
+import { useLocale, useT } from "@/components/Locale";
+import { LessonText } from "@/components/course/LessonText";
 import { Card, SectionTitle } from "@/components/ui";
 import { fill } from "@/lib/copy/locale";
 import { markPhrase, type PracticeItem, type TypedMark } from "@/lib/course/lessons";
@@ -34,6 +34,7 @@ import { OPTION_CLASS, optionState, VERDICT_CLASS } from "@/lib/ux/verdict";
  */
 export function Quiz({ items, onFinished }: { items: readonly PracticeItem[]; onFinished: () => void }) {
   const t = useT();
+  const locale = useLocale();
   const sound = useFeedbackSound();
   const [at, setAt] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
@@ -138,14 +139,14 @@ export function Quiz({ items, onFinished }: { items: readonly PracticeItem[]; on
                   onClick={() => pick(option)}
                   className={`choice-btn rounded-[var(--r-lg)] px-4 py-3 text-left text-base font-semibold ${state ? OPTION_CLASS[state] : ""}`}
                 >
-                  <Braced text={t(option)} />
+                  <LessonText text={option} locale={locale} />
                 </button>
               );
             })}
           </ChoiceGroup>
         ) : (
           <div className="mt-2 flex flex-col gap-3">
-            <p className="text-xl font-bold" style={{ color: "var(--ink)" }}><Braced text={t(item.en)} /></p>
+            <p className="text-xl font-bold" style={{ color: "var(--ink)" }}><LessonText text={item.en} locale={locale} /></p>
             <input
               lang="et"
               className="field-lg w-full"

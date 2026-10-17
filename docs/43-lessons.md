@@ -317,7 +317,13 @@ Each phase is its own pull request or several, and none starts before the one ab
   `Mida sa praegu teed?` on its first run, since a word in the middle pulls a chunk apart before
   the lesson that explains it; lesson 21 keeps the phrase whole.
 - **P3. The switch.** Learners placed per L4, the old A1 parts retired, `course.test.ts` and the
-  browser suites (`test-module.mjs`) rewritten for lessons.
+  browser suites (`test-module.mjs`) rewritten for lessons. **And the lessons' own English in
+  Russian and Ukrainian**, which nothing yet translates: the screens around a lesson are in
+  `lib/copy/i18n/areas/lessons.ts`, and a lesson's title, goal, rules and the English under its
+  lines are drawn through `components/course/LessonText.tsx`, which marks each as
+  `data-untranslated` while it has no line in the reader's language. The language sweep lists
+  that as a known gap on every run (`known gap, not translated yet: lesson`), so it cannot be
+  forgotten, and a lesson reaches a Russian or Ukrainian learner only once the gap is closed.
 - **P4 to P7. A2, B1, B2, C1**, each starting with its own section-4-style list for approval.
 
 ## 8. Draft conversations for lessons 1 to 7
