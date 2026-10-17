@@ -113,7 +113,7 @@ export class WebSpeechEngine implements SpeechEngine {
       case "final":
         this.closeCapture();
         this.turn = null;
-        turn.onEvent({ kind: "final", turn: message.turn, why: message.why });
+        turn.onEvent({ kind: "final", turn: message.turn, why: message.why, ...(message.audio ? { audio: message.audio } : {}) });
         return;
       case "error":
         this.closeCapture();
@@ -224,7 +224,10 @@ export class WebSpeechEngine implements SpeechEngine {
     const channel = new MessageChannel();
     this.turn = { context, stream, node, onEvent };
     node.port.postMessage({ type: "port" }, [channel.port1]);
-    this.ensureWorker().postMessage({ type: "listen", endpoint: options.endpoint } satisfies ToWorker, [channel.port2]);
+    this.ensureWorker().postMessage(
+      { type: "listen", endpoint: options.endpoint, maxSeconds: options.maxSeconds, keepAudio: options.keepAudio } satisfies ToWorker,
+      [channel.port2],
+    );
     onEvent({ kind: "state", state: { kind: "listening" } });
   }
 

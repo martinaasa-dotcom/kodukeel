@@ -129,7 +129,7 @@ if (await yourExam.count()) {
   absent(1, "a target level set on this database, which the demo fixture writes");
 }
 
-const firstGapLink = page.locator("a", { hasText: /Learn new words|See which words|Practice|Take a dictation|Record yourself|Fill some gaps|Write a sentence|Read the rule|Open the clinic|Review now/ }).first();
+const firstGapLink = page.locator("a", { hasText: /Learn new words|See which words|Practice|Take a dictation|Say it out loud|Fill some gaps|Write a sentence|Read the rule|Open the clinic|Review now/ }).first();
 check("every gap hands over somewhere to go", (await firstGapLink.count()) > 0);
 
 // ── The briefing ─────────────────────────────────────────────────────────────
@@ -395,7 +395,7 @@ check("the criteria cannot be ticked before anything is recorded",
   (await page.locator("input[type=checkbox]:disabled").count()) > 0);
 
 check("it says why, rather than only greying the boxes out",
-  /Record something first/i.test(speakingBody));
+  /Speak first/i.test(speakingBody));
 
 check("it says out loud that nothing here scores a recording",
   /nothing here scores your pronunciation/i.test(speakingBody));

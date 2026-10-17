@@ -68,3 +68,22 @@ export function saidIt(turn: RawTurn, expected: string): boolean {
   const readings = [turn.greedy.text, turn.beam.text].map((text) => soundKey(text.replace(/\s+/g, "")));
   return readings.includes(target);
 }
+
+/**
+ * Whether the answer about to be marked still holds a word the dictionary
+ * repaired, as the microphone left it (D13).
+ *
+ * The box is the learner's to change, and a repaired word they retyped or
+ * left in place reads the same on the screen. What tells them apart is that
+ * a repaired word is exactly the spelling the dictionary put there: where the
+ * learner changed it, it is their own typing and marks like any typed answer;
+ * where it is still there, it is the dictionary's spelling of what they meant,
+ * which they never produced, and the answer grades nothing. Only ever a reason
+ * to write no row, never a reason to write a worse one.
+ */
+export function repairedInAnswer(hearing: Hearing | null, answer: string): boolean {
+  if (!hearing) return false;
+  const repaired = new Set(hearing.words.filter((word) => word.repaired).map((word) => core(word.text)).filter(Boolean));
+  if (repaired.size === 0) return false;
+  return answer.split(/\s+/).map(core).some((word) => repaired.has(word));
+}

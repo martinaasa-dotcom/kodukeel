@@ -129,7 +129,7 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
         const result = await replayGrades(batch.map((g) => ({
           id: g.id, cardId: g.cardId, rating: g.rating,
           durationMs: g.durationMs, reviewedAt: g.reviewedAt,
-          slot: g.slot, reachedSlot: g.reachedSlot,
+          slot: g.slot, reachedSlot: g.reachedSlot, spoken: g.spoken,
         })));
 
         if (!result.ok) break;

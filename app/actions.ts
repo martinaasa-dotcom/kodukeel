@@ -509,13 +509,20 @@ export async function gradeCard(
    * primary key in a table nothing ever repairs.
    */
   reviewId?: string,
+  /**
+   * The answer was said aloud and marked on what was heard (docs/41-fifth-batch.md
+   * D4). It changes nothing about the grade, which the caller decided by the
+   * same marker a typed answer meets; it is what the reading on Progress and
+   * `npm run report:speech` read. Only `true` is written as spoken.
+   */
+  spoken?: boolean,
 ) {
   cardId = text(cardId);
   const ownerId = await requireUserId();
   if (reviewId !== undefined && !isClientReviewId(reviewId)) {
     return { ok: false as const, error: "That answer didn't come through properly, so it wasn't saved." };
   }
-  return gradeFor(ownerId, cardId, rating, durationMs, { reviewedAt, practisedSlot, reachedSlot, reviewId });
+  return gradeFor(ownerId, cardId, rating, durationMs, { reviewedAt, practisedSlot, reachedSlot, reviewId, spoken: spoken === true });
 }
 
 /**
@@ -528,9 +535,9 @@ export async function gradeCard(
  */
 async function gradeFor(
   ownerId: string, cardId: string, rating: RatingValue, durationMs: number,
-  options: { reviewedAt?: string; practisedSlot?: string; reachedSlot?: string; reviewId?: string } = {},
+  options: { reviewedAt?: string; practisedSlot?: string; reachedSlot?: string; reviewId?: string; spoken?: boolean } = {},
 ) {
-  const { reviewedAt, practisedSlot, reachedSlot, reviewId } = options;
+  const { reviewedAt, practisedSlot, reachedSlot, reviewId, spoken } = options;
 
   if (reviewId !== undefined && !isClientReviewId(reviewId)) {
     return { ok: false as const, error: "That answer didn't come through properly, so it wasn't saved." };
@@ -567,6 +574,7 @@ async function gradeFor(
     practisedSlot,
     reachedSlot,
     reviewId,
+    spoken,
   });
 
   revalidatePath("/");

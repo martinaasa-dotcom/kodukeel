@@ -235,7 +235,9 @@ self.addEventListener("fetch", (event) => {
   // Pronunciation never changes, so a clip heard once is available for good.
   // This is the only POST the worker touches, and it is safe because it is a
   // read dressed as a POST — it changes nothing.
-  if (isAudio(url) && request.method === "POST") {
+  // A read-back of what the learner said (`?transient=1`) is theirs and is
+  // never kept here either: it goes to the network as it is (VB-5).
+  if (isAudio(url) && request.method === "POST" && url.searchParams.get("transient") !== "1") {
     event.respondWith(audioWithCache(request));
     return;
   }

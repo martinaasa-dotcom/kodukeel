@@ -13,6 +13,8 @@ export interface ReplayItem {
   slot?: string;
   /** See `PendingGrade.reachedSlot`. Checked the same way, and more narrowly. */
   reachedSlot?: string;
+  /** See `PendingGrade.spoken`. Only `true` is written as spoken. */
+  spoken?: boolean;
 }
 
 export interface ReplayResult {
@@ -174,6 +176,7 @@ export async function applyGradeBatch(
       reviewId: item.id,
       practisedSlot: item.slot,
       reachedSlot: item.reachedSlot,
+      spoken: item.spoken === true,
     });
 
     // What `writeGrade` just wrote to the row, folded into the in-memory copy

@@ -91,7 +91,27 @@ const SPEECH_PER_MINUTE = 120;
  */
 const CLIP_SHAPE = "v6";
 
+/*
+  A READ-BACK OF WHAT WAS HEARD, WHICH NOBODY ELSE MAY EVER BE SERVED.
+
+  The Speaking round plays `heard` back in a native voice (docs/41-fifth-batch.md
+  VB-5): the words the recognizer wrote down, non-words and all, so a learner
+  hears what came across. That text is the learner's, and the store above is
+  content-addressed, shared by every learner and named by the text, so a
+  read-back may not touch it: nothing is read from it, nothing is written to it,
+  and no in-flight request is shared. It is asked of TartuNLP each time, which
+  `lib/legal/recipients.ts` already names as receiving "a phrase you asked to
+  hear read aloud", so no recipient is added.
+
+  Metered per learner like a miss, because it is one, and on a smaller shared
+  allowance of its own: a read-back follows a turn somebody said, which is a
+  few seconds of talking each, so twenty a minute is far above real use.
+*/
+const HEARD_PER_MINUTE = 20;
+
 export async function POST(request: Request) {
+  const transient = new URL(request.url).searchParams.get("transient") === "1";
+  if (transient) return readBack(request);
   const ownerId = await requireUserId().catch(() => null);
   const limit = await checkSharedRateLimit(
     `tts:${bucketForRequest(request, ownerId)}`,
@@ -238,17 +258,78 @@ export async function POST(request: Request) {
   }
 }
 
+/** One read-back of what the recognizer heard: metered, never cached, never stored. */
+async function readBack(request: Request) {
+  const ownerId = await requireUserId().catch(() => null);
+  if (!ownerId) {
+    return Response.json(
+      { error: "We couldn't check who was asking. Try again in a moment." },
+      { status: 503, headers: { ...NO_STORE, "retry-after": "30" } },
+    );
+  }
+  const limit = await checkSharedRateLimit(`tts-heard:o:${ownerId}`, HEARD_PER_MINUTE, 60_000);
+  if (!limit.ok) return rateLimited(limit, "That's a lot of reading back at once. Give it a moment.");
+
+  let text: string;
+  let speaker: string;
+  try {
+    const body = (await request.json()) as { text?: unknown; voice?: unknown };
+    if (typeof body.text !== "string" || !body.text.trim()) {
+      return NextResponse.json({ error: "There's nothing to say out loud." }, { headers: NO_STORE, status: 400 });
+    }
+    text = spokenText(clip(body.text.trim(), MAX_CHARS));
+    speaker = typeof body.voice === "string" && VOICES.some((v) => v.id === body.voice)
+      ? voiceFrom(body.voice)
+      : voiceFrom(process.env.TTS_SPEAKER ?? DEFAULT_VOICE);
+  } catch {
+    return NextResponse.json({ error: "Something went wrong sending that. Reload the page and try again." }, { headers: NO_STORE, status: 400 });
+  }
+
+  const decision = await authoriseCall(ownerId, "TTS");
+  if (!decision.allowed) {
+    return Response.json(
+      { error: decision.message, reason: decision.reason },
+      {
+        status: 429,
+        headers: {
+          ...NO_STORE,
+          ...(decision.retryAfterSeconds ? { "retry-after": String(decision.retryAfterSeconds) } : {}),
+        },
+      },
+    );
+  }
+  try {
+    const audio = await speak(text, speaker, null);
+    after(() => recordUsage({
+      ownerId, kind: "TTS", provider: "tartunlp", model: speaker,
+      inputTokens: text.length, outputTokens: 0, costMicros: 0,
+      reservation: decision.reservation,
+    }));
+    return wav(audio, "transient");
+  } catch (error) {
+    const booking = decision.reservation;
+    if (booking) after(() => releaseReservation(booking));
+    const status = error instanceof SpeechError ? error.status : 503;
+    const message =
+      status === 502 ? "The speech service couldn't read that out." : "We couldn't reach the speech service.";
+    return NextResponse.json({ error: message }, { headers: NO_STORE, status });
+  }
+}
+
 class SpeechError extends Error {
   constructor(readonly status: number) {
     super(`speech service ${status}`);
   }
 }
 
-/** Fetch one clip and write it to the cache. Throws SpeechError, never a Response. */
+/**
+ * Fetch one clip and write it to the cache. Throws SpeechError, never a Response.
+ * A null hash is a read-back of what the learner said, which is never kept.
+ */
 async function speak(
   text: string,
   speaker: string,
-  hash: string,
+  hash: string | null,
 ): Promise<Buffer> {
   let upstream: Response;
   try {
@@ -274,7 +355,7 @@ async function speak(
   const audio = Buffer.from(prepared.audio);
   // Never throws: a failed cache write is a slower next play. And only a clip
   // this route could read is kept, since the store answers before the service.
-  if (prepared.keep) await writeAudio(hash, audio);
+  if (prepared.keep && hash) await writeAudio(hash, audio);
   return audio;
 }
 
@@ -312,7 +393,7 @@ async function speak(
  * CDN log between here and the learner, which is a worse trade than one
  * accurate header.
  */
-function wav(body: Buffer, cache: AudioSource | "joined") {
+function wav(body: Buffer, cache: AudioSource | "joined" | "transient") {
   return new NextResponse(new Uint8Array(body), {
     headers: {
       "content-type": "audio/wav",

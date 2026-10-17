@@ -280,7 +280,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   {
     href: "/review/speaking", title: "Speaking", subtitle: "Say it out loud", icon: "Mic", tone: "sky",
     group: "quick", note: "Then hear it said",
-    blurb: "Say a word, then hear your voice next to a native speaker's. You judge how close you got.",
+    blurb: "Say a word along with a native speaker, say it back, then say it from its meaning. You see which words were heard.",
   },
   {
     /*

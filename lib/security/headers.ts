@@ -47,9 +47,10 @@ export const STATIC_SECURITY_HEADERS: { key: string; value: string }[] = [
   */
   { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
   /*
-    The microphone is `self`, not `()`: speaking practice records the learner
-    reading a word back (components/Recorder.tsx). Denying it here would
-    switch that feature off with no error anybody could act on.
+    The microphone is `self`, not `()`: speaking is heard on the device
+    through the one engine every screen listens with (components/speech/,
+    docs/41-fifth-batch.md D5). Denying it here would switch speaking off
+    with no error anybody could act on.
 
     THE CAMERA JOINED IT, and the failure it prevents is a silent one. Scanning
     a page is `<input type="file" capture="environment">`, and the capture

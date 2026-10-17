@@ -51,7 +51,7 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
   */
   {
     file: "app/(app)/review/speaking/SpeakingSession.tsx",
-    why: "the word is played properly before the learner says it, so the answer is the exercise, and ADR-018 leaves the judging to them",
+    why: "the line is played and shown before it is said twice, so the answer is the exercise, and the recall step takes a miss without writing it down",
   },
 
   {

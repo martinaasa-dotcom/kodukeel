@@ -9,9 +9,8 @@ import type { InvariantKit } from "../lib/invariantKit";
  *
  *   - D5: the one way a screen listens is `useSpeech()` over the engine, so
  *     nothing but the web engine opens the microphone. `components/Recorder.tsx`
- *     is the one other door and is named, because it records a learner's own
- *     voice to play back, never to hear it (ADR-018); VB-5 takes its capture
- *     away and this list shrinks with it.
+ *     was the one other door until VB-5 took its capture away: it plays back
+ *     the audio of a turn the engine heard, and opens nothing.
  *   - The service worker's name for the model cache is `ASR_CACHE`, or a model
  *     update leaves the old 71 MB on every phone and the trim deletes the new.
  *   - D15: `speech` is a name `PAID_OFF` can switch off.
@@ -22,8 +21,6 @@ import type { InvariantKit } from "../lib/invariantKit";
  */
 const MAY_OPEN_THE_MICROPHONE: Record<string, string> = {
   "components/speech/webEngine.ts": "Is the engine: the one place a turn of speech starts (D5).",
-  "components/Recorder.tsx":
-    "Records the learner to play their own voice back beside a native one, and hears nothing; the Speaking round's rebuild (VB-5) is what takes its capture away.",
 };
 
 export default function oneMicrophone({ check, code, read, ALL }: InvariantKit) {

@@ -123,7 +123,7 @@ export const ACTIVITIES = {
   },
   speaking: {
     href: "/review/speaking", kind: "drill",
-    why: "Say it out loud, then hear how it should sound. Nobody marks you. This one is just for your own ears.",
+    why: "Say tonight's words out loud: along with a native speaker, back from the recording, then from their meaning. You see which words were heard, and typing works too.",
   },
   write: {
     href: "/review/write", kind: "drill",
