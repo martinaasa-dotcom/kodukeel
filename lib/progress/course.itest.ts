@@ -2,7 +2,6 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { PROGRAMMES, MEET_STEP, REVIEW_STEP } from "@/lib/course";
 import { CLOSING_REVIEW, closingProgress, courseReading, dayIsInPlay, ladderReading } from "@/lib/progress/course";
-import { recordCourseLevel } from "@/lib/progress/level";
 import { restartPart } from "@/lib/progress/courseReset";
 import { dayClock } from "@/lib/time/day";
 
@@ -129,12 +128,11 @@ async function reviewable(n: number): Promise<string[]> {
 }
 
 /**
- * An unseen card on a word the evening teaches, which is what the closing
- * round's other half draws on.
+ * An unseen card on a word the evening teaches.
  *
  * `PRODUCTION` rather than the recognition card `deck` builds, so the Learn
  * ladder has no claim on it and the only thing that can keep it out of the
- * count is the learner's own band.
+ * count is that a review introduces nothing.
  */
 async function unseenTaught(words: readonly string[]): Promise<void> {
   const lexeme = await prisma.lexeme.findFirst({
@@ -756,31 +754,19 @@ describe("the closing round's own counter", () => {
   });
 
   /*
-    AND AN UNSEEN WORD THE ROUND WOULD NOT REACH FOR IS NOT COUNTED.
-
-    The round replaces its unseen window with a wider read when nothing in the
-    first sixty rows is near the learner's band, and the widening *replaces*
-    that window rather than adding to it, so the rows it ends up showing are
-    neither a subset nor a superset of the ones counted here. Counting every
-    unseen row could therefore ask for an answer the round will never offer,
-    which is the hang this whole module exists to end. Counted in band only,
-    which is at or under what the round shows in every case.
-
-    A C1 learner walking the first part of A1 is the state that reaches it:
-    every word the evening teaches is two bands under them, so none of it is
-    around their level and the closing round's unseen half is empty.
+    AND AN UNSEEN WORD IS NOT COUNTED, because the closing round introduces
+    nothing: it is tonight's words once more (`tonightWhere`), and a card the
+    learner has never met is not one they can review.
   */
-  it("counts no unseen word the round would pass over", async () => {
+  it("counts no unseen word, since a review introduces nothing", async () => {
     const one = PROGRAMME.days[0]!;
-    /* Graduated rather than still on the ladder, or `pastTheLadder` keeps the
-       word's other cards out of the unseen window and there is nothing to
-       count either way. */
+    /* Graduated rather than still on the ladder, so nothing but the card
+       being unseen could keep it out. */
     await deck(one.words, 2);
-    /* Suspended, so the evening's own words cannot top the round up either
-       (`tonightWhere`): this is about the unseen half alone. */
+    /* Suspended, so the evening's met cards cannot fill the round: this is
+       about the unseen card alone. */
     await prisma.card.updateMany({ where: { ownerId: OWNER }, data: { suspended: true } });
     await unseenTaught(one.words);
-    await recordCourseLevel(OWNER, "C1", NOW);
     await tick(one.id, ticked(one), EVENING);
 
     expect(await closingProgress(OWNER, PROGRAMME, one.id, NOW)).toEqual({ graded: 0, needed: 0 });

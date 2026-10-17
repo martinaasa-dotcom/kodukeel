@@ -39,13 +39,12 @@ export default async function ReviewPage({
   const params = firstParams(await searchParams);
   const { case: targetCase, unit: unitId, scan: scanId } = params;
   /*
-    THE MODULE'S CLOSING ROUND INTRODUCES NOTHING THE MODULE HAS NOT TAUGHT.
-    This screen trickles new cards in beside what is due, which is right for
-    somebody who opened it themselves and wrong for the last step of a planned
-    evening: first run builds a starter deck of four units, so the closing
-    round of the first evening was meeting a beginner with words from unit
-    four. Opened from the module (`lib/course/scope.ts`) the new-card window is
-    the words the ladder has taught, and so is what is due.
+    THE MODULE'S CLOSING ROUND IS TONIGHT'S WORDS. This screen trickles new
+    cards in beside what is due, which is right for somebody who opened it
+    themselves and wrong for the last step of a planned evening, which is a
+    quick review of the batch that evening taught and nothing else. Opened from
+    the module (`lib/course/scope.ts`) it asks tonight's own words once more
+    and introduces nothing; see `tonightWhere`.
   */
   const scope = moduleScopeFrom(params);
   /*

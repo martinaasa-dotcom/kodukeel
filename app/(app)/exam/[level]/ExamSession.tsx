@@ -745,10 +745,10 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
             ].map((step, i) => (
               <li
                 key={step.label}
-                className="flex items-center gap-3 rounded-[var(--r-lg)] px-4 py-3"
+                className="flex items-start gap-3 rounded-[var(--r-lg)] px-4 py-3"
                 style={{ background: step.hue === "raised" ? "var(--raised)" : `var(--${step.hue}-soft)` }}
               >
-                <span aria-hidden className="font-display tnum text-2xl font-bold" style={{ color: "var(--ink-3)" }}>{i + 1}</span>
+                <span aria-hidden className="font-display tnum text-2xl font-bold leading-none" style={{ color: "var(--ink-3)" }}>{i + 1}</span>
                 <span className="min-w-0">
                   <span className="block text-sm font-bold" style={{ color: "var(--ink)" }}>{t(step.label)}</span>
                   <span className="tnum block text-sm" style={{ color: "var(--ink-2)" }}>{locale === "en" ? `${step.minutes} minutes` : countOf(locale, step.minutes, "minute")}</span>
