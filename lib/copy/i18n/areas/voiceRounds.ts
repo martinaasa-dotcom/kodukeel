@@ -47,7 +47,7 @@ export const VOICE_ROUNDS: Area = {
     "In digits, so no word was practised. Say it or type the words next time.":
       "Цифрами, поэтому ни одно слово не потренировано. В следующий раз скажите вслух или напишите словами.",
     "A clock face has no afternoon, so {morning} and {afternoon} both count.":
-      "На циферблате нет дня и утра, поэтому засчитывается и {morning}, и {afternoon}.",
+      "Часы со стрелками не различают утро и вечер, поэтому засчитывается и {morning}, и {afternoon}.",
     "Hear it said": "Послушать",
     "No numbers to say yet": "Пока нечего называть",
     "This opens once you've met the numbers. They're one of the first units of the course.":
