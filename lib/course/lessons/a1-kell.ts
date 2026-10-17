@@ -1,0 +1,356 @@
+/**
+ * A1, LESSONS 18 TO 23: MIS KELL ON? (docs/43-lessons.md §4.3).
+ *
+ * The days, the clock, your day, what you're doing, and what you want, can
+ * and have to do, then an evening that makes a plan with all of it.
+ *
+ * This is the first part to teach verbs as pairs (`kind: "verb"`): the
+ * dictionary form and the I-form. Lesson 9 explained the present and lesson
+ * 12 the no, so a verb taught here covers its persons and its no without
+ * listing them, and they come off the app's own conjugation. `minema` is the
+ * one whose I-form, `lähen`, has to be learned; every other person follows it.
+ *
+ * Read by the native speaker in the pull request that adds it, and held to
+ * the same two checks as every lesson (`lessons.test.ts`, `ledger.ts`).
+ */
+
+import type { LessonSpec, PartOfLessons } from "./types";
+
+export const A1_KELL_PART: PartOfLessons = {
+  id: "a1-kell",
+  level: "A1",
+  title: "{Mis kell on?}",
+  about: "Days and the time, your day, and what you want, can and have to do.",
+};
+
+export const A1_KELL_LESSONS: readonly LessonSpec[] = [
+  {
+    id: "a1-18-days",
+    n: 18,
+    level: "A1",
+    part: "a1-kell",
+    kind: "lesson",
+    title: "Days of the week",
+    goal: "Say what day it is, and what day it was and will be.",
+    cast: { Mari: "mari", Tom: "kalev" },
+    conversation: [
+      { who: "Mari", et: "Tom, mis päev täna on?", en: "Tom, what day is it today?" },
+      { who: "Tom", et: "Täna on esmaspäev.", en: "Today's Monday." },
+      { who: "Mari", et: "Ei ole! Täna on teisipäev.", en: "No, it isn't! Today's Tuesday." },
+      { who: "Tom", et: "Vabandust! Jah, eile oli esmaspäev.", en: "Sorry! Yes, yesterday was Monday." },
+      { who: "Mari", et: "Ja homme on kolmapäev.", en: "And tomorrow's Wednesday." },
+    ],
+    teaches: [
+      { kind: "phrase", et: "Mis päev täna on?", en: "What day is it today?" },
+      { kind: "word", et: "päev", en: "day" },
+      { kind: "word", et: "nädal", en: "week" },
+      { kind: "word", et: "esmaspäev", en: "Monday" },
+      { kind: "word", et: "teisipäev", en: "Tuesday" },
+      { kind: "word", et: "kolmapäev", en: "Wednesday" },
+      { kind: "word", et: "neljapäev", en: "Thursday" },
+      { kind: "word", et: "reede", en: "Friday" },
+      { kind: "word", et: "laupäev", en: "Saturday" },
+      { kind: "word", et: "pühapäev", en: "Sunday" },
+      { kind: "word", et: "täna", en: "today" },
+      { kind: "word", et: "homme", en: "tomorrow" },
+      { kind: "word", et: "eile", en: "yesterday" },
+      { kind: "form", et: "oli", of: "olema", en: "was" },
+    ],
+    how: {
+      point: "The days are written in small letters, and six of the seven end in {päev}, day.",
+      table: {
+        head: ["Estonian", "In English"],
+        rows: [
+          [{ et: "esmaspäev" }, { en: "Monday" }],
+          [{ et: "teisipäev" }, { en: "Tuesday" }],
+          [{ et: "kolmapäev" }, { en: "Wednesday" }],
+          [{ et: "neljapäev" }, { en: "Thursday" }],
+          [{ et: "reede" }, { en: "Friday" }],
+          [{ et: "laupäev" }, { en: "Saturday" }],
+          [{ et: "pühapäev" }, { en: "Sunday" }],
+        ],
+      },
+      notes: [
+        "The first four count the week from the start, first to fourth, and you can see {kolm} and {neli} in the start of two of them.",
+        "{Täna} is today, {homme} tomorrow and {eile} yesterday. With them you can say {Täna on reede}.",
+        "{Oli} is was: {Eile oli esmaspäev}. Take it whole for now; the past has lessons of its own.",
+      ],
+      watchOut: "Don't give the days a capital letter. Estonian writes {esmaspäev} and {reede} in small letters, except at the start of a sentence.",
+      examples: [0, 2, 3],
+    },
+    answers: [
+      { ask: { et: "Mis päev täna on?", en: "What day is it today?" }, cue: "Say it's Friday.", model: { et: "Täna on reede.", en: "Today's Friday." } },
+      { cue: "Say tomorrow is Saturday.", model: { et: "Homme on laupäev.", en: "Tomorrow's Saturday." } },
+      { cue: "Say yesterday was Sunday.", model: { et: "Eile oli pühapäev.", en: "Yesterday was Sunday." } },
+      { cue: "Ask what day it is today.", model: { et: "Mis päev täna on?", en: "What day is it today?" } },
+    ],
+  },
+  {
+    id: "a1-19-time",
+    n: 19,
+    level: "A1",
+    part: "a1-kell",
+    kind: "lesson",
+    title: "What time is it?",
+    goal: "Ask the time, and tell it on the hour, at half past and at the quarters.",
+    cast: { Tom: "kalev", Mari: "mari" },
+    conversation: [
+      { who: "Tom", et: "Vabandust, mis kell on?", en: "Excuse me, what time is it?" },
+      { who: "Mari", et: "Kell on kolm.", en: "It's three o'clock." },
+      { who: "Tom", et: "Aitäh!", en: "Thanks!" },
+      { who: "Tom", et: "Mis kell on?", en: "What time is it?", stage: "An hour and a half later, he asks again." },
+      { who: "Mari", et: "Pool viis.", en: "Half past four." },
+      { who: "Tom", et: "Pool viis?", en: "Half past four?" },
+      { who: "Mari", et: "Jah. Kell on neli kolmkümmend.", en: "Yes. It's four thirty." },
+    ],
+    teaches: [
+      { kind: "phrase", et: "Mis kell on?", en: "What time is it?" },
+      { kind: "word", et: "kell", en: "clock, o'clock, at (a time)" },
+      { kind: "word", et: "pool", en: "half" },
+      { kind: "word", et: "veerand", en: "quarter" },
+      { kind: "word", et: "kolmveerand", en: "three quarters" },
+    ],
+    how: {
+      point: "Half past is said on the way to the next hour: {pool viis} is half past four.",
+      table: {
+        head: ["Time", "Estonian"],
+        rows: [
+          [{ en: "3:00" }, { et: "kell kolm" }],
+          [{ en: "3:15" }, { et: "veerand neli" }],
+          [{ en: "3:30" }, { et: "pool neli" }],
+          [{ en: "3:45" }, { et: "kolmveerand neli" }],
+        ],
+      },
+      notes: [
+        "{Veerand neli} is a quarter of the way to four: quarter past three. {Kolmveerand neli} is three quarters of the way: quarter to four.",
+        "The digital way always works too: {kell kolm kolmkümmend} is 3:30, and it's all a timetable will show you.",
+      ],
+      watchOut: "{Pool neli} is half past three, not half past four. The half is on the way to the hour it names.",
+      examples: [0, 4, 6],
+    },
+    answers: [
+      { ask: { et: "Mis kell on?", en: "What time is it?" }, cue: "It's half past three. Say so.", model: { et: "Pool neli.", en: "Half past three." } },
+      { ask: { et: "Mis kell on?", en: "What time is it?" }, cue: "It's seven o'clock. Say so.", model: { et: "Kell on seitse.", en: "It's seven o'clock." } },
+      { cue: "Ask a stranger the time.", model: { et: "Vabandust, mis kell on?", en: "Excuse me, what time is it?" } },
+    ],
+  },
+  {
+    id: "a1-20-my-day",
+    n: 20,
+    level: "A1",
+    part: "a1-kell",
+    kind: "lesson",
+    title: "My day",
+    goal: "Say when you get up, work, eat and go to bed.",
+    cast: { Liis: "liivika", Tom: "kalev" },
+    conversation: [
+      { who: "Liis", et: "Tom, mis kell sa hommikul ärkad?", en: "Tom, what time do you get up in the morning?" },
+      { who: "Tom", et: "Ma ärkan kell seitse. Ja sina?", en: "I get up at seven. And you?" },
+      { who: "Liis", et: "Kell kuus! Ma töötan hommikul.", en: "At six! I work in the mornings." },
+      { who: "Tom", et: "Mina töötan õhtul.", en: "I work in the evenings." },
+      { who: "Liis", et: "Ja mis kell sa magama lähed?", en: "And what time do you go to bed?" },
+      { who: "Tom", et: "Kell üksteist. Aga laupäeval ma ei tööta.", en: "At eleven. But on Saturday I don't work." },
+      { who: "Liis", et: "Ja pühapäeval?", en: "And on Sunday?" },
+      { who: "Tom", et: "Pühapäeval ma magan!", en: "On Sunday I sleep!" },
+    ],
+    teaches: [
+      { kind: "verb", et: "ärkama", first: "ärkan", en: "to wake up, to get up", firstEn: "I wake up" },
+      { kind: "verb", et: "töötama", first: "töötan", en: "to work", firstEn: "I work" },
+      { kind: "verb", et: "sööma", first: "söön", en: "to eat", firstEn: "I eat" },
+      { kind: "verb", et: "magama", first: "magan", en: "to sleep", firstEn: "I sleep" },
+      { kind: "verb", et: "minema", first: "lähen", en: "to go", firstEn: "I go" },
+      { kind: "verb", et: "tulema", first: "tulen", en: "to come", firstEn: "I come" },
+      { kind: "phrase", et: "hommikul", en: "in the morning" },
+      { kind: "phrase", et: "päeval", en: "in the daytime" },
+      { kind: "phrase", et: "õhtul", en: "in the evening" },
+      { kind: "phrase", et: "laupäeval", en: "on Saturday" },
+      { kind: "phrase", et: "pühapäeval", en: "on Sunday" },
+    ],
+    how: {
+      point: "A time of day takes -l, and so does a day: {hommikul}, {õhtul}, {laupäeval}.",
+      table: {
+        head: ["When", "Estonian"],
+        rows: [
+          [{ en: "in the morning" }, { et: "hommikul" }],
+          [{ en: "in the daytime" }, { et: "päeval" }],
+          [{ en: "in the evening" }, { et: "õhtul" }],
+          [{ en: "on Saturday" }, { et: "laupäeval" }],
+          [{ en: "on Sunday" }, { et: "pühapäeval" }],
+          [{ en: "at seven" }, { et: "kell seitse" }],
+        ],
+      },
+      notes: [
+        "Every verb tonight follows lesson 9. Learn the pair, {ärkama, ärkan}, and the persons follow: {ärkad}, {ärkab}, {ärkavad}.",
+        "{Minema} is the odd one: its I-form is {lähen}, and the rest follow that, {lähed}, {läheb}, {lähevad}.",
+        "{Magama} after {lähen} is going to bed: {Ma lähen magama}.",
+        "The no works on every one of them, as in lesson 12: {Laupäeval ma ei tööta}.",
+      ],
+      watchOut: "At seven is {kell seitse}. There's no word for at: {kell} does that job.",
+      examples: [0, 1, 5],
+    },
+    answers: [
+      { ask: { et: "Mis kell sa hommikul ärkad?", en: "What time do you get up in the morning?" }, cue: "Say when you get up.", model: { et: "Ma ärkan kell seitse.", en: "I get up at seven." } },
+      { ask: { et: "Mis kell sa magama lähed?", en: "What time do you go to bed?" }, cue: "Say when you go to bed.", model: { et: "Kell üksteist.", en: "At eleven." } },
+      { cue: "Say you don't work on Sunday.", model: { et: "Pühapäeval ma ei tööta.", en: "On Sunday I don't work." } },
+      { cue: "Say you eat in the evening.", model: { et: "Ma söön õhtul.", en: "I eat in the evening." } },
+    ],
+  },
+  {
+    id: "a1-21-doing",
+    n: 21,
+    level: "A1",
+    part: "a1-kell",
+    kind: "lesson",
+    title: "What are you doing?",
+    goal: "Say what you're doing, and ask somebody what they're doing.",
+    cast: { Mari: "mari", Tom: "kalev" },
+    conversation: [
+      { who: "Mari", et: "Tere, Tom! Mida sa teed?", en: "Hi, Tom! What are you doing?", stage: "On the phone." },
+      { who: "Tom", et: "Praegu ma loen raamatut. Ja sina?", en: "Right now I'm reading a book. And you?" },
+      { who: "Mari", et: "Ma kuulan muusikat. Jaan vaatab telerit.", en: "I'm listening to music. Jaan's watching TV." },
+      { who: "Tom", et: "Ja Liis?", en: "And Liis?" },
+      { who: "Mari", et: "Liis õpib. Mida sa teed õhtul?", en: "Liis is studying. What are you doing this evening?" },
+      { who: "Tom", et: "Ma ei tea. Ma loen!", en: "I don't know. Reading!" },
+    ],
+    teaches: [
+      { kind: "phrase", et: "Mida sa teed?", en: "What are you doing?" },
+      { kind: "verb", et: "tegema", first: "teen", en: "to do, to make", firstEn: "I do, I make" },
+      { kind: "verb", et: "lugema", first: "loen", en: "to read", firstEn: "I read" },
+      { kind: "verb", et: "kuulama", first: "kuulan", en: "to listen", firstEn: "I listen" },
+      { kind: "verb", et: "vaatama", first: "vaatan", en: "to watch, to look at", firstEn: "I watch" },
+      { kind: "phrase", et: "raamatut", en: "a book, after read" },
+      { kind: "phrase", et: "muusikat", en: "music, after listen" },
+      { kind: "phrase", et: "telerit", en: "TV, after watch" },
+      { kind: "word", et: "praegu", en: "now, right now" },
+      { kind: "phrase", et: "Ma ei tea.", en: "I don't know." },
+    ],
+    how: {
+      point: "What you read, hear or watch takes an ending of its own: {loen raamatut}, {kuulan muusikat}, {vaatan telerit}.",
+      table: {
+        head: ["Verb", "I", "What"],
+        rows: [
+          [{ et: "lugema" }, { et: "loen" }, { et: "raamatut" }],
+          [{ et: "kuulama" }, { et: "kuulan" }, { et: "muusikat" }],
+          [{ et: "vaatama" }, { et: "vaatan" }, { et: "telerit" }],
+        ],
+      },
+      notes: [
+        "Learn {raamatut}, {muusikat} and {telerit} whole for now. The ending is the same one as in {eesti keelt} and {kaks aastat}, and it has a lesson of its own soon.",
+        "{Mida sa teed?} is the everyday question. Its first word is what, in the form {tegema} takes, and that form is explained in the same lesson.",
+        "{Tegema} is do and make, and its pair is {tegema, teen}. The persons follow as ever: {teed}, {teeb}.",
+      ],
+      watchOut: "{Ma loen} is both I read and I'm reading. Estonian has one present for both.",
+      examples: [0, 1, 2],
+    },
+    answers: [
+      { ask: { et: "Mida sa teed?", en: "What are you doing?" }, cue: "Say that right now you're reading a book.", model: { et: "Praegu ma loen raamatut.", en: "Right now I'm reading a book." } },
+      { cue: "Ask a friend what they're doing.", model: { et: "Mida sa teed?", en: "What are you doing?" } },
+      { ask: { et: "Mida sa teed õhtul?", en: "What are you doing this evening?" }, cue: "Say you don't know.", model: { et: "Ma ei tea.", en: "I don't know." } },
+    ],
+  },
+  {
+    id: "a1-22-want",
+    n: 22,
+    level: "A1",
+    part: "a1-kell",
+    kind: "lesson",
+    title: "I want, I can, I have to",
+    goal: "Say what you want, can and have to do.",
+    cast: { Tom: "kalev", Mari: "mari" },
+    conversation: [
+      { who: "Tom", et: "Mari, ma tahan süüa!", en: "Mari, I want to eat!" },
+      { who: "Mari", et: "Mina tahan ka. Aga ma pean täna õppima.", en: "So do I. But I have to study today." },
+      { who: "Tom", et: "Kas sa saad homme tulla?", en: "Can you come tomorrow?" },
+      { who: "Mari", et: "Jah, homme saan.", en: "Yes, tomorrow I can." },
+      { who: "Tom", et: "Kas sa oskad süüa teha?", en: "Can you cook?" },
+      { who: "Mari", et: "Natuke. Aga Jaan oskab väga hästi!", en: "A little. But Jaan's very good at it!" },
+    ],
+    teaches: [
+      { kind: "verb", et: "tahtma", first: "tahan", en: "to want", firstEn: "I want" },
+      { kind: "verb", et: "saama", first: "saan", en: "to be able to, to get to", firstEn: "I can" },
+      { kind: "verb", et: "oskama", first: "oskan", en: "to know how to", firstEn: "I know how" },
+      { kind: "verb", et: "pidama", first: "pean", en: "to have to", firstEn: "I have to" },
+      { kind: "verb", et: "jooma", first: "joon", en: "to drink", firstEn: "I drink" },
+      { kind: "form", et: "minna", of: "minema", en: "to go, after want or can" },
+      { kind: "form", et: "süüa", of: "sööma", en: "to eat, after want or can" },
+      { kind: "form", et: "juua", of: "jooma", en: "to drink, after want or can" },
+      { kind: "form", et: "teha", of: "tegema", en: "to do, after want or can" },
+      { kind: "form", et: "tulla", of: "tulema", en: "to come, after want or can" },
+      { kind: "form", et: "lugeda", of: "lugema", en: "to read, after want or can" },
+      { kind: "form", et: "rääkida", of: "rääkima", en: "to speak, after want or can" },
+      { kind: "phrase", et: "süüa teha", en: "to cook" },
+    ],
+    how: {
+      point: "After {tahan}, {saan} and {oskan}, the next verb takes its da-form: {Ma tahan süüa}.",
+      table: {
+        head: ["Dictionary form", "After {tahan}"],
+        rows: [
+          [{ et: "minema" }, { et: "minna" }],
+          [{ et: "sööma" }, { et: "süüa" }],
+          [{ et: "jooma" }, { et: "juua" }],
+          [{ et: "tegema" }, { et: "teha" }],
+          [{ et: "tulema" }, { et: "tulla" }],
+          [{ et: "lugema" }, { et: "lugeda" }],
+          [{ et: "rääkima" }, { et: "rääkida" }],
+        ],
+      },
+      notes: [
+        "The da-form is learned with each verb, like the I-form. Most are short: {minna}, {teha}, {tulla}.",
+        "{Saan} is can as in being able to, today or tomorrow: {Kas sa saad tulla?} {Oskan} is can as in knowing how: {Ma oskan süüa teha}.",
+        "{Süüa teha}, make food, is how Estonian says cook.",
+      ],
+      watchOut: "{Pean} is the one that's different: it takes the dictionary form. {Ma pean õppima} is I have to study.",
+      examples: [0, 1, 2],
+    },
+    answers: [
+      { cue: "Say you want to eat.", model: { et: "Ma tahan süüa.", en: "I want to eat." } },
+      { ask: { et: "Kas sa saad homme tulla?", en: "Can you come tomorrow?" }, cue: "Say yes, you can.", model: { et: "Jah, saan.", en: "Yes, I can." } },
+      { ask: { et: "Kas sa oskad süüa teha?", en: "Can you cook?" }, cue: "Say a little.", model: { et: "Natuke.", en: "A little." } },
+      { cue: "Say you have to study today.", model: { et: "Ma pean täna õppima.", en: "I have to study today." } },
+    ],
+  },
+  {
+    id: "a1-23-plan",
+    n: 23,
+    level: "A1",
+    part: "a1-kell",
+    kind: "checkin",
+    title: "Making a plan",
+    goal: "Make a plan with a friend: what you're doing, whether you can, and what time.",
+    cast: { Liis: "liivika", Tom: "kalev" },
+    conversation: [
+      { who: "Liis", et: "Tere, Tom! Mida sa teed laupäeval?", en: "Hi, Tom! What are you doing on Saturday?", stage: "On the phone." },
+      { who: "Tom", et: "Ma ei tea. Ma ei tööta.", en: "I don't know. I'm not working." },
+      { who: "Liis", et: "Kas sa tahad tulla? Mina teen süüa.", en: "Do you want to come over? I'm cooking." },
+      { who: "Tom", et: "Jah! Mis kell?", en: "Yes! What time?" },
+      { who: "Liis", et: "Kell kuus. Kas sa saad?", en: "At six. Can you?" },
+      { who: "Tom", et: "Kell kuus ma ei saa. Kell seitse?", en: "I can't at six. Seven?" },
+      { who: "Liis", et: "Hästi, kell seitse. Head aega!", en: "Fine, seven. Bye!" },
+      { who: "Tom", et: "Nägemist! Laupäeval!", en: "See you! On Saturday!" },
+    ],
+    teaches: [],
+    how: {
+      point: "A whole plan, made only of what the last five lessons taught.",
+      notes: [
+        "Notice how a plan is built: what you're doing, whether you want to, whether you can, and what time.",
+        "{Kas sa saad?} on its own is can you? The rest is understood from what came before.",
+      ],
+      watchOut: "When a time doesn't suit, say so and offer another: {Kell kuus ma ei saa. Kell seitse?}",
+      examples: [2, 5],
+    },
+    answers: [
+      { ask: { et: "Mida sa teed laupäeval?", en: "What are you doing on Saturday?" }, cue: "Say you don't know.", model: { et: "Ma ei tea.", en: "I don't know." } },
+      { ask: { et: "Kas sa saad homme tulla?", en: "Can you come tomorrow?" }, cue: "Say yes, and ask what time.", model: { et: "Jah! Mis kell?", en: "Yes! What time?" } },
+      { ask: { et: "Kell kuus?", en: "At six?" }, cue: "Say you can't at six, and offer seven.", model: { et: "Kell kuus ma ei saa. Kell seitse?", en: "I can't at six. Seven?" } },
+    ],
+    roleplay: {
+      scene: "Your friend Liis rings to ask you over at the weekend. Make a plan with her.",
+      turns: [
+        { ask: { et: "Tere! Mida sa teed laupäeval?", en: "Hi! What are you doing on Saturday?" }, cue: "Say you're not working.", model: { et: "Ma ei tööta.", en: "I'm not working." } },
+        { ask: { et: "Kas sa tahad tulla? Mina teen süüa.", en: "Do you want to come over? I'm cooking." }, cue: "Say yes, and ask what time.", model: { et: "Jah! Mis kell?", en: "Yes! What time?" } },
+        { ask: { et: "Kell kuus. Kas sa saad?", en: "At six. Can you?" }, cue: "Say you can't at six, and offer seven.", model: { et: "Kell kuus ma ei saa. Kell seitse?", en: "I can't at six. Seven?" } },
+        { ask: { et: "Hästi, kell seitse!", en: "Fine, seven!" }, cue: "Say thank you and goodbye.", model: { et: "Aitäh! Head aega!", en: "Thanks! Bye!" } },
+      ],
+    },
+  },
+];

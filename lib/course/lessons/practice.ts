@@ -34,8 +34,11 @@ import { editDistance, nearMiss } from "@/lib/estonian/answer";
 import { fold } from "@/lib/estonian/fold";
 import { rng, seedFrom } from "@/lib/random/seeded";
 import { shuffle } from "@/lib/random/shuffle";
-import { estonianIn, wordsOf, type Ledger } from "./ledger";
-import type { LessonSpec, Taught } from "./types";
+import { estonianIn, unfold, wordsOf, type Asked, type Ledger } from "./ledger";
+import type { LessonSpec } from "./types";
+
+/** What practice asks about: a verb is already its two spellings here. */
+type Taught = Asked;
 import type { Verdict } from "@/lib/ux/verdict";
 
 export type PracticeItem =
@@ -115,6 +118,17 @@ function poolFor(tonight: readonly Taught[], before: Ledger): Taught[] {
 }
 
 /**
+ * `list` with whatever stands nearest `item` in it first: a lesson keeps its
+ * kinds together, so a da-form is asked among da-forms and a weekday among
+ * weekdays, and the right answer is never the only one of its kind.
+ */
+function nearestFirst(item: Taught, list: readonly Taught[]): Taught[] {
+  const at = list.indexOf(item);
+  if (at < 0) return [...list];
+  return list.map((other, i) => ({ other, far: Math.abs(i - at) })).sort((a, b) => a.far - b.far).map(({ other }) => other);
+}
+
+/**
  * The pool for one older item, with the lesson that taught it first: on a
  * check-in or in the review, "five" is asked among the other numbers rather
  * than among whatever the last lesson happened to teach, which would make the
@@ -135,7 +149,7 @@ function neighboursFirst(item: Taught, before: Ledger, rest: readonly Taught[]):
 
 /** What tonight's practice goes over: tonight's new things, or for a check-in the last few lessons'. */
 export function practiceSubjects(lesson: LessonSpec, before: Ledger): Taught[] {
-  if (lesson.teaches.length > 0) return [...lesson.teaches];
+  if (lesson.teaches.length > 0) return lesson.teaches.flatMap(unfold);
   const since = lesson.n - CHECKIN_REACH;
   return before.items.filter((d) => d.lesson >= since).map((d) => d.item);
 }
@@ -161,10 +175,11 @@ function produce(item: Taught, pool: readonly Taught[]): PracticeItem {
 export function practiceFor(lesson: LessonSpec, before: Ledger): PracticeItem[] {
   const random = rng(seedFrom(`practice:${lesson.id}`));
   const subjects = onePerMeaning(practiceSubjects(lesson, before)).filter((item) => !meaningShows(item));
-  const pool = poolFor(lesson.teaches, before);
-  const fits = lesson.teaches.length > 0 && subjects.length <= RECOGNISE_AT_MOST;
+  const tonight = lesson.teaches.flatMap(unfold);
+  const pool = poolFor(tonight, before);
+  const fits = tonight.length > 0 && subjects.length <= RECOGNISE_AT_MOST;
   const chosen = fits ? subjects : shuffle(subjects, random).slice(0, RECOGNISE_AT_MOST);
-  const recog = chosen.map((item) => recognise(item, lesson.teaches.includes(item) ? pool : neighboursFirst(item, before, pool), random));
+  const recog = chosen.map((item) => recognise(item, tonight.includes(item) ? [...nearestFirst(item, tonight), ...pool] : neighboursFirst(item, before, pool), random));
   const asked = shuffle(chosen.filter((item) => wordsOf(item.et).length <= TYPE_UP_TO_WORDS), random)
     .slice(0, PRODUCE_AT_MOST)
     .map((item) => produce(item, pool));

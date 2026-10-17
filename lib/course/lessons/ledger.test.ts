@@ -70,4 +70,18 @@ describe("the check over a level", () => {
     expect(problems.some((p) => p.includes("not in the cast"))).toBe(true);
     expect(problems.some((p) => p.includes("numbered 3 in place 2"))).toBe(true);
   });
+
+  it("covers a verb's persons once the present has been explained, and its no once that has", () => {
+    const go = { kind: "verb", et: "minema", first: "lähen", en: "to go", firstEn: "I go" } as const;
+    const plain = teach(EMPTY_LEDGER, [go], 1);
+    expect(uncovered("Ma lähen", plain)).toEqual(["Ma"]);
+    expect(uncovered("lähed", plain)).toEqual(["lähed"]);
+    const present = teach(plain, [], 2, ["present"]);
+    expect(uncovered("lähed läheb lähevad", present)).toEqual([]);
+    expect(uncovered("lähe", present)).toEqual(["lähe"]);
+    expect(uncovered("lähe", teach(present, [], 3, ["negative"]))).toEqual([]);
+    // A verb taught after the pattern gets its persons straight away.
+    const later = teach(present, [{ kind: "verb", et: "tulema", first: "tulen", en: "to come", firstEn: "I come" }], 4);
+    expect(uncovered("tuled tulevad", later)).toEqual([]);
+  });
 });

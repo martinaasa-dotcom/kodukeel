@@ -191,6 +191,7 @@ function Listen({ lesson }: { lesson: LessonSpec }) {
 function kindOf(item: Taught, t: (english: string) => string): string | null {
   if (item.kind === "phrase") return item.et.includes(" ") ? t("phrase") : null;
   if (item.kind === "form") return fill(t("a form of {lemma}"), { lemma: item.of });
+  if (item.kind === "verb") return t("a verb and its I-form");
   return null;
 }
 
@@ -237,16 +238,21 @@ function Words({ lesson }: { lesson: LessonSpec }) {
               <tr key={row[0]!.et} className="border-t" style={{ borderColor: "var(--edge)" }}>
                 <td className="px-4 py-3 align-top">
                   <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                    {row.map((item) => (
-                      <span key={item.et} className="flex items-center gap-2">
-                        <Speak text={item.et} size={15} />
-                        <span lang="et" className="font-bold" style={{ color: "var(--ink)" }}>{item.et}</span>
+                    {row.flatMap((item) => (item.kind === "verb" ? [item.et, item.first] : [item.et])).map((et) => (
+                      <span key={et} className="flex items-center gap-2">
+                        <Speak text={et} size={15} />
+                        <span lang="et" className="font-bold" style={{ color: "var(--ink)" }}>{et}</span>
                       </span>
                     ))}
                   </span>
                   {kind && <span className="mt-0.5 block text-sm" style={{ color: "var(--ink-3)" }}>{kind}</span>}
                 </td>
-                <td className="px-4 py-3 align-top" style={{ color: "var(--ink-2)" }}><Braced text={t(row[0]!.en)} /></td>
+                <td className="px-4 py-3 align-top" style={{ color: "var(--ink-2)" }}>
+                  <Braced text={t(row[0]!.en)} />
+                  {row[0]!.kind === "verb" && (
+                    <span className="mt-0.5 block"><Braced text={fill(t("{first}: {meaning}"), { first: `{${row[0]!.first}}`, meaning: t(row[0]!.firstEn) })} /></span>
+                  )}
+                </td>
               </tr>
             );
           })}

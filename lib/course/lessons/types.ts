@@ -56,14 +56,30 @@ export interface Line {
  *   phrase  a whole phrase, learned as it stands and never taken apart
  *           before the lesson that explains it (chunks first)
  *
- * A pattern is not in this list because it is not a spelling: it is the
- * lesson's `how`, and it is what later lets a lesson derive forms rather than
- * list them (P2 of the plan). Here every spelling a learner meets is named.
+ *   verb    the ma-form and the I-form together, below
+ *
+ * A pattern is not in this list because it is not a spelling: it is what a
+ * lesson's `how` explains, declared in `patterns`, and it is what lets a
+ * later lesson use the forms it builds from a taught verb without listing
+ * them.
  */
 export type Taught =
   | { readonly kind: "word"; readonly et: string; readonly en: string }
   | { readonly kind: "form"; readonly et: string; readonly of: string; readonly en: string }
-  | { readonly kind: "phrase"; readonly et: string; readonly en: string };
+  | { readonly kind: "phrase"; readonly et: string; readonly en: string }
+  /**
+   * A verb learned as the pair a learner actually needs: the ma-form the
+   * dictionary is headed by and the I-form the other persons follow
+   * (`minema`, `lähen`). Once a lesson has explained the present (`present`
+   * in `patterns`), every person of it is covered without being listed, and
+   * once the no has been explained (`negative`), so is the form after {ei}.
+   * The persons come off `lib/estonian/conjugate.ts`, which is the rule the
+   * rest of the app conjugates with, so a lesson and a card cannot disagree.
+   */
+  | { readonly kind: "verb"; readonly et: string; readonly first: string; readonly en: string; readonly firstEn: string };
+
+/** A pattern a lesson explains, which lets later lessons use forms it builds. */
+export type PatternId = "present" | "negative";
 
 /** A cell of a pattern's table: Estonian or English, never both. */
 export type Cell = { readonly et: string } | { readonly en: string };
@@ -121,6 +137,8 @@ export interface LessonSpec {
   readonly conversation: readonly Line[];
   /** Everything new tonight, in the order the Words step lists it. */
   readonly teaches: readonly Taught[];
+  /** The patterns tonight's `how` explains, if any. Each is explained once in a level. */
+  readonly patterns?: readonly PatternId[];
   readonly how: HowItWorks;
   /** Questions about the learner, answered aloud or typed. */
   readonly answers: readonly Prompt[];

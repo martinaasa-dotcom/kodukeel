@@ -31,6 +31,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
     kind: "lesson",
     title: "Where I live",
     goal: "Say where you live, and ask where somebody else lives.",
+    patterns: ["present"],
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
       { who: "Mari", et: "Tere, Tom! Kus sa elad?", en: "Hi, Tom! Where do you live?" },
@@ -218,6 +219,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
     kind: "lesson",
     title: "Saying no",
     goal: "Say what you don't do, with any verb you know.",
+    patterns: ["negative"],
     cast: { Jaan: "tambet", Tom: "kalev" },
     conversation: [
       { who: "Jaan", et: "Tom, kas sa elad Tallinnas?", en: "Tom, do you live in Tallinn?" },

@@ -24,7 +24,7 @@ describe("A1 lessons", () => {
     const unknown: string[] = [];
     for (const lesson of A1_LESSONS) {
       const names = namesOf(lesson);
-      const texts = [...estonianOf(lesson).map((e) => e.et), ...lesson.teaches.map((t) => t.et)];
+      const texts = [...estonianOf(lesson).map((e) => e.et), ...lesson.teaches.flatMap((t) => (t.kind === "verb" ? [t.et, t.first] : [t.et]))];
       for (const text of texts) {
         for (const w of wordsOf(text)) {
           if (names.has(w.raw) || PLACE_SPELLINGS.has(w.raw)) continue;
@@ -40,6 +40,7 @@ describe("A1 lessons", () => {
     for (const lesson of A1_LESSONS) {
       const english = [
         lesson.title, lesson.goal,
+        ...lesson.teaches.flatMap((t) => (t.kind === "verb" ? [t.firstEn] : [])),
         ...lesson.conversation.flatMap((l) => [l.en ?? "", l.stage ?? ""]),
         ...[...lesson.answers, ...(lesson.roleplay?.turns ?? [])].flatMap((p) => [p.ask?.en ?? "", p.model.en]),
       ];
@@ -63,7 +64,7 @@ describe("A1 lessons", () => {
     let asked = 0;
     for (const lesson of A1_LESSONS) {
       const ledger = before.get(lesson.id)!;
-      const tonight = teach(ledger, lesson.teaches, lesson.n);
+      const tonight = teach(ledger, lesson.teaches, lesson.n, lesson.patterns);
       const items = [...practiceFor(lesson, ledger), ...reviewFor(lesson, ledger)];
       for (const item of items) {
         const et = item.kind === "type" ? item.answer : item.et;

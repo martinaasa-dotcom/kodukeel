@@ -26,7 +26,30 @@
  * Pure: no React, no Prisma, no clock.
  */
 
-import type { LessonSpec, Taught } from "./types";
+import { negativePresent, presentTense } from "@/lib/estonian/conjugate";
+import type { LessonSpec, PatternId, Taught } from "./types";
+
+/** A taught item as a learner is asked about it: a verb counts as its two spellings. */
+export type Asked = Exclude<Taught, { kind: "verb" }>;
+
+/**
+ * A verb as the two items it is asked as: its ma-form, and its I-form. Every
+ * other kind is itself.
+ */
+export function unfold(item: Taught): readonly Asked[] {
+  if (item.kind !== "verb") return [item];
+  // The same two objects every time, so a caller can find one in a list it unfolded earlier.
+  const held = UNFOLDED.get(item);
+  if (held) return held;
+  const pair: Asked[] = [
+    { kind: "word", et: item.et, en: item.en },
+    { kind: "form", et: item.first, of: item.et, en: item.firstEn },
+  ];
+  UNFOLDED.set(item, pair);
+  return pair;
+}
+
+const UNFOLDED = new WeakMap<Taught, readonly Asked[]>();
 
 /**
  * People's names a lesson may use without teaching them. Names are not
@@ -50,10 +73,14 @@ export interface Ledger {
   /** Every phrase taught, as its words lower-cased, so its words are covered only together. */
   readonly phrases: readonly (readonly string[])[];
   /** Everything taught, in the order it was taught, with the lesson that taught it. */
-  readonly items: readonly { readonly item: Taught; readonly lesson: number }[];
+  readonly items: readonly { readonly item: Asked; readonly lesson: number }[];
+  /** The patterns explained so far. */
+  readonly patterns: ReadonlySet<PatternId>;
+  /** Every verb taught as a pair, which a pattern builds more forms from. */
+  readonly verbs: readonly { readonly lemma: string; readonly first: string }[];
 }
 
-export const EMPTY_LEDGER: Ledger = { spellings: new Set(), phrases: [], items: [] };
+export const EMPTY_LEDGER: Ledger = { spellings: new Set(), phrases: [], items: [], patterns: new Set(), verbs: [] };
 
 export interface Token {
   /** As written. */
@@ -75,16 +102,44 @@ export function estonianIn(english: string): string[] {
   return [...english.matchAll(/\{([^{}]+)\}/g)].map((m) => m[1]!);
 }
 
-/** The ledger with a lesson's items added. */
-export function teach(ledger: Ledger, items: readonly Taught[], lesson: number): Ledger {
+/**
+ * The forms a pattern builds from one taught verb, lower-cased. Read off the
+ * app's own conjugation, so `minema` gives `lähed` from `lähen` and `olema`,
+ * which the rule does not reach, gives nothing.
+ */
+function builtForms(verb: { lemma: string; first: string }, patterns: ReadonlySet<PatternId>): string[] {
+  const stems = { lemma: verb.lemma, pres1sg: verb.first };
+  const out: string[] = [];
+  if (patterns.has("present")) out.push(...(presentTense(stems) ?? []).map((f) => f.value));
+  if (patterns.has("negative")) {
+    const no = negativePresent(stems);
+    if (no) out.push(no.value);
+  }
+  return out.map((f) => f.toLocaleLowerCase("et"));
+}
+
+/** The ledger with a lesson's items, and the patterns it explains, added. */
+export function teach(ledger: Ledger, items: readonly Taught[], lesson: number, patterns: readonly PatternId[] = []): Ledger {
   const spellings = new Set(ledger.spellings);
   const phrases = [...ledger.phrases];
+  const verbs = [...ledger.verbs];
   for (const item of items) {
-    const words = wordsOf(item.et).map((w) => w.low);
-    if (item.kind === "phrase" && words.length > 1) phrases.push(words);
-    else for (const w of words) spellings.add(w);
+    if (item.kind === "verb") verbs.push({ lemma: item.et, first: item.first });
+    for (const part of unfold(item)) {
+      const words = wordsOf(part.et).map((w) => w.low);
+      if (part.kind === "phrase" && words.length > 1) phrases.push(words);
+      else for (const w of words) spellings.add(w);
+    }
   }
-  return { spellings, phrases, items: [...ledger.items, ...items.map((item) => ({ item, lesson }))] };
+  const known = new Set([...ledger.patterns, ...patterns]);
+  for (const verb of verbs) for (const form of builtForms(verb, known)) spellings.add(form);
+  return {
+    spellings,
+    phrases,
+    items: [...ledger.items, ...items.flatMap(unfold).map((item) => ({ item, lesson }))],
+    patterns: known,
+    verbs,
+  };
 }
 
 /** The names a lesson may use: the shared list and its own cast. */
@@ -120,7 +175,10 @@ export function estonianOf(lesson: LessonSpec): { where: string; et: string }[] 
     english(`line ${i + 1} English`, line.en);
     english(`line ${i + 1} stage`, line.stage);
   });
-  for (const t of lesson.teaches) english(`the meaning of ${t.et}`, t.en);
+  for (const t of lesson.teaches) {
+    english(`the meaning of ${t.et}`, t.en);
+    if (t.kind === "verb") english(`the meaning of ${t.first}`, t.firstEn);
+  }
   const how = lesson.how;
   english("the point", how.point);
   how.notes?.forEach((n, i) => english(`note ${i + 1}`, n));
@@ -149,7 +207,7 @@ export function ledgersBefore(lessons: readonly LessonSpec[]): Map<string, Ledge
   let ledger = EMPTY_LEDGER;
   for (const lesson of lessons) {
     out.set(lesson.id, ledger);
-    ledger = teach(ledger, lesson.teaches, lesson.n);
+    ledger = teach(ledger, lesson.teaches, lesson.n, lesson.patterns);
   }
   return out;
 }
@@ -181,13 +239,19 @@ export function lessonProblems(lessons: readonly LessonSpec[]): string[] {
     for (const i of lesson.how.examples ?? []) {
       if (!lesson.conversation[i]?.et) problems.push(`${at}: example ${i} is not a spoken line of the conversation`);
     }
-    for (const item of lesson.teaches) {
+    for (const item of lesson.teaches.flatMap(unfold)) {
       if (item.kind !== "phrase" && wordsOf(item.et).length !== 1) problems.push(`${at}: the ${item.kind} "${item.et}" is more than one word`);
       if (ledger.items.some((done) => done.item.et.toLocaleLowerCase("et") === item.et.toLocaleLowerCase("et"))) {
         problems.push(`${at}: "${item.et}" was taught already`);
       }
     }
-    const tonight = teach(ledger, lesson.teaches, lesson.n);
+    for (const pattern of lesson.patterns ?? []) {
+      if (ledger.patterns.has(pattern)) problems.push(`${at}: the ${pattern} pattern was explained already`);
+    }
+    for (const item of lesson.teaches) {
+      if (item.kind === "verb" && !item.et.endsWith("ma")) problems.push(`${at}: the verb "${item.et}" is not a ma-form`);
+    }
+    const tonight = teach(ledger, lesson.teaches, lesson.n, lesson.patterns);
     const names = namesOf(lesson);
     for (const { where, et } of estonianOf(lesson)) {
       const missing = uncovered(et, tonight, names);

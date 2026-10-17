@@ -306,7 +306,16 @@ Each phase is its own pull request or several, and none starts before the one ab
   lesson 10 teaches the five countries in both their forms, and lesson 14 teaches `Kui vana?` as the
   chunk, so `Kui vana ta on?` in lesson 16 needs nothing new. Country names take a capital the
   forms list does not hold, so `PLACE_SPELLINGS` names the four it lets through; the ledger still
-  asks that each is taught first.
+  asks that each is taught first. **Part 3 (lessons 18 to 23, `{Mis kell on?}`) is built**, in
+  `lib/course/lessons/a1-kell.ts`, and with it section 3's `pattern` kind. A lesson declares the
+  patterns its rule explains (`present` on lesson 9, `negative` on lesson 12), and a verb is taught
+  as its pair (`kind: "verb"`, the dictionary form and the I-form); from then on the ledger covers
+  the verb's six persons and its no, read off `lib/estonian/conjugate.ts`, the rule every card is
+  built with. So `minema, lähen` is two things to learn and `lähevad` is none. Practice asks a
+  verb as both halves and draws tonight's wrong options nearest first, so `tulen` is asked against
+  "to come" and "I go" rather than against whatever the lesson listed first. The check refused
+  `Mida sa praegu teed?` on its first run, since a word in the middle pulls a chunk apart before
+  the lesson that explains it; lesson 21 keeps the phrase whole.
 - **P3. The switch.** Learners placed per L4, the old A1 parts retired, `course.test.ts` and the
   browser suites (`test-module.mjs`) rewritten for lessons.
 - **P4 to P7. A2, B1, B2, C1**, each starting with its own section-4-style list for approval.
