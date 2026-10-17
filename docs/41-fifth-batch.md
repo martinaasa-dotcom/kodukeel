@@ -162,11 +162,56 @@ who asked for English, not a reaction in Estonian, and the table already says th
 (the consistency check withholding the pharmacist's lines over the queue number, an interviewer
 answering "kas küsimus?" with a question back), which is the composer's and not the reply's order.
 
+**VB-4, a conversation said aloud, 2026-10-17.** `scripts/test-scene-speech.mjs` plays the café start
+to finish into Chromium's fake microphone, five new fixture clips made by TartuNLP from lines the
+café's own picks offer, and a telephone room hands-free after one press: 28 checks, 28 passed, twice
+in a row on a production build. The typed and picked runs are unchanged (`scripts/test-scene.mjs` 63
+of 63), and `npm run play:scenes` and `npm run sweep:fallback` print byte for byte what the base
+branch prints (6,312 conversations, 0 flags). The suite found one fault in the product rather than in
+itself: a learner who pressed the microphone in the gap between the other side's line arriving and its
+clip starting had their press thrown away, because D14 closed the microphone and nothing opened it
+again. It now reopens once the app has finished speaking. **The one capped composed play** fed the
+café the turns as the recognizer hands them back (lower case, no punctuation, `--say`), since the
+harness types and a spoken turn reaches the reply as a typed one (D26): six turns, six beats met,
+every composed line taking the turn it was given. **Spent: $0.0126 on 11 metered calls**, under the
+$1 cap.
+
 **C-1, the sign-in page on production, 2026-10-16.** PageSpeed's keyless API answered 429, so
 production was read with the same Lighthouse 12.8.2 phone profile PageSpeed runs, three times against
 `https://kodukeel.ee/sign-in` once the `.arrive` entrance was deployed: **2,208, 2,462 and 1,576 ms**,
 against 4,938, 4,926 and 4,877 before, and the largest element is now the card's own paragraph, the one
 the opacity entrance was hiding. The fix holds; `docs/15-performance.md` has the table.
+
+**VB-12, VB-13 and VB-15, measured 2026-10-17** on a production build, Chromium only:
+
+- **A voice message, heard on the device.** The fixture is two lines of the `lastevanemad` bank read
+  in TartuNLP's voice Mari (7.3 s, saved as Ogg Opus at 24 kbit/s, 17.5 KB, the shape a messaging app
+  exports). It came back with **0 of 16 words wrong** and one request leaving the page, the glossing
+  call, 102 bytes of text; nothing carrying sound, and nothing to TartuNLP. That is one clean synthetic
+  voice, so the page goes on quoting section 0's figure (about one word in 12), not this one. A
+  200-second file is cut at three minutes and heard in 112 pieces, and "Stop here" keeps the pieces
+  heard so far.
+- **The landing page.** `npm run check:landing` before the café's voice: 16 scripts, 227 KB gzip,
+  707 KB raw on `/welcome`, `/welcome/ru` and `/welcome/uk`. After: **17 scripts, 228 KB gzip,
+  709 KB raw**, Cyrillic unchanged at 677 characters. The new script is Turbopack's 215-byte loader
+  for the dynamic import, and the rest is the button and the lit line in the café's own chunk. Pressing
+  "Say it instead" fetches about 15 KB gzip more (`CafeVoice` and the speech hook); the runtime and the
+  71 MB model come only after the download is agreed to. So the first load grew by 1 KB gzip rather
+  than staying the same, and nothing of the engine is in it.
+- **Not verified:** Firefox (only Chromium is installed where this was built), Safari's Ogg Opus
+  decoding (the page says it may not open there, and the message is tested by feeding Chromium a
+  broken Ogg), and a real phone's speed over a three-minute file.
+
+**VB-14, the report run once locally, 2026-10-17.** `npm run report:speech` against a local database
+seeded and given `scripts/demo-data.ts`, whose fixture now says every other production answer of the
+last fortnight aloud so the reading has something to read. **8 answers given aloud, by 1 learner; the
+next answer to the same card recalled 67% of the time after a spoken one (4 of 6) and 76% after a typed
+one (203 of 267, from the same learner).** Those are the fixture's own numbers and say nothing about
+learners: what they show is that the report reads `Review.spoken`, pairs each answer with the next one
+on its card, and draws the typed baseline from the same people. The edit rate reads "no spoken
+conversation turn carries its counts yet", because the counts on `SceneRun` are VB-4's to store, and
+tonight's chat waits on VB-11. **The deployment run is the operator's** (section 8): it needs the
+production connection string, which no session holds.
 
 **VB-7, what TartuNLP says for a number written in digits, 2026-10-17.** `npm run measure:numbers` sends
 every shape the round can play to TartuNLP the way `/api/tts` sends it, then hears the clip with the
@@ -344,18 +389,18 @@ stops. Size is the work in one pull request: S is a day, M a few days, L a week 
 | VB-1 The engine and the hearing rules | 1: a conversation out loud | L | Done: sherpa-onnx 1.13.8 single-threaded in a worker, the 71 MB model checked by hash and kept offline, `/dev/asr` hearing the fixture clips online and with the network cut, ADR-028, `PAID_OFF=speech`, the first-load check, `scripts/test-speech.mjs` 16 of 16 |
 | VB-2 One microphone for the whole app | 1 | M | Done: `MicButton` in every state on the bench, `ReadAloud`, `lightUp` and `matchPick` (D20) unit tested, Settings' Speaking section, Ctrl+M on both shortcut lists, the three phrases in `lib/copy/voice.ts`, `scripts/invariants/one-microphone.ts` |
 | VB-3 Ready for the native apps | 1, before November | S | Done: `docs/42-native-apps.md`, and `lib/speech/fixtures/golden.json` recorded off the web engine with `npm run asr:golden` and held by `lib/speech/golden.test.ts` |
-| VB-4 Conversations, spoken | 1 | L | Not started |
-| VB-5 The Speaking round, rebuilt, and hands-free | 1 | M | Not started |
-| VB-6 Saying it on the daily path | 2: speaking everywhere it teaches | M | Not started |
+| VB-4 Conversations, spoken | 1 | L | Done: a third way to answer, "Say it", remembered; a said line lights its pick and the 2.5 s ring sends it; repaired words grade nothing (D13); call mode on the telephone rooms; "Hear them first", "Talk it through" and "Say it once"; `scripts/test-scene-speech.mjs` 28 of 28; $0.01 composed |
+| VB-5 The Speaking round, rebuilt, and hands-free | 1 | M | Done: three steps in `lib/games/speaking.ts` (12 tests), only the recall grades and a miss writes nothing, the read-back of `heard` metered and stored nowhere, hands-free with the wake lock and Media Session, the exam's spoken part heard on the device and still self-marked, and the module's A1 `flash` slot dealt to it; `scripts/test-speaking.mjs` 22 of 22 |
+| VB-6 Saying it on the daily path | 2: speaking everywhere it teaches | M | Done: "Your turn" on the meet rung, and the microphone in the answer boxes of the review card, the closing review, the Learn ladder and the flash round (D6); heard as spelled grades Good, anything else fills the box for Check, a repaired word writes nothing, and `spoken` reaches the outbox offline, asserted in a browser |
 | VB-7 Numbers out loud | 2 | M | Done: `lib/games/numbers.ts`, `ClockFace`, `/review/numbers` on Practice and on A2's rotation in writing's place, three accept-only readings in `props.ts` with the one-answer assertion, every shape TartuNLP plays checked first (section 0), `scripts/test-voice-rounds.mjs` 23 of 23 with the fake microphone and with it refused |
 | VB-8 The rounds that already ask you to speak | 2 | M | Done: the chant (`lib/speech/chant.ts`), Say what you see said into its boxes, 20 küsimust asked aloud and answered aloud hands-free behind the D20 countdown, Töövihik read aloud through `wordInGap` and `whichGap` |
 | VB-9 A word you heard and cannot spell | 2 | S | Done: the dictionary searched by voice as typed, Anu's box on the panel and the page, and the reading page read aloud a paragraph at a time |
 | VB-10 Reminders on the desktop, through Web Push | 2 | M | Done |
 | VB-11 Tonight's chat | 3: Estonian from real life | L | Not started |
-| VB-12 Something real to listen to | 3 | M | Not started |
-| VB-13 What is around you | 3 | M | Not started |
-| VB-14 Speaking as evidence | 4: knowing whether it works | M | Not started |
-| VB-15 The landing café, by voice | 4 | S | Not started |
+| VB-12 Something real to listen to | 3 | M | Done: "Or open a recording" on the reading page (`app/(app)/read/Recording.tsx`), decoded and heard on the device in pieces with a stop, glossed through `readHeard` in one request, each line played from the recording through `playRecording` in `lib/audio/clip.ts`; unsure words carry a **wavy** underline rather than the dotted one this page asked for, since dotted already means "a dictionary word"; `/privacy` and DPIA R19; `scripts/test-recordings.mjs` |
+| VB-13 What is around you | 3 | M | Done: "Things around me" beside "A page of words" on the scanner, camera, webcam (video only, named in `one-microphone.ts`), file or drop, English names off the `scan` chain resolved by `lib/progress/things.ts`, other entries on the row to choose and homographs never offered, saved as a scan, "Say them" ungraded |
+| VB-14 Speaking as evidence | 4: knowing whether it works | M | Done: `Review.spoken` stored, exported and erased, "Said aloud this week" on Progress, `npm run report:speech` run once locally (section 0); the deployment run is the operator's (section 8) |
+| VB-15 The landing café, by voice | 4 | S | Done: "Say it instead" under each step's picks, `CafeVoice` loaded by a dynamic import on the press, the size asked first, `matchPick` lighting a line that is said after 2.5 s unless the screen is touched, the café still sent a pick's id; landing FAQ rewritten in three languages |
 | VB-16 Pairs, said aloud | Parked | M | Waits on the operator (D3, section 8) |
 
 **The batch is done** when C-1 to C-3 are done, milestones 1 and 2 are on main, VB-3 has been handed to
@@ -1120,6 +1165,8 @@ went.
 - **Choose the native framework before November.** A framework that runs TypeScript reuses `lib/speech/`
   (to be written) and the other pure layers as they are; one that does not ports them with their tests,
   and VB-3's golden file is how either proves it got the same answers.
+- **Run `npm run report:speech` once against the deployment** after the first fortnight with speech on,
+  and put its figures in section 0 beside the local run, which only proves the reading works.
 - **Watch the edit rate** once VB-14 has printed it over a few weeks of real learners, and decide from it
   whether to keep speech on (D15) and whether to lift D3 for VB-16.
 

@@ -25,7 +25,7 @@ import type { ToWorker, FromWorker, WorkerFile } from "./protocol";
    app's DOM types and a worker's do not have to be compiled together. */
 interface WorkerScope {
   importScripts(...urls: string[]): void;
-  postMessage(message: FromWorker): void;
+  postMessage(message: FromWorker, transfer?: Transferable[]): void;
   onmessage: ((event: { data: ToWorker; ports: readonly MessagePort[] }) => void) | null;
   readonly caches: CacheStorage;
   readonly crypto: Crypto;
@@ -239,7 +239,11 @@ async function finalTurn(samples: Float32Array): Promise<RawTurn | null> {
   return { greedy: first, beam: second, seconds };
 }
 
-function startTurn(endpoint: boolean): void {
+/** How long this turn may run, and whether its audio goes back with it (`ListenOptions`). */
+let turnLimitSeconds: number = S.maxTurnSeconds;
+let keepAudio = false;
+
+function startTurn(endpoint: boolean, maxSeconds?: number, keep?: boolean): void {
   live?.free();
   live = greedy!.createStream();
   heard = [];
@@ -247,6 +251,10 @@ function startTurn(endpoint: boolean): void {
   spoke = false;
   partialText = "";
   endpointOn = endpoint;
+  turnLimitSeconds = typeof maxSeconds === "number" && Number.isFinite(maxSeconds)
+    ? Math.min(Math.max(maxSeconds, 1), S.maxFileSeconds)
+    : S.maxTurnSeconds;
+  keepAudio = keep === true;
 }
 
 function accept(samples: Float32Array): void {
@@ -264,7 +272,7 @@ function accept(samples: Float32Array): void {
     }
     post({ type: "partial", text });
   }
-  if (heardLength / S.sampleRate >= S.maxTurnSeconds) {
+  if (heardLength / S.sampleRate >= turnLimitSeconds) {
     void endTurn("too-long");
   } else if (endpointOn && greedy.isEndpoint(live)) {
     void endTurn(spoke ? "silence" : "nothing-said");
@@ -285,14 +293,24 @@ async function endTurn(why: "pressed" | "silence" | "nothing-said" | "too-long")
   heardLength = 0;
   post({ type: "thinking" });
   const turn = why === "nothing-said" ? null : await finalTurn(all);
+  // The learner's own voice goes back only where the screen asked to play it to them.
+  if (keepAudio && turn) {
+    const message: FromWorker = { type: "final", turn, why, audio: all };
+    scope.postMessage(message, [all.buffer]);
+    return;
+  }
   post({ type: "final", turn, why });
 }
+
+/** Set by "cancel" while a recording is being heard: stop after the piece in hand, keeping what was heard. */
+let stopTranscribing = false;
 
 /**
  * A recording somebody opened, heard in pieces cut at its pauses so no piece
  * is long and no word is split, each piece decoded the way a turn is.
  */
 async function transcribe(samples: Float32Array, rate: number): Promise<void> {
+  stopTranscribing = false;
   const audio = resample(samples, rate, S.sampleRate);
   const frames = loudFrames(audio);
   const frame = Math.round(S.sampleRate * S.frameSeconds);
@@ -317,9 +335,16 @@ async function transcribe(samples: Float32Array, rate: number): Promise<void> {
     const turn = await finalTurn(audio.subarray(a * frame, Math.min(audio.length, b * frame)));
     done += 1;
     post({ type: "segment", turn, from: (a * frame) / S.sampleRate, to: Math.min(audio.length, b * frame) / S.sampleRate, done, total });
+    // A real pause between pieces, so a "cancel" sent while this runs is read
+    // before the next piece rather than after the last one: decoding is
+    // synchronous, and a resolved await gives the message queue no turn.
+    await new Promise((resume) => setTimeout(resume, 0));
+    if (stopTranscribing) break;
   }
+  stopTranscribing = false;
   post({ type: "transcribed" });
 }
+
 
 let audioPort: MessagePort | null = null;
 
@@ -335,7 +360,7 @@ scope.onmessage = (event) => {
         return;
       case "listen":
         if (!greedy) throw new EngineFailure("not-downloaded");
-        startTurn(message.endpoint);
+        startTurn(message.endpoint, message.maxSeconds, message.keepAudio);
         audioPort?.close();
         audioPort = event.ports[0] ?? null;
         if (audioPort) {
@@ -351,6 +376,7 @@ scope.onmessage = (event) => {
         await endTurn("pressed");
         return;
       case "cancel":
+        stopTranscribing = true;
         audioPort?.close();
         audioPort = null;
         live?.free();

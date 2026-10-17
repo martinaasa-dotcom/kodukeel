@@ -10,6 +10,10 @@ import { uiText } from "@/lib/copy/uiLanguage";
 import { SceneSession } from "@/components/scene/SceneSession";
 import { tr } from "@/lib/copy/locale";
 import { localeFor } from "@/lib/progress/locale";
+import { finishedScene } from "@/lib/progress/scene";
+import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
+import { sceneAnswerFrom } from "@/lib/ux/sceneAnswer";
+import { openingLines } from "@/lib/scenes/rehearse";
 
 export const dynamic = "force-dynamic";
 
@@ -51,8 +55,19 @@ export default async function ScenePage({ params }: { params: Promise<{ id: stri
   if (!scene) notFound();
 
   const unit = unitById(scene.tests);
-  const [learnerLevel, tilt] = await Promise.all([courseLevelFor(ownerId), adaptTiltFor(ownerId)]);
-
+  const [learnerLevel, tilt, answer, finished] = await Promise.all([
+    courseLevelFor(ownerId),
+    adaptTiltFor(ownerId),
+    readSetting(ownerId, SETTING_KEYS.sceneAnswer),
+    finishedScene(ownerId, scene.id),
+  ]);
+  /*
+    Three things about speaking a conversation, resolved here because each is a
+    read the client may not do: how this learner answered last time, whether
+    they have finished this scene once (which offers "Talk it through"), and
+    the other side's opening lines from the bank for "Hear them first", at the
+    band the briefing opens at. The bank is server-side data and stays so.
+  */
   return (
     <SceneSession
       scene={scene}
@@ -60,6 +75,9 @@ export default async function ScenePage({ params }: { params: Promise<{ id: stri
       unit={unit ? { id: unit.id, title: uiText(learnerLevel, unit.title, tr(locale, unit.subtitle)) } : null}
       learnerLevel={learnerLevel}
       openAt={tiltedLevel(learnerLevel, tilt)}
+      answeredLast={sceneAnswerFrom(answer)}
+      finishedOnce={finished}
+      opening={openingLines(scene, tiltedLevel(learnerLevel, tilt))}
     />
   );
 }

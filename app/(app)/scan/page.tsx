@@ -7,7 +7,7 @@ import { MAX_ITEMS } from "@/lib/scan/extract";
 import { parseItems, summarise } from "@/lib/scan/items";
 import { ButtonLink } from "@/components/Button";
 import { Card, Empty, Page, SectionTitle, Stack } from "@/components/ui";
-import { ScanCapture } from "./ScanCapture";
+import { ScanModes } from "./ScanModes";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 
@@ -84,7 +84,7 @@ export default async function ScanPage() {
           </Card>
         )}
 
-        {configured && <ScanCapture />}
+        {configured && <ScanModes />}
 
         {/* A page of running text rather than a word list is read, not scanned into cards. */}
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>

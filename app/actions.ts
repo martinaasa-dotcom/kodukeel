@@ -18,7 +18,7 @@ import { classworkMarker } from "@/lib/ux/agenda";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
 import { cardsForGrades } from "@/lib/scenes/grades";
-import { alsoDoneOf, beatNow, beginRun, concededOf, finishRun, MAX_TURNS, MAX_TURN_CHARS } from "@/lib/progress/scene";
+import { alsoDoneOf, beatNow, beginRun, concededOf, finishRun, MAX_TURNS, MAX_TURN_CHARS, spokenOf } from "@/lib/progress/scene";
 import { sceneProviders } from "@/lib/tutor/provider";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { formName } from "@/lib/estonian/morph";
@@ -75,6 +75,7 @@ import { caseGlossFrom } from "@/lib/estonian/caseGloss";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
 import { hearingFrom, hidesWords, supportFrom } from "@/lib/audio/conditions";
 import { sceneVoiceFrom } from "@/lib/audio/sceneVoice";
+import { sceneAnswerFrom } from "@/lib/ux/sceneAnswer";
 import { SPEECH_PACES } from "@/lib/audio/pace";
 import { kindFrom } from "@/lib/ux/schedule";
 import { participationValue } from "@/lib/research/participation";
@@ -513,13 +514,20 @@ export async function gradeCard(
    * primary key in a table nothing ever repairs.
    */
   reviewId?: string,
+  /**
+   * The answer was said aloud and marked on what was heard (docs/41-fifth-batch.md
+   * D4). It changes nothing about the grade, which the caller decided by the
+   * same marker a typed answer meets; it is what the reading on Progress and
+   * `npm run report:speech` read. Only `true` is written as spoken.
+   */
+  spoken?: boolean,
 ) {
   cardId = text(cardId);
   const ownerId = await requireUserId();
   if (reviewId !== undefined && !isClientReviewId(reviewId)) {
     return { ok: false as const, error: "That answer didn't come through properly, so it wasn't saved." };
   }
-  return gradeFor(ownerId, cardId, rating, durationMs, { reviewedAt, practisedSlot, reachedSlot, reviewId });
+  return gradeFor(ownerId, cardId, rating, durationMs, { reviewedAt, practisedSlot, reachedSlot, reviewId, spoken: spoken === true });
 }
 
 /**
@@ -532,9 +540,9 @@ export async function gradeCard(
  */
 async function gradeFor(
   ownerId: string, cardId: string, rating: RatingValue, durationMs: number,
-  options: { reviewedAt?: string; practisedSlot?: string; reachedSlot?: string; reviewId?: string } = {},
+  options: { reviewedAt?: string; practisedSlot?: string; reachedSlot?: string; reviewId?: string; spoken?: boolean } = {},
 ) {
-  const { reviewedAt, practisedSlot, reachedSlot, reviewId } = options;
+  const { reviewedAt, practisedSlot, reachedSlot, reviewId, spoken } = options;
 
   if (reviewId !== undefined && !isClientReviewId(reviewId)) {
     return { ok: false as const, error: "That answer didn't come through properly, so it wasn't saved." };
@@ -571,6 +579,7 @@ async function gradeFor(
     practisedSlot,
     reachedSlot,
     reviewId,
+    spoken,
   });
 
   revalidatePath("/");
@@ -594,7 +603,7 @@ async function gradeFor(
  */
 async function gradeOnce(
   ownerId: string, cardId: string, rating: RatingValue, reviewId: string,
-  slots: { practisedSlot?: string; reachedSlot?: string } = {},
+  slots: { practisedSlot?: string; reachedSlot?: string; spoken?: boolean } = {},
 ) {
   /*
     Asked first rather than only caught, so the answer does not depend on how
@@ -1764,11 +1773,14 @@ export async function sceneHelp(runId: unknown, turns: unknown) {
   const said = Array.isArray(turns)
     ? turns.slice(0, MAX_TURNS).map((one) => {
         const row = (one ?? {}) as Record<string, unknown>;
+        const said = clip(text(row.said), MAX_TURN_CHARS);
+        const spoken = spokenOf(row.spoken, said);
         return {
           beatId: text(row.beatId).slice(0, 64),
-          said: clip(text(row.said), MAX_TURN_CHARS),
+          said,
           helped: row.helped === true,
           ...(row.picked === true ? { picked: true } : {}),
+          ...(spoken ? { spoken } : {}),
           heard: clip(text(row.heard), MAX_TURN_CHARS),
           conceded: concededOf(row.conceded),
           alsoDone: alsoDoneOf(row.alsoDone),
@@ -1852,11 +1864,14 @@ export async function finishScene(input: {
   const turns = Array.isArray(input.turns)
     ? input.turns.slice(0, MAX_TURNS).map((turn) => {
         const row = (turn ?? {}) as Record<string, unknown>;
+        const said = clip(text(row.said), MAX_TURN_CHARS);
+        const spoken = spokenOf(row.spoken, said);
         return {
           beatId: text(row.beatId).slice(0, 64),
-          said: clip(text(row.said), MAX_TURN_CHARS),
+          said,
           helped: row.helped === true,
           ...(row.picked === true ? { picked: true } : {}),
+          ...(spoken ? { spoken } : {}),
           heard: clip(text(row.heard), MAX_TURN_CHARS),
           conceded: concededOf(row.conceded),
           alsoDone: alsoDoneOf(row.alsoDone),
@@ -1917,12 +1932,18 @@ export async function finishScene(input: {
       is graded once. `finishRun` closes a run once and a second finish gets
       nothing to grade; the id is the second lock on the same door.
     */
+    /*
+      A turn said aloud writes its row as spoken, so `npm run report:speech`
+      counts a conversation's spoken recalls beside the cards'. A requirement
+      met by a word the dictionary repaired never reaches here (D13).
+    */
     const result = await gradeOnce(
       ownerId, cardId, grade.rating as RatingValue,
       stableReviewId("scene", ownerId, finished.runId, String(index)),
       {
         ...(grade.grammCase ? { practisedSlot: grade.grammCase } : {}),
         ...(grade.reachedCase ? { reachedSlot: grade.reachedCase } : {}),
+        ...(grade.spoken ? { spoken: true } : {}),
       },
     );
     if (result.ok && !result.repeat) graded += 1;
@@ -2302,6 +2323,20 @@ export async function setSceneVoice(value: unknown) {
   const normalised = sceneVoiceFrom(value, "guided");
   await writeSetting(ownerId, SETTING_KEYS.sceneVoice, normalised);
   revalidatePath("/", "layout");
+  return { ok: true as const, value: normalised };
+}
+
+/**
+ * How the learner answers in a conversation, picked on the switch above the
+ * box and remembered for the next one (lib/ux/sceneAnswer.ts). Normalized on
+ * the way in, and not revalidated: the conversation the switch was pressed in
+ * is already under way, and the next one reads it when its page renders.
+ */
+export async function setSceneAnswer(value: unknown) {
+  const ownerId = await requireUserId();
+  const normalised = sceneAnswerFrom(value);
+  if (!normalised) return { ok: false as const };
+  await writeSetting(ownerId, SETTING_KEYS.sceneAnswer, normalised);
   return { ok: true as const, value: normalised };
 }
 
@@ -3576,6 +3611,48 @@ export async function readEstonian(textIn: unknown) {
 
 /** Distinct words reading mode asks the dictionary about; a 4,000 character text holds fewer. */
 const READING_WORD_BUDGET = 900;
+
+/** The most lines a recording's transcript arrives in: three minutes cut at its pauses is far fewer. */
+const MAX_HEARD_LINES = 200;
+
+/**
+ * WHAT A RECORDING WAS HEARD AS, WITH THE DICTIONARY UNDER IT (docs/41-fifth-batch.md, VB-12).
+ *
+ * The sound never comes here: a voice message is decoded and heard on the
+ * learner's device, and what arrives is its text, one line per piece the
+ * engine cut it into (D16). Each line is glossed exactly as a pasted sentence
+ * is, through the one gate, and kept as one line so the screen can play it
+ * back from the recording. And each word is asked of the forms list, which is
+ * half of the rule that marks the words the machine was least sure of: one
+ * request for the transcript rather than one per line. Nothing is stored and no
+ * model is asked; the lines go back to the screen that sent them.
+ */
+export async function readHeard(linesIn: unknown) {
+  const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "readText");
+  if (busy) return await sayRefusal(ownerId, busy);
+  const lines: string[] = [];
+  let used = 0;
+  for (const raw of Array.isArray(linesIn) ? linesIn.slice(0, MAX_HEARD_LINES) : []) {
+    const line = visibleLine(raw, MAX_READING_CHARS);
+    if (!line) continue;
+    used += line.length + 2;
+    if (used > MAX_READING_CHARS) break;
+    lines.push(line);
+  }
+  if (lines.length === 0) return { ok: false as const, error: "Nothing was heard in that recording." };
+  const glossed = await glossSentences(lines.map((et) => ({ et, form: null })), READING_WORD_BUDGET);
+  const words = [...new Set(lines.flatMap((line) => line.split(/\s+/))
+    .map((word) => word.normalize("NFC").toLocaleLowerCase("et").replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, ""))
+    .filter((word) => word.length > 0 && word.length <= 40))].slice(0, READING_WORD_BUDGET);
+  const held = await Promise.all(words.map(async (word) => [word, await isExactForm(word)] as const));
+  return {
+    ok: true as const,
+    lines: lines.map((sentence, i) => ({ sentence, tokens: glossed[i] ?? [] })),
+    asked: words,
+    known: held.filter(([, yes]) => yes).map(([word]) => word),
+  };
+}
 
 export async function buildClozeFromText(passageIn: string) {
   const ownerId = await requireUserId();

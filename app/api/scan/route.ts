@@ -5,6 +5,8 @@ import {
   completeWithImage, TutorError, visionProviders,
 } from "@/lib/tutor/provider";
 import { MAX_ITEMS, SCAN_PROMPT, parseScanReply } from "@/lib/scan/extract";
+import { NAME_THESE_THINGS, THINGS_PROMPT, parseThingsReply } from "@/lib/scan/things";
+import { resolveThings } from "@/lib/progress/things";
 import {
   ALLOWED_IMAGE_TYPES, decodeImageDataUrl, estimateImageTokens, MAX_IMAGE_BYTES,
 } from "@/lib/scan/image";
@@ -63,17 +65,24 @@ export async function POST(request: Request) {
     );
   }
 
-  let payload: { image?: unknown };
+  let payload: { image?: unknown; mode?: unknown };
   try {
     // A body that parses to `null` is not a picture, and reading its key after
     // this block had closed threw, which the framework answered with a 500.
     const parsed: unknown = await request.json();
     if (typeof parsed !== "object" || parsed === null) throw new TypeError("not an object");
-    payload = parsed as { image?: unknown };
+    payload = parsed as { image?: unknown; mode?: unknown };
   } catch {
     return Response.json({ error: "Something went wrong sending that. Reload the page and try again." }, { headers: NO_STORE, status: 400 });
   }
 
+  /*
+    A page, or the things around the learner (docs/41-fifth-batch.md, VB-13).
+    The same picture rules, the same chain, the same ledger and the same switch;
+    only what the model is asked differs, and for things it is asked for English
+    names alone, which the dictionary then turns into its own Estonian.
+  */
+  const things = payload.mode === "things";
   const decoded = decodeImageDataUrl(payload.image);
   if (!decoded.image) {
     return Response.json({ error: imageProblemMessage(decoded.problem) }, { headers: NO_STORE, status: 400 });
@@ -123,7 +132,7 @@ export async function POST(request: Request) {
 
   let reply;
   try {
-    reply = await completeWithImage(affordable, SCAN_PROMPT, READ_THIS_PAGE, decoded.image, (usage, config) => {
+    reply = await completeWithImage(affordable, things ? THINGS_PROMPT : SCAN_PROMPT, things ? NAME_THESE_THINGS : READ_THIS_PAGE, decoded.image, (usage, config) => {
       after(() => recordUsage({
         ownerId,
         kind: "SCAN",
@@ -152,6 +161,24 @@ export async function POST(request: Request) {
         "in .env (GEMINI_VISION_MODEL, GROQ_VISION_MODEL, ANTHROPIC_VISION_MODEL or OPENAI_VISION_MODEL)."
       : "We couldn't read that photo just now. Try again in a moment.";
     return Response.json({ error: message }, { headers: NO_STORE, status });
+  }
+
+  if (things) {
+    // English names only; whatever else the reply held adds nothing.
+    let found;
+    try {
+      found = await resolveThings(parseThingsReply(reply.text));
+    } catch (error) {
+      reportError(error, { at: "api/scan things", ownerId });
+      return Response.json(
+        { error: "We saw the photo, but couldn't look its words up just now. Try it again in a moment." },
+        { status: 503, headers: NO_STORE },
+      );
+    }
+    return Response.json(
+      { things: found },
+      { headers: { ...NO_STORE, "x-model-provider": reply.config.label, "x-model-id": reply.config.model } },
+    );
   }
 
   const scanned = parseScanReply(reply.text);

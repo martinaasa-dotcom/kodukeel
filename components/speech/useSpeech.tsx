@@ -141,6 +141,10 @@ export interface UseSpeechOptions {
   readonly onHeard?: (hearing: Hearing, raw: RawTurn) => void;
   /** Called when a turn closed with nothing said, so a call can show the button again. */
   readonly onNothing?: () => void;
+  /** The longest a turn may run, in seconds, where it is longer than one ordinary turn (the exam's spoken part). */
+  readonly maxSeconds?: number;
+  /** Keep the turn's audio so the screen can play the learner's own voice back. Never stored or sent. */
+  readonly keepAudio?: boolean;
 }
 
 export interface Speech {
@@ -157,6 +161,8 @@ export interface Speech {
   readonly clipping: boolean;
   readonly error: EngineError | null;
   readonly hearing: Hearing | null;
+  /** The last turn's own audio at 16 kHz, where `keepAudio` asked for it; for playing back on the device only. */
+  readonly audio: Float32Array | null;
   /** The app is saying something, so the microphone waits (D14). */
   readonly appSpeaking: boolean;
   download(): Promise<void>;
@@ -178,6 +184,7 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
   const [clipping, setClipping] = useState(false);
   const [error, setError] = useState<EngineError | null>(null);
   const [hearing, setHearing] = useState<Hearing | null>(null);
+  const [audio, setAudio] = useState<Float32Array | null>(null);
   const latest = useRef(options);
   latest.current = options;
 
@@ -231,7 +238,12 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
       return;
     }
     try {
-      await e.listen({ endpoint: latest.current.endpoint ?? true }, (event) => {
+      setAudio(null);
+      await e.listen({
+        endpoint: latest.current.endpoint ?? true,
+        maxSeconds: latest.current.maxSeconds,
+        keepAudio: latest.current.keepAudio,
+      }, (event) => {
         switch (event.kind) {
           case "partial":
             setPartial(event.text);
@@ -259,6 +271,7 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
             setLevel(0);
             setClipping(false);
             const raw = event.turn;
+            if (event.audio) setAudio(event.audio);
             if (!raw) {
               setThinking(false);
               latest.current.onNothing?.();
@@ -322,6 +335,7 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
       clipping,
       error: error ?? (model.phase === "error" ? model.error : null),
       hearing,
+      audio,
       appSpeaking,
       download,
       start,
@@ -330,6 +344,6 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
       forget,
       transcribe,
     }),
-    [offered, tooSlow, why, model, listening, thinking, partial, level, clipping, error, hearing, appSpeaking, download, start, stop, cancel, forget, transcribe],
+    [offered, tooSlow, why, model, listening, thinking, partial, level, clipping, error, hearing, audio, appSpeaking, download, start, stop, cancel, forget, transcribe],
   );
 }

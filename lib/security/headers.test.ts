@@ -46,8 +46,8 @@ describe("the policy says what the app actually needs", () => {
   });
 
   it("keeps the microphone and the camera, because two features need them", () => {
-    // geolocation=() is a denial. The other two are not: components/Recorder.tsx
-    // needs the microphone for speaking practice, and scanning a page needs the
+    // geolocation=() is a denial. The other two are not: speaking is heard on the
+    // device through components/speech/, and scanning a page needs the
     // camera, because `<input capture>` is governed by this policy and a phone
     // silently opens the photo library instead when it is denied. Either
     // denial switches a feature off with no error a learner could act on.

@@ -27,15 +27,23 @@
  * "You said:"), which is what the debrief's own transcript has always done.
  * A drawing may not be the only thing carrying a distinction either.
  */
-export function SceneFace({ who }: {
+export function SceneFace({ who, size = "sm" }: {
   /** Which side of the conversation this is. Decides which way they face. */
   who: "you" | "them";
+  /**
+   * Beside a bubble, or the whole of a call's screen (`CallScreen`), where the
+   * face is the one thing a phone shows of the person on the line.
+   */
+  size?: "sm" | "lg";
 }) {
   const you = who === "you";
+  const big = size === "lg";
   return (
     <span
       aria-hidden
-      className="mt-1 inline-flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full"
+      className={big
+        ? "inline-flex h-24 w-24 shrink-0 items-center justify-center rounded-full"
+        : "mt-1 inline-flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full"}
       style={{
         background: you ? "var(--cta)" : "linear-gradient(135deg, var(--blush), var(--accent))",
         color: you ? "var(--cta-ink)" : "var(--ink)",
@@ -43,7 +51,7 @@ export function SceneFace({ who }: {
     >
       <svg
         viewBox="0 0 24 24"
-        className="h-[18px] w-[18px]"
+        className={big ? "h-14 w-14" : "h-[18px] w-[18px]"}
         fill="none"
         stroke="currentColor"
         strokeWidth={1.8}

@@ -94,6 +94,14 @@ export interface GradeWrite {
    * none is given the database picks one.
    */
   reviewId?: string;
+  /**
+   * The answer was said aloud and marked on what was heard (docs/41-fifth-batch.md
+   * D4). Only `true` is ever written as true: anything else off the wire is a
+   * typed answer, because a forged flag would put a typed card into the
+   * "said aloud" reading and into the recall comparison `npm run report:speech`
+   * prints. It changes nothing about the grade itself.
+   */
+  spoken?: boolean;
 }
 
 /** Records the grade and returns the scheduling it wrote. */
@@ -164,6 +172,7 @@ export async function writeGrade(ownerId: string, write: GradeWrite): Promise<Sc
           targetCase: knownCase(card.targetCase),
           slot,
           reachedSlot: slot ? reachedFor(slot, write.reachedSlot) : null,
+          spoken: write.spoken === true,
         },
       }),
       prisma.card.update({
@@ -298,6 +307,8 @@ export function boundedRestoredReview(
     // needs a slot on both sides: with no readable asked slot there is nothing
     // for a reached one to be different from.
     reachedSlot: slot ? reachedFor(slot, reached) : null,
+    // A boolean or false: a file that spells it any other way was not written by this app.
+    spoken: row.spoken === true,
     // A restored row was not received now, and the file does not get to say it
     // was: read as `receivedAt` it would count a backup's whole history towards
     // today's closing round.

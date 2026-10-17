@@ -24,6 +24,7 @@ import { WeakestCases } from "@/components/WeakestCases";
 import { NotAutomatic } from "@/components/NotAutomatic";
 import { confusions } from "@/lib/stats/confusions";
 import { answerTimeReading } from "@/lib/stats/answerTime";
+import { spokenThisWeek } from "@/lib/stats/spoken";
 import { ReadinessPanel } from "@/components/readiness/Summary";
 import { readinessPicture } from "@/lib/progress/readiness";
 import { caseReviewsFor } from "@/lib/progress/cases";
@@ -154,6 +155,8 @@ export default async function ProgressPage() {
   const pace = answerTimeReading(reviews);
   const mixedUp = confusions(reviews);
   const hour = bestStudyHour(reviews, 20, clock);
+  /* What was said aloud this week, in plain ink: a count, never a verdict (SP-8). */
+  const aloud = spokenThisWeek(reviews, now);
 
   // Vocabulary reach by CEFR: known words per level, against what the deck holds.
   const byLevel = new Map<string, { total: Set<string>; known: Set<string> }>();
@@ -244,6 +247,15 @@ export default async function ProgressPage() {
           ]}
           action={<ShareProgress />}
         />
+
+        {aloud.answers > 0 && (
+          <p className="text-md" style={{ color: "var(--ink-2)" }} data-said-aloud>
+            {fill(t("Said aloud this week: {answers}, about {minutes}."), {
+              answers: countOf(locale, aloud.answers, "answer"),
+              minutes: countOf(locale, aloud.minutes, "minute"),
+            })}
+          </p>
+        )}
 
         {/*
           Two by two, by the page's width rather than the window's, so no panel

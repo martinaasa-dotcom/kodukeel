@@ -23,6 +23,7 @@ import { MascotWatch } from "@/components/MascotWatch";
 import { CaseExplorer, TutorPeek, type DemoCase, type DemoWord } from "./LandingDemo";
 import { HeroWord, PlanCalculator } from "./LandingMotion";
 import { CafeScene } from "./CafeScene";
+import { speechAvailability } from "@/lib/audio/speechAvailability";
 import { FirstEvening, type EveningStep, type EveningWord } from "./FirstEvening";
 import { VisitRecap } from "./VisitRecap";
 import { DEFAULT_PROGRAMME, PROGRAMMES } from "@/lib/course";
@@ -917,7 +918,7 @@ function Talk({ say }: { say: Say }) {
       </Reveal>
       <Reveal>
         <div className="mt-10 md:mt-12">
-          <CafeScene scenes={scenes} />
+          <CafeScene scenes={scenes} voiceBase={speechAvailability().modelBase} />
         </div>
       </Reveal>
     </section>
@@ -1377,7 +1378,7 @@ const faqsIn = ({ t }: Say) => [
   ],
   [
     t("Will it actually get me talking to people?"),
-    t("That's the whole point. You'll practice with people who want something from you: a receptionist, a landlord, a clerk. What you say is checked against the dictionary, never graded by an AI, so you can't be told you were wrong when you were right. Every morning the app asks whether you spoke Estonian to anyone yesterday, and if not, it gives you one small thing to say out loud. It counts those conversations, even the ones where somebody switched to English. It won't score your pronunciation, though. The best speech recognizer we could find gets native speakers wrong, and we'd rather tell you that than pretend."),
+    t("That's the whole point. You'll practice with people who want something from you: a receptionist, a landlord, a clerk. What you say is checked against the dictionary, never graded by an AI, so you can't be told you were wrong when you were right. Every morning the app asks whether you spoke Estonian to anyone yesterday, and if not, it gives you one small thing to say out loud. It counts those conversations, even the ones where somebody switched to English. It can hear Estonian too: say a line instead of typing it, and it works out which words you said on your own device, so the sound never leaves it. What it won't do is score how a word sounded. A recognizer quietly corrects most slips into the right word, so it can't honestly tell you that, and we'd rather say so than pretend."),
   ],
   [
     t("What happens to my data?"),

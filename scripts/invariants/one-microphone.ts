@@ -9,9 +9,8 @@ import type { InvariantKit } from "../lib/invariantKit";
  *
  *   - D5: the one way a screen listens is `useSpeech()` over the engine, so
  *     nothing but the web engine opens the microphone. `components/Recorder.tsx`
- *     is the one other door and is named, because it records a learner's own
- *     voice to play back, never to hear it (ADR-018); VB-5 takes its capture
- *     away and this list shrinks with it.
+ *     was the one other door until VB-5 took its capture away: it plays back
+ *     the audio of a turn the engine heard, and opens nothing.
  *   - The service worker's name for the model cache is `ASR_CACHE`, or a model
  *     update leaves the old 71 MB on every phone and the trim deletes the new.
  *   - D15: `speech` is a name `PAID_OFF` can switch off.
@@ -22,8 +21,8 @@ import type { InvariantKit } from "../lib/invariantKit";
  */
 const MAY_OPEN_THE_MICROPHONE: Record<string, string> = {
   "components/speech/webEngine.ts": "Is the engine: the one place a turn of speech starts (D5).",
-  "components/Recorder.tsx":
-    "Records the learner to play their own voice back beside a native one, and hears nothing; the Speaking round's rebuild (VB-5) is what takes its capture away.",
+  "app/(app)/scan/Webcam.tsx":
+    "Opens the computer's camera for a photo of the things around the learner (VB-13, D25), video only and with `audio: false`, which the check below reads.",
 };
 
 export default function oneMicrophone({ check, code, read, ALL }: InvariantKit) {
@@ -34,6 +33,11 @@ export default function oneMicrophone({ check, code, read, ALL }: InvariantKit) 
     assert.deepEqual(stray, [], `opens the microphone outside useSpeech(): ${stray.join(", ")}`);
     const stale = Object.keys(MAY_OPEN_THE_MICROPHONE).filter((f) => !openers.includes(f));
     assert.deepEqual(stale, [], `named as opening the microphone and no longer does: ${stale.join(", ")}`);
+    // The webcam is named because it asks for the camera, and it may never ask for sound with it.
+    const camera = code("app/(app)/scan/Webcam.tsx");
+    for (const call of camera.match(/getUserMedia\(\{[^}]*\}[^)]*\)/g) ?? ["none"]) {
+      assert.match(call, /audio: false/, `the webcam asks for the microphone as well as the camera: ${call}`);
+    }
   });
 
   check("the service worker keeps the model under the name lib/speech/model.ts gives it", () => {

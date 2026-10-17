@@ -35,6 +35,13 @@ export interface MicButtonProps {
   /** Show the words so far under the button while listening. Off where the screen shows them in its own box. */
   readonly showPartial?: boolean;
   readonly size?: "md" | "lg";
+  /**
+   * The screen says what was heard and what went wrong in its own words, so
+   * the button says neither: the landing café's way on is picking a line, and
+   * its own status line names the heard words with what happens next, which
+   * a second live region here would read out twice (VB-15).
+   */
+  readonly speaksForItself?: boolean;
 }
 
 /** The shortcut: Control and M, which types nothing on any keyboard Estonian is written on. */
@@ -43,7 +50,7 @@ export const MIC_SHORTCUT = { key: "m", label: "Ctrl M" } as const;
 /** Pressed for longer than this under a finger, a press is talking while held. */
 const HOLD_MS = 350;
 
-export function MicButton({ speech, label, shortcut = false, showPartial = true, size = "md" }: MicButtonProps) {
+export function MicButton({ speech, label, shortcut = false, showPartial = true, size = "md", speaksForItself = false }: MicButtonProps) {
   const t = useT();
   const [asking, setAsking] = useState(false);
   const [announce, setAnnounce] = useState("");
@@ -56,8 +63,8 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
   const megabytesTotal = megabytes(modelBytes());
 
   useEffect(() => {
-    if (hearing) setAnnounce(hearing.understood ? fill(t("Heard: {text}"), { text: hearing.understood }) : t("Nothing was heard."));
-  }, [hearing, t]);
+    if (hearing && !speaksForItself) setAnnounce(hearing.understood ? fill(t("Heard: {text}"), { text: hearing.understood }) : t("Nothing was heard."));
+  }, [hearing, speaksForItself, t]);
 
   const press = () => {
     const s = latest.current;
@@ -199,7 +206,7 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
         </div>
       )}
 
-      {error && !asking && <MicError error={error} onRetry={error === "download-failed" || error === "hash-failed" ? () => void speech.download() : null} />}
+      {error && !asking && !speaksForItself && <MicError error={error} onRetry={error === "download-failed" || error === "hash-failed" ? () => void speech.download() : null} />}
 
       <p className="sr-only" role="status" aria-live="polite">{announce}</p>
     </div>

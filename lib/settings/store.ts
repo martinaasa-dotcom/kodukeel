@@ -136,6 +136,13 @@ export const SETTING_KEYS = {
    */
   sceneVoice: "sceneVoice",
   /**
+   * How the learner last answered in a conversation: picking a line, saying
+   * it, or typing it. Remembered so the next scene opens the same way; a
+   * missing row reads as batch 4's default. The values and the reasoning live
+   * in lib/ux/sceneAnswer.ts.
+   */
+  sceneAnswer: "sceneAnswer",
+  /**
    * Which language a meaning is given in beside the English.
    *
    * English is the default and stays the default, because a missing row has to

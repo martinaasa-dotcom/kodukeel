@@ -11,7 +11,7 @@ import {
 } from "@/lib/tutor/provider";
 import { callChainForJson } from "@/lib/tutor/grader";
 import {
-  MAX_TURNS, MAX_TURN_CHARS, alsoDoneOf, concededOf, growDictionary, knowing, readDraw, replay, sceneContext, sceneVouch,
+  MAX_TURNS, MAX_TURN_CHARS, alsoDoneOf, concededOf, growDictionary, spokenOf, knowing, readDraw, replay, sceneContext, sceneVouch,
 } from "@/lib/progress/scene";
 import { JUDGE_REPLY_TOKENS, buildJudgeSystemPrompt, buildJudgeUserPrompt, earlierLines, parseJudgement } from "@/lib/scenes/judge";
 import {
@@ -181,11 +181,14 @@ export async function POST(request: Request) {
   const turns = Array.isArray(body.turns)
     ? body.turns.slice(0, MAX_TURNS).map((turn) => {
         const one = (turn ?? {}) as Record<string, unknown>;
+        const said = textField(one.said, MAX_TURN_CHARS);
+        const spoken = spokenOf(one.spoken, said);
         return {
           beatId: textField(one.beatId, 64),
-          said: textField(one.said, MAX_TURN_CHARS),
+          said,
           helped: one.helped === true,
           ...(one.picked === true ? { picked: true } : {}),
+          ...(spoken ? { spoken } : {}),
           heard: textField(one.heard, MAX_TURN_CHARS),
           conceded: concededOf(one.conceded),
           alsoDone: alsoDoneOf(one.alsoDone),

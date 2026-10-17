@@ -59,6 +59,18 @@ export const SPEECH_FIXTURES = [
   { file: "scripts/fixtures/speech/number.wav", text: "15", voice: "mari", trail: 2 },
   // The conjugation chant (VB-8): one verb's present, pronouns and all, off the dictionary.
   { file: "scripts/fixtures/speech/chant.wav", text: chantOf("elama"), voice: "mari", trail: 2 },
+  // A voice message to open on the reading page (VB-12): two lines the parents' evening's bank already holds, one voice, one message.
+  {
+    file: "scripts/fixtures/speech/voice-message.wav",
+    text: "Ta on klassis rõõmus ja õpib hästi. Vead on väikesed. Palun lugege temaga kodus iga päev.",
+    voice: "mari",
+    trail: 0,
+  },
+  // A café played start to finish by voice (VB-4): each is a line `lib/scenes/picks/kohvikus.ts` offers.
+  { file: "scripts/fixtures/speech/kohvi-palun.wav", text: "Kohvi, palun.", voice: "tambet", trail: 2 },
+  { file: "scripts/fixtures/speech/jah-see-on-koik.wav", text: "Jah, see on kõik.", voice: "tambet", trail: 2 },
+  { file: "scripts/fixtures/speech/kaardiga-palun.wav", text: "Kaardiga, palun.", voice: "tambet", trail: 2 },
+  { file: "scripts/fixtures/speech/aitah-head-aega.wav", text: "Aitäh, head aega!", voice: "tambet", trail: 2 },
 ] as const;
 
 async function make(text: string, voice: string): Promise<Float32Array> {

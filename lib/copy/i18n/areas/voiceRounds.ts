@@ -78,8 +78,6 @@ export const VOICE_ROUNDS: Area = {
 
     // 20 küsimust, asked aloud.
     "Ask your question out loud": "Задайте вопрос вслух",
-    "Asking in a moment. Touch anything to change it first.":
-      "Сейчас вопрос будет задан. Коснитесь чего угодно, чтобы сначала его изменить.",
     "Say or type your question, then press Enter": "Скажите или напишите вопрос и нажмите Enter",
 
     // Töövihik, read aloud.
@@ -169,8 +167,6 @@ export const VOICE_ROUNDS: Area = {
 
     // 20 küsimust, asked aloud.
     "Ask your question out loud": "Поставте запитання вголос",
-    "Asking in a moment. Touch anything to change it first.":
-      "Зараз запитання буде поставлено. Торкніться будь-чого, щоб спершу його змінити.",
     "Say or type your question, then press Enter": "Скажіть або напишіть запитання і натисніть Enter",
 
     // Töövihik, read aloud.

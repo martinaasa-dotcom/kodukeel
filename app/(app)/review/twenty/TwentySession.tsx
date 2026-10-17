@@ -28,7 +28,7 @@ import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
 import { MicButton } from "@/components/speech/MicButton";
 import { micInAnswerBox } from "@/components/speech/answerBoxMic";
-import { SendCountdown, SEND_COUNTDOWN_MS } from "@/components/speech/SendCountdown";
+import { SendRing } from "@/components/scene/SceneSpeech";
 import { useAudioPrefs } from "@/components/AudioPrefs";
 import { playClip } from "@/lib/audio/clip";
 
@@ -179,14 +179,14 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
     handsFree.current = true;
     heardText.current = said;
     setText(said);
-    // D20: a heard line waits two and a half seconds, so the person who said it can catch a mishearing.
+    /*
+      D20: a heard question waits on the conversations' own ring, drawn in the
+      Ask button it will press, so the person who said it can catch a
+      mishearing. Touching the screen or a key stops it and leaves the
+      question in the box to be sent by hand.
+    */
     if (speechConfig.sendAtOnce) void submit(said);
-    else setSendAt(Date.now() + SEND_COUNTDOWN_MS);
-  }
-
-  /** Touching the box or the card stops the countdown and leaves the question to be sent by hand. */
-  function holdIt() {
-    if (sendAt !== null) setSendAt(null);
+    else setSendAt(Date.now());
   }
 
   /** The engine's own reply, read aloud, then the microphone again for the next question (D14). */
@@ -319,7 +319,6 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
       <div
         className="rounded-xl border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
-        onPointerDown={holdIt}
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
           <Chip tone="accent"><MessageCircleQuestion size={12} aria-hidden /> 20 küsimust</Chip>
@@ -387,8 +386,7 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
               autoComplete="off"
               autoCapitalize="sentences"
               spellCheck={false}
-              onChange={(e) => { setText(e.target.value); holdIt(); handsFree.current = false; }}
-              onFocus={holdIt}
+              onChange={(e) => { setText(e.target.value); handsFree.current = false; }}
               onKeyDown={(e) => { if (isAdvanceKey(e)) { e.preventDefault(); e.stopPropagation(); void submit(); } }}
               className="field-lg mt-2 w-full text-lg"
               style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
@@ -397,7 +395,6 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
             {micOffered && (
               <div className="mt-3 flex flex-wrap items-center gap-3">
                 <MicButton speech={speech} label={t("Ask your question out loud")} shortcut showPartial />
-                {sendAt !== null && <SendCountdown key={sendAt} label={t("Asking in a moment. Touch anything to change it first.")} onDone={() => void submit()} />}
               </div>
             )}
             {suggestions.length > 0 && (
@@ -409,7 +406,9 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
                 <Lightbulb size={14} aria-hidden /> {hintsUsed >= ladder.length ? t("No hints left") : t("Hint, costs a question")}
               </Button>
               <Button variant="primary" onClick={() => void submit()} disabled={!text.trim() || busy || thinking !== null} className="ml-auto">
-                {t("Ask", "question")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+                {t("Ask", "question")} {sendAt !== null
+                  ? <SendRing key={sendAt} onDone={() => void submit()} onStop={() => setSendAt(null)} />
+                  : <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>}
               </Button>
             </div>
           </div>

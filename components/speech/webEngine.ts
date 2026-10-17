@@ -49,6 +49,8 @@ export class WebSpeechEngine implements SpeechEngine {
     readonly onEvent: (event: EngineEvent) => void;
   } | null = null;
   private waiters = new Set<(message: FromWorker) => void>();
+  /** A recording is being heard, which `cancel` stops rather than a turn. */
+  private transcribing = false;
 
   constructor(private readonly modelBase: string) {}
 
@@ -113,7 +115,7 @@ export class WebSpeechEngine implements SpeechEngine {
       case "final":
         this.closeCapture();
         this.turn = null;
-        turn.onEvent({ kind: "final", turn: message.turn, why: message.why });
+        turn.onEvent({ kind: "final", turn: message.turn, why: message.why, ...(message.audio ? { audio: message.audio } : {}) });
         return;
       case "error":
         this.closeCapture();
@@ -128,6 +130,11 @@ export class WebSpeechEngine implements SpeechEngine {
   async isDownloaded(): Promise<boolean> {
     if (typeof caches === "undefined") return false;
     try {
+      /* Asked before it is opened, because `caches.open` creates what it
+         cannot find: every screen with an answer box asks this on mount
+         (VB-6), and an empty speech cache appearing on a device that never
+         said yes to speech is a cache nothing will ever clear. */
+      if (!(await caches.has(ASR_CACHE))) return false;
       const cache = await caches.open(ASR_CACHE);
       for (const file of ASR_MODEL.files) if (!(await cache.match(CACHE_KEY(file.name)))) return false;
       return true;
@@ -224,7 +231,10 @@ export class WebSpeechEngine implements SpeechEngine {
     const channel = new MessageChannel();
     this.turn = { context, stream, node, onEvent };
     node.port.postMessage({ type: "port" }, [channel.port1]);
-    this.ensureWorker().postMessage({ type: "listen", endpoint: options.endpoint } satisfies ToWorker, [channel.port2]);
+    this.ensureWorker().postMessage(
+      { type: "listen", endpoint: options.endpoint, maxSeconds: options.maxSeconds, keepAudio: options.keepAudio } satisfies ToWorker,
+      [channel.port2],
+    );
     onEvent({ kind: "state", state: { kind: "listening" } });
   }
 
@@ -234,6 +244,11 @@ export class WebSpeechEngine implements SpeechEngine {
   }
 
   cancel(): void {
+    if (this.transcribing) {
+      // A recording being heard stops after the piece in hand; what was heard by then is returned.
+      this.worker?.postMessage({ type: "cancel" } satisfies ToWorker);
+      return;
+    }
     if (!this.turn) return;
     this.worker?.postMessage({ type: "cancel" } satisfies ToWorker);
     this.closeCapture();
@@ -252,12 +267,17 @@ export class WebSpeechEngine implements SpeechEngine {
   async transcribe(samples: Float32Array, sampleRate: number, onProgress: (done: number, total: number) => void): Promise<TranscribedPiece[]> {
     await this.load();
     const pieces: TranscribedPiece[] = [];
-    await this.ask({ type: "transcribe", samples, rate: sampleRate }, "transcribed", (m) => {
-      if (m.type === "segment") {
-        if (m.turn) pieces.push({ turn: m.turn, from: m.from, to: m.to });
-        onProgress(m.done, m.total);
-      }
-    });
+    this.transcribing = true;
+    try {
+      await this.ask({ type: "transcribe", samples, rate: sampleRate }, "transcribed", (m) => {
+        if (m.type === "segment") {
+          if (m.turn) pieces.push({ turn: m.turn, from: m.from, to: m.to });
+          onProgress(m.done, m.total);
+        }
+      });
+    } finally {
+      this.transcribing = false;
+    }
     return pieces;
   }
 

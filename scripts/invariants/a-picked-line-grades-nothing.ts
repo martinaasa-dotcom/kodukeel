@@ -28,7 +28,9 @@ export default function aPickedLineGradesNothing({ check, code }: InvariantKit) 
   check("the route offers the picks off the scene's own dictionary, and the screen sends a pick as a turn", () => {
     assert.match(code("app/api/scene/route.ts"), /picks: isOver\(scene, state\) \? \[\] : picksFor\(scene, standing \?\? current, card, marking\.lexicon\)/, "the route stopped offering picks, or offers them off something other than this run's card");
     const session = code("components/scene/SceneSession.tsx");
-    assert.match(session, /onClick=\{\(\) => answer\(pick\.et, true\)\}/, "a pick is no longer sent as a picked turn");
-    assert.match(session, /useState<"pick" \| "type">\(openAt === "A1" \? "pick" : "type"\)/, "picking stopped being the default at A1");
+    assert.match(session, /onClick=\{\(\) => answer\(pick\.et, true(?:, [^}]*)?\)\}/, "a pick is no longer sent as a picked turn");
+    // The switch remembers the learner's last way of answering (VB-4); with nothing remembered, A1 picks.
+    assert.match(session, /useState<SceneAnswer>\(\(\) => openingAnswer\(answeredLast, openAt, speechHere\)\)/, "the switch no longer opens on the remembered answer or the band's default");
+    assert.match(code("lib/ux/sceneAnswer.ts"), /level === "A1" \? "pick" : "type"/, "picking stopped being the default at A1");
   });
 }

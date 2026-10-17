@@ -137,7 +137,7 @@ try {
         await page.waitForFunction(() => document.querySelector("#question")?.value.trim() !== "", null, { timeout: 60_000 }).catch(() => undefined);
         const question = await page.locator("#question").inputValue().catch(() => "");
         check("20 küsimust puts the question heard into the box", question.trim() !== "", question);
-        const counting = await shows(page.getByText("Asking in a moment. Touch anything to change it first."), 2000);
+        const counting = await shows(page.locator("[data-send-ring]"), 2000);
         check("and counts down before asking it (D20)", counting);
         await page.waitForFunction(() => document.querySelectorAll('[aria-label="Your questions"] li').length > 0, null, { timeout: 15_000 }).catch(() => undefined);
         const asked = await page.locator('[aria-label="Your questions"] li').count();

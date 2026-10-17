@@ -16,6 +16,7 @@ import { lightUp, lineWords, shareLit } from "@/lib/speech/lightUp";
 import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
 import { MicButton } from "@/components/speech/MicButton";
 import { micInAnswerBox } from "@/components/speech/answerBoxMic";
+import { Recording } from "./Recording";
 
 type Read = { sentence: string; tokens: GlossedToken[] }[][];
 
@@ -44,6 +45,8 @@ export function Reader() {
   const [read, setRead] = useState<Read | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  /** A recording is open (VB-12), and its own view stands where the paste box was. */
+  const [recording, setRecording] = useState(false);
 
   /*
     READ IT ALOUD (docs/41-fifth-batch.md, VB-9). Once the model is downloaded
@@ -162,7 +165,8 @@ export function Reader() {
           </div>
         </div>
       ) : (
-        <div className="rounded-lg border p-5" style={{ borderColor: "var(--rule)", background: "var(--surface)" }}>
+        <div className="flex flex-col gap-5">
+        {!recording && <div className="rounded-lg border p-5" style={{ borderColor: "var(--rule)", background: "var(--surface)" }}>
           <label htmlFor="reading" className="label-xs block" style={{ color: "var(--ink-3)" }}>
             {t("Estonian text")}
           </label>
@@ -192,6 +196,8 @@ export function Reader() {
           <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
             {t("We don’t keep your text. The dictionary reads it, and it’s gone when you leave.")}
           </p>
+        </div>}
+        <Recording onActive={setRecording} />
         </div>
       )}
     </Page>

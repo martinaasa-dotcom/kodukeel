@@ -318,6 +318,14 @@ model Review {
   /// purpose: a default would stamp the whole existing log with the moment of
   /// the migration and count a year of answers towards tonight's round.
   receivedAt  DateTime?
+  /// The answer was said aloud rather than typed: the microphone filled the
+  /// answer, and what was marked is what it heard (docs/41-fifth-batch.md D4,
+  /// SP-8). True only on a spoken answer, false on every other row and on every
+  /// row written before this column, which were typed. It is what the reading
+  /// "Said aloud this week" on Progress is derived from (ADR-014: no counter),
+  /// and what `npm run report:speech` reads recall after a spoken answer off.
+  /// Append-only like the rest of the row, in the export and the erasure.
+  spoken      Boolean   @default(false)
 
   @@index([ownerId, reviewedAt])
   @@index([ownerId, receivedAt])

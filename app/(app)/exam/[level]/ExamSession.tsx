@@ -12,7 +12,7 @@ import { submitExam } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { EstonianInput } from "@/components/EstonianInput";
-import { Recorder } from "@/components/Recorder";
+import { SpokenAnswer } from "./SpokenAnswer";
 import { Speak, SpeakPair } from "@/components/Speak";
 import { Card, Chip, Meter, Note, SectionTitle } from "@/components/ui";
 import { partOf } from "@/lib/exam/paper";
@@ -781,7 +781,7 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
         </Fact>
         {speaking && (
         <Fact icon={<Mic size={18} />} hue="accent" title={t("Speaking is marked by you")}>
-          {t("You mark the spoken part yourself: record, listen back, and check off what you managed. We tested speech recognizers and none was accurate enough for Estonian. In the break before it, you'll rehearse the small talk a real examiner opens with.")}
+          {t("You mark the spoken part yourself: speak, see which words were understood, listen back, and check off what you managed. The app hears words, never how they sounded. In the break before it, you'll rehearse the small talk a real examiner opens with.")}
         </Fact>
         )}
         </div>
@@ -1933,7 +1933,7 @@ function formatSeconds(seconds: number, t: (english: string) => string, locale: 
   return seconds > 60 && seconds % 60 === 0 ? countOf(locale, seconds / 60, "minute") : countOf(locale, seconds, "second");
 }
 
-/** Record, listen back, mark yourself. Nothing here scores a recording. */
+/** Speak, see what was understood, listen back, mark yourself. Nothing here scores a sound (SP-5, D22). */
 function SpeakQuestion({ item, marks, response, onMark }: {
   item: Extract<ExamItem, { kind: "speak" }>;
   marks: number;
@@ -2030,7 +2030,7 @@ function SpeakQuestion({ item, marks, response, onMark }: {
         <p className="mb-2 text-sm" style={{ color: "var(--ink-2)" }}>
           {fill(t("Speak for about {time}."), { time: formatSeconds(item.seconds, t, locale) })}
         </p>
-        <Recorder targetSeconds={item.seconds} onRecorded={() => update({ recorded: true })} />
+        <SpokenAnswer targetSeconds={item.seconds} ideas={item.ideas.map((idea) => idea.lemma)} onSpoken={() => update({ recorded: true })} />
       </div>
 
       {recorded && followUps.length > 0 && (
@@ -2041,9 +2041,9 @@ function SpeakQuestion({ item, marks, response, onMark }: {
           <ol className="grid list-decimal gap-1 pl-5 text-md" style={{ color: "var(--ink)" }}>
             {followUps.map((q) => <li key={q}>{t(q, "brief")}</li>)}
           </ol>
-          <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>{t("Answer out loud. You can record your answer too.")}</p>
+          <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>{t("Answer out loud. The microphone can listen to this one too.")}</p>
           <div className="mt-3">
-            <Recorder targetSeconds={30} />
+            <SpokenAnswer targetSeconds={30} ideas={item.ideas.map((idea) => idea.lemma)} />
           </div>
         </div>
       )}
@@ -2081,7 +2081,7 @@ function SpeakQuestion({ item, marks, response, onMark }: {
         </div>
         {!recorded && (
           <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-            {t("Record something first, then check off what you managed. There's nothing to judge until you've spoken.")}
+            {t("Speak first, then check off what you managed. There's nothing to judge until you've spoken.")}
           </p>
         )}
       </fieldset>

@@ -54,7 +54,8 @@ passes them.
 - **The offline outbox.** `lib/offline/db.ts` keeps grades taken offline in IndexedDB and
   `replayGrades` sends them in order with the time they were answered. A native app keeps the same
   records (every field of `PendingGrade`, `spoken` included) in its own store and replays them through
-  the same endpoint.
+  the same endpoint. A conversation's spoken turn carries its repaired words and two counts, words heard
+  and words changed before sending (`lib/speech/edits.ts`), and never the words heard (D21).
 - **The cache.** The service worker's caches (`public/sw.js`) become the platform's own storage, with
   the model in a place the system does not clear.
 
@@ -81,10 +82,13 @@ The actions the speech features use, which are the first routes to build:
 | `startCourseDay`, `markCourseStep`, `advanceCourseStep`, `tonightSteps` | Tonight's module | No |
 | `completeLesson` | A finished unit lesson | No |
 | `readEstonian` | Glosses a pasted or transcribed text | No |
+| `readHeard` | Glosses a recording's transcript, its words only (VB-12) | No |
 | `saveScan`, `addScanToDeck` | A photographed page or the things around you | No; the reading is `/api/scan` |
-| `setSpeechSendAtOnce`, `setSpeechInBoxes` | The two speaking choices | No |
+| `setSpeechSendAtOnce`, `setSpeechInBoxes`, `setSceneAnswer` | The speaking choices, and how a conversation is answered | No |
 | (none) | Which heard words are Estonian spellings | Yes, `/api/speech/forms` |
 | (none) | A clip read aloud | Yes, `/api/tts` |
+| (none) | What was heard, read back and kept nowhere (VB-5) | Yes, `/api/tts?transient=1` |
+| (none) | The things in a photo, named in English (VB-13) | Yes, `/api/scan` with `mode: "things"` |
 | (none) | Anu | Yes, `/api/tutor` |
 
 Signing in is the other half: Supabase Auth issues the same tokens to a native client, and the routes
