@@ -403,3 +403,15 @@ export function partOfSpeechCue(pos: string | null | undefined): string | null {
   const said = pos?.trim().toLowerCase();
   return said && said !== "adverb" ? said : null;
 }
+
+/**
+ * A size never breaks from its unit. "71 MB" set in a narrow card wrapped as
+ * "71" at the end of one line and "MB" at the start of the next, which reads as
+ * two things; a no-break space between a figure and the unit after it keeps
+ * them one. The units are the download's own, in the three languages the app
+ * speaks, so nothing else in a sentence is touched.
+ */
+export function keepUnits(text: string): string {
+  return text.replace(/(\d) (MB|МБ)(?![\p{L}])/gu, "$1\u00a0$2");
+}
+

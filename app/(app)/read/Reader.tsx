@@ -181,9 +181,10 @@ export function Reader() {
             className="field-lg mt-2 w-full resize-y text-base"
             style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
           />
-          <div className="under-field flex items-center justify-between gap-3">
+          <div className="under-field flex items-start justify-between gap-3">
             <DiacriticBar />
-            <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
+            {/* A figure, never broken across two lines: beside a letter bar that wraps, it keeps its own width. */}
+            <span className="tnum shrink-0 whitespace-nowrap pt-2 text-xs" style={{ color: "var(--ink-3)" }}>
               {text.length}/{MAX_READING_CHARS}
             </span>
           </div>

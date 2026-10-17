@@ -366,7 +366,8 @@ function Shown({ entry, label }: { entry: NumbersItem; label: string }) {
   }
   if (item.kind === "price") {
     return (
-      <p className="numbers-tag font-display text-4xl font-bold tabular-nums" data-shown={entry.shown}>
+      // Proportional figures on a price tag: tabular ones set the comma a digit wide, so "59,80" read as "59 , 80".
+      <p className="numbers-tag font-display text-4xl font-bold" data-shown={entry.shown}>
         {entry.shown}
       </p>
     );

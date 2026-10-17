@@ -9,7 +9,7 @@ import { MicError } from "@/components/speech/MicButton";
 import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
 import { setSpeechInBoxes, setSpeechSendAtOnce } from "@/app/actions";
 import { fill } from "@/lib/copy/locale";
-import { NOT_REACHED } from "@/lib/copy/values";
+import { NOT_REACHED, keepUnits } from "@/lib/copy/values";
 import { megabytes, modelBytes } from "@/lib/speech/model";
 
 /**
@@ -78,12 +78,12 @@ export function SpeakingPanel() {
           {speech.phase === "checking"
             ? t("Checking this device.")
             : downloaded
-              ? fill(t("Downloaded on this device ({mb} MB)."), { mb })
+              ? keepUnits(fill(t("Downloaded on this device ({mb} MB)."), { mb }))
               : speech.phase === "downloading"
-                ? fill(t("Downloading {done} of {total} MB"), { done: megabytes(speech.progress.done), total: megabytes(speech.progress.total || modelBytes()) })
+                ? keepUnits(fill(t("Downloading {done} of {total} MB"), { done: megabytes(speech.progress.done), total: megabytes(speech.progress.total || modelBytes()) }))
                 : speech.phase === "cleared"
                   ? t("Your browser cleared the download to save space.")
-                  : fill(t("Not downloaded on this device. It is {mb} MB, once."), { mb })}
+                  : keepUnits(fill(t("Not downloaded on this device. It is {mb} MB, once."), { mb }))}
         </p>
         {downloaded ? (
           <Button variant="secondary" size="sm" onClick={() => void speech.forget()}>
@@ -91,7 +91,7 @@ export function SpeakingPanel() {
           </Button>
         ) : speech.phase === "needs-download" || speech.phase === "cleared" || speech.phase === "error" ? (
           <Button size="sm" onClick={() => void speech.download()}>
-            {fill(t("Download {mb} MB"), { mb })}
+            {keepUnits(fill(t("Download {mb} MB"), { mb }))}
           </Button>
         ) : null}
       </div>

@@ -8,6 +8,7 @@ import { fill } from "@/lib/copy/locale";
 import { megabytes, modelBytes } from "@/lib/speech/model";
 import type { EngineError } from "@/lib/speech/engine";
 import type { Speech } from "./useSpeech";
+import { keepUnits } from "@/lib/copy/values";
 
 /**
  * THE ONE MICROPHONE (docs/41-fifth-batch.md, VB-2).
@@ -190,8 +191,8 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
         <div className="explain-panel flex max-w-prose flex-col gap-3" role="group" aria-label={t("Download for speaking")}>
           <p className="text-sm" style={{ color: "var(--ink)" }}>
             {phase === "cleared"
-              ? fill(t("Your browser cleared the speaking download to save space. Getting it back is {mb} MB, once."), { mb: megabytesTotal })
-              : fill(t("Speaking is new. It needs a one-time download of {mb} MB, which stays on this device, so hearing works offline and nothing you say ever leaves it."), { mb: megabytesTotal })}
+              ? keepUnits(fill(t("Your browser cleared the speaking download to save space. Getting it back is {mb} MB, once."), { mb: megabytesTotal }))
+              : keepUnits(fill(t("Speaking is new. It needs a one-time download of {mb} MB, which stays on this device, so hearing works offline and nothing you say ever leaves it."), { mb: megabytesTotal }))}
           </p>
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
             {t("What you see is the machine's hearing. You can always change it before it counts.")}
@@ -201,7 +202,7 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
           )}
           <div className="flex flex-wrap gap-2">
             <Button variant="ghost" size="sm" onClick={() => setAsking(false)}>{t("Not now")}</Button>
-            <Button size="sm" onClick={() => void download()}>{fill(t("Download {mb} MB"), { mb: megabytesTotal })}</Button>
+            <Button size="sm" onClick={() => void download()}>{keepUnits(fill(t("Download {mb} MB"), { mb: megabytesTotal }))}</Button>
           </div>
         </div>
       )}
@@ -215,7 +216,7 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
 
 function downloadingLine(t: (english: string) => string, done: number, total: number): string {
   if (total <= 0) return t("Starting the download");
-  return fill(t("Downloading {done} of {total} MB"), { done: megabytes(done), total: megabytes(total) });
+  return keepUnits(fill(t("Downloading {done} of {total} MB"), { done: megabytes(done), total: megabytes(total) }));
 }
 
 /** The browser says it is on a metered connection, where it says anything. */

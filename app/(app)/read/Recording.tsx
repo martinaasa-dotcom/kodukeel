@@ -20,6 +20,7 @@ import {
 import { MAX_READING_CHARS } from "@/lib/estonian/readingText";
 import { playRecording, type PlayingRecording } from "@/lib/audio/clip";
 import { fill } from "@/lib/copy/locale";
+import { keepUnits } from "@/lib/copy/values";
 
 /** The rate a recording is decoded at: what the recognizer hears, and plenty for a voice. */
 const DECODE_RATE = 16_000;
@@ -413,13 +414,13 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
           <div className="mt-3 flex flex-col gap-3" role="group" aria-label={t("Download for speaking")}>
             <p className="text-base" style={{ color: "var(--ink)" }}>
               {speech.phase === "cleared"
-                ? fill(t("Your browser cleared the speaking download to save space. Getting it back is {mb} MB, once."), { mb: total })
-                : fill(t("Hearing a recording needs a one-time download of {mb} MB. It stays on this device, so nothing you open is ever sent anywhere."), { mb: total })}
+                ? keepUnits(fill(t("Your browser cleared the speaking download to save space. Getting it back is {mb} MB, once."), { mb: total }))
+                : keepUnits(fill(t("Hearing a recording needs a one-time download of {mb} MB. It stays on this device, so nothing you open is ever sent anywhere."), { mb: total }))}
             </p>
             <div className="flex flex-wrap gap-2">
               <Button variant="ghost" size="sm" onClick={reset}>{t("Not now")}</Button>
               <Button size="sm" variant="primary" onClick={() => void download(stage.file)}>
-                {fill(t("Download {mb} MB"), { mb: total })}
+                {keepUnits(fill(t("Download {mb} MB"), { mb: total }))}
               </Button>
             </div>
           </div>
@@ -428,7 +429,7 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
             <p className="mt-3 flex items-center gap-2 font-semibold" role="status" style={{ color: "var(--ink)" }}>
               <Loader2 size={16} className="animate-spin" aria-hidden />
               {progress.total > 0
-                ? fill(t("Downloading {done} of {total} MB"), { done: megabytes(progress.done), total: megabytes(progress.total) })
+                ? keepUnits(fill(t("Downloading {done} of {total} MB"), { done: megabytes(progress.done), total: megabytes(progress.total) }))
                 : t("Starting the download")}
             </p>
             <div className="recording-meter mt-3" aria-hidden>

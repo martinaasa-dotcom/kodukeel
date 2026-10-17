@@ -10,6 +10,7 @@ import { matchPick } from "@/lib/speech/matchPick";
 import { lineWords } from "@/lib/speech/lightUp";
 import { core } from "@/lib/speech/reconcile";
 import { megabytes, modelBytes } from "@/lib/speech/model";
+import { keepUnits } from "@/lib/copy/values";
 
 /**
  * THE CAFÉ, SAID OUT LOUD (docs/41-fifth-batch.md, VB-15).
@@ -103,11 +104,11 @@ function Listening({ picks, onMatch, onListen }: CafeVoiceProps) {
     return (
       <div className="explain-panel flex flex-col gap-3" role="group" aria-label={t("Download for speaking")}>
         <p className="text-sm" style={{ color: "var(--ink)" }}>
-          {fill(t("To hear you, Kodukeel needs a one-time download of {mb} MB. It stays in this browser, and what you say never leaves your device."), { mb })}
+          {keepUnits(fill(t("To hear you, Kodukeel needs a one-time download of {mb} MB. It stays in this browser, and what you say never leaves your device."), { mb }))}
         </p>
         <div className="flex flex-wrap gap-2">
           <Button variant="ghost" size="sm" onClick={() => setAsking(false)}>{t("Not now")}</Button>
-          <Button variant="primary" size="sm" onClick={() => void download()}>{fill(t("Download {mb} MB"), { mb })}</Button>
+          <Button variant="primary" size="sm" onClick={() => void download()}>{keepUnits(fill(t("Download {mb} MB"), { mb }))}</Button>
         </div>
       </div>
     );
