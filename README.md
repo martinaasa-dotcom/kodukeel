@@ -102,7 +102,7 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
   change. New words are shown to you with their answer rather than guessed at, and multiple choice
   covers recognizing them. Press `u` to undo your last grade. The card goes back to how it was, and
   your answer stays in your review history, which is never edited.
-- **27 ways to practice, all on one deck.** Six quick rounds: Match, Sentences (a real sentence
+- **28 ways to practice, all on one deck.** Six quick rounds: Match, Sentences (a real sentence
   put back in order, commas and dashes included), Listening, Dictation, Speaking, and Say what you
   see (five sentences about a scene made of emoji). Two ways through the words you're working on:
   flash cards over your whole deck, and the hundred most common words of each kind, counted from
@@ -113,7 +113,7 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
   question comes back with a plain grammar tip where it could be better; it grades nothing). Töövihik,
   the workbook: a page of real sentences with a word in brackets to write in the form the sentence
   needs, the way a course book sets homework, built from your own words and the cases you find
-  hardest, checked at the end, with a hint and a second go on the lines you missed. A two-minute daily quest aimed at whatever's going worst. And nine
+  hardest, checked at the end, with a hint and a second go on the lines you missed. A two-minute daily quest aimed at whatever's going worst. Arvud: a price tag, a clock on the wall, a timetable or a number, said out loud or typed in words or digits, with the right answer read back to you. And nine
   drills, each tucked onto the page about the thing it drills: writing a sentence with a word in a
   named case, verb government, how the start of a sentence picks the ending, long sounds against short ones, your own pasted Estonian, the
   conjugation table, the words the endings rules don't reach, the cards you keep failing, and the

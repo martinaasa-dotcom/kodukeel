@@ -145,6 +145,10 @@ export const ACTIVITIES = {
     href: "/review/workbook", kind: "drill",
     why: "A page from a course book: real sentences, each with a word in brackets to put into the form it needs. It's where tonight's ending gets used eight times, in eight sentences.",
   },
+  numbers: {
+    href: "/review/numbers", kind: "drill",
+    why: "Prices, clock times and counts, said out loud. Every counter you'll stand at needs one, and Estonian says half past two as half three.",
+  },
   flash: {
     href: "/review/flashcards", kind: "drill",
     why: "Words you've already met, asked in new ways: read aloud, missing from a sentence, or in a sentence you write.",

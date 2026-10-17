@@ -5551,3 +5551,40 @@ a:focus-visible .wave-word::after {
   .speech-mic-ring { transition: none; }
   .speech-partial { animation: none; }
 }
+
+/*
+  THE NUMBERS ROUND'S THREE OBJECTS (docs/41-fifth-batch.md, VB-7). A
+  timetable line is the night with its own ink, the way a departure board is
+  lit; a price tag is a card with the hole a tag hangs from; a count is plain
+  ink. No hue carries a meaning here, since the hues are verdicts (D17 adds no
+  drawing beyond the clock face, which is `components/speech/ClockFace.tsx`).
+*/
+.numbers-board {
+  background: var(--stage);
+  color: var(--stage-ink);
+  border-radius: var(--r);
+  padding: 0.35em 0.7em;
+  letter-spacing: 0.04em;
+  box-shadow: var(--shadow);
+}
+.numbers-tag {
+  position: relative;
+  background: var(--surface);
+  color: var(--ink);
+  border: 2px solid var(--rule);
+  border-radius: var(--r) var(--r-xl) var(--r-xl) var(--r);
+  padding: 0.3em 0.8em 0.3em 1.3em;
+  box-shadow: var(--shadow);
+}
+.numbers-tag::before {
+  content: "";
+  position: absolute;
+  left: 0.45em;
+  top: 50%;
+  width: 0.28em;
+  height: 0.28em;
+  border-radius: 999px;
+  transform: translateY(-50%);
+  background: var(--raised);
+  border: 2px solid var(--rule);
+}

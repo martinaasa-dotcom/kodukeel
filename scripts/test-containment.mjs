@@ -181,6 +181,7 @@ const ROUTES = [
   "/review/exceptions",
   "/review/letters",
   "/review/workbook",
+  "/review/numbers",
   "/review/sayings",
   "/review/wordplay",
   "/review/lookups",

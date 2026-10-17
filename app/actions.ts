@@ -115,6 +115,7 @@ import { MAX_STARTER_UNITS } from "@/lib/collections/starter";
 
 import { applyGradeBatch, type ReplayItem } from "@/lib/srs/replay";
 import { matchGrades } from "@/lib/srs/matchGrades";
+import { numberGrades } from "@/lib/srs/numberGrades";
 import { workbookGrades } from "@/lib/srs/workbookGrades";
 import { MAX_PASSAGE_CHARS, buildPassageCloze, type KnownForm } from "@/lib/estonian/passage";
 import { DEFAULT_DAYS_PER_WEEK, normaliseGoals } from "@/lib/assessment/goals";
@@ -1405,6 +1406,35 @@ export async function recordMatchGrades(grades: unknown) {
     batch does not, so Today would show the old due count for as long as the
     router cache holds it.
   */
+  revalidatePath("/");
+  revalidatePath("/words");
+  return { ok: true as const, graded: result.settled.length };
+}
+
+/** The most number words one numbers round can grade: ten items, a few words each, with room. */
+const MAX_NUMBER_WORDS = 48;
+
+/**
+ * Records a finished numbers round in the review log, one write for the round
+ * (docs/41-fifth-batch.md, VB-7).
+ *
+ * The shape `recordMatchGrades` takes. Every row is the PRODUCTION card of a
+ * number word the learner said or typed in a right answer, Good and only Good
+ * (`numberGrades`): a wrong answer and an answer in digits write nothing, so
+ * the machine never grades a spoken number down (D4). Ids are minted on the
+ * client, so a round sent twice settles rather than counting twice, and one
+ * that does not land goes to the outbox with them.
+ */
+export async function recordNumberGrades(grades: unknown) {
+  const ownerId = await requireUserId();
+
+  // TODO(Review.spoken): a word said aloud here should be written as spoken once VB-14's column exists; this
+  // batch carries no `spoken` flag yet, and every row it writes reads as a typed answer.
+  const batch = numberGrades(grades, MAX_NUMBER_WORDS, Date.now());
+  if (batch.length === 0) return { ok: false as const, error: "There's nothing to save yet." };
+
+  const result = await applyGradeBatch(ownerId, batch);
+  if (!result.ok) return { ok: false as const, error: result.error ?? "We couldn't save that round." };
   revalidatePath("/");
   revalidatePath("/words");
   return { ok: true as const, graded: result.settled.length };

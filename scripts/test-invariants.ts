@@ -22123,6 +22123,8 @@ check("every round that puts one word up carries the favorite button", () => {
       "the subject is the sentence, which is what the round asks about",
     [join("app", "(app)", "review", "workbook", "WorkbookSession.tsx")]:
       "a page of sentences at once, each about a different word, with no one card to put a corner on",
+    [join("app", "(app)", "review", "numbers", "NumbersSession.tsx")]:
+      "a price, a clock time or a number, said in several number words at once, with no one entry the round is about",
     [join("app", "(app)", "learn", "checkpoint", "[level]", "CheckpointSession.tsx")]:
       "a measurement rather than a round: it withholds every answer until the "
       + "end on purpose, and its questions carry no entry to keep",

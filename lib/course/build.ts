@@ -17,6 +17,7 @@ import { CASE_NOTES, grammarTopic } from "@/lib/estonian/grammar";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { isBuildable, naturalSentence, sentenceTiles } from "@/lib/estonian/cloze";
 import { spellable } from "@/lib/games/letters";
+import { NUMBERS_ROUND, dealableCount } from "@/lib/games/numbers";
 import { sceneById as conversationById } from "@/lib/scenes/catalogue";
 import { minutesFor } from "@/lib/scenes/run";
 import { unitById, type SyllabusUnit } from "@/lib/collections/syllabus";
@@ -241,17 +242,24 @@ export interface Taught {
    * ordering are built out of inside the module.
    */
   readable: boolean;
+  /**
+   * How many numbers, clock times and prices the taught words can say, which
+   * is what the numbers round deals from (`dealableCount` in
+   * `lib/games/numbers.ts`): a number waits for every word it is said with,
+   * a clock for `kell` and a price for `euro` (D11).
+   */
+  numbers: number;
 }
 
 export const NO_TAUGHT: Taught = {
   verbs: false, cases: new Set(), topics: new Set(), governed: 0,
-  readable: false, spellable: 0,
+  readable: false, spellable: 0, numbers: 0,
 };
 
 const ALL_TAUGHT: Taught = {
   verbs: true, cases: new Set(CASES.map((c) => c.key)),
   topics: new Set(["government", "conditional"]), governed: 99, readable: true,
-  spellable: 99,
+  spellable: 99, numbers: 9999,
 };
 
 /** How many governed verbs a government round needs before it is dealt. */
@@ -297,6 +305,8 @@ export function supportsRound(key: ActivityKey, taught: Taught, _level = "A2"): 
     case "dictation": case "sentences": return taught.readable;
     case "government": return taught.topics.has("government") && taught.governed >= GOVERNED_FOR_ROUND;
     case "letters": return taught.spellable >= WORDS_FOR_LETTERS;
+    /* A round of ten, every one said with words the evenings have taught. */
+    case "numbers": return taught.numbers >= NUMBERS_ROUND;
     case "sonad": return false;
     default: return true;
   }
@@ -518,6 +528,7 @@ export class Ledger {
       governed: this.governed,
       readable: this.readable,
       spellable: this.spellable,
+      numbers: dealableCount(this.lemmas),
     };
   }
 }
@@ -771,7 +782,13 @@ export function onTheCase(
     sentence of your own around it is the harder ask and the better one once
     the ending is familiar, which is every other evening it comes round on.
   */
-  const drills = rotation
+  /*
+    Off the rotation and the case rounds both: A2 gave its writing slot to
+    numbers said out loud (`plan.ts`), and a case evening there still wants
+    the writing round for the evening after a workbook one, which is what it
+    had before. Every other level carries both case rounds anyway.
+  */
+  const drills = [...new Set([...rotation, ...CASE_ROUNDS])]
     .filter((key) => ACTIVITIES[key].kind === "drill" && CASE_ROUNDS.has(key) && supportsRound(key, taught, level))
     .sort((a, b) => Number(b === "workbook") - Number(a === "workbook"));
   const drill = drills.find((key) => !before.includes(key)) ?? drills[0];

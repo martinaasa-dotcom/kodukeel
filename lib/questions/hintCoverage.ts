@@ -119,6 +119,12 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
       + " so the page is its own one-rung ladder and a second one per line would be two",
   },
   {
+    file: "app/(app)/review/numbers/NumbersSession.tsx",
+    why: "the number is on the screen in digits, so the answer is already there and what is asked is saying it;"
+      + " a ladder could only spell the number words out, which is this app writing them, and the right answer"
+      + " is shown and played after every item while a wrong one grades nothing",
+  },
+  {
     file: "components/scene/SceneSession.tsx",
     why: "a conversation has its own way out, in character and out of it: `lib/scenes/coach.ts`, `choiceOf` and the beat's own offered word",
   },

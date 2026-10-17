@@ -157,6 +157,21 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       "play it from your very first five words, and it's where õ and ä stop looking like o and a.",
   },
   {
+    /*
+      Numbers said out loud, which nothing in the app drilled on their own
+      (docs/41-fifth-batch.md, VB-7). Named the way Tähed and Sõnad are, in
+      the language it is played in, with the English on the subtitle. A drill
+      on the A2 rotation and a round on Practice; the microphone is always
+      offered here, since saying it is the task, and typing works the same.
+    */
+    href: "/review/numbers", title: "Arvud", subtitle: "Prices, times, numbers",
+    icon: "Hash", tone: "sky", group: "targeted", note: "Ten, said or typed",
+    within: "/practice",
+    blurb:
+      "A price tag, a clock on the wall, a timetable, a number. Say it in Estonian, or type it, " +
+      "and hear it said back. Every counter you'll ever stand at needs one.",
+  },
+  {
     href: "/sonad", title: "Sõnad", subtitle: "Guess the day's word",
     icon: "CircleDot", tone: "sky", group: "targeted", note: "Six letters, seven guesses",
     within: "/practice",
@@ -449,7 +464,7 @@ export interface Shelf {
 export const SHELVES: readonly Shelf[] = [
   {
     id: "steady", name: "Steady practice", hint: "The classic way to keep words fresh.", tone: "sky",
-    hrefs: ["/review/match", "/review/listening", "/review/dictation", "/review/speaking", "/quest"],
+    hrefs: ["/review/match", "/review/listening", "/review/dictation", "/review/speaking", "/review/numbers", "/quest"],
   },
   {
     id: "games", name: "Word games", hint: "Just for the fun of it.", tone: "butter",

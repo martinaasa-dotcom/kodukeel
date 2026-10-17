@@ -141,7 +141,22 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
     The flash round stays A1's drill, where no case is asked, and stays on
     Practice for everybody.
   */
-  A2: ["match", "dictation", "letters", "write", "sentences", "workbook"],
+  /*
+    AND A2'S SECOND DRILL IS NUMBERS SAID OUT LOUD (docs/41-fifth-batch.md,
+    VB-7), WHERE WRITING A SENTENCE OF YOUR OWN USED TO BE.
+
+    A2 is where the counters start: the shop, the ticket window, the doctor's
+    desk, every one of them asking for a price, a time or how many. A rotation
+    alternates a game and a drill and holds no round twice, and A2 has three
+    games to deal, so a fourth drill was not on offer and one had to make room.
+    Writing goes, because this file's own header says B1 is where writing a
+    sentence of your own stops being optional, and B1 to C1 carry it still;
+    A2's case evenings keep the workbook, which is the case round they swap
+    to. The round is dealt once the evenings have taught enough number words
+    for a round of ten (`supportsRound`), and inside the module it waits for
+    `kell` before a clock and `euro` before a price.
+  */
+  A2: ["match", "dictation", "letters", "numbers", "sentences", "workbook"],
   B1: ["letters", "write", "sentences", "government", "match", "workbook"],
   B2: ["letters", "write", "match", "government", "sentences", "workbook"],
   C1: ["letters", "write", "match", "exceptions", "sentences", "workbook"],
