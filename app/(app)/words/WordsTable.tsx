@@ -9,6 +9,7 @@ import { useLocale, useT } from "@/components/Locale";
 import { localiseReadings } from "@/lib/copy/questionReading";
 import { countOf, fill } from "@/lib/copy/locale";
 import { Meaning } from "@/components/Meaning";
+import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 
 /** How a due date is written: the day and the short month, in the reader's own order. */
@@ -43,9 +44,14 @@ const FILTERS = ["All", "Due", "New", "Struggling", "Suspended"] as const;
  */
 const FIRST_ROWS = 15;
 
-export function WordsTable({ rows, total }: { rows: CardRow[]; total: number }) {
+export function WordsTable({ rows, total, searched = null }: {
+  rows: CardRow[];
+  total: number;
+  /** What the page asked the whole deck for, or null when it lists the deck itself. */
+  searched?: string | null;
+}) {
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("All");
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(searched ?? "");
   const [shown, setShown] = useState(FIRST_ROWS);
   const t = useT();
 
@@ -64,8 +70,32 @@ export function WordsTable({ rows, total }: { rows: CardRow[]; total: number }) 
     });
   }, [rows, filter, query]);
 
+  /*
+    The filter narrows the rows already on the page, which past four hundred
+    cards is not the whole deck. Where a term is typed and the page holds only
+    part of the deck, the database is asked instead.
+  */
+  const typed = query.trim();
+  const searchAll = typed && typed !== searched && total > rows.length ? (
+    <Link
+      href={`/words?q=${encodeURIComponent(typed)}`}
+      className="font-semibold underline underline-offset-2"
+      style={{ color: "var(--accent-deep)" }}
+    >
+      {fill(t("Search all {total} cards for “{term}”"), { total, term: typed })}
+    </Link>
+  ) : null;
+
   return (
     <div lang={useLocale()}>
+      {searched && (
+        <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
+          {fill(t("Cards matching “{term}” in your whole deck."), { term: searched })}{" "}
+          <Link href="/words" className="font-semibold underline underline-offset-2" style={{ color: "var(--accent-deep)" }}>
+            {t("Show every card")}
+          </Link>
+        </p>
+      )}
       <div className="mb-3 flex flex-wrap items-center gap-2">
         {FILTERS.map((f) => (
           <button
@@ -95,6 +125,7 @@ export function WordsTable({ rows, total }: { rows: CardRow[]; total: number }) 
           style={{ borderColor: "var(--rule)", color: "var(--ink-3)" }}
         >
           {t("No cards match that. Try a different filter.")}
+          {searchAll && <span className="mt-2 block">{searchAll}</span>}
         </p>
       ) : (
         /* One list with hairlines between the rows, rather than a bordered and
@@ -121,7 +152,9 @@ export function WordsTable({ rows, total }: { rows: CardRow[]; total: number }) 
             {fill(t("{shown} of {total} here"), { shown, total: visible.length })}
           </span>
         </div>
-      ) : total > rows.length && visible.length > 0 ? (
+      ) : searchAll && visible.length > 0 ? (
+        <p className="mt-3 text-sm">{searchAll}</p>
+      ) : !searched && total > rows.length && visible.length > 0 ? (
         <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
           {fill(t("Showing the {shown} cards due soonest, out of {total}. Search to find the rest."), { shown: rows.length, total })}
         </p>
@@ -142,6 +175,9 @@ function Row({ row }: { row: CardRow }) {
   const [pending, start] = useTransition();
   const [gone, setGone] = useState(false);
   const [suspended, setSuspended] = useState(row.suspended);
+  /* Deleting a card takes two presses. One stray tap on a phone used to take a
+     card out of the deck with no way to bring it back. */
+  const [confirming, setConfirming] = useState(false);
   const t = useT();
   const locale = useLocale();
   if (gone) return null;
@@ -212,15 +248,21 @@ function Row({ row }: { row: CardRow }) {
       </button>
       <button
         type="button"
-        onClick={() => start(async () => {
-          const landed = await deleteCard(row.id).then(() => true).catch(() => false);
-          if (landed) setGone(true);
-        })}
-        aria-label={fill(t("Delete card \"{card}\""), { card: row.front })}
-        className="tap-tint rounded-md p-1.5"
-        style={{ color: "var(--ink-3)" }}
+        onClick={() => {
+          if (!confirming) { setConfirming(true); return; }
+          start(async () => {
+            const landed = await deleteCard(row.id).then(() => true).catch(() => false);
+            if (landed) setGone(true);
+            else setConfirming(false);
+          });
+        }}
+        onBlur={() => setConfirming(false)}
+        aria-label={fill(t(confirming ? "Press again to delete \"{card}\"" : "Delete card \"{card}\""), { card: row.front })}
+        className="tap-tint inline-flex items-center gap-1 whitespace-nowrap rounded-md p-1.5 text-xs font-semibold"
+        style={{ color: confirming ? "var(--again-ink)" : "var(--ink-3)" }}
       >
         <Trash2 size={15} aria-hidden />
+        {confirming && <span aria-hidden>{t("Delete?")}</span>}
       </button>
     </li>
   );
