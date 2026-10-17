@@ -9,6 +9,7 @@ import {
   AFTER_BREAK_NOTE, BEFORE_BREAK_NOTE, composeTurn, planTurn, speakTurn, type Composition, type TurnAsk,
 } from "./sceneTurn";
 import { shippedDictionary } from "../../scripts/lib/dictionary";
+import { chatSceneOf } from "./chat";
 
 /*
   ONE ASSEMBLY FOR THE ROUTE AND EVERY HARNESS (`lib/progress/sceneTurn.ts`).
@@ -166,5 +167,29 @@ describe("a turn asking for a moment", () => {
     expect(asked).toBe(0);
     expect(lines).toHaveLength(1);
     expect(lines[0]?.reaction).toBe(true);
+  });
+});
+
+/*
+  TONIGHT'S CHAT HOLDS A LINE TO ITS WORD, NEVER TO A TOPIC (VB-11). A word
+  beat has no topic words on purpose, and the learner's own words used to be
+  added as the topic on every turn, so after `Tere.` the neighbour's question
+  about their day was withheld as off the point three times running: in the
+  capped critic round of 2026-10-17 that was every word beat.
+*/
+describe("tonight's chat", () => {
+  it("hands the gate no topic on a beat that elicits a word, and keeps the topic on every other beat", async () => {
+    const scene = chatSceneOf({
+      programmeId: "gone", dayId: "gone", unitId: "u",
+      words: [{ lemma: "kohv", gloss: "coffee" }, { lemma: "tee", gloss: "tea" }], remembered: null,
+    });
+    const { planFor } = setUp(scene, "composed");
+    const plan = await planFor(["Tere!"], true);
+    expect(plan.line?.beat.id).toBe("word-1");
+    expect(plan.line?.beat.elicits).toBe("kohv");
+    expect(plan.line?.request.topic.size).toBe(0);
+    const greeting = await planFor([], true);
+    expect(greeting.line?.beat.id).toBe("greet");
+    expect(greeting.line?.request.topic.size ?? 0).toBeGreaterThan(0);
   });
 });

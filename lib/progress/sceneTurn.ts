@@ -506,7 +506,20 @@ export function planTurn(input: TurnInput) {
           return new Set([...kept].filter((n) => !open.has(n) && !said.has(n)));
         })(),
       }),
-      topic: new Set<string>([...(context.topic.get(beat.id) ?? []), ...theirs]),
+      /*
+        NO TOPIC ON A BEAT THAT ELICITS A WORD (tonight's chat, VB-11). Such a
+        beat has no topic words on purpose (`chatScene`): the one word it is
+        about is the one word the other side may not say, and `elicits` keeps
+        the line on it instead. But `theirs` was added on every turn, so the
+        topic was whatever the learner had just said, and a neighbour asking
+        "how was your day, are you coming from work?" after `Tere.` was
+        withheld three times running as off the point, with the beat falling to
+        its stage direction or to the last line said again. Read in the capped
+        critic round of 2026-10-17 (docs/41-fifth-batch.md, section 0): every
+        word beat's drafts were withheld for `topic`, which is most of what the
+        critic had counted as stalls and repeats.
+      */
+      topic: beat.elicits ? new Set<string>() : new Set<string>([...(context.topic.get(beat.id) ?? []), ...theirs]),
       hasFiniteVerb: context.hasFiniteVerb,
       fallback: context.fallback,
       scripted: bank(beat.id),

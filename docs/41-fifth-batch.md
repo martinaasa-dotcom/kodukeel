@@ -244,6 +244,48 @@ Tonight's chat has its reading since VB-11 (below). **The deployment run is the 
   in `catalogue.test.ts`, and an invariant that every door asks `chatOffered` first
   (`scripts/invariants/tonights-chat-is-never-keyless.ts`).
 
+**The native reader's five composed lines, and what changed, 2026-10-17.** The reader read lines the scene
+composer wrote during the capped plays and corrected five: a choice offered in two cases (`kaardiga või
+sularahas`), a café wishing a good journey (`head reisi`), a "but" with nothing to contrast, twice, a
+filler apology and a word defined by its meaning stacked in front of the question, and a question built
+from an English idiom (`kus sa oled oma eluga`). None is a fault the gate could see. The composer's rules
+now say, in English, to phrase offered options alike, to wish what fits the place and the person, to use a
+word for "but" only where something is contrasted, to put no filler sentence and no definition before the
+move, and to ask a question the way people ask it (`COMPOSE_RULES` in `lib/scenes/prompt.ts`); a request
+to hear a line again now says not to apologise or define (`composeNote`). The first fault is also a
+mechanical one, so the gate has a seventeenth check, `parallel`: a pair joined by the choice word, each
+the one case the dictionary gives it, both adverbial, answering two different questions, the second
+ending its clause. `npm run measure:parallel` read it over every sentence the shipped dictionary holds,
+every banked line and every pick: **17,271 sentences, 213 with the choice word, 1 refused**, a usage
+recorded under `pangakaart` in exactly the shape the reader called wrong (`Kas maksate pangakaardiga või
+sularahas?`), which is the reader's to keep or refuse. Measured with Gemini, each through
+`scripts/lib/meter.ts`:
+
+- **The café, `npm run play:scenes -- --compose --scene kohvikus --budget 0.5`, $0.0161.** The composer
+  wrote `Kas te maksate kaardiga või sularahas?` four times running, told the pair by name on the retry,
+  and the gate withheld every one, so the bank answered `Kaardiga või sularahaga?`. That line is the
+  model's habit and an attested shape, so the check is what holds it, not the prompt. The goodbye was
+  `Bussipeatus on kohe siit uksest vasakul. Ilusat päeva ja head teed!` to somebody who had just asked
+  the way, which is the one case a wish for the road fits.
+- **Tonight's chat, the critic round `scripts/critic-scenes.ts --scene chat --day a1.1-03 --budget 0.5`
+  read on the Lite model, $0.1821.** 15 issues over six conversations, and the raw transcripts named the
+  cause of most of them: on every word beat every draft was withheld for `topic`, because a chat beat has
+  no topic words on purpose and the learner's own last words were added as the topic on every turn, so
+  `Kuidas sul läheb, kas sa tuled töölt?` after `Tere.` was off the point three times and the beat fell
+  to the last line said again, which the critic counted as repeats and stalls. A beat that elicits a word
+  now hands the gate no topic (`planTurn`, asserted in
+  `scripts/invariants/tonights-chat-is-never-keyless.ts`). The round also showed the neighbour praising
+  the learner's Estonian when the word was "to learn", and the elicit line now says not to.
+- **The chat once more after the fix, `npm run play:scenes -- --compose --scene chat --day a1.1-03
+  --budget 0.1`, $0.0172.** Seven composed lines and none withheld: `Kuidas sul läheb, kas väsitav päev
+  seljataga?`, `Ma tulin just poest koju. Mis sul seal suures kotis on?`, `Selge! Kas sa muidu oled pikalt
+  siin majas olnud või kolisid alles hiljuti?`, `Tore, hea teada! Mina lähen tuppa. Aga sina, mida sa siin
+  linnas teed, kas ülikoolis?`, every beat met. The "but" there contrasts the neighbour with the learner,
+  which is the use the rule keeps. That is one play past the one the order allowed, to see the fault
+  found in the first gone, and it is stated here for that reason.
+
+**Spent: $0.2154 across the three**, under the $1 cap.
+
 **VB-7, what TartuNLP says for a number written in digits, 2026-10-17.** `npm run measure:numbers` sends
 every shape the round can play to TartuNLP the way `/api/tts` sends it, then hears the clip with the
 app's own recognizer (sherpa-onnx, greedy, the shipped model, a tail of room tone because zeros made it

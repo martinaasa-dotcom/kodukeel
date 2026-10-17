@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { eventually, launchChromium } from "./lib/browser.mjs";
 import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
@@ -310,7 +312,8 @@ try {
       await page.getByRole("button", { name: /Say your answer/i }).count(),
     ];
     check("talking it through hides the switch and what to do, and leads with the microphone", shape.join() === "0,1,1", `switch, goal button, microphone: ${shape.join()}`);
-    if (shape.join() !== "0,1,1") await page.screenshot({ path: "/tmp/claude-0/-home-user-kodukeel/bc3098c9-e9ff-58ea-9fed-8aa7f5872a41/scratchpad/vb4/talk.png", fullPage: true });
+    // A picture of what was there instead, in the machine's own temporary directory rather than one session's.
+    if (shape.join() !== "0,1,1") await page.screenshot({ path: join(tmpdir(), "scene-speech-talk-through.png"), fullPage: true });
   } else {
     absent(2, "the café run above did not meet every objective, so Talk it through is rightly not offered");
   }
@@ -328,7 +331,7 @@ try {
     await pressMic(p2, /Say your answer/i);
     const said = await p2.waitForSelector("text=/microphone is blocked/i", { timeout: 240_000 }).then(() => true).catch(() => false);
     check("with the microphone refused, the button says so in words", said, said ? "" : (await p2.locator("[data-scene-mic]").innerText().catch(() => "no microphone drawn")).slice(0, 160));
-    if (!said) await p2.screenshot({ path: "/tmp/claude-0/-home-user-kodukeel/bc3098c9-e9ff-58ea-9fed-8aa7f5872a41/scratchpad/vb4/refused.png" });
+    if (!said) await p2.screenshot({ path: join(tmpdir(), "scene-speech-refused.png") });
     const was2 = await theirCount(p2);
     await p2.getByLabel("What you say").fill("Tere!");
     await p2.getByRole("button", { name: /^Say it$/ }).click();

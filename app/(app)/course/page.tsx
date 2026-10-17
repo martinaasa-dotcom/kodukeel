@@ -28,7 +28,7 @@ import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 import { stepCard, stepsIn } from "@/lib/course";
 import { HeroFan } from "@/components/HeroFan";
 import { TalkItOver } from "@/components/course/TalkItOver";
-import { chatAffordable, chatFits } from "@/lib/progress/chat";
+import { chatAffordable, chatFits, chattedAbout, planChat } from "@/lib/progress/chat";
 import { finishedEvening } from "@/lib/progress/chatDay";
 
 export async function generateMetadata() {
@@ -145,7 +145,16 @@ export default async function CoursePage({
     be about two different nights.
   */
   const chatEvening = finishedEvening(programme, reading);
-  const talkOver = chatEvening !== null && chatFits(chatEvening) && (await chatAffordable(ownerId));
+  /*
+    And only where the chat could open: its words survive the forms list
+    (`planChat`), which a press on the card otherwise found out by being sent
+    straight back here, and it has not already been had about this evening
+    (`chattedAbout`), since the chat's own debrief sends the learner back to
+    this card.
+  */
+  const talkOver = chatEvening !== null && chatFits(chatEvening) && (await chatAffordable(ownerId))
+    && !(await chattedAbout(ownerId, chatEvening.id))
+    && (await planChat(ownerId, programme, chatEvening)) !== null;
 
   if (reading.finished) {
     const after = programmeAfter(programme);

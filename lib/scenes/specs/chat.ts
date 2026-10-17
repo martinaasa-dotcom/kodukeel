@@ -232,11 +232,19 @@ export function chatScene(plan: ChatPlan, taught: readonly string[]): SceneSpec 
         when: ["greet", ...words, "close"],
         says: "Every one of tonight's words got used on somebody, which is what makes them yours.",
       },
-      {
-        id: "some",
-        when: words.slice(0, 1),
+      /*
+        Any one word used, not the first: a beat the learner could not answer
+        is let go and the next word asked, so somebody who missed the first
+        word and used the other three was told the neighbour "had to dash off
+        before you got far", which is the opposite of what happened. One
+        outcome per word, each waiting on that word alone, and the first that
+        fits is taken (`outcomeOf`).
+      */
+      ...words.map((id) => ({
+        id: `some-${id}`,
+        when: [id],
         says: "Some of tonight's words got an outing. The rest come round again in your reviews.",
-      },
+      })),
       {
         id: "dashed",
         when: ["greet"],

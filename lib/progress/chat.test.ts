@@ -13,7 +13,7 @@ import { scopeFor } from "@/lib/course/scope";
 import { PROVIDER_KEY_ENV } from "@/lib/tutor/provider";
 import { PERSONAS } from "@/lib/scenes/personas";
 import { CHAT_MIN_NEW } from "@/lib/scenes/specs/chat";
-import { chatFits, chatOffered, chatPersona, chatSceneOf, firstSense, memoryFrom, readChatPlan, rememberedFor } from "./chat";
+import { chatDayOf, chatFits, chatOffered, chatPersona, chatSceneOf, firstSense, memoryFrom, readChatPlan, rememberedFor } from "./chat";
 import { finishedEvening } from "./chatDay";
 import type { CourseReading } from "./course";
 
@@ -111,6 +111,15 @@ describe("what it remembers, derived from the runs", () => {
     ]);
     expect(memory.remembered).toEqual([]);
     expect(memory.talked.has("a")).toBe(true);
+  });
+});
+
+describe("which evening a finished chat was about", () => {
+  it("is read off the run's own draw, and nothing else counts as an evening", () => {
+    expect(chatDayOf(JSON.stringify({ chat: { dayId: "a1.1-03", words: [] } }))).toBe("a1.1-03");
+    expect(chatDayOf(JSON.stringify({ chat: { dayId: 3 } }))).toBeNull();
+    expect(chatDayOf(JSON.stringify({ persona: "x" }))).toBeNull();
+    expect(chatDayOf("not json")).toBeNull();
   });
 });
 

@@ -428,8 +428,8 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
       {/*
         WHAT WE HEARD (VB-4, SP-3). The turns said aloud where the machine's
         hearing is not what went: the dictionary read a word as one it holds,
-        or the learner changed it in the box. Both are there to hear in the
-        app's own voice, side by side, and the line under the heading says
+        or the learner changed it in the box. What went is there to hear in the
+        app's own voice beside it, and the line under the heading says
         what this is, because a list of differences reads as marking unless
         somebody says it is not one.
       */}
@@ -443,10 +443,8 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
             {heard.map((one, at) => (
               <li key={at} className="grid gap-1 sm:grid-cols-[max-content_1fr] sm:gap-x-3">
                 <span className="text-xs sm:pt-1.5" style={{ color: "var(--ink-3)" }}>{t("The machine heard")}</span>
-                <span className="flex items-center gap-1">
-                  <span lang="et" style={{ color: "var(--ink-2)" }}>{one.heard}</span>
-                  <Speak text={one.heard} size={13} label={t("Hear it")} className="press inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full hover:bg-[var(--raised)]" />
-                </span>
+                {/* Shown and not played: a spelling the machine heard is not one the app's own voice says (the recast in `SceneSession`). */}
+                <span lang="et" className="sm:pt-1" style={{ color: "var(--ink-2)" }}>{one.heard}</span>
                 <span className="text-xs sm:pt-1.5" style={{ color: "var(--ink-3)" }}>{t("You sent")}</span>
                 <span className="flex items-center gap-1">
                   <span lang="et" className="font-medium">{one.said}</span>

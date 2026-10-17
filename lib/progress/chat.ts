@@ -147,6 +147,39 @@ export async function chatMemory(ownerId: string): Promise<ChatMemory> {
   return memoryFrom(rows.map((row) => row.transcript));
 }
 
+/**
+ * The evening a stored chat run was about, off its draw, or null. Read
+ * defensively, since it is JSON off a row.
+ */
+export function chatDayOf(transcript: string): string | null {
+  try {
+    const parsed = JSON.parse(transcript) as { chat?: { dayId?: unknown } };
+    return typeof parsed.chat?.dayId === "string" ? parsed.chat.dayId : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * WHETHER THIS LEARNER HAS ALREADY HAD THE CHAT ABOUT THIS EVENING.
+ *
+ * The offer is a way to end an evening, and the chat's own debrief sends the
+ * learner back to the module, where the same card offered the same chat about
+ * the same four words again: a second press is the same conversation and
+ * another cent on the scene chain. So once a chat about this evening is
+ * finished, the offer is gone, derived from the run like everything else here
+ * (ADR-014). The address itself still opens, for somebody who wants it again.
+ */
+export async function chattedAbout(ownerId: string, dayId: string): Promise<boolean> {
+  const rows = await prisma.sceneRun.findMany({
+    where: { ownerId, sceneId: CHAT_ID, endedAt: { not: null } },
+    select: { transcript: true },
+    orderBy: [{ startedAt: "desc" }, { id: "desc" }],
+    take: 3,
+  });
+  return rows.some((row) => chatDayOf(row.transcript) === dayId);
+}
+
 /** The first sense of a gloss, which is what a goal names: "coffee", not "coffee, a coffee". */
 export function firstSense(gloss: string): string {
   return (gloss.split(/[,;]/)[0] ?? "").trim();
