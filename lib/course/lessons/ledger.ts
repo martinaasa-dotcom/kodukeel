@@ -26,7 +26,7 @@
  * Pure: no React, no Prisma, no clock.
  */
 
-import { negativePresent, presentTense } from "@/lib/estonian/conjugate";
+import { imperativeSingular, negativePresent, presentTense } from "@/lib/estonian/conjugate";
 import type { LessonSpec, PatternId, Taught } from "./types";
 
 /** A taught item as a learner is asked about it: a verb counts as its two spellings. */
@@ -114,6 +114,11 @@ function builtForms(verb: { lemma: string; first: string }, patterns: ReadonlySe
   if (patterns.has("negative")) {
     const no = negativePresent(stems);
     if (no) out.push(no.value);
+  }
+  // The command to one person: `tule`, `oota`. Nothing for `minema`, which says `mine` and is taught by name.
+  if (patterns.has("imperative")) {
+    const go = imperativeSingular(stems);
+    if (go) out.push(go.value);
   }
   return out.map((f) => f.toLocaleLowerCase("et"));
 }

@@ -84,4 +84,16 @@ describe("the check over a level", () => {
     const later = teach(present, [{ kind: "verb", et: "tulema", first: "tulen", en: "to come", firstEn: "I come" }], 4);
     expect(uncovered("tuled tulevad", later)).toEqual([]);
   });
+
+  it("covers a verb's command to one person once that has been explained, and never minema's", () => {
+    const verbs = [
+      { kind: "verb", et: "ootama", first: "ootan", en: "to wait", firstEn: "I wait" },
+      { kind: "verb", et: "minema", first: "lähen", en: "to go", firstEn: "I go" },
+    ] as const;
+    const before = teach(EMPTY_LEDGER, verbs, 1);
+    expect(uncovered("oota", before)).toEqual(["oota"]);
+    const after = teach(before, [], 2, ["imperative"]);
+    expect(uncovered("oota", after)).toEqual([]);
+    expect(uncovered("mine lähe", after)).toEqual(["mine", "lähe"]);
+  });
 });

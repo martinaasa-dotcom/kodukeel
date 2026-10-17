@@ -1,9 +1,12 @@
 /**
- * A1, LESSON BY LESSON (docs/43-lessons.md §4). LESSONS 1 TO 8: TERE!
+ * A1, LESSON BY LESSON (docs/43-lessons.md §4).
  *
- * The first part of the rebuilt A1: hello, being stuck, your name, the six
- * persons, the first questions, yes and no, and how it is going, then an
- * evening that puts all of it together on a neighbour on the stairs.
+ * This file holds part one, lessons 1 to 8 (Tere!): hello, being stuck, your
+ * name, the six persons, the first questions, yes and no, and how it is going,
+ * then an evening that puts all of it together on a neighbour on the stairs.
+ * Parts two to eight are a file each (`a1-elad.ts` to `a1-abi.ts`), and
+ * `A1_LESSONS` at the foot is all forty-nine in teaching order, which is the
+ * order the ledger walks.
  *
  * EVERY ESTONIAN LINE HERE WAS WRITTEN FOR A BEGINNER AND IS READ BY THE
  * NATIVE SPEAKER IN THE PULL REQUEST THAT ADDS IT (ADR-005 amendment 6). Two
@@ -23,6 +26,7 @@ import { A1_SOOK_LESSONS, A1_SOOK_PART } from "./a1-sook";
 import { A1_LINN_LESSONS, A1_LINN_PART } from "./a1-linn";
 import { A1_POOD_LESSONS, A1_POOD_PART } from "./a1-pood";
 import { A1_EILE_LESSONS, A1_EILE_PART } from "./a1-eile";
+import { A1_ABI_LESSONS, A1_ABI_PART } from "./a1-abi";
 import type { LessonSpec, PartOfLessons } from "./types";
 
 export const A1_LESSON_PARTS: readonly PartOfLessons[] = [
@@ -33,6 +37,7 @@ export const A1_LESSON_PARTS: readonly PartOfLessons[] = [
   A1_LINN_PART,
   A1_POOD_PART,
   A1_EILE_PART,
+  A1_ABI_PART,
 ];
 
 const TERE_LESSONS: readonly LessonSpec[] = [
@@ -447,4 +452,4 @@ const TERE_LESSONS: readonly LessonSpec[] = [
 ];
 
 /** A1 in teaching order, part by part. */
-export const A1_LESSONS: readonly LessonSpec[] = [...TERE_LESSONS, ...A1_ELAD_LESSONS, ...A1_KELL_LESSONS, ...A1_SOOK_LESSONS, ...A1_LINN_LESSONS, ...A1_POOD_LESSONS, ...A1_EILE_LESSONS];
+export const A1_LESSONS: readonly LessonSpec[] = [...TERE_LESSONS, ...A1_ELAD_LESSONS, ...A1_KELL_LESSONS, ...A1_SOOK_LESSONS, ...A1_LINN_LESSONS, ...A1_POOD_LESSONS, ...A1_EILE_LESSONS, ...A1_ABI_LESSONS];

@@ -336,7 +336,13 @@ Each phase is its own pull request or several, and none starts before the one ab
   `lib/course/lessons/a1-eile.ts`. Tomorrow comes first because there is no future tense to
   learn; the past follows, and every past form is taught by name, since the app's own conjugation
   rightly derives none of it (`tegin` and `lugesin` follow nothing a learner could guess). The
-  past's `ta` form is taught with each verb for the same reason: `käis`, but `oli` and `tegi`.
+  past's `ta` form is taught with each verb for the same reason: `käis`, but `oli` and `tegi`. **Part 8 (lessons 46 to 49, `{Abi}`) is built**, in
+  `lib/course/lessons/a1-abi.ts`, with the third pattern, `imperative`: the command to one person
+  is the I-form without its -n, so the ledger builds `tule` and `oota` off the same rule, while
+  `mine` and every polite command (`tulge`, `oodake`) are taught by name. **All 49 core A1
+  lessons are written and pass both checks.** What is left of P2 is the vocabulary lessons of
+  §4.9 and the A1 role-play scenes on the scene engine; the role-plays above are the scripted
+  questions of Say it.
 - **P3. The switch.** Learners placed per L4, the old A1 parts retired, `course.test.ts` and the
   browser suites (`test-module.mjs`) rewritten for lessons. **And the lessons' own English in
   Russian and Ukrainian**, which nothing yet translates: the screens around a lesson are in

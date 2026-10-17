@@ -79,7 +79,7 @@ export type Taught =
   | { readonly kind: "verb"; readonly et: string; readonly first: string; readonly en: string; readonly firstEn: string };
 
 /** A pattern a lesson explains, which lets later lessons use forms it builds. */
-export type PatternId = "present" | "negative";
+export type PatternId = "present" | "negative" | "imperative";
 
 /** A cell of a pattern's table: Estonian or English, never both. */
 export type Cell = { readonly et: string } | { readonly en: string };
