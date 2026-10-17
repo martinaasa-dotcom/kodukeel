@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { ASR_MODEL } from "./model";
 import { decide, type Golden } from "./golden";
 
@@ -18,13 +19,16 @@ describe("the golden file", () => {
   });
 
   it("holds every fixture clip, each heard", () => {
-    expect(golden.clips.map((c) => c.file)).toEqual([
-      "public/asr/check.wav",
-      "scripts/fixtures/speech/tere.wav",
-      "scripts/fixtures/speech/aitah.wav",
-      "scripts/fixtures/speech/kuidas-laheb.wav",
-    ]);
+    // Read off the directory rather than typed: a clip a suite plays and the file leaves out is a clip no native engine is checked on.
+    const wavs = ["public/asr/check.wav", ...readdirSync("scripts/fixtures/speech").filter((f) => f.endsWith(".wav")).map((f) => `scripts/fixtures/speech/${f}`)];
+    expect([...golden.clips.map((c) => c.file)].sort()).toEqual(wavs.sort());
     for (const clip of golden.clips) expect(clip.expect.understood, clip.file).not.toBe("");
+  });
+
+  it("was recorded off the bytes the fixtures hold now", () => {
+    for (const clip of golden.clips) {
+      expect(clip.sha256, clip.file).toBe(createHash("sha256").update(readFileSync(clip.file)).digest("hex"));
+    }
   });
 
   for (const clip of golden.clips) {
@@ -33,8 +37,10 @@ describe("the golden file", () => {
     });
   }
 
-  it("grades each clip up against its own text, and lights the pick it says", () => {
-    for (const clip of golden.clips) expect(clip.expect.verdict, clip.file).toEqual({ kind: "good" });
-    expect(golden.clips.map((c) => c.expect.pick)).toEqual([null, 0, 1, 2]);
+  it("grades each phrase clip up against its own text, and lights the pick it says", () => {
+    const of = (file: string) => golden.clips.find((c) => c.file === file)!.expect;
+    const phrases = ["public/asr/check.wav", "scripts/fixtures/speech/tere.wav", "scripts/fixtures/speech/aitah.wav", "scripts/fixtures/speech/kuidas-laheb.wav"];
+    for (const file of phrases) expect(of(file).verdict, file).toEqual({ kind: "good" });
+    expect(phrases.map((file) => of(file).pick)).toEqual([null, 0, 1, 2]);
   });
 });

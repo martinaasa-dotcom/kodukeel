@@ -32,7 +32,7 @@ Next.js and Prisma by an invariant (`PURE_LAYERS` in `scripts/test-invariants.ts
 `CLAUDE.md`). A React Native app runs it as it is; a Swift or Kotlin app ports it with its tests and
 passes them.
 
-- `lib/speech/`: preparing a turn, reconciling the two readings into `heard` and `understood`, the
+- `lib/speech/`: preparing a turn, cutting a recording into pieces at its pauses (`piecesOf`), reconciling the two readings into `heard` and `understood`, the
   verdict that only grades up (`verdict.ts`), lighting a line as it is heard (`lightUp.ts`), matching a
   line on screen (`matchPick.ts`) and the golden file.
 - `lib/estonian/`: the folds an English ear makes (`sounds.ts`), the marker (`answer.ts`), the case and
@@ -121,8 +121,11 @@ to take up:
 Produce `lib/speech/fixtures/golden.json` from the same clips:
 
 1. Load the model files named in `lib/speech/model.ts`, checked against their hashes.
-2. Decode each clip the file lists (`public/asr/check.wav` and `scripts/fixtures/speech/*.wav`) with
-   the settings in `lib/speech/settings.ts`, giving one `RawTurn` per piece.
+2. Decode each clip the file lists (`public/asr/check.wav` and every `scripts/fixtures/speech/*.wav`),
+   first checking its bytes against the clip's `sha256`. Read each one sample for sample at its own
+   16 kHz (`lib/speech/wav.ts`), never through a platform decoder that resamples it, cut it where
+   `piecesOf` in `lib/speech/prepare.ts` cuts, and prepare and decode each piece with the settings in
+   `lib/speech/settings.ts`, giving one `RawTurn` per piece.
 3. Run the pure layer (`decide` in `lib/speech/golden.ts`, ported or run as it is) over those turns.
 4. The `heard`, `understood`, words, verdict and pick must equal the file's, field for field.
 

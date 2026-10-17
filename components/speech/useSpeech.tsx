@@ -251,6 +251,8 @@ export interface Speech {
   readonly audio: Float32Array | null;
   /** The app is saying something, so the microphone waits (D14). */
   readonly appSpeaking: boolean;
+  /** The last turn closed with nothing said, so the button can say so rather than going quiet. */
+  readonly silent: boolean;
   download(): Promise<void>;
   start(): Promise<void>;
   stop(): void;
@@ -271,8 +273,20 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
   const [error, setError] = useState<EngineError | null>(null);
   const [hearing, setHearing] = useState<Hearing | null>(null);
   const [audio, setAudio] = useState<Float32Array | null>(null);
+  const [silent, setSilent] = useState(false);
   const latest = useRef(options);
   latest.current = options;
+  /*
+    Which turn this hook is waiting on. A turn's last step (asking the forms
+    list which words it holds) is a fetch, and a cancel, a new press or the
+    screen moving on can land while it is out: a reading that comes back for a
+    turn nobody is waiting on is dropped rather than filling a box the learner
+    has already moved past.
+  */
+  const turnRef = useRef(0);
+  /* A press while the turn is still opening (the model loading, the browser's
+     permission prompt) is not a second turn. */
+  const opening = useRef(false);
 
   const base = config.modelBase;
   const offered = base !== null && config.unavailable === null;
@@ -289,10 +303,20 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
       users -= 1;
       if (users > 0) return;
       // Let the model's memory go a while after the last screen that listens.
-      releaseTimer = setTimeout(() => {
+      const letGo = () => {
+        /* Not while the files are still arriving: releasing ends the worker,
+           and a 71 MB download started on Settings and left running while
+           somebody reads a grammar page would fail two minutes later with a
+           sentence about listening. It waits for the download, then goes. */
+        if (shared.phase === "downloading") {
+          releaseTimer = setTimeout(letGo, S.releaseAfterMs);
+          return;
+        }
+        releaseTimer = null;
         engine?.release();
         if (shared.phase === "loading" || shared.phase === "ready") set({ phase: "ready" });
-      }, S.releaseAfterMs);
+      };
+      releaseTimer = setTimeout(letGo, S.releaseAfterMs);
     };
   }, [base]);
 
@@ -302,9 +326,13 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
   }, [base]);
 
   const start = useCallback(async () => {
-    if (!base || !offered) return;
+    if (!base || !offered || opening.current) return;
+    opening.current = true;
+    const turn = ++turnRef.current;
+    const current = () => turn === turnRef.current;
     setError(null);
     setHearing(null);
+    setSilent(false);
     setPartial("");
     const e = engineFor(base);
     try {
@@ -312,9 +340,14 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
       await e.load();
       set({ phase: "ready", error: null });
     } catch (err) {
+      opening.current = false;
       const why = errorOf(err);
       if (why === "cleared" || why === "hash-failed") set({ phase: "cleared", error: why });
       else set({ phase: "error", error: why });
+      return;
+    }
+    if (!current()) {
+      opening.current = false;
       return;
     }
     try {
@@ -354,11 +387,13 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
             if (event.audio) setAudio(event.audio);
             if (!raw) {
               setThinking(false);
+              setSilent(true);
               latest.current.onNothing?.();
               return;
             }
             void (async () => {
               const known = await knownSpellings(raw.greedy.text.split(/\s+/));
+              if (!current()) return;
               const heard = reconcile(raw, { known, expect: latest.current.expect });
               setThinking(false);
               setHearing(heard);
@@ -371,17 +406,44 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
       });
     } catch (err) {
       setListening(false);
-      setError(errorOf(err));
+      if (current()) setError(errorOf(err));
+    } finally {
+      opening.current = false;
     }
   }, [base, offered]);
 
   const stop = useCallback(() => engine?.stop(), []);
   const cancel = useCallback(() => {
+    turnRef.current += 1;
     engine?.cancel();
     setListening(false);
     setThinking(false);
     setPartial("");
     setLevel(0);
+    setClipping(false);
+    setSilent(false);
+  }, []);
+
+  /*
+    The microphone is closed the moment the app starts speaking (D14), on
+    every screen rather than the ones that remembered: a turn heard over the
+    app's own voice is not the learner's, so it is let go rather than sent, and
+    the button is back under their hand, closed until the line ends.
+  */
+  useEffect(() => {
+    if (appSpeaking && listening) cancel();
+  }, [appSpeaking, listening, cancel]);
+
+  /* A screen that goes while its microphone is open closes it: leaving a card
+     for the dictionary must not leave the microphone hearing the room. */
+  const listeningRef = useRef(false);
+  listeningRef.current = listening || thinking;
+  useEffect(() => () => {
+    // `opening` too: a screen left with the permission prompt still up must not open the microphone afterwards.
+    if (listeningRef.current || opening.current) {
+      turnRef.current += 1;
+      engine?.cancel();
+    }
   }, []);
 
   const forget = useCallback(async () => {
@@ -417,6 +479,7 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
       hearing,
       audio,
       appSpeaking,
+      silent,
       download,
       start,
       stop,
@@ -424,6 +487,6 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
       forget,
       transcribe,
     }),
-    [offered, tooSlow, why, model, listening, thinking, partial, level, clipping, error, hearing, audio, appSpeaking, download, start, stop, cancel, forget, transcribe],
+    [offered, tooSlow, why, model, listening, thinking, partial, level, clipping, error, hearing, audio, appSpeaking, silent, download, start, stop, cancel, forget, transcribe],
   );
 }

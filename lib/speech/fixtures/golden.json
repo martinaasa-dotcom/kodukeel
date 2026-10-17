@@ -1,11 +1,12 @@
 {
   "engine": "web: sherpa-onnx 1.13.8, single-threaded WebAssembly in a worker",
   "model": "TalTechNLP/streaming-zipformer.et-en@7edbacc1d13a4bc8fba21307753569e8334938a0",
-  "recorded": "2026-10-16",
+  "recorded": "2026-10-17",
   "clips": [
     {
       "file": "public/asr/check.wav",
       "says": "Tere hommikust! Kuidas läheb?",
+      "sha256": "419abe89746b23a6ae1d2ecd22db54ccafc1a73ba91eb00e78b37c2167661ab9",
       "turns": [
         {
           "greedy": {
@@ -15,104 +16,119 @@
             "logProbs": []
           },
           "beam": {
-            "text": "",
-            "tokens": [],
-            "timestamps": [],
-            "logProbs": []
+            "text": "Tere õhtust",
+            "tokens": [
+              " Tere",
+              " õhtu",
+              "st"
+            ],
+            "timestamps": [
+              0.4,
+              0.48,
+              0.52
+            ],
+            "logProbs": [
+              -3.475544,
+              -1.641228,
+              -0.694372
+            ]
           },
           "seconds": 0.15
         },
         {
           "greedy": {
-            "text": "Tere hommikust",
-            "tokens": [
-              " Tere",
-              " ho",
-              "mmi",
-              "ku",
-              "st"
-            ],
-            "timestamps": [
-              0.88,
-              1.08,
-              1.12,
-              1.16,
-              1.2
-            ],
-            "logProbs": [
-              -0.244705,
-              -0.411903,
-              -0.041233,
-              -0.701438,
-              -0.462995
-            ]
-          },
-          "beam": {
-            "text": "Tere hommikust,",
+            "text": "Tere hommikust.",
             "tokens": [
               " Tere",
               " ho",
               "mmi",
               "ku",
               "st",
-              ","
+              "."
             ],
             "timestamps": [
               0.88,
               1.08,
               1.12,
+              1.16,
               1.2,
-              1.24,
-              1.44
+              1.24
             ],
             "logProbs": [
-              -0.241669,
-              -0.4165,
-              -0.041233,
-              -0.119423,
-              -0.173456,
-              -1.533063
+              -0.246643,
+              -0.393884,
+              -0.040102,
+              -0.37886,
+              -0.235072,
+              -0.978406
+            ]
+          },
+          "beam": {
+            "text": "Tere hommikust.",
+            "tokens": [
+              " Tere",
+              " ho",
+              "mmi",
+              "ku",
+              "st",
+              "."
+            ],
+            "timestamps": [
+              0.88,
+              1.08,
+              1.12,
+              1.16,
+              1.2,
+              1.24
+            ],
+            "logProbs": [
+              -0.245255,
+              -0.395254,
+              -0.040102,
+              -0.383693,
+              -0.237457,
+              -0.981693
             ]
           },
           "seconds": 0.97
         },
         {
           "greedy": {
-            "text": "Kuidas läheb",
+            "text": "kuidas läheb",
             "tokens": [
-              " Kuidas",
+              " kuidas",
               " läheb"
             ],
             "timestamps": [
-              1.08,
+              1.12,
               1.44
             ],
             "logProbs": [
-              -1.087533,
-              -0.628477
+              -0.755307,
+              -0.547414
             ]
           },
           "beam": {
-            "text": "Kuidas läheb",
+            "text": "kuidas läheb",
             "tokens": [
-              " Kuidas",
+              " kuidas",
               " läheb"
             ],
             "timestamps": [
-              1.08,
+              1.12,
               1.44
             ],
             "logProbs": [
-              -1.08799,
-              -0.628147
+              -0.752947,
+              -0.547724
             ]
           },
           "seconds": 1.15
         }
       ],
       "expect": {
-        "heard": "Tere hommikust Kuidas läheb",
-        "understood": "Tere hommikust Kuidas läheb",
+        "heard": "Tere hommikust. kuidas läheb",
+        "understood": "Tere hommikust. kuidas läheb",
         "words": [
           {
             "text": "Tere",
@@ -123,16 +139,16 @@
             "known": null
           },
           {
-            "text": "hommikust",
-            "heard": "hommikust",
+            "text": "hommikust.",
+            "heard": "hommikust.",
             "unsure": false,
             "repaired": false,
             "agreed": true,
             "known": null
           },
           {
-            "text": "Kuidas",
-            "heard": "Kuidas",
+            "text": "kuidas",
+            "heard": "kuidas",
             "unsure": false,
             "repaired": false,
             "agreed": true,
@@ -156,6 +172,7 @@
     {
       "file": "scripts/fixtures/speech/tere.wav",
       "says": "Tere!",
+      "sha256": "c2b8e87fd47404baa2607ace3b67313ef6d33a98f132a9fd0e6a962eb6770458",
       "turns": [
         {
           "greedy": {
@@ -167,7 +184,7 @@
               1
             ],
             "logProbs": [
-              -0.658693
+              -0.608077
             ]
           },
           "beam": {
@@ -179,7 +196,7 @@
               1
             ],
             "logProbs": [
-              -0.66003
+              -0.60185
             ]
           },
           "seconds": 0.69
@@ -207,6 +224,7 @@
     {
       "file": "scripts/fixtures/speech/aitah.wav",
       "says": "Aitäh!",
+      "sha256": "9f1155618c1f3ee3bb612a90418fe99e43f624986fad381be463578e8dc2895c",
       "turns": [
         {
           "greedy": {
@@ -218,7 +236,7 @@
               1
             ],
             "logProbs": [
-              -1.099092
+              -1.164014
             ]
           },
           "beam": {
@@ -229,11 +247,11 @@
             ],
             "timestamps": [
               1,
-              1.52
+              1.44
             ],
             "logProbs": [
-              -1.42323,
-              -3.040916
+              -1.33266,
+              -3.414536
             ]
           },
           "seconds": 0.8
@@ -261,6 +279,7 @@
     {
       "file": "scripts/fixtures/speech/kuidas-laheb.wav",
       "says": "Kuidas läheb?",
+      "sha256": "34b6afb54cb6ef6bd037a0d8dfe7bad42c80e3fed12a974a0584b907669aef9e",
       "turns": [
         {
           "greedy": {
@@ -274,8 +293,8 @@
               1.32
             ],
             "logProbs": [
-              -0.60028,
-              -0.119488
+              -0.615654,
+              -0.123212
             ]
           },
           "beam": {
@@ -289,8 +308,8 @@
               1.28
             ],
             "logProbs": [
-              -0.602644,
-              -0.860876
+              -0.615876,
+              -0.909736
             ]
           },
           "seconds": 0.93
@@ -321,6 +340,1206 @@
           "kind": "good"
         },
         "pick": 2
+      }
+    },
+    {
+      "file": "scripts/fixtures/speech/number.wav",
+      "says": "15",
+      "sha256": "bee481e969648d56823a840b89ee953a459a85e629fe528af810d4b630410caf",
+      "turns": [
+        {
+          "greedy": {
+            "text": "viisteist",
+            "tokens": [
+              " viis",
+              "teist"
+            ],
+            "timestamps": [
+              1.12,
+              1.52
+            ],
+            "logProbs": [
+              -0.819275,
+              -0.232838
+            ]
+          },
+          "beam": {
+            "text": "viisteist",
+            "tokens": [
+              " viis",
+              "teist"
+            ],
+            "timestamps": [
+              1.12,
+              1.52
+            ],
+            "logProbs": [
+              -0.824999,
+              -0.231905
+            ]
+          },
+          "seconds": 1.17
+        }
+      ],
+      "expect": {
+        "heard": "viisteist",
+        "understood": "viisteist",
+        "words": [
+          {
+            "text": "viisteist",
+            "heard": "viisteist",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          }
+        ],
+        "verdict": {
+          "kind": "fill",
+          "text": "viisteist"
+        },
+        "pick": null
+      }
+    },
+    {
+      "file": "scripts/fixtures/speech/chant.wav",
+      "says": "ma elan, sa elad, ta elab, me elame, te elate, nad elavad.",
+      "sha256": "d99a2d05f1f18a3ea6789abfcf16f41da2ccd02ea0a96309a28d558f145471ab",
+      "turns": [
+        {
+          "greedy": {
+            "text": "",
+            "tokens": [],
+            "timestamps": [],
+            "logProbs": []
+          },
+          "beam": {
+            "text": "",
+            "tokens": [],
+            "timestamps": [],
+            "logProbs": []
+          },
+          "seconds": 0.15
+        },
+        {
+          "greedy": {
+            "text": "Ma elan sa elad, ta elab me elame te elate nad elavad.",
+            "tokens": [
+              " Ma",
+              " ela",
+              "n",
+              " sa",
+              " ela",
+              "d",
+              ",",
+              " ta",
+              " ela",
+              "b",
+              " me",
+              " ela",
+              "me",
+              " te",
+              " ela",
+              "te",
+              " nad",
+              " ela",
+              "vad",
+              "."
+            ],
+            "timestamps": [
+              0.8,
+              0.96,
+              1.16,
+              1.4,
+              1.56,
+              1.72,
+              1.92,
+              2,
+              2.2,
+              2.32,
+              2.56,
+              2.68,
+              2.88,
+              3.2,
+              3.28,
+              3.4,
+              3.52,
+              3.64,
+              3.76,
+              3.8
+            ],
+            "logProbs": [
+              -0.726223,
+              -0.868545,
+              -0.105015,
+              -0.518767,
+              -0.305208,
+              -0.158461,
+              -0.893321,
+              -0.616226,
+              -0.166642,
+              -0.445086,
+              -0.990303,
+              -0.803015,
+              -0.186667,
+              -0.789143,
+              -0.577896,
+              -0.036492,
+              -0.93091,
+              -0.361832,
+              -0.031936,
+              -1.059787
+            ]
+          },
+          "beam": {
+            "text": "ma elan, sa elad, ta elab, me elame, te elate nad elavad.",
+            "tokens": [
+              " ma",
+              " ela",
+              "n",
+              ",",
+              " sa",
+              " ela",
+              "d",
+              ",",
+              " ta",
+              " ela",
+              "b",
+              ",",
+              " me",
+              " ela",
+              "me",
+              ",",
+              " te",
+              " ela",
+              "te",
+              " nad",
+              " ela",
+              "vad",
+              "."
+            ],
+            "timestamps": [
+              0.76,
+              0.96,
+              1.16,
+              1.28,
+              1.4,
+              1.56,
+              1.72,
+              1.92,
+              2,
+              2.2,
+              2.32,
+              2.4,
+              2.56,
+              2.68,
+              2.88,
+              3.04,
+              3.2,
+              3.28,
+              3.4,
+              3.52,
+              3.64,
+              3.76,
+              3.8
+            ],
+            "logProbs": [
+              -1.252637,
+              -0.600132,
+              -0.089336,
+              -0.967194,
+              -0.150418,
+              -0.189457,
+              -0.158461,
+              -0.895814,
+              -0.616226,
+              -0.166642,
+              -0.445532,
+              -1.106162,
+              -0.211144,
+              -0.607774,
+              -0.186667,
+              -1.159904,
+              -0.191175,
+              -0.327055,
+              -0.036569,
+              -0.934581,
+              -0.365427,
+              -0.031936,
+              -1.059787
+            ]
+          },
+          "seconds": 3.57
+        }
+      ],
+      "expect": {
+        "heard": "Ma elan sa elad, ta elab me elame te elate nad elavad.",
+        "understood": "Ma elan sa elad, ta elab me elame te elate nad elavad.",
+        "words": [
+          {
+            "text": "Ma",
+            "heard": "Ma",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "elan",
+            "heard": "elan",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "sa",
+            "heard": "sa",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "elad,",
+            "heard": "elad,",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "ta",
+            "heard": "ta",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "elab",
+            "heard": "elab",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "me",
+            "heard": "me",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "elame",
+            "heard": "elame",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "te",
+            "heard": "te",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "elate",
+            "heard": "elate",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "nad",
+            "heard": "nad",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "elavad.",
+            "heard": "elavad.",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          }
+        ],
+        "verdict": {
+          "kind": "good"
+        },
+        "pick": null
+      }
+    },
+    {
+      "file": "scripts/fixtures/speech/voice-message.wav",
+      "says": "Ta on klassis rõõmus ja õpib hästi. Vead on väikesed. Palun lugege temaga kodus iga päev.",
+      "sha256": "b1d60d1ee07d20a2d1aa6e2612fb86e4270dddd2c1bf839b1e352f63efb6fe59",
+      "turns": [
+        {
+          "greedy": {
+            "text": "",
+            "tokens": [],
+            "timestamps": [],
+            "logProbs": []
+          },
+          "beam": {
+            "text": "",
+            "tokens": [],
+            "timestamps": [],
+            "logProbs": []
+          },
+          "seconds": 0.15
+        },
+        {
+          "greedy": {
+            "text": "Art on klassis rõõmus ja õpib hästi",
+            "tokens": [
+              " A",
+              "r",
+              "t",
+              " on",
+              " klassi",
+              "s",
+              " ",
+              "r",
+              "õ",
+              "õ",
+              "mus",
+              " ja",
+              " õpi",
+              "b",
+              " hästi"
+            ],
+            "timestamps": [
+              0.64,
+              0.68,
+              0.72,
+              0.88,
+              1.04,
+              1.28,
+              1.36,
+              1.4,
+              1.44,
+              1.48,
+              1.56,
+              1.68,
+              1.84,
+              2.04,
+              2.2
+            ],
+            "logProbs": [
+              -3.702333,
+              -3.199387,
+              -2.415164,
+              -0.518851,
+              -0.158422,
+              -0.284233,
+              -0.719581,
+              -0.038761,
+              -0.151143,
+              -0.362608,
+              -0.138671,
+              -0.555599,
+              -0.519913,
+              -0.114169,
+              -0.478516
+            ]
+          },
+          "beam": {
+            "text": "Liht on klassis rõõmus ja õpib hästi",
+            "tokens": [
+              " Li",
+              "h",
+              "t",
+              " on",
+              " klassi",
+              "s",
+              " ",
+              "r",
+              "õ",
+              "õ",
+              "mus",
+              " ja",
+              " õpi",
+              "b",
+              " hästi"
+            ],
+            "timestamps": [
+              0.64,
+              0.68,
+              0.72,
+              0.88,
+              1.04,
+              1.28,
+              1.36,
+              1.4,
+              1.44,
+              1.48,
+              1.56,
+              1.68,
+              1.84,
+              2.04,
+              2.2
+            ],
+            "logProbs": [
+              -3.80299,
+              -1.504941,
+              -0.331034,
+              -0.369117,
+              -0.15553,
+              -0.284261,
+              -0.719581,
+              -0.038763,
+              -0.151361,
+              -0.361123,
+              -0.138671,
+              -0.555599,
+              -0.519964,
+              -0.114667,
+              -0.477409
+            ]
+          },
+          "seconds": 1.89
+        },
+        {
+          "greedy": {
+            "text": "vead on väikesed",
+            "tokens": [
+              " ve",
+              "ad",
+              " on",
+              " väike",
+              "sed"
+            ],
+            "timestamps": [
+              0.8,
+              0.96,
+              1.08,
+              1.28,
+              1.52
+            ],
+            "logProbs": [
+              -0.434948,
+              -0.04897,
+              -0.115769,
+              -0.214666,
+              -0.113183
+            ]
+          },
+          "beam": {
+            "text": "vead on väikesed",
+            "tokens": [
+              " ve",
+              "ad",
+              " on",
+              " väike",
+              "sed"
+            ],
+            "timestamps": [
+              0.8,
+              0.96,
+              1.08,
+              1.28,
+              1.52
+            ],
+            "logProbs": [
+              -0.433753,
+              -0.049539,
+              -0.115708,
+              -0.214711,
+              -0.112652
+            ]
+          },
+          "seconds": 1.16
+        },
+        {
+          "greedy": {
+            "text": "Palun lugege temaga kodus iga päev.",
+            "tokens": [
+              " P",
+              "al",
+              "un",
+              " lu",
+              "ge",
+              "ge",
+              " tema",
+              "ga",
+              " kodu",
+              "s",
+              " iga",
+              " ",
+              "päev",
+              "."
+            ],
+            "timestamps": [
+              1.08,
+              1.12,
+              1.2,
+              1.36,
+              1.44,
+              1.6,
+              1.72,
+              1.92,
+              2.04,
+              2.2,
+              2.28,
+              2.44,
+              2.48,
+              2.52
+            ],
+            "logProbs": [
+              -0.974526,
+              -0.18728,
+              -0.71655,
+              -0.207114,
+              -0.598345,
+              -0.205814,
+              -0.291182,
+              -0.71201,
+              -0.733243,
+              -0.099745,
+              -0.6547,
+              -0.226596,
+              -0.040114,
+              -0.686694
+            ]
+          },
+          "beam": {
+            "text": "Palun lugege temaga kodus iga päev.",
+            "tokens": [
+              " P",
+              "al",
+              "un",
+              " lu",
+              "ge",
+              "ge",
+              " tema",
+              "ga",
+              " kodu",
+              "s",
+              " iga",
+              " ",
+              "päev",
+              "."
+            ],
+            "timestamps": [
+              1.08,
+              1.12,
+              1.2,
+              1.36,
+              1.44,
+              1.6,
+              1.72,
+              1.92,
+              2.04,
+              2.2,
+              2.28,
+              2.44,
+              2.48,
+              2.52
+            ],
+            "logProbs": [
+              -0.967985,
+              -0.190737,
+              -0.727384,
+              -0.207386,
+              -0.598345,
+              -0.204659,
+              -0.291182,
+              -0.708645,
+              -0.728451,
+              -0.099781,
+              -0.662445,
+              -0.226201,
+              -0.040114,
+              -0.686694
+            ]
+          },
+          "seconds": 2.28
+        }
+      ],
+      "expect": {
+        "heard": "Art on klassis rõõmus ja õpib hästi vead on väikesed Palun lugege temaga kodus iga päev.",
+        "understood": "Art on klassis rõõmus ja õpib hästi vead on väikesed Palun lugege temaga kodus iga päev.",
+        "words": [
+          {
+            "text": "Art",
+            "heard": "Art",
+            "unsure": true,
+            "repaired": false,
+            "agreed": false,
+            "known": null
+          },
+          {
+            "text": "on",
+            "heard": "on",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "klassis",
+            "heard": "klassis",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "rõõmus",
+            "heard": "rõõmus",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "ja",
+            "heard": "ja",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "õpib",
+            "heard": "õpib",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "hästi",
+            "heard": "hästi",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "vead",
+            "heard": "vead",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "on",
+            "heard": "on",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "väikesed",
+            "heard": "väikesed",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "Palun",
+            "heard": "Palun",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "lugege",
+            "heard": "lugege",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "temaga",
+            "heard": "temaga",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "kodus",
+            "heard": "kodus",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "iga",
+            "heard": "iga",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "päev.",
+            "heard": "päev.",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          }
+        ],
+        "verdict": {
+          "kind": "fill",
+          "text": "Art on klassis rõõmus ja õpib hästi vead on väikesed Palun lugege temaga kodus iga päev."
+        },
+        "pick": null
+      }
+    },
+    {
+      "file": "scripts/fixtures/speech/kohvi-palun.wav",
+      "says": "Kohvi, palun.",
+      "sha256": "6a1ef4069bc14c75aa091f8022380217df3f68bbde5e258f7d54c7d92d7c84c4",
+      "turns": [
+        {
+          "greedy": {
+            "text": "kohvi",
+            "tokens": [
+              " ko",
+              "h",
+              "vi"
+            ],
+            "timestamps": [
+              0.88,
+              1,
+              1.08
+            ],
+            "logProbs": [
+              -0.803917,
+              -0.366794,
+              -0.260721
+            ]
+          },
+          "beam": {
+            "text": "kohvi",
+            "tokens": [
+              " ko",
+              "h",
+              "vi"
+            ],
+            "timestamps": [
+              0.88,
+              1,
+              1.08
+            ],
+            "logProbs": [
+              -0.807782,
+              -0.365542,
+              -0.261106
+            ]
+          },
+          "seconds": 0.53
+        },
+        {
+          "greedy": {
+            "text": "palun",
+            "tokens": [
+              " pa",
+              "l",
+              "un"
+            ],
+            "timestamps": [
+              0.88,
+              1,
+              1.08
+            ],
+            "logProbs": [
+              -0.421913,
+              -0.339294,
+              -0.216208
+            ]
+          },
+          "beam": {
+            "text": "palun",
+            "tokens": [
+              " pa",
+              "l",
+              "un"
+            ],
+            "timestamps": [
+              0.88,
+              1,
+              1.08
+            ],
+            "logProbs": [
+              -0.421444,
+              -0.339076,
+              -0.223124
+            ]
+          },
+          "seconds": 0.58
+        }
+      ],
+      "expect": {
+        "heard": "kohvi palun",
+        "understood": "kohvi palun",
+        "words": [
+          {
+            "text": "kohvi",
+            "heard": "kohvi",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "palun",
+            "heard": "palun",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          }
+        ],
+        "verdict": {
+          "kind": "good"
+        },
+        "pick": null
+      }
+    },
+    {
+      "file": "scripts/fixtures/speech/jah-see-on-koik.wav",
+      "says": "Jah, see on kõik.",
+      "sha256": "d458a7ca5d73c8a4fb4cd2f8f3af987a5321e8882cb04a4c616de8c11a106ed2",
+      "turns": [
+        {
+          "greedy": {
+            "text": "Jah",
+            "tokens": [
+              " Jah"
+            ],
+            "timestamps": [
+              0.96
+            ],
+            "logProbs": [
+              -0.83825
+            ]
+          },
+          "beam": {
+            "text": "Jah",
+            "tokens": [
+              " Jah"
+            ],
+            "timestamps": [
+              0.96
+            ],
+            "logProbs": [
+              -0.833356
+            ]
+          },
+          "seconds": 0.51
+        },
+        {
+          "greedy": {
+            "text": "see on kõik",
+            "tokens": [
+              " see",
+              " on",
+              " kõik"
+            ],
+            "timestamps": [
+              0.84,
+              1,
+              1.32
+            ],
+            "logProbs": [
+              -1.031272,
+              -0.482699,
+              -0.117595
+            ]
+          },
+          "beam": {
+            "text": "see on kõik",
+            "tokens": [
+              " see",
+              " on",
+              " kõik"
+            ],
+            "timestamps": [
+              0.84,
+              1,
+              1.32
+            ],
+            "logProbs": [
+              -1.03091,
+              -0.482796,
+              -0.117475
+            ]
+          },
+          "seconds": 0.95
+        }
+      ],
+      "expect": {
+        "heard": "Jah see on kõik",
+        "understood": "Jah see on kõik",
+        "words": [
+          {
+            "text": "Jah",
+            "heard": "Jah",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "see",
+            "heard": "see",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "on",
+            "heard": "on",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "kõik",
+            "heard": "kõik",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          }
+        ],
+        "verdict": {
+          "kind": "good"
+        },
+        "pick": null
+      }
+    },
+    {
+      "file": "scripts/fixtures/speech/kaardiga-palun.wav",
+      "says": "Kaardiga, palun.",
+      "sha256": "105b3ddba1d47bd0322d07cc2d9935b7e0520a4bd7f20391f98bebf25e1b824d",
+      "turns": [
+        {
+          "greedy": {
+            "text": "Kaardiga palun",
+            "tokens": [
+              " Ka",
+              "a",
+              "rdi",
+              "ga",
+              " pa",
+              "l",
+              "un"
+            ],
+            "timestamps": [
+              0.88,
+              0.96,
+              1.04,
+              1.2,
+              1.48,
+              1.6,
+              1.68
+            ],
+            "logProbs": [
+              -1.246317,
+              -0.763772,
+              -0.071547,
+              -0.253259,
+              -0.622901,
+              -0.508287,
+              -0.229705
+            ]
+          },
+          "beam": {
+            "text": "Kaardiga, palun",
+            "tokens": [
+              " Ka",
+              "a",
+              "rdi",
+              "ga",
+              ",",
+              " pa",
+              "l",
+              "un"
+            ],
+            "timestamps": [
+              0.88,
+              0.96,
+              1.04,
+              1.2,
+              1.32,
+              1.48,
+              1.56,
+              1.68
+            ],
+            "logProbs": [
+              -1.238859,
+              -0.760578,
+              -0.071581,
+              -0.253025,
+              -1.123034,
+              -0.159876,
+              -0.592299,
+              -0.234749
+            ]
+          },
+          "seconds": 1.16
+        }
+      ],
+      "expect": {
+        "heard": "Kaardiga palun",
+        "understood": "Kaardiga palun",
+        "words": [
+          {
+            "text": "Kaardiga",
+            "heard": "Kaardiga",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "palun",
+            "heard": "palun",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          }
+        ],
+        "verdict": {
+          "kind": "good"
+        },
+        "pick": null
+      }
+    },
+    {
+      "file": "scripts/fixtures/speech/aitah-head-aega.wav",
+      "says": "Aitäh, head aega!",
+      "sha256": "e0664f7d59c2a1bd53ba826dcd11a98ab5debdb1e16e6680412535df7c06ca78",
+      "turns": [
+        {
+          "greedy": {
+            "text": "Aitäh",
+            "tokens": [
+              " Aitäh"
+            ],
+            "timestamps": [
+              1.08
+            ],
+            "logProbs": [
+              -1.040379
+            ]
+          },
+          "beam": {
+            "text": "Aitäh",
+            "tokens": [
+              " Aitäh"
+            ],
+            "timestamps": [
+              1.08
+            ],
+            "logProbs": [
+              -1.035587
+            ]
+          },
+          "seconds": 0.87
+        },
+        {
+          "greedy": {
+            "text": "Head aega",
+            "tokens": [
+              " He",
+              "ad",
+              " aega"
+            ],
+            "timestamps": [
+              0.88,
+              0.96,
+              1.2
+            ],
+            "logProbs": [
+              -0.268767,
+              -0.216363,
+              -0.125217
+            ]
+          },
+          "beam": {
+            "text": "Head aega.",
+            "tokens": [
+              " He",
+              "ad",
+              " aega",
+              "."
+            ],
+            "timestamps": [
+              0.72,
+              0.96,
+              1.2,
+              1.52
+            ],
+            "logProbs": [
+              -1.469039,
+              -0.215023,
+              -0.124004,
+              -2.045919
+            ]
+          },
+          "seconds": 0.96
+        }
+      ],
+      "expect": {
+        "heard": "Aitäh Head aega",
+        "understood": "Aitäh Head aega",
+        "words": [
+          {
+            "text": "Aitäh",
+            "heard": "Aitäh",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "Head",
+            "heard": "Head",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          },
+          {
+            "text": "aega",
+            "heard": "aega",
+            "unsure": false,
+            "repaired": false,
+            "agreed": true,
+            "known": null
+          }
+        ],
+        "verdict": {
+          "kind": "good"
+        },
+        "pick": null
       }
     }
   ]

@@ -39,7 +39,7 @@ export function lightUp(line: readonly LineWord[], heard: string): boolean[] {
     const key = line[i]!.key;
     if (!key) {
       // Punctuation on its own counts as reached once the word before it is.
-      lit[i] = i === 0 || lit[i - 1]!;
+      lit[i] = i > 0 && lit[i - 1]!;
       continue;
     }
     const at = said.indexOf(key, from);
@@ -48,6 +48,11 @@ export function lightUp(line: readonly LineWord[], heard: string): boolean[] {
       from = at + 1;
     }
   }
+  /* A mark that opens the line (the dash before a reply) has no word before
+     it, so it is reached with the first word after it: lit by nothing heard
+     would be a line that starts half lit before anybody has spoken. */
+  const first = line.findIndex((word) => word.key);
+  if (first > 0) for (let i = 0; i < first; i++) lit[i] = lit[first]!;
   return lit;
 }
 

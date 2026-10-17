@@ -59,11 +59,18 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
   const latest = useRef(speech);
   latest.current = speech;
 
-  const { offered, phase, listening, thinking, partial, level, clipping, error, hearing, appSpeaking } = speech;
+  const { offered, phase, listening, thinking, partial, level, clipping, error, hearing, appSpeaking, silent } = speech;
 
   useEffect(() => {
-    if (hearing && !speaksForItself) setAnnounce(hearing.understood ? fill(t("Heard: {text}"), { text: hearing.understood }) : t("Nothing was heard."));
-  }, [hearing, speaksForItself, t]);
+    if ((!hearing && !silent) || speaksForItself) return;
+    const line = hearing?.understood ? fill(t("Heard: {text}"), { text: hearing.understood }) : t("Nothing was heard.");
+    /* The same words twice is two turns, and a live region whose text did not
+       change says nothing the second time: it is emptied and filled again on
+       the next frame, so the second "Heard: tere" is read out too (D12). */
+    setAnnounce("");
+    const frame = requestAnimationFrame(() => setAnnounce(line));
+    return () => cancelAnimationFrame(frame);
+  }, [hearing, silent, speaksForItself, t]);
 
   const press = () => {
     const s = latest.current;
@@ -119,12 +126,17 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
     : phase === "loading" ? t("Getting ready to listen")
     : thinking ? t("Reading what you said")
     : listening ? t("Listening. Press again when you are done.")
+    // A turn that closed on its own with nothing said says so, rather than the button just going quiet.
+    : silent && !speaksForItself ? t("Nothing was heard.")
     : null;
 
   return (
-    <div className="flex flex-col items-start gap-2">
-      {/* Wraps rather than squeezing: beside a 44px button in a narrow column the status line would otherwise break inside a word. */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+    <div className="flex flex-col items-start gap-3">
+      {/* The status line stays beside the button and wraps inside its own
+          column, by words: wrapped under the button, it sat inside the level
+          ring and the ring drew over its first words. The gap clears the ring
+          at its widest (`.speech-mic` in globals.css). */}
+      <div className="flex max-w-full items-center gap-4">
         <button
           type="button"
           className={`speech-mic press relative inline-flex shrink-0 items-center justify-center rounded-full ${dim}`}
@@ -144,6 +156,10 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
           }}
           onPointerDown={(e) => {
             if (e.pointerType !== "touch") return;
+            /* A long press a browser kept for itself (a context menu, a
+               scroll) can end with no click, which would leave `held` set and
+               eat the next ordinary tap. Every press starts clean. */
+            held.current = false;
             pressedAt.current = Date.now();
             const at = pressedAt.current;
             setTimeout(() => {
@@ -160,7 +176,14 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
             if (wasHeld && latest.current.listening) latest.current.stop();
           }}
           onPointerCancel={() => {
+            // The browser took the finger mid-hold: the turn ends with what was said, as letting go does.
+            if (held.current && latest.current.listening) latest.current.stop();
+            held.current = false;
             pressedAt.current = 0;
+          }}
+          onContextMenu={(e) => {
+            // Holding to talk is not a request for the browser's long-press menu.
+            if (pressedAt.current !== 0) e.preventDefault();
           }}
           style={{ "--mic-level": String(level) } as CSSProperties}
         >
@@ -172,7 +195,7 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
             <Mic size={big ? 24 : 20} aria-hidden />
           )}
         </button>
-        {status && <p className="text-sm" style={{ color: "var(--ink-2)" }}>{status}</p>}
+        {status && <p className="min-w-0 flex-1 text-sm" style={{ color: "var(--ink-2)" }}>{status}</p>}
       </div>
 
       {listening && showPartial && partial && (
