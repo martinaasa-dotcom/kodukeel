@@ -382,3 +382,85 @@ async function navigateWithFallback(request) {
     );
   }
 }
+
+/*
+  REMINDERS ON A COMPUTER (VB-10): THE PUSH AND THE CLICK.
+
+  A notification is the short form of a letter the app already sends, and the
+  server decides it exactly as it decides the letter: this worker only shows
+  what arrives and opens the screen it names. Nothing here touches a cache,
+  which is why `VERSION` did not move for it. The browser installs a worker
+  whose bytes have changed whatever `VERSION` says, and `VERSION` names the
+  caches, so bumping it would have thrown away every phone's clips and pages
+  for a change that adds two listeners and no cache.
+
+  NOTHING IS REPORTED BACK. There is no delivery receipt and no record of a
+  notification being shown or clicked, which is the letters' rule about
+  pixels: the server books a reminder as sent and never learns what happened
+  to it.
+*/
+
+/** A path on this site, or `/`: a notification never opens anywhere else. */
+function reminderPath(raw) {
+  if (typeof raw !== "string" || !raw.startsWith("/") || raw.startsWith("//")) return "/";
+  try {
+    const url = new URL(raw, self.location.origin);
+    return url.origin === self.location.origin ? `${url.pathname}${url.search}${url.hash}` : "/";
+  } catch {
+    return "/";
+  }
+}
+
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    // A message this worker cannot read still owes the reader something: a
+    // browser that receives a push and shows nothing may stop delivering them.
+    data = {};
+  }
+  const title = typeof data.title === "string" && data.title.trim() ? data.title : "Kodukeel";
+  const body = typeof data.body === "string" ? data.body : "";
+  const tag = typeof data.tag === "string" && data.tag ? data.tag : "kodukeel";
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body,
+      // One per kind: a second evening nudge replaces the first quietly.
+      tag,
+      icon: "/apple-icon",
+      data: { url: reminderPath(data.url) },
+    }),
+  );
+});
+
+/*
+  A CLICK OPENS THE SCREEN THE REMINDER IS ABOUT.
+
+  A window already showing that screen is brought forward. Otherwise a new
+  one opens, rather than an open window being navigated away: the tab
+  somebody has open may be halfway through a round or a sentence, and a
+  notification that threw that away would be one people learn not to press.
+*/
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const path = reminderPath(event.notification.data && event.notification.data.url);
+  event.waitUntil(
+    (async () => {
+      const target = new URL(path, self.location.origin);
+      const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      for (const client of windows) {
+        let at;
+        try {
+          at = new URL(client.url);
+        } catch {
+          continue;
+        }
+        if (at.origin === target.origin && at.pathname === target.pathname && "focus" in client) {
+          return client.focus();
+        }
+      }
+      return self.clients.openWindow ? self.clients.openWindow(target.href) : undefined;
+    })(),
+  );
+});

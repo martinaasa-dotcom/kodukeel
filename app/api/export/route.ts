@@ -131,7 +131,7 @@ export async function GET() {
     lexemes, cards, reviews, tasks, studyEvents, scans,
     settings, messages, assessments, stars, achievements,
     examAttempts, classrooms, classroomMembers, suggestions, sceneRuns, sceneGaps, encounters,
-    decks, deckWords, deferrals, courseSteps, emailSends,
+    decks, deckWords, deferrals, courseSteps, emailSends, pushSubscriptions,
   ] = await Promise.all([
     prisma.lexeme.findMany({ where: { id: { in: [...mine] } }, include: { forms: true } }),
     prisma.card.findMany({ where: { ownerId } }),
@@ -192,6 +192,11 @@ export async function GET() {
     // one, because there is no tracking pixel here and there is not going to
     // be one.
     prisma.emailSend.findMany({ where: { ownerId }, orderBy: { sentAt: "asc" } }),
+    // The browsers they asked to be reminded on: the address each one's push
+    // service gave it and the keys a reminder is encrypted to. Never restored,
+    // since a file opened on another machine must not switch notifications
+    // back on in a browser nobody asked about.
+    prisma.pushSubscription.findMany({ where: { ownerId }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] }),
   ]);
 
   const payload = {
@@ -210,11 +215,12 @@ export async function GET() {
       deferrals: deferrals.length,
       courseSteps: courseSteps.length,
       emailSends: emailSends.length,
+      pushSubscriptions: pushSubscriptions.length,
     },
     lexemes, cards, reviews, tasks, studyEvents, scans,
     settings, messages, assessments, stars, achievements,
     examAttempts, classrooms, classroomMembers, suggestions, sceneRuns, sceneGaps, encounters,
-    decks, deckWords, deferrals, courseSteps, emailSends,
+    decks, deckWords, deferrals, courseSteps, emailSends, pushSubscriptions,
   };
 
   const date = new Date().toISOString().slice(0, 10);

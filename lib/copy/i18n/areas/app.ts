@@ -865,6 +865,30 @@ export const APP: Area = {
     "This file holds what the group page shows you. Treat it as you treat that page.": "В этом файле то же, что вам показывает страница группы. Обращайтесь с ним так же, как с этой страницей.",
     "Band": "Оценка",
     "Evidence": "На чём основано",
+
+    // Reminders on a computer, through Web Push (VB-10).
+    "Reminders on this computer": "Напоминания на этом компьютере",
+    "Remind me on this computer": "Напоминать на этом компьютере",
+    "Stop reminders on this computer": "Не напоминать на этом компьютере",
+    "This browser is blocking notifications from Kodukeel. To allow them, open the site settings from the icon beside the address and set Notifications to Allow.":
+      "Этот браузер блокирует уведомления от Kodukeel. Чтобы разрешить их, откройте настройки сайта через значок рядом с адресом и выберите для уведомлений «Разрешить».",
+    "On. The evening nudge, a level learned, a shield used and the word of the day come here as a notification, not an email.":
+      "Включено. Вечернее напоминание, пройденный уровень, использованный щит и слово дня приходят сюда уведомлением, а не письмом.",
+    "The evening nudge, a level learned, a shield used and the word of the day can come here as a notification instead of an email.":
+      "Вечернее напоминание, пройденный уровень, использованный щит и слово дня могут приходить сюда уведомлением вместо письма.",
+    "The switches above decide which ones, whichever way they come.":
+      "Какие именно, решают переключатели выше, каким бы путём они ни приходили.",
+    "The browser didn't turn notifications on, so nothing has changed.":
+      "Браузер не включил уведомления, так что ничего не изменилось.",
+    "Done. Reminders now come to this computer.": "Готово. Теперь напоминания приходят на этот компьютер.",
+    "This browser couldn't set up notifications, so nothing has changed.":
+      "Этот браузер не смог настроить уведомления, так что ничего не изменилось.",
+    "Done. Nothing more is sent to this computer.": "Готово. На этот компьютер больше ничего не придёт.",
+    "This copy of Kodukeel isn't set up to send notifications.": "Эта копия Kodukeel не настроена на отправку уведомлений.",
+    "This browser sent something we can't use for reminders, so nothing has changed.":
+      "Этот браузер прислал данные, которые нельзя использовать для напоминаний, так что ничего не изменилось.",
+    "This copy of Kodukeel doesn’t send email. These switches still decide which reminders reach you as notifications on a computer.":
+      "Эта копия Kodukeel не отправляет письма. Но эти переключатели всё равно решают, какие напоминания приходят вам уведомлениями на компьютер.",
   },
   uk: {
     "Download the roster": "Завантажити список групи",
@@ -1729,6 +1753,30 @@ export const APP: Area = {
       "Послухати слово, поки ви ще обираєте",
     "The same words asked in new ways, typed from memory. The quickest way to see which haven't stuck yet.":
       "Ті самі слова в нових запитаннях, з пам'яті та з клавіатури. Найшвидший спосіб зрозуміти, які ще не запам'яталися.",
+
+    // Reminders on a computer, through Web Push (VB-10).
+    "Reminders on this computer": "Нагадування на цьому комп'ютері",
+    "Remind me on this computer": "Нагадувати на цьому комп'ютері",
+    "Stop reminders on this computer": "Не нагадувати на цьому комп'ютері",
+    "This browser is blocking notifications from Kodukeel. To allow them, open the site settings from the icon beside the address and set Notifications to Allow.":
+      "Цей браузер блокує сповіщення від Kodukeel. Щоб дозволити їх, відкрийте налаштування сайту через значок біля адреси й виберіть для сповіщень «Дозволити».",
+    "On. The evening nudge, a level learned, a shield used and the word of the day come here as a notification, not an email.":
+      "Увімкнено. Вечірнє нагадування, пройдений рівень, використаний щит і слово дня приходять сюди сповіщенням, а не листом.",
+    "The evening nudge, a level learned, a shield used and the word of the day can come here as a notification instead of an email.":
+      "Вечірнє нагадування, пройдений рівень, використаний щит і слово дня можуть приходити сюди сповіщенням замість листа.",
+    "The switches above decide which ones, whichever way they come.":
+      "Які саме, вирішують перемикачі вище, хоч би яким шляхом вони приходили.",
+    "The browser didn't turn notifications on, so nothing has changed.":
+      "Браузер не ввімкнув сповіщення, тож нічого не змінилося.",
+    "Done. Reminders now come to this computer.": "Готово. Тепер нагадування приходять на цей комп'ютер.",
+    "This browser couldn't set up notifications, so nothing has changed.":
+      "Цей браузер не зміг налаштувати сповіщення, тож нічого не змінилося.",
+    "Done. Nothing more is sent to this computer.": "Готово. На цей комп'ютер більше нічого не надійде.",
+    "This copy of Kodukeel isn't set up to send notifications.": "Ця копія Kodukeel не налаштована надсилати сповіщення.",
+    "This browser sent something we can't use for reminders, so nothing has changed.":
+      "Цей браузер надіслав дані, які не можна використати для нагадувань, тож нічого не змінилося.",
+    "This copy of Kodukeel doesn’t send email. These switches still decide which reminders reach you as notifications on a computer.":
+      "Ця копія Kodukeel не надсилає листів. Але ці перемикачі однаково вирішують, які нагадування приходять вам сповіщеннями на комп'ютер.",
   },
   counted: {
     "review": { en: ["review", "reviews"], ru: ["повторение", "повторения", "повторений"], uk: ["повторення", "повторення", "повторень"] },

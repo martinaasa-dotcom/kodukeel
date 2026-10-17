@@ -120,7 +120,8 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
 
   return (
     <div className="flex flex-col items-start gap-2">
-      <div className="flex items-center gap-3">
+      {/* Wraps rather than squeezing: beside a 44px button in a narrow column the status line would otherwise break inside a word. */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         <button
           type="button"
           className={`speech-mic press relative inline-flex shrink-0 items-center justify-center rounded-full ${dim}`}
@@ -160,7 +161,6 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
           }}
           style={{ "--mic-level": String(level) } as CSSProperties}
         >
-          {listening && <span aria-hidden className="speech-mic-ring" />}
           {busy ? (
             <Loader2 size={big ? 24 : 20} className="animate-spin" aria-hidden />
           ) : listening ? (
