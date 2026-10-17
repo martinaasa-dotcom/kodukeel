@@ -42,6 +42,8 @@ export function useGrade() {
       durationMs: number,
       slot?: string,
       reachedSlot?: string,
+      /** Said aloud and marked on what was heard (docs/41-fifth-batch.md D4). */
+      spoken?: boolean,
     ): Promise<boolean> => {
       const answeredAt = new Date().toISOString();
       // One id for this answer, sent with it and queued with it, so a write
@@ -51,7 +53,7 @@ export function useGrade() {
         // Anything queued earlier goes first, so the scheduler hears two
         // answers to one card in the order they were given.
         await drainFirst();
-        const res = await gradeCard(cardId, rating, durationMs, answeredAt, slot, reachedSlot, reviewId);
+        const res = await gradeCard(cardId, rating, durationMs, answeredAt, slot, reachedSlot, reviewId, spoken === true);
         if (res.ok) return true;
       } catch {
         // Queued below.
@@ -65,6 +67,7 @@ export function useGrade() {
           reviewedAt: Date.parse(answeredAt),
           ...(slot ? { slot } : {}),
           ...(reachedSlot ? { reachedSlot } : {}),
+          ...(spoken ? { spoken: true } : {}),
         });
         refresh();
       } catch {

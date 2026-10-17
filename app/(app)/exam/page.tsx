@@ -347,7 +347,7 @@ export default async function ExamPage() {
           </li>
           <li>
             <CircleAlert size={13} className="mr-1 inline" aria-hidden />
-            {t("Nothing here scores your pronunciation. We tested a speech recognizer and it wasn't accurate enough, so instead you record yourself, listen back, and judge how you did. You'll see this note again on your result.")}
+            {t("Nothing here scores your pronunciation. You speak into the microphone, the app shows which words it understood, on this device, and you listen back and mark yourself. You'll see this note again when you reach the spoken part.")}
           </li>
           <li>
             <Lightbulb size={13} className="mr-1 inline" aria-hidden />

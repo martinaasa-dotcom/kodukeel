@@ -627,7 +627,7 @@ describe("what a day reads and where it goes", () => {
   });
 
   it("keeps A1 to rounds played on the words the module has taught", () => {
-    const allowed = new Set<string>(["match", "listening", "conjugation", "letters", "flash"]);
+    const allowed = new Set<string>(["match", "listening", "conjugation", "letters", "speaking"]);
     for (const { programme, day } of DAYS) {
       if (programme.level !== "A1") continue;
       for (const key of day.practice) expect(allowed.has(key), `${day.id} deals ${key}`).toBe(true);
@@ -892,9 +892,9 @@ describe("what a day reads and where it goes", () => {
 
   it("deals the table on the evenings a unit of verbs pins it, and not on the others", () => {
     const taught = { ...NO_TAUGHT, verbs: true, spellable: WORDS_FOR_LETTERS };
-    // Pair two of A1 is Tähed and the flash round.
-    expect(rounds("A1", 1, false, taught, false)).toEqual(["letters", "flash"]);
-    expect(rounds("A1", 1, false, taught, true)).toEqual(["letters", "flash"]);
+    // Pair two of A1 is Tähed and the Speaking round, which took the flash round's slot (VB-5).
+    expect(rounds("A1", 1, false, taught, false)).toEqual(["letters", "speaking"]);
+    expect(rounds("A1", 1, false, taught, true)).toEqual(["letters", "speaking"]);
     expect(rounds("A1", 1, true, taught, true)).toEqual(["letters", "conjugation"]);
   });
 

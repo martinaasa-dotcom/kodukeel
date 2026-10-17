@@ -211,8 +211,8 @@ export const BRIEFINGS = {
   },
   speaking: {
     title: "Say it out loud",
-    what: "A word to say, a recording of a native speaker saying it, and your own voice played back beside it.",
-    you: "Record yourself, listen to both, and decide how close you got. No machine grades your accent.",
+    what: "A word or a line, three ways: say it along with a native speaker, say it back from the recording, then say it from its English meaning.",
+    you: "Speak, and see which words were heard. Nothing scores how they sounded, and a miss is never written down. Typing works too.",
     action: "Start",
   },
   map: {

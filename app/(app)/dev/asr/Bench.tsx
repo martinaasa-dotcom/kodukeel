@@ -189,6 +189,7 @@ function fake(overrides: Partial<Speech>): Speech {
     clipping: false,
     error: null,
     hearing: null,
+    audio: null,
     appSpeaking: false,
     download: nothing,
     start: nothing,

@@ -46,6 +46,13 @@ export interface PendingGrade {
    * watching. Untrusted, and `writeGrade` is where it is checked.
    */
   reachedSlot?: string;
+  /**
+   * The answer was said aloud (docs/41-fifth-batch.md D4, section 3: a spoken
+   * grade survives a train). A card answered aloud on the bus with the network
+   * gone is replayed as spoken, or the "said aloud" reading on Progress and the
+   * recall comparison would be thinner for exactly the sessions nobody watched.
+   */
+  spoken?: boolean;
 }
 
 /** A grade recorded more than this long ago is too stale to trust as a timestamp. */
@@ -105,7 +112,8 @@ export function isValidPending(value: unknown): value is PendingGrade {
     typeof v.durationMs === "number" && Number.isFinite(v.durationMs) &&
     typeof v.reviewedAt === "number" && Number.isFinite(v.reviewedAt) &&
     (v.slot === undefined || typeof v.slot === "string") &&
-    (v.reachedSlot === undefined || typeof v.reachedSlot === "string")
+    (v.reachedSlot === undefined || typeof v.reachedSlot === "string") &&
+    (v.spoken === undefined || typeof v.spoken === "boolean")
   );
 }
 

@@ -391,6 +391,7 @@ jobs:
               scripts/test-module.mjs
               scripts/test-speech.mjs
               scripts/test-recordings.mjs
+              scripts/test-speaking.mjs
               scripts/test-push.mjs
 
           # The suites that write, in the order they can be run in. The

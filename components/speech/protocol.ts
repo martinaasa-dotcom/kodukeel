@@ -29,7 +29,7 @@ export type ToWorker =
       readonly check: Float32Array;
     }
   /** Start a turn; its audio arrives through the port sent with this message. */
-  | { readonly type: "listen"; readonly endpoint: boolean }
+  | { readonly type: "listen"; readonly endpoint: boolean; readonly maxSeconds?: number; readonly keepAudio?: boolean }
   | { readonly type: "stop" }
   | { readonly type: "cancel" }
   | { readonly type: "transcribe"; readonly samples: Float32Array; readonly rate: number };
@@ -41,7 +41,7 @@ export type FromWorker =
   | { readonly type: "partial"; readonly text: string }
   | { readonly type: "speech" }
   | { readonly type: "thinking" }
-  | { readonly type: "final"; readonly turn: RawTurn | null; readonly why: "pressed" | "silence" | "nothing-said" | "too-long" }
+  | { readonly type: "final"; readonly turn: RawTurn | null; readonly why: "pressed" | "silence" | "nothing-said" | "too-long"; readonly audio?: Float32Array }
   | { readonly type: "segment"; readonly turn: RawTurn | null; readonly from: number; readonly to: number; readonly done: number; readonly total: number }
   | { readonly type: "transcribed" }
   | { readonly type: "error"; readonly error: EngineError; readonly detail?: string };

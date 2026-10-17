@@ -415,3 +415,60 @@ export function playRecording(
     ended,
   };
 }
+
+/**
+ * WHAT THE RECOGNIZER HEARD, READ BACK IN A NATIVE VOICE, AND KEPT NOWHERE.
+ *
+ * The Speaking round's read-back (docs/41-fifth-batch.md VB-5): `heard`, the
+ * model's own words, non-words and all, said by TartuNLP so a learner hears
+ * what came across. That text is the learner's, so it takes none of the
+ * caches every other clip goes through: the route's shared store is skipped
+ * (`?transient=1`), the service worker passes it by, and the bytes are played
+ * from an object URL that is released the moment the play ends. Never repaired
+ * first: reading the non-word as written is the whole point of it.
+ *
+ * Played at the learner's own pace like every other clip, through the one
+ * stretch, and counted as the app speaking so the microphone waits (D14).
+ */
+export async function playHeard(request: ClipRequest): Promise<PlayOutcome> {
+  const end = beginSpeech();
+  let url: string | null = null;
+  const release = () => {
+    end();
+    if (url) URL.revokeObjectURL(url);
+    url = null;
+  };
+  try {
+    const res = await fetch("/api/tts?transient=1", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ text: request.text, ...(request.voice ? { voice: request.voice } : {}) }),
+    });
+    if (!res.ok) throw new Error(String(res.status));
+    const fetched = await res.blob();
+    const rate = rateFor(request);
+    let blob: Blob = fetched;
+    if (rate !== 1) {
+      try {
+        const out = encodeWav16(stretch(decodeWav(new Uint8Array(await fetched.arrayBuffer())), rate));
+        blob = new Blob([out.buffer as ArrayBuffer], { type: "audio/wav" });
+      } catch {
+        blob = fetched;
+      }
+    }
+    url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    for (const event of ["ended", "pause", "error"] as const) audio.addEventListener(event, release, { once: true });
+    try {
+      await audio.play();
+    } catch (error) {
+      release();
+      if (error instanceof DOMException && error.name === "NotAllowedError") return "blocked";
+      throw error;
+    }
+    return "played";
+  } catch (error) {
+    release();
+    throw error;
+  }
+}

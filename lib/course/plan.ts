@@ -102,8 +102,22 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
     and the flash round; the conjugation table still comes on the evenings a
     unit of verbs pins it (`rounds()`'s `table`), which is where a beginner
     meets a verb, and Listening stands in for it until one has been taught.
+
+    AND THE SPEAKING ROUND TAKES THE FLASH ROUND'S SLOT, WHICH IS SP-4'S `ütle`
+    (docs/41-fifth-batch.md VB-5). At A1 the flash round asked a word typed
+    from its meaning and, once the present tense was read, a person of a verb;
+    the rebuilt Speaking round asks exactly that from its meaning, said aloud,
+    after saying the word along with a native voice and back from the
+    recording, and it narrows a beginner through the flash round's own
+    `beginnerSlot` rule. With no microphone the recall is typed into the same
+    box, so it is the flash round's drill for anybody who cannot speak and the
+    better one for everybody who can. One speaking round in the app rather
+    than two, as the batch asks; the flash round stays on Practice. Above A1
+    every drill on the lists below is a case, a sentence or a page of them,
+    which is what those evenings read, so the Speaking round stays on
+    Practice there and the closing review takes answers aloud instead (VB-6).
   */
-  A1: ["match", "listening", "letters", "flash"],
+  A1: ["match", "listening", "letters", "speaking"],
   /*
     AND SÕNAD IS ON NONE OF THEM. Its word is dealt off the dictionary at the
     learner's band by design, and `recordSonad` rebuilds the day's puzzle from

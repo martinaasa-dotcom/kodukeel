@@ -21713,7 +21713,6 @@ check("a verdict is painted once, in the tint and the ink", () => {
     // Marks a paper whole and shows no per-answer verdict, on purpose (line 22).
     "app/(app)/learn/checkpoint/[level]/CheckpointSession.tsx": "no per-answer verdict by design",
     // Its two buttons are SelfGradeButtons, which reads the vocabulary itself.
-    "app/(app)/review/speaking/SpeakingSession.tsx": "marks nothing of its own; components/round/SelfGradeButtons.tsx draws the verdict",
   };
   // Screens, not the server actions and page files that call the same markers and draw nothing.
   const marking = [...APP, ...COMPONENTS].filter(

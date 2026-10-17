@@ -89,12 +89,32 @@ export type EngineEvent =
   /** Speech began, which is what lets a call-mode turn stop waiting for it. */
   | { readonly kind: "speech" }
   /** The turn ended, by a press, by the silence after speech, or by waiting too long for any. */
-  | { readonly kind: "final"; readonly turn: RawTurn | null; readonly why: "pressed" | "silence" | "nothing-said" | "too-long" }
+  | {
+      readonly kind: "final";
+      readonly turn: RawTurn | null;
+      readonly why: "pressed" | "silence" | "nothing-said" | "too-long";
+      /**
+       * The turn's own audio, 16 kHz mono, where the listen asked to keep it
+       * (`ListenOptions.keepAudio`). It is for playing the learner's voice back
+       * to them on the device and nothing else: never stored, never sent
+       * (docs/41-fifth-batch.md D1, D21).
+       */
+      readonly audio?: Float32Array;
+    }
   | { readonly kind: "state"; readonly state: EngineState };
 
 export interface ListenOptions {
   /** Close by itself after `waitForSpeechSeconds` if nothing is said, and after the endpoint silence once something is. */
   readonly endpoint: boolean;
+  /**
+   * The longest this turn may run, in seconds, where it is longer than one
+   * ordinary turn: the mock exam's spoken part asks for ninety seconds of
+   * talking (docs/39-speech.md SP-5). Clamped to `maxFileSeconds`; absent is
+   * `maxTurnSeconds`.
+   */
+  readonly maxSeconds?: number;
+  /** Hand the turn's audio back with the final event, for "hear yourself". */
+  readonly keepAudio?: boolean;
 }
 
 /** How a native app or the web listens; see the header. */

@@ -188,6 +188,17 @@ the opacity entrance was hiding. The fix holds; `docs/15-performance.md` has the
   decoding (the page says it may not open there, and the message is tested by feeding Chromium a
   broken Ogg), and a real phone's speed over a three-minute file.
 
+**VB-14, the report run once locally, 2026-10-17.** `npm run report:speech` against a local database
+seeded and given `scripts/demo-data.ts`, whose fixture now says every other production answer of the
+last fortnight aloud so the reading has something to read. **8 answers given aloud, by 1 learner; the
+next answer to the same card recalled 67% of the time after a spoken one (4 of 6) and 76% after a typed
+one (203 of 267, from the same learner).** Those are the fixture's own numbers and say nothing about
+learners: what they show is that the report reads `Review.spoken`, pairs each answer with the next one
+on its card, and draws the typed baseline from the same people. The edit rate reads "no spoken
+conversation turn carries its counts yet", because the counts on `SceneRun` are VB-4's to store, and
+tonight's chat waits on VB-11. **The deployment run is the operator's** (section 8): it needs the
+production connection string, which no session holds.
+
 ## 1. How to use this page
 
 1. Pick one item, in the milestone order of section 4. Do that item and nothing else in the same pull
@@ -329,8 +340,8 @@ stops. Size is the work in one pull request: S is a day, M a few days, L a week 
 | VB-2 One microphone for the whole app | 1 | M | Done: `MicButton` in every state on the bench, `ReadAloud`, `lightUp` and `matchPick` (D20) unit tested, Settings' Speaking section, Ctrl+M on both shortcut lists, the three phrases in `lib/copy/voice.ts`, `scripts/invariants/one-microphone.ts` |
 | VB-3 Ready for the native apps | 1, before November | S | Done: `docs/42-native-apps.md`, and `lib/speech/fixtures/golden.json` recorded off the web engine with `npm run asr:golden` and held by `lib/speech/golden.test.ts` |
 | VB-4 Conversations, spoken | 1 | L | Not started |
-| VB-5 The Speaking round, rebuilt, and hands-free | 1 | M | Not started |
-| VB-6 Saying it on the daily path | 2: speaking everywhere it teaches | M | Not started |
+| VB-5 The Speaking round, rebuilt, and hands-free | 1 | M | Done: three steps in `lib/games/speaking.ts` (12 tests), only the recall grades and a miss writes nothing, the read-back of `heard` metered and stored nowhere, hands-free with the wake lock and Media Session, the exam's spoken part heard on the device and still self-marked, and the module's A1 `flash` slot dealt to it; `scripts/test-speaking.mjs` 22 of 22 |
+| VB-6 Saying it on the daily path | 2: speaking everywhere it teaches | M | Done: "Your turn" on the meet rung, and the microphone in the answer boxes of the review card, the closing review, the Learn ladder and the flash round (D6); heard as spelled grades Good, anything else fills the box for Check, a repaired word writes nothing, and `spoken` reaches the outbox offline, asserted in a browser |
 | VB-7 Numbers out loud | 2 | M | Not started |
 | VB-8 The rounds that already ask you to speak | 2 | M | Not started |
 | VB-9 A word you heard and cannot spell | 2 | S | Not started |
@@ -338,7 +349,7 @@ stops. Size is the work in one pull request: S is a day, M a few days, L a week 
 | VB-11 Tonight's chat | 3: Estonian from real life | L | Not started |
 | VB-12 Something real to listen to | 3 | M | Done: "Or open a recording" on the reading page (`app/(app)/read/Recording.tsx`), decoded and heard on the device in pieces with a stop, glossed through `readHeard` in one request, each line played from the recording through `playRecording` in `lib/audio/clip.ts`; unsure words carry a **wavy** underline rather than the dotted one this page asked for, since dotted already means "a dictionary word"; `/privacy` and DPIA R19; `scripts/test-recordings.mjs` |
 | VB-13 What is around you | 3 | M | Done: "Things around me" beside "A page of words" on the scanner, camera, webcam (video only, named in `one-microphone.ts`), file or drop, English names off the `scan` chain resolved by `lib/progress/things.ts`, other entries on the row to choose and homographs never offered, saved as a scan, "Say them" ungraded |
-| VB-14 Speaking as evidence | 4: knowing whether it works | M | Not started |
+| VB-14 Speaking as evidence | 4: knowing whether it works | M | Done: `Review.spoken` stored, exported and erased, "Said aloud this week" on Progress, `npm run report:speech` run once locally (section 0); the deployment run is the operator's (section 8) |
 | VB-15 The landing café, by voice | 4 | S | Done: "Say it instead" under each step's picks, `CafeVoice` loaded by a dynamic import on the press, the size asked first, `matchPick` lighting a line that is said after 2.5 s unless the screen is touched, the café still sent a pick's id; landing FAQ rewritten in three languages |
 | VB-16 Pairs, said aloud | Parked | M | Waits on the operator (D3, section 8) |
 
@@ -1104,6 +1115,8 @@ went.
 - **Choose the native framework before November.** A framework that runs TypeScript reuses `lib/speech/`
   (to be written) and the other pure layers as they are; one that does not ports them with their tests,
   and VB-3's golden file is how either proves it got the same answers.
+- **Run `npm run report:speech` once against the deployment** after the first fortnight with speech on,
+  and put its figures in section 0 beside the local run, which only proves the reading works.
 - **Watch the edit rate** once VB-14 has printed it over a few weeks of real learners, and decide from it
   whether to keep speech on (D15) and whether to lift D3 for VB-16.
 
