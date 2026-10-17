@@ -5,6 +5,8 @@ import { EMPTY, HUE, RING } from "@/components/sonad/look";
 import { lettersOf } from "@/lib/games/letters";
 import { PICTURES } from "@/lib/collections/pictures";
 import { SceneVignette } from "@/components/scene/SceneVignette";
+import { emojiFor } from "@/lib/collections/emoji";
+import { BALL } from "@/lib/games/map";
 
 /**
  * EVERY GAME, SHOWN AT A SMALL SCALE RATHER THAN DESCRIBED.
@@ -241,8 +243,8 @@ function MapArt() {
   return (
     <div className="flex items-center gap-3">
       <div className="relative grid h-20 w-20 place-items-center rounded-[var(--r)] text-5xl" style={{ background: "var(--surface)" }}>
-        <span>🏠</span>
-        <span className="absolute bottom-3 right-3 text-xl">⚽</span>
+        <span>{emojiFor("maja")}</span>
+        <span className="absolute bottom-3 right-3 text-xl">{BALL}</span>
       </div>
       <div className="flex flex-col gap-1" lang="et">
         {["majas", "majast", "majja"].map((w, i) => (
@@ -281,7 +283,7 @@ function Wordplay() {
       <div className="flex items-center gap-2 text-sm font-bold" lang="et" style={{ color: "var(--ink)" }}>
         <span className="rounded-[var(--r-sm)] px-2 py-1" style={{ background: "var(--surface)" }}>nahk</span>+
         <span className="rounded-[var(--r-sm)] px-2 py-1" style={{ background: "var(--surface)" }}>hiir</span>=
-        <span className="text-3xl">🦇</span>
+        <span className="text-3xl">{emojiFor("nahkhiir")}</span>
       </div>
       <span className="text-xs italic" style={{ color: "var(--ink-2)" }}>&ldquo;a leather mouse&rdquo;</span>
     </div>
