@@ -371,8 +371,25 @@ Lighthouse's local simulation does not move with it (five runs before 1978 to
 3215 ms, after 2619 to 3215 ms), because locally the back link was already
 painting at first paint and the simulation was charging the same work either
 way. Production is where the old element waited 2.3 seconds, so production is
-where the figure should move. **That figure is still to come**: re-run
-PageSpeed on `/sign-in` once this is deployed and write it here beside the 5.1.
+where the figure should move.
+
+### Production, after the fix (2026-10-16, C-1 of the fifth batch)
+
+PageSpeed's keyless API answered 429 again, so production was read the way the
+5.1 seconds above was explained: the same Lighthouse 12.8.2 phone profile, from
+this machine against `https://kodukeel.ee/sign-in`, three runs, once the `.arrive`
+entrance was deployed (the page's HTML carries `class="arrive ..."` and no
+`pop-in`).
+
+| `/sign-in` | Largest paint, three runs (ms) | Element | Server response |
+| --- | --- | --- | --- |
+| Before (2026-10-15) | 4938, 4926, 4877 | the line under the email form | 600 simulated |
+| After (2026-10-16) | 2208, 2462, 1576 | the card's own paragraph, `<p class="mx-auto mt-2 max-w-[36ch] text-base ...">` | 31 to 39 |
+
+**The fix holds on production.** The largest paint is the card's paragraph, the
+element the opacity entrance was hiding, and all three runs are under the 2.5
+second target where all three were near five before. Re-read on PageSpeed itself
+when its quota answers; the profile is the same one, so the figure should agree.
 
 ## What this does not measure
 
