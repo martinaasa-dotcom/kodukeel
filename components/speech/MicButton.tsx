@@ -160,7 +160,6 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
           }}
           style={{ "--mic-level": String(level) } as CSSProperties}
         >
-          {listening && <span aria-hidden className="speech-mic-ring" />}
           {busy ? (
             <Loader2 size={big ? 24 : 20} className="animate-spin" aria-hidden />
           ) : listening ? (
