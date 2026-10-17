@@ -81,6 +81,8 @@ export function NumbersSession({ items: initialItems, cardFor }: {
   const current = items[index];
 
   const graded = useMemo(() => [...new Set(results.flatMap((r) => r.graded))], [results]);
+  // A word graded off an answer said aloud is written as spoken (D4); one typed, or said and edited, is not.
+  const saidAloud = useMemo(() => new Set(results.filter((r) => r.said).flatMap((r) => r.graded)), [results]);
 
   const settled = useCallback((answer: Answered) => setResults((r) => [...r, answer]), []);
 
@@ -107,17 +109,16 @@ export function NumbersSession({ items: initialItems, cardFor }: {
     if (!finished || sent) return;
     setSent(true);
     const rows = graded
-      .map((lemma) => cardFor[lemma])
-      .filter((id): id is string => !!id)
-      .map((cardId) => ({ id: crypto.randomUUID(), cardId }));
+      .map((lemma) => ({ cardId: cardFor[lemma], spoken: saidAloud.has(lemma) }))
+      .filter((row): row is { cardId: string; spoken: boolean } => !!row.cardId)
+      .map((row) => ({ id: crypto.randomUUID(), ...row }));
     if (rows.length === 0) return;
-    // TODO(Review.spoken): mark the rows a spoken answer graded as spoken once VB-14 stores the column.
     void recordNumberGrades(rows)
       .then((res) => {
         if (!res.ok) throw new Error(res.error);
       })
-      .catch(() => queue(rows.map((row) => ({ id: row.id, cardId: row.cardId, rating: 3, durationMs: 0, reviewedAt: Date.now() }))));
-  }, [finished, sent, graded, cardFor, queue]);
+      .catch(() => queue(rows.map((row) => ({ id: row.id, cardId: row.cardId, rating: 3, durationMs: 0, reviewedAt: Date.now(), ...(row.spoken ? { spoken: true } : {}) }))));
+  }, [finished, sent, graded, saidAloud, cardFor, queue]);
 
   if (items.length === 0) {
     return (

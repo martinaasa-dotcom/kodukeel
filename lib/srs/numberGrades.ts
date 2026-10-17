@@ -28,6 +28,6 @@ export function numberGrades(input: unknown, limit: number, now: number): Replay
     const cardId = typeof row.cardId === "string" ? row.cardId : "";
     if (!id || !cardId || seen.has(cardId)) return [];
     seen.add(cardId);
-    return [{ id, cardId, rating: 3, durationMs: 0, reviewedAt: now }];
+    return [{ id, cardId, rating: 3, durationMs: 0, reviewedAt: now, ...(row.spoken === true ? { spoken: true } : {}) }];
   });
 }

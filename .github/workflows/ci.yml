@@ -389,12 +389,21 @@ jobs:
               scripts/test-suggestions.mjs
               scripts/test-scene.mjs
               scripts/test-module.mjs
+              scripts/test-push.mjs
+
+          # Estonian heard on the device, through Chromium's fake microphone fed
+          # a committed clip: the engine and its bench, the rounds answered
+          # aloud, a conversation played to the end by voice, the Speaking
+          # round, a recording opened on the reading page. Each downloads the
+          # model into a fresh browser, which is minutes rather than seconds,
+          # and beside the paper shard they ran past its twenty-minute ceiling.
+          - name: out loud
+            suites: >-
               scripts/test-speech.mjs
               scripts/test-voice-rounds.mjs
-              scripts/test-recordings.mjs
-              scripts/test-speaking.mjs
               scripts/test-scene-speech.mjs
-              scripts/test-push.mjs
+              scripts/test-speaking.mjs
+              scripts/test-recordings.mjs
 
           # The suites that write, in the order they can be run in. The
           # calendar and the deck shelves add rows and take them off again;

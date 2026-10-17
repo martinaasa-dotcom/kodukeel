@@ -132,7 +132,11 @@ try {
   await context.close();
 
   // The microphone refused: the button says so, and the page carries on.
-  const refused = await (await launchChromium({ args: ["--use-fake-device-for-media-stream"] })).newContext({ viewport: { width: 1280, height: 900 } });
+  // `--deny-permission-prompts` answers the prompt with Block, which is what a
+  // learner pressing it does; without it headless Chromium leaves the prompt
+  // pending for ever. Read off the live microphone alone (`data-bench-mic`),
+  // since the gallery below draws the refused sentence on every run.
+  const refused = await (await launchChromium({ args: ["--use-fake-device-for-media-stream", "--deny-permission-prompts"] })).newContext({ viewport: { width: 1280, height: 900 } });
   try {
     const p2 = await refused.newPage();
     await p2.goto(`${B}/dev/asr`, { waitUntil: "domcontentloaded" });
@@ -140,9 +144,9 @@ try {
     await p2.getByRole("button", { name: "Say something" }).first().click();
     const download = p2.getByRole("button", { name: /^Download/ });
     if (await download.isVisible().catch(() => false)) await download.click();
-    await p2.waitForFunction(() => /blocked for this site|No microphone/.test(document.querySelector("[data-bench-live], main")?.textContent ?? ""), null, { timeout: 240_000 }).catch(() => undefined);
-    const said = await p2.locator("main").innerText();
-    check("with the microphone refused, the button says so in words", /The microphone is blocked for this site|No microphone was found/.test(said));
+    await p2.waitForFunction(() => /blocked for this site|No microphone/.test(document.querySelector("[data-bench-mic]")?.textContent ?? ""), null, { timeout: 240_000 }).catch(() => undefined);
+    const said = await p2.locator("[data-bench-mic]").innerText();
+    check("with the microphone refused, the button says so in words", /The microphone is blocked for this site|No microphone was found/.test(said), said.slice(0, 160));
   } finally {
     await refused.browser()?.close();
   }

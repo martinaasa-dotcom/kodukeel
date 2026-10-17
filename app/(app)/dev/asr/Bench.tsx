@@ -36,7 +36,7 @@ export function Bench({ availability }: { readonly availability: SpeechAvailabil
 
       <Card>
         <h2 className="text-lg font-semibold">Say something</h2>
-        <div className="mt-3">
+        <div className="mt-3" data-bench-mic>
           <MicButton speech={speech} label="Say something" shortcut size="lg" />
         </div>
         {live && <HearingTable hearing={live.hearing} raw={live.raw} />}

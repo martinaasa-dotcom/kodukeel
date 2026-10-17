@@ -1440,8 +1440,6 @@ const MAX_NUMBER_WORDS = 48;
 export async function recordNumberGrades(grades: unknown) {
   const ownerId = await requireUserId();
 
-  // TODO(Review.spoken): a word said aloud here should be written as spoken once VB-14's column exists; this
-  // batch carries no `spoken` flag yet, and every row it writes reads as a typed answer.
   const batch = numberGrades(grades, MAX_NUMBER_WORDS, Date.now());
   if (batch.length === 0) return { ok: false as const, error: "There's nothing to save yet." };
 

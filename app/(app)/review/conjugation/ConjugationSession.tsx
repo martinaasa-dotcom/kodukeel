@@ -232,7 +232,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     setTarget(row);
   }, [verdicts]);
 
-  const check = useCallback((values: readonly string[] = typed) => {
+  const check = useCallback((values: readonly string[] = typed, spoken = false) => {
     if (!question || verdicts) return;
     // A form placed in the wrong row of the matching table is another person of
     // the same verb, so every miss there would read as close: only a typed miss
@@ -259,8 +259,8 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
       // A hint is paid for: see `lib/questions/hints.ts`. The ceiling is 4 with
       // nothing taken, so a table nobody asked for help on grades as it did.
       const earned = right >= marks.length - 1 ? 3 : 1;
-      // TODO(Review.spoken): a table chanted and marked at once (`heardChant`) should be written as spoken once VB-14's column exists.
-      void grade(question.cardId, Math.min(earned, hints.ceiling) as 1 | 2 | 3, Date.now() - startedAt.current);
+      // A table chanted whole and heard as spelled is written as spoken (D4); one edited after is typed.
+      void grade(question.cardId, Math.min(earned, hints.ceiling) as 1 | 2 | 3, Date.now() - startedAt.current, undefined, undefined, spoken);
     }
   }, [question, verdicts, typed, sound, hints, grade]);
 
@@ -299,7 +299,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     const whole = rows.every((row, i) => row !== null && checkAnswer(row, question.blanks[i]!.answer, "et").verdict === "correct");
     if (whole && hearing.words.every((w) => heardAsSpelled(w, chantExpect.has(core(w.text))))) {
       setChantNote("");
-      check(next);
+      check(next, true);
       return;
     }
     setChantNote(fill(t("Heard {n} of {total} rows. Look them over, change any, then check the table."), { n: filled, total: rows.length }));

@@ -207,4 +207,11 @@ describe("what a round hands in", () => {
     ]);
     expect(numberGrades("no", 10, 0)).toEqual([]);
   });
+
+  it("writes an answer said aloud as spoken, and only `true` as spoken", () => {
+    expect(numberGrades([{ id: "a", cardId: "c1", spoken: true }, { id: "b", cardId: "c2", spoken: "yes" }], 10, 5)).toEqual([
+      { id: "a", cardId: "c1", rating: 3, durationMs: 0, reviewedAt: 5, spoken: true },
+      { id: "b", cardId: "c2", rating: 3, durationMs: 0, reviewedAt: 5 },
+    ]);
+  });
 });
