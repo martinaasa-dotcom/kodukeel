@@ -264,6 +264,6 @@ is rewritten from it. The count is evidence a reader has been through the lines;
 <!-- confirmed-lines:start -->
 Lines a fluent reader has confirmed or corrected, counted by `npm run apply:translation-review` from
 `docs/translations/confirmed.json` against the tables as they stand: a line counts only while it still reads
-the way it was confirmed. Russian: 358 of 12491. Ukrainian: 358 of 12553.
+the way it was confirmed. Russian: 405 of 12507. Ukrainian: 405 of 12569.
 This count is not `REVIEWED`, which only a commit naming the reader sets.
 <!-- confirmed-lines:end -->

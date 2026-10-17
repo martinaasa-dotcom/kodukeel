@@ -70,7 +70,7 @@ export const RECORDINGS: Area = {
     "Still no connection. The words are here to read, and the dictionary will be when you're back online.":
       "Подключения всё ещё нет. Слова можно читать уже сейчас, а словарь появится, когда сеть вернётся.",
     "This browser wouldn't play that line. The words are still here to read.":
-      "Этот браузер не стал воспроизводить эту строку. Слова по-прежнему можно прочитать.",
+      "Этот браузер не смог воспроизвести эту фразу. Слова по-прежнему можно прочитать.",
     "The sound stayed on this device. Only the words went to the dictionary, and nothing was kept.":
       "Звук остался на этом устройстве. В словарь ушли только слова, и ничего не сохранено.",
     "The sound stayed on this device, and so far nothing has been sent anywhere.":
@@ -177,7 +177,7 @@ export const RECORDINGS: Area = {
     "Still no connection. The words are here to read, and the dictionary will be when you're back online.":
       "Підключення досі немає. Слова можна читати вже зараз, а словник з'явиться, коли мережа повернеться.",
     "This browser wouldn't play that line. The words are still here to read.":
-      "Цей браузер не став відтворювати цей рядок. Слова, як і раніше, можна прочитати.",
+      "Цей браузер не зміг відтворити цю фразу. Слова, як і раніше, можна прочитати.",
     "The sound stayed on this device. Only the words went to the dictionary, and nothing was kept.":
       "Звук залишився на цьому пристрої. До словника пішли лише слова, і нічого не збережено.",
     "The sound stayed on this device, and so far nothing has been sent anywhere.":

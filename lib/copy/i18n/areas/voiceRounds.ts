@@ -57,9 +57,9 @@ export const VOICE_ROUNDS: Area = {
     "Every number right": "Все числа верно",
     "{n} of {total} right": "Верно: {n} из {total}",
     "{n} number words counted toward your reviews.": "Слов-чисел засчитано в повторение: {n}.",
-    "One number word counted toward your reviews.": "Одно слово-число засчитано в повторение.",
+    "One number word counted toward your reviews.": "Одно числительное засчитано в ваши повторения.",
     "Those number words aren't in your deck yet, so nothing was written down.":
-      "Этих слов-чисел ещё нет в вашей колоде, поэтому ничего не записано.",
+      "Этих числительных ещё нет в вашей колоде, поэтому ничего не записано.",
     "Answers in digits are marked but don't count toward your reviews. Say them, or type the words, and they do.":
       "Ответы цифрами проверяются, но в повторение не засчитываются. Скажите их вслух или напишите словами, и они засчитаются.",
 
@@ -149,9 +149,9 @@ export const VOICE_ROUNDS: Area = {
     "Every number right": "Усі числа правильно",
     "{n} of {total} right": "Правильно: {n} з {total}",
     "{n} number words counted toward your reviews.": "Слів-чисел зараховано до повторення: {n}.",
-    "One number word counted toward your reviews.": "Одне слово-число зараховано до повторення.",
+    "One number word counted toward your reviews.": "Один числівник зараховано до ваших повторень.",
     "Those number words aren't in your deck yet, so nothing was written down.":
-      "Цих слів-чисел ще немає у вашій колоді, тож нічого не записано.",
+      "Цих числівників ще немає у вашій колоді, тож нічого не записано.",
     "Answers in digits are marked but don't count toward your reviews. Say them, or type the words, and they do.":
       "Відповіді цифрами перевіряються, але до повторення не зараховуються. Скажіть їх вголос або напишіть словами, і вони зарахуються.",
 
