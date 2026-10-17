@@ -152,6 +152,12 @@ const ROUTES = [
   "/review/twins",
   "/grammar/twins",
   "/practice",
+  /* The five mockups of the games section, one route each. */
+  "/practice/look/1",
+  "/practice/look/2",
+  "/practice/look/3",
+  "/practice/look/4",
+  "/practice/look/5",
   "/quest",
   "/sonad",
   "/crossword",
