@@ -35,6 +35,15 @@ import type { LessonSpec, Taught } from "./types";
  */
 export const NAMES: ReadonlySet<string> = new Set(["Mari", "Tom", "Jaan", "Anna", "Peeter", "Kati", "Liis"]);
 
+/**
+ * Places, spelled with the capital a place takes. The forms list holds no
+ * capitalised word, so `Eestis` is not in it however often it is said; these
+ * are the spellings the forms check lets through on that ground and no other.
+ * The ledger is not loosened by it: a place is still taught before it is
+ * shown, like any word.
+ */
+export const PLACE_SPELLINGS: ReadonlySet<string> = new Set(["Eestis", "Eestist", "Ameerikast", "Ukrainast"]);
+
 export interface Ledger {
   /** Every single spelling taught, lower-cased. */
   readonly spellings: ReadonlySet<string>;

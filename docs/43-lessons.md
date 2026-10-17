@@ -296,7 +296,17 @@ Each phase is its own pull request or several, and none starts before the one ab
   module so ticks, scope and review work as they do now. Lessons 1 to 8 as the first content, with
   their conversations read by the native speaker.
 - **P2. The rest of A1.** Lessons 9 to 49 and the vocabulary lessons, a part per pull request, each
-  read by the native speaker. A1 role-play scenes built to the ledger.
+  read by the native speaker. A1 role-play scenes built to the ledger. **Part 2 (lessons 9 to 17,
+  `{Kus sa elad?}`) is built**, in `lib/course/lessons/a1-elad.ts`. Writing it found a fault
+  the ledger could not see: a meaning that quotes its own word (`ole`, "{ei ole} is not") prints
+  the answer on the question, so `meaningShows` keeps such an item off practice and review, an
+  option quoting the word on screen is never offered, and a test fails on either. A check-in's
+  wrong options now come from the lesson that taught the word, nearest first, because "five" asked
+  among three family words was answered by elimination. Two places changed from the list above:
+  lesson 10 teaches the five countries in both their forms, and lesson 14 teaches `Kui vana?` as the
+  chunk, so `Kui vana ta on?` in lesson 16 needs nothing new. Country names take a capital the
+  forms list does not hold, so `PLACE_SPELLINGS` names the four it lets through; the ledger still
+  asks that each is taught first.
 - **P3. The switch.** Learners placed per L4, the old A1 parts retired, `course.test.ts` and the
   browser suites (`test-module.mjs`) rewritten for lessons.
 - **P4 to P7. A2, B1, B2, C1**, each starting with its own section-4-style list for approval.

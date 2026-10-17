@@ -2,8 +2,9 @@ import { describe, expect, it } from "vitest";
 import { isExactForm } from "@/lib/dict/forms";
 import { VOICES } from "@/lib/audio/voice";
 import { A1_LESSON_PARTS, A1_LESSONS } from "./a1";
-import { estonianOf, ledgersBefore, lessonProblems, namesOf, teach, uncovered, wordsOf } from "./ledger";
-import { markPhrase, practiceFor, reviewFor } from "./practice";
+import { PLACE_SPELLINGS, estonianOf, ledgersBefore, lessonProblems, namesOf, teach, uncovered, wordsOf } from "./ledger";
+import { markPhrase, meaningShows, practiceFor, reviewFor } from "./practice";
+import { estonianIn } from "./ledger";
 import { LESSONS } from "./index";
 
 /**
@@ -26,7 +27,7 @@ describe("A1 lessons", () => {
       const texts = [...estonianOf(lesson).map((e) => e.et), ...lesson.teaches.map((t) => t.et)];
       for (const text of texts) {
         for (const w of wordsOf(text)) {
-          if (names.has(w.raw)) continue;
+          if (names.has(w.raw) || PLACE_SPELLINGS.has(w.raw)) continue;
           if (!(await isExactForm(w.low))) unknown.push(`${lesson.id}: ${w.raw} in "${text}"`);
         }
       }
@@ -80,6 +81,29 @@ describe("A1 lessons", () => {
       }
     }
     expect(asked).toBeGreaterThan(A1_LESSONS.length * 5);
+  });
+
+  it("never print the answer in the question or in an option", () => {
+    const before = ledgersBefore(LESSONS);
+    let looked = 0;
+    for (const lesson of A1_LESSONS) {
+      const ledger = before.get(lesson.id)!;
+      for (const item of [...practiceFor(lesson, ledger), ...reviewFor(lesson, ledger)]) {
+        const answer = new Set(wordsOf(item.kind === "type" ? item.answer : item.et).map((w) => w.low));
+        const shown = item.kind === "type" ? [item.en] : item.options;
+        for (const text of shown) {
+          const quoted = estonianIn(text).flatMap((et) => wordsOf(et).map((w) => w.low));
+          expect(quoted.filter((w) => answer.has(w)), `${lesson.id}: ${text}`).toEqual([]);
+          looked++;
+        }
+      }
+    }
+    expect(looked).toBeGreaterThan(A1_LESSONS.length * 10);
+  });
+
+  it("knows a meaning that quotes its own word", () => {
+    expect(meaningShows({ kind: "form", et: "ole", of: "olema", en: "be: {ei ole} is not" })).toBe(true);
+    expect(meaningShows({ kind: "form", et: "mul", of: "mina", en: "at me; with {on}, I have" })).toBe(false);
   });
 
   it("give every lesson something to practise, and nothing on the first lesson's review", () => {

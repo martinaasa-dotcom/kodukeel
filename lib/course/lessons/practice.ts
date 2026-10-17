@@ -34,7 +34,7 @@ import { editDistance, nearMiss } from "@/lib/estonian/answer";
 import { fold } from "@/lib/estonian/fold";
 import { rng, seedFrom } from "@/lib/random/seeded";
 import { shuffle } from "@/lib/random/shuffle";
-import { wordsOf, type Ledger } from "./ledger";
+import { estonianIn, wordsOf, type Ledger } from "./ledger";
 import type { LessonSpec, Taught } from "./types";
 import type { Verdict } from "@/lib/ux/verdict";
 
@@ -74,6 +74,17 @@ const OPTIONS = 4;
 const sameEnglish = (a: string, b: string) => a.toLocaleLowerCase("en") === b.toLocaleLowerCase("en");
 
 /**
+ * Whether a meaning spells its own answer: `ole` glossed "{ei ole} is not"
+ * puts the word being asked for inside the question, or inside the right
+ * option, and a question nobody can get wrong measures nothing. Such an item
+ * is still on the Words step; it is just never asked about.
+ */
+export function meaningShows(item: Taught): boolean {
+  const asked = new Set(wordsOf(item.et).map((w) => w.low));
+  return estonianIn(item.en).some((et) => wordsOf(et).some((w) => asked.has(w.low)));
+}
+
+/**
  * Three wrong meanings for `item`, from what has been taught, tonight's first.
  * Never a meaning equal to the answer's, since two right options are a trick.
  */
@@ -82,6 +93,8 @@ function optionsFor(item: Taught, pool: readonly Taught[], random: () => number)
   for (const other of pool) {
     if (wrong.length >= OPTIONS - 1) break;
     if (other.et === item.et || sameEnglish(other.en, item.en)) continue;
+    // An option quoting the word on screen points at itself, right or wrong.
+    if (wordsOf(item.et).some((w) => estonianIn(other.en).some((et) => wordsOf(et).some((o) => o.low === w.low)))) continue;
     if (wrong.some((w) => sameEnglish(w, other.en))) continue;
     wrong.push(other.en);
   }
@@ -99,6 +112,25 @@ function recognise(item: Taught, pool: readonly Taught[], random: () => number):
 /** The pool options are drawn from: tonight's items, then the most recent first. */
 function poolFor(tonight: readonly Taught[], before: Ledger): Taught[] {
   return [...tonight, ...[...before.items].reverse().map((d) => d.item)];
+}
+
+/**
+ * The pool for one older item, with the lesson that taught it first: on a
+ * check-in or in the review, "five" is asked among the other numbers rather
+ * than among whatever the last lesson happened to teach, which would make the
+ * right answer the only number on the screen.
+ */
+function neighboursFirst(item: Taught, before: Ledger, rest: readonly Taught[]): Taught[] {
+  const at = before.items.findIndex((d) => d.item === item);
+  if (at < 0) return [...rest];
+  const taughtIn = before.items[at]!.lesson;
+  // Nearest in the Words list first, which is where a lesson keeps its kinds together.
+  const same = before.items
+    .map((d, i) => ({ d, far: Math.abs(i - at) }))
+    .filter(({ d }) => d.lesson === taughtIn)
+    .sort((a, b) => a.far - b.far)
+    .map(({ d }) => d.item);
+  return [...same, ...rest];
 }
 
 /** What tonight's practice goes over: tonight's new things, or for a check-in the last few lessons'. */
@@ -128,11 +160,11 @@ function produce(item: Taught, pool: readonly Taught[]): PracticeItem {
  */
 export function practiceFor(lesson: LessonSpec, before: Ledger): PracticeItem[] {
   const random = rng(seedFrom(`practice:${lesson.id}`));
-  const subjects = onePerMeaning(practiceSubjects(lesson, before));
+  const subjects = onePerMeaning(practiceSubjects(lesson, before)).filter((item) => !meaningShows(item));
   const pool = poolFor(lesson.teaches, before);
   const fits = lesson.teaches.length > 0 && subjects.length <= RECOGNISE_AT_MOST;
   const chosen = fits ? subjects : shuffle(subjects, random).slice(0, RECOGNISE_AT_MOST);
-  const recog = chosen.map((item) => recognise(item, pool, random));
+  const recog = chosen.map((item) => recognise(item, lesson.teaches.includes(item) ? pool : neighboursFirst(item, before, pool), random));
   const asked = shuffle(chosen.filter((item) => wordsOf(item.et).length <= TYPE_UP_TO_WORDS), random)
     .slice(0, PRODUCE_AT_MOST)
     .map((item) => produce(item, pool));
@@ -142,12 +174,12 @@ export function practiceFor(lesson: LessonSpec, before: Ledger): PracticeItem[] 
 /** Step 6: older words, by ear and by eye. Empty on the first lesson. */
 export function reviewFor(lesson: LessonSpec, before: Ledger): PracticeItem[] {
   const random = rng(seedFrom(`review:${lesson.id}`));
-  const older = before.items.map((d) => d.item);
+  const older = before.items.map((d) => d.item).filter((item) => !meaningShows(item));
   if (older.length === 0) return [];
   // The newest older lessons are likeliest to need it, so they are drawn from first.
   const recent = [...older].reverse().slice(0, REVIEW_ITEMS * 3);
   const picked = shuffle(recent, random).slice(0, REVIEW_ITEMS);
-  return picked.map((item) => recognise(item, [...older].reverse(), random));
+  return picked.map((item) => recognise(item, neighboursFirst(item, before, [...older].reverse()), random));
 }
 
 /** A phrase as it is compared: lower case, no punctuation, single spaces. */

@@ -17,13 +17,15 @@
  * marks it as Estonian and the ledger holds it to the same rule.
  */
 
+import { A1_ELAD_LESSONS, A1_ELAD_PART } from "./a1-elad";
 import type { LessonSpec, PartOfLessons } from "./types";
 
 export const A1_LESSON_PARTS: readonly PartOfLessons[] = [
   { id: "a1-tere", level: "A1", title: "{Tere!}", about: "First words: hello, your name, who you are, and how it's going." },
+  A1_ELAD_PART,
 ];
 
-export const A1_LESSONS: readonly LessonSpec[] = [
+const TERE_LESSONS: readonly LessonSpec[] = [
   {
     id: "a1-01-hello",
     n: 1,
@@ -303,7 +305,7 @@ export const A1_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [
       { kind: "word", et: "kas", en: "starts a yes-or-no question" },
-      { kind: "form", et: "ole", of: "olema", en: "be, after {ei}: {ei ole} is not" },
+      { kind: "form", et: "ole", of: "olema", en: "be, after {ei}: not" },
       { kind: "form", et: "pole", of: "olema", en: "isn't, aren't, the short way" },
       { kind: "word", et: "eestlane", en: "an Estonian" },
       { kind: "word", et: "inglane", en: "an English person" },
@@ -433,3 +435,6 @@ export const A1_LESSONS: readonly LessonSpec[] = [
     },
   },
 ];
+
+/** A1 in teaching order, part by part. */
+export const A1_LESSONS: readonly LessonSpec[] = [...TERE_LESSONS, ...A1_ELAD_LESSONS];
