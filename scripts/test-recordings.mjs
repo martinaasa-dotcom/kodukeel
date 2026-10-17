@@ -156,7 +156,7 @@ try {
   await page.locator('input[type="file"][accept*="audio"]').setInputFiles(FIXTURE);
   const ask = page.getByRole("group", { name: "Download for speaking" });
   const asked = await ask.innerText({ timeout: 20_000 }).catch(() => "");
-  check("a fresh device is asked for the download, with its size", /\d+ MB/.test(asked) && /stays on this device/.test(asked), asked.slice(0, 140));
+  check("a fresh device is asked for the download, with its size", /\d+\sMB/.test(asked) && /stays on this device/.test(asked), asked.slice(0, 140));
   await ask.getByRole("button", { name: /^Download/ }).click();
 
   const article = page.locator("[data-recording] article[data-reading]");
@@ -371,7 +371,7 @@ try {
   await cafe.getByRole("button", { name: "Say it instead" }).click();
   const prompt = cafe.getByRole("group", { name: "Download for speaking" });
   const sized = await prompt.innerText({ timeout: 20_000 }).catch(() => "");
-  check("the café states the download's size before anything downloads", /\d+ MB/.test(sized) && !fetched.some((u) => u.includes("/asr/model")), sized.slice(0, 120));
+  check("the café states the download's size before anything downloads", /\d+\sMB/.test(sized) && !fetched.some((u) => u.includes("/asr/model")), sized.slice(0, 120));
   await prompt.getByRole("button", { name: "Not now" }).click();
   await cafe.getByRole("group", { name: "What you say" }).getByRole("button").first().click();
   const went = await eventually(async () => (await cafe.locator('.cafe-line[data-who="you"]').count()) > 0, { timeoutMs: 15_000 });

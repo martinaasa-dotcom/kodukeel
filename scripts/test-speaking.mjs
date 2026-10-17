@@ -107,7 +107,7 @@ try {
 
     await along.click();
     const asked = await acceptDownload(page);
-    check("the first press asks for the download and says its size", asked !== null && /\d+ MB/.test(asked), (asked ?? "no offer").slice(0, 100));
+    check("the first press asks for the download and says its size", asked !== null && /\d+\sMB/.test(asked), (asked ?? "no offer").slice(0, 100));
     const counted = await page.waitForFunction(
       () => /words were heard|Every word was heard|That's the word|heard as the word this time/.test(document.querySelector("[data-speaking-step]")?.textContent ?? ""),
       null,

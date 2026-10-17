@@ -68,7 +68,7 @@ try {
   await page.getByRole("button", { name: "Say something" }).first().click();
   const prompt = page.getByRole("group", { name: "Download for speaking" }).first();
   const asked = await prompt.innerText().catch(() => "");
-  check("the first press asks for the download and says its size", /\d+ MB/.test(asked) && /stays on this device/.test(asked), asked.slice(0, 120));
+  check("the first press asks for the download and says its size", /\d+\sMB/.test(asked) && /stays on this device/.test(asked), asked.slice(0, 120));
   check("and fetches nothing while it asks", !scripts.some((u) => u.includes("/asr/model")), scripts.join(", "));
 
   await prompt.getByRole("button", { name: /^Download/ }).click();
@@ -101,7 +101,7 @@ try {
   // The section looks at the cache when it mounts; read it once it has answered.
   await page.waitForFunction(() => !/Checking/.test(document.querySelector("#speaking [data-speaking-status]")?.textContent ?? "Checking"), null, { timeout: 15_000 }).catch(() => undefined);
   const downloaded = await status.first().innerText();
-  check("Settings says the model is on this device", /Downloaded on this device \(\d+ MB\)/.test(downloaded), downloaded);
+  check("Settings says the model is on this device", /Downloaded on this device \(\d+\sMB\)/.test(downloaded), downloaded);
 
   // Offline after one load: the bench's page, the runtime and the model all answer from the device.
   await page.goto(`${B}/dev/asr`, { waitUntil: "load" });
