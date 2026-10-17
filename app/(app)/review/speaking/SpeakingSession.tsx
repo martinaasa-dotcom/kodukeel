@@ -321,7 +321,7 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
             {t("Your voice never left this device.")}
           </p>
         </div>
-        <div className="mt-8 grid grid-cols-3 gap-3">
+        <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
           <StatTile value={said} label={t("Said aloud")} tone="accent" />
           <StatTile value={recalled} label={t("From memory")} tone="sky" />
           <StatTile value={fill(t("{n}m"), { n: minutes })} label={t("Time")} tone="butter" />
@@ -375,16 +375,14 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
             <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Say this in Estonian")}</p>
           )}
 
-          {step === "meaning" ? (
-            meaning ? (
-              <GapMeaning meaning={meaning} className="text-2xl font-bold leading-snug tracking-tight md:text-3xl" />
-            ) : (
-              <p lang="en" className="text-2xl font-bold leading-snug tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
-                {item.en}
-              </p>
-            )
-          ) : showLine ? (
-            <p lang="et" className="text-2xl font-semibold leading-relaxed md:text-3xl" style={{ color: "var(--ink)" }} data-read-aloud>
+          {step === "meaning" && meaning && !check && <GapMeaning meaning={meaning} className="text-2xl font-bold leading-snug tracking-tight" />}
+          {step === "meaning" && (!meaning || check) && (
+            <p lang="en" className="text-2xl font-bold leading-snug tracking-tight" style={{ color: "var(--ink)" }}>
+              {item.en}
+            </p>
+          )}
+          {step === "meaning" ? null : showLine ? (
+            <p lang="et" className="text-2xl font-semibold leading-relaxed" style={{ color: "var(--ink)" }} data-read-aloud>
               {words.map((w, i) => (
                 <span key={`${i}-${w.text}`}>
                   <span className="read-aloud-word" data-lit={litFlags[i] ? "true" : "false"}>{w.text}</span>
@@ -403,11 +401,11 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
           {step !== "meaning" && !handsFree && (
             <div className="flex flex-col items-center gap-2">
               <MicButton speech={shadow} label={step === "along" ? t("Say it along") : t("Say it back")} shortcut showPartial={false} size="lg" />
-              {lit && (
-                <p className="text-sm" style={{ color: "var(--ink-2)" }} role="status">
-                  {share === 1 ? t("Every word was heard.") : fill(t("{n} of {total} words were heard."), { n: litFlags.filter(Boolean).length, total: words.length })}
-                </p>
-              )}
+              <p className="text-sm" style={{ color: "var(--ink-2)" }} role="status">
+                {lit
+                  ? share === 1 ? t("Every word was heard.") : fill(t("{n} of {total} words were heard."), { n: litFlags.filter(Boolean).length, total: words.length })
+                  : ""}
+              </p>
             </div>
           )}
 
@@ -583,16 +581,12 @@ function HandsFreePanel({ paused, wakeRefused, backgroundStop, listening, onTogg
         {paused ? <Play size={28} aria-hidden /> : <Pause size={28} aria-hidden />}
         {paused ? t("Paused. Tap anywhere here to carry on.") : listening ? t("Listening. Tap anywhere here to pause.") : t("Tap anywhere here to pause.")}
       </button>
-      {backgroundStop && (
-        <p className="text-sm" style={{ color: "var(--hard-ink)" }} role="status">
-          {t("The browser held back the sound in this background tab. Bring the tab forward to carry on.")}
-        </p>
-      )}
-      {wakeRefused ? (
-        <p className="text-sm" style={{ color: "var(--hard-ink)" }} role="status">
-          {t("This browser would not keep the screen on, so the round stops when the screen sleeps.")}
-        </p>
-      ) : (
+      <p className="text-sm" style={{ color: "var(--hard-ink)" }} role="status">
+        {backgroundStop ? t("The browser held back the sound in this background tab. Bring the tab forward to carry on.") : ""}
+        {backgroundStop && wakeRefused ? " " : ""}
+        {wakeRefused ? t("This browser would not keep the screen on, so the round stops when the screen sleeps.") : ""}
+      </p>
+      {!wakeRefused && (
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
           {fine
             ? t("The screen stays on. On a computer it keeps listening in a background tab, and your browser shows the microphone is on.")

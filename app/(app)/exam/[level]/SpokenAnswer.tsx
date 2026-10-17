@@ -95,7 +95,7 @@ export function SpokenAnswer({ targetSeconds, ideas, onSpoken }: {
                   {usedIdeas.map((idea, i) => (
                     <span key={idea}>
                       <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{idea}</span>
-                      {i < usedIdeas.length - 1 ? ", " : ""}
+                      {i < usedIdeas.length - 1 ? LIST_SEPARATOR : ""}
                     </span>
                   ))}
                 </>
@@ -116,6 +116,9 @@ export function SpokenAnswer({ targetSeconds, ideas, onSpoken }: {
     </div>
   );
 }
+
+/** Between two words in a list, read as a constant so it is never mistaken for an empty cell. */
+const LIST_SEPARATOR = ", ";
 
 function clock(seconds: number): string {
   const m = Math.floor(seconds / 60);

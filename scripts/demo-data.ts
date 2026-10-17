@@ -347,6 +347,10 @@ async function main() {
             stateBefore: r.stateBefore, targetCase: c.targetCase,
             slot,
             reachedSlot: swapped && swapped !== slot ? swapped : null,
+            /* Some production answers in the last fortnight said aloud, so the
+               "Said aloud this week" reading and `npm run report:speech` have a
+               real shape to read in a fixture rather than nothing (VB-14). */
+            spoken: c.cardType === "PRODUCTION" && Date.now() - r.at.getTime() < 14 * 86_400_000 && r.at.getMinutes() % 3 === 0,
           },
         });
       }

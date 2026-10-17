@@ -111,15 +111,20 @@ const HEARD_PER_MINUTE = 20;
 
 export async function POST(request: Request) {
   const transient = new URL(request.url).searchParams.get("transient") === "1";
-  if (transient) return readBack(request);
   const ownerId = await requireUserId().catch(() => null);
-  const limit = await checkSharedRateLimit(
-    `tts:${bucketForRequest(request, ownerId)}`,
-    SPEECH_PER_MINUTE,
-    60_000,
-  );
+  if (transient && !ownerId) {
+    return Response.json(
+      { error: "We couldn't check who was asking. Try again in a moment." },
+      { status: 503, headers: { ...NO_STORE, "retry-after": "30" } },
+    );
+  }
+  const limit = transient && ownerId
+    ? await checkSharedRateLimit(`tts-heard:o:${ownerId}`, HEARD_PER_MINUTE, 60_000)
+    : await checkSharedRateLimit(`tts:${bucketForRequest(request, ownerId)}`, SPEECH_PER_MINUTE, 60_000);
   if (!limit.ok) {
-    return rateLimited(limit, "That's a lot of audio at once. Give it a moment.");
+    return rateLimited(limit, transient
+      ? "That's a lot of reading back at once. Give it a moment."
+      : "That's a lot of audio at once. Give it a moment.");
   }
 
   let text: string;
@@ -160,6 +165,7 @@ export async function POST(request: Request) {
   }
 
   const speaker = voice ?? voiceFrom(process.env.TTS_SPEAKER ?? DEFAULT_VOICE);
+  if (transient && ownerId) return readBack(ownerId, text, speaker);
   const hash = createHash("sha256").update(`${CLIP_SHAPE}|${text}|${speaker}`).digest("hex");
   // Content-addressed and shared across instances and users: a clip fetched
   // once is available to everybody, forever. Writing to /tmp instead, as this
@@ -258,33 +264,11 @@ export async function POST(request: Request) {
   }
 }
 
-/** One read-back of what the recognizer heard: metered, never cached, never stored. */
-async function readBack(request: Request) {
-  const ownerId = await requireUserId().catch(() => null);
-  if (!ownerId) {
-    return Response.json(
-      { error: "We couldn't check who was asking. Try again in a moment." },
-      { status: 503, headers: { ...NO_STORE, "retry-after": "30" } },
-    );
-  }
-  const limit = await checkSharedRateLimit(`tts-heard:o:${ownerId}`, HEARD_PER_MINUTE, 60_000);
-  if (!limit.ok) return rateLimited(limit, "That's a lot of reading back at once. Give it a moment.");
-
-  let text: string;
-  let speaker: string;
-  try {
-    const body = (await request.json()) as { text?: unknown; voice?: unknown };
-    if (typeof body.text !== "string" || !body.text.trim()) {
-      return NextResponse.json({ error: "There's nothing to say out loud." }, { headers: NO_STORE, status: 400 });
-    }
-    text = spokenText(clip(body.text.trim(), MAX_CHARS));
-    speaker = typeof body.voice === "string" && VOICES.some((v) => v.id === body.voice)
-      ? voiceFrom(body.voice)
-      : voiceFrom(process.env.TTS_SPEAKER ?? DEFAULT_VOICE);
-  } catch {
-    return NextResponse.json({ error: "Something went wrong sending that. Reload the page and try again." }, { headers: NO_STORE, status: 400 });
-  }
-
+/**
+ * One read-back of what the recognizer heard: metered, never cached, never
+ * stored. The request was checked and the learner's limit counted in `POST`.
+ */
+async function readBack(ownerId: string, text: string, speaker: string) {
   const decision = await authoriseCall(ownerId, "TTS");
   if (!decision.allowed) {
     return Response.json(
@@ -355,7 +339,9 @@ async function speak(
   const audio = Buffer.from(prepared.audio);
   // Never throws: a failed cache write is a slower next play. And only a clip
   // this route could read is kept, since the store answers before the service.
-  if (prepared.keep && hash) await writeAudio(hash, audio);
+  // A read-back of what the learner said is never kept (`readBack`).
+  if (hash === null) return audio;
+  if (prepared.keep) await writeAudio(hash, audio);
   return audio;
 }
 
