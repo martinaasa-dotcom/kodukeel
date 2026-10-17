@@ -6,6 +6,7 @@ import { localeHref } from "@/lib/copy/publicLocale";
 import { resolveOperator, SUPERVISORY_AUTHORITY } from "@/lib/legal/operator";
 import { resolveRecipients, transfersOutsideEea } from "@/lib/legal/recipients";
 import { recipientIn } from "@/lib/legal/recipientCopy";
+import { pushConfigured } from "@/lib/push/config";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
 import { publicCard } from "@/lib/copy/publicCards";
 
@@ -95,6 +96,11 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
         <P>
           {rich(t("**What we have sent you.** If this installation sends email, we keep a line for each message: which kind it was and when it went, so that the next one is not a repeat and so that there is a cap on how often you hear from us. We do **not** keep the message itself, and there is no tracking pixel in any of them, so nothing anywhere records whether you opened one. Every message carries a link that switches its kind off without signing in, and Settings has the same switches. The messages you cannot switch off are the ones you asked for, like a sign-in link."))}
         </P>
+        {pushConfigured() && (
+          <P>
+            {rich(t("**Reminders on a computer.** If you turn them on in Settings, your browser gives us an address at the push service its maker runs and two keys to encrypt a reminder with, and we keep exactly those. A reminder is then booked like an email, as which kind it was and when it went, and we keep no record of whether it was shown or clicked. Turning it off in Settings, or signing out in that browser, stops it."))}
+          </P>
+        )}
         <P>
           {rich(t("**And one of them is about other people.** Whoever runs a class or a workplace group can be sent a weekly note about it. That note carries how many people practiced and how many answers they gave between them, and never a name, a figure about one person, or anybody’s mistakes. Those are on the board inside the app, where everyone who joined was told they would be. It is switched off from the group’s own page."))}
         </P>
@@ -121,6 +127,9 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
         </P>
         <P>
           {rich(t("**Pages you photograph.** When you scan a page, what is kept is the word list you confirmed: the Estonian, the English, and which dictionary entry each word matched. **The photograph itself is never stored.** It is read once, on the way through, and dropped. It is not written to a database, not put in file storage, and not written to a log. A picture of your homework has your name at the top of it."))}
+        </P>
+        <P>
+          {rich(t("**Photos of the things around you.** A photo of your kitchen or your street goes the same way: shrunk on your device, read once by the AI and dropped. It is asked only for the English names of the objects in it, never about people. What is kept is the words you tick, exactly as for a page."))}
         </P>
         <P>
           {rich(t("**What the tutor cost.** For every request to the AI, we keep a record: which model answered, roughly how much text went in and out, and what it is estimated to have cost. The tutor runs on somebody’s paid key and anyone can sign up, so a daily allowance per person is the only thing standing between an open door and an endless bill. We keep this because there’s a legitimate interest in a free service surviving the week, and there’s no way to run that cap without counting."))}
@@ -160,6 +169,28 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
         </P>
         <P>
           {t("None of that is a tracker and none of it is shared with anybody. Estonian law requires your agreement before something is stored on your device unless it is strictly necessary for the service you asked for, and each of these is: a review app that silently drops the answers you gave on a train is broken, not private. That is why there is no cookie banner. Signing out removes the outbox, the saved session, the pages kept for offline use, any unfinished paper, any puzzle and any workbook page, so the next person on a shared computer starts from nothing; the theme and the install prompt stay, since they are about the device rather than about you. The browser also keeps a short code for which account last used it, so that a different account signing in clears the previous one's data even when nobody signed out. Clearing your browser storage removes all of it, and costs you nothing except any grade still waiting to be sent.")}
+        </P>
+      </S>
+
+      {/*
+        WHAT SPEAKING DOES WITH YOUR VOICE (docs/41-fifth-batch.md, D21), in
+        exactly those terms: a press before the microphone opens, the sound
+        turned into text on the device and never stored or sent, and the text
+        then sent treated as typed text is. The model is the deployment's own
+        file, so no recipient is added to the list below.
+      */}
+      <S title={t("When you speak")}>
+        <P>
+          {t("The microphone is used only after you press it, and it closes while the app itself is speaking. What you say is turned into text on this device. The sound is never stored and never sent, to us or to anybody else.")}
+        </P>
+        <P>
+          {t("The text is yours to change before it counts. Once you send it, a turn in a conversation or an answer to a card, it is stored exactly as typed text is. To mark which heard words are real Estonian spellings, the words alone are checked against the dictionary on the server and not kept there.")}
+        </P>
+        <P>
+          {t("A recording you open on the reading page, such as a voice message somebody sent you, holds another person's voice, so it is treated more carefully still. It is heard on your device in the same way, and the sound is never uploaded, stored or sent, to us, to the speech service or to anybody else. Only the words it was heard as go to the dictionary to be underlined, and they are not kept there, just as a pasted text is not.")}
+        </P>
+        <P>
+          {t("The speech model is downloaded from this installation's own storage the first time you ask for it, and it stays on your device so hearing works offline. It is the same file for everybody and says nothing about you. Settings deletes it, and signing out leaves it, because it belongs to the device rather than to you.")}
         </P>
       </S>
 

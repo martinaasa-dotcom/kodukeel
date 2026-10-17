@@ -10,6 +10,9 @@ import { clip } from "@/lib/copy/clip";
 import { NO_STORE } from "@/lib/security/headers";
 import { buildCoachNoteSystem, buildCoachNoteUser, parseCoachNote, withoutUnverified, type CoachNoteInput } from "@/lib/scenes/coachNote";
 import { sceneById } from "@/lib/scenes/catalogue";
+import { CHAT_ID } from "@/lib/scenes/specs/chat";
+import { sceneOfRun } from "@/lib/progress/scene";
+import { prisma } from "@/lib/db";
 import { localeFor } from "@/lib/progress/locale";
 
 /**
@@ -41,7 +44,21 @@ export async function POST(request: Request) {
   let input: CoachNoteInput;
   try {
     const body = (await request.json()) as Record<string, unknown>;
-    const scene = typeof body.sceneId === "string" ? sceneById(body.sceneId) : undefined;
+    /*
+      A catalogue scene by its id; tonight's chat by its run, since its beats
+      were built for one evening and the id alone says nothing about them.
+      The run is read as this learner's own, so a run id off the wire reaches
+      nobody else's conversation.
+    */
+    const chatRun = body.sceneId === CHAT_ID && typeof body.runId === "string"
+      ? await prisma.sceneRun.findFirst({
+          where: { id: body.runId.slice(0, 64), ownerId, sceneId: CHAT_ID },
+          select: { sceneId: true, transcript: true },
+        })
+      : null;
+    const scene = chatRun
+      ? sceneOfRun(chatRun.sceneId, chatRun.transcript)
+      : typeof body.sceneId === "string" ? sceneById(body.sceneId) : undefined;
     if (!scene || !Array.isArray(body.turns)) {
       return Response.json({ note: null }, { headers: NO_STORE, status: 400 });
     }

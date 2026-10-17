@@ -22,6 +22,7 @@
 import { spawn } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { SCENES } from "../lib/scenes/catalogue";
+import { CHAT_ID } from "../lib/scenes/specs/chat";
 import { thinkingFor } from "../lib/tutor/thinking";
 import { DEFAULT_BUDGET_USD, installMeter, spendIn } from "./lib/meter";
 
@@ -53,7 +54,8 @@ const out = arg("out") ?? "critic-report.md";
   still be read on the link production has fallen to.
 */
 const pin = arg("model");
-const extra = [...(process.argv.includes("--model-down") ? ["--model-down"] : []), ...(pin ? ["--model", pin] : [])];
+const day = arg("day");
+const extra = [...(process.argv.includes("--model-down") ? ["--model-down"] : []), ...(pin ? ["--model", pin] : []), ...(day ? ["--day", day] : [])];
 const PARALLEL = Number(arg("parallel") ?? "6");
 /*
   `--critic-model` reads with another model, for a day the default one's quota
@@ -140,8 +142,10 @@ async function critique(text: string): Promise<Issue[] | null> {
 
 (async () => {
   const jobs: { scene: string; kind: string; seed: number }[] = [];
-  for (const scene of SCENES) if (!only || only.includes(scene.id)) {
-    for (const kind of kinds) for (let seed = 1; seed <= seeds; seed += 1) jobs.push({ scene: scene.id, kind, seed });
+  // Tonight's chat is no catalogue scene, so it is played only when named (`--scene chat --day a1.1-03`).
+  const ids = [...SCENES.map((scene) => scene.id), ...(only?.includes(CHAT_ID) ? [CHAT_ID] : [])];
+  for (const id of ids) if (!only || only.includes(id)) {
+    for (const kind of kinds) for (let seed = 1; seed <= seeds; seed += 1) jobs.push({ scene: id, kind, seed });
   }
   jobCount = jobs.length;
   const results: { job: typeof jobs[number]; text: string; issues: Issue[] }[] = [];

@@ -123,6 +123,7 @@ export const COUNT_CASES: Readonly<Record<string, { ru: CaseForms; uk: CaseForms
     uk: ["відсотка учнів за місяць", "відсоток учнів за місяць"],
   },
   times: { ru: ["раза", "раз"], uk: ["разу", "раз"] },
+  devices: { ru: ["устройства", "устройство"], uk: ["пристрою", "пристрій"] },
 };
 
 /** Every counted noun with its three languages: the core above and every area's own. */

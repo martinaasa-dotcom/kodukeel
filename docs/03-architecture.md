@@ -896,6 +896,29 @@ ends the beat only through the judge and reaches no card, so the composed line, 
 conversation in front of it, is what reads it back. *Rejected:* widening `oneOf` on every prop until
 it held every place in the country, which refuses the next learner instead.
 
+**ADR-025 amendment 4: a conversation may take its topic from tonight's words rather than from a
+scene file, still composed inside a closed list and gated, and still never offered keyless.**
+*Context:* an evening of the module ends on a closing review of the words it met, and nothing asked
+the learner to use them on a person (docs/41-fifth-batch.md, VB-11). Every scene is a file a person
+wrote, with beats about one situation, and no file can be about whichever four words tonight
+happened to teach. *Decision:* one scene of a new kind, `chat` (`lib/scenes/specs/chat.ts`), is built
+at run time from the evening the learner finished: a greeting, up to four beats each asking for one
+of the evening's words in any form (`BeatSpec.elicits`, which the gate's `giveaway` reads, so the
+other side never says the word for them), and a goodbye that ends it. The words are the evening's,
+chosen on the server from the learner's own ticks and never off the wire; a word the forms list
+cannot read is dropped, since the marker could not meet it. The closed list the composer works in is
+everything the evenings have taught through that one plus the evening's words, and every line passes
+the same gate. The other side is the same neighbour every time, and what they remember is derived
+from the learner's earlier chat runs, never stored: which words were talked about, so others come
+first, and the English meaning of a word used well last time, as a stage direction, never the
+learner's Estonian. *What does not move:* the dictionary reads every turn first, `advance` takes
+`Evidence` and nothing else, grading is `gradesFor`'s (as spelled Good, a slip Hard, a repaired or
+substituted word nothing), and a chat is offered only where `sceneProviders()` has a link, so a
+keyless deployment and `PAID_OFF=scenes` never show it: a chat has no bank under it, and with no
+model the other side would say nothing at all. *Rejected:* an open chatbot about anything, which is a
+conversation nothing can mark and nobody can finish, and a bank of chat lines drafted in advance,
+which cannot exist for words chosen at run time.
+
 **ADR-026: Readiness for real life is read per situation on three rungs, and recognition alone
 never clears the second.**
 *Context:* a vocabulary app can compute "you would understand 81 percent of everyday situations"
@@ -965,3 +988,43 @@ about the switch rate stays true of any further answer that is not a switch. *Re
 what was said or how it felt in free text, which is the diary the decision above already refuses; a
 fourth tier of praise, since the reply names what happened rather than grading it; and offering the
 errand on a day that held a conversation, which amendment 1 settles.
+
+**ADR-028: The app hears Estonian on the device, says which words it understood, and grades a
+recall up from that. It still never scores a sound.**
+*Context:* ADR-018 refused a recognizer because the one measured was not accurate enough to tell
+somebody their own pronunciation was wrong, and that measurement still stands. `docs/39-speech.md`
+measured a different question: whether a small streaming model running in the browser hears
+*which words* were said well enough to be useful. TalTech's streaming Zipformer for Estonian does,
+at 0.057 seconds per second of audio on one core, in 71 MB, offline after one download. What it
+cannot do is the half ADR-018 was about: it writes most words said with an accent as the right
+word, which makes it a fair judge of recall and no judge at all of a sound.
+*Decision:* this amends ADR-018 rather than reversing it, and states `docs/41-fifth-batch.md`'s D1,
+D3, D4 and D13 in place of the speech order's D3, D7 and D9.
+- **Everything runs on the device** (D1). The sound goes from an `AudioWorklet` to a worker on the
+  same page, single-threaded (D18), and is never stored or sent. The model comes from the
+  deployment's own storage and is checked byte for byte against the hashes in
+  `lib/speech/model.ts`. Recognition never calls a model, and hotwords stay off, because a hint made
+  the right word harder to hear.
+- **Two transcripts** (D1). `heard` is the model's own greedy reading; `understood` takes out
+  hesitations and lets the dictionary repair a non-word into its spelling. Nothing about a sound is
+  ever read from either: "heard" is the verb, and `lib/copy/voice.ts` fails on copy that tells a
+  learner how a word of theirs sounded.
+- **The bar is the edit** (D3). Every transcript lands in a box the learner can change before it
+  counts, so a misheard word costs one edit and never a grade. Claims about which *sound* somebody
+  made wait for the operator (VB-16).
+- **Speech only grades up** (D4, D19). A spoken answer goes through the same marker as a typed one
+  and grades through `gradeCard`; `lib/speech/verdict.ts` returns "good" only where every word was
+  heard as it is spelled, and otherwise fills the box. Nothing spoken writes Again or Hard on its
+  own, because `Review` is append-only and a misheard word would be a lapse the learner never made.
+- **A repaired word earns nothing** (D13). It can meet a beat, as a slip does, and writes no review
+  row.
+- **One microphone** (D5): `useSpeech()` over one engine interface (`lib/speech/engine.ts`), which
+  the native apps implement with the same model and the same hashes (D24), and
+  `components/speech/MicButton.tsx` for every screen.
+*Consequences:* the app has a microphone without a lie in it, and the native apps start from a
+contract and a golden file (`lib/speech/fixtures/golden.json`) rather than from the web code.
+`PAID_OFF=speech` removes every microphone without a deploy (D15), and with it off the app is
+exactly what it was. *Rejected:* a hosted recognizer, which would send a voice off the device;
+biasing the decoder toward the lines on screen, which made the right line harder to hear and a
+garbled one easier to accept (a line is matched after decoding instead, `lib/speech/matchPick.ts`);
+and a threaded build, which needs cross-origin isolation and would stop Google's sign-in.

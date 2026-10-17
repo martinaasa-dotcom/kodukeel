@@ -344,8 +344,8 @@ function chainTo(start: string, target: string): string | null {
  */
 const PURE_LAYERS = [
   "assessment", "collections", "copy", "course", "curriculum", "email", "estonian", "evidence", "exam", "funding", "games",
-  "learn", "offline", "questions", "random", "readiness", "research", "review", "scan", "scenes", "security",
-  "stats", "time", "ux",
+  "learn", "offline", "push", "questions", "random", "readiness", "research", "review", "scan", "scenes", "security",
+  "speech", "stats", "time", "ux",
 ] as const;
 
 /**
@@ -504,11 +504,19 @@ check("a mock paper is rebuilt the same way it was sat, and every figure on the 
 
 check("no secret carries a NEXT_PUBLIC_ prefix", () => {
   const secrets = /NEXT_PUBLIC_[A-Z_]*(KEY|SECRET|TOKEN|PASSWORD)/g;
+  /*
+    Two keys are public by design, and each is the public half of something
+    whose other half is held elsewhere. The Supabase anon key authenticates who
+    is signed in and never reads or writes app data on its own. The VAPID
+    public key (VB-10) is the key a browser is handed when it subscribes to
+    reminders, so a push service can check a message was signed by this
+    deployment; its private half is `VAPID_PRIVATE_KEY`, server only and in
+    the CI canary build.
+  */
+  const PUBLIC_BY_DESIGN = ["NEXT_PUBLIC_SUPABASE_ANON_KEY", "NEXT_PUBLIC_VAPID_PUBLIC_KEY"];
   for (const file of [...ALL, "middleware.ts", "next.config.ts", ".env.example"]) {
     for (const hit of read(file).match(secrets) ?? []) {
-      // The Supabase anon key is designed to be public: it authenticates who
-      // is signed in and never reads or writes app data on its own.
-      assert.equal(hit, "NEXT_PUBLIC_SUPABASE_ANON_KEY", `${file} exposes ${hit}`);
+      assert.ok(PUBLIC_BY_DESIGN.includes(hit), `${file} exposes ${hit}`);
     }
   }
 });
@@ -624,7 +632,7 @@ check("no client file imports the course barrel, and the bundle is checked for t
   const checked = job.indexOf("npm run check:bundle");
   assert.ok(built > 0, "the secrets job no longer builds, so nothing is there to check the bundle of");
   assert.ok(checked > built, "the secrets job does not run npm run check:bundle after its build");
-  assert.match(read("package.json"), /"check:bundle":\s*"node scripts\/check-bundle-data\.mjs"/);
+  assert.match(read("package.json"), /"check:bundle":\s*"node scripts\/check-bundle-data\.mjs && node scripts\/check-speech-bundle\.mjs"/);
 });
 
 check("every source LICENSE asks a credit for is credited on every surface that owes it", () => {
@@ -1299,8 +1307,10 @@ check("the room a clip is heard in is made in one module, and only the rounds th
     .sort();
   assert.deepEqual(
     holders,
-    ["lib/audio/feedback.ts", "lib/audio/mixer.ts"],
-    "an AudioContext is opened somewhere other than the mixer and the feedback tones",
+    // The speech engine's is a capture graph, the microphone into the worklet
+    // that resamples it for the recognizer (ADR-028), and plays nothing.
+    ["components/speech/webEngine.ts", "lib/audio/feedback.ts", "lib/audio/mixer.ts"],
+    "an AudioContext is opened somewhere other than the mixer, the feedback tones and the speech engine's capture",
   );
   assert.match(code("lib/audio/clip.ts"), /playThrough\(/, "playClip stopped routing a condition through the mixer");
   // The rate is the one stretch over the one clip, never a number sent to the
@@ -9329,7 +9339,7 @@ check("the other side talks at the run's band, and every composer says which ban
     one deployment that has no model to fall back on.
   */
   assert.match(
-    code("app/api/scene/route.ts"), /sceneContext\(scene\.id, level\)/,
+    code("app/api/scene/route.ts"), /sceneContext\(scene(?:\.id)?, level\)/,
     "the scene route builds its context for no band, so the bank's pitched lines are never read first",
   );
   /*
@@ -9643,6 +9653,12 @@ check("nothing is stored on a device that would need asking first", () => {
     // itself finishes. The key is built in lib/ux/resumePosition.ts, which is
     // pure and stores nothing; the hook is what writes it.
     "components/useResumeCard.ts",
+    // The speech model, which the learner asked for by pressing Download with
+    // its size in front of them (D7), and one line saying it was downloaded
+    // once, so a cache the browser cleared can be told from a first visit.
+    // Nothing about the learner: the same 71 MB on every device. /privacy
+    // names it, and Settings deletes it.
+    "components/speech/webEngine.ts",
   ];
   for (const file of storage) {
     assert.ok(
@@ -12685,7 +12701,15 @@ check("every cache the service worker writes to is bounded, except the one that 
 
   // And every write is followed by a trim. A ceiling nothing enforces is a
   // comment, which is what the previous version of this file amounted to.
-  const puts = [...sw.matchAll(/cache\.put\([^)]*\)/g)].length;
+  // The speech model's cache is the one other exemption, by the shell's
+  // argument: it holds a fixed set of files under /asr/ (the runtime, the
+  // device check and the model, named by revision), so it cannot grow, and a
+  // trim would evict 71 MB a learner downloaded on purpose (docs/41-fifth-batch.md, D7).
+  // Only that one write is excused, and only while it is that one shape.
+  const asrPuts = [...sw.matchAll(/caches\.open\(ASR\)\.then\(\(cache\) => cache\.put\(request, copy\)\)/g)].length;
+  assert.ok(asrPuts <= 1, "the speech model's cache is written from more than one place");
+  assert.match(sw, /url\.pathname\.startsWith\("\/asr\/runtime\/"\)/, "the speech cache stopped being kept to /asr/");
+  const puts = [...sw.matchAll(/cache\.put\([^)]*\)/g)].length - asrPuts;
   const trims = [...sw.matchAll(/trim\(/g)].length;
   assert.ok(
     trims >= puts,
@@ -12697,9 +12721,12 @@ check("every cache the service worker writes to is bounded, except the one that 
   assert.match(sw, /const VERSION = "kodukeel-v\d+"/, "the worker's caches are no longer versioned");
   assert.match(
     sw,
-    /keys\.filter\(\(k\) => k\.startsWith\("kodukeel-"\) && !k\.startsWith\(VERSION\)\)/,
+    /k\.startsWith\("kodukeel-"\) && !k\.startsWith\(VERSION\)/,
     "activate stopped deleting the caches of previous versions",
   );
+  // The speech model's cache survives a version bump, because it is named by
+  // the model rather than by the worker, and only an older model's is deleted.
+  assert.match(sw, /k\.startsWith\(ASR_PREFIX\)\s*\?\s*k !== ASR/, "activate no longer drops an older speech model, or drops the current one");
 
   /*
     AND NO SUITE TYPES THAT VERSION OUT AGAIN.
@@ -21686,7 +21713,6 @@ check("a verdict is painted once, in the tint and the ink", () => {
     // Marks a paper whole and shows no per-answer verdict, on purpose (line 22).
     "app/(app)/learn/checkpoint/[level]/CheckpointSession.tsx": "no per-answer verdict by design",
     // Its two buttons are SelfGradeButtons, which reads the vocabulary itself.
-    "app/(app)/review/speaking/SpeakingSession.tsx": "marks nothing of its own; components/round/SelfGradeButtons.tsx draws the verdict",
   };
   // Screens, not the server actions and page files that call the same markers and draw nothing.
   const marking = [...APP, ...COMPONENTS].filter(
@@ -22104,6 +22130,8 @@ check("every round that puts one word up carries the favorite button", () => {
       "the subject is the sentence, which is what the round asks about",
     [join("app", "(app)", "review", "workbook", "WorkbookSession.tsx")]:
       "a page of sentences at once, each about a different word, with no one card to put a corner on",
+    [join("app", "(app)", "review", "numbers", "NumbersSession.tsx")]:
+      "a price, a clock time or a number, said in several number words at once, with no one entry the round is about",
     [join("app", "(app)", "learn", "checkpoint", "[level]", "CheckpointSession.tsx")]:
       "a measurement rather than a round: it withholds every answer until the "
       + "end on purpose, and its questions carry no entry to keep",

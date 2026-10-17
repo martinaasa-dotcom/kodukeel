@@ -47,9 +47,10 @@ export const STATIC_SECURITY_HEADERS: { key: string; value: string }[] = [
   */
   { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
   /*
-    The microphone is `self`, not `()`: speaking practice records the learner
-    reading a word back (components/Recorder.tsx). Denying it here would
-    switch that feature off with no error anybody could act on.
+    The microphone is `self`, not `()`: speaking is heard on the device
+    through the one engine every screen listens with (components/speech/,
+    docs/41-fifth-batch.md D5). Denying it here would switch speaking off
+    with no error anybody could act on.
 
     THE CAMERA JOINED IT, and the failure it prevents is a silent one. Scanning
     a page is `<input type="file" capture="environment">`, and the capture
@@ -111,6 +112,21 @@ function supabaseConnectSrc(): string[] {
  * why. Without the client ID nothing about this policy widens, which is the
  * same rule `supabaseConnectSrc` follows for the database.
  */
+/**
+ * Where the speech model is downloaded from, when it is not this origin
+ * (docs/41-fifth-batch.md, VB-1). The deployment's own storage and nothing
+ * else: a learner's address never reaches the model's original host.
+ */
+function speechModelSrc(): string[] {
+  const raw = process.env.NEXT_PUBLIC_ASR_MODEL_BASE?.trim();
+  if (!raw || raw.startsWith("/")) return [];
+  try {
+    return [new URL(raw).origin];
+  } catch {
+    return [];
+  }
+}
+
 function googleIdentitySrc(): string[] {
   return process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim() ? ["https://accounts.google.com"] : [];
 }
@@ -147,10 +163,16 @@ export function buildContentSecurityPolicy(): string {
   const isDev = process.env.NODE_ENV !== "production";
   const google = googleIdentitySrc();
 
-  const scriptSrc = ["'self'", "'unsafe-inline'", ...google, ...(isDev ? ["'unsafe-eval'"] : [])];
+  /*
+    `'wasm-unsafe-eval'` compiles WebAssembly and nothing else: the speech
+    worker runs the model in it (ADR-028). It is not `'unsafe-eval'`, which
+    stays a development-only allowance, and the test reads the two as tokens.
+  */
+  const scriptSrc = ["'self'", "'unsafe-inline'", "'wasm-unsafe-eval'", ...google, ...(isDev ? ["'unsafe-eval'"] : [])];
   const connectSrc = [
     "'self'",
     ...supabaseConnectSrc(),
+    ...speechModelSrc(),
     ...(isDev ? ["ws://localhost:*", "ws://127.0.0.1:*", "http://localhost:*"] : []),
   ];
   const frameSrc = google.length > 0 ? google.join(" ") : "'none'";

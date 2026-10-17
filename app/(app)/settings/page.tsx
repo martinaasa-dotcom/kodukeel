@@ -12,6 +12,7 @@ import { caseGlossFrom, caseGlossDefaultFor } from "@/lib/estonian/caseGloss";
 import { participationFrom, researchExportConfigured } from "@/lib/research/participation";
 import { emailPrefsFrom, kindStates } from "@/lib/email/prefs";
 import { mailerConfig } from "@/lib/mailer/transport";
+import { pushConfig } from "@/lib/push/config";
 import { goalsFor, latestFor } from "@/lib/progress/assessment";
 import { levelLabel } from "@/components/assessment/PlanPanel";
 import { courseLevelFor } from "@/lib/progress/level";
@@ -31,6 +32,7 @@ import { ImportPanel } from "./ImportPanel";
 import { InstallPanel } from "./InstallPanel";
 import { CaseGlossPanel, ClassNamePanel, LetterBarPanel, ResearchPanel, ReviewModePanel, WordGlossPanel } from "./PreferencesPanel";
 import { EmailPanel } from "./EmailPanel";
+import { PushPanel } from "./PushPanel";
 import { AutoplayPanel, CurrentPaceSample, CurrentVoiceSample, FeedbackSoundsPanel, HearingPanel, SpeechPacePanel, SupportPanel, VoicePanel } from "./AudioPanel";
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { GlossAlsoPanel, GlossLanguagePanel } from "./GlossLanguagePanel";
@@ -51,6 +53,7 @@ import { UsagePanel } from "./UsagePanel";
 import { DangerZone } from "./DangerZone";
 import { SetupGuide } from "./SetupGuide";
 import { providerResilience } from "@/lib/tutor/provider";
+import { SpeakingPanel } from "./SpeakingPanel";
 
 export async function generateMetadata() {
   return titleFor("Settings");
@@ -89,6 +92,7 @@ const SHORTCUTS: [string, string][] = [
   ["1-4", "Say how it went: Again, Hard, Good or Easy"],
   ["U", "Take back the last answer you graded"],
   ["1-4 (listening, choice)", "Pick one of the numbered answers"],
+  ["Ctrl M", "Start or stop the microphone, or hold it to talk"],
 ];
 
 /**
@@ -189,6 +193,12 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     several of these are keys.
   */
   const canSend = mailerConfig() !== null;
+  /*
+    And whether it can remind anybody on a computer (VB-10). The public key is
+    handed down because the browser needs it to subscribe; it is public by
+    design, and the private half never leaves `lib/push/config.ts`.
+  */
+  const pushKey = pushConfig()?.publicKey ?? null;
 
   const researchExported = researchExportConfigured();
   const voice = voiceFrom(settings[SETTING_KEYS.ttsVoice]);
@@ -456,6 +466,18 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </section>
 
           {/*
+            SPEAKING: whether this device can hear Estonian, the one download it
+            needs, and the two choices about the microphone (VB-2). Beside the
+            voice because both are about Estonian out loud, one each way.
+          */}
+          <section id="speaking">
+            <SectionTitle>{t("Speaking")}</SectionTitle>
+            <Card>
+              <SpeakingPanel />
+            </Card>
+          </section>
+
+          {/*
             WHICH LANGUAGE A MEANING IS GIVEN IN, WHICH IS NOT A COSMETIC
             SETTING HERE.
 
@@ -678,7 +700,9 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 }
                 reminderAt={settings[SETTING_KEYS.reminderAt] ?? null}
                 sending={canSend}
+                notifying={pushKey !== null}
               />
+              {pushKey && <PushPanel publicKey={pushKey} />}
             </Card>
           </section>
 

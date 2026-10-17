@@ -25,6 +25,7 @@ import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { GapMeaning } from "@/components/GapMeaning";
 import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { splitOnForm } from "@/lib/dict/examples";
+import { AnswerMic, useSpokenBox } from "@/components/speech/SpokenBox";
 import { askLine, isForm, markFlash, plainAskFor, type FlashMark, type FlashTask } from "@/lib/games/flash";
 import { hintLadder } from "@/lib/questions/hints";
 import { HintLadder } from "@/components/round/HintLadder";
@@ -79,6 +80,9 @@ export interface FlashPrompt extends FlashTask {
  * round carry on when the connection goes: the grade goes to the outbox and is
  * replayed with the slot it was about (ADR-015).
  */
+/** An empty answer list, held still so the spoken box's memo does not change every render. */
+const NOTHING_ACCEPTED: readonly string[] = [];
+
 export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt[] }) {
   const t = useT();
   /*
@@ -113,6 +117,23 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     and says why it is not undo: nothing here grades, reorders or requeues.
   */
   const look = useLookBack();
+
+  /*
+    ANSWERED ALOUD, ON EVERY SHAPE THAT ASKS FOR ONE FORM (docs/41-fifth-batch.md
+    VB-6). Not a sentence of your own, which is written. Drawn once the learner
+    has the model and the setting (D6); heard as spelled, it is checked at once,
+    and anything else fills the box for Check (D4).
+  */
+  const checkRef = useRef<(said?: string) => void>(() => {});
+  const sayable = !!task && task.shape !== "build";
+  const voiceBoxValue = useSpokenBox({
+    accepted: sayable ? task.accepted : NOTHING_ACCEPTED,
+    onGood: (text) => { setTyped(text); void checkRef.current(text); },
+    onFill: (text) => setTyped(text),
+  });
+  const voiceBox = useRef(voiceBoxValue);
+  voiceBox.current = voiceBoxValue;
+  useEffect(() => { voiceBox.current.reset(); }, [index]);
 
   /*
     A `heard` task with no sound is asked the plain way rather than abandoned.
@@ -160,9 +181,15 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     ladder,
   });
 
-  const check = useCallback(async () => {
+  const check = useCallback(async (said?: string) => {
     if (!task || mark) return;
-    const marked = markFlash(task, typed);
+    const answer = said ?? typed;
+    /* Said aloud where the microphone filled the box (VB-6). A word the
+       dictionary repaired, still in the box as it was put there, writes no
+       row (D13); the mark is shown all the same. */
+    const saidAloud = said !== undefined || voiceBox.current.spoken;
+    const unwritten = saidAloud && voiceBox.current.carriesRepair(answer);
+    const marked = markFlash(task, answer);
     /*
       A hint is paid for: see `lib/questions/hints.ts`. `Math.min` rather than a
       branch, so a hint can only lower what the answer earned, and the ceiling
@@ -195,10 +222,10 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
       : undefined;
     // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
     const reviewId = crypto.randomUUID();
-    try {
+    if (!unwritten) try {
       await drainFirst();
       const res = await gradeCard(
-        task.cardId, result.rating, duration, answeredAt, task.slot, reached, reviewId,
+        task.cardId, result.rating, duration, answeredAt, task.slot, reached, reviewId, saidAloud,
       );
       if (!res.ok) throw new Error(res.error);
     } catch {
@@ -214,10 +241,12 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
         reviewedAt: Date.parse(answeredAt),
         slot: task.slot,
         reachedSlot: reached,
+        ...(saidAloud ? { spoken: true } : {}),
       });
       refreshOutbox();
     }
   }, [task, typed, mark, sound, streak, refreshOutbox, drainFirst, hints]);
+  checkRef.current = check;
 
   const next = useCallback(() => {
     /*
@@ -387,6 +416,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
               />
             )}
             {!mark && <div className="under-field"><DiacriticBar /></div>}
+            {!mark && sayable && <div className="mt-3"><AnswerMic box={voiceBoxValue} /></div>}
             {!mark && (
               <div className="mt-4">
                 <HintLadder

@@ -44,6 +44,8 @@ import {
 } from "@/lib/course/milestones";
 
 import { wordOfDay } from "@/lib/progress/wordOfDay";
+import { hasDevice } from "@/lib/progress/push";
+import { pushConfigured } from "@/lib/push/config";
 import { outThere } from "@/lib/progress/outThere";
 import { dailySummary, deckSnapshot, SHIELD_MILESTONES } from "@/lib/progress/summary";
 import { stageOf } from "@/lib/ux/disclosure";
@@ -307,7 +309,7 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
   const clock = dayClock(settings[SETTING_KEYS.timeZone]);
   const weekAgo = new Date(now.getTime() - 7 * 86_400_000);
 
-  const [lastReview, sends, sentThisWeek, programme] = await Promise.all([
+  const [lastReview, sends, sentThisWeek, programme, pushable] = await Promise.all([
     prisma.review.findFirst({
       where: { ownerId },
       orderBy: { reviewedAt: "desc" },
@@ -342,6 +344,12 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
       where: { ownerId, sentAt: { gte: weekAgo }, kind: { notIn: [...UNCAPPED] } },
     }),
     programmeFor(ownerId),
+    /*
+      Whether they asked to be reminded on a browser (VB-10), asked only where
+      this deployment can push at all: rows left over from a deployment that
+      has since dropped its keys are not a channel.
+    */
+    pushConfigured() ? hasDevice(ownerId) : Promise.resolve(false),
   ]);
 
   /*
@@ -516,6 +524,7 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
       and the run is the only layer that may hold an address.
     */
     undeliverable: false,
+    pushable,
     prefs: emailPrefsFrom(settings[SETTING_KEYS.emailsOff], settings[SETTING_KEYS.emailsOn]),
     dayKey: clock.dayKey(now),
     localHour,

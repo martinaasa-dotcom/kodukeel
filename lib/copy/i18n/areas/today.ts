@@ -698,8 +698,8 @@ export const TODAY: Area = {
     "Четыре варианта одного слова и вопрос, который говорит, в какой попасть. Различаются они только окончанием, так что вы учитесь быстро его читать.",
   "One verb, six people: I, you, she and the rest. If you can't change a verb for who's doing it, you can't really use it yet.":
     "Один глагол, шесть лиц: я, ты, она и остальные. Пока вы не умеете менять глагол по лицам, по-настоящему пользоваться им ещё не получится.",
-  "Say it out loud, then hear how it should sound. Nobody marks you. This one is just for your own ears.":
-    "Скажите вслух, а потом послушайте, как это должно звучать. Никто вас не оценивает. Это только для ваших ушей.",
+  "Say tonight's words out loud: along with a native speaker, back from the recording, then from their meaning. You see which words were heard, and typing works too.":
+    "Скажите вслух слова этого вечера: вместе с носителем языка, по записи, затем по значению. Вы видите, какие слова были услышаны, и можно печатать.",
   "Write a sentence of your own with the ending we ask for. We check that word against the dictionary before anything else.":
     "Напишите своё предложение с окончанием, которое мы просим. Это слово мы прежде всего сверяем со словарём.",
   "Aitan sind, but helistan sulle. Every verb chooses its own ending for whatever comes after it, and English gives you no clue, so you learn them one verb at a time.":
@@ -1780,8 +1780,8 @@ export const TODAY: Area = {
     "Чотири варіанти одного слова і запитання, яке підказує, у який влучити. Відрізняються вони лише закінченням, тож ви вчитеся швидко його читати.",
   "One verb, six people: I, you, she and the rest. If you can't change a verb for who's doing it, you can't really use it yet.":
     "Одне дієслово, шість осіб: я, ти, вона й решта. Поки ви не вмієте змінювати дієслово за особами, по-справжньому користуватися ним ще не вийде.",
-  "Say it out loud, then hear how it should sound. Nobody marks you. This one is just for your own ears.":
-    "Скажіть уголос, а потім послухайте, як це має звучати. Ніхто вас не оцінює. Це лише для ваших вух.",
+  "Say tonight's words out loud: along with a native speaker, back from the recording, then from their meaning. You see which words were heard, and typing works too.":
+    "Скажіть уголос слова цього вечора: разом із носієм мови, за записом, потім за значенням. Ви бачите, які слова почуто, і можна друкувати.",
   "Write a sentence of your own with the ending we ask for. We check that word against the dictionary before anything else.":
     "Напишіть своє речення із закінченням, яке ми просимо. Це слово ми насамперед звіряємо зі словником.",
   "Aitan sind, but helistan sulle. Every verb chooses its own ending for whatever comes after it, and English gives you no clue, so you learn them one verb at a time.":

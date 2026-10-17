@@ -540,7 +540,7 @@ const PRACTICE: Record<SkillKey, { href: string; cta: string }> = {
   writing: { href: "/review/write", cta: "Write a sentence" },
   listening: { href: "/review/dictation", cta: "Take a dictation" },
   reading: { href: "/review/cloze", cta: "Fill some gaps" },
-  speaking: { href: "/review/speaking", cta: "Record yourself" },
+  speaking: { href: "/review/speaking", cta: "Say it out loud" },
 };
 
 function strengthsFrom(signals: ReadinessSignals, assessed: ExamLevel | null): Feedback[] {

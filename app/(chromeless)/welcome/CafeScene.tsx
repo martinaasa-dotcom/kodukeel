@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Check, Citrus, Clock, Coffee, GlassWater, Leaf, RotateCcw, type LucideIcon } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, type ComponentType } from "react";
+import { ArrowRight, Check, Citrus, Clock, Coffee, GlassWater, Leaf, Mic, RotateCcw, type LucideIcon } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { NOT_REACHED } from "@/lib/copy/values";
 import type { DemoOption, DemoReply, DemoTurn } from "@/lib/progress/demoScene";
 import { rememberOrdered } from "./visit";
+import type { CafeVoiceProps } from "./CafeVoice";
 import { fill } from "@/lib/copy/locale";
 import { useLocale, useT, useWholeLanguage } from "@/components/Locale";
 
@@ -24,6 +25,15 @@ const DRINK_ICON: Record<string, LucideIcon> = { kohv: Coffee, tee: Leaf, vesi: 
 
 /** How long they take to answer, so a line arrives rather than appears. */
 const TYPING_MS = 750;
+
+/**
+ * How long a line heard and lit waits before it is said, which a touch on the
+ * screen stops (docs/41-fifth-batch.md, D20).
+ */
+const SEND_LIT_MS = 2500;
+
+/** The voice half, once it has been asked for: loaded by a dynamic import on the press, never before. */
+type LoadedVoice = ComponentType<CafeVoiceProps & { readonly modelBase: string }>;
 
 /** A fresh seed per visit, so two people in one office are handed two different mornings. */
 function freshSeed(): string {
@@ -52,7 +62,15 @@ function reducedMotion(): boolean {
  * end carries on down the page rather than stopping dead (CLAUDE.md, "a page
  * that scrolls holds no second scroller" is about exactly that contain rule).
  */
-export function CafeScene({ scenes }: { readonly scenes: number }) {
+export function CafeScene({ scenes, voiceBase = null }: {
+  readonly scenes: number;
+  /**
+   * Where this deployment serves the speech model from, or null where it has
+   * none: "Say it instead" is offered only where there is something to hear
+   * with (VB-15).
+   */
+  readonly voiceBase?: string | null;
+}) {
   const t = useT();
   // A press here can draw a line the page did not arrive with. See components/Locale.tsx.
   const reach = useWholeLanguage();
@@ -80,6 +98,18 @@ export function CafeScene({ scenes }: { readonly scenes: number }) {
   const stage = useRef<HTMLDivElement>(null);
   const thread = useRef<HTMLDivElement>(null);
   const picks = useRef<HTMLDivElement>(null);
+  /*
+    SAID OUT LOUD (VB-15). The voice is a separate chunk, imported on the press
+    of "Say it instead", so the landing page's own script is exactly what it was
+    (`npm run check:landing`). A line heard clearly is lit, and is said when the
+    visitor presses it or when the countdown on it runs out; touching the screen
+    stops the countdown and leaves the line lit (D8, D20).
+  */
+  const [CafeVoice, setCafeVoice] = useState<LoadedVoice | null>(null);
+  const [loadingVoice, setLoadingVoice] = useState(false);
+  const [lit, setLit] = useState<number | null>(null);
+  const [counting, setCounting] = useState(false);
+  const sendTimer = useRef<number | null>(null);
 
   const ask = async (nextSeed: string, nextTurns: DemoTurn[], hold = false) => {
     setBusy(true);
@@ -156,7 +186,19 @@ export function CafeScene({ scenes }: { readonly scenes: number }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const holdSend = useCallback(() => {
+    if (sendTimer.current !== null) window.clearTimeout(sendTimer.current);
+    sendTimer.current = null;
+    setCounting(false);
+  }, []);
+
+  const unlight = useCallback(() => {
+    holdSend();
+    setLit(null);
+  }, [holdSend]);
+
   const pick = async (option: DemoOption) => {
+    unlight();
     if (!seed || !started || !reply?.step || busy || queue.length > 0) return;
     const next = [...turns, { step: reply.step, option: option.id }];
     setSaid((had) => [...had, { who: "you", text: option.et, en: t(option.en) }]);
@@ -195,6 +237,40 @@ export function CafeScene({ scenes }: { readonly scenes: number }) {
 
   const choosing = Boolean(started && reply && !reply.over && settled);
 
+  const sayInstead = async () => {
+    if (CafeVoice || loadingVoice) return;
+    setLoadingVoice(true);
+    try {
+      const loaded = await import("./CafeVoice");
+      setCafeVoice(() => loaded.default);
+    } catch {
+      setError(NOT_REACHED);
+    } finally {
+      setLoadingVoice(false);
+    }
+  };
+
+  // A line was heard: light it, and say it once the countdown has run with it lit.
+  const latestPick = useRef(pick);
+  latestPick.current = pick;
+  const heardPick = useCallback((index: number) => {
+    holdSend();
+    setLit(index);
+    setCounting(true);
+    const option = reply?.options[index];
+    sendTimer.current = window.setTimeout(() => {
+      sendTimer.current = null;
+      setCounting(false);
+      if (option) void latestPick.current(option);
+    }, SEND_LIT_MS);
+  }, [holdSend, reply]);
+
+  // A new step is new lines, and nothing of the last step's may stay lit.
+  useEffect(() => unlight(), [reply?.step, unlight]);
+  useEffect(() => () => {
+    if (sendTimer.current !== null) window.clearTimeout(sendTimer.current);
+  }, []);
+
   // A pressed pick is gone with its row, so the caret goes to the first of the next ones.
   useEffect(() => {
     if (choosing && turns.length > 0) picks.current?.querySelector("button")?.focus({ preventScroll: true });
@@ -202,7 +278,17 @@ export function CafeScene({ scenes }: { readonly scenes: number }) {
 
   const at = reply?.at ?? 0;
   return (
-    <div ref={stage} {...reach} className="cafe-stage night rounded-[var(--r-xl)] border p-4 md:p-7">
+    <div
+      ref={stage}
+      {...reach}
+      // A touch anywhere but on the lit line stops its countdown and leaves it lit (D20).
+      onPointerDownCapture={(e) => {
+        reach.onPointerDownCapture();
+        if (counting && !(e.target as HTMLElement).closest?.("[data-lit]")) holdSend();
+      }}
+      onKeyDownCapture={() => { if (counting) holdSend(); }}
+      className="cafe-stage night rounded-[var(--r-xl)] border p-4 md:p-7"
+    >
       {/* What this is, and how far along it they are. */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
@@ -335,13 +421,33 @@ export function CafeScene({ scenes }: { readonly scenes: number }) {
                 <div ref={picks} key={reply.step} className="grid gap-2 sm:grid-cols-2" role="group" aria-label={t("What you say")}>
                   {reply.options.map((option, n) => (
                     <button key={option.id} type="button" onClick={() => void pick(option)}
-                      className="choice-btn cafe-pick flex flex-col items-start rounded-[var(--r)] border px-4 py-3 text-left"
+                      className="choice-btn cafe-pick relative flex flex-col items-start overflow-hidden rounded-[var(--r)] border px-4 py-3 text-left"
+                      data-lit={lit === n ? "" : undefined}
                       style={{ "--i": n } as React.CSSProperties}>
                       <span lang="et" className="text-md font-bold">{option.et}</span>
                       <span className="text-sm" style={{ color: "var(--ink-2)" }}>{t(option.en)}</span>
+                      {lit === n && counting && (
+                        <span className="cafe-send" aria-hidden style={{ "--send-ms": `${SEND_LIT_MS}ms` } as React.CSSProperties} />
+                      )}
                     </button>
                   ))}
                 </div>
+                {lit !== null && (
+                  <p className="sr-only" role="status">
+                    {counting
+                      ? fill(t("Heard: {text}. It is said in a moment, unless you touch the screen."), { text: reply.options[lit]?.et ?? "" })
+                      : fill(t("Heard: {text}. Press it to say it."), { text: reply.options[lit]?.et ?? "" })}
+                  </p>
+                )}
+                {voiceBase && (CafeVoice ? (
+                  <CafeVoice modelBase={voiceBase} picks={reply.options.map((o) => o.et)} onMatch={heardPick} onListen={unlight} />
+                ) : (
+                  <button type="button" onClick={() => void sayInstead()} disabled={loadingVoice}
+                    className="tap-tint inline-flex items-center gap-1.5 self-start rounded-full px-3 py-2 text-sm font-semibold"
+                    style={{ color: "var(--ink-2)" }}>
+                    <Mic size={15} aria-hidden /> {t("Say it instead")}
+                  </button>
+                ))}
               </div>
             ) : (
               <p className="text-sm" style={{ color: "var(--ink-2)" }}>

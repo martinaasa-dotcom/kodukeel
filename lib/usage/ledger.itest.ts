@@ -1,6 +1,6 @@
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { prisma } from "@/lib/db";
-import { authoriseCall, recordUsage, releaseReservation, snapshotUsage } from "./ledger";
+import { authoriseCall, recordUsage, releaseReservation, snapshotUsage, wouldAuthorise } from "./ledger";
 import { reserveMicros } from "./pricing";
 
 /**
@@ -188,6 +188,22 @@ describe("authoriseCall", () => {
     const refused = results.filter((r) => !r.allowed);
     expect(refused.length).toBeGreaterThan(0);
     expect(refused.every((r) => r.reservation === undefined)).toBe(true);
+  });
+});
+
+describe("wouldAuthorise", () => {
+  afterEach(() => { vi.unstubAllEnvs(); });
+
+  it("says yes on a fresh day and no once the day's calls are spent, and books nothing either way", async () => {
+    // One call a day per learner, scaled by the scene allowance of four: four calls.
+    vi.stubEnv("AI_DAILY_CALLS_PER_USER", "1");
+    expect(await wouldAuthorise(MINE, "SCENE")).toBe(true);
+    expect(await prisma.usageEvent.count({ where: { ownerId: MINE } })).toBe(0);
+    for (let i = 0; i < 4; i += 1) expect((await authoriseCall(MINE, "SCENE")).allowed).toBe(true);
+    expect((await authoriseCall(MINE, "SCENE")).allowed).toBe(false);
+    const before = await prisma.usageEvent.count({ where: { ownerId: MINE } });
+    expect(await wouldAuthorise(MINE, "SCENE")).toBe(false);
+    expect(await prisma.usageEvent.count({ where: { ownerId: MINE } })).toBe(before);
   });
 });
 

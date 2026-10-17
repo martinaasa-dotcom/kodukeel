@@ -8,6 +8,7 @@ import { Card } from "@/components/ui";
 import { AnuFace } from "@/components/anu/AnuFace";
 import { useAnuChat, type Msg } from "@/components/anu/useAnuChat";
 import { useStickToBottom } from "@/components/anu/useStickToBottom";
+import { AnuMic } from "@/components/anu/AnuMic";
 import { AnuFailure, AnuOffline, Bubble, Provenance, SentenceCheck, Starters, sentenceCheckPrompt } from "@/components/anu/AnuParts";
 import { useT } from "@/components/Locale";
 import { filled } from "@/components/Filled";
@@ -148,6 +149,7 @@ export function TutorChat({
             autoFocus={Boolean(initialQuestion)}
           />
         </div>
+        <AnuMic current={input} onHeard={setInput} shortcut />
         <Button
           variant="primary"
           size="lg"

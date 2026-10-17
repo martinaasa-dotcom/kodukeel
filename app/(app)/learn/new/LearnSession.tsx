@@ -20,7 +20,9 @@ import { useAudioPrefs, useFeedbackSound } from "@/components/AudioPrefs";
 import { useOffline } from "@/components/OfflineProvider";
 import { useResumeCard } from "@/components/useResumeCard";
 import { prefetchClip } from "@/lib/audio/clip";
-import { checkAnswer, countsAsRecalled, noteIn, type AnswerCheck } from "@/lib/estonian/answer";
+import { acceptedAnswers, checkAnswer, countsAsRecalled, noteIn, type AnswerCheck } from "@/lib/estonian/answer";
+import { AnswerMic, useSpokenBox } from "@/components/speech/SpokenBox";
+import { YourTurn } from "@/components/speech/YourTurn";
 import { NEIGHBOUR_RATING, typedNeighbour } from "@/lib/questions/neighbours";
 import { SameMeaning } from "@/components/round/SameMeaning";
 import { BLANK } from "@/lib/estonian/cloze";
@@ -345,6 +347,34 @@ export function LearnSession({
   const finished = !word;
   const answerBox = useRef<HTMLInputElement>(null);
   useFocusAnswer(answerBox, phase === "ask" && rung === "gap" && !look.looking, `${seat?.cardId}:${seat?.rung}`);
+
+  /*
+    ANSWERED ALOUD, ON THE TYPED RUNG (docs/41-fifth-batch.md VB-6). The
+    microphone sits beside the box once the learner has downloaded the model
+    and kept the setting (D6). Heard as spelled, it is marked at once as a right
+    answer said aloud; anything else fills the box for Check, marked by the same
+    `checkAnswer` a typed answer meets. Nothing spoken grades down on its own.
+  */
+  const spokenAnswer = useRef(false);
+  const repairedAnswer = useRef(false);
+  const answerGapRef = useRef<(said?: string) => void>(() => {});
+  const spokenAccepted = useMemo(
+    () => (word && rung === "gap" ? acceptedAnswers(word.gap ? word.gap.answer : word.lemma, "et") : []),
+    [word, rung],
+  );
+  const spoken = useSpokenBox({
+    accepted: spokenAccepted,
+    onGood: (text) => { setTyped(text); answerGapRef.current(text); },
+    onFill: (text) => setTyped(text),
+  });
+  const spokenBox = useRef(spoken);
+  spokenBox.current = spoken;
+  const seatKey = `${seat?.cardId}:${seat?.rung}`;
+  useEffect(() => {
+    spokenBox.current.reset();
+    spokenAnswer.current = false;
+    repairedAnswer.current = false;
+  }, [seatKey]);
   const total = words.length;
   const left = queue.length;
 
@@ -542,12 +572,19 @@ export function LearnSession({
       round on screen with nothing that can be pressed.
     */
     let after: LearnScheduling;
+    /* Said aloud, and marked on what was heard (D4). A word the dictionary
+       repaired and the learner left in the box writes nothing (D13): the word
+       stays where it was on the ladder and comes back. */
+    const spoken = outcome !== "known" && spokenAnswer.current;
+    const unwritten = spoken && repairedAnswer.current;
     try {
     // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
     const reviewId = crypto.randomUUID();
-    try {
+    if (unwritten) {
+      after = before;
+    } else try {
       await drainFirst();
-      const res = await gradeCard(word.cardId, rating, durationMs, answeredAt, undefined, undefined, reviewId);
+      const res = await gradeCard(word.cardId, rating, durationMs, answeredAt, undefined, undefined, reviewId, spoken);
       if (!res.ok) throw new Error(res.error);
       after = res.scheduling;
     } catch {
@@ -557,6 +594,7 @@ export function LearnSession({
         rating,
         durationMs,
         reviewedAt: Date.parse(answeredAt),
+        ...(spoken ? { spoken: true } : {}),
       });
       refreshOutbox();
       const local = grade(
@@ -619,11 +657,15 @@ export function LearnSession({
     });
   }, [word, busy, phase, cheer, send, t, locale]);
 
-  const answerGap = useCallback(() => {
+  const answerGap = useCallback((said?: string) => {
     if (!word || busy || phase === "feedback") return;
     const expected = word.gap ? word.gap.answer : word.lemma;
+    const answer = said ?? typed;
+    // Answered aloud where the microphone filled the box, edited or not (VB-6).
+    spokenAnswer.current = said !== undefined || spokenBox.current.spoken;
+    repairedAnswer.current = spokenAnswer.current && spokenBox.current.carriesRepair(answer);
     // On the gap another form is the wrong answer; asked from the meaning, it is the word.
-    const check = checkAnswer(typed, expected, "et", word.gap?.rivals ?? [], word.gap ? [] : word.kin);
+    const check = checkAnswer(answer, expected, "et", word.gap?.rivals ?? [], word.gap ? [] : word.kin);
     /*
       A SECOND RIGHT WORD IS RIGHT. Where the rung asks for the word from its
       meaning and the learner typed another word that means it, nobody in
@@ -634,7 +676,7 @@ export function LearnSession({
       gap, which asks for a form of this word in a sentence.
     */
     const neighbour = !word.gap && check.verdict === "wrong" && word.contrast
-      ? typedNeighbour(typed, word.contrast.neighbours)
+      ? typedNeighbour(answer, word.contrast.neighbours)
       : null;
     if (neighbour) {
       setVerdict({ verdict: "correct", expected: check.expected, note: "", suggestedRating: NEIGHBOUR_RATING });
@@ -650,6 +692,8 @@ export function LearnSession({
       { outcome: won ? "right" : "wrong", expected: check.expected, note: noteIn(check, locale) },
     );
   }, [word, busy, phase, typed, cheer, send, locale]);
+
+  answerGapRef.current = answerGap;
 
   /** Whether the gap is waiting for the miss to be typed again. */
   const needsRetype = phase === "feedback" && rung === "gap" && result?.outcome === "wrong" && !retypeOk;
@@ -1061,6 +1105,7 @@ export function LearnSession({
               firstCardEver={word.firstCardEver && word.cardId === firstMeetingCardId}
             />
           )}
+          {rung === "meet" && <YourTurn key={`turn-${word.cardId}`} text={word.lemma} />}
 
           {rung === "choice" && (
             <>
@@ -1262,6 +1307,7 @@ export function LearnSession({
               {firstTry && phase === "ask" && (
                 <p className="max-w-sm text-sm" style={{ color: "var(--ink-2)" }}>{t(FIRST_TRY_NOTE)}</p>
               )}
+              {phase === "ask" && <AnswerMic box={spoken} />}
               <div className="w-full max-w-sm text-left">
                 <EstonianInput
                   value={typed}
@@ -1292,7 +1338,7 @@ export function LearnSession({
                 only the cross in the corner.
               */}
               {phase === "ask" && (
-                <Button variant="primary" onClick={answerGap} disabled={busy}>
+                <Button variant="primary" onClick={() => answerGap()} disabled={busy}>
                   {t("Check")}
                   <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
                 </Button>

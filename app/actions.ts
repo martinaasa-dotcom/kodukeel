@@ -18,7 +18,11 @@ import { classworkMarker } from "@/lib/ux/agenda";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
 import { cardsForGrades } from "@/lib/scenes/grades";
-import { alsoDoneOf, beatNow, beginRun, concededOf, finishRun, MAX_TURNS, MAX_TURN_CHARS } from "@/lib/progress/scene";
+import { alsoDoneOf, beatNow, beginRun, concededOf, finishRun, MAX_TURNS, MAX_TURN_CHARS, spokenOf } from "@/lib/progress/scene";
+import { chatOffered, chatPersona, planChat } from "@/lib/progress/chat";
+import { wouldAuthorise } from "@/lib/usage/ledger";
+import { chatDay } from "@/lib/progress/chatDay";
+import { CHAT_ID } from "@/lib/scenes/specs/chat";
 import { sceneProviders } from "@/lib/tutor/provider";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { formName } from "@/lib/estonian/morph";
@@ -65,6 +69,9 @@ import {
 import { isEmailKind } from "@/lib/email/letter";
 import { switchOff, switchOn } from "@/lib/email/prefs";
 import { changeEmailPrefs } from "@/lib/progress/emailPrefs";
+import { deviceKnown, forgetDevice, rememberDevice } from "@/lib/progress/push";
+import { pushConfigured } from "@/lib/push/config";
+import { readEndpoint, readSubscription } from "@/lib/push/subscription";
 import { parseReminderTime } from "@/lib/time/reminder";
 import { letterBarFrom, type LetterBar } from "@/lib/ux/letterBar";
 import { wordGlossFrom, type WordGloss } from "@/lib/ux/wordGloss";
@@ -72,6 +79,7 @@ import { caseGlossFrom } from "@/lib/estonian/caseGloss";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
 import { hearingFrom, hidesWords, supportFrom } from "@/lib/audio/conditions";
 import { sceneVoiceFrom } from "@/lib/audio/sceneVoice";
+import { sceneAnswerFrom } from "@/lib/ux/sceneAnswer";
 import { SPEECH_PACES } from "@/lib/audio/pace";
 import { kindFrom } from "@/lib/ux/schedule";
 import { participationValue } from "@/lib/research/participation";
@@ -115,6 +123,7 @@ import { MAX_STARTER_UNITS } from "@/lib/collections/starter";
 
 import { applyGradeBatch, type ReplayItem } from "@/lib/srs/replay";
 import { matchGrades } from "@/lib/srs/matchGrades";
+import { numberGrades } from "@/lib/srs/numberGrades";
 import { workbookGrades } from "@/lib/srs/workbookGrades";
 import { MAX_PASSAGE_CHARS, buildPassageCloze, type KnownForm } from "@/lib/estonian/passage";
 import { DEFAULT_DAYS_PER_WEEK, normaliseGoals } from "@/lib/assessment/goals";
@@ -509,13 +518,20 @@ export async function gradeCard(
    * primary key in a table nothing ever repairs.
    */
   reviewId?: string,
+  /**
+   * The answer was said aloud and marked on what was heard (docs/41-fifth-batch.md
+   * D4). It changes nothing about the grade, which the caller decided by the
+   * same marker a typed answer meets; it is what the reading on Progress and
+   * `npm run report:speech` read. Only `true` is written as spoken.
+   */
+  spoken?: boolean,
 ) {
   cardId = text(cardId);
   const ownerId = await requireUserId();
   if (reviewId !== undefined && !isClientReviewId(reviewId)) {
     return { ok: false as const, error: "That answer didn't come through properly, so it wasn't saved." };
   }
-  return gradeFor(ownerId, cardId, rating, durationMs, { reviewedAt, practisedSlot, reachedSlot, reviewId });
+  return gradeFor(ownerId, cardId, rating, durationMs, { reviewedAt, practisedSlot, reachedSlot, reviewId, spoken: spoken === true });
 }
 
 /**
@@ -528,9 +544,9 @@ export async function gradeCard(
  */
 async function gradeFor(
   ownerId: string, cardId: string, rating: RatingValue, durationMs: number,
-  options: { reviewedAt?: string; practisedSlot?: string; reachedSlot?: string; reviewId?: string } = {},
+  options: { reviewedAt?: string; practisedSlot?: string; reachedSlot?: string; reviewId?: string; spoken?: boolean } = {},
 ) {
-  const { reviewedAt, practisedSlot, reachedSlot, reviewId } = options;
+  const { reviewedAt, practisedSlot, reachedSlot, reviewId, spoken } = options;
 
   if (reviewId !== undefined && !isClientReviewId(reviewId)) {
     return { ok: false as const, error: "That answer didn't come through properly, so it wasn't saved." };
@@ -567,6 +583,7 @@ async function gradeFor(
     practisedSlot,
     reachedSlot,
     reviewId,
+    spoken,
   });
 
   revalidatePath("/");
@@ -590,7 +607,7 @@ async function gradeFor(
  */
 async function gradeOnce(
   ownerId: string, cardId: string, rating: RatingValue, reviewId: string,
-  slots: { practisedSlot?: string; reachedSlot?: string } = {},
+  slots: { practisedSlot?: string; reachedSlot?: string; spoken?: boolean } = {},
 ) {
   /*
     Asked first rather than only caught, so the answer does not depend on how
@@ -1410,6 +1427,33 @@ export async function recordMatchGrades(grades: unknown) {
   return { ok: true as const, graded: result.settled.length };
 }
 
+/** The most number words one numbers round can grade: ten items, a few words each, with room. */
+const MAX_NUMBER_WORDS = 48;
+
+/**
+ * Records a finished numbers round in the review log, one write for the round
+ * (docs/41-fifth-batch.md, VB-7).
+ *
+ * The shape `recordMatchGrades` takes. Every row is the PRODUCTION card of a
+ * number word the learner said or typed in a right answer, Good and only Good
+ * (`numberGrades`): a wrong answer and an answer in digits write nothing, so
+ * the machine never grades a spoken number down (D4). Ids are minted on the
+ * client, so a round sent twice settles rather than counting twice, and one
+ * that does not land goes to the outbox with them.
+ */
+export async function recordNumberGrades(grades: unknown) {
+  const ownerId = await requireUserId();
+
+  const batch = numberGrades(grades, MAX_NUMBER_WORDS, Date.now());
+  if (batch.length === 0) return { ok: false as const, error: "There's nothing to save yet." };
+
+  const result = await applyGradeBatch(ownerId, batch);
+  if (!result.ok) return { ok: false as const, error: result.error ?? "We couldn't save that round." };
+  revalidatePath("/");
+  revalidatePath("/words");
+  return { ok: true as const, graded: result.settled.length };
+}
+
 /** The most lines one workbook page can hand in: two exercises and their examples, with room. */
 const MAX_WORKBOOK_LINES = 32;
 
@@ -1701,6 +1745,59 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
 }
 
 /**
+ * Starts tonight's chat (docs/41-fifth-batch.md, VB-11).
+ *
+ * `beginScene`'s shape, with the three things a chat decides differently, and
+ * every one of them decided here rather than taken from the caller. WHICH
+ * EVENING: the one this learner finished today (`chatDay`), never a day id off
+ * the wire, which could name an evening whose words nobody has met. WHETHER
+ * AT ALL: only on a deployment whose scene chain has a model on it and with
+ * `PAID_OFF=scenes` not set (`chatOffered`), since the bank cannot hold lines
+ * for words nobody knew in advance, so a keyless deployment is refused here as
+ * well as never shown the button. WHO: always the same persona for this
+ * learner (`chatPersona`), so the neighbour who remembers you is one person.
+ *
+ * The band is the learner's, or the one they chose on the briefing, checked
+ * against the closed list as `beginScene` checks it.
+ */
+export async function beginChat(level?: unknown) {
+  const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "beginScene");
+  if (busy) return await sayRefusal(ownerId, busy);
+
+  if (!chatOffered()) return { ok: false as const, error: "Tonight's chat needs a model, and this app has none set up." };
+  if (!(await wouldAuthorise(ownerId, "SCENE"))) {
+    return {
+      ok: false as const,
+      error: "That's all the help from Anu and the other AI features for today. They're back at midnight UTC, and your cards, the dictionary and everything else work as normal until then.",
+    };
+  }
+  const pitched = level === undefined ? await courseLevelFor(ownerId) : text(level);
+  if (!(LEVELS as readonly string[]).includes(pitched)) return { ok: false as const, error: "Pick a level from the list." };
+
+  const evening = await chatDay(ownerId);
+  const plan = evening ? await planChat(ownerId, evening.programme, evening.day) : null;
+  if (!plan) return { ok: false as const, error: "There's no chat to have tonight. It comes after an evening with new words." };
+
+  const opened = await beginRun({
+    ownerId,
+    sceneId: CHAT_ID,
+    level: pitched,
+    difficulty: "textbook",
+    lines: "composed",
+    chat: { plan, persona: chatPersona(ownerId) },
+  });
+  if (!opened) return { ok: false as const, error: "We couldn't set up that conversation. Try again in a moment." };
+  return {
+    ok: true as const,
+    runId: opened.runId,
+    briefing: opened.briefing,
+    plays: opened.plays,
+    composed: true,
+  };
+}
+
+/**
  * One word the current beat is about, for the "I need a word" button.
  *
  * A LEARNER WHO ASKS IS NOT PENALIZED, and this is where that is paid for: the
@@ -1731,11 +1828,14 @@ export async function sceneHelp(runId: unknown, turns: unknown) {
   const said = Array.isArray(turns)
     ? turns.slice(0, MAX_TURNS).map((one) => {
         const row = (one ?? {}) as Record<string, unknown>;
+        const said = clip(text(row.said), MAX_TURN_CHARS);
+        const spoken = spokenOf(row.spoken, said);
         return {
           beatId: text(row.beatId).slice(0, 64),
-          said: clip(text(row.said), MAX_TURN_CHARS),
+          said,
           helped: row.helped === true,
           ...(row.picked === true ? { picked: true } : {}),
+          ...(spoken ? { spoken } : {}),
           heard: clip(text(row.heard), MAX_TURN_CHARS),
           conceded: concededOf(row.conceded),
           alsoDone: alsoDoneOf(row.alsoDone),
@@ -1752,8 +1852,13 @@ export async function sceneHelp(runId: unknown, turns: unknown) {
     debrief offers exactly one to keep.
   */
   const typed = said.map((one) => one.said.toLowerCase()).join(" ");
-  const fresh = beat.topic.filter((lemma: string) => !typed.includes(lemma.toLowerCase()));
-  const wanted = (fresh.length > 0 ? fresh : beat.topic).slice(0, 12);
+  /*
+    A beat of tonight's chat has no topic of its own: it is there for one of
+    tonight's words, and that word is the one a stuck learner is handed.
+  */
+  const topic = beat.elicits ? [beat.elicits] : beat.topic;
+  const fresh = topic.filter((lemma: string) => !typed.includes(lemma.toLowerCase()));
+  const wanted = (fresh.length > 0 ? fresh : topic).slice(0, 12);
   if (wanted.length === 0) return { ok: false as const, error: "There's no word to hand you here." };
 
   /*
@@ -1819,11 +1924,14 @@ export async function finishScene(input: {
   const turns = Array.isArray(input.turns)
     ? input.turns.slice(0, MAX_TURNS).map((turn) => {
         const row = (turn ?? {}) as Record<string, unknown>;
+        const said = clip(text(row.said), MAX_TURN_CHARS);
+        const spoken = spokenOf(row.spoken, said);
         return {
           beatId: text(row.beatId).slice(0, 64),
-          said: clip(text(row.said), MAX_TURN_CHARS),
+          said,
           helped: row.helped === true,
           ...(row.picked === true ? { picked: true } : {}),
+          ...(spoken ? { spoken } : {}),
           heard: clip(text(row.heard), MAX_TURN_CHARS),
           conceded: concededOf(row.conceded),
           alsoDone: alsoDoneOf(row.alsoDone),
@@ -1884,12 +1992,18 @@ export async function finishScene(input: {
       is graded once. `finishRun` closes a run once and a second finish gets
       nothing to grade; the id is the second lock on the same door.
     */
+    /*
+      A turn said aloud writes its row as spoken, so `npm run report:speech`
+      counts a conversation's spoken recalls beside the cards'. A requirement
+      met by a word the dictionary repaired never reaches here (D13).
+    */
     const result = await gradeOnce(
       ownerId, cardId, grade.rating as RatingValue,
       stableReviewId("scene", ownerId, finished.runId, String(index)),
       {
         ...(grade.grammCase ? { practisedSlot: grade.grammCase } : {}),
         ...(grade.reachedCase ? { reachedSlot: grade.reachedCase } : {}),
+        ...(grade.spoken ? { spoken: true } : {}),
       },
     );
     if (result.ok && !result.repeat) graded += 1;
@@ -2124,6 +2238,29 @@ export async function setUiLocale(value: string) {
   return { ok: true as const, value: normalised };
 }
 
+/**
+ * The two choices about speaking (docs/41-fifth-batch.md, VB-2): whether a
+ * line the microphone matched is sent without the countdown ring, and whether
+ * the microphone appears in answer boxes once the model is on the device.
+ * Each is stored as "on" or "off" and nothing else, whatever arrives, and the
+ * layout is revalidated because the shell publishes both.
+ */
+export async function setSpeechSendAtOnce(value: string) {
+  const ownerId = await requireUserId();
+  const normalised = value === "on" ? "on" : "off";
+  await writeSetting(ownerId, SETTING_KEYS.speechSendAtOnce, normalised);
+  revalidatePath("/", "layout");
+  return { ok: true as const, value: normalised };
+}
+
+export async function setSpeechInBoxes(value: string) {
+  const ownerId = await requireUserId();
+  const normalised = value === "off" ? "off" : "on";
+  await writeSetting(ownerId, SETTING_KEYS.speechInBoxes, normalised);
+  revalidatePath("/", "layout");
+  return { ok: true as const, value: normalised };
+}
+
 export async function setWordGloss(value: WordGloss) {
   const ownerId = await requireUserId();
   const normalised = wordGlossFrom(value);
@@ -2249,6 +2386,20 @@ export async function setSceneVoice(value: unknown) {
   return { ok: true as const, value: normalised };
 }
 
+/**
+ * How the learner answers in a conversation, picked on the switch above the
+ * box and remembered for the next one (lib/ux/sceneAnswer.ts). Normalized on
+ * the way in, and not revalidated: the conversation the switch was pressed in
+ * is already under way, and the next one reads it when its page renders.
+ */
+export async function setSceneAnswer(value: unknown) {
+  const ownerId = await requireUserId();
+  const normalised = sceneAnswerFrom(value);
+  if (!normalised) return { ok: false as const };
+  await writeSetting(ownerId, SETTING_KEYS.sceneAnswer, normalised);
+  return { ok: true as const, value: normalised };
+}
+
 export async function setHearing(value: string) {
   const ownerId = await requireUserId();
   const normalised = hearingFrom(value);
@@ -2335,6 +2486,61 @@ export async function setReminderHour(input: { at: string }) {
   await writeSetting(ownerId, SETTING_KEYS.reminderAt, at);
   revalidatePath("/settings");
   return { ok: true as const, at };
+}
+
+/**
+ * Remind this learner on the browser that just said yes (VB-10).
+ *
+ * Reached only from the press in Settings, after the browser's own permission
+ * prompt has answered: nothing calls this on arrival. What arrives is the
+ * browser's `PushSubscription.toJSON()`, off the wire like every argument here,
+ * so it is read by `readSubscription` rather than trusted: an address this
+ * server will later post to has to be https on a push service one of the four
+ * browser makers runs, and the keys have to be keys. Throttled, because the
+ * row it writes is a request the scheduled run makes on the learner's behalf.
+ *
+ * It does not revalidate Settings, which is the suggestion queue's lesson: the
+ * panel that pressed it says what happened, and a re-render would replace it.
+ */
+export async function rememberPushDevice(subscription: unknown) {
+  const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "rememberPushDevice");
+  if (busy) return await sayRefusal(ownerId, busy);
+  if (!pushConfigured()) {
+    return { ok: false as const, error: "This copy of Kodukeel isn't set up to send notifications." };
+  }
+  const device = readSubscription(subscription);
+  if (!device) {
+    return { ok: false as const, error: "This browser sent something we can't use for reminders, so nothing has changed." };
+  }
+  await rememberDevice(ownerId, device);
+  return { ok: true as const };
+}
+
+/**
+ * Stop reminding this learner on one browser. Only ever their own: the row is
+ * matched on the owner as well as the address, so naming somebody else's
+ * address deletes nothing.
+ */
+export async function forgetPushDevice(endpoint: unknown) {
+  const ownerId = await requireUserId();
+  const address = readEndpoint(endpoint);
+  if (address) await forgetDevice(ownerId, address);
+  return { ok: true as const };
+}
+
+/**
+ * Whether this learner is reminded on the browser with this address.
+ *
+ * Asked by the Settings panel when it opens, because the browser keeping a
+ * subscription and this server keeping the row are two facts: a learner told
+ * "on" where the server has nothing would wait for reminders that never come.
+ * A read, and the cheapest one there is, so it carries no throttle.
+ */
+export async function pushDeviceStatus(endpoint: unknown) {
+  const ownerId = await requireUserId();
+  const address = readEndpoint(endpoint);
+  return { ok: true as const, known: address ? await deviceKnown(ownerId, address) : false };
 }
 
 /**
@@ -3466,6 +3672,48 @@ export async function readEstonian(textIn: unknown) {
 /** Distinct words reading mode asks the dictionary about; a 4,000 character text holds fewer. */
 const READING_WORD_BUDGET = 900;
 
+/** The most lines a recording's transcript arrives in: three minutes cut at its pauses is far fewer. */
+const MAX_HEARD_LINES = 200;
+
+/**
+ * WHAT A RECORDING WAS HEARD AS, WITH THE DICTIONARY UNDER IT (docs/41-fifth-batch.md, VB-12).
+ *
+ * The sound never comes here: a voice message is decoded and heard on the
+ * learner's device, and what arrives is its text, one line per piece the
+ * engine cut it into (D16). Each line is glossed exactly as a pasted sentence
+ * is, through the one gate, and kept as one line so the screen can play it
+ * back from the recording. And each word is asked of the forms list, which is
+ * half of the rule that marks the words the machine was least sure of: one
+ * request for the transcript rather than one per line. Nothing is stored and no
+ * model is asked; the lines go back to the screen that sent them.
+ */
+export async function readHeard(linesIn: unknown) {
+  const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "readText");
+  if (busy) return await sayRefusal(ownerId, busy);
+  const lines: string[] = [];
+  let used = 0;
+  for (const raw of Array.isArray(linesIn) ? linesIn.slice(0, MAX_HEARD_LINES) : []) {
+    const line = visibleLine(raw, MAX_READING_CHARS);
+    if (!line) continue;
+    used += line.length + 2;
+    if (used > MAX_READING_CHARS) break;
+    lines.push(line);
+  }
+  if (lines.length === 0) return { ok: false as const, error: "Nothing was heard in that recording." };
+  const glossed = await glossSentences(lines.map((et) => ({ et, form: null })), READING_WORD_BUDGET);
+  const words = [...new Set(lines.flatMap((line) => line.split(/\s+/))
+    .map((word) => word.normalize("NFC").toLocaleLowerCase("et").replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, ""))
+    .filter((word) => word.length > 0 && word.length <= 40))].slice(0, READING_WORD_BUDGET);
+  const held = await Promise.all(words.map(async (word) => [word, await isExactForm(word)] as const));
+  return {
+    ok: true as const,
+    lines: lines.map((sentence, i) => ({ sentence, tokens: glossed[i] ?? [] })),
+    asked: words,
+    known: held.filter(([, yes]) => yes).map(([word]) => word),
+  };
+}
+
 export async function buildClozeFromText(passageIn: string) {
   const ownerId = await requireUserId();
   const raw = text(passageIn);
@@ -3594,6 +3842,9 @@ export async function deleteMyAccount(confirmation: string) {
         next line, so no setting outlives the account.
       */
       await tx.emailSend.deleteMany({ where: { ownerId } });
+      // Every browser they asked to be reminded on, so nothing is pushed to
+      // a person who is no longer here.
+      await tx.pushSubscription.deleteMany({ where: { ownerId } });
       await tx.setting.deleteMany({ where: { ownerId } });
       forgetSettings(ownerId);
       await tx.usageEvent.deleteMany({ where: { ownerId } });

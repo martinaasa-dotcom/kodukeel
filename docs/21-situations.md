@@ -5507,3 +5507,157 @@ The operator read §83 and overruled the gate: every situation is to be excellen
 The route sends the picks for the beat in front with every turn. The screen offers them behind a Pick a line / Type it switch, picking by default at A1 and typing everywhere else. A picked line is read by the same marker as a typed one, so the conversation goes on the same way, and it grades nothing (`SentTurn.picked`): choosing the right sentence out of three is recognition, and the review log may not record a recall that never happened.
 
 What the templates cannot say yet: a country in the seestütlev where the dictionary builds `Saksamaast` for `Saksamaalt` (`uus-kolleeg`, `keeletund` say "Minu kodumaa on {from}" instead), and a plural a singular slot cannot give (`toovestlus`'s skill line). Both are noted beside the pick.
+
+## 85. The reply decides in a written order
+
+The scene reply is a long chain of special cases, and the order of the chain is part of what it says.
+A case placed above another one wins the turn, so a new case can quietly shadow an old one, and
+nothing in a diff shows it. The review of the fourth batch named this as its main finding, and the
+fifth batch adds spoken turns and a chat on top of the reply (D26 in `docs/41-fifth-batch.md`). So the
+order is written down here first, one row per decision, and an invariant holds the code to it.
+
+**From now on a change to the reply names the row it touches.** A pull request that adds a case adds
+its row in the place the code puts it, and says in its body which row it sits under and which rows it
+could now shadow. A change that moves a case moves its row. The table is the review surface: reading
+it top to bottom is reading what the other side says, in the order it is decided.
+
+A turn passes through three functions, and the table follows it. `readTurn` (`lib/scenes/turn.ts`)
+reads the turn and hands the reply a reading. `asideFor` (`lib/scenes/aside.ts`) works out what the
+other side can say to a question the scene did not anticipate. `replyFor` (`lib/scenes/reply.ts`)
+then builds the reply: a reaction, a correction, the aside, the move, and three passes that tidy what
+was built. The first two run before any line is composed, so their last column says so.
+
+**The last column says what happens when a model wrote this turn's line.** A composed line was
+written with the turn in front of it, so most keyless reactions stand down where one arrives (§70).
+"Is the line" marks the arm that says it. "Stands down" marks an arm a composed line keeps from
+speaking. "Stays" marks an arm that speaks either way.
+
+**How the code carries the table.** Every decision carries a comment, `// reply-row: <id>`, on the
+line above it or at the end of its own line. `scripts/invariants/the-reply-decides-in-order.ts` finds
+every `if`, `else if` and bare `else` in the three functions whose arm returns, pushes onto the reply,
+or is a deliberate empty block. It fails where such an arm has no marker, where a marker names no row,
+where a row has no marker, or where the markers and the rows run in different orders. A row may also
+mark a statement that is not an arm, such as a function's last `return`, so the fall-through has a
+name. A ternary inside an arm belongs to that arm's row.
+
+| Row | Reads | Says | With a composed line |
+| --- | --- | --- | --- |
+| `read-empty` | A turn with no letters in it | Nothing yet; the row below decides, else `offtarget` for digits and `unrecognised` for the rest | Runs before |
+| `read-empty-met` | No letters, and the beat's value was met (a clock time) | The reading `complete` | Runs before |
+| `read-greeting` | A greet beat, and anything the app can account for that is not a cry for help | `complete`, graded nothing | Runs before |
+| `read-casual-bye` | A close beat, and a short casual goodbye (`tsau`, `ciao`) | `complete`, as a substitution | Runs before |
+| `read-casual-yes` | A beat that takes agreement, a short casual yes, and no negator | `complete`, as a substitution | Runs before |
+| `read-hold` | A turn asking for a moment (`oota`, `ma mõtlen`) | `fragment`, holding | Runs before |
+| `read-echo` | The other side's own line handed back, on a beat that is not a greeting or a goodbye | `echo` | Runs before |
+| `read-declined` | A beat with a counter, and a no or "too little" that accepts nothing | `declined` | Runs before |
+| `read-lost` | A course phrase for not following, where nothing else was met | `lost` | Runs before |
+| `read-fragment` | A sentence beat, a vouched word, and no sentence | `fragment` | Runs before |
+| `read-complete` | Every requirement met | `complete` | Runs before |
+| `read-english` | A turn the app reads as English | `english` | Runs before |
+| `read-incomplete` | Some requirements met | `incomplete` | Runs before |
+| `read-missed` | Nothing met | `offtarget` where a word was caught, `unrecognised` where none was | Runs before |
+| `aside-none` | No question in the turn | No aside | Not called |
+| `aside-wanted` | The beat asked the learner for this question, and the turn did not miss | Nothing yet; the rows below decide | Not called |
+| `aside-says-fact` | The beat says a fact off the card | Nothing yet; the row below decides | Not called |
+| `aside-fact` | That fact could be built | The price off the card, or the beat's own line off the card | Not called |
+| `aside-ahead-fact` | The next move answers it and says a fact off the card | That fact, now | Not called |
+| `aside-banked` | A banked answer about this question | The banked answer | Not called |
+| `aside-answered-next` | The next move answers it | No aside | Not called |
+| `aside-early` | A beat further on answers the question | That beat's answer, now | Not called |
+| `aside-how-are-you` | "How are you", asked about them | `Hästi, aitäh.` | Not called |
+| `aside-and-you` | A short "fine, and you?" | `Hästi, aitäh.` | Not called |
+| `aside-price-asked` | The question asks the price | Nothing yet; the row below decides | Not called |
+| `aside-price` | The card holds a price | The price, with a yes or a no where they named a figure | Not called |
+| `aside-when-asked` | The question asks when | Nothing yet; the row below decides | Not called |
+| `aside-when` | The card holds a day or a time | The day and the time off the card | Not called |
+| `aside-check-same` | A check of the line just said, and it matched | `Jah.` | Not called |
+| `aside-check-differs` | A check of the line just said, and it did not match | The line said again | Not called |
+| `aside-more-asked` | A place question, or "sorry, what?", after directions, an offer or a refusal | Nothing yet; the row below decides | Not called |
+| `aside-more` | The bank holds another line for that beat | That line | Not called |
+| `aside-nothing` | Nothing above answered | No aside; the route may ask a model, then shrug | Not called |
+| `wait` | The response `wait` | Every arm below returns | Its second arm is the line |
+| `wait-holding` | They asked for a moment | `Hästi.`, or `Jah.` the second time | Stays: the route builds no line for it |
+| `wait-composed` | A composed line | The composed line alone | Is the line |
+| `wait-landed` | The turn met a beat elsewhere | `Selge.` and the line | Stands down |
+| `wait-wanting` | A bare yes to a question that named an indefinite | The paired question word (`Mida?`) | Stands down |
+| `wait-look` | Anything else | Their word back with a question mark, `Selge.` to a yes, or `Jah?` | Stands down |
+| `again-asked` | They asked to hear it again or slower, on a miss | The last line again, alone | Stands down |
+| `help` | The response `help` (they said they are lost) | Every path below returns | Stays |
+| `help-offer-first` | A word to offer, at an offer beat | The question again, then the word | Stands down |
+| `help-offer` | A word to offer | The word, as a question | Stands down |
+| `help-composed` | A composed line | The composed line | Is the line |
+| `help-again` | A line to say again that is not the word itself | Another banked way of asking, or the line again | Stands down |
+| `help-stage` | No line to say again | The beat's stage direction | Stands down |
+| `repair` | The response `repeat`, read `unrecognised` or `echo` | `Ma ei saa aru.` | Stands down |
+| `heard-landed` | A miss that met a beat elsewhere, read `complete`, not a question | `Selge.`, joined to the next question | Stands down |
+| `offtarget` | A miss read `offtarget`, that met nothing elsewhere, with no aside | Nothing yet; the rows below decide | Stands down |
+| `offtarget-yes-no` | A yes or a no to their own yes-or-no question | The beat's feeling, or `Selge.`, and nothing after | Stands down |
+| `offtarget-heard` | No question in the turn | `Selge.`, joined to the next question | Stands down |
+| `offtarget-permission` | A "may I?" | `Jah.` | Stands down |
+| `offtarget-later` | A question a later beat answers | `Hiljem.` | Stands down |
+| `ack` | A turn that landed, with no aside or with a recast, not answering a greeting, and not a question the beat wanted | Nothing yet; the rows below decide | Stays |
+| `ack-echo` | A short answer, a recast, or a word reached for in English | Their word back, or the dictionary's form of it | Stands down |
+| `ack-misheard` | The answer to a mishearing curveball | `Vabandust!` | Stands down |
+| `ack-acknowledge` | An answer, where the line opens with no reaction and no question is left | Nothing yet; the rows below decide | Stands down |
+| `ack-felt` | The beat says what kind of news its answer is | `Tõesti?`, `Tore!` or `Selge.` | Stands down |
+| `ack-before-refusal` | A curveball about to refuse | Nothing | Stands down |
+| `ack-rotation` | Anything else | `Jah.` to a read-back, or the rotation (`Hästi.`, `Aitäh.`, `Jah.`) | Stands down |
+| `aside` | An aside, not stated again by the curveball or the line | The aside | Stands down, by the caller |
+| `let-go` | The response `moveOn`, no aside | Nothing yet; the rows below decide | Stands down |
+| `let-go-bye-said` | The goodbye was already said on this beat | Nothing | Stands down |
+| `let-go-their-bye` | Their own turn said goodbye | Their goodbye back | Stands down |
+| `let-go-word` | Not a question | `Hästi.` | Stands down |
+| `over` | The scene is over | Every path below returns | Stays |
+| `over-their-goodbye` | They said goodbye and the closing line is not one | Their goodbye takes the closing line's place | Stays |
+| `over-goodbye` | A closing line not yet said | The closing line | Stays |
+| `hurdle` | A curveball stands | Every path below returns | Stays |
+| `hurdle-meanwhile` | A fresh curveball on a beat with a break in time, arriving | The break in time | Stays |
+| `hurdle-composed` | A composed curveball line | That line | Is the line |
+| `hurdle-again` | A miss that wants the line again | The last line again | Stands down |
+| `hurdle-english` | A curveball whose line is English | That English line | Stands down |
+| `hurdle-line` | A curveball line from the bank | That line | Stands down |
+| `hurdle-stage` | No line | The curveball's stage direction | Stands down |
+| `hurdle-then` | A question waiting behind the curveball, not the goodbye | That question | Stands down |
+| `hurdle-translate` | An English turn, and a persona who translates | The stage direction in English | Stays |
+| `meanwhile` | A beat with a break in time, arriving | The break in time | Stays |
+| `close-waits` | The closing beat, and an aside was said | Nothing more; the goodbye waits | Stays |
+| `a-little` | An English turn that asked for English | `Natuke.` | Stands down |
+| `coach` | The nudge turn and a miss, and no choice could be built | Nothing yet; the row below decides | Stands down |
+| `coach-hint` | The app has a hint for the beat | The app's hint, in English | Stands down |
+| `narrowed` | The nudge turn, a miss, and a choice could be built | The choice (`Valu või palavik?`) in the move's place; the passes below still run | Stands down |
+| `move-composed` | A composed line | The composed line | Is the line |
+| `move-recital` | A long line to say again, and a shorter one for the beat | The shorter line | Stands down |
+| `move-another` | The nudge reached, and another banked way of asking | That line | Stands down |
+| `move-again` | A miss | The last line again | Stands down |
+| `move-line` | A line from the ladder | That line | Stands down |
+| `move-again-unanswered` | No line, and something to say again | The last line again | Stands down |
+| `move-stage` | Nothing else | The beat's stage direction | Stands down |
+| `close-once` | The closing beat, a miss, and the last line was a goodbye | Nothing yet; the row below decides | Stays |
+| `close-once-drop` | The move just pushed is a goodbye again | Drops it | Stays |
+| `no-twice` | A reaction and the move are the same text | Drops the reaction | Stays |
+| `join` | A `Selge.` marked to join, before a question | One sentence: `Selge, aga` and the question | Stands down: it never joins onto a composed line |
+| `translate` | An English turn, and a persona who translates | The beat's stage direction in English | Stays |
+
+**What writing the table found.** Three cases where one row shadows another. None was fixed in the
+pull request that wrote the table; all three were fixed in the next one (C-2 in
+`docs/41-fifth-batch.md`), each with a failing test first, and the rows above already say what the
+code does now. What each was, and what was done:
+
+- **`wait-composed` shadows `wait-holding` wherever a model answers.** A learner who writes `oota` is
+  read `fragment` and holding, and `wantsFreshLine` composes on every `wait`. `composeNote` then tells
+  the model to ask for the rest of the answer. So a learner asking for a moment is pressed rather than
+  given it; keyless, they get `Hästi.`. **Fixed by not composing at all**: a holding wait builds no
+  line in `planTurn`, so no call is booked, and `wait-holding` now sits above `wait-composed` so the
+  reply holds to that whatever a caller hands in. Telling the model to give them the moment was the
+  other option and was not taken, because "all right, take your time" is the whole of the reply and
+  there is nothing a model could add to it except the pressing this row exists to stop.
+- **`ack-misheard` stays when a line was composed.** It is the one reaction in the acknowledgment
+  that does not ask whether the line reacted for itself. A composed line answering a corrected
+  mishearing arrives with `Vabandust!` in front of it, against the rule §70 sets. **Fixed**: it
+  stands down where the line was composed. It still skips `ownReaction`, on purpose, because the
+  reason it skipped it was a banked line opening on `Jah`, and that line still gets the apology.
+- **`narrowed` returns before `translate` and the three tidy passes.** On the nudge turn an English
+  turn gets the choice, and a persona who translates does not translate. A `Selge.` pushed before a
+  choice is not joined into one sentence, since `join` never runs. **Fixed**: the choice is the first
+  arm of the move rather than a return, the hint above it stands down where a choice exists (as the
+  return made it), and `close-once`, `no-twice`, `join` and `translate` run over it.

@@ -175,6 +175,7 @@ jobs:
           EMAIL_TOKEN_SECRET: canary-EMAIL_TOKEN_SECRET-must-not-ship
           CRON_SECRET: canary-CRON_SECRET-must-not-ship
           RESEND_WEBHOOK_SECRET: canary-RESEND_WEBHOOK_SECRET-must-not-ship
+          VAPID_PRIVATE_KEY: canary-VAPID_PRIVATE_KEY-must-not-ship
           ERROR_WEBHOOK_URL: https://example.invalid/canary-ERROR_WEBHOOK_URL-must-not-ship
         run: npx next build
       - name: Grep the client bundle
@@ -345,7 +346,12 @@ jobs:
           # minutes on its own and there is no honest way to make it less
           # without measuring less, so it gets a shard with one short suite
           # beside it rather than being hurried.
+          #
+          # Since 2026-10-17 in two halves by width (`CONTAIN_PART`): whole, it
+          # was fifteen and a half minutes and this shard finished at 19.8 of
+          # its twenty. The wider half runs with the rounds.
           - name: text inside its box
+            contain: narrow
             suites: >-
               scripts/test-containment.mjs
               scripts/test-polish.mjs
@@ -372,12 +378,19 @@ jobs:
               scripts/e2e.mjs
               scripts/test-modes.mjs
               scripts/test-teaching.mjs
+              scripts/test-containment-wide.mjs
+
+          # Every route through axe in both themes, eleven minutes on its own,
+          # which beside the rounds took that shard to 19.1 of its twenty.
+          - name: accessibility
+            suites: >-
               scripts/a11y-check.mjs
 
           # The paths that cross a process boundary: a photograph to a card, a
           # paper sat and marked, a report accepted into the shared
           # dictionary, a conversation played through, an evening of the
-          # module walked. Each is a loop no unit test can see the whole of.
+          # module walked, a reminder turned on and shown by the service
+          # worker. Each is a loop no unit test can see the whole of.
           - name: paper, papers and conversations
             suites: >-
               scripts/test-scan.mjs
@@ -387,6 +400,21 @@ jobs:
               scripts/test-suggestions.mjs
               scripts/test-scene.mjs
               scripts/test-module.mjs
+              scripts/test-push.mjs
+
+          # Estonian heard on the device, through Chromium's fake microphone fed
+          # a committed clip: the engine and its bench, the rounds answered
+          # aloud, a conversation played to the end by voice, the Speaking
+          # round, a recording opened on the reading page. Each downloads the
+          # model into a fresh browser, which is minutes rather than seconds,
+          # and beside the paper shard they ran past its twenty-minute ceiling.
+          - name: out loud
+            suites: >-
+              scripts/test-speech.mjs
+              scripts/test-voice-rounds.mjs
+              scripts/test-scene-speech.mjs
+              scripts/test-speaking.mjs
+              scripts/test-recordings.mjs
 
           # The suites that write, in the order they can be run in. The
           # calendar and the deck shelves add rows and take them off again;
@@ -395,6 +423,7 @@ jobs:
           # last, for the reason its own comment gives.
           - name: what writes, and the backup last
             suites: >-
+              scripts/test-chat.mjs
               scripts/test-calendar.mjs
               scripts/test-decks.mjs
               scripts/smoke-interact.mjs
@@ -430,6 +459,18 @@ jobs:
         with: { node-version: "22", cache: npm }
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      # THE SPEECH MODEL, CACHED UNDER WHAT PINS IT (docs/41-fifth-batch.md,
+      # section 3). 71 MB from Hugging Face is not a download a run makes: the
+      # key is the file that holds the revision and the SHA-256 of every file,
+      # so a model update is a cache miss and nothing else is. Fetched before
+      # the build, because `next start` serves only what `public/` held when it
+      # was built, and checked byte for byte by the script either way.
+      - name: The speech model, from the cache
+        uses: actions/cache@v6
+        with:
+          path: public/asr/model
+          key: asr-model-${{ hashFiles('lib/speech/model.ts') }}
+      - run: npm run asr:fetch
       # Next keeps its own build cache here, and five shards each building the
       # same tree is five cold builds without it. Restore only: the `build`
       # job is the one that writes it, so five jobs do not race to save the
@@ -442,6 +483,16 @@ jobs:
           restore-keys: |
             next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
             next-${{ runner.os }}-
+      # REMINDERS ON A COMPUTER ARE ON IN EVERY SHARD (VB-10), so the panel in
+      # Settings and the push recipient on /privacy are swept by every suite
+      # that walks those pages, in both themes and all three languages, rather
+      # than only by the one suite about them. A key pair made for this run
+      # and thrown away with the runner: the public half is inlined by the
+      # build, which is why this comes before it.
+      - name: A key pair for reminders on a computer
+        run: |
+          node -e 'const k = require("web-push").generateVAPIDKeys(); console.log("NEXT_PUBLIC_VAPID_PUBLIC_KEY=" + k.publicKey); console.log("VAPID_PRIVATE_KEY=" + k.privateKey);' >> "$GITHUB_ENV"
+          echo "VAPID_SUBJECT=mailto:ci@example.invalid" >> "$GITHUB_ENV"
       - run: npm run build
       # A shell loop rather than a `wait-on` dependency: this is the only
       # place anything would wait for a port, and it is four lines.
@@ -449,8 +500,13 @@ jobs:
         # A provider key has to be *present* or the scan page correctly offers
         # no camera. It may be nonsense: scripts/test-scan.mjs intercepts the
         # route it would authenticate, so no request ever leaves the runner.
+        #
+        # ASR_BENCH opens /dev/asr on a production build, where the speech
+        # bench draws the microphone in every state it has, so the containment
+        # and accessibility sweeps measure all of them in both themes (VB-2).
         env:
           GROQ_API_KEY: stubbed-by-the-test
+          ASR_BENCH: "1"
         run: |
           npm start &
           for _ in $(seq 1 60); do
@@ -482,6 +538,9 @@ jobs:
       # as a pass. See scripts/lib/checks.mjs. `-e` is the default shell here,
       # so the first suite to fail ends the step and names itself.
       - name: This shard's suites
+        env:
+          # Which half of the containment suite this shard runs, where it runs one.
+          CONTAIN_PART: ${{ matrix.shard.contain }}
         run: |
           for suite in ${{ matrix.shard.suites }}; do
             echo "::group::$suite"

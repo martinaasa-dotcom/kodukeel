@@ -38,6 +38,9 @@ import type { Suggestions } from "@/lib/dict/suggest";
 import type { ReadableHeadline } from "@/lib/dict/headlines";
 import { Headlines } from "@/components/Headlines";
 import { Explain } from "@/components/Explain";
+import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
+import { MicButton } from "@/components/speech/MicButton";
+import { micInAnswerBox } from "@/components/speech/answerBoxMic";
 import { FitText } from "@/components/FitText";
 import { useLocale, useT } from "@/components/Locale";
 import { localiseReadings } from "@/lib/copy/questionReading";
@@ -253,6 +256,18 @@ export function DictionaryClient({
 
   const others = hits.filter((h) => h.id !== openedId);
 
+  /*
+    A WORD YOU HEARD AND CANNOT SPELL (docs/41-fifth-batch.md, VB-9). Once the
+    model is downloaded (D6) the search takes a word said aloud. What was heard
+    goes through the search exactly as typed text: no second path, no reading
+    of its own. Where the spelling was misheard, `soundKey` in the dead end is
+    what offers the entry, which is what it was written for, and the forms
+    list names the headword of an inflected form as it does for a typed one.
+  */
+  const speechConfig = useSpeechConfig();
+  const speech = useSpeech({ endpoint: true, onHeard: (hearing) => { if (hearing.heard.trim()) go(hearing.heard.trim()); } });
+  const searchAloud = micInAnswerBox(speech, speechConfig);
+
   return (
     <div className="flex flex-col gap-6">
       {/*
@@ -293,6 +308,9 @@ export function DictionaryClient({
             <Search size={16} aria-hidden /> <span className="hidden sm:inline">{t("Search")}</span>
           </Button>
         </div>
+        {searchAloud && (
+          <MicButton speech={speech} label={t("Say the word to look it up")} shortcut showPartial={false} />
+        )}
         {!initialQuery && suggestions.words.length > 0 && (
           <div className="flex flex-col gap-2">
             <p id="try-these" className="label-xs" style={{ color: "var(--ink-3)" }}>

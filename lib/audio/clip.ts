@@ -3,7 +3,7 @@ import { CLEAN, type Condition } from "./conditions";
 import { needsMixer, playThrough } from "./mixer";
 import { stretch } from "./stretch";
 import { DEFAULT_PACE, SLOWEST, SLOW_OF_NORMAL, type Pace } from "./pace";
-import { decodeWav, encodeWav16 } from "./wav";
+import { decodeWav, encodeWav16, normaliseLoudness } from "./wav";
 
 /**
  * One clip, fetched once.
@@ -251,18 +251,38 @@ export type PlayOutcome = "played" | "blocked";
 */
 let inFlight = 0;
 let onQuiet: Array<() => void> = [];
+const speakingListeners = new Set<(speaking: boolean) => void>();
 
 function beginSpeech(): () => void {
   inFlight += 1;
+  if (inFlight === 1) for (const listener of speakingListeners) listener(true);
   let ended = false;
   return () => {
     if (ended) return;
     ended = true;
     inFlight -= 1;
     if (inFlight > 0) return;
+    for (const listener of speakingListeners) listener(false);
     const waiting = onQuiet;
     onQuiet = [];
     for (const resume of waiting) resume();
+  };
+}
+
+/**
+ * Whether the app is saying something aloud, and a way to hear when that
+ * changes. The microphone stays closed while it is, so it never listens to the
+ * app's own voice (docs/41-fifth-batch.md, D14): `components/speech/` reads
+ * this, and a call-mode turn opens the microphone when it goes quiet.
+ */
+export function isSpeaking(): boolean {
+  return inFlight > 0;
+}
+
+export function onSpeakingChange(listener: (speaking: boolean) => void): () => void {
+  speakingListeners.add(listener);
+  return () => {
+    speakingListeners.delete(listener);
   };
 }
 
@@ -316,6 +336,139 @@ export async function playClip(
     return "played";
   } catch (error) {
     end();
+    throw error;
+  }
+}
+
+/** A stretch of a recording somebody opened, playing, and the way to stop it. */
+export interface PlayingRecording {
+  stop(): void;
+  /** Settles when the piece has finished, was stopped, or was refused; rejects where it could not play at all. */
+  readonly ended: Promise<PlayOutcome>;
+}
+
+/** Silence written either side of a piece of a recording, so its first sound is not swallowed opening the stream. */
+const RECORDING_LEAD_S = 0.12;
+const RECORDING_TRAIL_S = 0.25;
+/** The fade over each cut edge, so a piece cut out of the middle of a recording does not click. */
+const RECORDING_FADE_S = 0.008;
+
+/**
+ * A PIECE OF A RECORDING THE LEARNER OPENED, PLAYED AT THEIR OWN PACE
+ * (docs/41-fifth-batch.md, VB-12).
+ *
+ * A voice message is somebody talking at a native speed, which is the whole
+ * reason to slow it down, and the slowing is the one every clip in the app
+ * gets: `rateFor` reads the learner's pace and `stretch` spends it on the
+ * vowels and the pauses. So this is `playClip` for samples already in hand:
+ * nothing is fetched, nothing is sent, and the stretched copy lives exactly as
+ * long as the play does. The level is brought to the app's own, because a
+ * message recorded on a phone at arm's length is quieter than anything else
+ * the learner hears here. `asItWas` plays the recording at its own speed.
+ */
+export function playRecording(
+  piece: { readonly samples: Float32Array; readonly rate: number },
+  request: { readonly pace?: Pace; readonly slow?: boolean; readonly asItWas?: boolean },
+): PlayingRecording {
+  const end = beginSpeech();
+  const speed = request.asItWas ? 1 : rateFor({ text: "", pace: request.pace, slow: request.slow });
+  const lead = Math.round(piece.rate * RECORDING_LEAD_S);
+  const trail = Math.round(piece.rate * RECORDING_TRAIL_S);
+  const fade = Math.min(Math.round(piece.rate * RECORDING_FADE_S), Math.floor(piece.samples.length / 2));
+  const padded = new Float32Array(lead + piece.samples.length + trail);
+  padded.set(piece.samples, lead);
+  for (let i = 0; i < fade; i++) {
+    const gain = i / fade;
+    padded[lead + i] = (padded[lead + i] ?? 0) * gain;
+    const back = lead + piece.samples.length - 1 - i;
+    padded[back] = (padded[back] ?? 0) * gain;
+  }
+  let audio: HTMLAudioElement | null = null;
+  let stopped = false;
+  const ended = (async (): Promise<PlayOutcome> => {
+    let url: string | null = null;
+    try {
+      const out = encodeWav16(stretch(normaliseLoudness({ rate: piece.rate, samples: padded }), speed));
+      if (stopped) return "played";
+      url = URL.createObjectURL(new Blob([out.buffer as ArrayBuffer], { type: "audio/wav" }));
+      const element = new Audio(url);
+      audio = element;
+      await new Promise<void>((resolve, reject) => {
+        for (const event of ["ended", "pause"] as const) element.addEventListener(event, () => resolve(), { once: true });
+        element.addEventListener("error", () => reject(new Error("the recording would not play")), { once: true });
+        element.play().catch(reject);
+      });
+      return "played";
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "NotAllowedError") return "blocked";
+      throw error;
+    } finally {
+      if (url) URL.revokeObjectURL(url);
+      end();
+    }
+  })();
+  return {
+    stop() {
+      stopped = true;
+      audio?.pause();
+    },
+    ended,
+  };
+}
+
+/**
+ * WHAT THE RECOGNIZER HEARD, READ BACK IN A NATIVE VOICE, AND KEPT NOWHERE.
+ *
+ * The Speaking round's read-back (docs/41-fifth-batch.md VB-5): `heard`, the
+ * model's own words, non-words and all, said by TartuNLP so a learner hears
+ * what came across. That text is the learner's, so it takes none of the
+ * caches every other clip goes through: the route's shared store is skipped
+ * (`?transient=1`), the service worker passes it by, and the bytes are played
+ * from an object URL that is released the moment the play ends. Never repaired
+ * first: reading the non-word as written is the whole point of it.
+ *
+ * Played at the learner's own pace like every other clip, through the one
+ * stretch, and counted as the app speaking so the microphone waits (D14).
+ */
+export async function playHeard(request: ClipRequest): Promise<PlayOutcome> {
+  const end = beginSpeech();
+  let url: string | null = null;
+  const release = () => {
+    end();
+    if (url) URL.revokeObjectURL(url);
+    url = null;
+  };
+  try {
+    const res = await fetch("/api/tts?transient=1", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ text: request.text, ...(request.voice ? { voice: request.voice } : {}) }),
+    });
+    if (!res.ok) throw new Error(String(res.status));
+    const fetched = await res.blob();
+    const rate = rateFor(request);
+    let blob: Blob = fetched;
+    if (rate !== 1) {
+      try {
+        const out = encodeWav16(stretch(decodeWav(new Uint8Array(await fetched.arrayBuffer())), rate));
+        blob = new Blob([out.buffer as ArrayBuffer], { type: "audio/wav" });
+      } catch {
+        blob = fetched;
+      }
+    }
+    url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    for (const event of ["ended", "pause", "error"] as const) audio.addEventListener(event, release, { once: true });
+    try {
+      await audio.play();
+    } catch (error) {
+      release();
+      if (error instanceof DOMException && error.name === "NotAllowedError") return "blocked";
+      throw error;
+    }
+    return "played";
+  } catch (error) {
+    release();
     throw error;
   }
 }

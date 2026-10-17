@@ -985,6 +985,8 @@ export function composeNote(
     readonly answer?: string | null;
     /** They asked to hear the last line again ("vabandust, mida?"). */
     readonly again?: boolean;
+    /** The word a chat beat hopes they will use (`BeatSpec.elicits`, VB-11). */
+    readonly elicit?: string | null;
   } = {},
 ): string | undefined {
   /*
@@ -1038,6 +1040,22 @@ export function composeNote(
     return "They have just answered something you asked earlier, after you had moved on."
       + " Take it, say briefly that you have it, and then ask again for what you asked them"
       + " last. Never tell them you did not understand: they answered you." + question;
+  }
+  if (reading === "offtarget" && (response === "narrow" || response === "repeat") && extra.elicit) {
+    /*
+      TONIGHT'S CHAT (VB-11): AN ANSWER WITHOUT THE WORD IS STILL AN ANSWER.
+      What a chat beat waits for is a word, not a fact, so a learner who said
+      "jah, kõik korras" answered the neighbour perfectly well and simply did
+      not use it. Read in the one capped critic round, the instruction below
+      had the neighbour asking the same answered question three times; a
+      person asks something else instead, which is also a second chance at
+      the word.
+    */
+    return "What they just said is real Estonian and answers you, but without the word you hoped they"
+      + " would use. React to what they said in one short natural sentence, then ask them something"
+      + " different from your last question, about their own life, whose natural answer uses that word."
+      + " Never ask a question they have already answered, never say the word yourself, and never"
+      + " comment on their Estonian." + question;
   }
   if (reading === "offtarget" && (response === "narrow" || response === "repeat")) {
     /*
@@ -1144,11 +1162,22 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     the fragment met nothing there is no word to say back, and the look is what
     it was.
   */
+  // reply-row: wait
   if (response === "wait") {
-    // A line written for this turn already took the word and asked for the rest.
-    if (line?.provenance === "composed") return [line];
-    // Asked for a moment, they say all right and give it (`asksToWait`).
+    /*
+      Asked for a moment, they say all right and give it (`asksToWait`).
+      Above the composed line, because a line written for this turn was
+      written to ask for the rest of the answer, and somebody who asked for a
+      moment is given it rather than pressed (§85: this row was shadowed by
+      `wait-composed` wherever a model answered). The route builds no line for
+      a holding wait at all; this order holds the reply to it whatever a
+      caller hands in.
+    */
+    // reply-row: wait-holding
     if (input.holding) return [reaction(input.heldBefore ? REACTIONS.waiting[0] : REACTIONS.letGo[0], ".")];
+    // A line written for this turn already took the word and asked for the rest.
+    // reply-row: wait-composed
+    if (line?.provenance === "composed") return [line];
     /*
       AND A WORD THAT ANSWERED ANOTHER QUESTION IS TAKEN, NOT DOUBTED. Asked
       where it hurts, a patient said `Esmaspäevast.`, which answers how long,
@@ -1156,6 +1185,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       them. The turn met a beat elsewhere, so they say they have it and ask
       what they asked again.
     */
+    // reply-row: wait-landed
     if (input.landed && line) return [reaction(REACTIONS.heard[0], "."), line];
     const theirs = input.echo && !/\d/.test(input.echo) && !FLAT_WORDS.has(input.echo)
       ? input.echo
@@ -1175,7 +1205,9 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       it: `Mida?`. Both halves are words the common units teach.
     */
     const wanting = saidWait ? words(heard ?? "").map((word) => ASKED_FOR.get(word)).find(Boolean) : undefined;
+    // reply-row: wait-wanting
     if (wanting) return [reaction(wanting, "?")];
+    // reply-row: wait-look
     return [theirs
       ? { ...reaction(theirs, "?"), provenance: "echo" as const }
       : saidWait ? reaction(REACTIONS.heard[0], ".") : reaction(REACTIONS.waiting[0], "?")];
@@ -1206,6 +1238,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   */
   const composed = line?.provenance === "composed";
   // Asked to say it again or slower, a person says it again, and nothing in front of it.
+  // reply-row: again-asked
   if (input.asksAgain && !input.landed && heard && !composed && !input.hurdle && response === "narrow") {
     return [saidAgain(heard)];
   }
@@ -1234,24 +1267,29 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   const asked = Math.max(input.tries ?? 0, input.answeredTimes ?? 0);
   const otherWay = asked >= NUDGE_AFTER && again === heard ? input.others?.[0] ?? null : null;
 
+  // reply-row: help
   if (response === "help") {
     const word = input.offer;
     const offered = word ? { ...reaction(word, "?"), provenance: "offered" as const } : null;
     // At an offer the offer comes first and then "jah või ei?", since the choice is about it.
+    // reply-row: help-offer-first
     if (offered && !composed && (answered?.move === "offer" || answered?.counter) && again) {
       out.push(otherWay ? { text: otherWay, provenance: "scripted" } : sayAgainLine(), offered);
       return out;
     }
+    // reply-row: help-offer
     if (offered && !composed) out.push(offered);
     /*
       And the question again, unless the word *was* the question: a greeting
       beat's word and its line are the same, and nobody says `Tere!` twice in
       one breath. A composed line hands the word over inside the sentence.
     */
+    // reply-row: help-composed
     if (composed) out.push(line!);
+    // reply-row: help-again
     else if (again && !(offered && beat?.move === "close" ? isFarewell(offered.text, beat) : again === offered?.text)) {
       out.push(otherWay ? { text: otherWay, provenance: "scripted" } : sayAgainLine());
-    } else if (!again && beat) out.push(stage(stageFor(beat, card)));
+    } else if (!again && beat) out.push(stage(stageFor(beat, card))); // reply-row: help-stage
     return out;
   }
 
@@ -1263,6 +1301,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     side's own line handed back, which is not an answer either, and the honest
     reaction to it is the same: they did not get what they asked for.
   */
+  // reply-row: repair
   if (response === "repeat" && (reading === "unrecognised" || reading === "echo") && !composed) {
     // Said as a sentence: the course spells the phrase bare, and a bubble reading `Ma ei saa aru` with no stop reads as cut off.
     out.push({ ...fallbackLine(FALLBACK_PHRASE + ".", line?.withheld ?? []), reaction: true });
@@ -1337,12 +1376,14 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     Monday; that was credited, and the interviewer asked the same thing again
     with no sign of having heard. "Selge, aga" says both.
   */
+  // reply-row: heard-landed
   if ((response === "narrow" || response === "repeat") && input.landed && reading === "complete"
       && !ownReaction(line) && !aside && !/\?\s*$/.test(input.said ?? "")) {
     const heardIt = reaction(REACTIONS.heard[0], ".");
     BUT_NEXT.add(heardIt);
     out.push(heardIt);
   }
+  // reply-row: offtarget
   if ((response === "narrow" || response === "repeat") && reading === "offtarget"
       && !input.landed && !ownReaction(line) && !aside) {
     /*
@@ -1369,6 +1410,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       the question that follows: "Hiljem." to "Kas arst on täna siin?" was a
       promise nothing in the scene keeps.
     */
+    // reply-row: offtarget-yes-no
     if (!askedSomething && answersTheirYesNo(heard, input.said)) {
       /*
         A YES OR A NO TO THEIR OWN YES-OR-NO QUESTION IS AN ANSWER, EVEN WHERE
@@ -1383,11 +1425,13 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       out.push(said);
       return out;
     }
+    // reply-row: offtarget-heard
     if (!askedSomething) {
       const heardIt = reaction(REACTIONS.heard[0], ".");
       BUT_NEXT.add(heardIt);
       out.push(heardIt);
-    } else if (input.permission) out.push(reaction(REACTIONS.waiting[0], "."));
+    } else if (input.permission) out.push(reaction(REACTIONS.waiting[0], ".")); // reply-row: offtarget-permission
+    // reply-row: offtarget-later
     else if (input.askedLater) out.push(reaction(REACTIONS.later[0], "."));
   }
 
@@ -1422,6 +1466,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     What does stand down under an aside is the *generic* acknowledgment, since
     "Ei tea. Hästi." is two reactions contradicting each other.
   */
+  // reply-row: ack
   if ((!aside || input.recast) && response !== "moveOn" && landed && answered && answered.move !== "greet" && !askedThem && beat) {
     /*
       Never a number, which the confirm beat reads back in its own line, and
@@ -1499,12 +1544,13 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       ? input.echo : null;
     const plainEcho = !asking && !speaking && !input.slipped ? whole ?? single : null;
     const echo = !worth ? null : input.recast || input.english ? single ?? input.echo : plainEcho;
+    // reply-row: ack-echo
     if (echo) {
       out.push({
         text: echo.charAt(0).toUpperCase() + echo.slice(1) + ".",
         provenance: input.english ? "offered" : input.recast ? "recast" : "echo", reaction: true,
       });
-    } else if (!aside && input.acknowledges && response === "answer" && answered?.id === "hurdle:misheard") {
+    } else if (!aside && !composed && input.acknowledges && response === "answer" && answered?.id === "hurdle:misheard") { // reply-row: ack-misheard
       /*
         A CORRECTION IS NOT A YES, AND THE GENERIC ROTATION DOES NOT KNOW
         THAT.
@@ -1523,9 +1569,17 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
         "that was not what I meant" (`REACTIONS.missed`), and it is never
         going to collide with a beat's own opener, so it is said outright
         rather than run through `ownReaction`.
+
+        AND NOT IN FRONT OF A LINE A MODEL WROTE (§85, row `ack-misheard`).
+        That line had the correction in front of it when it was written, so
+        it says sorry, or does not, for itself, and a `Vabandust.` bolted on
+        ahead of it is the keyless reaction stacked on a composed one, which
+        §70 rules out for every other acknowledgment. The reason for skipping
+        `ownReaction` was a banked opener, so the guard is the composed line
+        alone, and a banked `Jah, palun?` still gets the apology.
       */
       out.push(reaction(REACTIONS.missed[0], "."));
-    } else if (!aside && input.acknowledges && response === "answer" && !ownReaction(line)
+    } else if (!aside && input.acknowledges && response === "answer" && !ownReaction(line) // reply-row: ack-acknowledge
         // A question nothing answered is not acknowledged "Hästi.", which reads as agreeing to it.
         && !unansweredQuestion) {
       /*
@@ -1545,6 +1599,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       const negated = words(input.said ?? "").some((word) => NOES.has(word));
       const felt = feltAt(answered, response);
       const feeling = negated && felt === "glad" ? "noted" : felt;
+      // reply-row: ack-felt
       if (feeling) {
         const felt = reaction(FEELINGS[feeling].word, FEELINGS[feeling].mark);
         FELT.add(felt);
@@ -1556,7 +1611,9 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
         thanking the patient for a slot that had just gone. A curveball that
         refuses comes straight after the answer it refuses.
       */
+      // reply-row: ack-before-refusal
       else if (input.hurdle?.fresh && input.hurdle.beat.move === "refuse") { /* nothing before the refusal */ }
+      // reply-row: ack-rotation
       else {
         // An instruction or a fact read back correctly is confirmed, "Jah.", never thanked: the doctor said `Aitäh.` to the dose.
         const choices = acknowledgements(heard, input.said);
@@ -1593,6 +1650,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   */
   const statedNext = holds(input.hurdle?.line?.text)
     || (!verdict && aside?.provenance !== "scripted" && holds(line?.text));
+  // reply-row: aside
   if (aside && !statedNext) out.push({ ...aside, reaction: true });
 
   /*
@@ -1604,6 +1662,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     the word is one every scene teaches. The move follows it, so the
     conversation is steered on rather than stopped and annotated.
   */
+  // reply-row: let-go
   if (response === "moveOn" && !aside && !composed) {
     /*
       NOBODY LEAVES A BEAT WITHOUT HAVING BEEN TOLD WHAT IT WANTED.
@@ -1641,7 +1700,9 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       sorry, the neighbour answered "Vabandust!" and walked off (FB-5).
     */
     const theirBye = answered?.move === "close" ? FAREWELLS.find((bye) => plainWord(input.said).includes(plainWord(bye))) : undefined;
+    // reply-row: let-go-bye-said
     if (byeSaid) { /* the goodbye already said stands */ }
+    // reply-row: let-go-their-bye
     else if (theirBye) out.push({ text: theirBye, provenance: "attested" });
     /*
       AND NOT THE BARE WORD ON THE WAY PAST. `Pea?` said to somebody who had
@@ -1654,6 +1715,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       only says it is moving on.
     */
     // Not to a question: "Hästi." said to "kas te olete laupäeval avatud?" reads as a yes nobody gave.
+    // reply-row: let-go-word
     else if (!unansweredQuestion) out.push(reaction(REACTIONS.letGo[0], "."));
   }
 
@@ -1677,6 +1739,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     it as two different lines, and the keyless critic read a shop assistant
     saying goodbye twice in a row as somebody hurrying a customer out.
   */
+  // reply-row: over
   if (!beat) {
     const last = out.at(-1)?.text;
     /*
@@ -1688,10 +1751,12 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       instead; it is a phrase every scene teaches, so nothing is written here.
     */
     let closing = line;
+    // reply-row: over-their-goodbye
     if (answered?.move === "close" && closing && !isFarewell(closing.text, answered)) {
       const theirs = FAREWELLS.find((bye) => plainWord(input.said).includes(plainWord(bye)));
       if (theirs) closing = { text: theirs, provenance: "attested" };
     }
+    // reply-row: over-goodbye
     if (answered?.move === "close" && closing && closing.provenance !== "fallback"
         && closing.text.toLowerCase() !== last?.toLowerCase() && !(last !== undefined && isFarewell(last, answered))
         // Nor where the goodbye was already said on the closing beat, a turn or two ago (FB-5).
@@ -1707,6 +1772,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     English where not, and asks nothing else until it is dealt with. Said
     again where the learner did not answer it, like any other move.
   */
+  // reply-row: hurdle
   if (input.hurdle) {
     /*
       THE BREAK IN TIME COMES FIRST. A curveball standing in front of a beat
@@ -1716,14 +1782,20 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       greeting in the middle of an examination. Time passes, then the thing
       goes wrong.
     */
+    // reply-row: hurdle-meanwhile
     if (input.hurdle.fresh && beat.meanwhile && beat !== answered && input.arriving) {
       out.push({ text: stageFor({ ...beat, they: beat.meanwhile }, card), provenance: "meanwhile" });
     }
     // A line composed for this turn wins over the repeat here too, and for its reason.
+    // reply-row: hurdle-composed
     if (input.hurdle.line?.provenance === "composed") out.push(input.hurdle.line);
+    // reply-row: hurdle-again
     else if (sayAgainWanted(response, reading, heard)) out.push(saidAgain(heard!));
+    // reply-row: hurdle-english
     else if (input.hurdle.said) out.push({ text: input.hurdle.said, provenance: "english" });
+    // reply-row: hurdle-line
     else if (input.hurdle.line && input.hurdle.line.provenance !== "fallback") out.push(input.hurdle.line);
+    // reply-row: hurdle-stage
     else out.push(stage(stageFor(input.hurdle.beat, card)));
     const last = out[out.length - 1];
     /*
@@ -1735,10 +1807,12 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       to slow down, and a third time at the end. The goodbye waits until the
       curveball is dealt with, as it waits for a question on the way out.
     */
+    // reply-row: hurdle-then
     if (input.hurdle.then && beat.move !== "close" && last && last.provenance !== "again"
         && last.provenance !== "composed" && last.text !== input.hurdle.then) {
       out.push({ text: input.hurdle.then, provenance: "scripted" });
     }
+    // reply-row: hurdle-translate
     if (response === "english" && (input.translates || input.askedForEnglish)) {
       out.push(stage(stageFor(input.hurdle.beat, card)));
     }
@@ -1758,6 +1832,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     about how the last turn went: a beat reached by a counter-offer or after a
     curveball is still a beat somebody has just walked to.
   */
+  // reply-row: meanwhile
   if (beat.meanwhile && beat !== answered && input.arriving) {
     out.push({ text: stageFor({ ...beat, they: beat.meanwhile }, card), provenance: "meanwhile" });
   }
@@ -1800,6 +1875,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     with the question met this beat, so the scene is over and the branch
     above says it back.
   */
+  // reply-row: close-waits
   if (beat.move === "close" && aside) return out;
 
   /*
@@ -1811,15 +1887,20 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     the honest version of "a little": the helpful persona adds the English
     under it, as before.
   */
+  // reply-row: a-little
   if (response === "english" && input.askedForEnglish && !composed) out.push(reaction(REACTIONS.aLittle[0], "."));
 
+  /*
+    The choice stands in the move's place (row `narrowed`, after the hint),
+    and the passes after the move still run over it. It used to return here,
+    so an English turn on the nudge got the choice and no translation, and a
+    `Selge.` in front of it was never joined to it (§85).
+  */
   const narrowed = input.tries === NUDGE_AFTER && !advancing(response) && !composed ? input.choice : null;
-  if (narrowed) {
-    out.push({ text: narrowed, provenance: "attested", from: CHOICE_WORD });
-    return out;
-  }
-  if (input.tries === NUDGE_AFTER && !advancing(response) && !composed) {
+  // reply-row: coach
+  if (!narrowed && input.tries === NUDGE_AFTER && !advancing(response) && !composed) {
     const hint = coachFor(beat, card, input.metLast ?? []);
+    // reply-row: coach-hint
     if (hint) out.push({ text: hint, provenance: "coach" });
   }
 
@@ -1886,19 +1967,22 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   const recital = sayAgain && again !== null && words(again).length > REPEAT_WORDS
     && line !== null && line.provenance !== "fallback" && line.text !== again
     && words(line.text).length < words(again).length;
-  if (fresh) {
+  // reply-row: narrowed
+  if (narrowed) {
+    out.push({ text: narrowed, provenance: "attested", from: CHOICE_WORD });
+  } else if (fresh) { // reply-row: move-composed
     out.push(fresh);
-  } else if (recital) {
+  } else if (recital) { // reply-row: move-recital
     out.push(line!);
-  } else if (another) {
+  } else if (another) { // reply-row: move-another
     out.push({ text: another, provenance: "scripted" });
-  } else if (sayAgain) {
+  } else if (sayAgain) { // reply-row: move-again
     out.push(sayAgainLine());
-  } else if (line && line.provenance !== "fallback") {
+  } else if (line && line.provenance !== "fallback") { // reply-row: move-line
     out.push(line);
-  } else if (again && response !== "answer" && response !== "moveOn" && response !== "counter") {
+  } else if (again && response !== "answer" && response !== "moveOn" && response !== "counter") { // reply-row: move-again-unanswered
     out.push(sayAgainLine());
-  } else {
+  } else { // reply-row: move-stage
     out.push(stage(stageFor(beat, card), line?.withheld));
   }
 
@@ -1912,8 +1996,10 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     is that nod, and the goodbye already said stands. The learner can still
     thank them, which is what meets the beat.
   */
+  // reply-row: close-once
   if (beat.move === "close" && !advancing(response) && again !== null && isFarewell(again, beat)) {
     const last = out.at(-1);
+    // reply-row: close-once-drop
     if (last && out.length > 1 && isFarewell(last.text, beat)) out.pop();
   }
 
@@ -1927,6 +2013,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   */
   const said = out.at(-1);
   const before = out.at(-2);
+  // reply-row: no-twice
   if (said && before && before.reaction && before.text === said.text) out.splice(out.length - 2, 1);
 
   /*
@@ -1941,6 +2028,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     (`OPENS_LOWER`), since lowering the first letter of a sentence that opens
     on `Tallinna?` would be this module misspelling a place.
   */
+  // reply-row: join
   butAfterHeard(out);
 
   /*
@@ -1948,6 +2036,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     (§8); a brisk one has already repeated it in Estonian above and says no
     more. Never scolded, and the turn has already cost its try.
   */
+  // reply-row: translate
   if (response === "english" && (input.translates || input.askedForEnglish)) {
     out.push(stage(stageFor(beat, card)));
   }

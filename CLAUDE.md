@@ -10439,8 +10439,8 @@ shape that breaks this and it is the natural thing to write, so the invariant re
 - TypeScript `strict` plus `noUncheckedIndexedAccess`. No `any` without a comment justifying it.
 - `lib/assessment/`, `lib/collections/`, `lib/copy/`, `lib/course/`, `lib/curriculum/`,
   `lib/email/`, `lib/estonian/`, `lib/evidence/`, `lib/exam/`, `lib/funding/`, `lib/games/`, `lib/learn/`, `lib/offline/`,
-  `lib/questions/`, `lib/random/`, `lib/readiness/`, `lib/research/`, `lib/review/`, `lib/scan/`, `lib/scenes/`,
-  `lib/security/`, `lib/stats/`, `lib/time/` and `lib/ux/` stay free of React, Next.js and Prisma,
+  `lib/push/`, `lib/questions/`, `lib/random/`, `lib/readiness/`, `lib/research/`, `lib/review/`, `lib/scan/`, `lib/scenes/`,
+  `lib/security/`, `lib/speech/`, `lib/stats/`, `lib/time/` and `lib/ux/` stay free of React, Next.js and Prisma,
   however many imports away: pure functions, unit tested. Anything that
   needs the database lives in `lib/progress/` or a route. Asserted, because it
   had been prose alone and it is not a tidiness rule: the unit suite gates every
@@ -11405,17 +11405,25 @@ column beside several names has to cover the same stretch for all of them. The a
 and the last review are read separately, so a member's evidence tier matches the one their own hub
 shows them and somebody who stopped a year ago is not reported as never having reviewed.
 
-**Never score pronunciation.** Not because none is reachable, which stopped being true, but
-because the reachable one is not good enough and that was measured rather than assumed.
-`scripts/measure-asr.ts` runs `whisper-large-v3` over sentences the dictionary already carries,
-spoken by a native synthetic voice: clean audio, no accent, no noise, which is easier than any
-learner's recording. It comes back at a 14.6% word error rate, and its mistakes land on consonant
-length (`Poiss` as `Pois`), voicing (`abikaasaga` as `abigaasaga`) and word boundaries, which is
-precisely where an Estonian learner is weakest. Showing that transcript would report correct
-pronunciation as an error four times in five. Re-run the script before re-opening the question. It compares recognizers on byte-identical
-audio and refuses to report a rate when the service refused too much of the sample, which it
-learned by once reporting 2% over three surviving sentences and reading as a breakthrough.
-Speaking practice compares a recording with a native rendering and lets the learner judge. (ADR-018.)
+**Hear the words, and never score a sound.** The app now hears Estonian on the device
+(ADR-028, `docs/41-fifth-batch.md`): TalTech's streaming model, 71 MB, runs in a worker in the
+browser through `useSpeech()` and the one `components/speech/MicButton.tsx`, the sound is never
+stored or sent, and what comes back is which *words* were understood. That is what changed. What
+did not is ADR-018's refusal, and it was measured rather than assumed: `scripts/measure-asr.ts` ran
+`whisper-large-v3` over sentences the dictionary carries, spoken by a native synthetic voice, and
+came back at a 14.6% word error rate with its mistakes on consonant length (`Poiss` as `Pois`),
+voicing (`abikaasaga` as `abigaasaga`) and word boundaries, which is precisely where a learner is
+weakest; and the model this app does run writes most words said with an accent as the right word.
+Either is a fair judge of recall and no judge of a sound, so **nothing tells a learner how a word of
+theirs sounded**: "heard" is the verb, and `lib/copy/voice.ts` fails on `mispronounced`, `wrong
+pronunciation` and a sentence judging somebody's accent. Speech **only grades up** (D4, D19):
+`lib/speech/verdict.ts` answers "good" where every word was heard as it is spelled and otherwise puts
+what was understood in the box for the learner to change, so a misheard word costs an edit and never
+a lapse in the append-only log; a word the dictionary repaired earns no grade at all (D13). Every
+microphone works with the microphone denied, and `PAID_OFF=speech` takes every one away without a
+deploy (D15). Re-run `scripts/measure-asr.ts` before claiming anything about sounds; it compares
+recognizers on byte-identical audio and refuses to report a rate when the service refused too much
+of the sample, which it learned by once reporting 2% over three surviving sentences.
 The level check has a speaking section for the same reason it has the other three, and it obeys the
 same rule: it collects the learner's own rating, reports it as theirs, and contributes **nothing**
 to the level. `SCORED_SKILLS` in `lib/assessment/score.ts` names the three that count, and

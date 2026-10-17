@@ -45,3 +45,8 @@ prisma/data/.cache/
 /scene-review.csv
 /translation-review/
 __pycache__/
+
+# The speech runtime is built from the pinned sherpa-onnx package (npm run asr:runtime),
+# and the model is fetched by hash (npm run asr:fetch); neither is committed.
+/public/asr/runtime/
+/public/asr/model/

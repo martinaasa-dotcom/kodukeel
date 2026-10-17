@@ -12,7 +12,8 @@ import {
   AWAY_DAYS, DEADLINE_WEEKS_MAX, DEADLINE_WEEKS_MIN, letterOwed, MAX_PER_WEEK, MIN_GAP_HOURS,
   QUIET_CONVERSATIONS, type Candidate,
 } from "./schedule";
-import { emailPrefsFrom } from "./prefs";
+import { emailPrefsFrom, switchOff } from "./prefs";
+import { PUSH_KINDS } from "@/lib/push/kinds";
 import type { EmailKind } from "./letter";
 
 const NOW = new Date("2026-09-16T18:30:00Z");
@@ -25,6 +26,7 @@ function candidate(over: Partial<Candidate> = {}): Candidate {
     ownerId: "owner-1",
     email: "mari@example.ee",
     undeliverable: false,
+    pushable: false,
     prefs: emailPrefsFrom(null),
     dayKey: "2026-09-16",
     localHour: 19,
@@ -521,5 +523,59 @@ describe("the date they set", () => {
 
   it("gives way to news, which is what the order says", () => {
     expect(letterOwed(facing({ shieldSpent: "2026-09-14", localHour: 9 }), NOW)?.kind).toBe("shield");
+  });
+});
+
+describe("a notification instead of a letter (VB-10)", () => {
+  /*
+    One list of what may reach a learner, whatever the channel. A kind goes as
+    a notification where the learner asked for one and the kind has a short
+    form, and as a letter otherwise, and the decision names one of the two.
+  */
+  it("sends the evening nudge to the browser, and not by email, once they asked", () => {
+    const decision = letterOwed(candidate({ pushable: true }), NOW);
+    expect(decision?.kind).toBe("tonight");
+    expect(decision?.channel).toBe("push");
+  });
+
+  it("keeps sending it by email to somebody who did not", () => {
+    expect(letterOwed(candidate(), NOW)?.channel).toBe("email");
+  });
+
+  it("sends nothing on either channel for a kind switched off", () => {
+    const off = switchOff(emailPrefsFrom(null), ["tonight"]);
+    expect(letterOwed(candidate({ pushable: true, prefs: off }), NOW)).toBeNull();
+    expect(letterOwed(candidate({ pushable: false, prefs: off }), NOW)).toBeNull();
+    // And the mail client's own stop button, which is every kind, stops the notifications too.
+    expect(letterOwed(candidate({ pushable: true, prefs: emailPrefsFrom("all") }), NOW)).toBeNull();
+  });
+
+  it("decides one channel a day: a nudge already booked either way is not sent again", () => {
+    // The booking is one row per kind per day whichever channel it went by, so
+    // the gap reads a pushed nudge exactly as it reads a posted one.
+    const sent = new Map<EmailKind, Date>([["tonight", hoursAgo(1)]]);
+    expect(letterOwed(candidate({ pushable: true, lastSent: sent }), NOW)).toBeNull();
+    expect(letterOwed(candidate({ pushable: false, lastSent: sent }), NOW)).toBeNull();
+  });
+
+  it("reaches somebody with no usable address through the browser they asked on", () => {
+    expect(letterOwed(candidate({ email: null, pushable: true }), NOW)?.channel).toBe("push");
+    expect(letterOwed(candidate({ undeliverable: true, pushable: true }), NOW)?.channel).toBe("push");
+  });
+
+  it("keeps a letter with no short form a letter, and passes it over where there is no address", () => {
+    const welcome = { onboardedAt: hoursAgo(2) };
+    expect(letterOwed(candidate({ ...welcome, pushable: true }), NOW)).toMatchObject({ kind: "welcome", channel: "email" });
+    // No address and no short form: the welcome cannot go, and the nudge below
+    // it goes as a notification rather than nothing going at all.
+    expect(letterOwed(candidate({ ...welcome, pushable: true, email: null }), NOW)).toMatchObject({ kind: "tonight", channel: "push" });
+  });
+
+  it("pushes only the kinds with a short form", () => {
+    const away = candidate({ pushable: true, lastReviewAt: daysAgo(AWAY_DAYS + 1) });
+    expect(letterOwed(away, NOW)).toMatchObject({ kind: "comeback", channel: "email" });
+    const morning = candidate({ pushable: true, localHour: 9, milestoneReached: "A1" });
+    expect(letterOwed(morning, NOW)).toMatchObject({ kind: "milestone", channel: "push" });
+    expect(PUSH_KINDS).toEqual(["tonight", "milestone", "shield", "wordday"]);
   });
 });

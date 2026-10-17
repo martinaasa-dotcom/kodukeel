@@ -1,3 +1,5 @@
+import { ASR_MODEL } from "@/lib/speech/model";
+
 /**
  * The sources this app is built on, as the landing page credits them.
  *
@@ -63,6 +65,20 @@ export const SOURCE_CREDITS: readonly Credit[] = [
     by: "Filosoft",
     gives: "every spelling of every word",
     licence: "LGPL",
+  },
+  {
+    name: "TalTech",
+    href: "https://huggingface.co/TalTechNLP/streaming-zipformer.et-en",
+    by: "Tallinn University of Technology",
+    gives: "the hearing, on your device",
+    licence: ASR_MODEL.licence,
+  },
+  {
+    name: "sherpa-onnx",
+    href: "https://github.com/k2-fsa/sherpa-onnx",
+    by: null,
+    gives: "the engine the hearing runs in",
+    licence: "Apache 2.0",
   },
   {
     name: "TartuNLP",

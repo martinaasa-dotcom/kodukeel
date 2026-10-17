@@ -21,6 +21,9 @@ import { VERDICT_CLASS, verdictOfCredit, type Verdict } from "@/lib/ux/verdict";
 import { useLocale, useT } from "@/components/Locale";
 import { fill, type Locale } from "@/lib/copy/locale";
 import { quoted } from "@/lib/copy/values";
+import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
+import { MicButton } from "@/components/speech/MicButton";
+import { micInAnswerBox } from "@/components/speech/answerBoxMic";
 
 export interface PicturePrompt {
   pictureId: string;
@@ -97,6 +100,33 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
   const done = texts.filter(filled).length;
   const ready = done === SENTENCES_PER_PICTURE;
 
+  /*
+    SAID RATHER THAN TYPED (docs/41-fifth-batch.md, VB-8). Describing a
+    picture is what the oral exam asks, so a sentence can be said: it lands in
+    the box the learner is in, or the next empty one, to be read over and
+    changed like anything typed, and the same marking and the same grader
+    note follow. Nothing here is graded, spoken or typed, and speaking adds no
+    call to the grader. The microphone is drawn once the model is downloaded
+    and kept in answer boxes (D6).
+  */
+  const speechConfig = useSpeechConfig();
+  const focusedBox = useRef(0);
+  const [heardInto, setHeardInto] = useState<number | null>(null);
+  const speech = useSpeech({
+    endpoint: true,
+    onHeard: (hearing) => {
+      const said = hearing.understood.trim();
+      if (!said || marked) return;
+      const into = texts[focusedBox.current]?.trim() ? texts.findIndex((v) => !v.trim()) : focusedBox.current;
+      const box = into >= 0 ? into : focusedBox.current;
+      setTexts((all) => all.map((v, j) => (j === box ? said : v)));
+      setHeardInto(box);
+      focusedBox.current = box;
+      inputs[box]?.current?.focus();
+    },
+  });
+  const micOffered = micInAnswerBox(speech, speechConfig);
+
   async function submit() {
     if (!prompt || busy || !ready) return;
     setBusy(true);
@@ -140,6 +170,8 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
     }
     setMarked(null);
     setTexts(Array.from({ length: SENTENCES_PER_PICTURE }, () => ""));
+    setHeardInto(null);
+    focusedBox.current = 0;
     setError(null);
     setIndex((i) => i + 1);
     // The first box of the next picture, once it has rendered.
@@ -235,9 +267,25 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
             <p className="mt-0.5 text-sm" style={{ color: "var(--ink-3)" }}>{t(prompt.example.en)}</p>
           </div>
 
+          {micOffered && !marked && (
+            <div className="mt-5 flex flex-wrap items-center gap-3" data-describe-mic>
+              <MicButton speech={speech} label={t("Say a sentence")} shortcut />
+              <p className="min-w-0 flex-1 text-sm" style={{ color: "var(--ink-2)" }} role="status">
+                {heardInto !== null
+                  ? fill(t("That went into sentence {n}. Change anything that isn't what you said."), { n: heardInto + 1 })
+                  : t("Say a sentence and it goes into the box you're in, or the next empty one.")}
+              </p>
+            </div>
+          )}
+
           <ol
             className="mt-5 flex flex-col gap-2.5"
             aria-label={t("Your five sentences")}
+            onFocus={(e) => {
+              const target: EventTarget = e.target;
+              const at = inputs.findIndex((ref) => ref.current === target);
+              if (at >= 0) focusedBox.current = at;
+            }}
             onKeyDown={(e) => {
               // Anywhere in the five boxes, as the button under them says.
               if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); void submit(); }

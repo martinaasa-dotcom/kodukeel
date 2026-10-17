@@ -123,7 +123,7 @@ export const ACTIVITIES = {
   },
   speaking: {
     href: "/review/speaking", kind: "drill",
-    why: "Say it out loud, then hear how it should sound. Nobody marks you. This one is just for your own ears.",
+    why: "Say tonight's words out loud: along with a native speaker, back from the recording, then from their meaning. You see which words were heard, and typing works too.",
   },
   write: {
     href: "/review/write", kind: "drill",
@@ -144,6 +144,10 @@ export const ACTIVITIES = {
   workbook: {
     href: "/review/workbook", kind: "drill",
     why: "A page from a course book: real sentences, each with a word in brackets to put into the form it needs. It's where tonight's ending gets used eight times, in eight sentences.",
+  },
+  numbers: {
+    href: "/review/numbers", kind: "drill",
+    why: "Prices, clock times and counts, said out loud. Every counter you'll stand at needs one, and Estonian says half past two as half three.",
   },
   flash: {
     href: "/review/flashcards", kind: "drill",

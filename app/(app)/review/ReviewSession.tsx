@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { useRouter } from "next/navigation";
 import { Check, Compass, Keyboard, MessageCircleQuestion, RotateCcw, Undo2, X, Zap } from "lucide-react";
@@ -28,7 +28,8 @@ import { caseByKey } from "@/lib/estonian/cases";
 import { plainAsk, plainAskLine, sayLineIn } from "@/lib/estonian/plainAsk";
 import { conjugationSlotFromFront, slotLabel } from "@/lib/srs/slots";
 import { BLANK, filledSentence, mentions, primaryAnswer, sizedBlank } from "@/lib/estonian/cloze";
-import { checkAnswer, countsAsRecalled, noteIn, type AnswerCheck } from "@/lib/estonian/answer";
+import { acceptedAnswers, checkAnswer, countsAsRecalled, noteIn, type AnswerCheck } from "@/lib/estonian/answer";
+import { AnswerMic, useSpokenBox } from "@/components/speech/SpokenBox";
 import { NEIGHBOUR_RATING, typedNeighbour } from "@/lib/questions/neighbours";
 import { SameMeaning } from "@/components/round/SameMeaning";
 import { partOfSpeechCue, SAME_SPELLING, sameSpelling, wordName } from "@/lib/copy/values";
@@ -807,6 +808,36 @@ export function ReviewSession({
   const finished = !card;
   const ask = card ? askFor(card, mode, met) : "flip";
 
+  /*
+    ANSWERED ALOUD (docs/41-fifth-batch.md VB-6). A card whose answer is an
+    Estonian form can be said instead of typed, through the microphone beside
+    the box, drawn once the learner has downloaded the model and kept the
+    setting (D6). Heard as spelled, it is marked at once as a right answer said
+    aloud; anything else fills the box and waits for Check, marked by the same
+    `checkAnswer` a typed answer meets (D4). Never on a recognition card, whose
+    answer is English.
+  */
+  const sayable = !!card && ask === "type" && estonianSide(card.cardType, "back");
+  const spokenAnswer = useRef(false);
+  const repairedAnswer = useRef(false);
+  const checkTypedRef = useRef<(said?: string) => void>(() => {});
+  const spokenAccepted = useMemo(
+    () => (card && sayable ? acceptedAnswers(card.back, "et") : []),
+    [card, sayable],
+  );
+  const voiceBox = useSpokenBox({
+    accepted: spokenAccepted,
+    onGood: (text) => { setTyped(text); checkTypedRef.current(text); },
+    onFill: (text) => setTyped(text),
+  });
+  const spokenBox = useRef(voiceBox);
+  spokenBox.current = voiceBox;
+  useEffect(() => {
+    spokenBox.current.reset();
+    spokenAnswer.current = false;
+    repairedAnswer.current = false;
+  }, [card?.id, asking]);
+
   // Remembered so a detour to the dictionary can come back to this card
   // rather than to whatever a fresh queue opens with; cleared once the round
   // actually finishes.
@@ -1125,9 +1156,13 @@ export function ReviewSession({
     try {
     // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
     const reviewId = crypto.randomUUID();
-    try {
+    /* Said aloud and marked on what was heard (D4). A word the dictionary
+       repaired, left in the box as the microphone put it, writes nothing (D13). */
+    const saidAloud = ask === "type" && spokenAnswer.current;
+    const unwritten = saidAloud && repairedAnswer.current;
+    if (!unwritten) try {
       await drainFirst();
-      const result = await gradeCard(card.id, rating, duration, answeredAt, undefined, undefined, reviewId);
+      const result = await gradeCard(card.id, rating, duration, answeredAt, undefined, undefined, reviewId, saidAloud);
       if (!result.ok) throw new Error(result.error);
       scheduled.current.set(card.id, result.scheduling);
     } catch {
@@ -1141,6 +1176,7 @@ export function ReviewSession({
         rating,
         durationMs: duration,
         reviewedAt: Date.parse(answeredAt),
+        ...(saidAloud ? { spoken: true } : {}),
       });
       refreshOutbox();
     }
@@ -1176,7 +1212,7 @@ export function ReviewSession({
     } finally {
       setBusy(false);
     }
-  }, [card, busy, index, refreshOutbox, drainFirst, hints, recordSeen, verdict]);
+  }, [card, busy, index, refreshOutbox, drainFirst, hints, recordSeen, verdict, ask]);
 
   /**
    * Puts the last graded card back.
@@ -1231,10 +1267,13 @@ export function ReviewSession({
     }
   }, [history, busy, queue, forget, refreshOutbox]);
 
-  const checkTyped = useCallback(() => {
+  const checkTyped = useCallback((said?: string) => {
     if (!card || verdict) return;
+    const answer = said ?? typed;
+    spokenAnswer.current = said !== undefined || spokenBox.current.spoken;
+    repairedAnswer.current = spokenAnswer.current && spokenBox.current.carriesRepair(answer);
     const language = card.cardType === "RECOGNITION" ? "en" : "et";
-    const marked = checkAnswer(typed, card.back, language, card.rivals, card.kin);
+    const marked = checkAnswer(answer, card.back, language, card.rivals, card.kin);
     /*
       A SECOND RIGHT WORD IS RIGHT. Asked only where the marker said no, so a
       clean hit, a dropped diacritic and a typo of the card's own word all keep
@@ -1242,7 +1281,7 @@ export function ReviewSession({
       the thing, and has not yet shown the word this card is about.
     */
     const neighbour = marked.verdict === "wrong" && card.contrast
-      ? typedNeighbour(typed, card.contrast.neighbours)
+      ? typedNeighbour(answer, card.contrast.neighbours)
       : null;
     /*
       A LOOK-ALIKE IS A MIX-UP, NAMED. `otsima` typed for `ostma` is a real
@@ -1254,7 +1293,7 @@ export function ReviewSession({
       diacritic, and both are a different word graded as a recall otherwise.
     */
     const mixed = !neighbour && marked.verdict !== "correct" && card.cardType === "PRODUCTION" && card.lemma
-      ? twinTyped(card.lemma, typed)
+      ? twinTyped(card.lemma, answer)
       : null;
     const own = mixed?.group.words.find((w) => w.lemma === card.lemma?.trim().toLocaleLowerCase("et"));
     const result = neighbour
@@ -1280,6 +1319,7 @@ export function ReviewSession({
     // here, matching `needsRetype`'s own reading of `verdict.verdict`.
     if (result.verdict === "correct") producedAt.current = Date.now();
   }, [card, typed, verdict, cheer]);
+  checkTypedRef.current = checkTyped;
 
   /** Whether the card is waiting for the miss to be typed again. */
   const needsRetype = ask === "type" && verdict !== null && verdict.verdict !== "correct" && !retypeOk;
@@ -1896,6 +1936,7 @@ export function ReviewSession({
               {firstTry && (
                 <p className="max-w-sm text-sm" style={{ color: "var(--ink-2)" }}>{t(FIRST_TRY_NOTE)}</p>
               )}
+              {sayable && <AnswerMic box={voiceBox} />}
               <div className="mt-2 w-full max-w-sm text-left">
                 <label htmlFor="answer" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
                   {t("Type the answer")}
@@ -1904,7 +1945,7 @@ export function ReviewSession({
                   id="answer"
                   value={typed}
                   onChange={setTyped}
-                  onEnter={checkTyped}
+                  onEnter={() => checkTyped()}
                   ariaLabel={t("Type your answer")}
                   autoFocus
                   large
@@ -2229,7 +2270,7 @@ export function ReviewSession({
               <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : ask === "type" && !verdict ? (
-            <Button variant="primary" size="lg" className="w-full" onClick={checkTyped}>
+            <Button variant="primary" size="lg" className="w-full" onClick={() => checkTyped()}>
               {t("Check")}
               <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>

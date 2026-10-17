@@ -29,9 +29,15 @@
   that had four hundred people left in it.
 
   IT SENDS NOTHING AT ALL unless the transport, the signing secret and the
-  canonical origin are all configured. That is the state this repository ships
-  in and it is not a fault: a deployment that has not set them up has not asked
-  for this feature.
+  canonical origin are all configured, or the keys that sign a notification
+  are. That is the state this repository ships in and it is not a fault: a
+  deployment that has not set them up has not asked for this feature.
+
+  TWO CHANNELS, ONE DECISION (VB-10). A learner who asked to be reminded on a
+  computer gets the short form of the kinds that have one as a notification,
+  instead of the letter and never beside it. `letterOwed` names the channel,
+  the booking below is the same row either way, and the per-kind gap, the
+  weekly ceiling and the unique key read it the same whichever way it went.
 */
 import { prisma } from "@/lib/db";
 import { reportError } from "@/lib/observability/report";
@@ -54,7 +60,12 @@ import { addressDigest, blocks } from "@/lib/email/webhook";
 import { writeSetting, SETTING_KEYS, type SettingKey } from "@/lib/settings/store";
 import { resolveOperator } from "@/lib/legal/operator";
 import { adminClient, addressFor } from "./audience";
-import { mailerConfig, send } from "./transport";
+import { mailerConfig, send, type SendResult } from "./transport";
+import { pushConfig, type PushConfig } from "@/lib/push/config";
+import { notificationFor } from "@/lib/push/notification";
+import { sendPush } from "@/lib/push/send";
+import { PUSH_TTL_SECONDS } from "@/lib/push/kinds";
+import { devicesFor, dropDevice } from "@/lib/progress/push";
 
 /**
  * The most letters one invocation will send.
@@ -80,7 +91,23 @@ export interface RunReport {
   refused: number;
   /** Why nothing was sent, where that is a configuration answer. */
   skipped: string | null;
+  /**
+   * Why no letter could go by email this run, where notifications still could.
+   * Null where email is configured, or where nothing could go at all (then
+   * `skipped` says why).
+   */
+  emailOff: string | null;
+  /** Of `sent`, how many went as a notification rather than a letter. */
+  pushed: number;
   byKind: Record<string, number>;
+}
+
+/**
+ * What the run reaches the world through, injectable so the push leg can be
+ * driven against a stub that decrypts what it receives (`push.itest.ts`).
+ */
+export interface RunDeps {
+  readonly pushTransport?: typeof fetch;
 }
 
 function letterFrom(
@@ -110,13 +137,15 @@ function letterFrom(
   }
 }
 
-export async function runMailout(now = new Date()): Promise<RunReport> {
+export async function runMailout(now = new Date(), deps: RunDeps = {}): Promise<RunReport> {
   const report: RunReport = {
     considered: 0,
     sent: 0,
     failed: 0,
     refused: 0,
     skipped: null,
+    emailOff: null,
+    pushed: 0,
     byKind: {},
   };
 
@@ -124,6 +153,7 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
   const secret = mailSecret();
   const origin = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   const admin = adminClient();
+  const push = pushConfig();
 
   /*
     Each of these is named separately rather than collapsed into one "not
@@ -131,10 +161,25 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
     find out which variable they have missed and "mail is off" does not tell
     them.
   */
-  if (!config) return { ...report, skipped: "no RESEND_API_KEY or EMAIL_FROM" };
-  if (!secret) return { ...report, skipped: "no EMAIL_TOKEN_SECRET" };
-  if (!origin) return { ...report, skipped: "no NEXT_PUBLIC_SITE_URL" };
-  if (!admin) return { ...report, skipped: "no SUPABASE_SERVICE_ROLE_KEY, so no addresses to read" };
+  const emailOff =
+    !config ? "no RESEND_API_KEY or EMAIL_FROM"
+    : !secret ? "no EMAIL_TOKEN_SECRET"
+    : !origin ? "no NEXT_PUBLIC_SITE_URL"
+    : !admin ? "no SUPABASE_SERVICE_ROLE_KEY, so no addresses to read"
+    : null;
+  /*
+    AND A DEPLOYMENT THAT CAN PUSH BUT NOT POST STILL RUNS (VB-10). A
+    notification needs no address, no unsubscribe link and no sending domain,
+    only the keys that sign it. So the run goes ahead with the email channel
+    closed, every candidate read as having no address, and only the kinds with
+    a short form can reach anybody.
+  */
+  if (emailOff && !push) return { ...report, skipped: emailOff };
+  report.emailOff = emailOff;
+  const mail = !emailOff && config && secret && origin && admin ? { config, secret, origin, admin } : null;
+  // A letter's links are built on the canonical origin. A push-only deployment
+  // with none still builds the letter, and the notification keeps only the path.
+  const siteOrigin = origin ?? "";
 
   /*
     THE LOCK, TAKEN FOR THE WHOLE RUN AND RELEASED BY THE TRANSACTION ENDING.
@@ -176,50 +221,55 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
         than two thousand. `letterOwed` is asked twice for that reason: once
         without an address to find out whether it is worth fetching one, and
         once with, since a missing address is itself a reason to send nothing.
+        A notification needs no address at all, so a first answer that pushes
+        is the answer.
       */
-      if (!letterOwed({ ...who, email: "pending@example.invalid" }, now)) continue;
+      const probe = letterOwed({ ...who, email: mail ? "pending@example.invalid" : null }, now);
+      if (!probe) continue;
 
-      const email = await addressFor(admin, ownerId);
-      /*
-        AND WHETHER A BOUNCE STILL APPLIES IS ABOUT THE ADDRESS, NOT THE
-        LEARNER.
+      let email: string | null = null;
+      let decision = probe;
+      if (probe.channel === "email" && mail) {
+        email = await addressFor(mail.admin, ownerId);
+        /*
+          AND WHETHER A BOUNCE STILL APPLIES IS ABOUT THE ADDRESS, NOT THE
+          LEARNER.
 
-        The webhook stores which address failed rather than marking the person,
-        so that somebody whose old address bounced and who has since changed it
-        can be written to again. Reading it as a fact about the learner is a
-        deadlock: this app would refuse them for ever, silently, and nothing
-        would report it. The comparison lives here because this is the only
-        layer allowed to hold an address at all.
-      */
-      const blocked = email ? blocks(await undeliverableRow(ownerId), email, secret) : false;
-      const decision = letterOwed({ ...who, email, undeliverable: blocked }, now);
-      if (!decision || !email) continue;
+          The webhook stores which address failed rather than marking the
+          person, so that somebody whose old address bounced and who has since
+          changed it can be written to again. Reading it as a fact about the
+          learner is a deadlock: this app would refuse them for ever, silently,
+          and nothing would report it. The comparison lives here because this
+          is the only layer allowed to hold an address at all.
+        */
+        const blocked = email ? blocks(await undeliverableRow(ownerId), email, mail.secret) : false;
+        const second = letterOwed({ ...who, email, undeliverable: blocked }, now);
+        if (!second) continue;
+        decision = second;
+      }
+      if (decision.channel === "email" && (!email || !mail)) continue;
 
-      const built = await letterInputFor(ownerId, decision.kind, origin, now, locales.get(ownerId) ?? "en");
+      const built = await letterInputFor(ownerId, decision.kind, siteOrigin, now, locales.get(ownerId) ?? "en");
       if (!built) continue;
 
       const letter = letterFrom(built);
-      const way = unsubscribeLink(ownerId, letter.kind, origin, secret);
-      const chrome: Chrome = {
-        origin,
-        unsubscribeUrl: way.url,
-        unsubscribeLabel: way.label,
-        operator: operator.name,
-      };
 
       /*
-        Booked before it is posted, and the booking is what claims the learner.
+        Booked before it is posted or pushed, and the booking is what claims the
+        learner.
 
         `(ownerId, kind, dayKey)` is unique, so where two runs overlap the
         second `create` raises rather than sending a second copy. That is the
         ordinary outcome of a retried invocation rather than an error worth
         reporting, so it is stepped over quietly: the letter went, and it went
-        once.
+        once. The key does not name the channel, which is the whole of "a
+        notification or a letter, never both" on the database's side: a kind
+        booked as a push today cannot also be booked as a letter.
       */
       let booking: { id: string };
       try {
         booking = await prisma.emailSend.create({
-          data: { ownerId, kind: letter.kind, dayKey: who.dayKey },
+          data: { ownerId, kind: letter.kind, dayKey: who.dayKey, channel: decision.channel },
           select: { id: true },
         });
       } catch (error) {
@@ -229,19 +279,26 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
         throw error;
       }
 
-      const result = await send(
-        {
-          to: email,
-          subject: letter.subject,
-          html: renderHtml(letter, chrome),
-          text: renderText(letter, chrome),
-          oneClickUrl: oneClickUrl(ownerId, origin, secret),
-        },
-        config,
-      );
+      let result: SendResult = { ok: false, reason: "no channel left to send by", badAddress: false };
+      if (decision.channel === "push" && push) {
+        result = await pushToBrowsers(ownerId, letter, siteOrigin, push, deps.pushTransport);
+      } else if (mail && email) {
+        const chrome = chromeFor(ownerId, letter, mail.origin, mail.secret, operator.name);
+        result = await send(
+          {
+            to: email,
+            subject: letter.subject,
+            html: renderHtml(letter, chrome),
+            text: renderText(letter, chrome),
+            oneClickUrl: oneClickUrl(ownerId, mail.origin, mail.secret),
+          },
+          mail.config,
+        );
+      }
 
       if (result.ok) {
         report.sent += 1;
+        if (decision.channel === "push") report.pushed += 1;
         report.byKind[letter.kind] = (report.byKind[letter.kind] ?? 0) + 1;
         /*
           AND THE HIGH-WATER MARK, WRITTEN HERE AND NOWHERE EARLIER.
@@ -270,7 +327,8 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
             shape, which is one row today and is one row only because the
             per-kind gap happens to hold. A write that is correct because of a
             rule enforced somewhere else is a write waiting for that rule to be
-            relaxed.
+            relaxed. A notification has no id to stamp: no push service says
+            whether one was shown, and nothing here would keep it if one did.
           */
           await prisma.emailSend.update({
             where: { id: booking.id },
@@ -279,7 +337,7 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
         }
       } else {
         report.failed += 1;
-        if (result.badAddress) {
+        if (result.badAddress && email && mail) {
           /*
             The provider refused the recipient rather than having a bad minute.
             Marked, and never retried, because carrying on mailing a dead
@@ -291,7 +349,7 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
             The same shape the webhook writes, so one reader answers both: the
             address that was refused, rather than the learner who held it.
           */
-          await writeSetting(ownerId, SETTING_KEYS.emailUndeliverable, addressDigest(email, secret));
+          await writeSetting(ownerId, SETTING_KEYS.emailUndeliverable, addressDigest(email, mail.secret));
         }
         reportError(new Error(`mailout: ${result.reason}`), { at: "mailer/run", ownerId });
       }
@@ -314,4 +372,51 @@ async function rememberAfterSend(ownerId: string, key: SettingKey, value: string
       if (attempt === 1) reportError(error, { at: "mailer/run: remembering a sent letter", ownerId });
     }
   }
+}
+
+/** The footer a letter is drawn with: the way out, the operator, the origin. */
+function chromeFor(ownerId: string, letter: Letter, origin: string, secret: string, operator: Chrome["operator"]): Chrome {
+  const way = unsubscribeLink(ownerId, letter.kind, origin, secret);
+  return { origin, unsubscribeUrl: way.url, unsubscribeLabel: way.label, operator };
+}
+
+/**
+ * A letter's short form, pushed to every browser the learner asked on.
+ *
+ * One notification per browser rather than one per learner, because each is a
+ * screen somebody chose. Delivered to any one is the letter delivered; a
+ * browser its push service says no longer exists is taken out on the way past,
+ * which is how a reinstalled browser or a revoked permission stops being
+ * written to. Failing on all of them is a failed send, with the slot already
+ * spent: the same rule as a letter, since a missed reminder is a reminder and
+ * a duplicate is the thing people switch off.
+ */
+async function pushToBrowsers(
+  ownerId: string,
+  letter: Letter,
+  origin: string,
+  config: PushConfig,
+  transport: typeof fetch | undefined,
+): Promise<SendResult> {
+  const devices = await devicesFor(ownerId);
+  if (devices.length === 0) return { ok: false, reason: "no browser left to remind", badAddress: false };
+  const message = notificationFor(letter, origin);
+  const options = { ttlSeconds: PUSH_TTL_SECONDS[letter.kind] ?? 3600, topic: letter.kind };
+  let delivered = 0;
+  const reasons: string[] = [];
+  for (const device of devices) {
+    const result = await sendPush(device, message, options, config, transport);
+    if (result.ok) {
+      delivered += 1;
+      continue;
+    }
+    reasons.push(result.reason);
+    if (result.gone) {
+      await dropDevice(device.id).catch((error: unknown) =>
+        reportError(error, { at: "mailer/run: dropping a gone browser", ownerId }));
+    }
+  }
+  return delivered > 0
+    ? { ok: true, messageId: null }
+    : { ok: false, reason: `push: ${reasons.join("; ").slice(0, 300)}`, badAddress: false };
 }

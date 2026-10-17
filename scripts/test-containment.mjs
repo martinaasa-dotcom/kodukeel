@@ -89,9 +89,24 @@ const B = baseUrl();
   there is a word broken on most people's computers. `CONTAIN_WIDTHS` takes a
   comma-separated list, for sweeping every width in between by hand.
 */
+/*
+  CI RUNS THIS IN TWO HALVES, BECAUSE WHOLE IT IS FIFTEEN MINUTES.
+
+  On 2026-10-17 the suite alone took fifteen and a half minutes in CI, and
+  with a build in front of it its shard finished at 19.8 of a twenty-minute
+  ceiling, which is a cancelled run waiting for the next route to be added.
+  `CONTAIN_PART` splits the widths rather than the routes, so every route is
+  still walked at every width somewhere: `narrow` is 360 and 768 and the dark
+  sweep, `wide` is 1024 and 1280 (`scripts/test-containment-wide.mjs`). Unset,
+  it is the whole suite, which is what anybody runs by hand.
+*/
+const PART = process.env.CONTAIN_PART ?? "";
+const ALL_WIDTHS = [360, 768, 1024, 1280];
 const WIDTHS = process.env.CONTAIN_WIDTHS
   ? process.env.CONTAIN_WIDTHS.split(",").map(Number).filter((n) => n > 0)
-  : [360, 768, 1024, 1280];
+  : PART === "narrow" ? ALL_WIDTHS.filter((w) => w < 1024)
+  : PART === "wide" ? ALL_WIDTHS.filter((w) => w >= 1024)
+  : ALL_WIDTHS;
 
 /**
  * Dark is measured once, at the width where containment fails first.
@@ -181,6 +196,7 @@ const ROUTES = [
   "/review/exceptions",
   "/review/letters",
   "/review/workbook",
+  "/review/numbers",
   "/review/sayings",
   "/review/wordplay",
   "/review/lookups",
@@ -195,6 +211,12 @@ const ROUTES = [
   "/course",
   "/course/learn",
   "/course/forms",
+  /*
+    Tonight's chat. On a keyless server, which is every server these sweeps
+    run against, it goes back to the module, and the chat screen itself is
+    measured by scripts/test-chat.mjs on a server of its own with a model stubbed.
+  */
+  "/course/chat",
 
   // Measurement, and the things built on it.
   "/progress",
@@ -221,6 +243,8 @@ const ROUTES = [
   "/suggestions",
   "/admin/suggestions",
   "/admin/errors",
+  // The speech bench draws the microphone in every state it has (VB-2); CI sets ASR_BENCH=1.
+  "/dev/asr",
 
   /*
     The conversations. The briefing at 360 is a role card, a four-cell dial of
@@ -402,7 +426,11 @@ const SPARSE = new Map([
 // And 2475 rather than 2500: Picture match was taken out of the app, and
 // `/review/emoji` was one of the routes this walks, which is one route's worth
 // of passes at the checks each pass now asks.
-const { check, absent, done } = suite("Containment", { floor: 2425 });
+/*
+  And a half carries half the floor, rounded down: each walks two of the four
+  widths, the narrow half the dark sweep besides.
+*/
+const { check, absent, done } = suite(PART ? `Containment, the ${PART} half` : "Containment", { floor: PART ? 1200 : 2425 });
 
 /**
  * An A2 unit, whose lesson meets words with their sentence under them: A1
@@ -1534,7 +1562,7 @@ for (const width of WIDTHS) {
   by the inline script in app/layout.tsx before the first paint. Emulating
   `prefers-color-scheme` would measure the light theme a second time.
 */
-{
+if (PART !== "wide") {
   const ctx = await browser.newContext({
     viewport: { width: DARK_WIDTH, height: 900 },
     hasTouch: true,
