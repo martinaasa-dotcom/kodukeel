@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
-import { BookOpen, Clock, CornerDownLeft, DoorOpen, Heart, Info, LifeBuoy, ListChecks, MessageCircle, RotateCcw, Shuffle } from "lucide-react";
+import { BookOpen, Clock, CornerDownLeft, DoorOpen, Heart, Info, LifeBuoy, ListChecks, MessageCircle, Mic, Phone, RotateCcw, Shuffle } from "lucide-react";
 import { RoundChip } from "@/components/round/RoundStart";
 import { Button } from "@/components/Button";
 import { ChoiceCard, ChoiceChip, ChoiceGroup, ChoiceSegment } from "@/components/Choice";
@@ -16,7 +16,7 @@ import { hidesLines, speaksAloud, type SceneVoice } from "@/lib/audio/sceneVoice
 import { GlossedSentence } from "@/components/GlossedSentence";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { useAudioPrefs } from "@/components/AudioPrefs";
-import { beginScene, finishScene, sceneHelp, setSceneVoice } from "@/app/actions";
+import { beginScene, finishScene, sceneHelp, setSceneAnswer, setSceneVoice } from "@/app/actions";
 import { leafNeeds, type SceneSpec } from "@/lib/scenes/types";
 import type { Difficulty } from "@/lib/scenes/curveballs";
 import { BUDGETS, defaultDifficultyFor } from "@/lib/scenes/curveballs";
@@ -33,14 +33,19 @@ const MOUNT_MS = 250;
 const sleep = (ms: number) => new Promise<void>((resume) => window.setTimeout(resume, ms));
 import { SceneVignette } from "./SceneVignette";
 import { SceneVoiceChoice } from "./SceneVoiceChoice";
-import { cueFor, movesTo, sceneryFor, type Setting } from "@/lib/scenes/scenery";
+import { cueFor, isCall, movesTo, sceneryFor, type Setting } from "@/lib/scenes/scenery";
 import { practises } from "@/lib/scenes/practises";
 import { NOT_REACHED } from "@/lib/copy/values";
 import { useLocale, useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 import { onScreen, sceneTemplates } from "@/lib/scenes/onScreen";
-import { around } from "./inPlace";
+import { around, aroundAll } from "./inPlace";
 import { useModuleFocus } from "@/components/course/moduleFocus";
+import { useSpeechConfig } from "@/components/speech/useSpeech";
+import { CallScreen, HearFirst, SceneMic, SendRing, type MicState } from "./SceneSpeech";
+import { matchPick } from "@/lib/speech/matchPick";
+import { core, type Hearing, type Repair } from "@/lib/speech/reconcile";
+import { openingAnswer, type SceneAnswer } from "@/lib/ux/sceneAnswer";
 
 /**
  * One conversation, from the desk to the debrief.
@@ -111,8 +116,21 @@ export interface SlipNote {
   readonly form: string | null;
 }
 
+/**
+ * What the recognizer heard on a turn said aloud, kept on the screen and
+ * nowhere else: the words as the machine heard them, and where the
+ * dictionary read a non-word as a word it holds (`lib/speech/reconcile.ts`).
+ * The recast under the bubble and the debrief's "What we heard" read it; the
+ * server is told only which words were repaired, because that is the one
+ * thing that changes a grade (D13).
+ */
+interface HeardNote {
+  readonly heard: string;
+  readonly repairs: readonly Repair[];
+}
+
 type Turn =
-  | { readonly who: "you"; readonly text: string; readonly slips?: readonly SlipNote[] }
+  | { readonly who: "you"; readonly text: string; readonly slips?: readonly SlipNote[]; readonly heard?: HeardNote }
   | { readonly who: "them"; readonly lines: readonly Line[] };
 
 type Phase = "briefing" | "talking" | "debrief";
@@ -142,6 +160,12 @@ interface Sent {
   alsoDone?: string[];
   /** Picked off the offered lines rather than typed, which grades nothing (`SentTurn.picked`). */
   picked?: boolean;
+  /**
+   * Said aloud: the dictionary's repairs of what was heard, so a repaired word
+   * earns no grade (`SentTurn.spoken`, D13). What the recognizer heard is not
+   * sent; only which words it could not take as said.
+   */
+  spoken?: { repairs: readonly Repair[] };
 }
 
 /** A line the learner may pick instead of typing, as the server built it (`lib/scenes/picks.ts`). */
@@ -269,7 +293,7 @@ function moveIn(lines: readonly Line[]): string | null {
   return null;
 }
 
-export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
+export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answeredLast, finishedOnce, opening }: {
   scene: SceneSpec;
   /** How long it takes, printed on the briefing beside where you are standing. */
   minutes: number;
@@ -301,6 +325,24 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
    * The learner moves it before they start like any default.
    */
   openAt: Level;
+  /**
+   * How this learner answered in their last conversation: picking a line,
+   * saying it or typing it (`lib/ux/sceneAnswer.ts`), or null where they never
+   * chose. The switch above the box remembers, because somebody who chose to
+   * speak in one scene wants to speak in the next.
+   */
+  answeredLast: SceneAnswer | null;
+  /**
+   * Whether they have got through this scene once with every objective met,
+   * which is what offers "Talk it through": the other side heard only, nothing
+   * to read, and the answers said (VB-4).
+   */
+  finishedOnce: boolean;
+  /**
+   * The other side's opening lines from the scene bank, for "Hear them first"
+   * on the briefing (`lib/scenes/rehearse.ts`). Shown and spoken, never marked.
+   */
+  opening: readonly string[];
 }) {
   /* From `lg` the card is open in the column beside the conversation; below it
      it stays the one pinned line it was. One element either way. */
@@ -382,7 +424,45 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
     who knows the answer types it, and one who is stuck picks it.
   */
   const [picks, setPicks] = useState<PickLine[]>([]);
-  const [answerBy, setAnswerBy] = useState<"pick" | "type">(openAt === "A1" ? "pick" : "type");
+  /*
+    PICKING, SAYING OR TYPING (VB-4). Saying it is the third choice on batch
+    4's switch, offered wherever this deployment can hear on this device, and
+    the switch remembers which was used last (`lib/ux/sceneAnswer.ts`). A
+    choice remembered on another device that cannot be honoured here falls
+    back to the band's default rather than to a microphone that cannot open.
+  */
+  const speechConfig = useSpeechConfig();
+  const speechHere = speechConfig.modelBase !== null && speechConfig.unavailable === null;
+  const remembered = useRef<SceneAnswer | null>(answeredLast);
+  const [answerBy, setAnswerBy] = useState<SceneAnswer>(() => openingAnswer(answeredLast, openAt, speechHere));
+  const chooseAnswer = useCallback((next: SceneAnswer) => {
+    setAnswerBy(next);
+    remembered.current = next;
+    void setSceneAnswer(next).catch(() => null);
+  }, []);
+  /*
+    TALK IT THROUGH: cold plus speaking, which is the closest the app comes to
+    the real thing (SP-3). The other side is heard and not shown, what to do is
+    behind a press, and the answers are said. Offered on the briefing once the
+    learner has finished the scene, and held for this run only: it changes
+    nothing remembered.
+  */
+  const [talk, setTalk] = useState(false);
+  /*
+    WHAT WAS LAST HEARD, UNTIL IT IS SENT. The box holds its reading, or a pick
+    it matched is lit, and either way the turn that goes is said aloud and
+    carries its repairs (D13). Cleared when the box is emptied, because a turn
+    typed into an empty box was typed.
+  */
+  const [pending, setPending] = useState<Hearing | null>(null);
+  /** The pick what was heard matched, lit before it is sent (D8). */
+  const [lit, setLit] = useState<string | null>(null);
+  /** Heard, matched no pick, and gone to the box to change and send. */
+  const [unmatched, setUnmatched] = useState(false);
+  /** The countdown ring, on the lit pick or on the box's button, where one is running (D20). */
+  const [ring, setRing] = useState<"pick" | "box" | null>(null);
+  /** Whether the microphone is listening or reading, told at turn boundaries only. */
+  const [mic, setMic] = useState<MicState>({ listening: false, thinking: false, offered: false });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [debrief, setDebrief] = useState<Debrief | null>(null);
@@ -480,7 +560,9 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
     setVoiceMode(next);
     void setSceneVoice(next).catch(() => null);
   }, []);
-  const aloud = speaksAloud(voiceMode);
+  /* Talking it through hears the other side and shows nothing, whatever the mode on the briefing. */
+  const heardMode: SceneVoice = talk ? "listen" : voiceMode;
+  const aloud = speaksAloud(heardMode);
   /*
     WHICH LINES THE LEARNER HAS ASKED TO SEE.
 
@@ -501,6 +583,26 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
   const reveal = useCallback((text: string) => {
     setShown((was) => (was.has(text) ? was : new Set([...was, text])));
   }, []);
+  /* What to do is behind a press on the cold level, and always when talking it through. */
+  const goalHidden = hidesGoal(support) || talk;
+  /* A scene that opens on the telephone is a call, and can be had hands-free (`isCall`). */
+  const call = isCall(scene.id);
+  /*
+    THE SPELLINGS THIS MOMENT COULD HOLD, for the dictionary's repairs of what
+    was heard (`lib/speech/reconcile.ts`): the words the other side has said,
+    the lines on offer, and a word the help button lent. A repair may land only
+    on one of these, which keeps it to words already on the screen; the client
+    holds no lexicon and should not. Rebuilt when the conversation moves, never
+    on a keystroke.
+  */
+  const expect = useMemo(() => {
+    const out = new Set<string>();
+    const add = (text: string) => { for (const word of text.split(/\s+/)) { const c = core(word); if (c) out.add(c); } };
+    for (const turn of turns) if (turn.who === "them") for (const line of turn.lines) if (spokenEstonian(line)) add(line.text);
+    for (const pick of picks) add(pick.et);
+    if (lent) add(lent.lemma);
+    return out;
+  }, [turns, picks, lent]);
 
   /*
     `ask` is main's, and the panel it points at is what the page comes down to
@@ -915,12 +1017,13 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
   */
   }, [opened, used, setTurns, scene.id, room, t]);
 
-  async function start() {
+  async function start(talkThrough = false) {
     setBusy(true);
     setError(null);
     const result = await beginScene(scene.id, difficulty, level).catch(() => null);
     setBusy(false);
-    setAnswerBy(level === "A1" ? "pick" : "type");
+    setTalk(talkThrough);
+    setAnswerBy(talkThrough ? "say" : openingAnswer(remembered.current, level, speechHere));
     if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
 
     /*
@@ -949,19 +1052,83 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
   }
 
   async function say() {
-    await answer(draft.trim(), false);
+    await answer(draft.trim(), false, pending);
   }
 
-  async function answer(said: string, picked: boolean) {
+  /*
+    A TURN, TYPED, PICKED OR SAID. Said aloud, it carries the dictionary's
+    repairs (D13) and keeps what the machine heard on the screen for the recast
+    under the bubble and the debrief; it is read on the server exactly as a
+    typed turn, because what is sent is what the learner saw in the box.
+  */
+  async function answer(said: string, picked: boolean, spokenAs: Hearing | null = null) {
     if (!said || !beatId || busy) return;
-    const next: Sent[] = [...sent, { beatId, said, helped, heard, ...(picked ? { picked: true } : {}) }];
+    const repairs = spokenAs ? spokenAs.repairs.filter((repair) => repair.rule !== "hesitation") : [];
+    const next: Sent[] = [...sent, {
+      beatId, said, helped, heard,
+      ...(picked ? { picked: true } : {}),
+      ...(spokenAs ? { spoken: { repairs } } : {}),
+    }];
     setSent(next);
-    setTurns((was) => [...was, { who: "you", text: said }]);
+    setTurns((was) => [...was, {
+      who: "you",
+      text: said,
+      ...(spokenAs ? { heard: { heard: spokenAs.heard, repairs } } : {}),
+    }]);
     setPicks([]);
     if (!picked) setDraft("");
+    setPending(null);
+    setLit(null);
+    setRing(null);
+    setUnmatched(false);
     setHelped(false);
     setLent(null);
     await speak(next);
+  }
+
+  /*
+    WHAT WAS HEARD GOES WHERE THE SCREEN IS ANSWERED. With lines on offer, it
+    is matched to them after decoding (D8, D20's numbers in
+    `lib/speech/matchPick.ts`): a clear match lights that line and the ring
+    sends it as the pick it is, which grades nothing exactly as a tap. Anything
+    that matches no line goes into the box to change and send, and is never
+    sent as a pick. Saying it, it goes into the box and the ring sends it
+    unless the learner touches the screen. "Send what I say straight away"
+    skips the ring.
+  */
+  function onHeard(hearing: Hearing) {
+    if (!hearing.understood.trim() || busy || interlude !== null) return;
+    setPending(hearing);
+    if (answerBy === "pick" && picks.length > 0) {
+      const { index } = matchPick(picks.map((pick) => pick.et), hearing.understood);
+      const pick = index === null ? undefined : picks[index];
+      if (pick) {
+        setUnmatched(false);
+        setLit(pick.id);
+        if (speechConfig.sendAtOnce) void answer(pick.et, true, hearing);
+        else setRing("pick");
+        return;
+      }
+      setLit(null);
+      setUnmatched(true);
+      setDraft(hearing.understood);
+      return;
+    }
+    setDraft(hearing.understood);
+    if (speechConfig.sendAtOnce) void answer(hearing.understood.trim(), false, hearing);
+    else setRing("box");
+  }
+
+  /** The ring ran out: send what it was on. */
+  function ringDone() {
+    if (ring === "pick") {
+      const pick = picks.find((one) => one.id === lit);
+      setRing(null);
+      if (pick) void answer(pick.et, true, pending);
+      return;
+    }
+    setRing(null);
+    void answer(draft.trim(), false, pending);
   }
 
   /*
@@ -992,6 +1159,17 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
       graded: result.graded,
       review: result.review,
       recap: result.recap,
+      /*
+        WHAT WE HEARD (SP-3): the turns said aloud where what the machine heard
+        is not what was sent, because the dictionary read a word differently or
+        the learner changed it in the box. Off this screen's own record, since
+        what was heard is never sent to the server.
+      */
+      heard: turnsRef.current.flatMap((turn) => {
+        if (turn.who !== "you" || !turn.heard) return [];
+        const same = (a: string) => a.split(/\s+/).map(core).filter(Boolean).join(" ");
+        return same(turn.heard.heard) === same(turn.text) ? [] : [{ heard: turn.heard.heard, said: turn.text }];
+      }),
       turns: turnsRef.current.flatMap((turn): Debrief["turns"][number][] => {
         if (turn.who === "you") return [{ who: "you", text: turn.text, lang: "et" }];
         /*
@@ -1247,6 +1425,13 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         </ul>
 
         {/*
+          HEAR THEM FIRST (VB-4): the other side's opening lines from the bank,
+          one at a time, to say along with before the conversation starts. One
+          press away, and nothing in it is marked.
+        */}
+        <HearFirst lines={opening} />
+
+        {/*
           THE LESSON BEHIND THE CONVERSATION, AND NOT IN THE BAR ABOVE IT.
 
           This is the two-way link §14 asks for: a scene takes apart a unit's
@@ -1336,7 +1521,25 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         </Card>
 
         {error && <p className="text-sm" style={{ color: "var(--blush-ink)" }}>{t(error)}</p>}
-        <Button onClick={start} disabled={busy} variant="primary" size="lg">
+        {/*
+          TALK IT THROUGH (VB-4, SP-3's "cold plus speaking"): the closest this
+          app comes to the real thing. The other side is heard and not shown,
+          what to do is behind a press, and the answers are said. Offered once
+          the learner has got through this scene with the words on screen, and
+          only where this deployment can hear. Quieter than starting, because
+          starting is what most people came here to do.
+        */}
+        {finishedOnce && speechHere && (
+          <div className="flex flex-col gap-1.5" data-talk-through>
+            <Button onClick={() => start(true)} disabled={busy} variant="secondary">
+              {call ? <Phone size={16} aria-hidden /> : <Mic size={16} aria-hidden />} {t("Talk it through")}
+            </Button>
+            <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+              {t("Nothing to read: you hear them and answer out loud, the way it really goes.")}
+            </p>
+          </div>
+        )}
+        <Button onClick={() => start()} disabled={busy} variant="primary" size="lg">
           {busy ? t("Getting ready…") : t("Start the conversation")}
         </Button>
       </div>
@@ -1388,6 +1591,18 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
     a beat at all and stays for the rest of the run once it has formed.
   */
   const cue = cueFor(hurdle) ?? (queued ? "behind" : null);
+  /*
+    SPEAKING THE CONVERSATION (VB-4). The microphone leads where the learner
+    chose to say it, and where they chose to pick and this beat has no lines to
+    pick from. A call is a scene that opens on the telephone (`isCall`): there
+    the microphone opens by itself after each of the other side's lines, once
+    the learner has pressed it once in this run, and `turnCue` is what moves
+    each time the floor comes back to them. A call heard and not read looks
+    like one (`CallScreen`).
+  */
+  const speaking = speechHere && (talk || answerBy === "say" || (answerBy === "pick" && picks.length === 0));
+  const turnCue = saying === "you" && !busy && turns[turns.length - 1]?.who === "them" ? turns.length : 0;
+  const callLook = call && (hidesLines(heardMode) || goalHidden);
 
   const cardBlock = (
       <details
@@ -1703,7 +1918,17 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         page, and nothing inside it scrolls on its own.
       */}
       <div className="night night-open scene-night flex flex-col gap-5 rounded-[var(--r-xl)] border p-3 sm:p-4 md:p-6">
+      {/*
+        A CALL LOOKS LIKE A CALL (VB-4). On the telephone, heard rather than
+        read, the screen is what a phone shows mid-call: who is on the line,
+        how long it has been going, and whose turn it is, with nothing to read.
+        The conversation is still there under it, mounted so each line still
+        plays, and hidden, because the whole point of hearing it is not seeing
+        it. The clock counts up and limits nothing (D9).
+      */}
+      {callLook && <CallScreen saying={saying} listening={mic.listening} thinking={mic.thinking} />}
       <div
+        hidden={callLook}
         className="flex flex-col gap-3 px-1 pt-1"
         role="log"
         aria-live="polite"
@@ -1775,6 +2000,36 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                 server's marking, and a slip the dictionary cannot recast is
                 still "understood", which is the half that matters.
               */}
+              {/*
+                THE RECAST IS THE LESSON ABOUT THE WORD (SP-3). Said aloud, a
+                word the recognizer heard as a non-word was read as the word the
+                dictionary holds, and the other side has already said it back
+                right. Under the bubble, the two side by side: what was heard,
+                and how they say it, each with a speaker in the app's own voice.
+                "Heard" is the verb: nothing here says how the word sounded.
+              */}
+              {turn.heard && turn.heard.repairs.length > 0 && (
+                <ul data-heard-recast className="mt-1 flex flex-col items-end gap-1 pr-1 text-right text-xs" style={{ color: "var(--ink-3)" }}>
+                  {turn.heard.repairs.map((repair) => (
+                    <li key={`${repair.from}>${repair.to}`} className="flex flex-wrap items-center justify-end gap-x-1">
+                      {aroundAll(t("We heard {heard}. They say {said}."), {
+                        heard: (
+                          <span className="inline-flex items-center gap-0.5">
+                            <span lang="et" className="font-medium" style={{ color: "var(--ink-2)" }}>{repair.from}</span>
+                            <Speak text={repair.from} voice={voice} size={12} label={t("Hear it")} className="press inline-flex h-6 w-6 items-center justify-center rounded-full hover:bg-[var(--raised)]" />
+                          </span>
+                        ),
+                        said: (
+                          <span className="inline-flex items-center gap-0.5">
+                            <span lang="et" className="font-medium" style={{ color: "var(--ink-2)" }}>{repair.to}</span>
+                            <Speak text={repair.to} voice={voice} size={12} label={t("Hear it")} className="press inline-flex h-6 w-6 items-center justify-center rounded-full hover:bg-[var(--raised)]" />
+                          </span>
+                        ),
+                      })}
+                    </li>
+                  ))}
+                </ul>
+              )}
               {turn.slips && turn.slips.length > 0 && (
                 <p className="mt-1 pr-1 text-right text-xs" style={{ color: "var(--ink-3)" }}>
                   {t("They understood you.")}
@@ -1828,7 +2083,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                     style={{ "--say-at": at } as CSSProperties}
                   >
                     <div data-who="them" className="scene-bubble inline-block max-w-full">
-                      {hidesLines(voiceMode) && spokenEstonian(line) && !shown.has(line.text) ? (
+                      {hidesLines(heardMode) && spokenEstonian(line) && !shown.has(line.text) ? (
                         /*
                           Heard, not read. The speaker is the whole line, and
                           the way out is beside it rather than hidden: a
@@ -2076,7 +2331,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
             turn would be the same sentence read at somebody each time the
             other side speaks.
           */}
-          <SceneVoiceChoice value={voiceMode} onSelect={chooseVoice} compact />
+          {!talk && <SceneVoiceChoice value={voiceMode} onSelect={chooseVoice} compact />}
           <div aria-live="polite">
             {/*
               HOW FAR IN, WHERE THE LEARNER IS LOOKING.
@@ -2114,7 +2369,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
               server has no goal for the beat, the panel still says what the
               box is for rather than standing empty.
             */}
-            {goal && hidesGoal(support) && !goalShown ? (
+            {goal && goalHidden && !goalShown ? (
               /*
                 COLD: THEY HAVE SAID SOMETHING AND NOBODY HAS TOLD YOU WHAT TO
                 SAY. Which is the position anybody is in at a counter, and the
@@ -2173,47 +2428,130 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
             answer to a question that has not been asked yet, in a place they
             have not been told they are standing in.
           */}
-          <ChoiceSegment
-            ariaLabel={t("How you answer")}
-            value={answerBy}
-            onSelect={setAnswerBy}
-            options={[
-              { id: "pick", title: t("Pick a line"), icon: <ListChecks size={16} aria-hidden /> },
-              { id: "type", title: t("Type it"), icon: <CornerDownLeft size={16} aria-hidden /> },
-            ]}
-          />
+          {/*
+            THE SWITCH HAS THREE WAYS NOW (VB-4): pick a line, say it, or type
+            it, and it remembers which was used last. Saying it is offered
+            wherever this deployment can hear, and talking it through hides the
+            switch, because the answers in that mode are said.
+          */}
+          {!talk && (
+            <ChoiceSegment
+              ariaLabel={t("How you answer")}
+              value={answerBy}
+              onSelect={chooseAnswer}
+              options={[
+                { id: "pick", title: t("Pick a line"), icon: <ListChecks size={16} aria-hidden /> },
+                ...(speechHere ? [{ id: "say" as const, title: t("Say it"), icon: <Mic size={16} aria-hidden /> }] : []),
+                { id: "type", title: t("Type it"), icon: <CornerDownLeft size={16} aria-hidden /> },
+              ]}
+            />
+          )}
           {answerBy === "pick" && picks.length > 0 ? (
             /*
               Each line is a button that says it, with what it means under it.
               Nothing is marked before it is said: the reply is the marking, as it
               is for a typed turn, and a picked line grades nothing.
+
+              AND A LINE CAN BE SAID RATHER THAN PRESSED. What was heard is
+              matched after decoding (D8): a clear match lights that line and
+              the ring sends it, still a pick, still grading nothing. A line
+              that was heard and matched none is never sent as a pick; it goes
+              into the box under the lines, to change and send.
             */
             <div className="flex flex-col gap-2" data-picks>
-              <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t("Pick what you'd say. Picked lines don't count toward your words.")}</p>
+              <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+                {t(speechHere ? "Pick what you'd say, or say it out loud. Picked lines don't count toward your words." : "Pick what you'd say. Picked lines don't count toward your words.")}
+              </p>
               {picks.map((pick) => (
                 <button
                   key={pick.id}
                   type="button"
-                  className="choice-btn press flex flex-col items-start gap-0.5 rounded-xl px-4 py-3 text-left"
-                  onClick={() => answer(pick.et, true)}
+                  className="choice-btn press flex items-center justify-between gap-3 rounded-xl px-4 py-3 text-left"
+                  onClick={() => answer(pick.et, true, lit === pick.id ? pending : null)}
                   disabled={busy || moving}
                   data-pick={pick.id}
+                  data-lit={lit === pick.id ? "true" : undefined}
+                  aria-describedby={lit === pick.id ? "scene-heard-pick" : undefined}
                 >
-                  <span lang="et" className="text-md font-medium">{pick.et}</span>
-                  <span className="text-sm" style={{ color: "var(--ink-2)" }}>{pick.en}</span>
+                  <span className="flex min-w-0 flex-col items-start gap-0.5">
+                    <span lang="et" className="text-md font-medium">{pick.et}</span>
+                    <span className="text-sm" style={{ color: "var(--ink-2)" }}>{pick.en}</span>
+                  </span>
+                  {lit === pick.id && ring === "pick" && (
+                    <span style={{ color: "var(--accent-deep)" }}>
+                      <SendRing onDone={ringDone} onStop={() => setRing(null)} />
+                    </span>
+                  )}
                 </button>
               ))}
+              {lit && (
+                <p id="scene-heard-pick" role="status" className="text-sm" style={{ color: "var(--ink-2)" }}>
+                  {ring === "pick" ? t("That's the line you said. It goes in a moment, or touch the screen to stop it.") : t("That's the line you said. Press it to say it.")}
+                </p>
+              )}
+              {speechHere && (
+                <SceneMic
+                  key="mic"
+                  box={null}
+                  expect={expect}
+                  onHeard={onHeard}
+                  call={call}
+                  cue={turnCue}
+                  closed={busy || moving}
+                  label={t("Say one of these")}
+                  onState={setMic}
+                />
+              )}
+              {unmatched && (
+                <>
+                  <p role="status" className="text-sm" style={{ color: "var(--ink-2)" }}>
+                    {t("That wasn't one of these lines, so it's in the box to change and send.")}
+                  </p>
+                  <EstonianInput
+                    value={draft}
+                    onChange={(next) => { setDraft(next); if (!next) setPending(null); }}
+                    onEnter={say}
+                    inputRef={box}
+                    disabled={moving}
+                    ariaLabel={t("What you say")}
+                    placeholder={t("Say it in Estonian")}
+                  />
+                  <Button onClick={say} disabled={busy || moving || !draft.trim()} variant="primary" className="w-full sm:w-auto sm:self-start">
+                    <CornerDownLeft size={16} aria-hidden /> {t("Say it")}
+                  </Button>
+                </>
+              )}
             </div>
           ) : (
             <>
+              {/*
+                SAYING IT: the microphone leads, the words appear in the box as
+                they are said, and the ring on the button sends them unless the
+                learner touches the screen first, which leaves them in the box
+                to change. Typing it is the box alone, exactly as before.
+              */}
+              {speaking && (
+                <SceneMic
+                  key="mic"
+                  box={box}
+                  expect={expect}
+                  onHeard={onHeard}
+                  call={call}
+                  cue={turnCue}
+                  closed={busy || moving}
+                  label={t("Say your answer")}
+                  size="lg"
+                  onState={setMic}
+                />
+              )}
               <EstonianInput
                 value={draft}
-                onChange={setDraft}
+                onChange={(next) => { setDraft(next); if (!next) setPending(null); }}
                 onEnter={say}
                 inputRef={box}
                 disabled={moving}
                 ariaLabel={t("What you say")}
-                placeholder={moving ? t("Just a moment…") : t("Say it in Estonian")}
+                placeholder={moving ? t("Just a moment…") : speaking ? t("Your words appear here as you speak") : t("Say it in Estonian")}
               />
               {/*
                 Alone in its row, so the one action a learner takes every turn is the
@@ -2222,8 +2560,16 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                 away from the button being pressed twenty times a conversation.
               */}
               <Button onClick={say} disabled={busy || moving || !draft.trim()} variant="primary" className="w-full sm:w-auto sm:self-start">
-                <CornerDownLeft size={16} aria-hidden /> {t("Say it")}
+                {ring === "box"
+                  ? <SendRing onDone={ringDone} onStop={() => setRing(null)} />
+                  : <CornerDownLeft size={16} aria-hidden />}{" "}
+                {t("Say it")}
               </Button>
+              {ring === "box" && (
+                <p role="status" className="text-sm" style={{ color: "var(--ink-2)" }}>
+                  {t("This goes in a moment. Touch the screen to stop it and change the words.")}
+                </p>
+              )}
             </>
           )}
           <div className="flex flex-wrap gap-2">

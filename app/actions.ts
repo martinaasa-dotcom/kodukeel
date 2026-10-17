@@ -18,7 +18,7 @@ import { classworkMarker } from "@/lib/ux/agenda";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
 import { cardsForGrades } from "@/lib/scenes/grades";
-import { alsoDoneOf, beatNow, beginRun, concededOf, finishRun, MAX_TURNS, MAX_TURN_CHARS } from "@/lib/progress/scene";
+import { alsoDoneOf, beatNow, beginRun, concededOf, finishRun, MAX_TURNS, MAX_TURN_CHARS, spokenOf } from "@/lib/progress/scene";
 import { sceneProviders } from "@/lib/tutor/provider";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { formName } from "@/lib/estonian/morph";
@@ -72,6 +72,7 @@ import { caseGlossFrom } from "@/lib/estonian/caseGloss";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
 import { hearingFrom, hidesWords, supportFrom } from "@/lib/audio/conditions";
 import { sceneVoiceFrom } from "@/lib/audio/sceneVoice";
+import { sceneAnswerFrom } from "@/lib/ux/sceneAnswer";
 import { SPEECH_PACES } from "@/lib/audio/pace";
 import { kindFrom } from "@/lib/ux/schedule";
 import { participationValue } from "@/lib/research/participation";
@@ -1731,11 +1732,14 @@ export async function sceneHelp(runId: unknown, turns: unknown) {
   const said = Array.isArray(turns)
     ? turns.slice(0, MAX_TURNS).map((one) => {
         const row = (one ?? {}) as Record<string, unknown>;
+        const said = clip(text(row.said), MAX_TURN_CHARS);
+        const spoken = spokenOf(row.spoken, said);
         return {
           beatId: text(row.beatId).slice(0, 64),
-          said: clip(text(row.said), MAX_TURN_CHARS),
+          said,
           helped: row.helped === true,
           ...(row.picked === true ? { picked: true } : {}),
+          ...(spoken ? { spoken } : {}),
           heard: clip(text(row.heard), MAX_TURN_CHARS),
           conceded: concededOf(row.conceded),
           alsoDone: alsoDoneOf(row.alsoDone),
@@ -1819,11 +1823,14 @@ export async function finishScene(input: {
   const turns = Array.isArray(input.turns)
     ? input.turns.slice(0, MAX_TURNS).map((turn) => {
         const row = (turn ?? {}) as Record<string, unknown>;
+        const said = clip(text(row.said), MAX_TURN_CHARS);
+        const spoken = spokenOf(row.spoken, said);
         return {
           beatId: text(row.beatId).slice(0, 64),
-          said: clip(text(row.said), MAX_TURN_CHARS),
+          said,
           helped: row.helped === true,
           ...(row.picked === true ? { picked: true } : {}),
+          ...(spoken ? { spoken } : {}),
           heard: clip(text(row.heard), MAX_TURN_CHARS),
           conceded: concededOf(row.conceded),
           alsoDone: alsoDoneOf(row.alsoDone),
@@ -1883,6 +1890,13 @@ export async function finishScene(input: {
       Named by the run and the grade's place in it, so a finish arriving twice
       is graded once. `finishRun` closes a run once and a second finish gets
       nothing to grade; the id is the second lock on the same door.
+    */
+    /*
+      TODO(VB-4 x Review.spoken): `grade.spoken` says the turn that earned this
+      row was said aloud. Once `Review.spoken` lands with `gradeCard`'s optional
+      `spoken` (VB-5, VB-6), pass it here beside `practisedSlot` so VB-14 can
+      count a conversation's spoken recalls. Until then it is carried and not
+      written, because the column it belongs in does not exist yet.
     */
     const result = await gradeOnce(
       ownerId, cardId, grade.rating as RatingValue,
@@ -2269,6 +2283,20 @@ export async function setSceneVoice(value: unknown) {
   const normalised = sceneVoiceFrom(value, "guided");
   await writeSetting(ownerId, SETTING_KEYS.sceneVoice, normalised);
   revalidatePath("/", "layout");
+  return { ok: true as const, value: normalised };
+}
+
+/**
+ * How the learner answers in a conversation, picked on the switch above the
+ * box and remembered for the next one (lib/ux/sceneAnswer.ts). Normalized on
+ * the way in, and not revalidated: the conversation the switch was pressed in
+ * is already under way, and the next one reads it when its page renders.
+ */
+export async function setSceneAnswer(value: unknown) {
+  const ownerId = await requireUserId();
+  const normalised = sceneAnswerFrom(value);
+  if (!normalised) return { ok: false as const };
+  await writeSetting(ownerId, SETTING_KEYS.sceneAnswer, normalised);
   return { ok: true as const, value: normalised };
 }
 

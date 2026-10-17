@@ -5551,3 +5551,66 @@ a:focus-visible .wave-word::after {
   .speech-mic-ring { transition: none; }
   .speech-partial { animation: none; }
 }
+
+/*
+  THE COUNTDOWN RING (components/scene/SceneSpeech.tsx, D20). What was heard
+  is sent on its own after `--ring-ms`, and the ring empties over that time
+  inside the button it will press, in that button's own ink. Under
+  `prefers-reduced-motion` it is drawn full and still: the words beside it say
+  that it will send and how to stop it.
+*/
+.send-ring { transform: rotate(-90deg); }
+.send-ring-track {
+  fill: none;
+  stroke: currentColor;
+  stroke-opacity: 0.25;
+  stroke-width: 2.5;
+}
+.send-ring-fill {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 0;
+  animation: send-ring-empty var(--ring-ms, 2500ms) linear forwards;
+}
+@keyframes send-ring-empty {
+  to { stroke-dashoffset: 100; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .send-ring-fill { animation: none; }
+}
+
+/*
+  A LINE ON SCREEN THE LEARNER JUST SAID (VB-4, D8): the pick the recognizer
+  matched, lit before it is sent so the person who said it can catch a wrong
+  match. The accent's tint and a ring in the accent, which is "this is yours";
+  never sky, because nothing has been marked.
+*/
+/*
+  A CALL IN PROGRESS (components/scene/SceneSpeech.tsx, CallScreen). While the
+  other side speaks, a soft ring goes out from their face, which is how a phone
+  says who is talking; still, it is a ring drawn once, and the words under the
+  face say whose turn it is either way.
+*/
+.call-face { display: inline-flex; }
+.call-face[data-speaking="true"] {
+  animation: call-speaking 1.6s ease-out infinite;
+}
+@keyframes call-speaking {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); }
+  100% { box-shadow: 0 0 0 20px color-mix(in srgb, var(--accent) 0%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .call-face[data-speaking="true"] {
+    animation: none;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+}
+
+.choice-btn[data-lit="true"] {
+  --choice-bg: var(--accent-soft);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent);
+}

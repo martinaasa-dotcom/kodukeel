@@ -7,6 +7,7 @@ import { Button, ButtonLink } from "@/components/Button";
 import { Card, Chip, StatTile } from "@/components/ui";
 import { ArrowRight, MessageCircleHeart, Sparkles } from "lucide-react";
 import { AddWordButton } from "@/components/AddWordButton";
+import { Speak } from "@/components/Speak";
 import { DrillLink } from "@/components/DrillLink";
 import type { SceneSpec } from "@/lib/scenes/types";
 import { drillFor } from "@/lib/scenes/drills";
@@ -89,6 +90,12 @@ export interface Debrief {
     the debrief was the copy that did not.
   */
   turns: readonly { who: "them" | "you"; text: string; lang: "et" | "en" }[];
+  /**
+   * The turns said aloud where what the machine heard is not what was sent
+   * (VB-4, "What we heard"). Absent or empty where nothing was said aloud, or
+   * everything was sent exactly as heard.
+   */
+  heard?: readonly { heard: string; said: string }[];
 }
 
 /** Written out whole so the class names survive Tailwind's scan of this file. */
@@ -100,7 +107,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
   const inModule = useModuleFocus() !== null;
   const t = useT();
   const locale = useLocale();
-  const { scene, objectives, hurdles, outcome, gaps, turns, graded, review, recap } = debrief;
+  const { scene, objectives, hurdles, outcome, gaps, turns, graded, review, recap, heard = [] } = debrief;
   const byId = new Map(scene.beats.map((beat) => [beat.id, beat]));
   const required = scene.beats.filter((beat) => beat.required);
   const missed = objectives.missed.length > 0 ? byId.get(objectives.missed[0]!) : undefined;
@@ -412,6 +419,39 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
           </ul>
         )}
       </section>
+
+      {/*
+        WHAT WE HEARD (VB-4, SP-3). The turns said aloud where the machine's
+        hearing is not what went: the dictionary read a word as one it holds,
+        or the learner changed it in the box. Both are there to hear in the
+        app's own voice, side by side, and the line under the heading says
+        what this is, because a list of differences reads as marking unless
+        somebody says it is not one.
+      */}
+      {heard.length > 0 && (
+        <section className="recap-panel" data-what-we-heard>
+          <h3 className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>{t("What we heard")}</h3>
+          <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
+            {t("This is the machine's hearing beside what you sent. It is not a mark.")}
+          </p>
+          <ul className="flex flex-col gap-3">
+            {heard.map((one, at) => (
+              <li key={at} className="grid gap-1 sm:grid-cols-[max-content_1fr] sm:gap-x-3">
+                <span className="text-xs sm:pt-1.5" style={{ color: "var(--ink-3)" }}>{t("The machine heard")}</span>
+                <span className="flex items-center gap-1">
+                  <span lang="et" style={{ color: "var(--ink-2)" }}>{one.heard}</span>
+                  <Speak text={one.heard} size={13} label={t("Hear it")} className="press inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full hover:bg-[var(--raised)]" />
+                </span>
+                <span className="text-xs sm:pt-1.5" style={{ color: "var(--ink-3)" }}>{t("You sent")}</span>
+                <span className="flex items-center gap-1">
+                  <span lang="et" className="font-medium">{one.said}</span>
+                  <Speak text={one.said} size={13} label={t("Hear it")} className="press inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full hover:bg-[var(--raised)]" />
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {gaps.length > 0 && (
         <section className="recap-panel">

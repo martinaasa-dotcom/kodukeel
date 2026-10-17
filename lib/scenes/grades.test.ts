@@ -80,7 +80,7 @@ describe("what a conversation writes into the review log", () => {
   it("grades a word the beat asked for, Good on the first attempt", () => {
     const grades = gradesFor(SCENE, play([{ reading: "complete", met: [true] }]), null, LEXICON);
     expect(grades).toEqual([
-      { lemma: "valu", grammCase: null, reachedCase: null, rating: 3, beatId: "reason" },
+      { lemma: "valu", grammCase: null, reachedCase: null, rating: 3, beatId: "reason", spoken: false },
     ]);
   });
 
@@ -144,7 +144,7 @@ describe("what a conversation writes into the review log", () => {
     ({ state } = advance(SCENE, state, evidence("complete", [true]), "x"));
     const grades = gradesFor(SCENE, state);
     expect(grades).toContainEqual({
-      lemma: "pea", grammCase: "INESSIVE", reachedCase: null, rating: 3, beatId: "where",
+      lemma: "pea", grammCase: "INESSIVE", reachedCase: null, rating: 3, beatId: "where", spoken: false,
     });
   });
 
@@ -624,5 +624,34 @@ describe("which card each grade lands on", () => {
 
   it("answers null for a word the learner holds no card for", () => {
     expect(cardsForGrades([grade("kass", null)], [card("c", "koer", "PRODUCTION")])).toEqual([null]);
+  });
+});
+
+describe("a word the dictionary repaired from what was heard (D13)", () => {
+  /** The first beat, met by a word, said aloud with that word repaired or not. */
+  function spoken(repaired: readonly string[]): SceneState {
+    const state = play([{ reading: "complete", met: [true] }]);
+    return { ...state, turns: state.turns.map((turn) => ({ ...turn, repaired })) };
+  }
+
+  it("writes no review for a requirement a repaired word met", () => {
+    expect(gradesFor(SCENE, spoken(["valu"]), null, LEXICON)).toEqual([]);
+  });
+
+  it("grades a word said aloud and heard as spelled, and says it was said", () => {
+    expect(gradesFor(SCENE, spoken([]), null, LEXICON)).toEqual([
+      { lemma: "valu", grammCase: null, reachedCase: null, rating: 3, beatId: "reason", spoken: true },
+    ]);
+  });
+
+  it("leaves a requirement alone that a repaired word did not meet", () => {
+    // `pea` was repaired somewhere in the turn, but `valu` is what met the beat.
+    const state = play([{ reading: "complete", met: [true], satisfiedBy: ["valu", "pea"] }]);
+    const said = { ...state, turns: state.turns.map((turn) => ({ ...turn, repaired: ["pea"] })) };
+    expect(gradesFor(SCENE, said, null, LEXICON).map((g) => g.lemma)).toEqual(["valu"]);
+  });
+
+  it("passes over every requirement on the turn where there is no lexicon to say which", () => {
+    expect(gradesFor(SCENE, spoken(["valu"]), null, null)).toEqual([]);
   });
 });

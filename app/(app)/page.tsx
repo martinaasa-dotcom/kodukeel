@@ -37,7 +37,8 @@ import { crosswordFor } from "@/lib/progress/crossword";
 import { WordOfDayCard } from "@/components/WordOfDay";
 import { offered } from "@/lib/tutor/provider";
 import { SayItToday } from "@/components/SayItToday";
-import { errandForDay } from "@/lib/collections/errands";
+import { errandForDay, sceneForErrand } from "@/lib/collections/errands";
+import { errandRehearsal } from "@/lib/scenes/rehearse";
 import { startedUnits } from "@/lib/collections/syllabus";
 import { courseReading, ladderPosition, moduleReached, programmeFor, targetFrom } from "@/lib/progress/course";
 import { unitsThrough } from "@/lib/course";
@@ -821,6 +822,11 @@ export default async function TodayPage() {
         const errandUnit = unitById(errand.unit);
         if (!errandUnit) return errand.unit;
         return ui(errandUnit.title, errandUnit.subtitle);
+      })()}
+      sayOnce={(() => {
+        /* The scene's first line and the learner's own answer, from the bank and the picks (VB-4). */
+        const scene = sceneForErrand(errand);
+        return scene ? errandRehearsal(scene, placement) : null;
       })()}
     />
   ) : null;
