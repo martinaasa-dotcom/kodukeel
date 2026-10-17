@@ -50,3 +50,6 @@ __pycache__/
 # and the model is fetched by hash (npm run asr:fetch); neither is committed.
 /public/asr/runtime/
 /public/asr/model/
+
+# The lessons laid out for the native speaker to read (npm run review:lessons): generated, never committed.
+/*-lesson-review.md

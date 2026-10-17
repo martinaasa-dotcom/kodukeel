@@ -115,7 +115,8 @@
     "asr:runtime": "node scripts/vendor-asr-runtime.mjs",
     "asr:fetch": "tsx scripts/fetch-asr-model.ts",
     "asr:fixtures": "tsx scripts/make-speech-fixtures.ts",
-    "asr:golden": "tsx scripts/record-speech-golden.ts"
+    "asr:golden": "tsx scripts/record-speech-golden.ts",
+    "review:lessons": "tsx scripts/lesson-review.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",
