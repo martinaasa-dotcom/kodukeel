@@ -38,7 +38,7 @@ import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { GlossAlsoPanel, GlossLanguagePanel } from "./GlossLanguagePanel";
 import { InterfaceLanguagePanel } from "./InterfaceLanguagePanel";
 import { localeFor, titleFor } from "@/lib/progress/locale";
-import { LOCALE_NAMES, REVIEWED, MACHINE_NOTICE, MACHINE_NOTICE_EN, countOf, fill, tr } from "@/lib/copy/locale";
+import { LOCALE_NAMES, REVIEWED, MACHINE_NOTICE, MACHINE_NOTICE_EN, countGrouped, countOf, fill, grouped, tr } from "@/lib/copy/locale";
 import { RoundPacePanel } from "./RoundPacePanel";
 import { ROUND_PACES, roundPaceFrom } from "@/lib/ux/roundClock";
 import { TodayOrderPanel } from "./TodayOrderPanel";
@@ -419,7 +419,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <Card className="flex flex-col gap-5">
               <div>
                 <p className="mb-3 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
-                  {t("Choose who reads Estonian to you. Press the ear to hear a voice, and a name to choose it.")}
+                  {t("Choose who reads Estonian to you. Press the speaker to hear a voice, and a name to choose it.")}
                   <CurrentVoiceSample />
                 </p>
                 <VoicePanel current={voice} />
@@ -597,7 +597,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <Card>
               <p className="text-sm" style={{ color: "var(--ink-2)" }}>
                 {filled(t("The built-in dictionary has {words}, from A1 up into C1, each with its main forms checked. Type any form you’ve met in class, like {first} or {second}, and it finds the word for you and tells you which form it is. The audio works out of the box too, no key needed."), {
-                  words: countOf(locale, words, "word"),
+                  words: countGrouped(locale, words, "word"),
                   first: <span lang="et">toas</span>,
                   second: <span lang="et">lugesin</span>,
                 })}
@@ -612,14 +612,14 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               ) : (
                 <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--rule-soft)" }}>
                   <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                    {fill(t("Live dictionary lookup isn’t set up here yet, so search only knows the {n} built-in words. Those come with hardly any real example sentences, so dictation, the sentence builder and the mock exam’s reading and listening parts are thin or empty."), { n: words })}
+                    {fill(t("Live dictionary lookup isn't set up here yet, so search only knows the {n} built-in words. Most of them come with real example sentences, so every exercise works without it."), { n: grouped(locale, words) })}
                   </p>
                   <EkilexSetupGuide />
                 </div>
               )}
             </Card>
           </section>
-          <section>
+          <section id="anu">
             {/* Named the way every other screen names her. "AI tutor" here
                 against "Anu" everywhere else made two things out of one. */}
             <SectionTitle hint={provider ? undefined : t("off until you add a key")}>{t("Anu")}</SectionTitle>

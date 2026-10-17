@@ -13,6 +13,8 @@ import { DrillLink } from "@/components/DrillLink";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { WordsTable, type CardRow } from "./WordsTable";
+import { firstParams } from "@/lib/ux/queryParam";
+import { clip } from "@/lib/copy/clip";
 
 export async function generateMetadata() {
   return titleFor("My words");
@@ -20,8 +22,26 @@ export async function generateMetadata() {
 
 export const dynamic = "force-dynamic";
 
-export default async function WordsPage() {
+export default async function WordsPage({ searchParams }: {
+  searchParams: Promise<{ q?: string | string[] }>;
+}) {
   const ownerId = await requireUserId();
+  /*
+    A search over the whole deck rather than the four hundred rows below. The
+    filter box narrows what is already on the page, and past four hundred
+    cards it used to say "search to find the rest" over a search that could
+    only ever look at those four hundred. `?q=` asks the database instead.
+  */
+  const searched = clip((firstParams(await searchParams).q ?? "").trim(), 80);
+  const matching = searched
+    ? {
+      OR: [
+        { front: { contains: searched, mode: "insensitive" as const } },
+        { back: { contains: searched, mode: "insensitive" as const } },
+        { lexeme: { lemma: { contains: searched, mode: "insensitive" as const } } },
+      ],
+    }
+    : {};
   /*
     Three queries, not four. The third read five thousand reviews to tally case
     accuracy for a panel Progress already draws from the same log, with its own
@@ -34,7 +54,7 @@ export default async function WordsPage() {
   */
   const [cards, counts, locale, prefs] = await Promise.all([
     prisma.card.findMany({
-      where: { ownerId },
+      where: { ownerId, ...matching },
       /*
         Ending on the id, because `(suspended, due)` is not a total order and
         the tie here is the whole deck rather than a corner of it: every card
@@ -90,7 +110,7 @@ export default async function WordsPage() {
         </>
       }
     >
-      {rows.length === 0 ? (
+      {totalCards === 0 ? (
         <Empty
           title={t("No cards yet")}
           body={t("Add words from the dictionary, and each one comes with all its forms and audio.")}
@@ -120,7 +140,7 @@ export default async function WordsPage() {
             </Link>.
           </p>
 
-          <WordsTable rows={rows} total={totalCards} />
+          <WordsTable key={searched} rows={rows} total={totalCards} searched={searched || null} />
 
           {/*
             What the log says about the deck, and the one press that asks about
@@ -136,7 +156,6 @@ export default async function WordsPage() {
   );
 }
 
-/** Accuracy per grammatical case — the diagnostic that turns a card box into a study plan. */
 
 /** A recognition back or a production front is the word's meaning; nothing else on a card is. */
 function meaningOfCard(

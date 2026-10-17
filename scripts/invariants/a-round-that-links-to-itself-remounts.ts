@@ -35,6 +35,8 @@ const EXEMPT: Record<string, string> = {
     "a search: the entry is drawn from props and the box follows `?q=` during render",
   "app/(app)/class/ClassForms.tsx":
     "leaving and archiving are drawn on a class's own page and go back to the list, then refresh",
+  "app/(app)/words/WordsTable.tsx":
+    "a search over the deck: the page keys the table on `?q=`, so a new search mounts it fresh",
   "app/(app)/calendar/CalendarWeek.tsx":
     "the week is drawn from props; the only state is the add form's own draft",
 };

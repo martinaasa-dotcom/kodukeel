@@ -7,7 +7,7 @@ import { DrillLink } from "@/components/DrillLink";
 import { ButtonLink } from "@/components/Button";
 import { Card, Chip, Empty, Page, SectionTitle, Stack } from "@/components/ui";
 import { localeFor, titleFor } from "@/lib/progress/locale";
-import { fill, tr } from "@/lib/copy/locale";
+import { fill, grouped, tr } from "@/lib/copy/locale";
 
 export const dynamic = "force-dynamic";
 
@@ -58,14 +58,14 @@ export default async function ExceptionsPage() {
         <Card tone="night">
           <div className="flex flex-wrap items-end gap-x-8 gap-y-4">
             <p className="font-display tnum text-6xl font-bold leading-none tracking-tight md:text-7xl" style={{ color: "var(--cta)" }}>
-              {scale}
+              {grouped(locale, scale)}
             </p>
             <div className="min-w-0 flex-[1_1_20rem]">
               <p className="font-display text-2xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
                 {t("Most words follow the pattern. These don't.")}
               </p>
               <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                {fill(t("Of the dictionary's words with a level on them, {scale} break a pattern somewhere. Every other one follows the rules, so you can work its forms out."), { scale })}
+                {fill(t("Of the dictionary's words with a level on them, {scale} break a pattern somewhere. Every other one follows the rules, so you can work its forms out."), { scale: grouped(locale, scale) })}
               </p>
             </div>
           </div>
@@ -114,7 +114,7 @@ export default async function ExceptionsPage() {
                           {sample.map((entry) => (
                             <span key={entry.id} lang="et">{entry.lemma}</span>
                           ))}
-                          <span>{fill(t("{n} in the dictionary"), { n: group.everywhere })}</span>
+                          <span>{fill(t("{n} in the dictionary"), { n: grouped(locale, group.everywhere) })}</span>
                         </span>
                       </Link>
                     </li>
