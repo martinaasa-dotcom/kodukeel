@@ -328,7 +328,11 @@ Each phase is its own pull request or several, and none starts before the one ab
   does and explain the `Tallinnas` of lesson 9 and the `kaardiga` of lesson 27. The ledger caught
   two slips on the first run: lesson 35 used `või`, which no lesson had taught (a part's last
   lesson teaches nothing, so it moved into lesson 34's conversation), and a note in lesson 33
-  quoted `buss` a lesson before `buss` is taught.
+  quoted `buss` a lesson before `buss` is taught. **Part 6 (lessons 36 to 40, `{Poes}`) is built**, in
+  `lib/course/lessons/a1-pood.ts`: describing words and their opposites, colours, clothes with
+  `mul on vaja`, the weather, and a clothes shop on a cold day. The ledger refused lesson 39's rule
+  for quoting `sajab` on its own when only the two weather phrases had taught it, so `sajab` is
+  taught as a word.
 - **P3. The switch.** Learners placed per L4, the old A1 parts retired, `course.test.ts` and the
   browser suites (`test-module.mjs`) rewritten for lessons. **And the lessons' own English in
   Russian and Ukrainian**, which nothing yet translates: the screens around a lesson are in

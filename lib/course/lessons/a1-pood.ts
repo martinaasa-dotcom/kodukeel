@@ -1,0 +1,290 @@
+/**
+ * A1, LESSONS 36 TO 40: POES (docs/43-lessons.md §4.6).
+ *
+ * Describing things: big and small, new and old, the colours, clothes and
+ * what you need, and the weather, which is how Estonians open a conversation
+ * with a neighbour. The part ends in a clothes shop on a cold day.
+ *
+ * Read by the native speaker in the pull request that adds it, and held to
+ * the same two checks as every lesson (`lessons.test.ts`, `ledger.ts`).
+ */
+
+import type { LessonSpec, PartOfLessons } from "./types";
+
+export const A1_POOD_PART: PartOfLessons = {
+  id: "a1-pood",
+  level: "A1",
+  title: "{Poes}",
+  about: "Describing things: size, colour, clothes, and the weather.",
+};
+
+export const A1_POOD_LESSONS: readonly LessonSpec[] = [
+  {
+    id: "a1-36-describe",
+    n: 36,
+    level: "A1",
+    part: "a1-pood",
+    kind: "lesson",
+    title: "Big and small",
+    goal: "Say what something is like: big, small, new, old, good or nice.",
+    cast: { Mari: "mari", Tom: "kalev" },
+    conversation: [
+      { who: "Mari", et: "Tom, kas su uus korter on suur?", en: "Tom, is your new flat big?" },
+      { who: "Tom", et: "Ei, see on väike. Aga see on ilus.", en: "No, it's small. But it's nice." },
+      { who: "Mari", et: "Ja köök?", en: "And the kitchen?" },
+      { who: "Tom", et: "Köök on väga väike! Aga aken on suur.", en: "The kitchen's really small! But the window's big." },
+      { who: "Mari", et: "Ja maja? Kas see on uus?", en: "And the building? Is it new?" },
+      { who: "Tom", et: "Ei, maja on vana. Aga hea!", en: "No, the building's old. But it's good!" },
+    ],
+    teaches: [
+      { kind: "word", et: "suur", en: "big" },
+      { kind: "word", et: "väike", en: "small" },
+      { kind: "word", et: "uus", en: "new" },
+      { kind: "word", et: "hea", en: "good" },
+      { kind: "word", et: "halb", en: "bad" },
+      { kind: "word", et: "ilus", en: "beautiful, nice" },
+      { kind: "word", et: "kallis", en: "expensive, dear" },
+      { kind: "word", et: "odav", en: "cheap" },
+    ],
+    how: {
+      point: "A word that describes a thing stays as it is after {on}: {Korter on väike}.",
+      table: {
+        head: ["", "And its opposite"],
+        rows: [
+          [{ et: "suur" }, { et: "väike" }],
+          [{ et: "uus" }, { et: "vana" }],
+          [{ et: "hea" }, { et: "halb" }],
+          [{ et: "kallis" }, { et: "odav" }],
+        ],
+      },
+      notes: [
+        "In front of a thing, it's plain too: {uus korter}, {suur aken}.",
+        "Most of these come in pairs, so learn them as pairs and say them aloud together: {suur, väike}.",
+        "{Kallis} is expensive, and it's also dear: the word for somebody you love.",
+      ],
+      watchOut: "When a thing takes an ending, the word describing it takes the ending too, so in a big house both words end in -s. That's a later lesson; after {on}, nothing changes.",
+      examples: [0, 1, 5],
+    },
+    answers: [
+      { ask: { et: "Kas su korter on suur?", en: "Is your flat big?" }, cue: "Say no, it's small, but nice.", model: { et: "Ei, see on väike, aga ilus.", en: "No, it's small, but nice." } },
+      { cue: "Say the coffee here is expensive.", model: { et: "Kohv on siin kallis.", en: "The coffee here is expensive." } },
+      { ask: { et: "Kas see on uus?", en: "Is it new?" }, cue: "Say no, it's old.", model: { et: "Ei, see on vana.", en: "No, it's old." } },
+    ],
+  },
+  {
+    id: "a1-37-colours",
+    n: 37,
+    level: "A1",
+    part: "a1-pood",
+    kind: "lesson",
+    title: "Colours",
+    goal: "Ask what colour something is, and say your favourite.",
+    cast: { Liis: "liivika", Tom: "kalev" },
+    conversation: [
+      { who: "Liis", et: "Tom, mis värvi su telefon on?", en: "Tom, what colour is your phone?" },
+      { who: "Tom", et: "Must. Ja sinu?", en: "Black. And yours?" },
+      { who: "Liis", et: "Minu telefon on punane. Mulle meeldib punane!", en: "My phone's red. I love red!" },
+      { who: "Tom", et: "Mulle meeldib sinine. Ja roheline.", en: "I like blue. And green." },
+      { who: "Liis", et: "Ja mis värvi on su köök?", en: "And what colour is your kitchen?" },
+      { who: "Tom", et: "Valge ja kollane.", en: "White and yellow." },
+    ],
+    teaches: [
+      { kind: "phrase", et: "Mis värvi?", en: "What colour?" },
+      { kind: "word", et: "värv", en: "colour" },
+      { kind: "word", et: "punane", en: "red" },
+      { kind: "word", et: "sinine", en: "blue" },
+      { kind: "word", et: "roheline", en: "green" },
+      { kind: "word", et: "kollane", en: "yellow" },
+      { kind: "word", et: "must", en: "black" },
+      { kind: "word", et: "valge", en: "white" },
+      { kind: "word", et: "hall", en: "grey" },
+      { kind: "word", et: "pruun", en: "brown" },
+    ],
+    how: {
+      point: "Ask {Mis värvi?} and answer with the colour, as it is: {Must}.",
+      table: {
+        head: ["Estonian", "In English"],
+        rows: [
+          [{ et: "punane" }, { en: "red" }],
+          [{ et: "sinine" }, { en: "blue" }],
+          [{ et: "roheline" }, { en: "green" }],
+          [{ et: "kollane" }, { en: "yellow" }],
+          [{ et: "must" }, { en: "black" }],
+          [{ et: "valge" }, { en: "white" }],
+          [{ et: "hall" }, { en: "grey" }],
+          [{ et: "pruun" }, { en: "brown" }],
+        ],
+      },
+      notes: [
+        "{Mis värvi su telefon on?} is what colour is your phone? The answer is the colour alone, or {Telefon on punane}.",
+        "Four of the colours end the same way: {punane}, {sinine}, {roheline}, {kollane}. Say them aloud as a list.",
+        "A colour is a describing word like lesson 36's, so it stays plain after {on}.",
+      ],
+      watchOut: "{Must} is black, and has nothing to do with the English must.",
+      examples: [0, 2, 3],
+    },
+    answers: [
+      { ask: { et: "Mis värvi su telefon on?", en: "What colour is your phone?" }, cue: "Say what colour yours is.", model: { et: "Must.", en: "Black." } },
+      { cue: "Say you like green.", model: { et: "Mulle meeldib roheline.", en: "I like green." } },
+      { cue: "Ask what colour something is.", model: { et: "Mis värvi see on?", en: "What colour is it?" } },
+    ],
+  },
+  {
+    id: "a1-38-clothes",
+    n: 38,
+    level: "A1",
+    part: "a1-pood",
+    kind: "lesson",
+    title: "Clothes",
+    goal: "Say what you need in a shop, in the colour you want.",
+    cast: { Liis: "liivika", Tom: "kalev" },
+    conversation: [
+      { who: "Liis", et: "Tere! Mida soovite?", en: "Hello! What would you like?" },
+      { who: "Tom", et: "Tere! Mul on vaja jopet.", en: "Hello! I need a jacket." },
+      { who: "Liis", et: "Mis värvi?", en: "What colour?" },
+      { who: "Tom", et: "Must või sinine.", en: "Black or blue." },
+      { who: "Liis", et: "See must jope on ilus. Ja see sinine on ka hea.", en: "This black jacket is nice. And the blue one's good too." },
+      { who: "Tom", et: "Kui palju see must jope maksab?", en: "How much is the black jacket?" },
+      { who: "Liis", et: "Viiskümmend eurot.", en: "Fifty euros." },
+      { who: "Tom", et: "Hästi. Ja mul on vaja ka mütsi.", en: "Fine. And I need a hat too." },
+    ],
+    teaches: [
+      { kind: "word", et: "vaja", en: "needed; with {mul on}, I need" },
+      { kind: "word", et: "jope", en: "jacket" },
+      { kind: "word", et: "särk", en: "shirt" },
+      { kind: "word", et: "kleit", en: "dress" },
+      { kind: "word", et: "müts", en: "hat" },
+      { kind: "word", et: "püksid", en: "trousers" },
+      { kind: "word", et: "kingad", en: "shoes" },
+      { kind: "form", et: "jopet", of: "jope", en: "a jacket, after need" },
+      { kind: "form", et: "särki", of: "särk", en: "a shirt, after need" },
+      { kind: "form", et: "mütsi", of: "müts", en: "a hat, after need" },
+    ],
+    how: {
+      point: "{Mul on vaja} and a thing is I need it, and the thing takes the {osastav}, as after {tahan}: {Mul on vaja jopet}.",
+      table: {
+        head: ["The thing", "After {vaja}"],
+        rows: [
+          [{ et: "jope" }, { et: "jopet" }],
+          [{ et: "särk" }, { et: "särki" }],
+          [{ et: "müts" }, { et: "mütsi" }],
+        ],
+      },
+      notes: [
+        "{Mul on vaja} is built like {mul on}: whoever needs it is where the need is. {Sul on vaja} is you need.",
+        "{Püksid} and {kingad} are always plural, like trousers and shoes in English.",
+        "{See must jope} is this black jacket: the colour sits between {see} and the thing.",
+      ],
+      watchOut: "{Mul on} alone is I have. Listen for {vaja}: it's what makes it need.",
+      examples: [1, 4, 7],
+    },
+    answers: [
+      { ask: { et: "Mida soovite?", en: "What would you like?" }, cue: "Say you need a jacket.", model: { et: "Mul on vaja jopet.", en: "I need a jacket." } },
+      { ask: { et: "Mis värvi?", en: "What colour?" }, cue: "Say black or grey.", model: { et: "Must või hall.", en: "Black or grey." } },
+      { cue: "Say you need a shirt too.", model: { et: "Mul on vaja ka särki.", en: "I need a shirt too." } },
+    ],
+  },
+  {
+    id: "a1-39-weather",
+    n: 39,
+    level: "A1",
+    part: "a1-pood",
+    kind: "lesson",
+    title: "Weather",
+    goal: "Say what the weather's like, and ask somebody else.",
+    cast: { Mari: "mari", Tom: "kalev" },
+    conversation: [
+      { who: "Mari", et: "Tom, mis ilm Tallinnas on?", en: "Tom, what's the weather like in Tallinn?", stage: "On the phone." },
+      { who: "Tom", et: "Täna on külm. Ja sajab vihma.", en: "It's cold today. And it's raining." },
+      { who: "Mari", et: "Tartus on päike! Ja soe.", en: "In Tartu it's sunny! And warm." },
+      { who: "Tom", et: "Tõesti? Siin on väga külm ja tuul.", en: "Really? Here it's very cold and windy." },
+      { who: "Mari", et: "Ja homme sajab lund!", en: "And tomorrow it's going to snow!" },
+      { who: "Tom", et: "Lund? Ei!", en: "Snow? Oh no!" },
+    ],
+    teaches: [
+      { kind: "word", et: "ilm", en: "weather" },
+      { kind: "word", et: "külm", en: "cold" },
+      { kind: "word", et: "soe", en: "warm" },
+      { kind: "word", et: "päike", en: "sun" },
+      { kind: "word", et: "vihm", en: "rain" },
+      { kind: "word", et: "lumi", en: "snow" },
+      { kind: "word", et: "tuul", en: "wind" },
+      { kind: "form", et: "sajab", of: "sadama", en: "falls, of rain or snow" },
+      { kind: "phrase", et: "Sajab vihma.", en: "It's raining." },
+      { kind: "phrase", et: "Sajab lund.", en: "It's snowing." },
+      { kind: "phrase", et: "lund", en: "snow, after falls" },
+      { kind: "word", et: "väljas", en: "outside" },
+      { kind: "word", et: "tõesti", en: "really, truly" },
+    ],
+    how: {
+      point: "Weather is {on} and how it is, {Täna on külm}, or {sajab} and what's falling: {Sajab vihma}.",
+      table: {
+        head: ["In English", "Estonian"],
+        rows: [
+          [{ en: "it's cold" }, { et: "on külm" }],
+          [{ en: "it's warm" }, { et: "on soe" }],
+          [{ en: "it's sunny" }, { et: "on päike" }],
+          [{ en: "it's raining" }, { et: "sajab vihma" }],
+          [{ en: "it's snowing" }, { et: "sajab lund" }],
+        ],
+      },
+      notes: [
+        "{Sajab vihma} is word for word \"falls rain\", and the rain is in the {osastav}, as after {tahan}.",
+        "{Väljas} is outside: {Väljas on külm}.",
+        "Estonians often open a chat with a neighbour on the weather, so this is one of the most useful lessons of the part.",
+      ],
+      watchOut: "There's no it in {On külm}. Estonian says just \"is cold\", and that's a whole sentence.",
+      examples: [0, 1, 2],
+    },
+    answers: [
+      { ask: { et: "Mis ilm täna on?", en: "What's the weather like today?" }, cue: "Say it's cold and raining.", model: { et: "Täna on külm ja sajab vihma.", en: "It's cold and raining today." } },
+      { cue: "Say it's warm outside.", model: { et: "Väljas on soe.", en: "It's warm outside." } },
+      { cue: "Say tomorrow it's going to snow.", model: { et: "Homme sajab lund.", en: "Tomorrow it's going to snow." } },
+    ],
+  },
+  {
+    id: "a1-40-clothes-shop",
+    n: 40,
+    level: "A1",
+    part: "a1-pood",
+    kind: "partEnd",
+    title: "A clothes shop",
+    goal: "Buy something to wear: say what you need, the colour, and pay.",
+    cast: { Liis: "liivika", Tom: "kalev" },
+    conversation: [
+      { who: "Liis", et: "Tere! Mida soovite?", en: "Hello! What would you like?" },
+      { who: "Tom", et: "Tere! Mul on vaja mütsi. Täna on väga külm!", en: "Hello! I need a hat. It's really cold today!" },
+      { who: "Liis", et: "Jah, väljas on külm. Mis värvi?", en: "Yes, it's cold outside. What colour?" },
+      { who: "Tom", et: "Hall või must.", en: "Grey or black." },
+      { who: "Liis", et: "See hall müts on hea. Ja odav!", en: "This grey hat is good. And cheap!" },
+      { who: "Tom", et: "Kui palju see maksab?", en: "How much is it?" },
+      { who: "Liis", et: "Kümme eurot.", en: "Ten euros." },
+      { who: "Tom", et: "Väga hea. Kaardiga, palun.", en: "Very good. By card, please." },
+      { who: "Liis", et: "Aitäh! Head aega!", en: "Thank you! Goodbye!" },
+    ],
+    teaches: [],
+    how: {
+      point: "A whole visit to a shop, made only of what this part and the ones before it taught.",
+      notes: [
+        "Tom opens with the weather and the shop assistant picks it up. That's how a lot of small talk in Estonia starts.",
+        "Notice {See hall müts}: this grey hat, with the colour between {see} and the thing, from lesson 38.",
+      ],
+      watchOut: "You don't need to describe the thing perfectly. What you need, and a colour, is enough to be shown it.",
+      examples: [1, 4, 7],
+    },
+    answers: [
+      { ask: { et: "Mida soovite?", en: "What would you like?" }, cue: "Say you need a jacket.", model: { et: "Mul on vaja jopet.", en: "I need a jacket." } },
+      { ask: { et: "Mis värvi?", en: "What colour?" }, cue: "Say blue.", model: { et: "Sinine.", en: "Blue." } },
+      { cue: "Say it's cheap and nice.", model: { et: "See on odav ja ilus.", en: "It's cheap and nice." } },
+    ],
+    roleplay: {
+      scene: "It's a cold day and you need a hat. The shop assistant speaks first.",
+      turns: [
+        { ask: { et: "Tere! Mida soovite?", en: "Hello! What would you like?" }, cue: "Say you need a hat.", model: { et: "Mul on vaja mütsi.", en: "I need a hat." } },
+        { ask: { et: "Jah, väljas on külm! Mis värvi?", en: "Yes, it's cold outside! What colour?" }, cue: "Say grey or black.", model: { et: "Hall või must.", en: "Grey or black." } },
+        { ask: { et: "See hall müts on ilus.", en: "This grey hat is nice." }, cue: "Ask how much it is.", model: { et: "Kui palju see maksab?", en: "How much is it?" } },
+        { ask: { et: "Kümme eurot.", en: "Ten euros." }, cue: "Say very good, by card.", model: { et: "Väga hea. Kaardiga, palun.", en: "Very good. By card, please." } },
+      ],
+    },
+  },
+];
