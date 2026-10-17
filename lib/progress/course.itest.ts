@@ -4,6 +4,7 @@ import { PROGRAMMES, MEET_STEP, REVIEW_STEP } from "@/lib/course";
 import { CLOSING_REVIEW, closingProgress, courseReading, dayIsInPlay, ladderReading } from "@/lib/progress/course";
 import { restartPart } from "@/lib/progress/courseReset";
 import { dayClock } from "@/lib/time/day";
+import { SETTING_KEYS } from "@/lib/settings/store";
 
 /**
  * WHERE SOMEBODY IS IN THE PLANNED COURSE, AGAINST A REAL DATABASE.
@@ -29,7 +30,8 @@ import { dayClock } from "@/lib/time/day";
 
 const OWNER = "itest-owner-course";
 const CLOCK = dayClock("Europe/Tallinn");
-const PROGRAMME = PROGRAMMES[0]!;
+/* A1 is the lessons, one step an evening (docs/43-lessons.md, P3); these readings are about an evening of units. */
+const PROGRAMME = PROGRAMMES.find((p) => !p.days.some((d) => d.lesson))!;
 
 /*
   A CLOCK THE TEST OWNS, which is this repository's own rule about a unit test
@@ -50,6 +52,8 @@ async function wipe() {
   await prisma.review.deleteMany({ where: { ownerId: OWNER } });
   await prisma.card.deleteMany({ where: { ownerId: OWNER } });
   await prisma.deferral.deleteMany({ where: { ownerId: OWNER } });
+  /* Following the part these readings are about, since with nothing stored a learner follows A1.1. */
+  await prisma.setting.create({ data: { ownerId: OWNER, key: SETTING_KEYS.programme, value: PROGRAMME.id } });
 }
 
 /**
@@ -204,7 +208,7 @@ const ticked = (day: (typeof PROGRAMME.days)[number]) =>
   day.steps.filter((s) => !s.derived).map((s) => s.id);
 
 beforeEach(wipe);
-afterAll(async () => { await wipe(); await prisma.$disconnect(); });
+afterAll(async () => { await wipe(); await prisma.setting.deleteMany({ where: { ownerId: OWNER } }); await prisma.$disconnect(); });
 
 describe("which day is current", () => {
   it("starts on day one with an empty deck", async () => {
