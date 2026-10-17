@@ -203,7 +203,7 @@ function fake(overrides: Partial<Speech>): Speech {
 const GALLERY: readonly (readonly [string, Partial<Speech>])[] = [
   ["Ready", {}],
   ["Not downloaded yet", { phase: "needs-download" }],
-  ["Downloading", { phase: "downloading", progress: { done: 31_000_000, total: 74_000_000 } }],
+  ["Downloading", { phase: "downloading", progress: { done: 31_000_000, total: 71_000_000 } }],
   ["Getting ready", { phase: "loading" }],
   ["Listening", { listening: true, level: 0.6, partial: "tere hommikust" }],
   ["Listening, too loud", { listening: true, level: 1, clipping: true, partial: "tere" }],
