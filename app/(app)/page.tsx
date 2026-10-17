@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { Lettered } from "@/components/HeroLetters";
+import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { redirect } from "next/navigation";
 import { LEARN_BATCH } from "@/lib/learn/ladder";
 import { ArrowRight, Check, Flame, Shield } from "lucide-react";
