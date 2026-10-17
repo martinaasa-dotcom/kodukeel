@@ -132,7 +132,7 @@ function personAsk(verb: TryItVerb, prefix: "IndPr" | "KndPr", random: () => num
   const sharing = cells.filter((c) => c.value === target.value && c.code !== target.code);
   const shared = sharing.map((c) => c.pronoun).join(" and ");
   const also = sharing.length > 0 ? `, and for ${shared} too` : "";
-  const soDoes = sharing.length > 0 ? `, and so ${sharing.length > 1 ? "do" : "does"} ${shared}` : "";
+  const sameWith = sharing.length > 0 ? `, and the same with ${shared}` : "";
   const would = prefix === "KndPr" ? " would" : "";
   return {
     prompt: `${verb.lemma} means ${verb.translation}. Which one is "${target.who}${would}"${target.to ?? ""}?`,
@@ -140,7 +140,7 @@ function personAsk(verb: TryItVerb, prefix: "IndPr" | "KndPr", random: () => num
     options: shuffle(options, random),
     answer: target.value,
     yes: `Yes. ${target.value} is ${verb.lemma} for ${target.pronoun}${also}.`,
-    no: `Not that one. With ${target.pronoun} it's ${target.value}${soDoes}.`,
+    no: `Not that one. With ${target.pronoun} it's ${target.value}${sameWith}.`,
     say: {
       kind: "person", lemma: verb.lemma, translation: verb.translation, person: target.code,
       conditional: prefix === "KndPr", value: target.value, pronoun: target.pronoun,

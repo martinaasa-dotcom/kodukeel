@@ -135,7 +135,7 @@ export function HintLadder({
             the half of this button somebody deciding whether to press again is
             actually reading.
           */}
-          <span aria-hidden className="whitespace-nowrap">{left > 1 ? fill(t("({n} left)"), { n: left }) : t("(last one)")}</span>
+          <span aria-hidden className="whitespace-nowrap">{left > 1 ? fill(t("({n} hints left)"), { n: left }) : t("(last one)")}</span>
         </button>
       )}
       {taken > 0 && graded && (

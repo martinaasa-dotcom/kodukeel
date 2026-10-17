@@ -952,7 +952,7 @@ function YourTurn({ word }: { word: WalkWord }) {
                 aria-checked={option.suffix === picked}
                 disabled={picked !== null}
                 onClick={() => pick(option.suffix)}
-                className={`choice-btn flex items-center gap-3 rounded-[var(--r-lg)] px-4 py-3 text-left ${state ? OPTION_CLASS[state] : ""}`}
+                className={`choice-btn flex items-center gap-3 rounded-[var(--r-lg)] border px-4 py-3 text-left ${state ? OPTION_CLASS[state] : ""}`}
               >
                 <KeyCap>{i + 1}</KeyCap>
                 <span lang="et" className="text-lg font-bold">-{option.suffix}</span>
