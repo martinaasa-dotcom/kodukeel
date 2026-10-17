@@ -16,7 +16,7 @@
  *
  * Pure: no React, no Next, no Prisma, no clock.
  */
-import { LESSONS, ledgerLemmas, ledgerThrough, untaughtIn, wordsOf, type Ledger } from "@/lib/course/lessons";
+import { LESSONS, NAMES, ledgerLemmas, ledgerThrough, untaughtIn, wordsOf, type Ledger } from "@/lib/course/lessons";
 import type { GateContext } from "./gate";
 import type { Lexicon } from "./lexicon";
 import type { SceneSpec } from "./types";
@@ -25,7 +25,14 @@ import type { SceneSpec } from "./types";
 export function inLesson(lesson: string, spec: Omit<SceneSpec, "units" | "lemmas" | "lesson">): SceneSpec {
   const ledger = ledgerThrough(LESSONS, lesson);
   if (!ledger) throw new Error(`The scene ${spec.id} names lesson ${lesson}, which no list holds.`);
-  return { ...spec, units: [], lemmas: ledgerLemmas(ledger), lesson };
+  /*
+    A phrase is taught with its mark, `Palun!`, and the dictionary heads some
+    of them without one, `Palun`: both spellings name what was taught, so a
+    beat may name the one the dictionary holds.
+  */
+  const lemmas = ledgerLemmas(ledger);
+  const bare = lemmas.map((lemma) => lemma.replace(/[.!?]+$/, "")).filter((lemma) => !lemmas.includes(lemma));
+  return { ...spec, units: [], lemmas: [...lemmas, ...new Set(bare)], lesson };
 }
 
 /** Each lesson's ledger, built once: the context is built on every turn and the ledger is a walk over the level. */
@@ -54,6 +61,8 @@ export function lessonGate(scene: SceneSpec, lexicon: Lexicon): Pick<GateContext
   if (!ledger) return { untaught: (text: string) => wordsOf(text).map((w) => w.raw) };
   const taught = new Set<string>(ledger.spellings);
   for (const phrase of ledger.phrases) for (const word of phrase) taught.add(word);
+  // And the people the lessons are about, whose names a line may use: `Mari`, `Tom`.
+  for (const name of NAMES) taught.add(name.toLowerCase());
   return {
     untaught: untaughtIn(ledger),
     vouched: (word: string) => lexicon.forms.has(word) || taught.has(word),

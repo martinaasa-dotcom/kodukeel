@@ -302,6 +302,19 @@ for (const entry of shipped) {
   const finite = FINITE_VERB_FORMS as Set<string>;
   for (const [type, value] of Object.entries(entry.parts)) {
     if (type === "PRES_1SG" || type === "PAST_1SG") finite.add(value.toLowerCase());
+    /*
+      The simple past's other persons but the third sit on the stored first
+      person exactly as the present's do on `loen`: `tegin` goes to `tegid`,
+      `tegime`, `tegite`. Only the third (`tegi`, `luges`) is per verb, which
+      is why no rule reaches it. This is an accept list for a check over the
+      bank, so it is never shown and never a card answer: without it "Mida sa
+      laupäeval tegid?", the question lesson 45 is built on, read as a line
+      with no verb in it.
+    */
+    if (type === "PAST_1SG" && value.endsWith("in")) {
+      const stem = value.slice(0, -2).toLowerCase();
+      for (const ending of ["id", "ime", "ite"]) finite.add(stem + ending);
+    }
   }
   for (const form of entry.extraForms) {
     if (/^(Ind|Knd|Imp|Kvt)/.test(form.code)) finite.add(form.value.toLowerCase());

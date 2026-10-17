@@ -10457,6 +10457,15 @@ together, and the unit suite fails otherwise. The conversations are written and 
 speaker (ADR-005 amendment 6). Lessons are at `/course/lessons` for reviewers only until A1 is whole
 (decision L6), and record nothing; the old parts stay the course until then.
 
+**A lesson's role-play is also a live scene, and it says only what that lesson has taught.**
+`lib/scenes/lessonScenes.ts` holds one scene per A1 lesson that ends in a role-play, off the situations
+listing (`sceneById` reads it after the catalogue). `inLesson` takes the scene's word list from the
+lesson ledger instead of the old units, `lessonGate` hands the gate the `taught` check and the lesson's
+own spellings, and the app and the harness both read it (asserted). `lessonScenes.test.ts` plays every
+scene keyless as seven kinds of beginner and fails on any word the other side says that the lesson has
+not taught, which is how the engine's own `või`, `aga` and `selge` were caught. A word a card deals must
+be a dictionary entry, or no answer can meet it.
+
 ## Conventions
 
 - TypeScript `strict` plus `noUncheckedIndexedAccess`. No `any` without a comment justifying it.

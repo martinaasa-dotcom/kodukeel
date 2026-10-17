@@ -593,6 +593,7 @@ export function planTurn(input: TurnInput) {
       acknowledges: persona?.acknowledges ?? true,
       permission: asksPermission(last?.said ?? "", context.lexicon),
       finiteForms: finiteFormsOf(context.lexicon),
+      but: context.lexicon.forms.has("aga"),
       verbAnswer: verbAnswered(answered, last?.matched?.[0] ?? null, context.lexicon),
       // A slip the dictionary could not put right leaves the turn's own words wrong, so none of them is said back.
       slipped: Boolean(last?.slips?.some((slip) => !slip.form)),

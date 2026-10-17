@@ -3,6 +3,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { isAdmin } from "@/lib/auth/admin";
 import { lessonById, ledgersBefore, LESSONS, practiceFor, reviewFor } from "@/lib/course/lessons";
 import { titleFor } from "@/lib/progress/locale";
+import { sceneForLesson } from "@/lib/scenes/lessonScenes";
 import { LessonRunner } from "./LessonRunner";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -35,6 +36,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
       practice={practiceFor(lesson, before)}
       review={reviewFor(lesson, before)}
       next={next ? { id: next.id, title: next.title } : null}
+      scene={sceneForLesson(lesson.id)?.id ?? null}
     />
   );
 }

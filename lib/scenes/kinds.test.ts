@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { SCENES } from "./catalogue";
+import { SCENES as LISTED } from "./catalogue";
+import { LESSON_SCENES } from "./lessonScenes";
+
+// The lessons' own role-plays are in no listing and still open in a room of their own.
+const SCENES = [...LISTED, ...LESSON_SCENES];
 import { KINDS, SCENE_KINDS, kindOf } from "./kinds";
 
 describe("the kinds of place the chooser filters by", () => {

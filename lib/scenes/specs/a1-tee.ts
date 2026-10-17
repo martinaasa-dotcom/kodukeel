@@ -55,7 +55,7 @@ export default inLesson("a1-35-the-way", {
       they: "They tell you which way to go.",
       move: "instruct",
       topic: ["otse", "vasakule", "paremale"],
-      needs: [{ kind: "lemma", oneOf: ["otse", "vasakule", "paremale", "Aitäh!", "selge", "hästi", "jah"] }],
+      needs: [{ kind: "lemma", oneOf: ["otse", "Aitäh!", "selge", "hästi", "jah"] }],
       required: true,
       patience: 2,
       shape: "word",

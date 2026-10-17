@@ -77,7 +77,7 @@ import BOOK_CLUB from "./specs/raamatuklubi";
 import EXAM_B1 from "./specs/eksam-b1";
 import EXAM_B2 from "./specs/eksam-b2";
 
-export { FAREWELLS, REACTIONS, LOST, ASIDES, FEELINGS, FALLBACK_PHRASE, ASK_ENGLISH } from "./specs/shared";
+export { FAREWELLS, REACTIONS, LOST, ASIDES, FEELINGS, FALLBACK_PHRASE, ASK_ENGLISH, MEETING } from "./specs/shared";
 
 export const SCENES: readonly SceneSpec[] = [
   SHOP, DOCTOR, LANDLORD, COUNTER, CAFE, DIRECTIONS, TICKET,

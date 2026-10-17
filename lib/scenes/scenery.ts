@@ -172,6 +172,15 @@ export const SCENERY: Readonly<Record<string, Scenery>> = {
     already draws (D17): the stairwell `trepikoda` opens in.
   */
   chat: { icon: "MessageCircle", setting: "stairwell" },
+  // The lessons' own role-plays (`lib/scenes/lessonScenes.ts`) borrow the rooms their situations already have.
+  "a1-kohvik": { icon: "Utensils", setting: "cafe" },
+  "a1-tee": { icon: "Compass", setting: "street" },
+  "a1-trepil": { icon: "Footprints", setting: "stairwell" },
+  "a1-kursus": { icon: "School", setting: "classroom" },
+  "a1-plaan": { icon: "MessagesSquare", setting: "home_phone" },
+  "a1-mutsipood": { icon: "Shirt", setting: "shop" },
+  "a1-nadal": { icon: "MessagesSquare", setting: "home_phone" },
+  "a1-kutse": { icon: "Footprints", setting: "stairwell" },
 };
 
 /**

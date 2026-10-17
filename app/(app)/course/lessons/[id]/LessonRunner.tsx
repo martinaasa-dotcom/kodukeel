@@ -48,11 +48,13 @@ const STEP_TITLE: Record<Step, string> = {
 /** The three teaching steps are finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next }: {
+export function LessonRunner({ lesson, practice, review, next, scene }: {
   lesson: LessonSpec;
   practice: readonly PracticeItem[];
   review: readonly PracticeItem[];
   next: { id: string; title: string } | null;
+  /** The lesson's own conversation, where it has one (`sceneForLesson`). */
+  scene: string | null;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -127,7 +129,7 @@ export function LessonRunner({ lesson, practice, review, next }: {
           {step === "words" && <Words lesson={lesson} />}
           {step === "how" && <How lesson={lesson} />}
           {step === "practise" && <Quiz key="practise" items={practice} onFinished={() => finish("practise")} />}
-          {step === "say" && <SayIt lesson={lesson} onComplete={() => finish("say")} />}
+          {step === "say" && <SayIt lesson={lesson} scene={scene} onComplete={() => finish("say")} />}
           {step === "review" && (review.length > 0
             ? <Quiz key="review" items={review} onFinished={() => finish("review")} />
             : (

@@ -12,7 +12,7 @@
  * digit, no dash or colon, not the form the beat is about to ask for, a verb
  * where the beat wants a clause, and never the way out.
  */
-import { SCENES, FALLBACK_PHRASE } from "../../lib/scenes/catalogue";
+import { FALLBACK_PHRASE, sceneById } from "../../lib/scenes/catalogue";
 import { gateFor, runGate } from "../../lib/scenes/gate";
 import { words } from "../../lib/scenes/lexicon";
 import { beatById } from "../../lib/scenes/scripted";
@@ -22,7 +22,7 @@ type Context = ReturnType<typeof keylessContext>;
 const contexts = new Map<string, Context>();
 
 function contextFor(sceneId: string): Context | null {
-  const scene = SCENES.find((s) => s.id === sceneId);
+  const scene = sceneById(sceneId);
   if (!scene) return null;
   let context = contexts.get(sceneId);
   if (!context) {
@@ -34,7 +34,7 @@ function contextFor(sceneId: string): Context | null {
 
 /** What would refuse `text` on this beat, or nothing. "no such beat" where there is none. */
 export function lineRefusals(sceneId: string, beatId: string, text: string): string[] {
-  const scene = SCENES.find((s) => s.id === sceneId);
+  const scene = sceneById(sceneId);
   const beat = scene ? beatById(scene, beatId) : undefined;
   const context = contextFor(sceneId);
   if (!scene || !beat || !context) return ["no such beat"];

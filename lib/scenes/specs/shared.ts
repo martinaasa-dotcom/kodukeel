@@ -108,6 +108,13 @@ export const FEELINGS: Readonly<Record<Feel, { readonly word: string; readonly m
   noted: { word: "selge", mark: "." },
 };
 
+/**
+ * "Nice to meet you", which is a reaction to a name all of its own: a line
+ * opening on it needs no "Hästi." in front. Written as the dictionary heads
+ * the phrase, without its mark, and read case-blind.
+ */
+export const MEETING = "väga meeldiv";
+
 export const REACTIONS = {
   acknowledge: ["hästi", "aitäh", "jah"],
   /*

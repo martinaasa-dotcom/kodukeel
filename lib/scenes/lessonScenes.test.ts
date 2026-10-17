@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { LESSON_SCENES, sceneForLesson } from "./lessonScenes";
 import { SCENES, sceneById } from "./catalogue";
 import { BANK } from "./bank";
+import { pickSpecsFor, literalOf } from "./picks";
 import { planRun } from "./run";
 import { propBySlot, type RoleCard } from "./props";
 import { isSpokenEstonian } from "./line";
@@ -34,7 +35,8 @@ const ROWS: Row[] = shippedDictionary().map((e) => ({
 function rightAnswer(scene: SceneSpec, beat: BeatSpec, card: RoleCard | null, lexicon: Lexicon): string {
   const leaves = leafNeeds(beat.needs).map(({ need }) => need);
   const value = (slot: string) => (card ? propBySlot(card, slot)?.value : undefined) ?? "";
-  if (leaves.some((n) => n.kind === "question")) {
+  // A question the beat requires, rather than one it merely accepts beside a word.
+  if (beat.needs.some((n) => n.kind === "question")) {
     const datum = leaves.find((n) => n.kind === "datum");
     if (datum && datum.kind === "datum") return `Vabandust, kus on ${value(datum.slot)}?`;
     if (beat.topic.includes("maksma")) return "Kui palju see maksab?";
@@ -115,6 +117,48 @@ describe("the lessons' own conversations", () => {
     }
   });
 
+  /*
+    A word the card deals is a word the marker has to recognise, and it can
+    only recognise an entry the dictionary holds. `Ukraina` is taught by the
+    lessons as a spelling and has no entry, so a card that dealt it asked the
+    learner to say something no answer could ever meet.
+  */
+  it("deal only words the dictionary holds an entry for, and require none it does not", () => {
+    const entries = new Set(ROWS.map((r) => r.lemma));
+    for (const scene of LESSON_SCENES) {
+      // `normaalselt`, `vasakule` and `paremale` are taught and have no entry, so a beat requiring them could never be met by them.
+      for (const beat of scene.beats) {
+        for (const { need } of leafNeeds(beat.needs)) {
+          const named = need.kind === "lemma" ? need.oneOf : need.kind === "case" ? [need.lemma] : [];
+          for (const lemma of named) expect(entries.has(lemma), `${scene.id}/${beat.id} requires ${lemma}, which has no entry`).toBe(true);
+        }
+      }
+      for (const prop of scene.props) {
+        if (prop.kind !== "word") continue;
+        for (const lemma of prop.oneOf) expect(entries.has(lemma), `${scene.id} deals ${lemma}, which has no entry`).toBe(true);
+      }
+    }
+  });
+
+  /*
+    What the learner may pick to say is held to the lesson as firmly as what
+    the other side says: a pick is a sentence the learner reads, and a word in
+    it nobody has taught is the fault the lessons exist to stop.
+  */
+  it("offer picks made only of words the lesson has taught", () => {
+    for (const scene of LESSON_SCENES) {
+      const ledger = ledgerThrough(LESSONS, scene.lesson!)!;
+      for (const beat of scene.beats) {
+        for (const spec of pickSpecsFor(scene, beat.id)) {
+          const literal = literalOf(spec.et);
+          const names = new Set<string>(NAMES);
+          for (const [at, w] of wordsOf(literal).entries()) if (at > 0 && /^\p{Lu}/u.test(w.raw)) names.add(w.raw);
+          expect(uncovered(literal, ledger, names), `${scene.id}/${beat.id} offers "${spec.et}"`).toEqual([]);
+        }
+      }
+    }
+  });
+
   it("bank every beat a line, or say it off the card", () => {
     for (const scene of LESSON_SCENES) {
       for (const beat of scene.beats) {
@@ -125,7 +169,7 @@ describe("the lessons' own conversations", () => {
   });
 
   it("refuse, at the gate, a line reaching past the lesson", () => {
-    const scene = LESSON_SCENES[0]!;
+    const scene = sceneById("a1-kohvik")!;
     const lemmas = sceneLemmas(scene);
     const context = contextFromRows(scene, ROWS.filter((r) => lemmas.has(r.lemma)), "A1");
     // Made to fail on the real rule: a word the part does not teach, in an otherwise ordinary line.
