@@ -150,6 +150,9 @@ that is correct and reads like a translation has failed.
 | form (of a word) | форма | форма |
 | verb, noun, adjective | глагол, существительное, прилагательное | дієслово, іменник, прикметник |
 | Situations, conversation | Ситуации, разговор | Ситуації, розмова |
+| Speaking (the feature, the round) | устная речь | усне мовлення |
+| aloud, out loud | вслух | вголос (never "уголос") |
+| heard (what the microphone understood) | услышано | почуто |
 | Dictionary | Словарь | Словник |
 | Grammar | Грамматика | Граматика |
 | Progress | Прогресс | Прогрес |

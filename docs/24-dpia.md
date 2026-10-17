@@ -58,7 +58,7 @@ not consent, and the service really does need most of this.
 | Purpose | What it needs | Article 6 basis | Why that one |
 | --- | --- | --- | --- |
 | Show a learner their own deck rather than somebody else's | Email address, user id | 6(1)(b), contract | Without an identity there is no account |
-| Schedule reviews | The append-only review log: grade, moment, duration, which facet was asked | 6(1)(b), contract | The scheduler is the product. An app that forgets how well you know each word is not the app anybody signed up for |
+| Schedule reviews | The append-only review log: grade, moment, duration, which facet was asked, and whether the answer was said aloud and sent as heard (`Review.spoken`) | 6(1)(b), contract | The scheduler is the product. An app that forgets how well you know each word is not the app anybody signed up for. The spoken flag changes no grade; it is read by "Said aloud this week" on Progress and by `npm run report:speech`, and a spoken conversation turn keeps two counts beside it, words heard and words changed, never the words (R18) |
 | Keep tasks, calendar entries, starred words, settings | What the learner typed | 6(1)(b), contract | Each is a feature the learner asked for by using it |
 | Keep named decks, words put aside, and which steps of the course module are ticked | `Deck`, `DeckWord`, `Deferral`, `CourseStep` | 6(1)(b), contract | Each is a press the learner made. A put-aside word is also counted across learners to decide whether a word is taught one band later (`lib/progress/hard.ts`), which reads counts of people and never shows anybody's row |
 | Send the letters a learner can switch off | Email address, and `EmailSend`: which kind, which day, the provider's message id | 6(1)(b), contract | Each kind is switched off from a link in every footer (`lib/email/unsubscribe.ts`), and the daily word is off unless asked for (`DEFAULT_OFF` in `lib/email/letter.ts`). The row is the frequency cap and holds no subject and no body |
@@ -232,12 +232,13 @@ person looked at and ticked (ADR-021).
 got stuck, switched to English, or that there was none yesterday. Not where, not who, not what was
 said.
 
-**Speech is never scored and never uploaded.** Speaking practice compares a recording against a
-native rendering in the browser and the learner judges it. Nothing recorded leaves the device, and
-no audio is stored anywhere (ADR-018). The reason is measured rather than asserted: a recogniser was
-benchmarked at a 14.6 percent word error rate on clean native audio, with errors landing exactly
-where an Estonian learner is weakest, so a transcript would report correct pronunciation as an error
-four times in five. `scripts/measure-asr.ts` is the measurement.
+**Speech is never scored and never uploaded.** Since the fifth batch the app hears Estonian on the
+device (ADR-028): a model running in the browser says which words it understood, the learner can
+change the text before it counts, and nothing recorded leaves the device or is stored anywhere (R18).
+What it never does is tell somebody how a word sounded (ADR-018). The reason is measured rather than
+asserted: a recogniser was benchmarked at a 14.6 percent word error rate on clean native audio, with
+errors landing exactly where an Estonian learner is weakest, and the model the app runs writes most
+words said with an accent as the right word. `scripts/measure-asr.ts` is the measurement.
 
 **Progress is derived, never stored.** The streak, the goal and every chart are computed from the
 review log on each request. There is no counter column to be wrong, to drift, or to survive a

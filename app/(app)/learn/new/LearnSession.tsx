@@ -576,7 +576,7 @@ export function LearnSession({
        repaired and the learner left in the box writes nothing (D13): the word
        stays where it was on the ladder and comes back. */
     const spoken = outcome !== "known" && spokenAnswer.current;
-    const unwritten = spoken && repairedAnswer.current;
+    const unwritten = outcome !== "known" && repairedAnswer.current;
     try {
     // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
     const reviewId = crypto.randomUUID();
@@ -661,9 +661,11 @@ export function LearnSession({
     if (!word || busy || phase === "feedback") return;
     const expected = word.gap ? word.gap.answer : word.lemma;
     const answer = said ?? typed;
-    // Answered aloud where the microphone filled the box, edited or not (VB-6).
-    spokenAnswer.current = said !== undefined || spokenBox.current.spoken;
-    repairedAnswer.current = spokenAnswer.current && spokenBox.current.carriesRepair(answer);
+    /* Written as spoken only where what is marked is what was heard (`saidAsIs`,
+       D4, VB-6); a repaired word left in the box writes nothing, edited or not (D13). */
+    const heardInBox = said !== undefined || spokenBox.current.spoken;
+    spokenAnswer.current = said !== undefined || spokenBox.current.saidAsIs(answer);
+    repairedAnswer.current = heardInBox && spokenBox.current.carriesRepair(answer);
     // On the gap another form is the wrong answer; asked from the meaning, it is the word.
     const check = checkAnswer(answer, expected, "et", word.gap?.rivals ?? [], word.gap ? [] : word.kin);
     /*

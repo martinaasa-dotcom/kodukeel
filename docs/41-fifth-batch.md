@@ -209,8 +209,20 @@ next answer to the same card recalled 67% of the time after a spoken one (4 of 6
 one (203 of 267, from the same learner).** Those are the fixture's own numbers and say nothing about
 learners: what they show is that the report reads `Review.spoken`, pairs each answer with the next one
 on its card, and draws the typed baseline from the same people. The edit rate reads "no spoken
-conversation turn carries its counts yet", because the counts on `SceneRun` are VB-4's to store.
-Tonight's chat has its reading since VB-11 (below). **The deployment run is the operator's** (section
+conversation turn carries its counts yet": VB-4 stores the counts on every spoken turn, and the
+demo fixture holds no conversation, so the reading is held by its unit test rather than by this run.
+Tonight's chat has its reading since VB-11 (below).
+
+**What "spoken" means was tightened in the review of 2026-10-17.** The numbers round and the chant
+wrote an answer as spoken only where it was sent as heard; the answer boxes on the daily path, the
+Speaking round and a conversation wrote any box the microphone had ever filled, edited or cleared and
+retyped, and a conversation wrote every grade on a beat as spoken where any turn on it was said. All
+of them now write spoken where what was marked is what was heard, word for word, and a conversation
+reads it off the turn that met the requirement; a repaired word left in an edited box still writes
+nothing (D13). The workbook's lines read aloud write no `spoken` at all, by design: the word in each
+gap is placed by aligning the line, not heard as spelled, and is marked as typed (VB-8). The minutes
+in "Said aloud this week" are left out where none of the week's spoken answers was timed, since a
+conversation's grades and a numbers round write no time. **The deployment run is the operator's** (section
 8): it needs the production connection string, which no session holds.
 
 **VB-11, tonight's chat, measured 2026-10-17.** Four readings, and the spend is all of one critic round.
@@ -430,7 +442,7 @@ stops. Size is the work in one pull request: S is a day, M a few days, L a week 
 | VB-11 Tonight's chat | 3: Estonian from real life | L | Done: "Talk it over" under a finished evening that met at least three new words, on the scene chain only (`chatOffered`), one `chat` scene built at run time from the evening's words (`lib/scenes/specs/chat.ts`, `BeatSpec.elicits`), the same neighbour every time, memory derived from earlier chat runs, `report:speech` reading it, `scripts/test-chat.mjs`; one critic round at $0.0672 (section 0); ADR-025 amendment 4 |
 | VB-12 Something real to listen to | 3 | M | Done: "Or open a recording" on the reading page (`app/(app)/read/Recording.tsx`), decoded and heard on the device in pieces with a stop, glossed through `readHeard` in one request, each line played from the recording through `playRecording` in `lib/audio/clip.ts`; unsure words carry a **wavy** underline rather than the dotted one this page asked for, since dotted already means "a dictionary word"; `/privacy` and DPIA R19; `scripts/test-recordings.mjs` |
 | VB-13 What is around you | 3 | M | Done: "Things around me" beside "A page of words" on the scanner, camera, webcam (video only, named in `one-microphone.ts`), file or drop, English names off the `scan` chain resolved by `lib/progress/things.ts`, other entries on the row to choose and homographs never offered, saved as a scan, "Say them" ungraded |
-| VB-14 Speaking as evidence | 4: knowing whether it works | M | Done: `Review.spoken` stored, exported and erased, "Said aloud this week" on Progress, `npm run report:speech` run once locally (section 0); the deployment run is the operator's (section 8) |
+| VB-14 Speaking as evidence | 4: knowing whether it works | M | Done in part: `Review.spoken` stored, exported, restored and erased, written only where what was marked is what was heard (`scripts/invariants/spoken-means-sent-as-heard.ts`), "Said aloud this week" on Progress, `npm run report:speech` run once locally (section 0); the deployment run is the operator's (section 8). Not built: the median words per spoken turn by month, a spoken turn as readiness evidence, and "spoken this week" on the class roster |
 | VB-15 The landing café, by voice | 4 | S | Done: "Say it instead" under each step's picks, `CafeVoice` loaded by a dynamic import on the press, the size asked first, `matchPick` lighting a line that is said after 2.5 s unless the screen is touched, the café still sent a pick's id; landing FAQ rewritten in three languages |
 | VB-16 Pairs, said aloud | Parked | M | Waits on the operator (D3, section 8) |
 

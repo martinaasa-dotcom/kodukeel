@@ -6,7 +6,8 @@
  * `Review.spoken` on every request and never kept as a counter (ADR-014). The
  * minutes are the answers' own time on the card, which is the closest honest
  * figure the log has to time spent speaking; a tab left open is capped at ten
- * minutes a row by `writeGrade`, and a row nobody timed counts nothing.
+ * minutes a row by `writeGrade`, and a row nobody timed counts nothing. Where
+ * no row was timed at all the sentence names no minutes rather than one.
  *
  * A count and a duration, said in plain ink and never as a verdict: speaking
  * more is not a score, and the app withdrew its streaks of that kind. Pure.
@@ -14,8 +15,13 @@
 export interface SpokenWeek {
   /** Answers given aloud in the last seven days. */
   readonly answers: number;
-  /** Their time on the card, in whole minutes, at least one where anything was said. */
-  readonly minutes: number;
+  /**
+   * Their time on the card, in whole minutes, at least one where any of them
+   * was timed. Null where none was: a conversation's grades and a numbers
+   * round write no time, and "about 1 minute" over answers nobody timed would
+   * be a figure the log does not hold.
+   */
+  readonly minutes: number | null;
 }
 
 export const SPOKEN_WINDOW_DAYS = 7;
@@ -34,5 +40,5 @@ export function spokenThisWeek(
     answers += 1;
     ms += Math.max(0, row.durationMs);
   }
-  return { answers, minutes: answers === 0 ? 0 : Math.max(1, Math.round(ms / 60_000)) };
+  return { answers, minutes: ms === 0 ? null : Math.max(1, Math.round(ms / 60_000)) };
 }

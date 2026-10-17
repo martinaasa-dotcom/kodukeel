@@ -54,7 +54,8 @@ passes them.
 - **The offline outbox.** `lib/offline/db.ts` keeps grades taken offline in IndexedDB and
   `replayGrades` sends them in order with the time they were answered. A native app keeps the same
   records (every field of `PendingGrade`, `spoken` included) in its own store and replays them through
-  the same endpoint. A conversation's spoken turn carries its repaired words and two counts, words heard
+  the same endpoint. `spoken` is true only where the answer marked is what the recognizer heard, word
+  for word (`keptAsHeard` in `lib/speech/edits.ts`); an answer the learner edited first is typed. A conversation's spoken turn carries its repaired words and two counts, words heard
   and words changed before sending (`lib/speech/edits.ts`), and never the words heard (D21).
 - **The cache.** The service worker's caches (`public/sw.js`) become the platform's own storage, with
   the model in a place the system does not clear.
@@ -78,7 +79,8 @@ The actions the speech features use, which are the first routes to build:
 | `replayGrades` | Replays the offline outbox in order | No |
 | `undoGrade` | Takes back the last grade | No |
 | `beginScene`, `sceneHelp`, `finishScene` | Opens, helps and closes a conversation | No; each turn is already `/api/scene` |
-| `recordWorkbookGrades`, `recordMatchGrades` | Grades a round in one request | No |
+| `recordWorkbookGrades`, `recordMatchGrades`, `recordNumberGrades` | Grades a round in one request, a numbers round's spoken words included (VB-7) | No |
+| `beginChat` | Opens tonight's chat, the evening worked out on the server (VB-11) | No; its turns are `/api/scene` |
 | `startCourseDay`, `markCourseStep`, `advanceCourseStep`, `tonightSteps` | Tonight's module | No |
 | `completeLesson` | A finished unit lesson | No |
 | `readEstonian` | Glosses a pasted or transcribed text | No |
@@ -90,6 +92,10 @@ The actions the speech features use, which are the first routes to build:
 | (none) | What was heard, read back and kept nowhere (VB-5) | Yes, `/api/tts?transient=1` |
 | (none) | The things in a photo, named in English (VB-13) | Yes, `/api/scan` with `mode: "things"` |
 | (none) | Anu | Yes, `/api/tutor` |
+
+`rememberPushDevice`, `forgetPushDevice` and `pushDeviceStatus` are Web Push's and stay the web's: a
+native app registers the platform's own notification token instead, which needs a table and a sender
+of its own under the same booking in `EmailSend` (section 6).
 
 Signing in is the other half: Supabase Auth issues the same tokens to a native client, and the routes
 above read them as a bearer header where the web reads the cookie. `lib/auth/identity.ts` is where that

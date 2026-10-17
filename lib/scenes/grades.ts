@@ -150,7 +150,17 @@ export function gradesFor(
       if (!lexicon) return true;
       return leafNeeds(beat.needs).some((leaf) => leaf.index === index && tookOption(leaf.need, words, card, lexicon));
     };
-    const spoken = turns.some((turn) => turn.repaired !== undefined);
+    /*
+      WRITTEN AS SPOKEN WHERE THE TURN THAT MET THE REQUIREMENT WAS SAID AND
+      SENT AS HEARD, and nowhere else. It was any spoken turn on the beat, so a
+      miss said aloud and the answer typed after it wrote the typed answer down
+      as said aloud, and a turn the learner rewrote before sending did the same:
+      `Review.spoken` is "said aloud and marked on what was heard" (D4), which
+      is what Progress and `npm run report:speech` read it as.
+    */
+    const spokenFor = (index: number) => turns.some(
+      (turn) => turn.met[index] && turn.repaired !== undefined && turn.edited !== true,
+    );
 
     const answered = (index: number) => turns.some(
       (turn) => turn.met[index]
@@ -228,12 +238,12 @@ export function gradesFor(
         */
         const lemma = oneOfProduced(need.oneOf, producedFor(index), lexicon);
         if (lemma && answered(index)) {
-          out.push({ lemma, grammCase: null, reachedCase: null, rating, beatId: beat.id, spoken });
+          out.push({ lemma, grammCase: null, reachedCase: null, rating, beatId: beat.id, spoken: spokenFor(index) });
         }
       }
       if (need.kind === "case" && answered(index)) {
         out.push({
-          lemma: need.lemma, grammCase: need.grammCase, rating, beatId: beat.id, spoken,
+          lemma: need.lemma, grammCase: need.grammCase, rating, beatId: beat.id, spoken: spokenFor(index),
           reachedCase: reachedCase === need.grammCase ? null : reachedCase,
         });
       }
@@ -261,7 +271,7 @@ export function gradesFor(
         const lemma = oneWordFor(card, need.slot, producedFor(index), lexicon);
         if (lemma) {
           out.push({
-            lemma, grammCase: need.grammCase ?? null, rating, beatId: beat.id, spoken,
+            lemma, grammCase: need.grammCase ?? null, rating, beatId: beat.id, spoken: spokenFor(index),
             reachedCase: reachedCase === need.grammCase ? null : reachedCase,
           });
         }

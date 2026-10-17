@@ -63,7 +63,12 @@ function row(key: string, turns: readonly SpokenTurn[]): EditRow {
 
 function grouped(turns: readonly SpokenTurn[], keyOf: (t: SpokenTurn) => string): EditRow[] {
   const groups = new Map<string, SpokenTurn[]>();
-  for (const turn of turns) groups.set(keyOf(turn), [...(groups.get(keyOf(turn)) ?? []), turn]);
+  for (const turn of turns) {
+    const key = keyOf(turn);
+    const list = groups.get(key);
+    if (list) list.push(turn);
+    else groups.set(key, [turn]);
+  }
   return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([key, list]) => row(key, list));
 }
 
@@ -130,7 +135,9 @@ export function recallReading(answers: readonly LoggedAnswer[]): RecallReading {
   for (const answer of answers) {
     if (!speakers.has(answer.ownerId)) continue;
     const key = `${answer.ownerId}|${answer.cardId}`;
-    byCard.set(key, [...(byCard.get(key) ?? []), answer]);
+    const list = byCard.get(key);
+    if (list) list.push(answer);
+    else byCard.set(key, [answer]);
   }
   const tally = { spoken: { pairs: 0, recalled: 0 }, typed: { pairs: 0, recalled: 0 } };
   for (const list of byCard.values()) {
@@ -212,7 +219,9 @@ export function chatReading(input: {
   const byWord = new Map<string, WordAnswer[]>();
   for (const answer of input.answers) {
     const key = `${answer.ownerId}|${answer.lemma}`;
-    byWord.set(key, [...(byWord.get(key) ?? []), answer]);
+    const list = byWord.get(key);
+    if (list) list.push(answer);
+    else byWord.set(key, [answer]);
   }
   for (const list of byWord.values()) list.sort((a, b) => a.reviewedAt.getTime() - b.reviewedAt.getTime());
 
@@ -242,7 +251,7 @@ export function chatReading(input: {
   };
 }
 
-/** A share as a whole percentage, or a dash in words where there is none. */
+/** A share as a whole percentage, or "n/a" where there is none. */
 export function percent(share: number | null): string {
   return share === null ? "n/a" : `${Math.round(share * 100)}%`;
 }

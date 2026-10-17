@@ -1159,7 +1159,7 @@ export function ReviewSession({
     /* Said aloud and marked on what was heard (D4). A word the dictionary
        repaired, left in the box as the microphone put it, writes nothing (D13). */
     const saidAloud = ask === "type" && spokenAnswer.current;
-    const unwritten = saidAloud && repairedAnswer.current;
+    const unwritten = ask === "type" && repairedAnswer.current;
     if (!unwritten) try {
       await drainFirst();
       const result = await gradeCard(card.id, rating, duration, answeredAt, undefined, undefined, reviewId, saidAloud);
@@ -1270,8 +1270,11 @@ export function ReviewSession({
   const checkTyped = useCallback((said?: string) => {
     if (!card || verdict) return;
     const answer = said ?? typed;
-    spokenAnswer.current = said !== undefined || spokenBox.current.spoken;
-    repairedAnswer.current = spokenAnswer.current && spokenBox.current.carriesRepair(answer);
+    /* Written as spoken only where what is marked is what was heard (`saidAsIs`,
+       D4); a repaired word left in the box writes nothing, edited or not (D13). */
+    const heardInBox = said !== undefined || spokenBox.current.spoken;
+    spokenAnswer.current = said !== undefined || spokenBox.current.saidAsIs(answer);
+    repairedAnswer.current = heardInBox && spokenBox.current.carriesRepair(answer);
     const language = card.cardType === "RECOGNITION" ? "en" : "et";
     const marked = checkAnswer(answer, card.back, language, card.rivals, card.kin);
     /*

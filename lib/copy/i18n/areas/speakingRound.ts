@@ -69,6 +69,7 @@ export const SPEAKING_ROUND: Area = {
 
     // Progress.
     "Said aloud this week: {answers}, about {minutes}.": "Вслух на этой неделе: {answers}, примерно {minutes}.",
+    "Said aloud this week: {answers}.": "Вслух на этой неделе: {answers}.",
   },
   uk: {
     // The round.
@@ -128,5 +129,6 @@ export const SPEAKING_ROUND: Area = {
 
     // Progress.
     "Said aloud this week: {answers}, about {minutes}.": "Вголос цього тижня: {answers}, приблизно {minutes}.",
+    "Said aloud this week: {answers}.": "Вголос цього тижня: {answers}.",
   },
 };

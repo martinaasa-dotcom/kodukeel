@@ -257,7 +257,8 @@ Estonian" without saying so.
 
 ## What works without any API key
 
-Everything except the two things that need a model: Anu, and reading a photo of a page.
+Everything except the three things that need a model: Anu, reading a photo (a page of words, or
+the things around you), and the two-minute chat after an evening.
 
 - **Dictionary**, 6,280 words (A1 to C2), with principal parts, consonant gradation and the full
   case table worked out from the genitive. Search for a form you met in class, like `toas`,
@@ -266,6 +267,14 @@ Everything except the two things that need a model: Anu, and reading a photo of 
 - **Audio**: real Estonian speech from the University of Tartu's neural voices, with ten to choose
   from. A card reads itself aloud when you meet a word and when its answer appears, and the next
   card's audio loads while you're answering this one. No key and no setup.
+- **Speaking**: say an answer instead of typing it, in a conversation, the Speaking round, the
+  numbers round and any box that takes an Estonian word. It's heard on your own device by TalTech's
+  Estonian model, so no recording leaves it, and it tells you which words it understood, never how
+  they sounded. The model is 71 MB, downloaded once on the first press of a microphone. Run
+  `npm run asr:fetch` once and the app serves it itself, or on a hosted deployment upload the same
+  files to your own storage and point `NEXT_PUBLIC_ASR_MODEL_BASE` at it. With neither, no
+  microphone is offered and everything is typed, and `PAID_OFF=speech` switches it off without a
+  deploy.
 - **Flashcards**: FSRS scheduling, 7 card types, typed or flipped, and you can review using only
   the keyboard.
 - **The learning path, every practice mode, the grammar reference, printable worksheets and the
@@ -658,6 +667,20 @@ Who gets what, and how often, is decided in `lib/email/schedule.ts`, which has n
 is unit tested. What each email says lives in `lib/email/letters/`. Both are checked against the
 same voice rules as every other string in `lib/`.
 
+**Reminders on a computer.** Set a key pair and Settings offers "Remind me on this computer", which
+sends the short reminders as a browser notification instead of an email, from the same scheduled
+run and with the same per-kind switches. A kind goes one way a day, never both. It works without the
+email settings above, but `CRON_SECRET` still has to be set.
+
+```
+npx web-push generate-vapid-keys      # once; a new pair stops every browser that used the old one
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=...      # public by design, the browser is handed it
+VAPID_PRIVATE_KEY=...                 # a credential: server only
+VAPID_SUBJECT=mailto:hei@your-domain  # optional; falls back to NEXT_PUBLIC_SITE_URL, then OPERATOR_EMAIL
+```
+
+With either key unset, nobody is offered it and `/privacy` names no push service.
+
 The sign-in link opens in the browser that asked for it, because that's where the security check
 lives, and the sign-in screen says so. If you'd rather the link still worked after being forwarded
 to a phone, change the magic-link email template to point at
@@ -787,6 +810,8 @@ npm run demo             # two months of sample history, to look around
 npm run forms            # rebuild the forms list: every spelling of every Estonian word
 npm run db:seed          # reload the built-in dictionary (always)
 npm run db:seed:ensure   # load it only if the dictionary is empty, what the deploy runs
+npm run asr:fetch        # fetch the 71 MB speech model for the app to serve, checked by hash
+npm run report:speech    # does saying it help: the edit rate, recall after a spoken answer, tonight's chat
 ```
 
 The end-to-end suite and `npm run demo` refuse to run against anything but a local database, and

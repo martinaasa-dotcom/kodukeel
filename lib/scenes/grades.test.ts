@@ -654,4 +654,16 @@ describe("a word the dictionary repaired from what was heard (D13)", () => {
   it("passes over every requirement on the turn where there is no lexicon to say which", () => {
     expect(gradesFor(SCENE, spoken(["valu"]), null, null)).toEqual([]);
   });
+
+  it("writes a word the learner changed before sending as typed (D4)", () => {
+    const state = spoken([]);
+    const edited = { ...state, turns: state.turns.map((turn) => ({ ...turn, edited: true as const })) };
+    expect(gradesFor(SCENE, edited, null, LEXICON).map((g) => g.spoken)).toEqual([false]);
+  });
+
+  it("writes a typed answer as typed after a miss said aloud on the same beat", () => {
+    const state = play([{ reading: "offtarget", met: [false] }, { reading: "complete", met: [true] }]);
+    const said = { ...state, turns: state.turns.map((turn, at) => (at === 0 ? { ...turn, repaired: [] } : turn)) };
+    expect(gradesFor(SCENE, said, null, LEXICON).map((g) => g.spoken)).toEqual([false]);
+  });
 });

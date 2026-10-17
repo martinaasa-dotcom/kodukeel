@@ -199,6 +199,18 @@ describe("a turn said aloud", () => {
     expect(said.turns.filter((turn) => turn.repaired !== undefined).length).toBeGreaterThanOrEqual(1);
   });
 
+  it("writes the grade as spoken only where the turn was sent as heard (D4)", () => {
+    const spokenOfReason = (spoken: SentTurn["spoken"]) =>
+      gradesFor(scene, replay(context, draw, turns(spoken)).state, run.card, context.lexicon)
+        .filter((grade) => grade.lemma === "valu").map((grade) => grade.spoken);
+    // "Mul on valu." is three words: sent as the three heard, a word changed, or a word added by hand.
+    expect(spokenOfReason({ repaired: [], wordsHeard: 3, wordsChanged: 0 })).toEqual([true]);
+    expect(spokenOfReason({ repaired: [], wordsHeard: 3, wordsChanged: 1 })).toEqual([false]);
+    expect(spokenOfReason({ repaired: [], wordsHeard: 2, wordsChanged: 0 })).toEqual([false]);
+    // A row written before the counts existed is read as it always was.
+    expect(spokenOfReason({ repaired: [] })).toEqual([true]);
+  });
+
   it("writes no review for the word the dictionary repaired, and does for the same word heard as spelled", () => {
     const lemmas = (spoken?: SentTurn["spoken"]) =>
       gradesFor(scene, replay(context, draw, turns(spoken)).state, run.card, context.lexicon).map((grade) => grade.lemma);
