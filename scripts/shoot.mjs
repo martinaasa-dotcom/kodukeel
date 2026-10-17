@@ -9,6 +9,7 @@
  * which cannot draw a face or a colour the stylesheet does not hold.
  *
  *   node scripts/shoot.mjs /course / --out shots --width 1280
+ *   node scripts/shoot.mjs /practice --full
  *
  * Every route is taken in the light theme and in the dark one, the way the
  * toggle stores the choice, so the dark palette is the one a learner who chose
@@ -31,6 +32,9 @@ const flag = (name, fallback) => {
 const out = flag("out", "shots");
 const width = Number(flag("width", "1280"));
 const height = Number(flag("height", "900"));
+/* `--full` takes the whole page rather than the first screen of it. */
+const full = args.includes("--full");
+if (full) args.splice(args.indexOf("--full"), 1);
 const routes = args.length > 0 ? args : ["/"];
 
 mkdirSync(out, { recursive: true });
@@ -45,7 +49,7 @@ try {
       await page.locator("main h1").first().waitFor({ timeout: 30_000 }).catch(() => {});
       await page.waitForTimeout(800);
       const name = (route === "/" ? "today" : route.replace(/^\/|\/$/g, "").replace(/[^a-z0-9]+/gi, "-")) + `-${theme}.png`;
-      await page.screenshot({ path: join(out, name) });
+      await page.screenshot({ path: join(out, name), fullPage: full });
       console.log(join(out, name));
       await context.close();
     }
