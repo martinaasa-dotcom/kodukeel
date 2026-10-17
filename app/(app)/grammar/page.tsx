@@ -14,7 +14,7 @@ import { familyStandings } from "@/lib/progress/exceptionStanding";
 import { FAMILY_ORDER } from "@/lib/games/exceptionPaths";
 import { Card, Chip, Meter, Page, Stack } from "@/components/ui";
 import { localeFor } from "@/lib/progress/locale";
-import { fill, tr } from "@/lib/copy/locale";
+import { fill, grouped, tr } from "@/lib/copy/locale";
 
 export const dynamic = "force-dynamic";
 
@@ -91,7 +91,7 @@ export default async function GrammarHubPage({ searchParams }: { searchParams: P
       n: 3 as const, href: "/grammar/exceptions", Icon: TriangleAlert,
       title: t("Where the rules break"),
       line: t("Some words go their own way. Which ones, and how to learn them."),
-      peek: [fill(t("{n} words in the dictionary"), { n: scale })],
+      peek: [fill(t("{n} words that break a rule"), { n: grouped(locale, scale) })],
       meter: viewer ? { pct: Math.round((knownAreas / FAMILY_ORDER.length) * 100), label: fill(t("{n} of {total} areas known"), { n: knownAreas, total: FAMILY_ORDER.length }) } : null,
     },
     {

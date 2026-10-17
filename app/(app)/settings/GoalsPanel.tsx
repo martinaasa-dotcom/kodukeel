@@ -99,6 +99,26 @@ export function GoalsPanel({ current }: { current: Goals }) {
         })}
       </ChoiceGroup>
 
+      {/*
+        A real date as well as the presets. Somebody booked onto the state exam
+        has a day, not "in six months", and with only the presets a date set
+        elsewhere showed "7 weeks away" over a row with nothing chosen and no
+        way to see or move it.
+      */}
+      <div className="-mt-2 flex flex-wrap items-center gap-3">
+        <label htmlFor="goal-date-setting" className="text-sm" style={{ color: "var(--ink-2)" }}>
+          {t("Or pick a date")}
+        </label>
+        <input
+          id="goal-date-setting"
+          type="date"
+          value={dateInput(deadline)}
+          onChange={(e) => setDeadline(e.target.value ? new Date(`${e.target.value}T12:00:00Z`).toISOString() : null)}
+          className="field text-base"
+          style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
+        />
+      </div>
+
       <ChoiceGroup label={t("Days a week you practice")}>
         {[2, 3, 4, 5, 6, 7].map((n) => (
           <ChoiceChip key={n} even selected={days === n} onSelect={() => setDays(n)}>
@@ -137,4 +157,13 @@ export function GoalsPanel({ current }: { current: Goals }) {
       </div>
     </div>
   );
+}
+
+/** A stored deadline as a calendar day, read in UTC so the server and the browser draw the same box. A chosen day is stored at noon UTC, which is that day in nearly every zone. */
+function dateInput(iso: string | null): string {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return [date.getUTCFullYear(), pad(date.getUTCMonth() + 1), pad(date.getUTCDate())].join("-");
 }
