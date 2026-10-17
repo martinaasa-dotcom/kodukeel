@@ -23746,7 +23746,7 @@ check("a finished module stays finished after midnight", () => {
   const half = code("lib/progress/course.ts");
   const window = half.slice(half.indexOf("const closingOpensAt"));
   assert.match(
-    window.slice(0, 400), /ticks\.lastAt\.get\(dayId\);/,
+    window.slice(0, 600), /ticks\.lastAt\.get\(day(?:Id|\.id)\)/,
     "the closing round's window is no longer the day's own last tick",
   );
   assert.ok(
