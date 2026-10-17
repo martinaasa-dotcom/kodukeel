@@ -165,7 +165,7 @@ export function TwinsSession({ questions: initialQuestions, canTranslate, focusT
         </div>
         <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
           <StatTile value={right} label={t("Right")} tone="accent" />
-          <StatTile value={`${accuracy}%`} label={t("Accuracy")} tone={accuracy >= 85 ? "sky" : "butter"} />
+          <StatTile value={`${accuracy}%`} label={t("Accuracy")} tone="accent" />
           <StatTile value={asked} label={t("Pairs")} tone="sky" />
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { readableFront } from "@/lib/copy/caseHint";
+import { readableBack } from "@/lib/estonian/government";
 import { plainPhrase } from "@/lib/copy/values";
 import { parseExamples, sentenceEnglish, teachingSentence } from "@/lib/dict/examples";
 import { authoredFor, isAuthored } from "@/lib/dict/authored";
@@ -327,7 +328,7 @@ function toReviewCard(
     id: c.id,
     cardType: c.cardType,
     front: readableFront(c.front),
-    back: c.back,
+    back: readableBack(c.cardType, c.back),
     hint: c.hint,
     targetCase: c.targetCase,
     slot: c.slot,

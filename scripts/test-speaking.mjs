@@ -29,7 +29,7 @@ import { startRound } from "./lib/briefing.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 
 const B = baseUrl();
-const { check, absent, done } = suite("Saying it", { floor: 22 });
+const { check, absent, done } = suite("Saying it", { floor: 25 });
 
 const FAKE_MIC = (clip) => [
   "--use-fake-ui-for-media-stream",
@@ -37,7 +37,12 @@ const FAKE_MIC = (clip) => [
   `--use-file-for-fake-audio-capture=${clip}`,
 ];
 
-/** Presses the download offer if one is up, which only the first press on a fresh device draws. */
+/**
+ * Presses a download offer if one is up. None should be: the model is fetched
+ * without a question (docs/41-fifth-batch.md section 8b), and the round's first
+ * check says so. Kept so a regression reads as that check failing rather than
+ * as every check behind it waiting on a prompt.
+ */
 async function acceptDownload(page) {
   const prompt = page.getByRole("group", { name: "Download for speaking" }).first();
   if (await prompt.isVisible({ timeout: 2000 }).catch(() => false)) {
@@ -76,7 +81,7 @@ function modelServed() {
 }
 
 if (!modelServed()) {
-  absent(22, "this server has no speech model to serve: run npm run asr:fetch before the build");
+  absent(25, "this server has no speech model to serve: run npm run asr:fetch before the build");
   done();
   process.exit(process.exitCode ?? 0);
 }
@@ -98,7 +103,7 @@ try {
   const opened = await stage.first().waitFor({ timeout: 15_000 }).then(() => true, () => false);
   if (!opened) {
     const said = (await page.locator("main").innerText().catch(() => "")).slice(0, 120);
-    absent(12, `the Speaking round dealt nothing on this deck (${said}); seed and run scripts/demo-data.ts`);
+    absent(17, `the Speaking round dealt nothing on this deck (${said}); seed and run scripts/demo-data.ts`);
   } else {
     check("the round opens on saying it along", (await stage.getAttribute("data-speaking-step")) === "along");
     check("nothing of the engine loads before a press", engine.length === 0, engine.join(", "));
@@ -107,7 +112,7 @@ try {
 
     await along.click();
     const asked = await acceptDownload(page);
-    check("the first press asks for the download and says its size", asked !== null && /\d+\sMB/.test(asked), (asked ?? "no offer").slice(0, 100));
+    check("the first press asks no question: it fetches the model and listens (docs/41 section 8b)", asked === null, (asked ?? "").slice(0, 100));
     const counted = await page.waitForFunction(
       () => /words were heard|Every word was heard|That's the word|heard as the word this time/.test(document.querySelector("[data-speaking-step]")?.textContent ?? ""),
       null,
@@ -155,8 +160,28 @@ try {
       "hands-free says what happens to the screen",
       /The screen stays on|would not keep the screen on/.test(whole),
     );
+    // Space is the pause, for a keyboard and a headset's own button alike; and the pause holds.
+    await page.keyboard.press("Space");
+    const pausedText = await panel.innerText().catch(() => "");
+    const stepWhenPaused = await stage.getAttribute("data-speaking-step");
+    await page.waitForTimeout(3500);
+    check(
+      "Space pauses hands-free, and a paused round stays on its step",
+      /Paused/.test(pausedText) && (await stage.getAttribute("data-speaking-step")) === stepWhenPaused,
+      pausedText,
+    );
     await page.getByRole("button", { name: "Stop hands-free" }).click();
     check("hands-free stops on a press", (await panel.count()) === 0);
+
+    // "Show me" is not a miss, and the screen does not say it was.
+    await page.getByRole("button", { name: /Next step/ }).click();
+    await page.getByRole("button", { name: /Next step/ }).click();
+    await page.getByRole("button", { name: "Show me" }).click();
+    const shownText = await stage.innerText();
+    check("asking to be shown says nothing is written down, and does not call it a miss",
+      /Here it is\. Nothing is written down for this one/.test(shownText) && !/Not this time/.test(shownText),
+      shownText.replace(/\s+/g, " ").slice(0, 160));
+    check("and there is no empty answer box left behind it", (await page.locator("#speaking-answer").count()) === 0);
   }
 
   /*

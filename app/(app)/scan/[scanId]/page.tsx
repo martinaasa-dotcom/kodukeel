@@ -1,6 +1,6 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Grid2x2, GraduationCap, Zap } from "lucide-react";
+import { Grid2x2, GraduationCap, Zap } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { deckSnapshot } from "@/lib/progress/summary";
@@ -9,7 +9,7 @@ import { MAX_ITEMS } from "@/lib/scan/extract";
 import { parseItems, summarise } from "@/lib/scan/items";
 import { Speak } from "@/components/Speak";
 import { ButtonLink } from "@/components/Button";
-import { Card, Chip, Empty, Meter, Page, Ring, SectionTitle } from "@/components/ui";
+import { BackLink, Card, Chip, Empty, Meter, Page, Ring, SectionTitle } from "@/components/ui";
 import { ScanActions } from "./ScanActions";
 import { localeFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
@@ -104,9 +104,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
       title={scan.title}
       lead={fill(t("{words} read off this page."), { words: countOf(locale, summary.total, "word") })}
       actions={
-        <Link href="/scan" className="flex items-center gap-1.5 text-sm" style={{ color: "var(--accent-deep)" }}>
-          <ArrowLeft size={14} aria-hidden /> {t("All pages")}
-        </Link>
+        <BackLink href="/scan">{t("All pages")}</BackLink>
       }
     >
       <div className="flex flex-col gap-5">

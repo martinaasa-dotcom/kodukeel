@@ -1,4 +1,3 @@
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { adminsConfigured, isAdmin } from "@/lib/auth/admin";
 import { requireUserId } from "@/lib/auth/session";
 import { localeFor, titleFor } from "@/lib/progress/locale";
@@ -8,7 +7,7 @@ import { KEEP_DAYS } from "@/lib/observability/store";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { DATE_AND_TIME, DateText } from "@/components/DateText";
 import { Explain } from "@/components/Explain";
-import { Card, Chip, Empty, Page } from "@/components/ui";
+import { BackLink, Card, Chip, Empty, Page } from "@/components/ui";
 
 export async function generateMetadata() {
   return titleFor("Errors");
@@ -32,9 +31,7 @@ export default async function ErrorsPage() {
   const locale = await localeFor(ownerId);
   const t = (english: string) => tr(locale, english);
   const back = (
-    <Link href="/admin/suggestions" className="text-sm underline" style={{ color: "var(--accent-deep)" }}>
-      {t("Back to the review queue")}
-    </Link>
+    <BackLink href="/admin/suggestions">{t("Back to the review queue")}</BackLink>
   );
 
   if (!(await isAdmin())) {

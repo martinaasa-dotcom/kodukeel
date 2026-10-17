@@ -7,7 +7,7 @@ import { stemsFrom } from "@/lib/estonian/derive";
 import { caseIndex, readCase } from "@/lib/estonian/whichCase";
 import { caseFormChoices, verbFormChoices, verbFormSlots } from "@/lib/questions/caseChoices";
 import { parseExamples, sentenceEnglish } from "@/lib/dict/examples";
-import { BLANK, filledSentence } from "@/lib/estonian/cloze";
+import { BLANK, filledSentence, primaryAnswer } from "@/lib/estonian/cloze";
 import { offered } from "@/lib/tutor/provider";
 import { learnerScopeSoFar, moduleSpellings } from "@/lib/progress/moduleScope";
 import { reviewable } from "@/lib/course/scope";
@@ -244,7 +244,11 @@ async function optionsFor(
     const held = byLexeme.get(card.lexemeId!);
     if (!held) continue;
     const accepted = acceptedAnswers(card.back, "et");
-    const answer = accepted[0] ?? card.back;
+    /* The back's own spelling rather than `accepted[0]`, which is folded to
+       lower case: offered folded, `eestis` stood out among `Eestist` and
+       `Eestiks` as the one option written differently, which is the answer
+       printed on the button. `app/(app)/review/cards.ts` learned this first. */
+    const answer = primaryAnswer(card.back) || accepted[0] || card.back;
     /*
       A form more than one slot spells is named as none of them, which is
       `readCase`'s own rule: `kohvi` is the omastav, the osastav and the short

@@ -143,9 +143,16 @@ function Row({ word, locale, prefs }: { word: MasteredWord; locale: Locale; pref
         <span className="block text-sm" style={{ color: "var(--ink-3)" }}>
           <span className="tnum">
             {slots < slotsNeeded
-              ? fill(t(slots === 1 ? "{correct} of {total} right, in {slots} of {needed} form" : "{correct} of {total} right, in {slots} of {needed} forms"), { correct, total, slots, needed: slotsNeeded })
+              /* Always "forms": the noun follows "of three", so "in 1 of 3 form"
+                 was the singular in the wrong place. */
+              ? fill(t("{correct} of {total} right, in {slots} of {needed} forms"), { correct, total, slots, needed: slotsNeeded })
               : fill(t(slots === 1 ? "{correct} of {total} right, in {slots} form" : "{correct} of {total} right, in {slots} forms"), { correct, total, slots })}
           </span>
+          {/* A full bar under "Almost there" needs a reason, and there is only
+              one: the last answer was wrong, and mastered asks for it to be right. */}
+          {word.verdict.mastery === "almost" && progress >= 1 && (
+            <span>{" "}{t("Get it right next time and it’s yours.")}</span>
+          )}
         </span>
       </span>
       <span className="w-16 shrink-0">

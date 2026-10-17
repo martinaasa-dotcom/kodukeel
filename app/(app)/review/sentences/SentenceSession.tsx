@@ -2,14 +2,12 @@
 
 import { EnterKeyCap } from "@/components/KeyCaps";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AnotherRound } from "@/components/round/AnotherRound";
 import { useGrade } from "@/components/round/useGrade";
 import { shuffle } from "@/lib/random/shuffle";
 import { ArrowRight, Check, Eye, RotateCcw } from "lucide-react";
 import { translateExample } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
-import { Chip, Empty, Page, StatTile } from "@/components/ui";
-import { Mascot } from "@/components/brand";
+import { Chip, Empty, Page } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { useUiText } from "@/components/UiLanguage";
 import { useResumeCard } from "@/components/useResumeCard";
@@ -22,7 +20,7 @@ import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
 import { hintLadder } from "@/lib/questions/hints";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
-import { WayOut } from "@/components/round/RoundExit";
+import { RoundDone } from "@/components/round/RoundDone";
 import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { WordLink } from "@/components/course/WordLink";
@@ -120,6 +118,8 @@ export function SentenceSession(
   }>({ key: "", picks: [], checked: null, verdict: null });
   const [attempts, setAttempts] = useState(0);
   const [correct, setCorrect] = useState(0);
+  /* The sentences that took more than one go, for the last screen. */
+  const [missed, setMissed] = useState<SentenceTask[]>([]);
   const [previewing, setPreviewing] = useState(false);
   const [busy, setBusy] = useState(false);
   const startedAt = useRef(Date.now());
@@ -213,7 +213,7 @@ export function SentenceSession(
     if (right) setCorrect((c) => c + 1);
     if (!right && typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(60);
 
-    if (!right) hints.noteMiss();
+    if (!right) { hints.noteMiss(); setMissed((m) => [...m, task]); }
     // A hint is paid for: see `lib/questions/hints.ts`.
     const rating = Math.min(right ? 3 : 1, hints.ceiling) as 1 | 2 | 3;
     await grade(task.cardId, rating, Date.now() - shownAt.current);
@@ -280,27 +280,15 @@ export function SentenceSession(
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
     const accuracy = attempts > 0 ? Math.round((correct / attempts) * 100) : 0;
     return (
-      <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
-          <Mascot size={68} mood="cheer" className="float mx-auto" />
-          <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
-            {t("All sentences built")}
-          </h1>
-          {/* The provenance disclaimer is off every round in the app; see the
-              level check. The sentence in front of it was this app telling
-              somebody who has just finished why the round was worth doing. */}
-        </div>
-        <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
-          <StatTile value={attempts} label={t("Built")} tone="accent" />
-          <StatTile value={`${accuracy}%`} label={t("First time")} tone={accuracy >= 70 ? "sky" : "butter"} />
-          <StatTile value={fill(t("{n}m"), { n: minutes })} label={t("Time")} tone="sky" />
-        </div>
-        <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
-          <ButtonLink href="/practice" size="lg">{t("Try something else")}</ButtonLink>
-          <ButtonLink href="/" size="lg">{t("Back to Today")}</ButtonLink>
-          <AnotherRound variant="primary" size="lg">{t("Another round")}</AnotherRound>
-        </WayOut>
-      </div>
+      <RoundDone
+        title={t("All sentences built")}
+        figures={[
+          { value: attempts, label: t("Built") },
+          { value: `${accuracy}%`, label: t("First time") },
+          { value: fill(t("{n}m"), { n: minutes }), label: t("Time") },
+        ]}
+        missed={missed.map((m) => ({ et: m.et, lemma: m.lemma, note: m.en ?? m.lemma }))}
+      />
     );
   }
 

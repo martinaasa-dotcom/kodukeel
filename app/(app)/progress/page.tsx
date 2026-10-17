@@ -1,6 +1,7 @@
 import { HeroFan } from "@/components/HeroFan";
 import { InsideHere } from "@/components/InsideHere";
 import { readableFront } from "@/lib/copy/caseHint";
+import { readableBack } from "@/lib/estonian/government";
 import { Suspense } from "react";
 import { ClipboardCheck, Compass, FileText, Footprints } from "lucide-react";
 import { outThere } from "@/lib/progress/outThere";
@@ -133,7 +134,7 @@ export default async function ProgressPage() {
   // the accuracy beside them is counted from the log above.
   const sticking = stickingPoints(
     deck.map((c) => ({
-      id: c.id, lemma: lemmaOf(c.lexemeId), front: readableFront(c.front), back: c.back,
+      id: c.id, lemma: lemmaOf(c.lexemeId), front: readableFront(c.front), back: readableBack(c.cardType, c.back),
       cardType: c.cardType, targetCase: c.targetCase,
       lapses: c.lapses, reps: c.reps, suspended: c.suspended,
     })),
@@ -250,10 +251,12 @@ export default async function ProgressPage() {
 
         {aloud.answers > 0 && (
           <p className="text-md" style={{ color: "var(--ink-2)" }} data-said-aloud>
-            {fill(t("Said aloud this week: {answers}, about {minutes}."), {
-              answers: countOf(locale, aloud.answers, "answer"),
-              minutes: countOf(locale, aloud.minutes, "minute"),
-            })}
+            {aloud.minutes === null
+              ? fill(t("Said aloud this week: {answers}."), { answers: countOf(locale, aloud.answers, "answer") })
+              : fill(t("Said aloud this week: {answers}, about {minutes}."), {
+                answers: countOf(locale, aloud.answers, "answer"),
+                minutes: countOf(locale, aloud.minutes, "minute"),
+              })}
           </p>
         )}
 

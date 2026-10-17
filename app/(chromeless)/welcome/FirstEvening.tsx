@@ -120,8 +120,10 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
       </ol>
 
       {/* The first step, playable. */}
-      {/* First on a phone: the thing to press, then the steps it belongs to. */}
-      <div className="evening-play night order-first flex flex-col gap-4 rounded-[var(--r-xl)] border p-5 md:p-7 lg:order-none">
+      {/* First on a phone: the thing to press, then the steps it belongs to.
+          Beside the steps it keeps its own height: stretched to the list's, it
+          left an empty dark block under the button half the panel tall. */}
+      <div className="evening-play night order-first flex flex-col gap-4 rounded-[var(--r-xl)] border p-5 md:p-7 lg:order-none lg:self-start">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <p className="label-xs" style={{ color: "var(--cta)" }}>{t("Evening one, step one")}</p>
           <p lang="et" className="text-sm font-semibold" style={{ color: "var(--ink-2)" }}>{title}</p>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
-import { AnotherRound } from "@/components/round/AnotherRound";
 import { Meaning } from "@/components/Meaning";
 import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 import { fill } from "@/lib/copy/locale";
@@ -10,8 +9,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties } from "re
 import { useGrade } from "@/components/round/useGrade";
 import { Check, Headphones, X } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
-import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
-import { Mascot } from "@/components/brand";
+import { Chip, Empty, KeyCap, Page } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
@@ -23,7 +21,7 @@ import { conditionFor, describeHearing } from "@/lib/audio/conditions";
 import { useAudioPrefs } from "@/components/AudioPrefs";
 import { SpaceKeyCap } from "@/components/KeyCaps";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
-import { WayOut } from "@/components/round/RoundExit";
+import { RoundDone } from "@/components/round/RoundDone";
 import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { useKeepInView } from "@/components/round/useKeepInView";
@@ -81,6 +79,8 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
   const [selected, setSelected] = useState<string | null>(null);
   const [correct, setCorrect] = useState(0);
   const [attempted, setAttempted] = useState(0);
+  /* What was misheard, in the order it was played, for the last screen. */
+  const [missed, setMissed] = useState<ListeningCard[]>([]);
   const [busy, setBusy] = useState(false);
   // The whole exercise is the audio. If the proxy cannot produce any, the word
   // is shown rather than leaving four choices and no question.
@@ -142,7 +142,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
     const isCorrect = choice === card.correct;
     const duration = Date.now() - shownAt.current;
     setSelected(choice);
-    if (!isCorrect) hints.noteMiss();
+    if (!isCorrect) { hints.noteMiss(); setMissed((m) => [...m, card]); }
     // A hint is paid for: see `lib/questions/hints.ts`.
     await grade(card.id, Math.min(isCorrect ? 3 : 1, hints.ceiling) as 1 | 2 | 3, duration);
     setAttempted((a) => a + 1);
@@ -205,33 +205,27 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
   if (finished) {
     const accuracy = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
     return (
-      <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
-          <Mascot size={68} mood="cheer" className="float mx-auto" />
-          <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
-            {t("That’s the round done")}
-          </h1>
-          {/* Said off how it went. "Tubli töö" over nought right was praise
-              for something that did not happen, which a learner sees through
-              at once and then stops believing the screen when it is true. */}
-          <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-            {accuracy >= 80
-              ? <><span lang="et">Tubli töö.</span> {fill(t("You caught {n} of {total} by ear."), { n: correct, total: attempted })}</>
-              : accuracy >= 40
-                ? <>{fill(t("{n} of {total} by ear. The ones you missed come back sooner, which is what they need."), { n: correct, total: attempted })}</>
-                : <>{t("Picking a word out by ear is the hard part, and it gets easier fast. The ones you missed come back sooner.")}</>}
-          </p>
-        </div>
-        <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
-          <StatTile value={correct} label={t("Right")} tone="accent" />
-          <StatTile value={`${accuracy}%`} label={t("Accuracy")} tone={accuracy >= 85 ? "sky" : "butter"} />
-          <StatTile value={attempted} label={t("Words heard")} tone="sky" />
-        </div>
-        <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
-          <ButtonLink href="/" size="lg">{t("Back to Today")}</ButtonLink>
-          <AnotherRound variant="primary" size="lg">{t("Listen again")}</AnotherRound>
-        </WayOut>
-      </div>
+      <RoundDone
+        title={t("That’s the round done")}
+        /* Said off how it went. "Tubli töö" over nought right was praise for
+           something that did not happen, which a learner sees through at once
+           and then stops believing the screen when it is true. */
+        line={accuracy >= 80
+          ? <><span lang="et">Tubli töö.</span> {fill(t("You caught {n} of {total} by ear."), { n: correct, total: attempted })}</>
+          : accuracy >= 40
+            ? fill(t("{n} of {total} by ear. The ones you missed come back sooner, which is what they need."), { n: correct, total: attempted })
+            : t("Picking a word out by ear is the hard part, and it gets easier fast. The ones you missed come back sooner.")}
+        figures={[
+          { value: correct, label: t("Right") },
+          { value: `${accuracy}%`, label: t("Accuracy") },
+          { value: attempted, label: t("Words heard") },
+        ]}
+        missed={missed.map((c) => {
+          const at = c.choices.indexOf(c.correct);
+          return { et: c.lemma, note: c.choiceMeanings?.[at]?.lead.text ?? c.correct };
+        })}
+        again={t("Listen again")}
+      />
     );
   }
 

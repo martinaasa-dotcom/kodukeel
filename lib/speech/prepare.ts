@@ -115,6 +115,38 @@ export function prepareTurn(samples: Float32Array, rate: number = S.sampleRate):
   return pad(squeezePauses(normalize(samples), rate), rate);
 }
 
+/**
+ * Where a recording somebody opened is cut before it is heard, as pairs of
+ * sample offsets at 16 kHz, start inclusive and end exclusive.
+ *
+ * A pause of `piecePauseSeconds` ends a piece once the piece holds more than
+ * twice that, so a breath between two words of one sentence does not cut it;
+ * a piece is never longer than `pieceMaxSeconds`. Every sample is in exactly
+ * one piece, in order. This is the half of hearing a file that decides
+ * something, so it is here rather than in the web worker: a native app cuts
+ * where the web cuts and gets the golden file's turns (D24, VB-3).
+ */
+export function piecesOf(audio: Float32Array): Array<[number, number]> {
+  const frames = loudFrames(audio);
+  const frame = Math.round(S.sampleRate * S.frameSeconds);
+  const maxFrames = Math.round(S.pieceMaxSeconds / S.frameSeconds);
+  const minPause = Math.round(S.piecePauseSeconds / S.frameSeconds);
+  const cuts: Array<[number, number]> = [];
+  let start = 0;
+  let quiet = 0;
+  for (let f = 0; f < frames.length; f++) {
+    quiet = frames[f] ? 0 : quiet + 1;
+    const long = f - start >= maxFrames;
+    if ((quiet >= minPause && f - start > minPause * 2) || long) {
+      cuts.push([start, f + 1]);
+      start = f + 1;
+      quiet = 0;
+    }
+  }
+  if (start < frames.length) cuts.push([start, frames.length]);
+  return cuts.map(([a, b]) => [a * frame, Math.min(audio.length, b * frame)]);
+}
+
 /** Seconds of speech in a prepared turn, without the padding, which is what a turn's length is reported as. */
 export function spokenSeconds(samples: Float32Array, rate: number = S.sampleRate): number {
   return squeezePauses(samples, rate).length / rate;

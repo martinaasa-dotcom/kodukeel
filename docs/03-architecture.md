@@ -1035,6 +1035,11 @@ D3, D4 and D13 in place of the speech order's D3, D7 and D9.
   own, because `Review` is append-only and a misheard word would be a lapse the learner never made.
 - **A repaired word earns nothing** (D13). It can meet a beat, as a slip does, and writes no review
   row.
+- **Spoken means sent as heard** (D4, VB-14). `Review.spoken` marks an answer said aloud and marked
+  on what the recognizer heard, word for word (`keptAsHeard` in `lib/speech/edits.ts`). An answer the
+  learner changed after the microphone filled the box is written as typed, on a card, in a round and
+  in a conversation's grades alike, because Progress and `npm run report:speech` read the column as
+  speech and an edited answer is partly typing.
 - **One microphone** (D5): `useSpeech()` over one engine interface (`lib/speech/engine.ts`), which
   the native apps implement with the same model and the same hashes (D24), and
   `components/speech/MicButton.tsx` for every screen.

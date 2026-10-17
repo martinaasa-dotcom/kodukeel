@@ -81,9 +81,21 @@ export interface ClassSummary {
    * the reader left out. The screen reads `weakestCases`.
    */
   sharedCases: { grammCase: string; accuracy: number; total: number }[];
+  /**
+   * The people who joined, which is every member but the one who runs the
+   * class. The three figures over a roster count these and nobody else, so a
+   * teacher alone in a class they made reads "0 joined" over "Nobody has joined
+   * yet" rather than a count of one that is themselves. The teacher stays in
+   * `entries`, because a student's leaderboard shows them, with a cap beside
+   * their name. The classroom letter counts the same people (mailout.ts).
+   */
+  joined: number;
   totalReviewsThisWeek: number;
   activeThisWeek: number;
 }
+
+/** Whether a roster row is somebody who joined, rather than whoever runs the class. */
+export const joinedMember = (entry: Pick<RosterEntry, "role">): boolean => entry.role !== "TEACHER";
 
 export async function classRoster(
   classroomId: string, now = new Date(), opts: { leaveOut?: string } = {},
@@ -93,7 +105,7 @@ export async function classRoster(
     orderBy: { joinedAt: "asc" },
   });
   if (members.length === 0) {
-    return { entries: [], weakestCases: [], sharedCases: [], totalReviewsThisWeek: 0, activeThisWeek: 0 };
+    return { entries: [], weakestCases: [], sharedCases: [], joined: 0, totalReviewsThisWeek: 0, activeThisWeek: 0 };
   }
 
   const ids = members.map((m) => m.ownerId);
@@ -212,15 +224,24 @@ export async function classRoster(
 
   // Each answer under the case it asked, read once for the board and the letter,
   // so the two cannot name different cases as the class's weakest.
-  const asked = reviews.map((r) => ({ ownerId: r.ownerId, targetCase: caseAsked(r), rating: r.rating }));
+  //
+  // The class-wide figures are about the people who joined. A teacher who
+  // practises too is on the board, and their own answers are not what the
+  // class keeps tripping over.
+  const teachers = new Set(members.filter((m) => !joinedMember(m)).map((m) => m.ownerId));
+  const asked = reviews
+    .filter((r) => !teachers.has(r.ownerId))
+    .map((r) => ({ ownerId: r.ownerId, targetCase: caseAsked(r), rating: r.rating }));
+  const students = entries.filter(joinedMember);
   return {
     entries,
     // The class-wide picture, for a lesson plan. entries[].weakestCase is the
     // per-student one, for who to sit next to during it.
     weakestCases: caseAccuracy(asked, 10).slice(0, 5),
     sharedCases: classWideCases(asked, opts.leaveOut ?? null),
-    totalReviewsThisWeek: entries.reduce((sum, e) => sum + e.reviewsThisWeek, 0),
-    activeThisWeek: entries.filter((e) => e.reviewsThisWeek > 0).length,
+    joined: students.length,
+    totalReviewsThisWeek: students.reduce((sum, e) => sum + e.reviewsThisWeek, 0),
+    activeThisWeek: students.filter((e) => e.reviewsThisWeek > 0).length,
   };
 }
 

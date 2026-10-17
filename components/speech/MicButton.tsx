@@ -5,7 +5,7 @@ import { Loader2, Mic, Square } from "lucide-react";
 import { useT } from "@/components/Locale";
 import { Button } from "@/components/Button";
 import { fill } from "@/lib/copy/locale";
-import { megabytes, modelBytes } from "@/lib/speech/model";
+import { megabytes } from "@/lib/speech/model";
 import type { EngineError } from "@/lib/speech/engine";
 import type { Speech } from "./useSpeech";
 import { keepUnits } from "@/lib/copy/values";
@@ -53,19 +53,24 @@ const HOLD_MS = 350;
 
 export function MicButton({ speech, label, shortcut = false, showPartial = true, size = "md", speaksForItself = false }: MicButtonProps) {
   const t = useT();
-  const [asking, setAsking] = useState(false);
   const [announce, setAnnounce] = useState("");
   const pressedAt = useRef(0);
   const held = useRef(false);
   const latest = useRef(speech);
   latest.current = speech;
 
-  const { offered, phase, listening, thinking, partial, level, clipping, error, hearing, appSpeaking } = speech;
-  const megabytesTotal = megabytes(modelBytes());
+  const { offered, phase, listening, thinking, partial, level, clipping, error, hearing, appSpeaking, silent } = speech;
 
   useEffect(() => {
-    if (hearing && !speaksForItself) setAnnounce(hearing.understood ? fill(t("Heard: {text}"), { text: hearing.understood }) : t("Nothing was heard."));
-  }, [hearing, speaksForItself, t]);
+    if ((!hearing && !silent) || speaksForItself) return;
+    const line = hearing?.understood ? fill(t("Heard: {text}"), { text: hearing.understood }) : t("Nothing was heard.");
+    /* The same words twice is two turns, and a live region whose text did not
+       change says nothing the second time: it is emptied and filled again on
+       the next frame, so the second "Heard: tere" is read out too (D12). */
+    setAnnounce("");
+    const frame = requestAnimationFrame(() => setAnnounce(line));
+    return () => cancelAnimationFrame(frame);
+  }, [hearing, silent, speaksForItself, t]);
 
   const press = () => {
     const s = latest.current;
@@ -74,11 +79,16 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
       return;
     }
     if (s.thinking || s.appSpeaking) return;
-    if (s.phase === "needs-download" || s.phase === "cleared") {
-      setAsking(true);
+    if (s.phase === "needs-download" || s.phase === "cleared" || s.phase === "downloading") {
+      // The model usually arrived in the background already (SpeechPrefetch).
+      // Where it has not, this press fetches it, or waits for the fetch under
+      // way, and then listens: the press was a press to talk.
+      void (async () => {
+        await s.download();
+        if (latest.current.phase === "ready") void latest.current.start();
+      })();
       return;
     }
-    if (s.phase === "downloading") return;
     void s.start();
   };
 
@@ -107,14 +117,6 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
 
   if (!offered) return null;
 
-  const download = async () => {
-    setAsking(false);
-    await speech.download();
-    // The press that asked was a press to talk; once the model is here, talk.
-    if (latest.current.phase === "ready") void latest.current.start();
-  };
-
-  const metered = typeof navigator !== "undefined" && meteredConnection();
   const big = size === "lg";
   const dim = big ? "h-14 w-14" : "h-11 w-11";
   const busy = phase === "loading" || phase === "downloading" || thinking;
@@ -124,12 +126,17 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
     : phase === "loading" ? t("Getting ready to listen")
     : thinking ? t("Reading what you said")
     : listening ? t("Listening. Press again when you are done.")
+    // A turn that closed on its own with nothing said says so, rather than the button just going quiet.
+    : silent && !speaksForItself ? t("Nothing was heard.")
     : null;
 
   return (
-    <div className="flex flex-col items-start gap-2">
-      {/* Wraps rather than squeezing: beside a 44px button in a narrow column the status line would otherwise break inside a word. */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+    <div className="flex flex-col items-start gap-3">
+      {/* The status line stays beside the button and wraps inside its own
+          column, by words: wrapped under the button, it sat inside the level
+          ring and the ring drew over its first words. The gap clears the ring
+          at its widest (`.speech-mic` in globals.css). */}
+      <div className="flex max-w-full items-center gap-4">
         <button
           type="button"
           className={`speech-mic press relative inline-flex shrink-0 items-center justify-center rounded-full ${dim}`}
@@ -149,6 +156,10 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
           }}
           onPointerDown={(e) => {
             if (e.pointerType !== "touch") return;
+            /* A long press a browser kept for itself (a context menu, a
+               scroll) can end with no click, which would leave `held` set and
+               eat the next ordinary tap. Every press starts clean. */
+            held.current = false;
             pressedAt.current = Date.now();
             const at = pressedAt.current;
             setTimeout(() => {
@@ -165,7 +176,14 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
             if (wasHeld && latest.current.listening) latest.current.stop();
           }}
           onPointerCancel={() => {
+            // The browser took the finger mid-hold: the turn ends with what was said, as letting go does.
+            if (held.current && latest.current.listening) latest.current.stop();
+            held.current = false;
             pressedAt.current = 0;
+          }}
+          onContextMenu={(e) => {
+            // Holding to talk is not a request for the browser's long-press menu.
+            if (pressedAt.current !== 0) e.preventDefault();
           }}
           style={{ "--mic-level": String(level) } as CSSProperties}
         >
@@ -177,7 +195,7 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
             <Mic size={big ? 24 : 20} aria-hidden />
           )}
         </button>
-        {status && <p className="text-sm" style={{ color: "var(--ink-2)" }}>{status}</p>}
+        {status && <p className="min-w-0 flex-1 text-sm" style={{ color: "var(--ink-2)" }}>{status}</p>}
       </div>
 
       {listening && showPartial && partial && (
@@ -187,27 +205,7 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
         <p className="text-sm" style={{ color: "var(--hard-ink)" }}>{t("That is very loud. Hold the microphone a little further away.")}</p>
       )}
 
-      {asking && (
-        <div className="explain-panel flex max-w-prose flex-col gap-3" role="group" aria-label={t("Download for speaking")}>
-          <p className="text-sm" style={{ color: "var(--ink)" }}>
-            {phase === "cleared"
-              ? keepUnits(fill(t("Your browser cleared the speaking download to save space. Getting it back is {mb} MB, once."), { mb: megabytesTotal }))
-              : keepUnits(fill(t("Speaking is new. It needs a one-time download of {mb} MB, which stays on this device, so hearing works offline and nothing you say ever leaves it."), { mb: megabytesTotal }))}
-          </p>
-          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            {t("What you see is the machine's hearing. You can always change it before it counts.")}
-          </p>
-          {metered && (
-            <p className="text-sm" style={{ color: "var(--hard-ink)" }}>{t("You seem to be on mobile data, so you might want to wait for Wi-Fi.")}</p>
-          )}
-          <div className="flex flex-wrap gap-2">
-            <Button variant="ghost" size="sm" onClick={() => setAsking(false)}>{t("Not now")}</Button>
-            <Button size="sm" onClick={() => void download()}>{keepUnits(fill(t("Download {mb} MB"), { mb: megabytesTotal }))}</Button>
-          </div>
-        </div>
-      )}
-
-      {error && !asking && !speaksForItself && <MicError error={error} onRetry={error === "download-failed" || error === "hash-failed" ? () => void speech.download() : null} />}
+      {error && !speaksForItself && <MicError error={error} onRetry={error === "download-failed" || error === "hash-failed" ? () => void speech.download() : null} />}
 
       <p className="sr-only" role="status" aria-live="polite">{announce}</p>
     </div>
@@ -217,12 +215,6 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
 function downloadingLine(t: (english: string) => string, done: number, total: number): string {
   if (total <= 0) return t("Starting the download");
   return keepUnits(fill(t("Downloading {done} of {total} MB"), { done: megabytes(done), total: megabytes(total) }));
-}
-
-/** The browser says it is on a metered connection, where it says anything. */
-function meteredConnection(): boolean {
-  const connection = (navigator as Navigator & { connection?: { saveData?: boolean; type?: string } }).connection;
-  return Boolean(connection?.saveData) || connection?.type === "cellular";
 }
 
 /** Every error in words, with the typed way on (VB-2). */

@@ -209,9 +209,9 @@ takes 3.4 seconds. Vendor prices carry the page they came off and the day it was
 euro to dollar rate is the European Central Bank's own reference rate with its date.
 
 Run over the scale ladder with the tutor on the model it answers on, the monthly bill is $299.28 at
-one learner, $300.63 at a hundred, $443.95 at ten thousand and $2,282.55 at a hundred thousand, which
-is $3.01 per learner per month at a hundred falling to 2.3 cents. The model a learner speaks to is
-downloaded once per device from the deployment's own storage, which is about $160 of the hundred thousand. At ten thousand and above the app's
+one learner, $300.73 at a hundred, $454.66 at ten thousand and $2,389.70 at a hundred thousand, which
+is $3.01 per learner per month at a hundred falling to 2.4 cents. The model a learner speaks to is
+downloaded once per device, in the background, from this site's own hosting, which is about $268 of the hundred thousand. At ten thousand and above the app's
 own daily cap on model spending is what holds the tutor line down. At a hundred thousand learners the value of what is given to this app, priced at Amazon
 Polly's published neural rate purely to show its size, is $2,880 a month and exceeds every billed
 line put together. No free vendor tier is modelled anywhere, because a free plan pauses when nobody

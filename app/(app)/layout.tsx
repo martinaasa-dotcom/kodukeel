@@ -24,7 +24,7 @@ import { navOrderFrom } from "@/lib/ux/navOrder";
 import { railClasses } from "@/lib/progress/classes";
 import { visibleLine } from "@/lib/security/visibleText";
 import { AudioPrefsProvider } from "@/components/AudioPrefs";
-import { SpeechProvider } from "@/components/speech/useSpeech";
+import { SpeechPrefetch, SpeechProvider } from "@/components/speech/useSpeech";
 import { speechAvailability } from "@/lib/audio/speechAvailability";
 import { micInBoxesFrom, sendAtOnceFrom } from "@/lib/ux/speechPrefs";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
@@ -157,6 +157,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <SpeechProvider value={speech}>
     <LetterBarScope value={letters} dismissible>
       <DeviceOwner owner={ownerDigest(ownerId)} />
+      {/* The speech model, fetched quietly once per device so every microphone just works. */}
+      <SpeechPrefetch />
       {/* The language handed to what sits outside this shell: the offline
           banner in the root layout, and `lang` on the document for anything
           drawn in a portal. See the component. */}

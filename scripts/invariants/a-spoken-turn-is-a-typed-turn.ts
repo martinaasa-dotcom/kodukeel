@@ -35,10 +35,25 @@ export default function aSpokenTurnIsATypedTurn({ check, code }: InvariantKit) {
 
   check("what the recognizer heard stays on the screen and is never sent", () => {
     const session = code("components/scene/SceneSession.tsx");
-    assert.match(session, /spoken: \{ repairs\b/, "a spoken turn no longer carries its repairs");
-    // Beside the repairs go two numbers for the edit rate (D3), counted on the device, and never the words.
-    assert.match(session, /spoken: \{ repairs, \.\.\.editCounts\(/, "a spoken turn's edit counts are not the counter's");
-    assert.doesNotMatch(session, /spoken: \{[^}]*\bheard\b/, "a spoken turn sends what the machine heard, which /privacy says stays on the device");
+    /*
+      Beside the repairs go two numbers for the edit rate (D3), counted on the
+      device, and never the words; and none on a line picked by saying it,
+      whose words are the pick's rather than anything the learner changed.
+    */
+    assert.match(session, /spoken: picked \? \{ repairs \} : \{ repairs, \.\.\.editCounts\(/, "a spoken turn no longer carries its repairs, or a spoken pick counts the app's match as the learner's edits");
+    assert.doesNotMatch(session, /spoken: [^\n]*\bheard\b/, "a spoken turn sends what the machine heard, which /privacy says stays on the device");
+  });
+
+  check("what was heard is shown and never said back in the app's own voice", () => {
+    /*
+      A spelling the machine heard is one the dictionary does not hold, and
+      playing it through the app's native voice puts the mistake in a native
+      speaker's mouth, which is why a chat never quotes the learner's Estonian
+      back (`ChatPlan.remembered`).
+    */
+    assert.doesNotMatch(code("components/scene/SceneSession.tsx"), /<Speak text=\{repair\.from\}/, "the recast plays what the machine heard in a native voice");
+    assert.doesNotMatch(code("components/scene/SceneDebrief.tsx"), /<Speak text=\{one\.heard\}/, "What we heard plays the machine's hearing in a native voice");
+    assert.match(code("components/scene/SceneDebrief.tsx"), /<Speak text=\{one\.said\}/, "What we heard no longer plays what went, so the check above lost its subject");
   });
 
   check("the conversation listens through the one hook and the one button", () => {

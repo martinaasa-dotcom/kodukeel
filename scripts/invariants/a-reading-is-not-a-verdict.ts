@@ -29,9 +29,21 @@ const THRESHOLD_TRAFFIC_LIGHT = new RegExp(
   `[<>]=?\\s*[\\w.]+\\s*\\?\\s*"var\\(--${VERDICT}\\)"\\s*:\\s*(?:[^?:"]*\\?\\s*)?"var\\(--${VERDICT}\\)"`,
 );
 const VERDICT_STAT = new RegExp(`<Stat\\b[^>]*tone=\\{?\\s*(?:"var\\(--${VERDICT}\\)"|VERDICT_INK)`);
+/*
+  The same light written as a tone name rather than a colour: `StatTile` and
+  `Card` take `tone="sky"`, so `tone={accuracy >= 85 ? "sky" : "butter"}` is
+  the traffic light the pattern above cannot see. Five round summaries carried
+  one, a share right painted one hue or the other on the screen that ends a
+  round.
+*/
+const TONE_TRAFFIC_LIGHT = new RegExp(
+  `tone=\\{[^}]*[<>]=?\\s*[\\w.]+\\s*\\?\\s*"(?:${VERDICT})"\\s*:\\s*"(?:${VERDICT})"`,
+);
+const trafficLight = (src: string) => THRESHOLD_TRAFFIC_LIGHT.test(src) || TONE_TRAFFIC_LIGHT.test(src);
 
 const EXEMPT: Record<string, string> = {
   "app/(app)/exam/result/[id]/page.tsx": "a part of a sat paper passed or failed is a mark on it",
+  "components/assessment/ResultPanel.tsx": "a band of a level check passed, nearly or not is the mark that sets the level",
 };
 
 export default function aReadingIsNotAVerdict({ check, code, read, APP, COMPONENTS }: InvariantKit) {
@@ -44,7 +56,7 @@ export default function aReadingIsNotAVerdict({ check, code, read, APP, COMPONEN
       const src = code(file);
       const lines = src.split("\n");
       for (const [i, line] of lines.entries()) {
-        if (THRESHOLD_TRAFFIC_LIGHT.test(line) && !EXEMPT[file]) offenders.push(`${file}:${i + 1}: ${line.trim().slice(0, 120)}`);
+        if (trafficLight(line) && !EXEMPT[file]) offenders.push(`${file}:${i + 1}: ${line.trim().slice(0, 120)}`);
         if (VERDICT_STAT.test(line)) offenders.push(`${file}:${i + 1}: a Stat in a verdict ink`);
       }
       // A multi-line Stat, which is how most round summaries write theirs.
@@ -58,7 +70,7 @@ export default function aReadingIsNotAVerdict({ check, code, read, APP, COMPONEN
     assert.deepEqual(offenders, [], "a reading coloured as a verdict: draw it in the accent, or plain ink for a count");
 
     for (const [file, why] of Object.entries(EXEMPT)) {
-      assert.ok(THRESHOLD_TRAFFIC_LIGHT.test(code(file)), `${file} is exempt (${why}) and no longer colours by a threshold; take the line out`);
+      assert.ok(trafficLight(code(file)), `${file} is exempt (${why}) and no longer colours by a threshold; take the line out`);
     }
   });
 

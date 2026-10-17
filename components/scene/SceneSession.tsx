@@ -166,7 +166,7 @@ interface Sent {
    * earns no grade (`SentTurn.spoken`, D13). What the recognizer heard is not
    * sent; only which words it could not take as said.
    */
-  spoken?: { repairs: readonly Repair[]; wordsHeard: number; wordsChanged: number };
+  spoken?: { repairs: readonly Repair[]; wordsHeard?: number; wordsChanged?: number };
 }
 
 /** A line the learner may pick instead of typing, as the server built it (`lib/scenes/picks.ts`). */
@@ -440,6 +440,9 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
   const [asked, setAsked] = useState<{ lemma: string; lexemeId: string | null }[]>([]);
   const [helped, setHelped] = useState(false);
   const [draft, setDraft] = useState("");
+  /* The draft as of the last render, for a callback that must not be rebuilt on every keystroke. */
+  const draftRef = useRef(draft);
+  draftRef.current = draft;
   /*
     PICKING OR TYPING. The lines to pick are two or three right answers to the
     beat in front, built off this run's card (`lib/scenes/picks.ts`), so a
@@ -465,11 +468,6 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
     return chat && one === "pick" ? "type" : one;
   }, [chat, speechHere]);
   const [answerBy, setAnswerBy] = useState<SceneAnswer>(() => opensWith(answeredLast, openAt));
-  const chooseAnswer = useCallback((next: SceneAnswer) => {
-    setAnswerBy(next);
-    remembered.current = next;
-    void setSceneAnswer(next).catch(() => null);
-  }, []);
   /*
     TALK IT THROUGH: cold plus speaking, which is the closest the app comes to
     the real thing (SP-3). The other side is heard and not shown, what to do is
@@ -491,6 +489,23 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
   const [unmatched, setUnmatched] = useState(false);
   /** The countdown ring, on the lit pick or on the box's button, where one is running (D20). */
   const [ring, setRing] = useState<"pick" | "box" | null>(null);
+  /*
+    Switching how to answer drops what the last way left behind: a lit line
+    and its ring belong to the lines, and a hearing that never reached the box
+    belongs to nothing once they are gone. Without this, a line lit by speech,
+    then "Type it" and a sentence typed from scratch, went to the server as a
+    spoken turn carrying the hearing's repairs and edit counts. A hearing that
+    is in the box stays with it, since the box is still holding it.
+  */
+  const chooseAnswer = useCallback((next: SceneAnswer) => {
+    setAnswerBy(next);
+    remembered.current = next;
+    setLit(null);
+    setRing(null);
+    setUnmatched(false);
+    if (!draftRef.current.trim()) setPending(null);
+    void setSceneAnswer(next).catch(() => null);
+  }, []);
   /** Whether the microphone is listening or reading, told at turn boundaries only. */
   const [mic, setMic] = useState<MicState>({ listening: false, thinking: false, offered: false });
   const [busy, setBusy] = useState(false);
@@ -698,6 +713,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
     phone and open the keyboard over the first thing there is to read.
   */
   const box = useRef<HTMLInputElement>(null);
+  /* Whether the turn is being said rather than typed, as of the last render, for the effect below. */
+  const speakingRef = useRef(false);
   useEffect(() => {
     /*
       A debrief is read from its own first line. The page is left wherever the
@@ -812,7 +829,18 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
       button 70px under it, on a page with 347px still to go. The panel above
       decides where the page sits; this only decides where the caret is.
     */
-    if (document.activeElement === document.body) box.current?.focus({ preventScroll: true });
+    /*
+      Saying it, the caret goes to the microphone instead. A phone does not
+      focus a button it was tapped on, so after every spoken turn
+      `activeElement` was the body and the box took focus, which opened the
+      keyboard over the conversation of somebody who had chosen to talk. A
+      keyboard user is handed the control they were using, which Space and
+      Enter press again.
+    */
+    if (document.activeElement === document.body) {
+      if (speakingRef.current) panel.querySelector<HTMLButtonElement>("[data-scene-mic] button")?.focus({ preventScroll: true });
+      else box.current?.focus({ preventScroll: true });
+    }
   }, [turns]);
 
   const speak = useCallback(async (next: Sent[]) => {
@@ -1095,11 +1123,28 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
   */
   async function answer(said: string, picked: boolean, spokenAs: Hearing | null = null) {
     if (!said || !beatId || busy) return;
-    const repairs = spokenAs ? spokenAs.repairs.filter((repair) => repair.rule !== "hesitation") : [];
+    /*
+      Only the repairs whose word is still in what goes, which is the server's
+      own rule (`spokenOf`): a word the learner changed in the box they wrote
+      themselves, and a line picked by saying it holds the pick's words rather
+      than the hearing's, so a recast under it about a word it does not say
+      would be about nothing on the screen.
+    */
+    const sentWords = new Set(said.split(/\s+/).map(core).filter(Boolean));
+    const repairs = spokenAs
+      ? spokenAs.repairs.filter((repair) => repair.rule !== "hesitation" && repair.to.split(/\s+/).some((w) => sentWords.has(core(w))))
+      : [];
     const next: Sent[] = [...sent, {
       beatId, said, helped, heard,
       ...(picked ? { picked: true } : {}),
-      ...(spokenAs ? { spoken: { repairs, ...editCounts(spokenAs.understood, said) } } : {}),
+      /*
+        The edit counts only where the learner had the words in the box to
+        change. A line lit by what was heard and sent as a pick replaced the
+        hearing with the pick's own words, and counting that as words the
+        learner changed would read the app's match as the recognizer's misses
+        in the edit rate `report:speech` watches (D3).
+      */
+      ...(spokenAs ? { spoken: picked ? { repairs } : { repairs, ...editCounts(spokenAs.understood, said) } } : {}),
     }];
     setSent(next);
     setTurns((was) => [...was, {
@@ -1637,6 +1682,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
     like one (`CallScreen`).
   */
   const speaking = speechHere && (talk || answerBy === "say" || (answerBy === "pick" && picks.length === 0));
+  speakingRef.current = speaking || (speechHere && answerBy === "pick" && picks.length > 0 && !unmatched);
   const turnCue = saying === "you" && !busy && turns[turns.length - 1]?.who === "them" ? turns.length : 0;
   const callLook = call && (hidesLines(heardMode) || goalHidden);
 
@@ -2041,8 +2087,13 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                 word the recognizer heard as a non-word was read as the word the
                 dictionary holds, and the other side has already said it back
                 right. Under the bubble, the two side by side: what was heard,
-                and how they say it, each with a speaker in the app's own voice.
-                "Heard" is the verb: nothing here says how the word sounded.
+                and how they say it, the second with a speaker in the app's own
+                voice. Only the second: what was heard is a spelling the
+                dictionary does not hold, and the app's native voice saying it
+                would put the mistake in a native speaker's mouth, which is the
+                reason a chat never quotes the learner's Estonian back
+                (`ChatPlan.remembered`). "Heard" is the verb: nothing here says
+                how the word sounded.
               */}
               {turn.heard && turn.heard.repairs.length > 0 && (
                 <ul data-heard-recast className="mt-1 flex flex-col items-end gap-1 pr-1 text-right text-xs" style={{ color: "var(--ink-3)" }}>
@@ -2052,7 +2103,6 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                         heard: (
                           <span className="inline-flex items-center gap-0.5">
                             <span lang="et" className="font-medium" style={{ color: "var(--ink-2)" }}>{repair.from}</span>
-                            {aloud && <Speak text={repair.from} voice={voice} size={12} label={t("Hear it")} className="press inline-flex h-6 w-6 items-center justify-center rounded-full hover:bg-[var(--raised)]" />}
                           </span>
                         ),
                         said: (
@@ -2514,7 +2564,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                 <button
                   key={pick.id}
                   type="button"
-                  className="choice-btn press flex items-center justify-between gap-3 rounded-xl px-4 py-3 text-left"
+                  className="choice-btn press flex border items-center justify-between gap-3 rounded-xl px-4 py-3 text-left"
                   onClick={() => answer(pick.et, true, lit === pick.id ? pending : null)}
                   disabled={busy || moving}
                   data-pick={pick.id}
@@ -2527,14 +2577,14 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                   </span>
                   {lit === pick.id && ring === "pick" && (
                     <span style={{ color: "var(--accent-deep)" }}>
-                      <SendRing onDone={ringDone} onStop={() => setRing(null)} />
+                      <SendRing onDone={ringDone} onStop={() => setRing(null)} announce={false} />
                     </span>
                   )}
                 </button>
               ))}
               {lit && (
                 <p id="scene-heard-pick" role="status" className="text-sm" style={{ color: "var(--ink-2)" }}>
-                  {ring === "pick" ? t("That's the line you said. It goes in a moment, or touch the screen to stop it.") : t("That's the line you said. Press it to say it.")}
+                  {ring === "pick" ? t("That's the line you said. It goes in a moment. Press anywhere or any key to stop it.") : t("That's the line you said. Press it to send it.")}
                 </p>
               )}
               {speechHere && (
@@ -2599,7 +2649,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                 inputRef={box}
                 disabled={moving}
                 ariaLabel={t("What you say")}
-                placeholder={moving ? t("Just a moment…") : speaking ? t("Your words appear here") : t("Say it in Estonian")}
+                placeholder={moving ? t("Just a moment…") : speaking && mic.offered ? t("Your words appear here") : t("Say it in Estonian")}
               />
               {/*
                 Alone in its row, so the one action a learner takes every turn is the
@@ -2609,13 +2659,13 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
               */}
               <Button onClick={say} disabled={busy || moving || !draft.trim()} variant="primary" className="w-full sm:w-auto sm:self-start">
                 {ring === "box"
-                  ? <SendRing onDone={ringDone} onStop={() => setRing(null)} />
+                  ? <SendRing onDone={ringDone} onStop={() => setRing(null)} announce={false} />
                   : <CornerDownLeft size={16} aria-hidden />}{" "}
                 {t("Say it")}
               </Button>
               {ring === "box" && (
                 <p role="status" className="text-sm" style={{ color: "var(--ink-2)" }}>
-                  {t("This goes in a moment. Touch the screen to stop it and change the words.")}
+                  {t("This goes in a moment. Press anywhere or any key to stop it and change the words.")}
                 </p>
               )}
             </>

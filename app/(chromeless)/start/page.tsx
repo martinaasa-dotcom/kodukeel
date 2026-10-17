@@ -58,7 +58,15 @@ export default async function WelcomePage({ searchParams }: {
     blurb: p.blurb,
     days: p.days.length,
     firstDay: p.days[0]
-      ? { title: p.days[0].title, subtitle: p.days[0].subtitle, words: p.days[0].words.length }
+      ? {
+        title: p.days[0].title,
+        subtitle: p.days[0].subtitle,
+        words: p.days[0].words.length,
+        /* Everything the evening does after meeting the words, so the line can
+           say how much there is rather than promising "one short round" over
+           an evening of three. */
+        steps: p.days[0].steps.filter((s) => s.kind !== "meet").length,
+      }
       : null,
   }));
 

@@ -12,7 +12,7 @@ import type { Area } from "../area";
 export const SPEAKING: Area = {
   ru: {
     // The microphone.
-    "Say it along": "Повторить вслух",
+    "Say it along": "Сказать вместе",
     "Stop listening": "Перестать слушать",
     "Getting ready to listen": "Готовлюсь слушать",
     "Reading what you said": "Разбираю, что вы сказали",
@@ -25,26 +25,26 @@ export const SPEAKING: Area = {
     "{n} of {total} words were heard.": "Услышано слов: {n} из {total}.",
 
     // The download.
-    "Download for speaking": "Загрузка для разговора",
+    "Download for speaking": "Загрузка для устной речи",
     "Download {mb} MB": "Загрузить {mb} МБ",
     "Downloading {done} of {total} MB": "Загружено {done} из {total} МБ",
     "Starting the download": "Начинаю загрузку",
     "Speaking is new. It needs a one-time download of {mb} MB, which stays on this device, so hearing works offline and nothing you say ever leaves it.":
-      "Говорить вслух можно с недавних пор. Для этого нужна разовая загрузка {mb} МБ. Она остаётся на этом устройстве, поэтому распознавание работает без сети, а сказанное вами никуда не уходит.",
+      "Устная речь появилась недавно. Для неё нужна разовая загрузка {mb} МБ. Она остаётся на этом устройстве, поэтому распознавание работает без сети, а сказанное вами никуда не уходит.",
     "What you see is the machine's hearing. You can always change it before it counts.":
       "То, что вы видите, услышала машина. Вы всегда можете это исправить, прежде чем ответ засчитается.",
     "You seem to be on mobile data, so you might want to wait for Wi-Fi.":
       "Похоже, вы подключены через мобильный интернет. Возможно, лучше дождаться Wi-Fi.",
     "Your browser cleared the speaking download to save space. Getting it back is {mb} MB, once.":
-      "Браузер удалил загрузку для разговора, чтобы освободить место. Вернуть её можно одной загрузкой {mb} МБ.",
+      "Браузер удалил загрузку для устной речи, чтобы освободить место. Вернуть её можно одной загрузкой {mb} МБ.",
 
     // What went wrong, each with the typed way on.
     "No microphone was found. Typing works as before.": "Микрофон не найден. Печатать можно, как раньше.",
     "The microphone is blocked for this site. You can allow it in your browser's site settings, or keep typing.":
       "Микрофон для этого сайта заблокирован. Его можно разрешить в настройках сайта в браузере или продолжать печатать.",
-    "Speaking needs its download first.": "Сначала нужна загрузка для разговора.",
+    "Speaking needs its download first.": "Сначала нужна загрузка для устной речи.",
     "Your browser cleared the speaking download. Press the microphone to get it back.":
-      "Браузер удалил загрузку для разговора. Нажмите на микрофон, чтобы вернуть её.",
+      "Браузер удалил загрузку для устной речи. Нажмите на микрофон, чтобы вернуть её.",
     "The download did not check out, so it was not used. Try it again.":
       "Загрузка не прошла проверку, поэтому она не используется. Попробуйте ещё раз.",
     "This device is too slow to hear speech as you say it, so typing stays as it was.":
@@ -57,15 +57,15 @@ export const SPEAKING: Area = {
 
     // Settings.
     "Speaking is switched off on this installation, so everything is typed as before.":
-      "На этой установке разговор вслух отключён, поэтому всё печатается, как раньше.",
+      "На этой установке устная речь отключена, поэтому всё печатается, как раньше.",
     "This installation has no speech model, so everything is typed as before.":
       "На этой установке нет модели распознавания речи, поэтому всё печатается, как раньше.",
     "Speaking is new. Your Estonian is turned into text on this device and the sound never leaves it. What you see is the machine's hearing, and you can always change it before it counts.":
-      "Говорить вслух можно с недавних пор. Ваша эстонская речь превращается в текст на этом устройстве, и звук никуда не уходит. То, что вы видите, услышала машина, и вы всегда можете это исправить, прежде чем ответ засчитается.",
+      "Устная речь появилась недавно. Ваша эстонская речь превращается в текст на этом устройстве, и звук никуда не уходит. То, что вы видите, услышала машина, и вы всегда можете это исправить, прежде чем ответ засчитается.",
     "Checking this device.": "Проверяю это устройство.",
     "Downloaded on this device ({mb} MB).": "Загружено на это устройство ({mb} МБ).",
     "Your browser cleared the download to save space.": "Браузер удалил загрузку, чтобы освободить место.",
-    "Not downloaded on this device. It is {mb} MB, once.": "На это устройство не загружено. Это {mb} МБ, один раз.",
+    "The speech model is not on this device yet. It downloads by itself in the background, {mb} MB once.": "Модели распознавания речи на этом устройстве пока нет. Она загрузится сама в фоновом режиме, {mb} МБ один раз.",
     "Delete the download": "Удалить загрузку",
     "Microphone in answer boxes": "Микрофон в полях для ответа",
     "Show it": "Показывать",
@@ -73,18 +73,18 @@ export const SPEAKING: Area = {
     "Once the download is on this device, a microphone sits beside every box that takes an Estonian answer.":
       "Когда загрузка есть на этом устройстве, микрофон появляется рядом с каждым полем для ответа на эстонском.",
     "The microphone stays where speaking is the task: a conversation, the speaking round and meeting a new word.":
-      "Микрофон остаётся там, где задание и есть говорить: в разговоре, в упражнении на говорение и при знакомстве с новым словом.",
-    "When what you say matches a line": "Когда сказанное совпадает со строкой",
+      "Микрофон остаётся там, где задание и есть говорить: в разговоре, в раунде устной речи и при знакомстве с новым словом.",
+    "When what you say matches a line": "Когда сказанное совпадает с одной из фраз",
     "Wait a moment": "Подождать немного",
     "Send it straight away": "Отправлять сразу",
     "The line you said lights up and is sent after a short ring, so you can stop it if it was misheard.":
-      "Сказанная строка подсвечивается и отправляется после короткого круга, так что её можно остановить, если её услышали неверно.",
-    "The line you said is sent as soon as it is heard.": "Сказанная строка отправляется, как только её услышат.",
+      "Сказанная фраза подсвечивается и отправляется после короткого отсчёта по кругу, так что её можно остановить, если её услышали неверно.",
+    "The line you said is sent as soon as it is heard.": "Сказанная фраза отправляется, как только её услышат.",
     "Start or stop the microphone, or hold it to talk": "Включить или выключить микрофон, или держать, чтобы говорить",
   },
   uk: {
     // The microphone.
-    "Say it along": "Повторити вголос",
+    "Say it along": "Сказати разом",
     "Stop listening": "Перестати слухати",
     "Getting ready to listen": "Готуюся слухати",
     "Reading what you said": "Розбираю, що ви сказали",
@@ -97,26 +97,26 @@ export const SPEAKING: Area = {
     "{n} of {total} words were heard.": "Почуто слів: {n} з {total}.",
 
     // The download.
-    "Download for speaking": "Завантаження для розмови",
+    "Download for speaking": "Завантаження для усного мовлення",
     "Download {mb} MB": "Завантажити {mb} МБ",
     "Downloading {done} of {total} MB": "Завантажено {done} з {total} МБ",
     "Starting the download": "Починаю завантаження",
     "Speaking is new. It needs a one-time download of {mb} MB, which stays on this device, so hearing works offline and nothing you say ever leaves it.":
-      "Говорити вголос можна віднедавна. Для цього потрібне одноразове завантаження {mb} МБ. Воно лишається на цьому пристрої, тож розпізнавання працює без мережі, а сказане вами нікуди не йде.",
+      "Усне мовлення з'явилося нещодавно. Для нього потрібне одноразове завантаження {mb} МБ. Воно лишається на цьому пристрої, тож розпізнавання працює без мережі, а сказане вами нікуди не йде.",
     "What you see is the machine's hearing. You can always change it before it counts.":
       "Те, що ви бачите, почула машина. Ви завжди можете це виправити, перш ніж відповідь зарахують.",
     "You seem to be on mobile data, so you might want to wait for Wi-Fi.":
       "Схоже, ви під'єднані через мобільний інтернет. Можливо, краще дочекатися Wi-Fi.",
     "Your browser cleared the speaking download to save space. Getting it back is {mb} MB, once.":
-      "Браузер видалив завантаження для розмови, щоб звільнити місце. Повернути його можна одним завантаженням {mb} МБ.",
+      "Браузер видалив завантаження для усного мовлення, щоб звільнити місце. Повернути його можна одним завантаженням {mb} МБ.",
 
     // What went wrong, each with the typed way on.
     "No microphone was found. Typing works as before.": "Мікрофон не знайдено. Друкувати можна, як раніше.",
     "The microphone is blocked for this site. You can allow it in your browser's site settings, or keep typing.":
       "Мікрофон для цього сайту заблоковано. Його можна дозволити в налаштуваннях сайту в браузері або далі друкувати.",
-    "Speaking needs its download first.": "Спершу потрібне завантаження для розмови.",
+    "Speaking needs its download first.": "Спершу потрібне завантаження для усного мовлення.",
     "Your browser cleared the speaking download. Press the microphone to get it back.":
-      "Браузер видалив завантаження для розмови. Натисніть на мікрофон, щоб повернути його.",
+      "Браузер видалив завантаження для усного мовлення. Натисніть на мікрофон, щоб повернути його.",
     "The download did not check out, so it was not used. Try it again.":
       "Завантаження не пройшло перевірку, тому воно не використовується. Спробуйте ще раз.",
     "This device is too slow to hear speech as you say it, so typing stays as it was.":
@@ -129,15 +129,15 @@ export const SPEAKING: Area = {
 
     // Settings.
     "Speaking is switched off on this installation, so everything is typed as before.":
-      "На цій установці розмову вголос вимкнено, тому все друкується, як раніше.",
+      "На цій установці усне мовлення вимкнено, тому все друкується, як раніше.",
     "This installation has no speech model, so everything is typed as before.":
       "На цій установці немає моделі розпізнавання мовлення, тому все друкується, як раніше.",
     "Speaking is new. Your Estonian is turned into text on this device and the sound never leaves it. What you see is the machine's hearing, and you can always change it before it counts.":
-      "Говорити вголос можна віднедавна. Ваше естонське мовлення перетворюється на текст на цьому пристрої, і звук нікуди не йде. Те, що ви бачите, почула машина, і ви завжди можете це виправити, перш ніж відповідь зарахують.",
+      "Усне мовлення з'явилося нещодавно. Ваше естонське мовлення перетворюється на текст на цьому пристрої, і звук нікуди не йде. Те, що ви бачите, почула машина, і ви завжди можете це виправити, перш ніж відповідь зарахують.",
     "Checking this device.": "Перевіряю цей пристрій.",
     "Downloaded on this device ({mb} MB).": "Завантажено на цей пристрій ({mb} МБ).",
     "Your browser cleared the download to save space.": "Браузер видалив завантаження, щоб звільнити місце.",
-    "Not downloaded on this device. It is {mb} MB, once.": "На цей пристрій не завантажено. Це {mb} МБ, один раз.",
+    "The speech model is not on this device yet. It downloads by itself in the background, {mb} MB once.": "Моделі розпізнавання мовлення на цьому пристрої поки немає. Вона завантажиться сама у фоновому режимі, {mb} МБ один раз.",
     "Delete the download": "Видалити завантаження",
     "Microphone in answer boxes": "Мікрофон у полях для відповіді",
     "Show it": "Показувати",
@@ -145,13 +145,13 @@ export const SPEAKING: Area = {
     "Once the download is on this device, a microphone sits beside every box that takes an Estonian answer.":
       "Коли завантаження є на цьому пристрої, мікрофон з'являється біля кожного поля для відповіді естонською.",
     "The microphone stays where speaking is the task: a conversation, the speaking round and meeting a new word.":
-      "Мікрофон лишається там, де завдання і є говорити: у розмові, у вправі на говоріння і під час знайомства з новим словом.",
-    "When what you say matches a line": "Коли сказане збігається з рядком",
+      "Мікрофон лишається там, де завдання і є говорити: у розмові, у раунді усного мовлення і під час знайомства з новим словом.",
+    "When what you say matches a line": "Коли сказане збігається з однією з фраз",
     "Wait a moment": "Зачекати трохи",
     "Send it straight away": "Надсилати одразу",
     "The line you said lights up and is sent after a short ring, so you can stop it if it was misheard.":
-      "Сказаний рядок підсвічується і надсилається після короткого кола, тож його можна зупинити, якщо його почули неправильно.",
-    "The line you said is sent as soon as it is heard.": "Сказаний рядок надсилається, щойно його почують.",
+      "Сказана фраза підсвічується і надсилається після короткого відліку по колу, тож її можна зупинити, якщо її почули неправильно.",
+    "The line you said is sent as soon as it is heard.": "Сказана фраза надсилається, щойно її почують.",
     "Start or stop the microphone, or hold it to talk": "Увімкнути або вимкнути мікрофон, або тримати, щоб говорити",
   },
 };

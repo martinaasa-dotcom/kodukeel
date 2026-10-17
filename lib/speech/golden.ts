@@ -7,7 +7,8 @@ import { matchPick } from "./matchPick";
  * THE GOLDEN FILE: WHAT THE ENGINE HEARD, AND WHAT THE RULES MADE OF IT
  * (docs/41-fifth-batch.md, VB-3).
  *
- * For each fixture clip, the raw turns the web engine returned, and what the
+ * For each fixture clip (every WAV `scripts/make-speech-fixtures.ts` makes,
+ * held by its hash), the raw turns the web engine returned, and what the
  * pure layer decides from them: `heard`, `understood`, every word's detail,
  * the D19 verdict against a card whose answer is the clip's own text, and the
  * D20 match against a set of picks. `golden.test.ts` runs the pure layer over
@@ -27,6 +28,12 @@ export interface GoldenClip {
   readonly file: string;
   /** What the clip says, as `scripts/make-speech-fixtures.ts` asked TartuNLP to say it. */
   readonly says: string;
+  /**
+   * The SHA-256 of the clip's bytes as recorded. A native app checks it
+   * before comparing turns, so a fixture regenerated under the same name is
+   * read as a different clip rather than as an engine that hears differently.
+   */
+  readonly sha256: string;
   /** What the web engine returned for the whole file, one turn per piece. */
   readonly turns: readonly RawTurn[];
   readonly expect: GoldenExpect;

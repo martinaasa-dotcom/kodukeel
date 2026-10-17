@@ -1,11 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AnotherRound } from "@/components/round/AnotherRound";
 import { useGrade } from "@/components/round/useGrade";
 import { Check, Ear, Loader2, Volume2 } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
-import { Chip, KeyCap, Stat } from "@/components/ui";
+import { Chip, KeyCap } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { playClip } from "@/lib/audio/clip";
 import { useAudioPrefs } from "@/components/AudioPrefs";
@@ -14,9 +13,11 @@ import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 import { SpaceKeyCap } from "@/components/KeyCaps";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey, isPlayKey } from "@/lib/ux/advanceKey";
 import { WayOut } from "@/components/round/RoundExit";
+import { RoundDone } from "@/components/round/RoundDone";
 import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { useT } from "@/components/Locale";
+import { filled } from "@/components/Filled";
 import { fill } from "@/lib/copy/locale";
 import { rich } from "@/components/round/rich";
 
@@ -55,6 +56,8 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
   const [index, setIndex] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
   const [correct, setCorrect] = useState(0);
+  /* What was misheard, in the order it was asked, for the last screen. */
+  const [missed, setMissed] = useState<PairQuestion[]>([]);
   const [playing, setPlaying] = useState(false);
   const [audioFailed, setAudioFailed] = useState(false);
   /*
@@ -138,6 +141,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
     setPicked(value);
     const right = value.toLowerCase() === question.heard.toLowerCase();
     if (right) setCorrect((c) => c + 1);
+    else setMissed((m) => [...m, question]);
     // ADR-016: the same review log as every other mode.
     if (question.cardId) void grade(question.cardId, right ? 3 : 1, 0);
   }, [question, picked, grade]);
@@ -206,29 +210,28 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
     const accuracy = Math.round((correct / questions.length) * 100);
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
     return (
-      <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          {t("That’s the round done")}
-        </h1>
-        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          {rich(t("In Estonian, how long you hold a sound changes the meaning: {a} and {b} aren’t the same thing said twice. Ears take a while to catch up with eyes, so be patient with them."), {
-            a: <span lang="et">maja</span>,
-            b: <span lang="et">majja</span>,
-          })}
-        </p>
-        <div
-          className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
-          style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
-        >
-          <Stat value={questions.length} label={t("Heard")} />
-          <Stat value={`${accuracy}%`} label={t("Right")} />
-          <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
-        </div>
-        <WayOut className="mt-8 flex flex-wrap gap-3">
-          <AnotherRound>{t("Another round")}</AnotherRound>
-          <ButtonLink href="/" variant="primary">{t("Back to Today")}</ButtonLink>
-        </WayOut>
-      </div>
+      <RoundDone
+        title={t("That’s the round done")}
+        line={rich(t("In Estonian, how long you hold a sound changes the meaning: {a} and {b} aren’t the same thing said twice. Ears take a while to catch up with eyes, so be patient with them."), {
+          a: <span lang="et">maja</span>,
+          b: <span lang="et">majja</span>,
+        })}
+        figures={[
+          { value: questions.length, label: t("Heard") },
+          { value: `${accuracy}%`, label: t("Right") },
+          { value: fill(t("{n}m"), { n: minutes }), label: t("Time") },
+        ]}
+        missed={missed.map((q) => {
+          const heard = q.options.find((o) => o.value === q.heard);
+          return {
+            et: q.heard,
+            lemma: heard?.lemma,
+            note: heard
+              ? heard.lemma === q.heard ? heard.translation : filled(t("{form} of {lemma}, {meaning}"), { form: heard.formLabel, lemma: <span lang="et">{heard.lemma}</span>, meaning: heard.translation })
+              : "",
+          };
+        })}
+      />
     );
   }
 

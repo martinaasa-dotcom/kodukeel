@@ -90,6 +90,92 @@ async function checkDevice(base: string): Promise<void> {
   else set({ phase: "needs-download", error: null });
 }
 
+let downloading: Promise<void> | null = null;
+
+/**
+ * Fetch the model onto this device, once per tab however many screens ask.
+ *
+ * `quiet` is the background download every learner gets (below): a failure
+ * puts the phase back where it was rather than showing an error on whatever
+ * screen they are on, and the next visit, the next time the device comes back
+ * online, or a press of a microphone tries again.
+ */
+function downloadModel(base: string, quiet: boolean): Promise<void> {
+  if (downloading) return downloading;
+  set({ phase: "downloading", done: 0, total: 0, error: null });
+  downloading = (async () => {
+    try {
+      await engineFor(base).download((done, total) => set({ done, total }));
+      set({ phase: "ready", error: null });
+    } catch (e) {
+      const why = errorOf(e);
+      if (quiet) set({ phase: "needs-download", error: null });
+      else set({ phase: "error", error: why });
+    } finally {
+      downloading = null;
+    }
+  })();
+  return downloading;
+}
+
+/**
+ * EVERY LEARNER HAS THE MODEL BEFORE THEY REACH FOR A MICROPHONE.
+ *
+ * The operator's call (docs/41-fifth-batch.md, section 8b): asking before a
+ * download put a decision about 71 MB between somebody and the first thing
+ * they said, and a microphone that answers "download first" is a microphone
+ * nobody presses twice. So the signed-in shell mounts this, and once the page
+ * has settled it fetches the model quietly in the background, once per
+ * device. Two tabs do not both fetch: a Web Lock holds the download to one,
+ * and the other finds the files there when it gets the lock.
+ *
+ * Nothing about what is heard changes. The sound still never leaves the
+ * device, and the microphone still opens only on a press.
+ *
+ * A browser driven by a test (`navigator.webdriver`) does not fetch it on its
+ * own: every suite opens fresh browsers, and 71 MB behind each of them would
+ * be a suite measuring its own download. `scripts/test-speech.mjs` clears the
+ * flag on one page to check the background download itself.
+ */
+export function SpeechPrefetch() {
+  const config = useSpeechConfig();
+  const base = config.unavailable === null ? config.modelBase : null;
+  useEffect(() => {
+    if (!base) return;
+    let gone = false;
+    const run = async () => {
+      if (gone || !navigator.onLine || navigator.webdriver) return;
+      await checkDevice(base);
+      if (gone || (shared.phase !== "needs-download" && shared.phase !== "cleared")) return;
+      const fetchOnce = async () => {
+        // Another tab may have fetched it while this one waited for the lock.
+        if (await engineFor(base).isDownloaded()) {
+          set({ phase: "ready", error: null });
+          return;
+        }
+        await downloadModel(base, true);
+      };
+      const locks = (navigator as Navigator & { locks?: LockManager }).locks;
+      if (locks) await locks.request("kodukeel-asr-download", fetchOnce);
+      else await fetchOnce();
+    };
+    // After the page a learner opened has had the network to itself.
+    const idle = (window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number }).requestIdleCallback;
+    const timer = setTimeout(() => (idle ? idle(() => void run(), { timeout: 10_000 }) : void run()), PREFETCH_AFTER_MS);
+    const online = () => void run();
+    window.addEventListener("online", online);
+    return () => {
+      gone = true;
+      clearTimeout(timer);
+      window.removeEventListener("online", online);
+    };
+  }, [base]);
+  return null;
+}
+
+/** How long after a page loads the background download waits, so it never slows the page itself. */
+const PREFETCH_AFTER_MS = 3_000;
+
 function useShared(): Shared {
   return useSyncExternalStore(
     (notify) => {
@@ -165,6 +251,8 @@ export interface Speech {
   readonly audio: Float32Array | null;
   /** The app is saying something, so the microphone waits (D14). */
   readonly appSpeaking: boolean;
+  /** The last turn closed with nothing said, so the button can say so rather than going quiet. */
+  readonly silent: boolean;
   download(): Promise<void>;
   start(): Promise<void>;
   stop(): void;
@@ -185,8 +273,20 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
   const [error, setError] = useState<EngineError | null>(null);
   const [hearing, setHearing] = useState<Hearing | null>(null);
   const [audio, setAudio] = useState<Float32Array | null>(null);
+  const [silent, setSilent] = useState(false);
   const latest = useRef(options);
   latest.current = options;
+  /*
+    Which turn this hook is waiting on. A turn's last step (asking the forms
+    list which words it holds) is a fetch, and a cancel, a new press or the
+    screen moving on can land while it is out: a reading that comes back for a
+    turn nobody is waiting on is dropped rather than filling a box the learner
+    has already moved past.
+  */
+  const turnRef = useRef(0);
+  /* A press while the turn is still opening (the model loading, the browser's
+     permission prompt) is not a second turn. */
+  const opening = useRef(false);
 
   const base = config.modelBase;
   const offered = base !== null && config.unavailable === null;
@@ -203,28 +303,36 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
       users -= 1;
       if (users > 0) return;
       // Let the model's memory go a while after the last screen that listens.
-      releaseTimer = setTimeout(() => {
+      const letGo = () => {
+        /* Not while the files are still arriving: releasing ends the worker,
+           and a 71 MB download started on Settings and left running while
+           somebody reads a grammar page would fail two minutes later with a
+           sentence about listening. It waits for the download, then goes. */
+        if (shared.phase === "downloading") {
+          releaseTimer = setTimeout(letGo, S.releaseAfterMs);
+          return;
+        }
+        releaseTimer = null;
         engine?.release();
         if (shared.phase === "loading" || shared.phase === "ready") set({ phase: "ready" });
-      }, S.releaseAfterMs);
+      };
+      releaseTimer = setTimeout(letGo, S.releaseAfterMs);
     };
   }, [base]);
 
   const download = useCallback(async () => {
     if (!base) return;
-    set({ phase: "downloading", done: 0, total: 0, error: null });
-    try {
-      await engineFor(base).download((done, total) => set({ done, total }));
-      set({ phase: "ready", error: null });
-    } catch (e) {
-      set({ phase: "error", error: errorOf(e) });
-    }
+    await downloadModel(base, false);
   }, [base]);
 
   const start = useCallback(async () => {
-    if (!base || !offered) return;
+    if (!base || !offered || opening.current) return;
+    opening.current = true;
+    const turn = ++turnRef.current;
+    const current = () => turn === turnRef.current;
     setError(null);
     setHearing(null);
+    setSilent(false);
     setPartial("");
     const e = engineFor(base);
     try {
@@ -232,9 +340,14 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
       await e.load();
       set({ phase: "ready", error: null });
     } catch (err) {
+      opening.current = false;
       const why = errorOf(err);
       if (why === "cleared" || why === "hash-failed") set({ phase: "cleared", error: why });
       else set({ phase: "error", error: why });
+      return;
+    }
+    if (!current()) {
+      opening.current = false;
       return;
     }
     try {
@@ -274,11 +387,13 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
             if (event.audio) setAudio(event.audio);
             if (!raw) {
               setThinking(false);
+              setSilent(true);
               latest.current.onNothing?.();
               return;
             }
             void (async () => {
               const known = await knownSpellings(raw.greedy.text.split(/\s+/));
+              if (!current()) return;
               const heard = reconcile(raw, { known, expect: latest.current.expect });
               setThinking(false);
               setHearing(heard);
@@ -291,17 +406,44 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
       });
     } catch (err) {
       setListening(false);
-      setError(errorOf(err));
+      if (current()) setError(errorOf(err));
+    } finally {
+      opening.current = false;
     }
   }, [base, offered]);
 
   const stop = useCallback(() => engine?.stop(), []);
   const cancel = useCallback(() => {
+    turnRef.current += 1;
     engine?.cancel();
     setListening(false);
     setThinking(false);
     setPartial("");
     setLevel(0);
+    setClipping(false);
+    setSilent(false);
+  }, []);
+
+  /*
+    The microphone is closed the moment the app starts speaking (D14), on
+    every screen rather than the ones that remembered: a turn heard over the
+    app's own voice is not the learner's, so it is let go rather than sent, and
+    the button is back under their hand, closed until the line ends.
+  */
+  useEffect(() => {
+    if (appSpeaking && listening) cancel();
+  }, [appSpeaking, listening, cancel]);
+
+  /* A screen that goes while its microphone is open closes it: leaving a card
+     for the dictionary must not leave the microphone hearing the room. */
+  const listeningRef = useRef(false);
+  listeningRef.current = listening || thinking;
+  useEffect(() => () => {
+    // `opening` too: a screen left with the permission prompt still up must not open the microphone afterwards.
+    if (listeningRef.current || opening.current) {
+      turnRef.current += 1;
+      engine?.cancel();
+    }
   }, []);
 
   const forget = useCallback(async () => {
@@ -317,6 +459,22 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
     },
     [base],
   );
+
+  /*
+    Closed the moment the app starts speaking, on every screen (D14). The
+    button is disabled while a line plays, which stops a turn opening over
+    one; what it cannot stop is a line starting while a turn is already open,
+    which is a learner pressing a speaker, "Hear what was heard" or "Hear
+    yourself" mid-turn, or a card's answer arriving and playing itself. Left
+    open, the turn would hear the app's own voice and hand it back as what the
+    learner said. The turn is dropped rather than ended, because ending it
+    would decode the app's voice with it. A conversation opens it again once
+    the line has finished (`components/scene/SceneSpeech.tsx`); elsewhere the
+    button is there to be pressed again.
+  */
+  useEffect(() => {
+    if (appSpeaking && listening) cancel();
+  }, [appSpeaking, listening, cancel]);
 
   // A device that ran the check slower than real time keeps its typed app, and says why in Settings.
   const tooSlow = model.phase === "error" && model.error === "too-slow";
@@ -337,6 +495,7 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
       hearing,
       audio,
       appSpeaking,
+      silent,
       download,
       start,
       stop,
@@ -344,6 +503,6 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
       forget,
       transcribe,
     }),
-    [offered, tooSlow, why, model, listening, thinking, partial, level, clipping, error, hearing, audio, appSpeaking, download, start, stop, cancel, forget, transcribe],
+    [offered, tooSlow, why, model, listening, thinking, partial, level, clipping, error, hearing, audio, appSpeaking, silent, download, start, stop, cancel, forget, transcribe],
   );
 }

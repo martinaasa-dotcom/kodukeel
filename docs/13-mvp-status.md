@@ -3543,12 +3543,15 @@ the same neighbour each time, who remembers which words the two of you have talk
 offered only where a model is set up and the day's allowance would still let a scene call
 through, since a chat has no bank of lines under it.
 
-**Whether it helps is counted, not assumed** (VB-14). `Review.spoken` marks every answer said
-aloud, on the cards, in the rounds and in a conversation's grades, and a spoken conversation turn
-carries how many words were heard and how many the learner changed before sending. `npm run
+**Whether it helps is counted, not assumed** (VB-14). `Review.spoken` marks an answer said aloud
+and marked on what was heard, on the cards, in the rounds that grade cards and in a conversation's
+grades; an answer the learner changed after the microphone filled the box is written as typed, and
+the workbook's lines read aloud are marked as typed by design. A spoken conversation turn carries
+how many words were heard and how many the learner changed before sending. `npm run
 report:speech` reads the edit rate, recall after a spoken answer against a typed one, and what
 tonight's chat did for its words. Every figure in it so far is a fixture's; the deployment run is
-the operator's.
+the operator's. Three readings the order asked for are not built: the median length of a spoken
+turn by month, a spoken turn as readiness evidence, and "spoken this week" on the class roster.
 
 **What is not verified.** Only Chromium was available, so Safari and Firefox are untested, Safari's
 Ogg handling included. No phone was timed. Nobody has measured the engine on learners' own voices,

@@ -100,6 +100,17 @@ export const SPEECH_SETTINGS = {
   maxFileSeconds: 180,
 
   /**
+   * A recording is heard in pieces cut at its pauses (`piecesOf` in
+   * prepare.ts), so no piece is long and no word is split. Chosen rather than
+   * measured, and written here because the native apps have to cut where the
+   * web cuts to give the golden file's turns: a pause this long ends a piece,
+   * and no piece runs longer than the cap, which keeps one decoding inside
+   * the ordinary length of a turn.
+   */
+  piecePauseSeconds: 0.3,
+  pieceMaxSeconds: 20,
+
+  /**
    * How long the model stays in memory after the last screen that listens has
    * gone, so it is not held while somebody reads the grammar reference.
    */

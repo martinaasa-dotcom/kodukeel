@@ -40,7 +40,8 @@ export async function rememberDevice(ownerId: string, device: DeviceKeys): Promi
     await tx.pushSubscription.upsert({
       where: { endpoint: device.endpoint },
       create: { ownerId, endpoint: device.endpoint, p256dh: device.p256dh, auth: device.auth },
-      update: { ownerId, p256dh: device.p256dh, auth: device.auth },
+      // Turned on again is turned on now: the oldest let go below is the one least recently asked for.
+      update: { ownerId, p256dh: device.p256dh, auth: device.auth, createdAt: new Date() },
     });
     const surplus = await tx.pushSubscription.findMany({
       where: { ownerId },

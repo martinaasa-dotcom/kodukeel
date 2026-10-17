@@ -44,7 +44,9 @@ function unitFor(hours: number): Unit {
 
 function amountIn(hours: number, unit: Unit): number {
   return unit === "min"
-    ? Math.round(hours * MINUTES_PER_HOUR)
+    /* Never a zero that is not one: twenty seconds a week of real study read
+       "0 min" on the plan, beside a sentence counting what it adds up to. */
+    ? hours > 0 ? Math.max(1, Math.round(hours * MINUTES_PER_HOUR)) : 0
     /* A tenth of an hour is the signal below ten and noise above it:
        "72.9 to 100 h" printed a decimal nobody measured and was long enough
        to break its own unit onto a second line of a stat tile. The rule is

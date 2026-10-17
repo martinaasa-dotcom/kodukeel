@@ -159,6 +159,19 @@ describe("a chat built from a real evening", () => {
     const sizes = scene.outcomes.map((o) => o.when.length);
     expect([...sizes].sort((a, b) => b - a)).toEqual(sizes);
   });
+
+  it("says some words got an outing whichever of them was used, not only the first", () => {
+    const { programme, day } = EVENINGS[3]!;
+    const scene = chatScene(planFor(programme.id, day), []);
+    const words = scene.beats.filter((b) => b.id.startsWith("word-")).map((b) => b.id);
+    expect(words.length).toBeGreaterThan(1);
+    const some = scene.outcomes.find((o) => o.id.startsWith("some"))!.says;
+    for (const word of words) {
+      const done = new Set(["greet", word]);
+      const fits = scene.outcomes.find((o) => o.when.every((id) => done.has(id)));
+      expect(fits?.says, `only ${word} used`).toBe(some);
+    }
+  });
 });
 
 describe("the other side never says the word for them", () => {

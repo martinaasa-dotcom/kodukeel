@@ -4,12 +4,13 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties } from "re
 import { useFocusAnswer } from "@/components/round/useFocusAnswer";
 import { RetypeBox, useRetype } from "@/components/round/Retype";
 import { PARTS } from "@/lib/copy/values";
-import { AnotherRound } from "@/components/round/AnotherRound";
 import { Check, Keyboard, Map as MapIcon, X } from "lucide-react";
-import { useT } from "@/components/Locale";
+import { useLocale, useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+import { answerNote } from "@/lib/copy/answerNote";
+import { rich } from "@/components/round/rich";
 import { Button, ButtonLink } from "@/components/Button";
-import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
-import { Mascot } from "@/components/brand";
+import { Chip, Empty, KeyCap, Page } from "@/components/ui";
 import { CaseQuestion } from "@/components/CaseQuestion";
 import { EstonianSentence } from "@/components/EstonianSentence";
 import { DiacriticBar } from "@/components/DiacriticBar";
@@ -19,7 +20,8 @@ import { MapPicture } from "@/components/round/MapScene";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
 import { useGrade } from "@/components/round/useGrade";
-import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { EndSession } from "@/components/round/RoundExit";
+import { RoundDone } from "@/components/round/RoundDone";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { useKeepInView } from "@/components/round/useKeepInView";
 import { useFeedbackSound } from "@/components/AudioPrefs";
@@ -69,7 +71,10 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
   const [picked, setPicked] = useState<number | null>(null);
   const [right, setRight] = useState(0);
   const t = useT();
+  const locale = useLocale();
   const [asked, setAsked] = useState(0);
+  /* What came out wrong, in the order it was asked, for the last screen. */
+  const [missed, setMissed] = useState<MapQuestion[]>([]);
   const [busy, setBusy] = useState(false);
   const [typed, setTyped] = useState("");
   const [mark, setMark] = useState<FlashMark | null>(null);
@@ -116,7 +121,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
     const duration = Date.now() - shownAt.current;
     setPicked(i);
     sound(isRight ? "right" : "wrong");
-    if (!isRight) hints.noteMiss();
+    if (!isRight) { hints.noteMiss(); setMissed((m) => [...m, q]); }
     if (q.cardId) {
       await grade(
         q.cardId, Math.min(isRight ? 3 : 1, hints.ceiling) as 1 | 2 | 3, duration,
@@ -138,7 +143,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
     setMark(result);
     setOwesRetype(marked.rating < 3);
     sound(result.right ? "right" : "wrong");
-    if (!result.right) hints.noteMiss();
+    if (!result.right) { hints.noteMiss(); setMissed((m) => [...m, q]); }
     if (q.cardId) {
       const reached = result.wroteSlot && result.wroteSlot !== q.caseKey && isFormSlot(result.wroteSlot)
         ? result.wroteSlot : undefined;
@@ -153,12 +158,12 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
     if (!answered || needsRetype) return;
     if (q) {
       look.record({
-        of: q.lexemeId, label: "Map", question: `${q.lemma}: ${q.rung === 1 ? q.scene.ask : q.ask}`, answer: correct,
+        of: q.lexemeId, label: t("Map"), question: `${q.lemma}: ${q.rung === 1 ? t(q.scene.ask) : q.ask}`, answer: correct,
         note: null, questionLang: "et", answerLang: "et", speak: q.sentence,
       });
     }
     setIndex((i) => i + 1);
-  }, [answered, q, correct, look, needsRetype]);
+  }, [answered, q, correct, look, needsRetype, t]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -190,11 +195,11 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
 
   if (wasEmptyAtStart) {
     return (
-      <Page title="Map" lead="See what an ending means, then pick it.">
+      <Page title={t("Map")} lead={t("See what an ending means, then pick it.")}>
         <Empty
-          title="Nothing to map yet"
-          body="It needs nouns with a recorded sentence at your level."
-          action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+          title={t("Nothing to map yet")}
+          body={t("It needs nouns with a recorded sentence at your level.")}
+          action={<ButtonLink href="/dictionary" variant="primary">{t("Open the dictionary")}</ButtonLink>}
         />
       </Page>
     );
@@ -203,45 +208,40 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
   if (finished) {
     const accuracy = asked > 0 ? Math.round((right / asked) * 100) : 0;
     return (
-      <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
-          <Mascot size={68} mood="cheer" className="float mx-auto" />
-          <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
-            That&rsquo;s the round done
-          </h1>
-          <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-            {accuracy >= 80
-              ? <>You matched {right} of {asked} endings to their pictures.</>
-              : <>{right} of {asked}. The ones you missed come back sooner, which is what they need.</>}
-          </p>
-        </div>
-        <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
-          <StatTile value={right} label="Right" tone="accent" />
-          <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 85 ? "sky" : "butter"} />
-          <StatTile value={asked} label="Endings" tone="sky" />
-        </div>
-        <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
-          <ButtonLink href="/practice" size="lg">Back to practice</ButtonLink>
-          <AnotherRound variant="primary" size="lg">Play again</AnotherRound>
-        </WayOut>
-      </div>
+      <RoundDone
+        title={t("That’s the round done")}
+        line={accuracy >= 80
+          ? fill(t("You matched {n} of {total} endings to their pictures."), { n: right, total: asked })
+          : fill(t("{n} of {total}. The ones you missed come back sooner, which is what they need."), { n: right, total: asked })}
+        figures={[
+          { value: right, label: t("Right") },
+          { value: `${accuracy}%`, label: t("Accuracy") },
+          { value: asked, label: t("Endings") },
+        ]}
+        missed={missed.map((m) => ({
+          et: m.options[m.answer]?.text ?? m.form,
+          lemma: m.lemma,
+          note: <><span lang="et">{m.lemma}</span>, {m.gloss}</>,
+        }))}
+        again={t("Play again")}
+      />
     );
   }
 
   const wasRight = typedRung ? mark?.right === true : picked === q.answer;
   /* What is said once it is answered: the marker's own line where there is one,
      which is how a wrong ending gets named and a dropped letter gets pointed at. */
-  const said = typedRung && mark?.note ? mark.note : null;
+  const said = typedRung && mark?.note ? answerNote(mark.note, locale) : null;
   const remaining = questions.length - index;
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
-      <h1 className="sr-only">Map</h1>
+      <h1 className="sr-only">{t("Map")}</h1>
       {/* Mounted before there is anything to say, and only its words change: a
           status region that arrives with its sentence already in it is one a
           screen reader may never read out. */}
       <p className="sr-only" role="status">
-        {answered ? `${wasRight ? "Right." : "Not that one."} ${correct} is the form.${said ? ` ${said}` : ""}` : ""}
+        {answered ? `${wasRight ? t("Right.") : t("Not that one.")} ${fill(t("{form} is the form."), { form: correct })}${said ? ` ${said}` : ""}` : ""}
       </p>
       <div className="mb-6 flex items-center justify-between gap-4">
         <EndSession href="/practice" />
@@ -249,11 +249,11 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
           <div className="grad-accent h-full rounded-full transition-[width] duration-500"
             style={{ width: `${Math.max((index / questions.length) * 100, 2)}%` }}
             role="progressbar" aria-valuenow={index} aria-valuemin={0} aria-valuemax={questions.length}
-            aria-label="Session progress" />
+            aria-label={t("Session progress")} />
         </div>
         <span className="tnum label-xs rounded-full px-2.5 py-1"
           style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}>
-          {remaining} left
+          {fill(t("{n} left"), { n: remaining })}
         </span>
       </div>
 
@@ -261,9 +261,9 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
         <div className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}>
           <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-            <Chip tone="accent"><MapIcon size={12} aria-hidden /> Map</Chip>
+            <Chip tone="accent"><MapIcon size={12} aria-hidden /> {t("Map")}</Chip>
             <Chip>{q.rung === 1 ? t("Picture") : q.rung === 2 ? t("Question") : t("Type it")}</Chip>
-            <span className="ml-auto text-xs" style={{ color: "var(--ink-3)" }}>{right} right</span>
+            <span className="ml-auto text-xs" style={{ color: "var(--ink-3)" }}>{fill(t("{n} right"), { n: right })}</span>
             <StarWord lexemeId={q.lexemeId} starred={q.starred} label={q.lemma} />
           </div>
 
@@ -320,9 +320,9 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
                     } as CSSProperties}>
                     <KeyCap>{i + 1}</KeyCap>
                     <span lang="et" className={`flex-1 ${out ? "line-through" : ""}`}>{o.text}</span>
-                    {out && <span className="sr-only"> (ruled out by a hint)</span>}
-                    {answered && isAnswer && <Check size={15} aria-label="Right" />}
-                    {answered && isPicked && !isAnswer && <X size={15} aria-label="Your pick" />}
+                    {out && <span className="sr-only"> {t("(ruled out by a hint)")}</span>}
+                    {answered && isAnswer && <Check size={15} aria-label={t("Right")} />}
+                    {answered && isPicked && !isAnswer && <X size={15} aria-label={t("Your pick")} />}
                   </button>
                 );
               })}
@@ -342,9 +342,10 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
                 {/* Where the marker's own line already names the form, it is the whole
                     sentence: saying the answer and then the answer again is noise. */}
                 {said && said.includes(correct) ? said : (<>
-                  {wasRight ? "Yes. " : "Not that one. "}
-                  <span lang="et" data-answer="" className="font-semibold">{correct}</span>
-                  {typedRung ? " is the form." : " is what the picture shows."}
+                  {wasRight ? t("Yes.") : t("Not that one.")}{" "}
+                  {rich(t(typedRung ? "{form} is the form." : "{form} is what the picture shows."), {
+                    form: <span lang="et" data-answer="" className="font-semibold">{correct}</span>,
+                  })}
                   {said ? ` ${said}` : ""}
                 </>)}
               </p>
@@ -362,7 +363,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
                       </p>
                       {o.ending
                         ? <p lang="et" className="text-sm font-semibold" style={{ color: "var(--ink-2)" }}>{o.text}</p>
-                        : <p className="text-sm" style={{ color: "var(--ink-3)" }}>one to learn</p>}
+                        : <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t("one to learn")}</p>}
                       <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
                         <CaseQuestion question={o.ask} inline />
                       </p>
@@ -373,7 +374,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
 
               <EstonianSentence
                 et={q.sentence} en={q.en} lexemeId={q.lexemeId} canTranslate={canTranslate}
-                form={q.form} ask="onArrival" speakLabel="Hear the sentence"
+                form={q.form} ask="onArrival" speakLabel={t("Hear the sentence")}
               />
             </div>
           )}
@@ -391,7 +392,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
           {answered && (
             <div ref={footer} className="dock-clear border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
               <Button variant="primary" size="lg" className="w-full" autoFocus onClick={needsRetype ? retype.check : next}>
-                {needsRetype ? t("Check it again") : "Continue"}
+                {needsRetype ? t("Check it again") : t("Continue")}
                 <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
               </Button>
             </div>

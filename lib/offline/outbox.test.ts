@@ -82,6 +82,12 @@ describe("isValidPending", () => {
     expect(isValidPending(pending())).toBe(true);
   });
 
+  it("carries a spoken answer, and refuses a flag that is not a boolean", () => {
+    expect(isValidPending({ ...pending(), spoken: true })).toBe(true);
+    expect(isValidPending({ ...pending(), spoken: false })).toBe(true);
+    expect(isValidPending({ ...pending(), spoken: "true" })).toBe(false);
+  });
+
   it.each([
     [null, "null"],
     [{}, "an empty object"],

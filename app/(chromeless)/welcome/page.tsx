@@ -631,7 +631,7 @@ function Plan({ say }: { say: Say }) {
             {t("When could you get there?")}
           </h2>
           <p className="mt-5 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {t("Answer four questions and we’ll do the same math the app does inside. You get a range, because anyone who gives you one exact number is guessing.")}
+            {t("Answer four questions and we’ll do the same math the app does inside. It’s an estimate, because anyone who promises you an exact date is guessing.")}
           </p>
         </div>
       </Reveal>

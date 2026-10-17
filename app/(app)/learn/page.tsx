@@ -103,7 +103,7 @@ export default async function LearnPage() {
   return (
     <Page route="/learn"
       title={t("Learn")}
-      lead={t("Pick up new words a few at a time. And see which course they come from.")}
+      lead={t("Pick up new words a few at a time, and see the whole course they come from.")}
     >
       {/*
         WHAT THIS PAGE LEADS WITH IS THE NEXT FIVE WORDS, NOT THE MAP.
@@ -136,7 +136,7 @@ export default async function LearnPage() {
         the explanation are at the foot of the page, where somebody who wants
         them goes looking.
       */}
-      <SectionTitle hint={fill(t("{level}, {known} of {total} words known"), { level: placement, known: grouped(locale, knownWords), total: grouped(locale, totalWords) })}>{t("The course")}</SectionTitle>
+      <SectionTitle hint={fill(t("{known} of {total} course words known"), { known: grouped(locale, knownWords), total: grouped(locale, totalWords) })}>{t("The course")}</SectionTitle>
 
       <div className="flex flex-col gap-3">
         {byLevel.map(({ level, rows, words, known, pct, finished }) => {

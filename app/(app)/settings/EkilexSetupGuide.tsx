@@ -22,9 +22,7 @@ const STEPS: { line: string; link?: { href: string; label: string }; strong?: st
  */
 const UNLOCKS = [
   "Search covers all of Estonian, not just the built-in words, with every form checked, the stem changes, which case a verb takes, and each word's level.",
-  "You get real example sentences too. Gap-fill cards, dictation and the sentence builder all need them, and the built-in words have hardly any.",
-  "The mock exam's reading and listening parts use real sentences instead of falling back to single words.",
-  "The grammar tables for the inside and outside cases show a real form instead of a blank.",
+  "A word that isn't built in arrives with its forms, its level and its example sentences, and stays here for next time.",
 ];
 
 export function EkilexSetupGuide() {

@@ -22,8 +22,7 @@ import { VERDICT_CLASS, type Verdict } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { heardAsSpelled } from "@/lib/speech/verdict";
 import { core, type Hearing } from "@/lib/speech/reconcile";
-import { CLOCK_LEMMA } from "@/lib/scenes/props";
-import { EURO_LEMMA, markNumber, numberLemmas, wordsRecalled, type NumberItem, type NumberMark } from "@/lib/games/numbers";
+import { NUMBER_SPELLINGS, markNumber, wordsGraded, type NumberItem, type NumberMark } from "@/lib/games/numbers";
 
 export interface NumbersItem {
   readonly key: string;
@@ -41,6 +40,8 @@ interface Answered {
   /** The number words this answer grades, Good, by lemma. */
   readonly graded: readonly string[];
   readonly said: boolean;
+  /** Answered in digits alone, so no number word was recalled. */
+  readonly digits: boolean;
 }
 
 /**
@@ -135,21 +136,32 @@ export function NumbersSession({ items: initialItems, cardFor }: {
   if (!current) {
     const right = results.filter((r) => r.mark.right).length;
     const aloud = results.filter((r) => r.said).length;
+    const counted = graded.filter((l) => cardFor[l]).length;
+    /*
+      What the round wrote, said exactly: how many words it counted, or why
+      none. A right answer in words whose words are not in the deck counts
+      nothing, and that is a different reason from an answer in digits.
+    */
+    const why = counted === 1
+      ? t("One number word counted toward your reviews.")
+      : counted > 1
+        ? fill(t("{n} number words counted toward your reviews."), { n: counted })
+        : results.some((r) => r.mark.right && r.digits)
+          ? t("Answers in digits are marked but don't count toward your reviews. Say them, or type the words, and they do.")
+          : graded.length > 0
+            ? t("Those number words aren't in your deck yet, so nothing was written down.")
+            : null;
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <h1 className="font-display text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
             {right === results.length ? t("Every number right") : fill(t("{n} of {total} right"), { n: right, total: results.length })}
           </h1>
-          <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-            {graded.length > 0
-              ? fill(t("{n} number words counted toward your reviews."), { n: graded.filter((l) => cardFor[l]).length })
-              : t("Answers in digits are marked but don't count toward your reviews. Say them, or type the words, and they do.")}
-          </p>
+          {why && <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>{why}</p>}
         </div>
         <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
           <StatTile value={right} label={t("Right")} tone="sky" />
-          <StatTile value={aloud} label={t("Said out loud")} tone="accent" />
+          <StatTile value={aloud} label={t("Said aloud")} tone="accent" />
           <StatTile value={results.length} label={t("Numbers")} tone="butter" />
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
@@ -166,7 +178,7 @@ export function NumbersSession({ items: initialItems, cardFor }: {
       <RoundProgress done={index} total={items.length} label={t("Session progress")} />
       {look.panel && <LookBackCard {...look.panel} />}
       <div hidden={look.looking}>
-        <Card key={current.key} entry={current} onSettled={settled} onNext={next} />
+        <Card key={current.key} entry={current} onSettled={settled} onNext={next} takeCaret={index > 0} />
       </div>
       {look.seen.length > 0 && (
         <div className="mt-4 flex justify-center">
@@ -177,16 +189,12 @@ export function NumbersSession({ items: initialItems, cardFor }: {
   );
 }
 
-/** Every number word and the two words a time and a price are said with, for the dictionary's repairs. */
-const EXPECT: ReadonlySet<string> = new Set([
-  CLOCK_LEMMA, EURO_LEMMA,
-  ...Array.from({ length: 101 }, (_, n) => numberLemmas(n) ?? []).flat(),
-]);
-
-function Card({ entry, onSettled, onNext }: {
+function Card({ entry, onSettled, onNext, takeCaret }: {
   entry: NumbersItem;
   onSettled: (answer: Answered) => void;
   onNext: () => void;
+  /** Arrived on a press of Continue, which took the caret with it when it went. */
+  takeCaret: boolean;
 }) {
   const t = useT();
   const sound = useFeedbackSound();
@@ -198,14 +206,21 @@ function Card({ entry, onSettled, onNext }: {
   const inputRef = useRef<HTMLInputElement>(null);
   const { item } = entry;
 
+  /*
+    Continue held the caret and is gone with the card, so the browser left it
+    on the body and a keyboard had nowhere to type. It goes to the box, where
+    there is a keyboard to type with; never on a phone, where it would open the
+    keyboard over the microphone this round leads with.
+  */
+  useEffect(() => {
+    if (!takeCaret || typeof window === "undefined" || !window.matchMedia?.("(pointer: fine)").matches) return;
+    inputRef.current?.focus({ preventScroll: true });
+  }, [takeCaret]);
+
   const settle = useCallback((answer: string, hearing: Hearing | null) => {
     const mark = markNumber(item, answer);
-    let words = mark.right ? wordsRecalled(answer) : [];
-    if (hearing) {
-      // A spoken word grades only where it was heard as it is spelled and not repaired (D13, D19).
-      const asSpelled = new Set(hearing.words.filter((w) => heardAsSpelled(w, EXPECT.has(core(w.text)))).map((w) => core(w.text)));
-      words = words.filter((lemma) => asSpelled.has(lemma) || [...asSpelled].some((w) => w.startsWith(lemma)));
-    }
+    // A spoken word grades only where it was itself heard as spelled and not repaired (D13, D19).
+    const words = wordsGraded(answer, mark.right, hearing?.words ?? null);
     const verdict: Verdict = mark.right ? (mark.folded.length > 0 ? "nearly" : "right") : "wrong";
     sound(mark.right ? "right" : "wrong");
     setLive(mark.right
@@ -213,14 +228,14 @@ function Card({ entry, onSettled, onNext }: {
       : mark.read
         ? fill(t("You said {said}. It's {answer}."), { said: mark.read, answer: entry.shown })
         : fill(t("It's {answer}."), { answer: entry.shown }));
-    const result: Answered = { mark, verdict, graded: words, said: hearing !== null };
+    const result: Answered = { mark, verdict, graded: words, said: hearing !== null, digits: !/\p{L}/u.test(answer) };
     setAnswered(result);
     onSettled(result);
   }, [item, entry.shown, sound, t, onSettled]);
 
   const speech = useSpeech({
     endpoint: true,
-    expect: EXPECT,
+    expect: NUMBER_SPELLINGS,
     onHeard: (hearing) => {
       if (answered) return;
       const said = hearing.understood.trim();
@@ -228,7 +243,7 @@ function Card({ entry, onSettled, onNext }: {
       heardRef.current = hearing;
       setText(said);
       const mark = markNumber(item, said);
-      const numberWords = hearing.words.filter((w) => EXPECT.has(core(w.text)) || /^euro/.test(core(w.text)));
+      const numberWords = hearing.words.filter((w) => NUMBER_SPELLINGS.has(core(w.text)) || /^euro/.test(core(w.text)));
       // Right and every number word heard as it is spelled: marked at once. Anything else waits in the box.
       if (mark.right && numberWords.length > 0 && numberWords.every((w) => heardAsSpelled(w, true))) settle(said, hearing);
       else inputRef.current?.focus();
@@ -303,7 +318,11 @@ function Card({ entry, onSettled, onNext }: {
                   : t("Right.")
                 : answered.mark.read
                   ? fill(t("You said {said}."), { said: answered.mark.read })
-                  : t("That wasn't a number we could read.")}
+                  : item.kind === "clock"
+                    ? t("That wasn't a time we could read.")
+                    : item.kind === "price"
+                      ? t("That wasn't a price we could read.")
+                      : t("That wasn't a number we could read.")}
             </p>
             <p className="mt-1 flex flex-wrap items-center gap-2">
               <span>{fill(t("It's {answer}."), { answer: entry.shown })}</span>
@@ -326,7 +345,7 @@ function Card({ entry, onSettled, onNext }: {
                 })}
               </p>
             )}
-            {answered.mark.right && answered.graded.length === 0 && (
+            {answered.mark.right && answered.digits && (
               <p className="mt-1 text-sm">{t("In digits, so no word was practised. Say it or type the words next time.")}</p>
             )}
           </div>

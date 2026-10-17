@@ -8,7 +8,7 @@
  * What only a browser can say:
  *
  *   - the reading page says the three-minute cap before a file is chosen, asks
- *     for the download with its size, decodes an Ogg voice message and hears it
+ *     no question before fetching the model, decodes an Ogg voice message and hears it
  *     on the device, and the transcript matches what was said within the
  *     measured error;
  *   - no request carrying audio leaves the page, and the one request that does
@@ -21,8 +21,8 @@
  *     stubbed (as `scripts/test-scan.mjs` stubs it), offers the dictionary's own
  *     words with the others to choose between, makes cards under the scan
  *     source, and "Say them" grades nothing;
- *   - the landing café states the download's size before anything loads, plays
- *     by voice from a fixture clip, and still sends the server a pick's id and
+ *   - the landing café fetches nothing until "Say it instead" is pressed, then
+ *     fetches the model with no question and plays by voice from a fixture clip, and still sends the server a pick's id and
  *     never the words; and with the microphone refused, picking still works.
  *
  * The speech model has to be where the server can serve it (`npm run asr:fetch`
@@ -154,10 +154,9 @@ try {
   });
 
   await page.locator('input[type="file"][accept*="audio"]').setInputFiles(FIXTURE);
-  const ask = page.getByRole("group", { name: "Download for speaking" });
-  const asked = await ask.innerText({ timeout: 20_000 }).catch(() => "");
-  check("a fresh device is asked for the download, with its size", /\d+\sMB/.test(asked) && /stays on this device/.test(asked), asked.slice(0, 140));
-  await ask.getByRole("button", { name: /^Download/ }).click();
+  await page.waitForTimeout(500);
+  const prompts = await page.getByRole("group", { name: "Download for speaking" }).count();
+  check("a fresh device is asked nothing: the model is fetched and the file heard", prompts === 0, `${prompts} prompts`);
 
   const article = page.locator("[data-recording] article[data-reading]");
   const heardIt = await article.waitFor({ timeout: 240_000 }).then(() => true).catch(() => false);
@@ -202,7 +201,7 @@ try {
   check("a file that is not sound is said to be one", /isn.t a sound file/.test(notSound), notSound);
   await picker.setInputFiles({ name: "PTT-20261017.opus", mimeType: "audio/ogg", buffer: Buffer.from("OggS not really an ogg file at all") });
   const broken = await eventually(async () => /Ogg voice message/.test(await page.locator("section[data-recording] [role=alert]").innerText().catch(() => "")), { timeoutMs: 15_000 });
-  check("an Ogg message the browser cannot open says so, naming Safari, rather than failing silently", broken);
+  check("an Ogg message the browser cannot open says so in words, naming Safari only on Safari, rather than failing silently", broken && !/Safari/.test(await page.locator("section[data-recording] [role=alert]").innerText().catch(() => "")));
 
   // Offline: the hearing works, the dictionary is asked for once the connection is back.
   await context.setOffline(true);
@@ -244,8 +243,10 @@ try {
   check("a long transcript stays inside its box at 360 px", !contained.wide && contained.overflowing === 0, JSON.stringify(contained));
   await page.setViewportSize({ width: 1280, height: 900 });
 
-  // Dragged onto the page, which is how a desktop shares a voice message (D25).
-  await page.getByRole("button", { name: "Open another recording" }).click().catch(() => undefined);
+  // Dragged onto the page, which is how a desktop shares a voice message (D25):
+  // here onto the transcript still on screen, which it replaces in place, since
+  // a drop the page did not take is the browser navigating away to the file.
+  await article.waitFor({ timeout: 60_000 }).catch(() => undefined);
   const bytes = [...readFileSync("scripts/fixtures/speech/voice-message.wav")];
   const overlay = await page.evaluate(async (data) => {
     const transfer = new DataTransfer();
@@ -257,8 +258,9 @@ try {
     return shown;
   }, bytes);
   check("a file dragged over the page shows where to drop it", overlay);
-  const dropped = await article.waitFor({ timeout: 120_000 }).then(() => true).catch(() => false);
-  check("and a dropped recording is opened and heard", dropped);
+  const dropped = await page.locator('[data-recording] article[data-reading][aria-label*="voice.wav"]')
+    .waitFor({ timeout: 120_000 }).then(() => true).catch(() => false);
+  check("and a dropped recording is opened and heard, in place of the one on screen", dropped && new URL(page.url()).pathname === "/read");
 
   // ---- VB-13: things around me, with the model stubbed.
   prisma = newPrismaClient(requireLocalDatabase("save a page of things and take its cards away again"));
@@ -285,6 +287,12 @@ try {
     });
     await page.goto(`${B}/scan`, { waitUntil: "domcontentloaded" });
     const things = page.getByRole("radio", { name: "Things around me" });
+    /*
+      Waited for, either way. The choice streams in after the page's first
+      bytes, so a count taken at domcontentloaded read nought on every CI run
+      and waived these eleven checks for a provider key the server did have.
+    */
+    await things.or(page.getByText("The camera isn’t set up here")).first().waitFor({ timeout: 20_000 }).catch(() => {});
     if (!(await things.count())) {
       absent(11, "a provider key on the server, so the scanner offers a camera (any string: the route is stubbed)");
     } else {
@@ -358,7 +366,7 @@ try {
   check("nothing threw on any of it", errors.length === 0, errors.join(" | "));
   await context.close();
 
-  // A fresh device: the size first, nothing fetched until it is answered, and picking still works.
+  // A fresh device: nothing fetched before the press, and picking still works while it fetches.
   const fresh = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const cafe = await fresh.newPage();
   const fetched = [];
@@ -369,13 +377,11 @@ try {
   await cafe.getByRole("button", { name: "Walk up to the counter" }).click();
   await cafe.getByRole("group", { name: "What you say" }).waitFor({ timeout: 20_000 });
   await cafe.getByRole("button", { name: "Say it instead" }).click();
-  const prompt = cafe.getByRole("group", { name: "Download for speaking" });
-  const sized = await prompt.innerText({ timeout: 20_000 }).catch(() => "");
-  check("the café states the download's size before anything downloads", /\d+\sMB/.test(sized) && !fetched.some((u) => u.includes("/asr/model")), sized.slice(0, 120));
-  await prompt.getByRole("button", { name: "Not now" }).click();
+  const fetching = await eventually(async () => fetched.some((u) => u.includes("/asr/model")), { timeoutMs: 20_000 });
+  check("the press fetches the model with no question in between", fetching && (await cafe.getByRole("group", { name: "Download for speaking" }).count()) === 0, fetched.slice(0, 2).join(", "));
   await cafe.getByRole("group", { name: "What you say" }).getByRole("button").first().click();
   const went = await eventually(async () => (await cafe.locator('.cafe-line[data-who="you"]').count()) > 0, { timeoutMs: 15_000 });
-  check("declining it leaves the café exactly as it was: a pick still goes", went);
+  check("picking a line still goes while the model arrives", went);
   await fresh.close();
 } finally {
   await browser.close();
@@ -398,7 +404,6 @@ try {
   await page.getByRole("button", { name: "Walk up to the counter" }).click();
   await page.getByRole("group", { name: "What you say" }).waitFor({ timeout: 20_000 });
   await page.getByRole("button", { name: "Say it instead" }).click();
-  await page.getByRole("group", { name: "Download for speaking" }).getByRole("button", { name: /^Download/ }).click();
   const told = await eventually(async () => /blocked for this site/.test(await page.locator("[data-cafe-voice]").innerText().catch(() => "")), { timeoutMs: 120_000 });
   check("with the microphone refused, the café says so in words", told);
   await page.getByRole("group", { name: "What you say" }).getByRole("button").first().click();

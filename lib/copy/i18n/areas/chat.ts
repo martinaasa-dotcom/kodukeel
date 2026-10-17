@@ -45,7 +45,7 @@ export const CHAT: Area = {
     "Some of tonight's words got an outing. The rest come round again in your reviews.":
       "Часть сегодняшних слов прозвучала в разговоре. Остальные вернутся в ваших повторениях.",
     "They had to dash off before you got far. Tonight's words will keep until your reviews.":
-      "Соседу пришлось убежать, вы почти не успели поговорить. Сегодняшние слова подождут до ваших повторений.",
+      "Соседу пришлось убежать, и вы почти не успели поговорить. Сегодняшние слова подождут до ваших повторений.",
     "You went on up. There'll be another chat after the next evening.":
       "Вы пошли наверх. После следующего вечера будет новый разговор.",
 
@@ -84,7 +84,7 @@ export const CHAT: Area = {
     "Some of tonight's words got an outing. The rest come round again in your reviews.":
       "Частина сьогоднішніх слів прозвучала в розмові. Решта повернеться у ваших повтореннях.",
     "They had to dash off before you got far. Tonight's words will keep until your reviews.":
-      "Сусідові довелося бігти, ви майже не встигли поговорити. Сьогоднішні слова зачекають до ваших повторень.",
+      "Сусідові довелося бігти, і ви майже не встигли поговорити. Сьогоднішні слова зачекають до ваших повторень.",
     "You went on up. There'll be another chat after the next evening.":
       "Ви пішли нагору. Після наступного вечора буде нова розмова.",
 

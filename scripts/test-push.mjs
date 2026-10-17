@@ -29,7 +29,7 @@ import { baseUrl, suite } from "./lib/checks.mjs";
 const B = baseUrl();
 const SETTINGS = `${B}/settings?tab=account`;
 const browser = await launchChromium();
-const { check, absent, done } = suite("Reminders on a computer", { floor: 17 });
+const { check, absent, done } = suite("Reminders on a computer", { floor: 18 });
 
 /** A stand-in for the browser's push service and its permission, before any page script runs. */
 function stub({ permission, answer, pushApi }) {
@@ -114,7 +114,7 @@ check("the privacy page names the push services this server is configured to pos
   configured ? "" : "start the server with NEXT_PUBLIC_VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY set");
 
 if (!configured) {
-  absent(16, "a server started with VAPID keys");
+  absent(17, "a server started with VAPID keys");
   await browser.close();
   done();
 }
@@ -204,9 +204,24 @@ if (!configured) {
     check("the service worker shows a push as the letter's subject and line", shown[0]?.title === message.title && shown[0]?.body === message.body,
       JSON.stringify(shown));
     check("tagged by kind and carrying the screen it is about", shown[0]?.tag === message.tag && shown[0]?.url === "/course");
+
+    // A notification never opens another site, whatever a message says: the worker keeps only a path on this one.
+    const away = { title: "Elsewhere", body: "", url: "//evil.example/steal", tag: "kodukeel-milestone" };
+    await cdp.send("ServiceWorker.deliverPushMessage", { origin: new URL(B).origin, registrationId, data: JSON.stringify(away) });
+    const kept = await page.evaluate(async () => {
+      const registration = await navigator.serviceWorker.ready;
+      for (let i = 0; i < 40; i += 1) {
+        const found = (await registration.getNotifications({ tag: "kodukeel-milestone" }))[0];
+        if (found) return found.data?.url ?? null;
+        await new Promise((r) => setTimeout(r, 100));
+      }
+      return "nothing shown";
+    });
+    check("a message naming another site opens this one's home instead", kept === "/", String(kept));
   } else {
     check("the service worker is registered, so a push has somewhere to arrive", false, "no registration within ten seconds");
     check("tagged by kind and carrying the screen it is about", false, "nothing was delivered");
+    check("a message naming another site opens this one's home instead", false, "nothing was delivered");
   }
 
   await page.getByRole("button", { name: "Stop reminders on this computer" }).click();

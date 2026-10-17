@@ -18,8 +18,8 @@ contract and a test, rather than from reading the web code.
   the verdict against a card and the match against a set of lines. `lib/speech/golden.test.ts` holds
   the rules to it. `npm run asr:golden` records it again.
 - **The model and its pins.** `lib/speech/model.ts` names the TalTech model's revision and the SHA-256
-  of each of its four files. A native app downloads the same files from the same deployment storage
-  (`NEXT_PUBLIC_ASR_MODEL_BASE`), checks them against the same hashes, and keeps them where the
+  of each of its four files. A native app downloads the same files from where the web app serves them
+  (the site's own `/asr/model/` path, or `NEXT_PUBLIC_ASR_MODEL_BASE` where an operator set one), checks them against the same hashes, and keeps them where the
   operating system will not evict them.
 - **The measured settings.** `lib/speech/settings.ts` is every value the recognizer runs with (the
   silences, the level, the pause squeeze, the tail, the device check, hotwords off), each with the
@@ -32,7 +32,7 @@ Next.js and Prisma by an invariant (`PURE_LAYERS` in `scripts/test-invariants.ts
 `CLAUDE.md`). A React Native app runs it as it is; a Swift or Kotlin app ports it with its tests and
 passes them.
 
-- `lib/speech/`: preparing a turn, reconciling the two readings into `heard` and `understood`, the
+- `lib/speech/`: preparing a turn, cutting a recording into pieces at its pauses (`piecesOf`), reconciling the two readings into `heard` and `understood`, the
   verdict that only grades up (`verdict.ts`), lighting a line as it is heard (`lightUp.ts`), matching a
   line on screen (`matchPick.ts`) and the golden file.
 - `lib/estonian/`: the folds an English ear makes (`sounds.ts`), the marker (`answer.ts`), the case and
@@ -54,7 +54,8 @@ passes them.
 - **The offline outbox.** `lib/offline/db.ts` keeps grades taken offline in IndexedDB and
   `replayGrades` sends them in order with the time they were answered. A native app keeps the same
   records (every field of `PendingGrade`, `spoken` included) in its own store and replays them through
-  the same endpoint. A conversation's spoken turn carries its repaired words and two counts, words heard
+  the same endpoint. `spoken` is true only where the answer marked is what the recognizer heard, word
+  for word (`keptAsHeard` in `lib/speech/edits.ts`); an answer the learner edited first is typed. A conversation's spoken turn carries its repaired words and two counts, words heard
   and words changed before sending (`lib/speech/edits.ts`), and never the words heard (D21).
 - **The cache.** The service worker's caches (`public/sw.js`) become the platform's own storage, with
   the model in a place the system does not clear.
@@ -78,7 +79,8 @@ The actions the speech features use, which are the first routes to build:
 | `replayGrades` | Replays the offline outbox in order | No |
 | `undoGrade` | Takes back the last grade | No |
 | `beginScene`, `sceneHelp`, `finishScene` | Opens, helps and closes a conversation | No; each turn is already `/api/scene` |
-| `recordWorkbookGrades`, `recordMatchGrades` | Grades a round in one request | No |
+| `recordWorkbookGrades`, `recordMatchGrades`, `recordNumberGrades` | Grades a round in one request, a numbers round's spoken words included (VB-7) | No |
+| `beginChat` | Opens tonight's chat, the evening worked out on the server (VB-11) | No; its turns are `/api/scene` |
 | `startCourseDay`, `markCourseStep`, `advanceCourseStep`, `tonightSteps` | Tonight's module | No |
 | `completeLesson` | A finished unit lesson | No |
 | `readEstonian` | Glosses a pasted or transcribed text | No |
@@ -90,6 +92,10 @@ The actions the speech features use, which are the first routes to build:
 | (none) | What was heard, read back and kept nowhere (VB-5) | Yes, `/api/tts?transient=1` |
 | (none) | The things in a photo, named in English (VB-13) | Yes, `/api/scan` with `mode: "things"` |
 | (none) | Anu | Yes, `/api/tutor` |
+
+`rememberPushDevice`, `forgetPushDevice` and `pushDeviceStatus` are Web Push's and stay the web's: a
+native app registers the platform's own notification token instead, which needs a table and a sender
+of its own under the same booking in `EmailSend` (section 6).
 
 Signing in is the other half: Supabase Auth issues the same tokens to a native client, and the routes
 above read them as a bearer header where the web reads the cookie. `lib/auth/identity.ts` is where that
@@ -115,8 +121,11 @@ to take up:
 Produce `lib/speech/fixtures/golden.json` from the same clips:
 
 1. Load the model files named in `lib/speech/model.ts`, checked against their hashes.
-2. Decode each clip the file lists (`public/asr/check.wav` and `scripts/fixtures/speech/*.wav`) with
-   the settings in `lib/speech/settings.ts`, giving one `RawTurn` per piece.
+2. Decode each clip the file lists (`public/asr/check.wav` and every `scripts/fixtures/speech/*.wav`),
+   first checking its bytes against the clip's `sha256`. Read each one sample for sample at its own
+   16 kHz (`lib/speech/wav.ts`), never through a platform decoder that resamples it, cut it where
+   `piecesOf` in `lib/speech/prepare.ts` cuts, and prepare and decode each piece with the settings in
+   `lib/speech/settings.ts`, giving one `RawTurn` per piece.
 3. Run the pure layer (`decide` in `lib/speech/golden.ts`, ported or run as it is) over those turns.
 4. The `heard`, `understood`, words, verdict and pick must equal the file's, field for field.
 

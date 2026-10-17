@@ -37,6 +37,7 @@ export const SAMPLE_CLASS: ClassSummary = {
   entries: ENTRIES,
   weakestCases: CLASS_CASES,
   sharedCases: CLASS_CASES,
+  joined: ENTRIES.length,
   totalReviewsThisWeek: ENTRIES.reduce((sum, e) => sum + e.reviewsThisWeek, 0),
   activeThisWeek: ENTRIES.filter((e) => e.reviewsThisWeek > 0).length,
 };

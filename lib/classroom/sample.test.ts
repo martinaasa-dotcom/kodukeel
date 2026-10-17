@@ -24,6 +24,7 @@ describe("the sample class /teachers draws", () => {
   it("adds up", () => {
     expect(SAMPLE_CLASS.totalReviewsThisWeek).toBe(entries.reduce((s, e) => s + e.reviewsThisWeek, 0));
     expect(SAMPLE_CLASS.activeThisWeek).toBe(entries.filter((e) => e.reviewsThisWeek > 0).length);
+    expect(SAMPLE_CLASS.joined).toBe(entries.length);
   });
 
   it("is ordered as a real roster is, most reviews first", () => {

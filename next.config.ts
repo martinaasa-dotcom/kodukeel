@@ -1,5 +1,21 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import type { NextConfig } from "next";
 import { STATIC_SECURITY_HEADERS } from "./lib/security/headers";
+import { ASR_MODEL, LOCAL_MODEL_BASE } from "./lib/speech/model";
+
+/*
+  WHETHER THIS BUILD SHIPS THE SPEECH MODEL.
+
+  `npm run build` fetches the model into `public/asr/model/` before `next
+  build` starts (scripts/fetch-asr-model.ts), and a hosted function cannot see
+  `public/` on its own disk, so the answer is taken here, while the build can,
+  and inlined for lib/audio/speechAvailability.ts. Every file is looked for,
+  since a build that fetched three of four ships a model nobody can load.
+*/
+const asrModelBundled = ASR_MODEL.files.every((file) =>
+  existsSync(join(process.cwd(), "public", LOCAL_MODEL_BASE, ASR_MODEL.revision, file.name)),
+);
 
 /**
  * The static security headers go here rather than in the middleware so they
@@ -39,6 +55,8 @@ const config: NextConfig = {
     arrived by default was the odd one out.
   */
   poweredByHeader: false,
+
+  env: { ASR_MODEL_BUNDLED: asrModelBundled ? "1" : "" },
 
   /*
     NEXT WRITES A BLOCK INTO CLAUDE.md, AND IT IS WRITTEN IN THE VOICE THIS
@@ -137,6 +155,14 @@ const config: NextConfig = {
     "/apple-icon": ["./prisma/data/forms/**"],
     "/icon.svg": ["./prisma/data/forms/**"],
     "/manifest.webmanifest": ["./prisma/data/forms/**"],
+    /*
+      The speech model is 71 MB of static files for the browser, served from
+      the CDN. lib/audio/speechAvailability.ts looks for it on disk in
+      development, and a tracer that follows that look would put the whole
+      model into every function. The key is every route, spelled in two
+      halves because the source checks read a slash and a star as a comment.
+    */
+    ["/" + "**"]: ["./public/asr/**"],
   },
   serverExternalPackages: ["@prisma/client"],
   /*
@@ -247,7 +273,15 @@ const config: NextConfig = {
     staleTimes: { dynamic: 30, static: 120 },
   },
   async headers() {
-    return [{ source: "/:path*", headers: STATIC_SECURITY_HEADERS }];
+    return [
+      { source: "/:path*", headers: STATIC_SECURITY_HEADERS },
+      /*
+        A model file's path names its revision and every file is checked against
+        its pinned hash before it is used, so a copy fetched once never goes
+        stale: a new model is a new path (lib/speech/model.ts).
+      */
+      { source: "/asr/model/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
+    ];
   },
   /*
     Picture match was taken out of the app. A bookmark, a home-screen shortcut

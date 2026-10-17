@@ -401,6 +401,20 @@ describe("a turn that was understood and missed the point", () => {
     expect(lines[0]?.provenance).toBe("again");
   });
 
+  it("joins the but only onto a line that is the question alone, never onto an answer in front of it", () => {
+    /*
+      Read in tonight's chat: a composed line said again carried its opening
+      answer, and the join put "but" in front of that answer, contrasting
+      nothing (docs/41-fifth-batch.md, section 0).
+    */
+    const heard = "Mul läheb hästi, aitäh! Kus teil valutab?";
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget", heard, line: { text: "Kas teil on pea valus?", provenance: "scripted" },
+    }));
+    expect(texts(lines).some((text) => /, aga mul/.test(text))).toBe(false);
+    expect(texts(lines).at(-1)).toBe(heard);
+  });
+
   /*
     AND THE MODEL IS ASKED, WHICH IS THE TURN IT USED TO BE BYPASSED ON.
 

@@ -216,7 +216,7 @@ export function AnuPanel({
                 ? "Everything else works without one. Settings walks you through getting a free key."
                 : "Don't worry, everything else here works without her.")}
               action={readerCanConfigure && (
-                <ButtonLink href="/settings">{t("Open Settings")}</ButtonLink>
+                <ButtonLink href="/settings?tab=words#anu">{t("Open Settings")}</ButtonLink>
               )}
             />
             {/* The question a card handed over is the one thing the learner

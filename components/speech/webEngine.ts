@@ -43,11 +43,20 @@ export class WebSpeechEngine implements SpeechEngine {
   private worker: Worker | null = null;
   private loaded: Promise<void> | null = null;
   private turn: {
+    readonly id: number;
     readonly context: AudioContext;
     readonly stream: MediaStream;
     readonly node: AudioWorkletNode;
     readonly onEvent: (event: EngineEvent) => void;
   } | null = null;
+  /**
+   * Moves on every listen and every cancel. Opening a turn waits on the model,
+   * the permission prompt and the audio thread, and a press to cancel (or a
+   * second press to listen) can land in any of those waits; a listen that finds
+   * its ticket moved when it wakes lets go of what it opened rather than
+   * opening the microphone on a turn nobody is waiting for.
+   */
+  private ticket = 0;
   private waiters = new Set<(message: FromWorker) => void>();
   /** A recording is being heard, which `cancel` stops rather than a turn. */
   private transcribing = false;
@@ -71,8 +80,20 @@ export class WebSpeechEngine implements SpeechEngine {
       for (const waiter of [...this.waiters]) waiter(event.data);
       this.route(event.data);
     };
-    worker.onerror = () => {
-      for (const waiter of [...this.waiters]) waiter({ type: "error", error: "failed", detail: "the speech worker stopped" });
+    worker.onerror = (event) => {
+      /* A worker that threw outside a message (its script would not load, the
+         WebAssembly ran out of memory) is not used again: everything waiting on
+         it is told, a turn it was hearing ends in words rather than listening
+         for ever, and the next press starts a fresh one. */
+      event.preventDefault();
+      const stopped: FromWorker = { type: "error", error: "failed", detail: "the speech worker stopped" };
+      for (const waiter of [...this.waiters]) waiter(stopped);
+      this.route(stopped);
+      if (this.worker === worker) {
+        worker.terminate();
+        this.worker = null;
+        this.loaded = null;
+      }
     };
     this.worker = worker;
     return worker;
@@ -101,6 +122,8 @@ export class WebSpeechEngine implements SpeechEngine {
   private route(message: FromWorker): void {
     const turn = this.turn;
     if (!turn) return;
+    // What a turn says carries its id: a cancelled turn's last words are not this one's.
+    if ("id" in message && message.id !== turn.id) return;
     switch (message.type) {
       case "partial":
         turn.onEvent({ kind: "partial", text: message.text });
@@ -203,7 +226,11 @@ export class WebSpeechEngine implements SpeechEngine {
 
   async listen(options: ListenOptions, onEvent: (event: EngineEvent) => void): Promise<void> {
     if (this.turn) this.cancel();
+    const ticket = ++this.ticket;
+    const stale = () => ticket !== this.ticket;
     await this.load();
+    if (stale()) return;
+    if (!navigator.mediaDevices?.getUserMedia) throw new EngineFailure("no-microphone", "this browser offers no microphone here");
     let stream: MediaStream;
     try {
       stream = await navigator.mediaDevices.getUserMedia({
@@ -216,23 +243,52 @@ export class WebSpeechEngine implements SpeechEngine {
         name,
       );
     }
-    const context = new AudioContext();
-    await context.audioWorklet.addModule(`${RUNTIME_BASE}capture-worklet.js`);
-    const source = context.createMediaStreamSource(stream);
-    const node = new AudioWorkletNode(context, "kodukeel-capture", { numberOfOutputs: 1 });
-    const mute = context.createGain();
-    mute.gain.value = 0;
-    source.connect(node);
-    node.connect(mute);
-    mute.connect(context.destination);
+    const letGo = (context: AudioContext | null) => {
+      for (const track of stream.getTracks()) track.stop();
+      if (context) void context.close().catch(() => undefined);
+    };
+    // Cancelled while the permission prompt was open: the microphone closes again at once.
+    if (stale()) {
+      letGo(null);
+      return;
+    }
+    let context: AudioContext | null = null;
+    let node: AudioWorkletNode;
+    try {
+      context = new AudioContext();
+      await context.audioWorklet.addModule(`${RUNTIME_BASE}capture-worklet.js`);
+      /* An audio context made after the awaits above has lost the press that
+         asked for it, and a browser that is strict about that (Safari) starts
+         it suspended: the worklet then hears nothing and the turn would wait
+         for ever with the microphone open. Asked to run, it runs, because the
+         page is capturing. */
+      if (context.state === "suspended") await context.resume();
+      const source = context.createMediaStreamSource(stream);
+      node = new AudioWorkletNode(context, "kodukeel-capture", { numberOfOutputs: 1 });
+      const mute = context.createGain();
+      mute.gain.value = 0;
+      source.connect(node);
+      node.connect(mute);
+      mute.connect(context.destination);
+    } catch (error) {
+      // The microphone was opened and the audio thread would not take it: close it rather than leave it on.
+      letGo(context);
+      throw new EngineFailure("failed", error instanceof Error ? error.message : String(error));
+    }
+    if (stale()) {
+      letGo(context);
+      return;
+    }
     node.port.onmessage = (event: MessageEvent<LevelMessage>) => {
       onEvent({ kind: "level", level: event.data.level, clipping: event.data.clipping });
     };
+    // A headset unplugged mid-turn ends the turn with what was said, as a press does.
+    for (const track of stream.getAudioTracks()) track.onended = () => this.stop();
     const channel = new MessageChannel();
-    this.turn = { context, stream, node, onEvent };
+    this.turn = { id: ticket, context, stream, node, onEvent };
     node.port.postMessage({ type: "port" }, [channel.port1]);
     this.ensureWorker().postMessage(
-      { type: "listen", endpoint: options.endpoint, maxSeconds: options.maxSeconds, keepAudio: options.keepAudio } satisfies ToWorker,
+      { type: "listen", id: ticket, endpoint: options.endpoint, maxSeconds: options.maxSeconds, keepAudio: options.keepAudio } satisfies ToWorker,
       [channel.port2],
     );
     onEvent({ kind: "state", state: { kind: "listening" } });
@@ -244,6 +300,8 @@ export class WebSpeechEngine implements SpeechEngine {
   }
 
   cancel(): void {
+    // A listen still opening (the model loading, the permission prompt) finds this and lets go.
+    this.ticket += 1;
     if (this.transcribing) {
       // A recording being heard stops after the piece in hand; what was heard by then is returned.
       this.worker?.postMessage({ type: "cancel" } satisfies ToWorker);

@@ -13,7 +13,8 @@ import { ThingsCapture } from "./ThingsCapture";
  * The scanner reads a photographed page; "things around me" points the same
  * pipe at a room. One screen with a choice at the top rather than a second
  * screen, because both end in the same confirmation and the same kind of page
- * (D2: extend a screen a learner already uses).
+ * (D2: extend a screen a learner already uses). Switching keeps the other's
+ * work where it was.
  */
 export function ScanModes() {
   const t = useT();
@@ -29,7 +30,13 @@ export function ScanModes() {
           { id: "things", title: t("Things around me"), icon: <Sofa size={15} aria-hidden /> },
         ]}
       />
-      {mode === "page" ? <ScanCapture /> : <ThingsCapture />}
+      {/*
+        Both stay mounted and the other is hidden, rather than one replacing
+        the other: a page already read and half ticked cost a paid call, and a
+        tap on the other choice is not a reason to throw it away.
+      */}
+      <div hidden={mode !== "page"}><ScanCapture /></div>
+      <div hidden={mode !== "things"}><ThingsCapture active={mode === "things"} /></div>
     </div>
   );
 }
