@@ -5885,8 +5885,7 @@ review. Measured against a real database: ten cards after five words, all of the
 The earlier answer to an empty round was to call the step finished, which is true of the counter and
 not of the evening, since a learner who is sent to a review and shown none has been told something
 false. A quick review of an evening is that evening's own words once more, after a game and a page
-of reading. So the round fills what is left of `MODULE_SESSION` from `day.words`
-(`tonightWhere`), after everything really due and every unseen card: not-yet-due, never a card still
+of reading. So the round asks `day.words` (`tonightWhere`): never a card still
 on the Learn ladder, never a word put aside, never a card answered since the closing round opened
 (`closingOpenedAt`), so a round with two cards to give is over after two. The page and the step's
 own count (`closingLeft`) read the same clause, which is the rule `lib/srs/reviewQueue.ts` is built
@@ -5894,6 +5893,17 @@ on. Grading a card ahead of its date is what every practice round already does (
 this evening's words are touched: the rest of the deck stays the scheduler's. And the empty state
 inside a module is a way on rather than a dead end: `Empty` only draws `WayOut` where it is handed
 an action, so on a wide screen, with no bar underneath, it showed no button at all.
+
+**And the quick review is tonight's words and nothing else, which is the operator's call.** It used
+to be the whole queue narrowed to everything the module had taught so far, due cards from every
+evening and a trickle of unseen ones, with tonight's words only filling what that left, so the
+fourth step of an evening called "a quick review" was a mix of every word the learner had met since
+the first one. It was reported off that screen as making less sense than reviewing the batch the
+evening had just taught, and it does. Inside a module the round is `tonightWhere` alone, due or
+not, the due ones first, cut at `MODULE_SESSION`; it introduces nothing, and everything else that
+is due waits on Review, where a learner who opens it from Today chooses to meet it. The step's count
+in `lib/progress/closing.ts` is the same read, asserted, and `app/(app)/review/queue.itest.ts` fails
+on a card of an earlier evening reaching the round.
 
 **Meeting the words has the same shape of way out**, which is worth naming because it is the same
 sentence one step up: `cards.length > 0` is what stops that step ticking before anybody presses
@@ -5907,7 +5917,9 @@ that is fine.
 **And a count standing in for a screen may only ever read low, which is not what it did first.**
 The two directions are not the same fault. Reading low ticks a step with a card or two still
 answerable, and the learner can simply answer them; reading high asks for evidence the round will
-not produce, which is the hang this whole thing exists to end. The unseen half was reading high:
+not produce, which is the hang this whole thing exists to end. (What follows is about the round
+before it became tonight's words alone, which removed both of its halves; the rule stands.) The
+unseen half was reading high:
 the round swaps its window for a wider read when nothing in the first sixty rows is near the
 learner's band (`inBandPool`), and that widening **replaces** the window rather than adding to it,
 so the rows it ends up showing are neither a subset nor a superset of the ones counted. A C1

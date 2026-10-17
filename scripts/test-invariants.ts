@@ -23569,43 +23569,26 @@ check("a derived step asks for no more evidence than the app can supply", () => 
 
   /* And the count is the queue's own clauses rather than a second copy. */
   const counting = code("lib/progress/closing.ts");
-  for (const fragment of ["dueWhere(", "unseenWhere(", "roomFor(", "cardWithin("]) {
+  for (const fragment of ["tonightWhere(", "MODULE_SESSION", "cardWithin("]) {
     assert.ok(
       counting.includes(fragment),
-      `lib/progress/closing.ts counts the closing round without ${fragment}), so what the `
+      `lib/progress/closing.ts counts the closing round without ${fragment}, so what the `
       + "module thinks is left and what the round shows can disagree",
     );
   }
+  const round = code("app/(app)/review/queue.ts");
+  assert.ok(
+    round.includes("tonightWhere("),
+    "the closing round is drawn without tonightWhere(, so it is no longer the read its count makes",
+  );
 
   /*
-    ROOM IS MEASURED AGAINST WHAT A SITTING SHOWS, not against what it read.
-    Inside a module the two differ by every card `cardWithin` refuses, and read
-    the old way a deck with sixty cards due, none of them askable tonight, left
-    no room for a single new word. The same expression on both sides, so the
-    count and the round are not two readings that happen to agree.
+    ROOM IS MEASURED AGAINST WHAT A SITTING SHOWS, not against what it read,
+    on the daily path, where new cards trickle in beside what is due.
   */
   assert.match(
-    (code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts")), /roomFor\(dueWithin\.length\)/,
+    round, /roomFor\(dueWithin\.length\)/,
     "the review queue measures room against the cards it read rather than the cards it shows",
-  );
-  assert.match(
-    counting, /roomFor\(dueWithin\)/,
-    "the closing count measures room differently from the round it is counting",
-  );
-
-  /*
-    AND THE COUNT MAY ONLY EVER READ LOW. The round replaces its unseen window
-    with a wider read when nothing in the first sixty rows is near the
-    learner's band (`inBandPool`), so the rows it ends up showing are neither a
-    subset nor a superset of the ones counted here. Counting every unseen row
-    can therefore exceed what the round will show, which asks for evidence
-    nobody can give and is the hang this whole module exists to end; counting
-    the in-band ones alone is at or under it in every case.
-  */
-  assert.match(
-    counting, /isAround\(/,
-    "the closing count counts unseen cards the round may never show, so the step can ask "
-    + "for more answers than the round has and the evening cannot be finished",
   );
 
   /*
