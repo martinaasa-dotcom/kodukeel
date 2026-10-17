@@ -37,7 +37,7 @@ export function stepsIn(day: CourseDay, locale: Locale): CourseStep[] {
 function titleOf(day: CourseDay, step: CourseStep, locale: Locale): string {
   if (step.id === LESSON_STEP && day.lesson) {
     const lesson = lessonById(day.lesson);
-    if (lesson) return fill(tr(locale, "Lesson {n}: {title}"), { n: lessonLabel(lesson), title: lesson.title });
+    if (lesson) return fill(tr(locale, "Lesson {n}: {title}"), { n: lessonLabel(lesson), title: tr(locale, lesson.title) });
   }
   if (step.id === MEET_STEP) {
     const fresh = newWordsIn(day);
