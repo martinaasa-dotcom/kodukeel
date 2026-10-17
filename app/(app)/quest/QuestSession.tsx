@@ -434,7 +434,7 @@ export function QuestSession({
         <div className="mx-auto flex max-w-md flex-col items-center gap-5 text-center">
           <div className="grid w-full grid-cols-3 gap-2 sm:gap-3">
             <StatTile value={correct} label={t("Right")} tone="sky" />
-            <StatTile value={`${accuracy}%`} label={t("Accuracy")} tone={accuracy >= 70 ? "sky" : "butter"} />
+            <StatTile value={`${accuracy}%`} label={t("Accuracy")} tone="accent" />
             <StatTile value={bestStreak} label={t("Best run")} tone="blush" />
           </div>
           <p className="max-w-[40ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>

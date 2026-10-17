@@ -1620,7 +1620,7 @@ export function ReviewSession({
 
         <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
           <StatTile value={done} label={t("Reviewed")} tone="accent" />
-          <StatTile value={`${accuracy}%`} label={t("Recalled")} tone={accuracy >= 85 ? "sky" : "butter"} />
+          <StatTile value={`${accuracy}%`} label={t("Recalled")} tone="accent" />
           <StatTile value={fill(t("{n}m"), { n: minutes })} label={t("Time")} tone="sky" />
         </div>
         {/* A word put aside as the last card of a session ends it, so the note
