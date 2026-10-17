@@ -20,6 +20,7 @@
 import { A1_ELAD_LESSONS, A1_ELAD_PART } from "./a1-elad";
 import { A1_KELL_LESSONS, A1_KELL_PART } from "./a1-kell";
 import { A1_SOOK_LESSONS, A1_SOOK_PART } from "./a1-sook";
+import { A1_LINN_LESSONS, A1_LINN_PART } from "./a1-linn";
 import type { LessonSpec, PartOfLessons } from "./types";
 
 export const A1_LESSON_PARTS: readonly PartOfLessons[] = [
@@ -27,6 +28,7 @@ export const A1_LESSON_PARTS: readonly PartOfLessons[] = [
   A1_ELAD_PART,
   A1_KELL_PART,
   A1_SOOK_PART,
+  A1_LINN_PART,
 ];
 
 const TERE_LESSONS: readonly LessonSpec[] = [
@@ -441,4 +443,4 @@ const TERE_LESSONS: readonly LessonSpec[] = [
 ];
 
 /** A1 in teaching order, part by part. */
-export const A1_LESSONS: readonly LessonSpec[] = [...TERE_LESSONS, ...A1_ELAD_LESSONS, ...A1_KELL_LESSONS, ...A1_SOOK_LESSONS];
+export const A1_LESSONS: readonly LessonSpec[] = [...TERE_LESSONS, ...A1_ELAD_LESSONS, ...A1_KELL_LESSONS, ...A1_SOOK_LESSONS, ...A1_LINN_LESSONS];

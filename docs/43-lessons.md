@@ -320,7 +320,15 @@ Each phase is its own pull request or several, and none starts before the one ab
   the learner has already said for weeks: `{eesti keelt}`, `{kaks aastat}` and the `mida` of
   `{Mida sa teed?}` are all the same ending, which is chunks first paying out. Lesson 26 adds
   `{tass}` and `{klaas}` so "a cup of tea" is said the Estonian way, and lesson 27 teaches
-  `kaardiga` and `sularahas` as chunks, ahead of the `-ga` lesson in part 5.
+  `kaardiga` and `sularahas` as chunks, ahead of the `-ga` lesson in part 5. **Part 5 (lessons 30 to 35,
+  `{Kodu ja linn}`) is built**, in `lib/course/lessons/a1-linn.ts`. Lesson 31 is the evening the
+  plan was rewritten for: `kus`, `kuhu` and `kust` together, with home, work and the shop each
+  answering all three, where the old course cut the question words across evenings in the order
+  they were typed. Lessons 32 and 34 name the `seesütlev` and the `kaasaütlev` the way a class
+  does and explain the `Tallinnas` of lesson 9 and the `kaardiga` of lesson 27. The ledger caught
+  two slips on the first run: lesson 35 used `või`, which no lesson had taught (a part's last
+  lesson teaches nothing, so it moved into lesson 34's conversation), and a note in lesson 33
+  quoted `buss` a lesson before `buss` is taught.
 - **P3. The switch.** Learners placed per L4, the old A1 parts retired, `course.test.ts` and the
   browser suites (`test-module.mjs`) rewritten for lessons. **And the lessons' own English in
   Russian and Ukrainian**, which nothing yet translates: the screens around a lesson are in
