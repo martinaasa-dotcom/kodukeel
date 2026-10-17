@@ -2564,7 +2564,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                 <button
                   key={pick.id}
                   type="button"
-                  className="choice-btn press flex items-center justify-between gap-3 rounded-xl px-4 py-3 text-left"
+                  className="choice-btn press flex border items-center justify-between gap-3 rounded-xl px-4 py-3 text-left"
                   onClick={() => answer(pick.et, true, lit === pick.id ? pending : null)}
                   disabled={busy || moving}
                   data-pick={pick.id}

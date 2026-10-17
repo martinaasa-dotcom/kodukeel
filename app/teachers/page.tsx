@@ -1,10 +1,10 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Legal, P, S } from "@/components/Legal";
-import { StatTile } from "@/components/ui";
 import { RosterList } from "@/components/class/RosterList";
 import { tr } from "@/lib/copy/locale";
 import { localeHref } from "@/lib/copy/publicLocale";
 import { SAMPLE_CLASS } from "@/lib/classroom/sample";
+import { ClassFigures } from "@/components/class/ClassFigures";
 import { resolveOperator } from "@/lib/legal/operator";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
 import { publicCard } from "@/lib/copy/publicCards";
@@ -57,10 +57,13 @@ export default async function TeachersPage({ searchParams }: { searchParams: Pub
         <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
           {t("These learners are invented. Nobody here is real.")}
         </p>
-        <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
-          <StatTile value={SAMPLE_CLASS.entries.length} label={t("Members")} tone="sky" />
-          <StatTile value={SAMPLE_CLASS.activeThisWeek} label={t("Active this week")} tone="sky" />
-          <StatTile value={SAMPLE_CLASS.totalReviewsThisWeek} label={t("Reviews this week")} tone="accent" />
+        <div className="mt-5">
+          <ClassFigures
+            joined={SAMPLE_CLASS.joined}
+            active={SAMPLE_CLASS.activeThisWeek}
+            reviews={SAMPLE_CLASS.totalReviewsThisWeek}
+            locale={locale}
+          />
         </div>
         <div className="mt-5" data-sample-roster>
           <RosterList entries={SAMPLE_CLASS.entries} viewerId="sample-viewer" isTeacher locale={locale} />

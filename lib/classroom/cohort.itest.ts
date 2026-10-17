@@ -122,6 +122,24 @@ describe("what a sponsor's query reads", () => {
     expect(serialised).not.toContain("confidence");
   });
 
+  it("counts the people who joined, never the teacher who made the class", async () => {
+    // The teacher practises and the one student has not started: the board's
+    // figures and its "Nobody has joined yet" have to describe the same class.
+    await history(BOSS, 30, 1, "ELATIVE");
+    const alone = await classRoster(classroomId);
+    expect(alone.entries.map((e) => e.ownerId)).toContain(BOSS);
+    expect(alone.joined).toBe(1);
+    expect(alone.totalReviewsThisWeek).toBe(0);
+    expect(alone.activeThisWeek).toBe(0);
+    expect(alone.weakestCases).toEqual([]);
+
+    await history(ANU, 12, 1);
+    const started = await classRoster(classroomId);
+    expect(started.totalReviewsThisWeek).toBe(12);
+    expect(started.activeThisWeek).toBe(1);
+    expect(started.weakestCases.map((c) => c.grammCase)).toEqual(["INESSIVE"]);
+  });
+
   it("names everybody who joined, with a band and the tier behind it", async () => {
     await history(ANU, 200, 4);
 

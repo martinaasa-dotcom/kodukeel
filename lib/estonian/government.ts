@@ -214,8 +214,13 @@ export function readableGovernment(raw: string | null | undefined): string {
       kinds of thing, and `kust` names no case at all. Where the words in
       front say nothing the table knows, the bracket stands.
     */
-    const asks = questionInEnglish(before.replace(/[*]/g, "").split("/").join(" "));
-    if (!asks) return whole;
+    const read = questionInEnglish(before.replace(/[*]/g, "").split("/").join(" "));
+    if (!read) return whole;
+    /* A bracket inside a bracket is the one shape that reads as a notation
+       rather than a sentence: `keda/mida (whom? what? (some of it))`. The
+       question word in front already says it is the partial object, so the
+       reading keeps the question alone. */
+    const asks = read.replace(/\s*\([^)]*\)/g, "");
     // Only a bracket that names a case or a place is ours to rewrite: an
     // Ekilex entry can carry a real note in brackets and a gloss after an
     // example, and neither is a label to replace.
@@ -224,10 +229,34 @@ export function readableGovernment(raw: string | null | undefined): string {
       || ["location", "direction", "source"].includes(label);
     return isLabel ? `${before}(${asks})` : whole;
   })
+    /* The same nesting in a reading this function wrote before it dropped
+       the inner bracket, which is what a government card built then still
+       carries on its back: `repairGovernmentBacks` reads its stored back
+       through here, so the old shape has to come out the new one. */
+    .replace(/\(([^()]*?)\s*\([^()]*\)\)/g, "($1)")
+    /* Ekilex marks the primary government with an asterisk, `keda/mida*`. It
+       is a lexicographer's notation, said nowhere on a screen, so a learner
+       read it as a footnote with nothing under it. The stored column keeps it
+       for `parseGovernment`, which is what reads it. */
+    .replace(/\*/g, "")
     // Ekilex's own separator between two governments is a middot, and the
     // middot is on no screen here: the stored column keeps it, the reading
     // prints a comma.
     .replace(/\s*·\s*/g, ", ");
+}
+
+/**
+ * A card's stored back, as a screen should print it.
+ *
+ * A government card carries the reading `readableGovernment` gave on the day
+ * it was built, and a deck keeps that string until the seed's repair rewrites
+ * it. Read through here on the way to a screen, a card built under an older
+ * reading is shown the way a new one is, the asterisk and the bracket inside a
+ * bracket included, without waiting for a reseed. Every other card type comes
+ * back exactly as stored.
+ */
+export function readableBack(cardType: string, back: string): string {
+  return cardType === "GOVERNMENT" ? readableGovernment(back) : back;
 }
 
 /** Hardest to tell from the answer first. Ties keep the order they came in. */

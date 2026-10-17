@@ -608,8 +608,8 @@ export default async function CoursePage({
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
           {t("This is the easy way in, not the only one.")}{" "}
           {locale === "en"
-            ? <><Link href="/settings" className="underline">Turn it off</Link> whenever you&apos;d rather choose for yourself.</>
-            : <Linked template={t("{link} whenever you'd rather choose for yourself.")} href="/settings" label={t("Turn it off")} />}
+            ? <><Link href="/settings#course" className="underline">Turn it off</Link> whenever you&apos;d rather choose for yourself.</>
+            : <Linked template={t("{link} whenever you'd rather choose for yourself.")} href="/settings#course" label={t("Turn it off")} />}
         </p>
       </Stack>
     </Page>

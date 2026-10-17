@@ -42,6 +42,13 @@ export async function generateMetadata({ params }: { params: Params }) {
 
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 const DAY = { day: "numeric", month: "long", year: "numeric" } as const;
+/*
+  The table's first column in the short month. Written out ("September 27,
+  2026") it held 150px it would not wrap, and at a phone's width that pushed
+  "Answers given" past the edge of its scroller, so the one figure the table is
+  for was the one a reader had to scroll sideways to find.
+*/
+const ROW_DAY = { day: "numeric", month: "short", year: "numeric" } as const;
 
 /**
  * ONE PRINTED PAGE ABOUT A CLASS OVER A TERM, WITH NOBODY'S NAME ON IT.
@@ -78,6 +85,7 @@ export default async function TermReportPage({ params, searchParams }: { params:
     UTC in UTC: the reader's browser then writes it in their own shape.
   */
   const date = (key: string) => <DateText iso={`${key}T12:00:00Z`} zone="UTC" options={DAY} />;
+  const rowDate = (key: string) => <DateText iso={`${key}T12:00:00Z`} zone="UTC" options={ROW_DAY} />;
 
   return (
     <div className="term-report mx-auto max-w-3xl px-5 py-8 md:px-10 md:py-12 print:max-w-none print:p-0">
@@ -135,7 +143,7 @@ export default async function TermReportPage({ params, searchParams }: { params:
             <tbody>
               {figures.periods.map((p) => (
                 <tr key={p.start} className="border-t" style={{ borderColor: "var(--rule)" }}>
-                  <td className="py-1.5 pr-4 whitespace-nowrap">{date(p.start)}</td>
+                  <td className="py-1.5 pr-4 whitespace-nowrap">{rowDate(p.start)}</td>
                   <td className="tnum py-1.5 pr-4 text-right">{p.active}</td>
                   <td className="tnum py-1.5 text-right">{p.reviews}</td>
                 </tr>

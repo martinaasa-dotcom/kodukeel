@@ -221,7 +221,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
         missed={missed.map((m) => ({
           et: m.options[m.answer]?.text ?? m.form,
           lemma: m.lemma,
-          note: `${m.lemma}, ${m.gloss}`,
+          note: <><span lang="et">{m.lemma}</span>, {m.gloss}</>,
         }))}
         again={t("Play again")}
       />

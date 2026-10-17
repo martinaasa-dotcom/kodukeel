@@ -225,7 +225,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
         missed={missed.map((m) => ({
           et: m.accepted.join(PARTS),
           lemma: m.lemma,
-          note: m.translation ? `${m.lemma}, ${m.translation}` : m.lemma,
+          note: <><span lang="et">{m.lemma}</span>{m.translation ? `, ${m.translation}` : null}</>,
         }))}
         also={{ href: "/grammar/exceptions", label: t("See the whole list") }}
       />

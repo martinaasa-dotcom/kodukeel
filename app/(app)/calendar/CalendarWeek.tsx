@@ -434,7 +434,7 @@ function AddPanel({ days, opensAs, onDone }: {
                 type="button"
                 aria-pressed={weekdays.includes(d)}
                 onClick={() => setWeekdays((w) => w.includes(d) ? w.filter((x) => x !== d) : [...w, d])}
-                className="choice-btn min-h-11 rounded-full px-3 text-sm font-semibold"
+                className="choice-btn min-h-11 rounded-full border px-3 text-sm font-semibold"
                 style={weekdays.includes(d)
                   ? { ["--choice-bg" as string]: "var(--accent-soft)", color: "var(--accent-deep)" }
                   : undefined}

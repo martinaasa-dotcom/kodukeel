@@ -132,8 +132,6 @@ export const TODAY: Area = {
   // TODAY: WHAT'S ON, FROM THE LEARNER'S OWN CALENDAR.
   "one thing":
     "одно дело",
-  "What's on today":
-    "Что сегодня",
   "See your whole week":
     "Вся неделя",
   "Class":
@@ -186,18 +184,12 @@ export const TODAY: Area = {
   // TODAY: THE ONE SHORT ROUND.
   "Daily quest":
     "Задание дня",
-  "Your {case} is at {pct}%. Give it {length} today.":
-    "Падеж {case} пока усвоен на {pct}%. Уделите ему сегодня {length}.",
   "{length} on the cards that trip you up most.":
     "{length} на карточки, на которых вы чаще всего спотыкаетесь.",
-  "Start the quest":
-    "Начать задание",
   "Today's game":
     "Игра дня",
   "Today's conversation":
     "Разговор дня",
-  "Tomorrow's {weekday}, which means {game}.":
-    "Завтра {weekday}, а значит, {game}.",
   "something different":
     "что-то другое",
   "Sunday":
@@ -1196,8 +1188,6 @@ export const TODAY: Area = {
   // TODAY: WHAT'S ON, FROM THE LEARNER'S OWN CALENDAR.
   "one thing":
     "одна справа",
-  "What's on today":
-    "Що сьогодні",
   "See your whole week":
     "Увесь тиждень",
   "Class":
@@ -1250,18 +1240,12 @@ export const TODAY: Area = {
   // TODAY: THE ONE SHORT ROUND.
   "Daily quest":
     "Завдання дня",
-  "Your {case} is at {pct}%. Give it {length} today.":
-    "Відмінок {case} поки засвоєний на {pct}%. Приділіть йому сьогодні {length}.",
   "{length} on the cards that trip you up most.":
     "{length} на картки, на яких ви найчастіше спотикаєтеся.",
-  "Start the quest":
-    "Почати завдання",
   "Today's game":
     "Гра дня",
   "Today's conversation":
     "Розмова дня",
-  "Tomorrow's {weekday}, which means {game}.":
-    "Завтра {weekday}, а отже, {game}.",
   "something different":
     "щось інше",
   "Sunday":

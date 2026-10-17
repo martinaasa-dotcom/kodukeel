@@ -267,7 +267,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
       setMissed((m) => [...m, ...wrong.map((b) => ({
         et: `${b.person} ${b.answer}`,
         lemma: question.lemma,
-        note: `${question.lemma}, ${question.translation}`,
+        note: <><span lang="et">{question.lemma}</span>, {question.translation}</>,
       }))]);
     }
     // Climbs with the run, the way review does. See lib/audio/feedback.ts.
@@ -628,10 +628,15 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
           {/* A tally of nought out of nought is not a score, it is noise
               under the first table, so the line opens on the instruction and
               the count arrives with the first table checked. */}
-          {index + (revealed ? 1 : 0) > 0 && <>{fill(t("{n} of {total} tables perfect,"), { n: tablesRight, total: index + (revealed ? 1 : 0) })} </>}
+          {/* The matching shape says "Tap a form to place it" over its own
+              bank, so the footer does not say it a second time: it keeps the
+              tally alone, without the comma that led into the instruction. */}
           {question.shape === "type"
-            ? fill(t("{key} moves down the table"), { key: ADVANCE_KEY_LABEL })
-            : index + (revealed ? 1 : 0) > 0 ? t("tap a form to place it") : t("Tap a form to place it")}
+            ? <>
+                {index + (revealed ? 1 : 0) > 0 && <>{fill(t("{n} of {total} tables perfect,"), { n: tablesRight, total: index + (revealed ? 1 : 0) })} </>}
+                {fill(t("{key} moves down the table"), { key: ADVANCE_KEY_LABEL })}
+              </>
+            : index + (revealed ? 1 : 0) > 0 && fill(t("{n} of {total} tables perfect"), { n: tablesRight, total: index + (revealed ? 1 : 0) })}
         </span>
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>

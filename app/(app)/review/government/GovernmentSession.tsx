@@ -3,6 +3,7 @@
 import { useLocale, useT } from "@/components/Locale";
 import { questionIn } from "@/lib/copy/questionReading";
 import { fill } from "@/lib/copy/locale";
+import { filled } from "@/components/Filled";
 import { rich } from "@/components/round/rich";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
@@ -200,7 +201,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
         ]}
         missed={missed.map((q) => ({
           et: q.lemma,
-          note: fill(t("{meaning}. Takes the {case}."), { meaning: q.translation, case: q.answerEt }),
+          note: filled(t("{meaning}. Takes the {case}."), { meaning: q.translation, case: <span lang="et">{q.answerEt}</span> }),
         }))}
       />
     );

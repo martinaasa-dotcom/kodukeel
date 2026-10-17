@@ -102,7 +102,10 @@ export default async function CommonRoundsPage() {
                   const whole = part.inDeck >= part.found;
                   return (
                     <li key={n} className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                      <div className="min-w-0 flex-1">
+                      {/* At least 12rem for the words, so on a phone the button
+                          drops under them rather than squeezing "Part 1 words 1
+                          to 25" into four lines beside it. */}
+                      <div className="min-w-0 flex-1 basis-48">
                         <p className="text-sm font-bold" style={{ color: "var(--ink)" }}>
                           {fill(tr(locale, "Part {n}"), { n })}
                           <span className="font-normal" style={{ color: "var(--ink-2)" }}>

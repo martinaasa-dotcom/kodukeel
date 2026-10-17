@@ -164,7 +164,7 @@ export default async function ReadinessPage() {
               </section>
             );
           }
-          // "Not yet" is a rung the learner would be lost on, so it is not
+          // "Lost for now" is a rung the learner would be lost on, so it is not
           // counted as anywhere near: only what they could at least follow.
           const reached = rows.filter((r) => r.rung === "follow" || r.rung === "takePart" || r.rung === "lead").length;
           return (

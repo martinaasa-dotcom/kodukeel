@@ -26,8 +26,12 @@ export interface RoundFigure {
 export interface WorthALook {
   /** The Estonian, a form or a phrase, exactly as the dictionary holds it. */
   et: string;
-  /** What it means, or which form it is, in the learner's language. */
-  note: string;
+  /**
+   * What it means, or which form it is, in the learner's language. A node
+   * rather than a string where the note quotes Estonian, a headword or the
+   * name of a case, so that word can carry `lang="et"` inside the English.
+   */
+  note: ReactNode;
   /** The headword to open in the dictionary, where `et` is a form of one. */
   lemma?: string;
 }
@@ -74,7 +78,9 @@ export function RoundDone({ title, line, figures, missed = [], again, also, cele
   const t = useT();
   /* Once each: a word missed on two rungs, or a sentence built wrong twice,
      is one thing to look at. */
-  const once = [...new Map(missed.map((m) => [`${m.et}\u0000${m.note}`, m])).values()];
+  const once = [...new Map(missed.map((m) => [
+    `${m.et}\u0000${m.lemma ?? ""}\u0000${typeof m.note === "string" ? m.note : ""}`, m,
+  ])).values()];
   const shown = once.slice(0, SHOWN);
   return (
     <div className="mx-auto max-w-2xl px-5 py-12 md:px-10 md:py-16" data-round-done="">

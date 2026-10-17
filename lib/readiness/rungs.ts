@@ -65,10 +65,17 @@ export const RUNG_ORDER: readonly Rung[] = ["unmet", "lost", "follow", "takePart
 
 export const rungRank = (rung: Rung): number => RUNG_ORDER.indexOf(rung);
 
-/** The three claims, in the words a screen prints. */
+/**
+ * The three claims, in the words a screen prints.
+ *
+ * "Lost for now" rather than "Not yet": the headline over a level counts
+ * these as "you would be lost in", for the reason `narrative.ts` gives, and a
+ * legend under that sentence saying "Not yet" beside the same figure read as
+ * a second, softer count of something else.
+ */
 export const RUNG_LABEL: Record<Rung, string> = {
   unmet: "Not started",
-  lost: "Not yet",
+  lost: "Lost for now",
   follow: "Follow it",
   takePart: "Take part",
   lead: "Lead it",

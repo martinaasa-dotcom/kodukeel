@@ -103,7 +103,7 @@ export default async function LearnPage() {
   return (
     <Page route="/learn"
       title={t("Learn")}
-      lead={t("Pick up new words a few at a time. And see which course they come from.")}
+      lead={t("Pick up new words a few at a time, and see the whole course they come from.")}
     >
       {/*
         WHAT THIS PAGE LEADS WITH IS THE NEXT FIVE WORDS, NOT THE MAP.

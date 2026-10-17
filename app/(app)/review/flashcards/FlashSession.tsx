@@ -331,7 +331,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
           return {
             et: form,
             lemma: m.lemma,
-            note: form === m.lemma ? m.translation : `${m.lemma}, ${m.translation}`,
+            note: form === m.lemma ? m.translation : <><span lang="et">{m.lemma}</span>, {m.translation}</>,
           };
         })}
         also={{ href: "/words/mastery", label: t("Where your words stand") }}

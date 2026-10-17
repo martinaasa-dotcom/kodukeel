@@ -3,6 +3,7 @@ import { meaningPrefsFor } from "@/lib/progress/meaningPrefs";
 import { meaningShown, type Equivalents, type MeaningPrefs, type ShownMeaning } from "@/lib/collections/glossLanguage";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { readableFront } from "@/lib/copy/caseHint";
+import { readableBack } from "@/lib/estonian/government";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { ButtonLink } from "@/components/Button";
@@ -79,7 +80,7 @@ export default async function WordsPage({ searchParams }: {
     id: c.id,
     cardType: c.cardType,
     front: readableFront(c.front),
-    back: c.back,
+    back: readableBack(c.cardType, c.back),
     lemma: c.lexeme?.lemma ?? null,
     cefr: c.lexeme?.cefr ?? null,
     state: c.state,
@@ -103,8 +104,10 @@ export default async function WordsPage({ searchParams }: {
         <>
           {/* The other reading of this page, and the one somebody comes for
               when the question is "what do I actually know". Counted in words
-              rather than cards, which is what the box below is. */}
-          <ButtonLink href="/words/mastery">{t("How well you know each word")}</ButtonLink>
+              rather than cards, which is what the box below is. Named as the
+              rail names it: the sentence it used to carry took a line of its
+              own on a phone and left the other two to wrap under it. */}
+          <ButtonLink href="/words/mastery">{t("Word mastery")}</ButtonLink>
           <ButtonLink href="/words/decks">{t("Decks")}</ButtonLink>
           <ButtonLink href="/dictionary" variant="primary">{t("Add words")}</ButtonLink>
         </>

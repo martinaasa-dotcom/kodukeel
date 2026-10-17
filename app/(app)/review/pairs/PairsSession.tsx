@@ -17,6 +17,7 @@ import { RoundDone } from "@/components/round/RoundDone";
 import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { useT } from "@/components/Locale";
+import { filled } from "@/components/Filled";
 import { fill } from "@/lib/copy/locale";
 import { rich } from "@/components/round/rich";
 
@@ -226,7 +227,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
             et: q.heard,
             lemma: heard?.lemma,
             note: heard
-              ? heard.lemma === q.heard ? heard.translation : fill(t("{form} of {lemma}, {meaning}"), { form: heard.formLabel, lemma: heard.lemma, meaning: heard.translation })
+              ? heard.lemma === q.heard ? heard.translation : filled(t("{form} of {lemma}, {meaning}"), { form: heard.formLabel, lemma: <span lang="et">{heard.lemma}</span>, meaning: heard.translation })
               : "",
           };
         })}
