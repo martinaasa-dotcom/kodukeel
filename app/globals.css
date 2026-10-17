@@ -5466,6 +5466,11 @@ a:focus-visible .wave-word::after {
 }
 .case-label-ask { font-weight: 500; color: var(--ink); }
 .case-label-means { color: var(--ink-3); }
+/* In a narrow tile the three runs take a line each: run together they broke
+   wherever the width ran out, so a tile read "nimetav ainsus kes?" over
+   "mis? who? what?", a question split across the name and its English. */
+.case-label-stack .case-label-ask,
+.case-label-stack .case-label-means { display: block; margin-inline-start: 0; margin-top: 0.125rem; }
 
 /*
   A PART OF THE DEBRIEF IS A PANEL, NOT A HEADING AND SOME LOOSE LINES.

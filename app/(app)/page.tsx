@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import { Lettered } from "@/components/HeroLetters";
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { redirect } from "next/navigation";
 import { LEARN_BATCH } from "@/lib/learn/ladder";
 import { ArrowRight, Flame, Shield } from "lucide-react";
@@ -24,7 +23,7 @@ import { shows, stageOf, TODAY_CARDS } from "@/lib/ux/disclosure";
 import { hiddenSlotsFrom, orderTodayCards, todayOrderFrom } from "@/lib/ux/todayOrder";
 import { ButtonLink } from "@/components/Button";
 import { NamedIcon } from "@/components/icons";
-import { Card, Empty, Meter, Page, Ring, SectionTitle, Stack, StatTile } from "@/components/ui";
+import { Card, CardLink, Empty, Meter, Page, Ring, SectionTitle, Stack, StatTile } from "@/components/ui";
 import { LocalDate } from "@/components/LocalDate";
 import { dateLine } from "@/lib/time/estonianDate";
 import type { TaskView } from "@/components/TaskRow";
@@ -781,13 +780,9 @@ export default async function TodayPage() {
 
       {eventsList}
 
-      <Link
-        href="/calendar"
-        className="mt-auto inline-block text-sm font-semibold underline underline-offset-2"
-        style={{ color: "var(--accent-deep)" }}
-      >
+      <CardLink href="/calendar" className="mt-auto self-start">
         {eventsList ? t("See your whole week") : t("Plan your week")}
-      </Link>
+      </CardLink>
 
       {/*
         THE XP AND THE LEVEL BAR ARE NOT HERE, AND THAT IS THE POINT OF THE
@@ -992,13 +987,7 @@ export default async function TodayPage() {
           {" "}{say(`(${toReview} due, if you’d rather practice what you know)`, "({cards} due, if you'd rather practice what you know)", { cards: countOf(locale, toReview, "card") })}
         </span>
       </p>
-      <Link
-        href="/review"
-        className="inline-flex items-center gap-1.5 text-base font-semibold underline underline-offset-2"
-        style={{ color: "var(--accent-deep)" }}
-      >
-        {t("Review now")} <ArrowRight size={15} aria-hidden />
-      </Link>
+      <CardLink href="/review">{t("Review now")}</CardLink>
     </Card>
   ) : null;
 

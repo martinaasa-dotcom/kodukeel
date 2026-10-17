@@ -38,6 +38,20 @@ export default async function CommonRoundsPage() {
   const [counts, locale] = await Promise.all([commonCounts(ownerId), localeFor(ownerId)]);
   const found = counts.reduce((sum, c) => sum + c.found, 0);
 
+  /*
+    ONE LOUD BUTTON, ON THE PART TO DO NEXT.
+
+    Every part of every list carried a primary button, sixteen of them in one
+    column, so the page was a wall of gold and the one thing it could tell a
+    learner, which part comes next, was the one thing it did not say. The
+    first part not yet in the deck is the gold one, or the first part of all
+    once everything is; the rest are the quiet key.
+  */
+  const lists = counts.filter((c) => c.found > 0);
+  const parts = lists.flatMap((c) => c.parts.filter((p) => p.found > 0).map((p, i) => ({ group: c.group, n: i + 1, whole: p.inDeck >= p.found })));
+  const lead = parts.find((p) => !p.whole) ?? parts[0];
+  const isLead = (group: string, n: number) => lead !== undefined && lead.group === group && lead.n === n;
+
   return (
     <Page
       title={tr(locale, "Most common words")}
@@ -56,7 +70,7 @@ export default async function CommonRoundsPage() {
         />
       ) : (
         <Stack>
-          {counts.filter((c) => c.found > 0).map((count) => {
+          {lists.map((count) => {
           const group = commonGroup(count.group);
           return (
             <Card key={group.key}>
@@ -100,13 +114,13 @@ export default async function CommonRoundsPage() {
                         </p>
                       </div>
                       {whole ? (
-                        <ButtonLink href={href} variant="primary">{tr(locale, "Start")}</ButtonLink>
+                        <ButtonLink href={href} variant={isLead(count.group, n) ? "primary" : "secondary"}>{tr(locale, "Start")}</ButtonLink>
                       ) : (
                         <DeepenButton
                           group={group.key}
                           part={n}
                           goTo={href}
-                          variant="primary"
+                          variant={isLead(count.group, n) ? "primary" : "secondary"}
                           label={tr(locale, "Add and start")}
                         />
                       )}

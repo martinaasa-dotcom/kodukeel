@@ -311,6 +311,9 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
         `components/Choice.tsx` makes at the top of its own file.
       */}
       <div className="@container">
+        {/* Three across, the three words start on one line: a question that
+            runs to a second line pushed its own word down and the row read as
+            crooked. Each card takes the same three rows of the group. */}
         <ChoiceGroup ariaLabel={t("Which of the three to explain")} select="one" className="grid gap-2 @lg:grid-cols-3">
           {word.principal.map((form, n) => {
             const ref = caseReference(form.key);
@@ -323,7 +326,7 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
                 aria-checked={n === at}
                 onClick={() => setAt(n)}
                 data-on={n === at ? "" : undefined}
-                className={`choice-btn choice-card flex min-w-0 flex-col items-start gap-1 rounded-[var(--r-lg)] px-4 py-3 text-left ${isStem ? "stem-row" : ""}`}
+                className={`choice-btn choice-card flex min-w-0 flex-col items-start gap-1 rounded-[var(--r-lg)] px-4 py-3 text-left @lg:row-span-3 @lg:grid @lg:grid-rows-subgrid @lg:justify-items-start ${isStem ? "stem-row" : ""}`}
               >
                 <span className="flex w-full items-baseline justify-between gap-2">
                   <span className="text-xs" style={{ color: "var(--ink-3)" }}>

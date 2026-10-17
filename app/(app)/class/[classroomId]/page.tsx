@@ -1,6 +1,6 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Download, FileText, Printer, Target } from "lucide-react";
+import { Download, FileText, Printer, Target } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { classworkHistory } from "@/app/actions";
@@ -15,7 +15,7 @@ import { WorkplaceView } from "./WorkplaceView";
 import { RosterList } from "@/components/class/RosterList";
 import { LocalDate } from "@/components/LocalDate";
 import { DUE_DATE_FORMAT } from "@/lib/ux/agenda";
-import { Card, Empty, Meter, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
+import { BackLink, Card, Empty, Meter, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
 import { ArchiveClass, AssignHomework, AssignScene, AssignUnit, ClassDigest, CopyCode, LeaveClass } from "../ClassForms";
 import { SCENES } from "@/lib/scenes/catalogue";
 import { sceneHomeworkCount } from "@/lib/progress/homework";
@@ -131,13 +131,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
             ? "Who's keeping up, and what the whole class keeps tripping over."
             : "How your class is doing this week.")}
       actions={
-        <Link
-          href="/class"
-          className="press inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
-          style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
-        >
-          <ArrowLeft size={14} aria-hidden /> {t(workplace ? "All groups" : "All classes")}
-        </Link>
+        <BackLink href="/class">{t(workplace ? "All groups" : "All classes")}</BackLink>
       }
     >
       <Stack>
@@ -189,7 +183,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
 
         {roster && (
           <>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           <StatTile value={roster.entries.length} label={t("Members")} tone="sky" />
           <StatTile value={roster.activeThisWeek} label={t("Active this week")} tone="sky" />
           <StatTile value={roster.totalReviewsThisWeek} label={t("Reviews this week")} tone="accent" />

@@ -57,7 +57,7 @@ export default async function TeachersPage({ searchParams }: { searchParams: Pub
         <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
           {t("These learners are invented. Nobody here is real.")}
         </p>
-        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
           <StatTile value={SAMPLE_CLASS.entries.length} label={t("Members")} tone="sky" />
           <StatTile value={SAMPLE_CLASS.activeThisWeek} label={t("Active this week")} tone="sky" />
           <StatTile value={SAMPLE_CLASS.totalReviewsThisWeek} label={t("Reviews this week")} tone="accent" />

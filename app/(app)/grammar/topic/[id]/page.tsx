@@ -4,7 +4,7 @@ import { questionReading } from "@/lib/estonian/cases";
 import { localeFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BookOpen } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { viewerId } from "@/lib/auth/session";
 import { PublicReference, referenceHref } from "@/components/grammar/PublicReference";
 import { resolvePublicLocale, shareCard } from "@/lib/progress/publicLocale";
@@ -13,7 +13,7 @@ import { grammarTerm } from "@/lib/estonian/terms";
 import { SYLLABUS } from "@/lib/collections/syllabus";
 import { courseLevelFor } from "@/lib/progress/level";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
-import { Card, Chip, Page, SectionTitle, Stack } from "@/components/ui";
+import { BackLink, Card, Chip, Page, SectionTitle, Stack } from "@/components/ui";
 import { WatchOut } from "@/components/RuleNote";
 import { DrillLink } from "@/components/DrillLink";
 import { PointExamples } from "@/components/grammar/PointExamples";
@@ -218,9 +218,7 @@ export default async function TopicPage({
       title={t(topic.title)}
       lead={t(topic.summary)}
       actions={inModule ? undefined : (
-        <Link href={go("/grammar")} className="flex items-center gap-1.5 text-sm" style={{ color: "var(--accent-deep)" }}>
-          <ArrowLeft size={14} aria-hidden /> {t("All grammar")}
-        </Link>
+        <BackLink href={go("/grammar")}>{t("All grammar")}</BackLink>
       )}
     >
       <Stack>

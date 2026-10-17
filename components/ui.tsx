@@ -1,5 +1,5 @@
 import { type CSSProperties, type ReactNode } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Mascot } from "@/components/brand";
 import { FitText } from "@/components/FitText";
 import { RollNumber } from "@/components/motion/RollNumber";
@@ -505,6 +505,29 @@ export function CardLink({ href, children, icon, className = "" }: {
       {icon}
       {children}
       <ArrowRight size={13} aria-hidden />
+    </PrefetchLink>
+  );
+}
+
+/**
+ * The way back up a level, in a page's header beside its title.
+ *
+ * It was drawn three ways on pages a learner moves between in one sitting:
+ * a bordered pill on a case page, plain accent text on the topic page one
+ * press away, underlined text on another and a full secondary button on a
+ * fourth. Going back is the same gesture everywhere, so it is one shape: a
+ * quiet pill with the arrow leading, which reads as a control rather than a
+ * sentence and never competes with the page's one loud action.
+ */
+export function BackLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <PrefetchLink
+      href={href}
+      className="press inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
+      style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
+    >
+      <ArrowLeft size={14} aria-hidden />
+      {children}
     </PrefetchLink>
   );
 }
