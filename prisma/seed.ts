@@ -203,21 +203,19 @@ async function main() {
     console.log(`Took the band off ${unbanded} words a model suggested and nobody has checked.`);
   }
 
-  /*
-    The A1 lessons' own entries: a phrase or a chunk the course harvest does
-    not head (`Tere päevast!`, `hommikul`), so a finished lesson has a card to
-    hand the deck for it (lib/course/lessonHeads.ts). Before the early return,
-    because the deploy runs `--only-if-empty` and an existing deployment needs
-    these as much as a new one. Added and never updated: a hand edit or a
-    learner's correction to one wins over the lesson's English.
-  */
-  const lessonAdded = await writeLessonEntries(prisma);
-  if (lessonAdded > 0) console.log(`Added ${lessonAdded} entries the A1 lessons teach.`);
-
   if (process.argv.includes("--only-if-empty")) {
     const existing = await prisma.lexeme.count();
     if (existing > 0) {
       console.log(`Dictionary already has ${existing} entries. Leaving it alone.`);
+      /*
+        The A1 lessons' own entries, which an existing deployment needs as much
+        as a new one: a phrase or a chunk the course harvest does not head
+        (`Tere päevast!`, `hommikul`), so a finished lesson has a card to hand
+        the deck for it (lib/course/lessonHeads.ts). Here rather than above the
+        check, because written first on an empty database they made it look
+        seeded and the dictionary itself was never written.
+      */
+      await reportLessonEntries(prisma);
       await clearDuplicatedNotes(prisma);
       await clearPinnedNotes(prisma);
       return;
@@ -390,8 +388,16 @@ async function main() {
     console.log(`Added ${expanded.added} entries and ${expanded.forms} forms from Ekilex and Wiktionary.`);
   }
 
+  /* The A1 lessons' own entries, last, so they never stand beside one the dictionary already heads. */
+  await reportLessonEntries(prisma);
+
   await clearDuplicatedNotes(prisma);
   await clearPinnedNotes(prisma);
+}
+
+async function reportLessonEntries(client: PrismaClient): Promise<void> {
+  const added = await writeLessonEntries(client);
+  if (added > 0) console.log(`Added ${added} entries the A1 lessons teach.`);
 }
 
 /**
