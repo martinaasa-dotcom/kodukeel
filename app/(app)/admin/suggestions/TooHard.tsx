@@ -41,7 +41,7 @@ export function TooHard({ words, locale }: { words: readonly HardWordReading[]; 
             className="flex flex-wrap items-center gap-2 rounded-[var(--r)] border px-3 py-2"
             style={{ borderColor: "var(--rule-soft)", background: "var(--surface)" }}
           >
-            <span lang="et" className="min-w-0 flex-1 text-base font-semibold" style={{ color: "var(--ink)" }}>
+            <span lang="et" className="min-w-0 flex-1 basis-32 text-base font-semibold" style={{ color: "var(--ink)" }}>
               {word.lemma}
             </span>
             {word.cefr && <Chip tone="sky">{word.cefr}</Chip>}
