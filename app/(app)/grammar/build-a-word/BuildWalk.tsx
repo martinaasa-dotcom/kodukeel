@@ -242,7 +242,7 @@ function ActRail({ act, furthest, onGo }: {
               onClick={() => onGo(n)}
               data-on={on ? "" : undefined}
               data-state={on ? "here" : done ? "done" : "ahead"}
-              className="choice-btn choice-card flex min-w-0 flex-col items-start gap-1 rounded-[var(--r-lg)] px-4 py-3 text-left"
+              className="choice-btn choice-card flex min-w-0 flex-col items-start gap-1 rounded-[var(--r-lg)] border px-4 py-3 text-left"
             >
               <span className="flex items-center gap-2">
                 <span
@@ -326,7 +326,7 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
                 aria-checked={n === at}
                 onClick={() => setAt(n)}
                 data-on={n === at ? "" : undefined}
-                className={`choice-btn choice-card flex min-w-0 flex-col items-start gap-1 rounded-[var(--r-lg)] px-4 py-3 text-left @lg:row-span-3 @lg:grid @lg:grid-rows-subgrid @lg:justify-items-start ${isStem ? "stem-row" : ""}`}
+                className={`choice-btn choice-card flex min-w-0 flex-col items-start gap-1 rounded-[var(--r-lg)] border px-4 py-3 text-left @lg:row-span-3 @lg:grid @lg:grid-rows-subgrid @lg:justify-items-start ${isStem ? "stem-row" : ""}`}
               >
                 <span className="flex w-full items-baseline justify-between gap-2">
                   <span className="text-xs" style={{ color: "var(--ink-3)" }}>
