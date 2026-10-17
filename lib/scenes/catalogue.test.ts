@@ -823,7 +823,7 @@ describe("tonight's chat, the new kind", () => {
   const gloss = new Map(HARVESTED.map((w) => [w.lemma, w.gloss.split(/[,;]/)[0]!.trim()]));
   const known = new Set(HARVESTED.map((w) => w.lemma));
   const chats = PROGRAMMES.flatMap((programme) => programme.days
-    .filter((day) => newWordsIn(day) >= CHAT_MIN_NEW)
+    .filter((day) => !day.lesson && newWordsIn(day) >= CHAT_MIN_NEW)
     .map((day) => {
       const words = chatWords(day.words.map((lemma) => ({ lemma, gloss: gloss.get(lemma) ?? "" })), new Set(), (l) => known.has(l));
       return words.length === 0 ? null : chatScene(

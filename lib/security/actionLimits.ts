@@ -60,6 +60,8 @@ export const ACTION_LIMITS = {
    * is still a handful of presses a minute at most.
    */
   startCourseDay: { perMinute: 12 },
+  /** A lesson's words into the deck and its evening ticked, the same bulk build. */
+  finishLesson: { perMinute: 12 },
   /**
    * First run's deck, which is up to `MAX_STARTER_UNITS` units in one build and
    * a dozen settings written beside it.

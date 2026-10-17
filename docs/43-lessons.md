@@ -281,7 +281,7 @@ Each phase is its own pull request or several, and none starts before the one ab
 - **P0. This page.** The operator approves section 4 and decides section 6.
 - **P1. The lesson engine. Built:** `lib/course/lessons/` (the types, the ledger and its check,
   the practice and review built from it, lessons 1 to 8) and the six steps at `/course/lessons`,
-  for reviewers only until A1 is whole (L6), recording nothing. Three things were settled in the
+  for reviewers only until A1 was whole (L6), recording nothing (P3 since made them the course). Three things were settled in the
   building. A typed evening skips saying the conversation along, since copying out lines you can
   see practises nothing, and goes straight to the questions. Say it marks nothing: the answers are
   the learner's own name and country, so what was heard goes in the box and one way to say it is
@@ -377,7 +377,22 @@ Each phase is its own pull request or several, and none starts before the one ab
   choose there: `Väga hästi` after news, a coat called small rather than offered in small, `Head
   isu!` about a party on Saturday, and a 112 operator asking the doctor's `Mis teil viga on?`
   where they ask `Mis on juhtunud?`.
-- **P3. The switch.** Learners placed per L4, the old A1 parts retired, `course.test.ts` and the
+- **P3. The switch. Built, 2026-10-17:** A1 is the 61 lessons and nothing else.
+  `lib/course/lessonCourse.ts` turns each lesson into one evening of the course (`a1.1` to `a1.8`,
+  one part per lesson part) with one step, the lesson, which the learner finishes; finishing it
+  ticks the evening and hands the lesson's words to the deck (`finishLesson`). The old A1 parts and
+  their rotation are gone, the A1 units stay as the dictionary's request list and as what A2 builds
+  on (`teachLessons` seeds the builder's ledger with every lesson's words and pages before A2's
+  first evening), and a link to an A1 unit lands on the lessons. **L4 was not needed**: nobody was
+  on the old A1 yet, so the operator's call was to break it rather than place anybody, and day ids
+  of the old A1 were dropped rather than mapped. A beginner's first run builds no starter deck,
+  since the first lesson hands the deck its words. Every lesson item has a card behind it
+  (`lib/course/lessonHeads.ts`): a headword where the dictionary has one and the headword has
+  been taught, and otherwise an entry of the lesson's own, glossed with its English, which the
+  seed writes before its early return so a deploy adds it. The lessons' own English is machine
+  translated into Russian and Ukrainian (`lib/copy/i18n/areas/lessonText.ts`), which closes the
+  language gap below until somebody fluent reads it.
+  As first written it said: learners placed per L4, the old A1 parts retired, `course.test.ts` and the
   browser suites (`test-module.mjs`) rewritten for lessons. **And the lessons' own English in
   Russian and Ukrainian**, which nothing yet translates: the screens around a lesson are in
   `lib/copy/i18n/areas/lessons.ts`, and a lesson's title, goal, rules and the English under its

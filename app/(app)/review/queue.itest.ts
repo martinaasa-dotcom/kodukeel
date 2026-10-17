@@ -92,7 +92,8 @@ describe("reviewQueue", () => {
   the scheduler's, and waits on Review.
 */
 describe("the module's closing round", () => {
-  const programme = PROGRAMMES[0]!;
+  /* A1 is the lessons, one step an evening (docs/43-lessons.md, P3); these readings are about an evening of units. */
+  const programme = PROGRAMMES.find((p) => !p.days.some((d) => d.lesson))!;
   const [one, two] = [programme.days[0]!, programme.days[1]!];
 
   async function production(lemma: string, due: Date) {

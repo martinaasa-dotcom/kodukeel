@@ -56,13 +56,15 @@ import { modeAt } from "@/lib/ux/modes";
  *   game    a round that is mostly fun and asks them sideways
  *   talk    a conversation, where the words are used on somebody
  *   review  the closing round over everything due, which is the reinforcement
+ *   lesson  one A1 lesson, whole: its six steps run on their own screen
+ *           (`/course/lessons/<id>`), and finishing it is the evening
  *
  * `drill` and `game` differ in nothing the code reads and a great deal the
  * learner reads: a day that is four drills long is homework, and a day whose
  * middle is a game is an evening. Keeping them apart is what lets
  * `course.test.ts` assert that no day is all of one.
  */
-export type StepKind = "meet" | "read" | "drill" | "game" | "talk" | "review";
+export type StepKind = "meet" | "read" | "drill" | "game" | "talk" | "review" | "lesson";
 
 /**
  * One thing a day does, named once and picked by key.
@@ -275,6 +277,20 @@ export interface DaySpec {
    * card asks a verb's past only after the evening that showed it.
    */
   forms?: readonly string[];
+  /**
+   * The lesson this evening is, where it is one (docs/43-lessons.md): A1 is
+   * the lessons now, one evening each, and a lesson evening has one step,
+   * the lesson, rather than the ladder, a reading and two rounds.
+   */
+  lesson?: string;
+  /**
+   * The case pages a lesson explains, by key, beyond `grammarCase`. A lesson
+   * may explain more than one ending in an evening (`kus`, `kuhu` and `kust`
+   * together), and what it explains is what may be asked afterwards.
+   */
+  cases?: readonly string[];
+  /** The topic pages a lesson explains, by id, beyond `grammar`. */
+  topics?: readonly string[];
 }
 
 /** A step, resolved: what it is called, where it goes, and who proves it. */
@@ -355,6 +371,8 @@ export const READ_STEP = "read";
 export const TALK_STEP = "talk";
 export const REVIEW_STEP = "review";
 export const FORMS_STEP = "forms";
+/** A lesson evening's one step: the lesson, on its own screen. */
+export const LESSON_STEP = "lesson";
 
 /**
  * How many words a day teaches, at most.

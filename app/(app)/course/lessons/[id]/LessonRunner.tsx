@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { RuleNote } from "@/components/RuleNote";
@@ -11,6 +11,9 @@ import { Card, Chip, Page, SectionTitle, Stack } from "@/components/ui";
 import { fill } from "@/lib/copy/locale";
 import type { LessonSpec, PracticeItem, Taught } from "@/lib/course/lessons";
 import { lessonLabel } from "@/lib/course/lessons/label";
+import { finishLesson } from "@/app/actions";
+import { useModuleFocus, useModuleNext } from "@/components/course/moduleFocus";
+import { NOT_REACHED } from "@/lib/copy/values";
 import { Quiz } from "./Quiz";
 import { SayIt } from "./SayIt";
 
@@ -32,6 +35,11 @@ import { SayIt } from "./SayIt";
  * reader reads out, and brings it to the top of the window, because a step is
  * taller than a phone and arriving halfway down the next one is how a press
  * reads as broken.
+ *
+ * "Finish the lesson" is the press that records it (`finishLesson`): the
+ * evening is ticked and the lesson's words go into the deck, so Review repeats
+ * them. Opened from today's module, the way on from the finished lesson is the
+ * module's own; opened from the list of lessons, it is the next lesson.
  */
 const STEPS = ["listen", "words", "how", "practise", "say", "review"] as const;
 type Step = (typeof STEPS)[number];
@@ -58,9 +66,14 @@ export function LessonRunner({ lesson, practice, review, next, scene }: {
 }) {
   const t = useT();
   const locale = useLocale();
+  const focus = useModuleFocus();
+  const moduleNext = useModuleNext();
   const [at, setAt] = useState(0);
   const [finished, setFinished] = useState<ReadonlySet<Step>>(new Set());
   const [over, setOver] = useState(false);
+  /* Whether the finished lesson reached the server: null until it has been tried. */
+  const [saved, setSaved] = useState<boolean | null>(null);
+  const [saving, startSaving] = useTransition();
   const heading = useRef<HTMLHeadingElement>(null);
   const moved = useRef(false);
   const step = STEPS[at]!;
@@ -72,10 +85,16 @@ export function LessonRunner({ lesson, practice, review, next, scene }: {
   }, [at, over]);
 
   const finish = (s: Step) => setFinished((prev) => new Set(prev).add(s));
+  const save = () => startSaving(async () => {
+    const result = await finishLesson(lesson.id).catch(() => null);
+    setSaved(Boolean(result?.ok));
+  });
   const go = (n: number) => {
     moved.current = true;
-    if (n >= STEPS.length) setOver(true);
-    else setAt(n);
+    if (n >= STEPS.length) {
+      setOver(true);
+      save();
+    } else setAt(n);
   };
   const done = !ASKS.has(step) || finished.has(step) || (step === "review" && review.length === 0);
 
@@ -89,12 +108,24 @@ export function LessonRunner({ lesson, practice, review, next, scene }: {
             </h2>
             <p className="mt-3 label-xs" style={{ color: "var(--ink-3)" }}>{t("What you can do now")}</p>
             <p className="mt-1 text-md" style={{ color: "var(--ink)" }}><LessonText text={lesson.goal} locale={locale} /></p>
+            {saved === false && !saving && (
+              <div className="mt-4 flex flex-wrap items-center gap-3" role="status">
+                <p className="text-base" style={{ color: "var(--again-ink)" }}>{t(NOT_REACHED)}</p>
+                <Button variant="secondary" size="sm" onClick={save}>{t("Try again")}</Button>
+              </div>
+            )}
             <div className="mt-5 flex flex-wrap items-center gap-3">
-              <ButtonLink href="/course/lessons">{t("All lessons")}</ButtonLink>
-              {next && (
-                <ButtonLink variant="primary" href={`/course/lessons/${next.id}`}>
-                  {t("Next:")} <LessonText text={next.title} locale={locale} /> <ArrowRight size={15} aria-hidden />
-                </ButtonLink>
+              {focus && moduleNext ? (
+                moduleNext
+              ) : (
+                <>
+                  <ButtonLink href="/course/lessons">{t("All lessons")}</ButtonLink>
+                  {next && (
+                    <ButtonLink variant="primary" href={`/course/lessons/${next.id}`}>
+                      {t("Next:")} <LessonText text={next.title} locale={locale} /> <ArrowRight size={15} aria-hidden />
+                    </ButtonLink>
+                  )}
+                </>
               )}
             </div>
           </section>

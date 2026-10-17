@@ -152,7 +152,7 @@ for (const width of [320, ...PHONES]) {
 //      still a phone somebody owns and a word broken there is the same fault.
 const WORD_SPLIT = [
   ...["/progress", "/progress/readiness", "/grammar", "/grammar/cases", "/quest", "/settings", "/admin/suggestions",
-    "/exam", "/learn", "/learn/kodu", "/situations", "/course", "/grammar/build-a-word", "/welcome"]
+    "/exam", "/learn", "/learn/loodus", "/situations", "/course", "/grammar/build-a-word", "/welcome"]
     .flatMap((path) => [[320, path], [360, path], [768, path]]),
   [1280, "/welcome"],
 ];
@@ -318,7 +318,7 @@ for (const width of PHONES) {
   draws them. It is held to 44px tall and excused only its width.
 */
 const FILL = {
-  "[unitId]": "kodu", "[situationId]": "sook-ja-jook", "[level]": "A1", "[caseKey]": "partitive",
+  "[unitId]": "loodus", "[situationId]": "sook-ja-jook", "[level]": "A1", "[caseKey]": "partitive",
   "[kind]": "stem", "[group]": "noun", "[id]": null,
 };
 const ROUTE_ID = { "/grammar/topic/[id]": "/grammar/topic/object", "/situations/[id]": "/situations/arsti-aeg" };
@@ -411,7 +411,7 @@ for (const path of TARGET_ROUTES) {
 // 6b — Nothing important is squeezed into a sliver.
 //      A block of prose narrower than about fifteen characters is not a layout
 //      choice, it is a flex row that should have wrapped and did not.
-for (const path of ["/learn", "/learn/kodu", "/learn/kodu/lesson"]) {
+for (const path of ["/learn", "/learn/loodus", "/learn/loodus/lesson"]) {
   const { ctx, page } = await open(390, 844, path);
   const slivers = await page.evaluate(() =>
     [...document.querySelectorAll("main p, main h1, main h2")]

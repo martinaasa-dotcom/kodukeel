@@ -534,6 +534,9 @@ async function withDerivedSteps(
   ownerId: string, programme: Programme, ticks: Ticks, day: CourseDay,
   ticked: ReadonlySet<string>, now: Date,
 ): Promise<Set<string>> {
+  /* A lesson evening has neither derived step: its one step is the lesson,
+     ticked when the lesson ends, so there is nothing for the log to prove. */
+  if (!day.steps.some((step) => DERIVED_STEPS.has(step.id))) return new Set(ticked);
   const [met, graded] = await Promise.all([
     ticked.has(MEET_STEP) ? Promise.resolve(true) : metWords(ownerId, day.words),
     ticked.has(REVIEW_STEP) ? Promise.resolve(CLOSING_REVIEW) : closingGraded(ownerId, ticks, day),
@@ -733,7 +736,11 @@ export async function courseReading(
     midnight and answers arrived since. Asked only on that path, which is two
     counts on a render that has just advanced a day.
   */
-  if (!finishedToday && lastTick && justFinished && !ticks.pressed.get(justFinished)?.has(REVIEW_STEP)) {
+  if (
+    !finishedToday && lastTick && justFinished && !ticks.pressed.get(justFinished)?.has(REVIEW_STEP)
+    // A lesson evening has no closing round: its one tick is the whole evening.
+    && Boolean(dayById(programme, justFinished)?.steps.some((s) => s.id === REVIEW_STEP))
+  ) {
     const [before, since] = await Promise.all([
       gradedBetween(ownerId, lastTick, midnight),
       gradedSince(ownerId, midnight),

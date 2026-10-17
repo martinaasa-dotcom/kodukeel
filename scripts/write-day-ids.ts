@@ -13,7 +13,7 @@ import { PROGRAMMES } from "@/lib/course/index";
 
 const out: Record<string, string> = {};
 for (const p of PROGRAMMES) {
-  for (const d of p.days) out[d.id] = `${d.unitId} ${d.part.n}/${d.part.of}`;
+  for (const d of p.days) out[d.id] = d.lesson ? `lesson ${d.lesson}` : `${d.unitId} ${d.part.n}/${d.part.of}`;
 }
 writeFileSync("lib/course/day-ids.json", `${JSON.stringify(out, null, 2)}\n`);
 console.log(`Wrote ${Object.keys(out).length} day ids.`);

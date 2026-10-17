@@ -39,9 +39,14 @@ export function chatOffered(): boolean {
  * Whether an evening is one a chat is offered after: it met at least
  * `CHAT_MIN_NEW` new words. The words still have to survive `planChat`, which
  * is the half that needs the dictionary.
+ *
+ * Never after a lesson: a lesson ends on its own Say it and, at the end of a
+ * part, its own role-play, held word by word to what the lessons taught
+ * (`lib/scenes/lessonScenes.ts`), so a chat after it would be a second
+ * conversation on the same evening.
  */
-export function chatFits(day: Pick<CourseDay, "words" | "again">): boolean {
-  return chatOffered() && newWordsIn(day) >= CHAT_MIN_NEW;
+export function chatFits(day: Pick<CourseDay, "words" | "again" | "lesson">): boolean {
+  return chatOffered() && !day.lesson && newWordsIn(day) >= CHAT_MIN_NEW;
 }
 
 /**

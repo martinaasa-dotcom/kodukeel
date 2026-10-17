@@ -10455,8 +10455,15 @@ steps (Listen, Words, How it works, Practise, Say it, Review), the first three a
 `lib/course/lessons/` is the engine and `lessonProblems` is the rule: every spelling on every screen
 of a lesson has to be in the ledger by then, a phrase covering its words only where they stand
 together, and the unit suite fails otherwise. The conversations are written and read by the native
-speaker (ADR-005 amendment 6). Lessons are at `/course/lessons` for reviewers only until A1 is whole
-(decision L6), and record nothing; the old parts stay the course until then.
+speaker (ADR-005 amendment 6). A1 is the lessons and nothing else (P3): `lib/course/lessonCourse.ts` makes each lesson one evening
+of the course with one step, finishing it ticks the evening and hands its words to the deck
+(`finishLesson`), and the builder's ledger is seeded with every lesson before A2 (`teachLessons`). The
+A1 units stay as the dictionary's request list and are no longer walked, so a link to one lands on
+`/course/lessons`, and a beginner's first run builds no starter deck. Nobody was on the old A1, so the
+switch broke it rather than placing anybody (L4 not needed). Every lesson item becomes a card of
+something the seed writes (`lessonHeads.ts`): a headword once it has been taught, or the lesson's own
+entry. The lessons' English is machine translated into Russian and Ukrainian (`areas/lessonText.ts`),
+the operator's call, until somebody fluent reads it.
 
 **A lesson's role-play is also a live scene, and it says only what that lesson has taught.**
 `lib/scenes/lessonScenes.ts` holds one scene per A1 lesson that ends in a role-play, off the situations

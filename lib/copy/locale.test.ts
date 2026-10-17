@@ -89,11 +89,29 @@ describe("the interface language", () => {
       }
     });
 
+    /*
+      Estonian in braces is the one exception, and only where it is the
+      English line's own braces copied over: a lesson writes its Estonian
+      inside English as `{aitäh}`, and a translation of that line keeps the
+      word exactly, which is not the translator writing Estonian. The same
+      holds for a letter the English line names bare ("õ, ä, ö and ü").
+    */
     it(`${locale}: writes no Estonian letter and no dash a person reads`, () => {
-      for (const out of [...Object.values(TABLES[locale]), MACHINE_NOTICE[locale], MACHINE_SHORT[locale]]) {
-        expect(out, out).not.toMatch(/[õäöüšžÕÄÖÜŠŽ]/);
+      const lines: [string, string][] = [
+        ...Object.entries(TABLES[locale]),
+        ["", MACHINE_NOTICE[locale]], ["", MACHINE_SHORT[locale]],
+      ];
+      let braced = 0;
+      for (const [en, out] of lines) {
+        const own = new Set(en.match(/\{[^}]*\}/g) ?? []);
+        const named = new Set(en.replace(/\{[^}]*\}/g, "").match(/[\p{L}]+/gu) ?? []);
+        const bare = out
+          .replace(/\{[^}]*\}/g, (span) => (own.has(span) ? (braced += 1, "") : span))
+          .replace(/[\p{L}]+/gu, (word) => (/[õäöüšžÕÄÖÜŠŽ]/.test(word) && named.has(word) ? "" : word));
+        expect(bare, out).not.toMatch(/[õäöüšžÕÄÖÜŠŽ]/);
         expect(out, out).not.toMatch(/[–—]/);
       }
+      expect(braced).toBeGreaterThan(0);
     });
 
     it(`${locale}: uses the right quotation marks, never the English ones`, () => {

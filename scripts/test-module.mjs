@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { execFileSync } from "node:child_process";
 import { launchChromium } from "./lib/browser.mjs";
 import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
@@ -60,6 +61,27 @@ const MODULE_SCREENS = [
 
 const prisma = newPrismaClient();
 await requireLocalDatabase(prisma);
+
+/*
+  THE WALK RUNS ON A PART BUILT OUT OF UNITS, AND A1 IS THE LESSONS.
+
+  An A1 evening is one step, the lesson, whose own six steps happen inside the
+  lesson screen (docs/43-lessons.md, P3), so a fixture whose learner opens on
+  A1 would hand this walk a one-step evening and nothing to walk. The learner's
+  part is pinned to the first part built out of units for the walk and put back
+  afterwards; the A1 evening is asked its own two questions at the end.
+*/
+const PROGRAMME_KEY = "programme";
+const keptProgramme = await prisma.setting.findUnique({ where: { ownerId_key: { ownerId: OWNER, key: PROGRAMME_KEY } } });
+async function pinProgramme(value) {
+  await prisma.courseStep.deleteMany({ where: { ownerId: OWNER } });
+  await prisma.setting.upsert({
+    where: { ownerId_key: { ownerId: OWNER, key: PROGRAMME_KEY } },
+    create: { ownerId: OWNER, key: PROGRAMME_KEY, value },
+    update: { value },
+  });
+}
+await pinProgramme("a2.1");
 
 /*
   THE FLOOR IS WHAT THE SHORTEST HONEST EVENING REACHES, NOT WHAT TONIGHT DID.
@@ -618,6 +640,61 @@ try {
   check("the reference outside a module keeps its rail", await page.locator('[data-chrome="rail"]').isVisible());
   check("and its drill", await page.getByText("Drill it", { exact: true }).count() === 1);
   check("and no frame is drawn over it", await page.locator(".module-step").count() === 0);
+
+  /*
+    AN A1 EVENING IS ONE LESSON.
+
+    One step on the list, opening the lesson inside the module, so the way on
+    and the evening's place are drawn round it like any other step.
+  */
+  await pinProgramme("a1.1");
+  await openModule(page);
+  const lessonSteps = await stepsOn(page);
+  check("an A1 evening lists one step, the lesson", lessonSteps.length === 1
+    && /^Lesson /.test(lessonSteps[0]?.title ?? ""), JSON.stringify(lessonSteps));
+  const lessonHref = lessonSteps[0]?.open ?? "";
+  check("which opens the lesson inside the module", /^\/course\/lessons\/[^?]+\?module=/.test(lessonHref), lessonHref);
+  if (lessonHref.startsWith("/")) {
+    await page.goto(`${B}${lessonHref}`, { waitUntil: "domcontentloaded" });
+    await page.waitForSelector("main h1", { timeout: 20_000 });
+    check("and the lesson is drawn as a step of tonight's module", await page.locator(".module-step").count() > 0);
+
+    /*
+      AND FINISHING IT FINISHES THE EVENING AND FILLS THE DECK.
+
+      Six steps, pressed through the way a learner presses them, and then the
+      two things nothing short of a browser and a database can say: the
+      evening is ticked, and every word the lesson taught has a card behind
+      it, so it comes back in Review. A fifth of A1 once had no card at all.
+    */
+    const lessonId = lessonHref.split("?")[0].split("/").at(-1);
+    const heads = JSON.parse(execFileSync("npx", ["tsx", "-e",
+      `import { LESSONS } from "./lib/course/lessons"; import { lessonHeads } from "./lib/course/lessonHeads";
+       process.stdout.write(JSON.stringify(lessonHeads(LESSONS.find((l) => l.id === ${JSON.stringify(lessonId)}))));`,
+    ], { encoding: "utf8" }));
+    const onward = page.getByRole("button", { name: /^(Continue|Skip this step|Finish the lesson)/ }).last();
+    for (let i = 0; i < 6 && (await onward.count()) > 0; i++) {
+      await onward.click();
+      await page.waitForTimeout(400);
+    }
+    await page.getByRole("heading", { name: "Lesson done" }).waitFor({ timeout: 20_000 }).catch(() => {});
+    check("pressing through all six steps ends the lesson", await page.getByRole("heading", { name: "Lesson done" }).count() === 1);
+    let ticked = 0;
+    for (let i = 0; i < 40 && ticked === 0; i++) {
+      ticked = await prisma.courseStep.count({ where: { ownerId: OWNER, programmeId: "a1.1", dayId: lessonId, stepId: "lesson" } });
+      if (ticked === 0) await page.waitForTimeout(250);
+    }
+    check("and ticks the evening it is", ticked === 1, `${ticked} tick(s) on ${lessonId}`);
+    const carded = new Set((await prisma.card.findMany({
+      where: { ownerId: OWNER, cardType: "RECOGNITION", lexeme: { lemma: { in: heads } } },
+      select: { lexeme: { select: { lemma: true } } },
+    })).map((c) => c.lexeme.lemma));
+    const cardless = heads.filter((h) => !carded.has(h));
+    check("and every word it taught has a card in the deck", heads.length > 0 && cardless.length === 0,
+      `${heads.length} taught, no card for: ${cardless.join(", ")}`);
+  } else {
+    absent(4, "the lesson step carried no address to open");
+  }
 } finally {
   /*
     THE COURSE PUT BACK WHERE IT WAS FOUND.
@@ -630,6 +707,11 @@ try {
     allowed to remove one, which is why `requireLocalDatabase` guards it.
   */
   await prisma.courseStep.deleteMany({ where: { ownerId: OWNER } });
+  if (keptProgramme) {
+    await prisma.setting.update({ where: { ownerId_key: { ownerId: OWNER, key: PROGRAMME_KEY } }, data: { value: keptProgramme.value } });
+  } else {
+    await prisma.setting.deleteMany({ where: { ownerId: OWNER, key: PROGRAMME_KEY } });
+  }
   await browser.close();
   await prisma.$disconnect();
 }

@@ -4229,7 +4229,7 @@ check("a screen built from a list of lemmas shows one entry per lemma", () => {
     the syllabus names lemmas. Every screen built from a unit's word list asked
     `where: { lemma: { in: [...unit.lemmas] } }` and rendered whatever came
     back, so a lemma with two entries appeared twice on all of them. Measured
-    with a scanned `tuba` confirmed beside the Ekilex one: `/learn/kodu` listed
+    with a scanned `tuba` confirmed beside the Ekilex one: `/learn/loodus` listed
     the word twice, its printable worksheet printed it six times, the unit
     counted more words than it teaches, the lesson planner split the duplicate
     into the sitting, `addUnitToDeck` built two sets of cards for one word (one

@@ -98,7 +98,8 @@ import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { ONE_PER_WORD, addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
 import {
-  DEFAULT_PROGRAMME, MODULE_HOME, continueHref, dayById, focusedSteps, levelHeldOnHandOff, programmeById, stepCard, stepText,
+  DEFAULT_PROGRAMME, LESSON_STEP, MODULE_HOME, continueHref, dayById, focusedSteps, lessonDayFor, levelHeldOnHandOff,
+  programmeById, stepCard, stepText,
 } from "@/lib/course";
 import { localeFor } from "@/lib/progress/locale";
 import { courseReading, dayIsInPlay, openingPart, openingPartFor, programmeFor } from "@/lib/progress/course";
@@ -4519,6 +4520,11 @@ export async function markCourseStep(programmeId: string, dayId: string, stepId:
     return { ok: false as const, error: "You haven't reached that evening of the course yet." };
   }
 
+  if (step.id === LESSON_STEP) {
+    const busy = throttleAction(ownerId, "finishLesson");
+    if (busy) return await sayRefusal(ownerId, busy);
+    await addPlanToDeck(ownerId, planLemmas(day.words, COURSE_DAY_CARDS), "COURSE");
+  }
   await prisma.courseStep.upsert({
     where: {
       ownerId_programmeId_dayId_stepId: {
@@ -4579,6 +4585,11 @@ export async function advanceCourseStep(programmeId: string, dayId: string, step
     return { ok: true as const, href: MODULE_HOME };
   }
 
+  if (step.id === LESSON_STEP) {
+    const busy = throttleAction(ownerId, "finishLesson");
+    if (busy) return await sayRefusal(ownerId, busy);
+    await addPlanToDeck(ownerId, planLemmas(day.words, COURSE_DAY_CARDS), "COURSE");
+  }
   if (!step.derived) {
     await prisma.courseStep.upsert({
       where: {
@@ -4594,6 +4605,55 @@ export async function advanceCourseStep(programmeId: string, dayId: string, step
   }
 
   return { ok: true as const, href: continueHref(programme.id, day, step.id) };
+}
+
+/**
+ * A LESSON, FINISHED: ITS EVENING TICKED AND ITS WORDS IN THE DECK.
+ *
+ * A1 is the lessons (docs/43-lessons.md, phase P3), and an evening of A1 is
+ * one lesson with one step. The lesson runs its six steps on its own screen
+ * and ends on "Finish the lesson", which is this: the step is ticked, which is
+ * what moves the course on (`dayReached`), and the lesson's words go into the
+ * deck as recognition and production, so Review and Practice repeat what the
+ * lesson taught and nothing it did not.
+ *
+ * The lesson is named by id and resolved here, so a caller cannot name an
+ * evening it is not on: a lesson ahead of the learner's evening is still a
+ * lesson they may read, and finishing it records nothing and builds nothing,
+ * since the course reaches it when the course reaches it. A learner who has
+ * turned the planned course off is not on any evening, so their deck gets the
+ * words and nothing is ticked.
+ */
+export async function finishLesson(lessonId: string) {
+  lessonId = text(lessonId);
+  const ownerId = await requireUserId();
+  const found = lessonDayFor(lessonId);
+  if (!found) return { ok: false as const, error: "That lesson isn't part of the course." };
+  const busy = throttleAction(ownerId, "finishLesson");
+  if (busy) return await sayRefusal(ownerId, busy);
+  const { programme, day } = found;
+  const [following, inPlay] = await Promise.all([
+    programmeFor(ownerId),
+    dayIsInPlay(ownerId, programme, day),
+  ]);
+  if (!inPlay && following) return { ok: true as const, recorded: false };
+
+  await addPlanToDeck(ownerId, planLemmas(day.words, COURSE_DAY_CARDS), "COURSE");
+  if (inPlay) {
+    await prisma.courseStep.upsert({
+      where: {
+        ownerId_programmeId_dayId_stepId: {
+          ownerId, programmeId: programme.id, dayId: day.id, stepId: LESSON_STEP,
+        },
+      },
+      update: {},
+      create: { ownerId, programmeId: programme.id, dayId: day.id, stepId: LESSON_STEP },
+    });
+  }
+  revalidatePath("/course");
+  revalidatePath("/");
+  revalidatePath("/words");
+  return { ok: true as const, recorded: inPlay };
 }
 
 /**

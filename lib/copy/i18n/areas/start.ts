@@ -240,6 +240,10 @@ export const START: Area = {
       "Когда выучите эти слова, сможете отрепетировать здесь именно этот разговор: вы печатаете свои реплики незнакомцу, которому что-то от вас нужно. А потом идите и поговорите по-настоящему.",
     "How you’ll practice it": "Как это отрепетировать",
     "The words, unit by unit": "Слова, раздел за разделом",
+    "Your first lesson gives you its words, and each one becomes a card you can hear read aloud. Every lesson after that adds its own.":
+      "Первый урок даст вам свои слова, и каждое станет карточкой, которую можно прослушать. Каждый следующий урок добавит свои.",
+    "That’s {cards} to answer a day, not {goal} new ones, and on a course evening they’re part of the evening. About nine in ten will be words you’ve already met, coming back just as you start to forget them. Pick the one you’d still open on a bad Wednesday.":
+      "Ответить в день нужно на {cards}, а не на {goal} новых, и в вечер курса это входит в сам вечер. Примерно девять из десяти будут словами, которые вы уже встречали: они возвращаются как раз тогда, когда вы начинаете их забывать. Выберите тот режим, который вы откроете даже в неудачную среду.",
     "That’s {cards} to answer a day, not {goal} new ones, and on a course evening they’re part of the fifteen minutes. About nine in ten will be words you’ve already met, coming back just as you start to forget them. These {deck} take roughly {weeks} to work through this way. A faster setting really does get you through them sooner, but it makes every evening longer for the next year too. Pick the one you’d still open on a bad Wednesday.":
       "Ответить в день нужно на {cards}, а не на {goal} новых, и в вечер курса это входит в те самые пятнадцать минут. Примерно девять из десяти будут словами, которые вы уже встречали: они возвращаются как раз тогда, когда вы начинаете их забывать. В таком темпе на всю колоду ({deck}) уйдёт примерно {weeks}. Более быстрый режим и правда проведёт вас по ней быстрее, но и каждый вечер весь следующий год станет длиннее. Выберите тот, который вы откроете даже в неудачную среду.",
 
@@ -532,6 +536,10 @@ export const START: Area = {
       "Коли вивчите ці слова, зможете відрепетирувати тут саме цю розмову: ви друкуєте свої репліки незнайомцю, якому щось від вас треба. А потім ідіть і поговоріть по-справжньому.",
     "How you’ll practice it": "Як це відрепетирувати",
     "The words, unit by unit": "Слова, розділ за розділом",
+    "Your first lesson gives you its words, and each one becomes a card you can hear read aloud. Every lesson after that adds its own.":
+      "Перший урок дасть вам свої слова, і кожне стане карткою, яку можна прослухати. Кожен наступний урок додасть свої.",
+    "That’s {cards} to answer a day, not {goal} new ones, and on a course evening they’re part of the evening. About nine in ten will be words you’ve already met, coming back just as you start to forget them. Pick the one you’d still open on a bad Wednesday.":
+      "Відповісти на день треба на {cards}, а не на {goal} нових, і у вечір курсу це входить у сам вечір. Приблизно дев'ять із десяти будуть словами, які ви вже зустрічали: вони повертаються саме тоді, коли ви починаєте їх забувати. Виберіть той режим, який ви відкриєте навіть у невдалу середу.",
     "That’s {cards} to answer a day, not {goal} new ones, and on a course evening they’re part of the fifteen minutes. About nine in ten will be words you’ve already met, coming back just as you start to forget them. These {deck} take roughly {weeks} to work through this way. A faster setting really does get you through them sooner, but it makes every evening longer for the next year too. Pick the one you’d still open on a bad Wednesday.":
       "Відповісти на день треба на {cards}, а не на {goal} нових, і у вечір курсу це входить у ті самі п'ятнадцять хвилин. Приблизно дев'ять із десяти будуть словами, які ви вже зустрічали: вони повертаються саме тоді, коли ви починаєте їх забувати. У такому темпі на всю колоду ({deck}) піде приблизно {weeks}. Швидший режим і справді проведе вас через неї швидше, але й кожен вечір увесь наступний рік стане довшим. Виберіть той, який ви відкриєте навіть у невдалу середу.",
 

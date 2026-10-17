@@ -335,7 +335,8 @@ export default async function TodayPage() {
     startedUnitIds: new Set(units.filter((u) => u.state === "learning").map((u) => u.unit.id)),
     placement,
   });
-  const nextUnit = nextSyllabusUnit
+  // A1 is the lessons rather than units (docs/43-lessons.md), so an A1 unit is never offered here.
+  const nextUnit = nextSyllabusUnit && nextSyllabusUnit.level !== "A1"
     ? units.find((u) => u.unit.id === nextSyllabusUnit.id)
     : undefined;
 

@@ -568,7 +568,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
     level: "A1",
     part: "a1-elad",
     kind: "lesson",
-    title: "People",
+    title: "Other people",
     goal: "Say who somebody is: a man, a woman, a boy, a girl, an uncle, an aunt.",
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
