@@ -186,3 +186,39 @@ the nearest thing to Kodukeel's situations among the four, and its own pages say
 to compare the two further. Four things about it were not on any page read and are worth a second
 look before anybody relies on this column: the prices, whether its audio is recorded people, what its
 LIVE course is, and whether it can be studied through Russian or Ukrainian.
+
+## 6. Speaking, and the general apps, read 2026-10-16
+
+The four above are ways to learn Estonian. Somebody choosing among them has usually already tried a
+general app, and the question for the fifth batch (`docs/41-fifth-batch.md`) was what those do with
+speech now that Kodukeel can hear Estonian on the device. The same rule as the rest of this page holds:
+every claim carries its source and the day it was read. **Where the source is the company's own page it
+says so; where it is a review or a directory, it says that**, because several of these claims could only
+be found second-hand and a review is one person's account.
+
+| Capability | Who offers it, and where that was read | Kodukeel before batch 5 | After batch 5 |
+|---|---|---|---|
+| Speaking an answer instead of typing it, flashcards said aloud | Duolingo, its own blog, "Covering all the bases: Duolingo's approach to speaking skills", 2026-02-09 (`blog.duolingo.com`); Langua, its own update log, "speak or type your answers" on flashcards (`support.languatalk.com`) | Typed only | VB-6, VB-8 |
+| A practice set made only of speaking | Duolingo, same blog post: the Practice tab's "lessons made entirely of speaking exercises" | The Speaking round, self-judged | VB-5 |
+| Spoken role-play in a set scenario, with goals up front and feedback at the end | Babbel Speak, its own press release, 2025-09-16 (`babbel.com/press`); Duolingo Roleplay, the same Duolingo post; Jumpspeak, by a review (`languatalk.com/blog/jumpspeak-review`) | 43 situations, typed or picked, with a debrief | VB-4 |
+| Open conversation with a character who adapts to you and remembers you | Duolingo Video Call, the same Duolingo post, and memory across calls by a review (`storylearning.com/duolingo-max-review`); Busuu Conversations, its own page, February 2026 (`busuu.com/en/languages/speak-fluently-with-busuu-conversations`); Praktika, its own App Store listing; Memrise MemBot, its own site (`memrise.com`) | None; scenes are scripted errands | VB-11, bounded to tonight's words and the gate |
+| A report after a conversation, words saved to flashcards | Langua, its own pages (`languatalk.com/ai-language-tutor`) | The debrief, Anu's note, the words reached for offered to the deck | Unchanged, plus "What we heard" in VB-4 |
+| Drills built from your own mistakes | Langua Pro, its own pages; Speak, by a directory (`toolradar.com/tools/speak`) | The daily quest from the weakest cases, the leech clinic, confusions in the log | Unchanged |
+| A pronunciation score | ELSA, Rosetta Stone TruAccent (its own page, `rosettastone.com/features/truaccent-speech-recognition`), Babbel (its own press release says it compares phoneme samples), Jumpspeak | None, by rule (ADR-018) | None, by rule. Reviews found Jumpspeak (`languatalk.com`), Babbel and ELSA (`alllanguageresources.com/elsa-speak`) passing words said wrong, which is the fault the rule exists to avoid |
+| Hands-free practice for a commute | Pimsleur, its own blog: Apple CarPlay and Android Auto, "without ever touching your phone" (`pimsleur.com/blog`) | None | VB-5's hands-free run on the phone; CarPlay is out of reach for a web app |
+| Learning from real audio or video you bring | LingQ, its own App Store listing: "turn your favorite Netflix shows, YouTube videos, Podcasts, Books and web articles" into lessons; transcription of audio by a review | The reading page takes pasted text | VB-12, transcribed on the device |
+| Vocabulary from a photo of your surroundings | Rosetta Stone Seek and Speak, its 2019 launch release (`globenewswire.com`); Praktika, its own App Store listing | The scanner reads a photographed page | VB-13, the model naming things in English and the dictionary deciding the Estonian |
+| Native-speaker video | Memrise, its own site: "48,000+ conversations between real natives" | None | None; recordings stay with the operator (section 4) |
+| Corrections from a person | Busuu Community Corrections, its own blog (`blog.busuu.com/community-corrections`) | None | None; the human teacher row stays with the operator (section 4) |
+| Sound drills and minimal pairs | Duolingo, the same blog post | Minimal pairs by ear | Pairs said aloud is parked until the operator lifts it (VB-16) |
+
+**What this changed.** Four rows that nobody had read before are gaps Kodukeel can close with what it
+already has, and batch 5 closes them: open conversation, hands-free practice, your own audio, and the
+camera. Two stay with the operator because they need people. One, the pronunciation score, is the
+clearest case on this page of a feature that would make the app look more complete and teach worse,
+and the reviews are the evidence for leaving it out.
+
+**Not read, and worth a second look before anybody relies on this section:** which languages each
+feature covers today (several pages disagree with each other), the prices, and whether any of them
+offers Estonian speech at all. Speakly's App Store listing names "pronunciation with voice recognition"
+without saying for which languages.
