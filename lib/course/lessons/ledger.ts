@@ -27,6 +27,7 @@
  */
 
 import { imperativeSingular, negativePresent, presentTense } from "@/lib/estonian/conjugate";
+import { lessonLabel } from "./label";
 import type { LessonSpec, PatternId, Taught } from "./types";
 
 /** A taught item as a learner is asked about it: a verb counts as its two spellings. */
@@ -65,7 +66,7 @@ export const NAMES: ReadonlySet<string> = new Set(["Mari", "Tom", "Jaan", "Anna"
  * The ledger is not loosened by it: a place is still taught before it is
  * shown, like any word.
  */
-export const PLACE_SPELLINGS: ReadonlySet<string> = new Set(["Eestis", "Eestist", "Ameerikast", "Ukrainast"]);
+export const PLACE_SPELLINGS: ReadonlySet<string> = new Set(["Eestis", "Eestist", "Ameerikast", "Ukrainast", "Soomest", "Rootsist", "Rootsis", "Lätist"]);
 
 export interface Ledger {
   /** Every single spelling taught, lower-cased. */
@@ -226,11 +227,23 @@ export function lessonProblems(lessons: readonly LessonSpec[]): string[] {
   const problems: string[] = [];
   let ledger = EMPTY_LEDGER;
   const ids = new Set<string>();
-  lessons.forEach((lesson, index) => {
-    const at = `Lesson ${lesson.n} (${lesson.id})`;
+  let core = 0;
+  let letter = "";
+  lessons.forEach((lesson) => {
+    const at = `Lesson ${lessonLabel(lesson)} (${lesson.id})`;
     if (ids.has(lesson.id)) problems.push(`${at}: the id is used twice`);
     ids.add(lesson.id);
-    if (lesson.n !== index + 1) problems.push(`${at}: numbered ${lesson.n} in place ${index + 1}`);
+    // Core lessons count 1, 2, 3; a vocabulary lesson takes the number before it and the next letter.
+    if (lesson.extra === undefined) {
+      core += 1;
+      letter = "";
+      if (lesson.n !== core) problems.push(`${at}: numbered ${lesson.n} where the core lessons are at ${core}`);
+    } else {
+      const want = String.fromCharCode((letter || "`").charCodeAt(0) + 1);
+      if (core === 0 || lesson.n !== core || lesson.extra !== want) problems.push(`${at}: lettered ${lessonLabel(lesson)} where ${core}${want} comes next`);
+      if (lesson.kind !== "lesson") problems.push(`${at}: a vocabulary lesson is an ordinary lesson`);
+      letter = lesson.extra;
+    }
     if (lesson.kind !== "lesson" && lesson.teaches.length > 0) {
       problems.push(`${at}: a ${lesson.kind === "checkin" ? "check-in" : "part's last lesson"} teaches nothing new, and this teaches ${lesson.teaches.length}`);
     }

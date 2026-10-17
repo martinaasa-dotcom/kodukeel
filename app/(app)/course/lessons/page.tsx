@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { requireUserId } from "@/lib/auth/session";
 import { isAdmin } from "@/lib/auth/admin";
-import { LESSON_PARTS, LESSONS } from "@/lib/course/lessons";
+import { LESSON_PARTS, LESSONS, lessonLabel } from "@/lib/course/lessons";
 import { Braced } from "@/components/Braced";
 import { LessonText } from "@/components/course/LessonText";
 import { Card, Chip, Page, SectionTitle, Stack } from "@/components/ui";
@@ -53,7 +53,7 @@ export default async function LessonsPage() {
                       <Card hover dense>
                         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                           <p className="text-lg font-bold" style={{ color: "var(--ink)" }}>
-                            {lesson.n}. <LessonText text={lesson.title} locale={locale} />
+                            {lessonLabel(lesson)}. <LessonText text={lesson.title} locale={locale} />
                           </p>
                           {lesson.kind !== "lesson" && (
                             <Chip tone="accent">{lesson.kind === "checkin" ? t("Check-in") : t("End of part")}</Chip>

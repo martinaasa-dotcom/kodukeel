@@ -44,7 +44,8 @@ describe("A1 lessons", () => {
         ...lesson.conversation.flatMap((l) => [l.en ?? "", l.stage ?? ""]),
         ...[...lesson.answers, ...(lesson.roleplay?.turns ?? [])].flatMap((p) => [p.ask?.en ?? "", p.model.en]),
       ];
-      for (const e of english) if (ESTONIAN_LETTER.test(e)) leaks.push(`${lesson.id}: ${e}`);
+      // Braced Estonian is marked as such on screen and held to the ledger; anything else is a leak.
+      for (const e of english) if (ESTONIAN_LETTER.test(e.replace(/\{[^{}]*\}/g, ""))) leaks.push(`${lesson.id}: ${e}`);
     }
     expect(leaks).toEqual([]);
   });

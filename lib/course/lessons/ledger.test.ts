@@ -68,7 +68,22 @@ describe("the check over a level", () => {
     ]);
     expect(problems.some((p) => p.includes("taught already"))).toBe(true);
     expect(problems.some((p) => p.includes("not in the cast"))).toBe(true);
-    expect(problems.some((p) => p.includes("numbered 3 in place 2"))).toBe(true);
+    expect(problems.some((p) => p.includes("numbered 3 where the core lessons are at 2"))).toBe(true);
+  });
+
+  it("letters a vocabulary lesson after the core lesson before it, and keeps the core numbers", () => {
+    const hi = { kind: "phrase", et: "Tere!", en: "Hello!" } as const;
+    const bye = { kind: "phrase", et: "Head aega!", en: "Goodbye!" } as const;
+    const ok = [
+      lesson({}),
+      lesson({ id: "t-1a", n: 1, extra: "a", teaches: [bye], conversation: [{ who: "Mari", et: "Head aega!", en: "Goodbye!" }], answers: [{ cue: "c", model: { et: "Head aega!", en: "Goodbye!" } }] }),
+      lesson({ id: "t-2", n: 2, teaches: [], kind: "checkin", roleplay: { scene: "s", turns: [] } }),
+    ];
+    expect(lessonProblems(ok)).toEqual([]);
+    const skipped = lessonProblems([lesson({ teaches: [hi] }), lesson({ id: "t-1b", n: 1, extra: "b", teaches: [bye] })]);
+    expect(skipped.some((p) => p.includes("lettered 1b where 1a comes next"))).toBe(true);
+    const first = lessonProblems([lesson({ id: "t-0a", n: 0, extra: "a" })]);
+    expect(first.some((p) => p.includes("lettered 0a"))).toBe(true);
   });
 
   it("covers a verb's persons once the present has been explained, and its no once that has", () => {

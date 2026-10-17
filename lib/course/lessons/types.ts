@@ -122,8 +122,15 @@ export type LessonKind = "lesson" | "checkin" | "partEnd";
 export interface LessonSpec {
   /** Stable, because a tick will key on it once lessons are the course. */
   readonly id: string;
-  /** Its place in the level, from 1. */
+  /** Its place in the level, from 1, counting core lessons only. */
   readonly n: number;
+  /**
+   * A vocabulary lesson's letter (section 4.9): `26a` is the first lesson
+   * of more words after lesson 26 and shares its `n`. Absent on a core
+   * lesson. A letter rather than a renumbering, so a core lesson keeps its
+   * number and every "lesson 31" in a note still points where it did.
+   */
+  readonly extra?: string;
   readonly level: Level;
   /** The part it belongs to (`PartOfLessons.id`). */
   readonly part: string;

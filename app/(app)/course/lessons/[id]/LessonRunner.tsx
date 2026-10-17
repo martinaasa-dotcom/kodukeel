@@ -10,6 +10,7 @@ import { LessonText, lessonTextLang } from "@/components/course/LessonText";
 import { Card, Chip, Page, SectionTitle, Stack } from "@/components/ui";
 import { fill } from "@/lib/copy/locale";
 import type { LessonSpec, PracticeItem, Taught } from "@/lib/course/lessons";
+import { lessonLabel } from "@/lib/course/lessons/label";
 import { Quiz } from "./Quiz";
 import { SayIt } from "./SayIt";
 
@@ -78,7 +79,7 @@ export function LessonRunner({ lesson, practice, review, next }: {
 
   if (over) {
     return (
-      <Page eyebrow={fill(t("Lesson {n}"), { n: String(lesson.n) })} title={t(lesson.title)} titleLang={lessonTextLang(lesson.title, locale)}>
+      <Page eyebrow={fill(t("Lesson {n}"), { n: lessonLabel(lesson) })} title={t(lesson.title)} titleLang={lessonTextLang(lesson.title, locale)}>
         <Stack>
           <section aria-labelledby="lesson-done">
             <h2 id="lesson-done" ref={heading} tabIndex={-1} className="text-xl font-bold" style={{ color: "var(--ink)" }}>
@@ -101,7 +102,7 @@ export function LessonRunner({ lesson, practice, review, next }: {
   }
 
   return (
-    <Page eyebrow={fill(t("Lesson {n}"), { n: String(lesson.n) })} title={t(lesson.title)} titleLang={lessonTextLang(lesson.title, locale)} lead={t(lesson.goal)} leadLang={lessonTextLang(lesson.goal, locale)}>
+    <Page eyebrow={fill(t("Lesson {n}"), { n: lessonLabel(lesson) })} title={t(lesson.title)} titleLang={lessonTextLang(lesson.title, locale)} lead={t(lesson.goal)} leadLang={lessonTextLang(lesson.goal, locale)}>
       <Stack>
         <nav aria-label={t("Tonight's steps")}>
           <ol className="flex flex-wrap gap-2" data-lesson-steps>

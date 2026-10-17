@@ -8,6 +8,7 @@ import type { LessonSpec, PartOfLessons } from "./types";
 export * from "./types";
 export * from "./ledger";
 export * from "./practice";
+export * from "./label";
 
 /** Every level's lessons, in teaching order. A2 to C1 arrive in their own phases. */
 export const LESSONS: readonly LessonSpec[] = [...A1_LESSONS];

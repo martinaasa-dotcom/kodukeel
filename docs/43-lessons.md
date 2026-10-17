@@ -239,7 +239,7 @@ not dropped. They arrive in **vocabulary lessons**, placed straight after the le
 they need: more food after lesson 26, more rooms and furniture after lesson 32, more places in town
 after lesson 34, more clothes after lesson 38, more verbs after lesson 43. A vocabulary lesson has
 the same six steps, recaps the pattern in one line, and has a conversation of its own. That brings
-A1 to about 65 lessons, against today's 150 evenings, because a lesson teaches eight to twelve
+A1 to about 65 lessons (61 as built, §7), against today's 150 evenings, because a lesson teaches eight to twelve
 items where an evening taught five.
 
 ## 5. A2 to C1, in the same shape
@@ -340,9 +340,20 @@ Each phase is its own pull request or several, and none starts before the one ab
   `lib/course/lessons/a1-abi.ts`, with the third pattern, `imperative`: the command to one person
   is the I-form without its -n, so the ledger builds `tule` and `oota` off the same rule, while
   `mine` and every polite command (`tulge`, `oodake`) are taught by name. **All 49 core A1
-  lessons are written and pass both checks.** What is left of P2 is the vocabulary lessons of
-  §4.9 and the A1 role-play scenes on the scene engine; the role-plays above are the scripted
-  questions of Say it.
+  lessons are written and pass both checks.** **Twelve vocabulary lessons (§4.9) are built** beside
+  them, each in the part of the lesson it follows: 10a the neighbouring countries, 16a people, 21a
+  how often, 26a more food, 32a the rooms of a flat, 34a places in town, 36a more describing
+  words, 38a warm clothes, 39a the weather, 43a everyday verbs, 44a special days, 47a an
+  emergency. A vocabulary lesson is lettered rather than numbered (`LessonSpec.extra`,
+  `lessonLabel`): `26a` shares lesson 26's number, so every core lesson keeps its number and every
+  "lesson 31" in a note still points where it did, and the ledger's check holds the letters in
+  order after the core lesson they follow. That makes A1 61 lessons. Measured against the old A1
+  syllabus, 366 of its words are still taught by no lesson. About half are the words a sentence
+  leans on rather than the ones it names (the conjunctions, the particles, the postpositions, the
+  `-sti` adverbs), which need the cases A2 teaches; the rest are the less common nouns of each
+  topic (`trepp`, `sadam`, `lehm`). Both are A2's first work rather than more A1 evenings, and the
+  measurement is the list to read when A2's lessons are planned. What is left of P2 is the A1 role-play scenes on the scene
+  engine; the role-plays above are the scripted questions of Say it.
 - **P3. The switch.** Learners placed per L4, the old A1 parts retired, `course.test.ts` and the
   browser suites (`test-module.mjs`) rewritten for lessons. **And the lessons' own English in
   Russian and Ukrainian**, which nothing yet translates: the screens around a lesson are in

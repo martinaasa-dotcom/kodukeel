@@ -26,7 +26,9 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
   const lesson = admin ? lessonById(id) : null;
   if (!lesson) notFound();
   const before = ledgersBefore(LESSONS).get(lesson.id)!;
-  const next = LESSONS.find((l) => l.level === lesson.level && l.n === lesson.n + 1) ?? null;
+  // The one after it in teaching order, which after lesson 26 may be 26a; never into another level.
+  const after = LESSONS[LESSONS.indexOf(lesson) + 1];
+  const next = after && after.level === lesson.level ? after : null;
   return (
     <LessonRunner
       lesson={lesson}
