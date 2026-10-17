@@ -175,6 +175,7 @@ jobs:
           EMAIL_TOKEN_SECRET: canary-EMAIL_TOKEN_SECRET-must-not-ship
           CRON_SECRET: canary-CRON_SECRET-must-not-ship
           RESEND_WEBHOOK_SECRET: canary-RESEND_WEBHOOK_SECRET-must-not-ship
+          VAPID_PRIVATE_KEY: canary-VAPID_PRIVATE_KEY-must-not-ship
           ERROR_WEBHOOK_URL: https://example.invalid/canary-ERROR_WEBHOOK_URL-must-not-ship
         run: npx next build
       - name: Grep the client bundle
@@ -377,7 +378,8 @@ jobs:
           # The paths that cross a process boundary: a photograph to a card, a
           # paper sat and marked, a report accepted into the shared
           # dictionary, a conversation played through, an evening of the
-          # module walked. Each is a loop no unit test can see the whole of.
+          # module walked, a reminder turned on and shown by the service
+          # worker. Each is a loop no unit test can see the whole of.
           - name: paper, papers and conversations
             suites: >-
               scripts/test-scan.mjs
@@ -387,6 +389,7 @@ jobs:
               scripts/test-suggestions.mjs
               scripts/test-scene.mjs
               scripts/test-module.mjs
+              scripts/test-push.mjs
 
           # The suites that write, in the order they can be run in. The
           # calendar and the deck shelves add rows and take them off again;
@@ -442,6 +445,16 @@ jobs:
           restore-keys: |
             next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
             next-${{ runner.os }}-
+      # REMINDERS ON A COMPUTER ARE ON IN EVERY SHARD (VB-10), so the panel in
+      # Settings and the push recipient on /privacy are swept by every suite
+      # that walks those pages, in both themes and all three languages, rather
+      # than only by the one suite about them. A key pair made for this run
+      # and thrown away with the runner: the public half is inlined by the
+      # build, which is why this comes before it.
+      - name: A key pair for reminders on a computer
+        run: |
+          node -e 'const k = require("web-push").generateVAPIDKeys(); console.log("NEXT_PUBLIC_VAPID_PUBLIC_KEY=" + k.publicKey); console.log("VAPID_PRIVATE_KEY=" + k.privateKey);' >> "$GITHUB_ENV"
+          echo "VAPID_SUBJECT=mailto:ci@example.invalid" >> "$GITHUB_ENV"
       - run: npm run build
       # A shell loop rather than a `wait-on` dependency: this is the only
       # place anything would wait for a port, and it is four lines.

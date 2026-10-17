@@ -145,6 +145,10 @@ async function populate(ownerId: string, lexemeId: string) {
     data: { ownerId, programmeId: "itest", dayId: "d1", stepId: "meet" },
   });
   await prisma.emailSend.create({ data: { ownerId, kind: "evening", dayKey: "2026-09-01" } });
+  // The endpoint is unique across the table, so each owner gets its own.
+  await prisma.pushSubscription.create({
+    data: { ownerId, endpoint: `https://fcm.googleapis.com/fcm/send/itest-${ownerId}`, p256dh: "p", auth: "a" },
+  });
 }
 
 let lexemeId: string;

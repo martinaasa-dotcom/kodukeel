@@ -10439,7 +10439,7 @@ shape that breaks this and it is the natural thing to write, so the invariant re
 - TypeScript `strict` plus `noUncheckedIndexedAccess`. No `any` without a comment justifying it.
 - `lib/assessment/`, `lib/collections/`, `lib/copy/`, `lib/course/`, `lib/curriculum/`,
   `lib/email/`, `lib/estonian/`, `lib/evidence/`, `lib/exam/`, `lib/funding/`, `lib/games/`, `lib/learn/`, `lib/offline/`,
-  `lib/questions/`, `lib/random/`, `lib/readiness/`, `lib/research/`, `lib/review/`, `lib/scan/`, `lib/scenes/`,
+  `lib/push/`, `lib/questions/`, `lib/random/`, `lib/readiness/`, `lib/research/`, `lib/review/`, `lib/scan/`, `lib/scenes/`,
   `lib/security/`, `lib/stats/`, `lib/time/` and `lib/ux/` stay free of React, Next.js and Prisma,
   however many imports away: pure functions, unit tested. Anything that
   needs the database lives in `lib/progress/` or a route. Asserted, because it

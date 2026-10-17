@@ -6,6 +6,7 @@ import { localeHref } from "@/lib/copy/publicLocale";
 import { resolveOperator, SUPERVISORY_AUTHORITY } from "@/lib/legal/operator";
 import { resolveRecipients, transfersOutsideEea } from "@/lib/legal/recipients";
 import { recipientIn } from "@/lib/legal/recipientCopy";
+import { pushConfigured } from "@/lib/push/config";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
 import { publicCard } from "@/lib/copy/publicCards";
 
@@ -95,6 +96,11 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
         <P>
           {rich(t("**What we have sent you.** If this installation sends email, we keep a line for each message: which kind it was and when it went, so that the next one is not a repeat and so that there is a cap on how often you hear from us. We do **not** keep the message itself, and there is no tracking pixel in any of them, so nothing anywhere records whether you opened one. Every message carries a link that switches its kind off without signing in, and Settings has the same switches. The messages you cannot switch off are the ones you asked for, like a sign-in link."))}
         </P>
+        {pushConfigured() && (
+          <P>
+            {rich(t("**Reminders on a computer.** If you turn them on in Settings, your browser gives us an address at the push service its maker runs and two keys to encrypt a reminder with, and we keep exactly those. A reminder is then booked like an email, as which kind it was and when it went, and we keep no record of whether it was shown or clicked. Turning it off in Settings, or signing out in that browser, stops it."))}
+          </P>
+        )}
         <P>
           {rich(t("**And one of them is about other people.** Whoever runs a class or a workplace group can be sent a weekly note about it. That note carries how many people practiced and how many answers they gave between them, and never a name, a figure about one person, or anybody’s mistakes. Those are on the board inside the app, where everyone who joined was told they would be. It is switched off from the group’s own page."))}
         </P>

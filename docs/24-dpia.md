@@ -62,6 +62,7 @@ not consent, and the service really does need most of this.
 | Keep tasks, calendar entries, starred words, settings | What the learner typed | 6(1)(b), contract | Each is a feature the learner asked for by using it |
 | Keep named decks, words put aside, and which steps of the course module are ticked | `Deck`, `DeckWord`, `Deferral`, `CourseStep` | 6(1)(b), contract | Each is a press the learner made. A put-aside word is also counted across learners to decide whether a word is taught one band later (`lib/progress/hard.ts`), which reads counts of people and never shows anybody's row |
 | Send the letters a learner can switch off | Email address, and `EmailSend`: which kind, which day, the provider's message id | 6(1)(b), contract | Each kind is switched off from a link in every footer (`lib/email/unsubscribe.ts`), and the daily word is off unless asked for (`DEFAULT_OFF` in `lib/email/letter.ts`). The row is the frequency cap and holds no subject and no body |
+| Remind a learner on a computer, where they asked | `PushSubscription`: the push service address of one browser and the two keys a reminder is encrypted to, and `EmailSend` with `channel` set to `push` | 6(1)(b), contract | Asked for by a press in Settings and the browser's own permission prompt, never on arrival. The same switches as the letters decide which kinds, and a kind goes as a notification or a letter on a day, never both. R17 |
 | Rate limit the routes the spending ledger does not price | `RateLimit`: a SHA-256 digest of the caller and endpoint, a window, a count | 6(1)(f), legitimate interest | Speech, the share card, the export and the restore otherwise have no limit shared across instances. §2.1 says what the digest is and is not |
 | Keep level checks and mock exam papers | The sitting, the marked paper, the composition | 6(1)(b), contract | A measurement that cannot be recomputed from the review log, and the reason for sitting one is to compare it with the next |
 | Answer a tutor question, read a photographed page | The message or image, sent to the configured AI provider | 6(1)(b), contract | The learner pressed the button that sends it. Both features are avoidable and using neither means nothing of theirs leaves |
@@ -153,6 +154,7 @@ are deleted on erasure.
 | `CourseStep` | Which steps of which evening of the planned module they ticked. The programme, the day and the step, never an answer | Until the account is deleted | Yes | Yes |
 | `Deferral` | Which words they said were too complicated, when each comes back, and how often they have said it. One row per word | Until the account is deleted | Yes | Yes |
 | `EmailSend` | One line per letter sent: the kind and the moment. Never a subject, never a body, and nothing about whether it was opened, because there is no tracking pixel | Until the account is deleted | Yes | Yes |
+| `PushSubscription` | A browser they asked to be reminded on: the push service address and the two keys a reminder is encrypted to. Nothing about the device, and nothing about whether a notification was shown or clicked | Until turned off, reported gone by the push service, or the account is deleted | Yes | Yes |
 | `Suggestion` | A report of something wrong: category, screen, what the app said, their proposal, their note, and a reviewer's decision | Until the account is deleted | Yes | Yes |
 | `Classroom` | A class or workplace group they run: name, join code, whether it is archived | Until the owner deletes their account. Archiving (`archiveClassroom` in `app/actions.ts`) stops the code working and keeps the group and its roster; there is no action that deletes a group on its own | Yes | Yes |
 | `ClassroomMember` | Which group they joined, when, and the display name they chose for it | Until they leave, or with their account, or with the group when its owner deletes their account (the relation cascades) | Yes | Yes |
@@ -160,6 +162,7 @@ are deleted on erasure.
 | `Deferral` | A word they said was too complicated: the word as it stood, its band and their level then, when it comes back, how many times they said it, the screen they were on | Until they bring the word back, which deletes the row (`undoDeferral` in `lib/progress/deferrals.ts`), or with the account. A wait that ends by itself leaves the row, stamped `wokenAt` | Yes | Yes |
 | `CourseStep` | Which steps of the course module they ticked, and when. Append-only | Until the account is deleted | Yes | Yes |
 | `EmailSend` | Append-only. One row per letter sent to them: the kind, their day, the moment, the provider's message id. Never the subject or the body, and nothing about whether it was opened | Until the account is deleted | Yes | Yes |
+| `PushSubscription` | A browser they asked to be reminded on: the address its push service gave it and the two keys a reminder is encrypted to. Nothing about the browser or the device, and nothing about whether a notification was shown or clicked | Until they turn it off, the push service reports it gone, or the account is deleted | Yes | Yes |
 | `UsageEvent` | Append-only spending ledger: which model, token counts, estimated cost, the day | The running year. See §2.3 | **No** | Yes |
 
 ### 2.3 The one export exclusion, and why
@@ -575,6 +578,28 @@ screen it is a copy of, and that is asserted in both directions.
 **Residual: low**, plus the transfer, which is R5's: the address goes to Resend in the United States
 under its standard contractual clauses, and it is named on the generated recipients list whenever
 the transport is configured.
+
+### R17. A reminder on a computer reaches the wrong screen, or the wrong service
+
+**Likelihood before: medium. Severity: low.** A notification appears on a screen somebody else may be
+looking at, a shared computer keeps a browser's subscription after its owner has gone, and the
+address a browser hands over is one this server will later post to with nobody watching, which is a
+request forged on the learner's behalf if the address is not checked.
+
+**Mitigation.** It is asked for on a press in Settings and the browser's own prompt follows that
+press only; a refusal is answered with directions and never with a second prompt. Only four kinds
+go as a notification (`PUSH_KINDS` in `lib/push/kinds.ts`), each with the reason the others stay
+letters written beside it: nothing about being away, a group or a deadline appears on a screen. The
+text is the letter's own subject and line, encrypted end to end to the browser's key (RFC 8291), so
+the push service carries what it cannot read. The address is accepted only if it is https on a host
+one of four browser makers runs as a push service (`lib/push/subscription.ts`), and checked again
+before every post. Signing out unsubscribes the browser (`lib/offline/forget.ts`), so the next
+reminder is answered gone and the row deleted; a browser shared between two accounts reminds only
+whoever turned it on last. Nothing records a notification being delivered, shown or clicked.
+
+**Residual: low**, plus the transfer: the encrypted message passes through Google, Mozilla, Apple or
+Microsoft in the United States, whichever made the learner's browser, and all four are named on the
+generated recipients list whenever the keys are set.
 
 ### Risks recorded and not separately mitigated
 

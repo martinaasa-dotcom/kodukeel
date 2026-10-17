@@ -12,6 +12,7 @@ import { caseGlossFrom, caseGlossDefaultFor } from "@/lib/estonian/caseGloss";
 import { participationFrom, researchExportConfigured } from "@/lib/research/participation";
 import { emailPrefsFrom, kindStates } from "@/lib/email/prefs";
 import { mailerConfig } from "@/lib/mailer/transport";
+import { pushConfig } from "@/lib/push/config";
 import { goalsFor, latestFor } from "@/lib/progress/assessment";
 import { levelLabel } from "@/components/assessment/PlanPanel";
 import { courseLevelFor } from "@/lib/progress/level";
@@ -31,6 +32,7 @@ import { ImportPanel } from "./ImportPanel";
 import { InstallPanel } from "./InstallPanel";
 import { CaseGlossPanel, ClassNamePanel, LetterBarPanel, ResearchPanel, ReviewModePanel, WordGlossPanel } from "./PreferencesPanel";
 import { EmailPanel } from "./EmailPanel";
+import { PushPanel } from "./PushPanel";
 import { AutoplayPanel, CurrentPaceSample, CurrentVoiceSample, FeedbackSoundsPanel, HearingPanel, SpeechPacePanel, SupportPanel, VoicePanel } from "./AudioPanel";
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { GlossAlsoPanel, GlossLanguagePanel } from "./GlossLanguagePanel";
@@ -189,6 +191,12 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     several of these are keys.
   */
   const canSend = mailerConfig() !== null;
+  /*
+    And whether it can remind anybody on a computer (VB-10). The public key is
+    handed down because the browser needs it to subscribe; it is public by
+    design, and the private half never leaves `lib/push/config.ts`.
+  */
+  const pushKey = pushConfig()?.publicKey ?? null;
 
   const researchExported = researchExportConfigured();
   const voice = voiceFrom(settings[SETTING_KEYS.ttsVoice]);
@@ -678,7 +686,9 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 }
                 reminderAt={settings[SETTING_KEYS.reminderAt] ?? null}
                 sending={canSend}
+                notifying={pushKey !== null}
               />
+              {pushKey && <PushPanel publicKey={pushKey} />}
             </Card>
           </section>
 

@@ -50,6 +50,7 @@ tested without a database (`PURE_LAYERS` in `scripts/test-invariants.ts` asserts
 | `lib/observability/` | no | Error reporting without a vendor. |
 | `lib/offline/` | pure | The offline outbox and forgetting a device. |
 | `lib/progress/` | no | Every query that reads a learner's own rows, derived on each request. |
+| `lib/push/` | pure | Reminders on a computer: which kinds, the subscription, the protocol. |
 | `lib/questions/` | pure | Distractors, hints and case choices for questions. |
 | `lib/random/` | pure | The one shuffle and the daily walk. |
 | `lib/readiness/` | pure | How ready somebody is for a situation, on three rungs. |

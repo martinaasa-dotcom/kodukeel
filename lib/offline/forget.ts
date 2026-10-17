@@ -30,8 +30,28 @@ import { deleteLocalDatabase } from "./db";
  * a word read aloud is not a secret.
  */
 export async function forgetThisDevice(): Promise<void> {
-  await Promise.all([deleteLocalDatabase(), forgetPages(), forgetSittings()]);
+  await Promise.all([deleteLocalDatabase(), forgetPages(), forgetSittings(), forgetReminders()]);
   forgetOwner();
+}
+
+/**
+ * And the reminders this browser was asked to show (VB-10).
+ *
+ * A browser's push subscription is the browser's, not the account's: left in
+ * place after a sign-out, the next person at a shared computer would be shown
+ * the last one's evening nudge. Unsubscribing here makes the address dead at
+ * the push service, so the next reminder the server tries is answered 410 and
+ * the row is deleted there, with no session needed for any of it.
+ */
+async function forgetReminders(): Promise<void> {
+  try {
+    if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
+    const registration = await navigator.serviceWorker.getRegistration();
+    const subscription = await registration?.pushManager?.getSubscription();
+    await subscription?.unsubscribe();
+  } catch {
+    // No worker, no Push API, or a browser that refused. Nothing to forget.
+  }
 }
 
 /**

@@ -1,5 +1,6 @@
 import { ekilexConfigured } from "@/lib/ekilex/client";
 import { resolveProviders } from "@/lib/tutor/provider";
+import { pushConfigured } from "@/lib/push/config";
 
 /**
  * Who this particular installation actually sends anything to, so the privacy
@@ -112,6 +113,30 @@ export function resolveRecipients(): Recipient[] {
       name: "Resend, which sends our emails",
       what: "your email address, and whatever a message to you says about your own course",
       // Resend Inc. is established in the United States.
+      eea: false,
+    });
+  }
+
+  /*
+    THE PUSH SERVICES, WHICH CARRY A REMINDER TO A COMPUTER (VB-10).
+
+    A notification reaches a browser through a service its maker runs, and
+    this deployment posts to the four `lib/push/subscription.ts` names and to
+    no other host. What they receive is a message encrypted to the browser's
+    own key, which they cannot read, sent to an address that names a browser
+    rather than a person. That is still a recipient: they learn that this
+    deployment sent that browser something, when, and how large it was.
+
+    Named whenever the keys are set rather than whenever somebody has turned
+    reminders on, for the reason the sending provider above is: a reader is
+    asking who their data could reach. Which of the four depends on the
+    learner's own browser, which is why all four are named.
+  */
+  if (pushConfigured()) {
+    recipients.push({
+      name: "The push services run by Google, Mozilla, Apple and Microsoft",
+      what: "a reminder you asked to have on a computer, encrypted so that only that browser can read it",
+      // All four companies are established in the United States.
       eea: false,
     });
   }
