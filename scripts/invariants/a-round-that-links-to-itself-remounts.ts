@@ -77,7 +77,8 @@ export default function aRoundThatLinksToItselfRemounts({ check, ALL, code }: In
   });
 
   check("a round that offers AnotherRound is drawn through BeforeYouStart or FreshRound", () => {
-    const offering = client.filter((f) => /<AnotherRound\b/.test(code(f)));
+    // RoundDone draws AnotherRound for the rounds that end on it.
+    const offering = client.filter((f) => /<(?:AnotherRound|RoundDone)\b/.test(code(f)));
     const faults = offering.filter((f) => {
       const page = f.replace(/[^/]+$/, "page.tsx");
       return !existsSync(page) || !/<(?:BeforeYouStart|FreshRound)\b/.test(code(page));

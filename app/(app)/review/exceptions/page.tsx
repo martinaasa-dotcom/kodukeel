@@ -1,3 +1,4 @@
+import { ArrowRight } from "lucide-react";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
@@ -282,6 +283,11 @@ async function FamilyChooser({ ownerId }: { ownerId: string }) {
                         {t(KIND_NOTES[kind].title)}
                       </span>
                     ))}
+                  </span>
+                  {/* The card is the press, and nothing on it said so: grey
+                      pills under a heading read as a list of facts. */}
+                  <span className="mt-auto flex items-center gap-1 pt-2 text-sm font-semibold" style={{ color: "var(--accent-deep)" }}>
+                    {t("Start")} <ArrowRight size={15} aria-hidden />
                   </span>
                 </Link>
               </li>

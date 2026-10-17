@@ -1,17 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AnotherRound } from "@/components/round/AnotherRound";
 import { useQueueGrades } from "@/components/round/useGrade";
 import { Timer, Trophy } from "lucide-react";
 import { recordMatchGrades, recordMatchTime } from "@/app/actions";
 import { useOffline } from "@/components/OfflineProvider";
 import { Button, ButtonLink } from "@/components/Button";
-import { Confetti } from "@/components/Confetti";
-import { Empty, Page, Stat } from "@/components/ui";
+import { Empty, Page } from "@/components/ui";
 import { shuffle } from "@/lib/random/shuffle";
 import { OPTION_CLASS } from "@/lib/ux/verdict";
-import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { EndSession } from "@/components/round/RoundExit";
+import { RoundDone } from "@/components/round/RoundDone";
 import { BriefingSteps } from "@/components/round/Briefing";
 import { RoundStart, RoundChip } from "@/components/round/RoundStart";
 import { useLocale, useT } from "@/components/Locale";
@@ -70,6 +69,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
   const [matched, setMatched] = useState<Set<string>>(new Set());
   const [wrong, setWrong] = useState<[string, string] | null>(null);
   const [misses, setMisses] = useState<Record<string, number>>({});
+  const [wrongTaps, setWrongTaps] = useState(0);
   const [seconds, setSeconds] = useState(0);
   const [isNewBest, setIsNewBest] = useState(false);
   /*
@@ -189,6 +189,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
     setWrong([selected.key, tile.key]);
     setSaid(t("Those two don't go together."));
     setMisses((m) => ({ ...m, [tile.cardId]: (m[tile.cardId] ?? 0) + 1, [selected.cardId]: (m[selected.cardId] ?? 0) + 1 }));
+    setWrongTaps((n) => n + 1);
     if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(50);
     window.setTimeout(() => { setWrong(null); setSelected(null); }, 450);
   };
@@ -233,34 +234,29 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
   }
 
   if (phase === "done") {
-    const missed = Object.values(misses).reduce((s, n) => s + n, 0);
+    /* Each wrong pair is one tap, though it marks both cards it touched:
+       summing the per-card misses counted every wrong tap twice. */
+    const missed = wrongTaps;
     return (
-      <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <Confetti count={40} />
-        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          {t("All matched up.")}
-        </h1>
-        <p className="mt-2 flex items-center gap-2 text-base" style={{ color: "var(--ink-2)" }}>
-          {/* A first round beats nothing, so it is the time on the board
-              rather than a record. `best` is what the page read before this
-              round, and nought means there was none. */}
-          {isNewBest && best > 0 && <Trophy size={17} aria-hidden style={{ color: "var(--hard-ink)" }} />}
+      <RoundDone
+        title={t("All matched up.")}
+        /* A first round beats nothing, so it is the time on the board rather
+           than a record. `best` is what the page read before this round, and
+           nought means there was none. */
+        line={<>
+          {isNewBest && best > 0 && <Trophy size={17} aria-hidden className="mr-1.5 inline align-[-3px]" style={{ color: "var(--hard-ink)" }} />}
           {best === 0 ? t("That's your first time on the board, and the one to beat.") : isNewBest ? t("That's a new personal best.") : fill(t("Your best so far is {n}s."), { n: best })}
-        </p>
-        <div
-          className="mt-8 grid grid-cols-3 gap-6 rounded-[var(--r-lg)] border p-6"
-          style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
-        >
-          <Stat value={fill(t("{n}s"), { n: seconds })} label={t("Time")} tone="var(--accent-deep)" />
-          <Stat value={pairs.length} label={t("Pairs")} />
-          <Stat value={missed} label={t("Wrong taps")} />
-        </div>
-        <WayOut className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/practice">{t("Try something else")}</ButtonLink>
-          <ButtonLink href="/">{t("Back to Today")}</ButtonLink>
-          <AnotherRound variant="primary">{t("Another round")}</AnotherRound>
-        </WayOut>
-      </div>
+        </>}
+        figures={[
+          { value: fill(t("{n}s"), { n: seconds }), label: t("Time") },
+          { value: pairs.length, label: t("Pairs") },
+          { value: missed, label: t("Wrong taps") },
+        ]}
+        missed={pairs
+          .filter((p) => (misses[p.cardId] ?? 0) > 0)
+          .map((p) => ({ et: p.estonian, note: p.meaning?.lead.text ?? p.english }))}
+        celebrate
+      />
     );
   }
 

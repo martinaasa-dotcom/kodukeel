@@ -3,27 +3,26 @@
 import { EnterKeyCap } from "@/components/KeyCaps";
 import { useLocale, useT } from "@/components/Locale";
 import { useFocusAnswer } from "@/components/round/useFocusAnswer";
-import { AnotherRound } from "@/components/round/AnotherRound";
 import { fill } from "@/lib/copy/locale";
 import { rich } from "@/components/round/rich";
 import { endingName, sayIn } from "@/lib/estonian/plainAsk";
 import { useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
 import { Check, CircleAlert, Loader2, PenLine } from "lucide-react";
-import { Button, ButtonLink } from "@/components/Button";
+import { Button } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
 import { hintLadder } from "@/lib/questions/hints";
 import { caseByKey } from "@/lib/estonian/cases";
-import { Chip, KeyCap, Stat } from "@/components/ui";
+import { Chip, KeyCap } from "@/components/ui";
 import { StarWord } from "@/components/StarWord";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import type { GradedSentence } from "@/lib/tutor/grader";
 import type { WithholdReason } from "@/lib/tutor/verify";
 import { VERDICT_CLASS, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH } from "@/lib/ux/advanceKey";
-import { WayOut } from "@/components/round/RoundExit";
+import { RoundDone } from "@/components/round/RoundDone";
 import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 
@@ -216,30 +215,22 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
 
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
+    const share = Math.round((correct / prompts.length) * 100);
     return (
-      <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          {t("That’s the round done")}
-        </h1>
-        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          <span lang="et">Tubli töö.</span> {t("Writing your own sentences is slower going, but it’s what gets you speaking.")}
-        </p>
-        <div
-          className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
-          style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
-        >
-          <Stat value={prompts.length} label={t("Written")} />
-          <Stat
-            value={`${Math.round((correct / prompts.length) * 100)}%`}
-            label={t("Right form")}
-          />
-          <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
-        </div>
-        <WayOut className="mt-8 flex flex-wrap gap-3">
-          <AnotherRound>{t("Another round")}</AnotherRound>
-          <ButtonLink href="/" variant="primary">{t("Back to Today")}</ButtonLink>
-        </WayOut>
-      </div>
+      <RoundDone
+        title={t("That’s the round done")}
+        /* "Tubli töö" only where the forms came out right: praise for
+           something that did not happen is seen through at once. */
+        line={<>
+          {share >= 80 && <><span lang="et">Tubli töö.</span>{" "}</>}
+          {t("Writing your own sentences is slower going, but it’s what gets you speaking.")}
+        </>}
+        figures={[
+          { value: prompts.length, label: t("Written") },
+          { value: `${share}%`, label: t("Right form") },
+          { value: fill(t("{n}m"), { n: minutes }), label: t("Time") },
+        ]}
+      />
     );
   }
 

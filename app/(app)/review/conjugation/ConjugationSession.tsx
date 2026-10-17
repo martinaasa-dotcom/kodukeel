@@ -1,7 +1,6 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
-import { AnotherRound } from "@/components/round/AnotherRound";
 import { fill } from "@/lib/copy/locale";
 import { answerNote } from "@/lib/copy/answerNote";
 import { rich } from "@/components/round/rich";
@@ -10,8 +9,8 @@ import { useGrade } from "@/components/round/useGrade";
 import { Check, Repeat } from "lucide-react";
 import { addToDeck } from "@/app/actions";
 import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
-import { Button, ButtonLink } from "@/components/Button";
-import { Chip, KeyCap, Stat } from "@/components/ui";
+import { Button } from "@/components/Button";
+import { Chip, KeyCap } from "@/components/ui";
 import { EstonianInput } from "@/components/EstonianInput";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
@@ -25,7 +24,7 @@ import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/
 import { VERB_GROUP_LABELS } from "@/lib/estonian/morph";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfCheck } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
-import { WayOut } from "@/components/round/RoundExit";
+import { RoundDone, type WorthALook } from "@/components/round/RoundDone";
 import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { FitText } from "@/components/FitText";
@@ -97,6 +96,8 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
   const [target, setTarget] = useState<number | null>(null);
   const [cellsRight, setCellsRight] = useState(0);
   const [tablesRight, setTablesRight] = useState(0);
+  /* Every form that came out wrong, as the table says it, for the last screen. */
+  const [missed, setMissed] = useState<WorthALook[]>([]);
   const [added, setAdded] = useState<string | null>(null);
   const startedAt = useRef(Date.now());
   const sound = useFeedbackSound();
@@ -249,6 +250,14 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     const clean = marks.every((m) => m.verdict === "correct");
     setCellsRight((c) => c + right);
     if (clean) setTablesRight((t) => t + 1);
+    const wrong = question.blanks.filter((_, i) => !countsAsRecalled(marks[i]!.verdict));
+    if (wrong.length > 0) {
+      setMissed((m) => [...m, ...wrong.map((b) => ({
+        et: `${b.person} ${b.answer}`,
+        lemma: question.lemma,
+        note: `${question.lemma}, ${question.translation}`,
+      }))]);
+    }
     // Climbs with the run, the way review does. See lib/audio/feedback.ts.
     run.current = clean ? run.current + 1 : 0;
     sound(clean ? "right" : "wrong", run.current);
@@ -361,28 +370,19 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     const cells = questions.reduce((n, q) => n + q.blanks.length, 0);
     const accuracy = cells ? Math.round((cellsRight / cells) * 100) : 0;
     return (
-      <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          {t("That’s the round done")}
-        </h1>
-        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          {tablesRight === questions.length
-            ? t("Every table spotless. You've got the endings down. All that's left is meeting more verbs.")
-            : t("Here's the good news: the endings are the same for every verb. What catches people out is the part they're stuck onto, so when a table goes wrong, look the verb up.")}
-        </p>
-        <div
-          className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
-          style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
-        >
-          <Stat value={`${tablesRight}/${questions.length}`} label={t("Tables")} />
-          <Stat value={`${accuracy}%`} label={t("Forms right")} />
-          <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
-        </div>
-        <WayOut className="mt-8 flex flex-wrap gap-3">
-          <AnotherRound>{t("Another round")}</AnotherRound>
-          <ButtonLink href="/" variant="primary">{t("Back to Today")}</ButtonLink>
-        </WayOut>
-      </div>
+      <RoundDone
+        title={t("That’s the round done")}
+        line={tablesRight === questions.length
+          ? t("Every table spotless. You've got the endings down. All that's left is meeting more verbs.")
+          : t("Here's the good news: the endings are the same for every verb. What catches people out is the part they're stuck onto, so when a table goes wrong, look the verb up.")}
+        figures={[
+          { value: `${tablesRight}/${questions.length}`, label: t("Tables") },
+          { value: `${accuracy}%`, label: t("Forms right") },
+          { value: fill(t("{n}m"), { n: minutes }), label: t("Time") },
+        ]}
+        missed={missed}
+        celebrate={tablesRight === questions.length}
+      />
     );
   }
 
