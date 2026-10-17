@@ -41,9 +41,20 @@ export interface CafeVoiceProps {
   readonly onMatch: (index: number) => void;
   /** A new turn began, so whatever was lit is no longer what was said. */
   readonly onListen: () => void;
+  /**
+   * The press that loaded this was a press to talk, so the first time it
+   * appears it listens, fetching the model first where it is missing,
+   * without a second press.
+   * The café draws this afresh at every step, and a later step opens the
+   * microphone only on a press of its own: the microphone is used after a
+   * press and never on arrival (D21).
+   */
+  readonly startAtOnce: boolean;
+  /** Called once the first press has been answered, so a later step does not answer it again. */
+  readonly onStarted: () => void;
 }
 
-function Listening({ picks, onMatch, onListen }: CafeVoiceProps) {
+function Listening({ picks, onMatch, onListen, startAtOnce, onStarted }: CafeVoiceProps) {
   const t = useT();
   // The step's lines as one value: the café hands a fresh array on every
   // render, and a new array is not a new step (lighting a line re-renders it).
@@ -71,8 +82,9 @@ function Listening({ picks, onMatch, onListen }: CafeVoiceProps) {
   // The press that loaded this was a press to talk: once the device has been looked at, talk, fetching the model first where it is missing.
   const started = useRef(false);
   useEffect(() => {
-    if (started.current || speech.phase === "checking") return;
+    if (!startAtOnce || started.current || speech.phase === "checking") return;
     started.current = true;
+    onStarted();
     if (speech.phase === "ready") void speech.start();
     else if (speech.phase === "needs-download" || speech.phase === "cleared") {
       void (async () => {
@@ -80,7 +92,7 @@ function Listening({ picks, onMatch, onListen }: CafeVoiceProps) {
         void speech.start();
       })();
     }
-  }, [speech]);
+  }, [speech, startAtOnce, onStarted]);
 
   // A new step is a new turn: what was said about the last one is gone.
   useEffect(() => {
@@ -108,6 +120,9 @@ function Listening({ picks, onMatch, onListen }: CafeVoiceProps) {
           <p className="min-w-0 flex-1 text-sm" style={{ color: "var(--ink-2)" }} role={said?.matched ? undefined : "status"}>
             {refused
               ? t("The microphone is blocked for this site, so picking a line is the way on.")
+              : speech.error === "too-slow"
+                // Its own cause, said as itself: trying again on the same device would end the same way.
+                ? t("This device is too slow to hear speech, so picking a line is the way on.")
               : speech.error
                 ? t("Hearing didn't work just now. Picking a line works the same.")
                 : said

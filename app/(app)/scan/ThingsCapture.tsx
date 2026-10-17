@@ -47,7 +47,10 @@ function finePointer(): boolean {
  * ungraded. The photo is never stored, which is the scanner's rule and its
  * invariant: it is shrunk on this device, read once and dropped.
  */
-export function ThingsCapture() {
+export function ThingsCapture({ active = true }: {
+  /** On screen. Hidden behind the other choice, it takes no dropped file and leaves no camera on. */
+  readonly active?: boolean;
+}) {
   const router = useRouter();
   const { online } = useOffline();
   const t = useT();
@@ -123,13 +126,28 @@ export function ThingsCapture() {
     }
   };
 
-  // A photo dragged onto the page from the desktop is the desktop's way of sharing one (D25).
+  /*
+    A photo dragged onto the page from the desktop is the desktop's way of
+    sharing one (D25). Taken while nothing else is under way; at any other
+    moment the drop is refused rather than left to the browser, whose own
+    answer is to open the picture in place of the list somebody is ticking.
+  */
+  // A camera nobody can see is a camera left on: switching to the page scanner closes it.
   useEffect(() => {
-    if (phase !== "idle") return;
+    if (!active && phase === "webcam") setPhase("idle");
+  }, [active, phase]);
+
+  useEffect(() => {
+    if (!active) return;
+    const accepts = phase === "idle";
     const files = (e: DragEvent) => Array.from(e.dataTransfer?.types ?? []).includes("Files");
     let depth = 0;
-    const enter = (e: DragEvent) => { if (files(e)) { depth += 1; setDragging(true); } };
-    const over = (e: DragEvent) => { if (files(e)) e.preventDefault(); };
+    const enter = (e: DragEvent) => { if (files(e) && accepts) { depth += 1; setDragging(true); } };
+    const over = (e: DragEvent) => {
+      if (!files(e)) return;
+      e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = accepts ? "copy" : "none";
+    };
     const leave = (e: DragEvent) => { if (files(e)) { depth = Math.max(0, depth - 1); if (depth === 0) setDragging(false); } };
     const drop = (e: DragEvent) => {
       if (!files(e)) return;
@@ -137,7 +155,7 @@ export function ThingsCapture() {
       depth = 0;
       setDragging(false);
       const file = e.dataTransfer?.files?.[0];
-      if (file) void fromFile(file);
+      if (file && accepts) void fromFile(file);
     };
     window.addEventListener("dragenter", enter);
     window.addEventListener("dragover", over);
@@ -152,7 +170,7 @@ export function ThingsCapture() {
     };
     // `fromFile` reads only setters and `read`, which are stable for this purpose.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase]);
+  }, [phase, active]);
 
   const kept = rows.filter((r) => r.keep && r.thing.entries[r.chosen]);
   const entryOf = (row: Row): ThingEntry => row.thing.entries[row.chosen]!;
@@ -262,7 +280,7 @@ export function ThingsCapture() {
             style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
           />
           <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
-            {fill(t("{n} things seen, {found} found in the dictionary."), { n: rows.length, found })}
+            {fill(t("Seen in the photo: {n}. In the dictionary: {found}."), { n: rows.length, found })}
           </p>
           {readBy && (
             <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
@@ -437,12 +455,16 @@ function ThingRow({ row, onToggle, onChoose }: {
           <span aria-hidden className="w-8 shrink-0" />
           <span className="min-w-0 flex-1">
             <span className="block text-base" style={{ color: "var(--ink-2)" }}>{row.thing.english}</span>
-            <span className="block text-sm" style={{ color: "var(--ink-3)" }}>{t("Not in the dictionary, so nothing is offered for it.")}</span>
+            <span className="block text-sm" style={{ color: "var(--ink-3)" }}>
+              {row.thing.spelledLikeAnother
+                ? t("Its Estonian word is spelled like another one, so it isn't offered here.")
+                : t("Not in the dictionary, so nothing is offered for it.")}
+            </span>
           </span>
         </div>
       )}
       {row.thing.entries.length > 1 && (
-        <div className="flex flex-wrap items-center gap-2 pb-2 sm:pl-20" role="group" aria-label={fill(t("Other words for {thing}"), { thing: row.thing.english })}>
+        <div className="flex flex-wrap items-center gap-2 pb-2 pl-20" role="group" aria-label={fill(t("Other words for {thing}"), { thing: row.thing.english })}>
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>{fill(t("{thing} can also be:"), { thing: row.thing.english })}</span>
           {row.thing.entries.map((other, i) => i === row.chosen ? null : (
             <button

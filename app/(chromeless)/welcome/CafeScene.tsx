@@ -107,6 +107,9 @@ export function CafeScene({ scenes, voiceBase = null }: {
   */
   const [CafeVoice, setCafeVoice] = useState<LoadedVoice | null>(null);
   const [loadingVoice, setLoadingVoice] = useState(false);
+  /** The press on "Say it instead" is answered once, by the first step that draws the voice. */
+  const [voiceStart, setVoiceStart] = useState(false);
+  const voiceStarted = useCallback(() => setVoiceStart(false), []);
   const [lit, setLit] = useState<number | null>(null);
   const [counting, setCounting] = useState(false);
   const sendTimer = useRef<number | null>(null);
@@ -242,6 +245,7 @@ export function CafeScene({ scenes, voiceBase = null }: {
     setLoadingVoice(true);
     try {
       const loaded = await import("./CafeVoice");
+      setVoiceStart(true);
       setCafeVoice(() => loaded.default);
     } catch {
       setError(NOT_REACHED);
@@ -265,6 +269,28 @@ export function CafeScene({ scenes, voiceBase = null }: {
     }, SEND_LIT_MS);
   }, [holdSend, reply]);
 
+  /*
+    A touch anywhere on the screen but the lit line stops its countdown and
+    leaves it lit (D20), and so does a key: the whole page rather than the café
+    alone, because somebody who scrolls away or reaches for another part of
+    the page has not agreed to have the line said for them.
+  */
+  useEffect(() => {
+    if (!counting) return;
+    const hold = (e: Event) => {
+      if (e.type === "pointerdown" && (e.target as Element | null)?.closest?.("[data-lit]")) return;
+      holdSend();
+    };
+    document.addEventListener("pointerdown", hold, true);
+    document.addEventListener("keydown", hold, true);
+    document.addEventListener("wheel", hold, { capture: true, passive: true });
+    return () => {
+      document.removeEventListener("pointerdown", hold, true);
+      document.removeEventListener("keydown", hold, true);
+      document.removeEventListener("wheel", hold, true);
+    };
+  }, [counting, holdSend]);
+
   // A new step is new lines, and nothing of the last step's may stay lit.
   useEffect(() => unlight(), [reply?.step, unlight]);
   useEffect(() => () => {
@@ -281,12 +307,6 @@ export function CafeScene({ scenes, voiceBase = null }: {
     <div
       ref={stage}
       {...reach}
-      // A touch anywhere but on the lit line stops its countdown and leaves it lit (D20).
-      onPointerDownCapture={(e) => {
-        reach.onPointerDownCapture();
-        if (counting && !(e.target as HTMLElement).closest?.("[data-lit]")) holdSend();
-      }}
-      onKeyDownCapture={() => { if (counting) holdSend(); }}
       className="cafe-stage night rounded-[var(--r-xl)] border p-4 md:p-7"
     >
       {/* What this is, and how far along it they are. */}
@@ -435,12 +455,13 @@ export function CafeScene({ scenes, voiceBase = null }: {
                 {lit !== null && (
                   <p className="sr-only" role="status">
                     {counting
-                      ? fill(t("Heard: {text}. It is said in a moment, unless you touch the screen."), { text: reply.options[lit]?.et ?? "" })
-                      : fill(t("Heard: {text}. Press it to say it."), { text: reply.options[lit]?.et ?? "" })}
+                      ? fill(t("Heard “{text}”. It’s said in a moment, unless you touch the screen."), { text: reply.options[lit]?.et ?? "" })
+                      : fill(t("Heard “{text}”. Press it to say it."), { text: reply.options[lit]?.et ?? "" })}
                   </p>
                 )}
                 {voiceBase && (CafeVoice ? (
-                  <CafeVoice modelBase={voiceBase} picks={reply.options.map((o) => o.et)} onMatch={heardPick} onListen={unlight} />
+                  <CafeVoice modelBase={voiceBase} picks={reply.options.map((o) => o.et)} onMatch={heardPick} onListen={unlight}
+                    startAtOnce={voiceStart} onStarted={voiceStarted} />
                 ) : (
                   <button type="button" onClick={() => void sayInstead()} disabled={loadingVoice}
                     className="tap-tint inline-flex items-center gap-1.5 self-start rounded-full px-3 py-2 text-sm font-semibold"

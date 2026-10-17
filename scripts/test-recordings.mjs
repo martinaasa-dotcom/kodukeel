@@ -201,7 +201,7 @@ try {
   check("a file that is not sound is said to be one", /isn.t a sound file/.test(notSound), notSound);
   await picker.setInputFiles({ name: "PTT-20261017.opus", mimeType: "audio/ogg", buffer: Buffer.from("OggS not really an ogg file at all") });
   const broken = await eventually(async () => /Ogg voice message/.test(await page.locator("section[data-recording] [role=alert]").innerText().catch(() => "")), { timeoutMs: 15_000 });
-  check("an Ogg message the browser cannot open says so, naming Safari, rather than failing silently", broken);
+  check("an Ogg message the browser cannot open says so in words, naming Safari only on Safari, rather than failing silently", broken && !/Safari/.test(await page.locator("section[data-recording] [role=alert]").innerText().catch(() => "")));
 
   // Offline: the hearing works, the dictionary is asked for once the connection is back.
   await context.setOffline(true);
@@ -243,8 +243,10 @@ try {
   check("a long transcript stays inside its box at 360 px", !contained.wide && contained.overflowing === 0, JSON.stringify(contained));
   await page.setViewportSize({ width: 1280, height: 900 });
 
-  // Dragged onto the page, which is how a desktop shares a voice message (D25).
-  await page.getByRole("button", { name: "Open another recording" }).click().catch(() => undefined);
+  // Dragged onto the page, which is how a desktop shares a voice message (D25):
+  // here onto the transcript still on screen, which it replaces in place, since
+  // a drop the page did not take is the browser navigating away to the file.
+  await article.waitFor({ timeout: 60_000 }).catch(() => undefined);
   const bytes = [...readFileSync("scripts/fixtures/speech/voice-message.wav")];
   const overlay = await page.evaluate(async (data) => {
     const transfer = new DataTransfer();
@@ -256,8 +258,9 @@ try {
     return shown;
   }, bytes);
   check("a file dragged over the page shows where to drop it", overlay);
-  const dropped = await article.waitFor({ timeout: 120_000 }).then(() => true).catch(() => false);
-  check("and a dropped recording is opened and heard", dropped);
+  const dropped = await page.locator('[data-recording] article[data-reading][aria-label*="voice.wav"]')
+    .waitFor({ timeout: 120_000 }).then(() => true).catch(() => false);
+  check("and a dropped recording is opened and heard, in place of the one on screen", dropped && new URL(page.url()).pathname === "/read");
 
   // ---- VB-13: things around me, with the model stubbed.
   prisma = newPrismaClient(requireLocalDatabase("save a page of things and take its cards away again"));

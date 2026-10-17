@@ -43,6 +43,8 @@ export const RECORDINGS: Area = {
       "Этот файл не удалось открыть как звук. Подойдёт голосовое сообщение, сохранённое как MP3, M4A, Ogg или WAV.",
     "This browser couldn't open an Ogg voice message. Safari opens them only partly: open this page in Chrome or Firefox, or save the message as MP3 or M4A.":
       "Этот браузер не смог открыть голосовое сообщение в формате Ogg. Safari открывает их лишь частично: откройте эту страницу в Chrome или Firefox или сохраните сообщение как MP3 или M4A.",
+    "This Ogg voice message couldn't be opened. It may be damaged or only partly saved. Saving it again as MP3 or M4A usually works.":
+      "Это голосовое сообщение в формате Ogg не удалось открыть. Возможно, оно повреждено или сохранено не полностью. Обычно помогает сохранить его заново как MP3 или M4A.",
     "This device is too slow to hear a recording, so it wasn't opened. Pasting the text still works.":
       "Это устройство слишком медленное, чтобы распознать запись, поэтому она не была открыта. Вставить текст по-прежнему можно.",
     "The recording couldn't be heard just now. Try it again.": "Сейчас не удалось распознать запись. Попробуйте ещё раз.",
@@ -65,8 +67,14 @@ export const RECORDINGS: Area = {
     "The dictionary needs a connection, so the words aren't underlined yet.":
       "Словарю нужно подключение, поэтому слова пока не подчёркнуты.",
     "Look the words up": "Найти слова в словаре",
+    "Still no connection. The words are here to read, and the dictionary will be when you're back online.":
+      "Подключения всё ещё нет. Слова можно читать уже сейчас, а словарь появится, когда сеть вернётся.",
+    "This browser wouldn't play that line. The words are still here to read.":
+      "Этот браузер не стал воспроизводить эту строку. Слова по-прежнему можно прочитать.",
     "The sound stayed on this device. Only the words went to the dictionary, and nothing was kept.":
       "Звук остался на этом устройстве. В словарь ушли только слова, и ничего не сохранено.",
+    "The sound stayed on this device, and so far nothing has been sent anywhere.":
+      "Звук остался на этом устройстве, и пока никуда ничего не отправлено.",
     "Open another recording": "Открыть другую запись",
 
     // The scanner: things around me.
@@ -92,7 +100,9 @@ export const RECORDINGS: Area = {
     "We saw the photo, but couldn't look its words up just now. Try it again in a moment.":
       "Фото мы рассмотрели, но сейчас не удалось найти слова в словаре. Попробуйте ещё раз чуть позже.",
     "Things from {date}": "Вещи от {date}",
-    "{n} things seen, {found} found in the dictionary.": "Увидено вещей: {n}, найдено в словаре: {found}.",
+    "Seen in the photo: {n}. In the dictionary: {found}.": "Увидено на фото: {n}. Есть в словаре: {found}.",
+    "Its Estonian word is spelled like another one, so it isn't offered here.":
+      "Эстонское слово для этого пишется так же, как другое слово, поэтому здесь оно не предлагается.",
     "Named in English by {model}. Every Estonian word here is the dictionary's own.":
       "Названо по-английски моделью {model}. Каждое эстонское слово здесь взято из словаря.",
     "Not in the dictionary, so nothing is offered for it.": "Этого нет в словаре, поэтому ничего не предлагается.",
@@ -141,6 +151,8 @@ export const RECORDINGS: Area = {
       "Цей файл не вдалося відкрити як звук. Підійде голосове повідомлення, збережене як MP3, M4A, Ogg або WAV.",
     "This browser couldn't open an Ogg voice message. Safari opens them only partly: open this page in Chrome or Firefox, or save the message as MP3 or M4A.":
       "Цей браузер не зміг відкрити голосове повідомлення у форматі Ogg. Safari відкриває їх лише частково: відкрийте цю сторінку в Chrome або Firefox чи збережіть повідомлення як MP3 або M4A.",
+    "This Ogg voice message couldn't be opened. It may be damaged or only partly saved. Saving it again as MP3 or M4A usually works.":
+      "Це голосове повідомлення у форматі Ogg не вдалося відкрити. Можливо, воно пошкоджене або збережене не повністю. Зазвичай допомагає зберегти його наново як MP3 або M4A.",
     "This device is too slow to hear a recording, so it wasn't opened. Pasting the text still works.":
       "Цей пристрій надто повільний, щоб розпізнати запис, тому його не відкрито. Вставити текст, як і раніше, можна.",
     "The recording couldn't be heard just now. Try it again.": "Зараз не вдалося розпізнати запис. Спробуйте ще раз.",
@@ -162,8 +174,14 @@ export const RECORDINGS: Area = {
     "The dictionary needs a connection, so the words aren't underlined yet.":
       "Словнику потрібне підключення, тому слова поки не підкреслені.",
     "Look the words up": "Знайти слова в словнику",
+    "Still no connection. The words are here to read, and the dictionary will be when you're back online.":
+      "Підключення досі немає. Слова можна читати вже зараз, а словник з'явиться, коли мережа повернеться.",
+    "This browser wouldn't play that line. The words are still here to read.":
+      "Цей браузер не став відтворювати цей рядок. Слова, як і раніше, можна прочитати.",
     "The sound stayed on this device. Only the words went to the dictionary, and nothing was kept.":
       "Звук залишився на цьому пристрої. До словника пішли лише слова, і нічого не збережено.",
+    "The sound stayed on this device, and so far nothing has been sent anywhere.":
+      "Звук залишився на цьому пристрої, і поки нікуди нічого не надіслано.",
     "Open another recording": "Відкрити інший запис",
 
     "What to photograph": "Що сфотографувати",
@@ -188,7 +206,9 @@ export const RECORDINGS: Area = {
     "We saw the photo, but couldn't look its words up just now. Try it again in a moment.":
       "Фото ми роздивилися, але зараз не вдалося знайти слова в словнику. Спробуйте ще раз трохи згодом.",
     "Things from {date}": "Речі від {date}",
-    "{n} things seen, {found} found in the dictionary.": "Побачено речей: {n}, знайдено в словнику: {found}.",
+    "Seen in the photo: {n}. In the dictionary: {found}.": "Побачено на фото: {n}. Є в словнику: {found}.",
+    "Its Estonian word is spelled like another one, so it isn't offered here.":
+      "Естонське слово для цього пишеться так само, як інше слово, тому тут воно не пропонується.",
     "Named in English by {model}. Every Estonian word here is the dictionary's own.":
       "Названо англійською моделлю {model}. Кожне естонське слово тут узято зі словника.",
     "Not in the dictionary, so nothing is offered for it.": "Цього немає в словнику, тому нічого не пропонується.",

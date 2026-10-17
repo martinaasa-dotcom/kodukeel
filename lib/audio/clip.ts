@@ -388,6 +388,10 @@ export function playRecording(
   const ended = (async (): Promise<PlayOutcome> => {
     let url: string | null = null;
     try {
+      // A turn first, so the press that asked is drawn as playing before the
+      // stretch takes the main thread, and a stop pressed in between is heard.
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+      if (stopped) return "played";
       const out = encodeWav16(stretch(normaliseLoudness({ rate: piece.rate, samples: padded }), speed));
       if (stopped) return "played";
       url = URL.createObjectURL(new Blob([out.buffer as ArrayBuffer], { type: "audio/wav" }));

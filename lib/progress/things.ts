@@ -54,16 +54,21 @@ export async function resolveThings(names: readonly string[]): Promise<Thing[]> 
   return names.map((english, n) => {
     const seen = new Set<string>();
     const candidates: (ThingEntry & { sense: "first" | "later" })[] = [];
+    let heldBack = false;
     for (const hit of found[n] ?? []) {
-      if (!vouched.has(hit.id) || homographs.has(hit.lemma)) continue;
+      if (!vouched.has(hit.id)) continue;
       const sense = englishMatch(english, hit.translation);
       if (!sense) continue;
+      if (homographs.has(hit.lemma)) {
+        heldBack = true;
+        continue;
+      }
       if (seen.has(hit.lemma)) continue;
       seen.add(hit.lemma);
       candidates.push({ lexemeId: hit.id, lemma: hit.lemma, translation: hit.translation, pos: hit.pos, cefr: hit.cefr, sense });
     }
     const entries = orderEntries(candidates).slice(0, ENTRIES_PER_THING);
     const picture = entries.map((e) => emojiFor(e.lemma)).find(Boolean) ?? null;
-    return { english, picture, entries };
+    return { english, picture, entries, spelledLikeAnother: entries.length === 0 && heldBack };
   });
 }
