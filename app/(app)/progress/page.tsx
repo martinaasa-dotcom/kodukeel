@@ -25,7 +25,9 @@ import { WeakestCases } from "@/components/WeakestCases";
 import { NotAutomatic } from "@/components/NotAutomatic";
 import { confusions } from "@/lib/stats/confusions";
 import { answerTimeReading } from "@/lib/stats/answerTime";
-import { spokenThisWeek } from "@/lib/stats/spoken";
+import { spokenLengthByMonth, spokenThisWeek } from "@/lib/stats/spoken";
+import { spokenTurnsFor } from "@/lib/progress/spokenTurns";
+import { DateText } from "@/components/DateText";
 import { ReadinessPanel } from "@/components/readiness/Summary";
 import { readinessPicture } from "@/lib/progress/readiness";
 import { caseReviewsFor } from "@/lib/progress/cases";
@@ -64,7 +66,7 @@ export default async function ProgressPage() {
   ]);
   const t = (english: string) => tr(locale, english);
 
-  const [summary, units, reviews, deck, caseReviews, shieldRow, readiness, outside] = await Promise.all([
+  const [summary, units, reviews, deck, caseReviews, shieldRow, readiness, outside, spokenTurns] = await Promise.all([
     dailySummary(ownerId, now, clock),
     pathWithProgress(ownerId, snapshot),
     /*
@@ -121,6 +123,9 @@ export default async function ProgressPage() {
     // Conversations reported from outside the app, which is the number the
     // readiness reading is a forecast of.
     outThere(ownerId, clock, now),
+    // The conversation turns said aloud, which the readiness picture above
+    // has already read for this render (memoised on the same arguments).
+    spokenTurnsFor(ownerId, now),
   ]);
   const shields = numberSetting(shieldRow[SETTING_KEYS.streakShields], 0);
 
@@ -158,6 +163,8 @@ export default async function ProgressPage() {
   const hour = bestStudyHour(reviews, 20, clock);
   /* What was said aloud this week, in plain ink: a count, never a verdict (SP-8). */
   const aloud = spokenThisWeek(reviews, now);
+  /* How long a spoken answer runs, month by month, in the learner's own months (VB-14). */
+  const lengths = spokenLengthByMonth(spokenTurns, (at) => clock.dayKey(at).slice(0, 7));
 
   // Vocabulary reach by CEFR: known words per level, against what the deck holds.
   const byLevel = new Map<string, { total: Set<string>; known: Set<string> }>();
@@ -249,15 +256,39 @@ export default async function ProgressPage() {
           action={<ShareProgress />}
         />
 
-        {aloud.answers > 0 && (
-          <p className="text-md" style={{ color: "var(--ink-2)" }} data-said-aloud>
-            {aloud.minutes === null
-              ? fill(t("Said aloud this week: {answers}."), { answers: countOf(locale, aloud.answers, "answer") })
-              : fill(t("Said aloud this week: {answers}, about {minutes}."), {
-                answers: countOf(locale, aloud.answers, "answer"),
-                minutes: countOf(locale, aloud.minutes, "minute"),
-              })}
-          </p>
+        {/*
+          WHAT WAS SAID ALOUD, AS ONE BLOCK. The week's count and how long a
+          spoken answer runs month by month are one subject, so they sit
+          together at the body's own rhythm rather than a section apart (VB-14).
+        */}
+        {(aloud.answers > 0 || lengths.length > 0) && (
+          <div className="flex flex-col gap-1.5 text-md" style={{ color: "var(--ink-2)" }}>
+            {aloud.answers > 0 && (
+              <p data-said-aloud>
+                {aloud.minutes === null
+                  ? fill(t("Said aloud this week: {answers}."), { answers: countOf(locale, aloud.answers, "answer") })
+                  : fill(t("Said aloud this week: {answers}, about {minutes}."), {
+                    answers: countOf(locale, aloud.answers, "answer"),
+                    minutes: countOf(locale, aloud.minutes, "minute"),
+                  })}
+              </p>
+            )}
+            {lengths.length > 0 && (
+              <p data-spoken-length>
+                {t("Words per spoken answer in conversations:")}{" "}
+                {lengths.map((month, at) => (
+                  <span key={month.month}>
+                    {at > 0 && ", "}
+                    <span className="whitespace-nowrap">
+                      {/* Mid-month at noon, so no zone on earth reads it as the month either side. */}
+                      <DateText iso={`${month.month}-15T12:00:00.000Z`} zone={clock.zone} options={{ month: "short" }} />{" "}
+                      <span className="tnum">{month.median}</span>
+                    </span>
+                  </span>
+                ))}
+              </p>
+            )}
+          </div>
         )}
 
         {/*

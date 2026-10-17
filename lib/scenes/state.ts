@@ -122,6 +122,12 @@ export interface TurnRecord {
   readonly wordsHeard?: number;
   readonly wordsChanged?: number;
   /**
+   * On that same first record: the line it answered was only heard, its words
+   * never shown (`SpokenTurn.unseen`). Evidence of following speech for the
+   * readiness rungs, counted and never scored (VB-14).
+   */
+  readonly unseen?: true;
+  /**
    * On every record of a spoken turn the learner changed before sending: what
    * was sent is not what was heard, so a grade it earns is written as typed
    * (`Review.spoken` is "said aloud and marked on what was heard", D4). Absent

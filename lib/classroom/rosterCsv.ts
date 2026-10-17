@@ -79,7 +79,7 @@ export function rosterCsv(input: RosterCsvInput): string {
     notes.push(say("This file holds what the roster shows you as the teacher. Treat it as you treat the roster."));
 
     rows.push(line([
-      say("Name"), say("Role"), say("Joined"), say("Reviews this week"), say("Streak"),
+      say("Name"), say("Role"), say("Joined"), say("Reviews this week"), say("Said aloud this week"), say("Streak"),
       say("Words known"), say("Days since last review"), say("Weakest case"),
       say("Weakest case accuracy (%)"), say("Weakest case answers"),
     ]));
@@ -90,6 +90,7 @@ export function rosterCsv(input: RosterCsvInput): string {
         say(entry.role === "TEACHER" ? "teacher" : "student"),
         isoDate(entry.joinedAt),
         entry.reviewsThisWeek,
+        entry.spokenThisWeek,
         entry.streak,
         entry.wordsKnown,
         entry.daysSinceLastReview,

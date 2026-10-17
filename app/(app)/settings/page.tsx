@@ -33,7 +33,7 @@ import { InstallPanel } from "./InstallPanel";
 import { CaseGlossPanel, ClassNamePanel, LetterBarPanel, ResearchPanel, ReviewModePanel, WordGlossPanel } from "./PreferencesPanel";
 import { EmailPanel } from "./EmailPanel";
 import { PushPanel } from "./PushPanel";
-import { AutoplayPanel, CurrentPaceSample, CurrentVoiceSample, FeedbackSoundsPanel, HearingPanel, SpeechPacePanel, SupportPanel, VoicePanel } from "./AudioPanel";
+import { AutoplayPanel, CurrentPaceSample, FeedbackSoundsPanel, HearingPanel, SpeechPacePanel, SupportPanel, VoicePanel } from "./AudioPanel";
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { GlossAlsoPanel, GlossLanguagePanel } from "./GlossLanguagePanel";
 import { InterfaceLanguagePanel } from "./InterfaceLanguagePanel";
@@ -421,9 +421,9 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <SectionTitle hint={voiceName}>{t("Voice")}</SectionTitle>
             <Card className="flex flex-col gap-5">
               <div>
-                <p className="mb-3 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
+                {/* Each voice carries its own speaker, so the sentence needs no play button of its own. */}
+                <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
                   {t("Choose who reads Estonian to you. Press the speaker to hear a voice, and a name to choose it.")}
-                  <CurrentVoiceSample />
                 </p>
                 <VoicePanel current={voice} />
                 <Explain label={t("Why change the voice")}>

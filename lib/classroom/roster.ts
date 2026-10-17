@@ -59,6 +59,12 @@ export interface RosterEntry {
   role: string;
   joinedAt: Date;
   reviewsThisWeek: number;
+  /**
+   * Of those, the answers given out loud (`Review.spoken`, VB-14). A count and
+   * nothing else, under ADR-019's rule that a class shows effort and never
+   * contents: no transcript, no heard words, nothing of what was said.
+   */
+  spokenThisWeek: number;
   streak: number;
   wordsKnown: number;
   /** Days since their last review; null if they have never reviewed. */
@@ -122,7 +128,7 @@ export async function classRoster(
       const since = historyStart.getTime();
       return (await reviewLog(ownerId))
         .filter((r) => r.reviewedAt.getTime() >= since)
-        .map(({ reviewedAt, rating, targetCase, slot }) => ({ reviewedAt, rating, targetCase, slot, ownerId }));
+        .map(({ reviewedAt, rating, targetCase, slot, spoken }) => ({ reviewedAt, rating, targetCase, slot, spoken, ownerId }));
     })).then((perMember) => perMember.flat()),
     /*
       WORDS, NOT CARDS, WHICH IS WHAT THE COLUMN SAYS.
@@ -184,9 +190,10 @@ export async function classRoster(
   const byOwner = new Map<string, {
     dates: Date[];
     weekCount: number;
+    spokenWeek: number;
     caseReviews: { targetCase: string | null; rating: number }[];
   }>();
-  for (const id of ids) byOwner.set(id, { dates: [], weekCount: 0, caseReviews: [] });
+  for (const id of ids) byOwner.set(id, { dates: [], weekCount: 0, spokenWeek: 0, caseReviews: [] });
 
   for (const review of reviews) {
     const entry = byOwner.get(review.ownerId);
@@ -194,7 +201,10 @@ export async function classRoster(
     entry.dates.push(review.reviewedAt);
     // The case asked, as every learner's own panel reads it (`caseAsked`).
     entry.caseReviews.push({ targetCase: caseAsked(review), rating: review.rating });
-    if (review.reviewedAt >= weekAgo) entry.weekCount++;
+    if (review.reviewedAt >= weekAgo) {
+      entry.weekCount++;
+      if (review.spoken) entry.spokenWeek++;
+    }
   }
 
   const entries: RosterEntry[] = members.map((member) => {
@@ -207,6 +217,7 @@ export async function classRoster(
       role: member.role,
       joinedAt: member.joinedAt,
       reviewsThisWeek: stats.weekCount,
+      spokenThisWeek: stats.spokenWeek,
       streak: computeStreak(stats.dates, now, dayClock(zoneByOwner.get(member.ownerId))),
       wordsKnown: knownByOwner.get(member.ownerId) ?? 0,
       daysSinceLastReview: daysSince(last, now, zoneByOwner.get(member.ownerId)),

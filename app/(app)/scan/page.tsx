@@ -100,7 +100,10 @@ export default async function ScanPage() {
           {scans.length === 0 ? (
             <Empty
               title={t("No pages yet")}
-              body={t("Take a photo of a vocabulary list and it'll show up here, ready to practice.")}
+              // Where the camera is not set up, "take a photo" is a press the card above has just said is not there.
+              body={configured
+                ? t("Take a photo of a vocabulary list and it'll show up here, ready to practice.")
+                : t("Once the camera is set up, a page you photograph shows up here, ready to practice.")}
             />
           ) : (
             <ul className="flex flex-col gap-2">

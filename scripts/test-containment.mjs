@@ -1104,19 +1104,32 @@ function relatives() {
     among siblings sharing a parent and a class, drawn side by side (tops
     level) and each holding more than one line of words, the first line a
     reader sees starts at the same height in all of them. Text only a screen
-    reader gets is not a line anybody sees, so it is passed over.
+    reader gets is not a line anybody sees, so it is passed over, and so is a
+    badge laid over the box (absolutely placed, like "Played 3 times" on a
+    situation's drawing): it sits on the picture rather than starting the
+    words, and read as the first line it put a played tile 164px out of step
+    with an unplayed one whose words were exactly level with it.
 
     What this does not ask is that everything under the title lines up: a
     title that wraps pushes its own description down, and that is the words
     being longer rather than the box being drawn wrong.
   */
   const misaligned = [];
+  // Whether a text's host is laid over the box: absolutely or fixedly placed, between it and the box.
+  const overlaid = (host, box) => {
+    for (let at = host; at && at !== box; at = at.parentElement) {
+      const position = getComputedStyle(at).position;
+      if (position === "absolute" || position === "fixed") return true;
+    }
+    return false;
+  };
   const seenLine = (el) => {
     const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
     for (let n = walk.nextNode(); n; n = walk.nextNode()) {
       const host = n.parentElement;
       if (!host || host.closest(".sr-only, [aria-hidden='true']")) continue;
       if (!host.checkVisibility({ opacityProperty: true, visibilityProperty: true })) continue;
+      if (overlaid(host, el)) continue;
       const i = n.textContent.search(/\S/);
       if (i < 0) continue;
       const range = document.createRange();

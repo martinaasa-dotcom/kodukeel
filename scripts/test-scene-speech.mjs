@@ -37,7 +37,7 @@ import { requireLocalDatabase } from "./lib/local-db.mjs";
  */
 const B = baseUrl();
 const OWNER = "local-single-user";
-const { check, absent, done } = suite("A conversation, said aloud", { floor: 28 });
+const { check, absent, done } = suite("A conversation, said aloud", { floor: 30 });
 const prisma = newPrismaClient(requireLocalDatabase("play a conversation by voice and read its debrief"));
 
 const CLIPS = ["kohvi-palun", "jah-see-on-koik", "kaardiga-palun", "aitah-head-aega", "tere"];
@@ -176,7 +176,7 @@ try {
 
   await open(page, "kohvikus", /^Voice and text/i);
   if ((await page.getByRole("button", { name: /Hear them first/i }).count()) === 0 && !(await page.locator("[data-hear-first]").count())) {
-    absent(28, "this server offers no speech (no model to serve): run npm run asr:fetch before the build");
+    absent(30, "this server offers no speech (no model to serve): run npm run asr:fetch before the build");
     done();
     process.exit(process.exitCode ?? 0);
   }
@@ -220,6 +220,7 @@ try {
   turns = lastTurns();
   turn = turns[turns.length - 1] ?? {};
   check("the ring sends a heard turn, marked spoken and not picked", /kohvi/i.test(turn.said ?? "") && turn.spoken && !turn.picked, JSON.stringify(turn).slice(0, 160));
+  check("with the other side's words on screen, it is not a turn answered by ear (VB-14)", turn.spoken && turn.spoken.unseen !== true, JSON.stringify(turn.spoken));
 
   // ── Matching no line ─────────────────────────────────────────────────────
   await choose(page, "radio", /^Pick a line/i);
@@ -286,6 +287,9 @@ try {
   was = await theirCount(page);
   await pressMic(page, /Say your answer/i);
   await waitForReply(page, was);
+  turns = lastTurns();
+  turn = turns[turns.length - 1] ?? {};
+  check("answered out loud to a line only heard, the turn says so for the readiness rungs (VB-14)", turn.spoken?.unseen === true, JSON.stringify(turn.spoken));
   await queue(page, "aitah-head-aega");
   const opened = await page.waitForSelector('[data-scene-mic="listening"]', { timeout: 30_000 }).then(() => true).catch(() => false);
   check("after one press, the microphone opens by itself once they have spoken", opened);

@@ -222,6 +222,20 @@ conversation turn carries its counts yet": VB-4 stores the counts on every spoke
 demo fixture holds no conversation, so the reading is held by its unit test rather than by this run.
 Tonight's chat has its reading since VB-11 (below).
 
+**VB-14 finished, 2026-10-17.** The three readings the item asked for and the first pass left
+unbuilt are built. A conversation turn said aloud records whether the line it answered was only heard,
+its words behind a press never pressed (`SpokenTurn.unseen`, set by the conversation screen and read
+off the wire as an exact `true`). Progress prints the median words per spoken answer in conversations,
+month by month in the learner's own months, once two months each hold three spoken turns. The
+readiness rungs count spoken turns to a line only heard that met their beat, by the band the run was
+played at, and ten at or above a situation's band lift its "ear" blocker the way a level check or a sat
+paper does; a check that put listening lower is outranked, since the turns are the later evidence. The
+class roster counts answers said aloud this week, a number off `Review.spoken` and nothing else, shown
+to the teacher and as a column in the roster file. The demo fixture now holds three spoken
+conversations a month apart, so `report:speech`'s edit rate reads them: **12 turns, 0 of 47 heard
+words changed**, the fixture's own figures. `scripts/test-scene-speech.mjs` asserts both halves of the
+flag in a browser: a turn with the words on screen is not one by ear, and a call heard unseen is.
+
 **What "spoken" means was tightened in the review of 2026-10-17.** The numbers round and the chant
 wrote an answer as spoken only where it was sent as heard; the answer boxes on the daily path, the
 Speaking round and a conversation wrote any box the microphone had ever filled, edited or cleared and
@@ -493,7 +507,7 @@ stops. Size is the work in one pull request: S is a day, M a few days, L a week 
 | VB-11 Tonight's chat | 3: Estonian from real life | L | Done: "Talk it over" under a finished evening that met at least three new words, on the scene chain only (`chatOffered`), one `chat` scene built at run time from the evening's words (`lib/scenes/specs/chat.ts`, `BeatSpec.elicits`), the same neighbour every time, memory derived from earlier chat runs, `report:speech` reading it, `scripts/test-chat.mjs`; one critic round at $0.0672 (section 0); ADR-025 amendment 4 |
 | VB-12 Something real to listen to | 3 | M | Done: "Or open a recording" on the reading page (`app/(app)/read/Recording.tsx`), decoded and heard on the device in pieces with a stop, glossed through `readHeard` in one request, each line played from the recording through `playRecording` in `lib/audio/clip.ts`; unsure words carry a **wavy** underline rather than the dotted one this page asked for, since dotted already means "a dictionary word"; a file dropped anywhere on the page is taken or refused and never left to the browser, Safari is named only on Safari, and offline the page says nothing has been sent; `/privacy` and DPIA R19; `scripts/test-recordings.mjs` |
 | VB-13 What is around you | 3 | M | Done: "Things around me" beside "A page of words" on the scanner, camera, webcam (video only, named in `one-microphone.ts`), file or drop, English names off the `scan` chain resolved by `lib/progress/things.ts`, other entries on the row to choose and homographs never offered (the row says the word is spelled like another rather than that the dictionary lacks it: `või` is butter and "or"), saved as a scan, "Say them" ungraded; switching between a page and things keeps the other's work, and a hidden camera is closed |
-| VB-14 Speaking as evidence | 4: knowing whether it works | M | Done in part: `Review.spoken` stored, exported, restored and erased, written only where what was marked is what was heard (`scripts/invariants/spoken-means-sent-as-heard.ts`), "Said aloud this week" on Progress, `npm run report:speech` run once locally (section 0); the deployment run is the operator's (section 8). Not built: the median words per spoken turn by month, a spoken turn as readiness evidence, and "spoken this week" on the class roster |
+| VB-14 Speaking as evidence | 4: knowing whether it works | M | Done: `Review.spoken` stored, exported, restored and erased, written only where what was marked is what was heard (`scripts/invariants/spoken-means-sent-as-heard.ts`); "Said aloud this week" and the median words per spoken answer in conversations by month on Progress (`spokenLengthByMonth`); a spoken turn to a line only heard (`SpokenTurn.unseen`) counted as evidence of following speech, ten at the situation's band lifting the readiness rungs' "ear" blocker (`HEARD_TURNS_FOR_EAR`); "said aloud" as a count on the class roster and its file (`scripts/invariants/a-class-sees-speech-as-a-count.ts`); `npm run report:speech` run locally (section 0). The deployment run is the operator's (section 8) |
 | VB-15 The landing café, by voice | 4 | S | Done: "Say it instead" under each step's picks, `CafeVoice` loaded by a dynamic import on the press, the model fetched on that press with no question (section 8b), `matchPick` lighting a line that is said after 2.5 s unless the screen is touched (anywhere on the page, a key or a scroll included), the café still sent a pick's id; the press is answered once, so a later step opens the microphone only on a press of its own and a "Not now" stays said; landing FAQ rewritten in three languages |
 | VB-16 Pairs, said aloud | Parked | M | Waits on the operator (D3, section 8) |
 
@@ -1110,7 +1124,7 @@ whether it helps.
   turn by month, which is the one fluency figure the log can honestly give.
 - **Readiness** (`lib/readiness/`): a spoken scene turn answered to a line that was only heard (the
   `listen` or `cold` setting, words not revealed) is evidence the learner can follow speech. That is the
-  evidence the "lead it" rung asks for, which only the level check and a sat paper supply today. Counted,
+  evidence the "lead it" rung asks for, which only the level check and a sat paper supplied before this. Counted,
   never scored, and the rung chip still prints its evidence tier.
 - **Class**: `lib/classroom/roster.ts` adds "spoken this week" to each student's effort row, a count,
   under ADR-019's rule that a class shows effort and never contents. Batch 4's conversation homework
