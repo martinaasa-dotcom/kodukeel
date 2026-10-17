@@ -1010,6 +1010,12 @@ export const TODAY: Area = {
     "Повторить карточки",
   "({cards} due, if you'd rather practice what you know)":
     "(пора повторить: {cards}, если хочется потренировать то, что уже знаете)",
+  "Review done for today":
+    "Повторение на сегодня готово",
+  "({cards} reviewed, nothing else due)":
+    "(повторено: {cards}, больше ничего не ждёт)",
+  "A few more, if you like":
+    "Ещё немного, если хочется",
   "about {minutes}":
     "около {minutes}",
   "Play a word game":
@@ -2092,6 +2098,12 @@ export const TODAY: Area = {
     "Повторити картки",
   "({cards} due, if you'd rather practice what you know)":
     "(час повторити: {cards}, якщо хочеться потренувати те, що вже знаєте)",
+  "Review done for today":
+    "Повторення на сьогодні готове",
+  "({cards} reviewed, nothing else due)":
+    "(повторено: {cards}, більше нічого не чекає)",
+  "A few more, if you like":
+    "Ще трохи, якщо хочеться",
   "about {minutes}":
     "близько {minutes}",
   "Play a word game":
