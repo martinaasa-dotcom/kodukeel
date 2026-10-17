@@ -315,7 +315,12 @@ Each phase is its own pull request or several, and none starts before the one ab
   verb as both halves and draws tonight's wrong options nearest first, so `tulen` is asked against
   "to come" and "I go" rather than against whatever the lesson listed first. The check refused
   `Mida sa praegu teed?` on its first run, since a word in the middle pulls a chunk apart before
-  the lesson that explains it; lesson 21 keeps the phrase whole.
+  the lesson that explains it; lesson 21 keeps the phrase whole. **Part 4 (lessons 24 to 29, `{Söök ja jook}`) is
+  built**, in `lib/course/lessons/a1-sook.ts`. Lesson 25 is the first case, and it opens on what
+  the learner has already said for weeks: `{eesti keelt}`, `{kaks aastat}` and the `mida` of
+  `{Mida sa teed?}` are all the same ending, which is chunks first paying out. Lesson 26 adds
+  `{tass}` and `{klaas}` so "a cup of tea" is said the Estonian way, and lesson 27 teaches
+  `kaardiga` and `sularahas` as chunks, ahead of the `-ga` lesson in part 5.
 - **P3. The switch.** Learners placed per L4, the old A1 parts retired, `course.test.ts` and the
   browser suites (`test-module.mjs`) rewritten for lessons. **And the lessons' own English in
   Russian and Ukrainian**, which nothing yet translates: the screens around a lesson are in
