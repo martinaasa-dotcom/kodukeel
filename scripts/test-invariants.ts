@@ -344,7 +344,7 @@ function chainTo(start: string, target: string): string | null {
  */
 const PURE_LAYERS = [
   "assessment", "collections", "copy", "course", "curriculum", "email", "estonian", "evidence", "exam", "funding", "games",
-  "learn", "offline", "questions", "random", "readiness", "research", "review", "scan", "scenes", "security",
+  "learn", "offline", "push", "questions", "random", "readiness", "research", "review", "scan", "scenes", "security",
   "speech", "stats", "time", "ux",
 ] as const;
 
@@ -504,11 +504,19 @@ check("a mock paper is rebuilt the same way it was sat, and every figure on the 
 
 check("no secret carries a NEXT_PUBLIC_ prefix", () => {
   const secrets = /NEXT_PUBLIC_[A-Z_]*(KEY|SECRET|TOKEN|PASSWORD)/g;
+  /*
+    Two keys are public by design, and each is the public half of something
+    whose other half is held elsewhere. The Supabase anon key authenticates who
+    is signed in and never reads or writes app data on its own. The VAPID
+    public key (VB-10) is the key a browser is handed when it subscribes to
+    reminders, so a push service can check a message was signed by this
+    deployment; its private half is `VAPID_PRIVATE_KEY`, server only and in
+    the CI canary build.
+  */
+  const PUBLIC_BY_DESIGN = ["NEXT_PUBLIC_SUPABASE_ANON_KEY", "NEXT_PUBLIC_VAPID_PUBLIC_KEY"];
   for (const file of [...ALL, "middleware.ts", "next.config.ts", ".env.example"]) {
     for (const hit of read(file).match(secrets) ?? []) {
-      // The Supabase anon key is designed to be public: it authenticates who
-      // is signed in and never reads or writes app data on its own.
-      assert.equal(hit, "NEXT_PUBLIC_SUPABASE_ANON_KEY", `${file} exposes ${hit}`);
+      assert.ok(PUBLIC_BY_DESIGN.includes(hit), `${file} exposes ${hit}`);
     }
   }
 });

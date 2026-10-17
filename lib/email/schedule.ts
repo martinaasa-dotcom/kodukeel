@@ -48,6 +48,7 @@
 */
 import type { EmailKind } from "./letter";
 import { wants, type EmailPrefs } from "./prefs";
+import { hasShortForm } from "@/lib/push/kinds";
 import type { Stage } from "@/lib/ux/disclosure";
 
 /**
@@ -196,6 +197,16 @@ export interface Candidate {
    * the two needs both halves in the same place.
    */
   readonly undeliverable: boolean;
+  /**
+   * Whether this learner has asked to be reminded on a browser, and this
+   * deployment can push (VB-10).
+   *
+   * Where it is true, a kind with a short form (`lib/push/kinds.ts`) goes as a
+   * notification instead of a letter. Instead, never as well: the decision
+   * below names one channel, and the booking the run writes for it is unique
+   * per learner, kind and day whichever channel it is.
+   */
+  readonly pushable: boolean;
   readonly prefs: EmailPrefs;
   /** Their own clock, since "already had one today" is their today. */
   readonly dayKey: string;
@@ -283,8 +294,13 @@ export interface Candidate {
   readonly deadlineWeeks: number | null;
 }
 
+/** How a letter goes: posted to an inbox, or pushed to a browser in its short form. */
+export type Channel = "email" | "push";
+
 export interface Decision {
   readonly kind: EmailKind;
+  /** Exactly one, which is the half of "a notification or a letter, never both" decided here. */
+  readonly channel: Channel;
   /** Why, in one line, for the run's own log. Never sent to anybody. */
   readonly because: string;
 }
@@ -311,6 +327,7 @@ function gapClear(who: Candidate, kind: EmailKind, now: Date): boolean {
  */
 function allowed(who: Candidate, kind: EmailKind, now: Date): boolean {
   if (!wants(who.prefs, kind)) return false;
+  if (channelFor(who, kind) === null) return false;
   if (!UNCAPPED.includes(kind) && who.sentThisWeek >= MAX_PER_WEEK) return false;
   if (!UNCAPPED.includes(kind) && !apartFromTheLast(who, now)) return false;
   return gapClear(who, kind, now);
@@ -328,6 +345,21 @@ function allowed(who: Candidate, kind: EmailKind, now: Date): boolean {
  * moments somebody reads mail in.
  */
 export const MIN_HOURS_BETWEEN_LETTERS = 8;
+
+/**
+ * Which way a kind would reach this learner, or null where it cannot.
+ *
+ * A notification wherever the learner has asked for one and the kind has a
+ * short form, because they asked for it on the screen they are looking at;
+ * otherwise a letter, where there is an address that has not bounced. One
+ * preference, `wants`, gates both, so a kind switched off in Settings is off
+ * on every channel at once and there is one list of what may reach somebody.
+ */
+export function channelFor(who: Candidate, kind: EmailKind): Channel | null {
+  if (who.pushable && hasShortForm(kind)) return "push";
+  if (who.email && !who.undeliverable) return "email";
+  return null;
+}
 
 function apartFromTheLast(who: Candidate, now: Date): boolean {
   for (const [kind, at] of who.lastSent) {
@@ -348,7 +380,7 @@ function apartFromTheLast(who: Candidate, now: Date): boolean {
  * word letter's own header says it is for would be the one group never sent
  * one. So the away branch ends here instead of at null.
  */
-function worddayOwed(who: Candidate, now: Date): Decision | null {
+function worddayOwed(who: Candidate, now: Date): Owed | null {
   return who.localHour >= 7 && who.localHour < 10 && allowed(who, "wordday", now)
     ? { kind: "wordday", because: "morning where they are, and they asked for it" }
     : null;
@@ -362,7 +394,18 @@ function worddayOwed(who: Candidate, now: Date): Decision | null {
  * already had today's, or it is the wrong hour where they are.
  */
 export function letterOwed(who: Candidate, now: Date): Decision | null {
-  if (!who.email || who.undeliverable) return null;
+  const owed = decide(who, now);
+  if (!owed) return null;
+  // `allowed` has already refused any kind with no way to reach this learner.
+  const channel = channelFor(who, owed.kind);
+  return channel ? { ...owed, channel } : null;
+}
+
+/** A decision before its channel is read off it. */
+type Owed = Omit<Decision, "channel">;
+
+function decide(who: Candidate, now: Date): Owed | null {
+  if (!who.pushable && (!who.email || who.undeliverable)) return null;
 
   /*
     THE WELCOME, FIRST AND ONCE.

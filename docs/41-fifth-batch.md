@@ -314,7 +314,7 @@ stops. Size is the work in one pull request: S is a day, M a few days, L a week 
 | VB-7 Numbers out loud | 2 | M | Not started |
 | VB-8 The rounds that already ask you to speak | 2 | M | Not started |
 | VB-9 A word you heard and cannot spell | 2 | S | Not started |
-| VB-10 Reminders on the desktop, through Web Push | 2 | M | Not started |
+| VB-10 Reminders on the desktop, through Web Push | 2 | M | Done |
 | VB-11 Tonight's chat | 3: Estonian from real life | L | Not started |
 | VB-12 Something real to listen to | 3 | M | Not started |
 | VB-13 What is around you | 3 | M | Not started |
@@ -764,10 +764,10 @@ one with the app on a phone (D25). Web Push works in Chrome, Edge and Firefox on
 Safari on a Mac, and in an iPhone's Safari once the app is installed to the home screen.
 
 **Files.**
-- `prisma/schema.prisma`: `PushSubscription` (to be written as a model), owner-scoped, holding the
+- `prisma/schema.prisma`: `PushSubscription`, owner-scoped, holding the
   browser's endpoint and keys and nothing else. It is in the export and the erasure, and a subscription
   the push service reports gone is deleted.
-- `lib/push/` (to be written): sending, through the `web-push` protocol with VAPID keys held server-side
+- `lib/push/`: sending, through the `web-push` protocol with VAPID keys held server-side
   (`VAPID_PRIVATE_KEY` never gets a `NEXT_PUBLIC_` prefix; the public key is genuinely public). The
   payload is encrypted end to end as the protocol requires.
 - **Same kinds as the letters.** A notification is a short form of a letter the app already sends
