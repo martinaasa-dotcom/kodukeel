@@ -41,9 +41,9 @@ export const SCENE_SPEECH: Area = {
     // Before the conversation.
     "Hear them first": "Сначала послушать их",
     "Their opening lines, one at a time, to say along with. Nothing is marked.":
-      "Их первые фразы, по одной, чтобы повторять вслед. Ничего не оценивается.",
+      "Их первые фразы, по одной, чтобы повторять за ними. Ничего не оценивается.",
     "Line {n} of {total}": "Фраза {n} из {total}",
-    "Listen, then say it along.": "Послушайте, затем повторите.",
+    "Listen, then say it along.": "Послушайте, затем скажите вместе с ними.",
     "Previous line": "Предыдущая фраза",
     "Next line": "Следующая фраза",
     "Talk it through": "Поговорить вслух",
@@ -92,9 +92,9 @@ export const SCENE_SPEECH: Area = {
     // Before the conversation.
     "Hear them first": "Спершу послухати їх",
     "Their opening lines, one at a time, to say along with. Nothing is marked.":
-      "Їхні перші фрази, по одній, щоб повторювати слідом. Нічого не оцінюється.",
+      "Їхні перші фрази, по одній, щоб повторювати за ними. Нічого не оцінюється.",
     "Line {n} of {total}": "Фраза {n} з {total}",
-    "Listen, then say it along.": "Послухайте, потім повторіть.",
+    "Listen, then say it along.": "Послухайте, потім скажіть разом із ними.",
     "Previous line": "Попередня фраза",
     "Next line": "Наступна фраза",
     "Talk it through": "Поговорити вголос",

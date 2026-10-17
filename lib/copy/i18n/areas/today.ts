@@ -1349,7 +1349,7 @@ export const TODAY: Area = {
   "They understood you. That's the whole point of all this.":
     "Вас зрозуміли. Саме заради цього все й затівалося.",
   "Getting stuck is just what learning a language out loud looks like. It still counts, and it's on the board.":
-    "Збитися посеред розмови нормально: саме такий вигляд має мова, яку вчать уголос. Розмову все одно зараховано.",
+    "Збитися посеред розмови нормально: саме такий вигляд має мова, яку вчать вголос. Розмову все одно зараховано.",
   "They switched to English. Next time, keep going in Estonian anyway. Most people switch back.":
     "Співрозмовник перейшов на англійську. Наступного разу все одно продовжуйте естонською: більшість повертаються до естонської.",
   "Running out of words costs nothing in a practice conversation, and the person there will wait while you find them.":
@@ -1425,7 +1425,7 @@ export const TODAY: Area = {
   "Introduce yourself to somebody new: your name, where you live and what you do.":
     "Представтеся новій людині: як вас звати, де ви живете і чим займаєтеся.",
   "Say a price or which floor you live on out loud in Estonian, and ask them to say it back.":
-    "Назвіть уголос естонською ціну або поверх, на якому живете, і попросіть повторити.",
+    "Назвіть вголос естонською ціну або поверх, на якому живете, і попросіть повторити.",
   "Ask for something politely with would: could I, would you.":
     "Попросіть про щось ввічливо, в умовному способі: чи не могли б ви, чи можна мені.",
   "Talk about yourself for one minute in Estonian without stopping.":
@@ -1441,7 +1441,7 @@ export const TODAY: Area = {
   "A meeting, a group":
     "Збори, група",
   "Say one number and what it means out loud: it rose, it fell, by how much.":
-    "Скажіть уголос одне число і що воно означає: зросло, впало, на скільки.",
+    "Скажіть вголос одне число і що воно означає: зросло, впало, на скільки.",
   "Work, the news":
     "Робота, новини",
   "Say what you thought of something you read or watched, and one reason.":
@@ -1781,7 +1781,7 @@ export const TODAY: Area = {
   "One verb, six people: I, you, she and the rest. If you can't change a verb for who's doing it, you can't really use it yet.":
     "Одне дієслово, шість осіб: я, ти, вона й решта. Поки ви не вмієте змінювати дієслово за особами, по-справжньому користуватися ним ще не вийде.",
   "Say tonight's words out loud: along with a native speaker, back from the recording, then from their meaning. You see which words were heard, and typing works too.":
-    "Скажіть уголос слова цього вечора: разом із носієм мови, за записом, потім за значенням. Ви бачите, які слова почуто, і можна друкувати.",
+    "Скажіть вголос слова цього вечора: разом із носієм мови, за записом, потім за значенням. Ви бачите, які слова почуто, і можна друкувати.",
   "Write a sentence of your own with the ending we ask for. We check that word against the dictionary before anything else.":
     "Напишіть своє речення із закінченням, яке ми просимо. Це слово ми насамперед звіряємо зі словником.",
   "Aitan sind, but helistan sulle. Every verb chooses its own ending for whatever comes after it, and English gives you no clue, so you learn them one verb at a time.":

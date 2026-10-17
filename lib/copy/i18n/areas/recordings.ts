@@ -46,7 +46,7 @@ export const RECORDINGS: Area = {
     "This device is too slow to hear a recording, so it wasn't opened. Pasting the text still works.":
       "Это устройство слишком медленное, чтобы распознать запись, поэтому она не была открыта. Вставить текст по-прежнему можно.",
     "The recording couldn't be heard just now. Try it again.": "Сейчас не удалось распознать запись. Попробуйте ещё раз.",
-    "You stopped it before any words were heard.": "Вы остановили распознавание до того, как прозвучали слова.",
+    "You stopped it before any words were heard.": "Вы остановили распознавание, прежде чем были услышаны какие-либо слова.",
     "No words were heard in that recording. It may be music, or very quiet.":
       "В этой записи не услышано ни одного слова. Возможно, это музыка или запись очень тихая.",
 
@@ -59,7 +59,7 @@ export const RECORDINGS: Area = {
     "Play from {at}, slowly": "Воспроизвести с {at} медленно",
     "heard least surely": "расслышано неуверенно",
     "Only the first {minutes} minutes were heard, which is as long as a recording can be here.":
-      "Распознаны только первые {minutes} минуты: длиннее запись здесь быть не может.",
+      "Распознаны только первые {minutes} мин: длиннее запись здесь быть не может.",
     "You stopped it partway, so this is the beginning of the recording.":
       "Вы остановили распознавание на полпути, поэтому здесь начало записи.",
     "The dictionary needs a connection, so the words aren't underlined yet.":
@@ -144,7 +144,7 @@ export const RECORDINGS: Area = {
     "This device is too slow to hear a recording, so it wasn't opened. Pasting the text still works.":
       "Цей пристрій надто повільний, щоб розпізнати запис, тому його не відкрито. Вставити текст, як і раніше, можна.",
     "The recording couldn't be heard just now. Try it again.": "Зараз не вдалося розпізнати запис. Спробуйте ще раз.",
-    "You stopped it before any words were heard.": "Ви зупинили розпізнавання до того, як прозвучали слова.",
+    "You stopped it before any words were heard.": "Ви зупинили розпізнавання, перш ніж було почуто будь-які слова.",
     "No words were heard in that recording. It may be music, or very quiet.":
       "У цьому записі не почуто жодного слова. Можливо, це музика або запис дуже тихий.",
 
@@ -156,7 +156,7 @@ export const RECORDINGS: Area = {
     "Play from {at}, slowly": "Відтворити з {at} повільно",
     "heard least surely": "розчуто непевно",
     "Only the first {minutes} minutes were heard, which is as long as a recording can be here.":
-      "Розпізнано лише перші {minutes} хвилини: довшим запис тут бути не може.",
+      "Розпізнано лише перші {minutes} хв: довшим запис тут бути не може.",
     "You stopped it partway, so this is the beginning of the recording.":
       "Ви зупинили розпізнавання на півдорозі, тому тут початок запису.",
     "The dictionary needs a connection, so the words aren't underlined yet.":
@@ -195,7 +195,7 @@ export const RECORDINGS: Area = {
     "Other words for {thing}": "Інші слова для «{thing}»",
     "{thing} can also be:": "«{thing}» може бути ще й так:",
     "Use {word}, {meaning}": "Вибрати {word}, {meaning}",
-    "Say them": "Сказати їх уголос",
+    "Say them": "Сказати їх вголос",
     "Say them once, in this order. Nothing is marked: it's just the first time you say them.":
       "Скажіть їх один раз, у цьому порядку. Нічого не оцінюється: ви просто вимовляєте їх уперше.",
     "Another photo": "Інше фото",

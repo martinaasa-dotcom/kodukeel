@@ -1504,7 +1504,7 @@ export const APP: Area = {
     "Nothing plays until you ask. Every card has a speaker button.": "Нічого не звучить, поки ви не попросите. На кожній картці є кнопка з динаміком.",
     "Read each card aloud": "Читати кожну картку вголос",
     "You hear a word when you first see it, and again when its answer appears.": "Ви чуєте слово, коли вперше його бачите, і ще раз, коли з'являється відповідь.",
-    "When Estonian is read aloud": "Коли естонська звучить уголос",
+    "When Estonian is read aloud": "Коли естонська звучить вголос",
     "A sound for right and wrong": "Звук для правильного й неправильного",
     "Two soft notes when you're right, one low note when you're not.": "Дві м'які ноти, коли ви маєте рацію, і одна низька, коли ні.",
     "Silent": "Без звуку",
@@ -1765,14 +1765,14 @@ export const APP: Area = {
     "The evening nudge, a level learned, a shield used and the word of the day can come here as a notification instead of an email.":
       "Вечірнє нагадування, пройдений рівень, використаний щит і слово дня можуть приходити сюди сповіщенням замість листа.",
     "The switches above decide which ones, whichever way they come.":
-      "Які саме, вирішують перемикачі вище, хоч би яким шляхом вони приходили.",
+      "Які саме, вирішують перемикачі вище, яким би шляхом вони не надходили.",
     "The browser didn't turn notifications on, so nothing has changed.":
       "Браузер не ввімкнув сповіщення, тож нічого не змінилося.",
     "Done. Reminders now come to this computer.": "Готово. Тепер нагадування приходять на цей комп'ютер.",
     "This browser couldn't set up notifications, so nothing has changed.":
       "Цей браузер не зміг налаштувати сповіщення, тож нічого не змінилося.",
     "Done. Nothing more is sent to this computer.": "Готово. На цей комп'ютер більше нічого не надійде.",
-    "This copy of Kodukeel isn't set up to send notifications.": "Ця копія Kodukeel не налаштована надсилати сповіщення.",
+    "This copy of Kodukeel isn't set up to send notifications.": "Ця копія Kodukeel не налаштована на надсилання сповіщень.",
     "This browser sent something we can't use for reminders, so nothing has changed.":
       "Цей браузер надіслав дані, які не можна використати для нагадувань, тож нічого не змінилося.",
     "This copy of Kodukeel doesn’t send email. These switches still decide which reminders reach you as notifications on a computer.":

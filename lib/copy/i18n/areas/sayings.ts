@@ -2642,7 +2642,7 @@ export const SAYINGS: Area = {
     "lived over": "прожив поверх",
     "A child gets lost in a shop for ten minutes and is shaken but fine.": "Дитина на десять хвилин загубилася в крамниці: налякана, але ціла.",
     "lived": "прожив",
-    "I read aloud": "я читав уголос",
+    "I read aloud": "я читав вголос",
     "I read ahead": "я читав наперед",
     "At bedtime you read a story to your little one.": "Перед сном ви читаєте малюкові казку.",
     "ahead": "наперед",

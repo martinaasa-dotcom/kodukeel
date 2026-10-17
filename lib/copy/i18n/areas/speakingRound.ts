@@ -34,7 +34,7 @@ export const SPEAKING_ROUND: Area = {
     "Said aloud": "Вслух",
     "From memory": "По памяти",
     "That wasn't heard as the word this time. Say it again whenever you like.":
-      "На этот раз это не было услышано как это слово. Скажите ещё раз, когда захотите.",
+      "На этот раз это не распозналось как нужное слово. Скажите ещё раз, когда захотите.",
 
     // Hands-free.
     "Hands-free": "Без рук",
@@ -55,7 +55,7 @@ export const SPEAKING_ROUND: Area = {
     "Say it yourself": "Скажите сами",
     "Heard. That's the word.": "Услышано. Это то самое слово.",
     "That wasn't heard as the word this time. Here it is again; say it once more if you like.":
-      "На этот раз это не было услышано как это слово. Вот оно ещё раз; скажите снова, если хотите.",
+      "На этот раз это не распозналось как нужное слово. Вот оно ещё раз; скажите снова, если хотите.",
 
     // The mock exam's spoken part.
     "Speak your answer": "Произнесите ответ",
@@ -83,17 +83,17 @@ export const SPEAKING_ROUND: Area = {
     "This is what was heard. Change anything that is not what you said, then check it.":
       "Ось що почуто. Виправте все, що ви казали інакше, потім перевірте.",
     "Next line": "Наступна фраза",
-    "{n} said aloud": "Уголос: {n}",
+    "{n} said aloud": "Вголос: {n}",
     "Heard, and right.": "Почуто, і це правильно.",
     "Nearly. It counts, and the word comes back a little sooner.":
       "Майже. Це зараховано, і слово повернеться трохи раніше.",
     "Not this time. Nothing is written down for a miss here, so say it again whenever you like.":
       "Не цього разу. Промах тут не записується, тож скажіть ще раз, коли захочете.",
     "Hear what was heard": "Послухати, що почуто",
-    "Said aloud": "Уголос",
+    "Said aloud": "Вголос",
     "From memory": "З пам'яті",
     "That wasn't heard as the word this time. Say it again whenever you like.":
-      "Цього разу це не почуто як те слово. Скажіть ще раз, коли захочете.",
+      "Цього разу це не розпізнано як потрібне слово. Скажіть ще раз, коли захочете.",
 
     // Hands-free.
     "Hands-free": "Без рук",
@@ -114,7 +114,7 @@ export const SPEAKING_ROUND: Area = {
     "Say it yourself": "Скажіть самі",
     "Heard. That's the word.": "Почуто. Це саме те слово.",
     "That wasn't heard as the word this time. Here it is again; say it once more if you like.":
-      "Цього разу це не почуто як те слово. Ось воно ще раз; скажіть знову, якщо хочете.",
+      "Цього разу це не розпізнано як потрібне слово. Ось воно ще раз; скажіть знову, якщо хочете.",
 
     // The mock exam's spoken part.
     "Speak your answer": "Вимовте відповідь",
@@ -127,6 +127,6 @@ export const SPEAKING_ROUND: Area = {
     "I said it out loud": "Сказано вголос",
 
     // Progress.
-    "Said aloud this week: {answers}, about {minutes}.": "Уголос цього тижня: {answers}, приблизно {minutes}.",
+    "Said aloud this week: {answers}, about {minutes}.": "Вголос цього тижня: {answers}, приблизно {minutes}.",
   },
 };

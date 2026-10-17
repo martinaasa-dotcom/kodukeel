@@ -43,11 +43,11 @@ export const VOICE_ROUNDS: Area = {
     "You said {said}. It's {answer}.": "Вы сказали: {said}. Правильно: {answer}.",
     "That wasn't a number we could read.": "Мы не смогли прочитать это как число.",
     "Right number. Mind the letters: the word has an õ, ä, ö or ü in it.":
-      "Число верное. Обратите внимание на буквы: в слове есть буква с точками или с волной над ней.",
+      "Число верное. Обратите внимание на буквы: в слове есть буква с точками или с тильдой.",
     "In digits, so no word was practised. Say it or type the words next time.":
       "Цифрами, поэтому ни одно слово не потренировано. В следующий раз скажите вслух или напишите словами.",
     "A clock face has no afternoon, so {morning} and {afternoon} both count.":
-      "Часы со стрелками не различают утро и вечер, поэтому засчитывается и {morning}, и {afternoon}.",
+      "Часы со стрелками не различают время до и после полудня, поэтому засчитывается и {morning}, и {afternoon}.",
     "Hear it said": "Послушать",
     "No numbers to say yet": "Пока нечего называть",
     "This opens once you've met the numbers. They're one of the first units of the course.":
@@ -109,7 +109,7 @@ export const VOICE_ROUNDS: Area = {
     "Say each one in Estonian, or type it in words or digits. You'll hear the right answer after.":
       "Назвіть кожне естонською або напишіть словами чи цифрами. Потім ви почуєте правильну відповідь.",
     "Prices, times, numbers": "Ціни, час, числа",
-    "Ten, said or typed": "Десять, уголос або письмово",
+    "Ten, said or typed": "Десять, вголос або письмово",
     "A price tag, a clock on the wall, a timetable, a number. Say it in Estonian, or type it, and hear it said back. Every counter you'll ever stand at needs one.":
       "Цінник, годинник на стіні, розклад, число. Скажіть це естонською або напишіть і послухайте, як це звучить. Без цього не обійтися біля жодного прилавка.",
     "Prices, clock times and counts, said out loud. Every counter you'll stand at needs one, and Estonian says half past two as half three.":
@@ -131,11 +131,11 @@ export const VOICE_ROUNDS: Area = {
     "You said {said}. It's {answer}.": "Ви сказали: {said}. Правильно: {answer}.",
     "That wasn't a number we could read.": "Ми не змогли прочитати це як число.",
     "Right number. Mind the letters: the word has an õ, ä, ö or ü in it.":
-      "Число правильне. Зверніть увагу на літери: у слові є літера з крапками або з хвилькою над нею.",
+      "Число правильне. Зверніть увагу на літери: у слові є літера з крапками або з тильдою.",
     "In digits, so no word was practised. Say it or type the words next time.":
-      "Цифрами, тому жодне слово не потреноване. Наступного разу скажіть уголос або напишіть словами.",
+      "Цифрами, тому жодне слово не потреноване. Наступного разу скажіть вголос або напишіть словами.",
     "A clock face has no afternoon, so {morning} and {afternoon} both count.":
-      "На циферблаті немає ні ранку, ні вечора, тому зараховується і {morning}, і {afternoon}.",
+      "Циферблат не розрізняє час до і після полудня, тому зараховується і {morning}, і {afternoon}.",
     "Hear it said": "Послухати",
     "No numbers to say yet": "Поки що нічого називати",
     "This opens once you've met the numbers. They're one of the first units of the course.":
@@ -145,7 +145,7 @@ export const VOICE_ROUNDS: Area = {
     "{n} of {total} right": "Правильно: {n} з {total}",
     "{n} number words counted toward your reviews.": "Слів-чисел зараховано до повторення: {n}.",
     "Answers in digits are marked but don't count toward your reviews. Say them, or type the words, and they do.":
-      "Відповіді цифрами перевіряються, але до повторення не зараховуються. Скажіть їх уголос або напишіть словами, і вони зарахуються.",
+      "Відповіді цифрами перевіряються, але до повторення не зараховуються. Скажіть їх вголос або напишіть словами, і вони зарахуються.",
 
     // The conjugation table, said as a chant.
     "Say the table out loud": "Скажіть таблицю вголос",
@@ -168,9 +168,9 @@ export const VOICE_ROUNDS: Area = {
     "Say or type your question, then press Enter": "Скажіть або напишіть запитання і натисніть Enter",
 
     // Töövihik, read aloud.
-    "Read a line aloud, the gap filled": "Прочитайте рядок уголос, із заповненим пропуском",
+    "Read a line aloud, the gap filled": "Прочитайте рядок вголос, із заповненим пропуском",
     "Or read a line aloud with the word in the gap, and the word goes into its box.":
-      "Або прочитайте рядок уголос разом зі словом у пропуску, і слово потрапить у своє поле.",
+      "Або прочитайте рядок вголос разом зі словом у пропуску, і слово потрапить у своє поле.",
     "That went into line {n}. Check marks it the same as typing.":
       "Це потрапило в рядок {n}. Перевірка оцінить це так само, як написане.",
     "That didn't line up with a gap. Read the whole line, the word in the gap included, or type it.":
@@ -182,7 +182,7 @@ export const VOICE_ROUNDS: Area = {
     "Read it aloud": "Прочитати вголос",
     "Read it aloud, a paragraph at a time. Each word lights up as it's heard.":
       "Читайте вголос по одному абзацу. Кожне слово підсвічується, коли його чути.",
-    "Read this paragraph aloud": "Прочитайте цей абзац уголос",
+    "Read this paragraph aloud": "Прочитайте цей абзац вголос",
     "Paragraph {n} of {total}: {heard} of {words} words heard.":
       "Абзац {n} з {total}: почуто слів {heard} з {words}.",
     "Back to the dictionary view": "Назад до словника",
