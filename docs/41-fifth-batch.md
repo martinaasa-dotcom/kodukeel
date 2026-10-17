@@ -201,6 +201,11 @@ the opacity entrance was hiding. The fix holds; `docs/15-performance.md` has the
 - **Not verified:** Firefox (only Chromium is installed where this was built), Safari's Ogg Opus
   decoding (the page says it may not open there, and the message is tested by feeding Chromium a
   broken Ogg), and a real phone's speed over a three-minute file.
+- **Found in the review of 2026-10-17:** the eleven checks on "Things around me" in
+  `scripts/test-recordings.mjs` had been waived on every CI run, the batch's own green head included,
+  because the suite counted the scanner's choice before it had streamed in and read the miss as a
+  server with no provider key. It waits for the choice now, and against a production build with a
+  stubbed key the eleven pass.
 
 **VB-14, the report run once locally, 2026-10-17.** `npm run report:speech` against a local database
 seeded and given `scripts/demo-data.ts`, whose fixture now says every other production answer of the
