@@ -32,8 +32,8 @@ import { FitText } from "@/components/FitText";
 import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
 import { MicButton } from "@/components/speech/MicButton";
 import { micInAnswerBox } from "@/components/speech/answerBoxMic";
-import { splitChant } from "@/lib/speech/chant";
-import { heardAsSpelled } from "@/lib/speech/verdict";
+import { splitAsked } from "@/lib/speech/chant";
+import { heardAsSpelled, repairedInAnswer } from "@/lib/speech/verdict";
 import { core, type Hearing } from "@/lib/speech/reconcile";
 
 export type Tense = "present" | "conditional";
@@ -232,8 +232,20 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     setTarget(row);
   }, [verdicts]);
 
+  /** What the last chant put in each row (null where it filled none), and what it was heard as. */
+  const chantFill = useRef<{ rows: readonly (string | null)[]; hearing: Hearing } | null>(null);
+
   const check = useCallback((values: readonly string[] = typed, spoken = false) => {
     if (!question || verdicts) return;
+    /*
+      A chant that filled the table is written as said aloud only where every
+      row is still what was heard (D4), and a row still holding a form the
+      dictionary repaired writes nothing at all, whatever else was edited (D13).
+    */
+    const chanted = chantFill.current;
+    const same = (i: number) => chanted?.rows[i] != null && (values[i] ?? "").trim() === chanted.rows[i]!.trim();
+    const saidAloud = spoken || (!!chanted && question.blanks.every((_, i) => same(i)));
+    const repaired = !!chanted && question.blanks.some((_, i) => same(i) && repairedInAnswer(chanted.hearing, chanted.rows[i]!));
     // A form placed in the wrong row of the matching table is another person of
     // the same verb, so every miss there would read as close: only a typed miss
     // can be most of the way there (`nearMiss`).
@@ -255,12 +267,12 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     // ADR-016: the same review log as every other mode. Four of five is the
     // table known; less is a lapse worth seeing again.
     if (!clean) hints.noteMiss();
-    if (question.cardId) {
+    if (question.cardId && !repaired) {
       // A hint is paid for: see `lib/questions/hints.ts`. The ceiling is 4 with
       // nothing taken, so a table nobody asked for help on grades as it did.
       const earned = right >= marks.length - 1 ? 3 : 1;
       // A table chanted whole and heard as spelled is written as spoken (D4); one edited after is typed.
-      void grade(question.cardId, Math.min(earned, hints.ceiling) as 1 | 2 | 3, Date.now() - startedAt.current, undefined, undefined, spoken);
+      void grade(question.cardId, Math.min(earned, hints.ceiling) as 1 | 2 | 3, Date.now() - startedAt.current, undefined, undefined, saidAloud);
     }
   }, [question, verdicts, typed, sound, hints, grade]);
 
@@ -288,7 +300,8 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
   ), [question]);
   const heardChant = useCallback((hearing: Hearing) => {
     if (!question || verdicts || question.shape !== "type") return;
-    const rows = splitChant(hearing.understood, question.chant).slice(1);
+    // The first row is on the screen already, so a chant of the five asked is read as well as one of all six.
+    const rows = splitAsked(hearing.understood, question.chant);
     const filled = rows.filter((row) => row !== null).length;
     if (filled === 0) {
       setChantNote(t("We couldn't tell which row each form was for. Say them with the pronouns, or type them."));
@@ -296,6 +309,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     }
     const next = typed.map((value, i) => rows[i] ?? value);
     setTyped(next);
+    chantFill.current = { rows, hearing };
     const whole = rows.every((row, i) => row !== null && checkAnswer(row, question.blanks[i]!.answer, "et").verdict === "correct");
     if (whole && hearing.words.every((w) => heardAsSpelled(w, chantExpect.has(core(w.text))))) {
       setChantNote("");
@@ -308,7 +322,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
   }, [question, verdicts, typed, check, chantExpect, inputs, t]);
   const speech = useSpeech({ endpoint: true, expect: chantExpect, onHeard: heardChant });
   const chantOffered = question?.shape === "type" && micInAnswerBox(speech, speechConfig);
-  useEffect(() => setChantNote(""), [index]);
+  useEffect(() => { setChantNote(""); chantFill.current = null; }, [index]);
 
   const next = useCallback(() => {
     /* The whole table as it was filled in, which is what somebody looking

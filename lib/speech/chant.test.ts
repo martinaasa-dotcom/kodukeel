@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { splitChant, type ChantRow } from "./chant";
+import { splitAsked, splitChant, type ChantRow } from "./chant";
 import { derivedVerbForms } from "@/lib/estonian/conjugate";
 import { SUBJECT_PRONOUN } from "@/lib/scenes/lexicon";
 import { shippedDictionary } from "@/scripts/lib/dictionary";
@@ -95,5 +95,28 @@ describe("splitChant", () => {
 
   it("hears nothing in nothing", () => {
     expect(splitChant("", ROWS).every((v) => v === null)).toBe(true);
+  });
+});
+
+describe("splitAsked", () => {
+  it("reads a chant of the five asked forms, without pronouns, into the five rows", () => {
+    const forms = present("tulema");
+    expect(splitAsked(forms.slice(1).join(" "), ROWS)).toEqual(forms.slice(1));
+  });
+
+  it("reads all six without pronouns as before, the given row dropped", () => {
+    const forms = present("elama");
+    expect(splitAsked(forms.join(" "), ROWS)).toEqual(forms.slice(1));
+  });
+
+  it("reads a chant with pronouns by the six, so the first person is never taken for the second", () => {
+    const forms = present("lugema");
+    const said = forms.map((form, i) => `${SHORT[i]} ${form}`).join(" ");
+    expect(splitAsked(said, ROWS)).toEqual(forms.slice(1));
+  });
+
+  it("still fills nothing on a count that fits neither", () => {
+    const forms = present("rääkima");
+    expect(splitAsked(forms.slice(0, 4).join(" "), ROWS).every((v) => v === null)).toBe(true);
   });
 });

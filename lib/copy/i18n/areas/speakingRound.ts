@@ -16,7 +16,7 @@ export const SPEAKING_ROUND: Area = {
     "Say it with them": "Скажите вместе с ними",
     "Say it back": "Повторить",
     "Say it from the meaning": "Скажите по значению",
-    "Listen, and say it along with them": "Слушайте и говорите вместе с ними",
+    "Listen, then say it with the words in front of you": "Послушайте, затем скажите это, глядя на слова",
     "Listen, then say it back": "Послушайте, затем повторите",
     "The words are hidden until you have said them.": "Слова скрыты, пока вы их не скажете.",
     "Answer out loud": "Ответить вслух",
@@ -28,8 +28,9 @@ export const SPEAKING_ROUND: Area = {
     "Heard, and right.": "Услышано, и это верно.",
     "Nearly. It counts, and the word comes back a little sooner.":
       "Почти. Это засчитано, и слово вернётся чуть раньше.",
-    "Not this time. Nothing is written down for a miss here, so say it again whenever you like.":
-      "Не в этот раз. Промах здесь не записывается, так что скажите ещё раз, когда захотите.",
+    "Not this time. Nothing is written down for a miss here.": "Не в этот раз. Промах здесь не записывается.",
+    "Here it is. Nothing is written down for this one.": "Вот правильный ответ. За него ничего не записывается.",
+    "Nearly. Nothing is written down for this one.": "Почти. За это ничего не записывается.",
     "Hear what was heard": "Послушать, что было услышано",
     "Said aloud": "Вслух",
     "From memory": "По памяти",
@@ -61,8 +62,6 @@ export const SPEAKING_ROUND: Area = {
     "Speak your answer": "Произнесите ответ",
     "What was understood": "Что было понято",
     "Suggested words heard:": "Услышаны предложенные слова:",
-    "None of the suggested words were heard, which is fine: they are only ideas.":
-      "Ни одно из предложенных слов не было услышано, и это нормально: это только идеи.",
     "This is the machine's hearing of your words, not a mark. You decide the marks below.":
       "Это то, как машина услышала ваши слова, а не оценка. Баллы ниже решаете вы.",
     "I said it out loud": "Сказано вслух",
@@ -75,7 +74,7 @@ export const SPEAKING_ROUND: Area = {
     "Say it with them": "Скажіть разом із ними",
     "Say it back": "Повторити",
     "Say it from the meaning": "Скажіть за значенням",
-    "Listen, and say it along with them": "Слухайте й кажіть разом із ними",
+    "Listen, then say it with the words in front of you": "Послухайте, потім скажіть це, дивлячись на слова",
     "Listen, then say it back": "Послухайте, потім повторіть",
     "The words are hidden until you have said them.": "Слова приховані, доки ви їх не скажете.",
     "Answer out loud": "Відповісти вголос",
@@ -87,8 +86,9 @@ export const SPEAKING_ROUND: Area = {
     "Heard, and right.": "Почуто, і це правильно.",
     "Nearly. It counts, and the word comes back a little sooner.":
       "Майже. Це зараховано, і слово повернеться трохи раніше.",
-    "Not this time. Nothing is written down for a miss here, so say it again whenever you like.":
-      "Не цього разу. Промах тут не записується, тож скажіть ще раз, коли захочете.",
+    "Not this time. Nothing is written down for a miss here.": "Не цього разу. Промах тут не записується.",
+    "Here it is. Nothing is written down for this one.": "Ось правильна відповідь. За неї нічого не записується.",
+    "Nearly. Nothing is written down for this one.": "Майже. За це нічого не записується.",
     "Hear what was heard": "Послухати, що почуто",
     "Said aloud": "Вголос",
     "From memory": "З пам'яті",
@@ -120,8 +120,6 @@ export const SPEAKING_ROUND: Area = {
     "Speak your answer": "Вимовте відповідь",
     "What was understood": "Що зрозуміло",
     "Suggested words heard:": "Почуто запропоновані слова:",
-    "None of the suggested words were heard, which is fine: they are only ideas.":
-      "Жодного із запропонованих слів не почуто, і це нормально: це лише ідеї.",
     "This is the machine's hearing of your words, not a mark. You decide the marks below.":
       "Це те, як машина почула ваші слова, а не оцінка. Бали нижче вирішуєте ви.",
     "I said it out loud": "Сказано вголос",

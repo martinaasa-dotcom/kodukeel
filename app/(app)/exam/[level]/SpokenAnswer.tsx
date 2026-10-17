@@ -87,19 +87,21 @@ export function SpokenAnswer({ targetSeconds, ideas, onSpoken }: {
           ) : (
             <p className="text-md" style={{ color: "var(--ink-2)" }}>{t("Nothing was heard.")}</p>
           )}
-          {ideas.length > 0 && (
+          {/*
+            Only ever the words that were heard. The card's words are dictionary
+            forms and an answer uses them inflected, `koolis` for `kool`, so
+            "none of them were heard" would be said to somebody who used every
+            one; where none matches as written, nothing is claimed.
+          */}
+          {usedIdeas.length > 0 && (
             <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
-              {usedIdeas.length > 0 ? (
-                <>
-                  {t("Suggested words heard:")}{" "}
-                  {usedIdeas.map((idea, i) => (
-                    <span key={idea}>
-                      <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{idea}</span>
-                      {i < usedIdeas.length - 1 ? LIST_SEPARATOR : ""}
-                    </span>
-                  ))}
-                </>
-              ) : t("None of the suggested words were heard, which is fine: they are only ideas.")}
+              {t("Suggested words heard:")}{" "}
+              {usedIdeas.map((idea, i) => (
+                <span key={idea}>
+                  <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{idea}</span>
+                  {i < usedIdeas.length - 1 ? LIST_SEPARATOR : ""}
+                </span>
+              ))}
             </p>
           )}
           <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>

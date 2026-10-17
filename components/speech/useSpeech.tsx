@@ -318,6 +318,22 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
     [base],
   );
 
+  /*
+    Closed the moment the app starts speaking, on every screen (D14). The
+    button is disabled while a line plays, which stops a turn opening over
+    one; what it cannot stop is a line starting while a turn is already open,
+    which is a learner pressing a speaker, "Hear what was heard" or "Hear
+    yourself" mid-turn, or a card's answer arriving and playing itself. Left
+    open, the turn would hear the app's own voice and hand it back as what the
+    learner said. The turn is dropped rather than ended, because ending it
+    would decode the app's voice with it. A conversation opens it again once
+    the line has finished (`components/scene/SceneSpeech.tsx`); elsewhere the
+    button is there to be pressed again.
+  */
+  useEffect(() => {
+    if (appSpeaking && listening) cancel();
+  }, [appSpeaking, listening, cancel]);
+
   // A device that ran the check slower than real time keeps its typed app, and says why in Settings.
   const tooSlow = model.phase === "error" && model.error === "too-slow";
   const why = config.unavailable ?? (base === null ? "no-model" : tooSlow ? "too-slow" : null);

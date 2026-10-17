@@ -24,9 +24,15 @@ import { useSpeech, useSpeechConfig, type Speech } from "./useSpeech";
  * kept the setting on (D6), so nobody meets a microphone in a box before
  * choosing speech somewhere.
  *
- * `spoken` says the box was last filled by the microphone. Edits after that
- * keep it spoken: the learner said it and then corrected what was heard, which
- * is the edit D3 counts, and the answer marked is still the one they said.
+ * `spoken` says the box was last filled by the microphone, which is what the
+ * screen reads to say "this is what was heard" and to ask `carriesRepair`.
+ * What `Review.spoken` records is narrower, and is `saidAsHeard`: the answer
+ * marked is exactly what the microphone put in the box (D4, the schema's own
+ * note on the column). An answer edited after it was heard, or cleared and
+ * typed again, is a typed answer for the log, so "said aloud this week" and
+ * recall after a spoken answer count what was said and nothing typed over it.
+ * One rule for every screen, and the numbers round and the conjugation chant
+ * already drew it there.
  */
 export interface SpokenBox {
   readonly speech: Speech;
@@ -38,6 +44,8 @@ export interface SpokenBox {
   readonly hearing: Hearing | null;
   /** Whether the text about to be marked still holds a word the dictionary repaired (D13). */
   carriesRepair(text: string): boolean;
+  /** Whether the text about to be marked is what the microphone put in the box, unedited: what `Review.spoken` records. */
+  saidAsHeard(text: string): boolean;
   /** A new question: forget what was heard. */
   reset(): void;
 }
@@ -60,6 +68,8 @@ export interface SpokenBoxOptions {
 export function useSpokenBox({ accepted, always = false, judge, onGood, onFill, keepAudio }: SpokenBoxOptions): SpokenBox {
   const config = useSpeechConfig();
   const [spoken, setSpoken] = useState(false);
+  /** What the microphone last put in the box, to tell an answer said from one typed over it. */
+  const filled = useRef<string | null>(null);
   const latest = useRef({ accepted, judge, onGood, onFill });
   latest.current = { accepted, judge, onGood, onFill };
   // The answers are what a repair may land on: the dictionary's spelling of what they meant, never a word from nowhere.
@@ -76,6 +86,7 @@ export function useSpokenBox({ accepted, always = false, judge, onGood, onFill, 
       if (!hearing.understood.trim()) return;
       const verdict = decide ? decide(hearing) : cardVerdict(hearing, answers);
       setSpoken(true);
+      filled.current = verdict.kind === "good" ? hearing.understood : verdict.text;
       if (verdict.kind === "good") good(hearing.understood, hearing);
       else fill(verdict.text, hearing);
     },
@@ -84,14 +95,25 @@ export function useSpokenBox({ accepted, always = false, judge, onGood, onFill, 
   const shown = speech.offered && (always || micInAnswerBox(speech, config));
   const hearing = speech.hearing;
   const carriesRepair = useCallback((text: string) => repairedInAnswer(hearing, text), [hearing]);
+  const saidAsHeard = useCallback(
+    (text: string) => spoken && filled.current !== null && sameText(text, filled.current),
+    [spoken],
+  );
   const reset = useCallback(() => {
     setSpoken(false);
+    filled.current = null;
     speech.cancel();
   }, [speech]);
   return useMemo(
-    () => ({ speech, shown, spoken, hearing, carriesRepair, reset }),
-    [speech, shown, spoken, hearing, carriesRepair, reset],
+    () => ({ speech, shown, spoken, hearing, carriesRepair, saidAsHeard, reset }),
+    [speech, shown, spoken, hearing, carriesRepair, saidAsHeard, reset],
   );
+}
+
+/** Two answers are one where only the spaces round and between their words differ. */
+function sameText(a: string, b: string): boolean {
+  const squash = (text: string) => text.normalize("NFC").trim().replace(/\s+/g, " ");
+  return squash(a) === squash(b);
 }
 
 /** The microphone beside an answer box, drawn only where `useSpokenBox` says (D6). */

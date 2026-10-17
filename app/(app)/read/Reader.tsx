@@ -127,11 +127,14 @@ export function Reader() {
               })}
             </p>
           </div>
+          {/* On the last paragraph the way back is the primary, so it is not offered twice. */}
           <div className="flex flex-wrap gap-3">
-            <Button variant="secondary" onClick={() => setAlong(false)}>{t("Back to the dictionary view")}</Button>
-            {at + 1 < paragraphs.length
-              ? <Button variant="primary" onClick={() => setAt(at + 1)}>{t("Next paragraph")}</Button>
-              : <Button variant="primary" onClick={() => setAlong(false)}>{t("Done reading")}</Button>}
+            {at + 1 < paragraphs.length ? (
+              <>
+                <Button variant="secondary" onClick={() => setAlong(false)}>{t("Back to the dictionary view")}</Button>
+                <Button variant="primary" onClick={() => setAt(at + 1)}>{t("Next paragraph")}</Button>
+              </>
+            ) : <Button variant="primary" onClick={() => setAlong(false)}>{t("Done reading")}</Button>}
           </div>
         </div>
       </Page>

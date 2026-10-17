@@ -1,7 +1,7 @@
 "use client";
 
 import { EnterKeyCap } from "@/components/KeyCaps";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { useGrade } from "@/components/round/useGrade";
 import { Headphones, Mic, Pause, Play, Volume2 } from "lucide-react";
@@ -16,21 +16,23 @@ import { GapMeaning } from "@/components/GapMeaning";
 import { useResumeCard } from "@/components/useResumeCard";
 import { useAudioPrefs } from "@/components/AudioPrefs";
 import { useOffline } from "@/components/OfflineProvider";
-import { MicButton } from "@/components/speech/MicButton";
+import { MicButton, MicError } from "@/components/speech/MicButton";
 import { useSpeech } from "@/components/speech/useSpeech";
 import { useSpokenBox } from "@/components/speech/SpokenBox";
-import { inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { inEditable, isAdvanceKey, isPlayKey } from "@/lib/ux/advanceKey";
 import { VERDICT_CLASS, verdictOfCheck } from "@/lib/ux/verdict";
 import { FullEntry, WayOut } from "@/components/round/RoundExit";
 import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
-import { useT } from "@/components/Locale";
+import { useLocale, useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/fillNodes";
 import { gapMeaning } from "@/lib/copy/gapMeaning";
 import { lineWords, lightUp, shareLit } from "@/lib/speech/lightUp";
 import { core } from "@/lib/speech/reconcile";
 import { playClip, playHeard, untilQuiet } from "@/lib/audio/clip";
-import type { AnswerCheck } from "@/lib/estonian/answer";
+import { noteIn, type AnswerCheck } from "@/lib/estonian/answer";
+import type { EngineError } from "@/lib/speech/engine";
 import {
   acceptedFor, checkSpoken, ratingFor, spokenVerdict, stepsFor, type SpeakingItem, type SpeakingStep,
 } from "@/lib/games/speaking";
@@ -63,6 +65,7 @@ import {
 export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[] }) {
   const grade = useGrade();
   const t = useT();
+  const locale = useLocale();
   const { voice, pace } = useAudioPrefs();
   const { online } = useOffline();
   const [items] = useState(initialItems);
@@ -93,12 +96,22 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
   /* The recall: a box the microphone or the keyboard fills, marked on Check. */
   const [typed, setTyped] = useState("");
   const [check, setCheck] = useState<AnswerCheck | null>(null);
-  const [graded, setGraded] = useState<"good" | "hard" | "none" | null>(null);
+  /** The answer checked was said aloud and left as heard, which is what "Heard, and right" may claim. */
+  const [checkedAloud, setCheckedAloud] = useState(false);
+  const [graded, setGraded] = useState<"good" | "hard" | "shown" | "none" | null>(null);
   const accepted = useMemo(() => (item ? acceptedFor(item) : []), [item]);
 
   const moveOn = useRef<() => void>(() => {});
   const handsFreeRef = useRef(false);
   handsFreeRef.current = handsFree && !paused;
+  /*
+    Hands-free moves on a moment after a line was heard, and only if it is
+    still running then: a pause or a stop pressed in that moment would
+    otherwise be overruled by the step it was pressed to stop.
+  */
+  const onAfterPause = () => {
+    setTimeout(() => { if (handsFreeRef.current) moveOn.current(); }, HANDS_FREE_PAUSE_MS);
+  };
   /* What hands-free could not do, said rather than stopping silently (VB-5's trip hazards). */
   const [wakeRefused, setWakeRefused] = useState(false);
   const [backgroundStop, setBackgroundStop] = useState(false);
@@ -110,10 +123,10 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
       setLit({ understood: hearing.understood, heard: hearing.heard });
       setRevealed(true);
       setSaid((n) => n + 1);
-      if (handsFreeRef.current) setTimeout(() => moveOn.current(), HANDS_FREE_PAUSE_MS);
+      if (handsFreeRef.current) onAfterPause();
     },
     onNothing: () => {
-      if (handsFreeRef.current) setTimeout(() => moveOn.current(), HANDS_FREE_PAUSE_MS);
+      if (handsFreeRef.current) onAfterPause();
     },
   });
 
@@ -132,6 +145,7 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
       setTyped(text);
       const marked = checkSpoken(item, text);
       setCheck({ ...marked, verdict: "correct", suggestedRating: 3, note: "" });
+      setCheckedAloud(true);
       setSaid((n) => n + 1);
       setRecalled((n) => n + 1);
       setGraded(item.cardId ? "good" : "none");
@@ -148,6 +162,7 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
     setRevealed(false);
     setTyped("");
     setCheck(null);
+    setCheckedAloud(false);
     setGraded(null);
     shadow.cancel();
     box.reset();
@@ -182,10 +197,13 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
     const marked = checkSpoken(item, typed);
     setCheck(marked);
     const rating = ratingFor(marked, box.spoken && box.carriesRepair(typed));
+    // Written as said aloud only where what is marked is what was heard (D4).
+    const aloud = box.saidAsHeard(typed);
+    setCheckedAloud(aloud);
     if (rating === 3) setRecalled((n) => n + 1);
     if (rating && item.cardId) {
       setGraded(rating === 3 ? "good" : "hard");
-      void writeGrade(rating, box.spoken);
+      void writeGrade(rating, aloud);
     } else {
       setGraded("none");
     }
@@ -278,14 +296,33 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
     setHandsFree(false);
     setPaused(false);
   };
+  const togglePause = () => {
+    if (paused) { setBackgroundStop(false); setPaused(false); }
+    else { setPaused(true); shadow.cancel(); }
+  };
+  /*
+    A microphone that cannot open stops hands-free where it is, saying why,
+    rather than playing line after line to nobody: the refusal is the button's
+    own sentence, drawn in the panel, and the round is still there to type.
+  */
+  useEffect(() => {
+    if (handsFree && shadow.error) setPaused(true);
+  }, [handsFree, shadow.error]);
 
-  /* The keyboard: Enter moves on wherever there is one thing to do next. */
+  /* The keyboard: Enter moves on wherever there is one thing to do next, and hands-free, Space is the pause. */
+  const togglePauseRef = useRef(togglePause);
+  togglePauseRef.current = togglePause;
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (finished || look.looking || handsFree) return;
+      if (finished || look.looking) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (inEditable(e.target)) return;
       if (e.target instanceof HTMLElement && e.target.closest("button, a, summary, [role=button]")) return;
+      if (handsFree) {
+        // Space is play and pause on a headset and a media key alike, and it is here.
+        if (isPlayKey(e)) { e.preventDefault(); togglePauseRef.current(); }
+        return;
+      }
       if (!isAdvanceKey(e) || e.repeat) return;
       if (step === "meaning" && !check) return;
       e.preventDefault();
@@ -314,12 +351,15 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
         <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <Mascot size={68} mood="cheer" className="float mx-auto" />
           <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
-            {t("Well spoken")}
+            {/* Praise for speaking only where something was said: a round typed through is a round done. */}
+            {said > 0 ? t("Well spoken") : t("Round done")}
           </h1>
-          {/* The assurance stays: a fact about a microphone somebody just used. */}
-          <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
-            {t("Your voice never left this device.")}
-          </p>
+          {/* The assurance stays: a fact about a microphone somebody just used, and only then. */}
+          {said > 0 && (
+            <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
+              {t("Your voice never left this device.")}
+            </p>
+          )}
         </div>
         <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
           <StatTile value={said} label={t("Said aloud")} tone="accent" />
@@ -366,7 +406,7 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
 
         <div className="round-stage flex flex-col items-center justify-center gap-5 px-6 text-center">
           {step === "along" && (
-            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Listen, and say it along with them")}</p>
+            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Listen, then say it with the words in front of you")}</p>
           )}
           {step === "back" && (
             <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Listen, then say it back")}</p>
@@ -401,6 +441,13 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
           {step !== "meaning" && !handsFree && (
             <div className="flex flex-col items-center gap-2">
               <MicButton speech={shadow} label={step === "along" ? t("Say it along") : t("Say it back")} shortcut showPartial={false} size="lg" />
+              {/* What came across, in the words it came across in: the lit line says which of its own
+                  words were heard, and this says what was heard instead where they were not. */}
+              {lit && share < 1 && lit.understood.trim() && (
+                <p className="text-sm" style={{ color: "var(--ink-2)" }} data-heard-line>
+                  {fillNodes(t("Heard: {text}"), { text: <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{lit.understood}</span> })}
+                </p>
+              )}
               <p className="text-sm" style={{ color: "var(--ink-2)" }} role="status">
                 {lit
                   ? words.length === 1
@@ -414,9 +461,11 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
           {step === "meaning" && (
             <div className="flex w-full max-w-sm flex-col items-center gap-3">
               {!check && <MicButton speech={box.speech} label={t("Answer out loud")} shortcut showPartial size="lg" />}
+              {/* Once marked, the box holds the answer that was marked; "Show me" marked nothing, so there is no box to keep. */}
+              {!(check && !typed.trim()) && (
               <div className="w-full text-left">
                 <label htmlFor="speaking-answer" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
-                  {t("Or type it")}
+                  {check ? t("Your answer") : t("Or type it")}
                 </label>
                 <EstonianInput
                   id="speaking-answer"
@@ -433,14 +482,23 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
                   </p>
                 )}
               </div>
+              )}
             </div>
           )}
 
           <div aria-live="polite" className="w-full max-w-sm">
             {step === "meaning" && check && (
               <div className="flex flex-col items-center gap-3">
-                <p className={`${check.verdict === "correct" ? "pop-in" : "shake"} ${VERDICT_CLASS[verdictOfCheck(check)]} verdict-panel w-full`}>
-                  {gradedLine(t, graded, check, box.spoken)}
+                {/* "Show me" marked nothing, so it is not painted or shaken as a miss: a plain panel says it. */}
+                <p
+                  className={graded === "shown" ? "verdict-panel w-full" : `${check.verdict === "correct" ? "pop-in" : "shake"} ${VERDICT_CLASS[verdictOfCheck(check)]} verdict-panel w-full`}
+                  style={graded === "shown" ? { background: "var(--raised)", color: "var(--ink)" } : undefined}
+                >
+                  {gradedLine(t, graded, check, checkedAloud)}
+                  {/* The marker's own word on a near miss (a letter, an ending), which says what the answer below cannot. */}
+                  {graded !== "shown" && check.verdict !== "correct" && check.verdict !== "wrong" && noteIn(check, locale) && (
+                    <span className="mt-1 block">{noteIn(check, locale)}</span>
+                  )}
                 </p>
                 <div className="flex flex-wrap items-center justify-center gap-2 rounded-[var(--r-lg)] px-5 py-3" style={{ background: "var(--accent-soft)" }}>
                   <p lang="et" className="text-xl font-semibold" style={{ color: "var(--accent-deep)" }}>{item.et}</p>
@@ -466,10 +524,8 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
               wakeRefused={wakeRefused}
               backgroundStop={backgroundStop}
               listening={shadow.listening}
-              onToggle={() => {
-                if (paused) { setBackgroundStop(false); setPaused(false); }
-                else { setPaused(true); shadow.cancel(); }
-              }}
+              micError={shadow.error}
+              onToggle={togglePause}
             />
           )}
         </div>
@@ -481,11 +537,11 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
             </Button>
           ) : step === "meaning" && !check ? (
             <div className="flex flex-wrap gap-2">
-              <Button variant="ghost" size="lg" onClick={() => { setCheck(checkSpoken(item, "")); setGraded("none"); }}>
+              <Button variant="ghost" size="lg" onClick={() => { setCheck(checkSpoken(item, "")); setGraded("shown"); }}>
                 {t("Show me")}
               </Button>
               <Button variant="primary" size="lg" className="flex-1" disabled={!typed.trim()} onClick={checkTyped}>
-                {t("Check")}
+                {t("Check")} <EnterKeyCap className="ml-1" />
               </Button>
             </div>
           ) : (
@@ -498,7 +554,9 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
       )}
 
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm" style={{ color: "var(--ink-3)" }}>
-        {!handsFree && !finished && (
+        {/* Offered once the model is on this device, which the first step's microphone fetches:
+            a loop that opened a microphone with nothing to hear it would play to nobody. */}
+        {!handsFree && !finished && shadow.offered && (shadow.phase === "ready" || shadow.phase === "loading") && (
           <button
             type="button"
             className="tap-tint inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-semibold"
@@ -510,7 +568,8 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
           </button>
         )}
         {said > 0 && <span>{fill(t("{n} said aloud"), { n: said })}</span>}
-        <LookBackButton {...look.button} disabled={look.looking} />
+        {/* Not while hands-free runs: the loop would carry on under the card being looked at. */}
+        {!handsFree && <LookBackButton {...look.button} disabled={look.looking} />}
       </div>
     </div>
   );
@@ -532,11 +591,16 @@ function heardText(step: SpeakingStep, lit: { heard: string } | null, boxHeard: 
 }
 
 function gradedLine(
-  t: (english: string) => string, graded: "good" | "hard" | "none" | null, check: AnswerCheck, spoken: boolean,
+  t: (english: string) => string, graded: "good" | "hard" | "shown" | "none" | null, check: AnswerCheck, spoken: boolean,
 ): string {
   if (check.verdict === "correct") return spoken ? t("Heard, and right.") : t("Right.");
   if (graded === "hard") return t("Nearly. It counts, and the word comes back a little sooner.");
-  return t("Not this time. Nothing is written down for a miss here, so say it again whenever you like.");
+  // Asked to be shown is not a miss, and the line says so rather than consoling anybody for one.
+  if (graded === "shown") return t("Here it is. Nothing is written down for this one.");
+  // Painted nearly and written as nothing (no card behind the line, or a near miss the marker does not count): said as both.
+  if (verdictOfCheck(check) === "nearly") return t("Nearly. Nothing is written down for this one.");
+  // The box is closed now, so the line does not invite another try it cannot take.
+  return t("Not this time. Nothing is written down for a miss here.");
 }
 
 /** The read-back of what was heard, in a native voice. Drawn only with a network. */
@@ -566,8 +630,8 @@ function HearItHeard({ text, voice, pace }: { text: string; voice: string; pace:
 }
 
 /** Hands-free's own panel: the whole of it is the pause, and it says what it cannot do. */
-function HandsFreePanel({ paused, wakeRefused, backgroundStop, listening, onToggle }: {
-  paused: boolean; wakeRefused: boolean; backgroundStop: boolean; listening: boolean; onToggle: () => void;
+function HandsFreePanel({ paused, wakeRefused, backgroundStop, listening, micError, onToggle }: {
+  paused: boolean; wakeRefused: boolean; backgroundStop: boolean; listening: boolean; micError: EngineError | null; onToggle: () => void;
 }) {
   const t = useT();
   const fine = typeof window !== "undefined" && window.matchMedia?.("(pointer: fine)").matches;
@@ -576,13 +640,15 @@ function HandsFreePanel({ paused, wakeRefused, backgroundStop, listening, onTogg
       <button
         type="button"
         onClick={onToggle}
-        className="choice-btn flex min-h-[7rem] w-full flex-col items-center justify-center gap-2 rounded-[var(--r-lg)] px-4 py-5 text-md font-semibold"
-        aria-pressed={paused}
+        className="choice-btn flex min-h-[7rem] w-full flex-col items-center justify-center gap-2 rounded-[var(--r-lg)] border px-4 py-5 text-md font-semibold"
+        style={{ "--choice-bg": "var(--raised)", color: "var(--ink)" } as CSSProperties}
+        aria-keyshortcuts="Space"
         data-hands-free-pause
       >
         {paused ? <Play size={28} aria-hidden /> : <Pause size={28} aria-hidden />}
         {paused ? t("Paused. Tap anywhere here to carry on.") : listening ? t("Listening. Tap anywhere here to pause.") : t("Tap anywhere here to pause.")}
       </button>
+      {micError && <MicError error={micError} onRetry={null} />}
       <p className="text-sm" style={{ color: "var(--hard-ink)" }} role="status">
         {backgroundStop ? t("The browser held back the sound in this background tab. Bring the tab forward to carry on.") : ""}
         {backgroundStop && wakeRefused ? " " : ""}

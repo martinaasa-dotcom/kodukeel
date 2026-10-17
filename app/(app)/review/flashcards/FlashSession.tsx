@@ -184,11 +184,12 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
   const check = useCallback(async (said?: string) => {
     if (!task || mark) return;
     const answer = said ?? typed;
-    /* Said aloud where the microphone filled the box (VB-6). A word the
-       dictionary repaired, still in the box as it was put there, writes no
-       row (D13); the mark is shown all the same. */
-    const saidAloud = said !== undefined || voiceBox.current.spoken;
-    const unwritten = saidAloud && voiceBox.current.carriesRepair(answer);
+    /* Said aloud where what is marked is what the microphone put in the box,
+       unedited (VB-6, D4). A word the dictionary repaired, still in the box as
+       it was put there, writes no row whether or not the rest was edited
+       (D13); the mark is shown all the same. */
+    const saidAloud = said !== undefined || voiceBox.current.saidAsHeard(answer);
+    const unwritten = (said !== undefined || voiceBox.current.spoken) && voiceBox.current.carriesRepair(answer);
     const marked = markFlash(task, answer);
     /*
       A hint is paid for: see `lib/questions/hints.ts`. `Math.min` rather than a

@@ -42,6 +42,8 @@ export const VOICE_ROUNDS: Area = {
     "You said {said}.": "Вы сказали: {said}.",
     "You said {said}. It's {answer}.": "Вы сказали: {said}. Правильно: {answer}.",
     "That wasn't a number we could read.": "Мы не смогли прочитать это как число.",
+    "That wasn't a time we could read.": "Мы не смогли прочитать это как время.",
+    "That wasn't a price we could read.": "Мы не смогли прочитать это как цену.",
     "Right number. Mind the letters: the word has an õ, ä, ö or ü in it.":
       "Число верное. Обратите внимание на буквы: в слове есть буква с точками или с тильдой.",
     "In digits, so no word was practised. Say it or type the words next time.":
@@ -53,9 +55,11 @@ export const VOICE_ROUNDS: Area = {
     "This opens once you've met the numbers. They're one of the first units of the course.":
       "Это откроется, когда вы познакомитесь с числами. Это один из первых разделов курса.",
     "Every number right": "Все числа верно",
-    "Said out loud": "Сказано вслух",
     "{n} of {total} right": "Верно: {n} из {total}",
     "{n} number words counted toward your reviews.": "Слов-чисел засчитано в повторение: {n}.",
+    "One number word counted toward your reviews.": "Одно слово-число засчитано в повторение.",
+    "Those number words aren't in your deck yet, so nothing was written down.":
+      "Этих слов-чисел ещё нет в вашей колоде, поэтому ничего не записано.",
     "Answers in digits are marked but don't count toward your reviews. Say them, or type the words, and they do.":
       "Ответы цифрами проверяются, но в повторение не засчитываются. Скажите их вслух или напишите словами, и они засчитаются.",
 
@@ -130,6 +134,8 @@ export const VOICE_ROUNDS: Area = {
     "You said {said}.": "Ви сказали: {said}.",
     "You said {said}. It's {answer}.": "Ви сказали: {said}. Правильно: {answer}.",
     "That wasn't a number we could read.": "Ми не змогли прочитати це як число.",
+    "That wasn't a time we could read.": "Ми не змогли прочитати це як час.",
+    "That wasn't a price we could read.": "Ми не змогли прочитати це як ціну.",
     "Right number. Mind the letters: the word has an õ, ä, ö or ü in it.":
       "Число правильне. Зверніть увагу на літери: у слові є літера з крапками або з тильдою.",
     "In digits, so no word was practised. Say it or type the words next time.":
@@ -141,9 +147,11 @@ export const VOICE_ROUNDS: Area = {
     "This opens once you've met the numbers. They're one of the first units of the course.":
       "Це відкриється, коли ви познайомитеся з числами. Це один із перших розділів курсу.",
     "Every number right": "Усі числа правильно",
-    "Said out loud": "Сказано вголос",
     "{n} of {total} right": "Правильно: {n} з {total}",
     "{n} number words counted toward your reviews.": "Слів-чисел зараховано до повторення: {n}.",
+    "One number word counted toward your reviews.": "Одне слово-число зараховано до повторення.",
+    "Those number words aren't in your deck yet, so nothing was written down.":
+      "Цих слів-чисел ще немає у вашій колоді, тож нічого не записано.",
     "Answers in digits are marked but don't count toward your reviews. Say them, or type the words, and they do.":
       "Відповіді цифрами перевіряються, але до повторення не зараховуються. Скажіть їх вголос або напишіть словами, і вони зарахуються.",
 
