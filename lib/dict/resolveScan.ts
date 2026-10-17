@@ -24,7 +24,7 @@ import type { ScannedItem } from "@/lib/scan/extract";
 import type { ResolvedItem } from "@/lib/scan/items";
 import { possibleFirstPersons } from "@/lib/estonian/conjugate";
 import {
-  matchEstonianForm, possibleStems, type Candidate,
+  matchEstonianForm, possibleStems, vouchable, type Candidate,
 } from "./search";
 import { FOLD_FROM, FOLD_TO, fold } from "@/lib/estonian/fold";
 
@@ -103,7 +103,26 @@ function resolveOne(candidates: Candidate[], item: ScannedItem): ResolvedItem {
  * rest is asked of `matchEstonianForm` again, which is the one gate (ADR-021).
  */
 export async function vouchScanItems(items: ResolvedItem[]): Promise<ResolvedItem[]> {
-  return resolveScannedItems(items.map((item) => ({ et: item.et, en: item.en })));
+  if (items.length === 0) return [];
+  const candidates = await candidatesFor(items.map((item) => item.et));
+  return items.map((item) => {
+    const resolved = resolveOne(candidates, { et: item.et, en: item.en });
+    /*
+      One claim from the client survives, and only where the dictionary makes it
+      too. Two entries can be spelled alike (`hall` is grey and frost), and the
+      things in a photo (VB-13) let the learner choose between them, so a choice
+      for another row with exactly this headword, vouched for on its own, is
+      kept rather than swapped for whichever of the two ranks first. A choice
+      naming any other row is dropped as before.
+    */
+    if (item.lexemeId && resolved.lexemeId && item.lexemeId !== resolved.lexemeId) {
+      const chosen = candidates.find((c) => c.id === item.lexemeId);
+      if (chosen && vouchable(chosen) && chosen.lemma === resolved.lemma && chosen.lemma === item.et) {
+        return { ...resolved, lexemeId: chosen.id, translation: chosen.translation, cefr: chosen.cefr };
+      }
+    }
+    return resolved;
+  });
 }
 
 /**

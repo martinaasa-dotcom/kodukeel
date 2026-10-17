@@ -11,6 +11,7 @@ import { useT } from "@/components/Locale";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { MAX_READING_CHARS } from "@/lib/estonian/readingText";
 import { NOT_REACHED } from "@/lib/copy/values";
+import { Recording } from "./Recording";
 
 type Read = { sentence: string; tokens: GlossedToken[] }[][];
 
@@ -39,6 +40,8 @@ export function Reader() {
   const [read, setRead] = useState<Read | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  /** A recording is open (VB-12), and its own view stands where the paste box was. */
+  const [recording, setRecording] = useState(false);
 
   const submit = async () => {
     setBusy(true);
@@ -72,7 +75,8 @@ export function Reader() {
           </div>
         </div>
       ) : (
-        <div className="rounded-lg border p-5" style={{ borderColor: "var(--rule)", background: "var(--surface)" }}>
+        <div className="flex flex-col gap-5">
+        {!recording && <div className="rounded-lg border p-5" style={{ borderColor: "var(--rule)", background: "var(--surface)" }}>
           <label htmlFor="reading" className="label-xs block" style={{ color: "var(--ink-3)" }}>
             {t("Estonian text")}
           </label>
@@ -102,6 +106,8 @@ export function Reader() {
           <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
             {t("We don’t keep your text. The dictionary reads it, and it’s gone when you leave.")}
           </p>
+        </div>}
+        <Recording onActive={setRecording} />
         </div>
       )}
     </Page>

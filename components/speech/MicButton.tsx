@@ -35,6 +35,11 @@ export interface MicButtonProps {
   /** Show the words so far under the button while listening. Off where the screen shows them in its own box. */
   readonly showPartial?: boolean;
   readonly size?: "md" | "lg";
+  /**
+   * The screen says what went wrong in its own words, because its way on is
+   * not typing: the landing café's is picking a line (VB-15).
+   */
+  readonly quietErrors?: boolean;
 }
 
 /** The shortcut: Control and M, which types nothing on any keyboard Estonian is written on. */
@@ -43,7 +48,7 @@ export const MIC_SHORTCUT = { key: "m", label: "Ctrl M" } as const;
 /** Pressed for longer than this under a finger, a press is talking while held. */
 const HOLD_MS = 350;
 
-export function MicButton({ speech, label, shortcut = false, showPartial = true, size = "md" }: MicButtonProps) {
+export function MicButton({ speech, label, shortcut = false, showPartial = true, size = "md", quietErrors = false }: MicButtonProps) {
   const t = useT();
   const [asking, setAsking] = useState(false);
   const [announce, setAnnounce] = useState("");
@@ -199,7 +204,7 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
         </div>
       )}
 
-      {error && !asking && <MicError error={error} onRetry={error === "download-failed" || error === "hash-failed" ? () => void speech.download() : null} />}
+      {error && !asking && !quietErrors && <MicError error={error} onRetry={error === "download-failed" || error === "hash-failed" ? () => void speech.download() : null} />}
 
       <p className="sr-only" role="status" aria-live="polite">{announce}</p>
     </div>

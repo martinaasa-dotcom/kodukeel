@@ -49,6 +49,8 @@ export class WebSpeechEngine implements SpeechEngine {
     readonly onEvent: (event: EngineEvent) => void;
   } | null = null;
   private waiters = new Set<(message: FromWorker) => void>();
+  /** A recording is being heard, which `cancel` stops rather than a turn. */
+  private transcribing = false;
 
   constructor(private readonly modelBase: string) {}
 
@@ -234,6 +236,11 @@ export class WebSpeechEngine implements SpeechEngine {
   }
 
   cancel(): void {
+    if (this.transcribing) {
+      // A recording being heard stops after the piece in hand; what was heard by then is returned.
+      this.worker?.postMessage({ type: "cancel" } satisfies ToWorker);
+      return;
+    }
     if (!this.turn) return;
     this.worker?.postMessage({ type: "cancel" } satisfies ToWorker);
     this.closeCapture();
@@ -252,12 +259,17 @@ export class WebSpeechEngine implements SpeechEngine {
   async transcribe(samples: Float32Array, sampleRate: number, onProgress: (done: number, total: number) => void): Promise<TranscribedPiece[]> {
     await this.load();
     const pieces: TranscribedPiece[] = [];
-    await this.ask({ type: "transcribe", samples, rate: sampleRate }, "transcribed", (m) => {
-      if (m.type === "segment") {
-        if (m.turn) pieces.push({ turn: m.turn, from: m.from, to: m.to });
-        onProgress(m.done, m.total);
-      }
-    });
+    this.transcribing = true;
+    try {
+      await this.ask({ type: "transcribe", samples, rate: sampleRate }, "transcribed", (m) => {
+        if (m.type === "segment") {
+          if (m.turn) pieces.push({ turn: m.turn, from: m.from, to: m.to });
+          onProgress(m.done, m.total);
+        }
+      });
+    } finally {
+      this.transcribing = false;
+    }
     return pieces;
   }
 

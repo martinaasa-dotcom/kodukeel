@@ -109,7 +109,12 @@ export interface SpeechEngine {
   listen(options: ListenOptions, onEvent: (event: EngineEvent) => void): Promise<void>;
   /** End the turn now, as a press does. */
   stop(): void;
-  /** End the turn and throw away what was heard. */
+  /**
+   * End the turn and throw away what was heard. While a recording is being
+   * transcribed, stop after the piece in hand instead; `transcribe` then
+   * resolves with the pieces heard so far, so stopping a long message keeps
+   * its beginning.
+   */
   cancel(): void;
   /** Decode audio that is already in hand, a recording somebody opened, in pieces cut at its pauses. */
   transcribe(samples: Float32Array, sampleRate: number, onProgress: (done: number, total: number) => void): Promise<TranscribedPiece[]>;

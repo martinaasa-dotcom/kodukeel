@@ -568,7 +568,7 @@ function ScanRow({ row, editing, busy, onToggle, onEdit, onChange, onRecheck }: 
 
 /** "Page from 29.08", which is what a person would write on a folder tab. */
 /** "Page from 07.10", in the learner's language: `template` is that line through `t`. */
-function defaultTitle(template: string): string {
+export function defaultTitle(template: string): string {
   const now = new Date();
   const day = String(now.getDate()).padStart(2, "0");
   const month = String(now.getMonth() + 1).padStart(2, "0");
@@ -585,7 +585,7 @@ function defaultTitle(template: string): string {
  * file declares, so a page photographed in portrait does not arrive on its
  * side and get read as a column of nonsense.
  */
-async function shrink(file: File): Promise<string> {
+export async function shrink(file: File | Blob): Promise<string> {
   const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
   const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
   const width = Math.max(1, Math.round(bitmap.width * scale));

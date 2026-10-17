@@ -3489,6 +3489,48 @@ export async function readEstonian(textIn: unknown) {
 /** Distinct words reading mode asks the dictionary about; a 4,000 character text holds fewer. */
 const READING_WORD_BUDGET = 900;
 
+/** The most lines a recording's transcript arrives in: three minutes cut at its pauses is far fewer. */
+const MAX_HEARD_LINES = 200;
+
+/**
+ * WHAT A RECORDING WAS HEARD AS, WITH THE DICTIONARY UNDER IT (docs/41-fifth-batch.md, VB-12).
+ *
+ * The sound never comes here: a voice message is decoded and heard on the
+ * learner's device, and what arrives is its text, one line per piece the
+ * engine cut it into (D16). Each line is glossed exactly as a pasted sentence
+ * is, through the one gate, and kept as one line so the screen can play it
+ * back from the recording. And each word is asked of the forms list, which is
+ * half of the rule that marks the words the machine was least sure of: one
+ * request for the transcript rather than one per line. Nothing is stored and no
+ * model is asked; the lines go back to the screen that sent them.
+ */
+export async function readHeard(linesIn: unknown) {
+  const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "readText");
+  if (busy) return await sayRefusal(ownerId, busy);
+  const lines: string[] = [];
+  let used = 0;
+  for (const raw of Array.isArray(linesIn) ? linesIn.slice(0, MAX_HEARD_LINES) : []) {
+    const line = visibleLine(raw, MAX_READING_CHARS);
+    if (!line) continue;
+    used += line.length + 2;
+    if (used > MAX_READING_CHARS) break;
+    lines.push(line);
+  }
+  if (lines.length === 0) return { ok: false as const, error: "Nothing was heard in that recording." };
+  const glossed = await glossSentences(lines.map((et) => ({ et, form: null })), READING_WORD_BUDGET);
+  const words = [...new Set(lines.flatMap((line) => line.split(/\s+/))
+    .map((word) => word.normalize("NFC").toLocaleLowerCase("et").replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, ""))
+    .filter((word) => word.length > 0 && word.length <= 40))].slice(0, READING_WORD_BUDGET);
+  const held = await Promise.all(words.map(async (word) => [word, await isExactForm(word)] as const));
+  return {
+    ok: true as const,
+    lines: lines.map((sentence, i) => ({ sentence, tokens: glossed[i] ?? [] })),
+    asked: words,
+    known: held.filter(([, yes]) => yes).map(([word]) => word),
+  };
+}
+
 export async function buildClozeFromText(passageIn: string) {
   const ownerId = await requireUserId();
   const raw = text(passageIn);

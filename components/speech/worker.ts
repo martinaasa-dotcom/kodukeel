@@ -288,11 +288,15 @@ async function endTurn(why: "pressed" | "silence" | "nothing-said" | "too-long")
   post({ type: "final", turn, why });
 }
 
+/** Set by "cancel" while a recording is being heard: stop after the piece in hand, keeping what was heard. */
+let stopTranscribing = false;
+
 /**
  * A recording somebody opened, heard in pieces cut at its pauses so no piece
  * is long and no word is split, each piece decoded the way a turn is.
  */
 async function transcribe(samples: Float32Array, rate: number): Promise<void> {
+  stopTranscribing = false;
   const audio = resample(samples, rate, S.sampleRate);
   const frames = loudFrames(audio);
   const frame = Math.round(S.sampleRate * S.frameSeconds);
@@ -317,9 +321,16 @@ async function transcribe(samples: Float32Array, rate: number): Promise<void> {
     const turn = await finalTurn(audio.subarray(a * frame, Math.min(audio.length, b * frame)));
     done += 1;
     post({ type: "segment", turn, from: (a * frame) / S.sampleRate, to: Math.min(audio.length, b * frame) / S.sampleRate, done, total });
+    // A real pause between pieces, so a "cancel" sent while this runs is read
+    // before the next piece rather than after the last one: decoding is
+    // synchronous, and a resolved await gives the message queue no turn.
+    await new Promise((resume) => setTimeout(resume, 0));
+    if (stopTranscribing) break;
   }
+  stopTranscribing = false;
   post({ type: "transcribed" });
 }
+
 
 let audioPort: MessagePort | null = null;
 
@@ -351,6 +362,7 @@ scope.onmessage = (event) => {
         await endTurn("pressed");
         return;
       case "cancel":
+        stopTranscribing = true;
         audioPort?.close();
         audioPort = null;
         live?.free();
