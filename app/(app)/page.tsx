@@ -3,7 +3,7 @@ import { Lettered } from "@/components/HeroLetters";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { redirect } from "next/navigation";
 import { LEARN_BATCH } from "@/lib/learn/ladder";
-import { ArrowRight, Flame, Shield } from "lucide-react";
+import { ArrowRight, Check, Flame, Shield } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { dailySummary, deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
@@ -308,6 +308,15 @@ export default async function TodayPage() {
     printed "20 due" over a session that asked one card.
   */
   const toReview = review.cards.length;
+  /*
+    WHAT IS DUE, AND NOTHING ELSE, for the strip that says "due". The sitting
+    above includes up to ten unseen cards that Review trickles in with no daily
+    limit, so a learner who answered twenty cards was told "10 due" straight
+    afterwards: the next ten unseen cards had taken the place of the ones just
+    done. A strip called "due" that can never reach nought is a list that
+    cannot be finished, and an unseen card is new rather than due.
+  */
+  const dueCount = review.due.length;
   // What is due, as Review will ask it, marked where more is due than a sitting holds.
   const dueNow = review.dueMore ? `${review.due.length}+` : review.due.length;
   /** Words waiting on the ladder, in words rather than in cards. */
@@ -980,9 +989,25 @@ export default async function TodayPage() {
     tonight, so they get a smaller card under the hero that points at the
     words already outstanding, and the greeting stands alone. It is a plain
     link in a white card rather than a second button, since the hero already
-    has the one loud action, and it is absent when nothing is due.
+    has the one loud action. Once nothing is due it says the review is done
+    instead (below).
   */
-  const reviewStrip = (moduleTonight || courseNow?.finishedToday) && toReview > 0 ? (
+  /*
+    WHEN THERE IS NOTHING DUE, THE STRIP SAYS THE REVIEW IS DONE.
+
+    A learner who went through their cards and came back to Today was shown
+    the same card as before, with a number on it, which reads as nothing having
+    counted. So a day on which they reviewed something and nothing is left due
+    says so, with the figure off the log (`reviewsToday`, derived like every
+    other number here, nothing stored). It carries one quiet way to go on, for
+    the learner who wants more: new words if the ladder has any, otherwise the
+    unseen cards Review would trickle in. It is an offer and not a count, and
+    it never calls those cards due. On a day nothing has been reviewed and
+    nothing is due there is nothing to say, so the strip is absent.
+  */
+  const reviewedToday = summary.reviewsToday;
+  const moreHref = toLearn > 0 ? "/learn/new" : review.fresh.length > 0 ? "/review" : null;
+  const reviewStrip = !(moduleTonight || courseNow?.finishedToday) ? null : dueCount > 0 ? (
     <Card className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-4">
       <p className="text-base" style={{ color: "var(--ink)" }}>
         <span className="font-semibold">{t("Review cards")}</span>
@@ -997,6 +1022,25 @@ export default async function TodayPage() {
       >
         {t("Review now")} <ArrowRight size={15} aria-hidden />
       </Link>
+    </Card>
+  ) : reviewedToday > 0 ? (
+    <Card className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-4" data-review-done>
+      <p className="text-base" style={{ color: "var(--ink)" }}>
+        <Check size={17} aria-hidden className="mr-1.5 inline-block align-[-3px]" style={{ color: "var(--accent-deep)" }} />
+        <span className="font-semibold">{t("Review done for today")}</span>
+        <span style={{ color: "var(--ink-2)" }}>
+          {" "}{say(`(${reviewedToday} reviewed, nothing else due)`, "({cards} reviewed, nothing else due)", { cards: countOf(locale, reviewedToday, "card") })}
+        </span>
+      </p>
+      {moreHref && (
+        <Link
+          href={moreHref}
+          className="inline-flex items-center gap-1.5 text-base font-semibold underline underline-offset-2"
+          style={{ color: "var(--accent-deep)" }}
+        >
+          {t("A few more, if you like")} <ArrowRight size={15} aria-hidden />
+        </Link>
+      )}
     </Card>
   ) : null;
 
