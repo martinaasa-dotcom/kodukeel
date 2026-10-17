@@ -5466,6 +5466,13 @@ a:focus-visible .wave-word::after {
 }
 .case-label-ask { font-weight: 500; color: var(--ink); }
 .case-label-means { color: var(--ink-3); }
+/* Stacked, one piece a line, where a label sits in a narrow tile: the name,
+   then the question, then its reading. Run inline, the dictionary's five
+   principal-part tiles broke "kes? mis? who? what?" across three ragged
+   lines under every form. */
+.case-label-stack { display: block; }
+.case-label-stack > :not(.sr-only) { display: block; margin-inline-start: 0; }
+.case-label-stack > .case-label-name { display: inline-block; margin-bottom: 0.25rem; }
 
 /*
   A PART OF THE DEBRIEF IS A PANEL, NOT A HEADING AND SOME LOOSE LINES.

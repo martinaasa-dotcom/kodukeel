@@ -4,7 +4,7 @@ import { equivalentIn, type GlossLanguage } from "@/lib/collections/glossLanguag
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { BookOpenText, Camera, Check, Plus, ScissorsLineDashed, Search, Star, TrendingUp } from "lucide-react";
+import { Camera, Check, Plus, ScissorsLineDashed, Search, Star, TrendingUp } from "lucide-react";
 import { addToDeck } from "@/app/actions";
 import { DeckChoiceList, useDeckChoice } from "@/components/DeckChoice";
 import { Button, ButtonLink } from "@/components/Button";
@@ -391,10 +391,9 @@ export function DictionaryClient({
             <ButtonLink href="/review/cloze">
               <ScissorsLineDashed size={15} aria-hidden /> {t("Paste a passage")}
             </ButtonLink>
-            {/* And the same paste read rather than drilled: every word looked up in place. */}
-            <ButtonLink href="/read">
-              <BookOpenText size={15} aria-hidden /> {t("Read a text")}
-            </ButtonLink>
+            {/* Reading a text is not here as well: it is a door in "Also in the
+                dictionary" at the foot of the page, and the landing offered it
+                twice. */}
           </div>
         </div>
       )}
@@ -838,7 +837,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                   */}
                   {label.question ? (
                     <span className="mt-1.5 block text-2xs">
-                      <CaseLabel label={{ et: label.et, question: label.question }} />
+                      <CaseLabel className="case-label-stack" label={{ et: label.et, question: label.question }} />
                     </span>
                   ) : (
                     <span lang="et" className="label-xs mt-1.5 block" style={{ color: "var(--ink-3)", textTransform: "none" }}>{label.et}</span>
