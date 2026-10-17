@@ -51,7 +51,7 @@ export function Bench({ availability }: { readonly availability: SpeechAvailabil
 
       <Card>
         <h2 className="text-lg font-semibold">The microphone in every state</h2>
-        <div className="mt-4 grid gap-5 sm:grid-cols-2" data-mic-gallery>
+        <div className="mt-4 grid gap-5 lg:grid-cols-2" data-mic-gallery>
           {GALLERY.map(([name, overrides]) => (
             <div key={name} className="flex flex-col gap-2" data-mic-state={name}>
               <p className="text-sm font-medium" style={{ color: "var(--ink-2)" }}>{name}</p>
