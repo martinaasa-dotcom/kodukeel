@@ -632,6 +632,7 @@ export function whyWithheld(verdict: Verdict | null, move?: string): string | un
     register: "it addressed them with the pronoun this conversation does not use",
     clause: "it had no finite verb, so it was not a sentence",
     government: "a noun was in a case the verb beside it does not take",
+    parallel: `it offered a choice of two things in two different forms${verdict.offered ? ` ("${verdict.offered[0]}" and "${verdict.offered[1]}")` : ""}; put both options in the same case, so either is a whole answer`,
     question: "it was a question with a question word and a pronoun but no verb, which is not how anybody asks; say it as a whole question with its verb",
     farewell: "it said goodbye, and the conversation is not over: you still have things to settle, so do not thank them for coming or take your leave until you do",
   };

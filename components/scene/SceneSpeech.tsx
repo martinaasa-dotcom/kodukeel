@@ -131,6 +131,36 @@ export function SceneMic({ box, expect, onHeard, call, cue, closed, label, size 
     return () => { live = false; };
   }, [speech.appSpeaking]);
 
+  /*
+    THE CARET COMES BACK TO THE MICROPHONE ONCE THE APP HAS SPOKEN. The button
+    is disabled while a line plays (D14), and a browser drops focus to the body
+    off a control it has just disabled, so a keyboard user who answered with
+    the microphone was left with nothing focused after every one of the other
+    side's lines. Only where focus was on it when the line started and is
+    still nowhere when it ends: a learner who moved it meanwhile keeps it where
+    they put it.
+  */
+  const root = useRef<HTMLDivElement>(null);
+  const hadFocus = useRef(false);
+  /*
+    Read during the render, which is before the commit that disables the
+    button: by the time an effect runs, the browser has already moved focus to
+    the body and there is nothing left to ask.
+  */
+  const focusedBefore = useRef(false);
+  if (typeof document !== "undefined" && root.current) focusedBefore.current = root.current.contains(document.activeElement);
+  useEffect(() => {
+    if (speech.appSpeaking) {
+      hadFocus.current = focusedBefore.current || (root.current?.contains(document.activeElement) ?? false);
+      return;
+    }
+    if (!hadFocus.current) return;
+    hadFocus.current = false;
+    if (document.activeElement === document.body || document.activeElement === null) {
+      root.current?.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
+    }
+  }, [speech.appSpeaking]);
+
   const reported = useRef<string>("");
   const report = useRef(onState);
   report.current = onState;
@@ -169,7 +199,7 @@ export function SceneMic({ box, expect, onHeard, call, cue, closed, label, size 
   }
 
   return (
-    <div className="flex flex-col gap-2" data-scene-mic={speech.listening ? "listening" : speech.thinking ? "thinking" : "idle"}>
+    <div ref={root} className="flex flex-col gap-2" data-scene-mic={speech.listening ? "listening" : speech.thinking ? "thinking" : "idle"}>
       <MicButton speech={speech} label={label} shortcut size={size} showPartial={box === null} />
       {call && armed && !speech.listening && !speech.thinking && (
         <p className="text-xs" style={{ color: "var(--ink-3)" }}>
@@ -191,7 +221,16 @@ export function SceneMic({ box, expect, onHeard, call, cue, closed, label, size 
  * is the learner sending it now rather than in a moment. Under
  * `prefers-reduced-motion` the ring holds still and the words carry it.
  */
-export function SendRing({ onDone, onStop }: { readonly onDone: () => void; readonly onStop: () => void }) {
+export function SendRing({ onDone, onStop, announce = true }: {
+  readonly onDone: () => void;
+  readonly onStop: () => void;
+  /**
+   * Say it for a screen reader. Off where the screen already says it in a
+   * status line of its own beside the ring (a conversation's lit line and its
+   * box), so it is announced once rather than twice.
+   */
+  readonly announce?: boolean;
+}) {
   const t = useT();
   const done = useRef(onDone);
   done.current = onDone;
@@ -217,7 +256,7 @@ export function SendRing({ onDone, onStop }: { readonly onDone: () => void; read
         <circle cx="10" cy="10" r="8" className="send-ring-track" />
         <circle cx="10" cy="10" r="8" className="send-ring-fill" pathLength={100} />
       </svg>
-      <span className="sr-only" role="status">{t("Sending in a moment. Touch the screen to stop it.")}</span>
+      {announce && <span className="sr-only" role="status">{t("Sending in a moment. Press anywhere or any key to stop it.")}</span>}
     </span>
   );
 }
