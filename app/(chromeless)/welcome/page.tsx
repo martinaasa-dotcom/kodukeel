@@ -1055,7 +1055,10 @@ function Feature({ tone, icon, title, body, children }: {
       className="lift flex h-full flex-col rounded-[var(--r-xl)] border p-6"
       style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}
     >
-      <div className="flex items-center gap-3">
+      {/* Level with the top of the tile, never centred on it: three cards
+          sit in a row, and a heading that wraps beside the tile in one of
+          them put the other two headings lower than it. */}
+      <div className="flex items-start gap-3">
         <span
           className="feature-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--r)] border"
           style={{

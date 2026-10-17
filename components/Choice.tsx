@@ -178,8 +178,7 @@ function spring(el: HTMLElement) {
 }
 
 const base =
-  "choice-btn inline-flex items-center justify-center gap-2 border font-semibold " +
-  "disabled:pointer-events-none";
+  "choice-btn inline-flex gap-2 border font-semibold disabled:pointer-events-none";
 
 /**
  * A pill option: a short answer in a row of short answers.
@@ -215,7 +214,7 @@ export function ChoiceChip({
       onClick={(e) => { spring(e.currentTarget); onSelect(); }}
       {...optionRole(select, selected)}
       data-on={selected ? "" : undefined}
-      className={`${base} choice-chip rounded-full ${small ? "gap-1.5 whitespace-nowrap px-2.5 py-1.5 text-xs" : "px-4 py-2.5 text-sm"} ${even ? "min-w-11" : ""}`}
+      className={`${base} choice-chip items-center justify-center rounded-full ${small ? "gap-1.5 whitespace-nowrap px-2.5 py-1.5 text-xs" : "px-4 py-2.5 text-sm"} ${even ? "min-w-11" : ""}`}
     >
       {icon}
       {children}
@@ -248,9 +247,18 @@ export function ChoiceCard({
 }) {
   const select = useContext(GroupContext);
   const mark = selected ? "var(--accent-deep)" : "var(--ink-3)";
+  /*
+    Top-aligned, always. A card sits in a grid beside others whose detail runs
+    to a different number of lines, and centring each card's contents in its
+    own height puts one title a line lower than the title beside it. So the
+    content starts at the top, and the icon and the tick are each held to the
+    height of the title's first line (`1lh` at the title's own size), which
+    keeps them level with the title rather than with the middle of the card.
+  */
+  const onTitleLine = "flex shrink-0 items-center text-base";
   const head = (
     <>
-      {icon && <span className="shrink-0" style={{ color: mark }}>{icon}</span>}
+      {icon && <span className={onTitleLine} style={{ color: mark, height: "1lh" }}>{icon}</span>}
       {lead && <span className="tnum shrink-0 text-base font-bold" style={{ color: "var(--accent-deep)" }}>{lead}</span>}
     </>
   );
@@ -266,6 +274,7 @@ export function ChoiceCard({
     ? <span className="mt-0.5 block text-xs leading-snug" style={{ color: "var(--ink-3)" }}>{detail}</span>
     : null;
   const tick = (
+    <span aria-hidden className={onTitleLine} style={{ height: "1lh" }}>
     <Check
       size={16}
       aria-hidden
@@ -279,6 +288,7 @@ export function ChoiceCard({
         transition: "opacity 180ms ease-out, scale 320ms cubic-bezier(0.34, 1.56, 0.64, 1)",
       }}
     />
+    </span>
   );
 
   return (
@@ -288,13 +298,13 @@ export function ChoiceCard({
       onClick={(e) => { spring(e.currentTarget); onSelect(); }}
       {...optionRole(select, selected)}
       data-on={selected ? "" : undefined}
-      className={`${base} choice-card rounded-[var(--r-lg)] px-4 py-3 text-left ${
-        layout === "stacked" ? "flex-col items-stretch gap-1.5" : "gap-3"
+      className={`${base} choice-card justify-start rounded-[var(--r-lg)] px-4 py-3 text-left ${
+        layout === "stacked" ? "flex-col items-stretch gap-1.5" : "items-start gap-3"
       }`}
     >
       {layout === "stacked" ? (
         <>
-          <span className="flex w-full items-center gap-2">
+          <span className="flex w-full items-start gap-2">
             {head}
             <span className="min-w-0 flex-1">{titleEl}</span>
             {tick}

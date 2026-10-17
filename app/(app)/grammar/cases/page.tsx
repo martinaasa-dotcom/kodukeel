@@ -412,7 +412,7 @@ export default async function GrammarIndexPage({ searchParams }: { searchParams:
                         <li key={id}>
                           <Link
                             href={go(`/grammar/topic/${id}`)}
-                            className="tap-tint group flex min-h-11 items-center gap-3 rounded-[var(--r-sm)] px-2.5 py-2"
+                            className="tap-tint group flex min-h-11 items-start gap-3 rounded-[var(--r-sm)] px-2.5 py-2"
                           >
                             <span className="min-w-0 flex-1">
                               <span className="block text-base font-semibold group-hover:underline" style={{ color: "var(--ink)" }}>
@@ -422,12 +422,16 @@ export default async function GrammarIndexPage({ searchParams }: { searchParams:
                                 <span lang="et" className="block text-xs" style={{ color: "var(--ink-3)" }}>{term.et}</span>
                               )}
                             </span>
+                            {/* On the title's line, so a row with a term under
+                                it and one without start level. */}
                             {topic.marker && (
-                              <span className="shrink-0">
+                              <span className="flex shrink-0 items-center text-base" style={{ height: "1lh" }}>
                                 <Chip tone="accent" caseSensitive>{topic.marker}</Chip>
                               </span>
                             )}
-                            <ChevronRight size={16} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
+                            <span aria-hidden className="flex shrink-0 items-center text-base" style={{ height: "1lh" }}>
+                              <ChevronRight size={16} aria-hidden style={{ color: "var(--ink-3)" }} />
+                            </span>
                           </Link>
                         </li>
                       );
