@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { ASR_CACHE, ASR_MODEL, megabytes, modelBytes, modelFileUrl } from "./model";
 import { SPEECH_SETTINGS as S } from "./settings";
 import { resample, StreamResampler } from "./resample";
-import { loudFrames, normalize, pad, peakOf, prepareTurn, squeezePauses } from "./prepare";
+import { loudFrames, normalize, pad, peakOf, piecesOf, prepareTurn, squeezePauses } from "./prepare";
 import { core, reconcile, type Hearing } from "./reconcile";
 import { cardVerdict, saidIt } from "./verdict";
 import type { Decoding, RawTurn } from "./engine";
@@ -33,22 +33,42 @@ function turn(greedy: string, beam = greedy): RawTurn {
 }
 
 describe("the settings are the ones that were measured", () => {
+  /*
+    Every value, not a selection of them: the table's header promises that a
+    tweak has to argue with the number beside it, and a value this test does
+    not name is one a tweak can move with nothing asking why. The key list is
+    asserted too, so a new setting arrives here with its figure.
+  */
+  const FIGURES: Record<keyof typeof S, unknown> = {
+    sampleRate: 16_000,
+    leadSeconds: 0.5,
+    tailSeconds: 0.8,
+    normalizePeak: 0.9,
+    quietPeak: 0.5,
+    clipWarnPeak: 0.97,
+    pauseOverSeconds: 0.25,
+    pauseToSeconds: 0.15,
+    pauseFloorDb: -40,
+    keepAfterWordSeconds: 0.15,
+    frameSeconds: 0.01,
+    decoding: "greedy_search",
+    secondDecoding: "modified_beam_search",
+    beamPaths: 8,
+    hotwords: false,
+    unsurePrecision: 0.832,
+    unsureRecall: 0.65,
+    waitForSpeechSeconds: 8,
+    endpointSilenceSeconds: 1.2,
+    maxTurnSeconds: 30,
+    maxFileSeconds: 180,
+    piecePauseSeconds: 0.3,
+    pieceMaxSeconds: 20,
+    releaseAfterMs: 120_000,
+    maxRealTimeFactor: 1,
+  };
   it("holds every value to the figure in docs/39-speech.md", () => {
-    expect(S.sampleRate).toBe(16_000);
-    expect(S.leadSeconds).toBe(0.5);
-    expect(S.tailSeconds).toBe(0.8);
-    expect(S.pauseOverSeconds).toBe(0.25);
-    expect(S.pauseToSeconds).toBe(0.15);
-    expect(S.pauseFloorDb).toBe(-40);
-    expect(S.keepAfterWordSeconds).toBe(0.15);
-    expect(S.decoding).toBe("greedy_search");
-    expect(S.beamPaths).toBe(8);
-    expect(S.hotwords).toBe(false);
-    expect(S.unsurePrecision).toBeCloseTo(0.832);
-    expect(S.unsureRecall).toBeCloseTo(0.65);
-    expect(S.waitForSpeechSeconds).toBe(8);
-    expect(S.maxFileSeconds).toBe(180);
-    expect(S.releaseAfterMs).toBe(120_000);
+    expect(Object.keys(S).sort()).toEqual(Object.keys(FIGURES).sort());
+    for (const [name, figure] of Object.entries(FIGURES)) expect(S[name as keyof typeof S], name).toBe(figure);
   });
 
   it("never cuts closer to a word than the pause it leaves", () => {
@@ -157,6 +177,33 @@ describe("preparing a finished turn", () => {
   it("makes nothing of nothing", () => {
     expect(squeezePauses(silence(1)).length).toBe(0);
     expect(prepareTurn(silence(1)).length).toBe(Math.round(RATE * (S.leadSeconds + S.tailSeconds)));
+  });
+});
+
+describe("cutting a recording into pieces (VB-12, the golden file)", () => {
+  const covers = (audio: Float32Array, pieces: Array<[number, number]>) => {
+    expect(pieces.length).toBeGreaterThan(0);
+    expect(pieces[0]![0]).toBe(0);
+    expect(pieces.at(-1)![1]).toBe(audio.length);
+    for (let i = 1; i < pieces.length; i++) expect(pieces[i]![0], `piece ${i}`).toBe(pieces[i - 1]![1]);
+  };
+
+  it("cuts at a long pause and not at a breath", () => {
+    const audio = join(tone(1), silence(0.1), tone(1), silence(0.6), tone(1));
+    const pieces = piecesOf(audio);
+    covers(audio, pieces);
+    // The 0.1 s breath keeps the first two words together; the 0.6 s pause ends that piece.
+    expect(pieces.length).toBe(2);
+    expect(pieces[0]![1] / RATE).toBeGreaterThan(2.1 + S.piecePauseSeconds - 0.02);
+    expect(pieces[0]![1] / RATE).toBeLessThan(2.7);
+  });
+
+  it("never lets a piece run past the cap, however long somebody talks without a pause", () => {
+    const audio = tone(S.pieceMaxSeconds * 2 + 3);
+    const pieces = piecesOf(audio);
+    covers(audio, pieces);
+    expect(pieces.length).toBe(3);
+    for (const [a, b] of pieces) expect((b - a) / RATE).toBeLessThanOrEqual(S.pieceMaxSeconds + 0.011);
   });
 });
 
@@ -297,6 +344,13 @@ describe("lighting a line as it is heard (VB-2)", () => {
   });
   it("is nothing when nothing is heard", () => {
     expect(shareLit(lightUp(line, ""))).toBe(0);
+  });
+  it("lights a mark that opens a line with the word after it, never before anything is said", () => {
+    // An attested reply opens on a dash (written as an escape: this file is read by the voice sweep), which nobody says.
+    const reply = lineWords("– Aitäh!");
+    expect(reply.map((w) => w.key === "")).toEqual([true, false]);
+    expect(lightUp(reply, "")).toEqual([false, false]);
+    expect(lightUp(reply, "aitäh")).toEqual([true, true]);
   });
   it("finds the word said in a gap, and only when the words around it were heard", () => {
     expect(wordInGap(["Kas", "te", "soovite"], ["või", "vett?"], "kas te soovite teed või vett")).toBe("teed");

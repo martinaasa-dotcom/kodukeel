@@ -5506,6 +5506,11 @@ a:focus-visible .wave-word::after {
   background: var(--accent-soft);
   color: var(--accent-deep);
   border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  /* Held to talk under a finger: a long press is the gesture, not a request
+     for the browser's callout, a selection or a double-tap zoom. */
+  -webkit-touch-callout: none;
+  user-select: none;
+  touch-action: manipulation;
   transition-property: background-color, color, box-shadow, transform;
   transition-duration: 160ms;
   transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);

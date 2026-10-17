@@ -22,7 +22,7 @@ import { launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 
 const B = baseUrl();
-const { check, absent, done } = suite("Speaking", { floor: 16 });
+const { check, absent, done } = suite("Speaking", { floor: 17 });
 
 const FAKE_MIC = (clip) => [
   "--use-fake-ui-for-media-stream",
@@ -51,13 +51,13 @@ try {
 
   const response = await page.goto(`${B}/dev/asr`, { waitUntil: "domcontentloaded" });
   if (response?.status() === 404) {
-    absent(15, "/dev/asr answered 404: start the server with ASR_BENCH=1 to reach the speech bench");
+    absent(16, "/dev/asr answered 404: start the server with ASR_BENCH=1 to reach the speech bench");
     done();
     process.exit(process.exitCode ?? 0);
   }
   const first = await phase(page);
   if (first === null || /no-model|off/.test(await page.textContent("[data-bench-status]") ?? "") && first !== "needs-download" && first !== "ready") {
-    absent(15, "this server has no speech model to serve: run npm run asr:fetch before the build");
+    absent(16, "this server has no speech model to serve: run npm run asr:fetch before the build");
     done();
     process.exit(process.exitCode ?? 0);
   }
@@ -89,8 +89,12 @@ try {
   check("the microphone is drawn in every state it has", count >= 15, `${count} states`);
   const unnamed = await page.$$eval("[data-mic-state] button.speech-mic", (buttons) => buttons.filter((b) => !b.getAttribute("aria-label")).length);
   check("every microphone has a name a screen reader can say", unnamed === 0, `${unnamed} without`);
+  // Counted as well as read: a gallery that drew no error cell at all would pass "none is wordless".
+  const errorCells = await page.locator("[data-mic-state^='Error']").count();
   const wordless = await page.$$eval("[data-mic-state^='Error']", (cells) => cells.filter((c) => !/[a-z]{4}/.test(c.querySelector("[role=status] p")?.textContent ?? "")).length);
-  check("every error is said in words", wordless === 0, `${wordless} errors without a sentence`);
+  check("every error is said in words", errorCells >= 9 && wordless === 0, `${errorCells} error states, ${wordless} without a sentence`);
+  const silentLine = await page.locator("[data-mic-state='Nothing was heard']").innerText().catch(() => "");
+  check("a turn that closed with nothing said says so", /Nothing was heard/.test(silentLine), silentLine.slice(0, 80));
   const disabled = await page.locator("[data-mic-state='The app is speaking'] button.speech-mic").isDisabled();
   check("the microphone is closed while the app speaks (D14)", disabled);
 
