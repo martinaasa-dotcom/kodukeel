@@ -153,11 +153,8 @@ async function pressMic(page, name) {
   const mic = page.getByRole("button", { name });
   await eventually(async () => (await mic.count()) > 0 && await mic.first().isEnabled(), { timeoutMs: 30_000 });
   await mic.first().click();
-  // A browser that has never spoken asks for the download first, a frame or two after the press.
-  const prompt = page.getByRole("group", { name: "Download for speaking" });
-  if (await prompt.waitFor({ state: "visible", timeout: 3_000 }).then(() => true).catch(() => false)) {
-    await prompt.getByRole("button", { name: /^Download/ }).click();
-  }
+  // No download question comes first: a press fetches the model where it is
+  // missing and then listens (docs/41-fifth-batch.md section 8b).
 }
 
 const browser = await launchChromium({

@@ -37,7 +37,12 @@ const FAKE_MIC = (clip) => [
   `--use-file-for-fake-audio-capture=${clip}`,
 ];
 
-/** Presses the download offer if one is up, which only the first press on a fresh device draws. */
+/**
+ * Presses a download offer if one is up. None should be: the model is fetched
+ * without a question (docs/41-fifth-batch.md section 8b), and the round's first
+ * check says so. Kept so a regression reads as that check failing rather than
+ * as every check behind it waiting on a prompt.
+ */
 async function acceptDownload(page) {
   const prompt = page.getByRole("group", { name: "Download for speaking" }).first();
   if (await prompt.isVisible({ timeout: 2000 }).catch(() => false)) {
@@ -107,7 +112,7 @@ try {
 
     await along.click();
     const asked = await acceptDownload(page);
-    check("the first press asks for the download and says its size", asked !== null && /\d+\sMB/.test(asked), (asked ?? "no offer").slice(0, 100));
+    check("the first press asks no question: it fetches the model and listens (docs/41 section 8b)", asked === null, (asked ?? "").slice(0, 100));
     const counted = await page.waitForFunction(
       () => /words were heard|Every word was heard|That's the word|heard as the word this time/.test(document.querySelector("[data-speaking-step]")?.textContent ?? ""),
       null,
