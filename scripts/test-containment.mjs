@@ -217,6 +217,9 @@ const ROUTES = [
     measured by scripts/test-chat.mjs on a server of its own with a model stubbed.
   */
   "/course/chat",
+  // The course as lessons, in preview for reviewers (docs/43-lessons.md).
+  "/course/lessons",
+  "/course/lessons/a1-04-persons",
 
   // Measurement, and the things built on it.
   "/progress",

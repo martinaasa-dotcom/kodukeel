@@ -134,7 +134,7 @@ are worth the top model (a wrong case explanation is actively harmful to a learn
 means the multi-thousand-token grammar prompt is paid for once per session rather than per turn.
 Details and cost model in `06-anu-tutor.md`.
 
-**ADR-005: Retrieve morphology, never generate it. (AMENDED, five times, below.)**
+**ADR-005: Retrieve morphology, never generate it. (AMENDED, six times, below.)**
 *Context:* an LLM will happily produce a plausible, wrong partitive plural. *Decision:* authoritative
 forms come from Ekilex only; AI output is tagged `provenance: AI` and requires explicit confirmation
 before entering a card's answer field. *Consequences:* the dictionary is bounded by Ekilex coverage;
@@ -229,6 +229,23 @@ nothing that marks, measures, builds a card, plays a scene or lends a sentence m
 table. *Consequences:* no form is written, no model writes a line, and every word of a joke is one
 the language has; whether the joke is funny and natural is the person's reading, which is why it
 arrives in a pull request and is never stored, graded or put on a card.
+
+*Amendment 6: a lesson's conversation may be written, at every level, and is held to the
+not-taught-yet rule by a test.* The course is rebuilt as lessons (`docs/43-lessons.md`), each of
+which opens on a short conversation that does the evening's goal, and a lexicographer's usage is
+written to illustrate a headword rather than to be somebody's first conversation. The operator
+approved written conversations at every level (decision L2). *Decision:* `lib/course/lessons/`
+holds them, typed in a session and read by the native Estonian speaker in the pull request that
+adds them, on the standing amendment 4 gave a beginner's sentences. **Two machines read every line
+before a person does**: `lib/course/lessons/lessons.test.ts` asks that every spelling is one the
+forms list knows, and `lessonProblems` in `lib/course/lessons/ledger.ts` asks that every spelling
+on every screen of a lesson (the conversation, the rule's Estonian in braces, its table, the
+questions and the model answers) has been taught by that lesson or an earlier one. A phrase covers
+its words only where they stand together, which is "chunks first" as a rule. *Consequences:* no
+form is generated, no model writes a line, and the practice and the review are built from the
+ledger rather than typed, so they cannot ask what was not taught. Whether a line is natural
+Estonian is the person's reading, and anything that reads as unnatural is replaced rather than
+defended.
 
 **ADR-006: Generic importer instead of a Speakly integration.**
 *Context:* Speakly has no public API and no verifiable export (audit A3). *Decision:* one

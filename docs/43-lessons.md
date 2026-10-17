@@ -261,6 +261,10 @@ round. Each level gets its own approval round, lesson by lesson, the way A1 does
 
 ## 6. Decisions the operator makes before code
 
+**Decided on 2026-10-17.** The operator approved section 4 and all six recommendations below as
+written, and handed the details to the build. L2 is ADR-005 amendment 6 in
+`docs/03-architecture.md`.
+
 | # | Question | Recommendation |
 | --- | --- | --- |
 | L1 | **A1 has asked for no case anywhere.** Lessons 15, 25, 26, 28, 31, 32 and 34 teach `mul on`, the partitive, `mulle`, the place sets, `-s` and `-ga`, each as a named pattern on taught words. Allow it? | Yes. Nobody can say where they live, order two coffees or say they have a brother without them, and every Estonian textbook teaches them in A1. Taught as whole sets and patterns, and never as a table of fourteen. |
@@ -275,6 +279,17 @@ round. Each level gets its own approval round, lesson by lesson, the way A1 does
 Each phase is its own pull request or several, and none starts before the one above is merged.
 
 - **P0. This page.** The operator approves section 4 and decides section 6.
+- **P1. The lesson engine. Built:** `lib/course/lessons/` (the types, the ledger and its check,
+  the practice and review built from it, lessons 1 to 8) and the six steps at `/course/lessons`,
+  for reviewers only until A1 is whole (L6), recording nothing. Three things were settled in the
+  building. A typed evening skips saying the conversation along, since copying out lines you can
+  see practises nothing, and goes straight to the questions. Say it marks nothing: the answers are
+  the learner's own name and country, so what was heard goes in the box and one way to say it is
+  shown beside it. And practice is capped at ten questions to recognise and six to produce, so a
+  lesson of twenty-one words (the six persons, long and short) stays five minutes. Lesson 7 dropped
+  `aga` and `ka`, which no line of its conversation needed; they arrive where a line does. The
+  checker caught four slips in the first draft of these eight, every one a word in an English note
+  that only a phrase had taught. The plan as first written said:
 - **P1. The lesson engine.** A `LessonSpec` type beside `PartSpec`; the ledger widened to the five
   kinds of section 3 and the check that walks every lesson; the Listen, Words and How it works screens;
   Say it built from `ReadAloud`, the answer prompts and the scene engine; the six steps wired into the
