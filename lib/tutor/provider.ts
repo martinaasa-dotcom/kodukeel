@@ -113,6 +113,48 @@ export interface ProviderConfig {
    * rather than a cast, and no chain carries it.
    */
   reasoning?: "none" | "low";
+  /**
+   * Anthropic links only: how the model is asked to think, for a measurement
+   * that has to run one model two ways (the eval harnesses, claude-haiku-5-5).
+   * "off" sends `thinking: { type: "disabled" }`; any
+   * other value leaves adaptive thinking on and sends `output_config: { effort }`. Unset keeps
+   * what each call site sent before this existed (`anthropicThinkingFields`),
+   * and no chain in `resolveProviders` sets it, so production is unchanged.
+   */
+  thinking?: "off" | "low" | "medium" | "high" | "xhigh" | "max";
+  /**
+   * Anthropic links only: the reply ceiling this link asks for, where a
+   * measurement needs the ceiling the route means to grant. `openWithFallback`
+   * takes a `maxTokens` and `callAnthropic` has never been handed it, so every
+   * Anthropic stream is capped at `REPLY_TOKENS` whatever the caller asked for.
+   * Unset keeps exactly that, and no chain in `resolveProviders` sets it.
+   */
+  maxTokens?: number;
+}
+
+/**
+ * The thinking fields of an Anthropic request body: the link's own choice where
+ * it made one, and otherwise `fallback`, which is what that call site has
+ * always sent (`ANTHROPIC_THINKING` for the stream and the picture, nothing at
+ * all for the grader's JSON call).
+ */
+export function anthropicThinkingFields(
+  config: Pick<ProviderConfig, "thinking" | "model">,
+  fallback: Record<string, unknown>,
+): Record<string, unknown> {
+  if (!config.thinking) return fallback;
+  if (config.thinking === "off") return { thinking: thinkingOff(config.model) };
+  return { output_config: { effort: config.thinking } };
+}
+
+/**
+ * How a model is told not to think, which is not one spelling. Haiku 5.5 takes
+ * `disabled`; Sonnet 5.5 answers 400 to it ("send `between_tools` instead"),
+ * found by probing both on 2026-10-18. A Sonnet 5.5 link the old way would
+ * have failed every call with a message about a field nobody chose.
+ */
+export function thinkingOff(model: string): { readonly type: string } {
+  return /sonnet-5-5/.test(model) ? { type: "between_tools" } : ANTHROPIC_THINKING;
 }
 
 export interface ChatMessage {
@@ -277,7 +319,8 @@ export interface ChainOptions {
  * `openai/gpt-oss-20b` is cheaper than all of them and answers 21 of 29, so
  * the floor is measured rather than the cheapest thing on the list.
  *
- * THE SCANNER GOES TO GEMINI (`npm run eval:scan`). Six runs of twenty-four
+ * THE SCANNER WENT TO GEMINI, AND THEN TO HAIKU (`npm run eval:scan`, and
+ * `VISION_MODEL` for the second measurement). Six runs of twenty-four
  * words that every one carry a diacritic: `gemini-3.1-flash-lite` read 144 of
  * 144 exactly, and so did `gemini-3.8-flash` and `claude-sonnet-5` at three
  * and eight times its price. The one it replaces was inventing words off a
@@ -311,8 +354,8 @@ const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[])
     }
   },
   scene: (chain) => {
-    // Gemini leads; `resolveProviders` appends the bounded Anthropic fallback
-    // behind whatever this pushes, if the day's fallback budget has room.
+    // Sonnet 5.5 leads and the two Gemini links stand behind it (`SCENE_MODELS`).
+    // Anthropic is already on the chain, so `resolveProviders` appends no tail.
     /*
       PINNED, AND NO VARIABLE MOVES EITHER LINK. Scenes always compose on
       `SCENE_MODELS`, which is the one model `eval:composers` ranked for
@@ -331,13 +374,16 @@ const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[])
       as nobody touches the dashboard. This one is a constant, and the operator
       asked for it to be one.
     */
-    if (process.env.GEMINI_API_KEY) {
-      for (const model of SCENE_MODELS) {
+    for (const model of SCENE_MODELS) {
+      if (model.startsWith("claude-")) {
+        // Thinking off, spelled the way this model takes it (`thinkingOff`).
+        if (process.env.ANTHROPIC_API_KEY) chain.push({ name: "anthropic", model, label: "Anthropic", thinking: "off" });
+      } else if (process.env.GEMINI_API_KEY) {
         // Thinking off: see `ProviderConfig.reasoning` for the measurement.
         chain.push({ name: "gemini", model, label: "Google Gemini", reasoning: "none" });
       }
-      warnIfSceneModelSet();
     }
+    if (chain.length > 0) warnIfSceneModelSet();
     /*
       NO GROQ LINK, WHICH IS THE OPERATOR'S DECISION AND WAS MEASURED IN
       PRODUCTION. `SCENE_FALLBACK_MODEL` stood here as a fixed second link on
@@ -391,6 +437,33 @@ export const GRADER_MODELS: readonly ProviderConfig[] = [
   { name: "gemini", model: "gemini-3.1-flash-lite", label: "Google Gemini" },
   { name: "groq", model: "openai/gpt-oss-120b", label: "Groq" },
 ];
+
+/**
+ * WHO READS A SCENE'S LINES AND TURNS BEFORE THE LEARNER DOES: the consistency
+ * reviewer (`lib/scenes/consistency.ts`) and the judge that may concede a beat
+ * (`lib/scenes/judge.ts`). They were the graders' chain, and a scene composed
+ * on Anthropic is reviewed on Anthropic too, so one balance runs a
+ * conversation and the Gemini one is left to Anu and the graders.
+ *
+ * `claude-haiku-5-5` with low effort, measured on 2026-10-18 against the
+ * questions a Sonnet-composed run actually asked, every one carrying what the
+ * line was for (docs/21-situations.md §86): it let through 49 of 60 lines, as
+ * `claude-sonnet-5-5` did, agreeing with it on all but a handful, at $0.32 a
+ * thousand against $4.02. Off it let through 35 of 58, which is a Sonnet draft
+ * thrown away on every third line, at a third of a cent each; medium hit its
+ * ceiling on four. The concede judge agreed with Sonnet on 22 of 22. The
+ * graders' chain stands behind it, so a deployment with no Anthropic key
+ * reviews exactly as it did. Pinned, like the scene chain, for its reason.
+ */
+export const REVIEW_MODEL = "claude-haiku-5-5";
+
+export function reviewProviders(options: ChainOptions = {}): ProviderConfig[] {
+  const graders = resolveProviders({ ...options, purpose: "grader" });
+  if (purposeOff("grader") || !process.env.ANTHROPIC_API_KEY) return graders;
+  const lead: ProviderConfig = { name: "anthropic", model: REVIEW_MODEL, label: "Anthropic", thinking: "low" };
+  const chain = [lead, ...graders.filter((c) => !(c.name === lead.name && c.model === lead.model))];
+  return options.answering ? liveLinks(chain) : chain;
+}
 
 /**
  * The one courtesy the pin owes an operator: a `SCENE_MODEL` still set in the
@@ -461,7 +534,19 @@ export const TUTOR_FALLBACK_MODEL = "openai/gpt-oss-120b";
  * a phone photograph of somebody's homework, and one that passes has cleared
  * the easier half.
  */
-export const VISION_MODEL = "gemini-3.1-flash-lite";
+/*
+ * AND HAIKU READS IT NOW, BECAUSE IT READS IT AS WELL FOR LESS. Run through the
+ * same harness on 2026-10-18, `claude-haiku-5-5` with thinking off read 144 of
+ * 144 on the first slice and on two fresh slices, as the Lite does, at $0.00073
+ * a clean page against the Lite's $0.00086 and $0.00040 a hard one against
+ * $0.00072 (`npm run eval:scan`). Anthropic bills an image at about four times
+ * the tokens Google does and charges a tenth as much a token. The Lite stays
+ * behind it as `VISION_FALLBACK_MODEL`.
+ */
+export const VISION_MODEL = "claude-haiku-5-5";
+
+/** The second reader, which was the first until Haiku was measured beside it. */
+export const VISION_FALLBACK_MODEL = "gemini-3.1-flash-lite";
 
 /**
  * The model scene composition asks, and why it is one name rather than three.
@@ -524,7 +609,20 @@ export const VISION_MODEL = "gemini-3.1-flash-lite";
   Lite is its backup, for the minute the flash is out of quota, which
   `lib/tutor/exhausted.ts` walks past without asking.
 */
-export const SCENE_MODELS = ["gemini-3.8-flash", "gemini-3.1-flash-lite"] as const;
+/*
+  AND THEN ANTHROPIC LEADS, ON THE OPERATOR'S CREDITS AND ON THE READ.
+
+  `claude-sonnet-5-5`, thinking off, was played through every scene as a
+  sloppy and a curious learner and its lines were the ones the operator read
+  as a person talking; on a scene that composes on every turn it is dearer
+  than the flash, and what makes it affordable is in the transport rather
+  than in the model: the conversation is cached as well as the system prompt
+  (`anthropicMessages`), and the consistency reviewer is told what the line is
+  for, so it stops refusing the wage on the beat that offers the wage, which
+  was most of the retries (docs/21-situations.md §86). The two Gemini links
+  stay behind it, unchanged, for a minute Anthropic is out.
+*/
+export const SCENE_MODELS = ["claude-sonnet-5-5", "gemini-3.8-flash", "gemini-3.1-flash-lite"] as const;
 
 /*
  * There is no scene fallback on Groq any longer. `SCENE_FALLBACK_MODEL` was
@@ -1086,7 +1184,7 @@ export async function openWithFallback(
       }
       const upstream =
         config.name === "anthropic"
-          ? await callAnthropic(config, system, messages, live)
+          ? await callAnthropic(config, system, messages, live, maxTokens)
           : await callOpenAiCompatible(config, system, messages, last, live, maxTokens);
       // The ledger has to see the provider that actually answered, not the head
       // of the chain — falling back to a dearer model must not go unmetered.
@@ -1410,30 +1508,85 @@ export function anthropicHeaders(): Record<string, string> {
   };
 }
 
-async function callAnthropic(config: ProviderConfig, system: string, messages: ChatMessage[], live = "") {
+async function callAnthropic(
+  config: ProviderConfig,
+  system: string,
+  messages: ChatMessage[],
+  live = "",
+  maxTokens?: number,
+) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: anthropicHeaders(),
     body: JSON.stringify({
       model: config.model,
       stream: true,
-      max_tokens: REPLY_TOKENS,
-      thinking: ANTHROPIC_THINKING,
+      /*
+        The ceiling the caller asked for, which this never read: every
+        Anthropic stream was capped at `REPLY_TOKENS` whatever the route
+        granted. A line is billed for what it uses, so the larger ceiling
+        costs nothing on a line that stops at forty tokens.
+      */
+      max_tokens: maxTokens ?? config.maxTokens ?? REPLY_TOKENS,
+      ...anthropicThinkingFields(config, { thinking: thinkingOff(config.model) }),
       // No stream_options here: Anthropic reports usage natively on
       // message_start and message_delta, and rejects the OpenAI-shaped field.
       // The Estonian reference is identical every turn, so cache it rather than
       // paying to re-read it on each message.
-      system: [
-        { type: "text", text: system, cache_control: { type: "ephemeral" } },
-        ...(live ? [{ type: "text", text: live }] : []),
-      ],
-      messages,
+      system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
+      messages: anthropicMessages(messages, live),
     }),
     signal: AbortSignal.timeout(90_000),
   });
 
   await assertOk(res, config);
   return res;
+}
+
+/**
+ * THE MESSAGES AS ANTHROPIC TAKES THEM, WITH THE CONVERSATION CACHED.
+ *
+ * A scene sends the same conversation on every draft of a turn, and on every
+ * turn after it with two more lines on the end, and this sent it at the full
+ * input rate every time: measured on `claude-sonnet-5-5` over 86 conversations,
+ * the uncached tail was half of what a draft cost, and the system prompt in
+ * front of it was already being read at a tenth. Two things move it.
+ *
+ * The live block goes in front of the last user message rather than after the
+ * system prompt, which is where `contentsFor` already puts it on the Gemini
+ * path for its reason: what changes on every turn is the last thing sent, so
+ * everything before it is the same bytes as last time.
+ *
+ * And a second breakpoint sits on the last block of the conversation, so a
+ * retry inside the turn reads the whole conversation off the cache, and the
+ * next turn reads it too (a cache hit is looked for at earlier breakpoint
+ * positions as well), writing only the two lines that are new. A prefix under
+ * the model's minimum is simply not cached, which costs nothing.
+ *
+ * Consecutive messages of one role are merged into one turn of several blocks,
+ * which is what the API does with them anyway; doing it here is what lets the
+ * live block and the breakpoint sit on a block rather than on a whole turn.
+ */
+export function anthropicMessages(messages: readonly ChatMessage[], live = "") {
+  type Block = { type: "text"; text: string; cache_control?: { type: "ephemeral" } };
+  const turns: { role: ChatMessage["role"]; content: Block[] }[] = [];
+  for (const message of messages) {
+    const block: Block = { type: "text", text: message.content };
+    const last = turns[turns.length - 1];
+    if (last && last.role === message.role) last.content.push(block);
+    else turns.push({ role: message.role, content: [block] });
+  }
+  const blocks = turns.flatMap((turn) => turn.content);
+  const fresh = blocks[blocks.length - 1];
+  // Everything before the final block is history; the final block is this turn's ask.
+  const history = blocks[blocks.length - 2];
+  if (history) history.cache_control = { type: "ephemeral" };
+  if (live) {
+    const last = turns[turns.length - 1];
+    if (last && last.role === "user" && fresh) last.content.splice(last.content.length - 1, 0, { type: "text", text: live });
+    else turns.push({ role: "user", content: [{ type: "text", text: live }] });
+  }
+  return turns;
 }
 
 async function assertOk(res: Response, config: ProviderConfig) {
@@ -1624,10 +1777,18 @@ export function visionProviders(options: ChainOptions = {}): ProviderConfig[] {
     First rather than only, because a scan has nowhere to fall: unlike a scene
     line there is no bank underneath it, so a bad minute at one provider has to
     be able to reach another. What follows is the general chain, deduplicated.
+
+    AND HAIKU LEADS IT NOW (`VISION_MODEL`), on the same eval: 144 of 144 on
+    three slices, thinking off, for less than the Lite, which stands behind it.
   */
-  const led: ProviderConfig[] = process.env.GEMINI_API_KEY
-    ? [{ name: "gemini", model: process.env.GEMINI_VISION_MODEL || VISION_MODEL, label: "Google Gemini" }]
-    : [];
+  const led: ProviderConfig[] = [
+    ...(process.env.ANTHROPIC_API_KEY
+      ? [{ name: "anthropic" as const, model: VISION_MODEL, label: "Anthropic", thinking: "off" as const }]
+      : []),
+    ...(process.env.GEMINI_API_KEY
+      ? [{ name: "gemini" as const, model: process.env.GEMINI_VISION_MODEL || VISION_FALLBACK_MODEL, label: "Google Gemini" }]
+      : []),
+  ];
 
   const override: Record<ProviderName, string | undefined> = {
     groq: process.env.GROQ_VISION_MODEL,
@@ -1731,7 +1892,12 @@ async function readImageOpenAiCompatible(
     body: JSON.stringify({
       model: config.model,
       max_tokens: IMAGE_REPLY_TOKENS,
-      thinking: ANTHROPIC_THINKING,
+      /*
+        No thinking field here. That is Anthropic's, it was pasted into this
+        body by a merge on 2026-10-15, and Google answers 400 to a field it does
+        not know: every scan on Gemini failed from that day and fell down the
+        chain, which nothing said because the next link read the page.
+      */
       messages: [
         { role: "system", content: system },
         {
@@ -1785,6 +1951,7 @@ async function readImageAnthropic(
     body: JSON.stringify({
       model: config.model,
       max_tokens: IMAGE_REPLY_TOKENS,
+      ...anthropicThinkingFields(config, {}),
       /*
         NO `cache_control` HERE. This said the scanning instruction is worth
         caching "exactly as the Estonian system prompt is", and the two are not

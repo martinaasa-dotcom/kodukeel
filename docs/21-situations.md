@@ -5661,3 +5661,86 @@ code does now. What each was, and what was done:
   choice is not joined into one sentence, since `join` never runs. **Fixed**: the choice is the first
   arm of the move rather than a return, the hint above it stands down where a choice exists (as the
   return made it), and `close-once`, `no-twice`, `join` and `translate` run over it.
+
+## 86. Sonnet writes the other side, and what made it affordable
+
+The operator read lines from every model this app can reach and found `claude-sonnet-5-5`, thinking
+off, the one that reads most like a person talking, and asked for it to be made cheap enough to run.
+It is the scene's first link now (`SCENE_MODELS`), with `gemini-3.8-flash` and then
+`gemini-3.1-flash-lite` behind it, and nothing in the environment moves any of them. Everything below
+was measured through the route's own transport and gate with `npm run play:scenes -- --compose
+--drafts`, on all 43 scenes as a sloppy and as a curious learner, Anthropic only: no Gemini or Groq
+key was set for any of it.
+
+**Where the money went.** A Sonnet draft cost about $0.003, and over 86 conversations half of it was
+input sent at the full rate, because only the system prompt was cached and the conversation behind it
+was sent again on every draft. The other half was the number of drafts: 2.0 a turn as a sloppy
+learner and 2.1 as a curious one, and the consistency reviewer (§75) was what sent most of them back,
+260 of the 291 withheld lines in one run and 327 of 385 in the other.
+
+**The reviewer was not told what the line was for.** It was handed the conversation, the facts, and
+what was coming later, and not the beat the line was written for, so it withheld the wage on the beat
+whose job is to offer the wage, the opening hours on the beat that gives them, and the dose on the
+beat that tells it. `ConsistencyAsk.now` is the beat's stage direction, as the learner's screen
+puts it, and the reviewer is told that doing what the line is meant to do is never a problem. Asked
+the same 60 questions a Sonnet run had just put to it, with that field, it let through 49 of 60 lines
+on Haiku low effort and on Sonnet alike; without it the same two let through 22 of 40 and 19 of 40.
+
+**And the reviewer moved to Haiku, low effort** (`reviewProviders`, `REVIEW_MODEL`), with the graders'
+chain behind it, so a conversation runs on one balance. Measured on those 60:
+
+| Reviewer | Lets through | Agrees with Haiku low | Wait | $ per 1,000 |
+| --- | --- | --- | --- | --- |
+| Haiku off | 35 of 58 | 41 of 59 | 0.96 s | 0.20 |
+| Haiku low | 49 of 60 | | 2.1 s | 0.32 |
+| Haiku medium | 53 of 56, 4 cut off at the ceiling | 55 of 59 | 2.7 s | 0.38 |
+| Sonnet off | 49 of 60 | 54 of 59 | 1.6 s | 4.02 |
+
+Off is a third the price and refuses a third of the lines, which is a Sonnet draft thrown away at a
+third of a cent each time, so low is the cheaper of the two. The judge that may concede a beat moved
+with it and agreed with Sonnet on 22 of 22.
+
+**The conversation is cached as well as the prompt.** `anthropicMessages` puts the live block in front
+of the last ask rather than after the system prompt, which is where the Gemini path already puts it,
+and marks the last line of the conversation as a second cache breakpoint. A retry reads the whole
+conversation off the cache and so does the next turn, writing only the two lines that are new. The
+uncached input of a draft fell from about 700 tokens to about 450, and a cache read on Sonnet 5.5 is
+0.05 of its input rate, which the price table now says (`cacheReadRate`) where it charged 0.1.
+
+**What it came to**, at Anthropic's own rates, the same 43 scenes before and after:
+
+| | Drafts | On screen | Fell to the bank | Consistency withheld | $ a conversation | $ a line on screen |
+| --- | --- | --- | --- | --- | --- | --- |
+| Sloppy, before | 516 | 225 | 50 | 260 | 0.037 | 0.0068 |
+| Sloppy, after | 325 | 273 | 3 | 24 | 0.026 | 0.0038 |
+| Curious, before | 599 | 214 | 68 | 327 | 0.042 | 0.0079 |
+| Curious, after | 370 | 276 | 7 | 51 | 0.030 | 0.0042 |
+
+The per-conversation figures include the reviewer. The p90 wait for a turn fell from 5.5 and 5.8
+seconds to 2.5 and 2.8, because a turn that is not sent back is not written twice. The flash cost
+about $0.0125 a conversation on the same harness, so Sonnet is about twice its price, for lines the
+operator chose on the read. **Cache writes are now the largest single cost**, about a third of a
+conversation, nearly all of it the system prompt written once per run. A breakpoint between the word
+list and the persona would let two runs of one scene within five minutes share the larger part; it
+was not built, because it only pays where learners play the same scene together, and nobody has
+measured that.
+
+**What a reading turned up**, over the 263 composed lines of the sloppy run and the curious run beside
+it: two ungrammatical clauses (`Seista palun sinna järjekorda` for a command, `Teie sööki võite siin
+laua taga istuda`), two lines coaching the learner (`öeldakse: mis kell?`), and a handful of odd
+answers to the curious learner's tacked-on "ja kuhu siis?", which is the harness rather than anybody.
+The reviewer is asked about both of the first two and Haiku does not catch them; the composer is told
+about both and slips about once in a couple of hundred lines.
+
+**The scanner moved the same day.** `claude-haiku-5-5`, thinking off, read 144 of 144 on three slices
+of `npm run eval:scan` for $0.00073 a clean page and $0.00040 a hard one, against the Lite's $0.00086
+and $0.00072, and it is `VISION_MODEL` with the Lite behind it. The pass also found that a merge on
+2026-10-15 had put Anthropic's `thinking` field into the OpenAI-compatible picture request, which
+Google refuses, so every scan on Gemini had been failing and falling down the chain in silence. And
+two things in the Anthropic transport that no chain had reached: it never read the reply ceiling the
+caller granted, and it told every model not to think with `disabled`, which Sonnet 5.5 refuses with a
+400 (`thinkingOff`).
+
+**What the ledger counts as fallback** moved with the chains: Anthropic spend on SCENE and SCAN, and
+the reviewer's model, are primary traffic bounded by their own slices, and only the graders' Anthropic
+tail is the fallback the day's fallback budget is for.

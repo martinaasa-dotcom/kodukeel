@@ -134,7 +134,14 @@ export default async function PracticePage() {
         />
       ) : (
         <div className="flex flex-col gap-12">
-          <Section id="due" title={t("Due now")} hint={t("What the schedule wants from you today.")}>
+          {/*
+            The first section carries no heading of its own. It sat directly
+            under the page's title and lead, so the screen opened on two
+            headings in a row, and the card below already names the round,
+            says how many are ready and labels a tile "Due now". The card's
+            own h2 is the heading this section is read under.
+          */}
+          <div className="flex flex-col gap-4">
             <HeroFan
               eyebrow={<span><span lang="et">{reviewName.et}</span> ({t(reviewName.en)})</span>}
               title={ready > 0
@@ -167,20 +174,22 @@ export default async function PracticePage() {
               </span>
               <ArrowRight size={18} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
             </Link>
-          </Section>
+          </div>
 
           <Section id="words" title={t("Your words")} hint={t("Practice any set of words, whenever you like.")}>
             <div className="@container">
               <div className="grid grid-cols-1 gap-4 @3xl:grid-cols-2">
                 <Card tone="accent" art={<CardStack />}>
-                  <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
-                    <h3><Named name={flash} size="text-3xl" locale={locale} /></h3>
-                    <Link href="/words/mastery" className="text-sm font-semibold underline-offset-4 hover:underline" style={{ color: "var(--accent-deep)" }}>
-                      {t("Where your words stand")}
-                    </Link>
-                  </div>
+                  <h3><Named name={flash} size="text-3xl" locale={locale} /></h3>
                   <p className="text-base" style={{ color: "var(--ink-2)" }}>{t("Words you've met, asked in new ways and typed from memory.")}</p>
-                  <Choices label={t("Your words")}>
+                  <Choices
+                    label={t("Your words")}
+                    aside={
+                      <Link href="/words/mastery" className="label-xs underline-offset-4 hover:underline" style={{ color: "var(--accent-deep)" }}>
+                        {t("Where your words stand")}
+                      </Link>
+                    }
+                  >
                     <Choice href="/review/flashcards" title={t("All words")} meta={flashMeta} />
                     {stocked.map((deck) => (
                       <Choice key={deck.id} href={`/review/deck/${deck.id}`} title={deck.name} meta={countOf(locale, deck.wordCount, "word")} />
@@ -310,11 +319,23 @@ function Card({ tone, art, children, ...rest }: { tone: string; art: ReactNode; 
 /**
  * A labeled set of word sets inside a card. The label is small and quiet and
  * says what the buttons under it have in common.
+ *
+ * `aside` is a link that belongs to the set, drawn at the end of the label's
+ * row. Flash cards' "Where your words stand" lives there rather than under the
+ * card's name, where it was a line the workbook beside it does not have and
+ * pushed everything in that column a line lower than its neighbor.
  */
-function Choices({ label, children }: { label: ReactNode; children: ReactNode }) {
+function Choices({ label, aside, children }: { label: ReactNode; aside?: ReactNode; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
-      <p className="label-xs" style={{ color: "var(--ink-3)" }}>{label}</p>
+      {aside ? (
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <p className="label-xs" style={{ color: "var(--ink-3)" }}>{label}</p>
+          {aside}
+        </div>
+      ) : (
+        <p className="label-xs" style={{ color: "var(--ink-3)" }}>{label}</p>
+      )}
       <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 10rem), 1fr))" }}>{children}</div>
     </div>
   );
