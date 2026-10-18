@@ -24,6 +24,13 @@ export interface Rate {
    * dearer of the two figures Google publishes.
    */
   readonly cacheStoragePerMTokHour?: number;
+  /**
+   * What a cache read costs on this model, as a multiple of its input rate,
+   * where the vendor publishes one other than the table's `CACHE_READ_RATE`.
+   * Only ever lower: a row that left it out is charged the table's own rate,
+   * which is the dearer of the two.
+   */
+  readonly cacheReadRate?: number;
 }
 
 /**
@@ -73,6 +80,13 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
   "claude-sonnet-5": { inputPerMTok: 2, outputPerMTok: 10 },
   "claude-sonnet-4-6": { inputPerMTok: 3, outputPerMTok: 15 },
   "claude-haiku-4-5": { inputPerMTok: 1, outputPerMTok: 5 },
+  // Read off platform.claude.com/docs/en/about-claude/pricing on 2026-10-18: the rate for
+  // prompts up to 100,000 tokens (over that it is $0.50 / $2.50, which no prompt here reaches).
+  // Cache read $0.01 and 5m write $0.125 are the table's own 0.1x and 1.25x of this input rate.
+  "claude-haiku-5-5": { inputPerMTok: 0.1, outputPerMTok: 0.5 },
+  // Same page and day. A cache read on this model is 0.05x of input ($0.10), half the table's
+  // CACHE_READ_RATE, and a scene reads nine tenths of every draft off the cache.
+  "claude-sonnet-5-5": { inputPerMTok: 2, outputPerMTok: 10, cacheReadRate: 0.05 },
 
   // OpenAI
   "gpt-4o": { inputPerMTok: 2.5, outputPerMTok: 10 },
@@ -389,7 +403,7 @@ export function estimateCostMicros(
   const plain = Math.max(0, Math.max(0, inputTokens) - cached - written);
   const dollars =
     (plain / 1e6) * price.inputPerMTok +
-    (cached / 1e6) * price.inputPerMTok * CACHE_READ_RATE +
+    (cached / 1e6) * price.inputPerMTok * Math.min(price.cacheReadRate ?? CACHE_READ_RATE, CACHE_READ_RATE) +
     (written / 1e6) * price.inputPerMTok * CACHE_WRITE_RATE +
     (Math.max(0, outputTokens) / 1e6) * price.outputPerMTok;
   return Math.ceil(dollars * 1e6);

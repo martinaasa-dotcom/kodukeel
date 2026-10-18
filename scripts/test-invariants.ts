@@ -18773,8 +18773,8 @@ check("a cached input token is priced as one, and the cached prompt is the same 
   assert.match(pricing, /CACHE_WRITE_RATE = 1\.25/, "a cache write is no longer priced at 1.25x base");
   assert.match(
     pricing,
-    /cached \/ 1e6\) \* price\.inputPerMTok \* CACHE_READ_RATE/,
-    "estimateCostMicros no longer prices the cached bucket at the cache rate",
+    /cached \/ 1e6\) \* price\.inputPerMTok \* Math\.min\(price\.cacheReadRate \?\? CACHE_READ_RATE, CACHE_READ_RATE\)/,
+    "estimateCostMicros no longer prices the cached bucket at the cache rate, or a row's own read rate can now exceed the table's",
   );
 
   /*
@@ -18819,11 +18819,18 @@ check("a cached input token is priced as one, and the cached prompt is the same 
     what goes wrong here is a fourth call site copying the parameter from a
     neighbor without measuring its own prompt.
   */
-  const breakpoints = [...code("lib/tutor/provider.ts").matchAll(/cache_control/g)].length
-    + [...code("lib/tutor/grader.ts").matchAll(/cache_control/g)].length;
+  /*
+    Two now, both in the chat transport and both measured: the system prompt,
+    and the last line of the conversation, which a scene on `claude-sonnet-5-5`
+    reads off the cache on every retry and every turn after (docs/21 §86,
+    `anthropicMessages`). The grader and the scanner still ask for none.
+  */
+  // A breakpoint asked for, rather than the field's type: a value written to it.
+  const breakpoints = [...code("lib/tutor/provider.ts").matchAll(/cache_control(?::| =) \{ type/g)].length
+    + [...code("lib/tutor/grader.ts").matchAll(/cache_control(?::| =) \{ type/g)].length;
   assert.equal(
-    breakpoints, 1,
-    "a second `cache_control` breakpoint is being asked for. Anthropic creates no cache entry under 1,024 tokens, and only the tutor's prompt clears that; measure the prefix before adding one.",
+    breakpoints, 2,
+    "a third `cache_control` breakpoint is being asked for, or one went. Anthropic creates no cache entry under 1,024 tokens, and only the chat prompt and its conversation clear that; measure the prefix before adding one.",
   );
 
   const prompt = code("lib/tutor/prompt.ts");
@@ -18832,8 +18839,8 @@ check("a cached input token is priced as one, and the cached prompt is the same 
   assert.match(prompt, /system: \[\s*$|ABOUT THIS LEARNER/, "learnerNote no longer names the learner");
   assert.match(
     code("lib/tutor/provider.ts"),
-    /cache_control: \{ type: "ephemeral" \} \},\s*\.\.\.\(live/s,
-    "the per-learner block is no longer sent after the cached breakpoint",
+    /system: \[\{ type: "text", text: system, cache_control: \{ type: "ephemeral" \} \}\],\s*messages: anthropicMessages\(messages, live\)/s,
+    "the per-learner block is no longer sent after the cached system prompt, in the messages",
   );
 });
 
@@ -20903,7 +20910,7 @@ check("nothing but the dictionary can advance a scene", () => {
 
   /*
     The judge is asked only after the dictionary has read the turn, on the
-    grader's chain, metered as a GRADER call, and its module holds no Estonian
+    scene's reviewer chain, metered as a GRADER call, and its module holds no Estonian
     and reaches no provider.
   */
   const route = code("app/api/scene/route.ts");
@@ -20917,8 +20924,8 @@ check("nothing but the dictionary can advance a scene", () => {
   );
   assert.match(
     route.slice(replayAt, judgeAt),
-    /resolveProviders\(\s*\{\s*purpose:\s*"grader"/,
-    "the judge does not ask the grader's chain, which is the one measured for returning JSON.",
+    /reviewProviders\(\s*\{\s*allowFallback/,
+    "the judge does not ask the scene's reviewer chain (`reviewProviders`: Haiku, measured on the route's own questions, then the grader's chain, measured for returning JSON).",
   );
   const judge = code("lib/scenes/judge.ts");
   assert.doesNotMatch(judge, /[õäöüšž]/i, "lib/scenes/judge.ts writes Estonian.");

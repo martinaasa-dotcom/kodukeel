@@ -134,7 +134,14 @@ export default async function PracticePage() {
         />
       ) : (
         <div className="flex flex-col gap-12">
-          <Section id="due" title={t("Due now")} hint={t("What the schedule wants from you today.")}>
+          {/*
+            The first section carries no heading of its own. It sat directly
+            under the page's title and lead, so the screen opened on two
+            headings in a row, and the card below already names the round,
+            says how many are ready and labels a tile "Due now". The card's
+            own h2 is the heading this section is read under.
+          */}
+          <div className="flex flex-col gap-4">
             <HeroFan
               eyebrow={<span><span lang="et">{reviewName.et}</span> ({t(reviewName.en)})</span>}
               title={ready > 0
@@ -167,7 +174,7 @@ export default async function PracticePage() {
               </span>
               <ArrowRight size={18} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
             </Link>
-          </Section>
+          </div>
 
           <Section id="words" title={t("Your words")} hint={t("Practice any set of words, whenever you like.")}>
             <div className="@container">
