@@ -41,6 +41,15 @@ export interface ConsistencyAsk {
   readonly facts: readonly string[];
   /** What this person still needs later in the conversation, English, never to be settled early. */
   readonly later: readonly string[];
+  /**
+   * What this line is meant to do, as the learner's screen puts it ("they" is
+   * this person). Without it the reviewer could not tell a figure said on the
+   * beat whose job is to say it from one said early: measured over 86 scenes
+   * on `claude-sonnet-5-5`, it withheld the wage on the beat that offers the
+   * wage, the opening hours on the beat that gives them and the dose on the
+   * beat that tells it, and every one cost a retry and a good line.
+   */
+  readonly now?: string;
   /** The line the composer wrote, which has already passed the gate. */
   readonly line: string;
 }
@@ -69,6 +78,7 @@ export function buildConsistencySystemPrompt(): string {
     "Also a problem: promising, offering or agreeing to something that a step listed as coming later takes back.",
     "Not a problem: saying no with a reason where the person had only sounded willing or helpful before; only an outright reversal of something they promised is.",
     "Not a problem: a counter's ordinary run of steps said in one breath, such as asking for the card and then saying the payment went through and handing over the ticket, since that is what happens at a counter while the person speaks.",
+    "Never a problem: doing what the line is meant to do now, where that is given, including saying the figure, time or price it is meant to say or making the offer it is meant to make. What comes later is what follows this.",
     "Not a problem: stating a fact listed as what the other person knows, such as offering a time or naming a price that is theirs to tell; the learner has not given those, so saying them is not asking again.",
     "Not a problem: answering the learner's question, reacting to what they said, briefly recalling something already said, or asking again for something still needed. But going back over a point the learner has already accepted, as if they had not, is a problem.",
     "Reply with a JSON object only, no prose around it: {\"ok\": true or false, \"why\": \"one short sentence of English\"}.",
@@ -84,6 +94,7 @@ export function buildConsistencyUserPrompt(ask: ConsistencyAsk): string {
     ...(ask.moved && ask.moved.length > 0 ? [`What the scene says has happened since, unless the learner has said otherwise (then the learner wins): ${ask.moved.join(" ")}`] : []),
     ...(ask.facts.length > 0 ? [`What the other person knows, theirs to say when it fits (the learner has not said these): ${ask.facts.join("; ")}`] : []),
     ...(ask.later.length > 0 ? [`Coming later, not to be revealed or settled yet unless asked: ${ask.later.join("; ")}`] : []),
+    ...(ask.now ? [`What this line is meant to do now, as the learner's screen puts it ("they" is this person): ${ask.now}`] : []),
     `The line to check: ${JSON.stringify(ask.line)}`,
     "Is there a problem with this line?",
   ].join("\n");

@@ -6,7 +6,7 @@ import type { Locale } from "@/lib/copy/locale";
 import { humanizeReply } from "./humanize";
 import { liveLinks, noteRefusal } from "./exhausted";
 import {
-  anthropicHeaders, billedOutput, openAiCompatible, TutorError, type ProviderConfig, type UsageReport,
+  anthropicHeaders, anthropicThinkingFields, billedOutput, openAiCompatible, TutorError, type ProviderConfig, type UsageReport,
 } from "./provider";
 
 /**
@@ -315,6 +315,7 @@ async function callForJson(
       body: JSON.stringify({
         model: config.model,
         max_tokens: maxTokens,
+        ...anthropicThinkingFields(config, {}),
         /*
           NO `cache_control` HERE, AND THE REASON IS ARITHMETIC RATHER THAN
           TASTE. This carried a breakpoint under a comment saying the prompt is

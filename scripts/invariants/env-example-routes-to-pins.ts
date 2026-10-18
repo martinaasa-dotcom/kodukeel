@@ -5,6 +5,7 @@ import {
   SCENE_MODELS,
   TUTOR_FALLBACK_MODEL,
   TUTOR_MODEL,
+  VISION_FALLBACK_MODEL,
   VISION_MODEL,
 } from "../../lib/tutor/provider";
 import type { InvariantKit } from "../lib/invariantKit";
@@ -32,7 +33,7 @@ export default function envExampleRoutesToPins({ check, read }: InvariantKit) {
     const rows: [string, string, readonly string[]][] = [
       ["Anu", between("Anu (/api/tutor)", "Scene lines"), [TUTOR_MODEL, TUTOR_FALLBACK_MODEL]],
       ["Scene lines", between("Scene lines (/api/scene)", "Scanning ("), [...SCENE_MODELS]],
-      ["Scanning", between("Scanning (/api/scan)", "The graders"), [VISION_MODEL]],
+      ["Scanning", between("Scanning (/api/scan)", "The graders"), [VISION_MODEL, VISION_FALLBACK_MODEL]],
       ["The graders", between("The graders and the", "\n#\n"), GRADER_MODELS.map((c) => c.model)],
     ];
     const wrong = rows.flatMap(([label, row, models]) =>

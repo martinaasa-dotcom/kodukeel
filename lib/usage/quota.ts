@@ -160,10 +160,11 @@ export const DEFAULT_LIMITS: QuotaLimits = {
  *   TUTOR   never. Gemini `gemini-3.1-flash-lite` leads and Groq
  *           `openai/gpt-oss-120b` backs it up, and `resolveProviders` leaves
  *           the paid tail off a tutor chain on purpose.
- *   SCENE   only as the gated last resort. Gemini `gemini-3.8-flash`, then the
- *           Lite, then Groq `qwen/qwen3.8-27b`, and the paid tail behind all
- *           three only while `dailyMicrosFallback` has room.
- *   SCAN    the same way. Gemini's Lite leads, then the general chain.
+ *   SCENE   as its primary since docs/21 §86: `claude-sonnet-5-5` leads and the
+ *           two Gemini links stand behind it, so this spend is the SCENE
+ *           slice's and is not counted as fallback (`lib/usage/ledger.ts`).
+ *   SCAN    as its primary too: `claude-haiku-5-5` leads, the Gemini Lite
+ *           behind it, then the general chain. Not counted as fallback either.
  *   GRADER  the same way. Gemini's Lite, then Groq's `gpt-oss-120b`.
  *
  * So the ceiling that matters is the fallback budget, and a day when Gemini and
@@ -181,22 +182,24 @@ export const DEFAULT_LIMITS: QuotaLimits = {
  *           $0.001 on the Groq backup. $0.10 a day is roughly 50 answers,
  *           several times that held. When Anu answered on claude-sonnet-5 the
  *           same slice was 6 answers, which is what it was first sized for.
- *   SCAN    ~3,000 in of image + ~400 out. About $0.0014 on the Lite, $0.0040
- *           on Groq, $0.0100 on Anthropic. $0.02 a day is about 14 pages, or 2
- *           on a day only the paid tail answers. This is the one that gives up
+ *   SCAN    ~3,000 in of image + ~400 out. About $0.0007 on `claude-haiku-5-5`,
+ *           which leads, $0.0014 on the Lite, $0.0040 on Groq, $0.0100 on the
+ *           Sonnet tail. $0.02 a day is about 28 pages, or 2 on a day only the
+ *           paid tail answers. This is the one that gives up
  *           headroom, on the README's own word for it: a page is photographed
  *           once and studied for weeks.
  *   GRADER  About $0.0002 a note on the Lite, which returns 26 to 31 output
  *           tokens a verdict, $0.0003 on Groq and $0.0038 on Anthropic. $0.04 a
  *           day is about 200 notes, or 10 on a day only the paid tail answers.
- *   SCENE   About $0.0015 a composed turn on `gemini-3.8-flash`, $0.0003 held,
- *           $0.0005 on the Lite and $0.0014 on Groq's qwen. $2.00 a day is about
- *           1,300 turns before any holding, and $60 a month if it is ever
- *           reached, which is the number to argue with rather than this
- *           arithmetic.
+ *   SCENE   About $0.003 a draft on `claude-sonnet-5-5`, which leads, and $0.026
+ *           to $0.030 a conversation with its review (docs/21 §86); $0.0015 a
+ *           draft on `gemini-3.8-flash` behind it. $2.00 a day is about 70
+ *           conversations on Sonnet, and $60 a month if it is ever reached,
+ *           which is the number to argue with rather than this arithmetic.
  *
- * WHAT THAT COMES TO. Anthropic sees nothing in the ordinary case, and at most
- * the fallback budget on a day every free link fails. The arithmetic does not
+ * WHAT THAT COMES TO. Anthropic sees scenes and scans in the ordinary case, each
+ * inside its own slice, and the graders only up to the fallback budget on a day
+ * every free link fails. The arithmetic does not
  * depend on a provider behaving, which is the property worth having.
  *
  * These are deployment-wide, not per learner. At a pilot's size the tutor

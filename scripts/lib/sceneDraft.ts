@@ -40,7 +40,7 @@ import type { CaseKey } from "../../lib/estonian/types";
   at 80 tokens and wrote a clean line at the app's own 1200. A measurement that
   disqualifies a model the app can use is worse than no measurement.
 */
-import { SCENE_REPLY_TOKENS, sceneProviders, type ProviderConfig, type ProviderName } from "../../lib/tutor/provider";
+import { SCENE_REPLY_TOKENS, openWithFallback, sceneProviders, type ProviderConfig, type ProviderName, type UsageReport } from "../../lib/tutor/provider";
 import { composeLive, composeSystem } from "../../lib/scenes/prompt";
 import { geminiCachedReply } from "../../lib/tutor/geminiCache";
 import { FAREWELLS } from "../../lib/scenes/catalogue";
@@ -432,6 +432,13 @@ export interface Link {
   label: string; model: string; url: string; key: string;
   /** The route's own thinking setting for this link (`ProviderConfig.reasoning`), sent as `reasoning_effort`. */
   reasoning?: ProviderConfig["reasoning"];
+  /** An Anthropic link's arm (`ProviderConfig.thinking`); such a link has no url or key of its own, the route's transport reads the environment. */
+  thinking?: ProviderConfig["thinking"];
+}
+
+/** What a link is called in a tally: its model, and its arm where it has one. */
+export function linkKey(link: Pick<Link, "model" | "thinking">): string {
+  return link.thinking ? `${link.model}/${link.thinking}` : link.model;
 }
 
 /**
@@ -631,7 +638,19 @@ export async function compose(
  * play harness prints it so a change meant to save tokens is measured on the
  * route's own prompt rather than argued about.
  */
-export const COMPOSE_USAGE = new Map<string, { calls: number; input: number; cached: number; output: number }>();
+export const COMPOSE_USAGE = new Map<string, { calls: number; input: number; cached: number; written: number; output: number; ms: number }>();
+
+function tally(key: string, usage: Pick<UsageReport, "inputTokens" | "outputTokens" | "cachedInputTokens" | "cacheWriteTokens">, ms: number): void {
+  const before = COMPOSE_USAGE.get(key) ?? { calls: 0, input: 0, cached: 0, written: 0, output: 0, ms: 0 };
+  COMPOSE_USAGE.set(key, {
+    calls: before.calls + 1,
+    input: before.input + usage.inputTokens,
+    cached: before.cached + (usage.cachedInputTokens ?? 0),
+    written: before.written + (usage.cacheWriteTokens ?? 0),
+    output: before.output + usage.outputTokens,
+    ms: before.ms + ms,
+  });
+}
 
 export async function askLine(
   links: readonly Link[],
@@ -643,6 +662,7 @@ export async function askLine(
 ): Promise<string | null> {
   for (const link of links) {
     let status = 0;
+    const started = Date.now();
     try {
       /*
         THE ROUTE'S OWN TRANSPORT ON A GEMINI LINK. The route serves the
@@ -652,19 +672,40 @@ export async function askLine(
         conversation in a different order from the app's, which is the fault
         the block below was written to stop. Same function, same shape.
       */
+      if (link.name === "anthropic") {
+        /*
+          THE ROUTE'S OWN CALL (`compose` in `app/api/scene/route.ts`): the same
+          `openWithFallback` over one link, the static half as the cached system
+          block and the live block after it, and the same ceiling. A harness
+          that composed through anything else would measure a conversation the
+          app does not have.
+        */
+        let used: UsageReport | null = null;
+        const open = await openWithFallback(
+          [{ name: "anthropic", model: link.model, label: link.label, maxTokens: SCENE_REPLY_TOKENS, ...(link.thinking ? { thinking: link.thinking } : {}) }],
+          composeSystem(scene), [...said, { role: "user" as const, content: "Your line:" }],
+          (u) => { used = u; }, composeLive(ask), SCENE_REPLY_TOKENS, true,
+        );
+        let raw = "";
+        for await (const chunk of open.chunks) raw += chunk;
+        if (used) tally(linkKey(link), used, Date.now() - started);
+        const text = raw.trim();
+        if (text) {
+          onStatus(`${linkKey(link)} ok`);
+          const line = unwrapLine(text);
+          onDraft(line);
+          return line;
+        }
+        onStatus(`${linkKey(link)} empty`);
+        continue;
+      }
       if (link.name === "gemini") {
         const reply = await geminiCachedReply(
           { name: "gemini", model: link.model, label: link.label, reasoning: link.reasoning },
           composeSystem(scene), said, composeLive(ask), SCENE_REPLY_TOKENS,
         );
         const text = reply.text.trim();
-        const tally = COMPOSE_USAGE.get(link.model) ?? { calls: 0, input: 0, cached: 0, output: 0 };
-        COMPOSE_USAGE.set(link.model, {
-          calls: tally.calls + 1,
-          input: tally.input + reply.usage.inputTokens,
-          cached: tally.cached + (reply.usage.cachedInputTokens ?? 0),
-          output: tally.output + reply.usage.outputTokens,
-        });
+        tally(linkKey(link), reply.usage, Date.now() - started);
         if (text) {
           onStatus(`${link.model} ok`);
           const line = unwrapLine(text);
