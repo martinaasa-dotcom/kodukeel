@@ -27,7 +27,6 @@ const OWN_LETTERS = /^[õäöü]$/u;
  */
 export function SoundRows({ rows }: { rows: readonly SoundRow[] }) {
   const t = useT();
-  const locale = useLocale();
   const letters = rows.filter((r) => OWN_LETTERS.test(r.glyph));
   const others = rows.filter((r) => !OWN_LETTERS.test(r.glyph));
   return (
