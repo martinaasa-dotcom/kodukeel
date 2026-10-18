@@ -82,7 +82,7 @@ export interface PaperSummary {
 /**
  * One line a level rather than one a sitting.
  *
- * The person reading a printout wants to know which levels were practised,
+ * The person reading a printout wants to know which levels were practiced,
  * how often and how far it got, and eleven lines of the same paper tell them
  * that less clearly than one. Levels in the order they are examined.
  */

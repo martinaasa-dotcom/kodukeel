@@ -144,7 +144,7 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
  * and what the learner does about it beside a pointer.
  *
  * The briefing draws them, and so do the start screens a timed round or a
- * board opens on, which used to put the same two sentences in one centred
+ * board opens on, which used to put the same two sentences in one centered
  * paragraph with a third sentence run on after them. On a night panel a
  * paragraph is the one thing that reads as a wall; two marked steps are what
  * every other round opens on, so the four that differed now look the same.

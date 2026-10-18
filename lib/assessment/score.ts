@@ -69,7 +69,7 @@ export interface WriteMark {
   /**
    * A miss most of the way there (`nearMiss`). The screen paints it nearly
    * rather than as a blank; the credit is untouched, because this is a
-   * measurement and a colour may not move a level.
+   * measurement and a color may not move a level.
    */
   close?: boolean;
 }
@@ -175,7 +175,7 @@ export type Given =
    * counts: it earns nothing, exactly as a wrong pick does, but it is a
    * different fact from a wrong pick, and it is what stops a lucky guess among
    * four options being read as knowing the word. Unlike `skipped` it is
-   * honoured on every skill and never leaves one unmeasured.
+   * honored on every skill and never leaves one unmeasured.
    */
   | { kind: "unsure" }
   /** The listening section left unmeasured, because the audio would not play. */
@@ -202,7 +202,7 @@ export function creditFor(item: Item, given: Given): number {
  * One answer marked against its own item, with the skill and band read off the
  * item rather than off anything a caller said about it.
  *
- * A skip is honoured on listening alone, because that is the one section the
+ * A skip is honored on listening alone, because that is the one section the
  * runner lets a learner leave, and only when the audio will not play. A skip
  * anywhere else would be a way to leave a skill unmeasured and have the level
  * averaged over the two that went better, so it is marked as a blank instead.

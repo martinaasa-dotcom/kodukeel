@@ -4,7 +4,7 @@ import { qrMatrix, qrPath } from "@/lib/classroom/qr";
  * The join link as a square a phone camera reads.
  *
  * Drawn on the server as one SVG path, so nothing is scripted and nothing is
- * injected. It is black on white in both themes and on paper by colour keyword
+ * injected. It is black on white in both themes and on paper by color keyword
  * rather than by token, and that is the one place a hue may not follow the
  * theme: a camera looks for dark modules on a light ground, and a QR drawn in
  * the dark theme's light ink on its dark card is a square many readers refuse.

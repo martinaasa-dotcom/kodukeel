@@ -179,7 +179,7 @@ export interface FormCheck {
   usedAnotherForm: boolean;
   /**
    * True when neither is there but a word in the sentence is most of the way
-   * to the form asked for (`nearMiss`). Colour only: the screen paints it
+   * to the form asked for (`nearMiss`). Color only: the screen paints it
    * nearly rather than as a blank, and the grade is untouched.
    */
   close?: boolean;

@@ -685,9 +685,9 @@ export const BASE_CLASS: Readonly<Record<string, ClassId>> = {
 };
 
 /**
- * The 72 things' longest dimension in metres, typical rather than extreme,
+ * The 72 things' longest dimension in meters, typical rather than extreme,
  * read off the factbase's researched ranges and rounded to a figure a person
- * would recognise. A dog is taken at a middling dog rather than at the
+ * would recognize. A dog is taken at a middling dog rather than at the
  * geometric middle of a chihuahua and a mastiff.
  */
 export const BASE_METRES: Readonly<Record<string, number>> = {

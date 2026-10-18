@@ -78,7 +78,7 @@ export function CafeScene({ scenes, voiceBase = null }: {
   /*
     The server answers in English, which is the scene's own: the goal, the
     stage direction, the outcome and the English beside each pick are lines
-    the catalogue already carries in every language, so they are read through
+    the catalog already carries in every language, so they are read through
     the table here rather than asked for in another language. A line the
     table does not hold prints its English.
   */

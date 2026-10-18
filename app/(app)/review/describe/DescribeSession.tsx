@@ -64,7 +64,7 @@ const filled = (text: string) => looksLikeSentence(text.trim());
  * what they wrote. What comes back is two authorities that stay apart, the
  * arrangement `/review/write` settled on: what the dictionary can decide
  * (spelled, about the picture, not a repeat) is certain, and what Anu says
- * about the grammar is a model's opinion and is labelled as one.
+ * about the grammar is a model's opinion and is labeled as one.
  *
  * NOTHING IS GRADED INTO THE REVIEW LOG. There is no card behind a picture,
  * and a row about a card that does not exist would tell the scheduler

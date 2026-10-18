@@ -243,7 +243,7 @@ async function main() {
   writeExpanded(next);
 
   /*
-    Recorded as well as applied, the way `audit-pos.ts` records a relabelling.
+    Recorded as well as applied, the way `audit-pos.ts` records a relabeling.
     `expanded.json` loads with ON CONFLICT DO NOTHING, so a corrected gloss
     reaches a fresh deployment and nobody seeded before the fix: `prisma/expanded.ts`
     reads this file and repoints the row that is already there instead.

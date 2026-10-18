@@ -18,7 +18,7 @@ describe("the rail's order", () => {
     expect(order).toEqual(["/practice", "/games", "/", "/calendar", "/learn", "/grammar", "/dictionary", "/progress"]);
   });
 
-  it("never loses one of the five, and puts a missing one back beside its neighbour", () => {
+  it("never loses one of the five, and puts a missing one back beside its neighbor", () => {
     const order = navOrderFrom("/ /calendar /progress");
     for (const href of DEFAULT_NAV_ORDER) expect(order).toContain(href);
     expect(order.indexOf("/learn")).toBe(order.indexOf("/") + 1);

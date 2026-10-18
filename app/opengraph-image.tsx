@@ -7,7 +7,7 @@ import { ImageResponse } from "next/og";
  *
  * The layout already set `openGraph` title and description, so a link pasted
  * into a message carried two lines of text and no picture at all: the card
- * fell back to `twitter:card = summary`, which is the small grey one with a
+ * fell back to `twitter:card = summary`, which is the small gray one with a
  * favicon on it. That is the whole of what a teacher sending this to a class
  * group, or somebody answering "what are you using for Estonian", hands over.
  * An app that expects to travel by one person telling another has no cheaper

@@ -93,7 +93,7 @@ describe("summariseCohort", () => {
 
   it("does not count a week-old review as active, since the day count is floored", () => {
     /*
-      Seven and a half days is floored to seven, and "practised in 7 days"
+      Seven and a half days is floored to seven, and "practiced in 7 days"
       beside it read one more than the reviews-this-week column could show.
     */
     const summary = summariseCohort([member({ ownerId: "a", daysSinceLastReview: 7 })], level);

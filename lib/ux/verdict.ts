@@ -94,7 +94,7 @@ export function verdictOfRating(rating: number): Verdict {
  * over.
  *
  * And a miss within reach is nearly too (`nearMiss`): blush is for an answer
- * nowhere near, or a blank. That is the colour only; the grade the round sends
+ * nowhere near, or a blank. That is the color only; the grade the round sends
  * is still the marker's.
  */
 export function verdictOfCheck(check: {

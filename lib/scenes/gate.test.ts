@@ -236,7 +236,7 @@ describe("the gate", () => {
   });
 
   /*
-    A BEAT CAN SPEAK IN A REGISTER OF ITS OWN. One scene asks the same favour
+    A BEAT CAN SPEAK IN A REGISTER OF ITS OWN. One scene asks the same favor
     of a friend and then of an official, so the pronoun a line may use is the
     beat's where the beat names one and the scene's everywhere else.
   */
@@ -900,7 +900,7 @@ describe("a clause does not run on past the end of its sentence", () => {
 });
 
 describe("a farewell on a beat that is not the goodbye", () => {
-  // `Head aega!` as the catalogue resolves it: a run of words, never a bag.
+  // `Head aega!` as the catalog resolves it: a run of words, never a bag.
   const ctx = context({ farewells: [["head", "aega"], ["nägemist"]] });
 
   it("withholds the line that reached a learner", () => {

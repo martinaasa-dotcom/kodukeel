@@ -356,15 +356,15 @@ export const SETTING_KEYS = {
    */
   roundPace: "roundPace",
   /**
-   * Which planned programme the learner is following, if any.
+   * Which planned program the learner is following, if any.
    *
-   * A programme is the evening decided in advance: which words, which order,
-   * which round after which (`lib/course/`). The stored value is a programme
+   * A program is the evening decided in advance: which words, which order,
+   * which round after which (`lib/course/`). The stored value is a program
    * id, or `off` where somebody has said they would rather pick their own
    * evening.
    *
    * A MISSING ROW IS NOT A REFUSAL, and it is not a yes either. It is
-   * everybody who used this app before the programme existed, so it is read as
+   * everybody who used this app before the program existed, so it is read as
    * "offer it where it fits": a beginner is led, and somebody the app has
    * already measured at B1 is not handed a course of greetings on the screen
    * they open every morning. `lib/progress/course.ts` is where that is

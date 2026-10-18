@@ -346,7 +346,7 @@ function Card({ entry, onSettled, onNext, takeCaret }: {
               </p>
             )}
             {answered.mark.right && answered.digits && (
-              <p className="mt-1 text-sm">{t("In digits, so no word was practised. Say it or type the words next time.")}</p>
+              <p className="mt-1 text-sm">{t("In digits, so no word was practiced. Say it or type the words next time.")}</p>
             )}
           </div>
         )}

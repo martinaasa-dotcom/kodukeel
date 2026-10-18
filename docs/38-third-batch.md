@@ -91,7 +91,7 @@ to find them; read the file for the reasons.
 - **No Estonian is written by the app** (ADR-005). A scene names lemmas and unit ids and holds no
   sentence; every lemma must be one of its declared units, which `catalogue.test.ts` checks word by
   word. Prepared lines are the one exception and live in the bank, under D9.
-- **Tokens, not literals.** Type sizes are step names, colours are tokens, the middot is on no screen.
+- **Tokens, not literals.** Type sizes are step names, colors are tokens, the middot is on no screen.
 - **A reading is not a verdict.** Never paint a figure about a learner in the sky or blush hues.
 - **One loud action per screen,** and the primary button is last in its row.
 - **A new invariant goes in its own file** under `scripts/invariants/`, and is made to fail on a planted
@@ -155,7 +155,7 @@ If pages start returning 503, Postgres has stopped with your shell: start it aga
 | TB-6 `/impact` | Done (#852) |
 | TB-7 Contributor guide and architecture map | Done (#852) |
 | TB-8 Reading mode | Done (#852) |
-| TB-9 Split the scene catalogue and bank | Done (#852) |
+| TB-9 Split the scene catalog and bank | Done (#852) |
 | TB-10 Wave A, everyday (8 scenes) | Done: uus-kolleeg, abi-palumine, ootamine, kokkulepe, turul, bussipeatus, raamatukogu, nadalavahetus (#852) |
 | TB-11 Wave B, essentials (3 scenes) | Done: hadaabi, pangas, perearst (#852) |
 | TB-12 Wave C, offices (4 scenes) | Done: tootukassa, elamisluba, peretoetus, lastevanemad (#852) |
@@ -185,9 +185,9 @@ Start here: it is an hour, and it finishes what the second batch began.
 - **A test that keeps it.** Extend `lib/progress/publicLocale.test.ts`, which already holds the share
   image to its route, so every path in `PUBLIC_PATHS` except `/welcome` has a card
   whose `url` is its own path.
-- **The QR decoder's licence.** `docs/37-second-batch.md` decision D3 says jsqr is MIT. It is
+- **The QR decoder's license.** `docs/37-second-batch.md` decision D3 says jsqr is MIT. It is
   Apache-2.0. Correct the sentence there and add one line saying it is a dev dependency used by one
-  test, which the licence check already allows.
+  test, which the license check already allows.
 
 **Verify.** Typecheck, lint, `npm test`, invariants, `node scripts/test-locales.mjs`. Build and read the
 `<meta property="og:url">` of each page with `curl` to see it is the page's own.
@@ -209,7 +209,7 @@ any change in English and Russian and put the output in the pull request.
 **Cuts, in this order, stopping when step 4 meets the target in both languages.**
 1. "Your first words" (`app/(chromeless)/start/WelcomeWizard.tsx`, the block under the ladder): keep
    the one line that counts the words and cards, and put the word list and the sentences under it
-   behind an `Explain` labelled with what it opens ("The words, unit by unit").
+   behind an `Explain` labeled with what it opens ("The words, unit by unit").
 2. "Your first conversation": keep the label and the scene's place on one line, put the paragraph
    behind an `Explain`.
 
@@ -260,7 +260,7 @@ under 0.05, and the sign-in suite passes.
 iframe` is exempt from the replaced-element cap for that reason (CLAUDE.md). A reserved box of the wrong
 size brings back the cut-off button.
 
-### TB-9. Split the scene catalogue and the bank into one file per scene
+### TB-9. Split the scene catalog and the bank into one file per scene
 
 Do this before any scene. `lib/scenes/catalogue.ts` is 2,376 lines and `lib/scenes/bank.ts` holds every
 scene's lines; with 28 scenes arriving in separate pull requests, every one would conflict with every
@@ -282,7 +282,7 @@ other in both files.
 `npx tsx -e 'import {SCENES} from "./lib/scenes/catalogue"; console.log(JSON.stringify(SCENES))' | sha256sum`
 and the same for `BANK`; the hashes must match.
 
-**Verify.** Typecheck, lint, `npm test` (catalogue, bank, scenery, course and errand tests all read
+**Verify.** Typecheck, lint, `npm test` (catalog, bank, scenery, course and errand tests all read
 these), invariants, `npm run play:scenes -- --scene poodi-piima` once to see a scene still plays.
 
 **Done when.** The two hashes match and no file outside `lib/scenes/` and the two scripts changed.
@@ -354,7 +354,7 @@ alignment with an official curriculum document this repository does not cite.
 
 ### TB-3. End-of-term class report
 
-**Goal.** A teacher prints one page for a class covering a date range: how many practised, how much, how
+**Goal.** A teacher prints one page for a class covering a date range: how many practiced, how much, how
 it moved, and what the class is weakest at. D4 says what is not on it.
 
 **Files.**
@@ -531,7 +531,7 @@ into a file of its own. A scene pull request touches these, and every one is che
 7. `lib/copy/i18n/areas/situations.ts`: its English, Russian and Ukrainian, then `npm run i18n:tables`.
    A new errand's sentence goes in the area the errands already use.
 
-**Verify for every scene.** `npm test` (catalogue, bank, scenery, errands, course, props, curveballs),
+**Verify for every scene.** `npm test` (catalog, bank, scenery, errands, course, props, curveballs),
 invariants, `npm run check:lines` until it prints nothing, `npm run measure:scenes`,
 `npm run play:scenes -- --scene <id>` in the `sloppy`, `curious` and `lost` styles and
 `npm run sweep:fallback -- --scene <id>` until it prints no flags. Read the transcripts; paste one into
@@ -573,7 +573,7 @@ Notes for wave A:
   Curveballs: `misheard`, `small-talk`, `faster`, `english`, `other-register`.
 - `abi-palumine`: the learner opens (the other side's first move is a greeting back), asks for a hand,
   hears an instruction (`instruct`), says they did not catch it (the `LOST` path is the test of this
-  scene, so the beat after it must accept a repeat request), thanks and apologises. Curveballs:
+  scene, so the beat after it must accept a repeat request), thanks and apologizes. Curveballs:
   `faster`, `english`, `interrupted`, `misheard`.
 - `ootamine`: the weather is dealt (a word prop from `ilm`); the time is `theirs` and asked by the
   learner; a `meanwhile` line when the bus comes. Curveballs: `small-talk`, `faster`, `english`,
@@ -620,7 +620,7 @@ Notes for wave B:
 | `tootukassa` | Registering at the Unemployment Insurance Fund: last job, since when, what you are looking for | `too-ja-raha` | `too-ja-raha`, `majandus` | new: "Ask an office what happens next and when, and stay in Estonian" | `majandus` | `office` |
 | `elamisluba` | Renewing a residence permit at the Police and Border Guard Board: appointment, documents, collecting the card | `umbisikuline` | `linn-ja-teenused`, `umbisikuline` | new: "Read one official letter or notice and tell somebody what it asks of you" | `umbisikuline` | `office` |
 | `peretoetus` | Calling the Social Insurance Board about family benefit that has not arrived | `suhtlemine` | `suhtlemine`, `uhiskond`, `linn-ja-teenused` | new: "Make one call to an office and give a reference number in Estonian" | `ajalugu` | `home_phone` |
-| `lastevanemad` | Talking to your child's teacher about how they are doing and what to practise | `haridus` | `haridus`, `inimsuhted` | new: "Ask a teacher or a colleague one follow-up question rather than nodding" | `keskkond` | `classroom` |
+| `lastevanemad` | Talking to your child's teacher about how they are doing and what to practice | `haridus` | `haridus`, `inimsuhted` | new: "Ask a teacher or a colleague one follow-up question rather than nodding" | `keskkond` | `classroom` |
 
 Notes for wave C:
 - Officials speak in the impersonal (`tehakse`, `tuleb`); the learner only has to understand it. The
@@ -658,10 +658,10 @@ Notes for wave D:
 | Scene | Situation | Tests | Extra units | Errand | Evening | Room |
 | --- | --- | --- | --- | --- | --- | --- |
 | `kuulsin` | Passing on news you heard, with "apparently" | `kaudne` | `kaudne`, `meedia` | new: "Tell somebody one piece of news you read, as something you heard" | `kaudne` | `stairwell` |
-| `elanike-koosolek` | Persuading neighbours at a residents' meeting to fix the yard | `uhiskond` | `uhiskond`, `keskkond`, `poliitika`, `arvamus` | new: "Give one reason for something you want, in Estonian, to more than one person" | `poliitika` | `meeting` |
+| `elanike-koosolek` | Persuading neighbors at a residents' meeting to fix the yard | `uhiskond` | `uhiskond`, `keskkond`, `poliitika`, `arvamus` | new: "Give one reason for something you want, in Estonian, to more than one person" | `poliitika` | `meeting` |
 | `graafik` | Presenting a chart at work and taking a question about it | `statistika` | `statistika`, `majandus` | new: "Say one number and what it means out loud: it rose, it fell, by how much" | `statistika` | `meeting` |
 | `raamatuklubi` | A book club: what you thought, what you would change, agreeing and not | `kirjandus` | `kirjandus`, `idioomid`, `arvamus` | new: "Say what you thought of something you read or watched, and one reason" | `kirjandus` | `cafe` |
-| `kolm-palvet` | The same favour asked of a friend, a manager and an official | `register` | `register`, `tingiv` | new: "Ask the same thing twice today, once to somebody you say sina to and once to somebody you say teie to" | `diskursus` | `cafe`, then `meeting`, then `office` (`MOVES`) |
+| `kolm-palvet` | The same favor asked of a friend, a manager and an official | `register` | `register`, `tingiv` | new: "Ask the same thing twice today, once to somebody you say sina to and once to somebody you say teie to" | `diskursus` | `cafe`, then `meeting`, then `office` (`MOVES`) |
 
 Notes for wave E:
 - `kuulsin` needs the quotative in what the learner says; if `readTurn` cannot tell it from the
@@ -745,7 +745,7 @@ TB-6, TB-7, TB-1, TB-2, TB-4, TB-3, TB-8 and TB-5 last.
 
 > You are working on Kodukeel. Read `CLAUDE.md`, then `docs/38-third-batch.md`. Do item TB-n of that
 > page (for TB-10 to TB-15, one scene of it, named here: <scene id>) and nothing else: run its
-> preflight, follow its section 1 and its brief, honour the decisions in its section 2 and the rules in
+> preflight, follow its section 1 and its brief, honor the decisions in its section 2 and the rules in
 > its section 3, write the tests it names first, and run every check in its Verify list. Work against
 > a local Postgres with the hosted credentials removed from the shell: the "Getting a working copy"
 > part of section 3 has the wrapper and the setup commands. Open one pull request titled `TB-n: ...`,

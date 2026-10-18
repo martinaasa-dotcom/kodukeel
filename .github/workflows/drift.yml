@@ -96,7 +96,7 @@ jobs:
       # It exits 1 when anything disagrees. The fix is a person reading the
       # diff and running it again with `--write`, not this job writing to the
       # repository: sense order is the page's own, and which sense a learner
-      # needs is explicitly not a judgement this pipeline makes.
+      # needs is explicitly not a judgment this pipeline makes.
       - run: npm run audit:glosses
       # Whatever the audit said, what it fetched is kept for next week, which
       # is the half `save-always` promised and never did. `!cancelled()` rather

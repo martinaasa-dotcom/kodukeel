@@ -37,7 +37,7 @@ export const dynamic = "force-dynamic";
  */
 export default async function CourseLearnPage() {
   const ownerId = await requireUserId();
-  // Asked at once: the clock does not need the programme.
+  // Asked at once: the clock does not need the program.
   const [programme, clock] = await Promise.all([programmeFor(ownerId), learnerDayClock(ownerId)]);
   if (!programme) redirect("/course");
 

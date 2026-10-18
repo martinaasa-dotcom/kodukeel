@@ -157,7 +157,7 @@ describe("the consistency check", () => {
   });
 
   it("reads an objection, and reads nonsense as none", () => {
-    expect(parseConsistency('{"ok": false, "why": "the bus was cancelled"}')).toEqual({ ok: false, why: "the bus was cancelled" });
+    expect(parseConsistency('{"ok": false, "why": "the bus was canceled"}')).toEqual({ ok: false, why: "the bus was canceled" });
     expect(parseConsistency("sure")).toBeNull();
     expect(parseConsistency('{"ok": "maybe"}')).toBeNull();
   });

@@ -965,7 +965,7 @@ function YourTurn({ word }: { word: WalkWord }) {
         </ChoiceGroup>
 
         {/*
-          The verdict, said out loud: a tint changing colour is nothing at all
+          The verdict, said out loud: a tint changing color is nothing at all
           to a screen reader, which is the rule every marking screen in this
           app follows.
 
@@ -1011,7 +1011,7 @@ function YourTurn({ word }: { word: WalkWord }) {
             four, on the one screen in the app that says out loud it is not a
             test. The count is worth printing, because somebody who got one is
             owed the number rather than a shrug; what it may not do is wear the
-            colour this palette gives to a recalled answer.
+            color this palette gives to a recalled answer.
           */}
           <Card>
             <p className="text-lg font-bold" style={{ color: "var(--ink)" }}>

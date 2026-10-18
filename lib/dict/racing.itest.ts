@@ -45,7 +45,7 @@ const { applyPatch } = await import("@/lib/suggestions/apply");
  * nothing and delete its principal parts, then write. Two requests inside that
  * gap both act on what they read. The dictionary is shared, so the two writers
  * are as likely to be two learners on two instances as one learner pressing
- * twice, and nothing in front of these functions serialises either.
+ * twice, and nothing in front of these functions serializes either.
  *
  * Fired with `Promise.all`, which is the only way any of this is visible.
  */

@@ -114,7 +114,7 @@ export function PutAside({ words }: { words: readonly DeferredWord[] }) {
                   setSaid({ ok: true, text: fill(t("{word} is back in your reviews."), { word: word.lemma }) });
                   setGone((set) => new Set(set).add(word.lexemeId));
                   // The pressed row is about to go, and its button with it: hand
-                  // the caret to the neighbouring row's. The last word leaves
+                  // the caret to the neighboring row's. The last word leaves
                   // only the sentence saying it came back, which is announced.
                   if (next) buttons.current.get(next.lexemeId)?.focus();
                 });

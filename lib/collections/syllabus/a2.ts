@@ -231,7 +231,7 @@ export const A2 = [
       ["nõu", "dish, advice", "NOUN", 209724],
       ["prügi", "rubbish"],
       ["katki", "broken", "ADVERB"],
-      // A flat left dirty is `räpane`; `must` is the colour as much as the state.
+      // A flat left dirty is `räpane`; `must` is the color as much as the state.
       ["räpane", "dirty, messy", "ADJECTIVE"],
     ],
   }),

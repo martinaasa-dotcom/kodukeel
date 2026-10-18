@@ -25,7 +25,7 @@
 /** The light theme, as `app/globals.css` declares it. Asserted, value by value. */
 export const PALETTE = {
   ground: "#fcfbf7",
-  /** The card a letter is drawn on, which is the app's own card colour. */
+  /** The card a letter is drawn on, which is the app's own card color. */
   surface: "#ffffff",
   raised: "#f3f0fa",
   ink: "#0f1233",

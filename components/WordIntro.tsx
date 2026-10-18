@@ -142,10 +142,10 @@ export function WordIntro({
         every entry has (lib/collections/glossLanguage.ts).
       */}
       {/*
-        THE MEANING IS LABELLED AS A MEANING, BECAUSE A BARE GLOSS CAN LOOK
+        THE MEANING IS LABELED AS A MEANING, BECAUSE A BARE GLOSS CAN LOOK
         LIKE SOMETHING TO TYPE.
 
-        `mina` is glossed "I", one thin glyph in small grey type under a word
+        `mina` is glossed "I", one thin glyph in small gray type under a word
         and over a rule, and a learner reported reading it as a text cursor
         waiting for them on the very first card they ever saw. Nothing on
         this screen asks for anything, so the screen has to say what each
@@ -217,7 +217,7 @@ export function WordIntro({
           {/*
             AND NOTHING UNDER IT SAYING SO.
 
-            This carried a line of 12px grey reading "Any underlined word opens
+            This carried a line of 12px gray reading "Any underlined word opens
             its meaning", on every first meeting, for ever. It was reported as
             part of the small print stuck to every screen, and it was: an
             underline that opens on a tap is the oldest signal there is, the

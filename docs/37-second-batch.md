@@ -46,7 +46,7 @@ Start your branch from `origin/main` after that check, not from an older checkou
 | --- | --- | --- |
 | D1 | The app is for learners aged 13 and older, with teacher-managed classes, until a school asks and signs a data processing agreement. No pupil accounts, no sign-in by code. | Every public page and the poster say "13 and older". |
 | D2 | The roster file carries each learner's weakest case. It is for the class owner only. A workplace group's file has no case column at all, as its screen has none. | SB-2. |
-| D3 | The QR code uses the qrcode-generator package (MIT, version 2.0.4, no dependencies), drawn as inline SVG on the server. The test decodes it with the jsqr package (Apache-2.0, not MIT as this line first said), a dev dependency used by that one test, which the licence check allows: it reads production dependencies only, and Apache-2.0 is not on its list in any case. | SB-1. |
+| D3 | The QR code uses the qrcode-generator package (MIT, version 2.0.4, no dependencies), drawn as inline SVG on the server. The test decodes it with the jsqr package (Apache-2.0, not MIT as this line first said), a dev dependency used by that one test, which the license check allows: it reads production dependencies only, and Apache-2.0 is not on its list in any case. | SB-1. |
 | D4 | `/pilots` is English only, and the page is the source of its text. `docs/30-pilots.md` becomes a half-page summary that links to it. | SB-4. |
 | D5 | The roster file's headers are in the teacher's interface language. The file is UTF-8 with a byte order mark and CRLF line ends, so a spreadsheet opens Cyrillic and Estonian letters correctly. | SB-2. |
 | D6 | The roster file is served from `/api/class/<id>/roster`, not from a page path. It is allowed for an archived class: a teacher may want the records of a class that has ended. | SB-2. |
@@ -67,7 +67,7 @@ to find them; read the file for the reasons.
   table script (`npm run i18n:tables`) and commit what it writes; `npm test` fails if you forget.
 - **No Estonian is written by the app** (ADR-005). A case name is read from `lib/estonian/cases.ts`, never
   typed, and never the Latin name.
-- **Tokens, not literals.** Type sizes are step names, colours are tokens, the middot is on no screen.
+- **Tokens, not literals.** Type sizes are step names, colors are tokens, the middot is on no screen.
 - **A reading is not a verdict.** Never paint a figure about a learner in the sky or blush hues.
 - **One loud action per screen,** and the primary button is last in its row.
 - **A new invariant goes in its own file** under `scripts/invariants/`, and is made to fail on a planted
@@ -116,7 +116,7 @@ If pages start returning 503, Postgres has stopped with your shell: start it aga
 
 This page arrived after the items were assigned, so the rows below are kept by the pull request that
 adds the page rather than by each item's own, which would have had nine pull requests editing nine
-neighbouring lines of one table. #829 is a fix found on the way, not an item: the workbook graded a
+neighboring lines of one table. #829 is a fix found on the way, not an item: the workbook graded a
 bracket word copied out unchanged as a slip.
 
 | Item | Status |
@@ -168,7 +168,7 @@ relying on it.
   - Render a QR code of the full link beside or under it. Add qrcode-generator as a dependency and
     jsqr as a dev dependency. Build the SVG yourself from `getModuleCount()` and `isDark(row, col)`
     as a single `<path>` (no `dangerouslySetInnerHTML`), with a four-module quiet zone. The QR must be
-    dark on light in both themes and on paper: use the colour keywords `black` and `white` on the
+    dark on light in both themes and on paper: use the color keywords `black` and `white` on the
     SVG; if an invariant refuses them, add a narrow, reasoned exemption for that one component.
   - The link is `<scheme>://<host>/class?join=<code>`. Host and scheme come from `canonicalOrigin()`
     when the deployment names one. Otherwise take the host from the request and the scheme from
@@ -222,7 +222,7 @@ suite. Add the new dependencies with `npm install` so the lockfile moves with th
   4. Respond `text/csv; charset=utf-8`, `Content-Disposition: attachment` with a filename
      `kodukeel-<class name reduced to letters and digits>-roster-<YYYY-MM-DD>.csv`, and
      `PRIVATE_NO_STORE`.
-- The class page: a link beside "Print the join poster", shown to the owner only, labelled "Download the
+- The class page: a link beside "Print the join poster", shown to the owner only, labeled "Download the
   roster".
 - `lib/copy/i18n/areas/app.ts`: the label and the column headers, in Russian and Ukrainian.
 
@@ -290,7 +290,7 @@ that for the file.
 5. Lines go in `lib/copy/i18n/areas/public.ts`, with Russian and Ukrainian, then the table script.
 
 **English text** (write it as given, then adjust only to fit the voice caps):
-- Title: "For teachers". Opening line: "Put a code on the board. See who is practising and what the group
+- Title: "For teachers". Opening line: "Put a code on the board. See who is practicing and what the group
   keeps getting wrong."
 - "What you see": "A roster with each person's reviews this week, streak, words known and days since
   their last review. The one case each person finds hardest. And what the whole class is weakest at,
@@ -326,7 +326,7 @@ words.
 
 ### SB-4. A `/pilots` page
 
-**Goal.** An organisation deciding whether to put the app in front of a group can read what a pilot is
+**Goal.** An organization deciding whether to put the app in front of a group can read what a pilot is
 without finding a file in a repository.
 
 **Do.** Create `app/pilots/page.tsx` (to be written) wrapped in `components/Legal.tsx`, English only, with
@@ -443,7 +443,7 @@ that is acceptable and should be said in the code comment. Never put a figure in
 
 **Files.**
 - `scripts/export-translations.ts`: add `--since <git ref>` and `--out <path>`. Without `--since` the
-  behaviour is unchanged. With it:
+  behavior is unchanged. With it:
   1. For each of Russian and Ukrainian, read the generated table at that ref with `git show` (the
      generated files are under `lib/copy/i18n/generated`, one per language; their format is
      in `lib/copy/i18n/table.ts`) and parse it. If the ref has no such file, treat every line as new and
@@ -525,14 +525,14 @@ says plainly which target was missed and by how much after all three cuts.
   questions of its own. Triggered by evidence that the demos are not converting.
 - **Generating the language tables at build time.** The evidence is one red CI run, fixed by merging main
   and running the table script. The generated files list one translation per line, so two pull requests
-  adding different lines should merge cleanly unless they land on neighbouring lines. Moving to a build
+  adding different lines should merge cleanly unless they land on neighboring lines. Moving to a build
   step touches every CI job that type-checks, because `tsc` needs the files to exist. Triggered by a
   second conflict.
 - **Splitting the signed-in language table by route.** A Russian learner downloads 316 KB once and the
   service worker keeps it. Triggered by a first-load measurement on a slow phone that says otherwise.
 - **A teacher dashboard beyond the roster and the file** (a drill-in per pupil, a completion matrix,
   co-teachers). Triggered by a teacher asking for one.
-- **Public dictionary and grammar pages.** A separate project with its own licence and indexing
+- **Public dictionary and grammar pages.** A separate project with its own license and indexing
   questions.
 - **The remaining plan items** (the B1 office scenes, "how we know", curriculum alignment, a security
   evidence pack, an impact release, a contributor guide, reading mode, spoken scene turns, scheduler
@@ -577,7 +577,7 @@ and SB-8.
 ## 9. A brief to paste into a fresh session
 
 > You are working on Kodukeel. Read `CLAUDE.md`, then `docs/37-second-batch.md`. Do item SB-n of that page
-> and nothing else: run its preflight, follow its section 1 and its brief, honour the decisions in
+> and nothing else: run its preflight, follow its section 1 and its brief, honor the decisions in
 > its section 2 and the rules in its section 3, write the tests it names first, and run every check
 > in its Verify list. Work against a local Postgres with the hosted credentials removed from the shell:
 > the "Getting a working copy" part of section 3 has the wrapper and the setup commands. Open one pull request titled

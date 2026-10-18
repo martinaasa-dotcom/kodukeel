@@ -78,7 +78,7 @@ export function Legal({ title, updated, children, locale = "en", explicit = fals
  * THE TOP OF A PUBLIC PAGE: THE PRODUCT, THE LANGUAGE, AND ONE WAY IN.
  *
  * These are the pages a funder, a school and a ministry reader open, and their
- * header was the word "Kodukeel" in small grey capitals: no mark, no sign of
+ * header was the word "Kodukeel" in small gray capitals: no mark, no sign of
  * the product, nothing to press. It is the landing page's own lockup now,
  * linking home, the language switcher beside it, and one quiet button to start.
  * Quiet on purpose: the page is a document and the reader's one job on it is

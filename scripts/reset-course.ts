@@ -24,7 +24,7 @@ async function main() {
     return;
   }
   const done = await resetCourseProgress(all ? "all" : owners);
-  console.log(`\nRemoved ${done.ticks} ticks and ${done.programmes} stale programme settings.`);
+  console.log(`\nRemoved ${done.ticks} ticks and ${done.programmes} stale program settings.`);
 }
 
 main()

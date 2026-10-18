@@ -31,7 +31,7 @@ import { orderIsRight, readOrder, type OrderVerdict } from "./wordOrder";
 const DASH = "\u2013";
 const EM_DASH = "\u2014";
 
-/** The marks that become tiles. A dash is normalised to the en dash. */
+/** The marks that become tiles. A dash is normalized to the en dash. */
 const MARKS = new Set([",", ".", "!", "?", ":", ";", DASH]);
 
 /** A word or one mark: the alternation `matchAll` walks a sentence with. */
@@ -82,8 +82,8 @@ export function isOrderable(sentence: string): boolean {
 export function markName(mark: string): string {
   switch (mark) {
     case ",": return "comma";
-    case ".": return "full stop";
-    case "!": return "exclamation mark";
+    case ".": return "period";
+    case "!": return "exclamation point";
     case "?": return "question mark";
     case ":": return "colon";
     case ";": return "semicolon";

@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
   THE WAY OUT, WHICH HAS TO WORK FOR SOMEBODY WHO IS NOT SIGNED IN.
 
   An unsubscribe that asks a person to log in first is one a mail client will
-  not honour and one an annoyed reader replaces with the spam button. So the
+  not honor and one an annoyed reader replaces with the spam button. So the
   link carries a signed token and this route trusts the signature rather than a
   session. `lib/email/unsubscribe.ts` is where that is argued.
 
@@ -30,7 +30,7 @@ export const dynamic = "force-dynamic";
 
   RFC 8058 IS THE EXCEPTION AND IT IS EXPLICIT. A mail client's own unsubscribe
   button posts `List-Unsubscribe=One-Click`, and a POST is not something a
-  scanner does by accident. That is honoured immediately, with no page, because
+  scanner does by accident. That is honored immediately, with no page, because
   the reader has already pressed a button and is looking at their mailbox
   rather than at us.
 
@@ -39,7 +39,7 @@ export const dynamic = "force-dynamic";
   exist. Every outcome is the same page.
 */
 
-/** The one page this route draws, in the app's own colours and nothing else. */
+/** The one page this route draws, in the app's own colors and nothing else. */
 function page(title: string, body: string, action?: { label: string; token: URLSearchParams }): Response {
   const form = action
     ? `<form method="post" action="/api/email/unsubscribe">

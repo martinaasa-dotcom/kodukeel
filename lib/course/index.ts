@@ -1,5 +1,5 @@
 /**
- * THE PROGRAMMES, ASSEMBLED, AND THE RULES FOR WHERE SOMEBODY IS IN ONE.
+ * THE PROGRAMS, ASSEMBLED, AND THE RULES FOR WHERE SOMEBODY IS IN ONE.
  *
  * Pure: a set of finished step ids in, a day and a next step out. There is no
  * pointer anywhere saying which day a learner is on, and there is not going to
@@ -72,7 +72,7 @@ export function lessonDayFor(lessonId: string): { programme: Programme; day: Cou
   return undefined;
 }
 
-/** Every unit the programme draws on, in the order it first draws on each. */
+/** Every unit the program draws on, in the order it first draws on each. */
 export function programmeUnits(programme: Programme): string[] {
   const seen: string[] = [];
   for (const d of programme.days) if (!seen.includes(d.unitId)) seen.push(d.unitId);
@@ -83,7 +83,7 @@ export function programmeUnits(programme: Programme): string[] {
 export const unitOf = (d: CourseDay) => unitById(d.unitId);
 
 /**
- * THE DAY A PROGRAMME IS STANDING ON, BEFORE ANYTHING IS ASKED OF THE LOG.
+ * THE DAY A PROGRAM IS STANDING ON, BEFORE ANYTHING IS ASKED OF THE LOG.
  *
  * The furthest day carrying a tick, and day one where there are none. That is
  * the whole pointer, and it is derived rather than stored (ADR-014): a tick is
@@ -151,7 +151,7 @@ export function dayStanding(d: CourseDay, done: ReadonlySet<string>): DayStandin
 }
 
 /**
- * Where somebody is in the whole programme.
+ * Where somebody is in the whole program.
  *
  * `current` is the first unfinished day, and it is null exactly when every day
  * is finished, which is the one state this screen gets to celebrate.
@@ -191,7 +191,7 @@ export function programmeStanding(
 }
 
 /**
- * Every word the programme has taught up to and including a day.
+ * Every word the program has taught up to and including a day.
  *
  * What a learner has been *given*, which is a different question from what
  * their deck holds: somebody who skipped a round still met the words. The
@@ -224,7 +224,7 @@ export function wordsThrough(programme: Programme, index: number): string[] {
  * the reason.
  *
  * `PROGRAMMES` is the ladder in order, so "before" is the parts ahead of this
- * one. A programme that is not on the ladder is credited with nothing before
+ * one. A program that is not on the ladder is credited with nothing before
  * it rather than with everything, which is `lemmasTaughtBefore`'s rule one
  * level up: reading "I cannot place this" as "all of it has been taught" is
  * the silent failure rather than the cautious one.
@@ -270,7 +270,7 @@ export function unitsThrough(programme: Programme, index: number): string[] {
   const out: string[] = [];
   /*
     A LESSON EVENING NAMES NO UNIT. The A1 lessons teach A1 by goal rather
-    than unit by unit, so inside them no unit is opened, and the catalogue's
+    than unit by unit, so inside them no unit is opened, and the catalog's
     conversations, which declare A1 and A2 units, wait for A2; the lessons'
     own role-plays are what A1 talks in. Once the lessons are behind a
     learner, every unit of their level counts as opened, which is the claim

@@ -87,7 +87,7 @@ for (const url of PAGES) {
       let n = el;
       while (n) {
         const cs = getComputedStyle(n);
-        // A gradient defeats a single-colour comparison; those are checked by eye.
+        // A gradient defeats a single-color comparison; those are checked by eye.
         if (cs.backgroundImage && cs.backgroundImage !== "none") return null;
         const bg = cs.backgroundColor;
         if (bg && !bg.startsWith("rgba(0, 0, 0, 0)") && bg !== "transparent") {

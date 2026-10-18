@@ -93,7 +93,7 @@ export interface GapMeaning {
  * reading the whole string as one word would find neither in the English and
  * would let a line through that gives one of them away. The separators are
  * `acceptedForms`'s own, so what a marker accepts and what this withholds
- * over cannot come apart; the normalising it does afterwards is deliberately
+ * over cannot come apart; the normalizing it does afterwards is deliberately
  * not done here, since these are compared against an English sentence as
  * written rather than folded for marking.
  */

@@ -148,7 +148,7 @@ export async function practiceScope(
  * `moduleReached` reads it, and their puzzle is exactly what it was.
  *
  * NOT "FINISHED FIRST RUN TODAY", which is what this read first. First run is
- * not the module: somebody can finish it and practise for a week without
+ * not the module: somebody can finish it and practice for a week without
  * opening an evening, and holding them to the course took their puzzle away
  * over a screen they never opened. The phone suite's learner was exactly
  * that. The one cost of reading a tick instead is a learner who opens the

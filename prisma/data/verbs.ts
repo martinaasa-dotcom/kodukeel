@@ -87,7 +87,7 @@ export const VERBS: readonly VerbSeed[] = [
   ["selgitama", "to explain", "B1", "selgitama", "selgitada", "selgitan", "selgitasin", "selgitatud"],
   ["tähendama", "to mean", "A2", "tähendama", "tähendada", "tähendan", "tähendasin", "tähendatud"],
   ["arendama", "to develop", "B2", "arendama", "arendada", "arendan", "arendasin", "arendatud"],
-  ["korraldama", "to organise, to arrange", "B2", "korraldama", "korraldada", "korraldan", "korraldasin", "korraldatud"],
+  ["korraldama", "to organize, to arrange", "B2", "korraldama", "korraldada", "korraldan", "korraldasin", "korraldatud"],
   ["soovitama", "to recommend", "B1", "soovitama", "soovitada", "soovitan", "soovitasin", "soovitatud"],
   ["võrdlema", "to compare", "B2", "võrdlema", "võrrelda", "võrdlen", "võrdlesin", "võrreldud"],
   ["tõestama", "to prove", "B2", "tõestama", "tõestada", "tõestan", "tõestasin", "tõestatud"],

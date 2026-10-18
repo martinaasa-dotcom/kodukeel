@@ -81,7 +81,7 @@ export type Support = "guided" | "listen" | "cold";
 
 export const DEFAULT_SUPPORT: Support = "guided";
 
-/** An unset row and an unrecognised value both read as the default. */
+/** An unset row and an unrecognized value both read as the default. */
 export function supportFrom(value: string | null | undefined): Support {
   return value === "listen" || value === "cold" ? value : "guided";
 }
@@ -96,7 +96,7 @@ export function hidesGoal(support: Support): boolean {
   return support === "cold";
 }
 
-/** An unset row and an unrecognised value both read as the default. */
+/** An unset row and an unrecognized value both read as the default. */
 export function hearingFrom(value: string | null | undefined): Hearing {
   return value === "off" ? "off" : "on";
 }
@@ -187,7 +187,7 @@ export const OPENS_AT: Readonly<Record<ConditionId, number>> = {
 };
 
 /**
- * WHETHER A CONDITION REMOVES WORDS OR ONLY COLOURS THEM.
+ * WHETHER A CONDITION REMOVES WORDS OR ONLY COLORS THEM.
  *
  * `half` starts two fifths of the way in, and the table above already says it
  * is "the only one that removes words rather than coloring them". What

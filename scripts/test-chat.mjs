@@ -191,7 +191,7 @@ try {
   await page.waitForSelector("main h1", { timeout: 30_000 });
   const brief = await page.locator("main").innerText();
   check("the chat names itself, and who it is with",
-    /Tonight.s chat/.test(brief) && /neighbour/i.test(brief), brief.slice(0, 160));
+    /Tonight.s chat/.test(brief) && /neighbou?r/i.test(brief), brief.slice(0, 160));
   check("it has no dial for how much goes wrong, since nothing does",
     (await page.getByRole("radiogroup", { name: /How tricky/i }).count()) === 0);
 
@@ -287,7 +287,7 @@ try {
     recalled.length > 0 && recalled.every((meaning) => meaning.length > 0 && !evening.words.includes(meaning)),
     recalled.join(" | "));
   const asking = remembering.map((one) => /lets you use the word for "([^"]+)"/.exec(one.system)?.[1] ?? "");
-  check("and never the word it is about to ask for, which would be the neighbour repeating themselves",
+  check("and never the word it is about to ask for, which would be the neighbor repeating themselves",
     remembering.length > 0 && remembering.every((_, i) => asking[i] !== "" && asking[i] !== recalled[i]),
     remembering.map((_, i) => `${recalled[i]} -> ${asking[i]}`).join(" | "));
 

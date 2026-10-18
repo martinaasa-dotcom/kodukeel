@@ -30,7 +30,7 @@ export type ToWorker =
     }
   /**
    * Start a turn; its audio arrives through the port sent with this message.
-   * `id` is echoed on everything the turn says, so a turn cancelled while it
+   * `id` is echoed on everything the turn says, so a turn canceled while it
    * was being read cannot land its final on the turn that replaced it.
    */
   | { readonly type: "listen"; readonly id: number; readonly endpoint: boolean; readonly maxSeconds?: number; readonly keepAudio?: boolean }

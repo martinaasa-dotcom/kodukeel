@@ -19,7 +19,7 @@
  * hidden rather than shown. There is no check downstream of that, because the
  * answer looks exactly like a good one.
  *
- * SO THE JUDGEMENT IS A PERSON'S AND THIS IS WHERE IT IS KEPT. No rule here
+ * SO THE JUDGMENT IS A PERSON'S AND THIS IS WHERE IT IS KEPT. No rule here
  * could have caught it. `naturalSentence` refuses a fragment, an ellipsis, a
  * slash and the label pattern, and every one of those is a shape; this is a
  * sentence in perfectly ordinary shape that a native speaker reads once and
@@ -58,7 +58,7 @@
  * A variant is not covered: the same sentence with the stop dropped, an
  * ellipsis in place of the full stop, or a word reordered is a different
  * string and reaches every screen. That is deliberate rather than a gap
- * somebody forgot. What would cover it is a judgement about how near two
+ * somebody forgot. What would cover it is a judgment about how near two
  * Estonian sentences are, which is the parser this file's own header refuses
  * to pretend to, and the near version of it withholds correct Estonian. The
  * harvest holds one spelling per usage, so a variant only arrives if Ekilex
@@ -189,7 +189,7 @@ export const REFUSED_SENTENCES: readonly RefusedSentence[] = [
   },
   {
     et: "Mehed ja naised on juhina erinevad.",
-    why: "A generalisation about men and women as leaders. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+    why: "A generalization about men and women as leaders. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
   },
   {
     et: "Ma olin viimane, kes teda elusana nägi.",
@@ -273,7 +273,7 @@ export const REFUSED_SENTENCES: readonly RefusedSentence[] = [
   },
   {
     et: "Kaablis oli survestatud lämmastik.",
-    why: "Pressurised nitrogen in a cable. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+    why: "Pressurized nitrogen in a cable. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
   },
   {
     et: "Mees laob murret nagu kulda.",
@@ -565,7 +565,7 @@ export const REFUSED_SENTENCES: readonly RefusedSentence[] = [
   },
   {
     et: "Mida mõtleb igrek?",
-    why: "\"Mida mõtleb igrek?\" means nothing without the maths it came from. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+    why: "\"Mida mõtleb igrek?\" means nothing without the math it came from. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
   },
   {
     et: "Koolmeister laskis alati habemenoaga pealae paljaks ajada.",
@@ -593,7 +593,7 @@ export const REFUSED_SENTENCES: readonly RefusedSentence[] = [
   },
   {
     et: "Maskuliinses kultuuris otsustab isa pere suuruse.",
-    why: "A generalisation about masculine cultures and who decides the size of a family. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+    why: "A generalization about masculine cultures and who decides the size of a family. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
   },
   {
     et: "Igasugust paska ma ei osta.",
@@ -663,7 +663,7 @@ export const REFUSED_SENTENCES: readonly RefusedSentence[] = [
     et: "Ttöötute inimeste arv järgmisel aastal kasvab.",
     why:
       "A typo in the source, the first letter doubled: Ttöötute for töötute. " +
-      "Found on reading the usages Ekilex returned for töötu when the job-centre " +
+      "Found on reading the usages Ekilex returned for töötu when the job-center " +
       "scene's words were harvested.",
   },
 ];

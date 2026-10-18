@@ -163,7 +163,7 @@ export const SECTIONS: NavSection[] = [
       {
         href: "/course", label: "Today's module", blurb: "Today's words and games, already picked for you",
         icon: "CalendarCheck", tone: "accent",
-        keywords: "course planned programme a1 module day guided plan lesson schedule step by step",
+        keywords: "course planned program a1 module day guided plan lesson schedule step by step",
         within: "/learn",
       },
       {
@@ -375,7 +375,7 @@ export const SECTIONS: NavSection[] = [
         href: "/words/decks", label: "Decks",
         blurb: "Make your own word lists and add to them as you go", icon: "Library",
         tone: "sky",
-        keywords: "deck decks playlist playlists shelf shelves organize organise folder collection",
+        keywords: "deck decks playlist playlists shelf shelves organize organize folder collection",
         within: "/progress",
       },
       {

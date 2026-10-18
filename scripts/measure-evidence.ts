@@ -89,8 +89,8 @@ const READERS: Record<string, { needsKey?: boolean; read: (out: string, code: nu
   licences: {
     read(out, code) {
       const m = /(\d[\d,]*) production packages/.exec(out);
-      if (!m || code !== 0) throw new Error("licence check did not pass");
-      return `${m[1]} packages, none under a licence that would bind the code`;
+      if (!m || code !== 0) throw new Error("license check did not pass");
+      return `${m[1]} packages, none under a license that would bind the code`;
     },
   },
   invariants: {

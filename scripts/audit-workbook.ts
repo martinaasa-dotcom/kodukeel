@@ -6,7 +6,7 @@
  * knows and at most one above the learner's band, no other form of the word
  * beside its gap, and the plainest first. What no filter can say is whether a
  * native speaker would set the sentence as an exercise, and that is the one
- * judgement left. This prints the lines a learner at each band is dealt, the
+ * judgment left. This prints the lines a learner at each band is dealt, the
  * way the page draws them, so somebody who reads Estonian can read them.
  *
  *   npm run audit:workbook                         every band, every theme, a dozen lines each

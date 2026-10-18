@@ -24,7 +24,7 @@
  * names an Estonian form: the screen puts the words beside the line. The
  * meanings are written for contrast rather than copied from the gloss,
  * because a gloss says what one word means and this has to say how two
- * differ. They were written by the developer's best judgement and are for a
+ * differ. They were written by the developer's best judgment and are for a
  * native speaker to read; edit them here.
  *
  * Pure: no React, no Next, no Prisma, no network, no clock. The round's screen
@@ -147,7 +147,7 @@ export const TWIN_GROUPS: readonly TwinGroup[] = [
   /* ── It happens, or you make it happen ─────────────────────────────── */
   group("makes", [v("kasvama", "to grow (by itself)"), v("kasvatama", "to grow something, to raise")]),
   group("makes", [v("mõjuma", "to have an effect"), v("mõjutama", "to influence somebody")]),
-  group("makes", [v("harjuma", "to get used to"), v("harjutama", "to practise")]),
+  group("makes", [v("harjuma", "to get used to"), v("harjutama", "to practice")]),
   group("makes", [v("näima", "to seem"), v("näitama", "to show")]),
   group("makes", [v("säilima", "to last, to be kept"), v("säilitama", "to keep, to preserve")]),
   group("makes", [v("valmima", "to ripen, to get finished"), v("valmistama", "to make, to prepare")]),
@@ -270,7 +270,7 @@ export const TWIN_GROUPS: readonly TwinGroup[] = [
   group("lookalike", [n("köök", "kitchen"), n("söök", "food, a meal")]),
 
   group("lookalike", [a("vale", "wrong"), a("valge", "white")]),
-  group("lookalike", [a("halb", "bad"), a("hall", "grey")]),
+  group("lookalike", [a("halb", "bad"), a("hall", "gray")]),
   group("lookalike", [a("kerge", "light, easy"), a("kõrge", "high, tall")]),
   group("lookalike", [a("kurb", "sad"), a("kurt", "deaf")]),
   group("lookalike", [a("vihane", "angry"), a("vihmane", "rainy")]),

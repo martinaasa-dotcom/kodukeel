@@ -23,7 +23,7 @@ raised later without embarrassment.
 | **S1** | Personal data is exposed or lost, or the deployment is compromised | A query missing its `ownerId` filter serving one learner another's deck. The Supabase service role key found in a public place. Someone signed in as somebody else through a mailed link. `Review` rows deleted with no recoverable copy. |
 | **S2** | A control that protects data has failed, with no confirmed exposure yet | The forged request gate stops running. `safeMessage` stops redacting and a Prisma error quotes the connection string to a learner. The sign-in allowlist stops being checked. A dependency advisory with a working exploit path into this app. |
 | **S3** | Availability, or money, without a data fault | Supabase Auth is down and nobody can sign in. The AI ledger is bypassed and the daily budget is spent by lunchtime. The database is unreachable. |
-| **S4** | A fault worth fixing that harms nobody now | A missing security header. A vandalised dictionary entry. A rate limit that is too generous. A finding from a scanner with no path behind it. |
+| **S4** | A fault worth fixing that harms nobody now | A missing security header. A vandalized dictionary entry. A rate limit that is too generous. A finding from a scanner with no path behind it. |
 
 Two rules about setting it. **Uncertainty rounds up**: if you cannot yet tell whether personal data
 was reached, it is S1 until you can. And **a control failing is S2 even when nothing has been
@@ -84,7 +84,7 @@ section 5 needs, so answering them now is not overhead.
 4. **What the likely consequence is** for those people.
 
 Start the timeline file at the same moment. Every entry is a timestamp in UTC, what was observed or
-done, and by whom. It is the only artefact that makes the review in section 8 worth anything, and it
+done, and by whom. It is the only artifact that makes the review in section 8 worth anything, and it
 is what a supervisory authority asks for.
 
 **The 72 hour clock starts when you become aware**, not when you finish investigating. Note the
@@ -133,7 +133,7 @@ The timeline file is that record.
 ### Article 34: telling the people affected
 
 **Without undue delay**, where the breach is likely to result in a **high** risk to their rights and
-freedoms. Not required if the data was rendered unintelligible to anyone unauthorised, if subsequent
+freedoms. Not required if the data was rendered unintelligible to anyone unauthorized, if subsequent
 measures make the high risk no longer likely, or if it would involve disproportionate effort, in
 which case a public communication takes its place.
 
@@ -266,7 +266,7 @@ A learner's own backup is the other path. `Settings → Download a backup` write
 same panel restores it. Merge is the default and cannot delete anything, so restoring twice is
 harmless; `replace` is behind a typed confirmation and still never deletes a review.
 
-### 7.4 The dictionary vandalised
+### 7.4 The dictionary vandalized
 
 Through the suggestion queue, through a hand edit, or through a restore.
 
@@ -304,7 +304,7 @@ Supabase Auth is unreachable, or Google Sign-In is failing.
    take a learner's own deck away over a bad minute at somebody else's server. It cannot leak
    anything, because `requireUserId()` throws when the session cannot be verified, so pages resolve to
    an error rather than to somebody else's data.
-3. So the observed behaviour is: signed-in learners with a valid token keep working while the token
+3. So the observed behavior is: signed-in learners with a valid token keep working while the token
    lasts, and new sign-ins fail. Say that on a status note rather than letting people guess.
 4. If sign-ins are failing but the service is up, check the configuration fault first, because it is
    far more likely than an outage. The Site URL and Redirect URLs in the Supabase dashboard have to
@@ -369,7 +369,7 @@ how long a Supabase restore takes, so the sentence above stays true.
 run. `scripts/test-restore.mjs` empties every table and restores from an export, and it runs in the
 browser job. It covers one learner's own data, not the deployment.
 
-**The dictionary.** Not backed up and does not need to be. It is a build artefact of this repository:
+**The dictionary.** Not backed up and does not need to be. It is a build artifact of this repository:
 `prisma/data/expanded.json` is in git, `npm run db:seed` loads it, and `.github/workflows/seed-production.yml`
 reloads it against a deployment by hand after somebody types a confirmation. Recovery is a workflow
 run. That workflow is the one place in CI that maps a repository secret into a job, deliberately, and

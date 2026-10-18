@@ -8,10 +8,10 @@
  *
  * EACH KIND WEARS ONE HUE OF THE MIX, AND THE HUE MEANS ONLY "THIS KIND".
  * The design system lets a tile in a set of tiles cycle the palette to tell
- * itself apart from its neighbours (`docs/14-design-system.md` §1), and this
+ * itself apart from its neighbors (`docs/14-design-system.md` §1), and this
  * is that rule with a reason behind which tile gets which: every café is the
  * same butter, so the filter chip's dot and the tiles under it agree. Nothing
- * here is a verdict, so blush on a health centre says "health" and nothing
+ * here is a verdict, so blush on a health center says "health" and nothing
  * about how anybody did there.
  *
  * Keyed on the scene id and checked both ways in `kinds.test.ts`, because a

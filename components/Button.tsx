@@ -8,7 +8,7 @@ type Size = "sm" | "md" | "lg";
 
 /**
  * Buttons are keys. The primary is firework gold and the secondary is paper,
- * and both stand on a lip of their own colour that sinks when pressed
+ * and both stand on a lip of their own color that sinks when pressed
  * (`.key` in app/globals.css): a physical press rather than a glossy pill,
  * which is most of what makes the app feel like an object and not a
  * template. One loud action per screen, everything else quiet.

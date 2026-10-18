@@ -33,7 +33,7 @@ const MONDAY = new Date("2026-09-21T18:00:00Z");
 const FRIDAY = new Date("2026-09-25T18:00:00Z");
 
 describe("the numbered set", () => {
-  it("shares no more between neighbouring pools than chance, over the real dictionary", () => {
+  it("shares no more between neighboring pools than chance, over the real dictionary", () => {
     const rows = ordered.filter((e) => eligibleFor("B1", e.cefr ?? null)).map((e) => ({ id: `${e.lemma}|${e.pos}`, cefr: e.cefr ?? null }));
     for (let n = 1; n < 12; n++) {
       const here = new Set(drawStablePool(rows, "B1", `set-${n}`));
@@ -55,7 +55,7 @@ describe("a numbered paper", () => {
     expect(friday.seed).toBe(numberedSeed(7, null, FRIDAY));
   });
 
-  it("is a different paper from its neighbour", () => {
+  it("is a different paper from its neighbor", () => {
     expect(questions(paperFor(numberedSeed(8, null, MONDAY)))).not.toEqual(questions(paperFor(numberedSeed(7, null, MONDAY))));
   });
 

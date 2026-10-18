@@ -8,7 +8,7 @@ import { PICKS, CURVEBALL_PICKS } from "./picks/index";
  * WHAT A LEARNER MAY PICK TO SAY, BEAT BY BEAT, WHERE TYPING IS STILL TOO MUCH.
  *
  * The landing page's café is played by picking a line, and a learner in their
- * first months is the person that shape is for: they can recognise the right
+ * first months is the person that shape is for: they can recognize the right
  * thing to say long before they can produce it, and a conversation they can
  * finish is worth more to them than one they abandon at the second beat. So
  * every scene offers two or three lines per beat, each with its English, and
@@ -26,7 +26,7 @@ import { PICKS, CURVEBALL_PICKS } from "./picks/index";
  * answer" is checked rather than hoped.
  *
  * A PICKED TURN GRADES NOTHING (D9). Choosing a line shows that somebody
- * recognised it, not that they could produce it, so a beat met by a pick
+ * recognized it, not that they could produce it, so a beat met by a pick
  * writes no review row (`finishScene`). The turn is the client's word on that,
  * like `helped`: a forged flag can only ever remove grades.
  */

@@ -161,7 +161,7 @@ export function planTurn(input: TurnInput) {
     HEARD OF ONE.
 
     A curveball's beat is synthetic (`hurdle:<id>`, built by `hurdleBeat`)
-    and lives nowhere in the catalogue's own `beats` array, so the moment a
+    and lives nowhere in the catalog's own `beats` array, so the moment a
     learner resolved one, this lookup came back empty. `answered` feeds the
     whole reaction system below: the acknowledgment after a landed turn is
     gated on `answered` being truthy, so every turn that resolved a curveball
@@ -511,7 +511,7 @@ export function planTurn(input: TurnInput) {
         beat has no topic words on purpose (`chatScene`): the one word it is
         about is the one word the other side may not say, and `elicits` keeps
         the line on it instead. But `theirs` was added on every turn, so the
-        topic was whatever the learner had just said, and a neighbour asking
+        topic was whatever the learner had just said, and a neighbor asking
         "how was your day, are you coming from work?" after `Tere.` was
         withheld three times running as off the point, with the beat falling to
         its stage direction or to the last line said again. Read in the capped
@@ -790,7 +790,7 @@ export async function speakTurn(
     THE NET IS THE BEAT AS IT IS, NOT AS THE MODEL IS TOLD IT. `stillTalking`
     hands a closing beat to the composer as a `confirm`, so a model asked
     something on the way out answers it and leaves the goodbye to the learner.
-    The cheap ladder was handed the same relabelled beat, and a `confirm` does
+    The cheap ladder was handed the same relabeled beat, and a `confirm` does
     not take `Head aega!`, so with no model behind the run a learner who asked
     "kui kaua?" as they were leaving read the stage direction "They say
     goodbye." in English and nothing in Estonian, turn after turn.
@@ -802,7 +802,7 @@ export async function speakTurn(
     A COURTESY IS THE LINE, AND A MODEL ONLY PARAPHRASES IT INTO SOMETHING
     NOBODY SAYS. The attested rung is reachable only where the beat's pool
     holds a phrase entry, which after §32 narrowed it is `Tere!`, `Aitäh!`,
-    `Head aega!` and their neighbours: a lexicographer recorded them, they are
+    `Head aega!` and their neighbors: a lexicographer recorded them, they are
     the whole line, and there is nothing about the conversation for a drafted
     greeting to be better about.
 
@@ -1076,7 +1076,7 @@ function withoutRestatedCorrection(lines: SpokenLine[]): SpokenLine[] {
  * Nobody says "Selge." at the start of every turn. A receptionist who felt the
  * last answer that way goes straight to the next question over this one, so a
  * feeling (`isFelt`) that most likely opened the last reply too is dropped
- * where a line follows it. "Got it, but" and an acknowledgement are never
+ * where a line follows it. "Got it, but" and an acknowledgment are never
  * dropped: they say how this turn went, and without "Selge, aga" a learner off
  * the point heard the question again as though nothing had been said.
  */

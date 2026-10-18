@@ -85,7 +85,7 @@ describe("createDeck / listDecks / renameDeck / deleteDeck", () => {
     // One short of the cap, then eight more at the same moment: counting and
     // creating is check-then-act, and every one of the eight saw room for one.
     // Open the pool's connections first: a cold pool hands them out one at a
-    // time, which serialises the eight calls and hides the race it is testing.
+    // time, which serializes the eight calls and hides the race it is testing.
     await Promise.all(Array.from({ length: 8 }, () => prisma.$queryRaw`SELECT 1 AS x FROM pg_sleep(0.05)`));
     await prisma.deck.createMany({
       data: Array.from({ length: 39 }, (_, i) => ({ ownerId: MINE, name: `Shelf ${i}` })),

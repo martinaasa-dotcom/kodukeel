@@ -103,7 +103,7 @@ export type PointPins = Readonly<Record<string, readonly PinnedExample[]>>;
  *
  * By the text rather than by the index, because an index follows a reorder and
  * a point does not: moving one line of `points` would silently hand its
- * examples to its neighbour, which is the one failure nothing on screen would
+ * examples to its neighbor, which is the one failure nothing on screen would
  * show. The test fails on a key that matches no point.
  */
 export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {

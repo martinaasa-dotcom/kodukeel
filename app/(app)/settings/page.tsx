@@ -166,7 +166,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       Whether the learner is being led, and how far in. Read here rather than
       threaded down, because the panel is the one place the answer is changed
       and a second reader is a second answer. In the batch, chained on the
-      programme, because it needs nothing else here and it was two more round
+      program, because it needs nothing else here and it was two more round
       trips after all of this had come back.
     */
     Promise.all([programmeFor(ownerId), learnerDayClock(ownerId)]).then(async ([led, clock]) => [

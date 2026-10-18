@@ -84,10 +84,10 @@ export const CLAIMS: readonly Claim[] = [
   },
   {
     id: "licences",
-    claim: "No package the app runs on is under a licence that would bind the project's own code.",
+    claim: "No package the app runs on is under a license that would bind the project's own code.",
     script: "check:licences",
     assertedBy: ".github/workflows/ci.yml",
-    assertedHow: "runs the licence check on every pull request",
+    assertedHow: "runs the license check on every pull request",
   },
   {
     id: "invariants",

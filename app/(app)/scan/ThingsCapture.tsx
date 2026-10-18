@@ -380,7 +380,7 @@ export function ThingsCapture({ active = true }: {
   );
 }
 
-/** A labelled file input, as the page scanner's own (`ScanCapture`'s `PickFile`) argues. */
+/** A labeled file input, as the page scanner's own (`ScanCapture`'s `PickFile`) argues. */
 function PickPhoto({ label, icon, capture, primary, onPick }: {
   label: string;
   icon: ReactNode;

@@ -48,9 +48,9 @@ const STREAK_FROM = 2;
  * The guess is not marked against anybody: nobody can know a word before they
  * have met it, and the point of it is the surprise. A wrong name goes to the
  * back of the queue and comes round again, so a word is done once it is got
- * right. Every verdict is a sentence in a live region as well as a colour.
+ * right. Every verdict is a sentence in a live region as well as a color.
  *
- * The humour is in the words and the one line under each, never in the
+ * The humor is in the words and the one line under each, never in the
  * feedback: a wrong answer is told plainly, and the trap a false friend sets
  * is blamed on the word rather than on the learner (`docs/18-voice.md` §3c).
  *

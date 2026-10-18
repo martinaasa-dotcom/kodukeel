@@ -59,7 +59,7 @@ export const dynamic = "force-dynamic";
  * screen the answers came from.
  *
  * FOUR STATES, AND THE THIRD IS THE ONE THAT WAS ASKED FOR. Not following a
- * programme; part way through today's module; finished it today, which says so
+ * program; part way through today's module; finished it today, which says so
  * and offers tomorrow's rather than rolling straight on; and the whole thing
  * finished. The third is the one that makes this feel like a course rather
  * than a queue: an evening that ends is an evening somebody comes back from.
@@ -435,7 +435,7 @@ export default async function CoursePage({
           you, he, we and they" over an evening teaching four of the six and
           reported it, correctly, as the screen promising words it was not
           going to teach, so the eyebrow says which evening of the unit this
-          is. The fan is Today's, in the night's greys, because the bright one
+          is. The fan is Today's, in the night's grays, because the bright one
           is the home page's and the list under this card is where the steps
           are pressed.
         */}
@@ -604,7 +604,7 @@ export default async function CoursePage({
                   )}
                   {/* Every item carries this line, one evening or several, so the
                       list reads as relatives: a unit of one evening used to have
-                      no second line and sat a line shorter than its neighbours. */}
+                      no second line and sat a line shorter than its neighbors. */}
                   {(
                     <span className="flex flex-wrap items-center gap-x-2 gap-y-1 pl-7">
                       {/* The words first and the strip after them: where the
@@ -780,7 +780,7 @@ function courseRuns<T extends { title: string; part: { n: number; of: number } }
  * Three shapes and one silence. An offer with a move is a card saying what the
  * answers show, what the delivery is already doing about it and why the move
  * would help, with the move beside "not now". An offer with no move honest to
- * make is the same card as news, with an acknowledgement. A snoozed offer is
+ * make is the same card as news, with an acknowledgment. A snoozed offer is
  * one line saying the lean is still on, because the lean is not a question and
  * a learner who said "not now" is still owed the truth about how they are being
  * treated. And a steady learner gets nothing (`lib/course/adapt.ts`).

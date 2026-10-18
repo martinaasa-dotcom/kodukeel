@@ -7,7 +7,7 @@
  * and for nothing about who is reading. Opened from the reference that is
  * right. Opened from the fourth evening of A1 it put `Alustame tööd
  * esmaspäeval` and `Ahv sööb banaani` under "One ending each for I, you, he or
- * she, we, you all and they", with the verb in the accent colour, to somebody
+ * she, we, you all and they", with the verb in the accent color, to somebody
  * who had met neither `alustama` nor `sööma`. It was reported from exactly
  * there: the marked word is the one the sentence exists to show, so it is the
  * one that has to be a word they already hold. A rule is easier to believe on a

@@ -4,10 +4,10 @@
  * `tileFaces` in `lib/estonian/cloze.ts` takes the capital off a word-ordering
  * round's first tile, because a capital left on it says which tile goes first.
  * Whether it may is a question about the word, and a name keeps its capital:
- * the forms list holds no capitalised spelling by construction, so an opener
+ * the forms list holds no capitalized spelling by construction, so an opener
  * whose lowercase spelling it knows is an ordinary word and one it does not is
  * treated as a name. Measured over the shipped dictionary, 9,096 of the 9,441
- * capitalised openers are ordinary words; the rest are mostly first names and
+ * capitalized openers are ordinary words; the rest are mostly first names and
  * keep their capital, which is the side to err on.
  *
  * Accept side only (ADR-005): nothing here becomes an answer or a card, it
@@ -26,7 +26,7 @@ import { isKnownForm } from "./forms";
  * opener, `Muidugi`, was the one tile in the bank still wearing its capital.
  *
  * A spelling counts as ordinary where the forms list knows its lowercase
- * form, and **does not** where the dictionary holds the capitalised spelling
+ * form, and **does not** where the dictionary holds the capitalized spelling
  * as an entry of its own: `Eesti` is the country and `eesti` is the adjective,
  * and the forms list, which has no capitals, would otherwise lowercase the
  * name of the place. Accept side only (ADR-005).

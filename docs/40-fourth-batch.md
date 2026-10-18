@@ -67,7 +67,7 @@ are exactly as in `docs/38-third-batch.md` section 3. Read that section; it is n
 | # | Decision | Where it bites |
 | --- | --- | --- |
 | D1 | The app is for learners aged 13 and older, with teacher-managed classes, until a school asks and signs a data processing agreement. | Every public page, FB-6. |
-| D2 | You write the Russian and Ukrainian lines for your item yourself and say they are machine-written. A session never marks a language or a line reviewed on its own judgement; FB-4's importer records only what the reviewer's own file says. | Every item with text, FB-4. |
+| D2 | You write the Russian and Ukrainian lines for your item yourself and say they are machine-written. A session never marks a language or a line reviewed on its own judgment; FB-4's importer records only what the reviewer's own file says. | Every item with text, FB-4. |
 | D3 | First run step 4: the opening-part card keeps its label, the part's title and the "evenings, about 15 minutes each" line. The part's blurb and the "why this part" sentence go behind one `Explain`. The seventeen chips stay. After that and FB-3's other cuts, whatever height is measured is the result: there is no third round of cutting, and the pull request records the trade. Continue stays pinned on screen. | FB-3. |
 | D4 | A conversation set as homework is done when the learner finishes a run of that scene after it was set. That is derived from `SceneRun` on each read, never stored as a tick (ADR-014). The teacher sees how many of the class have done it. | FB-6. |
 | D5 | The Android app is a Trusted Web Activity around the existing web app: no second codebase, no native screens. iOS is out of this batch: Apple does not allow the same wrapper, and an App Store build is the operator's call. | FB-7. |
@@ -233,7 +233,7 @@ model (`--critic-model`). Use the confused, chatty and offtrack learners. Treat 
 "not judged", never as clean; the script already does. For each fault:
 - replay it keyless through `npm run replay:scene` before believing it;
 - fix the cause in `lib/scenes/` or the scene spec;
-- add a test that fails on the old behaviour.
+- add a test that fails on the old behavior.
 
 Re-run until a round finds nothing new or the day's budget is spent.
 
@@ -286,7 +286,7 @@ finds it where they look for apps.
 
 **Files.**
 - `android/twa-manifest.json` (to be written): the Bubblewrap configuration. Package id
-  `ee.kodukeel.app`, the start URL `/`, theme and background colours read from `app/manifest.ts`'s
+  `ee.kodukeel.app`, the start URL `/`, theme and background colors read from `app/manifest.ts`'s
   values, the icons the manifest already lists.
 - `app/.well-known/assetlinks.json/route.ts` (to be written): answers the Digital Asset Links file. The
   package id is fixed and the certificate fingerprint comes from `ANDROID_CERT_SHA256`; with that unset
@@ -327,7 +327,7 @@ deciding; if one of the five cannot be made public without a learner, leave it o
   signed-out branch that reads the dictionary's own example words, as the reference does for a learner
   with an empty deck (D7). Signed in, nothing changes.
 - Hide what needs an account when nobody is signed in: drills, the module frame, "add to deck". Put one
-  line at the foot: practise these in the app, with the sign-in link.
+  line at the foot: practice these in the app, with the sign-in link.
 - Register the paths as section 3 says, with a sitemap entry per case and per topic. Give each page a
   share card.
 
@@ -394,7 +394,7 @@ With two sessions: one takes FB-1, FB-3, FB-8 and FB-6; the other takes FB-2, FB
 - **TARA sign-in.** Triggered by a school or an office that requires it.
 - **A penetration test or SOC 2.** Triggered by a buyer who requires one.
 - **Public dictionary pages.** FB-8 makes the grammar reference public; the dictionary's entries are a
-  larger indexing and licence question. Triggered by FB-8's pages bringing people in.
+  larger indexing and license question. Triggered by FB-8's pages bringing people in.
 
 ## 8. Only the operator can do these
 
@@ -431,7 +431,7 @@ scripts, keyless:
 
 Two things the keyless review had left open went in after it:
 
-- **The job centre understands `Ma olen töötu`.** `töötu` and `registreerima` are taught in
+- **The job center understands `Ma olen töötu`.** `töötu` and `registreerima` are taught in
   `too-ja-raha`, and the "why are you here" beat takes either. One usage Ekilex returned for
   `töötu` carries a typo (`Ttöötute`) and is refused in `lib/dict/refused.ts`.
 - **The market asks how much.** `turul` has a `weight` beat, "Kui palju te soovite?", met by the
@@ -451,7 +451,7 @@ correction. It stays out for now: the course does not teach `kolima`, so the sce
 ## 9. A brief to paste into a fresh session
 
 > You are working on Kodukeel. Read `CLAUDE.md`, then `docs/40-fourth-batch.md`. Do item FB-n of that
-> page and nothing else: run its preflight, follow its section 1 and its brief, honour the decisions in
+> page and nothing else: run its preflight, follow its section 1 and its brief, honor the decisions in
 > its section 2 and the rules in its section 3 (and the third batch's section 3, which it points to),
 > write the tests it names first, and run every check in its Verify list. Work against a local
 > Postgres with the hosted credentials removed from the shell. Open one pull request titled

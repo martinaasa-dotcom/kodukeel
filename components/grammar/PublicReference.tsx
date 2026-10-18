@@ -43,7 +43,7 @@ export async function PublicReference({ locale, explicit, path, children }: {
             className="rounded-[var(--r-lg)] border p-5 text-md"
             style={{ borderColor: "var(--edge)", background: "var(--surface)", color: "var(--ink-2)" }}
           >
-            {t("Practise these in the app, on words you are learning, with every answer marked.")}{" "}
+            {t("Practice these in the app, on words you are learning, with every answer marked.")}{" "}
             <Link
               href={href("/sign-in")}
               className="font-bold underline underline-offset-2"

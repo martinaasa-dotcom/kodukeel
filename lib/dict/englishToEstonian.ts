@@ -14,7 +14,7 @@ import { englishVariants, looksEnglish, normaliseEnglish } from "./english";
  *
  * Wiktionary's English entries carry translation tables, and the Estonian row
  * of a table is a lexicographer's answer to exactly this question, under the
- * same licence the built dictionary's glosses already come from (CC BY-SA 4.0,
+ * same license the built dictionary's glosses already come from (CC BY-SA 4.0,
  * credited on /terms and in `LICENSE`). So the dead end asks it.
  *
  * WIKTIONARY PROPOSES AND THE DICTIONARY DECIDES, which is ADR-021's rule about

@@ -162,7 +162,7 @@ export function caseAccuracy(
       and `[0]` of this list is the case Today names and the daily quest drills.
       The tally is a `Map`, so two cases matching on accuracy and on count came
       back in the order they first appeared in the review rows: which case a
-      learner is sent to practise decided by which one they happened to answer
+      learner is sent to practice decided by which one they happened to answer
       first, months ago, and unexplainable to them. Arbitrary and stated beats
       arbitrary and silent.
     */

@@ -60,14 +60,14 @@ Currently designed for exactly one user, which permits no auth, no onboarding an
 If classmates or a teacher might use it, that assumption needs revisiting **before** Phase 1, not
 after. It changes the data model, not just the UI.
 
-### Q8: Around 30 adjectives in the built dictionary are labelled `NOUN` **(answered)**
+### Q8: Around 30 adjectives in the built dictionary are labeled `NOUN` **(answered)**
 
 **Answered 2026-08-30: neither of the two options offered below.** Both were wrong, and measuring
 them is what showed it. The recommendation was to prefer the more specific category, and that
-would have relabelled 86 words and broken 25 of them: `lamp` is in Wiktionary's adjectives
+would have relabeled 86 words and broken 25 of them: `lamp` is in Wiktionary's adjectives
 category for a colloquial sense meaning "random", `pea` and `kama` are in the adverbs category for
 senses they do not ship, and `mari`, `norm`, `seadus`, `kreem`, `kile` and `kogus` would all have
-been labelled against the very gloss printed beside them. The category says the word has *some*
+been labeled against the very gloss printed beside them. The category says the word has *some*
 sense of that kind somewhere on its page, which is not the question being asked.
 
 The question being asked is what part of speech the **shipped gloss** is, and the page answers it
@@ -80,7 +80,7 @@ English.
 61 labels were corrected, 60 of them NOUN to ADJECTIVE. The second option, letting a word carry
 more than one part of speech, was not needed and remains available: it is still the truer model and
 it is still a schema change. `hall` is the case for it, a noun meaning "frost" and an adjective
-meaning "grey", and it is correctly two entries today.
+meaning "gray", and it is correctly two entries today.
 
 **What the app does with a pair that remains.** Two lemmas still land twice, `hall` and `rõõmus`,
 measured against a freshly seeded database rather than counted from the file. The original entry
@@ -143,7 +143,7 @@ gloss review deliberately did not widen into it.
 with the part of speech read off the sense each gloss came from, and this machine now seeds **4,644**
 expansion entries from it, which is the number CI reported from the old file. That is not an answer.
 Twelve is also what `lib/collections/seedSize.ts` records the seed losing when twelve words stopped
-being labelled two ways, so the same number now has an explanation that has nothing to do with two
+being labeled two ways, so the same number now has an explanation that has nothing to do with two
 machines disagreeing, and the coincidence is close enough to be worth naming rather than believing.
 
 What can still be said is what cannot be done: the original measurement compared two machines on one

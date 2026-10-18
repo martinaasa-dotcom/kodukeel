@@ -48,7 +48,7 @@ export const COHORT_DETAIL: Record<CohortKind, string> = {
 /**
  * The stored string, read back.
  *
- * Anything unrecognised is a class, because that is what every row written
+ * Anything unrecognized is a class, because that is what every row written
  * before this column existed is, and because a group whose kind cannot be read
  * should fall to the shape whose consent screen everybody in it already saw.
  */

@@ -18,7 +18,7 @@ import type { Tone } from "./nav";
  * operator's, picked "for now", and the heading over each group is the same
  * word as its filter chip, which was asked for by name.
  *
- * Each tile's colour is chosen here rather than taken from the round's icon,
+ * Each tile's color is chosen here rather than taken from the round's icon,
  * so that no two tiles that touch share one at any width the board is laid out
  * at, which `games.test.ts` holds. In the icon table Laused and Mis edasi? are
  * both lavender and Väljendid and Sõnamäng both butter, which was two pairs of

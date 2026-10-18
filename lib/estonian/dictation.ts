@@ -151,7 +151,7 @@ const DIACRITICS_IN_SPACE_COST = 0.4;
  */
 const MAX_SPACE_WORDS = 3;
 
-/** Every word in the span, normalised on its own and run together with nothing between. */
+/** Every word in the span, normalized on its own and run together with nothing between. */
 function joinSpan(words: readonly string[]): string {
   return words.map(normalise).join("");
 }

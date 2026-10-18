@@ -2,7 +2,7 @@
  * Rewrite the day-id snapshot `lib/course/day-ids.json`.
  *
  * Run this only after deciding that a shift in what a day id names is
- * acceptable. `course.test.ts` compares the built programmes against the
+ * acceptable. `course.test.ts` compares the built programs against the
  * snapshot and fails naming every day that moved, which is the point: a day
  * id is what a `CourseStep` row stores, so a syllabus edit that renumbers
  * them moves every learner mid-part to a different evening. See the note on

@@ -11,7 +11,7 @@ import { sayIn } from "@/lib/copy/said";
  * The diagnosis panel.
  *
  * Reads the review log joined against the lexemes the reviews were of — the
- * join that `Review.lexemeId` was denormalised for. A card that has since been
+ * join that `Review.lexemeId` was denormalized for. A card that has since been
  * deleted still contributes, because its review outlived it.
  */
 export async function Diagnosis({ ownerId }: { ownerId: string }) {

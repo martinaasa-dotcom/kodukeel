@@ -352,7 +352,7 @@ function toReviewCard(
     sentenceEn: clozeSentenceEn(c),
     say: sayFor(c),
     canTranslate: offered("translate"),
-    // Filled in by `withNeighbours`, which reads every neighbour in one query.
+    // Filled in by `withNeighbours`, which reads every neighbor in one query.
     contrast: null,
     choices: null,
     scheduling: {
@@ -556,7 +556,7 @@ export async function withChoices(
     AND HOW A BEGINNER'S WORD ORDERS ITS OWN SENTENCES, which decides what a
     first meeting is taught with. This one the glossing genuinely waits on,
     since it decides which sentence is on the card to be glossed, and this is
-    the hottest read in the app: a `Promise.all` of the three would serialise
+    the hottest read in the app: a `Promise.all` of the three would serialize
     the glossing behind it and turn one round trip into two on every request.
 
     So all three are *started* here and resolved together, rather than one

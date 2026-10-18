@@ -133,7 +133,7 @@ const UNTAUGHT_PRINCIPAL_PARTS = ["NOM_PL", "GEN_PL", "PART_PL"];
  * `PlIn` alike as the *singular* `INESSIVE`, "ignoring number" by its own
  * comment, so an enriched entry's stored plural paradigm — `tubadega`,
  * `morphCode` `PlKom`, a real row (`lib/dict/edit.itest.ts`) — would
- * otherwise sit in `gapForms`'s output labelled exactly like its singular
+ * otherwise sit in `gapForms`'s output labeled exactly like its singular
  * and be offered as a gap the same way. `lib/progress/caseExamples.ts`
  * already guards this with `numberFromMorphCode(...) === "SINGULAR"`; this
  * is the same guard read the other way round, catching a plural of *any*

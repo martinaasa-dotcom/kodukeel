@@ -224,8 +224,8 @@ export function gradesFor(
           which was taken. It does: `producedFor(index)` is `satisfiedBy`,
           which is the word that met the requirement, and `oneWordFor` two
           hundred lines down has been settling exactly this ambiguity for a
-          card's own slot since ADR-025 amendment 3. 60 of the catalogue's 61
-          `lemma` requirements name more than one word, and the health centre's names
+          card's own slot since ADR-025 amendment 3. 60 of the catalog's 61
+          `lemma` requirements name more than one word, and the health center's names
           ten, so a learner who wrote `Mu selg valutab` had `pea` written into
           the append-only log as a recall. That is the false row the
           `substituted`, `conceded` and `chose` guards directly above exist to
@@ -263,7 +263,7 @@ export function gradesFor(
         grades through `gradeCard`, and these were the beats least covered by it.
 
         Where the beat named a case, the row carries it, which is the whole
-        pedagogical point: `bussipilet`'s "where are you travelling to" is the
+        pedagogical point: `bussipilet`'s "where are you traveling to" is the
         sisseütlev under pressure and lands in the same weakest-case chart as
         the sisseütlev on a flashcard.
       */
@@ -439,7 +439,7 @@ export function offerFor(
         "say what has gone wrong" offers eleven; the first of them was handed
         over regardless, and a learner whose card said the door was broken was
         told to say the heating was. That is worse than no hint: they follow
-        it, they are marked as having met the beat, and they have practised
+        it, they are marked as having met the beat, and they have practiced
         saying something that was not true of their own card. Where the card
         drew one of the beat's own words, that is the word.
       */
@@ -484,8 +484,8 @@ export function offerFor(
 
     And never a verb. A topic lists the verb the question is asked with, and
     the dictionary form of a verb said as a question is nothing anybody says:
-    a learner stuck on where they were travelling was handed `Sõitma?`, and
-    six beats across the catalogue did the same (`Aitama?`, `Õppima?`,
+    a learner stuck on where they were traveling was handed `Sõitma?`, and
+    six beats across the catalog did the same (`Aitama?`, `Õppima?`,
     `Alustama?`, `Ostma?`). The thing the question is about is a noun on the
     same list, `Buss?`, `Koht?`, `Keel?`, `Päev?`.
   */

@@ -4,6 +4,7 @@ import { openWithFallback, resolveProviders } from "./provider";
 import { isOff } from "@/lib/usage/switches";
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { findTells } from "@/lib/copy/voice";
+import { americanize } from "@/lib/copy/spelling";
 import { humanizeLine } from "./humanize";
 
 /**
@@ -181,7 +182,7 @@ export async function translateWithAnu(
     if (!cleaned || /^unknown$/i.test(cleaned) || cleaned.length > 80) {
       return { ok: false, reason: "unavailable" };
     }
-    return { ok: true, text: cleaned };
+    return { ok: true, text: americanize(cleaned) };
   } catch {
     return { ok: false, reason: "unavailable" };
   }
@@ -227,7 +228,7 @@ export async function translateSentenceWithAnu(
 export function sentenceInstruction(sentence: string): string {
   return (
     `Translate this Estonian sentence into natural English: "${sentence}"\n` +
-    `Write it the way an English speaker would actually say it, not word for word, and keep every bit of the meaning. ` +
+    `Write it the way an English speaker would actually say it, in American spelling, not word for word, and keep every bit of the meaning. ` +
     `No dashes. Reply with the English translation only, one sentence, no quotes, no notes. ` +
     `If you cannot translate it, reply exactly: UNKNOWN`
   );
@@ -250,7 +251,9 @@ export function readSentenceTranslation(text: string, sentence: string): string 
   // The same table a hand-written line is swept against: a dash is cleaned the
   // way Anu's stream cleans one, and a line carrying a tell is refused rather
   // than stored, since a stored line is read by every learner who meets it.
-  const voiced = humanizeLine(cleaned);
+  // A British spelling is converted rather than refused: it is the same
+  // sentence spelled the way the rest of the app spells it (`spelling.ts`).
+  const voiced = americanize(humanizeLine(cleaned));
   if (findTells(voiced).length > 0) return null;
   return voiced;
 }

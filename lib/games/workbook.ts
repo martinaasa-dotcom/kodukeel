@@ -140,7 +140,7 @@ export interface SheetItem {
  *   the sentence needs. The heart of every workbook and the default.
  *
  *   `choose`, "Valige õige vorm": the same line with three forms of the word
- *   under it, one of them right. Recognising the form before producing it is
+ *   under it, one of them right. Recognizing the form before producing it is
  *   how a course book opens a new point, and it is where a beginner starts.
  *
  *   `box`, "Valige sobiv sõna": the brackets are gone and the words sit in a
@@ -599,7 +599,7 @@ function clauseAround(before: string, after: string): [string[], string[]] {
   A capital past the start of the sentence is a name: `Maia ja Andrus on
   pruut ja peigmees` was cut as the inessive of `andur`, a sensor, and `Oleme
   Anniga kälid` as the comitative of `and`, a gift. A name is nobody's case
-  form, so a capitalised gap anywhere but the first word is refused.
+  form, so a capitalized gap anywhere but the first word is refused.
 
   And a verb's command and its da-infinitive are one spelling for every verb
   whose stem ends that way (`mõista`, `pista`): `Ainult minevikku tundes võib
@@ -711,7 +711,7 @@ export interface ExercisePlan {
  * that has enough lines left and a theme no earlier exercise took.
  *
  * `items` arrive in the order the words are worth asking, which is the
- * caller's judgement (due and lapsing first, or tonight's words first inside
+ * caller's judgment (due and lapsing first, or tonight's words first inside
  * the module). A line is taken in that order with two rules on top: one line
  * per word in an exercise, so a page about the osastav is eight words in it
  * rather than one word eight times, and on a mixed page no two lines running
@@ -878,7 +878,7 @@ function pick(pool: readonly SheetItem[], n: number, spread: boolean, byCase = f
   const out: SheetItem[] = [];
   const keys = new Set<string>();
   const sentences = new Set<string>();
-  // A box prints each word once, so two entries spelled alike (`hall`, frost and grey) are one word there.
+  // A box prints each word once, so two entries spelled alike (`hall`, frost and gray) are one word there.
   const keyOf = (i: SheetItem) => (byCue ? tidyForm(i.cue) : byCase ? i.id : i.lexemeId);
   const ok = (i: SheetItem) => !keys.has(keyOf(i)) && !sentences.has(i.sentence);
   const take = (i: SheetItem) => { out.push(i); keys.add(keyOf(i)); sentences.add(i.sentence); };
@@ -897,11 +897,11 @@ function pick(pool: readonly SheetItem[], n: number, spread: boolean, byCase = f
  * The themes worth offering, in the order the page should try them.
  *
  * The caller says what it knows about the learner and this decides the order,
- * so the judgement is in one place and unit tested:
+ * so the judgment is in one place and unit tested:
  *
  *   asked for by name (a theme chip pressed on the last page) first;
  *   tonight's case, inside the module, since an evening that read the
- *   elative practises the elative;
+ *   elative practices the elative;
  *   the learner's weakest cases off their own review log, weakest first,
  *   which is `caseAccuracy`'s order;
  *   then the rest of what a course book drills: the personal pronouns, the

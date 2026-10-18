@@ -66,7 +66,7 @@ function play(
 
 /*
   The fixture's first beat names two words, which is the ordinary shape: 60 of
-  the catalogue's 61 `lemma` requirements do. So the rating tests hand over a lexicon
+  the catalog's 61 `lemma` requirements do. So the rating tests hand over a lexicon
   and a real word, the way the route does, or the beat grades nothing and the
   rating is a question about a row nobody wrote.
 */
@@ -197,7 +197,7 @@ describe("what a conversation writes into the review log", () => {
 
   /*
     AND THE ROW NAMES THE WORD THEY WROTE, which is the whole of what made the
-    first candidate wrong. The health centre's beat names ten body parts, so
+    first candidate wrong. The health center's beat names ten body parts, so
     `oneOf[0]` told the scheduler somebody had recalled `pea` when they had
     written `Mu selg valutab`, into the table nothing repairs.
   */
@@ -282,7 +282,7 @@ describe("the words a run needed and the learner did not have", () => {
 
 /**
  * The word handed over when somebody says they are not following. It has to
- * agree with their own card, or they follow the hint and practise saying
+ * agree with their own card, or they follow the hint and practice saying
  * something that was not true of the run they are in.
  */
 /*
@@ -473,7 +473,7 @@ describe("the word the other side offers", () => {
     expect(offerFor({ ...beat, topic: ["remont"] }, null, new Set(["millal"]))).toBe("remont");
   });
 
-  /* `Sõitma?` was handed to a learner stuck on where they were travelling. */
+  /* `Sõitma?` was handed to a learner stuck on where they were traveling. */
   it("never points with a bare infinitive", () => {
     const beat = { ...SCENE.beats[2]!, needs: [VALUE], topic: ["kuhu", "sõitma", "buss"] };
     expect(offerFor(beat, null, new Set(["kuhu"]), [], new Set(["sõitma"]))).toBe("buss");

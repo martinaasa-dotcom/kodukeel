@@ -132,7 +132,7 @@ export function TodayOrderPanel({ current, hidden: hiddenNow }: { current: reado
                   {t(entry.detail)}
                   {/*
                     Said in words rather than by the tint alone, since a
-                    greyer row is a hue carrying a distinction on its own.
+                    grayer row is a hue carrying a distinction on its own.
                   */}
                   {pastCut ? <span className="sr-only"> {t("Only appears on days when a card above it has nothing to show.")}</span> : null}
                   {isHidden ? <span className="block font-semibold"> {t("Hidden from Today.")}</span> : null}

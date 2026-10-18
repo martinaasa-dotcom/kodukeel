@@ -27,7 +27,7 @@ export const dynamic = "force-dynamic";
  * and the "some of it" forms of a noun have been met.
  *
  * PICK, THEN TYPE. Every level picks between two forms first, and a stage the
- * learner has settled is typed instead. Recognising the ending is the easier
+ * learner has settled is typed instead. Recognizing the ending is the easier
  * memory and producing it is the one that sticks, so one follows the other.
  *
  * WHICH STAGE. The highest one the learner's own answers have opened

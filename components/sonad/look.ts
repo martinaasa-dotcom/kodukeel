@@ -7,7 +7,7 @@ import type { Mark } from "@/lib/games/sonad";
  * one, and a plain value cannot cross from the first to the second, so the
  * tables live here, in a module with no directive. The argument for them (three
  * kinds of object, hue as the second signal, a ring as the part that is not
- * colour, an ink for each fill) is the one written at the top of
+ * color, an ink for each fill) is the one written at the top of
  * `app/(app)/sonad/SonadSession.tsx`.
  */
 export const HUE: Record<Mark, { bg: string; ink: string; ring: string }> = {

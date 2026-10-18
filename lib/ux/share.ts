@@ -4,7 +4,7 @@
   `navigator.share` rejects when the learner closes the sheet without picking
   anything, with an `AbortError`, and the progress card read every rejection
   as "Could not build the card just now": a sentence about the server, drawn
-  in the alarm colour, about a card that had been built perfectly and that the
+  in the alarm color, about a card that had been built perfectly and that the
   learner had simply decided not to send. A failure may not misname its cause.
 
   The other rejection worth telling apart is the browser refusing the sheet

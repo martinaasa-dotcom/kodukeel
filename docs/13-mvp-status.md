@@ -53,7 +53,7 @@ nothing to cap, and a cap on an unmetered path is dead code.
 **Added back, 2026-08.** The default model is a paid one and sign-up is open, so the unmetered path
 became one stranger away from an unbounded invoice. `lib/usage` now meters every call (a burst
 window, a per-user day, and a global day cap) and there is no way to switch it off. It fails
-closed, and an unrecognised model prices at the dearest rate in the table rather than at zero,
+closed, and an unrecognized model prices at the dearest rate in the table rather than at zero,
 because a cap that fails open is not a cap.
 
 ## 3. What is built
@@ -114,7 +114,7 @@ Each of these is a decision, not an omission.
 | Area | State |
 |---|---|
 | CI: typecheck, hermetic unit tests, integration tests on real Postgres, build, credential scan | Complete. The credential rule this file's rules section always claimed had no enforcement until now |
-| Spend ledger: per-user burst, per-user day, global day cap | Complete, fails closed. An unrecognised model prices at the dearest known rate rather than zero |
+| Spend ledger: per-user burst, per-user day, global day cap | Complete, fails closed. An unrecognized model prices at the dearest known rate rather than zero |
 | Sign-in allowlist, open by default | Complete. A quota, not a guest list, is what makes an open door safe |
 | Offline review (PWA, outbox, ordered replay) | Complete, and the append-only log is what made it cheap |
 | Durable audio cache in object storage | Complete. The previous `/tmp` path was per-instance and wiped on every cold start |
@@ -500,7 +500,7 @@ stops using a study app.
 | Area | What it is | Why it earns its place |
 |---|---|---|
 | **Scan a page** (`/scan`) | Photograph a word list or your homework; the words on it come back matched against the dictionary | The importer that needs no typing. It is the only path into the app that starts with the thing the learner is already holding |
-| **The confirmation step** | Every word arrives ticked, editable, and labelled "in the dictionary" or "read from the photo" | This is the feature, not an obstacle in front of it. A model read the picture; the only person who can say what is printed on the paper is the one holding it |
+| **The confirmation step** | Every word arrives ticked, editable, and labeled "in the dictionary" or "read from the photo" | This is the feature, not an obstacle in front of it. A model read the picture; the only person who can say what is printed on the paper is the one holding it |
 | **Inflected forms traced to headwords** | `toas` on an exercise sheet resolves to `tuba` and says it was the inessive | A textbook exercise is written in cases, not in citation forms. The inflected-form search the dictionary already had turns that from a problem into the lesson |
 | **A page as a set** (`/scan/[id]`) | A named group of words with its own progress, drilled by `/review?scan=` | The same shape as a learning-path unit, and references rather than copies for the same reason: correct a word once and it is corrected on every page it appears on |
 | **`lib/usage` kind `SCAN`** | A photograph is metered like anything else that costs money | A picture is a few thousand input tokens where a question is a few hundred. An unmetered path is one stranger away from an unbounded invoice, which is the whole argument of §2 |
@@ -620,7 +620,7 @@ the part costing you the most marks". They are ranked now and only the worst one
    bad trade. The level check of section 11 is the way out: it measures all four skills directly, so
    where one has been sat its listening and reading levels are folded in at two thirds. Where none
    has, the advice says the app has nothing on those parts rather than claiming they have never been
-   practised. Its speaking number is the learner's own rating and is never read as a level.
+   practiced. Its speaking number is the learner's own rating and is never read as a level.
 4. **Vocabulary coverage is measured against this dictionary, not against the syllabus.** The real
    B1 vocabulary is several thousand words and the built-in set is 360, so "88 of 100 A2 words have
    stuck" is a proxy. The gap states the fraction it is working from rather than hiding it behind a
@@ -690,7 +690,7 @@ Three rules shape `lib/collections/lesson.ts`, and they are the whole answer to
 "why is this not tedious":
 
 1. **Nothing is asked before it is taught.** A word is met with its gloss and a
-   real sentence, recognised, practised on its own material, and only then
+   real sentence, recognized, practiced on its own material, and only then
    produced cold.
 2. **No two *questions* of the same kind in a row.** Teaching cards are exempt on
    purpose: meeting three new words one after another is a presentation, not a
@@ -719,7 +719,7 @@ earlier and which nothing had carried across to `lib/dict/resolveScan.ts`. On
 its own branch that was invisible, because the dictionary it ran against was
 smaller than the ceiling. Against the course dictionary it is a third of the
 words: probing twelve real entries from beyond row 4000 came back with five of
-them unrecognised, all of them sitting in the table with their forms intact,
+them unrecognized, all of them sitting in the table with their forms intact,
 and *which* five depended on where Postgres happened to keep the rows.
 
 **Two sessions found it within the hour and fixed it the same way**, which is
@@ -1062,7 +1062,7 @@ does not use.
 ### What changed
 
 The hierarchy is flipped rather than a name deleted: the Estonian term and the
-question lead, and the English name stays as a labelled cross-reference, because
+question lead, and the English name stays as a labeled cross-reference, because
 this app is written in English and an English reference grammar has to stay
 usable. `lib/estonian/terms.ts` is the one table of what a point is called, and
 it is deliberately partial, holding nothing for a point where a class has no
@@ -1237,7 +1237,7 @@ decision does not need a second tab. Accepting acts on the whole group.
 **One click that is a real write.** Four of the eight categories carry a
 machine-applicable proposal, and accepting one goes through
 `lib/dict/upsert.ts`, the same function the hand-edit path uses: principal parts
-only, a form from Ekilex never touched, provenance never relabelled. An example
+only, a form from Ekilex never touched, provenance never relabeled. An example
 sentence can be removed and never rewritten. Nothing under `lib/suggestions/`
 can reach a model.
 
@@ -1372,7 +1372,7 @@ before anything counted the request.
 4. ~~**The accessibility suite is still the subset this project promised itself**, not axe.~~
    **It is axe now**, over every route in both themes, which found eight things the hand-rolled
    sweep could not: the sweep scoped to `main` and so never saw the navigation rail, and it read a
-   colour's own alpha but not an `opacity` inherited from a parent. What that second blind spot hid
+   color's own alpha but not an `opacity` inherited from a parent. What that second blind spot hid
    was a locked course unit explaining itself at 2.63:1, on every locked row of a 73-unit course.
    Still not a screen reader: axe cannot tell you whether the reading order makes sense, whether a
    focus trap is escapable, or whether a label says the right thing.
@@ -1424,7 +1424,7 @@ dictionary that relabels 86 entries and breaks 25 of them, because a category is
 the sense being shipped. `lamp` is in the adjectives category for a colloquial sense meaning
 "random", which is the exact sense the gloss audit had just finished removing from its answer side;
 `pea` and `kama` are in the adverbs category; `mari`, `norm`, `seadus`, `kreem`, `kile` and `kogus`
-would every one have been labelled against the gloss printed beside them. Reversing the category
+would every one have been labeled against the gloss printed beside them. Reversing the category
 order does not fix that, it moves it onto a different set of words.
 
 ### What was built
@@ -1455,7 +1455,7 @@ ADVERB to ADJECTIVE.
 ### Twelve words were in the dictionary twice
 
 Found by running the reseed rather than by reading it. `pos` is half of `Lexeme`'s conflict key, so
-a word the course harvest labels `ADJECTIVE` and the builder labelled `NOUN` never collided: it was
+a word the course harvest labels `ADJECTIVE` and the builder labeled `NOUN` never collided: it was
 inserted twice, as two entries with two ids and two sets of cards, and nothing anywhere reported
 it. `kallis`, `valge` and `noor` were among them. They are one entry each now, which is why
 `SEED_SET_SIZE` went down by twelve without a word being dropped, and it is the only time that
@@ -1475,7 +1475,7 @@ the duplicate in place.
 It writes no content. The translation, forms, examples and provenance stay as they were, the row
 keeps its id, and a card and its review history follow it. It never touches a row somebody edited by
 hand, and never moves a row onto a key another row holds, because `hall` is legitimately both a noun
-meaning "frost" and an adjective meaning "grey".
+meaning "frost" and an adjective meaning "gray".
 
 ### What was deliberately not changed
 
@@ -1504,7 +1504,7 @@ heading is compared against the label. 673 of the 1,248 could be checked and non
 other 575 have no Estonian Wiktionary entry or no sense matching the gloss, which is the same
 silence the gloss review met, and it is reported rather than filled in. The one review list worth
 printing came back empty: the 41 nominals whose lemma ends the way an Estonian adjective often does
-are all `-mine` and `-nne` nominalisations, which are nouns.
+are all `-mine` and `-nne` nominalizations, which are nouns.
 
 That pass is kept inside `npm run audit:pos` and it reports without ever writing, because the file
 is generated and a correction belongs in the syllabus. Nothing new asserts the link, because
@@ -1527,7 +1527,7 @@ no `loeb` to put on it. A verb taught as one person is a verb taught as a noun.
 **The present tense, the negative, the conditional and the singular imperative are derived**, from
 the stored first person, by `lib/estonian/conjugate.ts`. That is the one part of the Estonian verb
 that genuinely is a suffix on a stored stem for every verb in the language but one, and it is the
-same licence ADR-005 amendment 1 already gives the ten regular cases on the genitive. It was not
+same license ADR-005 amendment 1 already gives the ten regular cases on the genitive. It was not
 reasoned about: `npm run audit:verbs` derives every slot for every verb in the shipped dictionary
 and compares it with every form Ekilex records for the same word, 797 verbs and thirteen slots
 each, and it came back with no disagreement. The two exceptions the rule declines are the ones that
@@ -1598,7 +1598,7 @@ page said "after two" where the partitive singular follows any number from two u
 Found on the same pass, and the larger content gap: the course had fourteen A1 units of nouns,
 verbs and adjectives and no unit for the words every sentence is made of. `kes`, `mis`, `millal`,
 `täna`, `homme`, `peal`, `taga`, `mina`, `see`, `Eesti`, `september` and `november` were in neither
-the course nor the built dictionary, and `sina` was in it labelled a noun. Six A1 units carry them
+the course nor the built dictionary, and `sina` was in it labeled a noun. Six A1 units carry them
 now, harvested from Ekilex like every other unit, with `PRONOUN` added as a part of speech and a
 plural-only pronoun kept the way an adverb is. Re-running the harvest also showed that the ten C2
 units cut in §19 would have taken their 170 words out of the seed the first time anybody ran it,
@@ -1771,7 +1771,7 @@ fails when a line is missing from a total. It just comes out lower than the trut
 
 ### Nothing anybody bills for is counted as free, and what is given is credited
 
-The first version modelled a free tier for the host and one for the database and picked between
+The first version modeled a free tier for the host and one for the database and picked between
 them by traffic. It described a deployment nobody runs and produced a page saying this app costs
 nothing at a hundred learners. Every vendor is now on the plan a real deployment is on.
 
@@ -1779,7 +1779,7 @@ The second version overcorrected: it priced Ekilex, Wiktionary and TartuNLP at w
 costs commercially and added it to the total. They are public institutions that decided this work
 should be available and ask for nothing, and a shadow price turns that into a line on an invoice
 nobody sent. A service is now charged, or inside another charge, or somebody else's to pay, or
-given, and a given one is named with what it provides and its licence and appears in no total.
+given, and a given one is named with what it provides and its license and appears in no total.
 Where a commercial equivalent exists the page says what buying it would come to, as the size of the
 gift rather than a charge.
 
@@ -2497,7 +2497,7 @@ decision. The pin is the id the harvest already chose, so no row moved.
 **`täis` was the one that had not.** The course teaches it as "full". The harvest had taken the
 homonym Ekilex defines as "kogu, terve", which is whole, in `täies riides` and `täie häälega`. So
 the card said "full" over the declension and sentences of a different word. The word for full is a
-separate entry that does not inflect (`Korv on seeni täis.`, `Täis klaas.`). It is pinned, labelled
+separate entry that does not inflect (`Korv on seeni täis.`, `Täis klaas.`). It is pinned, labeled
 `ADVERB` as every uninflecting word in the course is, and `pos-corrections.json` moves a row
 already seeded. Seven principal parts left the built dictionary with it.
 
@@ -2614,7 +2614,7 @@ largest faults; this pass fixed several causes but did not re-measure them
 as looking terrible. It leads now with one situation on the conversation's own night stage, one not
 yet played or the one played longest ago, with "Another one" and a gold "Step in". Under it the
 scenes are tiles in the tint of their kind of place, the room drawn on the tint, with a filter by
-kind. `lib/scenes/kinds.ts` is the table of kinds and is checked both ways against the catalogue, so
+kind. `lib/scenes/kinds.ts` is the table of kinds and is checked both ways against the catalog, so
 a new scene without a kind fails the unit suite rather than landing under the wrong filter.
 "Where the people are" is one panel of outbound links, and the line saying nothing you write is
 about you stays on the page. `docs/21-situations.md` §13 describes it.
@@ -2682,7 +2682,7 @@ review, and the closing review has its own briefing. "That's tonight done" survi
 that happened to finish the evening; the bar asking for tonight's steps as the round ended was
 enough to send the learner straight to evening two, and an integration test now holds it.
 
-**Nothing reads the answer out.** The listening round's play button was labelled with the word it
+**Nothing reads the answer out.** The listening round's play button was labeled with the word it
 plays, and on cards that ask for a word, the star, the put-aside button and the hint each named it
 to a screen reader; the flash round printed "sina: right 29 times" under its own question. All of
 them say "this word" until the answer is in (`wordName`), with two invariants. A gap whose gloss
@@ -2711,7 +2711,7 @@ two agreed decisions that read as one inconsistency. Doing two evenings in one d
 second closing round little to ask, since the day's new cards are spent. A pronoun's case table
 still shows gaps where the dictionary holds no plural (`mina`'s nominative plural).
 
-## 46. The fortieth pass: an evening that reads a case practises it
+## 46. The fortieth pass: an evening that reads a case practices it
 
 **Walked rather than read, at three points of the ladder.** A scratch helper put the local learner
 on the third evening of A1 and the tenth of A2 with every earlier evening ticked and its words in
@@ -2807,7 +2807,7 @@ round: B2 paired the writing round with Tähed and Describe with the sprint, and
 evenings dealt writing three times and Describe once. The drill's place on the rotation now
 advances only on an evening that deals a drill: B2 writes on seven evenings and describes on four.
 
-## 48. The forty-second pass: what B2 and C1 practise, and the endings for "on"
+## 48. The forty-second pass: what B2 and C1 practice, and the endings for "on"
 
 **The deck asks the "on" endings of a thing, where its sentence uses them.** A case card is a
 sentence a lexicographer wrote, and it still read the older rule that a thing takes the inside
@@ -2848,7 +2848,7 @@ time. Every conversation step names its conversation now too, "Buying a bus tick
 "Have the conversation", the way a reading step names its page. `course.test.ts` holds every part from the first conversation on to having one, and a
 second time to a level up.
 
-**The nominalisation page shows the doer in front.** "The doer goes in front, in the form that
+**The nominalization page shows the doer in front.** "The doer goes in front, in the form that
 means whose" was answered with a reason saying it only makes sense beside the clause it was
 rewritten from, and `Tarbijate käitumine on enamasti ennustatav` shows it on its own. It carries
 that and `Alliansi laienemine on olnud edukas` now, both verified as genitives against the
@@ -2886,7 +2886,7 @@ sentence whole with its English. The review card, the sprint, the quest and the 
 question's line away at that point and the ladder, the flash round and the exceptions round did
 not. All seven do now, and an invariant reads the guard on every `GapMeaning`.
 
-**The inessive evening practises the inessive.** Its writing round asked "of the man", "of the
+**The inessive evening practices the inessive.** Its writing round asked "of the man", "of the
 daughter", "of the son" and on through six genitives, and never the case the evening had just read.
 It read two hundred cards ordered on lapses alone, which tie on nearly every card in a learner's
 first months, so Postgres chose the words, and it chose a block of people, none of whom take the
@@ -3078,7 +3078,7 @@ seed to mark it, a paper begun before this pass is refused with a sentence sayin
 `/review/openers`, called Lause algus, drills one fact English cannot predict: what the first words
 of a sentence do to the last one. After `mulle meeldib` and `mul on` the thing keeps its dictionary
 form; after `ma tahan` and `mul ei ole` it takes the "some of it" ending. The government drill asks
-the neighbouring fact as "which case does this verb take", which names a case and is not how anybody
+the neighboring fact as "which case does this verb take", which names a case and is not how anybody
 speaks. This asks it in the sentence, with the opener as the cue.
 
 **One word to a round, and a different word next time.** A round holds every opener of the stage on
@@ -3213,7 +3213,7 @@ four ways to say "can") is told apart by what comes after the verb. And a coinci
 (`ostma` and `otsima`, `õpetama` and `lõpetama`, `kala` and `kana`) is learned side by side,
 with the letters that differ marked. 71 groups, 150 lemmas, every one a request the shipped
 dictionary answers under its part of speech, asserted. The table holds English and lemmas and
-no Estonian forms. The English was written by the developer's best judgement and is for a
+no Estonian forms. The English was written by the developer's best judgment and is for a
 native speaker to read.
 
 **The sentence decides, and its English is what makes that fair.** A question is a recorded
@@ -3279,7 +3279,7 @@ block flow with space between blocks now, the other two are one string, and
 opening on punctuation after an item of its own, which nothing else there could see.
 
 **The top of a round is one component.** Fourteen sessions wrote the way out, the bar and the
-count by hand in three looks: a four-pixel hairline with grey text, a ten-pixel bar with the
+count by hand in three looks: a four-pixel hairline with gray text, a ten-pixel bar with the
 count on a tint, and the daily path's own. `components/round/RoundProgress.tsx` is the daily
 path's look for all of them. Review and Learn keep their own bar, and 20 küsimust keeps its
 count, which turns red near the end, and drops the "0 of 20" chip that said the same thing.
@@ -3403,7 +3403,7 @@ slot (`empty:hidden` on the column item). Measured warm on a dev server, the jok
 and the news at 0.89 s. Any card on Today can be hidden from Settings, stored as a leading `-` on
 its id in the order row, keeping its place, so the eight-card page can be trimmed by whoever finds
 it busy. The keyless rule was measured against the live feeds and refused an opening that had been
-postponed, so postponed, cancelled, closed and resigned are refused now, and `naer` and `sündi`
+postponed, so postponed, canceled, closed and resigned are refused now, and `naer` and `sündi`
 became stems that cannot match `naeruväärne` and `sündmus`. The judge was run live again through
 the app and chose Open House Tallinn's 8,100 visitors, a new gallery in Sillamäe and Shaun the
 Sheep topping the weekend, each with sound English. The jokes' English says marks run to five
@@ -3436,7 +3436,7 @@ happy stem (`kasvas`, `positiiv`, `avati` inside `megavatine`) in each.
 **The rule now reads the headline for a happy event, and the whole text for anything that is not
 one.** A headline has to report that something opened, was won or awarded, premiered, was born,
 was celebrated or was discovered, read off the headline alone, with a verb matched only where a
-word starts. It may not be a quote or an opinion (`Name: ...`), a question, a review, a programme
+word starts. It may not be a quote or an opinion (`Name: ...`), a question, a review, a program
 strapline or a broadcast notice, or carry a negation. And the bad-news list now refuses business,
 the economy, politics, health and the weather whole, beside the death, crime, war, accidents,
 closures and delays it already held, because none of those is the headline that cheers somebody up.
@@ -3456,7 +3456,7 @@ on: a card that misses a good story costs nothing, and one that shows a bad stor
 
 ## 59. The fifty-third pass: playful, true, and never at the learner's expense
 
-The operator asked for words, examples and games that lean on simple humour, so that learning
+The operator asked for words, examples and games that lean on simple humor, so that learning
 Estonian feels less like an exam and more like something people enjoy. The standard is written
 down first, in `docs/18-voice.md` §3c: a true fact with a wink, never a joke at the learner, and
 never on a wrong answer, the exam, the level check, an error or anything about their data. Every
@@ -3539,7 +3539,7 @@ scanner names the things around you (VB-13), and the landing café can be answer
 (VB-15). Reminders reach a computer through Web Push (VB-10).
 
 **Tonight's chat** (VB-11) is a conversation of a new kind about the evening's own words, with
-the same neighbour each time, who remembers which words the two of you have talked about. It is
+the same neighbor each time, who remembers which words the two of you have talked about. It is
 offered only where a model is set up and the day's allowance would still let a scene call
 through, since a chat has no bank of lines under it.
 
@@ -3635,7 +3635,7 @@ the words fresh and answers "what needs doing", Games answers "what feels fun".
 **Games is the seventh place in the rail** (`/games`, `lib/ux/nav.ts`), off the phone bar, whose
 four cells stay the four an evening cannot do without. Eleven games in three groups by mood, Daily,
 Quick and Tricky, with the heading over each group the same word as its filter chip, and each drawn
-by its own pieces (`components/games/GameArt.tsx`) rather than described. Tile colours are chosen
+by its own pieces (`components/games/GameArt.tsx`) rather than described. Tile colors are chosen
 in `lib/ux/games.ts` so no two tiles that touch share one, asserted at two and three across. A game
 that opens at a later level is a locked tile saying so, at the end of its group.
 
@@ -3647,7 +3647,7 @@ render. The weekday is printed in Estonian from CLDR (`weekdayName`).
 
 **Practice is three sections**: Due now (Review, with the daily task under it), Your words (Flash
 cards with the decks and the four frequency lists, the workbook with its themes) and Skills (hear,
-speak, write, talk). The grammar drills stay on the grammar pages they practise.
+speak, write, talk). The grammar drills stay on the grammar pages they practice.
 
 **Every round is named the Estonian way, at every level**: `Paarid (Pairs)`, `Kordamine
 (Review)`, on a tile and in the command palette (`lib/ux/roundNames.ts`), while the rail stays in

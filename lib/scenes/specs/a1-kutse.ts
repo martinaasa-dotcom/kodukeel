@@ -2,11 +2,11 @@ import { inLesson } from "../inLesson";
 import { CLOSING_WORDS, FAREWELLS, HELLOS } from "./shared";
 
 /*
-  A NEW NEIGHBOUR'S INVITATION, AT THE END OF A1, LESSON 49, PLAYED RATHER
+  A NEW NEIGHBOR'S INVITATION, AT THE END OF A1, LESSON 49, PLAYED RATHER
   THAN READ.
 
   The last check-in of the level is the first one again, three months on: a
-  neighbour on the stairs, except that this time the learner has where
+  neighbor on the stairs, except that this time the learner has where
   they're from, a thank-you for a compliment, and an invitation to accept
   with a time. Where they're from is dealt, so the country is one the lessons
   named.
@@ -15,11 +15,11 @@ import { CLOSING_WORDS, FAREWELLS, HELLOS } from "./shared";
 */
 export default inLesson("a1-49-invite", {
   id: "a1-kutse",
-  title: "A new neighbour asks you round",
+  title: "A new neighbor asks you round",
   place: "The stairwell of your building",
   tests: "tutvumine",
   register: "sina",
-  role: "A new neighbour stops you on the stairs. Your card says where you're from. Any name will do.",
+  role: "A new neighbor stops you on the stairs. Your card says where you're from. Any name will do.",
   props: [
     {
       kind: "word", slot: "from", oneOf: ["Inglismaa", "Venemaa", "Saksamaa"],
@@ -36,7 +36,7 @@ export default inLesson("a1-49-invite", {
     {
       id: "greet",
       goal: "Say hello back.",
-      they: "Your new neighbour says hello.",
+      they: "Your new neighbor says hello.",
       move: "greet",
       topic: [...HELLOS],
       needs: [{ kind: "lemma", oneOf: [...HELLOS] }],
@@ -118,7 +118,7 @@ export default inLesson("a1-49-invite", {
     },
   ],
   outcomes: [
-    { id: "invited", when: ["greet", "name", "from", "praise", "invite", "time", "close"], says: "You've met your new neighbour, told her about yourself, and you're going round on Saturday. That's what three months of Estonian are for." },
+    { id: "invited", when: ["greet", "name", "from", "praise", "invite", "time", "close"], says: "You've met your new neighbor, told her about yourself, and you're going round on Saturday. That's what three months of Estonian are for." },
     { id: "invited-thin", when: ["invite", "time"], says: "You're going round on Saturday. The rest you can say over dinner." },
     { id: "left", when: [], says: "You hurried past this time. She'll be on the stairs again." },
   ],

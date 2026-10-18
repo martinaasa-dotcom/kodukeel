@@ -11,7 +11,7 @@ import { startRound } from "./lib/briefing.mjs";
  *
  * `lib/course/focus.test.ts` decides everything about the marker that can be
  * decided without one: that it goes out and comes back the same over every day
- * of every part, that it survives the ids the programmes use, that it refuses
+ * of every part, that it survives the ids the programs use, that it refuses
  * a half-read value, and that the way on is the next step in the day's order.
  * `scripts/test-invariants.ts` holds the shape of the code around it.
  *
@@ -87,7 +87,7 @@ await pinProgramme("a2.1");
   THE FLOOR IS WHAT THE SHORTEST HONEST EVENING REACHES, NOT WHAT TONIGHT DID.
 
   The walk asks five things at every step, and how many steps an evening has is
-  the programme's business: an ordinary one is five and one carrying a
+  the program's business: an ordinary one is five and one carrying a
   conversation is three, because a conversation replaces the reading and both
   rounds. A floor set to the run in front of me would fail on a fixture whose
   learner opens on a different part, which is a suite reporting the database
@@ -103,7 +103,7 @@ await pinProgramme("a2.1");
 */
 const { check, absent, done } = suite("Today's module", { floor: 42 });
 
-/** The module's own screen, with a programme running. */
+/** The module's own screen, with a program running. */
 async function openModule(page) {
   await page.goto(`${B}/course`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector("main h1", { timeout: 20_000 });

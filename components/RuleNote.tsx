@@ -12,10 +12,10 @@ import { useT } from "@/components/Locale";
  * summary and the one mistake an English speaker makes with it, and four
  * screens drew those two lines four ways: a yellow note on the topic page, a
  * butter card under its own heading on the case page, a 12px caption on the
- * build-a-word walk, and two grey paragraphs one after the other in the
+ * build-a-word walk, and two gray paragraphs one after the other in the
  * workbook's box. That last one was reported as too many words to take in,
  * and the reason was the shape rather than the length: a point and a warning
- * set as one run of grey prose are read as one long sentence.
+ * set as one run of gray prose are read as one long sentence.
  *
  * So the point is a line in the body ink with a lightbulb, and the warning is
  * a callout with its own heading, "Watch out", in the tint the palette keeps

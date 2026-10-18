@@ -11,6 +11,9 @@
  *
  * Content is CC BY-SA 4.0, credited in the UI.
  */
+
+import { americanize } from "@/lib/copy/spelling";
+
 const API = "https://en.wiktionary.org/w/api.php";
 const UA = "Kodukeel/0.1 (personal Estonian learning tool)";
 
@@ -227,7 +230,7 @@ export function extractEstonianEntries(wikitext: string): EstonianSense[] {
     if (!line.startsWith("# ")) continue;
     const raw = line.slice(2);
     if (NOT_A_DEFINITION.test(raw)) continue;
-    const cleaned = cleanWikitext(raw);
+    const cleaned = americanize(cleanWikitext(raw));
     if (cleaned && !senses.some((s) => s.gloss === cleaned)) {
       senses.push({ gloss: cleaned, pos, headword, stems, etymology });
     }

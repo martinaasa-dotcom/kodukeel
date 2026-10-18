@@ -19,7 +19,7 @@ export const SPEAKERS: Area = {
     "Estonian for Ukrainian speakers": "Естонська для україномовних",
     "What your Ukrainian already gives you, and where it leads you astray.":
       "Що вам уже дає українська і де вона збиває з пантелику.",
-    "Practise it: {round}": "Потренуйтеся у вправі «{round}»",
+    "Practice it: {round}": "Потренуйтеся у вправі «{round}»",
     "In the dictionary: {gloss}": "У словнику: {gloss}",
 
     // What you already have.

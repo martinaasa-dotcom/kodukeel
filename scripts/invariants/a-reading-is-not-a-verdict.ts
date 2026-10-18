@@ -16,7 +16,7 @@ import type { InvariantKit } from "../lib/invariantKit";
  * the page as red and green marks on themselves. The heatmap ran sky to violet
  * to pink, which is a rainbow rather than a scale.
  *
- * Four arms. A colour chosen by comparing a figure against a number may not
+ * Four arms. A color chosen by comparing a figure against a number may not
  * pick between two verdict hues. A `Stat` may not be written in a verdict
  * ink. The heatmap reads the scale and nothing else. And the scale is declared
  * once. A warning is still allowed, one verdict hue against a neutral (a clock
@@ -30,7 +30,7 @@ const THRESHOLD_TRAFFIC_LIGHT = new RegExp(
 );
 const VERDICT_STAT = new RegExp(`<Stat\\b[^>]*tone=\\{?\\s*(?:"var\\(--${VERDICT}\\)"|VERDICT_INK)`);
 /*
-  The same light written as a tone name rather than a colour: `StatTile` and
+  The same light written as a tone name rather than a color: `StatTile` and
   `Card` take `tone="sky"`, so `tone={accuracy >= 85 ? "sky" : "butter"}` is
   the traffic light the pattern above cannot see. Five round summaries carried
   one, a share right painted one hue or the other on the screen that ends a
@@ -47,7 +47,7 @@ const EXEMPT: Record<string, string> = {
 };
 
 export default function aReadingIsNotAVerdict({ check, code, read, APP, COMPONENTS }: InvariantKit) {
-  check("a figure is never coloured by a threshold between two verdict hues", () => {
+  check("a figure is never colored by a threshold between two verdict hues", () => {
     const offenders: string[] = [];
     let asked = 0;
     for (const file of [...APP, ...COMPONENTS]) {
@@ -67,10 +67,10 @@ export default function aReadingIsNotAVerdict({ check, code, read, APP, COMPONEN
       }
     }
     assert.ok(asked >= 200, `only read ${asked} files, so this sweep stopped looking`);
-    assert.deepEqual(offenders, [], "a reading coloured as a verdict: draw it in the accent, or plain ink for a count");
+    assert.deepEqual(offenders, [], "a reading colored as a verdict: draw it in the accent, or plain ink for a count");
 
     for (const [file, why] of Object.entries(EXEMPT)) {
-      assert.ok(trafficLight(code(file)), `${file} is exempt (${why}) and no longer colours by a threshold; take the line out`);
+      assert.ok(trafficLight(code(file)), `${file} is exempt (${why}) and no longer colors by a threshold; take the line out`);
     }
   });
 

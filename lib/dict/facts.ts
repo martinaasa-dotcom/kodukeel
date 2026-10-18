@@ -80,7 +80,7 @@ export const FACTS_TTL_MS = 60_000;
  * was about 25 MB off the database, and a refill happened every minute on
  * every warm instance anybody was using. On Supabase's free plan that is the
  * egress quota: the project went past its 5 GB in under three weeks with a
- * handful of learners, on days that were nothing but somebody practising for
+ * handful of learners, on days that were nothing but somebody practicing for
  * an hour.
  *
  * So a dictionary fact passes `DICTIONARY` rather than a number. It is kept

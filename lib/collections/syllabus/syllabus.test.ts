@@ -71,9 +71,9 @@ describe("the course", () => {
     asked the reverse: that everything the seed will write was named. The
     harvest's `--only` stands its answers into the previous file rather than
     replacing it, so a word first harvested under one part of speech and then
-    relabelled leaves its old row behind. That happened to `vene`: requested
+    relabeled leaves its old row behind. That happened to `vene`: requested
     as an adjective it matched a regular noun spelled the same, a dugout
-    canoe, and when it was relabelled the canoe's row stayed, glossed
+    canoe, and when it was relabeled the canoe's row stayed, glossed
     "Russian", carrying `venet` and `vened`, the canoe's definition, and
     `чёлн` as its Russian. The seed loads this file, so the shared dictionary
     would have taught it.
@@ -104,8 +104,8 @@ describe("the course", () => {
 
     That had happened. Eight glosses were rewritten from British to American
     spelling in the syllabus and the harvest still held the old ones, so the
-    shipped dictionary taught `hall` as "grey" while the course file said
-    "gray" and `korrus` as "storey" against "story". It is invisible on screen
+    shipped dictionary taught `hall` as "gray" while the course file said
+    "gray" and `korrus` as "story" against "story". It is invisible on screen
     and it is not harmless: `lib/collections/senses.ts` groups a production
     card's prompt by the gloss, so two spellings of one English word are two
     prompts, and the shared-prompt count moved by five when the harvest was

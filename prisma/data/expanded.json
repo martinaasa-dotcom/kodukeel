@@ -5119,12 +5119,12 @@
  {
   "lemma": "kasutama",
   "pos": "VERB",
-  "translation": "to use, to apply, to utilise",
+  "translation": "to use, to apply, to utilize",
   "cefr": "A1",
   "gradation": "NONE",
   "gradationNote": null,
   "government": "mida* (partitive)",
-  "notes": "to use, to utilise; to use",
+  "notes": "to use, to utilize; to use",
   "examples": [
    {
     "et": "Hoone seisab kasutamata.",
@@ -6949,7 +6949,7 @@
  {
   "lemma": "korrus",
   "pos": "NOUN",
-  "translation": "storey, floor",
+  "translation": "story, floor",
   "cefr": "A1",
   "gradation": "NONE",
   "gradationNote": null,
@@ -8696,7 +8696,7 @@
  {
   "lemma": "lemmik",
   "pos": "NOUN",
-  "translation": "favorite/favourite",
+  "translation": "favorite",
   "cefr": "A1",
   "gradation": "NONE",
   "gradationNote": null,
@@ -8750,7 +8750,7 @@
  {
   "lemma": "lennuk",
   "pos": "NOUN",
-  "translation": "aeroplane, airplane",
+  "translation": "airplane",
   "cefr": "A1",
   "gradation": "NONE",
   "gradationNote": null,
@@ -11969,7 +11969,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "number plate, licence plate, license plate",
+  "notes": "number plate, license plate",
   "examples": [
    {
     "et": "Autonumber.",
@@ -19089,7 +19089,7 @@
  {
   "lemma": "teater",
   "pos": "NOUN",
-  "translation": "theater, theatre",
+  "translation": "theater",
   "cefr": "A1",
   "gradation": "NONE",
   "gradationNote": null,
@@ -21809,7 +21809,7 @@
  {
   "lemma": "vabandama",
   "pos": "VERB",
-  "translation": "to apologize, to apologise",
+  "translation": "to apologize",
   "cefr": "A1",
   "gradation": "NONE",
   "gradationNote": null,
@@ -23479,7 +23479,7 @@
  {
   "lemma": "värv",
   "pos": "NOUN",
-  "translation": "color/colour",
+  "translation": "color",
   "cefr": "A1",
   "gradation": "NONE",
   "gradationNote": null,
@@ -29148,7 +29148,7 @@
  {
   "lemma": "hunt",
   "pos": "NOUN",
-  "translation": "wolf, grey wolf",
+  "translation": "wolf, gray wolf",
   "cefr": "A2",
   "gradation": "QUALITATIVE",
   "gradationNote": "t : d",
@@ -30772,7 +30772,7 @@
  {
   "lemma": "juhiluba",
   "pos": "NOUN",
-  "translation": "driving licence, driver's license",
+  "translation": "driving license, driver's license",
   "cefr": "A2",
   "gradation": "QUALITATIVE",
   "gradationNote": "b : ∅",
@@ -31823,7 +31823,7 @@
  {
   "lemma": "kaitse",
   "pos": "NOUN",
-  "translation": "defence",
+  "translation": "defense",
   "cefr": "A2",
   "gradation": "NONE",
   "gradationNote": null,
@@ -33767,7 +33767,7 @@
  {
   "lemma": "kesklinn",
   "pos": "NOUN",
-  "translation": "city centre, city center, downtown",
+  "translation": "city center, downtown",
   "cefr": "A2",
   "gradation": "NONE",
   "gradationNote": null,
@@ -33817,7 +33817,7 @@
  {
   "lemma": "keskus",
   "pos": "NOUN",
-  "translation": "centre/center",
+  "translation": "center",
   "cefr": "A2",
   "gradation": "NONE",
   "gradationNote": null,
@@ -34627,7 +34627,7 @@
  {
   "lemma": "kirju",
   "pos": "ADJECTIVE",
-  "translation": "spotted, mottled, coloured, diverse, variegated, varicoloured",
+  "translation": "spotted, mottled, colored, diverse, variegated, varicolored",
   "cefr": "A2",
   "gradation": "NONE",
   "gradationNote": null,
@@ -37230,7 +37230,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "thin, light, skimpy, meagre",
+  "notes": "thin, light, skimpy, meager",
   "examples": [
    {
     "et": "Pikk kõhn mees.",
@@ -39672,7 +39672,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "b : ∅",
   "government": null,
-  "notes": "permit, licence; driving licence",
+  "notes": "permit, license; driving license",
   "examples": [
    {
     "et": "Ametlik luba.",
@@ -39887,7 +39887,7 @@
  {
   "lemma": "lõhn",
   "pos": "NOUN",
-  "translation": "smell, scent, fragrance, odour",
+  "translation": "smell, scent, fragrance, odor",
   "cefr": "A2",
   "gradation": "NONE",
   "gradationNote": null,
@@ -42054,7 +42054,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": "keda/mida* (partitive)",
-  "notes": "to memorise; to keep in one's memory",
+  "notes": "to memorize; to keep in one's memory",
   "examples": [
    {
     "et": "Ma ei mäleta oma vanaisa.",
@@ -42543,7 +42543,7 @@
  {
   "lemma": "naaber",
   "pos": "NOUN",
-  "translation": "neighbour",
+  "translation": "neighbor",
   "cefr": "A2",
   "gradation": "NONE",
   "gradationNote": null,
@@ -45832,7 +45832,7 @@
  {
   "lemma": "pidžaama",
   "pos": "NOUN",
-  "translation": "pyjamas",
+  "translation": "pajamas",
   "cefr": "A2",
   "gradation": "NONE",
   "gradationNote": null,
@@ -50144,7 +50144,7 @@
  {
   "lemma": "sadam",
   "pos": "NOUN",
-  "translation": "harbour",
+  "translation": "harbor",
   "cefr": "A2",
   "gradation": "NONE",
   "gradationNote": null,
@@ -50900,7 +50900,7 @@
  {
   "lemma": "selts",
   "pos": "NOUN",
-  "translation": "organisation, association, society, club",
+  "translation": "organization, association, society, club",
   "cefr": "A2",
   "gradation": "NONE",
   "gradationNote": null,
@@ -52128,7 +52128,7 @@
  {
   "lemma": "suurepärane",
   "pos": "ADJECTIVE",
-  "translation": "excellent, great, magnificent, marvellous/marvelous, splendid, superb, wonderful",
+  "translation": "excellent, great, magnificent, marvelous, splendid, superb, wonderful",
   "cefr": "A2",
   "gradation": "NONE",
   "gradationNote": null,
@@ -55247,7 +55247,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": "keda/mida (partitive) · mida* (partitive)",
-  "notes": "to raise; to honour",
+  "notes": "to raise; to honor",
   "examples": [
    {
     "et": "Tõstab tuult.",
@@ -55646,7 +55646,7 @@
  {
   "lemma": "tööline",
   "pos": "NOUN",
-  "translation": "labourer, worker",
+  "translation": "laborer, worker",
   "cefr": "A2",
   "gradation": "NONE",
   "gradationNote": null,
@@ -61203,7 +61203,7 @@
  {
   "lemma": "analüüsima",
   "pos": "VERB",
-  "translation": "to analyze, to analyse",
+  "translation": "to analyze",
   "cefr": "B1",
   "gradation": "NONE",
   "gradationNote": null,
@@ -62803,7 +62803,7 @@
  {
   "lemma": "au",
   "pos": "NOUN",
-  "translation": "honour/honor, respect",
+  "translation": "honor, respect",
   "cefr": "B1",
   "gradation": "NONE",
   "gradationNote": null,
@@ -62857,7 +62857,7 @@
  {
   "lemma": "austama",
   "pos": "VERB",
-  "translation": "to honor/honour",
+  "translation": "to honor",
   "cefr": "B1",
   "gradation": "NONE",
   "gradationNote": null,
@@ -65366,7 +65366,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": "kellele/millele (allative) · kellest/millest (elative) · keda/mida* (partitive)",
-  "notes": "to remove; to isolate, separate; to see a difference between things, to distinguish, to recognise as different, to feel as different",
+  "notes": "to remove; to isolate, separate; to see a difference between things, to distinguish, to recognize as different, to feel as different",
   "examples": [
    {
     "et": "Meid eraldab naabritest kõrge aed.",
@@ -69120,7 +69120,7 @@
  {
   "lemma": "huumor",
   "pos": "NOUN",
-  "translation": "humour",
+  "translation": "humor",
   "cefr": "B1",
   "gradation": "NONE",
   "gradationNote": null,
@@ -71799,7 +71799,7 @@
  {
   "lemma": "kabe",
   "pos": "NOUN",
-  "translation": "draughts, checkers",
+  "translation": "checkers",
   "cefr": "B1",
   "gradation": "NONE",
   "gradationNote": null,
@@ -72485,7 +72485,7 @@
  {
   "lemma": "kaitsevägi",
   "pos": "NOUN",
-  "translation": "army, defence forces",
+  "translation": "army, defense forces",
   "cefr": "B1",
   "gradation": "QUALITATIVE",
   "gradationNote": "g : ∅",
@@ -76254,7 +76254,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "k : g",
   "government": null,
-  "notes": "favour/favor",
+  "notes": "favor",
   "examples": [
    {
     "et": "Tädi tõi lapsele kingiks nuku.",
@@ -76752,7 +76752,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "clamour, din, hubbub",
+  "notes": "clamor, din, hubbub",
   "examples": [
    {
     "et": "Näljakisa.",
@@ -79828,7 +79828,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "tyre; rubber band; condom",
+  "notes": "tire; rubber band; condom",
   "examples": [
    {
     "et": "Kummist uksematt.",
@@ -81402,7 +81402,7 @@
  {
   "lemma": "käitumine",
   "pos": "NOUN",
-  "translation": "behavior/behaviour",
+  "translation": "behavior",
   "cefr": "B1",
   "gradation": "NONE",
   "gradationNote": null,
@@ -98271,7 +98271,7 @@
  {
   "lemma": "rehv",
   "pos": "NOUN",
-  "translation": "tyre, tire",
+  "translation": "tire",
   "cefr": "B1",
   "gradation": "NONE",
   "gradationNote": null,
@@ -99538,7 +99538,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "t : d",
   "government": null,
-  "notes": "square metre",
+  "notes": "square meter",
   "examples": [
    {
     "et": "Moes on triip ja ruut.",
@@ -103047,7 +103047,7 @@
  {
   "lemma": "sõjavägi",
   "pos": "NOUN",
-  "translation": "army, defence force",
+  "translation": "army, defense force",
   "cefr": "B1",
   "gradation": "QUALITATIVE",
   "gradationNote": "g : ∅",
@@ -108446,7 +108446,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": "mida* (partitive) · et · kelle/mille vastu · milliseks",
-  "notes": "to confess; to recognise; to proselytise, to missionise",
+  "notes": "to confess; to recognize; to proselytize, to missionize",
   "examples": [
    {
     "et": "Ta tunnistati surnuks.",
@@ -114784,7 +114784,7 @@
   "gradation": "QUALITATIVE",
   "gradationNote": "g : ∅",
   "government": null,
-  "notes": "force; defence forces, military",
+  "notes": "force; defense forces, military",
   "examples": [
    {
     "et": "Sa taeva vägi!",
@@ -120341,7 +120341,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "to colonise",
+  "notes": "to colonize",
   "examples": [
    {
     "et": "Võrtsjärve hakati asustama angerjamaime.",
@@ -122321,7 +122321,7 @@
  {
   "lemma": "ehtima",
   "pos": "VERB",
-  "translation": "to accessorise, to adorn, to decorate",
+  "translation": "to accessorize, to adorn, to decorate",
   "cefr": "B2",
   "gradation": "QUALITATIVE",
   "gradationNote": "t : ∅",
@@ -124566,7 +124566,7 @@
  {
   "lemma": "hallitus",
   "pos": "NOUN",
-  "translation": "mould/mold",
+  "translation": "mold",
   "cefr": "B2",
   "gradation": "NONE",
   "gradationNote": null,
@@ -132098,7 +132098,7 @@
  {
   "lemma": "kataloog",
   "pos": "NOUN",
-  "translation": "catalogue, catalog",
+  "translation": "catalog",
   "cefr": "B2",
   "gradation": "NONE",
   "gradationNote": null,
@@ -139335,7 +139335,7 @@
  {
   "lemma": "leil",
   "pos": "NOUN",
-  "translation": "steam or vapour created from water being thrown on a hot surface",
+  "translation": "steam or vapor created from water being thrown on a hot surface",
   "cefr": "B2",
   "gradation": "NONE",
   "gradationNote": null,
@@ -140727,7 +140727,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "to fantasise, to lie, to create tales",
+  "notes": "to fantasize, to lie, to create tales",
   "examples": [
    {
     "et": "Vana-Hiinas pidid ka ametnikud oskama luuletada ja maalida.",
@@ -141320,7 +141320,7 @@
  {
   "lemma": "lärm",
   "pos": "NOUN",
-  "translation": "clamour, din, uproar, hubbub",
+  "translation": "clamor, din, uproar, hubbub",
   "cefr": "B2",
   "gradation": "NONE",
   "gradationNote": null,
@@ -142953,7 +142953,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "savage, uncivilised; crazy, out of control, hectic",
+  "notes": "savage, uncivilized; crazy, out of control, hectic",
   "examples": [
    {
     "et": "Metsikud hõimud.",
@@ -144276,7 +144276,7 @@
  {
   "lemma": "mälestama",
   "pos": "VERB",
-  "translation": "to commemorate, to remember with honour",
+  "translation": "to commemorate, to remember with honor",
   "cefr": "B2",
   "gradation": "NONE",
   "gradationNote": null,
@@ -146572,7 +146572,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "ghost, spectre, apparition",
+  "notes": "ghost, specter, apparition",
   "examples": [
    {
     "et": "Ajaloonägemus.",
@@ -149461,7 +149461,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "a large unorganised group of people; a large group of objects",
+  "notes": "a large unorganized group of people; a large group of objects",
   "examples": [
    {
     "et": "Haneparv.",
@@ -153756,7 +153756,7 @@
  {
   "lemma": "pürgima",
   "pos": "VERB",
-  "translation": "to strive, to endeavour",
+  "translation": "to strive, to endeavor",
   "cefr": "B2",
   "gradation": "QUALITATIVE",
   "gradationNote": "g : ∅",
@@ -156262,7 +156262,7 @@
  {
   "lemma": "rändur",
   "pos": "NOUN",
-  "translation": "traveller, wanderer",
+  "translation": "traveler, wanderer",
   "cefr": "B2",
   "gradation": "NONE",
   "gradationNote": null,
@@ -156748,7 +156748,7 @@
  {
   "lemma": "salk",
   "pos": "NOUN",
-  "translation": "a small unorganised group",
+  "translation": "a small unorganized group",
   "cefr": "B2",
   "gradation": "QUALITATIVE",
   "gradationNote": "k : g",
@@ -162064,7 +162064,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "service; favour , favor",
+  "notes": "service; favor",
   "examples": [
    {
     "et": "Eriliste teenete eest antud kodakondsus.",
@@ -163902,7 +163902,7 @@
  {
   "lemma": "tsivilisatsioon",
   "pos": "NOUN",
-  "translation": "civilisation, civilization",
+  "translation": "civilization",
   "cefr": "B2",
   "gradation": "NONE",
   "gradationNote": null,
@@ -164064,7 +164064,7 @@
  {
   "lemma": "tšekk",
   "pos": "NOUN",
-  "translation": "cheque/check",
+  "translation": "check",
   "cefr": "B2",
   "gradation": "QUALITATIVE",
   "gradationNote": "kk : k",
@@ -170381,7 +170381,7 @@
  {
   "lemma": "värvus",
   "pos": "NOUN",
-  "translation": "color/colour",
+  "translation": "color",
   "cefr": "B2",
   "gradation": "NONE",
   "gradationNote": null,
@@ -173057,7 +173057,7 @@
  {
   "lemma": "kasin",
   "pos": "ADJECTIVE",
-  "translation": "scant, scanty, meagre",
+  "translation": "scant, scanty, meager",
   "cefr": "C1",
   "gradation": "NONE",
   "gradationNote": null,
@@ -173473,12 +173473,12 @@
  {
   "lemma": "kündma",
   "pos": "VERB",
-  "translation": "to plough/plow",
+  "translation": "to plow",
   "cefr": "C1",
   "gradation": "QUALITATIVE",
   "gradationNote": "nd : nn",
   "government": null,
-  "notes": "to dig, to furrow; to plough",
+  "notes": "to dig, to furrow; to plow",
   "examples": [
    {
     "et": "Elu on ta näkku kortse ja vagusid kündnud.",
@@ -177901,7 +177901,7 @@
  {
   "lemma": "ader",
   "pos": "NOUN",
-  "translation": "plough",
+  "translation": "plow",
   "cefr": null,
   "gradation": "NONE",
   "gradationNote": null,
@@ -179106,7 +179106,7 @@
  {
   "lemma": "ajukasvaja",
   "pos": "NOUN",
-  "translation": "brain tumour",
+  "translation": "brain tumor",
   "cefr": null,
   "gradation": "NONE",
   "gradationNote": null,
@@ -179345,7 +179345,7 @@
  {
   "lemma": "akvarell",
   "pos": "NOUN",
-  "translation": "watercolor / watercolour",
+  "translation": "watercolor",
   "cefr": null,
   "gradation": "NONE",
   "gradationNote": null,
@@ -179798,12 +179798,12 @@
  {
   "lemma": "alatus",
   "pos": "NOUN",
-  "translation": "underhanded or unscrupulous behaviour",
+  "translation": "underhanded or unscrupulous behavior",
   "cefr": null,
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "underhanded or unscrupulous behaviour; deviance",
+  "notes": "underhanded or unscrupulous behavior; deviance",
   "examples": [
    {
     "et": "Milliste alatustega see inimene on hakkama saanud!",
@@ -180553,7 +180553,7 @@
  {
   "lemma": "alumiinium",
   "pos": "NOUN",
-  "translation": "aluminium",
+  "translation": "aluminum",
   "cefr": null,
   "gradation": "NONE",
   "gradationNote": null,
@@ -192490,7 +192490,7 @@
  {
   "lemma": "hallitama",
   "pos": "VERB",
-  "translation": "to mould/mold",
+  "translation": "to mold",
   "cefr": null,
   "gradation": "NONE",
   "gradationNote": null,
@@ -202005,7 +202005,7 @@
  {
   "lemma": "kaitseminister",
   "pos": "NOUN",
-  "translation": "minister of defence",
+  "translation": "minister of defense",
   "cefr": null,
   "gradation": "NONE",
   "gradationNote": null,
@@ -204850,7 +204850,7 @@
  {
   "lemma": "kaubanduskeskus",
   "pos": "NOUN",
-  "translation": "mall, shopping mall, shopping centre, shopping center",
+  "translation": "mall, shopping mall, shopping center",
   "cefr": null,
   "gradation": "NONE",
   "gradationNote": null,
@@ -223673,7 +223673,7 @@
  {
   "lemma": "maakaitse",
   "pos": "NOUN",
-  "translation": "territorial defence",
+  "translation": "territorial defense",
   "cefr": null,
   "gradation": "NONE",
   "gradationNote": null,
@@ -223719,7 +223719,7 @@
  {
   "lemma": "maakaitsevägi",
   "pos": "NOUN",
-  "translation": "territorial defence force",
+  "translation": "territorial defense force",
   "cefr": null,
   "gradation": "QUALITATIVE",
   "gradationNote": "g : ∅",
@@ -232944,7 +232944,7 @@
  {
   "lemma": "nukuteater",
   "pos": "NOUN",
-  "translation": "puppet theatre/theater",
+  "translation": "puppet theater",
   "cefr": null,
   "gradation": "NONE",
   "gradationNote": null,
@@ -238986,7 +238986,7 @@
  {
   "lemma": "penikoorem",
   "pos": "NOUN",
-  "translation": "a unit of length equal to 7 verst - about 7467,467 metres.",
+  "translation": "a unit of length equal to 7 verst - about 7467,467 meters.",
   "cefr": null,
   "gradation": "NONE",
   "gradationNote": null,
@@ -240973,7 +240973,7 @@
  {
   "lemma": "pitsamaitseaine",
   "pos": "NOUN",
-  "translation": "pizza flavor/flavour",
+  "translation": "pizza flavor",
   "cefr": null,
   "gradation": "NONE",
   "gradationNote": null,
@@ -244099,7 +244099,7 @@
  {
   "lemma": "puna",
   "pos": "NOUN",
-  "translation": "the colour red",
+  "translation": "the color red",
   "cefr": null,
   "gradation": "NONE",
   "gradationNote": null,
@@ -251591,7 +251591,7 @@
  {
   "lemma": "ruutkilomeeter",
   "pos": "NOUN",
-  "translation": "square kilometre",
+  "translation": "square kilometer",
   "cefr": null,
   "gradation": "NONE",
   "gradationNote": null,
@@ -251885,7 +251885,7 @@
  {
   "lemma": "rändaja",
   "pos": "NOUN",
-  "translation": "traveller, wanderer",
+  "translation": "traveler, wanderer",
   "cefr": null,
   "gradation": "NONE",
   "gradationNote": null,
@@ -258659,7 +258659,7 @@
  {
   "lemma": "susi",
   "pos": "NOUN",
-  "translation": "wolf, grey wolf",
+  "translation": "wolf, gray wolf",
   "cefr": null,
   "gradation": "QUALITATIVE",
   "gradationNote": "s : ∅",
@@ -261284,7 +261284,7 @@
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "woman in labour",
+  "notes": "woman in labor",
   "examples": [
    {
     "et": "Mina, pahanduse sünnitaja.",
@@ -268477,7 +268477,7 @@
  {
   "lemma": "turv",
   "pos": "NOUN",
-  "translation": "security, support, defence",
+  "translation": "security, support, defense",
   "cefr": null,
   "gradation": "NONE",
   "gradationNote": null,
@@ -273015,7 +273015,7 @@
  {
   "lemma": "vananemine",
   "pos": "NOUN",
-  "translation": "ageing",
+  "translation": "aging",
   "cefr": null,
   "gradation": "NONE",
   "gradationNote": null,
@@ -276924,7 +276924,7 @@
  {
   "lemma": "vunts",
   "pos": "NOUN",
-  "translation": "moustache",
+  "translation": "mustache",
   "cefr": null,
   "gradation": "NONE",
   "gradationNote": null,

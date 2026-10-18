@@ -16,7 +16,7 @@ import { isAdvanceKey } from "@/lib/ux/advanceKey";
 import { OPTION_CLASS, optionState, VERDICT_CLASS } from "@/lib/ux/verdict";
 
 /**
- * PRACTISE AND REVIEW: ONE QUESTION AT A TIME, BUILT BY THE SERVER FROM THE
+ * PRACTICE AND REVIEW: ONE QUESTION AT A TIME, BUILT BY THE SERVER FROM THE
  * LEDGER (`lib/course/lessons/practice.ts`).
  *
  * A heard phrase and a read word are picked from four meanings; a meaning is

@@ -26,7 +26,7 @@
     signature        base64 of HMAC-SHA256 over the signed content
     header           space delimited, each entry `v1,<signature>`, any may match
 
-  THE RAW BODY, NOT THE PARSED ONE. Re-serialising the JSON changes the bytes
+  THE RAW BODY, NOT THE PARSED ONE. Re-serializing the JSON changes the bytes
   and the signature is over the bytes, so the route reads `request.text()` and
   parses only after the signature holds. Getting that backwards is the usual
   way this is broken and it fails in the direction that looks like the

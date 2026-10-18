@@ -4,7 +4,7 @@ import { fill, tr, type Locale } from "@/lib/copy/locale";
 const LEVEL_COLOR: Record<number, string> = {
   /* One hue in four strengths over the neutral track. It ran cyan to violet
      to pink for a while, which is a rainbow rather than a scale: nobody can
-     tell from a hue which of two colours means "busier". */
+     tell from a hue which of two colors means "busier". */
   0: "var(--scale-track)",
   1: "var(--scale-1)",
   2: "var(--scale-2)",

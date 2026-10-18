@@ -44,7 +44,7 @@ describe("neighboursOf", () => {
     expect(found).toHaveLength(0);
   });
 
-  it("leaves out the card's own answers, which are not neighbours", () => {
+  it("leaves out the card's own answers, which are not neighbors", () => {
     const index = neighbourIndex([ALUSTAMA, HAKKAMA]);
     const found = neighboursOf(ALUSTAMA, index, ["alustama", "hakkama"]);
     expect(found).toHaveLength(0);
@@ -62,7 +62,7 @@ describe("neighboursOf", () => {
 describe("typedNeighbour", () => {
   const near = [{ lemma: "hakkama" }, { lemma: "Tere hommikust!" }];
 
-  it("recognises the word as typed, and without its punctuation or a diacritic", () => {
+  it("recognizes the word as typed, and without its punctuation or a diacritic", () => {
     expect(typedNeighbour("hakkama", near)?.lemma).toBe("hakkama");
     expect(typedNeighbour(" Hakkama ", near)?.lemma).toBe("hakkama");
     expect(typedNeighbour("tere hommikust", near)?.lemma).toBe("Tere hommikust!");

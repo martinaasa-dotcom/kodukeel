@@ -276,7 +276,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
               </>
             ) : (
               <>
-                {/* Labelled by what it does rather than by the default, which
+                {/* Labeled by what it does rather than by the default, which
                     names the word: the one round whose whole question is a
                     word heard and never written was reading the answer out to
                     a screen reader before anybody had picked. */}
@@ -305,7 +305,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
           ) : (
             <div className="flex flex-col items-center gap-1">
               {/* The verdict in words, first, because the options below say it
-                  in colour and a colour is not read out. */}
+                  in color and a color is not read out. */}
               <p className="sr-only">
                 {selected === card.correct ? t("Right.") : fill(t("Not quite. It means {meaning}."), { meaning: correctShown })}
               </p>

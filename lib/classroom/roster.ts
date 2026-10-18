@@ -237,7 +237,7 @@ export async function classRoster(
   // so the two cannot name different cases as the class's weakest.
   //
   // The class-wide figures are about the people who joined. A teacher who
-  // practises too is on the board, and their own answers are not what the
+  // practices too is on the board, and their own answers are not what the
   // class keeps tripping over.
   const teachers = new Set(members.filter((m) => !joinedMember(m)).map((m) => m.ownerId));
   const asked = reviews

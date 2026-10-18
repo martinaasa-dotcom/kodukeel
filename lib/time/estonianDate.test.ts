@@ -68,7 +68,7 @@ describe("dateLine", () => {
     const real = Intl.DateTimeFormat;
     /*
       A `function` rather than an arrow, because `dateLine` reaches this with
-      `new` and an arrow has no construct behaviour: under Vitest 4 the spy says
+      `new` and an arrow has no construct behavior: under Vitest 4 the spy says
       so out loud ("the DateTimeFormat mock did not use 'function' or 'class'")
       and records nothing, so the assertion below failed on an empty list while
       the code under test was perfectly correct.

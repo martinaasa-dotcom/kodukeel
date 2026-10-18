@@ -271,7 +271,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
                     )}
                   </span>
                   {/* Top-aligned: the grid stretches every word to the
-                      tallest in its row, and a centred one put its lemma
+                      tallest in its row, and a centered one put its lemma
                       lower than the word beside it. The controls stay in one
                       row of their own, level with each other. */}
                   <span className="flex shrink-0 items-center gap-3">

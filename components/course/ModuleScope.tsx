@@ -58,7 +58,7 @@ import { fill } from "@/lib/copy/locale";
  *
  * AND NOTHING HERE IS TRUSTED. The marker came off a URL a learner could have
  * typed. It decides whether a frame is drawn and what the caption says, and it
- * decides nothing else: `advanceCourseStep` resolves the programme, the day
+ * decides nothing else: `advanceCourseStep` resolves the program, the day
  * and the step again on the server, refuses to tick a derived step, refuses a
  * day nobody has reached, and works out the way on from the day's own order
  * rather than from anything sent to it.

@@ -116,7 +116,7 @@ describe("planLesson", () => {
     for (const step of steps) {
       if (step.kind === "choose") recognised.add(step.lemma);
       if (step.kind === "type") {
-        expect(recognised.has(step.lemma), `${step.lemma} was typed before it was recognised`).toBe(true);
+        expect(recognised.has(step.lemma), `${step.lemma} was typed before it was recognized`).toBe(true);
       }
     }
   });
@@ -146,7 +146,7 @@ describe("planLesson", () => {
     }
   });
 
-  it("every word ends up produced, not just recognised", () => {
+  it("every word ends up produced, not just recognized", () => {
     const typed = new Set(plan().filter((s) => s.kind === "type").map((s) => s.lemma));
     for (const word of WORDS) expect(typed.has(word.lemma), word.lemma).toBe(true);
   });

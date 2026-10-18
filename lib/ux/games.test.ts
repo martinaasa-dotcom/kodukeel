@@ -19,7 +19,7 @@ describe("the games board", () => {
     expect(new Set(filed)).toEqual(new Set(["/games"]));
   });
 
-  it("never puts one colour on two tiles that touch", () => {
+  it("never puts one color on two tiles that touch", () => {
     /*
       A group is drawn two across on a narrow board, and the Quick group three
       across with its last two widened on a wide one. Within a group, a tile

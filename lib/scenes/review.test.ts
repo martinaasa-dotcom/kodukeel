@@ -56,7 +56,7 @@ describe("the review of a conversation", () => {
   });
 
   /*
-    Turns that answered something, not turns whose words were recognised. A
+    Turns that answered something, not turns whose words were recognized. A
     learner who met no beat was told "19 of your 21 turns were understood"
     over a list of six things left undone: their Estonian was read, which is
     worth saying, and it is not what "understood" means to whoever reads it.

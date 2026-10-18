@@ -131,8 +131,8 @@ const UNBANDED = LEVELS.indexOf("B1");
  * from vouching for spellings nobody writes.
  *
  * Widest claim wins, and that is deliberate: a spelling two entries reach is
- * ranked at the easier of the two, because a beginner who recognises it
- * recognises it. This is the opposite of `claimIndex`'s rule, where an
+ * ranked at the easier of the two, because a beginner who recognizes it
+ * recognizes it. This is the opposite of `claimIndex`'s rule, where an
  * ambiguous spelling is refused outright, and the reason is the direction of
  * the error. There a wrong claim builds a wrong card; here it only moves a
  * sentence up an ordering, so over-reach costs a slightly harder example and

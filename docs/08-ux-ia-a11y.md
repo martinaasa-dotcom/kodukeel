@@ -117,11 +117,11 @@ Target **WCAG 2.2 AA**. Not aspiration. This app is used for an hour a day.
 
 - **Full keyboard operation.** Every action reachable without a mouse; visible focus rings; logical
   tab order; no keyboard traps.
-- **Screen reader.** Semantic landmarks, labelled controls, `aria-live="polite"` on streaming tutor
+- **Screen reader.** Semantic landmarks, labeled controls, `aria-live="polite"` on streaming tutor
   responses and on review grading feedback.
 - **Contrast** ≥ 4.5:1 for text, ≥ 3:1 for UI boundaries, verified in both themes.
-- **Never colour alone.** A marked answer, a rating and a state all carry a word, an icon or a
-  different kind of object as well as a colour (`14-design-system.md` §1).
+- **Never color alone.** A marked answer, a rating and a state all carry a word, an icon or a
+  different kind of object as well as a color (`14-design-system.md` §1).
 - **`prefers-reduced-motion`** respected, so card flip animations become instant.
 - **Text scaling** to 200% without loss of function.
 - **Audio never required.** Listening cards always offer a text alternative, and when the TTS
@@ -139,7 +139,7 @@ Target **WCAG 2.2 AA**. Not aspiration. This app is used for an hour a day.
 
 - Light and dark themes. Light is the default for everybody and dark is the reader's own choice,
   stored by the toggle; the OS preference is not followed (see CLAUDE.md).
-- One accent colour. Case colour-coding was planned here and was not built: the five hues carry
+- One accent color. Case color-coding was planned here and was not built: the five hues carry
   fixed meanings (recalled, nearly, missed) and a case needs fourteen, so a case is named by its
   Estonian name and the question it answers instead.
 - Estonian text in a font with proper `õ ä ö ü` rendering; forms in a slightly larger size than UI

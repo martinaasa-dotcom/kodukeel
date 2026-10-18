@@ -201,7 +201,7 @@ export function ScanCapture() {
                 React dispatched the click, the component called the router, and
                 the navigation never happened. Three times in ten runs against a
                 warm server the learner tapped "Open the page", stayed on the
-                capture screen, and had to tap again. Moving the neighbouring
+                capture screen, and had to tap again. Moving the neighboring
                 `router.refresh()`, and removing `revalidatePath("/scan")` from
                 the action, each left it failing at the same rate.
 

@@ -161,7 +161,7 @@ Speakly-specific parsing replaced with a format-agnostic importer (audit A3).
 
 - Paste anything: TSV, CSV, JSON, `word – translation` lines, or free text.
 - Preview table with per-row edit, duplicate detection against the existing deck, and optional
-  Ekilex enrichment (fill in principal parts for recognised words).
+  Ekilex enrichment (fill in principal parts for recognized words).
 - Speakly and Sõnaveeb are supported *shapes*, not required *integrations*.
 
 **Acceptance:** pasting 20 lines of `sõna - word` produces 20 reviewable cards with principal parts

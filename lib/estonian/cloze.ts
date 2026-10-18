@@ -253,7 +253,7 @@ export function sentenceTiles(sentence: string): string[] {
  * The tiles as a learner sees them, with the capital the recording opens on
  * taken off where it belongs to the position rather than to the word.
  *
- * A sentence's first word is capitalised because it is first, and a tile that
+ * A sentence's first word is capitalized because it is first, and a tile that
  * keeps that capital says which tile goes first: over the shipped dictionary,
  * 9,441 of the 9,463 sentences the builder can set open on one, so every one of
  * those rounds handed over its first move. The capital comes off only where

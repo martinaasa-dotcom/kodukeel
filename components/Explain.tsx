@@ -5,7 +5,7 @@ import { Tr } from "@/components/Tr";
  * AN EXPLANATION THAT IS THERE WHEN IT IS WANTED AND NOT BEFORE.
  *
  * This app explains itself a great deal, and it had one way of doing it: set
- * the explanation in 13px grey and leave it under the thing for ever. Measured
+ * the explanation in 13px gray and leave it under the thing for ever. Measured
  * across `app/` and `components/`, 103 small-type elements carried a whole
  * sentence and the median was over 109 characters, which is a paragraph. A
  * learner reported the effect rather than any one of them: every screen had a
@@ -51,7 +51,7 @@ export function Explain({ label, children, plain }: {
       {/*
         The explanation itself is `text-sm`, which is the app's secondary body
         size, not `text-xs`. The whole point of moving it behind a press is
-        that it no longer has to apologise for the room it takes, so it stops
+        that it no longer has to apologize for the room it takes, so it stops
         being set in the size that was the apology.
       */}
       {/* Block flow with space between blocks, never a flex column: a caller

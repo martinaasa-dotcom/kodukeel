@@ -108,7 +108,7 @@ export function LessonSession({
   initialSteps: LessonStep[];
   part: number;
   parts: number;
-  /** The lexeme ids this learner has already favourited, read once by the page. */
+  /** The lexeme ids this learner has already favorited, read once by the page. */
   starred: readonly string[];
   /**
    * The dictionary under each meeting's sentence, by step id, where the page
@@ -665,7 +665,7 @@ function StepCard({
               THE BOX, which is the order the flash round was rearranged into
               and for its reason: read the other way you meet a sentence with a
               hole in it, work out that something is missing, read on to find
-              which word, and go back. The whole cue was one 14px grey line in
+              which word, and go back. The whole cue was one 14px gray line in
               `--ink-3` above a 20px sentence, so the one thing being asked for
               was the quietest thing on the card.
 
@@ -862,7 +862,7 @@ function StepCard({
                 onClick={() => {
                   /*
                     Three readings rather than two. Another order Estonian
-                    allows is right and is never penalised, and the sentence
+                    allows is right and is never penalized, and the sentence
                     printed under the verdict is the writer's own order rather
                     than a correction of anything.
                   */

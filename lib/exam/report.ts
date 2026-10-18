@@ -192,7 +192,7 @@ export function buildReport(result: ExamResult): ExamReport {
  * message worth 8, a composition worth 12, a case form worth 5 and a
  * government question worth 4. So a candidate who lost eight marks on the
  * composition and four on the government question was told most of it went on
- * "Government", at 0 percent, and sent to practise the task that cost them a
+ * "Government", at 0 percent, and sent to practice the task that cost them a
  * third of what the composition did.
  *
  * The share is still what is printed beside the name, because that is the

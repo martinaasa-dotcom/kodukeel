@@ -45,7 +45,7 @@ import {
  * already in trouble. Failing open would drop a control the moment somebody
  * managed to put the database under load, which is when it is wanted.
  *
- * It degrades to exactly the behaviour this app had before this module
+ * It degrades to exactly the behavior this app had before this module
  * existed: the in-memory verdict, which has already been taken and was already
  * good enough to ship. Nothing is weakened relative to yesterday, and the
  * thing that bounds spending, the ledger, is a separate control that fails

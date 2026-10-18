@@ -5,7 +5,7 @@ import { isFormSlot } from "@/lib/srs/slots";
  *
  * `lib/srs/mastery.ts` reads the same rows and asks a different question: has
  * this word been asked in enough ways to call it known. This asks the three a
- * conversation asks. Can you recognise it when it comes at you, can you
+ * conversation asks. Can you recognize it when it comes at you, can you
  * produce it when it is your turn, and how long does that take you.
  *
  * WHICH ANSWERS ARE WHICH. `Review.slot` records what a card asked
@@ -17,7 +17,7 @@ import { isFormSlot } from "@/lib/srs/slots";
  * written before the column exists carries `targetCase` or nothing, and a row
  * with nothing on it is counted as recognition, which is the safe direction:
  * the one thing this module promises is that recognition on its own never
- * clears the second rung, so an unlabelled answer may not be allowed to.
+ * clears the second rung, so an unlabeled answer may not be allowed to.
  *
  * WHY THE CLOCK COUNTS. `Review.durationMs` is how long the card was on the
  * screen before it was graded, and nothing in the app had ever read it. It

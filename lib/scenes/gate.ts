@@ -202,7 +202,7 @@ export interface GateContext {
    * resolves it for the words a composed line actually used
    * (`LineRequest.vouch`), so nothing is looked up in advance and a keyless
    * or scriptless caller that supplies none falls back to the scene's own
-   * list, which is exactly the behaviour this had before.
+   * list, which is exactly the behavior this had before.
    *
    * WHAT IT MAY NEVER BECOME IS A MODEL'S OPINION. The chain behind it is the
    * scene's lexicon, the course, and `prisma/data/forms/`, which is Ekilex's
@@ -321,7 +321,7 @@ export interface GateContext {
    * the check is drawn there: a line on any other beat holding one of these
    * phrases whole is withheld. Whole, because `aega` on its own is a form of
    * `aeg` and a line offering a time would be refused for it. Handed in
-   * resolved from the catalogue's own farewell lemmas, because this module
+   * resolved from the catalog's own farewell lemmas, because this module
    * holds no Estonian (ADR-005); absent, the check says nothing.
    */
   readonly farewells?: readonly (readonly string[])[];
@@ -330,7 +330,7 @@ export interface GateContext {
    *
    * A role-play at the end of an A1 lesson (`SceneSpec.lesson`) holds the
    * other side to the course's own rule, that nothing is shown before it is
-   * taught (docs/43-lessons.md): `stretch` lets a catalogue scene reach a word
+   * taught (docs/43-lessons.md): `stretch` lets a catalog scene reach a word
    * or two past its list, which is right for somebody choosing a situation and
    * wrong for somebody three weeks in being walked through one. Spelling by
    * spelling against the lesson's ledger, a phrase's words only where they
@@ -511,7 +511,7 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
   */
   const vouched = context.vouched ?? ((word: string) => context.lexicon.forms.has(word));
   /*
-    A NAME IS NOT A WORD TO VOUCH FOR. Asked "what is your name?", a neighbour
+    A NAME IS NOT A WORD TO VOUCH FOR. Asked "what is your name?", a neighbor
     answering `Minu nimi on Tiit.` was withheld four times running, because no
     list holds a first name, and the learner's question went unanswered. A word
     written with a capital in the middle of a sentence is read as a name and
@@ -1171,7 +1171,7 @@ export function governmentSuspect(tokens: readonly string[], context: GateContex
     own, which put its cases on a clause the verb was never in. `maitse` is a
     headword the course glosses "taste, flavor" and also one of the forms
     the dictionary lists for `maitsma`, so `sest sellel on väga hea maitse` was read as
-    governing the allative and withheld. Twelve spellings across the catalogue
+    governing the allative and withheld. Twelve spellings across the catalog
     are this shape: `tänav` is claimed by `tänama`, `käsi` by `käskima`, `sai`
     by `saama`, `viis` by `viima`.
 

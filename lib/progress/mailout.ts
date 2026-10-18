@@ -357,13 +357,13 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
 
     It is the one expensive fact in this set, at three queries, and it is
     needed only for somebody who has a course and whose evening has come
-    round. Somebody away, somebody with no programme, or somebody it is two in
+    round. Somebody away, somebody with no program, or somebody it is two in
     the afternoon for is not going to be sent the evening letter whatever the
     answer, so the query is skipped and the honest default is that it is not
     finished, which is the state that makes the other gates decide.
 
     And the same reading says whether there is a course at all. `programmeFor`
-    offers everybody the opening part of their level, so a programme existing
+    offers everybody the opening part of their level, so a program existing
     is not somebody having chosen an evening: that is a tick, and outside the
     evening "not started" is as honest a default as "not finished", since
     nothing else reads it.
@@ -562,7 +562,7 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
  * letter and the page it links to cannot disagree.
  *
  * Returns null where the reading turns out to have nothing to say, which is a
- * real case rather than a defensive one: a programme can finish between the
+ * real case rather than a defensive one: a program can finish between the
  * two passes, and a letter about an evening that does not exist is worse than
  * no letter.
  */
@@ -1062,7 +1062,7 @@ export async function letterInputFor(
 
       Both rosters answer for a screen and count the owner, who holds a
       `ClassroomMember` row of their own: a class of 24 students read 25 and a
-      teacher who studied that morning was counted among those who practised.
+      teacher who studied that morning was counted among those who practiced.
       And their week is a rolling 168 hours including this morning where the
       strip is the seven whole days ending yesterday, so the sentence and the
       drawing under it described different weeks, which is the fault the weekly
@@ -1146,7 +1146,7 @@ export async function letterInputFor(
     /*
       A LEMMA CAN HOLD TWO ENTRIES, SO WHICH ONE IS A DECISION.
 
-      `hall` is a noun meaning frost and an adjective meaning grey, and a word
+      `hall` is a noun meaning frost and an adjective meaning gray, and a word
       somebody confirmed off a photograph sits beside the seeded one for any
       lemma at all. Taking the first row a query returns lets the ordering pick,
       which is the plan deciding what a learner reads; `oneEntryPerLemma` is

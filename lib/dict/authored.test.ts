@@ -33,7 +33,7 @@ describe("the sentences written for a beginner", () => {
   });
 
   it("reports a sentence carrying no form of its own word", () => {
-    const [fault] = checkAuthored([["isa", "Ema elab siin.", "Mum lives here."]]);
+    const [fault] = checkAuthored([["isa", "Ema elab siin.", "Mom lives here."]]);
     expect(fault?.why).toMatch(/no form of isa/);
   });
 

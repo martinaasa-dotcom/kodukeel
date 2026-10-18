@@ -144,7 +144,7 @@ export async function routeGate(
  * one of them reads this or an explicit `--level` rather than a literal of
  * its own, because a harness pitched at a band the app never uses measures a
  * conversation the app does not have (§30). A2 because that is where most of
- * the catalogue's units sit and where the first learners are.
+ * the catalog's units sit and where the first learners are.
  */
 export const HARNESS_LEVEL: Level = "A2";
 

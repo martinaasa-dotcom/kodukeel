@@ -10,7 +10,7 @@ import { applyPatch } from "./apply";
  *
  * Three of these are the shape of a fault this project has already paid for
  * once on the hand-edit path: a correction that deleted a retrieved Ekilex
- * retrieved forms, a correction that relabelled where an entry came from, and a
+ * retrieved forms, a correction that relabeled where an entry came from, and a
  * correction that reached into somebody else's deck. The queue is a second
  * door onto the same room, and a door with different locks on it is a door.
  */
@@ -168,7 +168,7 @@ describe("accepting a missing word", () => {
 
   /*
     An entry Ekilex supplied stays marked as Ekilex's after a correction.
-    Relabelling it USER would discard where the forms came from, which is
+    Relabeling it USER would discard where the forms came from, which is
     the fact the whole provenance column exists to carry.
   */
   it("never relabels where an existing entry came from", async () => {

@@ -73,8 +73,8 @@ export default async function FlashcardsPage({
   const scope = await practiceScope(ownerId, await searchParams);
   const readable = sentenceWithin(scope, await moduleSpellings(scope));
 
-  // A beginner is asked to recognise and to say, never to write a sentence of
-  // their own. Inside the module that is the programme's level, and anywhere
+  // A beginner is asked to recognize and to say, never to write a sentence of
+  // their own. Inside the module that is the program's level, and anywhere
   // else the level the app holds for them.
   const level = scope ? scope.programme.level : await courseLevelFor(ownerId);
   const beginner = !mayWriteOwnSentence(level);

@@ -19,7 +19,7 @@
  * overclaim the page exists to avoid. And it says nothing about how well a
  * unit prepares somebody, only which part it is aimed at.
  *
- * Pure: the syllabus and the catalogue are handed in.
+ * Pure: the syllabus and the catalog are handed in.
  */
 
 export type ExamPart = "reading" | "listening" | "writing" | "speaking";

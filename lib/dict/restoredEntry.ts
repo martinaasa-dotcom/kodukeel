@@ -9,7 +9,7 @@ import { MAX_USER_PER_WORD, parseExamples, serialiseExamples } from "@/lib/dict/
  * A restore adds a word the shared dictionary does not already hold, and it
  * used to add it almost exactly as the file wrote it. The provenance and the
  * Ekilex id were reset, and everything else went straight in: sentences
- * labelled `EKILEX`, forms filed as `EKILEX:<morphCode>`, the Institute's
+ * labeled `EKILEX`, forms filed as `EKILEX:<morphCode>`, the Institute's
  * semantic types, an Estonian definition, a CEFR band. A backup file is a
  * document one learner hands the server. So any signed-in learner could put
  * Estonian into the dictionary everybody reads, dressed as a lexicographer's.

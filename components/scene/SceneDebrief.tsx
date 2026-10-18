@@ -73,7 +73,7 @@ export const SCENE_SOURCE = "SCENE";
  */
 export interface Debrief {
   scene: SceneSpec;
-  /** The run, which is how tonight's chat is found again: its beats are in no catalogue. */
+  /** The run, which is how tonight's chat is found again: its beats are in no catalog. */
   runId?: string;
   objectives: { met: readonly string[]; missed: readonly string[] };
   hurdles: readonly { id: string; beat: number; met: boolean }[];
@@ -153,7 +153,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
     about this conversation and arrives beside it a moment later. Null is a
     real answer: no model configured, the allowance spent, or a note that
     reached for Estonian nobody used and was withheld whole. Then the card
-    simply is not there, rather than apologising for itself.
+    simply is not there, rather than apologizing for itself.
   */
   const [note, setNote] = useState<{ comment: string; rule: string; improve?: readonly string[] } | null | "waiting">("waiting");
   useEffect(() => {
@@ -216,7 +216,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                   {highlight.said && (
                     /*
                       Their own words, in the bubble they typed them in, because a
-                      highlight is something somebody recognises about themselves.
+                      highlight is something somebody recognizes about themselves.
                     */
                     <div className="night scene-night self-start rounded-[var(--r-lg)] p-2">
                       <p data-who="you" lang="et" className="scene-bubble scene-bubble-sm inline-block max-w-full">
@@ -493,7 +493,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
 
             Every unmet goal is ticked off a few sections above, in order, so
             the first of them is already on the screen and already first. What
-            this section adds is the way to practise it, and with no drill
+            this section adds is the way to practice it, and with no drill
             behind it the whole section was that same sentence printed a second
             time under a heading, followed by an encouragement about pressing a
             button that is four lines further down. `lib/scenes/review.ts` used
@@ -514,7 +514,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
             the same move on the exam hub and for the same reason: the app knows
             what it can drill and does not know what to say. Where no drill
             rehearses what was missed there is no link, because a link to the
-            wrong drill is a screen saying "go and practise this" about
+            wrong drill is a screen saying "go and practice this" about
             something else.
           */}
           {drill && <DrillLink href={drill} />}
@@ -605,7 +605,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                       <span lang={turn.lang}>
                         {/*
                           The word marked inside the turn, in butter, which is
-                          this app's colour for "nearly" and is what a slip is.
+                          this app's color for "nearly" and is what a slip is.
                           `splitOnForm` is the same whole-word split the
                           dictionary marks a form with, so a word inside a
                           longer one is never painted.
@@ -666,7 +666,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
           */}
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Practice, not the exam")}</h3>
           <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-            {t("Nothing here was marked as an exam. The real speaking exam also asks you to describe a picture, which you can practise here.")}
+            {t("Nothing here was marked as an exam. The real speaking exam also asks you to describe a picture, which you can practice here.")}
           </p>
           <DrillLink href="/review/describe" />
         </section>
@@ -756,7 +756,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
           AND INSIDE TODAY'S MODULE NEITHER OF THESE IS THE WAY ON. The
           conversation is one step of an evening and what follows it is the
           next step, which is the "Next" the module draws here.
-          Offering a different conversation there is the catalogue again, and
+          Offering a different conversation there is the catalog again, and
           offering this one again is a second decision on the screen whose job
           is to say how it went.
         */}

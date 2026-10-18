@@ -59,7 +59,7 @@ describe("verifying a delivery", () => {
   it("refuses one whose body was changed after signing", () => {
     /*
       The reason the route reads the raw text and parses afterwards. Re-
-      serialising the JSON changes the bytes, and the signature is over bytes.
+      serializing the JSON changes the bytes, and the signature is over bytes.
     */
     const tampered = BODY.replace("Permanent", "Transient");
     expect(verifyDelivery(good(), tampered, SECRET, NOW)).toBe(false);

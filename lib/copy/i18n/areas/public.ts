@@ -31,7 +31,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
     "Посмотрите, как работают эстонские падежи на одном слове: три формы, которые учат наизусть, та, к которой прибавляются окончания, и каждое из одиннадцати окончаний в настоящем предложении.",
     "Подивіться, як працюють естонські відмінки на одному слові: три форми, які вчать напам'ять, та, до якої додаються закінчення, і кожне з одинадцяти закінчень у справжньому реченні."],
   // THE GRAMMAR REFERENCE SIGNED OUT (components/grammar/PublicReference.tsx).
-  ["Practise these in the app, on words you are learning, with every answer marked.",
+  ["Practice these in the app, on words you are learning, with every answer marked.",
     "Тренируйте это в приложении, на словах, которые вы учите, и каждый ответ будет проверен.",
     "Тренуйте це в застосунку, на словах, які ви вчите, і кожну відповідь буде перевірено."],
   ["Sign in, it’s free", "Войдите, это бесплатно", "Увійдіть, це безкоштовно"],
@@ -144,10 +144,10 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["If none of this helps, write to {email}.", "Если ничего из этого не помогло, напишите на {email}.", "Якщо нічого з цього не допомогло, напишіть на {email}."],
   // PILOTS, which is English only, so each link says so in the other two.
   ["what a pilot is", "что такое пилотный проект (на английском)", "що таке пілотний проєкт (англійською)"],
-  ["An organisation thinking of trying it with a group can read {pilots}, which says what it costs them, which is nothing to run.",
+  ["An organization thinking of trying it with a group can read {pilots}, which says what it costs them, which is nothing to run.",
     "Организация, которая думает попробовать приложение с группой, может прочитать {pilots}: там сказано, во что это им обойдётся, а запуск не стоит ничего.",
     "Організація, яка думає спробувати застосунок із групою, може прочитати {pilots}: там сказано, у що це їм обійдеться, а запуск не коштує нічого."],
-  ["An organisation deciding whether to try it with a group can read {pilots}, including what it is not ready for.",
+  ["An organization deciding whether to try it with a group can read {pilots}, including what it is not ready for.",
     "Организация, которая решает, пробовать ли приложение с группой, может прочитать {pilots}, в том числе о том, к чему оно ещё не готово.",
     "Організація, яка вирішує, чи пробувати застосунок із групою, може прочитати {pilots}, зокрема про те, до чого він ще не готовий."],
   // HOW WE KNOW, which is English only too.
@@ -236,7 +236,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
     "Подготовлено 5 сентября 2026 года авторами приложения на основе описанных выше автоматических тестов и чтения исходного кода, а таблица критериев добавлена 15 октября 2026 года. Заявление пересматривается всякий раз, когда экран меняется настолько, что это затрагивает одно из утверждений. Внешней проверки не было.",
     "Підготовлено 5 вересня 2026 року авторами застосунку на основі описаних вище автоматичних тестів і читання вихідного коду, а таблицю критеріїв додано 15 жовтня 2026 року. Заяву переглядають щоразу, коли екран змінюється настільки, що це зачіпає одне з тверджень. Зовнішньої перевірки не було."],
   // TEACHERS.
-  ["Put a code on the board. See who is practising and what the group keeps getting wrong.",
+  ["Put a code on the board. See who is practicing and what the group keeps getting wrong.",
     "Напишите код на доске. Смотрите, кто занимается и в чём группа ошибается чаще всего.",
     "Напишіть код на дошці. Дивіться, хто займається і в чому група помиляється найчастіше."],
   ["A sample class", "Пример группы", "Приклад групи"],

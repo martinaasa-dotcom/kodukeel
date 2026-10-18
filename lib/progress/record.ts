@@ -19,7 +19,7 @@ import type { DayClock } from "@/lib/time/day";
 
 /** Level checks listed on the record, most recent first. */
 const LISTED = 12;
-/** Sittings read to summarise the papers. A learner past this has sat a great many. */
+/** Sittings read to summarize the papers. A learner past this has sat a great many. */
 const SITTINGS = 500;
 
 export interface RecordCheck {

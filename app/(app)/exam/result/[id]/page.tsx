@@ -462,7 +462,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
             {/*
               Every mark on this paper is a comparison against a form the
               dictionary vouches for, which is what keeps a model out of the
-              judgement. It does not make the dictionary right, and a candidate
+              judgment. It does not make the dictionary right, and a candidate
               who has just been marked down by it is the person most likely to
               have spotted that.
             */}

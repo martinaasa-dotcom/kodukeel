@@ -359,7 +359,7 @@ export function stretch(clip: Samples, speed: number): Samples {
         THAN REASONED. A window laid over a consonant closure can be nearly
         orthogonal to what is under it rather than opposed, and adding it still
         removes most of what is there: holding out only for a strictly negative
-        score left the worst dip at 30 dB, and requiring a normalised
+        score left the worst dip at 30 dB, and requiring a normalized
         correlation above a threshold instead was tried at nine values and was
         worse at every one of them, erratically, because what the search can
         find within eight milliseconds is not a quantity there is a good cut-off
@@ -373,7 +373,7 @@ export function stretch(clip: Samples, speed: number): Samples {
         burst and its vowel coming out two frames short of the stretch it asked
         for. Exact silence rather than a floor, deliberately: a floor put the
         vocoder's own hiss and a quiet fricative on the same side of the line
-        and cancelled the fricative, and the only clips with true zeros inside
+        and canceled the fricative, and the only clips with true zeros inside
         them are synthetic ones, so a real recording always takes the rule
         above.
       */

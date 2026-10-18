@@ -149,7 +149,7 @@ describe("a miss within reach", () => {
   it("is most of the letters, the reported muudama for muutuma", () => {
     expect(nearMiss("muudama", "muutuma")).toBe(true);
     const check = checkAnswer("muudama", "muutuma", "et");
-    // The colour moves and the grade does not.
+    // The color moves and the grade does not.
     expect(check.verdict).toBe("wrong");
     expect(check.suggestedRating).toBe(1);
     expect(check.close).toBe(true);

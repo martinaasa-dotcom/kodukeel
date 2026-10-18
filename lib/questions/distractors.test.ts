@@ -29,7 +29,7 @@ const pickGlosses = (seed: number, candidates: GlossOption[]) =>
   });
 
 describe("a wrong answer is picked for being hard to cross out", () => {
-  it("keeps a beginner's colour among colors rather than among C1 nouns", () => {
+  it("keeps a beginner's color among colors rather than among C1 nouns", () => {
     for (let seed = 1; seed < 40; seed++) {
       const set = pickGlosses(seed, [...COLOURS, ...FAR]);
       expect(set).not.toBeNull();

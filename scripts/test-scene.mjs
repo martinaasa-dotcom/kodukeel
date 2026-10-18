@@ -211,7 +211,7 @@ check("and the voice comes back when it is chosen again",
 /*
   THE STRIP IS THE CARD NOW, AND THE CARD IS BEHIND IT.
 
-  It used to be open: forty words of role, the labelled values, a line about
+  It used to be open: forty words of role, the labeled values, a line about
   the persona and every objective in the scene, all of it standing above the
   conversation on a phone. A learner sent a screenshot of that and called it
   cluttered, and they were right. What a beat actually asks a learner to read
@@ -330,7 +330,7 @@ check("and the objective in play is named without it",
 // ── The room, still there while the conversation is had in it ──────────────
 /*
   A learner asked where the drawings had gone. They had stepped into a health
-  centre, read one sentence, pressed a button, and been put on a screen that
+  center, read one sentence, pressed a button, and been put on a screen that
   could have been any of the fourteen: the vignette was on the briefing and on
   the cover between two rooms, and the conversation itself had an eighteen-pixel
   icon on the bar and two columns of cards.
@@ -366,7 +366,7 @@ check("they say something before you do", first.trim().length > 0, first);
   WHO IS TALKING, ON EVERY LINE. A learner read a conversation back and asked
   where the drawings had gone and whether the bubbles could say who was
   speaking: the two columns were told apart by which edge they sat against and
-  which ink they were in, and a colour may not carry a distinction on its own.
+  which ink they were in, and a color may not carry a distinction on its own.
   `SceneFace` is the drawing and the sentence beside it is what a screen reader
   is told, which is what makes the drawing decoration rather than the only
   signal. Both halves, because either alone is the fault half fixed.
@@ -508,7 +508,7 @@ check("no meter, no timer, no score anywhere on the screen (§7)",
   WHO IS TALKING, ON EVERY LINE. A learner read a conversation back and asked
   where the drawings had gone and whether the bubbles could say who was
   speaking: the two columns were told apart by which edge they sat against and
-  which ink they were in, and a colour may not carry a distinction on its own.
+  which ink they were in, and a color may not carry a distinction on its own.
   `SceneFace` is the drawing and the sentence beside it is what a screen reader
   is told, which is what makes the drawing decoration rather than the only
   signal. Both halves, because either alone is the fault half fixed. After two

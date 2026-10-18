@@ -19,7 +19,7 @@
  * run it.
  */
 
-/** Taps either side of the centre, at the slower of the two rates. */
+/** Taps either side of the center, at the slower of the two rates. */
 const HALF_WIDTH = 16;
 /** Where the low-pass cuts, as a share of the output's Nyquist frequency. */
 const CUTOFF = 0.92;

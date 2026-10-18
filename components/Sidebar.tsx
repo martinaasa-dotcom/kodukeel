@@ -429,10 +429,10 @@ export function Sidebar({ order: stored, name, classes = [] }: {
 
             Home is the one cell a thumb should never have to look for, so it
             sits where the thumb already rests and stands up out of the bar as
-            the app's own gold, the colour of the mark and of every primary
-            button. The other three keep the quiet glyph and the travelling
+            the app's own gold, the color of the mark and of every primary
+            button. The other three keep the quiet glyph and the traveling
             pill. Order is Learn, Practice, Today, Dictionary, then More, which
-            is the table's four read with home moved to the centre.
+            is the table's four read with home moved to the center.
           */}
           {dock.map((item) => {
             const on = barLit === item.href;
@@ -880,7 +880,7 @@ function applyTheme(next: "light" | "dark") {
 /**
  * Light or dark, as two halves of one control rather than a button whose
  * label never says which it is on. The same storage and the same rewrite of
- * the browser's own colour as the toggle, through `applyTheme`.
+ * the browser's own color as the toggle, through `applyTheme`.
  */
 function ThemeChoice() {
   const t = useT();

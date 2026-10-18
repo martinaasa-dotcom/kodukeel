@@ -714,9 +714,9 @@ export const ROUNDS: Area = {
       "Слова верные. Проверьте, где стоят знаки препинания.",
     "Add comma":
       "Добавить запятую",
-    "Add full stop":
+    "Add period":
       "Добавить точку",
-    "Add exclamation mark":
+    "Add exclamation point":
       "Добавить восклицательный знак",
     "Add question mark":
       "Добавить вопросительный знак",
@@ -728,9 +728,9 @@ export const ROUNDS: Area = {
       "Добавить тире",
     "Remove comma":
       "Убрать запятую",
-    "Remove full stop":
+    "Remove period":
       "Убрать точку",
-    "Remove exclamation mark":
+    "Remove exclamation point":
       "Убрать восклицательный знак",
     "Remove question mark":
       "Убрать вопросительный знак",
@@ -842,7 +842,7 @@ export const ROUNDS: Area = {
       "Медведь за покупками",
     "A cow sitting in a steamy sauna, with a bucket of water, a sauna whisk, a fire, a carton of juice, a basket and a spruce tree outside.":
       "Корова сидит в жаркой сауне: ведро воды, банный веник, огонь, пакет сока, корзина и ель за окном.",
-    "A cat driving a car past a traffic light, with a dog running after it, a road, a tree, a house and a chequered flag.":
+    "A cat driving a car past a traffic light, with a dog running after it, a road, a tree, a house and a checkered flag.":
       "Кошка ведёт машину мимо светофора, за ней бежит собака, а ещё дорога, дерево, дом и клетчатый флаг.",
     "A dog at a desk with a laptop and a cup of coffee, a phone, a printer and a calendar, a man and a woman watching, and a pot plant.":
       "Собака сидит за столом с ноутбуком и чашкой кофе. Рядом телефон, принтер, календарь и растение в горшке, а мужчина и женщина на неё смотрят.",
@@ -1721,9 +1721,9 @@ export const ROUNDS: Area = {
       "Слова правильні. Перевірте, де стоять розділові знаки.",
     "Add comma":
       "Додати кому",
-    "Add full stop":
+    "Add period":
       "Додати крапку",
-    "Add exclamation mark":
+    "Add exclamation point":
       "Додати знак оклику",
     "Add question mark":
       "Додати знак питання",
@@ -1735,9 +1735,9 @@ export const ROUNDS: Area = {
       "Додати тире",
     "Remove comma":
       "Прибрати кому",
-    "Remove full stop":
+    "Remove period":
       "Прибрати крапку",
-    "Remove exclamation mark":
+    "Remove exclamation point":
       "Прибрати знак оклику",
     "Remove question mark":
       "Прибрати знак питання",
@@ -1849,7 +1849,7 @@ export const ROUNDS: Area = {
       "Ведмідь за покупками",
     "A cow sitting in a steamy sauna, with a bucket of water, a sauna whisk, a fire, a carton of juice, a basket and a spruce tree outside.":
       "Корова сидить у гарячій сауні: відро води, банний віник, вогонь, пакет соку, кошик і ялина надворі.",
-    "A cat driving a car past a traffic light, with a dog running after it, a road, a tree, a house and a chequered flag.":
+    "A cat driving a car past a traffic light, with a dog running after it, a road, a tree, a house and a checkered flag.":
       "Кіт веде машину повз світлофор, за ним біжить собака, а ще дорога, дерево, будинок і картатий прапор.",
     "A dog at a desk with a laptop and a cup of coffee, a phone, a printer and a calendar, a man and a woman watching, and a pot plant.":
       "Собака сидить за столом із ноутбуком і чашкою кави. Поруч телефон, принтер, календар і рослина в горщику, а чоловік і жінка на нього дивляться.",

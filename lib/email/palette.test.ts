@@ -2,7 +2,7 @@
   THE LETTER PAINTS WHAT THE APP PAINTS, AND THIS IS THE ONLY THING THAT SAYS SO.
 
   `app/` and `components/` are swept for a raw hex by the invariant suite, so a
-  screen cannot invent a colour. An email has to write the value out, because
+  screen cannot invent a color. An email has to write the value out, because
   `var(--accent)` resolves to nothing in Gmail, which means `lib/email` is the
   one place in this project where the palette exists as a second copy.
 
@@ -40,7 +40,7 @@ function declaredIn(selector: string, token: string): string | null {
   const value = found?.[1]?.toLowerCase() ?? null;
   // The dark ground is the night (`--ground: var(--stage)`), which is typed
   // once, in the light block. One hop is followed there, so the letter is
-  // compared with the colour the app paints rather than with a name.
+  // compared with the color the app paints rather than with a name.
   const ref = value ? /^var\((--[a-z0-9-]+)\)$/.exec(value) : null;
   if (ref && selector !== LIGHT) return declaredIn(LIGHT, ref[1]!);
   return ref ? null : value;
@@ -70,9 +70,9 @@ describe("the letter palette is the app's palette", () => {
     }
   });
 
-  it("names a token for every colour it holds, and holds a colour for every token it names", () => {
+  it("names a token for every color it holds, and holds a color for every token it names", () => {
     // Either half alone passes on a key added to one table and not the other,
-    // which is a colour with no check behind it wearing a checked colour's clothes.
+    // which is a color with no check behind it wearing a checked color's clothes.
     expect(Object.keys(PALETTE).sort()).toEqual(Object.keys(TOKEN_OF).sort());
     expect(Object.keys(DARK).sort()).toEqual(Object.keys(DARK_TOKEN_OF).sort());
   });

@@ -6,7 +6,7 @@
  * card was drawn in Bricolage Grotesque and Figtree, two faces this app has
  * never loaded, and was then asked to be trusted as the real thing. So a visual
  * proposal is made on a branch and photographed here, against the running app,
- * which cannot draw a face or a colour the stylesheet does not hold.
+ * which cannot draw a face or a color the stylesheet does not hold.
  *
  *   node scripts/shoot.mjs /course / --out shots --width 1280
  *   node scripts/shoot.mjs /practice --full

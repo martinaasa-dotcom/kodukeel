@@ -49,7 +49,7 @@ model Lexeme {
   ///
   /// It held two languages until 2026-09-02. `mapEkilexDetails` put Ekilex's
   /// Estonian definition here too, so a live lookup replaced the English with
-  /// Estonian in a shared table, and the entry rendered both in one unlabelled
+  /// Estonian in a shared table, and the entry rendered both in one unlabeled
   /// box. The Estonian has a column of its own below.
   notes         String?
   /// Ekilex's own Estonian explanation of the word, where it records one.
@@ -186,7 +186,7 @@ model DeckWord {
 /// An inflected form.
 ///
 /// Two kinds live here. Principal parts (isPrincipal) are the unpredictable forms
-/// a learner must memorise. Everything else is a form retrieved from
+/// a learner must memorize. Everything else is a form retrieved from
 /// Ekilex — authoritative, not derived, so storing it does not create a second
 /// source of truth (ADR-009). Words we hold only principal parts for still get
 /// their regular cases derived at render time.
@@ -221,7 +221,7 @@ model Card {
   ///
   /// A second column rather than a wider `targetCase`, for the reason `Review.slot`
   /// is not a wider `Review.targetCase`: `caseAccuracy` tallies whatever string it
-  /// finds in that column and prints the key where it recognises nothing, so a morph
+  /// finds in that column and prints the key where it recognizes nothing, so a morph
   /// code written there would put `indprsg3` on the Progress page beside `osastav`.
   /// The front used to carry the label (`lugema → olevik · ta`) and the reveal read
   /// it off; a card built out of a sentence carries no label, because the label is
@@ -273,11 +273,11 @@ model Card {
 /// so the invariant above was a comment rather than a property: suspending a
 /// leech, or restoring a backup in replace mode, destroyed evidence that cannot
 /// be reconstructed. `cardId` stays as a plain column so a review still groups
-/// into a per-card sequence — which is what FSRS optimisation reads — while
+/// into a per-card sequence — which is what FSRS optimization reads — while
 /// outliving the card itself.
 ///
-/// `ownerId` and `lexemeId` are denormalised for the same reason: a review has
-/// to stay attributable and analysable once its card is gone. They also turn
+/// `ownerId` and `lexemeId` are denormalized for the same reason: a review has
+/// to stay attributable and analyzable once its card is gone. They also turn
 /// every "my reviews" query from a join into an index lookup.
 model Review {
   id          String    @id @default(uuid())
@@ -373,7 +373,7 @@ model StudyEvent {
   ownerId         String
   title           String
   notes           String?
-  /// CLASS STUDY EXAM OTHER. What it is, for the colour and the icon.
+  /// CLASS STUDY EXAM OTHER. What it is, for the color and the icon.
   kind            String   @default("CLASS")
   /// Minutes from local midnight, 0 to 1439.
   startMinute     Int
@@ -493,7 +493,7 @@ model UsageEvent {
   /// Estimated, in millionths of a USD. Integer on purpose — accumulated floats
   /// drift, and always in the direction of spending more than the cap allows.
   costMicros   Int      @default(0)
-  /// UTC date, "YYYY-MM-DD". Denormalised so a day's usage is an index lookup.
+  /// UTC date, "YYYY-MM-DD". Denormalized so a day's usage is an index lookup.
   day          String
   createdAt    DateTime @default(now())
 
@@ -503,7 +503,7 @@ model UsageEvent {
   /// check-then-act race: ten tabs all read the same "under the limit" and all
   /// go ahead, and for a streamed answer the gap between the read and the
   /// write is the whole length of the answer. So a call is written down when
-  /// it is authorised, at an estimate, and the tokens the provider actually
+  /// it is authorized, at an estimate, and the tokens the provider actually
   /// reports arrive afterwards as a second row carrying the difference — which
   /// may be negative, because an estimate that was too high is a debt the
   /// learner does not owe.
@@ -548,7 +548,7 @@ model ExamAttempt {
   /// The seed the paper was built from, so the same questions can be rebuilt.
   seed    String
 
-  /// Weighted percentage, 0 to 100. Denormalised off `result` so the hub can
+  /// Weighted percentage, 0 to 100. Denormalized off `result` so the hub can
   /// rank six levels without parsing six JSON blobs.
   pct    Int
   passed Boolean
@@ -621,7 +621,7 @@ model Encounter {
   /// The errand Today set, where the report was about one, and null where the
   /// conversation was the learner's own. Today asks about yesterday rather
   /// than about our homework, so a report it collects names no errand: a
-  /// conversation with a neighbour is not this app's to take credit for, and
+  /// conversation with a neighbor is not this app's to take credit for, and
   /// writing an errand id against one would be a lie the research export
   /// would then group a unit by.
   errandId  String?
@@ -678,7 +678,7 @@ model Deferral {
   /// SOON (a few days, then back) or BAND (it waits for a band). Rows written
   /// before the plain wait went from three weeks to three days carry the old
   /// name `WEEKS` for the same thing; `deferrals.ts` is the one reader and it
-  /// normalises them, so nothing keys on the string and no migration is owed.
+  /// normalizes them, so nothing keys on the string and no migration is owed.
   reason     String
   /// When it comes back whatever else happens.
   untilAt    DateTime
@@ -744,7 +744,7 @@ model Assessment {
   listening    String?
   writing      String?
   /// The learner's own rating of their speaking, 1 to 4, never a score of ours.
-  /// There is no verified Estonian speech recogniser available here (ADR-018).
+  /// There is no verified Estonian speech recognizer available here (ADR-018).
   speakingSelf Float?
 
   /// JSON: the per band breakdown, for the detail view and the next comparison.
@@ -840,7 +840,7 @@ model Suggestion {
 ///
 /// NOTHING IN HERE IS TRUE ABOUT THE LEARNER. The role card is fiction
 /// (docs/21-situations.md §3), which is a marking rule and a legal one: a
-/// health-centre scene where somebody typed about their own symptoms would be
+/// health-center scene where somebody typed about their own symptoms would be
 /// Article 9 special category data, and no scene asks for a real document
 /// number either.
 model SceneRun {
@@ -898,7 +898,7 @@ model SceneGap {
 
 /// A step of a planned course day the learner finished.
 ///
-/// APPEND-ONLY, AND ONLY FOR THE STEPS THE LOG CANNOT PROVE. A programme day
+/// APPEND-ONLY, AND ONLY FOR THE STEPS THE LOG CANNOT PROVE. A program day
 /// is a checklist: meet the words, read the point, play a round or two, have
 /// the conversation, review. Two of those are proved by the learner's own
 /// review log and are never written here at all: meeting the day's words
@@ -926,12 +926,12 @@ model SceneGap {
 model CourseStep {
   id          String   @id @default(uuid())
   ownerId     String
-  /// The programme, so a later A1.2 cannot collide with these ids.
+  /// The program, so a later A1.2 cannot collide with these ids.
   programmeId String
   /// The day, as `lib/course/` spells it: `a1.1-07`.
   dayId       String
   /// The step inside that day: `meet`, `read`, `do:match`, `talk`, `review`.
-  /// A step id the programme no longer has reads as a row about nothing, which
+  /// A step id the program no longer has reads as a row about nothing, which
   /// is the right answer for a day that was rewritten under somebody.
   stepId      String
   createdAt   DateTime @default(now())

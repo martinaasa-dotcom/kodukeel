@@ -3,7 +3,7 @@
  *
  * The sittings used to be fixed slices of `SAYINGS`, five in a row, picked by
  * the day or by `?set=`. So the same five always arrived together, the
- * neighbours on a match board were the same neighbours every time, and
+ * neighbors on a match board were the same neighbors every time, and
  * "Another set" opened the next slice whether or not the learner had already
  * met it. What a learner has been shown is a fact the app has to remember,
  * because a saying is not a card and writes no review: nothing in the log can
@@ -32,7 +32,7 @@
  *    five marked as served (`afterServing`), and none of them is dealt again
  *    until the rest of the list has gone round.
  *
- * Pure: no React, no Prisma, no network. The caller hands in the catalogue,
+ * Pure: no React, no Prisma, no network. The caller hands in the catalog,
  * which is the ids that can actually be played on this deployment, in teaching
  * order, and the served list as stored.
  */
@@ -74,7 +74,7 @@ export function servedValue(ids: readonly string[]): string {
  * The ids a sitting deals, in teaching order.
  *
  * `served` is this cycle's served list, oldest first; its last `DEAL_SIZE`
- * entries are the sitting dealt most recently. Ids no longer in the catalogue
+ * entries are the sitting dealt most recently. Ids no longer in the catalog
  * are ignored, so a saying taken out of the list, or one this deployment
  * cannot play, never blocks a cycle from finishing.
  */
@@ -108,9 +108,9 @@ export function dealSayings(
  * The served list once a sitting has been shown.
  *
  * Every id shown is added in the order shown. Where that leaves nothing in the
- * catalogue unserved, the cycle is over and the next one starts with this
+ * catalog unserved, the cycle is over and the next one starts with this
  * sitting alone marked as served, which is what keeps it from being the first
- * sitting of the next pass as well. Ids that are not in the catalogue are
+ * sitting of the next pass as well. Ids that are not in the catalog are
  * never stored, so a forged request cannot grow the row.
  */
 export function afterServing(

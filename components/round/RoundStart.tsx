@@ -26,7 +26,7 @@ export function RoundStart({ icon, title, lead, children, chips, actions, footno
   actions: ReactNode;
   /** A quiet line under the buttons, such as where the clock is set. */
   footnote?: ReactNode;
-  /** Which of the four night colours the icon disk wears. */
+  /** Which of the four night colors the icon disk wears. */
   hue?: "cta" | "blush" | "accent" | "sky";
 }) {
   return (

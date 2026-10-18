@@ -24,7 +24,7 @@ outside it, which is the one number no learning app reports and the one that mat
 ## 2. What is built
 
 **Situations** (`lib/scenes/`, `/situations`). Fourteen scenes: the corner shop, a café counter,
-a bus ticket window and the neighbor on the stairs at A1; a health centre, a pharmacy, an office
+a bus ticket window and the neighbor on the stairs at A1; a health center, a pharmacy, an office
 counter, a restaurant table, a shop rung before you go, asking the way and the first evening of a
 language course at A2; a landlord on the phone, a job interview and taking something back to a
 shop at B1. Each is a machine authored in English that
@@ -43,7 +43,7 @@ one clean synthetic voice in a silent room. A word a learner knows well now come
 over café noise, down a phone line, from halfway through, in a different voice each time. The
 words never change, because a mumbled spelling would be this app writing Estonian; the delivery
 does, made in the browser out of filtered noise and a band-pass, so nothing ships and nothing
-needs a licence.
+needs a license.
 
 **Say it today** (`lib/collections/errands.ts`). The two above point at each other: an errand
 names the scene that rehearses it where one exists, the card offers the rehearsal, and a scene
@@ -55,7 +55,7 @@ any Estonian to anybody yesterday, and the answer is one press: yes and they und
 switched to English, not yesterday. Where the answer is no it offers an errand for today, drawn
 from the units the learner has started and naming a unit id rather than a word. That report is an
 `Encounter` row, append-only, and Progress leads with it ahead of every chart. The research export
-carries the errands under the same disclosure gate as everything else, labelled as self-reported.
+carries the errands under the same disclosure gate as everything else, labeled as self-reported.
 
 The question is about the learner's own day rather than about our errand, and that is the whole of
 what it buys. A card that sets a task in the morning and puts three answers under it is asking for

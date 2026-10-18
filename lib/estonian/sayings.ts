@@ -552,7 +552,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "saama-labi", phrase: "saan läbi", particle: "läbi", verb: SAA,
     means: "to get along", literal: "to get through",
     parts: ["I get", "through"],
-    when: "Your neighbours are friendly and you never have any trouble with them.",
+    when: "Your neighbors are friendly and you never have any trouble with them.",
     sentences: [
       { lemma: "naaber", et: "Saan oma naabritega hästi läbi.", run: "Saan oma naabritega hästi läbi" },
       { lemma: "ämm", et: "Ta saab oma ämma ja äiaga hästi läbi.", run: "saab oma ämma ja äiaga hästi läbi" },
@@ -584,7 +584,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "minema-tuhjaks", phrase: "läks tühjaks", particle: "tühjaks", verb: GO,
     means: "it goes flat, you get hungry", literal: "goes empty",
     parts: ["went", "empty"],
-    when: "The tyre has no air left, or your stomach starts to growl.",
+    when: "The tire has no air left, or your stomach starts to growl.",
     sentences: [
       { lemma: "kumm", et: "Kumm läks tühjaks.", run: "läks tühjaks" },
       { lemma: "emme", et: "Kui kõht tühjaks läheb, siis on emmet vaja.", run: "tühjaks läheb" },
@@ -616,7 +616,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "torkama-silma", phrase: "torkab silma", particle: "silma", verb: TOR,
     means: "it stands out", literal: "pokes the eye",
     parts: ["pokes", "the eye"],
-    when: "One red coat in a crowd of grey ones.",
+    when: "One red coat in a crowd of gray ones.",
     sentences: [
       { lemma: "hasart", et: "Pere torkab silma oma sportliku hasardiga.", run: "torkab silma" },
     ],
@@ -636,7 +636,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "ajama-tulli", phrase: "tülli ajada", particle: "tülli", verb: AJA,
     means: "to set people against each other", literal: "to drive into a quarrel",
     parts: ["into a quarrel", "to drive"],
-    when: "A rumour makes two close friends stop speaking to each other.",
+    when: "A rumor makes two close friends stop speaking to each other.",
     sentences: [
       { lemma: "ajama", et: "Kas sa tahad meid tülli ajada?", run: "tülli ajada" },
     ],
@@ -749,7 +749,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "paistma-valja", phrase: "välja paistab", particle: "välja", verb: PAI,
     means: "seems, appears", literal: "shines out",
     parts: ["out", "shines"],
-    when: "Your neighbour is forty but everyone guesses sixty.",
+    when: "Your neighbor is forty but everyone guesses sixty.",
     sentences: [
       { lemma: "välja paistma", et: "Ta ei ole nii vana, kui välja paistab.", run: "välja paistab" },
     ],
@@ -851,7 +851,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "olema-nahas", phrase: "oleksid nahas", particle: "nahas", verb: OLE,
     means: "if you were in my shoes", literal: "if you were in the skin",
     parts: ["if you were", "in the skin"],
-    when: "A friend criticises your choice and you ask how she would handle it herself.",
+    when: "A friend criticizes your choice and you ask how she would handle it herself.",
     sentences: [
       { lemma: "nahas olema", et: "Oleksid sa minu nahas, käituksid samamoodi.", run: "Oleksid sa minu nahas" },
     ],
@@ -891,7 +891,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "andma-ules", phrase: "üles anti", particle: "üles", verb: AND,
     means: "was set (as homework)", literal: "was given up",
     parts: ["up", "was given"],
-    when: "You were off sick and ask a classmate what the maths homework is.",
+    when: "You were off sick and ask a classmate what the math homework is.",
     note: "The same pair of words also means reporting someone to the police.",
     sentences: [
       { lemma: "üles andma", et: "Mis matemaatikas homseks üles anti?", run: "üles anti" },
@@ -1310,7 +1310,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "astuma-ambrisse", phrase: "ämbrisse astunud", particle: "ämbrisse", verb: AST,
     means: "made a blunder", literal: "stepped into the bucket",
     parts: ["into the bucket", "stepped"],
-    when: "Organisers set ticket prices so high that the hall stays half empty.",
+    when: "Organizers set ticket prices so high that the hall stays half empty.",
     note: "Colloquial, said among friends.",
     sentences: [
       { lemma: "ämbrisse astuma", et: "Kontserdikorraldajad on piletihinnaga ämbrisse astunud.", run: "on piletihinnaga ämbrisse astunud" },
@@ -1329,9 +1329,9 @@ export const SAYINGS: readonly Saying[] = [
 
   {
     id: "jaama-ara", phrase: "jääb ära", particle: "ära", verb: JAA,
-    means: "it is cancelled", literal: "it stays away",
+    means: "it is canceled", literal: "it stays away",
     parts: ["stays", "away"],
-    when: "The train you wanted is cancelled because of the storm.",
+    when: "The train you wanted is canceled because of the storm.",
     sentences: [
       { lemma: "homne", et: "Homne koosolek jääb ära.", run: "jääb ära" },
       { lemma: "vähene", et: "Vähese huvi tõttu jäi reis ära.", run: "jäi reis ära" },
@@ -1383,7 +1383,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "vastama-toele", phrase: "vastanud tõele", particle: "tõele", verb: VAS,
     means: "was true, matched the facts", literal: "answered to the truth",
     parts: ["answered", "to the truth"],
-    when: "A rumour that the school will close turns out to be false.",
+    when: "A rumor that the school will close turns out to be false.",
     sentences: [
       { lemma: "tõele vastama", et: "Info ei vastanud tõele.", run: "vastanud tõele" },
     ],
@@ -1525,7 +1525,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "panema-kinni", phrase: "pane kinni", particle: "kinni", verb: PAN,
     means: "shut it, switch it off", literal: "put shut",
     parts: ["put", "shut"],
-    when: "There is a draught from the window and the television is far too loud.",
+    when: "There is a draft from the window and the television is far too loud.",
     sentences: [
       { lemma: "kinni", et: "Pane aken kinni!", run: "Pane aken kinni" },
       { lemma: "televiisor", et: "Pane televiisor kinni.", run: "Pane televiisor kinni" },
@@ -1986,7 +1986,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "panema-pahaks", phrase: "pahaks panna", particle: "pahaks", verb: PAN,
     means: "to hold it against (someone)", literal: "to put as bad",
     parts: ["as bad", "to put"],
-    when: "Your neighbour forgot your birthday, but she had a hard week, so you don't mind.",
+    when: "Your neighbor forgot your birthday, but she had a hard week, so you don't mind.",
     sentences: [
       { lemma: "pahaks panema", et: "Ta on lihtsalt ettevaatlik, ja seda ei saa talle kuidagi pahaks panna.", run: "pahaks panna" },
     ],
@@ -2393,7 +2393,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "minema-tuhja", phrase: "läks tühja", particle: "tühja", verb: GO,
     means: "was all for nothing", literal: "went empty",
     parts: ["went", "empty"],
-    when: "You spend a week on a report and then the meeting is cancelled.",
+    when: "You spend a week on a report and then the meeting is canceled.",
     sentences: [
       { lemma: "tühja minema", et: "Kogu töö läks tühja.", run: "läks tühja" },
     ],
@@ -2413,7 +2413,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "unustama-maha", phrase: "maha unustanud", particle: "maha", verb: UNU,
     means: "left behind by mistake", literal: "forgotten down",
     parts: ["down", "forgotten"],
-    when: "You are halfway to the airport when you realise your pills are still at home.",
+    when: "You are halfway to the airport when you realize your pills are still at home.",
     sentences: [
       { lemma: "maha unustama", et: "Oleks peaaegu tabletid maha unustanud.", run: "maha unustanud" },
     ],
@@ -2616,7 +2616,7 @@ export const SAYINGS: readonly Saying[] = [
 
   {
     id: "tombama-labi", phrase: "tuul on läbi tõmmanud", particle: "läbi", verb: TOM,
-    means: "I caught a chill in a draught", literal: "the wind has pulled through",
+    means: "I caught a chill in a draft", literal: "the wind has pulled through",
     parts: ["the wind", "has", "through", "pulled"],
     when: "You slept by an open window and wake up unable to turn your head.",
     sentences: [
@@ -2729,7 +2729,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "votma-jarele", phrase: "järele võtma", particle: "järele", verb: VOT,
     means: "to catch up with (others)", literal: "to take after",
     parts: ["after", "to take"],
-    when: "A small country works hard to reach the living standards of its neighbours.",
+    when: "A small country works hard to reach the living standards of its neighbors.",
     sentences: [
       { lemma: "järele võtma", et: "Kehvema konkurentsivõimega riigid peavad teistele järele võtma.", run: "järele võtma" },
     ],
@@ -3149,7 +3149,7 @@ export const SAYINGS: readonly Saying[] = [
 
   {
     id: "narima-labi", phrase: "läbi närima", particle: "läbi", verb: NAR,
-    means: "to plough through", literal: "to chew through",
+    means: "to plow through", literal: "to chew through",
     parts: ["through", "to chew"],
     when: "For school you must finish a thick novel you find deadly dull.",
     sentences: [
@@ -3333,7 +3333,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "votma-pahe", phrase: "võttis pähe", particle: "pähe", verb: VOT,
     means: "got it into her head", literal: "took into the head",
     parts: ["took", "into the head"],
-    when: "Your aunt is certain, with no evidence at all, that the neighbours read her post.",
+    when: "Your aunt is certain, with no evidence at all, that the neighbors read her post.",
     sentences: [
       { lemma: "pähe võtma", et: "Naine võttis pähe, et tal on vähk.", run: "võttis pähe" },
     ],
@@ -3653,7 +3653,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "kusima-kaest", phrase: "küsi käest", particle: "käest", verb: KUS,
     means: "ask (someone)", literal: "ask from the hand",
     parts: ["ask", "from the hand"],
-    when: "You do not know the answer, but your neighbour might.",
+    when: "You do not know the answer, but your neighbor might.",
     sentences: [
       { lemma: "ehk", et: "Küsi Mari käest, ehk tema teab.", run: "Küsi Mari käest" },
       { lemma: "too", et: "Küsis poja käest, kelleks too tahab saada.", run: "Küsis poja käest" },
@@ -3684,7 +3684,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "kargama-tais", phrase: "kargas süda täis", particle: "täis", verb: KAR,
     means: "I got fed up, I lost my temper", literal: "the heart jumped full",
     parts: ["jumped", "heart", "full"],
-    when: "Your neighbour plays drums at midnight for the third night running.",
+    when: "Your neighbor plays drums at midnight for the third night running.",
     sentences: [
       { lemma: "kargama", et: "Mul kargas süda täis.", run: "Mul kargas süda täis" },
     ],
@@ -3838,7 +3838,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "kirjutama-maha", phrase: "kirjutasin maha", particle: "maha", verb: KIR,
     means: "I copied it", literal: "I wrote down",
     parts: ["I wrote", "down"],
-    when: "A student keeps glancing at the neighbour's paper during a test.",
+    when: "A student keeps glancing at the neighbor's paper during a test.",
     sentences: [
       { lemma: "pinginaaber", et: "Kirjutasin kontrolltöö pinginaabrilt maha.", run: "Kirjutasin kontrolltöö pinginaabrilt maha" },
     ],
@@ -4032,7 +4032,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "loikama-nappu", phrase: "lõikasime näppu", particle: "näppu", verb: LOO,
     means: "we miscalculated", literal: "we cut into the finger",
     parts: ["we cut", "into the finger"],
-    when: "A racing team picks the wrong tyres and falls behind.",
+    when: "A racing team picks the wrong tires and falls behind.",
     sentences: [
       { lemma: "näppu lõikama", et: "Rehvivalikuga lõikasime näppu.", run: "lõikasime näppu" },
     ],

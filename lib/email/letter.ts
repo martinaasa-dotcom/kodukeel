@@ -157,7 +157,7 @@ export interface Letter {
    */
   readonly subject: string;
   /**
-   * The grey line after the subject in an inbox list.
+   * The gray line after the subject in an inbox list.
    *
    * It is the second thing read and in most clients it is the only other thing
    * read, so it carries the specific fact rather than repeating the subject.

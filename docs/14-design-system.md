@@ -16,7 +16,7 @@ cornflower blue carrying the voice, type that leads, round corners, and a small 
 to every press. Retuned on 2026-09-25 away from pastel washes and a violet cast, which read as
 generated.
 
-**Color has to mean something.** Warmth costs nothing until colour stops carrying information.
+**Color has to mean something.** Warmth costs nothing until color stops carrying information.
 So the palette is disciplined: a warm neutral ground, five hues with fixed meanings, and at most a
 faint tint of the accent behind a screen where depth helps. The washes are neutral or accent,
 never a second and third hue drifting in the background.
@@ -29,24 +29,24 @@ never a second and third hue drifting in the background.
 | Blush | `--blush` / `--again` | missed, overdue, destructive; and Anu, the tutor |
 | (accent) | `--easy` | easy, which only the confetti still draws |
 
-**Vikerkaar öös is the brand mix, and there is no other colour.** The mix is butter, blush, the
+**Vikerkaar öös is the brand mix, and there is no other color.** The mix is butter, blush, the
 accent violet, sky and the night (`--stage`, Slate since 2026-10-14). Right and wrong wear it too: a recalled answer
 is sky and a missed one is blush, each as its tint under its ink, with a tick or a cross and the
-verdict in words beside it, so the colour is never the only thing saying which. They were mint and
+verdict in words beside it, so the color is never the only thing saying which. They were mint and
 peach, a green and a red belonging to no mix, and the answer a learner sees most often was the one
 screen that looked like a different app; the operator asked for the palette instead, on
 2026-09-28, and both tokens were deleted rather than left for somebody to reach for. Easy moved to
-the accent, since it was sky and would have shared a colour with Good. The finished evening, on
+the accent, since it was sky and would have shared a color with Good. The finished evening, on
 Today and on the module screen, is the accent's tint with the mix drawn along its top edge
 (`.evening` on `Card tone="accent"`). The faces are Onest and Schibsted Grotesk and no others. All
 of this is asserted in `scripts/invariants/the-agreed-fonts-and-palette.ts`, and a visual proposal
-is a screenshot of the running app (`npm run shoot`), never hand-written HTML in faces or colours
+is a screenshot of the running app (`npm run shoot`), never hand-written HTML in faces or colors
 of its own.
 
 Grading colors are aliases (`--again` → `--blush`), so the rating scale and the rest of the UI
 can never drift apart.
 
-Two uses of colour, and only one of them carries meaning:
+Two uses of color, and only one of them carries meaning:
 
 - **A chip's hue is a claim.** `again` on a chip says "this is not authoritative", and it is what
   every AI-written translation wears, in the dictionary, in Anu's replies, on the grammar pages
@@ -59,10 +59,10 @@ Two uses of colour, and only one of them carries meaning:
 
 ### Every hue has an ink
 
-The five hues are chosen to read as *colour* at full strength: a bar, a ring, a
+The five hues are chosen to read as *color* at full strength: a bar, a ring, a
 dot, a filled button. Set as **text on their own 8% tint** they land around
 2.5:1, which is decoration pretending to be a label. So each hue also has an
-ink: the same colour walked down until it clears 4.5:1 on its own tint.
+ink: the same color walked down until it clears 4.5:1 on its own tint.
 
 | Use | Token |
 |---|---|
@@ -119,7 +119,7 @@ leaves a fleck of the far end's hue at the near end: at 112deg the primary
 button carried a little pink on its left edge and a little blue on its right.
 The vertical spread is set by the element's height, so no angle short of
 horizontal avoids it on something short and wide. `.grad-text` keeps its tilt,
-being clipped to letterforms that have no caps to discolour.
+being clipped to letterforms that have no caps to discolor.
 
 ### A verdict is painted once
 
@@ -144,7 +144,7 @@ classes read the grading aliases and never the hue names, so `--again` and a wro
 one token. A screen that marks an answer reads the module or fails the invariant, and a verdict
 tint written inline in one of those screens fails it too. Nearly is the middle case the app can
 tell apart with certainty, a dropped diacritic or the right word in the wrong ending, and it is
-graded Hard wherever it is painted butter, since a colour that disagrees with the grade under it
+graded Hard wherever it is painted butter, since a color that disagrees with the grade under it
 is a small dishonesty a learner catches once.
 
 ### A reading is not a verdict
@@ -155,11 +155,11 @@ was, which tier a word has reached. Those were painted as a traffic light, a cas
 and at 86% in sky, a rung of the readiness bar in each verdict hue, the tiers of mastery the same
 way, the counts under "Out there" in their inks, and the heatmap ran sky to violet to pink. The
 person the page was about read it as red and green marks on themselves, and a rainbow is not a
-scale: nobody can tell from a hue which of two colours means "more".
+scale: nobody can tell from a hue which of two colors means "more".
 
 | Reading | Paint |
 |---|---|
-| A bar, a ring, a meter | `--accent` over the track, one colour at every value |
+| A bar, a ring, a meter | `--accent` over the track, one color at every value |
 | Categories in order (the rungs, a heatmap) | `--scale-1` to `--scale-4` over `--scale-track` |
 | A count or a percentage in type | `--ink`, or `--accent-deep` for the one headline figure |
 | A reading on the night panel | `--cta`, the one hue that reads loudest on the night |
@@ -171,7 +171,7 @@ rather than a reading; and a part of a sat paper, which is a mark. Asserted in
 `scripts/invariants/a-reading-is-not-a-verdict.ts`.
 
 And the box is `.verdict-panel`, which is the other half of the same argument. The three classes
-above settled the colour and nothing else, so every round decided the geometry and the type for
+above settled the color and nothing else, so every round decided the geometry and the type for
 itself: five wrote `rounded-md px-3.5 py-3` around a `text-[15px]`, the daily path and the ladder
 wrote `text-sm`, the lesson wrote `p-3 text-sm`, the word ordering round set a whole sentence in
 `label-xs`, and the examination result printed the answer at 17px beside the candidate's own at
@@ -205,17 +205,17 @@ coming back.
 
 ### The dark theme is Slate
 
-Grey with the faintest lean toward the brand violet, chosen on 2026-10-14 from five measured
+Gray with the faintest lean toward the brand violet, chosen on 2026-10-14 from five measured
 candidates and replacing a navy that measured an OKLCH chroma of 0.061 on the card and 0.079 on a
-raised panel, about fifteen times Apple's own dark greys. Every layer was blue-violet and the bright
+raised panel, about fifteen times Apple's own dark grays. Every layer was blue-violet and the bright
 hues on top read as a glow; the contrast was never the problem, since body text already cleared
 16:1. What the dark theme is held to now, and how each figure was measured:
 
 | Rule | Figure |
 |---|---|
-| The greys are grey: OKLCH chroma 0.02 or less on page, card and raised | 0.011 / 0.017 / 0.020, hue 269 |
+| The grays are gray: OKLCH chroma 0.02 or less on page, card and raised | 0.011 / 0.017 / 0.020, hue 269 |
 | Depth is lightness, never a glow: each layer step 0.035 to 0.10 in OKLCH L | +0.046 / +0.047 |
-| Real text is readable: axe colour-contrast over 30 screens, about 2,400 text nodes | zero failures, weakest 5% at 7.0:1 |
+| Real text is readable: axe color-contrast over 30 screens, about 2,400 text nodes | zero failures, weakest 5% at 7.0:1 |
 | Every designed pairing at 4.5:1, every ink on every tint | worst 5.1:1 (`--ink-3` on `--accent-soft`) |
 | Meaningful fills at 3:1 on the card (SC 1.4.11) | weakest 7.0:1 |
 
@@ -239,14 +239,14 @@ each.
 panel lent to a light page, and the dark theme's own page ground all read it, so a dark panel on a
 light page is the same object as the dark theme. The navy taken down to the same chroma lands 0.007
 OKLab from Slate, under the smallest difference anybody can see, which is why this is the brand's
-night with the colour taken out of the greys rather than a different night.
+night with the color taken out of the grays rather than a different night.
 
-**Colour in the dark is a hint, and only where the screen is for it.** The washes behind the page are
+**Color in the dark is a hint, and only where the screen is for it.** The washes behind the page are
 the ground. The one hero per screen carries a single faint lamp in the accent from its top corner;
 the situations stage and the conversation room keep their three lamps (blush, sky, gold) at a
 fraction of their light-theme strength, and the stage's drift slowly, which the room's do not,
-since a line is being read there. A situation tile in the dark is the card with its kind's colour
-falling faintly from the top edge and on its border, because a hue mixed into grey is mud: gold goes
+since a line is being read there. A situation tile in the dark is the card with its kind's color
+falling faintly from the top edge and on its border, because a hue mixed into gray is mud: gold goes
 olive and pink goes maroon. The pointer brings the light up a little (`--tile-lit`, a registered
 property so it tweens). Measured at full strength first and reported as aggressive, which is the
 reading to trust: on a dark ground a glow at the light theme's strength reads as a smear. The
@@ -303,13 +303,13 @@ claim about a screen rather than about whoever is holding it. Most people learni
 Estonia are learning it because they live here, which takes in everybody who arrived forty years
 ago: the reader is as likely to be sixty and wearing glasses as to be twenty-five. It was reported
 in those words, as small fonts that are horrible to read, off a review card whose caption line was
-13px grey.
+13px gray.
 
 So the bottom four steps went 12/13/13.5/15 to 14/15/16/17, which is a body above the 16px most of
 the web settles on and a floor a pixel over what a browser will render comfortably at arm's length.
 They ramp a pixel at a time rather than keeping the old proportions, and that is the deliberate
 part: a caption has to read as quieter than the body above it, and once the floor is somewhere a
-reader can see, quieter is carried by colour and weight far more than by two more pixels off
+reader can see, quieter is carried by color and weight far more than by two more pixels off
 something already small. `--ink-3` against `--ink` is a bigger difference than 15px against 17px
 and always was.
 
@@ -482,7 +482,7 @@ Small, physical, and never blocking:
   out round the card as a second outline. Both panes read one fill now, `--nav-marker-bg`, and the
   marker's own `--nav-marker-shadow` is the whole difference, so pointing at a row previews pressing
   it. What tells them apart is what a pane cannot say: the marked row is bold and its glyph wears
-  its own colour.
+  its own color.
   The phone bar's capsule also breathes, three percent uniformly on both axes over 460ms with a
   slight undershoot; the rail does not, because a column that lurched beside the page it just
   changed would be arguing with a decision the reader has already made.
@@ -513,7 +513,7 @@ Small, physical, and never blocking:
   the whole shell writing `--gx` and `--gy`, mouse and pen only, since a finger has no position
   between taps). It is the accent at a whisper in the light theme, plain white at five percent in
   the dark, and a situation tile's own hue on the board, so a pointer crossing it warms each kind in
-  its colour. An arrow at the end of a link leans three pixels the way it goes, on a spring that
+  its color. An arrow at the end of a link leans three pixels the way it goes, on a spring that
   overshoots a pixel. An icon marked `data-pop` looks up when its row is pointed at, a tenth larger
   and a few degrees of tilt. And an option picked in `components/Choice.tsx` springs, down a touch
   and over a touch, through the Web Animations API so it plays on the press and never on a chip
@@ -572,7 +572,7 @@ is a form's field, at `--r` and 10px by 14px; `.field-lg` is the answer box a ro
 search box, an exam paper and the shared `EstonianInput`, at `--r-lg` and 14px by 20px. There were
 nine shapes before them, on three radii and with paddings from px-2.5 to px-5, so the caret sat a
 different distance in from the edge on every screen that asked for a word and two boxes on one form
-did not match each other. Type size and colour stay with the caller: a box in a card sits on
+did not match each other. Type size and color stay with the caller: a box in a card sits on
 `--raised` and one on a page on `--surface`, and that is a fact about the surface under it. A
 learner said the row of Estonian keys felt glued to the box above it, and it was: 8px, which is the
 rhythm between rows in a list, under a row of 36px circles. `--field-gap` is 14px, the same as the
@@ -585,7 +585,7 @@ arrive by hand, and fails on a bar under a field that types its own margin.
 is what the app is about, since `~` means "about this much" and the bar here is Estonian somebody
 can use rather than Estonian without a mistake in it; the pixels are Estonia running its state
 online. The pixels touch, because a hairline between staggered squares is the café wall illusion
-and made the tilde look crooked at favicon size. The tile's colours are `--mark-from`, `--mark-to`
+and made the tilde look crooked at favicon size. The tile's colors are `--mark-from`, `--mark-to`
 and `--mark-ink`, declared once and never redefined for the dark theme, since a logo is one object
 in both. The same outline is in `app/icon.svg`, `public/app-icon.svg`, the maskable icon, the Apple
 icon and the share card. It appears in the rail, in every empty state, at the end of a session, and
@@ -622,7 +622,7 @@ gap matches the margin on the right. A headline too long for the column the card
 across the top, with the line under it and the button beside the cards. Every line is balanced.
 
 **On a phone the cards are a hand, and that is the shape the rest is built from.** The first
-version folded the desktop fan up: on a narrow desktop it stacked under the words and centred, half
+version folded the desktop fan up: on a narrow desktop it stacked under the words and centered, half
 the card empty above it, and on a phone it dealt the same cards into a two-column grid of big tiles
 that took a whole screen to say five words. Both were reported as awful and both were. A phone is
 held in one hand and read in a glance, so the cards are a small hand of them under the words,
@@ -633,7 +633,7 @@ both fit, the hand goes beside them; the fan is the same hand laid down once the
 worth of room, decided by the card's own width rather than the window's.
 
 Today's fan wears the brand mix because the module is the one thing the app asks somebody to do;
-every other page draws the same fan in the night's greys, which is what lets Today stand out
+every other page draws the same fan in the night's grays, which is what lets Today stand out
 without anything shouting. The motion is fine rather than loud: the cards are dealt in, the words
 rise a beat behind them, figures count up once, a finished step's tick stamps in, the fan opens
 under a pointer and the card under it comes up, and the card that is next breathes a few pixels
@@ -678,7 +678,7 @@ have to re-learn the frame:
 
 - a top row of **close · progress · counter**: an `X` back to Today in a round hover target, a
   gradient-filled progress bar with `role="progressbar"`, and the number left in an accent pill;
-- one **card** at `--r-xl` with `--shadow-lg`, split into a labelled header strip, the question
+- one **card** at `--r-xl` with `--shadow-lg`, split into a labeled header strip, the question
   area (`aria-live="polite"`), and a footer holding the only action;
 - a **summary** on the way out: the mascot cheering, then `StatTile`s, then the two or three
   places worth going next.
@@ -755,7 +755,7 @@ panel can say anything yet to the person in front of it. Where the answer is yes
 ## 12. Voice
 
 Everything above is what the app looks like. This is what it sounds like, and it is part of the
-design system for the same reason type and colour are: it is a property of every screen, decided
+design system for the same reason type and color are: it is a property of every screen, decided
 once, and a screen that gets it wrong is off-system even when every token in it is right.
 
 The standard is **warm, kind, concise, and unmistakably a person**. `docs/18-voice.md` is the full
@@ -786,7 +786,7 @@ Two of these bind the visual system directly. **Emoji are banned because there i
 system**: data that drives UI carries a lucide icon name and `components/icons.tsx` is the only
 place one becomes a component, so an emoji in a heading is a second icon set with no tokens behind
 it. The check is narrow on purpose, since the arrow in "Estonian to English", the return key in a
-keyboard hint and the tick on the week strip are typographic glyphs in one colour doing a job no
+keyboard hint and the tick on the week strip are typographic glyphs in one color doing a job no
 word does as well. And **an empty cell is `NO_VALUE`**, which is "n/a" from `lib/copy/values.ts`,
 never a typed dash: in a table of forms a bare hyphen reads as a one-character form, and beside a
 percentage as a minus sign whose digits failed to load.

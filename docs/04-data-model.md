@@ -57,7 +57,7 @@ comment on every model that needs one; what belongs here is the map and the reas
 
 `prisma/data/forms/` is every spelling of every one of those headwords and which headword each
 belongs to: 5.8 million spellings over 6.0 million form-headword pairs, built by
-`scripts/build-forms.ts` from Ekilex's own inflection tables and from Vabamorf's synthesiser with
+`scripts/build-forms.ts` from Ekilex's own inflection tables and from Vabamorf's synthesizer with
 guessing off. It is what answers "is this a word" for the search screen and for Sonad's guesses,
 because a headword list cannot: `põhjas` is the seesütlev of `põhi` and was refused to a learner as
 not a word.
@@ -136,7 +136,7 @@ for a sharper reason than the placement check: the log records that a card was a
 was answered under a clock, in a paper of four parts, with the answers withheld until the end. It
 holds the level, the seed the paper was built from (so the same questions can be rebuilt), the
 weighted percentage, whether it passed, and the marked paper as JSON. The percentage is
-denormalised out of that JSON so the exam hub can rank six levels without parsing six blobs. Written
+denormalized out of that JSON so the exam hub can rank six levels without parsing six blobs. Written
 once, when the paper is handed in; an abandoned paper writes no row at all (ADR-016). See ADR-022.
 
 The goal it is read against lives in `Setting`, under `goalReason`, `goalTarget`, `goalDeadline`,

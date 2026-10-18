@@ -46,7 +46,7 @@ export const VOICE_ROUNDS: Area = {
     "That wasn't a price we could read.": "Мы не смогли прочитать это как цену.",
     "Right number. Mind the letters: the word has an õ, ä, ö or ü in it.":
       "Число верное. Обратите внимание на буквы: в слове есть буква с точками или с тильдой.",
-    "In digits, so no word was practised. Say it or type the words next time.":
+    "In digits, so no word was practiced. Say it or type the words next time.":
       "Цифрами, поэтому ни одно слово не потренировано. В следующий раз скажите вслух или напишите словами.",
     "A clock face has no afternoon, so {morning} and {afternoon} both count.":
       "Часы со стрелками не различают время до и после полудня, поэтому засчитывается и {morning}, и {afternoon}.",
@@ -138,7 +138,7 @@ export const VOICE_ROUNDS: Area = {
     "That wasn't a price we could read.": "Ми не змогли прочитати це як ціну.",
     "Right number. Mind the letters: the word has an õ, ä, ö or ü in it.":
       "Число правильне. Зверніть увагу на літери: у слові є літера з крапками або з тильдою.",
-    "In digits, so no word was practised. Say it or type the words next time.":
+    "In digits, so no word was practiced. Say it or type the words next time.":
       "Цифрами, тому жодне слово не потреноване. Наступного разу скажіть вголос або напишіть словами.",
     "A clock face has no afternoon, so {morning} and {afternoon} both count.":
       "Циферблат не розрізняє час до і після полудня, тому зараховується і {morning}, і {afternoon}.",

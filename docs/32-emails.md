@@ -192,7 +192,7 @@ this deployment sends is worth less, including the sign-in links.
   screen instead, because a button claiming to stop a sign-in link would be a lie in the one place
   a reader has to be able to trust.
 - It works signed out. Somebody unsubscribing is reading their mail, not this app. The link carries
-  an HMAC over the learner and the kind, so it authorises exactly one thing for exactly one person.
+  an HMAC over the learner and the kind, so it authorizes exactly one thing for exactly one person.
 - `List-Unsubscribe-Post`, so a mail client draws its own button beside the sender's name. A reader
   who can press that presses it instead of the spam button.
 - A GET shows a page with a button; only a POST acts. Mail clients and security scanners fetch the
@@ -211,7 +211,7 @@ is a number nobody here would act on, and it would cost the one claim on that pa
 What can be read honestly is whether people come back, which `/api/metrics` already answers out of
 the deployment's own database.
 
-The drawings are coloured table cells rather than SVG or images, which happens to agree with the
+The drawings are colored table cells rather than SVG or images, which happens to agree with the
 same decision from the other direction: Gmail strips `<svg>` and refuses a `data:` URI, images are
 off by default in a great many clients and nearly always off for a first message from an unknown
 sender, and a letter built out of pictures is a letter read as a column of empty boxes. What carries
@@ -249,7 +249,7 @@ a way into the settings table. Every delivery carries an HMAC over `id.timestamp
 things about how it is checked are each a way it could be quietly weakened:
 
 - **Verified before parsed.** The signature is over the bytes that arrived, so a route that parses
-  first and verifies a re-serialised body verifies something else. That is the usual way this is
+  first and verifies a re-serialized body verifies something else. That is the usual way this is
   broken and it fails in the direction that looks like the provider's fault.
 - **Compared in constant time**, or a wrong signature leaks how much of it was right.
 - **Stamped, with a five-minute window**, or a signature is valid for ever and anybody who has ever
@@ -380,7 +380,7 @@ What a learner agreed to when they joined is a board. It is not a copy of their 
 weakest case leaving the app every Monday.
 
 So **the letter carries the group's shape and never a person's**, in either kind: how many
-practised, how many answers, and then the one thing the group as a whole is worth saying. The names
+practiced, how many answers, and then the one thing the group as a whole is worth saying. The names
 are on the board and the button goes there. What is left differs by seat, which is the rosters' own
 line rather than a new one: a class gets the cases the class is weakest at, which is next week's
 lesson and is a fact about nobody, and a workplace gets the band counts and the tier behind them and

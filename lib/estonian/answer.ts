@@ -160,7 +160,7 @@ export function acceptedAnswers(expected: string, language: "et" | "en"): string
 }
 
 /**
- * WHETHER A WRONG ANSWER WAS WITHIN REACH, WHICH DECIDES ITS COLOUR AND NOT ITS GRADE.
+ * WHETHER A WRONG ANSWER WAS WITHIN REACH, WHICH DECIDES ITS COLOR AND NOT ITS GRADE.
  *
  * A miss used to be painted blush whatever it was, so `muudama` typed for
  * `muutuma`, six of seven letters in place, looked exactly like a blank box
@@ -176,7 +176,7 @@ export function acceptedAnswers(expected: string, language: "et" | "en"): string
  * THIS IS NOT THE TYPO RULE, AND MAY NOT BECOME IT. The typo rule decides a
  * grade and is held to eight letters, because a different word graded Hard is
  * a recall written into the one table that is never repaired. This decides a
- * colour only: `sina` typed for `mina` is still Again and still says "Not
+ * color only: `sina` typed for `mina` is still Again and still says "Not
  * quite", and is painted as the near miss it was.
  */
 export function nearMiss(typed: string, expected: string, language: "et" | "en" = "et"): boolean {

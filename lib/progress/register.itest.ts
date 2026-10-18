@@ -111,7 +111,7 @@ describe("who the register counts", () => {
     /*
       `createClassroom` writes the owner a `ClassroomMember` row, so
       `classRoster` counts them: a class of one pupil read two, and a teacher
-      who studied that morning was counted among those who practised. On the
+      who studied that morning was counted among those who practiced. On the
       board that is right, since a list you are in has your row in it; in a
       count about the people you teach it is not.
     */

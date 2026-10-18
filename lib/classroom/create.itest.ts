@@ -28,7 +28,7 @@ describe("createWithFreshCode", () => {
   });
 
   it("gives the second of two colliding classes another code rather than failing", async () => {
-    // Open the pool's connections first, or a cold pool serialises the two calls.
+    // Open the pool's connections first, or a cold pool serializes the two calls.
     await Promise.all(Array.from({ length: 4 }, () => prisma.$queryRaw`SELECT 1 AS x FROM pg_sleep(0.05)`));
     const made = await Promise.all(
       OWNERS.map((ownerId, i) =>

@@ -228,7 +228,7 @@ export async function POST(request: Request) {
     the dictionary can check. That argument held the learner to the card, and
     the card is a suggestion rather than a marking target: a learner who
     wrote `Tartusse` at a window whose card said the station was read as
-    nobody could make it out (a capitalised word is in no forms list), never
+    nobody could make it out (a capitalized word is in no forms list), never
     put to the judge, and told they had not been understood, in the one place
     being wrong is supposed to be survivable. So a turn nobody could read is
     judged where it holds a word at all, a one-word turn on a beat that wanted
@@ -315,7 +315,7 @@ export async function POST(request: Request) {
     AND THE BEAT AFTER THE ONE THEY ANSWERED, WHERE THE TURN SAID TWO THINGS
     AND THE DICTIONARY COULD READ ONE. `ma tahan pileti Tartusse` asks for a
     ticket and says where to; the cascade in `replay` credits a beat further
-    along only on a word it can read, and Tartu is a capitalised word the
+    along only on a word it can read, and Tartu is a capitalized word the
     forms list holds none of on purpose, so the destination stayed open and
     the other side went on asking where. One more question to the judge, only
     on a turn that landed and only where a word in it could not be placed,
@@ -684,7 +684,7 @@ export async function POST(request: Request) {
     let written: Awaited<ReturnType<typeof composeTurn>>;
     try {
       written = await composeTurn(plan, line, {
-        // The booking this turn was authorised under, so the settlement corrects it rather than being written down as a second call.
+        // The booking this turn was authorized under, so the settlement corrects it rather than being written down as a second call.
         compose: (ask, conversation, avoid) => compose(chain, { ...ask, ownerId, outcome, booking, conversation, avoid }),
         consistency: (ask) => reviewLine(ownerId, ask),
         vouch: (spellings) => sceneVouch(context, spellings),

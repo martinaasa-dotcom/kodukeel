@@ -38,7 +38,7 @@ export const dynamic = "force-dynamic";
  * folded under it), any set of your own words (Flash cards and the workbook,
  * each a card with its choices inside it), and the four things a conversation
  * needs (hear, speak, write, talk). The drills for a named weakness live on
- * the grammar pages they practise, as they already did, so this page never
+ * the grammar pages they practice, as they already did, so this page never
  * grows a long tail.
  *
  * Every round is named the way Games names it, the Estonian first and its
@@ -169,7 +169,7 @@ export default async function PracticePage() {
             </Link>
           </Section>
 
-          <Section id="words" title={t("Your words")} hint={t("Practise any set of words, whenever you like.")}>
+          <Section id="words" title={t("Your words")} hint={t("Practice any set of words, whenever you like.")}>
             <div className="@container">
               <div className="grid grid-cols-1 gap-4 @3xl:grid-cols-2">
                 <Card tone="accent" art={<CardStack />}>
@@ -245,7 +245,7 @@ export default async function PracticePage() {
           </Section>
 
           <p className="text-base" style={{ color: "var(--ink-2)" }}>
-            {fill(t("Grammar drills like {a} and {b} sit on the grammar pages they practise."), {
+            {fill(t("Grammar drills like {a} and {b} sit on the grammar pages they practice."), {
               a: inlineName(roundName("/review/government"), t),
               b: inlineName(roundName("/review/conjugation"), t),
             })}{" "}
@@ -291,7 +291,7 @@ function Card({ tone, art, children, ...rest }: { tone: string; art: ReactNode; 
 }
 
 /**
- * A labelled set of word sets inside a card. The label is small and quiet and
+ * A labeled set of word sets inside a card. The label is small and quiet and
  * says what the buttons under it have in common.
  */
 function Choices({ label, children }: { label: ReactNode; children: ReactNode }) {
@@ -309,10 +309,10 @@ function Choices({ label, children }: { label: ReactNode; children: ReactNode })
  * It is a different kind of thing from the boxes beside it, so it is drawn as
  * one: a dashed edge round an empty ground, which is the usual shape of a
  * place something can go, and a plus in the accent with the label beside it.
- * Drawn like its neighbours it read as a deck called "Add a deck". The plus
+ * Drawn like its neighbors it read as a deck called "Add a deck". The plus
  * never shrinks and the label is the one that wraps, beside it rather than
  * under it, since "Добавить колоду" is wider than the box at some widths and
- * a label that may not wrap is a label drawn over the border. It is centred in
+ * a label that may not wrap is a label drawn over the border. It is centered in
  * the row height the grid gives it, since it has no line under its name to
  * line up with the boxes beside it.
  */
@@ -337,7 +337,7 @@ function AddChoice({ href, title }: { href: string; title: string }) {
 }
 
 /**
- * One set of words to practise, as a button: a name and one quiet line under
+ * One set of words to practice, as a button: a name and one quiet line under
  * it, no dot and no icon, and a tick where it has been finished today.
  */
 function Choice({ href, title, meta, label, done }: {

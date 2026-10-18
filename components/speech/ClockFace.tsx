@@ -1,16 +1,16 @@
 /**
  * A CLOCK ON THE WALL, FOR THE NUMBERS ROUND (docs/41-fifth-batch.md, VB-7).
  *
- * A small analogue face drawn in the app's own tokens, which is the one
+ * A small analog face drawn in the app's own tokens, which is the one
  * drawing D17 allows this batch: not a room, no new typeface, no new units.
  * Twelve ticks, the four quarters marked heavier, an hour hand and a minute
  * hand. No numerals on the face: an Estonian kitchen clock rarely has them
  * and the question is reading the hands.
  *
- * An analogue clock cannot say whether it is morning or afternoon, which is
+ * An analog clock cannot say whether it is morning or afternoon, which is
  * why the round accepts either reading under it (`lib/games/numbers.ts`).
  *
- * For a screen reader it is an image labelled with the time in digits, the
+ * For a screen reader it is an image labeled with the time in digits, the
  * same question a sighted learner reads off the hands. A server component:
  * nothing on it moves.
  */

@@ -116,7 +116,7 @@ export function fitsMove(text: string, beat: BeatSpec): boolean {
  *
  * Only a `case` requirement, deliberately. A beat that wants a greeting is met
  * by the word the other side is saying, and a rule reading that as a giveaway
- * would refuse every `Tere!` in the catalogue.
+ * would refuse every `Tere!` in the catalog.
  */
 export function answerForms(beat: BeatSpec, lexicon: Lexicon): ReadonlySet<string> {
   const out = new Set<string>();
@@ -142,7 +142,7 @@ export function answerForms(beat: BeatSpec, lexicon: Lexicon): ReadonlySet<strin
 /**
  * Every form of every word one beat is about, as one set.
  *
- * Built once per beat rather than per line, which is not a micro-optimisation:
+ * Built once per beat rather than per line, which is not a micro-optimization:
  * a beat has up to nine lemmas with thirty forms each and the corpus has
  * thousands of sentences, so asking it the other way round is a hundred million
  * lookups to answer a question that is one set membership test.

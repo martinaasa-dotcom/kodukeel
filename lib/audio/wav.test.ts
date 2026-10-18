@@ -139,7 +139,7 @@ describe("trimming", () => {
     recording had, which for a vocoder is hiss rather than zeros. A cut there
     lands on a sample that is not zero, and that is a click.
 
-    Measured as the largest jump between neighbouring samples, against the
+    Measured as the largest jump between neighboring samples, against the
     largest inside the speech itself: a step at a seam shows up as a jump bigger
     than anything the signal does on its own.
   */

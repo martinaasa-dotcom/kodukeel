@@ -46,7 +46,7 @@ export type { PublicPageCard } from "@/lib/copy/publicCards";
  * The picture every share card carries: `app/opengraph-image.tsx`, the app's
  * own card. Named here because a page that sets `openGraph` replaces the
  * root's whole object, and the file-based image goes with it, so a page with
- * a description of its own shared as a grey row with no picture. Its size and
+ * a description of its own shared as a gray row with no picture. Its size and
  * alt are the route's, which a test holds them to.
  */
 export const SHARE_IMAGE = {

@@ -115,7 +115,7 @@ function capitalFirst(line: SheetItem, text: string): string {
 /**
  * What the bracket holds: the word, and before it the person where the
  * sentence does not say who (`whoFor`), the way a course book writes
- * `(mina, alustama)`. Capitalised where it opens the sentence.
+ * `(mina, alustama)`. Capitalized where it opens the sentence.
  */
 function cueText(line: SheetItem): string {
   const text = line.who ? `${line.who}, ${line.cue}` : line.cue;

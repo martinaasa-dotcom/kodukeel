@@ -347,7 +347,7 @@ export function readinessFor(signals: ReadinessSignals, level: ExamLevel): Level
     met, which is not the examination's: somebody who has learned Estonian
     elsewhere and taken this paper to check can pass it knowing sixty of the
     five hundred words the course happens to teach. Their coverage is 0.12,
-    their modelled score is single digits, and thirty-five percent of that is
+    their modeled score is single digits, and thirty-five percent of that is
     enough to drag a real result under sixty.
 
     Swept over the combinations a learner can actually be in: **90 of 288 put
@@ -360,8 +360,8 @@ export function readinessFor(signals: ReadinessSignals, level: ExamLevel): Level
     "One bad evening" is an argument for not letting a low score condemn
     somebody, and it is not an argument for letting a low model overrule a high
     sitting. So the model still moves the number, and it moves it *within* what
-    the sitting established: a paper passed cannot be modelled below a pass, and
-    a paper failed cannot be modelled above one. Where the two agree, which is
+    the sitting established: a paper passed cannot be modeled below a pass, and
+    a paper failed cannot be modeled above one. Where the two agree, which is
     most of the time, nothing changes at all.
   */
   const sat = signals.attempts.find((a) => a.level === level && a.whole !== false);

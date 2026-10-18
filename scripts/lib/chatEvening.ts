@@ -3,7 +3,7 @@
  *
  * A browser suite is `.mjs` and the course is TypeScript behind a path alias,
  * so the suite asks this, through `tsx`, which evening to tick and what its
- * steps are called, rather than keeping a second copy of the programme that
+ * steps are called, rather than keeping a second copy of the program that
  * would fall behind the first. The evening is the first of the first part built
  * out of units (A2.1, since A1 is the lessons and a lesson evening has no chat)
  * past the first two that meets at least `CHAT_MIN_NEW` new words, which is an

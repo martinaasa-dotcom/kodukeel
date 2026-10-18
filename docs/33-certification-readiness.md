@@ -16,7 +16,7 @@ not a control either. Read this as the backlog, and read `docs/29-controls.md` f
 
 Two things are worth saying before the tables. The engineering controls in this project are unusually
 checkable, because most of them are asserted in CI rather than described in a manual. The
-organisational controls are what one company with a very small number of people has, which is to say
+organizational controls are what one company with a very small number of people has, which is to say
 thin. A certification body cares about both, and the second is where nearly all of the work is.
 
 Operator: **Upthink Solutions OÜ**, registry code **16683946**, Tallinn, Estonia. Security contact:
@@ -69,11 +69,11 @@ of what an ISO Stage 1 readiness review asks to see.
 | **5.29, 5.30, 8.13, SOC 2 Availability.** Provider backups are inherited and have never been restored by us. Recovery objectives are written as untested. | Restore a production-shaped database from a Supabase backup into a scratch project, time it, and write down what broke. | 1 day | Section 9 of `docs/28-incident-response.md` rewritten with a dated run and a measured recovery time | ISO Stage 2, SOC 2 |
 | **CC3, 5.9.** Threat model with ranked assets, but no risk register anybody reviews on a schedule. | A register with one row per risk: description, owner, likelihood, impact, treatment, review date. Seeded from section 4 of `docs/27-security.md`, which already holds the analysis. | 1 day, then 2 hours a quarter | A risk register document of its own, not yet written | ISO Stage 1, SOC 2 |
 | **5.9.** Asset inventory lives in a design document rather than a register. | Extract section 3 of `docs/27-security.md` into a register with owners and review dates. | Half a day | A file of its own, reviewed with the risk register | ISO Stage 1 |
-| **5.18.** Access rights are provisioned correctly and never reviewed. | A quarterly review of the GitHub organisation, the Vercel team, the Supabase project and `ADMIN_EMAILS`, recorded with a date and an initial. | 1 hour a quarter | A dated record per review | ISO Stage 2, SOC 2 |
+| **5.18.** Access rights are provisioned correctly and never reviewed. | A quarterly review of the GitHub organization, the Vercel team, the Supabase project and `ADMIN_EMAILS`, recorded with a date and an initial. | 1 hour a quarter | A dated record per review | ISO Stage 2, SOC 2 |
 | **6.5.** No offboarding procedure. | A joiner and leaver checklist naming the four places access exists, with a record per event. | Half a day | A checklist in `docs/`, plus the records | ISO Stage 2, SOC 2 |
 | **5.19 to 5.22, CC9.** Suppliers are on standard terms with no assessment process. | A supplier register built on `docs/26-subprocessors.md`: what each holds, which terms apply, where the data sits, and a yearly review date. | Half a day, then 2 hours a year | `docs/26-subprocessors.md` grown a review column, or a register beside it | ISO Stage 1, SOC 2 |
 | **5.1, CC1.** Policies exist as design documents. There is no ISMS with a scope and a Statement of Applicability. | Write the scope, the policy index, the SoA skeleton against all 93 Annex A controls, and one measurable objective. | 2 to 3 days | An ISMS document set in `docs/` | ISO Stage 1 |
-| **6.3.** No awareness programme. | A short written induction covering the rules in `CLAUDE.md` that are security rules, plus a yearly read and acknowledge with a date. | Half a day, then an hour a year | The induction, plus dated acknowledgements | ISO Stage 2, SOC 2 |
+| **6.3.** No awareness program. | A short written induction covering the rules in `CLAUDE.md` that are security rules, plus a yearly read and acknowledge with a date. | Half a day, then an hour a year | The induction, plus dated acknowledgments | ISO Stage 2, SOC 2 |
 | **6.7, 7.7, 7.9.** Devices are personal machines with full disk encryption and nothing enforcing it. | A device policy, and a per-device attestation that encryption is on, screen lock is set and the OS is current. | 2 hours, then an hour a year | The policy, plus one attestation per machine | ISO Stage 2 |
 | **8.32, CC8.** The default branch is not protected, so CI runs on every change and is not required to pass before a merge. | Turn on branch protection with the CI jobs as required checks, export the rules, and record who may merge. | 2 hours | A settings export committed beside the workflows | SOC 2 |
 | **8.16, CC4, CC7.** Nothing watches the running deployment. | Point `ERROR_WEBHOOK_URL` at a mailbox or channel a person reads, and add a weekly digest of failed jobs and refused requests. This is alerting and it is not a SIEM. | 1 day | The configuration, plus the digest itself | SOC 2 |
@@ -113,7 +113,7 @@ exists as something other than a design document. Items 2, 3, 6 and 7 of Phase 0
 - **A management review with minutes**, held at a stated interval, with inputs and decisions recorded.
 - **A corrective action log**: nonconformity, root cause, action, verification, date closed.
 - **Evidence that the controls operated over a period**, which is the access reviews, the supplier
-  reviews, the device attestations, the awareness acknowledgements and the CI record from section 2.
+  reviews, the device attestations, the awareness acknowledgments and the CI record from section 2.
 - **A Statement of Applicability against all 93 controls**, with a justification for each exclusion.
   The tables in `docs/29-controls.md` cover the ones a buyer asks about, which is fewer than 93.
 
@@ -130,7 +130,7 @@ will take it as an interim.
 **What is missing beyond Phase 0 and Phase 2:**
 
 - **A service auditor**, engaged, which is the money.
-- **A system description**: the boundary, the components, the subservice organisations, and the
+- **A system description**: the boundary, the components, the subservice organizations, and the
   complementary user entity controls. Sections 1 and 2 of `docs/27-security.md` are the raw material
   and are not written in the shape a report wants.
 - **A management assertion**, signed. CC1 in `docs/29-controls.md` says there is no board and no
@@ -163,7 +163,7 @@ configuration one.
 expires, an hour by default. Traded for speed, deliberately, and named in section 6 of
 `docs/27-security.md`. The sign-in allowlist is not part of the trade.
 
-**A restore writes rows under ids the file chose.** Analysed in section 8 of `docs/27-security.md`
+**A restore writes rows under ids the file chose.** Analyzed in section 8 of `docs/27-security.md`
 and accepted with the reasoning, because minting fresh ids would sever every review from the card it
 was about. An auditor may disagree. The answer is the analysis, not a fix.
 

@@ -45,7 +45,7 @@ import { countOf, tr, type Locale } from "@/lib/copy/locale";
  * RATHER THAN A CHOICE ABOUT PUZZLES. `/grammar/build-a-word` teaches the one
  * claim this course rests on: eleven cases are the second stored form with a
  * fixed ending on it, the same ending for every word there is. The ending is the
- * half a rule gives you and the stem is the half you have to have memorised
+ * half a rule gives you and the stem is the half you have to have memorized
  * (`tuba` goes to `toa`, `aeg` to `aja`), so handing over the ending is the mild
  * hint and handing over the stem is the strong one. A word with no stem behind
  * it, which is every English gloss and every phrase, has no ending rung and is

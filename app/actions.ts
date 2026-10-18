@@ -193,7 +193,7 @@ async function sayRefusal(ownerId: string, busy: ActionRefusal): Promise<ActionR
  * Väljendid: write down the sayings a sitting showed, so the next one deals
  * sayings this learner has not met (`lib/games/sayingsDeal.ts`). The ids are
  * JSON off the wire, so only strings are kept, at most a sitting's worth, and
- * `afterServing` stores none the catalogue does not hold.
+ * `afterServing` stores none the catalog does not hold.
  */
 export async function markSayingsServed(ids: unknown): Promise<void> {
   const shown = (Array.isArray(ids) ? ids : []).filter((id): id is string => typeof id === "string").slice(0, 10);
@@ -1774,7 +1774,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
  * `PAID_OFF=scenes` not set (`chatOffered`), since the bank cannot hold lines
  * for words nobody knew in advance, so a keyless deployment is refused here as
  * well as never shown the button. WHO: always the same persona for this
- * learner (`chatPersona`), so the neighbour who remembers you is one person.
+ * learner (`chatPersona`), so the neighbor who remembers you is one person.
  *
  * The band is the learner's, or the one they chose on the briefing, checked
  * against the closed list as `beginScene` checks it.
@@ -2155,7 +2155,7 @@ export async function setLetterBar(value: LetterBar) {
 
 /**
  * Which voice reads Estonian aloud, whether a card reads itself, and whether
- * an answer makes a sound. Each value is normalised against its allowlist on
+ * an answer makes a sound. Each value is normalized against its allowlist on
  * the way in, so a request cannot store a voice the speech route would not
  * accept. Revalidated at the layout, since the shell publishes all three.
  */
@@ -3167,7 +3167,7 @@ export async function createClassroom(name: string, kind?: string, targetLevel?:
   /*
     Both read through their own tables rather than trusted as sent. Every export
     here is a public endpoint, so `kind` arrives as a string somebody could set
-    to anything, and an unrecognised one has to become a class: that is the
+    to anything, and an unrecognized one has to become a class: that is the
     shape whose consent screen a member will actually be shown.
   */
   const cohort = cohortKind(kind);
@@ -3386,7 +3386,7 @@ export async function assignHomework(
  * task carries the scene's id, which is what lets Today link straight to the
  * conversation and lets "done" be read off the learner's own runs rather than
  * ticked (`lib/progress/homework.ts`). The title is the scene's English title,
- * which every screen puts through `t()` like the catalogue's own.
+ * which every screen puts through `t()` like the catalog's own.
  */
 export async function assignScene(rawClassroomId: unknown, rawSceneId: unknown, rawDueAt?: unknown) {
   const ownerId = await requireUserId();
@@ -3404,7 +3404,7 @@ export async function assignScene(rawClassroomId: unknown, rawSceneId: unknown, 
   if (!classroom) return { ok: false as const, error: "Only the person who runs this class can do that." };
   if (classroom.archived) return { ok: false as const, error: "That class has been archived, so it can't be changed." };
 
-  // A public endpoint: a scene id the catalogue does not hold is refused, never stored.
+  // A public endpoint: a scene id the catalog does not hold is refused, never stored.
   const scene = sceneById(sceneId);
   if (!scene) return { ok: false as const, error: "We couldn't find that conversation." };
 
@@ -4716,11 +4716,11 @@ export async function tonightSteps(programmeId: string, dayId: string) {
 }
 
 /**
- * Follow a programme, or say you would rather pick your own evening.
+ * Follow a program, or say you would rather pick your own evening.
  *
  * `off` is a real answer and is honored at every level, which is the whole
  * reason this is a setting rather than a guess off the placement: somebody who
- * knows what they want to practise should not have to argue with a home page
+ * knows what they want to practice should not have to argue with a home page
  * about it.
  */
 export async function setProgramme(value: string) {
@@ -5107,7 +5107,7 @@ export async function deleteScan(scanId: string) {
  * A phone photograph in a kitchen at nine in the evening turns `ö` into `o`
  * often enough that the confirmation rows are editable, and an edit that did
  * not re-check the dictionary would leave a now-correct word still marked as
- * unrecognised. With an Ekilex key this also reaches the full lexicon, so a
+ * unrecognized. With an Ekilex key this also reaches the full lexicon, so a
  * word outside the built-in 360 arrives with its real forms rather than as
  * a bare string.
  */
@@ -5570,7 +5570,7 @@ export async function resetCourseFor(target: unknown) {
  *
  * The question game puts a slip of the hand right (`suuur` is `suur`), and a
  * real word it simply does not know must not be put right into another one:
- * `halb` is "bad", one letter from `hall`, grey. The game asks this about the
+ * `halb` is "bad", one letter from `hall`, gray. The game asks this about the
  * words it could not read before it repairs any of them, and answers on its own
  * if the network is gone. Accept-side only (ADR-005): the answer is a yes or a
  * no, never a form.

@@ -286,7 +286,7 @@ export interface TurnContext {
   /**
    * Whether the course teaches a spelling, which `known` also answers yes to
    * once it is widened to the forms list. Separate because one reader needs
-   * the difference: a capitalised word the course teaches at the front of a
+   * the difference: a capitalized word the course teaches at the front of a
    * sentence (`Homme`) is that word, while one only the forms list holds
    * (`Tartusse`, which Vabamorf knows as a town) may be a place name
    * (`placeName`). Absent on a caller that has not resolved it, and then only
@@ -402,7 +402,7 @@ const ENGLISH_NOT = new Set(["don't", "dont", "not", "can't", "cannot", "didn't"
 const ENGLISH_LOST = new Set(["understand", "follow"]);
 
 /**
- * ONE WORD YOU RECOGNISED IS NOT "I DID NOT CATCH THAT".
+ * ONE WORD YOU RECOGNIZED IS NOT "I DID NOT CATCH THAT".
  *
  * This was half the words, on the reasoning that the two readings differ in
  * what the other side *says* rather than in anything scored. That is true and
@@ -411,7 +411,7 @@ const ENGLISH_LOST = new Set(["understand", "follow"]);
  * incomprehensible", and nobody who caught a word of a sentence says the
  * second. A person hearing one word they know asks about that word.
  *
- * So the repair phrase is for a turn the scene recognised **nothing** in,
+ * So the repair phrase is for a turn the scene recognized **nothing** in,
  * which is what a person means by it, and everything else gets a narrower
  * re-ask. It matters because the scene's list is the units the scene
  * declares rather than the whole course: a learner reaching for a real word
@@ -830,7 +830,7 @@ export function readTurn(
   /*
     AND ON A BEAT THAT WANTED A NO, "I DON'T KNOW" IS STILL NOT ONE. Misheard
     and told to say that is not it, a learner who wrote `Ma ei tea.` was read
-    as having said no, and the other side apologised for mishearing and went
+    as having said no, and the other side apologized for mishearing and went
     on. The `ei` there belongs to the phrase, so a turn that is lost and holds
     no other negator is lost; `Ei, ma ei tea` says no as well and is a no.
   */
@@ -916,7 +916,7 @@ export function readTurn(
     word is a word they tried. `npm run probe:turns` found the case it costs
     most: asked where they are going, a learner writes `Tartusse`, and the app
     answers that it did not understand them. Tartu is a city. The forms list
-    holds no capitalised word on purpose (`scripts/build-wordlist.ts`: an index
+    holds no capitalized word on purpose (`scripts/build-wordlist.ts`: an index
     full of two-letter abbreviations makes every typo look like a word), so
     every place name in the country lands here, in the scenes most likely to
     need one.
@@ -1383,7 +1383,7 @@ function satisfies(
 
         Everything above holds the learner to the dealt value, and for a year
         that was final: asked where they were going, somebody who wrote `ma
-        lähen jaama` at a window whose card said the city centre was told they
+        lähen jaama` at a window whose card said the city center was told they
         had not been understood, and so was somebody who asked for tea where
         the card said coffee, and somebody who said the trouble began on
         Monday where the card said Tuesday. Every one of those is perfect
@@ -1488,7 +1488,7 @@ function satisfies(
     case "register": {
       /*
         A BEAT WITH A REGISTER OF ITS OWN IS ASKING FOR THAT REGISTER. Asked
-        to put the favour to a friend, `Kas te saaksite aidata?` is perfect
+        to put the favor to a friend, `Kas te saaksite aidata?` is perfect
         Estonian and the wrong thing to say, so on such a beat the lenient
         reading below does not apply: the turn is met by this register's
         pronoun or by a second person verb in it, and refused outright where
@@ -1647,7 +1647,7 @@ function negatedIn(
   /*
     WHAT IS NEGATED DECIDES WHETHER THE ANSWER IS REFUSED. "Ma ei taha
     piima" turns the milk down, and "Mul ei ole tööd" is somebody saying
-    what is wrong, which is the answer the job centre asked for; read the
+    what is wrong, which is the answer the job center asked for; read the
     same way, the second was refused in perfect Estonian, and so were "Ma ei
     ole kindel" and "mul ei ole seda dokumenti". So a word the beat names in
     any form is refused only where wanting, suiting or being able is what was
@@ -1728,7 +1728,7 @@ const UNDERSTAND = words(LOST.phrases[0]).at(-1);
 const SHORT_LOST = 3;
 
 /**
- * A place name in the turn, as written: a capitalised word of three letters or
+ * A place name in the turn, as written: a capitalized word of three letters or
  * more that is a real spelling of the language, and is not a word the scene or
  * the course teaches, which is what keeps `Palun`, `Tere` and `Homme` at the
  * front of a sentence out of it. The forms list is built with Vabamorf, which

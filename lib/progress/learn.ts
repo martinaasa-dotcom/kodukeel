@@ -303,7 +303,7 @@ function sentenceAndGap(
    * `lib/collections/lesson.ts` draws one file over and was drawn wrongly
    * here first. Filtering the examples before `teachingSentence` looked like
    * the tidier place for it and took the sentence off the *meet* rung too:
-   * measured over every A1 evening of the programme, 478 of 493 words had a
+   * measured over every A1 evening of the program, 478 of 493 words had a
    * sentence to be met with and 5 had one afterwards, so the first screen of
    * a beginner's every evening read "No example sentence for this one yet"
    * about words with several. Nothing is asked at a meeting, the word and its
@@ -329,7 +329,7 @@ function sentenceAndGap(
     sentence is readable, so choosing one the learner can read is what decides
     whether the word gets a gap rung at all. It buys nothing today and is
     still the right way round: measured over every A1 evening of the
-    programme, five of the 493 words have a readable sentence and not one of
+    program, five of the 493 words have a readable sentence and not one of
     those five can carry a gap in the form the meet rung showed, so the A1 gap
     rung is empty either way until `npm run audit:readable`'s list is written
     down as sentences. What it does is make a contributed sentence count the

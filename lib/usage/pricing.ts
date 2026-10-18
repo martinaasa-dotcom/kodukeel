@@ -6,7 +6,7 @@
  * One micro-dollar is finer than any per-token price, so nothing rounds to zero.
  *
  * The table is a *floor for safety*, not an invoice. Prices change and a
- * deployment may point at a model nobody here has heard of, so an unrecognised
+ * deployment may point at a model nobody here has heard of, so an unrecognized
  * model is charged at `UNKNOWN_MODEL` — the most expensive rate in the table —
  * rather than at zero. A cap that fails open is not a cap.
  */
@@ -85,7 +85,7 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
     account: a deployment that has upgraded its Groq or Gemini plan and pinned
     some other model still meets UNKNOWN_MODEL and still fails closed.
 
-    Without these rows the cap would fail the other way. An unrecognised model
+    Without these rows the cap would fail the other way. An unrecognized model
     is charged at the dearest rate in the table, so a handful of genuinely free
     Groq calls would have read as several dollars and switched Anu off for
     everybody, which is exactly the fault the TTS speaker name caused once
@@ -359,7 +359,7 @@ export function cacheStorageAsInputTokens(
  * The parts of one call's input, where the provider told them apart.
  *
  * `inputTokens` stays the total, cached tokens included, so a caller that has
- * not been taught about caching keeps the behaviour it had: everything at the
+ * not been taught about caching keeps the behavior it had: everything at the
  * base rate, which over-counts and therefore still fails closed. What these
  * two do is move the tokens the provider named as cached onto their own rate.
  */

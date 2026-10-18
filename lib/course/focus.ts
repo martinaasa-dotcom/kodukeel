@@ -20,7 +20,7 @@
  *
  * WHY THE WHOLE THING IS IN THE QUERY AND NOT LOOKED UP. The bar that draws
  * the way on is a client component mounted in the signed-in shell, and the
- * shell knows nothing about a programme. It could import `PROGRAMMES`, which
+ * shell knows nothing about a program. It could import `PROGRAMMES`, which
  * is pure data and therefore reachable from a browser, and that would put a
  * hundred and eighty evenings of syllabus into the bundle of every page in the
  * app to draw one button. It could ask the server, and then the frame lands a
@@ -28,7 +28,7 @@
  * beat before it is taken away, which is the flicker `.scene-room` exists not
  * to have. The six fields are short, the module screen has all of them in
  * hand when it writes the link, and nothing here is trusted: `advanceCourseStep`
- * resolves the programme, the day and the step again on the server and refuses
+ * resolves the program, the day and the step again on the server and refuses
  * a day the learner has not reached, exactly as `markCourseStep` always did.
  *
  * Pure, like the rest of `lib/course/`: no React, no Prisma, no clock.
@@ -49,10 +49,10 @@ export const MODULE_PARAM = "module";
 /**
  * The separator inside that value.
  *
- * Not a dot and not a colon: a programme id is `a1.1` and a day id carries
+ * Not a dot and not a colon: a program id is `a1.1` and a day id carries
  * dashes, so both are already spoken for. `~` is unreserved in a URL, so it
  * survives a round trip without being escaped into something a reader of the
- * address bar cannot recognise.
+ * address bar cannot recognize.
  */
 const SEP = "~";
 

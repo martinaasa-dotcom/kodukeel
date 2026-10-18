@@ -68,7 +68,7 @@ Each of these is asserted by a test or an invariant; `CLAUDE.md` has the reasons
   writes.
 - **No Estonian is written by the app** (ADR-005). Forms come from Ekilex or a rule over a stored stem;
   sentences come from Ekilex. A model may translate into English and explain; it never supplies a form.
-- **Tokens, not literals.** Type sizes are step names, colours are tokens from `app/globals.css`, and
+- **Tokens, not literals.** Type sizes are step names, colors are tokens from `app/globals.css`, and
   the middot is on no screen.
 - **A reading is not a verdict.** A figure about a learner is never painted in the right or wrong hues.
 - **One loud action per screen**, and the primary button is the last in its row.

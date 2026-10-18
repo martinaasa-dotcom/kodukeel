@@ -21,7 +21,7 @@
  * and how long that takes at the size of the database it ran on.
  *
  * It refuses anything not on loopback, with no override: it creates and drops
- * a database, and the one thing a drill may never do is practise on the real
+ * a database, and the one thing a drill may never do is practice on the real
  * thing. The original database is only ever read.
  */
 import { execFileSync, spawn } from "node:child_process";

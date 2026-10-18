@@ -214,7 +214,7 @@ export function nounFor(n: number, one: string, many = `${one}s`): string {
  * Five files kept a table of their own, reaching three, seven, ten and
  * fourteen, so the shield letter wrote "4 shields" where the evening letter
  * wrote "four", and a count past the end of one table fell back to a digit
- * that its neighbour would have spelled. Through twenty, then digits, which is
+ * that its neighbor would have spelled. Through twenty, then digits, which is
  * as far as any caller has needed and far enough that nothing it counts is
  * read out as a string of words.
  */
