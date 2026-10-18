@@ -187,21 +187,6 @@ export default async function PracticePage() {
                     ))}
                     <AddChoice href="/words/decks" title={t("Add a deck")} />
                   </Choices>
-                  <Choices label={<Link href="/review/common" className="underline-offset-4 hover:underline"><span lang="et">{common.et}</span> ({t(common.en)})</Link>}>
-                    {COMMON_GROUPS.map((group) => (
-                      <Choice
-                        key={group.key}
-                        href={`/review/common/${group.slug}`}
-                        title={t(group.title)}
-                        meta={countOf(locale, 100, "word")}
-                        label={fill(t("{round}: {list}, {group}"), {
-                          round: inlineName(flash, t),
-                          list: inlineName(common, t),
-                          group: t(group.title).toLowerCase(),
-                        })}
-                      />
-                    ))}
-                  </Choices>
                 </Card>
                 <Card tone="butter" art={<WorkbookPage />} data-practice-workbook="">
                   <h3><Named name={workbook} size="text-3xl" locale={locale} /></h3>
@@ -223,6 +208,38 @@ export default async function PracticePage() {
                     ))}
                   </Choices>
                 </Card>
+                {/*
+                  The commonest words of the language, a strip of their own
+                  under both cards rather than a third group inside Flash
+                  cards: they are not the learner's words, and inside that card
+                  they made it twice the height of the workbook beside it.
+                */}
+                <section
+                  aria-labelledby="practice-common"
+                  data-practice-common=""
+                  className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border @3xl:col-span-2 @3xl:flex-row"
+                  style={{ borderColor: "var(--edge)", background: "var(--surface)" }}
+                >
+                  {/* The tint the two cards above carry in their drawing, on the side here, in the one hue this section had not used. */}
+                  <div className="flex flex-col justify-center gap-1 p-5 @3xl:w-80 @3xl:shrink-0" style={{ background: "var(--sky-soft)" }}>
+                    <h3 id="practice-common">
+                      <Link href="/review/common" className="underline-offset-4 hover:underline">
+                        <Named name={common} size="text-3xl" locale={locale} />
+                      </Link>
+                    </h3>
+                    <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t("The words you'll hear most, a hundred of each kind.")}</p>
+                  </div>
+                  <div className="grid flex-1 grid-cols-2 content-center gap-2 p-5 @5xl:grid-cols-4">
+                    {COMMON_GROUPS.map((group) => (
+                      <Choice
+                        key={group.key}
+                        href={`/review/common/${group.slug}`}
+                        title={t(group.title)}
+                        meta={countOf(locale, 100, "word")}
+                      />
+                    ))}
+                  </div>
+                </section>
               </div>
             </div>
           </Section>
