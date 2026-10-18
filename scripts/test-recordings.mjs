@@ -324,7 +324,7 @@ try {
       const say = page.locator("[data-say-them]");
       const lineShown = /aken/.test(await say.innerText()) && /esimees/.test(await say.innerText());
       await say.getByRole("button", { name: "Say them" }).click();
-      const heard = await eventually(async () => /words were heard|Every word was heard/.test(await say.innerText()), { timeoutMs: 120_000 });
+      const heard = await eventually(async () => /words were understood|Every word was understood/.test(await say.innerText()), { timeoutMs: 120_000 });
       check("Say them reads the ticked words along, once", lineShown && heard, (await say.innerText()).slice(0, 120));
       const graded = await prisma.review.count({ where: { ownerId: OWNER, lexemeId: { in: [aken.id, esimees.id] }, reviewedAt: { gte: startedAt } } });
       check("and grades nothing", graded === 0, `${graded} reviews`);

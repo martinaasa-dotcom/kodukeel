@@ -5578,11 +5578,25 @@ a:focus-visible .wave-word::after {
   transition-property: background-color, color, box-shadow;
   transition-duration: 200ms;
 }
-.read-aloud-word[data-lit="true"] {
+.read-aloud-word[data-lit="true"],
+.read-aloud-word[data-lit="close"] {
   background: var(--accent-soft);
   box-shadow: 0 0 0 0.1em var(--accent-soft);
   color: var(--accent-deep);
   font-weight: 600;
+}
+/*
+  Understood, but heard as another spelling (`clarityOf`): lit like any word
+  that came across, with the wavy underline `.heard-unsure` uses, so the
+  difference is a shape as well as a hue. The sentence under the line says
+  what it was heard as.
+*/
+.read-aloud-word[data-lit="close"] {
+  text-decoration-line: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: var(--hard-ink);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
 }
 @media (prefers-reduced-motion: reduce) {
   .speech-mic, .read-aloud-word { transition: none; }

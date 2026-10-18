@@ -114,7 +114,7 @@ try {
     const asked = await acceptDownload(page);
     check("the first press asks no question: it fetches the model and listens (docs/41 section 8b)", asked === null, (asked ?? "").slice(0, 100));
     const counted = await page.waitForFunction(
-      () => /words were heard|Every word was heard|That's the word|heard as the word this time/.test(document.querySelector("[data-speaking-step]")?.textContent ?? ""),
+      () => /words were understood|Every word was understood|That's the word|heard as the word this time/.test(document.querySelector("[data-speaking-step]")?.textContent ?? ""),
       null,
       { timeout: 240_000 },
     ).then(() => true, () => false);
