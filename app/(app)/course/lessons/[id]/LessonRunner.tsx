@@ -7,7 +7,9 @@ import { RuleNote } from "@/components/RuleNote";
 import { Speak } from "@/components/Speak";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText, lessonTextLang } from "@/components/course/LessonText";
-import { Card, Chip, Page, SectionTitle, Stack } from "@/components/ui";
+import { Card, Chip, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
+import { Confetti } from "@/components/Confetti";
+import { Mascot } from "@/components/brand";
 import { fill } from "@/lib/copy/locale";
 import type { LessonSpec, PracticeItem, Taught } from "@/lib/course/lessons";
 import { lessonLabel } from "@/lib/course/lessons/label";
@@ -56,13 +58,15 @@ const STEP_TITLE: Record<Step, string> = {
 /** The three teaching steps are finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene }: {
+export function LessonRunner({ lesson, practice, review, next, scene, place }: {
   lesson: LessonSpec;
   practice: readonly PracticeItem[];
   review: readonly PracticeItem[];
   next: { id: string; title: string } | null;
   /** The lesson's own conversation, where it has one (`sceneForLesson`). */
   scene: string | null;
+  /** Where this lesson sits among its level's lessons, for the finish. */
+  place: { at: number; of: number };
 }) {
   const t = useT();
   const locale = useLocale();
@@ -102,19 +106,40 @@ export function LessonRunner({ lesson, practice, review, next, scene }: {
     return (
       <Page eyebrow={fill(t("Lesson {n}"), { n: lessonLabel(lesson) })} title={t(lesson.title)} titleLang={lessonTextLang(lesson.title, locale)}>
         <Stack>
-          <section aria-labelledby="lesson-done">
-            <h2 id="lesson-done" ref={heading} tabIndex={-1} className="text-xl font-bold" style={{ color: "var(--ink)" }}>
-              {t("Lesson done")}
-            </h2>
-            <p className="mt-3 label-xs" style={{ color: "var(--ink-3)" }}>{t("What you can do now")}</p>
-            <p className="mt-1 text-md" style={{ color: "var(--ink)" }}><LessonText text={lesson.goal} locale={locale} /></p>
+          {/*
+            THE LITTLE CONFETTI PAGE. A lesson ends the way every round
+            used to: a burst of confetti, the mascot cheering on the night
+            panel, and three figures about the evening, then the way on.
+          */}
+          <Confetti count={40} />
+          <section aria-labelledby="lesson-done" className="mx-auto w-full max-w-2xl" data-lesson-done>
+            <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
+              <Mascot size={68} mood="cheer" className="float mx-auto" />
+              <h2
+                id="lesson-done"
+                ref={heading}
+                tabIndex={-1}
+                className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl"
+                style={{ color: "var(--ink)", textWrap: "balance" }}
+              >
+                {t("Lesson done")}
+              </h2>
+              <p className="mx-auto mt-2 max-w-[44ch] text-base" style={{ color: "var(--ink-2)", textWrap: "pretty" }}>
+                <LessonText text={lesson.goal} locale={locale} />
+              </p>
+            </div>
+            <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
+              <StatTile value={lesson.teaches.length} label={t("new to say")} tone="accent" />
+              <StatTile value={lesson.conversation.filter((l) => l.et).length} label={t("lines heard")} tone="accent" />
+              <StatTile value={fill(t("{n} of {total}"), { n: String(place.at), total: String(place.of) })} label={fill(t("lessons in {level}"), { level: lesson.level })} tone="accent" />
+            </div>
             {saved === false && !saving && (
-              <div className="mt-4 flex flex-wrap items-center gap-3" role="status">
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-3" role="status">
                 <p className="text-base" style={{ color: "var(--again-ink)" }}>{t(NOT_REACHED)}</p>
                 <Button variant="secondary" size="sm" onClick={save}>{t("Try again")}</Button>
               </div>
             )}
-            <div className="mt-5 flex flex-wrap items-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               {focus && moduleNext ? (
                 moduleNext
               ) : (
