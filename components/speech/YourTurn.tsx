@@ -73,10 +73,10 @@ export function YourTurn({ text }: { text: string }) {
             : t("That wasn't heard as the word this time. Here it is again; say it once more if you like.")}
         </p>
       )}
-      {outcome === "heard" && clarity && !speech.listening && !speech.thinking && <HeardAs line={words} clarity={clarity} />}
-      {outcome && !speech.listening && !speech.thinking && !speech.silent && (
-        <div className="flex justify-center">
-          <CompareVoices audio={speech.audio} text={text} hint={outcome === "heard"} />
+      {outcome && !speech.listening && !speech.thinking && (
+        <div className="turn-after flex flex-col items-center gap-3 text-center">
+          {outcome === "heard" && clarity && <HeardAs line={words} clarity={clarity} />}
+          {!speech.silent && <CompareVoices audio={speech.audio} text={text} hint={outcome === "heard"} align="center" />}
         </div>
       )}
     </div>

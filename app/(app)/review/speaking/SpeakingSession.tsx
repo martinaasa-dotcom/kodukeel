@@ -519,15 +519,15 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
               learner's own turn at once. On the recall it follows only once the answer is
               shown, because before that the native voice would say the answer. */}
           {!handsFree && (
-            <div className="flex flex-wrap items-center justify-center gap-2">
+            <div className="flex flex-col items-center gap-3">
               {heardText(step, lit, box.hearing?.heard ?? null) && online && (
                 <HearItHeard text={heardText(step, lit, box.hearing?.heard ?? null)!} voice={voice} pace={pace} />
               )}
               {step !== "meaning" && lit && !shadow.listening && !shadow.thinking && !shadow.silent && (
-                <CompareVoices audio={shadow.audio} text={item.et} hint={index === 0 && step === "along"} />
+                <CompareVoices audio={shadow.audio} text={item.et} hint={index === 0 && step === "along"} align="center" />
               )}
               {step === "meaning" && (check
-                ? <CompareVoices audio={box.speech.audio} text={item.et} />
+                ? <CompareVoices audio={box.speech.audio} text={item.et} align="center" />
                 : <Recorder audio={box.speech.audio} />)}
             </div>
           )}

@@ -48,4 +48,19 @@ export default function theSoundIsForTheEar({ check, code }: InvariantKit) {
     assert.match(src, /playRecording\(/, "CompareVoices no longer plays the turn through the path that keeps the microphone closed");
     assert.match(src, /playClip\(/, "CompareVoices no longer plays the native line through the clip path");
   });
+
+  check("both voices are drawn on one clock, from the very audio that plays", () => {
+    const src = code("components/speech/CompareVoices.tsx");
+    // One scale for the pair, or a slower turn could not be read off the length of its row.
+    assert.match(src, /barsPerSecond\(\[/, "CompareVoices draws the two voices without a shared time scale");
+    assert.equal((src.match(/waveBars\(/g) ?? []).length >= 2, true, "CompareVoices does not draw both voices");
+    // The turn plays as it is drawn: the speech, without the room the microphone kept after it.
+    assert.match(src, /speechOnly\(/, "CompareVoices plays the turn with its trailing silence");
+    assert.match(src, /playRecording\(\{ samples: turn\b/, "CompareVoices plays something other than the turn it draws");
+    // A drawing of loudness: no verdict hue may color a bar.
+    const css = code("app/globals.css");
+    const block = css.slice(css.indexOf(".compare-voices {"), css.indexOf(".compare-hint"));
+    assert.ok(block.length > 0, "the comparison's styles are not where this check reads them");
+    assert.doesNotMatch(block, /--(sky|blush|butter|good|again|hard)(-ink|-soft)?\b/, "a bar in the comparison wears a verdict hue");
+  });
 }

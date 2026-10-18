@@ -11489,7 +11489,9 @@ as another spelling, never once on 87 native clips that lit and on 43 of 148 wro
 and says "We heard uks for üks" (`HeardAs`), and the sentence under a line says "understood". It is
 evidence one way only, since a word heard as spelled can still have been said with an accent, so every
 screen that lights a line also plays the learner's own turn back and then the native line
-(`CompareVoices`), which writes nothing. `docs/41-fifth-batch.md` section 8c; asserted in
+(`CompareVoices`), which writes nothing. Both voices are drawn there too, as rows of bars on one
+time scale that light as each plays, so a turn said slower is a longer row: length is what Estonian
+means with and what an eye can check. `docs/41-fifth-batch.md` section 8c; asserted in
 `scripts/invariants/the-sound-is-for-the-ear.ts`.
 
 The level check has a speaking section for the same reason it has the other three, and it obeys the
