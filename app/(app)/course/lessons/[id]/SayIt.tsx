@@ -72,7 +72,7 @@ export function SayIt({ lesson, scene, onComplete }: { lesson: LessonSpec; scene
     return (
       <div className="flex flex-col gap-5" data-say-it="choose">
         <p className="max-w-[60ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {t("This is the part that makes tonight's words yours. Say the conversation along with the screen, then answer a few questions about yourself out loud. Nobody judges how you sound: the words light up as they're understood, and that's all.")}
+          {t("Words you've said out loud are the ones you remember. Say the conversation along with the screen, then answer a few questions about yourself out loud. Nobody judges how you sound: the words light up as they're understood, and that's all.")}
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <Button size="lg" onClick={() => setMode("type")}>
