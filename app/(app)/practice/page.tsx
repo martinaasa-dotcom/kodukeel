@@ -221,13 +221,13 @@ export default async function PracticePage() {
                   style={{ borderColor: "var(--edge)", background: "var(--surface)" }}
                 >
                   {/* The tint the two cards above carry in their drawing, on the side here, in the one hue this section had not used. */}
-                  <div className="flex flex-col justify-center gap-1 p-5 @3xl:w-80 @3xl:shrink-0" style={{ background: "var(--sky-soft)" }}>
+                  <div className="flex flex-col justify-center gap-4 p-5 @3xl:w-80 @3xl:shrink-0" style={{ background: "var(--sky-soft)" }}>
                     <h3 id="practice-common">
                       <Link href="/review/common" className="underline-offset-4 hover:underline">
                         <Named name={common} size="text-3xl" locale={locale} />
                       </Link>
                     </h3>
-                    <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t("The words you'll hear most, a hundred of each kind.")}</p>
+                    <p className="text-base" style={{ color: "var(--ink-2)" }}>{t("The words you'll hear most, a hundred of each kind.")}</p>
                   </div>
                   <div className="grid flex-1 grid-cols-2 content-center gap-2 p-5 @5xl:grid-cols-4">
                     {COMMON_GROUPS.map((group) => (
