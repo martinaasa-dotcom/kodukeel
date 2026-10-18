@@ -294,6 +294,9 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
         "The how-often word can lead the sentence, {Mõnikord ma loen}, or follow the verb, {Ma vaatan alati telerit}. Both are fine.",
         "{Öösel} is at night, like {hommikul} and {õhtul} from lesson 20.",
       ],
+      listen: [
+        { words: [{ clip: "pair-millal", en: "when", mark: "m" }, { clip: "pair-kus", en: "where" }] },
+      ],
       watchOut: "{Millal?} is when, for a time. Where is {kus?}, and they sound nothing alike, so listen for the m at the start.",
       examples: [0, 3, 7],
     },

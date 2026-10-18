@@ -27,6 +27,7 @@ export const ROUND_NAMES: Readonly<Record<string, RoundName>> = {
   "/sonad": { et: "Sõnad", en: "Words" },
   "/crossword": { et: "Ristsõna", en: "Crossword" },
   "/review/letters": { et: "Tähed", en: "Letters" },
+  "/review/spelled": { et: "Tähthaaval", en: "Letter by letter" },
   "/review/match": { et: "Paarid", en: "Pairs" },
   "/review/sentences": { et: "Laused", en: "Sentences" },
   "/review/map": { et: "Kus? Kuhu? Kust?", en: "Where?" },

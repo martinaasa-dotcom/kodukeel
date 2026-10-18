@@ -144,6 +144,18 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   },
   {
     /*
+      Letter names, the one thing a learner needs them for: a word comes down
+      the line spelled the Estonian way, in the native speaker's recordings.
+    */
+    href: "/review/spelled", title: "Tähthaaval", subtitle: "Spelled down the phone", icon: "Phone", tone: "accent",
+    group: "targeted", note: "Six words",
+    within: "/games",
+    blurb:
+      "A word you know, spelled out letter by letter the way Estonians spell a name on the phone. " +
+      "Write it down. It's how the letters' Estonian names stop being a surprise.",
+  },
+  {
+    /*
       Numbers said out loud, which nothing in the app drilled on their own
       (docs/41-fifth-batch.md, VB-7). Named the way Tähed and Sõnad are, in
       the language it is played in, with the English on the subtitle. A drill

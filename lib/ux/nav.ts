@@ -286,6 +286,18 @@ export const SECTIONS: NavSection[] = [
         keywords: "similar confusing look alike twins pairs kuulma kuulama ostma otsima verb pairs causative",
       },
       {
+        /*
+          Every sound of Estonian, said by the native speaker who develops this
+          app: the first thing anybody needs and the one thing a page cannot
+          show. A part of the grammar pages, linked from the top of `/grammar`
+          and from the first lesson's own sounds (components/sounds/).
+        */
+        href: "/grammar/sounds", label: "How Estonian sounds",
+        blurb: "Every sound, said by a native speaker", icon: "Ear",
+        tone: "butter", within: "/grammar",
+        keywords: "sounds pronunciation pronounce letters alphabet vowels long short double stress listen hear native speaker audio õ ä ö ü",
+      },
+      {
         href: "/dictionary/common", label: "Common words",
         blurb: "The 400 words Estonians use most, in four lists", icon: "TrendingUp",
         tone: "sky", within: "/dictionary",

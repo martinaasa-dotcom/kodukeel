@@ -3125,6 +3125,9 @@ const MEASURES_RATHER_THAN_PRACTISES: string[] = [
   // Sõnamäng: a compound read for fun is not a card either, for the same reason, and the false friends are asked
   // as a joke about what a word looks like rather than as a recall the scheduler could use.
   "app/(app)/review/wordplay/WordplaySession.tsx",
+  // Tähthaaval: what is practiced is hearing the letters' Estonian names, which no card holds, and a word
+  // written wrong because two names sound close has not been forgotten, so a lapse on its card would be false.
+  "app/(app)/review/spelled/SpelledSession.tsx",
 ];
 
 

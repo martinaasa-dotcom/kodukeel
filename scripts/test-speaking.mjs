@@ -29,7 +29,7 @@ import { startRound } from "./lib/briefing.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 
 const B = baseUrl();
-const { check, absent, done } = suite("Saying it", { floor: 25 });
+const { check, absent, done } = suite("Saying it", { floor: 26 });
 
 const FAKE_MIC = (clip) => [
   "--use-fake-ui-for-media-stream",
@@ -103,7 +103,7 @@ try {
   const opened = await stage.first().waitFor({ timeout: 15_000 }).then(() => true, () => false);
   if (!opened) {
     const said = (await page.locator("main").innerText().catch(() => "")).slice(0, 120);
-    absent(17, `the Speaking round dealt nothing on this deck (${said}); seed and run scripts/demo-data.ts`);
+    absent(18, `the Speaking round dealt nothing on this deck (${said}); seed and run scripts/demo-data.ts`);
   } else {
     check("the round opens on saying it along", (await stage.getAttribute("data-speaking-step")) === "along");
     check("nothing of the engine loads before a press", engine.length === 0, engine.join(", "));
@@ -121,6 +121,9 @@ try {
     const status = await page.locator("[data-speaking-step] [role=status]").first().innerText().catch(() => "");
     check("the line says how many of its words were heard", counted, status);
     check("what was heard can be heard back while online", (await page.locator("[data-hear-heard]").count()) > 0);
+    // The comparison draws the learner's own turn, so the length of what they said is there to read beside the native line.
+    const yourBars = await page.locator('[data-compare-voices] [data-row="you"] .compare-bar').count();
+    check("the comparison draws your own turn as bars beside the native voice", yourBars > 0, `${yourBars} bars`);
 
     await page.getByRole("button", { name: /Next step/ }).click();
     check("saying it back hides the words", /The words are hidden until you have said them/.test(await stage.innerText()));

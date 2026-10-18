@@ -7666,6 +7666,16 @@ Nothing reached it, because a pause long enough to cap only occurs in a clip of 
 sentence. `fadeIn` and `fadeOut` are two functions now, since a latent fault in the one function
 about seams is a fault in every seam added later.
 
+**A person says the sounds, and says them wherever a person has said them.** The speech service
+reads sentences, so a bare `õ` or a held `mm` is a fragment to it. The native speaker who develops
+this app recorded the sounds, lesson 1's words, the months, the numbers, two dialogues and the
+alphabet. `lib/audio/native.ts` is the catalog and `scripts/build-native-audio.ts` cuts the take in
+`scripts/recordings/` through the same `lib/audio/wav.ts` pipeline, so a recording and a synthetic
+clip start and sound alike. A speaker button left on the learner's own voice plays the recording
+when its text matches (`nativeFor`). A screen that chose a voice keeps it. A clip asked for by id
+plays at the speed it was said (`rateFor`), because the stretch would shrink the length a sounds
+screen is teaching. Re-cut the recording and raise `NATIVE_CUT`, or a phone keeps the old clip. **And the alphabet is for spelling, not reading.** Estonian is read the way it is written, so the 32 recorded letter names are used where a learner needs them: spelling a name or a word out loud. `lib/collections/spelling.ts` says which recording each character is (a letter with a mark Estonian lacks is the bare letter, a digit is shown struck through and skipped), `components/sounds/SpellIt.tsx` spells a typed name on the sounds page and in lesson 3 beside `Kuidas seda kirjutatakse?`, and Tähthaaval (`/review/spelled`) spells a word the learner has met for them to write down. That round grades nothing: a word written wrong because two letter names sound close has not been forgotten.
+
 **A response built out of one learner's own rows says it is theirs and is never kept.** The
 framework's silence is not a cache policy: `ImageResponse` stamps `public, immutable,
 max-age=31536000` on anything that does not say otherwise, so the share card, which carries a
@@ -10493,7 +10503,9 @@ A1 units stay as the dictionary's request list and are no longer walked, so a li
 `/course/lessons`, and a beginner's first run builds no starter deck. Nobody was on the old A1, so the
 switch broke it rather than placing anybody (L4 not needed). Every lesson item becomes a card of
 something the seed writes (`lessonHeads.ts`): a headword once it has been taught, or the lesson's own
-entry. The lessons' English is machine translated into Russian and Ukrainian (`areas/lessonText.ts`),
+entry. One thing in a lesson may run ahead of the ledger: a sound key's example word with its meaning
+printed under it (`SoundRow.en`), there to be heard for its sound, so lesson 1 teaches õ, ä, ö and ü
+together on `öö` and `üks` before any evening teaches either. The lessons' English is machine translated into Russian and Ukrainian (`areas/lessonText.ts`),
 the operator's call, until somebody fluent reads it.
 
 **A lesson's role-play is also a live scene, and it says only what that lesson has taught.**
@@ -11507,7 +11519,9 @@ as another spelling, never once on 87 native clips that lit and on 43 of 148 wro
 and says "We heard uks for üks" (`HeardAs`), and the sentence under a line says "understood". It is
 evidence one way only, since a word heard as spelled can still have been said with an accent, so every
 screen that lights a line also plays the learner's own turn back and then the native line
-(`CompareVoices`), which writes nothing. `docs/41-fifth-batch.md` section 8c; asserted in
+(`CompareVoices`), which writes nothing. Both voices are drawn there too, as rows of bars on one
+time scale that light as each plays, so a turn said slower is a longer row: length is what Estonian
+means with and what an eye can check. `docs/41-fifth-batch.md` section 8c; asserted in
 `scripts/invariants/the-sound-is-for-the-ear.ts`.
 
 The level check has a speaking section for the same reason it has the other three, and it obeys the

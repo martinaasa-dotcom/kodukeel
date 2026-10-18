@@ -3654,3 +3654,39 @@ speak, write, talk). The grammar drills stay on the grammar pages they practice.
 English. The operator chose the names; `Sagedasemad sõnad` waits on a native speaker's word.
 Not done: the round pages' own titles and the course's step names still use the older titles in
 `lib/ux/modes.ts`, and `lib/ux/weekGames.ts` still rotates Today's own card.
+
+## 65. The fifty-ninth pass: a person says the sounds
+
+The first lesson's sound table was a letter, a sentence about it and a word, all silent, on the one
+screen of the course whose subject is how Estonian sounds. The speech service could not fill it: it
+reads sentences, so a bare `õ` or a held `mm` is a fragment to it. The native speaker who develops
+this app recorded a script instead, in one take: the sounds alone, the length contrasts, lesson 1's
+words at two speeds, the months, the numbers, two dialogues and the alphabet.
+
+**The recording is cut by a script and leveled like every synthetic clip.**
+`scripts/build-native-audio.ts` reads `scripts/recordings/`, cuts at the times in
+`native-cuts.json`, and puts each clip through `lib/audio/wav.ts`, so a recording and a synthetic
+clip start the same distance after a press and play at one loudness. Every section of the take came
+back with exactly the number of lines the script holds. `lib/audio/native.ts` is the catalog of 126
+clips, and `native.test.ts` holds it and `public/audio/native/` to each other.
+
+**A person says it wherever a person has said it.** A speaker button left on the learner's own voice
+plays the recording when its text is one of these words or lines (`nativeFor`), and falls back to the
+synthesizer if the file will not load. A screen that chose a voice, a conversation's cast or the
+listening round's speakers, keeps it. A sound and a letter's name are never looked up by spelling,
+and `linna` is not either, because it was recorded twice and said two ways.
+
+**What a learner presses.** Lesson 1's table is four sound keys, each beside a word with the sound
+marked in it (`components/sounds/`). Four lessons whose warning is about a sound put the two words side
+by side to hear: `kaheksa` and `üheksa`, `kuus` and `kus`, `juuni` and `juuli`, `kapp` and `kapis`.
+A lesson's Estonian table cells play too. `/grammar/sounds` has every sound on one page: the vowels,
+short against long, the consonants, length, words easy to mix up, stress and the alphabet. A clip asked
+for by id plays at the speed it was said, because slowing it would shrink the very length the screen
+teaches.
+
+Not done: the letter names and the English glosses on the sounds page are for the native speaker to
+read, and pass 2 of the recording is kept outside the repository as a spare take of every clip.
+
+The first evening teaches the four letters an English keyboard has no key for as one set of tiles, õ, ä, ö and ü, each a key that plays the sound alone and a word that plays it in use with its meaning under it; mm and h follow under them. Lesson 1 teaches no word with ö or ü in it, so `öö` (night) and `üks` (one) are heard there before any evening teaches them, which the ledger allows only for a sound's example word that carries its meaning (`SoundRow.en`). The two notes that said the same thing in prose came off the How step.
+
+The recorded alphabet is used for what letter names are for, spelling out loud. On the sounds page and in lesson 3, a learner types a name and hears it spelled letter by letter, each letter lighting as it is said, prefilled with their own name where they gave one. Lesson 3 teaches `Kuidas seda kirjutatakse?` (how do you spell that) with it, which the native speaker reads in the pull request. And Tähthaaval, a game on the games board, spells a word the learner has met down an imagined phone line for them to write down, with a box per letter that lights as it is said; a miss marks the wrong letters and spells it again slower. It grades nothing, since what it practices is the letters' names, which no card holds.

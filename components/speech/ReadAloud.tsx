@@ -88,9 +88,12 @@ export function ReadAloud({ line, label, onHeard, shortcut = false, voice, compa
           )}
         </div>
       )}
-      {clarity && !speech.listening && !speech.thinking && <HeardAs line={words} clarity={clarity} />}
-      {speech.offered && heard && !speech.listening && !speech.thinking && !speech.silent && (
-        <CompareVoices audio={speech.audio} text={line} voice={voice} hint={compareHint} />
+      {/* What came of the turn, once it is over: the words heard as another spelling, then both voices. */}
+      {speech.offered && heard && !speech.listening && !speech.thinking && (
+        <div className="turn-after flex flex-col gap-3">
+          {clarity && <HeardAs line={words} clarity={clarity} />}
+          {!speech.silent && <CompareVoices audio={speech.audio} text={line} voice={voice} hint={compareHint} />}
+        </div>
       )}
     </div>
   );

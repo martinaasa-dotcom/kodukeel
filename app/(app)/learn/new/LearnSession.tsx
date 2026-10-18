@@ -444,7 +444,7 @@ export function LearnSession({
   useEffect(() => {
     const nextId = queue[1];
     const upcoming = nextId ? byId.get(nextId) : undefined;
-    if (upcoming) prefetchClip({ text: upcoming.lemma, voice, pace });
+    if (upcoming) prefetchClip({ text: upcoming.lemma, voice, pace, native: true });
   }, [queue, byId, voice, pace]);
 
   const cheer = useCallback((won: boolean) => {
