@@ -71,6 +71,15 @@ describe("the price of a cached input token", () => {
     expect(micros).toBe(expected);
   });
 
+  it("prices a cache read at a row's own lower rate, where the vendor publishes one", () => {
+    // claude-sonnet-5-5 reads at 0.05x of its $2 input: 1,000,000 cached tokens is $0.10.
+    expect(estimateCostMicros("claude-sonnet-5-5", 1_000_000, 0, { cachedInputTokens: 1_000_000 })).toBe(100_000);
+    // A row with no rate of its own keeps the table's 0.1x.
+    // Rounded up by a micro-dollar at most, since the table never understates.
+    expect(estimateCostMicros("claude-haiku-5-5", 1_000_000, 0, { cachedInputTokens: 1_000_000 })).toBeGreaterThanOrEqual(10_000);
+    expect(estimateCostMicros("claude-haiku-5-5", 1_000_000, 0, { cachedInputTokens: 1_000_000 })).toBeLessThanOrEqual(10_001);
+  });
+
   /*
     A CALLER THAT KNOWS NOTHING ABOUT CACHING KEEPS THE BEHAVIOR IT HAD.
     Every provider but Anthropic reports one input figure and no split, so the

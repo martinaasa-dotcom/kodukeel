@@ -185,7 +185,7 @@ export const SERVICES: readonly Service[] = [
   {
     id: "model",
     name: "The language model",
-    who: "Google, with Groq behind it, and Anthropic or OpenAI as a paid fallback everywhere but Anu",
+    who: "Google and Anthropic, with Groq behind them: Anthropic writes the conversations and reads a page, and Google answers Anu",
     does: "Anu, the note on a piece of writing, and reading a photographed page. Never a single Estonian form.",
     whenItIsGone: "Anu says she can't reach anyone. Review, the dictionary and every drill keep working as normal.",
     setBy: "GEMINI_API_KEY",

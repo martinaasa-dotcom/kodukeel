@@ -17705,7 +17705,7 @@ _lib/copy/i18n/areas/public.ts_
   → Нічого не працює, а головна сторінка стискається до словника з п'яти слів.
 - [ ] **8776.** The language model  
   → Мовна модель
-- [ ] **8777.** Google, with Groq behind it, and Anthropic or OpenAI as a paid fallback everywhere but Anu  
+- [ ] **8777.** Google and Anthropic, with Groq behind them: Anthropic writes the conversations and reads a page, and Google answers Anu  
   → Google, за ним Groq, а Anthropic або OpenAI як платний запасний варіант скрізь, крім Ану
 - [ ] **8778.** Anu, the note on a piece of writing, and reading a photographed page. Never a single Estonian form.  
   → Ану, відгук на письмову роботу й читання сфотографованої сторінки. Жодної естонської форми.

@@ -257,6 +257,24 @@ stronger one where the model is out and the other side is speaking only from pre
 every line, which is the operator's wording. The constant that named the Groq model is deleted
 rather than left unread, and `provider.test.ts` fails on a Groq link coming back.
 
+**And then Anthropic leads a scene, which supersedes the paragraphs above that put Gemini first.**
+The operator read every model's lines and chose `claude-sonnet-5-5`, thinking off, so it is the
+first entry of `SCENE_MODELS` with the two Gemini links behind it, pinned like them. Two things
+made it affordable and both are in the machinery rather than the model (`docs/21-situations.md`
+§86). The consistency reviewer was never told what a line was for, so it withheld the wage on the
+beat whose job is to offer the wage, and that was most of every run's retries: `ConsistencyAsk.now`
+is the beat's stage direction, and with it the same questions let through 49 of 60 lines where they
+had let through about half. The reviewer and the concede judge moved to `claude-haiku-5-5` at low
+effort (`reviewProviders`, the graders' chain behind it), which judged like Sonnet at a twelfth of
+the price. And the conversation is cached as well as the prompt (`anthropicMessages`): the live
+block goes in front of the last ask, as on the Gemini path, and a second breakpoint sits on the last
+line of the conversation, so a retry and the next turn read it off the cache. Measured on all 43
+scenes twice: drafts 516 to 325 and 599 to 370, turns falling to the bank 50 to 3 and 68 to 7, and
+about $0.026 to $0.030 a conversation against $0.037 to $0.042, which is about twice the flash. The
+scanner moved the same day: `VISION_MODEL` is `claude-haiku-5-5`, which read 144 of 144 for less than
+the Lite, and the Lite stands behind it. **Anthropic spend on SCENE and SCAN, and the reviewer's,
+is primary traffic**, so the ledger's fallback budget counts only the graders' Anthropic tail.
+
 **The leash came off the composer, and the gate is what pays for it.** `MAX_SENTENCES` is five,
 `MAX_COMPOSED_WORDS` is fifty-five and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
 old argument was that the only thing keeping a composed line honest is how little room it has to

@@ -3,6 +3,7 @@ import { reportError } from "@/lib/observability/report";
 import { after } from "next/server";
 import { SPEND_MESSAGE, thresholdCrossed, type SpendThreshold } from "./spendAlert";
 import { type UsageKind, estimateCostMicros, reserveMicros } from "./pricing";
+import { REVIEW_MODEL } from "@/lib/tutor/provider";
 import {
   type QuotaDecision, type UsageSnapshot, checkQuota, readLimits, utcDay,
 } from "./quota";
@@ -60,6 +61,23 @@ const PENDING = "pending";
  */
 const FALLBACK_PROVIDER = "anthropic";
 const TUTOR_KIND: UsageKind = "TUTOR";
+/*
+  AND TWO MORE KINDS FOR WHICH ANTHROPIC IS THE ORDINARY TUESDAY. A scene leads
+  on `claude-sonnet-5-5` and a scan on `claude-haiku-5-5` (`SCENE_MODELS`,
+  `VISION_MODEL`), so their Anthropic spend is primary traffic, bounded by
+  their own slices. Counted here, an ordinary evening of conversations would
+  spend the fallback budget by lunchtime and take the grader's last resort
+  away for the rest of the day, which is the fault the comment above names,
+  arriving through the two kinds that moved.
+*/
+const SCENE_KIND: UsageKind = "SCENE";
+const SCAN_KIND: UsageKind = "SCAN";
+/*
+  And a scene's reviewer, which is metered as a GRADER call and leads on
+  Anthropic (`reviewProviders`), so it is told apart by its model: the
+  graders' own Anthropic link is the bounded tail, on a different model.
+*/
+const REVIEW_PRIMARY = REVIEW_MODEL;
 
 /**
  * The advisory lock the ledger's read-and-reserve runs under.
@@ -257,7 +275,9 @@ export async function snapshotUsage(
         Gemini and then Groq, have failed. TUTOR is excluded because her chain
         takes no fallback, so none of her spend is fallback spend, and her own
         slice already bounds it; counting it here would let a busy day of Anu
-        look like an outage and switch off everybody else's last resort.
+        look like an outage and switch off everybody else's last resort. SCENE
+        and SCAN are excluded because Anthropic leads both, and so is the
+        model that reviews a scene's lines, for the same reason.
 
         A reservation carries the provider "pending" and so counts for nothing
         until it settles, which is the right answer rather than a gap: until the
@@ -270,6 +290,8 @@ export async function snapshotUsage(
       */
       coalesce(sum("costMicros") FILTER (
         WHERE "provider" = ${FALLBACK_PROVIDER} AND "kind" <> ${TUTOR_KIND}
+          AND "kind" <> ${SCENE_KIND} AND "kind" <> ${SCAN_KIND}
+          AND "model" <> ${REVIEW_PRIMARY}
       ), 0) AS "globalFallbackMicros"
     FROM "UsageEvent" WHERE "day" = ${day}
   `;

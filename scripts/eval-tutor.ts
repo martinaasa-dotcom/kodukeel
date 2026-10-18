@@ -58,6 +58,7 @@ import { estimateCostMicros } from "../lib/usage/pricing";
 import { asksForForms, ENGLISH_FUNCTION_WORDS, wordsNote } from "../lib/tutor/words";
 import { shippedWordsInQuestion } from "./lib/shippedWords";
 import { installMeter } from "./lib/meter";
+import { anthropicArms, nameOf } from "./lib/anthropicArms";
 
 // What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay off, because it counts a rate over samples, and a sample replayed is not a second sample.
 installMeter({ replay: false });
@@ -140,7 +141,7 @@ const QUESTIONS: Q[] = [
 ];
 
 function flag(name: string): string { const at = process.argv.indexOf(name); return at >= 0 ? process.argv[at + 1] ?? "" : ""; }
-const only = flag("--only");
+const only = flag("--only").split(",").map((m) => m.trim()).filter(Boolean);
 const runs = Math.max(1, Number(flag("--runs") || 1));
 const pick = flag("--q");
 const verbose = process.argv.includes("--verbose");
@@ -190,7 +191,7 @@ function candidates(): ProviderConfig[] {
     out.push({ name: "groq", model: "openai/gpt-oss-20b", label: "Groq", ...r });
     out.push({ name: "groq", model: "qwen/qwen3.8-27b", label: "Groq" });
   }
-  return out.filter((one) => !only || one.model.includes(only));
+  return [...out.filter((one) => only.length === 0 || only.some((piece) => one.model.includes(piece))), ...anthropicArms(TUTOR_REPLY_TOKENS)];
 }
 
 async function ask(config: ProviderConfig, system: string, q: Q) {
@@ -252,7 +253,7 @@ async function main() {
   const qs = QUESTIONS.filter((q) => !pick || q.id === pick || q.kind === pick);
   console.log(`prompt ~${Math.round(system.length / 4)} tokens; ${qs.length} questions x ${runs} run(s)`);
   for (const config of candidates()) {
-    console.log(`\n### ${config.model}`);
+    console.log(`\n### ${nameOf(config)}`);
     const tally = { asked: 0, facts: 0, factsOf: 0, fixOk: 0, fixOf: 0, lenOk: 0, lenOf: 0, tells: 0, fmt: 0, unverified: [] as string[], terms: 0, in: 0, out: 0, cached: 0, ms: 0, wordsList: [] as number[], errors: 0, strayFix: 0, vocabLines: 0, vocabNotHead: 0, firstOk: 0, firstOf: 0 };
     const fails: string[] = [];
     for (const q of Array.from({ length: runs }, () => qs).flat()) {
@@ -322,7 +323,7 @@ async function main() {
     const usd = estimateCostMicros(config.model, tally.in / per, tally.out / per, { cachedInputTokens: tally.cached / per }) / 1e6;
     const sorted = [...tally.wordsList].sort((a, b) => a - b);
     const med = sorted[Math.floor(sorted.length / 2)] ?? 0; const p90 = sorted[Math.floor(sorted.length * 0.9)] ?? 0;
-    console.log(`  == ${config.model}: facts ${tally.facts}/${tally.factsOf}  fix+vocab ${tally.fixOk}/${tally.fixOf}  length ${tally.lenOk}/${tally.lenOf}  answer-first ${tally.firstOk}/${tally.firstOf}  tells ${tally.tells}  fmt ${tally.fmt}  strayFIX ${tally.strayFix}  vocab ${tally.vocabLines} (forms ${tally.vocabNotHead})  unverified ${tally.unverified.length}  terms/answer ${(tally.terms / per).toFixed(1)}  words med ${med} p90 ${p90}  in ${Math.round(tally.in / per)} (cached ${Math.round(tally.cached / per)}) out ${Math.round(tally.out / per)}  ${Math.round(tally.ms / per)}ms  $${(usd * 1000).toFixed(2)}/1k  errors ${tally.errors}`);
+    console.log(`  == ${nameOf(config)}: facts ${tally.facts}/${tally.factsOf}  fix+vocab ${tally.fixOk}/${tally.fixOf}  length ${tally.lenOk}/${tally.lenOf}  answer-first ${tally.firstOk}/${tally.firstOf}  tells ${tally.tells}  fmt ${tally.fmt}  strayFIX ${tally.strayFix}  vocab ${tally.vocabLines} (forms ${tally.vocabNotHead})  unverified ${tally.unverified.length}  terms/answer ${(tally.terms / per).toFixed(1)}  words med ${med} p90 ${p90}  in ${Math.round(tally.in / per)} (cached ${Math.round(tally.cached / per)}) out ${Math.round(tally.out / per)}  ${Math.round(tally.ms / per)}ms  $${(usd * 1000).toFixed(2)}/1k  errors ${tally.errors}`);
     if (tally.unverified.length) console.log(`     unverified: ${[...new Set(tally.unverified)].join(" ")}`);
   }
 }

@@ -964,6 +964,7 @@ export async function composeTurn(
           moved: movedBefore,
           facts: plan.facts,
           later: agenda,
+          now: BEFORE_BREAK_THEY,
           line: candidate,
         })
         : null,
@@ -1013,6 +1014,7 @@ export async function composeTurn(
           moved: plan.moved,
           facts: plan.facts,
           later: agenda.slice(1),
+          now: stageFor(beat, card),
           line: candidate,
         })
         : null;
