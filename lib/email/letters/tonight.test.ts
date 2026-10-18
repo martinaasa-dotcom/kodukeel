@@ -27,11 +27,11 @@ const texts = (input: TonightInput) =>
 
 describe("the evening letter's second line", () => {
   it("says the name they asked to be called, where a person would", () => {
-    expect(texts(base({ name: "Mari" }))).toContain("Mari, you're one step into Kodus. The rest is right where you left it.");
+    expect(texts(base({ name: "Mari" }))).toContain("Mari, you're one step into “Kodus”. The rest is right where you left it.");
   });
 
   it("reads as it did without a name", () => {
-    expect(texts(base())).toContain("You're one step into Kodus. The rest is right where you left it.");
+    expect(texts(base())).toContain("You're one step into “Kodus”. The rest is right where you left it.");
   });
 
   it("counts steps in the plural past one", () => {
@@ -45,7 +45,7 @@ describe("the evening letter's second line", () => {
 
   it("names them on an evening not yet started too", () => {
     const steps = [{ title: "a", minutes: 6, done: false }];
-    expect(texts(base({ name: "Mari", day: { ...base().day, steps } })).join(" ")).toContain("Mari, this is Kodus, at home.");
+    expect(texts(base({ name: "Mari", day: { ...base().day, steps } })).join(" ")).toContain("Mari, this is “Kodus”, at home.");
   });
 });
 
@@ -55,7 +55,7 @@ describe("an evening with no new words", () => {
 
   it("does not promise zero new words, in the subject or the heading", () => {
     const letter = tonightLetter(base({ day: { ...base().day, newWords: 0, steps: unstarted } }));
-    expect(letter.subject).toBe("Back to Kodus today");
+    expect(letter.subject).toBe("Back to “Kodus” today");
     const headings = letter.blocks.flatMap((b) => ("text" in b && b.t === "heading" ? [b.text] : []));
     expect(headings.join(" ")).toContain("Words you know, put to work today");
     expect(JSON.stringify(letter)).not.toMatch(/Zero new/);

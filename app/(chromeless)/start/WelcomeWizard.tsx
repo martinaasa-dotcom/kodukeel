@@ -996,7 +996,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                     minutes: countOf(locale, COURSE_DAY_MINUTES, "minute", "gen"),
                   })}
                   {openingPart.firstDay && (
-                    <> {fillNodes(t("Today’s module is {title}: {words}, then {steps} that put them to use."), {
+                    <> {fillNodes(t("Today’s module is “{title}”: {words}, then {steps} that put them to use."), {
                       title: uiWantsEnglish(openLevel)
                         ? <span className="font-semibold">{t(openingPart.firstDay.subtitle)}</span>
                         : <span lang="et" className="font-semibold">{openingPart.firstDay.title}</span>,
