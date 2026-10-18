@@ -18,7 +18,7 @@ import type { LessonSpec, PartOfLessons } from "./types";
 export const A1_EILE_PART: PartOfLessons = {
   id: "a1-eile",
   level: "A1",
-  title: "{Eile ja homme}",
+  title: "Yesterday and tomorrow",
   about: "Tomorrow and yesterday: plans, what you did, and the months of the year.",
 };
 

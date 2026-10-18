@@ -156,7 +156,10 @@ export interface LessonSpec {
 export interface PartOfLessons {
   readonly id: string;
   readonly level: Level;
-  /** The Estonian title the plan gives it, in braces like any Estonian in English. */
+  /**
+   * What the part is called, in English. A beginner cannot read an Estonian
+   * heading yet, so A1's parts are named in the language the learner thinks in.
+   */
   readonly title: string;
   /** What the part is about, in English. */
   readonly about: string;

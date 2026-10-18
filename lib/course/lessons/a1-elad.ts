@@ -18,7 +18,7 @@ import type { LessonSpec, PartOfLessons } from "./types";
 export const A1_ELAD_PART: PartOfLessons = {
   id: "a1-elad",
   level: "A1",
-  title: "{Kus sa elad?}",
+  title: "Where you live",
   about: "Where you live and where you're from, your languages, numbers, and your family.",
 };
 

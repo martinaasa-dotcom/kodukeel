@@ -15,6 +15,12 @@ import type { Area } from "../area";
 export const LESSONS_AREA: Area = {
   ru: {
     /* The A1 lessons' own titles and goals, and their parts' lines, now that they are the course. */
+    "First words": "Первые слова",
+    "Where you live": "Где вы живёте",
+    "Time and the day": "Время и день",
+    "Home and town": "Дом и город",
+    "In the shop": "В магазине",
+    "Yesterday and tomorrow": "Вчера и завтра",
     "First words: hello, your name, who you are, and how it's going.": "Первые слова: привет, ваше имя, кто вы и как дела.",
     "Where you live and where you're from, your languages, numbers, and your family.": "Где вы живёте и откуда вы, ваши языки, числа и ваша семья.",
     "Days and the time, your day, and what you want, can and have to do.": "Дни и время, ваш день и то, что вы хотите, можете и должны сделать.",
@@ -196,6 +202,12 @@ export const LESSONS_AREA: Area = {
   },
   uk: {
     /* The A1 lessons' own titles and goals, and their parts' lines, now that they are the course. */
+    "First words": "Перші слова",
+    "Where you live": "Де ви живете",
+    "Time and the day": "Час і день",
+    "Home and town": "Дім і місто",
+    "In the shop": "У магазині",
+    "Yesterday and tomorrow": "Вчора і завтра",
     "First words: hello, your name, who you are, and how it's going.": "Перші слова: привіт, ваше ім'я, хто ви і як справи.",
     "Where you live and where you're from, your languages, numbers, and your family.": "Де ви живете і звідки ви, ваші мови, числа і ваша родина.",
     "Days and the time, your day, and what you want, can and have to do.": "Дні й час, ваш день і те, що ви хочете, можете й мусите зробити.",

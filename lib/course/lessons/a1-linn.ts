@@ -18,7 +18,7 @@ import type { LessonSpec, PartOfLessons } from "./types";
 export const A1_LINN_PART: PartOfLessons = {
   id: "a1-linn",
   level: "A1",
-  title: "{Kodu ja linn}",
+  title: "Home and town",
   about: "Home and town: where things are, where you're going, and how you get there.",
 };
 
