@@ -478,11 +478,18 @@ export default async function CoursePage({
             what makes an evening feel finite. The Estonian alone: the meanings
             are what the first step is for, and a gloss here would answer the
             question the ladder is about to ask.
+
+            ONE COLOUR FOR ALL OF THEM. They were tinted by whether the deck
+            already held a card for the word, which meant nothing to somebody
+            starting a lesson, borrowed the hue a right answer wears, and on a
+            lesson evening had no sentence beside it to say so: a hue carrying a
+            distinction alone. What is missing from the deck is said in words
+            below, where it is worth saying.
           */}
           <ul className="mt-2 flex flex-wrap gap-2">
             {day.words.map((word) => (
               <li key={word}>
-                <Chip tone={missing.includes(word) ? "neutral" : "good"} caseSensitive>
+                <Chip tone="neutral" caseSensitive>
                   <span lang="et">{word}</span>
                 </Chip>
               </li>
