@@ -154,6 +154,7 @@ const ROUTES = [
   "/practice",
   /* The bento mockup of the games section. */
   "/practice/look/3",
+  "/practice/look/4",
   "/quest",
   "/sonad",
   "/crossword",

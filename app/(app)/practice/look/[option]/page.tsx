@@ -6,6 +6,7 @@ import { Page, toneInk } from "@/components/ui";
 import { requireUserId } from "@/lib/auth/session";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { GameArt } from "../art";
+import { PracticeLook } from "../PracticeLook";
 import { GAME_WEEK, GROUPS, OPTIONS, WEEKDAYS, lookGames, type GroupId, type LookGame } from "../games";
 
 export const dynamic = "force-dynamic";
@@ -38,6 +39,7 @@ export default async function LookPage({ params, searchParams }: {
   const [{ option }, search] = await Promise.all([params, searchParams]);
   if (!OPTIONS.some((x) => String(x.n) === option)) notFound();
   const ownerId = await requireUserId();
+  if (option === "4") return <PracticeLook ownerId={ownerId} />;
   const settings = await readSettings(ownerId, [SETTING_KEYS.matchBest]);
   const best = numberSetting(settings[SETTING_KEYS.matchBest], 0);
 
@@ -61,7 +63,7 @@ export default async function LookPage({ params, searchParams }: {
   if (search.sample) return <NameSample games={games} />;
 
   return (
-    <Page route="/practice" title={a1 ? "Games" : "Mängud (Games)"} lead="Eleven games, all built from the words you've met.">
+    <Page route="/practice" title="Games" lead="Eleven games, all built from the words you've met.">
       <MockupPanel a1={a1} done={done} href={href} />
 
       <TodayTile game={today} tomorrow={tomorrow} weekday={WEEKDAYS[day]!} a1={a1} done={done.has(today.href)} />
@@ -124,18 +126,18 @@ function spanFor(group: GroupId, i: number, n: number): string {
 
 /* ------------------------------------------------------------------ names */
 
-function GameName({ game, a1, className, sub = "text-sm" }: { game: LookGame; a1: boolean; className: string; sub?: string }) {
-  if (a1) return <span className={`block font-display font-bold leading-tight ${className}`} style={{ color: "var(--ink)" }}>{game.en}</span>;
+/** The Estonian name, and its English in parentheses on a quieter line, at every level. */
+function GameName({ game, className, sub = "text-sm" }: { game: LookGame; a1?: boolean; className: string; sub?: string }) {
   return (
     <span className="block">
       <span lang="et" className={`block font-display font-bold leading-tight ${className}`} style={{ color: "var(--ink)" }}>{game.et}</span>
-      <span className={`block font-semibold ${sub}`} style={{ color: "var(--ink-3)" }}>{game.en}</span>
+      <span className={`block font-semibold ${sub}`} style={{ color: "var(--ink-3)" }}>({game.en})</span>
     </span>
   );
 }
 
-function plainName(game: LookGame, a1: boolean) {
-  return a1 ? game.en : `${game.et} (${game.en})`;
+function plainName(game: LookGame) {
+  return `${game.et} (${game.en})`;
 }
 
 /* -------------------------------------------------------------- today */
@@ -167,7 +169,7 @@ function TodayTile({ game, tomorrow, weekday, a1, done }: { game: LookGame; tomo
           )}
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>About {game.minutes} min</span>
         </div>
-        <p className="text-sm" style={{ color: "var(--ink-3)" }}>Tomorrow: {plainName(tomorrow, a1)}</p>
+        <p className="text-sm" style={{ color: "var(--ink-3)" }}>Tomorrow: {plainName(tomorrow)}</p>
       </div>
     </section>
   );
@@ -234,7 +236,7 @@ function MockupPanel({ a1, done, href }: { a1: boolean; done: Set<string>; href:
     >
       <span className="font-bold">Mockup only, see it as:</span>
       <Link href={href({ level: undefined })} className="tap-tint rounded-full px-3 py-1 font-semibold" style={chip(!a1)}>A2 and above</Link>
-      <Link href={href({ level: "A1" })} className="tap-tint rounded-full px-3 py-1 font-semibold" style={chip(a1)}>A1</Link>
+      <Link href={href({ level: "A1" })} className="tap-tint rounded-full px-3 py-1 font-semibold" style={chip(a1)}>A1 (two games locked)</Link>
       <Link href={href({ done: doneAll ? undefined : "/sonad,/crossword" })} className="tap-tint rounded-full px-3 py-1 font-semibold" style={chip(doneAll)}>
         Daily puzzles done
       </Link>

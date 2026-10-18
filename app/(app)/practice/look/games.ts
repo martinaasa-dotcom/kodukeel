@@ -88,4 +88,5 @@ export const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday",
 
 export const OPTIONS = [
   { n: 3, name: "Games", line: "Grouped by mood, with today's game on top." },
+  { n: 4, name: "Practice", line: "Due now, your words, and the four skills." },
 ] as const;
