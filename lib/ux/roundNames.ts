@@ -1,16 +1,23 @@
 /**
- * WHAT EVERY ROUND ON PRACTICE AND GAMES IS CALLED, AS AGREED.
+ * WHAT EVERY ROUND ON PRACTICE AND GAMES IS CALLED.
  *
- * MOCKUP, and the source the real build will read. One rule at every level:
- * the Estonian name leads and its English follows in parentheses, on a
- * quieter second line on a tile and on the same line in running text. The
- * sidebar stays in English.
+ * One rule at every level, the operator's: the Estonian name leads and its
+ * English follows in parentheses, on a quieter second line on a tile and on
+ * the same line in running text and in the command palette. A1 is not given
+ * the English alone, because a name met every day is a word learned for free.
+ * The rail stays in English, since it is how somebody finds their way round
+ * before they have learned anything.
  *
  * Every Estonian name is a dictionary word or phrase, chosen by the operator
- * on 2026-10-18. `Sagedasemad sõnad` is in use while a native speaker
- * confirms it (`Levinud sõnad` is the alternative).
+ * on 2026-10-18 and for the native Estonian speaker who develops this app to
+ * read in the pull request (ADR-005 amendment 4's standing, for copy).
+ * `Sagedasemad sõnad` is in use while a native speaker confirms it
+ * (`Levinud sõnad` is the alternative).
+ *
+ * Pure. `lib/ux/modes.ts` keeps what a round *is*; this keeps what it is
+ * called on the two pages that offer every round side by side.
  */
-interface RoundName {
+export interface RoundName {
   readonly et: string;
   readonly en: string;
 }
@@ -49,8 +56,19 @@ export const ROUND_NAMES: Readonly<Record<string, RoundName>> = {
   "/review/lookups": { et: "Otsitud sõnad", en: "Words you looked up" },
 };
 
+/** The agreed name of a round. Throws on an href nobody named, which a test holds to every offered round. */
 export function roundName(href: string): RoundName {
-  const name = ROUND_NAMES[href];
+  const name = nameOf(href);
   if (!name) throw new Error(`No agreed name for ${href}`);
   return name;
+}
+
+/** The agreed name where there is one, for a caller that also lists rounds nobody named. */
+export function nameOf(href: string): RoundName | undefined {
+  return Object.hasOwn(ROUND_NAMES, href) ? ROUND_NAMES[href] : undefined;
+}
+
+/** The name in running text: the Estonian, then the English in parentheses. */
+export function inlineName(name: RoundName): string {
+  return `${name.et} (${name.en})`;
 }

@@ -152,9 +152,8 @@ const ROUTES = [
   "/review/twins",
   "/grammar/twins",
   "/practice",
-  /* The bento mockup of the games section. */
-  "/practice/look/3",
-  "/practice/look/4",
+  "/games",
+  "/games?group=play",
   "/quest",
   "/sonad",
   "/crossword",

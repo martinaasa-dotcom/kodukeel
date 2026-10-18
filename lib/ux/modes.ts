@@ -33,7 +33,7 @@ export interface PracticeMode {
   blurb: string;
   /** A lucide icon name. See components/icons.tsx. */
   icon: string;
-  /** Its hue. Six quick modes, six hues, and no two of them share one. */
+  /** Its hue, for its icon. The Games board chooses its own tile colours (`lib/ux/games.ts`). */
   tone: Tone;
   /**
    * What kind of thing it is: a round, or a drill for a named weakness.
@@ -61,25 +61,14 @@ export interface PracticeMode {
    * and there is an invariant that the page it names really does link to it.
    */
   within?: string;
-  /**
-   * Drawn as its own card at the top of `/practice`, not as a tile in a shelf.
-   *
-   * `GAMES` used to be "everything with `within: \"/practice\"` except Flash
-   * cards", which is a rule that names one row. A second such card arrived and
-   * the choice was a second name in that filter or a field saying what the
-   * difference actually is, which is that these open a card with something to
-   * choose inside it rather than a round you press once.
-   */
-  headline?: boolean;
 }
 
 export const PRACTICE_MODES: readonly PracticeMode[] = [
   {
     /*
-      The headline of `/practice`, drawn as its own card above the grid, which
-      is why it carries `within` and stays out of `QUICK_MODES`: the six rounds
-      are six colored tiles and there are six hues, so a seventh would have to
-      share one and read as a duplicate of whichever it borrowed.
+      A card of its own on `/practice` under "Your words", with the learner's
+      decks as choices inside it, which is why it carries `within` and is not
+      one of the skill tiles.
 
       `targeted` is the honest group for it too. It is not a round you play for
       five minutes whatever state your deck is in, it is what you open when you
@@ -87,7 +76,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     */
     href: "/review/flashcards", title: "Flash cards", subtitle: "Words you've met",
     icon: "Layers", tone: "accent", group: "targeted", note: "Typed, varied",
-    within: "/practice", headline: true,
+    within: "/practice",
     blurb:
       "Words you already know, asked in ways your daily review never does. Type what you hear " +
       "in a sentence, fill a gap knowing only what it means, or write a sentence of your own. " +
@@ -95,20 +84,20 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   },
   {
     /*
-      THE EXERCISE EVERY COURSE BOOK IS MADE OF, AND A HEADLINE FOR THAT REASON.
+      THE EXERCISE EVERY COURSE BOOK IS MADE OF, AND A CARD FOR THAT REASON.
 
       A numbered page of real sentences, each with a word in brackets and a
       line to write its form on, the first one filled in as an example: the
       homework every Estonian class sets, and the one exercise where a learner
       has to read a whole sentence and work out what job the missing word is
-      doing before writing its ending. A card of its own on `/practice` rather
-      than a row on a shelf, with its themes as choices inside it, for the
+      doing before writing its ending. A card of its own on `/practice`, with
+      its themes as choices inside it, for the
       reason Flash cards is one: there is a choice to make in it. See
       `lib/games/workbook.ts`.
     */
     href: "/review/workbook", title: "Töövihik", subtitle: "Fill in the right form",
     icon: "BookOpen", tone: "butter", group: "targeted", note: "A page of real sentences",
-    within: "/practice", headline: true,
+    within: "/practice",
     blurb:
       "A page from a course book, set from your own words: pick the right form, write it, or " +
       "choose the word from a box. Check the page, fix what's wrong with a hint, then read it " +
@@ -117,9 +106,8 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   {
     /*
       The same round as Flash cards, pointed at one of the four frequency
-      lists instead of at the whole deck. A card rather than a tile for the
-      reason it carries `headline`: there is a choice inside it, which of the
-      four, and a tile has nowhere to put one.
+      lists instead of at the whole deck, so its four lists are a row of
+      choices inside the Flash cards card rather than a tile of their own.
 
       Its own route is the index at `/review/common`, which is where the
       palette lands and where the counts are. `/practice` draws the four
@@ -127,7 +115,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     */
     href: "/review/common", title: "Most common words", subtitle: "The ones you hear most",
     icon: "TrendingUp", tone: "sky", group: "targeted", note: "Four lists",
-    within: "/practice", headline: true,
+    within: "/practice",
     blurb:
       "Four lists of the hundred words Estonians say most, counted from real films and TV. Learn " +
       "these and you'll catch a good share of any conversation. Each word comes back with a new " +
@@ -135,11 +123,9 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   },
   {
     /*
-      Reached from Today, where it is a card rather than a row: the round is
-      about what is going wrong *today* and that is the screen that knows. It
-      stays in the table so the palette finds it, and out of `QUICK_MODES` for
-      the reason Flash cards is: six rounds, six hues, and a seventh tile would
-      have to borrow one and read as a duplicate.
+      Folded under the Review card on `/practice`, since it is the other thing
+      somebody's own log says is worth doing today. It stays in the table so
+      the palette finds it.
     */
     href: "/quest", title: "Daily quest", subtitle: "Your weak spots",
     icon: "Target", tone: "accent", group: "targeted", note: "From your log",
@@ -151,7 +137,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   {
     href: "/review/letters", title: "Tähed", subtitle: "Unscramble a word", icon: "Blocks", tone: "accent",
     group: "targeted", note: "Eight words",
-    within: "/practice",
+    within: "/games",
     blurb:
       "A word you know, with its letters jumbled. Hear it, then tap them back in order. You can " +
       "play it from your very first five words, and it's where õ and ä stop looking like o and a.",
@@ -159,7 +145,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   {
     href: "/sonad", title: "Sõnad", subtitle: "Guess the day's word",
     icon: "CircleDot", tone: "sky", group: "targeted", note: "Six letters, seven guesses",
-    within: "/practice",
+    within: "/games",
     blurb:
       "One Estonian word at your level, six letters long, and a new one every morning. Every " +
       "guess tells you which letters are in the right spot, which are in the word somewhere " +
@@ -182,7 +168,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     */
     href: "/crossword", title: "Ristsõna", subtitle: "Crossword, English clues",
     icon: "Grid3x3", tone: "butter", group: "targeted", note: "A new grid daily",
-    within: "/practice",
+    within: "/games",
     blurb:
       "Seven Estonian words at your level, crossing each other, with clues in English. You know " +
       "what you want to say and you hunt for the word, which is exactly what speaking feels like.",
@@ -190,7 +176,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   {
     href: "/review/map", title: "Map", subtitle: "See what an ending means",
     icon: "Map", tone: "sky", group: "targeted", note: "Pictures, no clock",
-    within: "/practice",
+    within: "/games",
     blurb:
       "A row of emoji: somebody walking into a house, a present going to a girl, a caterpillar " +
       "turning into a butterfly, and three forms of one word. Only the ending tells them apart, and " +
@@ -205,7 +191,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     */
     href: "/review/twins", title: "Kaksikud", subtitle: "Tell look-alikes apart",
     icon: "Scale", tone: "blush", group: "targeted", note: "Ten pairs, no clock",
-    within: "/practice",
+    within: "/games",
     blurb:
       "Two or three words that look alike, a real sentence with one of them missing, and what " +
       "the sentence means in English. Pick the one the writer used, then see the other one in a " +
@@ -220,7 +206,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     */
     href: "/review/sayings", title: "Väljendid", subtitle: "Pairs that fool you",
     icon: "Quote", tone: "butter", group: "targeted", note: "Five at a time, no clock",
-    within: "/practice",
+    within: "/games",
     blurb:
       "A verb and one small word that change what it means. Take each pair apart word by word, " +
       "guess what it means, then match five of them, place them in a situation and fill in the " +
@@ -235,7 +221,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     */
     href: "/review/wordplay", title: "Sõnamäng", subtitle: "Words with honest names",
     icon: "Smile", tone: "butter", group: "targeted", note: "Five at a time, no clock",
-    within: "/practice",
+    within: "/games",
     blurb:
       "Compound words read piece by piece, like a bat that's a leather mouse, and words that " +
       "only look or sound English. Take each one apart, guess what it means, then name it from what it says.",
@@ -252,19 +238,19 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     */
     href: "/review/twenty", title: "20 küsimust", subtitle: "Twenty questions",
     icon: "MessageCircleQuestion", tone: "blush", group: "targeted", note: "Ask in Estonian",
-    within: "/practice",
+    within: "/games",
     blurb:
       "I'm thinking of something. Ask yes or no questions in Estonian, like kas see on suur? " +
       "You get twenty, and a tip whenever a question could be put better.",
   },
   {
     href: "/review/match", title: "Match", subtitle: "Pair words and meanings", icon: "Grid2x2", tone: "sky",
-    group: "quick", note: "No time yet",
+    group: "targeted", note: "No time yet", within: "/games",
     blurb: "Eight words and eight meanings, all jumbled up. Pair them off as fast as you can.",
   },
   {
     href: "/review/sentences", title: "Laused", subtitle: "Put a sentence in order", icon: "Puzzle", tone: "accent",
-    group: "quick", note: "Needs sentences",
+    group: "targeted", note: "Needs sentences", within: "/games",
     blurb: "A real Estonian sentence, cut up and shuffled. Tap the words back into order.",
   },
   {
@@ -320,7 +306,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     blurb:
       "Mulle meeldib pasta, but ma tahan pastat. The first words of a sentence decide the form of " +
       "its last word, and this is where you learn to hear that.",
-    within: "/practice",
+    within: "/games",
   },
   {
     href: "/review/pairs", title: "Minimal pairs", subtitle: "Long sound or short?", icon: "Ear", tone: "sky",
@@ -388,92 +374,24 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
 ];
 
 /**
- * The quick rounds, in the order they are worth offering.
- *
- * The first three need nothing but a deck. The rest need audio, a microphone
- * or a recorded sentence, so they are the ones most likely to be a dead end on
- * a fresh account. `/practice` draws them in this order and the command
- * palette searches them in it; Today draws none of them any more, because six
- * doors on the screen somebody glances at is a menu to study rather than a
- * thing to press, and Practice is one row of the rail away.
+ * The rounds Practice offers as skills: hearing, writing down, saying and
+ * describing. Every game carries `within: "/games"` and is drawn by the
+ * Games board (`lib/ux/games.ts`), and the cards with a choice inside them
+ * carry `within: "/practice"`, so what is left with no `within` is the skill
+ * tiles. The command palette searches every mode either way.
  */
 export const QUICK_MODES = PRACTICE_MODES.filter((m) => m.group === "quick" && !m.within);
 
 /**
- * The drills for a named weakness, and where each is reached from.
- *
- * `/practice` does not draw these. Each one is on the page that names the thing
- * it drills, which is the only screen where a learner has a reason to want it:
- * the clinic sits under the panel listing the cards they keep failing, the verb
- * government drill under the page explaining rektsioon, writing under the case
- * it asks you to write in, and pasting your own Estonian beside the scanner,
- * which is the other way of bringing your own text in.
+ * Every mode reached from a screen that names it rather than from a menu, and
+ * where each is reached from: a game from the Games board, a word card from
+ * Practice, and a drill from the page that names the thing it drills (the
+ * clinic under the cards they keep failing, the verb government drill under
+ * the page explaining rektsioon, writing under the case it asks for).
  */
 export const TARGETED_MODES = PRACTICE_MODES.filter((m) => m.within);
-
-/**
- * The rounds that are reached from `/practice` but are not one of its six.
- *
- * Flash cards and the frequency lists are its headline cards and the games sit
- * under a heading of their own. Read from the table rather than listed on that
- * page, so a game
- * added here appears without anybody remembering to edit a second file: both
- * games shipped claiming to be reached from `/practice` while nothing there
- * linked to them, which made them unfindable outside the command palette.
- */
-export const GAMES = PRACTICE_MODES.filter((m) => m.within === "/practice" && !m.headline);
 
 /** Whichever mode drills a given thing, for the page that names it. */
 export function modeAt(href: string): PracticeMode | undefined {
   return PRACTICE_MODES.find((m) => m.href === href);
-}
-
-/**
- * How `/practice` sorts its rounds, by what the learner is doing in them.
- *
- * Three shelves, in the order they are drawn. Steady practice is the classic
- * way of keeping words fresh, Word games are the ones played for fun, and the
- * Workshop is where you have to think and type. Every round is on exactly one
- * shelf, asserted, so a round added to the table above is not quietly missing
- * from the page. Items are hrefs, resolved by `shelfItems`, because the shelf
- * is a decision about placement and what a round *is* lives in the table.
- */
-export interface Shelf {
-  id: "steady" | "games" | "workshop";
-  name: string;
-  hint: string;
-  tone: Tone;
-  hrefs: readonly string[];
-}
-
-export const SHELVES: readonly Shelf[] = [
-  {
-    id: "steady", name: "Steady practice", hint: "The classic way to keep words fresh.", tone: "sky",
-    hrefs: ["/review/match", "/review/listening", "/review/dictation", "/review/speaking", "/quest"],
-  },
-  {
-    id: "games", name: "Word games", hint: "Just for the fun of it.", tone: "butter",
-    hrefs: ["/review/letters", "/sonad", "/crossword", "/review/sentences", "/review/map", "/review/twins", "/review/sayings", "/review/wordplay"],
-  },
-  {
-    id: "workshop", name: "Workshop", hint: "You think, you type. Take your time.", tone: "accent",
-    hrefs: ["/situations", "/review/describe", "/review/openers", "/review/twenty"],
-  },
-];
-
-export type ShelfItem = Pick<PracticeMode, "href" | "title" | "subtitle" | "icon" | "tone">;
-
-/**
- * The rounds on a shelf, in order.
- *
- * Situations is not a row of the table above, it has its own place in the rail
- * (`lib/ux/nav.ts`), so the page that draws the shelf says what it looks like
- * and hands it in as `extras`. A href nothing knows is dropped, and a test
- * says so.
- */
-export function shelfItems(shelf: Shelf, extras: Readonly<Record<string, ShelfItem>> = {}): ShelfItem[] {
-  return shelf.hrefs.flatMap((href) => {
-    const item = extras[href] ?? modeAt(href);
-    return item ? [item] : [];
-  });
 }

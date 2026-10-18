@@ -277,6 +277,15 @@ export const SETTING_KEYS = {
    */
   workbookDone: "workbookDone",
   /**
+   * Which games the learner has played and the last day each was, as
+   * `href@day`, space separated. A game round writes review rows that carry
+   * no note of which mode wrote them, so this is a fact no log can
+   * reconstruct, kept like a personal best. The Games board reads it to offer
+   * a game somebody has not tried yet and to hand the spotlight on from one
+   * already played today. See `lib/ux/games.ts`.
+   */
+  gamesPlayed: "gamesPlayed",
+  /**
    * Set once the sending provider has refused this address outright.
    *
    * Not a preference and never shown as one: it is a fact about the address

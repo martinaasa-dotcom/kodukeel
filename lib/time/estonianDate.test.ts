@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
-import { dateLine, ESTONIAN_LOCALE, hasEstonian } from "./estonianDate";
+import { dateLine, ESTONIAN_LOCALE, hasEstonian, weekdayName } from "./estonianDate";
 
 /**
  * The one date in the app that is not written the reader's way.
@@ -98,5 +98,14 @@ describe("dateLine", () => {
 
   it("returns nothing rather than throwing on a zone the platform will not take", () => {
     expect(dateLine(AT, "Middle/Earth")).toBeNull();
+  });
+});
+
+describe("weekdayName", () => {
+  it("names the same day dateLine names, Sunday first", () => {
+    if (!hasEstonian()) return;
+    // 5 January 2026 is a Monday.
+    expect(dateLine(new Date(Date.UTC(2026, 0, 5, 12)), "UTC")?.startsWith(weekdayName(1)!)).toBe(true);
+    expect(weekdayName(7)).toBe(weekdayName(0));
   });
 });

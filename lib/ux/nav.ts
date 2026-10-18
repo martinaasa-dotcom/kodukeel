@@ -1,5 +1,5 @@
 /**
- * Every destination in the app, and which of six places it lives in.
+ * Every destination in the app, and which of seven places it lives in.
  *
  * FIVE ROWS, BECAUSE A RAIL IS READ AT A GLANCE AND NOT LEARNED.
  *
@@ -21,6 +21,10 @@
  * the disclosure this module was written to remove: a pin is a choice somebody
  * made about their own column, where "More" was the app choosing to hide half
  * of itself from everybody.
+ *
+ * Two places have joined the five since, each at the operator's word and each
+ * argued where it is declared: Grammar, put in front of the dictionary when a
+ * learner could not find it, and Games, when the games left Practice.
  *
  * Nothing here decides *whether* to show a destination. That question is
  * `lib/ux/disclosure.ts`, it is about what a screen leads with, and it is a
@@ -167,9 +171,25 @@ export const SECTIONS: NavSection[] = [
         bar: true,
       },
       {
-        href: "/practice", label: "Practice", blurb: "What's due, plus sprints, matching, sentences and games",
-        icon: "Swords", tone: "blush", keywords: "games modes drill weakest case review due srs flashcards",
+        href: "/practice", label: "Practice", blurb: "What's due, your flash cards, the workbook and the four skills",
+        icon: "Swords", tone: "blush", keywords: "modes drill weakest case review due srs flashcards workbook listening dictation speaking",
         bar: true,
+      },
+      /*
+        THE SEVENTH PLACE, AT THE OPERATOR'S WORD.
+
+        Practice was the menu of every round and was reported as too compact
+        and too cluttered to want to press anything on, so on 2026-10-18 the
+        games left it for a board of their own (`lib/ux/games.ts`): Practice
+        answers "what needs doing" and Games "what feels fun". It is a row of
+        the rail rather than a `within`, because a game is somewhere somebody
+        goes on purpose, and it stays off the phone bar, whose four cells are
+        the four places an evening cannot do without.
+      */
+      {
+        href: "/games", label: "Games", blurb: "Daily puzzles, quick games and tricky ones",
+        icon: "Gamepad2", tone: "butter",
+        keywords: "games play fun puzzle sonad crossword ristsona match pairs letters twenty questions sayings wordplay twins",
       },
       /*
         Reached from Practice rather than standing beside it, and this is the

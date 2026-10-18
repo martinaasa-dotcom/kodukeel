@@ -5251,7 +5251,8 @@ check("where a screen lives is decided in one table", () => {
   const readers: [string, RegExp][] = [
     ["components/Sidebar.tsx", /lib\/ux\/nav/],
     ["components/CommandPalette.tsx", /lib\/ux\/nav/],
-    ["app/(app)/practice/page.tsx", /lib\/ux\/modes/],
+    ["app/(app)/practice/page.tsx", /lib\/ux\/roundNames/],
+    ["app/(app)/games/page.tsx", /lib\/ux\/games/],
     ["app/(app)/page.tsx", /lib\/ux\/weekGames/],
   ];
   for (const [file, table] of readers) {

@@ -5,6 +5,7 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { PRACTICE_MODES } from "@/lib/ux/modes";
+import { inlineName, nameOf } from "@/lib/ux/roundNames";
 import { SECTIONS } from "@/lib/ux/nav";
 import { SHORTCUTS_EVENT } from "@/components/Shortcuts";
 import { KeyCap } from "@/components/ui";
@@ -50,14 +51,23 @@ const PLACE_COMMANDS: Command[] = SECTIONS.flatMap((section) =>
   })),
 );
 
-const MODE_COMMANDS: Command[] = PRACTICE_MODES.map((mode) => ({
-  id: `mode-${mode.href}`,
-  label: mode.title,
-  hint: mode.subtitle,
-  group: "Practice",
-  href: mode.href,
-  keywords: `${mode.subtitle} ${mode.blurb} practice mode game drill`,
-}));
+/*
+  A round is listed by the name Practice and Games give it, Estonian first and
+  its English in parentheses (`lib/ux/roundNames.ts`), so the box and the page
+  call it one thing. The table's own title stays among the search words, so
+  somebody typing the name they knew it by still lands on it.
+*/
+const MODE_COMMANDS: Command[] = PRACTICE_MODES.map((mode) => {
+  const name = nameOf(mode.href);
+  return {
+    id: `mode-${mode.href}`,
+    label: name ? inlineName(name) : mode.title,
+    hint: mode.subtitle,
+    group: "Practice",
+    href: mode.href,
+    keywords: `${mode.title} ${mode.subtitle} ${mode.blurb} practice mode game drill`,
+  };
+});
 
 const COMMANDS: Command[] = [
   ...PLACE_COMMANDS,

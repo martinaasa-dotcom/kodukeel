@@ -11,14 +11,14 @@ import { BALL } from "@/lib/games/map";
 /**
  * EVERY GAME, SHOWN AT A SMALL SCALE RATHER THAN DESCRIBED.
  *
- * MOCKUP. The five layouts under `/practice/look/` all draw a game by its own
- * pieces, the argument `components/SonadPreview.tsx` makes for Today's card:
+ * The Games board and Practice's skill tiles draw a round by its own pieces,
+ * the argument `components/SonadPreview.tsx` makes for Today's card:
  * a board partway to being solved says more than a sentence about one, and a
  * drawing made of the board's own circles cannot go stale the way a
  * screenshot does, and is right in both themes.
  *
- * Decorative, hidden from a screen reader: each layout says what the game is
- * in words beside it. Every Estonian word here is a headword of the shipped
+ * Decorative, hidden from a screen reader by every caller: each tile says
+ * what the round is in words beside it. Every Estonian word here is a headword of the shipped
  * dictionary or a form the dictionary holds, and nothing is graded.
  */
 

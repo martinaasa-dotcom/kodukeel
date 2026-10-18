@@ -1,26 +1,25 @@
+import type { ReactNode } from "react";
+import { ArrowRight, Check, Target } from "lucide-react";
 import { HeroFan } from "@/components/HeroFan";
 import { localeFor, titleFor } from "@/lib/progress/locale";
-import { countOf, fill, tr } from "@/lib/copy/locale";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ArrowRight, Check, ChevronRight } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { reviewQueue } from "../review/queue";
 import { listDecks } from "@/lib/progress/decks";
 import { masteryCounts, masteryFor } from "@/lib/progress/mastery";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
-import { isOrderable } from "@/lib/estonian/orderTiles";
 import { dictationWords } from "@/lib/estonian/dictation";
-import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
-import { SHELVES, modeAt, shelfItems, type PracticeMode, type ShelfItem } from "@/lib/ux/modes";
+import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { COMMON_GROUPS } from "@/lib/collections/commonGroups";
 import { ButtonLink } from "@/components/Button";
-import { NamedIcon } from "@/components/icons";
-import { Empty, Page, SectionTitle, Stack, toneInk } from "@/components/ui";
+import { GameArt } from "@/components/games/GameArt";
+import { Empty, Page, toneInk } from "@/components/ui";
 import { courseLevelFor } from "@/lib/progress/level";
 import { SET_FOR_YOU, doneToday } from "@/lib/ux/workbookDone";
 import { learnerDayClock } from "@/lib/progress/dayClock";
-import { BUILD_FROM, maySortWords } from "@/lib/collections/levels";
+import { inlineName, roundName, type RoundName } from "@/lib/ux/roundNames";
 
 export async function generateMetadata() {
   return titleFor("Practice");
@@ -28,19 +27,22 @@ export async function generateMetadata() {
 
 export const dynamic = "force-dynamic";
 
-/** Situations has its own row in the rail, so the Workshop shelf describes it here. */
-const EXTRAS: Record<string, ShelfItem> = {
-  "/situations": {
-    href: "/situations", tone: "sky", icon: "MessagesSquare", title: "Situations",
-    subtitle: "A café, a ticket window, the doctor's",
-  },
-};
-
 /**
- * Every way to practice, in one place, with the state that decides whether each
- * one is worth doing right now: how many cards are due, your
- * fastest match. A hub that just lists modes makes you guess; this one answers
- * "what should I do with the next five minutes".
+ * PRACTICE: WHAT IS DUE, YOUR WORDS, AND THE FOUR SKILLS.
+ *
+ * This page was every round in the app, eight sections and then three
+ * shelves, and was reported as a page somebody landed on and did not know
+ * where to press. On 2026-10-18 the games left for a board of their own
+ * (`/games`), and what is left answers "what needs doing" in three sections,
+ * top to bottom: what the schedule wants today (Review, with the daily task
+ * folded under it), any set of your own words (Flash cards and the workbook,
+ * each a card with its choices inside it), and the four things a conversation
+ * needs (hear, speak, write, talk). The drills for a named weakness live on
+ * the grammar pages they practise, as they already did, so this page never
+ * grows a long tail.
+ *
+ * Every round is named the way Games names it, the Estonian first and its
+ * English in parentheses, at every level (`lib/ux/roundNames.ts`).
  */
 export default async function PracticePage() {
   const ownerId = await requireUserId();
@@ -49,28 +51,15 @@ export default async function PracticePage() {
     // app/(app)/review/queue.ts for what two readings of it cost.
     reviewQueue(ownerId, null, new Date()),
     prisma.card.count({ where: { ownerId } }),
-    readSettings(ownerId, [SETTING_KEYS.matchBest, SETTING_KEYS.workbookDone]),
+    readSettings(ownerId, [SETTING_KEYS.workbookDone]),
     /*
-      The learner's own words, asked for as words.
+      The learner's own words, asked for as words, for the dictation count.
 
-      This was a `findMany` over their cards with `distinct: ["lexemeId"]` and
-      `take: 300`, which is the page's heaviest read and only looked bounded.
-      Prisma deduplicates in the client, so a `LIMIT` would cut rows before the
-      deduplication and it emits none: the SQL was every card this learner
-      owns, and then `examples`, the longest column in the schema, fetched once
-      per card rather than once per word. A word with five card types was read
-      five times.
-
-      Asking Lexeme instead is one row per word by construction, so the cap is
-      a real `LIMIT` and the join happens once. Two thousand is past any deck
-      somebody has actually built, and ordered, so a learner who does get there
-      is told the same number twice rather than a different one each load.
-
-      Ordered to the end, since the lemma is not what identifies a row here:
-      `Lexeme` is unique on `(lemma, pos)`, so two entries sharing a lemma tie,
-      and past the cap it is the tie at the two thousandth row that decides
-      which words the count is built from. That is the sentence above being
-      true rather than nearly true.
+      Asking Lexeme rather than Card is one row per word by construction, so
+      the cap is a real `LIMIT` and `examples`, the longest column in the
+      schema, is read once per word rather than once per card. Ordered to the
+      end, since `Lexeme` is unique on `(lemma, pos)` and past the cap it is
+      the tie at the two thousandth row that decides which words count.
     */
     prisma.lexeme.findMany({
       where: { cards: { some: { ownerId, suspended: false } } },
@@ -79,75 +68,43 @@ export default async function PracticePage() {
       select: { examples: true },
     }),
     // Where every met word stands. The same read the Flash cards round makes,
-    // so the count on its tile and the round behind it are one answer.
+    // so the count on its card and the round behind it are one answer.
     masteryFor(ownerId),
     // The learner's own named shelves, so a deck built anywhere in the app is
     // reachable as a round right here rather than only from `/words/decks`.
     listDecks(ownerId),
-    // The band the sentences round itself asks, so the tile cannot count
-    // sentences ready on a round that will open on "from A2".
     courseLevelFor(ownerId),
     localeFor(ownerId),
     learnerDayClock(ownerId),
   ]);
+  const t = (english: string) => tr(locale, english);
   /* The workbook pages finished since the learner's day began. */
   const workbookDone = doneToday(settings[SETTING_KEYS.workbookDone], clock.dayKey());
 
-  /*
-    Parsed once and asked twice. Each of these used to call `parseExamples` for
-    itself, which is a `JSON.parse` per word per question, and the cap above is
-    now a real one at two thousand rather than a number that was not in the SQL.
-    Two thousand words is four thousand parses for two integers.
-
-    Sentence building wants a sentence worth rebuilding; dictation is stricter,
-    since it has to be short enough to hold in your head.
-  */
-  const usable = sentenceReady.map((w) => usableExamples(parseExamples(w.examples)));
-  const sentenceCount = usable.filter((es) => es.some((e) => isOrderable(e.et))).length;
-  const dictationCount = usable.filter((es) => es.some((e) => {
-    const count = dictationWords(e.et).length;
-    return count >= 3 && count <= 9 && e.et.length <= 80;
-  })).length;
-  const matchBest = numberSetting(settings[SETTING_KEYS.matchBest], 0);
+  /* Dictation wants a sentence short enough to hold in your head. */
+  const dictationCount = sentenceReady
+    .map((w) => usableExamples(parseExamples(w.examples)))
+    .filter((es) => es.some((e) => {
+      const count = dictationWords(e.et).length;
+      return count >= 3 && count <= 9 && e.et.length <= 80;
+    })).length;
 
   /*
     What Review would put in front of them right now: due cards plus the unseen
-    ones it trickles in, drawn the same way Today draws it. A tile saying
-    "Nothing due" over a session with ten cards in it is the sort of small
-    inconsistency a reader catches once and then stops trusting.
+    ones it trickles in, drawn the same way Today draws it.
   */
   const ready = review.cards.length;
-
   const counts = masteryCounts(words);
   const unfinished = counts.struggling + counts.almost + counts.learning;
   const flashMeta = unfinished > 0
-    ? fill(tr(locale, "{n} to work on"), { n: unfinished })
-    : words.length > 0 ? tr(locale, "All mastered") : tr(locale, "No words yet");
-
-  /*
-    What is ready right now, per round, where there is a figure worth saying.
-    A round with no live figure says only what it is: the standing notes ("No
-    score yet", "Eight words") were a second line of grey on every tile that
-    told nobody anything they needed in order to choose.
-  */
-  const live: Record<string, string | undefined> = {
-    "/review/match": matchBest > 0 ? fill(tr(locale, "best {n}s"), { n: matchBest }) : undefined,
-    /* "34 ready" on a round that answers an A1 learner with "word order
-       starts at A2" is the tile and the round disagreeing about one press. */
-    "/review/sentences": !maySortWords(level) ? fill(tr(locale, "from {level}"), { level: BUILD_FROM }) : sentenceCount > 0 ? fill(tr(locale, "{n} ready"), { n: sentenceCount }) : undefined,
-    /* The same for the openers round, which waits for A2 on its own screen. */
-    "/review/openers": level === "A1" ? fill(tr(locale, "from {level}"), { level: "A2" }) : undefined,
-    "/review/dictation": dictationCount > 0 ? fill(tr(locale, "{n} ready"), { n: dictationCount }) : undefined,
-  };
-  const lineFor = (mode: Pick<PracticeMode, "href" | "subtitle">) => {
-    const what = tr(locale, mode.subtitle);
-    const now = live[mode.href];
-    return now ? `${what}, ${now}` : what;
-  };
+    ? fill(t("{n} to work on"), { n: unfinished })
+    : words.length > 0 ? t("All mastered") : t("No words yet");
   const stocked = decks.filter((d) => d.wordCount > 0);
-  const flash = modeAt("/review/flashcards");
-  const common = modeAt("/review/common");
-  const workbook = modeAt("/review/workbook");
+  const flash = roundName("/review/flashcards");
+  const common = roundName("/review/common");
+  const workbook = roundName("/review/workbook");
+  const reviewName = roundName("/review");
+
   /*
     The workbook's themes, as choices inside its card. "Set for you" leads,
     because what the page is for is the ending this learner keeps missing,
@@ -168,252 +125,184 @@ export default async function PracticePage() {
     ];
 
   return (
-    <Page route="/practice" title={tr(locale, "Practice")} lead={tr(locale, "The words you've met, asked every which way until they stick.")}>
+    <Page route="/practice" title={t("Practice")} lead={t("Keep the words you've met fresh, a few minutes at a time.")}>
       {totalCards === 0 ? (
         <Empty
-          title={tr(locale, "Nothing to practice yet")}
-          body={tr(locale, "Every round here uses words from your own deck, so meet a few first.")}
-          action={<ButtonLink href="/learn" variant="primary">{tr(locale, "Learn some words first")}</ButtonLink>}
+          title={t("Nothing to practice yet")}
+          body={t("Every round here uses words from your own deck, so meet a few first.")}
+          action={<ButtonLink href="/learn" variant="primary">{t("Learn some words first")}</ButtonLink>}
         />
       ) : (
-        <Stack>
-          {/*
-            THREE THINGS, IN THE ORDER THEY ARE WORTH DOING.
-
-            This page used to be eight sections and some twenty doors: the
-            schedule, Situations, Flash cards, the frequency lists, the decks,
-            a mastery strip, six rounds, six games, the mock paper and a
-            weakest-case panel. Every one of them was worth having and together
-            they were a page somebody landed on and did not know where to
-            press. It was reported in exactly those words.
-
-            So it answers one question in three steps. What is due, which is
-            the schedule and is the one loud thing here. Then Flash cards,
-            which is one round pointed at different sets of words, so the sets
-            are choices inside one card rather than four cards. Then every
-            other round, in one grid drawn one way. Situations has its own row
-            in the rail, the mock paper and the weakest cases live under
-            Progress, and where each word stands is a link inside the card
-            whose round moves it.
-          */}
-          <HeroFan
-            eyebrow={tr(locale, "Review")}
-            title={ready > 0
-              ? fill(tr(locale, ready === 1 ? "{cards} is ready" : "{cards} are ready"), { cards: countOf(locale, ready, "card") })
-              : tr(locale, "Nothing is due right now")}
-            text={tr(locale, "Each word comes back just before you'd forget it.")}
-            cardsLabel={tr(locale, "Where your cards stand")}
-            cards={[
-              { figure: review.dueMore ? `${review.due.length}+` : String(review.due.length), label: tr(locale, "Due now"), icon: "Clock" },
-              { figure: String(review.fresh.length), label: tr(locale, "New to meet"), icon: "Sparkles" },
-              { figure: String(unfinished), label: tr(locale, "To work on"), icon: "Target" },
-            ]}
-            action={
-              <ButtonLink href="/review" variant={ready > 0 ? "primary" : "secondary"} size="lg" className="whitespace-nowrap">
-                {ready > 0 ? tr(locale, "Review now") : tr(locale, "Open it anyway")} <ArrowRight size={17} aria-hidden />
-              </ButtonLink>
-            }
-          />
-
-          {flash && common && (
-            <section
-              aria-labelledby="practice-flash"
-              className="flex flex-col gap-5 rounded-[var(--r-lg)] border p-5 md:p-6"
-              style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
+        <div className="flex flex-col gap-12">
+          <Section id="due" title={t("Due now")} hint={t("What the schedule wants from you today.")}>
+            <HeroFan
+              eyebrow={<span><span lang="et">{reviewName.et}</span> ({t(reviewName.en)})</span>}
+              title={ready > 0
+                ? fill(t(ready === 1 ? "{cards} is ready" : "{cards} are ready"), { cards: countOf(locale, ready, "card") })
+                : t("Nothing is due right now")}
+              text={t("Each word comes back just before you'd forget it.")}
+              cardsLabel={t("Where your cards stand")}
+              cards={[
+                { figure: review.dueMore ? `${review.due.length}+` : String(review.due.length), label: t("Due now"), icon: "Clock" },
+                { figure: String(review.fresh.length), label: t("New to meet"), icon: "Sparkles" },
+                { figure: String(unfinished), label: t("To work on"), icon: "Target" },
+              ]}
+              action={
+                <ButtonLink href="/review" variant={ready > 0 ? "primary" : "secondary"} size="lg" className="whitespace-nowrap">
+                  {ready > 0 ? t("Review now") : t("Open it anyway")} <ArrowRight size={17} aria-hidden />
+                </ButtonLink>
+              }
+            />
+            <Link
+              href="/quest"
+              className="glow flex items-center gap-4 rounded-[var(--r-lg)] border p-4"
+              style={{ borderColor: "var(--edge)", background: "var(--surface)" }}
             >
-              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                <h2 id="practice-flash" className="text-xl font-bold" style={{ color: "var(--ink)" }}>{tr(locale, flash.title)}</h2>
-                <Link
-                  href="/words/mastery"
-                  className="text-sm font-semibold underline-offset-4 hover:underline"
-                  style={{ color: "var(--accent-deep)" }}
-                >
-                  {tr(locale, "Where your words stand")}
-                </Link>
-              </div>
-              <ChoiceGroup label={tr(locale, "Your words")}>
-                <Choice href={flash.href} title={tr(locale, "All words")} meta={flashMeta} />
-                {stocked.map((deck) => (
-                  <Choice
-                    key={deck.id}
-                    href={`/review/deck/${deck.id}`}
-                    title={deck.name}
-                    meta={countOf(locale, deck.wordCount, "word")}
-                  />
-                ))}
-                <Choice href="/words/decks" title={tr(locale, "Add a deck")} />
-              </ChoiceGroup>
+              <span aria-hidden className="grid h-11 w-11 shrink-0 place-items-center rounded-full" style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}>
+                <Target size={20} />
+              </span>
+              <span className="min-w-0 flex-1">
+                <Named name={roundName("/quest")} size="text-lg" locale={locale} />
+                <span className="mt-0.5 block text-sm" style={{ color: "var(--ink-2)" }}>{t("Two minutes on the endings you miss most.")}</span>
+              </span>
+              <ArrowRight size={18} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
+            </Link>
+          </Section>
 
-              <ChoiceGroup label={tr(locale, common.title)} href={common.href}>
-                {COMMON_GROUPS.map((group) => (
-                  <Choice
-                    key={group.key}
-                    href={`/review/common/${group.slug}`}
-                    title={tr(locale, group.title)}
-                    meta={countOf(locale, 100, "word")}
-                    label={fill(tr(locale, "{round}: {list}, {group}"), {
-                      round: tr(locale, flash.title),
-                      list: tr(locale, common.title).toLowerCase(),
-                      group: tr(locale, group.title).toLowerCase(),
-                    })}
-                  />
-                ))}
-              </ChoiceGroup>
-            </section>
-          )}
-
-          {workbook && (
-            <section
-              aria-labelledby="practice-workbook"
-              className="flex flex-col gap-4 rounded-[var(--r-lg)] border p-5 md:p-6"
-              style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
-              data-practice-workbook=""
-            >
-              <div className="flex items-start gap-3">
-                <span
-                  aria-hidden
-                  className="grid h-11 w-11 shrink-0 place-items-center rounded-[var(--r)]"
-                  style={{ background: "var(--butter-soft)", color: toneInk("butter") }}
-                >
-                  <NamedIcon name={workbook.icon} size={22} />
-                </span>
-                <div className="min-w-0">
-                  <h2 id="practice-workbook" lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>
-                    {workbook.title}
-                  </h2>
-                  <p className="mt-0.5 text-sm" style={{ color: "var(--ink-2)" }}>
-                    {tr(locale, "A page of real sentences. Put each word into the form it needs, then check.")}
-                  </p>
-                </div>
-              </div>
-              <ChoiceGroup label={tr(locale, "Choose a page")}>
-                {workbookThemes.map((choice) => (
-                  <Choice
-                    key={choice.theme ?? "set"}
-                    href={choice.theme ? `${workbook.href}?theme=${choice.theme}` : workbook.href}
-                    title={tr(locale, choice.title)}
-                    meta={tr(locale, choice.meta)}
-                    done={workbookDone.has(choice.theme ?? SET_FOR_YOU) ? tr(locale, "Done today") : undefined}
-                    label={fill(tr(locale, "{round}: {list}, {group}"), {
-                      round: workbook.title,
-                      list: tr(locale, choice.title).toLowerCase(),
-                      group: tr(locale, choice.meta).toLowerCase(),
-                    })}
-                  />
-                ))}
-              </ChoiceGroup>
-            </section>
-          )}
-
-          {/*
-            THREE SHELVES, BY WHAT YOU ARE DOING IN THEM.
-
-            The rounds were one grid of twelve, which is a menu somebody reads
-            top to bottom to find the kind of thing they feel like. Steady
-            practice is the classic way of keeping words fresh, Word games are
-            for fun, and the Workshop is where you have to think and type.
-            Drawn from `SHELVES` in `lib/ux/modes.ts`, so a round added there
-            appears here without anybody remembering this file.
-          */}
-          <section aria-labelledby="practice-rounds">
-            <SectionTitle hint={tr(locale, "a few minutes each")}>
-              <span id="practice-rounds">{tr(locale, "Rounds and games")}</span>
-            </SectionTitle>
-            {/* Columns by the room the page has rather than by the window:
-                at 768 the rail takes a column and a viewport breakpoint laid
-                out three cards where two fit. */}
-            <div className="@container"><div className="grid grid-cols-1 gap-4 @3xl:grid-cols-3">
-              {SHELVES.map((shelf) => (
-                <section
-                  key={shelf.id}
-                  aria-labelledby={`practice-shelf-${shelf.id}`}
-                  className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
-                  style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
-                >
-                  <div className="px-5 pb-4 pt-5" style={{ background: `var(--${shelf.tone}-soft)` }}>
-                    <h3 id={`practice-shelf-${shelf.id}`} className="font-display text-xl font-bold" style={{ color: toneInk(shelf.tone) }}>
-                      {tr(locale, shelf.name)}
-                    </h3>
-                    <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{tr(locale, shelf.hint)}</p>
+          <Section id="words" title={t("Your words")} hint={t("Practise any set of words, whenever you like.")}>
+            <div className="@container">
+              <div className="grid grid-cols-1 gap-4 @3xl:grid-cols-2">
+                <Card tone="accent" art={<CardStack />}>
+                  <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
+                    <h3><Named name={flash} size="text-3xl" locale={locale} /></h3>
+                    <Link href="/words/mastery" className="text-sm font-semibold underline-offset-4 hover:underline" style={{ color: "var(--accent-deep)" }}>
+                      {t("Where your words stand")}
+                    </Link>
                   </div>
-                  <ul className="flex flex-col p-2">
-                    {shelfItems(shelf, EXTRAS).map((m) => (
-                      <li key={m.href}>
-                        <ShelfRow mode={{ ...m, title: tr(locale, m.title) }} line={lineFor(m)} />
-                      </li>
+                  <p className="text-base" style={{ color: "var(--ink-2)" }}>{t("Words you've met, asked in new ways and typed from memory.")}</p>
+                  <Choices label={t("Your words")}>
+                    <Choice href="/review/flashcards" title={t("All words")} meta={flashMeta} />
+                    {stocked.map((deck) => (
+                      <Choice key={deck.id} href={`/review/deck/${deck.id}`} title={deck.name} meta={countOf(locale, deck.wordCount, "word")} />
                     ))}
-                  </ul>
-                </section>
-              ))}
-            </div></div>
-          </section>
-        </Stack>
+                    <Choice href="/words/decks" title={t("Add a deck")} />
+                  </Choices>
+                  <Choices label={<Link href="/review/common" className="underline-offset-4 hover:underline"><span lang="et">{common.et}</span> ({t(common.en)})</Link>}>
+                    {COMMON_GROUPS.map((group) => (
+                      <Choice
+                        key={group.key}
+                        href={`/review/common/${group.slug}`}
+                        title={t(group.title)}
+                        meta={countOf(locale, 100, "word")}
+                        label={fill(t("{round}: {list}, {group}"), {
+                          round: inlineName(flash),
+                          list: inlineName(common),
+                          group: t(group.title).toLowerCase(),
+                        })}
+                      />
+                    ))}
+                  </Choices>
+                </Card>
+                <Card tone="butter" art={<WorkbookPage />} data-practice-workbook="">
+                  <h3><Named name={workbook} size="text-3xl" locale={locale} /></h3>
+                  <p className="text-base" style={{ color: "var(--ink-2)" }}>{t("A page of real sentences. Put each word into the form it needs, then check.")}</p>
+                  <Choices label={t("Choose a page")}>
+                    {workbookThemes.map((choice) => (
+                      <Choice
+                        key={choice.theme ?? "set"}
+                        href={choice.theme ? `/review/workbook?theme=${choice.theme}` : "/review/workbook"}
+                        title={t(choice.title)}
+                        meta={t(choice.meta)}
+                        done={workbookDone.has(choice.theme ?? SET_FOR_YOU) ? t("Done today") : undefined}
+                        label={fill(t("{round}: {list}, {group}"), {
+                          round: inlineName(workbook),
+                          list: t(choice.title).toLowerCase(),
+                          group: t(choice.meta).toLowerCase(),
+                        })}
+                      />
+                    ))}
+                  </Choices>
+                </Card>
+              </div>
+            </div>
+          </Section>
+
+          <Section id="skills" title={t("Skills")} hint={t("The four things a conversation needs.")}>
+            <div className="@container">
+              <ul className="grid grid-cols-1 gap-4 @xl:grid-cols-2 @4xl:grid-cols-4">
+                <Skill tone="blush" verb={t("Hear")} art="/review/listening" locale={locale} items={[
+                  { href: "/review/listening" },
+                  { href: "/review/dictation", meta: dictationCount > 0 ? fill(t("{n} ready"), { n: dictationCount }) : undefined },
+                ]} />
+                <Skill tone="sky" verb={t("Speak")} art="/review/speaking" locale={locale} items={[{ href: "/review/speaking" }]} />
+                <Skill tone="accent" verb={t("Write")} art="/review/describe" locale={locale} items={[{ href: "/review/describe" }]} />
+                <Skill tone="butter" verb={t("Talk")} art="/situations" locale={locale} items={[{ href: "/situations" }]} />
+              </ul>
+            </div>
+          </Section>
+
+          <p className="text-base" style={{ color: "var(--ink-2)" }}>
+            {fill(t("Grammar drills like {a} and {b} sit on the grammar pages they practise."), {
+              a: inlineName(roundName("/review/government")),
+              b: inlineName(roundName("/review/conjugation")),
+            })}{" "}
+            <Link href="/grammar" className="font-semibold underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>{t("Open grammar")}</Link>
+          </p>
+        </div>
       )}
     </Page>
   );
 }
 
-/**
- * One round on a shelf, drawn exactly like every other one.
- *
- * The icon sits against the title's line rather than the middle of the row, so
- * a row whose second line wraps puts its icon where every other row puts it.
- * One line under the title, never two: what the round is, and a live figure
- * after it where there is one.
- */
-function ShelfRow({ mode, line }: { mode: Pick<PracticeMode, "href" | "tone" | "icon" | "title">; line: string }) {
+/* ------------------------------------------------------------------ parts */
+
+function Section({ id, title, hint, children }: { id: string; title: string; hint: string; children: ReactNode }) {
   return (
-    <Link
-      href={mode.href}
-      className="tap-tint glow flex items-center gap-3 rounded-[var(--r)] px-3 py-3"
-    >
-      <span
-        aria-hidden
-        data-pop
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
-        style={{ background: `var(--${mode.tone}-soft)`, color: toneInk(mode.tone) }}
-      >
-        <NamedIcon name={mode.icon} size={16} aria-hidden />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-base font-semibold leading-snug" style={{ color: "var(--ink)" }}>{mode.title}</span>
-        <span className="block text-sm" style={{ color: "var(--ink-3)" }}>{line}</span>
-      </span>
-      <ChevronRight size={16} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
-    </Link>
+    <section aria-labelledby={`practice-${id}`} className="flex flex-col gap-4">
+      <div>
+        <h2 id={`practice-${id}`} className="font-display text-3xl font-bold" style={{ color: "var(--ink)" }}>{title}</h2>
+        <p className="text-base" style={{ color: "var(--ink-2)" }}>{hint}</p>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+/** The Estonian name, and its English in parentheses on a quieter line. */
+function Named({ name, size, locale }: { name: RoundName; size: string; locale: Locale }) {
+  return (
+    <span className="block leading-tight">
+      <span lang="et" className={`block font-display font-bold ${size}`} style={{ color: "var(--ink)" }}>{name.et}</span>
+      <span className="block text-base font-semibold" style={{ color: "var(--ink-3)" }}>({tr(locale, name.en)})</span>
+    </span>
+  );
+}
+
+function Card({ tone, art, children, ...rest }: { tone: string; art: ReactNode; children: ReactNode; "data-practice-workbook"?: string }) {
+  return (
+    <section {...rest} className="flex flex-col gap-4 overflow-hidden rounded-[var(--r-xl)] border" style={{ borderColor: "var(--edge)", background: "var(--surface)" }}>
+      <div aria-hidden className="grid h-36 place-items-center" style={{ background: `var(--${tone}-soft)` }}>{art}</div>
+      <div className="flex flex-col gap-4 px-5 pb-5">{children}</div>
+    </section>
   );
 }
 
 /**
- * A labelled set of word sets inside the Flash cards card.
- *
- * The label is small and quiet and says what the buttons under it have in
- * common; where the set has a page of its own the label goes there.
+ * A labelled set of word sets inside a card. The label is small and quiet and
+ * says what the buttons under it have in common.
  */
-function ChoiceGroup({ label, href, children }: { label: string; href?: string; children: React.ReactNode }) {
+function Choices({ label, children }: { label: ReactNode; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
-      {href ? (
-        <Link href={href} className="label-xs self-start underline-offset-4 hover:underline" style={{ color: "var(--ink-3)" }}>
-          {label}
-        </Link>
-      ) : (
-        <p className="label-xs" style={{ color: "var(--ink-3)" }}>{label}</p>
-      )}
-      <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 11rem), 1fr))" }}>
-        {children}
-      </div>
+      <p className="label-xs" style={{ color: "var(--ink-3)" }}>{label}</p>
+      <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 10rem), 1fr))" }}>{children}</div>
     </div>
   );
 }
 
 /**
- * One set of words to practise, as a button.
- *
- * Every one is the same shape: a name and one quiet line under it, no dot, no
- * icon. The four frequency lists used to carry a dot apiece and one of them,
- * "Describing words", wrapped its name under its dot at every width, which
- * is the fault `scripts/test-containment.mjs` now asks about on every page.
+ * One set of words to practise, as a button: a name and one quiet line under
+ * it, no dot and no icon, and a tick where it has been finished today.
  */
 function Choice({ href, title, meta, label, done }: {
   href: string; title: string; meta?: string; label?: string;
@@ -441,5 +330,66 @@ function Choice({ href, title, meta, label, done }: {
         </span>
       ) : null}
     </Link>
+  );
+}
+
+function Skill({ tone, verb, art, items, locale }: {
+  tone: string; verb: string; art: string; locale: Locale;
+  items: { href: string; meta?: string }[];
+}) {
+  return (
+    <li className="flex flex-col overflow-hidden rounded-[var(--r-xl)]" style={{ background: `var(--${tone}-soft)` }}>
+      <div className="px-5 pt-5">
+        <span className="rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider" style={{ background: "var(--surface)", color: toneInk(tone) }}>{verb}</span>
+      </div>
+      <div className="grid min-h-36 flex-1 place-items-center px-5 py-3"><GameArt href={art} size="sm" /></div>
+      <div className="flex flex-col gap-1 p-2">
+        {items.map((i) => (
+          <Link key={i.href} href={i.href} className="tap-tint flex items-center justify-between gap-3 rounded-[var(--r)] px-3 py-2.5">
+            <span className="min-w-0">
+              <Named name={roundName(i.href)} size="text-xl" locale={locale} />
+              {i.meta && <span className="block text-sm" style={{ color: "var(--ink-2)" }}>{i.meta}</span>}
+            </span>
+            <span aria-hidden className="grid h-9 w-9 shrink-0 place-items-center rounded-full" style={{ background: `var(--${tone})`, color: "var(--on-hue)" }}>
+              <ArrowRight size={16} />
+            </span>
+          </Link>
+        ))}
+      </div>
+    </li>
+  );
+}
+
+/* --------------------------------------------------------------- drawings */
+
+/** Three cards fanned, the top one turned to its meaning. */
+function CardStack() {
+  return (
+    <div className="relative h-24 w-36">
+      {[-10, 4].map((r, i) => (
+        <span key={r} className="absolute inset-0 rounded-[var(--r)]" style={{ background: i ? "var(--surface)" : "var(--accent-soft)", transform: `rotate(${r}deg)`, boxShadow: "inset 0 0 0 1px var(--rule)" }} />
+      ))}
+      <span className="absolute inset-0 grid place-items-center rounded-[var(--r)] text-center" style={{ background: "var(--surface)", transform: "rotate(-2deg)", boxShadow: "inset 0 0 0 2px var(--accent)" }}>
+        <span>
+          <span lang="et" className="block font-display text-2xl font-bold" style={{ color: "var(--ink)" }}>kohv</span>
+          <span className="block text-sm" style={{ color: "var(--ink-3)" }}>coffee</span>
+        </span>
+      </span>
+    </div>
+  );
+}
+
+/** A workbook page: ruled lines with a gap on one, filled on another. */
+function WorkbookPage() {
+  return (
+    <div className="flex w-60 flex-col gap-2.5 rounded-[var(--r-sm)] px-4 py-3" style={{ background: "var(--surface)", boxShadow: "inset 0 0 0 1px var(--rule)", transform: "rotate(-2deg)" }}>
+      <span lang="et" className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
+        Ma elan <span className="px-1 underline decoration-2 underline-offset-4" style={{ color: "var(--butter-ink)" }}>Tallinnas</span> <Check size={13} aria-hidden className="inline" style={{ color: "var(--sky-ink)" }} />
+      </span>
+      <span lang="et" className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
+        Ta töötab <span className="inline-block w-12 border-b-2 align-baseline" style={{ borderColor: "var(--butter-ink)" }} /> (kool)
+      </span>
+      <span className="h-0.5 w-full rounded" style={{ background: "var(--rule)" }} />
+    </div>
   );
 }

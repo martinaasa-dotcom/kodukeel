@@ -2,7 +2,8 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { BAR, CORE, DESTINATIONS, isUnder, LISTED, litRow, PLACES, SECTIONS } from "./nav";
-import { GAMES, PRACTICE_MODES, QUICK_MODES, SHELVES, TARGETED_MODES, shelfItems } from "./modes";
+import { PRACTICE_MODES, QUICK_MODES, TARGETED_MODES } from "./modes";
+import { GAMES } from "./games";
 import { SYLLABUS } from "../collections/syllabus/index";
 import { ICONS } from "../../components/icons";
 
@@ -78,12 +79,13 @@ describe("the navigation table", () => {
     for (const section of SECTIONS) expect(section.items.length, section.id).toBeGreaterThan(0);
   });
 
-  it("keeps the rail to six places", () => {
-    // Six because a rail is read at a glance; everything else lives inside
+  it("keeps the rail to seven places", () => {
+    // Seven because a rail is read at a glance; everything else lives inside
     // one of them. Grammar was the sixth, put in front of the dictionary when
-    // a learner could not find it. A seventh is a decision about everybody's
-    // column, and a pin is how one learner makes it about theirs (lib/ux/navOrder.ts).
-    expect(CORE.map((d) => d.href)).toEqual(["/", "/learn", "/practice", "/grammar", "/dictionary", "/progress"]);
+    // a learner could not find it, and Games the seventh, when the games left
+    // Practice. An eighth is a decision about everybody's column, and a pin is
+    // how one learner makes it about theirs (lib/ux/navOrder.ts).
+    expect(CORE.map((d) => d.href)).toEqual(["/", "/learn", "/practice", "/games", "/grammar", "/dictionary", "/progress"]);
   });
 
   it("keeps the app's own settings out of the places a learner navigates by", () => {
@@ -260,21 +262,14 @@ describe("the practice modes", () => {
     expect(new Set(hrefs).size).toBe(hrefs.length);
   });
 
-  it("never puts one hue on two neighbouring quick rounds", () => {
-    // They are laid out as a grid of colored tiles, and two neighbours sharing
-    // a color there reads as two of the same thing. Six rounds and the four
-    // bright colours of the mix cannot all differ, so what is asserted is the
-    // neighbours, in the two grids the tiles are drawn in: two across and
-    // three across.
-    expect(QUICK_MODES).toHaveLength(6);
-    const tones = QUICK_MODES.map((m) => m.tone);
-    expect(new Set(tones).size).toBe(4);
-    for (const across of [2, 3]) {
-      tones.forEach((tone, i) => {
-        if (i % across !== 0) expect(tones[i - 1], `tile ${i} shares a hue with the one beside it at ${across} across`).not.toBe(tone);
-        if (i >= across) expect(tones[i - across], `tile ${i} shares a hue with the one above it at ${across} across`).not.toBe(tone);
-      });
-    }
+  it("leaves the four skill tiles as the rounds with no other home", () => {
+    // Every game lives on the Games board and every word card on Practice,
+    // so what is left is the skills Practice draws, in its order: hear, write
+    // down, say, describe. Each has a hue of its own.
+    expect(QUICK_MODES.map((m) => m.href)).toEqual([
+      "/review/listening", "/review/dictation", "/review/speaking", "/review/describe",
+    ]);
+    expect(new Set(QUICK_MODES.map((m) => m.tone)).size).toBe(4);
   });
 
   it("splits every mode into one of the two groups", () => {
@@ -324,9 +319,9 @@ describe("the practice modes", () => {
       /*
         Two ways a page can link to a mode, and both count.
 
-        A literal href is the obvious one. The other is rendering a group this
-        module exports, which is how `/practice` draws the games: it maps
-        `GAMES`, so the href never appears there as a string. That is stronger
+        A literal href is the obvious one. The other is rendering a group a
+        table exports, which is how `/games` draws the board: it maps `GAMES`
+        out of `lib/ux/games.ts`, so the href never appears there as a string. That is stronger
         wiring rather than weaker, because a game added to the table appears on
         the page without anybody editing it, and the group's own definition is
         what pins the route.
@@ -334,7 +329,7 @@ describe("the practice modes", () => {
         The group arm is not a loophole, and it took two goes to make it one.
         It counts only for a group that really contains *this* mode, so a page
         mapping `QUICK_MODES` cannot vouch for a drill that is not in it; it
-        looks for `NAME.map(`, which is what rendering a list is, because the
+        looks for `NAME.map(` or `NAME.filter(`, which is what rendering a list is, because the
         first version matched the bare name and so was satisfied by the import
         line with the whole section deleted; and it reads `code()`, because the
         version after that was satisfied by the comment above the section. That
@@ -344,35 +339,15 @@ describe("the practice modes", () => {
       */
       const sources = files.map((f) => code(readFileSync(f, "utf8")));
       const groups: Record<string, readonly { href: string }[]> =
-        { GAMES, QUICK_MODES, TARGETED_MODES, PRACTICE_MODES, SHELVES: SHELVES.flatMap((s) => shelfItems(s)) };
+        { GAMES, QUICK_MODES, TARGETED_MODES, PRACTICE_MODES };
       const linked = sources.some((source) =>
         source.includes(mode.href)
         || Object.entries(groups).some(([name, list]) =>
-          list.some((m) => m.href === mode.href) && new RegExp(`\\b${name}\\.map\\(`).test(source)));
+          list.some((m) => m.href === mode.href) && new RegExp(`\\b${name}\\.(map|filter)\\(`).test(source)));
 
       expect(linked, `${mode.href} is reached from ${mode.within} and nothing there links to it`)
         .toBe(true);
     }
-  });
-
-  it("puts every round on exactly one shelf", () => {
-    const placed = SHELVES.flatMap((s) => s.hrefs);
-    const expected = [...QUICK_MODES, ...GAMES].map((m) => m.href).concat("/situations");
-    expect([...placed].sort()).toEqual([...expected].sort());
-    expect(new Set(placed).size).toBe(placed.length);
-    for (const shelf of SHELVES) {
-      expect(shelfItems(shelf), `${shelf.id} names a round nothing knows`)
-        .toHaveLength(shelf.hrefs.filter((h) => h !== "/situations").length);
-    }
-  });
-
-  it("leads the quick rounds with the three that need only a deck", () => {
-    // `/practice` draws these in order and the palette searches them in it,
-    // so the order is the promise that a beginner's three are not the ones
-    // needing a microphone or a recorded sentence.
-    expect(QUICK_MODES.slice(0, 3).map((m) => m.href)).toEqual([
-      "/review/match", "/review/sentences", "/review/listening",
-    ]);
   });
 
   it("gives every mode a subtitle short enough for a tile", () => {

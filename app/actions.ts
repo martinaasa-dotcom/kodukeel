@@ -96,6 +96,7 @@ import { localeFor } from "@/lib/progress/locale";
 import { courseReading, dayIsInPlay, openingPart, openingPartFor, programmeFor } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { doneKeyFrom, doneToday, withDone } from "@/lib/ux/workbookDone";
+import { notePlayed } from "@/lib/progress/gamesPlayed";
 import { adaptOfferFor, SNOOZE_DAYS } from "@/lib/progress/adapt";
 import { clip } from "@/lib/copy/clip";
 import { isConfirmed } from "@/lib/copy/confirmWord";
@@ -1440,6 +1441,20 @@ export async function recordWorkbookGrades(grades: unknown) {
 }
 
 /**
+ * Says a game was opened from the Games board today, so the board can offer
+ * one somebody has not tried yet and hand its spotlight on from one already
+ * played. Only the game is taken from the caller, and only one on the board is
+ * kept; the day is the learner's own, worked out here. One indexed write, so
+ * it carries no throttle, for the reason `lib/security/actionLimits.ts` gives.
+ */
+export async function markGamePlayed(href: unknown) {
+  const ownerId = await requireUserId();
+  const ok = await notePlayed(ownerId, text(href).slice(0, 64));
+  if (ok) revalidatePath("/games");
+  return { ok };
+}
+
+/**
  * Says a workbook page was finished today, so its button on Practice can show
  * it. Only the choice (`set` or a theme) is taken from the caller, checked
  * against what a page can be; the day is the learner's own, worked out here.
@@ -1563,6 +1578,9 @@ export async function recordSonad(day: string, guesses: unknown) {
 
   const rating = ratingFor(played, puzzle.answer, puzzle.category !== null);
   if (rating === null) return { ok: false as const, error: "That round isn't finished yet." };
+  // Finished, so the Games board can say "Done today" on its tile.
+  await notePlayed(ownerId, "/sonad");
+  revalidatePath("/games");
   if (!puzzle.inDeck) return { ok: true as const, graded: false };
 
   /*
@@ -1934,6 +1952,11 @@ export async function recordCrossword(day: string, typed: unknown, helped: unkno
   if (!puzzle) return { ok: false as const, error: "There's no crossword for that day." };
 
   const solved = solvedEntries(puzzle, grid);
+  // A full grid is a finished one, so the Games board can say "Done today".
+  if (solved.size === puzzle.entries.length) {
+    await notePlayed(ownerId, "/crossword");
+    revalidatePath("/games");
+  }
   if (solved.size === 0) return { ok: true as const, graded: 0 };
 
   const wanted = [...solved].map((index) => puzzle.entries[index]!);
