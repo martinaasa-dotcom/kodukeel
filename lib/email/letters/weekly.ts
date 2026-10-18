@@ -210,8 +210,8 @@ export function weeklyLetter(input: WeeklyInput): Letter {
       t: "text",
       text:
         input.part.eveningsLeft === 1
-          ? say("One evening left in {title}.", { title: input.part.title })
-          : say("{evenings} left in {title}.", {
+          ? say("One evening left in “{title}”.", { title: input.part.title })
+          : say("{evenings} left in “{title}”.", {
               evenings: spelled(locale, input.part.eveningsLeft, "evening", { capital: true }),
               title: input.part.title,
             }),

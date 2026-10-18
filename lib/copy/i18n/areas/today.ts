@@ -100,12 +100,12 @@ export const TODAY: Area = {
     "Пройдено {done} из {days}",
   "Today's module is done. Go and enjoy the rest of your day.":
     "Занятие на сегодня пройдено. Хорошего вам дня!",
-  "Tomorrow you'll continue with {unit}, part {n} of {of}.":
+  "Tomorrow you'll continue with “{unit}”, part {n} of {of}.":
     "Завтра продолжим раздел «{unit}», часть {n} из {of}.",
-  "See you tomorrow for {unit}.":
-    "До завтра! Впереди: {unit}.",
-  "See you tomorrow for {unit} ({english}).":
-    "До завтра! Впереди: {unit} ({english}).",
+  "See you tomorrow for “{unit}”.":
+    "До завтра! Впереди: «{unit}».",
+  "See you tomorrow for “{unit}” ({english}).":
+    "До завтра! Впереди: «{unit}» ({english}).",
   "That was the very last evening of the course. Every word you met along the way will keep coming back in your reviews.":
     "Это был самый последний вечер курса. Все слова, которые вы встретили по пути, будут и дальше возвращаться в повторениях.",
   "See what's next":
@@ -1156,12 +1156,12 @@ export const TODAY: Area = {
     "Пройдено {done} з {days}",
   "Today's module is done. Go and enjoy the rest of your day.":
     "Заняття на сьогодні пройдено. Гарного вам дня!",
-  "Tomorrow you'll continue with {unit}, part {n} of {of}.":
+  "Tomorrow you'll continue with “{unit}”, part {n} of {of}.":
     "Завтра продовжимо розділ «{unit}», частина {n} з {of}.",
-  "See you tomorrow for {unit}.":
-    "До завтра! Попереду: {unit}.",
-  "See you tomorrow for {unit} ({english}).":
-    "До завтра! Попереду: {unit} ({english}).",
+  "See you tomorrow for “{unit}”.":
+    "До завтра! Попереду: «{unit}».",
+  "See you tomorrow for “{unit}” ({english}).":
+    "До завтра! Попереду: «{unit}» ({english}).",
   "That was the very last evening of the course. Every word you met along the way will keep coming back in your reviews.":
     "Це був останній вечір курсу. Усі слова, які ви зустріли дорогою, і далі повертатимуться в повтореннях.",
   "See what's next":
