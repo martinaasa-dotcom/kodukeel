@@ -79,7 +79,7 @@ export default async function GamesPage({ searchParams }: { searchParams: Promis
               className="tap-tint rounded-full px-4 py-2 text-sm font-semibold"
               style={on
                 ? { background: "var(--ink)", color: "var(--surface)" }
-                : { background: "var(--surface)", color: "var(--ink-2)", boxShadow: "inset 0 0 0 1px var(--rule)" }}
+                : { background: "var(--surface)", color: "var(--ink-2)", boxShadow: "0 0 0 1px var(--edge)" }}
             >
               {g.name}
             </Link>

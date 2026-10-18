@@ -436,11 +436,11 @@ function Skill({ tone, verb, art, items, locale }: {
 
 /* --------------------------------------------------------------- drawings */
 
-/** One card, turned to its meaning. Cards drawn behind it read as flat boxes, so it stands alone. */
+/** One card, turned to its meaning, drawn like the workbook page beside it: the same paper, edge and corner. The edge is `--edge`, translucent and outside the box, so it darkens the lavender exactly as much as the page edge darkens the butter. */
 function CardStack() {
   return (
     <div className="relative h-24 w-36">
-      <span className="absolute inset-0 grid place-items-center rounded-[var(--r)] text-center" style={{ background: "var(--surface)", transform: "rotate(-2deg)", boxShadow: "inset 0 0 0 2px var(--accent)" }}>
+      <span className="absolute inset-0 grid place-items-center rounded-[var(--r-sm)] text-center" style={{ background: "var(--surface)", transform: "rotate(-2deg)", boxShadow: "0 0 0 1px var(--edge)" }}>
         <span>
           <span lang="et" className="block font-display text-2xl font-bold" style={{ color: "var(--ink)" }}>kohv</span>
           <span className="block text-sm" style={{ color: "var(--ink-3)" }}>coffee</span>
@@ -453,7 +453,7 @@ function CardStack() {
 /** A workbook page: ruled lines with a gap on one, filled on another. */
 function WorkbookPage() {
   return (
-    <div className="flex w-60 flex-col gap-2.5 rounded-[var(--r-sm)] px-4 py-3" style={{ background: "var(--surface)", boxShadow: "inset 0 0 0 1px var(--rule)", transform: "rotate(-2deg)" }}>
+    <div className="flex w-60 flex-col gap-2.5 rounded-[var(--r-sm)] px-4 py-3" style={{ background: "var(--surface)", boxShadow: "0 0 0 1px var(--edge)", transform: "rotate(-2deg)" }}>
       <span lang="et" className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
         Ma elan <span className="px-1 underline decoration-2 underline-offset-4" style={{ color: "var(--butter-ink)" }}>Tallinnas</span> <Check size={13} aria-hidden className="inline" style={{ color: "var(--sky-ink)" }} />
       </span>
