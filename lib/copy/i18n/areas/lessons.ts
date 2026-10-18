@@ -17,8 +17,8 @@ export const LESSONS_AREA: Area = {
     /* The A1 lessons' own titles and goals, and their parts' lines, now that they are the course. */
     "First words": "Первые слова",
     "Where you live": "Где вы живёте",
-    "Time and the day": "Время и день",
-    "Home and town": "Дом и город",
+    "Time and day": "Время и день",
+    "Home and city": "Дом и город",
     "In the shop": "В магазине",
     "Yesterday and tomorrow": "Вчера и завтра",
     "First words: hello, your name, who you are, and how it's going.": "Первые слова: привет, ваше имя, кто вы и как дела.",
@@ -204,8 +204,8 @@ export const LESSONS_AREA: Area = {
     /* The A1 lessons' own titles and goals, and their parts' lines, now that they are the course. */
     "First words": "Перші слова",
     "Where you live": "Де ви живете",
-    "Time and the day": "Час і день",
-    "Home and town": "Дім і місто",
+    "Time and day": "Час і день",
+    "Home and city": "Дім і місто",
     "In the shop": "У магазині",
     "Yesterday and tomorrow": "Вчора і завтра",
     "First words: hello, your name, who you are, and how it's going.": "Перші слова: привіт, ваше ім'я, хто ви і як справи.",

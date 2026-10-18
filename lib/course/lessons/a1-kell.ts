@@ -19,7 +19,7 @@ import type { LessonSpec, PartOfLessons } from "./types";
 export const A1_KELL_PART: PartOfLessons = {
   id: "a1-kell",
   level: "A1",
-  title: "Time and the day",
+  title: "Time and day",
   about: "Days and the time, your day, and what you want, can and have to do.",
 };
 
