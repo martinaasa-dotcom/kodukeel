@@ -3624,3 +3624,33 @@ call, not yet read by anybody fluent (`lib/copy/i18n/areas/lessonText.ts`). A li
 stays English in Russian and a line naming Russia stays English in Ukrainian, as the purity rules
 ask, and the language rule accepts Estonian a translation copies verbatim from the English line's
 braces.
+
+## 64. The fifty-eighth pass: Practice and Games are two pages
+
+Practice was every round in the app, the review hero, two word cards and then three shelves of
+rounds, and was reported as too compact and too cluttered to want to press anything on. The
+operator chose a board out of five photographed mockups and then split the page: Practice keeps
+the words fresh and answers "what needs doing", Games answers "what feels fun".
+
+**Games is the seventh place in the rail** (`/games`, `lib/ux/nav.ts`), off the phone bar, whose
+four cells stay the four an evening cannot do without. Eleven games in three groups by mood, Daily,
+Quick and Tricky, with the heading over each group the same word as its filter chip, and each drawn
+by its own pieces (`components/games/GameArt.tsx`) rather than described. Tile colors are chosen
+in `lib/ux/games.ts` so no two tiles that touch share one, asserted at two and three across. A game
+that opens at a later level is a locked tile saying so, at the end of its group.
+
+**Today's game leads the board**: until somebody has opened every game they can play, the next one
+they have not, in the week's order from today; after that the day's own (`GAME_WEEK`, a separate
+week at A1), handing over to the next day's once it has been played today. What has been played is
+one setting (`gamesPlayed`), written on a press and when a daily puzzle is finished, never on a
+render. The weekday is printed in Estonian from CLDR (`weekdayName`).
+
+**Practice is three sections**: Due now (Review, with the daily task under it), Your words (Flash
+cards with the decks and the four frequency lists, the workbook with its themes) and Skills (hear,
+speak, write, talk). The grammar drills stay on the grammar pages they practice.
+
+**Every round is named the Estonian way, at every level**: `Paarid (Pairs)`, `Kordamine
+(Review)`, on a tile and in the command palette (`lib/ux/roundNames.ts`), while the rail stays in
+English. The operator chose the names; `Sagedasemad sõnad` waits on a native speaker's word.
+Not done: the round pages' own titles and the course's step names still use the older titles in
+`lib/ux/modes.ts`, and `lib/ux/weekGames.ts` still rotates Today's own card.

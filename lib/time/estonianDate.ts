@@ -78,3 +78,16 @@ export function dateLine(at: Date, zone?: string): string | null {
 export function hasEstonian(): boolean {
   return Intl.DateTimeFormat.supportedLocalesOf([ESTONIAN_LOCALE]).length > 0;
 }
+
+/**
+ * A weekday's name as Estonia writes it, Sunday being 0 as `weekdayOf` in
+ * `lib/ux/schedule.ts` counts it. Null where the build carries no Estonian,
+ * for the reason `dateLine` gives. Read off CLDR rather than typed, so this
+ * file still writes no Estonian of its own.
+ */
+export function weekdayName(weekday: number): string | null {
+  if (!hasEstonian()) return null;
+  // 4 January 2026 is a Sunday, so the day of the month counts the week.
+  return new Intl.DateTimeFormat(ESTONIAN_LOCALE, { weekday: "long", timeZone: "UTC" })
+    .format(new Date(Date.UTC(2026, 0, 4 + (((weekday % 7) + 7) % 7))));
+}

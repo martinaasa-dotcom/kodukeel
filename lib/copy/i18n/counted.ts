@@ -22,6 +22,7 @@ import type { CaseForms, Forms } from "./table";
  */
 export const COUNTED_CORE: Readonly<Record<string, { en: readonly [string, string]; ru: Forms; uk: Forms }>> = {
   card: { en: ["card", "cards"], ru: ["карточка", "карточки", "карточек"], uk: ["картка", "картки", "карток"] },
+  game: { en: ["game", "games"], ru: ["игра", "игры", "игр"], uk: ["гра", "гри", "ігор"] },
   pair: { en: ["pair", "pairs"], ru: ["пара", "пары", "пар"], uk: ["пара", "пари", "пар"] },
   picture: { en: ["picture", "pictures"], ru: ["картинка", "картинки", "картинок"], uk: ["картинка", "картинки", "картинок"] },
   sentence: { en: ["sentence", "sentences"], ru: ["предложение", "предложения", "предложений"], uk: ["речення", "речення", "речень"] },
@@ -49,6 +50,7 @@ export const COUNTED_CORE: Readonly<Record<string, { en: readonly [string, strin
  */
 export const COUNT_CASES: Readonly<Record<string, { ru: CaseForms; uk: CaseForms }>> = {
   card: { ru: ["карточки", "карточку"], uk: ["картки", "картку"] },
+  game: { ru: ["игры", "игру"], uk: ["гри", "гру"] },
   pair: { ru: ["пары", "пару"], uk: ["пари", "пару"] },
   picture: { ru: ["картинки", "картинку"], uk: ["картинки", "картинку"] },
   sentence: { ru: ["предложения", "предложение"], uk: ["речення", "речення"] },

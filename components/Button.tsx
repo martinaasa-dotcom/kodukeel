@@ -116,14 +116,16 @@ export function Button({
 }
 
 export function ButtonLink({
-  variant = "secondary", size = "md", className = "", children, href, target, rel, hop,
+  variant = "secondary", size = "md", className = "", children, href, target, rel, hop, onClick,
 }: {
   variant?: Variant; size?: Size; className?: string; children: ReactNode;
   href: string; target?: string; rel?: string; hop?: Hop;
+  /** Something to do on the press as well as going there, from a client caller. */
+  onClick?: () => void;
 }) {
   const { extraClass, style } = split(variant);
   return (
-    <Link {...hopAttrs(variant, hop)} href={href} target={target} rel={rel} className={`${base} ${SIZES[size]} ${extraClass} ${className}`} style={style}>
+    <Link {...hopAttrs(variant, hop)} href={href} target={target} rel={rel} onClick={onClick} className={`${base} ${SIZES[size]} ${extraClass} ${className}`} style={style}>
       {children}
     </Link>
   );

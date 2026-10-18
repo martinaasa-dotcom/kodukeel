@@ -42,7 +42,7 @@ page.on("console", (m) => {
 // down beside the panel the way its key already did: 61.
 // Six more for Sõnamäng and the one funny line under a word: 72, and two for
 // its number keys leaving the browser's and the command palette's alone: 74.
-const { check, absent, done } = suite("Practice modes", { floor: 74 });
+const { check, absent, done } = suite("Practice modes", { floor: 78 });
 
 /**
  * Brings the current card to the point where it is waiting on the learner,
@@ -143,11 +143,17 @@ await page.goto(`${B}/learn/loodus`, { waitUntil: "networkidle" });
 check("a unit lists its words", (await page.getByText("mets", { exact: true }).count()) > 0);
 check("a unit says which card types it makes", (await page.getByText(/recognition, production/i).count()) > 0);
 
-// 2 — Practice hub, with live state per mode
+// 2 — Practice keeps the words fresh and Games is for play, each round named
+// the Estonian way with its English after it (lib/ux/roundNames.ts).
 await page.goto(`${B}/practice`, { waitUntil: "networkidle" });
-for (const mode of ["Review", "Match", "Listening"]) {
-  check(`practice hub offers ${mode}`, (await page.getByText(mode, { exact: true }).count()) > 0);
+for (const mode of ["Kordamine", "Õppekaardid", "Kuulamine"]) {
+  check(`practice offers ${mode}`, (await page.getByText(mode, { exact: true }).count()) > 0);
 }
+await page.goto(`${B}/games`, { waitUntil: "networkidle" });
+for (const game of ["Sõnad", "Paarid", "Kaksikud"]) {
+  check(`games offers ${game}`, (await page.getByText(game, { exact: true }).count()) > 0);
+}
+check("games leads with a game for today", (await page.locator("#today-game").count()) === 1);
 
 // 3 — Progress charts render from the review log
 await page.goto(`${B}/progress`, { waitUntil: "networkidle" });

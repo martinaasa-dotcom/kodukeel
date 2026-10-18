@@ -1,4 +1,5 @@
 import { ButtonLink } from "@/components/Button";
+import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowRight } from "lucide-react";
 import { scoreGuess, SONAD_LENGTH } from "@/lib/games/sonad";
 import { EMPTY, HUE, RING, SPOKEN } from "@/components/sonad/look";
@@ -36,7 +37,11 @@ export function SonadPreview({ href, why, locale = "en" }: { href: string; why: 
   const t = (english: string) => tr(locale, english);
   return (
     <Card className="flex h-full flex-col">
-      <SectionTitle>{t("Play a word game")}</SectionTitle>
+      <SectionTitle hint={
+        <Link href="/games" className="font-semibold underline-offset-4 hover:underline" style={{ color: "var(--accent-deep)" }}>
+          {t("All games")}
+        </Link>
+      }>{t("Play a word game")}</SectionTitle>
       <div className="flex flex-1 flex-col items-center gap-5 text-center">
         <div
           aria-hidden
