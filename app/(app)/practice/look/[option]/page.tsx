@@ -7,7 +7,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { GameArt } from "../art";
 import { PracticeLook } from "../PracticeLook";
-import { GAME_WEEK, GROUPS, OPTIONS, WEEKDAYS, lookGames, type GroupId, type LookGame } from "../games";
+import { A1_GAME_WEEK, GAME_WEEK, GROUPS, OPTIONS, WEEKDAYS, WEEKDAYS_ET, lookGames, type GroupId, type LookGame } from "../games";
 
 export const dynamic = "force-dynamic";
 
@@ -50,8 +50,9 @@ export default async function LookPage({ params, searchParams }: {
 
   const games = lookGames({ "/review/match": best > 0 ? `Best ${best}s` : undefined });
   const locked = (g: LookGame) => a1 && g.from === "A2";
-  const today = games.find((g) => g.href === GAME_WEEK[day])!;
-  const tomorrow = games.find((g) => g.href === GAME_WEEK[(day + 1) % 7])!;
+  const week = a1 ? A1_GAME_WEEK : GAME_WEEK;
+  const today = games.find((g) => g.href === week[day])!;
+  const tomorrow = games.find((g) => g.href === week[(day + 1) % 7])!;
   const href = (next: Partial<Search>) => {
     const q = new URLSearchParams();
     const merged = { level: search.level, done: search.done, day: search.day, group: search.group, ...next };
@@ -66,7 +67,7 @@ export default async function LookPage({ params, searchParams }: {
     <Page route="/practice" title="Games" lead="Eleven games, all built from the words you've met.">
       <MockupPanel a1={a1} done={done} href={href} />
 
-      <TodayTile game={today} tomorrow={tomorrow} weekday={WEEKDAYS[day]!} a1={a1} done={done.has(today.href)} />
+      <TodayTile game={today} tomorrow={tomorrow} weekday={WEEKDAYS[day]!} weekdayEt={WEEKDAYS_ET[day]!} a1={a1} done={done.has(today.href)} />
 
       <nav aria-label="Show a group" className="mb-6 mt-10 flex flex-wrap gap-2">
         {[{ id: null, name: "All 11" }, ...GROUPS].map((g) => {
@@ -142,7 +143,7 @@ function plainName(game: LookGame) {
 
 /* -------------------------------------------------------------- today */
 
-function TodayTile({ game, tomorrow, weekday, a1, done }: { game: LookGame; tomorrow: LookGame; weekday: string; a1: boolean; done: boolean }) {
+function TodayTile({ game, tomorrow, weekday, weekdayEt, a1, done }: { game: LookGame; tomorrow: LookGame; weekday: string; weekdayEt: string; a1: boolean; done: boolean }) {
   return (
     <section
       aria-labelledby="today-game"
@@ -156,7 +157,7 @@ function TodayTile({ game, tomorrow, weekday, a1, done }: { game: LookGame; tomo
         <GameArt href={game.href} size="lg" />
       </div>
       <div className="flex flex-col justify-center gap-3 p-7">
-        <p className="text-sm font-bold uppercase tracking-[0.16em]" style={{ color: toneInk(game.tone) }}>Today&apos;s game, {weekday}</p>
+        <p className="text-sm font-bold uppercase tracking-[0.16em]" style={{ color: toneInk(game.tone) }}>Today&apos;s game, <span lang="et">{weekdayEt}</span> ({weekday})</p>
         <h2 id="today-game"><GameName game={game} a1={a1} className="text-4xl" sub="text-lg" /></h2>
         <p className="text-lg" style={{ color: "var(--ink-2)" }}>{game.hook}</p>
         <div className="flex flex-wrap items-center gap-3 pt-1">
