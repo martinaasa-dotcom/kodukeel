@@ -22,7 +22,7 @@ import type { CSSProperties } from "react";
  * a new page or a reload picks her up mid-breath rather than from the top.
  *
  * `--watch-x` and `--watch-y` on an ancestor aim her eyes (see
- * `MascotWatch`), and they default to nothing. Colours are four tokens,
+ * `MascotWatch`), and they default to nothing. Colors are four tokens,
  * `--anu-face`, `--anu-line`, `--anu-hair` and `--anu-cheek`, declared once for
  * both themes: she is the same person in the dark.
  *

@@ -20,7 +20,7 @@
 
   3. A PRESS IS ANSWERED BEFORE THE PAGE IS. Every one of these goes to a
      server, so the gap between the tap and the answer is real. The cell gives
-     under the finger and its glyph gives a little more. No colour, nothing
+     under the finger and its glyph gives a little more. No color, nothing
      that competes with the marker for saying where you are.
 
   The geometry is `lib/ux/navMotion.ts` and the measuring is
@@ -75,7 +75,7 @@
     on a server, and these pages are rendered on one. Between the first paint
     and hydration there would be no card under the current row at all, on
     every hard load: the row is still bold and its glyph still wears its own
-    colour, so nothing is lost that says where you are, but a card that
+    color, so nothing is lost that says where you are, but a card that
     appears a moment after the page does is a card that flickers.
 
     So the well declares the material once and two rules spend it: the pane,
@@ -168,7 +168,7 @@
       one step short: the same pane behind it, its glyph a touch larger, and
       its words in the ink the marked row wears rather than in a hue of their
       own. An accent ink here was the other half of the two-objects problem,
-      since it made the row you were reaching for a different colour from the
+      since it made the row you were reaching for a different color from the
       row you were about to make it.
 
       `--nav-ink` is a custom property because an inline style beats a class
@@ -238,7 +238,7 @@
   THE RAIL'S OWN GROUND: A LITTLE MORNING AT THE TOP.
 
   The column sits over the page's wash with a hairline between them, and the
-  warm tint behind the wordmark is the only colour it spends on itself. Read
+  warm tint behind the wordmark is the only color it spends on itself. Read
   off the butter tint, so the dark theme's version is its own token rather
   than a light gradient dimmed.
 */
@@ -246,7 +246,7 @@
   /*
     A layer under the column rather than the column's own background: a
     gradient on the element itself defeats every contrast check that reads the
-    colour behind a word, and it would have been the one surface in the app
+    color behind a word, and it would have been the one surface in the app
     whose text nothing measured.
   */
   .rail {
@@ -307,7 +307,7 @@
 
   Ringed in the bar's own surface so it reads as cut out of the capsule rather
   than laid on top of it, and lifted by the same plain depth every card uses:
-  no coloured glow, in either theme. It does not grow when Today is the page
+  no colored glow, in either theme. It does not grow when Today is the page
   you are on: it is already the loudest thing in the bar, and a scale drew its
   icon at 25px against a declared 24, which the containment sweep reads as a
   deformed glyph. It gives under the thumb like every other cell.

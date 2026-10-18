@@ -236,7 +236,7 @@ async function main() {
     /*
       A page nobody could fetch says nothing about the entry, and a silence
       treated as an answer is the fault that cost this pipeline four fifths of
-      its dictionary once already. Skipped, not relabelled.
+      its dictionary once already. Skipped, not relabeled.
     */
     const wikitext = pages[entry.lemma];
     if (!wikitext) continue;
@@ -313,7 +313,7 @@ async function main() {
   ];
   writeFileSync(CORRECTIONS, `${JSON.stringify(ledger, null, 0)}\n`);
 
-  console.log(`\nWrote ${entries.length} entries to ${EXPANDED_PATH} (${corrected.length} relabelled).`);
+  console.log(`\nWrote ${entries.length} entries to ${EXPANDED_PATH} (${corrected.length} relabeled).`);
   console.log(`Recorded ${ledger.length} correction${ledger.length === 1 ? "" : "s"} in ${CORRECTIONS}.`);
 }
 

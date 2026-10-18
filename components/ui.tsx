@@ -51,10 +51,10 @@ export function Page({ title, titleLang, titleMark, lead, leadLang, actions, chi
    * The destination this page is, as `lib/ux/nav.ts` names it. The heading
    * carries a small dot in the same hue as the row in the rail, so the place
    * a learner pressed and the page that opened are visibly one thing. Read
-   * off the table rather than passed as a colour, so the two cannot drift.
+   * off the table rather than passed as a color, so the two cannot drift.
    *
    * It was a filled 58px icon tile, and a page that opens on a bold heading
-   * beside a solid block of colour is loud before anybody has read a word of
+   * beside a solid block of color is loud before anybody has read a word of
    * it, more so with a dark card sitting under it: two loud things stacked
    * read as noise rather than as hierarchy. The dot is a signal rather than
    * a shape, and the heading dropped to `--text-3xl`, the step the scale's
@@ -81,7 +81,7 @@ export function Page({ title, titleLang, titleMark, lead, leadLang, actions, chi
           <div className="flex min-w-0 items-start gap-2.5">
             {/* The dot sits on the heading's first line rather than the middle
                 of the block: a box as tall as one line of the heading, at the
-                heading's own size and leading, centres it there whether the
+                heading's own size and leading, centers it there whether the
                 title is one line or wraps to three. */}
             {place && (
               <span aria-hidden className={`flex h-[1.05em] shrink-0 items-center ${compact ? "text-xl" : "text-3xl"}`}>
@@ -361,7 +361,7 @@ export function StatTile({ value, label, tone = "accent", icon, hint }: {
 
         Tiles sit side by side and a reader compares the figures across them,
         so the figures have to start on one line. They did not: a label that
-        wrapped to two lines, or a hint one line longer than its neighbour's,
+        wrapped to two lines, or a hint one line longer than its neighbor's,
         moved that tile's figure off the others, which is what the plan on
         /assess did at a phone's width. A subgrid spanning three of the parent
         grid's rows makes every tile in a row use the same three tracks, so the

@@ -43,7 +43,7 @@ const SHOWN = 6;
  * THE SCREEN A ROUND ENDS ON, DRAWN ONCE.
  *
  * Rounds ended two ways. Half drew a night panel with the mascot, three tiles
- * and the way on centred under them, primary last; the other half a bare
+ * and the way on centered under them, primary last; the other half a bare
  * heading, a box of plain figures and two buttons on the left, "Another
  * round" quiet and "Back to Today" loud. A learner moving from Match to Verb
  * government met two apps saying the same thing, and the half with "Back to

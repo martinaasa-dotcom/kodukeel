@@ -25,7 +25,7 @@ const BUS_STOP: SceneSpec = {
     {
       kind: "word", slot: "to", oneOf: ["kesklinn", "haigla", "ülikool", "jaam", "turg", "sadam"],
       says: "Where you need to go.",
-      means: { sadam: "harbour" },
+      means: { sadam: "harbor" },
       places: true,
     },
   ],

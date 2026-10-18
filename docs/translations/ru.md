@@ -4513,7 +4513,7 @@ _lib/copy/i18n/areas/situations.ts_
   → Сумка в доме, и вы поняли, что делать. В следующий раз ещё и спасибо на прощание.
 - [ ] **2227.** They were late for something and couldn't stop. You asked clearly, and the next person might have a minute.  
   → Человек куда-то опаздывал и не смог остановиться. Вы попросили понятно, а у следующего прохожего может найтись минутка.
-- [ ] **2228.** You got the bag in on your own in the end. Asking is still worth practising.  
+- [ ] **2228.** You got the bag in on your own in the end. Asking is still worth practicing.  
   → В итоге вы занесли сумку сами. Просить всё равно стоит потренироваться.
 - [ ] **2229.** Waiting for a late bus  
   → Автобус опаздывает
@@ -4719,7 +4719,7 @@ _lib/copy/i18n/areas/situations.ts_
   → Вы унесли кофе к своему столу. Будет ещё понедельник.
 - [ ] **2330.** cook  
   → повар
-- [ ] **2331.** harbour  
+- [ ] **2331.** harbor  
   → порт
 - [ ] **2332.** Agree, and say what the weather is doing today.  
   → Согласитесь и скажите, какая сегодня погода.
@@ -4879,7 +4879,7 @@ _lib/copy/i18n/areas/situations.ts_
   → Сотрудник распечатывает бланк и просит расписаться внизу.
 - [ ] **2410.** They say the card will come in the post, and goodbye.  
   → Вам говорят, что карта придёт по почте, и прощаются.
-- [ ] **2411.** You've got an account, and a card on its way. You did a bank in Estonian, which is most people's least favourite errand in any language.  
+- [ ] **2411.** You've got an account, and a card on its way. You did a bank in Estonian, which is most people's least favorite errand in any language.  
   → У вас есть счёт, и карта уже в пути. Вы сходили в банк на эстонском, а это мало кто любит на любом языке.
 - [ ] **2412.** The account's open. The small talk around the edges can come later.  
   → Счёт открыт. Разговоры вокруг да около могут подождать.
@@ -5109,9 +5109,9 @@ _lib/copy/i18n/areas/situations.ts_
   → Учитель советует читать вместе дома, понемногу каждый день.
 - [ ] **2525.** They thank you for coming, and say goodbye.  
   → Учитель благодарит, что вы пришли, и прощается.
-- [ ] **2526.** You asked a follow-up question instead of nodding, said how things are at home, and you know what to practise. That's a parents' evening in Estonian.  
+- [ ] **2526.** You asked a follow-up question instead of nodding, said how things are at home, and you know what to practice. That's a parents' evening in Estonian.  
   → Вы задали уточняющий вопрос вместо того, чтобы кивать, рассказали, как дела дома, и знаете, над чем работать. Это родительское собрание на эстонском.
-- [ ] **2527.** You heard how your child is doing and what to practise. Saying more about home can come next time.  
+- [ ] **2527.** You heard how your child is doing and what to practice. Saying more about home can come next time.  
   → Вы узнали, как дела у ребёнка и над чем работать. Рассказать больше о доме можно в следующий раз.
 - [ ] **2528.** The next parent was waiting and the teacher had to stop. That's the evening, not your Estonian.  
   → Ждал следующий родитель, и учителю пришлось закончить. Дело в вечере, а не в вашем эстонском.
@@ -5151,7 +5151,7 @@ _lib/copy/i18n/areas/situations.ts_
   → задать уточняющий вопрос
 - [ ] **2546.** saying how somebody seems  
   → сказать, каким кто-то кажется
-- [ ] **2547.** agreeing what to practise  
+- [ ] **2547.** agreeing what to practice  
   → договориться, над чем работать
 - [ ] **2548.** Calling tech support  
   → Звонок в техподдержку
@@ -5451,7 +5451,7 @@ _lib/copy/i18n/areas/situations.ts_
   → отстоять себя
 - [ ] **2696.** refusing an offer  
   → отказаться от предложения
-- [ ] **2697.** The same favour, asked three ways  
+- [ ] **2697.** The same favor, asked three ways  
   → Одна и та же просьба, тремя способами
 - [ ] **2698.** A café, then your manager's office, then a service desk  
   → Кафе, потом кабинет руководителя, потом окошко обслуживания
@@ -5487,21 +5487,21 @@ _lib/copy/i18n/areas/situations.ts_
   → С другом и руководителем вы попали в точку. С чиновником то же самое, только на ступень вежливее.
 - [ ] **2714.** The friend was easy. The day ran out before work and the office.  
   → С другом было легко. А до работы и учреждения день так и не дошёл.
-- [ ] **2715.** You left before asking anybody. The favour can wait until tomorrow.  
+- [ ] **2715.** You left before asking anybody. The favor can wait until tomorrow.  
   → Вы ушли, никого не попросив. Просьба подождёт до завтра.
 - [ ] **2716.** Passing on news you heard  
   → Пересказать услышанную новость
-- [ ] **2717.** The stairwell of your building, with a neighbour  
+- [ ] **2717.** The stairwell of your building, with a neighbor  
   → Лестница в вашем доме, с соседом
-- [ ] **2718.** This is a role. You read in the local news that something new is opening nearby. On the stairs you meet a neighbour. Your card says what and when.  
+- [ ] **2718.** This is a role. You read in the local news that something new is opening nearby. On the stairs you meet a neighbor. Your card says what and when.  
   → Это роль. Вы прочитали в местных новостях, что рядом открывается что-то новое. На лестнице вы встречаете соседа. В карточке написано, что и когда.
 - [ ] **2719.** What's opening nearby, you read.  
   → Что, как вы прочитали, открывается рядом.
 - [ ] **2720.** The day it opens, you read.  
   → День открытия, как вы прочитали.
-- [ ] **2721.** Say hello back to your neighbour.  
+- [ ] **2721.** Say hello back to your neighbor.  
   → Поздоровайтесь с соседом в ответ.
-- [ ] **2722.** Your neighbour says hello on the stairs.  
+- [ ] **2722.** Your neighbor says hello on the stairs.  
   → Сосед здоровается на лестнице.
 - [ ] **2723.** Tell them what you read is opening nearby.  
   → Расскажите, что, как вы прочитали, открывается рядом.
@@ -5519,7 +5519,7 @@ _lib/copy/i18n/areas/situations.ts_
   → Сосед спрашивает, точно ли это. Скажите, что не уверены: вы только прочитали.
 - [ ] **2730.** They ask whether it's certain.  
   → Сосед спрашивает, точно ли это.
-- [ ] **2731.** Thank your neighbour and say goodbye.  
+- [ ] **2731.** Thank your neighbor and say goodbye.  
   → Поблагодарите соседа и попрощайтесь.
 - [ ] **2732.** They thank you for the news and say goodbye.  
   → Сосед благодарит за новость и прощается.
@@ -5533,9 +5533,9 @@ _lib/copy/i18n/areas/situations.ts_
   → Вы пошли дальше наверх. Шанс будет и на обратном пути.
 - [ ] **2737.** A residents' meeting about the yard  
   → Собрание жильцов о дворе
-- [ ] **2738.** The ground-floor hall of your building, with the neighbours on chairs  
+- [ ] **2738.** The ground-floor hall of your building, with the neighbors on chairs  
   → Холл на первом этаже вашего дома, соседи сидят на стульях
-- [ ] **2739.** This is a role. The yard behind your building is bare and muddy, and there's a residents' meeting tonight. You want to persuade the neighbours to plant something.  
+- [ ] **2739.** This is a role. The yard behind your building is bare and muddy, and there's a residents' meeting tonight. You want to persuade the neighbors to plant something.  
   → Это роль. Двор за вашим домом голый и грязный, а сегодня вечером собрание жильцов. Вы хотите убедить соседей что-нибудь посадить.
 - [ ] **2740.** Say hello to the room.  
   → Поздоровайтесь со всеми.
@@ -5549,9 +5549,9 @@ _lib/copy/i18n/areas/situations.ts_
   → Назовите всем одну причину: например, ради детей.
 - [ ] **2745.** They ask why.  
   → Вас спрашивают почему.
-- [ ] **2746.** A neighbour says it costs too much. Answer them: you could do it together.  
+- [ ] **2746.** A neighbor says it costs too much. Answer them: you could do it together.  
   → Сосед говорит, что это слишком дорого. Ответьте: можно сделать это вместе.
-- [ ] **2747.** A neighbour says it would cost too much.  
+- [ ] **2747.** A neighbor says it would cost too much.  
   → Сосед говорит, что это обойдётся слишком дорого.
 - [ ] **2748.** The chair asks whether to put it to a vote. Say yes.  
   → Председатель спрашивает, поставить ли это на голосование. Скажите да.
@@ -5559,9 +5559,9 @@ _lib/copy/i18n/areas/situations.ts_
   → Председатель спрашивает, все ли согласны проголосовать.
 - [ ] **2750.** The chair thanks everybody and closes the meeting.  
   → Председатель благодарит всех и закрывает собрание.
-- [ ] **2751.** You proposed something, gave a reason, answered the objection and got a vote. Persuading a room of neighbours in Estonian is real civic life.  
+- [ ] **2751.** You proposed something, gave a reason, answered the objection and got a vote. Persuading a room of neighbors in Estonian is real civic life.  
   → Вы сделали предложение, назвали причину, ответили на возражение и добились голосования. Убедить собравшихся соседей на эстонском: это настоящая гражданская жизнь.
-- [ ] **2752.** It's going to a vote. Answering the neighbour about money is what wins it.  
+- [ ] **2752.** It's going to a vote. Answering the neighbor about money is what wins it.  
   → Это поставят на голосование. А победу принесёт ответ соседу насчёт денег.
 - [ ] **2753.** The meeting ran out of time. That's meetings, not your Estonian; it's on the list for next time.  
   → Время собрания закончилось. Дело в собраниях, а не в вашем эстонском; вопрос перенесли на следующий раз.
@@ -5643,7 +5643,7 @@ _lib/copy/i18n/areas/situations.ts_
   → Кафе закрывалось, и далеко вы не продвинулись. Дело в кафе, а не в вашем эстонском.
 - [ ] **2792.** You left before the book came up. Next month's is a short one.  
   → Вы ушли, не дойдя до книги. Книга следующего месяца короткая.
-- [ ] **2793.** asking a friend a favour  
+- [ ] **2793.** asking a friend a favor  
   → попросить друга об услуге
 - [ ] **2794.** asking your manager  
   → попросить руководителя
@@ -5729,7 +5729,7 @@ _lib/copy/i18n/areas/situations.ts_
   → Все три части от начала до конца по-эстонски: вы рассказали о себе, договорились о планах и сделали звонок. Так устроен настоящий экзамен.
 - [ ] **2835.** The talk about you and the plan are done. The phone call is the part to run again.  
   → Разговор о вас и планы готовы. Телефонный звонок стоит пройти ещё раз.
-- [ ] **2836.** You got through the opening talk. The other two parts are what to practise next.  
+- [ ] **2836.** You got through the opening talk. The other two parts are what to practice next.  
   → Вы прошли вступительный разговор. Две другие части стоит потренировать дальше.
 - [ ] **2837.** You left the practice room early. It's practice, so it'll be here when you're ready.  
   → Вы рано ушли с тренировки. Это тренировка, так что она подождёт, пока вы будете готовы.
@@ -5767,11 +5767,11 @@ _lib/copy/i18n/areas/situations.ts_
   → Вы заняли позицию, назвали причину, ответили на контраргумент и договорились о выводе. Именно это и требуется в настоящем обсуждении на экзамене B2.
 - [ ] **2854.** You took a side and gave a reason. Answering the counter-argument is the part to run again.  
   → Вы заняли позицию и назвали причину. Ответ на контраргумент стоит пройти ещё раз.
-- [ ] **2855.** You got through the talk about your work. The discussion is what to practise next.  
+- [ ] **2855.** You got through the talk about your work. The discussion is what to practice next.  
   → Вы прошли разговор о работе. Обсуждение стоит потренировать дальше.
 - [ ] **2856.** Practice, not the exam  
   → Тренировка, а не экзамен
-- [ ] **2857.** Nothing here was marked as an exam. The real speaking exam also asks you to describe a picture, which you can practise here.  
+- [ ] **2857.** Nothing here was marked as an exam. The real speaking exam also asks you to describe a picture, which you can practice here.  
   → Здесь ничего не оценивалось как на экзамене. На настоящем устном экзамене нужно ещё описать картинку, это можно потренировать здесь.
 - [ ] **2858.** saying where you live  
   → говорить, где вы живёте
@@ -7121,7 +7121,7 @@ _lib/copy/i18n/areas/app.ts_
   → Отчёт охватывает целые недели, не больше {weeks}. Никто из группы в нём не назван.
 - [ ] **3523.** {from} to {to}, {weeks}  
   → С {from} по {to}, {weeks}
-- [ ] **3524.** Practised at least once  
+- [ ] **3524.** Practiced at least once  
   → Занимались хотя бы раз
 - [ ] **3525.** Most in one week  
   → Больше всего за неделю
@@ -7133,7 +7133,7 @@ _lib/copy/i18n/areas/app.ts_
   → По неделям
 - [ ] **3529.** Starting  
   → Начало
-- [ ] **3530.** Practised  
+- [ ] **3530.** Practiced  
   → Занимались
 - [ ] **3531.** What the class found hardest  
   → Что группе далось труднее всего
@@ -9863,7 +9863,7 @@ _lib/copy/i18n/areas/rounds.ts_
   → Медведь за покупками
 - [ ] **4890.** A cow sitting in a steamy sauna, with a bucket of water, a sauna whisk, a fire, a carton of juice, a basket and a spruce tree outside.  
   → Корова сидит в жаркой сауне: ведро воды, банный веник, огонь, пакет сока, корзина и ель за окном.
-- [ ] **4891.** A cat driving a car past a traffic light, with a dog running after it, a road, a tree, a house and a chequered flag.  
+- [ ] **4891.** A cat driving a car past a traffic light, with a dog running after it, a road, a tree, a house and a checkered flag.  
   → Кошка ведёт машину мимо светофора, за ней бежит собака, а ещё дорога, дерево, дом и клетчатый флаг.
 - [ ] **4892.** A dog at a desk with a laptop and a cup of coffee, a phone, a printer and a calendar, a man and a woman watching, and a pot plant.  
   → Собака сидит за столом с ноутбуком и чашкой кофе. Рядом телефон, принтер, календарь и растение в горшке, а мужчина и женщина на неё смотрят.
@@ -15753,7 +15753,7 @@ _lib/copy/i18n/areas/landing.ts_
   → Для преподавателей
 - [ ] **7809.** Teaching a class or running a group?  
   → Ведёте класс или группу?
-- [ ] **7810.** Your learners join with a short code. You see who is practising and where the group gets stuck, never anybody’s answers or deck.  
+- [ ] **7810.** Your learners join with a short code. You see who is practicing and where the group gets stuck, never anybody’s answers or deck.  
   → Ученики присоединяются по короткому коду. Вы видите, кто занимается и где группа застревает, но никогда не видите чужих ответов и карточек.
 - [ ] **7811.** It’s free, and the code is open.  
   → Это бесплатно, и исходный код открыт.
@@ -16021,7 +16021,7 @@ _lib/copy/i18n/areas/twenty.ts_
   → Оно больше, чем «{thing}»?
 - [ ] **7939.** Is it smaller than “{thing}”?  
   → Оно меньше, чем «{thing}»?
-- [ ] **7940.** Is it {word}? _(context: colour)_  
+- [ ] **7940.** Is it {word}? _(context: color)_  
   → Оно {word}?
 - [ ] **7941.** Does it have {word}? _(context: part)_  
   → У него есть {word}?
@@ -16195,27 +16195,27 @@ _lib/copy/i18n/areas/twenty.ts_
   → Оно светит?
 - [ ] **8026.** Does it smell?  
   → Оно пахнет?
-- [ ] **8027.** red _(context: colour)_  
+- [ ] **8027.** red _(context: color)_  
   → красное
-- [ ] **8028.** blue _(context: colour)_  
+- [ ] **8028.** blue _(context: color)_  
   → синее
-- [ ] **8029.** yellow _(context: colour)_  
+- [ ] **8029.** yellow _(context: color)_  
   → жёлтое
-- [ ] **8030.** green _(context: colour)_  
+- [ ] **8030.** green _(context: color)_  
   → зелёное
-- [ ] **8031.** white _(context: colour)_  
+- [ ] **8031.** white _(context: color)_  
   → белое
-- [ ] **8032.** black _(context: colour)_  
+- [ ] **8032.** black _(context: color)_  
   → чёрное
-- [ ] **8033.** brown _(context: colour)_  
+- [ ] **8033.** brown _(context: color)_  
   → коричневое
-- [ ] **8034.** grey _(context: colour)_  
+- [ ] **8034.** gray _(context: color)_  
   → серое
-- [ ] **8035.** pink _(context: colour)_  
+- [ ] **8035.** pink _(context: color)_  
   → розовое
-- [ ] **8036.** orange _(context: colour)_  
+- [ ] **8036.** orange _(context: color)_  
   → оранжевое
-- [ ] **8037.** purple _(context: colour)_  
+- [ ] **8037.** purple _(context: color)_  
   → фиолетовое
 - [ ] **8038.** legs _(context: part)_  
   → ноги
@@ -16345,7 +16345,7 @@ _lib/copy/i18n/areas/twenty.ts_
   → Оно громкое?
 - [ ] **8101.** Is it hairy?  
   → Оно волосатое?
-- [ ] **8102.** Is it colourful?  
+- [ ] **8102.** Is it colorful?  
   → Оно разноцветное?
 - [ ] **8103.** Is it dirty?  
   → Оно грязное?
@@ -16557,7 +16557,7 @@ _lib/copy/i18n/areas/twenty.ts_
   → Слово начинается на {letter}.
 - [ ] **8207.** The word has {n} letters: {pattern}  
   → Букв в слове: {n}. {pattern}
-- [ ] **8208.** It is usually {word}. _(context: colour)_  
+- [ ] **8208.** It is usually {word}. _(context: color)_  
   → Обычно оно {word}.
 - [ ] **8209.** It is a bird.  
   → Это птица.
@@ -16915,7 +16915,7 @@ _lib/copy/i18n/areas/public.ts_
   → Все четырнадцать эстонских падежей простыми словами: у каждого название, которым пользуется ваш преподаватель, и вопрос, на который он отвечает, с примерами на реальных словах.
 - [ ] **8381.** See how Estonian cases work on one word: the three forms you learn by heart, the one the endings go on, and each of the eleven endings in a real sentence.  
   → Посмотрите, как работают эстонские падежи на одном слове: три формы, которые учат наизусть, та, к которой прибавляются окончания, и каждое из одиннадцати окончаний в настоящем предложении.
-- [ ] **8382.** Practise these in the app, on words you are learning, with every answer marked.  
+- [ ] **8382.** Practice these in the app, on words you are learning, with every answer marked.  
   → Тренируйте это в приложении, на словах, которые вы учите, и каждый ответ будет проверен.
 - [ ] **8383.** Sign in, it’s free  
   → Войдите, это бесплатно
@@ -17039,9 +17039,9 @@ _lib/copy/i18n/areas/public.ts_
   → Если ничего из этого не помогло, напишите на {email}.
 - [ ] **8443.** what a pilot is  
   → что такое пилотный проект (на английском)
-- [ ] **8444.** An organisation thinking of trying it with a group can read {pilots}, which says what it costs them, which is nothing to run.  
+- [ ] **8444.** An organization thinking of trying it with a group can read {pilots}, which says what it costs them, which is nothing to run.  
   → Организация, которая думает попробовать приложение с группой, может прочитать {pilots}: там сказано, во что это им обойдётся, а запуск не стоит ничего.
-- [ ] **8445.** An organisation deciding whether to try it with a group can read {pilots}, including what it is not ready for.  
+- [ ] **8445.** An organization deciding whether to try it with a group can read {pilots}, including what it is not ready for.  
   → Организация, которая решает, пробовать ли приложение с группой, может прочитать {pilots}, в том числе о том, к чему оно ещё не готово.
 - [ ] **8446.** how we know  
   → как мы это знаем (на английском)
@@ -17101,7 +17101,7 @@ _lib/copy/i18n/areas/public.ts_
   → Шесть из этих критериев появились в WCAG 2.2 и пока не стали пунктами EN 301 549 версии 3.2.1, которая принимает WCAG 2.1. Глава 11 стандарта относится к программам, которые не являются веб-страницей, поэтому к приложению в браузере она не применяется.
 - [ ] **8474.** Prepared on 5 September 2026 by the people who wrote the app, from the automated suites described above and from reading the source, and the table of criteria was added on 15 October 2026. It is reviewed whenever a screen changes enough to move one of the claims on it. There has been no external review.  
   → Подготовлено 5 сентября 2026 года авторами приложения на основе описанных выше автоматических тестов и чтения исходного кода, а таблица критериев добавлена 15 октября 2026 года. Заявление пересматривается всякий раз, когда экран меняется настолько, что это затрагивает одно из утверждений. Внешней проверки не было.
-- [ ] **8475.** Put a code on the board. See who is practising and what the group keeps getting wrong.  
+- [ ] **8475.** Put a code on the board. See who is practicing and what the group keeps getting wrong.  
   → Напишите код на доске. Смотрите, кто занимается и в чём группа ошибается чаще всего.
 - [ ] **8476.** A sample class  
   → Пример группы
@@ -19787,23 +19787,23 @@ _lib/copy/i18n/areas/sayings.ts_
   → Суп на плите начинает сильно кипеть.
 - [ ] **9803.** The meeting is moved to next week, or you put off a hard decision.  
   → Встречу переносят на следующую неделю, или вы откладываете трудное решение.
-- [ ] **9804.** Your neighbours are friendly and you never have any trouble with them.  
+- [ ] **9804.** Your neighbors are friendly and you never have any trouble with them.  
   → Соседи приветливые, и у вас с ними никогда нет проблем.
 - [ ] **9805.** Someone says something silly and you tell them to stop talking rubbish.  
   → Кто-то говорит глупость, и вы просите его перестать нести чепуху.
 - [ ] **9806.** The fridge stops working the day before Christmas.  
   → Холодильник ломается за день до Рождества.
-- [ ] **9807.** The tyre has no air left, or your stomach starts to growl.  
+- [ ] **9807.** The tire has no air left, or your stomach starts to growl.  
   → В шине не остаётся воздуха, или у вас урчит в животе.
 - [ ] **9808.** A politician is blamed in public for something he did years ago.  
   → Политика публично упрекают в том, что он сделал много лет назад.
 - [ ] **9809.** A friend gave their word and then did the opposite.  
   → Друг дал слово, а потом сделал наоборот.
-- [ ] **9810.** One red coat in a crowd of grey ones.  
+- [ ] **9810.** One red coat in a crowd of gray ones.  
   → Одно красное пальто в толпе серых.
 - [ ] **9811.** The jeans you bought last year will not go on any more.  
   → Джинсы, купленные в прошлом году, больше не налезают.
-- [ ] **9812.** A rumour makes two close friends stop speaking to each other.  
+- [ ] **9812.** A rumor makes two close friends stop speaking to each other.  
   → Из-за слуха два близких друга перестают разговаривать.
 - [ ] **9813.** You have never been there, so you picture what the town looks like.  
   → Вы там никогда не были и представляете себе, как выглядит город.
@@ -19833,11 +19833,11 @@ _lib/copy/i18n/areas/sayings.ts_
   → Вам предлагают работу или подарок, и вы соглашаетесь.
 - [ ] **9826.** Two friends who always got on have a sudden falling out.  
   → Двое друзей, всегда ладивших, вдруг ссорятся.
-- [ ] **9827.** A student keeps glancing at the neighbour's paper during a test.  
+- [ ] **9827.** A student keeps glancing at the neighbor's paper during a test.  
   → Ученик во время контрольной всё время косится на работу соседа.
 - [ ] **9828.** The shop is closed for the day, so going now is pointless.  
   → Магазин закрыт до утра, так что идти туда сейчас бессмысленно.
-- [ ] **9829.** The train you wanted is cancelled because of the storm.  
+- [ ] **9829.** The train you wanted is canceled because of the storm.  
   → Поезд, на который вы рассчитывали, отменён из-за бури.
 - [ ] **9830.** The archer lets go and the arrow flies wide of the mark.  
   → Лучник отпускает тетиву, и стрела летит мимо цели.
@@ -19919,7 +19919,7 @@ _lib/copy/i18n/areas/sayings.ts_
   → Лаборатория проводит опыт точно по инструкции.
 - [ ] **9869.** At last the whole to-do list is finished.  
   → Наконец весь список дел выполнен.
-- [ ] **9870.** There is a draught from the window and the television is far too loud.  
+- [ ] **9870.** There is a draft from the window and the television is far too loud.  
   → Из окна дует, а телевизор орёт слишком громко.
 - [ ] **9871.** You were on the street when two cars collided, and the police ask what you saw.  
   → Вы были на улице, когда столкнулись две машины, и полиция спрашивает, что вы видели.
@@ -20109,7 +20109,7 @@ _lib/copy/i18n/areas/sayings.ts_
   → не есть
 - [ ] **9964.** sense  
   → смысл
-- [ ] **9965.** it is cancelled  
+- [ ] **9965.** it is canceled  
   → отменяется
 - [ ] **9966.** it stays away  
   → остаётся прочь
@@ -20475,7 +20475,7 @@ _lib/copy/i18n/areas/sayings.ts_
   → спросить (кого-то)
 - [ ] **10147.** ask from the hand  
   → спросить из руки
-- [ ] **10148.** You do not know the answer, but your neighbour might.  
+- [ ] **10148.** You do not know the answer, but your neighbor might.  
   → Вы не знаете ответа, а сосед, может быть, знает.
 - [ ] **10149.** ask  
   → спроси
@@ -20555,7 +20555,7 @@ _lib/copy/i18n/areas/sayings.ts_
   → меня достало, я вышел из себя
 - [ ] **10187.** the heart jumped full  
   → сердце прыгнуло полным
-- [ ] **10188.** Your neighbour plays drums at midnight for the third night running.  
+- [ ] **10188.** Your neighbor plays drums at midnight for the third night running.  
   → Сосед третью ночь подряд играет на барабанах в полночь.
 - [ ] **10189.** jumped  
   → прыгнуло
@@ -20959,7 +20959,7 @@ _lib/copy/i18n/areas/sayings.ts_
   → в хороших отношениях
 - [ ] **10389.** good dealings  
   → хорошие дела
-- [ ] **10390.** You and the neighbours swap keys and water each other's plants.  
+- [ ] **10390.** You and the neighbors swap keys and water each other's plants.  
   → Вы с соседями обменялись ключами и поливаете друг другу цветы.
 - [ ] **10391.** dealings  
   → дела
@@ -21133,7 +21133,7 @@ _lib/copy/i18n/areas/sayings.ts_
   → Армия встаёт лагерем вокруг города и никого не впускает и не выпускает.
 - [ ] **10476.** was fenced  
   → был огорожен
-- [ ] **10477.** I caught a chill in a draught  
+- [ ] **10477.** I caught a chill in a draft  
   → меня продуло
 - [ ] **10478.** the wind has pulled through  
   → ветер протянул насквозь
@@ -21225,7 +21225,7 @@ _lib/copy/i18n/areas/sayings.ts_
   → кажется, выглядит
 - [ ] **10522.** shines out  
   → светит наружу
-- [ ] **10523.** Your neighbour is forty but everyone guesses sixty.  
+- [ ] **10523.** Your neighbor is forty but everyone guesses sixty.  
   → Соседу сорок, а все дают ему шестьдесят.
 - [ ] **10524.** shines  
   → светит
@@ -21249,7 +21249,7 @@ _lib/copy/i18n/areas/sayings.ts_
   → будь ты на моём месте
 - [ ] **10534.** if you were in the skin  
   → будь ты в шкуре
-- [ ] **10535.** A friend criticises your choice and you ask how she would handle it herself.  
+- [ ] **10535.** A friend criticizes your choice and you ask how she would handle it herself.  
   → Подруга критикует ваш выбор, и вы спрашиваете, как бы поступила она сама.
 - [ ] **10536.** if you were  
   → будь ты
@@ -21275,7 +21275,7 @@ _lib/copy/i18n/areas/sayings.ts_
   → задали (на дом)
 - [ ] **10547.** was given up  
   → было отдано вверх
-- [ ] **10548.** You were off sick and ask a classmate what the maths homework is.  
+- [ ] **10548.** You were off sick and ask a classmate what the math homework is.  
   → Вы болели и спрашиваете одноклассника, что задали по математике.
 - [ ] **10549.** The same pair of words also means reporting someone to the police.  
   → Те же два слова значат ещё и донести на кого-то в полицию.
@@ -21475,7 +21475,7 @@ _lib/copy/i18n/areas/sayings.ts_
   → сели в лужу
 - [ ] **10647.** stepped into the bucket  
   → наступили в ведро
-- [ ] **10648.** Organisers set ticket prices so high that the hall stays half empty.  
+- [ ] **10648.** Organizers set ticket prices so high that the hall stays half empty.  
   → Организаторы так задрали цены на билеты, что зал наполовину пуст.
 - [ ] **10649.** into the bucket  
   → в ведро
@@ -21491,7 +21491,7 @@ _lib/copy/i18n/areas/sayings.ts_
   → соответствовало действительности
 - [ ] **10655.** answered to the truth  
   → отвечало правде
-- [ ] **10656.** A rumour that the school will close turns out to be false.  
+- [ ] **10656.** A rumor that the school will close turns out to be false.  
   → Слух о закрытии школы оказывается ложным.
 - [ ] **10657.** answered  
   → отвечало
@@ -21817,7 +21817,7 @@ _lib/copy/i18n/areas/sayings.ts_
   → обижаться, ставить в вину
 - [ ] **10818.** to put as bad  
   → класть как плохое
-- [ ] **10819.** Your neighbour forgot your birthday, but she had a hard week, so you don't mind.  
+- [ ] **10819.** Your neighbor forgot your birthday, but she had a hard week, so you don't mind.  
   → Соседка забыла про ваш день рождения, но у неё была тяжёлая неделя, и вы не в обиде.
 - [ ] **10820.** as bad  
   → как плохое
@@ -21991,13 +21991,13 @@ _lib/copy/i18n/areas/sayings.ts_
   → пропало зря
 - [ ] **10905.** went empty  
   → ушло пустым
-- [ ] **10906.** You spend a week on a report and then the meeting is cancelled.  
+- [ ] **10906.** You spend a week on a report and then the meeting is canceled.  
   → Вы неделю готовите доклад, а потом совещание отменяют.
 - [ ] **10907.** left behind by mistake  
   → забыл (дома)
 - [ ] **10908.** forgotten down  
   → забыл вниз
-- [ ] **10909.** You are halfway to the airport when you realise your pills are still at home.  
+- [ ] **10909.** You are halfway to the airport when you realize your pills are still at home.  
   → На полпути в аэропорт вы понимаете, что таблетки остались дома.
 - [ ] **10910.** forgotten  
   → забыл
@@ -22123,7 +22123,7 @@ _lib/copy/i18n/areas/sayings.ts_
   → догнать (других)
 - [ ] **10971.** to take after  
   → брать следом
-- [ ] **10972.** A small country works hard to reach the living standards of its neighbours.  
+- [ ] **10972.** A small country works hard to reach the living standards of its neighbors.  
   → Маленькая страна изо всех сил догоняет соседей по уровню жизни.
 - [ ] **10973.** to hold (an event)  
   → провести (мероприятие)
@@ -22311,7 +22311,7 @@ _lib/copy/i18n/areas/sayings.ts_
   → На простой вопрос да или нет политик говорит десять минут.
 - [ ] **11065.** to stir  
   → мешать
-- [ ] **11066.** to plough through  
+- [ ] **11066.** to plow through  
   → продираться, осиливать
 - [ ] **11067.** to chew through  
   → прогрызать
@@ -22411,7 +22411,7 @@ _lib/copy/i18n/areas/sayings.ts_
   → вбила себе в голову
 - [ ] **11115.** took into the head  
   → взяла в голову
-- [ ] **11116.** Your aunt is certain, with no evidence at all, that the neighbours read her post.  
+- [ ] **11116.** Your aunt is certain, with no evidence at all, that the neighbors read her post.  
   → Тётя без всяких доказательств уверена, что соседи читают её почту.
 - [ ] **11117.** we'll be done with it  
   → мы с этим покончим
@@ -22721,7 +22721,7 @@ _lib/copy/i18n/areas/sayings.ts_
   → мы просчитались
 - [ ] **11270.** we cut into the finger  
   → мы порезали палец
-- [ ] **11271.** A racing team picks the wrong tyres and falls behind.  
+- [ ] **11271.** A racing team picks the wrong tires and falls behind.  
   → Гоночная команда выбирает не те шины и отстаёт.
 - [ ] **11272.** we cut  
   → мы порезали
@@ -22774,7 +22774,7 @@ _lib/copy/i18n/areas/twins.ts_
   → Выберите подходящее слово. Потом вы увидите другое слово в его собственном предложении. Времени на ответ никто не ограничивает.
 - [ ] **11294.** Words that look alike and mean different things.  
   → Слова, которые похожи, но значат разное.
-- [ ] **11295.** No pairs to practise yet  
+- [ ] **11295.** No pairs to practice yet  
   → Пока нечего тренировать
 - [ ] **11296.** The pairs open as the course teaches both words of them.  
   → Пары открываются, когда курс научит вас обоим словам пары.
@@ -22810,7 +22810,7 @@ _lib/copy/i18n/areas/twins.ts_
   → А вот другое слово в своём предложении
 - [ ] **11312.** That's {twin}, {means}. This card wanted {word}, {wanted}.  
   → Это {twin}, «{means}». Карточка ждала {word}, «{wanted}».
-- [ ] **11313.** These two are easy to mix up. Practise the pair  
+- [ ] **11313.** These two are easy to mix up. Practice the pair  
   → Эти два слова легко перепутать. Потренируйте пару
 - [ ] **11314.** Words that look alike  
   → Похожие слова
@@ -22826,7 +22826,7 @@ _lib/copy/i18n/areas/twins.ts_
   → Одни пары это одно слово с суффиксом, который меняет, кто что делает, и одно правило открывает десятки таких пар. Другие это одно английское слово, которое эстонский делит на два. Остальные совпали случайно, и их учат рядом друг с другом.
 - [ ] **11320.** The rule misleads here  
   → Здесь правило подводит
-- [ ] **11321.** Practise this pair  
+- [ ] **11321.** Practice this pair  
   → Потренировать эту пару
 - [ ] **11322.** It happens, or you make it happen  
   → Происходит само или вы заставляете это произойти
@@ -22892,7 +22892,7 @@ _lib/copy/i18n/areas/twins.ts_
   → влиять на кого-то
 - [ ] **11353.** to get used to  
   → привыкать
-- [ ] **11354.** to practise  
+- [ ] **11354.** to practice  
   → упражняться, тренировать
 - [ ] **11355.** to seem  
   → казаться
@@ -23148,7 +23148,7 @@ _lib/copy/i18n/areas/twins.ts_
   → белый
 - [ ] **11481.** bad  
   → плохой
-- [ ] **11482.** grey  
+- [ ] **11482.** gray  
   → серый
 - [ ] **11483.** light, easy  
   → лёгкий
@@ -23528,7 +23528,7 @@ _lib/copy/i18n/areas/wordplay.ts_
   → Перемешайте («mix») слова в предложении, и от учительского стола прилетит именно это.
 - [ ] **11666.** The plural of bone looks identical. Sweep those up with this one. _(context: wordplay)_  
   → Множественное от «кость» пишется точно так же. Их и подметите этой метлой (а «lewd» тут ни при чём).
-- [ ] **11667.** The good mood you say yes in, without asking what the favour is. _(context: wordplay)_  
+- [ ] **11667.** The good mood you say yes in, without asking what the favor is. _(context: wordplay)_  
   → То хорошее настроение, в котором соглашаешься, не спросив, о какой услуге речь.
 - [ ] **11668.** A birthday, an anniversary, a national holiday: the days it is unwise to forget. _(context: wordplay)_  
   → День рождения, годовщина, государственный праздник: дни, которые неразумно забывать.
@@ -23998,7 +23998,7 @@ _lib/copy/i18n/areas/wordplay.ts_
   → гнездовой мяч
 - [ ] **11901.** baseball _(context: wordplay)_  
   → бейсбол
-- [ ] **11902.** The bases are nests, which makes running home sound rather cosy. _(context: wordplay)_  
+- [ ] **11902.** The bases are nests, which makes running home sound rather cozy. _(context: wordplay)_  
   → Базы здесь называются гнёздами, и бег домой звучит очень уютно.
 - [ ] **11903.** nest _(context: wordplay)_  
   → гнездо
@@ -24632,9 +24632,9 @@ _lib/copy/i18n/areas/wordplay.ts_
   → воскресенье
 - [ ] **12218.** English built its word holiday from the same two pieces. _(context: wordplay)_  
   → Английское holiday, «праздник», собрано из тех же двух частей.
-- [ ] **12219.** favourite _(context: wordplay)_  
+- [ ] **12219.** favorite _(context: wordplay)_  
   → любимый
-- [ ] **12220.** favourite animal _(context: wordplay)_  
+- [ ] **12220.** favorite animal _(context: wordplay)_  
   → любимое животное
 - [ ] **12221.** a pet _(context: wordplay)_  
   → домашний питомец
@@ -24672,7 +24672,7 @@ _lib/copy/i18n/areas/wordplay.ts_
   → разрешение
 - [ ] **12238.** leader permission _(context: wordplay)_  
   → разрешение руководителя
-- [ ] **12239.** a driving licence _(context: wordplay)_  
+- [ ] **12239.** a driving license _(context: wordplay)_  
   → водительские права
 - [ ] **12240.** strength _(context: wordplay)_  
   → сила
@@ -24826,9 +24826,9 @@ _lib/copy/i18n/areas/wordplay.ts_
   → Имя, которое кричат через весь школьный двор.
 - [ ] **12315.** bench _(context: wordplay)_  
   → скамья
-- [ ] **12316.** neighbour _(context: wordplay)_  
+- [ ] **12316.** neighbor _(context: wordplay)_  
   → сосед
-- [ ] **12317.** bench neighbour _(context: wordplay)_  
+- [ ] **12317.** bench neighbor _(context: wordplay)_  
   → сосед по скамье
 - [ ] **12318.** a deskmate _(context: wordplay)_  
   → тот, кто сидит с тобой за партой
@@ -25192,7 +25192,7 @@ _lib/copy/i18n/areas/wordplay.ts_
   → перламутр
 - [ ] **12498.** pink _(context: wordplay)_  
   → розовый
-- [ ] **12499.** Paint one rose-coloured and you've covered both meanings. _(context: wordplay)_  
+- [ ] **12499.** Paint one rose-colored and you've covered both meanings. _(context: wordplay)_  
   → Покрасьте её в розовый («pink»), и оба значения на месте.
 - [ ] **12500.** sigh _(context: wordplay)_  
   → вздох
@@ -25220,7 +25220,7 @@ _lib/copy/i18n/areas/wordplay.ts_
   → Носят чуть ниже губ («lips»), от воротника до ремня.
 - [ ] **12512.** In South Africa it's money. Here it's sand and the Baltic. _(context: wordplay)_  
   → В Южной Африке это деньги. Здесь это песок и Балтика.
-- [ ] **12513.** grey _(context: wordplay)_  
+- [ ] **12513.** gray _(context: wordplay)_  
   → серый
 - [ ] **12514.** coo _(context: wordplay)_  
   → ворковать
@@ -25278,7 +25278,7 @@ _lib/copy/i18n/areas/wordplay.ts_
   → чернослив
 - [ ] **12541.** brown _(context: wordplay)_  
   → коричневый
-- [ ] **12542.** Dried plums are this colour, which helps it stick. _(context: wordplay)_  
+- [ ] **12542.** Dried plums are this color, which helps it stick. _(context: wordplay)_  
   → Чернослив («prune») как раз этого цвета, так легче запомнить.
 - [ ] **12543.** till _(context: wordplay)_  
   → касса; вскапывать

@@ -27,7 +27,7 @@
  * TWO WALKS, BECAUSE THERE ARE TWO TEACHING ORDERS AND THE STRICTER ONE IS THE
  * ONE THE RULE PROTECTS. The unit lesson walks `SYLLABUS`, so everything an
  * earlier unit taught counts; the planned module walks its own evenings, so
- * only what the programme has handed over by that night counts, which is finer
+ * only what the program has handed over by that night counts, which is finer
  * and therefore tighter. The ranked list is built off the module's order for
  * that reason: it is the work list for the thing the operator asked to be held
  * to the rule, and a list built off the looser walk would under-report exactly

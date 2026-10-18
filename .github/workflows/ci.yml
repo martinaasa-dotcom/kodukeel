@@ -308,7 +308,7 @@ jobs:
     # it. `scripts/test-invariants.ts` asserts both against this file.
     #
     # `fail-fast: false`, because five shards reporting is five answers and
-    # the first failure cancelling the rest is one.
+    # the first failure canceling the rest is one.
     strategy:
       fail-fast: false
       matrix:
@@ -362,7 +362,7 @@ jobs:
           # left, since every other suite here runs in English, where a
           # translation that is longer than its box or missing cannot show. It
           # shared the shard above until the two together ran past the
-          # twenty-minute ceiling, which is a cancelled run rather than a red one
+          # twenty-minute ceiling, which is a canceled run rather than a red one
           # and says nothing about either suite.
           - name: the screens in Russian and Ukrainian
             suites: >-
@@ -723,7 +723,7 @@ jobs:
       - run: node scripts/check-audit.mjs
       # THE OTHER SUPPLY CHAIN QUESTION, WHICH `npm audit` HAS NO OPINION ON.
       #
-      # A licence is the thing nobody thinks to check until the answer is
+      # A license is the thing nobody thinks to check until the answer is
       # already in the tree and shipped. This project's code is MIT and its
       # built dictionary carries Wiktionary's CC BY-SA 4.0, and `LICENSE` says
       # exactly that; a strong copyleft *code* dependency arriving through a

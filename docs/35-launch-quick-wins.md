@@ -69,7 +69,7 @@ each one fails a test or a review if missed.
   `locale.test.ts` and `lib/copy/publicPages.test.ts` fail on the surfaces they cover. Counts go
   through `countOf`, never `n + " cards"`. Read `docs/34-interface-languages.md` first.
 - **No Estonian is written by this app** (ADR-005). None of the items below needs any.
-- **Tokens, not literals.** Sizes are step names, colours are tokens, the middot is on no screen.
+- **Tokens, not literals.** Sizes are step names, colors are tokens, the middot is on no screen.
 - **A reading is not a verdict.** Do not paint a figure about the learner in the sky or blush hues.
 - **One loud action per screen,** and the primary button is last in its row (`components/Button.tsx`).
 - **A new invariant goes in its own file** under `scripts/invariants/`, never appended to the big one.
@@ -234,7 +234,7 @@ sweeps both languages for fit. Run both.
 ## 6. QW-3: public pages get a real header and a contact line
 
 **Evidence.** Privacy, terms, trust, accessibility and funding all render through one component,
-`components/Legal.tsx`, whose header is the word "Kodukeel" in small grey capitals. The state
+`components/Legal.tsx`, whose header is the word "Kodukeel" in small gray capitals. The state
 examination page (`app/state-exam/page.tsx`) repeats the same header by hand. These are the pages a
 funder, a school and a ministry reader open, and they look like plain documents: no logo, no sign of
 the product, nothing to press. Trust and Funding are reachable only from the landing footer.
@@ -267,12 +267,12 @@ and dark.
 
 **Evidence.** The landing page mentions teachers four times and offers a teacher no way in: no
 section, no link, no way to write to anyone. `/trust` and `/funding` sit in the footer only. A teacher
-or a programme officer who lands here cannot tell this is for them.
+or a program officer who lands here cannot tell this is for them.
 
 **Change.** Add one compact band to `app/(chromeless)/welcome/page.tsx`, above the footer and after
 the comparison section, with these facts and no others (each is already true and checkable):
 
-- Learners join a class with a short code. The teacher sees who is practising and where the group gets
+- Learners join a class with a short code. The teacher sees who is practicing and where the group gets
   stuck, never anybody's answers or deck. (True for a class; a workplace group sees less. Keep it to
   "class" so it is precise.)
 - It is free and the code is open.
@@ -282,7 +282,7 @@ the comparison section, with these facts and no others (each is already true and
 Two links: "How the data is handled" to `/trust`, and "Write to us about a pilot" as a mailto to the
 operator email, with the subject pre-filled. Hide the mailto when no operator email is configured.
 Draft English, to be tightened in review: "Teaching a class or running a group? Your learners join
-with a short code. You see who is practising and where the group gets stuck, never anybody's answers.
+with a short code. You see who is practicing and where the group gets stuck, never anybody's answers.
 Free, and the code is open. For learners aged 13 and older."
 
 Add Russian and Ukrainian entries to `lib/copy/i18n/areas/landing.ts`. The page renders three
@@ -302,7 +302,7 @@ Collides with QW-8 on `welcome/page.tsx` (section 13).
 the class page with a Copy button (`app/(app)/class/[classroomId]/page.tsx`, around line 137), and the
 sentence under it says students enter it "under Classes". There is nothing to print.
 
-**Change.** Add `app/(app)/class/[classroomId]/poster/page.tsx` (to be written), modelled on the worksheet page
+**Change.** Add `app/(app)/class/[classroomId]/poster/page.tsx` (to be written), modeled on the worksheet page
 (`app/(app)/learn/[unitId]/worksheet/page.tsx`, which already uses `PrintButton` and a print layout).
 
 - Owner only: load the membership as the class page does, require `classroom.ownerId === ownerId`,
@@ -451,7 +451,7 @@ reload.
 
 - **Do not break the fallback.** A line with no translation must still print its English.
 - **The tables are keyed on the English sentence,** so each table also carries the English text. A
-  smarter split (one chunk per area, loaded per route) is a later optimisation and not needed here.
+  smarter split (one chunk per area, loaded per route) is a later optimization and not needed here.
 - **A per-request global is a trap.** Do not let a provider write the table into a module-level
   variable on the server: requests for different languages share the process.
 - **Build output moves.** Chunk names are hashes, so measure from a fresh build, not from the one in
@@ -522,12 +522,12 @@ focused day. For two people: one takes QW-8 and QW-9 alone, the other takes ever
 
 Said so nobody rediscovers them as gaps.
 
-- **School-ready accounts, the teacher toolkit, the organisation layer.** Bigger than a day, and
+- **School-ready accounts, the teacher toolkit, the organization layer.** Bigger than a day, and
   gated by the standing decision in section 1.
 - **A page of its own for teachers or funders.** QW-3 and QW-4 are the cheap version. A proper
   `/teachers` and `/funders` pair needs screenshots, figures and translations and is in the ranked
   plan.
-- **A QR code on the poster.** Needs a dependency and a licence check.
+- **A QR code on the poster.** Needs a dependency and a license check.
 - **Lowering the first-run screen heights** (steps 3 and 4 are 2,900 to 3,300 px tall on a phone).
   Worth doing, but it is a layout redesign, not a quick win.
 - **The floating tutor button covering text on phones.** A design trade, not a defect; revisit with

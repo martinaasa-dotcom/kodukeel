@@ -13,7 +13,7 @@ import { POST } from "./route";
  *
  * The link is an HMAC over a learner and a kind, and it works with no session
  * on purpose: a way out that asks somebody to sign in first is one a mail
- * client will not honour. So it keeps working after the account it names has
+ * client will not honor. So it keeps working after the account it names has
  * been erased, and a letter sits in an inbox for as long as its reader keeps
  * it. Clicked then, it used to upsert two `Setting` rows keyed on an owner
  * `deleteMyAccount` had just removed from every table, which is the erasure

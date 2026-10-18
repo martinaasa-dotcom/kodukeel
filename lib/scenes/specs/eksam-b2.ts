@@ -155,7 +155,7 @@ const EXAM_B2: SceneSpec = {
   outcomes: [
     { id: "held", when: ["greet", "work", "like", "side", "reason", "counter", "decide", "close"], says: "You took a side, gave a reason, met the counter-argument and agreed a conclusion. Holding a position out loud is what the real B2 discussion asks for." },
     { id: "held-thin", when: ["side", "reason", "decide"], says: "You took a side and gave a reason. Answering the counter-argument is the part to run again." },
-    { id: "talk-only", when: ["greet", "work"], says: "You got through the talk about your work. The discussion is what to practise next." },
+    { id: "talk-only", when: ["greet", "work"], says: "You got through the talk about your work. The discussion is what to practice next." },
     { id: "left", when: [], says: "You left the practice room early. It's practice, so it'll be here when you're ready." },
   ],
 };

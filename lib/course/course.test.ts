@@ -45,7 +45,7 @@ function taughtBy(programme: (typeof PROGRAMMES)[number], index: number) {
 const BUILT = PROGRAMMES.filter((p) => !p.days.some((d) => d.lesson));
 const DAYS = BUILT.flatMap((p) => p.days.map((d) => ({ programme: p, day: d })));
 
-describe("the programme is a request against the course, never a copy of it", () => {
+describe("the program is a request against the course, never a copy of it", () => {
   it("builds every part from A2 up out of units, and only those", () => {
     expect(BUILT.length).toBe(PARTS.length);
     expect(BUILT.every((p) => p.level !== "A1")).toBe(true);
@@ -72,7 +72,7 @@ describe("the programme is a request against the course, never a copy of it", ()
     }
   });
 
-  it("teaches each word once across the whole programme", () => {
+  it("teaches each word once across the whole program", () => {
     for (const programme of BUILT) {
       const seen = new Set<string>();
       for (const day of programme.days) {
@@ -305,7 +305,7 @@ describe("what a day reads and where it goes", () => {
   });
 
   // The other direction, which is what lets a screen say "every conversation
-  // the app has" with a count read off the catalogue: a scene with no evening
+  // the app has" with a count read off the catalog: a scene with no evening
   // is a scene the module never opens.
   it("puts every conversation the app has on an evening", () => {
     const placed = new Set(Object.values(SCENE_FOR_UNIT));
@@ -316,7 +316,7 @@ describe("what a day reads and where it goes", () => {
     A CONVERSATION NEVER ARRIVES BEFORE ITS WORDS, which is the whole of what
     makes one fair at this point rather than a wall. A scene declares the units
     it may draw on, and every one of them has to have been taught by the
-    evening the programme opens it: by an earlier part of the ladder, or by an
+    evening the program opens it: by an earlier part of the ladder, or by an
     earlier evening of this one.
   */
   it("opens a conversation only once its units have been taught", () => {
@@ -418,7 +418,7 @@ describe("what a day reads and where it goes", () => {
   /*
     A day that is four drills long is homework. This is the only check in the
     file about how a day *feels*, and it is worth one: the whole claim of a
-    planned programme is that somebody comes back tomorrow.
+    planned program is that somebody comes back tomorrow.
   */
   it("puts something to play in every day", () => {
     for (const { day } of DAYS) {
@@ -430,7 +430,7 @@ describe("what a day reads and where it goes", () => {
   /*
     THE ALTERNATION IS LOAD-BEARING AND IS ASSERTED RATHER THAN TRUSTED. Each
     rotation runs game, drill, game, drill, and an evening takes two
-    neighbours, which is what guarantees the check above over 182 evenings
+    neighbors, which is what guarantees the check above over 182 evenings
     without anybody reading them. A list that stopped alternating would give
     some level a fortnight of drills and nothing would say so.
   */
@@ -469,14 +469,14 @@ describe("what a day reads and where it goes", () => {
   });
 
   /*
-    AN EVENING THAT READS A CASE PRACTISES IT. The rotation deals neighbours
+    AN EVENING THAT READS A CASE PRACTICES IT. The rotation deals neighbors
     whatever the page was, and the forms step took the drill's place on most
     of A2's case evenings, so the evening that read the elative drilled the
     past of five unrelated verbs. Wherever a round that asks a case off the
     word's own forms is on the level's rotation and the words can carry it,
     a case evening deals one, and no case evening carries the forms step.
   */
-  it("practises the case an evening reads, where a round can ask it", () => {
+  it("practices the case an evening reads, where a round can ask it", () => {
     let walked = 0;
     for (const { programme, day } of DAYS) {
       if (!day.grammarCase && !(day.grammar && builtOnACase(day.grammar))) continue;
@@ -1105,7 +1105,7 @@ describe("what a day reads and where it goes", () => {
     about two days and never three, because the day after the one it advances
     to has no ticks and so can never complete unasked. A day of nothing but a
     meet and a review would finish itself the moment its words were met
-    somewhere else and walk the learner through the programme.
+    somewhere else and walk the learner through the program.
   */
   it("gives every evening a step only the learner can say they did", () => {
     for (const { day } of DAYS) {

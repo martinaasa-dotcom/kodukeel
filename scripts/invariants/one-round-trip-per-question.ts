@@ -65,9 +65,9 @@ export default function oneRoundTripPerQuestion({ check, code }: InvariantKit) {
     const programme = page.indexOf("programmeFor(ownerId)");
     const reading = calls[0]!.index!;
     assert.ok(programme > 0 && reading > programme,
-      "Today reads the course before it knows the programme");
+      "Today reads the course before it knows the program");
     assert.ok(!closesBatch(page, programme, reading),
-      "Today waits for a whole batch to come back before it starts courseReading, which needs only the programme");
+      "Today waits for a whole batch to come back before it starts courseReading, which needs only the program");
     const word = page.indexOf("wordOfDay(ownerId");
     const ladder = page.indexOf("ladderPosition(");
     assert.ok(word > 0 && ladder > word && !closesBatch(page, word, ladder),

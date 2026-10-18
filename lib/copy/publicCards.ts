@@ -26,7 +26,7 @@ export const PUBLIC_CARDS = {
   "/accessibility": "The accessibility standard Kodukeel aims for, what we’ve checked and how, where it falls short today, and how to tell us.",
   "/terms": "The terms for using Kodukeel, kept short: use it to learn Estonian, don’t abuse the shared services, and know what it can promise.",
   "/state-exam": "What the Estonian language examination is, who needs which level, how to register, and what happens after.",
-  "/teachers": "Put a code on the board. See who is practising and what the group keeps getting wrong.",
+  "/teachers": "Put a code on the board. See who is practicing and what the group keeps getting wrong.",
   "/help": "Whether Kodukeel is working, what to try when you cannot sign in, and where your data is.",
   "/impact": "What this installation of Kodukeel has done: how many people use it and how they are getting on, in figures that identify nobody.",
   "/curriculum": "Every unit of the Kodukeel course by level, what it says a learner can do, and which part of the state examination it prepares for.",

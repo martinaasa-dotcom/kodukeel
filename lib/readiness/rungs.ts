@@ -96,7 +96,7 @@ const rate = (t: { asked: number; right: number }) => (t.asked === 0 ? 0 : t.rig
 /**
  * Where one word stands.
  *
- * Producing a word is evidence you recognise it, so a word produced right
+ * Producing a word is evidence you recognize it, so a word produced right
  * once is at least at `follow` even with no recognition card behind it: a
  * word added from the frequency page has no recognition card at all, and
  * reading that as "never understood" would be wrong about the learner.

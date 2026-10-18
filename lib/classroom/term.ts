@@ -5,7 +5,7 @@ import { MIN_CASE_CONTRIBUTORS } from "./cohort";
 /**
  * WHAT ONE PRINTED PAGE SAYS ABOUT A CLASS OVER A TERM.
  *
- * The figures behind `/class/<id>/report`: how many practised each week, how
+ * The figures behind `/class/<id>/report`: how many practiced each week, how
  * many answers that came to, and the cases the class as a whole was weakest
  * at, at the start of the range and at the end. No learner's name and no
  * learner's row (docs/38-third-batch.md, D4): a printed page travels further

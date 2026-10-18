@@ -76,11 +76,11 @@ const OUT = arg("out", "/tmp/composers.jsonl");
   Three scenes rather than fourteen, and these three.
 
   Both registers and three kinds of room: `poodi-piima` is the only `sina`
-  scene in the catalogue, `arsti-aeg` is a health centre, `uuri-remont` is
+  scene in the catalog, `arsti-aeg` is a health center, `uuri-remont` is
   the one whose beats need a time and a day off the role card. All three are
   pitched at `HARNESS_LEVEL`, since a scene has no band of its own. Twenty
   beats between them, which at two samples is forty calls per model, and the
-  point of forty rather than four is that a free tier's behaviour under a burst
+  point of forty rather than four is that a free tier's behavior under a burst
   is one of the things being measured.
 */
 const SCENE_IDS = arg("scenes", "poodi-piima,arsti-aeg,uuri-remont").split(",");
@@ -217,7 +217,7 @@ interface Row {
  *
  * So a 429 is waited out rather than counted as a refusal, and both numbers are
  * kept: whether the model eventually answered, which is about the model, and
- * how much waiting it took, which is about the tier. `Retry-After` is honoured
+ * how much waiting it took, which is about the tier. `Retry-After` is honored
  * where the provider sends one, because a guess is worse than the answer.
  */
 const RETRIES = 4;

@@ -12,10 +12,10 @@
  *
  * WHAT IS DELIBERATELY NOT HERE. The dates of the next sittings, which Harno
  * publishes a year at a time and which would be wrong within a quarter of
- * being copied; the street addresses of the centres, which Harno says can
+ * being copied; the street addresses of the centers, which Harno says can
  * change and which the exam notice states anyway; and which level a residence
  * permit asks for, which is decided by the Police and Border Guard Board and
- * is sent there rather than summarised here, because its page could not be
+ * is sent there rather than summarized here, because its page could not be
  * read on the day this was written and a guess about a permit is the worst
  * guess available.
  *

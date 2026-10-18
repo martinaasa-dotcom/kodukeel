@@ -107,7 +107,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
                   )}
                   {leech.targetCase && (
                     <ButtonLink href={`/review?case=${leech.targetCase}`}>
-                      {/* One sentence with the case in its slot, not "Practise the"
+                      {/* One sentence with the case in its slot, not "Practice the"
                           with a name glued after it in English order. */}
                       <TrParts
                         template="Practice the {case}"

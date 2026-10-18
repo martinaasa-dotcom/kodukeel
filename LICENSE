@@ -24,7 +24,7 @@ SOFTWARE.
 
 THE CODE IS MIT. THE DICTIONARY IS NOT, AND THE DIFFERENCE MATTERS.
 
-This licence covers the software in this repository. It does not and cannot
+This license covers the software in this repository. It does not and cannot
 relicense the language data the software is built on, which arrives under
 terms set by the people who made it:
 
@@ -52,8 +52,8 @@ terms set by the people who made it:
       KristjanPikhof/Estonian-Wordlist-Enriched-Ekilex, CC BY 4.0 for the
       Institute's data and CC BY-SA 4.0 for that repository, so the list
       carries share-alike; and Vabamorf, Filosoft's open-source
-      morphological analyser and synthesiser for Estonian, LGPL, whose
-      lexicon the synthesised forms come from.
+      morphological analyzer and synthesizer for Estonian, LGPL, whose
+      lexicon the synthesized forms come from.
       https://github.com/KristjanPikhof/Estonian-Wordlist-Enriched-Ekilex
       https://github.com/Filosoft/vabamorf
 
@@ -65,7 +65,7 @@ terms set by the people who made it:
       may borrow, and holds no form, gloss or sentence of its own.
       https://github.com/Filosoft/vabamorf
 
-  Synthesised speech
+  Synthesized speech
       From TartuNLP at the University of Tartu, fetched at runtime and
       cached. Not redistributed as part of this repository.
       https://tartunlp.ai
@@ -93,16 +93,16 @@ terms set by the people who made it:
 `prisma/data/expanded.json` is a build product of the first two and
 `lib/collections/frequency.ts` of the third, so the share-alike clause reaches
 both: they may be redistributed, and a redistribution carries CC BY-SA 4.0
-rather than this licence. Nothing about that is a restriction on the code
+rather than this license. Nothing about that is a restriction on the code
 around it.
 
 The University of Tartu publishes a better Estonian frequency dictionary and
 it is CC BY-NC. It is deliberately not used: no charge today is not a promise
-of no charge ever, and a non-commercial clause is the one licence a project
+of no charge ever, and a non-commercial clause is the one license a project
 cannot walk itself back out of later.
 
 Every source above whose terms ask for a credit is credited in the running
 app, on the sign-in page, in the landing page footer and on /terms, which is
-where a licence of this shape expects to find them rather than in a file only
+where a license of this shape expects to find them rather than in a file only
 a developer opens. `scripts/test-invariants.ts` reads this list and fails on a
 source one of those three does not name.

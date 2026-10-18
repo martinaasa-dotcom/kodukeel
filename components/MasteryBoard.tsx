@@ -30,7 +30,7 @@ import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
  * something to act on. The bar reads the smaller of the two shares, so a word
  * right eight times in one form does not show as nearly finished.
  *
- * The four tiers are one colour. They were sky, butter, blush and the accent,
+ * The four tiers are one color. They were sky, butter, blush and the accent,
  * which is right, nearly, wrong and "yours", so a tier read as a mark on the
  * learner rather than as where a word has got to. The label says which tier.
  *

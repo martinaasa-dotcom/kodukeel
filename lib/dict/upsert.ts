@@ -161,7 +161,7 @@ async function writeOnce(input: LexemeWrite): Promise<LexemeWriteResult> {
     gradation: gradation.type,
     gradationNote: gradation.note ?? null,
     // An entry Ekilex supplied stays marked as Ekilex's after a correction —
-    // relabelling it USER would quietly discard where the forms came from.
+    // relabeling it USER would quietly discard where the forms came from.
     ...(existing && (existing.provenance === "SEED" || existing.provenance === "EKILEX")
       ? {}
       : { provenance: "USER" }),

@@ -5768,7 +5768,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["килограмм", "кило"], ukr: ["кілограм"],
   },
   {
-    lemma: "kilomeeter", gloss: "kilometre", pos: "NOUN", cefr: "A2",
+    lemma: "kilomeeter", gloss: "kilometer", pos: "NOUN", cefr: "A2",
     ekilexWordId: 181086,
     ekilexPos: ["s"],
     parts: { NOM_SG: "kilomeeter", GEN_SG: "kilomeetri", PART_SG: "kilomeetrit", NOM_PL: "kilomeetrid", PART_PL: "kilomeetreid", GEN_PL: "kilomeetrite" },
@@ -9932,7 +9932,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["команда", "экипаж"], ukr: ["команда"],
   },
   {
-    lemma: "meeter", gloss: "metre", pos: "NOUN", cefr: "A1",
+    lemma: "meeter", gloss: "meter", pos: "NOUN", cefr: "A1",
     ekilexWordId: 201472,
     ekilexPos: ["s"],
     parts: { NOM_SG: "meeter", GEN_SG: "meetri", PART_SG: "meetrit", NOM_PL: "meetrid", PART_PL: "meetreid", GEN_PL: "meetrite" },
@@ -10232,7 +10232,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["неоднозначность", "многозначность"], ukr: [],
   },
   {
-    lemma: "mitmevärviline", gloss: "multicoloured", pos: "ADJECTIVE", cefr: null,
+    lemma: "mitmevärviline", gloss: "multicolored", pos: "ADJECTIVE", cefr: null,
     ekilexWordId: 203224,
     ekilexPos: ["adj"],
     parts: { NOM_SG: "mitmevärviline", GEN_SG: "mitmevärvilise", PART_SG: "mitmevärvilist", ILL_SG_SHORT: "mitmevärvilisse", NOM_PL: "mitmevärvilised", PART_PL: "mitmevärvilisi", GEN_PL: "mitmevärviliste" },
@@ -14888,7 +14888,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["сто", "сотня"], ukr: ["сто"],
   },
   {
-    lemma: "sadam", gloss: "port, harbour", pos: "NOUN", cefr: "A2",
+    lemma: "sadam", gloss: "port, harbor", pos: "NOUN", cefr: "A2",
     ekilexWordId: 230297,
     ekilexPos: ["s"],
     parts: { NOM_SG: "sadam", GEN_SG: "sadama", PART_SG: "sadamat", NOM_PL: "sadamad", PART_PL: "sadamaid", GEN_PL: "sadamate" },
@@ -21380,7 +21380,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["цвет", "окраска"], ukr: ["колір", "барва"],
   },
   {
-    lemma: "värviline", gloss: "colourful", pos: "ADJECTIVE", cefr: "B1",
+    lemma: "värviline", gloss: "colorful", pos: "ADJECTIVE", cefr: "B1",
     ekilexWordId: 260021,
     ekilexPos: ["adj", "s"],
     parts: { NOM_SG: "värviline", GEN_SG: "värvilise", PART_SG: "värvilist", ILL_SG_SHORT: "värvilisse", NOM_PL: "värvilised", PART_PL: "värvilisi", GEN_PL: "värviliste" },

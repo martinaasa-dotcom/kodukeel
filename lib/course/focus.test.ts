@@ -17,8 +17,8 @@ describe("the marker a focused step carries", () => {
     expect(readFocus(focusValue(focus))).toEqual(focus);
   });
 
-  it("survives the ids the programmes actually use", () => {
-    /* A programme id is `a1.1` and a day id carries dashes, which is why the
+  it("survives the ids the programs actually use", () => {
+    /* A program id is `a1.1` and a day id carries dashes, which is why the
        separator is neither a dot nor a dash. Asked of every day there is
        rather than of one, because the day a part is renamed is the day a
        separator chosen by eye stops round-tripping. */
@@ -55,7 +55,7 @@ describe("the marker a focused step carries", () => {
     ["too many", "a1.1~day-1~read~1~5~0~x"],
     ["a step out of range", "a1.1~day-1~read~9~5~0"],
     ["a position that is not a number", "a1.1~day-1~read~one~5~0"],
-    ["an empty programme", "~day-1~read~1~5~0"],
+    ["an empty program", "~day-1~read~1~5~0"],
     ["a derived flag that is neither", "a1.1~day-1~read~1~5~maybe"],
   ])("refuses %s", (_what, value) => {
     expect(readFocus(value)).toBeNull();

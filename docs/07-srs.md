@@ -1,6 +1,6 @@
 # Spaced Repetition Design
 
-v4.0 said "Leitner / SM-2 algorithm" (two different algorithms, undecided, both dated) and modelled
+v4.0 said "Leitner / SM-2 algorithm" (two different algorithms, undecided, both dated) and modeled
 a single implicit card type. Both are upgraded here.
 
 ## 1. Algorithm: FSRS (ADR-003)

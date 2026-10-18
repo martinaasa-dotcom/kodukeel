@@ -31,7 +31,7 @@ export const dynamic = "force-dynamic";
   learner, so forging one is worth doing in both directions: stopping a
   stranger's mail, or finding a way to write to the settings table. The raw
   text is read and verified first because the signature is over bytes, and
-  re-serialising the JSON changes them; `lib/email/webhook.ts` is where the
+  re-serializing the JSON changes them; `lib/email/webhook.ts` is where the
   scheme is written out and driven.
 
   IT ANSWERS 200 TO NEARLY EVERYTHING, WHICH IS DELIBERATE. A webhook that

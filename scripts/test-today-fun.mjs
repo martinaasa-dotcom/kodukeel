@@ -9,7 +9,7 @@ import { requireAppShell } from "./lib/prefs.mjs";
 /**
  * THE JOKE AND THE GOOD NEWS ON TODAY, DRIVEN.
  *
- * Both cards are almost all behaviour a source check cannot see: a punchline
+ * Both cards are almost all behavior a source check cannot see: a punchline
  * held behind a tap that then takes the caret, the English behind a press, a
  * second joke that resets all of that, the news streamed in after the page and
  * cycled in place, and a card a learner hid in Settings staying off Today.

@@ -19,7 +19,7 @@
   copy of their name and their weakest case leaves the app every Monday.
 
   SO THE LETTER CARRIES THE GROUP'S SHAPE AND NEVER A PERSON'S. No names, no
-  per-person figures, in either kind: how many practised, how many answers, and
+  per-person figures, in either kind: how many practiced, how many answers, and
   then the one thing the group as a whole is worth saying. The names are on the
   board and the button goes there. That is a stricter rule than either roster
   applies to its own screen, deliberately, and it costs the letter nothing a
@@ -35,7 +35,7 @@
   the news is good is an advertisement, and a teacher who gets one every Monday
   and can tell from the subject line whether the class studied is being told
   something. What it may not do is editorialise about the people in it: "7 have
-  not practised this week" is a fact a teacher can act on, and anything about
+  not practiced this week" is a fact a teacher can act on, and anything about
   why is a guess about somebody the letter is not even allowed to name.
 */
 import { meter, weekStrip } from "../art";

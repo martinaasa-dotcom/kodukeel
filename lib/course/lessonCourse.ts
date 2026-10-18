@@ -26,7 +26,7 @@ import { LESSON_STEP, type CourseDay, type Programme } from "./types";
 
 /**
  * How long a lesson takes, which is what its evening claims: listen 2, words
- * 3, how it works 2, practise 5, say it 4, review 2 (docs/43-lessons.md §1).
+ * 3, how it works 2, practice 5, say it 4, review 2 (docs/43-lessons.md §1).
  */
 export const LESSON_MINUTES = 18;
 
@@ -39,7 +39,7 @@ export const LESSON_SHAPE: readonly { title: string; minutes: number; why: strin
   { title: "Listen", minutes: 2, why: "A short conversation in two voices, with the English under each line." },
   { title: "Words", minutes: 3, why: "Every new word from it in one table, with a speaker beside each. Nothing is asked yet." },
   { title: "How it works", minutes: 2, why: "The one idea of the evening, shown on the lines you just heard." },
-  { title: "Practise", minutes: 5, why: "Pick, match and listen first, then type it yourself." },
+  { title: "Practice", minutes: 5, why: "Pick, match and listen first, then type it yourself." },
   { title: "Say it", minutes: 4, why: "Answer questions about yourself out loud, or type them if you'd rather." },
   { title: "Review", minutes: 2, why: "Words from earlier lessons come back, so they stay." },
 ];

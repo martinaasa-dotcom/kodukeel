@@ -27,7 +27,7 @@ import { levelIndex, type Level } from "@/lib/collections/syllabus";
  */
 export type CaseGlossPref = "on" | "off";
 
-/** Normalises a stored value, or `null` for "follow the level's own default". */
+/** Normalizes a stored value, or `null` for "follow the level's own default". */
 export function caseGlossFrom(raw: string | null | undefined): CaseGlossPref | null {
   return raw === "on" || raw === "off" ? raw : null;
 }

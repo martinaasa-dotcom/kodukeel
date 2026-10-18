@@ -149,7 +149,7 @@ export function buildPassageCloze(
  * types the one code point. Compared as strings those are different, so a
  * correct `õppima` was marked wrong, and not even read as a diacritic slip,
  * since the fold below maps the code point and leaves the combining mark.
- * `lib/estonian/answer.ts` normalises for the same reason.
+ * `lib/estonian/answer.ts` normalizes for the same reason.
  */
 const comparable = (value: string) => value.normalize("NFC").trim().toLowerCase();
 

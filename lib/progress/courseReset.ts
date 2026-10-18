@@ -8,7 +8,7 @@ import { forgetSettings, SETTING_KEYS } from "@/lib/settings/store";
  * What it may touch is two things and nothing else: the learner's
  * `CourseStep` ticks, which are the whole of course progress (the day
  * somebody is on is derived from them, ADR-014), and a `programme` setting
- * naming a programme this build no longer has, which `programmeFor` would
+ * naming a program this build no longer has, which `programmeFor` would
  * otherwise read as "on no course". A stored `off` is a learner saying no and
  * is kept. Decks, the words in them, the dictionary, the review log, levels
  * and every other setting are never read here, let alone written.
@@ -53,7 +53,7 @@ export async function courseProgressRoster(): Promise<CourseLearner[]> {
 
 /**
  * Reset the named learners, or everybody when `who` is "all". Returns how
- * many ticks and stale programme settings went.
+ * many ticks and stale program settings went.
  */
 export async function resetCourseProgress(
   who: "all" | readonly string[],

@@ -44,7 +44,7 @@ interface ContrastLexeme {
 export interface ContrastAsk {
   lexemeId: string;
   lexeme: ContrastLexeme;
-  /** Spellings the question already takes, which are its own answers rather than neighbours. */
+  /** Spellings the question already takes, which are its own answers rather than neighbors. */
   accepted: readonly string[];
 }
 
@@ -65,7 +65,7 @@ function side(lexemeId: string | null, lex: ContrastLexeme, reach: PlainReach | 
 
 /**
  * The contrast for each ask, keyed by its position. One query for every
- * neighbour in the batch, whatever its size.
+ * neighbor in the batch, whatever its size.
  */
 export async function contrastsFor(
   asks: readonly (ContrastAsk | null)[],

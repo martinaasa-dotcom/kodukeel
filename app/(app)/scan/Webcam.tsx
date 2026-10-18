@@ -13,7 +13,7 @@ import { MAX_EDGE } from "@/lib/scan/image";
  * picker and nothing else, so a learner at a computer had no way to show the
  * scanner what is on their desk. This is the desktop's equivalent: the webcam
  * in a frame, one press to take the picture, and the stream closed the moment
- * it is taken, cancelled or the screen goes.
+ * it is taken, canceled or the screen goes.
  *
  * VIDEO ONLY, AND SAID SO IN THE REQUEST. The microphone is opened by the
  * speech engine and nothing else (D5), so this asks for `audio: false`, which

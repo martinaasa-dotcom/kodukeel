@@ -389,7 +389,7 @@ check("and a focused button keeps its own Enter",
   At this suite's own 1100px there is nothing to scroll on the part that
   presses, so the first version of this measured a page that never moved and
   read the stillness as the fault it was written to catch. What it asks now is
-  where the part ended up rather than how far the window travelled, which is
+  where the part ended up rather than how far the window traveled, which is
   the claim either way and is true at any height.
 */
 await page.setViewportSize({ width: 1280, height: 600 });
@@ -535,9 +535,9 @@ check("the entry says where that word breaks the pattern",
 /*
   And it names which of the two is which, which the first version did not.
   It printed the pair under a sentence about half the dictionary having a
-  short form and labelled neither, and somebody using it reported that as
+  short form and labeled neither, and somebody using it reported that as
   being told a shorter form exists and never being told what it is. So the
-  check is on the labelling rather than on the pair being there: an entry
+  check is on the labeling rather than on the pair being there: an entry
   that prints both spellings and says nothing about them passes anything
   looser and is the state this was written for.
 */

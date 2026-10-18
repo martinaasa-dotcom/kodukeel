@@ -39,7 +39,7 @@ describe("the vocabulary is the dictionary's", () => {
     expect(THINGS.length).toBeGreaterThan(50);
   });
 
-  it("a thing names only parts, colours and categories the game can ask about", () => {
+  it("a thing names only parts, colors and categories the game can ask about", () => {
     let checked = 0;
     for (const t of THINGS) {
       for (const p of [...t.has, ...t.hasS]) { expect(PARTS).toContain(p); checked++; }
@@ -83,7 +83,7 @@ describe("the vocabulary is the dictionary's", () => {
 });
 
 describe("reading the learner's question", () => {
-  it("tokenises Estonian letters whole", () => {
+  it("tokenizes Estonian letters whole", () => {
     expect(tokensOf("Kas see on suurem kui leib?")).toEqual(["kas", "see", "on", "suurem", "kui", "leib"]);
     expect(tokensOf("Kas õun on jõgi?")).toEqual(["kas", "õun", "on", "jõgi"]);
   });

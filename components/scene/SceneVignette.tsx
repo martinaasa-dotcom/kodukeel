@@ -9,7 +9,7 @@ import { sceneryFor, type Cue, type Setting } from "@/lib/scenes/scenery";
  * which is the whole of what a situation is.
  *
  * ONE ROOM PER PLACE. The first version of this shared five drawings out among
- * fourteen scenes by mood, so a pharmacy and a health centre were the same
+ * fourteen scenes by mood, so a pharmacy and a health center were the same
  * picture and so were a bus station and a street corner. A mood is a category,
  * and the category is already in the scene's title; what a learner does not
  * have is the room. So a pharmacy has a cross over the counter and a bottle on
@@ -17,12 +17,12 @@ import { sceneryFor, type Cue, type Setting } from "@/lib/scenes/scenery";
  * a stairwell has stairs.
  *
  * WHY STICK FIGURES, WHICH IS A DECISION RATHER THAN A LIMIT. There is no
- * artwork in this app and there will not be: a drawing per scene is a licence
+ * artwork in this app and there will not be: a drawing per scene is a license
  * question nobody on this project can answer, and a file per scene to carry.
  * Everything here is strokes, built out of the same three parts, so a fifteenth
  * room costs a branch and no file at all.
  *
- * OUTLINES, IN THE INK, IN NO HUE. The five colours in this app carry fixed
+ * OUTLINES, IN THE INK, IN NO HUE. The five colors in this app carry fixed
  * meanings and are not free for decoration: a café drawn in mint would spend
  * "you got it" on a coffee cup. These are `--ink-2` on whatever ground they sit
  * on, which is the pair of tokens the prose beside them uses and flips with the
@@ -30,7 +30,7 @@ import { sceneryFor, type Cue, type Setting } from "@/lib/scenes/scenery";
  *
  * DECORATION, AND IT SAYS SO. Everything it carries is written out beside it,
  * which is what lets the whole thing be hidden from a screen reader. A drawing
- * may not be the only thing carrying a distinction, exactly as a colour may
+ * may not be the only thing carrying a distinction, exactly as a color may
  * not.
  *
  * Every room moves once, and only once: somebody nods, steam comes off
@@ -43,7 +43,7 @@ import { sceneryFor, type Cue, type Setting } from "@/lib/scenes/scenery";
  * It was drawn on the briefing and on the cover between two rooms, and then
  * the conversation itself had nothing but an eighteen-pixel icon on the bar. A
  * learner asked where the drawings had gone: they had stepped into a health
- * centre, read one sentence, and been put back on a screen that could have
+ * center, read one sentence, and been put back on a screen that could have
  * been any of the fourteen. Everything a drawing is for happens *during* a
  * conversation rather than before it. Where you are is the thing every beat is
  * asked about, who is talking is the thing a wall of bubbles says least well,
@@ -81,7 +81,7 @@ export function SceneVignette({ sceneId, setting, speaking = null, cue = null, f
    *
    * `block` is the drawing on a briefing, which takes the width it is given;
    * `band` is the strip above a conversation, which takes the height and
-   * centres itself in whatever width is left; `inset` is the smaller one the
+   * centers itself in whatever width is left; `inset` is the smaller one the
    * cover draws when a break in time leaves the learner in the same room.
    *
    * A PROP BECAUSE A CLASSNAME DID NOT WORK, WHICH WAS FOUND RATHER THAN
@@ -352,7 +352,7 @@ function Room({ of }: { of: Setting }) {
       );
 
     case "stairwell":
-      // The stairs in your own building, which is where you meet a neighbour.
+      // The stairs in your own building, which is where you meet a neighbor.
       return (
         <>
           <Person x={44} />

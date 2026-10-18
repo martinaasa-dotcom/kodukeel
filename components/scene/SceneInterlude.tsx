@@ -18,7 +18,7 @@ import type { Setting } from "@/lib/scenes/scenery";
  * wrong in a way the learner has no way to see coming.
  *
  * THE SCREEN HAS NOW SAID THIS THREE WAYS AND THE FIRST TWO DID NOT LAND. It
- * was a grey sentence between two hairlines, which reads as furniture. Then it
+ * was a gray sentence between two hairlines, which reads as furniture. Then it
  * was a tinted chip that arrived, which is better and is still one more thing
  * arriving on a screen where something arrives every few seconds: a learner who
  * had just been walked to a shop reported, again, that nothing had told them

@@ -173,7 +173,7 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
           phone, with Practice and Remove under them: sharing one row, the
           name was squeezed and "Add words" broke over two lines. */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        {/* A shelf wears one of the four night colours, chosen by its id so it
+        {/* A shelf wears one of the four night colors, chosen by its id so it
             keeps the same one every visit. */}
         <span
           aria-hidden

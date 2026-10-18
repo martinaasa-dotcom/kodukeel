@@ -62,7 +62,7 @@ describe("A1 lessons", () => {
     for (const lesson of A1_LESSONS) expect(parts.has(lesson.part)).toBe(true);
   });
 
-  it("practise and review only what has been taught", () => {
+  it("practice and review only what has been taught", () => {
     const before = ledgersBefore(LESSONS);
     let asked = 0;
     for (const lesson of A1_LESSONS) {
@@ -110,7 +110,7 @@ describe("A1 lessons", () => {
     expect(meaningShows({ kind: "form", et: "mul", of: "mina", en: "at me; with {on}, I have" })).toBe(false);
   });
 
-  it("give every lesson something to practise, and nothing on the first lesson's review", () => {
+  it("give every lesson something to practice, and nothing on the first lesson's review", () => {
     const before = ledgersBefore(LESSONS);
     for (const lesson of A1_LESSONS) expect(practiceFor(lesson, before.get(lesson.id)!).length).toBeGreaterThan(3);
     expect(reviewFor(A1_LESSONS[0]!, before.get(A1_LESSONS[0]!.id)!)).toEqual([]);

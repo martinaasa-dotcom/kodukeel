@@ -15,7 +15,7 @@
   of room: big cards, every one named, spread to fill the middle of the card.
 
   What it replaced on a phone was the desktop fan folded up: either stacked and
-  centred under the words with half the card empty above it, or dealt into a
+  centered under the words with half the card empty above it, or dealt into a
   two-column grid of big tiles that took a whole screen to say five words.
 
   Every number here was measured against the other pages rather than chosen
@@ -32,7 +32,7 @@
 }
 @media (min-width: 640px) { .hero-fan { padding: 3.25rem 3rem 3.25rem 3.5rem; } }
 
-/* The light that follows a pointer: lavender on Today, a grey on the rest. */
+/* The light that follows a pointer: lavender on Today, a gray on the rest. */
 .hero-fan::before {
   content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1; pointer-events: none;
   opacity: 0; transition: opacity 0.6s ease;
@@ -46,7 +46,7 @@
 /*
   The headline, the line under it, the cards, then the button: one column on a
   phone. The gaps are margins rather than a row gap, because the wider shapes
-  below add empty rows to centre the words against the cards and a row gap
+  below add empty rows to center the words against the cards and a row gap
   would be counted again for each of them.
 */
 .hero-fan-row {
@@ -155,7 +155,7 @@
 
 /*
   Where the words and the hand both fit, the hand goes beside them, and the
-  words are centred against it by the two empty rows above and below. A
+  words are centered against it by the two empty rows above and below. A
   headline that would run past three lines in that column runs across the top
   instead (measured in components/HeroFan.tsx), and the line under it and the
   button sit beside the cards.

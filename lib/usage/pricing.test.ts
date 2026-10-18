@@ -72,7 +72,7 @@ describe("the price of a cached input token", () => {
   });
 
   /*
-    A CALLER THAT KNOWS NOTHING ABOUT CACHING KEEPS THE BEHAVIOUR IT HAD.
+    A CALLER THAT KNOWS NOTHING ABOUT CACHING KEEPS THE BEHAVIOR IT HAD.
     Every provider but Anthropic reports one input figure and no split, so the
     absent case is the common one and must stay exactly as it was: everything
     at base, which over-counts and therefore still fails closed.
@@ -117,9 +117,9 @@ describe("the price of a cached input token", () => {
   /*
     AND AN UNKNOWN MODEL IS STILL CHARGED AT THE DEAREST RATE. The cache split
     is a discount, so the one thing it must not become is a way past the rule
-    that a model nobody recognises fails closed.
+    that a model nobody recognizes fails closed.
   */
-  it("keeps an unrecognised model above a recognised one even when its input is cached", () => {
+  it("keeps an unrecognized model above a recognized one even when its input is cached", () => {
     const unknown = estimateCostMicros("something-nobody-has-heard-of", 10_000, 500, {
       cachedInputTokens: 9_000,
     });

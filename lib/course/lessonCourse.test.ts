@@ -95,7 +95,7 @@ describe("A1 as lessons", () => {
     for (const w of fresh) expect(before.lemmas, w).not.toContain(w);
   });
 
-  it("opens no catalogue unit inside A1, and every A1 unit once the lessons are behind a learner", () => {
+  it("opens no catalog unit inside A1, and every A1 unit once the lessons are behind a learner", () => {
     const last = A1.at(-1)!;
     expect(unitsThrough(last, last.days.length)).toEqual([]);
     const a2 = PROGRAMMES.find((p) => p.level === "A2")!;

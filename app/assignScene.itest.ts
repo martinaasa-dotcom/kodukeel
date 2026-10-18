@@ -69,7 +69,7 @@ describe("assignScene", () => {
     }
   });
 
-  it("refuses a stranger, a scene the catalogue does not hold, and an archived class", async () => {
+  it("refuses a stranger, a scene the catalog does not hold, and an archived class", async () => {
     const { assignScene } = await import("@/app/actions");
     const classroomId = await classWithMembers();
     who = STRANGER;

@@ -1,7 +1,7 @@
 /**
  * THE WHOLE LADDER, PLANNED: A1.1 TO C1.3, EIGHTEEN PARTS.
  *
- * This file is the judgement. Everything else in `lib/course/` is machinery
+ * This file is the judgment. Everything else in `lib/course/` is machinery
  * that turns it into evenings, and the machinery has no opinions: it does not
  * choose a word, a round or a grammar page, it reads what is decided here and
  * what the syllabus already decided.
@@ -10,7 +10,7 @@
  *
  * Not the words. `lib/collections/syllabus/` is the course, its units are in
  * teaching order and so are the words inside each one, and both were written
- * by somebody who knows the language. A programme walks that order and slices
+ * by somebody who knows the language. A program walks that order and slices
  * it into evenings. Every word of all 82 units is in exactly one evening of
  * exactly one part, which is a stronger claim than a hand-picked hundred, and
  * it means nothing in the course is quietly unreachable through the short way.
@@ -25,7 +25,7 @@
  * through, and which of the conversations belongs to which unit.
  *
  * THE ROUNDS ALTERNATE, AND THAT IS LOAD-BEARING. Each level's rotation runs
- * game, drill, game, drill, and an evening takes two neighbours off it, so
+ * game, drill, game, drill, and an evening takes two neighbors off it, so
  * every evening has one of each and no two evenings running are the same pair.
  * A fortnight of drills is homework and a fortnight of games teaches nothing,
  * and the alternation is what keeps a hundred and eighty evenings from being
@@ -131,13 +131,13 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
  * Every one the app has (`SCENES`), each on the unit whose words it needs and
  * none before the words exist, and seven of them a second time a level up (below). A scene declares the units it may draw on, and
  * `course.test.ts` checks that every unit it declares has been taught by the
- * time the programme opens it, which is the whole of what makes a conversation
+ * time the program opens it, which is the whole of what makes a conversation
  * at this point fair rather than a wall.
  *
  * A unit with no entry has no conversation, which is most of them: a scene
  * every few evenings rather than every evening, which is the right rhythm for
  * the one step that takes six minutes and some nerve. `course.test.ts` holds
- * every scene in the catalogue to an entry here, so the count is the table's.
+ * every scene in the catalog to an entry here, so the count is the table's.
  */
 export const SCENE_FOR_UNIT: Record<string, string> = {
   korraldused: "poodi-piima",
@@ -233,7 +233,7 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
  * AND WHY THERE IS NO CONVERSATION IN THE WHOLE OF A1, WHICH IS A FINDING
  * RATHER THAN AN OMISSION.
  *
- * Every scene in the catalogue declares `korraldused` among the units it
+ * Every scene in the catalog declares `korraldused` among the units it
  * may draw on, which is the unit for asking, telling and offering, and it sits
  * in A2. That is not a mistake in the scenes: you cannot ask anybody for
  * anything without it, so a conversation before it is a conversation the

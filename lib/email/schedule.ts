@@ -233,7 +233,7 @@ export interface Candidate {
   readonly onboardedAt: Date | null;
   /**
    * Whether they have started a course to be reminded about: at least one step
-   * ticked. A programme merely offered off their level is not one they chose.
+   * ticked. A program merely offered off their level is not one they chose.
    */
   readonly startedCourse: boolean;
   /**

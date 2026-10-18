@@ -26,7 +26,7 @@
  * ask for nothing. An earlier version put a shadow price on them and added it
  * to the total, which turns a thing to be grateful for into a line on an
  * invoice nobody sent. They are `given` instead: named, with what each one
- * provides and the licence it comes under, and kept out of every total. Where
+ * provides and the license it comes under, and kept out of every total. Where
  * there is a commercial equivalent, the page says what buying the same thing
  * would come to, so the size of the gift is visible without being charged for.
  *

@@ -17,7 +17,7 @@ import {
 } from "@/lib/course";
 
 /**
- * WHERE A LEARNER IS IN A PLANNED PROGRAMME, READ RATHER THAN STORED.
+ * WHERE A LEARNER IS IN A PLANNED PROGRAM, READ RATHER THAN STORED.
  *
  * `lib/course/` is the rule and holds no database; this is the half that asks
  * one, for the reason every pure layer in this app gives about itself.
@@ -32,10 +32,10 @@ import {
  * screen and land in `CourseStep`, append-only, one row, the unique key making
  * a second press a no-op rather than a second row.
  *
- * The whole reading is five queries whatever the size of the programme and
+ * The whole reading is five queries whatever the size of the program and
  * whatever evening somebody is on, which is the same rule `classRoster` states
  * about itself and is the thing the first version of this could not manage: it
- * recomputed the day from the top of the programme and had to ask the log
+ * recomputed the day from the top of the program and had to ask the log
  * about every evening it walked past.
  */
 
@@ -65,18 +65,18 @@ export const CLOSING_REVIEW = 5;
 const MAX_RESOLVE = 2;
 
 /**
- * The programme a learner is following, or none.
+ * The program a learner is following, or none.
  *
  * A missing row is read as "offer it where it fits" rather than as a yes or a
- * no, because a missing row is everybody who used this app before programmes
- * existed. Where it fits is at or below the programme's own level: a beginner
+ * no, because a missing row is everybody who used this app before programs
+ * existed. Where it fits is at or below the program's own level: a beginner
  * is led, and somebody a paper has already measured at B1 is not handed twelve
  * evenings of greetings on the screen they open each morning. `off` is
  * somebody saying in as many words that they would rather choose their own
  * evening, and it is honored at every level.
  *
  * One function so the course screen, Today and Settings cannot end up with
- * three answers to whether anybody is on a programme.
+ * three answers to whether anybody is on a program.
  */
 export async function programmeFor(ownerId: string): Promise<Programme | null> {
   const stored = await readSetting(ownerId, SETTING_KEYS.programme);
@@ -136,7 +136,7 @@ export async function openingPartFor(ownerId: string): Promise<Programme> {
   return openingPart(standing?.held ?? null, target);
 }
 
-/** Whether a learner has said anything at all about programmes yet. */
+/** Whether a learner has said anything at all about programs yet. */
 export async function hasChosenProgramme(ownerId: string): Promise<boolean> {
   return Boolean(await readSetting(ownerId, SETTING_KEYS.programme));
 }
@@ -149,7 +149,7 @@ interface Ticks {
    * starts counting. See `closingOpensAt`.
    *
    * PER DAY, AND THAT IS NOT A DETAIL. It was one timestamp for the whole
-   * programme, the most recent tick anywhere, and the fault only shows up
+   * program, the most recent tick anywhere, and the fault only shows up
    * across two evenings: finishing Monday's module and then ticking the first
    * round of Tuesday's moved the window forward, so Monday's closing round
    * counted nothing again, Monday stopped being finished, and the learner was
@@ -179,7 +179,7 @@ interface Ticks {
 const DERIVED_STEPS: ReadonlySet<string> = new Set([MEET_STEP, REVIEW_STEP]);
 
 /**
- * Every tick this learner has written for this programme.
+ * Every tick this learner has written for this program.
  *
  * Memoised for the render, which is the rule this project already applies to
  * the settings table and to `latestFor`: the course screen asks for the
@@ -286,7 +286,7 @@ const closingOpensAt = (ticks: Ticks, day: CourseDay): Date | undefined => {
  * NOTHING TICKED IS NOTHING TO GO ON, and that is the whole of what keeps this
  * from over-reaching. `programmeFor` answers for everybody: a learner who has
  * never opened the module, and every learner who used this app before
- * programmes existed, gets `openingPart` read off their level, which is an
+ * programs existed, gets `openingPart` read off their level, which is an
  * offer rather than a record. Reading that as a standing would hold somebody
  * who has never touched the course to the first evening of it, which is the
  * app taking a deck away over a screen nobody opened. A tick is the learner
@@ -315,11 +315,11 @@ export async function dayIsInPlay(
   ownerId: string, programme: Programme, day: CourseDay, now = new Date(),
 ): Promise<boolean> {
   /*
-    THE PROGRAMME IS OFF THE WIRE TOO, NOT ONLY THE DAY. A part nobody has
+    THE PROGRAM IS OFF THE WIRE TOO, NOT ONLY THE DAY. A part nobody has
     opened carries no ticks, so the rule below reads its first two evenings as
     reached, and a call naming the last part of C1 built a beginner's deck out
     of its words: the forged call the header above says this closes. The one
-    they are following is `programmeFor`'s answer, which is the programme every
+    they are following is `programmeFor`'s answer, which is the program every
     screen that draws a step hands over, so an honest press never meets this.
   */
   const followed = await programmeFor(ownerId);
@@ -334,7 +334,7 @@ export async function dayIsInPlay(
     ticked on it until somebody starts. Allowing it unconditionally was a
     ladder somebody could climb without doing anything: a tick on the next day
     makes it the day reached, so a tick on the day after that is allowed, and
-    repeated calls walked the whole programme one evening per request. Read
+    repeated calls walked the whole program one evening per request. Read
     through the same function the screen reads, so an evening the list shows
     as finished is the evening this opens the next one after.
   */
@@ -615,7 +615,7 @@ export interface CourseReading extends ProgrammeStanding {
   /** True where the current day's last step was finished today. */
   finishedToday: boolean;
   /**
-   * True where an evening of this programme was finished today, including one
+   * True where an evening of this program was finished today, including one
    * this render walked past because a step of the next was already ticked.
    *
    * Not `finishedToday`, which is the screen's "come back tomorrow" and is
@@ -626,13 +626,13 @@ export interface CourseReading extends ProgrammeStanding {
    */
   eveningDoneToday: boolean;
   /**
-   * Whether this learner has ticked anything in the programme at all. With
-   * nothing ticked the programme is `openingPart` read off their level, which
+   * Whether this learner has ticked anything in the program at all. With
+   * nothing ticked the program is `openingPart` read off their level, which
    * is an offer rather than a course they chose; see `moduleReached`.
    */
   started: boolean;
   /**
-   * How many evenings in a row this programme has been worked on, counting
+   * How many evenings in a row this program has been worked on, counting
    * today where today has a tick and yesterday where it does not, which is
    * `computeStreak`'s own rule and the same midnight the review streak breaks
    * at. Derived from the step log on every read (ADR-014).
@@ -717,7 +717,7 @@ export async function courseReading(
   /*
     "Come back tomorrow" is a claim about a day that finished *today*, so it is
     read off the day this render just settled rather than off the first day of
-    the programme, which is where it used to be read and which made the
+    the program, which is where it used to be read and which made the
     sentence reachable on day one alone. A day finished by its closing round
     alone still carries a tick, because the round before it was ticked, and a
     day with no ticks cannot finish: every day has a step the log cannot prove.

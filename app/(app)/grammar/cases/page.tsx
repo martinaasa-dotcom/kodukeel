@@ -45,7 +45,7 @@ export async function generateMetadata({ searchParams }: { searchParams: PublicS
  * The strip at the top is the argument in one object: one real word out of the
  * dictionary, wearing every ending. Nothing on it is written here.
  */
-/* The endings take the night's four colours in turn, each in its ink so it
+/* The endings take the night's four colors in turn, each in its ink so it
    reads on the dark panel. */
 const ENDING_HUES = ["var(--butter-ink)", "var(--blush-ink)", "var(--sky-ink)", "var(--accent-deep)"];
 
@@ -194,7 +194,7 @@ export default async function GrammarIndexPage({ searchParams }: { searchParams:
         {/*
           WHERE THE PATTERN STOPS, LINKED FROM THE PAGE THAT TEACHES IT.
 
-          The card above says three are memorised and eleven follow, which is
+          The card above says three are memorized and eleven follow, which is
           true and is the most motivating fact a beginner is given. It is also
           the thing that burns them, because `caseAnswer` prefers an attested
           form over the rule and prints `tuppa` under a heading that taught
@@ -509,7 +509,7 @@ async function endingStrip(): Promise<{ lemma: string; forms: StripRow[] } | nul
     // shownForms rather than `singular`, because the illative has two right
     // answers and a strip that prints one has chosen which to be wrong about.
     // Only the one that ends in this case's own suffix can show the ending,
-    // and where none does the row is left out rather than mislabelled.
+    // and where none does the row is left out rather than mislabeled.
     const value = shownForms(row).find((f) => f.endsWith(row.spec.suffix));
     if (!note || !value) return [];
     return [{

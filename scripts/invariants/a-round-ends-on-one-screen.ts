@@ -6,7 +6,7 @@ import type { InvariantKit } from "../lib/invariantKit";
  * A ROUND ENDS ON ONE SCREEN, AND IT SAYS WHAT TO LOOK AT AGAIN.
  *
  * Rounds ended two ways: a night panel with the mascot, tiles and the way on
- * centred, primary last; or a bare heading, a box of plain figures and two
+ * centered, primary last; or a bare heading, a box of plain figures and two
  * buttons on the left with "Back to Today" loud and "Another round" quiet. A
  * learner moving from Match to Verb government met two apps saying the same
  * thing. `components/round/RoundDone.tsx` is the one drawing now, and it lists
@@ -68,6 +68,6 @@ export default function aRoundEndsOnOneScreen({ check, code, APP }: InvariantKit
     const again = src.indexOf("<AnotherRound");
     assert.ok(back > 0 && again > back, "RoundDone draws the way back after the primary; the primary is the last in its row");
     assert.match(src, /<AnotherRound variant="primary"/, "RoundDone's another round is no longer the primary");
-    assert.doesNotMatch(src, /tone=\{/, "RoundDone colours a figure by its value; a reading is not a verdict");
+    assert.doesNotMatch(src, /tone=\{/, "RoundDone colors a figure by its value; a reading is not a verdict");
   });
 }

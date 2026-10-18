@@ -110,7 +110,7 @@ export interface EntryView {
  * This block sat directly above the case table and disagreed with it. The
  * table under it names a case by the question it answers and glosses the
  * question; these five tiles printed the Estonian name over "Genitive sg" in
- * small italics, which is the labelled cross-reference this app used to keep
+ * small italics, which is the labeled cross-reference this app used to keep
  * and no longer does anywhere: somebody who has met neither name is handed a
  * translation of a translation, one row above a table that would have told
  * them what the form is for.
@@ -548,7 +548,7 @@ export function DictionaryClient({
                   <span lang="et" className="text-base" style={{ color: "var(--ink)" }}>{h.lemma}</span>
                   {/*
                     The part of speech, but only where it is the thing telling
-                    two chips apart. `hall` is grey and also frost, and both
+                    two chips apart. `hall` is gray and also frost, and both
                     chips read "hall" with a gloss beside them; where the
                     glosses are close, as they are across most of the pairs the
                     dictionary carries, the two were indistinguishable and one
@@ -716,7 +716,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
         Disagreeing with the entry, for somebody who is not going to open the
         edit form. The dictionary is shared and hand-editable, and that is the
         right tool for a typo you are certain about; this is the one for "my
-        teacher says this is the wrong sense", which is a judgement somebody
+        teacher says this is the wrong sense", which is a judgment somebody
         should look at before it changes what everybody reads.
       */}
       <EntryProblem entry={entry} />
@@ -724,7 +724,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
       {/*
         TWO BLOCKS, EACH SAYING WHAT IT IS AND WHAT LANGUAGE IT IS IN.
 
-        This was one unlabelled grey paragraph rendering `entry.notes`, and that
+        This was one unlabeled gray paragraph rendering `entry.notes`, and that
         column held two different things in two languages: the further English
         senses Wiktionary lists, and, after any live lookup, Ekilex's Estonian
         explanation, which overwrote them. So a reader met either a list of

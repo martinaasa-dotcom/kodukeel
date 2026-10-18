@@ -149,7 +149,7 @@ export function recapOf(scene: SceneSpec, state: SceneState, locale: Locale): Sc
 
   /*
     UP TO THREE, IN THE LEARNER'S OWN WORDS WHERE THERE ARE ANY. A highlight
-    that quotes what somebody actually said is a thing they recognise about
+    that quotes what somebody actually said is a thing they recognize about
     themselves; one that says "well done" is a sticker.
   */
   const highlights: Highlight[] = [];

@@ -163,7 +163,7 @@ function partOf(input: TonightInput, what: string): string {
 }
 
 /**
- * The grey line after the subject, which is the second and usually last thing
+ * The gray line after the subject, which is the second and usually last thing
  * read in a list. It carries the minutes, because the minutes are the whole
  * argument: the reason to open this is that it is smaller than it looks.
  */

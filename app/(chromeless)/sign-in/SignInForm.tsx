@@ -153,7 +153,7 @@ function settled(el: HTMLElement, deadlineMs: number): Promise<boolean> {
  * needs to know is whether the address somebody typed belongs to it. So the
  * form takes a work address like any other and `ssoDomainFor` decides where
  * it goes: to the identity provider where the domain is one the deployment
- * configured, and to the mailed link otherwise. A button labelled "single
+ * configured, and to the mailed link otherwise. A button labeled "single
  * sign-on" beside the other two would be a door that refuses most of the
  * people who press it, and the domains are read on the server so this
  * component never reaches for the environment.

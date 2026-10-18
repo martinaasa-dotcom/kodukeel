@@ -38,7 +38,7 @@ export type WordGloss = "on" | "off";
 
 export const DEFAULT_WORD_GLOSS: WordGloss = "off";
 
-/** A stored answer, or the default when it is absent or unrecognised. */
+/** A stored answer, or the default when it is absent or unrecognized. */
 export function wordGlossFrom(value: string | undefined | null): WordGloss {
   return value === "on" ? "on" : DEFAULT_WORD_GLOSS;
 }

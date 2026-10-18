@@ -38,7 +38,7 @@ export const THINGS_PROMPT = [
   "Rules:",
   "1. English only. Never write a word in Estonian or any other language.",
   "2. One plain noun for each thing, in the singular, the word a dictionary would list:",
-  '   "chair", "window", "cup". No adjectives, no colours, no brand names.',
+  '   "chair", "window", "cup". No adjectives, no colors, no brand names.',
   "3. Name things, not people, and nothing you are unsure of.",
   "4. The most noticeable things first. Each thing once.",
   "",
@@ -102,7 +102,7 @@ export interface Thing {
   readonly entries: readonly ThingEntry[];
   /**
    * The dictionary does hold a word for it, spelled exactly like another
-   * entry (`hall` is grey and frost), so it is held back rather than offered.
+   * entry (`hall` is gray and frost), so it is held back rather than offered.
    * Said on the row, because "not in the dictionary" would be untrue.
    */
   readonly spelledLikeAnother: boolean;

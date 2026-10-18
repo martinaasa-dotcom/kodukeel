@@ -17,7 +17,7 @@
  * news (`opened`, `won`, `discovered`, `award`). No model is asked: the
  * operator's call, so the rule is the same on every deployment, costs
  * nothing, and is checked here against a sample of real ERR headlines rather
- * than trusted to a judgement nobody can read.
+ * than trusted to a judgment nobody can read.
  *
  * THE WORD LISTS ARE A FILTER AND NOT ESTONIAN WE TEACH. They are never shown,
  * never a form, never a card: they are spellings matched inside somebody
@@ -181,7 +181,7 @@ export function badStem(item: NewsItem): string | null {
 /*
   A HEADLINE THAT REPORTS RATHER THAN ARGUES. A colon after the media label
   comes off is somebody's quote or an opinion piece (`Name: what they think`),
-  a question mark is a question, a bar is a programme's strapline, and a
+  a question mark is a question, a bar is a program's strapline, and a
   review, a live broadcast or a "watch at eight" is not news that something
   good happened. And a negation turns any happy word around (`festival ei
   toimu`), so a headline holding one is not offered either.

@@ -4,7 +4,7 @@ name: Reset everybody's course progress
 #
 # `npm run reset:course` deletes every learner's `CourseStep` ticks, so each of
 # them opens the current planned course at the first evening of their part,
-# and clears a `programme` setting that names a programme the current build no
+# and clears a `programme` setting that names a program the current build no
 # longer has. Decks, the review log, levels and every other setting are not
 # touched. Learners whose display name contains the `keep` input are left alone
 # entirely, and the report names them before anything is deleted.

@@ -35,7 +35,7 @@ describe("every conversation happens somewhere", () => {
   });
 
   it("and no room for a scene that is not there", () => {
-    // Tonight's chat is a scene built per evening and in no catalogue (`lib/scenes/specs/chat.ts`).
+    // Tonight's chat is a scene built per evening and in no catalog (`lib/scenes/specs/chat.ts`).
     const ids = new Set([...SCENES.map((scene) => scene.id), CHAT_ID]);
     for (const id of Object.keys(SCENERY)) {
       expect(ids.has(id), `${id} has scenery and is not a scene`).toBe(true);
@@ -45,7 +45,7 @@ describe("every conversation happens somewhere", () => {
   /*
     A name in this table is a promise that `components/icons.tsx` can resolve
     it, and the fallback there means a typo does not crash a page: it draws a
-    sparkle over a health centre and nothing says so.
+    sparkle over a health center and nothing says so.
   */
   it("names an icon the app can actually draw", () => {
     for (const [id, room] of Object.entries(SCENERY)) {
@@ -211,7 +211,7 @@ describe("every conversation happens somewhere", () => {
     AND EVERY ONE OF THEM STANDS ON THE FLOOR, FAR ENOUGH APART TO BE TWO
     PEOPLE.
 
-    `Person` is six lines about a centre: a head of radius 8, legs reaching
+    `Person` is six lines about a center: a head of radius 8, legs reaching
     nine either side and a pair of resting arms reaching eleven. Two marks
     closer together than that are not two people in a room, they are one
     scribble, and that is how this table shipped: the stairwell put a queue

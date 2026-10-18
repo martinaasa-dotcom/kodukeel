@@ -108,7 +108,7 @@ trying to learn one.
 4. **Government, proposed and now measured.** The dictionary records what case a word demands for
    268 verbs, 36 nouns and 12 adjectives, and `parseGovernment` reads it. A composed line containing
    a governed verb and a noun in a case that verb does not govern is probably wrong. Probably was
-   not good enough to ship, so `npm run eval:scene` built the labelled set out of what Ekilex had
+   not good enough to ship, so `npm run eval:scene` built the labeled set out of what Ekilex had
    already recorded and asked: **it withholds 42.3% of real errors and 2.1% of good lines**, a net
    of +115 over 286 pairs, so it goes in. §29 has the method and the one thing it cannot see.
 
@@ -386,7 +386,7 @@ would turn this into a game about the gauge. Pressure is carried in what the oth
 their patience runs out, they say so, in words, and move on.
 
 The one thing that stays on screen is the objective list from the role card. Knowing what you came
-in to get done is not a hint; it is what a person walking into a health centre already knows.
+in to get done is not a hint; it is what a person walking into a health center already knows.
 
 ## 8. The learner's turn
 
@@ -412,17 +412,17 @@ the type, so a fifth screen cannot reintroduce the fault by not knowing about th
 - **Understood, complete.** The scene advances and the other side answers the content.
 - **Understood, incomplete.** They answer, and ask for the part that was missing. Receptionists do
   this constantly and no drill in this app has ever imitated it.
-- **Not recognised.** Nothing matched and few of the words were vouched for. The repair move: they
+- **Not recognized.** Nothing matched and few of the words were vouched for. The repair move: they
   did not catch it, and they ask again.
 - **Vouched, and not what was asked for.** Several words the dictionary knows, none of them the
   point. Worth separating, because this is a learner who said something real that the scene did not
   anticipate: they get a narrower re-ask rather than "say again", and their turn appears in the
-  debrief with each word marked as recognised.
-- **English.** A turn with no Estonian in it is recognised as English rather than as unreadable
+  debrief with each word marked as recognized.
+- **English.** A turn with no Estonian in it is recognized as English rather than as unreadable
   Estonian, because those are different things and telling somebody "I did not understand" when they
   wrote a clear English sentence is a lie. What happens next is the persona's: the helpful one
   translates the question, the brisk one repeats it in Estonian. It is counted in the debrief and it
-  is never scolded. Reaching for English under pressure is the thing being practised against.
+  is never scolded. Reaching for English under pressure is the thing being practiced against.
 
 ### Understood before correct (amendment, §35)
 
@@ -559,7 +559,7 @@ So there are two ways to take a turn, and both are honest about what they are:
   press to hear a native rendering of what they typed and compare. That is the app's speaking
   practice, inside a conversation.
 - **Spoken, unmarked.** Nothing is typed, nothing is marked, the transcript is hidden, and the scene
-  advances when the learner says they have answered. It is a language lab drill, it is labelled as
+  advances when the learner says they have answered. It is a language lab drill, it is labeled as
   one, and it is the mode somebody uses on the walk to an appointment they are dreading. Rehearsal
   does not need a verdict.
 
@@ -576,7 +576,7 @@ The order is the argument.
 2. **What you got done.** The required beats, ticked. A count of things achieved, never a
    percentage: a mark on a conversation is a claim about somebody's Estonian, and the only module
    allowed to make one is the mock exam, which caveats it heavily (ADR-022).
-3. **Your turns**, with each word marked as recognised or not, and the near misses named. This is
+3. **Your turns**, with each word marked as recognized or not, and the near misses named. This is
    where a learner finds out that the word they were sure of was not the word.
 4. **The words you needed and did not have**, from the help button and from the beats that stalled,
    each with an add-to-deck button.
@@ -620,7 +620,7 @@ is lit by: one the learner has not played, or the one played longest ago, picked
 "Another one" to be offered a different one. Under it every scene is a tile in the tint of its kind
 of place (`lib/scenes/kinds.ts`: food and shopping, health and offices, getting around, people and
 work), the kind named in words as well as in the hue, with a filter by kind above them. Each tile
-shows the room, the place, what it practises, how many things there are to get done and how long it
+shows the room, the place, what it practices, how many things there are to get done and how long it
 takes. No scene has a band of its own: how the other side talks is chosen on the briefing. The difficulty dial sits on the scene, not
 in Settings, because it is a decision about this conversation rather than a preference about the
 app, and because somebody who found the last one hard should be able to turn it down at the moment
@@ -660,9 +660,9 @@ wheel away from the page it sat in.
 
 **Accessibility.** The turns are a log region that announces each new turn once and does not
 re-announce the ones above it, which is the lesson the exam clock taught: a live region that updates
-constantly reads a number a second at somebody. The provenance chip is text, not a colour. The
+constantly reads a number a second at somebody. The provenance chip is text, not a color. The
 objective ticks carry an icon and a word beside the hue, because mint means recalled and nothing in
-this app may be carried by colour alone.
+this app may be carried by color alone.
 
 You can walk out. Leaving is a real option in a real conversation, and the debrief handles it
 without a word of reproach.
@@ -688,7 +688,7 @@ leave nothing to produce, which is the fault `npm run audit:questions` exists fo
 whose whole job is turning a gap into a card. `sceneHelp` reads the run's own row, replays the
 transcript to find which beat it is on, and offers a lemma from that beat's declared topic with the
 dictionary's own English beside it: no provider, no booking, and through `oneEntryPerLemma`, because
-`hall` is a noun meaning frost and an adjective meaning grey and this hands one entry to a button
+`hall` is a noun meaning frost and an adjective meaning gray and this hands one entry to a button
 that keeps it. Asking still costs the turn its `helped` flag and nothing else.
 
 ## 14. Where it lives
@@ -775,7 +775,7 @@ opposite when it was written, and the reasoning behind that is worth keeping bec
 still right: running out of allowance halfway through a conversation is the worst failure available
 to this module, and one booking for the whole scene was the obvious way to make that impossible.
 
-It does not survive the ledger's own arithmetic. A call is written down when it is **authorised**,
+It does not survive the ledger's own arithmetic. A call is written down when it is **authorized**,
 which is what stops ten tabs reading the same "under the limit", and two of the three limits count
 `CALL` rows. So a dozen composed turns behind a single booking is eleven calls the allowance never
 saw, on the dearest path in the app, and the burst limiter, which exists to stop exactly this, would
@@ -878,7 +878,7 @@ already says a withheld line is retried once and the attested line stands. What 
 variety rather than correctness.
 
 **Phase 1 is built, less the offline scene.** Three scenes at A2 and B1, drawn from units the
-course already teaches: the health centre (`keha-ja-tervis`), the landlord (`eluase`), and the
+course already teaches: the health center (`keha-ja-tervis`), the landlord (`eluase`), and the
 counter that wants a document (`linn-ja-teenused`). Typed turns, mechanical marking, attested and
 composed lines, curveballs on a four-position dial, personas, the debrief, and every guard in §18,
 because a guard added afterwards is a guard that was missing for a release. `scripts/test-scene.mjs`
@@ -943,7 +943,7 @@ Written the way `scripts/test-invariants.ts` would assert them, because a rule w
 it is a rule that drifts:
 
 1. **Every lemma a scene names is a word one of its own declared units teaches.** This replaces
-   what was written here first, which was "no scene file contains an Estonian letter", modelled on
+   what was written here first, which was "no scene file contains an Estonian letter", modeled on
    the tripwire over `lib/estonian/grammar.ts`. Building the catalog showed that rule to be
    incoherent: a scene has to name the words its beats are about, and a check keyed on `õäöüšž`
    would allow `valu` and reject `küte`, which is not a distinction about anything. What replaced it
@@ -1026,13 +1026,13 @@ When the module ships, this belongs in `docs/03-architecture.md` §6 with the ot
 - **Does a learner want the same scene twice?** The design assumes the second run is where the
   learning is. That is a belief, and a pilot can measure it: how many runs of one scene before
   somebody stops.
-- **Which three scenes first?** The health centre is the strongest candidate, because
+- **Which three scenes first?** The health center is the strongest candidate, because
   `keha-ja-tervis` already promises at A2 that a learner can describe a symptom to a doctor, and
   because it is the encounter people are most afraid of. The other two are a judgment about the
   audience an integration foundation serves, and somebody who works with that audience should make
   it rather than this document.
 - **Does the register dial belong to the scene or the learner?** A scene sets `teie` because a
-  health centre does. Somebody practicing for a workplace where everybody says `sina` might want to
+  health center does. Somebody practicing for a workplace where everybody says `sina` might want to
   override it. The safer answer is that the scene owns it and there are two scenes.
 - **Is a syntactic check worth its dependency?** Vabamorf plus agreement and government rules over a
   whole sentence would close most of what §2 admits is left open. It is also the first
@@ -1407,7 +1407,7 @@ not draw, which is the one repair worse than leaving a gloss alone.
 `sharedPrompts` knows the shape now, and the rule is **mutual** naming, which is the whole of why it
 is safe. One definition mentioning another word means nothing: `konkurents` is defined as a
 `võistlus` for supremacy and is not a contest, `põhjendama` ends "seletama või `õigustama`" and is
-not self-defence. Measured over the shipped dictionary, one-way naming picks up both of those and
+not self-defense. Measured over the shipped dictionary, one-way naming picks up both of those and
 mutual naming picks up neither, matching exactly one pair in the whole file. A word can be used to
 explain a second word without being it; two words can only define each other when there is nothing
 between them to explain.
@@ -1437,7 +1437,7 @@ useful of the two is not a number at all.
 
 ### The government check ships
 
-The labelled set needs no key, because Ekilex had already recorded both halves and nobody had
+The labeled set needs no key, because Ekilex had already recorded both halves and nobody had
 read them together. The good lines are attested usages of a governed verb. The bad ones are the
 same sentence with one nominal moved into a case the verb does not govern, which is a derivation
 over a stored stem and exactly the error a composed line would make. Nothing is invented and
@@ -1487,7 +1487,7 @@ the vocabulary pass and the three faults it exposed against everything before it
 ### What the number was actually measuring, four times
 
 The first thing it measured was a bug in the scene catalog. `arsti-aeg` is set at a health
-centre and its word list did not contain `arst`; none of the three scenes contained `olema`, so
+center and its word list did not contain `arst`; none of the three scenes contained `olema`, so
 every line built on "Kas teil **on** valu?" was withheld; `uuri-remont` is about something broken
 in a flat and had neither `korter` nor `köök`. Nothing about the catalog looked wrong. A scene
 that declares too few units produces a gate that withholds correct Estonian, and the rate reads as
@@ -1563,7 +1563,7 @@ A scene set in `teie` is answered in the polite imperative, and the model reache
 language**: it is not a suffix on anything the rule holds, since `annan` goes to `andke`, `lähen`
 to `minge` and `loen` to `lugege`. It is stored now, one per course verb, and it shows on the
 conjugation table and asks a card, because a form somebody is addressed with every day is a form to
-learn rather than only to recognise.
+learn rather than only to recognize.
 
 The re-run found the second the same way. `Kui kaua see on kestnud?` is how anybody asks how long
 something has been going on, the course teaches taisminevik on its own grammar page, and the
@@ -1738,7 +1738,7 @@ is a friend and a first mission should not ask for the polite register on top of
 
 A learner played the first mission and reported that every situation felt strange and the replies
 were horrible. They were right, and the screenshot they sent said why in three bubbles. `Tere!`,
-then `Kuhu sa lähed?`, then, after they had answered `poodi`, a grey card reading "They ask you
+then `Kuhu sa lähed?`, then, after they had answered `poodi`, a gray card reading "They ask you
 about it." Nothing they said was ever reacted to. The friend on the phone asked a question, was
 answered, and asked the next question as though nothing had been said, and when the ladder ran
 out the friend was replaced by a sentence about the friend.
@@ -1804,7 +1804,7 @@ answers English; the route then ignored that and asked the ladder for the next b
 whatever the answer had been. `replyFor` reads the response and the reading and assembles a short
 list:
 
-- **A turn that landed** gets an acknowledgement, then the next move. `Hästi.`, `Aitäh.`, `Jah.`,
+- **A turn that landed** gets an acknowledgment, then the next move. `Hästi.`, `Aitäh.`, `Jah.`,
   rotating on the number of beats met, never after a greeting, since the next line answers that.
 - **A turn nobody could read** gets `Ma ei saa aru` and then the same question again, from the
   text the learner already heard. A person who was not understood repeats themselves; the old
@@ -1852,7 +1852,7 @@ screen.
 - **The offer and the confirm have an Estonian line keyless.** `BeatSpec.says` names one course
   word and a slot off the card, and `datumLine` says `Kell 11:30?` for the offer and `Kell 11:30.`
   to read it back. Every letter is a headword or a datum the learner is already reading off the
-  card, which is the reaction's licence with a value beside it.
+  card, which is the reaction's license with a value beside it.
 - **A farewell ends the conversation wherever it comes.** `Head aega!` in the middle of a scene was
   a one-word answer to "where does it hurt", and got `Jah?`. Somebody who says goodbye has left,
   the other side says goodbye back, and what was not done is what the debrief is for.
@@ -1889,7 +1889,7 @@ The drafter looped a scene's beats and never its curveballs, so keyless every cu
 of English about what happened. `sceneBeats` is the list it loops now: the scene's own beats and
 one `hurdle:<id>` beat per curveball the scene admits that has a move to make, and the bank, the
 bank test and the context builder all read the same list. The switch to English is the one
-curveball said in English on purpose, as a bubble labelled as such, because the whole point of it
+curveball said in English on purpose, as a bubble labeled as such, because the whole point of it
 is that the other side gave up on Estonian and the learner is practicing not to.
 
 The free models this repository can reach wrote nothing usable for those beats, so the lines were
@@ -1910,7 +1910,7 @@ simply not said. It takes the course's question words now and stands down where 
 and it fires only where a nominal in an oblique case sits beside a governed verb with nothing in
 a case it governs. The old rule and the new are both applied, so nothing the old rule let through
 is refused now. And five units joined the scenes' word lists so the curveballs had words to be said
-with: the weather for small talk, `rääkima` and `ütlema`, the documents unit for a health centre
+with: the weather for small talk, `rääkima` and `ütlema`, the documents unit for a health center
 and a landlord that ask for papers, and shopping for a landlord and a counter that name a price.
 
 ### The third pass: the other side repeats what it heard, speaks, and there are seven scenes
@@ -1922,7 +1922,7 @@ Three more things, each driven in a browser before it was kept.
   "Minge otse edasi", `Poodi.` before the next call. It is the learner's form, vouched by the
   dictionary as the one the beat asked for, so nothing here chose it; a value with a digit in it is
   never repeated, since the confirm beat reads the time back in its own line. Where nothing was a
-  word, the acknowledgement rotates as before.
+  word, the acknowledgment rotates as before.
 - **The lines are spoken.** §6 promised every line in the persona's voice and the session never
   played one. Each Estonian bubble carries the app's own speaker button in the run's voice, and the
   newest line plays itself where the learner has autoplay on, since a turn was just pressed and
@@ -1946,7 +1946,7 @@ first run, the landlord refusing and the clerk pointing at the queue, which is t
 goes through the four checks against the scene's own word list and the drafter's refusals, and
 the verdict names which words the scene cannot vouch for. A line that passes goes into the bank by
 hand as `authored`, and the suite checks it again on every run. The tile for each scene reads what
-it practises off its beats, in the words a class uses, and how the last run ended off the runs
+it practices off its beats, in the words a class uses, and how the last run ended off the runs
 (ADR-014), so the list is a place somebody comes back to rather than a menu.
 
 ### What this does not fix
@@ -2003,7 +2003,7 @@ of two or more words that meets everything the beat asked for is an answer whate
 a single word on a sentence beat is still a look and a wait. And where the learner's turn was itself
 the question the beat wanted, the reaction is the move that answers it, never `Jah.` first. A bare
 `14:30` is read as the time it is, which it was not: `words()` returns letters, a turn with none was
-"unrecognised" before the datum rule was consulted, and the datum rule had already found it.
+"unrecognized" before the datum rule was consulted, and the datum rule had already found it.
 
 **And a no gets a second offer.** The first version of this pass read `ei sobi` as the beat met,
 since the goal allows saying it will not do, and the landlord said goodbye. Nobody does that: a
@@ -2033,7 +2033,7 @@ said two things. A requirement can be met by something that is not a word. `{ ki
 satisfied by a question mark anywhere in the text, deliberately, because `Homme?` is a question
 anybody asks and has no question word in it; `{ kind: "any" }` is satisfied by anything at all. So a
 turn ending in `?` walked past every question-shaped beat downstream of the one it answered, in
-silence, on the strength of its own punctuation. Five beats in the catalogue are reachable that way.
+silence, on the strength of its own punctuation. Five beats in the catalog are reachable that way.
 
 A learner found it on the street corner. They were told `Minge otse edasi.`, wrote `okei, otse, ja
 kuhu siis?`, and were answered `Head aega!`. Every step was the machine doing what it was told:
@@ -2067,7 +2067,7 @@ What it does not fix: the other side still cannot answer a question the scene di
 `okei, otse, ja kuhu siis?` now gets `Otse.` and the next beat's line rather than a farewell, which
 is a street-corner exchange and is not an answer to what was asked. Answering an arbitrary question
 means a model deciding what happens next, which is the one thing §18 rules out; what is available
-instead is more beats and more pinned lines per beat, which is a catalogue change rather than a
+instead is more beats and more pinned lines per beat, which is a catalog change rather than a
 machine one.
 
 
@@ -2191,7 +2191,7 @@ touching the marker or the reply again.
 
 What it does not do: the shrug is the same two words whoever is behind the desk, and a friend on
 the phone saying `Ei tea.` to "and where then?" is a stranger's shrug in a friend's mouth. A
-persona-flavoured off-guard reaction is a table of parts away and was left for a native speaker's
+persona-flavored off-guard reaction is a table of parts away and was left for a native speaker's
 pass, since "what a friend says when you ask them something odd" is not a thing this app should
 guess at.
 
@@ -2291,7 +2291,7 @@ which is the right number to be silent about.
 | the stem | the case they used is the omastav or the osastav, the two every other ending is built on | possible |
 
 Carry-over leads because it is a fact about this conversation rather than a pattern about learners,
-and because it is the one somebody recognises about themselves. It is read **in turn order rather
+and because it is the one somebody recognizes about themselves. It is read **in turn order rather
 than keyed on the word**, which is how it was written first and is wrong the moment a learner slips
 on the same spelling twice: the reading is about the moment it happened, and two turns are two
 moments.
@@ -2383,23 +2383,23 @@ Five more, all off the `lost` and `curious` transcripts.
 words and the beat that asks what has gone wrong accepted a different six. Two of the draws, a third
 of runs, dealt a card whose word the beat refused: the learner reads that the window is broken, says
 so correctly, and is treated as having said nothing. That is the worst thing this module can do to
-somebody, and it was a fact about one catalogue entry rather than about any rule, which is what makes
+somebody, and it was a fact about one catalog entry rather than about any rule, which is what makes
 it worth a test rather than a fix. `catalogue.test.ts` walks every `word` and `weekday` prop against
 every beat's own requirements and fails on a value no beat accepts. One scene, two words.
 
 **And the word the other side hands over agrees with that card.** §39 offered the beat's first
 acceptable word, so a learner whose card said the door was broken was told to say the heating was.
-Worse than no hint, because they follow it: they are marked as having met the beat and have practised
+Worse than no hint, because they follow it: they are marked as having met the beat and have practiced
 saying something that was not true of their own run. `offerFor` takes the card and prefers the word
 it dealt.
 
-**One word the scene recognised is not "I did not catch that".** The split between a narrower re-ask
+**One word the scene recognized is not "I did not catch that".** The split between a narrower re-ask
 and the repair phrase was half the words vouched. The two things it decides between are "ask about
 the word I caught" and "tell them they were incomprehensible", and nobody who caught a word of a
 sentence says the second. It matters because the scene's list is the units the scene declares rather
 than the whole course: a learner reaching for a real word from a unit this scene does not name had
 most of their sentence counted against them and was told they were not understood for using Estonian
-they had been taught somewhere else. The repair phrase is now for a turn the scene recognised nothing
+they had been taught somewhere else. The repair phrase is now for a turn the scene recognized nothing
 in, which is what a person means by it.
 
 **The learner's own word put right survives an answer to their question.** A turn can do both:
@@ -2532,7 +2532,7 @@ debriefs, walking out of one, and reading the role card of a third.
 
 **A card printed what the other side was about to say.** `theirs` marks a fact as the other
 side's, so it is drawn and stored and kept off the role card, and it was on the day a landlord
-offers and on nothing else. Three scenes draw a *time* the other side offers: the health centre's
+offers and on nothing else. Three scenes draw a *time* the other side offers: the health center's
 appointment, the second one it offers when the first will not do, and the hour a shop opens. All
 three printed on the learner's card, so "take the time offered, or ask for another" was answerable
 before an offer, the counter-offer was visible before the first was refused, and the shop scene's
@@ -2625,7 +2625,7 @@ pasted it straight after a full stop on all fourteen cases; the illative's hook 
 so a learner who put a noun in the wrong case read *"It is the ending for into. into."*
 `lib/assessment/items.ts` had already tried the hook in feedback and written down why it dropped it.
 
-This pass replaced the hook with `summary`, the field written as a sentence. §43 capitalised the
+This pass replaced the hook with `summary`, the field written as a sentence. §43 capitalized the
 hook instead, which kept the reference page's examples and left "into. Into." on the one case where
 the hook *is* the plain word; merging the two kept the examples and fell back to the summary there.
 And then #167 rewrote the note itself, in the pass that made the review readable: a note leads with
@@ -2674,7 +2674,7 @@ skips. This is the shape §42 of the status doc calls a hole wearing a waiver's 
 
 The rung is an attribute on the line's own wrapper now, `data-rung`, which is a fact about the line
 rather than a shape in the markup, and the words under the bubble stay beside it for the reader. The
-suite reads the attribute, and a third check says the two agree for every line said: a line labelled
+suite reads the attribute, and a third check says the two agree for every line said: a line labeled
 "from the course" that a model wrote would be the app vouching for its own Estonian, which is the
 whole of ADR-025. The scripted check runs keyless, which is the state a default deployment is in and
 the one the bank was built for.
@@ -2709,7 +2709,7 @@ caret is. It fails, at `BODY`, on the line before this one.
 ADR-025 amendment 1.
 
 **What was wrong.** The ladder asked a model only where a recorded sentence and the bank had both
-missed. The bank now holds 296 lines, so on about half the beats in the catalogue the other side
+missed. The bank now holds 296 lines, so on about half the beats in the catalog the other side
 said a sentence drafted months before anybody played, written against the beat alone. Such a line
 is a competent generic question and it cannot be about the conversation: it cannot pick up that the
 learner said two turns ago they were in a hurry, cannot acknowledge the thing they just got right,
@@ -2868,7 +2868,7 @@ the run opens on whether `sceneProviders` has anything in it, and read back by t
 A scripted run never asks whatever composer it is handed; a composed run still falls to the bank on a
 call that fails, which is the mid-run failure the bank is for. What the mode removes is a run
 *starting* in one voice and being switched into the other by something outside it. A run written
-before the field reads as `scripted`, since the shipped behaviour of a run already in flight may not
+before the field reads as `scripted`, since the shipped behavior of a run already in flight may not
 change under the learner having it.
 
 ### What this does not change
@@ -2897,7 +2897,7 @@ conversation reading as two speakers where the round reads as one is the same fa
 
 **Nothing said the scene had moved.** `BeatSpec.meanwhile` has existed since §33 and the learner saw
 neither of the two this scene carries. It was printed on a response of `answer` or `moveOn`, which
-is the commonest way to arrive at a beat and not the only one, and it was drawn as a grey sentence
+is the commonest way to arrive at a beat and not the only one, and it was drawn as a gray sentence
 between two hairlines on a screen where a new bubble arrives every few seconds. Both halves are
 fixed and only one of them is code you can point at: it is printed on `arriving`, which is "no turn
 of this run has been taken on this beat", a fact about the run rather than about how the last turn
@@ -2953,7 +2953,7 @@ design's line of one in twenty.
 §52's measurements were re-run against the model scenes actually go to, and the gate withheld 13.7%
 of composed lines across the fourteen scenes, against the design's line of one in twenty. What the
 ranked list said is that seventeen of the twenty-five were `vouching`, and the words were
-`sümptomid` at the health centre, `alustasite` at the landlord's, `minemas` on the way to the shop.
+`sümptomid` at the health center, `alustasite` at the landlord's, `minemas` on the way to the shop.
 Not one of them is a made-up word. Every one is what a person would have said.
 
 **One membership test was being asked two questions.** *Is this Estonian* is a hallucination guard
@@ -3158,7 +3158,7 @@ Every fault in §54 and the three before it was a fault in a *check*, and each c
 because a line reached a learner that should never have been said. That is the right way round
 while the composer is the best one available. It stopped being the right question when somebody
 asked the obvious one: there is no point paying a model to do a bad job, so which model writes
-Estonian a native speaker would recognise, at the lowest cost that gets there.
+Estonian a native speaker would recognize, at the lowest cost that gets there.
 
 Four paths call a model in this app and each was measured through **its own production call
 path**, never through a probe of its own. That matters more here than anywhere else in the
@@ -3276,7 +3276,7 @@ about a form; a pronoun is always tabled, because its everyday cases are the sho
 and `mulle` has to be in front of a model asked to correct `mind`; and a sentence to correct gets
 the principal parts alone. The stray `FIX:` guard changed with it: it counted vouched words, and
 "why is it lugesin raamatut and not lugesin raamatu" vouches four and is two quoted forms, so it
-counts the longest run of consecutive Estonian in the message now (`sentenceRun`), a capitalised
+counts the longest run of consecutive Estonian in the message now (`sentenceRun`), a capitalized
 name beside a vouched word riding inside the run.
 
 | `gemini-3.1-flash-lite`, three runs, finished shape, held | facts | stray FIX | wrong form | answer first | words med | per thousand |
@@ -3305,7 +3305,7 @@ so it stands as the residual the guards do not reach.
 | `gemma-4-26b-a4b-it` | 11/11 of 12 answered | 0 | `jale` | no rate on file |
 | `gemini-2.5-flash`, `gemini-2.5-flash-lite` | not available to this key | | | |
 
-**Nothing generalises, which is the finding worth keeping.** `gemini-3.8-flash` writes the best
+**Nothing generalizes, which is the finding worth keeping.** `gemini-3.8-flash` writes the best
 Estonian of anything measured and is second worst at returning JSON, at 19 and 20 of 24 where the
 grader's own model takes 24. `gemini-3.1-flash-lite` reads a photographed page perfectly at a third
 of flash's price and is the cheapest thing on the grader board. `gpt-oss-20b` is cheaper than all of
@@ -3429,7 +3429,7 @@ where somebody deciding whether they are ready is the person it is for, and nowh
 conversation, where a link to a lesson is a door out of a room somebody has just stepped into.
 
 **Time passing stops the room.** §52 drew it as a tinted panel that arrives, which is better than
-the grey sentence before it and is still one more thing arriving on a screen where something
+the gray sentence before it and is still one more thing arriving on a screen where something
 arrives every few seconds. The same learner reported the same thing again. So the conversation is
 covered: the light gathers into the middle of the screen, an hour is drawn, a dot travels from it
 to the mark of the room being moved into, and the sentence comes up out of a blur.
@@ -3450,16 +3450,16 @@ anywhere on the cover ends it at once; under `prefers-reduced-motion` nothing mo
 simply there, and the hold is shorter, because a still panel is read in less time than a moving one
 is watched.
 
-**And fourteen conversations were fourteen identical white cards.** A health centre reception, a
+**And fourteen conversations were fourteen identical white cards.** A health center reception, a
 phone call to a landlord, the counter of a small café and a job interview all opened the same way,
 and the only thing telling them apart was the sentence you read. `lib/scenes/scenery.ts` gives each
 scene an icon and one of five movements, and the movement is the place's own: a queue advances a
 step at a time, a telephone rings out in circles, a journey travels, steam comes off something hot,
 and a room somebody is looking at you in simply breathes. Five cover fourteen scenes without any of
 them being a picture of anything, which is what keeps this inside the rule the picture round
-already lives under: there is no artwork in this app and no licence question to answer.
+already lives under: there is no artwork in this app and no license question to answer.
 
-Three things it may not do, and each is a rule this repository already had. **It may not colour
+Three things it may not do, and each is a rule this repository already had. **It may not color
 them in**: the five hues carry fixed meanings and a table that handed the café mint would spend
 "you got it" on a coffee cup, so every scene is drawn in the accent and what tells them apart is a
 drawing and a movement. **It may not use emoji**, which `lib/copy/voice.ts` bans everywhere a
@@ -3475,7 +3475,7 @@ The room landed and three things in it did not. All three came back the same
 afternoon, from somebody using it, and each is smaller than the pass before it.
 
 **The card was a wall.** It opened by default, and on a phone that is forty
-words of role, two labelled values, a line about the persona and every objective
+words of role, two labeled values, a line about the persona and every objective
 in the scene written out as a sentence, standing above the conversation and read
 once. Almost none of it is wanted while somebody is typing. What is wanted is
 what the card *dealt*, because a beat asks the learner to read a value off it,
@@ -3504,7 +3504,7 @@ Everybody in them faces the person they are talking to, which took a second
 pass: the first version had the figure on the right gesturing off the
 right-hand edge and holding a phone to the far ear, so both people in a
 conversation were facing away from it. It is one sign on the arm rather than a
-second set of paths. Nothing is filled, nothing is coloured, and the ink is the
+second set of paths. Nothing is filled, nothing is colored, and the ink is the
 one the prose beside it uses, so it flips with the theme without being told to.
 The scenery table lost its `label` with them: every screen that draws the mark
 already prints the scene's own `place`, which is a sentence somebody wrote about
@@ -3526,7 +3526,7 @@ conversation, and it was being read back in somebody else's handwriting.
 
 Five drawings shared out among fourteen scenes told a learner what *kind* of
 place they were in, and the kind is already in the scene's title. A pharmacy and
-a health centre were the same picture; so were a bus station and a street
+a health center were the same picture; so were a bus station and a street
 corner. What a learner does not have is the room.
 
 **So a setting is a room.** `lib/scenes/scenery.ts` names one per scene out of
@@ -3542,7 +3542,7 @@ one, and they are the two that really are the same room.
 
 Everything is built from three parts, a person, a counter and the floor, plus
 one or two props that say which room it is, so a fifteenth scene costs a branch
-and no file. Nothing is filled, nothing is coloured, and every room moves once
+and no file. Nothing is filled, nothing is colored, and every room moves once
 and only once: somebody nods, steam comes off something, a queue steps up, a
 phone rings out, a bus idles.
 
@@ -3551,8 +3551,8 @@ kitchen with a friend ringing, walks you to the corner shop and walks you home
 again, and until now the screen drew the shop for the whole of it, including the
 two beats before anybody had left the house. The scene's row is where it
 *opens*; `MOVES` is where a beat takes you, keyed on the beat rather than
-written into the catalogue, because which room is drawn is a question about a
-screen and the catalogue is the conversation.
+written into the catalog, because which room is drawn is a question about a
+screen and the catalog is the conversation.
 
 What that buys is the thing the cover was missing. "Five minutes later. You have
 walked to the shop and you are inside it." is two facts and the screen drew one
@@ -3638,7 +3638,7 @@ under it printed as though it were news. One block now, with the argument under
 the button it argues for.
 
 **What this pass also found is that the instruments were lying in the app's
-favour.** `npm run play:scenes` and `npm run probe:turns` are what a maintainer
+favor.** `npm run play:scenes` and `npm run probe:turns` are what a maintainer
 reads before touching the marker, and neither resolved the substitutes or the
 English gloss, and the probe had a course-forms set of its own instead of the
 forms list. So `abikaasaga` read as a turn off the point and `kuupalk` as a word
@@ -3755,7 +3755,7 @@ understand" is said only where it is true, and never as a verdict on them.
 **Measured.** Every scene still plays keyless from the first line to the debrief
 in all three harness styles. With a key, the interviewer that used to say
 `Mis on teie oskus?` now says `Hotellis on alati palju teha. Mida te eriti hästi
-teete?`, and the neighbour answers the floor and then asks where you are from
+teete?`, and the neighbor answers the floor and then asks where you are from
 rather than asking the floor again. `npm run probe:turns` reads `ülikoolis` as
 complete where it read it as a fragment.
 
@@ -3838,7 +3838,7 @@ That is true of the other four and false of this one. A `datum` is a dictionary
 word every time: the only thing different about it is that the *card* named it
 rather than the beat. So a scene whose whole subject is telling somebody a fact
 about yourself wrote almost nothing into the review log. Measured over the
-catalogue, 66 gradeable requirements against 94; the stairwell graded three of
+catalog, 66 gradeable requirements against 94; the stairwell graded three of
 its six beats and now grades six, the job interview four of six and now seven,
 the ticket window six of eight.
 
@@ -3874,7 +3874,7 @@ actually typed rather than the cardinal beside it on the card.
 `SceneVignette` draws fourteen rooms out of strokes: a counter with somebody
 behind it, a table with a plate on it, a stairwell with stairs, a phone ringing
 out of a kitchen. It was drawn on the briefing and on the cover between two
-rooms, and nowhere else. So a learner stepped into a health centre, read one
+rooms, and nowhere else. So a learner stepped into a health center, read one
 sentence, pressed a button, and held the whole conversation on a screen that
 could have been any of the fourteen: an eighteen-pixel icon on the bar, and two
 columns of cards. They asked where the drawings had gone.
@@ -3949,7 +3949,7 @@ apart from the thing it is clearing space for.
 drawing here. Who said a line is in words beside it, whose turn it is is the ask
 panel, and what a curveball wants is the objective in play, named in English in
 the panel the learner types into. A drawing may not be the only thing carrying a
-distinction any more than a colour may.
+distinction any more than a color may.
 
 **What has come up is the server's to say, and reading it off the beat was the
 one thing that shipped broken.** A curveball does become a beat inside the
@@ -4125,7 +4125,7 @@ in a state a screenshot of the ordinary case does not reach.
 run out either side of the line, and it reached half a rem over the pill's top
 edge. A flat rectangle of ground laid over the room's own light has two hard
 vertical edges and a hard top one, and measured in the dark theme it read as a
-grey slab hung under the drawing with a seam across the screen, which is the
+gray slab hung under the drawing with a seam across the screen, which is the
 fault `.scene-top::after` exists one element up to prevent. It buys nothing,
 because the pill pins at the bottom of that fade with no gap between them and
 its own surface is opaque. It begins at the pill's own midline now, so the only
@@ -4301,7 +4301,7 @@ own. The card is quoted as theirs now, with the pronoun explained and the rule
 said in the plainest words there are; `settled` and `agenda` are the beats'
 own stage directions, asserted never to be goals; and the other side's facts
 are marked as the ones it knows and the learner does not. After it, the health
-centre run is in character for the whole of the conversation and offers the
+center run is in character for the whole of the conversation and offers the
 time off the card.
 
 **Three checks were refusing correct lines.** Gemini wrote `Hästi, buss
@@ -4348,7 +4348,7 @@ THEM: Hind on kaks eurot. Kas maksate selle eest kaardiga või sularahas?
 
 Every line composed, every one about the person in front of it, and the price
 announced, answered and answered again. `npm run play:scenes -- --compose` on
-the bus scene as a curious learner, the health centre as a sloppy one and the
+the bus scene as a curious learner, the health center as a sloppy one and the
 stairwell as a lost one on a bad day read the same way; the harnesses share
 one model call with the route's own prompt (`askLine`) and mirror the route's
 decisions about when the courtesy rung stands down, so a transcript printed
@@ -4363,16 +4363,16 @@ for; what it may never do is decide the beat was met (ADR-025, unchanged).
 ## §71 The card is a suggestion, and the other side goes with what you say
 
 The operator played it again and said the module was flaky: turns not
-recognised, turns the model was never asked about, a conversation that did not
+recognized, turns the model was never asked about, a conversation that did not
 adapt to what they were trying to say, and a screen with too much on it. Read
 against `npm run probe:turns`, most of the refusals were one thing. The card
 deals a value so the learner has something to say, and the marker held them to
 it: `tartusse`, `ma lähen jaama`, `jaam palun`, `kell kaheksa`, `08:30` and
-`hommikul` were all refused at a window whose card said the city centre at
+`hommikul` were all refused at a window whose card said the city center at
 half past ten; `mulle üks tee` was refused where the card said coffee;
 `esmaspäevast` where the card said Thursday. Every one of those is perfect
 Estonian, and a clerk takes it. The judge could not help, because a value off
-the card was the one thing it was told never to concede, and a capitalised
+the card was the one thing it was told never to concede, and a capitalized
 place name reached no rung at all: the forms list holds none on purpose, so
 `Tartusse` read as nothing anybody could make out and the turn was never put
 to the judge.
@@ -4438,7 +4438,7 @@ The operator asked whether a situation's difficulty could decide how the other
 side talks: an A1 scene answered in the plainest Estonian there is, a B1 scene
 in whole sentences, and the same again for B2 and C1 when scenes exist there.
 It could not, and the reason was one line of the prompt. Every scene has
-carried a `level` since the catalogue was written, and `composeSystem` never
+carried a `level` since the catalog was written, and `composeSystem` never
 read it: the rules said "they are a beginner" and asked for "two to four
 sentences" on every scene, so the model pitched the A1 ticket clerk and the B1
 landlord at the same place, which was roughly A2 and wrong at both ends.
@@ -4532,7 +4532,7 @@ So the card deals two figures, both the interviewer's and never printed
 beat is `answeredNext`, and the next move is an `offer` said off the card:
 `Palk on 1453 eurot kuus?` A yes, `sobib`, `nõustuma` or either figure said
 back meets it; `ei` reads as `declined` and gets `Palk on 1774 eurot kuus?`
-through the same `counter` the health centre's receptionist uses for a second
+through the same `counter` the health center's receptionist uses for a second
 slot, and a second no is the learner saying it will not do. Then the day, then
 goodbye. The interview loses its rows for `answer:pay`, which said the wrong
 thing, and needs no rows for the offer, since a beat that names a figure is
@@ -4562,7 +4562,7 @@ and say goodbye". A weaker model folds the list into one turn: `Palk on hea.
 Kas teil on veel küsimusi? Aitäh, Head aega!` The `close` beat is on the agenda
 only when it is the beat being asked now, and the gate has a thirteenth check,
 `farewell`, which withholds a closing phrase on any other beat. The phrases are
-the catalogue's own `FAREWELLS`, resolved to word sequences by both context
+the catalog's own `FAREWELLS`, resolved to word sequences by both context
 builders and matched whole, because `aega` on its own is the partitive of `aeg`
 and a line offering a time says it. It would have withheld three of the lines
 in the report before anybody read them.
@@ -4644,7 +4644,7 @@ was inert in every measurement above. Re-gated with both live and the forms list
 | `openai/gpt-oss-120b` | 25/40 | 22/40 | `Kas teie valu peas?`, `Teie mis katki?`, `Millal see teie korteris katki?` |
 
 Every line taken is a verbless one, and the bank's rows all pass. `Millal see katki?` is still
-passed on the health centre's list, because `see` is in no unit that scene declares and the
+passed on the health center's list, because `see` is in no unit that scene declares and the
 check reads pronouns off the scene's own entries, which is the honest edge of it.
 
 *The prompt was ordered against a cache.* It opened on the persona, drawn per run, and ended on
@@ -4947,13 +4947,13 @@ thing here if the keyless voice is worth more work than the composed one.
 **And the news is felt keyless too, with the two words the course has for it.** A beat says what
 kind of news its answer is (`BeatSpec.feel`, `sorry` or `glad`), and where a turn answered such a
 beat the keyless reply says the feeling's word rather than the rotation's: `Tõesti?` to a landlord
-hearing the heating is out, `Tore!` to a neighbour hearing you have just moved in. `tõesti` is
+hearing the heating is out, `Tore!` to a neighbor hearing you have just moved in. `tõesti` is
 `vastused` and `tore` is `omadussonad`, both declared by every scene, and the course is thin here
 by fact rather than by choice: `oi` and `kahju` are what a native speaker says and no A1 or A2 unit
 teaches either, so they are not written. `feltAt` is the one reader, and the composer is told the
 same thing on the same turn (`ComposeAsk.feel`) on the route and in both harnesses, asserted, so
 the composed voice and the keyless one feel the same thing about the same turn. The two desks
-that file rather than feel, the health centre and the pharmacy, carry none, because "really?" to a
+that file rather than feel, the health center and the pharmacy, carry none, because "really?" to a
 symptom reads as disbelief.
 
 **And a yes-or-no question answered in its own words is a yes.** `Kas küte on katki?` answered
@@ -5004,7 +5004,7 @@ wrong on purpose, and plain to anybody standing there, was refused. Four changes
 every scene rather than the two reported.
 
 **A figure is kept for its beat** (`heldBack` in `lib/scenes/reply.ts`). A value on the other side's
-card that the scene says only at a beat still ahead is labelled "not yet" in the facts the model is
+card that the scene says only at a beat still ahead is labeled "not yet" in the facts the model is
 handed, named rather than filled in the agenda it reads, and withheld by a new gate check, `ahead`,
 if a composed line states it anyway. A question releases it, since a question is owed an answer: a
 question about money releases a price, any question releases the rest.
@@ -5283,10 +5283,10 @@ goodbye the learner was not ready for. The sweep is at the same nine flags.
 
 **And reading it found one fault the sweep could not see.** When the learner is still asking things,
 the route hands the closing beat to the composer as a `confirm`, so a model answers the question and
-leaves the goodbye to the learner. The cheap ladder was handed the same relabelled beat, and a
+leaves the goodbye to the learner. The cheap ladder was handed the same relabeled beat, and a
 `confirm` does not take `Head aega!`. So with no model, a learner who asked something on the way out
 read the stage direction "They say goodbye." in English, turn after turn. The sweep's loop never had
-the relabelling, so it could not see the fault; the critic's harness did. The net is now handed the
+the relabeling, so it could not see the fault; the critic's harness did. The net is now handed the
 beat as it is, and an invariant holds both halves
 (`scripts/invariants/the-keyless-net-is-the-beat-as-it-is.ts`). The lesson is about the instruments:
 three copies of the conversation loop are three chances to measure a conversation the app does not
@@ -5406,7 +5406,7 @@ lines each, are identical byte for byte.
 **What did change is the harnesses, which is the point.** They now print what the route says. The
 keyless sweep at B1 still raises no flags over its 4,456 conversations, and 56 lines of its
 transcripts changed across the fifteen scenes, each the route's own answer: a shrug where no line is
-built, a different acknowledgement where the route has one. The
+built, a different acknowledgment where the route has one. The
 first thing the unified `play:scenes` showed was a fault the old copy had been hiding: in the clothes
 shop, a learner who asks `kas hind?` after the assistant's line naming the price is read as handing
 the line back (an echo) and is answered `Ma ei saa aru` and the same line again. The route has always
@@ -5483,7 +5483,7 @@ The rung and a Report button under every line were taken off on the operator's w
 
 The landing page's café is played by picking, two to four lines a step, each built off the dictionary (`lib/progress/demoScene.ts`). The fourth batch asked whether an A1 learner could have the same inside the course, and set the gate in advance (D9): build a picked mode only if at least four of the eight wave A scenes can be picked through on every required beat by the last part of A1. `npm run measure:picked` is the count, keyless, over `taughtThrough` at each A1 part's last evening.
 
-It reads every required beat for what a picked line has to hold, generously: the one word the beat needs is counted as a line, the way "Kohvi, palun." is one, and a beat qualifies where its alternatives make at least two lines. Read on the words alone, five scenes qualify by a1.7. That reading is wrong for this question, and the reason is the difference between typing and picking. A typed turn is read generously, so these beats take the bare word in any form and say it back put right. A picked line is something the app offers as correct, so it has to be what a person would say, and for four of these slots that holds a case: the country you are from is in the seestütlev, some carrots and three apples are in the osastav, and the bus going to the centre is in the sisseütlev. A1 reads no case page, and the module's rule is that a form is shown before it is practised. The script holds each such slot to the case a natural answer takes (`NATURAL_CASE`, case keys and English only) and to the pages the course has read by then (`grammarThrough`).
+It reads every required beat for what a picked line has to hold, generously: the one word the beat needs is counted as a line, the way "Kohvi, palun." is one, and a beat qualifies where its alternatives make at least two lines. Read on the words alone, five scenes qualify by a1.7. That reading is wrong for this question, and the reason is the difference between typing and picking. A typed turn is read generously, so these beats take the bare word in any form and say it back put right. A picked line is something the app offers as correct, so it has to be what a person would say, and for four of these slots that holds a case: the country you are from is in the seestütlev, some carrots and three apples are in the osastav, and the bus going to the center is in the sisseütlev. A1 reads no case page, and the module's rule is that a form is shown before it is practiced. The script holds each such slot to the case a natural answer takes (`NATURAL_CASE`, case keys and English only) and to the pages the course has read by then (`grammarThrough`).
 
 | Scene | Beats that qualify by a1.7 | What blocks the rest |
 | --- | --- | --- |

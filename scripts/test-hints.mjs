@@ -13,7 +13,7 @@ import { startRound } from "./lib/briefing.mjs";
  * its ceiling and holds its state through the one hook. All three are true of a
  * hint that never appears, of one that appears before anybody has had a go, and
  * of a ladder whose rungs uncover nothing: the wiring is a fact about the source
- * and the behaviour is not.
+ * and the behavior is not.
  *
  *   NEXT_PUBLIC_SUPABASE_URL= NEXT_PUBLIC_SUPABASE_ANON_KEY= npm run dev
  *   node scripts/test-hints.mjs

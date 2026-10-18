@@ -439,7 +439,7 @@ export type Difficulty = keyof typeof BUDGETS;
  * The dial is about the other side and the learner is still free to move it;
  * this only says where it starts. A1 is `textbook`, because a beginner's
  * first counter should go the way the lesson said it would, and it climbs a
- * rung a band for the levels the catalogue actually uses, landing on `bad`
+ * rung a band for the levels the catalog actually uses, landing on `bad`
  * from B2 up rather than inventing a fifth tier the budgets do not have.
  */
 const DEFAULT_DIFFICULTY: Record<Level, Difficulty> = {

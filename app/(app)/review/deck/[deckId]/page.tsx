@@ -21,7 +21,7 @@ import { meetingFirst } from "@/lib/srs/reviewQueue";
  *
  * It was twenty, the Flash cards figure, and a round also left out every word
  * not yet met on the Learn ladder, so a learner with 47 words on a shelf they
- * had built to practise was handed one card. Reported in those words. A shelf
+ * had built to practice was handed one card. Reported in those words. A shelf
  * is the learner saying "these, now", so the round is the shelf.
  */
 const ROUND = 200;

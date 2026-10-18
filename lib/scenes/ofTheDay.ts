@@ -17,7 +17,7 @@ import type { SceneSpec } from "./types";
  * A1, there is no conversation to offer and the answer is null rather than a
  * scene whose words the evenings have not handed over.
  *
- * Pure: a day and a catalogue in, a scene out.
+ * Pure: a day and a catalog in, a scene out.
  */
 export function sceneOfDay(
   day: string,

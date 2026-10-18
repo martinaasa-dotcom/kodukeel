@@ -196,7 +196,7 @@ function Row({ row }: { row: CardRow }) {
         opacity: pending ? 0.5 : 1,
       }}
     >
-      {/* Where the card stands, as the colour the deck panel above uses for
+      {/* Where the card stands, as the color the deck panel above uses for
           it: new, learning, known, and a lapse wearing the missed hue. */}
       <span
         aria-hidden

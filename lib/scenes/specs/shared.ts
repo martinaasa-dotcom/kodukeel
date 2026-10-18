@@ -4,7 +4,7 @@
  *
  * Moved out of `lib/scenes/catalogue.ts` byte for byte when each scene took a
  * file of its own (`lib/scenes/specs/<scene id>.ts`), so that a scene added in
- * one pull request does not conflict with every other. The catalogue re-exports
+ * one pull request does not conflict with every other. The catalog re-exports
  * everything here, so no importer changed.
  */
 import type { Feel, SaysPart } from "../types";
@@ -180,7 +180,7 @@ export const REACTIONS = {
  * How a learner says they are not following, so the other side can help
  * rather than ask the same thing again.
  *
- * The single most important thing to recognise in this module, because it is
+ * The single most important thing to recognize in this module, because it is
  * the moment somebody decides whether they are stupid or simply learning.
  * A learner who writes "I do not understand" and is answered with the same
  * question a third time has been told by a machine that the problem is them.

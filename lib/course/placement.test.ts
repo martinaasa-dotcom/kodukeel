@@ -72,7 +72,7 @@ describe("what somebody holds", () => {
   });
 });
 
-describe("the neighbours of a level", () => {
+describe("the neighbors of a level", () => {
   it("stop at the two ends of the ladder", () => {
     expect(levelAfter("C1")).toBeUndefined();
     expect(levelBefore("A1")).toBeUndefined();

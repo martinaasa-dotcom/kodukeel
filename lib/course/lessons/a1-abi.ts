@@ -2,7 +2,7 @@
  * A1, LESSONS 46 TO 49: ABI (docs/43-lessons.md §4.8).
  *
  * Asking and telling: the command form, saying what hurts at the doctor's,
- * the telephone, and then the last evening of A1, a new neighbour inviting
+ * the telephone, and then the last evening of A1, a new neighbor inviting
  * you round, which uses something from every part before it.
  *
  * The command to one person is the third pattern (`imperative`): it is the
@@ -158,7 +158,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
       { who: "Liis", et: "Mis on juhtunud?", en: "What's happened?" },
       { who: "Tom", et: "Minu sõber on haige. Tal valutab pea ja kõht.", en: "My friend is ill. His head and stomach hurt." },
       { who: "Liis", et: "Kus te olete?", en: "Where are you?" },
-      { who: "Tom", et: "Kodus, kesklinnas.", en: "At home, in the town centre." },
+      { who: "Tom", et: "Kodus, kesklinnas.", en: "At home, in the town center." },
       { who: "Liis", et: "Kiirabi tuleb kohe.", en: "The ambulance is coming right away." },
     ],
     teaches: [
@@ -252,7 +252,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
     part: "a1-abi",
     kind: "partEnd",
     title: "The end of A1",
-    goal: "Hold a whole conversation with a new neighbour, and accept an invitation.",
+    goal: "Hold a whole conversation with a new neighbor, and accept an invitation.",
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
       { who: "Mari", et: "Tere! Mina olen Mari. Ma elan ka siin.", en: "Hello! I'm Mari. I live here too." },
@@ -269,7 +269,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [],
     how: {
-      point: "A whole first meeting with a neighbour, made of something from every part of A1.",
+      point: "A whole first meeting with a neighbor, made of something from every part of A1.",
       notes: [
         "Names and hello from part one, where you're from from part two, a time from part three, cooking from part four, and the invitation is lesson 46's command: {Tule laupäeval meile!}",
         "{Meile} is to us, and with {tule} it means come round to ours.",
@@ -284,7 +284,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
       { ask: { et: "Tule laupäeval meile!", en: "Come round to ours on Saturday!" }, cue: "Say thank you, and ask what time.", model: { et: "Aitäh! Mis kell?", en: "Thank you! What time?" } },
     ],
     roleplay: {
-      scene: "A new neighbour stops you on the stairs. She speaks first. Answer her as yourself.",
+      scene: "A new neighbor stops you on the stairs. She speaks first. Answer her as yourself.",
       turns: [
         { ask: { et: "Tere! Mina olen Mari. Ma elan ka siin.", en: "Hello! I'm Mari. I live here too." }, cue: "Say hello, you're pleased to meet her, and your name.", model: { et: "Tere! Väga meeldiv! Mina olen Tom.", en: "Hello! Nice to meet you! I'm Tom." } },
         { ask: { et: "Kust sa pärit oled?", en: "Where are you from?" }, cue: "Say where you're from.", model: { et: "Ma olen pärit Inglismaalt.", en: "I'm from England." } },

@@ -130,7 +130,7 @@ export function reviewOf(_scene: SceneSpec, state: SceneState, locale: Locale): 
   */
   const turns = state.turns.filter((t) => t.reading !== "fragment" && t.reading !== "echo");
   /*
-    TURNS THAT ANSWERED SOMETHING, NOT TURNS WHOSE WORDS WERE RECOGNISED.
+    TURNS THAT ANSWERED SOMETHING, NOT TURNS WHOSE WORDS WERE RECOGNIZED.
 
     The first version counted everything that was not the repair phrase, so a
     learner who met no beat at all was told "19 of your 21 turns were
@@ -425,7 +425,7 @@ function lead(n: {
  * Reaching for English, counted and never scolded.
  *
  * §8's rule, said once at the end rather than in the moment: what is being
- * practised here is not switching, and the honest thing to do about it is to
+ * practiced here is not switching, and the honest thing to do about it is to
  * say how often it happened and why it matters, on a screen the conversation
  * is already over on.
  */

@@ -58,7 +58,7 @@ export function taughtSpellings(
  *
  * The primitive under the two ways of asking "what has this learner been
  * taught": a unit lesson works it out from the syllabus, and the planned
- * module already knows, because `wordsThrough` says what the programme has
+ * module already knows, because `wordsThrough` says what the program has
  * given them through the day they are on.
  */
 export function spellingsOf(

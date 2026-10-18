@@ -46,7 +46,7 @@ export default async function SignInPage({ searchParams }: {
 
     The Russian and Ukrainian front pages link here with `?lang=ru` and
     `?lang=uk`, and there is no learner to read a setting from, so the query is
-    the only place the choice can live. `localeFrom` honours those two and
+    the only place the choice can live. `localeFrom` honors those two and
     reads anything else as English, which is what this screen always was. The
     form carries it on to first run, so the wizard opens in the same language.
   */

@@ -2,7 +2,7 @@
  * WHERE EACH CONVERSATION HAPPENS, WHICH IS NOT THE SAME QUESTION AS WHAT IS
  * SAID IN IT.
  *
- * Fourteen conversations were fourteen identical screens. A health centre
+ * Fourteen conversations were fourteen identical screens. A health center
  * reception, a phone call to a landlord, the counter of a small café and a job
  * interview all opened as the same white card, and the only thing that told
  * them apart was the sentence you read. That is fine for a list and poor for a
@@ -11,7 +11,7 @@
  *
  * ONE SETTING PER PLACE, RATHER THAN ONE MOOD PER FIVE PLACES. The first
  * version of this table held five *ambiences* and shared them out: a pharmacy
- * and a health centre were both "a counter with a queue", a bus station and a
+ * and a health center were both "a counter with a queue", a bus station and a
  * street corner were both "a journey". That is a category, and a category is
  * what a learner already has in the scene's own title. What they do not have
  * is the room. So a setting is a room: a pharmacy has a cross and a bottle on
@@ -20,17 +20,17 @@
  * really is the same one, which is the two that are somebody at home on the
  * phone.
  *
- * WHAT THIS TABLE MAY NOT DO IS COLOUR THEM IN. The five hues carry fixed
+ * WHAT THIS TABLE MAY NOT DO IS COLOR THEM IN. The five hues carry fixed
  * meanings and never drift (`docs/14-design-system.md` §1): mint is "you got
  * it", peach is "again", butter is "nearly", sky is "easy", and the cornflower
  * is the app's own voice. A table that handed the café mint and the pharmacy
- * peach would be spending the only colours in this app that mean something on
+ * peach would be spending the only colors in this app that mean something on
  * decoration, and it would do it on the one screen where a learner is about to
  * be told whether they were understood. So every room is drawn in the ink, and
  * what tells them apart is what is in them.
  *
  * NOTHING IS A PICTURE OF ANYTHING AND NOTHING IS SHIPPED. There is no artwork
- * here and there will not be: a drawing per scene is a licence question nobody
+ * here and there will not be: a drawing per scene is a license question nobody
  * on this project can answer and a file per scene to carry. Every room in
  * `components/scene/SceneVignette.tsx` is strokes in an SVG, built out of the
  * same handful of parts, so a fifteenth scene costs a row here and no file at
@@ -108,7 +108,7 @@ export interface Scenery {
 /**
  * One row per scene, keyed on the scene's own id.
  *
- * Checked both ways in `scenery.test.ts`: every scene in the catalogue has a
+ * Checked both ways in `scenery.test.ts`: every scene in the catalog has a
  * row, and no row names a scene that is not there. A scene added without one
  * would open as the blank screen this table was written to replace, and it
  * would do it silently, which is the shape of failure this repository keeps
@@ -168,7 +168,7 @@ export const SCENERY: Readonly<Record<string, Scenery>> = {
   "eksam-b1": { icon: "GraduationCap", setting: "meeting" },
   "eksam-b2": { icon: "Mic", setting: "meeting" },
   /*
-    Tonight's chat is with a neighbour on the stairs, which is a room this app
+    Tonight's chat is with a neighbor on the stairs, which is a room this app
     already draws (D17): the stairwell `trepikoda` opens in.
   */
   chat: { icon: "MessageCircle", setting: "stairwell" },
@@ -227,7 +227,7 @@ export function isCall(sceneId: string): boolean {
  * So the row above is where a scene *opens*, and this is where a beat takes
  * you. It is keyed on the beat rather than named in `lib/scenes/catalogue.ts`
  * for the reason the icon is not in there either: which room is drawn is a
- * question about a screen, and the catalogue is the conversation.
+ * question about a screen, and the catalog is the conversation.
  *
  * What it buys is the cover between the two (`components/scene/SceneInterlude.tsx`):
  * the room you were in goes, the room you are in arrives, and the sentence
@@ -318,7 +318,7 @@ export const CUES: Readonly<Record<string, Cue>> = {
  * become a beat of its own inside the machine (`hurdleBeat`), and the route
  * does not send that beat: `beatId` is the scene's own beat, which is the one
  * waiting behind the curveball, and only the *objective* comes off the one
- * standing in front of it. So a screen reading the beat saw a health centre
+ * standing in front of it. So a screen reading the beat saw a health center
  * asking for the next thing on the card while the panel underneath said "ask
  * them to slow down", and drew nothing at all. It was written, it typechecked,
  * the tables were complete and read both ways, and the one thing that found it

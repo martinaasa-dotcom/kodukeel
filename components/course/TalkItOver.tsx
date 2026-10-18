@@ -37,7 +37,7 @@ export function TalkItOver({ locale }: { locale: Locale }) {
             </h2>
           </div>
           <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {t("A short chat with your neighbour, who asks about the things tonight's words are for. Say your answers out loud or type them.")}
+            {t("A short chat with your neighbor, who asks about the things tonight's words are for. Say your answers out loud or type them.")}
           </p>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
             {t("Optional. Today's module is already done.")}

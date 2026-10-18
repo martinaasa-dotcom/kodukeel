@@ -228,7 +228,7 @@ export const JSON_REPLY_TOKENS = 1_000;
  * failure, and they are not alternatives. #175 kept the 400 and walked past a
  * model that could not answer inside it, measuring `openai/gpt-oss-120b`
  * failing `json_validate_failed` on 15 of 36 calls at that cap. That is a
- * real defence and it has a cost this file should not pay by default: the
+ * real defense and it has a cost this file should not pay by default: the
  * next link is `qwen/qwen3.8-27b`, which on the same eight writing samples
  * invented `rahma` as the partitive of `raha`, called `raamatu` a nominative
  * and had 12 of 32 comments withheld. Falling through to it two calls in
@@ -256,7 +256,7 @@ export const JSON_REPLY_TOKENS = 1_000;
  * with `allowFallback`, which the ledger sets false once the day's fallback
  * budget is gone, so on a long Groq outage this walks a chain of one, fails,
  * and the note is dropped exactly as it was before. The degradation is the old
- * behaviour reached by a budget rather than by a missing key.
+ * behavior reached by a budget rather than by a missing key.
  *
  * It walks on any failure, unlike `openWithFallback` next door, and for the
  * reason `completeWithImage` gives about itself: nothing is streamed here, so

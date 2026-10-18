@@ -268,7 +268,7 @@ describe("the tiles a learner is handed", () => {
   it, because the compile was most of the cost of building a workbook page.
   Every gap screen in the app turns on this answer, so the rewrite is held to
   the expression it replaced over every recorded sentence the course ships,
-  asked about every word in it and about each word's neighbours' spellings,
+  asked about every word in it and about each word's neighbors' spellings,
   plus the shapes that break naive matching: a hyphen, a capital, an Estonian
   letter at the edge, a run of one letter, and a character outside the basic
   plane.

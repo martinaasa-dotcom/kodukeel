@@ -153,8 +153,8 @@ export type Row = DictEntry & {
  */
 export async function sceneContext(sceneOrId: string | SceneSpec, level?: Level): Promise<SceneContext | null> {
   /*
-    A catalogue scene by id, or a scene already built: tonight's chat is
-    assembled per evening off its run's own draw and is in no catalogue
+    A catalog scene by id, or a scene already built: tonight's chat is
+    assembled per evening off its run's own draw and is in no catalog
     (`sceneOfRun`).
   */
   const scene = typeof sceneOrId === "string" ? sceneById(sceneOrId) : sceneOrId;
@@ -327,7 +327,7 @@ export async function knowing(
  * membership test was answering two things. The scene's closed list is what
  * the learner has been taught to read. It was also, until now, the whole of
  * what the other side was allowed to say, so the model could not reach for
- * `sümptomid` at a health centre or `alustasite` at a landlord's without the
+ * `sümptomid` at a health center or `alustasite` at a landlord's without the
  * line being withheld whole: measured over the fourteen scenes, seventeen of
  * the twenty-five withheld lines were that, and not one of them was a made-up
  * word.
@@ -340,7 +340,7 @@ export async function knowing(
  * gate, and every word past the list arrives underlined with the dictionary
  * under it.
  *
- * WHAT THIS IS NOT is a licence for a model to write Estonian. It proposes a
+ * WHAT THIS IS NOT is a license for a model to write Estonian. It proposes a
  * spelling; the forms list decides, exactly as `matchEstonianForm` decides
  * about a photographed page (ADR-021) and a headline and a contributed
  * sentence. A word none of the three can account for is still withheld whole.
@@ -510,7 +510,7 @@ export function acceptFromRows(
   const standing = new Set([...wanted.values()].flat());
   /*
     AND WHAT THE COURSE TEACHES, which the route reads off `courseForms` and
-    the harnesses were never handed. Without it a capitalised word at the
+    the harnesses were never handed. Without it a capitalized word at the
     front of a sentence is a word nobody can place, so every harness read
     `Ma tahan pilet` as a ticket to a town called Ma and skipped "where to?".
   */
@@ -935,7 +935,7 @@ export interface SentTurn {
    * Beats further along that a judge said this same turn met, by id, where
    * the dictionary could not read the word that met them (ADR-025 amendment
    * 3). `ma tahan pileti Tartusse` asks for a ticket and says where to, and
-   * the second half is a capitalised word the forms list holds none of on
+   * the second half is a capitalized word the forms list holds none of on
    * purpose, so the cascade in `replay` could not credit the destination and
    * the other side went on asking where. Echoed by the client like
    * `conceded`, and read only where the cascade reaches that beat.
@@ -1075,12 +1075,12 @@ export interface StoredDraw {
 }
 
 /**
- * THE SCENE A RUN IS, WHICH FOR A CHAT IS NOT IN THE CATALOGUE.
+ * THE SCENE A RUN IS, WHICH FOR A CHAT IS NOT IN THE CATALOG.
  *
  * Every reader of a run used to ask `sceneById(row.sceneId)`, and a chat's
  * beats are built per evening (`lib/scenes/specs/chat.ts`), so the id alone
  * says nothing about them. Its plan rides on the draw and this rebuilds it;
- * every other run is the catalogue's, exactly as before.
+ * every other run is the catalog's, exactly as before.
  */
 export function sceneOfRun(sceneId: string, transcript: string): SceneSpec | undefined {
   const known = sceneById(sceneId);
@@ -1272,7 +1272,7 @@ export async function beginRun(input: {
   /**
    * Tonight's chat: the plan the scene is built from and the one persona the
    * learner always talks to there (`lib/progress/chat.ts`). Absent on every
-   * catalogue scene.
+   * catalog scene.
    */
   chat?: { plan: ChatPlan; persona: PersonaSpec };
 }): Promise<{ runId: string; seed: string; run: SceneRunPlan; plays: number; briefing: Briefing; lines: LineMode } | null> {
@@ -1284,7 +1284,7 @@ export async function beginRun(input: {
     How many times this learner has had this conversation before, which is
     what opens the hearing pool for it (`lib/audio/conditions.ts`). A word is
     heard cleanly until it is nearly known and a scene is the same claim one
-    level up: the first time through a health centre is a quiet room, and the
+    level up: the first time through a health center is a quiet room, and the
     café, the phone line and the sentence caught from the middle arrive as the
     encounter itself stops being the hard part. Counted rather than derived
     from the recency read, which takes only the last few rows.

@@ -37,7 +37,7 @@ import { requireLocalDatabase } from "./lib/local-db.mjs";
  * Estonian (`[lang="et"]`), outside a run declared English (`[lang="en"]`,
  * which is the English half of the machine-translation notice), outside what is
  * hidden from a reader (`[aria-hidden]`) and outside code and key caps. English
- * is recognised by its function words rather than by being Latin script,
+ * is recognized by its function words rather than by being Latin script,
  * because Estonian is Latin script too. What is English by design is
  * subtracted, and only two kinds of thing are: the dictionary's own English
  * (a gloss, a further sense, a recorded sentence's translation, a card's
@@ -106,7 +106,7 @@ const ALLOWED = [
   },
   {
     match: /^cc by(-sa)?( \d)?/,
-    why: "the licence a credit names (CC BY, CC BY-SA), which is the licence's own name rather than a sentence of ours",
+    why: "the license a credit names (CC BY, CC BY-SA), which is the license's own name rather than a sentence of ours",
   },
 ];
 

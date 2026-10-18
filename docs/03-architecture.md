@@ -175,7 +175,7 @@ most, and the compensating control is the UI rather than the check: every claim 
 form is boxed and tagged, and a word only becomes a card through a confirmation step. If that trade
 is ever revisited, the thing to change is the reply's shape, not the extractor's threshold.
 
-*Amendment 3: the verb has one derivable part, and it is derived under amendment 1's licence.* The
+*Amendment 3: the verb has one derivable part, and it is derived under amendment 1's license.* The
 present indicative, the negative after `ei`, the present conditional and the singular imperative are
 regular endings on the stored first person for every verb in the language but `olema`, whose third
 person is `on`, and `minema`, whose imperative is `mine`. `lib/estonian/conjugate.ts` is the one
@@ -200,19 +200,19 @@ adds them, which is the standing ADR-025 amendment 1 gave the scene bank. **A ma
 to four rules before a person reads it** (`scripts/lib/authoredCheck.ts`, run by the unit suite and by
 `npm run check:authored`): every word is one the course has taught by the evening the sentence is
 for, through the module's own walk, where taught covers a word's stored forms and the forms the app
-derives off them (`readableSpellings`, amendment 1's licence); the sentence carries the word it is
+derives off them (`readableSpellings`, amendment 1's license); the sentence carries the word it is
 filed under and passes `naturalSentence`; it has an English line with no Estonian letter; and it is
 not a sentence Ekilex already recorded, a duplicate, or one somebody refused. **Where they may go is
 the other half and is asserted**: the Learn ladder, the first meeting on a review card and the unit
 lesson, which are the screens that introduce a word, and nowhere that marks, measures, builds a card,
 lends a sentence or plays a scene, because each of those says its Estonian was recorded. The
 workbook page joined the list for an A1 or A2 learner: its lines ask the gap rung's question on a
-page, it practises rather than measures, and without written sentences a beginner's page was cut from
+page, it practices rather than measures, and without written sentences a beginner's page was cut from
 sentences made of words they had not been taught, which left it short or empty.
 *Consequences:* the rule this ADR exists for is untouched, since no form is written, no model writes
 a row at runtime, and every word in a written sentence is one the dictionary vouches for. What is new
 is that the app now authors Estonian *sentences* out of attested words, and whether each is
-grammatical and natural is a person's judgement rather than a lexicographer's, which is why the rows
+grammatical and natural is a person's judgment rather than a lexicographer's, which is why the rows
 are few, short, reviewed, never stored in `Lexeme.examples`, and removable through
 `lib/dict/refused.ts` like any other sentence somebody reads and refuses.
 
@@ -664,7 +664,7 @@ returns is then resolved against the dictionary by `matchEstonianForm`, which ac
 lemma, a diacritic-folded lemma, a stored form or a regular case built on a genitive stem, and
 rejects everything below that. A word the dictionary vouches for becomes cards from its own
 principal parts and its retrieved forms, so nothing the model wrote survives into the card. A word it does not
-recognise is shown as exactly that, editable beside the paper, and reaches the deck only once a
+recognize is shown as exactly that, editable beside the paper, and reaches the deck only once a
 person has ticked it, the same standard the paste importer has always met, since there too a human
 vouched for the list. *The picture is never stored:* it is decoded in a Route Handler, sent once, and
 dropped, exactly as the cloze exercise treats a pasted passage. A photograph of homework has a name
@@ -742,7 +742,7 @@ words their own teacher will not say, and the reference called `lihtminevik` "th
 is a Latin category Estonian does not have. The placement check was the sharpest version, offering
 somebody in their first week "Inessive, Elative, Allative" as multiple choice. *Decision:* flip the
 hierarchy everywhere rather than delete a name. The Estonian term and the question lead; the English
-name stays, labelled as what it is, because a learner reading an English reference grammar needs it
+name stays, labeled as what it is, because a learner reading an English reference grammar needs it
 and this app is written in English. `lib/estonian/terms.ts` is the one table of what a point is
 called, keyed by the topic ids `grammar.ts` already uses and falling back to `cases.ts` for the
 fourteen cases, so a heading does not have to know whether it is looking at a case or a mood. It is
@@ -777,7 +777,7 @@ sources, one per render, in a rotating order, with two filters that every source
 the graded dictionary is the backstop that is always available, so the row is never empty. The order
 is rolled per render rather than fixed, because a fixed order means the sources behind the leader
 are only ever seen when the leader fails, and a seasonal row nobody sees in a year is a feature that
-rots. A source has to fill most of the row on its own or it is passed over: a row labelled "In the
+rots. A source has to fill most of the row on its own or it is passed over: a row labeled "In the
 news today" whose last four words came from a random draw would be a caption that is true of two
 thirds of what is under it. Every row says which of the three it is, because words that change
 without saying why read as noise. *The news source is ADR-021 again, on a second path where Estonian
@@ -829,7 +829,7 @@ least qualified to make with the worst failure available; and a score.
 **ADR-025 amendment 1: the model writes what the other person says, on every beat, and still
 decides nothing about the learner.**
 *Context:* the ladder above asked a model only where retrieval and the bank had both missed, so on
-about half the beats in the catalogue the other side said a line drafted months earlier against the
+about half the beats in the catalog the other side said a line drafted months earlier against the
 beat alone. That line cannot answer what the learner said three turns ago, because it was written
 before the learner existed, and "it does not answer me like a human" was the report. The reviewing
 argument for keeping the bank in front (a line gated yesterday and read by a person since outranks
@@ -908,7 +908,7 @@ judge is asked on every miss rather than three of them, a curveball included, ma
 and is told the card is a suggestion. *What does not move:* the dictionary still reads first and
 `readTurn` is still the only producer of `Evidence` from a turn; a conceded requirement and a chosen
 value both write no grade, since the card's word is not the word the learner produced; and a value
-the dictionary cannot read (a capitalised place name, which the forms list holds none of on purpose)
+the dictionary cannot read (a capitalized place name, which the forms list holds none of on purpose)
 ends the beat only through the judge and reaches no card, so the composed line, which has the
 conversation in front of it, is what reads it back. *Rejected:* widening `oneOf` on every prop until
 it held every place in the country, which refuses the next learner instead.
@@ -925,7 +925,7 @@ other side never says the word for them), and a goodbye that ends it. The words 
 chosen on the server from the learner's own ticks and never off the wire; a word the forms list
 cannot read is dropped, since the marker could not meet it. The closed list the composer works in is
 everything the evenings have taught through that one plus the evening's words, and every line passes
-the same gate. The other side is the same neighbour every time, and what they remember is derived
+the same gate. The other side is the same neighbor every time, and what they remember is derived
 from the learner's earlier chat runs, never stored: which words were talked about, so others come
 first, and the English meaning of a word used well last time, as a stage direction, never the
 learner's Estonian. *What does not move:* the dictionary reads every turn first, `advance` takes
@@ -964,7 +964,7 @@ and the learner reports how it went in one of three words: understood, switched 
 not manage it. That is an `Encounter` row, append-only, the fourth exception to ADR-014 after a
 personal best, a shield date and a placement sitting, and for the same reason: a measurement of
 something that was never a card. Progress leads with it, the research export publishes it under
-the same disclosure gate as everything else and labelled as self-reported, and nothing about it is
+the same disclosure gate as everything else and labeled as self-reported, and nothing about it is
 asked for at sign-up. *Rejected:* a note, a place or a name with the report, which would make it a
 diary rather than a count; a stored counter, which ADR-014 forbids and which could be awarded for
 something that never happened; and a streak on it that punishes a day without a conversation,

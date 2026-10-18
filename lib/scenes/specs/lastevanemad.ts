@@ -10,7 +10,7 @@ const PARENTS_EVENING: SceneSpec = {
     `haridus` for marks, the subject and what is taught, which is the claim it
     tests. `inimsuhted` for how your child gets on with the others, `inimesed`
     for your son or daughter, `kool-ja-keel` for reading, mistakes and
-    practising, `iseloom` for how the teacher describes them, `tunded` for how
+    practicing, `iseloom` for how the teacher describes them, `tunded` for how
     they seem at home, `iga-paev` for every day, and `omadussonad` for slowly.
     It sits on `keskkond`, the last free B1 evening.
 
@@ -131,8 +131,8 @@ const PARENTS_EVENING: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "talked", when: ["greet", "who", "how", "home", "practise", "close"], says: "You asked a follow-up question instead of nodding, said how things are at home, and you know what to practise. That's a parents' evening in Estonian." },
-    { id: "talked-thin", when: ["who", "how", "practise"], says: "You heard how your child is doing and what to practise. Saying more about home can come next time." },
+    { id: "talked", when: ["greet", "who", "how", "home", "practise", "close"], says: "You asked a follow-up question instead of nodding, said how things are at home, and you know what to practice. That's a parents' evening in Estonian." },
+    { id: "talked-thin", when: ["who", "how", "practise"], says: "You heard how your child is doing and what to practice. Saying more about home can come next time." },
     { id: "cut-short", when: ["greet", "who"], says: "The next parent was waiting and the teacher had to stop. That's the evening, not your Estonian." },
     { id: "left", when: [], says: "You left before the talk had properly started. Teachers are used to a quick hello." },
   ],

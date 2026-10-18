@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 const REPO = "https://github.com/martinaasa-dotcom/kodukeel/blob/main";
 
 /**
- * WHAT A PILOT IS, FOR AN ORGANISATION DECIDING WHETHER TO RUN ONE.
+ * WHAT A PILOT IS, FOR AN ORGANIZATION DECIDING WHETHER TO RUN ONE.
  *
  * This was `docs/30-pilots.md`, a file in a repository, which is somewhere a
  * school or a company's procurement contact will not look. The page is now the
@@ -63,7 +63,7 @@ export default function PilotsPage() {
           otherwise would be the first thing a careful reader caught.
         </P>
         <P>
-          What there is instead is the evidence: the app, its tests, the security review summarised on{" "}
+          What there is instead is the evidence: the app, its tests, the security review summarized on{" "}
           {page("/trust#security", "the trust page")}, and the data protection impact assessment behind{" "}
           {page("/privacy", "the privacy notice")}. A cost model on {page("/funding", "the funding page")}{" "}
           publishes what it costs to run and where every figure came from. A first pilot is a first
@@ -92,7 +92,7 @@ export default function PilotsPage() {
           supporting or building on. Usually the interesting output is not the learners at all but{" "}
           {doc("docs/19-research-export.md", "the research export")}: which cases and which gradation
           patterns learners actually get wrong, at a scale no classroom reaches, published under
-          statistical disclosure control and labelled where it is self-reported.
+          statistical disclosure control and labeled where it is self-reported.
         </Shape>
       </S>
 

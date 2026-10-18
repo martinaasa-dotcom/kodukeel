@@ -137,7 +137,7 @@ A realistic heavy turn: ~3 000 input tokens (of which ~2 500 cached) + ~700 outp
 | Sustained daily heavy use, per month | | **≈ $19** |
 
 Prompt caching is roughly a 40% saving on input at this shape, which is the reason the breakpoint placement
-in §2 is not a micro-optimisation.
+in §2 is not a micro-optimization.
 
 **Controls:**
 - `UsageDay` ledger written from real `usage` on every response, so spend is measured rather than estimated.

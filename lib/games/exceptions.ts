@@ -69,7 +69,7 @@ export interface ExceptionWord {
   readonly forms: readonly { formType: string; value: string; morphCode?: string | null }[];
   /** Sentences a lexicographer wrote that hold the wanted form. */
   readonly sentences: readonly { et: string; en: string | null }[];
-  /** Whether the learner has favourited this word. See `ExceptionTask`. */
+  /** Whether the learner has favorited this word. See `ExceptionTask`. */
   readonly starred: boolean;
   /** Whether this deployment has a model that could translate a sentence. */
   readonly canTranslate: boolean;
@@ -79,7 +79,7 @@ export interface ExceptionTask {
   /** Stable per word, slot and rung, so a round can be deduplicated. */
   readonly id: string;
   /**
-   * Whether this learner has favourited the word.
+   * Whether this learner has favorited the word.
    *
    * Every round that puts one word up draws the star (`components/StarWord.tsx`),
    * because the word worth keeping is noticed mid-round rather than in the

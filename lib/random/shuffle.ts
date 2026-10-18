@@ -17,7 +17,7 @@
  * led 11.7% against 5.0%. The pool arrives `orderBy: { due: "asc" }`, so "the
  * first card" is the most overdue one: a learner doing sprint after sprint met
  * their most overdue word first about three times as often as chance, and the
- * tail of the pool was under-practised. Fisher-Yates measures flat.
+ * tail of the pool was under-practiced. Fisher-Yates measures flat.
  *
  * `random` is a parameter so a seeded caller can hand in its own generator and
  * a test can hand in a fixed one, which is what keeps this module hermetic and

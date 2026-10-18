@@ -5,9 +5,9 @@ import { CLOSING_WORDS, FAREWELLS, HELLOS } from "./shared";
   BUYING SOMETHING WARM, AT THE END OF "WHAT THINGS ARE LIKE", LESSON 40,
   PLAYED RATHER THAN READ.
 
-  The part taught the colours, the clothes and `vaja`, and the café part
+  The part taught the colors, the clothes and `vaja`, and the café part
   before it taught the price and paying. A shop assistant asks what you want
-  and what colour, and says the price off the card; the learner asks for it,
+  and what color, and says the price off the card; the learner asks for it,
   in the words the lessons gave them, and pays.
 
   Lemmas only, as in every scene file; the lines are in `bank/a1-mutsipood.ts`.
@@ -18,10 +18,10 @@ export default inLesson("a1-40-clothes-shop", {
   place: "A clothes shop on a cold day",
   tests: "riided",
   register: "teie",
-  role: "It's a cold day and you need something warm. Your card says what, and what colour you'd like.",
+  role: "It's a cold day and you need something warm. Your card says what, and what color you'd like.",
   props: [
     { kind: "word", slot: "item", oneOf: ["müts", "sall", "kampsun", "jope"], says: "What you need." },
-    { kind: "word", slot: "colour", oneOf: ["must", "sinine", "punane", "pruun", "valge"], says: "What colour you'd like." },
+    { kind: "word", slot: "colour", oneOf: ["must", "sinine", "punane", "pruun", "valge"], says: "What color you'd like." },
     /* The price is the shop's to say, so it is theirs and never printed on the card. */
     { kind: "price", slot: "price", min: 8, max: 30, says: "What it costs, in euros.", theirs: true },
   ],
@@ -51,8 +51,8 @@ export default inLesson("a1-40-clothes-shop", {
     },
     {
       id: "colour",
-      goal: "They ask what colour. Tell them.",
-      they: "They say it's cold out, and ask what colour.",
+      goal: "They ask what color. Tell them.",
+      they: "They say it's cold out, and ask what color.",
       move: "ask",
       topic: ["värv"],
       needs: [{ kind: "datum", slot: "colour" }],
@@ -104,7 +104,7 @@ export default inLesson("a1-40-clothes-shop", {
     },
   ],
   outcomes: [
-    { id: "bought", when: ["greet", "item", "colour", "price", "pay", "close"], says: "You asked for it, chose the colour, asked the price and paid. You'll be warm tomorrow." },
+    { id: "bought", when: ["greet", "item", "colour", "price", "pay", "close"], says: "You asked for it, chose the color, asked the price and paid. You'll be warm tomorrow." },
     { id: "bought-quiet", when: ["item", "pay"], says: "You got what you came for. Not much was said, and in a shop that's fine." },
     { id: "left", when: [], says: "You left without buying anything. The shop's open tomorrow." },
   ],

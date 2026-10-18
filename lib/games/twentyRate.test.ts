@@ -139,7 +139,7 @@ describe("what a learner really types", () => {
     expect(answer("Kas see on midagi süüa?", "õun")).toBe("yes");
     expect(answer("Kas see on midagi süüa?", "koer")).toBe("no");
   });
-  it("reads many colours as colourful, clothing as clothing, and soft on an animal as sometimes", () => {
+  it("reads many colors as colorful, clothing as clothing, and soft on an animal as sometimes", () => {
     expect(answer("Kas see on mitme värvi?", "vikerkaar")).toBe("yes");
     expect(answer("Kas see on riie?", "särk")).toBe("yes");
     expect(answer("Kas see on riie?", "koer")).toBe("no");

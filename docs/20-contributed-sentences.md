@@ -135,7 +135,7 @@ rename one only by adding the new id and importing again.
 ## And the other direction: refusing a sentence somebody else wrote
 
 The whole of this document is about Estonian a native speaker adds. The
-opposite favour is worth as much and takes one line: reading a sentence the app
+opposite favor is worth as much and takes one line: reading a sentence the app
 already ships and saying it may not be shown.
 
 Every Estonian sentence in the dictionary is one a lexicographer recorded,
@@ -161,6 +161,6 @@ already cut from one.
 No rule catches these, and the near version of one would refuse correct
 Estonian, which is worse than anything it would prevent. So the list only ever
 grows by somebody reading a sentence and saying so. On a screen, the report
-button under any example sends the same judgement to the review queue, and
+button under any example sends the same judgment to the review queue, and
 `WRONG_TRANSLATION` is the narrower door where the Estonian is fine and only the
 English is wrong.

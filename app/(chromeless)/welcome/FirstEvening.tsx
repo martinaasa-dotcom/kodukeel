@@ -29,7 +29,7 @@ export interface EveningStep {
  * and a visitor has no way to know what is behind the button. So the first
  * step of the first evening is here, in the order the app runs it: the five
  * words met, then each picked out of four a moment later. The words and their
- * English are the dictionary's, read on the server off the programme's own
+ * English are the dictionary's, read on the server off the program's own
  * first day (`lib/course`), so this is the same evening the button opens and
  * not a demonstration written for the page. Nothing is graded or stored; a
  * card that is picked here is still new inside.

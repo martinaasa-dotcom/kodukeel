@@ -32,7 +32,7 @@ import { PARTS, plainPhrase } from "@/lib/copy/values";
  * entry it answered `tere hommikust! Kuidas läheb?`, which is the reported
  * fault inside a sentence somebody wrote. A card whose front is an attested
  * sentence has no capital of ours to drop, and its back is a form rather than
- * an answer either half of this could recognise. Nothing about the data made
+ * an answer either half of this could recognize. Nothing about the data made
  * that safe: it is `gradates(pos)` and a phrase having no recorded usage that
  * leave the combination unreachable today, which is an accident rather than a
  * property. So the restriction is asked here, where the judgment is, and a
@@ -48,7 +48,7 @@ type Side = "lemma" | "translation";
 /**
  * Case and a trailing mark folded away, which is exactly what this may change.
  *
- * `checkAnswer` already normalises both before comparing, so two strings with
+ * `checkAnswer` already normalizes both before comparing, so two strings with
  * one key are one answer to the marker too, and adopting one over the other
  * can never change what a card accepts.
  */

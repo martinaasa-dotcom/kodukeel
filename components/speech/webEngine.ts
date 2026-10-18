@@ -122,7 +122,7 @@ export class WebSpeechEngine implements SpeechEngine {
   private route(message: FromWorker): void {
     const turn = this.turn;
     if (!turn) return;
-    // What a turn says carries its id: a cancelled turn's last words are not this one's.
+    // What a turn says carries its id: a canceled turn's last words are not this one's.
     if ("id" in message && message.id !== turn.id) return;
     switch (message.type) {
       case "partial":
@@ -247,7 +247,7 @@ export class WebSpeechEngine implements SpeechEngine {
       for (const track of stream.getTracks()) track.stop();
       if (context) void context.close().catch(() => undefined);
     };
-    // Cancelled while the permission prompt was open: the microphone closes again at once.
+    // Canceled while the permission prompt was open: the microphone closes again at once.
     if (stale()) {
       letGo(null);
       return;

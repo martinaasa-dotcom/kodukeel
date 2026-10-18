@@ -261,7 +261,7 @@ describe("the pass mark and the bands", () => {
     expect(bandFor(0).label).toBe("not up to the level");
   });
 
-  it("has a band for every score, so no result is unlabelled", () => {
+  it("has a band for every score, so no result is unlabeled", () => {
     for (let pct = 0; pct <= 100; pct++) {
       expect(BANDS).toContain(bandFor(pct));
     }

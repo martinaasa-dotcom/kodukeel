@@ -122,7 +122,7 @@ export const NOUNS: readonly NounSeed[] = [
   ["haigla", "hospital", "A2", "haigla", "haigla", "haiglat", "haiglaid", "haiglate"],
   ["buss", "bus", "A1", "buss", "bussi", "bussi", "busse", "busside"],
   ["rong", "train", "A1", "rong", "rongi", "rongi", "ronge", "rongide"],
-  ["lennuk", "aeroplane", "A1", "lennuk", "lennuki", "lennukit", "lennukeid", "lennukite"],
+  ["lennuk", "airplane", "A1", "lennuk", "lennuki", "lennukit", "lennukeid", "lennukite"],
   ["auto", "car", "A1", "auto", "auto", "autot", "autosid", "autode"],
   ["jalgratas", "bicycle", "A2", "jalgratas", "jalgratta", "jalgratast", "jalgrattaid", "jalgrataste"],
   ["reis", "journey, trip", "A2", "reis", "reisi", "reisi", "reise", "reiside"],

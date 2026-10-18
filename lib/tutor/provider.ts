@@ -202,7 +202,7 @@ export interface ChainOptions {
    * Whether Anthropic may be appended as the last resort.
    *
    * Defaults to true, so a caller that has not thought about it gets the
-   * behaviour the chain has always had. What passes `false` is a caller that
+   * behavior the chain has always had. What passes `false` is a caller that
    * has asked the ledger and been told the day's fallback budget is spent:
    * `authoriseCall` answers it, because only the ledger knows.
    *
@@ -235,7 +235,7 @@ export interface ChainOptions {
  * quality decision being made by a rate limiter.
  *
  * AND WHICH PROVIDER ANSWERS WHICH JOB IS MEASURED PER JOB, BECAUSE NOTHING
- * GENERALISES ACROSS THEM. That is the finding, and it is worth stating before
+ * GENERALIZES ACROSS THEM. That is the finding, and it is worth stating before
  * the three rows below, because every intuition about it is wrong.
  * `gemini-3.8-flash` writes the best Estonian of anything tested and returns
  * the second-worst JSON; `openai/gpt-oss-120b` is perfect at the JSON and
@@ -417,7 +417,7 @@ function warnIfSceneModelSet(): void {
  * was asked the same questions. `gemini-3.1-flash-lite` invented no form on
  * the grounded shape, at a quarter of the price and a third of the latency,
  * and what it got wrong was a short, named list: gradation explained as a
- * vowel, a case name misspelt, the answer buried under a preamble, a
+ * vowel, a case name misspelled, the answer buried under a preamble, a
  * correction that reworded a right sentence, and answers twice the length.
  * Those are faults a guard can catch and a briefing can prevent, so each has
  * one: the words block spells the grade change out letter by letter

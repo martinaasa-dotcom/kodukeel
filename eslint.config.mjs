@@ -8,14 +8,14 @@ import nextTypescript from "eslint-config-next/typescript";
  * `next lint` is deprecated in Next 15 and gone in 16; worse, with no config on
  * disk it drops into an interactive setup prompt, so `npm run lint` hung in CI
  * and in any non-interactive shell. `eslint .` reads this file and exits with a
- * status, which is the only behaviour a lint script is useful for.
+ * status, which is the only behavior a lint script is useful for.
  *
  * `eslint-config-next` ships native flat configs from 16, so its two entry
  * points are spread in directly. They used to come through `FlatCompat`,
  * which is the shape Next's own codemod produced while the package was still
  * eslintrc-only; on 16 that path throws "Converting circular structure to
  * JSON" before a single file is linted, because the legacy validator tries to
- * serialise a flat config whose plugins reference themselves.
+ * serialize a flat config whose plugins reference themselves.
  *
  * Safe on Next 15, which is what this repo is on: the package asks for
  * `eslint >= 9` and says nothing at all about the framework's version. And
@@ -110,7 +110,7 @@ const config = [
        *                       changes, the shape every round's reset takes.
        *
        * If the compiler is ever switched on, these come back on first, and the
-       * findings are the list of what it cannot optimise. Until then, lint runs
+       * findings are the list of what it cannot optimize. Until then, lint runs
        * with `--max-warnings 0`, so anything that does warn is a failure rather
        * than a line in a list.
        */

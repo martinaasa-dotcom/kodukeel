@@ -325,7 +325,7 @@ def run():
     for name in ("clean", "room:babble5", "room:phone", "errors", "accent", "wordbyword"):
         if name in sets:
             cached(f"beam__{name}", lambda: [zb.hear(load(r["file"])) for r in sets[name]])
-    # Loudness: normalise to the same level before hearing.
+    # Loudness: normalize to the same level before hearing.
     norm = lambda a: a / (np.sqrt(np.mean(a ** 2)) + 1e-9) * 0.1
     for name in ("room:quiet", "room:clipped"):
         cached(f"norm__{name}", lambda: [z.hear(norm(load(r["file"]))) for r in sets[name]])

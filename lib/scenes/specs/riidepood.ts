@@ -7,7 +7,7 @@ import { COMMON, HELLOS, FAREWELLS } from "./shared";
 
   Every other shop scene here is a transaction over a thing with a name: milk,
   a ticket, a prescription. A clothes shop is the first one that asks for a
-  noun *and* two facts about it, a size and a colour, and then asks whether it
+  noun *and* two facts about it, a size and a color, and then asks whether it
   fits, which is the one question in the course that needs `sobima`. That is
   what `riided` claims a learner can do and what nothing rehearsed.
 

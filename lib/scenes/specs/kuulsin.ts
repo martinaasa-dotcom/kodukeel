@@ -4,7 +4,7 @@ import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 const HEARSAY: SceneSpec = {
   id: "kuulsin",
   title: "Passing on news you heard",
-  place: "The stairwell of your building, with a neighbour",
+  place: "The stairwell of your building, with a neighbor",
   tests: "kaudne",
   /*
     `kaudne` is the claim it tests: passing on what you read, with the mood
@@ -14,11 +14,11 @@ const HEARSAY: SceneSpec = {
     and every other B2 evening already holds a scene. `meedia` and
     `kool-ja-keel` for the article, the news and the paper, `kodus` for the
     radio, `kodutood` for opening, `ostmine` for the shop and the park,
-    `iga-paev` for hearing and reading, `eluase` for the neighbour, and
+    `iga-paev` for hearing and reading, `eluase` for the neighbor, and
     `omadussonad` for slowly, `inimesed` and `suhtlemine` for hearing it from a
     friend or reading it in the paper (`leht`), and `plaanid` for "I think so".
     `teie`,
-    because neighbours on the stairs start there, as in `trepikoda`.
+    because neighbors on the stairs start there, as in `trepikoda`.
 
     THE QUOTATIVE IS NOT MARKED HERE. Telling the quotative from the
     indicative is a reading of the verb's mood that no requirement in this
@@ -30,7 +30,7 @@ const HEARSAY: SceneSpec = {
   */
   units: [...COMMON, "kaudne", "meedia", "kool-ja-keel", "kodus", "kodutood", "ostmine", "iga-paev", "eluase", "omadussonad", "inimesed", "suhtlemine", "plaanid"],
   register: "teie",
-  role: "This is a role. You read in the local news that something new is opening nearby. On the stairs you meet a neighbour. Your card says what and when.",
+  role: "This is a role. You read in the local news that something new is opening nearby. On the stairs you meet a neighbor. Your card says what and when.",
   props: [
     {
       kind: "word", slot: "news", oneOf: ["pood", "kohvik", "park"],
@@ -44,17 +44,17 @@ const HEARSAY: SceneSpec = {
   ],
   /*
     No `contradiction`: it is the other side going back on what they said, and
-    the neighbour says nothing here but questions, so its line could only
+    the neighbor says nothing here but questions, so its line could only
     contradict the learner's news, which is not what the learner is told.
   */
   curveballs: ["interrupted", "other-register", "faster", "misheard"],
   beats: [
     {
       id: "greet",
-      goal: "Say hello back to your neighbour.",
-      they: "Your neighbour says hello on the stairs and asks how you are.",
+      goal: "Say hello back to your neighbor.",
+      they: "Your neighbor says hello on the stairs and asks how you are.",
       move: "greet",
-      // Not `HELLOS`: a neighbour says more than `Tere!`, and the bank is what says it.
+      // Not `HELLOS`: a neighbor says more than `Tere!`, and the bank is what says it.
       topic: ["naaber", "minema"],
       needs: [{ kind: "lemma", oneOf: [...HELLOS] }],
       required: true,
@@ -115,7 +115,7 @@ const HEARSAY: SceneSpec = {
     },
     {
       id: "close",
-      goal: "Thank your neighbour and say goodbye.",
+      goal: "Thank your neighbor and say goodbye.",
       they: "They thank you for the news and say goodbye.",
       move: "close",
       // Not `FAREWELLS`: they thank you for the news first, and the bank is what says it.

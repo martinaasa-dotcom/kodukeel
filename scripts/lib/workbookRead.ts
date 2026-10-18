@@ -2,7 +2,7 @@
  * WHICH WORKBOOK LINES A PERSON HAS READ.
  *
  * A line is a recorded sentence with one word taken out, and whether a native
- * speaker would set it as an exercise is the one judgement `lib/games/workbook.ts`
+ * speaker would set it as an exercise is the one judgment `lib/games/workbook.ts`
  * cannot make. Once somebody has read a line it is written down here, keep or
  * refuse, so `npm run reading:workbook` leaves it off the next list and can say
  * how much of what learners are dealt has been read. A refusal also goes in

@@ -331,7 +331,7 @@ export function shapesFor(
  * `minema`: a whole sentence from nothing, on the most irregular verb in the
  * language, in the negative. `build` is the hardest shape in the round and the
  * last one a word opens, so a beginner reached it by being right a few times,
- * which is the round punishing progress. A beginner is asked to recognise and
+ * which is the round punishing progress. A beginner is asked to recognize and
  * to produce one word or one form, never to compose: the same boundary
  * `BUILD_FROM` draws for putting words in order, read through
  * `lib/collections/levels.ts` so the two exercises cannot disagree.
@@ -607,7 +607,7 @@ export interface FlashMark {
   wroteSlot: string | null;
   /** One line, ready to print. Empty where the answer was simply right. */
   note: string;
-  /** A miss within reach (`nearMiss`), painted nearly rather than as a blank. Colour only. */
+  /** A miss within reach (`nearMiss`), painted nearly rather than as a blank. Color only. */
   close?: boolean;
 }
 

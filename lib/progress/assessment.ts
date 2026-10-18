@@ -137,7 +137,7 @@ export async function paperFor(
   /*
     A band picked alphabetically off the whole dictionary reaches straight
     into the Wiktionary tail: `linnus`, "fortified settlement", is a real B2
-    entry and not a word anybody needs to recognise to hold a conversation.
+    entry and not a word anybody needs to recognize to hold a conversation.
     The course's own vocabulary is the words this app already chose to teach,
     at the level it teaches them, so it is asked first and the general
     dictionary is the fallback for a band the course does not fill.

@@ -115,7 +115,7 @@ function names(note: string | null | undefined, lemma: string): boolean {
  * MUTUAL, AND THAT IS THE WHOLE OF WHY IT IS SAFE. A definition mentioning
  * another word means nothing on its own: `konkurents` is defined as a
  * "võistlus ... paremuse pärast" and is not a contest, `põhjendama` ends
- * "seletama või õigustama" and is not self-defence. Measured over the shipped
+ * "seletama või õigustama" and is not self-defense. Measured over the shipped
  * dictionary, one-way naming picks up both of those and mutual naming picks up
  * neither, matching exactly one pair in the whole file. A word can be used to
  * explain a second word without being it; two words can only define each other

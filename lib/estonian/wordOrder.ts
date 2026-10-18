@@ -13,7 +13,7 @@
  *
  * So a built sentence is read three ways rather than two: the order the writer
  * chose, another order Estonian allows, and an order it does not. The first
- * two are both right and neither is penalised.
+ * two are both right and neither is penalized.
  *
  * **Accepting a permutation is this app making a claim about Estonian**, so
  * only the permutation it can be certain of is accepted and every other order
@@ -315,7 +315,7 @@ export interface OrderContext {
    * not an adverb, not a time case, not a focus particle, not a verb
    * particle.
    *
-   * It is the guard on the adverb move and it is asked of the neighbours
+   * It is the guard on the adverb move and it is asked of the neighbors
    * rather than of the word itself. A time adverb is mobile because it is a
    * whole adverbial on its own, and half the ones in a real corpus are not:
    * `täna hommikul`, `eile õhtul`, `tänavu veebruaris`, `veel täna` and
@@ -323,12 +323,12 @@ export interface OrderContext {
    * strands the rest of it. `Ärkasin täna hommikul kell 7` came back as
    * `Ärkasin hommikul kell täna`, which is the fault this exists to refuse.
    *
-   * **It asks what the neighbour is rather than what it is not**, and that is
+   * **It asks what the neighbor is rather than what it is not**, and that is
    * the whole of why it works. Written the other way, as "the dictionary does
    * not call this an adverb", it could only refuse a word the dictionary
    * holds: `alles` is in no entry here, so `alles nüüd` came apart while
    * `veel täna` did not, and the rule was really about which words somebody
-   * had got round to adding. A neighbour this cannot place blocks the move,
+   * had got round to adding. A neighbor this cannot place blocks the move,
    * so a thin dictionary offers fewer orders rather than wrong ones.
    *
    * The time cases are the half that has to be built: `hommikul` is not an
@@ -760,7 +760,7 @@ export function readOrder(
     /*
       The recording's word at that position and the built order's are the two
       candidates, and this module knows which words it moves, so it asks
-      rather than infers. A swap of two neighbours is genuinely ambiguous from
+      rather than infers. A swap of two neighbors is genuinely ambiguous from
       the positions alone, since `Ma loen raamatut täna` and `Ma loen täna
       raamatut` differ by `täna` going one place left or `raamatut` one place
       right, and only the list says which of those this offered.
@@ -782,7 +782,7 @@ export function readOrder(
   return { reading: "wrong", moved: null, writerPut: null };
 }
 
-/** Whether the built order counts as right. A variant is never penalised. */
+/** Whether the built order counts as right. A variant is never penalized. */
 export function orderIsRight(reading: OrderReading): boolean {
   return reading !== "wrong";
 }

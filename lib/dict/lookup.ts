@@ -355,7 +355,7 @@ async function storeLookup(
 
     The guard is thirty lines further up and this is the other door onto the
     same row. A word somebody typed in by hand carries `USER`, and here it was
-    updated wholesale: the gloss, the level, the provenance relabelled
+    updated wholesale: the gloss, the level, the provenance relabeled
     `EKILEX`, and then every form deleted and replaced, including the principal
     parts they typed. `editedBy` and `editedAt` are not touched by the update,
     so the entry went on naming a person as answerable for content that had

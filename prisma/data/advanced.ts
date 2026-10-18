@@ -83,7 +83,7 @@ export const ADVANCED_VERBS: readonly VerbSeed[] = [
   ["loobuma", "to give up, to renounce", "B2", "loobuma", "loobuda", "loobun", "loobusin", undefined, "elative: loobun sellest (I give it up)"],
   ["keelduma", "to refuse", "B2", "keelduma", "keelduda", "keeldun", "keeldusin", undefined, "elative: keeldun pakkumisest (I refuse the offer)"],
   ["väitma", "to claim, to assert", "B2", "väitma", "väita", "väidan", "väitsin", "väidetud"],
-  ["rõhutama", "to emphasise", "B2", "rõhutama", "rõhutada", "rõhutan", "rõhutasin", "rõhutatud"],
+  ["rõhutama", "to emphasize", "B2", "rõhutama", "rõhutada", "rõhutan", "rõhutasin", "rõhutatud"],
   ["märkima", "to note, to mark", "B1", "märkima", "märkida", "märgin", "märkisin", "märgitud"],
   ["kirjeldama", "to describe", "B1", "kirjeldama", "kirjeldada", "kirjeldan", "kirjeldasin", "kirjeldatud"],
   ["eristama", "to distinguish", "B2", "eristama", "eristada", "eristan", "eristasin", "eristatud"],

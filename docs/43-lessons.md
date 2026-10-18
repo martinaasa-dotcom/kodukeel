@@ -30,7 +30,7 @@ Read off `lib/course/plan.ts`, `lib/course/build.ts` and `lib/collections/syllab
   drill, a review. Nothing on any of the other 142 says what ties the evening's words together.
 - **The first screen of an evening is a test.** The Learn ladder shows a word and its meaning and
   then asks for it out of four. That is a sound way to fix a word in memory and a poor way to meet
-  an idea, and an evening that is nothing else feels like memorising a list.
+  an idea, and an evening that is nothing else feels like memorizing a list.
 - **What a round may ask is already held to what was taught**, word by word, through the ledger in
   `build.ts`, `practiceScope`, `cardWithin` and `slotWithin`. That machinery is the part of today's
   course worth keeping whole, and section 3 widens it from words to everything.
@@ -49,7 +49,7 @@ Every lesson has the same six steps, in this order, so a learner always knows wh
 | 1 | **Listen** | A short conversation, four to eight lines, heard in two voices with the English under each line (hidden at a press). The goal is printed above it. | 2 |
 | 2 | **Words** | Every new word and phrase from the conversation in one table: the Estonian, the English, a speaker, and the line it was said in. Nothing is asked. | 3 |
 | 3 | **How it works** | One pattern, in English, in the box `components/RuleNote.tsx` already draws: the point, the table, a "watch out". Examples are lines from tonight's conversation or earlier ones. A lesson with no new pattern says what tonight's words have in common instead. | 2 |
-| 4 | **Practise** | Recognise first (pick, match, listen), then produce (type, or say). Every item is built only from what this lesson and earlier lessons taught. | 5 |
+| 4 | **Practice** | Recognize first (pick, match, listen), then produce (type, or say). Every item is built only from what this lesson and earlier lessons taught. | 5 |
 | 5 | **Say it** | Optional, and the headline of the evening (section 2). | 4 |
 | 6 | **Review** | Yesterday's and older words that are due, held to what has been taught. | 2 |
 
@@ -129,9 +129,9 @@ it teaches in five kinds:
 
 | Kind | Example | What it permits afterwards |
 | --- | --- | --- |
-| `word` | `elama` | recognising it, and producing its dictionary form |
+| `word` | `elama` | recognizing it, and producing its dictionary form |
 | `form` | `elan`, `poes` | producing exactly that spelling |
-| `phrase` | `Mida sa teed?` | recognising and saying the phrase whole, never taking it apart |
+| `phrase` | `Mida sa teed?` | recognizing and saying the phrase whole, never taking it apart |
 | `pattern` | the six present endings | producing any form the pattern makes from a taught word |
 | `set` | `kodus / koju / kodust` | the three forms as a group, for that word |
 
@@ -168,7 +168,7 @@ lessons (K) and part ends (P) include a role-play.
 5. **What is this, who is that?** `see`, `mis`, `kes`, `raamat`, `telefon`, `sõber`. **A question opens on its question word.**
 6. **Yes or no.** `kas`, `ei ole`, `pole`, `eestlane`, `inglane` and the learner's own nationality. **`kas` opens a yes-or-no question; `ei` is the same for every person.**
 7. **How are you?** `Kuidas läheb?`, `hästi`, `väga`, `halvasti`, `normaalselt`, `aga`, `ka`, `Ja sinul?` (phrase).
-8. **K: Meeting somebody.** No new words. Role-play: a neighbour on the stairs.
+8. **K: Meeting somebody.** No new words. Role-play: a neighbor on the stairs.
 
 ### 4.2 Kus sa elad? Where you live, and the present tense
 
@@ -209,10 +209,10 @@ lessons (K) and part ends (P) include a role-play.
 34. **By bus.** `buss`, `tramm`, `rong`, `pilet`, `sõitma`, `bussiga`. **The -ga ending means "with" and "by".**
 35. **P: Asking the way.** Role-play: a stranger at a street corner.
 
-### 4.6 Poes. Shops, colours and describing things
+### 4.6 Poes. Shops, colors and describing things
 
 36. **Big and small.** `suur`, `väike`, `uus`, `vana`, `hea`, `halb`, `ilus`. **An adjective after `on` stays as it is.**
-37. **Colours.** `punane`, `sinine`, `roheline`, `kollane`, `must`, `valge`, `Mis värvi see on?` (phrase).
+37. **Colors.** `punane`, `sinine`, `roheline`, `kollane`, `must`, `valge`, `Mis värvi see on?` (phrase).
 38. **Clothes.** `särk`, `püksid`, `kleit`, `jope`, `kingad`, `Mul on vaja...` (phrase), `Kas teil on...?`
 39. **Weather.** `ilm`, `külm`, `soe`, `vihm`, `päike`, `Täna on külm`, `Sajab vihma` (phrase).
 40. **P: A clothes shop.** Role-play: the `riidepood` scene.
@@ -230,7 +230,7 @@ lessons (K) and part ends (P) include a role-play.
 46. **Please help.** **The command form**: `tule`, `mine`, `oota`, `vaata`, and `tulge`, `minge`, `oodake` for `teie`.
 47. **At the doctor's.** `Mul valutab pea` (phrase), `haige`, `pea`, `kõht`, `selg`, `palavik`.
 48. **On the phone.** `Halloo`, `Siin on...`, `Kas ma saan rääkida...?` (phrase).
-49. **P: The end of A1.** A longer conversation that uses every part: a new neighbour invites you round.
+49. **P: The end of A1.** A longer conversation that uses every part: a new neighbor invites you round.
 
 ### 4.9 The rest of A1's words
 
@@ -257,7 +257,7 @@ round. Each level gets its own approval round, lesson by lesson, the way A1 does
   relative clauses.
 - **B2: register and reported speech.** The quotative (`olevat`), converbs (`tehes`), word-building,
   formal and spoken registers side by side.
-- **C1: nuance.** Idiom, officialese, nominalisation, writing an argued text.
+- **C1: nuance.** Idiom, officialese, nominalization, writing an argued text.
 
 ## 6. Decisions the operator makes before code
 
@@ -283,9 +283,9 @@ Each phase is its own pull request or several, and none starts before the one ab
   the practice and review built from it, lessons 1 to 8) and the six steps at `/course/lessons`,
   for reviewers only until A1 was whole (L6), recording nothing (P3 since made them the course). Three things were settled in the
   building. A typed evening skips saying the conversation along, since copying out lines you can
-  see practises nothing, and goes straight to the questions. Say it marks nothing: the answers are
+  see practices nothing, and goes straight to the questions. Say it marks nothing: the answers are
   the learner's own name and country, so what was heard goes in the box and one way to say it is
-  shown beside it. And practice is capped at ten questions to recognise and six to produce, so a
+  shown beside it. And practice is capped at ten questions to recognize and six to produce, so a
   lesson of twenty-one words (the six persons, long and short) stays five minutes. Lesson 7 dropped
   `aga` and `ka`, which no line of its conversation needed; they arrive where a line does. The
   checker caught four slips in the first draft of these eight, every one a word in an English note
@@ -329,7 +329,7 @@ Each phase is its own pull request or several, and none starts before the one ab
   two slips on the first run: lesson 35 used `või`, which no lesson had taught (a part's last
   lesson teaches nothing, so it moved into lesson 34's conversation), and a note in lesson 33
   quoted `buss` a lesson before `buss` is taught. **Part 6 (lessons 36 to 40, `{Poes}`) is built**, in
-  `lib/course/lessons/a1-pood.ts`: describing words and their opposites, colours, clothes with
+  `lib/course/lessons/a1-pood.ts`: describing words and their opposites, colors, clothes with
   `mul on vaja`, the weather, and a clothes shop on a cold day. The ledger refused lesson 39's rule
   for quoting `sajab` on its own when only the two weather phrases had taught it, so `sajab` is
   taught as a word. **Part 7 (lessons 41 to 45, `{Eile ja homme}`) is built**, in
@@ -341,7 +341,7 @@ Each phase is its own pull request or several, and none starts before the one ab
   is the I-form without its -n, so the ledger builds `tule` and `oota` off the same rule, while
   `mine` and every polite command (`tulge`, `oodake`) are taught by name. **All 49 core A1
   lessons are written and pass both checks.** **Twelve vocabulary lessons (§4.9) are built** beside
-  them, each in the part of the lesson it follows: 10a the neighbouring countries, 16a people, 21a
+  them, each in the part of the lesson it follows: 10a the neighboring countries, 16a people, 21a
   how often, 26a more food, 32a the rooms of a flat, 34a places in town, 36a more describing
   words, 38a warm clothes, 39a the weather, 43a everyday verbs, 44a special days, 47a an
   emergency. A vocabulary lesson is lettered rather than numbered (`LessonSpec.extra`,
@@ -353,9 +353,9 @@ Each phase is its own pull request or several, and none starts before the one ab
   `-sti` adverbs), which need the cases A2 teaches; the rest are the less common nouns of each
   topic (`trepp`, `sadam`, `lehm`). Both are A2's first work rather than more A1 evenings, and the
   measurement is the list to read when A2's lessons are planned. **The A1 role-play scenes are built**, one for each of the eight lessons that end in a role-play
-  (`lib/scenes/lessonScenes.ts`): the neighbour on the stairs (8), the first evening of a course
+  (`lib/scenes/lessonScenes.ts`): the neighbor on the stairs (8), the first evening of a course
   (17), a friend's plan for Saturday (23), the café (29), asking the way (35), a hat on a cold day
-  (40), the weekend (45) and a new neighbour's invitation (49). Each is the scene engine with its
+  (40), the weekend (45) and a new neighbor's invitation (49). Each is the scene engine with its
   word list read off the lessons through its own lesson (`inLesson`) rather than off the old
   units, so everything the other side says is held to the ledger: a prepared line by
   `lessonScenes.test.ts`, which plays every scene keyless as seven kinds of beginner and reads every

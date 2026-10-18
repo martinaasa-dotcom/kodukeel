@@ -115,7 +115,7 @@ const BANK: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "opened", when: ["greet", "want", "for", "brought", "card", "sign", "close"], says: "You've got an account, and a card on its way. You did a bank in Estonian, which is most people's least favourite errand in any language." },
+    { id: "opened", when: ["greet", "want", "for", "brought", "card", "sign", "close"], says: "You've got an account, and a card on its way. You did a bank in Estonian, which is most people's least favorite errand in any language." },
     { id: "opened-thin", when: ["want", "brought", "sign"], says: "The account's open. The small talk around the edges can come later." },
     { id: "come-back", when: ["greet", "want"], says: "Their system wouldn't open accounts today. That's the bank, not your Estonian; you can book a time to come back." },
     { id: "left", when: [], says: "You left before anything was signed. The bank will still be there tomorrow." },

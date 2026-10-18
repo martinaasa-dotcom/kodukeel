@@ -151,7 +151,7 @@ const INTERVIEW: SceneSpec = {
     /*
       THE OFFER, AND THE NEGOTIATION. They name the figure off the card, and
       the learner takes it or turns it down; a no gets the second figure, the
-      way the health centre's receptionist finds another slot, and a second
+      way the health center's receptionist finds another slot, and a second
       no is the learner saying it will not do, which the goal allows. The
       figure is said off the card through `says`, since a number is not a
       word and no rung may invent one; either figure said back, or a yes, or

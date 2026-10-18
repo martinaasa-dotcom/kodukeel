@@ -16,7 +16,7 @@ Ordered by expected damage. "Status" was set during the audit and is brought up 
 | R8 | Ekilex changes its API shape | Low | Medium | Mitigated | One mapper file, one contract test, non-CI live suite as early warning |
 | R9 | Scope creep back toward the browser extension / mobile app | Medium | Medium | Mitigated | Explicit non-goals (`01-product-spec.md` §4) |
 | R10 | Built but not used, the real failure mode | Medium | **High** | Mitigated | Today view; every phase independently useful; success criteria measure *use*, not features |
-| R11 | Ekilex CC BY attribution omitted | Medium | Medium: licence breach | Mitigated | Attribution is a UI requirement on every entry view, not a licence-file footnote |
+| R11 | Ekilex CC BY attribution omitted | Medium | Medium: license breach | Mitigated | Attribution is a UI requirement on every entry view, not a license-file footnote |
 | R12 | Single-user local DB means no access from another device | High | Low to Medium | Closed | Decided in `12-open-questions.md` Q1: hosted on Vercel and Supabase with sign-in (ADR-011), with local mode kept for one learner on one machine (ADR-013) |
 
 R10 deserves a note: the most likely way this project fails is not a technical one. It is a

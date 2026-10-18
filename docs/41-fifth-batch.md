@@ -17,7 +17,7 @@ moves it and says why.
   word, slowed down.
 - Photograph their kitchen and get the Estonian for what is in it.
 - Say a word they heard in a shop into the dictionary when they cannot spell it.
-- Do all of it as well at a computer as on a phone: practise hands-free with a headset while the tab
+- Do all of it as well at a computer as on a phone: practice hands-free with a headset while the tab
   sits in the background, drag in a voice message or a photo, and get the evening reminder as a
   notification on the desktop.
 
@@ -115,7 +115,7 @@ builds on:
 - **A reader's suggestion is parked:** "Kas te olete siia just kolinud?" says "moved in" more exactly
   than "tulnud", and needs `kolima` taught somewhere the stairwell can vouch for it (C-4).
 - **The keyless ceiling is honest but real.** With no model, an off-script question gets "Ei tea." and
-  the conversation carries on. That is the stated behaviour, and it is why VB-11's chat is not offered
+  the conversation carries on. That is the stated behavior, and it is why VB-11's chat is not offered
   keyless.
 - **FB-7, the Android app,** is superseded by the native apps starting in November (above).
 
@@ -268,7 +268,7 @@ conversation's grades and a numbers round write no time. **The deployment run is
   thing. A chat beat waits on a word rather than a fact, so `composeNote` now tells it to react and ask
   something different that invites the word (`elicit`). The stalls are the line withheld three times
   and the beat falling to its English stage direction, which is the stated fallback with no bank
-  under a chat; the premature ends are the neighbour leaving once patience ran out on the last word.
+  under a chat; the premature ends are the neighbor leaving once patience ran out on the last word.
   Not run again after the fix, since the order allows one round.
 - **`npm run report:speech`** now reads the chat (`chatReading`): evenings that could have offered one,
   evenings that took it and finished it, and the words it asked for against the same evenings' other
@@ -287,7 +287,7 @@ from an English idiom (`kus sa oled oma eluga`). None is a fault the gate could 
 now say, in English, to phrase offered options alike, to wish what fits the place and the person, to use a
 word for "but" only where something is contrasted, to put no filler sentence and no definition before the
 move, and to ask a question the way people ask it (`COMPOSE_RULES` in `lib/scenes/prompt.ts`); a request
-to hear a line again now says not to apologise or define (`composeNote`). The first fault is also a
+to hear a line again now says not to apologize or define (`composeNote`). The first fault is also a
 mechanical one, so the gate has a seventeenth check, `parallel`: a pair joined by the choice word, each
 the one case the dictionary gives it, both adverbial, answering two different questions, the second
 ending its clause. `npm run measure:parallel` read it over every sentence the shipped dictionary holds,
@@ -309,13 +309,13 @@ sularahas?`), which is the reader's to keep or refuse. Measured with Gemini, eac
   `Kuidas sul läheb, kas sa tuled töölt?` after `Tere.` was off the point three times and the beat fell
   to the last line said again, which the critic counted as repeats and stalls. A beat that elicits a word
   now hands the gate no topic (`planTurn`, asserted in
-  `scripts/invariants/tonights-chat-is-never-keyless.ts`). The round also showed the neighbour praising
+  `scripts/invariants/tonights-chat-is-never-keyless.ts`). The round also showed the neighbor praising
   the learner's Estonian when the word was "to learn", and the elicit line now says not to.
 - **The chat once more after the fix, `npm run play:scenes -- --compose --scene chat --day a1.1-03
   --budget 0.1`, $0.0172.** Seven composed lines and none withheld: `Kuidas sul läheb, kas väsitav päev
   seljataga?`, `Ma tulin just poest koju. Mis sul seal suures kotis on?`, `Selge! Kas sa muidu oled pikalt
   siin majas olnud või kolisid alles hiljuti?`, `Tore, hea teada! Mina lähen tuppa. Aga sina, mida sa siin
-  linnas teed, kas ülikoolis?`, every beat met. The "but" there contrasts the neighbour with the learner,
+  linnas teed, kas ülikoolis?`, every beat met. The "but" there contrasts the neighbor with the learner,
   which is the use the rule keeps. That is one play past the one the order allowed, to see the fault
   found in the first gone, and it is stated here for that reason.
 
@@ -327,7 +327,7 @@ app's own recognizer (sherpa-onnx, greedy, the shipped model, a tail of room ton
 write a word into the silence), 237 readings in three voices (`lib/games/fixtures/number-speech.json`).
 Counts read clean at every size, 18 of 18 per tier. A timetable time padded with a zero is read with the
 zero (`08:00` as "null kaheksa null null"), so the round sends it unpadded and reads `8:00` as an
-Estonian would. An analogue time on the hour is sent as the hour alone, since `3:00` came back as "kolm
+Estonian would. An analog time on the hour is sent as the hour alone, since `3:00` came back as "kolm
 null null". A price with a decimal comma is read with the word for comma (`3,50 €`, 0 of 15 clean), so a
 price with cents is played as `3 € 50`, 15 of 15 as euros then cents; a whole price, 12 of 12. A shape
 that reads wrongly is shown and not played, and the unit test holds every sample's rows to clean. A
@@ -434,7 +434,7 @@ are exactly as in `docs/38-third-batch.md` section 3.
 | D21 | **What `/privacy` says is exact.** The microphone is used only after a press; what is said is turned into text on the device and the sound is never stored or sent; text the learner then sends (a conversation turn, an answer) is stored exactly as typed text is. A recording opened on the reading page is never sent or kept; only its transcript is glossed on the server and not kept, as pasted text is (D16). The model files come from this deployment's own storage, so no recipient is added. | VB-1, VB-12 |
 | D22 | **Two screens keep what they are.** The mock exam's spoken part keeps its clock, because it imitates a timed examination (`docs/16-exam.md`), which is D9's one exception. The level check's speaking section stays the confidence question it became when its recorder was removed: it gains nothing in this batch, because a placement read off a recognizer would be a level decided by a machine on one sentence. | VB-5 |
 | D26 | **The reply decides in a written order, and this batch adds no reaction to it.** C-3 writes the order the scene reply decides in (reaction, correction, aside, move, and where each stands down when a line is composed) as a table in `docs/21-situations.md`, and an invariant asserts the code follows it. After that, a change to the reply names the row it touches. Spoken turns reach the reply as typed turns do, with one new field (`repaired`, D13) that only `gradesFor` reads; VB-11's chat is built from beats, not from new reply cases. | C-3, VB-4, VB-11 |
-| D27 | **Paid model calls in this batch are capped and stated.** Batch 4 spent $1.54 on one critic round and then went keyless, and the review counted that in its favour. Here three things may spend, each through `scripts/lib/meter.ts` with a `--budget`, read with a Lite model where a model reads, and the figure stated in the pull request: C-2's composed play ($2), VB-4's spoken composed play ($1), and VB-11's critic round ($2). Nothing else in the batch calls a paid model from a script. | C-2, VB-4, VB-11 |
+| D27 | **Paid model calls in this batch are capped and stated.** Batch 4 spent $1.54 on one critic round and then went keyless, and the review counted that in its favor. Here three things may spend, each through `scripts/lib/meter.ts` with a `--budget`, read with a Lite model where a model reads, and the figure stated in the pull request: C-2's composed play ($2), VB-4's spoken composed play ($1), and VB-11's critic round ($2). Nothing else in the batch calls a paid model from a script. | C-2, VB-4, VB-11 |
 | D23 | **Speech arrives switched on, marked new, and watched.** D15's switch starts on. The download prompt and the Settings section say speaking is new and that it is the machine's hearing. The operator reads VB-14's report after the first fortnight (section 8). A model update is a hash change in `lib/speech/model.ts` (to be written): the service worker drops the old files, and the next press asks again with the new size. | VB-1, VB-14 |
 | D24 | **Built to port, because the native apps start in November.** Everything that decides something about speech is pure TypeScript under `lib/speech/` (to be written), with no browser API in it, so a native app runs it as it is or ports it with its tests and gets the same `understood`, the same verdict and the same pick match for the same audio. The browser part (the worker, the `AudioWorklet`, the service-worker cache, the wake lock) sits behind one interface, `lib/speech/engine.ts` (to be written), which the native apps implement with sherpa-onnx's iOS and Android libraries, the same model files and the same hashes. No item in this batch may reach past that interface into the browser engine. | VB-1, VB-3 |
 | D25 | **The desktop is a first-class client, not the fallback.** Every learning feature works on a desktop browser with a keyboard and a headset, and a feature is not done until it does. Where the native apps gain something a browser cannot copy exactly, the desktop gets its own equivalent, named in the item: notifications become Web Push (VB-10), a locked screen becomes a background tab, the camera becomes a webcam or a dropped photo, sharing a file into the app becomes dragging it in. The rule runs both ways and goes into VB-3's handoff: the native work order may not ship a learning feature the desktop lacks without either building the desktop's equivalent or writing down why there is none. Progress is one account on the server, so a learner moving between phone and computer finds the same deck, the same evening and the same conversations. | Every item, VB-3, VB-10 |
@@ -504,7 +504,7 @@ stops. Size is the work in one pull request: S is a day, M a few days, L a week 
 | VB-8 The rounds that already ask you to speak | 2 | M | Done: the chant (`lib/speech/chant.ts`), Say what you see said into its boxes, 20 küsimust asked aloud and answered aloud hands-free behind the D20 countdown, Töövihik read aloud through `wordInGap` and `whichGap` |
 | VB-9 A word you heard and cannot spell | 2 | S | Done: the dictionary searched by voice as typed, Anu's box on the panel and the page, and the reading page read aloud a paragraph at a time |
 | VB-10 Reminders on the desktop, through Web Push | 2 | M | Done: `PushSubscription` and `lib/push/` (pure), VAPID keys, the same kinds and per-kind switches as the letters, a kind sent on one channel a day (`EmailSend.channel`), DPIA R17, `scripts/test-push.mjs` |
-| VB-11 Tonight's chat | 3: Estonian from real life | L | Done: "Talk it over" under a finished evening that met at least three new words, on the scene chain only (`chatOffered`), one `chat` scene built at run time from the evening's words (`lib/scenes/specs/chat.ts`, `BeatSpec.elicits`), the same neighbour every time, memory derived from earlier chat runs, `report:speech` reading it, `scripts/test-chat.mjs`; one critic round at $0.0672 (section 0); ADR-025 amendment 4 |
+| VB-11 Tonight's chat | 3: Estonian from real life | L | Done: "Talk it over" under a finished evening that met at least three new words, on the scene chain only (`chatOffered`), one `chat` scene built at run time from the evening's words (`lib/scenes/specs/chat.ts`, `BeatSpec.elicits`), the same neighbor every time, memory derived from earlier chat runs, `report:speech` reading it, `scripts/test-chat.mjs`; one critic round at $0.0672 (section 0); ADR-025 amendment 4 |
 | VB-12 Something real to listen to | 3 | M | Done: "Or open a recording" on the reading page (`app/(app)/read/Recording.tsx`), decoded and heard on the device in pieces with a stop, glossed through `readHeard` in one request, each line played from the recording through `playRecording` in `lib/audio/clip.ts`; unsure words carry a **wavy** underline rather than the dotted one this page asked for, since dotted already means "a dictionary word"; a file dropped anywhere on the page is taken or refused and never left to the browser, Safari is named only on Safari, and offline the page says nothing has been sent; `/privacy` and DPIA R19; `scripts/test-recordings.mjs` |
 | VB-13 What is around you | 3 | M | Done: "Things around me" beside "A page of words" on the scanner, camera, webcam (video only, named in `one-microphone.ts`), file or drop, English names off the `scan` chain resolved by `lib/progress/things.ts`, other entries on the row to choose and homographs never offered (the row says the word is spelled like another rather than that the dictionary lacks it: `või` is butter and "or"), saved as a scan, "Say them" ungraded; switching between a page and things keeps the other's work, and a hidden camera is closed |
 | VB-14 Speaking as evidence | 4: knowing whether it works | M | Done: `Review.spoken` stored, exported, restored and erased, written only where what was marked is what was heard (`scripts/invariants/spoken-means-sent-as-heard.ts`); "Said aloud this week" and the median words per spoken answer in conversations by month on Progress (`spokenLengthByMonth`); a spoken turn to a line only heard (`SpokenTurn.unseen`) counted as evidence of following speech, ten at the situation's band lifting the readiness rungs' "ear" blocker (`HEARD_TURNS_FOR_EAR`); "said aloud" as a count on the class roster and its file (`scripts/invariants/a-class-sees-speech-as-a-count.ts`); `npm run report:speech` run locally (section 0). The deployment run is the operator's (section 8) |
@@ -561,7 +561,7 @@ top of it, so the order is fixed first (D26).
 - `scripts/invariants/the-reply-decides-in-order.ts` (to be written): reads the table and the code
   (`lib/scenes/reply.ts`, `lib/scenes/aside.ts`, `lib/scenes/turn.ts`) and fails where a branch exists
   that no row names, a row names a branch that is gone, or the code's order differs from the table's.
-- No behaviour changes. If writing the table finds a case that shadows another, record it in the
+- No behavior changes. If writing the table finds a case that shadows another, record it in the
   section and fix it in its own pull request with a failing-first test.
 
 **Verify.** The invariant, made to fail by reordering two branches and by adding an unnamed one;
@@ -806,7 +806,7 @@ speaking that Duolingo's Practice tab offers.
   looking.
 - **Hands-free on a desktop is better than on a phone**, and is the desktop's answer to a native app
   listening with the screen locked: a desktop browser keeps the microphone and the audio running in a
-  background tab, so a learner with a headset can practise while doing something else, with the
+  background tab, so a learner with a headset can practice while doing something else, with the
   keyboard's media keys pausing and skipping through Media Session. The round says the tab is still
   listening, and the browser's own indicator shows it.
 - `app/(app)/review/speaking/SpeakingSession.tsx` is rewritten onto `useSpeech()`, and
@@ -837,7 +837,7 @@ then hands-free says the screen will sleep and stop the round, rather than stopp
 ### VB-6. Saying it on the daily path
 
 **What it teaches.** The daily path is where most recall happens, and the review queue is the one place
-a learner meets every word they hold. Answering a production card aloud practises saying it, which
+a learner meets every word they hold. Answering a production card aloud practices saying it, which
 typing never did, and on a phone it is quicker than typing õ.
 
 **Do.** SP-4's first and third places, as written, and one more:
@@ -879,8 +879,8 @@ drills them on their own.
 - `lib/games/numbers.ts` (to be written): deals clock times, prices and counts from the ranges the scene
   props already deal. Every dealt item has exactly one right answer under those parsers, asserted over
   everything the round can deal.
-- `components/speech/ClockFace.tsx` (to be written): a small analogue clock in the tokens, labelled for a
-  screen reader with the time in digits. An analogue clock cannot show the afternoon, so either reading
+- `components/speech/ClockFace.tsx` (to be written): a small analog clock in the tokens, labeled for a
+  screen reader with the time in digits. An analog clock cannot show the afternoon, so either reading
   counts there (three or fifteen); a digital time on a timetable asks for exactly the time shown.
 - `app/(app)/review/numbers/` (to be written): ten items a round, said or typed. Feedback is in digits,
   and the right answer is played by TartuNLP reading the digits (D10). It grades the number words' cards
@@ -890,7 +890,7 @@ drills them on their own.
 - `lib/ux/modes.ts`: one mode, on Practice, and on the A2 rotation as a drill.
 
 **Verify.** Unit tests for the new readings, including that "kell kolm" said and "15:00" typed both count
-under an analogue clock showing three; the one-answer assertion; the browser suite; the denied run, where
+under an analog clock showing three; the one-answer assertion; the browser suite; the denied run, where
 the round is a typed one.
 
 **Done when.** A round plays both ways and the clock reads correctly in both themes at 360 px.
@@ -1006,7 +1006,7 @@ the closing review asks for, in a conversation instead of on a card.
   words nobody knew in advance, and a chat that answered with the shrug every turn would be worse than
   none. It is metered on the scene chain and switched off with `PAID_OFF=scenes` (D1).
 - **Somebody who remembers you.** The chat is always with the same person for a learner, one of the
-  existing personas (`lib/scenes/personas.ts`), introduced in English by role ("your neighbour"), so no
+  existing personas (`lib/scenes/personas.ts`), introduced in English by role ("your neighbor"), so no
   name or line is written. What they remember is derived from the learner's earlier chat runs, never
   stored as a note: which words the two of them have talked about, so the next chat picks others first,
   and, for the opening, the English meaning of one word the learner used well last time, handed to the
@@ -1184,7 +1184,7 @@ request.
 
 ## 6. What collides with what, and what could go wrong
 
-- C-2 and C-3 land before VB-4 and VB-11, which change the scene reply's inputs; C-3 is no behaviour
+- C-2 and C-3 land before VB-4 and VB-11, which change the scene reply's inputs; C-3 is no behavior
   change, so it merges cleanly beside anything that does not touch the reply.
 - C-4 touches the syllabus and the harvest; nothing else in this batch does.
 - VB-1 touches `lib/security/headers.ts`, `public/sw.js` and `lib/usage/switches.ts`; land it first.
@@ -1317,7 +1317,7 @@ does not fetch 71 MB; `scripts/test-speech.mjs` clears the flag on one page to c
 
 > You are working on Kodukeel. Read `CLAUDE.md`, then `docs/41-fifth-batch.md`, then the speech work
 > order `docs/39-speech.md`. Do item VB-n of the fifth batch and
-> nothing else: run its preflight, follow its section 1 and its brief, honour the decisions in its
+> nothing else: run its preflight, follow its section 1 and its brief, honor the decisions in its
 > section 2 and the rules in its section 3, write the tests it names first, and run every check in its
 > Verify list. Add no provider, no paid purpose and no new Estonian. Work against a local Postgres with
 > the hosted credentials removed from the shell, as `docs/38-third-batch.md` section 3 describes. Open one

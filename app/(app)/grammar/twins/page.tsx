@@ -105,7 +105,7 @@ function GroupCard({ group, t }: { group: TwinGroup; t: (english: string) => str
         className="mt-auto text-sm font-semibold underline"
         style={{ color: "var(--accent-deep)" }}
       >
-        {t("Practise this pair")}
+        {t("Practice this pair")}
       </Link>
     </div>
   );

@@ -152,7 +152,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
     level: "A1",
     part: "a1-elad",
     kind: "lesson",
-    title: "The neighbours",
+    title: "The neighbors",
     goal: "Say you're from Finland, Sweden, Latvia or Germany, and what that makes you.",
     cast: { Jaan: "meelis", Anna: "kylli" },
     conversation: [

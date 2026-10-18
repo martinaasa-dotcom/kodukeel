@@ -22,7 +22,7 @@ import { fixFrom } from "@/lib/tutor/markers";
  *    töötan kool" runs six; "why is it lugesin raamatut and not lugesin
  *    raamatu" vouches four and runs two, which is two quoted forms and not a
  *    sentence, and the cheapest model put `FIX: Lugesin raamatu läbi` under
- *    it. The run is `sentenceRun`, and a capitalised word beside a vouched
+ *    it. The run is `sentenceRun`, and a capitalized word beside a vouched
  *    one is in the run, because a place name is a word in the sentence and
  *    the forms list holds no capitals.
  *  - The line spells a run of the learner's own message: they quoted it and

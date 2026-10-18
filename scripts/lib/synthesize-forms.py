@@ -32,7 +32,7 @@ except ImportError:
     sys.stderr.write("estnltk is not installed: pip install estnltk\n")
     sys.exit(2)
 
-# Every slot Vabamorf can synthesise for a nominal: 14 cases in two numbers,
+# Every slot Vabamorf can synthesize for a nominal: 14 cases in two numbers,
 # plus the short illative. The codes are Vabamorf's own.
 NOMINAL = [
     "sg n", "sg g", "sg p", "adt", "sg ill", "sg in", "sg el", "sg all", "sg ad",

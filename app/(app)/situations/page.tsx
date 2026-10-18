@@ -91,7 +91,7 @@ export default async function SituationsPage() {
   /*
     WHICH ONE THE STAGE OPENS ON, decided here so the first paint is the same
     one every time rather than a shuffle the server and the browser disagree
-    about. One never played, in the catalogue's own order so the easiest rooms
+    about. One never played, in the catalog's own order so the easiest rooms
     come first; failing that, the one played longest ago.
   */
   const ready = new Set(tiles.filter((t) => !t.early).map((t) => t.id));
@@ -164,7 +164,7 @@ export default async function SituationsPage() {
         {/*
           Where the people are. A learning app that never says so is one that
           would rather you stayed (docs/22-real-life.md). Every entry is a public
-          programme, named, with a link that was opened before it was written down.
+          program, named, with a link that was opened before it was written down.
           On the accent's own tint, one panel, because it is the page's last
           word and the one that points out of the app.
         */}

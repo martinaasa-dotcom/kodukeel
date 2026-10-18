@@ -83,7 +83,7 @@ export interface QuotaLimits {
  * that provider is down, and the ladder falls to where it already falls with
  * no key at all: a scene plays off its recorded and banked lines, the grader
  * keeps the verdict it decided by string comparison before any model was asked,
- * and the scanner says so. That is the behaviour this app already ships with,
+ * and the scanner says so. That is the behavior this app already ships with,
  * reached by a budget rather than by a missing key.
  */
 export const DEFAULT_FALLBACK_BUDGET = 50_000; // $0.05

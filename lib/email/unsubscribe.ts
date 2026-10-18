@@ -3,7 +3,7 @@
 
   Every letter carries a link that stops that kind of letter, and the link has
   to work for somebody who is not signed in: an unsubscribe that asks a person
-  to log in first is an unsubscribe that a mail client will not honour and that
+  to log in first is an unsubscribe that a mail client will not honor and that
   an annoyed reader will replace with the spam button. So the link identifies
   the learner on its own, which means anybody who can read the URL could
   otherwise unsubscribe anybody else whose id they could guess.

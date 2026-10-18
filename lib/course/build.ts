@@ -1,7 +1,7 @@
 /**
  * TURNING THE PLAN AND THE SYLLABUS INTO EVENINGS.
  *
- * `plan.ts` is the judgement and `lib/collections/syllabus/` is the course.
+ * `plan.ts` is the judgment and `lib/collections/syllabus/` is the course.
  * This has no opinions of its own: it slices, it rotates, and it reads what
  * those two already decided. That division is what makes a hundred and eighty
  * evenings reviewable, because the only things anybody has to check are the
@@ -310,7 +310,7 @@ const STAND_IN: Record<"game" | "drill", ActivityKey> = { game: "match", drill: 
 /**
  * The two rounds an evening does.
  *
- * One game and one drill, taken as neighbours off the level's rotation, which
+ * One game and one drill, taken as neighbors off the level's rotation, which
  * alternates the two. Walking by two per evening means the pair moves every
  * night and repeats every five, so a fortnight covers the whole rotation twice
  * without ever running the same evening twice.
@@ -734,9 +734,9 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
 export const CASE_ROUNDS: ReadonlySet<ActivityKey> = new Set(["write", "workbook"]);
 
 /**
- * AN EVENING THAT READS A CASE PRACTISES IT.
+ * AN EVENING THAT READS A CASE PRACTICES IT.
  *
- * The rotation deals two neighbours whatever the reading was, so an evening
+ * The rotation deals two neighbors whatever the reading was, so an evening
  * that read the partitive could play Match and take a dictation and never
  * once be asked for the case it had just been told about; across A2 that was
  * most of the case evenings. Where neither round asks a case, the drill goes

@@ -30,7 +30,7 @@ const COMPLAINT: SceneSpec = {
     learner went round in a circle; it already asks for the receipt, so
     `missing-document` and `their-order` asked for it twice; a price that
     changes means nothing when the thing is coming back; and `contradiction`
-    took back a refusal in the learner's favour, which is not a thing anybody
+    took back a refusal in the learner's favor, which is not a thing anybody
     argues with.
   */
   curveballs: ["queue", "english", "faster", "small-talk"],

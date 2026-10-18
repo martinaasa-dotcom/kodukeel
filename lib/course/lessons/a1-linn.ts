@@ -376,7 +376,7 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Tom", et: "Kus sa töötad?", en: "Where do you work?" },
       { who: "Anna", et: "Ma töötan koolis. Ma olen õpetaja. Ja sina?", en: "I work at a school. I'm a teacher. And you?" },
-      { who: "Tom", et: "Ma töötan hotellis, kesklinnas.", en: "I work at a hotel, in the town centre." },
+      { who: "Tom", et: "Ma töötan hotellis, kesklinnas.", en: "I work at a hotel, in the town center." },
       { who: "Anna", et: "Kuidas sa tööle sõidad?", en: "How do you get to work?" },
       { who: "Tom", et: "Autoga. Või taksoga.", en: "By car. Or by taxi." },
       { who: "Anna", et: "Mina lähen jalgsi. Kool on lähedal.", en: "I walk. The school is near." },
@@ -384,7 +384,7 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
     teaches: [
       { kind: "word", et: "kool", en: "school" },
       { kind: "word", et: "ülikool", en: "university" },
-      { kind: "word", et: "kesklinn", en: "town centre" },
+      { kind: "word", et: "kesklinn", en: "town center" },
       { kind: "word", et: "hotell", en: "hotel" },
       { kind: "word", et: "restoran", en: "restaurant" },
       { kind: "word", et: "linn", en: "town, city" },
@@ -393,7 +393,7 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "jalgsi", en: "on foot" },
       { kind: "form", et: "koolis", of: "kool", en: "at school" },
       { kind: "form", et: "ülikoolis", of: "ülikool", en: "at the university" },
-      { kind: "form", et: "kesklinnas", of: "kesklinn", en: "in the town centre" },
+      { kind: "form", et: "kesklinnas", of: "kesklinn", en: "in the town center" },
       { kind: "form", et: "hotellis", of: "hotell", en: "at a hotel" },
       { kind: "form", et: "restoranis", of: "restoran", en: "at a restaurant" },
       { kind: "form", et: "autoga", of: "auto", en: "by car" },

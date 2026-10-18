@@ -239,7 +239,7 @@ export default async function ProgressPage() {
             one; one row where there is room. The share button closes the row
             on a wide screen and takes its own line under the figures on a
             phone, where it is easiest to reach. Level with the top rather than
-            centred: a centred row drops a figure whose label wraps to two
+            centered: a centered row drops a figure whose label wraps to two
             lines, so "Shields banked" sat off the three beside it. */}
         <HeroFan
           eyebrow={t("How it is going")}
@@ -306,7 +306,7 @@ export default async function ProgressPage() {
               <SectionTitle>{t("How much is actually sticking")}</SectionTitle>
               {/*
                 On the card's own surface, with the verdict carried by the ring's
-                colour and the headline. A whole panel painted peach was the
+                color and the headline. A whole panel painted peach was the
                 loudest thing on the page, and loud in the direction of alarm, over
                 a number that asks for a week of fewer new words.
               */}

@@ -221,7 +221,7 @@ export interface ReviewCard {
    * The other words that mean what a production card's prompt says, with
    * this card's own word beside them, so a learner who types one of them is
    * told it works and shown how the two differ. Null on every other card and
-   * on a production card with no neighbour. See `lib/questions/neighbours.ts`.
+   * on a production card with no neighbor. See `lib/questions/neighbours.ts`.
    */
   contrast: Contrast | null;
 }
@@ -1092,7 +1092,7 @@ export function ReviewSession({
    * And what is left moves up, because a `Done` holds a position in the queue
    * and this is the one thing in the session that shortens the queue behind
    * where the learner is standing. An entry pointing at where a card used to
-   * be reopens on its neighbour.
+   * be reopens on its neighbor.
    */
   const putAside = useCallback((note: string) => {
     // The button is drawn only on a card that names a word, and the guard is
@@ -2002,7 +2002,7 @@ export function ReviewSession({
                     className="font-semibold underline"
                     style={{ color: "var(--accent-deep)" }}
                   >
-                    {t("These two are easy to mix up. Practise the pair")}
+                    {t("These two are easy to mix up. Practice the pair")}
                   </Link>
                 </p>
               )}

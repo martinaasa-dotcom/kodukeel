@@ -64,7 +64,7 @@ describe("what a learner has switched off", () => {
     expect(wants(back, "tonight")).toBe(false);
   });
 
-  it("drops a kind it does not recognise rather than throwing", () => {
+  it("drops a kind it does not recognize rather than throwing", () => {
     // Read on a scheduled run with nobody watching. One odd row should cost
     // that learner's preference, not everybody's letters.
     const prefs = emailPrefsFrom("tonight not-a-kind weekly");

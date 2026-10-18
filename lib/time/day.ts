@@ -322,7 +322,7 @@ export interface DayClock {
 /**
  * Day boundaries in `zone`.
  *
- * An unrecognised zone is treated as absent rather than as an error: this runs
+ * An unrecognized zone is treated as absent rather than as an error: this runs
  * on the render path of the busiest page in the app, and a learner whose
  * stored zone stopped existing between two releases of the IANA database
  * should see the previous behavior, not a 500.

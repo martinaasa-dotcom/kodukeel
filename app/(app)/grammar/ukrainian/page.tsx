@@ -86,7 +86,7 @@ export default async function UkrainianSpeakersPage() {
             className="tap-tint mt-2 inline-flex items-center gap-1.5 rounded-[var(--r-sm)] px-1 text-sm font-semibold"
             style={{ color: "var(--accent-deep)" }}
           >
-            {fill(t("Practise it: {round}"), { round: t(mode.title) })}
+            {fill(t("Practice it: {round}"), { round: t(mode.title) })}
             <ArrowRight size={14} aria-hidden />
           </Link>
         )}

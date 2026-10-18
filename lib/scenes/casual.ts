@@ -137,7 +137,7 @@ export function casualYes(spoken: readonly string[]): string | null {
 /**
  * Whether a turn takes leave, rather than only thanking somebody: one of the
  * course's farewells anywhere in it (`FAREWELLS`, handed in so this module
- * stays free of the catalogue), or a casual goodbye that is most of it. A
+ * stays free of the catalog), or a casual goodbye that is most of it. A
  * bare `Aitäh` is thanks, and read as leaving it ended a doctor's
  * appointment the moment the learner thanked the receptionist for an answer.
  */

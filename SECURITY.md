@@ -60,9 +60,9 @@ Out of scope, because they are not ours to fix:
   version number in a lockfile, a rating from a tool with no path to exploitation.
 - Denial of service by volume, spam of the sign-in form, and social engineering of anybody involved.
 - Reports that a self-hosted install with no Supabase keys has no sign-in. That is local mode and it
-  is documented behaviour: one learner, one machine, no gate.
+  is documented behavior: one learner, one machine, no gate.
 
-## Safe harbour
+## Safe harbor
 
 If you are researching in good faith, we will not pursue you and we will not ask anybody else to.
 That holds as long as you:
@@ -74,7 +74,7 @@ That holds as long as you:
   instead, and
 - give us a reasonable window to fix it before you write it up.
 
-Meet those and we consider your work authorised. We will say so in writing if you need us to.
+Meet those and we consider your work authorized. We will say so in writing if you need us to.
 
 If you break one of them by accident, tell us. Coming to us first is what good faith looks like from
 our side of it.
@@ -83,7 +83,7 @@ our side of it.
 
 **There is no bug bounty and no payment.** We have no budget for one. This is a small project run by
 a small company, it is free to learners, and what it costs to run is published at `/funding`. If a
-paid programme is what you are looking for, this is not it, and we would rather say so at the top
+paid program is what you are looking for, this is not it, and we would rather say so at the top
 than waste your afternoon.
 
 We also do not offer a private disclosure portal, a CVE numbering authority, or a signed

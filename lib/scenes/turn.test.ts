@@ -437,7 +437,7 @@ describe("reading a turn", () => {
 
   /*
     A word the app cannot place is a word they tried. The probe found the case
-    it costs most: `Tartusse` is a city, the forms list holds no capitalised
+    it costs most: `Tartusse` is a city, the forms list holds no capitalized
     word on purpose, and the app answered that it did not understand them.
   */
   it("does not call one unplaceable word incomprehensible", () => {
@@ -597,7 +597,7 @@ describe("reading a turn", () => {
   });
 
   /*
-    One word you recognised is not "I did not catch that". The scene's list is
+    One word you recognized is not "I did not catch that". The scene's list is
     the units it declares rather than the whole course, so a learner reaching
     for a real word from somewhere else had most of their sentence counted
     against them and was told they were incomprehensible for using Estonian.
@@ -638,7 +638,7 @@ describe("reading a turn", () => {
     expect(readTurn("!!!", asks, context()).reading).toBe("unrecognised");
   });
 
-  it("keeps the repair phrase for a turn it recognised nothing in", () => {
+  it("keeps the repair phrase for a turn it recognized nothing in", () => {
     expect(readTurn("blorp xyzzy qwerty", beat(), context()).reading).toBe("unrecognised");
   });
 
@@ -749,7 +749,7 @@ describe("a fact the learner changed on their own card", () => {
 
   /*
     A town is where anybody at a bus station is going, and the forms list
-    holds no capitalised word, so `Tartusse` was answered "sorry?". On a slot
+    holds no capitalized word, so `Tartusse` was answered "sorry?". On a slot
     marked as a place it is the fact they chose; nothing about its ending is
     claimed, so it is never said back.
   */
@@ -763,7 +763,7 @@ describe("a fact the learner changed on their own card", () => {
     expect(seen.chose).toEqual([{ slot: "to", value: "Tartusse" }]);
     expect(seen.matched).toEqual([]);
     expect(readTurn("Ma sõidan Tartusse", asks, at()).chose).toEqual([{ slot: "to", value: "Tartusse" }]);
-    // A capitalised word the app knows is that word rather than a town.
+    // A capitalized word the app knows is that word rather than a town.
     expect(readTurn("Valu", asks, at()).chose ?? []).toEqual([]);
     // A course word at the front of a sentence is that word, and a spelling the language does not hold is no town.
     const real = () => ({ ...at(), known: (w: string) => w === "tartusse" || w === "homme", course: (w: string) => w === "homme" });
@@ -1053,7 +1053,7 @@ describe("a learner who says they are not following", () => {
     On a beat that wanted a no, `ei` is the answer and is never read as a cry
     for help. "I don't know" is not a no, though: misheard and told to say that
     is not it, `ma ei tea` was read as the correction and the other side
-    apologised to somebody who was lost. So the phrase alone is lost there too,
+    apologized to somebody who was lost. So the phrase alone is lost there too,
     and a no said beside it is a no.
   */
   it("reads ei as the answer on a beat that wanted a no, and I don't know as lost", () => {
@@ -1251,7 +1251,7 @@ describe("a word the learner negated", () => {
 
   /*
     A full stop ends a clause as surely as a comma does. Split on the comma
-    alone, a no in the sentence before cancelled the yes in this one, and a
+    alone, a no in the sentence before canceled the yes in this one, and a
     learner who wrote "Ei. Mul on valu." was answered as though they had said
     nothing.
   */
@@ -1375,7 +1375,7 @@ describe("answering a yes-or-no question in its own words", () => {
   `otsima` among its topic words for that turn. Held to a question alone, the
   marker read it as a learner who had not finished and gave them a look and a
   wait for the most ordinary sentence in the scene. Read against the real beat
-  and the harvest's own entries, so a catalogue edit that drops the second way
+  and the harvest's own entries, so a catalog edit that drops the second way
   of asking fails here.
 */
 describe("the way is asked for by saying what you are looking for", () => {

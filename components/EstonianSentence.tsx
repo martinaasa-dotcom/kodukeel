@@ -97,7 +97,7 @@ export function EstonianSentence({
         />
       ) : (
         /*
-          The speaker spans both lines and sits centred beside them. Beside the
+          The speaker spans both lines and sits centered beside them. Beside the
           Estonian alone, a 44px button under a coarse pointer was taller than
           a one-line sentence, so the English under it was pushed a button's
           height down and every short example read as two things with a gap.

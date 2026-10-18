@@ -457,7 +457,7 @@ const LEAD_MAX = 95;
  * which is where the app had quietly put most of its explaining. Measured
  * across `app/` and `components/`: 103 elements set in `text-xs` or smaller
  * carried a whole sentence, the median was over 109 characters, and one was
- * 561. That is a paragraph in 13px grey, and small type does not make a
+ * 561. That is a paragraph in 13px gray, and small type does not make a
  * paragraph less intrusive: it makes it harder to read and leaves it exactly
  * where it was, so it costs the room and earns nothing. Settings alone had
  * twelve of them, one under each control.
@@ -476,7 +476,7 @@ const LEAD_MAX = 95;
  * **form instruction** that is how the form is filled in, so hiding it hides
  * the task. A **printed task**, where there is no press to put anything
  * behind and the sheet has to say what to do. And an **attribution**, where
- * the licence asks for the credit to be given rather than made available.
+ * the license asks for the credit to be given rather than made available.
  */
 const CAPTION_EXEMPT = new Set([
   // "We couldn't reach the audio, so the word is shown instead." A round
@@ -547,7 +547,7 @@ const SENTENCE_MAX = 36;
  * here.
  */
 const SENTENCE_EXEMPT = [
-  // The public pages. A privacy notice, a licence and a cost model are
+  // The public pages. A privacy notice, a license and a cost model are
   // read by somebody who came to read them, and a clause split out of one of
   // those sentences is a clause that stops qualifying what it qualified.
   "app/privacy/",

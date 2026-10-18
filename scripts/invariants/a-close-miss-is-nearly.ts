@@ -6,12 +6,12 @@ import type { InvariantKit } from "../lib/invariantKit";
  * A TYPED MISS MOST OF THE WAY THERE IS PAINTED NEARLY, ON EVERY SCREEN.
  *
  * A learner typed `muudama` for `muutuma`, six letters of seven in place, and
- * read it in blush, the colour a blank box gets. One screen over, `keeldama`
+ * read it in blush, the color a blank box gets. One screen over, `keeldama`
  * for `keelduma` was butter, because the typo rule happened to forgive it. The
  * operator's rule is the same everywhere: blush is for an answer nowhere near,
  * or nothing typed, and an answer most of the way there is the butter "nearly".
  * `nearMiss` in `lib/estonian/answer.ts` is where the line is drawn; the grade
- * is untouched, so this is about the colour alone.
+ * is untouched, so this is about the color alone.
  *
  * Two arms. A screen that marks a typed answer with one of the app's markers
  * and paints a verdict has to read the near-miss reading (`verdictOfCheck`,
@@ -36,6 +36,6 @@ export default function aCloseMissIsNearly({ check, ALL, code }: InvariantKit) {
   check("verdictOfCheck is handed the whole check, never .verdict alone", () => {
     const files = ALL.filter((f) => /^(app|components|lib)\//.test(f) && /\.tsx?$/.test(f) && !f.endsWith(".test.ts"));
     const offenders = files.filter((f) => /\bverdictOfCheck\([^()]*\.verdict\)/.test(code(f)));
-    assert.deepEqual(offenders, [], `${offenders.join("\n")}\npass the check itself, so its close reading reaches the colour`);
+    assert.deepEqual(offenders, [], `${offenders.join("\n")}\npass the check itself, so its close reading reaches the color`);
   });
 }

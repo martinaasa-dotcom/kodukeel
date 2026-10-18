@@ -56,7 +56,7 @@ export interface NameQuestion {
   readonly literal: string;
   readonly word: string;
   readonly means: string;
-  /** The right word and its neighbours in the sitting, shuffled. */
+  /** The right word and its neighbors in the sitting, shuffled. */
   readonly options: readonly { readonly id: string; readonly word: string }[];
 }
 

@@ -9,7 +9,7 @@
  * file is Estonian beyond the headwords it names.
  *
  * CLOSED WORLD, AND THAT IS THE RISK. A fact that is not listed is answered "no",
- * so a thing is only given a colour, a place or an ability where the answer is
+ * so a thing is only given a color, a place or an ability where the answer is
  * plain; where it is "it depends" the key goes in the `...S` list ("sometimes"),
  * which is what the classic game says for a question that has no honest yes or no.
  * A fact somebody disagrees with is a one-line change here, and the way a wrong
@@ -52,7 +52,7 @@ export type Where =
   | "nature" | "space" | "estonia" | "africa" | "field" | "beach" | "mountains" | "table";
 export type Feel = "fast" | "slow" | "hard" | "soft" | "cold" | "warm";
 
-/** The eight colours the course teaches, as lemmas. */
+/** The eight colors the course teaches, as lemmas. */
 export const COLOURS = [
   "punane", "sinine", "kollane", "roheline", "valge", "must", "pruun", "hall", "roosa", "oranž", "lilla",
 ] as const;
@@ -64,7 +64,7 @@ export interface Thing {
   kind: Kind;
   /** One to ten. See the header. */
   size: number;
-  /** The longest dimension in metres, typical rather than extreme, for "bigger than". */
+  /** The longest dimension in meters, typical rather than extreme, for "bigger than". */
   metres: number;
   /** How many legs, where that is a fact about the thing. */
   legs: number | null;

@@ -4,7 +4,7 @@
 
   NOT A PHOTOGRAPH TEST, and the distinction matters for what may be concluded.
   The pages here are rendered text: clean, evenly lit, one font, no camera. That
-  measures whether a model recognises o against õ and a against ä when nothing
+  measures whether a model recognizes o against õ and a against ä when nothing
   else is in the way. It says nothing about a phone photograph of somebody's
   homework at an angle in bad light, which is what `/scan` actually meets, and a
   model that fails here would certainly fail there while one that passes here
@@ -50,7 +50,7 @@ const WORDS = entries
   õ and a from ä when nothing else is in the way.
 
   `hard` is that page pushed toward what a camera gives: smaller type, a slight
-  rotation, a grey cast and JPEG compression. It is still not a photograph, and
+  rotation, a gray cast and JPEG compression. It is still not a photograph, and
   the diacritics are still geometrically perfect, so a model that fails here
   would certainly fail on paper and one that passes has cleared a middle case
   rather than the real one.

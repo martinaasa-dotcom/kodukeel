@@ -74,7 +74,7 @@ export function resolveSayings(
  *
  * A fact about the shared dictionary rather than about the learner, so it is
  * held across requests like the others in `lib/dict/facts.ts` and read again
- * when the dictionary changes. It is the catalogue a sitting is dealt from and
+ * when the dictionary changes. It is the catalog a sitting is dealt from and
  * the one a served list is measured against, so the two cannot disagree about
  * when a pass is over.
  */
@@ -103,7 +103,7 @@ export async function sayingsSitting(ownerId: string): Promise<SayingsPlan | nul
   return buildPlan(ids.flatMap((id) => byId.get(id) ?? []), random);
 }
 
-/** Writes down that a sitting was shown. Ids the catalogue does not hold are never stored. */
+/** Writes down that a sitting was shown. Ids the catalog does not hold are never stored. */
 export async function markSayingsShown(ownerId: string, shown: readonly string[]): Promise<void> {
   const [catalogue, stored] = await Promise.all([
     playableCatalogue(),

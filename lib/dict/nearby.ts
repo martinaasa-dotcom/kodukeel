@@ -20,7 +20,7 @@ import { englishVariants, glossHeads, looksEnglish } from "./english";
  * search misses something that is there:
  *
  *   - **The English was in another shape.** "championship" against
- *     "championships", "running" against "to run", "colour" against "color".
+ *     "championships", "running" against "to run", "color" against "color".
  *     See `lib/dict/english.ts`.
  *   - **The English was misspelled.** "chamiponship" is one letter swapped.
  *   - **The Estonian was misspelled.** A letter or two off, scaled to the

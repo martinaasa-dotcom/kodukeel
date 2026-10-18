@@ -94,7 +94,7 @@ const B = baseUrl();
 
   On 2026-10-17 the suite alone took fifteen and a half minutes in CI, and
   with a build in front of it its shard finished at 19.8 of a twenty-minute
-  ceiling, which is a cancelled run waiting for the next route to be added.
+  ceiling, which is a canceled run waiting for the next route to be added.
   `CONTAIN_PART` splits the widths rather than the routes, so every route is
   still walked at every width somewhere: `narrow` is 360 and 768 and the dark
   sweep, `wide` is 1024 and 1280 (`scripts/test-containment-wide.mjs`). Unset,
@@ -778,7 +778,7 @@ const ALL = [...ROUTES, ...made];
  * first carried a small icon stacked above its number and so sat a line lower
  * than the four beside it. Nothing above could see it: nothing is cut off,
  * nothing bleeds, nothing breaks, and each figure is exactly where its own box
- * put it. It is a fault of relation between neighbours, so it is asked as one.
+ * put it. It is a fault of relation between neighbors, so it is asked as one.
  *
  * A figure is `[data-figure]`, which `Stat` and `StatTile` carry, or any leaf
  * set at 24px or more whose words are a number, so a row somebody draws by
@@ -836,9 +836,9 @@ function figuresInRows() {
   };
   for (const cells of rows.values()) {
     // One row is cells whose heights overlap by more than half the shorter,
-    // rather than cells whose tops are level: a row whose cells are centred
+    // rather than cells whose tops are level: a row whose cells are centered
     // puts a taller cell's top higher, and grouping on the top would file the
-    // very figure that sits off its neighbours into a row of its own.
+    // very figure that sits off its neighbors into a row of its own.
     const entries = [...cells.entries()]
       .filter(([, figs]) => figs.length === 1)
       .map(([cell, [fig]]) => ({ box: cell.getBoundingClientRect(), fig }))
@@ -873,7 +873,7 @@ function figuresInRows() {
 /**
  * A MARKER AND ITS LABEL ARE ONE LINE, AND RELATIVES LOOK ALIKE.
  *
- * Reported off Practice: four buttons, each a coloured dot and a word, and on
+ * Reported off Practice: four buttons, each a colored dot and a word, and on
  * one of them the word had wrapped onto a line of its own under the dot,
  * because the row was `flex-wrap` and "Describing words" was the one label too
  * long to sit beside it. Nothing above could see it: nothing is cut off,
@@ -954,8 +954,8 @@ function relatives() {
     Reported three times off the page heading: a filled tile of an icon beside
     a heading several times its height, sitting on neither the heading's line
     nor its block, so the pair read as two things that happened to be near each
-    other. Balanced is one of three states and nothing else: centred on the
-    first line of the words beside it, centred on the whole block of them, or
+    other. Balanced is one of three states and nothing else: centered on the
+    first line of the words beside it, centered on the whole block of them, or
     level with its top, which is how a tile beside a title and a line under it
     is drawn. A mark as big as a tile is asked this too, so the question is not
     limited to the 48px a marker is held to above.
@@ -1099,7 +1099,7 @@ function relatives() {
     Reported off Practice: a row of boxes, each a title and a line under it,
     where the box whose line fitted on one line had its title lower than the
     box beside it, because the grid stretched every box to the tallest and
-    each box centred its own words in that height. Nothing above can see it:
+    each box centered its own words in that height. Nothing above can see it:
     nothing is cut, no word breaks and every box is the size it was given. So
     among siblings sharing a parent and a class, drawn side by side (tops
     level) and each holding more than one line of words, the first line a
@@ -1166,7 +1166,7 @@ function relatives() {
       }
       for (const row of rowsOf.values()) {
         if (row.length < 2) continue;
-        // A box of one line is a chip or a button, and a row of those centred
+        // A box of one line is a chip or a button, and a row of those centered
         // on one another is the right drawing.
         if (!row.every((el) => linesOf(el) > 1)) continue;
         const offs = row.map((el) => seenLine(el)?.top);

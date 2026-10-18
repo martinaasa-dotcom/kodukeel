@@ -8,7 +8,7 @@ const RECOMMENDATION: SceneSpec = {
   tests: "vordlemine",
   /*
     `vordlemine` for better and worse, which is the claim it tests. `vaba-aeg`
-    for the film and the exhibition, `meedia` for the programme, which is the
+    for the film and the exhibition, `meedia` for the program, which is the
     evening this sits on, `kirjeldamine` for what it was like, `kodu` for the
     book, `tingiv` for recommending, `iga-paev` for seeing, and `omadussonad`
     for slowly. `sina`,

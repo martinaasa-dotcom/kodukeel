@@ -17,7 +17,7 @@ describe("why the wrong ending came out", () => {
   /*
     The strongest of the three, because it is a fact about this conversation
     rather than a pattern about learners, and it is the one somebody
-    recognises about themselves.
+    recognizes about themselves.
   */
   it("names the case the question before wanted, ahead of everything else", () => {
     const hunch = diagnose("ELATIVE", "INESSIVE", { grammCase: "INESSIVE" }, "en");

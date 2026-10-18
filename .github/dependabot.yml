@@ -38,7 +38,7 @@ updates:
       development:
         dependency-type: development
         update-types: [minor, patch]
-    # A major bump changes behaviour and wants a person reading the changelog,
+    # A major bump changes behavior and wants a person reading the changelog,
     # so it arrives on its own rather than inside a batch somebody would
     # otherwise merge on the strength of a green tick.
     labels: [dependencies]

@@ -9,7 +9,7 @@ import type { CaseKey } from "@/lib/estonian/types";
  * very person, and the learner picks the form of the same word that matches.
  * Every option is a form of the one word, so meaning cannot help and only the
  * ending can; the picture is what makes the ending mean something rather than
- * be memorised.
+ * be memorized.
  *
  * THE WORD IS IN THE PICTURE. The first version drew a book moving towards a
  * box whatever the word was, so `abi`, help, was asked "what is it with?" over

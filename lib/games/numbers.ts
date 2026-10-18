@@ -16,9 +16,9 @@ import { heardAsSpelled } from "@/lib/speech/verdict";
  *
  * WHAT IS DEALT. Clock times, prices and counts, from the ranges the scene
  * props deal: the hours a counter is open (8 to 20), prices from two euros to
- * eighty, and counts up to three digits. A clock is drawn as an analogue face
+ * eighty, and counts up to three digits. A clock is drawn as an analog face
  * (`components/speech/ClockFace.tsx`) or printed as a timetable time. An
- * analogue face cannot show the afternoon, so either reading counts under
+ * analog face cannot show the afternoon, so either reading counts under
  * it; a timetable asks for exactly the time shown.
  *
  * NO ESTONIAN IS WRITTEN HERE (D10). Every number is shown as digits; what is
@@ -388,7 +388,7 @@ export function everyItem(): NumberItem[] {
   for (let euros = PRICE_EUROS.from; euros <= PRICE_EUROS.to; euros += 1) {
     for (const cents of PRICE_CENTS) out.push({ kind: "price", cents: euros * 100 + cents });
   }
-  // An analogue face is the same face at 8 and at 20, so it is dealt once.
+  // An analog face is the same face at 8 and at 20, so it is dealt once.
   const seen = new Set<string>();
   return out.filter((item) => {
     const key = itemKey(item);

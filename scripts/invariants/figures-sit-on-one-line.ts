@@ -8,15 +8,15 @@ import type { InvariantKit } from "../lib/invariantKit";
  * Reported off Progress: "Out there" is a row of five counts, and the first
  * carried a small icon stacked above its number, so it sat a line lower than
  * the four beside it. The same page had the fault a second way: the four
- * figures at the top are in a row centred on its cross axis, so a label that
+ * figures at the top are in a row centered on its cross axis, so a label that
  * wraps to two lines made its cell taller and lifted that figure off the
  * others. Neither is a size fault, so no containment check could see it.
  *
  * Three halves. The components: nothing is drawn above a `Stat`'s figure, the
  * icon goes on the label's line, and a `StatTile` is a subgrid of three rows
- * its neighbours share, so a wrapping label or a longer hint cannot move its
+ * its neighbors share, so a wrapping label or a longer hint cannot move its
  * figure. The
- * layouts: a row of `Stat`s is never centred or bottom-aligned. And the
+ * layouts: a row of `Stat`s is never centered or bottom-aligned. And the
  * measurement: `scripts/test-containment.mjs` asks the browser, on every route
  * at every width, whether the figures in each row end on one line, finding a
  * figure by `data-figure` or by being a number set at 24px or more, so a row
@@ -42,7 +42,7 @@ export default function figuresSitOnOneLine({ check, code, APP, COMPONENTS }: In
     assert.match(tile, /row-span-3 grid grid-rows-subgrid/, "a StatTile no longer shares its label, figure and hint rows with the tiles beside it, so a wrapping label or a longer hint moves its figure");
   });
 
-  check("a row of Stats is never centred or bottom-aligned", () => {
+  check("a row of Stats is never centered or bottom-aligned", () => {
     const offenders: string[] = [];
     for (const file of [...APP, ...COMPONENTS]) {
       if (!file.endsWith(".tsx")) continue;

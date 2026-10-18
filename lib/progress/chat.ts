@@ -54,7 +54,7 @@ export function chatFits(day: Pick<CourseDay, "words" | "again" | "lesson">): bo
  * AND a scene call this learner's allowance would still let through. A chat
  * has no bank under it, so on a day whose allowance is spent every beat would
  * fall to its English stage direction: not offered rather than offered and
- * empty. Advice only; every call is still authorised as it is made.
+ * empty. Advice only; every call is still authorized as it is made.
  */
 export async function chatAffordable(ownerId: string): Promise<boolean> {
   return chatOffered() && (await wouldAuthorise(ownerId, "SCENE"));
@@ -65,7 +65,7 @@ export async function chatAffordable(ownerId: string): Promise<boolean> {
  *
  * Somebody who remembers you has to be somebody, so a learner's chat is with
  * one persona for good, chosen off their own id rather than drawn per run. Of
- * the two who translate and acknowledge, since a neighbour on the stairs is
+ * the two who translate and acknowledge, since a neighbor on the stairs is
  * neither the brisk clerk nor the one who goes by the book.
  */
 export function chatPersona(ownerId: string): PersonaSpec {
@@ -85,7 +85,7 @@ export interface ChatMemory {
  * THE ONE MEANING THE OPENING REMEMBERS: never a word this chat is about to ask.
  *
  * Read off a browser, "they remember you talked about 'to be' last time, then
- * ask you something that lets you use the word for 'to be'" is the neighbour
+ * ask you something that lets you use the word for 'to be'" is the neighbor
  * repeating themselves, which is what happens when a short evening's words all
  * come round again. So the first meaning used well last time that is not one of
  * tonight's, or nothing, which is the opening every first chat has.

@@ -203,7 +203,7 @@ const browser = await launchChromium();
  * WHAT A CONTRAST CHECK MEASURES IS THE SETTLED STATE, AND THIS PAGE ARRIVES
  * OVER ABOUT A SECOND. The landing page brings its headline in a word at a
  * time and its claims 640ms later, each with `both` fill, so an element part
- * way through `fade-up` is a real colour composited against the ground and
+ * way through `fade-up` is a real color composited against the ground and
  * axe reports it as a real failure: `--ink-3` mid-fade measured 2.83 against
  * a bar of 3. Which elements were caught depended on when the run happened,
  * so the suite reported a different set of nodes every time and a clean pass
@@ -619,7 +619,7 @@ for (const theme of ["light", "dark"]) {
   /*
     And the one surface that exists at this width and at no other. The rail
     puts every destination on the screen; the bar has five cells and puts the
-    rest behind More, so the sheet is a modal dialog holding four labelled
+    rest behind More, so the sheet is a modal dialog holding four labeled
     sections and a close button which nothing has ever swept. It is opened
     here rather than left to a route, because no URL reaches it.
 
@@ -738,7 +738,7 @@ for (const theme of ["light", "dark"]) {
   swept is the debrief and not the scene: `scripts/test-scene.mjs` is where the
   conversation itself is driven and checked. Every step is guarded, and a run
   that cannot get there waives its checks with the reason rather than failing,
-  since this depends on a seeded dictionary and on the scene catalogue holding
+  since this depends on a seeded dictionary and on the scene catalog holding
   the id.
 
   IT COSTS WHAT A CONVERSATION COSTS, stated here rather than found by whoever
@@ -782,7 +782,7 @@ for (const theme of ["light", "dark"]) {
       violations.length === 0, violations.slice(0, 2).join("; "));
   } else {
     absent(1, `the scene debrief, in ${theme}: a conversation could not be played through to one. ` +
-      "It needs a seeded dictionary and the scene catalogue to hold `arsti-aeg`");
+      "It needs a seeded dictionary and the scene catalog to hold `arsti-aeg`");
   }
   await scene.close();
 }

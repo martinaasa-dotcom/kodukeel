@@ -120,7 +120,7 @@ async function main() {
       sentence whoever refused it wrote, and it is the whole reason
       `RefusedSentence.why` is stored rather than the refusal being a bare
       list. Absent on the three rules that are derivations rather than
-      somebody's judgement.
+      somebody's judgment.
     */
     note?: string;
   };

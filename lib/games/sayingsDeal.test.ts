@@ -72,7 +72,7 @@ describe("dealSayings", () => {
     expect(firsts.size).toBeGreaterThan(10);
   });
 
-  it("ignores served ids the catalogue no longer holds", () => {
+  it("ignores served ids the catalog no longer holds", () => {
     const catalogue = ids(12);
     const deal = dealSayings(catalogue, ["gone", "s0", "s1"], rng(seedFrom("x")));
     expect(deal).not.toContain("s0");
@@ -80,7 +80,7 @@ describe("dealSayings", () => {
     expect(deal).not.toContain("gone");
   });
 
-  it("deals the whole catalogue when it is no bigger than a sitting", () => {
+  it("deals the whole catalog when it is no bigger than a sitting", () => {
     expect(dealSayings(ids(4), ["s0"], rng(seedFrom("y")))).toEqual(ids(4));
   });
 
@@ -104,7 +104,7 @@ describe("afterServing", () => {
       .toEqual(["s1", "s2", "s3", "s5", "s6"]);
   });
 
-  it("stores nothing the catalogue does not hold", () => {
+  it("stores nothing the catalog does not hold", () => {
     expect(afterServing(ids(10), ["s0"], ["../../etc", "zz", "s3"])).toEqual(["s0", "s3"]);
     expect(afterServing(ids(10), ["s0", "nope"], ["nope"])).toEqual(["s0"]);
   });
