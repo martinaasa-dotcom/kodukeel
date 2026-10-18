@@ -5931,4 +5931,6 @@ a:focus-visible .wave-word::after {
   .snd-row-as { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; }
 
   .snd-grid { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  /* Columns by the room the content column has, never by the window: at 768 the rail takes a third of it. */
+  .snd-cols { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); }
 }

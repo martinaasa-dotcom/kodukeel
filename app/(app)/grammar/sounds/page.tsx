@@ -77,7 +77,7 @@ export default async function SoundsPage() {
 
         <section className="flex flex-col gap-4" data-sounds-section="consonants">
           <SectionTitle hint={t("the ones English says differently")}>{t("Consonants to listen for")}</SectionTitle>
-          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <ul className="snd-cols gap-3">
             {CONSONANTS.map((c) => (
               <li key={c.clip} className="flex items-center gap-4 rounded-[var(--r-lg)] border p-3" style={{ borderColor: "var(--edge)", background: "var(--surface)" }}>
                 <SoundKey clip={c.clip} glyph={c.glyph} />
@@ -98,7 +98,7 @@ export default async function SoundsPage() {
 
         <section className="flex flex-col gap-4" data-sounds-section="mix-ups">
           <SectionTitle hint={t("listen for the first sound, or the middle")}>{t("Easy to mix up")}</SectionTitle>
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <div className="snd-cols gap-3">
             {MIX_UPS.map((set) => <HearSet key={set.words.map((w) => w.clip).join("|")} words={set.words} />)}
           </div>
         </section>
@@ -130,7 +130,7 @@ export default async function SoundsPage() {
 function Notes({ notes, t }: { notes: readonly SoundNote[]; t: (english: string) => string }) {
   const noted = notes.filter((n) => n.note);
   return (
-    <dl className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
+    <dl className="snd-cols gap-x-6 gap-y-2">
       {noted.map((n) => (
         <div key={n.clip} className="flex items-baseline gap-3">
           <dt lang="et" className="font-display w-6 shrink-0 text-xl font-bold" style={{ color: "var(--accent-deep)" }}>{n.glyph}</dt>
