@@ -31,7 +31,7 @@ const POOL = 60;
  * (`lib/collections/spelling.ts`), and they write it down, the way they would
  * with a pen in one hand and a phone in the other.
  *
- * IT GRADES NOTHING, and that is the decision. What is practised is hearing
+ * IT GRADES NOTHING, and that is the decision. What is practiced is hearing
  * the letters' names, which no card holds: a learner who knows `tuba` and
  * writes `tyba` because the name of u and the name of y sound close has not
  * forgotten the word, and writing a lapse on its card would tell the scheduler
