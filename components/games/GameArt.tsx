@@ -99,33 +99,32 @@ function Tahed({ size }: { size: GameArtSize }) {
 function Spelled({ size }: { size: GameArtSize }) {
   /* "kohv" coming down the line a letter at a time, with the last letter heard still lit, and written down below it. */
   const heard = [..."koh"];
+  const letter = size === "lg" ? cell.lg : cell.md;
   return (
-    <div className="flex flex-col items-center gap-2.5" lang="et">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col items-center gap-3" lang="et">
+      <div className="flex items-center gap-2.5">
         <span
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-full"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-full"
           style={{ background: "var(--accent-soft)", color: "var(--accent-deep)", boxShadow: "inset 0 0 0 2px var(--accent)" }}
         >
-          <Phone size={16} aria-hidden />
+          <Phone size={18} aria-hidden />
         </span>
-        <div className="flex gap-1">
-          {heard.map((l, i) => {
-            const live = i === heard.length - 1;
-            return (
-              <span
-                key={i}
-                className={`grid place-items-center rounded-full font-bold uppercase ${cell[size]}`}
-                style={live
-                  ? { background: "var(--accent-soft)", color: "var(--accent-deep)", boxShadow: "inset 0 0 0 2px var(--accent)" }
-                  : { background: "var(--surface)", color: "var(--ink)", boxShadow: "inset 0 0 0 1px var(--rule)" }}
-              >
-                {l}
-              </span>
-            );
-          })}
+        <Wave bars={8} tone="var(--accent)" tall={18} />
+        <div className="flex gap-1.5">
+          {heard.map((l, i) => (
+            <span
+              key={i}
+              className={`grid place-items-center rounded-full font-bold uppercase ${letter}`}
+              style={i === heard.length - 1
+                ? { background: "var(--accent-soft)", color: "var(--accent-deep)", boxShadow: "inset 0 0 0 2px var(--accent)" }
+                : { background: "var(--surface)", color: "var(--ink)", boxShadow: "inset 0 0 0 1px var(--rule)" }}
+            >
+              {l}
+            </span>
+          ))}
         </div>
       </div>
-      <span className="rounded-[var(--r-sm)] px-3 py-1.5 text-sm font-semibold" style={{ background: "var(--surface)", color: "var(--ink)", boxShadow: "inset 0 0 0 1px var(--rule)" }}>
+      <span className="min-w-36 rounded-[var(--r-sm)] px-3 py-1.5 text-base font-semibold" style={{ background: "var(--surface)", color: "var(--ink)", boxShadow: "inset 0 0 0 1px var(--rule)" }}>
         koh<span className="ml-px inline-block h-4 w-[2px] translate-y-0.5" style={{ background: "var(--accent)" }} />
       </span>
     </div>
