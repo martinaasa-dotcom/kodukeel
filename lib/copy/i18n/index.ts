@@ -39,6 +39,7 @@ import { SCENE_SPEECH } from "./areas/sceneSpeech";
 import { CHAT } from "./areas/chat";
 import { LESSONS_AREA } from "./areas/lessons";
 import { LESSON_TEXT_AREA } from "./areas/lessonText";
+import { SOUNDS_AREA } from "./areas/sounds";
 
 /**
  * Every area of the interface that has been translated. The first is the
@@ -85,4 +86,5 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["firstDay", FIRST_DAY],
   ["lessons", LESSONS_AREA],
   ["lessonText", LESSON_TEXT_AREA],
+  ["sounds", SOUNDS_AREA],
 ];

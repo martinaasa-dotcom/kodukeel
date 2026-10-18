@@ -1034,7 +1034,7 @@ export function ReviewSession({
     // The pace is part of what is warmed: `prefetchClip` stretches the clip to
     // the rate it will be played at, so warming a different one is two passes
     // over the samples and a cold press.
-    for (const text of heard) prefetchClip({ text: spoken(text), voice, pace });
+    for (const text of heard) prefetchClip({ text: spoken(text), voice, pace, native: true });
   }, [index, queue, voice, pace]);
 
   /**

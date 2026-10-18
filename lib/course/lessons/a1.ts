@@ -76,15 +76,12 @@ const TERE_LESSONS: readonly LessonSpec[] = [
         "Four letters have no key on an English keyboard: õ, ä, ö and ü. Each is a letter of its own with a sound of its own, not a mark on another letter.",
         "{Palun} does three jobs: please, here you are, and you're welcome.",
       ],
-      table: {
-        head: ["Letter", "Sounds a bit like", "As in"],
-        rows: [
-          [{ en: "ä" }, { en: "the a in cat" }, { et: "aitäh" }],
-          [{ en: "õ" }, { en: "an o said with the lips spread, not rounded" }, { et: "Tere õhtust" }],
-          [{ en: "mm" }, { en: "a long m: hold it" }, { et: "Tere hommikust" }],
-          [{ en: "h" }, { en: "always said, even at the end of a word" }, { et: "aitäh" }],
-        ],
-      },
+      sounds: [
+        { sound: "sound-ae", glyph: "ä", like: "the a in cat", word: "word-aitaeh", mark: "ä" },
+        { sound: "sound-ou", glyph: "õ", like: "an o said with the lips spread, not rounded", word: "word-tere-ouhtust", mark: "õ" },
+        { sound: "sound-mm", glyph: "mm", like: "a long m: hold it", word: "word-tere-hommikust", mark: "mm" },
+        { sound: "sound-h", glyph: "h", like: "always said, even at the end of a word", word: "word-aitaeh", mark: "h" },
+      ],
       watchOut: "Don't drop the h at the end of {aitäh}. Every letter is said, the last one too.",
       examples: [0, 3],
     },

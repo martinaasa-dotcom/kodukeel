@@ -3654,3 +3654,35 @@ speak, write, talk). The grammar drills stay on the grammar pages they practice.
 English. The operator chose the names; `Sagedasemad sõnad` waits on a native speaker's word.
 Not done: the round pages' own titles and the course's step names still use the older titles in
 `lib/ux/modes.ts`, and `lib/ux/weekGames.ts` still rotates Today's own card.
+
+## 65. The fifty-ninth pass: a person says the sounds
+
+The first lesson's sound table was a letter, a sentence about it and a word, all silent, on the one
+screen of the course whose subject is how Estonian sounds. The speech service could not fill it: it
+reads sentences, so a bare `õ` or a held `mm` is a fragment to it. The native speaker who develops
+this app recorded a script instead, in one take: the sounds alone, the length contrasts, lesson 1's
+words at two speeds, the months, the numbers, two dialogues and the alphabet.
+
+**The recording is cut by a script and leveled like every synthetic clip.**
+`scripts/build-native-audio.ts` reads `scripts/recordings/`, cuts at the times in
+`native-cuts.json`, and puts each clip through `lib/audio/wav.ts`, so a recording and a synthetic
+clip start the same distance after a press and play at one loudness. Every section of the take came
+back with exactly the number of lines the script holds. `lib/audio/native.ts` is the catalog of 126
+clips, and `native.test.ts` holds it and `public/audio/native/` to each other.
+
+**A person says it wherever a person has said it.** A speaker button left on the learner's own voice
+plays the recording when its text is one of these words or lines (`nativeFor`), and falls back to the
+synthesizer if the file will not load. A screen that chose a voice, a conversation's cast or the
+listening round's speakers, keeps it. A sound and a letter's name are never looked up by spelling,
+and `linna` is not either, because it was recorded twice and said two ways.
+
+**What a learner presses.** Lesson 1's table is four sound keys, each beside a word with the sound
+marked in it (`components/sounds/`). Four lessons whose warning is about a sound put the two words side
+by side to hear: `kaheksa` and `üheksa`, `kuus` and `kus`, `juuni` and `juuli`, `kapp` and `kapis`.
+A lesson's Estonian table cells play too. `/grammar/sounds` has every sound on one page: the vowels,
+short against long, the consonants, length, words easy to mix up, stress and the alphabet. A clip asked
+for by id plays at the speed it was said, because slowing it would shrink the very length the screen
+teaches.
+
+Not done: the letter names and the English glosses on the sounds page are for the native speaker to
+read, and pass 2 of the recording is kept outside the repository as a spare take of every clip.

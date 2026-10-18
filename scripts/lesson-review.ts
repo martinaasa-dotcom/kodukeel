@@ -15,6 +15,7 @@
 import { writeFileSync } from "node:fs";
 import { LESSONS, LESSON_PARTS, lessonLabel } from "@/lib/course/lessons";
 import type { Cell, Prompt } from "@/lib/course/lessons";
+import { nativeClip } from "@/lib/audio/native";
 
 const out: string[] = [];
 const say = (line = "") => out.push(line);
@@ -66,6 +67,12 @@ for (const part of LESSON_PARTS) {
       say(`| ${table.head.map(braced).join(" | ")} |`);
       say(`| ${table.head.map(() => "---").join(" | ")} |`);
       for (const row of table.rows) say(`| ${row.map(cell).join(" | ")} |`);
+    }
+    for (const row of lesson.how.sounds ?? []) {
+      say(`- [ ] Sound **${row.glyph}**: ${braced(row.like)}, as in **${nativeClip(row.word).text}** (recorded)`);
+    }
+    for (const set of lesson.how.listen ?? []) {
+      say(`- [ ] Hear side by side: ${set.words.map((w) => `**${nativeClip(w.clip).text}** (${braced(w.en)})`).join(", ")} (recorded)`);
     }
     const prompts = (title: string, list: readonly Prompt[]) => {
       if (list.length === 0) return;

@@ -27,6 +27,7 @@
  */
 
 import { imperativeSingular, negativePresent, presentTense } from "@/lib/estonian/conjugate";
+import { nativeClip } from "@/lib/audio/native";
 import { lessonLabel } from "./label";
 import type { LessonSpec, PatternId, Taught } from "./types";
 
@@ -192,6 +193,16 @@ export function estonianOf(lesson: LessonSpec): { where: string; et: string }[] 
   how.table?.head.forEach((h) => english("the table's head", h));
   how.table?.rows.forEach((row, r) =>
     row.forEach((cell) => ("et" in cell ? out.push({ where: `table row ${r + 1}`, et: cell.et }) : english(`table row ${r + 1}`, cell.en))),
+  );
+  how.sounds?.forEach((row, r) => {
+    english(`sound ${r + 1}`, row.like);
+    out.push({ where: `sound ${r + 1}, the word`, et: nativeClip(row.word).text });
+  });
+  how.listen?.forEach((set, s) =>
+    set.words.forEach((w) => {
+      out.push({ where: `listen ${s + 1}`, et: nativeClip(w.clip).text });
+      english(`listen ${s + 1}, meaning`, w.en);
+    }),
   );
   const prompts = (label: string, list: LessonSpec["answers"]) =>
     list.forEach((p, i) => {

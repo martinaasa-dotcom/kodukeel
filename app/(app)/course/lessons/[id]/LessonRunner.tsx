@@ -16,6 +16,8 @@ import { lessonLabel } from "@/lib/course/lessons/label";
 import { finishLesson } from "@/app/actions";
 import { useModuleFocus, useModuleNext } from "@/components/course/moduleFocus";
 import { NOT_REACHED } from "@/lib/copy/values";
+import { HearSet } from "@/components/sounds/Native";
+import { SoundRows } from "@/components/sounds/SoundRows";
 import { Quiz } from "./Quiz";
 import { SayIt } from "./SayIt";
 
@@ -350,6 +352,7 @@ function How({ lesson }: { lesson: LessonSpec }) {
       <Card>
         <RuleNote summary={how.point} watchOut={how.watchOut} />
       </Card>
+      {how.sounds && how.sounds.length > 0 && <SoundRows rows={how.sounds} />}
       {how.notes && how.notes.length > 0 && (
         <ul className="flex flex-col gap-3">
           {how.notes.map((note) => (
@@ -373,7 +376,12 @@ function How({ lesson }: { lesson: LessonSpec }) {
                   {row.map((cell, c) => (
                     <td key={c} className="px-4 py-3 align-top">
                       {"et" in cell
-                        ? <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{cell.et}</span>
+                        ? (
+                          <span className="inline-flex items-center gap-1.5">
+                            <Speak text={cell.et} size={14} />
+                            <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{cell.et}</span>
+                          </span>
+                        )
                         : <span style={{ color: "var(--ink-2)" }}><LessonText text={cell.en} locale={locale} /></span>}
                     </td>
                   ))}
@@ -382,6 +390,16 @@ function How({ lesson }: { lesson: LessonSpec }) {
             </tbody>
           </table>
         </div>
+      )}
+      {how.listen && how.listen.length > 0 && (
+        <section data-lesson-listen>
+          <SectionTitle hint={t("said by a native speaker")}>{t("Hear the difference")}</SectionTitle>
+          <div className="flex flex-col gap-3">
+            {how.listen.map((set) => (
+              <HearSet key={set.words.map((w) => w.clip).join("|")} words={set.words} />
+            ))}
+          </div>
+        </section>
       )}
       {examples.length > 0 && (
         <section>

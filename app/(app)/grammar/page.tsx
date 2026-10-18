@@ -184,6 +184,26 @@ export default async function GrammarHubPage({ searchParams }: { searchParams: P
           ))}
         </ol>
 
+        {viewer && (
+          <Link
+            href="/grammar/sounds"
+            className="lift flex flex-wrap items-center gap-4 rounded-[var(--r-lg)] border p-5"
+            style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
+            data-sounds-link
+          >
+            <span className="flex shrink-0 gap-1.5" aria-hidden>
+              {["õ", "ä", "ö", "ü"].map((letter) => (
+                <span key={letter} className="snd-key snd-key-sm"><span lang="et" className="snd-glyph">{letter}</span></span>
+              ))}
+            </span>
+            <span className="flex min-w-0 flex-[1_1_16rem] flex-col gap-0.5">
+              <span className="text-lg font-bold" style={{ color: "var(--ink)" }}>{t("How Estonian sounds")}</span>
+              <span className="text-md" style={{ color: "var(--ink-2)" }}>{t("Every sound, said by a native speaker. Press a letter and hear it.")}</span>
+            </span>
+            <ArrowRight size={18} aria-hidden style={{ color: "var(--accent-deep)" }} />
+          </Link>
+        )}
+
         <Card>
           <p className="text-md font-bold" style={{ color: "var(--ink)" }}>{t("Looking for something specific?")}</p>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>

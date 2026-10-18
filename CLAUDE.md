@@ -7648,6 +7648,16 @@ Nothing reached it, because a pause long enough to cap only occurs in a clip of 
 sentence. `fadeIn` and `fadeOut` are two functions now, since a latent fault in the one function
 about seams is a fault in every seam added later.
 
+**A person says the sounds, and says them wherever a person has said them.** The speech service
+reads sentences, so a bare `õ` or a held `mm` is a fragment to it. The native speaker who develops
+this app recorded the sounds, lesson 1's words, the months, the numbers, two dialogues and the
+alphabet. `lib/audio/native.ts` is the catalog and `scripts/build-native-audio.ts` cuts the take in
+`scripts/recordings/` through the same `lib/audio/wav.ts` pipeline, so a recording and a synthetic
+clip start and sound alike. A speaker button left on the learner's own voice plays the recording
+when its text matches (`nativeFor`). A screen that chose a voice keeps it. A clip asked for by id
+plays at the speed it was said (`rateFor`), because the stretch would shrink the length a sounds
+screen is teaching. Re-cut the recording and raise `NATIVE_CUT`, or a phone keeps the old clip.
+
 **A response built out of one learner's own rows says it is theirs and is never kept.** The
 framework's silence is not a cache policy: `ImageResponse` stamps `public, immutable,
 max-age=31536000` on anything that does not say otherwise, so the share card, which carries a

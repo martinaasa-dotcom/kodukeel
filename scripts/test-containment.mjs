@@ -166,6 +166,7 @@ const ROUTES = [
   "/review/map",
   "/review/twins",
   "/grammar/twins",
+  "/grammar/sounds",
   "/practice",
   "/games",
   "/games?group=play",

@@ -4,6 +4,7 @@ import { needsMixer, playThrough } from "./mixer";
 import { stretch } from "./stretch";
 import { DEFAULT_PACE, SLOWEST, SLOW_OF_NORMAL, type Pace } from "./pace";
 import { decodeWav, encodeWav16, normaliseLoudness } from "./wav";
+import { nativeClip, nativeFor, nativeUrl, type NativeClip } from "./native";
 
 /**
  * One clip, fetched once.
@@ -51,6 +52,26 @@ export interface ClipRequest {
    * outside the shell gets.
    */
   readonly pace?: Pace;
+  /**
+   * A native speaker's recording may stand in for the synthetic voice where
+   * one says this text (`lib/audio/native.ts`). Set by a speaker button the
+   * screen left on the learner's own voice; a screen that chose a voice, a
+   * conversation's cast or the listening round's rotating speakers, leaves it
+   * off and keeps the voice it chose.
+   */
+  readonly native?: boolean;
+  /**
+   * This recording and no other, by id, at its own speed: for a screen about
+   * sounds, where the clip is the point and the learner's pace is not.
+   */
+  readonly nativeId?: string;
+}
+
+/** The recording a request plays, where a person's recording answers for it. */
+export function nativeTake(request: ClipRequest): NativeClip | null {
+  if (request.nativeId) return nativeClip(request.nativeId);
+  if (!request.native) return null;
+  return nativeFor(request.text, { slow: request.slow });
 }
 
 /**
@@ -103,8 +124,10 @@ export const LEARNING_RATE = 0.8;
  * One clip per word and voice. The rate is not in the key, because a rate
  * changes how the clip is played and never which clip it is.
  */
-export function clipKey({ text, voice }: ClipRequest): string {
-  return `${text}|${voice ?? ""}`;
+export function clipKey(request: ClipRequest): string {
+  const take = nativeTake(request);
+  if (take) return `native|${take.id}`;
+  return `${request.text}|${request.voice ?? ""}`;
 }
 
 /**
@@ -137,6 +160,15 @@ export function clipKey({ text, voice }: ClipRequest): string {
  * from whatever the learner just heard, floored at `SLOWEST` as before.
  */
 export function rateFor(request: ClipRequest): number {
+  // A PERSON'S RECORDING AT THE SPEED IT WAS SAID, WHERE THAT IS THE POINT. A
+  // clip asked for by id is on a screen about sounds, where `kapp` against
+  // `kapis` is a difference in how long a consonant is held, and the stretch
+  // leaves consonants at their length while it slows the vowels: slowed, the
+  // contrast the screen is teaching would shrink. And a slow take recorded
+  // slowly is already slow, so stretching it again takes it twice as far as
+  // anybody asked.
+  if (request.nativeId) return 1;
+  if (request.slow && nativeTake(request)?.slow) return 1;
   const pace = request.pace ?? DEFAULT_PACE;
   const base = request.rate !== undefined ? Math.min(request.rate, pace.normal) : pace.normal;
   if (request.slow) return Math.max(SLOWEST, base * SLOW_OF_NORMAL);
@@ -163,7 +195,8 @@ export async function fetchClip(request: ClipRequest): Promise<HeldClip> {
   const url = cachedClip(key);
   const blob = url ? cachedBlob(key) : null;
   if (url && blob) return { url, blob };
-  const res = await fetch("/api/tts", {
+  const take = nativeTake(request);
+  const synthetic = () => fetch("/api/tts", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
@@ -171,7 +204,13 @@ export async function fetchClip(request: ClipRequest): Promise<HeldClip> {
       ...(request.voice ? { voice: request.voice } : {}),
     }),
   });
-  if (!res.ok) throw new Error(String(res.status));
+  // A recording that will not load falls back to the synthesizer, where the
+  // synthesizer was the alternative: a word heard in the other voice beats a
+  // speaker button that removes itself. A clip asked for by id has no other
+  // voice that says the same thing, so it fails as itself.
+  let res = take ? await fetch(nativeUrl(take.id)).catch(() => null) : await synthetic();
+  if (take && !request.nativeId && (!res || !res.ok)) res = await synthetic();
+  if (!res || !res.ok) throw new Error(String(res?.status ?? "offline"));
   const fetched = await res.blob();
   return { url: rememberClip(key, fetched), blob: cachedBlob(key) ?? fetched };
 }
