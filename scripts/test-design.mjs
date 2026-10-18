@@ -95,10 +95,12 @@ const edgesOnPage = () => {
     const ring = cs.boxShadow !== "none" && cs.boxShadow.match(/(rgba?\([^)]*\))\s+0px\s+0px\s+0px\s+([\d.]+)px(\s+inset)?/);
     const bw = parseFloat(cs.borderTopWidth);
     let edge = null, spec = "";
-    if (ring && parseFloat(ring[2]) <= 2) {
+    // A clear border or ring is not an edge: it draws nothing to read against anything.
+    const visible = (c) => c && c[3] > 0.01;
+    if (ring && parseFloat(ring[2]) <= 2 && visible(rgba(ring[1]))) {
       edge = over(rgba(ring[1]), ring[3] ? fill : ground);
       spec = `${ring[3] ? "inset ring" : "ring"} ${ring[2]}px ${ring[1]}`;
-    } else if (bw > 0 && bw <= 2 && cs.borderTopStyle === "solid") {
+    } else if (bw > 0 && bw <= 2 && cs.borderTopStyle === "solid" && visible(rgba(cs.borderTopColor))) {
       // A background runs under its border unless it is clipped to the padding box.
       edge = over(rgba(cs.borderTopColor), cs.backgroundClip === "padding-box" ? ground : fill);
       spec = `border ${bw}px ${cs.borderTopColor}`;
