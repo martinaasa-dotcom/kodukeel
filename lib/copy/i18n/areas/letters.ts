@@ -48,8 +48,8 @@ export const LETTERS: Area = {
     "Kodukeel. The four letters an English keyboard has no key for: o-tilde, a-umlaut, o-umlaut, u-umlaut.":
       "Kodukeel. Четыре буквы, которых нет в русском алфавите: o с тильдой, a, o и u с умлаутом.",
     "Your first cards are ready. Here's how it works.": "Ваши первые карточки готовы. Вот как всё устроено.",
-    "{cards} are already waiting for you, made from the first lessons of your course. Your first evening is {title}, which is {subtitle}.":
-      "В вашей колоде уже {cards} из первых уроков курса. Ваш первый вечер: {title}, {subtitle}.",
+    "{cards} are already waiting for you, made from the first lessons of your course. Your first evening is “{title}”, which is {subtitle}.":
+      "В вашей колоде уже {cards} из первых уроков курса. Ваш первый вечер: «{title}», {subtitle}.",
     "{cards} are already waiting for you, made from the first lessons of your course. Open the course and it'll show you where to start.":
       "В вашей колоде уже {cards} из первых уроков курса. Откройте курс, и он покажет, с чего начать.",
     "A progress bar, right at the start.": "Полоса прогресса, в самом начале.",
@@ -131,8 +131,8 @@ export const LETTERS: Area = {
       "Примерно {assumed} из этих слов засчитаны по уровню, с которого вы начали, и ещё не проверены. Остальные вы помнили через несколько дней после первой встречи.",
     "That bar only moves for words you still know days after you first met them. Just opening the app won't nudge it.":
       "Эта полоса растёт только за слова, которые вы помните через несколько дней после первой встречи. Просто открыть приложение ничего не даст.",
-    "One evening left in {title}.": "В части «{title}» остался один вечер.",
-    "{evenings} left in {title}.": "В части «{title}» ещё {evenings}.",
+    "One evening left in “{title}”.": "В части «{title}» остался один вечер.",
+    "{evenings} left in “{title}”.": "В части «{title}» ещё {evenings}.",
     "Continue with the course": "Продолжить курс",
     "See all your progress": "Посмотреть весь прогресс",
     "A quiet week, and the course is right where you left it": "Тихая неделя, а курс ждёт там же, где вы остановились",
@@ -143,10 +143,10 @@ export const LETTERS: Area = {
     // One thing to say out loud.
     "One thing to say out loud today.": "Одна фраза, которую сегодня стоит сказать вслух.",
     "{places}. Nobody there will know it's practice.": "{places}. Никто там не догадается, что это тренировка.",
-    "Want a practice run first? {title} takes about two minutes, with somebody who wants something from you, just like the real thing.":
+    "Want a practice run first? “{title}” takes about two minutes, with somebody who wants something from you, just like the real thing.":
       "Хотите сначала прорепетировать? «{title}» занимает около двух минут, с собеседником, которому от вас что-то нужно, совсем как в жизни.",
     "Practice it first": "Сначала прорепетировать",
-    "Or just have a look at the words in {unit}": "Или просто посмотреть слова из раздела «{unit}»",
+    "Or just have a look at the words in “{unit}”": "Или просто посмотреть слова из раздела «{unit}»",
     "Have a look at the words first": "Сначала посмотреть слова",
     "If they answer in English, that still counts. So does running out of words halfway. You said it, and whatever happens next is about the moment, not about you. The only thing that doesn't count is staying quiet.":
       "Если вам ответят по-английски, это всё равно засчитывается. И если слова закончатся на полпути, тоже. Вы это сказали, а что будет дальше, зависит от момента, а не от вас. Не засчитывается только молчание.",
@@ -243,8 +243,8 @@ export const LETTERS: Area = {
     "Kodukeel. The four letters an English keyboard has no key for: o-tilde, a-umlaut, o-umlaut, u-umlaut.":
       "Kodukeel. Чотири літери, яких немає в українській абетці: o з тильдою, a, o та u з умлаутом.",
     "Your first cards are ready. Here's how it works.": "Ваші перші картки готові. Ось як усе влаштовано.",
-    "{cards} are already waiting for you, made from the first lessons of your course. Your first evening is {title}, which is {subtitle}.":
-      "У вашій колоді вже {cards} з перших уроків курсу. Ваш перший вечір: {title}, {subtitle}.",
+    "{cards} are already waiting for you, made from the first lessons of your course. Your first evening is “{title}”, which is {subtitle}.":
+      "У вашій колоді вже {cards} з перших уроків курсу. Ваш перший вечір: «{title}», {subtitle}.",
     "{cards} are already waiting for you, made from the first lessons of your course. Open the course and it'll show you where to start.":
       "У вашій колоді вже {cards} з перших уроків курсу. Відкрийте курс, і він покаже, з чого почати.",
     "A progress bar, right at the start.": "Смуга прогресу, на самому початку.",
@@ -326,8 +326,8 @@ export const LETTERS: Area = {
       "Приблизно {assumed} із цих слів зараховано за рівнем, з якого ви почали, і їх ще не перевірено. Решту ви пам'ятали через кілька днів після першої зустрічі.",
     "That bar only moves for words you still know days after you first met them. Just opening the app won't nudge it.":
       "Ця смуга зростає лише за слова, які ви пам'ятаєте через кілька днів після першої зустрічі. Просто відкрити застосунок нічого не дасть.",
-    "One evening left in {title}.": "У частині «{title}» лишився один вечір.",
-    "{evenings} left in {title}.": "У частині «{title}» ще {evenings}.",
+    "One evening left in “{title}”.": "У частині «{title}» лишився один вечір.",
+    "{evenings} left in “{title}”.": "У частині «{title}» ще {evenings}.",
     "Continue with the course": "Продовжити курс",
     "See all your progress": "Переглянути весь прогрес",
     "A quiet week, and the course is right where you left it": "Тихий тиждень, а курс чекає там само, де ви зупинилися",
@@ -338,10 +338,10 @@ export const LETTERS: Area = {
     // One thing to say out loud.
     "One thing to say out loud today.": "Одна фраза, яку сьогодні варто сказати вголос.",
     "{places}. Nobody there will know it's practice.": "{places}. Ніхто там не здогадається, що це тренування.",
-    "Want a practice run first? {title} takes about two minutes, with somebody who wants something from you, just like the real thing.":
+    "Want a practice run first? “{title}” takes about two minutes, with somebody who wants something from you, just like the real thing.":
       "Хочете спершу прорепетирувати? «{title}» триває близько двох хвилин, зі співрозмовником, якому від вас щось потрібно, зовсім як у житті.",
     "Practice it first": "Спершу прорепетирувати",
-    "Or just have a look at the words in {unit}": "Або просто переглянути слова з розділу «{unit}»",
+    "Or just have a look at the words in “{unit}”": "Або просто переглянути слова з розділу «{unit}»",
     "Have a look at the words first": "Спершу переглянути слова",
     "If they answer in English, that still counts. So does running out of words halfway. You said it, and whatever happens next is about the moment, not about you. The only thing that doesn't count is staying quiet.":
       "Якщо вам відповідять англійською, це все одно зараховується. І якщо слова закінчаться на півдорозі, теж. Ви це сказали, а що буде далі, залежить від моменту, а не від вас. Не зараховується лише мовчання.",

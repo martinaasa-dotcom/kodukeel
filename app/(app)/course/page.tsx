@@ -322,7 +322,7 @@ export default async function CoursePage({
                         flat into the sentence it read as the sentence going
                         wrong. */}
                     {justDone && justDone.unitId === day.unitId
-                      ? fillNodes(t("Tomorrow you'll continue with {unit}, part {n} of {of}."), { unit: <b lang={uiWantsEnglish(level) ? undefined : "et"}>{ui(day.title, day.subtitle)}</b>, n: day.part.n, of: day.part.of })
+                      ? fillNodes(t("Tomorrow you'll continue with “{unit}”, part {n} of {of}."), { unit: <b lang={uiWantsEnglish(level) ? undefined : "et"}>{ui(day.title, day.subtitle)}</b>, n: day.part.n, of: day.part.of })
                       : uiWantsEnglish(level)
                         ? fillNodes(t("Come back tomorrow for {unit}."), { unit: <b>{t(day.subtitle)}</b> })
                         : fillNodes(t("Come back tomorrow for {unit} ({english})."), { unit: <b lang="et">{day.title}</b>, english: t(day.subtitle) })}

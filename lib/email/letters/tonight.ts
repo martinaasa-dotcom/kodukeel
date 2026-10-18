@@ -121,12 +121,13 @@ function subjectFor(input: TonightInput): string {
 }
 
 /**
- * The evening's name as a sentence carries it. English sets it bare; Russian
- * and Ukrainian quote it, since it follows a noun there ("в занятии «Kodus»")
- * and an unquoted title mid-sentence reads as a word out of place.
+ * The evening's name as a sentence carries it: quoted, in every language,
+ * because an unquoted title mid-sentence reads as a word out of place. English
+ * takes curly double quotes; Russian and Ukrainian take guillemets, since it
+ * follows a noun there ("в занятии «Kodus»").
  */
 function titled(input: TonightInput): string {
-  return input.locale === "en" ? input.day.title : `«${input.day.title}»`;
+  return input.locale === "en" ? `“${input.day.title}”` : `«${input.day.title}»`;
 }
 
 /**

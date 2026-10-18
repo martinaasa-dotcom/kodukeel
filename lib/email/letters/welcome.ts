@@ -70,7 +70,7 @@ export function welcomeLetter(input: WelcomeInput): Letter {
     t: "text",
     text: input.opensOn && subtitle !== null
       ? say(
-          "{cards} are already waiting for you, made from the first lessons of your course. Your first evening is {title}, which is {subtitle}.",
+          "{cards} are already waiting for you, made from the first lessons of your course. Your first evening is “{title}”, which is {subtitle}.",
           { cards, title: input.opensOn.title, subtitle },
         )
       : say(
