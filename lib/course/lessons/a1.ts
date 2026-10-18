@@ -49,7 +49,7 @@ const TERE_LESSONS: readonly LessonSpec[] = [
     kind: "lesson",
     title: "Hello and thank you",
     goal: "Say hello, thank you and goodbye, at any time of day.",
-    cast: { Mari: "mari", Jaan: "tambet" },
+    cast: { Mari: "mari", Jaan: "meelis" },
     conversation: [
       { who: "Mari", et: "Tere hommikust!", en: "Good morning!" },
       { who: "Jaan", et: "Tere, tere!", en: "Hi there!" },
@@ -362,7 +362,7 @@ const TERE_LESSONS: readonly LessonSpec[] = [
     kind: "lesson",
     title: "How are you?",
     goal: "Ask how it's going, answer, and ask it back.",
-    cast: { Mari: "mari", Jaan: "tambet", Tom: "kalev" },
+    cast: { Mari: "mari", Jaan: "meelis", Tom: "kalev" },
     conversation: [
       { who: "Mari", et: "Tere, Jaan! Kuidas läheb?", en: "Hi, Jaan! How's it going?" },
       { who: "Jaan", et: "Väga hästi, aitäh! Ja sinul?", en: "Really well, thanks! And you?" },
