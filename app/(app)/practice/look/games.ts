@@ -1,9 +1,11 @@
 import { modeAt } from "@/lib/ux/modes";
+import { roundName } from "./names";
 
 /**
  * THE GAMES AREA, AS PROPOSED, FOR THE MOCKUP UNDER `/practice/look/3`.
  *
- * MOCKUP. Three groups by what somebody is in the mood for, a name per game
+ * MOCKUP. Three groups by what somebody is in the mood for (Daily, Quick and
+ * Tricky on the chips, chosen by the operator for now), a name per game
  * that is English at A1 and Estonian with its English from A2, and a game of
  * the day drawn from games alone. None of this is wired into the real page
  * yet; the names and the groups are waiting on the operator.
@@ -17,15 +19,18 @@ export type GroupId = "daily" | "play" | "think";
 
 export interface LookGroup {
   id: GroupId;
+  /** The short word on the filter chip. */
+  chip: string;
+  /** The heading over the group, which has room to say more. */
   name: string;
   hint: string;
   tone: string;
 }
 
 export const GROUPS: readonly LookGroup[] = [
-  { id: "daily", name: "Daily puzzles", hint: "One a day. Come back tomorrow for a new one.", tone: "sky" },
-  { id: "play", name: "Word play", hint: "Quick and light. Play as often as you like.", tone: "butter" },
-  { id: "think", name: "Brain teasers", hint: "Work out how Estonian fits together.", tone: "accent" },
+  { id: "daily", chip: "Daily", name: "One a day", hint: "A new puzzle every morning. Come back tomorrow for the next.", tone: "sky" },
+  { id: "play", chip: "Quick", name: "A few minutes", hint: "Quick and light. Play as often as you like.", tone: "butter" },
+  { id: "think", chip: "Tricky", name: "Head-scratchers", hint: "Work out how Estonian fits together.", tone: "accent" },
 ];
 
 export interface LookGame {
@@ -45,24 +50,24 @@ export interface LookGame {
   live?: string;
 }
 
-const GAMES: readonly Omit<LookGame, "icon" | "tone">[] = [
-  { href: "/sonad", group: "daily", en: "Words", et: "Sõnad", hook: "Six letters, seven tries, one new word a day.", minutes: 3 },
-  { href: "/crossword", group: "daily", en: "Crossword", et: "Ristsõna", hook: "A fresh grid every morning, with the clues in English.", minutes: 15 },
-  { href: "/review/match", group: "play", en: "Pairs", et: "Paarid", hook: "Eight pairs against the clock. Beat your own best.", minutes: 2 },
-  { href: "/review/letters", group: "play", en: "Letters", et: "Tähed", hook: "The letters are all there. Put them back in order.", minutes: 3 },
-  { href: "/review/twenty", group: "play", en: "20 Questions", et: "20 küsimust", hook: "I'm thinking of something. Ask me in Estonian.", minutes: 10 },
-  { href: "/review/sayings", group: "play", en: "Expressions", et: "Väljendid", hook: "Phrases that mean something other than they say.", minutes: 5 },
-  { href: "/review/wordplay", group: "play", en: "Wordplay", et: "Sõnamäng", hook: "A bat is a leather mouse. Take words apart and laugh.", minutes: 5 },
-  { href: "/review/twins", group: "think", en: "Look-alikes", et: "Kaksikud", hook: "Two words that look alike and mean different things.", minutes: 5 },
-  { href: "/review/map", group: "think", en: "Where?", et: "Kus? Kuhu? Kust?", hook: "In the house, into it or out of it? The ending says.", minutes: 4 },
-  { href: "/review/sentences", group: "think", en: "Sentence builder", et: "Lauseehitus", hook: "Every word is right. The order isn't, yet.", minutes: 5, from: "A2" },
-  { href: "/review/openers", group: "think", en: "What comes next", et: "Mis edasi?", hook: "Hear how a sentence starts and see the ending coming.", minutes: 5, from: "A2" },
+const GAMES: readonly Omit<LookGame, "icon" | "tone" | "en" | "et">[] = [
+  { href: "/sonad", group: "daily", hook: "Six letters, seven tries, one new word a day.", minutes: 3 },
+  { href: "/crossword", group: "daily", hook: "A fresh grid every morning, with the clues in English.", minutes: 15 },
+  { href: "/review/match", group: "play", hook: "Eight pairs against the clock. Beat your own best.", minutes: 2 },
+  { href: "/review/letters", group: "play", hook: "The letters are all there. Put them back in order.", minutes: 3 },
+  { href: "/review/twenty", group: "play", hook: "I'm thinking of something. Ask me in Estonian.", minutes: 10 },
+  { href: "/review/sayings", group: "play", hook: "Phrases that mean something other than they say.", minutes: 5 },
+  { href: "/review/wordplay", group: "play", hook: "A bat is a leather mouse. Take words apart and laugh.", minutes: 5 },
+  { href: "/review/twins", group: "think", hook: "Two words that look alike and mean different things.", minutes: 5 },
+  { href: "/review/map", group: "think", hook: "In the house, into it or out of it? The ending says.", minutes: 4 },
+  { href: "/review/sentences", group: "think", hook: "Every word is right. The order isn't, yet.", minutes: 5, from: "A2" },
+  { href: "/review/openers", group: "think", hook: "Hear how a sentence starts and see the ending coming.", minutes: 5, from: "A2" },
 ];
 
 export function lookGames(live: Record<string, string | undefined> = {}): LookGame[] {
   return GAMES.map((g) => {
     const mode = modeAt(g.href);
-    return { ...g, icon: mode?.icon ?? "Sparkles", tone: mode?.tone ?? "accent", live: live[g.href] };
+    return { ...g, ...roundName(g.href), icon: mode?.icon ?? "Sparkles", tone: mode?.tone ?? "accent", live: live[g.href] };
   });
 }
 

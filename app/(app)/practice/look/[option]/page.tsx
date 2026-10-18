@@ -22,8 +22,8 @@ type Search = { level?: string; done?: string; day?: string; group?: string; sam
 /**
  * THE GAMES AREA, AS A BENTO BOARD IN THREE GROUPS.
  *
- * MOCKUP. Today's game across the top, then Daily puzzles, Word play and
- * Brain teasers, each a section of the board with a filter chip to show it
+ * MOCKUP. Today's game across the top, then the Daily, Quick and Tricky
+ * groups, each a section of the board with a filter chip to show it
  * alone. Positions are fixed so the board can be learned; only the top tile
  * changes with the day. A game that opens later says so at the end of its
  * group instead of being hidden.
@@ -69,7 +69,7 @@ export default async function LookPage({ params, searchParams }: {
       <TodayTile game={today} tomorrow={tomorrow} weekday={WEEKDAYS[day]!} a1={a1} done={done.has(today.href)} />
 
       <nav aria-label="Show a group" className="mb-6 mt-10 flex flex-wrap gap-2">
-        {[{ id: null, name: "All 11" }, ...GROUPS].map((g) => {
+        {[{ id: null, chip: "All 11" }, ...GROUPS].map((g) => {
           const on = g.id === group;
           return (
             <Link
@@ -81,7 +81,7 @@ export default async function LookPage({ params, searchParams }: {
                 ? { background: "var(--ink)", color: "var(--surface)" }
                 : { background: "var(--surface)", color: "var(--ink-2)", boxShadow: "inset 0 0 0 1px var(--rule)" }}
             >
-              {g.name}
+              {g.chip}
             </Link>
           );
         })}
@@ -252,9 +252,7 @@ function MockupPanel({ a1, done, href }: { a1: boolean; done: Set<string>; href:
  * parentheses under it. A short name, a medium one and the longest game name.
  */
 function NameSample({ games }: { games: LookGame[] }) {
-  const picks = ["/sonad", "/review/twins", "/review/map"]
-    .map((h) => games.find((g) => g.href === h)!)
-    .map((g) => (g.href === "/review/twins" ? { ...g, en: "Twins" } : g));
+  const picks = ["/sonad", "/review/twins", "/review/map"].map((h) => games.find((g) => g.href === h)!);
   const styles = [
     { id: "inline", title: "A. One line: Estonian (English)" },
     { id: "stacked", title: "B. English in parentheses on a quieter second line" },

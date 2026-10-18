@@ -13,6 +13,7 @@ import { SET_FOR_YOU, doneToday } from "@/lib/ux/workbookDone";
 import { COMMON_GROUPS } from "@/lib/collections/commonGroups";
 import { GameArt } from "./art";
 import { countOf } from "@/lib/copy/locale";
+import { roundName } from "./names";
 
 /**
  * THE PRACTICE PAGE, IN THREE SECTIONS.
@@ -46,7 +47,7 @@ export async function PracticeLook({ ownerId }: { ownerId: string }) {
       <div className="flex flex-col gap-12">
         <Section id="due" title="Due now" hint="What the schedule wants from you today.">
           <HeroFan
-            eyebrow={<span lang="et">Kordamine (Review)</span>}
+            eyebrow={<span lang="et">{roundName("/review").et} ({roundName("/review").en})</span>}
             title={ready > 0 ? `${ready} ${ready === 1 ? "card is" : "cards are"} ready` : "Nothing is due right now"}
             text="Each word comes back just before you'd forget it."
             cardsLabel="Where your cards stand"
@@ -70,7 +71,7 @@ export async function PracticeLook({ ownerId }: { ownerId: string }) {
               <Target size={20} />
             </span>
             <span className="min-w-0 flex-1">
-              <Named et="Päeva ülesanne" en="Daily task" size="text-lg" />
+              <Named {...roundName("/quest")} size="text-lg" />
               <span className="mt-0.5 block text-sm" style={{ color: "var(--ink-2)" }}>Two minutes on the endings you miss most.</span>
             </span>
             <ArrowRight size={18} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
@@ -81,18 +82,18 @@ export async function PracticeLook({ ownerId }: { ownerId: string }) {
           <div className="@container">
             <div className="grid grid-cols-1 gap-4 @3xl:grid-cols-2">
               <Card tone="accent" art={<CardStack />}>
-                <Named et="Õppekaardid" en="Flash cards" size="text-3xl" />
+                <Named {...roundName("/review/flashcards")} size="text-3xl" />
                 <p className="text-base" style={{ color: "var(--ink-2)" }}>Words you&apos;ve met, asked in new ways and typed from memory.</p>
                 <Chips label="Your words">
                   <Chip href="/review/flashcards" title="All words" meta={unfinished > 0 ? `${unfinished} to work on` : undefined} />
                   {stocked.map((d) => <Chip key={d.id} href={`/review/deck/${d.id}`} title={d.name} meta={countOf("en", d.wordCount, "word")} />)}
                 </Chips>
-                <Chips label={<span><span lang="et">Sagedasemad sõnad</span> (Most common words)</span>}>
+                <Chips label={<span><span lang="et">{roundName("/review/common").et}</span> ({roundName("/review/common").en})</span>}>
                   {COMMON_GROUPS.map((g) => <Chip key={g.key} href={`/review/common/${g.slug}`} title={g.title} meta="100 words" />)}
                 </Chips>
               </Card>
               <Card tone="butter" art={<WorkbookPage />}>
-                <Named et="Töövihik" en="Workbook" size="text-3xl" />
+                <Named {...roundName("/review/workbook")} size="text-3xl" />
                 <p className="text-base" style={{ color: "var(--ink-2)" }}>A page of real sentences. Put each word into the form it needs.</p>
                 <Chips label="Choose a page">
                   {[
@@ -119,12 +120,12 @@ export async function PracticeLook({ ownerId }: { ownerId: string }) {
           <div className="@container">
             <ul className="grid grid-cols-1 gap-4 @xl:grid-cols-2 @4xl:grid-cols-4">
               <Skill tone="blush" verb="Hear" items={[
-                { href: "/review/listening", et: "Kuulamine", en: "Listening", art: "/review/listening" },
-                { href: "/review/dictation", et: "Etteütlus", en: "Dictation" },
+                { href: "/review/listening", ...roundName("/review/listening"), art: "/review/listening" },
+                { href: "/review/dictation", ...roundName("/review/dictation") },
               ]} />
-              <Skill tone="sky" verb="Speak" items={[{ href: "/review/speaking", et: "Hääldus", en: "Pronunciation", art: "/review/speaking" }]} />
-              <Skill tone="accent" verb="Write" items={[{ href: "/review/describe", et: "Pildi kirjeldamine", en: "Describing a picture", art: "/review/describe" }]} />
-              <Skill tone="butter" verb="Talk" items={[{ href: "/situations", et: "Olukorrad", en: "Situations", art: "/situations" }]} />
+              <Skill tone="sky" verb="Speak" items={[{ href: "/review/speaking", ...roundName("/review/speaking"), art: "/review/speaking" }]} />
+              <Skill tone="accent" verb="Write" items={[{ href: "/review/describe", ...roundName("/review/describe"), art: "/review/describe" }]} />
+              <Skill tone="butter" verb="Talk" items={[{ href: "/situations", ...roundName("/situations"), art: "/situations" }]} />
             </ul>
           </div>
         </Section>
