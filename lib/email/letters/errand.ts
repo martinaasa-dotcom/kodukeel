@@ -116,7 +116,7 @@ export function errandLetter(input: ErrandInput): Letter {
     blocks.push({
       t: "text",
       text: say(
-        "Want a practice run first? {title} takes about two minutes, with somebody who wants something from you, just like the real thing.",
+        "Want a practice run first? “{title}” takes about two minutes, with somebody who wants something from you, just like the real thing.",
         { title: errand.scene.title },
       ),
     });
@@ -127,7 +127,7 @@ export function errandLetter(input: ErrandInput): Letter {
     });
     blocks.push({
       t: "link",
-      label: say("Or just have a look at the words in {unit}", { unit: errand.unitTitle }),
+      label: say("Or just have a look at the words in “{unit}”", { unit: errand.unitTitle }),
       href: `${input.origin}/learn/${errand.unitId}`,
     });
   } else {

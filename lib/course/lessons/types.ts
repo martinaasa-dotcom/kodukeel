@@ -106,9 +106,9 @@ export interface HowItWorks {
  *
  * `ask` is what the other side says, `cue` is what the learner is to do, in
  * English, and `model` is one way to say it, shown after the learner has had
- * a go. Nothing is marked: the answer is the learner's own (their name, their
- * country), so there is no single right string, and Say it grades nothing
- * (ADR-028).
+ * a go. Say it checks an answer against `model` and grades nothing: often the
+ * answer is the learner's own (their name, their country), so a different one
+ * is never called wrong (ADR-028).
  */
 export interface Prompt {
   readonly ask?: { readonly et: string; readonly en: string };
@@ -156,7 +156,10 @@ export interface LessonSpec {
 export interface PartOfLessons {
   readonly id: string;
   readonly level: Level;
-  /** The Estonian title the plan gives it, in braces like any Estonian in English. */
+  /**
+   * What the part is called, in English. A beginner cannot read an Estonian
+   * heading yet, so A1's parts are named in the language the learner thinks in.
+   */
   readonly title: string;
   /** What the part is about, in English. */
   readonly about: string;

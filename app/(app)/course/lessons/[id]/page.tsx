@@ -29,6 +29,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
   // The one after it in teaching order, which after lesson 26 may be 26a; never into another level.
   const after = LESSONS[LESSONS.indexOf(lesson) + 1];
   const next = after && after.level === lesson.level ? after : null;
+  const ofLevel = LESSONS.filter((l) => l.level === lesson.level);
   return (
     <LessonRunner
       lesson={lesson}
@@ -36,6 +37,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
       review={reviewFor(lesson, before)}
       next={next ? { id: next.id, title: next.title } : null}
       scene={sceneForLesson(lesson.id)?.id ?? null}
+      place={{ at: ofLevel.indexOf(lesson) + 1, of: ofLevel.length }}
     />
   );
 }

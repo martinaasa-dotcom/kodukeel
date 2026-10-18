@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ArrowRight, Check, Target } from "lucide-react";
+import { ArrowRight, Check, Plus, Target } from "lucide-react";
 import { HeroFan } from "@/components/HeroFan";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
@@ -185,7 +185,7 @@ export default async function PracticePage() {
                     {stocked.map((deck) => (
                       <Choice key={deck.id} href={`/review/deck/${deck.id}`} title={deck.name} meta={countOf(locale, deck.wordCount, "word")} />
                     ))}
-                    <Choice href="/words/decks" title={t("Add a deck")} />
+                    <AddChoice href="/words/decks" title={t("Add a deck")} />
                   </Choices>
                   <Choices label={<Link href="/review/common" className="underline-offset-4 hover:underline"><span lang="et">{common.et}</span> ({t(common.en)})</Link>}>
                     {COMMON_GROUPS.map((group) => (
@@ -300,6 +300,39 @@ function Choices({ label, children }: { label: ReactNode; children: ReactNode })
       <p className="label-xs" style={{ color: "var(--ink-3)" }}>{label}</p>
       <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 10rem), 1fr))" }}>{children}</div>
     </div>
+  );
+}
+
+/**
+ * The one box in a row of decks that makes a deck rather than opening one.
+ *
+ * It is a different kind of thing from the boxes beside it, so it is drawn as
+ * one: a dashed edge round an empty ground, which is the usual shape of a
+ * place something can go, and a plus in the accent with the label beside it.
+ * Drawn like its neighbours it read as a deck called "Add a deck". The plus
+ * never shrinks and the label is the one that wraps, beside it rather than
+ * under it, since "Добавить колоду" is wider than the box at some widths and
+ * a label that may not wrap is a label drawn over the border. It is centred in
+ * the row height the grid gives it, since it has no line under its name to
+ * line up with the boxes beside it.
+ */
+function AddChoice({ href, title }: { href: string; title: string }) {
+  return (
+    <Link
+      href={href}
+      data-add-deck=""
+      className="tap-tint flex min-h-11 items-center gap-2.5 rounded-[var(--r)] border border-dashed px-3.5 py-2.5"
+      style={{ borderColor: "var(--accent)", color: "var(--accent-deep)" }}
+    >
+      <span
+        aria-hidden
+        className="grid h-7 w-7 shrink-0 place-items-center rounded-full"
+        style={{ background: "var(--accent-soft)" }}
+      >
+        <Plus size={16} strokeWidth={2.5} />
+      </span>
+      <span className="min-w-0 text-balance text-sm font-semibold">{title}</span>
+    </Link>
   );
 }
 

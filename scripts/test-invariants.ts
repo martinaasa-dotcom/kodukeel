@@ -24162,8 +24162,12 @@ check("the planned course builds its cards behind a press", () => {
     actions, /export async function startCourseDay[\s\S]*?addPlanToDeck\(/,
     "startCourseDay no longer adds the day's words through the shared deck builder",
   );
-  const list = code("components/course/StepList.tsx");
-  assert.match(list, /startCourseDay\(/, "the first step stopped putting the day's words in the deck");
+  /* The list and the module's hero both open a step through one button, and it
+     is that button that puts the day's words in the deck on the first press. */
+  assert.match(code("components/course/OpenStep.tsx"), /startCourseDay\(/, "the first step stopped putting the day's words in the deck");
+  for (const opener of ["components/course/StepList.tsx", "app/(app)/course/page.tsx"]) {
+    assert.match(code(opener), /<OpenStep\b/, `${opener} opens a step without the button that adds the day's words`);
+  }
 });
 
 /*
