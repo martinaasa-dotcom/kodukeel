@@ -106,9 +106,9 @@ export interface HowItWorks {
  *
  * `ask` is what the other side says, `cue` is what the learner is to do, in
  * English, and `model` is one way to say it, shown after the learner has had
- * a go. Nothing is marked: the answer is the learner's own (their name, their
- * country), so there is no single right string, and Say it grades nothing
- * (ADR-028).
+ * a go. Say it checks an answer against `model` and grades nothing: often the
+ * answer is the learner's own (their name, their country), so a different one
+ * is never called wrong (ADR-028).
  */
 export interface Prompt {
   readonly ask?: { readonly et: string; readonly en: string };
