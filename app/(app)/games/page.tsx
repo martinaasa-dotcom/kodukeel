@@ -2,6 +2,7 @@ import { ArrowRight, Check, Lock } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Page, toneInk } from "@/components/ui";
 import { GameArt } from "@/components/games/GameArt";
+import { FitText } from "@/components/FitText";
 import { requireUserId } from "@/lib/auth/session";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
@@ -130,12 +131,17 @@ function spanFor(group: GroupId, i: number, n: number): string {
   return "@2xl:col-span-4";
 }
 
-/** The Estonian name, and its English in parentheses on a quieter line, at every level. */
-function GameName({ href, className, sub = "text-sm" }: { href: string; className: string; sub?: string }) {
+/**
+ * The Estonian name, and its English in parentheses on a quieter line, at every
+ * level. The name is a `FitText`, so a long one shrinks inside a narrow column
+ * rather than breaking: "Väljendid" in the spotlight at 768 was drawn as two
+ * lines before it was.
+ */
+function GameName({ href, size, sub = "text-sm" }: { href: string; size: string; sub?: string }) {
   const name = roundName(href);
   return (
     <span className="block">
-      <span lang="et" className={`block font-display font-bold leading-tight ${className}`} style={{ color: "var(--ink)" }}>{name.et}</span>
+      <FitText text={name.et} max={`var(--text-${size})`} lang="et" className="block font-display font-bold leading-tight" style={{ color: "var(--ink)" }} />
       <span className={`block font-semibold ${sub}`} style={{ color: "var(--ink-3)" }}>({name.en})</span>
     </span>
   );
@@ -150,7 +156,7 @@ function Spotlight({ game, isNew, tomorrow, weekday, done, locale }: {
   return (
     <section
       aria-labelledby="today-game"
-      className="grid overflow-hidden rounded-[var(--r-xl)] border md:grid-cols-[1.15fr_1fr]"
+      className="grid overflow-hidden rounded-[var(--r-xl)] border lg:grid-cols-[1.15fr_1fr]"
       style={{ borderColor: "var(--edge)", background: "var(--surface)" }}
     >
       <div className="grid min-h-64 place-items-center p-8" style={{ background: `var(--${game.tone}-soft)` }}>
@@ -162,7 +168,7 @@ function Spotlight({ game, isNew, tomorrow, weekday, done, locale }: {
             <>{t("Today's game")}, <span lang="et">{estonian}</span> ({t(english)})</>
           ) : `${t("Today's game")}, ${t(english)}`}
         </p>
-        <h2 id="today-game"><GameName href={game.href} className="text-4xl" sub="text-lg" /></h2>
+        <h2 id="today-game"><GameName href={game.href} size="4xl" sub="text-lg" /></h2>
         <p className="text-lg" style={{ color: "var(--ink-2)" }}>{t(game.hook)}</p>
         <div className="flex flex-wrap items-center gap-3 pt-1">
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>{fill(t("About {n} min"), { n: game.minutes })}</span>
@@ -202,7 +208,7 @@ function Tile({ game, level, live, done, big, locale }: {
           <Lock size={12} aria-hidden /> {fill(t("Opens at {level}"), { level: game.from ?? "" })}
         </span>
         <div className="grid flex-1 place-items-center py-2 grayscale"><GameArt href={game.href} size="sm" /></div>
-        <GameName href={game.href} className="text-xl" />
+        <GameName href={game.href} size="xl" />
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t(game.hook)}</p>
       </div>
     );
@@ -231,7 +237,7 @@ function Tile({ game, level, live, done, big, locale }: {
       <span className="grid flex-1 place-items-center py-2"><GameArt href={game.href} size={big ? "md" : "sm"} /></span>
       <span className="flex items-end justify-between gap-3">
         <span className="min-w-0">
-          <GameName href={game.href} className={big ? "text-3xl" : "text-xl"} />
+          <GameName href={game.href} size={big ? "3xl" : "xl"} />
           {big && <span className="mt-1 block text-base" style={{ color: "var(--ink-2)" }}>{t(game.hook)}</span>}
         </span>
         <span aria-hidden className="grid h-10 w-10 shrink-0 place-items-center rounded-full" style={{ background: `var(--${game.tone})`, color: "var(--on-hue)" }}>
