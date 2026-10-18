@@ -14,6 +14,8 @@ import { ButtonLink } from "@/components/Button";
 import { Card, Chip, Meter, Page, SectionTitle, Stack } from "@/components/ui";
 import { Explain } from "@/components/Explain";
 import { StepList } from "@/components/course/StepList";
+import { OpenStep } from "@/components/course/OpenStep";
+import { focusedSteps } from "@/lib/course/focus";
 import { StartProgramme } from "@/components/course/StartProgramme";
 import { NextPart } from "@/components/course/NextPart";
 import { CourseMove } from "@/components/course/CourseMove";
@@ -383,6 +385,14 @@ export default async function CoursePage({
   const unit = unitOf(day);
   const done = day.steps.filter((s) => standing.done.has(s.id)).map((s) => s.id);
   const nextUp = day.steps.find((s) => !standing.done.has(s.id))?.id ?? null;
+  /*
+    THE WAY IN IS AT THE TOP. The open step's own button is on the list under
+    this card, a screen down on a phone, so somebody coming back to an evening
+    they stopped halfway had to scroll to find where they were. The hero carries
+    the same button for the same step: "Start" before anything is done and
+    "Continue" after, and nothing once the evening is finished.
+  */
+  const opening = nextUp ? focusedSteps(programme.id, day.id, day.steps).find((f) => f.step.id === nextUp) : undefined;
 
   return (
     <Page
@@ -435,6 +445,16 @@ export default async function CoursePage({
                 : fill(t("{words} again"), { words: countOf(locale, day.words.length, "word") }),
               minutes: standing.minutesLeft,
             })}
+          action={opening && (
+            <OpenStep
+              programmeId={programme.id}
+              dayId={day.id}
+              stepId={opening.step.id}
+              href={opening.href}
+              label={done.length === 0 ? t("Start") : t("Continue")}
+              size="lg"
+            />
+          )}
           nextLabel={t("Next")}
           cardsLabel={t("What you do today")}
           cards={stepsIn(day, locale).map((step) => {
@@ -458,11 +478,18 @@ export default async function CoursePage({
             what makes an evening feel finite. The Estonian alone: the meanings
             are what the first step is for, and a gloss here would answer the
             question the ladder is about to ask.
+
+            ONE COLOUR FOR ALL OF THEM. They were tinted by whether the deck
+            already held a card for the word, which meant nothing to somebody
+            starting a lesson, borrowed the hue a right answer wears, and on a
+            lesson evening had no sentence beside it to say so: a hue carrying a
+            distinction alone. What is missing from the deck is said in words
+            below, where it is worth saying.
           */}
           <ul className="mt-2 flex flex-wrap gap-2">
             {day.words.map((word) => (
               <li key={word}>
-                <Chip tone={missing.includes(word) ? "neutral" : "good"} caseSensitive>
+                <Chip tone="neutral" caseSensitive>
                   <span lang="et">{word}</span>
                 </Chip>
               </li>
