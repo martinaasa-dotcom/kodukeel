@@ -14,7 +14,7 @@ import type { LessonSpec, PartOfLessons } from "./types";
 export const A1_POOD_PART: PartOfLessons = {
   id: "a1-pood",
   level: "A1",
-  title: "{Poes}",
+  title: "In the shop",
   about: "Describing things: size, colour, clothes, and the weather.",
 };
 

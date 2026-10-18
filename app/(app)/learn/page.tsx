@@ -21,7 +21,7 @@ import { Explain } from "@/components/Explain";
 import { splitIntoLessons } from "@/lib/collections/lesson";
 import { PROGRAMMES } from "@/lib/course";
 import { LESSONS, LESSON_PARTS } from "@/lib/course/lessons";
-import { Braced } from "@/components/Braced";
+import { LessonText } from "@/components/course/LessonText";
 
 export async function generateMetadata() {
   return { title: tr(await localeFor(await requireUserId()), "Learn") };
@@ -332,7 +332,7 @@ export default async function LearnPage() {
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block text-md font-bold group-hover:underline" style={{ color: "var(--ink)" }}>
-                          <Braced text={part.title} />
+                          <LessonText text={part.title} locale={locale} />
                         </span>
                         <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
                           {countOf(locale, LESSONS.filter((l) => l.part === part.id).length, "lesson")}

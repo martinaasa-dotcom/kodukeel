@@ -351,7 +351,7 @@ function How({ lesson }: { lesson: LessonSpec }) {
         <RuleNote summary={how.point} watchOut={how.watchOut} />
       </Card>
       {how.notes && how.notes.length > 0 && (
-        <ul className="flex max-w-[65ch] flex-col gap-3">
+        <ul className="flex flex-col gap-3">
           {how.notes.map((note) => (
             <li key={note} className="text-base leading-relaxed" style={{ color: "var(--ink)" }}><LessonText text={note} locale={locale} /></li>
           ))}

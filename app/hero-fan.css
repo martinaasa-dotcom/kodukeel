@@ -121,6 +121,22 @@
 .hero-fan-caption-dot { width: 0.625rem; height: 0.625rem; flex: none; align-self: center; }
 
 /*
+  ONE STEP AND A BUTTON ON A PHONE IS THE BUTTON. A hand of one card said
+  "Lesson, 18 min" a third time, between the line naming it and the button
+  opening it, and cost the height that pushed that button under the bar on a
+  small phone. So the card goes from the eye and stays for a screen reader,
+  and the line under it says what is next, right above the button.
+*/
+@container hero-fan (max-width: 559px) {
+  .hero-fan-n1.hero-fan-act.hero-fan-steps .hero-fan-cards {
+    position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+  .hero-fan-n1.hero-fan-act.hero-fan-steps .hero-fan-box { margin-top: 1.25rem; }
+  .hero-fan-n1.hero-fan-act.hero-fan-steps .hero-fan-caption { margin-top: 0; }
+  .hero-fan-n1.hero-fan-act.hero-fan-steps .hero-fan-action { margin-top: 1rem; }
+}
+
+/*
   Figures: a short stack of slim cards, one a line, the figure and then its word.
   Side by side they were three cards a phone could not hold: a word like
   "Answered", or "Участвовать" in Russian, was wider than its card and broke.
@@ -140,12 +156,13 @@
 /*
   Where the words and the hand both fit, the hand goes beside them, and the
   words are centred against it by the two empty rows above and below. A
-  headline too long for that column runs across the top instead, and the line
-  under it and the button sit beside the cards.
+  headline that would run past three lines in that column runs across the top
+  instead (measured in components/HeroFan.tsx), and the line under it and the
+  button sit beside the cards.
 */
 @container hero-fan (min-width: 560px) {
   .hero-fan-row {
-    grid-template-columns: minmax(0, max-content) minmax(15rem, 1fr);
+    grid-template-columns: var(--words-cols) var(--hand-cols);
     grid-template-rows: 1fr auto auto auto 1fr;
     grid-template-areas: ". cards" "head cards" "text cards" "action cards" ". cards";
     column-gap: 3rem;
@@ -167,8 +184,8 @@
   width the hand above is the whole of the answer.
 */
 @container hero-fan (min-width: 700px) {
-  .hero-fan:not(.hero-fan-n5, .hero-fan-long, .hero-fan-hand) {
-    .hero-fan-row { grid-template-columns: minmax(0, max-content) minmax(var(--fan-min), 1fr); }
+  .hero-fan:not(.hero-fan-n5, .hero-fan-hand) {
+    .hero-fan-row { grid-template-columns: var(--words-cols) var(--fan-cols); }
     .hero-fan-box { height: 236px; }
     .hero-fan-cards { position: absolute; inset: 0; display: grid; place-items: center; gap: 0; padding: 0; }
     .hero-fan-card {
@@ -193,8 +210,8 @@
   }
 }
 @container hero-fan (min-width: 800px) {
-  .hero-fan-n5:not(.hero-fan-long, .hero-fan-hand) {
-    .hero-fan-row { grid-template-columns: minmax(0, max-content) minmax(var(--fan-min), 1fr); }
+  .hero-fan-n5:not(.hero-fan-hand) {
+    .hero-fan-row { grid-template-columns: var(--words-cols) var(--fan-cols); }
     .hero-fan-box { height: 236px; }
     .hero-fan-cards { position: absolute; inset: 0; display: grid; place-items: center; gap: 0; padding: 0; }
     .hero-fan-card {
@@ -224,9 +241,22 @@
   middle of the card is never empty and the cards never lose their overlap.
   The cards' column is never narrower than the fan at its tightest.
 */
-.hero-fan { --fan-min: 360px; --step-min: 0.78; }
+.hero-fan {
+  --fan-min: 360px; --step-min: 0.78;
+  --words-cols: minmax(0, max-content); --fan-cols: minmax(var(--fan-min), 1fr); --hand-cols: minmax(15rem, 1fr);
+}
 .hero-fan-n4 { --fan-min: 420px; --step-min: 0.84; }
 .hero-fan-n5 { --fan-min: 490px; --step-min: 0.9; }
+/*
+  ONE CARD OR TWO IS NOT A FAN TO SPREAD. Given the rest of the row, a single
+  card sat alone in the middle of a column twice its width with nothing either
+  side of it, which is the empty middle this card exists to avoid arriving by
+  another door. So the cards take exactly the room they are drawn in, against
+  the right edge, and the words take the rest.
+*/
+.hero-fan-n1, .hero-fan-n2 { --words-cols: minmax(0, 1fr); --fan-cols: var(--fan-min); --hand-cols: max-content; }
+.hero-fan-n1 { --fan-min: 190px; }
+.hero-fan-n2 { --fan-min: 330px; }
 .hero-fan-box { --step: clamp(calc(var(--card-w) * var(--step-min)), calc((100cqw - var(--card-w) - 40px) / max(var(--n) - 1, 1)), calc(var(--card-w) * 0.96)); }
 @keyframes hero-fan-deal { from { transform: translateY(24px) rotate(0) scale(0.92); opacity: 0; } }
 @keyframes hero-fan-breathe { 50% { translate: 0 -3px; } }

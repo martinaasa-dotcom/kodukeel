@@ -1459,9 +1459,9 @@ _lib/copy/i18n/areas/today.ts_
   → Відкрити курс
 - [ ] **708.** Today's module is done  
   → Заняття на сьогодні пройдено
-- [ ] **709.** {run} evenings in a row now, and {done} of {total} done.  
+- [ ] **709.** {run} evenings in a row now, and {done} of {total} finished.  
   → Вечорів поспіль: {run}, пройдено {done} з {total}.
-- [ ] **710.** {done} of {total} evenings done. See you tomorrow.  
+- [ ] **710.** {done} of {total} evenings finished. See you tomorrow!  
   → Пройдено вечорів: {done} з {total}. До завтра!
 - [ ] **711.** Come back tomorrow for {unit}.  
   → Повертайтеся завтра: попереду {unit}.

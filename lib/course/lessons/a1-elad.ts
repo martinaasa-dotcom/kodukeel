@@ -18,7 +18,7 @@ import type { LessonSpec, PartOfLessons } from "./types";
 export const A1_ELAD_PART: PartOfLessons = {
   id: "a1-elad",
   level: "A1",
-  title: "{Kus sa elad?}",
+  title: "Where you live",
   about: "Where you live and where you're from, your languages, numbers, and your family.",
 };
 
@@ -154,7 +154,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
     kind: "lesson",
     title: "The neighbours",
     goal: "Say you're from Finland, Sweden, Latvia or Germany, and what that makes you.",
-    cast: { Jaan: "tambet", Anna: "kylli" },
+    cast: { Jaan: "meelis", Anna: "kylli" },
     conversation: [
       { who: "Jaan", et: "Anna, kust sa pärit oled?", en: "Anna, where are you from?" },
       { who: "Anna", et: "Ma olen pärit Soomest. Ma olen soomlane. Aga ma elan Tallinnas.", en: "I'm from Finland. I'm Finnish. But I live in Tallinn." },
@@ -276,7 +276,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
     title: "Saying no",
     goal: "Say what you don't do, with any verb you know.",
     patterns: ["negative"],
-    cast: { Jaan: "tambet", Tom: "kalev" },
+    cast: { Jaan: "meelis", Tom: "kalev" },
     conversation: [
       { who: "Jaan", et: "Tom, kas sa elad Tallinnas?", en: "Tom, do you live in Tallinn?" },
       { who: "Tom", et: "Ei, ma ei ela Tallinnas. Ma elan Tartus.", en: "No, I don't live in Tallinn. I live in Tartu." },
@@ -389,7 +389,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
     kind: "lesson",
     title: "Numbers to 100, and your age",
     goal: "Say any number up to a hundred, and how old you are.",
-    cast: { Liis: "liivika", Tom: "kalev", Jaan: "tambet" },
+    cast: { Liis: "liivika", Tom: "kalev", Jaan: "meelis" },
     conversation: [
       { who: "Liis", et: "Tom, kui vana sa oled?", en: "Tom, how old are you?" },
       { who: "Tom", et: "Ma olen kolmkümmend kaks aastat vana. Ja sina?", en: "I'm thirty-two years old. And you?" },
