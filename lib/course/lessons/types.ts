@@ -124,6 +124,13 @@ export interface SoundRow {
   readonly word: string;
   /** The letters of that word to highlight, where they first occur. */
   readonly mark: string;
+  /**
+   * What the word means, printed under it. A word with a meaning beside it may
+   * be one no evening has taught yet, because it is there to be heard for its
+   * sound: `öö` is the clearest ö there is, and nobody needs "night" on the
+   * first evening to hear it (`ledger.ts` reads it that way).
+   */
+  readonly en?: string;
 }
 
 export interface ListenSet {

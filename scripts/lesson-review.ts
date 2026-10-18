@@ -69,7 +69,7 @@ for (const part of LESSON_PARTS) {
       for (const row of table.rows) say(`| ${row.map(cell).join(" | ")} |`);
     }
     for (const row of lesson.how.sounds ?? []) {
-      say(`- [ ] Sound **${row.glyph}**: ${braced(row.like)}, as in **${nativeClip(row.word).text}** (recorded)`);
+      say(`- [ ] Sound **${row.glyph}**: ${braced(row.like)}, as in **${nativeClip(row.word).text}**${row.en ? ` (${braced(row.en)})` : ""} (recorded)`);
     }
     for (const set of lesson.how.listen ?? []) {
       say(`- [ ] Hear side by side: ${set.words.map((w) => `**${nativeClip(w.clip).text}** (${braced(w.en)})`).join(", ")} (recorded)`);

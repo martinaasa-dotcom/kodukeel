@@ -10485,7 +10485,9 @@ A1 units stay as the dictionary's request list and are no longer walked, so a li
 `/course/lessons`, and a beginner's first run builds no starter deck. Nobody was on the old A1, so the
 switch broke it rather than placing anybody (L4 not needed). Every lesson item becomes a card of
 something the seed writes (`lessonHeads.ts`): a headword once it has been taught, or the lesson's own
-entry. The lessons' English is machine translated into Russian and Ukrainian (`areas/lessonText.ts`),
+entry. One thing in a lesson may run ahead of the ledger: a sound key's example word with its meaning
+printed under it (`SoundRow.en`), there to be heard for its sound, so lesson 1 teaches õ, ä, ö and ü
+together on `öö` and `üks` before any evening teaches either. The lessons' English is machine translated into Russian and Ukrainian (`areas/lessonText.ts`),
 the operator's call, until somebody fluent reads it.
 
 **A lesson's role-play is also a live scene, and it says only what that lesson has taught.**

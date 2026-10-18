@@ -5914,21 +5914,26 @@ a:focus-visible .wave-word::after {
   }
   .snd-play-all:disabled { opacity: 0.6; }
 
-  .snd-rows { display: grid; gap: 0.75rem; }
-  @media (min-width: 720px) { .snd-rows { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  .snd-row {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
+  /* A sound as a tile: two by two in a narrow column, four across where the column has the room. */
+  .snd-letters-room { container-type: inline-size; }
+  .snd-letters { display: grid; gap: 0.75rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @container (min-width: 38rem) { .snd-letters { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  /* Each tile is three rows of the grid (the key, the line, the word), so every word sits at one height across a row of tiles. */
+  .snd-letter {
+    display: grid;
+    min-width: 0;
+    grid-row: span 3;
+    grid-template-rows: subgrid;
+    row-gap: 0.75rem;
+    justify-items: center;
+    align-items: start;
+    padding: 1.1rem 0.75rem 1rem;
     border-radius: var(--r-xl);
     border: 1px solid var(--edge);
     background: var(--surface);
     box-shadow: var(--depth-sm);
+    text-align: center;
   }
-  .snd-row-body { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 0.6rem; }
-  .snd-row-like { display: flex; flex-direction: column; gap: 0.1rem; }
-  .snd-row-as { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; }
 
   .snd-grid { display: flex; flex-wrap: wrap; gap: 0.6rem; }
   /* Columns by the room the content column has, never by the window: at 768 the rail takes a third of it. */

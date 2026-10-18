@@ -79,6 +79,9 @@ export const SOUNDS_AREA: Area = {
     "morning, as in good morning": "утро, как в «доброе утро»",
     "evening, as in good evening": "вечер, как в «добрый вечер»",
     "a phone number, one digit at a time": "номер телефона, по одной цифре",
+    "Four letters English doesn't have": "Четыре буквы, которых нет в английском",
+    "Each is a letter with a sound of its own, not a mark on another letter.": "Каждая из них отдельная буква со своим звуком, а не значок над другой буквой.",
+    "Listen for these too": "Прислушайтесь и к этим",
   },
   uk: {
     "Hear the sound {sound}": "Послухати звук {sound}",
@@ -147,5 +150,8 @@ export const SOUNDS_AREA: Area = {
     "morning, as in good morning": "ранок, як у «доброго ранку»",
     "evening, as in good evening": "вечір, як у «добрий вечір»",
     "a phone number, one digit at a time": "номер телефону, по одній цифрі",
+    "Four letters English doesn't have": "Чотири літери, яких немає в англійській",
+    "Each is a letter with a sound of its own, not a mark on another letter.": "Кожна з них окрема літера з власним звуком, а не значок над іншою літерою.",
+    "Listen for these too": "Прислухайтеся й до цих",
   },
 };

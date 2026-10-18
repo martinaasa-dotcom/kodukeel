@@ -3686,3 +3686,5 @@ teaches.
 
 Not done: the letter names and the English glosses on the sounds page are for the native speaker to
 read, and pass 2 of the recording is kept outside the repository as a spare take of every clip.
+
+The first evening teaches the four letters an English keyboard has no key for as one set of tiles, õ, ä, ö and ü, each a key that plays the sound alone and a word that plays it in use with its meaning under it; mm and h follow under them. Lesson 1 teaches no word with ö or ü in it, so `öö` (night) and `üks` (one) are heard there before any evening teaches them, which the ledger allows only for a sound's example word that carries its meaning (`SoundRow.en`). The two notes that said the same thing in prose came off the How step.
