@@ -51,6 +51,9 @@ import {
 } from "../lib/tutor/provider";
 import { HARNESS_LEVEL, keylessContext, lacksFiniteVerb, routeGate } from "./lib/sceneDraft";
 import { installMeter } from "./lib/meter";
+import { anthropicArms, nameOf } from "./lib/anthropicArms";
+import { openWithFallback } from "../lib/tutor/provider";
+import { estimateCostMicros } from "../lib/usage/pricing";
 
 // What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay off, because it counts a rate over samples, and a sample replayed is not a second sample.
 installMeter({ replay: false });
@@ -86,7 +89,7 @@ const OUT = arg("out", "/tmp/composers.jsonl");
 const SCENE_IDS = arg("scenes", "poodi-piima,arsti-aeg,uuri-remont").split(",");
 
 /** Every free model of every provider whose key is set, one link each. */
-interface Link { provider: string; model: string; url: string; key: string }
+interface Link { provider: string; model: string; url: string; key: string; /** An Anthropic arm: asked through the route's own transport, not a socket of this script's. */ anthropic?: ReturnType<typeof anthropicArms>[number] }
 function links(): Link[] {
   const out: Link[] = [];
   const add = (provider: string, url: string, keyEnv: string, models: readonly string[]) => {
@@ -96,7 +99,9 @@ function links(): Link[] {
   };
   add("Groq", "https://api.groq.com/openai/v1/chat/completions", "GROQ_API_KEY", [...FREE_GROQ_MODELS, ...EXTRA_GROQ]);
   add("Gemini", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", "GEMINI_API_KEY", [...FREE_GEMINI_MODELS, ...EXTRA_GEMINI]);
-  return out.filter((l) => !ONLY_MODEL || l.model === ONLY_MODEL);
+  const free = process.argv.includes("--only-arms") ? [] : out.filter((l) => !ONLY_MODEL || l.model === ONLY_MODEL);
+  const arms: Link[] = anthropicArms(SCENE_REPLY_TOKENS).map((c) => ({ provider: "Anthropic", model: nameOf(c), url: "", key: "", anthropic: c }));
+  return [...free, ...arms];
 }
 
 /**
@@ -146,7 +151,7 @@ function promptFor(scene: SceneSpec, beat: BeatSpec, lemmas: readonly string[]) 
     register: scene.register,
     words: lemmas,
   });
-  return { system: `${system}\n\n${live}`, user: "Your line:" };
+  return { system: `${system}\n\n${live}`, user: "Your line:", split: { system, live } };
 }
 
 /* ------------------------------------------------------------------ *
@@ -203,6 +208,8 @@ interface Row {
   stretched: string[];
   english: string[]; markdown: boolean; sentences: number; translated: boolean;
   noFiniteVerb: boolean; wordCount: number;
+  /** What the call billed, where the provider said: input (cached and written included), output, and the cached and written shares. */
+  inTok: number; outTok: number; cachedTok: number; writtenTok: number;
 }
 
 /**
@@ -247,12 +254,33 @@ const DEFAULT_PACE: Record<string, number> = {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-interface Answer { status: number; text: string; ms: number; waited: number; rateLimits: number }
+interface Answer { status: number; text: string; ms: number; waited: number; rateLimits: number; inTok: number; outTok: number; cachedTok: number; writtenTok: number }
 
-async function ask(link: Link, system: string, user: string): Promise<Answer> {
+async function ask(link: Link, system: string, user: string, split: { system: string; live: string }): Promise<Answer> {
   let waited = 0;
   let rateLimits = 0;
   let status = 0;
+  const usage = { inTok: 0, outTok: 0, cachedTok: 0, writtenTok: 0 };
+
+  if (link.anthropic) {
+    /*
+      THE ROUTE'S OWN CALL: static half as the cached system block, live block
+      after it, the route's ceiling, through `openWithFallback` over one link.
+    */
+    const started = Date.now();
+    try {
+      const open = await openWithFallback(
+        [link.anthropic], split.system, [{ role: "user", content: user }],
+        (u) => { usage.inTok = u.inputTokens; usage.outTok = u.outputTokens; usage.cachedTok = u.cachedInputTokens ?? 0; usage.writtenTok = u.cacheWriteTokens ?? 0; },
+        split.live, SCENE_REPLY_TOKENS, true,
+      );
+      let text = "";
+      for await (const chunk of open.chunks) text += chunk;
+      return { status: 200, text: text.trim(), ms: Date.now() - started, waited, rateLimits, ...usage };
+    } catch {
+      return { status: 0, text: "", ms: Date.now() - started, waited, rateLimits, ...usage };
+    }
+  }
 
   for (let attempt = 0; attempt <= RETRIES; attempt++) {
     const started = Date.now();
@@ -275,6 +303,8 @@ async function ask(link: Link, system: string, user: string): Promise<Answer> {
         body: JSON.stringify({
           model: link.model,
           max_tokens: SCENE_REPLY_TOKENS,
+          // The route's own setting on a Gemini link (`SCENE_MODELS` carry reasoning "none").
+          ...(link.provider === "Gemini" ? { reasoning_effort: "none" } : {}),
           messages: [{ role: "system", content: system }, { role: "user", content: user }],
         }),
         signal: AbortSignal.timeout(90_000),
@@ -302,9 +332,11 @@ async function ask(link: Link, system: string, user: string): Promise<Answer> {
         await sleep(pause);
         continue;
       }
-      if (!res.ok) return { status, text: "", ms, waited, rateLimits };
+      if (!res.ok) return { status, text: "", ms, waited, rateLimits, ...usage };
 
-      const data = await res.json() as { choices?: { message?: { content?: string } }[] };
+      const data = await res.json() as { choices?: { message?: { content?: string } }[]; usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number } };
+      usage.inTok = data.usage?.prompt_tokens ?? 0;
+      usage.outTok = Math.max(data.usage?.completion_tokens ?? 0, (data.usage?.total_tokens ?? 0) - (data.usage?.prompt_tokens ?? 0));
       /*
         A model that writes its reasoning into `content` behind a tag (Gemma 4
         opens with `<thought>`, qwen3.6 with `<think>`) is measured on what it
@@ -315,15 +347,15 @@ async function ask(link: Link, system: string, user: string): Promise<Answer> {
       */
       const raw = data.choices?.[0]?.message?.content ?? "";
       const text = raw.replace(/<(thought|think)>[\s\S]*?<\/\1>\s*/g, "").trim();
-      return { status: 200, text, ms, waited, rateLimits };
+      return { status: 200, text, ms, waited, rateLimits, ...usage };
     } catch {
       // A timeout and a dropped socket are the same fact about the free tier.
-      if (attempt >= RETRIES) return { status: 0, text: "", ms: Date.now() - started, waited, rateLimits };
+      if (attempt >= RETRIES) return { status: 0, text: "", ms: Date.now() - started, waited, rateLimits, ...usage };
       await sleep(BACKOFF_MS[attempt]!);
       waited += BACKOFF_MS[attempt]!;
     }
   }
-  return { status, text: "", ms: 0, waited, rateLimits };
+  return { status, text: "", ms: 0, waited, rateLimits, ...usage };
 }
 
 async function main() {
@@ -347,9 +379,9 @@ async function main() {
       const { lexicon, gate } = keylessContext(scene);
       const lemmas = lexicon.spoken;
       for (const beat of scene.beats) {
-        const { system, user } = promptFor(scene, beat, lemmas);
+        const { system, user, split } = promptFor(scene, beat, lemmas);
         for (let sample = 0; sample < SAMPLES; sample++) {
-          const { status, text, ms, waited, rateLimits } = await ask(link, system, user);
+          const { status, text, ms, waited, rateLimits, inTok, outTok, cachedTok, writtenTok } = await ask(link, system, user, split);
           await sleep(PACE_MS || DEFAULT_PACE[link.provider] || 2_000);
           /*
             GATED THE WAY THE ROUTE GATES, which this was not. Two fields were
@@ -379,6 +411,7 @@ async function main() {
             translated: translated(text),
             noFiniteVerb: text ? lacksFiniteVerb(text, beat) : false,
             wordCount: words(text).length,
+            inTok, outTok, cachedTok, writtenTok,
           };
           // Appended as it lands rather than at the end of the model: a run
           // that dies on a daily cap halfway through has still spent what it
@@ -410,6 +443,26 @@ async function main() {
       `  median ${String(median).padStart(5)}ms  ${secs}s` +
       `  429s ${rows.reduce((n, r) => n + r.rateLimits, 0)}` +
       (statuses.size ? `  [${[...statuses].map(([s, n]) => `${s}x${n}`).join(" ")}]` : ""),
+    );
+    // Cost by the ledger's table, with the cache split priced where the provider reported one.
+    const base = link.anthropic ? link.anthropic.model : link.model;
+    const sum = (f: (r: Row) => number) => rows.reduce((n, r) => n + f(r), 0);
+    const micros = estimateCostMicros(base, sum((r) => r.inTok), sum((r) => r.outTok), {
+      cachedInputTokens: sum((r) => r.cachedTok), cacheWriteTokens: sum((r) => r.writtenTok),
+    });
+    const byCheck = new Map<string, number>();
+    for (const r of answered) for (const c of r.failed) byCheck.set(c, (byCheck.get(c) ?? 0) + 1);
+    const per = Math.max(1, answered.length);
+    console.log(
+      `   ${" ".repeat(33)}tokens a call: in ${Math.round(sum((r) => r.inTok) / per)} `
+      + `(${Math.round(sum((r) => r.cachedTok) / per)} cached) out ${Math.round(sum((r) => r.outTok) / per)}; `
+      + `$${(micros / 1e6 / per).toFixed(5)} a line, $${clean.length ? (micros / 1e6 / clean.length).toFixed(5) : "n/a"} per line that passed the gate`
+      + `  (cold: no conversation behind the line; this transport is the harness's, not the route's cache path for a Gemini link)`,
+    );
+    console.log(
+      `   ${" ".repeat(33)}withheld by check: ${[...byCheck].sort((a, b) => b[1] - a[1]).map(([c, n]) => `${c} ${n}`).join(", ") || "none"}`
+      + `; English ${answered.filter((r) => r.english.length).length}, markdown ${answered.filter((r) => r.markdown).length}, `
+      + `more than one sentence ${answered.filter((r) => r.sentences > 1).length}, translated ${answered.filter((r) => r.translated).length}`,
     );
   }
   console.log(`\nDone. Read ${OUT}.\n`);

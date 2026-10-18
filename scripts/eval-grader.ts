@@ -52,6 +52,7 @@ import { estimateCostMicros } from "../lib/usage/pricing";
 import { CASES } from "../lib/estonian/cases";
 import type { ProviderConfig } from "../lib/tutor/provider";
 import { installMeter } from "./lib/meter";
+import { nameOf, pickCandidates } from "./lib/anthropicArms";
 
 // What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay off, because it counts a rate over samples, and a sample replayed is not a second sample.
 installMeter({ replay: false });
@@ -94,7 +95,7 @@ function fixtures(n: number) {
 const TRIALS = Number(process.env.TRIALS ?? 10);
 const FIX = fixtures(TRIALS);
 
-const CANDIDATES: ProviderConfig[] = [
+const BUILT_IN: ProviderConfig[] = [
   { name: "groq", model: "openai/gpt-oss-120b", label: "Groq" },
   { name: "groq", model: "openai/gpt-oss-20b", label: "Groq" },
   { name: "groq", model: "qwen/qwen3.8-27b", label: "Groq" },
@@ -130,11 +131,15 @@ const CANDIDATES: ProviderConfig[] = [
     : []),
 ];
 
+const CANDIDATES = pickCandidates(BUILT_IN);
+
 type Tally = {
+  /** The verdict each sentence trial returned, in trial order: "-" where none came back. Even trials are the right sentence, odd ones the wrong case. */
+  vector: string[];
   calls: number; verdicts: number; failed: number; withheld: number;
   inTok: number; outTok: number; capHits: number; errors: string[];
 };
-const blank = (): Tally => ({ calls: 0, verdicts: 0, failed: 0, withheld: 0, inTok: 0, outTok: 0, capHits: 0, errors: [] });
+const blank = (): Tally => ({ vector: [], calls: 0, verdicts: 0, failed: 0, withheld: 0, inTok: 0, outTok: 0, capHits: 0, errors: [] });
 
 async function run(cfg: ProviderConfig, shape: "sentence" | "describe" | "composition", cap: number) {
   const t = blank();
@@ -170,13 +175,15 @@ async function run(cfg: ProviderConfig, shape: "sentence" | "describe" | "compos
       t.inTok += res.usage.inputTokens;
       t.outTok += res.usage.outputTokens;
       if (res.usage.outputTokens >= cap) t.capHits++;
-      if (!res.graded) { t.failed++; continue; }
+      if (!res.graded) { t.failed++; t.vector.push("-"); continue; }
       t.verdicts++;
       const first = "sentences" in res.graded ? res.graded.sentences[0]! : res.graded;
+      if (shape === "sentence") t.vector.push(String(("verdict" in first ? first.verdict : "?")).charAt(0));
       const v = verifyComment(first.comment, forms.map((x) => x.value), learner, [f.entry.translation]);
       if (v.reason) t.withheld++;
     } catch (e) {
       t.failed++;
+      if (shape === "sentence") t.vector.push("-");
       const m = e instanceof Error ? e.message : String(e);
       if (!t.errors.includes(m)) t.errors.push(m);
     }
@@ -197,10 +204,11 @@ const SHAPES = [
 
 (async () => {
   console.log(`${FIX.length} trials per cell, real production caps.\n`);
+  const only = process.argv.includes("--shape") ? process.argv[process.argv.indexOf("--shape") + 1] : "";
   for (const cfg of CANDIDATES) {
-    console.log(`\n### ${cfg.model}   (${cfg.name})`);
+    console.log(`\n### ${nameOf(cfg)}   (${cfg.name})`);
     console.log("caller                    verdicts  failed  withheld  hit-cap  avg-out  $/1k calls");
-    for (const s of SHAPES) {
+    for (const s of SHAPES.filter((one) => !only || one.shape === only)) {
       const t = await run(cfg, s.shape, s.cap);
       const per = estimateCostMicros(cfg.model, t.inTok / Math.max(t.calls, 1), t.outTok / Math.max(t.calls, 1));
       console.log(
@@ -209,6 +217,11 @@ const SHAPES = [
         `${String(t.capHits).padStart(9)}${(t.outTok / Math.max(t.calls, 1)).toFixed(0).padStart(9)}` +
         `${("$" + (per * 1000 / 1e6).toFixed(2)).padStart(12)}`,
       );
+      if (s.shape === "sentence") {
+        // Even trials were the right sentence (truth: correct), odd ones the wrong case (truth: not correct).
+        const right = t.vector.filter((v, i) => (i % 2 === 0 ? v === "c" : v !== "c" && v !== "-")).length;
+        console.log(`    sentence verdicts c/a/w: ${t.vector.join(" ")}   matches the truth ${right}/${t.calls}`);
+      }
       if (t.errors.length) console.log(`    errors: ${t.errors.slice(0, 2).join(" | ").slice(0, 180)}`);
     }
   }

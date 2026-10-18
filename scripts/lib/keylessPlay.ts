@@ -143,15 +143,33 @@ export function harnessModel(
     readonly onDraft?: (line: string) => void;
     /** Each ask, with why the attempt before it was withheld where one was. */
     readonly onAsk?: (beatId: string, because: string | undefined) => void;
+    /**
+     * One call per turn the model was asked on, once it is settled: how many
+     * drafts came back, why each earlier one was withheld, whether the last
+     * one reached the screen (and if not, which checks withheld it), and how
+     * long the model made the learner wait. For a harness counting a rate.
+     */
+    readonly onResult?: (result: {
+      beat: string; drafts: number; becauses: readonly (string | undefined)[];
+      composed: boolean; finalWithheld: readonly string[]; ms: number; text: string;
+    }) => void;
   },
 ): (turn: ModelTurn) => Promise<Composition> {
   return async ({ plan, line }) => {
     let written: Awaited<ReturnType<typeof composeTurn>>;
+    const becauses: (string | undefined)[] = [];
+    let drafts = 0;
+    let ms = 0;
     try {
       written = await composeTurn(plan, line, {
-        compose: (ask, conversation, avoid) => {
+        compose: async (ask, conversation, avoid) => {
           options.onAsk?.(line.beat.id, ask.because);
-          return askLine(links, { ...ask, avoid }, ask, conversation, options.onStatus, options.onDraft);
+          becauses.push(ask.because);
+          const started = Date.now();
+          const drafted = await askLine(links, { ...ask, avoid }, ask, conversation, options.onStatus, options.onDraft);
+          ms += Date.now() - started;
+          if (drafted) drafts += 1;
+          return drafted;
         },
         consistency: options.consistency,
         vouch: options.vouch,
@@ -159,6 +177,11 @@ export function harnessModel(
     } catch {
       return { kind: "none" };
     }
+    options.onResult?.({
+      beat: line.beat.id, drafts, becauses, ms, text: written.line.text,
+      composed: written.line.provenance === "composed",
+      finalWithheld: written.line.withheld ?? [],
+    });
     return written.line.provenance === "composed"
       ? { kind: "composed", line: written.line, preBreak: written.preBreak }
       : { kind: "withheld", line: written.line, preBreak: written.preBreak };

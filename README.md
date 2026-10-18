@@ -320,15 +320,16 @@ add it on a line of its own:
    GROQ_API_KEY="paste-your-key-here"
    ```
 Groq then answers Anu on `openai/gpt-oss-120b` whenever Gemini is missing, out of credit or having a
-bad minute. Scenes have no Groq backup: without Gemini, they play the lines written for them in
-advance and tell you the model is out.
+bad minute. Scenes have no Groq backup: without Anthropic or Gemini, they play the lines written for
+them in advance and tell you the model is out.
 
-An `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` is optional and paid. It waits behind the two free keys
-as a fallback for the minute one of them is busy, has its own daily budget, and is never asked
-first.
+An `ANTHROPIC_API_KEY` is paid and is what conversations and scanning lead with: a conversation is
+written on `claude-sonnet-5-5` and a page is read by `claude-haiku-5-5`, each with Gemini behind it.
+For the graders it waits behind the two free keys as a fallback for the minute one of them is busy,
+with its own daily budget. An `OPENAI_API_KEY` is only ever that fallback.
 
-**Scan a page** uses `gemini-3.1-flash-lite`, which read all 144 words with Estonian letters exactly
-right when we measured it. Scanning sticks to that model unless you say otherwise, on purpose:
+**Scan a page** uses `claude-haiku-5-5`, and `gemini-3.1-flash-lite` behind it. Both read all 144
+words with Estonian letters exactly right when we measured them, and Haiku did it for less. Scanning sticks to that model unless you say otherwise, on purpose:
 turning the camera on should never quietly move a free deployment onto a more expensive model.
 `GEMINI_VISION_MODEL`, `GROQ_VISION_MODEL`, `ANTHROPIC_VISION_MODEL` and `OPENAI_VISION_MODEL` let
 you choose a different one, and they're used for scanning and nothing else.
@@ -350,9 +351,12 @@ the three OpenRouter free models answered 429 to every request for the rest of t
 is no longer in the chain). That's simply what a free tier is like, and it's the reason to make the
 lines written in advance good, rather than a reason to change the order of fallbacks.
 
-**Conversations are pinned to `gemini-3.8-flash`, with `gemini-3.1-flash-lite` behind it, and no
-setting can change either.** They're written on Gemini when `GEMINI_API_KEY` is set, with Anthropic
-behind only as a limited last resort. When neither answers, they fall back to their recorded and
+**Conversations are pinned to `claude-sonnet-5-5`, with `gemini-3.8-flash` and then
+`gemini-3.1-flash-lite` behind it, and no setting can change any of them.** Sonnet writes the lines
+that read most like a person, and two things make it affordable: the conversation is read from
+Anthropic's cache rather than sent at full price on every line, and the check that a line keeps to
+what was already said is told what the line is for, so it stops sending good lines back. When none
+of the three answers, they fall back to their recorded and
 prepared lines, and the screen says the model is out. Groq's `qwen/qwen3.8-27b` used to stand
 behind Gemini here, until the day the Gemini balance ran out and it wrote every conversation. It did
 it badly enough that having no model at all was the better answer. The screen names the model that's
