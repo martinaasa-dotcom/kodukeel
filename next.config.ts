@@ -281,6 +281,14 @@ const config: NextConfig = {
         stale: a new model is a new path (lib/speech/model.ts).
       */
       { source: "/asr/model/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
+      /*
+        The native speaker's recordings carry their cut in the query
+        (`nativeUrl`, `NATIVE_CUT`), so a file under one url never changes.
+        Without this a browser asks the server again on every press, which is
+        a round trip in front of every letter of a spelled word whenever the
+        service worker is not there to answer it.
+      */
+      { source: "/audio/native/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
     ];
   },
   /*
