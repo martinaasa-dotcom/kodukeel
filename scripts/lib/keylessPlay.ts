@@ -13,7 +13,7 @@
  */
 import { knowing, replay, type SceneContext, type StoredDraw } from "../../lib/progress/scene";
 import {
-  composeTurn, planTurn, speakTurn, type ComposeIO, type Composition, type ModelTurn,
+  composeTurn, planTurn, speakTurn, type ComposeIO, type Composition, type ModelTurn, type TurnAsk,
 } from "../../lib/progress/sceneTurn";
 import { seedFrom } from "../../lib/random/seeded";
 import { isOver, type SceneState } from "../../lib/scenes/state";
@@ -141,6 +141,11 @@ export function harnessModel(
     readonly consistency?: ComposeIO["consistency"];
     readonly onStatus?: (why: string) => void;
     readonly onDraft?: (line: string) => void;
+    /**
+     * Which of the links an ask goes to, where the harness is measuring a
+     * cascade (`needsStrongModel`). Absent: every ask walks every link in order.
+     */
+    readonly pick?: (ask: TurnAsk, avoid: readonly string[]) => readonly Link[];
     /** Each ask, with why the attempt before it was withheld where one was. */
     readonly onAsk?: (beatId: string, because: string | undefined) => void;
     /**
@@ -166,7 +171,7 @@ export function harnessModel(
           options.onAsk?.(line.beat.id, ask.because);
           becauses.push(ask.because);
           const started = Date.now();
-          const drafted = await askLine(links, { ...ask, avoid }, ask, conversation, options.onStatus, options.onDraft);
+          const drafted = await askLine(options.pick ? options.pick(ask, avoid) : links, { ...ask, avoid }, ask, conversation, options.onStatus, options.onDraft);
           ms += Date.now() - started;
           if (drafted) drafts += 1;
           return drafted;
