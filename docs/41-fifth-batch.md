@@ -1358,6 +1358,14 @@ Three findings.
    audio is the turn the engine heard (`keepAudio`), in the tab only, never stored or sent (D1, D21),
    and both halves count as the app speaking, so the microphone stays closed (D14).
 
+   Both voices are drawn as well as played: a row of bars each, on one time scale for the pair
+   (`lib/audio/waveBars.ts`), so a turn said slower is a longer row and a held vowel a wider hump, and
+   the bars light as each voice plays. Estonian carries meaning in how long a sound lasts, and length
+   is the half of the comparison an eye can check. It is loudness and nothing else, in the accent and
+   never a verdict hue. The turn plays back as the speech alone (`speechOnly`), because the
+   microphone keeps seconds of room after the last word and that was a wait before the native voice
+   with nothing in it.
+
 What a word's light means is now said in words: "Every word was understood", "Understood. That's the
 word.", and the lesson's Say it step says before the first press that a word lights when it is
 understood, even said with an accent. The pair judge of D1 (SP-6) is still the one thing that could

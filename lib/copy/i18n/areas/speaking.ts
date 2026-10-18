@@ -29,8 +29,8 @@ export const SPEAKING: Area = {
 
     // You, then them (CompareVoices): the sound is checked by ear.
     "Hear yourself, then them": "Послушать себя, потом их",
-    "You…": "Вы…",
-    "Now them…": "Теперь они…",
+    "Your voice": "Ваш голос",
+    "Native voice": "Голос носителя",
     "The app checks the words. Your ear checks the sound.": "Приложение проверяет слова. Звучание проверяет ваш слух.",
     "Playing your recording.": "Звучит ваша запись.",
     "Playing the native recording.": "Звучит запись носителя языка.",
@@ -110,8 +110,8 @@ export const SPEAKING: Area = {
 
     // You, then them (CompareVoices): the sound is checked by ear.
     "Hear yourself, then them": "Послухати себе, потім їх",
-    "You…": "Ви…",
-    "Now them…": "Тепер вони…",
+    "Your voice": "Ваш голос",
+    "Native voice": "Голос носія",
     "The app checks the words. Your ear checks the sound.": "Застосунок перевіряє слова. Звучання перевіряє ваш слух.",
     "Playing your recording.": "Звучить ваш запис.",
     "Playing the native recording.": "Звучить запис носія мови.",
