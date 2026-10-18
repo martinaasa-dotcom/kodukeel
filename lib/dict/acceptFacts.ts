@@ -8,7 +8,7 @@ import { substitutesFrom } from "./synonyms";
   `lib/dict/facts.ts` caches what everybody reads about the shared dictionary,
   and the deck builder, the examination and the scanner read it. These two are
   built out of the forms list and the substitution relation, which ADR-005
-  keeps on the accept side: a synthesised spelling or a wrong synonym may let a
+  keeps on the accept side: a synthesized spelling or a wrong synonym may let a
   learner through, and may never become an answer. While they sat in the same
   file, every card builder that read a sentence pool from there reached both
   modules as well, so a rule about which side may read them could only be

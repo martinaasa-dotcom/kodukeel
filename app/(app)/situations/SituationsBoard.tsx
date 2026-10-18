@@ -29,11 +29,11 @@ import { countOf, fill } from "@/lib/copy/locale";
  *
  * "Where?" is answered by the filter: four kinds of place (`lib/scenes/kinds.ts`),
  * each wearing one hue of the mix, so the dot on the chip and the tiles under
- * it are the same colour and a café is always butter.
+ * it are the same color and a café is always butter.
  *
  * "What is this one?" is answered by the tile: the room drawn on its own tint
  * rather than on a slab of night, the title, where you are standing, what it
- * practises, and how long it takes. The room lifts a little under a pointer,
+ * practices, and how long it takes. The room lifts a little under a pointer,
  * which is the only thing on the page that moves on its own accord of yours.
  *
  * Everything shown is handed in from the server, so this file reads no
@@ -215,7 +215,7 @@ function Stage({ tile, turn, onAnother }: {
 
   It was a flex column with the facts pushed down by `mt-auto`, so only the
   last line agreed across a row: a title that wrapped to two lines pushed its
-  own place and chips down, and its neighbours' did not. Measured at 1280,
+  own place and chips down, and its neighbors' did not. Measured at 1280,
   three tiles side by side had their place lines 29px apart and their chips
   75px apart. Each tile spans `TILE_ROWS` rows of the list's own grid now and
   takes them as a subgrid, so the drawing, the kind, the title, the place, the

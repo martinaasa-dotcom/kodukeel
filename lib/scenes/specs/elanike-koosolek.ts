@@ -4,7 +4,7 @@ import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 const RESIDENTS_MEETING: SceneSpec = {
   id: "elanike-koosolek",
   title: "A residents' meeting about the yard",
-  place: "The ground-floor hall of your building, with the neighbours on chairs",
+  place: "The ground-floor hall of your building, with the neighbors on chairs",
   tests: "uhiskond",
   /*
     `uhiskond` for the community and the common good, which is the claim it
@@ -16,7 +16,7 @@ const RESIDENTS_MEETING: SceneSpec = {
     `minevik` for starting it, and `omadussonad` for slowly. `vaba-aeg`,
     `vordlemine` and `varvid` are for the reasons people actually give: the
     children could play there, the air would be cleaner, it would be green.
-    `teie`, because a meeting of neighbours speaks to everybody at once.
+    `teie`, because a meeting of neighbors speaks to everybody at once.
 
     The course does not teach a word for the yard itself, so the learner
     proposes what goes in it (trees, flowers) and the stage directions say
@@ -24,7 +24,7 @@ const RESIDENTS_MEETING: SceneSpec = {
   */
   units: [...COMMON, "uhiskond", "poliitika", "keskkond", "arvamus", "loodus", "kirjeldamine", "inimesed", "plaanid", "ostmine", "kodu", "too-ja-raha", "minevik", "omadussonad", "vaba-aeg", "vordlemine", "varvid"],
   register: "teie",
-  role: "This is a role. The yard behind your building is bare and muddy, and there's a residents' meeting tonight. You want to persuade the neighbours to plant something.",
+  role: "This is a role. The yard behind your building is bare and muddy, and there's a residents' meeting tonight. You want to persuade the neighbors to plant something.",
   props: [],
   /*
     No `contradiction`: its lines had the chair announce there would be no
@@ -70,8 +70,8 @@ const RESIDENTS_MEETING: SceneSpec = {
     },
     {
       id: "cost",
-      goal: "A neighbour says it costs too much. Answer them: you could do it together.",
-      they: "A neighbour says it would cost too much.",
+      goal: "A neighbor says it costs too much. Answer them: you could do it together.",
+      they: "A neighbor says it would cost too much.",
       feel: "glad",
       move: "ask",
       topic: ["raha", "maksma", "kallis"],
@@ -112,8 +112,8 @@ const RESIDENTS_MEETING: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "voted", when: ["greet", "idea", "why", "cost", "vote", "close"], says: "You proposed something, gave a reason, answered the objection and got a vote. Persuading a room of neighbours in Estonian is real civic life." },
-    { id: "voted-thin", when: ["idea", "vote"], says: "It's going to a vote. Answering the neighbour about money is what wins it." },
+    { id: "voted", when: ["greet", "idea", "why", "cost", "vote", "close"], says: "You proposed something, gave a reason, answered the objection and got a vote. Persuading a room of neighbors in Estonian is real civic life." },
+    { id: "voted-thin", when: ["idea", "vote"], says: "It's going to a vote. Answering the neighbor about money is what wins it." },
     { id: "next-time", when: ["greet", "idea"], says: "The meeting ran out of time. That's meetings, not your Estonian; it's on the list for next time." },
     { id: "left", when: [], says: "You left before proposing anything. There's a meeting every month." },
   ],

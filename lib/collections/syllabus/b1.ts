@@ -168,7 +168,7 @@ export const B1 = [
       ["juht", "manager, leader", "NOUN", 174239],
       /*
         What anybody at the Unemployment Insurance Fund says first: `Ma olen töötu`
-        and `Ma tahan end registreerida`. The job-centre scene could not understand
+        and `Ma tahan end registreerida`. The job-center scene could not understand
         either without a model, because no unit taught the two words.
       */
       ["töötu", "unemployed", "ADJECTIVE"],

@@ -162,7 +162,7 @@ list; the measurement below is why it is not, yet.
 Passing pieces by hand fails silently (sherpa logs "Encode hotwords failed, skipping" and decodes
 without them). Pass plain words with `modeling_unit: "bpe"` and a `bpe_vocab` file built from
 `tokens.txt` (one piece and a score per line). Hotwords are matched on the pieces, so give both the
-lower-case and the capitalised spelling of a word that can open a sentence.
+lower-case and the capitalized spelling of a word that can open a sentence.
 
 **Measured** on the Zipformer large on the clean corpus, 8 active paths. "Expect" is the list a
 single contrast word was decoded with: the word itself, its partner alone, or both.
@@ -424,7 +424,7 @@ echo room, where the model invents real words confidently and both decodings agr
 here: TalTech publish it as ONNX only, and a fine-tune needs their PyTorch checkpoint and Icefall
 recipe (section 9). Section 3.7 fine-tunes TalTech's older trainable Zipformer instead. `xls-r-300m-et` is published as PyTorch, so `scripts/asr-finetune.py` is the recipe for
 it: 300 attested sentences none of the test sentences, each said right and with each kind of mistake
-(1,089 clips in six voices none of the test voices), labelled with what was said, half of each batch
+(1,089 clips in six voices none of the test voices), labeled with what was said, half of each batch
 sent through a room (babble, phone line, echo, white noise), the top eight layers trained for 800
 steps on four cores in about an hour, resumable from a checkpoint every 100 steps. Before and after,
 on voices and sentences it never saw:
@@ -613,7 +613,7 @@ The settings of 3.5 and 3.6 stand: 0.5 s lead and 0.8 s tail, level normalized, 
 squeezed to 0.15 s, an unsure word is one the forms list does not hold or two decodings disagree
 on, and a pair is judged only past the 5-nat gate, with the unsure band.
 
-**Licence.** The small model is MIT. The trainable model is CC BY-SA 4.0, and so is the dataset the
+**License.** The small model is MIT. The trainable model is CC BY-SA 4.0, and so is the dataset the
 fine-tune used, so the judge's weights are published under CC BY-SA 4.0 and credited to TalTech, the
 way the Wiktionary glosses are.
 
@@ -713,7 +713,7 @@ DOM; keep the `AudioWorklet` and the recognizer in separate threads, or the mete
 
 - `lib/speech/bias.ts` (to be written): the hotword list for a moment, from a scene lexicon, a beat, or a card, always
   with each form's contrast partners added (`lib/estonian/quantity.ts` and the voicing fold in
-  `sounds.ts`) and both capitalisations. D7 is its test.
+  `sounds.ts`) and both capitalizations. D7 is its test.
 - `lib/speech/reconcile.ts` (to be written): section 3.3, pure, returning `{ heard, understood, repairs, uncertain }`.
 - `lib/speech/verdict.ts` (to be written): D6 as a function: given `heard`, its confidence and a card's accepted
   answers, either `{ grade: "Good" }` or `{ fill: text }` and never anything else.
@@ -733,7 +733,7 @@ that nothing under `lib/speech/` (to be written) or `components/speech/` (to be 
 
 **Done when.** The three modules are tested, ADR-028 is written, and the bias rows run in the harness.
 
-**Trip hazards.** A repair that picks between two real words is a judgement about intent, which 3.3
+**Trip hazards.** A repair that picks between two real words is a judgment about intent, which 3.3
 rule 1 forbids; the test has to include a pair where both spellings are in the forms list.
 
 ### SP-3. Speaking in situations
@@ -814,7 +814,7 @@ and the present persons only, the same narrowing the flash round uses (`beginner
 
 - `/review/speaking`: after the learner records, show what the Zipformer understood beside the
   target, word by word, with a word that differs marked by a dotted underline and a word, never by
-  colour alone. That transcript says whether the words came across; it says nothing about sounds,
+  color alone. That transcript says whether the words came across; it says nothing about sounds,
   because it corrects most of them (section 3.5). Where the target holds a word with a contrast
   partner whose pair passes section 3.6's gate, the forced choice judges that one word and one line
   says what it heard and what tells the two apart, read off `contrastLetter`
@@ -856,7 +856,7 @@ does.
   found unseparable.
 - **Desktop and capable devices only**, because the model is about 320 MB. Where it cannot load, the
   exercise is not offered, rather than run on the Zipformer, which corrects the very mistake it is
-  practising.
+  practicing.
 
 ### SP-7. Voice where it is quick
 
@@ -943,7 +943,7 @@ Estonian written, tokens, one loud action, invariants in their own files), plus:
 ## 10. A brief to paste into a fresh session
 
 > You are working on Kodukeel. Read `CLAUDE.md`, then `docs/39-speech.md`. Do item SP-n of that page
-> and nothing else: run its preflight, follow its section 1 and its brief, honour the decisions in its
+> and nothing else: run its preflight, follow its section 1 and its brief, honor the decisions in its
 > section 2 and the rules in its section 7, write the tests it names first, and run every check in its
 > Verify list. Make no paid model call. Work against a local Postgres with the hosted credentials
 > removed from the shell, as `docs/38-third-batch.md` section 3 describes. Open one pull request titled

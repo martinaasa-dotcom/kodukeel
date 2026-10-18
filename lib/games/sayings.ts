@@ -71,7 +71,7 @@ export interface SeeStep {
   readonly when: string;
   readonly note: string | null;
   readonly sentence: ResolvedSentence;
-  /** What the learner is asked to guess between: the real meaning and its neighbours in the set, shuffled. */
+  /** What the learner is asked to guess between: the real meaning and its neighbors in the set, shuffled. */
   readonly guesses: readonly string[];
 }
 
@@ -79,7 +79,7 @@ export interface SeeStep {
 export interface FitQuestion {
   readonly id: string;
   readonly when: string;
-  /** The right saying and its neighbours in the set, shuffled. */
+  /** The right saying and its neighbors in the set, shuffled. */
   readonly options: readonly { readonly id: string; readonly phrase: string }[];
   readonly phrase: string;
   readonly means: string;
@@ -102,7 +102,7 @@ export interface FillQuestion {
   readonly after: string;
   /** What was taken out. */
   readonly answer: string;
-  /** The answer and its neighbours in the set, shuffled. */
+  /** The answer and its neighbors in the set, shuffled. */
   readonly options: readonly string[];
   readonly sentence: ResolvedSentence;
   /** What the pair means, for the line shown after the answer. */
@@ -134,7 +134,7 @@ export function blankOut(
   const pattern = new RegExp(`(?<![\\p{L}\\p{N}])${escape(particle)}(?![\\p{L}\\p{N}])`, "giu");
   const hits = [...sentence.matchAll(pattern)];
   if (hits.length !== 1) return null;
-  // A word opening the sentence is capitalised there, and the options are the word as the saying spells it.
+  // A word opening the sentence is capitalized there, and the options are the word as the saying spells it.
   if (hits[0]![0] !== particle) return null;
   const at = hits[0]!.index!;
   return { before: sentence.slice(0, at), after: sentence.slice(at + particle.length) };

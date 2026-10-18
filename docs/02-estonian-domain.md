@@ -228,7 +228,7 @@ feature: the learner must know which forms are authoritative.
 | Level | Source | Trust | UI treatment |
 |---|---|---|---|
 | `EKILEX` | Ekilex API form data | Authoritative | Shown plainly |
-| `DERIVED` | Suffix applied to a stored genitive stem | High, mechanical | Shown, labelled "derived" |
+| `DERIVED` | Suffix applied to a stored genitive stem | High, mechanical | Shown, labeled "derived" |
 | `AI` | Suggested by Anu | **Unverified** | Never vouched for: `vouchable` refuses it for a scan, a headline, the word of the day and the chat check, until Ekilex answers for it |
 | `USER` | Typed in by the learner | As reliable as the learner | Editable, marked |
 

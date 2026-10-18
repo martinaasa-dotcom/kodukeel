@@ -96,7 +96,7 @@ describe("the page for Ukrainian speakers", () => {
       ...speakerLines(),
       "Estonian for Ukrainian speakers",
       "What your Ukrainian already gives you, and where it leads you astray.",
-      "Practise it: {round}",
+      "Practice it: {round}",
       "In the dictionary: {gloss}",
     ];
     expect(lines.filter((line) => !translated("uk", line))).toEqual([]);

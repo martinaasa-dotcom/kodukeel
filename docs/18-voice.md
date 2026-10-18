@@ -46,9 +46,9 @@ rules in the same words. Three files used to state this and no two of them agree
 
 **The em dash and the en dash, anywhere a reader can see one.** This is the oldest rule here and the
 loudest single tell there is. A dash used as a clause break is the punctuation of generated prose and
-almost nobody writes it by hand in an interface. Use a comma, a full stop, or a pair of brackets, and
+almost nobody writes it by hand in an interface. Use a comma, a period, or a pair of parentheses, and
 pick per sentence. Note that replacing a dash between two independent clauses with a comma makes a
-comma splice, which reads worse than the dash did: use a full stop. A separator in a label is a
+comma splice, which reads worse than the dash did: use a period. A separator in a label is a
 comma. The middot is on no screen. A range is "2 to 3 weeks" or "2028-2029". An empty cell is `NO_VALUE`
 from `lib/copy/values.ts`, which is "n/a".
 
@@ -78,11 +78,23 @@ comes from writing about a language rather than teaching it. The Ekilex client k
 place, because it is the key their own JSON uses, and `lib/copy/readerCopy.test.ts` excuses that file
 for that one tell by name rather than for the whole list.
 
+**British spelling.** The English is American: color, center, gray, program, organize, neighbor,
+canceled, and practice for the verb as well as the noun. It was a mix, mostly British, because it
+came from three writers at once (copy typed by hand, glosses parsed off Wiktionary, sentences a model
+translated), and two spellings on one screen read as two people. `lib/copy/spelling.ts` is the table
+and `americanize` the one function: `lib/copy/spelling.test.ts` sweeps every string and run of JSX
+text, the seed data and these pages; the Wiktionary parser and the model's translations go through
+`americanize` before they are stored; and the seed respells what a deployment already holds. A
+stored key that happens to be British (`SETTING_KEYS.programme`, a lesson id, a beat id) is not copy
+and is listed in the test with its reason, because renaming it would orphan a row. The words are
+British vocabulary as well as spelling in a few places ("fortnight", "full stop"), which a table
+cannot see, so where a reader meets one it is rewritten by hand.
+
 **Emoji.** This app has an icon system: data that drives UI carries a lucide icon name and
 `components/icons.tsx` is the only place one becomes a component. An emoji at the head of a bullet is
 the visual form of the same tell. The check is drawn narrowly and deliberately: the arrow in
 "Estonian to English", the return key in a keyboard hint, the tick on the week strip and the warning
-sign on a failed connection are typographic glyphs doing a job in one colour, and they stay.
+sign on a failed connection are typographic glyphs doing a job in one color, and they stay.
 
 ## 3. Worked examples
 
@@ -228,14 +240,14 @@ one at 59:
 
 > Alongside those, the app is built out of real buttons and links with a visible focus ring,
 > animation is turned off for anybody whose system asks for reduced motion, no part of it uses a
-> dragging movement, and colour is never the only thing carrying a distinction: a correct answer
+> dragging movement, and color is never the only thing carrying a distinction: a correct answer
 > says so in words as well as in green.
 
 against
 
 > Alongside those, the app is built out of real buttons and links with a visible focus ring.
 > Animation is turned off for anybody whose system asks for reduced motion, and no part of it needs
-> a dragging movement. Colour is never the only thing carrying a distinction, so a correct answer
+> a dragging movement. Color is never the only thing carrying a distinction, so a correct answer
 > says so in words as well as in green.
 
 Nothing was cut. Four claims that were one sentence are four sentences.
@@ -279,7 +291,7 @@ to decode to enjoy is a sentence that made them work for nothing.
 **Stiff where a contraction belongs.** "It is not", "you will", "do not" read as a form letter when
 the sentence around them is friendly. Contractions are how people talk, and they are welcome here.
 
-**Fun is allowed, and it comes from specifics.** Personality is "practise before Sunday lunch, not
+**Fun is allowed, and it comes from specifics.** Personality is "practice before Sunday lunch, not
 halfway through it", a joke about the fourteen cases, a line that sounds like somebody you'd like
 to learn from. It is never an exclamation mark doing the work, and it is never hype.
 
@@ -288,7 +300,7 @@ English lines under example sentences and anything else a model writes for a lea
 copy. Every prompt that asks a model for English a learner will see carries `VOICE_RULES`, and the
 generated text passes through the same table on the way out (section 6).
 
-## 3c. Humour: playful, true, and never at the learner's expense
+## 3c. Humor: playful, true, and never at the learner's expense
 
 The operator asked for the app to be funny, so that people take it a little less seriously and
 enjoy it more, and chose the tone from three drafts: **playful**. A playful line is a true fact said
@@ -303,7 +315,7 @@ against
 The first is a fact about the word, and the joke is that the fact is funny. The second is a joke
 about a film, and the fact gets lost behind it.
 
-**Where the humour comes from.** Mostly from Estonian itself, which is the safest source there is,
+**Where the humor comes from.** Mostly from Estonian itself, which is the safest source there is,
 because a compound read word by word is a fact and nobody had to invent it.
 `lib/estonian/literally.ts` holds the compounds (`kilpkonn`, a shield frog) and the false friends
 (`pea` is a head), and a test holds every one to the shipped dictionary. The English around them,
@@ -347,7 +359,7 @@ sentence written for a laugh is held to every rule `lib/dict/authored.ts` states
   does not. The everyday construction a word exists for, "Mul on külm", has to survive the joke.
 - **Say a thing twice.** The screen already prints "not “tool”" above a look-alike's line, so the
   line opens on something new rather than "A chair, not a tool" again. And a word that only sounds
-  English (`kool`, `hai`) is labelled as sounding it, never as looking it.
+  English (`kool`, `hai`) is labeled as sounding it, never as looking it.
 - **Run on one template.** "It's bad, but I do it anyway" is funny once. The sentences use several
   shapes, a second sentence that turns the first, a reversal, a callback, and "X, aga Y" is kept to
   about a fifth of them, because a learner meets these in a row and a formula shows by the second

@@ -1,8 +1,8 @@
 /**
- * PRACTISE, AND THE REVIEW AFTER IT: BUILT FROM THE LEDGER, SO THEY CANNOT ASK
+ * PRACTICE, AND THE REVIEW AFTER IT: BUILT FROM THE LEDGER, SO THEY CANNOT ASK
  * ANYTHING ELSE (docs/43-lessons.md §1, steps 4 and 6).
  *
- * Recognise first, then produce. Every new word and phrase is met once more
+ * Recognize first, then produce. Every new word and phrase is met once more
  * as a question about its meaning, by ear for a phrase and by eye for a word,
  * and then asked for from its English. The wrong options are the English of
  * other things the learner has been taught, tonight's first, so a beginner on
@@ -62,7 +62,7 @@ export const REVIEW_ITEMS = 6;
 export const CHECKIN_REACH = 4;
 
 /**
- * At most this many recognise questions and this many to produce, so the step
+ * At most this many recognize questions and this many to produce, so the step
  * stays the five minutes the plan gives it. A lesson teaching more than that
  * (the six persons, long and short, are twelve words) asks a different
  * selection each lesson id, and every word is on the Words step whatever this
@@ -71,7 +71,7 @@ export const CHECKIN_REACH = 4;
 export const RECOGNISE_AT_MOST = 10;
 export const PRODUCE_AT_MOST = 6;
 
-/** Options under a recognise question, the answer included. */
+/** Options under a recognize question, the answer included. */
 const OPTIONS = 4;
 
 const sameEnglish = (a: string, b: string) => a.toLocaleLowerCase("en") === b.toLocaleLowerCase("en");
@@ -104,7 +104,7 @@ function optionsFor(item: Taught, pool: readonly Taught[], random: () => number)
   return shuffle([item.en, ...wrong], random);
 }
 
-/** A recognise question for one item: by ear for a phrase, by eye for a word. */
+/** A recognize question for one item: by ear for a phrase, by eye for a word. */
 function recognise(item: Taught, pool: readonly Taught[], random: () => number): PracticeItem {
   const options = optionsFor(item, pool, random);
   return wordsOf(item.et).length > 1
@@ -168,7 +168,7 @@ function produce(item: Taught, pool: readonly Taught[]): PracticeItem {
 }
 
 /**
- * Step 4: recognise, then produce. In the order taught where everything fits,
+ * Step 4: recognize, then produce. In the order taught where everything fits,
  * since that is the order the Words step just showed; a seeded selection
  * where it does not.
  */
@@ -211,7 +211,7 @@ export interface TypedMark {
   readonly note: string;
   /**
    * A wrong answer most of the way there, which is painted nearly and still
-   * says "Not quite" (`nearMiss`: the colour, never the verdict).
+   * says "Not quite" (`nearMiss`: the color, never the verdict).
    */
   readonly close: boolean;
 }

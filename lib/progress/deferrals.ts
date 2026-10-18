@@ -116,7 +116,7 @@ export async function deferWord(
             what reads a row written before this column's other value was
             renamed: `"WEEKS"` was the name while the plain wait was three
             weeks long, and it is three days now. Nothing else in the app
-            compares the stored string, so old rows normalise here rather than
+            compares the stored string, so old rows normalize here rather than
             needing a migration for a name.
           */
           reason: standing.reason === "BAND" ? "BAND" : "SOON",

@@ -122,13 +122,13 @@ export default async function TermReportPage({ params, searchParams }: { params:
         </p>
 
         <dl className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <Figure label={t("Practised at least once")} value={figures.everActive} />
+          <Figure label={t("Practiced at least once")} value={figures.everActive} />
           <Figure label={t("Most in one week")} value={figures.peakActive} />
           <Figure label={t("Answers in all")} value={grouped(locale, figures.totalReviews)} />
         </dl>
 
         <h2 id="term-periods" className="mt-8 text-lg font-bold" style={{ color: "var(--ink)" }}>
-          {t(figures.periods.length < range.weeks ? "Fortnight by fortnight" : "Week by week")}
+          {t(figures.periods.length < range.weeks ? "Two weeks at a time" : "Week by week")}
         </h2>
         {/* A scroller a keyboard can reach, named by the heading over it. */}
         <div className="mt-3 overflow-x-auto" tabIndex={0} role="region" aria-labelledby="term-periods">
@@ -136,7 +136,7 @@ export default async function TermReportPage({ params, searchParams }: { params:
             <thead>
               <tr className="text-left" style={{ color: "var(--ink)" }}>
                 <th scope="col" className="py-1.5 pr-4 font-semibold">{t("Starting")}</th>
-                <th scope="col" className="py-1.5 pr-4 text-right font-semibold">{t("Practised")}</th>
+                <th scope="col" className="py-1.5 pr-4 text-right font-semibold">{t("Practiced")}</th>
                 <th scope="col" className="py-1.5 text-right font-semibold">{t("Answers given")}</th>
               </tr>
             </thead>

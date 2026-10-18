@@ -11,7 +11,7 @@
  *
  * So the very first word carries one line explaining what the rest of the
  * course leaves unsaid until it is asked: the sentence is there for context,
- * not for memorising, and the word alone is the thing to take away. It is
+ * not for memorizing, and the word alone is the thing to take away. It is
  * shown once, gated on the learner not having graded a single review
  * anywhere in the app yet (`reviewsAllTime === 0`), which is the same
  * threshold `lib/ux/disclosure.ts` already uses for "arriving" and needs no

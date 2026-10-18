@@ -51,7 +51,7 @@ export interface Line {
 /**
  * What a lesson teaches, in the kinds a learner can be asked about later.
  *
- *   word    a headword: recognising it, and producing it as it stands
+ *   word    a headword: recognizing it, and producing it as it stands
  *   form    one exact spelling of a word (`olen`, `pole`)
  *   phrase  a whole phrase, learned as it stands and never taken apart
  *           before the lesson that explains it (chunks first)

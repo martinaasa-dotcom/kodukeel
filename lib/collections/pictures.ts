@@ -4,9 +4,9 @@
  * "Say what you see" is the writing part of the state examination in
  * miniature: look at a scene and write five sentences about what is in it and
  * what might be going on. The examination uses drawings. This app has no
- * artist yet and a generated picture is a licence question nobody here can
+ * artist yet and a generated picture is a license question nobody here can
  * answer, so a picture is a scene laid out in emoji: characters drawn by the
- * reader's own font, so nothing ships and no licence is carried. When there is
+ * reader's own font, so nothing ships and no license is carried. When there is
  * money for an Estonian illustrator these sixteen are the briefs.
  *
  * SIXTEEN AND NOT AN ENDLESS SUPPLY, on purpose. Each is composed to be rich
@@ -261,7 +261,7 @@ export const PICTURES: readonly Picture[] = [
   },
   {
     id: "cat-driver",
-    alt: "A cat driving a car past a traffic light, with a dog running after it, a road, a tree, a house and a chequered flag.",
+    alt: "A cat driving a car past a traffic light, with a dog running after it, a road, a tree, a house and a checkered flag.",
     title: "A cat at the wheel",
     rows: ["🐈 🚗 💨", "🚦 🐕 🛣️", "🌳 🏠 🏁"],
     things: [

@@ -15,14 +15,14 @@ export const CHAT: Area = {
   ru: {
     // The offer, under "Today's module is done".
     "Talk it over": "Обсудить",
-    "A short chat with your neighbour, who asks about the things tonight's words are for. Say your answers out loud or type them.":
+    "A short chat with your neighbor, who asks about the things tonight's words are for. Say your answers out loud or type them.":
       "Короткий разговор с соседом, который спросит о том, для чего нужны сегодняшние слова. Отвечайте вслух или печатайте.",
     "Optional. Today's module is already done.": "По желанию. Сегодняшний модуль уже пройден.",
 
     // The chat.
     "Tonight's chat": "Вечерний разговор",
-    "The stairs of your building, with your neighbour": "На лестнице в вашем доме, с соседом",
-    "Your neighbour catches you on the stairs on your way home and stops for a chat. They'll ask about the things tonight's words are for.":
+    "The stairs of your building, with your neighbor": "На лестнице в вашем доме, с соседом",
+    "Your neighbor catches you on the stairs on your way home and stops for a chat. They'll ask about the things tonight's words are for.":
       "Сосед встречает вас на лестнице, когда вы возвращаетесь домой, и останавливается поболтать. Он спросит о том, для чего нужны сегодняшние слова.",
     "Tonight's words": "Сегодняшние слова",
     "It's about tonight": "Это о сегодняшнем вечере",
@@ -36,7 +36,7 @@ export const CHAT: Area = {
       "Сосед спрашивает о чём-то, где пригодится слово, которое значит «{word}».",
     "They remember you talked about \"{before}\" last time, then ask you something that lets you use the word for \"{word}\".":
       "Сосед вспоминает, что в прошлый раз вы говорили о «{before}», и спрашивает о чём-то, где пригодится слово, которое значит «{word}».",
-    "Your neighbour stops on the stairs and says hello.": "Сосед останавливается на лестнице и здоровается.",
+    "Your neighbor stops on the stairs and says hello.": "Сосед останавливается на лестнице и здоровается.",
     "They say goodbye and go on up.": "Сосед прощается и поднимается дальше.",
 
     // How it ends.
@@ -57,13 +57,13 @@ export const CHAT: Area = {
   },
   uk: {
     "Talk it over": "Обговорити",
-    "A short chat with your neighbour, who asks about the things tonight's words are for. Say your answers out loud or type them.":
+    "A short chat with your neighbor, who asks about the things tonight's words are for. Say your answers out loud or type them.":
       "Коротка розмова із сусідом, який запитає про те, для чого потрібні сьогоднішні слова. Відповідайте вголос або друкуйте.",
     "Optional. Today's module is already done.": "За бажанням. Сьогоднішній модуль уже пройдено.",
 
     "Tonight's chat": "Вечірня розмова",
-    "The stairs of your building, with your neighbour": "На сходах у вашому будинку, із сусідом",
-    "Your neighbour catches you on the stairs on your way home and stops for a chat. They'll ask about the things tonight's words are for.":
+    "The stairs of your building, with your neighbor": "На сходах у вашому будинку, із сусідом",
+    "Your neighbor catches you on the stairs on your way home and stops for a chat. They'll ask about the things tonight's words are for.":
       "Сусід зустрічає вас на сходах, коли ви повертаєтеся додому, і зупиняється побалакати. Він запитає про те, для чого потрібні сьогоднішні слова.",
     "Tonight's words": "Сьогоднішні слова",
     "It's about tonight": "Це про сьогоднішній вечір",
@@ -76,7 +76,7 @@ export const CHAT: Area = {
       "Сусід питає про щось, де стане в пригоді слово, яке означає «{word}».",
     "They remember you talked about \"{before}\" last time, then ask you something that lets you use the word for \"{word}\".":
       "Сусід згадує, що минулого разу ви говорили про «{before}», і питає про щось, де стане в пригоді слово, яке означає «{word}».",
-    "Your neighbour stops on the stairs and says hello.": "Сусід зупиняється на сходах і вітається.",
+    "Your neighbor stops on the stairs and says hello.": "Сусід зупиняється на сходах і вітається.",
     "They say goodbye and go on up.": "Сусід прощається і йде нагору.",
 
     "Every one of tonight's words got used on somebody, which is what makes them yours.":

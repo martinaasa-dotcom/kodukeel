@@ -318,7 +318,7 @@ function markAnswered(
 
     case "government": {
       /*
-        THE ANSWER IS NAMED THE WAY THE OPTION WAS LABELLED.
+        THE ANSWER IS NAMED THE WAY THE OPTION WAS LABELED.
 
         These two read `o.en`, so a candidate who chose the button marked
         `osastav` was told on the result screen that the answer was "Partitive"

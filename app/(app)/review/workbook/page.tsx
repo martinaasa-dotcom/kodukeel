@@ -136,7 +136,7 @@ const THEME_CHOICES = 8;
  *   first (`byRecency`).
  *
  *   WHICH THEME. What they asked for by name on the last page; tonight's
- *   case inside the module, since an evening that read the elative practises
+ *   case inside the module, since an evening that read the elative practices
  *   it; then their weakest cases off their own review log, weakest first;
  *   then the personal pronouns and the tenses. `preferredThemes` is the
  *   order and is unit tested; this hands it the facts.

@@ -10,7 +10,7 @@ it is shown.
 A vocabulary app can compute "you would understand 81 percent of everyday situations" out of a
 word count and a list of situations, and several do. It is not a lie. It is the answer to the
 least useful question, because it measures the one thing a learner sitting a real exchange does
-not need to be told: whether they would follow it. Knowing the words for a health centre is what
+not need to be told: whether they would follow it. Knowing the words for a health center is what
 lets you follow the receptionist. It is nothing like what lets you answer her when she says one
 sentence too fast, and it is nothing at all like what lets you open the exchange, steer it and
 recover when it goes sideways. An app that sells the first as the third hands out a confidence the

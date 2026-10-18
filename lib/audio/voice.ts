@@ -98,7 +98,7 @@ export type Autoplay = "on" | "off";
 export const DEFAULT_AUTOPLAY: Autoplay = "off";
 
 /**
- * An unset row and an unrecognised value both read as the default, which is
+ * An unset row and an unrecognized value both read as the default, which is
  * why this tests for `"on"` rather than against `"off"`. Written the other way
  * round, flipping the constant above would have left every existing learner on
  * the old behavior and only new spellings on the new one.

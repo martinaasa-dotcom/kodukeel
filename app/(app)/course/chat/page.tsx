@@ -26,7 +26,7 @@ export async function generateMetadata() {
  * which of its words (`planChat`), and whether there is a chat at all. Where
  * there is none, on a deployment with no model or an evening with too few new
  * words, the address goes back to the module rather than drawing a screen
- * that could only apologise: the module never offered it, so nobody pressed
+ * that could only apologize: the module never offered it, so nobody pressed
  * anything to get here.
  *
  * The same plan is built again when the run opens (`beginChat`), from the same

@@ -14,7 +14,7 @@ import { SPEECH_SETTINGS } from "@/lib/speech/settings";
  * One does now, on the device (docs/41-fifth-batch.md, ADR-028), and the one
  * way a screen listens is `useSpeech()` (D5). So the capture moved there, and
  * what is left here is the half that was always worth having: hearing yourself
- * beside a native voice, which is how shadowing is actually practised.
+ * beside a native voice, which is how shadowing is actually practiced.
  *
  * It plays the audio of the turn the engine just heard, handed over by the
  * screen (`useSpeech({ keepAudio: true })`). That audio lives in this tab only:

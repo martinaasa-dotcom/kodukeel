@@ -46,7 +46,7 @@ function analyse(words: readonly string[], sentences: readonly string[][]): Prom
     child.stdout.on("data", (chunk: string) => { out += chunk; });
     child.on("close", (code) => {
       if (code === 0) resolve(JSON.parse(out) as Answer);
-      else reject(new Error(`the analyser exited with ${code}; is estnltk installed?`));
+      else reject(new Error(`the analyzer exited with ${code}; is estnltk installed?`));
     });
     child.stdin.write(JSON.stringify({ words, sentences }));
     child.stdin.end();

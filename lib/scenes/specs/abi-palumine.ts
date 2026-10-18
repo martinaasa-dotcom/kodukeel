@@ -101,8 +101,8 @@ const ASKING_FOR_HELP: SceneSpec = {
       /*
         What the other side's line is about, which is the bag. The thanks and
         the apology are the learner's, and with "Vabandust!" in the topic the
-        recorded-courtesy rung had the neighbour who had just carried the bag
-        in apologise to the learner instead (FB-5, replayed keyless).
+        recorded-courtesy rung had the neighbor who had just carried the bag
+        in apologize to the learner instead (FB-5, replayed keyless).
       */
       topic: ["kott"],
       /*
@@ -123,7 +123,7 @@ const ASKING_FOR_HELP: SceneSpec = {
     { id: "helped", when: ["greet", "ask", "how", "again", "thanks"], says: "You asked, you didn't catch it, and you asked again instead of nodding. That's the whole skill, and the bag is in." },
     { id: "helped-thin", when: ["ask", "how", "again"], says: "The bag got in and you understood what to do. Next time, a thank you on the way out." },
     { id: "in-a-hurry", when: ["greet", "ask"], says: "They were late for something and couldn't stop. You asked clearly, and the next person might have a minute." },
-    { id: "left", when: [], says: "You got the bag in on your own in the end. Asking is still worth practising." },
+    { id: "left", when: [], says: "You got the bag in on your own in the end. Asking is still worth practicing." },
   ],
 };
 

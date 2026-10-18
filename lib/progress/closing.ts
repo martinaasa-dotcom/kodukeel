@@ -71,7 +71,7 @@ const SELECT = {
  * on the learner, the day and the instant rather than on the scope object,
  * since `scopeFor` builds a fresh one per call and an identity key would never
  * hit; the scope is rebuilt here from the two ids, which is a walk over the
- * programme in memory and no query at all.
+ * program in memory and no query at all.
  *
  * And the ask is recomputed on each render rather than remembered, which is
  * bounded by `CLOSING_REVIEW` whatever happens.

@@ -3,7 +3,7 @@
  *
  * This file holds part one, lessons 1 to 8 (Tere!): hello, being stuck, your
  * name, the six persons, the first questions, yes and no, and how it is going,
- * then an evening that puts all of it together on a neighbour on the stairs.
+ * then an evening that puts all of it together on a neighbor on the stairs.
  * Parts two to eight are a file each (`a1-elad.ts` to `a1-abi.ts`), and
  * `A1_LESSONS` at the foot is all forty-nine in teaching order, which is the
  * order the ledger walks.
@@ -133,7 +133,7 @@ const TERE_LESSONS: readonly LessonSpec[] = [
         "{Vabandust} is both sorry and excuse me, so it opens a question to a stranger too.",
         "{Selge} is clear, and on its own it's how you say you've got it: {Selge! Aitäh!}",
       ],
-      watchOut: "Don't apologise and switch to English at the first word you miss. Say {Aeglasemalt, palun} first: most people are happy to slow down.",
+      watchOut: "Don't apologize and switch to English at the first word you miss. Say {Aeglasemalt, palun} first: most people are happy to slow down.",
       examples: [1, 3],
     },
     answers: [
@@ -441,7 +441,7 @@ const TERE_LESSONS: readonly LessonSpec[] = [
       { ask: { et: "Kuidas läheb?", en: "How's it going?" }, cue: "Answer, and ask it back.", model: { et: "Hästi, aitäh! Ja sinul?", en: "Good, thanks! And you?" } },
     ],
     roleplay: {
-      scene: "You meet a neighbour, Mari, on the stairs. She speaks first. Answer her as yourself.",
+      scene: "You meet a neighbor, Mari, on the stairs. She speaks first. Answer her as yourself.",
       turns: [
         { ask: { et: "Tere õhtust!", en: "Good evening!" }, cue: "Say hello back.", model: { et: "Tere õhtust!", en: "Good evening!" } },
         { ask: { et: "Mina olen Mari. Mis su nimi on?", en: "I'm Mari. What's your name?" }, cue: "Say your name.", model: { et: "Minu nimi on Tom.", en: "My name is Tom." } },

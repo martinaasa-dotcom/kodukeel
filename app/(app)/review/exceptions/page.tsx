@@ -78,7 +78,7 @@ export default async function ExceptionsRoundPage({
     sample. A kind's own page asks for one kind, the chooser asks for a family,
     and a round opened from the module has its own scope. Only a bare visit
     gets the chooser: somebody who followed no link has not said what they want
-    to practise, and the mixed round is one press from it.
+    to practice, and the mixed round is one press from it.
   */
   if (!kindWanted && !family && !params.module && !params.mixed) return <FamilyChooser ownerId={ownerId} />;
   const wantedKinds: ReadonlySet<string> | null = kindWanted
@@ -248,7 +248,7 @@ async function NothingToDrill() {
  * The drill used to open straight into a round drawn across every kind, which
  * felt random. Each card here is one family, named the way the exceptions list
  * names it, with the kinds under it so a learner can see what they are about to
- * practise, and a standing read off their own answers. Never a stored counter
+ * practice, and a standing read off their own answers. Never a stored counter
  * (ADR-014), and never "known" on thin evidence (`standingOf`).
  */
 async function FamilyChooser({ ownerId }: { ownerId: string }) {
@@ -284,7 +284,7 @@ async function FamilyChooser({ ownerId }: { ownerId: string }) {
                       </span>
                     ))}
                   </span>
-                  {/* The card is the press, and nothing on it said so: grey
+                  {/* The card is the press, and nothing on it said so: gray
                       pills under a heading read as a list of facts. */}
                   <span className="mt-auto flex items-center gap-1 pt-2 text-sm font-semibold" style={{ color: "var(--accent-deep)" }}>
                     {t("Start")} <ArrowRight size={15} aria-hidden />

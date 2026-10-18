@@ -50,7 +50,7 @@ page.on("pageerror", (err) => pageErrors.push(`threw: ${err.message}`.slice(0, 1
   be able to name was the one it could not see at all, and a session replaced
   by the error screen read as "no card shape this driver knows" with no hint
   that the app had failed. Both are collected, and the screen itself is
-  recognised below, because a message in the console and a screen the learner
+  recognized below, because a message in the console and a screen the learner
   is looking at are two different claims.
 */
 page.on("console", (msg) => {
@@ -67,7 +67,7 @@ page.on("console", (msg) => {
  * TWO SCREENS CARRY THIS NUMBER AND ONLY ONE OF THEM WAS READ. A session in
  * play prints "12 graded" in its footer; a session whose queue has run out
  * replaces the whole card with the summary, where the same figure is a tile
- * labelled "Reviewed" and the word "graded" appears nowhere. So grading the
+ * labeled "Reviewed" and the word "graded" appears nowhere. So grading the
  * last card of a session read the counter back as absent, `-1 > 11` is false,
  * and the suite reported a grade that had just happened as a card that could
  * not be answered. Both spellings, because which screen a grade lands on is

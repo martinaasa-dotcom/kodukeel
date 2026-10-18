@@ -780,7 +780,7 @@ export const A1 = [
 
       `tähtis`, `huvitav`, `järgmine`, `viimane`, `asi` and `elu` are among the
       commonest words in the language, and a learner could reach B2 without
-      being taught one of them: the course's adjectives were sizes and colours.
+      being taught one of them: the course's adjectives were sizes and colors.
     */
     id: "tahtsad-sonad",
     title: "Tähtsad sõnad",
@@ -938,8 +938,8 @@ export const A1 = [
       ["üheksas", "ninth", "ADJECTIVE"],
       ["kümnes", "tenth", "ADJECTIVE"],
       ["miljon", "million"],
-      ["meeter", "metre"],
-      ["kilomeeter", "kilometre"],
+      ["meeter", "meter"],
+      ["kilomeeter", "kilometer"],
     ],
   }),
 
@@ -1083,7 +1083,7 @@ export const A1 = [
       ["peatus", "stop (bus or tram)", "NOUN", 214917],
       ["bussijaam", "bus station"],
       ["lennujaam", "airport"],
-      ["sadam", "port, harbour"],
+      ["sadam", "port, harbor"],
       ["jalgratas", "bicycle"],
       ["sõit", "a ride, a journey"],
       ["väljuma", "to depart, to leave"],

@@ -165,7 +165,7 @@ function optionRole(select: Select, selected: boolean) {
  * play on every chip that is already chosen when a page loads, which is a
  * screen bouncing at somebody who has not touched it. `scale` rather than
  * `transform`, because the hover lift is a `transform` and the two compose
- * instead of one cancelling the other. Nothing at all for somebody who asked
+ * instead of one canceling the other. Nothing at all for somebody who asked
  * for less motion.
  */
 function spring(el: HTMLElement) {
@@ -249,7 +249,7 @@ export function ChoiceCard({
   const mark = selected ? "var(--accent-deep)" : "var(--ink-3)";
   /*
     Top-aligned, always. A card sits in a grid beside others whose detail runs
-    to a different number of lines, and centring each card's contents in its
+    to a different number of lines, and centering each card's contents in its
     own height puts one title a line lower than the title beside it. So the
     content starts at the top, and the icon and the tick are each held to the
     height of the title's first line (`1lh` at the title's own size), which

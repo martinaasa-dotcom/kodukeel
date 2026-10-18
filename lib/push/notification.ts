@@ -2,7 +2,7 @@
   A NOTIFICATION IS THE LETTER'S OWN FIRST TWO LINES, AND ITS BUTTON.
 
   Nothing here is written for the notification. A letter already has the two
-  lines an inbox shows before anybody opens it, the subject and the grey line
+  lines an inbox shows before anybody opens it, the subject and the gray line
   after it (`Letter.preheader`), and each letter argues at length that those
   two carry the specific fact rather than a label. That is exactly what a
   notification shows. So the title is the subject, the body is the preheader,

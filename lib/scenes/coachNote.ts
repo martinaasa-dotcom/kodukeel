@@ -1,10 +1,10 @@
 /**
- * ANU'S NOTE ON A CONVERSATION: WHAT WENT WELL, AND ONE THING TO PRACTISE.
+ * ANU'S NOTE ON A CONVERSATION: WHAT WENT WELL, AND ONE THING TO PRACTICE.
  *
  * `lib/scenes/recap.ts` says what happened, counted off the run. This is the
  * part a count cannot say: a teacher who read the whole exchange telling the
  * learner, in plain English, what they did well in their own words and the one
- * thing worth practising next. It is the note a good teacher writes at the end
+ * thing worth practicing next. It is the note a good teacher writes at the end
  * of a role-play, and it is written by a model on the grader's chain.
  *
  * THREE BOUNDARIES, AND ALL THREE ARE THE APP'S OWN.
@@ -43,7 +43,7 @@ export interface CoachNoteInput {
 export interface CoachNote {
   /** Two or three sentences on what went well, in the learner's language. `comment` so the verifier reads it. */
   readonly comment: string;
-  /** One concrete thing to practise, in the learner's language. `rule` so the verifier reads it. */
+  /** One concrete thing to practice, in the learner's language. `rule` so the verifier reads it. */
   readonly rule: string;
   /** Up to three ways to make what they said more correct or more rounded, in the learner's language. Each one is verified on its own. */
   readonly improve: readonly string[];

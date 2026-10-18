@@ -30,7 +30,7 @@ describe("personas", () => {
   });
 
   /*
-    A persona is drawn for every scene, a friend on the phone and a neighbour
+    A persona is drawn for every scene, a friend on the phone and a neighbor
     on the stairs as readily as a clerk, so the learner's line may promise a
     way of talking and never a setting: "the queue behind you" or "their first
     week" is nonsense on a call from a friend. A form may be named only on the

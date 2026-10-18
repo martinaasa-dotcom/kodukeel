@@ -216,7 +216,7 @@ describe("a question about the price", () => {
     props: [...CARD.props, { slot: "price", card: "What it costs, in euros.", literal: ["5"], lemmas: ["viis"], shown: ["5 \u20ac"], value: "5", price: true }],
   };
 
-  it("is recognised by a money word or by how much, and by nothing else", () => {
+  it("is recognized by a money word or by how much, and by nothing else", () => {
     expect(asksPrice(["kui", "palju"], LEX)).toBe(true);
     expect(asksPrice(["mis", "hind", "on"], LEX)).toBe(true);
     expect(asksPrice(["kas", "see", "maksab"], LEX)).toBe(true);

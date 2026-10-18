@@ -83,7 +83,7 @@ describe("gapForms", () => {
     /*
       `arsti` is the short illative of `arst` and also its genitive and its
       partitive, and 1,934 of the 2,700 entries that store a short illative
-      store one like that, because that is what the case does. Labelling it
+      store one like that, because that is what the case does. Labeling it
       ILLATIVE left `Läksin ____ juurde.` gapped for a genitive and written
       into the append-only accuracy chart as an illative, and which label it
       got depended on the order the forms came back in. The spelling is still

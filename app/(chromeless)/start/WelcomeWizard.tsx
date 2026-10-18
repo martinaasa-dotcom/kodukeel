@@ -1245,7 +1245,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
           of this wizard and was the wrong offer twice over. It landed somebody
           on `/dictionary` with no name, no level, no goal and an empty deck,
           which is the app at its least useful and the state every other screen
-          then has to apologise for; and it was the most prominent thing on the
+          then has to apologize for; and it was the most prominent thing on the
           first screen after the Continue button, so the app's own suggestion to
           a stranger was to not use it. Four questions is ninety seconds and
           every one of them changes what the learner is shown afterwards.

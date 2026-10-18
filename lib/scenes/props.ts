@@ -85,11 +85,11 @@ export type PropSpec =
        * A PLACE, SO A PLACE NAME THE LEARNER WRITES IS ONE THEY CHOSE.
        *
        * The words a slot can deal are common nouns, the station, the
-       * hospital, the city centre, and at a bus station the first thing
+       * hospital, the city center, and at a bus station the first thing
        * anybody says is a town: `Tartusse`. The forms list holds no
-       * capitalised word on purpose, so a town was read as a word nobody
+       * capitalized word on purpose, so a town was read as a word nobody
        * could place and answered "sorry?", to a learner who had said exactly
-       * where they were going. On a slot marked as a place, a capitalised
+       * where they were going. On a slot marked as a place, a capitalized
        * word the app cannot account for as anything else is that learner
        * changing the fact on their card (ADR-025 amendment 3), which the
        * route adopts like any other chosen value. Its ending is not checked

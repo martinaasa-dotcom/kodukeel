@@ -36,7 +36,7 @@ import { NamedIcon } from "@/components/icons";
  *
  * ONE CARD IS BRIGHT AND THE REST ARE NOT. Today's module is the one thing the
  * app wants somebody to do, so its fan wears the brand mix; every other page
- * draws the same fan in the night's own greys, which is what lets Today stand
+ * draws the same fan in the night's own grays, which is what lets Today stand
  * out without anything shouting.
  *
  * Alive, and finely: the cards are dealt in, the words rise a beat behind
@@ -244,7 +244,7 @@ function Card({ card, i, n, bright }: { card: FanCard; i: number; n: number; bri
     Bright: the hue is the card and the words are the night's own ground on it,
     which is the pairing the palette measures. A finished step steps back to a
     dark card ringed in its hue, so the eye goes to what is left.
-    Muted: two greys a step apart, the next step the lighter one, and the hue
+    Muted: two grays a step apart, the next step the lighter one, and the hue
     kept to a whisper in the icon's chip.
   */
   const surface: CSSProperties = bright

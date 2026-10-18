@@ -36,7 +36,7 @@ export function SituationRow({ reading, locale }: { reading: Reading; locale: Lo
         </span>
       </span>
       {/* Top-aligned, with the arrow on the claim's first line: the tiles sit
-          two to a row and stretch to the taller, so a centred tile put its
+          two to a row and stretch to the taller, so a centered tile put its
           claim lower than the one beside it. */}
       <span aria-hidden className="flex shrink-0 items-center text-base" style={{ height: "1lh" }}>
         <ArrowRight size={16} aria-hidden style={{ color: "var(--ink-3)" }} />

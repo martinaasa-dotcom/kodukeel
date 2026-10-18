@@ -44,7 +44,7 @@ export function CourseMove({ kind, label }: { kind: "down" | "back" | "ahead" | 
     <div>
       <div className="flex flex-wrap gap-2">
         {/* Where there is no move to make, the card is news rather than a
-            question, and the press is an acknowledgement. */}
+            question, and the press is an acknowledgment. */}
         <Button variant="secondary" disabled={pending} onClick={() => run(() => snoozeCourseMove().catch(() => null))}>
           {kind ? t("Not now") : t("Got it")}
         </Button>

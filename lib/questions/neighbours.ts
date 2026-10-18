@@ -36,11 +36,11 @@ import { sensesOf, type Sense } from "@/lib/dict/synonyms";
 import { fold } from "@/lib/estonian/fold";
 import { acceptedForms, checkAnswer, countsAsRecalled } from "@/lib/estonian/answer";
 
-/** The grade a neighbour earns: a pass, brought back sooner. */
+/** The grade a neighbor earns: a pass, brought back sooner. */
 export const NEIGHBOUR_RATING = 2 as const;
 
 /**
- * How many neighbours a card carries at most. High on purpose: the list is
+ * How many neighbors a card carries at most. High on purpose: the list is
  * what the learner's typed word is compared against, and a word left off it
  * is a right word marked wrong. Over the shipped dictionary no word reaches
  * eight, so this is a ceiling against a gloss nobody has written yet rather
@@ -126,7 +126,7 @@ export function neighbourIndex(entries: readonly NeighbourEntry[]): NeighbourInd
  * claimed to be the same. The one line kept is the part of speech, since a
  * noun meaning "help" typed for "to help" is a different answer rather than a
  * second word for this one. Spellings the card already accepts are its own
- * answers, not neighbours.
+ * answers, not neighbors.
  *
  * Closest first: a word whose first sense is the prompt's first sense, then
  * more senses shared, then a matching qualifier, then graded entries, then the
@@ -170,10 +170,10 @@ function normalised(text: string): string {
 }
 
 /**
- * Which neighbour, if any, the learner typed.
+ * Which neighbor, if any, the learner typed.
  *
  * An exact match first, folded so a dropped diacritic still counts. Then a
- * slip of the hand on the neighbour, read by the same `checkAnswer` that
+ * slip of the hand on the neighbor, read by the same `checkAnswer` that
  * forgives one on the card's own word, so being generous about the second
  * word is never stricter than being generous about the first: the screen
  * shows the dictionary's spelling, which is the correction a slip needs.

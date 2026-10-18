@@ -49,6 +49,7 @@ import {
   mergeExamples, parseExamples, serialiseExamples, teachingSentence, mayFillEnglish, type Example,
 } from "../lib/dict/examples";
 import { HARVESTED } from "./data/harvested";
+import { americanize } from "../lib/copy/spelling";
 import { readExpanded } from "./expanded";
 import { englishFor } from "../lib/dict/exampleEnglish";
 
@@ -538,4 +539,111 @@ export async function repairCardSeparators(prisma: PrismaClient): Promise<number
         hint = CASE WHEN hint IS NULL THEN NULL ELSE regexp_replace(hint, '\s*·\s*', ', ', 'g') END
     WHERE front LIKE '%·%' OR back LIKE '%·%' OR hint LIKE '%·%'
   `;
+}
+
+/**
+ * THE ENGLISH A DEPLOYMENT ALREADY HOLDS, SPELLED THE AMERICAN WAY.
+ *
+ * The shipped files are American now (`lib/copy/spelling.ts`), and a database
+ * seeded before that keeps every gloss, every further sense, every sentence's
+ * English and every card built from them in the spelling they arrived in:
+ * the expansion inserts with ON CONFLICT DO NOTHING and a `Card` row carries
+ * its own text. So a learner went on reading "colour" on the entry and
+ * "neighbour" on the card the day the files said "color" and "neighbor".
+ *
+ * WHAT IT MAY TOUCH is English, through `americanize` and nothing else, which
+ * changes a spelling and never a meaning. On the shared dictionary that is
+ * `translation`, `notes` and each sentence's `en`, never its Estonian, and only
+ * on a row nobody has edited by hand and that is not a learner's own word (a
+ * note somebody wrote is theirs, `applyGlossCorrections`'s rule). On a card it
+ * is the English side alone: the back of a recognition card, the front of a
+ * production card, and a hint, which holds the gloss beside the lemma. No
+ * scheduling column. Every write is guarded on the text it read, so a row
+ * changed in between is left as it is, and a second run matches nothing.
+ *
+ * After `applyNotesCorrections` in the seed, because that matches a row on the
+ * note the file shipped, which is the spelling this then replaces.
+ */
+/**
+ * The column with each sentence's English respelled and nothing else touched.
+ * Read raw rather than through `parseExamples`, which leaves a refused sentence
+ * out and would delete it from the row on the way back in.
+ */
+function respelledExamples(stored: string): string {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(stored);
+  } catch {
+    return stored;
+  }
+  if (!Array.isArray(parsed)) return stored;
+  let changed = false;
+  const out = parsed.map((item: unknown) => {
+    if (typeof item !== "object" || item === null) return item;
+    const en = (item as { en?: unknown }).en;
+    if (typeof en !== "string") return item;
+    const american = americanize(en);
+    if (american === en) return item;
+    changed = true;
+    return { ...item, en: american };
+  });
+  return changed ? JSON.stringify(out) : stored;
+}
+
+export async function repairAmericanSpelling(prisma: PrismaClient): Promise<{ entries: number; cards: number }> {
+  const lexemes = await prisma.lexeme.findMany({
+    where: { editedBy: null, provenance: { not: "USER" } },
+    select: { id: true, translation: true, notes: true, examples: true },
+  });
+  const rows: { id: string; t: string; n: string | null; e: string; to: [string, string | null, string] }[] = [];
+  for (const l of lexemes) {
+    const translation = americanize(l.translation);
+    const notes = l.notes === null ? null : americanize(l.notes);
+    const examples = respelledExamples(l.examples);
+    if (translation === l.translation && notes === l.notes && examples === l.examples) continue;
+    rows.push({ id: l.id, t: l.translation, n: l.notes, e: l.examples, to: [translation, notes, examples] });
+  }
+  let entries = 0;
+  for (const batch of chunk(rows, CHUNK)) {
+    const values = batch.map((r) => Prisma.sql`(${r.id}, ${r.t}, ${r.n}::text, ${r.e}, ${r.to[0]}, ${r.to[1]}::text, ${r.to[2]})`);
+    entries += await prisma.$executeRaw`
+      UPDATE "Lexeme" AS l
+      SET translation = v.new_t, notes = v.new_n, examples = v.new_e
+      FROM (VALUES ${Prisma.join(values)}) AS v(id, old_t, old_n, old_e, new_t, new_n, new_e)
+      WHERE l.id = v.id
+        AND l.translation = v.old_t
+        AND l.notes IS NOT DISTINCT FROM v.old_n
+        AND l.examples = v.old_e
+        AND l."editedBy" IS NULL
+    `;
+  }
+
+  const cards = await prisma.card.findMany({
+    where: { lexeme: { provenance: { not: "USER" } } },
+    select: { id: true, cardType: true, front: true, back: true, hint: true },
+  });
+  const cardRows = cards.flatMap((c) => {
+    const front = c.cardType === "PRODUCTION" ? americanize(c.front) : c.front;
+    const back = c.cardType === "RECOGNITION" ? americanize(c.back) : c.back;
+    const hint = c.hint === null ? null : americanize(c.hint);
+    return front === c.front && back === c.back && hint === c.hint
+      ? []
+      : [{ id: c.id, old: [c.front, c.back, c.hint] as const, to: [front, back, hint] as const }];
+  });
+  let respelledCards = 0;
+  for (const batch of chunk(cardRows, CHUNK)) {
+    const values = batch.map(
+      (r) => Prisma.sql`(${r.id}, ${r.old[0]}, ${r.old[1]}, ${r.old[2]}::text, ${r.to[0]}, ${r.to[1]}, ${r.to[2]}::text)`,
+    );
+    respelledCards += await prisma.$executeRaw`
+      UPDATE "Card" AS c
+      SET front = v.new_front, back = v.new_back, hint = v.new_hint
+      FROM (VALUES ${Prisma.join(values)}) AS v(id, old_front, old_back, old_hint, new_front, new_back, new_hint)
+      WHERE c.id = v.id
+        AND c.front = v.old_front
+        AND c.back = v.old_back
+        AND c.hint IS NOT DISTINCT FROM v.old_hint
+    `;
+  }
+  return { entries, cards: respelledCards };
 }

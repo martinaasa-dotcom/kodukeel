@@ -137,7 +137,7 @@ const config: NextConfig = {
     the graph, came back clean: health and metrics, the audio and export and
     scan endpoints, the auth callback, and the icon/manifest generators.
     Nothing here was excluded on the strength of reading its source alone —
-    that is exactly the kind of judgement the original two-readers comment
+    that is exactly the kind of judgment the original two-readers comment
     got wrong, so this list is only ever grown by rebuilding and checking the
     trace again, never by re-reading imports and reasoning about them.
   */

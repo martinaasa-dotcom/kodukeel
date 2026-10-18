@@ -62,7 +62,7 @@ export async function pinnedExamples(
   const lemmas = [...new Set([...wanted.values()].flat().map((p) => p.lemma))];
   const rows = await prisma.lexeme.findMany({
     where: { lemma: { in: lemmas } },
-    // A lemma can carry two entries (`hall` is frost and grey), and which of
+    // A lemma can carry two entries (`hall` is frost and gray), and which of
     // them holds the sentence is decided by looking rather than by ordering.
     select: { id: true, examples: true },
     orderBy: { id: "asc" },

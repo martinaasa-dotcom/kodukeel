@@ -33,7 +33,7 @@ describe("dropStrayFixes", () => {
 });
 
 describe("sentenceRun", () => {
-  it("counts consecutive Estonian words and lets a capitalised name ride inside the run", () => {
+  it("counts consecutive Estonian words and lets a capitalized name ride inside the run", () => {
     const vouched = ["ma", "elan", "ja", "töötan", "kool"];
     expect(sentenceRun("Is this right: Ma elan Tallinnas ja töötan kool.", vouched)).toBe(6);
   });
@@ -43,7 +43,7 @@ describe("sentenceRun", () => {
     expect(isStrayFix("Lugesin raamatu läbi.", "Why is it 'lugesin raamatut' and not 'lugesin raamatu'?", 2)).toBe(true);
   });
 
-  it("does not count a capitalised English word standing on its own", () => {
+  it("does not count a capitalized English word standing on its own", () => {
     expect(sentenceRun("How do you say Tuesday?", [])).toBe(0);
   });
 

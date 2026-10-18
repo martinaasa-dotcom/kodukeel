@@ -25,7 +25,7 @@ export function supabaseConfigured(): boolean {
  * The one shape of this that is neither mode, and must not be read as either.
  *
  * ADR-013 keys local mode on the *absence* of configuration, and a deployment
- * with the URL set and the anon key misspelt is not an absence: it is somebody
+ * with the URL set and the anon key misspelled is not an absence: it is somebody
  * standing up a hosted install who has made one mistake in a dashboard. Read
  * as local mode it opens that install to the internet under one shared id,
  * with `isAdmin()` true for every visitor, and the sign-in screen reads as

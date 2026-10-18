@@ -22,8 +22,8 @@
  *
  * WHAT IS AUTHORED IS ENGLISH, which is the one language this project writes:
  * what each part says on its own, the word-for-word reading, what the word
- * means, and one line about it. The line is where the humour is, and it is held
- * to the standard `docs/18-voice.md` §3c sets for humour: a true fact said with
+ * means, and one line about it. The line is where the humor is, and it is held
+ * to the standard `docs/18-voice.md` §3c sets for humor: a true fact said with
  * a wink, never a pun for its own sake, never an exclamation mark doing the
  * work, and never at the learner's expense. It names no Estonian word, so the
  * Russian and Ukrainian tables can carry it whole (`lib/copy/i18n/areas/wordplay.ts`).
@@ -480,7 +480,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "baseball", word: "pesapall",
     parts: [p("pesa", "pesa", "nest"), p("pall", "pall", "ball")],
     literal: "nest ball", means: "baseball",
-    quip: "The bases are nests, which makes running home sound rather cosy.",
+    quip: "The bases are nests, which makes running home sound rather cozy.",
   },
   {
     id: "dictionary", word: "sõnaraamat",
@@ -591,8 +591,8 @@ export const COMPOUNDS: readonly Compound[] = [
   },
   {
     id: "pet", word: "lemmikloom",
-    parts: [p("lemmik", "lemmik", "favourite"), p("loom", "loom", "animal")],
-    literal: "favourite animal", means: "a pet",
+    parts: [p("lemmik", "lemmik", "favorite"), p("loom", "loom", "animal")],
+    literal: "favorite animal", means: "a pet",
     quip: "Ask any owner. There was never a contest.",
   },
   {
@@ -628,7 +628,7 @@ export const COMPOUNDS: readonly Compound[] = [
   {
     id: "driving-licence", word: "juhiluba",
     parts: [p("juhi", "juht", "leader, driver"), p("luba", "luba", "permission")],
-    literal: "leader permission", means: "a driving licence",
+    literal: "leader permission", means: "a driving license",
     quip: "The same first half leads a choir or a company. On the road it means whoever holds the wheel.",
   },
   {
@@ -682,7 +682,7 @@ export const COMPOUNDS: readonly Compound[] = [
   {
     id: "exclamation-mark", word: "hüüumärk",
     parts: [p("hüüu", "hüüd", "shout"), p("märk", "märk", "sign")],
-    literal: "shout sign", means: "an exclamation mark",
+    literal: "shout sign", means: "an exclamation point",
     quip: "Every sale sign in town has at least one, and usually three.",
   },
   {
@@ -753,8 +753,8 @@ export const COMPOUNDS: readonly Compound[] = [
   },
   {
     id: "deskmate", word: "pinginaaber",
-    parts: [p("pingi", "pink", "bench"), p("naaber", "naaber", "neighbour")],
-    literal: "bench neighbour", means: "a deskmate",
+    parts: [p("pingi", "pink", "bench"), p("naaber", "naaber", "neighbor")],
+    literal: "bench neighbor", means: "a deskmate",
     quip: "The person you share a school bench with, and on a lucky day their answers.",
   },
   {
@@ -791,7 +791,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "pleasure", word: "heameel",
     parts: [p("hea", "hea", "good"), p("meel", "meel", "mind, mood")],
     literal: "good mind", means: "gladness, pleasure",
-    quip: "The good mood you say yes in, without asking what the favour is.",
+    quip: "The good mood you say yes in, without asking what the favor is.",
   },
   {
     id: "conspiracy", word: "vandenõu",
@@ -1061,7 +1061,7 @@ export const COMPOUNDS: readonly Compound[] = [
 
 /**
  * Words spelled exactly like an English word, or said like one, and meaning
- * something else. A word whose `looksLike` is spelled differently is labelled
+ * something else. A word whose `looksLike` is spelled differently is labeled
  * as sounding English rather than looking it (`friendLabel`), so the screen
  * never promises a spelling the word does not have.
  * Common words first, since meeting `pea` on a market stall is the moment this
@@ -1177,7 +1177,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
     quip: "The right coat can do wonders for your mood as well.",
   },  {
     id: "pink", word: "pink", looksLike: "pink", means: "bench",
-    quip: "Paint one rose-coloured and you've covered both meanings.",
+    quip: "Paint one rose-colored and you've covered both meanings.",
   },
   {
     id: "sai", word: "sai", looksLike: "sigh", means: "white bread",
@@ -1208,7 +1208,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
     quip: "In South Africa it's money. Here it's sand and the Baltic.",
   },
   {
-    id: "hall", word: "hall", looksLike: "hall", means: "grey",
+    id: "hall", word: "hall", looksLike: "hall", means: "gray",
     quip: "It is frost as well. An unheated hall in January manages both at once.",
   },
   {
@@ -1257,7 +1257,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "pruun", word: "pruun", looksLike: "prune", means: "brown",
-    quip: "Dried plums are this colour, which helps it stick.",
+    quip: "Dried plums are this color, which helps it stick.",
   },
   {
     id: "till", word: "till", looksLike: "till", means: "dill",

@@ -18,7 +18,7 @@ import { fill } from "@/lib/copy/locale";
  * THE BOXES ARE NAMED THE WAY A LESSON NAMES THEM.
  *
  * Every one of these read "Genitive sg", "Partitive pl", "Short illative": a
- * form somebody fills in, labelled in the one vocabulary they may never have
+ * form somebody fills in, labeled in the one vocabulary they may never have
  * met. The learner this form is for has a word in front of them and a class
  * behind them, and the class said `omastav`. So the label is the Estonian name
  * and the question the case answers, read off `lib/estonian/cases.ts` rather

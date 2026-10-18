@@ -4,7 +4,7 @@
  * the dictionary can say, which case it is.
  *
  * Built off `gapForms` and `readableSpellings`, which is the one answer the app
- * has to "what spellings does this word have", so a form the game recognises is
+ * has to "what spellings does this word have", so a form the game recognizes is
  * a stored form or one of the two derivations ADR-005 amendment 1 allows, and
  * this writes none of its own. Pure, so a page with a database and a unit test
  * read the same thing.
@@ -18,7 +18,7 @@ const BASE_FORM = /^(?:NOM_SG|NOM_PL)$|^EKILEX:(?:SgN|PlN)$/;
 
 export type Index = Record<string, Reading[]>;
 
-/** Spelling to readings, for the entries handed in. Serialisable, for a page to hand a browser. */
+/** Spelling to readings, for the entries handed in. Serializable, for a page to hand a browser. */
 export function buildIndex(entries: readonly GapWord[]): Index {
   const index: Index = {};
   for (const entry of entries) {

@@ -123,7 +123,7 @@ describe("what a sponsor's query reads", () => {
   });
 
   it("counts the people who joined, never the teacher who made the class", async () => {
-    // The teacher practises and the one student has not started: the board's
+    // The teacher practices and the one student has not started: the board's
     // figures and its "Nobody has joined yet" have to describe the same class.
     await history(BOSS, 30, 1, "ELATIVE");
     const alone = await classRoster(classroomId);

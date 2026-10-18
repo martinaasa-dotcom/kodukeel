@@ -127,7 +127,7 @@ export default async function PracticePage() {
   /*
     What is ready right now, per round, where there is a figure worth saying.
     A round with no live figure says only what it is: the standing notes ("No
-    score yet", "Eight words") were a second line of grey on every tile that
+    score yet", "Eight words") were a second line of gray on every tile that
     told nobody anything they needed in order to choose.
   */
   const live: Record<string, string | undefined> = {
@@ -323,7 +323,7 @@ export default async function PracticePage() {
                 at 768 the rail takes a column and a viewport breakpoint laid
                 out three cards where two fit. */}
             {/* Each shelf spans two rows of the grid and takes them as a
-                subgrid, so the coloured headers are one height across a row
+                subgrid, so the colored headers are one height across a row
                 and the first round under each starts on one line. Without it
                 a shelf whose line fits on one line started its list higher
                 than the shelf beside it. `gap-y-0` keeps the header and its
@@ -363,9 +363,9 @@ export default async function PracticePage() {
  * One round on a shelf, drawn exactly like every other one.
  *
  * Top-aligned: the icon is level with the top of the title and the chevron is
- * centred on the icon, so a row whose second line wraps puts its title, its
- * icon and its chevron where every other row puts them. Centring the row put
- * a wrapped row's title half a line above its neighbour's.
+ * centered on the icon, so a row whose second line wraps puts its title, its
+ * icon and its chevron where every other row puts them. Centering the row put
+ * a wrapped row's title half a line above its neighbor's.
  * One line under the title, never two: what the round is, and a live figure
  * after it where there is one.
  */
@@ -395,7 +395,7 @@ function ShelfRow({ mode, line }: { mode: Pick<PracticeMode, "href" | "tone" | "
 }
 
 /**
- * A labelled set of word sets inside the Flash cards card.
+ * A labeled set of word sets inside the Flash cards card.
  *
  * The label is small and quiet and says what the buttons under it have in
  * common; where the set has a page of its own the label goes there.
@@ -418,15 +418,15 @@ function ChoiceGroup({ label, href, children }: { label: string; href?: string; 
 }
 
 /**
- * One set of words to practise, as a button.
+ * One set of words to practice, as a button.
  *
  * Every one is the same shape: a name and one quiet line under it, no dot, no
  * icon. The four frequency lists used to carry a dot apiece and one of them,
  * "Describing words", wrapped its name under its dot at every width, which
  * is the fault `scripts/test-containment.mjs` now asks about on every page.
  *
- * Top-aligned rather than centred: the grid stretches every box in a row to
- * the tallest, so a centred box whose line fits on one line dropped its name
+ * Top-aligned rather than centered: the grid stretches every box in a row to
+ * the tallest, so a centered box whose line fits on one line dropped its name
  * below the names beside it.
  */
 function Choice({ href, title, meta, label, done }: {

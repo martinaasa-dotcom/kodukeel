@@ -85,8 +85,8 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, as
   children: ReactNode;
 }) {
   /* A conversation reached from today's module is a step of an evening
-     rather than a thing chosen off a catalogue, so the door back to the
-     catalogue stands down. See components/course/ModuleScope.tsx. */
+     rather than a thing chosen off a catalog, so the door back to the
+     catalog stands down. See components/course/ModuleScope.tsx. */
   const inModule = useModuleFocus() !== null;
   const t = useT();
   const met = progress?.filter((one) => one.met).length ?? 0;
@@ -111,7 +111,7 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, as
             conversation reached from a module is one step of an evening, and
             the way on from it is the button at the foot of the screen, which
             ticks the step and opens the next. A second door here would go to
-            the catalogue of every other conversation, which is the distraction
+            the catalog of every other conversation, which is the distraction
             the module frame exists to take away.
           */}
           {inModule ? <span className="-ml-2 h-10 w-10 shrink-0" aria-hidden /> : (
@@ -198,7 +198,7 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, as
 
           It takes its height from the stylesheet and the drawing takes the
           height, so the band is one figure on a phone and the same figure a
-          little larger where there is room. Centred, because a room seen across
+          little larger where there is room. Centered, because a room seen across
           a counter is a room seen from where you are standing, and what is
           either side of it on a wide screen is the same quiet ground the bar is
           painted in rather than a second thing to look at.

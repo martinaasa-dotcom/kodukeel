@@ -11,7 +11,7 @@ const EMERGENCY: SceneSpec = {
     `abi` for the emergency itself, `minevik` for what has happened,
     `tegusonad` for falling, `kodu` for the house, `ostmine` for the street,
     `omadussonad` for slowly, and `inimesed` for who fell: "Mees kukkus" is
-    how a call opens, and an unvouched capitalised `Mees` was read as the
+    how a call opens, and an unvouched capitalized `Mees` was read as the
     place on the card. `viisisonad` for `täpselt` and `kiiresti`. `teie`, because it is an official on the line.
 
     THE CARD IS FICTION, AND THE ROLE SAYS SO. Nothing here is a real

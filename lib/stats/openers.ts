@@ -15,7 +15,7 @@ import { openerBySlot, STAGES, MIXED_STAGE } from "@/lib/estonian/openers";
  * right a lot".
  *
  * It only ever OFFERS the next stage. Nothing locks, because the learner is the
- * authority on what they want to practise tonight.
+ * authority on what they want to practice tonight.
  *
  * Pure: no React, no Prisma.
  */

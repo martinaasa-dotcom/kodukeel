@@ -99,7 +99,7 @@ this pipeline does not get to make it.
 person, which is what the dictionary is editable for.
 
 **Part of speech was not touched, and is a separate fault.** `lilla`, `kallis`, `valge`, `sinine`,
-`noor`, `tark` and around 30 others are adjectives labelled `NOUN`. The seed builder draws
+`noor`, `tark` and around 30 others are adjectives labeled `NOUN`. The seed builder draws
 candidates from Wiktionary's categories in order and keeps the first, and nouns are first, so any
 word that is both comes out a noun. Their glosses are right, so it was out of scope here.
 
@@ -118,7 +118,7 @@ is drilled on, in the same band, so it was checked rather than assumed.
 684 of the 1,248 have an independent English reference, either a Wiktionary Estonian entry or an
 entry in `expanded.json`. **657 agree with one. The 27 that share no word with any reference were
 read individually, and all 27 are a choice between synonyms rather than an error**: "native
-language" against "mother tongue", "grey" against "gray", "cheerful" against "happy", "witty"
+language" against "mother tongue", "gray" against "gray", "cheerful" against "happy", "witty"
 against "funny". Several are better than the reference. `meeldima` is glossed "to please, to be
 liked by", where Wiktionary says "to like"; the Estonian verb takes the thing that pleases as its
 subject, so the harvested gloss is the one that will not mislead a beginner about the case
@@ -179,7 +179,7 @@ first sense is the comparative of `hea`). `npm run audit:pos` is that pass, kept
 gloss audit's page cache so whichever runs second is free.
 
 **Twelve of the 61 were being seeded twice.** `pos` is half of `Lexeme`'s conflict key, so a word
-the course harvest labels `ADJECTIVE` and the builder labelled `NOUN` did not collide: it was
+the course harvest labels `ADJECTIVE` and the builder labeled `NOUN` did not collide: it was
 inserted twice, as two entries with two ids and two sets of cards. `kallis`, `valge`, `noor` and
 nine more were in the dictionary twice and nothing anywhere reported it. They are one entry each
 now, which is why `SEED_SET_SIZE` went down by twelve without a word being dropped.
@@ -212,7 +212,7 @@ is what the label is compared against. **673 of the 1,248 could be checked and n
 have no Estonian Wiktionary entry and 100 no sense matching the gloss, which is the same silence §5
 reported for the glosses and is reported rather than guessed at. The one review list worth printing,
 nominals whose lemma carries an ending Estonian adjectives often take, came back empty: all 41 are
-`-mine` and `-nne` nominalisations (`hindamine`, `ettekanne`, `värbamine`), which are nouns by
+`-mine` and `-nne` nominalizations (`hindamine`, `ettekanne`, `värbamine`), which are nouns by
 construction.
 
 That pass is kept, inside `npm run audit:pos`, and it **reports and never writes**. The file says it

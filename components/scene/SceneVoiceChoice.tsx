@@ -18,7 +18,7 @@ import { SCENE_VOICES, type SceneVoice } from "@/lib/audio/sceneVoice";
  * point of having one (lib/audio/sceneVoice.ts).
  *
  * The icon is a second signal beside the word, never the only one, which is
- * the rule about a colour or a shape carrying a distinction on its own.
+ * the rule about a color or a shape carrying a distinction on its own.
  */
 const ICONS: Record<SceneVoice, ReactNode> = {
   text: <Type size={15} aria-hidden />,

@@ -2,7 +2,7 @@
  * C1 — from register to control.
  *
  * At C1 the learner already understands everything in a newspaper. What is
- * missing is production: the ability to nominalise, to subordinate three clauses
+ * missing is production: the ability to nominalize, to subordinate three clauses
  * without losing the thread, to hedge a claim precisely, and to hear the
  * difference between two near-synonyms. So the grammar units here are about
  * compression — turning clauses into phrases — and the topic units are the ones

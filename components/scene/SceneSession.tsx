@@ -446,7 +446,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
   /*
     PICKING OR TYPING. The lines to pick are two or three right answers to the
     beat in front, built off this run's card (`lib/scenes/picks.ts`), so a
-    beginner can hold the whole conversation by recognising the right thing to
+    beginner can hold the whole conversation by recognizing the right thing to
     say before they can produce it. Picking is the default at A1 and typing
     everywhere else, and either is one press away for the whole run: a learner
     who knows the answer types it, and one who is stuck picks it.
@@ -456,7 +456,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
     PICKING, SAYING OR TYPING (VB-4). Saying it is the third choice on batch
     4's switch, offered wherever this deployment can hear on this device, and
     the switch remembers which was used last (`lib/ux/sceneAnswer.ts`). A
-    choice remembered on another device that cannot be honoured here falls
+    choice remembered on another device that cannot be honored here falls
     back to the band's default rather than to a microphone that cannot open.
   */
   const speechConfig = useSpeechConfig();
@@ -582,7 +582,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
     the receptionist was the one voice in the app that always spoke from a
     studio. The pool opens on how many times this learner has had *this*
     conversation, which is the same claim the word pool makes one level down,
-    so a first visit to a health centre is a quiet room and the harder
+    so a first visit to a health center is a quiet room and the harder
     deliveries arrive once the encounter itself has stopped being the hard
     part. Skippable, because nothing marks the words of a line the other side
     says: the learner answers the beat, and catching a sentence from halfway
@@ -1399,7 +1399,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
           ITSELF.
 
           Fourteen conversations opened as fourteen identical white cards, and
-          the only thing telling a health centre from a job interview was the
+          the only thing telling a health center from a job interview was the
           sentence you read. The room says which room it is before a word of it
           is read: `lib/scenes/scenery.ts` gives every scene an icon and one of
           five movements, and the movement is the place's own, so a counter has
@@ -1459,9 +1459,9 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
         </div>
 
         {/*
-          WHAT YOU WILL PRACTISE, AS THINGS RATHER THAN A SENTENCE. It was "You
-          will practise a, b, c, d, and e", which is a list typed out as prose
-          and read as one more grey line. Each is its own pill now, so the
+          WHAT YOU WILL PRACTICE, AS THINGS RATHER THAN A SENTENCE. It was "You
+          will practice a, b, c, d, and e", which is a list typed out as prose
+          and read as one more gray line. Each is its own pill now, so the
           screen says at a glance how much there is and what it is.
         */}
         <section className="flex flex-col gap-2.5" aria-labelledby="scene-practise">
@@ -1484,13 +1484,13 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
         {/*
           THREE PROMISES, ONE IDEA EACH, EACH WITH A MARK OF ITS OWN.
 
-          They were three paragraphs of grey prose saying the three things a
+          They were three paragraphs of gray prose saying the three things a
           learner cannot guess about this screen: who speaks first, that the
           card is a suggestion (ADR-025 amendment 3), and that being a little
           wrong will not end it. Said before the first line rather than
           discovered on the third, because somebody who expects to be marked
           writes less than somebody who expects to be understood. A short name
-          a reader can scan, one line under it, and a coloured disk saying which
+          a reader can scan, one line under it, and a colored disk saying which
           of the three it is, which is `Briefing.tsx`'s step on a light page.
         */}
         <ul className="grid gap-2.5 sm:grid-cols-3">
@@ -1557,8 +1557,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
           exclusive options announced as four unrelated switches and cost four
           tab stops, where a radio group is one stop and says "2 of 4"; and the
           chosen one was told apart by a background alone, which is the rule
-          about a colour never carrying a distinction on its own broken on the
-          one control where the colour *is* the answer. `ChoiceCard` was
+          about a color never carrying a distinction on its own broken on the
+          one control where the color *is* the answer. `ChoiceCard` was
           written for exactly this shape and every other pick-one in the app
           already uses it.
         */}
@@ -1748,7 +1748,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
             OF THEM LOOKS LIKE WHAT IT IS.
 
             A learner sent a screenshot of this card and said it was hard to
-            tell where the information was and that the fonts and colours were
+            tell where the information was and that the fonts and colors were
             arbitrary. They were: the role, the labels, the values and the
             persona were four kinds of thing in one column, all at `text-sm`,
             two of them in the same ink, and one prop kind printed its value
@@ -1842,7 +1842,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                   <li key={beat.id} className="flex items-start gap-2 text-sm">
                     {/*
                       An icon and a word beside the hue, because mint means
-                      recalled and nothing in this app may be carried by colour
+                      recalled and nothing in this app may be carried by color
                       alone. The marker holds its own column and the goal wraps
                       beside it: a `flex-wrap` on the row lets a long objective
                       push its own bullet onto a line of its own, which reads as
@@ -1927,7 +1927,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
         OF WHAT WAS WRONG WITH IT.
 
         It used to be open. On a phone that is a wall: forty words of role,
-        two labelled values, a line about the persona, and then every
+        two labeled values, a line about the persona, and then every
         objective in the scene written out as a sentence, all of it above the
         conversation and all of it read once. A learner sent a screenshot of
         it and called it cluttered and confusing, which it was.
@@ -1983,7 +1983,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
       */}
 
       {opened && (!opened.composed || note) && !modelDown && (
-        /* A quiet status row rather than two lines of small grey prose loose
+        /* A quiet status row rather than two lines of small gray prose loose
            between the card and the conversation: an icon, one sentence, on
            the raised ground every other status in the app sits on. */
         <p
@@ -2076,7 +2076,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                 corner nearest the box it was typed in is squared off, so the
                 two sides of the conversation are told apart by shape as well
                 as by which edge they sit against: a bubble is not a thing a
-                colour may carry on its own either.
+                color may carry on its own either.
               */}
               <div data-who="you" className="scene-bubble inline-block max-w-full">
                 <p lang="et" className="flex items-center justify-end gap-2">
@@ -2284,11 +2284,11 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                   /*
                     TIME PASSING, DRAWN AS SOMETHING THAT HAPPENS.
 
-                    A stage direction is set small and grey because it stands
+                    A stage direction is set small and gray because it stands
                     in for a line and is worth less than one. This is the
                     opposite: it is the scene picking the learner up and
                     putting them somewhere else, and everything after it is
-                    asked about the new place. It was a grey sentence between
+                    asked about the new place. It was a gray sentence between
                     two hairlines, and the learner it was drawn for reported
                     that nothing on the screen had told them the scene had
                     moved. They were reading the right pixels.
@@ -2324,8 +2324,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                     THE APP, OUT OF CHARACTER, AND DRAWN SO NOBODY MISTAKES IT
                     FOR THE OTHER PERSON. A panel in the accent's softest tint
                     with the ink drawn to sit on it, which is the pairing
-                    `test-design.mjs` measures: a hint set as grey italics
-                    beside a grey italic stage direction is a hint nobody sees
+                    `test-design.mjs` measures: a hint set as gray italics
+                    beside a gray italic stage direction is a hint nobody sees
                     at the moment they most need one.
                   */
                   <p
@@ -2338,7 +2338,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                       the whole label set in capitals is a shouted sentence
                       over a panel that exists to be reassuring. The sentence
                       itself is read to a screen reader instead, where the
-                      panel's colour and position say nothing.
+                      panel's color and position say nothing.
                     */}
                     <span className="label-xs block" style={{ color: "var(--accent-deep)" }}>
                       {t("Hint")}

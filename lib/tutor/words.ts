@@ -113,7 +113,7 @@ export function questionWords(messages: readonly { role: string; content: string
  * for a question that named no Estonian at all: "how do you say Tuesday" is
  * grounded on `teisipäev` only if something resolves Tuesday. Asked only where
  * the question resolved no Estonian word at all, so a question already about
- * a word is not padded with its English neighbours ("table" is `laud`, and a
+ * a word is not padded with its English neighbors ("table" is `laud`, and a
  * question asking for a table of `olema` is not about one), and capped,
  * because a gloss lookup is one query and a paragraph is not a question.
  */
@@ -178,7 +178,7 @@ export function personsLine(word: WordFacts): string | null {
 }
 
 /**
- * The eleven cases a nominal takes after the three it memorises, each with its
+ * The eleven cases a nominal takes after the three it memorizes, each with its
  * name, so a case is named off the table rather than guessed at: asked for
  * "on Tuesday" the cheapest model wrote the right form and called it the
  * seesütlev, which is the slip the prompt warns against, and the table is
@@ -211,7 +211,7 @@ export function wordLine(word: WordFacts, tabled = false): string {
     .map(([type, label]) => {
       const value = first(word.forms, type);
       if (!value) return null;
-      // The short illative is only news where it differs from the three the learner memorises.
+      // The short illative is only news where it differs from the three the learner memorizes.
       if (type === "ILL_SG_SHORT" && [first(word.forms, "GEN_SG"), first(word.forms, "PART_SG"), word.lemma].includes(value)) return null;
       return label ? `${label} ${value}` : value;
     })

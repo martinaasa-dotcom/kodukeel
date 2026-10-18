@@ -13,7 +13,7 @@ import { writeWordlist } from "./wordlist";
 import {
   fillExampleEnglish,
   repairCardSeparators, repairCaseFronts, repairCardSpelling, repairGovernmentBacks, repairProductionBacks,
-  repairThinExamples,
+  repairAmericanSpelling, repairThinExamples,
   clearModelBands,
 } from "./repair";
 import { ensureSearchIndexes } from "./indexes";
@@ -85,6 +85,17 @@ async function main() {
   const renoted = await applyNotesCorrections(prisma);
   if (renoted > 0) {
     console.log(`Took another word's senses out of the notes on ${renoted} entries.`);
+  }
+
+  /*
+    And the English a deployment already holds, in the spelling the shipped
+    files use now. After the notes correction, which matches a row on the note
+    the file shipped; before the early return, for the reason the two above
+    are: the expansion never updates a row and a card carries its own text.
+  */
+  const americanized = await repairAmericanSpelling(prisma);
+  if (americanized.entries + americanized.cards > 0) {
+    console.log(`Respelled the English the American way on ${americanized.entries} entries and ${americanized.cards} cards.`);
   }
 
   /*

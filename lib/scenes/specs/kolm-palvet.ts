@@ -3,13 +3,13 @@ import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 
 const THREE_ASKS: SceneSpec = {
   id: "kolm-palvet",
-  title: "The same favour, asked three ways",
+  title: "The same favor, asked three ways",
   place: "A café, then your manager's office, then a service desk",
   tests: "register",
   /*
     `register` is the claim this tests: "say the same thing three ways and
     pick the right one for the room". `tingiv` for asking with "would"
-    (`saaksid`, `saaksite`), `abi` for the favour itself, `too-ja-raha` for
+    (`saaksid`, `saaksite`), `abi` for the favor itself, `too-ja-raha` for
     the manager, `linn-ja-teenused` for the office, and `omadussonad` for
     slowly. It sits on `diskursus`, the evening the brief names.
 
@@ -64,7 +64,7 @@ const THREE_ASKS: SceneSpec = {
         by one (`catalogue.test.ts`). So the question is one way to meet it,
         beside the request itself, which keeps `Palun aita mind` exactly as
         right as it was. Not the question alone: `Kuidas sul läheb?` on the
-        greeting would then have asked the favour for them.
+        greeting would then have asked the favor for them.
       */
       needs: [
         { kind: "register" },
@@ -130,7 +130,7 @@ const THREE_ASKS: SceneSpec = {
     { id: "three-rooms", when: ["greet", "friend", "manager", "official", "close"], says: "Three people, three ways of asking, and the right one each time. That's register, and it's what makes Estonian sound like you live here." },
     { id: "two-rooms", when: ["friend", "manager"], says: "You got the friend and the manager right. The official is the same move, with one more step of politeness." },
     { id: "one-room", when: ["greet", "friend"], says: "The friend was easy. The day ran out before work and the office." },
-    { id: "left", when: [], says: "You left before asking anybody. The favour can wait until tomorrow." },
+    { id: "left", when: [], says: "You left before asking anybody. The favor can wait until tomorrow." },
   ],
 };
 

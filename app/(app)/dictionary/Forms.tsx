@@ -157,7 +157,7 @@ function CaseTable({ forms, subject }: { forms: WordForm[]; subject: CaseSubject
                 for `kuhu?` meets `sisseütlev toasse` first and stops,
                 which for `tuba` hands them the form almost nobody says while
                 `tuppa` sits out of sight under a name they have not met yet.
-                Both are attested and both are labelled correctly, so nothing
+                Both are attested and both are labeled correctly, so nothing
                 here was wrong; it was ordered so that the wrong one is what
                 gets read.
 

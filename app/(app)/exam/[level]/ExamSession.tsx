@@ -502,7 +502,7 @@ function Break({ level, until, now, onResume }: {
 
 // ── The briefing ─────────────────────────────────────────────────────────────
 
-/** The four night colours, one per part, in the order the paper is sat. */
+/** The four night colors, one per part, in the order the paper is sat. */
 const PART_HUES = ["cta", "blush", "accent", "sky"] as const;
 
 /** One thing worth knowing before the clock starts, beside a mark saying what about. */
@@ -1391,7 +1391,7 @@ function Options({ name, options, selected, onSelect, english, stacked }: {
                 onChange={() => onSelect(option.value)}
                 /* Level with the first line of the label, however many lines it
                    runs to, so a two-line option puts its radio where a one-line
-                   neighbour does rather than halfway down its own text. */
+                   neighbor does rather than halfway down its own text. */
                 className="mt-1 size-4 shrink-0 accent-[var(--accent)]"
               />
               <span className="min-w-0">

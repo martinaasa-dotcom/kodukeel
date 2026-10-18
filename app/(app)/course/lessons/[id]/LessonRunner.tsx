@@ -22,11 +22,11 @@ import { SayIt } from "./SayIt";
  *
  * Listen, Words and How it works ask nothing and grade nothing: a learner
  * meets the whole idea before anybody asks them a thing about it, which is
- * the change the plan was written for. Practise and Review ask, out of what
+ * the change the plan was written for. Practice and Review ask, out of what
  * has been taught and nothing else. Say it sits between them as the headline.
  *
  * A learner always knows where they are, because the six steps are listed at
- * the top with the one they are on marked, in words as well as in colour. A
+ * the top with the one they are on marked, in words as well as in color. A
  * step can always be left: the button at the foot says "Continue" once the
  * step is done and "Skip this step" before, so nobody is held in a room, and
  * the three teaching steps are done the moment they are open.
@@ -48,7 +48,7 @@ const STEP_TITLE: Record<Step, string> = {
   listen: "Listen",
   words: "Words",
   how: "How it works",
-  practise: "Practise",
+  practise: "Practice",
   say: "Say it",
   review: "Review",
 };
@@ -232,7 +232,7 @@ function kindOf(item: Taught, t: (english: string) => string): string | null {
 }
 
 /**
- * Neighbours that mean the same thing share a row, so the long and the short
+ * Neighbors that mean the same thing share a row, so the long and the short
  * form read as one word with two spellings (`mina`, `ma`) rather than as two
  * words to learn.
  */

@@ -306,7 +306,7 @@ function extractLexemeData(detail: RawDetails | null) {
       if (!value || value.length > MAX_USAGE_CHARS) continue;
       /*
         And a usage somebody has read and refused is not written down again.
-        `lib/dict/refused.ts` is where that judgement lives and the gate at
+        `lib/dict/refused.ts` is where that judgment lives and the gate at
         `parseExamples` is what makes it hold on a file this run has not
         touched; dropping it here is what stops the generated file carrying
         it at all, so the next reader of a diff is not looking at a sentence

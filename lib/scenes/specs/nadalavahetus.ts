@@ -19,7 +19,7 @@ const WEEKEND: SceneSpec = {
   props: [
     {
       /*
-        Not the theatre or a party: those are what the colleague mishears, so
+        Not the theater or a party: those are what the colleague mishears, so
         neither can be the learner's own. And only places you are in rather
         than at, so "where did you go" is answered in the inessive every time
         (`saunas`, `kinos`, `metsas`, `rannas`) and the recast can say it: a

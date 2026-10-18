@@ -7,7 +7,7 @@
  * briefing and on the cover between two rooms, and then the conversation
  * itself is two columns of cards: the only things saying which side a line
  * belongs to are which edge it sits against and which ink it is written in,
- * and a colour may not be the only thing carrying a distinction here any more
+ * and a color may not be the only thing carrying a distinction here any more
  * than anywhere else (`docs/14-design-system.md`).
  *
  * So the person is beside the line. It is the vignette's own figure at thirty

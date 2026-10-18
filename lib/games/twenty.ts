@@ -39,7 +39,7 @@
  * WHO MAY WRITE ESTONIAN HERE. Nobody who is not a person. The machine reads the
  * learner's question word by word against the dictionary, built off stored forms
  * and the two derivations ADR-005 amendment 1 allows, plus the accept-only forms
- * list where a spelling the dictionary cannot derive still has to be recognised.
+ * list where a spelling the dictionary cannot derive still has to be recognized.
  * No model is asked anything, nothing is generated, and the game works with no
  * key. The Estonian a learner reads back is the dictionary's own headwords, the
  * four answer words (all taught by the course), and a short closed list of
@@ -498,9 +498,9 @@ const DESCRIBING: Record<string, Meaning> = {
   vali: fixed("loud", "Is it loud?", (t) => (t.trait.includes("loud") ? "yes" : t.does.includes("sound") ? "sometimes" : "no"), true),
   lärmakas: fixed("loud", "Is it loud?", (t) => (t.trait.includes("loud") ? "yes" : t.does.includes("sound") ? "sometimes" : "no"), true),
   karvane: fixed("hairy", "Is it hairy?", part("karv"), true),
-  värviline: fixed("colourful", "Is it colourful?", colourful, true),
-  mitmevärviline: fixed("colourful", "Is it colourful?", colourful, true),
-  kirju: fixed("colourful", "Is it colourful?", colourful, true),
+  värviline: fixed("colourful", "Is it colorful?", colourful, true),
+  mitmevärviline: fixed("colourful", "Is it colorful?", colourful, true),
+  kirju: fixed("colourful", "Is it colorful?", colourful, true),
   söödav: fixed("edible", "Can you eat it?", (t) => listed(t.use, t.useS, "eat"), true),
   vana: fixed("old", "Is it old?", opinion("old"), true),
   uus: fixed("new", "Is it new?", opinion("new"), true),
@@ -530,7 +530,7 @@ const DESCRIBING: Record<string, Meaning> = {
 
 const COLOUR_EN: Record<Colour, string> = {
   punane: "red", sinine: "blue", kollane: "yellow", roheline: "green",
-  valge: "white", must: "black", pruun: "brown", hall: "grey", roosa: "pink", oranž: "orange", lilla: "purple",
+  valge: "white", must: "black", pruun: "brown", hall: "gray", roosa: "pink", oranž: "orange", lilla: "purple",
 };
 
 for (const c of COLOURS) {
@@ -932,7 +932,7 @@ export interface AskOptions {
   repair?: Repair;
   /**
    * Spellings known to be real Estonian words, which are never repaired into
-   * another one: `halb` is "bad" and not a slip for `hall`, grey. The forms list
+   * another one: `halb` is "bad" and not a slip for `hall`, gray. The forms list
    * says so (`realSpellings`); with no answer from it, every unknown word may be
    * repaired, which is the right side to err on offline.
    */
@@ -1062,7 +1062,7 @@ export function ask(
 
   /** Spellings read as part of a set phrase, which a spelling tip may not then "correct". */
   const phrased = new Set<string>();
-  // "mitme värvi": of many colours, which is colourful and not a guess at paint.
+  // "mitme värvi": of many colors, which is colorful and not a guess at paint.
   words.forEach((w, i) => {
     if (used.has(i) || w.raw !== "mitme") return;
     const next = words[i + 1];
@@ -1776,7 +1776,7 @@ export function englishToLemma(english: string, glosses: Readonly<Record<string,
 
 /*
   TOPICS. Classroom twenty questions narrows the topic for a beginner, and the old
-  parlour game opened with "animal, vegetable or mineral", so the game says up front
+  parlor game opened with "animal, vegetable or mineral", so the game says up front
   which of a few groups the thing is in. It picks the group itself, every round:
   a chooser on a screen whose whole job is a question was one more decision before
   the first one, and the line it chose beside the line naming the thing's kind read

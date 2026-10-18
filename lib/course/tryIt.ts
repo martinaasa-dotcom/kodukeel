@@ -270,7 +270,7 @@ export function caseAsks(
       : "";
     /*
       BY MEANING WHERE IT CAN BE. "Which one is vanus, age, in the seesütlev?"
-      asks a learner to recognise a word and a name, and the name is the one
+      asks a learner to recognize a word and a name, and the name is the one
       thing on the page they have to look up; "Which one says in the cup?"
       asks what the ending does, which is what the page was for, and the four
       options are still four words in that case, so the stem still decides.

@@ -96,7 +96,7 @@ function hintFor(need: LeafRequirement, card: RoleCard | null, register?: "teie"
       A BEAT WITH A REGISTER OF ITS OWN (`BeatSpec.register`) is asking for
       that register, and a learner who used the other one got every word
       right and cannot see why the turn did not land. Which "you" this person
-      gets, in English: the pronoun itself is the thing being practised.
+      gets, in English: the pronoun itself is the thing being practiced.
     */
     case "register":
       if (register === "sina") return COACH_TEMPLATES.registerSina;

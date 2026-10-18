@@ -176,7 +176,7 @@ describe("correcting a shared dictionary entry", () => {
   });
 
   it("keeps an Ekilex entry marked as Ekilex's after a correction", async () => {
-    // Relabelling it USER would quietly discard where the forms came from.
+    // Relabeling it USER would quietly discard where the forms came from.
     const lexeme = await seedWord();
     expect(lexeme.provenance).toBe("EKILEX");
     await prisma.lexeme.update({

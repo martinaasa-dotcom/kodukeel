@@ -12,7 +12,7 @@
  * So a round the module opens is told what the module has taught, through the
  * one thing a screen can be told how it was reached by, which is its own
  * address (`focus.ts`). This is the pure half: the marker read back into the
- * programme and the day, and the day into the words the ladder has handed
+ * program and the day, and the day into the words the ladder has handed
  * over through that evening. The round's page narrows its own query to them.
  *
  * NOTHING IN IT IS TRUSTED AND NOTHING NEEDS TO BE. The marker is typed into
@@ -159,7 +159,7 @@ export function caseWithin(scope: ModuleScope | null, caseKey: string | null | u
  * The case today's reading was about, or nothing.
  *
  * An evening that reads the elative and then plays a round spread evenly over
- * every case read since A2 began has read the page and practised something
+ * every case read since A2 began has read the page and practiced something
  * else: the elative is one case in eight on the board, and the learner who
  * has just been told what `-st` means is asked it about once. So the case
  * rounds lead with this one inside the module, and the cases read before it

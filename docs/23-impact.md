@@ -71,7 +71,7 @@ the research export and kept here, is that opting out means the rows are never r
 subtracted afterwards, so the exclusion is spliced into each query in `lib/progress/impact.ts`
 separately, including the retention scan.
 
-The rest of `/api/metrics` does not honour it, and that difference is deliberate. Those figures are
+The rest of `/api/metrics` does not honor it, and that difference is deliberate. Those figures are
 an operator looking at their own deployment from behind a token. These are figures meant to leave
 the building.
 

@@ -18,7 +18,7 @@ import { LENGTH_FILE, SHARD_DIR, shardKey } from "./formsLayout";
  * ADR-005. It holds no gloss, no level, no case label and no sentence, so
  * nothing read from it can become a card, a paper, a marking target or a
  * scanned word the app vouches for; `lib/srs`, `lib/exam`, `lib/assessment`
- * and `lib/dict/resolveScan.ts` may not import it, asserted. A synthesised
+ * and `lib/dict/resolveScan.ts` may not import it, asserted. A synthesized
  * form on this side costs a non-word being let through on a word game. The
  * same form on the answer side would be drilled, and that is the difference
  * between the two sides.

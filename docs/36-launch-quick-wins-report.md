@@ -166,7 +166,7 @@ server boundary would either have broken those or left the tables in every bundl
 
 **c. Shrink the notice.** The machine-translation notice was printed in the reader's language and in
 English side by side, which took a third of a phone before the first question. The reader's
-language stays as a paragraph and the English is behind an `Explain` labelled "The same in English".
+language stays as a paragraph and the English is behind an `Explain` labeled "The same in English".
 
 **Checked.**
 - `test-first-day.mjs` 87 of 87 and `test-assess.mjs` 51 of 51, on an empty deck.
@@ -194,7 +194,7 @@ at 360, `/trust` in Ukrainian at 1280. Containment and locale suites (section 10
 - `app/(chromeless)/welcome/page.tsx`: a `ForTeachers` section (`#teachers`) after the final call to
   action. It contains:
   - The heading "Teaching a class or running a group?".
-  - One sentence on what a teacher sees: who is practising and where the group gets stuck, never
+  - One sentence on what a teacher sees: who is practicing and where the group gets stuck, never
     anybody's answers or deck.
   - "It's free, and the code is open."
   - The age line.
@@ -215,7 +215,7 @@ weight is unchanged within a kilobyte.
   owner, through the membership row, and never for an archived class (whose code no longer works).
 - `app/(app)/class/[classroomId]/poster/page.tsx` draws one A4 sheet:
   - The wordmark and the class name.
-  - The code very large, with the letter spacing cancelled after the last letter so it sits centred.
+  - The code very large, with the letter spacing canceled after the last letter so it sits centered.
   - The address to type: the canonical host where the deployment names one, else the host the
     teacher reached the page on.
   - Three short steps in English, Russian and Ukrainian, each block in its own language with its
@@ -357,7 +357,7 @@ Ordered by what they cost to leave.
    their first signed-in page. Splitting by area (review rounds, settings, grammar) could halve that,
    at the cost of a load per area visited. Measure the first-page load on a slow phone before
    deciding; the chunk is cached after the first visit.
-6. **A QR code on the poster.** Needs a dependency and a licence check (the plan's section 14).
+6. **A QR code on the poster.** Needs a dependency and a license check (the plan's section 14).
    With the address and code large, it is a convenience rather than a gap.
 7. **The hero's fade-in delay.** The plan's trace had the headline fully in at 3.4 s on a slow phone.
    With the script weight gone the delay may now be the animation itself; check before changing it.

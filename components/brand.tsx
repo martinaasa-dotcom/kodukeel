@@ -13,13 +13,13 @@ import { useId, type CSSProperties } from "react";
  * square tiles in staggered rows with gaps between them are the café wall
  * illusion: the eye reads the rows as tilted, more strongly the smaller the
  * mark gets, so the tilde looked crooked at favicon size. Still, it is one
- * path; moving, it is ten columns that overlap their neighbours by a hair.
+ * path; moving, it is ten columns that overlap their neighbors by a hair.
  *
  * The grid is the same rotated half a turn, which is what makes it sit level,
  * and then it is set down crooked on purpose, the way the old õ sticker was:
  * the tile tipped one way and the tilde tipped a little the other way on it,
  * because the whole argument of the app is that nothing has to be perfect.
- * The colours are the brand's own and do not follow the theme: the tile is
+ * The colors are the brand's own and do not follow the theme: the tile is
  * the violet of Vikerkaar öös in both themes, the same as the icon files
  * (`app/icon.svg`, `public/app-icon.svg`, `app/apple-icon.tsx`), so the mark
  * in the rail and the mark on a home screen are one drawing.
@@ -29,7 +29,7 @@ import { useId, type CSSProperties } from "react";
  * every few seconds, column by column, like a cursor writing the character, a hop when there is something to celebrate, and the columns lighting
  * one after another, like a cursor, while it thinks. Inside a `BrandLink` it
  * plays as well: a pointer on it tips the tile and sets the pixels dancing
- * through the Vikerkaar öös colours with the name hopping after them, and a
+ * through the Vikerkaar öös colors with the name hopping after them, and a
  * press throws the pixels in the air and lets them land. Each column carries
  * its index as `--c` and its distance from the middle as `--dir`, so one set
  * of keyframes staggers and spreads them. Keyframes live in app/globals.css,
@@ -39,7 +39,7 @@ const TOPS = [2, 1, 0, 0, 1, 2, 3, 3, 2, 1] as const;
 /**
  * The pixel confetti a cheering mark throws once when it arrives, which is
  * the end of every round. Each piece is a pixel of the tilde's own size in
- * one of the Vikerkaar öös colours, thrown at its own angle, distance and
+ * one of the Vikerkaar öös colors, thrown at its own angle, distance and
  * spin, laid out by hand so it reads as a handful rather than a pattern.
  */
 const CONFETTI = [
@@ -186,7 +186,7 @@ export function Wordmark({ size = 34, subtitle }: { size?: number; subtitle?: st
   return (
     <span className="flex shrink-0 flex-col">
       {/*
-        The mark sits beside the name alone, centred against it rather than
+        The mark sits beside the name alone, centered against it rather than
         against the name and the subtitle together: against the whole
         two-line block, a 34px mark on a phone-icon-sized row read as paired
         with the gap between the lines rather than with either of them. The

@@ -68,7 +68,7 @@ export const WEEK_GAMES: readonly FeaturedGame[] = [
 /**
  * THE SAME WEEK FOR SOMEBODY THE COURSE HAS NOT TAKEN TO THE CASES YET.
  *
- * The table above is a week for a learner with endings to practise, and four
+ * The table above is a week for a learner with endings to practice, and four
  * of its rows are about endings or need them: the quest drills the weakest
  * case, the sentence builder wants word order, and a
  * conversation needs the asking-and-offering words the course reaches at A2.

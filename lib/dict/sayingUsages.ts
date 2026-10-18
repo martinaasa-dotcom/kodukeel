@@ -8,7 +8,7 @@ import { englishFor } from "@/lib/dict/exampleEnglish";
  * that is the right rule for a card and the wrong one for `mine metsa`. Ekilex
  * files "go away, I don't believe you" under the fourteenth sense of `minema`,
  * and the four a headword like that keeps are `Poisid läksid kinno.` and its
- * neighbours, so the two sentences that are the whole reason the Väljendid
+ * neighbors, so the two sentences that are the whole reason the Väljendid
  * round exists were on Ekilex's page and in nobody's dictionary.
  *
  * So `prisma/data/saying-usages.json` holds the few that are missing, and it

@@ -118,8 +118,8 @@ describe("the lessons' own conversations", () => {
   });
 
   /*
-    A word the card deals is a word the marker has to recognise, and it can
-    only recognise an entry the dictionary holds. `Ukraina` is taught by the
+    A word the card deals is a word the marker has to recognize, and it can
+    only recognize an entry the dictionary holds. `Ukraina` is taught by the
     lessons as a spelling and has no entry, so a card that dealt it asked the
     learner to say something no answer could ever meet.
   */

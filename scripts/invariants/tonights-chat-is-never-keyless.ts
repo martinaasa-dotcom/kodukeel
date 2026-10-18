@@ -42,7 +42,7 @@ export default function tonightsChatIsNeverKeyless({ check, code }: InvariantKit
     assert.match(code("lib/progress/sceneTurn.ts"), /\.\.\.\(beat\.elicits \? \{ elicit: beat\.elicits \} : \{\}\)/, "the composer is no longer told which word the learner should get to use");
     /*
       And no topic on such a beat: the learner's own last words were the topic,
-      so every question the neighbour composed after "Tere." was withheld as off
+      so every question the neighbor composed after "Tere." was withheld as off
       the point (docs/41-fifth-batch.md, section 0, 2026-10-17).
     */
     assert.match(code("lib/progress/sceneTurn.ts"), /topic: beat\.elicits \? new Set<string>\(\) : /, "a chat beat's composed line is held to the learner's last words as a topic again");

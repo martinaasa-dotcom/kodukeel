@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * Fails if a dependency's licence would make `LICENSE` untrue.
+ * Fails if a dependency's license would make `LICENSE` untrue.
  *
  * The other supply chain question, and the one nothing here asked. `npm audit`
- * has an opinion about holes and none at all about terms, and a licence is the
+ * has an opinion about holes and none at all about terms, and a license is the
  * thing nobody thinks to check until the answer is already in the tree and
  * shipped: this project's code is MIT, its built dictionary carries
  * Wiktionary's CC BY-SA 4.0, and `LICENSE` says exactly that. A strong copyleft
@@ -36,14 +36,14 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 /**
- * The licences that would change what `LICENSE` can say.
+ * The licenses that would change what `LICENSE` can say.
  *
- * Deliberately short. This is not a licence policy for a company, it is the
+ * Deliberately short. This is not a license policy for a company, it is the
  * set whose reciprocal obligations reach across a network boundary or into a
  * whole application: AGPL requires source for anybody the *service* reaches,
  * and SSPL reaches further still. Ordinary GPL and LGPL are absent on purpose.
  * They are real obligations and they are not ones that would silently falsify
- * this repository's own licence file the way the two above would, and a
+ * this repository's own license file the way the two above would, and a
  * denylist long enough to need arguing about is one somebody waives.
  *
  * Matched on the SPDX identifier with its version stripped, so `AGPL-3.0`,
@@ -96,7 +96,7 @@ const paths = execFileSync("npm", ["ls", "--omit=dev", "--all", "--parseable"], 
   .filter((dir) => dir.includes("node_modules"));
 
 if (paths.length === 0) {
-  console.error("check-licences: no production dependencies found. Run `npm ci` first.");
+  console.error("check-licenses: no production dependencies found. Run `npm ci` first.");
   process.exit(1);
 }
 
@@ -114,14 +114,14 @@ for (const dir of new Set(paths)) {
 }
 
 if (unstated.length > 0) {
-  console.log(`check-licences: ${unstated.length} package(s) state no licence:`);
+  console.log(`check-licenses: ${unstated.length} package(s) state no license:`);
   for (const p of unstated) console.log(`  ${p}`);
   console.log("  Reported rather than failed: unstated is not the same as copyleft,");
   console.log("  and it is worth a person looking rather than a build stopping.\n");
 }
 
 if (denied.length > 0) {
-  console.error("check-licences: a production dependency carries a licence LICENSE cannot absorb.\n");
+  console.error("check-licenses: a production dependency carries a license LICENSE cannot absorb.\n");
   for (const line of denied) console.error(`  ${line}`);
   console.error(
     "\nThis repository's code is MIT and its data is CC BY-SA 4.0, and LICENSE says so."
@@ -131,5 +131,5 @@ if (denied.length > 0) {
 }
 
 console.log(
-  `✓ check-licences: ${new Set(paths).size} production packages, none under ${[...DENIED].join(", ")}.`,
+  `✓ check-licenses: ${new Set(paths).size} production packages, none under ${[...DENIED].join(", ")}.`,
 );

@@ -20,7 +20,7 @@
  *      data inside it). That is the one-request-per-word harvest this project
  *      refused to run against the Institute, done once by somebody else, so
  *      the cost to Ekilex is already paid and is not paid again here.
- *   3. Vabamorf, Filosoft's open-source analyser and synthesiser (LGPL), run
+ *   3. Vabamorf, Filosoft's open-source analyzer and synthesizer (LGPL), run
  *      over the union of the headwords with guessing off, through
  *      `scripts/lib/synthesize-forms.py`. It is the second opinion on every
  *      word and the only source for the headwords the inflection file has no
@@ -31,7 +31,7 @@
  * nothing else. It holds no gloss, no level and no case label, so nothing in
  * it can become a card, a paper or a marking target, and an invariant keeps
  * `lib/srs`, `lib/exam`, `lib/assessment` and the scanner from reaching it.
- * That is the line that keeps ADR-005 whole: a synthesised form on the accept
+ * That is the line that keeps ADR-005 whole: a synthesized form on the accept
  * side costs at worst a non-word being let through, which on a word game is
  * cheap, and the same form on the answer side would be drilled.
  *
@@ -102,7 +102,7 @@ async function inflectionFile(refresh: boolean): Promise<string> {
 }
 
 /**
- * Runs the synthesiser over the headwords and collects what it says.
+ * Runs the synthesizer over the headwords and collects what it says.
  *
  * Cached like the inflection file and for the same reason: it is seven
  * minutes of somebody else's software over an unchanging input, and a re-run
@@ -131,7 +131,7 @@ function runSynthesiser(headwords: readonly string[], onPair: (form: string, lem
     });
     child.on("close", (code) => {
       if (code === 0) resolve();
-      else reject(new Error(`the synthesiser exited with ${code}; is estnltk installed?`));
+      else reject(new Error(`the synthesizer exited with ${code}; is estnltk installed?`));
     });
     child.stdin.write(`${headwords.join("\n")}\n`);
     child.stdin.end();
@@ -158,7 +158,7 @@ async function main() {
   );
 
   // 2. The inflection file: `word<TAB>form,form,...`, lower-cased, because the
-  //    file capitalises a proper-noun compound and the rule here is no capitals.
+  //    file capitalizes a proper-noun compound and the rule here is no capitals.
   const inflections = await inflectionFile(refresh);
   for (const line of inflections.split("\n").slice(1)) {
     const tab = line.indexOf("\t");

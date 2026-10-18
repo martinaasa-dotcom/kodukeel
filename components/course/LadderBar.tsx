@@ -14,8 +14,8 @@ import { fill, tr, type Locale } from "@/lib/copy/locale";
  * am I", every morning, in the unit they think in: the levels, as stops, with
  * the fill between them moving a little every evening.
  *
- * THE LEVELS ARE BLOCKS RATHER THAN DOTS, AND EVERY ONE OF THEM IS LABELLED.
- * It was a rail with five unlabelled circles on it, and it was reported in one
+ * THE LEVELS ARE BLOCKS RATHER THAN DOTS, AND EVERY ONE OF THEM IS LABELED.
+ * It was a rail with five unlabeled circles on it, and it was reported in one
  * word: vague. Nothing on the strip said which level any of them was, the
  * circles were a picture of the list underneath without the list's own words,
  * and the one question somebody glances at this to answer, how far along am I,
@@ -40,7 +40,7 @@ import { fill, tr, type Locale } from "@/lib/copy/locale";
  * theme is two percent of lightness apart: the half of the bar the whole
  * feature is about was invisible, which is the fault `Choice.tsx` has a
  * paragraph about, one component over. A hatch survives both themes, and it
- * reads as provisional rather than as a second colour nobody can name.
+ * reads as provisional rather than as a second color nobody can name.
  *
  * NO HOVER, AND THAT IS NOT AN OMISSION. A tooltip is a hover, this app is
  * measured on a phone, and a label somebody has to point at to read is a label
@@ -65,8 +65,8 @@ import { fill, tr, type Locale } from "@/lib/copy/locale";
  * percent of lightness apart in the light theme, which is how the first
  * version of this band came to be invisible. Stripes are legible in both
  * themes at any size, they cannot be confused with the solid fill beside them
- * whatever the screen, and they carry the meaning without a second colour
- * anybody has to learn: this part is pencilled in.
+ * whatever the screen, and they carry the meaning without a second color
+ * anybody has to learn: this part is penciled in.
  *
  * The angle is what keeps it from reading as a gap in the bar at small widths.
  */
@@ -241,7 +241,7 @@ export function LadderBar({ progress, partLabel, learnerLevel, locale }: {
 
         This was a list: every level's name, its state and the sentence saying
         what arriving there means, then two paragraphs about where the numbers
-        come from. Eleven lines of grey prose under a picture that had already
+        come from. Eleven lines of gray prose under a picture that had already
         said most of it. The tiles carry each level's name and state; the
         sentence is printed for the level being worked on, which is the only
         one a learner acts on tonight; and the arithmetic is behind a press.

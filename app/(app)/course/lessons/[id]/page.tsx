@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 /**
  * ONE LESSON, IN ITS SIX STEPS (docs/43-lessons.md §1).
  *
- * Listen, Words, How it works, Practise, Say it, Review. The page works out
+ * Listen, Words, How it works, Practice, Say it, Review. The page works out
  * what the lesson may ask from what the lessons before it taught, and hands the
  * screen the questions already built, so nothing on the client decides what a
  * learner is asked. A1 is the lessons (phase P3): each one is an evening of the

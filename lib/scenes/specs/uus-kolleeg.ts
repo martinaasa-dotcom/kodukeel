@@ -23,7 +23,7 @@ const NEW_COLLEAGUE: SceneSpec = {
       kind: "word", slot: "from", oneOf: ["Soome", "Läti", "Saksamaa", "Inglismaa", "Ameerika", "Rootsi", "Prantsusmaa"],
       says: "Where you're from.",
       /*
-        No `places`: the beat before this one asks a name, and a capitalised
+        No `places`: the beat before this one asks a name, and a capitalized
         word nobody can account for was taken as the country, so "Mark." met
         both beats and the colleague never asked where you were from.
       */

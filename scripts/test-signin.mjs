@@ -152,7 +152,7 @@ const COLOUR_CODES = new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*m`, "g");
 
   stdout and stderr are both kept because Next does not keep its errors to one
   of them, and the tail is read after joining them so whichever spoke last is
-  what shows. Colour codes come out, since a CI log renders them as noise.
+  what shows. Color codes come out, since a CI log renders them as noise.
 */
 function buildFailure(result, tailLines = 60) {
   const ended = result.error
@@ -429,7 +429,7 @@ check("every control on it clears 44px", small.length === 0, small.join(", "));
   a stub stands in for `renderButton`, recording the number it was given and
   the state of the column at the moment it was given it. That is the whole of
   what this app decides, and it is measurable without a Google account, a
-  network, or an authorised origin.
+  network, or an authorized origin.
 */
 const gsiCtx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
 /** Every address the page asked Google's script for, so the locale pin is readable. */

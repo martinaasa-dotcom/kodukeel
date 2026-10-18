@@ -383,7 +383,7 @@ function Hero({ say, stats, words }: { say: Say; stats: { words: number; forms: 
       {/*
         THE HERO IS A STAGE NOW, NOT A COLUMN.
 
-        A centred headline over a centred paragraph over a centred button is
+        A centered headline over a centered paragraph over a centered button is
         the shape every generated landing page takes, and it was reported as
         exactly that. So the opening is a full-bleed night-violet band that the
         rest of the page scrolls out of, the headline is set left and huge in
@@ -727,7 +727,7 @@ function Cases({ say, words }: { say: Say; words: DemoWord[] }) {
             So they moved rather than went, and this is the card they belong
             on: the only object left on the page big enough to carry them, and
             the one whose contents are the letters themselves. The hero above
-            is a centred column with no box in it, and the closing panel is a
+            is a centered column with no box in it, and the closing panel is a
             send-off rather than an introduction.
 
             WHAT THEY MAY NOT TOUCH IS A CONTROL. On the old card that was one
@@ -1063,7 +1063,7 @@ function Feature({ tone, icon, title, body, children }: {
       className="lift flex h-full flex-col rounded-[var(--r-xl)] border p-6"
       style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}
     >
-      {/* Level with the top of the tile, never centred on it: three cards
+      {/* Level with the top of the tile, never centered on it: three cards
           sit in a row, and a heading that wraps beside the tile in one of
           them put the other two headings lower than it. */}
       <div className="flex items-start gap-3">
@@ -1424,13 +1424,13 @@ function FaqItem({ id, question, children }: { id?: string; question: string; ch
 
           It was the character "+", rotated 45 degrees when the question opens.
           A typed plus is a glyph on a baseline, and a baseline is not the
-          middle of the line box: `items-center` centres the line box and the
+          middle of the line box: `items-center` centers the line box and the
           font then draws the bar wherever its own metrics say, which in Plus
-          Jakarta is above centre. So every one of these circles was off centre,
+          Jakarta is above center. So every one of these circles was off center,
           and the rotation spun the mark about a point that was not its own
           middle, which is why the cross wobbled as it turned. A lucide icon is
-          drawn inside a square viewBox, so its centre is the centre of the box
-          it is given, and it measures dead centre on both axes.
+          drawn inside a square viewBox, so its center is the center of the box
+          it is given, and it measures dead center on both axes.
 
           THE ROTATION HAD TO GO WITH IT, and that is `test-containment`
           reading the icon correctly rather than a limitation to work around.
@@ -1589,7 +1589,7 @@ function FinalCta({ say }: { say: Say }) {
  *
  * The page mentioned teachers four times and offered one no way in: nothing
  * said this was for a class, and the trust page sat in the footer. So a
- * compact band under the close, where a teacher or a programme officer who has
+ * compact band under the close, where a teacher or a program officer who has
  * read this far is looking, with only facts that are true today and checkable:
  * a class joins with a code, the teacher sees effort and the group's sticking
  * points and never anybody's answers (`lib/classroom/roster.ts`), it is free
@@ -1615,7 +1615,7 @@ function ForTeachers({ say, contact }: { say: Say; contact: string | null }) {
           {t("Teaching a class or running a group?")}
         </h2>
         <p className="mt-3 max-w-[64ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {t("Your learners join with a short code. You see who is practising and where the group gets stuck, never anybody’s answers or deck.")}{" "}
+          {t("Your learners join with a short code. You see who is practicing and where the group gets stuck, never anybody’s answers or deck.")}{" "}
           {t("It’s free, and the code is open.")}
         </p>
         <p className="mt-2 max-w-[64ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>

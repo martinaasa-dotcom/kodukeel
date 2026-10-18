@@ -28,7 +28,7 @@ const REPO = "https://github.com/martinaasa-dotcom/kodukeel/blob/main";
  * One page for the reader who has to decide whether this is safe to put in
  * front of other people.
  *
- * A school buying a licence, a ministry funding the work and an engineer
+ * A school buying a license, a ministry funding the work and an engineer
  * reviewing it are asking one question from three directions: who is
  * answerable, where does the data sit, what happens when it breaks, and what
  * has actually been checked by somebody. Each of those is already answered in
@@ -167,7 +167,7 @@ export default async function TrustPage({ searchParams }: { searchParams: Public
           })}
         </P>
         <P>
-          {rich(t("An organisation deciding whether to try it with a group can read {pilots}, including what it is not ready for."), {
+          {rich(t("An organization deciding whether to try it with a group can read {pilots}, including what it is not ready for."), {
             pilots: <Link href="/pilots" className="underline underline-offset-2">{t("what a pilot is")}</Link>,
           })}
         </P>

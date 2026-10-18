@@ -140,7 +140,7 @@ export function TwinsSession({ questions: initialQuestions, canTranslate, focusT
     return (
       <Page title="Kaksikud" lead={t("Words that look alike and mean different things.")}>
         <Empty
-          title={t("No pairs to practise yet")}
+          title={t("No pairs to practice yet")}
           body={t("The pairs open as the course teaches both words of them.")}
           action={<ButtonLink href="/grammar/twins" variant="primary">{t("See the pairs")}</ButtonLink>}
         />

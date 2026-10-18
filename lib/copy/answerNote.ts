@@ -8,7 +8,7 @@ import { fill, tr, type Locale } from "./locale";
  * dozen screens, the examination and the level check among them, read that
  * note as it is. So the rounds read it through this rather than the marker
  * growing a language parameter every caller would have to thread: the note is
- * one of a handful of fixed sentences with a form or two in it, so it is recognised
+ * one of a handful of fixed sentences with a form or two in it, so it is recognized
  * here and said again from the table, keyed on the English template.
  *
  * Nothing Estonian is written. The form in a note is the dictionary's, carried

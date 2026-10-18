@@ -558,7 +558,7 @@ await ctx.setOffline(false);
 
   A briefing is a screen with the rail, the dock and, inside a module, the
   step's own bar still around it, and its "press through" answers Enter on
-  `window`. Taken bare that cancelled the browser's own activation, so a
+  `window`. Taken bare that canceled the browser's own activation, so a
   keyboard user who tabbed to any rail link and pressed Enter started the
   round instead of going anywhere: one key, two actions, and the round is the
   one that wins. Measured in a browser because no source check can see which
@@ -787,7 +787,7 @@ if ((await featured.count()) === 0) {
       row.tallest = Math.max(row.tallest, r.height);
       // A card cut at the seam shows as a wrapper shorter than the card in it.
       if (card && card.height > r.height + 1) row.whole = false;
-      // A card stretched to match a neighbour shows as a wrapper taller than it.
+      // A card stretched to match a neighbor shows as a wrapper taller than it.
       if (card && r.height > card.height + 1) row.fitsContent = false;
       byX.set(Math.round(r.left), row);
     }
@@ -797,7 +797,7 @@ if ((await featured.count()) === 0) {
   /*
     The columns are NOT meant to end level any more: each card is as tall as
     what is in it, and the right column is set lower so the tops step. What is
-    asked instead is that no card is stretched to match its neighbour, which
+    asked instead is that no card is stretched to match its neighbor, which
     shows as a wrapper taller than the card inside it.
   */
   check("and no card is stretched to the height of the one beside it",
@@ -926,7 +926,7 @@ if (await page.locator("[data-briefing-start]").count()) {
 
 // 10 — Sõnamäng, and the one funny line under a word (docs/18-voice.md §3c)
 /*
-  The humour is only worth having if it arrives where it was promised and stays
+  The humor is only worth having if it arrives where it was promised and stays
   out of where it was not: under a word whose meaning is on the screen, never
   under one the line would contradict, and never as a verdict. Asked of the
   round, which plays without a deck, and of three dictionary entries: a

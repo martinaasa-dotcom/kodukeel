@@ -11,7 +11,7 @@ import { fill } from "@/lib/copy/locale";
  * Every round opens on the same three things: the way out, how far along the
  * round is, and how many are left. They were written out by hand in fifteen
  * sessions and had come apart into three looks: a four-pixel hairline with the
- * count in grey, a ten-pixel bar with the count on a tint, and the daily path's
+ * count in gray, a ten-pixel bar with the count on a tint, and the daily path's
  * own. A learner moving from Match to Listening to the conjugation table saw
  * the top of the screen change for no reason they could name, which reads as
  * three different apps. This is the daily path's look for all of them.

@@ -10,7 +10,7 @@ import { caseNearness } from "./distractors";
  * letters rather than for the whole form, and a question with one answer needs
  * three that are wrong.
  *
- * `lib/questions/caseChoices.ts` is the neighbouring answer and a different
+ * `lib/questions/caseChoices.ts` is the neighboring answer and a different
  * question: it offers `toast`, `toasse` and `toale` against `toas`, which is
  * whole forms of one word and is right on a card whose answer is a form. Here
  * the stem is already on the screen and under discussion, so offering it four

@@ -236,7 +236,7 @@ export function unsentencedCaseCards(cards: readonly BareCaseCard[]): Retirement
 /**
  * THE CARDS CUT OUT OF A SENTENCE SOMEBODY HAS SINCE REFUSED.
  *
- * `lib/dict/refused.ts` is where a person's judgement about an attested
+ * `lib/dict/refused.ts` is where a person's judgment about an attested
  * sentence is kept, and `parseExamples` is what makes one line there reach
  * every screen at once. What it cannot reach is a card already in a deck: a
  * `Card` row carries the front it was built with, so a gap cut from the

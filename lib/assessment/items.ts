@@ -498,7 +498,7 @@ export function explainGap(word: WordRow, gap: Gap): string {
  * whole sentence in bold, with the wanted form picked out in the accent, in
  * `FullSentence` directly above this string. Sending `explainGap` to both put
  * that sentence on screen twice, once in bold and once again as the opening
- * clause of a grey paragraph, with the answer itself then appearing a third
+ * clause of a gray paragraph, with the answer itself then appearing a third
  * time inside `explainForm`. It was reported as a wall of text and it was one.
  *
  * What is left is the half the drawing above cannot say: what the sentence

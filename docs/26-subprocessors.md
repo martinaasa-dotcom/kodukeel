@@ -261,7 +261,7 @@ from the app, and this register has not assessed it.
 further here.
 
 A deployment that names email domains in `SSO_DOMAINS` sends people on those domains to their own
-organisation's identity provider (`lib/auth/sso.ts`). That provider is the organisation's, chosen
+organization's identity provider (`lib/auth/sso.ts`). That provider is the organization's, chosen
 by it, and it is not on the generated list either.
 
 ## Not on the list, on purpose

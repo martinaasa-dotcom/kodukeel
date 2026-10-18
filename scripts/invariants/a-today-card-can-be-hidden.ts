@@ -9,7 +9,7 @@ import type { InvariantKit } from "../lib/invariantKit";
  * (`hiddenSlotsFrom`, a leading `-` on the slot's id in the same stored row
  * as the order). Three things make that work and each fails silently: the
  * page has to hand the hidden set to the deal, or the button does nothing; the
- * action has to keep the marks when it normalises the row, or a hide is
+ * action has to keep the marks when it normalizes the row, or a hide is
  * dropped on the way into the database; and the panel has to write them, or
  * the press is decoration.
  */

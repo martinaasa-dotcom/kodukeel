@@ -369,7 +369,7 @@ function splitFix(content: string): { rest: string; fix: string | null } {
   // Models number their answers and, once allowed bold, bold their markers,
   // so the line arrives as "3. FIX:" or "**FIX:**" as often as "FIX:".
   // `fixFrom` knows every shape; matching only the bare form left the
-  // corrected sentence buried in the paragraph, unlabelled, which is the one
+  // corrected sentence buried in the paragraph, unlabeled, which is the one
   // thing this box exists to fix.
   const lines = content.split("\n");
   const index = lines.findIndex((l) => fixFrom(l) !== null);

@@ -99,7 +99,7 @@ Ranked, because a threat model that treats every asset the same has not been tho
 3. **Identity.** Email address and Google subject id, held by Supabase Auth rather than by this app.
 4. **The provider keys and the database URL.** A leak here is a bill and a breach at once.
 5. **The shared dictionary.** `Lexeme` and `Form` are reference data every learner reads, so
-   vandalising one word is vandalising it for everybody.
+   vandalizing one word is vandalizing it for everybody.
 6. **The AI budget.** Not personal data, and still the thing an unmetered path turns into an
    unbounded invoice.
 
@@ -118,7 +118,7 @@ verified. A helper that genuinely needs an owner as a parameter lives under `lib
 endpoint. Every owner scoped query, including every `updateMany`, filters on that resolved id. This
 is asserted in `scripts/test-invariants.ts` rather than left to review.
 
-**Residual.** Authorisation is in application code. There is no Postgres row level security behind
+**Residual.** Authorization is in application code. There is no Postgres row level security behind
 it as a second layer, so a query written without the filter would not be caught by the database. The
 invariant suite is what catches it, and that is a check on the source rather than a runtime guard.
 
@@ -188,7 +188,7 @@ cache. That is the same property that makes review work on a train, and it is th
 **Attack.** A page on another site posts to this one and rides the learner's ambient session cookie.
 
 **Control.** Two layers. The Supabase session cookie is `SameSite=Lax`, which is genuinely most of
-the defence and is a default owned by a dependency. `lib/security/sameOrigin.ts` is the layer this
+the defense and is a default owned by a dependency. `lib/security/sameOrigin.ts` is the layer this
 app owns and states for itself: `Sec-Fetch-Site` first, because a browser sets it and page script
 cannot, falling back to comparing `Origin`'s host against `Host`.
 
@@ -243,7 +243,7 @@ the bill. The last quarter of the global budget is held back for people who have
 day, counted on the person rather than on the kind of call.
 
 The mechanism is the part that matters. The call is written into the ledger **at the moment it is
-authorised**, at an estimate, inside the same transaction that reads the counters, under a
+authorized**, at an estimate, inside the same transaction that reads the counters, under a
 deployment-wide `pg_advisory_xact_lock`. Reading four aggregates, returning a verdict and writing the
 row when the answer finished is check-then-act, and for a streamed two minute route that gap is the
 length of the answer: ten tabs all read "under the limit" inside it. What the provider actually
@@ -252,7 +252,7 @@ hands its booking back as a `RELEASE` row, or a deployment with a rejected key w
 learners over answers none of them received. `UsageEvent` is append-only for the reason `Review` is,
 so all three are rows rather than edits.
 
-An unrecognised model prices at the dearest rate in the table. A cap that fails open is not a cap.
+An unrecognized model prices at the dearest rate in the table. A cap that fails open is not a cap.
 
 In front of that sits `lib/security/rateLimit.ts`, and its own header is honest about what it is: a
 per instance in-memory limiter, so a burst spread across cold starts meets an empty map. It keeps an
@@ -328,7 +328,7 @@ directly would be refused by the browser as well as by an invariant.
 
 **Attack.** Not an attacker so much as a leak. `restoreBackup` and `deleteMyAccount` both end in
 "and nothing was changed" followed by whatever the database said. Prisma quotes the datasource in an
-initialisation failure, and a restore runs a two minute transaction, which is exactly the window a
+initialization failure, and a restore runs a two minute transaction, which is exactly the window a
 connection drops in.
 
 **Control.** `lib/observability/report.ts`. `redact` already knew a DSN is a credential, because the
@@ -411,7 +411,7 @@ Two things sat beside that and were missing. Nothing **updated** anything: knowi
 and having it patched are different states, and on a project with one maintainer they drift apart
 quietly. `.github/dependabot.yml` is the fix, weekly and grouped, with security updates arriving on
 their own so they are not buried in a batch of type definitions. And nothing asked about the
-**licence**. `npm audit` has no opinion on one, and it is the supply chain question nobody thinks to
+**license**. `npm audit` has no opinion on one, and it is the supply chain question nobody thinks to
 ask until the answer is already in the tree: this project's code is MIT and its data carries
 Wiktionary's CC BY-SA 4.0. `scripts/check-licences.mjs` walks the production tree on every commit
 and fails on a strong copyleft code dependency, which would quietly make `LICENSE` wrong.
@@ -434,13 +434,13 @@ being trusted.
 | Authentication | 2,500ms deadline on every auth call, recorded per transport | `lib/auth/identity.ts` |
 | Authentication | Three state identity, so "we could not tell" is not "signed out" | `lib/auth/identity.ts` |
 | Authentication | No session cookie is answered as signed out for free | `hasSessionCookie` |
-| Authentication | Login CSRF defence on the mailed link | `app/auth/callback/route.ts` |
+| Authentication | Login CSRF defense on the mailed link | `app/auth/callback/route.ts` |
 | Authentication | Sign-in allowlist by exact address or domain, domain taken from the last `@` | `lib/auth/access.ts` |
 | Authentication | Allowlist re-checked on every gated request, so revocation is immediate | `middleware.ts` |
-| Authorisation | Owner resolved by the server, never taken from the caller | `lib/auth/session.ts` |
-| Authorisation | Reviewer status from `ADMIN_EMAILS`, exact addresses, ungrantable at runtime | `lib/auth/admin.ts` |
-| Authorisation | Public path allowlist is the only way past the gate | `middleware.ts` |
-| Authorisation | Class and workplace rosters expose effort, never contents | `lib/classroom/roster.ts` |
+| Authorization | Owner resolved by the server, never taken from the caller | `lib/auth/session.ts` |
+| Authorization | Reviewer status from `ADMIN_EMAILS`, exact addresses, ungrantable at runtime | `lib/auth/admin.ts` |
+| Authorization | Public path allowlist is the only way past the gate | `middleware.ts` |
+| Authorization | Class and workplace rosters expose effort, never contents | `lib/classroom/roster.ts` |
 | Transport | HSTS, two years, includeSubDomains, preload | `lib/security/headers.ts` |
 | Transport | `upgrade-insecure-requests` in the CSP | `lib/security/headers.ts` |
 | Headers | CSP set per response, so it can read which Supabase project to allow | `middleware.ts` |
@@ -452,7 +452,7 @@ being trusted.
 | Input | zod schemas on backups, level checks, goals and lesson results | `app/actions.ts` |
 | Input | Every argument coerced at the boundary, because JSON off the wire is not the declared type | `text()` in `app/actions.ts` |
 | Input | Redirect targets narrowed to a rooted same origin path | `safeNext` |
-| Input | Text one person types and another reads (display names, class names, homework, report notes) cleaned of control and bidirectional characters, NFC normalised, cut by code point | `lib/security/visibleText.ts` |
+| Input | Text one person types and another reads (display names, class names, homework, report notes) cleaned of control and bidirectional characters, NFC normalized, cut by code point | `lib/security/visibleText.ts` |
 | Input | Uploaded image decoded in a Route Handler and never stored | `app/api/scan/`, `lib/scan/image.ts` |
 | Secrets | Nothing carries `NEXT_PUBLIC_` but the anon key, asserted | `scripts/test-invariants.ts` |
 | Secrets | CI builds with a marked value per server variable and greps the client bundle | `.github/workflows/ci.yml` |
@@ -501,7 +501,7 @@ work in the order we would actually do them.
 **No formal risk register or asset inventory as separate documents.** Section 3 above is the closest
 thing, and it lives in a design document rather than in a register anybody reviews on a schedule.
 
-**No security awareness training programme, no background checks, no formal onboarding and offboarding
+**No security awareness training program, no background checks, no formal onboarding and offboarding
 procedure.** There is one company and a very small number of people. Section 2 of
 `docs/28-incident-response.md` says who does what instead of inventing a rota.
 

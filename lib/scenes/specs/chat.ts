@@ -5,7 +5,7 @@
  * Every other scene is an errand with fixed beats, written once and read by
  * everybody: a counter, a call, a stairwell. They teach a situation, and they
  * do not give the words an evening has just taught a second life in somebody's
- * mouth. This does: a few minutes at the end of an evening with a neighbour who
+ * mouth. This does: a few minutes at the end of an evening with a neighbor who
  * asks about the things tonight's words are for, so the learner uses them
  * while they are fresh. It is the retrieval the closing review asks for, in a
  * conversation instead of on a card.
@@ -30,7 +30,7 @@
 import type { BeatSpec, SceneSpec } from "../types";
 import { ASIDES, CLOSING_WORDS, FALLBACK_PHRASE, FAREWELLS, FEELINGS, HELLOS, LOST, REACTIONS } from "./shared";
 
-/** The id every chat run is stored under. It is in no catalogue: a chat is built per evening. */
+/** The id every chat run is stored under. It is in no catalog: a chat is built per evening. */
 export const CHAT_ID = "chat";
 
 /**
@@ -99,7 +99,7 @@ export function wordBeatId(n: number): string {
  * WHAT THE OTHER SIDE MAY NEED TO SAY THAT TONIGHT DID NOT TEACH.
  *
  * The machinery every reply is built out of: hello and goodbye, the repair
- * phrase, the acknowledgements and the reactions to news, and the two halves
+ * phrase, the acknowledgments and the reactions to news, and the two halves
  * of "I don't know". A scene gets these from the units every scene declares
  * (`COMMON`); a chat declares no units, so it names them from the same shared
  * tables rather than typing any of them again.
@@ -192,7 +192,7 @@ export function chatScene(plan: ChatPlan, taught: readonly string[]): SceneSpec 
     {
       id: "greet",
       goal: "Say hello back.",
-      they: "Your neighbour stops on the stairs and says hello.",
+      they: "Your neighbor stops on the stairs and says hello.",
       move: "greet",
       topic: [...HELLOS],
       needs: [{ kind: "lemma", oneOf: [...HELLOS] }],
@@ -217,12 +217,12 @@ export function chatScene(plan: ChatPlan, taught: readonly string[]): SceneSpec 
   return {
     id: CHAT_ID,
     title: "Tonight's chat",
-    place: "The stairs of your building, with your neighbour",
+    place: "The stairs of your building, with your neighbor",
     tests: plan.unitId,
     units: [],
     lemmas: [...new Set([...taught, ...plan.words.map((w) => w.lemma), ...chatMachinery()])],
     register: "sina",
-    role: "Your neighbour catches you on the stairs on your way home and stops for a chat. They'll ask about the things tonight's words are for.",
+    role: "Your neighbor catches you on the stairs on your way home and stops for a chat. They'll ask about the things tonight's words are for.",
     props: [],
     curveballs: [],
     beats,
@@ -235,7 +235,7 @@ export function chatScene(plan: ChatPlan, taught: readonly string[]): SceneSpec 
       /*
         Any one word used, not the first: a beat the learner could not answer
         is let go and the next word asked, so somebody who missed the first
-        word and used the other three was told the neighbour "had to dash off
+        word and used the other three was told the neighbor "had to dash off
         before you got far", which is the opposite of what happened. One
         outcome per word, each waiting on that word alone, and the first that
         fits is taken (`outcomeOf`).

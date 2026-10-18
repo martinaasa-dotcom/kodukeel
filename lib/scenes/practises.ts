@@ -1,5 +1,5 @@
 /**
- * What a scene practises, in the words a learner would use for it.
+ * What a scene practices, in the words a learner would use for it.
  *
  * Read off the beats' own requirements rather than typed beside the title,
  * so the line on the tile cannot drift from what the marker asks for: a
@@ -32,7 +32,7 @@ import { leafNeeds, type SceneSpec } from "./types";
 
 /**
  * What the learner does on each beat, keyed `scene:beat`, in English and as a
- * phrase that finishes "You will practise ...". Every beat but the hello and
+ * phrase that finishes "You will practice ...". Every beat but the hello and
  * the goodbye has one, and `practises.test.ts` fails on a beat without: a beat
  * that falls back to the kind of value it asks for ("a word off your card",
  * "asking a question") is the label every scene shares and this table exists
@@ -198,7 +198,7 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "lastevanemad:who": "saying whose parent you are",
   "lastevanemad:how": "asking a follow-up question",
   "lastevanemad:home": "saying how somebody seems",
-  "lastevanemad:practise": "agreeing what to practise",
+  "lastevanemad:practise": "agreeing what to practice",
   "tehniline-tugi:problem": "saying what isn't working",
   "tehniline-tugi:device": "saying which device",
   "tehniline-tugi:screen": "saying what you see",
@@ -224,7 +224,7 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "tagatisraha:moved": "saying when you moved out",
   "tagatisraha:clean": "standing up for yourself",
   "tagatisraha:offer": "refusing an offer",
-  "kolm-palvet:friend": "asking a friend a favour",
+  "kolm-palvet:friend": "asking a friend a favor",
   "kolm-palvet:manager": "asking your manager",
   "kolm-palvet:official": "asking an official",
   "kuulsin:news": "passing on news",

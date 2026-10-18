@@ -18,7 +18,7 @@ export const TWINS: Area = {
     "Pick the word that fits. Afterwards you'll see the other word in a sentence of its own. There's no clock.":
       "Выберите подходящее слово. Потом вы увидите другое слово в его собственном предложении. Времени на ответ никто не ограничивает.",
     "Words that look alike and mean different things.": "Слова, которые похожи, но значат разное.",
-    "No pairs to practise yet": "Пока нечего тренировать",
+    "No pairs to practice yet": "Пока нечего тренировать",
     "The pairs open as the course teaches both words of them.": "Пары открываются, когда курс научит вас обоим словам пары.",
     "See the pairs": "Посмотреть пары",
     "You told {n} of {total} apart.": "Вы различили {n} из {total}.",
@@ -40,7 +40,7 @@ export const TWINS: Area = {
     // The review card's note about a mix-up.
     "That's {twin}, {means}. This card wanted {word}, {wanted}.":
       "Это {twin}, «{means}». Карточка ждала {word}, «{wanted}».",
-    "These two are easy to mix up. Practise the pair": "Эти два слова легко перепутать. Потренируйте пару",
+    "These two are easy to mix up. Practice the pair": "Эти два слова легко перепутать. Потренируйте пару",
 
     // The grammar page.
     "Words that look alike": "Похожие слова",
@@ -52,7 +52,7 @@ export const TWINS: Area = {
     "Some pairs are one word with a suffix that changes who does what, and a rule unlocks dozens of them. Some are one English word that Estonian splits in two. The rest are a coincidence, and you learn them side by side.":
       "Одни пары это одно слово с суффиксом, который меняет, кто что делает, и одно правило открывает десятки таких пар. Другие это одно английское слово, которое эстонский делит на два. Остальные совпали случайно, и их учат рядом друг с другом.",
     "The rule misleads here": "Здесь правило подводит",
-    "Practise this pair": "Потренировать эту пару",
+    "Practice this pair": "Потренировать эту пару",
 
     // The three kinds, and the rest of `lib/collections/twins.ts`.
     "It happens, or you make it happen": "Происходит само или вы заставляете это произойти",
@@ -105,7 +105,7 @@ export const TWINS: Area = {
     "to have an effect": "действовать, оказывать действие",
     "to influence somebody": "влиять на кого-то",
     "to get used to": "привыкать",
-    "to practise": "упражняться, тренировать",
+    "to practice": "упражняться, тренировать",
     "to seem": "казаться",
     "to show": "показывать",
     "to last, to be kept": "сохраняться",
@@ -233,7 +233,7 @@ export const TWINS: Area = {
     "wrong": "неправильный",
     "white": "белый",
     "bad": "плохой",
-    "grey": "серый",
+    "gray": "серый",
     "light, easy": "лёгкий",
     "high, tall": "высокий",
     "sad": "грустный",
@@ -253,7 +253,7 @@ export const TWINS: Area = {
     "Pick the word that fits. Afterwards you'll see the other word in a sentence of its own. There's no clock.":
       "Виберіть слово, що пасує. Потім ви побачите інше слово в його власному реченні. Часу на відповідь ніхто не обмежує.",
     "Words that look alike and mean different things.": "Слова, які схожі, але означають різне.",
-    "No pairs to practise yet": "Поки що нема чого тренувати",
+    "No pairs to practice yet": "Поки що нема чого тренувати",
     "The pairs open as the course teaches both words of them.": "Пари відкриваються, коли курс навчить вас обох слів пари.",
     "See the pairs": "Подивитися пари",
     "You told {n} of {total} apart.": "Ви розрізнили {n} з {total}.",
@@ -274,7 +274,7 @@ export const TWINS: Area = {
 
     "That's {twin}, {means}. This card wanted {word}, {wanted}.":
       "Це {twin}, «{means}». Картка чекала {word}, «{wanted}».",
-    "These two are easy to mix up. Practise the pair": "Ці два слова легко сплутати. Потренуйте пару",
+    "These two are easy to mix up. Practice the pair": "Ці два слова легко сплутати. Потренуйте пару",
 
     "Words that look alike": "Схожі слова",
     "Pairs that are easy to mix up, and how to tell them apart": "Пари, які легко сплутати, і як їх розрізняти",
@@ -285,7 +285,7 @@ export const TWINS: Area = {
     "Some pairs are one word with a suffix that changes who does what, and a rule unlocks dozens of them. Some are one English word that Estonian splits in two. The rest are a coincidence, and you learn them side by side.":
       "Одні пари це одне слово із суфіксом, який змінює, хто що робить, і одне правило відкриває десятки таких пар. Інші це одне англійське слово, яке естонська ділить на два. Решта збіглися випадково, і їх вчать поруч.",
     "The rule misleads here": "Тут правило підводить",
-    "Practise this pair": "Потренувати цю пару",
+    "Practice this pair": "Потренувати цю пару",
 
     "It happens, or you make it happen": "Відбувається само або ви робите так, щоб це сталося",
     "Add -ta- and somebody makes it happen": "З -ta- хтось робить так, щоб це сталося",
@@ -337,7 +337,7 @@ export const TWINS: Area = {
     "to have an effect": "діяти, справляти дію",
     "to influence somebody": "впливати на когось",
     "to get used to": "звикати",
-    "to practise": "вправлятися, тренувати",
+    "to practice": "вправлятися, тренувати",
     "to seem": "здаватися",
     "to show": "показувати",
     "to last, to be kept": "зберігатися",
@@ -465,7 +465,7 @@ export const TWINS: Area = {
     "wrong": "неправильний",
     "white": "білий",
     "bad": "поганий",
-    "grey": "сірий",
+    "gray": "сірий",
     "light, easy": "легкий",
     "high, tall": "високий",
     "sad": "сумний",

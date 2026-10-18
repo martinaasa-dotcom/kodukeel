@@ -291,7 +291,7 @@ describe("a card built after the word was put aside", () => {
 
   afterAll(async () => { await prisma.card.deleteMany({ where: { ownerId: OWNER } }); });
 
-  it("is dated where the deferral put it, and its neighbours are not", async () => {
+  it("is dated where the deferral put it, and its neighbors are not", async () => {
     await prisma.card.deleteMany({ where: { ownerId: OWNER } });
     await prisma.deferral.deleteMany({ where: { ownerId: OWNER } });
 

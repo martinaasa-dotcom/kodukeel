@@ -48,7 +48,7 @@ import "./globals.css";
   and a deployment's own build was exposed the same way. The files in
   `app/fonts/` are exactly what Google serves, one per subset, with the
   unicode-range Google gives each. They were downloaded once, sit beside their
-  OFL licences, and change only when somebody replaces them on purpose.
+  OFL licenses, and change only when somebody replaces them on purpose.
 
   One call per subset, because `localFont` puts one unicode-range on every
   face a call declares: so each subset is its own family, and the stacks below
@@ -220,7 +220,7 @@ export const metadata: Metadata = {
     THE BIG CARD RATHER THAN THE SMALL ONE.
 
     Without a declared card type this fell to `summary`, which is the narrow
-    grey row with a favicon on it, and that is what a link to this app looked
+    gray row with a favicon on it, and that is what a link to this app looked
     like in every message anybody has ever sent about it. `app/opengraph-image.tsx`
     is the picture; this is the line that asks for it to be shown at full size.
   */

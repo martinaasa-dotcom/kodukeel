@@ -1,7 +1,7 @@
 /**
  * A SCENE PLAYED INSIDE A LESSON: THE ROLE-PLAY AT THE END OF AN A1 PART.
  *
- * A catalogue scene draws its words from whole units of the old course, and
+ * A catalog scene draws its words from whole units of the old course, and
  * every one of them declares the A2 unit for asking and offering, so the
  * engine could not hold a conversation with somebody who has only had the A1
  * lessons. A lesson scene is the same machine with its closed list taken from

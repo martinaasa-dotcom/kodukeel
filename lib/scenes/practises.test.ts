@@ -3,7 +3,7 @@ import { SCENES } from "./catalogue";
 import { BEAT_TAGS, distinctive, practises } from "./practises";
 import { CASES } from "@/lib/estonian/cases";
 
-describe("what a scene practises", () => {
+describe("what a scene practices", () => {
   it("names every beat but the hello and the goodbye by what the learner does, case or no case", () => {
     const missing: string[] = [];
     for (const scene of SCENES) {

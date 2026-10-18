@@ -28,7 +28,7 @@ const READERS = [
   "lib/progress/contrast.ts",
   // The workbook page, for an A1 or A2 learner: a line asks a form of a word
   // the evenings have taught, in a sentence made of words they have taught,
-  // which is the ladder's gap rung on a page. It practises rather than
+  // which is the ladder's gap rung on a page. It practices rather than
   // measures, its screen claims nothing about who wrote a sentence, and its
   // marking is the dictionary's comparison against a vouched form, exactly as
   // the gap rung's is. `lib/games/` itself still may not import the module:

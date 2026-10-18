@@ -126,7 +126,7 @@ export type ServiceCost =
        * turns a thing to be grateful for into a line on an invoice nobody sent.
        *
        * So they are credited instead, by name, with what each one provides and
-       * the licence it provides it under. `wouldCostUsd` is the size of the
+       * the license it provides it under. `wouldCostUsd` is the size of the
        * gift rather than a charge: it says what buying the same thing would
        * come to, so a reader can see the scale of what is being given, and it
        * is kept out of every total on the page.
@@ -136,7 +136,7 @@ export type ServiceCost =
       readonly gives: string;
       /** The same line as a template, where it carries figures. */
       readonly givesAs?: Phrase;
-      /** The licence it is given under, where it states one. */
+      /** The license it is given under, where it states one. */
       readonly licence?: string;
       /**
        * What the same thing would come to if it were bought, where there is a

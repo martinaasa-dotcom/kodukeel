@@ -19,8 +19,8 @@ const DB_TIMEOUT_MS = 2_000;
  *
  * The race leaves the query running when it loses, which is deliberate: a
  * database taking longer than two seconds to answer this is already the
- * finding, and cancelling it would need a second connection to do the
- * cancelling on.
+ * finding, and canceling it would need a second connection to do the
+ * canceling on.
  */
 export async function databaseAnswers(): Promise<boolean> {
   let timer: ReturnType<typeof setTimeout> | undefined;

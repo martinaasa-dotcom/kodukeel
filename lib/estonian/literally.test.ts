@@ -60,7 +60,7 @@ function words(text: string): string[] {
   and a horn, a vacuum cleaner from dust and sucking, pollen from dust,
   the spinal cord from the back and the brain, a reindeer from the north,
   allspice from pepper, and a rifle from the screw cut inside its barrel,
-  which the rifle's own line says out loud. Recognising it is the fun, there
+  which the rifle's own line says out loud. Recognizing it is the fun, there
   is no other honest reading, and the line says so where it is the joke.
 */
 const SAME_IMAGE_BOTH = ["külmkapp", "uksekell", "liivakell", "silmamuna", "nahkhiir", "raamatukoi", "lasteaed", "käekell", "tolmuimeja", "kiirabi", "raudtee", "õietolm", "seljaaju", "põhjapõder", "nelkpipar", "vintpüss"];

@@ -9,12 +9,12 @@
   in a great many clients, so the one thing a learner sees of a picture is the
   hole where it was.
 
-  So a drawing here is a table with a background colour on it, which every
+  So a drawing here is a table with a background color on it, which every
   client that has ever existed renders, needs nothing fetched, and looks
   identical with images off because there are no images. That is not a
   consolation prize. It is the same discipline as the rest of the app: the
   ornament is built out of the thing the screen is already made of, and here
-  the screen is made of coloured boxes and big type.
+  the screen is made of colored boxes and big type.
 
   WHAT IS ALLOWED TO BE A PICTURE. The voice table bans emoji, and this is
   exactly the surface that tempts one: a generated reminder mail puts a rocket
@@ -25,7 +25,7 @@
   sweeps this file for an emoji like everything else under `lib/`.
 
   THE TICK IS THE ONE GLYPH, and it is the one the voice table names as allowed
-  by name: the daily strip ticks a day with a check mark, in one colour,
+  by name: the daily strip ticks a day with a check mark, in one color,
   matching the text around it. It is a typographic mark doing a job no word
   does as well, which is the line that table draws.
 
@@ -142,7 +142,7 @@ export function stepLadder(steps: readonly StepRow[], locale: Locale = "en"): Ht
  * A bar, as two cells.
  *
  * Percent width on a table cell is the one layout primitive every client
- * agrees about, so a meter is a full-width table holding a coloured cell of
+ * agrees about, so a meter is a full-width table holding a colored cell of
  * `pct` and a tinted one for the rest. At nought the filled cell would collapse
  * and the radius would sit on nothing, so it floors at a sliver: a bar that has
  * not started should look like a bar that has not started rather than like a
@@ -150,7 +150,7 @@ export function stepLadder(steps: readonly StepRow[], locale: Locale = "en"): Ht
  */
 export function meter(pct: number): Html {
   const filled = Math.max(2, Math.min(100, Math.round(pct)));
-  // One colour for every meter: a reading is not a verdict, so a bar does not
+  // One color for every meter: a reading is not a verdict, so a bar does not
   // turn sky when the figure behind it is good (docs/14-design-system.md).
   const fill = P.accent;
   return html`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="${css(

@@ -22,7 +22,7 @@
  *
  * With `--hear` it also puts both clips to a recognizer, which is the stronger
  * evidence and the slower, dearer half. `scripts/measure-asr.ts` is the
- * neighbouring instrument and says at length why a recognizer is read as a
+ * neighboring instrument and says at length why a recognizer is read as a
  * comparison between two renderings of one clip rather than as a score.
  *
  * It reports and never fails. Responses are cached on disk, so a re-run costs

@@ -169,7 +169,7 @@ export function AnuPanel({
         is on screen. Neither belongs in the conversation: the greeting was
         a card the width of the panel that a learner scrolled past to reach
         the answer they asked for, and the provider line was three lines of
-        grey under the box they type into. Both are facts about Anu rather
+        gray under the box they type into. Both are facts about Anu rather
         than turns in the conversation, so they sit in her chrome, where
         they cost the thread nothing.
       */}

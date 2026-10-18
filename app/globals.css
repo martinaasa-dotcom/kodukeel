@@ -10,8 +10,8 @@
   primary action, sky means "you got it", butter means "nearly", blush means
   "again". Mint and peach were the green and red of that scale and left the
   palette so that a verdict wears the brand mix like everything else.
-  Everything else is a warm near-white so the colour that does appear is the
-  colour that means something.
+  Everything else is a warm near-white so the color that does appear is the
+  color that means something.
 
   Tokens are duplicated into /* Registered so a tile's light can be tweened (see `.situation-tile`). */
 @property --tile-lit {
@@ -51,7 +51,7 @@
     bottom four steps ramp a pixel at a time (14, 15, 16, 17) rather than
     holding the old proportions, which is deliberate: a caption has to read as
     quieter than the body above it, and once the floor is somewhere a reader
-    can actually see, "quieter" is carried by colour and weight far more than
+    can actually see, "quieter" is carried by color and weight far more than
     by another two pixels off something already small. The display steps did
     not move at all. 32px was never the complaint, and the hero is measured
     against the width and height of the window it has to fit in
@@ -166,9 +166,9 @@
 
     /*
       Mustikamoos: an electric bilberry violet as the app's voice, a hot coral
-      (`--blush`) as its companion, and the answer colours kept to their
+      (`--blush`) as its companion, and the answer colors kept to their
       meanings. Missed moved from coral to raspberry so it can never be read
-      as the brand's own warm colour. White on the violet is 6.4:1.
+      as the brand's own warm color. White on the violet is 6.4:1.
     */
     --accent: #5b2eff;
     --accent-ink: #ffffff;
@@ -185,10 +185,10 @@
     /*
       Text on a pastel tile.
 
-      The five hues are chosen to read as colour at full strength on white — as
+      The five hues are chosen to read as color at full strength on white — as
       a bar, a ring, a dot. Set as *text* on their own 8%-tint they land around
       2.5:1, which is decoration pretending to be a label. Every hue therefore
-      has an ink: the same colour walked down until it clears 4.5:1 on its own
+      has an ink: the same color walked down until it clears 4.5:1 on its own
       tint, so a chip, a stat tile and a grade button can all be read.
     */
     --butter-ink: #735000;
@@ -204,7 +204,7 @@
       accuracy, a ring of retention, a busy day, a share of situations) is one
       hue in steps: the accent, from a wash to full strength, over the neutral
       track. Sky, butter and blush say what happened to an answer, and a bar
-      coloured by a threshold borrowed that meaning for a figure, which read
+      colored by a threshold borrowed that meaning for a figure, which read
       as a traffic light over somebody's progress. Declared once, here, and
       derived from the accent and the surface, so each theme draws its own
       steps. Asserted in scripts/invariants/a-reading-is-not-a-verdict.ts.
@@ -222,8 +222,8 @@
       `--accent-ink` is the white on the solid button and `--accent-deep` is the
       ink on the tint. "Recalled" needed the other half: the tick inside a
       reviewed day on Today's week strip sits on the solid fill, and white on it
-      fails. The fill and its ring say "recalled" in colour; the tick is the
-      channel that says it without colour, which is the one thing CLAUDE.md will
+      fails. The fill and its ring say "recalled" in color; the tick is the
+      channel that says it without color, which is the one thing CLAUDE.md will
       not let a distinction do without.
 
       It was `--on-mint` until mint left the palette and "recalled" moved to sky.
@@ -283,7 +283,7 @@
     --cta: var(--butter);
     /* Ink on a solid hue: a dark ink in both themes, the navy ink here and
        the Slate night in the dark. Every hue is light enough for it, and it
-       is what makes a coloured sticker read. */
+       is what makes a colored sticker read. */
     --on-hue: #0f1233;
     --cta-ink: #0f1233;
 
@@ -342,14 +342,14 @@
     color-scheme: dark;
 
     /*
-      SLATE. Grey, with the faintest lean toward the brand violet, and the
+      SLATE. Gray, with the faintest lean toward the brand violet, and the
       brand kept in the accent rather than in the ground.
 
       The navy that was here measured an OKLCH chroma of 0.061 on the card
       and 0.079 on a raised panel, roughly fifteen times Apple's own dark
-      greys (0.004 to 0.007), so every surface read as blue-violet and the
+      grays (0.004 to 0.007), so every surface read as blue-violet and the
       bright hues on top of it read as a glow. Above about 0.02 the eye calls
-      a dark surface coloured rather than grey, so every layer here sits at
+      a dark surface colored rather than gray, so every layer here sits at
       0.02 or under (hue 269, the accent's side of blue). Depth is lightness
       and nothing else: page, card and raised panel step by +0.046 and +0.047
       in OKLCH L, which is the size of Apple's own elevated steps, and no
@@ -357,10 +357,10 @@
 
       The navy taken down to the same 0.02 lands 0.007 OKLab from these
       three, under the smallest difference the eye can see, so this is the
-      night it always was with the colour taken out of the greys.
+      night it always was with the color taken out of the grays.
 
       Measured before it shipped: injected into the running app, axe's
-      colour-contrast rule over thirty screens and about 2,400 text nodes per
+      color-contrast rule over thirty screens and about 2,400 text nodes per
       run, zero failures, the weakest five percent of real text at 7.0:1.
       Text is off-white rather than #fff, which halates on a dark ground for
       a reader with astigmatism. The tints are mixed from each hue into the
@@ -399,7 +399,7 @@
     --again-ink: var(--blush);
     --easy-ink: var(--accent-deep);
 
-    /* No coloured blobs behind the page: the washes are the ground. */
+    /* No colored blobs behind the page: the washes are the ground. */
     --wash-1: var(--ground);
     --wash-2: var(--ground);
     --wash-3: var(--ground);
@@ -593,11 +593,11 @@
     padding.
   */
   /*
-    AND THE FRAME CARRIES THE COLOUR SCHEME OF THE PAGE INSIDE IT, NOT OURS.
+    AND THE FRAME CARRIES THE COLOR SCHEME OF THE PAGE INSIDE IT, NOT OURS.
 
     The dark theme sets `color-scheme: dark` on the root, and an iframe whose
     own document declares no dark scheme is then painted onto an opaque
-    backdrop in that document's canvas colour, which is white: the browser
+    backdrop in that document's canvas color, which is white: the browser
     does it so a light page is never laid transparent over a dark one. Google's
     frame is twenty pixels wider than its button and two taller, so what that
     backdrop drew was a white slab round the button on a dark card, reported
@@ -632,7 +632,7 @@
 
     Setting either axis on `html` makes it a scroll container, and every
     library that positions a floating element asks exactly that question
-    before it places one: when the root is an overflow element the maths
+    before it places one: when the root is an overflow element the math
     happens in document coordinates instead of viewport ones. For anything
     laid out in the page the two agree and nothing looks wrong. For the
     chrome they do not, because the chrome is the one thing that stays put
@@ -686,7 +686,7 @@
     session, it is the difference between a control being where the thumb
     expects it and not.
 
-    Root scroller only; anything inside the page keeps its own behaviour. Set
+    Root scroller only; anything inside the page keeps its own behavior. Set
     on both elements because which of the two is the root scroller differs
     between engines and the property does not inherit.
 
@@ -714,7 +714,7 @@
 
     Deliberately not on table rows or on the rating buttons' own layout: both
     already carry their own height, and a min-height on an element that
-    centres its content pushes the content away from where it was drawn.
+    centers its content pushes the content away from where it was drawn.
   */
   /*
     THE FLOOR IS FOR ANYTHING A THUMB HAS TO HIT, NOT FOR ANYTHING SPELT
@@ -757,7 +757,7 @@
   }
 
   /*
-    An inflated box still has to centre what is in it.
+    An inflated box still has to center what is in it.
 
     The floor above is a `min-width` and a `min-height` on a control that is,
     by default, an inline box laying its content out from the top left. On a
@@ -768,7 +768,7 @@
     thought to say `flex` for itself. It looks like a rendering fault because it
     is one.
 
-    So an icon-only control centres its own content, everywhere rather than
+    So an icon-only control centers its own content, everywhere rather than
     only under a thumb, since padding rounds unevenly on a mouse too. Written
     inside `:where()` so it carries no specificity at all: any component that
     lays its own icon out (a full-width button, a row that pushes its icon to
@@ -844,7 +844,7 @@
     cursor: default;
   }
 
-  /* A tap is a tap: no grey flash, and none of the 300ms double-tap-to-zoom
+  /* A tap is a tap: no gray flash, and none of the 300ms double-tap-to-zoom
      wait on the rating buttons, which are pressed hundreds of times a session. */
   button, a, [role="button"] {
     -webkit-tap-highlight-color: transparent;
@@ -1205,7 +1205,7 @@
     at `--r` and 10px by 14px. `.field-lg` is the answer box a round leads
     with, a search box or an exam paper, at `--r-lg` and 14px by 20px, and
     it is also what the shared `EstonianInput` wears, so a field beside it
-    on a form matches it. Type size and colour stay with the caller, since a
+    on a form matches it. Type size and color stay with the caller, since a
     box in a card sits on `--raised` and a box on a page on `--surface`, and
     that is a fact about the surface under it rather than about the box.
     The invariant reads every input and textarea in the tree and fails on
@@ -1253,7 +1253,7 @@
     column is also what the review card does. The width is no longer a
     question, which is what the 12rem minimum was answering: a single column
     takes whatever its card has, so a long Estonian form never gets squeezed
-    into a sliver beside its neighbour.
+    into a sliver beside its neighbor.
   */
   .choice-grid {
     display: flex;
@@ -1312,11 +1312,11 @@
     SÕNAD'S THREE MOVEMENTS, AND WHY NONE OF THEM IS A FLIP.
 
     The game this is shaped like turns each square over on its horizontal axis
-    to reveal a colour, and shakes a row sideways when a guess is not a word.
-    Both of those are recognisable enough to be part of what that game *is*, so
+    to reveal a color, and shakes a row sideways when a guess is not a word.
+    Both of those are recognizable enough to be part of what that game *is*, so
     neither is here. These are circles, and a circle has no axis to turn on.
 
-    A circle SETTLES: it dips, takes its colour at the bottom of the dip, and
+    A circle SETTLES: it dips, takes its color at the bottom of the dip, and
     comes back past its size before resting. Staggered along the row by
     `--sonad-at`, which the board sets per circle, so the row reads left to
     right the way a word does.
@@ -1331,7 +1331,7 @@
 
     Transform and opacity only, so the compositor can run them without the main
     thread, and all three become nothing under `prefers-reduced-motion`: the
-    board still colours in, which is the whole of the information.
+    board still colors in, which is the whole of the information.
   */
   .sonad-settle {
     animation: sonad-settle 420ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
@@ -1550,7 +1550,7 @@
   }
   /*
     A CHECKED ANSWER, IN PEN. The word written on its line with the line
-    coloured for how it went and a tick or a cross after it: sky for right,
+    colored for how it went and a tick or a cross after it: sky for right,
     blush for missed, where the learner's own attempt is struck through in
     front of the answer the way a teacher corrects a page. No fill, so the
     sentence still reads as a sentence.
@@ -1672,7 +1672,7 @@
     TIME PASSING IN A CONVERSATION, DRAWN AS SOMETHING THAT HAPPENS.
 
     A scene can walk somebody from their kitchen to a shop, and the screen said
-    so in a grey line of text between two rules. A learner who had just been
+    so in a gray line of text between two rules. A learner who had just been
     walked to a shop reported that nothing at all had told them the scene had
     moved, and they were reading the right pixels: a sentence set in the same
     ink as a stage direction, between two hairlines, on a screen where a new
@@ -1888,7 +1888,7 @@
       frame and this app does not put one over moving content; so a wash that
       reached the top edge drew a seam across the screen exactly where the
       room's own name is. Softened with it, because what this is for is depth
-      rather than colour: at full strength three pastels behind a conversation
+      rather than color: at full strength three pastels behind a conversation
       is a second thing to look at.
 
       And it fades in below the bar and the room rather than reaching up
@@ -2057,7 +2057,7 @@
     AND IT BEGINS HALFWAY DOWN THE PILL, BEHIND IT, RATHER THAN ABOVE IT. It
     used to reach half a rem over the top edge, and a flat rectangle of
     `--ground` laid over the room's own light has two hard vertical edges and a
-    hard top one: measured in the dark theme it read as a grey slab hung under
+    hard top one: measured in the dark theme it read as a gray slab hung under
     the drawing with a seam across the screen, which is exactly the fault
     `.scene-top::after` exists to prevent one element up. It buys nothing,
     since the pill pins at the bottom of that fade and the two edges meet with
@@ -2072,7 +2072,7 @@
     above the card: measured at about 280 gold pixels in that gap in both
     themes. It starts behind the solid part of the fade now (`.scene-top` is
     above this in the stacking order), so its top edge is hidden under ground
-    of the same colour and there is no seam for the slab fault to come back
+    of the same color and there is no seam for the slab fault to come back
     through; it is solid to the pill's foot and fades under it as before.
   */
   .scene-sticky:not([open])::before {
@@ -2149,7 +2149,7 @@
 
     A scene can walk somebody out of their kitchen and into a shop, and every
     question after that is asked about the shop. The screen used to say so in a
-    grey sentence between two hairlines; then in a tinted chip that arrived,
+    gray sentence between two hairlines; then in a tinted chip that arrived,
     which is what `.scene-break` below still draws in the transcript. A learner
     walked to a shop reported, twice, that nothing had told them the scene had
     moved, and they were right both times: a chip that arrives among bubbles
@@ -2243,12 +2243,12 @@
     WHAT A PLACE MOVES LIKE.
 
     Fourteen conversations were fourteen identical white cards, and the only
-    thing that told a health centre from a job interview was the sentence you
+    thing that told a health center from a job interview was the sentence you
     read. `lib/scenes/scenery.ts` gives each one an icon and one of five
     movements, and this is where a movement becomes something on the screen.
 
     None of them is a picture of anything and none of them uses a hue that
-    means something: the five colours in this app carry fixed meanings and are
+    means something: the five colors in this app carry fixed meanings and are
     not free for decoration, so every scene is drawn in the accent and what
     tells them apart is what moves. A queue advances. A telephone rings out in
     circles. A journey travels. Steam comes off something hot. A room somebody
@@ -2495,8 +2495,8 @@
     inherited.
 
     `accent-color` alone would have been a shorter answer and is the wrong one,
-    since it colours the thumb and leaves the track the browser's grey, which
-    is the one colour in the app that means nothing.
+    since it colors the thumb and leaves the track the browser's gray, which
+    is the one color in the app that means nothing.
   */
   .range {
     appearance: none;
@@ -2523,7 +2523,7 @@
   /*
     The ring round the thumb is `--surface` rather than nothing, so the thumb
     keeps its edge where it sits on top of the filled part of the track. Its
-    top margin centres it on the track: half the track's height less half the
+    top margin centers it on the track: half the track's height less half the
     thumb's, which is the arithmetic every engine but Firefox makes you do.
   */
   .range::-webkit-slider-thumb {
@@ -2601,7 +2601,7 @@
     It was bold, tracked out and uppercased, on every card heading, every chip
     and every figure's caption: "35 WAITING", "FIVE TO EIGHT MINUTES", "4
     LAPSES". That is the texture of a generated dashboard, and a screen where
-    every other word shouts is one where nothing does. Weight and colour say
+    every other word shouts is one where nothing does. Weight and color say
     "label" well enough at this size; the capitals were only volume. It also
     ends the class of fault this file has a paragraph about elsewhere, an
     Estonian ending like "-sse" printed as "-SSE".
@@ -2630,13 +2630,13 @@
       of blue on the right, on the one button a screen is built around.
       No tilt escapes that, because the vertical spread of the gradient
       line is set by the element's height and a button is short and wide.
-      At 90deg every column is a single colour, so each cap is the pure
+      At 90deg every column is a single color, so each cap is the pure
       endpoint. `grad-text` keeps its tilt: it is clipped to letterforms,
-      which have no caps to discolour.
+      which have no caps to discolor.
     */
     /*
       Solid now, not a ramp. The violet-to-pink ramp was the loudest thing on
-      every screen and the most generic: it is the colour of a great many
+      every screen and the most generic: it is the color of a great many
       product templates, and a learner reads a page that looks like one as a
       page that is selling something. One flat cornflower with a light edge
       along its top is louder by being plain.
@@ -2651,12 +2651,12 @@
       `background-clip` is the border box, so that outer pixel is painted
       anyway. The default `repeat` fills it from the next tile along, which
       puts the pink end of the ramp down the left edge and the blue end down
-      the right, on the two rounded caps where a single flat colour is most
+      the right, on the two rounded caps where a single flat color is most
       visible. That is the same fleck the 90deg fix above was for, arriving by
       a second route, which is why fixing the angle alone did not clear it.
       Measuring from the border box makes the caps the true endpoints again;
       `no-repeat` means a later change to either box shows a gap rather than
-      quietly wrapping a colour round the edge.
+      quietly wrapping a color round the edge.
     */
     background-origin: border-box;
     background-repeat: no-repeat;
@@ -2673,7 +2673,7 @@
 
     Only the position moves; the stops are the ones above, and the note there
     says every one of them clears 4.5:1 against the page, so panning cannot
-    walk a failing colour under the text. Nine seconds because this sits under
+    walk a failing color under the text. Nine seconds because this sits under
     the first sentence anybody reads and a fast sweep would pull the eye off
     the words it is painting.
   */
@@ -2776,7 +2776,7 @@
 
     From `lg` up it is the two columns it always was, placed by row: the copy
     on the left with the lead back above the button, and the card spanning
-    every row on the right, centred against the column beside it.
+    every row on the right, centered against the column beside it.
   */
   .hero-grid { display: grid; row-gap: 0; column-gap: clamp(2.5rem, 5vw, 4rem); align-items: center; }
   .hero-grid > * { min-width: 0; }
@@ -2851,7 +2851,7 @@
   .hero-machine { min-width: 0; display: flex; justify-content: center; }
   .hero-word { width: 100%; max-width: 26rem; }
   .hero-word-stack { position: relative; display: block; }
-  /* The glow the card floats in: the four night colours, blurred into light. */
+  /* The glow the card floats in: the four night colors, blurred into light. */
   .hero-word-back {
     display: block;
     position: absolute; inset: 8% 4%;
@@ -2937,7 +2937,7 @@
 
   /*
     A section opens on a sticker and a heading set in the display cut, flush
-    left. Centred eyebrow, centred heading, centred paragraph is the rhythm
+    left. Centered eyebrow, centered heading, centered paragraph is the rhythm
     of every generated page, and a column that starts at the same edge as the
     cards under it reads as one object rather than a caption over a grid.
   */
@@ -3001,7 +3001,7 @@
   /*
     The three gaps down the hero grow with the window.
 
-    Centring a fixed 363px column in an 877px box is the first fault wearing a
+    Centering a fixed 363px column in an 877px box is the first fault wearing a
     better hat: the copy stops being piled at the top and becomes a postage
     stamp with a void over it and a void under it. What a tall screen is for is
     letting the three beats stand apart, so the space goes between them rather
@@ -3027,7 +3027,7 @@
   /*
     THE HEADLINE IS THE THING THE AIR IS AROUND.
 
-    Filling the window and centring the column was half a fix and read as the
+    Filling the window and centering the column was half a fix and read as the
     other half of the fault: the same small block, now with a margin over it
     and a margin under it instead of a gap under it alone. Air does not read as
     generous on its own. It reads as generous around something with enough
@@ -3133,7 +3133,7 @@
     sits `gap-3` above and below its neighbors, and shifting it up on hover
     shrinks its own hit-box from the bottom by the same distance, which a
     pointer resting there falls out of. `scale` grows the box from its own
-    centre instead, so hovering can only gain contact, and the shadow alone
+    center instead, so hovering can only gain contact, and the shadow alone
     already carries most of what "lifted" reads as.
   */
   @media (hover: hover) { .lift:hover { transform: scale(1.012); border-color: color-mix(in srgb, var(--ink) 18%, transparent); } }
@@ -3159,7 +3159,7 @@
     its words. `components/motion/PointerLight.tsx` writes `--gx` and `--gy`;
     until it has, the light sits in the middle, which is where a keyboard's
     focus ring already says the card is. It is the accent at a whisper in the
-    light theme and plain white at less in the dark, because a coloured glow
+    light theme and plain white at less in the dark, because a colored glow
     on Slate is exactly what was taken out of it.
   */
   .glow { position: relative; isolation: isolate; }
@@ -3229,7 +3229,7 @@
   /*
     A KEY: A BUTTON STANDING ON ITS OWN LIP.
 
-    The lip is a hard shadow in a deeper shade of the button's own colour,
+    The lip is a hard shadow in a deeper shade of the button's own color,
     and a press sinks the key into it. It is the one physical gesture the app
     repeats everywhere, and it replaces a soft glow under a glossy pill, which
     is what every quickly built product looks like. Transform and shadow only,
@@ -3253,7 +3253,7 @@
     `border-color`/`background` inline, because an inline style wins over any
     class `:hover`, silently, and that is what left these options dead under a
     pointer everywhere they appeared. Once an answer is picked and the button
-    disables, the caller's own inline colours (correct/incorrect) take over,
+    disables, the caller's own inline colors (correct/incorrect) take over,
     and `:not(:disabled)` keeps this rule out of their way.
 
     THIS IS ALSO THE BASE FOR AN OPTION THAT STAYS CHOSEN, and it is one class
@@ -3281,7 +3281,7 @@
     its own *moved* box: shifting the button up loses contact with a pointer
     resting near its lower edge, which un-hovers it, which undoes the shift,
     which re-hovers it, over and over, visible as the button flickering under
-    a still mouse. A pure `scale` grows the box outward from its own centre
+    a still mouse. A pure `scale` grows the box outward from its own center
     in every direction at once, so it can only gain area under the pointer,
     never lose it, and the lift still reads through the shadow.
   */
@@ -3379,7 +3379,7 @@
   /*
     AND THE BOX IT IS SAID IN, ALSO PAINTED ONCE.
 
-    The three classes above settle the colour and settled nothing else, so the
+    The three classes above settle the color and settled nothing else, so the
     geometry and the type were decided per screen: five rounds wrote
     `rounded-md px-3.5 py-3` with a `text-[15px]` inside it, the daily path and
     the ladder wrote `text-sm`, the lesson wrote `p-3 text-sm`, and the word
@@ -3545,7 +3545,7 @@
     hover state. Dimming is exactly how every disabled control here is drawn,
     so the strongest signal a mouse got was the control appearing to switch
     off. A raised tint arrives under the pointer instead, which is a button
-    appearing rather than one fading. A tint rather than a colour change
+    appearing rather than one fading. A tint rather than a color change
     because these set their ink inline.
   */
   /*
@@ -3560,12 +3560,12 @@
     never less).
 
     The caret is drawn rather than the browser's marker, because the default
-    triangle is a different shape and colour in every browser and this app has
+    triangle is a different shape and color in every browser and this app has
     one ornament vocabulary. `list-style: none` plus the WebKit pseudo-element
     is what it takes to remove it everywhere.
 
     The summary is `min-height: 44px` under a coarse pointer like every other
-    control, and it centres its own content, so a one-line trigger is still a
+    control, and it centers its own content, so a one-line trigger is still a
     thumb-sized target on a phone.
 
     AND NO NEGATIVE MARGIN TO PULL THE LABEL BACK INTO LINE. The first version
@@ -3614,7 +3614,7 @@
   }
 
   /*
-    THE PANEL AN EXPLANATION OPENS INTO. It was loose grey paragraphs under the
+    THE PANEL AN EXPLANATION OPENS INTO. It was loose gray paragraphs under the
     summary, with nothing to say where the explanation ended and the screen
     resumed, so a reader could not tell how much there was before reading all
     of it. A soft panel is that edge: one box, read or skipped as one thing.
@@ -3664,7 +3664,7 @@
     The growth goes on the mark rather than on the link, because the link is
     the full width of the rail and scaling that would drag its tint out past
     the rows underneath it. Left origin for the same reason: this sits in a
-    240px column against its left padding, and a centred scale walks the
+    240px column against its left padding, and a centered scale walks the
     mascot into the edge of the rail.
 
     Small on purpose. 3.5% is about a pixel and a half on a 34px mascot, which
@@ -3828,7 +3828,7 @@
     ornament, so it is the one that earns a press worth feeling. It leans and
     grows under a pointer, which is the rule about a hover making a control
     more present, and it wiggles once on the way in, which is the ornaments
-    on the landing page recognising the keys in the app as their own.
+    on the landing page recognizing the keys in the app as their own.
 
     `.press` supplies the push on `:active` and this supplies the rest, so a
     key is one control with one set of states rather than two rules arguing
@@ -3862,7 +3862,7 @@
   .meter-fill > * { transform-origin: left; animation: meter-fill 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
   /*
     The ending of a form, lit: the letters a case or a person adds to a stem.
-    Underlined in the accent rather than coloured, so it survives sitting on a
+    Underlined in the accent rather than colored, so it survives sitting on a
     verdict that has already spent the ink on being right or wrong, and it
     lifts a little under a pointer on the row it belongs to.
   */
@@ -4160,7 +4160,7 @@
       radial-gradient(16rem 12rem at 88% 0%, color-mix(in srgb, var(--butter) 16%, transparent), transparent 70%),
       var(--stage) !important;
   }
-  /* The same lamps in the dark, on the raised grey so the room still stands
+  /* The same lamps in the dark, on the raised gray so the room still stands
      off the page, at a hint of their light-theme strength: on a dark ground a
      full-strength glow reads as a smear. Still, because a line is being read. */
   [data-theme="dark"] .scene-night {
@@ -4285,10 +4285,10 @@
     the light drifts: a layer half as big again as the panel, behind its
     contents, turning a few degrees over twenty-odd seconds. Slow enough that
     nobody watches it and the panel still reads as a lit room rather than a
-    slab, which in the dark theme it was, grey on grey, for one release. The
+    slab, which in the dark theme it was, gray on gray, for one release. The
     conversation room keeps still lamps, because motion behind a line
     somebody is reading costs them the line. Dark sits the lamps on the
-    raised grey so the panel still separates from the page, and turns them
+    raised gray so the panel still separates from the page, and turns them
     down to a hint: on a dark ground a glow at the light theme's strength
     reads as a smear rather than a lamp. Off for anybody who asks for less motion.
   */
@@ -4351,13 +4351,13 @@
   @media (hover: hover) { .situation-shuffle:hover svg { transform: rotate(-12deg) scale(1.1); } }
 
   /*
-    A TILE IS ITS KIND'S COLOUR, LIT FROM ABOVE.
+    A TILE IS ITS KIND'S COLOR, LIT FROM ABOVE.
 
     In the light theme the tint is the tile. In the dark, a hue mixed into
-    grey is mud (gold becomes olive and pink becomes maroon), so the tile is
-    the card with its kind's colour falling on it from the top edge, which
+    gray is mud (gold becomes olive and pink becomes maroon), so the tile is
+    the card with its kind's color falling on it from the top edge, which
     reads as light rather than as a stain, and its border carries the hue so
-    four kinds are four colours at a glance. A pointer brings the light up:
+    four kinds are four colors at a glance. A pointer brings the light up:
     `--tile-lit` is a registered property so the browser can tween it, which
     a gradient on its own cannot (declared at the top of this file, since
     `@property` is not a layered rule). Text never sits on the brightest part
@@ -4367,7 +4367,7 @@
     background: var(--tile-soft);
     border-color: var(--edge);
     /* The pointer's light (`.glow`) in the tile's own hue, so a pointer
-       crossing the board warms each kind in its colour. */
+       crossing the board warms each kind in its color. */
     --glow-color: color-mix(in oklab, var(--tile-hue) 26%, transparent);
     transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
                 box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -5380,7 +5380,7 @@ a:focus-visible .wave-word::after {
   apart. So on the dark theme the panel
   is promoted onto --raised instead, with a hairline and a plain dark shadow.
   It was a violet-tinted shadow for a while, and together with the page's
-  own wash and the accent buttons' coloured lift it made the dark theme glow
+  own wash and the accent buttons' colored lift it made the dark theme glow
   everywhere, which was reported as too much. In the dark, light comes from
   surfaces being lighter, never from a halo round them.
 */
@@ -5394,8 +5394,8 @@ a:focus-visible .wave-word::after {
   box-shadow: none !important;
 }
 /*
-  One lamp, in the accent, on the dark theme's one hero per screen: a grey
-  panel on a grey page was correct and lifeless, and the panel is the thing
+  One lamp, in the accent, on the dark theme's one hero per screen: a gray
+  panel on a gray page was correct and lifeless, and the panel is the thing
   the screen is for. One faint light from the top corner, never three, so it
   reads as lit rather than as glowing.
 */
@@ -5409,7 +5409,7 @@ a:focus-visible .wave-word::after {
 /*
   THE EVENING IS OVER, AND IT WEARS THE MIX. The card that says tonight's
   module is learned, on Today and on the module screen, was painted mint, and
-  mint is a verdict (recalled, known) rather than a colour of Vikerkaar öös,
+  mint is a verdict (recalled, known) rather than a color of Vikerkaar öös,
   so the one moment the app celebrates read as a green slab beside a palette
   that has no green in it. Night was the other answer and is too stark for an
   ending on a light page. So it is the accent's own tint, which is lavender in
@@ -5476,7 +5476,7 @@ a:focus-visible .wave-word::after {
   A PART OF THE DEBRIEF IS A PANEL, NOT A HEADING AND SOME LOOSE LINES.
 
   What to try next, what got done, how it went, the words it needed and the
-  one thing to work on were five small grey labels over plain text, stacked
+  one thing to work on were five small gray labels over plain text, stacked
   between a night card and a grid of tiles, and the middle of the screen read
   as a document rather than as the rest of the app. Each is the surface every
   card here sits on, so the screen is one set of objects from top to bottom.
@@ -5571,7 +5571,7 @@ a:focus-visible .wave-word::after {
   plus 0.4em: at the Speaking round's size that is two and a half word spaces,
   and the sentence read as a row of separate tiles. A shadow is painted and
   takes no room, so the words sit at the font's own spacing and a lit run
-  keeps a sliver of the space between neighbours.
+  keeps a sliver of the space between neighbors.
 */
 .read-aloud-word {
   border-radius: 0.3em;
@@ -5632,7 +5632,7 @@ a:focus-visible .wave-word::after {
   A word the machine heard least surely carries the spell-checker's wavy
   underline in the "nearly" ink, because the dotted one already means the
   dictionary can open the word and a recording's transcript has both on one
-  line. A shape as well as a hue, so it reads without colour.
+  line. A shape as well as a hue, so it reads without color.
 
   The drop target is the reading page itself while a file is dragged over the
   window: one dashed frame over the whole column, so a voice message dragged

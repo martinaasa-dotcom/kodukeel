@@ -38,7 +38,7 @@ describe("dashes become punctuation a person would type", () => {
 });
 
 describe("stock openers", () => {
-  it("drops one and recapitalises what is left", () => {
+  it("drops one and recapitalizes what is left", () => {
     expect(humanizeLine("It's important to note that the object takes the partitive."))
       .toBe("The object takes the partitive.");
   });

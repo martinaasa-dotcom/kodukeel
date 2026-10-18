@@ -38,7 +38,7 @@ export interface WelcomeInput {
   readonly reminderAt: string | null;
   /** Cards their first deck was built with, which is already theirs. */
   readonly cardsWaiting: number;
-  /** Where the course opens for them, in the programme's own words. */
+  /** Where the course opens for them, in the program's own words. */
   readonly opensOn: { readonly title: string; readonly subtitle: string } | null;
 }
 

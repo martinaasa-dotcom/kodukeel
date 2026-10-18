@@ -5,7 +5,7 @@ import type { Level } from "@/lib/collections/syllabus";
  * (docs/41-fifth-batch.md, VB-4).
  *
  * Three ways, one switch: pick one of the lines on offer, say it, or type it.
- * Picking is batch 4's bridge for a beginner (they recognise the right thing
+ * Picking is batch 4's bridge for a beginner (they recognize the right thing
  * before they can produce it), saying it is what a conversation in a shop
  * actually is, and typing is how it was rehearsed before the app could hear.
  *

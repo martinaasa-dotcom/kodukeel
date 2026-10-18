@@ -35,7 +35,7 @@ export function openAnu(question?: string): boolean {
     cancelable: true,
   });
   // The listener cancels the event to say it has the question; an event
-  // nobody cancelled is one nobody heard.
+  // nobody canceled is one nobody heard.
   return !window.dispatchEvent(event);
 }
 

@@ -43,7 +43,7 @@ export default async function TeachersPage({ searchParams }: { searchParams: Pub
 
   return (
     <Legal title={t("For teachers")} updated="14 October 2026" locale={locale} explicit={explicit} path="/teachers">
-      <P>{t("Put a code on the board. See who is practising and what the group keeps getting wrong.")}</P>
+      <P>{t("Put a code on the board. See who is practicing and what the group keeps getting wrong.")}</P>
 
       {/*
         Not inside a card: the roster rows take the full width of the column,

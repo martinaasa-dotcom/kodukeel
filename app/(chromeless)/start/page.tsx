@@ -118,7 +118,7 @@ export default async function WelcomePage({ searchParams }: {
 
     A Russian or Ukrainian front page carries its language through sign-in as
     `?lang=`, and that is the strongest thing known about a newcomer: it is the
-    page they chose to read. `localeFrom` honours "ru" and "uk" and nothing
+    page they chose to read. `localeFrom` honors "ru" and "uk" and nothing
     else. Where the query names neither, a language already stored is kept,
     and otherwise it is English, which is what this screen always opened in.
   */

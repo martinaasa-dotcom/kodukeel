@@ -40,7 +40,7 @@ because they are about what happens to learners rather than about how many there
 The Foreign Service Institute puts Estonian in **Category IV**, the second hardest of its four
 bands, at 44 weeks or about 1,100 class hours to professional working proficiency for an English
 speaker, alongside Finnish and Hungarian. The Institute teaches full time with small classes and
-prepared materials, which is the most favourable conditions anybody learns a language in, and 1,100
+prepared materials, which is the most favorable conditions anybody learns a language in, and 1,100
 hours is what that buys. The plan at `/assess` is built on that figure and adds an Estonian
 surcharge on top of it, weighted to the step where the cases and the gradation have to start working
 on their own.
@@ -84,7 +84,7 @@ Countable, and checkable:
 | Case rules checked the same way | 5,143 nominals, about 113,000 forms | `npm run audit:cases` |
 
 On top of that: FSRS scheduling with an append-only review log, a mock of the state examination at
-every level the state sets plus a clearly labelled A1 paper it does not, an eighty question
+every level the state sets plus a clearly labeled A1 paper it does not, an eighty question
 placement check, printable worksheets, offline review that queues grades on the device and replays
 them with the time they were answered, seven conversation scenes, and a daily errand that asks
 whether the learner spoke Estonian to anybody yesterday.
@@ -126,12 +126,12 @@ conversational line composed inside a scene's closed word list all pass the same
 learner is taught comes from a model, which is why the whole course, the dictionary, the exercises
 and the examinations keep working with every AI key removed.
 
-**The sources are public institutions, and the licences are stated.** Every Estonian form and
+**The sources are public institutions, and the licenses are stated.** Every Estonian form and
 sentence comes from Ekilex, the Institute of the Estonian Language's lexicographic database. The
 English glosses come from Wiktionary, CC BY-SA 4.0, which reaches the built dictionary as a work
 made from it. Speech is the University of Tartu's TartuNLP. The frequency list is
 `hermitdave/FrequencyWords`, CC BY-SA 4.0, chosen over a better University of Tartu list because
-that one is non-commercial and a non-commercial clause is the one licence a project cannot walk
+that one is non-commercial and a non-commercial clause is the one license a project cannot walk
 itself back out of. All are credited on sign-in, in the landing footer, on `/terms` and in
 `LICENSE`. The code is MIT.
 
@@ -149,7 +149,7 @@ written for the running app rather than for this document.
 
 **The daily cap on the tutor could go up.** Every model call is booked against a shared daily
 budget that cannot be switched off, because sign-up is open (`lib/usage/quota.ts`). It is the one
-line that could run away, and it is a knob with a stop on it rather than an open cheque. At ten
+line that could run away, and it is a knob with a stop on it rather than an open check. At ten
 thousand learners the cap is already what holds that line down (`modelCapBinds` is true from ten
 thousand in `billFor`).
 
@@ -194,7 +194,7 @@ the examinations, the games, the grammar and the whole course run on a server an
 the floor is low and the fall is gradual, and the honest claim is not that the project becomes
 profitable but that it becomes cheap enough to keep alive with nobody paid.
 
-Below even that, six continuity claims, each checkable in a named file (`CONTINUITY`): the licence,
+Below even that, six continuity claims, each checkable in a named file (`CONTINUITY`): the license,
 the absence of lock-in, the rebuildable dictionary, every learner's right to take their whole record
 out in one file (`app/api/export/route.ts`), pages that keep opening with no network at all, and the
 fact that nothing taught comes from a model.
@@ -214,8 +214,8 @@ is $3.01 per learner per month at a hundred falling to 2.4 cents. The model a le
 downloaded once per device, in the background, from this site's own hosting, which is about $268 of the hundred thousand. At ten thousand and above the app's
 own daily cap on model spending is what holds the tutor line down. At a hundred thousand learners the value of what is given to this app, priced at Amazon
 Polly's published neural rate purely to show its size, is $2,880 a month and exceeds every billed
-line put together. No free vendor tier is modelled anywhere, because a free plan pauses when nobody
-is on it and forbids commercial use, and modelling one made the page cheerful and wrong.
+line put together. No free vendor tier is modeled anywhere, because a free plan pauses when nobody
+is on it and forbids commercial use, and modeling one made the page cheerful and wrong.
 
 ## 6. How success would be measured
 
@@ -263,7 +263,7 @@ deployment's own model. None of that is a certificate and none of it should be r
 
 **What the report will not tell you**, and this is in `docs/23-impact.md` rather than left out:
 whether anybody passed a state examination, whether their Estonian improved beyond what the log
-sees, or how many of the people counted are already counted by a partner organisation.
+sees, or how many of the people counted are already counted by a partner organization.
 
 ## 7. The risks, and what is already done about each
 
@@ -346,7 +346,7 @@ only by asking for it.
 
 And one caution about a figure that is now in the text. The pass rates in section 1 are the Board's
 2020 rates. They are quoted because the shape of them, falling steadily from A2 to C1, is the point
-being made and is not a pandemic artefact. If an application leans on the exact percentages rather
+being made and is not a pandemic artifact. If an application leans on the exact percentages rather
 than the shape, get the current year's from the Board first.
 
 ## 10. The outside sources this document uses

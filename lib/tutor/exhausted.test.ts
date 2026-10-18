@@ -53,7 +53,7 @@ describe("a model marked out", () => {
     expect(isExhausted(FLASH, T0 + 60_000)).toBe(true);
   });
 
-  it("is one model on one provider, never its neighbours", () => {
+  it("is one model on one provider, never its neighbors", () => {
     markExhausted(FLASH, 60_000, T0);
     expect(liveLinks([FLASH, LITE], T0)).toEqual([LITE]);
     expect(isExhausted({ name: "groq", model: FLASH.model }, T0)).toBe(false);

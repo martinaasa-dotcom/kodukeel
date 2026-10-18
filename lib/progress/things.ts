@@ -22,7 +22,7 @@ const ENTRIES_PER_THING = 4;
  * AN ENTRY SPELLED LIKE ANOTHER ENTRY IS NOT OFFERED. A ticked thing is saved
  * the way every scanned word is, by its spelling, and the save asks the
  * dictionary again which entry that spelling is (`vouchScanItems`, which by
- * rule believes nothing else the browser says). For `hall`, which is grey and
+ * rule believes nothing else the browser says). For `hall`, which is gray and
  * also frost, that answer could be the other word, so offering it would be
  * picking silently between two meanings at the moment the card is made. The
  * other entries of a thing stay on the screen to be chosen.

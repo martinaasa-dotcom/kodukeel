@@ -491,7 +491,7 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
   );
 }
 
-/** A hint in the reader's language, its colour word translated under its own context. */
+/** A hint in the reader's language, its color word translated under its own context. */
 function sayHint(t: (english: string, context?: string) => string, hint: Hint): string {
   const vars: Record<string, string | number> = { ...(hint.vars ?? {}) };
   if (typeof vars.word === "string") vars.word = t(vars.word, hint.context);
@@ -500,7 +500,7 @@ function sayHint(t: (english: string, context?: string) => string, hint: Hint): 
 
 /**
  * What the game took a question to mean, in the reader's language. A part, a
- * material or a colour is translated under its own context, and a thing is
+ * material or a color is translated under its own context, and a thing is
  * said with the Institute's equivalent where it recorded one, else the English.
  */
 function sayIn(

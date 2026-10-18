@@ -15,7 +15,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { sharedPrompts } from "@/lib/collections/senses";
 import {
-  repairCaseFronts, repairCardSpelling, repairGovernmentBacks, repairProductionBacks,
+  repairAmericanSpelling, repairCaseFronts, repairCardSpelling, repairGovernmentBacks, repairProductionBacks,
 } from "./repair";
 import { generateCards, isBareCaseFront } from "@/lib/srs/cards";
 import { borrowSentences } from "@/lib/dict/borrow";
@@ -90,7 +90,7 @@ describe("repairProductionBacks", () => {
       where: { pos: { not: "PHRASE" }, translation: { startsWith: "A", not: { startsWith: "a" } } },
       select: { id: true, lemma: true, translation: true },
     });
-    if (!word) return; // A dictionary with no capitalised gloss has nothing to restore.
+    if (!word) return; // A dictionary with no capitalized gloss has nothing to restore.
 
     const lowered = word.translation[0]!.toLowerCase() + word.translation.slice(1);
     expect(lowered).not.toBe(word.translation);
@@ -469,5 +469,70 @@ describe("repairCardSpelling", () => {
     const after = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
     expect(after.front).toBe(first!.lemma);
     expect(after.back).toBe(first!.translation);
+  });
+});
+
+/*
+  THE ENGLISH ALREADY STORED, SPELLED THE AMERICAN WAY, AND NOTHING ELSE.
+
+  An entry and its cards are made up for the purpose, with a lemma no Estonian
+  word is spelled like, because the shared dictionary is what every later
+  suite reads.
+*/
+describe("repairAmericanSpelling", () => {
+  const LEMMA = "qqvärvikene";
+  async function clean() {
+    await prisma.card.deleteMany({ where: { ownerId: MINE } });
+    await prisma.lexeme.deleteMany({ where: { lemma: { in: [LEMMA, `${LEMMA}x`] } } });
+  }
+  beforeEach(clean);
+  afterAll(clean);
+
+  it("respells the English on an entry and its cards, and leaves the Estonian and the schedule alone", async () => {
+    const sentences = JSON.stringify([
+      { et: "Meri on hall.", en: "The sea is grey.", source: "EKILEX" },
+      { et: "Ilus värv.", source: "EKILEX" },
+    ]);
+    const word = await prisma.lexeme.create({
+      data: { lemma: LEMMA, pos: "NOUN", translation: "colour", notes: "the colour of the sea; favourite", examples: sentences, provenance: "SEED" },
+    });
+    const due = new Date("2027-01-01T00:00:00.000Z");
+    const recognition = await prisma.card.create({
+      data: { ownerId: MINE, lexemeId: word.id, cardType: "RECOGNITION", front: LEMMA, back: "colour", due, stability: 4, reps: 3 },
+    });
+    const production = await prisma.card.create({
+      data: { ownerId: MINE, lexemeId: word.id, cardType: "PRODUCTION", front: "colour", back: LEMMA, hint: "noun, colour" },
+    });
+
+    const first = await repairAmericanSpelling(prisma);
+    expect(first.entries).toBeGreaterThanOrEqual(1);
+    expect(first.cards).toBeGreaterThanOrEqual(2);
+
+    const after = await prisma.lexeme.findUniqueOrThrow({ where: { id: word.id } });
+    expect(after.translation).toBe("color");
+    expect(after.notes).toBe("the color of the sea; favorite");
+    expect(JSON.parse(after.examples)).toEqual([
+      { et: "Meri on hall.", en: "The sea is gray.", source: "EKILEX" },
+      { et: "Ilus värv.", source: "EKILEX" },
+    ]);
+    const r = await prisma.card.findUniqueOrThrow({ where: { id: recognition.id } });
+    expect([r.front, r.back, r.due, r.stability, r.reps]).toEqual([LEMMA, "color", due, 4, 3]);
+    const p = await prisma.card.findUniqueOrThrow({ where: { id: production.id } });
+    expect([p.front, p.back, p.hint]).toEqual(["color", LEMMA, "noun, color"]);
+
+    // A second run finds nothing left to respell anywhere.
+    expect(await repairAmericanSpelling(prisma)).toEqual({ entries: 0, cards: 0 });
+  });
+
+  it("leaves an entry somebody edited, and a learner's own word, as they are", async () => {
+    const edited = await prisma.lexeme.create({
+      data: { lemma: LEMMA, pos: "NOUN", translation: "colour", provenance: "SEED", editedBy: MINE },
+    });
+    const own = await prisma.lexeme.create({
+      data: { lemma: `${LEMMA}x`, pos: "NOUN", translation: "colour", provenance: "USER" },
+    });
+    await repairAmericanSpelling(prisma);
+    expect((await prisma.lexeme.findUniqueOrThrow({ where: { id: edited.id } })).translation).toBe("colour");
+    expect((await prisma.lexeme.findUniqueOrThrow({ where: { id: own.id } })).translation).toBe("colour");
   });
 });

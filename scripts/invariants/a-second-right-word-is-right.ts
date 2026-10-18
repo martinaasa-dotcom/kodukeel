@@ -13,7 +13,7 @@ import type { InvariantKit } from "../lib/invariantKit";
  * that honest and each is asked here, against the shape that would break it.
  */
 export default function aSecondRightWordIsRight({ check, code }: InvariantKit) {
-  check("a neighbour is asked about only where the marker said no", () => {
+  check("a neighbor is asked about only where the marker said no", () => {
     const session = code("app/(app)/review/ReviewSession.tsx");
     assert.match(
       session, /marked\.verdict === "wrong" && card\.contrast\s*\?\s*typedNeighbour\(/,
@@ -37,7 +37,7 @@ export default function aSecondRightWordIsRight({ check, code }: InvariantKit) {
     }
   });
 
-  check("a neighbour is graded as a pass that comes back sooner, never as recalling the card's word", () => {
+  check("a neighbor is graded as a pass that comes back sooner, never as recalling the card's word", () => {
     const session = code("app/(app)/review/ReviewSession.tsx");
     assert.match(session, /suggestedRating: NEIGHBOUR_RATING, neighbour/, "a second right word is graded by a number of its own");
     assert.match(
@@ -47,11 +47,11 @@ export default function aSecondRightWordIsRight({ check, code }: InvariantKit) {
   });
 
   check("the lesson is the dictionary's, and holds no Estonian of its own", () => {
-    assert.doesNotMatch(code("lib/questions/neighbours.ts"), /[õäöüšž]/i, "the neighbour rule has started writing Estonian");
+    assert.doesNotMatch(code("lib/questions/neighbours.ts"), /[õäöüšž]/i, "the neighbor rule has started writing Estonian");
     assert.doesNotMatch(code("components/round/SameMeaning.tsx"), /[õäöüšž]/i, "the contrast panel has started writing Estonian");
     assert.doesNotMatch(
       code("lib/questions/neighbours.ts"), /@\/lib\/db|@prisma\/client|\bprisma\./,
-      "the neighbour rule has become a database read rather than a rule over glosses",
+      "the neighbor rule has become a database read rather than a rule over glosses",
     );
     // Its sentences are drawn through the one drawing that carries the English.
     assert.match(code("components/round/SameMeaning.tsx"), /<EstonianSentence\b/, "the contrast panel draws a sentence without its English");

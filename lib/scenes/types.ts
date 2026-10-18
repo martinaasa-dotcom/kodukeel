@@ -96,7 +96,7 @@ export type Requirement =
   | { readonly kind: "negation" }
   /** A form of the pronoun the scene's register expects, or any turn in Estonian. */
   | { readonly kind: "register" }
-  /** Small talk. Never fails, and exists so a beat can be colour. */
+  /** Small talk. Never fails, and exists so a beat can be color. */
   | { readonly kind: "any" }
   /**
    * Any one of these. The other kinds are joined with "and", which is right
@@ -198,10 +198,10 @@ export interface BeatSpec {
    * WHAT THE LEARNER'S ANSWER HERE IS TO THE PERSON HEARING IT.
    *
    * A landlord told the heating is broken says something before asking which
-   * floor; a neighbour told you have just moved in says something before
+   * floor; a neighbor told you have just moved in says something before
    * asking where from. The keyless reply had one rotation for every beat,
    * `hästi`, `aitäh`, `jah`, so a symptom, a broken window and a new
-   * neighbour were all met with "fine", which a learner read as a robot and
+   * neighbor were all met with "fine", which a learner read as a robot and
    * was right to. This is the scene saying what kind of news the beat's
    * answer is, so the keyless reply can feel it (`FEELINGS`) and the composer
    * is told to (`ComposeAsk.feel`). Absent on a beat whose answer is neither,
@@ -214,7 +214,7 @@ export interface BeatSpec {
    * A beat's list names every word that answers it, and two words that answer
    * one question are usually one answer said two ways: the list was taken as
    * the source of a choice, and it offered `Probleem või viga?`, `Palk või
-   * raha?` and `Arve või raha?`. Measured over the catalogue, fifteen of the
+   * raha?` and `Arve või raha?`. Measured over the catalog, fifteen of the
    * twenty-three pairs it could build were that, and no rule over a lemma
    * list tells `Valu või palavik?` from `Probleem või viga?`, because the
    * difference is whether a receptionist would ever say it. So a scene says
@@ -267,7 +267,7 @@ export interface BeatSpec {
    * A REGISTER OF THIS BEAT'S OWN, WHERE THE SCENE'S DOES NOT HOLD FOR IT.
    *
    * A scene holds one register (`SceneSpec.register`), and one scene asks the
-   * same favour of a friend and then of an official, which is the whole of
+   * same favor of a friend and then of an official, which is the whole of
    * what `register`'s claim describes. Absent on every other beat, and then
    * nothing reads it. Where it is set it does two things and no more: the
    * gate holds this beat's lines to its pronoun (`runGate`), and a
@@ -444,7 +444,7 @@ export interface SceneSpec {
    * about one situation: tonight's chat composes inside everything the
    * evenings have taught so far, which is a set of lemmas rather than a set of
    * whole units (ADR-025 amendment 4). Lemmas are requests, as everywhere.
-   * Absent on every catalogue scene.
+   * Absent on every catalog scene.
    */
   readonly lemmas?: readonly string[];
   /**
@@ -453,7 +453,7 @@ export interface SceneSpec {
    * through it, and every line the other side says is held, spelling by
    * spelling, to that lesson's ledger: a banked line by a test, a composed one
    * by the gate's `taught` check. A lesson id, which `lessonProblems` already
-   * holds to a lesson that exists. Absent on every catalogue scene.
+   * holds to a lesson that exists. Absent on every catalog scene.
    */
   readonly lesson?: string;
   /** What the other side calls you, and expects back. */

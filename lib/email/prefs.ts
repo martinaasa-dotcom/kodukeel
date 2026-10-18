@@ -9,7 +9,7 @@
   THE TWO PRECEDENTS POINT DIFFERENT WAYS AND NEITHER SETTLES IT. `letterBar`
   defaults on because reading a missing row as a refusal would take away the
   only way a learner has of typing õ, which is something they already had.
-  `researchOptOut` defaults to counted because that is the behaviour every
+  `researchOptOut` defaults to counted because that is the behavior every
   existing learner already had. Neither applies: email is new, nobody has it
   yet, so absence is not a state anybody is already in.
 

@@ -246,7 +246,7 @@ export async function wordsToFile(
     An empty box is the ordinary way in, so it drops the clause rather than
     binding a `true` the planner then has to be told to ignore. Branching in
     SQL on a bound boolean would also be the one part of this query whose
-    behaviour depends on how the driver types a JavaScript value, which is
+    behavior depends on how the driver types a JavaScript value, which is
     exactly the kind of thing to take out of a statement nothing can unit test.
   */
   const match = q === "" ? Prisma.empty : Prisma.sql`

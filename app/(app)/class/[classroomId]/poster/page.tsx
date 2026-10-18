@@ -99,8 +99,8 @@ export default async function JoinPosterPage({ params }: { params: Promise<{ cla
           <Wordmark size={34} />
           <p className="mt-6 text-2xl font-bold md:text-3xl print:text-4xl" style={{ color: "var(--ink)" }}>{classroom.name}</p>
           {/*
-            The tracking is cancelled after the last letter, or the code sits
-            off centre by the width of the space it leaves behind it. The screen
+            The tracking is canceled after the last letter, or the code sits
+            off center by the width of the space it leaves behind it. The screen
             steps up with the width, and stays small at 768, where the rail
             takes a third of it: six of the widest letters at 72 px ran 80 px
             past the card there. The paper gets the largest step. The three

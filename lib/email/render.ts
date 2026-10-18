@@ -19,7 +19,7 @@
   theme and a couple of narrow-screen nudges, and the letter is complete and
   correct with the whole block deleted.
 
-  A fixed 600px card centred in a full-width table. Not a percentage: Word
+  A fixed 600px card centered in a full-width table. Not a percentage: Word
   resolves a percentage width against the printable page rather than the
   window, and a letter laid out for a page is a letter with a horizontal
   scrollbar.

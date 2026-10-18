@@ -212,7 +212,7 @@ describe("rankCandidates — inflected forms", () => {
   Two rows, one word.
 
   `@@unique` is on `(lemma, pos)`, so a lemma can hold more than one entry and
-  should: `hall` is grey and also frost. What could not happen and did was the
+  should: `hall` is gray and also frost. What could not happen and did was the
   app having no rule about which one it leads with. Both score 100, the tiebreak
   compared `lemma` with `lemma` and returned 0, and the entry page renders
   `hits[0]`, so the answer came from whatever order the rows arrived in.

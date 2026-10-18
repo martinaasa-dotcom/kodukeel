@@ -18,7 +18,7 @@ const NEIGHBOR: SceneSpec = {
     { kind: "number", slot: "floor", min: 1, max: 5, says: "The floor you live on." },
     /* No `Venemaa`: the card is read in Ukrainian as well as in Russian, and
        a Ukrainian learner dealt "you are from Russia" as their own role is
-       the one card in the catalogue that would be an insult rather than a
+       the one card in the catalog that would be an insult rather than a
        rehearsal. The unit still teaches the word. */
     {
       kind: "word", slot: "from", oneOf: ["Soome", "Läti", "Saksamaa", "Inglismaa", "Ameerika", "Rootsi"],

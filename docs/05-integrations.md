@@ -28,7 +28,7 @@ actual products:
 | API requires a key | `GET https://ekilex.ee/api/word/search/raamat` → **403** unauthenticated. **VERIFIED** |
 | Key source | Issued from the API section of an Ekilex account profile |
 | Data model | A word has one or more sets of *forms* (their JSON calls a set by the linguist's word), each carrying orthographic representations, transcriptions and sound-file links, which is exactly the shape our principal-parts model needs |
-| License | Ekilex standard licence is **CC BY 4.0**: attribution is a *condition*, not a courtesy |
+| License | Ekilex standard license is **CC BY 4.0**: attribution is a *condition*, not a courtesy |
 
 ### 1.3 Consequences for the build
 
@@ -36,7 +36,7 @@ actual products:
 2. **Getting the key is a Phase 0 blocker**, started on day one, because turnaround is human and not
    under our control. Phases 1-2 must be buildable without it.
 3. **Server-side only.** The key lives in a Route Handler; it never appears in a client bundle.
-4. **Attribution ships in the UI**, not just in a licence file: a visible "Dictionary data from
+4. **Attribution ships in the UI**, not just in a license file: a visible "Dictionary data from
    Ekilex / Institute of the Estonian Language, CC BY 4.0" credit on every entry view.
 
 ### 1.4 Being a good citizen of a free academic API

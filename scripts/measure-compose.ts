@@ -139,7 +139,7 @@ const laterTurn = inputUsd(cachedTokens, CACHE_READ) + inputUsd(liveTokens + tur
   nearly half. 1.4 is that rounded down towards the honest side of the estimate.
 */
 const CALLS_PER_TURN = 1.4;
-/* Beats a run composes: the catalogue's own length, plus curveballs and asides. */
+/* Beats a run composes: the catalog's own length, plus curveballs and asides. */
 const TURNS_PER_RUN = 10;
 
 const runUsd = (firstTurn + (TURNS_PER_RUN - 1) * laterTurn) * CALLS_PER_TURN;

@@ -646,7 +646,7 @@ check("every source LICENSE asks a credit for is credited on every surface that 
 
     The sources are read out of `LICENSE` rather than typed here, because a list
     in the check is the second copy that falls behind. A block needs a credit
-    where it names a licence that asks for one; TartuNLP's says it is fetched
+    where it names a license that asks for one; TartuNLP's says it is fetched
     and not redistributed, and asks for none.
   */
   const licence = readFileSync("LICENSE", "utf8");
@@ -909,7 +909,7 @@ check("no browser suite finds a field by a placeholder another field shares", ()
 
   `Lexeme.notes` held the further English senses Wiktionary lists and, after any
   live lookup, Ekilex's Estonian explanation, which had overwritten them. So the
-  entry rendered either in one unlabelled box, a screen reader read the Estonian
+  entry rendered either in one unlabeled box, a screen reader read the Estonian
   with English sounds, and the first person to look `aadress` up with a key
   deleted "email address" from the shared dictionary for everybody.
 
@@ -1483,7 +1483,7 @@ check("nothing builds a case form out of a bare stem and a suffix", () => {
     an ending, `lib/tutor/prompt.ts` tells the model what the ending is, and
     `lib/dict/search.ts` sorts the endings by length in order to *strip* them
     off something a learner typed, which is the opposite direction and is how
-    `toasse` gets recognised as a word rather than produced as one. None of
+    `toasse` gets recognized as a word rather than produced as one. None of
     those makes a form.
   */
   const joins = [/\+\s*\w+(?:\.\w+)*\.suffix\b/, /\$\{[^}]+\}\$\{\s*\w+(?:\.\w+)*\.suffix\s*\}/];
@@ -1964,7 +1964,7 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     // The grammar reference's pins name one sentence each, by its text, and
     // look it up to read back its English and its row id. There is no list to
     // order: a rank here would be ranking a list of one, and which sentence
-    // teaches a point is a judgement a person made in
+    // teaches a point is a judgment a person made in
     // `lib/estonian/grammarExamples.ts` rather than one a beginner's reading
     // level decides.
     "lib/progress/grammarExamples.ts": "looks one named sentence up to read its English back, picks none",
@@ -2059,7 +2059,7 @@ check("the label pattern refuses a noun naming itself and nothing else", () => {
     opener,
     /pos !== "NOUN"/,
     "nominalOpener refuses the label pattern on a word class that is not a noun, so `Tere, " +
-    "mina olen Katrin.` is read as a dictionary labelling itself",
+    "mina olen Katrin.` is read as a dictionary labeling itself",
   );
 });
 
@@ -4058,7 +4058,7 @@ check("a word read off a photograph reaches a card only through the dictionary",
   );
 
   /*
-    And a word the dictionary did not recognise gets no forms invented for it.
+    And a word the dictionary did not recognize gets no forms invented for it.
     A page's own entries are principal-part-free by construction, which is why
     they can only ever produce a recognition and a production card.
   */
@@ -4401,7 +4401,7 @@ check("there is one shuffle, and the sort-comparator kind is not a shuffle at al
     sprint the first card led 7.0% of rounds against a uniform 2.5%; in the
     20-card listening round, 11.7% against 5.0%. Those pools arrive
     `orderBy: { due: "asc" }`, so that is the most overdue card leading about
-    three times as often as chance while the tail went under-practised.
+    three times as often as chance while the tail went under-practiced.
 
     Both halves are asserted, because fixing the two wrong copies and leaving
     eight right ones is how a ninth gets written. `lib/exam/paper.ts` is the one
@@ -4966,7 +4966,7 @@ check("Anu's reply is drawn as typography, shown once finished, and the marker l
     waits.
 
     And a model allowed bold bolds its markers, so `**FIX:**` arrives as
-    readily as `FIX:`. Three modules recognise those lines for three reasons
+    readily as `FIX:`. Three modules recognize those lines for three reasons
     and each carried its own regex; `lib/tutor/markers.ts` is the one shape
     now, and a reader that grows a copy back is a reader that stops agreeing
     with the other two the day the model changes its typography.
@@ -5688,7 +5688,7 @@ check("the smallest step on the scale is one a reader can actually see", () => {
     Ascending as well as floored, because the steps are named for their job:
     a caption that came out larger than the body above it is a hierarchy
     inverted everywhere at once, and the scale is now large enough for two
-    neighbouring steps to be a pixel apart, which is where that goes wrong.
+    neighboring steps to be a pixel apart, which is where that goes wrong.
   */
   const FLOOR = 14;
   const NAMES = [
@@ -6083,7 +6083,7 @@ check("the voice is one table, and everything that speaks reads from it", () => 
 
 check("the app does not talk about itself the way a brochure would", () => {
   /*
-    The behavioural end of the same rule, asserted against what a stranger
+    The behavioral end of the same rule, asserted against what a stranger
     actually meets first rather than against the source tree the unit sweep
     walks. `readerCopy.test.ts` is the sweep; this is the check that the sweep
     is pointed at the right thing, since a table with no reader passes every
@@ -6111,7 +6111,7 @@ check("the app does not talk about itself the way a brochure would", () => {
   A UNIT TEST STATES ITS MACHINE, AND THE ZONE IS PART OF THE MACHINE.
 
   CI runs in UTC. Three clock tests built their dates with `Date.UTC` and read
-  them back through formatters that honour the reader's zone, so they passed
+  them back through formatters that honor the reader's zone, so they passed
   in CI and failed on `npm test` in Tallinn, which is where this suite is run.
   The unit config pins a zone that is neither UTC nor anybody's, so an
   assumption about the zone fails everywhere rather than only off CI. Removing
@@ -6799,7 +6799,7 @@ check("an icon is sized by its own size prop, never by a class", () => {
     is asked of the source as well.
 
     Anchored on the names each file imports from lucide rather than on any
-    capitalised tag, because a component of ours may legitimately take a width
+    capitalized tag, because a component of ours may legitimately take a width
     class: what may not is the svg that carries its size in an attribute.
   */
   const FROM_LUCIDE = /import\s*\{([^}]+)\}\s*from\s*"lucide-react"/;
@@ -8039,7 +8039,7 @@ check("every component is reachable from a route and drawn by something", () => 
   }
 
   /*
-    A component name is capitalised and is not the SCREAMING_CASE a constant
+    A component name is capitalized and is not the SCREAMING_CASE a constant
     beside it takes, which is what tells `RUNG_CHIP` from `Rung`.
   */
   const isComponent = (name: string) => /^[A-Z]/.test(name) && /[a-z]/.test(name);
@@ -9442,7 +9442,7 @@ check("nothing reaches a paid provider without going through the ledger", () => 
       AND THE SETTLEMENT SETTLES THE BOOKING RATHER THAN MAKING A SECOND ONE.
 
       `recordUsage` decides from the `reservation` field alone whether a row is
-      a `SETTLEMENT` or a `CALL`. The scene route booked at authorisation,
+      a `SETTLEMENT` or a `CALL`. The scene route booked at authorization,
       wrote its settlement without that field, and so filed a second `CALL` at
       the full cost with the reserve left standing for ever: both counting
       limits count `CALL` rows, so a conversation spent the burst and the daily
@@ -9787,7 +9787,7 @@ check("a word under a teaching sentence is one the dictionary vouched for", () =
     meeting showed an attested sentence a beginner could read one word of: the
     screen whose whole claim is a word behaving. Every other word in it is
     glossed now, and every gloss on it is there because `matchEstonianForm`
-    recognised that exact spelling, a stored form, or a regular case of the
+    recognized that exact spelling, a stored form, or a regular case of the
     genitive stem. A word it will not vouch for is printed plain, because
     leaving it out would be editing an attested sentence and guessing at it
     would be worse.
@@ -10636,7 +10636,7 @@ check("no screen writes a hue's ink on that hue's own fill", () => {
  * member access.
  *
  * So the same rule is asked of the text. A case named in a *sentence* takes
- * the Estonian name a class uses (`omastav`), and a case *labelling a form*
+ * the Estonian name a class uses (`omastav`), and a case *labeling a form*
  * takes the question it answers, through `CaseQuestion`. Neither takes the
  * Latin one.
  *
@@ -10762,7 +10762,7 @@ check("a case's Latin name has a closed list of readers", () => {
     /*
       The third prompt builder, and it reads both names for two reasons: it
       names a case to the model the way `prompt.ts` does, and `CASE_NAMES`
-      recognises a case a *learner* typed, who may well arrive with the Latin
+      recognizes a case a *learner* typed, who may well arrive with the Latin
       one. Left as main measured it rather than rewritten from here: what a
       model is told is a measurement in that module's own commits, and this
       rule is about what a learner reads.
@@ -10775,14 +10775,14 @@ check("a case's Latin name has a closed list of readers", () => {
       as `kaasaütlev · the comitative`, and nothing in this app rewrites a hint
       a card already carries, so that line is still the only English on the
       reveal of every deck built back then. `readableHint` has to be able to
-      recognise the name to replace it with the question the case answers,
+      recognize the name to replace it with the question the case answers,
       which is the same latitude `readableGovernment` takes over the stored
       government string.
     */
-    "lib/copy/caseHint.ts": "recognises the stored Latin name so a screen can print the question instead",
+    "lib/copy/caseHint.ts": "recognizes the stored Latin name so a screen can print the question instead",
     // The same latitude for the parts a screen draws through `CaseLabel`: a
     // stored hint naming its case in Latin is read as that case, never printed.
-    "lib/copy/caseLabel.ts": "recognises a stored Latin name so CaseLabel draws the Estonian one instead",
+    "lib/copy/caseLabel.ts": "recognizes a stored Latin name so CaseLabel draws the Estonian one instead",
   };
   // `spec.en`, `c.en`, `caseByKey(x)?.en`: the member access, not the word,
   // which is the anchor the check below this one already argues for.
@@ -15091,9 +15091,9 @@ check("the forms list is an accept list and never an answer", () => {
   /*
     `põhjas` WAS REFUSED AS NOT A WORD, and the fix is a list of 5.8 million
     spellings from every source that may be used: Ekilex's own inflection
-    tables and Vabamorf's synthesiser with guessing off (`scripts/build-forms.ts`).
+    tables and Vabamorf's synthesizer with guessing off (`scripts/build-forms.ts`).
     What keeps that inside ADR-005 is which side of the app reads it. On the
-    accept side a synthesised form costs a non-word being let through on a
+    accept side a synthesized form costs a non-word being let through on a
     word game; on the answer side the same form would be drilled, or marked
     against, or confirmed off a photograph as a word with principal parts it
     does not have. So the list decides "is that a word" and "which word", and
@@ -15813,7 +15813,7 @@ check("a hue's fill is never used as its ink", () => {
     absence cost: it wrote `--accent` on `--accent-soft` at 3.40:1 in the light
     theme, on the one message that has to be read at a glance, and the design
     system calls that pairing the trap. Adding it was tried and fires on honest
-    code: the only three places that write `--accent` as a colour are an
+    code: the only three places that write `--accent` as a color are an
     aria-hidden middot, an aria-hidden icon, and the 80px speaker glyph on the
     pairs round, none of which are words and all of which clear the 3:1 a
     graphical object is held to. A line-by-line regex cannot tell an icon from
@@ -17107,7 +17107,7 @@ check("the research opt-out is applied in the query, and is where the page says"
     the pilot is measured on, the conversations somebody says they held outside
     this app, and the clause could have been deleted with all 282 of these still
     passing. Exactly the fault the paragraph above was written about, arriving
-    once the query it was written for had a neighbour.
+    once the query it was written for had a neighbor.
   */
   assert.match(
     route,
@@ -17168,7 +17168,7 @@ check("the research export counts a right answer the way the rest of the app doe
  * A tile counting the deck counts the deck, not the rows a capped read drew.
  *
  * My words reads at most 400 cards for its table and printed `rows.length` in
- * the tile labelled "Cards", beside New, Learning and Known tiles counted over
+ * the tile labeled "Cards", beside New, Learning and Known tiles counted over
  * the whole deck and a line under the table saying "Showing the 400 cards due
  * soonest, of 982". First run builds 982 cards, so the page said 400 in one
  * place and 982 in another about the same deck. A page that caps a read may
@@ -18245,7 +18245,7 @@ check("each routed purpose asks for its own chain", () => {
       reach it either way and `app/actions.ts` reaches it through the wrapper:
       the briefing has to promise exactly what `/api/scene` will attempt, and the
       wrapper is what carries the per-provider `*_SCENE_MODEL` override the route
-      also honours. Asking the bare purpose there would promise composition on a
+      also honors. Asking the bare purpose there would promise composition on a
       deployment whose only scene model is named rather than defaulted.
     */
     const throughWrapper = purpose === "scene" && /\bsceneProviders\(/.test(src);
@@ -18609,7 +18609,7 @@ check("a measurement sends what the route sends, and reads what it reads", () =>
     ways. The first version of this arm asked each file for the pieces by
     name, and `eval-scene.ts` passed it with its own local function called
     `gateFor`, which skipped the register switch the library's applies: the
-    name satisfied the check and the behaviour did not. And no harness passed
+    name satisfied the check and the behavior did not. And no harness passed
     `answers`, so `giveaway` was off in every measurement of the composer. So
     the pieces are asked of `routeGate` once, and every `runGate` in a harness
     has to go through it.
@@ -18813,7 +18813,7 @@ check("a cached input token is priced as one, and the cached prompt is the same 
     462, 609 and 717 tokens and the scanner's is 221, against the tutor's
     ~2,275. Asserted as a count rather than by naming the survivor, because
     what goes wrong here is a fourth call site copying the parameter from a
-    neighbour without measuring its own prompt.
+    neighbor without measuring its own prompt.
   */
   const breakpoints = [...code("lib/tutor/provider.ts").matchAll(/cache_control/g)].length
     + [...code("lib/tutor/grader.ts").matchAll(/cache_control/g)].length;
@@ -19388,12 +19388,12 @@ check("a question the scene did not anticipate is answered before the move", () 
   assert.match(scripted, /export function answerBeatId\(/, "the bank has nowhere to hold a question-beat's answer");
 });
 
-check("a suite that measures colour measures a page that has finished arriving", () => {
+check("a suite that measures color measures a page that has finished arriving", () => {
   /*
     THE LANDING PAGE ARRIVES OVER ABOUT A SECOND, and a contrast check has no
     notion of time. It brings its headline in a word at a time and its claims
     640ms later, each with `both` fill, so an element part way through
-    `fade-up` is a real colour composited against the ground and axe reports it
+    `fade-up` is a real color composited against the ground and axe reports it
     as a real failure. Which elements were caught depended on when the run
     happened: CI named the hero claims, and a probe at the same viewport with
     the same axe configuration named three to sixteen nodes and never the same
@@ -19414,7 +19414,7 @@ check("a suite that measures colour measures a page that has finished arriving",
   const a11y = read("scripts/a11y-check.mjs");
   assert.match(
     a11y, /browser\.newPage\(\{ viewport, reducedMotion: "reduce" \}\)/,
-    "the a11y sweep no longer stops the page moving before it measures its colours",
+    "the a11y sweep no longer stops the page moving before it measures its colors",
   );
   assert.doesNotMatch(
     a11y, /browser\.newPage\(\{ viewport: /,
@@ -19588,7 +19588,7 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     "the debrief drops the name a class uses, so a learner in a course cannot match the note to their lesson",
   );
   /*
-    And the learner's own word is labelled. `ulikool  is said  ulikooli` was
+    And the learner's own word is labeled. `ulikool  is said  ulikooli` was
     three runs of text with no label on any of them, and the likeliest reading
     of it is that the first word is pronounced like the second.
   */
@@ -19618,7 +19618,7 @@ check("a scene reviews itself in English, and the review teaches nothing it made
   */
   assert.match(
     debrief, /className="sr-only">\{(t\()?turn\.who === "you" \? "You said/,
-    "the debrief's transcript says who spoke with position and colour alone, which is nothing to a screen reader",
+    "the debrief's transcript says who spoke with position and color alone, which is nothing to a screen reader",
   );
   /*
     AND THE RECORD SITS UNDER THE TEACHING. The transcript is the one section
@@ -19758,7 +19758,7 @@ check("an objective carries the value the card dealt for it, and every line says
     And the drawing is the app's own figure rather than a second one, hidden
     from a screen reader, with the sentence beside it doing the saying: a
     drawing may not be the only thing carrying a distinction any more than a
-    colour may.
+    color may.
   */
   const face = code("components/scene/SceneFace.tsx");
   assert.match(face, /aria-hidden/, "the speaker's drawing is read out as well as drawn");
@@ -19850,7 +19850,7 @@ check("a value off the card is graded, and only where which word is certain", ()
     holds a card for. It is one every time: what is different is that the card
     named it rather than the beat. So a scene whose subject is telling somebody
     a fact about yourself graded almost nothing, and measured over the
-    catalogue that is 66 gradeable requirements against 94.
+    catalog that is 66 gradeable requirements against 94.
 
     Two guards keep it out of the append-only log where the word is not
     certain, and both are what the substitution guard beside them is for. A
@@ -19878,8 +19878,8 @@ check("a value off the card is graded, and only where which word is certain", ()
     AND THE BEAT'S OWN WORDS TAKE THE SAME RULE, which for a year they did not.
     The `lemma` branch wrote `oneOf[0]` under a comment saying the turn does
     not say which was taken. It does, and `satisfiedBy` is where: 60 of the
-    catalogue's 61 `lemma` requirements name more than one word and the health
-    centre's names ten, so a learner who wrote `Mu selg valutab` had `pea`
+    catalog's 61 `lemma` requirements name more than one word and the health
+    center's names ten, so a learner who wrote `Mu selg valutab` had `pea`
     written into the append-only log as a recall. Both branches read one
     resolver now, anchored on the call rather than on the helper, because a
     branch that keeps its own first-candidate line satisfies any check that
@@ -19989,7 +19989,7 @@ check("a learner who says they are lost is handed the word, never the question a
     "the offered word no longer reads the card, so a hint can contradict the run's own card",
   );
   /*
-    And one word the scene recognised is not "I did not catch that". A person
+    And one word the scene recognized is not "I did not catch that". A person
     hearing one word they know asks about that word; the repair phrase is for
     a turn there was nothing in.
   */
@@ -20252,7 +20252,7 @@ check("a learner who says they are lost is handed the word, never the question a
   /*
     And one word nobody could place is not the repair phrase either: the probe
     found `Tartusse` answered with "I did not understand", because the forms
-    list holds no capitalised word and so holds no place name in the country.
+    list holds no capitalized word and so holds no place name in the country.
   */
   assert.match(
     turn, /caughtSomething\(marked\) \|\| spoken\.length === 1/,
@@ -20336,7 +20336,7 @@ check("a learner who says they are lost is handed the word, never the question a
     /*
       And the screen draws both, which is a different claim from the reply
       building them: a provenance the component does not know renders as a
-      stage direction, so a hint would arrive as grey italics beside the
+      stage direction, so a hint would arrive as gray italics beside the
       thing it exists to be distinguishable from.
     */
     const session = code("components/scene/SceneSession.tsx");
@@ -21155,7 +21155,7 @@ check("a word is introduced by one drawing", () => {
     This used to assert that exactly one screen carried the line "Any
     underlined word opens its meaning", which was the right rule while the line
     existed: two copies would have been two answers. The line is gone. It sat
-    in 12px grey under every first meeting for ever, and an underline that
+    in 12px gray under every first meeting for ever, and an underline that
     opens on a tap is the oldest signal there is: a learner finds out by
     trying, once, and was then told again on every card for the rest of the
     course. So the rule is now that no screen says it, which is the same rule
@@ -21276,7 +21276,7 @@ check("recognizing a word on cards never clears the second rung of a situation",
     cases: new Map(doctor.cases.map((c) => [c, { pct: 100, reviews: 50 }])),
     listening: { placed: "C1", sittings: 3, heardTurns: new Map() },
   });
-  assert.equal(reading.uncapped, "follow", `every word recognised perfectly read as "${reading.uncapped}"`);
+  assert.equal(reading.uncapped, "follow", `every word recognized perfectly read as "${reading.uncapped}"`);
   assert.equal(reading.tryThis, null, "a situation only ever followed was offered as something to try");
 });
 
@@ -21642,7 +21642,7 @@ check("the out-there card asks how it went off one list, and writes nothing unti
   );
   /*
     The only outcomes the card may record are the ones a learner pressed a
-    labelled answer for. A bare "yes" that recorded UNDERSTOOD would satisfy
+    labeled answer for. A bare "yes" that recorded UNDERSTOOD would satisfy
     every other check here and quietly overstate the thing being measured.
   */
   const recorded = [...source.matchAll(/report\("([A-Z]+)"\)/g)].map((m) => m[1]);
@@ -21764,7 +21764,7 @@ check("a verdict is painted once, in the tint and the ink", () => {
 /*
   AND A VERDICT IS ONE SIZE, WHICH IS THE BODY STEP.
 
-  The check above settles the colour of a marked answer and says nothing about
+  The check above settles the color of a marked answer and says nothing about
   the box or the type, so those were decided per screen: five rounds wrote
   `rounded-md px-3.5 py-3` around a `text-[15px]`, the daily path and the
   ladder wrote `text-sm`, the lesson wrote `p-3 text-sm`, the word ordering
@@ -21996,7 +21996,7 @@ check("the exceptions round asks nothing whose answer is the word in the questio
 });
 
 /**
- * A WORD IS FAVOURITED BY ONE BUTTON, AND THE TOGGLE HAS ONE CALLER.
+ * A WORD IS FAVORITED BY ONE BUTTON, AND THE TOGGLE HAS ONE CALLER.
  *
  * Starring a word existed for the life of this app and lived on one screen,
  * the dictionary entry, which is the screen a learner is least often on: the
@@ -22083,7 +22083,7 @@ check("every screen that keeps a word asks which shelf, through one press", () =
   }
 });
 
-check("a word is favourited by one button, and the toggle has one caller", () => {
+check("a word is favorited by one button, and the toggle has one caller", () => {
   // A screen is the caller this is about. A test driving the action is not
   // one, and a test that could not name it could not check it.
   const callers = ALL.filter((file) => !/\.(i?test)\.tsx?$/.test(file) && /\btoggleStar\b/.test(code(file)));
@@ -22215,7 +22215,7 @@ check("a text box has one shape, and the keys under it stand one distance off", 
     and pads itself with neither. A checkbox, a radio, a range, a file picker
     and a hidden input are controls rather than boxes; the crossword's cells
     are a grid, and the deck's filter is a pill beside a row of pill filters,
-    which is a shape chosen to match its neighbours rather than a tenth field.
+    which is a shape chosen to match its neighbors rather than a tenth field.
   */
   const exempt: Record<string, string> = {
     "app/(app)/crossword/CrosswordSession.tsx": "a cell in a grid, sized by the grid",
@@ -22519,7 +22519,7 @@ check("a conversation takes the website off the screen, and stops when the scene
 
   `SceneVignette` draws fourteen rooms with the people in them, and it was
   drawn on the briefing and on the cover between two rooms and nowhere else. So
-  a learner stepped into a health centre, read one sentence, pressed a button,
+  a learner stepped into a health center, read one sentence, pressed a button,
   and held the rest of the conversation on a screen that could have been any of
   the fourteen: an eighteen-pixel icon on the bar and two columns of cards. It
   was reported in those words, twice, and the second time with what the drawing
@@ -23140,7 +23140,7 @@ check("a farewell is withheld off the close beat, and the goodbye stays off the 
   );
   assert.match(gate, /"negation", "farewell", "question", "taught",\s*\]/, "`farewell` left the CHECKS list, so eval:scene prints nothing about it");
   /*
-    Both context builders hand the phrases in, resolved from the catalogue's
+    Both context builders hand the phrases in, resolved from the catalog's
     own farewells, or the app and its harnesses would disagree about the gate
     the way they did over the question words (§53).
   */
@@ -23369,7 +23369,7 @@ check("putting a word aside takes that word's grades out of the session's undo",
     And what is left moves up. A `Done` holds a position in the queue and this
     is the one thing in the session that shortens the queue behind where the
     learner is standing, so an entry left pointing at where a card used to be
-    reopens on its neighbour.
+    reopens on its neighbor.
   */
   assert.match(
     body, /index: Math\.max\(0, d\.index - goneBefore\(d\.index\)\)/,
@@ -23678,7 +23678,7 @@ check("the planned course derives its day and stores only the steps a log cannot
   RATHER THAN A TIDY WAY TO WRITE IT.
 
   Two of every day's steps are proved off the review log and written nowhere,
-  so by ticks alone *every* day of a programme is unfinished. The first version
+  so by ticks alone *every* day of a program is unfinished. The first version
   of the reading walked from day one looking for the first unfinished day and
   had to ask the log about each evening it passed, two queries apiece, under a
   cap; past the cap the learner was held for ever on whichever evening the cap
@@ -23763,7 +23763,7 @@ check("a planned course day names words rather than writing any", () => {
   const build = code("lib/course/build.ts");
   assert.match(
     build, /const words = unit\.lemmas\.filter/,
-    "a day's words stopped coming out of its unit's own list. A programme may not name a lemma (ADR-005)",
+    "a day's words stopped coming out of its unit's own list. A program may not name a lemma (ADR-005)",
   );
   const plan = code("lib/course/plan.ts");
   assert.match(plan, /units: \[/, "a part stopped naming the units it works");
@@ -24302,7 +24302,7 @@ check("an order the writer did not choose is not a wrong order", () => {
   }
 
   /*
-    And a variant is never penalised, which is the whole of what was asked
+    And a variant is never penalized, which is the whole of what was asked
     for. `orderIsRight` is the one place that is decided, so a screen reading
     the three-way verdict and then grading `reading === "exact"` cannot creep
     back in.
@@ -24310,7 +24310,7 @@ check("an order the writer did not choose is not a wrong order", () => {
   for (const file of markers) {
     assert.match(
       code(file), /\b(?:orderIsRight|buildIsRight)\(/,
-      `${file} decides for itself whether a variant counts, which is how one screen starts penalising what another accepts`,
+      `${file} decides for itself whether a variant counts, which is how one screen starts penalizing what another accepts`,
     );
   }
 
@@ -24689,7 +24689,7 @@ check("a round's own way out stands down inside a module", () => {
 
   for (const file of rounds) {
     const src = code(file);
-    /* Any cross labelled "End", not one spelling of it: Match said "End
+    /* Any cross labeled "End", not one spelling of it: Match said "End
        round" and the sprint "End sprint", both linking to Today, and a check
        reading "End session" alone let both stand in the middle of a module
        evening as a door out of it. */
@@ -24878,7 +24878,7 @@ check("the module's reading step carries no drill and no way off the page", () =
 
   The marker came off an address a learner could have typed, so the step it
   names decides what a caption says and nothing else. `advanceCourseStep` reads
-  the programme, the day and the step again, refuses a day nobody has reached
+  the program, the day and the step again, refuses a day nobody has reached
   for the reason `markCourseStep` does (a tick is the pointer `dayReached`
   reads), refuses to write a row for a step the review log proves, and works
   out where to go from the day's own order.
@@ -26199,7 +26199,7 @@ check("every letter this app can send has a way out of it", () => {
     And it works signed out. Somebody unsubscribing is reading their mail
     rather than this app and may not have a session on that device at all, so
     an unsubscribe behind the sign-in gate is one the mail client will not
-    honour. The token is what makes that safe, and it is signed.
+    honor. The token is what makes that safe, and it is signed.
   */
   assert.match(
     code("middleware.ts"),
@@ -26254,7 +26254,7 @@ check("every optional letter is on the settings screen, or is named as absent", 
     it is a letter a learner can only stop from a footer, which is a switch
     they have to receive the letter to find.
 
-    Adding the errand letter walked straight into the neighbouring version of
+    Adding the errand letter walked straight into the neighboring version of
     this: the settings page passed `new Set(["tonight", "comeback", "weekly"])`
     as "everything off", a fifth copy of the kinds written as a literal, which
     would have shown a new letter as *on* to somebody who had switched every
@@ -26469,7 +26469,7 @@ check("every week strip is named by the one function that names a day", () => {
     Nothing was visibly wrong, because the two spellings are the same bytes
     today. That is exactly what makes it worth a check rather than a reading:
     the strips are drawn by one component and read by one reader, so a letter
-    whose labels drift from its neighbour's is a difference nobody sees until
+    whose labels drift from its neighbor's is a difference nobody sees until
     somebody holds two Mondays' mail side by side. The locale and the zone are
     both load-bearing and both easy to leave out of a copy, since the key is
     already the learner's own day and naming it on the server's locale is the
@@ -26486,7 +26486,7 @@ check("every week strip is named by the one function that names a day", () => {
     1,
     `lib/progress/mailout.ts formats a date in ${formatters.length} places. dayLabel is the one ` +
       "that names a day of a week strip: a second copy is a strip that can come to say Mon where " +
-      "its neighbour says M, in the same reader's mail.",
+      "its neighbor says M, in the same reader's mail.",
   );
   const strips = gathering.match(/label: dayLabel\(/g) ?? [];
   assert.ok(
@@ -26510,7 +26510,7 @@ check("a letter holds no picture, and nothing counts who opened one", () => {
     The second half is about the drawings. Images are off by default in a great
     many clients and nearly always off for a first message from an unknown
     sender, so a letter built out of them is a letter read as a column of empty
-    boxes. `lib/email/art.ts` makes its drawings out of coloured table cells for
+    boxes. `lib/email/art.ts` makes its drawings out of colored table cells for
     that reason, and there is nothing to fetch.
   */
   const letters = LIB.filter(
@@ -26580,7 +26580,7 @@ check("what the provider sends back is verified before it is read", () => {
   /*
     VERIFIED BEFORE PARSED, WHICH IS THE ORDER THIS IS USUALLY BROKEN IN. The
     signature is over the bytes the provider sent, so a route that parses first
-    and verifies a re-serialised body verifies something else. It fails in the
+    and verifies a re-serialized body verifies something else. It fails in the
     direction that looks like the provider's fault, which is why it survives.
   */
   // The raw bytes, through the ceiling every public route reads them under.
@@ -26763,7 +26763,7 @@ check("every path the scheduler calls is exempt from the canonical-host redirect
 /*
   A SENTENCE SOMEBODY HAS REFUSED REACHES NO SCREEN, AND NO RUN PUTS IT BACK.
 
-  `lib/dict/refused.ts` is where a person's judgement about an attested
+  `lib/dict/refused.ts` is where a person's judgment about an attested
   sentence is kept, and it is worth exactly as much as the number of doors it
   is asked at. Four of them, and each is a different way the sentence gets
   back in front of a learner: the column every screen reads, a list built
@@ -26840,7 +26840,7 @@ check("a refused sentence is refused at every door it could come back through", 
   );
 
   /*
-    And the judgement stays a person's. A refusal is a sentence somebody read,
+    And the judgment stays a person's. A refusal is a sentence somebody read,
     so the list may not grow a rule: a predicate over the corpus here would be
     this app deciding what Estonian is, at a false-positive rate nothing has
     measured, which is the fault the whole module argues against.
@@ -26850,14 +26850,14 @@ check("a refused sentence is refused at every door it could come back through", 
     regex literal in an entry, or `.exec`, `.search`, `.matchAll`, or a prefix
     or suffix rule, is a predicate over the corpus exactly as `.test` is, and
     each walked past the first version. The one regex the file may hold is the
-    whitespace collapse in `key`, which normalises a spelling rather than
+    whitespace collapse in `key`, which normalizes a spelling rather than
     deciding anything about it, and it is named so that nothing else is.
   */
   const refused = code("lib/dict/refused.ts").replace('.replace(/\\s+/g, " ")', "");
   assert.match(code("lib/dict/refused.ts"), /\.replace\(\/\\s\+\/g, " "\)/, "the key's whitespace collapse moved; re-read what this check allows");
   assert.ok(
     !/\bRegExp\b|\.(?:test|match|matchAll|exec|search|startsWith|endsWith|includes)\(|(?<![\w)\]])\/(?![/*\s])(?:\\.|[^/\n])+\/[dgimsuy]*/.test(refused),
-    "lib/dict/refused.ts has grown a pattern over sentences. It is a list of judgements somebody "
+    "lib/dict/refused.ts has grown a pattern over sentences. It is a list of judgments somebody "
       + "made, not a filter over the corpus: a rule here withholds correct Estonian",
   );
 });
@@ -27051,7 +27051,7 @@ check("every round says what is about to happen before it happens", () => {
       Or the session it renders opens on a start screen of its own that reads
       the table. Read off the sessions this page actually names, rather than
       every session in the tree, so a round cannot be waved through by a
-      neighbour's briefing.
+      neighbor's briefing.
     */
     const named = [...page.matchAll(/<([A-Z][A-Za-z]*Session)\b/g)].map((m) => m[1]);
     const drawn = named.some((name) =>
@@ -27705,7 +27705,7 @@ check("every feature section of the product spec says what was built", () => {
   `docs/08-ux-ia-a11y.md` opened on a tree of eight tabs, four of which
   (Tasks, Flashcards, Imports, and Anu as a row) are not places in the rail,
   listed a `g`-prefixed jump map, `/` and `n` that nothing binds, called undo
-  not in the MVP, promised a repeat-key õ and a case colour code that were
+  not in the MVP, promised a repeat-key õ and a case color code that were
   never built, and said the theme follows the OS, which CLAUDE.md records being
   switched off. So the tree is read against `SECTIONS` in `lib/ux/nav.ts`, the
   global keys against the shortcut sheet's "Anywhere" group, and the retired
@@ -27854,7 +27854,7 @@ check("an ADR the architecture calls superseded is marked so in the decisions ta
 });
 
 /**
- * Two neighbouring `const x = await ...` statements in a server file where the
+ * Two neighboring `const x = await ...` statements in a server file where the
  * second never names what the first bound: two reads that do not need each
  * other, asked one after the other.
  *
@@ -27862,7 +27862,7 @@ check("an ADR the architecture calls superseded is marked so in the decisions ta
  * adjacent statements with nothing between them, a second statement that does
  * not mention any name the first bound, and never a first statement that is
  * the request itself (`params`, `searchParams`, the session). A nested callback
- * is not a neighbour, so `Promise.all(LEVELS.map(async ...))` is left alone.
+ * is not a neighbor, so `Promise.all(LEVELS.map(async ...))` is left alone.
  * Nor is a first statement that writes: a read after a create or an update
  * needs the write to have landed whether or not it names what the write
  * returned, and a check that asked for the two at once would be asking for
@@ -27887,7 +27887,7 @@ function independentAwaits(source: string): { line: number; first: string; secon
   }
   const out: { line: number; first: string; second: string }[] = [];
   // A statement inside the one before it (an `await` in a callback) is not a
-  // neighbour of anything, so the comparison is always with the last
+  // neighbor of anything, so the comparison is always with the last
   // statement that had finished before this one began.
   let previous: (typeof statements)[number] | null = null;
   for (const b of statements) {
@@ -27918,7 +27918,7 @@ check("a server page asks two reads that do not need each other at once", () => 
   assert.equal(independentAwaits("const a = await one();\nconst b = await two(a);\n").length, 0,
     "the detector fires on a read that needs the one before it");
   assert.equal(independentAwaits("const x = await Promise.all(L.map(async () => { const y = await f(); return y; }));\nconst z = await g();\n").length, 1,
-    "the detector reads a nested callback as a neighbour");
+    "the detector reads a nested callback as a neighbor");
   assert.equal(independentAwaits("const row = await prisma.card.create({ data });\nconst all = await prisma.card.findMany();\n").length, 0,
     "the detector asks a read to race the write before it");
 
@@ -28059,7 +28059,7 @@ check("every source file a comment in the code cites is one that exists", () => 
     reader to a file that does not exist, and two of them to a reason that was
     no longer true. So a cited path has to resolve, from the repository root
     or from the citing file's own folder, which is how \`scripts/lib\` names
-    its neighbours. Read raw, because comments are where the citations live.
+    its neighbors. Read raw, because comments are where the citations live.
 
     A file named only to say it is gone is honest, and each of those is listed
     with the sentence it lives in. The list is checked both ways: an entry

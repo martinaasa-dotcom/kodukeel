@@ -210,7 +210,7 @@ Worth keeping explicitly, so the rewrite does not lose it:
 
 - **The core insight is correct and valuable.** A single workspace that removes tab-switching during
   study is a real problem worth solving, and the six chosen surfaces are the right six.
-- **Principal parts as a headline feature** is genuinely the right thing to centre a beginner tool
+- **Principal parts as a headline feature** is genuinely the right thing to center a beginner tool
   on, even if the spec under-specifies it.
 - **The flashcard bridge**, one click from anything (dictionary hit, tutor example, import) into
   the deck, is the correct unifying interaction. v5 promotes it from a feature bullet to the

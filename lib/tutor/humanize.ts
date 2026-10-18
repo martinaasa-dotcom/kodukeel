@@ -118,7 +118,7 @@ function openers(text: string): string {
     }
     if (s === before) break;
   }
-  // Only recapitalise when an opener was actually removed. Doing it to every
+  // Only recapitalize when an opener was actually removed. Doing it to every
   // line would capitalize a line that deliberately continues the one above.
   return ateLead && s ? s.replace(/^[a-zõäöü]/, (c) => c.toUpperCase()) : s;
 }
@@ -129,7 +129,7 @@ function openers(text: string): string {
   `alalaleütlev` reached a learner, from the cheapest model that otherwise
   teaches well, and it is not a word: the case is the alaleütlev and the
   model doubled a syllable on its way to it. A case name is metalanguage
-  rather than a form somebody memorises, the fourteen of them are the
+  rather than a form somebody memorizes, the fourteen of them are the
   table in `lib/estonian/cases.ts`, and a misspelling of one is a typo of a
   term this app owns, so it is put right on the way past, which is a
   different thing from editing a form the learner is going to learn: no
@@ -171,7 +171,7 @@ function editDistance(a: string, b: string): number {
   return prev[b.length]!;
 }
 
-/** The case name a misspelt token is nearest, within two letters and nearer than any other, or null where it is a name already or nothing is near. */
+/** The case name a misspelled token is nearest, within two letters and nearer than any other, or null where it is a name already or nothing is near. */
 export function nearestCaseName(token: string): string | null {
   const lower = token.toLowerCase();
   if (!/[uü]tlev$/.test(lower) || CASE_NAMES.includes(lower)) return null;

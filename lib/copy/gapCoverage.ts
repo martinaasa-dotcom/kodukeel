@@ -12,7 +12,7 @@
  *
  * IT IS A SWEEP AND NOT A LIST, WHICH IS THE DURABLE HALF. The first version
  * of the check named the six screens it had just fixed, and this file's
- * neighbours record what that costs four separate times: a list is a thing
+ * neighbors record what that costs four separate times: a list is a thing
  * somebody has to remember to extend, and the screen that is missing from it
  * looks exactly like a screen that was considered. The flash round is the
  * proof that a narrower haystack would not have done either. It draws a gap

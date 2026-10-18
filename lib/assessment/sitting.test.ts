@@ -67,7 +67,7 @@ describe("marking a sitting on the server", () => {
     expect(responseFor(write, { itemId: "w1", given: { kind: "picked", option: "toas" }, ms: 5 }).credit).toBe(0);
   });
 
-  it("honours a skip on listening alone, so a skill cannot be left out to lift the level", () => {
+  it("honors a skip on listening alone, so a skill cannot be left out to lift the level", () => {
     const skipped = responseFor(write, { itemId: "w1", given: { kind: "skipped" }, ms: 0 });
     expect(skipped.skipped).toBeUndefined();
     expect(skipped.credit).toBe(0);

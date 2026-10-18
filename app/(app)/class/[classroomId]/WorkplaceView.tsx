@@ -86,7 +86,7 @@ export function WorkplaceView({ summary, sponsor, locale }: {
                     boxShadow: "var(--depth-sm)",
                   }}
                 >
-                  {/* An initial on one of the four night colours, chosen by the
+                  {/* An initial on one of the four night colors, chosen by the
                       id so a person keeps theirs, which is what makes a list of
                       names read as people at a glance. Decoration: the name is
                       beside it in words. */}

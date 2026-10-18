@@ -266,11 +266,11 @@ describe("the practice modes", () => {
     expect(new Set(hrefs).size).toBe(hrefs.length);
   });
 
-  it("never puts one hue on two neighbouring quick rounds", () => {
-    // They are laid out as a grid of colored tiles, and two neighbours sharing
+  it("never puts one hue on two neighboring quick rounds", () => {
+    // They are laid out as a grid of colored tiles, and two neighbors sharing
     // a color there reads as two of the same thing. Six rounds and the four
-    // bright colours of the mix cannot all differ, so what is asserted is the
-    // neighbours, in the two grids the tiles are drawn in: two across and
+    // bright colors of the mix cannot all differ, so what is asserted is the
+    // neighbors, in the two grids the tiles are drawn in: two across and
     // three across.
     expect(QUICK_MODES).toHaveLength(6);
     const tones = QUICK_MODES.map((m) => m.tone);

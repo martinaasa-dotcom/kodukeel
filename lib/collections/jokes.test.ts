@@ -5,8 +5,8 @@ import { JOKES, jokesForVisit, splitLine, voiceFor } from "./jokes";
 
 /*
   THE NAMES, AND THE TWO WORDS A JOKE IS ABOUT. The forms list holds no
-  capitalised word on purpose, so a place, a person or a book is let through
-  here by name, and only capitalised: the same spelling in lower case is
+  capitalized word on purpose, so a place, a person or a book is let through
+  here by name, and only capitalized: the same spelling in lower case is
   checked like any other word. Each entry is a decision, not a parking space,
   and the staleness test below fails on one nothing uses any more.
 */
@@ -115,7 +115,7 @@ describe("the jokes", () => {
 });
 
 describe("who says a line", () => {
-  it("is the one capitalised word before a colon, or nobody", () => {
+  it("is the one capitalized word before a colon, or nobody", () => {
     expect(splitLine("Õpetaja: Juku, too näide!")).toEqual({ by: "Õpetaja", text: "Juku, too näide!" });
     expect(splitLine("Juku kirjutab: kas.")).toEqual({ by: null, text: "Juku kirjutab: kas." });
     expect(splitLine("Pärast lõunat.")).toEqual({ by: null, text: "Pärast lõunat." });

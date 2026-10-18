@@ -143,7 +143,7 @@ export async function middleware(request: NextRequest) {
     // What a teacher sees, drawn over an invented class, for somebody deciding
     // whether to put a code on a board before they have a class.
     path.startsWith("/teachers") ||
-    // What a pilot is, for an organisation deciding whether to run one. English only.
+    // What a pilot is, for an organization deciding whether to run one. English only.
     path.startsWith("/pilots") ||
     path.startsWith("/how-we-know") ||
     path.startsWith("/curriculum") ||
@@ -169,11 +169,11 @@ export async function middleware(request: NextRequest) {
 
       Somebody unsubscribing is reading their mail, not this app, and may not
       be signed in on that device or in that browser at all. An unsubscribe
-      behind a sign-in is one a mail client will not honour and one an annoyed
+      behind a sign-in is one a mail client will not honor and one an annoyed
       reader replaces with the spam button, which costs this deployment the
       inbox for its sign-in links too. The link is not unprotected for being
       public: it carries an HMAC over the learner and the kind, verified in
-      `lib/email/unsubscribe.ts`, so it authorises exactly one thing for
+      `lib/email/unsubscribe.ts`, so it authorizes exactly one thing for
       exactly one person.
     */
     path.startsWith("/api/email/unsubscribe") ||

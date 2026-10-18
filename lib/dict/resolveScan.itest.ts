@@ -83,7 +83,7 @@ describe("resolveScannedItems", () => {
 
   it("traces a case derived from the genitive stem, which no Form row holds", async () => {
     // ADR-009: derived forms are never persisted. A page printing one still has
-    // to resolve, or most of a homework exercise would come back unrecognised.
+    // to resolve, or most of a homework exercise would come back unrecognized.
     const [item] = await resolveScannedItems([{ et: "itest-scan-toale", en: "" }]);
     expect(item?.lemma).toBe(LEMMA);
     expect(item?.matchedAs).toContain("alaleütlev");
@@ -136,7 +136,7 @@ describe("candidatesFor", () => {
     This used to read the whole dictionary with `take: 4000` and no ordering,
     which is the same fault `searchLexemes` was fixed for: past four thousand
     entries the cap dropped words, and nothing said which, so a page printing a
-    word the dictionary holds came back unrecognised depending on where its row
+    word the dictionary holds came back unrecognized depending on where its row
     happened to sit in the heap. Asserting "the right word resolves" cannot
     catch that, because it passes on a small dictionary and on a large one
     whenever the row lands early. Asserting that an unrelated word is *not*

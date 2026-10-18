@@ -7,9 +7,9 @@ import type { InvariantKit } from "../lib/invariantKit";
  * TWO FACES, ONE NIGHT, AND THE EVENING WEARS THE MIX.
  *
  * The finished-evening card went from night to mint in a pass that was about
- * something else, and mint was never one of the Vikerkaar öös colours, so the one moment the app celebrates read as a
+ * something else, and mint was never one of the Vikerkaar öös colors, so the one moment the app celebrates read as a
  * green slab beside a palette with no green in it. Nothing failed, because no
- * check said which colours and which faces were agreed. These do.
+ * check said which colors and which faces were agreed. These do.
  *
  * FACES. Onest for everything and Schibsted Grotesk for display sizes, loaded
  * once in `app/layout.tsx` from the files in `app/fonts/`, and read everywhere else
@@ -21,7 +21,7 @@ import type { InvariantKit } from "../lib/invariantKit";
  *
  * NIGHT. The night of Vikerkaar öös is `--stage` (Slate, #0c0e13) and is typed
  * once; the dark theme reads it back as its page ground. `.night`
- * read its own copy of the hex, which is two definitions of one colour.
+ * read its own copy of the hex, which is two definitions of one color.
  *
  * THE EVENING. A card that says today's module is done is the accent's tint
  * with the mix along its top (`.evening` on `tone="accent"`), and the strip is
@@ -115,10 +115,10 @@ export default function theAgreedFontsAndPalette({ check, code, read, ALL }: Inv
     const css = read("app/globals.css").replace(/\/\*[\s\S]*?\*\//g, "");
     const strip = /\.evening::before\s*\{([^}]*)\}/.exec(css);
     assert.ok(strip, ".evening no longer draws the mix along its top");
-    assert.ok(!/#[0-9a-f]{3,8}\b|rgb\(/i.test(strip[1]!), "the evening's strip types a colour instead of reading the palette");
+    assert.ok(!/#[0-9a-f]{3,8}\b|rgb\(/i.test(strip[1]!), "the evening's strip types a color instead of reading the palette");
     const used = new Set([...strip[1]!.matchAll(/var\((--[a-z-]+)\)/g)].map((m) => m[1]!));
-    assert.ok(used.size >= 4, "the strip carries fewer than the mix's four bright colours");
-    for (const token of used) assert.ok(MIX_TOKENS.has(token), `the strip uses ${token}, which is not a colour of Vikerkaar öös`);
+    assert.ok(used.size >= 4, "the strip carries fewer than the mix's four bright colors");
+    for (const token of used) assert.ok(MIX_TOKENS.has(token), `the strip uses ${token}, which is not a color of Vikerkaar öös`);
   });
 
   check("mint and peach are gone, and right and wrong wear sky and blush", () => {
@@ -129,7 +129,7 @@ export default function theAgreedFontsAndPalette({ check, code, read, ALL }: Inv
       wear the palette, so "recalled" is sky and "missed" is blush, and the two
       old hues are not defined at all: a token that exists is a token somebody
       reaches for. Easy moved to the accent, since it was sky and would
-      otherwise be the same colour as Good.
+      otherwise be the same color as Good.
     */
     const css = read("app/globals.css").replace(/\/\*[\s\S]*?\*\//g, "");
     assert.ok(!/--(?:color-)?(?:mint|peach)(?:-soft|-ink)?\s*:/.test(css), "the stylesheet defines a mint or peach token again");
@@ -146,6 +146,6 @@ export default function theAgreedFontsAndPalette({ check, code, read, ALL }: Inv
       if (/var\(--(?:mint|peach|on-mint)(?:-soft|-ink)?\)/.test(src)) offenders.push(`${file}: reads a mint or peach token`);
       if (/(?:tone|hue)=\{?"(?:mint|peach)"|tone:\s*"(?:mint|peach)"|data-tone="(?:mint|peach)"/.test(src)) offenders.push(`${file}: a mint or peach tone`);
     }
-    assert.deepEqual(offenders, [], "mint and peach left the palette (docs/14-design-system.md); right is sky, wrong is blush, and anything else takes a colour of Vikerkaar öös");
+    assert.deepEqual(offenders, [], "mint and peach left the palette (docs/14-design-system.md); right is sky, wrong is blush, and anything else takes a color of Vikerkaar öös");
   });
 }

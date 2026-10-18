@@ -29,7 +29,7 @@ tested without a database (`PURE_LAYERS` in `scripts/test-invariants.ts` asserts
 | `lib/classroom/` | no | Classes and workplaces: join codes, the roster, the poster and the cohort view. |
 | `lib/collections/` | pure | The course syllabus, errands, frequency lists, emoji, jokes and other authored tables. |
 | `lib/copy/` | pure | The interface text: voice rules, translations (`i18n/`), briefings and value formats. |
-| `lib/course/` | pure | The evening-by-evening programme: building it, placement, the hand-off gate and milestones. |
+| `lib/course/` | pure | The evening-by-evening program: building it, placement, the hand-off gate and milestones. |
 | `lib/curriculum/` | pure | Which part of the state examination each unit prepares for, and where the course has nothing. |
 | `lib/dict/` | no | The dictionary: search, lookup, Ekilex enrichment, the forms list, sentences and their English. |
 | `lib/ekilex/` | no | The Ekilex client, its mapper and the harvest guard. |
@@ -57,7 +57,7 @@ tested without a database (`PURE_LAYERS` in `scripts/test-invariants.ts` asserts
 | `lib/research/` | pure | The research export and the impact figures, behind one anonymity gate. |
 | `lib/review/` | pure | The review sheets a native or fluent reader fills in, for the conversation lines and the translations, and applying them. |
 | `lib/scan/` | pure | Reading a photographed page into candidates. |
-| `lib/scenes/` | pure | Situations: the catalogue (`specs/`), the prepared lines (`bank/`), the turn reader, the state machine, the reply and the gate. |
+| `lib/scenes/` | pure | Situations: the catalog (`specs/`), the prepared lines (`bank/`), the turn reader, the state machine, the reply and the gate. |
 | `lib/security/` | pure | Same-origin checks, rate limits, headers and cleaning visible text. |
 | `lib/speech/` | pure | Hearing Estonian (ADR-028): the engine's contract, the measured settings, the pinned model, the two readings reconciled, the verdict that only grades up, and matching a line on screen. The browser engine behind it is `components/speech/`. |
 | `lib/settings/` | no | The one place settings are read and written. |

@@ -8,12 +8,12 @@ const SCENES = [...LISTED, ...LESSON_SCENES];
 import { KINDS, SCENE_KINDS, kindOf } from "./kinds";
 
 describe("the kinds of place the chooser filters by", () => {
-  it("gives every scene in the catalogue a kind", () => {
+  it("gives every scene in the catalog a kind", () => {
     const missing = SCENES.map((s) => s.id).filter((id) => !(id in SCENE_KINDS));
     expect(missing).toEqual([]);
   });
 
-  it("names no scene the catalogue does not have", () => {
+  it("names no scene the catalog does not have", () => {
     const ids = new Set(SCENES.map((s) => s.id));
     const stale = Object.keys(SCENE_KINDS).filter((id) => !ids.has(id));
     expect(stale).toEqual([]);

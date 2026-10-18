@@ -181,7 +181,7 @@ for (const path of ["/api/metrics", "/api/research", "/api/email/send"]) {
     payload !== null && JSON.stringify(Object.keys(payload).sort()) ===
       JSON.stringify(["build", "database", "status", "time"]));
   /*
-    Prisma quotes the datasource in an initialisation failure, which is the
+    Prisma quotes the datasource in an initialization failure, which is the
     fault `safeMessage` exists for one layer over: a response built out of what
     the database said can carry the deployment's own password.
   */

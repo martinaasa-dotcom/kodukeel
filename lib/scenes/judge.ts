@@ -62,7 +62,7 @@ export interface JudgeAsk {
    * reads the Estonian itself.
    */
   readonly reading: string;
-  /** Values the role card dealt that this beat is about, English-labelled, if any. */
+  /** Values the role card dealt that this beat is about, English-labeled, if any. */
   readonly dealt: readonly string[];
   /**
    * WHAT THE OTHER PERSON ACTUALLY SAID, IN ESTONIAN, AND THE TURNS BEFORE IT.
@@ -128,7 +128,7 @@ export function buildJudgeUserPrompt(ask: JudgeAsk): string {
 
 /**
  * Reads the reply. A reply that is not a JSON object with a boolean `done`
- * is read as no judgement at all rather than as a no, so a model having a bad
+ * is read as no judgment at all rather than as a no, so a model having a bad
  * minute leaves the dictionary's reading exactly where it was.
  */
 export function parseJudgement(raw: string): Judgement | null {

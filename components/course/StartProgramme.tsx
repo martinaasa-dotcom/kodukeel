@@ -12,7 +12,7 @@ import { useT } from "@/components/Locale";
  * Follow the planned course, or stop following it.
  *
  * One press either way, and it is a setting rather than a state the app
- * guesses at: somebody who knows what they want to practise should not have to
+ * guesses at: somebody who knows what they want to practice should not have to
  * argue with a home page about it. Turning it off changes nothing else, which
  * is the sentence beside the button and is true.
  */

@@ -73,7 +73,7 @@ export function writtenWords(sentence: string): string[] {
 
 /**
  * The spellings worth asking the forms list about: every word of every
- * sentence, lowercased, once. A word capitalised away from the start of a
+ * sentence, lowercased, once. A word capitalized away from the start of a
  * sentence is a name and is left out, since the list holds none.
  */
 export function spellingsToCheck(sentences: readonly string[]): string[] {

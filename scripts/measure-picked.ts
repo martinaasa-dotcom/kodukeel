@@ -22,7 +22,7 @@
  * - an `anyOf` by any one of its leaves.
  *
  * And it asks the forms as well as the words. A1 reads no case page, and the
- * module's rule is that a form is shown before it is practised, so a beat
+ * module's rule is that a form is shown before it is practiced, so a beat
  * whose line has to hold a case form (`Soomest` for "where from", `Jaama` for
  * "where to") qualifies only once that case's page has been read by then
  * (`grammarThrough`). The nominative is the word itself and always passes.
@@ -84,7 +84,7 @@ const NATURAL_CASE: Record<string, Record<string, string | Record<string, string
   ootamine: { weather: { vihm: "PARTITIVE", lumi: "PARTITIVE", päike: "NOMINATIVE", tuul: "NOMINATIVE", udu: "NOMINATIVE" } },
   // "Some carrots" is a partitive plural; "three apples" is a partitive singular after the number.
   turul: { some: "PARTITIVE", pieces: "PARTITIVE" },
-  // "Does this bus go to the centre?" names the destination in the illative.
+  // "Does this bus go to the center?" names the destination in the illative.
   bussipeatus: { to: "ILLATIVE" },
 };
 
@@ -192,7 +192,7 @@ function main() {
     rows.push("| --- | --- | --- | --- |");
     for (const id of WAVE_A) {
       const scene = sceneById(id);
-      if (!scene) throw new Error(`${id} is not in the catalogue`);
+      if (!scene) throw new Error(`${id} is not in the catalog`);
       for (const part of parts) {
         const at = part.days.length - 1;
         const taught = new Set(taughtThrough(part, at));

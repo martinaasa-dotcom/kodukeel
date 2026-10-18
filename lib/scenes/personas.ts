@@ -40,7 +40,7 @@ export interface PersonaSpec {
    * smile. `who` is what the composer is told and stays plain, because a
    * model handed a joke about lunch starts talking about lunch; this is the
    * learner's line and only the learner's, and it says what the person will
-   * do exactly as `who` does, so the joke never promises a behaviour the
+   * do exactly as `who` does, so the joke never promises a behavior the
    * conversation will not deliver (`docs/18-voice.md` §3c).
    */
   readonly meet: string;

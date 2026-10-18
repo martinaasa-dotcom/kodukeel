@@ -89,7 +89,7 @@ const UNSET: Record<string, string> = {
 
   A unit test states its machine rather than inheriting one, and the zone is
   part of the machine. CI runs in UTC, so a test that built its dates with
-  `Date.UTC` and read them back through a formatter that honours the reader's
+  `Date.UTC` and read them back through a formatter that honors the reader's
   zone passed there and failed on every laptop east or west of Greenwich,
   Tallinn included, which is where the people running this suite live. Three
   of the clock tests were exactly that, green in CI and red on `npm test` in

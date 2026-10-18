@@ -30,10 +30,10 @@ describe("the commonest-word groups", () => {
     expect(new Set(COMMON_GROUPS.map((g) => g.title)).size).toBe(COMMON_GROUPS.length);
   });
 
-  it("paints each group in a different colour of the mix", () => {
+  it("paints each group in a different color of the mix", () => {
     /*
       These four were kept off mint and peach, which read as "recalled" and
-      "missed". Those two have left the palette, and the four bright colours of
+      "missed". Those two have left the palette, and the four bright colors of
       the mix are what a tile set cycles through, one each, so four groups read
       as four things.
     */

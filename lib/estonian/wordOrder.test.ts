@@ -221,7 +221,7 @@ describe("what it accepts", () => {
       A time adverb at each of its other three positions, in a sentence a
       lexicographer recorded. `Meri on täna tormine` is the same sentence and
       is refused, because `tormine` is in no entry of the shipped dictionary
-      and a neighbour this cannot place blocks the move: that is the
+      and a neighbor this cannot place blocks the move: that is the
       over-refusal `plainWord` describes, doing what it says on a real word.
     */
     ["Meri on täna tige.", "Täna meri on tige"],

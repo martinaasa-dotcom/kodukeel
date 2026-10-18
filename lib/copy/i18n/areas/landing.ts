@@ -139,7 +139,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Every new word from it in one table, with a speaker beside each. Nothing is asked yet.", "Все новые слова из него в одной таблице, у каждого кнопка озвучки. Пока ничего не спрашивают.", "Усі нові слова з неї в одній таблиці, біля кожного кнопка озвучення. Поки нічого не питають."],
   ["How it works", "Как это устроено", "Як це влаштовано"],
   ["The one idea of the evening, shown on the lines you just heard.", "Одна идея вечера, показанная на репликах, которые вы только что слышали.", "Одна ідея вечора, показана на репліках, які ви щойно чули."],
-  ["Practise", "Практика", "Практика"],
+  ["Practice", "Практика", "Практика"],
   ["Pick, match and listen first, then type it yourself.", "Сначала выбирайте, сопоставляйте и слушайте, потом пишите сами.", "Спершу вибирайте, зіставляйте й слухайте, потім пишіть самі."],
   ["Say it", "Сказать", "Сказати"],
   ["Answer questions about yourself out loud, or type them if you'd rather.", "Отвечайте на вопросы о себе вслух или напишите ответ, если так удобнее.", "Відповідайте на запитання про себе вголос або напишіть відповідь, якщо так зручніше."],
@@ -423,7 +423,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   // FOR TEACHERS. A class is for learners of 13 and older (docs/35-launch-quick-wins.md, section 1).
   ["For teachers", "Для преподавателей", "Для викладачів"],
   ["Teaching a class or running a group?", "Ведёте класс или группу?", "Ведете клас чи групу?"],
-  ["Your learners join with a short code. You see who is practising and where the group gets stuck, never anybody’s answers or deck.",
+  ["Your learners join with a short code. You see who is practicing and where the group gets stuck, never anybody’s answers or deck.",
     "Ученики присоединяются по короткому коду. Вы видите, кто занимается и где группа застревает, но никогда не видите чужих ответов и карточек.",
     "Учні приєднуються за коротким кодом. Ви бачите, хто займається і де група застрягає, але ніколи не бачите чужих відповідей чи карток."],
   ["It’s free, and the code is open.", "Это бесплатно, и исходный код открыт.", "Це безкоштовно, і вихідний код відкритий."],

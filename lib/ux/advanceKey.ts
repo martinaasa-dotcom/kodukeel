@@ -70,7 +70,7 @@ export const ADVANCE_KEY_LABEL = "Enter";
  * without losing which key that is: `isAdvanceKey` still answers to
  * `"Enter"`, never to this. Read this into a `<KeyCap>`; read
  * `ADVANCE_KEY_LABEL` into a sentence, where a word reads better than a
- * character somebody has to recognise.
+ * character somebody has to recognize.
  */
 export const ADVANCE_KEY_GLYPH = "↵";
 

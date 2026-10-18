@@ -27,7 +27,7 @@ retention schedule, and `docs/26-subprocessors.md` for the recipient list.
 | **Implemented** | It exists, it is in the named file, and CI asserts it or you can run it yourself. |
 | **Partial** | Something real is there and it does not cover the whole control. The gap is stated. |
 | **Inherited** | It is Vercel's, Supabase's or Google's rather than ours. We configure it and we do not operate it. |
-| **Not applicable** | The control assumes an organisation larger than this one, or assets this project does not have. |
+| **Not applicable** | The control assumes an organization larger than this one, or assets this project does not have. |
 | **Not done** | No. |
 
 There is one company and a very small number of people. Several ISO controls assume an HR function,
@@ -40,7 +40,7 @@ difference matters when you are deciding what to buy.
 The 2022 revision groups 93 controls into four themes. This maps the themes and the controls a buyer
 of a small SaaS actually asks about, rather than reproducing the list.
 
-### 5. Organisational controls
+### 5. Organizational controls
 
 | Control | What this project does | Where | Status |
 | --- | --- | --- | --- |
@@ -61,7 +61,7 @@ of a small SaaS actually asks about, rather than reproducing the list.
 | 5.24 to 5.28 Incident management | Full plan with severity levels, roles, runbooks per incident type, and the Article 33 and 34 clocks. Evidence preservation before rollback is stated. | `docs/28-incident-response.md` | Implemented |
 | 5.29 Continuity during disruption | Documented and partly untested. The learner's own backup and restore is exercised on every CI run. A full production restore from a provider backup has not been tested. | `docs/28-incident-response.md` section 9 | Partial |
 | 5.30 ICT readiness for continuity | Same. The recovery time objective is written as untested rather than invented. | `docs/28-incident-response.md` section 9 | Partial |
-| 5.31 to 5.34 Legal, IP, records, privacy | Controller identified in configuration and rendered on the policy pages, refusing to invent an answer when unset. Supervisory authority named. Export covers every owner scoped model, checked against the schema rather than a list. Erasure has no exemptions and removes the auth identity too. Data licences credited: Ekilex CC BY, Wiktionary CC BY-SA, the frequency corpus CC BY-SA. | `lib/legal/operator.ts`, `lib/legal/exportCoverage.ts`, `lib/auth/erase.ts`, `LICENSE` | Implemented |
+| 5.31 to 5.34 Legal, IP, records, privacy | Controller identified in configuration and rendered on the policy pages, refusing to invent an answer when unset. Supervisory authority named. Export covers every owner scoped model, checked against the schema rather than a list. Erasure has no exemptions and removes the auth identity too. Data licenses credited: Ekilex CC BY, Wiktionary CC BY-SA, the frequency corpus CC BY-SA. | `lib/legal/operator.ts`, `lib/legal/exportCoverage.ts`, `lib/auth/erase.ts`, `LICENSE` | Implemented |
 | 5.35 Independent review | None. Nobody outside this project has reviewed the code or tested the deployment for security. | | Not done |
 | 5.36 Compliance with policies | CI is the enforcement. Typecheck, lint, unit suite, invariants, credential scan, two audit gates, browser suites. | `.github/workflows/ci.yml` | Implemented |
 | 5.37 Documented operating procedures | The README covers deployment and configuration; the incident plan covers the runbooks. | `README.md`, `docs/28-incident-response.md` | Implemented |
@@ -72,18 +72,18 @@ of a small SaaS actually asks about, rather than reproducing the list.
 | --- | --- | --- | --- |
 | 6.1 Screening | No background checks. One company, a very small number of people. | | Not done |
 | 6.2 Terms of employment | Standard Estonian employment terms. No security specific annex. | | Partial |
-| 6.3 Awareness and training | No formal programme. The security rules are in `CLAUDE.md` and enforced in CI, which is how a contributor learns them, and that is a different thing from training. | `CLAUDE.md` | Not done |
+| 6.3 Awareness and training | No formal program. The security rules are in `CLAUDE.md` and enforced in CI, which is how a contributor learns them, and that is a different thing from training. | `CLAUDE.md` | Not done |
 | 6.4 Disciplinary process | Estonian employment law. Nothing specific to information security. | | Not applicable |
-| 6.5 Responsibilities after employment | No formal offboarding checklist. Access is two provider accounts and a GitHub organisation. | | Not done |
+| 6.5 Responsibilities after employment | No formal offboarding checklist. Access is two provider accounts and a GitHub organization. | | Not done |
 | 6.6 Confidentiality agreements | In place with the company. | | Implemented |
 | 6.7 Remote working | Everyone works remotely; devices are personal machines with full disk encryption. No managed device fleet and no MDM. | | Partial |
-| 6.8 Reporting security events | An address anybody can reach, with published response times and a safe harbour statement. | `SECURITY.md` | Implemented |
+| 6.8 Reporting security events | An address anybody can reach, with published response times and a safe harbor statement. | `SECURITY.md` | Implemented |
 
 ### 7. Physical controls
 
 | Control | What this project does | Where | Status |
 | --- | --- | --- | --- |
-| 7.1 to 7.14 (perimeters, entry, equipment, media, disposal) | There is no office holding data and no server we own. Compute and storage are Vercel and Supabase, whose data centres carry their own certifications. Our physical footprint is laptops. | | Inherited and Not applicable |
+| 7.1 to 7.14 (perimeters, entry, equipment, media, disposal) | There is no office holding data and no server we own. Compute and storage are Vercel and Supabase, whose data centers carry their own certifications. Our physical footprint is laptops. | | Inherited and Not applicable |
 | 7.7 Clear desk and clear screen | Devices lock and encrypt. No policy document. | | Partial |
 | 7.9 Security of assets off-premises | Full disk encryption on the machines that hold credentials. No MDM enforcing it. | | Partial |
 
@@ -97,7 +97,7 @@ This is the theme where the work actually is, so it is the longest.
 | 8.2 Privileged access rights | Reviewer status is an environment variable of exact addresses and cannot be granted by any request, because a privilege a request can grant is one a forged request can grant. Provider consoles are behind those providers' own MFA. | `lib/auth/admin.ts` | Implemented |
 | 8.3 Information access restriction | Every owner scoped query filters on an owner the server resolved. Class and workplace rosters expose effort and never contents. | `lib/auth/session.ts`, `lib/classroom/roster.ts` | Implemented |
 | 8.4 Access to source code | Public repository; only collaborators can push. CI runs on every push, and the default branch is not protected, so nothing stops a collaborator merging past a red run. | GitHub | Implemented |
-| 8.5 Secure authentication | Token verified against cached signing keys, under a 2,500ms deadline, with three states so an unreachable auth service is not read as a sign-out. Login CSRF defence on the mailed link. | `lib/auth/identity.ts`, `app/auth/callback/route.ts` | Implemented |
+| 8.5 Secure authentication | Token verified against cached signing keys, under a 2,500ms deadline, with three states so an unreachable auth service is not read as a sign-out. Login CSRF defense on the mailed link. | `lib/auth/identity.ts`, `app/auth/callback/route.ts` | Implemented |
 | 8.6 Capacity management | Three spend limits with no off switch, per learner rate limits on routes and actions, and a published cost model. | `lib/usage/quota.ts`, `lib/security/actionLimits.ts`, `/funding` | Implemented |
 | 8.7 Protection against malware | No file execution and no user uploads that are stored. A scanned photograph is decoded in a Route Handler and dropped; `Scan` has no column an image could go in, asserted. | `app/api/scan/` | Implemented |
 | 8.8 Management of technical vulnerabilities | Two blocking `npm audit` gates, production and dev, cleared by fixing chains rather than by lowering the bar. No external scanning. | `.github/workflows/ci.yml` | Partial |
@@ -105,7 +105,7 @@ This is the theme where the work actually is, so it is the longest.
 | 8.10 Information deletion | Erasure empties every owner scoped table and removes the Supabase Auth identity. Where no key can reach the identity, the screen says which part is left rather than reporting success. Erasure has no exemptions, asserted plus a schema-driven integration test. | `lib/auth/erase.ts`, `app/actions.ts` | Implemented |
 | 8.11 Data masking | Log values redacted by key name and by credential shape. Error messages to a browser go through the same redaction with a length cap, asserted on every `"use server"` export. | `lib/observability/report.ts` | Implemented |
 | 8.12 Data leakage prevention | CI builds with a marked value in every server variable and greps the client bundle, naming which variable leaked. Every built file scanned for credential shapes, with a service role JWT told apart from the public anon key by its decoded role claim. Sign-out clears the page cache, the outbox and unfinished papers; a different account on the same browser wipes what the last one left. | `.github/workflows/ci.yml`, `scripts/check-secrets.mjs`, `lib/offline/forget.ts` | Implemented |
-| 8.13 Information backup | Provider backups for Postgres, inherited and untested by us. A learner's own export and restore, tested on every CI run. The dictionary is a build artefact and reseeds from the repository. | `docs/28-incident-response.md` section 9 | Partial |
+| 8.13 Information backup | Provider backups for Postgres, inherited and untested by us. A learner's own export and restore, tested on every CI run. The dictionary is a build artifact and reseeds from the repository. | `docs/28-incident-response.md` section 9 | Partial |
 | 8.14 Redundancy | Vercel and Supabase defaults. Nothing multi-region and nothing failing over. | | Inherited |
 | 8.15 Logging | Structured JSON on stderr, retained by the platform, optionally forwarded to a webhook. Deliberately no analytics vendor, because the privacy page promises no third-party trackers. | `lib/observability/report.ts` | Partial |
 | 8.16 Monitoring activities | Nothing watches the logs continuously. No SIEM and no intrusion detection. Detection is described honestly in the incident plan. | `docs/28-incident-response.md` section 3 | Not done |
@@ -117,7 +117,7 @@ This is the theme where the work actually is, so it is the longest.
 | 8.24 Use of cryptography | TLS everywhere, HSTS preloaded. Bearer tokens compared with `timingSafeEqual` after a length check. No cryptography implemented here beyond that; sessions and password handling are Supabase's. | `app/api/metrics/route.ts`, `lib/security/headers.ts` | Partial |
 | 8.25 Secure development lifecycle | TypeScript strict with `noUncheckedIndexedAccess`, lint in the build rather than only in CI, a hermetic unit suite gating every commit, the invariant suite (`npm run test:invariants`, which prints its own total), and browser suites covering every route. | `next.config.ts`, `.github/workflows/ci.yml` | Implemented |
 | 8.26 Application security requirements | Written down and asserted rather than described: never ship a credential to the client, every mutation through the forged request gate, no owner id from a caller, AI spending always metered, append-only tables. | `CLAUDE.md`, `scripts/test-invariants.ts` | Implemented |
-| 8.27 Secure system architecture | Trust boundaries documented, keyed services server only, defence in depth on CSRF, spend metered under a lock rather than by check-then-act. | `docs/27-security.md` section 2 | Implemented |
+| 8.27 Secure system architecture | Trust boundaries documented, keyed services server only, defense in depth on CSRF, spend metered under a lock rather than by check-then-act. | `docs/27-security.md` section 2 | Implemented |
 | 8.28 Secure coding | Enforced by the invariant suite and the type system rather than by a style guide. A required field is used as the enforcement where a rule can be made unrepresentable. | `scripts/test-invariants.ts` | Implemented |
 | 8.29 Security testing | Automated: invariants, credential scan, dependency gates, browser suites including offline, restore, sign-in and accessibility. **No penetration test.** | `.github/workflows/ci.yml` | Partial |
 | 8.30 Outsourced development | None. | | Not applicable |
@@ -140,7 +140,7 @@ been performed, there is no Type I and no Type II report, and no service auditor
 | CC3 Risk assessment | Threat model with ranked assets, adversaries, controls and residual risk. Not a periodic formal risk assessment with a register and review dates. | Partial |
 | CC4 Monitoring of controls | CI runs the control assertions on every push, which is continuous in the sense that matters for code. Nothing monitors the running deployment. | Partial |
 | CC5 Control activities | Controls implemented in code and asserted, rather than described in a manual. | Implemented |
-| CC6 Logical and physical access | Authentication, authorisation, credential handling, device forgetting on sign-out, and privileged access that cannot be granted at runtime. Physical is inherited from Vercel and Supabase. | Implemented for logical, Inherited for physical |
+| CC6 Logical and physical access | Authentication, authorization, credential handling, device forgetting on sign-out, and privileged access that cannot be granted at runtime. Physical is inherited from Vercel and Supabase. | Implemented for logical, Inherited for physical |
 | CC7 System operations | Detection described honestly, incident response with runbooks per incident type, and a review step that asks why nothing caught it. Detection itself is weak: no continuous monitoring. | Partial |
 | CC8 Change management | Pull requests with CI on every push, to a default branch that is not protected. No separate approval body. | Partial |
 | CC9 Risk mitigation | Spend caps that fail closed, rate limits, append-only tables that cannot be edited away, and a restore path that cannot rewrite the shared dictionary. Vendor risk is not formally assessed. | Partial |
@@ -167,7 +167,7 @@ server side to mark it, and the client never sends a mark. **Implemented.**
 
 ### Privacy
 
-Data minimisation is structural rather than promised: no analytics vendor, no advertising
+Data minimization is structural rather than promised: no analytics vendor, no advertising
 identifiers, a scanned photograph never stored, and a news feed request that carries nothing of the
 learner's. Export covers every owner scoped model, checked against the schema. Erasure has no
 exemptions and reaches the auth identity. The research export is opt-out in Settings and out means
@@ -175,7 +175,7 @@ the rows are never read. **Implemented**, and `/privacy` is the document a data 
 
 ## 4. What a buyer should conclude
 
-The engineering controls are strong and checkable, and the organisational ones are what a company of
+The engineering controls are strong and checkable, and the organizational ones are what a company of
 this size has. That combination is worth stating plainly rather than averaging into a score.
 
 Strong, and you can verify each in one command: credential handling, owner scoping, CSRF, spend

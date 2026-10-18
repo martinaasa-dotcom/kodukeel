@@ -3,7 +3,7 @@ import { BANK } from "./bank";
 import { SCENES as CATALOGUE, FALLBACK_PHRASE, sceneById } from "./catalogue";
 import { LESSON_SCENES } from "./lessonScenes";
 
-// The catalogue and the lessons' own conversations, which keep a bank like any scene.
+// The catalog and the lessons' own conversations, which keep a bank like any scene.
 const SCENES = [...CATALOGUE, ...LESSON_SCENES];
 import { isPhrase } from "@/lib/dict/pos";
 import { POOL } from "../../scripts/lib/sceneDraft";

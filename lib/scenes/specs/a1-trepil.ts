@@ -2,7 +2,7 @@ import { inLesson } from "../inLesson";
 import { CLOSING_WORDS, FAREWELLS, HELLOS } from "./shared";
 
 /*
-  A NEIGHBOUR ON THE STAIRS, AT THE END OF THE FIRST EIGHT LESSONS, PLAYED
+  A NEIGHBOR ON THE STAIRS, AT THE END OF THE FIRST EIGHT LESSONS, PLAYED
   RATHER THAN READ.
 
   Lesson 8 is the first check-in: hello, a name, who you are, how it's going,
@@ -15,18 +15,18 @@ import { CLOSING_WORDS, FAREWELLS, HELLOS } from "./shared";
 */
 export default inLesson("a1-08-neighbour", {
   id: "a1-trepil",
-  title: "A neighbour on the stairs",
+  title: "A neighbor on the stairs",
   place: "The stairwell of your building, in the evening",
   tests: "tutvumine",
   register: "sina",
-  role: "You meet a neighbour on the stairs and she says hello. Answer her as yourself.",
+  role: "You meet a neighbor on the stairs and she says hello. Answer her as yourself.",
   props: [],
   curveballs: [],
   beats: [
     {
       id: "greet",
       goal: "Say hello back.",
-      they: "Your neighbour says good evening.",
+      they: "Your neighbor says good evening.",
       move: "greet",
       topic: [...HELLOS],
       needs: [{ kind: "lemma", oneOf: [...HELLOS] }],
@@ -81,7 +81,7 @@ export default inLesson("a1-08-neighbour", {
     },
   ],
   outcomes: [
-    { id: "met", when: ["greet", "name", "estonian", "how", "close"], says: "She knows your name and where you're from, and you said goodbye like a neighbour. That's the whole of a conversation on the stairs." },
+    { id: "met", when: ["greet", "name", "estonian", "how", "close"], says: "She knows your name and where you're from, and you said goodbye like a neighbor. That's the whole of a conversation on the stairs." },
     { id: "named", when: ["name"], says: "She knows your name now. Next time on the stairs you'll get further." },
     { id: "left", when: [], says: "You hurried past this time. She'll be on the stairs again." },
   ],

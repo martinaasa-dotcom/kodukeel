@@ -95,7 +95,7 @@ export function NavEditor({
 
   /*
     Picking a row up by its handle. The row follows the pointer by trading
-    places with its neighbour whenever the pointer crosses that neighbour's
+    places with its neighbor whenever the pointer crosses that neighbor's
     middle, which is the list reordering under the hand rather than a ghost
     image floating over it, and it saves once, on release.
   */

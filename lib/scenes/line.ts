@@ -78,7 +78,7 @@ export type Provenance =
    * doing to it. `Poodi.` after `poodi`, which is what a person does to show
    * you were heard.
    *
-   * Its neighbour `recast` is the same move with the form put right, and for
+   * Its neighbor `recast` is the same move with the form put right, and for
    * a while this case wore `again`, whose whole meaning is "the line you were
    * answering, once more": a learner who said the right word read "Said
    * again" under their own word coming back at them. Set only by `replyFor`.
@@ -97,7 +97,7 @@ export type Provenance =
    * than asked for (`lib/scenes/reply.ts`).
    */
   | "offered"
-  /** Said in English on purpose: the other side switched, and the learner is practising not to. */
+  /** Said in English on purpose: the other side switched, and the learner is practicing not to. */
   | "english"
   /**
    * Nothing could be built for a move the other side has to make, so what the
@@ -200,7 +200,7 @@ export function isSpokenEstonian(provenance: Provenance): boolean {
  *
  *   `scripted`  the bank answers and the model is never asked. This is a
  *               deployment with no key, and it is the default for a run that
- *               predates the field, since the shipped behaviour of a run
+ *               predates the field, since the shipped behavior of a run
  *               already in flight may not change under the learner having it.
  *   `composed`  the model answers, and the bank still catches a total failure:
  *               no key at that moment, a call that threw, or two attempts the

@@ -1002,8 +1002,8 @@ export function planLesson(input: LessonInput): LessonStep[] {
   // when it does not.
   //
   // The rotation buys nothing where only one builder can fire at all, and at A1
-  // that is the ordinary case rather than the edge: `kodu` practised two ways in
-  // a sentence and one with a case before rule 4, and practises six times with a
+  // that is the ordinary case rather than the edge: `kodu` practiced two ways in
+  // a sentence and one with a case before rule 4, and practices six times with a
   // case after it, because none of its words has a sentence a beginner can read.
   // That is the material being thin rather than the lane being wrong, and the
   // alternative is the sentence they cannot read. What keeps it from reading as

@@ -78,7 +78,7 @@ function onSafari(): boolean {
  * stored or sent, TartuNLP included: it lives in this component's state and
  * goes when the learner leaves. The one request is the transcript's text, to
  * the same glossing a pasted text gets, which keeps nothing either. And the
- * transcript is never Estonian the app vouches for: it is labelled as what a
+ * transcript is never Estonian the app vouches for: it is labeled as what a
  * machine heard, the words it was least sure of carry a wavy underline, and a
  * word reaches the deck only through the dictionary entry its underline opens.
  */

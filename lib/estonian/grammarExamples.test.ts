@@ -125,7 +125,7 @@ describe("grammar examples", () => {
 
   /*
     Keyed by the point's own text rather than by its index, so a reorder of
-    `points` cannot hand one point's examples to its neighbour. That is the one
+    `points` cannot hand one point's examples to its neighbor. That is the one
     failure nothing on screen would show, so it is checked here.
   */
   it("files every pin under a point the reference actually makes", () => {

@@ -1,5 +1,5 @@
 /**
- * THE SHAPE OF A PLANNED PROGRAMME, AND WHY THERE IS ONE AT ALL.
+ * THE SHAPE OF A PLANNED PROGRAM, AND WHY THERE IS ONE AT ALL.
  *
  * Everything this app can do is on a menu somewhere, and that is the problem
  * it was reported with. A learner opening it in the evening is handed a course
@@ -9,7 +9,7 @@
  * is the one part the app was leaving to the person least able to do it: the
  * beginner, who does not yet know what they are missing.
  *
- * So a programme is the decision made in advance. A day names the words it
+ * So a program is the decision made in advance. A day names the words it
  * teaches and the order it does things in, and the learner presses one button
  * until the day says it is finished. Nothing is new underneath: every step
  * opens a screen this app already had, and a day is an argument about which of
@@ -20,7 +20,7 @@
  * It writes no Estonian. A day's `words` are lemmas, which is what a syllabus
  * unit already is: a *request* against the dictionary that the Ekilex harvest
  * either honors or reports (ADR-005). A day may only name words a unit it
- * declares actually teaches, asserted in `course.test.ts`, so a programme
+ * declares actually teaches, asserted in `course.test.ts`, so a program
  * cannot introduce vocabulary any more than a scene can.
  *
  * It names no screen twice. A step that opens a practice mode names that
@@ -92,7 +92,7 @@ export interface ActivitySpec {
 /**
  * Every activity a day may pick, once.
  *
- * Deliberately short. The app has twenty-odd rounds and a programme that drew
+ * Deliberately short. The app has twenty-odd rounds and a program that drew
  * on all of them would be a tour rather than a course: what a beginner needs
  * in their first fortnight is the same handful of things done properly, and a
  * round that needs a microphone, a photograph or a pasted article is a round
@@ -167,7 +167,7 @@ export interface DaySpec {
    * `CourseStep` is `@@unique([ownerId, programmeId, dayId, stepId])` and
    * `dayReached` is the furthest id carrying a tick, so this is a foreign key
    * into a person's place in the course. It used to say it was stable for the
-   * life of the programme, and it cannot be: it is assigned positionally
+   * life of the program, and it cannot be: it is assigned positionally
    * (`${spec.id}-${n}`), so adding, removing or re-splitting a unit renumbers
    * every evening after it and moves everybody mid-part onto a different one.
    * Taking A1.1 from thirteen evenings to twelve did exactly that, and
@@ -252,7 +252,7 @@ export interface DaySpec {
   /**
    * What the conversation is, in English, for the step's own name: "Buying a
    * bus ticket" rather than "Have the conversation" on every evening that has
-   * one. Worked out by the builder, which may read the scene catalogue, so
+   * one. Worked out by the builder, which may read the scene catalog, so
    * this file stays small for the client screens that import it, the way
    * `readTitle` does.
    */
@@ -357,7 +357,7 @@ export interface Programme extends Omit<ProgrammeSpec, "days"> {
  * What a step is called.
  *
  * A practice mode's title comes out of `PRACTICE_MODES` and nowhere else, so
- * the programme cannot end up calling Match something Practice does not. A
+ * the program cannot end up calling Match something Practice does not. A
  * route that is not a mode carries its own, and `course.test.ts` fails on a
  * step with neither, and on one with both.
  */

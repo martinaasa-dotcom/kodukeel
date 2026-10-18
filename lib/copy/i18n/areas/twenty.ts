@@ -4,7 +4,7 @@ import type { Area } from "../area";
  * Twenty questions (`app/(app)/review/twenty/`, `lib/games/twenty.ts`).
  *
  * The thing is "it" throughout, so a question about it takes the neuter in both
- * languages, "Оно большое?" and "Воно велике?", and a colour agrees with that.
+ * languages, "Оно большое?" and "Воно велике?", and a color agrees with that.
  * A reading built from a word is a template here (`Said` in the game module):
  * a part is in the nominative after "у него есть", a material in the genitive
  * after "из", and each is translated under its own context so it never meets
@@ -253,7 +253,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Does it shine?", "Оно светит?", "Воно світить?"],
   ["Does it smell?", "Оно пахнет?", "Воно пахне?"],
 
-  // Colours, after "Оно" / "Воно", so neuter.
+  // Colors, after "Оно" / "Воно", so neuter.
   ["red@colour", "красное", "червоне"],
   ["blue@colour", "синее", "синє"],
   ["yellow@colour", "жёлтое", "жовте"],
@@ -261,7 +261,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["white@colour", "белое", "біле"],
   ["black@colour", "чёрное", "чорне"],
   ["brown@colour", "коричневое", "коричневе"],
-  ["grey@colour", "серое", "сіре"],
+  ["gray@colour", "серое", "сіре"],
   ["pink@colour", "розовое", "рожеве"],
   ["orange@colour", "оранжевое", "помаранчеве"],
   ["purple@colour", "фиолетовое", "фіолетове"],
@@ -336,7 +336,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Can you see through it?", "Оно прозрачное?", "Воно прозоре?"],
   ["Is it loud?", "Оно громкое?", "Воно гучне?"],
   ["Is it hairy?", "Оно волосатое?", "Воно волохате?"],
-  ["Is it colourful?", "Оно разноцветное?", "Воно різнобарвне?"],
+  ["Is it colorful?", "Оно разноцветное?", "Воно різнобарвне?"],
   ["Is it dirty?", "Оно грязное?", "Воно брудне?"],
   ["Is it tasty?", "Оно вкусное?", "Воно смачне?"],
   ["Is it healthy?", "Оно полезное?", "Воно корисне?"],

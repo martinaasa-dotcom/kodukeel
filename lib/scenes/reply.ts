@@ -189,7 +189,7 @@ export interface ReplyInput {
    * Whether the scene's own words hold `aga`, which "Selge, aga ..." needs.
    * A conversation inside an early lesson has not taught it, and there the
    * "got it" and the question again stay two sentences. Absent reads as yes,
-   * which is every catalogue scene.
+   * which is every catalog scene.
    */
   readonly but?: boolean;
   /**
@@ -449,7 +449,7 @@ export function cardChosen(
 export function factsFor(
   card: RoleCard | null,
   beats: readonly BeatSpec[],
-  /** Values of theirs the scene says later (`heldBack`), labelled so the model keeps them. */
+  /** Values of theirs the scene says later (`heldBack`), labeled so the model keeps them. */
   held: ReadonlySet<string> = new Set(),
 ): string[] {
   if (!card) return [];
@@ -1036,7 +1036,7 @@ export function composeNote(
       it again, plainer.
     */
     return "They asked you to say that again. Say your last line once more, more slowly and in"
-      + " simpler words, not word for word, and kindly. Do not apologise for how you said it, add"
+      + " simpler words, not word for word, and kindly. Do not apologize for how you said it, add"
       + " nothing it did not say, and do not define or explain any word; you may answer anything"
       + " else they asked as well.";
   }
@@ -1064,9 +1064,9 @@ export function composeNote(
     /*
       TONIGHT'S CHAT (VB-11): AN ANSWER WITHOUT THE WORD IS STILL AN ANSWER.
       What a chat beat waits for is a word, not a fact, so a learner who said
-      "jah, kõik korras" answered the neighbour perfectly well and simply did
+      "jah, kõik korras" answered the neighbor perfectly well and simply did
       not use it. Read in the one capped critic round, the instruction below
-      had the neighbour asking the same answered question three times; a
+      had the neighbor asking the same answered question three times; a
       person asks something else instead, which is also a second chance at
       the word.
     */
@@ -1374,7 +1374,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   /*
     Except a yes-or-no question that was the whole turn and met the beat: "Kas
     teil on telefoni?" asked what the beat wanted asked, and the answer is the
-    `Jah.` its acknowledgement gives (`acknowledgements`). Beside a statement
+    `Jah.` its acknowledgment gives (`acknowledgements`). Beside a statement
     the question is a second thing ("Kõht valutab. Kas see on midagi tõsist?"),
     and a yes there would answer it.
   */
@@ -1496,7 +1496,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       A PERSON MAKES IT. The learner wrote `pood` and was understood; the
       friend says "Poodi." and moves on, which is what a friend does and is
       the whole of what a learner needs to hear: you were understood, and
-      this is how it is said. Not a verdict, not a colour, not a stop. The
+      this is how it is said. Not a verdict, not a color, not a stop. The
       form is the dictionary's own, off the slip, and the line is labeled as
       the learner's word put right rather than as said again. Where nothing
       slipped it is `echo`, which is the same move with nothing to correct:
@@ -1604,7 +1604,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       /*
         NEWS IS FELT BEFORE IT IS FILED. Where the beat says what kind of news
         its answer is, the word is the feeling's rather than the rotation's:
-        "Tõesti?" to a broken window and "Tore!" to a new neighbour, which is
+        "Tõesti?" to a broken window and "Tore!" to a new neighbor, which is
         two words of the course doing what `Hästi.` could not. Only on a turn
         that landed, because a feeling about an answer nobody gave is the
         machine showing through the other way (`feltAt`).
@@ -1716,7 +1716,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     /*
       And where the learner's own turn said goodbye, the goodbye is said back
       rather than the word they left out: told "Aitäh, head aega" without the
-      sorry, the neighbour answered "Vabandust!" and walked off (FB-5).
+      sorry, the neighbor answered "Vabandust!" and walked off (FB-5).
     */
     const theirBye = answered?.move === "close" ? FAREWELLS.find((bye) => plainWord(input.said).includes(plainWord(bye))) : undefined;
     // reply-row: let-go-bye-said
@@ -1765,7 +1765,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       A GOODBYE IS ANSWERED WITH A GOODBYE. Where the learner said one and the
       closing beat's own line is not one, the line said back was the beat's
       remark: at the stairwell the learner said "Aitäh, vabandust, head aega"
-      and the neighbour answered "Nii, kott on sees.", walking off without a
+      and the neighbor answered "Nii, kott on sees.", walking off without a
       word (FB-5). The goodbye they used, or the course's first, is said back
       instead; it is a phrase every scene teaches, so nothing is written here.
     */
@@ -1947,7 +1947,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     another line the bank already holds for this beat. Authored and gated when
     it was drafted, off `others`, which the caller has already filtered to what
     this run has not said, so nothing repeats and nothing is written here. Where
-    the bank holds only the one line, `others` is empty and the behaviour is
+    the bank holds only the one line, `others` is empty and the behavior is
     exactly what it was: this can never invent a way of asking.
   */
   const another = sayAgain ? otherWay : null;
@@ -2220,7 +2220,7 @@ const BUT_NEXT = new WeakSet<SpokenLine>();
 /**
  * The reactions that are a feeling about the answer (`FEELINGS`), which is the
  * one kind a person does not say at the top of every turn. "Got it, but" and a
- * plain acknowledgement are not in it: those say how the turn went.
+ * plain acknowledgment are not in it: those say how the turn went.
  */
 const FELT = new WeakSet<SpokenLine>();
 export function isFelt(line: SpokenLine): boolean {
@@ -2257,7 +2257,7 @@ function butAfterHeard(out: SpokenLine[]): void {
       And only onto a line that is the question and nothing before it. A
       composed line said again carries whatever it opened with, so tonight's
       chat read `Selge, aga mul läheb hästi, aitäh! Kas sa tuled töölt?`: a
-      "but" joined to the neighbour's answer to an old question, contrasting
+      "but" joined to the neighbor's answer to an old question, contrasting
       nothing, which is the fault the native reader marked on two composed
       lines (docs/41-fifth-batch.md, section 0). `Selge.` stays a sentence of
       its own there.

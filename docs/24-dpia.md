@@ -82,7 +82,7 @@ the rows are never read, asserted separately on both queries, rather than subtra
 
 **None are processed, and two places had to be designed so that stays true.**
 
-The conversation practice mode (`lib/scenes/`) sets scenes including a health centre. A learner
+The conversation practice mode (`lib/scenes/`) sets scenes including a health center. A learner
 typing about their own symptoms there would be health data. So the role card is fiction: the persona,
 the complaint and any document number are drawn from the scene, the learner plays a part, and the
 schema comment on `SceneRun` says as much. No scene asks for a real personal identification code.
@@ -93,7 +93,7 @@ the report box on `SuggestFix` warns in as many words that another person reads 
 learner not to put anything private in it.
 
 Nothing in the app asks for health, religion, political opinion, trade union membership, sex life,
-sexual orientation, biometrics or genetics. There is no criminal offence data under Article 10.
+sexual orientation, biometrics or genetics. There is no criminal offense data under Article 10.
 
 ### 1.5 Automated decision-making, Article 22
 
@@ -151,7 +151,7 @@ are deleted on erasure.
 | `SceneGap` | Words a conversation needed and they did not have | Until the account is deleted | Yes | Yes |
 | `Encounter` | One of four words about whether they spoke Estonian to anybody yesterday and how it went, and the errand if there was one. Not where, not to whom, not what was said | Until the account is deleted | Yes | Yes |
 | `Deck`, `DeckWord` | Named shelves they made and which words are filed on them. A label over `Card` rather than a copy of it | Until removed by them, or with the account | Yes | Yes |
-| `CourseStep` | Which steps of which evening of the planned module they ticked. The programme, the day and the step, never an answer | Until the account is deleted | Yes | Yes |
+| `CourseStep` | Which steps of which evening of the planned module they ticked. The program, the day and the step, never an answer | Until the account is deleted | Yes | Yes |
 | `Deferral` | Which words they said were too complicated, when each comes back, and how often they have said it. One row per word | Until the account is deleted | Yes | Yes |
 | `EmailSend` | One line per letter sent: the kind and the moment. Never a subject, never a body, and nothing about whether it was opened, because there is no tracking pixel | Until the account is deleted | Yes | Yes |
 | `PushSubscription` | A browser they asked to be reminded on: the push service address and the two keys a reminder is encrypted to. Nothing about the device, and nothing about whether a notification was shown or clicked | Until turned off, reported gone by the push service, or the account is deleted | Yes | Yes |
@@ -236,7 +236,7 @@ said.
 device (ADR-028): a model running in the browser says which words it understood, the learner can
 change the text before it counts, and nothing recorded leaves the device or is stored anywhere (R18).
 What it never does is tell somebody how a word sounded (ADR-018). The reason is measured rather than
-asserted: a recogniser was benchmarked at a 14.6 percent word error rate on clean native audio, with
+asserted: a recognizer was benchmarked at a 14.6 percent word error rate on clean native audio, with
 errors landing exactly where an Estonian learner is weakest, and the model the app runs writes most
 words said with an accent as the right word. `scripts/measure-asr.ts` is the measurement.
 
@@ -283,7 +283,7 @@ of statistical disclosure control and `docs/19-research-export.md` is the fuller
 - **Complementary suppression.** A group hiding exactly one cell hides a second, because a lone gap
   comes back by subtraction, and no table publishes a total of its own.
 - **Deliberate imprecision.** Counts are rounded to `COUNT_ROUNDING` (10) and head counts are given
-  as bands, which is the only defence against differencing two vintages of the file.
+  as bands, which is the only defense against differencing two vintages of the file.
 
 There is no user id in the output, no email, no date anybody studied, no word anybody searched for
 and no individual answer. By the time the file exists it is anonymous information under Recital 26,
@@ -426,7 +426,7 @@ list at §6.
 **Mitigation.** The four rules in §3.4, implemented in `lib/research/corpus.ts` rather than
 described, with the thresholds identical in every table so one sentence is true of the whole file.
 The route does not exist without a token. The opt out is asserted separately on both queries. The
-review log is grouped in Postgres and no individual review is materialised in the process.
+review log is grouped in Postgres and no individual review is materialized in the process.
 
 **Residual: low.** The stated residual is that this app cannot stop an operator publishing two
 vintages of the same table and differencing them, which is why the rounding exists and why
@@ -492,7 +492,7 @@ all.
 
 **Likelihood before: medium. Severity: high.** `restoreBackup` and `deleteMyAccount` both end in
 "and nothing was changed" followed by whatever the database said. Prisma quotes the datasource in an
-initialisation failure and a restore runs a long transaction, which is exactly the window a
+initialization failure and a restore runs a long transaction, which is exactly the window a
 connection drops in, so that sentence could carry the deployment's host, user and password.
 
 **Mitigation.** `safeMessage` is the redaction the error log already used plus a length cap, and an
@@ -634,7 +634,7 @@ colleague's or a child's teacher's, none of whom agreed to anything. The scanner
 same on-device engine as the microphone (R18): no route takes audio, it is never uploaded, stored or
 sent, TartuNLP included, and it lives in the page's memory until the learner leaves (D16). What leaves
 is the transcript's text, to the same glossing a pasted text gets (`readHeard` in `app/actions.ts`),
-which keeps nothing, and the transcript is labelled as what a machine heard and never becomes a card,
+which keeps nothing, and the transcript is labeled as what a machine heard and never becomes a card,
 a sentence or an example. A photo of the learner's surroundings takes the scanner's existing path: it
 is shrunk on the device, read once by the configured vision model and dropped, the scanner's invariant
 holds that `Scan` has no column it could go in, and the model is asked for English names of objects
@@ -682,7 +682,7 @@ assurance.
 
 **On the Article 35 threshold.** Our reading is that this processing is not likely to result in a
 high risk to the rights and freedoms of natural persons, and so Article 35(1) does not require an
-assessment. It involves no special category data, no criminal offence data, no systematic monitoring
+assessment. It involves no special category data, no criminal offense data, no systematic monitoring
 of a publicly accessible area, no automated decision with a legal or similarly significant effect,
 no matching or combining of datasets from different sources, and no innovative use of technology
 applied to vulnerable people at scale. It does process data about children where a school deploys

@@ -23,7 +23,7 @@ import { SETTING_KEYS } from "@/lib/settings/store";
  * tomorrow at nought percent with "meet the words" waiting for them.
  *
  * THE SECOND IS THE CLOSING ROUND'S WINDOW. It opened at the most recent tick
- * anywhere in the programme, so ticking the first round of Tuesday's module
+ * anywhere in the program, so ticking the first round of Tuesday's module
  * moved the window past Monday's answers, Monday stopped being finished, and
  * the learner was sent back to a day they had done.
  */
@@ -420,7 +420,7 @@ describe("the two faults a browser found", () => {
 
   /*
     Made to fail on the real code first: with one window for the whole
-    programme, ticking day two's first round moves it past day one's answers
+    program, ticking day two's first round moves it past day one's answers
     and day one stops being finished.
   */
   it("keeps a finished day finished when the next one is started", async () => {
@@ -472,7 +472,7 @@ describe("a course that has to survive a midnight", () => {
   });
 
   /*
-    AND THE POINTER MAY NOT STALL ON A LONG PROGRAMME.
+    AND THE POINTER MAY NOT STALL ON A LONG PROGRAM.
 
     It used to be recomputed from the top: by ticks alone every day is
     unfinished, since two steps of each are proved off the log and written
@@ -529,7 +529,7 @@ describe("the day an action may write about", () => {
     THE LADDER NOBODY HAD TO CLIMB. The day after the one reached used to be in
     play whatever state the day reached was in, and a tick on it makes it the
     day reached, so a caller could tick day two, then day three, then every
-    evening of the programme in turn, one request each, having done nothing.
+    evening of the program in turn, one request each, having done nothing.
   */
   it("does not open the next day while the day reached is unfinished", async () => {
     const [one, two, three] = [PROGRAMME.days[0]!, PROGRAMME.days[1]!, PROGRAMME.days[2]!];
@@ -557,14 +557,14 @@ describe("the day an action may write about", () => {
   });
 
   /*
-    AND THE PROGRAMME HAS TO BE THE ONE THEY ARE FOLLOWING. The day id is not
-    the only thing off the wire: the programme id is too, and a part nobody has
+    AND THE PROGRAM HAS TO BE THE ONE THEY ARE FOLLOWING. The day id is not
+    the only thing off the wire: the program id is too, and a part nobody has
     opened has no ticks, so its first two evenings read as "reached" by the
     rule above. Without this a call naming the last part of C1 builds a
     beginner's deck out of its words, which is the forged call the guard's own
     header says it closes.
   */
-  it("refuses a day of a programme they are not following", async () => {
+  it("refuses a day of a program they are not following", async () => {
     const elsewhere = PROGRAMMES.at(-1)!;
     expect(elsewhere.id).not.toBe(PROGRAMME.id);
     await deck(PROGRAMME.days[0]!.words, 1);

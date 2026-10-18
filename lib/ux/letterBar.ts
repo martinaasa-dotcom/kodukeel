@@ -47,7 +47,7 @@ export function letterBarDefaultFor(locale: string): LetterBar {
   return locale === "uk" || locale === "ru" ? "on" : DEFAULT_LETTER_BAR;
 }
 
-/** A stored answer, or the default when it is absent or unrecognised. */
+/** A stored answer, or the default when it is absent or unrecognized. */
 export function letterBarFrom(value: string | undefined | null): LetterBar {
   return value === "off" ? "off" : DEFAULT_LETTER_BAR;
 }

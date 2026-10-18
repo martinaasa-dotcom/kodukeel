@@ -9,7 +9,7 @@ export const eksamB1: ScenePicks = {
   home: [
     { et: "Ma elan linnas.", en: "I live in town." },
     { et: "Elan maal, väikeses külas.", en: "I live in the country, in a small village." },
-    { et: "Ma elan korteris, kesklinna lähedal.", en: "I live in a flat near the city centre." },
+    { et: "Ma elan korteris, kesklinna lähedal.", en: "I live in a flat near the city center." },
   ],
   work: [
     { et: "Ma töötan ühes firmas.", en: "I work at a company." },

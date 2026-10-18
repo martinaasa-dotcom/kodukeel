@@ -217,14 +217,14 @@ export default async function TodayPage() {
     */
     measuredPaceFor(ownerId, now),
     /*
-      Whether the learner is following a planned programme, which decides what
+      Whether the learner is following a planned program, which decides what
       this page leads with. In this batch rather than after it because it needs
       nothing from anything else here, and a second round trip to answer a
       question the hero depends on is a round trip paid on every morning.
 
       AND THE READING OF IT, CHAINED ON RATHER THAN WAITED FOR. The module is
-      the hero and `courseReading` needs nothing but the programme, the clock
-      and the instant, so it starts the moment the programme is known instead
+      the hero and `courseReading` needs nothing but the program, the clock
+      and the instant, so it starts the moment the program is known instead
       of after the word of the day has been fetched: two to four round trips
       that used to sit at the end of the page now run beside the batch.
     */
@@ -394,7 +394,7 @@ export default async function TodayPage() {
         </Ring>
         {/*
           Shown at every width. It was `sm:hidden`, so from 640 up the card
-          carried two labelled tiles and one unlabelled circle reading
+          carried two labeled tiles and one unlabeled circle reading
           100%, with the meaning in an aria-label and nowhere else. Past
           the goal it said "24 of 15 reviews", which reads as a counting
           fault rather than as a day gone well.
@@ -442,7 +442,7 @@ export default async function TodayPage() {
     not help you remember more, so now is a good time to learn something new",
     drawn under a hero whose own line reads "Nothing due right now. A good time
     to meet some new words." Two thirds of it was the sentence directly above
-    it in a coloured box, and the third that was not is the only part a learner
+    it in a colored box, and the third that was not is the only part a learner
     could not have worked out: that coming back early buys nothing. So the
     reason is what is left, in the app's own voice rather than in a panel,
     because a neutral fact painted mint reads as a reward for having done
@@ -521,14 +521,14 @@ export default async function TodayPage() {
 
     The card below it is the honest answer to "what now" for somebody choosing
     their own evening: what is due, what is waiting, and two buttons. For
-    somebody following a programme it is the wrong question, because the
-    programme has already answered it, and two answers on one screen is the
+    somebody following a program it is the wrong question, because the
+    program has already answered it, and two answers on one screen is the
     thing a planned course exists to remove. So the hero is the module: which
     day, what it makes you able to do, the one step that is next, and a button
     that opens it.
 
     IT REPLACES THE HERO AND NOTHING ELSE. Every other card on this page is
-    untouched and the cap is unchanged, so the programme costs nobody a panel.
+    untouched and the cap is unchanged, so the program costs nobody a panel.
     And it stands down the moment the module is finished for the day, which is
     the point of a course that ends: the ordinary card comes back, saying there
     is nothing due, which is true and is the right thing to be told.
@@ -545,7 +545,7 @@ export default async function TodayPage() {
     /*
       THE EVENING AS A FAN OF ITS STEPS, AND THE ONE BRIGHT HERO IN THE APP.
 
-      Every other page draws the same card in the night's greys, so this is
+      Every other page draws the same card in the night's grays, so this is
       the one that is lit: what the learner can do by the end of it on the
       left, and tonight's steps dealt out on the right, the finished ones ringed,
       the next one lifted and breathing, the rest in the brand mix.
