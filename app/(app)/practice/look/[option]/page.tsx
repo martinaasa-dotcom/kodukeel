@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ option: s
   return { title: o ? `Mockup: ${o.name}` : "Games" };
 }
 
-type Search = { level?: string; done?: string; day?: string; group?: string };
+type Search = { level?: string; done?: string; day?: string; group?: string; sample?: string };
 
 /**
  * THE GAMES AREA, AS A BENTO BOARD IN THREE GROUPS.
@@ -57,6 +57,8 @@ export default async function LookPage({ params, searchParams }: {
     const s = q.toString();
     return `/practice/look/3${s ? `?${s}` : ""}`;
   };
+
+  if (search.sample) return <NameSample games={games} />;
 
   return (
     <Page route="/practice" title={a1 ? "Games" : "Mängud (Games)"} lead="Eleven games, all built from the words you've met.">
@@ -237,5 +239,60 @@ function MockupPanel({ a1, done, href }: { a1: boolean; done: Set<string>; href:
         Daily puzzles done
       </Link>
     </aside>
+  );
+}
+
+/* -------------------------------------------------------- name sample */
+
+/**
+ * The same three tiles named two ways, for choosing between them: the English
+ * in parentheses on the name's own line, and the English as a quieter line in
+ * parentheses under it. A short name, a medium one and the longest game name.
+ */
+function NameSample({ games }: { games: LookGame[] }) {
+  const picks = ["/sonad", "/review/twins", "/review/map"]
+    .map((h) => games.find((g) => g.href === h)!)
+    .map((g) => (g.href === "/review/twins" ? { ...g, en: "Twins" } : g));
+  const styles = [
+    { id: "inline", title: "A. One line: Estonian (English)" },
+    { id: "stacked", title: "B. English in parentheses on a quieter second line" },
+  ] as const;
+  return (
+    <Page route="/practice" title="Games" lead="Mockup: one naming rule for every level, drawn two ways.">
+      <div className="flex flex-col gap-10">
+        {styles.map((style) => (
+          <section key={style.id} aria-labelledby={`sample-${style.id}`} className="flex flex-col gap-4">
+            <h2 id={`sample-${style.id}`} className="text-xl font-bold" style={{ color: "var(--ink)" }}>{style.title}</h2>
+            <div className="@container">
+              <ul className="grid grid-cols-1 gap-4 @xl:grid-cols-3">
+                {picks.map((g) => (
+                  <li key={g.href}>
+                    <div className="flex h-full flex-col gap-3 rounded-[var(--r-xl)] p-5" style={{ background: `var(--${g.tone}-soft)` }}>
+                      <span className="self-start rounded-full px-2.5 py-0.5 text-xs font-bold" style={{ background: "var(--surface)", color: "var(--ink-2)" }}>{g.minutes} min</span>
+                      <div className="grid min-h-40 flex-1 place-items-center py-2"><GameArt href={g.href} size="sm" /></div>
+                      <div className="flex items-end justify-between gap-3">
+                        {style.id === "inline" ? (
+                          <h3 className="min-w-0 font-display text-xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
+                            <span lang="et">{g.et}</span> <span style={{ color: "var(--ink-2)" }}>({g.en})</span>
+                          </h3>
+                        ) : (
+                          <h3 className="min-w-0 leading-tight">
+                            <span lang="et" className="block font-display text-2xl font-bold" style={{ color: "var(--ink)" }}>{g.et}</span>
+                            <span className="block text-base font-semibold" style={{ color: "var(--ink-3)" }}>({g.en})</span>
+                          </h3>
+                        )}
+                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full" style={{ background: `var(--${g.tone})`, color: "var(--on-hue)" }}>
+                          <ArrowRight size={18} aria-hidden />
+                        </span>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        ))}
+      </div>
+    </Page>
   );
 }
