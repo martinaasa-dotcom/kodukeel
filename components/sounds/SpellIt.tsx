@@ -1,12 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Square, Volume2 } from "lucide-react";
 import { Button } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
 import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 import { spellOut, type SpellPart } from "@/lib/collections/spelling";
+import { ALPHABET } from "@/lib/collections/sounds";
+import { warmNative } from "@/lib/audio/clip";
 import { useSpeller } from "./useSpeller";
 
 /**
@@ -21,6 +23,10 @@ import { useSpeller } from "./useSpeller";
  *
  * A letter Estonian has no name for (a digit, ł) is drawn struck through and
  * passed over, never guessed at (`lib/collections/spelling.ts`).
+ *
+ * The alphabet is fetched when this appears, a few dozen small files, so the
+ * first press on any letter here or in the grid beside it starts at once
+ * rather than after the network (`warmNative`).
  */
 export function SpellIt({ initial = "", label }: { initial?: string; label?: string }) {
   const t = useT();
@@ -28,6 +34,9 @@ export function SpellIt({ initial = "", label }: { initial?: string; label?: str
   const parts = useMemo(() => spellOut(text), [text]);
   const { active, spell, stop, speaking } = useSpeller();
   const letters = parts.filter((p) => p.kind === "letter").length;
+  useEffect(() => {
+    warmNative(ALPHABET.map((a) => a.clip));
+  }, []);
 
   const onChange = (next: string) => {
     if (speaking) stop();

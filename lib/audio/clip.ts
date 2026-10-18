@@ -1,6 +1,7 @@
 import { cachedBlob, cachedClip, rememberClip } from "./clipCache";
 import { CLEAN, type Condition } from "./conditions";
 import { needsMixer, playThrough } from "./mixer";
+import { sequence } from "./sequence";
 import { stretch } from "./stretch";
 import { DEFAULT_PACE, SLOWEST, SLOW_OF_NORMAL, type Pace } from "./pace";
 import { decodeWav, encodeWav16, normaliseLoudness } from "./wav";
@@ -251,6 +252,31 @@ export function prefetchClip(request: ClipRequest): void {
 }
 
 /**
+ * THE NATIVE SPEAKER'S RECORDINGS, FETCHED BEFORE ANYBODY PRESSES THEM.
+ *
+ * A letter's name is under a second long, and a spelled word is a run of
+ * them a breath apart, so a letter that has to come over the network first
+ * starts half a second late while the one before it, already heard, starts at
+ * once. That unevenness was reported as letters with a gap in front of some
+ * and none in front of others. This reads each file once into the browser's
+ * own cache, and the service worker's where there is one (both keep a
+ * recording under its versioned url for good), so every later play is a read
+ * from the device. Not the clip cache: that holds two dozen clips and the
+ * alphabet is thirty-two. Says nothing where it cannot.
+ */
+const warmed = new Set<string>();
+export function warmNative(ids: readonly string[]): void {
+  if (typeof window === "undefined") return;
+  for (const id of ids) {
+    if (warmed.has(id)) continue;
+    warmed.add(id);
+    void fetch(nativeUrl(id))
+      .then((res) => (res.ok ? res.arrayBuffer() : Promise.reject(new Error(String(res.status)))))
+      .catch(() => warmed.delete(id));
+  }
+}
+
+/**
  * A CLIP THE BROWSER REFUSED TO AUTOPLAY IS NOT A CLIP THAT FAILED.
  *
  * Every browser blocks `HTMLAudioElement.play()` on a page the reader has not
@@ -375,6 +401,58 @@ export async function playClip(
     return "played";
   } catch (error) {
     end();
+    throw error;
+  }
+}
+
+/**
+ * RECORDINGS SAID ONE AFTER ANOTHER AS ONE CLIP, which is how a word is
+ * spelled out letter by letter (`components/sounds/useSpeller.ts`).
+ *
+ * Each recording is fetched (from the device, once `warmNative` has run),
+ * the run is joined by `sequence` with exactly the silence asked for between
+ * them, and the result plays as one element: one start, so no letter waits
+ * on the browser more than another. What comes back says where each
+ * recording sits in time, so a screen can light each one off `currentTime`.
+ * At the recordings' own speed, like every clip asked for by id.
+ */
+export interface PlayingSequence {
+  readonly audio: HTMLAudioElement;
+  readonly spans: readonly { readonly from: number; readonly to: number }[];
+  stop(): void;
+  /** Settles when the run has finished or was stopped; rejects where it could not play. */
+  readonly ended: Promise<void>;
+}
+
+export async function playNativeSequence(
+  items: readonly { readonly id: string; readonly text: string; readonly gapAfterMs: number }[],
+): Promise<PlayingSequence> {
+  const end = beginSpeech();
+  let url: string | null = null;
+  try {
+    const clips = await Promise.all(items.map((item) => fetchClip({ text: item.text, nativeId: item.id })));
+    const pieces = await Promise.all(clips.map(async (clip, i) => ({
+      pcm: decodeWav(new Uint8Array(await clip.blob.arrayBuffer())),
+      gapAfterMs: items[i]!.gapAfterMs,
+    })));
+    const joined = sequence(pieces);
+    const made = URL.createObjectURL(new Blob([encodeWav16(joined.pcm).buffer as ArrayBuffer], { type: "audio/wav" }));
+    url = made;
+    const audio = new Audio(made);
+    let finish: () => void = () => undefined;
+    const ended = new Promise<void>((resolve) => {
+      finish = () => {
+        end();
+        URL.revokeObjectURL(made);
+        resolve();
+      };
+    });
+    for (const event of ["ended", "pause", "error"] as const) audio.addEventListener(event, finish, { once: true });
+    await audio.play();
+    return { audio, spans: joined.spans, ended, stop: () => audio.pause() };
+  } catch (error) {
+    end();
+    if (url) URL.revokeObjectURL(url);
     throw error;
   }
 }

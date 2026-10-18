@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useSyncExternalStore, type ReactNode } from "react";
+import { useId, useState, useSyncExternalStore, type ReactNode } from "react";
 import { Play, Volume2 } from "lucide-react";
-import { onSpeakingChange, playClip, untilQuiet } from "@/lib/audio/clip";
+import { onSpeakingChange, playClip, untilQuiet, warmNative } from "@/lib/audio/clip";
 import { nativeClip } from "@/lib/audio/native";
 import type { Pace } from "@/lib/audio/pace";
 import { useAudioPrefs } from "@/components/AudioPrefs";
@@ -19,11 +19,17 @@ import { fill } from "@/lib/copy/locale";
  * said, because what is being taught is how it sounds, not a beginner's
  * slowed-down copy of it.
  *
- * WHAT IS PLAYING IS SHOWN WHERE IT IS PLAYING. One recording at a time is
+ * WHAT IS PLAYING IS SHOWN WHERE IT IS PLAYING. One button at a time is
  * marked live, and the mark goes when the voice stops rather than when the
  * press ends, which is the only way a row of three words played one after
  * another can say which of the three you are hearing. The mark is a ring and
  * a set of bars as well as a color, so it reads without the hue.
+ *
+ * THE MARK BELONGS TO THE BUTTON, NOT TO THE RECORDING. `kus` is one
+ * recording and is on the page twice, against `kuus` and against `millal`, so
+ * marking the recording lit both pills while one was said, which reads as two
+ * words playing at once. Every button carries its own key (`useId`), and a set
+ * hands its words theirs, so playing a set marks the word in that set alone.
  */
 
 let live: string | null = null;
@@ -51,14 +57,14 @@ function subscribe(listener: () => void) {
   };
 }
 
-/** Whether this recording is the one being heard right now. */
-function useLive(id: string): boolean {
-  return useSyncExternalStore(subscribe, () => live === id && speaking, () => false);
+/** Whether this button is the one being heard right now. */
+function useLive(owner: string): boolean {
+  return useSyncExternalStore(subscribe, () => live === owner && speaking, () => false);
 }
 
-/** Plays one recording, marking it live. Resolves once it has started, or has failed. */
-async function playNative(id: string, pace: Pace): Promise<boolean> {
-  live = id;
+/** Plays one recording, marking the button that asked live. Resolves once it has started, or has failed. */
+async function playNative(id: string, owner: string, pace: Pace): Promise<boolean> {
+  live = owner;
   publish();
   try {
     // The pace travels like it does to every play, and `rateFor` answers 1 for
@@ -66,29 +72,36 @@ async function playNative(id: string, pace: Pace): Promise<boolean> {
     await playClip({ text: nativeClip(id).text, nativeId: id, pace });
     return true;
   } catch {
-    if (live === id) live = null;
+    if (live === owner) live = null;
     publish();
     return false;
   }
 }
 
 /** Plays recordings one after another, a breath apart, the way a teacher reads a list. */
-async function playInTurn(ids: readonly string[], pace: Pace): Promise<void> {
-  for (const [i, id] of ids.entries()) {
+async function playInTurn(words: readonly { id: string; owner: string }[], pace: Pace): Promise<void> {
+  for (const [i, { id, owner }] of words.entries()) {
     if (i > 0) await new Promise((resolve) => setTimeout(resolve, 380));
-    if (!(await playNative(id, pace))) return;
+    if (!(await playNative(id, owner, pace))) return;
     await untilQuiet(8000);
   }
 }
 
-/** The press, and whether its recording is the one being heard. */
-function useNative(id: string) {
-  const isLive = useLive(id);
+/**
+ * The press, whether this button's recording is the one being heard, and a
+ * way to fetch the recording the moment a pointer or a finger arrives, so the
+ * press itself plays from the device (`warmNative`).
+ */
+function useNative(id: string, owner?: string) {
+  const own = useId();
+  const key = owner ?? own;
+  const isLive = useLive(key);
   const { pace } = useAudioPrefs();
   const press = () => {
-    void playNative(id, pace);
+    void playNative(id, key, pace);
   };
-  return { isLive, press };
+  const warm = () => warmNative([id]);
+  return { isLive, press, intent: { onPointerEnter: warm, onPointerDown: warm, onFocus: warm } };
 }
 
 /** Three bars that move while a recording plays, drawn in the ink around them. */
@@ -116,11 +129,12 @@ export function SoundKey({ clip, glyph, label, size = "md", loanword }: {
   loanword?: boolean;
 }) {
   const t = useT();
-  const { isLive, press } = useNative(clip);
+  const { isLive, press, intent } = useNative(clip);
   return (
     <button
       type="button"
       onClick={press}
+      {...intent}
       aria-label={label ?? fill(t("Hear the sound {sound}"), { sound: glyph })}
       data-native={clip}
       data-live={isLive || undefined}
@@ -137,8 +151,10 @@ export function SoundKey({ clip, glyph, label, size = "md", loanword }: {
  * show, highlighted where they first occur, so a learner sees which part of
  * `aitäh` the ä is while they hear it.
  */
-export function NativeWord({ clip, text, mark, stress, en, size = "md" }: {
+export function NativeWord({ clip, owner, text, mark, stress, en, size = "md" }: {
   clip: string;
+  /** Whose mark this is, where a set plays its words in turn; the button's own otherwise. */
+  owner?: string;
   /** As printed; the recording's own text when absent. */
   text?: string;
   mark?: string;
@@ -149,13 +165,14 @@ export function NativeWord({ clip, text, mark, stress, en, size = "md" }: {
   size?: "md" | "lg";
 }) {
   const t = useT();
-  const { isLive, press } = useNative(clip);
+  const { isLive, press, intent } = useNative(clip, owner);
   const said = text ?? nativeClip(clip).text;
   return (
     <span className="snd-word-wrap">
       <button
         type="button"
         onClick={press}
+        {...intent}
         aria-label={fill(t('Hear "{text}" in Estonian'), { text: said })}
         data-native={clip}
         data-live={isLive || undefined}
@@ -210,6 +227,8 @@ export function HearSet({ words, caption }: {
   const t = useT();
   const { pace } = useAudioPrefs();
   const [busy, setBusy] = useState(false);
+  const set = useId();
+  const owned = words.map((w, i) => ({ ...w, owner: `${set}-${i}` }));
   return (
     <div className="snd-set" data-hear-set>
       {caption && <p className="snd-set-caption">{caption}</p>}
@@ -220,16 +239,17 @@ export function HearSet({ words, caption }: {
             className="snd-play-all press"
             disabled={busy}
             aria-label={words.length === 2 ? t("Hear both") : t("Hear them in a row")}
+            onPointerEnter={() => warmNative(words.map((w) => w.clip))}
             onClick={() => {
               setBusy(true);
-              void playInTurn(words.map((w) => w.clip), pace).finally(() => setBusy(false));
+              void playInTurn(owned.map((w) => ({ id: w.clip, owner: w.owner })), pace).finally(() => setBusy(false));
             }}
           >
             <Play size={16} aria-hidden fill="currentColor" />
           </button>
         )}
         <span className="snd-set-words">
-          {words.map((w) => <NativeWord key={w.clip} clip={w.clip} text={w.text} mark={w.mark} en={w.en} />)}
+          {owned.map((w) => <NativeWord key={w.owner} clip={w.clip} owner={w.owner} text={w.text} mark={w.mark} en={w.en} />)}
         </span>
       </div>
     </div>
