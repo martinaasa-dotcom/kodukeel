@@ -117,14 +117,14 @@ function Spelled({ size }: { size: GameArtSize }) {
               className={`grid place-items-center rounded-full font-bold uppercase ${letter}`}
               style={i === heard.length - 1
                 ? { background: "var(--accent-soft)", color: "var(--accent-deep)", boxShadow: "inset 0 0 0 2px var(--accent)" }
-                : { background: "var(--surface)", color: "var(--ink)", boxShadow: "inset 0 0 0 1px var(--rule)" }}
+                : { background: "var(--surface)", color: "var(--ink)", boxShadow: "0 0 0 1px var(--edge)" }}
             >
               {l}
             </span>
           ))}
         </div>
       </div>
-      <span className="min-w-36 rounded-[var(--r-sm)] px-3 py-1.5 text-base font-semibold" style={{ background: "var(--surface)", color: "var(--ink)", boxShadow: "inset 0 0 0 1px var(--rule)" }}>
+      <span className="min-w-36 rounded-[var(--r-sm)] px-3 py-1.5 text-base font-semibold" style={{ background: "var(--surface)", color: "var(--ink)", boxShadow: "0 0 0 1px var(--edge)" }}>
         koh<span className="ml-px inline-block h-4 w-[2px] translate-y-0.5" style={{ background: "var(--accent)" }} />
       </span>
     </div>
