@@ -112,6 +112,31 @@ try {
   await page.evaluate(() => navigator.serviceWorker?.ready);
   await page.waitForTimeout(1500);
   await page.goto(`${B}/dev/asr`, { waitUntil: "load" });
+  /* The runtime is kept offline only once a fetch of it has gone through the
+     service worker, which writes the copy without being awaited, and the first
+     press above happened before the worker controlled the page. Cutting the
+     network straight after `load` raced that write: on a slow runner the
+     offline reload found no worker script, and the bench said "the speech
+     worker stopped" while the suite waited three minutes. So the runtime is
+     fetched through the controlling worker here and the cache is read until
+     every file is in it, and the check is asked of a device that has it. */
+  const kept = await page.evaluate(async (files) => {
+    await navigator.serviceWorker?.ready;
+    const deadline = Date.now() + 60_000;
+    while (!navigator.serviceWorker?.controller && Date.now() < deadline) await new Promise((r) => setTimeout(r, 200));
+    await Promise.all(files.map((f) => fetch(f).then((r) => r.arrayBuffer()).catch(() => undefined)));
+    let missing = files;
+    while (Date.now() < deadline) {
+      const names = (await caches.keys()).filter((n) => n.startsWith("kodukeel-asr-"));
+      const held = new Set();
+      for (const name of names) for (const req of await (await caches.open(name)).keys()) held.add(new URL(req.url).pathname);
+      missing = files.filter((f) => !held.has(f));
+      if (missing.length === 0) break;
+      await new Promise((r) => setTimeout(r, 250));
+    }
+    return missing;
+  }, ["/asr/runtime/speech-worker.js", "/asr/runtime/sherpa-onnx.js", "/asr/runtime/sherpa-onnx-asr.js", "/asr/runtime/sherpa-onnx.wasm", "/asr/check.wav"]);
+  if (kept.length > 0) console.log(`note: the speech cache was still missing ${kept.join(", ")} before going offline`);
   await context.setOffline(true);
   try {
     await page.reload({ waitUntil: "domcontentloaded" });
