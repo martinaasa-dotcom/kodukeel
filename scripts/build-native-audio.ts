@@ -10,6 +10,16 @@
  * pieces that split being the slow takes and the longer sentences, which were
  * joined back where the script says they belong.
  *
+ * AND A WORD ENDING IN A STOP ENDS AFTER A SILENCE. The tongue holds the `tt`
+ * of `kott` and of the letter name `jott` shut for a fifth of a second before
+ * the release, so silence detection ended both cuts in the closure and the
+ * word was heard without its last sound. Every cut was then walked outward
+ * to the last run of three frames within 35 dB of the clip's own peak, past
+ * any gap and short of the next clip, and given a tenth of a second either
+ * side. The margin costs nothing, because `trimSilence` below cuts the clip to
+ * its sound again, and a release, a final `h` or a long `l` can no longer fall
+ * off the edge. Re-cut by hand and walk the ends the same way.
+ *
  * Each clip then goes through the pipeline every synthetic clip goes through
  * (`lib/audio/wav.ts`): trimmed to the same lead and release, its pauses
  * capped, leveled to the same loudness, and written as 16-bit PCM. So a word

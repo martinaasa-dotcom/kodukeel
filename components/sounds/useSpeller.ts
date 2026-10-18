@@ -1,68 +1,92 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { playClip, untilQuiet } from "@/lib/audio/clip";
-import { LETTER_GAP_MS, PAUSE_GAP_MS, type SpellPart } from "@/lib/collections/spelling";
-import { useAudioPrefs } from "@/components/AudioPrefs";
-
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+import { playNativeSequence, type PlayingSequence } from "@/lib/audio/clip";
+import { LETTER_GAP_MS, PAUSE_GAP_MS, SLOW_GAPS, type SpellPart } from "@/lib/collections/spelling";
 
 /**
  * SAYS A TEXT LETTER BY LETTER, in the native speaker's recordings of the
  * letters' names, and says which letter it is on.
  *
  * One spelling at a time: pressing again, typing a new text or leaving the
- * screen ends the one in progress at the letter it was on, because two
- * spellings talking over each other is the one thing that makes a name
- * impossible to follow. `active` is the index into the parts being said, so a
- * name with two n's lights the right n rather than both. `slow` stretches the
- * gaps and never the letters, since a letter's name said slowly is a
- * different sound and a gap is where a listener writes.
+ * screen ends the one in progress, because two spellings talking over each
+ * other is the one thing that makes a name impossible to follow. `active` is
+ * the index into the parts being said, so a name with two n's lights the
+ * right n rather than both. `slow` stretches the gaps and never the letters,
+ * since a letter's name said slowly is a different sound and a gap is where a
+ * listener writes.
+ *
+ * THE WORD PLAYS AS ONE CLIP (`playNativeSequence`). Played a letter at a
+ * time, every letter was a new audio element with its own start, and the gaps
+ * in one word came out at anything from a third of a second to over one,
+ * which was reported as some letters starting at once and some after half a
+ * second. Joined, the gaps are exactly `LETTER_GAP_MS` and `PAUSE_GAP_MS`,
+ * and each letter lights off the clip's own play position.
  */
 export function useSpeller() {
-  const { pace } = useAudioPrefs();
   const run = useRef(0);
+  const playing = useRef<PlayingSequence | null>(null);
   const [active, setActive] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const stop = useCallback(() => {
+  const halt = useCallback(() => {
     run.current += 1;
+    playing.current?.stop();
+    playing.current = null;
+  }, []);
+
+  const stop = useCallback(() => {
+    halt();
     setActive(null);
     setBusy(false);
-  }, []);
+  }, [halt]);
 
-  useEffect(() => () => {
-    run.current += 1;
-  }, []);
+  useEffect(() => halt, [halt]);
 
   const spell = useCallback(async (parts: readonly SpellPart[], { slow = false }: { slow?: boolean } = {}) => {
-    const me = ++run.current;
-    const gap = slow ? 3 : 1;
+    halt();
+    const me = run.current;
+    const stretch = slow ? SLOW_GAPS : 1;
+    // Which part each recording is, and the silence after it: a letter's gap,
+    // or a word's where a pause follows. "Other" is shown and never said.
+    const said: { at: number; id: string; text: string; gapAfterMs: number }[] = [];
+    parts.forEach((part, at) => {
+      if (part.kind === "letter") said.push({ at, id: part.clip, text: part.letter, gapAfterMs: LETTER_GAP_MS * stretch });
+      else if (part.kind === "pause" && said.length > 0) said[said.length - 1]!.gapAfterMs = PAUSE_GAP_MS * stretch;
+    });
+    if (said.length === 0) return;
     setBusy(true);
-    for (const [i, part] of parts.entries()) {
-      if (run.current !== me) return;
-      if (part.kind === "pause") {
+    let play: PlayingSequence;
+    try {
+      play = await playNativeSequence(said);
+    } catch {
+      if (run.current === me) {
         setActive(null);
-        await wait(PAUSE_GAP_MS * gap);
-        continue;
+        setBusy(false);
       }
-      if (part.kind === "other") continue;
-      setActive(i);
-      try {
-        // A letter is asked for by id, so it plays at the speed it was said (`rateFor`).
-        await playClip({ text: part.letter, nativeId: part.clip, pace });
-      } catch {
-        break;
-      }
-      await untilQuiet(4000);
-      if (run.current !== me) return;
-      await wait(LETTER_GAP_MS * gap);
+      return;
     }
+    if (run.current !== me) {
+      play.stop();
+      return;
+    }
+    playing.current = play;
+    const frame = () => {
+      if (run.current !== me) return;
+      const now = play.audio.currentTime;
+      const index = play.spans.findIndex((span) => now >= span.from && now < span.to);
+      setActive(index < 0 ? null : said[index]!.at);
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+    await play.ended;
     if (run.current === me) {
+      run.current += 1;
+      playing.current = null;
       setActive(null);
       setBusy(false);
     }
-  }, [pace]);
+  }, [halt]);
 
   return { active, spell, stop, speaking: busy };
 }

@@ -201,9 +201,9 @@ export function nativeClip(id: string): NativeClip {
  * `scripts/build-native-audio.ts` is run against a new recording or a new cut
  * list, because the service worker keeps a clip under its url for good and a
  * url that names the cut is the only way a re-cut clip reaches a phone that
- * heard the old one.
+ * heard the old one. Cut 2 found the ends of the words, below.
  */
-export const NATIVE_CUT = 1;
+export const NATIVE_CUT = 2;
 
 /** Where the browser fetches a clip. */
 export function nativeUrl(id: string): string {
