@@ -7656,7 +7656,7 @@ alphabet. `lib/audio/native.ts` is the catalog and `scripts/build-native-audio.t
 clip start and sound alike. A speaker button left on the learner's own voice plays the recording
 when its text matches (`nativeFor`). A screen that chose a voice keeps it. A clip asked for by id
 plays at the speed it was said (`rateFor`), because the stretch would shrink the length a sounds
-screen is teaching. Re-cut the recording and raise `NATIVE_CUT`, or a phone keeps the old clip.
+screen is teaching. Re-cut the recording and raise `NATIVE_CUT`, or a phone keeps the old clip. **And the alphabet is for spelling, not reading.** Estonian is read the way it is written, so the 32 recorded letter names are used where a learner needs them: spelling a name or a word out loud. `lib/collections/spelling.ts` says which recording each character is (a letter with a mark Estonian lacks is the bare letter, a digit is shown struck through and skipped), `components/sounds/SpellIt.tsx` spells a typed name on the sounds page and in lesson 3 beside `Kuidas seda kirjutatakse?`, and Tähthaaval (`/review/spelled`) spells a word the learner has met for them to write down. That round grades nothing: a word written wrong because two letter names sound close has not been forgotten.
 
 **A response built out of one learner's own rows says it is theirs and is never kept.** The
 framework's silence is not a cache policy: `ImageResponse` stamps `public, immutable,

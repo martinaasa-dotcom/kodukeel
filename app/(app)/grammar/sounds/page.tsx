@@ -3,6 +3,8 @@ import { localeFor, titleFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
 import { Card, Page, SectionTitle, Stack } from "@/components/ui";
 import { HearSet, NativeWord, SoundKey } from "@/components/sounds/Native";
+import { SpellIt } from "@/components/sounds/SpellIt";
+import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import {
   ALPHABET, CONSONANTS, LENGTH, MIX_UPS, SPECIAL, STRESS, VOWELS, VOWEL_WORDS, type SoundNote,
 } from "@/lib/collections/sounds";
@@ -27,8 +29,10 @@ export async function generateMetadata() {
  */
 export default async function SoundsPage() {
   const ownerId = await requireUserId();
-  const locale = await localeFor(ownerId);
+  const [locale, storedName] = await Promise.all([localeFor(ownerId), readSetting(ownerId, SETTING_KEYS.displayName)]);
   const t = (english: string) => tr(locale, english);
+  // First run writes a placeholder for somebody who gave no name; that one is not theirs to hear.
+  const name = storedName && storedName.trim() !== "A learner" ? storedName.trim() : "";
 
   return (
     <Page route="/grammar/sounds"
@@ -110,7 +114,7 @@ export default async function SoundsPage() {
           </div>
         </section>
 
-        <section className="flex flex-col gap-4" data-sounds-section="alphabet">
+        <section id="alphabet" className="flex flex-col gap-4" data-sounds-section="alphabet">
           <SectionTitle hint={t("for spelling your name out loud")}>{t("The alphabet")}</SectionTitle>
           <div className="snd-grid" data-alphabet>
             {ALPHABET.map((a) => (
@@ -121,6 +125,15 @@ export default async function SoundsPage() {
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
             {t("The dashed letters are only in borrowed words and names.")}
           </p>
+          <div id="spell" className="snd-set flex flex-col gap-3" data-sounds-spell>
+            <div>
+              <p className="font-display text-lg font-bold" style={{ color: "var(--ink)" }}>{t("Spell your name")}</p>
+              <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+                {t("At a desk or on the phone you'll be asked to spell it. Hear it the way you'll say it.")}
+              </p>
+            </div>
+            <SpellIt initial={name} />
+          </div>
         </section>
       </Stack>
     </Page>

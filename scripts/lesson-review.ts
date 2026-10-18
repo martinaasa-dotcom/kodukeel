@@ -71,6 +71,7 @@ for (const part of LESSON_PARTS) {
     for (const row of lesson.how.sounds ?? []) {
       say(`- [ ] Sound **${row.glyph}**: ${braced(row.like)}, as in **${nativeClip(row.word).text}**${row.en ? ` (${braced(row.en)})` : ""} (recorded)`);
     }
+    if (lesson.how.spell) say("- Spell your name: the learner types a name and hears it letter by letter (recorded)");
     for (const set of lesson.how.listen ?? []) {
       say(`- [ ] Hear side by side: ${set.words.map((w) => `**${nativeClip(w.clip).text}** (${braced(w.en)})`).join(", ")} (recorded)`);
     }

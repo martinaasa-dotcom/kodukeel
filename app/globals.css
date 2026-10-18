@@ -5936,6 +5936,24 @@ a:focus-visible .wave-word::after {
   }
 
   .snd-grid { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  /* A text spelled out: a tile per letter, a gap where a word ends, and a struck letter Estonian has no name for. */
+  .spell-tiles { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1.1rem; }
+  .spell-word-tiles { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .spell-other {
+    display: inline-grid;
+    place-items: center;
+    width: 3rem;
+    aspect-ratio: 1;
+    border-radius: var(--r-sm);
+    border: 1px dashed var(--edge);
+    color: var(--ink-3);
+    font-size: var(--text-lg);
+    text-decoration: line-through;
+  }
+  /* A box on the phone line, lit while its letter's name is being said. */
+  .spell-slot { transition: box-shadow 140ms, transform 140ms; }
+  .spell-slot[data-live] { box-shadow: 0 0 0 3px var(--accent); transform: translateY(-2px); }
+  @media (prefers-reduced-motion: reduce) { .spell-slot[data-live] { transform: none; } }
   /* Columns by the room the content column has, never by the window: at 768 the rail takes a third of it. */
   .snd-cols { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); }
 }

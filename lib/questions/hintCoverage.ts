@@ -107,6 +107,12 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
       + " would hand back what is already on the screen",
   },
   {
+    file: "app/(app)/review/spelled/SpelledSession.tsx",
+    why: "the question is the letters' names, so the help is hearing them again, which the round offers at"
+      + " normal speed and slower on every word, and a first miss marks the wrong letters in place and spells"
+      + " it again slower; uncovering letters would hand over what the exercise asks the learner to hear",
+  },
+  {
     file: "app/(app)/review/letters/LettersSession.tsx",
     why: "every letter of the answer is already on the screen, scrambled, so there is nothing to"
       + " uncover: the ladder is the round's own two tries, the second of which places the first"

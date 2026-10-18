@@ -153,6 +153,8 @@ const TERE_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Tere! Minu nimi on Mari. Mis su nimi on?", en: "Hello! My name is Mari. What's your name?" },
       { who: "Tom", et: "Tere! Mu nimi on Tom.", en: "Hi! My name's Tom." },
+      { who: "Mari", et: "Kuidas seda kirjutatakse?", en: "How do you spell that?" },
+      { who: "Tom", stage: "He spells it out, one letter at a time." },
       { who: "Mari", et: "Väga meeldiv!", en: "Nice to meet you!" },
       { who: "Tom", et: "Väga meeldiv!", en: "Nice to meet you too!" },
     ],
@@ -165,6 +167,7 @@ const TERE_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "su", en: "your" },
       { kind: "phrase", et: "Mis su nimi on?", en: "What's your name?" },
       { kind: "phrase", et: "Väga meeldiv!", en: "Nice to meet you!" },
+      { kind: "phrase", et: "Kuidas seda kirjutatakse?", en: "How do you spell that?" },
     ],
     how: {
       point: "My and your each have a long form and a short one. The short one is what people usually say.",
@@ -180,12 +183,14 @@ const TERE_LESSONS: readonly LessonSpec[] = [
         "Estonian has no word for a or the. {Nimi} is name, a name and the name.",
       ],
       watchOut: "{On} here is \"is\". It has nothing to do with the English on, as in on the table.",
+      spell: true,
       examples: [0, 1],
     },
     answers: [
       { ask: { et: "Mis su nimi on?", en: "What's your name?" }, cue: "Say your own name.", model: { et: "Minu nimi on Tom.", en: "My name is Tom." } },
       { cue: "Now ask them theirs.", model: { et: "Mis su nimi on?", en: "What's your name?" } },
       { ask: { et: "Mu nimi on Mari.", en: "My name's Mari." }, cue: "Say you're pleased to meet her.", model: { et: "Väga meeldiv!", en: "Nice to meet you!" } },
+      { cue: "You didn't catch how her name is written. Ask her to spell it.", model: { et: "Kuidas seda kirjutatakse?", en: "How do you spell that?" } },
     ],
   },
   {

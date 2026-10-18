@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
+import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { RuleNote } from "@/components/RuleNote";
 import { Speak } from "@/components/Speak";
 import { useLocale, useT } from "@/components/Locale";
@@ -18,6 +19,7 @@ import { useModuleFocus, useModuleNext } from "@/components/course/moduleFocus";
 import { NOT_REACHED } from "@/lib/copy/values";
 import { HearSet } from "@/components/sounds/Native";
 import { SoundRows } from "@/components/sounds/SoundRows";
+import { SpellIt } from "@/components/sounds/SpellIt";
 import { Quiz } from "./Quiz";
 import { SayIt } from "./SayIt";
 
@@ -399,6 +401,16 @@ function How({ lesson }: { lesson: LessonSpec }) {
               <HearSet key={set.words.map((w) => w.clip).join("|")} words={set.words} />
             ))}
           </div>
+        </section>
+      )}
+      {how.spell && (
+        <section className="flex flex-col gap-3" data-lesson-spell>
+          <SectionTitle hint={t("said by a native speaker")}>{t("Spell your name")}</SectionTitle>
+          <p className="text-base" style={{ color: "var(--ink-2)" }}>
+            {t("Letters have Estonian names. Type your name and hear it spelled the way you'll say it.")}{" "}
+            <Link href="/grammar/sounds#alphabet" className="font-semibold underline" style={{ color: "var(--accent-deep)" }}>{t("The whole alphabet")}</Link>
+          </p>
+          <SpellIt />
         </section>
       )}
       {examples.length > 0 && (

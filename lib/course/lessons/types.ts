@@ -109,6 +109,13 @@ export interface HowItWorks {
    * so the difference the warning names is one the learner can press.
    */
   readonly listen?: readonly ListenSet[];
+  /**
+   * The evening a learner is first asked to spell something: the step carries
+   * the tool that says a typed name letter by letter in the native speaker's
+   * recordings of the letters (`components/sounds/SpellIt.tsx`). Nothing in it
+   * is Estonian the lesson writes, so the ledger has nothing to check.
+   */
+  readonly spell?: boolean;
   readonly watchOut: string;
   readonly examples?: readonly number[];
 }
