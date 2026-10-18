@@ -556,9 +556,9 @@ export const TODAY: Area = {
     "Открыть курс",
   "Today's module is done":
     "Занятие на сегодня пройдено",
-  "{run} evenings in a row now, and {done} of {total} done.":
+  "{run} evenings in a row now, and {done} of {total} finished.":
     "Вечеров подряд: {run}, пройдено {done} из {total}.",
-  "{done} of {total} evenings done. See you tomorrow.":
+  "{done} of {total} evenings finished. See you tomorrow!":
     "Пройдено вечеров: {done} из {total}. До завтра!",
   "Come back tomorrow for {unit}.":
     "Возвращайтесь завтра: впереди {unit}.",
@@ -1636,9 +1636,9 @@ export const TODAY: Area = {
     "Відкрити курс",
   "Today's module is done":
     "Заняття на сьогодні пройдено",
-  "{run} evenings in a row now, and {done} of {total} done.":
+  "{run} evenings in a row now, and {done} of {total} finished.":
     "Вечорів поспіль: {run}, пройдено {done} з {total}.",
-  "{done} of {total} evenings done. See you tomorrow.":
+  "{done} of {total} evenings finished. See you tomorrow!":
     "Пройдено вечорів: {done} з {total}. До завтра!",
   "Come back tomorrow for {unit}.":
     "Повертайтеся завтра: попереду {unit}.",

@@ -24,8 +24,14 @@ export function Wash() {
   );
 }
 
-export function Page({ title, titleLang, lead, leadLang, actions, children, eyebrow, route, compact }: {
+export function Page({ title, titleLang, titleMark, lead, leadLang, actions, children, eyebrow, route, compact }: {
   title: string;
+  /**
+   * A small mark drawn after the title, on its first line: the tick on a
+   * finished evening. Decoration, so the caller marks it `aria-hidden`; the
+   * title already says it in words.
+   */
+  titleMark?: ReactNode;
   /**
    * Set to "et" where the heading is the Estonian name of a grammar point
    * rather than English prose. A reference page is titled the way a course
@@ -88,6 +94,9 @@ export function Page({ title, titleLang, lead, leadLang, actions, children, eyeb
             {/* A page title is often one Estonian word, a unit or a case, and
                 a long one broke across lines on a phone: it shrinks instead. */}
             <FitText as="h1" text={title} max={compact ? "var(--text-xl)" : "var(--text-3xl)"} lang={titleLang} className="min-w-0 font-bold leading-[1.05]" style={{ color: "var(--ink)" }} />
+            {titleMark && (
+              <span className={`flex h-[1.05em] shrink-0 items-center ${compact ? "text-xl" : "text-3xl"}`}>{titleMark}</span>
+            )}
           </div>
           {lead && <p lang={leadLang} className={`${compact ? "mt-0.5 hidden text-sm sm:block" : "mt-3 text-md"} max-w-[60ch] leading-relaxed`} style={{ color: "var(--ink-2)" }}>{lead}</p>}
         </div>
