@@ -436,13 +436,10 @@ function Skill({ tone, verb, art, items, locale }: {
 
 /* --------------------------------------------------------------- drawings */
 
-/** Three cards fanned, the top one turned to its meaning. */
+/** One card, turned to its meaning. Cards drawn behind it read as flat boxes, so it stands alone. */
 function CardStack() {
   return (
     <div className="relative h-24 w-36">
-      {[-10, 4].map((r, i) => (
-        <span key={r} className="absolute inset-0 rounded-[var(--r)]" style={{ background: i ? "var(--surface)" : "var(--accent-soft)", transform: `rotate(${r}deg)`, boxShadow: "inset 0 0 0 1px var(--rule)" }} />
-      ))}
       <span className="absolute inset-0 grid place-items-center rounded-[var(--r)] text-center" style={{ background: "var(--surface)", transform: "rotate(-2deg)", boxShadow: "inset 0 0 0 2px var(--accent)" }}>
         <span>
           <span lang="et" className="block font-display text-2xl font-bold" style={{ color: "var(--ink)" }}>kohv</span>
