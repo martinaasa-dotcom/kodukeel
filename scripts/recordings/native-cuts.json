@@ -3,633 +3,633 @@
  "clips": [
   {
    "id": "sound-a",
-   "from": 1.79,
-   "to": 2.55
+   "from": 1.69,
+   "to": 2.65
   },
   {
    "id": "sound-e",
-   "from": 3.45,
-   "to": 4.2
+   "from": 3.35,
+   "to": 4.3
   },
   {
    "id": "sound-i",
-   "from": 5.11,
-   "to": 5.88
+   "from": 5.01,
+   "to": 5.98
   },
   {
    "id": "sound-o",
-   "from": 6.95,
-   "to": 7.76
+   "from": 6.85,
+   "to": 7.86
   },
   {
    "id": "sound-u",
-   "from": 9.0,
-   "to": 9.8
+   "from": 8.9,
+   "to": 9.9
   },
   {
    "id": "sound-ae",
-   "from": 10.97,
-   "to": 11.71
+   "from": 10.87,
+   "to": 11.81
   },
   {
    "id": "sound-ou",
-   "from": 12.78,
-   "to": 13.63
+   "from": 12.68,
+   "to": 13.73
   },
   {
    "id": "sound-oe",
-   "from": 14.64,
-   "to": 15.43
+   "from": 14.54,
+   "to": 15.53
   },
   {
    "id": "sound-ue",
-   "from": 16.48,
-   "to": 17.32
+   "from": 16.38,
+   "to": 17.42
   },
   {
    "id": "sound-h",
-   "from": 18.33,
-   "to": 19.08
+   "from": 18.23,
+   "to": 19.18
   },
   {
    "id": "sound-v",
-   "from": 19.91,
-   "to": 20.8
+   "from": 19.81,
+   "to": 20.9
   },
   {
    "id": "sound-r",
-   "from": 21.55,
-   "to": 22.47
+   "from": 21.45,
+   "to": 22.57
   },
   {
    "id": "sound-s",
-   "from": 23.37,
-   "to": 24.43
+   "from": 23.27,
+   "to": 24.53
   },
   {
    "id": "sound-sh",
-   "from": 25.2,
-   "to": 26.09
+   "from": 25.1,
+   "to": 26.19
   },
   {
    "id": "sound-zh",
-   "from": 26.99,
-   "to": 28.06
+   "from": 26.89,
+   "to": 28.16
   },
   {
    "id": "sound-m",
-   "from": 28.98,
-   "to": 29.77
+   "from": 28.88,
+   "to": 29.87
   },
   {
    "id": "sound-mm",
-   "from": 30.62,
-   "to": 32.04
+   "from": 30.52,
+   "to": 32.14
   },
   {
    "id": "vowel-pood",
-   "from": 35.46,
-   "to": 36.32
+   "from": 35.36,
+   "to": 36.47
   },
   {
    "id": "vowel-tee",
-   "from": 37.44,
-   "to": 38.29
+   "from": 37.34,
+   "to": 38.39
   },
   {
    "id": "vowel-oeoe",
-   "from": 39.46,
-   "to": 40.38
+   "from": 39.36,
+   "to": 40.48
   },
   {
    "id": "vowel-kuu",
-   "from": 41.49,
-   "to": 42.52
+   "from": 41.39,
+   "to": 42.62
   },
   {
    "id": "vowel-toeoe",
-   "from": 43.79,
-   "to": 44.64
+   "from": 43.69,
+   "to": 44.74
   },
   {
    "id": "vowel-suur",
-   "from": 45.48,
-   "to": 46.62
+   "from": 45.38,
+   "to": 46.72
   },
   {
    "id": "vowel-vesi",
-   "from": 47.6,
-   "to": 48.52
+   "from": 47.5,
+   "to": 48.62
   },
   {
    "id": "vowel-ema",
-   "from": 49.53,
-   "to": 50.2
+   "from": 49.43,
+   "to": 50.3
   },
   {
    "id": "vowel-ei",
-   "from": 51.19,
-   "to": 51.88
+   "from": 51.09,
+   "to": 51.98
   },
   {
    "id": "vowel-leib",
-   "from": 52.78,
-   "to": 53.66
+   "from": 52.68,
+   "to": 53.76
   },
   {
    "id": "vowel-jah",
-   "from": 56.06,
-   "to": 56.66
+   "from": 55.96,
+   "to": 56.76
   },
   {
    "id": "length-kapp",
-   "from": 59.78,
-   "to": 60.48
+   "from": 59.68,
+   "to": 60.58
   },
   {
    "id": "length-kapis",
-   "from": 60.98,
-   "to": 61.69
+   "from": 60.88,
+   "to": 61.79
   },
   {
    "id": "length-kott",
-   "from": 62.53,
-   "to": 62.81
+   "from": 62.43,
+   "to": 63.35
   },
   {
    "id": "length-kotis",
-   "from": 63.76,
-   "to": 64.47
+   "from": 63.66,
+   "to": 64.57
   },
   {
    "id": "length-linn",
-   "from": 65.2,
-   "to": 65.94
+   "from": 65.1,
+   "to": 66.04
   },
   {
    "id": "length-linna",
-   "from": 66.42,
-   "to": 67.22
+   "from": 66.32,
+   "to": 67.32
   },
   {
    "id": "length-kama",
-   "from": 67.96,
-   "to": 68.62
+   "from": 67.86,
+   "to": 68.72
   },
   {
    "id": "length-kamm",
-   "from": 69.19,
-   "to": 69.97
+   "from": 69.09,
+   "to": 70.07
   },
   {
    "id": "length-kabi",
-   "from": 70.77,
-   "to": 71.35
+   "from": 70.67,
+   "to": 71.45
   },
   {
    "id": "length-kapi",
-   "from": 71.85,
-   "to": 72.49
+   "from": 71.75,
+   "to": 72.59
   },
   {
    "id": "length-kappi",
-   "from": 72.94,
-   "to": 73.72
+   "from": 72.84,
+   "to": 73.82
   },
   {
    "id": "length-lina",
-   "from": 74.51,
-   "to": 75.11
+   "from": 74.41,
+   "to": 75.21
   },
   {
    "id": "length-linna-q2",
-   "from": 75.52,
-   "to": 76.34
+   "from": 75.42,
+   "to": 76.44
   },
   {
    "id": "length-laehen-linna",
-   "from": 76.74,
-   "to": 78.01
+   "from": 76.64,
+   "to": 78.14
   },
   {
    "id": "word-aitaeh",
-   "from": 80.91,
-   "to": 81.5
+   "from": 80.81,
+   "to": 81.66
   },
   {
    "id": "word-aitaeh-slow",
-   "from": 82.15,
-   "to": 83.56
+   "from": 82.05,
+   "to": 83.66
   },
   {
    "id": "word-tere-ouhtust",
-   "from": 84.98,
-   "to": 85.91
+   "from": 84.88,
+   "to": 86.08
   },
   {
    "id": "word-tere-ouhtust-slow",
-   "from": 87.09,
-   "to": 89.63
+   "from": 86.99,
+   "to": 89.88
   },
   {
    "id": "word-tere-hommikust",
-   "from": 91.46,
-   "to": 92.45
+   "from": 91.36,
+   "to": 92.55
   },
   {
    "id": "word-tere-hommikust-slow",
-   "from": 93.5,
-   "to": 96.5
+   "from": 93.4,
+   "to": 96.69
   },
   {
    "id": "word-tere",
-   "from": 98.08,
-   "to": 98.55
+   "from": 97.98,
+   "to": 98.65
   },
   {
    "id": "word-tere-paeevast",
-   "from": 99.67,
-   "to": 100.38
+   "from": 99.57,
+   "to": 100.67
   },
   {
    "id": "word-palun",
-   "from": 101.65,
-   "to": 102.22
+   "from": 101.55,
+   "to": 102.32
   },
   {
    "id": "word-head-aega",
-   "from": 103.22,
-   "to": 104.15
+   "from": 103.12,
+   "to": 104.25
   },
   {
    "id": "word-naegemist",
-   "from": 105.08,
-   "to": 105.81
+   "from": 104.98,
+   "to": 105.91
   },
   {
    "id": "pair-kaheksa",
-   "from": 109.0,
-   "to": 109.89
+   "from": 108.9,
+   "to": 109.99
   },
   {
    "id": "pair-ueheksa",
-   "from": 110.66,
-   "to": 111.53
+   "from": 110.56,
+   "to": 111.63
   },
   {
    "id": "pair-juuni",
-   "from": 112.65,
-   "to": 113.6
+   "from": 112.55,
+   "to": 113.7
   },
   {
    "id": "pair-juuli",
-   "from": 114.28,
-   "to": 115.3
+   "from": 114.18,
+   "to": 115.4
   },
   {
    "id": "pair-millal",
-   "from": 116.26,
-   "to": 117.18
+   "from": 116.16,
+   "to": 117.28
   },
   {
    "id": "pair-kus",
-   "from": 118.03,
-   "to": 118.56
+   "from": 117.93,
+   "to": 118.66
   },
   {
    "id": "month-jaanuar",
-   "from": 121.03,
-   "to": 122.08
+   "from": 120.91,
+   "to": 122.18
   },
   {
    "id": "month-veebruar",
-   "from": 122.7,
-   "to": 123.91
+   "from": 122.6,
+   "to": 124.01
   },
   {
    "id": "month-maerts",
-   "from": 124.46,
-   "to": 125.23
+   "from": 124.36,
+   "to": 125.33
   },
   {
    "id": "month-aprill",
-   "from": 126.1,
-   "to": 126.96
+   "from": 126.0,
+   "to": 127.06
   },
   {
    "id": "month-mai",
-   "from": 127.79,
-   "to": 128.47
+   "from": 127.69,
+   "to": 128.57
   },
   {
    "id": "month-juuni",
-   "from": 129.37,
-   "to": 130.24
+   "from": 129.27,
+   "to": 130.34
   },
   {
    "id": "month-juuli",
-   "from": 130.99,
-   "to": 131.89
+   "from": 130.89,
+   "to": 131.99
   },
   {
    "id": "month-august",
-   "from": 132.86,
-   "to": 133.66
+   "from": 132.76,
+   "to": 133.82
   },
   {
    "id": "month-september",
-   "from": 134.52,
-   "to": 135.66
+   "from": 134.42,
+   "to": 135.76
   },
   {
    "id": "month-oktoober",
-   "from": 136.27,
-   "to": 137.42
+   "from": 136.17,
+   "to": 137.52
   },
   {
    "id": "month-november",
-   "from": 138.07,
-   "to": 139.12
+   "from": 137.97,
+   "to": 139.22
   },
   {
    "id": "month-detsember",
-   "from": 139.85,
-   "to": 140.74
+   "from": 139.75,
+   "to": 140.84
   },
   {
    "id": "number-null",
-   "from": 143.24,
-   "to": 144.05
+   "from": 143.14,
+   "to": 144.42
   },
   {
    "id": "number-ueks",
-   "from": 144.78,
-   "to": 145.44
+   "from": 144.68,
+   "to": 145.54
   },
   {
    "id": "number-kaks",
-   "from": 146.45,
-   "to": 147.2
+   "from": 146.35,
+   "to": 147.3
   },
   {
    "id": "number-kolm",
-   "from": 148.11,
-   "to": 148.84
+   "from": 148.01,
+   "to": 148.94
   },
   {
    "id": "number-neli",
-   "from": 149.65,
-   "to": 150.33
+   "from": 149.55,
+   "to": 150.43
   },
   {
    "id": "number-viis",
-   "from": 151.26,
-   "to": 152.01
+   "from": 151.16,
+   "to": 152.24
   },
   {
    "id": "number-kuus",
-   "from": 153.04,
-   "to": 154.01
+   "from": 152.94,
+   "to": 154.11
   },
   {
    "id": "number-seitse",
-   "from": 154.81,
-   "to": 155.69
+   "from": 154.71,
+   "to": 155.79
   },
   {
    "id": "number-kaheksa",
-   "from": 156.45,
-   "to": 157.33
+   "from": 156.35,
+   "to": 157.43
   },
   {
    "id": "number-ueheksa",
-   "from": 158.05,
-   "to": 158.93
+   "from": 157.95,
+   "to": 159.03
   },
   {
    "id": "number-kuemme",
-   "from": 159.65,
-   "to": 160.34
+   "from": 159.55,
+   "to": 160.44
   },
   {
    "id": "phone-number",
-   "from": 165.17,
-   "to": 171.09
+   "from": 165.07,
+   "to": 171.19
   },
   {
    "id": "stress-hommikust",
-   "from": 183.71,
-   "to": 184.68
+   "from": 183.61,
+   "to": 184.78
   },
   {
    "id": "stress-ouhtust",
-   "from": 185.56,
-   "to": 186.48
+   "from": 185.46,
+   "to": 186.58
   },
   {
    "id": "stress-kohv",
-   "from": 187.64,
-   "to": 188.32
+   "from": 187.54,
+   "to": 188.42
   },
   {
    "id": "stress-hea",
-   "from": 189.12,
-   "to": 189.81
+   "from": 189.02,
+   "to": 189.91
   },
   {
    "id": "stress-halb",
-   "from": 190.61,
-   "to": 191.32
+   "from": 190.51,
+   "to": 191.42
   },
   {
    "id": "line-tere-tere",
-   "from": 197.41,
-   "to": 198.15
+   "from": 197.31,
+   "to": 198.29
   },
   {
    "id": "line-vabandust-ma-ei-saa-aru-palun-korrake",
-   "from": 211.26,
-   "to": 215.37
+   "from": 211.16,
+   "to": 215.47
   },
   {
    "id": "line-aeglasemalt-palun",
-   "from": 216.52,
-   "to": 218.2
+   "from": 216.42,
+   "to": 218.35
   },
   {
    "id": "line-kas-te-raeaegite-inglise-keelt",
-   "from": 219.31,
-   "to": 221.2
+   "from": 219.21,
+   "to": 221.4
   },
   {
    "id": "line-jah-natuke",
-   "from": 222.14,
-   "to": 223.47
+   "from": 222.04,
+   "to": 223.57
   },
   {
    "id": "line-selge-aitaeh",
-   "from": 224.33,
-   "to": 225.95
+   "from": 224.23,
+   "to": 226.66
   },
   {
    "id": "letter-a",
-   "from": 228.88,
-   "to": 229.41
+   "from": 228.78,
+   "to": 229.51
   },
   {
    "id": "letter-b",
-   "from": 230.05,
-   "to": 230.78
+   "from": 229.95,
+   "to": 230.88
   },
   {
    "id": "letter-c",
-   "from": 231.52,
-   "to": 232.14
+   "from": 231.42,
+   "to": 232.24
   },
   {
    "id": "letter-d",
-   "from": 232.93,
-   "to": 233.52
+   "from": 232.83,
+   "to": 233.62
   },
   {
    "id": "letter-e",
-   "from": 234.48,
-   "to": 235.04
+   "from": 234.38,
+   "to": 235.14
   },
   {
    "id": "letter-f",
-   "from": 235.96,
-   "to": 236.37
+   "from": 235.86,
+   "to": 236.57
   },
   {
    "id": "letter-g",
-   "from": 237.42,
-   "to": 238.01
+   "from": 237.32,
+   "to": 238.11
   },
   {
    "id": "letter-h",
-   "from": 238.85,
-   "to": 239.49
+   "from": 238.75,
+   "to": 239.59
   },
   {
    "id": "letter-i",
-   "from": 240.39,
-   "to": 240.9
+   "from": 240.29,
+   "to": 241.0
   },
   {
    "id": "letter-j",
-   "from": 241.85,
-   "to": 242.23
+   "from": 241.75,
+   "to": 242.54
   },
   {
    "id": "letter-k",
-   "from": 243.41,
-   "to": 244.02
+   "from": 243.31,
+   "to": 244.12
   },
   {
    "id": "letter-l",
-   "from": 244.89,
-   "to": 245.44
+   "from": 244.79,
+   "to": 245.54
   },
   {
    "id": "letter-m",
-   "from": 246.39,
-   "to": 247.0
+   "from": 246.29,
+   "to": 247.1
   },
   {
    "id": "letter-n",
-   "from": 247.88,
-   "to": 248.51
+   "from": 247.78,
+   "to": 248.61
   },
   {
    "id": "letter-o",
-   "from": 249.38,
-   "to": 249.93
+   "from": 249.28,
+   "to": 250.03
   },
   {
    "id": "letter-p",
-   "from": 250.94,
-   "to": 251.49
+   "from": 250.84,
+   "to": 251.59
   },
   {
    "id": "letter-q",
-   "from": 252.55,
-   "to": 253.19
+   "from": 252.45,
+   "to": 253.29
   },
   {
    "id": "letter-r",
-   "from": 254.16,
-   "to": 254.74
+   "from": 254.06,
+   "to": 254.84
   },
   {
    "id": "letter-s",
-   "from": 255.75,
-   "to": 256.41
+   "from": 255.65,
+   "to": 256.51
   },
   {
    "id": "letter-sh",
-   "from": 257.18,
-   "to": 257.84
+   "from": 257.08,
+   "to": 257.94
   },
   {
    "id": "letter-z",
-   "from": 258.7,
-   "to": 259.38
+   "from": 258.6,
+   "to": 259.48
   },
   {
    "id": "letter-zh",
-   "from": 260.16,
-   "to": 260.84
+   "from": 260.06,
+   "to": 260.94
   },
   {
    "id": "letter-t",
-   "from": 261.89,
-   "to": 262.43
+   "from": 261.79,
+   "to": 262.53
   },
   {
    "id": "letter-u",
-   "from": 263.45,
-   "to": 263.96
+   "from": 263.35,
+   "to": 264.06
   },
   {
    "id": "letter-v",
-   "from": 264.94,
-   "to": 265.63
+   "from": 264.84,
+   "to": 265.73
   },
   {
    "id": "letter-w",
-   "from": 266.58,
-   "to": 267.45
+   "from": 266.48,
+   "to": 267.55
   },
   {
    "id": "letter-ou",
-   "from": 268.25,
-   "to": 268.8
+   "from": 268.15,
+   "to": 268.9
   },
   {
    "id": "letter-ae",
-   "from": 269.67,
-   "to": 270.22
+   "from": 269.57,
+   "to": 270.32
   },
   {
    "id": "letter-oe",
-   "from": 271.21,
-   "to": 271.78
+   "from": 271.11,
+   "to": 271.88
   },
   {
    "id": "letter-ue",
-   "from": 272.68,
-   "to": 273.26
+   "from": 272.58,
+   "to": 273.36
   },
   {
    "id": "letter-x",
-   "from": 274.19,
-   "to": 274.79
+   "from": 274.09,
+   "to": 274.89
   },
   {
    "id": "letter-y",
-   "from": 275.65,
-   "to": 276.07
+   "from": 275.55,
+   "to": 276.17
   }
  ]
 }

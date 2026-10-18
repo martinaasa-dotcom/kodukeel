@@ -26,9 +26,17 @@ export type SpellPart =
 /** The longest text a learner may have spelled at once: a long name and a surname. */
 export const SPELL_MAX = 40;
 
-/** Between two letters, and at a space: a breath, and a longer one where the word ends. */
-export const LETTER_GAP_MS = 140;
-export const PAUSE_GAP_MS = 520;
+/**
+ * The silence written between two letters, and at a space: a breath, and a
+ * longer one where the word ends. Measured between the letters' own sound,
+ * since the run is joined into one clip with each letter's padding cut to its
+ * seam (`lib/audio/sequence.ts`), so a third of a second plus that seam is
+ * what a person spelling down a phone leaves. `SLOW_GAPS` stretches the gaps
+ * and never the letters, because a gap is where a listener writes.
+ */
+export const LETTER_GAP_MS = 220;
+export const PAUSE_GAP_MS = 650;
+export const SLOW_GAPS = 3;
 
 const BY_LETTER: ReadonlyMap<string, string> = new Map(ALPHABET.map((a) => [a.letter, a.clip]));
 const PAUSES = /^[\s\-\u2010\u2011'\u2019.]$/u;
