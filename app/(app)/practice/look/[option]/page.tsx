@@ -151,7 +151,7 @@ function TodayTile({ game, tomorrow, weekday, a1, done }: { game: LookGame; tomo
     >
       <div
         className="grid min-h-64 place-items-center p-8"
-        style={{ background: `radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--${game.tone}) 28%, transparent), transparent 60%), var(--${game.tone}-soft)` }}
+        style={{ background: `var(--${game.tone}-soft)` }}
       >
         <GameArt href={game.href} size="lg" />
       </div>
