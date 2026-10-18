@@ -31,6 +31,7 @@ import { fillNodes } from "@/components/TemplateNodes";
 import { TalkItOver } from "@/components/course/TalkItOver";
 import { chatAffordable, chatFits, chattedAbout, planChat } from "@/lib/progress/chat";
 import { finishedEvening } from "@/lib/progress/chatDay";
+import { recapWords } from "@/lib/course/recap";
 
 export async function generateMetadata() {
   return titleFor("Today's module");
@@ -324,7 +325,9 @@ export default async function CoursePage({
                 they met an hour ago. A row of them with a speaker apiece is the
                 cheapest spaced repetition there is and the one moment somebody
                 is glad to hear them: the words are theirs now. The Estonian
-                alone and no gloss, since the closing review just asked for it.
+                alone and no gloss, since the closing review just asked for it,
+                and spelled as a card spells it (`recapWords`), so a phrase
+                does not shout `Tere hommikust!` beside a plain `tere`.
               */}
               {justDone && justDone.words.length > 0 && (
                 <div className="mt-4">
@@ -332,7 +335,7 @@ export default async function CoursePage({
                     {t("Hear today’s words once more")}
                   </p>
                   <ul className="mt-2 flex flex-wrap gap-2" data-recap-words>
-                    {justDone.words.map((word, i) => (
+                    {recapWords(justDone.words).map((word, i) => (
                       /* They come in one after another, and each ripples
                          when reached for, which is the word saying itself
                          once more beside the speaker that says it aloud. */
