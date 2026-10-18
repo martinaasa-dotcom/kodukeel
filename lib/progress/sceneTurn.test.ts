@@ -122,6 +122,36 @@ describe("speakTurn", () => {
   });
 });
 
+describe("the built-in lines first", () => {
+  it("speak the opening move after the hello without the model, and nothing past it", async () => {
+    let spoken = 0;
+    let asked = 0;
+    for (const scene of SCENES) {
+      const { planFor } = setUp(scene, "composed");
+      // After the hello: the beat's own banked line, said exactly as a keyless deployment says it.
+      const opening = await planFor(["Tere!"], true);
+      let calls = 0;
+      const model = async (): Promise<Composition> => { calls += 1; return { kind: "none" }; };
+      const builtIn = await speakTurn(opening, model, { builtInFirst: "opening" });
+      if (calls === 0 && builtIn.lines.some((l) => l.provenance === "scripted")) {
+        spoken += 1;
+        expect(texts(builtIn.lines), scene.id).toEqual(texts((await speakTurn(opening)).lines));
+      }
+      // Past the opening the model is asked exactly where it would have been asked anyway.
+      const later = await planFor(["Tere!", "Jah, aitäh."], true);
+      let without = 0;
+      let withIt = 0;
+      await speakTurn(later, async () => { without += 1; return { kind: "none" }; });
+      await speakTurn(later, async () => { withIt += 1; return { kind: "none" }; }, { builtInFirst: "opening" });
+      expect(withIt, scene.id).toBe(without);
+      asked += without;
+    }
+    // Most scenes bank their opening question, and the later turn reaches the model in most of them.
+    expect(spoken).toBeGreaterThan(SCENES.length / 2);
+    expect(asked).toBeGreaterThan(0);
+  });
+});
+
 describe("composeTurn", () => {
   it("asks for the answer before a break in time first, and then the move knowing it", async () => {
     const scene = sceneById("poodi-piima")!;

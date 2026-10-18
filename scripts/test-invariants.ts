@@ -9150,7 +9150,8 @@ check("the scene's word list is cached, and a run keeps one voice", () => {
   const block = (name: string) =>
     new RegExp(`export function ${name}\\([\\s\\S]*?\\n\\}`).exec(prompt)?.[0] ?? "";
   assert.match(
-    block("composeSystem"), /Words you may use/,
+    // The cached prompt is built in layers (`composeSystemLayers`), each behind a breakpoint.
+    block("composeSystemLayers"), /Words you may use/,
     "the scene's word list left the cached block, so every composed turn pays to re-read it",
   );
   assert.doesNotMatch(
@@ -9165,9 +9166,14 @@ check("the scene's word list is cached, and a run keeps one voice", () => {
     (docs/21 §61).
   */
   const live = block("composeLive");
+  /*
+    Explained once, in the rules, which are cached, rather than on every turn
+    (docs/21 §87); the per-turn block marks the direction with `Now:`.
+  */
+  assert.match(live, /`Now: "\$\{ask\.they\}"`/, "composeLive no longer marks the stage direction the rules explain");
   assert.match(
-    live, /"they" means you and "you" means[\s\S]{0,40}the learner/,
-    "composeLive hands over the stage direction without explaining whose side it is written from",
+    prompt, /\\"they\\" means you and \\"you\\" means the learner/,
+    "the prompt hands over the stage direction without explaining whose side it is written from",
   );
   assert.match(
     live, /ask\.move === "ask"[\s\S]{0,200}do not answer your own question/,
@@ -9195,7 +9201,7 @@ check("the scene's word list is cached, and a run keeps one voice", () => {
   */
   assert.match(
     code("app/api/scene/route.ts"),
-    /composeSystem\(\{[\s\S]{0,240}?words: input\.words,?\s*\}\)/,
+    /composeSystemLayers\(\{[\s\S]{0,240}?words: input\.words,?\s*\}\)/,
     "the scene route stopped putting the list behind the cache breakpoint",
   );
   assert.match(
@@ -9291,7 +9297,7 @@ check("the other side talks at the run's band, and every composer says which ban
   */
   const prompt = code("lib/scenes/prompt.ts");
   assert.match(prompt, /readonly level: Level;/, "ComposeScene.level stopped being required");
-  const system = /export function composeSystem\([\s\S]*?\n\}/.exec(prompt)?.[0] ?? "";
+  const system = /export function composeSystemLayers\([\s\S]*?\n\}/.exec(prompt)?.[0] ?? "";
   assert.match(system, /pitchFor\(scene\.level\)/, "composeSystem no longer reads the band's pitch");
   assert.doesNotMatch(
     prompt, /two to four sentences/,
@@ -18824,6 +18830,11 @@ check("a cached input token is priced as one, and the cached prompt is the same 
     and the last line of the conversation, which a scene on `claude-sonnet-5-5`
     reads off the cache on every retry and every turn after (docs/21 §86,
     `anthropicMessages`). The grader and the scanner still ask for none.
+
+    The system's one breakpoint is written once and put on each layer of a
+    layered prompt (`anthropicSystem`, at most three), which is still one call
+    site: the scene composer's rules, its scene and its persona each clear the
+    minimum on their own prefix, measured (docs/21 §87).
   */
   // A breakpoint asked for, rather than the field's type: a value written to it.
   const breakpoints = [...code("lib/tutor/provider.ts").matchAll(/cache_control(?::| =) \{ type/g)].length
@@ -18839,7 +18850,7 @@ check("a cached input token is priced as one, and the cached prompt is the same 
   assert.match(prompt, /system: \[\s*$|ABOUT THIS LEARNER/, "learnerNote no longer names the learner");
   assert.match(
     code("lib/tutor/provider.ts"),
-    /system: \[\{ type: "text", text: system, cache_control: \{ type: "ephemeral" \} \}\],\s*messages: anthropicMessages\(messages, live\)/s,
+    /system: anthropicSystem\(system\),\s*messages: anthropicMessages\(messages, live\)/s,
     "the per-learner block is no longer sent after the cached system prompt, in the messages",
   );
 });
@@ -18923,7 +18934,7 @@ check("the scene prompt is served off a cache entry, by one module, on the route
     three runs of every scene (§63). And an entry near its end is extended
     rather than remade, so a long run pays for one.
   */
-  const systemBlock = /export function composeSystem\([\s\S]*?\n\}/.exec(code("lib/scenes/prompt.ts"))?.[0] ?? "";
+  const systemBlock = /export function composeSystemLayers\([\s\S]*?\n\}/.exec(code("lib/scenes/prompt.ts"))?.[0] ?? "";
   assert.match(systemBlock, /scene\.persona/, "the persona left the cached half, which was measured at five points more withheld (§63)");
   assert.match(code("lib/tutor/geminiCache.ts"), /method: "PATCH"/, "a near-expiry entry is no longer extended, so a long run remakes it at full price");
   assert.match(
@@ -20821,7 +20832,8 @@ check("a composed line is shown how its own beat is asked", () => {
     + "for in one sentence of English and guesses the rest",
   );
   assert.match(
-    prompt, /Ask for the same thing in your own words/,
+    // Said once in the rules, which are cached, rather than on every turn (docs/21 §87).
+    prompt, /never for the wording: ask in your own words/,
     "the prompt stopped asking for a rephrasing, so a composed line is either the banked line said "
     + "again or is not steered by it at all",
   );

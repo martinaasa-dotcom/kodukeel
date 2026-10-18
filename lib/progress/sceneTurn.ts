@@ -768,6 +768,12 @@ export interface ModelTurn {
 export async function speakTurn(
   plan: TurnPlan,
   model?: (turn: ModelTurn) => Promise<Composition>,
+  /*
+    Whether a turn the built-in lines can carry is spoken from them without
+    asking the model (`builtInCarries`). The route asks for it; a harness asks
+    for it where it is measuring what the app does.
+  */
+  options: { readonly builtInFirst?: BuiltInFirst } = {},
 ): Promise<{ lines: SpokenLine[]; extra: Record<string, unknown> }> {
   const line = plan.line;
   if (!line) return { lines: plan.respond(null), extra: {} };
@@ -817,6 +823,9 @@ export async function speakTurn(
     return { lines: plan.respond(cheap), extra: {} };
   }
   if (!model) return { lines: plan.respond(move), extra: {} };
+  if (options.builtInFirst && builtInCarries(plan, line, move, dealt, options.builtInFirst)) {
+    return { lines: plan.respond(move), extra: {} };
+  }
   const composed = await model({ plan, line, move });
   const extra = composed.extra ?? {};
   if (composed.kind === "none") return { lines: plan.respond(move), extra };
@@ -831,6 +840,46 @@ export async function speakTurn(
     return { lines: plan.respond(move.provenance !== "fallback" ? move : composed.line, composed.preBreak), extra };
   }
   return { lines: plan.respond(composed.line, composed.preBreak), extra };
+}
+
+/**
+ * Which turns the built-in lines carry before a model is asked: every clean
+ * turn, or only the opening move after the hello.
+ */
+export type BuiltInFirst = "clean" | "opening";
+
+/**
+ * WHETHER THE BUILT-IN LINES CAN CARRY THIS TURN, SO NO MODEL IS ASKED.
+ *
+ * The keyless reply was built for the day the credits run out, and on a turn
+ * where nothing happened it is a good reply: the learner answered what was
+ * asked, cleanly, and the beat has a line of its own in the bank or off the
+ * card, so the other side takes the answer (said back, put right where it
+ * slipped, felt the beat's way) and asks the next thing. A model adds little
+ * there and costs a call.
+ *
+ * It is the model's turn wherever the built-in reply would have to adapt and
+ * cannot: the learner asked something, answered something from further back,
+ * missed, half answered, got stuck or asked to hear it again; a curveball is
+ * standing; a word is being handed over; somebody is still talking on the
+ * way out or has just given news at the close; or the bank simply has no
+ * line for this beat. Every one of those is a moment the transcripts showed a
+ * keyless reply reading as a machine. Pure: it reads the plan and decides
+ * nothing else.
+ */
+export function builtInCarries(
+  plan: TurnPlan, line: LinePlan, move: SpokenLine, dealt: SpokenLine | null, when: BuiltInFirst = "clean",
+): boolean {
+  // A line of the beat's own: banked, or said off the card. Never the English stage direction.
+  if (move.provenance !== "scripted" && move !== dealt) return false;
+  // `opening`: only where all the learner has said is hello, so there is nothing yet to react to.
+  if (when === "opening" && plan.sent && plan.answered?.move !== "greet") return false;
+  if (plan.sent && (plan.response !== "answer" || plan.reading !== "complete")) return false;
+  if (plan.input.elsewhere > 0) return false;
+  if (plan.askedNow || plan.hearAgain || plan.shrugOwed) return false;
+  if (plan.standing) return false;
+  if (line.handing || line.stillTalking || line.closingOnNews) return false;
+  return true;
 }
 
 /** What a model is handed for one line: the prompt's live half and its constant half, together. */
