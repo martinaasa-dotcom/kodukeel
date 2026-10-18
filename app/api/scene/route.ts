@@ -7,7 +7,7 @@ import { turnBooking, type TurnBooking } from "@/lib/usage/turnBooking";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
 import { reportError } from "@/lib/observability/report";
 import {
-  SCENE_MODELS, SCENE_REPLY_TOKENS, openWithFallback, resolveProviders, sceneProviders, type ChatMessage,
+  SCENE_MODELS, SCENE_REPLY_TOKENS, openWithFallback, reviewProviders, sceneProviders, type ChatMessage,
 } from "@/lib/tutor/provider";
 import { callChainForJson } from "@/lib/tutor/grader";
 import {
@@ -259,7 +259,7 @@ export async function POST(request: Request) {
       && lastRead.met.some((ok) => !ok),
   );
   if (judgeable && lastSent && lastRead && judged) {
-    const decision = resolveProviders({ purpose: "grader", answering: true }).length > 0
+    const decision = reviewProviders({ answering: true }).length > 0
       ? await authoriseCall(ownerId, "GRADER")
       : null;
     if (decision?.allowed && decision.reservation) {
@@ -267,7 +267,7 @@ export async function POST(request: Request) {
       const booking = turnBooking(reserved);
       try {
         const { text, usage, config } = await callChainForJson(
-          resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed }),
+          reviewProviders({ allowFallback: decision.fallbackAllowed }),
           buildJudgeSystemPrompt(),
           buildJudgeUserPrompt({
             goal: judged.goal, they: judged.they, said: lastSent.said,
@@ -333,7 +333,7 @@ export async function POST(request: Request) {
         beat ahead is exactly where such a word tends to belong.
       */
       && words(lastSent.said).some((word) => !context.lexicon.forms.has(word) && !context.lexicon.folded.has(fold(word)))
-      && resolveProviders({ purpose: "grader", answering: true }).length > 0,
+      && reviewProviders({ answering: true }).length > 0,
   );
   if (askAhead && lastSent && ahead) {
     const decision = await authoriseCall(ownerId, "GRADER");
@@ -342,7 +342,7 @@ export async function POST(request: Request) {
       const booking = turnBooking(reserved);
       try {
         const { text, usage, config } = await callChainForJson(
-          resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed }),
+          reviewProviders({ allowFallback: decision.fallbackAllowed }),
           buildJudgeSystemPrompt(),
           buildJudgeUserPrompt({
             goal: ahead.goal, they: ahead.they, said: lastSent.said,
@@ -782,14 +782,14 @@ async function reviewLine(
   ownerId: string,
   ask: Parameters<typeof buildConsistencyUserPrompt>[0],
 ): Promise<string | null> {
-  if (resolveProviders({ purpose: "grader" }).length === 0) return null;
+  if (reviewProviders().length === 0) return null;
   const decision = await authoriseCall(ownerId, "GRADER");
   if (!decision.allowed || !decision.reservation) return null;
   const reserved = decision.reservation;
   const booking = turnBooking(reserved);
   try {
     const result = await callChainForJson(
-      resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed }),
+      reviewProviders({ allowFallback: decision.fallbackAllowed }),
       buildConsistencySystemPrompt(),
       buildConsistencyUserPrompt(ask),
       CONSISTENCY_REPLY_TOKENS,

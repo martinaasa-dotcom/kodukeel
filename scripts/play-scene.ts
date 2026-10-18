@@ -48,7 +48,12 @@ import { CONSISTENCY_REPLY_TOKENS, buildConsistencySystemPrompt, buildConsistenc
 import { propBySlot } from "../lib/scenes/props";
 import { fold } from "../lib/estonian/fold";
 import { shippedDictionary } from "./lib/dictionary";
-import { COMPOSE_USAGE, chain as providerChain, vouchOf, HARNESS_LEVEL } from "./lib/sceneDraft";
+import { COMPOSE_USAGE, chain as providerChain, linkKey, vouchOf, HARNESS_LEVEL, type Link } from "./lib/sceneDraft";
+import { anthropicArms } from "./lib/anthropicArms";
+import { callChainForJson } from "../lib/tutor/grader";
+import { estimateCostMicros } from "../lib/usage/pricing";
+import { appendFileSync } from "node:fs";
+import { SCENE_REPLY_TOKENS, reviewProviders } from "../lib/tutor/provider";
 import type { Level } from "../lib/collections/syllabus";
 import { installMeter } from "./lib/meter";
 import { thinkingFor } from "../lib/tutor/thinking";
@@ -99,17 +104,98 @@ const SAY = (arg("say") ?? "").split("|").map((s) => s.trim()).filter(Boolean);
   and the judge is the grader chain's Groq link, which is what still answers.
 */
 const modelDown = process.argv.includes("--model-down");
+/*
+  `--anthropic claude-haiku-5-5:off` composes on Anthropic's own model through the
+  route's own transport (`scripts/lib/anthropicArms.ts`), and only on it: the
+  chain is not consulted, so a line that Gemini wrote cannot be counted as the
+  arm's. `--judge <model>` holds the yes/no judge to one scene-chain model across
+  every arm (default with an Anthropic arm: the grader chain's own first link),
+  so two arms differ by their composer and nothing else.
+*/
+const ARM_LINKS: Link[] = anthropicArms(SCENE_REPLY_TOKENS).map((c) => ({
+  name: "anthropic", label: c.label, model: c.model, url: "", key: "", ...(c.thinking ? { thinking: c.thinking } : {}),
+}));
+/*
+  `--judge-anthropic claude-haiku-5-5:off` puts the yes/no judge and the
+  consistency check on an Anthropic arm too, so a run touches no other provider
+  at all (the same two questions the route puts to the grader chain, asked of a
+  model through `callChainForJson`).
+*/
+const JUDGE_ARMS: Link[] = anthropicArms(undefined, "judge-anthropic").map((c) => ({
+  name: "anthropic", label: c.label, model: c.model, url: "", key: "", ...(c.thinking ? { thinking: c.thinking } : {}),
+}));
+const judgeModel = arg("judge");
+if (composing && ARM_LINKS.length > 0 && JUDGE_ARMS.length === 0 && !judgeModel) {
+  throw new Error("--anthropic needs --judge-anthropic model:arm (or --judge <model>): no run here chooses a judge for itself, and none may fall to a provider nobody named.");
+}
 const LINKS = composing && !modelDown
-  ? providerChain().filter((link) => !pinned || link.model === pinned)
+  ? (ARM_LINKS.length > 0 ? ARM_LINKS : providerChain().filter((link) => !pinned || link.model === pinned))
   : [];
 const JUDGE_LINKS = modelDown && process.env.GROQ_API_KEY
   ? [{
     name: "groq", model: "openai/gpt-oss-120b", label: "Groq",
     url: "https://api.groq.com/openai/v1/chat/completions", key: process.env.GROQ_API_KEY,
   }]
+  : JUDGE_ARMS.length > 0 && composing ? JUDGE_ARMS
+  : judgeModel && composing ? providerChain().filter((link) => link.model === judgeModel)
+  /*
+    Named nothing, the judge is the route's own reviewer where it has one
+    (`reviewProviders`): a run measuring the app reviews its lines as the app does.
+  */
+  : composing && reviewProviders()[0]?.name === "anthropic"
+    ? reviewProviders().slice(0, 1).map((c) => ({
+      name: "anthropic", label: c.label, model: c.model, url: "", key: "", ...(c.thinking ? { thinking: c.thinking } : {}),
+    }) as Link)
   : LINKS;
 const COMPOSE_STATUS = new Map<string, number>();
 
+/** Every judge and consistency call, as asked and as answered, so `eval-judge.ts` can put the same questions to other models. */
+function logJudge(kind: "judge" | "consistency", system: string, user: string, raw: string): void {
+  const file = process.env.JUDGE_LOG;
+  if (file) appendFileSync(file, JSON.stringify({ kind, system, user, raw }) + "\n");
+}
+
+/** What a composed turn cost the learner in waiting and the harness in drafts, per turn the model was asked on. */
+interface TurnResult {
+  scene: string; beat: string; drafts: number; becauses: readonly (string | undefined)[];
+  composed: boolean; finalWithheld: readonly string[]; ms: number; text: string;
+}
+const TURNS: TurnResult[] = [];
+
+/** The check a retry reason belongs to, off the reason's own wording (`whyWithheld` in `lib/scenes/line.ts`). */
+const BECAUSE: readonly [RegExp, string][] = [
+  [/number, a time or a price/, "facts"], [/very form/, "giveaway"], [/figure you are keeping/, "ahead"],
+  [/not about what you are doing/, "topic"], [/wrong shape/, "shape"], [/went back on/, "consistency"],
+  [/agree in person/, "agreement"], [/ma-infinitive/, "infinitive"], [/negator/, "negation"],
+  [/pronoun this conversation does not use/, "register"], [/no finite verb/, "clause"],
+  [/noun was in a case/, "government"], [/choice of two/, "parallel"], [/not how anybody asks/, "question"],
+  [/said goodbye/, "farewell"], [/not been taught/, "taught"],
+];
+const checkOf = (because: string | undefined) =>
+  because === undefined ? "words (vouching or stretch)" : BECAUSE.find(([re]) => re.test(because))?.[1] ?? "other";
+
+
+/** One JSON question put to the judge's link: through the route's own transport for an Anthropic arm, the compatible endpoint otherwise. */
+async function judgeText(link: Link | (typeof JUDGE_LINKS)[number], system: string, user: string, kind: "judge" | "consistency"): Promise<string> {
+  const cap = kind === "judge" ? JUDGE_REPLY_TOKENS : CONSISTENCY_REPLY_TOKENS;
+  if (link.name === "anthropic") {
+    try {
+      const l = link as Link;
+      const res = await callChainForJson([{ name: "anthropic", model: l.model, label: l.label, ...(l.thinking ? { thinking: l.thinking } : {}) }], system, user, cap);
+      return res.text;
+    } catch {
+      return "";
+    }
+  }
+  const res = await fetch(link.url, {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: `Bearer ${link.key}` },
+    body: JSON.stringify(kind === "judge"
+      ? { model: link.model, max_tokens: JUDGE_REPLY_TOKENS, messages: [{ role: "system", content: system }, { role: "user", content: user }] }
+      : { model: link.model, max_tokens: CONSISTENCY_REPLY_TOKENS, messages: [{ role: "system", content: system }, { role: "user", content: user }] }),
+  }).catch(() => null);
+  return res && res.ok ? ((await res.json()) as { choices?: { message?: { content?: string } }[] }).choices?.[0]?.message?.content ?? "" : "";
+}
 
 /**
  * The route's consistency check (`reviewLine`), asked of the judge's link
@@ -117,18 +203,8 @@ const COMPOSE_STATUS = new Map<string, number>();
  */
 async function consistencyOnJudge(ask: Parameters<typeof buildConsistencyUserPrompt>[0]): Promise<string | null> {
   const link = JUDGE_LINKS[0]!;
-  const res = await fetch(link.url, {
-    method: "POST",
-    headers: { "content-type": "application/json", authorization: `Bearer ${link.key}` },
-    body: JSON.stringify({
-      model: link.model, max_tokens: CONSISTENCY_REPLY_TOKENS,
-      messages: [
-        { role: "system", content: buildConsistencySystemPrompt() },
-        { role: "user", content: buildConsistencyUserPrompt(ask) },
-      ],
-    }),
-  }).catch(() => null);
-  const text = res && res.ok ? ((await res.json()) as { choices?: { message?: { content?: string } }[] }).choices?.[0]?.message?.content ?? "" : "";
+  const text = await judgeText(link, buildConsistencySystemPrompt(), buildConsistencyUserPrompt(ask), "consistency");
+  logJudge("consistency", buildConsistencySystemPrompt(), buildConsistencyUserPrompt(ask), text);
   const verdict = parseConsistency(text);
   if (verdict && !verdict.ok) console.log(`      ~ inconsistent: ${verdict.why}`);
   return verdict && !verdict.ok ? (verdict.why || "it did not keep to what was already said") : null;
@@ -348,18 +424,8 @@ async function play(sceneId: string) {
         const prop = draw.card.props.find((one) => one.slot === need.slot && !one.theirs);
         return prop ? [`${prop.card.replace(/\.$/, "")}: ${prop.english ?? prop.shown[0] ?? prop.value}`] : [];
       });
-      const res = await fetch(link.url, {
-        method: "POST",
-        headers: { "content-type": "application/json", authorization: `Bearer ${link.key}` },
-        body: JSON.stringify({
-          model: link.model, max_tokens: JUDGE_REPLY_TOKENS,
-          messages: [
-            { role: "system", content: buildJudgeSystemPrompt() },
-            { role: "user", content: buildJudgeUserPrompt({ goal: beat.goal, they: beat.they, said, reading: "", dealt, heard: heardThen }) },
-          ],
-        }),
-      }).catch(() => null);
-      const text = res && res.ok ? ((await res.json()) as { choices?: { message?: { content?: string } }[] }).choices?.[0]?.message?.content ?? "" : "";
+      const text = await judgeText(link, buildJudgeSystemPrompt(), buildJudgeUserPrompt({ goal: beat.goal, they: beat.they, said, reading: "", dealt, heard: heardThen }), "judge");
+      logJudge("judge", buildJudgeSystemPrompt(), buildJudgeUserPrompt({ goal: beat.goal, they: beat.they, said, reading: "", dealt, heard: heardThen }), text);
       const verdict = parseJudgement(text);
       if (verdict) console.log(`      ~ judge (${beat.id}): ${verdict.done ? "done" : "not done"} (${verdict.why})`);
       return verdict?.done === true;
@@ -405,6 +471,11 @@ async function play(sceneId: string) {
       // The route's consistency check, on the judge's link, once there is a conversation to keep to.
       ...(JUDGE_LINKS.length > 0 ? { consistency: consistencyOnJudge } : {}),
       onStatus: (why) => COMPOSE_STATUS.set(why, (COMPOSE_STATUS.get(why) ?? 0) + 1),
+      onResult: (r) => {
+        TURNS.push({ scene: scene.id, ...r });
+        const file = process.env.COMPOSE_LOG;
+        if (file) appendFileSync(file, JSON.stringify({ arm: LINKS.map(linkKey).join("+"), style, scene: scene.id, ...r }) + "\n");
+      },
       /*
         What the model wrote, before the gate reads it, because the printed
         conversation shows only what survived. Whether a withheld line was a
@@ -482,9 +553,32 @@ async function play(sceneId: string) {
       console.log(`  ${why} x${count}`);
     }
     // What it cost in tokens, per model, off the transport's own usage report.
-    for (const [model, t] of COMPOSE_USAGE) {
-      console.log(`  ${model}: ${t.calls} calls, ${Math.round(t.input / Math.max(1, t.calls))} input tokens a call `
-        + `(${Math.round(t.cached / Math.max(1, t.calls))} cached), ${Math.round(t.output / Math.max(1, t.calls))} output`);
+    let cost = 0;
+    for (const [key, t] of COMPOSE_USAGE) {
+      const model = key.split("/")[0]!;
+      const micros = estimateCostMicros(model, t.input, t.output, { cachedInputTokens: t.cached, cacheWriteTokens: t.written });
+      cost += micros;
+      console.log(`  ${key}: ${t.calls} calls, ${Math.round(t.input / Math.max(1, t.calls))} input tokens a call `
+        + `(${Math.round(t.cached / Math.max(1, t.calls))} cached, ${Math.round(t.written / Math.max(1, t.calls))} written), `
+        + `${Math.round(t.output / Math.max(1, t.calls))} output, ${Math.round(t.ms / Math.max(1, t.calls))}ms a call, `
+        + `$${(micros / 1e6 / Math.max(1, t.calls)).toFixed(5)} a call`);
     }
+    const asked = TURNS.filter((t) => t.drafts > 0);
+    const drafts = asked.reduce((n, t) => n + t.drafts, 0);
+    const onScreen = asked.filter((t) => t.composed).length;
+    const withheld = drafts - onScreen;
+    const byCheck = new Map<string, number>();
+    for (const t of asked) {
+      for (const b of t.becauses.slice(1)) byCheck.set(checkOf(b), (byCheck.get(checkOf(b)) ?? 0) + 1);
+      if (!t.composed) for (const c of t.finalWithheld.length ? t.finalWithheld : ["(none recorded)"]) byCheck.set(c, (byCheck.get(c) ?? 0) + 1);
+    }
+    const waits = asked.map((t) => t.ms).sort((a, b) => a - b);
+    const pct = (p: number) => waits[Math.min(waits.length - 1, Math.floor(waits.length * p))] ?? 0;
+    console.log(`  DRAFTS ${drafts} over ${asked.length} turns asked; on screen ${onScreen}; withheld ${withheld} `
+      + `(${drafts ? ((100 * withheld) / drafts).toFixed(1) : "0.0"}%); turns that fell to the bank ${asked.length - onScreen}`);
+    console.log(`  WITHHELD BY CHECK: ${[...byCheck].sort((a, b) => b[1] - a[1]).map(([c, n]) => `${c} ${n}`).join(", ") || "none"}`);
+    console.log(`  WAIT PER TURN: median ${pct(0.5)}ms, p90 ${pct(0.9)}ms (all drafts of a turn, as a learner waits)`);
+    console.log(`  COST: $${(cost / 1e6).toFixed(4)} composing; $${drafts ? (cost / 1e6 / drafts).toFixed(5) : "0"} a draft; `
+      + `$${onScreen ? (cost / 1e6 / onScreen).toFixed(5) : "n/a"} per line that reached the screen`);
   }
 })();

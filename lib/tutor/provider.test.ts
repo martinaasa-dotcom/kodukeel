@@ -4,7 +4,7 @@ import {
   billedOutput, completeWithImage, FREE_GEMINI_MODELS, FREE_GROQ_MODELS, GRADER_MODELS,
   offered, openWithFallback, PROVIDER_KEY_ENV, providerResilience, resolveProviders,
   SCENE_MODELS, sceneProviders, TUTOR_MODEL, TutorError,
-  visionProviders, VISION_MODEL,
+  visionProviders, VISION_MODEL, VISION_FALLBACK_MODEL, anthropicMessages, reviewProviders, REVIEW_MODEL,
 } from "@/lib/tutor/provider";
 import { priceFor, UNKNOWN_MODEL } from "@/lib/usage/pricing";
 
@@ -103,14 +103,13 @@ describe("a chain built for a purpose", () => {
     for (const key of PROVIDER_KEY_ENV) vi.stubEnv(key, "k");
   }
 
-  it("sends scene composition to Gemini, and to the model the eval ranked", () => {
+  it("sends scene composition to Anthropic first, thinking off, with Gemini behind it", () => {
     all();
     const chain = resolveProviders({ purpose: "scene" });
-    // Gemini leads, on the model `eval:thinking` ranked over twenty-four beats.
-    // Groq is a fixed second link behind it, covered by its own cases below;
-    // what sits behind both is the bounded last resort.
-    expect(chain[0]?.name).toBe("gemini");
-    expect(chain[0]?.model).toBe(SCENE_MODELS[0]);
+    // Sonnet 5.5 leads (docs/21-situations.md §86); the two Gemini links stand
+    // behind it, and Groq is covered by its own cases below.
+    expect(chain[0]).toMatchObject({ name: "anthropic", model: SCENE_MODELS[0], thinking: "off" });
+    expect(chain.slice(1).map((c) => c.model)).toEqual(SCENE_MODELS.slice(1));
   });
 
   it("sends Anu to the model the wide eval ranked, with Groq behind it on the model she ran on before", () => {
@@ -156,7 +155,7 @@ describe("a chain built for a purpose", () => {
       Groq behind her at any budget.
     */
     all();
-    expect(resolveProviders({ purpose: "scene" })[0]?.name).toBe("gemini");
+    expect(resolveProviders({ purpose: "scene" })[0]?.name).toBe("anthropic");
     expect(resolveProviders({ purpose: "tutor" })[0]?.name).toBe("gemini");
     // Anu has no bounded Anthropic tail at any budget: Groq is her one fixed backup.
     expect(resolveProviders({ purpose: "tutor" }).some((c) => c.name === "anthropic")).toBe(false);
@@ -196,10 +195,11 @@ describe("a chain built for a purpose", () => {
     expect(tutorWithFallback).toHaveLength(2);
 
     const sceneNamed = resolveProviders({ purpose: "scene", allowFallback: false }).map((c) => c.name);
-    // Two Gemini links, one per entry of `SCENE_MODELS`, and no Groq link.
-    expect(sceneNamed).toEqual(["gemini", "gemini"]);
+    // One link per entry of `SCENE_MODELS`, Anthropic then two Gemini, and no Groq link.
+    expect(sceneNamed).toEqual(["anthropic", "gemini", "gemini"]);
+    // Anthropic already leads it, so the bounded tail adds nothing.
     const sceneWithFallback = resolveProviders({ purpose: "scene", allowFallback: true });
-    expect(sceneWithFallback.map((c) => c.name)).toEqual(["gemini", "gemini", "anthropic"]);
+    expect(sceneWithFallback.map((c) => c.name)).toEqual(["anthropic", "gemini", "gemini"]);
   });
 
   it("falls to scripted on its own provider's absence, independently", () => {
@@ -228,11 +228,13 @@ describe("a chain built for a purpose", () => {
 
   it("puts Anthropic behind a purpose's own providers, once, as a last resort", () => {
     all();
+    // The grader names Gemini and Groq, and the bounded tail sits behind them.
+    const grader = resolveProviders({ purpose: "grader", allowFallback: true });
+    expect(grader.map((c) => c.name)).toEqual(["gemini", "groq", "anthropic"]);
+    // A scene already leads on Anthropic, so it is not appended a second time.
     const scene = resolveProviders({ purpose: "scene", allowFallback: true });
-    expect(scene.map((c) => c.name)).toEqual(["gemini", "gemini", "anthropic"]);
-    // Gemini still leads, on both of its models in order, and the bounded
-    // fallback sits behind them rather than instead of either.
-    expect(scene.slice(0, SCENE_MODELS.length).map((c) => c.model)).toEqual([...SCENE_MODELS]);
+    expect(scene.filter((c) => c.name === "anthropic")).toHaveLength(1);
+    expect(scene.map((c) => c.model)).toEqual([...SCENE_MODELS]);
   });
 
   it("drops the fallback the moment the day's fallback budget is spent", () => {
@@ -243,8 +245,11 @@ describe("a chain built for a purpose", () => {
       banked lines, which is where a keyless deployment already lives.
     */
     all();
+    const grader = resolveProviders({ purpose: "grader", allowFallback: false });
+    expect(grader.map((c) => c.name)).toEqual(["gemini", "groq"]);
+    // A scene's own Anthropic link is its primary rather than the tail, and stays.
     const scene = resolveProviders({ purpose: "scene", allowFallback: false });
-    expect(scene.map((c) => c.name)).toEqual(["gemini", "gemini"]);
+    expect(scene.map((c) => c.name)).toEqual(["anthropic", "gemini", "gemini"]);
     // The general chain's dear tail is a fallback too, and goes the same way.
     expect(resolveProviders({ allowFallback: false }).some((c) => c.name === "anthropic")).toBe(false);
     expect(resolveProviders({ allowFallback: false }).some((c) => c.name === "openai")).toBe(false);
@@ -276,7 +281,7 @@ describe("a chain built for a purpose", () => {
 
   it("defaults to allowing the fallback, so a caller that has not asked is unchanged", () => {
     all();
-    expect(resolveProviders({ purpose: "scene" }).map((c) => c.name)).toEqual(["gemini", "gemini", "anthropic"]);
+    expect(resolveProviders({ purpose: "scene" }).map((c) => c.name)).toEqual(["anthropic", "gemini", "gemini"]);
   });
 
   it("keeps the scene chain isolated, and lets no override put another provider in front", () => {
@@ -292,13 +297,14 @@ describe("a chain built for a purpose", () => {
       nothing.
     */
     all();
-    expect(sceneProviders().map((c) => c.name)).toEqual(["gemini", "gemini", "anthropic"]);
-    expect(sceneProviders({ allowFallback: false }).map((c) => c.name)).toEqual(["gemini", "gemini"]);
+    expect(sceneProviders().map((c) => c.name)).toEqual(["anthropic", "gemini", "gemini"]);
+    expect(sceneProviders({ allowFallback: false }).map((c) => c.name)).toEqual(["anthropic", "gemini", "gemini"]);
 
     vi.stubEnv("GROQ_SCENE_MODEL", "some/scene-model");
     vi.stubEnv("ANTHROPIC_SCENE_MODEL", "claude-sonnet-5");
-    expect(sceneProviders({ allowFallback: false }).map((c) => c.name)).toEqual(["gemini", "gemini"]);
-    expect(sceneProviders()[0]).toMatchObject({ name: "gemini", model: SCENE_MODELS[0] });
+    vi.stubEnv("ANTHROPIC_MODEL", "claude-opus-5");
+    expect(sceneProviders({ allowFallback: false }).map((c) => c.model)).toEqual([...SCENE_MODELS]);
+    expect(sceneProviders()[0]).toMatchObject({ name: "anthropic", model: SCENE_MODELS[0] });
   });
 
   it("gives a deployment with no keys an empty chain for both, as it always did", () => {
@@ -331,9 +337,14 @@ describe("a chain built for a purpose", () => {
     vi.stubEnv("GEMINI_MODEL", "gemini-3.5-flash");
     vi.stubEnv("SCENE_MODEL", "qwen/qwen3.8-27b");
     vi.stubEnv("GEMINI_SCENE_MODEL", "gemini-3.5-flash-lite");
-    expect(resolveProviders({ purpose: "scene" }).map((c) => c.model)).toEqual([...SCENE_MODELS]);
-    expect(sceneProviders().map((c) => c.model)).toEqual([...SCENE_MODELS]);
-    expect(SCENE_MODELS).toEqual(["gemini-3.8-flash", "gemini-3.1-flash-lite"]);
+    // A Gemini-only deployment composes on the two Gemini pins, as before.
+    expect(resolveProviders({ purpose: "scene" }).map((c) => c.model)).toEqual(SCENE_MODELS.slice(1));
+    expect(sceneProviders().map((c) => c.model)).toEqual(SCENE_MODELS.slice(1));
+    expect(SCENE_MODELS).toEqual(["claude-sonnet-5-5", "gemini-3.8-flash", "gemini-3.1-flash-lite"]);
+    // And an Anthropic-only one on the lead pin alone, whatever ANTHROPIC_MODEL says.
+    only("anthropic");
+    vi.stubEnv("ANTHROPIC_MODEL", "claude-sonnet-5");
+    expect(sceneProviders().map((c) => c.model)).toEqual([SCENE_MODELS[0]]);
   });
 
   it("prices the scene model as a paid model, because the account is paid", () => {
@@ -1167,29 +1178,49 @@ describe("what the chain actually sends, hop by hop", () => {
     ]);
   });
 
-  it("sends a scene down both Gemini models, then the bounded tail, and never to Groq", async () => {
+  it("sends a scene to Sonnet 5.5, then down both Gemini models, and never to Groq", async () => {
     allKeys();
     expect(await walked(() => openWithFallback(
       sceneProviders(), "sys", [{ role: "user", content: "hi" }],
     ))).toEqual([
-      `generativelanguage.googleapis.com GEMINI_API_KEY-val ${SCENE_MODELS[0]}`,
+      `api.anthropic.com ANTHROPIC_API_KEY-val ${SCENE_MODELS[0]}`,
       `generativelanguage.googleapis.com GEMINI_API_KEY-val ${SCENE_MODELS[1]}`,
-      "api.anthropic.com ANTHROPIC_API_KEY-val claude-sonnet-5",
+      `generativelanguage.googleapis.com GEMINI_API_KEY-val ${SCENE_MODELS[2]}`,
     ]);
   });
 
-  it("stops at Gemini for a scene once the fallback budget is spent", async () => {
+  it("asks Sonnet 5.5 for a scene line with thinking off as it takes it, and the route's ceiling", async () => {
+    /*
+      Sonnet 5.5 answers 400 to `thinking: { type: "disabled" }` and wants
+      `between_tools`; and `callAnthropic` used to cap every stream at
+      `REPLY_TOKENS` whatever the route granted.
+    */
+    allKeys();
+    const bodies: Record<string, unknown>[] = [];
+    vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
+      bodies.push(JSON.parse(String(init.body)) as Record<string, unknown>);
+      return new Response("no", { status: 503 });
+    });
+    await expect(openWithFallback(
+      sceneProviders().slice(0, 1), "sys", [{ role: "user", content: "hi" }], undefined, "", 4_000,
+    )).rejects.toThrow();
+    expect(bodies[0]).toMatchObject({ model: "claude-sonnet-5-5", max_tokens: 4_000, thinking: { type: "between_tools" } });
+  });
+
+  it("keeps a scene's own three links once the fallback budget is spent", async () => {
     allKeys();
     /*
-      Nothing behind Gemini but the bounded tail, so a spent budget leaves the
-      two Gemini links and the bank under them. The Groq link that used to
-      answer here is what composed the conversations the operator refused.
+      Anthropic leads a scene rather than standing behind it as the bounded
+      tail, so a spent fallback budget leaves the chain as it is, with the bank
+      under it. The Groq link that used to answer here is what composed the
+      conversations the operator refused, and it does not come back.
     */
     expect(await walked(() => openWithFallback(
       sceneProviders({ allowFallback: false }), "sys", [{ role: "user", content: "hi" }],
     ))).toEqual([
-      `generativelanguage.googleapis.com GEMINI_API_KEY-val ${SCENE_MODELS[0]}`,
+      `api.anthropic.com ANTHROPIC_API_KEY-val ${SCENE_MODELS[0]}`,
       `generativelanguage.googleapis.com GEMINI_API_KEY-val ${SCENE_MODELS[1]}`,
+      `generativelanguage.googleapis.com GEMINI_API_KEY-val ${SCENE_MODELS[2]}`,
     ]);
   });
 
@@ -1213,7 +1244,8 @@ describe("what the chain actually sends, hop by hop", () => {
     const walk = await walked(() => completeWithImage(
       visionProviders(), "sys", "read this", { mediaType: "image/png", base64: "AA" },
     ));
-    expect(walk[0]).toBe(`generativelanguage.googleapis.com GEMINI_API_KEY-val ${VISION_MODEL}`);
+    expect(walk[0]).toBe(`api.anthropic.com ANTHROPIC_API_KEY-val ${VISION_MODEL}`);
+    expect(walk[1]).toBe(`generativelanguage.googleapis.com GEMINI_API_KEY-val ${VISION_FALLBACK_MODEL}`);
     // One entry per model, never the same model asked three times over.
     expect(new Set(walk).size).toBe(walk.length);
     // Each hop carries its own provider's key and nobody else's.
@@ -1282,5 +1314,63 @@ describe("a feature switched off with PAID_OFF", () => {
   it("never switches the general chain, which is what the privacy page lists", () => {
     vi.stubEnv("PAID_OFF", "tutor,scenes,scan,grader,translate");
     expect(resolveProviders().length).toBeGreaterThan(0);
+  });
+});
+
+describe("the conversation on Anthropic's path", () => {
+  it("caches the history, and puts the live block in front of the last ask", () => {
+    const turns = anthropicMessages([
+      { role: "assistant", content: "Tere!" },
+      { role: "user", content: "tere" },
+      { role: "user", content: "Your line:" },
+    ], "LIVE");
+    /* The two user messages are one turn of blocks, which is what the API makes of them. */
+    expect(turns.map((t) => t.role)).toEqual(["assistant", "user"]);
+    const blocks = turns[1]!.content;
+    expect(blocks.map((b) => b.text)).toEqual(["tere", "LIVE", "Your line:"]);
+    /* The breakpoint sits on the last line of the conversation, before anything that changes per draft. */
+    expect(blocks[0]!.cache_control).toEqual({ type: "ephemeral" });
+    expect(blocks.slice(1).some((b) => b.cache_control)).toBe(false);
+    expect(turns[0]!.content[0]!.cache_control).toBeUndefined();
+  });
+
+  it("marks nothing where there is no history to hold", () => {
+    const turns = anthropicMessages([{ role: "user", content: "Your line:" }], "LIVE");
+    expect(turns).toHaveLength(1);
+    expect(turns[0]!.content.map((b) => b.text)).toEqual(["LIVE", "Your line:"]);
+    expect(turns[0]!.content.some((b) => b.cache_control)).toBe(false);
+  });
+
+  it("asks the scanner's Gemini link nothing Google does not know", async () => {
+    /*
+      A merge on 2026-10-15 put Anthropic's \`thinking\` field into the
+      OpenAI-compatible picture body, Google answered 400 to every scan, and
+      the chain fell past it in silence.
+    */
+    vi.stubEnv("GEMINI_API_KEY", "g");
+    const bodies: Record<string, unknown>[] = [];
+    vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
+      bodies.push(JSON.parse(String(init.body)) as Record<string, unknown>);
+      return new Response("no", { status: 503 });
+    });
+    await expect(completeWithImage(
+      visionProviders(), "sys", "read this", { mediaType: "image/png", base64: "AA" },
+    )).rejects.toThrow();
+    expect(bodies.length).toBeGreaterThan(0);
+    expect(bodies.every((b) => !("thinking" in b))).toBe(true);
+  });
+});
+
+describe("who reviews a scene's lines", () => {
+  it("leads on Haiku with low effort, with the graders' chain behind it", () => {
+    for (const key of PROVIDER_KEY_ENV) vi.stubEnv(key, "k");
+    const chain = reviewProviders({ allowFallback: false });
+    expect(chain[0]).toMatchObject({ name: "anthropic", model: REVIEW_MODEL, thinking: "low" });
+    expect(chain.slice(1)).toEqual(resolveProviders({ purpose: "grader", allowFallback: false }));
+  });
+
+  it("is the graders' chain exactly where there is no Anthropic key", () => {
+    vi.stubEnv("GEMINI_API_KEY", "g");
+    expect(reviewProviders()).toEqual(resolveProviders({ purpose: "grader" }));
   });
 });

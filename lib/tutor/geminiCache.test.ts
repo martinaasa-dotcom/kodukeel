@@ -393,7 +393,8 @@ describe("a model that has said not until later", () => {
   it("is walked past by the chain, without a second refused request on the same link", async () => {
     const chain = resolveProviders({ purpose: "scene", allowFallback: false });
     const [first, second] = [chain[0]!.model, chain[1]!.model];
-    expect(chain.map((c) => c.model)).toEqual([...SCENE_MODELS]);
+    // A Gemini key alone: the two Gemini pins behind the Anthropic lead.
+    expect(chain.map((c) => c.model)).toEqual(SCENE_MODELS.slice(1));
     const asked: string[] = [];
     vi.stubGlobal("fetch", async (url: string, init: RequestInit = {}) => {
       const u = String(url);

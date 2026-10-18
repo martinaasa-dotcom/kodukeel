@@ -28,6 +28,8 @@ import { completeWithImage, type ProviderConfig } from "../lib/tutor/provider";
 import { SCAN_PROMPT, parseScanReply } from "../lib/scan/extract";
 import { fold } from "../lib/estonian/fold";
 import { installMeter } from "./lib/meter";
+import { nameOf, pickCandidates } from "./lib/anthropicArms";
+import { estimateCostMicros } from "../lib/usage/pricing";
 
 // What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay off, because it counts a rate over samples, and a sample replayed is not a second sample.
 installMeter({ replay: false });
@@ -40,7 +42,7 @@ const DIACRITIC = /[õäöüšž]/i;
 const entries = JSON.parse(readFileSync("prisma/data/expanded.json", "utf8")) as Entry[];
 const WORDS = entries
   .filter((e) => e.cefr && DIACRITIC.test(e.lemma) && e.lemma.length >= 4 && !e.lemma.includes(" "))
-  .slice(0, Number(process.env.WORDS ?? 24));
+  .slice(Number(process.env.OFFSET ?? 0), Number(process.env.OFFSET ?? 0) + Number(process.env.WORDS ?? 24));
 
 /*
   Two conditions, because one would overstate whatever it found.
@@ -90,7 +92,7 @@ async function render(html: string, out: string, mode: Condition) {
   await browser.close();
 }
 
-const CANDIDATES: ProviderConfig[] = [
+const BUILT_IN: ProviderConfig[] = [
   { name: "groq", model: "openai/gpt-oss-20b", label: "Groq" },
   ...(process.env.ANTHROPIC_API_KEY
     ? [{ name: "anthropic", model: "claude-sonnet-5", label: "Anthropic" } as ProviderConfig]
@@ -107,6 +109,8 @@ const CANDIDATES: ProviderConfig[] = [
       ] as ProviderConfig[])
     : []),
 ];
+
+const CANDIDATES = pickCandidates(BUILT_IN);
 
 async function main() {
   const dir = mkdtempSync(join(tmpdir(), "scan-"));
@@ -127,13 +131,16 @@ async function main() {
      for (let pass = 0; pass < PASSES; pass++) {
       let exact = 0, folded = 0, wrong = 0, invented = 0;
       let items: { et: string }[] = [];
+      let usage = { inputTokens: 0, outputTokens: 0, cachedInputTokens: 0 };
+      const t0 = Date.now();
       try {
         const reply = await completeWithImage(
           [cfg], SCAN_PROMPT, "Read this page and list the Estonian vocabulary on it.", image,
+          (u) => { usage = { inputTokens: u.inputTokens, outputTokens: u.outputTokens, cachedInputTokens: u.cachedInputTokens ?? 0 }; },
         );
         items = parseScanReply(reply.text);
       } catch (e) {
-        console.log(`${cfg.model.padEnd(26)} FAILED: ${(e as Error).message}`);
+        console.log(`${nameOf(cfg).padEnd(26)} FAILED: ${(e as Error).message}`);
         continue;
       }
       const wanted = new Map(WORDS.map((w) => [w.lemma.toLowerCase(), w.lemma]));
@@ -152,10 +159,12 @@ async function main() {
         } else { invented++; slips.push(`!${it.et}`); }
       }
       console.log(
-        `${(cfg.model + " #" + (pass + 1)).padEnd(26)} ${String(items.length).padStart(4)}` +
+        `${(nameOf(cfg) + " #" + (pass + 1)).padEnd(26)} ${String(items.length).padStart(4)}` +
         `${String(exact).padStart(7)}${String(folded).padStart(8)}` +
         `${String(wrong).padStart(7)}${String(invented).padStart(10)}` +
-        `${String(WORDS.length - seen.size).padStart(8)}`,
+        `${String(WORDS.length - seen.size).padStart(8)}` +
+        `   in ${usage.inputTokens} out ${usage.outputTokens} ${Date.now() - t0}ms ` +
+        `$${(estimateCostMicros(cfg.model, usage.inputTokens, usage.outputTokens, { cachedInputTokens: usage.cachedInputTokens }) / 1e6).toFixed(5)}/page`,
       );
       if (slips.length) console.log(`    ${slips.slice(0, 8).join("  ")}`);
      }
