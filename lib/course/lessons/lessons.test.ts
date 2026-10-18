@@ -20,6 +20,20 @@ describe("A1 lessons", () => {
     expect(lessonProblems(A1_LESSONS)).toEqual([]);
   });
 
+  it("introduce the four letters of their own together, on the first evening", () => {
+    const first = A1_LESSONS[0]!;
+    expect((first.how.sounds ?? []).map((r) => r.glyph).filter((g) => /^[õäöü]$/u.test(g)).sort()).toEqual(["ä", "õ", "ö", "ü"]);
+  });
+
+  it("let a sound's example word run ahead of the course only with its meaning beside it", () => {
+    const first = A1_LESSONS[0]!;
+    const row = (en?: string) => ({ ...first, how: { ...first.how, sounds: [{ sound: "sound-ue", glyph: "ü", like: "an i said with rounded lips", word: "number-ueks", mark: "ü", ...(en ? { en } : {}) }] } });
+    expect(lessonProblems([row("one")])).toEqual([]);
+    expect(lessonProblems([row()]).join(" ")).toMatch(/üks/);
+    // The meaning is English and is held to the English rule like any other.
+    expect(estonianOf(row("{öö}")).map((e) => e.et)).toContain("öö");
+  });
+
   it("write only spellings the forms list knows", async () => {
     const unknown: string[] = [];
     for (const lesson of A1_LESSONS) {

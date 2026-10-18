@@ -175,6 +175,14 @@ export const BRIEFINGS = {
     you: "Tap the letters in the right order. Miss once and we'll put the first letter in for you.",
     action: "Start",
   },
+  spelled: {
+    title: "Write down what's spelled to you",
+    what:
+      "A word you've met, spelled out letter by letter the Estonian way, the way a name comes down " +
+      "a phone line. A box for each letter lights up as it's said.",
+    you: "Type the word. Hear it again, or slower, as often as you like. Nothing here counts against you.",
+    action: "Start",
+  },
   numbers: {
     title: "Say the number",
     what:

@@ -69,6 +69,7 @@ export const GAMES: readonly Game[] = [
   { href: "/review/twenty", group: "play", tone: "blush", hook: "I'm thinking of something. Ask me in Estonian.", minutes: 10 },
   { href: "/review/sayings", group: "play", tone: "butter", hook: "Phrases that mean something other than they say.", minutes: 5 },
   { href: "/review/wordplay", group: "play", tone: "sky", hook: "A bat is a leather mouse. Take words apart and laugh.", minutes: 5 },
+  { href: "/review/spelled", group: "play", tone: "accent", hook: "A word spelled down the phone. Write it down.", minutes: 3 },
   { href: "/review/twins", group: "think", tone: "blush", hook: "Two words that look alike and mean different things.", minutes: 5 },
   { href: "/review/map", group: "think", tone: "sky", hook: "In the house, into it or out of it? The ending says.", minutes: 4 },
   /* Word order waits for the band the round itself waits for (`maySortWords`). */

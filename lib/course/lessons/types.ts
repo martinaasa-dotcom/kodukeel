@@ -97,8 +97,51 @@ export interface HowItWorks {
   readonly point: string;
   readonly notes?: readonly string[];
   readonly table?: { readonly head: readonly string[]; readonly rows: readonly (readonly Cell[])[] };
+  /**
+   * The sounds an evening is about, each heard alone and inside a word. Both
+   * are a native speaker's recordings, by id (`lib/audio/native.ts`), so the
+   * Estonian on screen is the recording's own text and the ledger checks it.
+   */
+  readonly sounds?: readonly SoundRow[];
+  /**
+   * Words to hear side by side, for the evenings whose warning is about a
+   * sound: `kaheksa` against `üheksa`, `kuus` against `kus`. Recordings again,
+   * so the difference the warning names is one the learner can press.
+   */
+  readonly listen?: readonly ListenSet[];
+  /**
+   * The evening a learner is first asked to spell something: the step carries
+   * the tool that says a typed name letter by letter in the native speaker's
+   * recordings of the letters (`components/sounds/SpellIt.tsx`). Nothing in it
+   * is Estonian the lesson writes, so the ledger has nothing to check.
+   */
+  readonly spell?: boolean;
   readonly watchOut: string;
   readonly examples?: readonly number[];
+}
+
+export interface SoundRow {
+  /** The recording of the sound alone. */
+  readonly sound: string;
+  /** The letter or letters as written, which is what the key shows. */
+  readonly glyph: string;
+  /** What it sounds a bit like, in English. */
+  readonly like: string;
+  /** The recording of a word that carries it. */
+  readonly word: string;
+  /** The letters of that word to highlight, where they first occur. */
+  readonly mark: string;
+  /**
+   * What the word means, printed under it. A word with a meaning beside it may
+   * be one no evening has taught yet, because it is there to be heard for its
+   * sound: `öö` is the clearest ö there is, and nobody needs "night" on the
+   * first evening to hear it (`ledger.ts` reads it that way).
+   */
+  readonly en?: string;
+}
+
+export interface ListenSet {
+  readonly words: readonly { readonly clip: string; readonly en: string; readonly mark?: string }[];
 }
 
 /**

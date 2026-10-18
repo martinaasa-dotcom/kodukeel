@@ -72,19 +72,16 @@ const TERE_LESSONS: readonly LessonSpec[] = [
     how: {
       point: "Estonian is said the way it is written: one letter is one sound, and every letter is said.",
       notes: [
-        "A double letter is a long sound. The mm in {Tere hommikust} is held a little longer than an English m.",
-        "Four letters have no key on an English keyboard: õ, ä, ö and ü. Each is a letter of its own with a sound of its own, not a mark on another letter.",
         "{Palun} does three jobs: please, here you are, and you're welcome.",
       ],
-      table: {
-        head: ["Letter", "Sounds a bit like", "As in"],
-        rows: [
-          [{ en: "ä" }, { en: "the a in cat" }, { et: "aitäh" }],
-          [{ en: "õ" }, { en: "an o said with the lips spread, not rounded" }, { et: "Tere õhtust" }],
-          [{ en: "mm" }, { en: "a long m: hold it" }, { et: "Tere hommikust" }],
-          [{ en: "h" }, { en: "always said, even at the end of a word" }, { et: "aitäh" }],
-        ],
-      },
+      sounds: [
+        { sound: "sound-ou", glyph: "õ", like: "an o said with the lips spread, not rounded", word: "stress-ouhtust", mark: "õ", en: "evening, as in good evening" },
+        { sound: "sound-ae", glyph: "ä", like: "the a in cat", word: "word-aitaeh", mark: "ä", en: "thank you" },
+        { sound: "sound-oe", glyph: "ö", like: "an e said with rounded lips", word: "vowel-oeoe", mark: "öö", en: "night" },
+        { sound: "sound-ue", glyph: "ü", like: "an i said with rounded lips", word: "number-ueks", mark: "ü", en: "one" },
+        { sound: "sound-mm", glyph: "mm", like: "a double letter is a long sound: hold the m", word: "stress-hommikust", mark: "mm", en: "morning, as in good morning" },
+        { sound: "sound-h", glyph: "h", like: "always said, even at the end of a word", word: "word-aitaeh", mark: "h", en: "thank you" },
+      ],
       watchOut: "Don't drop the h at the end of {aitäh}. Every letter is said, the last one too.",
       examples: [0, 3],
     },
@@ -156,6 +153,8 @@ const TERE_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Tere! Minu nimi on Mari. Mis su nimi on?", en: "Hello! My name is Mari. What's your name?" },
       { who: "Tom", et: "Tere! Mu nimi on Tom.", en: "Hi! My name's Tom." },
+      { who: "Mari", et: "Kuidas seda kirjutatakse?", en: "How do you spell that?" },
+      { who: "Tom", stage: "He spells it out, one letter at a time." },
       { who: "Mari", et: "Väga meeldiv!", en: "Nice to meet you!" },
       { who: "Tom", et: "Väga meeldiv!", en: "Nice to meet you too!" },
     ],
@@ -168,6 +167,7 @@ const TERE_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "su", en: "your" },
       { kind: "phrase", et: "Mis su nimi on?", en: "What's your name?" },
       { kind: "phrase", et: "Väga meeldiv!", en: "Nice to meet you!" },
+      { kind: "phrase", et: "Kuidas seda kirjutatakse?", en: "How do you spell that?" },
     ],
     how: {
       point: "My and your each have a long form and a short one. The short one is what people usually say.",
@@ -183,12 +183,14 @@ const TERE_LESSONS: readonly LessonSpec[] = [
         "Estonian has no word for a or the. {Nimi} is name, a name and the name.",
       ],
       watchOut: "{On} here is \"is\". It has nothing to do with the English on, as in on the table.",
+      spell: true,
       examples: [0, 1],
     },
     answers: [
       { ask: { et: "Mis su nimi on?", en: "What's your name?" }, cue: "Say your own name.", model: { et: "Minu nimi on Tom.", en: "My name is Tom." } },
       { cue: "Now ask them theirs.", model: { et: "Mis su nimi on?", en: "What's your name?" } },
       { ask: { et: "Mu nimi on Mari.", en: "My name's Mari." }, cue: "Say you're pleased to meet her.", model: { et: "Väga meeldiv!", en: "Nice to meet you!" } },
+      { cue: "You didn't catch how her name is written. Ask her to spell it.", model: { et: "Kuidas seda kirjutatakse?", en: "How do you spell that?" } },
     ],
   },
   {

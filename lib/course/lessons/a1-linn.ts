@@ -241,6 +241,10 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
         "Most rooms are a word and {tuba}: {elutuba}, {magamistuba}, {vannituba}. The ending goes on the last part, so it changes the way {tuba} changes: {toas}, {elutoas}.",
         "{Külmkapp} is a {kapp} that is cold, and it changes like {kapp}: {kapis}, {külmkapis}.",
       ],
+      listen: [
+        { words: [{ clip: "length-kapp", en: "a cupboard", mark: "pp" }, { clip: "length-kapis", en: "in the cupboard", mark: "p" }] },
+        { words: [{ clip: "length-kott", en: "a bag", mark: "tt" }, { clip: "length-kotis", en: "in the bag", mark: "t" }] },
+      ],
       watchOut: "A double letter often goes single before the ending: {kapp} gives {kapis}, {kott} gives {kotis}.",
       examples: [2, 6],
     },

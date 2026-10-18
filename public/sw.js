@@ -254,6 +254,14 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // The native speaker's recordings (lib/audio/native.ts) carry their cut's
+  // version in the query, so a clip under one url never changes: kept the
+  // first time it plays, in the bounded audio cache, and heard offline after.
+  if (url.pathname.startsWith("/audio/native/")) {
+    event.respondWith(cacheFirst(request, AUDIO));
+    return;
+  }
+
   // Build output is immutable and hashed: cache-first is safe and makes a
   // repeat visit instant.
   if (url.pathname.startsWith("/_next/static/")) {

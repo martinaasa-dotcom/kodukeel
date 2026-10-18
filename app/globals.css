@@ -5901,3 +5901,218 @@ a:focus-visible .wave-word::after {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent);
 }
+
+@layer utilities {
+  /*
+    THE NATIVE SPEAKER'S SOUNDS, AS KEYS AND WORDS (components/sounds/).
+
+    A key is the letter large on a tile, the recording behind it; a word is a
+    pill that says itself. Both have one more state than a button: live, while
+    the voice is actually sounding, drawn as an accent ring and three moving
+    bars where the speaker was, so a row of words played in turn says which
+    one you are hearing without the hue having to.
+  */
+  .snd-key {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    aspect-ratio: 1;
+    border-radius: var(--r-lg);
+    border: 1px solid var(--edge);
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: var(--depth-sm);
+    transition-property: background-color, border-color, box-shadow, transform, color;
+    transition-duration: 180ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .snd-key-sm { width: 3rem; border-radius: var(--r-sm); }
+  .snd-key-md { width: 4.25rem; }
+  .snd-key-lg { width: 5.25rem; border-radius: var(--r-xl); }
+  @media (max-width: 480px) {
+    .snd-key-lg { width: 4.25rem; border-radius: var(--r-lg); }
+    .snd-key-md { width: 3.6rem; }
+  }
+  .snd-glyph {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .snd-key-sm .snd-glyph { font-size: var(--text-xl); }
+  .snd-key-md .snd-glyph { font-size: var(--text-3xl); }
+  .snd-key-lg .snd-glyph { font-size: var(--text-4xl); }
+  @media (max-width: 480px) {
+    .snd-key-lg .snd-glyph { font-size: var(--text-3xl); }
+    .snd-key-md .snd-glyph { font-size: var(--text-2xl); }
+  }
+  .snd-key-cue {
+    position: absolute;
+    right: 0.45rem;
+    bottom: 0.4rem;
+    display: inline-flex;
+    color: var(--ink-3);
+  }
+  .snd-key-sm .snd-key-cue { right: 0.25rem; bottom: 0.2rem; }
+  .snd-key-loan { border-style: dashed; background: transparent; box-shadow: none; }
+  .snd-key-loan .snd-glyph { color: var(--ink-2); }
+  @media (hover: hover) {
+    .snd-key:hover { transform: translateY(-2px); border-color: var(--accent); background: var(--accent-soft); }
+    .snd-key:hover .snd-glyph { color: var(--accent-deep); }
+  }
+  .snd-key[data-live] {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent);
+    animation: snd-pop 360ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .snd-key[data-live] .snd-glyph,
+  .snd-key[data-live] .snd-key-cue { color: var(--accent-deep); }
+
+  .snd-word-wrap {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .snd-word {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.5rem 1rem 0.5rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--edge);
+    background: var(--surface);
+    color: var(--ink);
+    max-width: 100%;
+    font-size: var(--text-md);
+    font-weight: 700;
+    text-align: left;
+    /* A word wraps at its spaces and never inside itself, so a line as long
+       as a phone number stays in the pill and a word stays whole. */
+    overflow-wrap: normal;
+    box-shadow: var(--depth-sm);
+    transition-property: background-color, border-color, box-shadow, transform;
+    transition-duration: 180ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .snd-word-lg { font-size: var(--text-lg); padding: 0.6rem 1.15rem 0.6rem 0.85rem; }
+  .snd-word-cue { display: inline-flex; width: 0.9rem; justify-content: center; color: var(--accent-deep); }
+  @media (hover: hover) {
+    .snd-word:hover { transform: translateY(-1px); border-color: var(--accent); background: var(--raised); }
+  }
+  .snd-word[data-live] {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+  /* A gloss wraps under its word rather than widening it, so two words of a set sit side by side on a phone. */
+  .snd-word-en { max-width: 8rem; font-size: var(--text-sm); line-height: 1.3; color: var(--ink-2); text-align: center; text-wrap: balance; }
+  .snd-mark {
+    background: var(--accent-soft);
+    color: var(--accent-deep);
+    border-radius: 0.3em;
+    padding: 0 0.12em;
+    margin: 0 -0.04em;
+  }
+  .snd-word[data-live] .snd-mark { background: var(--surface); }
+  .snd-stress { font-weight: 800; color: var(--accent-deep); }
+  .snd-dot {
+    display: inline-block;
+    width: 0.22em;
+    height: 0.22em;
+    margin: 0 0.16em;
+    vertical-align: middle;
+    border-radius: 999px;
+    background: var(--ink-3);
+  }
+
+  .snd-bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+  .snd-bars > span {
+    width: 3px;
+    height: 100%;
+    border-radius: 2px;
+    background: currentColor;
+    transform-origin: bottom;
+    animation: snd-bar 780ms ease-in-out infinite;
+  }
+  .snd-bars > span:nth-child(2) { animation-delay: -260ms; }
+  .snd-bars > span:nth-child(3) { animation-delay: -520ms; }
+  @keyframes snd-bar { 0%, 100% { transform: scaleY(0.3); } 50% { transform: scaleY(1); } }
+  @keyframes snd-pop { 40% { transform: scale(1.06); } }
+
+  .snd-set {
+    padding: 1rem 1.1rem;
+    border-radius: var(--r-lg);
+    border: 1px solid var(--edge);
+    background: var(--surface);
+    box-shadow: var(--depth-sm);
+  }
+  .snd-set-caption { margin-bottom: 0.75rem; font-size: var(--text-sm); color: var(--ink-2); }
+  .snd-set-row { display: flex; align-items: flex-start; gap: 0.75rem 1rem; }
+  .snd-set-row:not(:has(> .snd-set-words)) { flex-wrap: wrap; }
+  .snd-set-words { display: flex; min-width: 0; flex: 1; flex-wrap: wrap; align-items: flex-start; gap: 0.75rem; }
+  /* Every word of a set in turn, a breath apart: the round key in front of the words. */
+  .snd-play-all {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    box-shadow: var(--depth-sm);
+    transition-property: transform, background-color;
+    transition-duration: 160ms;
+  }
+  .snd-play-all svg { margin-left: 2px; }
+  @media (hover: hover) {
+    .snd-play-all:hover:not(:disabled) { transform: scale(1.06); background: var(--accent-deep); }
+  }
+  .snd-play-all:disabled { opacity: 0.6; }
+
+  /* A sound as a tile: two by two in a narrow column, four across where the column has the room. */
+  .snd-letters-room { container-type: inline-size; }
+  .snd-letters { display: grid; gap: 0.75rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @container (min-width: 38rem) { .snd-letters { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  /* Each tile is three rows of the grid (the key, the line, the word), so every word sits at one height across a row of tiles. */
+  .snd-letter {
+    display: grid;
+    min-width: 0;
+    grid-row: span 3;
+    grid-template-rows: subgrid;
+    row-gap: 0.75rem;
+    justify-items: center;
+    align-items: start;
+    padding: 1.1rem 0.75rem 1rem;
+    border-radius: var(--r-xl);
+    border: 1px solid var(--edge);
+    background: var(--surface);
+    box-shadow: var(--depth-sm);
+    text-align: center;
+  }
+
+  .snd-grid { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  /* A text spelled out: a tile per letter, a gap where a word ends, and a struck letter Estonian has no name for. */
+  .spell-tiles { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1.1rem; }
+  .spell-word-tiles { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .spell-other {
+    display: inline-grid;
+    place-items: center;
+    width: 3rem;
+    aspect-ratio: 1;
+    border-radius: var(--r-sm);
+    border: 1px dashed var(--edge);
+    color: var(--ink-3);
+    font-size: var(--text-lg);
+    text-decoration: line-through;
+  }
+  /* A box on the phone line, lit while its letter's name is being said. */
+  .spell-slot { transition: box-shadow 140ms, transform 140ms; }
+  .spell-slot[data-live] { box-shadow: 0 0 0 3px var(--accent); transform: translateY(-2px); }
+  @media (prefers-reduced-motion: reduce) { .spell-slot[data-live] { transform: none; } }
+  /* Columns by the room the content column has, never by the window: at 768 the rail takes a third of it. */
+  .snd-cols { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); }
+}

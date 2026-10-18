@@ -297,6 +297,9 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
         "Months and seasons take no capital letter, like the days.",
         "{Juulis} is lesson 32's -s for in: in July.",
       ],
+      listen: [
+        { words: [{ clip: "pair-juuni", en: "June", mark: "n" }, { clip: "pair-juuli", en: "July", mark: "l" }] },
+      ],
       watchOut: "{Juuni} and {juuli} are a letter apart, June and July. Say the middle sound clearly.",
       examples: [1, 3, 5],
     },

@@ -117,6 +117,12 @@ function SpeakButton({
   const pace = prefs.pace;
   const wanted = prefs.autoplay;
   const played = useRef<string | null>(null);
+  /*
+    A PERSON SAYS IT, WHERE A PERSON HAS SAID IT. A button left on the
+    learner's own voice plays the native speaker's recording of this text
+    when there is one (lib/audio/native.ts); a screen that chose the voice,
+    a conversation's cast or the listening round's speakers, keeps it.
+  */
 
   const play = async (unasked = false) => {
     try {
@@ -131,7 +137,7 @@ function SpeakButton({
         round paid for it: its own copy of this caught both and told a learner
         their connection was down. `playClip` is the one answer now.
       */
-      const outcome = await playClip({ text, slow, voice, condition, rate, pace }, { unasked });
+      const outcome = await playClip({ text, slow, voice, condition, rate, pace, native: !askedVoice }, { unasked });
       setState("idle");
       if (outcome === "played") onPlay?.();
     } catch {
