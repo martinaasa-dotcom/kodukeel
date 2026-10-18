@@ -424,9 +424,11 @@ function ChoiceGroup({ label, href, children }: { label: string; href?: string; 
  * one: a dashed edge round an empty ground, which is the usual shape of a
  * place something can go, and a plus in the accent with the label beside it.
  * Drawn like its neighbours it read as a deck called "Add a deck". The plus
- * and the label are one line that never wraps, so the marker cannot end up on
- * a line of its own. It is centred in the row height the grid gives it, since
- * it has no line under its name to line up with the boxes beside it.
+ * never shrinks and the label is the one that wraps, beside it rather than
+ * under it, since "Добавить колоду" is wider than the box at some widths and
+ * a label that may not wrap is a label drawn over the border. It is centred in
+ * the row height the grid gives it, since it has no line under its name to
+ * line up with the boxes beside it.
  */
 function AddChoice({ href, title }: { href: string; title: string }) {
   return (
@@ -443,7 +445,7 @@ function AddChoice({ href, title }: { href: string; title: string }) {
       >
         <Plus size={16} strokeWidth={2.5} />
       </span>
-      <span className="whitespace-nowrap text-sm font-semibold">{title}</span>
+      <span className="min-w-0 text-balance text-sm font-semibold">{title}</span>
     </Link>
   );
 }
