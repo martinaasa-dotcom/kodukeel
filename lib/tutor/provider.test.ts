@@ -4,7 +4,7 @@ import {
   billedOutput, completeWithImage, FREE_GEMINI_MODELS, FREE_GROQ_MODELS, GRADER_MODELS,
   offered, openWithFallback, PROVIDER_KEY_ENV, providerResilience, resolveProviders,
   SCENE_MODELS, sceneProviders, TUTOR_MODEL, TutorError,
-  visionProviders, VISION_MODEL, VISION_FALLBACK_MODEL, anthropicMessages, reviewProviders, REVIEW_MODEL,
+  visionProviders, VISION_MODEL, VISION_FALLBACK_MODEL, anthropicMessages, anthropicSystem, systemText, reviewProviders, REVIEW_MODEL,
 } from "@/lib/tutor/provider";
 import { priceFor, UNKNOWN_MODEL } from "@/lib/usage/pricing";
 
@@ -1332,6 +1332,25 @@ describe("the conversation on Anthropic's path", () => {
     expect(blocks[0]!.cache_control).toEqual({ type: "ephemeral" });
     expect(blocks.slice(1).some((b) => b.cache_control)).toBe(false);
     expect(turns[0]!.content[0]!.cache_control).toBeUndefined();
+  });
+
+  it("caches a layered system prompt layer by layer, and reads as the same text", () => {
+    const blocks = anthropicSystem(["RULES", "SCENE", "PERSONA"]);
+    expect(blocks.map((b) => b.text).join("")).toBe(systemText(["RULES", "SCENE", "PERSONA"]));
+    expect(blocks.every((b) => b.cache_control?.type === "ephemeral")).toBe(true);
+    expect(blocks).toHaveLength(3);
+    /* A plain prompt is one block, as it always was. */
+    expect(anthropicSystem("ONE")).toEqual([{ type: "text", text: "ONE", cache_control: { type: "ephemeral" } }]);
+    /* Never more than three, so the conversation keeps the fourth breakpoint; a fourth layer folds into the third. */
+    const four = anthropicSystem(["A", "B", "C", "D"]);
+    expect(four).toHaveLength(3);
+    expect(four.map((b) => b.text).join("")).toBe(systemText(["A", "B", "C", "D"]));
+  });
+
+  it("sends Anthropic its own wording of a layer and every other provider theirs", () => {
+    const layers = ["RULES", { anthropic: "NO LIST", other: "THE LIST" }, "PERSONA"] as const;
+    expect(anthropicSystem(layers).map((b) => b.text).join("")).toBe("RULES\nNO LIST\nPERSONA");
+    expect(systemText(layers)).toBe("RULES\nTHE LIST\nPERSONA");
   });
 
   it("marks nothing where there is no history to hold", () => {

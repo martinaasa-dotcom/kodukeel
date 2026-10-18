@@ -5744,3 +5744,86 @@ caller granted, and it told every model not to think with `disabled`, which Sonn
 **What the ledger counts as fallback** moved with the chains: Anthropic spend on SCENE and SCAN, and
 the reviewer's model, are primary traffic bounded by their own slices, and only the graders' Anthropic
 tail is the fallback the day's fallback budget is for.
+
+## 87. Cheaper and more like a person, and what Haiku and the bank can and cannot take
+
+The operator asked for every proven way to make Sonnet cheaper and better, with Haiku working beside
+it and the built-in lines carrying what they can, against `gemini-3.8-flash` at about $0.0125 a
+conversation. Everything below was played through the route's own transport and gate with
+`npm run play:scenes -- --compose --drafts`, on all 43 scenes as a sloppy and as a curious learner,
+Anthropic only. Quality was judged blind: `claude-opus-5-5` read two transcripts of the same scene with
+every provenance label stripped, said whose other side reads more like a real Estonian person, and was
+asked twice with the order swapped, so a preference for whichever came first cannot decide it.
+
+**The judge's noise was measured before anything was read off it.** Sonnet against a second run of the
+same Sonnet came out 22 to 14 and 22 to 16, so a margin of about eight scenes in 43 is noise. And the
+first sweep was thrown away: run twenty-four processes at a time, 15 to 20 percent of the composer's
+calls met Anthropic's limit on requests in flight, the turn fell to the bank, and the conversations
+read as cheap and wooden for a reason that had nothing to do with the model. The harness now waits a
+429 out and asks again (`patientOn429`), and every run below is clean.
+
+**What moved, all of it measured:**
+
+| | $ a conversation, cold | warm | Judge against Sonnet as it was | Withheld | p90 wait |
+| --- | --- | --- | --- | --- | --- |
+| Sonnet as it was (§86) | 0.0287 / 0.0295 | | | 16% / 25% | 2.5 / 2.8 s |
+| The same, prompt in layers | 0.0256 / 0.0284 | | 22-14 / 22-16 (noise) | 14% / 24% | 2.5 / 3.0 s |
+| No word list for Anthropic | 0.0208 / 0.0233 | | 18-15 / 25-11 | 17% / 22% | 2.5 / 3.1 s |
+| And the lean per-turn block | 0.0181 / 0.0222 | 0.0132 / 0.0163 | **21-11 / 28-8** | 12% / 26% | 2.1 / 3.7 s |
+| **And the bank's opening line** | **0.0170 / 0.0200** | **0.0119 / 0.0140** | 17-14 / 13-22 against the line above | 17% / 26% | 2.6 / 3.1 s |
+
+Sloppy learner first, curious second. Cold is a conversation nobody else started in the last five
+minutes, which is every conversation while traffic is this low; warm is one that starts while another
+scene's prompt is still cached. Both include the reviewer.
+
+**The prompt is sent in three layers, each behind a breakpoint** (`SystemLayers`, `composeSystemLayers`):
+the rules, which are the same for every scene and every learner; the scene at its band; and the persona
+drawn for this run. A cold conversation pays exactly what it paid, since every token is written once
+either way, and a conversation that starts within five minutes of any other reads the 1,850 tokens of
+rules off the cache at a twentieth, and the whole scene where it is the same scene. Nothing changes on
+Gemini, which is sent the same text joined.
+
+**Sonnet is not sent the word list.** It was 1,900 tokens of a 4,200-token prompt, written once per
+conversation. Without it `claude-sonnet-5-5` was withheld for reaching past the scene's words no more
+often than with it, 14 lines against 17, because `vouching` and `stretch` hold every line to the list
+exactly as before, and the judge preferred its conversations. The Gemini links keep the list, because
+nobody has measured them without it.
+
+**The per-turn block lost its explanations.** About 140 of its 450 tokens were the same sentences on
+every turn (whose side the stage direction is written from, how to read the facts, what the messages
+before are), sent at the full input rate because a block that changes every turn cannot be cached. They
+are said once in the rules now, word for word ("How the notes after the conversation read"). That was
+meant as a saving and turned out to be the largest gain in quality: against Sonnet as it was in this
+same session, 19 to 13 and 24 to 9. Read on the transcripts, the lean model answers what the learner
+actually asked and keeps to what it said, where the other went on with its agenda.
+
+**The bank says the opening move.** After the hello there is nothing yet to react to, and the beat's
+own banked line is what a person says there (`builtInCarries`, `builtInFirst: "opening"`). Within the
+noise, 17 to 14 and 13 to 22, for a tenth of the cost.
+
+**And no further, which is the finding the operator asked about.** The bank and Haiku were both put on
+every clean turn, where the learner answered and asked nothing, with Sonnet keeping every turn that was
+a miss, a question, a curveball or a retry:
+
+| On the easy turns | Composer $ cold | Judge against Sonnet on every turn |
+| --- | --- | --- |
+| The bank, Haiku where it has no line | 0.0106 / 0.0223 | lost 23-10 (sloppy) |
+| Haiku, prompt as it was | 0.0164 / 0.0227 | lost 25-9 / won 19-14 |
+| Haiku, lean prompt | 0.0116 / 0.0160 | lost **27-4 / 23-10** |
+
+The composer alone, without the reviewer, which adds about $0.002 a conversation to each.
+
+The easy turns are where a person's small reactions show: `Reedest saadik, see on juba mitu päeva`
+where Haiku said `Reede, hea küll`, `Aa, sa oled juba poes!` where the bank said `Mida sa ostad?`.
+A curious learner, who tacks a question onto every turn, sends nearly everything to Sonnet whatever the
+policy, which is why that column barely moves. So Haiku stays where it works, reviewing every line and
+judging the beats the dictionary refused (§86), and `npm run play:scenes -- --cascade` keeps the
+question askable of the next Haiku (`scripts/lib/cascade.ts`).
+
+**Against the flash.** Read beside the flash's own transcripts of the same 43 scenes, the judge
+preferred the setup above **34 to 4 and 28 to 7**, where it had preferred Sonnet as it was 28 to 9.
+It is faster, at a p90 of about 3 seconds against
+4.4 to 5, and far fewer of its turns fall to the bank. It costs about the same as the flash when another
+conversation has warmed the cache, and about half as much again when nobody has, which is where things
+stand at today's traffic. Closing that last gap means putting a cheaper model or the bank on the easy
+turns, and the judge says that is the trade the operator would be making.

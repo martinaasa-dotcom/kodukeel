@@ -424,6 +424,25 @@ const COMPOSE_RULES = [
   "Say goodbye or thank them for coming only when your move is to close, never before, and never",
   "twice of your own accord: once you have said goodbye, answer anything else briefly, and say it",
   "again only to answer their goodbye.",
+  /*
+    HOW THE NOTES AFTER THE CONVERSATION READ, SAID ONCE HERE RATHER THAN ON
+    EVERY TURN. These sentences used to ride in the per-turn block, which no
+    cache can hold because it changes every turn, so a model paid full price
+    for them on every draft: about 140 tokens of a 450-token block. Moved here
+    word for word, where they are read off the cache (docs/21-situations.md
+    §87); the per-turn block keeps the facts and loses only the explanation of
+    how to read them.
+  */
+  "How the notes after the conversation read. The messages before them are the conversation so",
+  "far, oldest first, you as assistant and them as user, and your line follows on from it. The",
+  "quoted line after \"Now\" is what you do now, as written on the learner's screen: there",
+  "\"they\" means you and \"you\" means the learner. In the facts off the cards \"you\" also",
+  "means the learner; those marked yours are what you know and they do not, to say when your",
+  "move calls for it or they ask, and you give no other numbers, times or prices. Lines this",
+  "person has asked with before are for what to ask, never for the wording: ask in your own words,",
+  "taking account of what they just said. Anything still needed later that they give early, take,",
+  "and do not ask for it again. The word-by-word reading of their turn is a guide: answer what",
+  "they actually said, in Estonian only.",
 ].join(" ");
 
 /**
@@ -441,13 +460,35 @@ const COMPOSE_RULES = [
  * moved, only the order they arrive in.
  */
 export function composeSystem(scene: ComposeScene): string {
-  return [
-    COMPOSE_RULES,
-    /*
-      The list before the scene, since it is the largest constant block and a
-      cached prefix ends at the first byte that differs.
-    */
-    `Words you may use: ${scene.words.join(" ")}`,
+  return composeSystemLayers(scene).map((layer) => (typeof layer === "string" ? layer : layer.other)).join("\n");
+}
+
+/**
+ * What Anthropic's composer is told in place of the list.
+ *
+ * MEASURED, NOT ARGUED. The list is about 1,900 tokens of a 4,200-token prompt,
+ * and every conversation pays once to write it into the cache. Played on all
+ * 43 scenes as a sloppy and a curious learner, `claude-sonnet-5-5` without it
+ * was withheld for reaching past the scene's words no more often than with it
+ * (the `stretch` and `vouching` checks hold every line to the list exactly as
+ * before), and a blind judge preferred its conversations (docs/21-situations.md
+ * §87). The Gemini links keep the list: nobody has measured them without it.
+ */
+const NO_LIST = "Words you may use: the plainest everyday Estonian words a learner at this band has been taught; a word outside what they have been taught is the exception, never the rule.";
+
+/** A layer worded for Anthropic apart from every other provider (`SystemLayer` in `lib/tutor/provider.ts`). */
+export type ComposeLayer = string | { readonly anthropic: string; readonly other: string };
+
+/**
+ * The same prompt in its three layers, from the most widely shared to the
+ * least: the rules (every scene), the scene at its band (every run of it), and
+ * the persona (this run). Joined with a newline they are `composeSystem`
+ * exactly; the scene route hands them to the transport apart so Anthropic can
+ * cache each behind a breakpoint of its own (`SystemLayers` in
+ * `lib/tutor/provider.ts`).
+ */
+export function composeSystemLayers(scene: ComposeScene): readonly [string, ComposeLayer, string] {
+  const parts = [
     /*
       The scene before the turn, so the character is somebody rather than a
       function of the beat. English, and every line of it is a line the learner
@@ -476,6 +517,16 @@ export function composeSystem(scene: ComposeScene): string {
     scene.voice && scene.voice.length > 0
       ? `How this scene's other side talks, for tone and length only: ${scene.voice.join(" | ")}`
       : "",
+  ].filter(Boolean);
+  /*
+    The list first in the scene layer, since it is the largest constant block
+    and a cached prefix ends at the first byte that differs; and worded per
+    provider family (`NO_LIST`).
+  */
+  const sceneLayer = (words: string) => [words, ...parts].join("\n");
+  return [
+    COMPOSE_RULES,
+    { anthropic: sceneLayer(NO_LIST), other: sceneLayer(`Words you may use: ${scene.words.join(" ")}`) },
     /*
       Last, because it is the one line drawn per run: everything above it is
       shared by every run of this scene at this band. It stays in the constant
@@ -487,7 +538,7 @@ export function composeSystem(scene: ComposeScene): string {
       a run falling to the bank.
     */
     `You are the person the learner has come to. ${scene.persona}`,
-  ].filter(Boolean).join("\n");
+  ];
 }
 
 /**
@@ -510,10 +561,11 @@ export function composeLive(ask: ComposeAsk): string {
       wrote `Kartulid ja vesi maksavad kaheksa eurot`. That was 25 of the 57
       lines the gate withheld with a reason in one run, under `topic`, and
       none of the gate's checks is about who is speaking. The same repair the
-      role card got in `composeSystem`: quoted, with the pronouns explained.
+      role card got in `composeSystem`: quoted, with the pronouns explained,
+      once in the rules ("How the notes after the conversation read") rather
+      than on every turn.
     */
-    `Now, from the learner's side, where "they" means you and "you" means the learner:`
-      + ` "${ask.they}"`,
+    `Now: "${ask.they}"`,
     /*
       AND AN ASK IS A QUESTION PUT TO THEM, WHICH THE MODEL KEPT ANSWERING.
       Said once more in the plainest words for the one move where the fault
@@ -604,7 +656,6 @@ export function composeLive(ask: ComposeAsk): string {
       : "",
     ask.agenda && ask.agenda.length > 1
       ? `Still needed after this, in order: ${ask.agenda.slice(1).join("; ")}.`
-        + " Take any given early and do not ask for it again."
       : "",
     /*
       What they appear to have said, which is the dictionary's reading rather
@@ -613,30 +664,24 @@ export function composeLive(ask: ComposeAsk): string {
       rather than the person.
     */
     ask.facts && ask.facts.length > 0
-      ? `Facts off the cards, where \"you\" means the learner: ${ask.facts.join("; ")}.`
-        + " Those marked yours to tell are what you know and they do not: say them when your move"
-        + " calls for it or they ask. No other numbers, times or prices."
+      ? `Facts off the cards: ${ask.facts.join("; ")}.`
       : "",
     ask.reading
-      ? `Word by word, they appear to have said: ${ask.reading}. Answer what they actually said,`
-        + " in Estonian only."
+      ? `Word by word, they appear to have said: ${ask.reading}.`
       : "",
     /*
       AND THE CONVERSATION IS WHAT MAKES THE LINE WORTH HAVING. The model is
       shown the run's own turns as messages, so this says what to do with them:
       without it a model reads the exchange as context for the instruction and
       answers the beat in isolation, which is the whole thing the bank already
-      did perfectly well.
+      did perfectly well. Said once in the rules now ("How the notes after the
+      conversation read"), where it is read off the cache.
     */
-    "The messages before this are the conversation so far, oldest first, you as assistant and"
-      + " them as user; your line follows on from it.",
     ask.examples.length > 0
       ? `This character's lines at other moments, for tone and length: ${ask.examples.join(" | ")}`
       : "",
     ask.asked.length > 0
       ? `How this character has asked for this before: ${ask.asked.join(" | ")}.`
-        + " Ask for the same thing in your own words, taking account of what they just said,"
-        + " never word for word."
       : "",
     /*
       What a retry is told, and it is deliberately not "those words are not

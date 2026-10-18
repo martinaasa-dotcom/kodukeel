@@ -34,7 +34,7 @@
 import { SCENES, sceneById } from "../lib/scenes/catalogue";
 import { MAX_TURNS, acceptFromRows, contextFromRows, knowing, replay, sceneLemmas, type Row, type StoredDraw } from "../lib/progress/scene";
 import { planRun } from "../lib/scenes/run";
-import { planTurn, speakTurn } from "../lib/progress/sceneTurn";
+import { planTurn, speakTurn, type TurnAsk } from "../lib/progress/sceneTurn";
 import { harnessModel } from "./lib/keylessPlay";
 import { seedFrom } from "../lib/random/seeded";
 import { currentBeat, hurdleBeat, isOver } from "../lib/scenes/state";
@@ -48,8 +48,9 @@ import { CONSISTENCY_REPLY_TOKENS, buildConsistencySystemPrompt, buildConsistenc
 import { propBySlot } from "../lib/scenes/props";
 import { fold } from "../lib/estonian/fold";
 import { shippedDictionary } from "./lib/dictionary";
-import { COMPOSE_USAGE, chain as providerChain, linkKey, vouchOf, HARNESS_LEVEL, type Link } from "./lib/sceneDraft";
+import { COMPOSE_USAGE, CURRENT_SCENE, chain as providerChain, linkKey, patientOn429, vouchOf, HARNESS_LEVEL, type Link } from "./lib/sceneDraft";
 import { anthropicArms } from "./lib/anthropicArms";
+import { needsStrongModel } from "./lib/cascade";
 import { callChainForJson } from "../lib/tutor/grader";
 import { estimateCostMicros } from "../lib/usage/pricing";
 import { appendFileSync } from "node:fs";
@@ -148,6 +149,14 @@ const JUDGE_LINKS = modelDown && process.env.GROQ_API_KEY
     }) as Link)
   : LINKS;
 const COMPOSE_STATUS = new Map<string, number>();
+const CASCADE = process.argv.includes("--cascade");
+/* `--built-in-first`: a turn the built-in lines can carry asks no model (`builtInCarries`), as the route does. */
+const BUILT_IN_FIRST = process.argv.includes("--built-in-first")
+  ? (arg("built-in-first") === "opening" ? "opening" as const : "clean" as const)
+  : undefined;
+const BUILT_IN_TURNS = { count: 0 };
+if (CASCADE && LINKS.length !== 2) throw new Error("--cascade needs exactly two --anthropic arms: the easy one, then the strong one.");
+const CASCADE_PICKS: [number, number] = [0, 0];
 
 /** Every judge and consistency call, as asked and as answered, so `eval-judge.ts` can put the same questions to other models. */
 function logJudge(kind: "judge" | "consistency", system: string, user: string, raw: string): void {
@@ -181,7 +190,7 @@ async function judgeText(link: Link | (typeof JUDGE_LINKS)[number], system: stri
   if (link.name === "anthropic") {
     try {
       const l = link as Link;
-      const res = await callChainForJson([{ name: "anthropic", model: l.model, label: l.label, ...(l.thinking ? { thinking: l.thinking } : {}) }], system, user, cap);
+      const res = await patientOn429(() => callChainForJson([{ name: "anthropic", model: l.model, label: l.label, ...(l.thinking ? { thinking: l.thinking } : {}) }], system, user, cap));
       return res.text;
     } catch {
       return "";
@@ -351,6 +360,7 @@ async function harnessChat(dayId: string): Promise<SceneSpec | null> {
 let chatScene: SceneSpec | null = null;
 
 async function play(sceneId: string) {
+  CURRENT_SCENE.id = sceneId;
   const scene = sceneId === CHAT_ID ? chatScene! : sceneById(sceneId)!;
   const base = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)), level);
   /*
@@ -466,7 +476,17 @@ async function play(sceneId: string) {
       rotate: seedFrom(`${scene.id}:${run.seed}`),
       level,
     });
-    const { lines } = await speakTurn(plan, LINKS.length > 0 ? harnessModel(LINKS, {
+    let modelAsked = false;
+    const model = LINKS.length > 0 ? harnessModel(LINKS, {
+      /*
+        `--cascade` with two Anthropic arms: the first writes the easy turns and
+        the second the hard ones and every retry (`needsStrongModel`).
+      */
+      ...(CASCADE ? { pick: (ask: TurnAsk, avoid: readonly string[]) => {
+        const strong = needsStrongModel(ask, avoid);
+        CASCADE_PICKS[strong ? 1 : 0] += 1;
+        return [LINKS[strong ? 1 : 0]!];
+      } } : {}),
       vouch: (spellings) => vouchOf(context.lexicon, spellings),
       // The route's consistency check, on the judge's link, once there is a conversation to keep to.
       ...(JUDGE_LINKS.length > 0 ? { consistency: consistencyOnJudge } : {}),
@@ -492,7 +512,13 @@ async function play(sceneId: string) {
       onAsk: (beatId, because) => {
         if (because && process.argv.includes("--drafts")) console.log(`      ~ withheld (${beatId}): ${because}`);
       },
-    }) : undefined);
+    }) : undefined;
+    const { lines } = await speakTurn(plan, model && (async (turn) => {
+      modelAsked = true;
+      return model(turn);
+    }), { builtInFirst: BUILT_IN_FIRST });
+    // A turn the model would have been asked on, spoken from the built-in lines instead (`builtInCarries`).
+    if (model && !modelAsked && lines.some((l) => l.provenance === "scripted" || l.provenance === "fallback")) BUILT_IN_TURNS.count += 1;
     const { last, standing, current: beat, card } = plan;
     if (last) {
       const notes = [
@@ -539,7 +565,15 @@ async function play(sceneId: string) {
     if (!chatScene) throw new Error(`no chat to have after ${arg("day") ?? "a2.1-03"}: the evening is unknown or has no readable new words`);
     await play(CHAT_ID);
   }
-  for (const scene of SCENES) if (!only || scene.id === only) await play(scene.id);
+  /*
+    `--shard 2/6` plays every sixth scene starting at the third, so six
+    processes cover the catalog at once: a turn waits on a chain of calls, and
+    one process at a time is an afternoon.
+  */
+  const [shardAt, shardOf] = (arg("shard") ?? "0/1").split("/").map(Number) as [number, number];
+  for (const [i, scene] of SCENES.entries()) {
+    if ((!only || scene.id === only) && i % shardOf === shardAt) await play(scene.id);
+  }
   /*
     Who answered and who did not, so a run that composed nothing says so rather
     than reading as a clean keyless run. On a free tier a refusal is the
@@ -548,6 +582,8 @@ async function play(sceneId: string) {
   */
   if (composing) {
     console.log("\nThe composer:");
+    if (BUILT_IN_FIRST) console.log(`  BUILT-IN: ${BUILT_IN_TURNS.count} turns spoken from the built-in lines, no model asked`);
+    if (CASCADE) console.log(`  CASCADE: ${CASCADE_PICKS[0]} asks to ${linkKey(LINKS[0]!)}, ${CASCADE_PICKS[1]} to ${linkKey(LINKS[1]!)}`);
     if (LINKS.length === 0) console.log("  no provider key matched, so every line above is the net");
     for (const [why, count] of [...COMPOSE_STATUS].sort((a, b) => b[1] - a[1])) {
       console.log(`  ${why} x${count}`);

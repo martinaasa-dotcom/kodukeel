@@ -24,6 +24,7 @@
  * Nothing here runs at import time: the chain reads the environment when
  * asked, so a test may import the context builders without a key in sight.
  */
+import { appendFileSync } from "node:fs";
 import { CLOSING_WORDS } from "../../lib/scenes/casual";
 import { unwrapLine } from "../../lib/scenes/line";
 import { buildCaseTable, stemsFrom } from "../../lib/estonian/derive";
@@ -40,8 +41,9 @@ import type { CaseKey } from "../../lib/estonian/types";
   at 80 tokens and wrote a clean line at the app's own 1200. A measurement that
   disqualifies a model the app can use is worse than no measurement.
 */
+import { forgetExhausted } from "../../lib/tutor/exhausted";
 import { SCENE_REPLY_TOKENS, openWithFallback, sceneProviders, type ProviderConfig, type ProviderName, type UsageReport } from "../../lib/tutor/provider";
-import { composeLive, composeSystem } from "../../lib/scenes/prompt";
+import { composeLive, composeSystem, composeSystemLayers } from "../../lib/scenes/prompt";
 import { geminiCachedReply } from "../../lib/tutor/geminiCache";
 import { FAREWELLS } from "../../lib/scenes/catalogue";
 import { lessonGate } from "../../lib/scenes/inLesson";
@@ -650,6 +652,40 @@ function tally(key: string, usage: Pick<UsageReport, "inputTokens" | "outputToke
     output: before.output + usage.outputTokens,
     ms: before.ms + ms,
   });
+  /*
+    And every call on its own line where `USAGE_LOG` names a file, with the
+    scene it was for, so a run whose conversations shared a cached prefix
+    (`SystemLayers`) can be priced as though each had started cold.
+  */
+  if (process.env.USAGE_LOG) {
+    appendFileSync(process.env.USAGE_LOG, JSON.stringify({
+      key, scene: CURRENT_SCENE.id, input: usage.inputTokens, cached: usage.cachedInputTokens ?? 0,
+      written: usage.cacheWriteTokens ?? 0, output: usage.outputTokens, ms,
+    }) + "\n");
+  }
+}
+
+/** The scene a harness is playing now, for `USAGE_LOG`. */
+export const CURRENT_SCENE = { id: "" };
+
+/**
+ * A harness measures the model, not the account's concurrency ceiling. Several
+ * runs side by side meet Anthropic's limit on requests in flight, and a 429
+ * there marks the link out (`lib/tutor/exhausted.ts`) and drops the turn to the
+ * bank, which reads as a model that cheaply wrote nothing. So a 429 is waited
+ * out and asked again, a few times, before it counts.
+ */
+export async function patientOn429<T>(call: () => Promise<T>, tries = 8): Promise<T> {
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      return await call();
+    } catch (error) {
+      const status = (error as { status?: number }).status;
+      if (status !== 429 || attempt >= tries) throw error;
+      forgetExhausted();
+      await new Promise((r) => setTimeout(r, 1500 * attempt + Math.random() * 1500));
+    }
+  }
 }
 
 export async function askLine(
@@ -681,11 +717,11 @@ export async function askLine(
           app does not have.
         */
         let used: UsageReport | null = null;
-        const open = await openWithFallback(
+        const open = await patientOn429(() => openWithFallback(
           [{ name: "anthropic", model: link.model, label: link.label, maxTokens: SCENE_REPLY_TOKENS, ...(link.thinking ? { thinking: link.thinking } : {}) }],
-          composeSystem(scene), [...said, { role: "user" as const, content: "Your line:" }],
+          composeSystemLayers(scene), [...said, { role: "user" as const, content: "Your line:" }],
           (u) => { used = u; }, composeLive(ask), SCENE_REPLY_TOKENS, true,
-        );
+        ));
         let raw = "";
         for await (const chunk of open.chunks) raw += chunk;
         if (used) tally(linkKey(link), used, Date.now() - started);

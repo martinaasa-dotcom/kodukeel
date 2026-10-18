@@ -275,6 +275,23 @@ scanner moved the same day: `VISION_MODEL` is `claude-haiku-5-5`, which read 144
 the Lite, and the Lite stands behind it. **Anthropic spend on SCENE and SCAN, and the reviewer's,
 is primary traffic**, so the ledger's fallback budget counts only the graders' Anthropic tail.
 
+**And Sonnet is sent less and says more, and Haiku and the bank do not write the easy turns.**
+Measured on all 43 scenes and judged blind by `claude-opus-5-5`, both orders, with the judge's own
+noise measured first at about eight scenes in 43 (`docs/21-situations.md` §87). The static prompt goes
+to Anthropic in three layers behind three breakpoints (`SystemLayers`): rules for every scene, the scene
+at its band, the persona, so a cold conversation pays what it paid and a warm one reads the rules off the
+cache. Anthropic is not sent the word list (`composeSystemLayers` words a layer per family), which was
+1,900 tokens written once per conversation and changed nothing `stretch` and `vouching` see; Gemini
+keeps it, unmeasured without it. The per-turn block lost the sentences that explained how to read it,
+said once in the rules now, and that was the largest gain in quality of the pass. The bank says the
+opening move after the hello (`builtInFirst: "opening"`) and nothing past it: on every clean turn the
+bank lost 23 to 10, and Haiku on the easy turns lost 27 to 4 and 23 to 10, because the easy turns are
+where a person's small reactions show. About $0.017 to $0.020 a conversation cold and $0.012 to $0.014
+warm, against $0.029 before; the flash is about $0.0125 and lost to it 34 to 4 and 28 to 7. **And a harness run side by side meets
+Anthropic's limit on requests in flight**: the first sweep lost a fifth of its calls to 429s that read
+as a cheap, wooden model, so the harness waits one out (`patientOn429`), and a sweep is read for
+`claude-... 0 xN` status lines before its numbers are.
+
 **The leash came off the composer, and the gate is what pays for it.** `MAX_SENTENCES` is five,
 `MAX_COMPOSED_WORDS` is fifty-five and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
 old argument was that the only thing keeping a composed line honest is how little room it has to
@@ -12172,7 +12189,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `withoutUnverified`, `recapOf`, `parseCoachNote`, `composedBy`, `modelDown`, `shrugFits`, `priceAsked`, `SAYS_FIRST`, `isFarewell`,
 `planTurn`, `speakTurn`, `composeTurn`, `harnessModel`, `asksTheirQuestion`, `againHref`,
 `linesFor`, `composeSheet`, `markLine`, `workbookGrades`, `recordWorkbookGrades`, `whereWhole`, `whoFor`,
-`FreshRound`, `AnotherRound`, `dealSayings`, `afterServing`, `markSayingsServed`.
+`FreshRound`, `AnotherRound`, `dealSayings`, `afterServing`, `markSayingsServed`, `SystemLayers`,
+`composeSystemLayers`, `anthropicSystem`, `NO_LIST`, `builtInCarries`, `patientOn429`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

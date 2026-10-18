@@ -19,7 +19,7 @@ import {
 } from "@/lib/scenes/consistency";
 import { leafNeeds } from "@/lib/scenes/types";
 import { isSpokenEstonian, unwrapLine, type SpokenLine } from "@/lib/scenes/line";
-import { composeLive, composeSystem } from "@/lib/scenes/prompt";
+import { composeLive, composeSystemLayers } from "@/lib/scenes/prompt";
 import { LEVELS, type Level } from "@/lib/collections/syllabus/types";
 import { courseLevelFor } from "@/lib/progress/level";
 import { words } from "@/lib/scenes/lexicon";
@@ -739,6 +739,17 @@ export async function POST(request: Request) {
       answered, rather than under every line.
     */
     return { kind: "composed", line: said, preBreak: written.preBreak, extra: { composed: true, composedBy: outcome.by } };
+  }, {
+    /*
+      THE OPENING MOVE AFTER THE HELLO IS THE BANK'S. All the learner has said
+      is hello, so there is nothing yet to react to, and the beat's own banked
+      line is what a person says there; a model call adds nothing a learner can
+      hear and costs one. Only there: spoken from the built-in lines on every
+      clean turn, a blind judge preferred the composed conversations 23 to 10,
+      because a person reacts to what they were just told (docs/21-situations.md
+      §87). The first composed turn still writes the prompt into the cache.
+    */
+    builtInFirst: "opening",
   });
   return answer(lines, extra);
 }
@@ -868,7 +879,7 @@ async function compose(
     are the same on every turn of this run and they are nine tenths of the
     prompt (`lib/scenes/prompt.ts`).
   */
-  const system = composeSystem({
+  const system = composeSystemLayers({
     scene: input.scene, place: input.place, level: input.level, persona: input.persona,
     situation: input.situation, register: input.register, voice: input.voice, words: input.words,
   });

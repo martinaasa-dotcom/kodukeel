@@ -1124,7 +1124,12 @@ function absorbUsage(provider: ProviderName, frame: unknown, into: UsageReport):
  */
 export async function openWithFallback(
   chain: ProviderConfig[],
-  system: string,
+  /*
+    The static prompt, or its layers from the most widely shared to the least
+    (`SystemLayers`). Anthropic caches each layer behind a breakpoint of its
+    own; every other provider is sent the layers joined, exactly as before.
+  */
+  layered: string | SystemLayers,
   messages: ChatMessage[],
   /** Called once when the stream ends, however it ends. Tokens spent before a
    *  failure were still spent, and the spend cap has to see them. */
@@ -1161,6 +1166,7 @@ export async function openWithFallback(
   cacheSystem = false,
 ): Promise<OpenStream> {
   if (chain.length === 0) throw new TutorError("There's no AI set up on this site yet, so this part can't answer. Everything else still works.", 503);
+  const system = systemText(layered);
   /*
     A LINK THAT SAID "NOT UNTIL LATER" IS WALKED PAST BEFORE ANYTHING IS SPENT
     ON IT (`lib/tutor/exhausted.ts`). On the cached path that is the difference
@@ -1184,7 +1190,7 @@ export async function openWithFallback(
       }
       const upstream =
         config.name === "anthropic"
-          ? await callAnthropic(config, system, messages, live, maxTokens)
+          ? await callAnthropic(config, layered, messages, live, maxTokens)
           : await callOpenAiCompatible(config, system, messages, last, live, maxTokens);
       // The ledger has to see the provider that actually answered, not the head
       // of the chain — falling back to a dearer model must not go unmetered.
@@ -1508,9 +1514,61 @@ export function anthropicHeaders(): Record<string, string> {
   };
 }
 
+/**
+ * A static prompt in layers, from the one shared most widely to the one shared
+ * least: the scene composer's rules (every scene, every learner), then the
+ * scene's own words and setting (every run of that scene at that band), then
+ * the persona drawn for this run.
+ *
+ * WHY LAYERS, ON ANTHROPIC. A cache entry is a prefix, and a breakpoint at the
+ * end of the whole prompt only matches a request whose whole prompt is the
+ * same, which for a scene is one run. With a breakpoint at the end of each
+ * layer, a conversation that starts within the cache's life of any other reads
+ * the rules (about 1,850 tokens) off the cache rather than writing them again,
+ * and one in the same scene at the same band reads the words too. A cold
+ * conversation pays exactly what it paid before, since every token is written
+ * once either way; a warm one reads what is shared at a cache read (a twentieth
+ * of the input rate on `claude-sonnet-5-5`).
+ *
+ * At most three layers, because Anthropic allows four breakpoints and the
+ * conversation's own (`anthropicMessages`) is the fourth.
+ */
+export type SystemLayers = readonly SystemLayer[];
+
+/**
+ * One layer, the same for every provider, or worded for Anthropic apart from
+ * the rest. The scene composer's word list is the case: Sonnet stays inside
+ * a learner's words with the list left out, measured, and the Gemini links
+ * behind it keep it, since nobody has measured them without it
+ * (docs/21-situations.md §87).
+ */
+export type SystemLayer = string | { readonly anthropic: string; readonly other: string };
+
+/** A static prompt as one string, for every provider that takes it as one. */
+export function systemText(system: string | SystemLayers): string {
+  return typeof system === "string"
+    ? system
+    : system.map((layer) => (typeof layer === "string" ? layer : layer.other)).filter(Boolean).join("\n");
+}
+
+/** The system blocks Anthropic is sent: one per layer, each behind a breakpoint, at most three. */
+export function anthropicSystem(system: string | SystemLayers) {
+  const layers = (typeof system === "string" ? [system] : system)
+    .map((layer) => (typeof layer === "string" ? layer : layer.anthropic))
+    .filter(Boolean);
+  // Folded from the end, so a fourth layer joins the third rather than taking the conversation's breakpoint.
+  while (layers.length > 3) layers.splice(layers.length - 2, 2, layers.slice(-2).join("\n"));
+  return layers.map((text, i) => ({
+    type: "text" as const,
+    // A layer after the first starts on its own line, so the joined text reads exactly as `systemText`'s.
+    text: i === 0 ? text : `\n${text}`,
+    cache_control: { type: "ephemeral" as const },
+  }));
+}
+
 async function callAnthropic(
   config: ProviderConfig,
-  system: string,
+  system: string | SystemLayers,
   messages: ChatMessage[],
   live = "",
   maxTokens?: number,
@@ -1533,7 +1591,7 @@ async function callAnthropic(
       // message_start and message_delta, and rejects the OpenAI-shaped field.
       // The Estonian reference is identical every turn, so cache it rather than
       // paying to re-read it on each message.
-      system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
+      system: anthropicSystem(system),
       messages: anthropicMessages(messages, live),
     }),
     signal: AbortSignal.timeout(90_000),
