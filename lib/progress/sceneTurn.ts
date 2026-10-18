@@ -31,7 +31,7 @@ import { clockInPlay, moneyInPlay, type SceneContext, type StoredDraw } from "@/
 import { CHECK_GLUE, asideFor, asideOwed, readBackCorrection, asksPermission, asksToHearAgain, namesLaterBeat, priceAsked, questionAhead, sameFact, shrug } from "@/lib/scenes/aside";
 import { asksSlower, asksToWait, saysGoodbye, LEAVING } from "@/lib/scenes/casual";
 import { FAREWELLS, FEELINGS } from "@/lib/scenes/catalogue";
-import { choiceOf } from "@/lib/scenes/choice";
+import { CHOICE_WORD, choiceOf } from "@/lib/scenes/choice";
 import { repeatsItself, type buildConsistencyUserPrompt } from "@/lib/scenes/consistency";
 import { ASKS_ON } from "@/lib/scenes/curveballs";
 import { gateFor } from "@/lib/scenes/gate";
@@ -390,6 +390,16 @@ export function planTurn(input: TurnInput) {
     */
     || (!composing && !wantsFreshLine(sent ? response : null, heard, reading))
     /*
+      A LEARNER WHO ASKED FOR A MOMENT IS GIVEN IT, IN A RUN THAT COMPOSES
+      TOO (`docs/21-situations.md` §85, row `wait-holding`). `oota` is read
+      as a holding wait, and a line built for it booked a call whose note
+      told the model to ask for the rest of the answer: the learner asked for
+      a moment and was pressed. There is nothing for a model to add to "all
+      right, take your time", so no line is built and the reply is the
+      keyless one.
+    */
+    || (sent && response === "wait" && asksToWait(words(last?.said ?? "")))
+    /*
       A CURVEBALL SAID IN ENGLISH IS SAID IN ENGLISH. "They switch to English"
       carries its own line (`said`) and no Estonian is wanted for it; composed,
       it came back as `Kas te räägite inglise keelt?`, which is the other side
@@ -437,7 +447,7 @@ export function planTurn(input: TurnInput) {
     const anticipated = askedNow && answered?.answer ? stageFor({ ...answered, they: answered.answer }, card) : null;
     /* The word the beat was waiting for, where the other side is letting it go or was asked for help. */
     const handing = (response === "help" || response === "moveOn") && answered
-      ? helpWith(response, offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives, context.lexicon.caseForm))
+      ? helpWith(response, offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives, context.lexicon.caseForm), context.lexicon)
       : null;
     /*
       A closing beat where the learner is still asking: the goodbye waits, so
@@ -496,7 +506,20 @@ export function planTurn(input: TurnInput) {
           return new Set([...kept].filter((n) => !open.has(n) && !said.has(n)));
         })(),
       }),
-      topic: new Set<string>([...(context.topic.get(beat.id) ?? []), ...theirs]),
+      /*
+        NO TOPIC ON A BEAT THAT ELICITS A WORD (tonight's chat, VB-11). Such a
+        beat has no topic words on purpose (`chatScene`): the one word it is
+        about is the one word the other side may not say, and `elicits` keeps
+        the line on it instead. But `theirs` was added on every turn, so the
+        topic was whatever the learner had just said, and a neighbour asking
+        "how was your day, are you coming from work?" after `Tere.` was
+        withheld three times running as off the point, with the beat falling to
+        its stage direction or to the last line said again. Read in the capped
+        critic round of 2026-10-17 (docs/41-fifth-batch.md, section 0): every
+        word beat's drafts were withheld for `topic`, which is most of what the
+        critic had counted as stalls and repeats.
+      */
+      topic: beat.elicits ? new Set<string>() : new Set<string>([...(context.topic.get(beat.id) ?? []), ...theirs]),
       hasFiniteVerb: context.hasFiniteVerb,
       fallback: context.fallback,
       scripted: bank(beat.id),
@@ -583,6 +606,7 @@ export function planTurn(input: TurnInput) {
       acknowledges: persona?.acknowledges ?? true,
       permission: asksPermission(last?.said ?? "", context.lexicon),
       finiteForms: finiteFormsOf(context.lexicon),
+      but: context.lexicon.forms.has("aga"),
       verbAnswer: verbAnswered(answered, last?.matched?.[0] ?? null, context.lexicon),
       // A slip the dictionary could not put right leaves the turn's own words wrong, so none of them is said back.
       slipped: Boolean(last?.slips?.some((slip) => !slip.form)),
@@ -611,7 +635,7 @@ export function planTurn(input: TurnInput) {
         the question they were asked.
       */
       offer: !composing && (response === "help" || response === "moveOn") && answered
-        ? helpWith(response, offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives, context.lexicon.caseForm))
+        ? helpWith(response, offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives, context.lexicon.caseForm), context.lexicon)
         : null,
       met: state.done.length,
       metLast: last?.met ?? [],
@@ -912,10 +936,12 @@ export async function composeTurn(
     */
     note: composeNote(
       plan.sent ? plan.response : null, plan.reading, input.elsewhere > 0, preBreak ? null : askedNow,
-      { offer: handing, answer: anticipated, again: plan.hearAgain && plan.heard !== null },
+      { offer: handing, answer: anticipated, again: plan.hearAgain && plan.heard !== null, elicit: beat.elicits ?? null },
     ),
     /* How many times this move has already been made, so a question answered is not asked a third time. */
     madeBefore: state.turns.filter((turn) => turn.beatId === beat.id).length,
+    /* The word a chat beat is for, which the stage direction names only by its meaning (`elicits`). */
+    ...(beat.elicits ? { elicit: beat.elicits } : {}),
     // And what that turn was to this person, so the model feels what the keyless reply feels.
     feel: feltAt(answered, plan.sent ? plan.response : null),
   });
@@ -1061,7 +1087,12 @@ function withoutRepeatedReaction(lines: SpokenLine[], reactedBefore: string | nu
   return plain(reactedBefore) === plain(first.text) ? lines.slice(1) : lines;
 }
 
-/** The yes-or-no handed over at an offer is for somebody who asked for help, never a word said on the way past. */
-function helpWith(response: Response, offer: string | null): string | null {
-  return offer === OFFER_CHOICE && response !== "help" ? null : offer;
+/**
+ * The yes-or-no handed over at an offer is for somebody who asked for help,
+ * never a word said on the way past, and never in a scene whose list cannot
+ * say "or": a lesson's own conversation before the lesson that teaches `või`.
+ */
+function helpWith(response: Response, offer: string | null, lexicon: Lexicon): string | null {
+  if (offer !== OFFER_CHOICE) return offer;
+  return response === "help" && lexicon.forms.has(CHOICE_WORD) ? offer : null;
 }

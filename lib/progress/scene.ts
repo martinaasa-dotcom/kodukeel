@@ -37,6 +37,7 @@ import { SYLLABUS } from "@/lib/collections/syllabus";
 import { readableSpellings } from "@/lib/estonian/gapForms";
 import { isPhrase } from "@/lib/dict/pos";
 import { courseForms } from "@/lib/dict/facts";
+import { lessonGate } from "@/lib/scenes/inLesson";
 import { substitutes } from "@/lib/dict/acceptFacts";
 import { sensesOf, substitutesFrom } from "@/lib/dict/synonyms";
 import { isExactForm, isKnownForm, lemmasOfForm } from "@/lib/dict/forms";
@@ -56,7 +57,12 @@ import { recapOf, type SceneRecap } from "@/lib/scenes/recap";
 import { addsEvidence, answerPart, concede, metByWord, onlyAsks, readTurn } from "@/lib/scenes/turn";
 import { saysGoodbye, CLOSING_WORDS } from "@/lib/scenes/casual";
 import { clip } from "@/lib/copy/clip";
+import { core } from "@/lib/speech/reconcile";
+import { wordCount } from "@/lib/speech/edits";
 import { localeFor } from "@/lib/progress/locale";
+import { CHAT_ID, type ChatPlan } from "@/lib/scenes/specs/chat";
+import { chatSceneOf, readChatPlan } from "@/lib/progress/chat";
+import { patienceFor, type PersonaSpec } from "@/lib/scenes/personas";
 
 /**
  * The units that supply the machinery every scene's marker needs.
@@ -145,8 +151,13 @@ export type Row = DictEntry & {
  * this app where reading everything is the correct answer rather than the lazy
  * one.
  */
-export async function sceneContext(sceneId: string, level?: Level): Promise<SceneContext | null> {
-  const scene = sceneById(sceneId);
+export async function sceneContext(sceneOrId: string | SceneSpec, level?: Level): Promise<SceneContext | null> {
+  /*
+    A catalogue scene by id, or a scene already built: tonight's chat is
+    assembled per evening off its run's own draw and is in no catalogue
+    (`sceneOfRun`).
+  */
+  const scene = typeof sceneOrId === "string" ? sceneById(sceneOrId) : sceneOrId;
   if (!scene) return null;
   const [rows, known, stand] = await Promise.all([
     readEntries([...sceneLemmas(scene)]),
@@ -447,6 +458,7 @@ const MONEY_UNIT = "euro";
 export function sceneLemmas(scene: SceneSpec): Set<string> {
   const lemmas = new Set<string>();
   for (const unit of scene.units) for (const lemma of unitById(unit)?.lemmas ?? []) lemmas.add(lemma);
+  for (const lemma of scene.lemmas ?? []) lemmas.add(lemma);
   for (const beat of scene.beats) for (const word of beat.topic) lemmas.add(word);
   for (const prop of scene.props) {
     if (prop.kind === "word" || prop.kind === "weekday") for (const w of prop.oneOf) lemmas.add(w);
@@ -576,6 +588,8 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[], level?: 
         reason the question words are: the gate holds no Estonian.
       */
       farewells: [...FAREWELLS.map(words), ...CLOSING_WORDS.map((word) => [word])],
+      // On a lesson's role-play, nothing the lessons have not taught by then (`SceneSpec.lesson`).
+      ...lessonGate(scene, lexicon),
     },
     marker,
     pool: poolsFor(scene, rows),
@@ -938,6 +952,79 @@ export interface SentTurn {
    * grades.
    */
   readonly picked?: boolean;
+  /**
+   * SAID ALOUD RATHER THAN TYPED (docs/41-fifth-batch.md, VB-4), where it was.
+   *
+   * A spoken turn is read exactly as a typed one: `said` is what the learner
+   * saw in the box and sent, and the conversation goes on the same way. The one
+   * thing that changes is the grade. The recognizer's reading is repaired
+   * against the dictionary where it heard a word that is not a word
+   * (`lib/speech/reconcile.ts`), and a repaired word is the dictionary's
+   * spelling of what the learner meant rather than something they produced, so
+   * it earns no row (D13). `repaired` is those spellings, as compared, and only
+   * the ones still in `said`: a learner who changed the word in the box before
+   * sending it wrote it themselves.
+   *
+   * The client's word, like `picked`, and a forged one can only ever remove
+   * grades. What the recognizer heard is not sent: the transcript keeps what
+   * was said, as for any turn (D21).
+   */
+  readonly spoken?: SpokenTurn;
+}
+
+/** What the transcript keeps about a turn said aloud. */
+export interface SpokenTurn {
+  /** The words the dictionary repaired that the learner sent unchanged, lower-cased, as compared. */
+  readonly repaired: readonly string[];
+  /**
+   * How many words the recognizer heard and how many of them the learner
+   * changed before sending (`editCounts` in `lib/speech/edits.ts`), for the edit rate
+   * `npm run report:speech` reads (D3). Two numbers and never the words, and
+   * absent where the client sent none.
+   */
+  readonly wordsHeard?: number;
+  readonly wordsChanged?: number;
+  /**
+   * Whether the line this turn answered was only heard: the other side's words
+   * were behind a press and the learner did not press (VB-14). It is the one
+   * evidence a conversation gives that somebody can follow spoken Estonian, and
+   * `lib/progress/spokenTurns.ts` reads it for the readiness rungs. Looking is
+   * still free and still costs nothing anywhere else: a turn after a look is a
+   * turn like any other, it simply is not this evidence. The client's word, and
+   * a forged one only lets a learner tell themselves they can follow speech.
+   */
+  readonly unseen?: true;
+}
+
+/** A count off the wire: a whole number, bounded, or nothing. */
+function countOf(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0 ? Math.min(value, 200) : undefined;
+}
+
+/**
+ * The `spoken` field off the wire, or nothing on a typed turn. The repairs
+ * arrive as the recognizer's own (`Repair`), and only the spellings each one
+ * wrote into the box are kept, and only where `said` still holds them.
+ */
+export function spokenOf(input: unknown, said: string): SpokenTurn | undefined {
+  if (!input || typeof input !== "object") return undefined;
+  const repairs = (input as { repairs?: unknown }).repairs;
+  const sent = new Set(said.split(/\s+/).map(core).filter(Boolean));
+  const repaired = Array.isArray(repairs)
+    ? [...new Set(repairs.slice(0, 16).flatMap((one) => {
+        const row = (one ?? {}) as { to?: unknown; rule?: unknown };
+        if (row.rule === "hesitation" || typeof row.to !== "string") return [];
+        return row.to.slice(0, 64).split(/\s+/).map(core).filter((word) => word && sent.has(word));
+      }))]
+    : [];
+  const o = input as { wordsHeard?: unknown; wordsChanged?: unknown; unseen?: unknown };
+  const heard = countOf(o.wordsHeard);
+  const changed = countOf(o.wordsChanged);
+  // Only an exact `true` counts: a missing or garbled value reads as "the words were shown", the safe side.
+  const unseen = o.unseen === true ? { unseen: true as const } : {};
+  return heard !== undefined && changed !== undefined
+    ? { repaired, wordsHeard: heard, wordsChanged: Math.min(changed, heard), ...unseen }
+    : { repaired, ...unseen };
 }
 
 /** The `alsoDone` field off the wire: beat ids only, deduplicated, bounded. */
@@ -978,6 +1065,29 @@ export interface StoredDraw {
    * brisker under the learner having it.
    */
   readonly patience?: readonly number[];
+  /**
+   * The evening a chat was built for and the words it asks for, on a chat run
+   * only (`lib/progress/chat.ts`). The scene is rebuilt from this on every
+   * turn and at the finish, so the conversation marked is the one the learner
+   * had.
+   */
+  readonly chat?: ChatPlan;
+}
+
+/**
+ * THE SCENE A RUN IS, WHICH FOR A CHAT IS NOT IN THE CATALOGUE.
+ *
+ * Every reader of a run used to ask `sceneById(row.sceneId)`, and a chat's
+ * beats are built per evening (`lib/scenes/specs/chat.ts`), so the id alone
+ * says nothing about them. Its plan rides on the draw and this rebuilds it;
+ * every other run is the catalogue's, exactly as before.
+ */
+export function sceneOfRun(sceneId: string, transcript: string): SceneSpec | undefined {
+  const known = sceneById(sceneId);
+  if (known) return known;
+  if (sceneId !== CHAT_ID) return undefined;
+  const plan = readDraw(transcript)?.chat;
+  return plan ? chatSceneOf(plan) : undefined;
 }
 
 export interface FinishedRun {
@@ -1159,8 +1269,14 @@ export async function beginRun(input: {
    * halfway through (`LineMode`).
    */
   lines: LineMode;
+  /**
+   * Tonight's chat: the plan the scene is built from and the one persona the
+   * learner always talks to there (`lib/progress/chat.ts`). Absent on every
+   * catalogue scene.
+   */
+  chat?: { plan: ChatPlan; persona: PersonaSpec };
 }): Promise<{ runId: string; seed: string; run: SceneRunPlan; plays: number; briefing: Briefing; lines: LineMode } | null> {
-  const scene = sceneById(input.sceneId);
+  const scene = input.chat ? chatSceneOf(input.chat.plan) : sceneById(input.sceneId);
   if (!scene) return null;
 
   const seed = randomUUID();
@@ -1177,7 +1293,18 @@ export async function beginRun(input: {
     recencyFor(input.ownerId, scene.id),
     prisma.sceneRun.count({ where: { ownerId: input.ownerId, sceneId: scene.id } }),
   ]);
-  const run = planRun(scene, seed, input.level, input.difficulty, recent);
+  const drawn = planRun(scene, seed, input.level, input.difficulty, recent);
+  /*
+    A chat is always with the same person, so the persona the plan drew is
+    replaced by the learner's own, and the tries each beat gives follow it.
+  */
+  const run: SceneRunPlan = input.chat
+    ? {
+        ...drawn,
+        persona: input.chat.persona,
+        patience: scene.beats.map((beat) => patienceFor(beat.patience, input.chat!.persona)),
+      }
+    : drawn;
 
   /*
     The card is stored with the English of every drawn word beside it, off the
@@ -1194,6 +1321,7 @@ export async function beginRun(input: {
     curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })),
     lines: input.lines,
     patience: run.patience,
+    ...(input.chat ? { chat: input.chat.plan } : {}),
   };
 
   const created = await prisma.sceneRun.create({
@@ -1244,7 +1372,8 @@ export async function finishRun(input: {
   // are written once, which is what append-only means for this table.
   if (!row || row.endedAt) return null;
 
-  const context = await sceneContext(row.sceneId);
+  const spec = sceneOfRun(row.sceneId, row.transcript);
+  const context = spec ? await sceneContext(spec) : null;
   if (!context) return null;
 
   const { scene } = context;
@@ -1387,7 +1516,8 @@ export async function beatNow(input: {
   });
   if (!row) return null;
 
-  const context = await sceneContext(row.sceneId);
+  const spec = sceneOfRun(row.sceneId, row.transcript);
+  const context = spec ? await sceneContext(spec) : null;
   if (!context) return null;
 
   const widened = await knowing(context, input.turns.map((t) => t.said));
@@ -1452,7 +1582,44 @@ export function replay(
     turn straight after, and the turn is helped, so it grades as help.
   */
   let handed: { beatId: string; word: string } | null = null;
+  /*
+    A TURN SAID ALOUD CARRIES ITS REPAIRED WORDS ONTO EVERY RECORD IT MADE
+    (D13), and only `gradesFor` reads them. One turn can make several records
+    (a beat met, the next met by the same words, a beat credited from a
+    distance), and the paths that make them leave the loop by `continue` from a
+    dozen places, so the records a turn made are marked at the top of the next
+    turn and once more after the last, rather than at every exit.
+  */
+  let marked = state.turns.length;
+  let speaking: SpokenTurn | undefined;
+  let speakingSaid = "";
+  const markSpoken = () => {
+    if (speaking && state.turns.length > marked) {
+      const { repaired, wordsHeard, wordsChanged, unseen } = speaking;
+      // The counts ride on the turn's first record only, so a turn that made several is counted once.
+      const counts = wordsHeard !== undefined && wordsChanged !== undefined
+        ? { spoken: true as const, wordsHeard, wordsChanged, ...(unseen ? { unseen } : {}) }
+        : {};
+      /*
+        And a turn sent other than as it was heard is marked on every record it
+        made, so a grade it earns is written as typed (D4): a word changed, or
+        the count of words sent differing from the count heard, which is a word
+        added or dropped by hand that `editCounts` alone does not count.
+      */
+      const edited = wordsHeard !== undefined && wordsChanged !== undefined
+        && (wordsChanged > 0 || wordCount(speakingSaid) !== wordsHeard)
+        ? { edited: true as const } : {};
+      state = {
+        ...state,
+        turns: state.turns.map((turn, at) => (at > marked ? { ...turn, repaired, ...edited } : at === marked ? { ...turn, repaired, ...counts, ...edited } : turn)),
+      };
+    }
+    marked = state.turns.length;
+  };
   for (const sent of turns.slice(0, MAX_TURNS)) {
+    markSpoken();
+    speaking = sent.spoken;
+    speakingSaid = String(sent.said ?? "");
     // Per turn, not per run: the reply asks about the turn that has just been taken.
     elsewhere = 0;
     const beat = currentBeat(context.scene, state);
@@ -1744,6 +1911,7 @@ export function replay(
     further(new Set(evidence.satisfiedBy), heard, !["lost", "english", "echo", "unrecognised"].includes(evidence.reading), beat);
     previous = heard;
   }
+  markSpoken();
   return { state, response, elsewhere };
 }
 
@@ -1817,6 +1985,10 @@ export function readDraw(transcript: string): StoredDraw | null {
       ...(Array.isArray(parsed.patience) && parsed.patience.every((n) => typeof n === "number" && n >= 1)
         ? { patience: parsed.patience }
         : {}),
+      ...(() => {
+        const chat = readChatPlan(parsed.chat);
+        return chat ? { chat } : {};
+      })(),
     };
   } catch {
     return null;
@@ -1871,6 +2043,32 @@ export async function sceneHistoryFor(ownerId: string): Promise<ReadonlyMap<stri
     out.set(row.sceneId, { plays: 1, last, lastAt: row.endedAt });
   }
   return out;
+}
+
+/**
+ * WHETHER THIS LEARNER HAS FINISHED THIS SCENE, which is what offers "Talk it
+ * through" on its briefing (docs/41-fifth-batch.md, VB-4): cold plus speaking
+ * is the closest the app comes to the real thing, and it is for a conversation
+ * somebody has already got through once with the words on screen. Finished is
+ * every objective met, read off the run's own outcome, so a run somebody
+ * walked out of does not count. Derived on each render (ADR-014): a handful of
+ * the newest finished runs of one scene, on the index that holds them.
+ */
+export async function finishedScene(ownerId: string, sceneId: string): Promise<boolean> {
+  const rows = await prisma.sceneRun.findMany({
+    where: { ownerId, sceneId, endedAt: { not: null } },
+    select: { outcome: true },
+    orderBy: [{ startedAt: "desc" }, { id: "desc" }],
+    take: 20,
+  });
+  return rows.some((row) => {
+    try {
+      const parsed = JSON.parse(row.outcome ?? "{}") as { met?: unknown; missed?: unknown };
+      return Array.isArray(parsed.met) && parsed.met.length > 0 && Array.isArray(parsed.missed) && parsed.missed.length === 0;
+    } catch {
+      return false;
+    }
+  });
 }
 
 /**

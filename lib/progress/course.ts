@@ -239,8 +239,23 @@ const ticksFor = cache(async (ownerId: string, programme: Programme): Promise<Ti
  * evenings. Nothing is lost by it: the closing round is the last step of a
  * day, so by the time anybody reaches it the steps in front have been ticked.
  */
-const closingOpensAt = (ticks: Ticks, dayId: string): Date | undefined =>
-  ticks.lastAt.get(dayId);
+const closingOpensAt = (ticks: Ticks, day: CourseDay): Date | undefined => {
+  /*
+    AND ONLY ONCE EVERY STEP IN FRONT OF IT HAS BEEN TICKED, which is what
+    "the steps in front have been ticked" above was assuming rather than
+    checking. A round is ticked at its end, by its own "Next, step 4", and it
+    grades as it goes: so the listening round's five answers landed after
+    Match's tick, read as the closing round's five, and the evening finished
+    itself the moment the listening round ended, before anybody had pressed
+    on. Measured on the first evening of A1: "A quick review, then you're
+    done" was never asked at all. The window opens when the closing round is
+    the next thing to do, which is the last pressed tick of a day whose every
+    pressed step is in.
+  */
+  const pressed = ticks.pressed.get(day.id);
+  const ready = day.steps.every((s) => DERIVED_STEPS.has(s.id) || Boolean(pressed?.has(s.id)));
+  return ready ? ticks.lastAt.get(day.id) : undefined;
+};
 
 /**
  * THE DAY A `"use server"` EXPORT MAY WRITE ABOUT.
@@ -461,8 +476,8 @@ async function gradedBetween(ownerId: string, since: Date, until: Date): Promise
 }
 
 /** How far into a day's closing round the learner is. Nought before it opens. */
-async function closingGraded(ownerId: string, ticks: Ticks, dayId: string): Promise<number> {
-  const opened = closingOpensAt(ticks, dayId);
+async function closingGraded(ownerId: string, ticks: Ticks, day: CourseDay): Promise<number> {
+  const opened = closingOpensAt(ticks, day);
   return opened ? gradedSince(ownerId, opened) : 0;
 }
 
@@ -487,7 +502,7 @@ async function closingNeeded(
 ): Promise<number> {
   if (graded >= CLOSING_REVIEW) return CLOSING_REVIEW;
   const left = await closingLeft(
-    ownerId, scopeFor(programme, day), CLOSING_REVIEW - graded, now, closingOpensAt(ticks, day.id) ?? null,
+    ownerId, scopeFor(programme, day), CLOSING_REVIEW - graded, now, closingOpensAt(ticks, day) ?? null,
   );
   return Math.min(CLOSING_REVIEW, graded + left);
 }
@@ -499,7 +514,8 @@ async function closingNeeded(
 export async function closingOpenedAt(
   ownerId: string, programme: Programme, dayId: string,
 ): Promise<Date | null> {
-  return closingOpensAt(await ticksFor(ownerId, programme), dayId) ?? null;
+  const day = dayById(programme, dayId);
+  return day ? closingOpensAt(await ticksFor(ownerId, programme), day) ?? null : null;
 }
 
 /** Whether the closing round is the one step of the evening still outstanding. */
@@ -518,9 +534,12 @@ async function withDerivedSteps(
   ownerId: string, programme: Programme, ticks: Ticks, day: CourseDay,
   ticked: ReadonlySet<string>, now: Date,
 ): Promise<Set<string>> {
+  /* A lesson evening has neither derived step: its one step is the lesson,
+     ticked when the lesson ends, so there is nothing for the log to prove. */
+  if (!day.steps.some((step) => DERIVED_STEPS.has(step.id))) return new Set(ticked);
   const [met, graded] = await Promise.all([
     ticked.has(MEET_STEP) ? Promise.resolve(true) : metWords(ownerId, day.words),
-    ticked.has(REVIEW_STEP) ? Promise.resolve(CLOSING_REVIEW) : closingGraded(ownerId, ticks, day.id),
+    ticked.has(REVIEW_STEP) ? Promise.resolve(CLOSING_REVIEW) : closingGraded(ownerId, ticks, day),
   ]);
 
   const withDerived = new Set(ticked);
@@ -717,7 +736,11 @@ export async function courseReading(
     midnight and answers arrived since. Asked only on that path, which is two
     counts on a render that has just advanced a day.
   */
-  if (!finishedToday && lastTick && justFinished && !ticks.pressed.get(justFinished)?.has(REVIEW_STEP)) {
+  if (
+    !finishedToday && lastTick && justFinished && !ticks.pressed.get(justFinished)?.has(REVIEW_STEP)
+    // A lesson evening has no closing round: its one tick is the whole evening.
+    && Boolean(dayById(programme, justFinished)?.steps.some((s) => s.id === REVIEW_STEP))
+  ) {
     const [before, since] = await Promise.all([
       gradedBetween(ownerId, lastTick, midnight),
       gradedSince(ownerId, midnight),
@@ -787,7 +810,7 @@ export async function closingProgress(
   /* A closing round the log already proved, and saved, is finished, whatever
      the deck says now. See `latchDerived`. */
   if (ticks.byDay.get(dayId)?.has(REVIEW_STEP)) return { graded: CLOSING_REVIEW, needed: CLOSING_REVIEW };
-  const graded = await closingGraded(ownerId, ticks, dayId);
+  const graded = day ? await closingGraded(ownerId, ticks, day) : 0;
   /* The same number the step itself is finished against, or the list would
      promise five answers while the reading behind it settles for two. That
      includes the reading's condition: it settles for less only once the

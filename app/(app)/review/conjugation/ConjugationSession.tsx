@@ -1,7 +1,6 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
-import { AnotherRound } from "@/components/round/AnotherRound";
 import { fill } from "@/lib/copy/locale";
 import { answerNote } from "@/lib/copy/answerNote";
 import { rich } from "@/components/round/rich";
@@ -10,8 +9,8 @@ import { useGrade } from "@/components/round/useGrade";
 import { Check, Repeat } from "lucide-react";
 import { addToDeck } from "@/app/actions";
 import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
-import { Button, ButtonLink } from "@/components/Button";
-import { Chip, KeyCap, Stat } from "@/components/ui";
+import { Button } from "@/components/Button";
+import { Chip, KeyCap } from "@/components/ui";
 import { EstonianInput } from "@/components/EstonianInput";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
@@ -25,10 +24,16 @@ import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/
 import { VERB_GROUP_LABELS } from "@/lib/estonian/morph";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfCheck } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
-import { WayOut } from "@/components/round/RoundExit";
+import { RoundDone, type WorthALook } from "@/components/round/RoundDone";
 import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { FitText } from "@/components/FitText";
+import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
+import { MicButton } from "@/components/speech/MicButton";
+import { micInAnswerBox } from "@/components/speech/answerBoxMic";
+import { splitAsked } from "@/lib/speech/chant";
+import { heardAsSpelled, repairedInAnswer } from "@/lib/speech/verdict";
+import { core, type Hearing } from "@/lib/speech/reconcile";
 
 export type Tense = "present" | "conditional";
 
@@ -61,6 +66,8 @@ export interface ConjugationQuestion {
   given: { person: string; value: string };
   /** The five to type, in table order. */
   blanks: { person: string; code: string; answer: string; origin: "EKILEX" | "STORED" | "DERIVED" }[];
+  /** Every row of the table, the given one first, as its pronoun is said: short and long. For the chant. */
+  chant: string[][];
 }
 
 const GROUP: Record<Tense, "PRESENT" | "CONDITIONAL"> = { present: "PRESENT", conditional: "CONDITIONAL" };
@@ -89,6 +96,8 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
   const [target, setTarget] = useState<number | null>(null);
   const [cellsRight, setCellsRight] = useState(0);
   const [tablesRight, setTablesRight] = useState(0);
+  /* Every form that came out wrong, as the table says it, for the last screen. */
+  const [missed, setMissed] = useState<WorthALook[]>([]);
   const [added, setAdded] = useState<string | null>(null);
   const startedAt = useRef(Date.now());
   const sound = useFeedbackSound();
@@ -224,13 +233,25 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     setTarget(row);
   }, [verdicts]);
 
-  const check = useCallback(() => {
+  /** What the last chant put in each row (null where it filled none), and what it was heard as. */
+  const chantFill = useRef<{ rows: readonly (string | null)[]; hearing: Hearing } | null>(null);
+
+  const check = useCallback((values: readonly string[] = typed, spoken = false) => {
     if (!question || verdicts) return;
+    /*
+      A chant that filled the table is written as said aloud only where every
+      row is still what was heard (D4), and a row still holding a form the
+      dictionary repaired writes nothing at all, whatever else was edited (D13).
+    */
+    const chanted = chantFill.current;
+    const same = (i: number) => chanted?.rows[i] != null && (values[i] ?? "").trim() === chanted.rows[i]!.trim();
+    const saidAloud = spoken || (!!chanted && question.blanks.every((_, i) => same(i)));
+    const repaired = !!chanted && question.blanks.some((_, i) => same(i) && repairedInAnswer(chanted.hearing, chanted.rows[i]!));
     // A form placed in the wrong row of the matching table is another person of
     // the same verb, so every miss there would read as close: only a typed miss
     // can be most of the way there (`nearMiss`).
     const marks = question.blanks.map((b, i) => {
-      const mark = checkAnswer(typed[i] ?? "", b.answer, "et");
+      const mark = checkAnswer(values[i] ?? "", b.answer, "et");
       return question.shape === "match" ? { ...mark, close: false } : mark;
     });
     setVerdicts(marks);
@@ -241,19 +262,76 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     const clean = marks.every((m) => m.verdict === "correct");
     setCellsRight((c) => c + right);
     if (clean) setTablesRight((t) => t + 1);
+    const wrong = question.blanks.filter((_, i) => !countsAsRecalled(marks[i]!.verdict));
+    if (wrong.length > 0) {
+      setMissed((m) => [...m, ...wrong.map((b) => ({
+        et: `${b.person} ${b.answer}`,
+        lemma: question.lemma,
+        note: <><span lang="et">{question.lemma}</span>, {question.translation}</>,
+      }))]);
+    }
     // Climbs with the run, the way review does. See lib/audio/feedback.ts.
     run.current = clean ? run.current + 1 : 0;
     sound(clean ? "right" : "wrong", run.current);
     // ADR-016: the same review log as every other mode. Four of five is the
     // table known; less is a lapse worth seeing again.
     if (!clean) hints.noteMiss();
-    if (question.cardId) {
+    if (question.cardId && !repaired) {
       // A hint is paid for: see `lib/questions/hints.ts`. The ceiling is 4 with
       // nothing taken, so a table nobody asked for help on grades as it did.
       const earned = right >= marks.length - 1 ? 3 : 1;
-      void grade(question.cardId, Math.min(earned, hints.ceiling) as 1 | 2 | 3, Date.now() - startedAt.current);
+      // A table chanted whole and heard as spelled is written as spoken (D4); one edited after is typed.
+      void grade(question.cardId, Math.min(earned, hints.ceiling) as 1 | 2 | 3, Date.now() - startedAt.current, undefined, undefined, saidAloud);
     }
   }, [question, verdicts, typed, sound, hints, grade]);
+
+  /*
+    THE TABLE AS A CHANT (docs/41-fifth-batch.md, VB-8).
+
+    A class drills the present tense out loud, all six persons in one breath,
+    and this round asked for it typed because nothing could hear it. Said now,
+    the transcript is cut back into the rows at the pronouns heard, or in
+    order where none were (`lib/speech/chant.ts`), and each row lands in its
+    own box, where the round's own marker checks it exactly as it checks a
+    typed one. A table heard whole, every form right and heard as it is
+    spelled, is marked at once and can only be a Good (D19); anything else
+    waits in the boxes for the learner to look at, change and check, so the
+    machine never grades a table down on what it misheard (D4).
+
+    Only on the typed table, and only once the learner has downloaded the
+    model and kept the microphone in answer boxes (D6): on the matching table
+    the forms are already on the screen to be placed.
+  */
+  const speechConfig = useSpeechConfig();
+  const [chantNote, setChantNote] = useState("");
+  const chantExpect = useMemo(() => new Set(
+    question ? [question.given.value, ...question.blanks.map((b) => b.answer), ...question.chant.flat()].map((w) => w.toLocaleLowerCase("et")) : [],
+  ), [question]);
+  const heardChant = useCallback((hearing: Hearing) => {
+    if (!question || verdicts || question.shape !== "type") return;
+    // The first row is on the screen already, so a chant of the five asked is read as well as one of all six.
+    const rows = splitAsked(hearing.understood, question.chant);
+    const filled = rows.filter((row) => row !== null).length;
+    if (filled === 0) {
+      setChantNote(t("We couldn't tell which row each form was for. Say them with the pronouns, or type them."));
+      return;
+    }
+    const next = typed.map((value, i) => rows[i] ?? value);
+    setTyped(next);
+    chantFill.current = { rows, hearing };
+    const whole = rows.every((row, i) => row !== null && checkAnswer(row, question.blanks[i]!.answer, "et").verdict === "correct");
+    if (whole && hearing.words.every((w) => heardAsSpelled(w, chantExpect.has(core(w.text))))) {
+      setChantNote("");
+      check(next, true);
+      return;
+    }
+    setChantNote(fill(t("Heard {n} of {total} rows. Look them over, change any, then check the table."), { n: filled, total: rows.length }));
+    const firstOpen = rows.findIndex((row) => row === null);
+    inputs[firstOpen >= 0 ? firstOpen : 0]?.current?.focus();
+  }, [question, verdicts, typed, check, chantExpect, inputs, t]);
+  const speech = useSpeech({ endpoint: true, expect: chantExpect, onHeard: heardChant });
+  const chantOffered = question?.shape === "type" && micInAnswerBox(speech, speechConfig);
+  useEffect(() => { setChantNote(""); chantFill.current = null; }, [index]);
 
   const next = useCallback(() => {
     /* The whole table as it was filled in, which is what somebody looking
@@ -306,28 +384,19 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     const cells = questions.reduce((n, q) => n + q.blanks.length, 0);
     const accuracy = cells ? Math.round((cellsRight / cells) * 100) : 0;
     return (
-      <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          {t("That’s the round done")}
-        </h1>
-        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          {tablesRight === questions.length
-            ? t("Every table spotless. You've got the endings down. All that's left is meeting more verbs.")
-            : t("Here's the good news: the endings are the same for every verb. What catches people out is the part they're stuck onto, so when a table goes wrong, look the verb up.")}
-        </p>
-        <div
-          className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
-          style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
-        >
-          <Stat value={`${tablesRight}/${questions.length}`} label={t("Tables")} />
-          <Stat value={`${accuracy}%`} label={t("Forms right")} />
-          <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
-        </div>
-        <WayOut className="mt-8 flex flex-wrap gap-3">
-          <AnotherRound>{t("Another round")}</AnotherRound>
-          <ButtonLink href="/" variant="primary">{t("Back to Today")}</ButtonLink>
-        </WayOut>
-      </div>
+      <RoundDone
+        title={t("That’s the round done")}
+        line={tablesRight === questions.length
+          ? t("Every table spotless. You've got the endings down. All that's left is meeting more verbs.")
+          : t("Here's the good news: the endings are the same for every verb. What catches people out is the part they're stuck onto, so when a table goes wrong, look the verb up.")}
+        figures={[
+          { value: `${tablesRight}/${questions.length}`, label: t("Tables") },
+          { value: `${accuracy}%`, label: t("Forms right") },
+          { value: fill(t("{n}m"), { n: minutes }), label: t("Time") },
+        ]}
+        missed={missed}
+        celebrate={tablesRight === questions.length}
+      />
     );
   }
 
@@ -368,6 +437,14 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
                 ? t("We've filled in the first one for you. Type the other five.")
                 : t("This time it's the \"would\" form, as in \"I would go\". Type the other five.")}
           </p>
+          {chantOffered && !revealed && (
+            <div className="mt-4 flex flex-col items-center gap-2" data-chant>
+              <MicButton speech={speech} label={t("Say the table out loud")} shortcut />
+              <p className="max-w-prose text-sm" style={{ color: "var(--ink-2)" }} role="status">
+                {chantNote || t("Or say all six in one go, the way a class chants them, pronouns and all.")}
+              </p>
+            </div>
+          )}
         </div>
 
         {!revealed && question.shape === "match" && (
@@ -503,7 +580,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
 
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }} aria-live="polite">
           {!revealed ? (
-            <Button variant="primary" onClick={check} disabled={question.shape === "match" && !typed.every(Boolean)}>
+            <Button variant="primary" onClick={() => check()} disabled={question.shape === "match" && !typed.every(Boolean)}>
               {t("Check the table")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
@@ -551,10 +628,15 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
           {/* A tally of nought out of nought is not a score, it is noise
               under the first table, so the line opens on the instruction and
               the count arrives with the first table checked. */}
-          {index + (revealed ? 1 : 0) > 0 && <>{fill(t("{n} of {total} tables perfect,"), { n: tablesRight, total: index + (revealed ? 1 : 0) })} </>}
+          {/* The matching shape says "Tap a form to place it" over its own
+              bank, so the footer does not say it a second time: it keeps the
+              tally alone, without the comma that led into the instruction. */}
           {question.shape === "type"
-            ? fill(t("{key} moves down the table"), { key: ADVANCE_KEY_LABEL })
-            : index + (revealed ? 1 : 0) > 0 ? t("tap a form to place it") : t("Tap a form to place it")}
+            ? <>
+                {index + (revealed ? 1 : 0) > 0 && <>{fill(t("{n} of {total} tables perfect,"), { n: tablesRight, total: index + (revealed ? 1 : 0) })} </>}
+                {fill(t("{key} moves down the table"), { key: ADVANCE_KEY_LABEL })}
+              </>
+            : index + (revealed ? 1 : 0) > 0 && fill(t("{n} of {total} tables perfect"), { n: tablesRight, total: index + (revealed ? 1 : 0) })}
         </span>
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>

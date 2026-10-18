@@ -171,6 +171,7 @@ function aboutTheBeat(beat: BeatSpec, spoken: readonly string[], answer: string 
  * `shrug` is what to say when both of those have nothing.
  */
 export function asideFor(input: AsideInput): SpokenLine | null {
+  // reply-row: aside-none
   if (!input.asked) return null;
   const { asked, spoken, answered, card, lexicon } = input;
 
@@ -179,6 +180,7 @@ export function asideFor(input: AsideInput): SpokenLine | null {
     was written for it. First, because it is the one rung that knows what
     was asked rather than guessing from the question word.
   */
+  // reply-row: aside-wanted
   if (answered && wantsQuestion(answered) && !input.missed) {
     /*
       A beat that says a fact off the card answers with that fact, which is
@@ -188,11 +190,13 @@ export function asideFor(input: AsideInput): SpokenLine | null {
       learner checking a figure is told yes or no, and any other fact is the
       beat's own line built off the card.
     */
+    // reply-row: aside-says-fact
     if (answered.says?.some((part) => "slot" in part)) {
       const price = priceOnCard(card);
       const fact = price && answered.says.some((part) => "slot" in part && part.slot === price.slot)
         ? priceOffCard(card, lexicon, input.said ?? spoken.join(" "), input.already)
         : partsLine(answered.says, { card, lexicon, mark: "." });
+      // reply-row: aside-fact
       if (fact) return fact;
     }
     /*
@@ -221,13 +225,17 @@ export function asideFor(input: AsideInput): SpokenLine | null {
       nobody does with a question.
     */
     // Answered by the move after it, which says a fact off the card: said now where that move is not next (`aheadNow`).
+    // reply-row: aside-ahead-fact
     if (answered.answeredNext && input.aheadIsFact && input.ahead?.[0]) return { text: input.ahead[0], provenance: "attested" };
+    // reply-row: aside-banked
     if (banked) return { text: banked, provenance: "scripted" };
+    // reply-row: aside-answered-next
     if (answered.answeredNext) return null;
   }
 
   // A question the scene asks for further on, answered now (`questionAhead`).
   const early = input.ahead?.[0];
+  // reply-row: aside-early
   if (early && (!input.missed || input.aheadIsFact)) return { text: early, provenance: input.aheadIsFact ? "attested" : "scripted" };
 
   /*
@@ -244,6 +252,7 @@ export function asideFor(input: AsideInput): SpokenLine | null {
   */
   const howSentence = (input.said ?? spoken.join(" ")).split(/(?<=[.!?])\s+/).find((sentence) => words(sentence).some((w) => HOW.has(w))) ?? "";
   const aboutThem = words(howSentence).every((w) => HOW.has(w) || goes?.has(w) || HOW_ABOUT_YOU.has(w));
+  // reply-row: aside-how-are-you
   if (HOW.has(asked) && goes && aboutThem && spoken.some((w) => goes.has(w))) {
     return partsLine(ASIDES.howAreYou, { lexicon, mark: ".", join: ", " });
   }
@@ -254,6 +263,7 @@ export function asideFor(input: AsideInput): SpokenLine | null {
     have-case asks the same thing, and gets the same two words back.
   */
   const fine = spoken.some((w) => FINE.has(w));
+  // reply-row: aside-and-you
   if (asked === "?" && fine && spoken.length <= 6 && spoken.some((w) => YOU_HAVE.has(w))) {
     return partsLine(ASIDES.howAreYou, { lexicon, mark: ".", join: ", " });
   }
@@ -277,8 +287,10 @@ export function asideFor(input: AsideInput): SpokenLine | null {
     commonest non-sequitur in that scene, round after round (`priceAsked`).
   */
   const priceQuestion = input.said !== undefined ? priceAsked(input.said, lexicon) : asksPrice(spoken, lexicon) ? spoken.join(" ") : null;
+  // reply-row: aside-price-asked
   if (priceQuestion !== null) {
     const price = priceOffCard(card, lexicon, priceQuestion, input.already);
+    // reply-row: aside-price
     if (price) return price;
   }
 
@@ -295,8 +307,10 @@ export function asideFor(input: AsideInput): SpokenLine | null {
     back to them twice in a row. A question about the time names `millal`, or
     asks `mis kell`, or carries `kell` inside the sentence the mark ends.
   */
+  // reply-row: aside-when-asked
   if (TIME.has(asked) || (asked === "mis" && spoken.includes(CLOCK_LEMMA)) || clockAsked(input.said, spoken)) {
     const when = whenOffCard(card, lexicon);
+    // reply-row: aside-when
     if (when) return confirmed(when, timeNamed(input.said, card), input.already, lexicon);
   }
 
@@ -316,14 +330,19 @@ export function asideFor(input: AsideInput): SpokenLine | null {
     that landed and asks with no question word is a check, and the answer to a
     check that landed is yes.
   */
+  // reply-row: aside-check-same
   if (about && asked === "?" && input.landedCheck === "same") return reaction("jah", ".");
   // A check that got it wrong is put right with what was said, which is the one line that cannot contradict it.
+  // reply-row: aside-check-differs
   if (about && asked === "?" && input.landedCheck === "differs" && input.heardLine) return { text: input.heardLine, provenance: "again" };
+  // reply-row: aside-more-asked
   if (about && (PLACE.has(asked) || asked === "?" || asked === "mis" || asked === "kuidas")) {
     const next = input.more[0];
+    // reply-row: aside-more
     if (next) return { text: next, provenance: "scripted" };
   }
 
+  // reply-row: aside-nothing
   return null;
 }
 

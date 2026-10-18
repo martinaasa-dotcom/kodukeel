@@ -43,6 +43,7 @@ export const ROUND_NAMES: Readonly<Record<string, RoundName>> = {
   "/review/listening": { et: "Kuulamine", en: "Listening" },
   "/review/dictation": { et: "Etteütlus", en: "Dictation" },
   "/review/speaking": { et: "Hääldus", en: "Pronunciation" },
+  "/review/numbers": { et: "Arvud", en: "Numbers" },
   "/quest": { et: "Päeva ülesanne", en: "Daily task" },
   "/review/describe": { et: "Pildi kirjeldamine", en: "Describing a picture" },
   "/situations": { et: "Olukorrad", en: "Situations" },

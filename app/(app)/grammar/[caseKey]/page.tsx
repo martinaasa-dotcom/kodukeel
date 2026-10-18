@@ -15,7 +15,7 @@ import { fillNodes } from "@/components/reference/fillNodes";
 import { allCaseReferences, caseReference } from "@/lib/estonian/grammar";
 import { caseExamples, type CaseExample } from "@/lib/progress/caseExamples";
 import { ButtonLink } from "@/components/Button";
-import { Card, Empty, Note, Page, SectionTitle, Stack } from "@/components/ui";
+import { BackLink, Card, Empty, Note, Page, SectionTitle, Stack } from "@/components/ui";
 import { WatchOut } from "@/components/RuleNote";
 import { Speak } from "@/components/Speak";
 import { EstonianSentence } from "@/components/EstonianSentence";
@@ -176,13 +176,7 @@ export default async function CasePage({
       title={asTitle(t(ref.plain))}
       lead={t(ref.summary)}
       actions={inModule ? undefined : (
-        <Link
-          href={go("/grammar/cases")}
-          className="press inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
-          style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
-        >
-          <ArrowLeft size={14} aria-hidden /> {t("All endings")}
-        </Link>
+        <BackLink href={go("/grammar/cases")}>{t("All endings")}</BackLink>
       )}
     >
       <Stack>

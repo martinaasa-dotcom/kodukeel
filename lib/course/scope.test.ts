@@ -22,27 +22,36 @@ const card = (over: Partial<Parameters<typeof reviewable>[1]>) => ({
 });
 
 describe("reviewable", () => {
-  it("asks no case card on any evening of A1, whoever chose the word", () => {
+  /*
+    A1 is the lessons, and a lesson may explain an ending (decision L1 in
+    docs/43-lessons.md: the partitive, the -s that means in, -ga). A case card
+    is asked only once a lesson has explained that case, whoever chose the word,
+    and never before.
+  */
+  it("asks a case card in A1 only once a lesson has explained the case, whoever chose the word", () => {
     let evenings = 0;
+    let asked = 0;
     for (const programme of a1) {
       for (const day of programme.days) {
         evenings += 1;
         const scope = scopeFor(programme, day);
         for (const source of ["COURSE", "MANUAL", "DICTIONARY"]) {
           for (const spec of CASES) {
-            expect(reviewable(scope, card({
+            const ok = reviewable(scope, card({
               cardType: "CASE_FORM", targetCase: spec.key, front: "tool → millele? kuhu?", source,
               lexeme: { lemma: scope.lemmas[0] ?? "tool" },
-            }), new Set())).toBe(false);
+            }), new Set());
+            expect(ok).toBe(scope.cases.includes(spec.key));
+            if (ok) asked += 1;
           }
-          // An old card that names its case on the front alone is read too.
-          expect(reviewable(scope, card({ cardType: "CASE_FORM", front: "tool → allative", source }), new Set()))
-            .toBe(false);
         }
       }
     }
     expect(a1.length).toBeGreaterThan(0);
     expect(evenings).toBeGreaterThan(20);
+    // The first evening explains no ending, so nothing is asked there.
+    expect(scopeFor(a1[0]!, a1[0]!.days[0]!).cases).toEqual([]);
+    expect(asked).toBeGreaterThan(0);
   });
 
   it("asks a word this app chose only once the module has taught it", () => {

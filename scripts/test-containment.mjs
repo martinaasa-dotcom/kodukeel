@@ -89,9 +89,24 @@ const B = baseUrl();
   there is a word broken on most people's computers. `CONTAIN_WIDTHS` takes a
   comma-separated list, for sweeping every width in between by hand.
 */
+/*
+  CI RUNS THIS IN TWO HALVES, BECAUSE WHOLE IT IS FIFTEEN MINUTES.
+
+  On 2026-10-17 the suite alone took fifteen and a half minutes in CI, and
+  with a build in front of it its shard finished at 19.8 of a twenty-minute
+  ceiling, which is a cancelled run waiting for the next route to be added.
+  `CONTAIN_PART` splits the widths rather than the routes, so every route is
+  still walked at every width somewhere: `narrow` is 360 and 768 and the dark
+  sweep, `wide` is 1024 and 1280 (`scripts/test-containment-wide.mjs`). Unset,
+  it is the whole suite, which is what anybody runs by hand.
+*/
+const PART = process.env.CONTAIN_PART ?? "";
+const ALL_WIDTHS = [360, 768, 1024, 1280];
 const WIDTHS = process.env.CONTAIN_WIDTHS
   ? process.env.CONTAIN_WIDTHS.split(",").map(Number).filter((n) => n > 0)
-  : [360, 768, 1024, 1280];
+  : PART === "narrow" ? ALL_WIDTHS.filter((w) => w < 1024)
+  : PART === "wide" ? ALL_WIDTHS.filter((w) => w >= 1024)
+  : ALL_WIDTHS;
 
 /**
  * Dark is measured once, at the width where containment fails first.
@@ -183,6 +198,7 @@ const ROUTES = [
   "/review/exceptions",
   "/review/letters",
   "/review/workbook",
+  "/review/numbers",
   "/review/sayings",
   "/review/wordplay",
   "/review/lookups",
@@ -190,13 +206,22 @@ const ROUTES = [
   // The course.
   "/learn",
   "/learn/new",
-  "/learn/kodu",
-  "/learn/kodu/lesson",
-  "/learn/kodu/worksheet",
+  "/learn/loodus",
+  "/learn/loodus/lesson",
+  "/learn/loodus/worksheet",
   "/learn/checkpoint/A1",
   "/course",
   "/course/learn",
   "/course/forms",
+  /*
+    Tonight's chat. On a keyless server, which is every server these sweeps
+    run against, it goes back to the module, and the chat screen itself is
+    measured by scripts/test-chat.mjs on a server of its own with a model stubbed.
+  */
+  "/course/chat",
+  // The course as lessons, in preview for reviewers (docs/43-lessons.md).
+  "/course/lessons",
+  "/course/lessons/a1-04-persons",
 
   // Measurement, and the things built on it.
   "/progress",
@@ -223,6 +248,8 @@ const ROUTES = [
   "/suggestions",
   "/admin/suggestions",
   "/admin/errors",
+  // The speech bench draws the microphone in every state it has (VB-2); CI sets ASR_BENCH=1.
+  "/dev/asr",
 
   /*
     The conversations. The briefing at 360 is a role card, a four-cell dial of
@@ -404,7 +431,11 @@ const SPARSE = new Map([
 // And 2475 rather than 2500: Picture match was taken out of the app, and
 // `/review/emoji` was one of the routes this walks, which is one route's worth
 // of passes at the checks each pass now asks.
-const { check, absent, done } = suite("Containment", { floor: 2425 });
+/*
+  And a half carries half the floor, rounded down: each walks two of the four
+  widths, the narrow half the dark sweep besides.
+*/
+const { check, absent, done } = suite(PART ? `Containment, the ${PART} half` : "Containment", { floor: PART ? 1200 : 2425 });
 
 /**
  * An A2 unit, whose lesson meets words with their sentence under them: A1
@@ -1064,14 +1095,101 @@ function relatives() {
       }
     }
   }
+  /*
+    BOXES SIDE BY SIDE START THEIR WORDS ON ONE LINE.
+
+    Reported off Practice: a row of boxes, each a title and a line under it,
+    where the box whose line fitted on one line had its title lower than the
+    box beside it, because the grid stretched every box to the tallest and
+    each box centred its own words in that height. Nothing above can see it:
+    nothing is cut, no word breaks and every box is the size it was given. So
+    among siblings sharing a parent and a class, drawn side by side (tops
+    level) and each holding more than one line of words, the first line a
+    reader sees starts at the same height in all of them. Text only a screen
+    reader gets is not a line anybody sees, so it is passed over, and so is a
+    badge laid over the box (absolutely placed, like "Played 3 times" on a
+    situation's drawing): it sits on the picture rather than starting the
+    words, and read as the first line it put a played tile 164px out of step
+    with an unplayed one whose words were exactly level with it.
+
+    What this does not ask is that everything under the title lines up: a
+    title that wraps pushes its own description down, and that is the words
+    being longer rather than the box being drawn wrong.
+  */
+  const misaligned = [];
+  // Whether a text's host is laid over the box: absolutely or fixedly placed, between it and the box.
+  const overlaid = (host, box) => {
+    for (let at = host; at && at !== box; at = at.parentElement) {
+      const position = getComputedStyle(at).position;
+      if (position === "absolute" || position === "fixed") return true;
+    }
+    return false;
+  };
+  const seenLine = (el) => {
+    const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+      const host = n.parentElement;
+      if (!host || host.closest(".sr-only, [aria-hidden='true']")) continue;
+      if (!host.checkVisibility({ opacityProperty: true, visibilityProperty: true })) continue;
+      if (overlaid(host, el)) continue;
+      const i = n.textContent.search(/\S/);
+      if (i < 0) continue;
+      const range = document.createRange();
+      range.setStart(n, i);
+      range.setEnd(n, i + 1);
+      const r = range.getClientRects()[0];
+      if (r && r.width > 0 && r.height > 0) return r;
+    }
+    return null;
+  };
+  const sets = new Map();
+  for (const el of document.querySelectorAll("body *")) {
+    if (el.closest("[aria-hidden='true'], .sr-only, table, svg")) continue;
+    const cls = el.getAttribute("class");
+    if (!cls || !el.parentElement || !shown(el) || !(el.textContent || "").trim()) continue;
+    const list = sets.get(el.parentElement) ?? new Map();
+    const same = list.get(cls) ?? [];
+    same.push(el);
+    list.set(cls, same);
+    sets.set(el.parentElement, list);
+  }
+  for (const list of sets.values()) {
+    for (const same of list.values()) {
+      if (same.length < 2) continue;
+      // Side by side: grouped by the top of the box, so a wrapped grid is
+      // compared row by row and a stacked list is never compared at all.
+      const rowsOf = new Map();
+      for (const el of same) {
+        const r = el.getBoundingClientRect();
+        const key = [...rowsOf.keys()].find((t) => Math.abs(t - r.top) <= EPS) ?? r.top;
+        const row = rowsOf.get(key) ?? [];
+        row.push(el);
+        rowsOf.set(key, row);
+      }
+      for (const row of rowsOf.values()) {
+        if (row.length < 2) continue;
+        // A box of one line is a chip or a button, and a row of those centred
+        // on one another is the right drawing.
+        if (!row.every((el) => linesOf(el) > 1)) continue;
+        const offs = row.map((el) => seenLine(el)?.top);
+        if (offs.some((t) => t == null)) continue;
+        if (Math.max(...offs) - Math.min(...offs) > EPS) {
+          const odd = row[offs.indexOf(Math.max(...offs))];
+          misaligned.push(`${named(odd)} starts its words ${Math.round(Math.max(...offs) - Math.min(...offs))}px below the box beside it`);
+        }
+      }
+    }
+  }
+
   const first = (list) => [...new Set(list)].slice(0, 3).join(" · ");
   return {
+    misaligned: [...new Set(misaligned)].length,
     wrapped: [...new Set(wrapped)].length,
     unlike: [...new Set(unlike)].length,
     unbalanced: [...new Set(unbalanced)].length,
     unevenly: [...new Set(unevenly)].length,
     rows: rows.length,
-    say: { wrapped: first(wrapped), unlike: first(unlike), unbalanced: first(unbalanced), unevenly: first(unevenly) },
+    say: { misaligned: first(misaligned), wrapped: first(wrapped), unlike: first(unlike), unbalanced: first(unbalanced), unevenly: first(unevenly) },
   };
 }
 
@@ -1114,6 +1232,7 @@ async function measure(page, label, atLeast = 25) {
   check(`relatives sit alike, marker to label, on ${label}`, kin.unlike === 0, kin.say.unlike);
   check(`every mark beside a heading is balanced against it on ${label}`, kin.unbalanced === 0, kin.say.unbalanced);
   check(`a set of labels sits one line each or none of it does, on ${label}`, kin.unevenly === 0, kin.say.unevenly);
+  check(`boxes side by side start their words on one line, on ${label}`, kin.misaligned === 0, kin.say.misaligned);
   /*
     The middot is on no screen, and this is the half the source check cannot
     reach: a hint or a government string stored in somebody's deck before the
@@ -1536,7 +1655,7 @@ for (const width of WIDTHS) {
   by the inline script in app/layout.tsx before the first paint. Emulating
   `prefers-color-scheme` would measure the light theme a second time.
 */
-{
+if (PART !== "wide") {
   const ctx = await browser.newContext({
     viewport: { width: DARK_WIDTH, height: 900 },
     hasTouch: true,

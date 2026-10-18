@@ -150,6 +150,9 @@ that is correct and reads like a translation has failed.
 | form (of a word) | форма | форма |
 | verb, noun, adjective | глагол, существительное, прилагательное | дієслово, іменник, прикметник |
 | Situations, conversation | Ситуации, разговор | Ситуації, розмова |
+| Speaking (the feature, the round) | устная речь | усне мовлення |
+| aloud, out loud | вслух | вголос (never "уголос") |
+| heard (what the microphone understood) | услышано | почуто |
 | Dictionary | Словарь | Словник |
 | Grammar | Грамматика | Граматика |
 | Progress | Прогресс | Прогрес |
@@ -261,6 +264,6 @@ is rewritten from it. The count is evidence a reader has been through the lines;
 <!-- confirmed-lines:start -->
 Lines a fluent reader has confirmed or corrected, counted by `npm run apply:translation-review` from
 `docs/translations/confirmed.json` against the tables as they stand: a line counts only while it still reads
-the way it was confirmed. Russian: 39 of 12186. Ukrainian: 39 of 12248.
+the way it was confirmed. Russian: 411 of 12562. Ukrainian: 411 of 12624.
 This count is not `REVIEWED`, which only a commit naming the reader sets.
 <!-- confirmed-lines:end -->

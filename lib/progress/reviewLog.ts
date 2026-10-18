@@ -43,6 +43,8 @@ export interface LogRow {
   slot: string | null;
   reachedSlot: string | null;
   receivedAt: Date | null;
+  /** Said aloud rather than typed (docs/41-fifth-batch.md D4). */
+  spoken: boolean;
 }
 
 interface Head {
@@ -64,7 +66,7 @@ const SLACK_MS = 2 * 60_000;
 
 const SELECT = {
   id: true, cardId: true, lexemeId: true, rating: true, reviewedAt: true, durationMs: true,
-  stateBefore: true, targetCase: true, slot: true, reachedSlot: true, receivedAt: true,
+  stateBefore: true, targetCase: true, slot: true, reachedSlot: true, receivedAt: true, spoken: true,
 } as const;
 
 const held = new Map<string, Held>();

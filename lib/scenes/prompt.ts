@@ -232,6 +232,15 @@ export interface ComposeAsk {
    * keyless one react to the same turn the same way.
    */
   readonly feel?: Feel;
+  /**
+   * THE WORD THIS BEAT IS THERE FOR THE LEARNER TO USE, on tonight's chat
+   * (`BeatSpec.elicits`). The stage direction names it by its meaning, since
+   * a learner may read that line, and a meaning is not enough for a model
+   * that has to ask something whose natural answer uses one particular word:
+   * "to happen" could be three of them. So the model is told the lemma, and
+   * told not to say it, which the gate's `giveaway` check holds it to.
+   */
+  readonly elicit?: string;
 }
 
 /*
@@ -293,6 +302,28 @@ const COMPOSE_RULES = [
     bank cannot supply and the model can. In proportion and in character:
     the brisk clerk has feelings too, and shows them in three words.
   */
+  /*
+    AND EVERY SENTENCE HAS TO MEAN SOMETHING, which is what the native reader
+    found missing on 2026-10-17 in five lines the composer wrote during the
+    capped plays, every one of them past the gate. A choice offered in two
+    different cases (by card, or in cash), so neither option is a whole answer
+    in the same shape as the other. A café wishing a good journey to somebody
+    who was only buying a coffee. A "but" with nothing on its other side,
+    twice. Two filler sentences stacked in front of the question ("sorry, I
+    said that unclearly", "that is clear") and a word explained by defining
+    it. And a question built word for word from an English idiom ("where are
+    you in your life") where people ask how life is going. None of these is a
+    grammar fault the gate can see, so the model is told, in English, what a
+    person would have done instead (docs/41-fifth-batch.md, section 0).
+  */
+  "Make every sentence mean something. At most one short reaction before your move, and never a",
+  "filler sentence (an apology for how you said something, a remark that something is clear or",
+  "nice that answers nothing), and never a definition of a word. Use a word for \"but\" only where",
+  "two things really contrast. When you offer a choice, phrase the options alike, in the same form",
+  "and case, so each is a whole answer. Ask a question the way people actually ask it, never a",
+  "word-for-word English idiom (ask how life is going, not where they are with their life). A",
+  "parting wish fits the place and the person: a nice day or evening to anybody, a good journey",
+  "only to somebody setting off on one.",
   "Talk the way people talk, never the way a textbook writes: the everyday short forms of",
   "the pronouns are the ones in your list, and the long form is only for emphasis or contrast.",
   "Have feelings and show them, briefly and in proportion, as this person would: something",
@@ -547,6 +578,15 @@ export function composeLive(ask: ComposeAsk): string {
     */
     ask.move !== "greet"
       ? "You have already greeted each other, so do not greet them again."
+      : "",
+    /*
+      A chat's word: ask so that the natural answer uses it, and never say it.
+      Said by name here because the stage direction gives only its meaning.
+    */
+    ask.elicit
+      ? `The word they should get to use is "${ask.elicit}". Ask something whose natural answer uses it,`
+        + " about their own life, and never say that word yourself in any form. Never praise or remark on"
+        + " how they speak or learn, even where the word is about learning: talk about their life."
       : "",
     (ask.madeBefore ?? 0) >= 2
       ? "You have already made this move more than once in this conversation. Do not make it again"

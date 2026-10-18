@@ -28,7 +28,11 @@ export default function aPickedLineGradesNothing({ check, code }: InvariantKit) 
   check("the route offers the picks off the scene's own dictionary, and the screen sends a pick as a turn", () => {
     assert.match(code("app/api/scene/route.ts"), /picks: isOver\(scene, state\) \? \[\] : picksFor\(scene, standing \?\? current, card, marking\.lexicon\)/, "the route stopped offering picks, or offers them off something other than this run's card");
     const session = code("components/scene/SceneSession.tsx");
-    assert.match(session, /onClick=\{\(\) => answer\(pick\.et, true\)\}/, "a pick is no longer sent as a picked turn");
-    assert.match(session, /useState<"pick" \| "type">\(openAt === "A1" \? "pick" : "type"\)/, "picking stopped being the default at A1");
+    assert.match(session, /onClick=\{\(\) => answer\(pick\.et, true(?:, [^}]*)?\)\}/, "a pick is no longer sent as a picked turn");
+    // The switch remembers the learner's last way of answering (VB-4); with nothing remembered, A1 picks.
+    // Through `opensWith`, which is `openingAnswer` with "pick" read as "type" on tonight's chat, which has no lines to pick (VB-11).
+    assert.match(session, /useState<SceneAnswer>\(\(\) => opensWith\(answeredLast, openAt\)\)/, "the switch no longer opens on the remembered answer or the band's default");
+    assert.match(session, /const one = openingAnswer\(stored, at, speechHere\);\s*return chat && one === "pick" \? "type" : one;/, "the switch's opening is no longer `openingAnswer`, or a chat would open on lines it does not have");
+    assert.match(code("lib/ux/sceneAnswer.ts"), /level === "A1" \? "pick" : "type"/, "picking stopped being the default at A1");
   });
 }

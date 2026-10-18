@@ -9,7 +9,7 @@ import {
 import { courseLevelFor } from "@/lib/progress/level";
 import type { Level } from "@/lib/collections/syllabus";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
-import { PROGRAMMES, dayById, holdAdvice, holdReason, newWordsIn, programmeAfter, unitOf } from "@/lib/course";
+import { MEET_STEP, PROGRAMMES, dayById, holdAdvice, holdReason, newWordsIn, programmeAfter, unitOf } from "@/lib/course";
 import { ButtonLink } from "@/components/Button";
 import { Card, Chip, Meter, Page, SectionTitle, Stack } from "@/components/ui";
 import { Explain } from "@/components/Explain";
@@ -27,6 +27,10 @@ import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 import { stepCard, stepsIn } from "@/lib/course";
 import { HeroFan } from "@/components/HeroFan";
+import { fillNodes } from "@/components/TemplateNodes";
+import { TalkItOver } from "@/components/course/TalkItOver";
+import { chatAffordable, chatFits, chattedAbout, planChat } from "@/lib/progress/chat";
+import { finishedEvening } from "@/lib/progress/chatDay";
 
 export async function generateMetadata() {
   return titleFor("Today's module");
@@ -135,6 +139,23 @@ export default async function CoursePage({
     adaptOfferFor(ownerId, programme, now),
   ]);
   const total = programme.days.length;
+  /*
+    TONIGHT'S CHAT, WHERE THE EVENING FINISHED TODAY MET ENOUGH NEW WORDS AND
+    THIS DEPLOYMENT HAS A MODEL TO HOLD IT (VB-11). The same evening the
+    action opens it for (`finishedEvening`), so the offer and the chat cannot
+    be about two different nights.
+  */
+  const chatEvening = finishedEvening(programme, reading);
+  /*
+    And only where the chat could open: its words survive the forms list
+    (`planChat`), which a press on the card otherwise found out by being sent
+    straight back here, and it has not already been had about this evening
+    (`chattedAbout`), since the chat's own debrief sends the learner back to
+    this card.
+  */
+  const talkOver = chatEvening !== null && chatFits(chatEvening) && (await chatAffordable(ownerId))
+    && !(await chattedAbout(ownerId, chatEvening.id))
+    && (await planChat(ownerId, programme, chatEvening)) !== null;
 
   if (reading.finished) {
     const after = programmeAfter(programme);
@@ -213,6 +234,7 @@ export default async function CoursePage({
               </>
             )}
           </Card>
+          {talkOver && <TalkItOver locale={locale} />}
         </Stack>
       </Page>
     );
@@ -283,11 +305,15 @@ export default async function CoursePage({
                     changes it names the new one.
                   */}
                   <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                    {/* The unit's name in bold, because at A1 it is a phrase of
+                        its own ("I, you, he or she, we, you, they") and read
+                        flat into the sentence it read as the sentence going
+                        wrong. */}
                     {justDone && justDone.unitId === day.unitId
-                      ? fill(t("Tomorrow you'll continue with {unit}, part {n} of {of}."), { unit: ui(day.title, day.subtitle), n: day.part.n, of: day.part.of })
+                      ? fillNodes(t("Tomorrow you'll continue with {unit}, part {n} of {of}."), { unit: <b lang={uiWantsEnglish(level) ? undefined : "et"}>{ui(day.title, day.subtitle)}</b>, n: day.part.n, of: day.part.of })
                       : uiWantsEnglish(level)
-                        ? fill(t("Come back tomorrow for {unit}."), { unit: t(day.subtitle) })
-                        : fill(t("Come back tomorrow for {unit} ({english})."), { unit: day.title, english: t(day.subtitle) })}
+                        ? fillNodes(t("Come back tomorrow for {unit}."), { unit: <b>{t(day.subtitle)}</b> })
+                        : fillNodes(t("Come back tomorrow for {unit} ({english})."), { unit: <b lang="et">{day.title}</b>, english: t(day.subtitle) })}
                     {" "}{t("Sleep does half the work of making today's words stick, so stopping here is part of the plan.")}
                   </p>
                 </div>
@@ -334,6 +360,8 @@ export default async function CoursePage({
               </div>
             </Card>
           </Lettered>
+
+          {talkOver && <TalkItOver locale={locale} />}
 
           <CourseFit offer={fit.offer} tilt={fit.tilt} snoozed={fit.snoozed} effects={fit.effects} locale={locale} />
 
@@ -396,6 +424,11 @@ export default async function CoursePage({
           title={t(day.canDo)}
           text={standing.complete
             ? t("All of today’s steps are done.")
+            /* Once the words are met they are not new any more, and "5 new
+               words" over a list whose first step is ticked read as five more
+               still to come. */
+            : standing.done.has(MEET_STEP)
+            ? fill(t("{minutes} min to go today"), { minutes: standing.minutesLeft })
             : fill(t("{words}, and {minutes} min to go."), {
               words: newWordsIn(day) > 0
                 ? countOf(locale, newWordsIn(day), "new word")
@@ -415,7 +448,9 @@ export default async function CoursePage({
         />
 
         <div>
-          <SectionTitle hint={unit ? ui(unit.title, unit.subtitle) : undefined}>
+          {/* The unit's name only where it says something the page title
+              does not: nearly always the two are the same words. */}
+          <SectionTitle hint={unit && ui(unit.title, unit.subtitle) !== ui(day.title, day.subtitle) ? ui(unit.title, unit.subtitle) : undefined}>
             {t("Today’s words")}
           </SectionTitle>
           {/*
@@ -433,7 +468,7 @@ export default async function CoursePage({
               </li>
             ))}
           </ul>
-          {missing.length > 0 && missing.length < day.words.length && (
+          {!day.lesson && missing.length > 0 && missing.length < day.words.length && (
             <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
               {t("A few of these aren't in your deck yet. The first step adds them.")}
             </p>
@@ -460,9 +495,11 @@ export default async function CoursePage({
           is worth knowing and it is not worth the room, which is the rule
           `components/Explain.tsx` exists for.
         */}
-        <Explain label={t("How a step gets checked off")}>
-          {t("Meeting the words and the review at the end check themselves off as you answer. The others you check off yourself, because we can't tell which exercise an answer came from, and we'd rather admit that than pretend we were watching.")}
-        </Explain>
+        {!day.lesson && (
+          <Explain label={t("How a step gets checked off")}>
+            {t("Meeting the words and the review at the end check themselves off as you answer. The others you check off yourself, because we can't tell which exercise an answer came from, and we'd rather admit that than pretend we were watching.")}
+          </Explain>
+        )}
 
         <Card>
           <SectionTitle hint={fill(t("{done} of {total} evenings"), { done: reading.daysDone, total })}>{t("This part")}</SectionTitle>
@@ -516,7 +553,11 @@ export default async function CoursePage({
                       >
                         {ui(first.title, first.subtitle)}
                       </span>
-                      {state === "now" && <Chip tone="accent">{t("Today")}</Chip>}
+                      {/* Pulled into the title's line rather than setting
+                          its height: the chip is taller than a line of text,
+                          so tonight's title sat 3px below the titles beside
+                          it in the other column. */}
+                      {state === "now" && <span className="-my-1 inline-flex"><Chip tone="accent">{t("Today")}</Chip></span>}
                     </span>
                   </div>
                   {!uiWantsEnglish(level) && (
@@ -569,9 +610,17 @@ export default async function CoursePage({
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
           {t("This is the easy way in, not the only one.")}{" "}
           {locale === "en"
-            ? <><Link href="/settings" className="underline">Turn it off</Link> whenever you&apos;d rather choose for yourself.</>
-            : <Linked template={t("{link} whenever you'd rather choose for yourself.")} href="/settings" label={t("Turn it off")} />}
+            ? <><Link href="/settings#course" className="underline">Turn it off</Link> whenever you&apos;d rather choose for yourself.</>
+            : <Linked template={t("{link} whenever you'd rather choose for yourself.")} href="/settings#course" label={t("Turn it off")} />}
         </p>
+
+        {/* A1 is the lessons, and every one of them can be read again, or
+            ahead, from the whole list. */}
+        {day.lesson && (
+          <p className="text-sm" style={{ color: "var(--ink-3)" }}>
+            <Link href="/course/lessons" className="underline">{t("Every A1 lesson, in order")}</Link>
+          </p>
+        )}
       </Stack>
     </Page>
   );

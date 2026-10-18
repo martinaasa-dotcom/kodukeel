@@ -61,6 +61,8 @@ export function RosterList({ entries, viewerId, isTeacher, locale }: {
                       ? t("reviewed today")
                       : fill(t("last review {days} ago"), { days: countOf(locale, entry.daysSinceLastReview, "day") })}
                   {", "}{fill(t("{words} known"), { words: countOf(locale, entry.wordsKnown, "word") })}
+                  {/* Said aloud, as a count: effort, never what was said (VB-14, ADR-019). */}
+                  {entry.spokenThisWeek > 0 && <>{", "}{fill(t("answers said aloud: {n}"), { n: entry.spokenThisWeek })}</>}
                   {entry.weakestCase && (
                     <>
                       {", "}

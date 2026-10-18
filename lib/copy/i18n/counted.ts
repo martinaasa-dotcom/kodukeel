@@ -67,6 +67,7 @@ export const COUNT_CASES: Readonly<Record<string, { ru: CaseForms; uk: CaseForms
   thing: { ru: ["дела", "дело"], uk: ["справи", "справу"] },
   task: { ru: ["задания", "задание"], uk: ["завдання", "завдання"] },
   letter: { ru: ["буквы", "букву"], uk: ["літери", "літеру"] },
+  lesson: { ru: ["урока", "урок"], uk: ["уроку", "урок"] },
   phrase: { ru: ["фразы", "фразу"], uk: ["фрази", "фразу"] },
   answer: { ru: ["ответа", "ответ"], uk: ["відповіді", "відповідь"] },
   grade: { ru: ["ответа", "ответ"], uk: ["відповіді", "відповідь"] },
@@ -125,6 +126,7 @@ export const COUNT_CASES: Readonly<Record<string, { ru: CaseForms; uk: CaseForms
     uk: ["відсотка учнів за місяць", "відсоток учнів за місяць"],
   },
   times: { ru: ["раза", "раз"], uk: ["разу", "раз"] },
+  devices: { ru: ["устройства", "устройство"], uk: ["пристрою", "пристрій"] },
 };
 
 /** Every counted noun with its three languages: the core above and every area's own. */

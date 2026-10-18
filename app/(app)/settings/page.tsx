@@ -12,6 +12,7 @@ import { caseGlossFrom, caseGlossDefaultFor } from "@/lib/estonian/caseGloss";
 import { participationFrom, researchExportConfigured } from "@/lib/research/participation";
 import { emailPrefsFrom, kindStates } from "@/lib/email/prefs";
 import { mailerConfig } from "@/lib/mailer/transport";
+import { pushConfig } from "@/lib/push/config";
 import { goalsFor, latestFor } from "@/lib/progress/assessment";
 import { levelLabel } from "@/components/assessment/PlanPanel";
 import { courseLevelFor } from "@/lib/progress/level";
@@ -31,12 +32,13 @@ import { ImportPanel } from "./ImportPanel";
 import { InstallPanel } from "./InstallPanel";
 import { CaseGlossPanel, ClassNamePanel, LetterBarPanel, ResearchPanel, ReviewModePanel, WordGlossPanel } from "./PreferencesPanel";
 import { EmailPanel } from "./EmailPanel";
-import { AutoplayPanel, CurrentPaceSample, CurrentVoiceSample, FeedbackSoundsPanel, HearingPanel, SpeechPacePanel, SupportPanel, VoicePanel } from "./AudioPanel";
+import { PushPanel } from "./PushPanel";
+import { AutoplayPanel, CurrentPaceSample, FeedbackSoundsPanel, HearingPanel, SpeechPacePanel, SupportPanel, VoicePanel } from "./AudioPanel";
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { GlossAlsoPanel, GlossLanguagePanel } from "./GlossLanguagePanel";
 import { InterfaceLanguagePanel } from "./InterfaceLanguagePanel";
 import { localeFor, titleFor } from "@/lib/progress/locale";
-import { LOCALE_NAMES, REVIEWED, MACHINE_NOTICE, MACHINE_NOTICE_EN, countOf, fill, tr } from "@/lib/copy/locale";
+import { LOCALE_NAMES, REVIEWED, MACHINE_NOTICE, MACHINE_NOTICE_EN, countGrouped, countOf, fill, grouped, tr } from "@/lib/copy/locale";
 import { RoundPacePanel } from "./RoundPacePanel";
 import { ROUND_PACES, roundPaceFrom } from "@/lib/ux/roundClock";
 import { TodayOrderPanel } from "./TodayOrderPanel";
@@ -51,6 +53,7 @@ import { UsagePanel } from "./UsagePanel";
 import { DangerZone } from "./DangerZone";
 import { SetupGuide } from "./SetupGuide";
 import { providerResilience } from "@/lib/tutor/provider";
+import { SpeakingPanel } from "./SpeakingPanel";
 
 export async function generateMetadata() {
   return titleFor("Settings");
@@ -89,6 +92,7 @@ const SHORTCUTS: [string, string][] = [
   ["1-4", "Say how it went: Again, Hard, Good or Easy"],
   ["U", "Take back the last answer you graded"],
   ["1-4 (listening, choice)", "Pick one of the numbered answers"],
+  ["Ctrl M", "Start or stop the microphone, or hold it to talk"],
 ];
 
 /**
@@ -189,6 +193,12 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     several of these are keys.
   */
   const canSend = mailerConfig() !== null;
+  /*
+    And whether it can remind anybody on a computer (VB-10). The public key is
+    handed down because the browser needs it to subscribe; it is public by
+    design, and the private half never leaves `lib/push/config.ts`.
+  */
+  const pushKey = pushConfig()?.publicKey ?? null;
 
   const researchExported = researchExportConfigured();
   const voice = voiceFrom(settings[SETTING_KEYS.ttsVoice]);
@@ -264,7 +274,10 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </Card>
           </section>
 
-          <section id="level">
+          {/* Every section with an id is a link's landing (`/settings#course`
+              from the module, `#goals` from the plan), so each keeps a little
+              room above its heading rather than arriving cut at the top edge. */}
+          <section id="level" className="scroll-mt-6">
             {/* The chips below already say which level is set, so the hint says
                 whether a check has measured one, which used to sit over the
                 goals section where it answered nothing on that card. */}
@@ -278,7 +291,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </Card>
           </section>
 
-          <section id="goals">
+          <section id="goals" className="scroll-mt-6">
             <SectionTitle>{t("Why you’re learning")}</SectionTitle>
             <Card>
               <p className="mb-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
@@ -316,7 +329,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             back on, because the two steps a review log can prove are read off
             the log whichever screen the answers came from.
           */}
-          <section id="course">
+          <section id="course" className="scroll-mt-6">
             <SectionTitle hint={programme ? fill(t("day {day} of {total}"), { day: programmeDay, total: programme.days.length }) : tr(locale, "off", "setting")}>
               {t("The planned course")}
             </SectionTitle>
@@ -337,7 +350,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </Card>
           </section>
 
-          <section id="today">
+          <section id="today" className="scroll-mt-6">
             <SectionTitle hint={t(isDefaultTodayOrder(todayOrder) && todayHidden.size === 0 ? "the usual order" : "your order")}>
               {t("Your Today page")}
             </SectionTitle>
@@ -361,7 +374,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             adjusting rather than removing. The mock examination keeps its own
             clock, because a paper is imitating a timed examination.
           */}
-          <section id="round-pace">
+          <section id="round-pace" className="scroll-mt-6">
             <SectionTitle hint={roundPaceName}>{t("Time on the clock")}</SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
@@ -374,7 +387,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </Card>
           </section>
 
-          <section id="case-questions">
+          <section id="case-questions" className="scroll-mt-6">
             <SectionTitle
               hint={
                 t(caseGlossPref
@@ -408,9 +421,9 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <SectionTitle hint={voiceName}>{t("Voice")}</SectionTitle>
             <Card className="flex flex-col gap-5">
               <div>
-                <p className="mb-3 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
-                  {t("Choose who reads Estonian to you. Press the ear to hear a voice, and a name to choose it.")}
-                  <CurrentVoiceSample />
+                {/* Each voice carries its own speaker, so the sentence needs no play button of its own. */}
+                <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
+                  {t("Choose who reads Estonian to you. Press the speaker to hear a voice, and a name to choose it.")}
                 </p>
                 <VoicePanel current={voice} />
                 <Explain label={t("Why change the voice")}>
@@ -456,6 +469,18 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </section>
 
           {/*
+            SPEAKING: whether this device can hear Estonian, the one download it
+            needs, and the two choices about the microphone (VB-2). Beside the
+            voice because both are about Estonian out loud, one each way.
+          */}
+          <section id="speaking" className="scroll-mt-6">
+            <SectionTitle>{t("Speaking")}</SectionTitle>
+            <Card>
+              <SpeakingPanel />
+            </Card>
+          </section>
+
+          {/*
             WHICH LANGUAGE A MEANING IS GIVEN IN, WHICH IS NOT A COSMETIC
             SETTING HERE.
 
@@ -473,7 +498,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             were machine translated, and the full notice is here for good once
             one of them is chosen. See lib/copy/locale.ts.
           */}
-          <section id="language">
+          <section id="language" className="scroll-mt-6">
             <SectionTitle hint={LOCALE_NAMES[locale]}>
               <span lang={locale}>{tr(locale, "Language of the app")}</span>
             </SectionTitle>
@@ -491,7 +516,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </Card>
           </section>
 
-          <section id="meanings">
+          <section id="meanings" className="scroll-mt-6">
             <SectionTitle hint={wordGloss === "off" ? fill(t("{language}, no underlines"), { language: glossLanguageName }) : glossLanguageName}>
               {t("Meanings")}
             </SectionTitle>
@@ -565,7 +590,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         )}
         {tab === "words" && (
           <div className="flex flex-col gap-8">
-          <section id="import">
+          <section id="import" className="scroll-mt-6">
             <SectionTitle>{t("Import words")}</SectionTitle>
             <ImportPanel />
           </section>
@@ -575,7 +600,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <Card>
               <p className="text-sm" style={{ color: "var(--ink-2)" }}>
                 {filled(t("The built-in dictionary has {words}, from A1 up into C1, each with its main forms checked. Type any form you’ve met in class, like {first} or {second}, and it finds the word for you and tells you which form it is. The audio works out of the box too, no key needed."), {
-                  words: countOf(locale, words, "word"),
+                  words: countGrouped(locale, words, "word"),
                   first: <span lang="et">toas</span>,
                   second: <span lang="et">lugesin</span>,
                 })}
@@ -590,14 +615,14 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               ) : (
                 <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--rule-soft)" }}>
                   <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                    {fill(t("Live dictionary lookup isn’t set up here yet, so search only knows the {n} built-in words. Those come with hardly any real example sentences, so dictation, the sentence builder and the mock exam’s reading and listening parts are thin or empty."), { n: words })}
+                    {fill(t("Live dictionary lookup isn't set up here yet, so search only knows the {n} built-in words. Most of them come with real example sentences, so every exercise works without it."), { n: grouped(locale, words) })}
                   </p>
                   <EkilexSetupGuide />
                 </div>
               )}
             </Card>
           </section>
-          <section>
+          <section id="anu" className="scroll-mt-6">
             {/* Named the way every other screen names her. "AI tutor" here
                 against "Anu" everywhere else made two things out of one. */}
             <SectionTitle hint={provider ? undefined : t("off until you add a key")}>{t("Anu")}</SectionTitle>
@@ -656,7 +681,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               <ClassNamePanel currentName={displayName} />
             </Card>
           </section>
-          <section id="email">
+          <section id="email" className="scroll-mt-6">
             <SectionTitle hint={t("you choose which ones, and when")}>{t("Emails and reminders")}</SectionTitle>
             <Card>
               <EmailPanel
@@ -678,7 +703,9 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 }
                 reminderAt={settings[SETTING_KEYS.reminderAt] ?? null}
                 sending={canSend}
+                notifying={pushKey !== null}
               />
+              {pushKey && <PushPanel publicKey={pushKey} />}
             </Card>
           </section>
 

@@ -3515,7 +3515,117 @@ What it cannot do yet is correct a misspelled English word the dictionary holds 
 Wiktionary has no page for `chamiponship`, and its search API's spelling suggestion could not be
 checked against a live answer from the build machine.
 
-## 61. The fifty-fifth pass: Practice and Games are two pages
+## 61. The fifty-fifth pass: Estonian out loud
+
+The fifth batch (`docs/41-fifth-batch.md`, which holds every measurement and the decisions D1 to
+D26). The app hears Estonian now, on the device, and the rule that held speaking back is kept
+whole: it says which words it understood and never how a word sounded.
+
+**The engine** is TalTech's streaming model, 71 MB, run by sherpa-onnx in a worker
+(`components/speech/`), downloaded once on a press that says its size, kept in its own cache and
+checked against its hashes. Nothing it hears leaves the device, and nothing is stored but what a
+learner chooses to send. `lib/speech/` is pure and is the contract the native apps take up
+(`docs/42-native-apps.md`, the golden file). ADR-028 records it, and ADR-018's refusal stands: a
+spoken verdict is "good" or "fill", so speech only ever grades up, and a word the dictionary
+repaired grades nothing (D13).
+
+**Where it reaches.** A conversation can be answered by picking, saying or typing a line, with a
+call mode in the phone rooms (VB-4). The Speaking round is three steps and has a hands-free mode
+(VB-5). The answer boxes on the daily path take a spoken answer (VB-6). A new numbers round asks
+for prices, clock times and counts out loud (VB-7). The conjugation table, Say what you see, 20
+küsimust and the workbook take speech (VB-8), and so do the dictionary search, Anu and the reading
+page (VB-9). A recording opened on the reading page is transcribed on the device (VB-12), the
+scanner names the things around you (VB-13), and the landing café can be answered by voice
+(VB-15). Reminders reach a computer through Web Push (VB-10).
+
+**Tonight's chat** (VB-11) is a conversation of a new kind about the evening's own words, with
+the same neighbour each time, who remembers which words the two of you have talked about. It is
+offered only where a model is set up and the day's allowance would still let a scene call
+through, since a chat has no bank of lines under it.
+
+**Whether it helps is counted, not assumed** (VB-14). `Review.spoken` marks an answer said aloud
+and marked on what was heard, on the cards, in the rounds that grade cards and in a conversation's
+grades; an answer the learner changed after the microphone filled the box is written as typed, and
+the workbook's lines read aloud are marked as typed by design. A spoken conversation turn carries
+how many words were heard and how many the learner changed before sending. `npm run
+report:speech` reads the edit rate, recall after a spoken answer against a typed one, and what
+tonight's chat did for its words. Every figure in it so far is a fixture's; the deployment run is
+the operator's. Three readings the order asked for were left unbuilt here and are built in §62.
+
+**What is not verified.** Only Chromium was available, so Safari and Firefox are untested, Safari's
+Ogg handling included. No phone was timed. Nobody has measured the engine on learners' own voices,
+which is why the edit rate exists and why Pairs said aloud (VB-16) stays parked.
+
+
+## 62. The fifty-sixth pass: speaking as evidence, finished
+
+The fifty-fifth pass left three of VB-14's readings unbuilt, and this builds them, so the fifth batch
+is done in code (`docs/41-fifth-batch.md` section 4); what is left of it is the operator's (section 8).
+
+**How long a spoken answer runs.** Progress prints the median words per spoken answer in conversations,
+month by month, beside "Said aloud this week", in the learner's own months and only once two months each
+hold three spoken turns (`lib/stats/spoken.ts`, read through `lib/progress/spokenTurns.ts`). It is the
+one fluency figure the log can honestly give: how much somebody says in one go, never whether it was
+right, which a conversation does not mark.
+
+**Following speech, counted.** A conversation turn said aloud records whether the line it answered was
+only heard (`SpokenTurn.unseen`). Ten such turns that met their beat, at or above a situation's band,
+count as evidence the learner can follow speech, beside the level check and a sat paper, and lift the
+"ear" blocker on the readiness rungs. Looking at the words stays free: a turn after a look is an
+ordinary turn, it is simply not this evidence.
+
+**A class sees speech as a count.** The roster shows each student's answers said aloud this week and
+the roster file carries the column; nothing of what was said reaches the teacher, asserted.
+
+**Polish.** The speaking lines on Progress are one block rather than two paragraphs a section apart.
+The scanner's empty list no longer says "take a photo" under a card saying the camera is not set up.
+Settings lost a lone play button under the voice card that every voice chip already carries, and the
+third conversation setting reads "Hear it, no hints" on one line. The forms-list test in the lessons
+engine has the minute the jokes test has, since it timed out under the full suite.
+
+
+## 63. The fifty-seventh pass: A1 is the lessons
+
+The 61 lessons (`docs/43-lessons.md`) were built beside the old A1 and shown to reviewers only. This
+makes them the course and removes the old A1 parts. Nobody was on the old A1 yet, so nobody is placed
+or migrated: its day ids are gone rather than mapped, which was the operator's call (L4 not needed).
+
+**One evening, one lesson.** `lib/course/lessonCourse.ts` turns each lesson into a `CourseDay` with a
+single step, the lesson itself, and the parts `a1.1` to `a1.8` follow the lesson parts. The lesson's
+own six steps happen inside the lesson screen, so the module list shows one row and the evening's
+length is the lesson's eighteen minutes. Finishing the last step calls `finishLesson`, which ticks
+the evening when it is the one in play and hands the lesson's words to the deck, recognition and
+production, the same cards a met word gets. A lesson evening has no tonight's chat; the lesson's own
+role-play is the conversation.
+
+**What a lesson teaches counts as taught.** A finished lesson credits its words in `scopeSoFar`, and
+the pages a lesson explains (the partitive, `-s`, `-ga` and the rest, `LESSON_PAGES`) count as read,
+so Review asks a case card only after the lesson that explained the case. The builder's ledger is
+seeded with every lesson before A2's first evening (`teachLessons`), so A2 marks a word met in a
+lesson as met before.
+
+**What went.** The A1 parts in `plan.ts` and the A1 rotation. A link to an A1 unit lands on the
+lessons, the A1 units leave the command palette and Today's "next unit", `/learn` shows A1 as the
+eight lesson parts, and a beginner's first run builds no starter deck, because the first lesson
+hands the deck its words. 671 authored A1 sentences no longer pass the checker against the new order
+of teaching and were dropped rather than loosened; 1,003 remain. The landing page's "your first
+evening" is lesson 1.
+
+**Every lesson item has a card.** 81 of the 429 things the lessons teach had no dictionary entry,
+so finishing a lesson gave the deck nothing for them. `lib/course/lessonHeads.ts` resolves each: a
+headword where the dictionary has one (`ma` is `mina`, `Tere!` is `tere`), a stored form to its
+headword only once that headword has been taught (lesson 3's `minu` is "my" a lesson before "you",
+so it is its own entry), and otherwise an entry of the lesson's own glossed with its English, which
+the seed writes before its early return so a deploy adds it. The module walk presses a whole lesson
+through and checks that the evening ticks and every word it taught has a card.
+
+**The lessons in Russian and Ukrainian, machine translated.** 1,633 and 1,630 lines, the operator's
+call, not yet read by anybody fluent (`lib/copy/i18n/areas/lessonText.ts`). A line naming Ukraine
+stays English in Russian and a line naming Russia stays English in Ukrainian, as the purity rules
+ask, and the language rule accepts Estonian a translation copies verbatim from the English line's
+braces.
+
+## 64. The fifty-eighth pass: Practice and Games are two pages
 
 Practice was every round in the app, the review hero, two word cards and then three shelves of
 rounds, and was reported as too compact and too cluttered to want to press anything on. The

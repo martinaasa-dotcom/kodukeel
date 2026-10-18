@@ -4,8 +4,13 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { ICONS } from "../../components/icons";
-import { SCENES } from "./catalogue";
+import { SCENES as LISTED } from "./catalogue";
+import { LESSON_SCENES } from "./lessonScenes";
+
+// The lessons' own role-plays are in no listing and still open in a room of their own.
+const SCENES = [...LISTED, ...LESSON_SCENES];
 import { CURVEBALLS } from "./curveballs";
+import { CHAT_ID } from "./specs/chat";
 import { CUES, MOVES, SCENERY, cueFor, movesTo, sceneryFor, type Cue, type Setting } from "./scenery";
 
 /*
@@ -30,7 +35,8 @@ describe("every conversation happens somewhere", () => {
   });
 
   it("and no room for a scene that is not there", () => {
-    const ids = new Set(SCENES.map((scene) => scene.id));
+    // Tonight's chat is a scene built per evening and in no catalogue (`lib/scenes/specs/chat.ts`).
+    const ids = new Set([...SCENES.map((scene) => scene.id), CHAT_ID]);
     for (const id of Object.keys(SCENERY)) {
       expect(ids.has(id), `${id} has scenery and is not a scene`).toBe(true);
     }

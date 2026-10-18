@@ -102,7 +102,7 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
   change. New words are shown to you with their answer rather than guessed at, and multiple choice
   covers recognizing them. Press `u` to undo your last grade. The card goes back to how it was, and
   your answer stays in your review history, which is never edited.
-- **27 ways to practice, all on one deck.** Six quick rounds: Match, Sentences (a real sentence
+- **28 ways to practice, all on one deck.** Six quick rounds: Match, Sentences (a real sentence
   put back in order, commas and dashes included), Listening, Dictation, Speaking, and Say what you
   see (five sentences about a scene made of emoji). Two ways through the words you're working on:
   flash cards over your whole deck, and the hundred most common words of each kind, counted from
@@ -113,7 +113,7 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
   question comes back with a plain grammar tip where it could be better; it grades nothing). Töövihik,
   the workbook: a page of real sentences with a word in brackets to write in the form the sentence
   needs, the way a course book sets homework, built from your own words and the cases you find
-  hardest, checked at the end, with a hint and a second go on the lines you missed. A two-minute daily quest aimed at whatever's going worst. And nine
+  hardest, checked at the end, with a hint and a second go on the lines you missed. A two-minute daily quest aimed at whatever's going worst. Arvud: a price tag, a clock on the wall, a timetable or a number, said out loud or typed in words or digits, with the right answer read back to you. And nine
   drills, each tucked onto the page about the thing it drills: writing a sentence with a word in a
   named case, verb government, how the start of a sentence picks the ending, long sounds against short ones, your own pasted Estonian, the
   conjugation table, the words the endings rules don't reach, the cards you keep failing, and the
@@ -257,7 +257,8 @@ Estonian" without saying so.
 
 ## What works without any API key
 
-Everything except the two things that need a model: Anu, and reading a photo of a page.
+Everything except the three things that need a model: Anu, reading a photo (a page of words, or
+the things around you), and the two-minute chat after an evening.
 
 - **Dictionary**, 6,280 words (A1 to C2), with principal parts, consonant gradation and the full
   case table worked out from the genitive. Search for a form you met in class, like `toas`,
@@ -266,6 +267,15 @@ Everything except the two things that need a model: Anu, and reading a photo of 
 - **Audio**: real Estonian speech from the University of Tartu's neural voices, with ten to choose
   from. A card reads itself aloud when you meet a word and when its answer appears, and the next
   card's audio loads while you're answering this one. No key and no setup.
+- **Speaking**: say an answer instead of typing it, in a conversation, the Speaking round, the
+  numbers round and any box that takes an Estonian word. It's heard on your own device by TalTech's
+  Estonian model, so no recording leaves it, and it tells you which words it understood, never how
+  they sounded. The model is 71 MB, and every signed-in device downloads it once, quietly
+  in the background, so the first press of a microphone just listens. `npm run build` fetches it
+  and the app serves it itself, so a deployment needs no setup; `npm run asr:fetch` does the same
+  for `npm run dev`. Set `NEXT_PUBLIC_ASR_MODEL_BASE` only to serve the files from somewhere else.
+  A build that cannot fetch the model offers no microphone and everything is typed, and
+  `PAID_OFF=speech` switches it off without a deploy.
 - **Flashcards**: FSRS scheduling, 7 card types, typed or flipped, and you can review using only
   the keyboard.
 - **The learning path, every practice mode, the grammar reference, printable worksheets and the
@@ -658,6 +668,20 @@ Who gets what, and how often, is decided in `lib/email/schedule.ts`, which has n
 is unit tested. What each email says lives in `lib/email/letters/`. Both are checked against the
 same voice rules as every other string in `lib/`.
 
+**Reminders on a computer.** Set a key pair and Settings offers "Remind me on this computer", which
+sends the short reminders as a browser notification instead of an email, from the same scheduled
+run and with the same per-kind switches. A kind goes one way a day, never both. It works without the
+email settings above, but `CRON_SECRET` still has to be set.
+
+```
+npx web-push generate-vapid-keys      # once; a new pair stops every browser that used the old one
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=...      # public by design, the browser is handed it
+VAPID_PRIVATE_KEY=...                 # a credential: server only
+VAPID_SUBJECT=mailto:hei@your-domain  # optional; falls back to NEXT_PUBLIC_SITE_URL, then OPERATOR_EMAIL
+```
+
+With either key unset, nobody is offered it and `/privacy` names no push service.
+
 The sign-in link opens in the browser that asked for it, because that's where the security check
 lives, and the sign-in screen says so. If you'd rather the link still worked after being forwarded
 to a phone, change the magic-link email template to point at
@@ -787,6 +811,8 @@ npm run demo             # two months of sample history, to look around
 npm run forms            # rebuild the forms list: every spelling of every Estonian word
 npm run db:seed          # reload the built-in dictionary (always)
 npm run db:seed:ensure   # load it only if the dictionary is empty, what the deploy runs
+npm run asr:fetch        # fetch the 71 MB speech model for the app to serve, checked by hash
+npm run report:speech    # does saying it help: the edit rate, recall after a spoken answer, tonight's chat
 ```
 
 The end-to-end suite and `npm run demo` refuse to run against anything but a local database, and

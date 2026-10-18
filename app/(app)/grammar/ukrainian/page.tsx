@@ -1,5 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { requireUserId } from "@/lib/auth/session";
@@ -10,7 +10,7 @@ import {
   caseNameFor, endingFor, type FamiliarWord, type SpeakerPoint,
 } from "@/lib/estonian/ukrainian";
 import { modeAt } from "@/lib/ux/modes";
-import { Card, Page, SectionTitle, Stack } from "@/components/ui";
+import { BackLink, Card, Page, SectionTitle, Stack } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { fillNodes } from "@/components/reference/fillNodes";
 import { localeFor, titleFor } from "@/lib/progress/locale";
@@ -131,9 +131,7 @@ export default async function UkrainianSpeakersPage() {
       title={t("Estonian for Ukrainian speakers")}
       lead={t("What your Ukrainian already gives you, and where it leads you astray.")}
       actions={(
-        <Link href="/grammar" className="flex items-center gap-1.5 text-sm" style={{ color: "var(--accent-deep)" }}>
-          <ArrowLeft size={14} aria-hidden /> {t("All grammar")}
-        </Link>
+        <BackLink href="/grammar">{t("All grammar")}</BackLink>
       )}
     >
       <Stack>

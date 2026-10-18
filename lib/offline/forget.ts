@@ -19,19 +19,41 @@ import { deleteLocalDatabase } from "./db";
  *
  * So this is what a sign-out does now, after the outbox has been given its
  * chance to reach the server (`flush` in `components/OfflineProvider.tsx`).
- * Three stores, one function, and every step swallows its own failure: a
- * browser that blocks storage throws on the accessor, and a sign-out that
- * cannot complete because a cache would not delete is a sign-out that leaves
- * somebody signed in on a shared machine, which is the worse outcome.
+ * Three stores and this browser's reminder subscription, one function, and
+ * every step swallows its own failure: a browser that blocks storage throws
+ * on the accessor, and a sign-out that cannot complete because a cache would
+ * not delete is a sign-out that leaves somebody signed in on a shared
+ * machine, which is the worse outcome.
  *
  * What it does *not* touch is what is not about a person: the theme, the
- * install prompt's memory, and the audio and build caches the worker keeps.
+ * install prompt's memory, the audio and build caches the worker keeps, and
+ * the speech model, which is the same pinned file for everybody.
  * Those are facts about the device, the same for whoever signs in next, and
  * a word read aloud is not a secret.
  */
 export async function forgetThisDevice(): Promise<void> {
-  await Promise.all([deleteLocalDatabase(), forgetPages(), forgetSittings()]);
+  await Promise.all([deleteLocalDatabase(), forgetPages(), forgetSittings(), forgetReminders()]);
   forgetOwner();
+}
+
+/**
+ * And the reminders this browser was asked to show (VB-10).
+ *
+ * A browser's push subscription is the browser's, not the account's: left in
+ * place after a sign-out, the next person at a shared computer would be shown
+ * the last one's evening nudge. Unsubscribing here makes the address dead at
+ * the push service, so the next reminder the server tries is answered 410 and
+ * the row is deleted there, with no session needed for any of it.
+ */
+async function forgetReminders(): Promise<void> {
+  try {
+    if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
+    const registration = await navigator.serviceWorker.getRegistration();
+    const subscription = await registration?.pushManager?.getSubscription();
+    await subscription?.unsubscribe();
+  } catch {
+    // No worker, no Push API, or a browser that refused. Nothing to forget.
+  }
 }
 
 /**

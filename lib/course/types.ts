@@ -56,13 +56,15 @@ import { modeAt } from "@/lib/ux/modes";
  *   game    a round that is mostly fun and asks them sideways
  *   talk    a conversation, where the words are used on somebody
  *   review  the closing round over everything due, which is the reinforcement
+ *   lesson  one A1 lesson, whole: its six steps run on their own screen
+ *           (`/course/lessons/<id>`), and finishing it is the evening
  *
  * `drill` and `game` differ in nothing the code reads and a great deal the
  * learner reads: a day that is four drills long is homework, and a day whose
  * middle is a game is an evening. Keeping them apart is what lets
  * `course.test.ts` assert that no day is all of one.
  */
-export type StepKind = "meet" | "read" | "drill" | "game" | "talk" | "review";
+export type StepKind = "meet" | "read" | "drill" | "game" | "talk" | "review" | "lesson";
 
 /**
  * One thing a day does, named once and picked by key.
@@ -123,7 +125,7 @@ export const ACTIVITIES = {
   },
   speaking: {
     href: "/review/speaking", kind: "drill",
-    why: "Say it out loud, then hear how it should sound. Nobody marks you. This one is just for your own ears.",
+    why: "Say tonight's words out loud: along with a native speaker, back from the recording, then from their meaning. You see which words were heard, and typing works too.",
   },
   write: {
     href: "/review/write", kind: "drill",
@@ -144,6 +146,10 @@ export const ACTIVITIES = {
   workbook: {
     href: "/review/workbook", kind: "drill",
     why: "A page from a course book: real sentences, each with a word in brackets to put into the form it needs. It's where tonight's ending gets used eight times, in eight sentences.",
+  },
+  numbers: {
+    href: "/review/numbers", kind: "drill",
+    why: "Prices, clock times and counts, said out loud. Every counter you'll stand at needs one, and Estonian says half past two as half three.",
   },
   flash: {
     href: "/review/flashcards", kind: "drill",
@@ -271,6 +277,20 @@ export interface DaySpec {
    * card asks a verb's past only after the evening that showed it.
    */
   forms?: readonly string[];
+  /**
+   * The lesson this evening is, where it is one (docs/43-lessons.md): A1 is
+   * the lessons now, one evening each, and a lesson evening has one step,
+   * the lesson, rather than the ladder, a reading and two rounds.
+   */
+  lesson?: string;
+  /**
+   * The case pages a lesson explains, by key, beyond `grammarCase`. A lesson
+   * may explain more than one ending in an evening (`kus`, `kuhu` and `kust`
+   * together), and what it explains is what may be asked afterwards.
+   */
+  cases?: readonly string[];
+  /** The topic pages a lesson explains, by id, beyond `grammar`. */
+  topics?: readonly string[];
 }
 
 /** A step, resolved: what it is called, where it goes, and who proves it. */
@@ -351,6 +371,8 @@ export const READ_STEP = "read";
 export const TALK_STEP = "talk";
 export const REVIEW_STEP = "review";
 export const FORMS_STEP = "forms";
+/** A lesson evening's one step: the lesson, on its own screen. */
+export const LESSON_STEP = "lesson";
 
 /**
  * How many words a day teaches, at most.

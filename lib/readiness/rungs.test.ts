@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  ANSWERS_FAIR, ANSWERS_GOOD, CONVERSATIONAL_MS, MIN_CASE_REVIEWS, SLOW_MS,
+  ANSWERS_FAIR, ANSWERS_GOOD, CONVERSATIONAL_MS, HEARD_TURNS_FOR_EAR, MIN_CASE_REVIEWS, SLOW_MS,
   readSituation, summarise, wordStanding, type Context,
 } from "./rungs";
 import { SITUATIONS, situationById } from "./situations";
@@ -32,6 +32,8 @@ function word(over: {
 }
 
 const DOCTOR = situationById("keha-ja-tervis")!;
+/** The band under each one, for turns heard at a slower voice. */
+const LOWER: Readonly<Record<string, string>> = { A1: "pre-A1", A2: "A1", B1: "A2", B2: "B1", C1: "B2" };
 const HOME = situationById("kodu")!;
 
 /** A context where every word the course names exists, and nothing else is known. */
@@ -40,7 +42,7 @@ function context(over: Partial<Context> = {}): Context {
     evidence: new Map(),
     available: new Set(SITUATIONS.flatMap((s) => s.lemmas)),
     cases: new Map(),
-    listening: { placed: null, sittings: 0 },
+    listening: { placed: null, sittings: 0, heardTurns: new Map() },
     ...over,
   };
 }
@@ -60,7 +62,7 @@ function everyWord(situation: typeof DOCTOR, e: WordEvidence, ctx = context()): 
 function leadReady(situation: typeof DOCTOR): Context {
   return everyWord(situation, word({ rec: 4, prod: 6, forms: 2 }), context({
     cases: new Map(situation.cases.map((c) => [c, { pct: 90, reviews: MIN_CASE_REVIEWS + 4 }])),
-    listening: { placed: "B1", sittings: 1 },
+    listening: { placed: "B1", sittings: 1, heardTurns: new Map() },
   }));
 }
 
@@ -132,21 +134,47 @@ describe("a situation, rung by rung", () => {
   });
 
   it("holds a live exchange off lead until the ear has been measured", () => {
-    const ctx = { ...leadReady(DOCTOR), listening: { placed: null, sittings: 0 } };
+    const ctx = { ...leadReady(DOCTOR), listening: { placed: null, sittings: 0, heardTurns: new Map() } };
     const r = readSituation(DOCTOR, ctx);
     expect(r.rung).toBe("takePart");
     expect(r.struggles.find((s) => s.id === "ear")?.blocks).toBe("lead");
   });
 
   it("holds a live exchange off lead when listening measured below the situation", () => {
-    const ctx = { ...leadReady(DOCTOR), listening: { placed: "A1", sittings: 0 } };
+    const ctx = { ...leadReady(DOCTOR), listening: { placed: "A1", sittings: 0, heardTurns: new Map() } };
     const r = readSituation(DOCTOR, ctx);
     expect(r.rung).toBe("takePart");
     expect(r.struggles.find((s) => s.id === "ear")?.title).toContain("A1");
   });
 
+  it("lets ten turns answered by ear at the situation's band stand in for the check (VB-14)", () => {
+    const heard = new Map([[DOCTOR.level, HEARD_TURNS_FOR_EAR]]);
+    const ctx = { ...leadReady(DOCTOR), listening: { placed: null, sittings: 0, heardTurns: heard } };
+    const r = readSituation(DOCTOR, ctx);
+    expect(r.rung).toBe("lead");
+    expect(r.struggles.map((s) => s.id)).not.toContain("ear");
+  });
+
+  it("does not count turns by ear below the situation's band, or too few of them", () => {
+    const lower = LOWER[DOCTOR.level] ?? "pre-A1";
+    const below = new Map([[lower, HEARD_TURNS_FOR_EAR * 3]]);
+    const few = new Map([[DOCTOR.level, HEARD_TURNS_FOR_EAR - 1]]);
+    for (const heardTurns of [below, few]) {
+      const ctx = { ...leadReady(DOCTOR), listening: { placed: null, sittings: 0, heardTurns } };
+      const r = readSituation(DOCTOR, ctx);
+      expect(r.rung).toBe("takePart");
+      expect(r.struggles.map((s) => s.id)).toContain("ear");
+    }
+  });
+
+  it("lets later turns by ear outrank a level check that put listening lower", () => {
+    const heard = new Map([[DOCTOR.level, HEARD_TURNS_FOR_EAR]]);
+    const ctx = { ...leadReady(DOCTOR), listening: { placed: "A1", sittings: 0, heardTurns: heard } };
+    expect(readSituation(DOCTOR, ctx).rung).toBe("lead");
+  });
+
   it("does not ask an own-pace situation about the ear or about pace", () => {
-    const ctx = { ...leadReady(HOME), listening: { placed: null, sittings: 0 } };
+    const ctx = { ...leadReady(HOME), listening: { placed: null, sittings: 0, heardTurns: new Map() } };
     const r = readSituation(HOME, ctx);
     expect(r.rung).toBe("lead");
     expect(r.struggles.map((s) => s.id)).not.toContain("ear");

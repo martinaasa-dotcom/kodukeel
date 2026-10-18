@@ -1,17 +1,17 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
-import { AnotherRound } from "@/components/round/AnotherRound";
 import { questionIn } from "@/lib/copy/questionReading";
 import { fill } from "@/lib/copy/locale";
+import { filled } from "@/components/Filled";
 import { rich } from "@/components/round/rich";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
 import { Check, Scale } from "lucide-react";
 import { addToDeck } from "@/app/actions";
 import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
-import { Button, ButtonLink } from "@/components/Button";
-import { Chip, KeyCap, Stat } from "@/components/ui";
+import { Button } from "@/components/Button";
+import { Chip, KeyCap } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
@@ -22,7 +22,7 @@ import { useHints } from "@/components/round/useHints";
 import { narrowLadder, struckOptions } from "@/lib/questions/hints";
 import type { CaseKey } from "@/lib/estonian/types";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
-import { WayOut } from "@/components/round/RoundExit";
+import { RoundDone } from "@/components/round/RoundDone";
 import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { FitText } from "@/components/FitText";
@@ -90,6 +90,8 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
   const [index, setIndex] = useState(0);
   const [picked, setPicked] = useState<CaseKey | null>(null);
   const [correct, setCorrect] = useState(0);
+  /* What came out wrong, in the order it was asked, for the last screen. */
+  const [missed, setMissed] = useState<GovernmentQuestion[]>([]);
   const [added, setAdded] = useState<string | null>(null);
   const startedAt = useRef(Date.now());
 
@@ -137,7 +139,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
     if (right) setCorrect((c) => c + 1);
     // ADR-016: the same review log as every other mode, so rektsioon practice
     // moves the schedule instead of scoring itself.
-    if (!right) hints.noteMiss();
+    if (!right) { hints.noteMiss(); setMissed((m) => [...m, question]); }
     // A hint is paid for: see `lib/questions/hints.ts`.
     const rating = Math.min(right ? 3 : 1, hints.ceiling) as 1 | 2 | 3;
     if (question.cardId) void grade(question.cardId, rating, 0);
@@ -189,26 +191,19 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
     const accuracy = Math.round((correct / questions.length) * 100);
     return (
-      <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          {t("That’s the round done")}
-        </h1>
-        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          {t("There’s no rule for which case a verb wants. You just get to know them, one verb at a time, a little and often.")}
-        </p>
-        <div
-          className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
-          style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
-        >
-          <Stat value={questions.length} label={t("Verbs")} />
-          <Stat value={`${accuracy}%`} label={t("Right")} />
-          <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
-        </div>
-        <WayOut className="mt-8 flex flex-wrap gap-3">
-          <AnotherRound>{t("Another round")}</AnotherRound>
-          <ButtonLink href="/" variant="primary">{t("Back to Today")}</ButtonLink>
-        </WayOut>
-      </div>
+      <RoundDone
+        title={t("That’s the round done")}
+        line={t("There’s no rule for which case a verb wants. You just get to know them, one verb at a time, a little and often.")}
+        figures={[
+          { value: questions.length, label: t("Verbs") },
+          { value: `${accuracy}%`, label: t("Right") },
+          { value: fill(t("{n}m"), { n: minutes }), label: t("Time") },
+        ]}
+        missed={missed.map((q) => ({
+          et: q.lemma,
+          note: filled(t("{meaning}. Takes the {case}."), { meaning: q.translation, case: <span lang="et">{q.answerEt}</span> }),
+        }))}
+      />
     );
   }
 

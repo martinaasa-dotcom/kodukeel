@@ -27,9 +27,18 @@ import { EXAM } from "./areas/exam";
 import { HEROES } from "./areas/heroes";
 import { SAYINGS } from "./areas/sayings";
 import { TWINS } from "./areas/twins";
+import { FIRST_DAY } from "./areas/firstDay";
 import { WORKBOOK } from "./areas/workbook";
 import { GAMES_AREA } from "./areas/games";
 import { WORDPLAY } from "./areas/wordplay";
+import { SPEAKING } from "./areas/speaking";
+import { VOICE_ROUNDS } from "./areas/voiceRounds";
+import { RECORDINGS } from "./areas/recordings";
+import { SPEAKING_ROUND } from "./areas/speakingRound";
+import { SCENE_SPEECH } from "./areas/sceneSpeech";
+import { CHAT } from "./areas/chat";
+import { LESSONS_AREA } from "./areas/lessons";
+import { LESSON_TEXT_AREA } from "./areas/lessonText";
 
 /**
  * Every area of the interface that has been translated. The first is the
@@ -67,4 +76,13 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["workbook", WORKBOOK],
   ["games", GAMES_AREA],
   ["wordplay", WORDPLAY],
+  ["speaking", SPEAKING],
+  ["voiceRounds", VOICE_ROUNDS],
+  ["recordings", RECORDINGS],
+  ["speakingRound", SPEAKING_ROUND],
+  ["sceneSpeech", SCENE_SPEECH],
+  ["chat", CHAT],
+  ["firstDay", FIRST_DAY],
+  ["lessons", LESSONS_AREA],
+  ["lessonText", LESSON_TEXT_AREA],
 ];

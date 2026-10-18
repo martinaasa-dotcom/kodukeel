@@ -2,6 +2,7 @@
 
 import { Lightbulb, TriangleAlert } from "lucide-react";
 
+import { Braced } from "@/components/Braced";
 import { useT } from "@/components/Locale";
 
 /**
@@ -38,7 +39,7 @@ export function RuleNote({ summary, watchOut, className = "" }: {
     <div className={`flex flex-col gap-3 ${className}`} data-rule-note>
       <p className="flex items-start gap-2.5 text-base font-semibold leading-snug" style={{ color: "var(--ink)" }}>
         <Lightbulb size={18} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
-        <span>{t(summary)}</span>
+        <span><Braced text={t(summary)} /></span>
       </p>
       <WatchOut text={watchOut} />
     </div>
@@ -55,7 +56,7 @@ export function WatchOut({ text, className = "" }: { text: string; className?: s
         <p className="text-sm font-bold uppercase tracking-wide" style={{ color: "var(--hard-ink)" }}>
           {t("Watch out")}
         </p>
-        <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink)" }}>{t(text)}</p>
+        <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink)" }}><Braced text={t(text)} /></p>
       </div>
     </div>
   );

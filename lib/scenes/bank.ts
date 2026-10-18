@@ -57,6 +57,14 @@ import GRAAFIK_LINES from "./bank/graafik";
 import RAAMATUKLUBI_LINES from "./bank/raamatuklubi";
 import EKSAM_B1_LINES from "./bank/eksam-b1";
 import EKSAM_B2_LINES from "./bank/eksam-b2";
+import A1_KOHVIK_LINES from "./bank/a1-kohvik";
+import A1_TEE_LINES from "./bank/a1-tee";
+import A1_TREPIL_LINES from "./bank/a1-trepil";
+import A1_KURSUS_LINES from "./bank/a1-kursus";
+import A1_PLAAN_LINES from "./bank/a1-plaan";
+import A1_MUTSIPOOD_LINES from "./bank/a1-mutsipood";
+import A1_NADAL_LINES from "./bank/a1-nadal";
+import A1_KUTSE_LINES from "./bank/a1-kutse";
 
 /** Every scene's prepared lines, one file a scene under `lib/scenes/bank/`, in scene order. */
 export const BANK: readonly ScriptedLine[] = [
@@ -103,4 +111,12 @@ export const BANK: readonly ScriptedLine[] = [
   ...RAAMATUKLUBI_LINES,
   ...EKSAM_B1_LINES,
   ...EKSAM_B2_LINES,
+  ...A1_KOHVIK_LINES,
+  ...A1_TEE_LINES,
+  ...A1_TREPIL_LINES,
+  ...A1_KURSUS_LINES,
+  ...A1_PLAAN_LINES,
+  ...A1_MUTSIPOOD_LINES,
+  ...A1_NADAL_LINES,
+  ...A1_KUTSE_LINES,
 ];

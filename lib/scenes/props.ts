@@ -722,28 +722,23 @@ export function timeFromText(text: string, span: { from: number; to: number }): 
     const minute = Number(digits[2]);
     if (hour <= 23 && minute <= 59) return `${pad(hour)}:${pad(minute)}`;
   }
-  // A dot that ends the sentence is not a minute: `Kell 10.` is ten o'clock, `kell 10.30` is not.
-  const bare = /\bkell\s+(\d{1,2})(?![:.]\d|\d)/.exec(lower);
-  if (bare) {
-    const hour = Number(bare[1]);
-    if (hour <= 23) return `${pad(hour)}:00`;
-  }
-  const spoken = lower.split(/[^a-zõäöüšž]+/).filter(Boolean);
+  /*
+    Then `kell` and what follows it, digits or words, and the half hour, read
+    by `clockFromText`, which the numbers round reads too: `kell neliteist
+    viisteist` is 14:15 and `kell 14 15` the same typed, which a scene could
+    not hear before. A dot that ends the sentence is not a minute: `Kell 10.`
+    is ten o'clock, `kell 10.30` was read above.
+  */
+  const said = clockFromText(lower);
+  if (!said) return null;
   const place = (hour12: number) => {
     const morning = hour12 % 12;
     const afternoon = morning + 12;
     const fits = (h: number) => h >= span.from && h <= span.to;
     return fits(afternoon) || !fits(morning) ? afternoon : morning;
   };
-  for (let at = 0; at < spoken.length; at += 1) {
-    const word = spoken[at]!;
-    const hour = (HOUR_WORDS as readonly string[]).indexOf(word);
-    if (hour < 0) continue;
-    const before = spoken[at - 1];
-    if (before === HALF) return `${pad(place(hour === 0 ? 11 : hour - 1))}:30`;
-    if (before === CLOCK_LEMMA) return `${pad(place(hour))}:00`;
-  }
-  return null;
+  const hour = said.twelve ? place(said.hour) : said.hour;
+  return `${pad(hour)}:${pad(said.minute)}`;
 }
 
 /**
@@ -767,54 +762,271 @@ export function timeFromText(text: string, span: { from: number; to: number }): 
  */
 export function spokenNumbers(text: string): string[] {
   const words = text.toLowerCase().split(/[^a-zõäöüšž]+/).filter(Boolean);
-  const unit = (word: string): number | null => {
-    const at = CARDINALS.indexOf(word as (typeof CARDINALS)[number]);
-    return at >= 0 && at <= 9 ? at : null;
-  };
-  const value = (word: string): { n: number; kind: "unit" | "teen" | "ten" | "hundred" | "thousand" } | null => {
-    if (word === "kümme") return { n: 10, kind: "teen" };
-    if (word === "sada") return { n: 100, kind: "hundred" };
-    if (word === "tuhat") return { n: 1000, kind: "thousand" };
-    const u = unit(word);
-    if (u !== null) return { n: u, kind: "unit" };
-    for (const [suffix, kind, scale] of [["teist", "teen", 0], ["kümmend", "ten", 10], ["sada", "hundred", 100]] as const) {
-      if (word.endsWith(suffix)) {
-        const head = unit(word.slice(0, -suffix.length));
-        if (head !== null && head > 0) return { n: kind === "teen" ? 10 + head : head * scale, kind };
-      }
+  return numberRuns(words).map((run) => run.digits ?? String(run.n));
+}
+
+/** One number a turn says: its value, and the words it spans, from `from` up to `to`. */
+interface NumberRun {
+  readonly n: number;
+  /** A run of bare digits read out one at a time, kept as its digit string (`0540`). */
+  readonly digits?: string;
+  readonly from: number;
+  readonly to: number;
+  /** Said in number words rather than written in digits. */
+  readonly words: boolean;
+}
+
+type PartKind = "unit" | "teen" | "ten" | "hundred" | "thousand";
+
+function unitOf(word: string): number | null {
+  const at = CARDINALS.indexOf(word as (typeof CARDINALS)[number]);
+  return at >= 0 && at <= 9 ? at : null;
+}
+
+/** What one number word is worth, read off the cardinals and the three suffixes Estonian builds with. */
+function partOf(word: string): { n: number; kind: PartKind } | null {
+  if (word === "kümme") return { n: 10, kind: "teen" };
+  if (word === "sada") return { n: 100, kind: "hundred" };
+  if (word === "tuhat") return { n: 1000, kind: "thousand" };
+  const u = unitOf(word);
+  if (u !== null) return { n: u, kind: "unit" };
+  for (const [suffix, kind, scale] of [["teist", "teen", 0], ["kümmend", "ten", 10], ["sada", "hundred", 100]] as const) {
+    if (word.endsWith(suffix)) {
+      const head = unitOf(word.slice(0, -suffix.length));
+      if (head !== null && head > 0) return { n: kind === "teen" ? 10 + head : head * scale, kind };
     }
-    return null;
-  };
-  const out: string[] = [];
+  }
+  return null;
+}
+
+/**
+ * A number under a thousand said in words from `at`: hundreds, then a ten and
+ * a unit or a teen, or a unit alone.
+ *
+ * SAID AS ITS PARTS AS WELL AS IN ONE WORD (docs/41-fifth-batch.md, VB-7).
+ * Estonian writes `kakssada` as one word, and a learner saying it, or a
+ * recognizer hearing it, often makes it two: `kaks sada`. Read as two numbers
+ * that was 2 and 100, which is neither the number said nor anything the
+ * learner meant. A unit straight before `sada` multiplies it, which is the
+ * arithmetic the one-word spelling already got, and the same goes for
+ * `tuhat` in `saidNumber`.
+ */
+function belowThousand(words: readonly string[], at: number): { n: number; to: number } | null {
+  const part = (k: number) => (words[k] === undefined ? null : partOf(words[k]!));
+  let n = 0;
+  let k = at;
+  let any = false;
+  const first = part(k);
+  if (first?.kind === "hundred") {
+    n += first.n;
+    k += 1;
+    any = true;
+  } else if (first?.kind === "unit" && first.n > 0 && words[k + 1] === "sada") {
+    n += first.n * 100;
+    k += 2;
+    any = true;
+  }
+  const next = part(k);
+  if (next?.kind === "ten") {
+    n += next.n;
+    k += 1;
+    any = true;
+    const unit = part(k);
+    if (unit?.kind === "unit" && unit.n > 0) {
+      n += unit.n;
+      k += 1;
+    }
+  } else if (next?.kind === "teen") {
+    n += next.n;
+    k += 1;
+    any = true;
+  } else if (next?.kind === "unit" && (!any || next.n > 0)) {
+    n += next.n;
+    k += 1;
+    any = true;
+  }
+  return any ? { n, to: k } : null;
+}
+
+/** A whole number said in words from `at`, a thousand and up included. */
+function saidNumber(words: readonly string[], at: number): { n: number; to: number } | null {
+  const lead = belowThousand(words, at);
+  // `tuhat`, `kaks tuhat`, `kakskümmend tuhat`: whatever comes before it counts the thousands.
+  const thousandAt = lead ? lead.to : at;
+  if (words[thousandAt] === "tuhat") {
+    const thousands = (lead ? lead.n : 1) * 1000;
+    const rest = belowThousand(words, thousandAt + 1);
+    return { n: thousands + (rest?.n ?? 0), to: rest?.to ?? thousandAt + 1 };
+  }
+  return lead;
+}
+
+/**
+ * Every number a run of words says, in order, with where each sits.
+ *
+ * A run of three or more bare digits is a number read out one digit at a
+ * time, a phone number or a reference, and is kept as its digit string. A
+ * digit token, where the caller kept digits among the words, is a number as
+ * it is written.
+ */
+function numberRuns(words: readonly string[]): NumberRun[] {
+  const out: NumberRun[] = [];
   let i = 0;
   while (i < words.length) {
-    const first = value(words[i]!);
-    if (!first) { i += 1; continue; }
-    // A run of bare digits read one at a time: three or more is a number read out.
+    const word = words[i]!;
+    if (/^\d+$/.test(word)) {
+      out.push({ n: Number(word), from: i, to: i + 1, words: false });
+      i += 1;
+      continue;
+    }
+    if (!partOf(word)) {
+      i += 1;
+      continue;
+    }
     let j = i;
     let digits = "";
-    while (j < words.length && unit(words[j]!) !== null) { digits += String(unit(words[j]!)); j += 1; }
-    if (j - i >= 3) { out.push(digits); i = j; continue; }
-    // A composed number: hundreds, then tens or a teen, then a unit.
-    let total = 0;
-    let last: string | null = null;
-    j = i;
-    while (j < words.length) {
-      const part = value(words[j]!);
-      if (!part) break;
-      const order = { thousand: 4, hundred: 3, ten: 2, teen: 1, unit: 0 }[part.kind];
-      if (last !== null) {
-        const before = { thousand: 4, hundred: 3, ten: 2, teen: 1, unit: 0 }[last as "unit"];
-        if (order >= before || (last === "teen" && part.kind === "unit")) break;
-      }
-      total = part.kind === "thousand" ? (total || 1) * 1000 : total + part.n;
-      last = part.kind;
+    while (j < words.length && unitOf(words[j]!) !== null) {
+      digits += String(unitOf(words[j]!));
       j += 1;
     }
-    out.push(String(total));
-    i = Math.max(j, i + 1);
+    // Three bare digits in a row are a number read out, unless the last of them multiplies what follows.
+    if (j - i >= 3 && words[j] !== "sada" && words[j] !== "tuhat") {
+      out.push({ n: Number(digits), digits, from: i, to: j, words: true });
+      i = j;
+      continue;
+    }
+    const said = saidNumber(words, i);
+    if (said) {
+      out.push({ n: said.n, from: i, to: said.to, words: true });
+      i = Math.max(said.to, i + 1);
+    } else {
+      i += 1;
+    }
   }
   return out;
+}
+
+/** The words of a turn with its digits kept, for the readers that take both. */
+function wordsAndDigits(text: string): string[] {
+  return text.toLowerCase().split(/[^a-zõäöüšž0-9]+/).filter(Boolean);
+}
+
+/** A form of `euro`, the lemma the shopping unit teaches. Read, never written. */
+function isEuro(word: string): boolean {
+  return word.startsWith("euro");
+}
+
+/**
+ * A CLOCK TIME SAID AS TWO NUMBERS, WHICH IS HOW A TIMETABLE IS READ OUT.
+ *
+ * `kell neliteist viisteist` is 14:15, and so is `kell 14 15` typed by
+ * somebody who has the numbers and not the colon. Before this a time was an
+ * hour in words, a half hour (`pool kolm`) or digits with a colon, so the
+ * quarter past a bus leaves at could not be said at all, and neither could an
+ * hour past twelve said in words (docs/41-fifth-batch.md, VB-7). Accept-only,
+ * read off the number words the course teaches; the quarter-hour words are
+ * not read, since `veerand` is in no unit (D17).
+ *
+ * The minute is a number from ten to fifty-nine, or `null` and a digit, which
+ * is how a minute under ten is read out: a bare `kaks` after the hour is never
+ * a minute, so `kell kolm kaks inimest` is three o'clock and two people.
+ *
+ * `bare` is the numbers round's reading, where the question is already a
+ * clock: two numbers with no `kell` in front are an hour and its minutes, and
+ * one number alone is the hour. The scenes never pass it, since there a
+ * number with no `kell` is a count.
+ */
+export interface SaidClock {
+  readonly hour: number;
+  readonly minute: number;
+  /** Said on a twelve-hour reading (`kolm`, `pool kolm`), so it could be morning or afternoon. */
+  readonly twelve: boolean;
+}
+
+export function clockFromText(text: string, options: { readonly bare?: boolean } = {}): SaidClock | null {
+  const lower = text.toLowerCase();
+  const digits = /(?:^|\D)(\d{1,2})[:.](\d{2})(?!\d)/.exec(lower);
+  if (digits) {
+    const hour = Number(digits[1]);
+    const minute = Number(digits[2]);
+    if (hour <= 23 && minute <= 59) return { hour, minute, twelve: false };
+  }
+  const words = wordsAndDigits(lower);
+  for (let at = 0; at < words.length; at += 1) {
+    if (words[at] !== HALF) continue;
+    const hour = (HOUR_WORDS as readonly string[]).indexOf(words[at + 1] ?? "");
+    if (hour >= 0) return { hour: hour === 0 ? 11 : hour - 1, minute: 30, twelve: true };
+  }
+  const starts = words.flatMap((word, at) => (word === CLOCK_LEMMA ? [at + 1] : []));
+  if (starts.length === 0 && options.bare) starts.push(0);
+  for (const at of starts) {
+    const said = hourAndMinute(words.slice(at));
+    if (said) return said;
+  }
+  return null;
+}
+
+/** An hour and the minute after it, said at the start of `rest`. */
+function hourAndMinute(rest: readonly string[]): SaidClock | null {
+  const runs = numberRuns(rest);
+  const hour = runs[0];
+  // `kaheksa null viis` reads as three digits in a row, and is five past eight; `kolm null null` is three o'clock.
+  if (hour && hour.from === 0 && hour.digits !== undefined && /^[1-9]0\d$/.test(hour.digits)) {
+    return { hour: Number(hour.digits[0]), minute: Number(hour.digits[2]), twelve: true };
+  }
+  // The hour is the first thing said after `kell`, or the first thing said at all in a bare reading.
+  if (!hour || hour.from !== 0 || hour.digits !== undefined || hour.n > 23) return null;
+  let minute = 0;
+  const next = runs[1];
+  if (next && next.from === hour.to) {
+    if (next.digits !== undefined) {
+      // `null viis` read out digit by digit is five past.
+      if (/^0[1-9]$/.test(next.digits)) minute = next.n;
+    } else if (!next.words) {
+      if (/^\d{2}$/.test(rest[next.from]!) && next.n <= 59) minute = next.n;
+    } else if (next.n >= 10 && next.n <= 59) {
+      minute = next.n;
+    } else if (next.n === 0) {
+      const unit = unitOf(rest[next.to] ?? "");
+      if (unit !== null && unit > 0) minute = unit;
+    }
+  }
+  return { hour: hour.n, minute, twelve: hour.words && hour.n <= 12 };
+}
+
+/**
+ * A PRICE SAID AS EUROS AND CENTS, in cents (docs/41-fifth-batch.md, VB-7).
+ *
+ * `kolm eurot viiskümmend`, `kolm eurot ja viiskümmend senti`, and `kolm
+ * viiskümmend eurot`, which is the shape a price tag is read out in, are all
+ * 3,50 €; `3,50`, `3.50 €` and `3 eurot 50` are the same thing typed. A word
+ * for cents is never needed and never read: the number after the euros is the
+ * cents, whatever follows it, and no unit teaches the word.
+ *
+ * Only for the numbers round, which knows its question is a price, so a lone
+ * number is whole euros. The scenes deal whole euros and read them as a
+ * number (`numberFromText`), so they never call this.
+ */
+export function priceFromText(text: string): number | null {
+  const lower = text.toLowerCase();
+  const decimal = /(?:^|[^\d])(\d{1,4})[.,](\d{1,2})(?!\d)/.exec(lower);
+  if (decimal) {
+    const cents = decimal[2]!.length === 1 ? Number(decimal[2]) * 10 : Number(decimal[2]);
+    return Number(decimal[1]) * 100 + cents;
+  }
+  const words = wordsAndDigits(lower);
+  const runs = numberRuns(words).filter((run) => run.digits === undefined);
+  const euros = runs[0];
+  if (!euros) return null;
+  const cents = runs[1];
+  if (cents && cents.n < 100) {
+    // Between the euros and the cents: nothing, the euro word, `ja`, or both.
+    const between = words.slice(euros.to, cents.from);
+    if (between.every((word) => isEuro(word) || word === "ja") && between.filter((w) => w === "ja").length <= 1) {
+      return euros.n * 100 + cents.n;
+    }
+  }
+  return euros.n * 100;
 }
 
 export function numberFromText(

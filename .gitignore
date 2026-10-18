@@ -30,6 +30,7 @@ prisma/data/.cache/
 
 # The hosted-mode build scripts/test-signin.mjs makes for itself.
 .next-signin/
+.next-*/
 .translate-cache/
 
 # Cached speech while measuring what the service does with a word (scripts/measure-speech.ts).
@@ -45,3 +46,11 @@ prisma/data/.cache/
 /scene-review.csv
 /translation-review/
 __pycache__/
+
+# The speech runtime is built from the pinned sherpa-onnx package (npm run asr:runtime),
+# and the model is fetched by hash (npm run asr:fetch); neither is committed.
+/public/asr/runtime/
+/public/asr/model/
+
+# The lessons laid out for the native speaker to read (npm run review:lessons): generated, never committed.
+/*-lesson-review.md

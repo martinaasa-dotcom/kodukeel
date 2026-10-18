@@ -347,6 +347,19 @@ export interface BeatSpec {
    */
   readonly awaits?: true;
   /**
+   * THE WORD THIS BEAT IS THERE FOR THE LEARNER TO USE, WHICH THE OTHER SIDE
+   * MAY NOT SAY FOR THEM.
+   *
+   * Set only on the beats of tonight's chat (`lib/scenes/specs/chat.ts`), which
+   * ask for one of the evening's words in any form. The gate's `giveaway`
+   * check refuses a line carrying any form of it (`answerForms`), as it
+   * already refuses a line carrying the case a beat is about to ask for, and
+   * the composer is told the word so it can ask something whose natural
+   * answer uses it (`ComposeAsk.elicit`). A lemma, which is a request against
+   * the dictionary like every other lemma a scene names.
+   */
+  readonly elicits?: string;
+  /**
    * What has happened since the last beat, in English, where anything has.
    *
    * A scene can span an errand, and the beats knew that while the screen did
@@ -426,6 +439,23 @@ export interface SceneSpec {
   readonly tests: string;
   /** Which units supply the vocabulary. Ids, never words. */
   readonly units: readonly string[];
+  /**
+   * A closed list named directly, beside the units, for a scene that is not
+   * about one situation: tonight's chat composes inside everything the
+   * evenings have taught so far, which is a set of lemmas rather than a set of
+   * whole units (ADR-025 amendment 4). Lemmas are requests, as everywhere.
+   * Absent on every catalogue scene.
+   */
+  readonly lemmas?: readonly string[];
+  /**
+   * THE LESSON THIS CONVERSATION IS THE ROLE-PLAY OF, ON A SCENE PLAYED INSIDE
+   * ONE (docs/43-lessons.md). Its `lemmas` are what the lessons have taught
+   * through it, and every line the other side says is held, spelling by
+   * spelling, to that lesson's ledger: a banked line by a test, a composed one
+   * by the gate's `taught` check. A lesson id, which `lessonProblems` already
+   * holds to a lesson that exists. Absent on every catalogue scene.
+   */
+  readonly lesson?: string;
   /** What the other side calls you, and expects back. */
   readonly register: "teie" | "sina";
   /**

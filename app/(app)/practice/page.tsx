@@ -234,7 +234,10 @@ export default async function PracticePage() {
                   { href: "/review/listening" },
                   { href: "/review/dictation", meta: dictationCount > 0 ? fill(t("{n} ready"), { n: dictationCount }) : undefined },
                 ]} />
-                <Skill tone="sky" verb={t("Speak")} art="/review/speaking" locale={locale} items={[{ href: "/review/speaking" }]} />
+                <Skill tone="sky" verb={t("Speak")} art="/review/speaking" locale={locale} items={[
+                  { href: "/review/speaking" },
+                  { href: "/review/numbers" },
+                ]} />
                 <Skill tone="accent" verb={t("Write")} art="/review/describe" locale={locale} items={[{ href: "/review/describe" }]} />
                 <Skill tone="butter" verb={t("Talk")} art="/situations" locale={locale} items={[{ href: "/situations" }]} />
               </ul>
@@ -315,7 +318,7 @@ function Choice({ href, title, meta, label, done }: {
       href={href}
       aria-label={label && meta ? aria : undefined}
       data-done={done ? "" : undefined}
-      className="tap-tint flex min-h-11 flex-col justify-center rounded-[var(--r)] border px-3.5 py-2.5"
+      className="tap-tint flex min-h-11 flex-col justify-start rounded-[var(--r)] border px-3.5 py-2.5"
       style={done
         ? { borderColor: "var(--accent)", background: "var(--accent-soft)" }
         : { borderColor: "var(--rule-soft)", background: "var(--raised)" }}

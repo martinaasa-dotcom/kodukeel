@@ -1,5 +1,5 @@
 import { type CSSProperties, type ReactNode } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Mascot } from "@/components/brand";
 import { FitText } from "@/components/FitText";
 import { RollNumber } from "@/components/motion/RollNumber";
@@ -24,7 +24,7 @@ export function Wash() {
   );
 }
 
-export function Page({ title, titleLang, lead, actions, children, eyebrow, route, compact }: {
+export function Page({ title, titleLang, lead, leadLang, actions, children, eyebrow, route, compact }: {
   title: string;
   /**
    * Set to "et" where the heading is the Estonian name of a grammar point
@@ -33,6 +33,8 @@ export function Page({ title, titleLang, lead, actions, children, eyebrow, route
    */
   titleLang?: string;
   lead?: string; actions?: ReactNode; children: ReactNode;
+  /** The lead's language where it is not the page's, as `titleLang` is the title's. */
+  leadLang?: string;
   /**
    * The small line above the title. A node rather than a string, because
    * Today's is a date and a date has to be written the way the reader writes
@@ -87,7 +89,7 @@ export function Page({ title, titleLang, lead, actions, children, eyebrow, route
                 a long one broke across lines on a phone: it shrinks instead. */}
             <FitText as="h1" text={title} max={compact ? "var(--text-xl)" : "var(--text-3xl)"} lang={titleLang} className="min-w-0 font-bold leading-[1.05]" style={{ color: "var(--ink)" }} />
           </div>
-          {lead && <p className={`${compact ? "mt-0.5 hidden text-sm sm:block" : "mt-3 text-md"} max-w-[60ch] leading-relaxed`} style={{ color: "var(--ink-2)" }}>{lead}</p>}
+          {lead && <p lang={leadLang} className={`${compact ? "mt-0.5 hidden text-sm sm:block" : "mt-3 text-md"} max-w-[60ch] leading-relaxed`} style={{ color: "var(--ink-2)" }}>{lead}</p>}
         </div>
         {actions && <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">{actions}</div>}
       </header>
@@ -505,6 +507,29 @@ export function CardLink({ href, children, icon, className = "" }: {
       {icon}
       {children}
       <ArrowRight size={13} aria-hidden />
+    </PrefetchLink>
+  );
+}
+
+/**
+ * The way back up a level, in a page's header beside its title.
+ *
+ * It was drawn three ways on pages a learner moves between in one sitting:
+ * a bordered pill on a case page, plain accent text on the topic page one
+ * press away, underlined text on another and a full secondary button on a
+ * fourth. Going back is the same gesture everywhere, so it is one shape: a
+ * quiet pill with the arrow leading, which reads as a control rather than a
+ * sentence and never competes with the page's one loud action.
+ */
+export function BackLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <PrefetchLink
+      href={href}
+      className="press inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
+      style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
+    >
+      <ArrowLeft size={14} aria-hidden />
+      {children}
     </PrefetchLink>
   );
 }

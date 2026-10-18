@@ -34,6 +34,7 @@
  * Pure: no React, no Next, no Prisma.
  */
 import { SEED_SET_SIZE } from "@/lib/collections/seedSize";
+import { ASR_MODEL, megabytes, modelBytes } from "@/lib/speech/model";
 import type { PlanTier, PriceRef, Shape } from "./types";
 
 /**
@@ -103,6 +104,16 @@ export const MEASURED: readonly Measurement[] = [
     what: "Postgres itself, before a single row",
     value: "about 8 MB",
     how: "pg_database_size on the empty schema, subtracted from the seeded one",
+  },
+  {
+    what: "The speech model, downloaded once per device",
+    /*
+      Read off the pins rather than typed, because the pins are what the
+      browser checks every byte against: a model update is a hash change in
+      lib/speech/model.ts, and this line moves with it.
+    */
+    value: `${megabytes(modelBytes())} MB, ${ASR_MODEL.files.length} files`,
+    how: "npm run asr:fetch, which checks each file against its SHA-256 and prints the total",
   },
   {
     what: "One review",
@@ -470,6 +481,13 @@ export interface Assumption {
  * a decimal place.
  */
 export const ASSUMPTIONS: readonly Assumption[] = [
+  {
+    id: "speechDevices",
+    what: "Devices a learner downloads the speech model to, in a month",
+    value: 0.25,
+    unit: "devices",
+    why: "The 71 MB is fetched once per device and kept, so this is a new phone or a cleared browser rather than a habit. A learner on a phone and a laptop downloads twice in their first month and then nothing, which spread across a year is about a quarter of a download a month.",
+  },
   {
     id: "pages",
     what: "Pages opened in a sitting",

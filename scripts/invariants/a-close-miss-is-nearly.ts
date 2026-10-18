@@ -20,7 +20,7 @@ import type { InvariantKit } from "../lib/invariantKit";
  * handed the whole check, never `.verdict` alone, since the bare string has
  * thrown the close reading away before the function sees it.
  */
-const MARKERS = /\b(?:checkAnswer|markForm|markFlash|markTyped|markLine|gradeWrite|isClozeCorrect)\(/;
+const MARKERS = /\b(?:checkAnswer|markForm|markFlash|markTyped|markPhrase|markLine|gradeWrite|isClozeCorrect)\(/;
 const PAINTS = /\bVERDICT_(?:CLASS|INK)\b/;
 const READS_CLOSE = /\bverdictOfCheck\(|\bverdictOfMark\(|\bnearMiss\(|\.close\b|\bclose\b/;
 

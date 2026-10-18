@@ -38,6 +38,10 @@ import {
   type ExerciseKind, type LineMark, type LineNote, type Outcome, type SheetItem, type Tense, type Theme,
 } from "@/lib/games/workbook";
 import { forgetWorkbook, loadWorkbook, saveWorkbook } from "./resume";
+import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
+import { MicButton } from "@/components/speech/MicButton";
+import { micInAnswerBox } from "@/components/speech/answerBoxMic";
+import { whichGap } from "@/lib/speech/lightUp";
 
 /** A line as the page hands it down: the line, and the card it grades, if any. */
 export interface WorkbookLine extends SheetItem {
@@ -301,6 +305,35 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
   const settledCount = Object.keys(outcomes).length;
   const open = useMemo(() => lines.filter((l) => !outcomes[l.id]), [lines, outcomes]);
   const filled = open.filter((l) => (typed[l.id] ?? "").trim() !== "").length;
+
+  /*
+    READ ALOUD, THE GAP FILLED (docs/41-fifth-batch.md, VB-8). Once the model
+    is downloaded (D6), a line can be read aloud whole with the word said in
+    its gap: `whichGap` finds the line by its own words and takes what was
+    heard between the words either side of the gap, and that goes into the
+    box as though it were typed. Check marks it exactly as typed, so nothing
+    about the marking or the grading moves, and a box that already holds an
+    answer is never written over. Reading the whole sentence, rather than
+    typing one word, is what turns a page into fluency practice.
+  */
+  const speechConfig = useSpeechConfig();
+  const [heardNote, setHeardNote] = useState<{ at: number; text: string } | null>(null);
+  const speech = useSpeech({ endpoint: true, onHeard: (hearing) => heardLine(hearing.understood) });
+  const readAloud = micInAnswerBox(speech, speechConfig) && pass !== "settled" && (kind === "write" || kind === "box");
+  function heardLine(heard: string) {
+    const waiting = open.filter((l) => (typed[l.id] ?? "").trim() === "" || (pass === 2 && !changedSince(l.id)));
+    const focusedId = [...inputs.current.entries()].find(([, el]) => el === lastFocused.current)?.[0] ?? null;
+    const got = heard.trim() ? whichGap(waiting, heard, focusedId) : null;
+    if (!got) {
+      setHeardNote({ at, text: t("That didn't line up with a gap. Read the whole line, the word in the gap included, or type it.") });
+      return;
+    }
+    setTyped((all) => ({ ...all, [got.id]: got.word }));
+    const number = lines.findIndex((l) => l.id === got.id) + (exercise?.example ? 2 : 1);
+    setHeardNote({ at, text: fill(t("That went into line {n}. Check marks it the same as typing."), { n: number }) });
+    const after = waiting.map((l) => l.id).filter((id) => id !== got.id);
+    if (after.length > 0) focusLine(after[0]);
+  }
 
   /* The first box takes the caret where there is a keyboard to type with, and
      never on a phone, where focusing it would open the keyboard over the page
@@ -663,6 +696,14 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
           {pass !== "settled" && kind !== "choose" && (
             <div className="mb-4">
               <DiacriticBar fallbackRef={lastFocused} />
+            </div>
+          )}
+          {readAloud && (
+            <div className="mb-4 flex flex-wrap items-center gap-3">
+              <MicButton speech={speech} label={t("Read a line aloud, the gap filled")} shortcut showPartial={false} />
+              <p className="min-w-0 flex-1 text-sm" style={{ color: "var(--ink-2)" }} role="status">
+                {(heardNote?.at === at ? heardNote.text : null) ?? t("Or read a line aloud with the word in the gap, and the word goes into its box.")}
+              </p>
             </div>
           )}
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">

@@ -401,6 +401,20 @@ describe("a turn that was understood and missed the point", () => {
     expect(lines[0]?.provenance).toBe("again");
   });
 
+  it("joins the but only onto a line that is the question alone, never onto an answer in front of it", () => {
+    /*
+      Read in tonight's chat: a composed line said again carried its opening
+      answer, and the join put "but" in front of that answer, contrasting
+      nothing (docs/41-fifth-batch.md, section 0).
+    */
+    const heard = "Mul läheb hästi, aitäh! Kus teil valutab?";
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget", heard, line: { text: "Kas teil on pea valus?", provenance: "scripted" },
+    }));
+    expect(texts(lines).some((text) => /, aga mul/.test(text))).toBe(false);
+    expect(texts(lines).at(-1)).toBe(heard);
+  });
+
   /*
     AND THE MODEL IS ASKED, WHICH IS THE TURN IT USED TO BE BYPASSED ON.
 
@@ -1231,6 +1245,15 @@ describe("a line a model wrote for this turn", () => {
     expect(composeNote("answer", "complete", false, "kui", { answer: "They say it costs 5 euros now." }))
       .toMatch(/What you say when asked this: They say it costs 5 euros now\./);
   });
+
+  it("on tonight's chat, asks something different rather than the answered question again", () => {
+    const note = composeNote("narrow", "offtarget", false, null, { elicit: "elama" });
+    expect(note).toMatch(/something different from your last question/);
+    expect(note).toMatch(/[Nn]ever ask a question they have already answered/);
+    expect(note).not.toMatch(/ask again for the same thing/);
+    // Everywhere else the miss still asks again for the same thing.
+    expect(composeNote("narrow", "offtarget")).toMatch(/ask again for the same/);
+  });
 });
 
 describe("a curveball standing at the goodbye", () => {
@@ -1322,5 +1345,66 @@ describe("a learner who asks to hear it again on a turn that missed", () => {
       heard, line: NOTHING, tries: 1, aside: saidAgain(heard),
     }));
     expect(texts(lines).filter((text) => text === heard)).toHaveLength(1);
+  });
+});
+
+/*
+  THREE SHADOWS THE DECISION TABLE FOUND (`docs/21-situations.md` §85), each
+  held here against the row it touches.
+*/
+describe("a learner who asks for a moment, where a model answers", () => {
+  // Row `wait-holding`, which `wait-composed` used to shadow.
+  it("is given the moment rather than pressed for the rest of the answer", () => {
+    const composed: SpokenLine = { text: "Ja kus täpsemalt teil valutab?", provenance: "composed" };
+    const keyless = replyFor(input({
+      answered: ASK, beat: ASK, response: "wait", reading: "fragment", holding: true, said: "oota", line: NOTHING,
+    }));
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "wait", reading: "fragment", holding: true, said: "oota", line: composed,
+    }));
+    expect(texts(lines)).toEqual(texts(keyless));
+    expect(texts(lines)).not.toContain(composed.text);
+    // A one-word turn that is not asking for a moment still takes the line written for it.
+    const fragment = replyFor(input({
+      answered: ASK, beat: ASK, response: "wait", reading: "fragment", said: "pea", line: composed,
+    }));
+    expect(texts(fragment)).toEqual([composed.text]);
+  });
+});
+
+describe("the answer to a corrected mishearing", () => {
+  const misheard: BeatSpec = { ...ASK, id: "hurdle:misheard", goal: "Say what you really said.", they: "They mishear you." };
+
+  // Row `ack-misheard`, which spoke in front of a composed line.
+  it("says sorry in front of a banked line and not in front of a line a model wrote", () => {
+    const banked = replyFor(input({
+      answered: misheard, beat: OFFER, response: "answer", reading: "complete", said: "ei, pea", line: FRESH,
+    }));
+    expect(texts(banked)[0]).toBe(reaction(REACTIONS.missed[0]!, ".").text);
+    const composed: SpokenLine = { text: "Vabandust, pea. Kas homme kell 14:30 sobib?", provenance: "composed" };
+    const lines = replyFor(input({
+      answered: misheard, beat: OFFER, response: "answer", reading: "complete", said: "ei, pea", line: composed,
+    }));
+    expect(texts(lines)).toEqual([composed.text]);
+  });
+});
+
+describe("the narrowed choice", () => {
+  // Row `narrowed`, which returned before `translate` and the three tidy passes.
+  it("is translated by a helpful persona for somebody who wrote English", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "english", reading: "english", heard: "Kus teil valutab?", line: NOTHING,
+      tries: NUDGE_AFTER, choice: "Pea või selg?", translates: true,
+    }));
+    expect(texts(lines)).toEqual(["Pea või selg?", "They ask where it hurts."]);
+    expect(lines.at(-1)?.provenance).toBe("unspoken");
+  });
+
+  it("is joined to the got-it in front of it, like any question said again", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget", line: NOTHING,
+      tries: NUDGE_AFTER, choice: "Mina või tema?", heard: "Kus teil valutab?",
+    }));
+    expect(texts(lines)).toEqual(["Selge, aga mina või tema?"]);
   });
 });

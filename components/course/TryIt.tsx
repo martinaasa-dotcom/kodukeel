@@ -1,7 +1,7 @@
 "use client";
 
 import { usePublicReader } from "@/components/PublicReader";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/Button";
 import { ChoiceGroup } from "@/components/Choice";
@@ -12,6 +12,7 @@ import { askText, type TryItAsk } from "@/lib/course/tryIt";
 import { useLocale, useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
+import { inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 
 /**
  * THE READING ASKS BACK, AND IT IS A GAME RATHER THAN A TEST.
@@ -46,6 +47,32 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
   const publicReader = usePublicReader();
   const locale = useLocale();
 
+  /*
+    THE NUMERALS ON THE OPTIONS ARE KEYS, SO THE KEYS PRESS THEM. Each option
+    carried a cap reading 1 to 5 and nothing listened for one: a cap bound to
+    nothing is the app promising a shortcut it does not have, which is the rule
+    `BuildWalk` states one page over. And once a form is picked, the key that
+    moves every other card on moves this one. Read through a ref so the
+    listener is added once and always sees the question on the screen.
+  */
+  const live = useRef({ options: [] as readonly string[], picked: null as string | null, pick: (_: string) => {}, next: () => {}, over: false });
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const now = live.current;
+      if (now.over || inEditable(e.target) || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (now.picked === null) {
+        const n = Number(e.key);
+        const option = Number.isInteger(n) && n >= 1 ? now.options[n - 1] : undefined;
+        if (option !== undefined) { e.preventDefault(); now.pick(option); }
+        return;
+      }
+      /* Not over a focused button, which answers Enter and Space itself. */
+      if (isAdvanceKey(e) && !(e.target instanceof HTMLButtonElement)) { e.preventDefault(); now.next(); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   if (asks.length === 0) return null;
   const ask = asks[Math.min(at, asks.length - 1)]!;
   const said = askText(ask, locale);
@@ -64,6 +91,7 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
     setAt((n) => n + 1);
     setPicked(null);
   };
+  live.current = { options: ask.options, picked, pick, next, over };
 
   if (over) {
     /*
@@ -119,7 +147,7 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
               aria-checked={option === picked}
               disabled={picked !== null}
               onClick={() => pick(option)}
-              className={`choice-btn flex items-center gap-3 rounded-[var(--r-lg)] px-4 py-3 text-left ${state ? OPTION_CLASS[state] : ""}`}
+              className={`choice-btn flex items-center gap-3 rounded-[var(--r-lg)] border px-4 py-3 text-left ${state ? OPTION_CLASS[state] : ""}`}
             >
               <KeyCap>{i + 1}</KeyCap>
               <span lang="et" className="text-lg font-bold">{option}</span>

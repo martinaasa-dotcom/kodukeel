@@ -12,7 +12,8 @@ import { spaceSiblings } from "@/lib/srs/queue";
 import { reviewable, type ModuleScope } from "@/lib/course/scope";
 import { learnerScopeSoFar, moduleSpellings } from "@/lib/progress/moduleScope";
 import {
-  MAX_SESSION, MODULE_SESSION, NEW_CANDIDATES, dueWhere, roomFor, taughtWhere, tonightWhere, unseenWhere,
+  MAX_SESSION, MODULE_SESSION, NEW_CANDIDATES, dueWhere, roomFor, taughtWhere, tonightWhere,
+  unseenWhere,
 } from "@/lib/srs/reviewQueue";
 import { deferredWordIds } from "@/lib/progress/deferrals";
 import { closingOpenedAt } from "@/lib/progress/course";
@@ -54,7 +55,10 @@ export interface ReviewQueue {
   dueMore: boolean;
   /** Unseen cards trickled in after them, in teaching order. */
   fresh: CardRow[];
-  /** The whole sitting: `due` then `fresh`, cut to the module's size there. */
+  /**
+   * The whole sitting: `due` then `fresh` on the daily path, and tonight's own
+   * words alone inside the module, where `due` and `fresh` are empty.
+   */
   cards: CardRow[];
   /** What the module has taught, which the caught-up screen reads. */
   taught: ModuleScope | null;
@@ -74,9 +78,41 @@ export const reviewQueue = cache(async (
     far, and the learner's own words beside it (see the review page's header).
   */
   const taught = scope ?? await learnerScopeSoFar(ownerId);
-  const theirOwnToo = scope === null;
   const [level, spellings] = await Promise.all([courseLevelFor(ownerId), moduleSpellings(taught)]);
   const allowed = (card: CardRow) => reviewable(taught, card, spellings);
+
+  /*
+    THE MODULE'S CLOSING ROUND IS TONIGHT'S WORDS AND NOTHING ELSE.
+
+    It used to be the whole queue narrowed to what the module had taught: due
+    cards from every evening so far, then a trickle of unseen ones, and
+    tonight's words only to fill what was left. So the last step of an evening
+    called "a quick review" was a mix of everything the learner had ever met,
+    and the operator's call is that it should be a review of the batch the
+    evening taught. What else is due is still due, on Review, from Today.
+    See `tonightWhere`, which the step's own count reads too.
+  */
+  if (scope) {
+    const [aside, openedAt] = await Promise.all([
+      deferredWordIds(ownerId, now), closingOpenedAt(ownerId, scope.programme, scope.day.id),
+    ]);
+    const tonight = await prisma.card.findMany({
+      where: {
+        AND: [
+          tonightWhere(ownerId, now, scope.day.words, aside, openedAt),
+          taughtWhere(scope),
+        ],
+      },
+      // What is due first, then the soonest; the id settles a tie.
+      orderBy: [{ due: "asc" }, { id: "asc" }],
+      take: MODULE_SESSION * 2,
+      include,
+    });
+    const cards = spaceSiblings(
+      await askableRows(tonight.filter(allowed)), (card) => card.lexemeId,
+    ).slice(0, MODULE_SESSION);
+    return { due: [], dueMore: false, fresh: [], cards, taught };
+  }
 
   /*
     WHAT IS DUE, read a page at a time until a sitting is full or the deck runs
@@ -89,7 +125,7 @@ export const reviewQueue = cache(async (
   const dueKept: CardRow[] = [];
   for (let page = 0; page < PAGES && dueKept.length <= MAX_SESSION; page++) {
     const rows = await prisma.card.findMany({
-      where: { AND: [dueWhere(ownerId, now, scope?.lemmas ?? null), taughtWhere(taught)] },
+      where: { AND: [dueWhere(ownerId, now), taughtWhere(taught)] },
       orderBy: [{ due: "asc" }, { id: "asc" }],
       skip: page * dueWindow,
       take: dueWindow,
@@ -111,12 +147,12 @@ export const reviewQueue = cache(async (
   let fresh: CardRow[] = [];
   if (room > 0) {
     const [pool, raised] = await Promise.all([
-      unseenPool(ownerId, now, taught?.lemmas ?? null, theirOwnToo, allowed, null),
+      unseenPool(ownerId, now, taught?.lemmas ?? null, allowed, null),
       hardWords(),
     ]);
     const inBand = pool.some((c) => isAround(c.lexeme?.cefr, level))
       ? pool
-      : await unseenPool(ownerId, now, taught?.lemmas ?? null, theirOwnToo, allowed, level);
+      : await unseenPool(ownerId, now, taught?.lemmas ?? null, allowed, level);
     const ranked = atLevelFirst(inBand.length > 0 ? inBand : pool, level, raised);
     /*
       Made askable before the cut, so a bare form card held back leaves its
@@ -126,40 +162,7 @@ export const reviewQueue = cache(async (
   }
   fresh = inTeachingOrder(fresh);
 
-  const queued = [...due, ...fresh];
-  /*
-    AND THE EVENING'S OWN WORDS FILL THE REST OF THE CLOSING ROUND. What is due
-    is the scheduler's and on the evening a word is met none of it is, so a
-    round that asked only that was empty on the first evening of the course: "a
-    quick review" that held nothing. See `tonightWhere`, which the module's own
-    count of this round reads too. Gated and made askable like everything else
-    here, so what is counted is what is shown.
-  */
-  if (scope && queued.length < MODULE_SESSION) {
-    const taken = new Set(queued.map((card) => card.id));
-    const [aside, openedAt] = await Promise.all([
-      deferredWordIds(ownerId, now), closingOpenedAt(ownerId, scope.programme, scope.day.id),
-    ]);
-    const tonight = await prisma.card.findMany({
-      where: {
-        AND: [
-          tonightWhere(ownerId, now, scope.day.words, aside, openedAt),
-          taughtWhere(scope),
-        ],
-      },
-      // The longest since each was last asked first; the id settles a tie.
-      orderBy: [{ lastReview: "asc" }, { id: "asc" }],
-      take: MODULE_SESSION * 2,
-      include,
-    });
-    queued.push(...spaceSiblings(
-      await askableRows(tonight.filter((card) => !taken.has(card.id) && allowed(card))),
-      (card) => card.lexemeId,
-    ));
-  }
-  // The module's closing round stops at `MODULE_SESSION`; see its header.
-  const cards = scope ? queued.slice(0, MODULE_SESSION) : queued;
-  return { due, dueMore, fresh, cards, taught };
+  return { due, dueMore, fresh, cards: [...due, ...fresh], taught };
 });
 
 /**
@@ -179,7 +182,7 @@ export const reviewQueue = cache(async (
  * word. And the id last, because a word's cards tie on both of those.
  */
 async function unseenPool(
-  ownerId: string, now: Date, only: readonly string[] | null, theirOwnToo: boolean,
+  ownerId: string, now: Date, only: readonly string[] | null,
   allowed: (card: CardRow) => boolean, band: Level | null,
 ): Promise<CardRow[]> {
   const kept: CardRow[] = [];
@@ -188,7 +191,7 @@ async function unseenPool(
       where: {
         // `unseenWhere` keeps its lemma filter under `AND`, so the `lexeme`
         // key here is free to carry the band without deleting it.
-        ...unseenWhere(ownerId, now, only, theirOwnToo),
+        ...unseenWhere(ownerId, now, only),
         ...(band ? { lexeme: { cefr: { in: [...bandsAround(band)] } } } : {}),
       },
       orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }, { id: "asc" }],

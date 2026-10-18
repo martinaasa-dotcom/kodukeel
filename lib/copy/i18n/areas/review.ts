@@ -16,7 +16,6 @@ export const REVIEW: Area = {
     "Get a hint for {word}": "Подсказка: {word}",
     "{hint} for {word}": "{hint}: {word}",
     "Stuck? Take a hint": "Не выходит? Возьмите подсказку",
-    "({n} left)": "(осталось {n})",
     "(last one)": "(последняя)",
     "No problem. We'll just bring this one back a bit sooner.": "Ничего страшного. Просто это слово вернётся чуть раньше.",
     "How long it is": "Сколько в нём букв",
@@ -395,8 +394,6 @@ export const REVIEW: Area = {
       "Открыть занятие на сегодня",
     "Space for not yet, Enter for got it":
       "Пробел, если пока нет, Enter, если понятно",
-    "Pick up new words a few at a time. And see which course they come from.":
-      "Учите новые слова понемногу. И смотрите, из какого они курса.",
   },
   uk: {
     "Yes, {word} works too.": "Так, {word} теж підходить.",
@@ -406,7 +403,6 @@ export const REVIEW: Area = {
     "Get a hint for {word}": "Підказка: {word}",
     "{hint} for {word}": "{hint}: {word}",
     "Stuck? Take a hint": "Не виходить? Візьміть підказку",
-    "({n} left)": "(залишилося {n})",
     "(last one)": "(остання)",
     "No problem. We'll just bring this one back a bit sooner.": "Нічого страшного. Просто це слово повернеться трохи раніше.",
     "How long it is": "Скільки в ньому літер",
@@ -785,8 +781,6 @@ export const REVIEW: Area = {
       "Відкрити заняття на сьогодні",
     "Space for not yet, Enter for got it":
       "Пробіл, якщо поки ні, Enter, якщо зрозуміло",
-    "Pick up new words a few at a time. And see which course they come from.":
-      "Вчіть нові слова потроху. І дивіться, з якого вони курсу.",
   },
   counted: {
     "letter": { en: ["letter", "letters"], ru: ["буква", "буквы", "букв"], uk: ["літера", "літери", "літер"] },

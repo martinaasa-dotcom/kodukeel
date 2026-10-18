@@ -51,7 +51,7 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
   */
   {
     file: "app/(app)/review/speaking/SpeakingSession.tsx",
-    why: "the word is played properly before the learner says it, so the answer is the exercise, and ADR-018 leaves the judging to them",
+    why: "the line is played and shown before it is said twice, so the answer is the exercise, and the recall step takes a miss without writing it down",
   },
 
   {
@@ -117,6 +117,12 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
     why: "a workbook page is checked whole and then opened again on the lines that missed, each with its"
       + " ending (or its start) shown off `hintLadder`, and a line right on that second go is graded Hard,"
       + " so the page is its own one-rung ladder and a second one per line would be two",
+  },
+  {
+    file: "app/(app)/review/numbers/NumbersSession.tsx",
+    why: "the number is on the screen in digits, so the answer is already there and what is asked is saying it;"
+      + " a ladder could only spell the number words out, which is this app writing them, and the right answer"
+      + " is shown and played after every item while a wrong one grades nothing",
   },
   {
     file: "components/scene/SceneSession.tsx",

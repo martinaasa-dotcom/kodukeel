@@ -1,6 +1,4 @@
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { oneEntryPerLemma } from "@/lib/dict/search";
@@ -8,7 +6,7 @@ import { readingFor, readinessPicture } from "@/lib/progress/readiness";
 import { situationById } from "@/lib/readiness/situations";
 import { courseLevelFor } from "@/lib/progress/level";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
-import { Page } from "@/components/ui";
+import { BackLink, Page } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
 import { SituationDetail } from "@/components/readiness/SituationDetail";
 import { localeFor } from "@/lib/progress/locale";
@@ -64,17 +62,14 @@ export default async function SituationPage({ params }: { params: Promise<{ situ
         <>
           <span lang={uiWantsEnglish(picture.level) ? undefined : "et"}>
             {uiText(picture.level, situation.title, t(situation.subtitle))}
-          </span>{" "}
-         , {situation.level}
+          </span>, {situation.level}
         </>
       }
       title={t(situation.claim)}
       lead={t("Based on your own answers. Where they can't tell us something, we say so.")}
       actions={
         <span className="flex flex-wrap gap-2">
-          <Link href="/progress/readiness" className="flex items-center gap-1.5 text-sm" style={{ color: "var(--accent-deep)" }}>
-            <ArrowLeft size={14} aria-hidden /> {t("All situations")}
-          </Link>
+          <BackLink href="/progress/readiness">{t("All situations")}</BackLink>
           <ButtonLink href={`/learn/${situation.id}`} size="sm">{t("Open the unit")}</ButtonLink>
         </span>
       }

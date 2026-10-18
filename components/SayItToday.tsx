@@ -13,6 +13,11 @@ import {
 } from "@/lib/collections/errands";
 import { useLocale, useT } from "@/components/Locale";
 import { countOf, fill, type Locale } from "@/lib/copy/locale";
+import type { ErrandRehearsal } from "@/lib/scenes/rehearse";
+import { useSpeechConfig } from "@/components/speech/useSpeech";
+import { ReadAloud } from "@/components/speech/ReadAloud";
+import { Speak } from "@/components/Speak";
+import { Mic } from "lucide-react";
 
 /**
  * Whether any Estonian was spoken to a real person yesterday, and a small
@@ -42,7 +47,7 @@ import { countOf, fill, type Locale } from "@/lib/copy/locale";
  * direction that flatters. A learner who closes the tab between the two is
  * asked again tomorrow, which is the honest state.
  */
-export function SayItToday({ errand, answered, conversations, days, unitTitle }: {
+export function SayItToday({ errand, answered, conversations, days, unitTitle, sayOnce = null }: {
   errand: Errand;
   /** Today's answer, about yesterday, or null where the question is still open. */
   answered: Outcome | null;
@@ -50,6 +55,12 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
   conversations: number;
   days: number;
   unitTitle: string;
+  /**
+   * The scene's first line and the learner's opening line, where today's errand
+   * has a scene that rehearses it (`lib/scenes/rehearse.ts`). Offered under the
+   * errand as "Say it once before you go", and gone with the errand.
+   */
+  sayOnce?: ErrandRehearsal | null;
 }) {
   const [answer, setAnswer] = useState<Outcome | null>(answered);
   /** Pressed yes, not yet said how it went. Held here and stored nowhere. */
@@ -231,6 +242,7 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
             </>
           )}
         </p>
+        {sayOnce && <SayItOnce rehearsal={sayOnce} />}
       </Card>
     );
   }
@@ -401,3 +413,50 @@ const NEXT: Record<Conversation, string | null> = {
   STUCK: "Running out of words costs nothing in a practice conversation, and the person there will wait while you find them.",
   SWITCHED: "They can switch to English in there too, so you can practice steering it back to Estonian.",
 };
+
+/**
+ * SAY IT ONCE BEFORE YOU GO (docs/41-fifth-batch.md, VB-4).
+ *
+ * The shortest path from the app to the counter, which is what the app is for
+ * (`docs/22-real-life.md`): the first thing they will say to you, heard, and
+ * then your own opening line said out loud and lit word by word as it is heard.
+ * Nothing is graded and nothing is stored: saying a line you can see is the
+ * bridge to saying your own, not a recall. One press opens it, so the card stays
+ * the calm two lines it was for anybody who does not want it, and it is offered
+ * only where this deployment can hear, since a rehearsal said into nothing is
+ * not one.
+ */
+function SayItOnce({ rehearsal }: { rehearsal: ErrandRehearsal }) {
+  const t = useT();
+  const speech = useSpeechConfig();
+  const [open, setOpen] = useState(false);
+  if (speech.modelBase === null || speech.unavailable !== null) return null;
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="tap-tint mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium"
+        style={{ color: "var(--accent-deep)" }}
+        data-say-it-once
+      >
+        <Mic size={16} aria-hidden /> {t("Say it once before you go")}
+      </button>
+    );
+  }
+  return (
+    <div className="mt-3 flex flex-col gap-3 rounded-[var(--r-lg)] p-3" style={{ background: "var(--raised)" }} data-say-it-once>
+      <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Say it once before you go")}</p>
+      <div className="flex items-center gap-2">
+        <Speak text={rehearsal.theirs} autoplay insist size={16} label={t("Hear what they'll say")} className="press inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-[var(--surface)]" />
+        <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+          {t("They'll say:")} <span lang="et" className="font-medium" style={{ color: "var(--ink)" }}>{rehearsal.theirs}</span>
+        </p>
+      </div>
+      <div className="flex flex-col gap-1">
+        <p className="text-sm" style={{ color: "var(--ink-2)" }}>{fill(t("And you say, out loud ({meaning}):"), { meaning: t(rehearsal.yours.en) })}</p>
+        <ReadAloud line={rehearsal.yours.et} label={t("Say your line")} />
+      </div>
+    </div>
+  );
+}

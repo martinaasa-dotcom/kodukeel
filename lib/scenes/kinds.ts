@@ -80,6 +80,14 @@ export const SCENE_KINDS: Readonly<Record<string, SceneKind>> = {
   raamatuklubi: "people",
   "eksam-b1": "people",
   "eksam-b2": "people",
+  "a1-kohvik": "food",
+  "a1-tee": "around",
+  "a1-trepil": "people",
+  "a1-kursus": "people",
+  "a1-plaan": "people",
+  "a1-mutsipood": "food",
+  "a1-nadal": "people",
+  "a1-kutse": "people",
 };
 
 export function kindOf(sceneId: string): KindSpec {

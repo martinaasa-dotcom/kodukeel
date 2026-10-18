@@ -42,6 +42,14 @@ import { trepikoda } from "./trepikoda";
 import { turul } from "./turul";
 import { uuriRemont } from "./uuri-remont";
 import { uusKolleeg } from "./uus-kolleeg";
+import { a1Trepil } from "./a1-trepil";
+import { a1Kursus } from "./a1-kursus";
+import { a1Plaan } from "./a1-plaan";
+import { a1Kohvik } from "./a1-kohvik";
+import { a1Tee } from "./a1-tee";
+import { a1Mutsipood } from "./a1-mutsipood";
+import { a1Nadal } from "./a1-nadal";
+import { a1Kutse } from "./a1-kutse";
 import { curveballPicks } from "./curveballs";
 
 /** Every scene's picks, by scene id. One file per scene, so two people writing picks never touch one file. */
@@ -88,6 +96,14 @@ export const PICKS: Readonly<Record<string, ScenePicks>> = {
   "trepikoda": trepikoda,
   "turul": turul,
   "uuri-remont": uuriRemont,
+  "a1-trepil": a1Trepil,
+  "a1-kursus": a1Kursus,
+  "a1-plaan": a1Plaan,
+  "a1-kohvik": a1Kohvik,
+  "a1-tee": a1Tee,
+  "a1-mutsipood": a1Mutsipood,
+  "a1-nadal": a1Nadal,
+  "a1-kutse": a1Kutse,
   "uus-kolleeg": uusKolleeg,
 };
 

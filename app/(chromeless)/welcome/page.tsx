@@ -23,10 +23,12 @@ import { MascotWatch } from "@/components/MascotWatch";
 import { CaseExplorer, TutorPeek, type DemoCase, type DemoWord } from "./LandingDemo";
 import { HeroWord, PlanCalculator } from "./LandingMotion";
 import { CafeScene } from "./CafeScene";
+import { speechAvailability } from "@/lib/audio/speechAvailability";
 import { FirstEvening, type EveningStep, type EveningWord } from "./FirstEvening";
 import { VisitRecap } from "./VisitRecap";
 import { DEFAULT_PROGRAMME, PROGRAMMES } from "@/lib/course";
-import { unitById } from "@/lib/collections/syllabus";
+import { LESSON_SHAPE } from "@/lib/course/lessonCourse";
+import { lessonById, unfold } from "@/lib/course/lessons";
 import { LetterTile } from "@/components/LetterTile";
 import { LandingAnu, type AnuLine } from "@/components/LandingAnu";
 import { oneEntryPerLemma } from "@/lib/dict/search";
@@ -44,7 +46,6 @@ import { LANDING_HREF, langParam, localeHref } from "@/lib/copy/publicLocale";
 import { ENTRY_COPY, ENTRY_LOCALES, MACHINE_TRANSLATED_EN, type EntryLocale } from "@/lib/copy/entryLocales";
 import { questionReading } from "@/lib/estonian/cases";
 import { SCENES } from "@/lib/scenes/catalogue";
-import { stepText } from "@/lib/course/stepText";
 
 export const metadata: Metadata = {
   title: { absolute: "kodukeel. Estonian that finally sticks" },
@@ -630,7 +631,7 @@ function Plan({ say }: { say: Say }) {
             {t("When could you get there?")}
           </h2>
           <p className="mt-5 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {t("Answer four questions and we’ll do the same math the app does inside. You get a range, because anyone who gives you one exact number is guessing.")}
+            {t("Answer four questions and we’ll do the same math the app does inside. It’s an estimate, because anyone who promises you an exact date is guessing.")}
           </p>
         </div>
       </Reveal>
@@ -825,31 +826,39 @@ function Cases({ say, words }: { say: Say; words: DemoWord[] }) {
 /**
  * The first evening of the course, read off the course itself.
  *
- * Its words are the first unit's, with the English the syllabus authors beside
- * each (the one column this project writes), and its steps and minutes are the
- * programme's own, so the page and the button cannot describe two different
- * evenings. No database: the course is code, which is also why this section is
- * there on a deployment whose dictionary has not answered yet.
+ * A1 is the lessons, so the first evening is lesson 1: its words are the
+ * lesson's own, with the English the lesson gives each (the first sense of
+ * it, for a meaning that has to fit a button), and its steps are the six
+ * every lesson has, so the page and the button cannot describe two different
+ * evenings. No database: the course is code, which is also why this section
+ * is there on a deployment whose dictionary has not answered yet.
  */
 function eveningOne({ t, locale }: Say): { words: EveningWord[]; steps: EveningStep[]; title: string; canDo: string; evenings: number } | null {
   const day = DEFAULT_PROGRAMME.days[0];
-  if (!day) return null;
-  const unit = unitById(day.unitId);
-  const gloss = new Map((unit?.words ?? []).map(([lemma, en]) => [lemma, en] as const));
-  const words = day.words.flatMap((et) => {
-    const en = gloss.get(et);
+  const lesson = day?.lesson ? lessonById(day.lesson) : null;
+  if (!day || !lesson) return null;
+  const seen = new Set<string>();
+  const words = lesson.teaches.flatMap(unfold).flatMap((item) => {
+    if (seen.has(item.et)) return [];
+    seen.add(item.et);
+    const en = firstSense(item.en.replace(/[{}]/g, ""));
     // A word's meaning in Russian or Ukrainian is the landing area's, read
     // under "gloss" so a short English word cannot collide with a button.
-    return en ? [{ et, en: locale === "en" ? en : t(en, "gloss") }] : [];
+    return [{ et: item.et, en: locale === "en" ? en : t(en, "gloss") }];
   });
   if (words.length < 4) return null;
   return {
     words,
-    steps: day.steps.map((s) => ({ ...stepText(day, s, locale), minutes: s.minutes })),
+    steps: LESSON_SHAPE.map((s) => ({ title: t(s.title), minutes: s.minutes, why: t(s.why) })),
     title: day.title,
-    canDo: unit?.canDo ? t(unit.canDo) : "",
+    canDo: t(lesson.goal.replace(/[{}]/g, "")),
     evenings: PROGRAMMES.reduce((n, p) => n + p.days.length, 0),
   };
+}
+
+/** The first sentence of a meaning, so `Hello! Hi!` is `Hello!` on a button. */
+function firstSense(en: string): string {
+  return en.split(/(?<=[.!?])\s+/)[0]!.trim();
 }
 
 function Evening({ say }: { say: Say }) {
@@ -871,7 +880,7 @@ function Evening({ say }: { say: Say }) {
             })}
           </h2>
           <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {t("Every evening is one button. You meet a handful of new words, and they pop back a moment later to check you kept them. A quick game or two puts them to work, and then the app says you’re done for the night.")}
+            {t("Every evening is one lesson. You hear a short conversation, meet its words, see how they fit together, then say it yourself, and then the app says you’re done for the night.")}
           </p>
         </div>
       </Reveal>
@@ -917,7 +926,7 @@ function Talk({ say }: { say: Say }) {
       </Reveal>
       <Reveal>
         <div className="mt-10 md:mt-12">
-          <CafeScene scenes={scenes} />
+          <CafeScene scenes={scenes} voiceBase={speechAvailability().modelBase} />
         </div>
       </Reveal>
     </section>
@@ -1054,7 +1063,10 @@ function Feature({ tone, icon, title, body, children }: {
       className="lift flex h-full flex-col rounded-[var(--r-xl)] border p-6"
       style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}
     >
-      <div className="flex items-center gap-3">
+      {/* Level with the top of the tile, never centred on it: three cards
+          sit in a row, and a heading that wraps beside the tile in one of
+          them put the other two headings lower than it. */}
+      <div className="flex items-start gap-3">
         <span
           className="feature-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--r)] border"
           style={{
@@ -1377,7 +1389,7 @@ const faqsIn = ({ t }: Say) => [
   ],
   [
     t("Will it actually get me talking to people?"),
-    t("That's the whole point. You'll practice with people who want something from you: a receptionist, a landlord, a clerk. What you say is checked against the dictionary, never graded by an AI, so you can't be told you were wrong when you were right. Every morning the app asks whether you spoke Estonian to anyone yesterday, and if not, it gives you one small thing to say out loud. It counts those conversations, even the ones where somebody switched to English. It won't score your pronunciation, though. The best speech recognizer we could find gets native speakers wrong, and we'd rather tell you that than pretend."),
+    t("That's the whole point. You'll practice with people who want something from you: a receptionist, a landlord, a clerk. What you say is checked against the dictionary, never graded by an AI, so you can't be told you were wrong when you were right. Every morning the app asks whether you spoke Estonian to anyone yesterday, and if not, it gives you one small thing to say out loud. It counts those conversations, even the ones where somebody switched to English. It can hear Estonian too: say a line instead of typing it, and it works out which words you said on your own device, so the sound never leaves it. What it won't do is score how a word sounded. A recognizer quietly corrects most slips into the right word, so it can't honestly tell you that, and we'd rather say so than pretend."),
   ],
   [
     t("What happens to my data?"),

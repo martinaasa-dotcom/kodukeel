@@ -1,0 +1,3596 @@
+{
+ "measured": "2026-10-17",
+ "command": "npm run measure:numbers",
+ "voices": [
+  "mari",
+  "tambet",
+  "kalev"
+ ],
+ "model": "TalTechNLP/streaming-zipformer.et-en@7edbacc1d13a4bc8fba21307753569e8334938a0",
+ "rows": [
+  {
+   "shape": "count-small",
+   "item": {
+    "kind": "count",
+    "n": 3
+   },
+   "sent": "3",
+   "voice": "mari",
+   "heard": "Kolm",
+   "read": "3",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-small",
+   "item": {
+    "kind": "count",
+    "n": 3
+   },
+   "sent": "3",
+   "voice": "tambet",
+   "heard": "Kolm",
+   "read": "3",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-small",
+   "item": {
+    "kind": "count",
+    "n": 3
+   },
+   "sent": "3",
+   "voice": "kalev",
+   "heard": "Kolm",
+   "read": "3",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-small",
+   "item": {
+    "kind": "count",
+    "n": 7
+   },
+   "sent": "7",
+   "voice": "mari",
+   "heard": "Seitse",
+   "read": "7",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-small",
+   "item": {
+    "kind": "count",
+    "n": 7
+   },
+   "sent": "7",
+   "voice": "tambet",
+   "heard": "seitse",
+   "read": "7",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-small",
+   "item": {
+    "kind": "count",
+    "n": 7
+   },
+   "sent": "7",
+   "voice": "kalev",
+   "heard": "Seitse",
+   "read": "7",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-small",
+   "item": {
+    "kind": "count",
+    "n": 11
+   },
+   "sent": "11",
+   "voice": "mari",
+   "heard": "Üksteist",
+   "read": "11",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-small",
+   "item": {
+    "kind": "count",
+    "n": 11
+   },
+   "sent": "11",
+   "voice": "tambet",
+   "heard": "Üksteist",
+   "read": "11",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-small",
+   "item": {
+    "kind": "count",
+    "n": 11
+   },
+   "sent": "11",
+   "voice": "kalev",
+   "heard": "Üksteist",
+   "read": "11",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-small",
+   "item": {
+    "kind": "count",
+    "n": 12
+   },
+   "sent": "12",
+   "voice": "mari",
+   "heard": "kaksteist",
+   "read": "12",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-small",
+   "item": {
+    "kind": "count",
+    "n": 12
+   },
+   "sent": "12",
+   "voice": "tambet",
+   "heard": "Kaksteist",
+   "read": "12",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-small",
+   "item": {
+    "kind": "count",
+    "n": 12
+   },
+   "sent": "12",
+   "voice": "kalev",
+   "heard": "Kaksteist",
+   "read": "12",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-small",
+   "item": {
+    "kind": "count",
+    "n": 15
+   },
+   "sent": "15",
+   "voice": "mari",
+   "heard": "Viisteist",
+   "read": "15",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-small",
+   "item": {
+    "kind": "count",
+    "n": 15
+   },
+   "sent": "15",
+   "voice": "tambet",
+   "heard": "viisteist",
+   "read": "15",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-small",
+   "item": {
+    "kind": "count",
+    "n": 15
+   },
+   "sent": "15",
+   "voice": "kalev",
+   "heard": "Viisteist",
+   "read": "15",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-small",
+   "item": {
+    "kind": "count",
+    "n": 19
+   },
+   "sent": "19",
+   "voice": "mari",
+   "heard": "Üheksateist",
+   "read": "19",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-small",
+   "item": {
+    "kind": "count",
+    "n": 19
+   },
+   "sent": "19",
+   "voice": "tambet",
+   "heard": "Üheksateist",
+   "read": "19",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-small",
+   "item": {
+    "kind": "count",
+    "n": 19
+   },
+   "sent": "19",
+   "voice": "kalev",
+   "heard": "Üheksateist",
+   "read": "19",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-tens",
+   "item": {
+    "kind": "count",
+    "n": 20
+   },
+   "sent": "20",
+   "voice": "mari",
+   "heard": "kakskümmend",
+   "read": "20",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-tens",
+   "item": {
+    "kind": "count",
+    "n": 20
+   },
+   "sent": "20",
+   "voice": "tambet",
+   "heard": "kakskümmend",
+   "read": "20",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-tens",
+   "item": {
+    "kind": "count",
+    "n": 20
+   },
+   "sent": "20",
+   "voice": "kalev",
+   "heard": "Kakskümmend",
+   "read": "20",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-tens",
+   "item": {
+    "kind": "count",
+    "n": 25
+   },
+   "sent": "25",
+   "voice": "mari",
+   "heard": "kakskümmend viis",
+   "read": "25",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-tens",
+   "item": {
+    "kind": "count",
+    "n": 25
+   },
+   "sent": "25",
+   "voice": "tambet",
+   "heard": "Kakskümmend viis",
+   "read": "25",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-tens",
+   "item": {
+    "kind": "count",
+    "n": 25
+   },
+   "sent": "25",
+   "voice": "kalev",
+   "heard": "Kakskümmend viis",
+   "read": "25",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-tens",
+   "item": {
+    "kind": "count",
+    "n": 37
+   },
+   "sent": "37",
+   "voice": "mari",
+   "heard": "Kolmkümmend seitse",
+   "read": "37",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-tens",
+   "item": {
+    "kind": "count",
+    "n": 37
+   },
+   "sent": "37",
+   "voice": "tambet",
+   "heard": "Kolmkümmend seitse",
+   "read": "37",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-tens",
+   "item": {
+    "kind": "count",
+    "n": 37
+   },
+   "sent": "37",
+   "voice": "kalev",
+   "heard": "Kolmkümmend seitse",
+   "read": "37",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-tens",
+   "item": {
+    "kind": "count",
+    "n": 48
+   },
+   "sent": "48",
+   "voice": "mari",
+   "heard": "Nelikümmend kaheksa",
+   "read": "48",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-tens",
+   "item": {
+    "kind": "count",
+    "n": 48
+   },
+   "sent": "48",
+   "voice": "tambet",
+   "heard": "Nelikümmend kaheksa",
+   "read": "48",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-tens",
+   "item": {
+    "kind": "count",
+    "n": 48
+   },
+   "sent": "48",
+   "voice": "kalev",
+   "heard": "Nelikümmend kaheksa",
+   "read": "48",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-tens",
+   "item": {
+    "kind": "count",
+    "n": 62
+   },
+   "sent": "62",
+   "voice": "mari",
+   "heard": "Kuuskümmend kaks",
+   "read": "62",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-tens",
+   "item": {
+    "kind": "count",
+    "n": 62
+   },
+   "sent": "62",
+   "voice": "tambet",
+   "heard": "Kuuskümmend kaks",
+   "read": "62",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-tens",
+   "item": {
+    "kind": "count",
+    "n": 62
+   },
+   "sent": "62",
+   "voice": "kalev",
+   "heard": "Kuuskümmend kaks",
+   "read": "62",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-tens",
+   "item": {
+    "kind": "count",
+    "n": 99
+   },
+   "sent": "99",
+   "voice": "mari",
+   "heard": "Üheksakümmend üheksa",
+   "read": "99",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-tens",
+   "item": {
+    "kind": "count",
+    "n": 99
+   },
+   "sent": "99",
+   "voice": "tambet",
+   "heard": "Üheksakümmend üheksa",
+   "read": "99",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-tens",
+   "item": {
+    "kind": "count",
+    "n": 99
+   },
+   "sent": "99",
+   "voice": "kalev",
+   "heard": "Üheksakümmend üheksa",
+   "read": "99",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-hundreds",
+   "item": {
+    "kind": "count",
+    "n": 100
+   },
+   "sent": "100",
+   "voice": "mari",
+   "heard": "Sada",
+   "read": "100",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-hundreds",
+   "item": {
+    "kind": "count",
+    "n": 100
+   },
+   "sent": "100",
+   "voice": "tambet",
+   "heard": "Sada",
+   "read": "100",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-hundreds",
+   "item": {
+    "kind": "count",
+    "n": 100
+   },
+   "sent": "100",
+   "voice": "kalev",
+   "heard": "Sada",
+   "read": "100",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-hundreds",
+   "item": {
+    "kind": "count",
+    "n": 115
+   },
+   "sent": "115",
+   "voice": "mari",
+   "heard": "Sada viisteist",
+   "read": "115",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-hundreds",
+   "item": {
+    "kind": "count",
+    "n": 115
+   },
+   "sent": "115",
+   "voice": "tambet",
+   "heard": "Sada viisteist",
+   "read": "115",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-hundreds",
+   "item": {
+    "kind": "count",
+    "n": 115
+   },
+   "sent": "115",
+   "voice": "kalev",
+   "heard": "Sada viisteist",
+   "read": "115",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-hundreds",
+   "item": {
+    "kind": "count",
+    "n": 230
+   },
+   "sent": "230",
+   "voice": "mari",
+   "heard": "Kakssada kolmkümmend",
+   "read": "230",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-hundreds",
+   "item": {
+    "kind": "count",
+    "n": 230
+   },
+   "sent": "230",
+   "voice": "tambet",
+   "heard": "Kakssada kolmkümmend",
+   "read": "230",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-hundreds",
+   "item": {
+    "kind": "count",
+    "n": 230
+   },
+   "sent": "230",
+   "voice": "kalev",
+   "heard": "Kakssada kolmkümmend.",
+   "read": "230",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-hundreds",
+   "item": {
+    "kind": "count",
+    "n": 325
+   },
+   "sent": "325",
+   "voice": "mari",
+   "heard": "Kolmsada kakskümmend viis",
+   "read": "325",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-hundreds",
+   "item": {
+    "kind": "count",
+    "n": 325
+   },
+   "sent": "325",
+   "voice": "tambet",
+   "heard": "Kolmsada kakskümmend viis",
+   "read": "325",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-hundreds",
+   "item": {
+    "kind": "count",
+    "n": 325
+   },
+   "sent": "325",
+   "voice": "kalev",
+   "heard": "Kolmsada kakskümmend viis",
+   "read": "325",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-hundreds",
+   "item": {
+    "kind": "count",
+    "n": 507
+   },
+   "sent": "507",
+   "voice": "mari",
+   "heard": "Viissada seitse",
+   "read": "507",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-hundreds",
+   "item": {
+    "kind": "count",
+    "n": 507
+   },
+   "sent": "507",
+   "voice": "tambet",
+   "heard": "viissada seitse",
+   "read": "507",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-hundreds",
+   "item": {
+    "kind": "count",
+    "n": 507
+   },
+   "sent": "507",
+   "voice": "kalev",
+   "heard": "Viissada seitse",
+   "read": "507",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-hundreds",
+   "item": {
+    "kind": "count",
+    "n": 999
+   },
+   "sent": "999",
+   "voice": "mari",
+   "heard": "Üheksasada üheksakümmend üheksa",
+   "read": "999",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-hundreds",
+   "item": {
+    "kind": "count",
+    "n": 999
+   },
+   "sent": "999",
+   "voice": "tambet",
+   "heard": "Üheksasada üheksakümmend üheksa",
+   "read": "999",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "count-hundreds",
+   "item": {
+    "kind": "count",
+    "n": 999
+   },
+   "sent": "999",
+   "voice": "kalev",
+   "heard": "Üheksasada üheksakümmend üheksa",
+   "read": "999",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "08:00",
+   "voice": "mari",
+   "heard": "Null kaheksa null null",
+   "read": null,
+   "right": false,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "08:00",
+   "voice": "tambet",
+   "heard": "Mul kaheksa null null",
+   "read": null,
+   "right": false,
+   "stray": [
+    "mul"
+   ],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "08:00",
+   "voice": "kalev",
+   "heard": "null kaheksa null null",
+   "read": null,
+   "right": false,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "08.00",
+   "voice": "mari",
+   "heard": "Null kaheksa null null",
+   "read": null,
+   "right": false,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "08.00",
+   "voice": "tambet",
+   "heard": "Mul kaheksa null null",
+   "read": null,
+   "right": false,
+   "stray": [
+    "mul"
+   ],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "08.00",
+   "voice": "kalev",
+   "heard": "null kaheksa null null",
+   "read": null,
+   "right": false,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "8:00",
+   "voice": "mari",
+   "heard": "Kaheksa null null",
+   "read": "08:00",
+   "right": true,
+   "stray": [],
+   "style": "unpadded"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "8:00",
+   "voice": "tambet",
+   "heard": "Kaheksa null null",
+   "read": "08:00",
+   "right": true,
+   "stray": [],
+   "style": "unpadded"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "8:00",
+   "voice": "kalev",
+   "heard": "Kaheksa null null",
+   "read": "08:00",
+   "right": true,
+   "stray": [],
+   "style": "unpadded"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "8",
+   "voice": "mari",
+   "heard": "Kaheksa",
+   "read": "08:00",
+   "right": true,
+   "stray": [],
+   "style": "hour-only"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "8",
+   "voice": "tambet",
+   "heard": "Kaheksa.",
+   "read": "08:00",
+   "right": true,
+   "stray": [],
+   "style": "hour-only"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "8",
+   "voice": "kalev",
+   "heard": "Kaheksa.",
+   "read": "08:00",
+   "right": true,
+   "stray": [],
+   "style": "hour-only"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 14,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "14:00",
+   "voice": "mari",
+   "heard": "Neliteist null null",
+   "read": "14:00",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 14,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "14:00",
+   "voice": "tambet",
+   "heard": "Neliteist null null",
+   "read": "14:00",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 14,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "14:00",
+   "voice": "kalev",
+   "heard": "Neliteist null null",
+   "read": "14:00",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 14,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "14.00",
+   "voice": "mari",
+   "heard": "Neliteist null null",
+   "read": "14:00",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 14,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "14.00",
+   "voice": "tambet",
+   "heard": "Neliteist null null",
+   "read": "14:00",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 14,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "14.00",
+   "voice": "kalev",
+   "heard": "Neliteist null null",
+   "read": "14:00",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 14,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "14",
+   "voice": "mari",
+   "heard": "neliteist",
+   "read": "14:00",
+   "right": true,
+   "stray": [],
+   "style": "hour-only"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 14,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "14",
+   "voice": "tambet",
+   "heard": "neliteist",
+   "read": "14:00",
+   "right": true,
+   "stray": [],
+   "style": "hour-only"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 14,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "14",
+   "voice": "kalev",
+   "heard": "Neliteist",
+   "read": "14:00",
+   "right": true,
+   "stray": [],
+   "style": "hour-only"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 20,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "20:00",
+   "voice": "mari",
+   "heard": "kakskümmend null null",
+   "read": "20:00",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 20,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "20:00",
+   "voice": "tambet",
+   "heard": "Kakskümmend null null",
+   "read": "20:00",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 20,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "20:00",
+   "voice": "kalev",
+   "heard": "Kakskümmend null null",
+   "read": "20:00",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 20,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "20.00",
+   "voice": "mari",
+   "heard": "kakskümmend null null",
+   "read": "20:00",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 20,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "20.00",
+   "voice": "tambet",
+   "heard": "Kakskümmend null null",
+   "read": "20:00",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 20,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "20.00",
+   "voice": "kalev",
+   "heard": "Kakskümmend null null",
+   "read": "20:00",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 20,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "20",
+   "voice": "mari",
+   "heard": "kakskümmend",
+   "read": "20:00",
+   "right": true,
+   "stray": [],
+   "style": "hour-only"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 20,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "20",
+   "voice": "tambet",
+   "heard": "kakskümmend",
+   "read": "20:00",
+   "right": true,
+   "stray": [],
+   "style": "hour-only"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 20,
+    "minute": 0,
+    "face": "digital"
+   },
+   "sent": "20",
+   "voice": "kalev",
+   "heard": "Kakskümmend",
+   "read": "20:00",
+   "right": true,
+   "stray": [],
+   "style": "hour-only"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 9,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "09:30",
+   "voice": "mari",
+   "heard": "Null üheksa kolmkümmend",
+   "read": "00:00",
+   "right": false,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 9,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "09:30",
+   "voice": "tambet",
+   "heard": "null üheksa kolmkümmend",
+   "read": "00:00",
+   "right": false,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 9,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "09:30",
+   "voice": "kalev",
+   "heard": "null üheksa kolmkümmend",
+   "read": "00:00",
+   "right": false,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 9,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "09.30",
+   "voice": "mari",
+   "heard": "Null üheksa kolmkümmend",
+   "read": "00:00",
+   "right": false,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 9,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "09.30",
+   "voice": "tambet",
+   "heard": "null üheksa kolmkümmend",
+   "read": "00:00",
+   "right": false,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 9,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "09.30",
+   "voice": "kalev",
+   "heard": "null üheksa kolmkümmend",
+   "read": "00:00",
+   "right": false,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 9,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "9:30",
+   "voice": "mari",
+   "heard": "Üheksa kolmkümmend",
+   "read": "09:30",
+   "right": true,
+   "stray": [],
+   "style": "unpadded"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 9,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "9:30",
+   "voice": "tambet",
+   "heard": "Üheksa kolmkümmend",
+   "read": "09:30",
+   "right": true,
+   "stray": [],
+   "style": "unpadded"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 9,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "9:30",
+   "voice": "kalev",
+   "heard": "Üheksa kolmkümmend",
+   "read": "09:30",
+   "right": true,
+   "stray": [],
+   "style": "unpadded"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 13,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "13:30",
+   "voice": "mari",
+   "heard": "Kolmteist kolmkümmend.",
+   "read": "13:30",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 13,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "13:30",
+   "voice": "tambet",
+   "heard": "Kolmteist kolmkümmend",
+   "read": "13:30",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 13,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "13:30",
+   "voice": "kalev",
+   "heard": "Kolmteist kolmkümmend",
+   "read": "13:30",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 13,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "13.30",
+   "voice": "mari",
+   "heard": "Kolmteist kolmkümmend.",
+   "read": "13:30",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 13,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "13.30",
+   "voice": "tambet",
+   "heard": "Kolmteist kolmkümmend",
+   "read": "13:30",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 13,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "13.30",
+   "voice": "kalev",
+   "heard": "Kolmteist kolmkümmend",
+   "read": "13:30",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 19,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "19:30",
+   "voice": "mari",
+   "heard": "Üheksateist kolmkümmend.",
+   "read": "19:30",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 19,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "19:30",
+   "voice": "tambet",
+   "heard": "Üheksateist kolmkümmend.",
+   "read": "19:30",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 19,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "19:30",
+   "voice": "kalev",
+   "heard": "Üheksateist kolmkümmend",
+   "read": "19:30",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 19,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "19.30",
+   "voice": "mari",
+   "heard": "Üheksateist kolmkümmend.",
+   "read": "19:30",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 19,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "19.30",
+   "voice": "tambet",
+   "heard": "Üheksateist kolmkümmend.",
+   "read": "19:30",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 19,
+    "minute": 30,
+    "face": "digital"
+   },
+   "sent": "19.30",
+   "voice": "kalev",
+   "heard": "Üheksateist kolmkümmend",
+   "read": "19:30",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 15,
+    "face": "digital"
+   },
+   "sent": "08:15",
+   "voice": "mari",
+   "heard": "Null kaheksa viisteist",
+   "read": "00:00",
+   "right": false,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 15,
+    "face": "digital"
+   },
+   "sent": "08:15",
+   "voice": "tambet",
+   "heard": "Null kaheksa viisteist",
+   "read": "00:00",
+   "right": false,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 15,
+    "face": "digital"
+   },
+   "sent": "08:15",
+   "voice": "kalev",
+   "heard": "null kaheksa viisteist",
+   "read": "00:00",
+   "right": false,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 15,
+    "face": "digital"
+   },
+   "sent": "08.15",
+   "voice": "mari",
+   "heard": "Null kaheksa viisteist",
+   "read": "00:00",
+   "right": false,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 15,
+    "face": "digital"
+   },
+   "sent": "08.15",
+   "voice": "tambet",
+   "heard": "Null kaheksa viisteist",
+   "read": "00:00",
+   "right": false,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 15,
+    "face": "digital"
+   },
+   "sent": "08.15",
+   "voice": "kalev",
+   "heard": "null kaheksa viisteist",
+   "read": "00:00",
+   "right": false,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 15,
+    "face": "digital"
+   },
+   "sent": "8:15",
+   "voice": "mari",
+   "heard": "kaheksa viisteist",
+   "read": "08:15",
+   "right": true,
+   "stray": [],
+   "style": "unpadded"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 15,
+    "face": "digital"
+   },
+   "sent": "8:15",
+   "voice": "tambet",
+   "heard": "Kaheksa viisteist.",
+   "read": "08:15",
+   "right": true,
+   "stray": [],
+   "style": "unpadded"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 8,
+    "minute": 15,
+    "face": "digital"
+   },
+   "sent": "8:15",
+   "voice": "kalev",
+   "heard": "Kaheksa viisteist",
+   "read": "08:15",
+   "right": true,
+   "stray": [],
+   "style": "unpadded"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 14,
+    "minute": 15,
+    "face": "digital"
+   },
+   "sent": "14:15",
+   "voice": "mari",
+   "heard": "Neliteist viisteist",
+   "read": "14:15",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 14,
+    "minute": 15,
+    "face": "digital"
+   },
+   "sent": "14:15",
+   "voice": "tambet",
+   "heard": "Neliteist viisteist",
+   "read": "14:15",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 14,
+    "minute": 15,
+    "face": "digital"
+   },
+   "sent": "14:15",
+   "voice": "kalev",
+   "heard": "Neliteist viisteist",
+   "read": "14:15",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 14,
+    "minute": 15,
+    "face": "digital"
+   },
+   "sent": "14.15",
+   "voice": "mari",
+   "heard": "Neliteist viisteist",
+   "read": "14:15",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 14,
+    "minute": 15,
+    "face": "digital"
+   },
+   "sent": "14.15",
+   "voice": "tambet",
+   "heard": "Neliteist viisteist",
+   "read": "14:15",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 14,
+    "minute": 15,
+    "face": "digital"
+   },
+   "sent": "14.15",
+   "voice": "kalev",
+   "heard": "Neliteist viisteist",
+   "read": "14:15",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 16,
+    "minute": 45,
+    "face": "digital"
+   },
+   "sent": "16:45",
+   "voice": "mari",
+   "heard": "Kuusteist nelikümmend viis",
+   "read": "16:45",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 16,
+    "minute": 45,
+    "face": "digital"
+   },
+   "sent": "16:45",
+   "voice": "tambet",
+   "heard": "Kuusteist, nelikümmend viis",
+   "read": "16:45",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 16,
+    "minute": 45,
+    "face": "digital"
+   },
+   "sent": "16:45",
+   "voice": "kalev",
+   "heard": "Kuusteist nelikümmend viis",
+   "read": "16:45",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 16,
+    "minute": 45,
+    "face": "digital"
+   },
+   "sent": "16.45",
+   "voice": "mari",
+   "heard": "Kuusteist nelikümmend viis",
+   "read": "16:45",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 16,
+    "minute": 45,
+    "face": "digital"
+   },
+   "sent": "16.45",
+   "voice": "tambet",
+   "heard": "Kuusteist, nelikümmend viis",
+   "read": "16:45",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 16,
+    "minute": 45,
+    "face": "digital"
+   },
+   "sent": "16.45",
+   "voice": "kalev",
+   "heard": "Kuusteist nelikümmend viis",
+   "read": "16:45",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 11,
+    "minute": 45,
+    "face": "digital"
+   },
+   "sent": "11:45",
+   "voice": "mari",
+   "heard": "Üksteist nelikümmend viis",
+   "read": "11:45",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 11,
+    "minute": 45,
+    "face": "digital"
+   },
+   "sent": "11:45",
+   "voice": "tambet",
+   "heard": "Üksteist nelikümmend viis",
+   "read": "11:45",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 11,
+    "minute": 45,
+    "face": "digital"
+   },
+   "sent": "11:45",
+   "voice": "kalev",
+   "heard": "üksteist nelikümmend viis",
+   "read": "11:45",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 11,
+    "minute": 45,
+    "face": "digital"
+   },
+   "sent": "11.45",
+   "voice": "mari",
+   "heard": "Üksteist nelikümmend viis",
+   "read": "11:45",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 11,
+    "minute": 45,
+    "face": "digital"
+   },
+   "sent": "11.45",
+   "voice": "tambet",
+   "heard": "Üksteist nelikümmend viis",
+   "read": "11:45",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 11,
+    "minute": 45,
+    "face": "digital"
+   },
+   "sent": "11.45",
+   "voice": "kalev",
+   "heard": "üksteist nelikümmend viis",
+   "read": "11:45",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 3,
+    "minute": 0,
+    "face": "analog"
+   },
+   "sent": "3:00",
+   "voice": "mari",
+   "heard": "Kolm null null",
+   "read": "03:00",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 3,
+    "minute": 0,
+    "face": "analog"
+   },
+   "sent": "3:00",
+   "voice": "tambet",
+   "heard": "Kolm null null",
+   "read": "03:00",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 3,
+    "minute": 0,
+    "face": "analog"
+   },
+   "sent": "3:00",
+   "voice": "kalev",
+   "heard": "Kolm null null ära",
+   "read": "03:00",
+   "right": true,
+   "stray": [
+    "ära"
+   ],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 3,
+    "minute": 0,
+    "face": "analog"
+   },
+   "sent": "3.00",
+   "voice": "mari",
+   "heard": "Kolm null null",
+   "read": "03:00",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 3,
+    "minute": 0,
+    "face": "analog"
+   },
+   "sent": "3.00",
+   "voice": "tambet",
+   "heard": "Kolm null null",
+   "read": "03:00",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 3,
+    "minute": 0,
+    "face": "analog"
+   },
+   "sent": "3.00",
+   "voice": "kalev",
+   "heard": "Kolm null null ära",
+   "read": "03:00",
+   "right": true,
+   "stray": [
+    "ära"
+   ],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 3,
+    "minute": 0,
+    "face": "analog"
+   },
+   "sent": "3",
+   "voice": "mari",
+   "heard": "Kolm",
+   "read": "03:00",
+   "right": true,
+   "stray": [],
+   "style": "hour-only"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 3,
+    "minute": 0,
+    "face": "analog"
+   },
+   "sent": "3",
+   "voice": "tambet",
+   "heard": "Kolm",
+   "read": "03:00",
+   "right": true,
+   "stray": [],
+   "style": "hour-only"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 3,
+    "minute": 0,
+    "face": "analog"
+   },
+   "sent": "3",
+   "voice": "kalev",
+   "heard": "Kolm",
+   "read": "03:00",
+   "right": true,
+   "stray": [],
+   "style": "hour-only"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 12,
+    "minute": 0,
+    "face": "analog"
+   },
+   "sent": "12:00",
+   "voice": "mari",
+   "heard": "kaksteist null null",
+   "read": "12:00",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 12,
+    "minute": 0,
+    "face": "analog"
+   },
+   "sent": "12:00",
+   "voice": "tambet",
+   "heard": "kaksteist null null",
+   "read": "12:00",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 12,
+    "minute": 0,
+    "face": "analog"
+   },
+   "sent": "12:00",
+   "voice": "kalev",
+   "heard": "Kaksteist null null",
+   "read": "12:00",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 12,
+    "minute": 0,
+    "face": "analog"
+   },
+   "sent": "12.00",
+   "voice": "mari",
+   "heard": "kaksteist null null",
+   "read": "12:00",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 12,
+    "minute": 0,
+    "face": "analog"
+   },
+   "sent": "12.00",
+   "voice": "tambet",
+   "heard": "kaksteist null null",
+   "read": "12:00",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 12,
+    "minute": 0,
+    "face": "analog"
+   },
+   "sent": "12.00",
+   "voice": "kalev",
+   "heard": "Kaksteist null null",
+   "read": "12:00",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 12,
+    "minute": 0,
+    "face": "analog"
+   },
+   "sent": "12",
+   "voice": "mari",
+   "heard": "kaksteist",
+   "read": "12:00",
+   "right": true,
+   "stray": [],
+   "style": "hour-only"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 12,
+    "minute": 0,
+    "face": "analog"
+   },
+   "sent": "12",
+   "voice": "tambet",
+   "heard": "Kaksteist",
+   "read": "12:00",
+   "right": true,
+   "stray": [],
+   "style": "hour-only"
+  },
+  {
+   "shape": "clock-hour",
+   "item": {
+    "kind": "clock",
+    "hour": 12,
+    "minute": 0,
+    "face": "analog"
+   },
+   "sent": "12",
+   "voice": "kalev",
+   "heard": "Kaksteist",
+   "read": "12:00",
+   "right": true,
+   "stray": [],
+   "style": "hour-only"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 2,
+    "minute": 30,
+    "face": "analog"
+   },
+   "sent": "2:30",
+   "voice": "mari",
+   "heard": "kaks kolmkümmend",
+   "read": "02:30",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 2,
+    "minute": 30,
+    "face": "analog"
+   },
+   "sent": "2:30",
+   "voice": "tambet",
+   "heard": "Kaks kolmkümmend",
+   "read": "02:30",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 2,
+    "minute": 30,
+    "face": "analog"
+   },
+   "sent": "2:30",
+   "voice": "kalev",
+   "heard": "Kaks kolmkümmend",
+   "read": "02:30",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 2,
+    "minute": 30,
+    "face": "analog"
+   },
+   "sent": "2.30",
+   "voice": "mari",
+   "heard": "kaks kolmkümmend",
+   "read": "02:30",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 2,
+    "minute": 30,
+    "face": "analog"
+   },
+   "sent": "2.30",
+   "voice": "tambet",
+   "heard": "Kaks kolmkümmend",
+   "read": "02:30",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-half",
+   "item": {
+    "kind": "clock",
+    "hour": 2,
+    "minute": 30,
+    "face": "analog"
+   },
+   "sent": "2.30",
+   "voice": "kalev",
+   "heard": "Kaks kolmkümmend",
+   "read": "02:30",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 3,
+    "minute": 15,
+    "face": "analog"
+   },
+   "sent": "3:15",
+   "voice": "mari",
+   "heard": "Kolm viisteist",
+   "read": "03:15",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 3,
+    "minute": 15,
+    "face": "analog"
+   },
+   "sent": "3:15",
+   "voice": "tambet",
+   "heard": "Kolm viisteist",
+   "read": "03:15",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 3,
+    "minute": 15,
+    "face": "analog"
+   },
+   "sent": "3:15",
+   "voice": "kalev",
+   "heard": "Kolm viisteist",
+   "read": "03:15",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 3,
+    "minute": 15,
+    "face": "analog"
+   },
+   "sent": "3.15",
+   "voice": "mari",
+   "heard": "Kolm viisteist",
+   "read": "03:15",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 3,
+    "minute": 15,
+    "face": "analog"
+   },
+   "sent": "3.15",
+   "voice": "tambet",
+   "heard": "Kolm viisteist",
+   "read": "03:15",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 3,
+    "minute": 15,
+    "face": "analog"
+   },
+   "sent": "3.15",
+   "voice": "kalev",
+   "heard": "Kolm viisteist",
+   "read": "03:15",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 10,
+    "minute": 45,
+    "face": "analog"
+   },
+   "sent": "10:45",
+   "voice": "mari",
+   "heard": "Kümme nelikümmend viis",
+   "read": "10:45",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 10,
+    "minute": 45,
+    "face": "analog"
+   },
+   "sent": "10:45",
+   "voice": "tambet",
+   "heard": "Kümme nelikümmend viis",
+   "read": "10:45",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 10,
+    "minute": 45,
+    "face": "analog"
+   },
+   "sent": "10:45",
+   "voice": "kalev",
+   "heard": "Kümme nelikümmend viis",
+   "read": "10:45",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 10,
+    "minute": 45,
+    "face": "analog"
+   },
+   "sent": "10.45",
+   "voice": "mari",
+   "heard": "Kümme nelikümmend viis",
+   "read": "10:45",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 10,
+    "minute": 45,
+    "face": "analog"
+   },
+   "sent": "10.45",
+   "voice": "tambet",
+   "heard": "Kümme nelikümmend viis",
+   "read": "10:45",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "clock-quarter",
+   "item": {
+    "kind": "clock",
+    "hour": 10,
+    "minute": 45,
+    "face": "analog"
+   },
+   "sent": "10.45",
+   "voice": "kalev",
+   "heard": "Kümme nelikümmend viis",
+   "read": "10:45",
+   "right": true,
+   "stray": [],
+   "style": "dot"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 200
+   },
+   "sent": "2 €",
+   "voice": "mari",
+   "heard": "Kaks eurot",
+   "read": "2 €",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 200
+   },
+   "sent": "2 €",
+   "voice": "tambet",
+   "heard": "Kaks eurot",
+   "read": "2 €",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 200
+   },
+   "sent": "2 €",
+   "voice": "kalev",
+   "heard": "Kaks eurot",
+   "read": "2 €",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 200
+   },
+   "sent": "2",
+   "voice": "mari",
+   "heard": "kaks",
+   "read": "2 €",
+   "right": true,
+   "stray": [],
+   "style": "bare"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 200
+   },
+   "sent": "2",
+   "voice": "tambet",
+   "heard": "kaks",
+   "read": "2 €",
+   "right": true,
+   "stray": [],
+   "style": "bare"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 200
+   },
+   "sent": "2",
+   "voice": "kalev",
+   "heard": "Kaks",
+   "read": "2 €",
+   "right": true,
+   "stray": [],
+   "style": "bare"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 1200
+   },
+   "sent": "12 €",
+   "voice": "mari",
+   "heard": "kaksteist eurot",
+   "read": "12 €",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 1200
+   },
+   "sent": "12 €",
+   "voice": "tambet",
+   "heard": "kaksteist eurot",
+   "read": "12 €",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 1200
+   },
+   "sent": "12 €",
+   "voice": "kalev",
+   "heard": "Kaksteist eurot",
+   "read": "12 €",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 1200
+   },
+   "sent": "12",
+   "voice": "mari",
+   "heard": "kaksteist",
+   "read": "12 €",
+   "right": true,
+   "stray": [],
+   "style": "bare"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 1200
+   },
+   "sent": "12",
+   "voice": "tambet",
+   "heard": "Kaksteist",
+   "read": "12 €",
+   "right": true,
+   "stray": [],
+   "style": "bare"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 1200
+   },
+   "sent": "12",
+   "voice": "kalev",
+   "heard": "Kaksteist",
+   "read": "12 €",
+   "right": true,
+   "stray": [],
+   "style": "bare"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 2500
+   },
+   "sent": "25 €",
+   "voice": "mari",
+   "heard": "Kakskümmend viis eurot",
+   "read": "25 €",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 2500
+   },
+   "sent": "25 €",
+   "voice": "tambet",
+   "heard": "Kakskümmend viis eurot",
+   "read": "25 €",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 2500
+   },
+   "sent": "25 €",
+   "voice": "kalev",
+   "heard": "Kakskümmend viis eurot",
+   "read": "25 €",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 2500
+   },
+   "sent": "25",
+   "voice": "mari",
+   "heard": "kakskümmend viis",
+   "read": "25 €",
+   "right": true,
+   "stray": [],
+   "style": "bare"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 2500
+   },
+   "sent": "25",
+   "voice": "tambet",
+   "heard": "Kakskümmend viis",
+   "read": "25 €",
+   "right": true,
+   "stray": [],
+   "style": "bare"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 2500
+   },
+   "sent": "25",
+   "voice": "kalev",
+   "heard": "Kakskümmend viis",
+   "read": "25 €",
+   "right": true,
+   "stray": [],
+   "style": "bare"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 8000
+   },
+   "sent": "80 €",
+   "voice": "mari",
+   "heard": "Kaheksakümmend eurot",
+   "read": "80 €",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 8000
+   },
+   "sent": "80 €",
+   "voice": "tambet",
+   "heard": "Kaheksakümmend eurot",
+   "read": "80 €",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 8000
+   },
+   "sent": "80 €",
+   "voice": "kalev",
+   "heard": "Kaheksakümmend eurot",
+   "read": "80 €",
+   "right": true,
+   "stray": [],
+   "style": "shown"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 8000
+   },
+   "sent": "80",
+   "voice": "mari",
+   "heard": "Kaheksakümmend",
+   "read": "80 €",
+   "right": true,
+   "stray": [],
+   "style": "bare"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 8000
+   },
+   "sent": "80",
+   "voice": "tambet",
+   "heard": "Kaheksakümmend",
+   "read": "80 €",
+   "right": true,
+   "stray": [],
+   "style": "bare"
+  },
+  {
+   "shape": "price-whole",
+   "item": {
+    "kind": "price",
+    "cents": 8000
+   },
+   "sent": "80",
+   "voice": "kalev",
+   "heard": "Kaheksakümmend",
+   "read": "80 €",
+   "right": true,
+   "stray": [],
+   "style": "bare"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 350
+   },
+   "sent": "3,50 €",
+   "voice": "mari",
+   "heard": "Kolm koma viiskümmend eurot",
+   "read": "3 €",
+   "right": false,
+   "stray": [
+    "koma"
+   ],
+   "style": "shown"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 350
+   },
+   "sent": "3,50 €",
+   "voice": "tambet",
+   "heard": "Kolm koma viiskümmend eurot",
+   "read": "3 €",
+   "right": false,
+   "stray": [
+    "koma"
+   ],
+   "style": "shown"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 350
+   },
+   "sent": "3,50 €",
+   "voice": "kalev",
+   "heard": "Kolm koma viiskümmend eurot",
+   "read": "3 €",
+   "right": false,
+   "stray": [
+    "koma"
+   ],
+   "style": "shown"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 350
+   },
+   "sent": "3.50 €",
+   "voice": "mari",
+   "heard": "Kolm viiskümmend eurot.",
+   "read": "3,50 €",
+   "right": true,
+   "stray": [],
+   "style": "point"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 350
+   },
+   "sent": "3.50 €",
+   "voice": "tambet",
+   "heard": "Kolm viiskümmend eurot",
+   "read": "3,50 €",
+   "right": true,
+   "stray": [],
+   "style": "point"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 350
+   },
+   "sent": "3.50 €",
+   "voice": "kalev",
+   "heard": "Kolm viiskümmend eurot",
+   "read": "3,50 €",
+   "right": true,
+   "stray": [],
+   "style": "point"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 350
+   },
+   "sent": "3 € 50",
+   "voice": "mari",
+   "heard": "Kolm eurot viiskümmend.",
+   "read": "3,50 €",
+   "right": true,
+   "stray": [],
+   "style": "euro-then-cents"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 350
+   },
+   "sent": "3 € 50",
+   "voice": "tambet",
+   "heard": "Kolm eurot viiskümmend",
+   "read": "3,50 €",
+   "right": true,
+   "stray": [],
+   "style": "euro-then-cents"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 350
+   },
+   "sent": "3 € 50",
+   "voice": "kalev",
+   "heard": "Kolm eurot viiskümmend",
+   "read": "3,50 €",
+   "right": true,
+   "stray": [],
+   "style": "euro-then-cents"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 290
+   },
+   "sent": "2,90 €",
+   "voice": "mari",
+   "heard": "Kaks koma üheksakümmend eurot",
+   "read": "2 €",
+   "right": false,
+   "stray": [
+    "koma"
+   ],
+   "style": "shown"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 290
+   },
+   "sent": "2,90 €",
+   "voice": "tambet",
+   "heard": "Kaks koma üheksakümmend eurot",
+   "read": "2 €",
+   "right": false,
+   "stray": [
+    "koma"
+   ],
+   "style": "shown"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 290
+   },
+   "sent": "2,90 €",
+   "voice": "kalev",
+   "heard": "Kaks koma üheksakümmend eurot",
+   "read": "2 €",
+   "right": false,
+   "stray": [
+    "koma"
+   ],
+   "style": "shown"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 290
+   },
+   "sent": "2.90 €",
+   "voice": "mari",
+   "heard": "Kaks üheksakümmend eurot",
+   "read": "2,90 €",
+   "right": true,
+   "stray": [],
+   "style": "point"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 290
+   },
+   "sent": "2.90 €",
+   "voice": "tambet",
+   "heard": "Kaks üheksakümmend eurot",
+   "read": "2,90 €",
+   "right": true,
+   "stray": [],
+   "style": "point"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 290
+   },
+   "sent": "2.90 €",
+   "voice": "kalev",
+   "heard": "Kaks üheksakümmend eurot",
+   "read": "2,90 €",
+   "right": true,
+   "stray": [],
+   "style": "point"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 290
+   },
+   "sent": "2 € 90",
+   "voice": "mari",
+   "heard": "Kaks eurot üheksakümmend",
+   "read": "2,90 €",
+   "right": true,
+   "stray": [],
+   "style": "euro-then-cents"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 290
+   },
+   "sent": "2 € 90",
+   "voice": "tambet",
+   "heard": "Kaks eurot üheksakümmend",
+   "read": "2,90 €",
+   "right": true,
+   "stray": [],
+   "style": "euro-then-cents"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 290
+   },
+   "sent": "2 € 90",
+   "voice": "kalev",
+   "heard": "Kaks eurot üheksakümmend",
+   "read": "2,90 €",
+   "right": true,
+   "stray": [],
+   "style": "euro-then-cents"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 1240
+   },
+   "sent": "12,40 €",
+   "voice": "mari",
+   "heard": "Kaksteist koma nelikümmend eurot",
+   "read": "12 €",
+   "right": false,
+   "stray": [
+    "koma"
+   ],
+   "style": "shown"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 1240
+   },
+   "sent": "12,40 €",
+   "voice": "tambet",
+   "heard": "Kaksteist koma nelikümmend eurot",
+   "read": "12 €",
+   "right": false,
+   "stray": [
+    "koma"
+   ],
+   "style": "shown"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 1240
+   },
+   "sent": "12,40 €",
+   "voice": "kalev",
+   "heard": "Kaksteist koma nelikümmend eurot",
+   "read": "12 €",
+   "right": false,
+   "stray": [
+    "koma"
+   ],
+   "style": "shown"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 1240
+   },
+   "sent": "12.40 €",
+   "voice": "mari",
+   "heard": "Kaksteist nelikümmend eurot",
+   "read": "12,40 €",
+   "right": true,
+   "stray": [],
+   "style": "point"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 1240
+   },
+   "sent": "12.40 €",
+   "voice": "tambet",
+   "heard": "Kaksteist nelikümmend eurot",
+   "read": "12,40 €",
+   "right": true,
+   "stray": [],
+   "style": "point"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 1240
+   },
+   "sent": "12.40 €",
+   "voice": "kalev",
+   "heard": "Kaksteist nelikümmend eurot",
+   "read": "12,40 €",
+   "right": true,
+   "stray": [],
+   "style": "point"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 1240
+   },
+   "sent": "12 € 40",
+   "voice": "mari",
+   "heard": "Kaksteist eurot nelikümmend",
+   "read": "12,40 €",
+   "right": true,
+   "stray": [],
+   "style": "euro-then-cents"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 1240
+   },
+   "sent": "12 € 40",
+   "voice": "tambet",
+   "heard": "Kaksteist eurot nelikümmend.",
+   "read": "12,40 €",
+   "right": true,
+   "stray": [],
+   "style": "euro-then-cents"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 1240
+   },
+   "sent": "12 € 40",
+   "voice": "kalev",
+   "heard": "Kaksteist eurot nelikümmend",
+   "read": "12,40 €",
+   "right": true,
+   "stray": [],
+   "style": "euro-then-cents"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 4510
+   },
+   "sent": "45,10 €",
+   "voice": "mari",
+   "heard": "Nelikümmend viis koma kümme eurot",
+   "read": "45 €",
+   "right": false,
+   "stray": [
+    "koma"
+   ],
+   "style": "shown"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 4510
+   },
+   "sent": "45,10 €",
+   "voice": "tambet",
+   "heard": "Nelikümmend viis koma kümme eurot",
+   "read": "45 €",
+   "right": false,
+   "stray": [
+    "koma"
+   ],
+   "style": "shown"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 4510
+   },
+   "sent": "45,10 €",
+   "voice": "kalev",
+   "heard": "Nelikümmend viis koma kümme eurot",
+   "read": "45 €",
+   "right": false,
+   "stray": [
+    "koma"
+   ],
+   "style": "shown"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 4510
+   },
+   "sent": "45.10 €",
+   "voice": "mari",
+   "heard": "Nelikümmend viis kümme eurot",
+   "read": "45,10 €",
+   "right": true,
+   "stray": [],
+   "style": "point"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 4510
+   },
+   "sent": "45.10 €",
+   "voice": "tambet",
+   "heard": "Nelikümmend viis, kümme eurot",
+   "read": "45,10 €",
+   "right": true,
+   "stray": [],
+   "style": "point"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 4510
+   },
+   "sent": "45.10 €",
+   "voice": "kalev",
+   "heard": "Nelikümmend viis kümme eurot",
+   "read": "45,10 €",
+   "right": true,
+   "stray": [],
+   "style": "point"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 4510
+   },
+   "sent": "45 € 10",
+   "voice": "mari",
+   "heard": "Nelikümmend viis eurot kümme",
+   "read": "45,10 €",
+   "right": true,
+   "stray": [],
+   "style": "euro-then-cents"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 4510
+   },
+   "sent": "45 € 10",
+   "voice": "tambet",
+   "heard": "Nelikümmend viis eurot kümme",
+   "read": "45,10 €",
+   "right": true,
+   "stray": [],
+   "style": "euro-then-cents"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 4510
+   },
+   "sent": "45 € 10",
+   "voice": "kalev",
+   "heard": "Nelikümmend viis eurot kümme",
+   "read": "45,10 €",
+   "right": true,
+   "stray": [],
+   "style": "euro-then-cents"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 7980
+   },
+   "sent": "79,80 €",
+   "voice": "mari",
+   "heard": "Seitsekümmend üheksa koma kaheksakümmend eurot",
+   "read": "79 €",
+   "right": false,
+   "stray": [
+    "koma"
+   ],
+   "style": "shown"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 7980
+   },
+   "sent": "79,80 €",
+   "voice": "tambet",
+   "heard": "Seitsekümmend üheksa koma kaheksakümmend eurot",
+   "read": "79 €",
+   "right": false,
+   "stray": [
+    "koma"
+   ],
+   "style": "shown"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 7980
+   },
+   "sent": "79,80 €",
+   "voice": "kalev",
+   "heard": "Seitsekümmend üheksa koma kaheksakümmend eurot",
+   "read": "79 €",
+   "right": false,
+   "stray": [
+    "koma"
+   ],
+   "style": "shown"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 7980
+   },
+   "sent": "79.80 €",
+   "voice": "mari",
+   "heard": "Seitsekümmend üheksa, kaheksakümmend eurot",
+   "read": "79,80 €",
+   "right": true,
+   "stray": [],
+   "style": "point"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 7980
+   },
+   "sent": "79.80 €",
+   "voice": "tambet",
+   "heard": "Seitsekümmend üheksa, kaheksakümmend eurot",
+   "read": "79,80 €",
+   "right": true,
+   "stray": [],
+   "style": "point"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 7980
+   },
+   "sent": "79.80 €",
+   "voice": "kalev",
+   "heard": "Seitsekümmend üheksa, kaheksakümmend eurot",
+   "read": "79,80 €",
+   "right": true,
+   "stray": [],
+   "style": "point"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 7980
+   },
+   "sent": "79 € 80",
+   "voice": "mari",
+   "heard": "Seitsekümmend üheksa eurot kaheksakümmend",
+   "read": "79,80 €",
+   "right": true,
+   "stray": [],
+   "style": "euro-then-cents"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 7980
+   },
+   "sent": "79 € 80",
+   "voice": "tambet",
+   "heard": "Seitsekümmend üheksa eurot kaheksakümmend",
+   "read": "79,80 €",
+   "right": true,
+   "stray": [],
+   "style": "euro-then-cents"
+  },
+  {
+   "shape": "price-cents",
+   "item": {
+    "kind": "price",
+    "cents": 7980
+   },
+   "sent": "79 € 80",
+   "voice": "kalev",
+   "heard": "Seitsekümmend üheksa eurot kaheksakümmend",
+   "read": "79,80 €",
+   "right": true,
+   "stray": [],
+   "style": "euro-then-cents"
+  }
+ ]
+}

@@ -35,6 +35,8 @@ const EXEMPT: Record<string, string> = {
     "a search: the entry is drawn from props and the box follows `?q=` during render",
   "app/(app)/class/ClassForms.tsx":
     "leaving and archiving are drawn on a class's own page and go back to the list, then refresh",
+  "app/(app)/words/WordsTable.tsx":
+    "a search over the deck: the page keys the table on `?q=`, so a new search mounts it fresh",
   "app/(app)/calendar/CalendarWeek.tsx":
     "the week is drawn from props; the only state is the add form's own draft",
 };
@@ -77,7 +79,8 @@ export default function aRoundThatLinksToItselfRemounts({ check, ALL, code }: In
   });
 
   check("a round that offers AnotherRound is drawn through BeforeYouStart or FreshRound", () => {
-    const offering = client.filter((f) => /<AnotherRound\b/.test(code(f)));
+    // RoundDone draws AnotherRound for the rounds that end on it.
+    const offering = client.filter((f) => /<(?:AnotherRound|RoundDone)\b/.test(code(f)));
     const faults = offering.filter((f) => {
       const page = f.replace(/[^/]+$/, "page.tsx");
       return !existsSync(page) || !/<(?:BeforeYouStart|FreshRound)\b/.test(code(page));

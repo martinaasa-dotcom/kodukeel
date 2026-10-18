@@ -20,7 +20,7 @@
  * `lib/progress/course.ts` is the half that reads a database.
  */
 
-import { unitById } from "@/lib/collections/syllabus";
+import { SYLLABUS, unitById } from "@/lib/collections/syllabus";
 import { buildProgrammes } from "./build";
 import type { CourseDay, CourseStep, Programme } from "./types";
 
@@ -61,6 +61,15 @@ export function programmeById(id: string): Programme | undefined {
 
 export function dayById(programme: Programme, dayId: string): CourseDay | undefined {
   return programme.days.find((d) => d.id === dayId);
+}
+
+/** The part and the evening a lesson is, or undefined for an id no part holds. */
+export function lessonDayFor(lessonId: string): { programme: Programme; day: CourseDay } | undefined {
+  for (const programme of PROGRAMMES) {
+    const day = programme.days.find((d) => d.lesson === lessonId);
+    if (day) return { programme, day };
+  }
+  return undefined;
 }
 
 /** Every unit the programme draws on, in the order it first draws on each. */
@@ -259,7 +268,19 @@ export function formsThrough(programme: Programme, index: number): string[] {
 export function unitsThrough(programme: Programme, index: number): string[] {
   const at = PROGRAMMES.findIndex((p) => p.id === programme.id);
   const out: string[] = [];
-  const take = (d: CourseDay) => { if (!out.includes(d.unitId)) out.push(d.unitId); };
+  /*
+    A LESSON EVENING NAMES NO UNIT. The A1 lessons teach A1 by goal rather
+    than unit by unit, so inside them no unit is opened, and the catalogue's
+    conversations, which declare A1 and A2 units, wait for A2; the lessons'
+    own role-plays are what A1 talks in. Once the lessons are behind a
+    learner, every unit of their level counts as opened, which is the claim
+    the old A1 made by walking them.
+  */
+  const take = (d: CourseDay) => {
+    if (d.lesson && d.level === programme.level) return;
+    const units = d.lesson ? SYLLABUS.filter((u) => u.level === d.level).map((u) => u.id) : [d.unitId];
+    for (const u of units) if (!out.includes(u)) out.push(u);
+  };
   if (at > 0) for (const before of PROGRAMMES.slice(0, at)) before.days.forEach(take);
   for (const d of programme.days) if (d.index <= index) take(d);
   return out;
@@ -285,8 +306,8 @@ export function grammarThrough(programme: Programme, index: number): GrammarTaug
   const cases: string[] = [];
   const topics: string[] = [];
   const take = (d: CourseDay) => {
-    if (d.grammarCase && !cases.includes(d.grammarCase)) cases.push(d.grammarCase);
-    if (d.grammar && !topics.includes(d.grammar)) topics.push(d.grammar);
+    for (const key of [d.grammarCase, ...(d.cases ?? [])]) if (key && !cases.includes(key)) cases.push(key);
+    for (const topic of [d.grammar, ...(d.topics ?? [])]) if (topic && !topics.includes(topic)) topics.push(topic);
   };
   if (at > 0) for (const before of PROGRAMMES.slice(0, at)) for (const d of before.days) take(d);
   for (const d of programme.days) if (d.index <= index) take(d);

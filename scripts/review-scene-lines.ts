@@ -15,11 +15,15 @@
  * `npm run apply:scene-review -- sheet.csv` reads it back.
  */
 import { writeFileSync } from "node:fs";
-import { SCENES } from "@/lib/scenes/catalogue";
+import { SCENES as LISTED } from "@/lib/scenes/catalogue";
+import { LESSON_SCENES } from "@/lib/scenes/lessonScenes";
 import { BANK } from "@/lib/scenes/bank";
 import { beatById } from "@/lib/scenes/scripted";
 import { sceneSheet } from "@/lib/review/sceneSheet";
 import { csvCell } from "./lib/csv";
+
+// The lessons' own conversations are read the same way, though no listing shows them.
+const SCENES = [...LISTED, ...LESSON_SCENES];
 
 const at = process.argv.indexOf("--out");
 const out = at >= 0 ? process.argv[at + 1] : "scene-review.csv";

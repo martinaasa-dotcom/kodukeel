@@ -1,157 +1,74 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Mic, Play, Square } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Play, Square } from "lucide-react";
 import { useT } from "@/components/Locale";
-import { fill } from "@/lib/copy/locale";
-
-type State = "idle" | "recording" | "ready" | "unavailable";
+import { playRecording, type PlayingRecording } from "@/lib/audio/clip";
+import { SPEECH_SETTINGS } from "@/lib/speech/settings";
 
 /**
- * Record yourself, and play it back next to the native voice.
+ * YOUR OWN VOICE, PLAYED BACK, AND NOTHING ELSE.
  *
- * What this deliberately does **not** do is score the recording. There is no
- * verified Estonian speech-recogniser available to this app — TartuNLP publish
- * a text-to-speech service, which is what the rest of the app uses, and nothing
- * comparable for the other direction (docs/13-mvp-status.md). A confidence
- * number invented on top of a browser API that does not support Estonian would
- * be worse than silence: a learner would trust it.
+ * This used to open the microphone itself and record, on the argument that no
+ * Estonian speech recognizer existed for this app to hear the recording with.
+ * One does now, on the device (docs/41-fifth-batch.md, ADR-028), and the one
+ * way a screen listens is `useSpeech()` (D5). So the capture moved there, and
+ * what is left here is the half that was always worth having: hearing yourself
+ * beside a native voice, which is how shadowing is actually practised.
  *
- * So this is shadowing, the technique interpreters actually train with: hear it,
- * say it, hear both back, judge for yourself. The comparison is the exercise.
- *
- * The audio never leaves the browser — no upload, no storage, and the blob is
- * released when the card changes.
+ * It plays the audio of the turn the engine just heard, handed over by the
+ * screen (`useSpeech({ keepAudio: true })`). That audio lives in this tab only:
+ * no upload and no storage. It plays through `playRecording`, the same path a
+ * recording opened on the reading page takes, at its own speed, which is what
+ * makes it count as the app speaking: the microphone stays closed while it
+ * plays (D14), rather than hearing the learner's own voice twice. Nothing
+ * here scores anything; what the machine heard is shown by the screen in
+ * words, and never as a judgment of a sound.
  */
-export function Recorder({ onRecorded, targetSeconds }: {
-  onRecorded?: () => void;
-  /**
-   * Seconds the answer is supposed to run for, shown as a clock while recording.
-   *
-   * The spoken part of the state examination is timed, and "aim for about ninety
-   * seconds" printed above a microphone button is not a timing: nobody knows how
-   * long they have been talking. The clock counts up rather than down, and going
-   * past the target is not stopped or penalized, because the examiner does not
-   * stop you either.
-   */
-  targetSeconds?: number;
+export function Recorder({ audio, label }: {
+  /** The turn's audio at 16 kHz, or null where nothing has been said yet. */
+  audio: Float32Array | null;
+  label?: string;
 }) {
-  const [state, setState] = useState<State>("idle");
-  const [url, setUrl] = useState<string | null>(null);
-  const [elapsed, setElapsed] = useState(0);
-  const recorder = useRef<MediaRecorder | null>(null);
-  const chunks = useRef<Blob[]>([]);
-  const stream = useRef<MediaStream | null>(null);
+  const t = useT();
+  const [playing, setPlaying] = useState(false);
+  const current = useRef<PlayingRecording | null>(null);
 
-  useEffect(() => {
-    if (state !== "recording") return;
-    const started = Date.now();
-    setElapsed(0);
-    const timer = window.setInterval(() => {
-      setElapsed(Math.floor((Date.now() - started) / 1000));
-    }, 250);
-    return () => window.clearInterval(timer);
-  }, [state]);
-
-  const cleanup = useCallback(() => {
-    stream.current?.getTracks().forEach((t) => t.stop());
-    stream.current = null;
-  }, []);
-
+  // A new turn, or the screen going, stops the old one.
   useEffect(() => () => {
-    cleanup();
-    if (url) URL.revokeObjectURL(url);
-  }, [cleanup, url]);
+    current.current?.stop();
+    current.current = null;
+    setPlaying(false);
+  }, [audio]);
 
-  const start = async () => {
-    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
-      setState("unavailable");
+  if (!audio || audio.length === 0) return null;
+
+  const press = () => {
+    if (current.current) {
+      current.current.stop();
       return;
     }
-    try {
-      const media = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.current = media;
-      const rec = new MediaRecorder(media);
-      chunks.current = [];
-      rec.ondataavailable = (e) => { if (e.data.size > 0) chunks.current.push(e.data); };
-      rec.onstop = () => {
-        const blob = new Blob(chunks.current, { type: rec.mimeType });
-        if (url) URL.revokeObjectURL(url);
-        setUrl(URL.createObjectURL(blob));
-        setState("ready");
-        cleanup();
-        onRecorded?.();
-      };
-      recorder.current = rec;
-      rec.start();
-      setState("recording");
-    } catch {
-      // Permission refused, or no microphone. The exercise still works without it.
-      setState("unavailable");
-    }
+    const play = playRecording({ samples: audio, rate: SPEECH_SETTINGS.sampleRate }, { asItWas: true });
+    current.current = play;
+    setPlaying(true);
+    void play.ended
+      .catch(() => "played" as const)
+      .finally(() => {
+        if (current.current === play) current.current = null;
+        setPlaying(false);
+      });
   };
 
-  const stop = () => recorder.current?.stop();
-  const t = useT();
-
-  if (state === "unavailable") {
-    return (
-      <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-        {t("There's no microphone to record with. Say it out loud anyway, then listen to the native voice and compare.")}
-      </p>
-    );
-  }
-
   return (
-    <div className="flex flex-wrap items-center justify-center gap-2">
-      {state === "recording" && (
-        <span
-          className="tnum text-sm font-semibold"
-          style={{ color: targetSeconds && elapsed >= targetSeconds ? "var(--sky-ink)" : "var(--ink-2)" }}
-          role="timer"
-        >
-          {clock(elapsed)}
-          {targetSeconds ? <span style={{ color: "var(--ink-3)" }}> {fill(t("of {total}"), { total: clock(targetSeconds) })}</span> : null}
-        </span>
-      )}
-
-      {state === "recording" ? (
-        <button
-          type="button"
-          onClick={stop}
-          className="press inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
-          style={{ borderColor: "var(--again)", background: "var(--again-soft)", color: "var(--again-ink)" }}
-        >
-          <Square size={14} aria-hidden /> {t("Stop")}
-          <span className="ml-1 h-2 w-2 animate-pulse rounded-full" style={{ background: "var(--again)" }} aria-hidden />
-        </button>
-      ) : (
-        <button
-          type="button"
-          onClick={() => void start()}
-          className="press inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
-          style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
-        >
-          <Mic size={14} aria-hidden /> {url ? t("Record again") : t("Record yourself")}
-        </button>
-      )}
-
-      {url && state !== "recording" && (
-        <button
-          type="button"
-          onClick={() => { void new Audio(url).play(); }}
-          className="press inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
-          style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink-2)" }}
-        >
-          <Play size={14} aria-hidden /> {t("Hear yourself")}
-        </button>
-      )}
-    </div>
+    <button
+      type="button"
+      onClick={press}
+      aria-pressed={playing}
+      className="press inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
+      style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink-2)" }}
+      data-hear-yourself
+    >
+      {playing ? <Square size={12} fill="currentColor" aria-hidden /> : <Play size={14} aria-hidden />} {label ?? t("Hear yourself")}
+    </button>
   );
-}
-
-function clock(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}:${String(s).padStart(2, "0")}`;
 }

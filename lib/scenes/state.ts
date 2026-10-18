@@ -101,6 +101,39 @@ export interface TurnRecord {
   readonly helped: boolean;
   /** Whether the learner asked for English on this turn, so the move is put into it. */
   readonly wantsEnglish?: boolean;
+  /**
+   * SAID ALOUD, AND WHICH WORDS THE DICTIONARY REPAIRED (D13).
+   *
+   * Present on a turn the learner said rather than typed, and empty where
+   * nothing was repaired. A repaired word is the dictionary's spelling of what
+   * the recognizer heard as a non-word, so the learner did not produce it and
+   * `gradesFor` writes no row a repaired word met, the way a substituted word
+   * writes none. Lower-cased, as compared. Nothing else reads it: a spoken turn
+   * reaches the reply exactly as a typed one does (D26). Absent on a typed turn
+   * and on every row written before speech.
+   */
+  readonly repaired?: readonly string[];
+  /**
+   * On the first record a spoken turn made: that it was spoken, how many words
+   * the recognizer heard and how many the learner changed before sending, for
+   * the edit rate `npm run report:speech` reads (D3). Counts and never words.
+   */
+  readonly spoken?: true;
+  readonly wordsHeard?: number;
+  readonly wordsChanged?: number;
+  /**
+   * On that same first record: the line it answered was only heard, its words
+   * never shown (`SpokenTurn.unseen`). Evidence of following speech for the
+   * readiness rungs, counted and never scored (VB-14).
+   */
+  readonly unseen?: true;
+  /**
+   * On every record of a spoken turn the learner changed before sending: what
+   * was sent is not what was heard, so a grade it earns is written as typed
+   * (`Review.spoken` is "said aloud and marked on what was heard", D4). Absent
+   * on a typed turn, on a turn sent as heard, and where no counts came with it.
+   */
+  readonly edited?: true;
 }
 
 /**

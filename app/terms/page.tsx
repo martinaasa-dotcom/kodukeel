@@ -6,6 +6,7 @@ import { localeHref } from "@/lib/copy/publicLocale";
 import { resolveOperator } from "@/lib/legal/operator";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
 import { publicCard } from "@/lib/copy/publicCards";
+import { ASR_MODEL, PAIR_JUDGE } from "@/lib/speech/model";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
   return publicTitle(searchParams, "Terms", undefined, publicCard("/terms"));
@@ -112,6 +113,12 @@ export default async function TermsPage({ searchParams }: { searchParams: Public
           {rich(t("Whether a spelling is an Estonian word at all, and which word it is a form of, is answered by a forms list built from Ekilex’s own inflection tables, as published in {wordlist} (**CC BY-SA 4.0**), and from {vabamorf}, Filosoft’s open-source morphological tools for Estonian (**LGPL**). That list decides whether a word is accepted and never what a card teaches: no form from it is ever drilled or marked against."), {
             wordlist: <Source href="https://github.com/KristjanPikhof/Estonian-Wordlist-Enriched-Ekilex">Estonian-Wordlist-Enriched-Ekilex</Source>,
             vabamorf: <Source href="https://github.com/Filosoft/vabamorf">Vabamorf</Source>,
+          })}
+        </P>
+        <P>
+          {rich(fill(t("Hearing Estonian is done on your own device by {model}, the Estonian speech model from Tallinn University of Technology (**{licence}**), running in {sherpa} (**Apache 2.0**). The sound is never sent anywhere to be recognized. TalTech’s second model, which tells close sounds apart, is licensed **{pairLicence}** and is not used yet."), { licence: ASR_MODEL.licence, pairLicence: PAIR_JUDGE.licence }), {
+            model: <Source href="https://huggingface.co/TalTechNLP/streaming-zipformer.et-en">{t("TalTech’s streaming model")}</Source>,
+            sherpa: <Source href="https://github.com/k2-fsa/sherpa-onnx">sherpa-onnx</Source>,
           })}
         </P>
       </S>

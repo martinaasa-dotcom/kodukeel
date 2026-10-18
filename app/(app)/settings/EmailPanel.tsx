@@ -85,6 +85,7 @@ export function EmailPanel({
   on,
   reminderAt,
   sending,
+  notifying,
 }: {
   /**
    * Kinds currently switched on, which is `wants` asked of each rather than
@@ -95,6 +96,12 @@ export function EmailPanel({
   reminderAt: string | null;
   /** Whether this installation can send at all. */
   sending: boolean;
+  /**
+   * Whether it can remind somebody on a computer instead (VB-10). Then the
+   * switches here still decide something even where no email can go, and the
+   * sentence saying none will arrive would be wrong about the notifications.
+   */
+  notifying: boolean;
 }) {
   const t = useT();
   const [state, setState] = useState<Record<string, boolean>>(
@@ -136,7 +143,9 @@ export function EmailPanel({
           `/privacy` takes about an operator nobody has named.
         */
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-          {t("This copy of Kodukeel isn’t set up to send email, so none of these will arrive. We’ll remember your choices in case that changes.")}
+          {t(notifying
+            ? "This copy of Kodukeel doesn’t send email. These switches still decide which reminders reach you as notifications on a computer."
+            : "This copy of Kodukeel isn’t set up to send email, so none of these will arrive. We’ll remember your choices in case that changes.")}
         </p>
       )}
 
@@ -145,7 +154,7 @@ export function EmailPanel({
         {LETTERS.map((letter) => (
           <label
             key={letter.kind}
-            className="choice-btn flex cursor-pointer items-start gap-3 rounded-xl p-3 text-left"
+            className="choice-btn flex cursor-pointer border items-start gap-3 rounded-xl p-3 text-left"
           >
             <input
               type="checkbox"

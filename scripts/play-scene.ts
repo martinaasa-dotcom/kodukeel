@@ -52,6 +52,12 @@ import { COMPOSE_USAGE, chain as providerChain, vouchOf, HARNESS_LEVEL } from ".
 import type { Level } from "../lib/collections/syllabus";
 import { installMeter } from "./lib/meter";
 import { thinkingFor } from "../lib/tutor/thinking";
+import { CHAT_ID, chatWords, type ChatPlan } from "../lib/scenes/specs/chat";
+import { chatPersona, chatSceneOf, firstSense } from "../lib/progress/chat";
+import { PROGRAMMES, dayById } from "../lib/course";
+import { formsOfHeadword } from "../lib/dict/forms";
+import { patienceFor } from "../lib/scenes/personas";
+import type { SceneSpec } from "../lib/scenes/types";
 
 // What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay on, because it reads transcripts, so a turn asked before is answered from the record.
 installMeter({ replay: true });
@@ -238,8 +244,38 @@ function learnerTurn(
   return text || "jah";
 }
 
+/*
+  TONIGHT'S CHAT (VB-11), PLAYED HERE TOO. `--scene chat --day a2.1-03` builds
+  the chat a learner would be offered after that evening, the way `planChat`
+  does off the database and with nothing remembered: the evening's new words
+  first, each with the dictionary's first English sense, and none the forms list
+  cannot read. The scene is `chatSceneOf`, the same function the app opens a run
+  with, and the persona is the one every learner's chat has (`chatPersona`).
+*/
+async function harnessChat(dayId: string): Promise<SceneSpec | null> {
+  const programme = PROGRAMMES.find((p) => p.days.some((d) => d.id === dayId));
+  const day = programme ? dayById(programme, dayId) : undefined;
+  if (!programme || !day) return null;
+  const again = new Set(day.again ?? []);
+  const ordered = [...day.words.filter((w) => !again.has(w)), ...day.words.filter((w) => again.has(w))];
+  const readable = new Set<string>();
+  for (const lemma of ordered) {
+    const row = rows.find((r) => r.lemma === lemma);
+    if (row && Object.keys(row.parts).length > 0 && (await formsOfHeadword(lemma)).length > 0) readable.add(lemma);
+  }
+  const words = chatWords(
+    ordered.map((lemma) => ({ lemma, gloss: firstSense(rows.find((r) => r.lemma === lemma)?.gloss ?? "") })),
+    new Set(),
+    (lemma) => readable.has(lemma),
+  );
+  if (words.length === 0) return null;
+  const plan: ChatPlan = { programmeId: programme.id, dayId: day.id, unitId: day.unitId, words, remembered: null };
+  return chatSceneOf(plan);
+}
+let chatScene: SceneSpec | null = null;
+
 async function play(sceneId: string) {
-  const scene = sceneById(sceneId)!;
+  const scene = sceneId === CHAT_ID ? chatScene! : sceneById(sceneId)!;
   const base = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)), level);
   /*
     MARKED THE WAY THE ROUTE MARKS IT, AND THE ROUTE WIDENS TWICE. `knowing`
@@ -250,7 +286,11 @@ async function play(sceneId: string) {
     §53 found in `eval:scene`, one instrument over.
   */
   const context = { ...base, marker: { ...base.marker, ...acceptFromRows(scene, rows) } };
-  const run = planRun(scene, `play-${style}${arg("seed") ?? ""}`, level, difficulty);
+  const drawn = planRun(scene, `play-${style}${arg("seed") ?? ""}`, level, difficulty);
+  const chatter = chatPersona("play");
+  const run = scene.id === CHAT_ID
+    ? { ...drawn, persona: chatter, patience: scene.beats.map((beat) => patienceFor(beat.patience, chatter)) }
+    : drawn;
   const draw: StoredDraw = { persona: run.persona.id, card: run.card, curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })), lines: LINKS.length > 0 ? "composed" : "scripted", patience: run.patience };
   const persona = PERSONAS.find((p) => p.id === run.persona.id)!;
   const talkLog: string[] = [];
@@ -423,6 +463,11 @@ async function play(sceneId: string) {
 }
 
 (async () => {
+  if (only === CHAT_ID) {
+    chatScene = await harnessChat(arg("day") ?? "a2.1-03");
+    if (!chatScene) throw new Error(`no chat to have after ${arg("day") ?? "a2.1-03"}: the evening is unknown or has no readable new words`);
+    await play(CHAT_ID);
+  }
   for (const scene of SCENES) if (!only || scene.id === only) await play(scene.id);
   /*
     Who answered and who did not, so a run that composed nothing says so rather

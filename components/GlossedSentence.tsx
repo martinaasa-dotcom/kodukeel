@@ -48,8 +48,15 @@ import { countOf, fill, translated } from "@/lib/copy/locale";
  * off is handed no tokens on the next screen, so this component is never asked
  * to draw a feature nobody wants.
  */
-export function GlossedSentence({ tokens, sentence, speak, prose = false, offerTurnOff = true }: {
+export function GlossedSentence({ tokens, sentence, speak, prose = false, offerTurnOff = true, doubtful }: {
   tokens: GlossedToken[];
+  /**
+   * Tokens a machine heard least surely, on a recording's transcript (VB-12):
+   * drawn with a wavy underline, the spell-checker's mark, because the dotted
+   * one already means the dictionary can open the word. Absent everywhere a
+   * sentence was written rather than heard.
+   */
+  doubtful?: ReadonlySet<number>;
   /**
    * Set as running text rather than as a card's one bold line: reading mode
    * draws a whole pasted paragraph out of these, sentence after sentence.
@@ -126,7 +133,13 @@ export function GlossedSentence({ tokens, sentence, speak, prose = false, offerT
                 </mark>
               );
             }
-            if (!token.entry || dismissed) return <span key={i}>{token.text}</span>;
+            const unsure = doubtful?.has(i) ?? false;
+            const unsureNote = unsure ? <span className="sr-only"> ({t("heard least surely")})</span> : null;
+            if (!token.entry || dismissed) {
+              return unsure
+                ? <span key={i}><span className="heard-unsure">{token.text}</span>{unsureNote}</span>
+                : <span key={i}>{token.text}</span>;
+            }
             const showing = open === i;
             return (
               <button
@@ -158,8 +171,8 @@ export function GlossedSentence({ tokens, sentence, speak, prose = false, offerT
                   // Inline padding only, for the reason above.
                   paddingInline: "2px",
                   marginInline: "-2px",
-                  textDecorationColor: showing ? "var(--accent-deep)" : "var(--accent)",
-                  textDecorationStyle: showing ? "solid" : "dotted",
+                  textDecorationColor: showing ? "var(--accent-deep)" : unsure ? "var(--hard-ink)" : "var(--accent)",
+                  textDecorationStyle: showing ? "solid" : unsure ? "wavy" : "dotted",
                 }}
                 /* The panel is a sibling rather than a child, so the word says
                    which region it opened: a screen reader following the button
@@ -176,6 +189,7 @@ export function GlossedSentence({ tokens, sentence, speak, prose = false, offerT
                 onClick={() => setOpen(i)}
               >
                 {token.text}
+                {unsureNote}
               </button>
             );
           })}

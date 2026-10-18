@@ -38,6 +38,7 @@ import { compoundOf } from "./nearly";
 import { isQuestion } from "./retrieval";
 import { QUESTION_SHAPE, type BeatSpec } from "./types";
 import { switchesRegisterAt } from "./curveballs";
+import { CHOICE_WORD } from "./choice";
 
 /**
  * Which check withheld a line. A line can fail more than one.
@@ -48,7 +49,7 @@ import { switchesRegisterAt } from "./curveballs";
  */
 export const CHECKS = [
   "shape", "vouching", "register", "government", "facts", "ahead", "agreement", "topic", "giveaway",
-  "stretch", "clause", "infinitive", "consistency", "negation", "farewell", "question",
+  "stretch", "clause", "infinitive", "parallel", "consistency", "negation", "farewell", "question", "taught",
 ] as const;
 
 /**
@@ -324,6 +325,20 @@ export interface GateContext {
    * holds no Estonian (ADR-005); absent, the check says nothing.
    */
   readonly farewells?: readonly (readonly string[])[];
+  /**
+   * THE WORDS OF A LINE THE LESSON HAS NOT TAUGHT, ON A SCENE PLAYED INSIDE ONE.
+   *
+   * A role-play at the end of an A1 lesson (`SceneSpec.lesson`) holds the
+   * other side to the course's own rule, that nothing is shown before it is
+   * taught (docs/43-lessons.md): `stretch` lets a catalogue scene reach a word
+   * or two past its list, which is right for somebody choosing a situation and
+   * wrong for somebody three weeks in being walked through one. Spelling by
+   * spelling against the lesson's ledger, a phrase's words only where they
+   * stand together, so a form of a taught word the lessons have not shown is
+   * refused as well. Handed in resolved; absent on every other scene, and then
+   * the check says nothing.
+   */
+  readonly untaught?: (text: string) => readonly string[];
   readonly times?: {
     readonly clock: ReadonlySet<string>;
     readonly hours: ReadonlySet<string>;
@@ -388,6 +403,15 @@ export interface Verdict {
    * the dictionary holds the word by the time anybody meets it again.
    */
   readonly stretched: readonly string[];
+  /** The words a lesson has not taught yet, on a scene played inside one (`GateContext.untaught`). */
+  readonly untaught?: readonly string[];
+  /**
+   * The two options a `parallel` refusal was about, as the line wrote them, so
+   * a retry is told which pair to put in one case. Told only "phrase both
+   * options alike", the café's composer wrote `kaardiga või sularahas` four
+   * times running (docs/41-fifth-batch.md, section 0).
+   */
+  readonly offered?: readonly [string, string];
 }
 
 /**
@@ -539,6 +563,10 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
   if (inflectedAfterEi(text, context)) failed.push("negation");
   if (saysGoodbye(tokens, beat, context)) failed.push("farewell");
   if (verblessQuestion(text, context)) failed.push("question");
+  const untaught = context.untaught ? [...context.untaught(text)] : [];
+  if (untaught.length > 0) failed.push("taught");
+  const offered = unparallel(text, context);
+  if (offered) failed.push("parallel");
 
   /*
     A NUMBER IN THE LINE IS A CLAIM ABOUT THE RUN, so it has to be one the run
@@ -568,7 +596,72 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
     if (runs.some((run) => context.held!.has(run))) failed.push("ahead");
   }
 
-  return { failed, unknown, stretched };
+  return { failed, unknown, stretched, untaught, ...(offered ? { offered } : {}) };
+}
+
+/** The three cases a word is stored in, which a predicate or an object takes rather than an adverbial. */
+const PRINCIPAL: ReadonlySet<CaseKey> = new Set<CaseKey>(["NOMINATIVE", "GENITIVE", "PARTITIVE"]);
+
+/** Whether two cases answer one question: the same case, or the same place adverb (`kus?` is two cases). */
+function sameQuestion(a: CaseKey, b: CaseKey): boolean {
+  if (a === b) return true;
+  const where = (key: CaseKey) => CASES.find((spec) => spec.key === key)?.asksWhere ?? null;
+  return where(a) !== null && where(a) === where(b);
+}
+
+/**
+ * A CHOICE OFFERED IN TWO DIFFERENT SHAPES.
+ *
+ * Read by the native reader off a line the composer wrote at the café,
+ * `Kas te maksate kaardiga või sularahas?`: both are understood, and offering
+ * two options in two different cases is wrong, since each option has to be a
+ * whole answer in the same shape as the other. The gate could not see it,
+ * because every word is vouched and in the list.
+ *
+ * DRAWN NARROW ON PURPOSE, since a check that refuses correct Estonian is worse
+ * than none. It reads only the word on each side of the choice word, only
+ * where the dictionary gives each exactly one case (`caseOf`, the strict
+ * reading), and only where the second option ends its clause, so a noun that
+ * belongs to a postposition after it (`aknal või laua taga`) is never read as
+ * an option. Two cases answering one question are a real choice and pass
+ * (`kodus või tööl`, both "where?"), and a stored case on either side passes
+ * too, which also leaves alone the genitive a pair may share an ending through
+ * (`kaardi või sularahaga`). The choice word is the course's own lemma
+ * (`CHOICE_WORD`), so this module still holds no Estonian.
+ *
+ * `npm run measure:parallel` is the reading: over every sentence in the shipped
+ * dictionary, every banked line and every pick, it refuses one, a usage
+ * recorded under `pangakaart` in exactly the shape the reader called wrong.
+ */
+export function unparallel(text: string, context: Pick<GateContext, "caseOf">): readonly [string, string] | null {
+  const strict = (word: string): CaseKey | null => {
+    const cases = context.caseOf.get(word);
+    return cases && cases.size === 1 ? [...cases][0]! : null;
+  };
+  for (const clause of text.split(/[.!?;:]+/)) {
+    /* Words and commas, so the second option can be seen to end the clause. */
+    const parts = clause.match(/[\p{L}-]+|,/gu) ?? [];
+    for (let at = 1; at + 1 < parts.length; at += 1) {
+      if (parts[at]!.toLowerCase() !== CHOICE_WORD) continue;
+      const before = parts[at - 1]!;
+      const after = parts[at + 1]!;
+      if (before === "," || after === ",") continue;
+      const next = parts[at + 2];
+      if (next !== undefined && next !== ",") continue;
+      const a = strict(before.toLowerCase());
+      const b = strict(after.toLowerCase());
+      if (!a || !b || sameQuestion(a, b)) continue;
+      /*
+        Both adverbial, never a nominative, genitive or partitive: measured over
+        every sentence the dictionary holds, `Kas olete abielus või vallaline?`
+        is a predicate in two shapes and correct, and it is the one attested
+        line the check fired on that the reader's rule does not cover.
+      */
+      if (PRINCIPAL.has(a) || PRINCIPAL.has(b)) continue;
+      return [before, after];
+    }
+  }
+  return null;
 }
 
 /**

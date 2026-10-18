@@ -24,6 +24,9 @@ import { navOrderFrom } from "@/lib/ux/navOrder";
 import { railClasses } from "@/lib/progress/classes";
 import { visibleLine } from "@/lib/security/visibleText";
 import { AudioPrefsProvider } from "@/components/AudioPrefs";
+import { SpeechPrefetch, SpeechProvider } from "@/components/speech/useSpeech";
+import { speechAvailability } from "@/lib/audio/speechAvailability";
+import { micInBoxesFrom, sendAtOnceFrom } from "@/lib/ux/speechPrefs";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { sceneVoiceFrom } from "@/lib/audio/sceneVoice";
@@ -104,6 +107,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         SETTING_KEYS.hearing, SETTING_KEYS.support, SETTING_KEYS.sceneVoice, SETTING_KEYS.speechPace,
         SETTING_KEYS.caseQuestionGloss, SETTING_KEYS.navOrder, SETTING_KEYS.displayName,
         SETTING_KEYS.uiLocale, SETTING_KEYS.uiLocaleNoticed,
+        SETTING_KEYS.speechSendAtOnce, SETTING_KEYS.speechInBoxes,
       ],
     ),
     courseLevelFor(ownerId),
@@ -139,13 +143,22 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     sceneVoice: sceneVoiceFrom(settings[SETTING_KEYS.sceneVoice], support),
     pace: paceFrom(settings[SETTING_KEYS.speechPace], level, tilt),
   };
+  // Whether this deployment hears Estonian, and the two choices about it. See components/speech/useSpeech.tsx.
+  const speech = {
+    ...speechAvailability(),
+    inBoxes: micInBoxesFrom(settings[SETTING_KEYS.speechInBoxes]),
+    sendAtOnce: sendAtOnceFrom(settings[SETTING_KEYS.speechSendAtOnce]),
+  };
   return (
     <LocaleProvider locale={locale}>
     <UiLanguageProvider level={level}>
     <CaseGlossProvider on={caseGloss}>
     <AudioPrefsProvider value={audio}>
+    <SpeechProvider value={speech}>
     <LetterBarScope value={letters} dismissible>
       <DeviceOwner owner={ownerDigest(ownerId)} />
+      {/* The speech model, fetched quietly once per device so every microphone just works. */}
+      <SpeechPrefetch />
       {/* The language handed to what sits outside this shell: the offline
           banner in the root layout, and `lang` on the document for anything
           drawn in a portal. See the component. */}
@@ -233,6 +246,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           prediction about one that has not. `/tutor` has the room for both. */}
       <AnuFab configured={chain.length > 0} readerCanConfigure={!supabaseConfigured()} />
     </LetterBarScope>
+    </SpeechProvider>
     </AudioPrefsProvider>
     </CaseGlossProvider>
     </UiLanguageProvider>

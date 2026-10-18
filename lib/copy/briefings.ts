@@ -175,6 +175,14 @@ export const BRIEFINGS = {
     you: "Tap the letters in the right order. Miss once and we'll put the first letter in for you.",
     action: "Start",
   },
+  numbers: {
+    title: "Say the number",
+    what:
+      "Ten things a counter would show you: a price tag, a clock on the wall, a time on a " +
+      "timetable, a number. Nothing is timed.",
+    you: "Say each one in Estonian, or type it in words or digits. You'll hear the right answer after.",
+    action: "Start",
+  },
   listening: {
     title: "Hear a word, pick what it means",
     what:
@@ -211,8 +219,8 @@ export const BRIEFINGS = {
   },
   speaking: {
     title: "Say it out loud",
-    what: "A word to say, a recording of a native speaker saying it, and your own voice played back beside it.",
-    you: "Record yourself, listen to both, and decide how close you got. No machine grades your accent.",
+    what: "A word or a line, three ways: say it along with a native speaker, say it back from the recording, then say it from its English meaning.",
+    you: "Speak, and see which words were heard. Nothing scores how they sounded, and a miss is never written down. Typing works too.",
     action: "Start",
   },
   map: {

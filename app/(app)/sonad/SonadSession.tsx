@@ -17,6 +17,7 @@ import { addToDeck, recordSonad } from "@/app/actions";
 import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { loadBoard, saveBoard } from "./resume";
 import { WordLink } from "@/components/course/WordLink";
+import { Speak } from "@/components/Speak";
 import { EMPTY, HUE, LEGEND, RING, SPOKEN } from "@/components/sonad/look";
 
 /**
@@ -544,6 +545,13 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
           ),
           meaning: puzzle.translation,
         })}
+        {/* Heard once it is found: a word guessed letter by letter has only
+            ever been seen, and the sound is the half of it a learner meets. */}
+        <Speak
+          text={puzzle.answer}
+          label={fill(t("Hear {word}"), { word: puzzle.answer })}
+          className="press ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full align-middle transition-colors hover:bg-[var(--raised)]"
+        />
       </p>
       {/*
         The offer, and only where there is one to make. A word already in the

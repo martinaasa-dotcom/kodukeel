@@ -13,6 +13,7 @@ import { ConjugationSession, type ConjugationQuestion, type Shape, type Tense } 
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { byRecency, recentLemmas, slotWithin } from "@/lib/course/scope";
 import { practiceScope } from "@/lib/progress/moduleScope";
+import { SUBJECT_PRONOUN } from "@/lib/scenes/lexicon";
 
 export async function generateMetadata() {
   return titleFor("Conjugation");
@@ -231,5 +232,17 @@ function questionFor(
     tense,
     given: { person: "ma", value: given.value },
     blanks,
+    chant: chantRows(["ma", ...blanks.map((b) => b.person)]),
   };
+}
+
+/**
+ * The table's rows as a chant is heard: each row's short pronoun, the one the
+ * table prints, and its long one, which is the lemma (`SUBJECT_PRONOUN`, read
+ * in the table's own order). Both are said; `lib/speech/chant.ts` cuts a
+ * transcript back into the rows by them.
+ */
+function chantRows(persons: readonly string[]): string[][] {
+  const long = Object.keys(SUBJECT_PRONOUN);
+  return persons.map((person, i) => [person, ...(long[i] ? [long[i]!] : [])]);
 }

@@ -1,6 +1,6 @@
 import { HeroFan } from "@/components/HeroFan";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ArrowRight, Check, ChevronRight, Compass, Flag, Lock } from "lucide-react";
+import { ArrowRight, Check, ChevronRight, Compass, Flag, GraduationCap, Lock } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { courseWordCount, deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
 import { courseLevelFor } from "@/lib/progress/level";
@@ -19,6 +19,9 @@ import { programmeFor } from "@/lib/progress/course";
 import { LEARN_BATCH } from "@/lib/learn/ladder";
 import { Explain } from "@/components/Explain";
 import { splitIntoLessons } from "@/lib/collections/lesson";
+import { PROGRAMMES } from "@/lib/course";
+import { LESSONS, LESSON_PARTS } from "@/lib/course/lessons";
+import { Braced } from "@/components/Braced";
 
 export async function generateMetadata() {
   return { title: tr(await localeFor(await requireUserId()), "Learn") };
@@ -84,18 +87,27 @@ export default async function LearnPage() {
 
   const countWords = (rows: typeof units) => courseWordCount(rows, snapshot.knownLemmas);
 
-  const { words: totalWords, known: knownWords } = countWords(units);
+  /*
+    A1 IS THE LESSONS (docs/43-lessons.md, phase P3), so A1 on this page is
+    the lessons' parts rather than the units the old A1 was cut from. Its
+    words are the lessons' own, counted the same way.
+  */
+  const lessonWordsA1 = [...new Set(PROGRAMMES.filter((p) => p.level === "A1").flatMap((p) => p.days.flatMap((d) => d.words)))];
+  const a1Known = lessonWordsA1.filter((w) => snapshot.knownLemmas.has(w)).length;
+  const unitWords = countWords(units.filter((u) => u.unit.level !== "A1"));
+  const totalWords = unitWords.words + lessonWordsA1.length;
+  const knownWords = unitWords.known + a1Known;
 
   const byLevel = LEVELS.map((level) => {
-    const rows = units.filter((u) => u.unit.level === level);
-    const { words, known } = countWords(rows);
+    const rows = level === "A1" ? [] : units.filter((u) => u.unit.level === level);
+    const { words, known } = level === "A1" ? { words: lessonWordsA1.length, known: a1Known } : countWords(rows);
     return {
       level,
       rows,
       words,
       known,
       pct: words > 0 ? Math.round((known / words) * 100) : 0,
-      finished: rows.length > 0 && rows.every((u) => u.state === "done"),
+      finished: level === "A1" ? lessonWordsA1.length > 0 && a1Known === lessonWordsA1.length : rows.length > 0 && rows.every((u) => u.state === "done"),
     };
   });
 
@@ -103,7 +115,7 @@ export default async function LearnPage() {
   return (
     <Page route="/learn"
       title={t("Learn")}
-      lead={t("Pick up new words a few at a time. And see which course they come from.")}
+      lead={t("Pick up new words a few at a time, and see the whole course they come from.")}
     >
       {/*
         WHAT THIS PAGE LEADS WITH IS THE NEXT FIVE WORDS, NOT THE MAP.
@@ -136,7 +148,7 @@ export default async function LearnPage() {
         the explanation are at the foot of the page, where somebody who wants
         them goes looking.
       */}
-      <SectionTitle hint={fill(t("{level}, {known} of {total} words known"), { level: placement, known: grouped(locale, knownWords), total: grouped(locale, totalWords) })}>{t("The course")}</SectionTitle>
+      <SectionTitle hint={fill(t("{known} of {total} course words known"), { known: grouped(locale, knownWords), total: grouped(locale, totalWords) })}>{t("The course")}</SectionTitle>
 
       <div className="flex flex-col gap-3">
         {byLevel.map(({ level, rows, words, known, pct, finished }) => {
@@ -301,15 +313,35 @@ export default async function LearnPage() {
                         carries its figures in an `aria-label`, so this line is
                         the only place a sighted reader sees them. */}
                     <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
-                      {fill(t(!open && inProgress > 0
-                        ? "{units} units, {known}/{total} words, {progress} in progress"
-                        : "{units} units, {known}/{total} words"), { units: rows.length, known, total: words, progress: inProgress })}
+                      {level === "A1"
+                        ? fill(t("{lessons}, {known}/{total} words"), { lessons: countOf(locale, LESSONS.length, "lesson"), known, total: words })
+                        : fill(t(!open && inProgress > 0
+                          ? "{units} units, {known}/{total} words, {progress} in progress"
+                          : "{units} units, {known}/{total} words"), { units: rows.length, known, total: words, progress: inProgress })}
                     </span>
                   </span>
                 </span>
               </summary>
 
               <ol className="flex flex-col border-t px-2 py-2 sm:px-3" style={{ borderColor: "var(--rule)" }}>
+                {level === "A1" && LESSON_PARTS.map((part) => (
+                  <li key={part.id} className="flex items-center gap-3 rounded-[var(--r-sm)] px-3 py-2.5">
+                    <Link href={`/course/lessons#${part.id}`} className="group flex min-w-0 flex-1 items-center gap-3">
+                      <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full" style={{ background: "var(--raised)", color: "var(--ink-3)" }}>
+                        <GraduationCap size={16} aria-hidden />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-md font-bold group-hover:underline" style={{ color: "var(--ink)" }}>
+                          <Braced text={part.title} />
+                        </span>
+                        <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
+                          {countOf(locale, LESSONS.filter((l) => l.part === part.id).length, "lesson")}
+                        </span>
+                      </span>
+                      <ChevronRight size={18} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
+                    </Link>
+                  </li>
+                ))}
                 {shown.map(row)}
                 {tucked.length > 0 && (
                   <li>

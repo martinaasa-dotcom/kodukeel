@@ -50,6 +50,7 @@ tested without a database (`PURE_LAYERS` in `scripts/test-invariants.ts` asserts
 | `lib/observability/` | no | Error reporting without a vendor. |
 | `lib/offline/` | pure | The offline outbox and forgetting a device. |
 | `lib/progress/` | no | Every query that reads a learner's own rows, derived on each request. |
+| `lib/push/` | pure | Reminders on a computer: which kinds, the subscription, the protocol. |
 | `lib/questions/` | pure | Distractors, hints and case choices for questions. |
 | `lib/random/` | pure | The one shuffle and the daily walk. |
 | `lib/readiness/` | pure | How ready somebody is for a situation, on three rungs. |
@@ -58,6 +59,7 @@ tested without a database (`PURE_LAYERS` in `scripts/test-invariants.ts` asserts
 | `lib/scan/` | pure | Reading a photographed page into candidates. |
 | `lib/scenes/` | pure | Situations: the catalogue (`specs/`), the prepared lines (`bank/`), the turn reader, the state machine, the reply and the gate. |
 | `lib/security/` | pure | Same-origin checks, rate limits, headers and cleaning visible text. |
+| `lib/speech/` | pure | Hearing Estonian (ADR-028): the engine's contract, the measured settings, the pinned model, the two readings reconciled, the verdict that only grades up, and matching a line on screen. The browser engine behind it is `components/speech/`. |
 | `lib/settings/` | no | The one place settings are read and written. |
 | `lib/srs/` | no | Cards, decks, the scheduler, grading and repairs to existing decks. |
 | `lib/stats/` | pure | Streaks, retention, pace and confusions, computed from the review log. |

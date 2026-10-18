@@ -33,6 +33,7 @@ const GROUPS: Group[] = [
       { press: ["⌘", "K"], does: "Jump to any screen, or look a word up" },
       { press: ["?"], does: "Show this list" },
       { press: ["Esc"], does: "Close whatever is open" },
+      { press: ["Ctrl", "M"], does: "Start or stop the microphone, or hold it to talk" },
     ],
   },
   {

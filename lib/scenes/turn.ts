@@ -590,7 +590,9 @@ export function readTurn(
     value and got one: `14:30` on its own is how people answer "what time",
     `words()` returns letters, and the datum rule above already found it.
   */
+  // reply-row: read-empty
   if (spoken.length === 0) {
+    // reply-row: read-empty-met
     if (missing.length === 0) return shape("complete");
     /*
       `14:30` on its own is how people answer "what time", and the datum rule
@@ -662,6 +664,7 @@ export function readTurn(
   */
   const casualGreeting = beat.move === "greet" && missing.length > 0 && !isLost(spoken, context)
     && (casualHello(spoken) !== null || (caughtSomething(marked) && !isEnglish(spoken, marked)));
+  // reply-row: read-greeting
   if (casualGreeting) {
     return shape("complete", {
       met: beat.needs.map(() => true), missing: [], matched: [], satisfiedBy: [], slips: [],
@@ -684,6 +687,7 @@ export function readTurn(
     reads through this very beat, walks out the same way the course's does.
   */
   const leaving = beat.move === "close" && missing.length > 0 ? casualBye(spoken) : null;
+  // reply-row: read-casual-bye
   if (leaving !== null) {
     return shape("complete", {
       met: beat.needs.map(() => true), missing: [], matched: [], satisfiedBy: [leaving], slips: [],
@@ -700,6 +704,7 @@ export function readTurn(
   */
   const agreeing = missing.length > 0 && agreementBeat(beat) && !spoken.some((word) => context.negators.has(word))
     ? casualYes(spoken) : null;
+  // reply-row: read-casual-yes
   if (agreeing !== null) {
     return shape("complete", {
       met: beat.needs.map(() => true), missing: [], matched: [], satisfiedBy: [agreeing], slips: [],
@@ -716,6 +721,7 @@ export function readTurn(
     had been comparing against all along.
   */
   // "Oota" and "ma mõtlen" ask for a moment: a look and a wait, which costs nothing once (`asksToWait`).
+  // reply-row: read-hold
   if (missing.length > 0 && asksToWait(spoken)) return shape("fragment", { holds: true });
   const phraseBeat = beat.move === "greet" || beat.move === "close";
   /*
@@ -727,6 +733,7 @@ export function readTurn(
     the scene that was exactly right. Handing the question back meets nothing,
     so it is still an echo; a turn that says what was wanted is not.
   */
+  // reply-row: read-echo
   if (!phraseBeat && (missing.length > 0 || handsBackWhole(spoken, context.previous, beat)) && isEcho(spoken, context.previous)) {
     return shape("echo");
   }
@@ -772,6 +779,7 @@ export function readTurn(
     out, to somebody who had only asked to hear it again. The lost reading
     below takes it.
   */
+  // reply-row: read-declined
   if (beat.counter && !isLost(spoken, context) && (short || (!accepts && spoken.some((word) => context.negators.has(word))))) {
     return shape("declined", {
       met: beat.needs.map(() => false), missing: beat.needs.map((_, i) => i),
@@ -839,6 +847,7 @@ export function readTurn(
     const forms = context.lexicon.byLemma.get(verb);
     return Boolean(forms) && spoken.some((word) => forms!.has(word)) && [...previous].some((word) => forms!.has(word));
   });
+  // reply-row: read-lost
   if (!answersVerb && (missing.length === beat.needs.length || metByBarePolarity) && (!wantsNo || lostOnly) && isLost(spoken, context)) {
     return shape("lost");
   }
@@ -875,8 +884,10 @@ export function readTurn(
     // `Kui kaua?` is a whole question, and a question is a whole turn.
     || text.trim().endsWith("?")
     || missing.length === 0;
+  // reply-row: read-fragment
   if (beat.shape === "sentence" && anyVouched && !sentence) return shape("fragment");
 
+  // reply-row: read-complete
   if (missing.length === 0) return shape("complete");
   /*
     ENGLISH IS READ AFTER THE REQUIREMENTS RATHER THAN BEFORE THEM.
@@ -893,7 +904,9 @@ export function readTurn(
     the negator, saying you are lost needs a course phrase, and a fragment
     needs a word the scene can vouch for.
   */
+  // reply-row: read-english
   if (isEnglish(spoken, marked)) return shape("english");
+  // reply-row: read-incomplete
   if (missing.length < beat.needs.length) return shape("incomplete");
 
   /*
@@ -918,6 +931,7 @@ export function readTurn(
     only where the beat was asking for something else.
   */
   const tried = caughtSomething(marked) || spoken.length === 1;
+  // reply-row: read-missed
   return shape(tried ? "offtarget" : "unrecognised");
 }
 

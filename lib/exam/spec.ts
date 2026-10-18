@@ -120,7 +120,7 @@ export type TaskKind =
   | "message"
   /** The second writing task, in the genre the level sets. */
   | "compose"
-  /** Record yourself, then mark yourself. */
+  /** Speak, see what was understood, then mark yourself. */
   | "speak";
 
 /**
@@ -439,9 +439,10 @@ const BLUEPRINTS: Record<TaskKind, Blueprint> = {
     kind: "speak",
     title: "Speak",
     instruction:
-      "Record your answer, then listen back and mark yourself against the checklist. On the real " +
-      "day this is a conversation with an examiner and another candidate; here you play every " +
-      "part out loud. Nothing here scores your pronunciation, and nothing pretends to.",
+      "Speak your answer, see which words were understood, then listen back and mark yourself " +
+      "against the checklist. On the real day this is a conversation with an examiner and another " +
+      "candidate; here you play every part out loud. Nothing here scores your pronunciation, and " +
+      "nothing pretends to.",
     standsFor: "suuline esinemine ja dialoog, the spoken part with an examiner",
   },
 };

@@ -1,11 +1,10 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ArrowLeft } from "lucide-react";
 import { viewerId } from "@/lib/auth/session";
 import { PublicReference, referenceHref } from "@/components/grammar/PublicReference";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
 import { publicCard } from "@/lib/copy/publicCards";
 import { caseWalk } from "@/lib/progress/caseWalk";
-import { Empty, Page, Stack } from "@/components/ui";
+import { BackLink, Empty, Page, Stack } from "@/components/ui";
 import { offered } from "@/lib/tutor/provider";
 import { BuildWalk } from "./BuildWalk";
 import { localeFor } from "@/lib/progress/locale";
@@ -58,13 +57,7 @@ export default async function BuildPage({ searchParams }: { searchParams: Public
       title={t("Build a word")}
       lead={t("Learn three forms by heart. Every other case is one of them plus an ending.")}
       actions={
-        <Link
-          href={go("/grammar")}
-          className="press inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
-          style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
-        >
-          <ArrowLeft size={14} aria-hidden /> {t("Grammar")}
-        </Link>
+        <BackLink href={go("/grammar")}>{t("Grammar")}</BackLink>
       }
     >
       {walk.words.length === 0 ? (

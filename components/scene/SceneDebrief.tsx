@@ -7,6 +7,7 @@ import { Button, ButtonLink } from "@/components/Button";
 import { Card, Chip, StatTile } from "@/components/ui";
 import { ArrowRight, MessageCircleHeart, Sparkles } from "lucide-react";
 import { AddWordButton } from "@/components/AddWordButton";
+import { Speak } from "@/components/Speak";
 import { DrillLink } from "@/components/DrillLink";
 import type { SceneSpec } from "@/lib/scenes/types";
 import { drillFor } from "@/lib/scenes/drills";
@@ -23,6 +24,8 @@ import { caseLabelOf } from "@/lib/copy/caseLabel";
 import { useLocale, useT } from "@/components/Locale";
 import { countOf, fill, type Locale } from "@/lib/copy/locale";
 import { around, withLink } from "./inPlace";
+import { onScreen, sceneTemplates } from "@/lib/scenes/onScreen";
+import { CHAT_ID } from "@/lib/scenes/specs/chat";
 
 /** So "words your conversations needed" is a query and never a counter (ADR-014). */
 export const SCENE_SOURCE = "SCENE";
@@ -70,6 +73,8 @@ export const SCENE_SOURCE = "SCENE";
  */
 export interface Debrief {
   scene: SceneSpec;
+  /** The run, which is how tonight's chat is found again: its beats are in no catalogue. */
+  runId?: string;
   objectives: { met: readonly string[]; missed: readonly string[] };
   hurdles: readonly { id: string; beat: number; met: boolean }[];
   outcome: { id: string; says: string } | null;
@@ -89,6 +94,12 @@ export interface Debrief {
     the debrief was the copy that did not.
   */
   turns: readonly { who: "them" | "you"; text: string; lang: "et" | "en" }[];
+  /**
+   * The turns said aloud where what the machine heard is not what was sent
+   * (VB-4, "What we heard"). Absent or empty where nothing was said aloud, or
+   * everything was sent exactly as heard.
+   */
+  heard?: readonly { heard: string; said: string }[];
 }
 
 /** Written out whole so the class names survive Tailwind's scan of this file. */
@@ -100,7 +111,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
   const inModule = useModuleFocus() !== null;
   const t = useT();
   const locale = useLocale();
-  const { scene, objectives, hurdles, outcome, gaps, turns, graded, review, recap } = debrief;
+  const { scene, objectives, hurdles, outcome, gaps, turns, graded, review, recap, heard = [] } = debrief;
   const byId = new Map(scene.beats.map((beat) => [beat.id, beat]));
   const required = scene.beats.filter((beat) => beat.required);
   const missed = objectives.missed.length > 0 ? byId.get(objectives.missed[0]!) : undefined;
@@ -152,6 +163,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         sceneId: scene.id,
+        runId: debrief.runId,
         turns: turns.map((turn) => ({ who: turn.who, text: turn.text })),
         fixes: recap.moments.flatMap((moment) => moment.fixes),
         met: objectives.met,
@@ -290,7 +302,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                 <span aria-hidden style={{ color: met ? "var(--sky-ink)" : "var(--ink-3)" }}>
                   {met ? "✓" : "○"}
                 </span>
-                <span style={{ color: met ? "var(--ink)" : "var(--ink-3)" }}>{t(beat.goal)}</span>
+                <span style={{ color: met ? "var(--ink)" : "var(--ink-3)" }}>{onScreen(locale, beat.goal, sceneTemplates(scene))}</span>
                 <span className="sr-only">{t(met ? "done" : "not this time")}</span>
               </li>
             );
@@ -412,6 +424,37 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
           </ul>
         )}
       </section>
+
+      {/*
+        WHAT WE HEARD (VB-4, SP-3). The turns said aloud where the machine's
+        hearing is not what went: the dictionary read a word as one it holds,
+        or the learner changed it in the box. What went is there to hear in the
+        app's own voice beside it, and the line under the heading says
+        what this is, because a list of differences reads as marking unless
+        somebody says it is not one.
+      */}
+      {heard.length > 0 && (
+        <section className="recap-panel" data-what-we-heard>
+          <h3 className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>{t("What we heard")}</h3>
+          <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
+            {t("This is the machine's hearing beside what you sent. It is not a mark.")}
+          </p>
+          <ul className="flex flex-col gap-3">
+            {heard.map((one, at) => (
+              <li key={at} className="grid gap-1 sm:grid-cols-[max-content_1fr] sm:gap-x-3">
+                <span className="text-xs sm:pt-1.5" style={{ color: "var(--ink-3)" }}>{t("The machine heard")}</span>
+                {/* Shown and not played: a spelling the machine heard is not one the app's own voice says (the recast in `SceneSession`). */}
+                <span lang="et" className="sm:pt-1" style={{ color: "var(--ink-2)" }}>{one.heard}</span>
+                <span className="text-xs sm:pt-1.5" style={{ color: "var(--ink-3)" }}>{t("You sent")}</span>
+                <span className="flex items-center gap-1">
+                  <span lang="et" className="font-medium">{one.said}</span>
+                  <Speak text={one.said} size={13} label={t("Hear it")} className="press inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full hover:bg-[var(--raised)]" />
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {gaps.length > 0 && (
         <section className="recap-panel">
@@ -718,7 +761,18 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
           is to say how it went.
         */}
         <NextStep />
-        {!inModule && (
+        {!inModule && scene.id === CHAT_ID && (
+          /*
+            TONIGHT'S CHAT ENDS THE EVENING, SO ITS WAY ON IS OUT OF IT. There is
+            no other chat to pick and the same one again is the same four words:
+            the evening is done, and Today is where the learner goes next.
+          */
+          <div className="flex flex-wrap gap-2">
+            <ButtonLink href="/course" variant="ghost">{t("Back to today's module")}</ButtonLink>
+            <ButtonLink href="/" variant="primary">{t("Back to Today")} <ArrowRight size={15} aria-hidden /></ButtonLink>
+          </div>
+        )}
+        {!inModule && scene.id !== CHAT_ID && (
           <div className="flex flex-wrap gap-2">
             <ButtonLink href="/situations" variant="ghost">{t("Rehearse a different conversation")}</ButtonLink>
             {/* Redoing it keeps this scene and redraws everything else. */}

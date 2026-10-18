@@ -7,7 +7,7 @@ import { MAX_ITEMS } from "@/lib/scan/extract";
 import { parseItems, summarise } from "@/lib/scan/items";
 import { ButtonLink } from "@/components/Button";
 import { Card, Empty, Page, SectionTitle, Stack } from "@/components/ui";
-import { ScanCapture } from "./ScanCapture";
+import { ScanModes } from "./ScanModes";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 
@@ -84,7 +84,7 @@ export default async function ScanPage() {
           </Card>
         )}
 
-        {configured && <ScanCapture />}
+        {configured && <ScanModes />}
 
         {/* A page of running text rather than a word list is read, not scanned into cards. */}
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
@@ -100,7 +100,10 @@ export default async function ScanPage() {
           {scans.length === 0 ? (
             <Empty
               title={t("No pages yet")}
-              body={t("Take a photo of a vocabulary list and it'll show up here, ready to practice.")}
+              // Where the camera is not set up, "take a photo" is a press the card above has just said is not there.
+              body={configured
+                ? t("Take a photo of a vocabulary list and it'll show up here, ready to practice.")
+                : t("Once the camera is set up, a page you photograph shows up here, ready to practice.")}
             />
           ) : (
             <ul className="flex flex-col gap-2">

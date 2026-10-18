@@ -192,6 +192,7 @@ Which key opens what, so you know how bad it is before you know anything else.
 | `EMAIL_TOKEN_SECRET` | Signs every unsubscribe link, so whoever holds it can switch any learner's letters off without a session. No data is read, and it is still a control failing, so S2. Rotating it voids every link already mailed, which is the price. | Redeploy with a new value |
 | `RESEND_WEBHOOK_SECRET` | Verifies the bounce and complaint events the provider posts back, so whoever holds it can mark any address as bouncing and stop mail to it. S3. | Resend dashboard, webhook signing secret |
 | `CRON_SECRET` | Lets a caller start the daily letter run. The run keeps its own frequency caps, so the worst is a run at the wrong hour. S4. | Redeploy with a new value, and the scheduler's copy with it |
+| `VAPID_PRIVATE_KEY` | Signs notifications as this deployment, so whoever holds it, with an address a learner's browser subscribed with, can show that browser a notification that looks like ours. It reads no data and cannot reach a browser without its address, which never leaves the database. S2. Rotating it stops every browser that turned reminders on until each turns them on again, which is the price. | Generate a new pair (`npx web-push generate-vapid-keys`) and redeploy with both halves |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Nothing on its own. It is public by design and authenticates who is signed in. **Not an incident.** | Not applicable |
 
 Steps:
@@ -216,6 +217,11 @@ are being refused when they should not be.
    deployment with no key, so nothing it would have called is asked, and everything else keeps
    working. It never touches the ledger, which stays on for whatever is still on. A typo in a name
    switches nothing off and says so in the log. Then work out why.
+
+   The same list takes `speech`, which costs nothing: hearing runs on the learner's own device and
+   calls no model. It hides every microphone, and the app is exactly as it was before speaking
+   arrived (`docs/41-fifth-batch.md`, D15). Reach for it if what the machine hears is reported as
+   wrong often enough to do harm, or if the model files are suspected of having been changed.
 2. Read the ledger. It is the record and it is append-only.
 
    ```sql

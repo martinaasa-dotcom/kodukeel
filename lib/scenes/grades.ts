@@ -53,6 +53,12 @@ export interface SceneGrade {
   readonly rating: 1 | 2 | 3;
   /** Which beat earned it, so the debrief can say where. */
   readonly beatId: string;
+  /**
+   * Whether the turn that earned it was said aloud. Carried for the review
+   * log's own `spoken` column, which `finishScene` hands over
+   * (docs/41-fifth-batch.md, D4); nothing here grades differently for it.
+   */
+  readonly spoken: boolean;
 }
 
 /**
@@ -125,9 +131,41 @@ export function gradesFor(
       turns.filter((turn) => turn.met[index]).flatMap((turn) => turn.produced ?? []),
     );
 
+    /*
+      A WORD THE DICTIONARY REPAIRED WAS NOT PRODUCED (D13). Said aloud, a
+      non-word the recognizer heard is turned into the dictionary's spelling
+      of what was meant (`lib/speech/reconcile.ts`), and the turn can still
+      meet its beat on it, the way a slip does. What the log may not hold is a
+      recall of a spelling the learner never wrote: a requirement met by a
+      repaired word earns no row, as one met by a second word for the same
+      thing earns none. Which requirement a repaired word met is settled the
+      way a choice is, by the scene's own forms (`tookOption`); with no
+      lexicon to ask, every requirement that turn met is passed over, which
+      is the safe direction.
+    */
+    const repairedHere = (turn: (typeof turns)[number], index: number): boolean => {
+      const said = new Set((turn.produced ?? []).map((word) => word.toLocaleLowerCase("et")));
+      const words = new Set((turn.repaired ?? []).filter((word) => said.has(word)));
+      if (words.size === 0) return false;
+      if (!lexicon) return true;
+      return leafNeeds(beat.needs).some((leaf) => leaf.index === index && tookOption(leaf.need, words, card, lexicon));
+    };
+    /*
+      WRITTEN AS SPOKEN WHERE THE TURN THAT MET THE REQUIREMENT WAS SAID AND
+      SENT AS HEARD, and nowhere else. It was any spoken turn on the beat, so a
+      miss said aloud and the answer typed after it wrote the typed answer down
+      as said aloud, and a turn the learner rewrote before sending did the same:
+      `Review.spoken` is "said aloud and marked on what was heard" (D4), which
+      is what Progress and `npm run report:speech` read it as.
+    */
+    const spokenFor = (index: number) => turns.some(
+      (turn) => turn.met[index] && turn.repaired !== undefined && turn.edited !== true,
+    );
+
     const answered = (index: number) => turns.some(
       (turn) => turn.met[index]
         && (turn.produced === undefined || turn.produced.length > 0)
+        && !repairedHere(turn, index)
         /*
           And not where a word standing in for the beat's own met it. The
           learner said a second word for the same thing and was understood;
@@ -200,12 +238,12 @@ export function gradesFor(
         */
         const lemma = oneOfProduced(need.oneOf, producedFor(index), lexicon);
         if (lemma && answered(index)) {
-          out.push({ lemma, grammCase: null, reachedCase: null, rating, beatId: beat.id });
+          out.push({ lemma, grammCase: null, reachedCase: null, rating, beatId: beat.id, spoken: spokenFor(index) });
         }
       }
       if (need.kind === "case" && answered(index)) {
         out.push({
-          lemma: need.lemma, grammCase: need.grammCase, rating, beatId: beat.id,
+          lemma: need.lemma, grammCase: need.grammCase, rating, beatId: beat.id, spoken: spokenFor(index),
           reachedCase: reachedCase === need.grammCase ? null : reachedCase,
         });
       }
@@ -233,7 +271,7 @@ export function gradesFor(
         const lemma = oneWordFor(card, need.slot, producedFor(index), lexicon);
         if (lemma) {
           out.push({
-            lemma, grammCase: need.grammCase ?? null, rating, beatId: beat.id,
+            lemma, grammCase: need.grammCase ?? null, rating, beatId: beat.id, spoken: spokenFor(index),
             reachedCase: reachedCase === need.grammCase ? null : reachedCase,
           });
         }

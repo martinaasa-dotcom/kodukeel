@@ -362,6 +362,36 @@ const MACHINE: Tell[] = [
 ];
 
 /**
+ * A machine telling somebody how they sounded (docs/41-fifth-batch.md, section 3).
+ *
+ * The app hears Estonian on the device and says which words it understood
+ * (ADR-028). It never says a learner said a sound wrong: a recognizer that
+ * writes most words said with an accent as the right word is a fine judge of
+ * whether a word was understood and no judge at all of how it was said, and a
+ * sentence claiming otherwise is a sentence about the learner that nothing
+ * here can back. "Heard" is the verb. A sentence saying the app does *not* do
+ * this is honest and is left alone, which is why each pattern is the claim
+ * itself rather than the word "accent".
+ */
+const SOUNDS: Tell[] = [
+  {
+    name: "mispronounced",
+    find: /\bmispronounc(e|ed|es|ing|iation)\b/i,
+    instead: "Say what was heard: 'we heard kala'.",
+  },
+  {
+    name: "wrong pronunciation",
+    find: /\b(wrong|bad|poor|incorrect) pronunciation\b/i,
+    instead: "Say which words were understood, and nothing about how they sounded.",
+  },
+  {
+    name: "judging an accent",
+    find: /\b(fix|improve|correct|work on|judge|score|rate) your accent\b|\byour accent (is|was|sounds)\b/i,
+    instead: "Say which words were understood, and nothing about how they sounded.",
+  },
+];
+
+/**
  * Everything, in the order a reader would notice it.
  *
  * The dash is not in here. It is checked separately and against every line of
@@ -369,7 +399,7 @@ const MACHINE: Tell[] = [
  * it needs no `instead`: a comma, a full stop or a pair of brackets, decided
  * per sentence.
  */
-export const TELLS: readonly Tell[] = [...OPENERS, ...SHAPES, ...BROCHURE, ...JARGON, ...MACHINE];
+export const TELLS: readonly Tell[] = [...OPENERS, ...SHAPES, ...BROCHURE, ...JARGON, ...MACHINE, ...SOUNDS];
 
 /**
  * The rewritable subset, in the shape `humanize.ts` applies them in.

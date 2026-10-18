@@ -65,10 +65,17 @@ export const RUNG_ORDER: readonly Rung[] = ["unmet", "lost", "follow", "takePart
 
 export const rungRank = (rung: Rung): number => RUNG_ORDER.indexOf(rung);
 
-/** The three claims, in the words a screen prints. */
+/**
+ * The three claims, in the words a screen prints.
+ *
+ * "Lost for now" rather than "Not yet": the headline over a level counts
+ * these as "you would be lost in", for the reason `narrative.ts` gives, and a
+ * legend under that sentence saying "Not yet" beside the same figure read as
+ * a second, softer count of something else.
+ */
 export const RUNG_LABEL: Record<Rung, string> = {
   unmet: "Not started",
-  lost: "Not yet",
+  lost: "Lost for now",
   follow: "Follow it",
   takePart: "Take part",
   lead: "Lead it",
@@ -124,6 +131,29 @@ export interface ListeningEvidence {
   placed: string | null;
   /** Mock papers sat whose listening part was recorded. */
   sittings: number;
+  /**
+   * Conversation turns said aloud to a line only heard, its words never
+   * shown, that met what they were aimed at, by the band the run was played
+   * at (VB-14, `heardTurnsByLevel`). The third evidence of following speech,
+   * beside the level check and a sat paper. Counted, never scored.
+   */
+  heardTurns: ReadonlyMap<string, number>;
+}
+
+/**
+ * Answers by ear a conversation needs at a band before it counts as having
+ * followed speech there. Ten rather than one, because a single turn can land
+ * on a word the learner caught and a sentence they did not; and a band at or
+ * above the situation's, since following a slower voice says nothing about a
+ * faster one.
+ */
+export const HEARD_TURNS_FOR_EAR = 10;
+
+/** Turns by ear at a band at or above `needRank`. */
+function heardAtOrAbove(heard: ReadonlyMap<string, number>, needRank: number): number {
+  let n = 0;
+  for (const [level, count] of heard) if ((LEVEL_RANK[level] ?? -2) >= needRank) n += count;
+  return n;
 }
 
 export interface Context {
@@ -388,20 +418,27 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
     }
 
     if (situation.live) {
-      const { placed, sittings } = ctx.listening;
+      const { placed, sittings, heardTurns } = ctx.listening;
       const placedRank = placed === null ? null : LEVEL_RANK[placed] ?? null;
       const needRank = LEVEL_RANK[situation.level] ?? 0;
-      if (placed === null && sittings === 0) {
+      /*
+        Conversations answered by ear are evidence too, and the later kind: a
+        learner the level check put below this band months ago who has since
+        followed ten lines of it, unseen, has shown what the check could not
+        see then.
+      */
+      const byEar = heardAtOrAbove(heardTurns, needRank) >= HEARD_TURNS_FOR_EAR;
+      if (!byEar && placed === null && sittings === 0) {
         leads = false;
         struggles.push(struggle({
           id: "ear",
           title: say("Your ear hasn't been tested yet"),
-          detail: say("Everything above was typed or read. Spoken Estonian comes at you faster than a card, and only once. The level check is the one place that measures whether you can follow it."),
+          detail: say("Everything above was typed or read. Spoken Estonian comes at you faster than a card, and only once. The level check measures whether you can follow it, and so do conversations you answer out loud without showing the other side's words."),
           blocks: "lead",
           href: "/assess",
           cta: "Take the level check",
         }));
-      } else if (placedRank !== null && placedRank < needRank) {
+      } else if (!byEar && placedRank !== null && placedRank < needRank) {
         leads = false;
         struggles.push(struggle({
           id: "ear",

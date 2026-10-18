@@ -149,7 +149,7 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
             {rich(t("**The listening, dictation and minimal-pair rounds require hearing** (WCAG 1.2.1). There is no transcript before the answer, because the transcript is the answer, so a text alternative would remove the exercise. The text is shown as soon as the answer is in. Somebody who cannot use audio can use every other round, and the app does not require any of these three to make progress, but three rounds are closed to them."))}
           </li>
           <li>
-            {rich(t("**Speaking practice needs a microphone** and asks the learner to judge their own attempt against a native rendering, because no recognizer available to this project is accurate enough on Estonian to mark one. Anybody who cannot record has no way through that round."))}
+            {rich(t("**Speaking is heard by a machine** on the device, which says which words came across and never how they sounded. It is new and has not been measured on learners' own voices yet. Every step of the Speaking round can be answered by typing, so a learner with no microphone, or who would rather not use one, still has a way through it."))}
           </li>
           <li>
             {rich(t("**axe is swept at two widths, not at every width.** It runs at 1280 and at 390, which is either side of the one breakpoint that swaps the navigation, so the phone bar and the sheet behind it are covered now. The widths between them, 360, 430 and 768, are measured for targets, overflow and containment and are not swept by axe. A fault in markup that appears at one of those and at neither of these would be found by a person rather than by the build."))}

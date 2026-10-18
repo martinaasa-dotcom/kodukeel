@@ -162,10 +162,10 @@ export const RU: Readonly<Record<string, string>> = {
   "Tap the words into order. Estonian often allows more than one order, and we'll accept those too.":
     "Расставьте слова по порядку. В эстонском часто возможен не один порядок слов, и такие варианты мы тоже засчитаем.",
   "Say it out loud": "Скажите вслух",
-  "A word to say, a recording of a native speaker saying it, and your own voice played back beside it.":
-    "Слово, которое нужно сказать, запись носителя языка и ваш собственный голос рядом с ней.",
-  "Record yourself, listen to both, and decide how close you got. No machine grades your accent.":
-    "Запишите себя, послушайте обе записи и решите, насколько близко получилось. Ваш акцент не оценивает никакая машина.",
+  "A word or a line, three ways: say it along with a native speaker, say it back from the recording, then say it from its English meaning.":
+    "Слово или фраза, тремя способами: вместе с носителем языка, по записи и по значению на английском.",
+  "Speak, and see which words were heard. Nothing scores how they sounded, and a miss is never written down. Typing works too.":
+    "Говорите и смотрите, какие слова были услышаны. Звучание никто не оценивает, а промах никогда не записывается. Можно и печатать.",
   "As many as you can": "Сколько успеете",
   "Cards from your deck against the clock. You turn them over instead of typing.": "Карточки из вашей колоды на время. Вы переворачиваете их, а не печатаете.",
   "Go as fast as you can until time's up. Stopping early costs you nothing.": "Отвечайте как можно быстрее, пока не выйдет время. Если остановитесь раньше, ничего не потеряете.",

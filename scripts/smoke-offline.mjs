@@ -275,7 +275,10 @@ check("the service worker registers", swReady);
 const cacheNames = await page.evaluate(() => caches.keys());
 check(
   "every cache the worker opens carries the version, so a bump clears the arrears",
-  cacheNames.length > 0 && cacheNames.every((n) => n.startsWith("kodukeel-v")),
+  /* The speech model's cache is the one exception and is named by its own
+     hash rather than by `VERSION` (public/sw.js): a model update is a new
+     name, and the worker drops every other speech cache when it activates. */
+  cacheNames.length > 0 && cacheNames.every((n) => n.startsWith("kodukeel-v") || n.startsWith("kodukeel-asr-")),
   cacheNames.join(", ") || "none",
 );
 
@@ -290,7 +293,7 @@ check(
   the thing it names, arriving in the suite that exists to catch it. The name
   is derived from a cache the worker actually opened.
 */
-const audioCache = `${(cacheNames[0] ?? "kodukeel-vX-none").replace(/-[^-]+$/, "")}-audio`;
+const audioCache = `${(cacheNames.find((n) => n.startsWith("kodukeel-v")) ?? "kodukeel-vX-none").replace(/-[^-]+$/, "")}-audio`;
 
 const trimmed = await page.evaluate(async (name) => {
   /*

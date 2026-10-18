@@ -4093,6 +4093,26 @@
     }
   }
   .cafe-pick:focus-visible { outline: 3px solid var(--cta); outline-offset: 2px; }
+  /*
+    A line heard out loud (VB-15): lit the way a hovered pick is, and held there,
+    with a bar along its foot that fills while it waits to be said. The bar is
+    information, so under reduced motion it is drawn full rather than removed.
+  */
+  .cafe-pick[data-lit] {
+    border-color: var(--cta);
+    background: color-mix(in srgb, var(--cta) 18%, transparent);
+    box-shadow: 0 0 0 1px var(--cta);
+  }
+  .cafe-send {
+    position: absolute; left: 0; bottom: 0; height: 3px; width: 100%;
+    background: var(--cta);
+    transform-origin: left center;
+    animation: cafe-send var(--send-ms, 2500ms) linear both;
+  }
+  @keyframes cafe-send { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @media (prefers-reduced-motion: reduce) {
+    .cafe-send { animation: none; }
+  }
   .cafe-done {
     position: relative; overflow: hidden;
     background: rgb(255 255 255 / 0.07);
@@ -5446,6 +5466,11 @@ a:focus-visible .wave-word::after {
 }
 .case-label-ask { font-weight: 500; color: var(--ink); }
 .case-label-means { color: var(--ink-3); }
+/* In a narrow tile the three runs take a line each: run together they broke
+   wherever the width ran out, so a tile read "nimetav ainsus kes?" over
+   "mis? who? what?", a question split across the name and its English. */
+.case-label-stack .case-label-ask,
+.case-label-stack .case-label-means { display: block; margin-inline-start: 0; margin-top: 0.125rem; }
 
 /*
   A PART OF THE DEBRIEF IS A PANEL, NOT A HEADING AND SOME LOOSE LINES.
@@ -5465,4 +5490,255 @@ a:focus-visible .wave-word::after {
 }
 @media (min-width: 768px) {
   .recap-panel { padding: 1.5rem 1.75rem 1.625rem; }
+}
+
+/*
+  THE ONE MICROPHONE (components/speech/MicButton.tsx).
+
+  At rest it is the accent's tint with the accent's ink, which is how a
+  secondary control that matters reads here. Listening, it is the solid
+  accent, the one loud object on the screen, with a ring behind it that grows
+  with the level coming in (`--mic-level`, nought to one, written by the
+  component), so a learner can see the app hearing them before any word
+  arrives. Busy is the raised ground: the model is loading or reading. Closed
+  while the app speaks (D14), it goes to the quiet ink rather than fading,
+  since a fade is how a control that is switched off is drawn and this one is
+  only waiting. Nothing moves under `prefers-reduced-motion` except the ring's
+  size, which is information rather than decoration, and even that steps
+  rather than glides.
+*/
+.speech-mic {
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  /* Held to talk under a finger: a long press is the gesture, not a request
+     for the browser's callout, a selection or a double-tap zoom. */
+  -webkit-touch-callout: none;
+  user-select: none;
+  touch-action: manipulation;
+  transition-property: background-color, color, box-shadow, transform;
+  transition-duration: 160ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (hover: hover) {
+  .speech-mic:hover:not(:disabled) {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent);
+  }
+}
+.speech-mic[data-state="listening"] {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+}
+.speech-mic[data-state="busy"] {
+  background: var(--raised);
+  color: var(--ink-2);
+}
+.speech-mic:disabled {
+  background: var(--raised);
+  color: var(--ink-3);
+  border-color: var(--edge);
+}
+.speech-mic[data-state="listening"]:not(:disabled) {
+  /* The level ring is the button's own shadow rather than a box behind it: a
+     box at a negative z-index paints under the card the button sits on and is
+     never seen. It grows with the level coming in, nought to one, and at its
+     widest (12px) stays inside the gaps MicButton leaves around the button,
+     so it never draws over the words beside or under it. */
+  box-shadow:
+    0 0 0 calc(3px + var(--mic-level, 0) * 6px) color-mix(in srgb, var(--accent) 24%, transparent),
+    0 0 0 calc(4px + var(--mic-level, 0) * 8px) color-mix(in srgb, var(--accent) 12%, transparent);
+  transition: box-shadow 90ms linear, background-color 160ms;
+}
+.speech-partial {
+  max-width: 40ch;
+  animation: speech-partial-in 160ms ease-out;
+}
+@keyframes speech-partial-in {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}
+
+/*
+  A LINE SAID ALONG (components/speech/ReadAloud.tsx). A word lights as the
+  recognizer hears it: the accent's tint behind it and the accent's ink on it,
+  with a tick-free weight change so the light carries in more than hue. An
+  unlit word is the ordinary ink; nothing is ever red, because not being heard
+  is not a mistake (VB-2).
+
+  The room round a lit word is a spread shadow and never padding. Padding is
+  layout, so it sat on every word lit or not and turned each gap into a space
+  plus 0.4em: at the Speaking round's size that is two and a half word spaces,
+  and the sentence read as a row of separate tiles. A shadow is painted and
+  takes no room, so the words sit at the font's own spacing and a lit run
+  keeps a sliver of the space between neighbours.
+*/
+.read-aloud-word {
+  border-radius: 0.3em;
+  transition-property: background-color, color, box-shadow;
+  transition-duration: 200ms;
+}
+.read-aloud-word[data-lit="true"] {
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 0.1em var(--accent-soft);
+  color: var(--accent-deep);
+  font-weight: 600;
+}
+@media (prefers-reduced-motion: reduce) {
+  .speech-mic, .read-aloud-word { transition: none; }
+  .speech-partial { animation: none; }
+}
+
+/*
+  THE NUMBERS ROUND'S THREE OBJECTS (docs/41-fifth-batch.md, VB-7). A
+  timetable line is the night with its own ink, the way a departure board is
+  lit; a price tag is a card with the hole a tag hangs from; a count is plain
+  ink. No hue carries a meaning here, since the hues are verdicts (D17 adds no
+  drawing beyond the clock face, which is `components/speech/ClockFace.tsx`).
+*/
+.numbers-board {
+  background: var(--stage);
+  color: var(--stage-ink);
+  border-radius: var(--r);
+  padding: 0.35em 0.7em;
+  letter-spacing: 0.04em;
+  box-shadow: var(--shadow);
+}
+.numbers-tag {
+  position: relative;
+  background: var(--surface);
+  color: var(--ink);
+  border: 2px solid var(--rule);
+  border-radius: var(--r) var(--r-xl) var(--r-xl) var(--r);
+  padding: 0.3em 0.8em 0.3em 1.3em;
+  box-shadow: var(--shadow);
+}
+.numbers-tag::before {
+  content: "";
+  position: absolute;
+  left: 0.45em;
+  top: 50%;
+  width: 0.28em;
+  height: 0.28em;
+  border-radius: 999px;
+  transform: translateY(-50%);
+  background: var(--raised);
+  border: 2px solid var(--rule);
+}
+
+/*
+  A RECORDING, HEARD ON THE DEVICE (app/(app)/read/Recording.tsx, VB-12).
+
+  A word the machine heard least surely carries the spell-checker's wavy
+  underline in the "nearly" ink, because the dotted one already means the
+  dictionary can open the word and a recording's transcript has both on one
+  line. A shape as well as a hue, so it reads without colour.
+
+  The drop target is the reading page itself while a file is dragged over the
+  window: one dashed frame over the whole column, so a voice message dragged
+  from a desktop messaging app has an obvious place to land.
+*/
+.heard-unsure {
+  text-decoration-line: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: var(--hard-ink);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+.recording-drop {
+  position: fixed;
+  inset: 12px;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  border: 2px dashed var(--accent);
+  border-radius: var(--r-xl);
+  background: color-mix(in srgb, var(--ground) 82%, transparent);
+  pointer-events: none;
+}
+/* A phone has nowhere to drag a file from, so the offer is not made there. */
+@media (pointer: coarse) {
+  .recording-drop-hint { display: none; }
+}
+.recording-meter {
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--raised);
+  overflow: hidden;
+}
+.recording-meter > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.recording-line[data-playing="true"] {
+  background: var(--accent-soft);
+}
+@media (prefers-reduced-motion: reduce) {
+  .recording-meter > span { transition: none; }
+}
+
+/*
+  THE COUNTDOWN RING (components/scene/SceneSpeech.tsx, D20). What was heard
+  is sent on its own after `--ring-ms`, and the ring empties over that time
+  inside the button it will press, in that button's own ink. Under
+  `prefers-reduced-motion` it is drawn full and still: the words beside it say
+  that it will send and how to stop it.
+*/
+.send-ring { transform: rotate(-90deg); }
+.send-ring-track {
+  fill: none;
+  stroke: currentColor;
+  stroke-opacity: 0.25;
+  stroke-width: 2.5;
+}
+.send-ring-fill {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 0;
+  animation: send-ring-empty var(--ring-ms, 2500ms) linear forwards;
+}
+@keyframes send-ring-empty {
+  to { stroke-dashoffset: 100; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .send-ring-fill { animation: none; }
+}
+
+/*
+  A CALL IN PROGRESS (components/scene/SceneSpeech.tsx, CallScreen). While the
+  other side speaks, a soft ring goes out from their face, which is how a phone
+  says who is talking; still, it is a ring drawn once, and the words under the
+  face say whose turn it is either way.
+*/
+.call-face { display: inline-flex; }
+.call-face[data-speaking="true"] {
+  animation: call-speaking 1.6s ease-out infinite;
+}
+@keyframes call-speaking {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); }
+  100% { box-shadow: 0 0 0 20px color-mix(in srgb, var(--accent) 0%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .call-face[data-speaking="true"] {
+    animation: none;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+}
+
+/*
+  A LINE ON SCREEN THE LEARNER JUST SAID (VB-4, D8): the pick the recognizer
+  matched, lit before it is sent so the person who said it can catch a wrong
+  match. The accent's tint and a ring in the accent, which is "this is yours";
+  never sky, because nothing has been marked.
+*/
+.choice-btn[data-lit="true"] {
+  --choice-bg: var(--accent-soft);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent);
 }

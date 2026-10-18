@@ -180,6 +180,7 @@ const ENGLISH_FORMS: Readonly<Record<string, readonly [string, string]>> = {
   kilobytes: ["kilobyte", "kilobytes"],
   "percent of the month's learners": ["percent of the month's learners", "percent of the month's learners"],
   times: ["time", "times"],
+  devices: ["device", "devices"],
   "card waiting": ["card waiting", "cards waiting"],
   person: ["person", "people"],
   "week, as a span": ["week", "weeks"],

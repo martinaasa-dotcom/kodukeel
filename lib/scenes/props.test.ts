@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  NUMBER_LEMMAS, drawCard, drawProp, numberFromText, priceOnCard, propBySlot, slotKinds, spokenNumbers, timeFromText, timeLiterals,
+  NUMBER_LEMMAS, clockFromText, drawCard, drawProp, numberFromText, priceFromText, priceOnCard, propBySlot, slotKinds, spokenNumbers, timeFromText, timeLiterals,
   type PropSpec,
 } from "./props";
 import { unitById } from "@/lib/collections/syllabus";
@@ -246,6 +246,50 @@ describe("a value the learner names themselves", () => {
     expect(timeFromText("2015", span)).toBeNull();
   });
 
+  it("reads a time said as two numbers after kell, the hour and its minute", () => {
+    const span = { from: 8, to: 20 };
+    expect(timeFromText("kell neliteist viisteist", span)).toBe("14:15");
+    expect(timeFromText("Kell neliteist viisteist.", span)).toBe("14:15");
+    expect(timeFromText("kell 14 15", span)).toBe("14:15");
+    // An hour past twelve in words, which a scene could not hear before.
+    expect(timeFromText("kell kuusteist", span)).toBe("16:00");
+    // A twelve-hour reading still lands in the span.
+    expect(timeFromText("kell kaks kolmkümmend", span)).toBe("14:30");
+    // A minute under ten is read out with `null` in front.
+    expect(timeFromText("kell kaheksa null viis", { from: 8, to: 18 })).toBe("08:05");
+    // A bare digit after the hour is never a minute: three o'clock and two people.
+    expect(timeFromText("kell kolm kaks inimest", span)).toBe("15:00");
+    expect(timeFromText("kell 3 2 inimest", span)).toBe("03:00");
+    // Without `kell` two numbers are not a time in a scene; they are numbers.
+    expect(timeFromText("neliteist viisteist", span)).toBeNull();
+  });
+
+  it("reads a time with no kell in front only where the question is already a clock", () => {
+    expect(clockFromText("neliteist viisteist", { bare: true })).toEqual({ hour: 14, minute: 15, twelve: false });
+    expect(clockFromText("kaks viisteist", { bare: true })).toEqual({ hour: 2, minute: 15, twelve: true });
+    expect(clockFromText("kolm", { bare: true })).toEqual({ hour: 3, minute: 0, twelve: true });
+    expect(clockFromText("pool kolm", { bare: true })).toEqual({ hour: 2, minute: 30, twelve: true });
+    expect(clockFromText("14:15", { bare: true })).toEqual({ hour: 14, minute: 15, twelve: false });
+    expect(clockFromText("kakskümmend viis", { bare: true })).toBeNull();
+    expect(clockFromText("neliteist viisteist")).toBeNull();
+  });
+
+  it("reads a price as euros and cents", () => {
+    expect(priceFromText("3,50")).toBe(350);
+    expect(priceFromText("3.50 €")).toBe(350);
+    expect(priceFromText("3,5")).toBe(350);
+    expect(priceFromText("12 €")).toBe(1200);
+    expect(priceFromText("kolm eurot viiskümmend")).toBe(350);
+    expect(priceFromText("kolm eurot ja viiskümmend senti")).toBe(350);
+    // The shape a price tag is read out in: the cents before the currency.
+    expect(priceFromText("kolm viiskümmend eurot")).toBe(350);
+    expect(priceFromText("3 eurot 50")).toBe(350);
+    expect(priceFromText("kaksteist eurot")).toBe(1200);
+    // One number is whole euros, and a two-word number is one number.
+    expect(priceFromText("kakskümmend viis")).toBe(2500);
+    expect(priceFromText("ma ei tea")).toBeNull();
+  });
+
   it("reads a number inside the slot's span, as a digit or a number word", () => {
     const forms = (lemma: string) => (lemma === "neljas" ? new Set(["neljas", "neljandal"]) : undefined);
     expect(numberFromText("neljandal korrusel", { min: 1, max: 5 }, forms)).toEqual({ value: "4", lemma: "neljas" });
@@ -283,6 +327,20 @@ describe("a number said in words", () => {
     expect(spokenNumbers("null viis neli null")).toEqual(["0540"]);
     expect(spokenNumbers("kolm kaks üks kaheksa")).toEqual(["3218"]);
     expect(spokenNumbers("kolm ja neli")).toEqual(["3", "4"]);
+  });
+
+  it("is read said as its parts as well as in one word", () => {
+    // A recognizer often hears `kakssada` as two words, and so do learners say it.
+    expect(spokenNumbers("kaks sada kolmkümmend viis")).toEqual(["235"]);
+    expect(spokenNumbers("kakssada kolmkümmend viis")).toEqual(["235"]);
+    expect(spokenNumbers("kolmsada kakskümmend viis inimest")).toEqual(["325"]);
+    expect(spokenNumbers("üks tuhat viissada")).toEqual(["1500"]);
+    expect(spokenNumbers("kaks tuhat")).toEqual(["2000"]);
+    expect(spokenNumbers("sada kaks")).toEqual(["102"]);
+    // A unit before a ten is two numbers, which is the hour and the minute of a clock.
+    expect(spokenNumbers("viis kakskümmend")).toEqual(["5", "20"]);
+    // A teen and a unit are two numbers too.
+    expect(spokenNumbers("viisteist kaks")).toEqual(["15", "2"]);
   });
 
   it("is never the unit inside a larger number", () => {

@@ -7,7 +7,7 @@ import type { InvariantKit } from "../lib/invariantKit";
  *
  * A switch nothing reads is the worst kind: an operator sets it during an
  * incident, the dashboard shows it set, and the spending carries on. So each
- * of the five names in `lib/usage/switches.ts` has to be asked, as
+ * of the six names in `lib/usage/switches.ts` has to be asked, as
  * `isOff("<name>")`, in the code that would otherwise reach a model, read with
  * comments stripped so a note mentioning the call does not count.
  *
@@ -18,9 +18,9 @@ import type { InvariantKit } from "../lib/invariantKit";
 export default function everyPaidSwitchIsAsked({ check, code, ALL }: InvariantKit) {
   check("every feature PAID_OFF can switch off is asked somewhere, and the ledger never asks", () => {
     const table = code("lib/usage/switches.ts");
-    const list = /PAID_FEATURES = \[([^\]]*)\]/.exec(table)?.[1] ?? "";
+    const list = (/PAID_FEATURES = \[([^\]]*)\]/.exec(table)?.[1] ?? "") + (/FREE_FEATURES = \[([^\]]*)\]/.exec(table)?.[1] ?? "");
     const features = [...list.matchAll(/"([a-z]+)"/g)].map((m) => m[1]!);
-    assert.equal(features.length, 5, `read ${features.length} features off lib/usage/switches.ts, so this stopped reading them`);
+    assert.equal(features.length, 6, `read ${features.length} features off lib/usage/switches.ts, so this stopped reading them`);
 
     const askers = ALL.filter((f) => /\.(ts|tsx)$/.test(f) && !/\.(test|itest)\.tsx?$/.test(f) && f !== "lib/usage/switches.ts");
     for (const feature of features) {

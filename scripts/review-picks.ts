@@ -15,7 +15,11 @@
  * `npm run apply:picks-review -- sheet.csv` reads it back.
  */
 import { writeFileSync } from "node:fs";
-import { SCENES } from "@/lib/scenes/catalogue";
+import { SCENES as LISTED } from "@/lib/scenes/catalogue";
+import { LESSON_SCENES } from "@/lib/scenes/lessonScenes";
+
+// The lessons' own conversations offer picks too.
+const SCENES = [...LISTED, ...LESSON_SCENES];
 import { PICKS, CURVEBALL_PICKS } from "@/lib/scenes/picks/index";
 import { csvCell } from "./lib/csv";
 

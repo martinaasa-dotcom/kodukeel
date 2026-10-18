@@ -59,6 +59,12 @@ export interface RosterEntry {
   role: string;
   joinedAt: Date;
   reviewsThisWeek: number;
+  /**
+   * Of those, the answers given out loud (`Review.spoken`, VB-14). A count and
+   * nothing else, under ADR-019's rule that a class shows effort and never
+   * contents: no transcript, no heard words, nothing of what was said.
+   */
+  spokenThisWeek: number;
   streak: number;
   wordsKnown: number;
   /** Days since their last review; null if they have never reviewed. */
@@ -81,9 +87,21 @@ export interface ClassSummary {
    * the reader left out. The screen reads `weakestCases`.
    */
   sharedCases: { grammCase: string; accuracy: number; total: number }[];
+  /**
+   * The people who joined, which is every member but the one who runs the
+   * class. The three figures over a roster count these and nobody else, so a
+   * teacher alone in a class they made reads "0 joined" over "Nobody has joined
+   * yet" rather than a count of one that is themselves. The teacher stays in
+   * `entries`, because a student's leaderboard shows them, with a cap beside
+   * their name. The classroom letter counts the same people (mailout.ts).
+   */
+  joined: number;
   totalReviewsThisWeek: number;
   activeThisWeek: number;
 }
+
+/** Whether a roster row is somebody who joined, rather than whoever runs the class. */
+export const joinedMember = (entry: Pick<RosterEntry, "role">): boolean => entry.role !== "TEACHER";
 
 export async function classRoster(
   classroomId: string, now = new Date(), opts: { leaveOut?: string } = {},
@@ -93,7 +111,7 @@ export async function classRoster(
     orderBy: { joinedAt: "asc" },
   });
   if (members.length === 0) {
-    return { entries: [], weakestCases: [], sharedCases: [], totalReviewsThisWeek: 0, activeThisWeek: 0 };
+    return { entries: [], weakestCases: [], sharedCases: [], joined: 0, totalReviewsThisWeek: 0, activeThisWeek: 0 };
   }
 
   const ids = members.map((m) => m.ownerId);
@@ -110,7 +128,7 @@ export async function classRoster(
       const since = historyStart.getTime();
       return (await reviewLog(ownerId))
         .filter((r) => r.reviewedAt.getTime() >= since)
-        .map(({ reviewedAt, rating, targetCase, slot }) => ({ reviewedAt, rating, targetCase, slot, ownerId }));
+        .map(({ reviewedAt, rating, targetCase, slot, spoken }) => ({ reviewedAt, rating, targetCase, slot, spoken, ownerId }));
     })).then((perMember) => perMember.flat()),
     /*
       WORDS, NOT CARDS, WHICH IS WHAT THE COLUMN SAYS.
@@ -172,9 +190,10 @@ export async function classRoster(
   const byOwner = new Map<string, {
     dates: Date[];
     weekCount: number;
+    spokenWeek: number;
     caseReviews: { targetCase: string | null; rating: number }[];
   }>();
-  for (const id of ids) byOwner.set(id, { dates: [], weekCount: 0, caseReviews: [] });
+  for (const id of ids) byOwner.set(id, { dates: [], weekCount: 0, spokenWeek: 0, caseReviews: [] });
 
   for (const review of reviews) {
     const entry = byOwner.get(review.ownerId);
@@ -182,7 +201,10 @@ export async function classRoster(
     entry.dates.push(review.reviewedAt);
     // The case asked, as every learner's own panel reads it (`caseAsked`).
     entry.caseReviews.push({ targetCase: caseAsked(review), rating: review.rating });
-    if (review.reviewedAt >= weekAgo) entry.weekCount++;
+    if (review.reviewedAt >= weekAgo) {
+      entry.weekCount++;
+      if (review.spoken) entry.spokenWeek++;
+    }
   }
 
   const entries: RosterEntry[] = members.map((member) => {
@@ -195,6 +217,7 @@ export async function classRoster(
       role: member.role,
       joinedAt: member.joinedAt,
       reviewsThisWeek: stats.weekCount,
+      spokenThisWeek: stats.spokenWeek,
       streak: computeStreak(stats.dates, now, dayClock(zoneByOwner.get(member.ownerId))),
       wordsKnown: knownByOwner.get(member.ownerId) ?? 0,
       daysSinceLastReview: daysSince(last, now, zoneByOwner.get(member.ownerId)),
@@ -212,15 +235,24 @@ export async function classRoster(
 
   // Each answer under the case it asked, read once for the board and the letter,
   // so the two cannot name different cases as the class's weakest.
-  const asked = reviews.map((r) => ({ ownerId: r.ownerId, targetCase: caseAsked(r), rating: r.rating }));
+  //
+  // The class-wide figures are about the people who joined. A teacher who
+  // practises too is on the board, and their own answers are not what the
+  // class keeps tripping over.
+  const teachers = new Set(members.filter((m) => !joinedMember(m)).map((m) => m.ownerId));
+  const asked = reviews
+    .filter((r) => !teachers.has(r.ownerId))
+    .map((r) => ({ ownerId: r.ownerId, targetCase: caseAsked(r), rating: r.rating }));
+  const students = entries.filter(joinedMember);
   return {
     entries,
     // The class-wide picture, for a lesson plan. entries[].weakestCase is the
     // per-student one, for who to sit next to during it.
     weakestCases: caseAccuracy(asked, 10).slice(0, 5),
     sharedCases: classWideCases(asked, opts.leaveOut ?? null),
-    totalReviewsThisWeek: entries.reduce((sum, e) => sum + e.reviewsThisWeek, 0),
-    activeThisWeek: entries.filter((e) => e.reviewsThisWeek > 0).length,
+    joined: students.length,
+    totalReviewsThisWeek: students.reduce((sum, e) => sum + e.reviewsThisWeek, 0),
+    activeThisWeek: students.filter((e) => e.reviewsThisWeek > 0).length,
   };
 }
 

@@ -144,7 +144,7 @@ const FILL = {
   "/exam/result/[id]": await firstId("examAttempt", { ownerId: owner }),
 };
 const SEGMENT = {
-  "[level]": "B1", "[caseKey]": "partitive", "[kind]": "stem", "[unitId]": "kodu",
+  "[level]": "B1", "[caseKey]": "partitive", "[kind]": "stem", "[unitId]": "loodus",
   "[situationId]": "sook-ja-jook", "[group]": "noun",
 };
 const ROUTES = [];
@@ -159,6 +159,7 @@ for (const template of routes(new URL("../app/(app)", import.meta.url).pathname)
     .replace("/grammar/topic/[id]", "/grammar/topic/object")
     .replace("/situations/[id]", "/situations/arsti-aeg")
     .replace("/learn/checkpoint/[level]", "/learn/checkpoint/A1")
+    .replace("/course/lessons/[id]", "/course/lessons/a1-04-persons")
     .replace(/\[[^\]]+\]/g, (m) => SEGMENT[m] ?? "x");
   ROUTES.push(route);
 }

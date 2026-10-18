@@ -5,7 +5,7 @@ import { courseLevelFor } from "@/lib/progress/level";
 import { learnBatch, learnCounts } from "@/lib/progress/learn";
 import { courseFormsByLemma } from "@/lib/dict/facts";
 import { spellingsOf } from "@/lib/progress/lessonWords";
-import { taughtThrough } from "@/lib/course";
+import { MEET_STEP, taughtThrough } from "@/lib/course";
 import { courseReading, programmeFor } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
@@ -92,6 +92,20 @@ export default async function CourseLearnPage() {
       },
     )),
   ]);
+
+  /*
+    NOTHING TO MEET AND THE STEP NOT MET IS A PRESS NOBODY MADE.
+
+    The words reach the deck through `startCourseDay`, behind the first step's
+    own button. Opened at this address directly, before that press, the ladder
+    has no card for tonight's words and said "Nothing left to meet here" while
+    the module beside it still listed meeting them as the next thing to do. So
+    the module is where it goes back to, and its first button is the press that
+    adds the words and opens this page again. `metWords` counts a word put aside
+    or suspended as met, so a step still open here always has a word that a
+    press of Start will add.
+  */
+  if (words.length === 0 && !reading.current.done.has(MEET_STEP)) redirect("/course");
 
   return (
     <LearnSession

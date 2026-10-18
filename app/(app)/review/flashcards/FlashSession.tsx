@@ -1,7 +1,6 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
-import { AnotherRound } from "@/components/round/AnotherRound";
 import { Meaning } from "@/components/Meaning";
 import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 import { countOf, fill } from "@/lib/copy/locale";
@@ -13,11 +12,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, CircleAlert } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { gradeCard } from "@/app/actions";
-import { Button, ButtonLink } from "@/components/Button";
+import { Button } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { SpeakPair } from "@/components/Speak";
 import { useFeedbackSound } from "@/components/AudioPrefs";
-import { Chip, KeyCap, Meter, Stat } from "@/components/ui";
+import { Chip, KeyCap, Meter } from "@/components/ui";
 import { useOffline } from "@/components/OfflineProvider";
 import { StarWord } from "@/components/StarWord";
 import { enqueueGrade } from "@/lib/offline/db";
@@ -25,6 +24,7 @@ import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { GapMeaning } from "@/components/GapMeaning";
 import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { splitOnForm } from "@/lib/dict/examples";
+import { AnswerMic, useSpokenBox } from "@/components/speech/SpokenBox";
 import { askLine, isForm, markFlash, plainAskFor, type FlashMark, type FlashTask } from "@/lib/games/flash";
 import { hintLadder } from "@/lib/questions/hints";
 import { HintLadder } from "@/components/round/HintLadder";
@@ -36,7 +36,7 @@ import { asksInEnglish } from "@/lib/games/flash";
 import { caseByKey } from "@/lib/estonian/cases";
 import { VERDICT_CLASS, verdictLine, verdictOfMark } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
-import { WayOut } from "@/components/round/RoundExit";
+import { RoundDone } from "@/components/round/RoundDone";
 import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { FitText } from "@/components/FitText";
@@ -79,6 +79,9 @@ export interface FlashPrompt extends FlashTask {
  * round carry on when the connection goes: the grade goes to the outbox and is
  * replayed with the slot it was about (ADR-015).
  */
+/** An empty answer list, held still so the spoken box's memo does not change every render. */
+const NOTHING_ACCEPTED: readonly string[] = [];
+
 export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt[] }) {
   const t = useT();
   /*
@@ -92,6 +95,9 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
   const [typed, setTyped] = useState("");
   const [mark, setMark] = useState<FlashMark | null>(null);
   const [right, setRight] = useState(0);
+  /* What came out wrong, in the order it was asked, for the last screen. A
+     sentence of their own has no single right answer to list, so it is not. */
+  const [missed, setMissed] = useState<FlashPrompt[]>([]);
   const [streak, setStreak] = useState(0);
   const [heardLost, setHeardLost] = useState(false);
   /* Whether the answer just marked has to be typed again before the card lets
@@ -113,6 +119,23 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     and says why it is not undo: nothing here grades, reorders or requeues.
   */
   const look = useLookBack();
+
+  /*
+    ANSWERED ALOUD, ON EVERY SHAPE THAT ASKS FOR ONE FORM (docs/41-fifth-batch.md
+    VB-6). Not a sentence of your own, which is written. Drawn once the learner
+    has the model and the setting (D6); heard as spelled, it is checked at once,
+    and anything else fills the box for Check (D4).
+  */
+  const checkRef = useRef<(said?: string) => void>(() => {});
+  const sayable = !!task && task.shape !== "build";
+  const voiceBoxValue = useSpokenBox({
+    accepted: sayable ? task.accepted : NOTHING_ACCEPTED,
+    onGood: (text) => { setTyped(text); void checkRef.current(text); },
+    onFill: (text) => setTyped(text),
+  });
+  const voiceBox = useRef(voiceBoxValue);
+  voiceBox.current = voiceBoxValue;
+  useEffect(() => { voiceBox.current.reset(); }, [index]);
 
   /*
     A `heard` task with no sound is asked the plain way rather than abandoned.
@@ -160,9 +183,16 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     ladder,
   });
 
-  const check = useCallback(async () => {
+  const check = useCallback(async (said?: string) => {
     if (!task || mark) return;
-    const marked = markFlash(task, typed);
+    const answer = said ?? typed;
+    /* Said aloud where what is marked is what the microphone put in the box
+       (`saidAsIs`, D4, VB-6). A word the dictionary repaired, still in the
+       box, writes no row whether or not the rest was edited (D13); the mark is
+       shown all the same. */
+    const saidAloud = said !== undefined || voiceBox.current.saidAsIs(answer);
+    const unwritten = (said !== undefined || voiceBox.current.spoken) && voiceBox.current.carriesRepair(answer);
+    const marked = markFlash(task, answer);
     /*
       A hint is paid for: see `lib/questions/hints.ts`. `Math.min` rather than a
       branch, so a hint can only lower what the answer earned, and the ceiling
@@ -176,7 +206,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     setOwesRetype(task.shape !== "build" && marked.rating < 3);
     sound(result.right ? "right" : "wrong", result.right ? streak + 1 : 0);
     if (result.right) { setRight((n) => n + 1); setStreak((s) => s + 1); } else setStreak(0);
-    if (!result.right) hints.noteMiss();
+    if (!result.right) { hints.noteMiss(); if (task.shape !== "build") setMissed((m) => [...m, task]); }
 
     const duration = Date.now() - shownAt.current;
     const answeredAt = new Date().toISOString();
@@ -195,10 +225,10 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
       : undefined;
     // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
     const reviewId = crypto.randomUUID();
-    try {
+    if (!unwritten) try {
       await drainFirst();
       const res = await gradeCard(
-        task.cardId, result.rating, duration, answeredAt, task.slot, reached, reviewId,
+        task.cardId, result.rating, duration, answeredAt, task.slot, reached, reviewId, saidAloud,
       );
       if (!res.ok) throw new Error(res.error);
     } catch {
@@ -214,10 +244,12 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
         reviewedAt: Date.parse(answeredAt),
         slot: task.slot,
         reachedSlot: reached,
+        ...(saidAloud ? { spoken: true } : {}),
       });
       refreshOutbox();
     }
   }, [task, typed, mark, sound, streak, refreshOutbox, drainFirst, hints]);
+  checkRef.current = check;
 
   const next = useCallback(() => {
     /*
@@ -286,29 +318,24 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
     return (
-      <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          {t("That’s the round done")}
-        </h1>
-        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          {t("Right or wrong, every answer helped those words stick a little better.")}
-        </p>
-        <div
-          className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
-          style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
-        >
-          <Stat value={prompts.length} label={t("Asked")} />
-          <Stat
-            value={`${Math.round((right / prompts.length) * 100)}%`}
-            label={t("Right")}
-          />
-          <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
-        </div>
-        <WayOut className="mt-8 flex flex-wrap gap-3">
-          <AnotherRound>{t("Another round")}</AnotherRound>
-          <ButtonLink href="/words/mastery" variant="primary">{t("Where your words stand")}</ButtonLink>
-        </WayOut>
-      </div>
+      <RoundDone
+        title={t("That’s the round done")}
+        line={t("Right or wrong, every answer helped those words stick a little better.")}
+        figures={[
+          { value: prompts.length, label: t("Asked") },
+          { value: `${Math.round((right / prompts.length) * 100)}%`, label: t("Right") },
+          { value: fill(t("{n}m"), { n: minutes }), label: t("Time") },
+        ]}
+        missed={missed.map((m) => {
+          const form = m.shown.join(PARTS) || m.value;
+          return {
+            et: form,
+            lemma: m.lemma,
+            note: form === m.lemma ? m.translation : <><span lang="et">{m.lemma}</span>, {m.translation}</>,
+          };
+        })}
+        also={{ href: "/words/mastery", label: t("Where your words stand") }}
+      />
     );
   }
 
@@ -387,6 +414,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
               />
             )}
             {!mark && <div className="under-field"><DiacriticBar /></div>}
+            {!mark && sayable && <div className="mt-3"><AnswerMic box={voiceBoxValue} /></div>}
             {!mark && (
               <div className="mt-4">
                 <HintLadder

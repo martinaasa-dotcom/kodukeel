@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { givesItselfAway, plainPhrase, sameSpelling, SpelledCount, spelledCount } from "./values";
+import { givesItselfAway, keepUnits, plainPhrase, sameSpelling, SpelledCount, spelledCount } from "./values";
 
 describe("a word spelled the same in both languages", () => {
   /*
@@ -178,5 +178,14 @@ describe("spelledCount", () => {
   it("opens a sentence on a capital", () => {
     expect(SpelledCount(2)).toBe("Two");
     expect(SpelledCount(21)).toBe("21");
+  });
+});
+
+describe("keepUnits", () => {
+  it("keeps a download size with its unit, in all three languages, and touches nothing else", () => {
+    expect(keepUnits("It is 71 MB, once.")).toBe("It is 71\u00a0MB, once.");
+    expect(keepUnits("Загружено 31 из 71 МБ")).toBe("Загружено 31 из 71\u00a0МБ");
+    expect(keepUnits("Download 71 MB")).toBe("Download 71\u00a0MB");
+    expect(keepUnits("71 MBs of nothing and 3 eurot")).toBe("71 MBs of nothing and 3 eurot");
   });
 });

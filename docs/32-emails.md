@@ -421,6 +421,70 @@ would otherwise send; `emailsOn` is a request for something we otherwise would n
 hold both without a rule that says "present means off for these kinds and on for that one", decided
 by a table somewhere else, which is the shape that comes apart the day a kind is added.
 
+## The same letters, as a notification on a computer (VB-10)
+
+The native apps will remind somebody with a notification, and a learner at a computer was getting
+only the email, which is less help coming back (D25 in `docs/41-fifth-batch.md`). Web Push is the
+desktop's version: Chrome, Edge and Firefox on every desktop, Safari on a Mac, and Safari on an
+iPhone once the app is on the home screen.
+
+**It is not a new kind of message.** A notification is the short form of a letter this app already
+sends: the subject is its title, the preheader is its line, and pressing it opens the screen the
+letter's button opens (`lib/push/notification.ts`). One wording, in the learner's own language
+where the letter is, swept for the voice rules where the letter is. The kinds are `EMAIL_KINDS`,
+the switches are the switches in Settings, and `letterOwed` decides it, so there is one list of what
+may reach a learner whatever the channel.
+
+**Four kinds have a short form, and the others stay letters for a reason each.** `PUSH_KINDS` in
+`lib/push/kinds.ts` is the evening nudge, a level learned, a shield used and the word of the day:
+each is a nudge or a fact that fits in two lines. `LETTER_ONLY` beside it gives the reason for every
+other kind, and a test holds each kind to being in exactly one of the two. The welcome explains an
+evening and arrives once; the comeback is about being away, which is not a line to put on a screen
+a room can see; the summary has a week drawn in it; the errand's whole point is a sentence that
+does not survive being cut short; the deadline asks somebody to choose between three levers; the
+register is about other people; and a sign-in link has to reach the address somebody signs in with.
+
+**Instead, never as well.** Where a learner has turned reminders on in a browser, a kind with a short
+form goes as a notification and not as a letter. `letterOwed` names one channel, and the run books
+it in `EmailSend` with `channel` set to `push` or `email`, on the same unique key (learner, kind,
+day). So the per-kind gap, the weekly ceiling and "already had one today" read a notification
+exactly as they read a letter, and the database refuses a second booking of a kind on a day by
+either channel. A kind switched off is off on both, and so is the mail client's own stop button,
+which stores `all`. A deployment with no email configured can still remind on a computer: the run
+goes ahead with the email channel closed and reports why in `emailOff`.
+
+**Asked on a press, never on arrival.** Settings offers "Remind me on this computer", and the
+browser's permission prompt follows that press and nothing else, because a prompt nobody asked for
+is answered "block" by reflex and a browser grants that answer once. Where the permission is
+already refused, the panel says where in the browser to undo it and offers no button. A browser
+with no Push API is offered nothing. "On" means the browser's subscription and this server's row
+together, asked when the panel opens.
+
+**What is kept, and what is not.** `PushSubscription` holds a browser's push service address and the
+two keys a reminder is encrypted to, nothing else, at most ten per learner. The address has to be
+https on a host one of the four browser makers runs (`lib/push/subscription.ts`), which is what
+stops a learner pointing the scheduled run at a server of their choosing, and it is checked again
+before every post. The message is encrypted end to end (RFC 8291) and signed with this deployment's
+key (RFC 8292, `VAPID_PRIVATE_KEY`, server only and in the CI canary build). Nothing records a
+notification being delivered, shown or clicked: no receipt is asked for and a click opens a page
+without telling anybody. A 404 or 410 from the push service deletes the row; anything else is
+reported and the row kept, so a fault in this deployment's own key cannot delete every learner's
+browser at once. Signing out unsubscribes the browser (`lib/offline/forget.ts`), so the next
+reminder is answered gone. Each reminder lives at the push service only as long as it is true:
+three hours for the evening nudge, the morning for the word, a day for the news.
+
+**What a press opens.** A window already on that screen is brought forward; otherwise a new one
+opens. An open window is never navigated away, because it may be halfway through a round.
+
+**Where it is checked.** `lib/email/schedule.test.ts` drives the channel choice: a kind switched off
+sends nothing on either channel, one day sends one channel, and a kind with no short form stays a
+letter. `lib/push/push.test.ts` holds the closed lists, the address rules, the configuration, and
+decrypts what would be posted with a second implementation of RFC 8291. `lib/push/sw.test.ts` runs
+the service worker's two listeners. `lib/mailer/push.itest.ts` runs the whole scheduled run against
+a real database and a stub push service that decrypts what it receives. `scripts/test-push.mjs`
+turns it on in a browser with the push service stubbed, delivers a message to the real service
+worker, and turns it off again.
+
 ## Proposed, and not built
 
 **A digest per group.** Somebody running two classes gets the older one and a button to the board

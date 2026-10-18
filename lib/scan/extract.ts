@@ -110,7 +110,7 @@ interface RawItem {
  * this looks for the first balanced object rather than insisting on a clean
  * reply.
  */
-function extractJson(reply: string): unknown {
+export function extractJson(reply: string): unknown {
   const trimmed = reply.trim();
   const fenced = /```(?:json)?\s*([\s\S]*?)```/.exec(trimmed);
   const body = fenced?.[1]?.trim() ?? trimmed;

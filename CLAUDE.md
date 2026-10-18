@@ -5885,8 +5885,7 @@ review. Measured against a real database: ten cards after five words, all of the
 The earlier answer to an empty round was to call the step finished, which is true of the counter and
 not of the evening, since a learner who is sent to a review and shown none has been told something
 false. A quick review of an evening is that evening's own words once more, after a game and a page
-of reading. So the round fills what is left of `MODULE_SESSION` from `day.words`
-(`tonightWhere`), after everything really due and every unseen card: not-yet-due, never a card still
+of reading. So the round asks `day.words` (`tonightWhere`): never a card still
 on the Learn ladder, never a word put aside, never a card answered since the closing round opened
 (`closingOpenedAt`), so a round with two cards to give is over after two. The page and the step's
 own count (`closingLeft`) read the same clause, which is the rule `lib/srs/reviewQueue.ts` is built
@@ -5894,6 +5893,17 @@ on. Grading a card ahead of its date is what every practice round already does (
 this evening's words are touched: the rest of the deck stays the scheduler's. And the empty state
 inside a module is a way on rather than a dead end: `Empty` only draws `WayOut` where it is handed
 an action, so on a wide screen, with no bar underneath, it showed no button at all.
+
+**And the quick review is tonight's words and nothing else, which is the operator's call.** It used
+to be the whole queue narrowed to everything the module had taught so far, due cards from every
+evening and a trickle of unseen ones, with tonight's words only filling what that left, so the
+fourth step of an evening called "a quick review" was a mix of every word the learner had met since
+the first one. It was reported off that screen as making less sense than reviewing the batch the
+evening had just taught, and it does. Inside a module the round is `tonightWhere` alone, due or
+not, the due ones first, cut at `MODULE_SESSION`; it introduces nothing, and everything else that
+is due waits on Review, where a learner who opens it from Today chooses to meet it. The step's count
+in `lib/progress/closing.ts` is the same read, asserted, and `app/(app)/review/queue.itest.ts` fails
+on a card of an earlier evening reaching the round.
 
 **Meeting the words has the same shape of way out**, which is worth naming because it is the same
 sentence one step up: `cards.length > 0` is what stops that step ticking before anybody presses
@@ -5907,7 +5917,9 @@ that is fine.
 **And a count standing in for a screen may only ever read low, which is not what it did first.**
 The two directions are not the same fault. Reading low ticks a step with a card or two still
 answerable, and the learner can simply answer them; reading high asks for evidence the round will
-not produce, which is the hang this whole thing exists to end. The unseen half was reading high:
+not produce, which is the hang this whole thing exists to end. (What follows is about the round
+before it became tonight's words alone, which removed both of its halves; the rule stands.) The
+unseen half was reading high:
 the round swaps its window for a wider read when nothing in the first sixty rows is near the
 learner's band (`inBandPool`), and that widening **replaces** the window rather than adding to it,
 so the rows it ends up showing are neither a subset nor a superset of the ones counted. A C1
@@ -8308,7 +8320,8 @@ between them they answer the honest version. `lib/readiness/` reads each claim o
 recognition for the first, production more than once and the last time for the second, and for the
 third production with variety and at pace, plus the cases the encounter turns on, the machinery it
 runs on (numbers, question words, the clock) and, for a live exchange, some evidence the learner can
-follow *speech*, which only the level check and a sat paper supply. **Recognition alone never clears
+follow *speech*, which the level check, a sat paper or ten conversation turns answered out loud to a
+line only heard, at that band, supply (VB-14). **Recognition alone never clears
 the second rung**, driven in the invariant suite with two hundred perfect flips of every card. The
 bars are shares of words rather than averages of scores, because the one word you are missing is the
 one the other person says. Thin evidence caps the rung itself rather than a confidence, since there
@@ -10434,13 +10447,40 @@ because the middleware is not the check that decides: every page, action and rou
 owner through `requireUserId()`, which throws when the session cannot be verified. `!== "in"` is the
 shape that breaks this and it is the natural thing to write, so the invariant reads for it.
 
+**The course is being rebuilt as lessons, and nothing in a lesson is shown before it is taught.**
+An A1 evening was a unit's word list cut into fives in typed order, so "who, what, where" taught
+`kes, mis, kus, kuhu, kust` one night and `kuidas` the next, with nothing saying what tied them
+together. `docs/43-lessons.md` is the approved plan: one evening is one lesson with one goal, in six
+steps (Listen, Words, How it works, Practise, Say it, Review), the first three asking nothing.
+`lib/course/lessons/` is the engine and `lessonProblems` is the rule: every spelling on every screen
+of a lesson has to be in the ledger by then, a phrase covering its words only where they stand
+together, and the unit suite fails otherwise. The conversations are written and read by the native
+speaker (ADR-005 amendment 6). A1 is the lessons and nothing else (P3): `lib/course/lessonCourse.ts` makes each lesson one evening
+of the course with one step, finishing it ticks the evening and hands its words to the deck
+(`finishLesson`), and the builder's ledger is seeded with every lesson before A2 (`teachLessons`). The
+A1 units stay as the dictionary's request list and are no longer walked, so a link to one lands on
+`/course/lessons`, and a beginner's first run builds no starter deck. Nobody was on the old A1, so the
+switch broke it rather than placing anybody (L4 not needed). Every lesson item becomes a card of
+something the seed writes (`lessonHeads.ts`): a headword once it has been taught, or the lesson's own
+entry. The lessons' English is machine translated into Russian and Ukrainian (`areas/lessonText.ts`),
+the operator's call, until somebody fluent reads it.
+
+**A lesson's role-play is also a live scene, and it says only what that lesson has taught.**
+`lib/scenes/lessonScenes.ts` holds one scene per A1 lesson that ends in a role-play, off the situations
+listing (`sceneById` reads it after the catalogue). `inLesson` takes the scene's word list from the
+lesson ledger instead of the old units, `lessonGate` hands the gate the `taught` check and the lesson's
+own spellings, and the app and the harness both read it (asserted). `lessonScenes.test.ts` plays every
+scene keyless as seven kinds of beginner and fails on any word the other side says that the lesson has
+not taught, which is how the engine's own `või`, `aga` and `selge` were caught. A word a card deals must
+be a dictionary entry, or no answer can meet it.
+
 ## Conventions
 
 - TypeScript `strict` plus `noUncheckedIndexedAccess`. No `any` without a comment justifying it.
 - `lib/assessment/`, `lib/collections/`, `lib/copy/`, `lib/course/`, `lib/curriculum/`,
   `lib/email/`, `lib/estonian/`, `lib/evidence/`, `lib/exam/`, `lib/funding/`, `lib/games/`, `lib/learn/`, `lib/offline/`,
-  `lib/questions/`, `lib/random/`, `lib/readiness/`, `lib/research/`, `lib/review/`, `lib/scan/`, `lib/scenes/`,
-  `lib/security/`, `lib/stats/`, `lib/time/` and `lib/ux/` stay free of React, Next.js and Prisma,
+  `lib/push/`, `lib/questions/`, `lib/random/`, `lib/readiness/`, `lib/research/`, `lib/review/`, `lib/scan/`, `lib/scenes/`,
+  `lib/security/`, `lib/speech/`, `lib/stats/`, `lib/time/` and `lib/ux/` stay free of React, Next.js and Prisma,
   however many imports away: pure functions, unit tested. Anything that
   needs the database lives in `lib/progress/` or a route. Asserted, because it
   had been prose alone and it is not a tidiness rule: the unit suite gates every
@@ -11405,17 +11445,25 @@ column beside several names has to cover the same stretch for all of them. The a
 and the last review are read separately, so a member's evidence tier matches the one their own hub
 shows them and somebody who stopped a year ago is not reported as never having reviewed.
 
-**Never score pronunciation.** Not because none is reachable, which stopped being true, but
-because the reachable one is not good enough and that was measured rather than assumed.
-`scripts/measure-asr.ts` runs `whisper-large-v3` over sentences the dictionary already carries,
-spoken by a native synthetic voice: clean audio, no accent, no noise, which is easier than any
-learner's recording. It comes back at a 14.6% word error rate, and its mistakes land on consonant
-length (`Poiss` as `Pois`), voicing (`abikaasaga` as `abigaasaga`) and word boundaries, which is
-precisely where an Estonian learner is weakest. Showing that transcript would report correct
-pronunciation as an error four times in five. Re-run the script before re-opening the question. It compares recognizers on byte-identical
-audio and refuses to report a rate when the service refused too much of the sample, which it
-learned by once reporting 2% over three surviving sentences and reading as a breakthrough.
-Speaking practice compares a recording with a native rendering and lets the learner judge. (ADR-018.)
+**Hear the words, and never score a sound.** The app now hears Estonian on the device
+(ADR-028, `docs/41-fifth-batch.md`): TalTech's streaming model, 71 MB, runs in a worker in the
+browser through `useSpeech()` and the one `components/speech/MicButton.tsx`, the sound is never
+stored or sent, and what comes back is which *words* were understood. That is what changed. What
+did not is ADR-018's refusal, and it was measured rather than assumed: `scripts/measure-asr.ts` ran
+`whisper-large-v3` over sentences the dictionary carries, spoken by a native synthetic voice, and
+came back at a 14.6% word error rate with its mistakes on consonant length (`Poiss` as `Pois`),
+voicing (`abikaasaga` as `abigaasaga`) and word boundaries, which is precisely where a learner is
+weakest; and the model this app does run writes most words said with an accent as the right word.
+Either is a fair judge of recall and no judge of a sound, so **nothing tells a learner how a word of
+theirs sounded**: "heard" is the verb, and `lib/copy/voice.ts` fails on `mispronounced`, `wrong
+pronunciation` and a sentence judging somebody's accent. Speech **only grades up** (D4, D19):
+`lib/speech/verdict.ts` answers "good" where every word was heard as it is spelled and otherwise puts
+what was understood in the box for the learner to change, so a misheard word costs an edit and never
+a lapse in the append-only log; a word the dictionary repaired earns no grade at all (D13). Every
+microphone works with the microphone denied, and `PAID_OFF=speech` takes every one away without a
+deploy (D15). Re-run `scripts/measure-asr.ts` before claiming anything about sounds; it compares
+recognizers on byte-identical audio and refuses to report a rate when the service refused too much
+of the sample, which it learned by once reporting 2% over three surviving sentences.
 The level check has a speaking section for the same reason it has the other three, and it obeys the
 same rule: it collects the learner's own rating, reports it as theirs, and contributes **nothing**
 to the level. `SCORED_SKILLS` in `lib/assessment/score.ts` names the three that count, and
@@ -12095,6 +12143,12 @@ npm run wordlist         # rebuild the 155k headword list in 32 requests (cached
 npm run forms            # rebuild the forms list: every spelling of every word, from Ekilex and Vabamorf (cached, needs python3 with estnltk)
 npm run report:impact    # people, study, retention and conversations outside the app, as text for a funder
 npm run report:spend     # what the models cost, by kind, model and day, off the ledger (--days)
+npm run report:speech    # does saying it help: the edit rate, recall after a spoken answer, tonight's chat
+npm run asr:fetch        # the 71 MB speech model, for the app to serve itself, every file checked by hash
+npm run asr:runtime      # build the pinned sherpa-onnx runtime the app serves (dev and build run it)
+npm run asr:fixtures     # remake the fixture clips the browser suites feed the fake microphone (TartuNLP)
+npm run asr:golden       # record lib/speech/fixtures/golden.json off the web engine, the native apps' first test
+npm run measure:numbers  # what TartuNLP says for every number shape the numbers round plays, heard back
 npm run measure:scenes   # how much of a conversation the dictionary can already carry
 npm run play:scenes      # every scene played keyless as a sloppy or curious learner; read the transcripts (--scene, --style)
 npm run sweep:fallback   # every scene, keyless, eight scripted learners and every curveball at every beat; read the flags (--scene)

@@ -63,6 +63,14 @@ describe("boundedRestoredReview", () => {
     expect((out.reviewedAt as Date).toISOString()).toBe(NOW.toISOString());
   });
 
+  it("keeps a spoken answer spoken, and reads any other spelling as typed (D4)", () => {
+    // A backup written before the column has none, and those answers were typed.
+    expect(boundedRestoredReview(row({ spoken: true }), NOW)!.spoken).toBe(true);
+    expect(boundedRestoredReview(row(), NOW)!.spoken).toBe(false);
+    expect(boundedRestoredReview(row({ spoken: "true" }), NOW)!.spoken).toBe(false);
+    expect(boundedRestoredReview(row({ spoken: 1 }), NOW)!.spoken).toBe(false);
+  });
+
   it("drops a rating the scheduler could never have written", () => {
     expect(boundedRestoredReview(row({ rating: 9 }), NOW)).toBeNull();
     expect(boundedRestoredReview(row({ rating: 0 }), NOW)).toBeNull();

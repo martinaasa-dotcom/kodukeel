@@ -60,6 +60,8 @@ export const ACTION_LIMITS = {
    * is still a handful of presses a minute at most.
    */
   startCourseDay: { perMinute: 12 },
+  /** A lesson's words into the deck and its evening ticked, the same bulk build. */
+  finishLesson: { perMinute: 12 },
   /**
    * First run's deck, which is up to `MAX_STARTER_UNITS` units in one build and
    * a dozen settings written beside it.
@@ -202,6 +204,14 @@ export const ACTION_LIMITS = {
    * meets a handful at most, so twenty a minute is never met by a player.
    */
   reportTwentyGap: { perMinute: 20 },
+  /**
+   * Turning reminders on in a browser (VB-10). One small write, here for what
+   * the row is rather than what it costs: an address the scheduled run will
+   * post to on the learner's behalf. A press after a permission prompt is a
+   * few a minute at most; a script registering addresses meets this at once,
+   * and `MAX_DEVICES` bounds what it could keep anyway.
+   */
+  rememberPushDevice: { perMinute: 10 },
 } as const;
 
 export type ActionLimit = keyof typeof ACTION_LIMITS;

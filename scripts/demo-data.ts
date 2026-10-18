@@ -4,6 +4,8 @@ import { requireLocalDatabase } from "./lib/local-db.mjs";
 import { generateCards, type LexemeForCards } from "../lib/srs/cards";
 import { emptyScheduling, grade } from "../lib/srs/scheduler";
 import { LOCAL_USER_ID, supabaseConfigured } from "../lib/auth/mode";
+import { planRun } from "../lib/scenes/run";
+import { sceneById } from "../lib/scenes/catalogue";
 
 const prisma = newPrismaClient(
   requireLocalDatabase("replace this learner's cards, tasks and review history with invented data"),
@@ -328,7 +330,7 @@ async function main() {
           lastReview: s.lastReview, elapsedDays: s.elapsedDays, scheduledDays: s.scheduledDays,
         },
       });
-      for (const r of reviews) {
+      for (const [i, r] of reviews.entries()) {
         /*
           Written the way `writeGrade` writes them, because a fixture that
           fills a column differently from the app is a fixture that tests a
@@ -347,6 +349,12 @@ async function main() {
             stateBefore: r.stateBefore, targetCase: c.targetCase,
             slot,
             reachedSlot: swapped && swapped !== slot ? swapped : null,
+            /* Some production answers in the last fortnight said aloud, so the
+               "Said aloud this week" reading and `npm run report:speech` have a
+               real shape to read in a fixture rather than nothing (VB-14). Every
+               other one, by its place in the card's history, so the fixture
+               is the same whatever the hour it is run. */
+            spoken: c.cardType === "PRODUCTION" && Date.now() - r.at.getTime() < 14 * 86_400_000 && i % 2 === 0,
           },
         });
       }
@@ -457,6 +465,43 @@ async function main() {
     data: shelved.flatMap(({ lexemeId }) => (lexemeId ? [{ deckId: shelf.id, ownerId, lexemeId }] : [])),
     skipDuplicates: true,
   });
+
+  /*
+    Three finished conversations answered out loud, a month apart.
+
+    Progress prints how long a spoken answer runs month by month only where two
+    months each hold a few spoken turns, and the readiness rungs count a turn
+    answered to a line only heard (VB-14). With no spoken conversation in the
+    fixture neither ever renders, so no browser suite would see either. A scene
+    no suite plays, so no suite's own count of runs is moved, and the learner's
+    turns are placeholders rather than Estonian, since nothing here may write
+    the language (ADR-005): only their length and their flags are read.
+  */
+  const bank = sceneById("pangas");
+  await prisma.sceneRun.deleteMany({ where: { ownerId, seed: { startsWith: "demo-spoken-" } } });
+  if (bank) {
+    const lengths = [[2, 3, 3, 2], [3, 4, 4, 5], [5, 6, 4, 6]];
+    const beats = ["greet", "want", "for", "brought"];
+    for (const [ago, words] of lengths.entries()) {
+      const seed = `demo-spoken-${ago}`;
+      const run = planRun(bank, seed, "A2", "textbook");
+      const draw = { persona: run.persona.id, card: run.card, curveballs: [], lines: "scripted", patience: run.patience };
+      const turns = words.map((n, i) => ({
+        beatId: beats[i], said: Array.from({ length: n }, () => "demo").join(" "),
+        reading: "complete", met: [true], helped: false,
+        repaired: [], spoken: true, wordsHeard: n, wordsChanged: 0, unseen: true,
+      }));
+      const startedAt = new Date(Date.now() - (lengths.length - 1 - ago) * 31 * 86_400_000 - 3_600_000);
+      await prisma.sceneRun.create({
+        data: {
+          ownerId, sceneId: bank.id, seed, level: "A2", difficulty: 0,
+          transcript: JSON.stringify({ ...draw, turns }),
+          outcome: JSON.stringify({ met: beats, missed: ["card", "sign", "close"], hurdles: [], outcome: null }),
+          startedAt, endedAt: new Date(startedAt.getTime() + 600_000),
+        },
+      });
+    }
+  }
 
   /*
     A level this learner is aiming at, and by when.

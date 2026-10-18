@@ -113,7 +113,8 @@ describe("a learner the module holds", () => {
   const HELD = "itest-owner-puzzle-held";
   const ARRIVED = "itest-owner-puzzle-arrived";
   const day = "2027-03-10" as DayKey;
-  const programme = PROGRAMMES[0]!;
+  /* A1 is the lessons, one step an evening (docs/43-lessons.md, P3); these readings are about an evening of units. */
+  const programme = PROGRAMMES.find((p) => !p.days.some((d) => d.lesson))!;
   const reached = programme.days.find((d) => d.index === 18)!;
 
   async function clear() {

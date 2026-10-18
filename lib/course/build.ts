@@ -17,11 +17,13 @@ import { CASE_NOTES, grammarTopic } from "@/lib/estonian/grammar";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { isBuildable, naturalSentence, sentenceTiles } from "@/lib/estonian/cloze";
 import { spellable } from "@/lib/games/letters";
+import { NUMBERS_ROUND, dealableCount } from "@/lib/games/numbers";
 import { sceneById as conversationById } from "@/lib/scenes/catalogue";
 import { minutesFor } from "@/lib/scenes/run";
 import { unitById, type SyllabusUnit } from "@/lib/collections/syllabus";
 import { HARVESTED } from "@/prisma/data/harvested";
 import { PARTS, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, type PartSpec } from "./plan";
+import { lessonProgrammes } from "./lessonCourse";
 import {
   ACTIVITIES, day, ordinaryWords,
   type ActivityKey, type CourseDay, type DaySpec, type Programme,
@@ -87,24 +89,6 @@ export function evenings(
   return slice(words, Math.max(1, Math.ceil(words.length / perDay)));
 }
 
-/**
- * What an evening reads, from the unit's own list of what it teaches.
- *
- * A unit names its grammar in its own order and an evening takes the next one
- * along, so a unit spanning three nights opens three different pages rather
- * than the same one three times. Where the name is one of the fourteen cases
- * it is the case page, which is built out of the dictionary; where it is a
- * topic it is the reference page; and where it is neither, which happens for a
- * point the reference does not carry, the evening simply reads nothing rather
- * than linking somewhere that does not exist.
- */
-export function reads(
-  unit: SyllabusUnit, at: number, level: string = unit.level, readInPart: ReadonlySet<string> = new Set(),
-): Pick<DaySpec, "grammar" | "grammarCase"> {
-  const name = readingPlan(unit, level, readInPart)[at];
-  return name ? readingFor(name) : {};
-}
-
 /** A declared grammar name as the page it opens: a case page, a topic page, or nothing the reference carries. */
 function readingFor(name: string): Pick<DaySpec, "grammar" | "grammarCase" | "readTitle"> {
   const asCase = name.toUpperCase();
@@ -129,15 +113,10 @@ function caseReadTitle(key: string): string | undefined {
 /**
  * The pages a unit reads, one an evening, in order.
  *
- * NO CASE PAGE AT A1. A beginner is asked for no case anywhere in A1, and a
- * page of fourteen endings on the second evening is the reference being
- * handed to somebody who has just been told the language is impossible. So
- * at A1 an evening reads only a topic page, the present tense, the verb to
- * be, negation, and where a unit's grammar is nothing but cases it reads
- * nothing rather than a page it is not going to be asked about. The cases
- * are read from A2, where they are drilled.
+ * Built parts start at A2: A1 is the lessons, which explain their own
+ * patterns (`lessonCourse.ts`).
  *
- * AND A PAGE IS READ ONCE. The first version walked a unit's list round and
+ * A PAGE IS READ ONCE. The first version walked a unit's list round and
  * round, so the greetings read the politeness page four evenings running and
  * the numbers read the numerals page five, and the impersonal was read
  * nineteen times between B1 and C1: a reading the learner did last night,
@@ -152,11 +131,8 @@ function caseReadTitle(key: string): string | undefined {
  * and the revision at the front of it is the revision the author wanted
  * first.
  */
-export function readingPlan(unit: SyllabusUnit, level: string, readInPart: ReadonlySet<string>): string[] {
-  const names = level === "A1"
-    ? unit.grammar.filter((name) => !CASE_KEYS.has(name.toUpperCase()) && !builtOnACase(name))
-    : unit.grammar;
-  return [...new Set(names.filter((name) => !readInPart.has(name)))];
+export function readingPlan(unit: SyllabusUnit, readInPart: ReadonlySet<string>): string[] {
+  return [...new Set(unit.grammar.filter((name) => !readInPart.has(name)))];
 }
 
 /**
@@ -241,17 +217,24 @@ export interface Taught {
    * ordering are built out of inside the module.
    */
   readable: boolean;
+  /**
+   * How many numbers, clock times and prices the taught words can say, which
+   * is what the numbers round deals from (`dealableCount` in
+   * `lib/games/numbers.ts`): a number waits for every word it is said with,
+   * a clock for `kell` and a price for `euro` (D11).
+   */
+  numbers: number;
 }
 
 export const NO_TAUGHT: Taught = {
   verbs: false, cases: new Set(), topics: new Set(), governed: 0,
-  readable: false, spellable: 0,
+  readable: false, spellable: 0, numbers: 0,
 };
 
 const ALL_TAUGHT: Taught = {
   verbs: true, cases: new Set(CASES.map((c) => c.key)),
   topics: new Set(["government", "conditional"]), governed: 99, readable: true,
-  spellable: 99,
+  spellable: 99, numbers: 9999,
 };
 
 /** How many governed verbs a government round needs before it is dealt. */
@@ -297,6 +280,8 @@ export function supportsRound(key: ActivityKey, taught: Taught, _level = "A2"): 
     case "dictation": case "sentences": return taught.readable;
     case "government": return taught.topics.has("government") && taught.governed >= GOVERNED_FOR_ROUND;
     case "letters": return taught.spellable >= WORDS_FOR_LETTERS;
+    /* A round of ten, every one said with words the evenings have taught. */
+    case "numbers": return taught.numbers >= NUMBERS_ROUND;
     case "sonad": return false;
     default: return true;
   }
@@ -304,7 +289,7 @@ export function supportsRound(key: ActivityKey, taught: Taught, _level = "A2"): 
 
 /** The rotation's rounds this evening could deal, given what has been taught. */
 export function supportedRounds(level: string, taught: Taught): ActivityKey[] {
-  const rotation = ROTATION[level] ?? ROTATION.A1!;
+  const rotation = ROTATION[level] ?? ROTATION.A2!;
   return rotation.filter((key) => supportsRound(key, taught, level));
 }
 
@@ -373,7 +358,7 @@ export function rounds(
    */
   drillAt: number = at,
 ): ActivityKey[] {
-  const rotation = ROTATION[level] ?? ROTATION.A1!;
+  const rotation = ROTATION[level] ?? ROTATION.A2!;
   const pair = (n: number) => [rotation[(n * 2) % rotation.length]!, rotation[(n * 2 + 1) % rotation.length]!];
   const [first, second] = pair(at);
   const game = ACTIVITIES[first!].kind === "game" ? first! : second!;
@@ -518,6 +503,7 @@ export class Ledger {
       governed: this.governed,
       readable: this.readable,
       spellable: this.spellable,
+      numbers: dealableCount(this.lemmas),
     };
   }
 }
@@ -610,7 +596,7 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
     const scene = SCENE_FOR_UNIT[unitId];
 
     const chunks = evenings(unit, words, perDay);
-    const plan = readingPlan(unit, spec.level, readInPart);
+    const plan = readingPlan(unit, readInPart);
     /* The conversation replaces the reading (`day()` in types.ts), so a scene
        evening takes no page off the plan: the first version handed it one,
        counted it read in the ledger, and never showed it to anybody. */
@@ -763,7 +749,7 @@ export function onTheCase(
   before: readonly ActivityKey[] = [],
 ): ActivityKey[] {
   if (!caseEvening) return [...dealt];
-  const rotation = ROTATION[level] ?? ROTATION.A1!;
+  const rotation = ROTATION[level] ?? ROTATION.A2!;
   /*
     THE WORKBOOK FIRST, WHERE THE WORDS CAN CARRY IT. The evening an ending is
     read is the evening a guided page of it does the most: eight recorded
@@ -771,7 +757,13 @@ export function onTheCase(
     sentence of your own around it is the harder ask and the better one once
     the ending is familiar, which is every other evening it comes round on.
   */
-  const drills = rotation
+  /*
+    Off the rotation and the case rounds both: A2 gave its writing slot to
+    numbers said out loud (`plan.ts`), and a case evening there still wants
+    the writing round for the evening after a workbook one, which is what it
+    had before. Every other level carries both case rounds anyway.
+  */
+  const drills = [...new Set([...rotation, ...CASE_ROUNDS])]
     .filter((key) => ACTIVITIES[key].kind === "drill" && CASE_ROUNDS.has(key) && supportsRound(key, taught, level))
     .sort((a, b) => Number(b === "workbook") - Number(a === "workbook"));
   const drill = drills.find((key) => !before.includes(key)) ?? drills[0];
@@ -820,25 +812,52 @@ export function withForms(
 ): ActivityKey[] {
   const game = dealt.find((key) => ACTIVITIES[key].kind === "game") ?? STAND_IN.game;
   if (!before.includes(game)) return [game];
-  const rotation = ROTATION[level] ?? ROTATION.A1!;
+  const rotation = ROTATION[level] ?? ROTATION.A2!;
   const other = rotation.find((key) =>
     ACTIVITIES[key].kind === "game" && !before.includes(key) && supportsRound(key, taught, level));
   return [other ?? game];
 }
 
-/** The ledger as it stands at the start of a part: every part before it, built. */
+/**
+ * WHAT THE A1 LESSONS TAUGHT, HANDED TO THE LEDGER BEFORE A2 IS BUILT.
+ *
+ * A1 is the lessons (`lessonCourse.ts`), and A2's first evening is dealt
+ * against what a learner had when it began: every word an A1 lesson taught,
+ * as the harvest holds it (its part of speech is whichever the harvest found
+ * it under first, and a phrase the harvest does not hold teaches its own
+ * spelling), and every page a lesson explained.
+ */
+export function teachLessons(ledger: Ledger): Ledger {
+  for (const programme of lessonProgrammes()) {
+    for (const d of programme.days) {
+      for (const lemma of d.words) ledger.teach(lemma, POS_OF.get(lemma) ?? "PHRASE");
+      for (const key of d.cases ?? []) ledger.read({ grammarCase: key });
+      for (const topic of d.topics ?? []) ledger.read({ grammar: topic });
+    }
+  }
+  return ledger;
+}
+
+const POS_OF: ReadonlyMap<string, string> = (() => {
+  const out = new Map<string, string>();
+  for (const w of HARVESTED) if (!out.has(w.lemma)) out.set(w.lemma, w.pos);
+  return out;
+})();
+
+/** The ledger as it stands at the start of a part: the A1 lessons and every part before it, built. */
 export function ledgerBefore(spec: PartSpec): Ledger {
-  const ledger = new Ledger();
+  const ledger = teachLessons(new Ledger());
   const at = PARTS.findIndex((p) => p.id === spec.id);
   for (const before of at > 0 ? PARTS.slice(0, at) : []) buildPart(before, ledger);
   return ledger;
 }
 
 /**
- * The whole ladder, built in order over one ledger, so what a1.6 taught is what
- * a2.1's first evening is dealt against.
+ * The whole ladder: the A1 lessons, then every part from A2 built in order over
+ * one ledger that starts with what the lessons taught, so what A1 handed over
+ * is what a2.1's first evening is dealt against.
  */
 export function buildProgrammes(): Programme[] {
-  const ledger = new Ledger();
-  return PARTS.map((spec) => buildPart(spec, ledger));
+  const ledger = teachLessons(new Ledger());
+  return [...lessonProgrammes(), ...PARTS.map((spec) => buildPart(spec, ledger))];
 }

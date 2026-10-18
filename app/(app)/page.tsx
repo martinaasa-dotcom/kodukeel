@@ -3,7 +3,7 @@ import { Lettered } from "@/components/HeroLetters";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { redirect } from "next/navigation";
 import { LEARN_BATCH } from "@/lib/learn/ladder";
-import { ArrowRight, Flame, Shield } from "lucide-react";
+import { ArrowRight, Check, Flame, Shield } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { dailySummary, deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
@@ -24,7 +24,7 @@ import { shows, stageOf, TODAY_CARDS } from "@/lib/ux/disclosure";
 import { hiddenSlotsFrom, orderTodayCards, todayOrderFrom } from "@/lib/ux/todayOrder";
 import { ButtonLink } from "@/components/Button";
 import { NamedIcon } from "@/components/icons";
-import { Card, Empty, Meter, Page, Ring, SectionTitle, Stack, StatTile } from "@/components/ui";
+import { Card, CardLink, Empty, Meter, Page, Ring, SectionTitle, Stack, StatTile } from "@/components/ui";
 import { LocalDate } from "@/components/LocalDate";
 import { dateLine } from "@/lib/time/estonianDate";
 import type { TaskView } from "@/components/TaskRow";
@@ -37,7 +37,8 @@ import { crosswordFor } from "@/lib/progress/crossword";
 import { WordOfDayCard } from "@/components/WordOfDay";
 import { offered } from "@/lib/tutor/provider";
 import { SayItToday } from "@/components/SayItToday";
-import { errandForDay } from "@/lib/collections/errands";
+import { errandForDay, sceneForErrand } from "@/lib/collections/errands";
+import { errandRehearsal } from "@/lib/scenes/rehearse";
 import { startedUnits } from "@/lib/collections/syllabus";
 import { courseReading, ladderPosition, moduleReached, programmeFor, targetFrom } from "@/lib/progress/course";
 import { unitsThrough } from "@/lib/course";
@@ -53,6 +54,7 @@ import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 import { stepCard, stepsIn } from "@/lib/course";
 import { HeroFan } from "@/components/HeroFan";
+import { fillNodes } from "@/components/TemplateNodes";
 import { JokeOfDayCard } from "@/components/JokeOfDay";
 import { GoodNewsSlot } from "@/components/GoodNewsSlot";
 import { jokesForThisVisit } from "@/lib/progress/jokeOfDay";
@@ -307,6 +309,15 @@ export default async function TodayPage() {
     printed "20 due" over a session that asked one card.
   */
   const toReview = review.cards.length;
+  /*
+    WHAT IS DUE, AND NOTHING ELSE, for the strip that says "due". The sitting
+    above includes up to ten unseen cards that Review trickles in with no daily
+    limit, so a learner who answered twenty cards was told "10 due" straight
+    afterwards: the next ten unseen cards had taken the place of the ones just
+    done. A strip called "due" that can never reach nought is a list that
+    cannot be finished, and an unseen card is new rather than due.
+  */
+  const dueCount = review.due.length;
   // What is due, as Review will ask it, marked where more is due than a sitting holds.
   const dueNow = review.dueMore ? `${review.due.length}+` : review.due.length;
   /** Words waiting on the ladder, in words rather than in cards. */
@@ -324,7 +335,8 @@ export default async function TodayPage() {
     startedUnitIds: new Set(units.filter((u) => u.state === "learning").map((u) => u.unit.id)),
     placement,
   });
-  const nextUnit = nextSyllabusUnit
+  // A1 is the lessons rather than units (docs/43-lessons.md), so an A1 unit is never offered here.
+  const nextUnit = nextSyllabusUnit && nextSyllabusUnit.level !== "A1"
     ? units.find((u) => u.unit.id === nextSyllabusUnit.id)
     : undefined;
 
@@ -576,12 +588,13 @@ export default async function TodayPage() {
         <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {courseDay
             ? courseDay.day.part.n > 1
-              ? fill(t("Tomorrow you’ll continue with {unit}, part {n} of {of}."), {
-                unit: ui(courseDay.day.title, courseDay.day.subtitle), n: courseDay.day.part.n, of: courseDay.day.part.of,
+              ? fillNodes(t("Tomorrow you’ll continue with {unit}, part {n} of {of}."), {
+                unit: <b lang={uiWantsEnglish(placement) ? undefined : "et"}>{ui(courseDay.day.title, courseDay.day.subtitle)}</b>,
+                n: courseDay.day.part.n, of: courseDay.day.part.of,
               })
               : uiWantsEnglish(placement)
-                ? fill(t("See you tomorrow for {unit}."), { unit: t(courseDay.day.subtitle) })
-                : fill(t("See you tomorrow for {unit} ({english})."), { unit: courseDay.day.title, english: t(courseDay.day.subtitle) })
+                ? fillNodes(t("See you tomorrow for {unit}."), { unit: <b>{t(courseDay.day.subtitle)}</b> })
+                : fillNodes(t("See you tomorrow for {unit} ({english})."), { unit: <b lang="et">{courseDay.day.title}</b>, english: t(courseDay.day.subtitle) })
             : t("That was the very last evening of the course. Every word you met along the way will keep coming back in your reviews.")}
         </p>
       </div>
@@ -778,13 +791,9 @@ export default async function TodayPage() {
 
       {eventsList}
 
-      <Link
-        href="/calendar"
-        className="mt-auto inline-block text-sm font-semibold underline underline-offset-2"
-        style={{ color: "var(--accent-deep)" }}
-      >
+      <CardLink href="/calendar" className="mt-auto self-start">
         {eventsList ? t("See your whole week") : t("Plan your week")}
-      </Link>
+      </CardLink>
 
       {/*
         THE XP AND THE LEVEL BAR ARE NOT HERE, AND THAT IS THE POINT OF THE
@@ -821,6 +830,11 @@ export default async function TodayPage() {
         const errandUnit = unitById(errand.unit);
         if (!errandUnit) return errand.unit;
         return ui(errandUnit.title, errandUnit.subtitle);
+      })()}
+      sayOnce={(() => {
+        /* The scene's first line and the learner's own answer, from the bank and the picks (VB-4). */
+        const scene = sceneForErrand(errand);
+        return scene ? errandRehearsal(scene, placement) : null;
       })()}
     />
   ) : null;
@@ -974,9 +988,25 @@ export default async function TodayPage() {
     tonight, so they get a smaller card under the hero that points at the
     words already outstanding, and the greeting stands alone. It is a plain
     link in a white card rather than a second button, since the hero already
-    has the one loud action, and it is absent when nothing is due.
+    has the one loud action. Once nothing is due it says the review is done
+    instead (below).
   */
-  const reviewStrip = (moduleTonight || courseNow?.finishedToday) && toReview > 0 ? (
+  /*
+    WHEN THERE IS NOTHING DUE, THE STRIP SAYS THE REVIEW IS DONE.
+
+    A learner who went through their cards and came back to Today was shown
+    the same card as before, with a number on it, which reads as nothing having
+    counted. So a day on which they reviewed something and nothing is left due
+    says so, with the figure off the log (`reviewsToday`, derived like every
+    other number here, nothing stored). It carries one quiet way to go on, for
+    the learner who wants more: new words if the ladder has any, otherwise the
+    unseen cards Review would trickle in. It is an offer and not a count, and
+    it never calls those cards due. On a day nothing has been reviewed and
+    nothing is due there is nothing to say, so the strip is absent.
+  */
+  const reviewedToday = summary.reviewsToday;
+  const moreHref = toLearn > 0 ? "/learn/new" : review.fresh.length > 0 ? "/review" : null;
+  const reviewStrip = !(moduleTonight || courseNow?.finishedToday) ? null : dueCount > 0 ? (
     <Card className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-4">
       <p className="text-base" style={{ color: "var(--ink)" }}>
         <span className="font-semibold">{t("Review cards")}</span>
@@ -984,13 +1014,26 @@ export default async function TodayPage() {
           {" "}{say(`(${toReview} due, if you’d rather practice what you know)`, "({cards} due, if you'd rather practice what you know)", { cards: countOf(locale, toReview, "card") })}
         </span>
       </p>
-      <Link
-        href="/review"
-        className="inline-flex items-center gap-1.5 text-base font-semibold underline underline-offset-2"
-        style={{ color: "var(--accent-deep)" }}
-      >
-        {t("Review now")} <ArrowRight size={15} aria-hidden />
-      </Link>
+      <CardLink href="/review">{t("Review now")}</CardLink>
+    </Card>
+  ) : reviewedToday > 0 ? (
+    <Card className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-4" data-review-done>
+      <p className="text-base" style={{ color: "var(--ink)" }}>
+        <Check size={17} aria-hidden className="mr-1.5 inline-block align-[-3px]" style={{ color: "var(--accent-deep)" }} />
+        <span className="font-semibold">{t("Review done for today")}</span>
+        <span style={{ color: "var(--ink-2)" }}>
+          {" "}{say(`(${reviewedToday} reviewed, nothing else due)`, "({cards} reviewed, nothing else due)", { cards: countOf(locale, reviewedToday, "card") })}
+        </span>
+      </p>
+      {moreHref && (
+        <Link
+          href={moreHref}
+          className="inline-flex items-center gap-1.5 text-base font-semibold underline underline-offset-2"
+          style={{ color: "var(--accent-deep)" }}
+        >
+          {t("A few more, if you like")} <ArrowRight size={15} aria-hidden />
+        </Link>
+      )}
     </Card>
   ) : null;
 

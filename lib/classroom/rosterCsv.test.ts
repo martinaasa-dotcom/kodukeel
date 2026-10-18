@@ -11,6 +11,7 @@ function entry(over: Partial<RosterEntry>): RosterEntry {
     role: "STUDENT",
     joinedAt: new Date("2026-09-01T10:00:00Z"),
     reviewsThisWeek: 40,
+    spokenThisWeek: 0,
     streak: 3,
     wordsKnown: 120,
     daysSinceLastReview: 1,
@@ -55,7 +56,7 @@ describe("the roster file", () => {
     for (const locale of ["en", "ru", "uk"] as const) {
       const text = rosterCsv({ kind: "CLASS", className: "A2", date: "2026-10-14", say: say(locale), summary: classSummary([entry({})]) });
       const header = rowsOf(text)[0]!;
-      expect(header.split(",")).toHaveLength(10);
+      expect(header.split(",")).toHaveLength(11);
       expect(header).toContain(tr(locale, "Weakest case"));
       if (locale !== "en") expect(header).not.toContain("Weakest case");
     }
@@ -70,8 +71,8 @@ describe("the roster file", () => {
       ]),
     });
     const [, first, second] = rowsOf(text);
-    expect(first).toBe("Kadri,student,2026-09-01,40,3,120,1,osastav,61,18");
-    expect(second).toBe("Peeter,student,2026-09-01,40,3,120,,,,");
+    expect(first).toBe("Kadri,student,2026-09-01,40,0,3,120,1,osastav,61,18");
+    expect(second).toBe("Peeter,student,2026-09-01,40,0,3,120,,,,");
     expect(text).toContain("# What the class is weakest at: osastav 54%");
   });
 
