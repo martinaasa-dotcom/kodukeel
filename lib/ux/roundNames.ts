@@ -69,7 +69,11 @@ export function nameOf(href: string): RoundName | undefined {
   return Object.hasOwn(ROUND_NAMES, href) ? ROUND_NAMES[href] : undefined;
 }
 
-/** The name in running text: the Estonian, then the English in parentheses. */
-export function inlineName(name: RoundName): string {
-  return `${name.et} (${name.en})`;
+/**
+ * The name in running text: the Estonian, then the English in parentheses.
+ * A screen in Russian or Ukrainian hands in its translator, so the half in
+ * parentheses is in the reader's language rather than left in English.
+ */
+export function inlineName(name: RoundName, translate: (english: string) => string = (english) => english): string {
+  return `${name.et} (${translate(name.en)})`;
 }

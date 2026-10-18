@@ -137,12 +137,12 @@ function spanFor(group: GroupId, i: number, n: number): string {
  * rather than breaking: "Väljendid" in the spotlight at 768 was drawn as two
  * lines before it was.
  */
-function GameName({ href, size, sub = "text-sm" }: { href: string; size: string; sub?: string }) {
+function GameName({ href, size, locale, sub = "text-sm" }: { href: string; size: string; locale: Locale; sub?: string }) {
   const name = roundName(href);
   return (
     <span className="block">
       <FitText text={name.et} max={`var(--text-${size})`} lang="et" className="block font-display font-bold leading-tight" style={{ color: "var(--ink)" }} />
-      <span className={`block font-semibold ${sub}`} style={{ color: "var(--ink-3)" }}>({name.en})</span>
+      <span className={`block font-semibold ${sub}`} style={{ color: "var(--ink-3)" }}>({tr(locale, name.en)})</span>
     </span>
   );
 }
@@ -168,7 +168,7 @@ function Spotlight({ game, isNew, tomorrow, weekday, done, locale }: {
             <>{t("Today's game")}, <span lang="et">{estonian}</span> ({t(english)})</>
           ) : `${t("Today's game")}, ${t(english)}`}
         </p>
-        <h2 id="today-game"><GameName href={game.href} size="4xl" sub="text-lg" /></h2>
+        <h2 id="today-game"><GameName href={game.href} size="4xl" sub="text-lg" locale={locale} /></h2>
         <p className="text-lg" style={{ color: "var(--ink-2)" }}>{t(game.hook)}</p>
         <div className="flex flex-wrap items-center gap-3 pt-1">
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>{fill(t("About {n} min"), { n: game.minutes })}</span>
@@ -201,14 +201,14 @@ function Tile({ game, level, live, done, big, locale }: {
       <div
         className="flex h-full flex-col gap-3 rounded-[var(--r-xl)] border-2 border-dashed p-5"
         style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
-        aria-label={fill(t("{name}, opens at {level}"), { name: inlineName(roundName(game.href)), level: game.from ?? "" })}
+        aria-label={fill(t("{name}, opens at {level}"), { name: inlineName(roundName(game.href), t), level: game.from ?? "" })}
         role="group"
       >
         <span className="inline-flex items-center gap-1.5 self-start rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider" style={{ background: "var(--surface)", color: "var(--ink-2)" }}>
           <Lock size={12} aria-hidden /> {fill(t("Opens at {level}"), { level: game.from ?? "" })}
         </span>
         <div className="grid flex-1 place-items-center py-2 grayscale"><GameArt href={game.href} size="sm" /></div>
-        <GameName href={game.href} size="xl" />
+        <GameName href={game.href} size="xl" locale={locale} />
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t(game.hook)}</p>
       </div>
     );
@@ -237,7 +237,7 @@ function Tile({ game, level, live, done, big, locale }: {
       <span className="grid flex-1 place-items-center py-2"><GameArt href={game.href} size={big ? "md" : "sm"} /></span>
       <span className="flex items-end justify-between gap-3">
         <span className="min-w-0">
-          <GameName href={game.href} size={big ? "3xl" : "xl"} />
+          <GameName href={game.href} size={big ? "3xl" : "xl"} locale={locale} />
           {big && <span className="mt-1 block text-base" style={{ color: "var(--ink-2)" }}>{t(game.hook)}</span>}
         </span>
         <span aria-hidden className="grid h-10 w-10 shrink-0 place-items-center rounded-full" style={{ background: `var(--${game.tone})`, color: "var(--on-hue)" }}>

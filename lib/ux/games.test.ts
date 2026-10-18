@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { BUILD_FROM } from "@/lib/collections/levels";
 import { A1_GAME_WEEK, GAME_WEEK, GAMES, GROUPS, gameAt, opensFor, playedFrom, spotlight, weekFor, withPlayed } from "./games";
 import { modeAt } from "./modes";
-import { nameOf, roundName } from "./roundNames";
+import { inlineName, nameOf, roundName } from "./roundNames";
 
 describe("the games board", () => {
   it("puts every game in a group, names it, and knows it as a mode", () => {
@@ -111,5 +111,10 @@ describe("the agreed names", () => {
     expect(() => roundName("/nowhere")).toThrow();
     expect(nameOf("constructor")).toBeUndefined();
     expect(roundName("/review/match")).toEqual({ et: "Paarid", en: "Pairs" });
+  });
+
+  it("puts the reader's own language in the parentheses when handed a translator", () => {
+    expect(inlineName(roundName("/review/match"))).toBe("Paarid (Pairs)");
+    expect(inlineName(roundName("/review/match"), (en) => (en === "Pairs" ? "Пары" : en))).toBe("Paarid (Пары)");
   });
 });

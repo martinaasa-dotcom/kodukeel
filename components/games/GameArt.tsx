@@ -113,7 +113,7 @@ function Crossword({ size }: { size: GameArtSize }) {
         return (
           <span
             key={`${r},${c}`}
-            className={`relative grid place-items-center rounded-[4px] border font-bold uppercase ${cell[size]}`}
+            className={`relative grid place-items-center rounded-[2px] border font-bold uppercase ${cell[size]}`}
             style={{ borderColor: "var(--butter-ink)", background: on ? "var(--butter)" : "var(--surface)", color: "var(--on-hue)" }}
           >
             {on ? ch : ""}

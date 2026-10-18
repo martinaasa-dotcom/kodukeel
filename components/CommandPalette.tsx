@@ -5,7 +5,7 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { PRACTICE_MODES } from "@/lib/ux/modes";
-import { inlineName, nameOf } from "@/lib/ux/roundNames";
+import { nameOf } from "@/lib/ux/roundNames";
 import { SECTIONS } from "@/lib/ux/nav";
 import { SHORTCUTS_EVENT } from "@/components/Shortcuts";
 import { KeyCap } from "@/components/ui";
@@ -22,6 +22,12 @@ interface Command {
    * could never be looked up and stayed English in a Russian palette.
    */
   detail?: string;
+  /**
+   * The English said in parentheses after an Estonian label, translated on its
+   * own for the reason `detail` is: "Paarid (Pairs)" as one string has no
+   * entry, so a Russian palette printed the English half.
+   */
+  paren?: string;
   hint: string;
   /** The heading it appears under. Results are grouped by it. */
   group: string;
@@ -61,7 +67,8 @@ const MODE_COMMANDS: Command[] = PRACTICE_MODES.map((mode) => {
   const name = nameOf(mode.href);
   return {
     id: `mode-${mode.href}`,
-    label: name ? inlineName(name) : mode.title,
+    label: name ? name.et : mode.title,
+    paren: name?.en,
     hint: mode.subtitle,
     group: "Practice",
     href: mode.href,
@@ -220,7 +227,7 @@ export function CommandPalette() {
        in English before they switched still finds them by those. */
     const said = (english: string) => tr(locale, english);
     const matches = pool
-      .filter((c) => fold(`${c.label} ${said(c.label)} ${c.detail ?? ""} ${c.detail ? said(c.detail) : ""} ${said(c.hint)} ${c.keywords}`).includes(q))
+      .filter((c) => fold(`${c.label} ${said(c.label)} ${c.paren ? `${c.paren} ${said(c.paren)}` : ""} ${c.detail ?? ""} ${c.detail ? said(c.detail) : ""} ${said(c.hint)} ${c.keywords}`).includes(q))
       .slice(0, 8);
     // The dictionary can answer for a word nothing here matches, so it is always
     // offered rather than leaving a dead end.
@@ -357,7 +364,7 @@ export function CommandPalette() {
                     what `truncate` on the hint is for. Both shrinking together
                     left "Practice" 41px at 360, drawn across two lines. */}
                 <span className="max-w-[75%] shrink-0 text-base" style={{ color: i === active ? "var(--accent-deep)" : "var(--ink)" }}>
-                  {t(c.label)}{c.detail ? `, ${t(c.detail)}` : ""}
+                  {t(c.label)}{c.paren ? ` (${t(c.paren)})` : ""}{c.detail ? `, ${t(c.detail)}` : ""}
                 </span>
                 <span className="ml-auto truncate text-xs" style={{ color: "var(--ink-3)" }}>{t(c.hint)}</span>
               </button>

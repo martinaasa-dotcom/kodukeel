@@ -195,8 +195,8 @@ export default async function PracticePage() {
                         title={t(group.title)}
                         meta={countOf(locale, 100, "word")}
                         label={fill(t("{round}: {list}, {group}"), {
-                          round: inlineName(flash),
-                          list: inlineName(common),
+                          round: inlineName(flash, t),
+                          list: inlineName(common, t),
                           group: t(group.title).toLowerCase(),
                         })}
                       />
@@ -215,7 +215,7 @@ export default async function PracticePage() {
                         meta={t(choice.meta)}
                         done={workbookDone.has(choice.theme ?? SET_FOR_YOU) ? t("Done today") : undefined}
                         label={fill(t("{round}: {list}, {group}"), {
-                          round: inlineName(workbook),
+                          round: inlineName(workbook, t),
                           list: t(choice.title).toLowerCase(),
                           group: t(choice.meta).toLowerCase(),
                         })}
@@ -246,8 +246,8 @@ export default async function PracticePage() {
 
           <p className="text-base" style={{ color: "var(--ink-2)" }}>
             {fill(t("Grammar drills like {a} and {b} sit on the grammar pages they practise."), {
-              a: inlineName(roundName("/review/government")),
-              b: inlineName(roundName("/review/conjugation")),
+              a: inlineName(roundName("/review/government"), t),
+              b: inlineName(roundName("/review/conjugation"), t),
             })}{" "}
             <Link href="/grammar" className="font-semibold underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>{t("Open grammar")}</Link>
           </p>
@@ -392,7 +392,7 @@ function WorkbookPage() {
       <span lang="et" className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
         Ta töötab <span className="inline-block w-12 border-b-2 align-baseline" style={{ borderColor: "var(--butter-ink)" }} /> (kool)
       </span>
-      <span className="h-0.5 w-full rounded" style={{ background: "var(--rule)" }} />
+      <span className="h-0.5 w-full rounded-full" style={{ background: "var(--rule)" }} />
     </div>
   );
 }
