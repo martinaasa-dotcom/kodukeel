@@ -11,8 +11,8 @@
  * Every Estonian name is a dictionary word or phrase, chosen by the operator
  * on 2026-10-18 and for the native Estonian speaker who develops this app to
  * read in the pull request (ADR-005 amendment 4's standing, for copy).
- * `Sagedasemad sõnad` is in use while a native speaker confirms it
- * (`Levinud sõnad` is the alternative).
+ * The frequency lists are `Levinud sõnad`, the operator's choice on
+ * 2026-10-18 over `Sagedasemad sõnad`.
  *
  * Pure. `lib/ux/modes.ts` keeps what a round *is*; this keeps what it is
  * called on the two pages that offer every round side by side.
@@ -40,7 +40,7 @@ export const ROUND_NAMES: Readonly<Record<string, RoundName>> = {
   "/review": { et: "Kordamine", en: "Review" },
   "/review/flashcards": { et: "Õppekaardid", en: "Flash cards" },
   "/review/workbook": { et: "Töövihik", en: "Workbook" },
-  "/review/common": { et: "Sagedasemad sõnad", en: "Most common words" },
+  "/review/common": { et: "Levinud sõnad", en: "Most common words" },
   "/review/listening": { et: "Kuulamine", en: "Listening" },
   "/review/dictation": { et: "Etteütlus", en: "Dictation" },
   "/review/speaking": { et: "Hääldus", en: "Pronunciation" },

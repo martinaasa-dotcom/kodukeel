@@ -3651,7 +3651,7 @@ speak, write, talk). The grammar drills stay on the grammar pages they practice.
 
 **Every round is named the Estonian way, at every level**: `Paarid (Pairs)`, `Kordamine
 (Review)`, on a tile and in the command palette (`lib/ux/roundNames.ts`), while the rail stays in
-English. The operator chose the names; `Sagedasemad sõnad` waits on a native speaker's word.
+English. The operator chose the names, the frequency lists as `Levinud sõnad`.
 Not done: the round pages' own titles and the course's step names still use the older titles in
 `lib/ux/modes.ts`, and `lib/ux/weekGames.ts` still rotates Today's own card.
 

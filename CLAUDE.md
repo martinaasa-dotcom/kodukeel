@@ -10814,6 +10814,17 @@ be a dictionary entry, or no answer can meet it.
   because light and dark are two palettes rather than one with a filter over it: the first batch of
   failures was entirely in dark mode and the second entirely in light. What a color is worth
   depends on what it is sitting on, which a palette cannot tell you.
+- **Things meant as one set look like one set on whatever they are put on.** The operator's rule,
+  for the whole app: a design is cohesive only once each piece is judged against its own ground
+  and surroundings, not against the token it was drawn with. Found on Practice, where the flash
+  card drawing and the workbook page carried one opaque `--rule` hairline and read as two objects,
+  1.04:1 on the lavender against 1.13:1 on the butter. An edge between a paper and its ground is
+  the translucent `--edge`, composited over the ground: a ring outside the box does that, and a
+  border does once the fill stops at the border, which `app/globals.css` does for every `--edge`
+  border (a background runs under its border by default, which had the situation tiles at 1.01:1
+  and the page's cards at 1.19:1). `scripts/test-design.mjs` holds it on every page it visits in
+  both themes: one edge on one fill, met on two grounds, within twice of itself. Made to fail on
+  the real code first. `docs/14-design-system.md` §1 is the long version.
 - **A reading is not a verdict.** Sky, butter and blush say what happened to an answer. A figure
   about the learner (a case's accuracy, retention, a share of situations, a tier of mastery, a busy
   day) is one hue in steps, `--scale-1` to `--scale-4` over `--scale-track`, derived once from the

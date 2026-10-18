@@ -187,6 +187,28 @@ line under a prompt set at 27px. A caption genuinely inside a panel, the provena
 sentence or the "you typed" line under a marked word, still takes its own step, so the rule is
 drawn on the element wearing the tint rather than on everything under it.
 
+### An edge reads against the ground it sits on
+
+Things meant as one set have to look like one set wherever they are put, and what they are put
+on is part of how they look. The flash card drawing and the workbook page on Practice were two
+pieces of paper edged with the same opaque `--rule` hairline, one on the lavender tint and one on
+the butter, and the operator saw two different objects: `--rule` is a lavender gray chosen to sit
+on white, so it measured 1.04:1 against the lavender and 1.13:1 against the butter.
+
+So an edge between a paper and its ground is `--edge`, which is translucent ink and darkens
+whatever is behind it by the same amount, and it is composited **over the ground**: a ring drawn
+outside the box (`0 0 0 1px var(--edge)`) does that by itself, and a border does it only once the
+box's fill stops at the border. A background runs under its border by default, so a translucent
+border was painted over the card's own white and came out one light gray everywhere, 1.19:1 on
+the page and 1.01:1 on the lavender situation tiles. `app/globals.css` clips every `--edge` border
+to the padding box, inline or by class, which leaves an opaque border unchanged.
+`--rule` stays what it is for: a line on white, a ruled line, a divider inside a card.
+
+`scripts/test-design.mjs` measures it on every page it visits, in both themes: the same edge on
+the same fill, met on two grounds, may not differ by more than twice in how far it stands off
+them. When something new is drawn on a tint, the question is not whether its edge is the token
+the others use; it is whether it reads like them where it is.
+
 ## 2. Tokens
 
 Defined twice in `app/globals.css`, deliberately:

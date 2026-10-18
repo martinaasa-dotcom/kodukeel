@@ -73,7 +73,7 @@ function Tahed({ size }: { size: GameArtSize }) {
             key={i}
             className={`grid place-items-center rounded-[var(--r-sm)] border font-bold ${cell[size]}`}
             style={{
-              borderColor: i < 2 ? "var(--rule)" : "var(--ink-3)", borderStyle: i < 2 ? "solid" : "dashed",
+              borderColor: i < 2 ? "var(--edge)" : "var(--ink-3)", borderStyle: i < 2 ? "solid" : "dashed",
               background: i < 2 ? "var(--surface)" : "transparent", color: "var(--ink)",
             }}
           >
@@ -117,14 +117,14 @@ function Spelled({ size }: { size: GameArtSize }) {
               className={`grid place-items-center rounded-full font-bold uppercase ${letter}`}
               style={i === heard.length - 1
                 ? { background: "var(--accent-soft)", color: "var(--accent-deep)", boxShadow: "inset 0 0 0 2px var(--accent)" }
-                : { background: "var(--surface)", color: "var(--ink)", boxShadow: "inset 0 0 0 1px var(--rule)" }}
+                : { background: "var(--surface)", color: "var(--ink)", boxShadow: "0 0 0 1px var(--edge)" }}
             >
               {l}
             </span>
           ))}
         </div>
       </div>
-      <span className="min-w-36 rounded-[var(--r-sm)] px-3 py-1.5 text-base font-semibold" style={{ background: "var(--surface)", color: "var(--ink)", boxShadow: "inset 0 0 0 1px var(--rule)" }}>
+      <span className="min-w-36 rounded-[var(--r-sm)] px-3 py-1.5 text-base font-semibold" style={{ background: "var(--surface)", color: "var(--ink)", boxShadow: "0 0 0 1px var(--edge)" }}>
         koh<span className="ml-px inline-block h-4 w-[2px] translate-y-0.5" style={{ background: "var(--accent)" }} />
       </span>
     </div>
@@ -177,7 +177,7 @@ function Match({ size }: { size: GameArtSize }) {
             ? { background: "var(--sky)", color: "var(--on-sky)" }
             : state === "pick"
               ? { background: "var(--accent-soft)", color: "var(--accent-deep)", boxShadow: "inset 0 0 0 2px var(--accent)" }
-              : { background: "var(--surface)", color: "var(--ink)", boxShadow: "inset 0 0 0 1px var(--rule)" }}
+              : { background: "var(--surface)", color: "var(--ink)", boxShadow: "0 0 0 1px var(--edge)" }}
         >
           {state === "done" && <Check size={12} aria-hidden />}{word}
         </span>
@@ -209,7 +209,7 @@ function Listening() {
         {["dog", "house", "bread"].map((w, i) => (
           <span key={w} className="rounded-full px-3 py-1 text-xs font-semibold" style={i === 0
             ? { background: "var(--sky)", color: "var(--on-sky)" }
-            : { background: "var(--surface)", color: "var(--ink-2)", boxShadow: "inset 0 0 0 1px var(--rule)" }}>
+            : { background: "var(--surface)", color: "var(--ink-2)", boxShadow: "0 0 0 1px var(--edge)" }}>
             {w}
           </span>
         ))}
@@ -222,7 +222,7 @@ function Dictation() {
   return (
     <div className="flex w-full max-w-[13rem] flex-col items-stretch gap-2.5">
       <Wave bars={22} tone="var(--butter-ink)" tall={22} />
-      <span className="rounded-[var(--r-sm)] px-3 py-2 text-sm font-semibold" lang="et" style={{ background: "var(--surface)", color: "var(--ink)", boxShadow: "inset 0 0 0 1px var(--rule)" }}>
+      <span className="rounded-[var(--r-sm)] px-3 py-2 text-sm font-semibold" lang="et" style={{ background: "var(--surface)", color: "var(--ink)", boxShadow: "0 0 0 1px var(--edge)" }}>
         Täna on kolm<span className="ml-px inline-block h-4 w-[2px] translate-y-0.5" style={{ background: "var(--accent)" }} />
       </span>
     </div>
@@ -267,7 +267,7 @@ function Tiles({ words, placed }: { words: string[]; placed: string[] }) {
       </div>
       <div className="flex gap-1.5">
         {words.map((w, i) => (
-          <span key={w} className="rounded-[var(--r-sm)] px-2.5 py-1.5 text-sm font-semibold" style={{ background: "var(--surface)", color: "var(--ink)", boxShadow: "inset 0 0 0 1px var(--rule), 0 2px 0 var(--rule)", transform: `rotate(${[-3, 2, -1][i % 3]}deg)` }}>{w}</span>
+          <span key={w} className="rounded-[var(--r-sm)] px-2.5 py-1.5 text-sm font-semibold" style={{ background: "var(--surface)", color: "var(--ink)", boxShadow: "0 0 0 1px var(--edge), 0 2px 0 var(--edge)", transform: `rotate(${[-3, 2, -1][i % 3]}deg)` }}>{w}</span>
         ))}
       </div>
     </div>
@@ -285,7 +285,7 @@ function MapArt() {
         {["majas", "majast", "majja"].map((w, i) => (
           <span key={w} className="rounded-full px-2.5 py-0.5 text-xs font-bold" style={i === 0
             ? { background: "var(--sky)", color: "var(--on-sky)" }
-            : { background: "var(--surface)", color: "var(--ink-2)", boxShadow: "inset 0 0 0 1px var(--rule)" }}>{w}</span>
+            : { background: "var(--surface)", color: "var(--ink-2)", boxShadow: "0 0 0 1px var(--edge)" }}>{w}</span>
         ))}
       </div>
     </div>
@@ -295,9 +295,9 @@ function MapArt() {
 function Twins() {
   return (
     <div className="flex items-center gap-2" lang="et">
-      <span className="rounded-[var(--r)] px-3 py-3 text-base font-bold" style={{ background: "var(--surface)", color: "var(--ink)", transform: "rotate(-4deg)", boxShadow: "inset 0 0 0 1px var(--rule)" }}>algama</span>
+      <span className="rounded-[var(--r)] px-3 py-3 text-base font-bold" style={{ background: "var(--surface)", color: "var(--ink)", transform: "rotate(-4deg)", boxShadow: "0 0 0 1px var(--edge)" }}>algama</span>
       <span className="font-display text-2xl font-bold" style={{ color: "var(--blush-ink)" }}>≠</span>
-      <span className="rounded-[var(--r)] px-3 py-3 text-base font-bold" style={{ background: "var(--surface)", color: "var(--ink)", transform: "rotate(4deg)", boxShadow: "inset 0 0 0 1px var(--rule)" }}>alustama</span>
+      <span className="rounded-[var(--r)] px-3 py-3 text-base font-bold" style={{ background: "var(--surface)", color: "var(--ink)", transform: "rotate(4deg)", boxShadow: "0 0 0 1px var(--edge)" }}>alustama</span>
     </div>
   );
 }
@@ -355,7 +355,7 @@ function Openers() {
         {["poodi", "poes", "poest"].map((w, i) => (
           <span key={w} className="rounded-full px-2.5 py-1 text-xs font-bold" style={i === 0
             ? { background: "var(--sky)", color: "var(--on-sky)" }
-            : { background: "var(--surface)", color: "var(--ink-2)", boxShadow: "inset 0 0 0 1px var(--rule)" }}>{w}</span>
+            : { background: "var(--surface)", color: "var(--ink-2)", boxShadow: "0 0 0 1px var(--edge)" }}>{w}</span>
         ))}
       </div>
     </div>

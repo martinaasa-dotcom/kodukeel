@@ -52,6 +52,65 @@ const wrapped = new Set();
 const where = new Map();
 const contrast = [];
 const small = [];
+/**
+  AN EDGE READS AGAINST THE GROUND IT SITS ON.
+
+  The same edge on a white card, drawn once on the page and once on a lavender
+  tile, has to read the same weight on both, or two things meant as one set
+  look like two different objects. It is the fault the flash card drawing had
+  beside the workbook page on Practice: an opaque `--rule` hairline, chosen to
+  sit on white, at 1.04:1 against the lavender and 1.13:1 against the butter.
+  And under it a wider one: a translucent `--edge` border was composited over
+  the card's own fill rather than the ground, so it was 1.01:1 on the
+  situation tiles and 1.19:1 on the page. Collected per edge (the color, the
+  kind and the width) and per fill, keyed by the ground it was met on; a group
+  met on two grounds may not differ by more than twice in how far its edge
+  stands off them. Only where the fill alone does not separate from its
+  ground, because that is the case where the edge is doing the work.
+*/
+const edges = new Map();
+const edgesOnPage = () => {
+  const rgba = (s) => { const m = (s.match(/[\d.]+/g) ?? []).map(Number); return m.length >= 3 ? [m[0], m[1], m[2], m.length >= 4 ? m[3] : 1] : null; };
+  const opaque = (s) => { const c = rgba(s); return c && c[3] >= 0.95 ? c : null; };
+  const groundOf = (el) => {
+    for (let n = el; n; n = n.parentElement) {
+      const cs = getComputedStyle(n);
+      if (cs.backgroundImage !== "none") return null;
+      const c = opaque(cs.backgroundColor);
+      if (c) return c;
+    }
+    return [255, 255, 255, 1];
+  };
+  const over = (top, under) => top.slice(0, 3).map((v, i) => v * top[3] + under[i] * (1 - top[3]));
+  const out = [];
+  for (const el of document.querySelectorAll("*")) {
+    if (el.closest("nextjs-portal, [data-ornament]")) continue;
+    const r = el.getBoundingClientRect();
+    if (r.width < 24 || r.height < 16) continue;
+    const cs = getComputedStyle(el);
+    const fill = opaque(cs.backgroundColor);
+    if (!fill || !el.parentElement) continue;
+    const ground = groundOf(el.parentElement);
+    if (!ground) continue;
+    const ring = cs.boxShadow !== "none" && cs.boxShadow.match(/(rgba?\([^)]*\))\s+0px\s+0px\s+0px\s+([\d.]+)px(\s+inset)?/);
+    const bw = parseFloat(cs.borderTopWidth);
+    let edge = null, spec = "";
+    // A clear border or ring is not an edge: it draws nothing to read against anything.
+    const visible = (c) => c && c[3] > 0.01;
+    if (ring && parseFloat(ring[2]) <= 2 && visible(rgba(ring[1]))) {
+      edge = over(rgba(ring[1]), ring[3] ? fill : ground);
+      spec = `${ring[3] ? "inset ring" : "ring"} ${ring[2]}px ${ring[1]}`;
+    } else if (bw > 0 && bw <= 2 && cs.borderTopStyle === "solid" && visible(rgba(cs.borderTopColor))) {
+      // A background runs under its border unless it is clipped to the padding box.
+      edge = over(rgba(cs.borderTopColor), cs.backgroundClip === "padding-box" ? ground : fill);
+      spec = `border ${bw}px ${cs.borderTopColor}`;
+    }
+    if (!edge) continue;
+    out.push({ edge, ground: ground.slice(0, 3), fill: fill.slice(0, 3), spec,
+      what: `${el.tagName.toLowerCase()}.${String(el.className).slice(0, 40)}` });
+  }
+  return out;
+};
 let noFocus = [];
 
 for (const url of PAGES) {
@@ -171,6 +230,20 @@ for (const url of PAGES) {
   }
   for (const r of data.radii) radii.set(r, (radii.get(r) ?? 0) + 1);
   for (const w of data.wrapped) wrapped.add(`${url} ${w}`);
+
+  // The edges, in both themes on the same render, then back to light for the next page.
+  for (const theme of ["light", "dark"]) {
+    await p.evaluate((t) => { document.documentElement.dataset.theme = t; }, theme);
+    for (const e of await p.evaluate(edgesOnPage)) {
+      // A fill that already stands off its ground does not lean on its edge.
+      if (ratio(e.fill, e.ground) > 1.25) continue;
+      const key = `${theme} ${e.spec} on a fill of ${e.fill.map(Math.round).join(",")}`;
+      if (!edges.has(key)) edges.set(key, new Map());
+      const grounds = edges.get(key), g = e.ground.map(Math.round).join(",");
+      if (!grounds.has(g)) grounds.set(g, { lift: ratio(e.edge, e.ground) - 1, at: `${url} ${e.what}` });
+    }
+  }
+  await p.evaluate(() => { document.documentElement.dataset.theme = "light"; });
 }
 
 // Focus rings, by actually tabbing: `:focus-visible` matches keyboard focus
@@ -219,7 +292,7 @@ for (const url of ["/welcome"]) {
 }
 
 // Floor: 13, measured in the state CI seeds. A thinner database reads as short.
-const { check, absent, done } = suite("Design system", { floor: 15 });
+const { check, absent, done } = suite("Design system", { floor: 16 });
 
 /**
  * WHETHER THE CLIENT EVER STARTED, WHICH IS A DIFFERENT QUESTION FROM THE ONE
@@ -325,6 +398,16 @@ if (TOKEN_RADII.length < 4) {
 }
 const ALLOWED_RADII = new Set([...TOKEN_RADII, "50%", "2px", "0px"]);
 const strayRadii = [...radii.keys()].filter((r) => !ALLOWED_RADII.has(r) && parseFloat(r) < 1000);
+const unmatched = [];
+for (const [key, grounds] of edges) {
+  if (grounds.size < 2) continue;
+  const lifts = [...grounds.values()].map((g) => g.lift);
+  if (Math.max(...lifts) / Math.max(Math.min(...lifts), 0.001) <= 2) continue;
+  unmatched.push(`${key}: ${[...grounds].map(([g, v]) => `${(1 + v.lift).toFixed(3)}:1 on ${g} at ${v.at}`).join("; ")}`);
+}
+check("an edge drawn on two grounds reads alike on both", edges.size > 0 && unmatched.length === 0,
+  edges.size === 0 ? "no edges were measured, which is the measurement failing" : unmatched.join("\n    "));
+
 check("corners come from the four token radii", strayRadii.length === 0, strayRadii.join(" "));
 
 check("nothing is left half-faded at the bottom of a page", faded.length === 0,

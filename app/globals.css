@@ -3296,6 +3296,31 @@
   .choice-btn:active:not(:disabled) { transform: translateY(0) scale(0.99); box-shadow: none; }
 
   /*
+    AN EDGE READS AGAINST THE GROUND IT SITS ON.
+
+    `--edge` is translucent ink on purpose: it darkens whatever is behind it by
+    the same amount, so one card edged on the page, on a lavender tile and on a
+    butter one reads the same weight on all three. A border only does that if
+    the box's own fill stops at the border. By default a background runs under
+    its border (`background-clip: border-box`), so the translucent edge was
+    composited over the card's white rather than over the ground, came out the
+    same light gray everywhere, and vanished on a pale tint: measured at 1.19:1
+    against the page and 1.01:1 against the lavender situation tiles, one class
+    of card at two weights. Clipping to the padding box hands the edge to the
+    ground. An opaque border is unchanged by it, which is why it can be broad;
+    a transparent one would show the ground, which is why `.option-other` is
+    out. `!important` because an inline `background:` shorthand resets the clip.
+    `scripts/test-design.mjs` measures the same edge on every ground it meets.
+  */
+  [style*="var(--edge)"],
+  .choice-btn:not(.option-other), .section-tag, .who-card, .plan-card,
+  .situation-tile, .situation-played, .situation-out, .situation-place,
+  .recap-panel, .speech-mic:disabled, .snd-key, .snd-word, .snd-set,
+  .snd-letter, .spell-other, .match-chip:disabled {
+    background-clip: padding-box !important;
+  }
+
+  /*
     THE MATCHING TABLE (`ConjugationSession`, `shape: "match"`).
 
     A row there used to wear `.field`, the shape of a text box, and a learner
