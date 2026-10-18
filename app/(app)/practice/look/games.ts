@@ -19,18 +19,16 @@ export type GroupId = "daily" | "play" | "think";
 
 export interface LookGroup {
   id: GroupId;
-  /** The short word on the filter chip. */
-  chip: string;
-  /** The heading over the group, which has room to say more. */
+  /** The group's name, on its filter chip and as the heading over it. */
   name: string;
   hint: string;
   tone: string;
 }
 
 export const GROUPS: readonly LookGroup[] = [
-  { id: "daily", chip: "Daily", name: "One a day", hint: "A new puzzle every morning. Come back tomorrow for the next.", tone: "sky" },
-  { id: "play", chip: "Quick", name: "A few minutes", hint: "Quick and light. Play as often as you like.", tone: "butter" },
-  { id: "think", chip: "Tricky", name: "Head-scratchers", hint: "Work out how Estonian fits together.", tone: "accent" },
+  { id: "daily", name: "Daily", hint: "A new puzzle every morning. Come back tomorrow for the next.", tone: "sky" },
+  { id: "play", name: "Quick", hint: "Quick and light. Play as often as you like.", tone: "butter" },
+  { id: "think", name: "Tricky", hint: "Work out how Estonian fits together.", tone: "accent" },
 ];
 
 export interface LookGame {

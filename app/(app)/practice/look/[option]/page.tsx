@@ -69,7 +69,7 @@ export default async function LookPage({ params, searchParams }: {
       <TodayTile game={today} tomorrow={tomorrow} weekday={WEEKDAYS[day]!} a1={a1} done={done.has(today.href)} />
 
       <nav aria-label="Show a group" className="mb-6 mt-10 flex flex-wrap gap-2">
-        {[{ id: null, chip: "All 11" }, ...GROUPS].map((g) => {
+        {[{ id: null, name: "All 11" }, ...GROUPS].map((g) => {
           const on = g.id === group;
           return (
             <Link
@@ -81,7 +81,7 @@ export default async function LookPage({ params, searchParams }: {
                 ? { background: "var(--ink)", color: "var(--surface)" }
                 : { background: "var(--surface)", color: "var(--ink-2)", boxShadow: "inset 0 0 0 1px var(--rule)" }}
             >
-              {g.chip}
+              {g.name}
             </Link>
           );
         })}
