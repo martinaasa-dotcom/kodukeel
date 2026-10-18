@@ -129,9 +129,11 @@ export function LessonRunner({ lesson, practice, review, next, scene, place }: {
               </p>
             </div>
             <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
-              <StatTile value={lesson.teaches.length} label={t("new to say")} tone="accent" />
+              {lesson.teaches.length > 0
+                ? <StatTile value={lesson.teaches.length} label={t("new to say")} tone="accent" />
+                : <StatTile value={wordsUsed(lesson)} label={t("words put to use")} tone="accent" />}
               <StatTile value={lesson.conversation.filter((l) => l.et).length} label={t("lines heard")} tone="accent" />
-              <StatTile value={fill(t("{n} of {total}"), { n: String(place.at), total: String(place.of) })} label={fill(t("lessons in {level}"), { level: lesson.level })} tone="accent" />
+              <StatTile value={place.at} label={fill(t("{level} lesson"), { level: lesson.level })} hint={fill(t("of {total}"), { total: String(place.of) })} tone="accent" />
             </div>
             {saved === false && !saving && (
               <div className="mt-4 flex flex-wrap items-center justify-center gap-3" role="status">
@@ -210,6 +212,19 @@ export function LessonRunner({ lesson, practice, review, next, scene, place }: {
       </Stack>
     </Page>
   );
+}
+
+/**
+ * How many different words tonight's conversation used. The figure for an
+ * evening that teaches nothing new (a check-in, the end of a part), where
+ * "0 new to say" would be the first thing on the finish screen.
+ */
+function wordsUsed(lesson: LessonSpec): number {
+  const words = new Set<string>();
+  for (const line of lesson.conversation) {
+    for (const w of (line.et ?? "").toLocaleLowerCase("et").split(/[^\p{L}]+/u)) if (w) words.add(w);
+  }
+  return words.size;
 }
 
 /** Step 1: the conversation, in the cast's voices, with the English under each line. */
