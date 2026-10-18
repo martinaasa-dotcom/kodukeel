@@ -263,6 +263,15 @@ export default async function CoursePage({
           </span>
         }
         title={t("Today's module is done")}
+        titleMark={
+          <span
+            aria-hidden
+            className="tick-land flex h-8 w-8 items-center justify-center rounded-full"
+            style={{ background: "var(--good-soft)", color: "var(--good-ink)" }}
+          >
+            <Check size={20} strokeWidth={3} />
+          </span>
+        }
         lead={
           /*
             THE RUN OF EVENINGS IS THE ONE FIGURE WORTH SAYING HERE. "Six days
@@ -271,8 +280,8 @@ export default async function CoursePage({
             nothing, since "one evening in a row" is a sentence nobody says.
           */
           reading.eveningsInARow >= 2
-            ? fill(t("{run} evenings in a row now, and {done} of {total} done."), { run: reading.eveningsInARow, done: reading.daysDone, total })
-            : fill(t("{done} of {total} evenings done. See you tomorrow."), { done: reading.daysDone, total })
+            ? fill(t("{run} evenings in a row now, and {done} of {total} finished."), { run: reading.eveningsInARow, done: reading.daysDone, total })
+            : fill(t("{done} of {total} evenings finished. See you tomorrow!"), { done: reading.daysDone, total })
         }
       >
         <Stack>
