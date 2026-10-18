@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useLayoutEffect, useRef, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { FitText } from "@/components/FitText";
 import { NamedIcon } from "@/components/icons";
 
@@ -64,10 +64,22 @@ const HUES = ["butter", "blush", "sky", "accent"] as const;
 const hue = (i: number) => `var(--${HUES[i % HUES.length]})`;
 
 /*
-  A headline longer than this would wrap to four lines in the column the cards
-  leave it, so the words go above the cards instead, whatever the width.
+  WHETHER THE HEADLINE GOES ABOVE THE CARDS IS MEASURED, NOT COUNTED.
+  It used to be a fixed forty characters whatever the cards needed, so a
+  fifty-character headline beside one card went across the top and left an
+  empty band under it with the words floating far below, while the column
+  beside the card could have held it in two lines. The rule is the room: the
+  headline goes above the cards only where, beside them, it would run past
+  `MAX_SIDE_LINES` lines. These counts are the first guess the server draws
+  with, a little generous so a phone-width render never guesses "beside";
+  the card measures itself and corrects them before it is painted on a client.
 */
-const LONG_TITLE = 40;
+const MAX_SIDE_LINES = 3;
+const LONG_GUESS: Record<number, number> = { 1: 72, 2: 60, 3: 46, 4: 42, 5: 40 };
+/* Below this the words and the cards are one column, so there is nothing to decide. */
+const SIDE_BY_SIDE = 560;
+/* The hand's column at its narrowest, where there is no fan (app/hero-fan.css). */
+const HAND_COLUMN = 240;
 
 /* Wider cards for fewer, so three and five read as one family. */
 const CARD_WIDTH: Record<number, number> = { 1: 140, 2: 140, 3: 132, 4: 118, 5: 106 };
@@ -90,6 +102,8 @@ export function HeroFan({
   nextLabel?: string;
 }) {
   const titleId = useId();
+  const n = Math.max(1, Math.min(5, cards.length));
+  const [long, setLong] = useState(() => title.length > (LONG_GUESS[n] ?? 40));
   const ref = useRef<HTMLElement>(null);
   const head = useRef<HTMLDivElement>(null);
   const words = useRef<HTMLDivElement>(null);
@@ -105,6 +119,7 @@ export function HeroFan({
     const parent = blocks[0]?.parentElement;
     if (!parent) return;
     const fit = () => {
+      setLong(headlineGoesAbove(ref.current, n));
       for (const el of blocks) {
         el.style.width = "";
         const left = el.getBoundingClientRect().left;
@@ -131,7 +146,7 @@ export function HeroFan({
       seen.disconnect();
       edited.disconnect();
     };
-  }, [title]);
+  }, [title, n]);
 
   /* Where the pointer is, for the light that follows it, written once a frame. */
   useEffect(() => {
@@ -161,7 +176,6 @@ export function HeroFan({
     };
   }, []);
 
-  const n = Math.max(1, Math.min(5, cards.length));
   const shown = cards.slice(0, 5);
   const cardW = CARD_WIDTH[n] ?? 128;
   /* One label size for the whole fan, a step of the type scale (see `labelStep`). */
@@ -176,8 +190,9 @@ export function HeroFan({
   const next = shown.findIndex((c) => c.state === "now");
   const shape = [
     "hero-fan", `hero-fan-n${n}`,
-    title.length > LONG_TITLE ? "hero-fan-long" : "",
+    long ? "hero-fan-long" : "",
     hand ? "hero-fan-hand" : "",
+    action ? "hero-fan-act" : "",
     steps ? "hero-fan-steps" : "hero-fan-figures",
     bright ? "" : "hero-fan-muted",
   ].filter(Boolean).join(" ");
@@ -289,6 +304,33 @@ function Card({ card, i, n, bright }: { card: FanCard; i: number; n: number; bri
       </div>
     </li>
   );
+}
+
+/**
+ * Whether the headline, laid beside the cards, would run past
+ * `MAX_SIDE_LINES` lines. The room is the row less the gap and the cards'
+ * narrowest column, which is what the grid leaves the words once the fan has
+ * taken its minimum; the headline's width is read off its own font with a
+ * canvas, so nothing on the page has to be laid out twice to find it.
+ */
+function headlineGoesAbove(section: HTMLElement | null, n: number): boolean {
+  const row = section?.querySelector<HTMLElement>(".hero-fan-row");
+  const title = section?.querySelector<HTMLElement>(".hero-fan-title");
+  if (!section || !row || !title) return false;
+  const width = row.clientWidth;
+  if (width < SIDE_BY_SIDE) return false;
+  const fanned = !section.classList.contains("hero-fan-hand") && width >= (n === 5 ? 800 : 700);
+  const cards = fanned
+    ? parseFloat(getComputedStyle(section).getPropertyValue("--fan-min")) || HAND_COLUMN
+    : n <= 2 ? section.querySelector<HTMLElement>(".hero-fan-box")?.scrollWidth ?? HAND_COLUMN : HAND_COLUMN;
+  const room = width - (parseFloat(getComputedStyle(row).columnGap) || 48) - cards;
+  if (room <= 0) return true;
+  const ctx = document.createElement("canvas").getContext("2d");
+  if (!ctx) return false;
+  const style = getComputedStyle(title);
+  ctx.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+  /* A balanced wrap is a little wider per line than a greedy one would need. */
+  return Math.ceil((ctx.measureText(title.textContent ?? "").width * 1.08) / room) > MAX_SIDE_LINES;
 }
 
 /*

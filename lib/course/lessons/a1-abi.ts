@@ -20,7 +20,7 @@ import type { LessonSpec, PartOfLessons } from "./types";
 export const A1_ABI_PART: PartOfLessons = {
   id: "a1-abi",
   level: "A1",
-  title: "{Abi}",
+  title: "Help",
   about: "Help: telling and asking, the doctor, the phone, and the end of A1.",
 };
 

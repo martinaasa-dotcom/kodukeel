@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Check, Lock } from "lucide-react";
-import { markCourseStep, startCourseDay } from "@/app/actions";
+import { Check, Lock } from "lucide-react";
+import { markCourseStep } from "@/app/actions";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { Button, ButtonLink } from "@/components/Button";
+import { Button } from "@/components/Button";
+import { OpenStep } from "@/components/course/OpenStep";
 import { Card, Chip, Note } from "@/components/ui";
-import { MEET_STEP, type CourseStep } from "@/lib/course/types";
+import type { CourseStep } from "@/lib/course/types";
 import { focusedSteps } from "@/lib/course/focus";
 import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
@@ -123,22 +124,6 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
     });
   };
 
-  /*
-    The first step is the one press that writes cards, so it is a button that
-    navigates rather than a link. Everything else is an ordinary link, which
-    keeps the prefetch and the back button working the way they do everywhere.
-  */
-  const open = (step: CourseStep) => {
-    if (step.id !== MEET_STEP) return;
-    setFailed(null);
-    start(async () => {
-      const result = await startCourseDay(programmeId, dayId).catch(() => null);
-      if (!result) { setFailed(t("That didn't reach us.")); return; }
-      if (!result.ok) { setFailed(t(result.error)); return; }
-      router.push(opens.get(step.id) ?? step.href);
-    });
-  };
-
   return (
     <ol data-step-list className="flex flex-col gap-3">
       {steps.map((step, at) => {
@@ -224,15 +209,15 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
                           that way once.
                         */}
                         <span data-step-start className="contents">
-                          {step.id === MEET_STEP ? (
-                            <Button variant="primary" onClick={() => open(step)} disabled={pending}>
-                              {t("Start")} <ArrowRight size={15} aria-hidden />
-                            </Button>
-                          ) : (
-                            <ButtonLink href={opens.get(step.id) ?? step.href} variant="primary">
-                              {t("Start")} <ArrowRight size={15} aria-hidden />
-                            </ButtonLink>
-                          )}
+                          <OpenStep
+                            programmeId={programmeId}
+                            dayId={dayId}
+                            stepId={step.id}
+                            href={opens.get(step.id) ?? step.href}
+                            label={t("Start")}
+                            disabled={pending}
+                            onFailed={setFailed}
+                          />
                         </span>
                       </>
                     ) : (

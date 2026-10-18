@@ -17,7 +17,7 @@ import type { LessonSpec, PartOfLessons } from "./types";
 export const A1_SOOK_PART: PartOfLessons = {
   id: "a1-sook",
   level: "A1",
-  title: "{Söök ja jook}",
+  title: "Food and drink",
   about: "Food and drink, ordering and paying, and your first case.",
 };
 

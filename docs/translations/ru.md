@@ -1435,9 +1435,9 @@ _lib/copy/i18n/areas/today.ts_
   → Открыть курс
 - [ ] **696.** Today's module is done  
   → Занятие на сегодня пройдено
-- [ ] **697.** {run} evenings in a row now, and {done} of {total} done.  
+- [ ] **697.** {run} evenings in a row now, and {done} of {total} finished.  
   → Вечеров подряд: {run}, пройдено {done} из {total}.
-- [ ] **698.** {done} of {total} evenings done. See you tomorrow.  
+- [ ] **698.** {done} of {total} evenings finished. See you tomorrow!  
   → Пройдено вечеров: {done} из {total}. До завтра!
 - [ ] **699.** Come back tomorrow for {unit}.  
   → Возвращайтесь завтра: впереди {unit}.

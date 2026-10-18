@@ -1,7 +1,6 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { requireUserId } from "@/lib/auth/session";
 import { LESSON_PARTS, LESSONS, lessonLabel } from "@/lib/course/lessons";
-import { Braced } from "@/components/Braced";
 import { LessonText } from "@/components/course/LessonText";
 import { Card, Chip, Page, SectionTitle, Stack } from "@/components/ui";
 import { localeFor, titleFor } from "@/lib/progress/locale";
@@ -36,7 +35,7 @@ export default async function LessonsPage() {
           const lessons = LESSONS.filter((l) => l.part === part.id);
           return (
             <section key={part.id} id={part.id} className="scroll-mt-20">
-              <SectionTitle hint={<LessonText text={part.about} locale={locale} />}><Braced text={part.title} /></SectionTitle>
+              <SectionTitle hint={<LessonText text={part.about} locale={locale} />}><LessonText text={part.title} locale={locale} /></SectionTitle>
               <ol className="flex flex-col gap-3">
                 {lessons.map((lesson) => (
                   <li key={lesson.id}>

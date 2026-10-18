@@ -8,11 +8,13 @@ import { Speak } from "@/components/Speak";
 import { MicButton } from "@/components/speech/MicButton";
 import { ReadAloud } from "@/components/speech/ReadAloud";
 import { useSpeech } from "@/components/speech/useSpeech";
+import { useFeedbackSound } from "@/components/AudioPrefs";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
 import { Card, Note, SectionTitle } from "@/components/ui";
 import { fill } from "@/lib/copy/locale";
-import { wordsOf, type LessonSpec, type Prompt } from "@/lib/course/lessons";
+import { markPhrase, normalisePhrase, wordsOf, type LessonSpec, type Prompt, type TypedMark } from "@/lib/course/lessons";
+import { VERDICT_CLASS } from "@/lib/ux/verdict";
 
 /**
  * SAY IT: THE HEADLINE OF THE EVENING, AND OPTIONAL (docs/43-lessons.md §2).
@@ -29,12 +31,12 @@ import { wordsOf, type LessonSpec, type Prompt } from "@/lib/course/lessons";
  * so a typed evening goes straight to the questions. The choice lasts the
  * evening.
  *
- * NOTHING IS MARKED, AND THE SOUNDS ARE NEVER JUDGED (ADR-018, ADR-028). The
- * answers are the learner's own, their name and their country, so there is no
- * one right string to compare against: what was heard goes in the box for
- * them to read and change, and one way to say it is shown afterwards beside
- * it. Words light up when they are understood, and an unlit word is only
- * unlit.
+ * NOTHING IS GRADED, AND THE SOUNDS ARE NEVER JUDGED (ADR-018, ADR-028).
+ * What was heard goes in the box for the learner to read and change, and Check
+ * compares it with one way to say it (`AnswerCard` says how far). Many of
+ * these answers are the learner's own, their name and their country, so a
+ * different answer is never called wrong, and nothing reaches the review log.
+ * Words light up when they are understood, and an unlit word is only unlit.
  *
  * AND WHERE THE LESSON HAS A CONVERSATION OF ITS OWN, THE END OFFERS IT
  * (`lib/scenes/lessonScenes.ts`). The role-play above is a script with one
@@ -72,7 +74,7 @@ export function SayIt({ lesson, scene, onComplete }: { lesson: LessonSpec; scene
     return (
       <div className="flex flex-col gap-5" data-say-it="choose">
         <p className="max-w-[60ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {t("This is the part that makes tonight's words yours. Say the conversation along with the screen, then answer a few questions about yourself out loud. Nobody judges how you sound: the words light up as they're understood, and that's all.")}
+          {t("Words you've said out loud are the ones you remember. Say the conversation along with the screen, then answer a few questions about yourself out loud. Nobody judges how you sound: the words light up as they're understood, and that's all.")}
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <Button size="lg" onClick={() => setMode("type")}>
@@ -159,7 +161,27 @@ function SayTheLines({ lesson, onNext }: { lesson: LessonSpec; onNext: () => voi
   );
 }
 
-/** A question about the learner, or one turn of the role-play: answered aloud or typed, then one way to say it. */
+/**
+ * A question about the learner, or one turn of the role-play: answered aloud
+ * or typed, then checked against one way to say it.
+ *
+ * THE TASK IS THE HEADING, AND THEIR LINE IS A BUBBLE UNDER IT. The other
+ * side's Estonian used to lead at 20px bold under "They say", with the task a
+ * size smaller below it, so the eye landed on `Aitäh!` and a learner said it
+ * back, which was reported off this card. What to do is the one thing the
+ * card is for, so it is the `h2`; what they said is context, drawn quieter as
+ * a speech bubble.
+ *
+ * AND CHECK MEANS CHECK. The button only ever revealed the model, so an
+ * answer heard and typed into the box was met with nothing. It compares now
+ * with `markPhrase`, the Practise step's own marker: the model's words are
+ * "that's it", a slip is "nearly", and repeating their line back is named as
+ * that, and an answer most of the way to the model is painted nearly, like
+ * every other screen (`mark.close`). Anything else is not called wrong, because these answers are the
+ * learner's own (their name, their town) and the model is one way among many.
+ * Nothing is graded either way (ADR-028). A spoken answer that is the model,
+ * a slip of it or their line back checks itself the moment it is heard.
+ */
 function AnswerCard({ card, mode, voice, onNext, last }: {
   card: Extract<SayCard, { kind: "answer" }>;
   mode: Mode;
@@ -169,35 +191,61 @@ function AnswerCard({ card, mode, voice, onNext, last }: {
 }) {
   const t = useT();
   const locale = useLocale();
+  const sound = useFeedbackSound();
   const { prompt } = card;
   const [text, setText] = useState("");
   const [shown, setShown] = useState(false);
+  const [mark, setMark] = useState<TypedMark | null>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
   const expect = useMemo(() => new Set(wordsOf(prompt.model.et).map((w) => w.low)), [prompt.model.et]);
-  const speech = useSpeech({ endpoint: true, expect, onHeard: (hearing) => setText(hearing.understood) });
-  const mic = mode === "say" && speech.offered;
+  const said = normalisePhrase(text);
+  const isEcho = (value: string) => prompt.ask !== undefined && normalisePhrase(value) === normalisePhrase(prompt.ask.et);
+  // Their own line said back, which is the mistake this card used to invite.
+  const echo = mark !== null && mark.verdict === "wrong" && isEcho(text);
 
-  const reveal = () => {
+  const reveal = (value: string = text) => {
+    const m = normalisePhrase(value).length > 0 ? markPhrase(value, [prompt.model.et]) : null;
+    if (m && m.verdict !== "wrong") sound("right");
+    setMark(m);
     setShown(true);
     requestAnimationFrame(() => nextRef.current?.focus());
   };
 
+  // A heard answer that is the model, or a slip of it, or their own line back,
+  // checks itself: making somebody press Check on "that's it" is a press for
+  // nothing. Anything else stays in the box, since it may be the recognizer's
+  // mishearing or the learner's own answer, and Check is theirs to press.
+  const speech = useSpeech({
+    endpoint: true,
+    expect,
+    onHeard: (hearing) => {
+      setText(hearing.understood);
+      if (shown) return;
+      const m = markPhrase(hearing.understood, [prompt.model.et]);
+      if (m.verdict !== "wrong" || isEcho(hearing.understood)) reveal(hearing.understood);
+    },
+  });
+  const mic = mode === "say" && speech.offered;
+
   return (
     <Card>
-      <SectionTitle hint={card.label}>{prompt.ask ? t("They say") : t("Your turn")}</SectionTitle>
+      <SectionTitle hint={card.label}><LessonText text={prompt.cue} locale={locale} /></SectionTitle>
       {card.scene && <p className="mb-4 text-base" style={{ color: "var(--ink-2)" }}><LessonText text={card.scene} locale={locale} /></p>}
       {prompt.ask && (
-        <div className="mb-4 flex flex-col gap-1">
-          <div className="flex items-center gap-3">
-            <Speak text={prompt.ask.et} voice={voice} size={18} autoplay />
-            <p lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>{prompt.ask.et}</p>
+        <div className="mb-5 flex flex-col gap-1.5" data-their-line>
+          <span className="label-xs" style={{ color: "var(--ink-3)" }}>{t("They say")}</span>
+          <div className="inline-flex max-w-full items-start gap-2 self-start rounded-2xl rounded-tl-sm px-4 py-2.5" style={{ background: "var(--raised)" }}>
+            <Speak text={prompt.ask.et} voice={voice} size={16} autoplay />
+            <div className="min-w-0">
+              <p lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>{prompt.ask.et}</p>
+              <p className="text-sm" style={{ color: "var(--ink-3)" }}><LessonText text={prompt.ask.en} locale={locale} /></p>
+            </div>
           </div>
-          <p className="text-sm" style={{ color: "var(--ink-2)" }}><LessonText text={prompt.ask.en} locale={locale} /></p>
         </div>
       )}
-      <p className="text-base font-semibold" style={{ color: "var(--ink)" }}><LessonText text={prompt.cue} locale={locale} /></p>
 
-      <div className="mt-3 flex flex-col gap-3">
+      <div className="flex flex-col gap-3">
+        <span className="label-xs" style={{ color: "var(--ink-3)" }}>{t("You say")}</span>
         {mic && (
           <div className="flex flex-wrap items-center gap-3">
             <MicButton speech={speech} label={t("Say it")} />
@@ -208,6 +256,7 @@ function AnswerCard({ card, mode, voice, onNext, last }: {
           lang="et"
           className="field w-full"
           value={text}
+          readOnly={shown}
           aria-label={mic ? t("What you said, in Estonian") : t("Your answer, in Estonian")}
           autoComplete="off"
           autoCapitalize="off"
@@ -223,16 +272,28 @@ function AnswerCard({ card, mode, voice, onNext, last }: {
         {!shown && <div className="under-field"><DiacriticBar /></div>}
       </div>
 
-      {shown && (
-        <div className="mt-4 flex flex-col gap-1" role="status">
-          <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("One way to say it")}</p>
-          <div className="flex items-center gap-3">
-            <Speak text={prompt.model.et} size={16} />
-            <p lang="et" className="text-lg font-bold" style={{ color: "var(--ink)" }}>{prompt.model.et}</p>
+      <div className="mt-4 flex flex-col gap-3" role="status" aria-live="polite">
+        {shown && mark !== null && (mark.verdict !== "wrong" || mark.close) && (
+          <div className={`verdict-panel ${VERDICT_CLASS[mark.verdict === "wrong" ? "nearly" : mark.verdict]}`}>
+            <p>{t(mark.note)}</p>
           </div>
-          <p className="text-sm" style={{ color: "var(--ink-2)" }}><LessonText text={prompt.model.en} locale={locale} /></p>
-        </div>
-      )}
+        )}
+        {shown && echo && (
+          <div className="verdict-panel" style={{ background: "var(--raised)", color: "var(--ink)" }}>
+            <p>{t("That's what they said to you. Your line answers it.")}</p>
+          </div>
+        )}
+        {shown && mark?.verdict !== "right" && (
+          <div className="flex flex-col gap-1">
+            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("One way to say it")}</p>
+            <div className="flex items-center gap-3">
+              <Speak text={prompt.model.et} size={16} />
+              <p lang="et" className="text-lg font-bold" style={{ color: "var(--ink)" }}>{prompt.model.et}</p>
+            </div>
+            <p className="text-sm" style={{ color: "var(--ink-2)" }}><LessonText text={prompt.model.en} locale={locale} /></p>
+          </div>
+        )}
+      </div>
 
       <div className="mt-5 flex flex-wrap justify-end gap-3">
         {shown ? (
@@ -240,9 +301,12 @@ function AnswerCard({ card, mode, voice, onNext, last }: {
             {last ? t("Done") : t("Next")} <ArrowRight size={15} aria-hidden />
           </Button>
         ) : (
-          <Button variant="primary" onClick={reveal}>
-            {t("Show one way to say it")}
-          </Button>
+          <>
+            {said.length === 0 && (
+              <Button variant="ghost" onClick={() => reveal()}>{t("Show one way to say it")}</Button>
+            )}
+            <Button variant="primary" onClick={() => reveal()} disabled={said.length === 0}>{t("Check it")}</Button>
+          </>
         )}
       </div>
     </Card>
