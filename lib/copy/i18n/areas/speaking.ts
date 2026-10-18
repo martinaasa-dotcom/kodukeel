@@ -6,8 +6,11 @@ import type { Area } from "../area";
  * area is, and marked so on the language choice. Keyed on the English each
  * line translates; see `lib/copy/locale.ts`. No Estonian in here (ADR-005).
  *
- * "Heard" is the verb throughout, in all three languages: the app says which
- * words it understood and never what a sound was like (section 3).
+ * "Heard" is the verb for what the machine heard, and "understood" for a word
+ * that came across, in all three languages: the app says which words it
+ * understood and what it heard them as, and never what a sound was like
+ * (section 3). How a sound was made is left to the learner's own ear, beside
+ * the native recording ("Hear yourself, then them").
  */
 export const SPEAKING: Area = {
   ru: {
@@ -21,8 +24,17 @@ export const SPEAKING: Area = {
       "Очень громко. Держите микрофон чуть дальше.",
     "Heard: {text}": "Услышано: {text}",
     "Nothing was heard.": "Ничего не услышано.",
-    "Every word was heard.": "Услышано каждое слово.",
-    "{n} of {total} words were heard.": "Услышано слов: {n} из {total}.",
+    "Every word was understood.": "Понято каждое слово.",
+    "{n} of {total} words were understood.": "Понято слов: {n} из {total}.",
+
+    // You, then them (CompareVoices): the sound is checked by ear.
+    "Hear yourself, then them": "Послушать себя, потом их",
+    "You…": "Вы…",
+    "Now them…": "Теперь они…",
+    "The app checks the words. Your ear checks the sound.": "Приложение проверяет слова. Звучание проверяет ваш слух.",
+    "Playing your recording.": "Звучит ваша запись.",
+    "Playing the native recording.": "Звучит запись носителя языка.",
+    "We heard {heard} for {word}.": "Мы услышали {heard} вместо {word}.",
 
     // The download.
     "Download for speaking": "Загрузка для устной речи",
@@ -93,8 +105,17 @@ export const SPEAKING: Area = {
       "Дуже гучно. Тримайте мікрофон трохи далі.",
     "Heard: {text}": "Почуто: {text}",
     "Nothing was heard.": "Нічого не почуто.",
-    "Every word was heard.": "Почуто кожне слово.",
-    "{n} of {total} words were heard.": "Почуто слів: {n} з {total}.",
+    "Every word was understood.": "Зрозуміло кожне слово.",
+    "{n} of {total} words were understood.": "Зрозуміло слів: {n} з {total}.",
+
+    // You, then them (CompareVoices): the sound is checked by ear.
+    "Hear yourself, then them": "Послухати себе, потім їх",
+    "You…": "Ви…",
+    "Now them…": "Тепер вони…",
+    "The app checks the words. Your ear checks the sound.": "Застосунок перевіряє слова. Звучання перевіряє ваш слух.",
+    "Playing your recording.": "Звучить ваш запис.",
+    "Playing the native recording.": "Звучить запис носія мови.",
+    "We heard {heard} for {word}.": "Ми почули {heard} замість {word}.",
 
     // The download.
     "Download for speaking": "Завантаження для усного мовлення",

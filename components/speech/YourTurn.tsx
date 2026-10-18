@@ -4,9 +4,11 @@ import { useMemo, useState } from "react";
 import { useT } from "@/components/Locale";
 import { useAudioPrefs } from "@/components/AudioPrefs";
 import { playClip } from "@/lib/audio/clip";
-import { lineWords, lightUp, shareLit } from "@/lib/speech/lightUp";
+import { clarityOf, lineWords, lightUp, litAttr, shareLit, type LineClarity } from "@/lib/speech/lightUp";
 import { core } from "@/lib/speech/reconcile";
 import { saidIt } from "@/lib/speech/verdict";
+import { CompareVoices } from "./CompareVoices";
+import { HeardAs } from "./HeardAs";
 import { MicButton } from "./MicButton";
 import { useSpeech } from "./useSpeech";
 
@@ -22,6 +24,11 @@ import { useSpeech } from "./useSpeech";
  *
  * Offered wherever speech is (D6: speaking is the task on the meet rung), and
  * skipped by simply carrying on, which is the press the screen already has.
+ *
+ * "Understood" is the word on the screen, because that is all the check can
+ * say: a word said with an accent is understood too. How it sounded is the
+ * learner's ear's to judge, so once they have said it `CompareVoices` plays
+ * their turn back and then the native word.
  */
 export function YourTurn({ text }: { text: string }) {
   const t = useT();
@@ -30,11 +37,14 @@ export function YourTurn({ text }: { text: string }) {
   const expect = useMemo(() => new Set(words.map((w) => core(w.text)).filter(Boolean)), [words]);
   const [outcome, setOutcome] = useState<"heard" | "again" | null>(null);
   const [understood, setUnderstood] = useState("");
+  const [clarity, setClarity] = useState<LineClarity | null>(null);
   const speech = useSpeech({
     endpoint: true,
     expect,
+    keepAudio: true,
     onHeard: (hearing, raw) => {
       setUnderstood(hearing.understood);
+      setClarity(clarityOf(words, hearing.words));
       const heard = saidIt(raw, text) || shareLit(lightUp(words, hearing.understood)) === 1;
       setOutcome(heard ? "heard" : "again");
       if (!heard) void playClip({ text, voice, pace }).catch(() => undefined);
@@ -50,7 +60,7 @@ export function YourTurn({ text }: { text: string }) {
       <p lang="et" className="text-lg font-semibold" style={{ color: "var(--ink)" }} aria-hidden>
         {words.map((w, i) => (
           <span key={`${i}-${w.text}`}>
-            <span className="read-aloud-word" data-lit={lit[i] ? "true" : "false"}>{w.text}</span>
+            <span className="read-aloud-word" data-lit={litAttr(lit[i]!, outcome && !speech.listening && clarity?.clarity[i] === "close" ? "close" : null)}>{w.text}</span>
             {i < words.length - 1 ? " " : ""}
           </span>
         ))}
@@ -58,8 +68,16 @@ export function YourTurn({ text }: { text: string }) {
       <MicButton speech={speech} label={t("Say it yourself")} shortcut showPartial={false} />
       {outcome && (
         <p className="text-sm" style={{ color: "var(--ink-2)" }} role="status">
-          {outcome === "heard" ? t("Heard. That's the word.") : t("That wasn't heard as the word this time. Here it is again; say it once more if you like.")}
+          {outcome === "heard"
+            ? clarity?.clarity.includes("close") ? t("Understood.") : t("Understood. That's the word.")
+            : t("That wasn't heard as the word this time. Here it is again; say it once more if you like.")}
         </p>
+      )}
+      {outcome === "heard" && clarity && !speech.listening && !speech.thinking && <HeardAs line={words} clarity={clarity} />}
+      {outcome && !speech.listening && !speech.thinking && !speech.silent && (
+        <div className="flex justify-center">
+          <CompareVoices audio={speech.audio} text={text} hint={outcome === "heard"} />
+        </div>
       )}
     </div>
   );

@@ -54,7 +54,8 @@ export const SPEAKING_ROUND: Area = {
 
     // On meeting a word.
     "Say it yourself": "Скажите сами",
-    "Heard. That's the word.": "Услышано. Это то самое слово.",
+    "Understood. That's the word.": "Понятно. Это то самое слово.",
+    "Understood.": "Понятно.",
     "That wasn't heard as the word this time. Here it is again; say it once more if you like.":
       "На этот раз это не распозналось как нужное слово. Вот оно ещё раз; скажите снова, если хотите.",
 
@@ -114,7 +115,8 @@ export const SPEAKING_ROUND: Area = {
 
     // On meeting a word.
     "Say it yourself": "Скажіть самі",
-    "Heard. That's the word.": "Почуто. Це саме те слово.",
+    "Understood. That's the word.": "Зрозуміло. Це саме те слово.",
+    "Understood.": "Зрозуміло.",
     "That wasn't heard as the word this time. Here it is again; say it once more if you like.":
       "Цього разу це не розпізнано як потрібне слово. Ось воно ще раз; скажіть знову, якщо хочете.",
 

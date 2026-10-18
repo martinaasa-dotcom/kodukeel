@@ -69,6 +69,7 @@
     "report:speech": "tsx scripts/report-speech.ts",
     "report:spend": "tsx scripts/report-spend.ts",
     "measure:asr": "tsx scripts/measure-asr.ts",
+    "measure:confidence": "tsx scripts/measure-confidence.ts",
     "measure:compose": "tsx scripts/measure-compose.ts",
     "measure:scenes": "tsx scripts/measure-scenes.ts",
     "measure:parallel": "tsx scripts/measure-parallel.ts",

@@ -56,6 +56,89 @@ export function lightUp(line: readonly LineWord[], heard: string): boolean[] {
   return lit;
 }
 
+/**
+ * How each word of the line came across: heard exactly as it is spelled,
+ * understood but heard as a different spelling, or not heard.
+ *
+ * `lightUp` compares after the folds an English ear makes, so `üks` heard as
+ * `uks` and `kuus` heard as `kus` both light: the word was understood, which
+ * is what lighting promises. But in those cases the model did write the
+ * difference down, and on the line it is the one thing the app hears that
+ * says anything about a sound. `npm run measure:confidence` measured it: of 96
+ * native recordings of sixteen course words in six voices, 87 lit and every
+ * one of those was heard exactly as spelled; of 294 recordings of the same
+ * words said with a vowel, an umlaut or a length wrong, 148 lit and 43 of
+ * those were heard as a different spelling. The model's own confidence was no use
+ * for the same question (at the line that catches most, it doubts 44% of the
+ * native words), so this is the middle state and the number is not.
+ *
+ * It is one-sided by construction and the screen has to say so: `close` is
+ * strong evidence a word did not sound as spelled, and `clear` is no evidence
+ * that it did, because the model writes most words said with an accent as the
+ * word meant (docs/39-speech.md section 3.5). It never grades anything and
+ * never says a sound was wrong; it says what was heard ("we heard uks").
+ *
+ * The lit set is exactly `lightUp`'s over the same reading, asserted, so the
+ * two can never disagree about which words came across.
+ */
+export type WordClarity = "clear" | "close" | "missing";
+
+export interface LineClarity {
+  readonly clarity: readonly WordClarity[];
+  /** For each `close` word, the spelling it was heard as; `null` elsewhere. */
+  readonly heardAs: readonly (string | null)[];
+}
+
+export function clarityOf(
+  line: readonly LineWord[],
+  heard: readonly { readonly text: string; readonly heard: string }[],
+): LineClarity {
+  /* A word of the reading as `lightUp` splits `understood`: a repair can turn one
+     heard word into two ("kirjutusretsepti" read as "kirjutas retsepti"), and
+     both halves carry what was heard in their place. */
+  const said: { key: string; text: string; heard: string }[] = [];
+  for (const w of heard) {
+    for (const piece of w.text.normalize("NFC").split(/\s+/).filter(Boolean)) {
+      const key = soundKey(core(piece));
+      if (key) said.push({ key, text: piece, heard: w.heard });
+    }
+  }
+  const clarity = new Array<WordClarity>(line.length).fill("missing");
+  const heardAs = new Array<string | null>(line.length).fill(null);
+  let from = 0;
+  for (let i = 0; i < line.length; i++) {
+    const word = line[i]!;
+    if (!word.key) {
+      // Punctuation takes the state of the word before it, as `lightUp` lights it.
+      clarity[i] = i > 0 && clarity[i - 1] !== "missing" ? "clear" : "missing";
+      continue;
+    }
+    const at = said.findIndex((s, j) => j >= from && s.key === word.key);
+    if (at === -1) continue;
+    from = at + 1;
+    const as = said[at]!.heard;
+    if (core(as) === core(word.text)) clarity[i] = "clear";
+    else {
+      clarity[i] = "close";
+      heardAs[i] = core(as) || as;
+    }
+  }
+  const first = line.findIndex((word) => word.key);
+  if (first > 0) for (let i = 0; i < first; i++) clarity[i] = clarity[first] === "missing" ? "missing" : "clear";
+  return { clarity, heardAs };
+}
+
+/**
+ * The `data-lit` a word is drawn with: lit, lit with what it was heard as
+ * beside it (`app/globals.css` draws the wavy underline), or not lit. While a
+ * turn is still being said only `lightUp`'s two states exist, and `null`
+ * stands for that.
+ */
+export function litAttr(lit: boolean, clarity: WordClarity | null): "true" | "close" | "false" {
+  if (clarity === null) return lit ? "true" : "false";
+  return clarity === "close" ? "close" : clarity === "clear" ? "true" : "false";
+}
+
 /** How much of the line was heard, 0 to 1, for a quiet "you said most of it" rather than a score. */
 export function shareLit(lit: readonly boolean[]): number {
   return lit.length === 0 ? 0 : lit.filter(Boolean).length / lit.length;

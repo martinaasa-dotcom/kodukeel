@@ -18,6 +18,8 @@ import { useAudioPrefs } from "@/components/AudioPrefs";
 import { useOffline } from "@/components/OfflineProvider";
 import { MicButton, MicError } from "@/components/speech/MicButton";
 import { useSpeech } from "@/components/speech/useSpeech";
+import { CompareVoices } from "@/components/speech/CompareVoices";
+import { HeardAs } from "@/components/speech/HeardAs";
 import { useSpokenBox } from "@/components/speech/SpokenBox";
 import { inEditable, isAdvanceKey, isPlayKey } from "@/lib/ux/advanceKey";
 import { VERDICT_CLASS, verdictOfCheck } from "@/lib/ux/verdict";
@@ -28,8 +30,8 @@ import { useLocale, useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 import { fillNodes } from "@/components/fillNodes";
 import { gapMeaning } from "@/lib/copy/gapMeaning";
-import { lineWords, lightUp, shareLit } from "@/lib/speech/lightUp";
-import { core } from "@/lib/speech/reconcile";
+import { clarityOf, lineWords, lightUp, litAttr, shareLit } from "@/lib/speech/lightUp";
+import { core, type Hearing } from "@/lib/speech/reconcile";
 import { playClip, playHeard, untilQuiet } from "@/lib/audio/clip";
 import { noteIn, type AnswerCheck } from "@/lib/estonian/answer";
 import type { EngineError } from "@/lib/speech/engine";
@@ -88,7 +90,7 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
   useEffect(() => { rememberCard(item ? { id: item.key } : undefined); }, [rememberCard, item]);
 
   /* What the shadowing steps heard, as text and as the model's own reading. */
-  const [lit, setLit] = useState<{ understood: string; heard: string } | null>(null);
+  const [lit, setLit] = useState<{ understood: string; heard: string; words: Hearing["words"] } | null>(null);
   const [revealed, setRevealed] = useState(false);
   const words = useMemo(() => (item ? lineWords(item.et) : []), [item]);
   const expect = useMemo(() => new Set(words.map((w) => core(w.text)).filter(Boolean)), [words]);
@@ -119,8 +121,9 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
   const shadow = useSpeech({
     endpoint: true,
     expect,
+    keepAudio: true,
     onHeard: (hearing) => {
-      setLit({ understood: hearing.understood, heard: hearing.heard });
+      setLit({ understood: hearing.understood, heard: hearing.heard, words: hearing.words });
       setRevealed(true);
       setSaid((n) => n + 1);
       if (handsFreeRef.current) onAfterPause();
@@ -377,6 +380,8 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
 
   const litFlags = lightUp(words, step === "meaning" ? "" : shadow.listening ? shadow.partial : lit?.understood ?? "");
   const share = shareLit(litFlags);
+  // How each word came across once the turn is over: heard as spelled, or understood as another spelling.
+  const clarity = step !== "meaning" && lit && !shadow.listening ? clarityOf(words, lit.words) : null;
   const showLine = step === "along" || revealed || (step === "back" && handsFree && !!lit);
   const meaning = item.isSentence && item.target !== item.et
     ? gapMeaning({ en: item.en, answer: item.target, cue: null })
@@ -425,7 +430,7 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
             <p lang="et" className="text-2xl font-semibold leading-relaxed" style={{ color: "var(--ink)" }} data-read-aloud>
               {words.map((w, i) => (
                 <span key={`${i}-${w.text}`}>
-                  <span className="read-aloud-word" data-lit={litFlags[i] ? "true" : "false"}>{w.text}</span>
+                  <span className="read-aloud-word" data-lit={litAttr(litFlags[i]!, clarity?.clarity[i] ?? null)}>{w.text}</span>
                   {i < words.length - 1 ? " " : ""}
                 </span>
               ))}
@@ -451,10 +456,11 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
               <p className="text-sm" style={{ color: "var(--ink-2)" }} role="status">
                 {lit
                   ? words.length === 1
-                    ? share === 1 ? t("Heard. That's the word.") : t("That wasn't heard as the word this time. Say it again whenever you like.")
-                    : share === 1 ? t("Every word was heard.") : fill(t("{n} of {total} words were heard."), { n: litFlags.filter(Boolean).length, total: words.length })
+                    ? share === 1 ? (clarity?.clarity.includes("close") ? t("Understood.") : t("Understood. That's the word.")) : t("That wasn't heard as the word this time. Say it again whenever you like.")
+                    : share === 1 ? t("Every word was understood.") : fill(t("{n} of {total} words were understood."), { n: litFlags.filter(Boolean).length, total: words.length })
                   : ""}
               </p>
+              {clarity && <HeardAs line={words} clarity={clarity} />}
             </div>
           )}
 
@@ -508,13 +514,21 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
             )}
           </div>
 
-          {/* Hear what came across, and hear yourself: two presses, never automatic. */}
+          {/* Hear what came across, and hear yourself beside them: presses, never automatic.
+              On a shadow step the native line is already on the screen, so it can follow the
+              learner's own turn at once. On the recall it follows only once the answer is
+              shown, because before that the native voice would say the answer. */}
           {!handsFree && (
             <div className="flex flex-wrap items-center justify-center gap-2">
               {heardText(step, lit, box.hearing?.heard ?? null) && online && (
                 <HearItHeard text={heardText(step, lit, box.hearing?.heard ?? null)!} voice={voice} pace={pace} />
               )}
-              {step === "meaning" && <Recorder audio={box.speech.audio} />}
+              {step !== "meaning" && lit && !shadow.listening && !shadow.thinking && !shadow.silent && (
+                <CompareVoices audio={shadow.audio} text={item.et} hint={index === 0 && step === "along"} />
+              )}
+              {step === "meaning" && (check
+                ? <CompareVoices audio={box.speech.audio} text={item.et} />
+                : <Recorder audio={box.speech.audio} />)}
             </div>
           )}
 
