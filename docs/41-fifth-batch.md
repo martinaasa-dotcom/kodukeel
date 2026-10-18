@@ -1313,6 +1313,64 @@ microphone opens only on a press, the sound never leaves the device, and speech 
 browser driven by a test (`navigator.webdriver`) is skipped by the background download, so every suite
 does not fetch 71 MB; `scripts/test-speech.mjs` clears the flag on one page to check the download itself.
 
+## 8c. After the batch: "every word was heard" is not "you said it right"
+
+Reported by the operator on 2026-10-18: `aitäh` said on purpose as "eye-toy", and `palun` with the
+stress on the wrong syllable, were both answered "Every word was heard." under a lesson line. Then
+the question: could the app give a confidence rating instead?
+
+**Measured before anything was drawn.** `npm run measure:confidence` decodes clips exactly as a screen
+does (prepared, decoded greedy and beam by the shipped model, reconciled with the forms list, lit by
+`lightUp`) and reads every signal a rating could be built from. Sixteen course words: 96 clips of
+TartuNLP saying them right in six voices, 294 of the same voices saying a misspelling (a vowel, an
+umlaut or a length wrong, the technique of `docs/39-speech.md` section 3.5), and 90 of espeak-ng's
+English voice reading an English respelling ("eye toy"), which is cruder than any learner.
+
+| Signal, share of clips it calls good | Native (96) | A vowel or length wrong (294) | English accent (90) |
+| --- | --- | --- | --- |
+| The word lights (what the screen said) | 90.6% | 50.3% | 0% |
+| Heard exactly as spelled | 90.6% | 35.7% | 0% |
+| Lights, and its lowest token log probability is over -1.0 | 56.3% | 22.4% | 0% |
+| Lights, and over -1.5 | 86.5% | 40.8% | 0% |
+
+Three findings.
+
+1. **No confidence number.** The model's own log probability cannot carry a rating: at the line that
+   separates the two sets best it doubts 44% of the words said right, so it would tell a learner who
+   spoke well that the app was not sure of them nearly half the time. That is the 34.8% precision of
+   `docs/39-speech.md` section 3.6 seen from the other side.
+2. **One honest middle state.** `lightUp` compares after the folds an English ear makes, so `üks` heard
+   as `uks` and `kuus` heard as `kus` light. The model wrote the difference down, and the screen threw
+   it away. Of the 87 native clips that lit, every one was heard as spelled; of the 148 wrong clips that
+   lit, 43 were heard as another spelling. So `clarityOf` (lib/speech/lightUp.ts) keeps it: a lit word
+   heard as spelled is `clear`, a lit word heard otherwise is `close`, drawn lit with the wavy underline
+   `.heard-unsure` already means, and the sentence under the line says what was heard, "We heard uks
+   for üks", which is the wording `lib/copy/voice.ts` asks for. It is evidence one way only: `close`
+   says a word did not come out as spelled, and `clear` says nothing about how it sounded, because the
+   model writes most words said with an accent as the word meant. Every one of the `aitäh` and `palun`
+   clips above came back `clear`. It grades nothing and changes no verdict.
+3. **The ear is the judge, so the screen hands the sound to it.** `CompareVoices` plays the learner's own
+   turn back, as it was, and then the native recording of the same line: one press, both voices, the
+   native last so it is the one still in the ear. It is on every line said along (`ReadAloud`, so the
+   lesson's Say it step, a conversation's "hear them first", the errand rehearsal and the scanner's
+   "say them"), on "Your turn" when meeting a word, on the Speaking round's two shadow steps, and on its
+   recall step once the answer is shown, since before that the native voice would say the answer. The
+   audio is the turn the engine heard (`keepAudio`), in the tab only, never stored or sent (D1, D21),
+   and both halves count as the app speaking, so the microphone stays closed (D14).
+
+   Both voices are drawn as well as played: a row of bars each, on one time scale for the pair
+   (`lib/audio/waveBars.ts`), so a turn said slower is a longer row and a held vowel a wider hump, and
+   the bars light as each voice plays. Estonian carries meaning in how long a sound lasts, and length
+   is the half of the comparison an eye can check. It is loudness and nothing else, in the accent and
+   never a verdict hue. The turn plays back as the speech alone (`speechOnly`), because the
+   microphone keeps seconds of room after the last word and that was a wait before the native voice
+   with nothing in it.
+
+What a word's light means is now said in words: "Every word was understood", "Understood. That's the
+word.", and the lesson's Say it step says before the first press that a word lights when it is
+understood, even said with an accent. The pair judge of D1 (SP-6) is still the one thing that could
+judge a sound, between two named candidates, and still waits on real learners' recordings.
+
 ## 9. A brief to paste into a fresh session
 
 > You are working on Kodukeel. Read `CLAUDE.md`, then `docs/41-fifth-batch.md`, then the speech work

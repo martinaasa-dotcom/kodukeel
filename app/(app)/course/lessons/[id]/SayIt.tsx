@@ -74,7 +74,7 @@ export function SayIt({ lesson, scene, onComplete }: { lesson: LessonSpec; scene
     return (
       <div className="flex flex-col gap-5" data-say-it="choose">
         <p className="max-w-[60ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {t("Words you've said out loud are the ones you remember. Say the conversation along with the screen, then answer a few questions about yourself out loud. Nobody judges how you sound: the words light up as they're understood, and that's all.")}
+          {t("Words you've said out loud are the ones you remember. Say the conversation along with the screen, then answer a few questions about yourself out loud. A word lights up when it's understood, even said with an accent, so play yourself back beside the recording to hear how it sounded.")}
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <Button size="lg" onClick={() => setMode("type")}>
@@ -147,7 +147,8 @@ function SayTheLines({ lesson, onNext }: { lesson: LessonSpec; onNext: () => voi
               <span className="label-xs" style={{ color: "var(--ink-3)" }}>{line.who}</span>
               <Speak text={line.et!} voice={lesson.cast[line.who]} size={16} label={fill(t("Hear {who} say it"), { who: line.who })} />
             </div>
-            <ReadAloud line={line.et!} />
+            {/* The comparison says what it is for once, on the first line, rather than under every line of the list. */}
+            <ReadAloud line={line.et!} voice={lesson.cast[line.who]} compareHint={i === 0} />
             <p className="text-sm" style={{ color: "var(--ink-2)" }}><LessonText text={line.en ?? ""} locale={locale} /></p>
           </li>
         ))}

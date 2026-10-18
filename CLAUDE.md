@@ -11489,6 +11489,23 @@ microphone works with the microphone denied, and `PAID_OFF=speech` takes every o
 deploy (D15). Re-run `scripts/measure-asr.ts` before claiming anything about sounds; it compares
 recognizers on byte-identical audio and refuses to report a rate when the service refused too much
 of the sample, which it learned by once reporting 2% over three surviving sentences.
+
+**A lit word is understood, and the sound is handed to the ear.** A learner said `aitäh` as
+"eye-toy" on purpose and read "Every word was heard" as "you said it right", then asked for a
+confidence rating. `npm run measure:confidence` asked every signal the recognizer returns, on the
+shipped model and pipeline, and the model's own log probability cannot carry one: at its best line it
+doubts 44% of words said right. What it found instead is the one honest middle state: a word that lit
+only through the folds an English ear makes (`üks` heard as `uks`, `kuus` as `kus`) was written down
+as another spelling, never once on 87 native clips that lit and on 43 of 148 wrong ones that lit.
+`clarityOf` in `lib/speech/lightUp.ts` keeps it, the line draws such a word with the wavy underline
+and says "We heard uks for üks" (`HeardAs`), and the sentence under a line says "understood". It is
+evidence one way only, since a word heard as spelled can still have been said with an accent, so every
+screen that lights a line also plays the learner's own turn back and then the native line
+(`CompareVoices`), which writes nothing. Both voices are drawn there too, as rows of bars on one
+time scale that light as each plays, so a turn said slower is a longer row: length is what Estonian
+means with and what an eye can check. `docs/41-fifth-batch.md` section 8c; asserted in
+`scripts/invariants/the-sound-is-for-the-ear.ts`.
+
 The level check has a speaking section for the same reason it has the other three, and it obeys the
 same rule: it collects the learner's own rating, reports it as theirs, and contributes **nothing**
 to the level. `SCORED_SKILLS` in `lib/assessment/score.ts` names the three that count, and
@@ -12174,6 +12191,7 @@ npm run asr:runtime      # build the pinned sherpa-onnx runtime the app serves (
 npm run asr:fixtures     # remake the fixture clips the browser suites feed the fake microphone (TartuNLP)
 npm run asr:golden       # record lib/speech/fixtures/golden.json off the web engine, the native apps' first test
 npm run measure:numbers  # what TartuNLP says for every number shape the numbers round plays, heard back
+npm run measure:confidence # can anything the recognizer returns tell a word said well from one said badly (TartuNLP, no key)
 npm run measure:scenes   # how much of a conversation the dictionary can already carry
 npm run play:scenes      # every scene played keyless as a sloppy or curious learner; read the transcripts (--scene, --style)
 npm run sweep:fallback   # every scene, keyless, eight scripted learners and every curveball at every beat; read the flags (--scene)

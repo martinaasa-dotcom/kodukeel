@@ -387,7 +387,7 @@ export interface PlayingRecording {
 }
 
 /** Silence written either side of a piece of a recording, so its first sound is not swallowed opening the stream. */
-const RECORDING_LEAD_S = 0.12;
+export const RECORDING_LEAD_S = 0.12;
 const RECORDING_TRAIL_S = 0.25;
 /** The fade over each cut edge, so a piece cut out of the middle of a recording does not click. */
 const RECORDING_FADE_S = 0.008;
