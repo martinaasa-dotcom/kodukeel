@@ -615,7 +615,7 @@ export default async function TodayPage() {
       />
     </Card>
   ) : (
-    <Card className="flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-8">
+    <Card tone="night" className="flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-8">
       <div className="min-w-0 flex-1">{figures ?? opening}</div>
       {/*
         Nineteen rem, which is the width the primary button was always drawn
