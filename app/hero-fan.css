@@ -127,14 +127,12 @@
   small phone. So the card goes from the eye and stays for a screen reader,
   and the line under it says what is next, right above the button.
 */
-@container hero-fan (max-width: 559px) {
-  .hero-fan-n1.hero-fan-act.hero-fan-steps .hero-fan-cards {
-    position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
-  }
-  .hero-fan-n1.hero-fan-act.hero-fan-steps .hero-fan-box { margin-top: 1.25rem; }
-  .hero-fan-n1.hero-fan-act.hero-fan-steps .hero-fan-caption { margin-top: 0; }
-  .hero-fan-n1.hero-fan-act.hero-fan-steps .hero-fan-action { margin-top: 1rem; }
+.hero-fan-n1.hero-fan-act.hero-fan-steps .hero-fan-cards {
+  position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
 }
+.hero-fan-n1.hero-fan-act.hero-fan-steps .hero-fan-box { margin-top: 1.25rem; }
+.hero-fan-n1.hero-fan-act.hero-fan-steps .hero-fan-caption { margin-top: 0; }
+.hero-fan-n1.hero-fan-act.hero-fan-steps .hero-fan-action { margin-top: 1rem; }
 
 /*
   Figures: a short stack of slim cards, one a line, the figure and then its word.
@@ -309,4 +307,29 @@
   .hero-fan-words > *, .hero-fan-action, .hero-fan-card, .hero-fan-face, .hero-fan-stamp, .hero-fan-count { animation: none !important; }
   .hero-fan-card, .hero-fan-face, .hero-fan-action a svg { transition: none !important; }
   .hero-fan-sheen, .hero-fan::before { display: none !important; }
+}
+
+/*
+  ONE STEP AND A BUTTON IS NEVER A CARD, AT ANY WIDTH. The lone card said
+  "Lesson, 18 min" a third time beside the line naming it, and it was the
+  thing that made the hero tall and lopsided: a column for one small card and
+  empty space round the words. Without it the words are one left-aligned
+  column, headline, line, caption, button, as tall as what is in them. Placed
+  after the wide shapes so it wins over them.
+*/
+@container hero-fan (min-width: 560px) {
+  .hero-fan-n1.hero-fan-act.hero-fan-steps .hero-fan-row,
+  .hero-fan-n1.hero-fan-act.hero-fan-steps.hero-fan-long .hero-fan-row {
+    grid-template-columns: minmax(0, 1fr); grid-template-rows: auto;
+    grid-template-areas: "head" "text" "cards" "action"; column-gap: 0; align-content: start;
+  }
+  .hero-fan-n1.hero-fan-act.hero-fan-steps .hero-fan-words,
+  .hero-fan-n1.hero-fan-act.hero-fan-steps.hero-fan-long .hero-fan-words { margin-top: 0.75rem; align-self: auto; }
+  .hero-fan-n1.hero-fan-act.hero-fan-steps .hero-fan-box,
+  .hero-fan-n1.hero-fan-act.hero-fan-steps.hero-fan-long .hero-fan-box { margin-top: 0.25rem; align-self: auto; }
+  .hero-fan-n1.hero-fan-act.hero-fan-steps .hero-fan-box { height: auto; }
+  /* The line above already says how long is left; "Next, Lesson, 18 min" would be the card again in words. */
+  .hero-fan-n1.hero-fan-act.hero-fan-steps .hero-fan-caption { display: none; }
+  .hero-fan-n1.hero-fan-act.hero-fan-steps .hero-fan-action,
+  .hero-fan-n1.hero-fan-act.hero-fan-steps.hero-fan-long .hero-fan-action { margin-top: 1.5rem; align-self: auto; }
 }
