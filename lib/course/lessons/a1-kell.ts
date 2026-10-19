@@ -180,7 +180,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Every verb today follows lesson 9. Learn the pair, {ärkama, ärkan}, and the persons follow: {ärkad}, {ärkab}, {ärkavad}.",
+        "Every verb tonight follows lesson 9. Learn the pair, {ärkama, ärkan}, and the persons follow: {ärkad}, {ärkab}, {ärkavad}.",
         "{Minema} is the odd one: its I-form is {lähen}, and the rest follow that, {lähed}, {läheb}, {lähevad}.",
         "{Magama} after {lähen} is going to bed: {Ma lähen magama}.",
         "The no works on every one of them, as in lesson 12: {Laupäeval ma ei tööta}.",

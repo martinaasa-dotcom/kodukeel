@@ -24,7 +24,7 @@ const RESIDENTS_MEETING: SceneSpec = {
   */
   units: [...COMMON, "uhiskond", "poliitika", "keskkond", "arvamus", "loodus", "kirjeldamine", "inimesed", "plaanid", "ostmine", "kodu", "too-ja-raha", "minevik", "omadussonad", "vaba-aeg", "vordlemine", "varvid"],
   register: "teie",
-  role: "This is a role. The yard behind your building is bare and muddy, and there's a residents' meeting today. You want to persuade the neighbors to plant something.",
+  role: "This is a role. The yard behind your building is bare and muddy, and there's a residents' meeting tonight. You want to persuade the neighbors to plant something.",
   props: [],
   /*
     No `contradiction`: its lines had the chair announce there would be no

@@ -486,7 +486,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "minema-vastu", phrase: "mindi vastu", particle: "vastu", verb: GO,
     means: "to go and meet", literal: "to go against",
     parts: ["one went", "against"],
-    when: "Your cousin lands today, so you drive to the airport to meet them.",
+    when: "Your cousin lands tonight, so you drive to the airport to meet them.",
     sentences: [
       { lemma: "vastu", et: "Mindi lennujaama külalistele vastu.", run: "Mindi lennujaama külalistele vastu" },
       { lemma: "lennujaam", et: "Lähen homme sõbrale lennujaama vastu.", run: "Lähen homme sõbrale lennujaama vastu" },
