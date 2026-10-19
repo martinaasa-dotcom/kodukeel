@@ -3269,6 +3269,8 @@
   .choice-btn {
     --choice-border: var(--edge);
     --choice-bg: var(--surface);
+    border-width: 1px;
+    border-style: solid;
     border-color: var(--choice-border);
     background: var(--choice-bg);
     transition-property: color, background-color, border-color, box-shadow, transform;
