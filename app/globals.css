@@ -6044,6 +6044,34 @@ a:focus-visible .wave-word::after {
     margin: 0 -0.04em;
   }
   .snd-word[data-live] .snd-mark { background: var(--surface); }
+  /*
+    Plain or soft, over a word whose consonant the spelling does not mark. A
+    tag rather than a color on the word, so the two words of a pair are told
+    apart in words; the soft one wears the accent because it is the sound a
+    learner has to learn to hear, the plain one the quiet ground.
+  */
+  .snd-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.1rem 0.55rem;
+    border-radius: 999px;
+    font-size: var(--text-2xs);
+    font-weight: 700;
+    line-height: 1.35;
+    white-space: nowrap;
+  }
+  .snd-tag-plain { background: var(--raised); color: var(--ink-2); }
+  .snd-tag-soft { background: var(--accent-soft); color: var(--accent-deep); }
+  /* The soft word's pill carries the accent at its edge too, so the pair reads as plain and soft at a glance. */
+  .snd-tag-soft + .snd-word:not([data-live]) { border-color: color-mix(in srgb, var(--accent) 45%, var(--edge)); }
+  .snd-tag-soft::before {
+    content: "";
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 999px;
+    background: currentColor;
+  }
   .snd-stress { font-weight: 800; color: var(--accent-deep); }
   .snd-dot {
     display: inline-block;
@@ -6142,4 +6170,32 @@ a:focus-visible .wave-word::after {
   @media (prefers-reduced-motion: reduce) { .spell-slot[data-live] { transform: none; } }
   /* Columns by the room the content column has, never by the window: at 768 the rail takes a third of it. */
   .snd-cols { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); }
+  /* A sub-heading inside a section of the sounds page: a group of sets that share one point. */
+  .snd-subhead { font-size: var(--text-sm); font-weight: 700; color: var(--ink-2); }
+  /*
+    Where the page goes, under the hero: the page is a dozen sections long and
+    a learner who came for the soft l should not scroll past the alphabet's
+    worth of vowels to reach it.
+  */
+  .snd-jump { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .snd-jump a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid var(--edge);
+    background: var(--surface);
+    color: var(--ink-2);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    white-space: nowrap;
+    transition-property: background-color, border-color, color;
+    transition-duration: 160ms;
+  }
+  @media (hover: hover) {
+    .snd-jump a:hover { border-color: var(--accent); color: var(--accent-deep); background: var(--accent-soft); }
+  }
+  @media (pointer: coarse) { .snd-jump a { min-height: 2.75rem; } }
+  [data-sounds-section] { scroll-margin-top: 1.5rem; }
 }

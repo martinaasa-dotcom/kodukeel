@@ -3690,3 +3690,46 @@ read, and pass 2 of the recording is kept outside the repository as a spare take
 The first evening teaches the four letters an English keyboard has no key for as one set of tiles, õ, ä, ö and ü, each a key that plays the sound alone and a word that plays it in use with its meaning under it; mm and h follow under them. Lesson 1 teaches no word with ö or ü in it, so `öö` (night) and `üks` (one) are heard there before any evening teaches them, which the ledger allows only for a sound's example word that carries its meaning (`SoundRow.en`). The two notes that said the same thing in prose came off the How step.
 
 The recorded alphabet is used for what letter names are for, spelling out loud. On the sounds page and in lesson 3, a learner types a name and hears it spelled letter by letter, each letter lighting as it is said, prefilled with their own name where they gave one. Lesson 3 teaches `Kuidas seda kirjutatakse?` (how do you spell that) with it, which the native speaker reads in the pull request. And Tähthaaval, a game on the games board, spells a word the learner has met down an imagined phone line for them to write down, with a box per letter that lights as it is said; a miss marks the wrong letters and spells it again slower. It grades nothing, since what it practices is the letters' names, which no card holds.
+
+## 66. The sixtieth pass: three more takes, and the soft consonants
+
+**The native speaker recorded three more takes, read off scripts.** Pass 2 is the sounds the first
+take had not reached: the soft consonants, one letter against two (`kala` and `kalla`, `kana` and
+`kanna`, `konn` and `nunnu`), the vowel pairs an English ear hears as one (`koht` and `kõht`, `suu`
+and `süü`), two more length triples and four more glides. Passes 3 and 4 are the words and the lines
+of lessons 3 to 13. The speaker is a man, so every line Mari, Liis or Anna says was left out of the
+cut, even where it was recorded, along with the one line said differently from the script and a
+false start. 227 clips, 353 in all.
+
+**The cut was placed by ear as well as by level.** The app's own recognizer heard every stretch of
+each take and its words were aligned against the script, which is how the false start was told apart
+from a line. Each cut starts at the first frame that is plainly speech, walked back through a quiet
+onset, and ends once the sound has stayed down for 50 ms, past a stop's closure to its release, so
+`palk`, `kõht`, `arst` and `lõug` keep their last sound. The built clips were heard again against
+their own text and their edges checked to be quiet. `scripts/build-native-audio.ts` reads a clip's
+take off the clip, so the four takes share one cut list.
+
+**A spelling that hides two words answers for neither.** `palk` the salary and `palk` the log, `tall`,
+`hall` and `vill` with a plain and a soft `l`, `kutsu` the puppy and invite!, `konna`, `saada` and `kanna` play only where a screen
+asks for the recording by id, never for a card that has not said which word it means.
+
+**And then the soft consonants were said a fifth time.** `hall` and `vill` came off the page when the
+speaker reported that his plain and soft versions sounded the same to him, and pass 5 said every pair
+of the soft section again, primed by the form that carries the softness (`halla`, then `hall`). It
+also added `kutsu` the puppy beside `kutsu` invite!, which replaces `kutse` against `kutsu` because a
+pair with one spelling is the stronger demonstration, and a soft s against a plain one (`pasun`,
+`poiss`, `buss`) and `pall`. The pairs it re-recorded keep their ids and play the new take, and
+`NATIVE_CUT` is 6. Both takes of `palk` were first cut short, and that is worth writing down. The k is released about a quarter second after the l, as an aspirated burst with low energy in it, and the spectral check read that burst as a breath and cut before it. The recognizer heard `palk` all the same, off the closure alone. The speaker heard the k missing at once. Cut 6 ends past that release. A recognizer that agrees is not proof that a stop is there; a native ear is.
+
+**One man's part in a conversation is his.** A lesson's conversation keeps its cast's voices, and the
+one part the native speaker may play, Tom's or Jaan's, plays his recording where every line of that
+part was recorded (`nativePart`). Twelve of the first thirteen lessons have such a part. A part that
+switched voice halfway would be two people answering to one name, so a part with one unrecorded line
+keeps its synthetic voice whole. The comparison after a learner reads a line aloud uses the recording
+on the same terms.
+
+**The sounds page has two new sections and a longer third.** Vowels that change the word, then soft
+consonants, with every pair tagged plain and soft in words, since the spelling cannot say which, then
+length with the new pairs and triples, each triple on a row of its own so it reads as one line. A row of
+links under the hero goes to each section. The glosses are in Russian and Ukrainian, machine
+translated like the rest of the page.

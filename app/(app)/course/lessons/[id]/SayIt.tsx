@@ -5,6 +5,7 @@ import { ArrowRight, Keyboard, Mic } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { Speak } from "@/components/Speak";
+import { nativePart } from "@/lib/audio/native";
 import { MicButton } from "@/components/speech/MicButton";
 import { ReadAloud } from "@/components/speech/ReadAloud";
 import { useSpeech } from "@/components/speech/useSpeech";
@@ -137,6 +138,7 @@ function SayTheLines({ lesson, onNext }: { lesson: LessonSpec; onNext: () => voi
   const t = useT();
   const locale = useLocale();
   const lines = lesson.conversation.filter((l) => l.et);
+  const played = nativePart(lesson.conversation);
   return (
     <Card>
       <SectionTitle hint={t("listen, then say it along")}>{t("Say the conversation")}</SectionTitle>
@@ -145,10 +147,10 @@ function SayTheLines({ lesson, onNext }: { lesson: LessonSpec; onNext: () => voi
           <li key={i} className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
               <span className="label-xs" style={{ color: "var(--ink-3)" }}>{line.who}</span>
-              <Speak text={line.et!} voice={lesson.cast[line.who]} size={16} label={fill(t("Hear {who} say it"), { who: line.who })} />
+              <Speak text={line.et!} voice={lesson.cast[line.who]} native={line.who === played} size={16} label={fill(t("Hear {who} say it"), { who: line.who })} />
             </div>
             {/* The comparison says what it is for once, on the first line, rather than under every line of the list. */}
-            <ReadAloud line={line.et!} voice={lesson.cast[line.who]} compareHint={i === 0} />
+            <ReadAloud line={line.et!} voice={lesson.cast[line.who]} native={line.who === played} compareHint={i === 0} />
             <p className="text-sm" style={{ color: "var(--ink-2)" }}><LessonText text={line.en ?? ""} locale={locale} /></p>
           </li>
         ))}

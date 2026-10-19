@@ -35,7 +35,7 @@ export function Speak(props: Parameters<typeof SpeakButton>[0]) {
 }
 
 function SpeakButton({
-  text, slow, label, size = 15, className, style, onUnavailable, onPlay, disabled, children, autoplay, insist, voice: askedVoice, condition, rate, spaceKey,
+  text, slow, label, size = 15, className, style, onUnavailable, onPlay, disabled, children, autoplay, insist, voice: askedVoice, native, condition, rate, spaceKey,
 }: {
   text: string; slow?: boolean; label?: string;
   /** A playback rate other than the clip's own, with the pitch held (`LEARNING_RATE`). */
@@ -52,6 +52,14 @@ function SpeakButton({
    * examination does; everywhere else the setting decides.
    */
   voice?: string;
+  /**
+   * Whether the native speaker's recording may stand in for the voice, where
+   * one says this text. A button left on the learner's own voice says yes; a
+   * screen that chose a voice says no unless it passes this, which a lesson's
+   * conversation does for the one part the speaker plays
+   * (`nativePart` in lib/audio/native.ts).
+   */
+  native?: boolean;
   /** Icon size in px, plus className/style overrides for a bigger tap target (e.g. Listening mode). */
   size?: number; className?: string; style?: CSSProperties;
   /**
@@ -137,7 +145,7 @@ function SpeakButton({
         round paid for it: its own copy of this caught both and told a learner
         their connection was down. `playClip` is the one answer now.
       */
-      const outcome = await playClip({ text, slow, voice, condition, rate, pace, native: !askedVoice }, { unasked });
+      const outcome = await playClip({ text, slow, voice, condition, rate, pace, native: native ?? !askedVoice }, { unasked });
       setState("idle");
       if (outcome === "played") onPlay?.();
     } catch {
