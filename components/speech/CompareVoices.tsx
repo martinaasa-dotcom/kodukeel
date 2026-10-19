@@ -40,13 +40,20 @@ import { SPEECH_SETTINGS } from "@/lib/speech/settings";
  * row is read off the very clip that plays, at the pace it plays at; a clip
  * that cannot be had (offline, the service down) leaves that row as a line.
  */
-export function CompareVoices({ audio, text, voice, hint = false, align = "start" }: {
+export function CompareVoices({ audio, text, voice, native: mayBeNative, hint = false, align = "start" }: {
   /** The turn's audio at 16 kHz, or null before anything has been said. */
   readonly audio: Float32Array | null;
   /** The Estonian line the native recording says. */
   readonly text: string;
   /** Whose voice the native line is in, where the screen has one; the learner's own choice otherwise. */
   readonly voice?: string;
+  /**
+   * Whether the native speaker's recording may stand in for that voice where
+   * one says the line, as on `Speak`: yes where no voice is named, and for the
+   * one part a conversation lets him play (`nativePart`). A learner's turn set
+   * beside a person saying the line is the comparison worth having.
+   */
+  readonly native?: boolean;
   /** Say once, under the button, that the app checks the words and the ear checks the sound. */
   readonly hint?: boolean;
   /** Where the card and its hint sit: against the line's edge, or under a centered card's middle. */
@@ -58,7 +65,11 @@ export function CompareVoices({ audio, text, voice, hint = false, align = "start
   const [native, setNative] = useState<Pcm | null>(null);
   const recording = useRef<PlayingRecording | null>(null);
   const run = useRef(0);
-  const request = useMemo(() => ({ text, voice: voice ?? prefs.voice, pace: prefs.pace }), [text, voice, prefs.voice, prefs.pace]);
+  const allowNative = mayBeNative ?? !voice;
+  const request = useMemo(
+    () => ({ text, voice: voice ?? prefs.voice, pace: prefs.pace, native: allowNative }),
+    [text, voice, prefs.voice, prefs.pace, allowNative],
+  );
 
   // A new turn, or the screen going, stops whatever was playing.
   useEffect(() => () => {

@@ -151,7 +151,7 @@ export function SoundKey({ clip, glyph, label, size = "md", loanword }: {
  * show, highlighted where they first occur, so a learner sees which part of
  * `aitäh` the ä is while they hear it.
  */
-export function NativeWord({ clip, owner, text, mark, stress, en, size = "md" }: {
+export function NativeWord({ clip, owner, text, mark, stress, en, tag, size = "md" }: {
   clip: string;
   /** Whose mark this is, where a set plays its words in turn; the button's own otherwise. */
   owner?: string;
@@ -162,18 +162,28 @@ export function NativeWord({ clip, owner, text, mark, stress, en, size = "md" }:
   stress?: readonly string[];
   /** What it means, under it. */
   en?: string;
+  /**
+   * Plain or soft, over it, where two words are told apart by a consonant the
+   * spelling does not mark. Said in words as well as drawn, and part of what a
+   * screen reader hears, because the difference is the whole point of the pair.
+   */
+  tag?: "plain" | "soft";
   size?: "md" | "lg";
 }) {
   const t = useT();
   const { isLive, press, intent } = useNative(clip, owner);
   const said = text ?? nativeClip(clip).text;
+  const tagged = tag === "soft" ? t("soft", "sound") : tag === "plain" ? t("plain", "sound") : null;
   return (
     <span className="snd-word-wrap">
+      {tagged && <span className={`snd-tag snd-tag-${tag}`} aria-hidden>{tagged}</span>}
       <button
         type="button"
         onClick={press}
         {...intent}
-        aria-label={fill(t('Hear "{text}" in Estonian'), { text: said })}
+        aria-label={tagged
+          ? fill(t('Hear "{text}", {tag}, in Estonian'), { text: said, tag: tagged })
+          : fill(t('Hear "{text}" in Estonian'), { text: said })}
         data-native={clip}
         data-live={isLive || undefined}
         className={`snd-word snd-word-${size} press`}
@@ -183,7 +193,7 @@ export function NativeWord({ clip, owner, text, mark, stress, en, size = "md" }:
           {stress ? <Syllables parts={stress} /> : <Marked text={said} mark={mark} />}
         </span>
       </button>
-      {en && <span className="snd-word-en">{t(en)}</span>}
+      {en && <span className="snd-word-en">{t(en, "gloss")}</span>}
     </span>
   );
 }
@@ -221,7 +231,7 @@ function Syllables({ parts }: { parts: readonly string[] }) {
  * in turn, a breath apart, with each word marked as it is said.
  */
 export function HearSet({ words, caption }: {
-  words: readonly { readonly clip: string; readonly text?: string; readonly mark?: string; readonly en?: string }[];
+  words: readonly { readonly clip: string; readonly text?: string; readonly mark?: string; readonly en?: string; readonly tag?: "plain" | "soft" }[];
   caption?: ReactNode;
 }) {
   const t = useT();
@@ -249,7 +259,7 @@ export function HearSet({ words, caption }: {
           </button>
         )}
         <span className="snd-set-words">
-          {owned.map((w) => <NativeWord key={w.owner} clip={w.clip} owner={w.owner} text={w.text} mark={w.mark} en={w.en} />)}
+          {owned.map((w) => <NativeWord key={w.owner} clip={w.clip} owner={w.owner} text={w.text} mark={w.mark} en={w.en} tag={w.tag} />)}
         </span>
       </div>
     </div>

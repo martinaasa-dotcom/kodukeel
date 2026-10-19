@@ -6,14 +6,15 @@ import { HearSet, NativeWord, SoundKey } from "@/components/sounds/Native";
 import { SpellIt } from "@/components/sounds/SpellIt";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import {
-  ALPHABET, CONSONANTS, LENGTH, MIX_UPS, SPECIAL, STRESS, VOWELS, VOWEL_WORDS, type SoundNote,
+  ALPHABET, CONSONANTS, LENGTH, MIX_UPS, SOFT_ALIKE, SOFT_BESIDE, SPECIAL, STRESS, VOWELS, VOWEL_PAIRS, VOWEL_WORDS,
+  type SoundNote, type WordSet,
 } from "@/lib/collections/sounds";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata() {
   return titleFor("How Estonian sounds", {
-    description: "Every sound of Estonian, said by a native speaker: the vowels, the long and short sounds, stress and the alphabet.",
+    description: "Every sound of Estonian, said by a native speaker: the vowels, the soft consonants, the long and short sounds, stress and the alphabet.",
   });
 }
 
@@ -57,7 +58,11 @@ export default async function SoundsPage() {
           </div>
         </Card>
 
-        <section className="flex flex-col gap-4" data-sounds-section="vowels">
+        <nav aria-label={t("On this page")} className="snd-jump" data-sounds-jump>
+          {JUMPS.map((j) => <a key={j.id} href={`#${j.id}`}>{t(j.label)}</a>)}
+        </nav>
+
+        <section id="vowels" className="flex flex-col gap-4" data-sounds-section="vowels">
           <SectionTitle hint={t("each one held on its own")}>{t("Nine vowels")}</SectionTitle>
           <div className="snd-grid">
             {VOWELS.map((v) => <SoundKey key={v.clip} clip={v.clip} glyph={v.glyph} />)}
@@ -79,7 +84,12 @@ export default async function SoundsPage() {
           </div>
         </section>
 
-        <section className="flex flex-col gap-4" data-sounds-section="consonants">
+        <section id="vowel-pairs" className="flex flex-col gap-4" data-sounds-section="vowel-pairs">
+          <SectionTitle hint={t("one vowel apart, another word")}>{t("Vowels that change the word")}</SectionTitle>
+          <Sets sets={VOWEL_PAIRS} t={t} />
+        </section>
+
+        <section id="consonants" className="flex flex-col gap-4" data-sounds-section="consonants">
           <SectionTitle hint={t("the ones English says differently")}>{t("Consonants to listen for")}</SectionTitle>
           <ul className="snd-cols gap-3">
             {CONSONANTS.map((c) => (
@@ -91,23 +101,30 @@ export default async function SoundsPage() {
           </ul>
         </section>
 
-        <section className="flex flex-col gap-4" data-sounds-section="length">
+        <section id="soft" className="flex flex-col gap-4" data-sounds-section="soft">
+          <SectionTitle hint={t("not written, but it changes the word")}>{t("Soft consonants")}</SectionTitle>
+          <p className="max-w-[62ch] text-md" style={{ color: "var(--ink-2)", textWrap: "pretty" }}>
+            {t("A soft l, n, t or s is said with the middle of the tongue raised, as if a little y came with it.")}
+          </p>
+          <h3 className="snd-subhead">{t("Spelled alike, said apart")}</h3>
+          <Sets sets={SOFT_ALIKE} t={t} />
+          <h3 className="snd-subhead">{t("Plain beside soft")}</h3>
+          <Sets sets={SOFT_BESIDE} t={t} />
+        </section>
+
+        <section id="length" className="flex flex-col gap-4" data-sounds-section="length">
           <SectionTitle hint={t("hold a double letter, or it's another word")}>{t("Length changes the word")}</SectionTitle>
-          <div className="flex flex-col gap-3">
-            {LENGTH.map((set) => (
-              <HearSet key={set.words.map((w) => w.clip).join("|")} words={set.words} caption={set.caption ? t(set.caption) : undefined} />
-            ))}
-          </div>
+          <Sets sets={LENGTH.filter((set) => set.words.length === 2)} t={t} />
+          <h3 className="snd-subhead">{t("Three lengths: short, long and longer still")}</h3>
+          <Sets sets={LENGTH.filter((set) => set.words.length > 2)} t={t} wide />
         </section>
 
-        <section className="flex flex-col gap-4" data-sounds-section="mix-ups">
+        <section id="mix-ups" className="flex flex-col gap-4" data-sounds-section="mix-ups">
           <SectionTitle hint={t("listen for the first sound, or the middle")}>{t("Easy to mix up")}</SectionTitle>
-          <div className="snd-cols gap-3">
-            {MIX_UPS.map((set) => <HearSet key={set.words.map((w) => w.clip).join("|")} words={set.words} />)}
-          </div>
+          <Sets sets={MIX_UPS} t={t} />
         </section>
 
-        <section className="flex flex-col gap-4" data-sounds-section="stress">
+        <section id="stress" className="flex flex-col gap-4" data-sounds-section="stress">
           <SectionTitle hint={t("always the first syllable")}>{t("Where the stress goes")}</SectionTitle>
           <div className="snd-set snd-set-row">
             {STRESS.map((s) => <NativeWord key={s.clip} clip={s.clip} stress={s.syllables} en={s.en} />)}
@@ -137,6 +154,34 @@ export default async function SoundsPage() {
         </section>
       </Stack>
     </Page>
+  );
+}
+
+/** Where the page goes, in the order it goes there. */
+const JUMPS: readonly { readonly id: string; readonly label: string }[] = [
+  { id: "vowels", label: "Vowels" },
+  { id: "vowel-pairs", label: "Vowel pairs" },
+  { id: "consonants", label: "Consonants" },
+  { id: "soft", label: "Soft consonants" },
+  { id: "length", label: "Length" },
+  { id: "mix-ups", label: "Mix-ups" },
+  { id: "stress", label: "Stress" },
+  { id: "alphabet", label: "Alphabet" },
+];
+
+/**
+ * Sets of words side by side, two sets to a row where the row has room. A set
+ * of three takes a row of its own, because its words are heard as one line,
+ * short then long then longer, and a third word wrapped under the first two
+ * breaks the line it is the end of.
+ */
+function Sets({ sets, t, wide = false }: { sets: readonly WordSet[]; t: (english: string) => string; wide?: boolean }) {
+  return (
+    <div className={wide ? "flex flex-col gap-3" : "snd-cols gap-3"}>
+      {sets.map((set) => (
+        <HearSet key={set.words.map((w) => w.clip).join("|")} words={set.words} caption={set.caption ? t(set.caption) : undefined} />
+      ))}
+    </div>
   );
 }
 

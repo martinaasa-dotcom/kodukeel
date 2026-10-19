@@ -58,6 +58,27 @@ describe("the native recordings", () => {
     expect(nativeFor("koer")).toBeNull();
   });
 
+  it("never answers a spelling that hides two words for either of them", () => {
+    for (const spelling of ["palk", "tall", "hall", "vill", "konna", "saada", "Saada!", "kanna"]) {
+      expect(nativeFor(spelling), spelling).toBeNull();
+    }
+  });
+
+  it("answers the words of lessons 3 to 13 in the speaker's own voice", () => {
+    expect(nativeFor("Kus sa elad?")?.id).toBe("line-kus-sa-elad");
+    expect(nativeFor("ma")?.id).toBe("word-ma");
+    expect(nativeFor("kas")?.id).toBe("word-kas");
+    expect(nativeFor("Ma olen pärit Inglismaalt. Aga ma elan Eestis.")?.id).toBe("line-ma-olen-paerit-inglismaalt-aga-ma-elan-eestis");
+    expect(nativeFor("Ma räägin inglise keelt ja natuke eesti keelt.")?.id).toBe("line-ma-raeaegin-inglise-keelt-ja-natuke-eesti-keelt");
+  });
+
+  it("holds no line a woman says in a conversation, because the voice is a man's", () => {
+    for (const line of ["Tere! Minu nimi on Mari. Mis su nimi on?", "Mina olen Mari. Ja sina?", "See on telefon.", "Head aega, Tom!", "Tere, Tom! Kuidas läheb?"]) {
+      expect(nativeFor(line), line).toBeNull();
+    }
+    for (const clip of NATIVE_CLIPS) expect(clip.text, clip.id).not.toMatch(/\b(Mari|Liis)\b.*\b(olen|nimi)\b|\bolen (Mari|Liis)\b/);
+  });
+
   it("refuses an id it does not hold, and builds a url that names the cut", () => {
     expect(() => nativeClip("sound-qq")).toThrow();
     expect(nativeUrl("sound-ae")).toMatch(/^\/audio\/native\/sound-ae\.wav\?v=\d+$/);

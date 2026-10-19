@@ -6,6 +6,7 @@ import { Button, ButtonLink } from "@/components/Button";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { RuleNote } from "@/components/RuleNote";
 import { Speak } from "@/components/Speak";
+import { nativePart } from "@/lib/audio/native";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText, lessonTextLang } from "@/components/course/LessonText";
 import { Card, Chip, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
@@ -236,6 +237,8 @@ function Listen({ lesson }: { lesson: LessonSpec }) {
   const t = useT();
   const locale = useLocale();
   const [english, setEnglish] = useState(true);
+  // The one man's part the native speaker recorded in full plays in his voice; the rest keep the cast's.
+  const played = nativePart(lesson.conversation);
   return (
     <Card>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -250,7 +253,7 @@ function Listen({ lesson }: { lesson: LessonSpec }) {
             <span className="label-xs" style={{ color: "var(--ink-3)" }}>{line.who}</span>
             {line.et && (
               <div className="flex items-start gap-2">
-                <Speak text={line.et} voice={lesson.cast[line.who]} size={18} label={fill(t("Hear {who} say it"), { who: line.who })} />
+                <Speak text={line.et} voice={lesson.cast[line.who]} native={line.who === played} size={18} label={fill(t("Hear {who} say it"), { who: line.who })} />
                 <p lang="et" className="text-lg font-semibold" style={{ color: "var(--ink)" }}>{line.et}</p>
               </div>
             )}
@@ -420,7 +423,7 @@ function How({ lesson }: { lesson: LessonSpec }) {
             {examples.map((line, i) => (
               <li key={i} className="flex flex-col gap-0.5">
                 <span className="flex items-center gap-2">
-                  <Speak text={line!.et!} voice={lesson.cast[line!.who]} size={15} />
+                  <Speak text={line!.et!} voice={lesson.cast[line!.who]} native={line!.who === nativePart(lesson.conversation)} size={15} />
                   <span lang="et" className="text-lg font-semibold" style={{ color: "var(--ink)" }}>{line!.et}</span>
                 </span>
                 <span className="text-base" style={{ color: "var(--ink-2)" }}><LessonText text={line!.en ?? ""} locale={locale} /></span>

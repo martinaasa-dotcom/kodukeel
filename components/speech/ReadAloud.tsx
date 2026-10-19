@@ -40,11 +40,13 @@ export interface ReadAloudProps {
   readonly shortcut?: boolean;
   /** Whose voice the native line is in, for the comparison; the learner's own choice where absent. */
   readonly voice?: string;
+  /** Whether the native speaker's recording may stand in for that voice (`nativePart`); yes where no voice is named. */
+  readonly native?: boolean;
   /** Say beside the comparison that the app checks the words and the ear the sound: once on a screen, not on every line. */
   readonly compareHint?: boolean;
 }
 
-export function ReadAloud({ line, label, onHeard, shortcut = false, voice, compareHint = true }: ReadAloudProps) {
+export function ReadAloud({ line, label, onHeard, shortcut = false, voice, native, compareHint = true }: ReadAloudProps) {
   const t = useT();
   const words = useMemo(() => lineWords(line), [line]);
   const expect = useMemo(() => new Set(words.map((w) => w.text.toLocaleLowerCase("et"))), [words]);
@@ -92,7 +94,7 @@ export function ReadAloud({ line, label, onHeard, shortcut = false, voice, compa
       {speech.offered && heard && !speech.listening && !speech.thinking && (
         <div className="turn-after flex flex-col gap-3">
           {clarity && <HeardAs line={words} clarity={clarity} />}
-          {!speech.silent && <CompareVoices audio={speech.audio} text={line} voice={voice} hint={compareHint} />}
+          {!speech.silent && <CompareVoices audio={speech.audio} text={line} voice={voice} native={native} hint={compareHint} />}
         </div>
       )}
     </div>
