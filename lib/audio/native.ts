@@ -179,6 +179,18 @@ export const NATIVE_CLIPS: readonly NativeClip[] = [
   { id: "length-tulle", text: "tulle", kind: "length" },
   { id: "soft-tall-plain", text: "tall", kind: "soft" },
   { id: "soft-tall", text: "tall", kind: "soft" },
+  // Pass 5: the soft consonants said again, and the new ones. The pairs above
+  // that it re-recorded play this take; the ids did not change.
+  { id: "soft-hall-plain", text: "hall", kind: "soft" },
+  { id: "soft-hall", text: "hall", kind: "soft" },
+  { id: "soft-vill-plain", text: "vill", kind: "soft" },
+  { id: "soft-vill", text: "vill", kind: "soft" },
+  { id: "soft-kalla", text: "kalla", kind: "soft" },
+  { id: "soft-kutsu-plain", text: "kutsu", kind: "soft" },
+  { id: "soft-pasun", text: "pasun", kind: "soft" },
+  { id: "soft-poiss", text: "poiss", kind: "soft" },
+  { id: "soft-buss", text: "buss", kind: "soft" },
+  { id: "soft-pall", text: "pall", kind: "soft" },
   { id: "length-kana", text: "kana", kind: "length" },
   { id: "length-kanna", text: "kanna", kind: "length" },
   { id: "length-konn", text: "konn", kind: "length" },
@@ -438,9 +450,10 @@ export function nativeClip(id: string): NativeClip {
  * list, because the service worker keeps a clip under its url for good and a
  * url that names the cut is the only way a re-cut clip reaches a phone that
  * heard the old one. Cut 2 found the ends of the words, below; cut 4 added
- * passes 2 to 4 beside the first take.
+ * passes 2 to 4 beside the first take; cut 5 is pass 5, which said the soft
+ * consonants again.
  */
-export const NATIVE_CUT = 4;
+export const NATIVE_CUT = 5;
 
 /** Where the browser fetches a clip. */
 export function nativeUrl(id: string): string {
@@ -465,7 +478,8 @@ export function utteranceKey(text: string): string {
  * alike and says differently, so neither may stand in for `linna` on a card
  * that has not said which it meant. The same holds for every word recorded
  * to show that a spelling hides two sounds: `palk` the salary and `palk` the
- * log, `tall` the lamb and `tall` the stable, `konna` of the
+ * log, `tall`, `hall` and `vill` with a plain and a soft `l`, `kutsu` the
+ * puppy and `kutsu` invite!, `konna` of the
  * frog and the frog, `saada` send and get, and `kanna`, which is carry and of
  * the heel. A card showing one of those spellings is answered by the
  * synthesizer, which at least does not claim to know which word it is.
@@ -473,6 +487,8 @@ export function utteranceKey(text: string): string {
 const AMBIGUOUS = new Set([
   "length-linna", "length-linna-q2",
   "soft-palk-plain", "soft-palk", "soft-tall-plain", "soft-tall",
+  "soft-hall-plain", "soft-hall", "soft-vill-plain", "soft-vill",
+  "soft-kutsu-plain", "soft-kutsu",
   "length-konna", "length-saada", "length-kanna",
 ]);
 

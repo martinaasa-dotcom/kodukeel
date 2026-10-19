@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { NATIVE_CLIPS, nativeClip } from "@/lib/audio/native";
-import { ALPHABET, CONSONANTS, LENGTH, MIX_UPS, SOFT_ALIKE, SOFT_BESIDE, STRESS, VOWELS, VOWEL_PAIRS, VOWEL_WORDS, soundsPageClips } from "./sounds";
+import { ALPHABET, CONSONANTS, LENGTH, MIX_UPS, SOFT_ALIKE, SOFT_BESIDE, SOFT_MORE, STRESS, VOWELS, VOWEL_PAIRS, VOWEL_WORDS, soundsPageClips } from "./sounds";
 import { LESSONS } from "@/lib/course/lessons";
 
 describe("the sounds page", () => {
@@ -27,7 +27,7 @@ describe("the sounds page", () => {
   it("highlights letters each word actually has", () => {
     const words = [
       ...VOWEL_WORDS.flatMap((g) => g.words), ...VOWEL_PAIRS.flatMap((s) => s.words), ...SOFT_ALIKE.flatMap((s) => s.words),
-      ...SOFT_BESIDE.flatMap((s) => s.words), ...LENGTH.flatMap((s) => s.words), ...MIX_UPS.flatMap((s) => s.words),
+      ...SOFT_BESIDE.flatMap((s) => s.words), ...SOFT_MORE.flatMap((s) => s.words), ...LENGTH.flatMap((s) => s.words), ...MIX_UPS.flatMap((s) => s.words),
     ];
     let marked = 0;
     for (const w of words) {
@@ -47,7 +47,8 @@ describe("the sounds page", () => {
       expect(plain!.text, plain!.id).toBe(soft!.text);
       expect(plain!.id).not.toBe(soft!.id);
     }
-    expect(SOFT_ALIKE.length + SOFT_BESIDE.length).toBe(7);
+    expect(SOFT_ALIKE.length + SOFT_BESIDE.length).toBe(10);
+    for (const set of SOFT_MORE) expect(set.words.every((w) => w.tag === "soft"), set.words[0]!.clip).toBe(true);
   });
 
   it("sets vowel pairs one vowel apart", () => {

@@ -130,15 +130,23 @@ export const CONSONANTS: readonly SoundNote[] = [
 export const SOFT_ALIKE: readonly WordSet[] = [
   { words: [{ clip: "soft-palk-plain", en: "a salary", mark: "l", tag: "plain" }, { clip: "soft-palk", en: "a log", mark: "l", tag: "soft" }] },
   { words: [{ clip: "soft-tall-plain", en: "a lamb", mark: "ll", tag: "plain" }, { clip: "soft-tall", en: "a stable", mark: "ll", tag: "soft" }] },
+  { words: [{ clip: "soft-hall-plain", en: "frost", mark: "ll", tag: "plain" }, { clip: "soft-hall", en: "gray", mark: "ll", tag: "soft" }] },
+  { words: [{ clip: "soft-vill-plain", en: "wool", mark: "ll", tag: "plain" }, { clip: "soft-vill", en: "a blister", mark: "ll", tag: "soft" }] },
+  { words: [{ clip: "soft-kutsu-plain", en: "invite!", mark: "ts", tag: "plain" }, { clip: "soft-kutsu", en: "a puppy", mark: "ts", tag: "soft" }] },
 ];
 
 /** The same letters, plain in one word and soft in the next. */
 export const SOFT_BESIDE: readonly WordSet[] = [
-  { words: [{ clip: "length-kalla", en: "pour!", mark: "ll", tag: "plain" }, { clip: "soft-kallis", en: "dear", mark: "ll", tag: "soft" }] },
+  { words: [{ clip: "soft-kalla", en: "pour!", mark: "ll", tag: "plain" }, { clip: "soft-kallis", en: "dear", mark: "ll", tag: "soft" }] },
   { words: [{ clip: "soft-kann-plain", en: "a jug", mark: "nn", tag: "plain" }, { clip: "soft-pann", en: "a frying pan", mark: "nn", tag: "soft" }] },
-  { words: [{ clip: "soft-kutse", en: "an invitation", mark: "ts", tag: "plain" }, { clip: "soft-kutsu", en: "a puppy", mark: "ts", tag: "soft" }] },
   { words: [{ clip: "soft-mets", en: "a forest", mark: "ts", tag: "plain" }, { clip: "soft-muets", en: "a hat", mark: "ts", tag: "soft" }] },
   { words: [{ clip: "soft-kas", en: "asks a yes or no", mark: "s", tag: "plain" }, { clip: "soft-kass", en: "a cat", mark: "ss", tag: "soft" }] },
+  { words: [{ clip: "soft-pasun", en: "a trumpet", mark: "s", tag: "plain" }, { clip: "soft-poiss", en: "a boy", mark: "ss", tag: "soft" }] },
+];
+
+/** Two more soft ones, for the ear: nothing plain beside them. */
+export const SOFT_MORE: readonly WordSet[] = [
+  { words: [{ clip: "soft-buss", en: "a bus", mark: "ss", tag: "soft" }, { clip: "soft-pall", en: "a ball, to play with", mark: "ll", tag: "soft" }], caption: "Both soft" },
 ];
 
 /** Words that differ by how long one sound is held. */
@@ -237,6 +245,7 @@ export function soundsPageClips(): string[] {
     ...CONSONANTS.map((c) => c.clip),
     ...SOFT_ALIKE.flatMap((s) => s.words.map((w) => w.clip)),
     ...SOFT_BESIDE.flatMap((s) => s.words.map((w) => w.clip)),
+    ...SOFT_MORE.flatMap((s) => s.words.map((w) => w.clip)),
     ...LENGTH.flatMap((s) => s.words.map((w) => w.clip)),
     ...MIX_UPS.flatMap((s) => s.words.map((w) => w.clip)),
     ...STRESS.map((s) => s.clip),

@@ -3709,15 +3709,20 @@ onset, and ends once the sound has stayed down for 50 ms, past a stop's closure 
 their own text and their edges checked to be quiet. `scripts/build-native-audio.ts` reads a clip's
 take off the clip, so the four takes share one cut list.
 
-**A spelling that hides two words answers for neither.** `palk` the salary and `palk` the log, `tall`
-the lamb and `tall` the stable, `konna`, `saada` and `kanna` play only where a screen
+**A spelling that hides two words answers for neither.** `palk` the salary and `palk` the log, `tall`,
+`hall` and `vill` with a plain and a soft `l`, `kutsu` the puppy and invite!, `konna`, `saada` and `kanna` play only where a screen
 asks for the recording by id, never for a card that has not said which word it means.
 
-**And a pair the speaker cannot tell apart is not on the page.** `hall` (frost, gray) and `vill`
-(wool, a blister) were recorded plain and soft, and the speaker reported that his two versions of each
-sound the same to him. A pair offered under "Spelled alike, said apart" has to carry the difference
-in the recording, so both were taken off the page and out of the catalog rather than kept as a claim
-the audio does not make. `palk` and `tall` stay.
+**And then the soft consonants were said a fifth time.** `hall` and `vill` came off the page when the
+speaker reported that his plain and soft versions sounded the same to him, and pass 5 said every pair
+of the soft section again, primed by the form that carries the softness (`halla`, then `hall`). It
+also added `kutsu` the puppy beside `kutsu` invite!, which replaces `kutse` against `kutsu` because a
+pair with one spelling is the stronger demonstration, and a soft s against a plain one (`pasun`,
+`poiss`, `buss`) and `pall`. The pairs it re-recorded keep their ids and play the new take, and
+`NATIVE_CUT` is 5. Two takes of `palk` carry a breath thump after the word, low and aperiodic, 190 and
+270 ms after the k: the k release was found as its own burst at 1.5 to 3 kHz just after the l, kept,
+and the cut stops before the thump. Cut before the burst the recognizer hears `palga`, with it
+`palk`, which is how the burst was confirmed to be the stop rather than the breath.
 
 **One man's part in a conversation is his.** A lesson's conversation keeps its cast's voices, and the
 one part the native speaker may play, Tom's or Jaan's, plays his recording where every line of that

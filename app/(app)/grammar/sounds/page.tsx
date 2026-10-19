@@ -6,7 +6,7 @@ import { HearSet, NativeWord, SoundKey } from "@/components/sounds/Native";
 import { SpellIt } from "@/components/sounds/SpellIt";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import {
-  ALPHABET, CONSONANTS, LENGTH, MIX_UPS, SOFT_ALIKE, SOFT_BESIDE, SPECIAL, STRESS, VOWELS, VOWEL_PAIRS, VOWEL_WORDS,
+  ALPHABET, CONSONANTS, LENGTH, MIX_UPS, SOFT_ALIKE, SOFT_BESIDE, SOFT_MORE, SPECIAL, STRESS, VOWELS, VOWEL_PAIRS, VOWEL_WORDS,
   type SoundNote, type WordSet,
 } from "@/lib/collections/sounds";
 
@@ -109,7 +109,7 @@ export default async function SoundsPage() {
           <h3 className="snd-subhead">{t("Spelled alike, said apart")}</h3>
           <Sets sets={SOFT_ALIKE} t={t} />
           <h3 className="snd-subhead">{t("Plain beside soft")}</h3>
-          <Sets sets={SOFT_BESIDE} t={t} />
+          <Sets sets={[...SOFT_BESIDE, ...SOFT_MORE]} t={t} />
         </section>
 
         <section id="length" className="flex flex-col gap-4" data-sounds-section="length">

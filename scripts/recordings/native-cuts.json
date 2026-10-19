@@ -633,9 +633,9 @@
   },
   {
    "id": "soft-kutsu",
-   "source": "sounds-pass2.flac",
-   "from": 3.76,
-   "to": 5.27
+   "source": "sounds-pass5.flac",
+   "from": 31.28,
+   "to": 32.32
   },
   {
    "id": "soft-muets",
@@ -645,9 +645,9 @@
   },
   {
    "id": "soft-kass",
-   "source": "sounds-pass2.flac",
-   "from": 7.81,
-   "to": 8.73
+   "source": "sounds-pass5.flac",
+   "from": 33.56,
+   "to": 34.44
   },
   {
    "id": "soft-mets",
@@ -669,57 +669,57 @@
   },
   {
    "id": "soft-palk-plain",
-   "source": "sounds-pass2.flac",
-   "from": 19.19,
-   "to": 20.20
+   "source": "sounds-pass5.flac",
+   "from": 1.53,
+   "to": 2.04
   },
   {
    "id": "soft-palk",
-   "source": "sounds-pass2.flac",
-   "from": 21.04,
-   "to": 22.15
+   "source": "sounds-pass5.flac",
+   "from": 3.34,
+   "to": 3.80
   },
   {
    "id": "length-kala",
-   "source": "sounds-pass2.flac",
-   "from": 24.98,
-   "to": 26.10
+   "source": "sounds-pass5.flac",
+   "from": 21.81,
+   "to": 22.71
   },
   {
    "id": "length-kalla",
-   "source": "sounds-pass2.flac",
-   "from": 26.67,
-   "to": 28.19
+   "source": "sounds-pass5.flac",
+   "from": 23.43,
+   "to": 24.56
   },
   {
    "id": "soft-kallis",
-   "source": "sounds-pass2.flac",
-   "from": 28.48,
-   "to": 29.50
+   "source": "sounds-pass5.flac",
+   "from": 19.87,
+   "to": 20.94
   },
   {
    "id": "length-tule",
-   "source": "sounds-pass2.flac",
-   "from": 30.60,
-   "to": 31.62
+   "source": "sounds-pass5.flac",
+   "from": 25.38,
+   "to": 26.23
   },
   {
    "id": "length-tulle",
-   "source": "sounds-pass2.flac",
-   "from": 32.30,
-   "to": 33.52
+   "source": "sounds-pass5.flac",
+   "from": 27.08,
+   "to": 28.11
   },
   {
    "id": "soft-tall-plain",
-   "source": "sounds-pass2.flac",
-   "from": 34.24,
-   "to": 35.22
+   "source": "sounds-pass5.flac",
+   "from": 13.78,
+   "to": 14.91
   },
   {
    "id": "soft-tall",
-   "source": "sounds-pass2.flac",
-   "from": 36.15,
-   "to": 36.95
+   "source": "sounds-pass5.flac",
+   "from": 15.76,
+   "to": 16.89
   },
   {
    "id": "length-kana",
@@ -1968,6 +1968,66 @@
    "source": "sounds-pass4.flac",
    "from": 284.73,
    "to": 290.48
+  },
+  {
+   "id": "soft-hall-plain",
+   "source": "sounds-pass5.flac",
+   "from": 5.55,
+   "to": 6.73
+  },
+  {
+   "id": "soft-hall",
+   "source": "sounds-pass5.flac",
+   "from": 7.30,
+   "to": 8.50
+  },
+  {
+   "id": "soft-vill-plain",
+   "source": "sounds-pass5.flac",
+   "from": 9.59,
+   "to": 10.59
+  },
+  {
+   "id": "soft-vill",
+   "source": "sounds-pass5.flac",
+   "from": 11.22,
+   "to": 12.82
+  },
+  {
+   "id": "soft-kalla",
+   "source": "sounds-pass5.flac",
+   "from": 17.93,
+   "to": 19.09
+  },
+  {
+   "id": "soft-kutsu-plain",
+   "source": "sounds-pass5.flac",
+   "from": 29.65,
+   "to": 30.58
+  },
+  {
+   "id": "soft-pasun",
+   "source": "sounds-pass5.flac",
+   "from": 35.23,
+   "to": 36.24
+  },
+  {
+   "id": "soft-poiss",
+   "source": "sounds-pass5.flac",
+   "from": 36.98,
+   "to": 38.00
+  },
+  {
+   "id": "soft-buss",
+   "source": "sounds-pass5.flac",
+   "from": 38.68,
+   "to": 39.74
+  },
+  {
+   "id": "soft-pall",
+   "source": "sounds-pass5.flac",
+   "from": 40.69,
+   "to": 41.84
   }
  ]
 }
