@@ -105,7 +105,7 @@ export const VOWEL_PAIRS: readonly WordSet[] = [
   { words: [{ clip: "pair-suu", en: "a mouth", mark: "uu" }, { clip: "pair-suueue", en: "guilt", mark: "üü" }] },
   { words: [{ clip: "pair-tuli", en: "fire", mark: "u" }, { clip: "pair-tueli", en: "a quarrel", mark: "ü" }] },
   { words: [{ clip: "number-kuus", en: "six", mark: "uu" }, { clip: "pair-kueues", en: "a nail", mark: "üü" }] },
-  { words: [{ clip: "pair-kera", en: "a ball", mark: "e" }, { clip: "pair-kaera", en: "a racket, a din", mark: "ä" }] },
+  { words: [{ clip: "pair-kera", en: "a sphere", mark: "e" }, { clip: "pair-kaera", en: "a racket, a din", mark: "ä" }] },
 ];
 
 /** The consonants worth listening to, and m against mm. */
@@ -146,7 +146,7 @@ export const SOFT_BESIDE: readonly WordSet[] = [
 
 /** Two more soft ones, for the ear: nothing plain beside them. */
 export const SOFT_MORE: readonly WordSet[] = [
-  { words: [{ clip: "soft-buss", en: "a bus", mark: "ss", tag: "soft" }, { clip: "soft-pall", en: "a ball, to play with", mark: "ll", tag: "soft" }], caption: "Both soft" },
+  { words: [{ clip: "soft-buss", en: "a bus", mark: "ss", tag: "soft" }, { clip: "soft-pall", en: "a ball", mark: "ll", tag: "soft" }], caption: "Both soft" },
 ];
 
 /** Words that differ by how long one sound is held. */
