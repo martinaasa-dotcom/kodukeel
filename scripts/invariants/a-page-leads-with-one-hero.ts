@@ -63,6 +63,16 @@ export default function aPageLeadsWithOneHero({ check, APP, COMPONENTS, code }: 
     assert.equal(fans[0], fans[1], "the fan for four cards and the fan for five have drifted apart");
   });
 
+  check("a headline across the top has no stretched empty row under it", () => {
+    const css = code("app/hero-fan.css");
+    const rule = css.match(/\.hero-fan-long \.hero-fan-row \{([^}]*)\}/)?.[1] ?? "";
+    assert.ok(rule, "the long-headline layout is gone");
+    assert.doesNotMatch(rule, /\b1fr\b/, "a row under the headline is stretched to the cards' height again, so the words float far below it");
+    assert.match(rule, /grid-template-rows:\s*auto auto auto/, "the long-headline rows are no longer the height of their content");
+    /* The card's own height is bounded: it is padding plus what is drawn in it, never a fixed fraction of the window. */
+    assert.doesNotMatch(css, /\.hero-fan\s*\{[^}]*(min-height|height:\s*\d+(vh|svh|dvh))/, "the hero is given a height of its own");
+  });
+
   check("a phone gets a hand of cards, and hover is a pointer's alone", () => {
     const css = code("app/hero-fan.css");
     const hero = code("components/HeroFan.tsx");
