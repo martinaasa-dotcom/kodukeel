@@ -722,30 +722,6 @@
    "to": 36.95
   },
   {
-   "id": "soft-hall-plain",
-   "source": "sounds-pass2.flac",
-   "from": 38.24,
-   "to": 39.13
-  },
-  {
-   "id": "soft-hall",
-   "source": "sounds-pass2.flac",
-   "from": 40.10,
-   "to": 41.29
-  },
-  {
-   "id": "soft-vill-plain",
-   "source": "sounds-pass2.flac",
-   "from": 42.19,
-   "to": 43.34
-  },
-  {
-   "id": "soft-vill",
-   "source": "sounds-pass2.flac",
-   "from": 44.12,
-   "to": 45.29
-  },
-  {
    "id": "length-kana",
    "source": "sounds-pass2.flac",
    "from": 50.28,

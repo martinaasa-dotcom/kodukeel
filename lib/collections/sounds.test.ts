@@ -47,7 +47,7 @@ describe("the sounds page", () => {
       expect(plain!.text, plain!.id).toBe(soft!.text);
       expect(plain!.id).not.toBe(soft!.id);
     }
-    expect(SOFT_ALIKE.length + SOFT_BESIDE.length).toBe(9);
+    expect(SOFT_ALIKE.length + SOFT_BESIDE.length).toBe(7);
   });
 
   it("sets vowel pairs one vowel apart", () => {

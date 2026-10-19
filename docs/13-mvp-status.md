@@ -3709,9 +3709,15 @@ onset, and ends once the sound has stayed down for 50 ms, past a stop's closure 
 their own text and their edges checked to be quiet. `scripts/build-native-audio.ts` reads a clip's
 take off the clip, so the four takes share one cut list.
 
-**A spelling that hides two words answers for neither.** `palk` the salary and `palk` the log, `tall`,
-`hall` and `vill` with a plain and a soft `l`, `konna`, `saada` and `kanna` play only where a screen
+**A spelling that hides two words answers for neither.** `palk` the salary and `palk` the log, `tall`
+the lamb and `tall` the stable, `konna`, `saada` and `kanna` play only where a screen
 asks for the recording by id, never for a card that has not said which word it means.
+
+**And a pair the speaker cannot tell apart is not on the page.** `hall` (frost, gray) and `vill`
+(wool, a blister) were recorded plain and soft, and the speaker reported that his two versions of each
+sound the same to him. A pair offered under "Spelled alike, said apart" has to carry the difference
+in the recording, so both were taken off the page and out of the catalog rather than kept as a claim
+the audio does not make. `palk` and `tall` stay.
 
 **One man's part in a conversation is his.** A lesson's conversation keeps its cast's voices, and the
 one part the native speaker may play, Tom's or Jaan's, plays his recording where every line of that

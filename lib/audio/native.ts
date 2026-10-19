@@ -179,10 +179,6 @@ export const NATIVE_CLIPS: readonly NativeClip[] = [
   { id: "length-tulle", text: "tulle", kind: "length" },
   { id: "soft-tall-plain", text: "tall", kind: "soft" },
   { id: "soft-tall", text: "tall", kind: "soft" },
-  { id: "soft-hall-plain", text: "hall", kind: "soft" },
-  { id: "soft-hall", text: "hall", kind: "soft" },
-  { id: "soft-vill-plain", text: "vill", kind: "soft" },
-  { id: "soft-vill", text: "vill", kind: "soft" },
   { id: "length-kana", text: "kana", kind: "length" },
   { id: "length-kanna", text: "kanna", kind: "length" },
   { id: "length-konn", text: "konn", kind: "length" },
@@ -469,7 +465,7 @@ export function utteranceKey(text: string): string {
  * alike and says differently, so neither may stand in for `linna` on a card
  * that has not said which it meant. The same holds for every word recorded
  * to show that a spelling hides two sounds: `palk` the salary and `palk` the
- * log, `tall`, `hall` and `vill` with a plain and a soft `l`, `konna` of the
+ * log, `tall` the lamb and `tall` the stable, `konna` of the
  * frog and the frog, `saada` send and get, and `kanna`, which is carry and of
  * the heel. A card showing one of those spellings is answered by the
  * synthesizer, which at least does not claim to know which word it is.
@@ -477,7 +473,6 @@ export function utteranceKey(text: string): string {
 const AMBIGUOUS = new Set([
   "length-linna", "length-linna-q2",
   "soft-palk-plain", "soft-palk", "soft-tall-plain", "soft-tall",
-  "soft-hall-plain", "soft-hall", "soft-vill-plain", "soft-vill",
   "length-konna", "length-saada", "length-kanna",
 ]);
 

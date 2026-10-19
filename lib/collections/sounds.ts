@@ -130,8 +130,6 @@ export const CONSONANTS: readonly SoundNote[] = [
 export const SOFT_ALIKE: readonly WordSet[] = [
   { words: [{ clip: "soft-palk-plain", en: "a salary", mark: "l", tag: "plain" }, { clip: "soft-palk", en: "a log", mark: "l", tag: "soft" }] },
   { words: [{ clip: "soft-tall-plain", en: "a lamb", mark: "ll", tag: "plain" }, { clip: "soft-tall", en: "a stable", mark: "ll", tag: "soft" }] },
-  { words: [{ clip: "soft-hall-plain", en: "frost", mark: "ll", tag: "plain" }, { clip: "soft-hall", en: "gray", mark: "ll", tag: "soft" }] },
-  { words: [{ clip: "soft-vill-plain", en: "wool", mark: "ll", tag: "plain" }, { clip: "soft-vill", en: "a blister", mark: "ll", tag: "soft" }] },
 ];
 
 /** The same letters, plain in one word and soft in the next. */

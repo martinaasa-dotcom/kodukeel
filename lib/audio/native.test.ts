@@ -59,7 +59,7 @@ describe("the native recordings", () => {
   });
 
   it("never answers a spelling that hides two words for either of them", () => {
-    for (const spelling of ["palk", "tall", "hall", "vill", "konna", "saada", "Saada!", "kanna"]) {
+    for (const spelling of ["palk", "tall", "konna", "saada", "Saada!", "kanna"]) {
       expect(nativeFor(spelling), spelling).toBeNull();
     }
   });
