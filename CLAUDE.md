@@ -10679,6 +10679,15 @@ be a dictionary entry, or no answer can meet it.
   pedagogical claim of that exercise. `wordNote` in `lib/estonian/dictation.ts` says which in
   words, reusing `droppedDiacritics` rather than rewriting the loop that knows which letters
   exist.
+- **Nothing a person reads names a time of day: it is "today", never "tonight".** A learner
+  opens the app at nine in the morning and read "from tonight's conversation" over a lesson they
+  were halfway through. The module is a day's, done whenever there is a quarter of an hour, so
+  copy says `today's module`, `today's words`, `today's chat`, and `yesterday's homework` for
+  "last night's". The rule is for instructions and interface, the places that talk about the
+  learner's own session. What teaches may use the time of day as a course book does: lesson
+  text, role cards, a saying's situation, a translation of `õhtul` and the almanac's notes.
+  Identifiers (`tonightSteps`, the `tonight` email kind) are code and stay. `scripts/invariants/nothing-is-called-tonight.ts` fails on a prose string
+  saying it, with every exemption checked for staleness.
 - **No em dash or en dash in anything a person reads**, anywhere in `app/`, `lib/`, `components/`
   or the README. A dash used as a clause break is the loudest single tell that a sentence was
   generated, and every screen here is one person explaining Estonian to another.

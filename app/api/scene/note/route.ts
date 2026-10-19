@@ -45,7 +45,7 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as Record<string, unknown>;
     /*
-      A catalog scene by its id; tonight's chat by its run, since its beats
+      A catalog scene by its id; today's chat by its run, since its beats
       were built for one evening and the id alone says nothing about them.
       The run is read as this learner's own, so a run id off the wire reaches
       nobody else's conversation.

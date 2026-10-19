@@ -1062,7 +1062,7 @@ export function composeNote(
   }
   if (reading === "offtarget" && (response === "narrow" || response === "repeat") && extra.elicit) {
     /*
-      TONIGHT'S CHAT (VB-11): AN ANSWER WITHOUT THE WORD IS STILL AN ANSWER.
+      TODAY'S CHAT (VB-11): AN ANSWER WITHOUT THE WORD IS STILL AN ANSWER.
       What a chat beat waits for is a word, not a fact, so a learner who said
       "jah, kõik korras" answered the neighbor perfectly well and simply did
       not use it. Read in the one capped critic round, the instruction below
@@ -2255,7 +2255,7 @@ function butAfterHeard(out: SpokenLine[]): void {
     if (!/\?\s*$/.test(next.text)) continue;
     /*
       And only onto a line that is the question and nothing before it. A
-      composed line said again carries whatever it opened with, so tonight's
+      composed line said again carries whatever it opened with, so today's
       chat read `Selge, aga mul läheb hästi, aitäh! Kas sa tuled töölt?`: a
       "but" joined to the neighbor's answer to an old question, contrasting
       nothing, which is the fault the native reader marked on two composed

@@ -650,7 +650,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Just save the page", "Просто сохранить страницу", "Просто зберегти сторінку"],
   ["Make {n} flashcard", "Создать карточки: {n}", "Створити картки: {n}"],
   ["Make {n} flashcards", "Создать карточки: {n}", "Створити картки: {n}"],
-  ["Photograph a vocabulary list, a page from your textbook or last night's homework. We check every word against the dictionary, so the ones it knows come with all their real forms. And if a word on your page has an ending on it, we'll find the word it came from.",
+  ["Photograph a vocabulary list, a page from your textbook or yesterday's homework. We check every word against the dictionary, so the ones it knows come with all their real forms. And if a word on your page has an ending on it, we'll find the word it came from.",
     "Сфотографируйте список слов, страницу из учебника или вчерашнее домашнее задание. Мы проверяем каждое слово по словарю, так что знакомые ему слова приходят со всеми своими настоящими формами. А если у слова на странице есть окончание, мы найдём, от какого слова оно образовано.",
     "Сфотографуйте список слів, сторінку з підручника або вчорашнє домашнє завдання. Ми перевіряємо кожне слово за словником, тож знайомі йому слова приходять з усіма своїми справжніми формами. А якщо слово на сторінці має закінчення, ми знайдемо, від якого слова воно утворене."],
   ["Reading the page", "Читаем страницу", "Читаємо сторінку"],

@@ -4,7 +4,7 @@ import { learnerDayClock } from "@/lib/progress/dayClock";
 import type { CourseReading } from "@/lib/progress/course";
 
 /**
- * WHICH EVENING TONIGHT'S CHAT IS ABOUT, WORKED OUT ON THE SERVER EVERY TIME.
+ * WHICH EVENING TODAY'S CHAT IS ABOUT, WORKED OUT ON THE SERVER EVERY TIME.
  *
  * The evening the learner finished today, and nothing else: a chat is offered
  * at the end of an evening, about its words, while they are fresh. The day is

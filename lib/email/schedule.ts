@@ -649,7 +649,7 @@ function decide(who: Candidate, now: Date): Owed | null {
     who.localHour < 22 &&
     allowed(who, "tonight", now)
   ) {
-    return { kind: "tonight", because: `evening where they are, and tonight is unfinished` };
+    return { kind: "tonight", because: `evening where they are, and today is unfinished` };
   }
 
   return worddayOwed(who, now);

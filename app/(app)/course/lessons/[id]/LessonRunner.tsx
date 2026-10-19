@@ -168,7 +168,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, place }: {
   return (
     <Page eyebrow={fill(t("Lesson {n}"), { n: lessonLabel(lesson) })} title={t(lesson.title)} titleLang={lessonTextLang(lesson.title, locale)} lead={t(lesson.goal)} leadLang={lessonTextLang(lesson.goal, locale)}>
       <Stack>
-        <nav aria-label={t("Tonight's steps")}>
+        <nav aria-label={t("Today's steps")}>
           <ol className="flex flex-wrap gap-2" data-lesson-steps>
             {STEPS.map((s, i) => (
               <li key={s}>
@@ -219,7 +219,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, place }: {
 }
 
 /**
- * How many different words tonight's conversation used. The figure for an
+ * How many different words today's conversation used. The figure for an
  * evening that teaches nothing new (a check-in, the end of a part), where
  * "0 new to say" would be the first thing on the finish screen.
  */
@@ -298,7 +298,7 @@ function Words({ lesson }: { lesson: LessonSpec }) {
     return (
       <Card>
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          {t("No new words tonight. Everything in this lesson is something you've already met, put together.")}
+          {t("No new words today. Everything in this lesson is something you've already met, put together.")}
         </p>
       </Card>
     );
@@ -343,7 +343,7 @@ function Words({ lesson }: { lesson: LessonSpec }) {
   );
 }
 
-/** Step 3: the one idea of the evening, shown on tonight's own lines. */
+/** Step 3: the one idea of the evening, shown on today's own lines. */
 function How({ lesson }: { lesson: LessonSpec }) {
   const t = useT();
   const locale = useLocale();
@@ -415,7 +415,7 @@ function How({ lesson }: { lesson: LessonSpec }) {
       )}
       {examples.length > 0 && (
         <section>
-          <SectionTitle hint={t("from tonight's conversation")}>{t("Where you heard it")}</SectionTitle>
+          <SectionTitle hint={t("from today's conversation")}>{t("Where you heard it")}</SectionTitle>
           <ul className="flex flex-col gap-3">
             {examples.map((line, i) => (
               <li key={i} className="flex flex-col gap-0.5">

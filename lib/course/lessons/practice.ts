@@ -5,7 +5,7 @@
  * Recognize first, then produce. Every new word and phrase is met once more
  * as a question about its meaning, by ear for a phrase and by eye for a word,
  * and then asked for from its English. The wrong options are the English of
- * other things the learner has been taught, tonight's first, so a beginner on
+ * other things the learner has been taught, today's first, so a beginner on
  * their first evening chooses between greetings they met five minutes ago
  * rather than between glosses of words nobody has shown them. Nothing here is
  * typed by hand, and `lessons.test.ts` still asks every item it builds whether
@@ -88,7 +88,7 @@ export function meaningShows(item: Taught): boolean {
 }
 
 /**
- * Three wrong meanings for `item`, from what has been taught, tonight's first.
+ * Three wrong meanings for `item`, from what has been taught, today's first.
  * Never a meaning equal to the answer's, since two right options are a trick.
  */
 function optionsFor(item: Taught, pool: readonly Taught[], random: () => number): string[] {
@@ -112,7 +112,7 @@ function recognise(item: Taught, pool: readonly Taught[], random: () => number):
     : { kind: "pick", et: item.et, options, answer: item.en };
 }
 
-/** The pool options are drawn from: tonight's items, then the most recent first. */
+/** The pool options are drawn from: today's items, then the most recent first. */
 function poolFor(tonight: readonly Taught[], before: Ledger): Taught[] {
   return [...tonight, ...[...before.items].reverse().map((d) => d.item)];
 }
@@ -147,7 +147,7 @@ function neighboursFirst(item: Taught, before: Ledger, rest: readonly Taught[]):
   return [...same, ...rest];
 }
 
-/** What tonight's practice goes over: tonight's new things, or for a check-in the last few lessons'. */
+/** What today's practice goes over: today's new things, or for a check-in the last few lessons'. */
 export function practiceSubjects(lesson: LessonSpec, before: Ledger): Taught[] {
   if (lesson.teaches.length > 0) return lesson.teaches.flatMap(unfold);
   const since = lesson.n - CHECKIN_REACH;

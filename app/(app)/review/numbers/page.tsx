@@ -41,7 +41,7 @@ export default async function NumbersPage({
   const ownerId = await requireUserId();
   const scope = await practiceScope(ownerId, await searchParams);
   const taught = scope ? new Set(scope.lemmas) : null;
-  // Inside the module the round leads with tonight's words, kind by kind, like every round it deals.
+  // Inside the module the round leads with today's words, kind by kind, like every round it deals.
   const items = dealRound(Math.random, taught, undefined, scope ? new Set(recentLemmas(scope)) : new Set());
 
   // Every word this round can be said with, so a right answer finds its card.

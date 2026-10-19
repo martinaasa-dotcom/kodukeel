@@ -350,7 +350,7 @@ export interface BeatSpec {
    * THE WORD THIS BEAT IS THERE FOR THE LEARNER TO USE, WHICH THE OTHER SIDE
    * MAY NOT SAY FOR THEM.
    *
-   * Set only on the beats of tonight's chat (`lib/scenes/specs/chat.ts`), which
+   * Set only on the beats of today's chat (`lib/scenes/specs/chat.ts`), which
    * ask for one of the evening's words in any form. The gate's `giveaway`
    * check refuses a line carrying any form of it (`answerForms`), as it
    * already refuses a line carrying the case a beat is about to ask for, and
@@ -441,7 +441,7 @@ export interface SceneSpec {
   readonly units: readonly string[];
   /**
    * A closed list named directly, beside the units, for a scene that is not
-   * about one situation: tonight's chat composes inside everything the
+   * about one situation: today's chat composes inside everything the
    * evenings have taught so far, which is a set of lemmas rather than a set of
    * whole units (ADR-025 amendment 4). Lemmas are requests, as everywhere.
    * Absent on every catalog scene.

@@ -98,7 +98,7 @@ export default async function CourseLearnPage() {
 
     The words reach the deck through `startCourseDay`, behind the first step's
     own button. Opened at this address directly, before that press, the ladder
-    has no card for tonight's words and said "Nothing left to meet here" while
+    has no card for today's words and said "Nothing left to meet here" while
     the module beside it still listed meeting them as the next thing to do. So
     the module is where it goes back to, and its first button is the press that
     adds the words and opens this page again. `metWords` counts a word put aside

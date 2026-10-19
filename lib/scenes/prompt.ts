@@ -233,7 +233,7 @@ export interface ComposeAsk {
    */
   readonly feel?: Feel;
   /**
-   * THE WORD THIS BEAT IS THERE FOR THE LEARNER TO USE, on tonight's chat
+   * THE WORD THIS BEAT IS THERE FOR THE LEARNER TO USE, on today's chat
    * (`BeatSpec.elicits`). The stage direction names it by its meaning, since
    * a learner may read that line, and a meaning is not enough for a model
    * that has to ask something whose natural answer uses one particular word:

@@ -1,5 +1,5 @@
 /**
- * TONIGHT'S CHAT, BUILT FROM A DAY'S WORDS (docs/41-fifth-batch.md, VB-11).
+ * TODAY'S CHAT, BUILT FROM A DAY'S WORDS (docs/41-fifth-batch.md, VB-11).
  *
  * The beats of a chat are not in a file, so what a scene file is held to by
  * `catalogue.test.ts` is held here of the builder: it asks only for words the
@@ -37,7 +37,7 @@ function planFor(programmeId: string, day: (typeof EVENINGS)[number]["day"], tal
   };
 }
 
-describe("which of tonight's words a chat asks for", () => {
+describe("which of today's words a chat asks for", () => {
   it("drops a word nobody can say, rather than making a beat nobody can finish", () => {
     const picked = chatWords(
       [{ lemma: "a", gloss: "one" }, { lemma: "b", gloss: "two" }, { lemma: "c", gloss: "three" }],

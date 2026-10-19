@@ -1,7 +1,7 @@
 import type { Area } from "../area";
 
 /**
- * TODAY AND TONIGHT'S MODULE, IN RUSSIAN AND UKRAINIAN.
+ * TODAY AND TODAY'S MODULE, IN RUSSIAN AND UKRAINIAN.
  *
  * The home screen, the module screen with its steps, the forms step, the bar
  * a step is drawn under, the climb to the level somebody is aiming at, and
@@ -36,11 +36,11 @@ export const TODAY: Area = {
     "Больше на сегодня повторять нечего. Хорошего вам дня.",
   "{cards} still due, if you feel like a few more.":
     "Если хочется ещё, пора повторить: {cards}.",
-  "Nothing else is due today, so tonight's module is all you need to do.":
+  "Nothing else is due today, so today's module is all you need to do.":
     "Больше на сегодня повторять нечего, так что вам осталось только сегодняшнее занятие.",
-  "{cards} due as well. They'll come up at the end of tonight's module.":
+  "{cards} due as well. They'll come up at the end of today's module.":
     "Ещё пора повторить: {cards}. Они попадутся в конце сегодняшнего занятия.",
-  "{cards} due as well. Tonight's module ends with a few of them, and the review button has the rest.":
+  "{cards} due as well. Today's module ends with a few of them, and the review button has the rest.":
     "Ещё пора повторить: {cards}. Сегодняшнее занятие закончится несколькими из них, а остальные ждут на странице «Повторение».",
 
   // TODAY: THE CARD THAT SAYS WHAT TO DO NOW.
@@ -83,7 +83,7 @@ export const TODAY: Area = {
   "Choose your first unit":
     "Выбрать первый раздел",
 
-  // TODAY: TONIGHT'S MODULE, AT THE TOP.
+  // TODAY: TODAY'S MODULE, AT THE TOP.
   "Today's module":
     "Занятие на сегодня",
   "Day {day} of {days}":
@@ -690,7 +690,7 @@ export const TODAY: Area = {
     "Четыре варианта одного слова и вопрос, который говорит, в какой попасть. Различаются они только окончанием, так что вы учитесь быстро его читать.",
   "One verb, six people: I, you, she and the rest. If you can't change a verb for who's doing it, you can't really use it yet.":
     "Один глагол, шесть лиц: я, ты, она и остальные. Пока вы не умеете менять глагол по лицам, по-настоящему пользоваться им ещё не получится.",
-  "Say tonight's words out loud: along with a native speaker, back from the recording, then from their meaning. You see which words were heard, and typing works too.":
+  "Say today's words out loud: along with a native speaker, back from the recording, then from their meaning. You see which words were heard, and typing works too.":
     "Скажите вслух слова этого вечера: вместе с носителем языка, по записи, затем по значению. Вы видите, какие слова были услышаны, и можно печатать.",
   "Write a sentence of your own with the ending we ask for. We check that word against the dictionary before anything else.":
     "Напишите своё предложение с окончанием, которое мы просим. Это слово мы прежде всего сверяем со словарём.",
@@ -762,8 +762,6 @@ export const TODAY: Area = {
     "Назад к занятию на сегодня",
 
   // THE PAST FORMS STEP.
-  "Tonight's module":
-    "Занятие этого вечера",
   "The past of your verbs":
     "Прошедшее время ваших глаголов",
   "Each verb makes its past its own way, so learn them a few at a time. Listen, then try three.":
@@ -1092,11 +1090,11 @@ export const TODAY: Area = {
     "Більше на сьогодні повторювати нічого. Гарного вам дня.",
   "{cards} still due, if you feel like a few more.":
     "Якщо хочеться ще, пора повторити: {cards}.",
-  "Nothing else is due today, so tonight's module is all you need to do.":
+  "Nothing else is due today, so today's module is all you need to do.":
     "Більше на сьогодні повторювати нічого, тож вам залишилося лише сьогоднішнє заняття.",
-  "{cards} due as well. They'll come up at the end of tonight's module.":
+  "{cards} due as well. They'll come up at the end of today's module.":
     "Ще пора повторити: {cards}. Вони трапляться наприкінці сьогоднішнього заняття.",
-  "{cards} due as well. Tonight's module ends with a few of them, and the review button has the rest.":
+  "{cards} due as well. Today's module ends with a few of them, and the review button has the rest.":
     "Ще пора повторити: {cards}. Сьогоднішнє заняття завершиться кількома з них, а решта чекає на сторінці «Повторення».",
 
   // TODAY: THE CARD THAT SAYS WHAT TO DO NOW.
@@ -1139,7 +1137,7 @@ export const TODAY: Area = {
   "Choose your first unit":
     "Вибрати перший розділ",
 
-  // TODAY: TONIGHT'S MODULE, AT THE TOP.
+  // TODAY: TODAY'S MODULE, AT THE TOP.
   "Today's module":
     "Заняття на сьогодні",
   "Day {day} of {days}":
@@ -1770,7 +1768,7 @@ export const TODAY: Area = {
     "Чотири варіанти одного слова і запитання, яке підказує, у який влучити. Відрізняються вони лише закінченням, тож ви вчитеся швидко його читати.",
   "One verb, six people: I, you, she and the rest. If you can't change a verb for who's doing it, you can't really use it yet.":
     "Одне дієслово, шість осіб: я, ти, вона й решта. Поки ви не вмієте змінювати дієслово за особами, по-справжньому користуватися ним ще не вийде.",
-  "Say tonight's words out loud: along with a native speaker, back from the recording, then from their meaning. You see which words were heard, and typing works too.":
+  "Say today's words out loud: along with a native speaker, back from the recording, then from their meaning. You see which words were heard, and typing works too.":
     "Скажіть вголос слова цього вечора: разом із носієм мови, за записом, потім за значенням. Ви бачите, які слова почуто, і можна друкувати.",
   "Write a sentence of your own with the ending we ask for. We check that word against the dictionary before anything else.":
     "Напишіть своє речення із закінченням, яке ми просимо. Це слово ми насамперед звіряємо зі словником.",
@@ -1842,8 +1840,6 @@ export const TODAY: Area = {
     "Назад до заняття на сьогодні",
 
   // THE PAST FORMS STEP.
-  "Tonight's module":
-    "Заняття цього вечора",
   "The past of your verbs":
     "Минулий час ваших дієслів",
   "Each verb makes its past its own way, so learn them a few at a time. Listen, then try three.":

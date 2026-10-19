@@ -367,7 +367,7 @@ function scaledLimits(limits: ReturnType<typeof readLimits>, kind: UsageKind) {
  * WHETHER A CALL OF THIS KIND WOULD BE ALLOWED NOW, ASKED WITHOUT BOOKING ONE.
  *
  * For a screen deciding whether to offer something that is nothing without a
- * model (tonight's chat, VB-11): offered on a day whose allowance is spent, it
+ * model (today's chat, VB-11): offered on a day whose allowance is spent, it
  * would fall to a stage direction on every turn. Read outside the lock and so
  * only advice, which is why nothing may be spent on its answer: the call
  * itself still goes through `authoriseCall`. A burst is a few seconds' wait

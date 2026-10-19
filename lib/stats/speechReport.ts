@@ -21,7 +21,7 @@
  *   people choose when to speak, so the typed side is read only from learners
  *   who have spoken at least once, and the report says it is not a trial.
  *
- *   Tonight's chat (VB-11): evenings offered one, evenings that took it, and
+ *   Today's chat (VB-11): evenings offered one, evenings that took it, and
  *   how its words did at their next review against the evening's other words.
  */
 
@@ -153,7 +153,7 @@ export function recallReading(answers: readonly LoggedAnswer[]): RecallReading {
 }
 
 /**
- * TONIGHT'S CHAT (VB-11): HOW MANY EVENINGS COULD HAVE HAD ONE, HOW MANY DID,
+ * TODAY'S CHAT (VB-11): HOW MANY EVENINGS COULD HAVE HAD ONE, HOW MANY DID,
  * AND WHETHER ITS WORDS WERE REMEMBERED BETTER.
  *
  * An evening could have had one where it was finished and met at least three

@@ -201,13 +201,13 @@ describe("a turn asking for a moment", () => {
 });
 
 /*
-  TONIGHT'S CHAT HOLDS A LINE TO ITS WORD, NEVER TO A TOPIC (VB-11). A word
+  TODAY'S CHAT HOLDS A LINE TO ITS WORD, NEVER TO A TOPIC (VB-11). A word
   beat has no topic words on purpose, and the learner's own words used to be
   added as the topic on every turn, so after `Tere.` the neighbor's question
   about their day was withheld as off the point three times running: in the
   capped critic round of 2026-10-17 that was every word beat.
 */
-describe("tonight's chat", () => {
+describe("today's chat", () => {
   it("hands the gate no topic on a beat that elicits a word, and keeps the topic on every other beat", async () => {
     const scene = chatSceneOf({
       programmeId: "gone", dayId: "gone", unitId: "u",

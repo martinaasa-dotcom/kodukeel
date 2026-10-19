@@ -73,7 +73,7 @@ export const SCENE_SOURCE = "SCENE";
  */
 export interface Debrief {
   scene: SceneSpec;
-  /** The run, which is how tonight's chat is found again: its beats are in no catalog. */
+  /** The run, which is how today's chat is found again: its beats are in no catalog. */
   runId?: string;
   objectives: { met: readonly string[]; missed: readonly string[] };
   hurdles: readonly { id: string; beat: number; met: boolean }[];
@@ -763,7 +763,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
         <NextStep />
         {!inModule && scene.id === CHAT_ID && (
           /*
-            TONIGHT'S CHAT ENDS THE EVENING, SO ITS WAY ON IS OUT OF IT. There is
+            TODAY'S CHAT ENDS THE EVENING, SO ITS WAY ON IS OUT OF IT. There is
             no other chat to pick and the same one again is the same four words:
             the evening is done, and Today is where the learner goes next.
           */

@@ -56,7 +56,7 @@ export interface ReviewQueue {
   /** Unseen cards trickled in after them, in teaching order. */
   fresh: CardRow[];
   /**
-   * The whole sitting: `due` then `fresh` on the daily path, and tonight's own
+   * The whole sitting: `due` then `fresh` on the daily path, and today's own
    * words alone inside the module, where `due` and `fresh` are empty.
    */
   cards: CardRow[];
@@ -82,11 +82,11 @@ export const reviewQueue = cache(async (
   const allowed = (card: CardRow) => reviewable(taught, card, spellings);
 
   /*
-    THE MODULE'S CLOSING ROUND IS TONIGHT'S WORDS AND NOTHING ELSE.
+    THE MODULE'S CLOSING ROUND IS TODAY'S WORDS AND NOTHING ELSE.
 
     It used to be the whole queue narrowed to what the module had taught: due
     cards from every evening so far, then a trickle of unseen ones, and
-    tonight's words only to fill what was left. So the last step of an evening
+    today's words only to fill what was left. So the last step of an evening
     called "a quick review" was a mix of everything the learner had ever met,
     and the operator's call is that it should be a review of the batch the
     evening taught. What else is due is still due, on Review, from Today.

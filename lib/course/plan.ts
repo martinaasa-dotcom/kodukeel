@@ -90,7 +90,7 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
     on the line (`lib/games/workbook.ts`). It asks the same thing the flash
     round's gap asked, a form because a sentence needs it, eight times over on
     one subject rather than once a word, and on a case evening that subject
-    is tonight's case, which is what `CASE_ROUNDS` in `build.ts` deals it for.
+    is today's case, which is what `CASE_ROUNDS` in `build.ts` deals it for.
     The flash round stays A1's drill, where no case is asked, and stays on
     Practice for everybody.
   */

@@ -19,13 +19,13 @@ import { VERDICT_CLASS } from "@/lib/ux/verdict";
 /**
  * SAY IT: THE HEADLINE OF THE EVENING, AND OPTIONAL (docs/43-lessons.md §2).
  *
- * Three parts. Say tonight's conversation along with the screen, the words
+ * Three parts. Say today's conversation along with the screen, the words
  * lighting as they are heard (`ReadAloud`). Answer questions about yourself
  * out loud. And on a check-in or a part's last lesson, a short role-play with
  * somebody who speaks first.
  *
  * OPTIONAL MEANS ONE PRESS AND NO PENALTY. Two buttons of the same size open
- * the step, "Say it" and "Type it instead tonight", and typing runs the same
+ * the step, "Say it" and "Type it instead today", and typing runs the same
  * questions with the keyboard. Saying the conversation along has no typed
  * version, because copying out lines you can see is not practice of anything,
  * so a typed evening goes straight to the questions. The choice lasts the
@@ -56,7 +56,7 @@ export function SayIt({ lesson, scene, onComplete }: { lesson: LessonSpec; scene
   const [mode, setMode] = useState<Mode | null>(null);
   const [at, setAt] = useState(0);
   const [over, setOver] = useState(false);
-  // The other side's voice: whoever opens tonight's conversation.
+  // The other side's voice: whoever opens today's conversation.
   const voice = lesson.cast[lesson.conversation[0]?.who ?? ""] ?? undefined;
 
   const cards = useMemo<SayCard[]>(() => {
@@ -78,7 +78,7 @@ export function SayIt({ lesson, scene, onComplete }: { lesson: LessonSpec; scene
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <Button size="lg" onClick={() => setMode("type")}>
-            <Keyboard size={16} aria-hidden /> {t("Type it instead tonight")}
+            <Keyboard size={16} aria-hidden /> {t("Type it instead today")}
           </Button>
           <Button size="lg" variant="primary" onClick={() => setMode("say")}>
             <Mic size={16} aria-hidden /> {t("Say it")}
@@ -93,7 +93,7 @@ export function SayIt({ lesson, scene, onComplete }: { lesson: LessonSpec; scene
       <div data-say-it="done">
         <Card tone="sky">
           <p role="status" className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
-            {mode === "say" ? t("You said tonight's Estonian out loud. That's the step most people skip, and the one that counts.") : t("Done. Tomorrow, try it out loud if you're somewhere you can.")}
+            {mode === "say" ? t("You said today's Estonian out loud. That's the step most people skip, and the one that counts.") : t("Done. Tomorrow, try it out loud if you're somewhere you can.")}
           </p>
           {scene && (
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3" data-lesson-scene={scene}>
@@ -132,7 +132,7 @@ export function SayIt({ lesson, scene, onComplete }: { lesson: LessonSpec; scene
   );
 }
 
-/** Part one: every spoken line of tonight's conversation, heard and then said along. */
+/** Part one: every spoken line of today's conversation, heard and then said along. */
 function SayTheLines({ lesson, onNext }: { lesson: LessonSpec; onNext: () => void }) {
   const t = useT();
   const locale = useLocale();
