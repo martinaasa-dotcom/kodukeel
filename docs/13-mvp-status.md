@@ -3719,10 +3719,7 @@ of the soft section again, primed by the form that carries the softness (`halla`
 also added `kutsu` the puppy beside `kutsu` invite!, which replaces `kutse` against `kutsu` because a
 pair with one spelling is the stronger demonstration, and a soft s against a plain one (`pasun`,
 `poiss`, `buss`) and `pall`. The pairs it re-recorded keep their ids and play the new take, and
-`NATIVE_CUT` is 5. Two takes of `palk` carry a breath thump after the word, low and aperiodic, 190 and
-270 ms after the k: the k release was found as its own burst at 1.5 to 3 kHz just after the l, kept,
-and the cut stops before the thump. Cut before the burst the recognizer hears `palga`, with it
-`palk`, which is how the burst was confirmed to be the stop rather than the breath.
+`NATIVE_CUT` is 6. Both takes of `palk` were first cut short, and that is worth writing down. The k is released about a quarter second after the l, as an aspirated burst with low energy in it, and the spectral check read that burst as a breath and cut before it. The recognizer heard `palk` all the same, off the closure alone. The speaker heard the k missing at once. Cut 6 ends past that release. A recognizer that agrees is not proof that a stop is there; a native ear is.
 
 **One man's part in a conversation is his.** A lesson's conversation keeps its cast's voices, and the
 one part the native speaker may play, Tom's or Jaan's, plays his recording where every line of that

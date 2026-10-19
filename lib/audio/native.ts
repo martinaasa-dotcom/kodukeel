@@ -451,9 +451,9 @@ export function nativeClip(id: string): NativeClip {
  * url that names the cut is the only way a re-cut clip reaches a phone that
  * heard the old one. Cut 2 found the ends of the words, below; cut 4 added
  * passes 2 to 4 beside the first take; cut 5 is pass 5, which said the soft
- * consonants again.
+ * consonants again; cut 6 put back the k at the end of both palk words.
  */
-export const NATIVE_CUT = 5;
+export const NATIVE_CUT = 6;
 
 /** Where the browser fetches a clip. */
 export function nativeUrl(id: string): string {

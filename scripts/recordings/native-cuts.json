@@ -671,13 +671,13 @@
    "id": "soft-palk-plain",
    "source": "sounds-pass5.flac",
    "from": 1.53,
-   "to": 2.04
+   "to": 2.36
   },
   {
    "id": "soft-palk",
    "source": "sounds-pass5.flac",
    "from": 3.34,
-   "to": 3.80
+   "to": 4.17
   },
   {
    "id": "length-kala",
