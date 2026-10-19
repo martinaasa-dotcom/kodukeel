@@ -168,7 +168,7 @@ export const SCENERY: Readonly<Record<string, Scenery>> = {
   "eksam-b1": { icon: "GraduationCap", setting: "meeting" },
   "eksam-b2": { icon: "Mic", setting: "meeting" },
   /*
-    Tonight's chat is with a neighbor on the stairs, which is a room this app
+    Today's chat is with a neighbor on the stairs, which is a room this app
     already draws (D17): the stairwell `trepikoda` opens in.
   */
   chat: { icon: "MessageCircle", setting: "stairwell" },

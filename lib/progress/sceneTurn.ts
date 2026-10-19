@@ -507,7 +507,7 @@ export function planTurn(input: TurnInput) {
         })(),
       }),
       /*
-        NO TOPIC ON A BEAT THAT ELICITS A WORD (tonight's chat, VB-11). Such a
+        NO TOPIC ON A BEAT THAT ELICITS A WORD (today's chat, VB-11). Such a
         beat has no topic words on purpose (`chatScene`): the one word it is
         about is the one word the other side may not say, and `elicits` keeps
         the line on it instead. But `theirs` was added on every turn, so the

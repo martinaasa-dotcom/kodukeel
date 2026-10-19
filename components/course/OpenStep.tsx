@@ -10,7 +10,7 @@ import { useT } from "@/components/Locale";
 import { MEET_STEP } from "@/lib/course/types";
 
 /**
- * THE ONE BUTTON THAT OPENS A STEP OF TONIGHT'S MODULE.
+ * THE ONE BUTTON THAT OPENS A STEP OF TODAY'S MODULE.
  *
  * Two places draw it: the open step on the list, and the module's hero card,
  * where it is the first thing on the screen so a learner who stopped halfway

@@ -291,7 +291,7 @@ describe("composeSheet", () => {
 });
 
 describe("preferredThemes", () => {
-  it("leads with what was asked for, then tonight's case, then the weakest", () => {
+  it("leads with what was asked for, then today's case, then the weakest", () => {
     const order = preferredThemes({ requested: "past", tonight: "ELATIVE", weakest: ["PARTITIVE"] });
     expect(order.slice(0, 4)).toEqual(["past", "case:ELATIVE", "case:PARTITIVE", "pronouns"]);
     expect(order.at(-1)).toBe("mixed");
@@ -624,7 +624,7 @@ describe("a page heads with the learner's weakest case whenever the words can fi
     expect(composeSheet(items, [short!], plans, 0).exercises[0]?.theme).toBe(short);
   });
 
-  it("puts tonight's case ahead of the weakest, and the asked-for theme ahead of both", () => {
+  it("puts today's case ahead of the weakest, and the asked-for theme ahead of both", () => {
     const sheet = composeSheet(items, preferredThemes({ requested: "case:ELATIVE", tonight: "INESSIVE", weakest: ["PARTITIVE"] }), [{ lines: 6 }, { lines: 4 }]);
     expect(sheet.exercises.map((e) => e.theme)).toEqual(["case:ELATIVE", "case:INESSIVE"]);
   });

@@ -132,10 +132,10 @@ const THEME_CHOICES = 8;
  *   ones most overdue ahead of the rest, because a page is where a word that
  *   will not stick gets read eight times in eight sentences. Then the
  *   dictionary at their level, so a page is full on a thin deck. Inside the
- *   module, the words the evenings have taught and nothing else, tonight's
+ *   module, the words the evenings have taught and nothing else, today's
  *   first (`byRecency`).
  *
- *   WHICH THEME. What they asked for by name on the last page; tonight's
+ *   WHICH THEME. What they asked for by name on the last page; today's
  *   case inside the module, since an evening that read the elative practices
  *   it; then their weakest cases off their own review log, weakest first;
  *   then the personal pronouns and the tenses. `preferredThemes` is the
@@ -216,7 +216,7 @@ export default async function WorkbookPage({
   }
   const own = [...cardsFor.keys()];
   /*
-    Which of their own words, and in what order. Inside the module, tonight's
+    Which of their own words, and in what order. Inside the module, today's
     words first and working back (`byRecency`); outside it, the weakest and
     most overdue lead and the rest are shuffled, so "Another page" is another
     page rather than the same eight sentences.
@@ -330,7 +330,7 @@ export default async function WorkbookPage({
 
   /*
     A PAGE ON THE CASE THEY NEED IS FILLED FROM FURTHER AFIELD. The first
-    theme that leads for who the learner is (what they asked for, tonight's
+    theme that leads for who the learner is (what they asked for, today's
     case, their weakest) is the page they most need, and a draw of a few
     hundred words often holds too few that can carry it: measured over the
     shipped dictionary, a third of sittings above A1 set the weakest case one

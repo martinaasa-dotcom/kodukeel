@@ -58,7 +58,7 @@ const SELECT = {
 /**
  * How many answers this evening's closing round still has in it.
  *
- * The round is tonight's own words (`tonightWhere`), so this is the same read,
+ * The round is today's own words (`tonightWhere`), so this is the same read,
  * filtered the same way (`cardWithin`), cut at the same size. The review page
  * also drops a bare form card it cannot ask (`askableRows`), which this does
  * not see, and that is the direction this count may err in: at or under what

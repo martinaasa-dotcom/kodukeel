@@ -84,7 +84,7 @@ describe("reviewQueue", () => {
 });
 
 /*
-  THE MODULE'S CLOSING ROUND IS TONIGHT'S WORDS, NOT EVERYTHING TAUGHT SO FAR.
+  THE MODULE'S CLOSING ROUND IS TODAY'S WORDS, NOT EVERYTHING TAUGHT SO FAR.
 
   Reported off the fourth step of a real module: "a quick review" was a mix of
   every word the learner had met, when it is the evening's own batch that a
@@ -107,7 +107,7 @@ describe("the module's closing round", () => {
     });
   }
 
-  it("asks tonight's words and no word an earlier evening taught", async () => {
+  it("asks today's words and no word an earlier evening taught", async () => {
     const earlier = one.words.filter((w) => !two.words.includes(w));
     expect(earlier.length, "the first two evenings teach the same words").toBeGreaterThan(0);
     for (const lemma of earlier) await production(lemma, yesterday);
@@ -121,7 +121,7 @@ describe("the module's closing round", () => {
     expect(asked.filter((lemma) => !two.words.includes(lemma))).toEqual([]);
   });
 
-  it("asks a card of tonight's words that is already due ahead of the rest", async () => {
+  it("asks a card of today's words that is already due ahead of the rest", async () => {
     const [first, second] = two.words;
     await production(second!, new Date(Date.now() + 86_400_000));
     await production(first!, yesterday);

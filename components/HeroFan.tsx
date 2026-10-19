@@ -94,7 +94,7 @@ export function HeroFan({
   text?: ReactNode;
   action?: ReactNode;
   cards: readonly FanCard[];
-  /** What the fan is, for a screen reader: "Tonight's steps". */
+  /** What the fan is, for a screen reader: "Today's steps". */
   cardsLabel: string;
   /** Today's module, and nothing else. */
   bright?: boolean;

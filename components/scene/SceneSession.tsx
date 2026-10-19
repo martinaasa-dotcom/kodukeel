@@ -211,15 +211,15 @@ const HOW_IT_GOES: { title: string; line: string; hue: "sky" | "cta" | "blush"; 
 ];
 
 /*
-  TONIGHT'S CHAT SAYS SOMETHING ELSE IN THE MIDDLE (VB-11). It deals no card,
+  TODAY'S CHAT SAYS SOMETHING ELSE IN THE MIDDLE (VB-11). It deals no card,
   so "your card is a suggestion" would point at nothing; what a learner cannot
-  guess about a chat is that it is about tonight's words.
+  guess about a chat is that it is about today's words.
 */
 const HOW_A_CHAT_GOES: typeof HOW_IT_GOES = [
   HOW_IT_GOES[0]!,
   {
-    title: "It's about tonight",
-    line: "They ask about the things tonight's words are for. Use them in your answers.",
+    title: "It's about today",
+    line: "They ask about the things today's words are for. Use them in your answers.",
     hue: "cta",
     icon: <MessageCircle size={16} />,
   },
@@ -361,7 +361,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
    */
   opening: readonly string[];
   /**
-   * TONIGHT'S CHAT (docs/41-fifth-batch.md, VB-11): the meanings of the words
+   * TODAY'S CHAT (docs/41-fifth-batch.md, VB-11): the meanings of the words
    * it asks for, in English, for the briefing. Present only on `/course/chat`.
    * A chat opens through `beginChat`, which decides on the server which
    * evening it is about; it has no card, no curveballs and no lines to pick,
@@ -1433,7 +1433,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
             {/* The kind in words beside its dot, the way the board names it. */}
             <span className="situation-glass label-xs inline-flex items-center gap-2 rounded-full px-3 py-1">
               <span aria-hidden className="situation-dot" style={{ background: `var(--${kind.hue})` }} />
-              {t(chat ? "Tonight's words" : kind.label)}
+              {t(chat ? "Today's words" : kind.label)}
             </span>
             {/*
               WHO YOU ARE, AND NOT WHERE YOU ARE AGAIN. The page above prints

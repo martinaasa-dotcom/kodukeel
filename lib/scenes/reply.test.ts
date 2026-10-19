@@ -403,7 +403,7 @@ describe("a turn that was understood and missed the point", () => {
 
   it("joins the but only onto a line that is the question alone, never onto an answer in front of it", () => {
     /*
-      Read in tonight's chat: a composed line said again carried its opening
+      Read in today's chat: a composed line said again carried its opening
       answer, and the join put "but" in front of that answer, contrasting
       nothing (docs/41-fifth-batch.md, section 0).
     */
@@ -1246,7 +1246,7 @@ describe("a line a model wrote for this turn", () => {
       .toMatch(/What you say when asked this: They say it costs 5 euros now\./);
   });
 
-  it("on tonight's chat, asks something different rather than the answered question again", () => {
+  it("on today's chat, asks something different rather than the answered question again", () => {
     const note = composeNote("narrow", "offtarget", false, null, { elicit: "elama" });
     expect(note).toMatch(/something different from your last question/);
     expect(note).toMatch(/[Nn]ever ask a question they have already answered/);

@@ -50,7 +50,7 @@ describe("recall after a spoken answer", () => {
   });
 });
 
-describe("tonight's chat", () => {
+describe("today's chat", () => {
   const ended = new Date("2026-10-01T19:00:00Z");
   const at = (ms: number) => new Date(ended.getTime() + ms);
   const answer = (lemma: string, ms: number, rating: number, ownerId = "a"): WordAnswer => ({ ownerId, lemma, reviewedAt: at(ms), rating });

@@ -14,11 +14,11 @@ import { chatDay } from "@/lib/progress/chatDay";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata() {
-  return titleFor("Tonight's chat");
+  return titleFor("Today's chat");
 }
 
 /**
- * TONIGHT'S CHAT (docs/41-fifth-batch.md, VB-11).
+ * TODAY'S CHAT (docs/41-fifth-batch.md, VB-11).
  *
  * The conversation screen every scene uses, opened on a scene built for the
  * evening the learner finished today (`lib/scenes/specs/chat.ts`). Everything

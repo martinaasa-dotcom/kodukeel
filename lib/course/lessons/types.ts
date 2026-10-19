@@ -89,7 +89,7 @@ export type Cell = { readonly et: string } | { readonly en: string };
  *
  * `point` is the rule in one line; `notes` are a sentence or two each; the
  * table is the rule laid out; `watchOut` is the one mistake an English
- * speaker makes. `examples` are lines of tonight's conversation by index, so
+ * speaker makes. `examples` are lines of today's conversation by index, so
  * the rule is shown in the sentences the learner just heard rather than in
  * new ones.
  */
@@ -187,7 +187,7 @@ export interface LessonSpec {
   readonly conversation: readonly Line[];
   /** Everything new tonight, in the order the Words step lists it. */
   readonly teaches: readonly Taught[];
-  /** The patterns tonight's `how` explains, if any. Each is explained once in a level. */
+  /** The patterns today's `how` explains, if any. Each is explained once in a level. */
   readonly patterns?: readonly PatternId[];
   readonly how: HowItWorks;
   /** Questions about the learner, answered aloud or typed. */

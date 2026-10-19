@@ -2,7 +2,7 @@
  * Reading a photograph of a page, and refusing to trust what comes back.
  *
  * A learner points a camera at a textbook page, a vocabulary list on the
- * whiteboard or last night's homework, and the model transcribes what is
+ * whiteboard or yesterday's homework, and the model transcribes what is
  * printed there. That is optical character recognition, not authorship: the
  * Estonian on the page was written by somebody who knows Estonian, and the
  * model's only job is to copy it out.

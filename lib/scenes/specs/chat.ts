@@ -1,12 +1,12 @@
 /**
- * TONIGHT'S CHAT: A CONVERSATION WHOSE TOPIC IS TONIGHT'S WORDS
+ * TODAY'S CHAT: A CONVERSATION WHOSE TOPIC IS TODAY'S WORDS
  * (docs/41-fifth-batch.md, VB-11; ADR-025 amendment 4).
  *
  * Every other scene is an errand with fixed beats, written once and read by
  * everybody: a counter, a call, a stairwell. They teach a situation, and they
  * do not give the words an evening has just taught a second life in somebody's
  * mouth. This does: a few minutes at the end of an evening with a neighbor who
- * asks about the things tonight's words are for, so the learner uses them
+ * asks about the things today's words are for, so the learner uses them
  * while they are fresh. It is the retrieval the closing review asks for, in a
  * conversation instead of on a card.
  *
@@ -34,7 +34,7 @@ import { ASIDES, CLOSING_WORDS, FALLBACK_PHRASE, FAREWELLS, FEELINGS, HELLOS, LO
 export const CHAT_ID = "chat";
 
 /**
- * At most four of tonight's words, which is about two minutes and about one
+ * At most four of today's words, which is about two minutes and about one
  * cent on the scene chain: a chat longer than that is a second evening.
  */
 export const CHAT_WORDS = 4;
@@ -113,7 +113,7 @@ export function chatMachinery(): string[] {
 }
 
 /**
- * Which of tonight's words a chat asks for, and in what order.
+ * Which of today's words a chat asks for, and in what order.
  *
  * A word nobody can say is dropped rather than made unanswerable: `readable`
  * is whether the forms list can read any form of it, which the progress layer
@@ -182,7 +182,7 @@ function wordBeat(word: ChatWord, n: number, remembered: string | null): BeatSpe
  * The scene, built for one evening.
  *
  * `taught` is every lemma the evenings have taught through this one
- * (`scopeFor`), and with tonight's words and the machinery above it is the
+ * (`scopeFor`), and with today's words and the machinery above it is the
  * closed list the other side composes inside (`SceneSpec.lemmas`), so a chat
  * on the fourth evening of A1 speaks the Estonian somebody has had four
  * evenings of.
@@ -216,13 +216,13 @@ export function chatScene(plan: ChatPlan, taught: readonly string[]): SceneSpec 
   const words = plan.words.map((_, i) => wordBeatId(i + 1));
   return {
     id: CHAT_ID,
-    title: "Tonight's chat",
+    title: "Today's chat",
     place: "The stairs of your building, with your neighbor",
     tests: plan.unitId,
     units: [],
     lemmas: [...new Set([...taught, ...plan.words.map((w) => w.lemma), ...chatMachinery()])],
     register: "sina",
-    role: "Your neighbor catches you on the stairs on your way home and stops for a chat. They'll ask about the things tonight's words are for.",
+    role: "Your neighbor catches you on the stairs on your way home and stops for a chat. They'll ask about the things today's words are for.",
     props: [],
     curveballs: [],
     beats,
@@ -230,7 +230,7 @@ export function chatScene(plan: ChatPlan, taught: readonly string[]): SceneSpec 
       {
         id: "talked",
         when: ["greet", ...words, "close"],
-        says: "Every one of tonight's words got used on somebody, which is what makes them yours.",
+        says: "Every one of today's words got used on somebody, which is what makes them yours.",
       },
       /*
         Any one word used, not the first: a beat the learner could not answer
@@ -243,12 +243,12 @@ export function chatScene(plan: ChatPlan, taught: readonly string[]): SceneSpec 
       ...words.map((id) => ({
         id: `some-${id}`,
         when: [id],
-        says: "Some of tonight's words got an outing. The rest come round again in your reviews.",
+        says: "Some of today's words got an outing. The rest come round again in your reviews.",
       })),
       {
         id: "dashed",
         when: ["greet"],
-        says: "They had to dash off before you got far. Tonight's words will keep until your reviews.",
+        says: "They had to dash off before you got far. Today's words will keep until your reviews.",
       },
       { id: "left", when: [], says: "You went on up. There'll be another chat after the next evening." },
     ],

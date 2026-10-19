@@ -547,7 +547,7 @@ export default async function TodayPage() {
 
       Every other page draws the same card in the night's grays, so this is
       the one that is lit: what the learner can do by the end of it on the
-      left, and tonight's steps dealt out on the right, the finished ones ringed,
+      left, and today's steps dealt out on the right, the finished ones ringed,
       the next one lifted and breathing, the rest in the brand mix.
     */
     <HeroFan
@@ -979,7 +979,7 @@ export default async function TodayPage() {
   ) : null;
 
   /*
-    THE WAY BACK TO THE CARDS, WHEN THE HERO IS TONIGHT'S MODULE.
+    THE WAY BACK TO THE CARDS, WHEN THE HERO IS TODAY'S MODULE.
 
     The line under the greeting used to say how many cards were due and that
     they would come up at the end of the module, and the feedback on it was

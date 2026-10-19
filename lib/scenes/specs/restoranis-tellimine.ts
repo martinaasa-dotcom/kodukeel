@@ -21,7 +21,7 @@ const RESTAURANT: SceneSpec = {
   tests: "restoranis",
   units: [...COMMON, "restoranis", "sook-ja-jook", "ostmine", "omadussonad", "inimesed", "reisimine"],
   register: "teie",
-  role: "You're eating out on your own tonight. Your card says what you'd like to eat and drink, and the waiter has questions.",
+  role: "You're eating out on your own today. Your card says what you'd like to eat and drink, and the waiter has questions.",
   props: [
     {
       kind: "word", slot: "dish", oneOf: ["supp", "kala", "liha", "salat", "kartul"],

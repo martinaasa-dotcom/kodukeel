@@ -45,7 +45,7 @@ export const OPENS_WITHOUT_BRIEFING: Readonly<Record<string, string>> = {
     "and how much help is on the screen. It is the screen this rule asks every round for, and " +
     "it is the one that carries a choice inside it.",
   "app/(app)/course/chat/page.tsx":
-    "Tonight's chat is a conversation and opens on the same briefing every conversation does: " +
+    "Today's chat is a conversation and opens on the same briefing every conversation does: " +
     "who the other side is, the words it is about, and the dials for how they talk and how " +
     "they are heard. A second screen in front of it would say the same thing twice.",
   "app/(app)/exam/[level]/page.tsx":

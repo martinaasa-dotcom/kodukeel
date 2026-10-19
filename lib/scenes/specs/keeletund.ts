@@ -12,7 +12,7 @@ const COURSE: SceneSpec = {
   */
   units: [...COMMON, "kool-ja-keel", "riigid", "inimesed", "omadussonad"],
   register: "teie",
-  role: "It's the first evening of an Estonian course and the teacher is going around the room. Your card says where you're from and why you're learning. Any name will do. You're not yourself tonight.",
+  role: "It's the first evening of an Estonian course and the teacher is going around the room. Your card says where you're from and why you're learning. Any name will do. You're not yourself today.",
   props: [
     {
       kind: "word", slot: "from", oneOf: ["Soome", "Saksamaa", "Inglismaa", "Ameerika", "Läti", "Rootsi"],

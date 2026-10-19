@@ -711,7 +711,7 @@ export interface ExercisePlan {
  * that has enough lines left and a theme no earlier exercise took.
  *
  * `items` arrive in the order the words are worth asking, which is the
- * caller's judgment (due and lapsing first, or tonight's words first inside
+ * caller's judgment (due and lapsing first, or today's words first inside
  * the module). A line is taken in that order with two rules on top: one line
  * per word in an exercise, so a page about the osastav is eight words in it
  * rather than one word eight times, and on a mixed page no two lines running
@@ -744,7 +744,7 @@ export function composeSheet(
     /*
       A THEME THAT LEADS FOR WHO THE LEARNER IS IS TAKEN EVEN SHORT; ONE
       TAKING ITS TURN IS TAKEN FULL WHERE ANOTHER CAN BE. The first `urgent`
-      themes are what was asked for, tonight's case and the weakest, and a page
+      themes are what was asked for, today's case and the weakest, and a page
       of five lines on the case somebody keeps getting wrong is worth more than
       eight on one they do not. The rest are only taking their turn, so the
       first of them that can fill the whole exercise goes ahead of one that
@@ -900,7 +900,7 @@ function pick(pool: readonly SheetItem[], n: number, spread: boolean, byCase = f
  * so the judgment is in one place and unit tested:
  *
  *   asked for by name (a theme chip pressed on the last page) first;
- *   tonight's case, inside the module, since an evening that read the
+ *   today's case, inside the module, since an evening that read the
  *   elative practices the elative;
  *   the learner's weakest cases off their own review log, weakest first,
  *   which is `caseAccuracy`'s order;
@@ -919,7 +919,7 @@ function pick(pool: readonly SheetItem[], n: number, spread: boolean, byCase = f
  * pronouns on half, and at A1 the present and then the past on every one.
  * `turn` rotates where the rest starts, so a day and a second page each start
  * somewhere new, and the things a learner most needs (what they asked for,
- * tonight's case, their weakest) still lead whatever the turn.
+ * today's case, their weakest) still lead whatever the turn.
  */
 export function preferredThemes(input: {
   requested?: Theme | null;
