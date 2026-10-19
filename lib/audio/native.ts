@@ -203,7 +203,7 @@ export function nativeClip(id: string): NativeClip {
  * url that names the cut is the only way a re-cut clip reaches a phone that
  * heard the old one. Cut 2 found the ends of the words, below.
  */
-export const NATIVE_CUT = 2;
+export const NATIVE_CUT = 3;
 
 /** Where the browser fetches a clip. */
 export function nativeUrl(id: string): string {
