@@ -144,9 +144,13 @@ export const SOFT_BESIDE: readonly WordSet[] = [
   { words: [{ clip: "soft-pasun", en: "a trumpet", mark: "s", tag: "plain" }, { clip: "soft-poiss", en: "a boy", mark: "ss", tag: "soft" }] },
 ];
 
-/** Two more soft ones, for the ear: nothing plain beside them. */
+/**
+ * Two more soft ones, for the ear: nothing plain beside them. No caption, since
+ * each word carries its own tag and a caption would drop this set's words a
+ * line below the pair it sits beside.
+ */
 export const SOFT_MORE: readonly WordSet[] = [
-  { words: [{ clip: "soft-buss", en: "a bus", mark: "ss", tag: "soft" }, { clip: "soft-pall", en: "a ball", mark: "ll", tag: "soft" }], caption: "Both soft" },
+  { words: [{ clip: "soft-buss", en: "a bus", mark: "ss", tag: "soft" }, { clip: "soft-pall", en: "a ball", mark: "ll", tag: "soft" }] },
 ];
 
 /** Words that differ by how long one sound is held. */
