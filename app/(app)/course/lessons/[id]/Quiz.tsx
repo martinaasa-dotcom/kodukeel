@@ -137,7 +137,7 @@ export function Quiz({ items, onFinished }: { items: readonly PracticeItem[]; on
                   aria-checked={option === picked}
                   disabled={picked !== null}
                   onClick={() => pick(option)}
-                  className={`choice-btn rounded-[var(--r-lg)] px-4 py-3 text-left text-base font-semibold ${state ? OPTION_CLASS[state] : ""}`}
+                  className={`choice-btn rounded-[var(--r-lg)] border px-4 py-3 text-left text-base font-semibold ${state ? OPTION_CLASS[state] : ""}`}
                 >
                   <LessonText text={option} locale={locale} />
                 </button>
