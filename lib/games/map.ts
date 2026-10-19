@@ -74,7 +74,9 @@ export interface SceneGlyph {
 export type SceneLayout =
   | { readonly kind: "row"; readonly parts: readonly SceneGlyph[] }
   | { readonly kind: "inside"; readonly host: string; readonly guest: string }
-  | { readonly kind: "on"; readonly host: string; readonly guest: string };
+  | { readonly kind: "on"; readonly host: string; readonly guest: string }
+  /* Where a thing is in relation to another, for the place words (`lib/games/place.ts`). */
+  | { readonly kind: "under" | "above" | "front" | "behind"; readonly host: string; readonly guest: string };
 
 export interface MapScene {
   readonly layout: SceneLayout;
