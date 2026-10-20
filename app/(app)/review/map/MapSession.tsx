@@ -32,7 +32,8 @@ import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey
 import { markForm, type FlashMark } from "@/lib/games/flash";
 import { caseByKey } from "@/lib/estonian/cases";
 import { isFormSlot } from "@/lib/srs/slots";
-import type { MapQuestion } from "@/lib/progress/map";
+import { PlaceCard } from "@/components/round/PlaceCard";
+import type { PlaceQuestion, RoundQuestion } from "@/lib/progress/map";
 
 /**
  * MAP.
@@ -58,7 +59,7 @@ import type { MapQuestion } from "@/lib/progress/map";
  * form marked, beside the three endings as a set.
  */
 export function MapSession({ questions: initialQuestions, canTranslate }: {
-  questions: MapQuestion[];
+  questions: RoundQuestion[];
   canTranslate: boolean;
 }) {
   const grade = useGrade();
@@ -74,7 +75,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
   const locale = useLocale();
   const [asked, setAsked] = useState(0);
   /* What came out wrong, in the order it was asked, for the last screen. */
-  const [missed, setMissed] = useState<MapQuestion[]>([]);
+  const [missed, setMissed] = useState<RoundQuestion[]>([]);
   const [busy, setBusy] = useState(false);
   const [typed, setTyped] = useState("");
   const [mark, setMark] = useState<FlashMark | null>(null);
@@ -85,14 +86,17 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
   const shownAt = useRef(Date.now());
 
   const q = questions[index];
+  /* The case question in play, or nothing where it is a place question, which
+     is a card of its own (`PlaceCard`) with its own keys. */
+  const cq = q?.kind === "case" ? q : undefined;
   const look = useLookBack();
   const finished = !q;
   const answered = picked !== null || mark !== null;
   const answerBox = useRef<HTMLInputElement>(null);
   useFocusAnswer(answerBox, !answered && !look.looking, index);
 
-  const typedRung = q?.rung === 3;
-  const retype = useRetype(q ? q.accepted.join(PARTS) : "", q ? `${q.lexemeId}:${q.caseKey}:${index}` : "");
+  const typedRung = cq?.rung === 3;
+  const retype = useRetype(cq ? cq.accepted.join(PARTS) : "", cq ? `${cq.lexemeId}:${cq.caseKey}:${index}` : "");
   const needsRetype = typedRung && owesRetype && !retype.ok;
   const footer = useKeepInView<HTMLDivElement>(answered ? index : null);
 
@@ -101,69 +105,81 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
     which leaves the pair worth telling apart standing longest. A hint is paid
     for: it caps the grade (`lib/questions/hints.ts`).
   */
-  const texts = q ? q.options.map((o) => o.text) : [];
-  const correct = q ? q.options[q.answer]!.text : "";
-  const ladder = !q ? []
+  const texts = cq ? cq.options.map((o) => o.text) : [];
+  const correct = cq ? cq.options[cq.answer]!.text : "";
+  const ladder = !cq ? []
     : typedRung
       /* Nothing to cross out when nothing is offered, so the top rung uncovers
          the form from the end, where the ending is, the way the flash round does. */
-      ? hintLadder({ answer: correct, stems: [q.lemma], suffix: caseByKey(q.caseKey)?.suffix })
+      ? hintLadder({ answer: correct, stems: [cq.lemma], suffix: caseByKey(cq.caseKey)?.suffix })
       : narrowLadder(texts, correct);
-  const hints = useHints({ word: q?.lexemeId ?? null, question: q ? `${q.lexemeId}:${q.caseKey}` : null, ladder });
-  const struck = q && !typedRung ? struckOptions(texts, correct, hints.taken) : [];
+  const hints = useHints({ word: cq?.lexemeId ?? null, question: cq ? `${cq.lexemeId}:${cq.caseKey}` : null, ladder });
+  const struck = cq && !typedRung ? struckOptions(texts, correct, hints.taken) : [];
 
   useEffect(() => { shownAt.current = Date.now(); setPicked(null); setMark(null); setOwesRetype(false); setTyped(""); }, [index]);
 
   const pick = useCallback(async (i: number) => {
-    if (!q || answered || busy) return;
+    if (!cq || answered || busy) return;
     setBusy(true);
-    const isRight = i === q.answer;
+    const isRight = i === cq.answer;
     const duration = Date.now() - shownAt.current;
     setPicked(i);
     sound(isRight ? "right" : "wrong");
-    if (!isRight) { hints.noteMiss(); setMissed((m) => [...m, q]); }
-    if (q.cardId) {
+    if (!isRight) { hints.noteMiss(); setMissed((m) => [...m, cq]); }
+    if (cq.cardId) {
       await grade(
-        q.cardId, Math.min(isRight ? 3 : 1, hints.ceiling) as 1 | 2 | 3, duration,
-        q.caseKey, isRight ? undefined : q.options[i]!.key,
+        cq.cardId, Math.min(isRight ? 3 : 1, hints.ceiling) as 1 | 2 | 3, duration,
+        cq.caseKey, isRight ? undefined : cq.options[i]!.key,
       );
     }
     setAsked((n) => n + 1);
     if (isRight) setRight((n) => n + 1);
     setBusy(false);
-  }, [q, answered, busy, hints, grade, sound]);
+  }, [cq, answered, busy, hints, grade, sound]);
 
   const check = useCallback(async () => {
-    if (!q || mark || busy || typed.trim().length === 0) return;
+    if (!cq || mark || busy || typed.trim().length === 0) return;
     setBusy(true);
-    const marked = markForm({ accepted: q.accepted, slot: q.caseKey, label: q.label, index: q.index }, typed);
+    const marked = markForm({ accepted: cq.accepted, slot: cq.caseKey, label: cq.label, index: cq.index }, typed);
     // A hint can only lower what the answer earned.
     const result = { ...marked, rating: Math.min(marked.rating, hints.ceiling) as FlashMark["rating"] };
     const duration = Date.now() - shownAt.current;
     setMark(result);
     setOwesRetype(marked.rating < 3);
     sound(result.right ? "right" : "wrong");
-    if (!result.right) { hints.noteMiss(); setMissed((m) => [...m, q]); }
-    if (q.cardId) {
-      const reached = result.wroteSlot && result.wroteSlot !== q.caseKey && isFormSlot(result.wroteSlot)
+    if (!result.right) { hints.noteMiss(); setMissed((m) => [...m, cq]); }
+    if (cq.cardId) {
+      const reached = result.wroteSlot && result.wroteSlot !== cq.caseKey && isFormSlot(result.wroteSlot)
         ? result.wroteSlot : undefined;
-      await grade(q.cardId, result.rating, duration, q.caseKey, result.right ? undefined : reached);
+      await grade(cq.cardId, result.rating, duration, cq.caseKey, result.right ? undefined : reached);
     }
     setAsked((n) => n + 1);
     if (result.right) setRight((n) => n + 1);
     setBusy(false);
-  }, [q, mark, busy, typed, hints, grade, sound]);
+  }, [cq, mark, busy, typed, hints, grade, sound]);
+
+  /* Both kinds of card leave through here, so a look back has the last one of
+     either. */
+  const advance = useCallback((done: RoundQuestion, answer: string) => {
+    look.record({
+      of: done.lexemeId, label: t("Map"),
+      question: `${done.lemma}: ${done.kind === "case" && done.rung !== 1 ? done.ask : t(done.scene.ask)}`,
+      answer, note: null, questionLang: "et", answerLang: "et", speak: done.sentence,
+    });
+    setIndex((i) => i + 1);
+  }, [look, t]);
 
   const next = useCallback(() => {
-    if (!answered || needsRetype) return;
-    if (q) {
-      look.record({
-        of: q.lexemeId, label: t("Map"), question: `${q.lemma}: ${q.rung === 1 ? t(q.scene.ask) : q.ask}`, answer: correct,
-        note: null, questionLang: "et", answerLang: "et", speak: q.sentence,
-      });
-    }
-    setIndex((i) => i + 1);
-  }, [answered, q, correct, look, needsRetype, t]);
+    if (!answered || needsRetype || !cq) return;
+    advance(cq, correct);
+  }, [answered, cq, correct, advance, needsRetype]);
+
+  const placeAnswered = useCallback((isRight: boolean) => {
+    if (!q) return;
+    setAsked((n) => n + 1);
+    if (isRight) setRight((n) => n + 1);
+    else setMissed((m) => [...m, q]);
+  }, [q]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -175,6 +191,8 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
       }
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (!inEditable(e.target) && e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
+      /* A place question listens for its own keys. */
+      if (!cq) return;
       /* A miss waits for its retype, which the box handles itself on Enter, and
          a key from that box is the box's: its render and effects are flushed
          inside the keydown, so `needsRetype` already reads false by now. */
@@ -187,11 +205,11 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
         return;
       }
       const n = Number(e.key);
-      if (n >= 1 && n <= q.options.length) { e.preventDefault(); void pick(n - 1); }
+      if (n >= 1 && n <= cq.options.length) { e.preventDefault(); void pick(n - 1); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [finished, answered, q, typedRung, pick, check, next, look, needsRetype]);
+  }, [finished, answered, cq, typedRung, pick, check, next, look, needsRetype]);
 
   if (wasEmptyAtStart) {
     return (
@@ -228,7 +246,8 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
     );
   }
 
-  const wasRight = typedRung ? mark?.right === true : picked === q.answer;
+  const mq = q.kind === "case" ? q : null;
+  const wasRight = mq !== null && (typedRung ? mark?.right === true : picked === mq.answer);
   /* What is said once it is answered: the marker's own line where there is one,
      which is how a wrong ending gets named and a dropped letter gets pointed at. */
   const said = typedRung && mark?.note ? answerNote(mark.note, locale) : null;
@@ -262,33 +281,38 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
           style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}>
           <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
             <Chip tone="accent"><MapIcon size={12} aria-hidden /> {t("Map")}</Chip>
-            <Chip>{q.rung === 1 ? t("Picture") : q.rung === 2 ? t("Question") : t("Type it")}</Chip>
+            <Chip>{!mq ? t("Place") : mq.rung === 1 ? t("Picture") : mq.rung === 2 ? t("Question") : t("Type it")}</Chip>
             <span className="ml-auto text-xs" style={{ color: "var(--ink-3)" }}>{fill(t("{n} right"), { n: right })}</span>
             <StarWord lexemeId={q.lexemeId} starred={q.starred} label={q.lemma} />
           </div>
 
+          {!mq && (
+            <PlaceCard key={index} q={q as PlaceQuestion} index={index} paused={look.looking} canTranslate={canTranslate}
+              onAnswered={placeAnswered} onNext={() => advance(q, (q as PlaceQuestion).options[(q as PlaceQuestion).answer]!.text)} />
+          )}
+          {mq && (<>
           {/* The picture is the question on the first rung and the lesson on the
               others, so it comes back once the answer is in. */}
-          {(q.rung === 1 || answered) ? (
+          {(mq.rung === 1 || answered) ? (
             <div className="px-6 pt-4">
-              <MapPicture scene={q.scene} />
+              <MapPicture scene={mq.scene} />
               <p className="mt-1 text-center text-sm" style={{ color: "var(--ink-3)" }}>
-                <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{q.lemma}</span>, {q.gloss}
+                <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{mq.lemma}</span>, {mq.gloss}
               </p>
             </div>
           ) : (
             <div className="round-stage flex flex-col items-center justify-center gap-2 px-6 text-center">
-              <FitText as="p" text={q.lemma} lang="et" className="round-word font-bold tracking-tight" style={{ color: "var(--ink)" }} />
-              <p className="text-base" style={{ color: "var(--ink-2)" }}>{q.gloss}</p>
+              <FitText as="p" text={mq.lemma} lang="et" className="round-word font-bold tracking-tight" style={{ color: "var(--ink)" }} />
+              <p className="text-base" style={{ color: "var(--ink-2)" }}>{mq.gloss}</p>
               <p className="mt-2 text-xl font-semibold" style={{ color: "var(--accent-deep)" }}>
-                <CaseQuestion question={q.ask} />
+                <CaseQuestion question={mq.ask} />
               </p>
             </div>
           )}
 
-          {q.rung === 1 && (
+          {mq.rung === 1 && (
             <p className="px-6 pt-4 text-center text-xl font-semibold" style={{ color: "var(--accent-deep)" }}>
-              {t(q.scene.ask)}
+              {t(mq.scene.ask)}
             </p>
           )}
 
@@ -307,8 +331,8 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-2 px-6 py-4 lg:grid-cols-3">
-              {q.options.map((o, i) => {
-                const isAnswer = i === q.answer;
+              {mq.options.map((o, i) => {
+                const isAnswer = i === mq.answer;
                 const isPicked = i === picked;
                 const state = answered ? OPTION_CLASS[optionState(isAnswer, isPicked)] : "";
                 const out = !answered && struck.includes(o.text);
@@ -332,7 +356,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
           {!answered && (
             <div className="border-t px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
               <HintLadder ladder={ladder} taken={hints.taken} onTake={hints.take} open={hints.open}
-                label="this word" graded={q.cardId !== null} />
+                label="this word" graded={mq.cardId !== null} />
             </div>
           )}
 
@@ -353,8 +377,8 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
               {typedRung && owesRetype && <RetypeBox retype={retype} />}
 
               <div className="grid grid-cols-3 gap-2">
-                {[...q.options].sort((a, b) => MAP_CASES.indexOf(a.key) - MAP_CASES.indexOf(b.key)).map((o) => {
-                  const on = o.key === q.caseKey;
+                {[...mq.options].sort((a, b) => MAP_CASES.indexOf(a.key) - MAP_CASES.indexOf(b.key)).map((o) => {
+                  const on = o.key === mq.caseKey;
                   return (
                     <div key={o.key} className="rounded-[var(--r-lg)] border px-2 py-3 text-center"
                       style={{ background: on ? "var(--accent-soft)" : "var(--surface)", borderColor: on ? "var(--accent)" : "var(--rule)" }}>
@@ -373,8 +397,8 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
               </div>
 
               <EstonianSentence
-                et={q.sentence} en={q.en} lexemeId={q.lexemeId} canTranslate={canTranslate}
-                form={q.form} ask="onArrival" speakLabel={t("Hear the sentence")}
+                et={mq.sentence} en={mq.en} lexemeId={mq.lexemeId} canTranslate={canTranslate}
+                form={mq.form} ask="onArrival" speakLabel={t("Hear the sentence")}
               />
             </div>
           )}
@@ -397,6 +421,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
               </Button>
             </div>
           )}
+          </>)}
         </div>
       )}
 

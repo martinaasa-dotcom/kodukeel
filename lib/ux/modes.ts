@@ -207,7 +207,8 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     blurb:
       "A row of emoji: somebody walking into a house, a present going to a girl, a caterpillar " +
       "turning into a butterfly, and three forms of one word. Only the ending tells them apart, and " +
-      "the picture is what it means. Afterwards you read a real sentence using it.",
+      "the picture is what it means. Afterwards you read a real sentence using it. Now and then a " +
+      "ball sits under, behind or on top of something, and you pick the place word that says where.",
   },
   {
     /*
