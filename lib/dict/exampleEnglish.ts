@@ -1,4 +1,5 @@
-import ENGLISH from "@/prisma/data/example-english.json";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 /**
  * WHAT EACH SENTENCE THE DICTIONARY SHIPS MEANS, READ OFF ONE FILE.
@@ -39,14 +40,30 @@ import ENGLISH from "@/prisma/data/example-english.json";
  * sentence was in before this existed, and the runtime ask still fills that in
  * for a learner's own added sentence or a word looked up live.
  */
-const TABLE: Readonly<Record<string, string>> = ENGLISH;
+/*
+  READ OFF DISK THE FIRST TIME A SENTENCE IS ASKED ABOUT, NOT IMPORTED.
+
+  The table is 1.4 MB, and imported as a module it was compiled on every cold
+  start of every route, since `app/actions.ts` reaches the dictionary and every
+  route reaches `app/actions.ts`: `/privacy` paid for sixteen thousand English
+  sentences it never shows. Parsed as JSON on first use it costs a few
+  milliseconds, on the routes that draw a sentence. It travels with a
+  deployment through `outputFileTracingIncludes` in next.config.ts.
+*/
+let TABLE: Readonly<Record<string, string>> | null = null;
+
+function table(): Readonly<Record<string, string>> {
+  return (TABLE ??= JSON.parse(
+    readFileSync(join(process.cwd(), "prisma", "data", "example-english.json"), "utf8"),
+  ) as Record<string, string>);
+}
 
 /** The English for one recorded sentence, or null where none was built. */
 export function englishFor(sentence: string): string | null {
-  return TABLE[sentence] ?? null;
+  return table()[sentence] ?? null;
 }
 
 /** How many sentences the shipped table covers, for the audit that counts them. */
 export function englishCount(): number {
-  return Object.keys(TABLE).length;
+  return Object.keys(table()).length;
 }

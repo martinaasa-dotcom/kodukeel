@@ -169,11 +169,27 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
       process.env.NODE_ENV === "production" ||
       process.env.NEXT_PUBLIC_ENABLE_SW === "1";
 
+    /*
+      Registered once the page has finished loading, never during it. A first
+      visit installs the worker, and installing it fetches /offline and then
+      the page that is open, a second render of it, to keep for the bus: done
+      straight after hydration, that traffic competed with the page's own
+      fonts, images and streamed panels on the slowest connection the app
+      meets. Nothing about offline review needs the worker in the first second.
+    */
+    let cancelRegister = () => {};
     if ("serviceWorker" in navigator && wantsServiceWorker) {
-      navigator.serviceWorker.register("/sw.js").catch(() => {
-        // No service worker means no offline review. Everything else is fine,
-        // so this is not worth telling anyone about.
-      });
+      const register = () => {
+        navigator.serviceWorker.register("/sw.js").catch(() => {
+          // No service worker means no offline review. Everything else is fine,
+          // so this is not worth telling anyone about.
+        });
+      };
+      if (document.readyState === "complete") register();
+      else {
+        window.addEventListener("load", register, { once: true });
+        cancelRegister = () => window.removeEventListener("load", register);
+      }
     }
 
     const goOnline = () => { setOnline(true); void sync(); };
@@ -199,6 +215,7 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
 
     return () => {
       clearInterval(retry);
+      cancelRegister();
       window.removeEventListener("online", goOnline);
       window.removeEventListener("offline", goOffline);
       document.removeEventListener("visibilitychange", onVisible);

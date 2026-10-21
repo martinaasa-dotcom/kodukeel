@@ -53,16 +53,20 @@ import { PARTS } from "./plan";
 import { buildProgrammes } from "./build";
 
 /** What the ladder teaches at a level, which is the denominator of a stop. */
-const WORDS_AT: Record<string, number> = (() => {
+let WORDS_AT: Record<string, number> | null = null;
+
+function wordsAt(): Record<string, number> {
+  if (WORDS_AT) return WORDS_AT;
   const byLevel: Record<string, number> = {};
   for (const programme of buildProgrammes()) {
     const words = new Set(programme.days.flatMap((d) => d.words));
     byLevel[programme.level] = (byLevel[programme.level] ?? 0) + words.size;
   }
-  return byLevel;
-})();
+  return (WORDS_AT = byLevel);
+}
 
-export const ladderWordsAt = (level: string): number => WORDS_AT[level] ?? 0;
+/** Read the first time a stop is drawn rather than when this file loads, which is building the course. */
+export const ladderWordsAt = (level: string): number => wordsAt()[level] ?? 0;
 
 /** Two decimals, which is as fine as a percentage width on a phone can be. */
 const round2 = (n: number): number => Math.round(n * 100) / 100;

@@ -8,7 +8,7 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Button } from "@/components/Button";
 import { Card, SectionTitle } from "@/components/ui";
 import {
-  errandPlaces, HOW_IT_WENT, isConversation, OUTCOME_LABEL, SAY_IT_TODAY, sceneForErrand,
+  errandPlaces, HOW_IT_WENT, isConversation, OUTCOME_LABEL, SAY_IT_TODAY,
   SPOKE_LABEL, type Conversation, type Errand, type Outcome,
 } from "@/lib/collections/errands";
 import { useLocale, useT } from "@/components/Locale";
@@ -47,8 +47,15 @@ import { Mic } from "lucide-react";
  * direction that flatters. A learner who closes the tab between the two is
  * asked again tomorrow, which is the honest state.
  */
-export function SayItToday({ errand, answered, conversations, days, unitTitle, sayOnce = null }: {
+export function SayItToday({ errand, scene, answered, conversations, days, unitTitle, sayOnce = null }: {
   errand: Errand;
+  /**
+   * The scene that rehearses today's errand, resolved on the server through
+   * `sceneForErrand` (`lib/collections/errandScenes.ts`), or null where none
+   * does. Handed in rather than looked up here, because the lookup reads the
+   * scene catalog and this card renders in the browser.
+   */
+  scene: string | null;
   /** Today's answer, about yesterday, or null where the question is still open. */
   answered: Outcome | null;
   /** Conversations reported in the window, so the card can say what it is collecting. */
@@ -202,7 +209,6 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle, s
     argument this card was rebuilt on.
   */
   if (!isConversation(answer)) {
-    const scene = sceneForErrand(errand);
     return (
       <Card>
         <SectionTitle>{t(SAY_IT_TODAY)}</SectionTitle>
@@ -232,13 +238,13 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle, s
             <>
               {errandPlaces(errand)}. You&apos;ll find the words in{" "}
               <Link href={`/learn/${errand.unit}`} className="underline">{unitTitle}</Link>.
-              {scene && <> Or <Link href={`/situations/${scene.id}`} className="underline">try it out here first</Link>.</>}
+              {scene && <> Or <Link href={`/situations/${scene}`} className="underline">try it out here first</Link>.</>}
             </>
           ) : (
             <>
               {placesIn(locale, errand.where, t)}.{" "}
               <Linked template={t("You'll find the words in {unit}.")} href={`/learn/${errand.unit}`} label={unitTitle} />
-              {scene && <>{" "}<Linked template={t("Or {try}.")} href={`/situations/${scene.id}`} label={t("try it out here first")} /></>}
+              {scene && <>{" "}<Linked template={t("Or {try}.")} href={`/situations/${scene}`} label={t("try it out here first")} /></>}
             </>
           )}
         </p>
@@ -303,7 +309,7 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle, s
       {next && (
         <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
           {t(next)}{" "}
-          <Link href={rehearsal(errand)} className="underline">{t("Practice one here now")}</Link>.
+          <Link href={rehearsal(scene)} className="underline">{t("Practice one here now")}</Link>.
         </p>
       )}
       {/*
@@ -366,13 +372,12 @@ function Linked({ template, href, label }: { template: string; href: string; lab
  * Where "rehearse one now" goes: the scene that rehearses today's errand
  * where the course has one, and the list where it does not.
  *
- * Resolved through `sceneForErrand` rather than from the errand's own field,
- * so a stale id fails `errands.test.ts` rather than rendering a link to a
- * conversation that is not there.
+ * The id was resolved through `sceneForErrand` on the server rather than read
+ * off the errand's own field, so a stale id fails `errands.test.ts` rather
+ * than rendering a link to a conversation that is not there.
  */
-function rehearsal(errand: Errand): string {
-  const scene = sceneForErrand(errand);
-  return scene ? `/situations/${scene.id}` : "/situations";
+function rehearsal(scene: string | null): string {
+  return scene ? `/situations/${scene}` : "/situations";
 }
 
 /*

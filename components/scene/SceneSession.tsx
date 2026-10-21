@@ -20,9 +20,10 @@ import { beginChat, beginScene, finishScene, sceneHelp, setSceneAnswer, setScene
 import { leafNeeds, type SceneSpec } from "@/lib/scenes/types";
 import type { Difficulty } from "@/lib/scenes/curveballs";
 import { BUDGETS, defaultDifficultyFor } from "@/lib/scenes/curveballs";
-import { LEVELS, type Level } from "@/lib/collections/syllabus";
+import { LEVELS, type Level } from "@/lib/collections/syllabus/types";
 import { SceneFace } from "./SceneFace";
 import { SceneDebrief, type Debrief } from "./SceneDebrief";
+import type { Errand } from "@/lib/collections/errands";
 import { SceneStage } from "./SceneStage";
 import { SceneInterlude, VEIL_OUT_MS } from "./SceneInterlude";
 import { untilQuiet } from "@/lib/audio/clip";
@@ -310,8 +311,15 @@ function moveIn(lines: readonly Line[]): string | null {
   return null;
 }
 
-export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answeredLast, finishedOnce, opening, chat }: {
+export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answeredLast, finishedOnce, opening, chat, rehearses = null }: {
   scene: SceneSpec;
+  /**
+   * The errand this scene rehearses, found on the server through
+   * `errandForScene` (`lib/collections/errandScenes.ts`), which reads the
+   * scene catalog: every scene the course has and every A1 lesson behind them,
+   * which this screen would otherwise download to draw one card.
+   */
+  rehearses?: Errand | null;
   /** How long it takes, printed on the briefing beside where you are standing. */
   minutes: number;
   /**
@@ -1245,6 +1253,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
     if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
     setDebrief({
       scene,
+      rehearses,
       runId: opened?.runId,
       objectives: result.objectives,
       hurdles: result.hurdles,

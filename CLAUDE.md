@@ -8038,6 +8038,43 @@ read the slow way, and is held to `formatToParts` minute by minute around every 
 zones had in three years. 300,000 calls went from 2,863 ms to 167, `/progress` to 0.77 seconds and
 Today from 0.38 to 0.17.
 
+**And a cold start pays for every module a route imports, so what is imported is paid for twice a
+visit on a quiet deployment.** On the Hobby plan an instance is cold whenever nobody has asked for
+a while, which for this app is most first opens of the day, and the first request compiles and
+evaluates every module the route reaches before it can answer. Every route reaches `app/actions.ts`
+(the root layout mounts a Server Action through `OfflineProvider`), and that file reaches nearly
+everything, so a cold `/privacy` compiled 9 MB of server JavaScript: the Russian and Ukrainian
+interface tables, 3.7 MB and loaded once per render layer; the English of every dictionary sentence,
+1.4 MB; and the whole course, built at import, about 350 ms of CPU and built twice. Measured on a
+production build with a few milliseconds put on every database round trip: the first byte of a cold
+`/privacy` went from 1.4 s to 0.41 s and of Today from 1.66 s to 0.73 s, and every route now loads
+about 4 MB. Three rules came out of it. **Data is read off disk on first use, not imported**:
+`lib/copy/i18n/tables.ts` reads the reader's language out of `generated/<locale>.json`, the file
+the browser already loads, so the server and the browser cannot disagree about a line, and
+`lib/dict/exampleEnglish.ts` reads its table the same way; both travel with a deployment through
+`outputFileTracingIncludes`. **Nothing is built when a module loads**: `PROGRAMMES` is a proxy over
+`buildProgrammes()`, which builds once per process, and `dealableCount` counts each distinct set of
+number words once rather than fifteen hundred items per evening, which was most of the build. And
+**a client component imports the module that holds what it draws, never a barrel that holds what it
+does not**: Today's errand card took its scene link from a module that imported the scene catalog,
+which put every scene and every A1 lesson in the home page's browser bundle, about 100 KB gzipped;
+the first-run wizard, the conversation debrief, the lesson runner and the level picker had the same
+shape. The server resolves what such a card needs and hands it over, and `scripts/test-invariants.ts`
+holds the errand module and the translation table to it. `vercel.json` sets `fluid`, so a warm
+instance answers concurrent requests rather than a second one starting cold beside it.
+
+**The worker's own start is part of every returning visit, so the request does not wait for it.**
+`public/sw.js` intercepts every navigation, and without navigation preload a page was not requested
+until the browser had woken the worker and run its handler, which on a phone idle since yesterday is
+a visible pause before the network is even asked. Preload is enabled on `activate` and every
+navigation is answered from `preloadResponse`, including `/auth/` and `/api/`, which the worker keeps
+nothing of: left to the browser, a navigation the worker did not answer could be requested twice,
+and the sign-in callback spends its code on the first. The worker is registered after the page's
+`load` event, because installing it fetches `/offline` and a second render of the open page, which
+used to compete with the page's own first load. And `/` is rewritten to the landing page for a
+visitor with no session rather than redirected to it, which was a second round trip on a stranger's
+first visit; the page names `/welcome` as its canonical address.
+
 **Where the app runs is part of this and is the largest single number in it.** `vercel.json` pins
 the functions to the region the database is in. A page is several sequential round trips and a
 reader's own distance is one, so colocation beats proximity by about the number of queries on the

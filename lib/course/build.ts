@@ -858,6 +858,18 @@ export function ledgerBefore(spec: PartSpec): Ledger {
  * is what a2.1's first evening is dealt against.
  */
 export function buildProgrammes(): Programme[] {
+  return (BUILT ??= assemble());
+}
+
+/*
+  Built once per process. The ladder is a pure function of files in the
+  repository, so a second build is the same list, and two callers (the
+  barrel's `PROGRAMMES` and the milestone denominators) each building their
+  own was twice the cost on every cold start.
+*/
+let BUILT: Programme[] | null = null;
+
+function assemble(): Programme[] {
   const ledger = teachLessons(new Ledger());
   return [...lessonProgrammes(), ...PARTS.map((spec) => buildPart(spec, ledger))];
 }

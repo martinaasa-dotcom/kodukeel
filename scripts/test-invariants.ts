@@ -565,6 +565,23 @@ check("the errand module Today's card renders from does not import the syllabus"
     /(?:^|\n)\s*import\s+(?!type\b)[^;]*?\bfrom\s+["'](?:\.\/syllabus|@\/lib\/collections\/syllabus)[^"']*["']/,
     "lib/collections/errands.ts imports the syllabus again, which puts the whole course on the home page",
   );
+  /*
+    And the scene catalog, which was the same fault one import over: the two
+    lookups that read it sat in this module, so the card downloaded every
+    scene and every A1 lesson behind them, about 100 KB gzipped, to draw a
+    link. They live in lib/collections/errandScenes.ts and the server hands
+    the card the scene's id.
+  */
+  assert.doesNotMatch(
+    code("lib/collections/errands.ts"),
+    /(?:^|\n)\s*import\s+(?!type\b)[^;]*?\bfrom\s+["']@\/lib\/scenes\/[^"']*["']/,
+    "lib/collections/errands.ts imports the scene catalog again, which puts every scene and A1 lesson on the home page",
+  );
+  assert.doesNotMatch(
+    client,
+    /(?:^|\n)\s*import\s+(?!type\b)[^;]*?\bfrom\s+["']@\/lib\/(?:collections\/errandScenes|scenes\/catalogue)["']/,
+    "the errand card imports the scene catalog; hand it the scene id from the server instead",
+  );
 });
 
 /*
@@ -25628,8 +25645,11 @@ check("the English of a shipped sentence is built once and read in one place", (
         covers 11,126 of 11,223 borrowable sentences against this one's
         11,125. A refusal is respected wherever it can be seen, since an entry
         that holds the sentence answers for it and this is never asked.
+        It is its own module rather than a function in `lib/dict/examples.ts`
+        because that module is reached from the browser (the card builder),
+        and this one reads the table off disk.
       */
-      "lib/dict/examples.ts",
+      "lib/dict/sentenceEnglish.ts",
       /*
         And the sentences the Väljendid round needs that the dictionary never
         kept, which `npm run harvest:sayings` checked against Ekilex. They are

@@ -3,7 +3,7 @@
 import { GlossedSentence } from "@/components/GlossedSentence";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { Speak } from "@/components/Speak";
-import { splitOnForm } from "@/lib/dict/examples";
+import { splitOnForm } from "@/lib/dict/splitOnForm";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { useT } from "@/components/Locale";
 

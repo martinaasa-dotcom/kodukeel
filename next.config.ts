@@ -108,8 +108,14 @@ const config: NextConfig = {
     one platform the app is measured on. Traced into every function, since the
     two readers are a page and a Server Action and the list is one set of
     files either way.
+
+    The generated translation tables travel the same way and for the same
+    reason: `lib/copy/i18n/tables.ts` reads the reader's language off disk on
+    first use rather than importing every area of both languages, which was
+    7.4 MB compiled on every cold start of every route. The English of the
+    dictionary's sentences likewise (`lib/dict/exampleEnglish.ts`).
   */
-  outputFileTracingIncludes: { "/**": ["./prisma/data/forms/**"] },
+  outputFileTracingIncludes: { "/**": ["./prisma/data/forms/**", "./lib/copy/i18n/generated/**", "./prisma/data/example-english.json"] },
 
   /*
     THIRTEEN ROUTES PROVABLY NEVER OPEN THE FORMS LIST, AND THE INCLUDE ABOVE

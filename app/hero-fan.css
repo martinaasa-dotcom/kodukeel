@@ -67,13 +67,21 @@
   .hero-fan-action > a { width: 100%; justify-content: center; }
 }
 
-/* The words arrive a beat behind the cards, one line at a time. */
-.hero-fan-words > *, .hero-fan-action { animation: hero-fan-rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
-.hero-fan-words > :nth-child(1) { animation-delay: 0.05s; }
-.hero-fan-words > :nth-child(2) { animation-delay: 0.12s; }
-.hero-fan-words > :nth-child(3) { animation-delay: 0.19s; }
-.hero-fan-action { animation-delay: 0.3s; }
-@keyframes hero-fan-rise { from { opacity: 0; transform: translateY(10px); } }
+/*
+  The words settle a beat behind the cards, one line at a time, and they are
+  readable from the first frame. They used to rise out of nothing over 0.7 s
+  with up to 0.3 s of delay, so the headline and the line under it, which are
+  what somebody opening the app came to read and the page's largest paint, were
+  not there until a second after the page was: measured on /learn, painted at
+  0.9 s and readable at 1.96 s. A screen whose main sentence fades in reads as
+  a screen that is still loading. So the motion is a short lift with the
+  words at full strength throughout, rather than an entrance from transparent.
+*/
+.hero-fan-words > *, .hero-fan-action { animation: hero-fan-rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+.hero-fan-words > :nth-child(2) { animation-delay: 0.04s; }
+.hero-fan-words > :nth-child(3) { animation-delay: 0.08s; }
+.hero-fan-action { animation-delay: 0.12s; }
+@keyframes hero-fan-rise { from { transform: translateY(6px); } }
 
 /*
   A CARD IS TWO BOXES, AND THAT IS WHAT STOPS THE TWITCH.

@@ -26,7 +26,7 @@ import { CafeScene } from "./CafeScene";
 import { speechAvailability } from "@/lib/audio/speechAvailability";
 import { FirstEvening, type EveningStep, type EveningWord } from "./FirstEvening";
 import { VisitRecap } from "./VisitRecap";
-import { DEFAULT_PROGRAMME, PROGRAMMES } from "@/lib/course";
+import { PROGRAMMES, defaultProgramme } from "@/lib/course";
 import { LESSON_SHAPE } from "@/lib/course/lessonCourse";
 import { lessonById, unfold } from "@/lib/course/lessons";
 import { LetterTile } from "@/components/LetterTile";
@@ -38,8 +38,8 @@ import { SpelledCount, spelledCount } from "@/lib/copy/values";
 import { Languages } from "lucide-react";
 import { LocaleProvider } from "@/components/Locale";
 import { resolveOperator } from "@/lib/legal/operator";
-import { areaTable } from "@/lib/copy/i18n/tables";
-import { LANDING_BORROWS } from "@/lib/copy/i18n/areas/landing";
+import { areaTable } from "@/lib/copy/i18n/slice";
+import { LANDING, LANDING_BORROWS } from "@/lib/copy/i18n/areas/landing";
 import { rich } from "@/components/Rich";
 import { MACHINE_SHORT, countGrouped, countOf, grouped, languagesBeside, fill, tr, type Locale } from "@/lib/copy/locale";
 import { LANDING_HREF, langParam, localeHref } from "@/lib/copy/publicLocale";
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   title: { absolute: "kodukeel. Estonian that finally sticks" },
   description:
     "Kodukeel means home language. Fifteen minutes of Estonian an evening, a safe place to practice the conversations you're dreading, and a gentle push to go and have them for real. Free, for anyone making a home in Estonia.",
-  alternates: { languages: { en: "/welcome", ...Object.fromEntries(ENTRY_LOCALES.map((l) => [l, ENTRY_COPY[l].href])) } },
+  alternates: { canonical: "/welcome", languages: { en: "/welcome", ...Object.fromEntries(ENTRY_LOCALES.map((l) => [l, ENTRY_COPY[l].href])) } },
 };
 
 /** The landing page is public and read-only, so it can be cached hard. */
@@ -114,7 +114,7 @@ export default async function WelcomePage({ params }: { params?: Promise<{ lang?
       another area is named in `LANDING_BORROWS`, and a press on a demo
       loads the rest of the language before anything new is drawn.
     */
-    <LocaleProvider locale={locale} table={locale === "en" ? undefined : areaTable(locale, ["landing"], LANDING_BORROWS)}>
+    <LocaleProvider locale={locale} table={locale === "en" ? undefined : areaTable(locale, [LANDING], LANDING_BORROWS)}>
     <div lang={locale} className="landing relative overflow-x-hidden" style={{ background: "var(--ground)" }}>
       {/*
         One faint light at the top of the page, in the accent's own tint. It
@@ -834,7 +834,7 @@ function Cases({ say, words }: { say: Say; words: DemoWord[] }) {
  * is there on a deployment whose dictionary has not answered yet.
  */
 function eveningOne({ t, locale }: Say): { words: EveningWord[]; steps: EveningStep[]; title: string; canDo: string; evenings: number } | null {
-  const day = DEFAULT_PROGRAMME.days[0];
+  const day = defaultProgramme().days[0];
   const lesson = day?.lesson ? lessonById(day.lesson) : null;
   if (!day || !lesson) return null;
   const seen = new Set<string>();

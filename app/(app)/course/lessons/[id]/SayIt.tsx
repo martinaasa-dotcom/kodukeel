@@ -14,7 +14,11 @@ import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
 import { Card, Note, SectionTitle } from "@/components/ui";
 import { fill } from "@/lib/copy/locale";
-import { markPhrase, normalisePhrase, wordsOf, type LessonSpec, type Prompt, type TypedMark } from "@/lib/course/lessons";
+// The marker and the tokenizer by their own modules, never the barrel, which
+// imports every lesson the course has into this one lesson's browser bundle.
+import { markPhrase, normalisePhrase, type TypedMark } from "@/lib/course/lessons/practice";
+import { wordsOf } from "@/lib/course/lessons/ledger";
+import type { LessonSpec, Prompt } from "@/lib/course/lessons/types";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
 
 /**

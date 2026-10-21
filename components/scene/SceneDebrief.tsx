@@ -11,9 +11,9 @@ import { Speak } from "@/components/Speak";
 import { DrillLink } from "@/components/DrillLink";
 import type { SceneSpec } from "@/lib/scenes/types";
 import { drillFor } from "@/lib/scenes/drills";
-import { splitOnForm } from "@/lib/dict/examples";
+import { splitOnForm } from "@/lib/dict/splitOnForm";
 import { curveballById } from "@/lib/scenes/curveballs";
-import { errandForScene, errandPlaces, SAY_IT_TODAY, type Errand } from "@/lib/collections/errands";
+import { errandPlaces, SAY_IT_TODAY, type Errand } from "@/lib/collections/errands";
 import { PLACES_TO_TALK } from "@/lib/collections/placesToTalk";
 import type { SceneReview } from "@/lib/scenes/review";
 import type { SceneRecap } from "@/lib/scenes/recap";
@@ -73,6 +73,8 @@ export const SCENE_SOURCE = "SCENE";
  */
 export interface Debrief {
   scene: SceneSpec;
+  /** The errand this scene rehearses, resolved on the server (`errandForScene`), or null where none does. */
+  rehearses?: Errand | null;
   /** The run, which is how today's chat is found again: its beats are in no catalog. */
   runId?: string;
   objectives: { met: readonly string[]; missed: readonly string[] };
@@ -116,7 +118,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
   const required = scene.beats.filter((beat) => beat.required);
   const missed = objectives.missed.length > 0 ? byId.get(objectives.missed[0]!) : undefined;
   const drill = missed ? drillFor(missed.needs) : null;
-  const errand = objectives.missed.length === 0 ? errandForScene(scene.id) : undefined;
+  const errand = objectives.missed.length === 0 ? debrief.rehearses ?? undefined : undefined;
   const cafe = PLACES_TO_TALK[0];
 
   /*
