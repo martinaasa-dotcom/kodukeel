@@ -24,7 +24,9 @@ import { BALL } from "@/lib/games/map";
 
 export type GameArtSize = "sm" | "md" | "lg";
 
-const cell: Record<GameArtSize, string> = { sm: "h-6 w-6 text-xs", md: "h-8 w-8 text-sm", lg: "h-10 w-10 text-base" };
+// The large cell is the medium one below `sm`: six of them across the
+// spotlight at 320px came to 334 pixels in a 288 pixel column.
+const cell: Record<GameArtSize, string> = { sm: "h-6 w-6 text-xs", md: "h-8 w-8 text-sm", lg: "h-8 w-8 text-sm sm:h-10 sm:w-10 sm:text-base" };
 
 function Sonad({ size }: { size: GameArtSize }) {
   const guesses = ["leping", "kohvik", "lennuk"];
@@ -380,7 +382,7 @@ const ART: Record<string, (p: { size: GameArtSize }) => ReactNode> = {
   "/review/describe": Picture,
   "/review/twenty": Twenty,
   "/review/openers": Openers,
-  "/situations": ({ size }) => <div className={size === "sm" ? "w-44" : size === "lg" ? "w-80" : "w-64"}><SceneVignette sceneId="kohvikus" /></div>,
+  "/situations": ({ size }) => <div className={size === "sm" ? "w-44" : size === "lg" ? "w-64 sm:w-80" : "w-64"}><SceneVignette sceneId="kohvikus" /></div>,
 };
 
 /** The game, drawn. Nothing for a href this table does not know. */
