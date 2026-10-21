@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { setCourseLevel } from "@/app/actions";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
-import { LEVELS, type Level } from "@/lib/collections/syllabus";
+import { LEVELS, type Level } from "@/lib/collections/syllabus/types";
 import { Explain } from "@/components/Explain";
 import { useT } from "@/components/Locale";
 

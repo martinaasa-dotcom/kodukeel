@@ -10,7 +10,8 @@ import { fillNodes } from "@/components/TemplateNodes";
 import { fill, localeFrom, tr } from "@/lib/copy/locale";
 import { SignInForm } from "./SignInForm";
 import { LocaleProvider } from "@/components/Locale";
-import { areaTable } from "@/lib/copy/i18n/tables";
+import { areaTable } from "@/lib/copy/i18n/slice";
+import { START } from "@/lib/copy/i18n/areas/start";
 
 export const metadata = { title: "Sign in" };
 
@@ -186,7 +187,7 @@ export default async function SignInPage({ searchParams }: {
             {configured ? (
               <>
                 {/* The form's own lines, which are all in the first-run area, and no more of the language. */}
-                <LocaleProvider locale={locale} table={locale === "en" ? undefined : areaTable(locale, ["start"])}>
+                <LocaleProvider locale={locale} table={locale === "en" ? undefined : areaTable(locale, [START])}>
                   <SignInForm emailLink={emailLink} ssoDomains={ssoDomains} googleClientId={googleClientId} locale={locale} />
                 </LocaleProvider>
                 <p className="mt-4 text-center text-sm">

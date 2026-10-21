@@ -23,7 +23,7 @@ import { enqueueGrade } from "@/lib/offline/db";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { GapMeaning } from "@/components/GapMeaning";
 import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
-import { splitOnForm } from "@/lib/dict/examples";
+import { splitOnForm } from "@/lib/dict/splitOnForm";
 import { AnswerMic, useSpokenBox } from "@/components/speech/SpokenBox";
 import { askLine, isForm, markFlash, plainAskFor, type FlashMark, type FlashTask } from "@/lib/games/flash";
 import { hintLadder } from "@/lib/questions/hints";

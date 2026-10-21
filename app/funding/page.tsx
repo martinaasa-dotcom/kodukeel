@@ -3,7 +3,8 @@ import { Legal, P, S } from "@/components/Legal";
 import { CostExplorer } from "./CostExplorer";
 import { rich } from "@/components/Rich";
 import { LocaleProvider } from "@/components/Locale";
-import { areaTable } from "@/lib/copy/i18n/tables";
+import { areaTable } from "@/lib/copy/i18n/slice";
+import { PUBLIC } from "@/lib/copy/i18n/areas/public";
 import { fill, tr } from "@/lib/copy/locale";
 import { localeHref } from "@/lib/copy/publicLocale";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
@@ -254,7 +255,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
           Russian reader downloaded the whole signed-in app's language to read
           one calculator. scripts/test-locales.mjs names a line the slice misses.
         */}
-        <LocaleProvider locale={locale} table={locale === "en" ? undefined : areaTable(locale, ["public"])}>
+        <LocaleProvider locale={locale} table={locale === "en" ? undefined : areaTable(locale, [PUBLIC])}>
           <CostExplorer />
         </LocaleProvider>
       </S>

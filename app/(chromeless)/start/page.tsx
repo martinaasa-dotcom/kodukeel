@@ -10,6 +10,8 @@ import { previewUnits } from "@/lib/srs/deck";
 import { PROGRAMMES } from "@/lib/course";
 import { localeFrom } from "@/lib/copy/locale";
 import { LocaleProvider } from "@/components/Locale";
+import { REASONS } from "@/lib/assessment/goals";
+import { sceneById } from "@/lib/scenes/catalogue";
 import { WelcomeWizard, type CoursePart, type StarterDeck } from "./WelcomeWizard";
 
 export const metadata = { title: "Getting set up" };
@@ -134,6 +136,7 @@ export default async function WelcomePage({ searchParams }: {
     <LocaleProvider locale={initialLocale}>
       <WelcomeWizard
         starters={starters}
+        scenes={firstScenes()}
         parts={parts}
         suggestedName={suggestedName}
         paper={paper}
@@ -141,4 +144,14 @@ export default async function WelcomePage({ searchParams }: {
       />
     </LocaleProvider>
   );
+}
+
+/** The title and place of every scene a reason in first run names, for the wizard's "your first conversation". */
+function firstScenes(): Record<string, { title: string; place: string }> {
+  const out: Record<string, { title: string; place: string }> = {};
+  for (const reason of REASONS) {
+    const scene = reason.scene ? sceneById(reason.scene) : undefined;
+    if (scene) out[scene.id] = { title: scene.title, place: scene.place };
+  }
+  return out;
 }

@@ -34,7 +34,32 @@ export * from "./placement";
 export * from "./adapt";
 export * from "./stepText";
 
-export const PROGRAMMES: readonly Programme[] = buildProgrammes();
+/*
+  THE COURSE IS BUILT THE FIRST TIME SOMETHING READS IT, NOT WHEN THIS FILE LOADS.
+
+  `app/actions.ts` imports this barrel, and the root layout reaches a Server
+  Action, so every route's server bundle evaluates this file on a cold start,
+  `/privacy` and `/sign-in` included. Built eagerly, that was every evening of
+  the ladder assembled before the first byte of any page, measured at about
+  350 ms of CPU and paid twice (milestones built its own copy). Behind this
+  the routes that never read a part pay nothing, and the ones that do pay the
+  build once per instance, since `buildProgrammes` keeps what it made.
+
+  A proxy over the built list rather than a function, so the fifty readers of
+  `PROGRAMMES` keep reading an array: indexing, `find`, `map`, `length` and
+  iteration all reach the real list, and an element read through it is the
+  real programme, so identity comparisons hold.
+*/
+export const PROGRAMMES: readonly Programme[] = new Proxy([] as Programme[], {
+  get(_target, key) {
+    const built = buildProgrammes();
+    const value = Reflect.get(built, key, built);
+    return typeof value === "function" ? value.bind(built) : value;
+  },
+  has: (_target, key) => Reflect.has(buildProgrammes(), key),
+  ownKeys: () => Reflect.ownKeys(buildProgrammes()),
+  getOwnPropertyDescriptor: (_target, key) => Reflect.getOwnPropertyDescriptor(buildProgrammes(), key),
+});
 
 /**
  * Where somebody with no history starts, which is the first part of A1.
@@ -43,8 +68,13 @@ export const PROGRAMMES: readonly Programme[] = buildProgrammes();
  * level somebody holds (`lib/course/placement.ts`), so a B1 speaker who turns
  * it on gets B2.1 rather than twelve evenings of greetings, and nobody is asked
  * to work up through a level they have already named or a paper has measured.
+ *
+ * A function rather than a constant for the reason `PROGRAMMES` is a proxy:
+ * reading the first part is building the course.
  */
-export const DEFAULT_PROGRAMME = PROGRAMMES[0]!;
+export function defaultProgramme(): Programme {
+  return PROGRAMMES[0]!;
+}
 
 /**
  * The part that follows this one, which is the next part of the same level or

@@ -9,7 +9,7 @@ import { Speak } from "@/components/Speak";
 import { LEARNING_RATE } from "@/lib/audio/clip";
 import { Chip, KeyCap, Note } from "@/components/ui";
 import { BLANK } from "@/lib/estonian/cloze";
-import { splitOnForm } from "@/lib/dict/examples";
+import { splitOnForm } from "@/lib/dict/splitOnForm";
 import { gradeDictation, gradeWrite } from "@/lib/assessment/score";
 import type { ChoiceItem, DictationItem, SpeakItem, WriteItem } from "@/lib/assessment/types";
 import type { Given } from "@/lib/assessment/score";

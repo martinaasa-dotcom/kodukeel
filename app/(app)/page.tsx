@@ -37,7 +37,8 @@ import { crosswordFor } from "@/lib/progress/crossword";
 import { WordOfDayCard } from "@/components/WordOfDay";
 import { offered } from "@/lib/tutor/provider";
 import { SayItToday } from "@/components/SayItToday";
-import { errandForDay, sceneForErrand } from "@/lib/collections/errands";
+import { errandForDay } from "@/lib/collections/errands";
+import { sceneForErrand } from "@/lib/collections/errandScenes";
 import { errandRehearsal } from "@/lib/scenes/rehearse";
 import { startedUnits } from "@/lib/collections/syllabus";
 import { courseReading, ladderPosition, moduleReached, programmeFor, targetFrom } from "@/lib/progress/course";
@@ -823,6 +824,7 @@ export default async function TodayPage() {
   const errandCard = errand && outside ? (
     <SayItToday
       errand={errand}
+      scene={sceneForErrand(errand)?.id ?? null}
       answered={outside.answered}
       conversations={outside.conversations}
       days={outside.days}

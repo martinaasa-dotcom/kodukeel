@@ -26,7 +26,7 @@ import { YourTurn } from "@/components/speech/YourTurn";
 import { NEIGHBOUR_RATING, typedNeighbour } from "@/lib/questions/neighbours";
 import { SameMeaning } from "@/components/round/SameMeaning";
 import { BLANK } from "@/lib/estonian/cloze";
-import { splitOnForm } from "@/lib/dict/examples";
+import { splitOnForm } from "@/lib/dict/splitOnForm";
 import { sameSpelling, wordName } from "@/lib/copy/values";
 import { enqueueGrade } from "@/lib/offline/db";
 import { LEARN_BATCH, ratingFor, rungOf, tally, type Outcome, type Rung } from "@/lib/learn/ladder";

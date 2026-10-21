@@ -14,7 +14,6 @@ import { NamedIcon } from "@/components/icons";
 import { ChoiceCard, ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { Chip, Meter, Note, SectionTitle } from "@/components/ui";
 import { DEADLINES, REASONS, TARGETS, deadlineFrom, firstSceneFor, impliedTarget, reasonsToStored, type Goals } from "@/lib/assessment/goals";
-import { sceneById } from "@/lib/scenes/catalogue";
 import { weeksToLearn, type Standing } from "@/lib/assessment/plan";
 import { PRE_A1, type Band, type Item, type Level, type Placement } from "@/lib/assessment/types";
 import { LETTER_BAR_CHOICES, letterBarDefaultFor, type LetterBar } from "@/lib/ux/letterBar";
@@ -176,7 +175,14 @@ const STEPS = ["You", "Level", "Goal", "Today"] as const;
  * because that is where they earn their place: before the investment, not
  * after seven screens of it.
  */
-export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLocale }: {
+export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLocale, scenes }: {
+  /**
+   * The title and place of each conversation a reason can name, keyed by scene
+   * id, read off the catalog by the server. Handed in rather than looked up
+   * here, because the catalog is every scene the course has and this screen
+   * draws two of its strings.
+   */
+  scenes: Readonly<Record<string, { title: string; place: string }>>;
   /** The starter deck for each level, sized by the server. */
   starters: StarterDeck[];
   /** The whole planned ladder, A1.1 to C1.3. */
@@ -305,7 +311,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
     note: "",
   }), [reasons, target, deadlineId, daysPerWeek]);
   const firstSceneId = firstSceneFor(reasons);
-  const firstScene = firstSceneId ? sceneById(firstSceneId) : undefined;
+  const firstScene = firstSceneId ? scenes[firstSceneId] : undefined;
 
   const chooseLevel = (key: string) => {
     setEstimated(key);

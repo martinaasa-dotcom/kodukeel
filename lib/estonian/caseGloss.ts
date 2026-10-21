@@ -1,4 +1,4 @@
-import { levelIndex, type Level } from "@/lib/collections/syllabus";
+import { levelIndex, type Level } from "@/lib/collections/syllabus/types";
 
 /**
  * WHETHER A CASE QUESTION'S ENGLISH READING SHOWS BESIDE THE ESTONIAN ONE.

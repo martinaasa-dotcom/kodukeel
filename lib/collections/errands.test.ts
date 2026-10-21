@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
-  ERRANDS, errandForDay, errandForScene, errandPlaces, HOW_IT_WENT, isConversation, outcomeFrom, OUTCOMES,
-  OUTCOME_LABEL, sceneForErrand,
+  ERRANDS, errandForDay, errandPlaces, HOW_IT_WENT, isConversation, outcomeFrom, OUTCOMES,
+  OUTCOME_LABEL,
 } from "./errands";
+import { errandForScene, sceneForErrand } from "./errandScenes";
 import { SCENES } from "@/lib/scenes/catalogue";
 import { unitById } from "./syllabus";
 
