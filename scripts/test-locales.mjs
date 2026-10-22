@@ -352,7 +352,7 @@ async function entryPages(locale) {
     }
     if (path.startsWith("/welcome")) {
       check(`${path} arrives without the whole ${locale} table`, tableLoads === 0, `${tableLoads} table chunk(s) loaded`);
-      // A press on the plan calculator asks for the rest of the language.
+      // A press on the case explorer asks for the rest of the language.
       // Pressed until the table arrives, within a budget, rather than once:
       // the ask is a React capture handler, so a press that lands before the
       // page has hydrated reaches nothing, and on a slow runner networkidle
@@ -361,7 +361,7 @@ async function entryPages(locale) {
       // the table is in asks for nothing, so "exactly once" still holds.
       const asked = Date.now() + 15_000;
       do {
-        await page.locator(".plan-calc button").first().dispatchEvent("pointerdown").catch(() => {});
+        await page.locator(".case-explorer button").first().dispatchEvent("pointerdown").catch(() => {});
         await page.waitForLoadState("networkidle").catch(() => {});
         await page.waitForTimeout(400);
       } while (tableLoads === 0 && Date.now() < asked);

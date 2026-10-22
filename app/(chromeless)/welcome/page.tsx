@@ -2,8 +2,8 @@ import { PARTS } from "@/lib/copy/values";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import type { Metadata } from "next";
 import {
-  ArrowRight, BookOpen, Briefcase, Check, CircleHelp, ClipboardCheck, Heart, House, Minus,
-  Plus, Sparkles, Target, X,
+  ArrowRight, Briefcase, Check, CircleHelp, ClipboardCheck, Heart, House, Minus,
+  Plus, X,
 } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { LEVELS, PATH } from "@/lib/collections/syllabus";
@@ -20,8 +20,8 @@ import { ButtonLink } from "@/components/Button";
 import { Wordmark } from "@/components/brand";
 import { BrandLink } from "@/components/BrandLink";
 import { MascotWatch } from "@/components/MascotWatch";
-import { CaseExplorer, TutorPeek, type DemoCase, type DemoWord } from "./LandingDemo";
-import { HeroWord, PlanCalculator } from "./LandingMotion";
+import { CaseExplorer, type DemoCase, type DemoWord } from "./LandingDemo";
+import { HeroWord } from "./LandingMotion";
 import { CafeScene } from "./CafeScene";
 import { speechAvailability } from "@/lib/audio/speechAvailability";
 import { FirstEvening, type EveningStep, type EveningWord } from "./FirstEvening";
@@ -37,7 +37,6 @@ import { SOURCE_CREDITS } from "@/lib/legal/credits";
 import { SpelledCount, spelledCount } from "@/lib/copy/values";
 import { Languages } from "lucide-react";
 import { LocaleProvider } from "@/components/Locale";
-import { resolveOperator } from "@/lib/legal/operator";
 import { areaTable } from "@/lib/copy/i18n/slice";
 import { LANDING, LANDING_BORROWS } from "@/lib/copy/i18n/areas/landing";
 import { rich } from "@/components/Rich";
@@ -130,41 +129,31 @@ export default async function WelcomePage({ params }: { params?: Promise<{ lang?
       <Nav say={say} />
 
       {/*
-        Ten sections became eight, and eight became five.
+        THE PAGE IS THE THING ITSELF, THREE TIMES, AND NOT A BROCHURE ABOUT IT.
 
-        The page was answering every question a visitor could have, in the order
-        somebody thought of them. The first cut took out a four-tile source
-        credit and a four-figure stat panel, and left a page that still had to be
-        scrolled four times before it stopped introducing itself. Nothing in it
-        was wrong; there was simply more of it than anybody deciding whether to
-        try an app will read.
+        It grew back to eleven beats and was reported as too long, with two of
+        them named: "What you get", three cards describing the app in prose,
+        and "How it compares", three kinds of tool and a dark card. Both said
+        in sentences what the demos under them already show by being pressed,
+        and the plan calculator and the teachers band were the same shape: an
+        answer to a question most visitors arriving here do not have yet. The
+        calculator runs inside on the learner's real pace, the teachers' way in
+        is a line in the footer, and the comparison table is still the last of
+        the questions, where somebody weighing particular apps looks.
 
-        Two sections went, and neither lost its argument. "You didn't fail
-        Estonian. Your tools did." was three cards making three complaints, and
-        each complaint was answered somewhere further down by the thing that
-        answers it: the case demo, the scheduler card, the line about a model
-        never supplying a form. So each one now sits next to its answer instead
-        of a screen and a half above it. "How a day goes" was three steps that
-        the feature grid and the closing sentence already described, in the same
-        words, twice.
-
-        What is left is the five beats somebody actually needs: what this is,
-        why the cases are the hard part, what you get, what the catch is, and
-        where to start. The comparison is one of the questions now rather than a
-        section of its own, which is where the person asking it looks.
+        What is left is seven beats: what this is and who it is for, then the
+        three demos in the order a learner meets them (the trick with the
+        endings, saying it to somebody, an evening), the questions, and the
+        close. A section that only describes is the first thing to cut.
       */}
       <main className="landing-flow relative">
         <Hero say={say} stats={stats} words={words} />
         <WhoFor say={say} />
         <Cases say={say} words={words} />
-        <Evening say={say} />
         <Talk say={say} />
-        <Features say={say} />
-        <Compare say={say} />
-        <Plan say={say} />
+        <Evening say={say} />
         <Questions say={say} />
         <FinalCta say={say} />
-        <ForTeachers say={say} contact={resolveOperator().email} />
       </main>
 
       <Footer say={say} copy={copy} />
@@ -186,11 +175,8 @@ const anuLines = ({ t }: Say): readonly AnuLine[] => [
   { at: "top", mood: "happy", text: t("Hi, I’m Anu, the tutor. Mind if I walk down the page with you?") },
   { at: "who", mood: "happy", text: t("Whichever one you are, you start the same way: fifteen minutes today.") },
   { at: "cases", mood: "thinking", text: t("Press an ending and watch it snap on. That’s the whole trick, honestly.") },
-  { at: "evening", mood: "happy", text: t("This really is how your first evening starts. Five new words, and then they come back to check on you.") },
   { at: "talk", mood: "cheer", text: t("Go on, order something. The person behind the counter is very patient.") },
-  { at: "features", mood: "happy", text: t("Ask me the thing you’d be too shy to ask in class. I never sigh.") },
-  { at: "compare", mood: "thinking", text: t("Keep your class. I’m here for the evenings in between.") },
-  { at: "plan", mood: "happy", text: t("Play around with it. Inside, I do the same math with your real pace.") },
+  { at: "evening", mood: "happy", text: t("This really is how your first evening starts. Five new words, and then they come back to check on you.") },
   { at: "faq", mood: "thinking", text: t("Short, straight answers. How we compare with other apps is the last one.") },
   { at: "start", mood: "cheer", text: t("Fifteen minutes a day. See you inside.") },
 ];
@@ -257,7 +243,7 @@ function Nav({ say }: { say: Say }) {
         <div className="hidden items-center gap-7 whitespace-nowrap text-sm font-medium lg:flex" style={{ color: "var(--ink-2)" }}>
           <a href="#who" className="transition-opacity hover:opacity-60">{t("Who it’s for")}</a>
           <a href="#cases" className="transition-opacity hover:opacity-60">{t("The cases")}</a>
-          <a href="#plan" className="transition-opacity hover:opacity-60">{t("Your plan")}</a>
+          <a href="#talk" className="transition-opacity hover:opacity-60">{t("Try it")}</a>
         </div>
         <div className="flex items-center gap-2">
           {/*
@@ -477,19 +463,19 @@ const whoCards = ({ t, href }: Say) => [
     icon: House,
     tone: "accent",
     title: t("You live here now"),
-    body: t("The pharmacist, the parents at the school gate, the letter from the city. Learn the Estonian you'll actually bump into this week."),
+    body: t("The pharmacist, the school gate, the letter from the city."),
   },
   {
     icon: Heart,
     tone: "blush",
     title: t("You love someone who speaks it"),
-    body: t("Their mom on the phone, their friends' jokes, the toast at the birthday party. Get the words ready before Sunday lunch, not halfway through it."),
+    body: t("Their mom on the phone, the toast at the birthday party."),
   },
   {
     icon: ClipboardCheck,
     tone: "butter",
     title: t("You have an exam to pass"),
-    body: t("Full mock papers from A2 to C1, marked by clear rules you can check, not an AI's hunch. Walk in on the day knowing exactly what's coming."),
+    body: t("Full mock papers from A2 to C1, marked by rules you can check."),
     href: href("/state-exam"),
     link: t("How the real exam works"),
   },
@@ -497,7 +483,7 @@ const whoCards = ({ t, href }: Say) => [
     icon: Briefcase,
     tone: "sky",
     title: t("You work in Estonian"),
-    body: t("Meetings, emails, a chat by the coffee machine. Get to know the words you'll hear at work every day, and try the tricky conversations here first, where getting it wrong costs nothing."),
+    body: t("Meetings, emails, the chat by the coffee machine."),
   },
 ] as const;
 
@@ -549,102 +535,6 @@ function WhoFor({ say }: { say: Say }) {
           );
         })}
       </div>
-    </section>
-  );
-}
-
-/* ─────────────────────────────────────────────────────── compare ── */
-
-/**
- * The comparison a stranger is actually making, which is between kinds of
- * thing rather than between brands.
- *
- * Nobody arrives here choosing between four named apps. They arrive having
- * tried a streak app, sitting in a class, or asking a chatbot, and the
- * question is what this adds to the one they have. So the columns are those
- * three, each credited with what it is good at before saying where it stops,
- * and the claims are about what each kind of tool is built to do. The
- * tool-by-tool table, checked against each product's own pages, stays in the
- * questions below for the reader who wants names.
- */
-const kinds = ({ t }: Say) => [
-  { name: t("A streak app"), good: t("A daily habit and your first few hundred words."), stops: t("The fourteen cases, which is exactly where Estonian gets hard.") },
-  { name: t("A class or a textbook"), good: t("A teacher, a syllabus and people to talk to."), stops: t("Bringing each word back the day before you'd forget it.") },
-  { name: t("An AI chatbot"), good: t("An answer at eleven at night, about anything."), stops: t("Getting the forms right. It writes Estonian that looks perfect and isn't.") },
-] as const;
-
-function Compare({ say }: { say: Say }) {
-  const { t } = say;
-  const KINDS = kinds(say);
-  return (
-    <section id="compare" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
-      <Reveal>
-        <div className="section-head">
-          <p className="section-tag" data-tone="sky">{t("How it compares")}</p>
-          <h2 className="landing-title">
-            {t("Keep what you already use. The fourteen cases are the bit it’s missing.")}
-          </h2>
-        </div>
-      </Reveal>
-      <Reveal>
-        <div className="compare-grid mt-10 grid gap-4 md:mt-12 lg:grid-cols-4">
-          {KINDS.map((kind) => (
-            <div key={kind.name} className="rounded-[var(--r-xl)] border p-6" style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}>
-              <h3 className="text-md font-semibold" style={{ color: "var(--ink)" }}>{kind.name}</h3>
-              <p className="mt-4 flex gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                <Check size={16} aria-label={t("Good at")} className="mt-0.5 shrink-0" style={{ color: "var(--sky-ink)" }} />
-                <span>{kind.good}</span>
-              </p>
-              <p className="mt-3 flex gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                <Minus size={16} aria-label={t("Stops at")} className="mt-0.5 shrink-0" style={{ color: "var(--ink-3)" }} />
-                <span>{kind.stops}</span>
-              </p>
-            </div>
-          ))}
-          <div className="compare-ours night rounded-[var(--r-xl)] border p-6">
-            <h3 className="font-display text-xl font-bold" style={{ color: "var(--cta)" }}>kodukeel</h3>
-            <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--ink)" }}>
-              {t("The cases taught one at a time, every word brought back just before you’d forget it, a tutor awake at any hour, and every form straight from a dictionary, never an AI. Free, and it works offline.")}
-            </p>
-          </div>
-        </div>
-      </Reveal>
-      <p className="mt-6 max-w-[60ch] text-sm" style={{ color: "var(--ink-3)" }}>
-        {rich(t("Weighing up particular apps? There’s a side-by-side table in {below}, checked against each app’s own website in August 2026."), {
-          below: <a href="#comparison" className="font-semibold underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>{t("the questions below")}</a>,
-        })}
-      </p>
-    </section>
-  );
-}
-
-/* ────────────────────────────────────────────────────────── plan ── */
-
-function Plan({ say }: { say: Say }) {
-  const { t } = say;
-  return (
-    <section id="plan" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
-      <Reveal>
-        <div className="section-head">
-          <p className="section-tag" data-tone="butter">{t("Your plan")}</p>
-          <h2 className="landing-title">
-            {t("When could you get there?")}
-          </h2>
-          <p className="mt-5 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {t("Answer four questions and we’ll do the same math the app does inside. It’s an estimate, because anyone who promises you an exact date is guessing.")}
-          </p>
-        </div>
-      </Reveal>
-      <Reveal>
-        <div className="plan-card mt-10 rounded-[var(--r-xl)] border p-5 md:mt-12 md:p-10">
-          <PlanCalculator />
-          <div className="mt-6">
-          <Explain label={t("Where the hours come from")}>
-            {t("We start from the study hours usually published for each level, add extra where Estonian’s cases start to bite, and keep the total inside what the US Foreign Service Institute estimates for the language. It isn’t measured on people using this app. Once you’re inside, the same math runs on your own pace instead.")}
-          </Explain>
-          </div>
-        </div>
-      </Reveal>
     </section>
   );
 }
@@ -819,8 +709,6 @@ function Cases({ say, words }: { say: Say; words: DemoWord[] }) {
   );
 }
 
-/* ────────────────────────────────────────────────────── features ── */
-
 /* ─────────────────────────────────────────────────────── evening ── */
 
 /**
@@ -930,160 +818,6 @@ function Talk({ say }: { say: Say }) {
         </div>
       </Reveal>
     </section>
-  );
-}
-
-function Features({ say }: { say: Say }) {
-  const { t } = say;
-  /*
-    THREE CARDS, AND WHAT EACH ONE IS FOR CHANGED.
-
-    They were a dictionary, a course and a tutor, which is a list of the parts
-    this app is built out of rather than an answer to the question the section
-    above just asked. That section ends on somebody who freezes at the counter,
-    and the honest next line is how they stop doing that. So the cards are the
-    three ways this app is used rather than the three things it contains: the
-    person you can ask without anybody watching, the practice that puts the
-    words in, and the plan that keeps you turning up. The dictionary did not go
-    anywhere; it is the first sentence of the practice card, because looking a
-    word up here is how a card gets made.
-
-    ANU LEADS NOW. She was third of three, behind two cards describing
-    machinery, and she is the part of this nobody else in the list offers: a
-    teacher you can ask a question you are embarrassed by, at eleven at night,
-    who answers the question rather than marking it. Her card is also the one
-    with something to press, which is worth having early rather than last.
-
-    The history the three replaced, kept because it is the argument for there
-    being three of anything at all:
-
-    Eight cards became five, five became four, four became three.
-
-    Three of the original eight said what the hero, the FAQ or another card was
-    already saying: a portability card beside an offline tick, a progress card
-    beside an XP card, and a "four ways to practice" card that had been wrong
-    since the third practice mode shipped. Then the speech card, which is not a
-    thing of its own: it is what the dictionary entry does when you press a
-    form, so it is a clause on the dictionary card.
-
-    The last to go is the seam between the course and the scheduler, and they
-    were never two things. A unit is a sitting's worth of words, adding one
-    makes cards, and the scheduler is what brings those cards back: that is one
-    loop described twice, once as "here is a syllabus" and once as "here is a
-    scheduler", with the sentence joining them left for the reader to write.
-
-    What the bodies carry now is the section that used to sit under this one.
-    "How a day goes" was three steps, and all three were already here in other
-    words: picking a unit and looking a word up is the first card, adding it in
-    a press is the second, and being told you are done for the day is the second
-    card's whole point. A step somebody reads twice is a step they read neither
-    time.
-
-    Three is also what makes the grid a row again, with no hole to explain.
-    `md:col-span-2` on Anu's card had done nothing since the day it was written,
-    because the grid item is the `Reveal` wrapper and the span was on the card
-    inside it: the layout everybody had been looking at was three cards, then
-    two, then a gap where the sixth would go.
-  */
-  return (
-    <section id="features" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
-      <Reveal>
-        {/*
-          THE HEADING NAMES THE THREE THINGS UNDER IT.
-
-          It read "What's inside" over "How you get there", which is an eyebrow
-          about contents over a heading about a journey, and the cards under
-          them are neither: they are the three parts of the app somebody uses
-          every day. A heading that has to be decoded is a heading that gets
-          skipped, on the way to the button. So it says what the cards say,
-          one clause each, and the line under it says how the three fit.
-        */}
-        <div className="section-head">
-          <p className="section-tag" data-tone="butter">{t("What you get")}</p>
-          <h2 className="landing-title">
-            {t("Someone to ask, words that stay, and a nudge out the door")}
-          </h2>
-          <p className="mt-5 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {t("The three feed each other. A word Anu explains goes into your practice with one press, and it comes back on the evening you’re about to forget it.")}
-          </p>
-        </div>
-      </Reveal>
-
-      <div className="mt-10 grid gap-5 md:mt-14 lg:grid-cols-3">
-        <Reveal>
-          <Feature
-            tone="blush"
-            icon={<Sparkles size={18} aria-hidden />}
-            title={t("Anu, who never sighs")}
-            body={t("Ask her the thing you'd never ask in class. She'll build a sentence with you, read the one you wrote, and tell you why the ending changed. Every Estonian word she shows you is checked in the dictionary, never guessed.")}
-          >
-            <TutorPeek />
-          </Feature>
-        </Reveal>
-        <Reveal>
-          <Feature
-            tone="accent"
-            icon={<BookOpen size={18} aria-hidden />}
-            title={t("Words that stay")}
-            body={fill(t("Look up any word and keep it with one press, every form included, read aloud in ten different voices. Then there are {units} of words like it. Each comes back the day before you'd forget it, and you hear it the way people really say it: fast, over café noise, down a crackly phone line."), { units: say.counted(PATH.length, "unit") })}
-          />
-        </Reveal>
-        <Reveal>
-          <Feature
-            tone="sky"
-            icon={<Target size={18} aria-hidden />}
-            title={t("Then the real thing")}
-            body={t("A receptionist with no slot on Thursday, a landlord on a bad line, a line at the counter. Rehearse it here first, where nobody's watching. Then say one thing to a real person today and tell us how it went. Those are the conversations that really count.")}
-          />
-        </Reveal>
-      </div>
-    </section>
-  );
-}
-
-/**
- * One card, and `children` for the one that shows its work.
- *
- * Anu's card used to be a hand-written copy of this with its icon beside the
- * heading instead of above it, which is how it came to be the only card in the
- * grid laid out differently from its neighbors. A slot under the body is the
- * whole of what it needed, and the icon it was laying out its own way is the
- * arrangement every card takes now: a circle stacked over a heading spends 52px
- * of a phone on saying nothing the heading does not, once per card.
- */
-function Feature({ tone, icon, title, body, children }: {
-  tone: "accent" | "sky" | "butter" | "blush";
-  icon: React.ReactNode;
-  title: React.ReactNode;
-  body: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <div
-      className="lift flex h-full flex-col rounded-[var(--r-xl)] border p-6"
-      style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}
-    >
-      {/* Level with the top of the tile, never centered on it: three cards
-          sit in a row, and a heading that wraps beside the tile in one of
-          them put the other two headings lower than it. */}
-      <div className="flex items-start gap-3">
-        <span
-          className="feature-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--r)] border"
-          style={{
-            background: `var(--${tone})`,
-            borderColor: "var(--edge)",
-            color: tone === "accent" ? "var(--accent-ink)" : "var(--on-hue)",
-          }}
-        >
-          {icon}
-        </span>
-        <h3 className="font-display text-xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
-          {title}
-        </h3>
-      </div>
-      <p className="mt-3 max-w-[52ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{body}</p>
-      {children ? <div className="mt-4">{children}</div> : null}
-    </div>
   );
 }
 
@@ -1582,172 +1316,116 @@ function FinalCta({ say }: { say: Say }) {
   );
 }
 
-/* ──────────────────────────────────────────────────── teachers ── */
-
 /**
- * THE ONE WAY IN FOR A TEACHER, AND WHAT IS TRUE FOR THEM IN FOUR LINES.
+ * THE FOOTER IS AN INDEX, NOT A LAST SCREEN.
  *
- * The page mentioned teachers four times and offered one no way in: nothing
- * said this was for a class, and the trust page sat in the footer. So a
- * compact band under the close, where a teacher or a program officer who has
- * read this far is looking, with only facts that are true today and checkable:
- * a class joins with a code, the teacher sees effort and the group's sticking
- * points and never anybody's answers (`lib/classroom/roster.ts`), it is free
- * and open, and it is for learners aged 13 and older. That last is the
- * operator's standing decision (docs/35-launch-quick-wins.md, section 1): no
- * pupil accounts, no class-code sign-in and no under-13s are promised here,
- * and there is no count of schools, because there are none to count.
+ * It was three tall columns: the wordmark, every source on a line of its own
+ * with what it gives and who runs it, and fifteen links stacked one under the
+ * next, which made the foot of the page a screen and a half on a laptop and
+ * three on a phone. It was reported as extremely long, and it was.
  *
- * The mail link appears only where the deployment names who runs it, and the
- * page is static, so that is read once when it is built.
- */
-function ForTeachers({ say, contact }: { say: Say; contact: string | null }) {
-  const { t } = say;
-  const subject = encodeURIComponent(t("A Kodukeel pilot"));
-  return (
-    <section id="teachers" aria-labelledby="teachers-title" className="mx-auto w-full max-w-5xl scroll-mt-24 px-5 md:px-8">
-      <div
-        className="rounded-[var(--r-xl)] border p-6 md:p-8"
-        style={{ background: "var(--surface)", borderColor: "var(--edge)" }}
-      >
-        <p className="section-tag" data-tone="accent">{t("For teachers")}</p>
-        <h2 id="teachers-title" className="mt-3 text-xl font-semibold" style={{ color: "var(--ink)" }}>
-          {t("Teaching a class or running a group?")}
-        </h2>
-        <p className="mt-3 max-w-[64ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {t("Your learners join with a short code. You see who is practicing and where the group gets stuck, never anybody’s answers or deck.")}{" "}
-          {t("It’s free, and the code is open.")}
-        </p>
-        <p className="mt-2 max-w-[64ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {t("For learners aged 13 and older. Younger pupils need an agreement with their school first.")}
-        </p>
-        <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold">
-          <li>
-            <Link href={say.href("/teachers")} className="underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>
-              {t("See what a teacher sees")}
-            </Link>
-          </li>
-          <li>
-            <Link href={say.href("/trust")} className="underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>
-              {t("How the data is handled")}
-            </Link>
-          </li>
-          <li>
-            <Link href="/pilots" className="underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>
-              {t("How a pilot works")}
-            </Link>
-          </li>
-          {contact && (
-            <li>
-              <a href={`mailto:${contact}?subject=${subject}`} className="underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>
-                {t("Write to us about a pilot")}
-              </a>
-            </li>
-          )}
-        </ul>
-      </div>
-    </section>
-  );
-}
-
-/**
- * The footer, with room in it.
- *
- * It was one row: the wordmark, a four-source credit run together as a single
- * sentence with the licenses inside it, and three links, all at 12px, all on
- * one line at 1280 and wrapping into a lump under it. Crowded, and the credit
- * was the worst of it, because four institutions and three licenses in one
- * sentence is a sentence nobody can find their way back into. Each source has
- * a line now, with what it gives and the terms it gives it under, the links
- * have a column, and the whole thing is set a size up with the air a last
- * screen can afford. The rule still sits well clear of the closing panel, so
- * the credits read as the end of the page and not as part of the card above.
- */
-/**
- * A footer link onto another public page, in the language the page is read
- * in. The English address stays written out at every call, which is what
- * the invariant that every public page is linked from here reads.
+ * So the links are three short groups side by side, named by who goes looking
+ * for them: somebody learning, somebody teaching, somebody checking. The
+ * credits are one run of names, each linked and carrying its license, which is
+ * what a license asks for; what each source gives and who runs it is said in
+ * full on /terms, one link away under Trust. The teachers band that used to
+ * sit above this is one line under the wordmark, because a teacher who has
+ * read this far is looking here. Every public page is still linked from this component, and an
+ * invariant reads the `href`s written out below to say so.
  */
 function FootLink({ href, say, children }: { href: string; say: Say; children: React.ReactNode }) {
   const to = href === "/sign-in" ? (say.locale === "en" ? href : `/sign-in?lang=${say.locale}`) : say.href(href);
-  return <li><Link href={to} className="underline underline-offset-4 transition-opacity hover:opacity-70">{children}</Link></li>;
+  return <li><Link href={to} className="underline-offset-4 transition-opacity hover:underline hover:opacity-80">{children}</Link></li>;
+}
+
+function FootGroup({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={className}>
+      <p className="label-xs" style={{ color: "var(--ink-3)" }}>{title}</p>
+      <ul className="mt-3 flex flex-col gap-2 text-sm font-medium" style={{ color: "var(--ink-2)" }}>{children}</ul>
+    </div>
+  );
 }
 
 function Footer({ say, copy }: { say: Say; copy: (typeof ENTRY_COPY)[EntryLocale] | null }) {
   const { t, locale } = say;
   return (
-    <footer className="landing-foot relative px-5 pb-14 md:px-8 md:pb-20">
-      <div className="mx-auto max-w-6xl border-t pt-12 md:pt-16" style={{ borderColor: "var(--rule)" }}>
-        <div className="grid gap-10 md:grid-cols-[1.1fr_1.5fr_auto] md:gap-14">
+    <footer className="landing-foot relative px-5 pb-10 md:px-8 md:pb-14">
+      <div className="mx-auto max-w-6xl border-t pt-10 md:pt-12" style={{ borderColor: "var(--rule)" }}>
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,2fr)] lg:gap-14">
           <div>
-            <Wordmark size={32} />
-            <p className="mt-5 max-w-[34ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+            <Wordmark size={28} />
+            <p className="mt-3 max-w-[46ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
               {t("Kodukeel means home language. It’s free, and every Estonian form in it comes from a dictionary, never from AI.")}
             </p>
+            <p className="mt-3 max-w-[46ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+              {t("Teaching a class or running a group?")}{" "}
+              <Link href={say.href("/teachers")} className="font-semibold underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>
+                {t("See what a teacher sees")}
+              </Link>
+            </p>
           </div>
-
-          <div>
-            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Built on")}</p>
-            <ul className="mt-4 flex flex-col gap-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              {SOURCE_CREDITS.map((src) => (
-                <li key={src.name} className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                  <span className="font-semibold" style={{ color: "var(--ink)" }}>
-                    <a href={src.href} target="_blank" rel="noreferrer" className="underline underline-offset-4 transition-opacity hover:opacity-70">
-                      {src.name}
-                    </a>
-                    {src.by ? <span className="font-normal" style={{ color: "var(--ink-2)" }}>, {t(src.by)}</span> : null}
-                  </span>
-                  <span>{t(src.gives)}</span>
-                  {src.licence ? <span style={{ color: "var(--ink-3)" }}>{src.licence}</span> : null}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/*
-            The pages a stranger is entitled to read before signing up, and
-            until recently the landing page linked none of them: they were
-            reachable only from each other and from two screens inside the
-            app, which is behind the sign-in they exist to inform.
-
-            AND THAT FIX STOPPED AT THREE, WHICH LEFT OUT THE TWO WRITTEN FOR
-            EXACTLY THIS READER. /trust and /accessibility arrived after it and
-            were never added here, so the landing page was the only public page
-            in the app that did not link them: every one of the other five
-            links both. They are the two a school administrator, a teacher or a
-            grant reviewer is sent to, they say in their own words that they
-            are for somebody with no account, and the one page such a person
-            actually arrives on had no route to either. A page nobody can reach
-            is a page nobody has read.
-          */}
-          <div>
-            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Read more")}</p>
-            <ul className="mt-4 flex flex-col gap-3 text-sm font-medium" style={{ color: "var(--ink-2)" }}>
-              <FootLink say={say} href="/privacy">{t("Privacy")}</FootLink>
-              <FootLink say={say} href="/terms">{t("Terms")}</FootLink>
-              <FootLink say={say} href="/funding">{t("What it costs to run")}</FootLink>
-              <FootLink say={say} href="/trust">{t("Security and trust")}</FootLink>
+          <nav aria-label={t("Read more")} className="grid grid-cols-2 gap-x-10 gap-y-7 sm:grid-cols-3 lg:gap-x-6">
+            <FootGroup title={t("The course")}>
+              <FootLink say={say} href="/curriculum">{t("What the course covers")}</FootLink>
+              <FootLink say={say} href="/grammar">{t("Estonian grammar")}</FootLink>
+              <FootLink say={say} href="/state-exam">{t("The state examination")}</FootLink>
+              <FootLink say={say} href="/help">{t("Help")}</FootLink>
+            </FootGroup>
+            <FootGroup title={t("For schools")}>
               <FootLink say={say} href="/teachers">{t("For teachers")}</FootLink>
               <FootLink say={say} href="/pilots">{t("Running a pilot")}</FootLink>
-              <FootLink say={say} href="/curriculum">{t("What the course covers")}</FootLink>
               <FootLink say={say} href="/how-we-know">{t("How we know")}</FootLink>
+              <FootLink say={say} href="/funding">{t("What it costs to run")}</FootLink>
+            </FootGroup>
+            {/* The third group takes a row of its own on a phone, where two columns
+                leave the Russian for "Privacy" less room than the word needs. */}
+            <FootGroup title={t("Trust")} className="col-span-2 sm:col-span-1">
+              <FootLink say={say} href="/privacy">{t("Privacy")}</FootLink>
+              <FootLink say={say} href="/terms">{t("Terms")}</FootLink>
+              <FootLink say={say} href="/trust">{t("Security and trust")}</FootLink>
               <FootLink say={say} href="/accessibility">{t("Accessibility")}</FootLink>
-              <FootLink say={say} href="/state-exam">{t("The state examination")}</FootLink>
-              <FootLink say={say} href="/grammar">{t("Estonian grammar")}</FootLink>
-              <FootLink say={say} href="/help">{t("Help")}</FootLink>
-              {locale !== "en" && (
-                <li><Link href="/welcome" lang="en" hrefLang="en" className="underline underline-offset-4 transition-opacity hover:opacity-70">English</Link></li>
-              )}
-              {locale === "en" && ENTRY_LOCALES.map((l) => (
-                <li key={l}>
-                  <Link href={ENTRY_COPY[l].href} lang={l} hrefLang={l} className="underline underline-offset-4 transition-opacity hover:opacity-70">
-                    {ENTRY_COPY[l].name}
-                  </Link>
+            </FootGroup>
+          </nav>
+        </div>
+
+        {/*
+          The small print, in one row: what this is built on, then the other
+          languages and the way in. Names and licenses only; who runs each
+          source and what it gives is on /terms.
+        */}
+        <div
+          className="mt-10 flex flex-col gap-4 border-t pt-6 text-sm md:flex-row md:items-start md:justify-between md:gap-10"
+          style={{ borderColor: "var(--rule)", color: "var(--ink-3)" }}
+        >
+          <div className="flex max-w-[80ch] flex-col gap-2 md:flex-row md:gap-4">
+            <p className="shrink-0 font-semibold" style={{ color: "var(--ink-2)" }}>{t("Built on")}</p>
+            <ul className="flex flex-wrap gap-x-4 gap-y-1.5">
+              {SOURCE_CREDITS.map((src) => (
+                <li key={src.name}>
+                  {/* Whole name, whole license: on a phone the longest one
+                      breaks between the two rather than inside either. */}
+                  <a href={src.href} target="_blank" rel="noreferrer" className="whitespace-nowrap underline underline-offset-2" style={{ color: "var(--ink-2)" }}>
+                    {src.name}
+                  </a>
+                  {src.licence ? <>{" "}<span className="whitespace-nowrap">{src.licence}</span></> : null}
                 </li>
               ))}
-              <FootLink say={say} href="/sign-in">{t("Sign in")}</FootLink>
             </ul>
           </div>
+          <ul className="flex shrink-0 flex-wrap items-center gap-x-5 gap-y-2 font-semibold" style={{ color: "var(--ink-2)" }}>
+            {locale !== "en" && (
+              <li><Link href="/welcome" lang="en" hrefLang="en" className="underline-offset-4 hover:underline">English</Link></li>
+            )}
+            {locale === "en" && ENTRY_LOCALES.map((l) => (
+              <li key={l}>
+                <Link href={ENTRY_COPY[l].href} lang={l} hrefLang={l} className="underline-offset-4 hover:underline">
+                  {ENTRY_COPY[l].name}
+                </Link>
+              </li>
+            ))}
+            <FootLink say={say} href="/sign-in">{t("Sign in")}</FootLink>
+          </ul>
         </div>
         {/*
           A translation nobody fluent has read says so, in its own language
@@ -1761,7 +1439,7 @@ function Footer({ say, copy }: { say: Say; copy: (typeof ENTRY_COPY)[EntryLocale
         {copy && !copy.reviewed && (
           <aside
             aria-label={say.t("About this translation")}
-            className="mt-10 flex max-w-3xl items-start gap-2 text-sm leading-relaxed"
+            className="mt-6 flex max-w-3xl items-start gap-2 text-sm leading-relaxed"
             style={{ color: "var(--ink-3)" }}
           >
             <Languages size={16} aria-hidden className="mt-0.5 shrink-0" />
