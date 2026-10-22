@@ -63,6 +63,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Kodukeel, home", "Kodukeel, на главную", "Kodukeel, на головну"],
   ["Who it’s for", "Для кого", "Для кого"],
   ["The cases", "Падежи", "Відмінки"],
+  ["Try it", "Попробуйте", "Спробуйте"],
   ["Start free", "Начать бесплатно", "Почати безкоштовно"],
 
   // HERO.
@@ -89,22 +90,22 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   // WHO IT'S FOR.
   ["Whatever brought you to Estonian", "Что бы ни привело вас к эстонскому", "Хоч би що привело вас до естонської"],
   ["You live here now", "Вы теперь живёте здесь", "Ви тепер живете тут"],
-  ["The pharmacist, the parents at the school gate, the letter from the city. Learn the Estonian you'll actually bump into this week.",
-    "Фармацевт, родители у школьных ворот, письмо из городской управы. Учите эстонский, который встретится вам уже на этой неделе.",
-    "Фармацевт, батьки біля шкільних воріт, лист від міської управи. Вчіть естонську, яка трапиться вам уже цього тижня."],
+  ["The pharmacist, the school gate, the letter from the city.",
+    "Фармацевт, школьные ворота, письмо из городской управы.",
+    "Фармацевт, шкільні ворота, лист від міської управи."],
   ["You love someone who speaks it", "Ваш любимый человек говорит на нём", "Ваша кохана людина нею говорить"],
-  ["Their mom on the phone, their friends' jokes, the toast at the birthday party. Get the words ready before Sunday lunch, not halfway through it.",
-    "Мама по телефону, шутки друзей, тост на дне рождения. Подготовьте слова до воскресного обеда, а не посреди него.",
-    "Мама по телефону, жарти друзів, тост на дні народження. Підготуйте слова до недільного обіду, а не посеред нього."],
+  ["Their mom on the phone, the toast at the birthday party.",
+    "Мама по телефону, тост на дне рождения.",
+    "Мама по телефону, тост на дні народження."],
   ["You have an exam to pass", "Вам нужно сдать экзамен", "Вам треба скласти іспит"],
-  ["Full mock papers from A2 to C1, marked by clear rules you can check, not an AI's hunch. Walk in on the day knowing exactly what's coming.",
-    "Полные пробные экзамены от A2 до C1, которые проверяются по понятным правилам, а не по догадке ИИ, и эти правила можно проверить. Приходите на экзамен, точно зная, что вас ждёт.",
-    "Повні пробні іспити від A2 до C1, які перевіряються за зрозумілими правилами, а не за здогадкою ШІ, і ці правила можна перевірити. Приходьте на іспит, точно знаючи, що на вас чекає."],
+  ["Full mock papers from A2 to C1, marked by rules you can check.",
+    "Полные пробные экзамены от A2 до C1 с проверкой по понятным правилам.",
+    "Повні пробні іспити від A2 до C1 з перевіркою за зрозумілими правилами."],
   ["How the real exam works", "Как устроен настоящий экзамен", "Як влаштовано справжній іспит"],
   ["You work in Estonian", "Вы работаете на эстонском", "Ви працюєте естонською"],
-  ["Meetings, emails, a chat by the coffee machine. Get to know the words you'll hear at work every day, and try the tricky conversations here first, where getting it wrong costs nothing.",
-    "Совещания, письма, разговор у кофемашины. Освойте слова, которые слышите на работе каждый день, и сначала попробуйте трудные разговоры здесь, где ошибка ничего не стоит.",
-    "Наради, листи, розмова біля кавоварки. Опануйте слова, які чуєте на роботі щодня, і спершу спробуйте складні розмови тут, де помилка нічого не коштує."],
+  ["Meetings, emails, the chat by the coffee machine.",
+    "Совещания, письма, разговор у кофемашины.",
+    "Наради, листи, розмова біля кавоварки."],
 
   // THE CASES.
   ["You didn’t fail Estonian. Your tools did.", "Вы не провалили эстонский. Вас подвели инструменты.", "Ви не провалили естонську. Вас підвели інструменти."],
@@ -238,71 +239,6 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["water@ordered", "воду", "воду"],
   ["juice@ordered", "сок", "сік"],
 
-  // WHAT YOU GET.
-  ["What you get", "Что вы получаете", "Що ви отримуєте"],
-  ["Someone to ask, words that stay, and a nudge out the door", "Кого спросить, слова, которые не забываются, и лёгкий толчок к живому разговору", "Кого спитати, слова, які не забуваються, і легкий поштовх до живої розмови"],
-  ["The three feed each other. A word Anu explains goes into your practice with one press, and it comes back on the evening you’re about to forget it.",
-    "Всё это работает вместе. Слово, которое объяснила Ану, одним нажатием попадает в вашу практику и возвращается в тот вечер, когда вы вот-вот его забудете.",
-    "Усе це працює разом. Слово, яке пояснила Ану, одним натисканням потрапляє у вашу практику й повертається того вечора, коли ви от-от його забудете."],
-  ["Anu, who never sighs", "Ану, которая никогда не вздыхает", "Ану, яка ніколи не зітхає"],
-  ["Ask her the thing you'd never ask in class. She'll build a sentence with you, read the one you wrote, and tell you why the ending changed. Every Estonian word she shows you is checked in the dictionary, never guessed.",
-    "Спросите у неё то, о чём никогда не спросили бы на уроке. Она построит с вами предложение, прочитает ваше и объяснит, почему изменилось окончание. Каждое эстонское слово, которое она показывает, проверено по словарю, а не угадано.",
-    "Спитайте в неї те, про що ніколи б не спитали на уроці. Вона побудує з вами речення, прочитає ваше й пояснить, чому змінилося закінчення. Кожне естонське слово, яке вона показує, перевірено за словником, а не вгадано."],
-  ["Why is it {a} and not {b}?", "Почему {a}, а не {b}?", "Чому {a}, а не {b}?"],
-  ["Because you haven’t finished it yet. {reading} means “I’m reading a book”, and the osastav says you’re still at it. Swap in the omastav and you get {done}: the whole book, done. In Estonian, the object’s case tells you whether the action is finished.",
-    "Потому что вы её ещё не дочитали. {reading} значит «я читаю книгу», и osastav говорит, что вы всё ещё в процессе. Поставьте вместо него omastav, и получится {done}: вся книга, прочитанная до конца. В эстонском падеж дополнения показывает, завершено ли действие.",
-    "Бо ви її ще не дочитали. {reading} означає «я читаю книжку», і osastav каже, що ви ще в процесі. Поставте замість нього omastav, і вийде {done}: уся книжка, до кінця. Те, що українська показує видом дієслова, «читаю» чи «прочитаю», естонська показує відмінком додатка."],
-  ["Words that stay", "Слова, которые остаются", "Слова, що залишаються"],
-  ["Look up any word and keep it with one press, every form included, read aloud in ten different voices. Then there are {units} of words like it. Each comes back the day before you'd forget it, and you hear it the way people really say it: fast, over café noise, down a crackly phone line.",
-    "Найдите любое слово и сохраните его одним нажатием, со всеми формами и озвучкой десятью разными голосами. А дальше {units} таких же слов. Каждое возвращается за день до того, как вы его забудете, и вы слышите его так, как говорят на самом деле: быстро, сквозь шум кафе, по трескучей телефонной линии.",
-    "Знайдіть будь-яке слово й збережіть його одним натисканням, з усіма формами й озвученням десятьма різними голосами. А далі {units} таких самих слів. Кожне повертається за день до того, як ви його забудете, і ви чуєте його так, як говорять насправді: швидко, крізь гамір кав'ярні, по тріскучій телефонній лінії."],
-  ["Then the real thing", "А потом всерьёз", "А потім насправді"],
-  ["A receptionist with no slot on Thursday, a landlord on a bad line, a line at the counter. Rehearse it here first, where nobody's watching. Then say one thing to a real person today and tell us how it went. Those are the conversations that really count.",
-    "Администратор, у которого нет записи на четверг, арендодатель на плохой связи, очередь у кассы. Сначала отрепетируйте это здесь, где никто не смотрит. Потом скажите сегодня хоть что-то живому человеку и расскажите нам, как всё прошло. Именно эти разговоры и считаются.",
-    "Адміністратор, у якого немає запису на четвер, орендодавець на поганому зв'язку, черга біля каси. Спершу відрепетируйте це тут, де ніхто не дивиться. Потім скажіть сьогодні хоч щось живій людині й розкажіть нам, як усе минуло. Саме ці розмови й рахуються."],
-
-  // HOW IT COMPARES.
-  ["How it compares", "Сравнение", "Порівняння"],
-  ["Keep what you already use. The fourteen cases are the bit it’s missing.",
-    "Не бросайте то, чем уже пользуетесь. Четырнадцать падежей как раз то, чего там не хватает.",
-    "Не кидайте те, чим уже користуєтеся. Чотирнадцять відмінків якраз те, чого там бракує."],
-  ["A streak app", "Приложение с серией дней", "Застосунок із серією днів"],
-  ["A daily habit and your first few hundred words.", "Ежедневная привычка и первые несколько сотен слов.", "Щоденна звичка й перші кілька сотень слів."],
-  ["The fourteen cases, which is exactly where Estonian gets hard.", "Четырнадцать падежей, а именно там эстонский и становится трудным.", "Чотирнадцять відмінків, а саме там естонська й стає складною."],
-  ["A class or a textbook", "Курсы или учебник", "Курси або підручник"],
-  ["A teacher, a syllabus and people to talk to.", "Преподаватель, программа и люди, с которыми можно поговорить.", "Викладач, програма й люди, з якими можна поговорити."],
-  ["Bringing each word back the day before you'd forget it.", "Возвращать каждое слово за день до того, как вы его забудете.", "Повертати кожне слово за день до того, як ви його забудете."],
-  ["An AI chatbot", "Чат-бот с ИИ", "Чат-бот зі ШІ"],
-  ["An answer at eleven at night, about anything.", "Ответ в одиннадцать вечера на любой вопрос.", "Відповідь об одинадцятій вечора на будь-яке питання."],
-  ["Getting the forms right. It writes Estonian that looks perfect and isn't.", "Правильные формы. Он пишет по-эстонски так, что выглядит безупречно, но это не так.", "Правильні форми. Він пише естонською так, що виглядає бездоганно, але це не так."],
-  ["Good at", "Сильная сторона", "Сильна сторона"],
-  ["Stops at", "Где останавливается", "Де зупиняється"],
-  ["The cases taught one at a time, every word brought back just before you’d forget it, a tutor awake at any hour, and every form straight from a dictionary, never an AI. Free, and it works offline.",
-    "Падежи по одному, каждое слово возвращается прямо перед тем, как вы его забудете, Ану, которая ответит в любой час, и каждая форма прямо из словаря, а не от ИИ. Бесплатно и работает без интернета.",
-    "Відмінки по одному, кожне слово повертається якраз перед тим, як ви його забудете, Ану, яка відповість будь-коли, і кожна форма просто зі словника, а не від ШІ. Безкоштовно й працює без інтернету."],
-  ["Weighing up particular apps? There’s a side-by-side table in {below}, checked against each app’s own website in August 2026.",
-    "Сравниваете конкретные приложения? Подробная таблица есть в {below}, и она сверена с сайтом каждого приложения в августе 2026 года.",
-    "Порівнюєте конкретні застосунки? Докладна таблиця є в {below}, і її звірено із сайтом кожного застосунку в серпні 2026 року."],
-  ["the questions below", "вопросах ниже", "питаннях нижче"],
-
-  // YOUR PLAN.
-  ["When could you get there?", "Когда вы этого достигнете?", "Коли ви цього досягнете?"],
-  ["Answer four questions and we’ll do the same math the app does inside. It’s an estimate, because anyone who promises you an exact date is guessing.",
-    "Ответьте на четыре вопроса, и мы посчитаем так же, как считает само приложение. Это оценка, ведь тот, кто обещает точную дату, просто гадает.",
-    "Дайте відповідь на чотири запитання, і ми порахуємо так само, як рахує сам застосунок. Це оцінка, адже той, хто обіцяє точну дату, просто вгадує."],
-  ["Where the hours come from", "Откуда берутся часы", "Звідки беруться години"],
-  ["We start from the study hours usually published for each level, add extra where Estonian’s cases start to bite, and keep the total inside what the US Foreign Service Institute estimates for the language. It isn’t measured on people using this app. Once you’re inside, the same math runs on your own pace instead.",
-    "Мы берём часы учёбы, которые обычно публикуют для каждого уровня, добавляем там, где эстонские падежи начинают давать о себе знать, и держим итог в пределах оценки Института дипломатической службы США для этого языка. Это не измерено на людях, которые пользуются приложением. Когда вы внутри, тот же расчёт идёт уже по вашему собственному темпу.",
-    "Ми беремо години навчання, які зазвичай публікують для кожного рівня, додаємо там, де естонські відмінки починають даватися взнаки, і тримаємо підсумок у межах оцінки Інституту дипломатичної служби США для цієї мови. Це не виміряно на людях, які користуються застосунком. Коли ви всередині, той самий розрахунок іде вже за вашим власним темпом."],
-  ["Nothing yet", "Пока ничего", "Поки нічого"],
-  ["Where you are now", "Где вы сейчас", "Де ви зараз"],
-  ["Where you want to be", "Куда хотите прийти", "Куди хочете дійти"],
-  ["How long you can spare, five evenings a week", "Сколько времени вы можете уделять, пять вечеров в неделю", "Скільки часу ви можете приділяти, п'ять вечорів на тиждень"],
-  ["You’re already there", "Вы уже этого достигли", "Ви вже цього досягли"],
-  ["{target} is already behind you.", "{target} у вас уже позади.", "{target} у вас уже позаду."],
-  ["Pick a higher level and we’ll do the math again.", "Выберите уровень повыше, и мы посчитаем заново.", "Виберіть вищий рівень, і ми порахуємо знову."],
-  ["{target}, in about", "{target}, примерно", "{target}, приблизно"],
-
   // QUESTIONS.
   ["Questions", "Вопросы", "Питання"],
   ["Things people ask us", "О чём нас спрашивают", "Про що нас питають"],
@@ -391,6 +327,9 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
     "Kodukeel означає «домашня мова». Застосунок безкоштовний, і кожну естонську форму в ньому взято зі словника, а не вигадано ШІ."],
   ["Built on", "Основано на", "Спирається на"],
   ["Read more", "Подробнее", "Докладніше"],
+  ["The course", "Курс", "Курс"],
+  ["For schools", "Для школ", "Для шкіл"],
+  ["Trust", "Доверие", "Довіра"],
   ["What it costs to run", "Сколько стоит работа приложения", "Скільки коштує робота застосунку"],
   ["Security and trust", "Безопасность и доверие", "Безпека й довіра"],
   // The sources, as the footer credits them.
@@ -413,9 +352,6 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Press an ending and watch it snap on. That’s the whole trick, honestly.", "Нажмите на окончание и посмотрите, как оно встаёт на место. Честно, в этом весь фокус.", "Натисніть закінчення й подивіться, як воно стає на місце. Чесно, у цьому весь фокус."],
   ["This really is how your first evening starts. Five new words, and then they come back to check on you.", "Ваш первый вечер правда начинается так. Пять новых слов, а потом они возвращаются вас проверить.", "Ваш перший вечір справді починається так. П'ять нових слів, а потім вони повертаються вас перевірити."],
   ["Go on, order something. The person behind the counter is very patient.", "Давайте, закажите что-нибудь. Человек за стойкой очень терпеливый.", "Давайте, замовте щось. Людина за стійкою дуже терпляча."],
-  ["Ask me the thing you’d be too shy to ask in class. I never sigh.", "Спросите меня о том, о чём постеснялись бы спросить на уроке. Я никогда не вздыхаю.", "Спитайте мене про те, про що соромилися б спитати на уроці. Я ніколи не зітхаю."],
-  ["Keep your class. I’m here for the evenings in between.", "Не бросайте свои курсы. Я здесь для вечеров между занятиями.", "Не кидайте свої курси. Я тут для вечорів між заняттями."],
-  ["Play around with it. Inside, I do the same math with your real pace.", "Поиграйте с ним. Внутри я делаю тот же расчёт по вашему настоящему темпу.", "Пограйтеся з ним. Усередині я роблю той самий розрахунок за вашим справжнім темпом."],
   ["Short, straight answers. How we compare with other apps is the last one.", "Короткие прямые ответы. Сравнение с другими приложениями в самом конце.", "Короткі прямі відповіді. Порівняння з іншими застосунками в самому кінці."],
   ["Fifteen minutes a day. See you inside.", "Пятнадцать минут в день. До встречи внутри.", "П'ятнадцять хвилин на день. До зустрічі всередині."],
   ["Start learning, and ask Anu inside", "Начать учиться и спросить Ану внутри", "Почати вчитися й запитати Ану всередині"],
@@ -423,10 +359,6 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   // FOR TEACHERS. A class is for learners of 13 and older (docs/35-launch-quick-wins.md, section 1).
   ["For teachers", "Для преподавателей", "Для викладачів"],
   ["Teaching a class or running a group?", "Ведёте класс или группу?", "Ведете клас чи групу?"],
-  ["Your learners join with a short code. You see who is practicing and where the group gets stuck, never anybody’s answers or deck.",
-    "Ученики присоединяются по короткому коду. Вы видите, кто занимается и где группа застревает, но никогда не видите чужих ответов и карточек.",
-    "Учні приєднуються за коротким кодом. Ви бачите, хто займається і де група застрягає, але ніколи не бачите чужих відповідей чи карток."],
-  ["It’s free, and the code is open.", "Это бесплатно, и исходный код открыт.", "Це безкоштовно, і вихідний код відкритий."],
   ["For learners aged 13 and older. Younger pupils need an agreement with their school first.",
     "Для учеников от 13 лет. Для младших учеников сначала нужен договор со школой.",
     "Для учнів від 13 років. Для молодших учнів спершу потрібна угода зі школою."],
@@ -455,8 +387,7 @@ export const LANDING: Area = {
  *
  * The page hands its own lines to the browser rather than the whole language
  * (docs/35-launch-quick-wins.md, QW-8), and its demos are built from parts the
- * app uses inside too: the plan calculator's reasons and its sentence, the
- * café's labels, the first evening's step lengths. Those are translated where
+ * app uses inside too: the café's labels and the first evening's step lengths. Those are translated where
  * the app uses them, so they are named here by their English and copied into
  * the page's slice from wherever they live (\`areaTable\`). A line missing from
  * this list is drawn in Russian by the server and in English by the browser,
@@ -467,18 +398,11 @@ export const LANDING: Area = {
  */
 export const LANDING_BORROWS: readonly string[] = [
   // The word card.
-  "The word", "plus", "makes", "Endings", "Ask Anu",
+  "The word", "plus", "makes", "Endings",
   // The footer's way to /help, translated with that page's own lines.
   "Help",
   // The first evening.
   "{n} min", "What it means", "That\u2019s the one.",
   // The café.
   "You said:", "They said:", "They are answering", "What you say",
-  // The plan calculator.
-  "Why you\u2019re learning",
-  "I live in Estonia", "Citizenship or residence", "Work", "School or university", "Family or a partner",
-  "the pace you said",
-  "At {pace}, plus the Estonian already in your week, {level} is about {weeks} away.",
-  "No date is set, so that\u2019s the whole story.",
-  "As far as the app can tell, you\u2019re already {level}. All that\u2019s left is the exam itself.",
 ];

@@ -19,7 +19,6 @@ import type { InvariantKit } from "../lib/invariantKit";
 export default function anEstimateIsOneFigure({ check, code }: InvariantKit) {
   const SCREENS = [
     "components/assessment/PlanPanel.tsx",
-    "app/(chromeless)/welcome/LandingMotion.tsx",
     "lib/assessment/plan.ts",
   ];
 
@@ -37,10 +36,9 @@ export default function anEstimateIsOneFigure({ check, code }: InvariantKit) {
     assert.equal(read, SCREENS.length);
   });
 
-  check("the distance sentence and the landing calculator quote the projection's one figure", () => {
+  check("the distance sentence quotes the projection's one figure", () => {
     const plan = code("lib/assessment/plan.ts");
     const line = plan.slice(plan.indexOf("export function distanceLine"), plan.indexOf("function hoursAWeek"));
     assert.match(line, /plan\.weeksAbout/, "distanceLine stopped quoting weeksAbout");
-    assert.match(code("app/(chromeless)/welcome/LandingMotion.tsx"), /plan\.weeksAbout/, "the landing calculator stopped quoting weeksAbout");
   });
 }
