@@ -136,7 +136,7 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
               {words.map((w, n) => (
                 <li
                   key={w.et}
-                  className="evening-word flex items-baseline justify-between gap-3 rounded-[var(--r)] px-4 py-3"
+                  className="evening-word flex flex-col gap-0.5 rounded-[var(--r)] px-4 py-3"
                   style={{ "--i": n } as React.CSSProperties}
                 >
                   <span lang="et" className="text-lg font-bold" style={{ color: "var(--ink)" }}>{w.et}</span>
