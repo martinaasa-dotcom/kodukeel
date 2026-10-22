@@ -250,8 +250,10 @@ export function leanFor(opts: {
  * The characters above are what keeps the letters from moving as a set, and
  * a set moving together is exactly right for one moment: the word under them
  * changing. The case explorer says so on `document`, every tile hears it, and
- * each hops once, a beat after the one before it, which is the ornament
- * noticing the card it is tucked over rather than looping beside it. It is a
+ * each nods once, a few degrees and a breath of scale, a beat after the one
+ * before it, which is the ornament noticing the card it is tucked over rather
+ * than looping beside it. It was a squash and stretch with three overshoots
+ * and read as the page jumping; noticing is quieter than that. It is a
  * scale and a rotation and never a translation, because a keyframe cannot
  * know which edge a letter hangs off (see `returnLeg`), and a hop that went
  * "up" would carry the letter on the bottom edge onto the card and the one
@@ -263,15 +265,17 @@ export function leanFor(opts: {
 export const LETTER_CHEER_EVENT = "kodukeel:word-changed";
 
 /**
- * A press on the card throws the four letters off it, each straight out from
- * the edge it hangs off, and lets them land back where they were. Out from
- * its own edge is the one direction that can never carry a letter onto the
- * card, which is the rule the wander and the lean already keep.
+ * A tap on the hero card nudges the four letters a few pixels off it, each
+ * straight out from the edge it hangs off, and back. The case explorer does
+ * not send it: a card somebody clicks a dozen times does not move its
+ * ornaments on every click. Out from its own edge is the one direction that
+ * can never carry a letter onto the card, which is the rule the wander and
+ * the lean already keep.
  */
 export const LETTER_SCATTER_EVENT = "kodukeel:card-pressed";
 
 /** The keyframes in `app/globals.css` that carry the scatter, and how long. */
-export const LETTER_SCATTER = { keyframes: "letter-scatter", time: 0.72 } as const;
+export const LETTER_SCATTER = { keyframes: "letter-scatter", time: 0.6 } as const;
 
 /** Which way is "out" from each edge, as a unit vector the keyframes scale. */
 export const OUTWARD = {
@@ -282,7 +286,7 @@ export const OUTWARD = {
 } as const;
 
 /** The keyframes in `app/globals.css` that carry the hop, and how long. */
-export const LETTER_CHEER = { keyframes: "letter-cheer", time: 0.62 } as const;
+export const LETTER_CHEER = { keyframes: "letter-cheer", time: 0.5 } as const;
 
 /**
  * When a letter joins the cheer, in seconds, from its own head start.
