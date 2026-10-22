@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { CASES } from "@/lib/estonian/cases";
-import { LETTER_CHEER_EVENT, LETTER_SCATTER_EVENT } from "@/lib/ux/letterMotion";
+import { LETTER_CHEER_EVENT } from "@/lib/ux/letterMotion";
 import { ArrowRight, Check } from "lucide-react";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { FitText } from "@/components/FitText";
@@ -192,11 +192,9 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
     <div
       ref={root}
       {...reach}
-      // A press anywhere on the card throws the letters round it off and
-      // lets them land; the card itself gives a little under the press.
-      onPointerDown={() => document.dispatchEvent(new CustomEvent(LETTER_SCATTER_EVENT))}
-      data-hop-on="press"
-      data-hop-end="card-give"
+      // Nothing moves the card itself under a press. It used to give and throw
+      // the letters round it off on every click, which read as the page
+      // jumping rather than answering; what changes is the word, quietly.
       className="case-explorer word-builder overflow-hidden rounded-[var(--r-xl)] border"
       style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}
     >
@@ -209,7 +207,7 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
             onClick={() => { setActive(n); setEnding(0); }}
             aria-pressed={active === n}
             lang="et"
-            className={`press letter-key rounded-full px-3.5 py-1.5 text-base transition-ui ${active === n ? "chip-spring" : "tap-tint"}`}
+            className={`press rounded-full px-3.5 py-1.5 text-base transition-ui ${active === n ? "" : "tap-tint"}`}
             style={{
               background: active === n ? "var(--accent-deep)" : "var(--raised)",
               color: active === n ? "var(--accent-ink)" : "var(--ink-2)",
