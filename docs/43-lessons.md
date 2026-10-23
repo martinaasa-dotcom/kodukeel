@@ -108,6 +108,15 @@ from parts that already exist:**
    gets conversations from its first week, which the current course withholds until A2 because no
    A1 unit taught how to ask for anything.
 
+**On a check-in or a part's end, the conversation is the finale.** Those evenings teach nothing new,
+so they run Review before Say it and the step is called "Conversation": only the role-play turns,
+one after another, each answer added to a thread above the next, so the learner watches a
+conversation build out of their own answers. Once the script is held, the lesson's own scene
+(`lib/scenes/lessonScenes.ts`) is the loud button and finishing without it is the quiet one. The
+scene opens with no dials and no unit link, and both its way out and its debrief come back to the
+lesson on its finish (`lib/scenes/lessonReturn.ts`), carrying the module marker under a name of its
+own so the module's way on is there again without the scene becoming the step.
+
 **Optional means one press and no penalty.** The step opens with two buttons of equal size: "Say
 it" and "Type it instead tonight". The second runs the same three parts with the keyboard and the
 evening finishes the same. The choice lasts one evening, so a learner on a bus on Tuesday is asked

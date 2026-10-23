@@ -23,6 +23,7 @@ import { SoundRows } from "@/components/sounds/SoundRows";
 import { SpellIt } from "@/components/sounds/SpellIt";
 import { Quiz } from "./Quiz";
 import { SayIt } from "./SayIt";
+import { lessonSceneHref, type ConversationReturn } from "@/lib/scenes/lessonReturn";
 
 /**
  * ONE LESSON, SIX STEPS, ALWAYS IN THIS ORDER (docs/43-lessons.md §1).
@@ -79,7 +80,7 @@ const STEP_TITLE: Record<Step, string> = {
 /** The three teaching steps are finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, conversationDone, place }: {
+export function LessonRunner({ lesson, practice, review, next, scene, conversation, place }: {
   lesson: LessonSpec;
   practice: readonly PracticeItem[];
   review: readonly PracticeItem[];
@@ -87,11 +88,12 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
   /** The lesson's own conversation, where it has one (`sceneForLesson`). */
   scene: string | null;
   /**
-   * Back from the lesson's own conversation: the part has been put together,
-   * so the lesson opens on its finish and records it. Only the debrief of that
-   * conversation links here with it.
+   * Back from the lesson's own conversation: `done` from its debrief, `left`
+   * from its way out. The scripted conversation was held before the link was
+   * offered, so either opens the lesson on its finish and records it; only
+   * `done` stops offering the real one again.
    */
-  conversationDone: boolean;
+  conversation: ConversationReturn | null;
   /** Where this lesson sits among its level's lessons, for the finish. */
   place: { at: number; of: number };
 }) {
@@ -101,7 +103,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
   const moduleNext = useModuleNext();
   const [at, setAt] = useState(0);
   const [finished, setFinished] = useState<ReadonlySet<Step>>(new Set());
-  const [over, setOver] = useState(() => conversationDone && isCapstone(lesson));
+  const [over, setOver] = useState(() => conversation !== null && isCapstone(lesson));
   /* Whether the finished lesson reached the server: null until it has been tried. */
   const [saved, setSaved] = useState<boolean | null>(null);
   const [saving, startSaving] = useTransition();
@@ -126,7 +128,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
   // Back from the conversation, the lesson is over and is saved the way a finished one is.
   const savedOnArrival = useRef(false);
   useEffect(() => {
-    if (!conversationDone || !isCapstone(lesson) || savedOnArrival.current) return;
+    if (conversation === null || !isCapstone(lesson) || savedOnArrival.current) return;
     savedOnArrival.current = true;
     save();
     // Once, on arrival: `save` is the same press the Finish button makes.
@@ -181,12 +183,12 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
                 <Button variant="secondary" size="sm" onClick={save}>{t("Try again")}</Button>
               </div>
             )}
-            {capstone && scene && !conversationDone && (
+            {capstone && scene && conversation !== "done" && (
               <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-[var(--r-lg)] border px-5 py-4" style={{ borderColor: "var(--edge)", background: "var(--surface)" }} data-lesson-scene={scene}>
                 <p className="max-w-[44ch] text-base" style={{ color: "var(--ink-2)" }}>
                   {t("Still want more? Have the conversation for real: they answer whatever you say, in words you've been taught.")}
                 </p>
-                <ButtonLink href={`/situations/${scene}`}>{t("Have the conversation")} <ArrowRight size={15} aria-hidden /></ButtonLink>
+                <ButtonLink href={lessonSceneHref(scene, focus)}>{t("Have the conversation")} <ArrowRight size={15} aria-hidden /></ButtonLink>
               </div>
             )}
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -235,7 +237,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
           {step === "words" && <Words lesson={lesson} />}
           {step === "how" && <How lesson={lesson} />}
           {step === "practise" && <Quiz key="practise" items={practice} onFinished={() => finish("practise")} />}
-          {step === "say" && <SayIt lesson={lesson} scene={scene} capstone={capstone} onComplete={() => finish("say")} />}
+          {step === "say" && <SayIt lesson={lesson} scene={scene} sceneHref={scene ? lessonSceneHref(scene, focus) : null} capstone={capstone} onComplete={() => finish("say")} />}
           {step === "review" && (review.length > 0
             ? <Quiz key="review" items={review} onFinished={() => finish("review")} />
             : (
@@ -253,9 +255,22 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
               <ArrowLeft size={15} aria-hidden /> {t("Back")}
             </Button>
           ) : <span />}
-          <Button variant={done ? "primary" : "secondary"} onClick={() => go(at + 1)}>
-            {done ? (at === steps.length - 1 ? t("Finish the lesson") : t("Continue")) : t("Skip this step")} <ArrowRight size={15} aria-hidden />
-          </Button>
+          {/*
+            ON A CAPSTONE WITH A CONVERSATION OF ITS OWN, THE CONVERSATION IS
+            THE FINALE. Once the scripted turns are held, "Have the
+            conversation" in the step above is the loud button, so finishing
+            here is the quiet choice and says what it skips: one primary per
+            screen, and it is the one the part was building to.
+          */}
+          {capstone && scene && step === "say" && done ? (
+            <Button variant="secondary" onClick={() => go(at + 1)}>
+              {t("Finish without it")} <ArrowRight size={15} aria-hidden />
+            </Button>
+          ) : (
+            <Button variant={done ? "primary" : "secondary"} onClick={() => go(at + 1)}>
+              {done ? (at === steps.length - 1 ? t("Finish the lesson") : t("Continue")) : t("Skip this step")} <ArrowRight size={15} aria-hidden />
+            </Button>
+          )}
         </div>
       </Stack>
     </Page>

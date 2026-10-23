@@ -64,13 +64,19 @@ type SayCard =
   | { readonly kind: "lines" }
   | { readonly kind: "answer"; readonly prompt: Prompt; readonly label: string; readonly scene?: string };
 
-/** One turn already taken: what they said, and what the learner answered. */
+/**
+ * One turn already taken: what they said, and what the learner answered, or
+ * the model line where they asked to be shown one with nothing in the box.
+ * The thread says which, because "You answered" over a line the app wrote is
+ * a small lie told at the moment the screen says they held the conversation.
+ */
 interface Taken {
   readonly ask: string;
   readonly said: string;
+  readonly shown: boolean;
 }
 
-export function SayIt({ lesson, scene, capstone, onComplete }: { lesson: LessonSpec; scene: string | null; capstone: boolean; onComplete: () => void }) {
+export function SayIt({ lesson, scene, sceneHref, capstone, onComplete }: { lesson: LessonSpec; scene: string | null; sceneHref: string | null; capstone: boolean; onComplete: () => void }) {
   const t = useT();
   const [mode, setMode] = useState<Mode | null>(null);
   const [at, setAt] = useState(0);
@@ -127,14 +133,14 @@ export function SayIt({ lesson, scene, capstone, onComplete }: { lesson: LessonS
               <Thread taken={taken} who={opener} voice={voice} title={t("Your conversation")} />
             </div>
           )}
-          {scene && (
+          {scene && sceneHref && (
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3" data-lesson-scene={scene}>
               <p className="max-w-[48ch] text-base" style={{ color: "var(--ink-2)" }}>
                 {capstone
                   ? fill(t("That one followed a script. Now have it for real: {who} answers whatever you say, in words you've been taught."), { who: opener })
                   : t("The role-play is a real conversation too: they answer whatever you say, in words you've been taught.")}
               </p>
-              <ButtonLink href={`/situations/${scene}`}>{t("Have the conversation")} <ArrowRight size={15} aria-hidden /></ButtonLink>
+              <ButtonLink href={sceneHref} variant={capstone ? "primary" : undefined}>{t("Have the conversation")} <ArrowRight size={15} aria-hidden /></ButtonLink>
             </div>
           )}
         </Card>
@@ -145,7 +151,8 @@ export function SayIt({ lesson, scene, capstone, onComplete }: { lesson: LessonS
   const card = cards[Math.min(at, cards.length - 1)]!;
   const next = (said?: string) => {
     if (capstone && card.kind === "answer" && card.prompt.ask) {
-      setTaken((all) => [...all, { ask: card.prompt.ask!.et, said: (said ?? "").trim() || card.prompt.model.et }]);
+      const own = (said ?? "").trim();
+      setTaken((all) => [...all, { ask: card.prompt.ask!.et, said: own || card.prompt.model.et, shown: own.length === 0 }]);
     }
     if (at >= cards.length - 1) {
       setOver(true);
@@ -374,7 +381,7 @@ function Thread({ taken, who, voice, title }: { taken: readonly Taken[]; who: st
               </div>
             </div>
             <div className="max-w-[85%] self-end rounded-2xl rounded-tr-sm px-3.5 py-2" style={{ background: "var(--accent-soft)" }}>
-              <span className="label-xs block" style={{ color: "var(--ink-3)" }}>{t("You answered")}</span>
+              <span className="label-xs block" style={{ color: "var(--ink-3)" }}>{turn.shown ? t("One way to say it") : t("You answered")}</span>
               <p lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>{turn.said}</p>
             </div>
           </li>

@@ -1396,6 +1396,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
     return (
       <SceneStage
         sceneId={scene.id}
+        lesson={scene.lesson}
         title={t(scene.title)}
         place={t(scene.place)}
         stage={<SceneVignette sceneId={scene.id} setting={room} fit="band" />}
@@ -1410,7 +1411,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
   if (phase === "briefing") {
     const kind = kindOf(scene.id);
     return (
-      <SceneStage sceneId={scene.id} title={t(scene.title)} place={t(scene.place)} minutes={minutes}>
+      <SceneStage sceneId={scene.id} lesson={scene.lesson} title={t(scene.title)} place={t(scene.place)} minutes={minutes}>
       <div className="scene-open flex flex-col gap-5" lang={locale}>
         {/*
           THE DOOR, WHICH IS THE ONE PLACE THIS MODULE GETS TO BE PLEASED WITH
@@ -1904,6 +1905,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
   return (
     <SceneStage
       sceneId={scene.id}
+      lesson={scene.lesson}
       title={t(scene.title)}
       place={t(scene.place)}
       progress={progress}
