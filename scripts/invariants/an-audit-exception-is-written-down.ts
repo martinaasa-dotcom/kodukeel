@@ -45,8 +45,10 @@ export default function anAuditExceptionIsWrittenDown({ check, code, read }: Inv
 
   check("every written waiver carries a reason", () => {
     const script = read("scripts/check-audit.mjs");
-    const list = /const WAIVED = \{([\s\S]*?)\n\};/.exec(script);
+    const list = /const WAIVED = \{([\s\S]*?)\n?\};/.exec(script);
     assert.ok(list, "the list of waivers was not found; the pattern stopped matching");
+    // No waiver at all is the state a waiver exists to get back to, and has nothing to argue for.
+    if (list[1]!.trim() === "") return;
     const entries = [...list[1]!.matchAll(
       /"(GHSA-[\w-]+)": \{\s*package: "[^"]+",\s*latest: "[^"]+",\s*why:\s*((?:"[^"]*"\s*\+?\s*)+),?\s*\}/g,
     )];
