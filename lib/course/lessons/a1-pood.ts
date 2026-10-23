@@ -441,6 +441,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       notes: [
         "Tom opens with the weather and the shop assistant picks it up. That's how a lot of small talk in Estonia starts.",
         "Notice {See hall müts}: this gray hat, with the color between {see} and the thing, from lesson 38.",
+        "At the end, the shop assistant speaks first and you buy a hat, one turn at a time, until you've held the whole conversation.",
       ],
       watchOut: "You don't need to describe the thing perfectly. What you need, and a color, is enough to be shown it.",
       examples: [1, 4, 7],
