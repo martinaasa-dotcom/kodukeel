@@ -4391,9 +4391,14 @@
   */
   :root[data-dock] body:has(.scene-room) .dock-pad { padding-bottom: calc(var(--dock-clearance) + 0.75rem); }
 
-  /* On a phone both controls keep one row: the options close up a little. */
+  /*
+    On a phone the options close up a little, so the two controls share a row
+    where they fit. Where this deployment can hear and "Say it" is a third way
+    to answer, they do not, and the voice control drops to a row of its own
+    rather than pushing the panel past the edge of the screen.
+  */
   @media (max-width: 639px) {
-    .scene-modes { flex-wrap: nowrap; gap: 0.375rem; }
+    .scene-modes { gap: 0.5rem 0.375rem; }
     .scene-seg .choice-chip { padding: 0.25rem 0.6rem; }
   }
 
