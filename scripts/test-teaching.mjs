@@ -488,21 +488,33 @@ check("and a word the language does take is never told nobody says it",
   A FINISHED THIRD STEP HAS SOMEWHERE TO GO.
 
   Four right answers used to end on a card whose only button was "Try again",
-  which read as an unfinished screen. The way on is the graded round, and it
-  is the last button in its row.
+  which read as an unfinished screen. The way on is the graded round, last in
+  its row, and it takes the focus the vanished "Next" button had, so Enter
+  goes on. Enter is also what moves between the questions, as "Next" says.
 */
 await page.getByRole("radio", { name: "raamat", exact: true }).click();
 await page.getByRole("radio", { name: /^Your turn/ }).click();
 await page.waitForTimeout(250);
+let byEnter = 0;
 for (let i = 0; i < 4; i++) {
+  const before = await page.locator("[data-ask]").first().getAttribute("data-ask").catch(() => null);
   await page.keyboard.press("1");
-  const nxt = page.getByRole("button", { name: /^Next/ });
-  if ((await nxt.count()) > 0) await nxt.first().click().catch(() => {});
+  await page.waitForTimeout(120);
+  if (i < 3) {
+    await page.keyboard.press("Enter");
+    await page.waitForTimeout(150);
+    const after = await page.locator("[data-ask]").first().getAttribute("data-ask").catch(() => null);
+    if (after !== before) byEnter++;
+  }
 }
-const wayOn = page.locator('a[href="/review/flashcards"]').filter({ hasText: /round that counts/ });
-check("a finished third step has a button on to the round that counts",
-  (await wayOn.count()) > 0 && (await page.getByRole("button", { name: /Try again/ }).count()) > 0,
-  "the finished card offers no way on");
+check("Enter moves to the next question, as the button says", byEnter === 3,
+  `${byEnter} of 3 Enter presses moved on`);
+const wayOn = page.locator('a[href="/review/flashcards"]').filter({ hasText: /flash cards/i });
+const focusedHref = await page.evaluate(() => document.activeElement?.getAttribute("href") ?? document.activeElement?.tagName ?? "");
+check("a finished third step has a button on to the round that counts, and it has the focus",
+  (await wayOn.count()) > 0 && (await page.getByRole("button", { name: /Try again/ }).count()) > 0
+    && focusedHref === "/review/flashcards",
+  `way on: ${await wayOn.count()}, focus on ${focusedHref || "nothing"}`);
 
 // ─── Where the pattern stops ──────────────────────────────────────────────────
 
