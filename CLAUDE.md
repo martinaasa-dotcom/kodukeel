@@ -5620,8 +5620,10 @@ it, because Review has always asked those. The daily review and Today's count of
 thing, and the ladder keeps `learnerModuleScope`, since Learn is where tonight's words are taught. The
 quest asks Review's own question, `reviewable`. Sõnad and the crossword are rebuilt from the day to be
 marked, so they read `taughtAtDayStart`, the words taught by the ticks written before the learner's
-day began, which nothing later can change; somebody whose first evening is today gets no puzzle rather
-than the dictionary, and Today leads with Tähed on such a morning. Finishing first run is not following
+day began, which nothing later can change. The crossword waits for those words, so somebody whose first
+evening is today gets no grid; Sõnad does not, on the operator's call that it is a game rather than a
+lesson: under `SONAD_MIN_TAUGHT` taught six-letter words the answer is a word at the learner's level,
+the page says so (`Puzzle.met`) and offers the dictionary as fair play. Finishing first run is not following
 the module, and a learner the module has never ticked an evening for is untouched. Asserted in `scripts/invariants/practice-asks-what-the-evenings-taught.ts`.
 
 **And the gate is on the gap rather than on the meeting, which this took two goes to get right.**

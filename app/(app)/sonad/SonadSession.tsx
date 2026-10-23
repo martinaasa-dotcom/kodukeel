@@ -3,6 +3,7 @@
 import { useLocale, useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 import { rich } from "@/components/round/rich";
+import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CornerDownLeft, Delete } from "lucide-react";
 import { Button } from "@/components/Button";
@@ -280,6 +281,23 @@ export function SonadSession({ puzzle, day, guessable }: {
                 {clue.category && puzzle.category ? " " : ""}{coming}
               </span>
             )}
+          </p>
+        )}
+        {/*
+          A WORD NOBODY HAS TAUGHT THEM YET, AND THE DICTIONARY IS FAIR PLAY.
+          It is a game rather than a lesson, and hunting through the dictionary
+          for six letters that fit is exactly the kind of looking around that
+          teaches. A new tab, so the board stays where it is.
+        */}
+        {!over && !puzzle.met && (
+          <p className="w-full text-sm" style={{ color: "var(--ink-2)" }}>
+            {rich(t("Maybe a new word for you. Looking in the {dictionary} is allowed."), {
+              dictionary: (
+                <Link href="/dictionary" target="_blank" rel="noopener" className="underline underline-offset-2" style={{ color: "var(--accent-deep)" }}>
+                  {t("dictionary")}
+                </Link>
+              ),
+            })}
           </p>
         )}
 
