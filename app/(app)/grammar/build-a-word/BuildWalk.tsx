@@ -3,9 +3,9 @@
 import { EnterKeyCap } from "@/components/KeyCaps";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check, RotateCcw } from "lucide-react";
-import { Button } from "@/components/Button";
+import { Button, ButtonLink } from "@/components/Button";
+import { usePublicReader } from "@/components/PublicReader";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
-import { DrillLink } from "@/components/DrillLink";
 import { Speak } from "@/components/Speak";
 import { CaseQuestion } from "@/components/CaseQuestion";
 import { CaseLabel } from "@/components/CaseLabel";
@@ -850,6 +850,7 @@ const QUESTIONS = 4;
  */
 function YourTurn({ word }: { word: WalkWord }) {
   const t = useT();
+  const publicReader = usePublicReader();
   const locale = useLocale();
   const asks = useMemo(() => {
     const pool = word.derived.filter((f) => f.askable);
@@ -884,6 +885,18 @@ function YourTurn({ word }: { word: WalkWord }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (inEditable(e.target)) return;
+      /*
+        Enter moves on, as the cap on "Next" promises. A focused button or link
+        keeps its own Enter, or a press on "Next" would step twice.
+      */
+      if (picked !== null && at < asks.length - 1 && isAdvanceKey(e)) {
+        const target = e.target instanceof Element ? e.target : null;
+        if (target?.closest("button, a, summary")) return;
+        e.preventDefault();
+        setPicked(null);
+        setAt((n) => Math.min(n + 1, asks.length - 1));
+        return;
+      }
       const n = Number(e.key);
       if (!Number.isInteger(n) || n < 1 || n > options.length) return;
       const option = options[n - 1];
@@ -891,7 +904,21 @@ function YourTurn({ word }: { word: WalkWord }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [options, pick]);
+  }, [options, pick, picked, at, asks.length]);
+
+  /*
+    When the last answer is in, the way on takes focus. The "Next" button the
+    learner was pressing has just gone, and without this the caret falls to the
+    page and Enter does nothing, which is the dead end this card exists to end.
+    Focusing also brings the card onto the screen on a phone.
+  */
+  const wayOn = useRef<HTMLDivElement>(null);
+  const finished = asks.length > 0 && at >= asks.length - 1 && picked !== null;
+  useEffect(() => {
+    if (!finished) return;
+    const links = wayOn.current?.querySelectorAll<HTMLElement>("a, button");
+    links?.[links.length - 1]?.focus();
+  }, [finished]);
 
   if (asks.length === 0 || !form || !spec) {
     return (
@@ -1018,15 +1045,34 @@ function YourTurn({ word }: { word: WalkWord }) {
               {fill(t("{right} of {total} endings right"), { right, total: asks.length })}
             </p>
             <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              {t("This was just to show you how it works, so none of it counts. The round below is the one that does.")}
+              {publicReader
+                ? t("That was just practice. The reference has every ending, one page each.")
+                : t("That was just practice, so none of it counts. Flash cards ask these endings of words you've met, and those answers do.")}
             </p>
-            <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
-              <Button onClick={() => { setAt(0); setPicked(null); setRight(0); }}>
+            {/*
+              The way on, primary and last in its row. A perfect round used to
+              end on "Try again" alone, which read as a screen that had stopped
+              halfway. A reader with no account has no rounds, so the reference
+              is their way on rather than a door to a sign-in screen.
+            */}
+            <div ref={wayOn} className="mt-4 flex flex-wrap items-center justify-end gap-3">
+              <Button variant="ghost" onClick={() => { setAt(0); setPicked(null); setRight(0); }}>
                 <RotateCcw size={15} aria-hidden /> {t("Try again")}
               </Button>
+              {publicReader ? (
+                <ButtonLink variant="primary" href="/grammar/cases">
+                  {t("See every ending")} <ArrowRight size={15} aria-hidden />
+                </ButtonLink>
+              ) : (
+                <>
+                  <ButtonLink href="/grammar/cases">{t("See every ending")}</ButtonLink>
+                  <ButtonLink variant="primary" href="/review/flashcards">
+                    {t("Practice with flash cards")} <ArrowRight size={15} aria-hidden />
+                  </ButtonLink>
+                </>
+              )}
             </div>
           </Card>
-          <DrillLink href="/review/flashcards" />
         </>
       )}
     </Stack>

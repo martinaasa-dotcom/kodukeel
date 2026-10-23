@@ -45,14 +45,14 @@ export default function anAuditExceptionIsWrittenDown({ check, code, read }: Inv
 
   check("every written waiver carries a reason", () => {
     const script = read("scripts/check-audit.mjs");
-    const list = /const WAIVED = \{([\s\S]*?)\n?\};/.exec(script);
+    const list = /const WAIVED = \{([\s\S]*?)\};/.exec(script);
     assert.ok(list, "the list of waivers was not found; the pattern stopped matching");
     const entries = [...list[1]!.matchAll(
       /"(GHSA-[\w-]+)": \{\s*package: "[^"]+",\s*latest: "[^"]+",\s*why:\s*((?:"[^"]*"\s*\+?\s*)+),?\s*\}/g,
     )];
-    // An empty list is the goal, so it passes; a list naming an advisory the
-    // pattern cannot read is the pattern having stopped matching.
-    const named = list[1]!.match(/"GHSA-/g)?.length ?? 0;
+    // An empty list is the good state, so the floor is every id the list
+    // names: a waiver the pattern cannot read is one nobody checked.
+    const named = (list[1]!.match(/"GHSA-[\w-]+":/g) ?? []).length;
     assert.equal(entries.length, named, "a waiver was not read out of the list; the pattern stopped matching");
     for (const [, id, body] of entries) {
       const why = [...body!.matchAll(/"([^"]*)"/g)].map((m) => m[1]).join("");
