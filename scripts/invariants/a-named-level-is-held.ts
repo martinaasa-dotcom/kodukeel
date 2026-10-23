@@ -78,7 +78,8 @@ export default function aNamedLevelIsHeld({ check, code, read, APP, COMPONENTS }
     assert.match(scene, /adaptTiltFor\(ownerId\)/, "a conversation leans off something other than the course's reading");
     const session = code("components/scene/SceneSession.tsx");
     assert.match(session, /defaultDifficultyFor\(openAt\)/, "the difficulty default ignores the lean");
-    assert.match(session, /useState<Level>\(openAt\)/, "the band default ignores the lean");
+    // A lesson's own conversation opens at A1 by design; every other scene opens at the leaned band.
+    assert.match(session, /useState<Level>\(lessonScene \? "A1" : openAt\)/, "the band default ignores the lean");
     const settings = code("app/(app)/settings/page.tsx");
     assert.match(settings, /paceFrom\(settings\[SETTING_KEYS\.speechPace\], courseLevel, tilt\)/, "Settings names a pace the shell is not playing");
     // The card says only what the lean really moved.

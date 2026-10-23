@@ -5,6 +5,8 @@ import { ArrowLeft } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { SceneMotif } from "./SceneMotif";
 import { useModuleFocus } from "@/components/course/moduleFocus";
+import { useSearchParams } from "next/navigation";
+import { backToLessonHref, LESSON_RETURN_PARAM } from "@/lib/scenes/lessonReturn";
 import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 
@@ -54,7 +56,12 @@ import { fill } from "@/lib/copy/locale";
  * every phase, which is what the accessibility sweep asks for and what
  * somebody moving by headings needs when the screen changes under them.
  */
-export function SceneStage({ sceneId, title, place, minutes, progress, stage, aside, children }: {
+export function SceneStage({ sceneId, lesson, title, place, minutes, progress, stage, aside, children }: {
+  /**
+   * The lesson this conversation belongs to (`SceneSpec.lesson`), if any. Its
+   * way out goes back to that lesson rather than to the catalog it is not in.
+   */
+  lesson?: string;
   /** From `lg` up: the room and the card stand in a column of their own beside the conversation. */
   aside?: ReactNode;
   /** Which room this is, for the mark on the bar (`lib/scenes/scenery.ts`). */
@@ -88,6 +95,7 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, as
      rather than a thing chosen off a catalog, so the door back to the
      catalog stands down. See components/course/ModuleScope.tsx. */
   const inModule = useModuleFocus() !== null;
+  const carried = useSearchParams().get(LESSON_RETURN_PARAM);
   const t = useT();
   const met = progress?.filter((one) => one.met).length ?? 0;
 
@@ -116,8 +124,9 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, as
           */}
           {inModule ? <span className="-ml-2 h-10 w-10 shrink-0" aria-hidden /> : (
             <Link
-              href="/situations"
-              aria-label={t("Back to Situations")}
+              /* A lesson's conversation is in no catalog: its way out is its lesson, opened on the finish. */
+              href={lesson ? backToLessonHref(lesson, "left", carried) : "/situations"}
+              aria-label={lesson ? t("Back to the lesson") : t("Back to Situations")}
               className="tap-tint -ml-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
               style={{ color: "var(--ink-2)" }}
             >

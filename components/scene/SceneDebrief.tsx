@@ -18,6 +18,8 @@ import { PLACES_TO_TALK } from "@/lib/collections/placesToTalk";
 import type { SceneReview } from "@/lib/scenes/review";
 import type { SceneRecap } from "@/lib/scenes/recap";
 import { useModuleFocus } from "@/components/course/moduleFocus";
+import { useSearchParams } from "next/navigation";
+import { backToLessonHref, LESSON_RETURN_PARAM } from "@/lib/scenes/lessonReturn";
 import { NextStep } from "@/components/round/RoundExit";
 import { CaseLabel } from "@/components/CaseLabel";
 import { caseLabelOf } from "@/lib/copy/caseLabel";
@@ -108,6 +110,8 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
   /* Whether this conversation is a step of today's module, which decides
      whether the debrief carries a way on of its own. */
   const inModule = useModuleFocus() !== null;
+  /* The module marker a lesson sent along, so the way back lands inside the module again. */
+  const carried = useSearchParams().get(LESSON_RETURN_PARAM);
   const t = useT();
   const locale = useLocale();
   const { scene, objectives, hurdles, outcome, gaps, turns, graded, review, recap, heard = [] } = debrief;
@@ -781,9 +785,26 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
         )}
         {!inModule && scene.id !== CHAT_ID && (
           <div className="flex flex-wrap gap-2">
-            <ButtonLink href="/situations" variant="ghost">{t("Rehearse a different conversation")}</ButtonLink>
-            {/* Redoing it keeps this scene and redraws everything else. */}
-            <Button variant="primary" onClick={onAgain}>{t("Rehearse this conversation again")}</Button>
+            {/*
+              A lesson's own conversation is not in the catalog, so the catalog
+              is no way on from it. It is the end of its lesson: the way on is
+              back to that lesson, which reads the press as the lesson finished
+              (`backToLessonHref`), and redoing it is the quiet choice.
+            */}
+            {scene.lesson ? (
+              <>
+                <Button variant="ghost" onClick={onAgain}>{t("Rehearse this conversation again")}</Button>
+                <ButtonLink href={backToLessonHref(scene.lesson, "done", carried)} variant="primary">
+                  {t("Back to the lesson")} <ArrowRight size={15} aria-hidden />
+                </ButtonLink>
+              </>
+            ) : (
+              <>
+                <ButtonLink href="/situations" variant="ghost">{t("Rehearse a different conversation")}</ButtonLink>
+                {/* Redoing it keeps this scene and redraws everything else. */}
+                <Button variant="primary" onClick={onAgain}>{t("Rehearse this conversation again")}</Button>
+              </>
+            )}
           </div>
         )}
 

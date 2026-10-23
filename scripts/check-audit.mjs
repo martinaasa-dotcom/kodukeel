@@ -25,11 +25,6 @@
 import { execFileSync } from "node:child_process";
 
 /** Advisories nobody can fix yet, each with why it cannot be reached. */
-/*
-  Empty since next 16.4.3: the braces advisory (GHSA-vfj7-8cjw-p6xm) came in
-  under eslint-config-next and is no longer in the tree, so its waiver went
-  rather than staying behind as a standing permission.
-*/
 const WAIVED = {};
 
 const BLOCKING = new Set(["high", "critical"]);

@@ -3,6 +3,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { lessonById, ledgersBefore, LESSONS, practiceFor, reviewFor } from "@/lib/course/lessons";
 import { titleFor } from "@/lib/progress/locale";
 import { sceneForLesson } from "@/lib/scenes/lessonScenes";
+import { conversationFrom } from "@/lib/scenes/lessonReturn";
 import { LessonRunner } from "./LessonRunner";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -21,8 +22,8 @@ export const dynamic = "force-dynamic";
  * learner is asked. A1 is the lessons (phase P3): each one is an evening of the
  * planned course, and finishing it records the evening (`finishLesson`).
  */
-export default async function LessonPage({ params }: { params: Promise<{ id: string }> }) {
-  const [, { id }] = await Promise.all([requireUserId(), params]);
+export default async function LessonPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ conversation?: string | string[] }> }) {
+  const [, { id }, query] = await Promise.all([requireUserId(), params, searchParams]);
   const lesson = lessonById(id);
   if (!lesson) notFound();
   const before = ledgersBefore(LESSONS).get(lesson.id)!;
@@ -37,6 +38,8 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
       review={reviewFor(lesson, before)}
       next={next ? { id: next.id, title: next.title } : null}
       scene={sceneForLesson(lesson.id)?.id ?? null}
+      /* The lesson's own conversation sends the learner back here, finished or left partway (`lessonReturn.ts`). */
+      conversation={conversationFrom(query.conversation)}
       place={{ at: ofLevel.indexOf(lesson) + 1, of: ofLevel.length }}
     />
   );

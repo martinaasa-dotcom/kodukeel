@@ -383,6 +383,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
       notes: [
         "Notice how little you need: what you want, how many, and how you'll pay.",
         "Mari's {kaks kooki} and her {Mulle meeldib kook} are the two halves of this part in one breath: a number takes the {osastav}, and the thing you like stays plain.",
+        "At the end, you're at the counter and Liis takes your order, one turn at a time, until you've held the whole conversation.",
       ],
       watchOut: "If the price comes too fast, you already have the line for it: {Aeglasemalt, palun}.",
       examples: [3, 6],

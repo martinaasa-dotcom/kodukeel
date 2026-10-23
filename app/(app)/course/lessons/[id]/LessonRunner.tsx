@@ -23,6 +23,7 @@ import { SoundRows } from "@/components/sounds/SoundRows";
 import { SpellIt } from "@/components/sounds/SpellIt";
 import { Quiz } from "./Quiz";
 import { SayIt } from "./SayIt";
+import { lessonSceneHref, type ConversationReturn } from "@/lib/scenes/lessonReturn";
 
 /**
  * ONE LESSON, SIX STEPS, ALWAYS IN THIS ORDER (docs/43-lessons.md §1).
@@ -51,6 +52,22 @@ import { SayIt } from "./SayIt";
 const STEPS = ["listen", "words", "how", "practise", "say", "review"] as const;
 type Step = (typeof STEPS)[number];
 
+/**
+ * A CHECK-IN ENDS ON THE CONVERSATION, NOT IN THE MIDDLE OF THE EVENING.
+ *
+ * A check-in or the end of a part teaches nothing new: its whole point is
+ * putting the part together by holding a conversation. In the ordinary order
+ * that conversation was step five of six, drawn as the same cards as the
+ * questions about yourself and followed by a review quiz, so the capstone
+ * read as one more round of speaking and the evening ended on flashcards. So
+ * for those lessons the review comes first and the conversation is the last
+ * thing, which is also what "finish the lesson" then follows.
+ */
+const CAPSTONE_STEPS: readonly Step[] = ["listen", "words", "how", "practise", "review", "say"];
+
+/** Whether this evening is the one that puts a part together. */
+const isCapstone = (lesson: LessonSpec) => lesson.kind !== "lesson" && lesson.roleplay !== undefined;
+
 const STEP_TITLE: Record<Step, string> = {
   listen: "Listen",
   words: "Words",
@@ -63,13 +80,20 @@ const STEP_TITLE: Record<Step, string> = {
 /** The three teaching steps are finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, place }: {
+export function LessonRunner({ lesson, practice, review, next, scene, conversation, place }: {
   lesson: LessonSpec;
   practice: readonly PracticeItem[];
   review: readonly PracticeItem[];
   next: { id: string; title: string } | null;
   /** The lesson's own conversation, where it has one (`sceneForLesson`). */
   scene: string | null;
+  /**
+   * Back from the lesson's own conversation: `done` from its debrief, `left`
+   * from its way out. The scripted conversation was held before the link was
+   * offered, so either opens the lesson on its finish and records it; only
+   * `done` stops offering the real one again.
+   */
+  conversation: ConversationReturn | null;
   /** Where this lesson sits among its level's lessons, for the finish. */
   place: { at: number; of: number };
 }) {
@@ -79,13 +103,16 @@ export function LessonRunner({ lesson, practice, review, next, scene, place }: {
   const moduleNext = useModuleNext();
   const [at, setAt] = useState(0);
   const [finished, setFinished] = useState<ReadonlySet<Step>>(new Set());
-  const [over, setOver] = useState(false);
+  const [over, setOver] = useState(() => conversation !== null && isCapstone(lesson));
   /* Whether the finished lesson reached the server: null until it has been tried. */
   const [saved, setSaved] = useState<boolean | null>(null);
   const [saving, startSaving] = useTransition();
   const heading = useRef<HTMLHeadingElement>(null);
   const moved = useRef(false);
-  const step = STEPS[at]!;
+  const capstone = isCapstone(lesson);
+  const steps: readonly Step[] = capstone ? CAPSTONE_STEPS : STEPS;
+  const step = steps[at]!;
+  const titleOf = (s: Step) => (capstone && s === "say" ? "Conversation" : STEP_TITLE[s]);
 
   useEffect(() => {
     if (!moved.current) return;
@@ -98,9 +125,19 @@ export function LessonRunner({ lesson, practice, review, next, scene, place }: {
     const result = await finishLesson(lesson.id).catch(() => null);
     setSaved(Boolean(result?.ok));
   });
+  // Back from the conversation, the lesson is over and is saved the way a finished one is.
+  const savedOnArrival = useRef(false);
+  useEffect(() => {
+    if (conversation === null || !isCapstone(lesson) || savedOnArrival.current) return;
+    savedOnArrival.current = true;
+    save();
+    // Once, on arrival: `save` is the same press the Finish button makes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const go = (n: number) => {
     moved.current = true;
-    if (n >= STEPS.length) {
+    if (n >= steps.length) {
       setOver(true);
       save();
     } else setAt(n);
@@ -146,6 +183,14 @@ export function LessonRunner({ lesson, practice, review, next, scene, place }: {
                 <Button variant="secondary" size="sm" onClick={save}>{t("Try again")}</Button>
               </div>
             )}
+            {capstone && scene && conversation !== "done" && (
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-[var(--r-lg)] border px-5 py-4" style={{ borderColor: "var(--edge)", background: "var(--surface)" }} data-lesson-scene={scene}>
+                <p className="max-w-[44ch] text-base" style={{ color: "var(--ink-2)" }}>
+                  {t("Still want more? Have the conversation for real: they answer whatever you say, in words you've been taught.")}
+                </p>
+                <ButtonLink href={lessonSceneHref(scene, focus)}>{t("Have the conversation")} <ArrowRight size={15} aria-hidden /></ButtonLink>
+              </div>
+            )}
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               {focus && moduleNext ? (
                 moduleNext
@@ -171,12 +216,12 @@ export function LessonRunner({ lesson, practice, review, next, scene, place }: {
       <Stack>
         <nav aria-label={t("Today's steps")}>
           <ol className="flex flex-wrap gap-2" data-lesson-steps>
-            {STEPS.map((s, i) => (
+            {steps.map((s, i) => (
               <li key={s}>
                 <Chip tone={i === at ? "accent" : finished.has(s) || i < at ? "sky" : "neutral"}>
                   <span aria-current={i === at ? "step" : undefined}>
                     {i < at && <Check size={12} aria-hidden className="mr-1 inline" />}
-                    {fill(t("{n}. {step}"), { n: String(i + 1), step: t(STEP_TITLE[s]) })}
+                    {fill(t("{n}. {step}"), { n: String(i + 1), step: t(titleOf(s)) })}
                   </span>
                 </Chip>
               </li>
@@ -186,13 +231,13 @@ export function LessonRunner({ lesson, practice, review, next, scene, place }: {
 
         <section aria-labelledby="lesson-step">
           <h2 id="lesson-step" ref={heading} tabIndex={-1} className="mb-4 text-xl font-bold scroll-mt-24" style={{ color: "var(--ink)" }}>
-            {fill(t("Step {n} of {total}: {step}"), { n: String(at + 1), total: String(STEPS.length), step: t(STEP_TITLE[step]) })}
+            {fill(t("Step {n} of {total}: {step}"), { n: String(at + 1), total: String(steps.length), step: t(titleOf(step)) })}
           </h2>
           {step === "listen" && <Listen lesson={lesson} />}
           {step === "words" && <Words lesson={lesson} />}
           {step === "how" && <How lesson={lesson} />}
           {step === "practise" && <Quiz key="practise" items={practice} onFinished={() => finish("practise")} />}
-          {step === "say" && <SayIt lesson={lesson} scene={scene} onComplete={() => finish("say")} />}
+          {step === "say" && <SayIt lesson={lesson} scene={scene} sceneHref={scene ? lessonSceneHref(scene, focus) : null} capstone={capstone} onComplete={() => finish("say")} />}
           {step === "review" && (review.length > 0
             ? <Quiz key="review" items={review} onFinished={() => finish("review")} />
             : (
@@ -210,9 +255,22 @@ export function LessonRunner({ lesson, practice, review, next, scene, place }: {
               <ArrowLeft size={15} aria-hidden /> {t("Back")}
             </Button>
           ) : <span />}
-          <Button variant={done ? "primary" : "secondary"} onClick={() => go(at + 1)}>
-            {done ? (at === STEPS.length - 1 ? t("Finish the lesson") : t("Continue")) : t("Skip this step")} <ArrowRight size={15} aria-hidden />
-          </Button>
+          {/*
+            ON A CAPSTONE WITH A CONVERSATION OF ITS OWN, THE CONVERSATION IS
+            THE FINALE. Once the scripted turns are held, "Have the
+            conversation" in the step above is the loud button, so finishing
+            here is the quiet choice and says what it skips: one primary per
+            screen, and it is the one the part was building to.
+          */}
+          {capstone && scene && step === "say" && done ? (
+            <Button variant="secondary" onClick={() => go(at + 1)}>
+              {t("Finish without it")} <ArrowRight size={15} aria-hidden />
+            </Button>
+          ) : (
+            <Button variant={done ? "primary" : "secondary"} onClick={() => go(at + 1)}>
+              {done ? (at === steps.length - 1 ? t("Finish the lesson") : t("Continue")) : t("Skip this step")} <ArrowRight size={15} aria-hidden />
+            </Button>
+          )}
         </div>
       </Stack>
     </Page>
