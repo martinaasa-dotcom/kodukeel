@@ -1,5 +1,6 @@
 import { Braced } from "@/components/Braced";
 import { tr, type Locale } from "@/lib/copy/locale";
+import { personal } from "@/lib/course/lessons/ownAnswer";
 
 /**
  * A LESSON'S OWN ENGLISH, SAID TO BE ENGLISH WHERE NOBODY HAS TRANSLATED IT.
@@ -17,12 +18,17 @@ import { tr, type Locale } from "@/lib/copy/locale";
  * Estonian in braces is marked by `Braced` either way. No hooks, so a server
  * page and a client step draw it the same way.
  */
-export function LessonText({ text, locale }: { text: string; locale: Locale }) {
+export function LessonText({ text, locale, name = null }: {
+  text: string;
+  locale: Locale;
+  /** The learner's own name, put in for the stand-in Tom after translating (`ownAnswer.ts`). */
+  name?: string | null;
+}) {
   const said = tr(locale, text);
-  if (locale === "en" || said !== text) return <Braced text={said} />;
+  if (locale === "en" || said !== text) return <Braced text={personal(said, name)} />;
   return (
     <span lang="en" data-untranslated="lesson">
-      <Braced text={text} />
+      <Braced text={personal(text, name)} />
     </span>
   );
 }

@@ -88,7 +88,7 @@ export default async function PairsPage() {
         lemma: lexeme.lemma,
         translation: lexeme.translation,
         // The English half is said in the learner's language; the Estonian name never is.
-        formLabel: formLabel(form, (english) => tr(locale, english)),
+        formLabel: formLabel(form, (english) => tr(locale, english), locale),
         lexemeId: lexeme.id,
       });
     }

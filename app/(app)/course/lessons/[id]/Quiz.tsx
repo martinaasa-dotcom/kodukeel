@@ -33,7 +33,14 @@ import { OPTION_CLASS, optionState, VERDICT_CLASS } from "@/lib/ux/verdict";
  * A hue is never the only thing saying how an answer went: the option wears
  * the app's marking class and the live region says it in words.
  */
-export function Quiz({ items, onFinished }: { items: readonly PracticeItem[]; onFinished: () => void }) {
+export function Quiz({ items, onFinished, onAnswer, summary = true }: {
+  items: readonly PracticeItem[];
+  onFinished: () => void;
+  /** Each answer as it is given, for a check the server marks (`submitCheck`). */
+  onAnswer?: (at: number, response: string) => void;
+  /** Whether to draw the count of first-time answers at the end; a check draws its own result. */
+  summary?: boolean;
+}) {
   const t = useT();
   const locale = useLocale();
   const sound = useFeedbackSound();
@@ -66,6 +73,7 @@ export function Quiz({ items, onFinished }: { items: readonly PracticeItem[]; on
     setMark(null);
   };
 
+  if (over && !summary) return null;
   if (over) {
     return (
       <div data-lesson-quiz="done">
@@ -86,6 +94,7 @@ export function Quiz({ items, onFinished }: { items: readonly PracticeItem[]; on
   const pick = (option: string) => {
     if (picked !== null || item.kind === "type") return;
     setPicked(option);
+    onAnswer?.(at, option);
     const right = option === item.answer;
     if (right) setFirstTime((n) => n + 1);
     sound(right ? "right" : "wrong");
@@ -95,6 +104,7 @@ export function Quiz({ items, onFinished }: { items: readonly PracticeItem[]; on
     if (item.kind !== "type" || mark !== null) return;
     const m = markPhrase(typed, item.accept);
     setMark(m);
+    onAnswer?.(at, typed);
     if (m.verdict === "right") setFirstTime((n) => n + 1);
     sound(m.verdict === "wrong" ? "wrong" : "right");
   };

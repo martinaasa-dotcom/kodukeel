@@ -136,6 +136,7 @@ describe("a learner the module holds", () => {
     const word = await puzzleFor(HELD, day, "B1");
     expect(word, "a module learner eighteen evenings in has a six-letter word to guess").not.toBeNull();
     expect(taught.has(word!.answer)).toBe(true);
+    expect(word!.met, "drawn from what the evenings taught").toBe(true);
     // A tick written today is a word met today, and the day's word does not move for it.
     await prisma.courseStep.create({
       data: { ownerId: HELD, programmeId: programme.id, dayId: programme.days[reached.index]!.id, stepId: "do:match", createdAt: new Date(`${day}T12:00:00Z`) },
@@ -147,12 +148,24 @@ describe("a learner the module holds", () => {
     for (const entry of entries) expect(taught.has(entry.lemma), entry.lemma).toBe(true);
   });
 
-  it("gives somebody whose first evening is today no puzzle rather than the dictionary", async () => {
+  /*
+    Sõnad is a game rather than a lesson (the October feedback), so an
+    evening that has taught too few six-letter words hands over a word at the
+    learner's level and says so (`met: false`) rather than an empty board.
+    The crossword still waits, since seven words of nobody's evenings is a
+    lesson's worth of new vocabulary in one grid.
+  */
+  it("gives somebody whose first evening is today a word at their level, and no crossword yet", async () => {
     await prisma.setting.create({ data: { ownerId: ARRIVED, key: SETTING_KEYS.programme, value: programme.id } });
     await prisma.courseStep.create({
       data: { ownerId: ARRIVED, programmeId: programme.id, dayId: programme.days[0]!.id, stepId: "do:match", createdAt: new Date(`${day}T12:00:00Z`) },
     });
-    expect(await puzzleFor(ARRIVED, day, "A1")).toBeNull();
+    const word = await puzzleFor(ARRIVED, day, "A1");
+    expect(word, "a word at their level rather than an empty board").not.toBeNull();
+    expect(word!.met).toBe(false);
+    expect(word!.cefr).toBe("A1");
+    // Rebuilt from the date to be marked, so the same word both times.
+    expect((await puzzleFor(ARRIVED, day, "A1"))?.answer).toBe(word!.answer);
     expect(await crosswordFor(ARRIVED, day, "A1")).toBeNull();
   });
 

@@ -906,6 +906,33 @@ form. (ADR-005, ADR-017.) The one module that writes *about* Estonian at length,
 `lib/estonian/grammar.ts`, holds no Estonian at all. Every form on the grammar pages is read from
 the dictionary by `lib/progress/caseExamples.ts` and rendered with its provenance.
 
+**And then a form is named in Estonian with a hint, which supersedes the plain names and every paragraph
+below that has a screen print a name some other way.** For a while a case was named the plain way, the
+**1st, 2nd and 3rd form** and **in form (-s)**, and a verb's parts the **-ma form**, the **-da form** and the
+**I form**, on the argument that `omastav` is one more word to learn before the one somebody came for. A
+native speaker said it the other way round and the operator agreed: a class, a course book and the state
+examination all say `osastav` and `lihtminevik`, so a learner who only knows the app's own names cannot
+follow their teacher. So every name is the Estonian one with a hint in the reader's language, the
+operator's own list: **nimetav (1st form)**, **omastav (2nd form)**, **osastav (3rd form)**, **sisseütlev
+(-sse, into)**, **seesütlev (-s, in)**, **seestütlev (-st, out of)**, **alaleütlev (-le, onto/to)**,
+**alalütlev (-l, on/at/has)**, **alaltütlev (-lt, off)**, **saav (-ks, becoming)**, **rajav (-ni,
+until)**, **olev (-na, as)**, **ilmaütlev (-ta, without)**, **kaasaütlev (-ga, with)**, **lühike sisseütlev
+(short into)**, a plural as **mitmuse kaasaütlev (-ga, with, plural)**; and for a verb **ma-tegevusnimi
+(-ma)**, **da-tegevusnimi (-da)**, **olevik (I form)** with the other persons as **olevik, ta (he/she
+form)**, **eitav (not)**, **lihtminevik (past)**, **täisminevik (have done)**, **enneminevik (had done)**,
+**tingiv kõneviis (-ks, would)**, **käskiv kõneviis, sa (command)**, **käskiv kõneviis, te (-ge, polite
+command)**, **kaudne kõneviis (-vat, reportedly)**, **nud-kesksõna (-nud, done)**, **tud-kesksõna (-tud,
+done to)** and **umbisikuline (-takse, people do)**. `casePlainName` in `lib/estonian/cases.ts` and
+`verbFormName` in `lib/estonian/verbNames.ts` are the two tables, in all three languages; `CaseLabel` draws
+the Estonian half as Estonian and the hint beside it, `formLabel` and `slotLabel` print the names, and Anu
+and the grader are told to use them. A conjugation card's stored `label` (`olevik, ma`) is left as it is,
+because `conjugationSlotFromFront` reads old card fronts by it, and only what a screen prints changed. A
+lesson writes a name in square brackets, `[osastav] (3rd form)`, which `Braced` draws as Estonian and the
+ledger does not count as a taught word, and `lessons.test.ts` holds every bracket to one of the names above
+with its hint. The question words (`kus?`) stay, since those are what a learner hears, and the capital I of
+"I form" is still set in the system serif by `Braced`. `scripts/invariants/a-form-is-named-in-estonian-with-a-hint.ts`
+holds it.
+
 **Estonian is taught in Estonian, and the question it answers is the English.** Nobody teaching
 this language says "the inessive". A course in Tallinn, a school textbook and the state examination
 all name a case by its Estonian name and, more often, by the question it answers: `kus?`. The verb
@@ -5632,8 +5659,10 @@ it, because Review has always asked those. The daily review and Today's count of
 thing, and the ladder keeps `learnerModuleScope`, since Learn is where tonight's words are taught. The
 quest asks Review's own question, `reviewable`. Sõnad and the crossword are rebuilt from the day to be
 marked, so they read `taughtAtDayStart`, the words taught by the ticks written before the learner's
-day began, which nothing later can change; somebody whose first evening is today gets no puzzle rather
-than the dictionary, and Today leads with Tähed on such a morning. Finishing first run is not following
+day began, which nothing later can change. The crossword waits for those words, so somebody whose first
+evening is today gets no grid; Sõnad does not, on the operator's call that it is a game rather than a
+lesson: under `SONAD_MIN_TAUGHT` taught six-letter words the answer is a word at the learner's level,
+the page says so (`Puzzle.met`) and offers the dictionary as fair play. Finishing first run is not following
 the module, and a learner the module has never ticked an evening for is untouched. Asserted in `scripts/invariants/practice-asks-what-the-evenings-taught.ts`.
 
 **And the gate is on the gap rather than on the meeting, which this took two goes to get right.**
@@ -6615,6 +6644,18 @@ ending each for I, you, we", and no such line shows "it covers the future too" o
 so those keep their pins and show nothing until the learner has met the verbs. Keyed by the point's own
 text like the pins, and the test fails on a key matching no point. The reference opened by hand is
 exactly what it was, and the case pages are not yet held to this.
+
+**And a learner who started at A1 leaves it by passing, which amends the paragraph above for the
+lessons alone.** The operator's call, off a learner who went through all 49 A1 lessons without
+practicing anything: every part of the A1 lessons ends in a check (`lib/course/checks.ts`), sixteen
+questions off its own lessons, the last part's thirty off the whole of A1, each passed at
+`CHECK_PASS` and taken as often as anybody likes. The paper is the lessons' own questions
+(`checkFor`), the server builds the one it marks (`submitCheck`), and a pass is a setting
+(`checksPassed`), since nothing in the log can say a check was passed. Every door up asks
+`moveBlockedFor` (the next part, the level picker, the module's skip ahead), going back is always
+open, somebody placed past A1 is never asked, and a name in `ADMIN_EMAILS` on a hosted deployment
+moves freely (`movesFreely`), never a local install, where `isAdmin` is everybody. The retention
+reading at the hand-off still never blocks. Asserted in `scripts/invariants/a1-is-left-by-passing.ts`.
 
 **It is a suggestion, not a track.** It is offered past the level the learner holds, and it is one
 setting to turn off. Off changes nothing else, and the work done the other way still counts toward a

@@ -1,3 +1,4 @@
+import { moveBlockedFor } from "@/lib/progress/checks";
 import { cache } from "react";
 
 import { prisma } from "@/lib/db";
@@ -128,7 +129,15 @@ export async function adaptOfferFor(
     held: standing?.held ?? null,
     kind: standing?.kind ?? null,
   });
-  return { offer: snoozed ? null : offer, tilt, snoozed: snoozed && offer !== null, effects };
+  /*
+    A skip ahead past a check not yet passed is not on offer: a learner who
+    started at A1 moves up by passing (`lib/course/checks.ts`), and a button
+    the action would refuse is a dead end.
+  */
+  const to = offer?.move?.kind === "ahead" ? PROGRAMMES.find((p) => p.id === offer.move!.to.id) : undefined;
+  const open = !to || (await moveBlockedFor(ownerId, programme, to)) === null;
+  const shown = open ? offer : null;
+  return { offer: snoozed ? null : shown, tilt, snoozed: snoozed && shown !== null, effects };
 }
 
 /** The ladder as an offer needs it: an id and a level, in order. */

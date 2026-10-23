@@ -119,7 +119,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "Ukrainast", en: "from Ukraine" },
     ],
     how: {
-      point: "Where you're from is {pärit} and the country with a \"from\" ending on it.",
+      point: "To say where you're from, use {pärit} and the country in its [seestütlev] (-st, out of): {Ma olen pärit Eestist}.",
       table: {
         head: ["Country", "From there", "Somebody from there"],
         rows: [
@@ -132,11 +132,11 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "A country whose name ends in -maa says \"from\" with -lt, and the others with -st. Learn each one whole for now.",
-        "{Kust sa pärit oled?} is where are you from. Its first word asks \"where from\", and it gets a lesson of its own later. Ask a stranger {Kust te pärit olete?}",
+        "{Kust sa pärit oled?} means \"where are you from?\". Its first word asks \"where from\", and lesson 31 is all about it. Ask a stranger {Kust te pärit olete?}",
         "{Aga} is but: {Ma olen pärit Inglismaalt, aga ma elan Eestis}.",
         "A country has a capital letter and the person from it doesn't: {Eesti}, but {eestlane}.",
       ],
-      watchOut: "{Pärit} always takes the from-form: {Ma olen pärit Eestist}, never {Ma olen pärit Eesti}.",
+      watchOut: "{Pärit} always takes the [seestütlev] (-st, out of): {Ma olen pärit Eestist}, never {Ma olen pärit Eesti}.",
       examples: [0, 1, 3],
     },
     answers: [
@@ -178,7 +178,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "sakslane", en: "a German" },
     ],
     how: {
-      point: "The same two \"from\" endings as lesson 10: -st, and -lt for a country in -maa.",
+      point: "The same from form as lesson 10: -st, or -lt for a country ending in -maa.",
       table: {
         head: ["Country", "From there", "Somebody from there"],
         rows: [
@@ -189,8 +189,8 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Somebody from a country is the country and -lane: {soomlane}, {lätlane}. You know {eestlane} already.",
-        "In a country is the -s you met in lesson 9 with {Eestis}: {Rootsis}, in Sweden.",
+        "Somebody from a country is the country + -lane: {soomlane}, {lätlane}. You know {eestlane} already.",
+        "In a country is the [seesütlev] (-s, in), the ending you met in lesson 9 with {Eestis}: {Rootsis}, in Sweden.",
       ],
       watchOut: "{Saksamaa} is a -maa country, like {Inglismaa}: from Germany is {Saksamaalt}, never with -st.",
       examples: [1, 2, 4],
@@ -240,7 +240,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "ukraina keelt", en: "Ukrainian, the language" },
     ],
     how: {
-      point: "Some verbs change their middle when the ending goes on, so a verb is learned as a pair: the ma-form and the I-form.",
+      point: "Some verbs change in the middle when an ending goes on, so learn every verb as a pair: its [ma-tegevusnimi] (-ma), which the dictionary gives, and its [olevik] (I form), the one you say with {ma}.",
       table: {
         head: ["", "{rääkima}, to speak", "{õppima}, to learn"],
         rows: [
@@ -253,12 +253,12 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Rääkima} becomes {räägin}: the kk softens to g. {Õppima} becomes {õpin}: the pp shortens to p. The endings are lesson 9's, the same as ever.",
-        "Once you have the I-form, the other five follow it. The dictionary gives the ma-form, so learn each verb as a pair: {rääkima, räägin}.",
-        "A language is {eesti keelt}, {inglise keelt}, {vene keelt}. Learn them whole for now; why the second word ends the way it does has its own lesson.",
-        "{Räägime eesti keelt!} is \"let's speak Estonian\": the we-form on its own makes a suggestion.",
+        "{Rääkima} becomes {räägin}: the k softens to g. {Õppima} becomes {õpin}: the double p shortens to one. After that, the person endings are the same six as in lesson 9.",
+        "Once you have the [olevik] (I form), the other persons follow it: {räägin}, {räägid}, {räägib}. The dictionary only gives the [ma-tegevusnimi] (-ma), so learn each verb as a pair: {rääkima, räägin}. The [da-tegevusnimi] (-da) comes in lesson 22.",
+        "A language is {eesti keelt}, {inglise keelt}, {vene keelt}. Learn them whole for now; lesson 25 explains why the second word ends in -t.",
+        "{Räägime eesti keelt!} means \"let's speak Estonian\": the we-form said without {me} makes a suggestion.",
       ],
-      watchOut: "Keep the softer middle in every person: {räägin}, {räägid}, {räägivad}. Only the ma-form, {rääkima}, has the kk.",
+      watchOut: "Keep the softer middle in every person: {räägin}, {räägid}, {räägivad}. Only the [ma-tegevusnimi] (-ma), {rääkima}, has the k.",
       examples: [0, 1, 3],
     },
     answers: [
@@ -293,7 +293,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "muidugi", en: "of course" },
     ],
     how: {
-      point: "No is {ei} and the I-form without its -n, and it's the same for every person.",
+      point: "To say no, put {ei} in front of the [olevik] (I form) and drop its -n. It's the same for every person.",
       table: {
         head: ["Yes", "No"],
         rows: [
@@ -303,11 +303,11 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Take the -n off the I-form and put {ei} in front: {elan}, {ei ela}. That one form is the no for {ma}, {sa}, {ta}, {me}, {te} and {nad} alike.",
+        "Take the -n off the [olevik] (I form) and put {ei} in front: {elan} becomes {ei ela}. That one form, the [eitav] (not), is the no for {ma}, {sa}, {ta}, {me}, {te} and {nad} alike.",
         "You've been doing this since lesson 6, where {olen} became {ei ole}.",
-        "After a no, {veel} is yet: {Ma ei räägi veel hästi} is I don't speak it well yet.",
+        "After a no, {veel} means yet: {Ma ei räägi veel hästi} is \"I don't speak it well yet\".",
       ],
-      watchOut: "No ending after {ei}: {ma ei ela}, {nad ei räägi}, never with the -n or the -vad.",
+      watchOut: "After {ei}, the verb never takes a person ending: it's {ma ei ela} and {nad ei räägi}, with no -n and no -vad.",
       examples: [1, 3],
     },
     answers: [
@@ -375,7 +375,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       listen: [
         { words: [{ clip: "pair-kaheksa", en: "eight", mark: "ka" }, { clip: "pair-ueheksa", en: "nine", mark: "ü" }] },
         { words: [{ clip: "number-kuus", en: "six", mark: "uu" }, { clip: "pair-kus", en: "where", mark: "u" }] },
-        { words: [{ clip: "phone-number", en: "a phone number, one digit at a time" }] },
+        { words: [{ clip: "phone-number", en: "a phone number" }] },
       ],
       watchOut: "{Kuus}, six, has a long uu. Hold it, or it turns into another word.",
       examples: [0, 3],
@@ -445,10 +445,10 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "Then put them together the way English does: {kakskümmend viis} is twenty-five, {nelikümmend kaks} is forty-two. A hundred is {sada}.",
-        "Each word is built on the number you know: {kaksteist} is {kaks} and -teist, {kakskümmend} is {kaks} and -kümmend. Ten is {kümme} on its own.",
+        "Each word is built on a number you know: {kaksteist} is {kaks} + -teist, {kakskümmend} is {kaks} + -kümmend. Ten is {kümme} on its own.",
         "Your age is {Ma olen kolmkümmend aastat vana}, I'm thirty years old. People usually stop after the number: {Ma olen kolmkümmend}.",
       ],
-      watchOut: "After a number it's {aastat}, not {aasta}: {kaks aastat}. The reason is the same as in {eesti keelt}, and it gets its own lesson soon.",
+      watchOut: "After a number it's {aastat}, not {aasta}: {kaks aastat}. It's the same ending as in {eesti keelt}, and lesson 26 explains it.",
       examples: [0, 1],
     },
     answers: [
@@ -474,18 +474,18 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Mul on ka laps. Ta on viis.", en: "I have a child too. She's five." },
     ],
     teaches: [
-      { kind: "form", et: "mul", of: "mina", en: "at me; with {on}, I have" },
-      { kind: "form", et: "sul", of: "sina", en: "at you; with {on}, you have" },
-      { kind: "form", et: "tal", of: "tema", en: "at him, at her; with {on}, he, she has" },
-      { kind: "form", et: "meil", of: "meie", en: "at us; with {on}, we have" },
-      { kind: "form", et: "teil", of: "teie", en: "at you; with {on}, you have, polite or more than one" },
-      { kind: "form", et: "neil", of: "nemad", en: "at them; with {on}, they have" },
+      { kind: "form", et: "mul", of: "mina", en: "with {on}: I have" },
+      { kind: "form", et: "sul", of: "sina", en: "with {on}: you have" },
+      { kind: "form", et: "tal", of: "tema", en: "with {on}: he, she has" },
+      { kind: "form", et: "meil", of: "meie", en: "with {on}: we have" },
+      { kind: "form", et: "teil", of: "teie", en: "with {on}: you have, polite or more than one" },
+      { kind: "form", et: "neil", of: "nemad", en: "with {on}: they have" },
       { kind: "word", et: "vend", en: "brother" },
       { kind: "word", et: "õde", en: "sister" },
       { kind: "word", et: "laps", en: "child" },
     ],
     how: {
-      point: "Estonian has no verb for have. It says \"at me is\": {mul on}.",
+      point: "Estonian has no verb for \"have\". You say {mul on}, and it always means \"I have\".",
       table: {
         head: ["", "Has", "Doesn't have"],
         rows: [
@@ -498,9 +498,10 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Mul on vend} is I have a brother: word for word, \"at me is a brother\". Whoever has the thing is where it is.",
-        "Ask with {kas}, as ever: {Kas sul on vend?}",
-        "Answer a no short for now, {Ei, mul ei ole}. With a word after it the word changes its ending, and that's a later lesson.",
+        "{Mul on vend} means \"I have a brother\". Taken word by word it's \"at me is a brother\", but you don't need to think of it that way: learn {mul on} as a set phrase for \"I have\".",
+        "Change {mul} to change who has it: {sul on}, you have, {tal on}, he or she has.",
+        "Ask with {kas}: {Kas sul on vend?}",
+        "For now, answer a no on its own: {Ei, mul ei ole}. Adding the noun after it changes the noun's ending, and lesson 25 explains how.",
       ],
       watchOut: "{Ma olen vend} means I am a brother. Having is always {mul on}.",
       examples: [0, 1, 3],
@@ -537,25 +538,27 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "tütar", en: "daughter" },
       { kind: "word", et: "vanaema", en: "grandmother" },
       { kind: "word", et: "vanaisa", en: "grandfather" },
+      { kind: "word", et: "nende", en: "their" },
     ],
     how: {
-      point: "My, your and our are the long forms of the persons: {minu ema}, {sinu isa}, {meie poeg}.",
+      point: "My, your and our are the [omastav] (2nd form) of the persons: {minu ema}, {sinu isa}, {meie poeg}.",
       table: {
-        head: ["", "Estonian"],
+        head: ["", "[nimetav] (1st form)", "[omastav] (2nd form)"],
         rows: [
-          [{ en: "mother" }, { et: "ema" }],
-          [{ en: "father" }, { et: "isa" }],
-          [{ en: "husband or wife" }, { et: "abikaasa" }],
-          [{ en: "son" }, { et: "poeg" }],
-          [{ en: "daughter" }, { et: "tütar" }],
-          [{ en: "grandmother" }, { et: "vanaema" }],
-          [{ en: "grandfather" }, { et: "vanaisa" }],
+          [{ en: "I, my" }, { et: "mina" }, { et: "minu" }],
+          [{ en: "you, your" }, { et: "sina" }, { et: "sinu" }],
+          [{ en: "he, she: his, her" }, { et: "tema" }, { et: "tema" }],
+          [{ en: "we, our" }, { et: "meie" }, { et: "meie" }],
+          [{ en: "you, your: polite or more than one" }, { et: "teie" }, { et: "teie" }],
+          [{ en: "they, their" }, { et: "nemad" }, { et: "nende" }],
         ],
       },
       notes: [
-        "{Vanaema} is {vana} and {ema}, old mother: a grandmother. {Vanaisa} is built the same way.",
+        "Every Estonian noun and person has three forms you learn by heart. The 1st is the one the dictionary gives, {mina}. The 2nd says whose: {minu}, my. The 3rd comes in lesson 25.",
+        "You met the short ones in lesson 3, and they're what people usually say: {mu ema}, {su isa}.",
+        "{Meie} is both we and our, and {teie} both you and your: {meie tütar}, {teie poeg}. {Nende} is their: {nende poeg}.",
+        "{Vanaema} is {vana} + {ema}, old mother: a grandmother. {Vanaisa} is built the same way.",
         "{Abikaasa} is husband and wife alike: Estonian has one word for either.",
-        "{Meie} is we, and before a word it's our: {meie tütar}. {Teie} works the same way: {teie poeg}.",
       ],
       watchOut: "Estonian has no his or her: {tema ema} is his mother or her mother, and the conversation tells you which.",
       examples: [1, 3],
@@ -596,7 +599,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "perekond", en: "family" },
     ],
     how: {
-      point: "{See on} and a person is how you say who somebody is: {See on minu onu}.",
+      point: "To say who somebody is, use {See on} + the person: {See on minu onu} means \"This is my uncle\".",
       table: {
         head: ["A man or a boy", "A woman or a girl"],
         rows: [
@@ -609,7 +612,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Mees} and {naine} are also husband and wife: {minu mees} is my husband, {minu naine} my wife.",
         "{Perekond} and {pere} from lesson 16 both mean family. {Pere} is the everyday one.",
-        "{Kes see mees on?} asks who: the same {kes} as in {Kes see on?}",
+        "{Kes see mees on?} asks who that man is, with the same {kes} as in {Kes see on?}",
       ],
       watchOut: "{Tema} and {ta} are he and she alike, so {tema tütar} is his daughter or her daughter. The sentence around it says which.",
       examples: [1, 2, 4],

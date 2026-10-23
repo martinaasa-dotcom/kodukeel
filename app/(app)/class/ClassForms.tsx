@@ -425,7 +425,7 @@ export function AssignHomework({ classroomId }: { classroomId: string }) {
         id="assign-title"
         value={title}
         maxLength={200}
-        placeholder={t("Write 5 sentences using the osastav")}
+        placeholder={t("Write 5 sentences using the osastav (3rd form)")}
         onChange={(e) => setTitle(e.target.value)}
         className="field text-sm"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}

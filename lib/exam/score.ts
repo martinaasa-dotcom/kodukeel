@@ -1,4 +1,5 @@
 import { checkAnswer, countsAsRecalled } from "@/lib/estonian/answer";
+import { plainNameForEt } from "@/lib/estonian/cases";
 import { orderIsRight, readOrder } from "@/lib/estonian/wordOrder";
 import { orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
 import { checkDictation, type DictationWord } from "@/lib/estonian/dictation";
@@ -575,7 +576,7 @@ function promptOf(item: ExamItem): string | undefined {
     case "listen-gap": return item.sentence;
     case "listen-truefalse": return item.statement;
     case "case-form":
-    case "form-choice": return `${item.lemma}, ${item.caseEt} (${item.caseQuestion})`;
+    case "form-choice": return `${item.lemma}, ${plainNameForEt(item.caseEt) ?? item.caseEt} (${item.caseQuestion})`;
     case "government": return item.lemma;
     case "gloss-choice": return item.word;
     default: return undefined;

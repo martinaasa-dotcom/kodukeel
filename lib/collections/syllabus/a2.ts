@@ -352,7 +352,7 @@ export const A2 = [
     level: "A2",
     module: "Igapäevane suhtlus",
     canDo: "Read a menu, order a full meal and ask what's in a dish.",
-    blurb: "The osastav at its most useful: you order some soup, not all the soup in the kitchen.",
+    blurb: "The osastav (3rd form) at its most useful: you order some soup, not all the soup in the kitchen.",
     /*
       The numerals page is read here rather than at A1, where the numbers are
       taught as words: its whole point is that the counted noun is partitive

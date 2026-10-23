@@ -1,5 +1,5 @@
 import type { Level } from "@/lib/collections/syllabus";
-import { CASES, caseByKey } from "@/lib/estonian/cases";
+import { CASES, caseByKey, casePlainName } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
 import { type Evidence } from "@/lib/exam/readiness";
 import { MACHINERY_UNITS, situationById, type Machinery, type Situation } from "./situations";
@@ -380,8 +380,8 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
         leads = false;
         struggles.push(struggle({
           id: `case-${key}`,
-          title: say("You've hardly been asked the {case} yet", { case: spec.et }),
-          detail: say("This situation leans on the {case}, as in “{gloss}”. {n} answers isn't enough to tell whether you have it yet.", { case: spec.et, n: standing?.reviews ?? 0 }, { gloss: spec.gloss }),
+          title: say("You've hardly been asked the {case} yet", undefined, { case: casePlainName(spec) }),
+          detail: say("This situation leans on the {case}, as in “{gloss}”. {n} answers isn't enough to tell whether you have it yet.", { n: standing?.reviews ?? 0 }, { case: casePlainName(spec), gloss: spec.gloss }),
           blocks: "lead",
           href: `/grammar/${key.toLowerCase()}`,
           cta: "Read the rule",
@@ -390,8 +390,8 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
         leads = false;
         struggles.push(struggle({
           id: `case-${key}`,
-          title: say("The {case} is at {pct} percent", { case: spec.et, pct: standing.pct }),
-          detail: say("This situation leans on the {case}, as in “{gloss}”. Across {n} answers it's still slipping too often.", { case: spec.et, n: standing.reviews }, { gloss: spec.gloss }),
+          title: say("The {case} is at {pct} percent", { pct: standing.pct }, { case: casePlainName(spec) }),
+          detail: say("This situation leans on the {case}, as in “{gloss}”. Across {n} answers it's still slipping too often.", { n: standing.reviews }, { case: casePlainName(spec), gloss: spec.gloss }),
           blocks: "lead",
           href: `/grammar/${key.toLowerCase()}`,
           cta: "Read the rule",

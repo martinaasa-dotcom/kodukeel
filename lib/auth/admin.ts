@@ -116,3 +116,18 @@ export async function requireAdminId(): Promise<string> {
   }
   return who.learner.id;
 }
+
+/**
+ * Whether this learner may move between levels without passing the checks
+ * between them (`lib/course/checks.ts`), which is somebody named in
+ * `ADMIN_EMAILS` on a hosted deployment, for testing every level.
+ *
+ * Not `isAdmin`, which is true for everybody on a local install: there the
+ * single learner reviews their own dictionary, and that is no reason to take
+ * the checks out of the course they are walking, or out of the browser suites
+ * that walk it.
+ */
+export const movesFreely = cache(async (): Promise<boolean> => {
+  if (!supabaseConfigured()) return false;
+  return isAdmin();
+});

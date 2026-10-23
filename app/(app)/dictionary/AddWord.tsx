@@ -11,7 +11,9 @@ import { hasNoFields } from "@/lib/dict/pos";
 import { caseByKey } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
 import { CaseLabel } from "@/components/CaseLabel";
-import { useT } from "@/components/Locale";
+import { Braced } from "@/components/Braced";
+import { useLocale, useT } from "@/components/Locale";
+import { verbFormName } from "@/lib/estonian/verbNames";
 import { fill } from "@/lib/copy/locale";
 
 /**
@@ -53,17 +55,16 @@ const NOUN_FIELDS = [
 ] as const;
 
 /*
-  The verb keeps its own names, and that is the asymmetry rather than an
-  oversight: `ma-infinitive` and `da-infinitive` are what a class says in both
-  languages, and "present" and "past" are categories an English speaker has a
-  concept for and can look one up under. "The inessive" is not.
+  A verb's fields are named the way a case is: the Estonian name a class uses
+  with its hint, off the one table (`verbFormName`), drawn in the reader's
+  language from `verb`.
 */
 const VERB_FIELDS = [
-  ["INF_MA", { et: "ma-infinitive", question: null }, "lugema"],
-  ["INF_DA", { et: "da-infinitive", question: null }, "lugeda"],
-  ["PRES_1SG", { et: "Olevik, ma", question: null }, "loen"],
-  ["PAST_1SG", { et: "Lihtminevik, ma", question: null }, "lugesin"],
-  ["PART_TUD", { et: "tud-kesksõna", question: null }, "loetud"],
+  ["INF_MA", { et: verbFormName("MA"), question: null, verb: "MA" }, "lugema"],
+  ["INF_DA", { et: verbFormName("DA"), question: null, verb: "DA" }, "lugeda"],
+  ["PRES_1SG", { et: verbFormName("PRESENT", "en", "ma"), question: null, verb: "PRESENT", person: "ma" }, "loen"],
+  ["PAST_1SG", { et: verbFormName("PAST", "en", "ma"), question: null, verb: "PAST", person: "ma" }, "lugesin"],
+  ["PART_TUD", { et: verbFormName("TUD"), question: null, verb: "TUD" }, "loetud"],
 ] as const;
 
 const LEVELS = ["", "A1", "A2", "B1", "B2", "C1", "C2"] as const;
@@ -105,6 +106,7 @@ export function AddWord({ initialLemma = "", initialTranslation = "", startOpen,
   edit?: WordDraft;
 }) {
   const t = useT();
+  const locale = useLocale();
   const [open, setOpen] = useState(startOpen ?? Boolean(initialLemma || initialTranslation));
   const [pos, setPos] = useState(edit?.pos ?? "NOUN");
   const [lemma, setLemma] = useState(edit?.lemma ?? initialLemma);
@@ -269,7 +271,7 @@ export function AddWord({ initialLemma = "", initialTranslation = "", startOpen,
         <div>
           <p className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>{t("The forms to learn by heart")}</p>
           <p className="mb-3 text-xs" style={{ color: "var(--ink-3)" }}>
-            {t("Fill in what you know. The omastav alone is enough for us to build the eleven regular cases. Anything you leave blank stays blank, because we never guess.")}
+            {t("Fill in what you know. The omastav (2nd form) alone is enough for us to build the eleven regular cases. Anything you leave blank stays blank, because we never guess.")}
           </p>
           <div className="grid gap-2 md:grid-cols-3">
             {fields.map(([key, label, example]) => (
@@ -278,7 +280,7 @@ export function AddWord({ initialLemma = "", initialTranslation = "", startOpen,
                   {label.question ? (
                     <CaseLabel label={{ et: label.et, question: label.question }} />
                   ) : (
-                    <span lang="et">{label.et}</span>
+                    <Braced text={"verb" in label ? verbFormName(label.verb, locale, "person" in label ? label.person : undefined) : t(label.et)} />
                   )}
                 </span>
                 <input

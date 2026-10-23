@@ -12,7 +12,7 @@ import { CaseLabel } from "@/components/CaseLabel";
 import { Card, KeyCap, Note, SectionTitle, Stack } from "@/components/ui";
 import { WatchOut } from "@/components/RuleNote";
 import { EstonianSentence } from "@/components/EstonianSentence";
-import { caseByKey } from "@/lib/estonian/cases";
+import { caseByKey, casePlainName } from "@/lib/estonian/cases";
 import { CASE_GROUPS, caseReference } from "@/lib/estonian/grammar";
 import { sayPhrase } from "@/lib/estonian/sayIt";
 import { sayIn } from "@/lib/estonian/plainAsk";
@@ -328,10 +328,13 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
                 data-on={n === at ? "" : undefined}
                 className={`choice-btn choice-card flex min-w-0 flex-col items-start gap-1 rounded-[var(--r-lg)] border px-4 py-3 text-left @lg:row-span-3 @lg:grid @lg:grid-rows-subgrid @lg:justify-items-start ${isStem ? "stem-row" : ""}`}
               >
-                <span className="flex w-full items-baseline justify-between gap-2">
+                <span className="flex w-full items-start justify-between gap-2">
                   <span className="text-xs" style={{ color: "var(--ink-3)" }}>
+                    {/* Stacked, a run a line: run together in a tile a third
+                        of the row wide, the reading broke wherever the width
+                        ran out and left "(some of it)" hanging on its own. */}
                     {ref ? (
-                      <CaseLabel label={{ et: ref.spec.et, question: form.question }} />
+                      <CaseLabel label={{ et: ref.spec.et, question: form.question }} className="case-label-stack" />
                     ) : (
                       <CaseQuestion question={form.question} inline />
                     )}
@@ -592,6 +595,7 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
   onNext: () => void;
 }) {
   const t = useT();
+  const plainLocale = useLocale();
   const [at, setAt] = useState(0);
   const forms = word.derived;
   const form = forms[at] ?? forms[0];
@@ -636,6 +640,69 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
   return (
     <Stack>
       <div className="case-explorer flex flex-col gap-4">
+        {/*
+          THE ENDINGS FIRST, IN ONE COMPACT ROW, UNDER THE TITLE.
+
+          They sat under the build card as three stacked groups, so on a laptop
+          picking an ending scrolled the explanation it was for off the bottom
+          of the screen, and a learner reported having to scroll for every
+          press. One row of small chips, the groups named inline, keeps the
+          picker, the sum and the explanation on one screen.
+        */}
+        <div>
+          <SectionTitle
+            hint={<span className="inline-flex items-center gap-1.5" style={{ textTransform: "none" }}>
+              {fillNodes(t("{key} {name} steps through them"), { key: <KeyCap>{ADVANCE_KEY_GLYPH}</KeyCap>, name: ADVANCE_KEY_LABEL })}
+            </span>}
+          >
+            {t("Try an ending")}
+          </SectionTitle>
+          {/*
+            ONE GROUP ACROSS THE THREE HEADINGS, NOT ONE PER HEADING.
+
+            The eleven are one set of options with the reference's own grouping
+            drawn over them, so a group apiece would say there are three
+            questions here and leave the arrow keys stopping at the end of each
+            row. `ChoiceGroup` finds its options at any depth, so the headings
+            sit inside it and the reading stays "4 of 11".
+          */}
+          <div ref={endings} className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <ChoiceGroup ariaLabel={t("Which ending")} select="one" className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              {CASE_GROUPS.filter((g) => g.keys.some((k) => !caseByKey(k)?.principal)).map((group) => (
+                <div key={group.title} className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-2xs whitespace-nowrap" style={{ color: "var(--ink-3)" }}>{t(group.title)}</span>
+                  {group.keys.map((key) => {
+                    const n = forms.findIndex((f) => f.key === key);
+                    const row = forms[n];
+                    if (!row) return null;
+                    return (
+                      <span key={key} className="ending-row">
+                        <ChoiceChip selected={n === at} onSelect={() => setAt(n)}>
+                          <span lang="et">{row.stored ? row.value : `-${row.suffix}`}</span>
+                        </ChoiceChip>
+                      </span>
+                    );
+                  })}
+                </div>
+              ))}
+            </ChoiceGroup>
+            {/*
+                THE KEY THE HINT NAMES, DRAWN AS A BUTTON, at the end of the row.
+                On a phone there is no such key, and a control that does what
+                the shortcut does makes the card a thing you can crank. Quiet,
+                because the loud button on this screen leads out of it.
+              */}
+              <button
+                type="button"
+                onClick={step}
+                className="tap-tint inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold"
+                style={{ color: "var(--accent-deep)" }}
+              >
+                {t("Next ending")} <ArrowRight size={14} aria-hidden />
+              </button>
+          </div>
+        </div>
+
         <Card tone="accent">
           <p className="label-xs" style={{ color: "var(--accent-deep)" }}>{t("The form everything is built on")}</p>
           {/*
@@ -674,9 +741,13 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
               className="pop-in rounded-[var(--r)] px-4 py-2"
               style={{ background: "var(--surface)" }}
             >
-              <span lang="et" className="text-2xl font-bold" style={{ color: "var(--accent-deep)" }}>
-                {form.stored ? ref?.spec.et : `-${form.suffix}`}
-              </span>
+              {form.stored ? (
+                <span className="text-2xl font-bold" style={{ color: "var(--accent-deep)" }}>
+                  {ref ? casePlainName(ref.spec, plainLocale) : ""}
+                </span>
+              ) : (
+                <span lang="et" className="text-2xl font-bold" style={{ color: "var(--accent-deep)" }}>-{form.suffix}</span>
+              )}
             </span>
             <span className="text-2xl" style={{ color: "var(--ink-3)" }} aria-hidden>=</span>
             <span className="sr-only">{t("makes")}</span>
@@ -700,68 +771,6 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
           )}
         </Card>
 
-        <div>
-          <SectionTitle
-            hint={<span className="inline-flex items-center gap-1.5" style={{ textTransform: "none" }}>
-              {fillNodes(t("{key} {name} steps through them"), { key: <KeyCap>{ADVANCE_KEY_GLYPH}</KeyCap>, name: ADVANCE_KEY_LABEL })}
-            </span>}
-          >
-            {t("Try an ending")}
-          </SectionTitle>
-          {/*
-            ONE GROUP ACROSS THE THREE HEADINGS, NOT ONE PER HEADING.
-
-            The eleven are one set of options with the reference's own grouping
-            drawn over them, so a group apiece would say there are three
-            questions here and leave the arrow keys stopping at the end of each
-            row. `ChoiceGroup` finds its options at any depth, so the headings
-            sit inside it and the reading stays "4 of 11".
-          */}
-          <div ref={endings}>
-            <ChoiceGroup ariaLabel={t("Which ending")} select="one" className="flex flex-col gap-3">
-              {CASE_GROUPS.filter((g) => g.keys.some((k) => !caseByKey(k)?.principal)).map((group) => (
-                <div key={group.title}>
-                  <p className="mb-1.5 text-xs" style={{ color: "var(--ink-3)" }}>{t(group.title)}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {group.keys.map((key) => {
-                      const n = forms.findIndex((f) => f.key === key);
-                      const row = forms[n];
-                      if (!row) return null;
-                      return (
-                        <span key={key} className="ending-row">
-                          <ChoiceChip selected={n === at} onSelect={() => setAt(n)}>
-                            <span lang="et">{row.stored ? row.value : `-${row.suffix}`}</span>
-                          </ChoiceChip>
-                        </span>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </ChoiceGroup>
-          </div>
-          {/*
-            THE KEY THE HINT NAMES, DRAWN AS A BUTTON.
-
-            Eleven endings in three groups is a set to hunt through, and the
-            one way to walk them in order was a keyboard shortcut written in
-            six-point type above them: on a phone, where this app is measured,
-            there is no such key at all. A control that does what the shortcut
-            does makes the card a thing you can crank, which is the whole of
-            what the second part is for. It is quiet on purpose, because the
-            loud button on this screen is the one that leads out of it
-            (`components/Button.tsx`), and a focused button keeps its own Enter,
-            so pressing it repeatedly walks the eleven either way.
-          */}
-          <button
-            type="button"
-            onClick={step}
-            className="tap-tint mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold"
-            style={{ color: "var(--accent-deep)" }}
-          >
-            {t("Next ending")} <ArrowRight size={14} aria-hidden />
-          </button>
-        </div>
       </div>
 
       {ref && (
@@ -775,9 +784,20 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
           <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
             {t(ref.summary)}
           </p>
+          {/*
+            THE ENGLISH FOLLOWS THE WORD. The hook is the same examples for
+            every word ("The book's cover"), so under `käe` it read as a line
+            that had forgotten to change. This word's own reading leads, and
+            the hook is labeled as what it is, more of the same ending.
+          */}
+          {form.reading && (
+            <p className="mt-1.5 max-w-[62ch] text-sm" style={{ color: "var(--ink-2)" }}>
+              {fillNodes(t("{word} means “{reading}”"), { word: <span lang="et">{form.value}</span>, reading: sayIn(plainLocale, form.key, form.reading) ?? form.reading })}
+            </p>
+          )}
           {ref.englishHook && (
-            <p className="mt-1.5 max-w-[62ch] text-sm" style={{ color: "var(--ink-3)" }}>
-              {fill(t("In English: {hook}"), { hook: t(ref.englishHook) })}
+            <p className="mt-1 max-w-[62ch] text-sm" style={{ color: "var(--ink-3)" }}>
+              {fill(t("More like it: {hook}"), { hook: t(ref.englishHook) })}
             </p>
           )}
           {sentence
@@ -949,7 +969,7 @@ function YourTurn({ word }: { word: WalkWord }) {
           {fill(t("Question {n} of {total}"), { n: at + 1, total: asks.length })}
         </p>
         <p className="mt-2 text-lg font-bold" style={{ color: "var(--ink)" }}>
-          {ask ?? fill(t("Which ending makes the {case}?"), { case: ref?.spec.et ?? "" })}
+          {ask ?? fill(t("Which ending means “{meaning}”?"), { meaning: ref ? t(ref.plain) : "" })}
         </p>
         <p className="mt-1 text-sm" data-ask={form.question} style={{ color: "var(--ink-3)" }}>
           <CaseQuestion question={form.question} inline />

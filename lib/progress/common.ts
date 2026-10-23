@@ -3,6 +3,7 @@ import { commonWords, type FrequencyGroup } from "@/lib/collections/frequency";
 import { COMMON_BATCH, COMMON_GROUP_KEYS, COMMON_PARTS, partLemmas } from "@/lib/collections/commonGroups";
 import { availableCardTypes } from "@/lib/srs/cards";
 import { oneEntryPerLemma } from "@/lib/dict/search";
+import { LADDER_CARD_TYPE } from "@/lib/learn/ladder";
 
 /**
  * The commonest words, with what the learner already has among them.
@@ -128,14 +129,19 @@ export interface CommonCount {
   found: number;
   /** How many of those the learner already has a card for. */
   inDeck: number;
-  /** The same two figures for each of the four parts, in order. */
-  parts: { found: number; inDeck: number }[];
+  /**
+   * The same two figures for each of the four parts, in order, and how many
+   * of the part's words are learned: the word's own recognition card has left
+   * the ladder for the review schedule, which is the scheduler saying so
+   * rather than a tick (`rungOf`).
+   */
+  parts: { found: number; inDeck: number; known: number }[];
 }
 
 /**
  * The four counts, for the screens that offer the rounds.
  *
- * Two queries whatever the size of the deck, and no `examples` column, which is
+ * Three queries whatever the size of the deck, and no `examples` column, which is
  * the longest in the schema: this is a number under a button, not a list.
  */
 export async function commonCounts(ownerId: string): Promise<CommonCount[]> {
@@ -155,13 +161,21 @@ export async function commonCounts(ownerId: string): Promise<CommonCount[]> {
     whatever it says: a `take` beside a `distinct` bounds nothing at all,
     because Prisma deduplicates in the client and emits no LIMIT.
   */
-  const held = new Set(
-    (await prisma.card.findMany({
-      where: { ownerId, lexemeId: { in: [...byLemma.values()] } },
+  const ids = [...byLemma.values()];
+  const [heldRows, knownRows] = await Promise.all([
+    prisma.card.findMany({
+      where: { ownerId, lexemeId: { in: ids } },
       select: { lexemeId: true },
       distinct: ["lexemeId"],
-    })).map((c) => c.lexemeId ?? ""),
-  );
+    }),
+    prisma.card.findMany({
+      where: { ownerId, lexemeId: { in: ids }, cardType: LADDER_CARD_TYPE, state: 2 },
+      select: { lexemeId: true },
+      distinct: ["lexemeId"],
+    }),
+  ]);
+  const held = new Set(heldRows.map((c) => c.lexemeId ?? ""));
+  const known = new Set(knownRows.map((c) => c.lexemeId ?? ""));
 
   return COMMON_GROUP_KEYS.map((group) => {
     const ids = commonWords(group).flatMap((w) => {
@@ -173,7 +187,11 @@ export async function commonCounts(ownerId: string): Promise<CommonCount[]> {
         const id = byLemma.get(w.lemma);
         return id ? [id] : [];
       });
-      return { found: inPart.length, inDeck: inPart.filter((id) => held.has(id)).length };
+      return {
+        found: inPart.length,
+        inDeck: inPart.filter((id) => held.has(id)).length,
+        known: inPart.filter((id) => known.has(id)).length,
+      };
     });
     return { group, found: ids.length, inDeck: ids.filter((id) => held.has(id)).length, parts };
   });

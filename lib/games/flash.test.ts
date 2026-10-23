@@ -422,7 +422,7 @@ describe("markFlash", () => {
     expect(mark.right).toBe(false);
     expect(mark.rating).toBe(2);
     expect(mark.wroteSlot).toBe("ELATIVE");
-    expect(mark.note).toContain("seestütlev");
+    expect(mark.note).toBe("That's the seestütlev (-st, out of). This one wants the seesütlev (-s, in).");
   });
 
   it("counts a dropped diacritic as produced, and says which letter", () => {
