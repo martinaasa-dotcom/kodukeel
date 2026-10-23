@@ -6,6 +6,7 @@ import {
   MASTERY_CORRECT, MASTERY_LABEL, MASTERY_ORDER, MASTERY_SLOTS, type Mastery,
 } from "@/lib/srs/mastery";
 import { slotShort } from "@/lib/srs/slots";
+import { caseByKey } from "@/lib/estonian/cases";
 import { wordsAt, type MasteredWord } from "@/lib/progress/mastery";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 
@@ -119,7 +120,10 @@ function Row({ word, locale, prefs }: { word: MasteredWord; locale: Locale; pref
   const { correct, total, slots, slotsNeeded, filled, progress } = word.verdict;
   /* Which forms is for a reader who asks, so it rides on the bar's label; the
      row says the word, what it means, and how far along it is. */
-  const forms = filled.length > 0 ? `: ${filled.map((slot) => slotShort(slot, locale)).join(", ")}` : "";
+  /* A case comes back already in the reader's language; every other slot is
+     an English label from the table and is translated here, as it always was. */
+  const named = (slot: string) => (caseByKey(slot) ? slotShort(slot, locale) : t(slotShort(slot)));
+  const forms = filled.length > 0 ? `: ${filled.map(named).join(", ")}` : "";
   return (
     /* Straight to the entry, because the question a list like this raises is
        "which one was that again", and the entry is where every form of it is. */
