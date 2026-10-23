@@ -50,7 +50,11 @@ export default function anAuditExceptionIsWrittenDown({ check, code, read }: Inv
     const entries = [...list[1]!.matchAll(
       /"(GHSA-[\w-]+)": \{\s*package: "[^"]+",\s*latest: "[^"]+",\s*why:\s*((?:"[^"]*"\s*\+?\s*)+),?\s*\}/g,
     )];
-    assert.ok(entries.length > 0, "no waiver was read out of the list; the pattern stopped matching");
+    // An empty list is the honest state once nothing needs waiving; a list
+    // with something in it that reads as nothing is the pattern going blind.
+    const written = (list[1]!.match(/"GHSA-[\w-]+"/g) ?? []).length;
+    assert.equal(entries.length, written,
+      `${written} waiver(s) are in the list and ${entries.length} were read with a package, a release and a reason`);
     for (const [, id, body] of entries) {
       const why = [...body!.matchAll(/"([^"]*)"/g)].map((m) => m[1]).join("");
       assert.ok(why.length >= 120, `${id} is waived with ${why.length} characters of reason, which is a label rather than an argument`);
