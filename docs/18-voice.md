@@ -15,7 +15,7 @@ sorted into the second pile, and the useful thing underneath it goes unread.
 
 **Warm, kind, concise, and unmistakably a person.**
 
-Those four are not a mood board. Each one is a decision you can check:
+Each of the four is a decision you can check:
 
 **Warm** is attention, not enthusiasm. Warmth is noticing the specific thing this learner did and
 saying it back to them. "Six days in a row" is warmer than "Amazing work!" because it is about them
@@ -203,8 +203,8 @@ against
 > Reading, listening and writing, climbing until it finds your level. Speaking you judge yourself.
 
 Three of the four dropped facts are on the results screen, where they answer a question somebody is
-actually asking. The fourth, that no answer becomes a flashcard, is the honest kind of detail this
-app is careful about, and it belongs in the briefing rather than in front of the button.
+actually asking. The fourth, that no answer becomes a flashcard, belongs in the briefing rather than in front of
+the button.
 
 The test that holds this is a ceiling, not a target: 100 characters for a dead end's body, 95 for a
 page lead. Neither number makes a sentence good. What they do is catch the paragraph growing back.
@@ -261,7 +261,7 @@ against
 Nothing was cut. Four claims that were one sentence are four sentences.
 
 **The test.** Read it aloud and stop where you would draw breath. If you run out of breath before
-the full stop, it is two sentences. If you cannot say it aloud at all without rearranging it, it is
+the period, it is two sentences. If you cannot say it aloud at all without rearranging it, it is
 a fragment pretending to be one.
 
 ## 3b. Say it out loud: the fault a friend would laugh at
@@ -423,7 +423,7 @@ sentence written for a laugh is held to every rule `lib/dict/authored.ts` states
   not claim one: `abielu` is read as help, because help is what the dictionary says it is. A part marked `notThe` in `lib/estonian/literally.ts`
   names the homonym it is not, and the test checks both halves of that against the dictionary.
 - **Turn up everywhere.** A joke on every card stops being a joke by the second evening. Most words
-  have nothing funny said about them, and that is the point.
+  have nothing funny said about them.
 - **Promise a setting.** A conversation partner is drawn for every scene, a friend on the phone as
   readily as a clerk, so the line introducing them says how they talk and never where you are: "the
   queue behind you" is nonsense on a call from a friend. `lib/scenes/personas.test.ts` holds it.
@@ -490,7 +490,7 @@ showed a model reaching past one unprompted. `humanize.ts` strips the dashes and
 out of the stream before the learner sees them. `lib/tutor/verify.ts` withholds a writing-grader note
 whole if it quotes an Estonian form the learner was not given.
 
-What is deliberately not enforced is the brochure vocabulary, and the reason is worth keeping. There
+What is deliberately not enforced is the brochure vocabulary. There
 is no mechanical translation from "seamless" back into whatever the writer meant, so rewriting it
 mid-stream would put words in Anu's mouth that she did not choose. It is asked for in the prompt,
 swept in hand-written copy, and left alone in a stream.
@@ -509,7 +509,7 @@ swept in hand-written copy, and left alone in a stream.
 
 Adding a tell means arguing that the phrase is never right on a screen in this app. `perfect` is not
 on the list, because taisminevik is the perfect tense and a grammar page has to be able to say so.
-`unlock` is not on the list, because the exam recordings genuinely unlock. A check that fires on
+`unlock` is not on the list, because unlocking is what the exam recordings do. A check that fires on
 honest copy gets waived, and a check everybody waives is a check nobody reads.
 
 The half in the table is the half a machine can hold. Sections 1, 3 and 3a are a review standard,

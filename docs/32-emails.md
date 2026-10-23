@@ -18,7 +18,7 @@ complaining about it. Every rule below follows from that one sentence.
 | Kind | When | What it leans on |
 | --- | --- | --- |
 | `welcome` | An hour to two days after first run, once | Turning an intention into a plan: a named hour, and the deck that is already built |
-| `tonight` | The hour they picked, on an evening they have not finished | The evening is genuinely unfinished, and their own words about why they started |
+| `tonight` | The hour they picked, on an evening they have not finished | The evening is unfinished, and their own words about why they started |
 | `comeback` | Six days without a review, at most one a fortnight | What survived, and an ask small enough to say yes to |
 | `milestone` | A morning, once per level, when its words have graduated | A claim about memory rather than attendance, and an admission that it is late |
 | `shield` | A morning, once per covered day | Telling somebody a thing they earned was spent for them |
@@ -52,9 +52,8 @@ through and the people the word letter is for are exactly the ones on the far si
 
 ## The psychology, and its limits
 
-Each letter leans on something real, and each thing it leans on is a fact this app already derives
-about that one person. That is not a coincidence: the levers that are honest here are the ones
-that work, because what makes them work is that they are specific and true.
+Each letter leans on a fact this app already derives about that one person. That is deliberate:
+a lever works here because it is specific and true.
 
 **An unfinished evening.** A course day is a short list of steps and some of them are ticked.
 Something started and not finished sits differently in the mind from something not started. It is
@@ -174,7 +173,7 @@ statement behind it gets relitigated by whoever is next in the file.
 - It may not say anybody is falling behind, or compare a learner to any other learner. The
   classroom roster refuses to rank colleagues for the same reason; a letter doing it would be that,
   in somebody's inbox.
-- It may not put a number at risk that is not genuinely at risk. The streak is not: this app banks
+- It may not present a number as at risk when it is not. The streak is not: this app banks
   shields and its own rules say a day without study is never punished.
 - It may not count the days somebody was away. The scheduler reads them and no letter is handed
   them. The figure is the guilt, and it is ours to decide with rather than theirs to be handed.
@@ -208,7 +207,7 @@ every mail tool offers it and most default it on. There is none here, `EmailSend
 
 Which means **there is no open rate**. That is a real cost and it is the right trade: an open rate
 is a number nobody here would act on, and it would cost the one claim on that page worth keeping.
-What can be read honestly is whether people come back, which `/api/metrics` already answers out of
+What can be read is whether people come back, which `/api/metrics` already answers out of
 the deployment's own database.
 
 The drawings are colored table cells rather than SVG or images, which happens to agree with the
@@ -351,7 +350,7 @@ out to be about *when* or *what*, never about whether. They are what changed.
 ### The deadline letter
 
 The reservation was right: a message saying a date will not be met is a message somebody stops
-opening the app over. What makes an honest version possible is when it arrives and what it leads
+opening the app over. What makes it sendable at all is when it arrives and what it leads
 with. Sent at the end it is a post-mortem; sent with a couple of months left it is a decision
 somebody made in ninety seconds during first run, put back in front of them while every lever still
 works. So `DEADLINE_WEEKS_MIN` and `DEADLINE_WEEKS_MAX` are both arguments: closer than four weeks
@@ -393,7 +392,7 @@ singular is a named student's and is exactly what may not. The word boundary bet
 the check is built on.
 
 It reports a quiet week as a quiet week, because a digest that only goes out when the news is good
-is an advertisement. What it may not do is editorialise about the people in it: "7 did not open it"
+is an advertisement. What it may not do is editorialize about the people in it: "7 did not open it"
 is a fact a teacher can act on, and anything about why is a guess about somebody the letter is not
 even allowed to name.
 
@@ -440,7 +439,7 @@ may reach a learner whatever the channel.
 each is a nudge or a fact that fits in two lines. `LETTER_ONLY` beside it gives the reason for every
 other kind, and a test holds each kind to being in exactly one of the two. The welcome explains an
 evening and arrives once; the comeback is about being away, which is not a line to put on a screen
-a room can see; the summary has a week drawn in it; the errand's whole point is a sentence that
+a room can see; the summary has a week drawn in it; the errand rests on one sentence that
 does not survive being cut short; the deadline asks somebody to choose between three levers; the
 register is about other people; and a sign-in link has to reach the address somebody signs in with.
 

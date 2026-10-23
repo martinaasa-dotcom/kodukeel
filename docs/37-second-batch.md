@@ -81,9 +81,9 @@ to find them; read the file for the reasons.
 
 ### Getting a working copy
 
-Cloud sessions here have carried hosted Supabase credentials and live model keys in the shell, and a
-guard is not a reason to rely on a guard. Run every app and test command through a wrapper that removes
-them and points at a local database:
+Cloud sessions here have carried hosted Supabase credentials and live model keys in the shell, so do not
+rely on the scripts' own guards. Run every app and test command through a wrapper that removes them and
+points at a local database:
 
 ```bash
 #!/bin/bash
