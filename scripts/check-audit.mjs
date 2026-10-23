@@ -25,8 +25,7 @@
 import { execFileSync } from "node:child_process";
 
 /** Advisories nobody can fix yet, each with why it cannot be reached. */
-const WAIVED = {
-};
+const WAIVED = {};
 
 const BLOCKING = new Set(["high", "critical"]);
 
