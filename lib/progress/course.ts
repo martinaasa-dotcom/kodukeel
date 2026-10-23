@@ -714,6 +714,14 @@ export async function courseReading(
   if (!justFinished && standing.current && standing.current.day.index > reached.index) {
     justFinished = reached.id;
   }
+  /*
+    And the same of a part's LAST evening, where there is no day after it to
+    stand on: a whole part has no current day at all, so the rule above could
+    never fire and a part finished tonight read as finished on some other day.
+    Today then skipped "done for today" and offered the next part at once,
+    which is the evening not ending.
+  */
+  if (!justFinished && standing.finished) justFinished = reached.id;
 
   /*
     "Come back tomorrow" is a claim about a day that finished *today*, so it is

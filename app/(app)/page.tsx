@@ -53,7 +53,7 @@ import { LadderBar } from "@/components/course/LadderBar";
 import { unitById } from "@/lib/collections/syllabus";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
-import { stepCard, stepsIn } from "@/lib/course";
+import { programmeAfter, stepCard, stepsIn } from "@/lib/course";
 import { HeroFan } from "@/components/HeroFan";
 import { fillNodes } from "@/components/TemplateNodes";
 import { JokeOfDayCard } from "@/components/JokeOfDay";
@@ -373,9 +373,15 @@ export default async function TodayPage() {
   */
   const figures = shows(stage, "streak") ? (
     <div className="flex flex-wrap items-center gap-4">
-      <div className="grid w-full grid-cols-2 gap-3 sm:w-auto sm:min-w-[200px] sm:flex-1">
+      {/*
+        One figure, what is due. A "New words" tile sat beside it and read
+        1,282 for somebody following the course, which is every word the deck
+        holds that the ladder has not met: a number nobody can act on, and the
+        October feedback asked what it was for. The button underneath already
+        says how many new words are next, in a batch somebody can do.
+      */}
+      <div className="w-full sm:w-auto sm:min-w-[160px]">
         <StatTile value={dueNow} label={t("Due now")} tone="accent" />
-        <StatTile value={toLearn} label={t("New words")} tone="sky" />
       </div>
       {/* On a phone the ring wraps onto its own line, where a bare
           circle says nothing — so it is captioned there and only there. */}
@@ -541,8 +547,44 @@ export default async function TodayPage() {
      or the page says "today's module is the whole evening" over a card that
      has just said the evening is over. */
   const moduleTonight = Boolean(courseNow && courseDay && !courseNow.finishedToday && courseStep);
+  /*
+    A PART FINISHED ON AN EARLIER DAY IS NOT A DAY OFF FROM THE COURSE.
 
-  const courseCard = moduleTonight && courseDay && courseStep ? (
+    The October feedback asked why Today showed the generic card. Finishing
+    the last evening of a part leaves no current day, so the module hero had
+    nothing to draw and the page fell back to "what's due", on every morning
+    after, until the learner went and found the next part themselves. The
+    hero is the next part's first evening instead, and its button goes to the
+    course screen, where the hand-off between parts is (the reading of
+    whether the words have settled, and the way on). A part finished today
+    keeps the "done" card below, so the evening still ends.
+  */
+  const nextPart = programme && courseNow?.finished ? programmeAfter(programme) ?? null : null;
+  const nextPartDay = nextPart && !courseNow?.finishedToday ? nextPart.days[0] ?? null : null;
+
+  const nextPartCard = nextPart && nextPartDay ? (
+    <HeroFan
+      bright
+      eyebrow={fill(t("Next up: {part}"), { part: nextPart.id.toUpperCase() })}
+      title={ui(nextPartDay.title, nextPartDay.subtitle)}
+      titleLang={uiWantsEnglish(placement) ? undefined : "et"}
+      text={fill(t("You finished {part}. {canDo}"), { part: programme!.id.toUpperCase(), canDo: t(nextPartDay.canDo) })}
+      action={
+        <ButtonLink href="/course" variant="primary" size="lg" className="whitespace-nowrap">
+          {fill(t("Start {part}"), { part: nextPart.id.toUpperCase() })} <ArrowRight size={17} aria-hidden />
+        </ButtonLink>
+      }
+      nextLabel={t("Next")}
+      cardsLabel={fill(t("{minutes} min to go today"), { minutes: stepsIn(nextPartDay, locale).reduce((m, step) => m + step.minutes, 0) })}
+      cards={stepsIn(nextPartDay, locale).map((step, at) => ({
+        ...stepCard(step, locale),
+        detail: fill(t("{minutes} min"), { minutes: step.minutes }),
+        state: at === 0 ? "now" : "later",
+      }))}
+    />
+  ) : null;
+
+  const courseCard = nextPartCard ?? (moduleTonight && courseDay && courseStep ? (
     /*
       THE EVENING AS A FAN OF ITS STEPS, AND THE ONE BRIGHT HERO IN THE APP.
 
@@ -596,7 +638,12 @@ export default async function TodayPage() {
               : uiWantsEnglish(placement)
                 ? fillNodes(t("See you tomorrow for “{unit}”."), { unit: <b>{t(courseDay.day.subtitle)}</b> })
                 : fillNodes(t("See you tomorrow for “{unit}” ({english})."), { unit: <b lang="et">{courseDay.day.title}</b>, english: t(courseDay.day.subtitle) })
-            : t("That was the very last evening of the course. Every word you met along the way will keep coming back in your reviews.")}
+            : nextPart
+              ? fillNodes(t("That was the last evening of {part}. Tomorrow you start {next}."), {
+                part: <b>{programme!.id.toUpperCase()}</b>,
+                next: <b>{nextPart.id.toUpperCase()}</b>,
+              })
+              : t("That was the very last evening of the course. Every word you met along the way will keep coming back in your reviews.")}
         </p>
       </div>
       <div className="flex flex-col gap-3 lg:w-[19rem] lg:shrink-0">
@@ -605,7 +652,7 @@ export default async function TodayPage() {
         </ButtonLink>
       </div>
     </Card>
-  ) : null;
+  ) : null);
 
   const doNowCard = courseCard ?? (snapshot.totalCards === 0 ? (
     <Card>
@@ -617,7 +664,23 @@ export default async function TodayPage() {
     </Card>
   ) : (
     <Card tone="night" className="flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-8">
-      <div className="min-w-0 flex-1">{figures ?? opening}</div>
+      <div className="min-w-0 flex-1">
+        {/*
+          WHY THIS CARD AND NOT TODAY'S MODULE, said in one line. It is drawn
+          only where there is no evening to lead with: the planned course is
+          switched off, or every part of it is done.
+        */}
+        {(!programme || courseNow?.finished) && (
+          <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }} data-hero-reason>
+            {!programme
+              ? fillNodes(t("The planned course is off, so this is what's due. {turnOn}"), {
+                turnOn: <Link href="/course" className="underline underline-offset-2">{t("Turn it back on")}</Link>,
+              })
+              : t("You've finished the whole course, so this is what's due.")}
+          </p>
+        )}
+        {figures ?? opening}
+      </div>
       {/*
         Nineteen rem, which is the width the primary button was always drawn
         at on a phone and is wide enough for "Or learn 5 new words" on one
