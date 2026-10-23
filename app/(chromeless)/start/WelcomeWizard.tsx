@@ -120,7 +120,7 @@ const NEW_LETTERS = { a: "õ", b: "ä", c: "ö", d: "ü" } as const;
 function NewLettersNote({ t }: { t: (english: string) => string }) {
   return (
     <Note tone="sky">
-      {fill(t("Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. Don’t worry about saying them right yet. That comes with time."), NEW_LETTERS)}
+      {fill(t("Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. You don’t have to say them right yet. That comes with time."), NEW_LETTERS)}
     </Note>
   );
 }
@@ -696,7 +696,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
             */}
             <div className="mt-10">
               <Note tone="hard">
-                {t("One honest note before you start: Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse. The real conversations happen out there.")}
+                {t("Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse. The real conversations happen out there.")}
               </Note>
             </div>
           </section>

@@ -405,7 +405,7 @@ export function CafeScene({ scenes, voiceBase = null }: {
                 {done && reply && (
                   <div className="cafe-done mt-2 flex flex-col gap-2 rounded-[var(--r-lg)] p-4">
                     <p className="text-lg font-bold" style={{ color: "var(--ink)" }}>
-                      {en(reply.outcome) ?? t("And that’s the whole conversation.")}
+                      {en(reply.outcome) ?? t("You got to the end of the conversation.")}
                     </p>
                     <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
                       {fill(t("Inside there are {n} of these, from the doctor’s to the landlord’s, and there you type your answers yourself."), { n: scenes })}

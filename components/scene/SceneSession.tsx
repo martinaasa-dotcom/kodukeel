@@ -872,7 +872,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
         setError(
           response.status === 429
             ? "That was a lot of turns in a row. Give it a moment."
-            : "Something went wrong on our side. Don't worry, your turn is still here.",
+            : "Something went wrong on our side. Your turn is still here.",
         );
         return;
       }

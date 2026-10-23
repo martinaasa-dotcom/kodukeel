@@ -3321,7 +3321,7 @@ puts the dictionary under every word it knows, offers the English behind a press
 beside the Estonian (a joke worked out is funnier and teaches more), reads it aloud, and walks
 five spares on "Another one" without asking the server for anything.
 
-**The good news is ERR's own headline, word for word.** Culture and science first, where the
+**The good-news card is ERR's own headline, word for word.** Culture and science first, where the
 openings, prizes and discoveries are, then the front page, which measured 32 of 50 headlines
 refused on the day this was built. A list of bad-news stems refuses on every path and errs toward
 refusing; then a metered model on the grader's chain picks what is plainly good and says it in

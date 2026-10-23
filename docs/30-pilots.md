@@ -13,7 +13,7 @@ What the page covers, in its own order:
 - **What is asked of you.** A named contact, a start and an end date, permission to count and not to
   watch, and honesty at the end.
 - **What you get back.** The whole app, enterprise sign-in, a cohort view and a written summary.
-- **What happens to your people's data.** The short version, linking `/privacy` and `/trust`.
+- **What happens to your people's data.** The main points, linking `/privacy` and `/trust`.
 - **What this is not ready for.** No SOC 2 report or ISO 27001 certificate, no external penetration
   test, no contractual uptime, and partial accessibility conformance. `lib/legal/pilots.test.ts`
   fails if the page stops saying the first three.

@@ -81,7 +81,7 @@ screen saying which it got.
    that turn. A failure is reported, never hidden, and never looped.
 
 **Measured, and the first rung is thinner than it looks.** `npm run measure:scenes` has been run and
-§25 has the numbers. The short version, because it changes how the rest of this reads: retrieval
+§25 has the numbers. The finding changes how the rest of this reads: retrieval
 fills the moves every conversation shares and almost none of the moves that make it this
 conversation, because a lexicographer records a sentence to illustrate a word rather than to ask a
 question about it. The composer is load-bearing rather than a fallback, which makes the gate below

@@ -120,8 +120,8 @@ export const LETTERS: Area = {
     "You studied on {n} of the last seven days.": "Вы занимались {n} из последних семи.",
     "You answered {cards}. {words} are properly yours now, and that number only grows when a word comes back days later and you still know it.":
       "За неделю вы ответили на {cards}. По-настоящему ваших уже {words}, и это число растёт, только когда слово возвращается через несколько дней, а вы его всё ещё помните.",
-    "No cards this week, and that's fine. Weeks like that happen. Nothing piles up to punish you while you're away, and one evening puts you right back where you were.":
-      "На этой неделе карточек не было, и это нормально. Так бывает. Пока вас нет, ничего не копится вам в наказание, а один вечер возвращает вас туда, где вы были.",
+    "No cards this week. Weeks like that happen. Nothing piles up to punish you while you're away, and one evening puts you right back where you were.":
+      "На этой неделе карточек не было. Так бывает. Пока вас нет, ничего не копится вам в наказание, а один вечер возвращает вас туда, где вы были.",
     "And one conversation in Estonian with a real person. That's the number this whole app is for.":
       "А ещё один разговор на эстонском с живым человеком. Ради этого числа и существует всё приложение.",
     "And {conversations} in Estonian with real people. That's the number this whole app is for.":
@@ -315,8 +315,8 @@ export const LETTERS: Area = {
     "You studied on {n} of the last seven days.": "Ви займалися {n} з останніх семи.",
     "You answered {cards}. {words} are properly yours now, and that number only grows when a word comes back days later and you still know it.":
       "За тиждень ви відповіли на {cards}. По-справжньому ваших уже {words}, і це число зростає, лише коли слово повертається через кілька днів, а ви його досі пам'ятаєте.",
-    "No cards this week, and that's fine. Weeks like that happen. Nothing piles up to punish you while you're away, and one evening puts you right back where you were.":
-      "Цього тижня карток не було, і це нормально. Так буває. Поки вас немає, нічого не накопичується вам на покарання, а один вечір повертає вас туди, де ви були.",
+    "No cards this week. Weeks like that happen. Nothing piles up to punish you while you're away, and one evening puts you right back where you were.":
+      "Цього тижня карток не було. Так буває. Поки вас немає, нічого не накопичується вам на покарання, а один вечір повертає вас туди, де ви були.",
     "And one conversation in Estonian with a real person. That's the number this whole app is for.":
       "А ще одна розмова естонською з живою людиною. Заради цього числа й існує весь застосунок.",
     "And {conversations} in Estonian with real people. That's the number this whole app is for.":

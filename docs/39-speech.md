@@ -5,7 +5,7 @@ Written on 2026-10-15, after the recognizers were measured again (`npm run measu
 `docs/38-third-batch.md`: a fresh session takes one item, finishes it, and opens a pull request
 without asking anybody anything. Where a choice had to be made, section 2 has made it.
 
-The short version: the app can now hear Estonian well enough to use it, on the learner's own device,
+The app can now hear Estonian well enough to use it, on the learner's own device,
 for nothing, with a model built in Tallinn. That changes what speaking practice can be. It does not
 change what the app may claim about somebody's pronunciation, and most of this page is about keeping
 those two apart while making the first one as good as it can be.

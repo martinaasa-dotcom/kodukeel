@@ -127,8 +127,8 @@ export const START: Area = {
     "The same in English": "То же по-английски",
     "You’ll always see the English as well. The Russian and Ukrainian meanings come straight from the Estonian dictionary, written by the same people as the Estonian.":
       "Английское значение вы тоже будете видеть всегда. Русские значения взяты прямо из эстонского словаря, их писали те же люди, что и эстонскую часть.",
-    "One honest note before you start: Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse. The real conversations happen out there.":
-      "Одно честное замечание перед началом: Kodukeel не оценивает ваше произношение, не даёт ИИ ставить вам оценки и не заменяет преподавателя. Здесь вы репетируете. А настоящие разговоры ждут вас в жизни.",
+    "Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse. The real conversations happen out there.":
+      "Kodukeel не оценивает ваше произношение, не даёт ИИ ставить вам оценки и не заменяет преподавателя. Здесь вы репетируете. А настоящие разговоры ждут вас в жизни.",
 
     // FIRST RUN: LEVEL.
     "Where are you now?": "Какой у вас сейчас уровень?",
@@ -154,8 +154,8 @@ export const START: Area = {
     "Fluent": "Свободно",
     "Pretty much anything. You're here for the finer shades of meaning.":
       "Почти всё. Вы здесь ради тонких оттенков смысла.",
-    "Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. Don’t worry about saying them right yet. That comes with time.":
-      "В эстонском есть четыре буквы, которых нет в русском алфавите: {a}, {b}, {c} и {d}. Они встречаются повсюду. Не переживайте, если пока не получается их правильно произносить. Это придёт со временем.",
+    "Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. You don’t have to say them right yet. That comes with time.":
+      "В эстонском есть четыре буквы, которых нет в русском алфавите: {a}, {b}, {c} и {d}. Они встречаются повсюду. Произносить их правильно пока не обязательно. Это придёт со временем.",
 
     // FIRST RUN: GOAL.
     "How we worked that out": "Как мы это посчитали",
@@ -422,8 +422,8 @@ export const START: Area = {
     "The same in English": "Те саме англійською",
     "You’ll always see the English as well. The Russian and Ukrainian meanings come straight from the Estonian dictionary, written by the same people as the Estonian.":
       "Англійське значення ви теж завжди бачитимете. Українські значення взято просто з естонського словника, їх писали ті самі люди, що й естонську частину.",
-    "One honest note before you start: Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse. The real conversations happen out there.":
-      "Одне чесне застереження, перш ніж почати: Kodukeel не оцінює вашу вимову, не дає ШІ ставити вам оцінки й не замінює викладача. Тут ви репетируєте. А справжні розмови чекають на вас у житті.",
+    "Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse. The real conversations happen out there.":
+      "Kodukeel не оцінює вашу вимову, не дає ШІ ставити вам оцінки й не замінює викладача. Тут ви репетируєте. А справжні розмови чекають на вас у житті.",
 
     // FIRST RUN: LEVEL.
     "Where are you now?": "Який у вас зараз рівень?",
@@ -449,8 +449,8 @@ export const START: Area = {
     "Fluent": "Вільно",
     "Pretty much anything. You're here for the finer shades of meaning.":
       "Майже все. Ви тут заради тонких відтінків значення.",
-    "Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. Don’t worry about saying them right yet. That comes with time.":
-      "В естонській є чотири літери, яких немає в українській абетці: {a}, {b}, {c} і {d}. Вони трапляються всюди. Не хвилюйтеся, якщо поки не виходить правильно їх вимовляти. Це прийде з часом.",
+    "Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. You don’t have to say them right yet. That comes with time.":
+      "В естонській є чотири літери, яких немає в українській абетці: {a}, {b}, {c} і {d}. Вони трапляються всюди. Вимовляти їх правильно поки не обов'язково. Це прийде з часом.",
 
     // FIRST RUN: GOAL.
     "How we worked that out": "Як ми це порахували",

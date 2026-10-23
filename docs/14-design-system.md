@@ -782,7 +782,7 @@ once, and a screen that gets it wrong is off-system even when every token in it 
 
 The standard is **warm, kind, concise, and unmistakably a person**. `docs/18-voice.md` is the full
 version with worked before-and-after examples, and it is the one to read before writing a sentence
-anybody will see. The short version:
+anybody will see. Its main points:
 
 **Warmth is attention, not enthusiasm.** `Six days in a row` is warmer than `Amazing work!`
 because

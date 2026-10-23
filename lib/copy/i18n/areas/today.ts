@@ -280,8 +280,8 @@ export const TODAY: Area = {
     "Или {try}.",
   "try it out here first":
     "сначала потренируйтесь здесь",
-  "They understood you. That's the whole point of all this.":
-    "Вас поняли. Ради этого всё и затевалось.",
+  "You spoke Estonian and they understood you.":
+    "Вы говорили по-эстонски, и вас поняли.",
   "Getting stuck is just what learning a language out loud looks like. It still counts, and it's on the board.":
     "Сбиться посреди разговора нормально: так и выглядит язык, который учат вслух. Разговор всё равно засчитан.",
   "They switched to English. Next time, keep going in Estonian anyway. Most people switch back.":
@@ -524,8 +524,8 @@ export const TODAY: Area = {
     "Ваши вечера уже спланированы",
   "{evenings} short evenings, from your very first word all the way to C1. We've planned every one.":
     "{evenings} от самого первого слова до C1. Все они короткие, и каждый мы уже спланировали.",
-  "You've been choosing what to do each evening, and that's fine. Starting this won't change anything else.":
-    "Вы сами выбирали, чем заниматься каждый вечер, и это нормально. Если начать курс, больше ничего не изменится.",
+  "You've been choosing what to do each evening. Starting this won't change anything else.":
+    "Вы сами выбирали, чем заниматься каждый вечер. Если начать курс, больше ничего не изменится.",
   "It starts at {start}, where you are now. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.":
     "Курс начинается с {start}, там, где вы сейчас. Это план, на который можно опереться, а не колея, из которой не выбраться, и всё остальное в приложении остаётся на своих местах.",
   "It starts at {start}, the level after the {level} you already have. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.":
@@ -872,10 +872,10 @@ export const TODAY: Area = {
     "Если эта часть кажется слишком лёгкой, переходите сразу к части {part}. Всё из этой части в любом случае останется в ваших повторениях.",
   "There's no part above this one, so stretch yourself with your reviews and the tougher conversations.":
     "Выше этой части ничего нет, так что испытайте себя в повторениях и в более трудных разговорах.",
-  "A lot of recent answers have been misses. This part is a step ahead of you for now, and that's normal.":
-    "Среди последних ответов много ошибок. Эта часть пока на шаг впереди вас, и это нормально.",
-  "Lately you've been getting {seen} out of a hundred right. This part is a step ahead of you for now, and that's normal.":
-    "В последнее время вы отвечаете правильно на {seen} из ста. Эта часть пока на шаг впереди вас, и это нормально.",
+  "A lot of recent answers have been misses. This part is a step ahead of you for now.":
+    "Среди последних ответов много ошибок. Эта часть пока на шаг впереди вас.",
+  "Lately you've been getting {seen} out of a hundred right. This part is a step ahead of you for now.":
+    "В последнее время вы отвечаете правильно на {seen} из ста. Эта часть пока на шаг впереди вас.",
   "Your reviews will bring back the words that are slipping. Give it a few days.":
     "Повторения вернут слова, которые ускользают. Дайте себе несколько дней.",
   "The level you started at was a first guess. Going over {level} first will make this part much easier. It's a refresher, and this part waits for you afterwards.":
@@ -1334,8 +1334,8 @@ export const TODAY: Area = {
     "Або {try}.",
   "try it out here first":
     "спершу потренуйтеся тут",
-  "They understood you. That's the whole point of all this.":
-    "Вас зрозуміли. Саме заради цього все й затівалося.",
+  "You spoke Estonian and they understood you.":
+    "Ви говорили естонською, і вас зрозуміли.",
   "Getting stuck is just what learning a language out loud looks like. It still counts, and it's on the board.":
     "Збитися посеред розмови нормально: саме такий вигляд має мова, яку вчать вголос. Розмову все одно зараховано.",
   "They switched to English. Next time, keep going in Estonian anyway. Most people switch back.":
@@ -1602,8 +1602,8 @@ export const TODAY: Area = {
     "Ваші вечори вже сплановано",
   "{evenings} short evenings, from your very first word all the way to C1. We've planned every one.":
     "Від найпершого слова аж до C1: {evenings}. Усі вони короткі, і кожен ми вже спланували.",
-  "You've been choosing what to do each evening, and that's fine. Starting this won't change anything else.":
-    "Ви самі вибирали, чим займатися щовечора, і це нормально. Якщо почати курс, більше нічого не зміниться.",
+  "You've been choosing what to do each evening. Starting this won't change anything else.":
+    "Ви самі вибирали, чим займатися щовечора. Якщо почати курс, більше нічого не зміниться.",
   "It starts at {start}, where you are now. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.":
     "Курс починається з {start}, там, де ви зараз. Це план, на який можна спертися, а не колія, з якої не вибратися, і все інше в застосунку лишається на своїх місцях.",
   "It starts at {start}, the level after the {level} you already have. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.":
@@ -1950,10 +1950,10 @@ export const TODAY: Area = {
     "Якщо ця частина здається надто легкою, переходьте одразу до частини {part}. Усе з цієї частини в будь-якому разі лишиться у ваших повтореннях.",
   "There's no part above this one, so stretch yourself with your reviews and the tougher conversations.":
     "Вище цієї частини нічого немає, тож випробуйте себе в повтореннях і складніших розмовах.",
-  "A lot of recent answers have been misses. This part is a step ahead of you for now, and that's normal.":
-    "Багато останніх відповідей були неправильними. Ця частина поки на крок попереду вас, і це нормально.",
-  "Lately you've been getting {seen} out of a hundred right. This part is a step ahead of you for now, and that's normal.":
-    "Останнім часом ви правильно відповідаєте на {seen} зі ста. Ця частина поки на крок попереду вас, і це нормально.",
+  "A lot of recent answers have been misses. This part is a step ahead of you for now.":
+    "Багато останніх відповідей були неправильними. Ця частина поки на крок попереду вас.",
+  "Lately you've been getting {seen} out of a hundred right. This part is a step ahead of you for now.":
+    "Останнім часом ви правильно відповідаєте на {seen} зі ста. Ця частина поки на крок попереду вас.",
   "Your reviews will bring back the words that are slipping. Give it a few days.":
     "Повторення повернуть слова, які вислизають. Дайте цьому кілька днів.",
   "The level you started at was a first guess. Going over {level} first will make this part much easier. It's a refresher, and this part waits for you afterwards.":

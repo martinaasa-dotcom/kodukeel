@@ -175,7 +175,7 @@ export function SituationDetail({
               <p className="mt-2 text-sm" style={{ color: "var(--sky-ink)" }}>{fill(t("What you might hear back: {what}"), { what: t(situation.expect) })}</p>
             )}
             <p className="mt-2 text-sm" style={{ color: "var(--sky-ink)" }}>
-              {t("It won't go as smoothly as a card, and that's fine. Whatever you couldn't say, look up afterwards.")}
+              {t("It won't go as smoothly as a card. Whatever you couldn't say, look up afterwards.")}
             </p>
           </Card>
         </section>

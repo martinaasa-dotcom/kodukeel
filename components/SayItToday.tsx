@@ -392,7 +392,7 @@ function rehearsal(scene: string | null): string {
   failure on the learner's part.
 */
 const REPLY: Record<Conversation, string> = {
-  UNDERSTOOD: "They understood you. That's the whole point of all this.",
+  UNDERSTOOD: "You spoke Estonian and they understood you.",
   STUCK: "Getting stuck is just what learning a language out loud looks like. It still counts, and it's on the board.",
   SWITCHED: "They switched to English. Next time, keep going in Estonian anyway. Most people switch back.",
 };

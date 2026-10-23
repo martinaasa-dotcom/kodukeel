@@ -41,7 +41,7 @@ export function VisitRecap() {
         </ul>
       )}
       <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-        {t("Now imagine fifteen minutes of that every evening.")}
+        {t("Inside the app, you get fifteen minutes like this every evening.")}
       </p>
     </div>
   );

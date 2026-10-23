@@ -132,7 +132,7 @@ export function weeklyLetter(input: WeeklyInput): Letter {
     blocks.push({
       t: "text",
       text: say(
-        "No cards this week, and that's fine. Weeks like that happen. Nothing piles up to punish you " +
+        "No cards this week. Weeks like that happen. Nothing piles up to punish you " +
           "while you're away, and one evening puts you right back where you were.",
       ),
     });

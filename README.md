@@ -125,7 +125,7 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
   breaks the pattern, grouped by what breaks. Its drill shows you the form, asks you for it, then
   asks for it again inside a sentence a lexicographer wrote. Nobody typed that list: it's found by
   comparing the pattern with what the dictionary holds. So a word that isn't on the list really
-  does follow the pattern, and you can work it out with confidence. That's the whole point of it.
+  does follow the pattern, and you can work it out with confidence.
 - **A mock of the state examination.** Estonia examines at A2, B1, B2 and C1, and B1 is what a
   citizenship application asks for. Sit an imitation of any of them on the real clock, out of the
   real points, under the real rule: sixty percent passes, and a zero in any one part fails the

@@ -62,7 +62,7 @@ export async function Diagnosis({ ownerId }: { ownerId: string }) {
           <p lang={locale} className="text-sm" style={{ color: "var(--ink-2)" }}>
             {needed > 0
               ? fill(t("Not enough answers on case endings yet to spot a pattern. Do about {n} more and this will show you which kinds of word keep catching you out."), { n: needed })
-              : t("Nothing stands out. You do about as well on every ending and every kind of word, which is a dull thing to read and a very good thing to be.")}
+              : t("Nothing stands out. You do about as well on every ending and every kind of word.")}
           </p>
         </Card>
       </section>

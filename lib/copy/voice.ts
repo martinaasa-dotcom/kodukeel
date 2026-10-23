@@ -174,6 +174,11 @@ const SHAPES: Tell[] = [
     instead: "Say what it is.",
   },
   {
+    name: "not X, Y.",
+    find: /(^|[.!?]["”]?\s+)not (?!yet\b|now\b)\w+, \w+\./i,
+    instead: "Say the right number or word once. Correcting a mistake nobody made is a reveal.",
+  },
+  {
     name: "that is where X comes in",
     find: /\bthat'?s where\b[^.!?]{0,40}\bcomes in\b/i,
     instead: "Say what the thing does.",
@@ -362,6 +367,76 @@ const MACHINE: Tell[] = [
 ];
 
 /**
+ * The flourish: a sentence that adds no fact, only a feeling of having finished.
+ *
+ * These are the tells a reader reported in their own words, off the landing
+ * page's plan: "No date is set, so that's the whole story." Every fact in that
+ * line was already in the sentence before it, and the tail was there to sound
+ * like somebody wrapping up. Nobody talks like that to a person in front of
+ * them, so the reader hears a machine. The same family covers the staged
+ * reveal ("Here's the secret:"), the pat on the head ("and that's fine",
+ * "don't worry") and the advert's "now imagine". None of them carries
+ * information, so the fix is always to delete them and let the fact stand,
+ * or to say the one concrete thing the flourish was gesturing at.
+ *
+ * Apostrophes are matched straight: `findTells` folds the curly one first,
+ * because the landing page is typeset with it and a pattern that only knew
+ * the straight one passed "That’s the whole trick" for a year.
+ */
+const FLOURISH: Tell[] = [
+  {
+    name: "the whole story",
+    find: /\bthe whole story\b|\bthat('s| is| was) the whole (trick|point|idea|secret|thing|conversation|lesson)\b/i,
+    instead: "Delete it. If the sentence before said everything, stop there.",
+  },
+  {
+    name: "and that's it",
+    find: /\band that('s| is) it\b|\bthat('s| is) all there is to it\b/i,
+    instead: "Delete it, or name the one thing that is left.",
+  },
+  {
+    name: "simple as that",
+    find: /\bsimple as that\b|\bit('s| is) that simple\b|\bplain and simple\b|\bend of story\b|\bno more,? no less\b|\bnothing more,? nothing less\b/i,
+    instead: "Delete it. Saying a thing is simple does not make it so.",
+  },
+  {
+    name: "here's the secret",
+    find: /\bhere('s| is) the (secret|thing|deal|kicker|catch|truth|best part|good news)\b|\bthe (secret|trick) is\b|\bthe good news is\b|\bthe best part is\b|\bbetter yet\b/i,
+    instead: "Say the fact. A reveal staged in front of it makes it sound like a sales pitch.",
+  },
+  {
+    name: "long story short",
+    find: /\blong story short\b|\bin a nutshell\b|\bthe bottom line\b|\bthe short version[:,]|\bmake no mistake\b|\bbelieve it or not\b|\blet's be honest\b|\bto be honest,|\bit's no secret\b|\b(an|one) honest (note|word)\b/i,
+    instead: "Delete the signpost and say the thing it points at.",
+  },
+  {
+    name: "and that's fine",
+    find: /\band that('s| is) (okay|ok|fine|normal|alright|all right)\b/i,
+    instead: "Say the fact that makes it fine: 'Weeks like that happen, and nothing piles up.'",
+  },
+  {
+    name: "don't worry",
+    find: /\bdon't worry\b|\bdo not worry\b|\bno worries\b|\byou('ve)? got this\b|\bno pressure[.!,]/i,
+    instead: "Say what is still safe or what happens next: 'your turn is still here'.",
+  },
+  {
+    name: "now imagine",
+    find: /\bnow imagine\b|\bimagine a world\b|\bjust imagine\b/i,
+    instead: "Say what the next step is. Asking a reader to imagine is the advert talking.",
+  },
+  {
+    name: "it's not you",
+    find: /\byou didn't fail\b|\bit('s| is) not you\b/i,
+    instead: "Say what the app does differently. A slogan about the reader's past is the advert.",
+  },
+  {
+    name: "straight to the point",
+    find: /\bstraight to the point\b|\bno fluff\b|\bno[- ]nonsense\b|\bshort,? straight answers\b/i,
+    instead: "Be short. Saying so is the one thing that makes it longer.",
+  },
+];
+
+/**
  * A machine telling somebody how they sounded (docs/41-fifth-batch.md, section 3).
  *
  * The app hears Estonian on the device and says which words it understood
@@ -399,7 +474,7 @@ const SOUNDS: Tell[] = [
  * it needs no `instead`: a comma, a full stop or a pair of brackets, decided
  * per sentence.
  */
-export const TELLS: readonly Tell[] = [...OPENERS, ...SHAPES, ...BROCHURE, ...JARGON, ...MACHINE, ...SOUNDS];
+export const TELLS: readonly Tell[] = [...OPENERS, ...SHAPES, ...BROCHURE, ...JARGON, ...MACHINE, ...FLOURISH, ...SOUNDS];
 
 /**
  * The rewritable subset, in the shape `humanize.ts` applies them in.
@@ -432,7 +507,11 @@ export const EMOJI = /[\u{1F300}-\u{1FAFF}\u{FE0F}\u{2728}\u{2705}\u{274C}\u{276
 
 /** Which tells a line of copy contains. Empty is the answer we want. */
 export function findTells(text: string): Tell[] {
-  return TELLS.filter((t) => t.find.test(text));
+  // Typeset copy carries the curly apostrophe, and every pattern above is
+  // written with the straight one, so fold before matching rather than ask
+  // each pattern to remember both.
+  const plain = text.replace(/[\u2018\u2019]/g, "'");
+  return TELLS.filter((t) => t.find.test(plain));
 }
 
 /**
@@ -445,6 +524,7 @@ export function findTells(text: string): Tell[] {
 export const VOICE_RULES: readonly string[] = [
   `Never use an em dash (${EM_DASH}) or an en dash (${EN_DASH}). Use a comma, a period, or a pair of parentheses. A dash used as a clause break is the loudest sign a sentence was generated rather than written, and this learner is being taught by a person. Give one figure rather than a range, "about 3 weeks" rather than "2 to 4 weeks": a range reads as not knowing. Write years as "2028-2029".`,
   `Never open with "It's important to note that", "At the end of the day", "In essence", "Great question", "Moreover", "Furthermore" or anything else that carries no information. Start with the answer.`,
+  `Never end on a flourish that adds no fact: "and that's the whole story", "that's the whole trick", "and that's it", "simple as that", "and that's fine", "don't worry". Never stage a reveal: "Here's the secret:", "the good news is", "the short version:", "now imagine". Stop when the facts stop. A reader hears the flourish as a machine finishing a paragraph.`,
   `Never inflate a small claim by denying it first. "Not just a rule, but a pattern" is "a rule, and a pattern". Say what a thing is.`,
   `Never reach for a brochure word: delve, leverage, utilize, seamless, cutting-edge, groundbreaking, holistic, bespoke, meticulously, a plethora of, embark on, unleash, empower, elevate. Use the plain word a teacher would use out loud.`,
   `Never say "paradigm". A learner has met "the forms of a word", "the case endings" and "the table" in class and has not met that one, so use theirs. The same goes for any other word that belongs to writing about a language rather than to teaching it.`,

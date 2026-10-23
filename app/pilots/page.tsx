@@ -150,7 +150,7 @@ export default function PilotsPage() {
       <S id="data" title="What happens to your people’s data">
         <P>
           The full answer is {page("/privacy", "the privacy notice")} and the{" "}
-          {doc("docs/24-dpia.md", "data protection impact assessment")}. The short version:
+          {doc("docs/24-dpia.md", "data protection impact assessment")}. These are the parts a sponsor asks about first:
         </P>
         <ul className="list-disc space-y-2 pl-5 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           <li>

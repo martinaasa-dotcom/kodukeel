@@ -1143,7 +1143,7 @@ export const A1 = [
     level: "A1",
     module: "Igapäevaelu",
     canDo: "Say when something happens and how often, from today to hardly ever.",
-    blurb: "Tomorrow, yesterday, soon, later, hardly ever. You'll use these in every plan you make, and the good news is they never change their endings.",
+    blurb: "Tomorrow, yesterday, soon, later, hardly ever. You'll use these in every plan you make, and they never change their endings.",
     grammar: ["time-expressions"],
     cardTypes: ["RECOGNITION", "PRODUCTION"],
     requires: ["aeg"],

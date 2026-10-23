@@ -214,7 +214,7 @@ export function AnuPanel({
               title={t(readerCanConfigure ? "Anu needs an AI key to talk" : "Anu isn't available here")}
               body={t(readerCanConfigure
                 ? "Everything else works without one. Settings walks you through getting a free key."
-                : "Don't worry, everything else here works without her.")}
+                : "Everything else here works without her.")}
               action={readerCanConfigure && (
                 <ButtonLink href="/settings?tab=words#anu">{t("Open Settings")}</ButtonLink>
               )}

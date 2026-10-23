@@ -242,9 +242,9 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["every request you make, while it's being answered, and a log of it that includes your IP address", "каждый ваш запрос, пока на него отвечают, и журнал запросов, в котором есть ваш IP-адрес", "кожен ваш запит, поки на нього відповідають, і журнал запитів, у якому є ваша IP-адреса"],
 
   // TERMS.
-  ["Kodukeel is an app for studying Estonian. These terms are short because the deal is simple: use it to learn Estonian, don’t abuse the shared services behind it, and know what it can and can’t promise you.",
-    "Kodukeel помогает учить эстонский язык. Эти условия короткие, потому что договорённость простая: пользуйтесь приложением, чтобы учить эстонский, не злоупотребляйте общими сервисами, на которых оно работает, и знайте, что оно может и чего не может вам обещать.",
-    "Kodukeel допомагає вчити естонську мову. Ці умови короткі, бо домовленість проста: користуйтеся ним, щоб учити естонську, не зловживайте спільними сервісами, на яких працює застосунок, і знайте, що він може і чого не може вам обіцяти."],
+  ["Kodukeel is an app for studying Estonian. Use it to learn Estonian, don’t abuse the shared services behind it, and know what it can and can’t promise you.",
+    "Kodukeel помогает учить эстонский язык. Пользуйтесь приложением, чтобы учить эстонский, не злоупотребляйте общими сервисами, на которых оно работает, и знайте, что оно может и чего не может вам обещать.",
+    "Kodukeel допомагає вчити естонську мову. Користуйтеся ним, щоб учити естонську, не зловживайте спільними сервісами, на яких працює застосунок, і знайте, що він може і чого не може вам обіцяти."],
   ["Who provides it", "Кто его предоставляет", "Хто його надає"],
   ["This installation of Kodukeel is provided by **{name}**{registry}{vat}, at {address}. Reach them directly at {email}. Estonian law asks a provider of an online service for exactly that: a name, a place, and a way to get hold of them quickly without going through a form.",
     "Эту установку Kodukeel предоставляет **{name}**{registry}{vat}, адрес: {address}. Связаться напрямую: {email}. Эстонский закон требует от поставщика онлайн-услуги именно этого: имя, адрес и способ быстро с ним связаться, минуя формы.",

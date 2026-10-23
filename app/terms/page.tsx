@@ -38,7 +38,7 @@ export default async function TermsPage({ searchParams }: { searchParams: Public
   return (
     <Legal title={t("Terms")} updated="30 August 2026" locale={locale} explicit={explicit} path="/terms" legal>
       <P>
-        {t("Kodukeel is an app for studying Estonian. These terms are short because the deal is simple: use it to learn Estonian, don’t abuse the shared services behind it, and know what it can and can’t promise you.")}
+        {t("Kodukeel is an app for studying Estonian. Use it to learn Estonian, don’t abuse the shared services behind it, and know what it can and can’t promise you.")}
       </P>
 
       <S title={t("Who provides it")}>

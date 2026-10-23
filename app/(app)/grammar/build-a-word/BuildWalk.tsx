@@ -299,7 +299,7 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
     <Stack>
       <Card tone="accent">
         <p className="text-base leading-relaxed" style={{ color: "var(--ink)" }}>
-          {t("Every Estonian word has three forms you learn. Not fourteen, three. The rest you build from the second one, and that's the whole trick.")}
+          {t("Every Estonian word has three forms you learn. The rest you build from the second one.")}
         </p>
       </Card>
 

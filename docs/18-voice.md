@@ -57,6 +57,14 @@ from `lib/copy/values.ts`, which is "n/a".
 "Needless to say", "Rest assured", "That being said". Every one of them carries no information.
 Start with the thing.
 
+**Flourishes and staged reveals.** "No date is set, so that's the whole story." "That's the whole
+trick." "And that's it." "Simple as that." "And that's fine." "Don't worry." "Here's the secret:",
+"The good news is", "The short version:", "Now imagine", "You didn't fail Estonian. Your tools did."
+"Not fourteen, three." None of these adds a fact. Each one is a writer reaching for the feeling of
+having finished, or of having surprised somebody, and a reader hears the machine in it at once.
+Delete them and let the fact stand. If the flourish was standing in for something real, say that
+instead: not "and that's fine" but "weeks like that happen, and nothing piles up while you're away".
+
 **Inflated shapes.** "Not just a rule, but a pattern" is "a rule, and a pattern". "It's not about
 memorizing, it's about understanding" is one claim wearing two. "More than just a dictionary",
 "That's where the review queue comes in". A teacher says what a thing is, once.
@@ -272,6 +280,34 @@ against
 The first is precise. It is also a sentence written by somebody describing the feature to
 themselves. Nobody says "the words work runs on" to a friend. They say "the words you'll hear at
 work". The second one names the things a reader can picture and says what they get.
+
+The second report was smaller and worse. The landing page's plan said:
+
+> At the pace you said, plus the Estonian already in your week, B2 is about 104 weeks away. No date
+> is set, so that's the whole story.
+
+Every fact in the second sentence was already in the first. "That's the whole story" was there to
+sound like somebody wrapping up, and it was reported as an instant "an AI wrote this". The line
+ends at "away." now. The same pass took out its relatives across the app:
+
+| Was | Is |
+| --- | --- |
+| All 11, from that one form. That's the whole trick. | All 11, built from that one form. |
+| Press an ending and watch it snap on. That's the whole trick, honestly. | Press an ending and watch it snap on. |
+| Here's the secret: you learn three forms of a word | In practice you learn three forms of a word |
+| You didn't fail Estonian. Your tools did. | The cases |
+| That's the whole point. You'll practice with people who want something from you | Yes. You'll practice with people who want something from you |
+| Short answers, straight to the point. | (cut) |
+| Now imagine fifteen minutes of that every evening. | Inside the app, you get fifteen minutes like this every evening. |
+| No cards this week, and that's fine. Weeks like that happen. | No cards this week. Weeks like that happen. |
+| Something went wrong on our side. Don't worry, your turn is still here. | Something went wrong on our side. Your turn is still here. |
+| These terms are short because the deal is simple: use it to learn Estonian | Use it to learn Estonian |
+
+The test is the same as for every line in this section: read it aloud to somebody across a table.
+Nobody closes a fact with "and that's the whole story" when the person in front of them can see
+the fact was complete. `lib/copy/voice.ts` holds the phrases a machine can find (the `FLOURISH`
+group), and `findTells` folds the curly apostrophe first, because the landing page is typeset with
+it and the old patterns only knew the straight one.
 
 So the bar for every sentence anybody reads here, written by a person or by a model, is this:
 **would a warm, clever friend who teaches Estonian say it that way, out loud, across a kitchen

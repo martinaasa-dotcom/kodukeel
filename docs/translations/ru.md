@@ -635,8 +635,8 @@ _lib/copy/i18n/areas/start.ts_
   → То же по-английски
 - [ ] **300.** You’ll always see the English as well. The Russian and Ukrainian meanings come straight from the Estonian dictionary, written by the same people as the Estonian.  
   → Английское значение вы тоже будете видеть всегда. Русские значения взяты прямо из эстонского словаря, их писали те же люди, что и эстонскую часть.
-- [ ] **301.** One honest note before you start: Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse. The real conversations happen out there.  
-  → Одно честное замечание перед началом: Kodukeel не оценивает ваше произношение, не даёт ИИ ставить вам оценки и не заменяет преподавателя. Здесь вы репетируете. А настоящие разговоры ждут вас в жизни.
+- [ ] **301.** Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse. The real conversations happen out there.  
+  → Kodukeel не оценивает ваше произношение, не даёт ИИ ставить вам оценки и не заменяет преподавателя. Здесь вы репетируете. А настоящие разговоры ждут вас в жизни.
 - [ ] **302.** Where are you now?  
   → Какой у вас сейчас уровень?
 - [ ] **303.** Take the level check to find out, or just pick the one that sounds like you. The check stops as soon as it has found your level. Either way, you can change it later in Settings.  
@@ -673,8 +673,8 @@ _lib/copy/i18n/areas/start.ts_
   → Свободно
 - [ ] **319.** Pretty much anything. You're here for the finer shades of meaning.  
   → Почти всё. Вы здесь ради тонких оттенков смысла.
-- [ ] **320.** Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. Don’t worry about saying them right yet. That comes with time.  
-  → В эстонском есть четыре буквы, которых нет в русском алфавите: {a}, {b}, {c} и {d}. Они встречаются повсюду. Не переживайте, если пока не получается их правильно произносить. Это придёт со временем.
+- [ ] **320.** Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. You don’t have to say them right yet. That comes with time.  
+  → В эстонском есть четыре буквы, которых нет в русском алфавите: {a}, {b}, {c} и {d}. Они встречаются повсюду. Произносить их правильно пока не обязательно. Это придёт со временем.
 - [ ] **321.** How we worked that out  
   → Как мы это посчитали
 - [ ] **322.** Why Estonian?  
@@ -1165,8 +1165,8 @@ _lib/copy/i18n/areas/today.ts_
   → Или {try}.
 - [ ] **561.** try it out here first  
   → сначала потренируйтесь здесь
-- [ ] **562.** They understood you. That's the whole point of all this.  
-  → Вас поняли. Ради этого всё и затевалось.
+- [ ] **562.** You spoke Estonian and they understood you.  
+  → Вы говорили по-эстонски, и вас поняли.
 - [ ] **563.** Getting stuck is just what learning a language out loud looks like. It still counts, and it's on the board.  
   → Сбиться посреди разговора нормально: так и выглядит язык, который учат вслух. Разговор всё равно засчитан.
 - [ ] **564.** They switched to English. Next time, keep going in Estonian anyway. Most people switch back.  
@@ -1403,8 +1403,8 @@ _lib/copy/i18n/areas/today.ts_
   → Ваши вечера уже спланированы
 - [ ] **680.** {evenings} short evenings, from your very first word all the way to C1. We've planned every one.  
   → {evenings} от самого первого слова до C1. Все они короткие, и каждый мы уже спланировали.
-- [ ] **681.** You've been choosing what to do each evening, and that's fine. Starting this won't change anything else.  
-  → Вы сами выбирали, чем заниматься каждый вечер, и это нормально. Если начать курс, больше ничего не изменится.
+- [ ] **681.** You've been choosing what to do each evening. Starting this won't change anything else.  
+  → Вы сами выбирали, чем заниматься каждый вечер. Если начать курс, больше ничего не изменится.
 - [ ] **682.** It starts at {start}, where you are now. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.  
   → Курс начинается с {start}, там, где вы сейчас. Это план, на который можно опереться, а не колея, из которой не выбраться, и всё остальное в приложении остаётся на своих местах.
 - [ ] **683.** It starts at {start}, the level after the {level} you already have. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.  
@@ -1743,10 +1743,10 @@ _lib/copy/i18n/areas/today.ts_
   → Если эта часть кажется слишком лёгкой, переходите сразу к части {part}. Всё из этой части в любом случае останется в ваших повторениях.
 - [ ] **850.** There's no part above this one, so stretch yourself with your reviews and the tougher conversations.  
   → Выше этой части ничего нет, так что испытайте себя в повторениях и в более трудных разговорах.
-- [ ] **851.** A lot of recent answers have been misses. This part is a step ahead of you for now, and that's normal.  
-  → Среди последних ответов много ошибок. Эта часть пока на шаг впереди вас, и это нормально.
-- [ ] **852.** Lately you've been getting {seen} out of a hundred right. This part is a step ahead of you for now, and that's normal.  
-  → В последнее время вы отвечаете правильно на {seen} из ста. Эта часть пока на шаг впереди вас, и это нормально.
+- [ ] **851.** A lot of recent answers have been misses. This part is a step ahead of you for now.  
+  → Среди последних ответов много ошибок. Эта часть пока на шаг впереди вас.
+- [ ] **852.** Lately you've been getting {seen} out of a hundred right. This part is a step ahead of you for now.  
+  → В последнее время вы отвечаете правильно на {seen} из ста. Эта часть пока на шаг впереди вас.
 - [ ] **853.** Your reviews will bring back the words that are slipping. Give it a few days.  
   → Повторения вернут слова, которые ускользают. Дайте себе несколько дней.
 - [ ] **854.** The level you started at was a first guess. Going over {level} first will make this part much easier. It's a refresher, and this part waits for you afterwards.  
@@ -3001,8 +3001,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Собеседника играет {label}, {model}
 - [ ] **1471.** That was a lot of turns in a row. Give it a moment.  
   → Слишком много реплик подряд. Подождите немного.
-- [ ] **1472.** Something went wrong on our side. Don't worry, your turn is still here.  
-  → У нас что-то пошло не так. Не волнуйтесь, ваша реплика никуда не делась.
+- [ ] **1472.** Something went wrong on our side. Your turn is still here.  
+  → У нас что-то пошло не так. Ваша реплика никуда не делась.
 - [ ] **1473.** That didn't reach us. Try again.  
   → Запрос до нас не дошёл. Попробуйте ещё раз.
 - [ ] **1474.** We couldn't find that conversation.  
@@ -3229,8 +3229,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Попробуйте на уровень сложнее
 - [ ] **1585.** This one went smoothly. A harder difficulty brings a surprise or two.  
   → Всё прошло гладко. На более сложном уровне будет пара сюрпризов.
-- [ ] **1586.** You didn't say anything this time, and that's fine. Watching a scene once is a good way to get a feel for it.  
-  → В этот раз вы ничего не сказали, и это нормально. Если один раз просто посмотреть сцену, к ней легче привыкнуть.
+- [ ] **1586.** You didn't say anything this time. Watching a scene once is a good way to get a feel for it.  
+  → В этот раз вы ничего не сказали. Если один раз просто посмотреть сцену, к ней легче привыкнуть.
 - [ ] **1587.** Your Estonian was understood every time. It just didn't answer what they were asking.  
   → Ваш эстонский понимали каждый раз. Просто это был ответ не на тот вопрос.
 - [ ] **1588.** {read} of your {turns} turns were understood as Estonian, but none of them answered the question.  
@@ -3391,8 +3391,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Поблагодарите и попрощайтесь.
 - [ ] **1666.** You've got an appointment, and they know what it's for.  
   → Вы записаны, и там знают, с чем вы придёте.
-- [ ] **1667.** You've got an appointment. They didn't get the whole story, so bring it with you.  
-  → Вы записаны. Всей истории там не узнали, так что расскажите её на приёме.
+- [ ] **1667.** You've got an appointment. They didn't take the details, so tell the doctor when you go.  
+  → Вы записаны. Подробностей там не записали, так что расскажите всё на приёме.
 - [ ] **1668.** No appointment today. They'd like you to call back once you can say how long it's been going on.  
   → Сегодня записаться не вышло. Вас просят перезвонить, когда сможете сказать, как давно это продолжается.
 - [ ] **1669.** You walked away from the desk. People do, and you can always come back.  
@@ -3659,8 +3659,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вы поели. Официант возвращается убрать со стола.
 - [ ] **1800.** You ate, you knew what was in it, and you paid. That's a whole evening out in Estonian.  
   → Вы поели, знали, что в блюде, и расплатились. Целый вечер в ресторане по-эстонски.
-- [ ] **1801.** You ate and you paid. You never found out what was in it, and that's fine.  
-  → Вы поели и расплатились. Что было в блюде, вы так и не узнали, и это нормально.
+- [ ] **1801.** You ate and you paid, without ever finding out what was in it.  
+  → Вы поели и расплатились, так и не узнав, что было в блюде.
 - [ ] **1802.** The kitchen had stopped serving hot food. You ordered like a regular, and that was your part done.  
   → Кухня уже не подавала горячее. Вы заказывали как завсегдатай, и свою часть сделали.
 - [ ] **1803.** You left the table early. There's a place around the corner, and you can always come back.  
@@ -6383,8 +6383,8 @@ _lib/copy/i18n/areas/reference.ts_
   → Ваша очередь
 - [ ] **3158.** Pick the ending, just for practice  
   → Выберите окончание, просто для практики
-- [ ] **3159.** Every Estonian word has three forms you learn. Not fourteen, three. The rest you build from the second one, and that's the whole trick.  
-  → У каждого эстонского слова три формы, которые нужно выучить. Не четырнадцать, а три. Остальные вы строите из второй, и в этом весь секрет.
+- [ ] **3159.** Every Estonian word has three forms you learn. The rest you build from the second one.  
+  → У каждого эстонского слова три формы, которые нужно выучить. Остальные вы строите из второй.
 - [ ] **3160.** Which of the three to explain  
   → Какую из трёх объяснить
 - [ ] **3161.** the one the endings go on  
@@ -6891,8 +6891,8 @@ _lib/copy/i18n/areas/app.ts_
   → Ану здесь недоступна
 - [ ] **3408.** Everything else works without one. Settings walks you through getting a free key.  
   → Всё остальное работает и без него. В настройках объясняется, как получить бесплатный ключ.
-- [ ] **3409.** Don't worry, everything else here works without her.  
-  → Не волнуйтесь, всё остальное здесь работает и без неё.
+- [ ] **3409.** Everything else here works without her.  
+  → Всё остальное здесь работает и без неё.
 - [ ] **3410.** Open Settings  
   → Открыть настройки
 - [ ] **3411.** Your question:  
@@ -9035,10 +9035,10 @@ _lib/copy/i18n/areas/rounds.ts_
   → По одному глаголу: я, ты, он или она, мы, вы и они.
 - [ ] **4476.** Verb forms  
   → Формы глагола
-- [ ] **4477.** Every table spotless. You've got the endings down. All that's left is meeting more verbs.  
-  → Все таблицы без единой ошибки. Окончания вы освоили. Осталось познакомиться с новыми глаголами.
-- [ ] **4478.** Here's the good news: the endings are the same for every verb. What catches people out is the part they're stuck onto, so when a table goes wrong, look the verb up.  
-  → Хорошая новость: окончания у всех глаголов одинаковые. Ошибаются обычно в основе, к которой они прибавляются, так что если таблица не сложилась, загляните в словарь.
+- [ ] **4477.** Every table spotless. You know the endings now, so try them on more verbs.  
+  → Все таблицы без единой ошибки. Окончания вы знаете, так что попробуйте их на новых глаголах.
+- [ ] **4478.** The endings are the same for every verb. What catches people out is the part they're stuck onto, so when a table goes wrong, look the verb up.  
+  → Окончания у всех глаголов одинаковые. Ошибаются обычно в основе, к которой они прибавляются, так что если таблица не сложилась, загляните в словарь.
 - [ ] **4479.** Tables  
   → Таблицы
 - [ ] **4480.** Forms right  
@@ -10155,8 +10155,8 @@ _lib/copy/i18n/areas/progress.ts_
   → Ану использовала эстонское слово, которое словарь не смог проверить, поэтому мы придержали её заметку. Ничего не сломалось: мы просто никогда не показываем в отзыве эстонское слово, которое не можем проверить.
 - [ ] **5032.** Anu's read it. None of this changes your marks.  
   → Ану прочитала. Ничто из этого не меняет ваших баллов.
-- [ ] **5033.** As far as the app can tell, you're already {level}. All that's left is the exam itself.  
-  → Насколько может судить приложение, вы уже на уровне {level}. Остался только сам экзамен.
+- [ ] **5033.** As far as the app can tell, you're already {level}. Book the exam when you're ready.  
+  → Насколько может судить приложение, вы уже на уровне {level}. Записывайтесь на экзамен, когда будете готовы.
 - [ ] **5034.** Ask Anu to read it  
   → Попросить Ану прочитать
 - [ ] **5035.** Ask about  
@@ -10381,8 +10381,8 @@ _lib/copy/i18n/areas/progress.ts_
   → Он сохранён в старом формате, который эта версия не может показать полностью. Ваш результат в силе: {pct}%, это засчитано как несдача.
 - [ ] **5145.** It was saved in an older format that this version can't show in full. Your score still stands: {pct} percent, which counted as a pass.  
   → Он сохранён в старом формате, который эта версия не может показать полностью. Ваш результат в силе: {pct}%, это засчитано как сдача.
-- [ ] **5146.** It won't go as smoothly as a card, and that's fine. Whatever you couldn't say, look up afterwards.  
-  → Пойдёт не так гладко, как с карточкой, и это нормально. Всё, что не получилось сказать, посмотрите потом.
+- [ ] **5146.** It won't go as smoothly as a card. Whatever you couldn't say, look up afterwards.  
+  → Пойдёт не так гладко, как с карточкой. Всё, что не получилось сказать, посмотрите потом.
 - [ ] **5147.** It's a quarter of the paper, and a zero in any one part fails the whole thing, however well the other three go. Sit a practice paper and you'll have a number for it.  
   → Это четверть экзамена, а ноль в любой части проваливает весь экзамен, как бы хорошо ни прошли остальные три. Пройдите пробный вариант, и у вас будет цифра.
 - [ ] **5148.** It's been over a month since you saw most of these  
@@ -10455,8 +10455,6 @@ _lib/copy/i18n/areas/progress.ts_
   → Под этот фильтр ничего не подходит. Попробуйте другой.
 - [ ] **5182.** No cards yet  
   → Карточек пока нет
-- [ ] **5183.** No date is set, so that's the whole story.  
-  → Дата не задана, так что это всё.
 - [ ] **5184.** No decks yet  
   → Колод пока нет
 - [ ] **5185.** No history yet  
@@ -10519,8 +10517,8 @@ _lib/copy/i18n/areas/progress.ts_
   → Здесь пока пусто. Повторяйте неделю-другую, и всё начнёт заполняться.
 - [ ] **5214.** Nothing on this page has heard you speak. How you sound is yours to judge, in {link}, and no number here pretends otherwise.  
   → На этой странице никто не слышал, как вы говорите. Как вы звучите, решать вам, в {link}, и ни одна цифра здесь не делает вид, что это не так.
-- [ ] **5215.** Nothing stands out. You do about as well on every ending and every kind of word, which is a dull thing to read and a very good thing to be.  
-  → Ничего не выделяется. У вас примерно одинаково получаются все окончания и все виды слов: читать скучно, а быть таким очень хорошо.
+- [ ] **5215.** Nothing stands out. You do about as well on every ending and every kind of word.  
+  → Ничего не выделяется. У вас примерно одинаково получаются все окончания и все виды слов.
 - [ ] **5216.** Nothing to record yet  
   → Пока нечего записать
 - [ ] **5217.** Numbered papers  
@@ -12959,8 +12957,8 @@ _lib/copy/i18n/areas/course.ts_
   → Когда и как часто
 - [ ] **6430.** Say when something happens and how often, from today to hardly ever.  
   → Сказать, когда и как часто что-то бывает: от «сегодня» до «почти никогда».
-- [ ] **6431.** Tomorrow, yesterday, soon, later, hardly ever. You'll use these in every plan you make, and the good news is they never change their endings.  
-  → Завтра, вчера, скоро, позже, почти никогда. Они пригодятся в любых планах, и, к счастью, окончания у них никогда не меняются.
+- [ ] **6431.** Tomorrow, yesterday, soon, later, hardly ever. You'll use these in every plan you make, and they never change their endings.  
+  → Завтра, вчера, скоро, позже, почти никогда. Они пригодятся в любых планах, и окончания у них никогда не меняются.
 - [ ] **6432.** On, under, in front of, behind  
   → На, под, перед, за
 - [ ] **6433.** Say what's on, under, in front of, behind or next to what.  
@@ -15163,8 +15161,8 @@ _lib/copy/i18n/areas/letters.ts_
   → Вы занимались {n} из последних семи.
 - [ ] **7518.** You answered {cards}. {words} are properly yours now, and that number only grows when a word comes back days later and you still know it.  
   → За неделю вы ответили на {cards}. По-настоящему ваших уже {words}, и это число растёт, только когда слово возвращается через несколько дней, а вы его всё ещё помните.
-- [ ] **7519.** No cards this week, and that's fine. Weeks like that happen. Nothing piles up to punish you while you're away, and one evening puts you right back where you were.  
-  → На этой неделе карточек не было, и это нормально. Так бывает. Пока вас нет, ничего не копится вам в наказание, а один вечер возвращает вас туда, где вы были.
+- [ ] **7519.** No cards this week. Weeks like that happen. Nothing piles up to punish you while you're away, and one evening puts you right back where you were.  
+  → На этой неделе карточек не было. Так бывает. Пока вас нет, ничего не копится вам в наказание, а один вечер возвращает вас туда, где вы были.
 - [ ] **7520.** And one conversation in Estonian with a real person. That's the number this whole app is for.  
   → А ещё один разговор на эстонском с живым человеком. Ради этого числа и существует всё приложение.
 - [ ] **7521.** And {conversations} in Estonian with real people. That's the number this whole app is for.  
@@ -15347,14 +15345,12 @@ _lib/copy/i18n/areas/landing.ts_
   → Вы работаете на эстонском
 - [ ] **7606.** Meetings, emails, a chat by the coffee machine. Get to know the words you'll hear at work every day, and try the tricky conversations here first, where getting it wrong costs nothing.  
   → Совещания, письма, разговор у кофемашины. Освойте слова, которые слышите на работе каждый день, и сначала попробуйте трудные разговоры здесь, где ошибка ничего не стоит.
-- [ ] **7607.** You didn’t fail Estonian. Your tools did.  
-  → Вы не провалили эстонский. Вас подвели инструменты.
 - [ ] **7608.** Learn {n} forms.  
   → Выучите {n}.
 - [ ] **7609.** Build the other {n}.  
   → Остальные {n} постройте сами.
-- [ ] **7610.** Fourteen cases is the number that makes people give up on Estonian. Here’s the secret: you learn three forms of a word, sometimes four, and the rest are the same endings glued on, for every word in the language. When a word breaks the pattern, you’ll see what Estonians actually say right beside what the rule predicts. Press an ending and build one yourself.  
-  → Именно из-за четырнадцати падежей люди бросают эстонский. Но вот секрет: вы учите три формы слова, иногда четыре, а остальные получаются из одних и тех же окончаний, одинаковых для каждого слова в языке. Когда слово выбивается из правила, вы увидите, как на самом деле говорят эстонцы, прямо рядом с тем, что даёт правило. Нажмите на окончание и постройте форму сами.
+- [ ] **7610.** Fourteen cases is the number that makes people give up on Estonian. In practice you learn three forms of a word, sometimes four, and the rest are the same endings glued on, for every word in the language. When a word breaks the pattern, you’ll see what Estonians actually say right beside what the rule predicts. Press an ending and build one yourself.  
+  → Именно из-за четырнадцати падежей люди бросают эстонский. На деле вы учите три формы слова, иногда четыре, а остальные получаются из одних и тех же окончаний, одинаковых для каждого слова в языке. Когда слово выбивается из правила, вы увидите, как на самом деле говорят эстонцы, прямо рядом с тем, что даёт правило. Нажмите на окончание и постройте форму сами.
 - [ ] **7611.** Try a word  
   → Попробуйте слово
 - [ ] **7612.** Learn {n}  
@@ -15365,7 +15361,7 @@ _lib/copy/i18n/areas/landing.ts_
   → Потом приклейте окончание, одни и те же {n} для каждого слова
 - [ ] **7615.** built  
   → собрано
-- [ ] **7616.** All {n}, from that one form. That’s the whole trick.  
+- [ ] **7616.** All {n}, built from that one form.  
   → Все {n} из одной этой формы. В этом и весь фокус.
 - [ ] **7617.** {done} of {all} built from {word}  
   → {done} из {all} собрано из {word}
@@ -15477,7 +15473,7 @@ _lib/copy/i18n/areas/landing.ts_
   → Шесть коротких моментов, от приветствия до прощания. Каждый раз вы выбираете, что сказать, и видите, как реагирует человек за стойкой.
 - [ ] **7671.** Walk up to the counter  
   → Подойти к стойке
-- [ ] **7672.** And that’s the whole conversation.  
+- [ ] **7672.** You got to the end of the conversation.  
   → Вот и весь разговор.
 - [ ] **7673.** Inside there are {n} of these, from the doctor’s to the landlord’s, and there you type your answers yourself.  
   → Внутри таких разговоров {n}, от врача до арендодателя, и ответы вы пишете сами.
@@ -15611,8 +15607,8 @@ _lib/copy/i18n/areas/landing.ts_
   → Вопросы
 - [ ] **7738.** Things people ask us  
   → О чём нас спрашивают
-- [ ] **7739.** Short answers, straight to the point. How this compares with other apps is the last one.  
-  → Короткие ответы по существу. Сравнение с другими приложениями в самом конце.
+- [ ] **7739.** How this compares with other apps is the last question.  
+  → Сравнение с другими приложениями в самом конце.
 - [ ] **7740.** Do I need to pay for anything?  
   → Нужно ли за что-то платить?
 - [ ] **7741.** No, and there's nothing to install either. A few things cost us real money to run, so Anu, the writing feedback and the camera each have a daily limit. A normal evening never gets near it.  
@@ -15627,8 +15623,8 @@ _lib/copy/i18n/areas/landing.ts_
   → Вовсе нет. Курс идёт от A1 до C1, а то, на чём спотыкаются даже продвинутые, отрабатывается дополнительно: буквы, которые меняются в середине слова, падеж, которого требует каждый глагол, и то, какое окончание когда получает дополнение. Не знаете, какой у вас уровень? Пройдите проверку уровня. Есть и пробные государственные экзамены на A2, B1, B2 и C1, которые каждый раз собираются из настоящих предложений и проверяются по понятным правилам, а не моделью. Единственное исключение составляет устная часть: её вы оцениваете сами.
 - [ ] **7746.** Will it actually get me talking to people?  
   → Это правда поможет мне заговорить с людьми?
-- [ ] **7747.** That's the whole point. You'll practice with people who want something from you: a receptionist, a landlord, a clerk. What you say is checked against the dictionary, never graded by an AI, so you can't be told you were wrong when you were right. Every morning the app asks whether you spoke Estonian to anyone yesterday, and if not, it gives you one small thing to say out loud. It counts those conversations, even the ones where somebody switched to English. It won't score your pronunciation, though. The best speech recognizer we could find gets native speakers wrong, and we'd rather tell you that than pretend.  
-  → В этом весь смысл. Вы тренируетесь с людьми, которым от вас что-то нужно: с администратором, арендодателем, служащим. То, что вы говорите, проверяется по словарю, а не оценивается ИИ, так что вам не скажут, что вы ошиблись, когда вы были правы. Каждое утро приложение спрашивает, говорили ли вы вчера с кем-нибудь по-эстонски, и если нет, предлагает одну небольшую фразу, которую стоит сказать вслух. Оно считает эти разговоры, даже те, где собеседник перешёл на английский. Но произношение оно не оценивает. Лучшая система распознавания речи, которую мы нашли, ошибается даже на носителях языка, и мы лучше скажем вам об этом, чем будем притворяться.
+- [ ] **7747.** Yes. You'll practice with people who want something from you: a receptionist, a landlord, a clerk. What you say is checked against the dictionary, never graded by an AI, so you can't be told you were wrong when you were right. Every morning the app asks whether you spoke Estonian to anyone yesterday, and if not, it gives you one small thing to say out loud. It counts those conversations, even the ones where somebody switched to English. It won't score your pronunciation, though. The best speech recognizer we could find gets native speakers wrong, and we'd rather tell you that than pretend.  
+  → Да. Вы тренируетесь с людьми, которым от вас что-то нужно: с администратором, арендодателем, служащим. То, что вы говорите, проверяется по словарю, а не оценивается ИИ, так что вам не скажут, что вы ошиблись, когда вы были правы. Каждое утро приложение спрашивает, говорили ли вы вчера с кем-нибудь по-эстонски, и если нет, предлагает одну небольшую фразу, которую стоит сказать вслух. Оно считает эти разговоры, даже те, где собеседник перешёл на английский. Но произношение оно не оценивает. Лучшая система распознавания речи, которую мы нашли, ошибается даже на носителях языка, и мы лучше скажем вам об этом, чем будем притворяться.
 - [ ] **7748.** What happens to my data?  
   → Что происходит с моими данными?
 - [ ] **7749.** It stays in your account, and you can download every bit of it from Settings whenever you like. Your record of every answer you've given is the one thing we could never rebuild, so we never change or delete any of it, unless you delete your account.  
@@ -15697,7 +15693,7 @@ _lib/copy/i18n/areas/landing.ts_
   → Вы собрали {forms} на эстонском, ещё даже не зарегистрировавшись.
 - [ ] **7781.** You ordered {drink} in Estonian, before you’ve even signed up.  
   → Вы заказали {drink} по-эстонски, ещё даже не зарегистрировавшись.
-- [ ] **7782.** Now imagine fifteen minutes of that every evening.  
+- [ ] **7782.** Inside the app, you get fifteen minutes like this every evening.  
   → А теперь представьте пятнадцать минут такого каждый вечер.
 - [ ] **7783.** Kodukeel means home language. It’s free, and every Estonian form in it comes from a dictionary, never from AI.  
   → Kodukeel значит «домашний язык». Приложение бесплатное, и каждая эстонская форма в нём взята из словаря, а не придумана ИИ.
@@ -15731,7 +15727,7 @@ _lib/copy/i18n/areas/landing.ts_
   → Привет, я Ану, репетитор. Можно я пройдусь с вами по странице?
 - [ ] **7798.** Whichever one you are, you start the same way: fifteen minutes today.  
   → Кем бы вы ни были, начало одно и то же: пятнадцать минут сегодня.
-- [ ] **7799.** Press an ending and watch it snap on. That’s the whole trick, honestly.  
+- [ ] **7799.** Press an ending and watch it snap on.  
   → Нажмите на окончание и посмотрите, как оно встаёт на место. Честно, в этом весь фокус.
 - [ ] **7800.** This really is how your first evening starts. Five new words, and then they come back to check on you.  
   → Ваш первый вечер правда начинается так. Пять новых слов, а потом они возвращаются вас проверить.
@@ -15743,7 +15739,7 @@ _lib/copy/i18n/areas/landing.ts_
   → Не бросайте свои курсы. Я здесь для вечеров между занятиями.
 - [ ] **7804.** Play around with it. Inside, I do the same math with your real pace.  
   → Поиграйте с ним. Внутри я делаю тот же расчёт по вашему настоящему темпу.
-- [ ] **7805.** Short, straight answers. How we compare with other apps is the last one.  
+- [ ] **7805.** How we compare with other apps is the last question.  
   → Короткие прямые ответы. Сравнение с другими приложениями в самом конце.
 - [ ] **7806.** Fifteen minutes a day. See you inside.  
   → Пятнадцать минут в день. До встречи внутри.
@@ -16852,8 +16848,8 @@ _lib/copy/i18n/areas/legal.ts_
   → Vercel, где работают серверы этого приложения
 - [ ] **8352.** every request you make, while it's being answered, and a log of it that includes your IP address  
   → каждый ваш запрос, пока на него отвечают, и журнал запросов, в котором есть ваш IP-адрес
-- [ ] **8353.** Kodukeel is an app for studying Estonian. These terms are short because the deal is simple: use it to learn Estonian, don’t abuse the shared services behind it, and know what it can and can’t promise you.  
-  → Kodukeel помогает учить эстонский язык. Эти условия короткие, потому что договорённость простая: пользуйтесь приложением, чтобы учить эстонский, не злоупотребляйте общими сервисами, на которых оно работает, и знайте, что оно может и чего не может вам обещать.
+- [ ] **8353.** Kodukeel is an app for studying Estonian. Use it to learn Estonian, don’t abuse the shared services behind it, and know what it can and can’t promise you.  
+  → Kodukeel помогает учить эстонский язык. Пользуйтесь приложением, чтобы учить эстонский, не злоупотребляйте общими сервисами, на которых оно работает, и знайте, что оно может и чего не может вам обещать.
 - [ ] **8354.** Who provides it  
   → Кто его предоставляет
 - [ ] **8355.** This installation of Kodukeel is provided by \*\*{name}\*\*{registry}{vat}, at {address}. Reach them directly at {email}. Estonian law asks a provider of an online service for exactly that: a name, a place, and a way to get hold of them quickly without going through a form.  
@@ -17279,8 +17275,8 @@ _lib/copy/i18n/areas/public.ts_
   → \*\*Текст остаётся в своей рамке.\*\* {suite} проходит каждую страницу при ширине 360, 768 и 1280 в обеих темах и проверяет, не обрезано ли что-то, не выходит ли за свою рамку и не наложено ли поверх другого. Затем проверяет снова, заменив каждую строку текста неразрывной строкой той же длины, ведь именно такой вопрос и ставит эстонский язык.
 - [ ] **8563.** Alongside those, the app is built out of real buttons and links with a visible focus ring. Animation is turned off for anybody whose system asks for reduced motion, and no part of it needs a dragging movement. Color is never the only thing carrying a distinction, so a correct answer says so in words as well as in color.  
   → Кроме того, приложение собрано из настоящих кнопок и ссылок с видимой рамкой фокуса. Анимация отключается для всех, чья система просит уменьшить движение, и нигде не нужно перетаскивание. Цвет никогда не бывает единственным, что передаёт различие, поэтому правильный ответ отмечается и словами, и цветом.
-- [ ] **8564.** \*\*The timed practice round can be set to run longer\*\* (WCAG 2.2.1, Timing Adjustable). The daily quest is two minutes, and that is a starting point rather than the whole story: one setting stretches it, up to ten times as long, which is the figure the criterion itself asks for. It is chosen before the round starts, in Settings, and the start screen links to it. The clock stays, because a speed round without one is a different round, and what was shutting people out was that the length was not theirs to set.  
-  → \*\*Тренировочный раунд на время можно сделать длиннее\*\* (WCAG 2.2.1, регулируемое время). «Задание дня» длится две минуты, и это только отправная точка: одна настройка растягивает его вплоть до десятикратной длины, именно ту величину, которую требует сам критерий. Она выбирается до начала раунда в настройках, и стартовый экран на неё ссылается. Таймер остаётся, потому что скоростной раунд без него уже другой раунд, а людей отсекало то, что длину нельзя было задать самим.
+- [ ] **8564.** \*\*The timed practice round can be set to run longer\*\* (WCAG 2.2.1, Timing Adjustable). The daily quest is two minutes to start with, and one setting stretches it up to ten times as long, which is the figure the criterion itself asks for. It is chosen before the round starts, in Settings, and the start screen links to it. The clock stays, because a speed round without one is a different round, and what was shutting people out was that the length was not theirs to set.  
+  → \*\*Тренировочный раунд на время можно сделать длиннее\*\* (WCAG 2.2.1, регулируемое время). «Задание дня» по умолчанию длится две минуты, а одна настройка растягивает его вплоть до десятикратной длины, именно ту величину, которую требует сам критерий. Она выбирается до начала раунда в настройках, и стартовый экран на неё ссылается. Таймер остаётся, потому что скоростной раунд без него уже другой раунд, а людей отсекало то, что длину нельзя было задать самим.
 - [ ] **8565.** \*\*No audit by a person with a disability using assistive technology has been commissioned.\*\* No screen reader user has been paid to test this, and there has been no third-party accessibility audit. Automated tools find perhaps a third of what is wrong with a page, and the third they find is the mechanical third.  
   → \*\*Аудит с участием человека с инвалидностью, пользующегося вспомогательными технологиями, не заказывался.\*\* Никому из пользователей экранного диктора не платили за проверку, и стороннего аудита доступности не было. Автоматические инструменты находят, пожалуй, треть того, что не так со страницей, и это механическая треть.
 - [ ] **8566.** What is known not to conform  

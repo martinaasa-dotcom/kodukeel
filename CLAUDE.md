@@ -3384,6 +3384,19 @@ that comes from specifics rather than exclamation marks. `docs/18-voice.md` §3b
 examples. Every prompt that asks a model for English a learner reads carries `VOICE_RULES`, and that
 English is checked against the same table on its way out.
 
+**And a sentence ends when its facts do.** `No date is set, so that's the whole story.` was
+reported off the landing page as an instant giveaway that a machine wrote it, and it was right:
+every fact was in the sentence before, and the tail was there to sound like somebody finishing.
+The flourish (`that's the whole trick`, `and that's it`, `and that's fine`, `don't worry`), the
+staged reveal (`Here's the secret:`, `the good news is`, `the short version:`, `now imagine`) and
+the slogan about the reader (`You didn't fail Estonian. Your tools did.`, `Not fourteen, three.`)
+are the `FLOURISH` group in `lib/copy/voice.ts`, swept like every other tell and handed to Anu in
+`VOICE_RULES`. Delete them and let the fact stand, or say the concrete thing the flourish was
+gesturing at. `findTells` folds the curly apostrophe before matching, because the landing page is
+typeset with it and a pattern that knew only the straight one never saw it. `docs/18-voice.md`
+§3b has the before and after of every line that pass changed, and
+`scripts/invariants/a-sentence-ends-when-its-facts-do.ts` holds the table to it.
+
 **And the English is spelled the American way, everywhere a reader meets it.** `4. Practise` on a
 lesson step was reported off a screen whose neighbors said "practice", because the English came
 from three writers at once, the copy, the Wiktionary glosses and a model's translations, and none
@@ -3416,7 +3429,7 @@ So there is a ceiling and `readerCopy.test.ts` holds it: 100 characters on an `E
 page `lead`. Both are deliberately generous rather than tight. The measured worst in the tree after
 the pass that set them was 88 on each, so they are not caps anybody has to write around, they are
 caps that catch the paragraph growing back. `Empty`'s body is optional for the same reason, and
-that is the load-bearing half: where the title is the whole story there is no body at all, and the
+that is the load-bearing half: where the title says everything there is no body at all, and the
 action is the way out that the deleted sentence used to describe in words.
 
 What is **not** capped is prose in the body of a screen, a grammar explanation or a policy page. A
@@ -8199,7 +8212,7 @@ homework, the joke and the good news, in that order, so a teacher's work is neve
 takes to make room for a joke. The jokes are `lib/collections/jokes.ts`, Estonian typed in a
 session and read by the native speaker in the pull request (ADR-005 amendment 5), every word held
 to the shipped forms list by `jokes.test.ts`, and readable on the card alone, asserted in
-`scripts/invariants/jokes-stay-on-their-card.ts`. The good news is ERR's own headline, word for
+`scripts/invariants/jokes-stay-on-their-card.ts`. The good-news card is ERR's own headline, word for
 word, with the dictionary under every word (`annotateTexts`, the headlines' gate): a list of
 bad-news stems refuses on every path, and then the headline itself has to report a happy event
 (opened, won, premiered, born, celebrated, discovered), as a report rather than a quote, a question

@@ -365,7 +365,7 @@ function lead(n: {
   notes: number;
 }, locale: Locale): string {
   const say = (line: string, values: Readonly<Record<string, number>> = {}) => fill(tr(locale, line), values);
-  if (n.turns === 0) return say("You didn't say anything this time, and that's fine. Watching a scene once is a good way to get a feel for it.");
+  if (n.turns === 0) return say("You didn't say anything this time. Watching a scene once is a good way to get a feel for it.");
 
   /*
     Nothing landed. Saying what did happen is still worth more than a count

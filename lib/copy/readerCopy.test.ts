@@ -1072,6 +1072,19 @@ describe("the voice table catches what it claims to and nothing else", () => {
       "You mispronounced kala.",
       "That was the wrong pronunciation.",
       "Work on your accent before the exam.",
+      // The line a reader reported off the landing page, and its family.
+      "No date is set, so that's the whole story.",
+      "All eleven, from that one form. That’s the whole trick.",
+      "Fourteen cases sounds like a lot. Here’s the secret: you learn three.",
+      "No cards this week, and that's fine.",
+      "Don't worry, your turn is still here.",
+      "Now imagine fifteen minutes of that every evening.",
+      "You didn’t fail Estonian. Your tools did.",
+      "Short answers, straight to the point.",
+      "The short version: it hears Estonian.",
+      "Every word has three forms you learn. Not fourteen, three.",
+      "One honest note before you start: this is not a teacher.",
+      "Learn the three forms, and that's it.",
     ];
     for (const line of generated) {
       expect(findTells(line).map((t) => t.name), `nothing caught: ${line}`).not.toEqual([]);
@@ -1092,6 +1105,15 @@ describe("the voice table catches what it claims to and nothing else", () => {
       "Nothing here scores your pronunciation, and nothing pretends to.",
       "Heard: kala. Every word was heard.",
       "No machine grades your accent.",
+      // Honest lines that share a word with the flourishes above.
+      "Not this time. Here's what it was.",
+      "Juku: It wasn't me, honestly!",
+      "Imagine what happened!",
+      "all that's left is to",
+      "To be fair, it is the one doing the hunting.",
+      "Ask again, or ask for the short version.",
+      "At the pace you said, plus the Estonian already in your week, B2 is about 104 weeks away.",
+      "Not yet, but soon.",
     ];
     for (const line of written) {
       expect(findTells(line).map((t) => t.name), `false positive: ${line}`).toEqual([]);

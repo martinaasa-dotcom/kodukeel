@@ -174,10 +174,10 @@ export default async function WelcomePage({ params }: { params?: Promise<{ lang?
 const anuLines = ({ t }: Say): readonly AnuLine[] => [
   { at: "top", mood: "happy", text: t("Hi, I’m Anu, the tutor. Mind if I walk down the page with you?") },
   { at: "who", mood: "happy", text: t("Whichever one you are, you start the same way: fifteen minutes today.") },
-  { at: "cases", mood: "thinking", text: t("Press an ending and watch it snap on. That’s the whole trick, honestly.") },
+  { at: "cases", mood: "thinking", text: t("Press an ending and watch it snap on.") },
   { at: "talk", mood: "cheer", text: t("Go on, order something. The person behind the counter is very patient.") },
   { at: "evening", mood: "happy", text: t("This really is how your first evening starts. Five new words, and then they come back to check on you.") },
-  { at: "faq", mood: "thinking", text: t("Short, straight answers. How we compare with other apps is the last one.") },
+  { at: "faq", mood: "thinking", text: t("How we compare with other apps is the last question.") },
   { at: "start", mood: "cheer", text: t("Fifteen minutes a day. See you inside.") },
 ];
 
@@ -565,7 +565,7 @@ function Cases({ say, words }: { say: Say; words: DemoWord[] }) {
         {/*
           The heading is one line where there is room for one.
 
-          "You didn't fail Estonian. Your tools did." is 820px of 40px display
+          A two-sentence heading of 820px in 40px display
           type, and the section has 960px inside its padding from `lg` up and
           704px at `md`. Broken by the column it reads as a sentence that ran
           out of room, with "tools did." stranded on a line of its own. So the
@@ -582,21 +582,21 @@ function Cases({ say, words }: { say: Say; words: DemoWord[] }) {
         {/*
           THE HEADLINE IS THE CLAIM, WITH ITS TWO NUMBERS.
 
-          "You didn't fail Estonian. Your tools did." was a complaint, and the
-          card under it answers a different sentence: fourteen cases sounds
-          impossible, and it is three forms and a set of endings. The numbers
-          are counted off the first word the card shows rather than typed, so
-          the heading is true of the card under it. The complaint keeps its
-          place as the tag, where it frames the claim instead of standing in
-          for it.
+          The tag used to be "You didn't fail Estonian. Your tools did.", a
+          slogan about the reader's past that read as an advert, and it is the
+          section's plain name now. The card under the heading answers the one
+          worry that matters here: fourteen cases sounds impossible, and it is
+          three forms and a set of endings. The numbers are counted off the
+          first word the card shows rather than typed, so the heading is true
+          of the card under it.
         */}
         <div className="section-head">
-          <p className="section-tag" data-tone="accent">{t("You didn’t fail Estonian. Your tools did.")}</p>
+          <p className="section-tag" data-tone="accent">{t("The cases")}</p>
           <h2 className="landing-title">
             {fill(t("Learn {n} forms."), { n: say.locale === "en" ? count(learnCount) : say.counted(learnCount, "form") })}<br className="lg:hidden" /> {fill(t("Build the other {n}."), { n: count(buildCount) })}
           </h2>
           <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {t("Fourteen cases is the number that makes people give up on Estonian. Here’s the secret: you learn three forms of a word, sometimes four, and the rest are the same endings glued on, for every word in the language. When a word breaks the pattern, you’ll see what Estonians actually say right beside what the rule predicts. Press an ending and build one yourself.")}
+            {t("Fourteen cases is the number that makes people give up on Estonian. In practice you learn three forms of a word, sometimes four, and the rest are the same endings glued on, for every word in the language. When a word breaks the pattern, you’ll see what Estonians actually say right beside what the rule predicts. Press an ending and build one yourself.")}
           </p>
         </div>
       </Reveal>
@@ -1123,7 +1123,7 @@ const faqsIn = ({ t }: Say) => [
   ],
   [
     t("Will it actually get me talking to people?"),
-    t("That's the whole point. You'll practice with people who want something from you: a receptionist, a landlord, a clerk. What you say is checked against the dictionary, never graded by an AI, so you can't be told you were wrong when you were right. Every morning the app asks whether you spoke Estonian to anyone yesterday, and if not, it gives you one small thing to say out loud. It counts those conversations, even the ones where somebody switched to English. It can hear Estonian too: say a line instead of typing it, and it works out which words you said on your own device, so the sound never leaves it. What it won't do is score how a word sounded. A recognizer quietly corrects most slips into the right word, so it can't honestly tell you that, and we'd rather say so than pretend."),
+    t("Yes. You'll practice with people who want something from you: a receptionist, a landlord, a clerk. What you say is checked against the dictionary, never graded by an AI, so you can't be told you were wrong when you were right. Every morning the app asks whether you spoke Estonian to anyone yesterday, and if not, it gives you one small thing to say out loud. It counts those conversations, even the ones where somebody switched to English. It can hear Estonian too: say a line instead of typing it, and it works out which words you said on your own device, so the sound never leaves it. What it won't do is score how a word sounded. A recognizer quietly corrects most slips into the right word, so it can't honestly tell you that, and we'd rather say so than pretend."),
   ],
   [
     t("What happens to my data?"),
@@ -1216,7 +1216,7 @@ function Questions({ say }: { say: Say }) {
             {t("Things people ask us")}
           </h2>
           <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {t("Short answers, straight to the point. How this compares with other apps is the last one.")}
+            {t("How this compares with other apps is the last question.")}
           </p>
         </div>
       </Reveal>
