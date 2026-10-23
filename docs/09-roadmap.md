@@ -46,7 +46,7 @@ week one, with the plan intact, rather than in Phase 2 with a dictionary UI alre
 | Today view | Due tasks, streak, empty states (no cards yet) |
 | Diacritic input bar | Available everywhere from day one |
 
-**Exit:** tasks are genuinely usable for the current class week. The domain core is tested and ready
+**Exit:** tasks are usable for the current class week. The domain core is tested and ready
 for Phase 2 to consume.
 
 > Building `lib/estonian/` in Phase 1 with no UI attached is deliberate. It is the hardest and
@@ -99,7 +99,7 @@ new words arrive from dictionary/Anu/paste, and everything exports.
 | Month/week calendar with tasks and review load | |
 | Progress dashboard + **weak-case heatmap** | Click a weak case → filtered drill |
 | **Spike: Estonian STT (2 days, timeboxed)** | Ships only if it works; otherwise the pronunciation self-check fallback |
-| Speakly link-out + import preset | Honest scope (ADR-006) |
+| Speakly link-out + import preset | Scope kept narrow (ADR-006) |
 
 **Exit:** class schedule visible next to due work; the heatmap has changed a study decision.
 
@@ -139,4 +139,4 @@ Three ordering decisions worth stating:
 3. **The SRS before the calendar.** v4.0 had it the other way round. The calendar is convenience; the
    SRS is the product.
 
-Each phase is independently useful. Stopping after Phase 3 still leaves a genuinely valuable tool.
+Each phase is independently useful. Stopping after Phase 3 still leaves a useful tool.

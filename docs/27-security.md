@@ -73,7 +73,7 @@ It goes out from a Route Handler, never from the browser, and every call is mete
 headlines. These are read only, carry nothing about the learner, and are proxied so their keys and
 their quota stay on the server. The Content Security Policy names none of them in `connect-src`,
 which is what makes that structural rather than a habit: the only origins in it are this one and
-the deployment's own Supabase project, which the browser genuinely talks to for the session.
+the deployment's own Supabase project, which the browser talks to for the session.
 
 **Server to Resend.** Where a deployment sends letters, this is the only place outside the sign-in
 provider that an email address leaves the app, and it is the one outbound destination carrying
@@ -114,7 +114,7 @@ id or by naming one.
 
 **Control.** No `"use server"` export takes an owner id from its caller. Every one resolves the owner
 itself through `requireUserId()` in `lib/auth/session.ts`, which throws when the session cannot be
-verified. A helper that genuinely needs an owner as a parameter lives under `lib/` and is never an
+verified. A helper that needs an owner as a parameter lives under `lib/` and is never an
 endpoint. Every owner scoped query, including every `updateMany`, filters on that resolved id. This
 is asserted in `scripts/test-invariants.ts` rather than left to review.
 
@@ -187,7 +187,7 @@ cache. That is the same property that makes review work on a train, and it is th
 
 **Attack.** A page on another site posts to this one and rides the learner's ambient session cookie.
 
-**Control.** Two layers. The Supabase session cookie is `SameSite=Lax`, which is genuinely most of
+**Control.** Two layers. The Supabase session cookie is `SameSite=Lax`, which is most of
 the defense and is a default owned by a dependency. `lib/security/sameOrigin.ts` is the layer this
 app owns and states for itself: `Sec-Fetch-Site` first, because a browser sets it and page script
 cannot, falling back to comparing `Origin`'s host against `Host`.
@@ -254,7 +254,7 @@ so all three are rows rather than edits.
 
 An unrecognized model prices at the dearest rate in the table. A cap that fails open is not a cap.
 
-In front of that sits `lib/security/rateLimit.ts`, and its own header is honest about what it is: a
+In front of that sits `lib/security/rateLimit.ts`, and its own header says what it is: a
 per instance in-memory limiter, so a burst spread across cold starts meets an empty map. It keeps an
 obvious loop from making a hundred database round trips on its way to being refused. The routes the
 ledger does not price at all, speech, the share card, the export and the restore, are counted again
@@ -280,7 +280,7 @@ person restoring**, whatever the file says, and a row whose id already belongs t
 skipped. Reviews are created if absent and never updated, because the table is append-only. A
 `replace` is scoped to that owner's own rows and never touches `Lexeme` or `Form`.
 
-The dictionary is the part that used to be wrong and is worth reading closely. It upserted every
+The dictionary is the part that used to be wrong. It upserted every
 `Lexeme` by id and recreated its forms, taking `lemma`, `provenance`, `editedBy`, `ekilexWordId` and
 every `Form` exactly as written, which was any signed-in learner rewriting any word every other
 learner reads. It does what the seed does now, `ON CONFLICT DO NOTHING`: a word already in the
@@ -345,7 +345,7 @@ which is not a limit.
 
 **Control.** `clientIp` in `lib/security/rateLimit.ts` reads a forwarding header only where
 `TRUST_PROXY_HEADERS` or `VERCEL` says a proxy is there. Everywhere else every unattributed request
-shares one bucket, which is the honest shape of not knowing. `x-vercel-forwarded-for` is read only
+shares one bucket, since nothing says who sent it. `x-vercel-forwarded-for` is read only
 where `VERCEL` says the platform that owns it is present, because no other proxy sets it and no other
 proxy strips it. The hop matters too: Vercel overwrites the whole header and is read from the left, a
 self-hosted proxy appends and is read from the right. Signed-in work never touches any of it.
@@ -417,7 +417,7 @@ ask until the answer is already in the tree: this project's code is MIT and its 
 Wiktionary's CC BY-SA 4.0. `scripts/check-licences.mjs` walks the production tree on every commit
 and fails on a strong copyleft code dependency, which would quietly make `LICENSE` wrong.
 
-It is worth saying how that check got there, because the first version of it did not run at all.
+The first version of that check did not run at all.
 `actions/dependency-review-action` was the obvious answer and it failed on every pull request:
 dependency review needs the Dependency graph switched on for the repository, and it is not.
 A check whose precondition is a setting in somebody's dashboard is a check that does not run, which
@@ -620,8 +620,8 @@ counting them. `lib/usage/sharedLimit.ts` counts them in a row every instance ca
 in-memory limiter stays in front so a caller already over is still refused without a round trip.
 
 **No `Cross-Origin-Resource-Policy`. Fixed.** `X-Frame-Options` stopped a whole page being framed
-and nothing stopped a single response being pulled into another origin's document, which is worth
-saying about the share card and the export in particular. `same-origin`, in
+and nothing stopped a single response being pulled into another origin's document, the share card
+and the export in particular. `same-origin`, in
 `lib/security/headers.ts`. `Cross-Origin-Embedder-Policy` was considered and deliberately left off:
 `require-corp` would refuse every response from Supabase, TartuNLP and the fonts unless each sent a
 header back that is not ours to set, and it buys cross-origin isolation this app has no use for.
@@ -646,7 +646,7 @@ http://localhost:3000.evil.example` does not parse, because `3000.evil.example` 
 Those fell into the same branch, and the branch for "not there" is allow, on the reasoning that a
 caller with no Origin is not a browser and has no ambient cookie to forge with. A caller that sent
 the header is something that thinks it is a browser. It is refused now, and no legitimate request
-loses: browsers do not send malformed origins, and the one odd value they genuinely do send, the
+loses: browsers do not send malformed origins, and the one odd value they do send, the
 literal `null` from a sandboxed frame, parses to the hostname `null` and is compared like any other
 name, which is what already refused it.
 

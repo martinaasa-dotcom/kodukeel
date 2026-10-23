@@ -351,7 +351,7 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
             </span>
             <span className="text-sm font-semibold" style={{ color: all ? "var(--accent-deep)" : "var(--ink-2)" }}>
               {all
-                ? fill(t("All {n}, from that one form. That’s the whole trick."), { n: num(derived.length) })
+                ? fill(t("All {n}, built from that one form."), { n: num(derived.length) })
                 : fill(t("{done} of {all} built from {word}"), { done: doneHere, all: derived.length, word: word.lemma })}
             </span>
           </div>

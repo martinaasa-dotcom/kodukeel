@@ -50,7 +50,7 @@ export const A1 = [
     level: "A1",
     module: "Esimesed sammud",
     canDo: "Say hello and thank you, and answer yes or no.",
-    blurb: "The five words you'll say on your first day here. Each one works on its own, so no grammar yet, promise.",
+    blurb: "The five words you'll say on your first day here. Each one works on its own, so there's no grammar yet.",
     /*
       The dictionary form and nothing else: these are words said alone, and
       the politeness page, which is the plural as a polite you and the
@@ -909,7 +909,7 @@ export const A1 = [
     level: "A1",
     module: "Esimesed sammud",
     canDo: "Say a price, a phone number, a floor and a year without running out of numbers.",
-    blurb: "Two patterns and you've got them all. Teens add -teist and tens add -kümmend, so if you can say kolm you can say kolmteist and kolmkümmend. Add -s to the omastav (2nd form) and you get fourth, fifth and so on, which is how you say floors and dates. Third, kolmas, you just learn.",
+    blurb: "Two patterns cover every number. Teens add -teist and tens add -kümmend, so if you can say kolm you can say kolmteist and kolmkümmend. Add -s to the omastav (2nd form) and you get fourth, fifth and so on, which is how you say floors and dates. Third, kolmas, you just learn.",
     grammar: ["numerals", "partitive"],
     cardTypes: ["RECOGNITION", "PRODUCTION"],
     requires: ["arvud"],
@@ -1143,7 +1143,7 @@ export const A1 = [
     level: "A1",
     module: "Igapäevaelu",
     canDo: "Say when something happens and how often, from today to hardly ever.",
-    blurb: "Tomorrow, yesterday, soon, later, hardly ever. You'll use these in every plan you make, and the good news is they never change their endings.",
+    blurb: "Tomorrow, yesterday, soon, later, hardly ever. You'll use these in every plan you make, and they never change their endings.",
     grammar: ["time-expressions"],
     cardTypes: ["RECOGNITION", "PRODUCTION"],
     requires: ["aeg"],
@@ -1498,7 +1498,7 @@ export const A1 = [
     level: "A1",
     module: "Esimesed sammud",
     canDo: "Ask someone for help, say what's happened, and call the right number.",
-    blurb: "Let's hope you never need these words. You shout appi when you're in trouble, and ask for abi when you just need a hand. The emergency number is 112, and they answer in Estonian, Russian and English.",
+    blurb: "You shout appi when you're in trouble, and ask for abi when you just need a hand. The emergency number is 112, and they answer in Estonian, Russian and English.",
     /*
       The imperative, because every sentence in this unit is one: aidake,
       kutsuge, helistage. Politeness beside it, since the difference between

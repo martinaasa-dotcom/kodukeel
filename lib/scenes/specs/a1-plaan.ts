@@ -85,7 +85,7 @@ export default inLesson("a1-23-plan", {
   ],
   outcomes: [
     { id: "planned", when: ["greet", "saturday", "invite", "time", "close"], says: "You've got a plan for Saturday and a time to be there, all made in Estonian." },
-    { id: "planned-thin", when: ["invite", "time"], says: "You're going on Saturday. Not much else was said, and on the phone that's fine." },
+    { id: "planned-thin", when: ["invite", "time"], says: "You're going on Saturday, and not much else was said." },
     { id: "left", when: [], says: "The call dropped before you'd made a plan. She'll ring again." },
   ],
 });

@@ -84,7 +84,7 @@ export function worddayLetter(input: WorddayInput): Letter {
     kind: "wordday",
     locale,
     subject: `${word.lemma}: ${word.translation}`,
-    preheader: word.occasion ?? say("One word for today. Nothing to do but enjoy it."),
+    preheader: word.occasion ?? say("One word for today."),
     blocks,
   };
 }

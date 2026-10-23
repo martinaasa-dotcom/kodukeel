@@ -25,8 +25,8 @@ export const FINISH: Area = {
       "Эта часть приложения израсходовала свой бюджет на сегодня и вернётся в полночь по UTC. Всё остальное работает как обычно.",
     "Today's AI budget is nearly spent, so what's left is kept for people who haven't asked anything yet. It's back at midnight UTC, and your cards, the dictionary and everything else still work.":
       "Бюджет ИИ на сегодня почти исчерпан, и остаток оставлен для тех, кто ещё ничего не спрашивал. Он вернётся в полночь по UTC, а карточки, словарь и всё остальное работают.",
-    "The app has run through its AI budget for today, for everybody. It's nothing you did, and it's back at midnight UTC.":
-      "Приложение израсходовало бюджет ИИ на сегодня, для всех сразу. Вы тут ни при чём, он вернётся в полночь по UTC.",
+    "The app has run through its AI budget for today, for everybody. It's back at midnight UTC.":
+      "Приложение израсходовало бюджет ИИ на сегодня, для всех сразу. Он вернётся в полночь по UTC.",
     "Something went wrong on our side just then. Give it a minute and try again.":
       "У нас что-то пошло не так. Подождите минуту и попробуйте снова.",
     "That's all the translations for today. Try again tomorrow.":
@@ -110,8 +110,8 @@ export const FINISH: Area = {
       "Ця частина застосунку витратила свій бюджет на сьогодні й повернеться опівночі за UTC. Усе інше працює як звичайно.",
     "Today's AI budget is nearly spent, so what's left is kept for people who haven't asked anything yet. It's back at midnight UTC, and your cards, the dictionary and everything else still work.":
       "Бюджет ШІ на сьогодні майже вичерпано, і залишок збережено для тих, хто ще нічого не питав. Він повернеться опівночі за UTC, а картки, словник і все інше працюють.",
-    "The app has run through its AI budget for today, for everybody. It's nothing you did, and it's back at midnight UTC.":
-      "Застосунок витратив бюджет ШІ на сьогодні, для всіх одразу. Ви тут ні до чого, він повернеться опівночі за UTC.",
+    "The app has run through its AI budget for today, for everybody. It's back at midnight UTC.":
+      "Застосунок витратив бюджет ШІ на сьогодні, для всіх одразу. Він повернеться опівночі за UTC.",
     "Something went wrong on our side just then. Give it a minute and try again.":
       "У нас щось пішло не так. Зачекайте хвилину й спробуйте знову.",
     "That's all the translations for today. Try again tomorrow.":

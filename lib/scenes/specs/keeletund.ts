@@ -129,10 +129,10 @@ const COURSE: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "introduced", when: ["greet", "name", "from", "why", "word", "close"], says: "The room knows who you are and why you're here, and you asked about a word instead of just nodding. That's a first evening done properly." },
-    { id: "introduced-thin", when: ["name", "why", "word"], says: "They know your name and why you're here. And you asked about the word, which is the bit most people skip." },
-    { id: "moved-on", when: ["greet", "name"], says: "The teacher moved on to the next person before you got going. There are twelve more Tuesdays." },
-    { id: "left", when: [], says: "You slipped out at the break. The course is still there on Thursday." },
+    { id: "introduced", when: ["greet", "name", "from", "why", "word", "close"], says: "The room knows who you are and why you're here, and you asked about a word instead of just nodding." },
+    { id: "introduced-thin", when: ["name", "why", "word"], says: "They know your name and why you're here, and you asked about the word." },
+    { id: "moved-on", when: ["greet", "name"], says: "The teacher moved on to the next person before you got going." },
+    { id: "left", when: [], says: "You slipped out at the break." },
   ],
 };
 

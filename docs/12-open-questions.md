@@ -51,7 +51,7 @@ time in Phase 4.
 
 The browser extension, the Speakly embed and the Sõnaveeb embed are gone, the last two because they
 are blocked by other people's servers, the first because it is a separate product. If the extension
-("highlight a word on any page, save it to the deck") is genuinely wanted, it is a real project and
+("highlight a word on any page, save it to the deck") is really wanted, it is a real project and
 should be planned as one after v1, not smuggled into a table cell.
 
 ### Q7: Who else, if anyone, will see this?
@@ -120,7 +120,7 @@ nominal a "noomen", which is why the builder asks Wiktionary in the first place.
 
 **Something visibly breaks, and this entry used to say it did not.** The claim was that an Estonian
 adjective declines like a noun so the forms are right either way, which is true about the forms
-and was never the whole story. The course harvest tags these words `ADJECTIVE` and the built
+and left something out. The course harvest tags these words `ADJECTIVE` and the built
 expansion tags them `NOUN`, and `@@unique` is on `(lemma, pos)`, so the two do not collide: they
 both land. Thirteen lemmas ship with **two entries each** (`hall`, `kallis`, `keskmine`, `kiire`,
 `kuiv`, `lilla`, `must`, `noor`, `paks`, `roosa`, `rõõmus`, `sinine`, `valge`, `vana`), most of them

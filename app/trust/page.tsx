@@ -102,7 +102,7 @@ export default async function TrustPage({ searchParams }: { searchParams: Public
               {rich(t("This installation is run by **{name}**{registry}{vat}, at {address}. They’re the controller of every learner’s data here, and the party any contract would be with."), identity)}
             </P>
             <P>
-              {rich(t("One address reaches a real person, whether it’s a data question, a security report or a procurement question: {email}. There’s no separate security mailbox yet, and saying so is more use than publishing one nobody reads."), {
+              {rich(t("One address reaches a real person, whether it’s a data question, a security report or a procurement question: {email}. There’s no separate security mailbox yet."), {
                 email: (
                   <a href={`mailto:${operator.email}`} className="underline underline-offset-2">
                     {operator.email}
@@ -120,7 +120,7 @@ export default async function TrustPage({ searchParams }: { searchParams: Public
 
       <S id="data" title={t("Where the data is held, and who else touches it")}>
         <P>
-          {t("Everything a learner does is held in this installation’s own Postgres database. Nothing below gets a deck, a review history or an exam paper. The list is read straight from this deployment’s configuration rather than typed out here, so it’s the real set of services this copy talks to.")}
+          {t("Everything a learner does is held in this installation’s own Postgres database. Nothing below gets a deck, a review history or an exam paper. The list is read from this deployment’s configuration, so it is the set of services this copy talks to.")}
         </P>
         <ul className="space-y-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {recipients.map((r) => {
@@ -143,7 +143,7 @@ export default async function TrustPage({ searchParams }: { searchParams: Public
           </P>
         )}
         <P>
-          {rich(t("There’s no analytics vendor, no advertising identifier and no third-party tracker, and you don’t have to take our word for it: the app has no third-party script tag anywhere in it, and the one thing it counts, whether people come back, is worked out from its own review log. {privacy} is the long version of all of this, written for the learner rather than the buyer."), {
+          {rich(t("There’s no analytics vendor, no advertising identifier and no third-party tracker: the app has no third-party script tag anywhere in it, and the one thing it counts, whether people come back, is worked out from its own review log. {privacy} is the long version of all of this, written for the learner rather than the buyer."), {
             privacy: <Link href={href("/privacy")} className="underline underline-offset-2">{t("Privacy")}</Link>,
           })}
         </P>
@@ -151,7 +151,7 @@ export default async function TrustPage({ searchParams }: { searchParams: Public
 
       <S id="rights" title={t("How a learner gets their data out, and how they delete it")}>
         <P>
-          {rich(t("**Export.** Settings has a button that returns everything held about the account as a single JSON file: every card, review, task, setting, scanned word list, level check, mock exam paper with the composition in it, tutor message, conversation, suggestion, starred word and class membership. It is a real backup and the same file restores into a fresh installation, which is what makes it portability rather than a gesture."))}
+          {rich(t("**Export.** Settings has a button that returns everything held about the account as a single JSON file: every card, review, task, setting, scanned word list, level check, mock exam paper with the composition in it, tutor message, conversation, suggestion, starred word and class membership. The same file restores into a fresh installation."))}
         </P>
         <P>
           {rich(t("**Deleting everything.** The same screen deletes the account and everything in it, including the sign-in record, in one action and with no request to write. Where an installation is not configured to remove the sign-in record itself, the button says so plainly instead of reporting a success it did not achieve. Both live under {settings}."), {
@@ -211,21 +211,21 @@ export default async function TrustPage({ searchParams }: { searchParams: Public
           {rich(t("**What this project does not have, stated plainly.** There is no SOC 2 report. There is no ISO/IEC 27001 certificate. The control map is a self-assessment written by the people who wrote the code, and it has not been reviewed by anybody outside this project. No external penetration test has been commissioned, so nobody has attacked this application under contract, and no independent reviewer has read the source for security faults. The code being public is not the same thing as having been audited."))}
         </P>
         <P>
-          {rich(t("Four more limits, named here before you find them yourself. Ownership of rows is enforced in application code and asserted in the build rather than by Postgres row level security. The Content Security Policy carries {inline} in its script sources, for a reason written out in the code, and that is the weakest line in it. Nothing watches the logs continuously: there is no intrusion detection and no alerting beyond an optional error webhook. And multi-factor authentication is inherited from whatever the learner’s Google account has rather than enforced here."), {
+          {rich(t("Four more limits. Ownership of rows is enforced in application code and asserted in the build rather than by Postgres row level security. The Content Security Policy carries {inline} in its script sources, for a reason written out in the code, and that is the weakest line in it. Nothing watches the logs continuously: there is no intrusion detection and no alerting beyond an optional error webhook. And multi-factor authentication is inherited from whatever the learner’s Google account has rather than enforced here."), {
             inline: <code>&lsquo;unsafe-inline&rsquo;</code>,
           })}
         </P>
         <P>
-          {t("What there is instead is a build that fails when a rule is broken, rather than a document promising the rules are kept: the credential scan greps the built client bundle for every server-only value, the invariant suite asserts the rules this project set itself, and the browser suites drive the real app. All of it runs on every change.")}
+          {t("Instead there is a build that fails when a rule is broken: the credential scan greps the built client bundle for every server-only value, the invariant suite asserts the rules this project set itself, and the browser suites drive the real app. All of it runs on every change.")}
         </P>
         <P>
-          {t("One of those suites is worth naming, because it is the only one that asks these questions of a server rather than of the source. It sends the forged requests, reads back every security header, checks that what is behind a token stays behind it, and reads what the health endpoint is willing to say. It found something on its first run: a request carrying an address the app could not parse was being treated as a request carrying none, and those had different answers. That is the shape of thing it is for. It is a test written by the people who wrote the code, so it cannot tell you the design is right, and it is not the outside look this section says is missing.")}
+          {t("One of those suites asks these questions of a running server rather than of the source. It sends forged requests, reads back every security header, checks that what is behind a token stays behind it, and reads what the health endpoint is willing to say. On its first run it found that a request carrying an address the app could not parse was being treated as a request carrying none. It is written by the people who wrote the code, so it cannot tell you the design is right, and it is not the outside review this section says is missing.")}
         </P>
       </S>
 
       <S title={t("Availability")}>
         <P>
-          {rich(t("**There is no contractual service level today.** No uptime percentage is promised anywhere in this app or in its terms, and nothing here is worth quoting as one. What can be said is what the app does when things break, which is a design decision rather than a hope."))}
+          {rich(t("**There is no contractual service level today.** No uptime percentage is promised anywhere in this app or in its terms. What follows is what the app does when things break."))}
         </P>
         <P>
           {rich(t("**The review path survives losing the network.** A grade answered with no connection goes into a queue in the browser and is sent later with the time it was actually answered, never dropped and never restamped, so a session on a train costs nothing. The service worker keeps the pages a learner was last on and an offline screen behind them, so the app opens rather than showing a browser error. The dictionary, the tutor and speech all need a connection and say so instead of serving something stale."))}

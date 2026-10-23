@@ -125,10 +125,10 @@ const NEIGHBOR: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "neighbors", when: ["greet", "new", "floor", "from", "with", "close"], says: "You've got a neighbor now, and they know your floor. That's how a building starts to know you." },
-    { id: "neighbors-thin", when: ["new", "from", "with"], says: "They know you're new and where you're from. The rest can wait for the next flight of stairs." },
-    { id: "rushed", when: ["greet", "new"], says: "They had a bus to catch. You said hello, and there are more stairs tomorrow." },
-    { id: "left", when: [], says: "You went on up. The stairs will be there tomorrow, and so will they." },
+    { id: "neighbors", when: ["greet", "new", "floor", "from", "with", "close"], says: "You've got a neighbor now, and they know your floor." },
+    { id: "neighbors-thin", when: ["new", "from", "with"], says: "They know you're new and where you're from." },
+    { id: "rushed", when: ["greet", "new"], says: "They had a bus to catch. You said hello." },
+    { id: "left", when: [], says: "You went on up." },
   ],
 };
 

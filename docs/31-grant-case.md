@@ -188,11 +188,10 @@ shape of 100 learners studying five times a week (`DEFAULT_SHAPE`, `retrenchment
 | Quiet | $68.25 | error reporting, the news feed, and the mail that sends a sign-in link. Google sign-in still works |
 | Lights on | $45.00 | the domain and the model. A server and a database, at whatever address the host gives it |
 
-The shape of that answer is unusual and is the reason it is worth reading. Most of what this app is
-made of was given rather than bought: the dictionary, the speech and the glosses. The scheduler,
-the examinations, the games, the grammar and the whole course run on a server and a database. So
-the floor is low and the fall is gradual, and the honest claim is not that the project becomes
-profitable but that it becomes cheap enough to keep alive with nobody paid.
+Most of what this app is made of was given rather than bought: the dictionary, the speech and the
+glosses. The scheduler, the examinations, the games, the grammar and the whole course run on a
+server and a database. So the floor is low and the fall is gradual. The project will not become
+profitable; it becomes cheap enough to keep alive with nobody paid.
 
 Below even that, six continuity claims, each checkable in a named file (`CONTINUITY`): the license,
 the absence of lock-in, the rebuildable dictionary, every learner's right to take their whole record
@@ -270,7 +269,7 @@ sees, or how many of the people counted are already counted by a partner organiz
 **There are no users yet.** This is the largest risk and nothing in the repository softens it.
 Everything above is an app, a set of measurements and a governance position, and none of it is
 evidence that people will use it. What exists instead of evidence is that the measurement machinery
-is built and honest before the first learner arrives, so a first cohort produces a number rather
+is built before the first learner arrives, so a first cohort produces a number rather
 than an anecdote, and that the floors mean a small deployment publishes nothing rather than
 publishing something flattering. The `/pilots` page says at the top that there is no reference
 customer and no case study to send.
@@ -289,14 +288,14 @@ seeded rather than fetched per request, so 6,110 entries and their sentences kee
 becomes unreachable, and a live lookup that fails is written down as a miss rather than retried for
 ever (`enrichFromEkilex`, `Lexeme.lookupMissAt`). Speech is cached on the server and on the
 learner's phone. And the whole app runs with no Ekilex key at all, which is the default state a
-stranger installs into and the state most of the browser suites run in. What remains genuinely at
-risk is the live lexicon beyond the seed, and the honest mitigation is the one in section 4: help
-pay for the compute.
+stranger installs into and the state most of the browser suites run in. What remains at risk is
+the live lexicon beyond the seed, and the mitigation is the one in section 4: help pay for the
+compute.
 
 **No external security or accessibility audit.** `docs/27-security.md` is a threat model and control
 review written by the people who wrote the code, with a section for the weaknesses it found.
-`docs/29-controls.md` maps procurement control themes to files and marks the honest answer "not
-done" where it is. Accessibility is swept mechanically by axe on every route in CI, plus checks axe
+`docs/29-controls.md` maps procurement control themes to files and marks the answer "not done"
+where it is. Accessibility is swept mechanically by axe on every route in CI, plus checks axe
 has no opinion about, and contrast is measured in a browser in both themes rather than reasoned
 about from the token list. None of that is an audit. An external review of either is a line an
 application should carry.
@@ -332,7 +331,7 @@ placement check keeps speaking out of the level entirely (`SCORED_SKILLS`). Re-r
 Written down so it is not forgotten between this document and a form.
 
 Three of the four things this list used to hold have been sourced and moved into the text above.
-What is left is what genuinely cannot be settled from a desk, and one number that can be settled
+What is left is what cannot be settled from a desk, and one number that can be settled
 only by asking for it.
 
 - **How many people sit the state examination in a year**, which is still open and is worth being
@@ -351,9 +350,9 @@ than the shape, get the current year's from the Board first.
 
 ## 10. The outside sources this document uses
 
-Everything else here is checkable against this repository, which is the point of it. These four are
-not, so they are listed with what was taken from each and when it was read. A reviewer who wants to
-disagree with a number should be able to reach the number.
+Everything else here is checkable against this repository. These four are not, so they are listed
+with what was taken from each and when it was read. A reviewer who wants to disagree with a number
+should be able to reach the number.
 
 | Claim | Source | Read |
 | --- | --- | --- |

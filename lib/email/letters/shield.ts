@@ -108,8 +108,7 @@ export function shieldLetter(input: ShieldInput): Letter {
   blocks.push({
     t: "quiet",
     text: say(
-      "A day off never costs you anything here. Your words just wait for you, " +
-        "exactly where you left them.",
+      "A day off costs you nothing here. Your words wait where you left them.",
     ),
   });
 

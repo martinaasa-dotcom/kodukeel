@@ -126,7 +126,7 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "One question for being somewhere, one for going there, one for coming from there. Every place ending in Estonian is built on this idea, so it's worth meeting whole.",
+        "One question for being somewhere, one for going there, one for coming from there. Every place ending in Estonian is built on this idea.",
         "Learn each place as its set of three, and say them aloud together: {kodus, koju, kodust}.",
         "Some places take the endings for \"in\" and some the ones for \"on\" or \"at\": you're {poes}, in the shop, but {tööl}, at work. Learn which with the place.",
       ],
@@ -448,7 +448,7 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
     how: {
       point: "A whole conversation with a stranger, made only of what this part taught.",
       notes: [
-        "Notice how Tom asks: {Vabandust} first, then the question. That's all the politeness it needs.",
+        "Notice how Tom asks: {Vabandust} first, then the question.",
         "Liis asks {Kuhu te sõidate?} with {teie}, the polite you, because Tom is a stranger. He answers with {ma}, as usual.",
         "At the end, you stop somebody in town and ask the way to the pharmacy, one turn at a time, until you've held the whole conversation.",
       ],

@@ -128,7 +128,7 @@ export const UK: Readonly<Record<string, string>> = {
   "Hear it, write it": "Почути й записати",
   "A real sentence read out loud. Play it again as often as you like, and slow it down if it's fast.":
     "Справжнє речення, прочитане вголос. Вмикайте його скільки завгодно разів і сповільнюйте, якщо надто швидко.",
-  "Type the whole sentence. Forgetting a dot or a squiggle on a letter costs you a little but won't be marked wrong, so it's worth trying.":
+  "Type the whole sentence. Forgetting a dot or a squiggle on a letter costs you a little but won't be marked wrong.":
     "Надрукуйте все речення. Якщо забудете крапку чи значок над літерою, це трохи знизить оцінку, але помилкою не вважатиметься, тож сміливо пробуйте.",
   "Play the first one": "Увімкнути перше",
   "The words that break the rules": "Слова, які порушують правила",

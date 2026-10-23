@@ -230,7 +230,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
         title={t("That’s the round done")}
         line={accuracy >= 80
           ? fill(t("You matched {n} of {total} endings to their pictures."), { n: right, total: asked })
-          : fill(t("{n} of {total}. The ones you missed come back sooner, which is what they need."), { n: right, total: asked })}
+          : fill(t("{n} of {total}. The ones you missed come back sooner."), { n: right, total: asked })}
         figures={[
           { value: right, label: t("Right") },
           { value: `${accuracy}%`, label: t("Accuracy") },

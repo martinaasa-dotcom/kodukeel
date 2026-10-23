@@ -314,7 +314,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <SectionTitle hint={fill(t("{n} reviews/day"), { n: dailyGoal })}>{t("Daily goal")}</SectionTitle>
             <Card>
               <p className="mb-4 text-sm" style={{ color: "var(--ink-2)" }}>
-                {t("How many cards you’d like to get through each day. It’s there to keep you going, and it never stops you doing more.")}
+                {t("How many cards you’d like to get through each day. You can always do more.")}
               </p>
               <DailyGoalPanel currentGoal={dailyGoal} />
             </Card>
@@ -458,7 +458,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Listening and dictation")}</h3>
                 <HearingPanel current={hearing} />
                 <Explain label={t("What a hearing condition changes")}>
-                  {t("The words stay the same. What changes is the speed, the voice and the background noise, because the receptionist won’t slow down for you and the counter is never quiet.")}
+                  {t("The words stay the same. What changes is the speed, the voice and the background noise.")}
                 </Explain>
               </div>
               <div>

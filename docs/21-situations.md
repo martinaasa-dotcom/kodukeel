@@ -81,7 +81,7 @@ screen saying which it got.
    that turn. A failure is reported, never hidden, and never looped.
 
 **Measured, and the first rung is thinner than it looks.** `npm run measure:scenes` has been run and
-§25 has the numbers. The short version, because it changes how the rest of this reads: retrieval
+§25 has the numbers. The finding changes how the rest of this reads: retrieval
 fills the moves every conversation shares and almost none of the moves that make it this
 conversation, because a lexicographer records a sentence to illustrate a word rather than to ask a
 question about it. The composer is load-bearing rather than a fallback, which makes the gate below
@@ -121,7 +121,7 @@ trying to learn one.
 
 ### Why word-level vouching is enough here, and where it is not
 
-Vouching every word does not prove a sentence is grammatical. That is the honest limit of this
+Vouching every word does not prove a sentence is grammatical. That is the limit of this
 design and it has to be argued rather than walked past.
 
 What survives the four checks is a line whose words all exist, in the right register and in a
@@ -133,7 +133,7 @@ There is a bigger tool and it should be named rather than ignored. Estonian has 
 morphological analyzer, Vabamorf, which `EstNLTK` wraps, and running a composed line through it is a
 real option. What it would add over vouching is less than it first appears: vouching already
 establishes that every word is a real form of a word this scene is allowed to use, which is most of
-what an analyzer reports. What would genuinely help is agreement and government checked across the
+what an analyzer reports. What would help is agreement and government checked across the
 sentence, and that is a dependency, a service and a body of Estonian-specific code that this app has
 so far managed to avoid entirely. It belongs in the open questions, not in Phase 1, and the
 government check above is the cheap half of it done with what is already here.
@@ -323,7 +323,7 @@ What varies, in the order a learner notices it:
 queue gone, one who is thorough and slow, one who is new and unsure, one who is following a script
 and will not deviate: same beats, same props, four conversations that feel nothing alike, because
 the agenda biases which move the machine prefers and which curveballs attach. Props change the
-words. An agenda changes the person.
+words, where an agenda changes the person.
 
 ### The claim to make, and the claim not to make
 
@@ -377,7 +377,7 @@ after the first keystroke and either uses it or drops it. This is `PrefetchLink`
 one path in the app where somebody is definitely about to need the next thing.
 
 Speculation is bounded: one branch only, never when the day's allowance is thin, and counted inside
-the scene's reservation, so a dropped line is still paid for honestly.
+the scene's reservation, so a dropped line is still paid for.
 
 ## 7. There are no meters
 
@@ -524,7 +524,7 @@ number, which is the argument for it: pressure that is felt rather than announce
 - **No two of the same kind in a run**, and none within two beats of another.
 - **Never one whose out is not sayable.** Asserted: every curveball's out is expressed as
   requirements, and every requirement has to resolve inside the scene's own word list at its level.
-  A curveball a learner cannot answer is not difficulty, it is a bug in a costume.
+  A curveball a learner cannot answer is not difficulty, it is a bug.
 - **At most one cost-3 below Ordinary day**, so that step is a step and not a cliff.
 
 ## 10. Difficulty is four dials, and only one of them is curveballs
@@ -553,7 +553,7 @@ consonant length, voicing and word boundaries, which is precisely where a learne
 that to decide whether a scene advances would be scoring pronunciation with extra steps, and it
 would stall a learner who said the right thing, which is worse than not listening at all.
 
-So there are two ways to take a turn, and both are honest about what they are:
+So there are two ways to take a turn, and both say what they are:
 
 - **Typed.** The turn is marked mechanically, the scene advances on evidence, and the learner may
   press to hear a native rendering of what they typed and compare. That is the app's speaking
@@ -793,7 +793,7 @@ for it would ration a learner over a request nobody made. And a booking is hande
 `releaseReservation` wherever nothing was composed, because a release gives back the *call* and not
 only the money.
 
-The honest sentence a learner is shown is therefore about the day rather than about scenes left:
+The sentence a learner is shown is therefore about the day rather than about scenes left:
 what the quota says when it refuses names no one feature, since a conversation, the tutor and the
 scanner all reach the same allowance and a receptionist screen saying "today's limit for Anu" is a
 screen naming a feature the reader is not using.
@@ -871,7 +871,7 @@ The rate went from 60 to 70 percent to 35 to 50. That is a real change, it is st
 design's line of 5, and §29 is why the recommendation is nonetheless to build.
 
 **Phase 1 is not blocked.** What is left in the residual is a long tail of ordinary words nobody
-has put in a unit yet, the government check's own 8.3% floor on honest lines, and the shape rule
+has put in a unit yet, the government check's own 8.3% floor on good lines, and the shape rule
 refusing a two-sentence greeting. None of those is closed by another vocabulary pass, and none is a
 reason to hold a module whose whole design is that a line it cannot vouch for is never shown: §6
 already says a withheld line is retried once and the attested line stands. What that rate costs is
@@ -927,14 +927,14 @@ provenance, and a decision somebody should make on purpose rather than by extens
   language they cannot yet argue in.
 - **A score.** Every version of a percentage on a conversation read worse than the outcome sentence
   that replaced it.
-- **Two learners in one class taking the two roles.** Genuinely good, and it needs realtime
+- **Two learners in one class taking the two roles.** Good, and it needs realtime
   infrastructure this app does not have. Worth revisiting once a language house is actually using
   the classroom.
 - **A patience meter.** §7.
 - **Voice to voice.** Needs a recognizer this design has already turned down, and it would put the
   whole conversation behind a microphone prompt on a phone.
 - **A morphological analyzer in the gate, for now.** §2 says what Vabamorf would and would not buy.
-  The short version is that it overlaps vouching almost entirely, and the part that does not overlap
+  It overlaps vouching almost entirely, and the part that does not overlap
   is a syntactic check that is a project rather than a check.
 
 ## 21. The invariants
@@ -971,7 +971,7 @@ waives with a number and a reason rather than a line saying SKIP.
 
 Two things about it are different from what was planned here, and both are corrections. **The model
 is not stubbed.** `test-scan.mjs` stubs it because a scanner without one has no camera and there is
-nothing to drive; a scene without one has a working ladder, so the honest test is the one that runs
+nothing to drive; a scene without one has a working ladder, so the right test is the one that runs
 in whatever state the server is in and reports which, which is what `e2e.mjs` already does about the
 tutor. Keyed, the composed check runs; keyless, it is waived by one with the state that would lift
 it named, and every other rung and every screen is checked either way. The floor is the count in the
@@ -1171,7 +1171,7 @@ recorded one, mentioning the word for time, and not a thing a receptionist says 
 appointment. A beat matches a line by keyword, which is the right test for whether a line is about
 something and no test at all of whether it performs the move.
 
-So every count above is an upper bound, and the honest conclusion is stronger than the numbers look
+So every count above is an upper bound, and the conclusion is stronger than the numbers look
 rather than weaker. The composer is load-bearing, the gate in §2 is what the module rests on, and
 the reviewed phrase bank is what a keyless deployment needs to hold a conversation rather than a
 greeting.
@@ -1302,7 +1302,7 @@ rather than a rename, but the harvest was **discarding Ekilex's own label**, so 
 deliberate coarsening from a mistake.
 
 It is recorded now, and the same audit reads it. The table of legitimate coarsenings was set by
-narrowing until something honest complained rather than widening until nothing did: written wide
+narrowing until something correct complained rather than widening until nothing did: written wide
 enough to admit `s` and `v` under ADVERB, nothing needed it, so it does not have it. The one real
 widening is `num` on the two nominal labels, because an Estonian numeral declines and `kakskümmend`
 has to be a nominal here or the numbers unit has no case table to teach from.
@@ -1425,8 +1425,8 @@ claim that no prompt in the shipped dictionary is one its own gloss cannot answe
 spelled out in the failure message. Shared prompts fell from 372 to 362.
 
 The other 355 are outside the course, so they carry no Ekilex definition and there is nothing to
-judge them by. They are marked correctly all the same, which is the point of fixing the card rather
-than the list.
+judge them by. They are marked correctly all the same, because the fix is in the card rather than
+in the list.
 
 ## 29. The gate, measured, and what it turned out to be measuring
 
@@ -1474,7 +1474,7 @@ small or the model is the wrong one for this, and the answer is not to loosen th
 | With both participles and the second stem, 321 | 54.0% | 41.3% |
 
 **Two pairs of rows here are the same configuration twice**, and they differ by eight points and
-by five. That is the honest headline of this table: 63 lines is enough to rank causes and not
+by five. That is the headline of this table: 63 lines is enough to rank causes and not
 enough to resolve a difference of that size, so the round-by-round deltas are not measurements and
 are not reported as any. What the ten runs establish is two ranges, 60 to 70 percent for the first
 six and 35 to 50 for the last two configurations, and the gap between those is several times the
@@ -1581,7 +1581,7 @@ to one `wordId`: a homonym is a different word with its own id, which is what th
 while two matching sets under one id are two ways the same word inflects, `haigus` with `haigusi`
 and `haiguseid`, and both are Estonian.
 
-That is the whole value of running this before Phase 1 rather than after it. All three gaps were in
+That is the value of running this before Phase 1 rather than after it. All three gaps were in
 the morphology the app can produce, all three were invisible from inside the app, and all three were
 found by watching a model try to hold a conversation. 814 forms, and no new word with them.
 
@@ -1648,7 +1648,7 @@ it is the ladder falling all the way through on the one beat every scene shares.
 now its own line, which is retrieval rather than composition: the lemma is a headword a lexicographer
 wrote down, and putting it on a screen is the dictionary speaking.
 
-**What that does to the numbers is not measured here and should not be.** The honest thing to say is
+**What that does to the numbers is not measured here and should not be.** What can be said is
 that §29's runs asked a model for lines a working retrieval rung would have supplied, so the split
 between rungs in those runs is unknown rather than what was reported, and the withheld *rate* is
 unaffected because it is a ratio over composed lines. Re-running the eval would produce a new
@@ -1702,7 +1702,7 @@ and read since; a composed line was gated a second ago and read by nobody.
 beat, with the chip saying exactly what it is reading. A keyed one pays for no turn the bank
 covers and meets a scene that replays, which is what makes a mission a mission. What is given up
 is variety on those beats, bounded at three lines each and passed over once used within a run, and
-the honest description of that is the one §5 already makes about attested lines.
+the description of that is the one §5 already makes about attested lines.
 
 **Which beats may have one.** A line that has to name a time, a room number or a document code
 cannot be drafted before the run that draws it, so `scriptable` refuses any beat waiting on such a
@@ -1889,8 +1889,8 @@ The drafter looped a scene's beats and never its curveballs, so keyless every cu
 of English about what happened. `sceneBeats` is the list it loops now: the scene's own beats and
 one `hurdle:<id>` beat per curveball the scene admits that has a move to make, and the bank, the
 bank test and the context builder all read the same list. The switch to English is the one
-curveball said in English on purpose, as a bubble labeled as such, because the whole point of it
-is that the other side gave up on Estonian and the learner is practicing not to.
+curveball said in English on purpose, as a bubble labeled as such, because in it the other side
+has given up on Estonian and the learner is practicing not to.
 
 The free models this repository can reach wrote nothing usable for those beats, so the lines were
 typed in a session and pushed through the same four checks and the same refusals the drafter
@@ -2103,7 +2103,7 @@ form, asserted.
 at that distance `kool` is `kohv` and the marker would be guessing rather than understanding. A typo
 on a word under five letters, because `pea`, `käsi` and `tee` are one edit from each other. A wrong
 *word*, which is what `offtarget` already is. And the da-infinitive, because `ma tahan minna` is
-right. A slip is a right thought in a slightly wrong shape, and that is the whole of what it may be.
+right. A slip is a right thought in a slightly wrong shape, and may be nothing more.
 
 **It reaches the screen three ways and none of them is a mark.** The other side says the word back
 put right, `Poodi.` and then the next question, which is the one correction a conversation makes
@@ -2179,7 +2179,7 @@ took `jaam` in any form, so the echo was `Jaam.`; nobody says that. A `datum` re
 a `grammCase` now, read through the case table exactly as a `case` requirement is, so `jaam` is the
 word understood in the wrong case and `Jaama.` is said back; "how will you pay?" takes `kaardiga`
 and says `Kaardiga.` to `kaart`; and the café's order is the partitive, `Teed.` to `tee`. Each is a
-`Hard` on that case in the review log, which is the point: the comitative you could not produce at
+`Hard` on that case in the review log, so the comitative you could not produce at
 a window lands beside the comitative you could not produce on a card.
 
 **`scripts/play-scene.ts` is the instrument**, and it is why this pass found the waiting beat at
@@ -2215,7 +2215,7 @@ length, is that word. Measured on the street-corner scene against the shipped di
 `haiglat`, `haiglale`, `haiglaks`, `haiglasi` and `haigla` are all understood and all recast to
 `haiglasse`, while `kooli` and `blorp` are still misses.
 
-**The guard is the whole of why it is safe: a word the list can vouch for is never read as a
+**The guard is what makes it safe: a word the list can vouch for is never read as a
 mangled other one.** `kohvik` is a word the café scene teaches, so it is never read as a botched
 `kohv`, and neither is any other real word a learner reached for by mistake. What is left is a
 spelling nobody in Estonian uses, which is exactly where the stem is all the evidence there is and
@@ -2270,7 +2270,7 @@ somebody's Estonian.
 
 §37 left one thing flagged: the review can say which case was wanted and what that case is for, and
 not *why you reached for the one you did*, which is the next thing a teacher standing beside you
-says. That was written down as not derivable from a transcript. It is half derivable, and the honest
+says. That was written down as not derivable from a transcript. It is half derivable, and the
 thing to do with evidence that is strong and not conclusive is to print it marked rather than to say
 nothing.
 
@@ -2314,7 +2314,7 @@ The invariant that forbids the second reader is what caught the first draft.
 **And the confusion reaches the shared log.** `SceneGrade.reachedCase` travels to `gradeCard`'s
 `reachedSlot`, which is checked against the closed list rather than trusted, so the pair somebody
 mixes up at a counter is counted in `lib/stats/confusions.ts` beside the pair they mix up on a card.
-That is the whole argument for a conversation writing to the review log at all, and until now the
+That is the argument for a conversation writing to the review log at all, and until now the
 scene was the one round that could see a confusion and not report it.
 
 Worked example, off the shop scene played as a sloppy learner:
@@ -2372,7 +2372,7 @@ they are said with, and adding a second one is this module editing the dictionar
 
 What it still cannot do: tell a learner *which* of the beat's words they need where the beat wants a
 value off their own card, since the answer is already in front of them. Repeating the question is the
-honest move there, and it is what a person does when there is nothing to point at.
+right move there, and it is what a person does when there is nothing to point at.
 
 
 ## 40. The eleventh pass: the hint agrees with the card, and one word you know is not nothing
@@ -2439,7 +2439,7 @@ own units would write lines the learner has not been taught to read.
 
 The course rather than the whole dictionary, which is 6,110 entries against 1,400: these are the
 words a learner could have been taught, the set is bounded and meaningful, and the memory is a
-fifth. What is left outside it is a place name, and `tartusse` at a ticket window is the one honest
+fifth. What is left outside it is a place name, and `tartusse` at a ticket window is the one correct
 `unrecognised` in the whole probe.
 
 **A real word is never read as a slip of the pen for another.** `valutab` is the third person of a
@@ -2937,7 +2937,7 @@ the deployment and passed in every measurement of it.
 **`Poest või pood?`** was the other side narrowing its question to two, and it is a grammar exercise
 spoken in a character's voice: two cases of one word are not two things a person could have meant.
 A case beat is narrowed on nothing now and gets the app's own hint instead, in English and out of
-character, which is the honest thing to say at that moment (`lib/scenes/coach.ts`).
+character, which is the thing to say at that moment (`lib/scenes/coach.ts`).
 
 **And the model is told who it is.** It used to be handed a move, a sentence about what to do and a
 word list, which is a translation exercise rather than a part in a scene. `ComposeAsk` carries the
@@ -2985,7 +2985,7 @@ definition and recorded sentences, marked `EKILEX`. Driven against a real databa
 in a line added `vastuvõtt`, A2, with its whole case table; `ostuarve`, which the forms list cannot
 place, added nothing at all.
 
-**Nothing here lets a model write Estonian, and that is the whole of why it is safe.** The model
+**Nothing here lets a model write Estonian, and that is why it is safe.** The model
 proposes a spelling; the forms list and Ekilex decide. It is the same rule as the photographed page
 (ADR-021), the headline, the frequency count and the contributed sentence, and this is the sixth
 door onto it. It runs in `after()`, so nobody waits on Ekilex for a line already on the screen, and
@@ -3011,12 +3011,12 @@ minutit` is a count and `kell kolm` is a claim about the run.
 against 13.7% before and a design line of 5%. `vouching` fell from 17 to 1. What is left is two
 government refusals (that check's own measured false-positive rate is 5.4% and one of them is
 `Minge otse edasi ning pöörake vasakule`, which is correct), three topic refusals on lines that
-genuinely name nothing the beat is about, one stretch and one word nothing could place.
+name nothing the beat is about, one stretch and one word nothing could place.
 
 **And the harness measures the app again.** The first version of the eval built one gate before the
 retry and gated both lines with it, so every word of the second line the first had not happened to
 use came back unvouched: it reported `ja` and `on` as words nothing could account for and rescued
-nothing at all. A harness that resolves per line is the only honest one, and `npm run play:scenes`
+nothing at all. A harness has to resolve per line, and `npm run play:scenes`
 vouches the same way for the same reason.
 
 ## 54. Three faults that only show up on the fifth turn
@@ -3099,7 +3099,7 @@ which is fluent, inside the word list, past every check on the page, and asks *w
 guess put `Kuidas teie nimi on?` on a language course's first evening and `Maksete kaardiga?` at a
 ticket window. The bank holds each of those beats asked properly by somebody who read it, so
 `ComposeAsk.asked` hands over this beat's own banked lines, which costs a few tokens and no extra
-call. **Rephrased rather than copied**, which is the whole reason a line is composed at all: the
+call. **Rephrased rather than copied**, which is the reason a line is composed at all: the
 banked line is the rung underneath and the ladder reaches it anyway, so a composed line has to be
 worth more, and what makes it worth more is that it can take account of what the learner just said.
 An aside gets none, because it answers rather than asks and no beat's line says what to say. After
@@ -3213,7 +3213,7 @@ held the rules and none of the facts, and Estonian is a language where the rule 
 `lib/tutor/words.ts` picks the words a question is about, `lib/progress/tutorWords.ts` asks the
 dictionary for each one exactly as a scanned page is asked (ADR-021), and the route sends the
 principal parts, the government and, for a spelling the question used, which case it is, one case or
-the honest list off `whichCase`, in the live block after the learner's note. With that and the
+the list off `whichCase`, in the live block after the learner's note. With that and the
 `FIX:` and `VOCAB:` rules tightened, gpt-oss-120b over three runs went to 83 of 87 facts, seven
 stray `FIX:` lines in ninety-three answers and six inflected `VOCAB:` entries in forty-five, and
 still put `Soome` in the allative with the dictionary's own forms in front of it, wrote `koolil` for
@@ -3359,7 +3359,7 @@ measured rejection rate says the room did not need paying for that way: 13.7 per
 this, 2.7 after the eight-check gate, 4.8 with twelve checks and the limits off, against a design
 line of one in twenty.
 
-**What it reads like** is the whole point, so it is written down rather than asserted. The same
+**What it reads like** is what matters, so it is written down rather than asserted. The same
 beat of `arsti-aeg`, same card, same seed, before and after:
 
     before   Kus teie keha valutab?
@@ -3701,7 +3701,7 @@ whose provenance is `composed` now wins, and nothing else does: a scripted or an
 attested line has not seen the turn either, so a fresh wording of the same
 question from the bank would be §32's fault arriving through a different door.
 The verbatim repeat is what a keyless deployment says, which is where saying it
-again genuinely is the best there is.
+again is the best there is.
 
 **A one-word answer is an answer, at any length.** `ülikoolis` is how anybody
 answers "where did you work before?", and the fragment rule read it as a learner
@@ -3712,7 +3712,7 @@ which left exactly this. Refusing a right answer for being short teaches somebod
 that being right is not enough, and it buys nothing: what the second wait
 produced was the same word again. A turn that meets everything the beat asked is
 complete however short it is, and the look and the wait is kept for a turn that
-is genuinely cut short. `advance`'s "a person waits once and then takes the word"
+is cut short. `advance`'s "a person waits once and then takes the word"
 went with it, because the reading it was written to rescue can no longer occur.
 
 **A hint is for what is still missing.** `offerFor` and `choiceOf` each walked a
@@ -3812,7 +3812,7 @@ are unchanged: no Estonian, a goal that names its one candidate word where a
 beat has one, and none of them sends anybody off to read their card.
 
 **And the check that reads that last rule was firing on `agree to the card`**,
-which is how anybody pays at a ticket window. A check that fires on honest copy
+which is how anybody pays at a ticket window. A check that fires on correct copy
 gets waived, so the rule is widened to the shapes that actually send somebody
 away (`your card`, `card says`, `on the card`) rather than to the bare word.
 
@@ -4645,7 +4645,7 @@ was inert in every measurement above. Re-gated with both live and the forms list
 
 Every line taken is a verbless one, and the bank's rows all pass. `Millal see katki?` is still
 passed on the health center's list, because `see` is in no unit that scene declares and the
-check reads pronouns off the scene's own entries, which is the honest edge of it.
+check reads pronouns off the scene's own entries, which is where its reach ends.
 
 *The prompt was ordered against a cache.* It opened on the persona, drawn per run, and ended on
 the word list, the same for every run of a scene, so a cached prefix had nothing to reuse. The
@@ -5168,7 +5168,7 @@ Thursday at 17:30, a waiter saying goodbye and then offering a table by the wind
 flash reacting where the Lite asks and stops. At the prices on file the flash would cost about a
 quarter of a cent more a conversation, so at the traffic the ledger shows the difference is pennies a
 month, and turning it back is the one line in `SCENE_MODELS`. It stays on the Lite because the
-operator asked for the cheapest, and this paragraph is the price of that.
+operator asked for the cheapest, and this paragraph records what that costs.
 
 **And then both cost decisions on the app's side were taken back, the next day, on the operator's
 word that good is not good enough.** The ledger is the reason they could be. It puts the app at
@@ -5232,7 +5232,7 @@ back under the curveball that speeds the other side up.
 **Then a critic read it.** `npm run critic:scenes -- --model-down --critic-model
 gemini-3.1-flash-lite` plays sixty conversations with no model, against a model learner who is off
 the point, confused, chatty or half in English, and has the Lite model list where the other side
-stopped making sense. The judge being the Lite model is the point: a round over the no-model path
+stopped making sense. The judge is the Lite model on purpose: a round over the no-model path
 spends none of the composer's allowance.
 
 It found 278 issues. 105 of them were one line, "Ei tea.", said to small talk tucked into an answer
@@ -5403,7 +5403,7 @@ runs rotate their lines alike: 16,519 turns, 16,813 asks of the model with 641 l
 2,364 judge and consistency questions and 219 words sent to grow the dictionary. The two records, 70,677
 lines each, are identical byte for byte.
 
-**What did change is the harnesses, which is the point.** They now print what the route says. The
+**What did change is the harnesses, as intended.** They now print what the route says. The
 keyless sweep at B1 still raises no flags over its 4,456 conversations, and 56 lines of its
 transcripts changed across the fifteen scenes, each the route's own answer: a shrug where no line is
 built, a different acknowledgment where the route has one. The

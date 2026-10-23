@@ -11,7 +11,7 @@ const STEPS: { line: string; link?: { href: string; label: string }; strong?: st
   { line: "Go to {link} and sign in. It's free and takes no card.", link: { href: "https://aistudio.google.com/apikey", label: "aistudio.google.com" } },
   { line: "Click {strong}. Copy the key it shows you.", strong: "Create API key" },
   { line: "In this project's folder, open the file called {code} and paste the key between the quotes, like the example below.", code: ".env" },
-  { line: "Stop the app (Ctrl-C in the terminal) and run {code} again. Anu will be there, ready to help.", code: "npm run dev" },
+  { line: "Stop the app (Ctrl-C in the terminal) and run {code} again. Anu will be there.", code: "npm run dev" },
 ];
 
 /*

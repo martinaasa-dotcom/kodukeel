@@ -186,7 +186,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
           {t("That’s the round done")}
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          {t("Describing what’s in front of you is as close to real talking as a screen gets.")}
+          {t("Describe what’s in the picture.")}
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
@@ -453,7 +453,7 @@ function Summary({ marked, aiAvailable }: { marked: Marked; aiAvailable: boolean
   const wentWell = graded?.wentWell
     || (mark.sound > 0
       ? fill(t("{n} of your {total} sentences are spelled right."), { n: mark.sound, total })
-      : t("You wrote all five, which is the hardest part to start."));
+      : t("You wrote all five."));
   const workOn = graded?.workOn
     || [
       spelling > 0 ? sentencesLine(locale, t, spelling) : "",
@@ -495,7 +495,7 @@ function Summary({ marked, aiAvailable }: { marked: Marked; aiAvailable: boolean
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
           {withheldReason === "unvouched-word"
             ? t("We hid one of Anu's notes. It used a word we couldn't confirm as Estonian. The spelling check comes from the dictionary, so you can trust that.")
-            : t("We hid one of Anu's notes. It used an Estonian form we couldn't confirm, and a wrong form is worse than no note. The spelling check comes from the dictionary, so you can trust that.")}
+            : t("We hid one of Anu's notes. It used an Estonian form we couldn't confirm. The spelling check comes from the dictionary.")}
         </p>
       )}
       {!aiAvailable && !graded && (

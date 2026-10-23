@@ -639,7 +639,7 @@ export default async function TodayPage() {
           {t("Today’s module")}
         </SectionTitle>
         <p className="mt-1 text-md font-semibold md:text-lg" style={{ color: "var(--accent-deep)" }}>
-          {t("Today’s module is done. Go and enjoy the rest of your day.")}
+          {t("Today’s module is done.")}
         </p>
         <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {courseDay

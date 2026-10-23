@@ -166,7 +166,7 @@ export function SayItToday({ errand, scene, answered, conversations, days, unitT
         <SectionTitle hint={t("yesterday")}>{t("Out there")}</SectionTitle>
         <p className="flex items-start gap-2 text-md leading-snug" style={{ color: "var(--ink)" }}>
           <Footprints size={16} aria-hidden className="mt-1" />
-          {t("You spoke Estonian to a real person. That's the hard part, and it's what all of this is for.")}
+          {t("You spoke Estonian to a real person.")}
         </p>
         <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>{t("How did it go?")}</p>
         {mishap}
@@ -392,8 +392,8 @@ function rehearsal(scene: string | null): string {
   failure on the learner's part.
 */
 const REPLY: Record<Conversation, string> = {
-  UNDERSTOOD: "They understood you. That's the whole point of all this.",
-  STUCK: "Getting stuck is just what learning a language out loud looks like. It still counts, and it's on the board.",
+  UNDERSTOOD: "You spoke Estonian and they understood you.",
+  STUCK: "Getting stuck partway still counts, and it's on the board.",
   SWITCHED: "They switched to English. Next time, keep going in Estonian anyway. Most people switch back.",
 };
 

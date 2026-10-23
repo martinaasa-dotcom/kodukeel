@@ -191,7 +191,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
           {rich(t("**Nothing anybody bills us for is counted as free.** Every vendor here is on the plan a real deployment is on, because a free tier either pauses when nobody’s using it or forbids commercial use, and pricing one would describe a deployment nobody actually runs."))}
         </P>
         <P>
-          {rich(t("**What is given is credited, not priced.** Ekilex, Wiktionary and TartuNLP are public institutions that decided this work should be available. They ask for nothing, and that is a good arrangement rather than a gap in the accounts, so they are named here with what each one gives and the license it comes under, and they appear in no total. Where buying the same thing is possible the panel says what that would come to, because the size of the gift is worth seeing. The last line of each card is the one worth reading: every entry is a state the app already handles rather than a disaster."))}
+          {rich(t("**What is given is credited, not priced.** Ekilex, Wiktionary and TartuNLP are public institutions that decided this work should be available. They ask for nothing, so they are named here with what each one gives and the license it comes under, and they appear in no total. Where buying the same thing is possible the panel says what that would come to. The last line of each card says what the app does without it."))}
         </P>
         <ul className="space-y-3">
           {SERVICES.map((service) => (
@@ -262,7 +262,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
 
       <S title={t("What was measured, and how")}>
         <P>
-          {fill(t("Taken on {day}, against Postgres 16 on one machine and a production build served locally. Each row says what to run to get the same number, because a figure nobody can reproduce is a claim rather than a measurement."), {
+          {fill(t("Taken on {day}, against Postgres 16 on one machine and a production build served locally. Each row says what to run to get the same number."), {
             day: dayOf(MEASURED_ON),
           })}
         </P>
@@ -291,7 +291,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
           </table>
         </div>
         <P>
-          {t("Two of those are worth stopping on. A review row is 300 bytes, so a learner costs about 1.3 MB a year and the whole review log of a thousand people for a year fits in less space than a phone photograph album. And a spoken clip is uncompressed audio, 43 KB for every second of it once trimmed and stored as 16-bit, which still makes speech the largest thing this app moves by a wide margin. Turning the audio off in the panel above is the single biggest saving available, and it is also the feature hardest to argue for losing.")}
+          {t("A review row is 300 bytes, so a learner costs about 1.3 MB a year and the whole review log of a thousand people for a year fits in less space than a phone photograph album. A spoken clip is uncompressed audio, 43 KB for every second of it once trimmed and stored as 16-bit, which makes speech the largest thing this app moves by a wide margin. Turning the audio off in the panel above is the single biggest saving available.")}
         </P>
       </S>
 
@@ -375,7 +375,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
           </li>
         </ul>
         <P>
-          {t("Ekilex, Wiktionary and TartuNLP are not on that list, because they do not charge and this page does not pretend otherwise. They are credited above instead, with what each one gives and the license it comes under. Where buying the same thing is possible the panel says what that would come to, so the size of the gift is visible, and that figure is in no total here.")}
+          {t("Ekilex, Wiktionary and TartuNLP are not on that list, because they do not charge. They are credited above instead, with what each one gives and the license it comes under. Where buying the same thing is possible the panel says what that would come to, and that figure is in no total here.")}
         </P>
       </S>
 
@@ -401,7 +401,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
           })}
         </P>
         <P>
-          {rich(t("**A school could keep its history.** Everything on the progress screens is worked out from the review log on each request rather than stored, so the log is never thrown away and the database only grows. That is the right design and it is what makes the instance ladder the steepest line on this page."))}
+          {rich(t("**A school could keep its history.** Everything on the progress screens is worked out from the review log on each request rather than stored, so the log is never thrown away and the database only grows, which makes the instance ladder the steepest line on this page."))}
         </P>
         <P>
           {rich(t("**The corrections could be worked.** The dictionary is built from Ekilex and Wiktionary rather than typed, which keeps invented Estonian out of it and does not make every entry right. Learners already report the wrong ones."))}
@@ -413,7 +413,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
 
       <S title={t("What happens when the money stops")}>
         <P>
-          {t("The question a grant is scored on, and the one a cost page usually leaves out. The figures below are the same bill as above with things switched off, in the order somebody would actually switch them off. The tooling that writes the software goes first, because a reader opening the app tomorrow does not notice it. The server and the database go last, because without those there is nothing.")}
+          {t("The figures below are the same bill as above with things switched off, in the order somebody would actually switch them off. The tooling that writes the software goes first, because a reader opening the app tomorrow does not notice it. The server and the database go last, because without those there is nothing.")}
         </P>
         {ladder.map((step) => (
           <P key={step.stage.id}>
@@ -430,7 +430,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
           {t("The fall is gradual because most of what this app is made of was never bought. The dictionary is Ekilex, the speech is TartuNLP, the English is Wiktionary, and all three are public institutions that decided this work should be available. The scheduler, the course, the exams, the games and the grammar run on a server and a database and nothing else. What money buys is the tutor, the polish, and somebody to work on it.")}
         </P>
         <P>
-          {fill(t("So the honest claim is not that this becomes profitable. It is that at ${floor} a month it can be kept alive by one person who has not been paid, and that it keeps teaching Estonian the whole way down."), {
+          {fill(t("This will not become profitable. At ${floor} a month one unpaid person can keep it running, and it keeps teaching Estonian."), {
             floor: floor.toFixed(0),
           })}
         </P>
@@ -438,7 +438,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
 
       <S title={t("What survives even that")}>
         <P>
-          {t("Six things, and every one of them is a file somebody can open rather than an intention somebody has stated.")}
+          {t("Six things, each a file somebody can open.")}
         </P>
         {CONTINUITY.map((item) => (
           <P key={item.id}>
@@ -447,7 +447,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
           </P>
         ))}
         <P>
-          {t("Which is the answer to the question under the question. A funder is not really asking whether the lights stay on. They are asking whether the money buys something that outlives the project. For a language this size, the thing worth buying is a corrected dictionary, a course built out of attested sources, and the code to run both, all published under a license that lets somebody else pick it up.")}
+          {t("For a language this size, what money can buy that outlives the project is a corrected dictionary, a course built out of attested sources, and the code to run both, all published under a license that lets somebody else pick it up.")}
         </P>
       </S>
 
@@ -458,7 +458,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
           })}
         </P>
         <P>
-          {t("Nothing about a learner is sold, shared or used to train anything. Whether a teacher can see a student is answered narrowly and separately, and the answer is effort rather than contents. Every one of those promises costs money to keep rather than saving it, which is most of why this page exists.")}
+          {t("Nothing about a learner is sold, shared or used to train anything. Whether a teacher can see a student is answered narrowly and separately, and the answer is effort rather than contents. Each of those promises costs money to keep.")}
         </P>
       </S>
     </Legal>

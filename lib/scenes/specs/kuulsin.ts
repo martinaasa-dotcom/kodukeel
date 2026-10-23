@@ -127,10 +127,10 @@ const HEARSAY: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "passed-on", when: ["greet", "news", "when", "source", "sure", "close"], says: "You passed on what you'd read, said where from, and that you weren't sure. That's news as Estonians tell it: with the distance built in." },
-    { id: "passed-on-thin", when: ["news", "when"], says: "They know what's opening and when. Saying where you read it is what makes it news rather than gossip." },
-    { id: "in-a-hurry", when: ["greet", "news"], says: "They were in a hurry and couldn't stop. That's the stairs, not your Estonian." },
-    { id: "left", when: [], says: "You went on up the stairs. There'll be another chance on the way down." },
+    { id: "passed-on", when: ["greet", "news", "when", "source", "sure", "close"], says: "You passed on what you'd read, said where from, and that you weren't sure." },
+    { id: "passed-on-thin", when: ["news", "when"], says: "They know what's opening and when. Next time, say where you read it." },
+    { id: "in-a-hurry", when: ["greet", "news"], says: "They were in a hurry and couldn't stop." },
+    { id: "left", when: [], says: "You went on up the stairs." },
   ],
 };
 

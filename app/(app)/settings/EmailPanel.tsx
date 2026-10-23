@@ -40,7 +40,7 @@ const LETTERS: { kind: EmailKind; title: string; detail: string }[] = [
   },
   {
     kind: "milestone",
-    title: "A note when you've truly learned a level's words",
+    title: "A note when you've learned a level's words",
     detail:
       "Rare, and always a little late, because a word only counts once you still know it days later.",
   },
@@ -48,7 +48,7 @@ const LETTERS: { kind: EmailKind; title: string; detail: string }[] = [
     kind: "shield",
     title: "A note when a shield saves your streak",
     detail:
-      "You earn a shield at 7, 30 and 100 days, and it's used without any fuss. This is how you'd find out.",
+      "A shield, earned at 7, 30 and 100 days, covers a missed day. This note says when one was used.",
   },
   {
     kind: "comeback",
@@ -74,7 +74,7 @@ const LETTERS: { kind: EmailKind; title: string; detail: string }[] = [
   {
     kind: "wordday",
     title: "One Estonian word a day",
-    detail: "Off unless you turn it on. A word, what it means and a sentence with it. Nothing to do, just enjoy it.",
+    detail: "Off unless you turn it on. A word, what it means and a sentence with it.",
   },
 ];
 

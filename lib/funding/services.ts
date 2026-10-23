@@ -255,7 +255,7 @@ export const SERVICES: readonly Service[] = [
         givesAs: shape.audio
           ? { template: "{characters} characters read aloud a month, in a real Estonian voice", values: { characters: Math.round(v.spokenCharacters) } }
           : undefined,
-        why: "A public research group at the University of Tartu, which asks for nothing and sends no invoice.",
+        why: "A public research group at the University of Tartu, which charges nothing.",
         wouldCostUsd: shape.audio
           ? round2((v.spokenCharacters / 1e6) * SPEECH_MARKET.usdPerMillionCharacters)
           : 0,
@@ -380,7 +380,7 @@ export const SERVICES: readonly Service[] = [
     id: "devtools",
     name: "Claude Max",
     who: "Anthropic, as the tooling that writes and maintains this",
-    does: "Writes the code, the tests and the invariants, and keeps them honest against each other.",
+    does: "Writes the code, the tests and the invariants, and checks each against the others.",
     whenItIsGone: "The app carries on running and stops being worked on.",
     ref: DEVTOOLS.ref,
     bill(): ServiceCost {

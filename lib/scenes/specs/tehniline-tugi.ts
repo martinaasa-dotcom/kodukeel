@@ -140,10 +140,10 @@ const TECH_SUPPORT: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "fixed", when: ["greet", "problem", "device", "screen", "tried", "fix", "close"], says: "You said what was wrong, what you saw and what you'd tried, and it's working again. Describing a fault on the phone in Estonian is a real skill." },
+    { id: "fixed", when: ["greet", "problem", "device", "screen", "tried", "fix", "close"], says: "You said what was wrong, what you saw and what you'd tried, and it's working again." },
     { id: "fixed-thin", when: ["problem", "tried", "fix"], says: "It's working again. Saying what the screen showed would have got you there faster." },
-    { id: "engineer", when: ["greet", "problem"], says: "They need to send somebody round. That's the line, not your Estonian." },
-    { id: "left", when: [], says: "You hung up before it was sorted. Support is there all day." },
+    { id: "engineer", when: ["greet", "problem"], says: "They need to send somebody round." },
+    { id: "left", when: [], says: "You hung up before it was sorted. You can call support again." },
   ],
 };
 

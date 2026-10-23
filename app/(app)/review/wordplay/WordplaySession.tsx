@@ -446,7 +446,7 @@ function ApartCard({
             </p>
             <p className="pop-in mt-3 flex items-center justify-center gap-1.5 text-md font-semibold" style={{ color: right ? VERDICT_INK.right : "var(--ink-2)" }}>
               {right ? <Check size={16} aria-hidden /> : null}
-              {right ? t("You guessed it.") : t("Not that one, but now you know.")}
+              {right ? t("You guessed it.") : t("Not that one.")}
             </p>
           </div>
         )}

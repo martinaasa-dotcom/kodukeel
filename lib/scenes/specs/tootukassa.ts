@@ -177,10 +177,10 @@ const UNEMPLOYMENT_FUND: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "registered", when: ["greet", "why", "job", "ended", "looking", "next", "again", "close"], says: "You're registered, they know what you're looking for, and you've got your next visit. That's an office done in Estonian from start to finish." },
+    { id: "registered", when: ["greet", "why", "job", "ended", "looking", "next", "again", "close"], says: "You're registered, they know what you're looking for, and you've got your next visit." },
     { id: "registered-thin", when: ["why", "job", "ended"], says: "You're registered. What you're looking for can be sorted out at the next visit." },
-    { id: "come-back", when: ["greet", "why"], says: "Their system couldn't register anybody today. That's the office, not your Estonian; they'll see you another day." },
-    { id: "left", when: [], says: "You left before you were registered. The office will still be there tomorrow." },
+    { id: "come-back", when: ["greet", "why"], says: "Their system couldn't register anybody today. They'll see you another day." },
+    { id: "left", when: [], says: "You left before you were registered. You can come back another day." },
   ],
 };
 

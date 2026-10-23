@@ -45,7 +45,7 @@ export function WordOfDayCard({ word, canTranslate, locale, className }: {
       <Card className={className}>
         <SectionTitle>{t("Word of the day")}</SectionTitle>
         <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }} lang={locale}>
-          {t("You've already met every word we could pick for today, which is a first. Have a browse in the dictionary, and there'll be a new one here tomorrow.")}
+          {t("You've already met every word we could pick for today. Have a browse in the dictionary, and there'll be a new one here tomorrow.")}
         </p>
         <Link
           href="/dictionary"

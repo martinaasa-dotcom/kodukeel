@@ -304,8 +304,8 @@ export function offerParts(offer: AdaptOffer, effects: LeanEffects, locale: Loca
   }
 
   const lead = offer.reading.because === "misses"
-    ? t("A lot of recent answers have been misses. This part is a step ahead of you for now, and that's normal.")
-    : t("Lately you've been getting {seen} out of a hundred right. This part is a step ahead of you for now, and that's normal.", { seen });
+    ? t("A lot of recent answers have been misses. This part is a step ahead of you for now.")
+    : t("Lately you've been getting {seen} out of a hundred right. This part is a step ahead of you for now.", { seen });
   const move = offer.move;
   if (!move) {
     return { lead, advice: t("Your reviews will bring back the words that are slipping. Give it a few days."), lean };

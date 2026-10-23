@@ -60,7 +60,7 @@ export function QueueRows({ rows, status }: { rows: QueueRow[]; status: Suggesti
       <Empty
         mood="happy"
         title={t(status === "OPEN" ? "Nothing waiting" : "Nothing here")}
-        body={t(status === "OPEN" ? "Every report has been dealt with. Nice." : "No reports have ended up here yet.")}
+        body={t(status === "OPEN" ? "Every report has been dealt with." : "No reports have ended up here yet.")}
       />
     );
   }

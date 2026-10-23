@@ -199,7 +199,7 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
               {fill(t("{right} out of {all}, just a minute after meeting them."), { right, all: words.length })}
             </p>
             <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              {t("And that’s the first step of your first evening. Inside, the ones you missed come back sooner, and the ones you got come back just before you’d forget them.")}
+              {t("That was the first step of your first evening. Inside, the ones you missed come back sooner, and the ones you got come back just before you’d forget them.")}
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <button type="button" onClick={again} className="tap-tint inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold" style={{ color: "var(--ink-2)" }}>

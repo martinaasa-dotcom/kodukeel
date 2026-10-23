@@ -112,10 +112,10 @@ const PHONE: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "sorted", when: ["greet", "why", "have", "hours", "confirm", "close"], says: "They've got it, you know when they open, and you checked the time. Tomorrow's a trip, not a gamble." },
+    { id: "sorted", when: ["greet", "why", "have", "hours", "confirm", "close"], says: "They've got it, you know when they open, and you checked the time." },
     { id: "sorted-thin", when: ["why", "have", "hours"], says: "They've got it and they told you when to come. You didn't say the time back, so double-check it before you set off." },
-    { id: "no-stock", when: ["greet", "why", "have"], says: "They're out of it until next week. You asked properly, and on the phone, which is the hardest way to do Estonian." },
-    { id: "left", when: [], says: "You hung up. Shops have websites too, and you can call again." },
+    { id: "no-stock", when: ["greet", "why", "have"], says: "They're out of it until next week." },
+    { id: "left", when: [], says: "You hung up. You can call again." },
   ],
 };
 

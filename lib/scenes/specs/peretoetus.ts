@@ -114,9 +114,9 @@ const FAMILY_BENEFIT: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "sorted", when: ["greet", "why", "ref", "last", "check", "close"], says: "You know why the money stopped and what to send. A phone call to an office, in Estonian, with a number read out: that's one of the hardest calls there is." },
+    { id: "sorted", when: ["greet", "why", "ref", "last", "check", "close"], says: "You know why the money stopped and what to send." },
     { id: "sorted-thin", when: ["why", "ref", "check"], says: "They found your case and you know what to send. The details can wait for the letter." },
-    { id: "call-back", when: ["greet", "why"], says: "Their system couldn't find anything today. That's the office, not your Estonian; call again tomorrow." },
+    { id: "call-back", when: ["greet", "why"], says: "Their system couldn't find anything today. Call again tomorrow." },
     { id: "left", when: [], says: "You hung up before they found your case. You can always call back." },
   ],
 };

@@ -53,7 +53,7 @@ export function DeepenButton({ group, label, variant = "primary", part, goTo }: 
       if (goTo) { router.push(goTo); return; }
       setNote(result.added === 0
         ? t("You've already got every word on this list, in every form.")
-        : fill(t("Added {words}, with {cards} between them. They're ready when you are."), {
+        : fill(t("Added {words}, with {cards} between them."), {
           words: countOf(locale, result.words, "word"),
           cards: countOf(locale, result.added, "card"),
         }));

@@ -15,7 +15,7 @@ Design rules, chosen against specific failure modes:
 - **Simple beats thorough, by default.** "Because you mean part of it, not all of it" is a better
   answer than "because of aspect and the partitive object" every time, because it is the one a
   learner can actually use. A grammar term (Estonian first, the English name in brackets: *osastav*
-  (partitive)) is a tool reached for sometimes, when it genuinely helps or the learner is already
+  (partitive)) is a tool reached for sometimes, when it helps or the learner is already
   using it, never a habit stacked into every answer. Most answers need none. This reverses what the
   prompt asked for until a learner who is native in both languages reported it as "way too
   complicated... basically useless", which is the failure mode this rule exists against.
@@ -119,7 +119,7 @@ ones and clears the badge.
 
 This is the single most important safeguard in the app. An unverified partitive plural in a
 flashcard does not just sit there being wrong. The SRS *drills it into the learner's memory*. The
-asymmetry is the whole design: **Anu explains, Ekilex supplies.**
+design rests on that asymmetry: **Anu explains, Ekilex supplies.**
 
 ## 6. Cost model and budget control (audit C5)
 

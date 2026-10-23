@@ -111,9 +111,9 @@ const DIRECTIONS: SceneSpec = {
   ],
   outcomes: [
     { id: "found", when: ["greet", "where", "way", "close"], says: "You know the way, and you thanked them for it." },
-    { id: "half", when: ["greet", "where"], says: "They told you the way. Whether you caught it is another matter." },
-    { id: "lost", when: ["greet"], says: "They didn't know the place either. That happens, and it wasn't your Estonian." },
-    { id: "left", when: [], says: "You walked on. Somebody else will know." },
+    { id: "half", when: ["greet", "where"], says: "They told you the way." },
+    { id: "lost", when: ["greet"], says: "They didn't know the place either." },
+    { id: "left", when: [], says: "You walked on." },
   ],
 };
 

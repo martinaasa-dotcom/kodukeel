@@ -128,10 +128,10 @@ const FRIENDS_WORRY: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "there", when: ["greet", "how", "sorry", "help", "meet", "close"], says: "You asked what happened, said you were sorry and offered to help. That's being a friend in Estonian, which matters more than any ending." },
-    { id: "there-thin", when: ["how", "help"], says: "You asked and you offered help. Saying you're sorry first is the part people remember." },
-    { id: "cut-short", when: ["greet", "how"], says: "They had to go before you could say much. That's the day they're having, not your Estonian." },
-    { id: "left", when: [], says: "You left before they could tell you. A message later would mean a lot." },
+    { id: "there", when: ["greet", "how", "sorry", "help", "meet", "close"], says: "You asked what happened, said you were sorry and offered to help." },
+    { id: "there-thin", when: ["how", "help"], says: "You asked and you offered help. Next time, say you're sorry first." },
+    { id: "cut-short", when: ["greet", "how"], says: "They had to go before you could say much." },
+    { id: "left", when: [], says: "You left before they could tell you. You could send them a message later." },
   ],
 };
 

@@ -47,7 +47,7 @@ export const HEROES: Area = {
     "Where you stand at {level}": "Где вы на уровне {level}",
     "{total} situations, {tried} you’ve tried": "Ситуаций: {total}, испробовано: {tried}",
     "{total} situations, none tried yet": "Ситуаций: {total}, пока ни одной не испробовано",
-    "Based on your own answers, not a guess.": "По вашим собственным ответам, а не наугад.",
+    "Based on your own answers.": "По вашим собственным ответам.",
     "How many situations sit on each rung": "Сколько ситуаций на каждой ступени",
   },
   uk: {
@@ -88,7 +88,7 @@ export const HEROES: Area = {
     "Where you stand at {level}": "Де ви на рівні {level}",
     "{total} situations, {tried} you’ve tried": "Ситуацій: {total}, випробувано: {tried}",
     "{total} situations, none tried yet": "Ситуацій: {total}, поки жодної не випробувано",
-    "Based on your own answers, not a guess.": "За вашими власними відповідями, а не навмання.",
+    "Based on your own answers.": "За вашими власними відповідями.",
     "How many situations sit on each rung": "Скільки ситуацій на кожному щаблі",
   },
 };

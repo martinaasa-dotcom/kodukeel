@@ -199,7 +199,7 @@ export function ClozeSession() {
           {t("That’s the whole passage")}
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          {t("Every gap was a word a real Estonian writer chose, in a sentence they actually wrote. Practice doesn’t get much more real than that.")}
+          {t("Every gap was a word a real Estonian writer chose, in a sentence they actually wrote.")}
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
@@ -298,7 +298,7 @@ export function ClozeSession() {
               the panel under it is for the eye. */}
           <p className="sr-only" role="status">
             {!checked ? "" : right
-              ? t("Spot on, that's exactly what the writer used.")
+              ? t("Right, that's the word the writer used.")
               : slip
                 ? fill(t("Right word, just missing an Estonian letter. It’s {word}."), { word: item.answer })
                 : fill(t("The writer used {word}, the {form}."), { word: item.answer, form: item.formLabel })}
@@ -311,7 +311,7 @@ export function ClozeSession() {
                   : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
                 <p className="text-base">
                   {right
-                    ? t("Spot on, that's exactly what the writer used.")
+                    ? t("Right, that's the word the writer used.")
                     : slip
                       ? rich(t("Right word, just missing an Estonian letter. It’s {word}. The letter bar under the box can help."), { word: <strong lang="et">{item.answer}</strong> })
                       : rich(t("The writer used {word}, the {form}."), { word: <strong lang="et">{item.answer}</strong>, form: item.formLabel })}

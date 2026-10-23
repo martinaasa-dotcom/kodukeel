@@ -323,7 +323,7 @@ const MOVEABLE: readonly { offset: number; occasion: Occasion }[] = [
     occasion: {
       key: "shrove-tuesday",
       name: "Pancake Day",
-      note: "Shrove Tuesday. England makes pancakes, Estonia takes the sledge out and makes pea soup, and both are right.",
+      note: "Shrove Tuesday. England makes pancakes, Estonia takes the sledge out and makes pea soup.",
       glosses: ["pancake", "sledge", "soup"],
     },
   },
@@ -453,7 +453,7 @@ const BY_NUMBER: Record<number, Occasion> = {
   31: {
     key: "day-31",
     name: "The thirty-first",
-    note: "The last day of the month. Tomorrow's a fresh one.",
+    note: "The last day of the month.",
     glosses: ["last", "end"],
   },
 };

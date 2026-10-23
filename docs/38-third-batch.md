@@ -726,8 +726,8 @@ TB-6, TB-7, TB-1, TB-2, TB-4, TB-3, TB-8 and TB-5 last.
 - **New room drawings** (D5) and **a third face** (D14). The operator's call.
 - **New units for scenes** (D7). Triggered by a scene that needs more than six new words.
 - **The remaining A1 conversation gap.** Every scene declares `korraldused`, which opens A2, so A1 still
-  has no conversation. Wave A puts the A1 errands' rehearsals at the start of A2; that is the honest
-  earliest point.
+  has no conversation. Wave A puts the A1 errands' rehearsals at the start of A2; that is the earliest
+  point.
 
 ## 9. Only the operator can do these
 

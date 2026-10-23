@@ -137,8 +137,7 @@ export const BRIEFINGS = {
     title: "Hear it, write it",
     what: "A real sentence read out loud. Play it again as often as you like, and slow it down if it's fast.",
     you:
-      "Type the whole sentence. Forgetting a dot or a squiggle on a letter costs you a little but " +
-      "won't be marked wrong, so it's worth trying.",
+      "Type the whole sentence. Forgetting a dot or a squiggle on a letter costs you a little but won't be marked wrong.",
     action: "Play the first one",
   },
   exceptions: {

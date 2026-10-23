@@ -525,8 +525,7 @@ export function checkQuota(
       allowed: false,
       reason: "GLOBAL_SPEND",
       message:
-        "The app has run through its AI budget for today, for everybody. It's nothing " +
-        "you did, and it's back at midnight UTC.",
+        "The app has run through its AI budget for today, for everybody. It's back at midnight UTC.",
       retryAfterSeconds: secondsUntilUtcMidnight(now),
     };
   }

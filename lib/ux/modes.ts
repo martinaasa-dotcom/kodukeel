@@ -139,8 +139,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     group: "targeted", note: "Eight words",
     within: "/games",
     blurb:
-      "A word you know, with its letters jumbled. Hear it, then tap them back in order. You can " +
-      "play it from your very first five words, and it's where õ and ä stop looking like o and a.",
+      "A word you know, with its letters jumbled. Hear it, then tap them back in order. You can play it from your very first five words.",
   },
   {
     /*
@@ -151,8 +150,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     group: "targeted", note: "Six words",
     within: "/games",
     blurb:
-      "A word you know, spelled out letter by letter the way Estonians spell a name on the phone. " +
-      "Write it down. It's how the letters' Estonian names stop being a surprise.",
+      "A word you know, spelled out letter by letter the way Estonians spell a name on the phone. Write it down.",
   },
   {
     /*
@@ -166,8 +164,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     icon: "Hash", tone: "sky", group: "targeted", note: "Ten, said or typed",
     within: "/practice",
     blurb:
-      "A price tag, a clock on the wall, a timetable, a number. Say it in Estonian, or type it, " +
-      "and hear it said back. Every counter you'll ever stand at needs one.",
+      "A price tag, a clock on the wall, a timetable, a number. Say it in Estonian, or type it, and hear it said back.",
   },
   {
     href: "/sonad", title: "Sõnad", subtitle: "Guess the day's word",
@@ -198,7 +195,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     within: "/games",
     blurb:
       "Seven Estonian words at your level, crossing each other, with clues in English. You know " +
-      "what you want to say and you hunt for the word, which is exactly what speaking feels like.",
+      "what you want to say and you hunt for the word.",
   },
   {
     href: "/review/map", title: "Map", subtitle: "See what an ending means",
@@ -340,8 +337,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     href: "/review/pairs", title: "Minimal pairs", subtitle: "Long sound or short?", icon: "Ear", tone: "sky",
     group: "targeted", note: "Needs audio", within: "/grammar/topic/gradation",
     blurb:
-      "Maja or majja? The difference is how long you hold one sound, and spelling only half " +
-      "shows it. Reading won't teach you this. Your ears will.",
+      "Maja or majja? The difference is how long you hold one sound, and spelling only half shows it.",
   },
   {
     href: "/review/cloze", title: "From your reading", subtitle: "Paste in any Estonian",
@@ -396,7 +392,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     tone: "blush", group: "targeted", note: "From your log",
     blurb:
       "The few cards you keep getting wrong, with a look at why. Sort them out here before " +
-      "they quietly pile up.",
+      "they pile up.",
     within: "/progress",
   },
 ];

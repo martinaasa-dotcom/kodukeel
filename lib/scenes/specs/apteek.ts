@@ -161,10 +161,10 @@ const PHARMACY: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "sorted", when: ["greet", "what", "since", "medicine", "how", "pay", "card", "close"], says: "You've got something for it and you know how to take it. Nobody switched to English, and the line survived." },
+    { id: "sorted", when: ["greet", "what", "since", "medicine", "how", "pay", "card", "close"], says: "You've got something for it and you know how to take it. Nobody switched to English." },
     { id: "sorted-thin", when: ["what", "medicine", "card"], says: "You've got something for it. You didn't ask how often, so read the box before you take one." },
-    { id: "see-doctor", when: ["greet", "what", "since"], says: "They said this one needs a doctor, not a pharmacy. You explained it well enough for them to tell." },
-    { id: "left", when: [], says: "You stepped out of the line. Pharmacies are open late, and you can come back." },
+    { id: "see-doctor", when: ["greet", "what", "since"], says: "They said this one needs a doctor, not a pharmacy." },
+    { id: "left", when: [], says: "You stepped out of the line. You can come back." },
   ],
 };
 

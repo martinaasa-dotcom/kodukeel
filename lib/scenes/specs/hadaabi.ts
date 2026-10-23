@@ -160,9 +160,9 @@ const EMERGENCY: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "help-coming", when: ["greet", "what", "part", "where", "house", "hurt", "wait", "close"], says: "Help is on its way, because you said what happened and exactly where. That's the call nobody wants to make and everybody should be able to." },
-    { id: "help-coming-thin", when: ["what", "where", "house"], says: "They know what happened and where you are, which is what sends the ambulance. The rest is detail." },
-    { id: "line-busy", when: ["greet"], says: "The line cut out before you could say more. In a real emergency, call again straight away; it isn't your Estonian." },
+    { id: "help-coming", when: ["greet", "what", "part", "where", "house", "hurt", "wait", "close"], says: "Help is on its way, because you said what happened and exactly where." },
+    { id: "help-coming-thin", when: ["what", "where", "house"], says: "They know what happened and where you are, so they can send an ambulance." },
+    { id: "line-busy", when: ["greet"], says: "The line cut out before you could say more. In a real emergency, call again straight away." },
     { id: "left", when: [], says: "You hung up. In a real emergency, call back: they'll speak slowly if you ask." },
   ],
 };

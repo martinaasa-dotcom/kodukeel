@@ -110,9 +110,9 @@ const TEAM_MEETING: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "moved", when: ["greet", "idea", "why", "propose", "agree", "close"], says: "You disagreed with your lead, gave a reason, put your own day on the table and got it. In Estonian, politely, in front of the team." },
-    { id: "moved-thin", when: ["idea", "propose"], says: "You got your day. Giving the reason out loud is what makes the next one easier." },
-    { id: "overruled", when: ["greet", "idea"], says: "The meeting ran out of time before anything changed. That's meetings, not your Estonian." },
+    { id: "moved", when: ["greet", "idea", "why", "propose", "agree", "close"], says: "You disagreed with your lead politely, in front of the team, gave a reason, put your own day on the table and got it." },
+    { id: "moved-thin", when: ["idea", "propose"], says: "You got your day. Next time, give the reason out loud." },
+    { id: "overruled", when: ["greet", "idea"], says: "The meeting ran out of time before anything changed." },
     { id: "left", when: [], says: "You left the meeting early. It'll be in the notes." },
   ],
 };

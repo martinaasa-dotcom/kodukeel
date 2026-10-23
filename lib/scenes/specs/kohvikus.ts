@@ -168,9 +168,9 @@ const CAFE: SceneSpec = {
   ],
   outcomes: [
     { id: "served", when: ["greet", "order", "size", "bill", "pay", "close"], says: "You've got your drink, you've paid, and you made the bus." },
-    { id: "served-quiet", when: ["order", "pay"], says: "You got your drink and you paid. Not much was said, and in a café that's fine." },
-    { id: "out", when: ["greet", "order"], says: "They'd run out of it today. You asked for what you wanted, and that was your part done." },
-    { id: "left", when: [], says: "You left the counter before it was done. People do, and the café will be there tomorrow." },
+    { id: "served-quiet", when: ["order", "pay"], says: "You got your drink and paid, with very few words." },
+    { id: "out", when: ["greet", "order"], says: "They'd run out of it today." },
+    { id: "left", when: [], says: "You left the counter before it was done." },
   ],
 };
 

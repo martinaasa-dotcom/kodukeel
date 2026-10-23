@@ -159,8 +159,8 @@ const COMPLAINT: SceneSpec = {
   ],
   outcomes: [
     { id: "fixed", when: ["greet", "problem", "when", "receipt", "want", "close"], says: "They're taking it back. You said what was wrong, when you bought it and what you wanted, and you didn't switch to English." },
-    { id: "sent-on", when: ["greet", "problem", "when"], says: "They sent you to the maker rather than dealing with it here. That's the shop, not your Estonian, and you've got it in writing." },
-    { id: "fixed-thin", when: ["problem", "want"], says: "They know what's wrong and what you want. The paperwork's their problem now." },
+    { id: "sent-on", when: ["greet", "problem", "when"], says: "They sent you to the maker rather than dealing with it here, and you've got that in writing." },
+    { id: "fixed-thin", when: ["problem", "want"], says: "They know what's wrong and what you want." },
     { id: "left", when: [], says: "You took it home again. It still doesn't work, and you can always come back." },
   ],
 };

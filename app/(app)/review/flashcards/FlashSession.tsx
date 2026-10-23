@@ -320,7 +320,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     return (
       <RoundDone
         title={t("That’s the round done")}
-        line={t("Right or wrong, every answer helped those words stick a little better.")}
+        line={t("Every answer, right or wrong, changes when those words come back.")}
         figures={[
           { value: prompts.length, label: t("Asked") },
           { value: `${Math.round((right / prompts.length) * 100)}%`, label: t("Right") },

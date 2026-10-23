@@ -22,7 +22,7 @@ export interface PublicPageCard {
 export const PUBLIC_CARDS = {
   "/trust": "Whether Kodukeel is safe for a class, a team or a grant. The short answers come first, then the detail behind each one.",
   "/funding": "Kodukeel is free and nothing about you is sold. This page shows what it runs on, what each piece costs and who pays.",
-  "/privacy": "Exactly what Kodukeel keeps about you, why it’s allowed to, who else gets to see it, and how to make it go away.",
+  "/privacy": "What Kodukeel keeps about you, why it’s allowed to, who else gets to see it, and how to make it go away.",
   "/accessibility": "The accessibility standard Kodukeel aims for, what we’ve checked and how, where it falls short today, and how to tell us.",
   "/terms": "The terms for using Kodukeel, kept short: use it to learn Estonian, don’t abuse the shared services, and know what it can promise.",
   "/state-exam": "What the Estonian language examination is, who needs which level, how to register, and what happens after.",

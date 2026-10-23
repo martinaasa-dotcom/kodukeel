@@ -101,8 +101,8 @@ The review log is the irreplaceable asset:
 - Every Prisma migration is tested against a seeded database with review history, and asserts the
   history survives.
 - An automatic snapshot is taken before any migration runs.
-- **Restore is tested, not just backup.** An untested backup is a hypothesis.
-- **The suite that tests it is the most dangerous file in the repository**, because the only honest
+- **Restore is tested, not just backup.** A backup nobody has restored is not known to work.
+- **The suite that tests it is the most dangerous file in the repository**, because the only
   way to test a restore is to delete everything first. `scripts/test-restore.mjs` therefore refuses
   to run unless `DATABASE_URL` looks local (`--force` overrides, deliberately awkwardly), and writes
   the export to `.backups/` *before* deleting anything. A crash between the delete and the restore

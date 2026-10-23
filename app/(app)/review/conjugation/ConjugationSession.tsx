@@ -387,8 +387,8 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
       <RoundDone
         title={t("That’s the round done")}
         line={tablesRight === questions.length
-          ? t("Every table spotless. You've got the endings down. All that's left is meeting more verbs.")
-          : t("Here's the good news: the endings are the same for every verb. What catches people out is the part they're stuck onto, so when a table goes wrong, look the verb up.")}
+          ? t("Every table spotless. You know the endings now, so try them on more verbs.")
+          : t("The endings are the same for every verb. What catches people out is the part they're stuck onto, so when a table goes wrong, look the verb up.")}
         figures={[
           { value: `${tablesRight}/${questions.length}`, label: t("Tables") },
           { value: `${accuracy}%`, label: t("Forms right") },

@@ -112,8 +112,8 @@ export default inLesson("a1-29-cafe-evening", {
     },
   ],
   outcomes: [
-    { id: "served", when: ["greet", "order", "price", "pay", "close"], says: "You ordered, asked the price and paid, all in Estonian. That's an evening at a café." },
-    { id: "served-quiet", when: ["order", "pay"], says: "You got what you came for and paid. Not much was said, and at a counter that's fine." },
+    { id: "served", when: ["greet", "order", "price", "pay", "close"], says: "You ordered, asked the price and paid, all in Estonian." },
+    { id: "served-quiet", when: ["order", "pay"], says: "You got what you came for and paid, with very few words." },
     { id: "closing", when: ["greet", "order"], says: "The café was closing as you ordered. You said what you wanted, and that was your part done." },
     { id: "left", when: [], says: "You left before you'd ordered. The café will be there tomorrow." },
   ],

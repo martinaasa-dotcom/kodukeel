@@ -110,10 +110,10 @@ const NEW_COLLEAGUE: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "met", when: ["greet", "name", "from", "job", "back", "close"], says: "You've met your first colleague, and you asked about them too. That's the start of being part of the place." },
-    { id: "met-thin", when: ["name", "from", "job"], says: "They know your name, where you're from and what you'll do. The rest can wait for lunch." },
-    { id: "called-away", when: ["greet", "name"], says: "Their phone went and they had to run. You told them your name, and that's the first thing anybody remembers." },
-    { id: "left", when: [], says: "You went to find your desk. There'll be another coffee break." },
+    { id: "met", when: ["greet", "name", "from", "job", "back", "close"], says: "You've met your first colleague, and you asked about them too." },
+    { id: "met-thin", when: ["name", "from", "job"], says: "They know your name, where you're from and what you'll do." },
+    { id: "called-away", when: ["greet", "name"], says: "Their phone went and they had to run, after you'd told them your name." },
+    { id: "left", when: [], says: "You went to find your desk." },
   ],
 };
 

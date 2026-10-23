@@ -549,7 +549,7 @@ export function weeksNeeded(hours: HourRange, appHoursPerWeek: number, otherHour
 export function distanceLine(plan: Projection, locale: Locale): string {
   const t = (english: string) => tr(locale, english);
   if (plan.verdict === "arrived") {
-    return fill(t("As far as the app can tell, you're already {level}. All that's left is the exam itself."), { level: plan.to });
+    return fill(t("As far as the app can tell, you're already {level}. Book the exam when you're ready."), { level: plan.to });
   }
   const pace = t(plan.paceSource === "measured"
     ? "the pace you have kept"
@@ -561,7 +561,10 @@ export function distanceLine(plan: Projection, locale: Locale): string {
   });
   const off = { weeks: weeksWords(plan.weeksAvailable ?? 0, locale) };
   switch (plan.verdict) {
-    case "open": return `${opening} ${t("No date is set, so that's the whole story.")}`;
+    // With no date there is nothing to set the distance against, so the
+    // distance is the whole line. A tail saying so was reported as the one
+    // sentence on the landing page a person would never write.
+    case "open": return opening;
     case "passed": return `${opening} ${t("The date you picked has gone, so choose a new one whenever you're ready.")}`;
     case "comfortable": return `${opening} ${fill(t("Your date is {weeks} off, and this app alone covers it."), off)}`;
     case "tight": return `${opening} ${fill(t("Your date is {weeks} off. It fits, as long as you count the Estonian your ordinary week already brings."), off)}`;
@@ -684,8 +687,7 @@ export const FACTS: readonly Fact[] = [
     id: "spacing",
     icon: "Repeat",
     claim:
-      "Reviewing a word at growing intervals beats rereading it, and beats cramming, by a wide margin in " +
-      "every study that has looked. It's the one thing this app is built above all to do well.",
+      "Reviewing a word at growing intervals beats rereading it, and beats cramming, by a wide margin in every study that has looked.",
     source: "Cepeda and others, distributed practice meta-analysis, 2006",
   },
   {

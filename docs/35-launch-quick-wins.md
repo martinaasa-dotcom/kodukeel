@@ -223,8 +223,8 @@ the line disappears the moment a character is typed.
 learner has seen the first question.
 
 **Change.** Show the learner's own language sentence on one or two lines and put the English sentence
-behind the `Explain` disclosure used elsewhere in the wizard. Keep the honesty: the notice stays on
-the first screen, it just stops pushing the question off it.
+behind the `Explain` disclosure used elsewhere in the wizard. The notice stays on the first screen.
+It just stops pushing the question off it.
 
 **Done when.** On a 390 px phone in Russian, the name box is on screen without scrolling.
 

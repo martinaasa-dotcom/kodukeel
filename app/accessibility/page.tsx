@@ -77,7 +77,7 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
   return (
     <Legal title={t("Accessibility statement")} updated="15 October 2026" locale={locale} explicit={explicit} path="/accessibility">
       <P>
-        {t("Kodukeel is for people learning Estonian, and plenty of them are learning it because they have to. If somebody can’t use the app, it has let them down exactly when it mattered most. This page says what standard we’re aiming for, what we’ve checked and how, where we fall short today, and how to tell us.")}
+        {t("Kodukeel is for people learning Estonian, and plenty of them are learning it because they have to. This page says what standard we’re aiming for, what we’ve checked and how, where we fall short today, and how to tell us.")}
       </P>
 
       <S title={t("The standard")}>
@@ -91,7 +91,7 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
           {rich(t("**Partially conformant with WCAG 2.2 level AA.** Partially conformant means most of the app meets the standard, and the parts named below do not."))}
         </P>
         <P>
-          {t("It isn’t fully conformant, and here’s the honest reason: nobody who relies on assistive technology has yet been paid to sit down with it and try to use it. Everything below rests on automated checks and on the people who wrote the app testing their own work. That finds a great deal, and it’s still not the same as hearing from somebody the app was failing.")}
+          {t("It isn’t fully conformant, because nobody who relies on assistive technology has yet been paid to test it. Everything below rests on automated checks and on the people who wrote the app testing their own work.")}
         </P>
       </S>
 
@@ -106,7 +106,7 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
             })}
           </li>
           <li>
-            {rich(t("**Contrast measured rather than reasoned about.** {suite} reads the colors the browser actually painted and works out the ratio, in both themes, including states a page does not arrive in such as a row under a pointer. What a color is worth depends on what it is sitting on, which no palette can tell you."), {
+            {rich(t("**Contrast measured rather than reasoned about.** {suite} reads the colors the browser actually painted and works out the ratio, in both themes, including states a page does not arrive in such as a row under a pointer."), {
               suite: suite("test-design.mjs"),
             })}
           </li>
@@ -121,7 +121,7 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
             })}
           </li>
           <li>
-            {rich(t("**Text staying inside its box.** {suite} walks every route at 360, 768 and 1280, in both themes, and asks whether anything is cut off, drawn outside its border or drawn on top of something else. Then it asks again with every run of text replaced by unbreakable text of the same length, which is the question Estonian actually poses."), {
+            {rich(t("**Text staying inside its box.** {suite} walks every route at 360, 768 and 1280, in both themes, and asks whether anything is cut off, drawn outside its border or drawn on top of something else. Then it asks again with every run of text replaced by unbreakable text of the same length, since Estonian has long words."), {
               suite: suite("test-containment.mjs"),
             })}
           </li>
@@ -130,7 +130,7 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
           {t("Alongside those, the app is built out of real buttons and links with a visible focus ring. Animation is turned off for anybody whose system asks for reduced motion, and no part of it needs a dragging movement. Color is never the only thing carrying a distinction, so a correct answer says so in words as well as in color.")}
         </P>
         <P>
-          {rich(t("**The timed practice round can be set to run longer** (WCAG 2.2.1, Timing Adjustable). The daily quest is two minutes, and that is a starting point rather than the whole story: one setting stretches it, up to ten times as long, which is the figure the criterion itself asks for. It is chosen before the round starts, in Settings, and the start screen links to it. The clock stays, because a speed round without one is a different round, and what was shutting people out was that the length was not theirs to set."))}
+          {rich(t("**The timed practice round can be set to run longer** (WCAG 2.2.1, Timing Adjustable). The daily quest is two minutes to start with, and one setting stretches it up to ten times as long, which is the figure the criterion asks for. It is chosen before the round starts, in Settings, and the start screen links to it."))}
         </P>
         <P>
           {rich(t("**No audit by a person with a disability using assistive technology has been commissioned.** No screen reader user has been paid to test this, and there has been no third-party accessibility audit. Automated tools find perhaps a third of what is wrong with a page, and the third they find is the mechanical third."))}
@@ -168,7 +168,7 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
           </li>
         </ul>
         <P>
-          {t("Where a limitation above is one of ours rather than one the exercise requires, it is something to fix rather than something to explain away. The practice clocks were the first of those and are adjustable now, and the phone sweep was the second: it used to be on this list and it runs in the build. The examination clock is the one that stays, for the reason beside it.")}
+          {t("Where a limitation above is ours rather than one the exercise requires, it is on the list to fix. The practice clocks were the first and are adjustable now, and the phone sweep was the second: it used to be on this list and it runs in the build. The examination clock stays, for the reason beside it.")}
         </P>
       </S>
 

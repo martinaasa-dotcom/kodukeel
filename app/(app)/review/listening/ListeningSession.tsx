@@ -213,8 +213,8 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
         line={accuracy >= 80
           ? <><span lang="et">Tubli töö.</span> {fill(t("You caught {n} of {total} by ear."), { n: correct, total: attempted })}</>
           : accuracy >= 40
-            ? fill(t("{n} of {total} by ear. The ones you missed come back sooner, which is what they need."), { n: correct, total: attempted })
-            : t("Picking a word out by ear is the hard part, and it gets easier fast. The ones you missed come back sooner.")}
+            ? fill(t("{n} of {total} by ear. The ones you missed come back sooner."), { n: correct, total: attempted })
+            : t("Picking a word out by ear is the hard part. The ones you missed come back sooner.")}
         figures={[
           { value: correct, label: t("Right") },
           { value: `${accuracy}%`, label: t("Accuracy") },
@@ -271,7 +271,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                   {card.lemma}
                 </p>
                 <p className="max-w-[40ch] text-xs" style={{ color: "var(--ink-3)" }}>
-                  {t("We couldn’t reach the audio, so here’s the word to read instead. It’s still worth answering. Come back later to practice the listening part.")}
+                  {t("We couldn’t reach the audio, so here’s the word to read instead. Come back later to practice the listening part.")}
                 </p>
               </>
             ) : (

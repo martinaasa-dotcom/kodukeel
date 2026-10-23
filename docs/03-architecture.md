@@ -67,7 +67,7 @@ docs/
 ```
 
 `lib/estonian/` is deliberately framework-free and dependency-free: pure functions over plain data,
-unit-tested. It is the part of this codebase that is genuinely hard to get right, so it is isolated
+unit-tested. It is the part of this codebase that is hardest to get right, so it is isolated
 from React, Next.js and the database and can be tested without any of them. So are
 `lib/assessment/`, `lib/stats/`, `lib/collections/`, `lib/time/`,
 `lib/offline/`, `lib/security/`, `lib/scan/`, `lib/questions/`, `lib/ux/`, `lib/random/` and
@@ -108,8 +108,7 @@ local database.
 *Context:* v4.0 Feature 3 embeds Sõnaveeb. *Finding:* `X-Frame-Options: DENY`, verified, and the frame
 cannot render. *Decision:* consume the Ekilex REST API server-side and build our own UI.
 *Consequences:* more work; we own the layout; **structured data instead of pixels**, which is what
-makes `+ Add to Deck`, offline cache and the derived case table possible at all. The blocker turned
-out to be a favor.
+makes `+ Add to Deck`, offline cache and the derived case table possible at all.
 
 **ADR-002: SQLite + Prisma for v1; schema kept Postgres-portable.**
 *Context:* v4.0 said "Supabase (PostgreSQL) **or** SQLite via Prisma" and never chose (audit C4).
@@ -256,7 +255,7 @@ third party's continued goodwill; no terms-of-service exposure.
 **ADR-009: Store the forms we retrieve; derive only what we cannot retrieve.**
 *Context:* the original plan stored five principal parts and derived the rest, to avoid a second
 source of truth. With an Ekilex key we can retrieve every form authoritatively, 30-37
-forms including irregular plurals and the parallel forms Estonian genuinely has (`raamatutes` /
+forms including irregular plurals and the parallel forms Estonian has (`raamatutes` /
 `raamatuis`), which derivation cannot produce. *Decision:* store every retrieved form and
 render it directly; derive only for words held as principal parts alone (user-added, or seeded and
 not yet enriched). *Consequences:* `Form` gains `isPrincipal`, `morphCode` and `orderIndex`, and its
@@ -266,7 +265,7 @@ retrieved data is the authority, not a copy of a computation.
 **ADR-010: English comes from a layered resolver, not one source.**
 *Context:* Ekilex is authoritative for Estonian but carries no English on a reader key; its `ing`
 dataset is not public. *Decision:* resolve a translation in order: a translation the learner has
-already accepted, then Wiktionary, then the AI tutor, then an honest blank inviting her to type one.
+already accepted, then Wiktionary, then the AI tutor, then a blank inviting her to type one.
 Each layer records where it came from. *Consequences:* coverage is near-complete without any layer
 pretending to an authority it does not have, and the learner can always overwrite.
 
@@ -353,7 +352,7 @@ the ones the middleware now skips.
 *Problem:* partitive plural and the short illative cannot be derived, and the present 1sg is in the
 weak grade and unguessable from the infinitive. A three-form model silently teaches an incomplete
 set of forms. *Decision:* store five principal parts per part of speech; `ILL_SG_SHORT` is nullable
-because it genuinely does not exist for every noun. *Consequences:* the Ekilex mapper must find ten
+because it does not exist for every noun. *Consequences:* the Ekilex mapper must find ten
 `FormType`s rather than five, which is what the Phase 0 spike verifies before any UI is built on the
 assumption.
 
@@ -427,7 +426,7 @@ per answer, stamped with the moment it was answered, replayed through the ordina
 when the connection returns.
 *Consequences:* an offline evening lands in the log with its real timestamps, so the streak, heatmap
 and daily goal describe the day that actually happened; a tab closed mid-session loses nothing; and
-the parts that are genuinely hard (auth, ordering, a card deleted on another device) stay in server
+the parts that are hard (auth, ordering, a card deleted on another device) stay in server
 code that can be read and tested. *Amendment 1: the queue is IndexedDB, not localStorage.* The decision above said "one synchronous
 localStorage write per answer", and the queue that shipped is `lib/offline/db.ts` with
 `lib/offline/outbox.ts` over it: a durable store rather than a five-megabyte string bag that a
@@ -449,7 +448,7 @@ scheduler knows". *Decision:* every mode grades through `gradeCard`, so FSRS see
 from a match round as from a review. Match rates a pair found first time as Good and one that took a
 wrong guess as Hard. Recognizing a word among seven others under time pressure is genuine recall,
 and pretending otherwise would be as dishonest as pretending it is a full production test.
-*Consequences:* games count toward the daily goal and the quests, which is the point; an abandoned
+*Consequences:* games count toward the daily goal and the quests; an abandoned
 round writes nothing, because nothing was answered.
 
 **ADR-017: Example sentences come from Ekilex usages; exercises rearrange them, never write them.**
@@ -467,7 +466,7 @@ tool has) while every Estonian character on screen is still either attested or t
 Words already in a deck get their gap-fill cards backfilled when their entry is next opened
 (`lib/srs/backfill.ts`), because the sentences arrive after the cards do. *Rejected:* writing a
 corpus of our own example sentences, and asking the model for them. Both reintroduce exactly the
-failure ADR-005 exists to prevent, one of them with a straight face.
+failure ADR-005 exists to prevent.
 
 **ADR-018: Speaking practice compares; it does not score.**
 *Context:* Speakly and Duolingo both grade pronunciation, and it is the obvious next mode.
@@ -478,7 +477,7 @@ service this app already uses and nothing comparable in the other direction; the
 recording back to back and judge for yourself. The audio is a blob URL that never leaves the
 browser. The card is graded by the learner on the same 1-4 scale as any flip, because the prompt is
 a meaning and the answer is Estonian, which is a production test whatever the microphone does.
-*Consequences:* the app has a speaking mode without a lie in it. If a verified Estonian recognizer
+*Consequences:* the app has a speaking mode that gives no score. If a verified Estonian recognizer
 appears, this is where it plugs in. *Rejected:* comparing waveforms or durations locally, which
 measures the wrong thing and dresses it as a score.
 
@@ -509,7 +508,7 @@ unchanged and the mode stays comparison-only.
 **This is now re-checkable rather than re-arguable.** Run `npm run measure:asr` against a
 newer model when one appears. The bar it prints is a 5% word error rate, which is the point at
 which a transcript could be shown with its caveat stated; anything above that stays out of the
-learner's way. Nothing about this decision needs to be taken on trust again.
+learner's way.
 
 *A general multimodal model is the open question, and it is open rather than answered.* Gemini
 takes audio directly and is a different architecture reaching the same task from the other side,
@@ -574,7 +573,7 @@ tests Estonian language schools set are almost entirely the middle one, a senten
 it and three or four forms of one word under it. The government question was worded as a fact the
 dictionary could not support, asking what case a verb "demands of its object" about 45 entries
 that are nouns or adjectives and about verbs like `kõlbama` that take no object at all. And 18 of
-those questions offered a second genuinely correct case as a wrong answer, because a word's
+those questions offered a second correct case as a wrong answer, because a word's
 government string names every case it governs while the distractors were drawn from all of them:
 `segama` governs the partitive and the comitative, and a learner who knew the comitative was
 marked wrong for it. So the questions are gaps now, in sentences a lexicographer recorded, which
@@ -795,9 +794,8 @@ it; and it is a noun, a verb or an adjective, which are the entries with a case 
 a case table is what the chip opens. *Consequences:* the seasonal table names unit ids and never
 lemmas, so no Estonian is authored for it and a misspelling cannot ship (ADR-005); a word is offered
 inside the band around the level the learner placed at, so a beginner is not sent to a C1 headword;
-and the row changes when somebody comes back to it, which is the whole of what makes it worth a
-second look. *Rejected:* a plain `ORDER BY random()` with no filters, which fixes the alphabet and
-keeps `aberratsioon`; asking a model for topical words, which is ADR-005 with extra steps; topping a
+and the row changes when somebody comes back to it. *Rejected:* a plain `ORDER BY random()` with
+no filters, which fixes the alphabet and keeps `aberratsioon`; asking a model for topical words, which breaks ADR-005; topping a
 thin source up from the random draw, which buys four chips and spends the caption; and putting the
 feed on the recipients list, which would make a page about personal data harder to read by naming a
 service that receives none of it.
@@ -1043,7 +1041,7 @@ D3, D4 and D13 in place of the speech order's D3, D7 and D9.
 - **One microphone** (D5): `useSpeech()` over one engine interface (`lib/speech/engine.ts`), which
   the native apps implement with the same model and the same hashes (D24), and
   `components/speech/MicButton.tsx` for every screen.
-*Consequences:* the app has a microphone without a lie in it, and the native apps start from a
+*Consequences:* the app has a microphone that scores no sound, and the native apps start from a
 contract and a golden file (`lib/speech/fixtures/golden.json`) rather than from the web code.
 `PAID_OFF=speech` removes every microphone without a deploy (D15), and with it off the app is
 exactly what it was. *Rejected:* a hosted recognizer, which would send a voice off the device;

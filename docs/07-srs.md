@@ -14,8 +14,8 @@ a single implicit card type. Both are upgraded here.
 | Tuning | Hand-tuned constants | Parameters optimizable from the user's own review log |
 | Typical result | Baseline | Same retention for meaningfully fewer reviews |
 
-For a learner reviewing daily for a year, "fewer reviews for the same retention" is the entire
-value proposition of an SRS. Target retention **0.90** (`REQUEST_RETENTION`), not currently a setting.
+For a learner reviewing daily for a year, "fewer reviews for the same retention" is what an SRS
+is for. Target retention **0.90** (`REQUEST_RETENTION`), not currently a setting.
 
 ```ts
 import { fsrs, generatorParameters, Rating } from "ts-fsrs";
@@ -47,7 +47,7 @@ One card type cannot teach Estonian. A learner who can translate `tuba → room`
 | `CONJUGATION` | a recorded sentence with the verb taken out | `loeb` | A person of a verb, in context |
 
 `RECOGNITION` and `PRODUCTION` are separate cards with independent scheduling, because recognizing a
-word and producing it are genuinely different memories with different decay.
+word and producing it are different memories with different decay.
 
 A case or a person of a verb is drilled in a sentence a lexicographer recorded, or it is not
 drilled: a bare `ravim → millesse?` asks for an ending glued to a stem with no reason to want it.

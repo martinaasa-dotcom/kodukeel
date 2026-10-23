@@ -19,7 +19,7 @@ learner who has moved on to real conversations is a learner who has left.
 So the purpose of this app is to be left. It teaches the words properly, because the words are
 the means. It rehearses the conversation with somebody who has an agenda of their own. It sets one
 small thing to say out loud to a real person today. And it counts the conversations somebody had
-outside it, which is the one number no learning app reports and the one that matters.
+outside it, which is the one number no learning app reports.
 
 ## 2. What is built
 
@@ -57,8 +57,8 @@ from the units the learner has started and naming a unit id rather than a word. 
 `Encounter` row, append-only, and Progress leads with it ahead of every chart. The research export
 carries the errands under the same disclosure gate as everything else, labeled as self-reported.
 
-The question is about the learner's own day rather than about our errand, and that is the whole of
-what it buys. A card that sets a task in the morning and puts three answers under it is asking for
+The question is about the learner's own day rather than about our errand. A card that sets a task
+in the morning and puts three answers under it is asking for
 a report on something that has not happened yet, and it can only ever see the conversations this
 app set: somebody who spent an hour with their Estonian mother-in-law and ignored the errand was
 recorded as having done nothing, in the one number this app says it is measured by. A report
@@ -77,8 +77,7 @@ tests the reading against a person.
 
 **Where the people are.** The situations screen names the Integration Foundation's Estonian
 Language Houses, the state's Settle in Estonia program and the Keeleklikk course, with links
-opened before they were written down. A learning app that never says where the people are is one
-that would rather you stayed.
+opened before they were written down.
 
 ## 3. What was measured
 
@@ -131,7 +130,7 @@ person, and the role card removes the question rather than managing it. The priv
 **Pronunciation is not scored,** for the measured reason above, and the app says so on the first
 screen of first run rather than in a footnote.
 
-**The switch to English is the honest metric and it is self-reported.** It is the most real thing
+**The switch to English is the metric to watch, and it is self-reported.** It is the most real thing
 that happens to a foreigner speaking Estonian in Tallinn, it is a large part of why people stop
 practicing, and it should fall as their Estonian holds. It is one press and it can be lied about.
 Across a cohort it is still the only signal anybody has, and it is published under a disclosure
@@ -176,8 +175,7 @@ end of the term, all of which the app already produces without a survey:
 - the gate rejection rate on the deployment's own model, which says whether composition is
   carrying the encounter or the phrase bank is needed first.
 
-None of that is a certificate and none of it should be read as one. It is the difference between a
-course that ends with a test and a course that ends with somebody booking their own appointment.
+None of that is a certificate and none of it should be read as one.
 
 ## 7. What is deliberately not done
 

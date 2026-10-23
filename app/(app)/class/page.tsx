@@ -178,7 +178,7 @@ export default async function ClassIndexPage({
         )}
 
         <Explain label={t("What a teacher or an employer can see")}>
-          {t("A teacher sees effort and progress: reviews this week, streak, words known, the cases the whole class keeps missing, and the one case each student finds hardest, as a percentage across all their reviews. Whoever runs a workplace group sees less, never more: a name, whether somebody has been practicing, and one of four bands for the exam the group is working toward. Never a search, a deck or a single answer, and never a colleague’s weak grammar. And that’s not just a promise: anything a page isn’t allowed to show is never even fetched.")}
+          {t("A teacher sees effort and progress: reviews this week, streak, words known, the cases the whole class keeps missing, and the one case each student finds hardest, as a percentage across all their reviews. Whoever runs a workplace group sees less, never more: a name, whether somebody has been practicing, and one of four bands for the exam the group is working toward. Never a search, a deck or a single answer, and never a colleague’s weak grammar. Anything a page isn’t allowed to show is never fetched.")}
         </Explain>
       </Stack>
     </Page>

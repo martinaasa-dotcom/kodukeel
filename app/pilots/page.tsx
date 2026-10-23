@@ -56,7 +56,7 @@ export default function PilotsPage() {
         {contact && " If something here is not answered, the address at the bottom reaches a person."}
       </P>
 
-      <S id="honest" title="What this is honest about first">
+      <S id="honest" title="What this cannot offer yet">
         <P>
           There is no reference customer to name and no case study to send. This project has been built
           and measured in public and has not yet been run at scale by anybody else, and a page claiming
@@ -126,8 +126,7 @@ export default function PilotsPage() {
             one anywhere in this app.
           </li>
           <li>
-            <strong>Honesty at the end</strong>, including if the answer is that it did not work. A pilot
-            that quietly fades out teaches nobody anything.
+            <strong>A written result at the end</strong>, including if the answer is that it did not work.
           </li>
         </ol>
       </S>
@@ -150,7 +149,7 @@ export default function PilotsPage() {
       <S id="data" title="What happens to your people’s data">
         <P>
           The full answer is {page("/privacy", "the privacy notice")} and the{" "}
-          {doc("docs/24-dpia.md", "data protection impact assessment")}. The short version:
+          {doc("docs/24-dpia.md", "data protection impact assessment")}. These are the parts a sponsor asks about first:
         </P>
         <ul className="list-disc space-y-2 pl-5 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           <li>
@@ -171,7 +170,6 @@ export default function PilotsPage() {
       </S>
 
       <S id="not-ready" title="What this is not ready for">
-        <P>Said here rather than discovered in procurement.</P>
         <ul className="list-disc space-y-2 pl-5 text-base leading-relaxed" style={{ color: "var(--ink-2)" }} data-not-ready>
           <li>
             <strong>There is no SOC 2 report and no ISO 27001 certificate.</strong>{" "}

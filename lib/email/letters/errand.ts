@@ -116,7 +116,7 @@ export function errandLetter(input: ErrandInput): Letter {
     blocks.push({
       t: "text",
       text: say(
-        "Want a practice run first? “{title}” takes about two minutes, with somebody who wants something from you, just like the real thing.",
+        "Want a practice run first? “{title}” takes about two minutes, with somebody who wants something from you.",
         { title: errand.scene.title },
       ),
     });
@@ -154,14 +154,12 @@ export function errandLetter(input: ErrandInput): Letter {
   blocks.push({
     t: "text",
     text: say(
-      "If they answer in English, that still counts. So does running out of words halfway. " +
-        "You said it, and whatever happens next is about the moment, not about you. " +
-        "The only thing that doesn't count is staying quiet.",
+      "If they answer in English, that still counts. So does running out of words halfway. The only thing that doesn't count is staying quiet.",
     ),
   });
   blocks.push({
     t: "quiet",
-    text: say("Tomorrow morning the app will ask whether you spoke any Estonian to anyone. No is a perfectly fine answer."),
+    text: say("Tomorrow morning the app will ask whether you spoke any Estonian to anyone. If you didn't, say no; that's counted too."),
   });
 
   if (input.word) {

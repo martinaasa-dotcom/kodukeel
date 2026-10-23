@@ -171,9 +171,9 @@ const COUNTER: SceneSpec = {
     {
       id: "turned-away",
       when: ["greet", "purpose"],
-      says: "They can't take it without the paper you don't have. That's their rule, not your Estonian.",
+      says: "They can't take it without the paper you don't have.",
     },
-    { id: "left", when: [], says: "You left the counter. The form's still in your bag, and it'll keep." },
+    { id: "left", when: [], says: "You left the counter with the form still in your bag." },
   ],
 };
 

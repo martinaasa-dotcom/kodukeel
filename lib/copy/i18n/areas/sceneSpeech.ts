@@ -48,8 +48,8 @@ export const SCENE_SPEECH: Area = {
     "Previous line": "Предыдущая фраза",
     "Next line": "Следующая фраза",
     "Talk it through": "Поговорить вслух",
-    "Nothing to read: you hear them and answer out loud, the way it really goes.":
-      "Читать ничего не нужно: вы слушаете собеседника и отвечаете вслух, как в жизни.",
+    "Nothing to read: you hear them and answer out loud.":
+      "Читать ничего не нужно: вы слушаете собеседника и отвечаете вслух.",
 
     // The debrief.
     "What we heard": "Что мы услышали",
@@ -100,8 +100,8 @@ export const SCENE_SPEECH: Area = {
     "Previous line": "Попередня фраза",
     "Next line": "Наступна фраза",
     "Talk it through": "Поговорити вголос",
-    "Nothing to read: you hear them and answer out loud, the way it really goes.":
-      "Читати нічого не треба: ви слухаєте співрозмовника й відповідаєте вголос, як у житті.",
+    "Nothing to read: you hear them and answer out loud.":
+      "Читати нічого не треба: ви слухаєте співрозмовника й відповідаєте вголос.",
 
     // The debrief.
     "What we heard": "Що ми почули",

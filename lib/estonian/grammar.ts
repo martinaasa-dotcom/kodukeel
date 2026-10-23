@@ -184,7 +184,7 @@ export const CASE_NOTES: readonly CaseNote[] = [
     summary: "In the role of something, usually for now rather than forever.",
     uses: ["Working as something", "A role or a capacity you are in for now"],
     watchOut:
-      "The -ks ending is for getting into a role. This one means you're already in it. Keep those two apart and you've got it.",
+      "The -ks ending is for getting into a role. This one means you're already in it.",
     englishHook: "Working as a teacher, for as long as that lasts.",
   },
   {
@@ -518,7 +518,7 @@ export const TOPIC_NOTES: readonly TopicNote[] = [
       "Small words like \"up\" and \"off\" underline that it's finished",
     ],
     watchOut:
-      "English shows this with the tense and Estonian with an ending, so the two never line up. It's the hardest single thing to carry over, so go easy on yourself.",
+      "English shows this with the tense and Estonian with an ending, so the two never line up. It's the hardest single thing to carry over.",
   },
 
   // ── The noun phrase ──────────────────────────────────────────────────────
@@ -779,7 +779,7 @@ export const TOPIC_NOTES: readonly TopicNote[] = [
       "Spoken forms that are fine out loud and wrong in an essay",
     ],
     watchOut:
-      "It's not about knowing more words. A C1 speaker knows three ways to say something and picks one. A B2 speaker knows one and uses it everywhere.",
+      "A C1 speaker picks the right one of three ways to say something, where a B2 speaker uses one everywhere.",
   },
   {
     id: "collocation",
@@ -788,7 +788,7 @@ export const TOPIC_NOTES: readonly TopicNote[] = [
     points: [
       "Pairs fixed by habit, like English \"make a mistake\"",
       "Words that mean the same but can't swap places",
-      "The last thing learned, the first thing noticed",
+      "Usually learned last, and noticed first by a native speaker",
     ],
     watchOut:
       "Every word can be right and the sentence still sound translated. Dictionaries are weakest here, which is why real example sentences help most.",

@@ -38,7 +38,7 @@ export default async function TermsPage({ searchParams }: { searchParams: Public
   return (
     <Legal title={t("Terms")} updated="30 August 2026" locale={locale} explicit={explicit} path="/terms" legal>
       <P>
-        {t("Kodukeel is an app for studying Estonian. These terms are short because the deal is simple: use it to learn Estonian, don’t abuse the shared services behind it, and know what it can and can’t promise you.")}
+        {t("Kodukeel is an app for studying Estonian. Use it to learn Estonian, don’t abuse the shared services behind it, and know what it can and can’t promise you.")}
       </P>
 
       <S title={t("Who provides it")}>
@@ -75,7 +75,7 @@ export default async function TermsPage({ searchParams }: { searchParams: Public
           {t("Every Estonian word form here comes from Ekilex, the dictionary database run by the Institute of the Estonian Language. None of it is made up by AI. Where a form has been worked out by a fixed rule from one the dictionary stores, the screen says so.")}
         </P>
         <P>
-          {rich(t("**Anu is a machine, and says so on every screen she speaks from.** You are talking to a language model, not a teacher, and the app has to make that impossible to miss, not just true somewhere in the small print. Which model answered is printed under each reply, because a screen naming the wrong one would be worse than naming none."))}
+          {rich(t("**Anu is a machine, and says so on every screen she speaks from.** You are talking to a language model, not a teacher. Which model answered is printed under each reply."))}
         </P>
         <P>
           {t("She isn’t the final word on anything. She can explain grammar and suggest an English translation, but she can still get things wrong. Don’t rely on her for an exam answer without checking it yourself.")}
@@ -93,13 +93,13 @@ export default async function TermsPage({ searchParams }: { searchParams: Public
           {t("Please don’t write scripts that hammer the dictionary, the speech service or the tutor with requests. Ekilex and TartuNLP are free academic services, and this whole project depends on nobody abusing them.")}
         </P>
         <P>
-          {t("Be 13 or older, or have a parent agree first. Estonia sets the age at which somebody can agree to a service like this for themselves at 13, which is the youngest any country in the Union sets it. Nothing here checks, and saying so plainly is more use than a box anyone can check. If you’re a teacher signing up a class, that agreement is the one thing worth getting before you send the link.")}
+          {t("Be 13 or older, or have a parent agree first. Estonia sets the age at which somebody can agree to a service like this for themselves at 13, which is the youngest any country in the Union sets it. Nothing here checks. If you’re a teacher signing up a class, get that agreement before you send the link.")}
         </P>
       </S>
 
       <S title={t("What you own")}>
         <P>
-          {rich(t("Your deck, your review history, your tasks and your notes are yours. Export them whenever you like from Settings, in a format that restores into any installation. The dictionary joins two sources with different licenses, so it’s worth being exact here. Every Estonian form and every example sentence comes from {ekilex} and is licensed **CC BY 4.0** by the Institute of the Estonian Language. Every English gloss that was not written for this project comes from {wiktionary} and is licensed **CC BY-SA 4.0** by its contributors, which is the stricter of the two: a work built on it has to be shared on the same terms. Both are credited on the sign-in page and in the footer, and keeping them apart is how the dictionary was designed, not an accident."), {
+          {rich(t("Your deck, your review history, your tasks and your notes are yours. Export them whenever you like from Settings, in a format that restores into any installation. The dictionary joins two sources with different licenses. Every Estonian form and every example sentence comes from {ekilex} and is licensed **CC BY 4.0** by the Institute of the Estonian Language. Every English gloss that was not written for this project comes from {wiktionary} and is licensed **CC BY-SA 4.0** by its contributors, which is the stricter of the two: a work built on it has to be shared on the same terms. Both are credited on the sign-in page and in the footer."), {
             ekilex: <Source href="https://ekilex.ee">Ekilex</Source>,
             wiktionary: <Source href="https://en.wiktionary.org">{t("English Wiktionary")}</Source>,
           })}

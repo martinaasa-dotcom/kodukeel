@@ -197,7 +197,7 @@ function pluralFindings(facts: ReviewFact[]): Finding[] {
     headline: say("Plurals that break the pattern are tripping you up"),
     detail: say(
       "You get {strong}% right on words whose plural follows the pattern, but {weak}% on words with a mitmuse " +
-      "omastav (2nd form, plural) of their own. Those have to be learned by heart. No rule gets you there, for us or for you.",
+      "omastav (2nd form, plural) of their own. Those have to be learned by heart.",
       { strong, weak },
     ),
   };

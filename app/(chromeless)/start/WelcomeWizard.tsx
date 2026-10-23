@@ -120,7 +120,7 @@ const NEW_LETTERS = { a: "õ", b: "ä", c: "ö", d: "ü" } as const;
 function NewLettersNote({ t }: { t: (english: string) => string }) {
   return (
     <Note tone="sky">
-      {fill(t("Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. Don’t worry about saying them right yet. That comes with time."), NEW_LETTERS)}
+      {fill(t("Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. For now, recognizing them is enough."), NEW_LETTERS)}
     </Note>
   );
 }
@@ -696,7 +696,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
             */}
             <div className="mt-10">
               <Note tone="hard">
-                {t("One honest note before you start: Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse. The real conversations happen out there.")}
+                {t("Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse conversations before you have them.")}
               </Note>
             </div>
           </section>
@@ -1139,7 +1139,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                   <span className="text-base font-semibold">{t(firstScene.title)}</span>. {t(firstScene.place)}.
                 </p>
                 <Explain label={t("How you’ll practice it")}>
-                  <p>{t("Once you know these words, you can practice this exact conversation here, typing your side to a stranger who wants something from you. Then go and have the real one.")}</p>
+                  <p>{t("Once you know these words, you can practice this exact conversation here, typing your side to a stranger who wants something from you.")}</p>
                 </Explain>
               </div>
             )}

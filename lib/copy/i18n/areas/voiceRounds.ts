@@ -22,10 +22,10 @@ export const VOICE_ROUNDS: Area = {
       "Назовите каждое по-эстонски или напишите словами или цифрами. Потом вы услышите правильный ответ.",
     "Prices, times, numbers": "Цены, время, числа",
     "Ten, said or typed": "Десять, вслух или письменно",
-    "A price tag, a clock on the wall, a timetable, a number. Say it in Estonian, or type it, and hear it said back. Every counter you'll ever stand at needs one.":
-      "Ценник, часы на стене, расписание, число. Скажите это по-эстонски или напишите и послушайте, как это звучит. Без этого не обойтись ни у одного прилавка.",
-    "Prices, clock times and counts, said out loud. Every counter you'll stand at needs one, and Estonian says half past two as half three.":
-      "Цены, время по часам и числа вслух. Без этого не обойтись ни у одного прилавка, а половину третьего эстонцы называют так же, как по-русски: «половина третьего».",
+    "A price tag, a clock on the wall, a timetable, a number. Say it in Estonian, or type it, and hear it said back.":
+      "Ценник, часы на стене, расписание, число. Скажите это по-эстонски или напишите и послушайте, как это звучит.",
+    "Prices, clock times and counts, said out loud. Estonian says half past two as half three.":
+      "Цены, время по часам и числа вслух. Половину третьего эстонцы называют так же, как по-русски: «половина третьего».",
     "Prices, clock times and numbers, said out loud.": "Цены, время по часам и числа вслух.",
     "Numbers": "Числа",
     "A clock": "Часы",
@@ -114,10 +114,10 @@ export const VOICE_ROUNDS: Area = {
       "Назвіть кожне естонською або напишіть словами чи цифрами. Потім ви почуєте правильну відповідь.",
     "Prices, times, numbers": "Ціни, час, числа",
     "Ten, said or typed": "Десять, вголос або письмово",
-    "A price tag, a clock on the wall, a timetable, a number. Say it in Estonian, or type it, and hear it said back. Every counter you'll ever stand at needs one.":
-      "Цінник, годинник на стіні, розклад, число. Скажіть це естонською або напишіть і послухайте, як це звучить. Без цього не обійтися біля жодного прилавка.",
-    "Prices, clock times and counts, said out loud. Every counter you'll stand at needs one, and Estonian says half past two as half three.":
-      "Ціни, час за годинником і числа вголос. Без цього не обійтися біля жодного прилавка, а пів на третю естонці кажуть так само: «пів на третю».",
+    "A price tag, a clock on the wall, a timetable, a number. Say it in Estonian, or type it, and hear it said back.":
+      "Цінник, годинник на стіні, розклад, число. Скажіть це естонською або напишіть і послухайте, як це звучить.",
+    "Prices, clock times and counts, said out loud. Estonian says half past two as half three.":
+      "Ціни, час за годинником і числа вголос. Пів на третю естонці кажуть так само: «пів на третю».",
     "Prices, clock times and numbers, said out loud.": "Ціни, час за годинником і числа вголос.",
     "Numbers": "Числа",
     "A clock": "Годинник",

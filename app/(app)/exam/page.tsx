@@ -343,7 +343,7 @@ export default async function ExamPage() {
             {t("The structure is real. The parts, the timing, the points, the sixty percent you need to pass, and a zero on any part failing you outright. Sit one of these and you'll know what the real exam feels like.")}
           </li>
           <li>
-            {t("The questions themselves aren't the real ones, but every word in them is real Estonian, straight from the dictionary. The reading part uses real recorded sentences instead of a magazine article, and in the speaking part a microphone stands in for the examiner.")}
+            {t("The questions aren't the real ones, but every word in them comes from the dictionary. The reading part uses recorded sentences instead of a magazine article, and in the speaking part a microphone stands in for the examiner.")}
           </li>
           <li>
             <CircleAlert size={13} className="mr-1 inline" aria-hidden />

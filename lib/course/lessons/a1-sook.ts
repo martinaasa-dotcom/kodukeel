@@ -68,7 +68,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Mida soovite?} is what you'll hear at every counter: \"what would you like?\" It uses {teie}, because you're a customer.",
         "{Ka} at the end adds one more: {üks sai ka}, a bun too.",
-        "Put a noun after {soovin} and the noun changes its ending; that's the next lesson. Until then, {üks kohv, palun} says it all.",
+        "Put a noun after {soovin} and the noun changes its ending; that's the next lesson. Until then, say {üks kohv, palun}.",
       ],
       watchOut: "{Tee} means tea, and it's also the word for road. In a café, it's tea.",
       examples: [0, 1, 2],
@@ -382,7 +382,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
       point: "A whole evening at a café, made only of what this part taught.",
       notes: [
         "Notice how little you need: what you want, how many, and how you'll pay.",
-        "Mari's {kaks kooki} and her {Mulle meeldib kook} are the two halves of this part in one breath: after a number comes the [osastav] (3rd form), and what you like stays in the [nimetav] (1st form).",
+        "Mari's {kaks kooki} and her {Mulle meeldib kook} show both rules of this part: after a number comes the [osastav] (3rd form), and what you like stays in the [nimetav] (1st form).",
         "At the end, you're at the counter and Liis takes your order, one turn at a time, until you've held the whole conversation.",
       ],
       watchOut: "If the price comes too fast, you already have the line for it: {Aeglasemalt, palun}.",

@@ -107,12 +107,12 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
           <Sparkles size={20} aria-hidden style={{ color: "var(--good-ink)" }} />
           <div className="min-w-0">
             <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
-              {t("You just looked forms up in the table. That's exactly what it's there for.")}
+              {t("You looked the forms up in the table.")}
             </p>
             <p role="status" className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
               {rightSoFar === asks.length
                 ? t("You got every one right. Later today you'll get questions like these about today's words.")
-                : t("Glance back at the table whenever a form looks odd. It'll look a lot less odd by tomorrow.")}
+                : t("Glance back at the table whenever a form looks odd.")}
             </p>
           </div>
         </div>

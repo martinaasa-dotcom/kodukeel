@@ -791,7 +791,7 @@ export const EXAMPLE_GAPS: Readonly<Record<string, string>> = {
     "what teaches a pairing is the wrong one beside it, and this app never writes Estonian of its own",
   "topic:collocation|Words that mean the same but can't swap places":
     "it needs the swap that doesn't work, which would mean writing Estonian nobody ever said",
-  "topic:collocation|The last thing learned, the first thing noticed":
+  "topic:collocation|Usually learned last, and noticed first by a native speaker":
     "it's about how people pick this up, not about the language itself",
   "topic:irony|Carried by tone of voice, understatement and context":
     "tone of voice and situation carry it, and a recorded sentence arrives without either",

@@ -512,7 +512,7 @@ export const KIND_NOTES: Record<ExceptionKind, KindNote> = {
   NO_PLURAL: {
     family: "PLURAL",
     title: "No plural",
-    what: "Nobody counts these, so there's no plural to learn. The dictionary doesn't list one, and you won't need one either.",
+    what: "Nobody counts these, so there's no plural to learn. The dictionary doesn't list one.",
     topic: null,
   },
   PRESENT_STEM: {

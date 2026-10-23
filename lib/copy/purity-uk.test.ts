@@ -30,7 +30,7 @@ function strings(value: unknown): string[] {
  */
 const MAY_NAME_RUSSIAN: Readonly<Record<string, string>> = {
   // Safety: who answers the emergency number. A reader in trouble may need it.
-  "Let's hope you never need these words. You shout appi when you're in trouble, and ask for abi when you just need a hand. The emergency number is 112, and they answer in Estonian, Russian and English.":
+  "You shout appi when you're in trouble, and ask for abi when you just need a hand. The emergency number is 112, and they answer in Estonian, Russian and English.":
     "the languages 112 answers in",
   // Settings says which languages the dictionary records meanings in.
   "Meanings can appear in Russian or Ukrainian too. The English always stays, and the language you choose shows up next to it.":

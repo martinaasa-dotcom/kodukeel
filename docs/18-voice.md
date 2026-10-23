@@ -15,7 +15,7 @@ sorted into the second pile, and the useful thing underneath it goes unread.
 
 **Warm, kind, concise, and unmistakably a person.**
 
-Those four are not a mood board. Each one is a decision you can check:
+Each of the four is a decision you can check:
 
 **Warm** is attention, not enthusiasm. Warmth is noticing the specific thing this learner did and
 saying it back to them. "Six days in a row" is warmer than "Amazing work!" because it is about them
@@ -56,6 +56,14 @@ from `lib/copy/values.ts`, which is "n/a".
 "In essence", "Great question", "In conclusion", "Moreover", "Furthermore", "Additionally",
 "Needless to say", "Rest assured", "That being said". Every one of them carries no information.
 Start with the thing.
+
+**Flourishes and staged reveals.** "No date is set, so that's the whole story." "That's the whole
+trick." "And that's it." "Simple as that." "And that's fine." "Don't worry." "Here's the secret:",
+"The good news is", "The short version:", "Now imagine", "You didn't fail Estonian. Your tools did."
+"Not fourteen, three." None of these adds a fact. Each one is a writer reaching for the feeling of
+having finished, or of having surprised somebody, and a reader hears the machine in it at once.
+Delete them and let the fact stand. If the flourish was standing in for something real, say that
+instead: not "and that's fine" but "weeks like that happen, and nothing piles up while you're away".
 
 **Inflated shapes.** "Not just a rule, but a pattern" is "a rule, and a pattern". "It's not about
 memorizing, it's about understanding" is one claim wearing two. "More than just a dictionary",
@@ -195,8 +203,8 @@ against
 > Reading, listening and writing, climbing until it finds your level. Speaking you judge yourself.
 
 Three of the four dropped facts are on the results screen, where they answer a question somebody is
-actually asking. The fourth, that no answer becomes a flashcard, is the honest kind of detail this
-app is careful about, and it belongs in the briefing rather than in front of the button.
+actually asking. The fourth, that no answer becomes a flashcard, belongs in the briefing rather than in front of
+the button.
 
 The test that holds this is a ceiling, not a target: 100 characters for a dead end's body, 95 for a
 page lead. Neither number makes a sentence good. What they do is catch the paragraph growing back.
@@ -253,7 +261,7 @@ against
 Nothing was cut. Four claims that were one sentence are four sentences.
 
 **The test.** Read it aloud and stop where you would draw breath. If you run out of breath before
-the full stop, it is two sentences. If you cannot say it aloud at all without rearranging it, it is
+the period, it is two sentences. If you cannot say it aloud at all without rearranging it, it is
 a fragment pretending to be one.
 
 ## 3b. Say it out loud: the fault a friend would laugh at
@@ -272,6 +280,91 @@ against
 The first is precise. It is also a sentence written by somebody describing the feature to
 themselves. Nobody says "the words work runs on" to a friend. They say "the words you'll hear at
 work". The second one names the things a reader can picture and says what they get.
+
+The second report was smaller and worse. The landing page's plan said:
+
+> At the pace you said, plus the Estonian already in your week, B2 is about 104 weeks away. No date
+> is set, so that's the whole story.
+
+Every fact in the second sentence was already in the first. "That's the whole story" was there to
+sound like somebody wrapping up, and it was reported as an instant "an AI wrote this". The line
+ends at "away." now. The same pass took out its relatives across the app:
+
+| Was | Is |
+| --- | --- |
+| All 11, from that one form. That's the whole trick. | All 11, built from that one form. |
+| Press an ending and watch it snap on. That's the whole trick, honestly. | Press an ending and watch it snap on. |
+| Here's the secret: you learn three forms of a word | In practice you learn three forms of a word |
+| You didn't fail Estonian. Your tools did. | The cases |
+| That's the whole point. You'll practice with people who want something from you | Yes. You'll practice with people who want something from you |
+| Short answers, straight to the point. | (cut) |
+| Now imagine fifteen minutes of that every evening. | Inside the app, you get fifteen minutes like this every evening. |
+| No cards this week, and that's fine. Weeks like that happen. | No cards this week. |
+| Something went wrong on our side. Don't worry, your turn is still here. | Something went wrong on our side. Your turn is still here. |
+| These terms are short because the deal is simple: use it to learn Estonian | Use it to learn Estonian |
+
+A second pass read every English line the app translates, not only the ones a list of phrases
+could find, and found the same habit in a quieter costume: a reassurance or a slogan tacked onto
+facts that already made the point. Twenty conversations ended on "That's the bank, not your
+Estonian", one per scene with the noun swapped, which is a template a reader spots by the third
+time. The facts before it ("Their system wouldn't open accounts today") already say whose doing it
+was.
+
+| Was | Is |
+| --- | --- |
+| Their system wouldn't open accounts today. That's the bank, not your Estonian; you can book a time to come back. | Their system wouldn't open accounts today. You can book a time to come back. |
+| They didn't know the place either. That happens, and it wasn't your Estonian. | They didn't know the place either. |
+| You're not at A1 yet, so the course starts at the beginning. It's a starting point, not a verdict. | You're not at A1 yet, so the course starts at the beginning. |
+| They've got it, you know when they open, and you checked the time. Tomorrow's a trip, not a gamble. | They've got it, you know when they open, and you checked the time. |
+| You've got a neighbor now, and they know your floor. That's how a building starts to know you. | You've got a neighbor now, and they know your floor. |
+| You've got a day and a time. Saying no first is the harder half, and it'll come. | You've got a day and a time. Turning down the first offer is what's left to practice. |
+| It isn't fully conformant, and here's the honest reason: nobody who relies on assistive technology | It isn't fully conformant, because nobody who relies on assistive technology |
+| That's a nice problem to have. You've got room for more new words each day | You've got room for more new words each day |
+| You don't have to say them right yet. That comes with time. | For now, recognizing them is enough. |
+| Two patterns and you've got them all. | Two patterns cover every number. |
+
+A third pass read every English line the app shows, about fourteen thousand of them, one at a
+time rather than by pattern, and found the habit's last costume: a moral on what the learner just
+did. Every conversation ended by telling the learner what their success meant ("That's a market
+done in Estonian", "which matters more than any ending"), every way of leaving early came with a
+consolation ("The bank will still be there tomorrow"), and the policy pages kept praising their
+own honesty ("saying so is more use than publishing one nobody reads"). The facts were already
+there each time. That shape is the `moral tail` tell now, and Anu is asked never to close on one.
+
+| Was | Is |
+| --- | --- |
+| You bought both things, said how many, and knew what you paid. That's a market done in Estonian. | You bought both things, said how many, and knew what you paid. |
+| You asked what happened, said you were sorry and offered to help. That's being a friend in Estonian, which matters more than any ending. | You asked what happened, said you were sorry and offered to help. |
+| You left before anything was signed. The bank will still be there tomorrow. | You left before anything was signed. You can come back another day. |
+| And one conversation in Estonian with a real person. That's the number this whole app is for. | And one conversation in Estonian with a real person. |
+| It's the hardest single thing to carry over, so go easy on yourself. | It's the hardest single thing to carry over. |
+| There's no separate security mailbox yet, and saying so is more use than publishing one nobody reads. | There's no separate security mailbox yet. |
+| Pair each word with its meaning against the clock. It's quick, it's fun, and the meanings stick before you ever have to say them. | Pair each word with its meaning against the clock. |
+| The topic every C1 exam essay is secretly about. | Ethics comes up in nearly every C1 exam essay. |
+
+A fourth pass read this repository's own README and every document under `docs/` line by line,
+about twenty-six thousand lines, and found the same habit in a writer's register: sincerity
+markers. "The honest answer is", "described honestly", "genuinely hard", "and that is the whole
+point". A document that has to say it is being honest has made the reader wonder. About two
+hundred and fifty lines lost the marker and kept their facts.
+
+| Was | Is |
+| --- | --- |
+| Where the honest answer is "no", it says no. | Where the answer is "no", it says no. |
+| Detection is described honestly in the incident plan. | Detection is described in the incident plan. |
+| Weak, and we are not going to dress it up: continuous monitoring, ... | Weak: continuous monitoring, ... |
+| The shape of that answer is unusual and is the reason it is worth reading. Most of what this app is made of... | Most of what this app is made of... |
+| An untested backup is a hypothesis. | A backup nobody has restored is not known to work. |
+
+Where the tail was the only useful thing in the sentence, it became the useful thing said plainly:
+"Saying no first is the harder half, and it'll come" was gesturing at what to practice next, so
+the line now names it.
+
+The test is the same as for every line in this section: read it aloud to somebody across a table.
+Nobody closes a fact with "and that's the whole story" when the person in front of them can see
+the fact was complete. `lib/copy/voice.ts` holds the phrases a machine can find (the `FLOURISH`
+group), and `findTells` folds the curly apostrophe first, because the landing page is typeset with
+it and the old patterns only knew the straight one.
 
 So the bar for every sentence anybody reads here, written by a person or by a model, is this:
 **would a warm, clever friend who teaches Estonian say it that way, out loud, across a kitchen
@@ -306,7 +399,7 @@ The operator asked for the app to be funny, so that people take it a little less
 enjoy it more, and chose the tone from three drafts: **playful**. A playful line is a true fact said
 with a wink. It is not a pun for its own sake, not an exclamation mark, and not an emoji.
 
-> nahkhiir, bat. A leather mouse. Estonian looked at a bat and said exactly what it saw.
+> nahkhiir, bat. A leather mouse. A leather mouse: what a bat looks like up close.
 
 against
 
@@ -344,7 +437,7 @@ sentence written for a laugh is held to every rule `lib/dict/authored.ts` states
   not claim one: `abielu` is read as help, because help is what the dictionary says it is. A part marked `notThe` in `lib/estonian/literally.ts`
   names the homonym it is not, and the test checks both halves of that against the dictionary.
 - **Turn up everywhere.** A joke on every card stops being a joke by the second evening. Most words
-  have nothing funny said about them, and that is the point.
+  have nothing funny said about them.
 - **Promise a setting.** A conversation partner is drawn for every scene, a friend on the phone as
   readily as a clerk, so the line introducing them says how they talk and never where you are: "the
   queue behind you" is nonsense on a call from a friend. `lib/scenes/personas.test.ts` holds it.
@@ -411,7 +504,7 @@ showed a model reaching past one unprompted. `humanize.ts` strips the dashes and
 out of the stream before the learner sees them. `lib/tutor/verify.ts` withholds a writing-grader note
 whole if it quotes an Estonian form the learner was not given.
 
-What is deliberately not enforced is the brochure vocabulary, and the reason is worth keeping. There
+What is deliberately not enforced is the brochure vocabulary. There
 is no mechanical translation from "seamless" back into whatever the writer meant, so rewriting it
 mid-stream would put words in Anu's mouth that she did not choose. It is asked for in the prompt,
 swept in hand-written copy, and left alone in a stream.
@@ -430,7 +523,7 @@ swept in hand-written copy, and left alone in a stream.
 
 Adding a tell means arguing that the phrase is never right on a screen in this app. `perfect` is not
 on the list, because taisminevik is the perfect tense and a grammar page has to be able to say so.
-`unlock` is not on the list, because the exam recordings genuinely unlock. A check that fires on
+`unlock` is not on the list, because unlocking is what the exam recordings do. A check that fires on
 honest copy gets waived, and a check everybody waives is a check nobody reads.
 
 The half in the table is the half a machine can hold. Sections 1, 3 and 3a are a review standard,

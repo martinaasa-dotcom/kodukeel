@@ -218,7 +218,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
     return (
       <RoundDone
         title={t("That’s the round done")}
-        line={t("These are the ones the rules don’t cover. A few at a time, little and often, is how they stick.")}
+        line={t("These are the ones the rules don’t cover. Do a few at a time.")}
         figures={[
           { value: asked, label: t("Asked") },
           { value: asked > 0 ? `${Math.round((right / asked) * 100)}%` : "0%", label: t("Right") },

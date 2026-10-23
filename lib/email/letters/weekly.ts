@@ -132,8 +132,7 @@ export function weeklyLetter(input: WeeklyInput): Letter {
     blocks.push({
       t: "text",
       text: say(
-        "No cards this week, and that's fine. Weeks like that happen. Nothing piles up to punish you " +
-          "while you're away, and one evening puts you right back where you were.",
+        "No cards this week. Nothing piles up while you're away, and one evening puts you right back where you were.",
       ),
     });
   }
@@ -143,8 +142,8 @@ export function weeklyLetter(input: WeeklyInput): Letter {
       t: "text",
       text:
         input.conversations === 1
-          ? say("And one conversation in Estonian with a real person. That's the number this whole app is for.")
-          : say("And {conversations} in Estonian with real people. That's the number this whole app is for.", {
+          ? say("And one conversation in Estonian with a real person.")
+          : say("And {conversations} in Estonian with real people.", {
               conversations: figured(locale, input.conversations, "conversation"),
             }),
     });

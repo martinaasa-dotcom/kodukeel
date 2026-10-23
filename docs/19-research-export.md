@@ -100,7 +100,7 @@ and a method note living in a second attachment is a method note that gets separ
 email.
 
 Before sending one, open it and read the first thirty lines. If the corpus is small, most of the
-tables will be nearly empty, and the honest thing at that point is to wait rather than to lower a
+tables will be nearly empty, and the thing to do at that point is to wait rather than to lower a
 threshold.
 
 ## 4. What it cannot tell you
@@ -125,8 +125,8 @@ whose loss is unrecoverable, and it would only help data collected afterwards.
 
 **A first meeting is not in here.** The app shows a new word with its answer and writes nothing
 down; the grade comes from the retrieval a few cards later. So nothing counted here is somebody
-being asked for a word they had never seen. That is a strength rather than a caveat, and it is
-worth saying out loud because most flashcard data does not have it.
+being asked for a word they had never seen. That is a strength rather than a caveat, since
+most flashcard data does not have it.
 
 **Response time was left out.** `Review.durationMs` exists and is populated, and it is not
 reported. It counts a card left open on a locked phone, it is clamped at both ends, and on a
@@ -137,7 +137,7 @@ one.
 ## 5. What it changes about asking
 
 The letters to TartuNLP and to the Institute were, structurally, a favor: thank you for the free
-thing, may we have some of your time. This makes them an offer instead. An anonymised account of
+thing, may we have some of your time. This makes them an offer instead. An anonymized account of
 where real learners fail, at a size no single classroom or textbook pilot reaches, is something
 neither an applied language-technology group nor a lexicographic institute can easily get, because
 it needs a live product with real usage. That is the one thing this has and they do not.

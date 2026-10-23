@@ -71,7 +71,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "This is the rule for nearly every verb in Estonian, so learning it once is learning it for hundreds of them. {Olema} is the one you've met that breaks it.",
+        "This is the rule for nearly every verb in Estonian. {Olema} is the one you've met that breaks it.",
         "{Kus} asks where. Like {mis} and {kes}, it goes first: {Kus sa elad?}",
         "{Tallinnas}, {Tartus} and {Eestis} are in Tallinn, in Tartu and in Estonia. Learn them whole for now: the -s that means \"in\" has a lesson of its own later.",
         "{Ka} is also and too, and it sits next to the word it adds to: {Mina elan ka siin}.",

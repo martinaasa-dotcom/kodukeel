@@ -111,7 +111,7 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, onComplete }: 
         <p className="max-w-[60ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {capstone
             ? fill(t("This is the whole conversation, with you in it. {who} speaks first and you answer as yourself, out loud or typed, one turn at a time. Each turn is added to the conversation, so by the end you've held all of it."), { who: opener })
-            : t("Words you've said out loud are the ones you remember. Say the conversation along with the screen, then answer a few questions about yourself out loud. A word lights up when it's understood, even said with an accent, so play yourself back beside the recording to hear how it sounded.")}
+            : t("Say the conversation along with the screen, then answer a few questions about yourself out loud. A word lights up when it's understood, even said with an accent, so play yourself back beside the recording to hear how it sounded.")}
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <Button size="lg" onClick={() => setMode("type")}>
@@ -132,7 +132,7 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, onComplete }: 
           <p role="status" className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
             {capstone
               ? t("You held the whole conversation.")
-              : mode === "say" ? t("You said today's Estonian out loud. That's the step most people skip, and the one that counts.") : t("Done. Tomorrow, try it out loud if you're somewhere you can.")}
+              : mode === "say" ? t("You said today's Estonian out loud.") : t("Done. Tomorrow, try it out loud if you're somewhere you can.")}
           </p>
           {capstone && taken.length > 0 && (
             <div className="mt-4">
@@ -144,7 +144,7 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, onComplete }: 
               <p className="max-w-[48ch] text-base" style={{ color: "var(--ink-2)" }}>
                 {capstone
                   ? fill(t("That one followed a script. Now have it for real: {who} answers whatever you say, in words you've been taught."), { who: opener })
-                  : t("The role-play is a real conversation too: they answer whatever you say, in words you've been taught.")}
+                  : t("In the role-play they answer whatever you say, in words you've been taught.")}
               </p>
               <ButtonLink href={sceneHref} variant={capstone ? "primary" : undefined}>{t("Have the conversation")} <ArrowRight size={15} aria-hidden /></ButtonLink>
             </div>

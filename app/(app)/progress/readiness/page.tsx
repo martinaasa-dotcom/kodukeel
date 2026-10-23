@@ -77,7 +77,7 @@ export default async function ReadinessPage() {
             : fill(t("{total} situations, none tried yet"), { total: picture.summary.total })}
           text={
             <>
-              {t("Based on your own answers, not a guess.")}
+              {t("Based on your own answers.")}
               <span className="mt-2 block">
                 <Explain label={t("What the three ratings mean")}>
                   {fill(t("Each situation gets one of three ratings. {follow} means you’d understand most of it. {takePart} means you could answer with the right words and endings, without a long silence first. {lead} means you could start it, steer it, and get it back on track if it goes wrong. For a live conversation, that also takes some sign that you can follow spoken Estonian. Knowing words on cards never gets you past the first rating on its own."), {
@@ -185,7 +185,7 @@ export default async function ReadinessPage() {
         })}
 
         <Explain label={t("What this page does not measure")}>
-          {fillNodes(t("Nothing here has heard you speak, and no number on this page pretends it has. How you sound is yours to judge, in {link}."), {
+          {fillNodes(t("Nothing here has heard you speak, so no number on this page is about speaking. How you sound is yours to judge, in {link}."), {
             link: <Link href="/review/speaking" className="underline" style={{ color: "var(--accent-deep)" }}>{t("speaking practice")}</Link>,
           })}
         </Explain>

@@ -348,7 +348,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Sajab vihma} means \"it's raining\". The rain is in its [osastav] (3rd form), as after {tahan}.",
         "{Väljas} means outside: {Väljas on külm}.",
-        "Estonians often open a chat with a neighbor on the weather, so this is one of the most useful lessons of the part.",
+        "Estonians often open a chat with a neighbor on the weather.",
       ],
       watchOut: "There's no \"it\" in {On külm}. Estonian says just \"is cold\", and that's a whole sentence.",
       examples: [0, 1, 2],
@@ -443,7 +443,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
         "Notice {See hall müts}: this gray hat, with the color between {see} and the noun, as in lesson 38.",
         "At the end, the shop assistant speaks first and you buy a hat, one turn at a time, until you've held the whole conversation.",
       ],
-      watchOut: "You don't need to describe the thing perfectly. What you need, and a color, is enough to be shown it.",
+      watchOut: "What you need, and a color, is enough to be shown it.",
       examples: [1, 4, 7],
     },
     answers: [

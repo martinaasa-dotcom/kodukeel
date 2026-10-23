@@ -546,7 +546,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
           ? fillNodes(t("The shape of this paper is real. The questions aren't, and neither is the result. It's practice, not a certificate, and Kodukeel has nothing to do with {board}, who run the exams that count."), {
             board: <span lang="et">Haridus- ja Noorteamet</span>,
           })
-          : t("Estonia doesn't test at this level, so nothing about this paper is official. It's just for you.")}
+          : t("Estonia doesn't test at this level, so nothing about this paper is official.")}
         {" "}
         <Link href="/exam" className="underline underline-offset-4">{t("Back to the exam hub")}</Link>
       </p>

@@ -214,11 +214,11 @@ const INTERVIEW: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "offered", when: ["greet", "before", "skill", "why", "pay", "wage", "start", "close"], says: "They'll be in touch, and this time they mean it. You said what you've done, what you can do and what you want, and you settled the money, all in Estonian." },
-    { id: "agreed-pay", when: ["before", "skill", "wage"], says: "You agreed a wage in Estonian, which is the hard half. They still don't know when you could start." },
-    { id: "offered-thin", when: ["before", "skill", "start"], says: "They know what you've done and when you could start. The money never got settled, and that's the one thing to sort out before you name a day." },
-    { id: "no-decision", when: ["greet", "before", "skill"], says: "They'll let you know. They always say that, and you got through the hard half in Estonian." },
-    { id: "left", when: [], says: "You ended it early. There are other jobs, and this one was a rehearsal." },
+    { id: "offered", when: ["greet", "before", "skill", "why", "pay", "wage", "start", "close"], says: "They'll be in touch. You said what you've done, what you can do and what you want, and you settled the money, all in Estonian." },
+    { id: "agreed-pay", when: ["before", "skill", "wage"], says: "You agreed a wage. They still don't know when you could start." },
+    { id: "offered-thin", when: ["before", "skill", "start"], says: "They know what you've done and when you could start. The money never got settled, so sort that out before you agree a day." },
+    { id: "no-decision", when: ["greet", "before", "skill"], says: "They'll let you know. You told them what you've done and what you can do, and the money never came up." },
+    { id: "left", when: [], says: "You ended the interview early. You can start it again whenever you like." },
   ],
 };
 

@@ -113,10 +113,10 @@ const CHART: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "presented", when: ["greet", "what", "much", "why", "close"], says: "You said what the chart shows, by how much and why, and took a question on it. That's a presentation in Estonian, numbers and all." },
-    { id: "presented-thin", when: ["what", "much"], says: "They know what happened and by how much. The why is what they'll remember." },
-    { id: "cut-short", when: ["greet", "what"], says: "The meeting overran and your slot was cut. That's the agenda, not your Estonian." },
-    { id: "left", when: [], says: "You didn't present today. It'll keep until next month." },
+    { id: "presented", when: ["greet", "what", "much", "why", "close"], says: "You said what the chart shows, by how much and why, and took a question on it." },
+    { id: "presented-thin", when: ["what", "much"], says: "They know what happened and by how much. Next time, say why." },
+    { id: "cut-short", when: ["greet", "what"], says: "The meeting overran and your slot was cut." },
+    { id: "left", when: [], says: "You didn't present today." },
   ],
 };
 

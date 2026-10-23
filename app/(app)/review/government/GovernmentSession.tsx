@@ -193,7 +193,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
     return (
       <RoundDone
         title={t("That’s the round done")}
-        line={t("There’s no rule for which case a verb wants. You just get to know them, one verb at a time, a little and often.")}
+        line={t("There’s no rule for which case a verb wants, so you learn them one verb at a time.")}
         figures={[
           { value: questions.length, label: t("Verbs") },
           { value: `${accuracy}%`, label: t("Right") },

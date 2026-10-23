@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { findTells } from "@/lib/copy/voice";
 import {
   COMMIT_HOURS_PER_WEEK, CUMULATIVE_HOURS, about, ESTONIAN_FACTOR, FACTS, FOUND_HOURS_PER_WEEK, GUIDED_LEARNING_HOURS, MIN_PACE_WEEKS,
   countedBySkill, foundHours, hoursBetween, hoursFor, project, sustainableNewCardsPerDay, weeklyExposure,
@@ -495,7 +496,10 @@ describe("the distance in one sentence", () => {
     lines.set("arrived", distanceLine(project({ ...base, standing: at("B2") }), "en"));
     const seen = new Set(lines.values());
     expect(seen.size).toBe(lines.size);
-    expect(lines.get("open")).toContain("No date is set");
+    // No date, nothing to measure the distance against: the distance is the
+    // line, and it stops there rather than closing on a flourish.
+    expect(lines.get("open")).toMatch(/ away\.$/);
+    for (const line of lines.values()) expect(findTells(line).map((t) => t.name), line).toEqual([]);
     expect(lines.get("passed")).toContain("has gone");
     expect(lines.get("short")).toContain("something has to give");
     expect(lines.get("tight")).toContain("It fits");

@@ -105,7 +105,7 @@ export default inLesson("a1-40-clothes-shop", {
   ],
   outcomes: [
     { id: "bought", when: ["greet", "item", "colour", "price", "pay", "close"], says: "You asked for it, chose the color, asked the price and paid. You'll be warm tomorrow." },
-    { id: "bought-quiet", when: ["item", "pay"], says: "You got what you came for. Not much was said, and in a shop that's fine." },
+    { id: "bought-quiet", when: ["item", "pay"], says: "You got what you came for, with very few words." },
     { id: "left", when: [], says: "You left without buying anything. The shop's open tomorrow." },
   ],
 });

@@ -196,7 +196,7 @@ const DOCTOR: SceneSpec = {
     {
       id: "booked-thin",
       when: ["greet", "reason", "offer"],
-      says: "You've got an appointment. They didn't get the whole story, so bring it with you.",
+      says: "You've got an appointment. They didn't take the details, so tell the doctor when you go.",
     },
     /*
       A failure that is not the learner's fault, which every scene needs one of
@@ -209,7 +209,7 @@ const DOCTOR: SceneSpec = {
       when: ["greet"],
       says: "No appointment today. They'd like you to call back once you can say how long it's been going on.",
     },
-    { id: "left", when: [], says: "You walked away from the desk. People do, and you can always come back." },
+    { id: "left", when: [], says: "You walked away from the desk. You can always come back." },
   ],
 };
 
