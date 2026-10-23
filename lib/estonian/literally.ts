@@ -102,7 +102,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "fridge", word: "külmkapp",
     parts: [p("külm", "külm", "cold"), p("kapp", "kapp", "cupboard")],
     literal: "cold cupboard", means: "fridge",
-    quip: "Everything a fridge does, in two words. Estonian saw no need for more.",
+    quip: "Everything a fridge does, in two words.",
   },
   {
     id: "bicycle", word: "jalgratas",
@@ -132,7 +132,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "marriage", word: "abielu",
     parts: [p("abi", "abi", "help"), p("elu", "elu", "life")],
     literal: "help life", means: "marriage",
-    quip: "A life of helping each other. As definitions of marriage go, a sensible one.",
+    quip: "A life of helping each other.",
   },
   {
     id: "world", word: "maailm",
@@ -180,7 +180,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "weekend", word: "nädalavahetus",
     parts: [p("nädala", "nädal", "week"), p("vahetus", "vahetus", "change, changing")],
     literal: "week change", means: "weekend",
-    quip: "The weekend as a shift change between one week and the next. Accurate.",
+    quip: "The weekend as a shift change between one week and the next.",
   },
   {
     id: "day-before-yesterday", word: "üleeile",
@@ -270,7 +270,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "slow-motion", word: "aegluup",
     parts: [p("aeg", "aeg", "time"), p("luup", "luup", "magnifying glass")],
     literal: "time magnifying glass", means: "slow motion",
-    quip: "A magnifying glass held up to time. One of the loveliest words in the language.",
+    quip: "A magnifying glass held up to time.",
   },
   {
     id: "schadenfreude", word: "kahjurõõm",
@@ -294,7 +294,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "cream-puff", word: "tuuletasku",
     parts: [p("tuule", "tuul", "wind"), p("tasku", "tasku", "pocket")],
     literal: "wind pocket", means: "cream puff",
-    quip: "Mostly air, wrapped in pastry. The name is just being honest.",
+    quip: "Mostly air, wrapped in pastry.",
   },
   {
     id: "flatulence", word: "kõhutuul",
@@ -306,7 +306,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "earth", word: "maamuna",
     parts: [p("maa", "maa", "land, earth"), p("muna", "muna", "egg")],
     literal: "land egg", means: "the Earth",
-    quip: "The whole planet, as an egg. Handle with care.",
+    quip: "The whole planet, as an egg.",
   },
   {
     id: "eyeball", word: "silmamuna",
@@ -324,7 +324,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "hippo", word: "jõehobu",
     parts: [p("jõe", "jõgi", "river"), p("hobu", "hobu", "horse")],
     literal: "river horse", means: "hippopotamus",
-    quip: "The Greek name says the same thing, so nobody gets points for originality.",
+    quip: "The Greek name says the same thing.",
   },
   {
     id: "rhino", word: "ninasarvik",
@@ -336,7 +336,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "turtle", word: "kilpkonn",
     parts: [p("kilp", "kilp", "shield"), p("konn", "konn", "frog")],
     literal: "shield frog", means: "turtle",
-    quip: "A frog that brought its own shield. Nobody argued.",
+    quip: "A frog that brought its own shield.",
   },
   {
     id: "toad", word: "kärnkonn",
@@ -348,7 +348,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "bat", word: "nahkhiir",
     parts: [p("nahk", "nahk", "skin, leather"), p("hiir", "hiir", "mouse")],
     literal: "leather mouse", means: "bat",
-    quip: "Estonian looked at a bat and said exactly what it saw.",
+    quip: "Named for what it looks like up close.",
   },
   {
     id: "giraffe", word: "kaelkirjak",
@@ -366,7 +366,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "porcupine", word: "okassiga",
     parts: [p("okas", "okas", "needle, thorn"), p("siga", "siga", "pig")],
     literal: "needle pig", means: "porcupine",
-    quip: "Those needles are really hairs, grown stiff. A bad hair day that never ends.",
+    quip: "Those needles are really hairs, grown stiff.",
   },
   {
     id: "raccoon", word: "pesukaru",
@@ -432,7 +432,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "vacuum", word: "tolmuimeja",
     parts: [p("tolmu", "tolm", "dust"), p("imeja", "imeja", "sucker")],
     literal: "dust sucker", means: "vacuum cleaner",
-    quip: "No marketing department was consulted.",
+    quip: "The name says what it is, plainly.",
   },
   {
     id: "arm", word: "käsivars",
@@ -462,7 +462,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "verb", word: "tegusõna",
     parts: [p("tegu", "tegu", "deed, doing"), p("sõna", "sõna", "word")],
     literal: "doing word", means: "verb",
-    quip: "Grammar that explains itself. Your teacher will be pleased.",
+    quip: "Grammar that explains itself.",
   },
   {
     id: "pronoun", word: "asesõna",

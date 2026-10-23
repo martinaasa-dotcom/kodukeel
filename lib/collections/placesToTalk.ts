@@ -18,7 +18,7 @@ export interface PlaceToTalk {
 export const PLACES_TO_TALK: readonly PlaceToTalk[] = [
   {
     name: "Integratsiooni Sihtasutus, the Integration Foundation",
-    what: "Runs the Estonian Language Houses in Tallinn and Narva: language cafés, clubs and drop-in sessions where everyone has come to speak Estonian, including you.",
+    what: "Runs the Estonian Language Houses in Tallinn and Narva: language cafés, clubs and drop-in sessions where everyone has come to speak Estonian.",
     href: "https://integratsioon.ee/en",
   },
   {
@@ -28,7 +28,7 @@ export const PLACES_TO_TALK: readonly PlaceToTalk[] = [
   },
   {
     name: "Keeleklikk",
-    what: "A free online Estonian course that takes you up from beginner, with a real teacher who answers your emails. It goes nicely alongside this app.",
+    what: "A free online Estonian course that takes you up from beginner, with a real teacher who answers your emails.",
     href: "https://www.keeleklikk.ee/",
   },
 ];

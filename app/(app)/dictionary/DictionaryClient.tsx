@@ -453,7 +453,7 @@ export function DictionaryClient({
                   ? fill(t("No exact match for \"{query}\""), { query: initialQuery })
                   : fill(t("Nothing found for \"{query}\""), { query: initialQuery })}
             body={known
-              ? t("We just don't have an entry for it yet. Add it below with its omastav and it's yours.")
+              ? t("We just don't have an entry for it yet. Add it below with its omastav.")
               : nearby[0]?.why === "translation"
                 ? t("Open the one you meant and it's saved here for next time.")
                 : nearby.length > 0

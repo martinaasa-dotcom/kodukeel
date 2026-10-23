@@ -882,7 +882,7 @@ export function LearnSession({
                 : "{count} are learned for now. From here they come back in your reviews, just before you\u2019d forget."), {
                 count: countOf(locale, counts.kept, noun),
               })}</>
-              : <>{t(uiText("Tubli töö.", "Good work."))} {t("These stay here until you can put them in a sentence. That\u2019s when they start to stick.")}</>}
+              : <>{t(uiText("Tubli töö.", "Good work."))} {t("These stay here until you can put them in a sentence.")}</>}
           </p>
         </div>
 

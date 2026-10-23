@@ -28,10 +28,10 @@ export function VisitRecap() {
     <div className="visit-recap mx-auto mt-8 max-w-2xl rounded-[var(--r-lg)] px-5 py-4" aria-live="polite">
       <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>
         {built.length > 0 && ordered
-          ? fill(t("You built {forms} and ordered {drink} in Estonian, before you’ve even signed up."), { forms, drink })
+          ? fill(t("You built {forms} and ordered {drink} in Estonian."), { forms, drink })
           : built.length > 0
-            ? fill(t("You built {forms} of Estonian, before you’ve even signed up."), { forms })
-            : fill(t("You ordered {drink} in Estonian, before you’ve even signed up."), { drink })}
+            ? fill(t("You built {forms} of Estonian."), { forms })
+            : fill(t("You ordered {drink} in Estonian."), { drink })}
       </p>
       {shown.length > 0 && (
         <ul className="mt-3 flex flex-wrap justify-center gap-2">

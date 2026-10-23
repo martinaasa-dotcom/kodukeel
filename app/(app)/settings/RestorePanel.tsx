@@ -113,7 +113,7 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
   return (
     <div>
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        {t("Bring back a backup file, after moving to a new computer or to undo something. You never really know a backup works until you’ve tried it, so it’s worth a practice run while nothing is at stake.")}
+        {t("Bring back a backup file, after moving to a new computer or to undo something. Try it once while nothing is at stake, so you know it works.")}
       </p>
 
       <div className="mt-3">

@@ -62,7 +62,7 @@ export function TutorChat({
           <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
             {t(readerCanConfigure
               ? "She explains why a word takes the form it does, and checks sentences you write. Everything else works without her, and Settings walks you through getting a free key."
-              : "Everything else here works just fine without her.")}
+              : "Everything else here works without her.")}
           </p>
         </div>
         {/* A question handed over by the card the learner just got wrong.

@@ -439,10 +439,7 @@ const BLUEPRINTS: Record<TaskKind, Blueprint> = {
     kind: "speak",
     title: "Speak",
     instruction:
-      "Speak your answer, see which words were understood, then listen back and mark yourself " +
-      "against the checklist. On the real day this is a conversation with an examiner and another " +
-      "candidate; here you play every part out loud. Nothing here scores your pronunciation, and " +
-      "nothing pretends to.",
+      "Speak your answer, see which words were understood, then listen back and mark yourself against the checklist. On the real day this is a conversation with an examiner and another candidate; here you play every part out loud. Nothing here scores your pronunciation.",
     standsFor: "suuline esinemine ja dialoog, the spoken part with an examiner",
   },
 };
@@ -642,8 +639,7 @@ const PLANS: Record<ExamLevel, LevelPlan> = {
     ],
     notSet: {},
     summary:
-      "There's no state exam at A1, so this paper is our own. It follows the A2 paper, one step " +
-      "easier, so your first go is one you can actually pass.",
+      "There's no state exam at A1, so this paper is our own. It follows the A2 paper, one step easier.",
   },
   A2: {
     minutes: { writing: 30, listening: 30, reading: 50, speaking: 15 },

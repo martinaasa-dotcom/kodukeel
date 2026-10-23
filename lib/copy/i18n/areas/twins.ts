@@ -49,8 +49,8 @@ export const TWINS: Area = {
     "Words that look alike, and how to tell them apart": "Похожие слова и как их различать",
     "Three kinds of look-alike, and each needs a different kind of help.":
       "Похожие слова бывают трёх видов, и каждому нужна своя помощь.",
-    "Some pairs are one word with a suffix that changes who does what, and a rule unlocks dozens of them. Some are one English word that Estonian splits in two. The rest are a coincidence, and you learn them side by side.":
-      "Одни пары это одно слово с суффиксом, который меняет, кто что делает, и одно правило открывает десятки таких пар. Другие это одно английское слово, которое эстонский делит на два. Остальные совпали случайно, и их учат рядом друг с другом.",
+    "Some pairs are one word with a suffix that changes who does what, and one rule covers dozens of them. Some are one English word that Estonian splits in two. The rest are a coincidence, and you learn them side by side.":
+      "Одни пары это одно слово с суффиксом, который меняет, кто что делает, и одно правило охватывает десятки таких пар. Другие это одно английское слово, которое эстонский делит на два. Остальные совпали случайно, и их учат рядом друг с другом.",
     "The rule misleads here": "Здесь правило подводит",
     "Practice this pair": "Потренировать эту пару",
 
@@ -282,8 +282,8 @@ export const TWINS: Area = {
     "Words that look alike, and how to tell them apart": "Схожі слова і як їх розрізняти",
     "Three kinds of look-alike, and each needs a different kind of help.":
       "Схожі слова бувають трьох видів, і кожному потрібна своя допомога.",
-    "Some pairs are one word with a suffix that changes who does what, and a rule unlocks dozens of them. Some are one English word that Estonian splits in two. The rest are a coincidence, and you learn them side by side.":
-      "Одні пари це одне слово із суфіксом, який змінює, хто що робить, і одне правило відкриває десятки таких пар. Інші це одне англійське слово, яке естонська ділить на два. Решта збіглися випадково, і їх вчать поруч.",
+    "Some pairs are one word with a suffix that changes who does what, and one rule covers dozens of them. Some are one English word that Estonian splits in two. The rest are a coincidence, and you learn them side by side.":
+      "Одні пари це одне слово із суфіксом, який змінює, хто що робить, і одне правило охоплює десятки таких пар. Інші це одне англійське слово, яке естонська ділить на два. Решта збіглися випадково, і їх вчать поруч.",
     "The rule misleads here": "Тут правило підводить",
     "Practice this pair": "Потренувати цю пару",
 

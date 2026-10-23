@@ -94,13 +94,11 @@ export function welcomeLetter(input: WelcomeInput): Letter {
     app will ever be.
   */
   blocks.push({ t: "rule" });
-  blocks.push({ t: "heading", text: say("Fifteen minutes an evening, and that's all.") });
+  blocks.push({ t: "heading", text: say("Fifteen minutes an evening.") });
   blocks.push({
     t: "text",
     text: say(
-      "Each evening is a short reading, two quick exercises and a few cards to go over. It takes about " +
-        "a quarter of an hour at any level, and when you're done, the app tells you so and lets you go. " +
-        "No endless scrolling, no guilt.",
+      "Each evening is a short reading, two quick exercises and a few cards to go over. It takes about a quarter of an hour at any level, and when you're done, the app tells you so.",
     ),
   });
 

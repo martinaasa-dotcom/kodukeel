@@ -126,10 +126,10 @@ const BOOK_CLUB: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "discussed", when: ["greet", "thought", "hero", "change", "agree", "close"], says: "You said what you thought, about the hero and the ending, and held your own against the room. That's talking about a book in Estonian." },
+    { id: "discussed", when: ["greet", "thought", "hero", "change", "agree", "close"], says: "You said what you thought, about the hero and the ending, and held your own against the room." },
     { id: "discussed-thin", when: ["thought", "change"], says: "You said what you thought and what you'd change. Agreeing or not out loud is the next step." },
     { id: "ran-over", when: ["greet", "thought"], says: "The café was closing before you got far." },
-    { id: "left", when: [], says: "You left before the book came up. Next month's is a short one." },
+    { id: "left", when: [], says: "You left before the book came up." },
   ],
 };
 

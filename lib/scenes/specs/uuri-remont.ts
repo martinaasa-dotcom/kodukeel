@@ -233,7 +233,7 @@ const LANDLORD: SceneSpec = {
     {
       id: "no-slot",
       when: ["greet", "problem"],
-      says: "They've got your report, but there's no free day this week. Nothing you could have said would change that.",
+      says: "They've got your report, but there's no free day this week.",
     },
     { id: "left", when: [], says: "You hung up. It's still broken, and you can call again any time." },
   ],

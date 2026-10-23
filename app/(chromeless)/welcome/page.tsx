@@ -49,7 +49,7 @@ import { SCENES } from "@/lib/scenes/catalogue";
 export const metadata: Metadata = {
   title: { absolute: "kodukeel. Estonian that finally sticks" },
   description:
-    "Kodukeel means home language. Fifteen minutes of Estonian an evening, a safe place to practice the conversations you're dreading, and a gentle push to go and have them for real. Free, for anyone making a home in Estonia.",
+    "Kodukeel means home language. Fifteen minutes of Estonian an evening, conversations to practice before you have them, and one thing a day to say to a real person. Free, for anyone making a home in Estonia.",
   alternates: { canonical: "/welcome", languages: { en: "/welcome", ...Object.fromEntries(ENTRY_LOCALES.map((l) => [l, ENTRY_COPY[l].href])) } },
 };
 
@@ -175,8 +175,8 @@ const anuLines = ({ t }: Say): readonly AnuLine[] => [
   { at: "top", mood: "happy", text: t("Hi, I’m Anu, the tutor. Mind if I walk down the page with you?") },
   { at: "who", mood: "happy", text: t("Whichever one you are, you start the same way: fifteen minutes today.") },
   { at: "cases", mood: "thinking", text: t("Press an ending and watch it snap on.") },
-  { at: "talk", mood: "cheer", text: t("Go on, order something. The person behind the counter is very patient.") },
-  { at: "evening", mood: "happy", text: t("This really is how your first evening starts. Five new words, and then they come back to check on you.") },
+  { at: "talk", mood: "cheer", text: t("Go on, order something.") },
+  { at: "evening", mood: "happy", text: t("This is how your first evening starts. Five new words, and then they come back to check on you.") },
   { at: "faq", mood: "thinking", text: t("How we compare with other apps is the last question.") },
   { at: "start", mood: "cheer", text: t("Fifteen minutes a day. See you inside.") },
 ];
@@ -432,7 +432,7 @@ function Hero({ say, stats, words }: { say: Say; stats: { words: number; forms: 
           </ButtonLink>
         </div>
         <p className="fade-up hero-lead hero-sub max-w-[44ch] leading-relaxed" style={{ animationDelay: "420ms" }}>
-          {t("The neighbor says hello. A coworker asks you something. Even the dog seems to expect Estonian. You need the right words when someone’s actually looking at you, and Kodukeel gets you there, fifteen minutes at a time.")}
+          {t("The neighbor says hello. A coworker asks you something. You need the right words when someone’s looking at you, and Kodukeel teaches them fifteen minutes at a time.")}
         </p>
         <ul className="fade-up hero-claims" style={{ animationDelay: "640ms" }}>
           {claims.map((t) => (
@@ -985,7 +985,7 @@ function Comparison({ say }: { say: Say }) {
         for by name.
       */}
       <p className="mt-3 max-w-[68ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-        {rich(t("As of August 2026, Duolingo has never offered Estonian, so the real choice is between the tools that do. That month we checked {claims} claims against each tool’s own website, and another tool earns a check mark on {shared} of them. None of them is trying to get you saying {e1} and knowing why it isn’t {e2}."), {
+        {rich(t("As of August 2026, Duolingo has never offered Estonian, so the real choice is between the tools that do. That month we checked {claims} claims against each tool’s own website, and another tool earns a check mark on {shared} of them."), {
           claims,
           shared,
           e1: <span lang="et" className="font-semibold">ma lähen tuppa</span>,
@@ -1123,7 +1123,7 @@ const faqsIn = ({ t }: Say) => [
   ],
   [
     t("Will it actually get me talking to people?"),
-    t("Yes. You'll practice with people who want something from you: a receptionist, a landlord, a clerk. What you say is checked against the dictionary, never graded by an AI, so you can't be told you were wrong when you were right. Every morning the app asks whether you spoke Estonian to anyone yesterday, and if not, it gives you one small thing to say out loud. It counts those conversations, even the ones where somebody switched to English. It can hear Estonian too: say a line instead of typing it, and it works out which words you said on your own device, so the sound never leaves it. What it won't do is score how a word sounded. A recognizer quietly corrects most slips into the right word, so it can't honestly tell you that, and we'd rather say so than pretend."),
+    t("Yes. You'll practice with people who want something from you: a receptionist, a landlord, a clerk. What you say is checked against the dictionary, never graded by an AI, so you can't be told you were wrong when you were right. Every morning the app asks whether you spoke Estonian to anyone yesterday, and if not, it gives you one small thing to say out loud. It counts those conversations, even the ones where somebody switched to English. It can hear Estonian too: say a line instead of typing it, and it works out which words you said on your own device, so the sound never leaves it. It won't score how a word sounded: a recognizer quietly corrects most slips into the right word, so it can't tell you that."),
   ],
   [
     t("What happens to my data?"),
@@ -1298,7 +1298,7 @@ function FinalCta({ say }: { say: Say }) {
               the payoff and nothing else.
             */}
             <p className="mx-auto mt-6 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--stage-ink-2)" }}>
-              {t("Next time somebody speaks to you in Estonian, you’ll have something to say back. And it won’t be the first time you’ve said it.")}
+              {t("Next time somebody speaks to you in Estonian, you’ll have something to say back, and you’ll have said it before.")}
             </p>
             <VisitRecap />
             <div className="mt-8 flex justify-center">

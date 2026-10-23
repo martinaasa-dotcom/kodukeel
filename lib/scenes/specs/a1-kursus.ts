@@ -119,8 +119,8 @@ export default inLesson("a1-17-course", {
     },
   ],
   outcomes: [
-    { id: "introduced", when: ["greet", "name", "from", "live", "family", "speak", "close"], says: "The room knows your name, where you're from, where you live and who's at home. That's a first evening done properly." },
-    { id: "introduced-thin", when: ["name", "from"], says: "They know your name and where you're from. That's enough for the first evening." },
+    { id: "introduced", when: ["greet", "name", "from", "live", "family", "speak", "close"], says: "The room knows your name, where you're from, where you live and who's at home." },
+    { id: "introduced-thin", when: ["name", "from"], says: "They know your name and where you're from." },
     { id: "left", when: [], says: "You slipped out before your turn. The course is still there next week." },
   ],
 });

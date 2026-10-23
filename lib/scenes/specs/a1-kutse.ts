@@ -118,7 +118,7 @@ export default inLesson("a1-49-invite", {
     },
   ],
   outcomes: [
-    { id: "invited", when: ["greet", "name", "from", "praise", "invite", "time", "close"], says: "You've met your new neighbor, told her about yourself, and you're going round on Saturday. That's what three months of Estonian are for." },
+    { id: "invited", when: ["greet", "name", "from", "praise", "invite", "time", "close"], says: "You've met your new neighbor, told her about yourself, and you're going round on Saturday." },
     { id: "invited-thin", when: ["invite", "time"], says: "You're going round on Saturday. The rest you can say over dinner." },
     { id: "left", when: [], says: "You hurried past this time. She'll be on the stairs again." },
   ],

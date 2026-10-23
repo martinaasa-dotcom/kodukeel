@@ -79,7 +79,7 @@ export function SayIt({ lesson, scene, onComplete }: { lesson: LessonSpec; scene
     return (
       <div className="flex flex-col gap-5" data-say-it="choose">
         <p className="max-w-[60ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {t("Words you've said out loud are the ones you remember. Say the conversation along with the screen, then answer a few questions about yourself out loud. A word lights up when it's understood, even said with an accent, so play yourself back beside the recording to hear how it sounded.")}
+          {t("Say the conversation along with the screen, then answer a few questions about yourself out loud. A word lights up when it's understood, even said with an accent, so play yourself back beside the recording to hear how it sounded.")}
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <Button size="lg" onClick={() => setMode("type")}>
@@ -98,12 +98,12 @@ export function SayIt({ lesson, scene, onComplete }: { lesson: LessonSpec; scene
       <div data-say-it="done">
         <Card tone="sky">
           <p role="status" className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
-            {mode === "say" ? t("You said today's Estonian out loud. That's the step most people skip, and the one that counts.") : t("Done. Tomorrow, try it out loud if you're somewhere you can.")}
+            {mode === "say" ? t("You said today's Estonian out loud.") : t("Done. Tomorrow, try it out loud if you're somewhere you can.")}
           </p>
           {scene && (
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3" data-lesson-scene={scene}>
               <p className="max-w-[48ch] text-base" style={{ color: "var(--ink-2)" }}>
-                {t("The role-play is a real conversation too: they answer whatever you say, in words you've been taught.")}
+                {t("In the role-play they answer whatever you say, in words you've been taught.")}
               </p>
               <ButtonLink href={`/situations/${scene}`}>{t("Have the conversation")} <ArrowRight size={15} aria-hidden /></ButtonLink>
             </div>

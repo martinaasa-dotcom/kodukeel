@@ -135,7 +135,7 @@ export function recapOf(scene: SceneSpec, state: SceneState, locale: Locale): Sc
   const headline = met.length === required.length && required.length > 0
     ? state.walkedOut ? say("You got everything done before you left.") : say("You got everything done.")
     : met.length === 0
-      ? say("A first go at a hard conversation, and every go counts.")
+      ? say("A first go at a hard conversation.")
       : say("You got {met} of the {total} things done.", { met: met.length, total: required.length });
 
   const stats = [
@@ -174,7 +174,7 @@ export function recapOf(scene: SceneSpec, state: SceneState, locale: Locale): Sc
     highlights.push({
       title: say("You asked your own question"),
       said: ownQuestion.said,
-      detail: say("Asking back is what turns an exchange into a conversation."),
+      detail: say("Asking back keeps the conversation going."),
     });
   }
   const chose = turns.find((t) => t.chose && t.chose.length > 0);
@@ -190,7 +190,7 @@ export function recapOf(scene: SceneSpec, state: SceneState, locale: Locale): Sc
     highlights.push({
       title: say("Understood even with an ending off"),
       said: polished.said,
-      detail: say("They knew exactly what you meant. That is what a conversation needs first."),
+      detail: say("They knew exactly what you meant."),
     });
   }
   if (firstTime >= 2 && highlights.length < 3) {

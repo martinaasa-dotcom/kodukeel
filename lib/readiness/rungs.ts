@@ -307,7 +307,7 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
       title: unmet === total ? say("None of these words has come up yet") : say("{unmet} of the {total} words haven't come up yet", { unmet, total }),
       detail: unmet === total
         ? say("The course hasn't brought you these words yet, so there's nothing to go on.")
-        : say("The word you've never met is the one the other person will use."),
+        : say("Words you haven't met yet."),
       blocks: at.met === 0 ? "follow" : share(at.follow) >= FOLLOW_SHARE ? "takePart" : "follow",
       href: `/learn/${situation.id}`,
       cta: "Open the unit",
@@ -443,7 +443,7 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
         struggles.push(struggle({
           id: "ear",
           title: say("The level check put your listening at {placed}, and this is {level}", { placed: placed ?? "", level: situation.level }),
-          detail: say("You may well know the words. That check measured whether you can follow them when somebody else says them, at their speed. That's the half of a conversation you don't control."),
+          detail: say("You may know the words. That check measured whether you can follow them when somebody else says them, at their speed."),
           blocks: "lead",
           href: "/review/dictation",
           cta: "Take a dictation",
@@ -458,7 +458,7 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
     struggles.push(struggle({
       id: "shaky",
       title: say("{n} words went wrong the last time you tried them", { n: shaky.length }),
-      detail: say("A word you got wrong this week is the one that won't come when you need it."),
+      detail: say("Words you got wrong this week."),
       blocks: follows ? "takePart" : "follow",
       href: "/review",
       cta: "Review what's due",

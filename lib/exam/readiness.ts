@@ -419,7 +419,7 @@ function verdictFor(
   if (confidence >= LIKELY_PCT) return say(`You would very likely pass {level} today.${hedge}`, { level });
   if (confidence >= CLOSE_PCT) return say(`{level} is within reach, but it would be close.${hedge}`, { level });
   if (confidence >= DISTANT_PCT) return say(`{level} would be a stretch right now.${hedge}`, { level });
-  return say(`{level} is still a long way off. Better to know that now than on the day.${hedge}`, { level });
+  return say(`{level} is still a long way off.${hedge}`, { level });
 }
 
 /** A piece of feedback whose words are kept as templates, with the English read off them. */
@@ -576,7 +576,7 @@ function strengthsFrom(signals: ReadinessSignals, assessed: ExamLevel | null): F
       id: "cases",
       title: solid.length === 1 ? say("One case is solid") : say("{n} cases are solid", { n: solid.length }),
       detail: say(
-        "{list}. You can stop worrying about those.",
+        "{list}. You know these well.",
         undefined,
         undefined,
         { list: solid.map((c) => say("{case} at {pct} percent", { case: c.caseEt, pct: c.pct })) },
@@ -588,7 +588,7 @@ function strengthsFrom(signals: ReadinessSignals, assessed: ExamLevel | null): F
     out.push(feedback({
       id: "recall",
       title: say("You remember what you learn"),
-      detail: say("{pct} percent across {n} reviews. Once you learn a word, it stays.", { pct: signals.accuracy.pct, n: signals.accuracy.reviews }),
+      detail: say("{pct} percent across {n} reviews.", { pct: signals.accuracy.pct, n: signals.accuracy.reviews }),
     }));
   }
 

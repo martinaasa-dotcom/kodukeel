@@ -302,7 +302,7 @@ export function HearingPanel({ current }: { current: Hearing }) {
         id: o.value,
         title: t(o.label),
         detail: o.value === "on"
-          ? fill(t("Once you know a word well, you'll sometimes hear it {ways}, just like real life. New words always come nice and clear."), { ways: locale === "en" ? listOf(STREET, " or ") : new Intl.ListFormat(locale, { type: "disjunction" }).format(STREET.map((said) => t(said))) })
+          ? fill(t("Once you know a word well, you'll sometimes hear it {ways}. New words are always said clearly."), { ways: locale === "en" ? listOf(STREET, " or ") : new Intl.ListFormat(locale, { type: "disjunction" }).format(STREET.map((said) => t(said))) })
           : t(o.detail), icon: <o.icon size={15} aria-hidden /> }))}
     />
   );
@@ -339,7 +339,7 @@ const SUPPORT_LEVELS: { value: Support; label: string; detail: string; icon: typ
   {
     value: "cold",
     label: "Hear it, no hints",
-    detail: "Even what you're meant to say is hidden until you ask. It's as close to the real thing as it gets, so it's best for a conversation you've had before.",
+    detail: "Even what you're meant to say is hidden until you ask, so it's best for a conversation you've had before.",
     icon: Sparkles,
   },
 ];

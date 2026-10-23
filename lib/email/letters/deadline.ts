@@ -122,9 +122,7 @@ export function deadlineLetter(input: DeadlineInput): Letter {
     blocks.push({
       t: "text",
       text: say(
-        "Three things can change that, and any one of them counts: how often you study, the " +
-          "Estonian you already hear outside this app, and the date itself. Moving the date isn't " +
-          "giving up. You picked it in about ninety seconds, before you knew what any of this would take.",
+        "Three things can change that, and any one of them counts: how often you study, the Estonian you already hear outside this app, and the date itself. You picked the date in about ninety seconds, before you knew what any of this would take.",
       ),
     });
   }

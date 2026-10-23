@@ -222,7 +222,7 @@ export default async function CoursePage({
                     ? fill(t("Next is {part} ({about}). It picks up where this one stopped, and it only asks about things you've already met."), {
                       part: after.id.toUpperCase(), about: t(after.subtitle),
                     })
-                    : t("That's the whole course, start to finish. Every word is in your reviews, and each one will come back just as you're about to forget it.")}
+                    : t("Every word in the course is in your reviews, and each one will come back just as you're about to forget it.")}
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <ButtonLink href="/progress/readiness">{t("See what you could handle out there")}</ButtonLink>
@@ -326,7 +326,7 @@ export default async function CoursePage({
                       : uiWantsEnglish(level)
                         ? fillNodes(t("Come back tomorrow for {unit}."), { unit: <b>{t(day.subtitle)}</b> })
                         : fillNodes(t("Come back tomorrow for {unit} ({english})."), { unit: <b lang="et">{day.title}</b>, english: t(day.subtitle) })}
-                    {" "}{t("Sleep does half the work of making today's words stick, so stopping here is part of the plan.")}
+                    {" "}{t("Stopping here gives today's words time to settle.")}
                   </p>
                 </div>
               </div>
@@ -536,7 +536,7 @@ export default async function CoursePage({
         */}
         {!day.lesson && (
           <Explain label={t("How a step gets checked off")}>
-            {t("Meeting the words and the review at the end check themselves off as you answer. The others you check off yourself, because we can't tell which exercise an answer came from, and we'd rather admit that than pretend we were watching.")}
+            {t("Meeting the words and the review at the end check themselves off as you answer. The others you check off yourself, because we can't tell which exercise an answer came from.")}
           </Explain>
         )}
 
@@ -647,7 +647,7 @@ export default async function CoursePage({
         {/* Everything else is in the rail already; what is worth one line is
             that this is optional and where to switch it off. */}
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-          {t("This is the easy way in, not the only one.")}{" "}
+          {t("You don't have to follow it.")}{" "}
           {locale === "en"
             ? <><Link href="/settings#course" className="underline">Turn it off</Link> whenever you&apos;d rather choose for yourself.</>
             : <Linked template={t("{link} whenever you'd rather choose for yourself.")} href="/settings#course" label={t("Turn it off")} />}

@@ -297,10 +297,7 @@ export const PARTS: readonly PartSpec[] = [
     id: "a2.1", level: "A2",
     title: "Palved ja eile", subtitle: "Asking for things, yesterday, the outdoors, the body and the house",
     blurb:
-      "A2 starts with what makes a conversation possible: asking for something without sounding "
-      + "like a robot. Then the past tense, and your first case endings, starting with the one "
-      + "all the others are built on. By the end you can say what you did yesterday and what's "
-      + "wrong with you, and your first conversations are waiting.",
+      "A2 starts with what makes a conversation possible: asking for something without sounding like a robot. Then the past tense, and your first case endings, starting with the one all the others are built on. By the end you can say what you did yesterday and what's wrong with you, and you can try your first conversations.",
     units: ["korraldused", "minevik", "loodus", "keha-ja-tervis", "kodutood"],
   },
   {
@@ -379,9 +376,7 @@ export const PARTS: readonly PartSpec[] = [
     id: "b2.3", level: "B2",
     title: "Kunst, töö ja argument", subtitle: "The arts, the law, the mind, working life, figures, and making a case",
     blurb:
-      "The end of B2: the arts, making a proper complaint, describing how people behave, "
-      + "working in Estonian, reading a table of figures, and building an argument that gives a "
-      + "little ground before it wins.",
+      "The end of B2: the arts, making a proper complaint, describing how people behave, working in Estonian, reading a table of figures, and building an argument that concedes a point.",
     units: ["kunst", "oigus", "psuhholoogia", "toomaailm", "statistika", "argumenteerimine"],
   },
 
@@ -389,25 +384,21 @@ export const PARTS: readonly PartSpec[] = [
     id: "c1.1", level: "C1",
     title: "Lause ja mõte", subtitle: "Saying more in fewer words, and long sentences that hold together",
     blurb:
-      "C1 is mostly about saying more with less: fitting into a phrase what B2 needed a whole "
-      + "clause for. You practice it on academic writing, research and philosophy, which is where "
-      + "you'll need it most.",
+      "C1 is about fitting into a phrase what B2 needed a whole clause for. You practice it on academic writing, research and philosophy, which is where you'll need it most.",
     units: ["nominalisatsioon", "lauseloome", "akadeemiline", "teadustoo", "filosoofia"],
   },
   {
     id: "c1.2", level: "C1",
     title: "Veenmine ja register", subtitle: "Ethics, persuasion, how formal to be, idioms, and holding a text together",
     blurb:
-      "Knowing how formal to be and getting it right, winning over somebody who disagrees, and "
-      + "the set phrases no rule will ever explain.",
+      "Knowing how formal to be and getting it right, winning over somebody who disagrees, and set phrases you learn whole.",
     units: ["eetika", "retoorika", "register", "idioomid", "diskursus"],
   },
   {
     id: "c1.3", level: "C1",
     title: "Maailm ja nüanss", subtitle: "New ideas, the wider world, literature, and words that almost mean the same",
     blurb:
-      "The last part of the course. By the end you've met everything in it, and what's left is "
-      + "reading Estonian because you want to.",
+      "The last part of the course. By the end you've met everything in it.",
     units: ["innovatsioon", "rahvusvaheline", "kirjandus", "nuansid"],
   },
 ];

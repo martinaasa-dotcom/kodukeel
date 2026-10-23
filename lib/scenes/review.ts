@@ -365,7 +365,7 @@ function lead(n: {
   notes: number;
 }, locale: Locale): string {
   const say = (line: string, values: Readonly<Record<string, number>> = {}) => fill(tr(locale, line), values);
-  if (n.turns === 0) return say("You didn't say anything this time. Watching a scene once is a good way to get a feel for it.");
+  if (n.turns === 0) return say("You didn't say anything this time.");
 
   /*
     Nothing landed. Saying what did happen is still worth more than a count
@@ -379,7 +379,7 @@ function lead(n: {
       : n.read > 0
         ? say("{read} of your {turns} turns were understood as Estonian, but none of them answered the question.", n)
         : "";
-    const rest = say("None of it got through this time, and that happens to everybody. Next time, the word button hands you one of the words they're waiting for, and telling them you're lost gets you one too.");
+    const rest = say("None of it got through this time. Next time, the word button hands you one of the words they're waiting for, and telling them you're lost gets you one too.");
     return seen ? `${seen} ${rest}` : rest;
   }
 
@@ -401,7 +401,7 @@ function lead(n: {
   */
   if (n.slips === 0) {
     return n.notes === 0 && all
-      ? `${opener} ${say("Nothing needed putting right, which is rarer than it sounds.")}`
+      ? `${opener} ${say("Nothing needed putting right.")}`
       : opener;
   }
   /*
@@ -455,7 +455,7 @@ function reachedNote(state: SceneState, locale: Locale): ReviewNote[] {
     said: row.slip.said,
     form: row.slip.form,
     what: tr(locale, "the word you were reaching for"),
-    body: tr(locale, "You knew what you wanted to say, just not how to say it yet. That makes it exactly the right word to learn next."),
+    body: tr(locale, "You knew what you wanted to say, just not how to say it yet. It's a good word to learn next."),
     at: row.at,
   }));
 }
@@ -467,7 +467,7 @@ function englishNote(count: number, at: number, locale: Locale): ReviewNote[] {
     said: count === 1 ? tr(locale, "One turn in English") : fill(tr(locale, "{count} turns in English"), { count }),
     form: null,
     what: tr(locale, "Estonian, even a word or two"),
-    body: tr(locale, "Staying in Estonian a little longer each time is what this practice is for. When you're stuck, the word button gives you a word to use."),
+    body: tr(locale, "When you're stuck, the word button gives you a word to use."),
     at,
   }];
 }

@@ -92,7 +92,7 @@ export default inLesson("a1-45-weekend", {
     },
   ],
   outcomes: [
-    { id: "caught-up", when: ["greet", "how", "saturday", "meet", "close"], says: "You told her about your weekend in the past tense and made a plan for next week. That's a Monday phone call." },
+    { id: "caught-up", when: ["greet", "how", "saturday", "meet", "close"], says: "You told her about your weekend in the past tense and made a plan for next week." },
     { id: "caught-up-thin", when: ["saturday"], says: "She knows what you did on Saturday. The rest can wait for when you meet." },
     { id: "left", when: [], says: "The call dropped. She'll ring again." },
   ],

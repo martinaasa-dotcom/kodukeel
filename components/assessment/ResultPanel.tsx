@@ -113,12 +113,12 @@ export function ResultPanel({ result, heading = "Where you are", locale = "en" }
             {t(result.overall === null
               ? "Nothing got measured, so there's no level to show."
               : result.overall === PRE_A1
-                ? "You're not at A1 yet, and that's where almost everybody starts."
+                ? "You're not at A1 yet, so the course starts at the beginning."
                 : result.nearly
                   ? "Your skills averaged out between two levels, so this shows the lower one. You're near the top of it, not the bottom."
                   : "This is the average of the skills we measured. One weak section doesn't drag the whole level down, and one strong one doesn't carry it.")}
             {result.ceiling && result.ceiling !== result.overall && (
-              <> {fill(t("Your strongest skill looks like {level}, which is good to know too."), { level: levelLabel(result.ceiling, locale) })}</>
+              <> {fill(t("Your strongest skill looks like {level}."), { level: levelLabel(result.ceiling, locale) })}</>
             )}
           </p>
           <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>

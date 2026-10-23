@@ -302,7 +302,7 @@ export function LadderBar({ progress, partLabel, learnerLevel, locale }: {
                 : fill(t("You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you check off an evening."), { pct, start, target })
               : standing
                 ? fill(t("Every level up to {target} counts as yours already, and the evenings check it word by word."), { target })
-                : t("Pick a target in Settings and this becomes the one number worth keeping an eye on.")}
+                : t("Pick a target in Settings and this bar shows how far you are from it.")}
           {standing && assumed > 0 && (
             <>
               {" "}

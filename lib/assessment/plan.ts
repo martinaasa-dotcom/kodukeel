@@ -687,8 +687,7 @@ export const FACTS: readonly Fact[] = [
     id: "spacing",
     icon: "Repeat",
     claim:
-      "Reviewing a word at growing intervals beats rereading it, and beats cramming, by a wide margin in " +
-      "every study that has looked. It's the one thing this app is built above all to do well.",
+      "Reviewing a word at growing intervals beats rereading it, and beats cramming, by a wide margin in every study that has looked.",
     source: "Cepeda and others, distributed practice meta-analysis, 2006",
   },
   {

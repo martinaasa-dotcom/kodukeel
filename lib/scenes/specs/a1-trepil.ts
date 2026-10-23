@@ -81,8 +81,8 @@ export default inLesson("a1-08-neighbour", {
     },
   ],
   outcomes: [
-    { id: "met", when: ["greet", "name", "estonian", "how", "close"], says: "She knows your name and where you're from, and you said goodbye like a neighbor. That's the whole of a conversation on the stairs." },
-    { id: "named", when: ["name"], says: "She knows your name now. Next time on the stairs you'll get further." },
+    { id: "met", when: ["greet", "name", "estonian", "how", "close"], says: "She knows your name and where you're from, and you said goodbye like a neighbor." },
+    { id: "named", when: ["name"], says: "She knows your name now." },
     { id: "left", when: [], says: "You hurried past this time. She'll be on the stairs again." },
   ],
 });

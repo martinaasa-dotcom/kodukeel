@@ -67,13 +67,13 @@ export function comebackLetter(input: ComebackInput): Letter {
     spaced repetition works. It is the true fact that answers the fear, so it
     leads.
   */
-  blocks.push({ t: "heading", text: say("Your Estonian hasn't gone anywhere.") });
+  blocks.push({ t: "heading", text: say("You haven't lost your Estonian.") });
 
   blocks.push({
     t: "text",
     text: say(
-      "You still know {words}. That's what spacing the cards out is for: " +
-        "the words stay put while you're away. Nothing is lost, and you don't have to start over.",
+      "You still know {words}. Spaced-out cards stay put while you're away, " +
+        "so you pick up where you stopped.",
       { words },
     ),
   });
@@ -101,8 +101,7 @@ export function comebackLetter(input: ComebackInput): Letter {
   blocks.push({
     t: "text",
     text: say(
-      "No need for a whole evening. One quick round takes about " +
-        "{minutes} minutes, and that's enough to say you're back.",
+      "No need for a whole evening. One quick round takes about {minutes} minutes.",
       { minutes: input.smallStep.minutes },
     ),
   });
@@ -129,8 +128,8 @@ export function comebackLetter(input: ComebackInput): Letter {
   return {
     kind: "comeback",
     locale,
-    subject: say("Your Estonian is right where you left it"),
-    preheader: say("You still know {words}. Two minutes is all it takes to pick things up again.", { words }),
+    subject: say("You still know your words"),
+    preheader: say("You still know {words}. One round takes two minutes.", { words }),
     blocks,
   };
 }

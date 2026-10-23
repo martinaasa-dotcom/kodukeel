@@ -146,7 +146,7 @@ const RESIDENCE_PERMIT: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "renewed", when: ["greet", "want", "booking", "brought", "next", "collect", "close"], says: "Your application's in and you know when to collect the card. That's the most official Estonian there is, and you followed it." },
+    { id: "renewed", when: ["greet", "want", "booking", "brought", "next", "collect", "close"], says: "Your application's in and you know when to collect the card." },
     { id: "renewed-thin", when: ["want", "booking", "brought"], says: "Your application's in. They'll write to say when the card is ready." },
     { id: "come-back", when: ["greet", "want"], says: "They couldn't take the application today. Book another time." },
     { id: "left", when: [], says: "You left before the application was in. Your booking can be moved." },

@@ -123,7 +123,7 @@ const TERE_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "Kas te räägite inglise keelt?", en: "Do you speak English?" },
     ],
     how: {
-      point: "You don't have to understand everything. You need a way to say so, and these lines are it.",
+      point: "You don't need to understand everything, only a way to say so.",
       notes: [
         "{Ma ei saa aru} is \"I don't understand\". Learn it whole: you'll say it more than any other sentence in your first months.",
         "{Kas te räägite inglise keelt?} asks it the polite way, which is the right way to ask a stranger. You'll meet the friendly way in lesson 4.",

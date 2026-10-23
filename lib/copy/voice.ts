@@ -435,6 +435,11 @@ const FLOURISH: Tell[] = [
     instead: "Say what happened. The facts already show whose doing it was, and a reassurance on top is the advert.",
   },
   {
+    name: "moral tail",
+    find: /\bthat('s| is) (a|an) [^.!?]{1,60} (done )?(in Estonian|properly)\.|\bwhich is (what makes (it|them) (yours|stick)|the hardest (part|way)|the bit most|the part that was yours)\b|\brather than a gesture\b|\bwhich matters more than\b|\bwhat all (of )?(this|those words) (is|was|were) for\b|\bthe number this whole app is for\b|\bdoesn('t| not) get (much )?more real\b|\bgo easy on yourself\b|\bready to help\b|\bthe (step|bit) most people skip\b|\b(is|a) real (skill|civic life)\b|\bthat('s| is) the (start|shape) of (being|the real|thing)\b|\bthat('s| is) the whole (skill|of a conversation)\b|\bthat('s| is) the (hardest|most official)\b|, promise\./i,
+    instead: "End on what happened. A sentence that tells the reader what their success means, or how hard it was, is the app applauding; the facts already say it.",
+  },
+  {
     name: "straight to the point",
     find: /\bstraight to the point\b|\bno fluff\b|\bno[- ]nonsense\b|\bshort,? straight answers\b/i,
     instead: "Be short. Saying so is the one thing that makes it longer.",
@@ -531,6 +536,7 @@ export const VOICE_RULES: readonly string[] = [
   `Never open with "It's important to note that", "At the end of the day", "In essence", "Great question", "Moreover", "Furthermore" or anything else that carries no information. Start with the answer.`,
   `Never end on a flourish that adds no fact: "and that's the whole story", "that's the whole trick", "and that's it", "simple as that", "and that's fine", "don't worry". Never stage a reveal: "Here's the secret:", "the good news is", "the short version:", "now imagine". Stop when the facts stop. A reader hears the flourish as a machine finishing a paragraph.`,
   `Never tack a reassurance or a slogan onto the facts: "That's the bank, not your Estonian", "a starting point, not a verdict", "a trip, not a gamble", "and it'll come", "the honest reason is". When something went wrong that was not the learner's doing, say what happened; the facts already show it.`,
+  `Never close on a moral about what the learner just did: "That's a market done in Estonian", "which matters more than any ending", "That's what all those words were for", "That's the hardest talk at work". Say what they did and stop.`,
   `Never inflate a small claim by denying it first. "Not just a rule, but a pattern" is "a rule, and a pattern". Say what a thing is.`,
   `Never reach for a brochure word: delve, leverage, utilize, seamless, cutting-edge, groundbreaking, holistic, bespoke, meticulously, a plethora of, embark on, unleash, empower, elevate. Use the plain word a teacher would use out loud.`,
   `Never say "paradigm". A learner has met "the forms of a word", "the case endings" and "the table" in class and has not met that one, so use theirs. The same goes for any other word that belongs to writing about a language rather than to teaching it.`,

@@ -87,9 +87,9 @@ export default inLesson("a1-35-the-way", {
     },
   ],
   outcomes: [
-    { id: "found", when: ["greet", "where", "way", "close"], says: "You stopped a stranger, asked the way and understood it. That's a whole conversation." },
+    { id: "found", when: ["greet", "where", "way", "close"], says: "You stopped a stranger, asked the way and understood it." },
     { id: "half", when: ["greet", "where"], says: "They told you the way. Whether you caught it all is another matter, and pointing helps." },
     { id: "lost", when: ["greet"], says: "They didn't know the place either." },
-    { id: "left", when: [], says: "You walked on. Somebody else will know." },
+    { id: "left", when: [], says: "You walked on." },
   ],
 });

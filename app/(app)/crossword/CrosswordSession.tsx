@@ -427,7 +427,7 @@ function Finish({ puzzle, helped }: { puzzle: DailyCrossword; helped: number }) 
   return (
     <Card>
       <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
-        {helped === 0 ? t("Solved, and every square of it was yours.") : t("Solved, with a little help. That still counts.")}
+        {helped === 0 ? t("Solved, and every square of it was yours.") : t("Solved, with a little help.")}
       </p>
       <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
         {puzzle.inDeck.length > 0

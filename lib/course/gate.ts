@@ -118,6 +118,6 @@ export function holdReason(verdict: Extract<LadderVerdict, { kind: "hold" }>, lo
 /** What to do about it, which is never "start again". */
 export function holdAdvice(verdict: Extract<LadderVerdict, { kind: "hold" }>, locale: Locale): string {
   return tr(locale, verdict.because === "retention"
-    ? "Give it a few more days of reviews and that number will climb on its own. You won't lose anything, and nothing has to be done twice."
-    : "A few gentler days will sort this out. Your reviews already know which words are giving you trouble.");
+    ? "Give it a few more days of reviews and that number will climb."
+    : "Your reviews already know which words are giving you trouble.");
 }

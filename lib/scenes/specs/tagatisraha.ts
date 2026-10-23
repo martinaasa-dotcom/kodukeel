@@ -133,7 +133,7 @@ const DEPOSIT: SceneSpec = {
     { id: "paid", when: ["greet", "why", "moved", "clean", "offer", "close"], says: "You stood up for yourself, politely, said the flat was clean and settled the money. Holding your ground when somebody says no is the hardest Estonian there is." },
     { id: "paid-thin", when: ["why", "offer"], says: "They're paying something back. Saying you left it clean is what gets the rest." },
     { id: "stand-off", when: ["greet", "why"], says: "They wouldn't agree to anything on the phone. Put it in writing next." },
-    { id: "left", when: [], says: "You hung up before you'd asked. The deposit is still yours to ask for." },
+    { id: "left", when: [], says: "You hung up before you'd asked. You can call again." },
   ],
 };
 

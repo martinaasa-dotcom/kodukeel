@@ -118,7 +118,7 @@ const BANK: SceneSpec = {
     { id: "opened", when: ["greet", "want", "for", "brought", "card", "sign", "close"], says: "You've got an account, and a card on its way." },
     { id: "opened-thin", when: ["want", "brought", "sign"], says: "The account's open. The small talk around the edges can come later." },
     { id: "come-back", when: ["greet", "want"], says: "Their system wouldn't open accounts today. You can book a time to come back." },
-    { id: "left", when: [], says: "You left before anything was signed. The bank will still be there tomorrow." },
+    { id: "left", when: [], says: "You left before anything was signed. You can come back another day." },
   ],
 };
 

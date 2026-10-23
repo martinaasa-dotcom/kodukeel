@@ -348,7 +348,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Sajab vihma} is word for word \"falls rain\", and the rain is in the {osastav}, as after {tahan}.",
         "{Väljas} is outside: {Väljas on külm}.",
-        "Estonians often open a chat with a neighbor on the weather, so this is one of the most useful lessons of the part.",
+        "Estonians often open a chat with a neighbor on the weather.",
       ],
       watchOut: "There's no it in {On külm}. Estonian says just \"is cold\", and that's a whole sentence.",
       examples: [0, 1, 2],
@@ -442,7 +442,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
         "Tom opens with the weather and the shop assistant picks it up. That's how a lot of small talk in Estonia starts.",
         "Notice {See hall müts}: this gray hat, with the color between {see} and the thing, from lesson 38.",
       ],
-      watchOut: "You don't need to describe the thing perfectly. What you need, and a color, is enough to be shown it.",
+      watchOut: "What you need, and a color, is enough to be shown it.",
       examples: [1, 4, 7],
     },
     answers: [

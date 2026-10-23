@@ -101,27 +101,27 @@ export interface ActivitySpec {
 export const ACTIVITIES = {
   match: {
     href: "/review/match", kind: "game",
-    why: "Pair each word with its meaning against the clock. It's quick, it's fun, and the meanings stick before you ever have to say them.",
+    why: "Pair each word with its meaning against the clock.",
   },
   listening: {
     href: "/review/listening", kind: "drill",
-    why: "The same words, but this time you only hear them. Reading a word and catching it when somebody says it are two different skills.",
+    why: "The same words, but this time you only hear them.",
   },
   sentences: {
     href: "/review/sentences", kind: "game",
-    why: "Put a real Estonian sentence back together, word by word. Do it a few times and you start to feel where things go.",
+    why: "Put a real Estonian sentence back together, word by word.",
   },
   dictation: {
     href: "/review/dictation", kind: "drill",
-    why: "Hear a whole sentence and write it down. This is where long and short vowels stop being a rule and start being a sound.",
+    why: "Hear a whole sentence and write it down. It's good practice for hearing long and short vowels.",
   },
   sonad: {
     href: "/sonad", kind: "game",
-    why: "Guess today's six-letter word. Three minutes, and Estonian letters start feeling like old friends.",
+    why: "Guess today's six-letter word. About three minutes.",
   },
   conjugation: {
     href: "/review/conjugation", kind: "drill",
-    why: "One verb, six people: I, you, she and the rest. If you can't change a verb for who's doing it, you can't really use it yet.",
+    why: "One verb, six people: I, you, she and the rest.",
   },
   speaking: {
     href: "/review/speaking", kind: "drill",
@@ -137,11 +137,11 @@ export const ACTIVITIES = {
   },
   exceptions: {
     href: "/review/exceptions", kind: "drill",
-    why: "The words that don't follow the usual ending rules. See each one, then write it yourself, and soon you won't need to look them up.",
+    why: "The words that don't follow the usual ending rules. See each one, then write it yourself.",
   },
   letters: {
     href: "/review/letters", kind: "game",
-    why: "A word you know, with its letters shuffled. Put them back and õ, ä, ö and ü stop looking like plain a's, o's and u's.",
+    why: "A word you know, with its letters shuffled. Put them back in order.",
   },
   workbook: {
     href: "/review/workbook", kind: "drill",
@@ -149,7 +149,7 @@ export const ACTIVITIES = {
   },
   numbers: {
     href: "/review/numbers", kind: "drill",
-    why: "Prices, clock times and counts, said out loud. Every counter you'll stand at needs one, and Estonian says half past two as half three.",
+    why: "Prices, clock times and counts, said out loud. Estonian says half past two as half three.",
   },
   flash: {
     href: "/review/flashcards", kind: "drill",
@@ -532,7 +532,7 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     why: fresh === 0
       ? "Every one of these is from earlier in the course. Today they come back for what the page is about."
       : atA1
-        ? "Hear each word and see what it means. A few minutes later you pick it out of four, and that's what makes it stay."
+        ? "Hear each word and see what it means. A few minutes later you pick it out of four."
         : "See what each word means, pick it out of four a little later, then type it into a real Estonian sentence.",
     href: "/course/learn",
     minutes: Math.max(1, Math.round(spec.words.length * perWord)),
@@ -608,7 +608,7 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
         : spec.sceneTitle ?? "Have the conversation",
       why: spec.sceneAgain
         ? "You've had this one before. Today they talk to you the way they'd talk to anybody, and you've got far more to say back."
-        : "Somebody wants something from you, and only Estonian will do. This is what all those words were for.",
+        : "Somebody wants something from you, and only Estonian will do.",
       href: `/situations/${spec.scene}`,
       minutes: spec.sceneMinutes ?? TALK_MINUTES,
       derived: false,
@@ -619,7 +619,7 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     id: REVIEW_STEP,
     kind: "review",
     title: "A quick review, then you're done",
-    why: "A few minutes on the words you're about to forget, today's included. This is the part that makes them stick.",
+    why: "A few minutes on the words you're about to forget, today's included.",
     href: "/review",
     minutes: REVIEW_MINUTES,
     derived: true,

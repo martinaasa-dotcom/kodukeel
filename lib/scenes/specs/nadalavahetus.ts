@@ -101,10 +101,10 @@ const WEEKEND: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "chatted", when: ["greet", "how", "did", "back", "close"], says: "You told them about your weekend and asked about theirs. That's a Monday morning done in Estonian." },
-    { id: "chatted-thin", when: ["how", "did"], says: "They know what you did. Asking about theirs is what turns it into a conversation." },
-    { id: "meeting", when: ["greet", "how"], says: "Somebody called them into a meeting before you got any further. Monday mornings are like that." },
-    { id: "left", when: [], says: "You took your coffee back to your desk. There'll be another Monday." },
+    { id: "chatted", when: ["greet", "how", "did", "back", "close"], says: "You told them about your weekend and asked about theirs." },
+    { id: "chatted-thin", when: ["how", "did"], says: "They know what you did. Next time, ask about theirs." },
+    { id: "meeting", when: ["greet", "how"], says: "Somebody called them into a meeting before you got any further." },
+    { id: "left", when: [], says: "You took your coffee back to your desk." },
   ],
 };
 

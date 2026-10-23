@@ -111,7 +111,7 @@ export const REASONS: readonly Reason[] = [
     id: "family",
     icon: "Heart",
     label: "Family or a partner",
-    detail: "The people you most want to understand won't slow down for you forever.",
+    detail: "The people you most want to understand, at the speed they talk.",
     implies: "B1",
     // The people at home, if the home runs in Estonian. Many couples default to English.
     exposure: { low: 2, high: 8 },
@@ -143,7 +143,7 @@ export const REASONS: readonly Reason[] = [
     id: "curiosity",
     icon: "Sparkles",
     label: "Curiosity",
-    detail: "Fourteen cases, and words that change shape when you're not looking. Reason enough.",
+    detail: "Fourteen cases, and words that change shape when you're not looking.",
     implies: "A2",
     // Nothing in the week beyond what the learner goes and finds.
     exposure: { low: 0, high: 0 },

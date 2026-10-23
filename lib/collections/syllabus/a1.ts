@@ -50,7 +50,7 @@ export const A1 = [
     level: "A1",
     module: "Esimesed sammud",
     canDo: "Say hello and thank you, and answer yes or no.",
-    blurb: "The five words you'll say on your first day here. Each one works on its own, so no grammar yet, promise.",
+    blurb: "The five words you'll say on your first day here. Each one works on its own, so there's no grammar yet.",
     /*
       The dictionary form and nothing else: these are words said alone, and
       the politeness page, which is the plural as a polite you and the
@@ -1498,7 +1498,7 @@ export const A1 = [
     level: "A1",
     module: "Esimesed sammud",
     canDo: "Ask someone for help, say what's happened, and call the right number.",
-    blurb: "Let's hope you never need these words. You shout appi when you're in trouble, and ask for abi when you just need a hand. The emergency number is 112, and they answer in Estonian, Russian and English.",
+    blurb: "You shout appi when you're in trouble, and ask for abi when you just need a hand. The emergency number is 112, and they answer in Estonian, Russian and English.",
     /*
       The imperative, because every sentence in this unit is one: aidake,
       kutsuge, helistage. Politeness beside it, since the difference between

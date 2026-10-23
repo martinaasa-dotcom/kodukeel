@@ -116,7 +116,7 @@ export function SituationDetail({
                     ? "Quick enough to answer before the other person fills the silence."
                     : pace.label === "steady"
                       ? "Fine for a patient listener. Leading a conversation means reaching for your next word while they're still finishing theirs."
-                      : "Slow enough that someone at a counter will jump in for you, usually in English. Speed comes with practice, on top of knowing the word.")}
+                      : "Slow enough that someone at a counter will jump in for you, usually in English. Practicing the words you already know is what makes them quicker.")}
                 </p>
                 <Explain label={t("How quick and slow are decided")}>
                   {fill(t("We time your correct typed answers, typing included. Under {quick} seconds counts as quick and over {slow} as slow. Those cut-offs are our guess, so the seconds are shown too."), { quick: CONVERSATIONAL_MS / 1000, slow: SLOW_MS / 1000 })}
@@ -157,7 +157,7 @@ export function SituationDetail({
           <Card tone="sky">
             <p className="text-base font-semibold" style={{ color: "var(--sky-ink)" }}>{t(scene.title)}</p>
             <p className="mt-1.5 text-sm" style={{ color: "var(--sky-ink)" }}>
-              {t(scene.place)}. {t("It's marked just like your cards, never by an AI, and it's the nearest thing to the real conversation you'll find here.")}
+              {t(scene.place)}. {t("It's marked just like your cards, never by an AI.")}
             </p>
             <div className="mt-3">
               <ButtonLink href={`/situations/${scene.id}`} size="sm">{t("Play the scene")}</ButtonLink>
@@ -209,7 +209,7 @@ export function SituationDetail({
 
       {situation.live && (
         <Explain label={t("What this page doesn't measure")}>
-          {fillNodes(t("Nothing on this page has heard you speak. How you sound is yours to judge, in {link}, and no number here pretends otherwise."), {
+          {fillNodes(t("Nothing on this page has heard you speak. How you sound is yours to judge, in {link}."), {
             link: <Link href="/review/speaking" className="underline" style={{ color: "var(--accent-deep)" }}>{t("speaking practice")}</Link>,
           })}
         </Explain>

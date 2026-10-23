@@ -128,7 +128,7 @@ export const RU: Readonly<Record<string, string>> = {
   "Hear it, write it": "Услышать и записать",
   "A real sentence read out loud. Play it again as often as you like, and slow it down if it's fast.":
     "Настоящее предложение, прочитанное вслух. Включайте его сколько угодно раз и замедляйте, если слишком быстро.",
-  "Type the whole sentence. Forgetting a dot or a squiggle on a letter costs you a little but won't be marked wrong, so it's worth trying.":
+  "Type the whole sentence. Forgetting a dot or a squiggle on a letter costs you a little but won't be marked wrong.":
     "Напечатайте всё предложение. Если забудете точку или значок над буквой, это немного снизит оценку, но ошибкой не засчитается, так что смело пробуйте.",
   "Play the first one": "Включить первое",
   "The words that break the rules": "Слова, которые нарушают правила",

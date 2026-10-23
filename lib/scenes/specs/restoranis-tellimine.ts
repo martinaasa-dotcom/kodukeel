@@ -184,10 +184,10 @@ const RESTAURANT: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "fed", when: ["greet", "contents", "order", "drink", "bill", "pay", "close"], says: "You ate, you knew what was in it, and you paid. That's a whole evening out in Estonian." },
+    { id: "fed", when: ["greet", "contents", "order", "drink", "bill", "pay", "close"], says: "You ate, you knew what was in it, and you paid." },
     { id: "fed-quiet", when: ["order", "drink", "pay"], says: "You ate and you paid, without ever finding out what was in it." },
-    { id: "kitchen-closed", when: ["greet", "order"], says: "The kitchen had stopped serving hot food. You ordered like a regular, and that was your part done." },
-    { id: "left", when: [], says: "You left the table early. There's a place around the corner, and you can always come back." },
+    { id: "kitchen-closed", when: ["greet", "order"], says: "The kitchen had stopped serving hot food." },
+    { id: "left", when: [], says: "You left the table early." },
   ],
 };
 

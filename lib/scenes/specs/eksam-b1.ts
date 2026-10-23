@@ -196,10 +196,10 @@ const EXAM_B1: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "all-parts", when: ["greet", "home", "work", "plan", "why", "agree", "call", "when", "close"], says: "All three parts, start to finish, in Estonian: you talked about yourself, agreed a plan and made the call. That's the shape of the real thing." },
+    { id: "all-parts", when: ["greet", "home", "work", "plan", "why", "agree", "call", "when", "close"], says: "You did all three parts in Estonian: you talked about yourself, agreed a plan and made the call." },
     { id: "two-parts", when: ["home", "work", "plan", "agree"], says: "The talk about you and the plan are done. The phone call is the part to run again." },
     { id: "one-part", when: ["greet", "home"], says: "You got through the opening talk. The other two parts are what to practice next." },
-    { id: "left", when: [], says: "You left the practice room early. It's practice, so it'll be here when you're ready." },
+    { id: "left", when: [], says: "You left the practice room early." },
   ],
 };
 

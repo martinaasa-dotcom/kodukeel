@@ -238,7 +238,7 @@ export function CostExplorer() {
           {bill.creditedUsd > 0 && (
             <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--ink-3)" }}>
               <TrParts
-                template="Not counted above: buying the speech this app is given would come to a further {money} a month. Nobody has ever asked for it."
+                template="Not counted above: buying the speech this app is given would come to a further {money} a month."
                 parts={{ money: <strong>{money(bill.creditedUsd, locale)}</strong> }}
               />
             </p>
@@ -475,7 +475,7 @@ export function CostExplorer() {
         </div>
 
         <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {t("The floor is the interesting end. The plans, the tooling, the mail and the domain come to about three hundred dollars a month before a single learner arrives, and most of that does not move when they do. So the first thousand people are nearly free to serve, and the cost per head falls by roughly a factor of ten for each decade. What grows instead is speech and the database, so past ten thousand the shape is set by how much is said aloud and how many years of reviews are being kept.")}
+          {t("The plans, the tooling, the mail and the domain come to about three hundred dollars a month before a single learner arrives, and most of that does not move when they do. So the first thousand people are nearly free to serve, and the cost per head falls by roughly a factor of ten for each decade. What grows instead is speech and the database, so past ten thousand the shape is set by how much is said aloud and how many years of reviews are being kept.")}
         </p>
       </div>
 

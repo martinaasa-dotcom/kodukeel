@@ -146,7 +146,7 @@ export default async function SignInPage({ searchParams }: {
             <span lang="et">Tere tulemast tagasi</span>
           </h1>
           <p className="mx-auto mt-2 max-w-[36ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {t("New here? Signing in is all it takes to start, and it’s free. Coming back? Everything you’ve learned is right where you left it.")}
+            {t("Sign in to start. It’s free, and if you’ve been here before, everything you learned is where you left it.")}
           </p>
 
           {denied && (

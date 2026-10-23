@@ -129,7 +129,7 @@ export default async function SituationsPage() {
           */
           <Empty
             title={tr(locale, "No conversations yet")}
-            body={tr(locale, "More are on the way. A quick practice round is a good way to fill the gap.")}
+            body={tr(locale, "More are on the way. Try a quick practice round meanwhile.")}
             action={<ButtonLink href="/practice">{tr(locale, "Practice")}</ButtonLink>}
           />
         ) : (

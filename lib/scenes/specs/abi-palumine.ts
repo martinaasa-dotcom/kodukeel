@@ -120,9 +120,9 @@ const ASKING_FOR_HELP: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "helped", when: ["greet", "ask", "how", "again", "thanks"], says: "You asked, you didn't catch it, and you asked again instead of nodding. That's the whole skill, and the bag is in." },
+    { id: "helped", when: ["greet", "ask", "how", "again", "thanks"], says: "You asked, you didn't catch it, and you asked again instead of nodding. The bag is in." },
     { id: "helped-thin", when: ["ask", "how", "again"], says: "The bag got in and you understood what to do. Next time, a thank you on the way out." },
-    { id: "in-a-hurry", when: ["greet", "ask"], says: "They were late for something and couldn't stop. You asked clearly, and the next person might have a minute." },
+    { id: "in-a-hurry", when: ["greet", "ask"], says: "They were late for something and couldn't stop. You asked clearly." },
     { id: "left", when: [], says: "You got the bag in on your own in the end. Asking is still worth practicing." },
   ],
 };

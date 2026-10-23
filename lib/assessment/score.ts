@@ -100,7 +100,7 @@ export function gradeWrite(item: WriteItem, typed: string): WriteMark {
   */
   const check = checkAnswer(answer, item.targetForm, "et", item.otherForms);
   if (check.verdict === "correct") {
-    return { credit: 1, right: true, usedAnotherForm: false, note: "That's exactly the form the sentence wanted." };
+    return { credit: 1, right: true, usedAnotherForm: false, note: "That's the form the sentence wanted." };
   }
   if (check.verdict === "diacritics" || check.verdict === "typo") {
     // A dropped diacritic is named by letter, because that is a thing to learn.

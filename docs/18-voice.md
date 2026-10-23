@@ -299,7 +299,7 @@ ends at "away." now. The same pass took out its relatives across the app:
 | That's the whole point. You'll practice with people who want something from you | Yes. You'll practice with people who want something from you |
 | Short answers, straight to the point. | (cut) |
 | Now imagine fifteen minutes of that every evening. | Inside the app, you get fifteen minutes like this every evening. |
-| No cards this week, and that's fine. Weeks like that happen. | No cards this week. Weeks like that happen. |
+| No cards this week, and that's fine. Weeks like that happen. | No cards this week. |
 | Something went wrong on our side. Don't worry, your turn is still here. | Something went wrong on our side. Your turn is still here. |
 | These terms are short because the deal is simple: use it to learn Estonian | Use it to learn Estonian |
 
@@ -314,7 +314,7 @@ was.
 | --- | --- |
 | Their system wouldn't open accounts today. That's the bank, not your Estonian; you can book a time to come back. | Their system wouldn't open accounts today. You can book a time to come back. |
 | They didn't know the place either. That happens, and it wasn't your Estonian. | They didn't know the place either. |
-| You're not at A1 yet, and that's where almost everybody starts. It's a starting point, not a verdict. | You're not at A1 yet, and that's where almost everybody starts. |
+| You're not at A1 yet, so the course starts at the beginning. It's a starting point, not a verdict. | You're not at A1 yet, so the course starts at the beginning. |
 | They've got it, you know when they open, and you checked the time. Tomorrow's a trip, not a gamble. | They've got it, you know when they open, and you checked the time. |
 | You've got a neighbor now, and they know your floor. That's how a building starts to know you. | You've got a neighbor now, and they know your floor. |
 | You've got a day and a time. Saying no first is the harder half, and it'll come. | You've got a day and a time. Turning down the first offer is what's left to practice. |
@@ -322,6 +322,25 @@ was.
 | That's a nice problem to have. You've got room for more new words each day | You've got room for more new words each day |
 | You don't have to say them right yet. That comes with time. | For now, recognizing them is enough. |
 | Two patterns and you've got them all. | Two patterns cover every number. |
+
+A third pass read every English line the app shows, about fourteen thousand of them, one at a
+time rather than by pattern, and found the habit's last costume: a moral on what the learner just
+did. Every conversation ended by telling the learner what their success meant ("That's a market
+done in Estonian", "which matters more than any ending"), every way of leaving early came with a
+consolation ("The bank will still be there tomorrow"), and the policy pages kept praising their
+own honesty ("saying so is more use than publishing one nobody reads"). The facts were already
+there each time. That shape is the `moral tail` tell now, and Anu is asked never to close on one.
+
+| Was | Is |
+| --- | --- |
+| You bought both things, said how many, and knew what you paid. That's a market done in Estonian. | You bought both things, said how many, and knew what you paid. |
+| You asked what happened, said you were sorry and offered to help. That's being a friend in Estonian, which matters more than any ending. | You asked what happened, said you were sorry and offered to help. |
+| You left before anything was signed. The bank will still be there tomorrow. | You left before anything was signed. You can come back another day. |
+| And one conversation in Estonian with a real person. That's the number this whole app is for. | And one conversation in Estonian with a real person. |
+| It's the hardest single thing to carry over, so go easy on yourself. | It's the hardest single thing to carry over. |
+| There's no separate security mailbox yet, and saying so is more use than publishing one nobody reads. | There's no separate security mailbox yet. |
+| Pair each word with its meaning against the clock. It's quick, it's fun, and the meanings stick before you ever have to say them. | Pair each word with its meaning against the clock. |
+| The topic every C1 exam essay is secretly about. | Ethics comes up in nearly every C1 exam essay. |
 
 Where the tail was the only useful thing in the sentence, it became the useful thing said plainly:
 "Saying no first is the harder half, and it'll come" was gesturing at what to practice next, so
@@ -366,7 +385,7 @@ The operator asked for the app to be funny, so that people take it a little less
 enjoy it more, and chose the tone from three drafts: **playful**. A playful line is a true fact said
 with a wink. It is not a pun for its own sake, not an exclamation mark, and not an emoji.
 
-> nahkhiir, bat. A leather mouse. Estonian looked at a bat and said exactly what it saw.
+> nahkhiir, bat. A leather mouse. A leather mouse: what a bat looks like up close.
 
 against
 

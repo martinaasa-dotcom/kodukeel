@@ -111,7 +111,7 @@ export default async function LearnPage() {
     };
   });
 
-  const [unitsBefore, unitsAfter] = t("A unit is just a handy bundle of dictionary words. You can find every one of them by searching too, and anything missing you can {link}. Nothing's ever really locked: a unit above your level tells you what it builds on, and you can still open it.").split("{link}");
+  const [unitsBefore, unitsAfter] = t("A unit is a bundle of dictionary words. You can find every one of them by searching too, and anything missing you can {link}. Nothing is locked: a unit above your level tells you what it builds on, and you can still open it.").split("{link}");
   return (
     <Page route="/learn"
       title={t("Learn")}

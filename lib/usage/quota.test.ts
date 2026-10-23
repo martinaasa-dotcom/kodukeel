@@ -122,8 +122,8 @@ describe("checkQuota", () => {
     const usage = { ...clear, globalMicros: DEFAULT_LIMITS.dailyMicrosGlobal };
     const decision = checkQuota(usage, DEFAULT_LIMITS, NOON);
     expect(decision.reason).toBe("GLOBAL_SPEND");
-    // The person who trips it did not cause it; the message must not imply they did.
-    expect(decision.message).toMatch(/nothing you did/i);
+    // The person who trips it did not cause it; the message says the cap is everybody's.
+    expect(decision.message).toMatch(/for everybody/i);
   });
 
   it("tells a daily denial to come back after midnight UTC", () => {

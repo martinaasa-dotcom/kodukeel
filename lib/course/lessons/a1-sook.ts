@@ -68,7 +68,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Mida soovite?} is what you'll hear at every counter: what would you like? It uses {teie}, because you're a customer.",
         "{Ka} at the end adds one more thing: {üks sai ka}, a bun too.",
-        "With a thing after {soovin}, the thing changes its ending, and that's the next lesson. Until then, {üks kohv, palun} says it all.",
+        "With a thing after {soovin}, the thing changes its ending, and that's the next lesson. Until then, say {üks kohv, palun}.",
       ],
       watchOut: "{Tee} is tea, and it's also the word for road. In a café, it's tea.",
       examples: [0, 1, 2],
@@ -382,7 +382,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
       point: "A whole evening at a café, made only of what this part taught.",
       notes: [
         "Notice how little you need: what you want, how many, and how you'll pay.",
-        "Mari's {kaks kooki} and her {Mulle meeldib kook} are the two halves of this part in one breath: a number takes the {osastav}, and the thing you like stays plain.",
+        "Mari's {kaks kooki} and her {Mulle meeldib kook} show both rules of this part: a number takes the {osastav}, and the thing you like stays plain.",
       ],
       watchOut: "If the price comes too fast, you already have the line for it: {Aeglasemalt, palun}.",
       examples: [3, 6],

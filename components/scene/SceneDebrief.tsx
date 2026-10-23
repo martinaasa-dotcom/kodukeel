@@ -782,9 +782,8 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
           </div>
         )}
 
-        {(objectives.missed.length > 0 || graded > 0) && (
+        {graded > 0 && (
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            {objectives.missed.length > 0 && `${t("Most of it sticks the second time around.")} `}
             {graded > 0 && (
               <>
                 {withLink(

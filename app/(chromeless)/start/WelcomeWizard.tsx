@@ -696,7 +696,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
             */}
             <div className="mt-10">
               <Note tone="hard">
-                {t("Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse. The real conversations happen out there.")}
+                {t("Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse conversations before you have them.")}
               </Note>
             </div>
           </section>
@@ -1139,7 +1139,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                   <span className="text-base font-semibold">{t(firstScene.title)}</span>. {t(firstScene.place)}.
                 </p>
                 <Explain label={t("How you’ll practice it")}>
-                  <p>{t("Once you know these words, you can practice this exact conversation here, typing your side to a stranger who wants something from you. Then go and have the real one.")}</p>
+                  <p>{t("Once you know these words, you can practice this exact conversation here, typing your side to a stranger who wants something from you.")}</p>
                 </Explain>
               </div>
             )}

@@ -230,7 +230,7 @@ export function chatScene(plan: ChatPlan, taught: readonly string[]): SceneSpec 
       {
         id: "talked",
         when: ["greet", ...words, "close"],
-        says: "Every one of today's words got used on somebody, which is what makes them yours.",
+        says: "Every one of today's words got used on somebody.",
       },
       /*
         Any one word used, not the first: a beat the learner could not answer

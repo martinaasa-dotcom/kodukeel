@@ -209,7 +209,7 @@ const DOCTOR: SceneSpec = {
       when: ["greet"],
       says: "No appointment today. They'd like you to call back once you can say how long it's been going on.",
     },
-    { id: "left", when: [], says: "You walked away from the desk. People do, and you can always come back." },
+    { id: "left", when: [], says: "You walked away from the desk. You can always come back." },
   ],
 };
 

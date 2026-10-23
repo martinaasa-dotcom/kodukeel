@@ -100,11 +100,11 @@ export function AnuReading({ text, level, title, marks }: {
                 <ShieldCheck size={14} className="mr-1.5 inline" aria-hidden />
                 {reading.withheldReason === "unvouched-word" ? (
                   <>
-                    {t("Anu used a word the dictionary couldn't check, so we've held her note back. It may well be English, but we'd rather not guess. Nothing's broken here: we just never show you an Estonian word in feedback unless we can check it.")}
+                    {t("Anu used a word the dictionary couldn't check, so we've held her note back. It may be English. We only show an Estonian word in feedback when we can check it.")}
                   </>
                 ) : (
                   <>
-                    {t("Anu used an Estonian word the dictionary couldn't check, so we've held her note back. Nothing's broken here: we just never show you an Estonian word in feedback unless we can check it.")}
+                    {t("Anu used an Estonian word the dictionary couldn't check, so we've held her note back. We only show an Estonian word in feedback when we can check it.")}
                   </>
                 )}
               </Note>

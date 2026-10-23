@@ -78,9 +78,7 @@ export function milestoneLetter(input: MilestoneInput): Letter {
   blocks.push({
     t: "text",
     text: say(
-      "That's {words} that are properly yours now. Each one came back days after you " +
-        "met it, and you still knew it. So this letter is a little late: you did the work a while " +
-        "ago, and it stuck.",
+      "That's {words} that are properly yours now. Each one came back days after you met it, and you still knew it, so this letter comes a little after the work.",
       { words },
     ),
   });
@@ -107,7 +105,7 @@ export function milestoneLetter(input: MilestoneInput): Letter {
     */
     blocks.push({
       t: "quiet",
-      text: say("That was the level you set out to reach. There are always more words, and the course keeps going as long as you do."),
+      text: say("That was the level you set out to reach. The course keeps going if you want more."),
     });
   }
 

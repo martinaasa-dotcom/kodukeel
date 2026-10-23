@@ -40,8 +40,8 @@ export const CHAT: Area = {
     "They say goodbye and go on up.": "Сосед прощается и поднимается дальше.",
 
     // How it ends.
-    "Every one of today's words got used on somebody, which is what makes them yours.":
-      "Каждое из сегодняшних слов вы применили в разговоре с человеком, и именно это делает их вашими.",
+    "Every one of today's words got used on somebody.":
+      "Каждое из сегодняшних слов вы применили в разговоре с человеком.",
     "Some of today's words got an outing. The rest come round again in your reviews.":
       "Часть сегодняшних слов прозвучала в разговоре. Остальные вернутся в ваших повторениях.",
     "They had to dash off before you got far. Today's words will keep until your reviews.":
@@ -79,8 +79,8 @@ export const CHAT: Area = {
     "Your neighbor stops on the stairs and says hello.": "Сусід зупиняється на сходах і вітається.",
     "They say goodbye and go on up.": "Сусід прощається і йде нагору.",
 
-    "Every one of today's words got used on somebody, which is what makes them yours.":
-      "Кожне із сьогоднішніх слів ви вжили в розмові з людиною, і саме це робить їх вашими.",
+    "Every one of today's words got used on somebody.":
+      "Кожне із сьогоднішніх слів ви вжили в розмові з людиною.",
     "Some of today's words got an outing. The rest come round again in your reviews.":
       "Частина сьогоднішніх слів прозвучала в розмові. Решта повернеться у ваших повтореннях.",
     "They had to dash off before you got far. Today's words will keep until your reviews.":

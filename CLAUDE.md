@@ -3403,7 +3403,11 @@ the reassurance tacked onto facts that had already made the point: twenty conver
 `here's the honest reason`. They are the
 `not your fault` tell and the wider `FLOURISH` patterns now. **A list finds only what somebody
 thought to write down**, so after a copy pass, read the translated lines whole rather than
-grepping for the phrases you already know.
+grepping for the phrases you already know. A third pass did exactly that, every English line the app
+shows read one at a time, and found the moral closing on what the learner just did
+(`That's a market done in Estonian`, `which matters more than any ending`), consolations on every early exit
+and policy pages praising their own honesty. That is the `moral tail` tell; `docs/18-voice.md` §3b
+has the table.
 
 **And the English is spelled the American way, everywhere a reader meets it.** `4. Practise` on a
 lesson step was reported off a screen whose neighbors said "practice", because the English came

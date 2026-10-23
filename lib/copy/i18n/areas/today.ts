@@ -98,8 +98,8 @@ export const TODAY: Area = {
     "Пройдено {done} из {days}, вечеров подряд: {run}",
   "{done} of {days} done":
     "Пройдено {done} из {days}",
-  "Today's module is done. Go and enjoy the rest of your day.":
-    "Занятие на сегодня пройдено. Хорошего вам дня!",
+  "Today's module is done.":
+    "Занятие на сегодня пройдено.",
   "Tomorrow you'll continue with “{unit}”, part {n} of {of}.":
     "Завтра продолжим раздел «{unit}», часть {n} из {of}.",
   "See you tomorrow for “{unit}”.":
@@ -264,8 +264,8 @@ export const TODAY: Area = {
     "Не хватило слов на полпути",
   "Not yesterday":
     "Вчера нет",
-  "You spoke Estonian to a real person. That's the hard part, and it's what all of this is for.":
-    "Вы говорили по-эстонски с живым человеком. Это самое трудное, и ради этого всё и затевалось.",
+  "You spoke Estonian to a real person.":
+    "Вы говорили по-эстонски с живым человеком.",
   "How did it go?":
     "Как всё прошло?",
   "How the conversation went":
@@ -282,8 +282,8 @@ export const TODAY: Area = {
     "сначала потренируйтесь здесь",
   "You spoke Estonian and they understood you.":
     "Вы говорили по-эстонски, и вас поняли.",
-  "Getting stuck is just what learning a language out loud looks like. It still counts, and it's on the board.":
-    "Сбиться посреди разговора нормально: так и выглядит язык, который учат вслух. Разговор всё равно засчитан.",
+  "Getting stuck partway still counts, and it's on the board.":
+    "Сбиться посреди разговора не страшно: разговор всё равно засчитан.",
   "They switched to English. Next time, keep going in Estonian anyway. Most people switch back.":
     "Собеседник перешёл на английский. В следующий раз всё равно продолжайте по-эстонски: большинство возвращаются к эстонскому.",
   "Running out of words costs nothing in a practice conversation, and the person there will wait while you find them.":
@@ -452,8 +452,8 @@ export const TODAY: Area = {
   // TODAY: THE WORD OF THE DAY.
   "Word of the day":
     "Слово дня",
-  "You've already met every word we could pick for today, which is a first. Have a browse in the dictionary, and there'll be a new one here tomorrow.":
-    "Вы уже встречали все слова, которые мы могли выбрать на сегодня, и такое впервые. Загляните в словарь, а завтра здесь будет новое.",
+  "You've already met every word we could pick for today. Have a browse in the dictionary, and there'll be a new one here tomorrow.":
+    "Вы уже встречали все слова, которые мы могли выбрать на сегодня. Загляните в словарь, а завтра здесь будет новое.",
   "Open the dictionary":
     "Открыть словарь",
   "new to you":
@@ -492,8 +492,8 @@ export const TODAY: Area = {
     "Вы прошли {pct}% пути от начала {start} до {target}. Сплошная часть растёт, только когда слово действительно закрепилось в повторениях, а не когда вы отмечаете вечер.",
   "Every level up to {target} counts as yours already, and the evenings check it word by word.":
     "Все уровни до {target} уже засчитаны вам, а вечера проверяют их слово за словом.",
-  "Pick a target in Settings and this becomes the one number worth keeping an eye on.":
-    "Выберите цель в настройках, и это станет главной цифрой, за которой стоит следить.",
+  "Pick a target in Settings and this bar shows how far you are from it.":
+    "Выберите цель в настройках, и эта шкала покажет, сколько вам до неё осталось.",
   "Your level check put you at {level}, so {levels} count as yours. You won't have to redo anything below your level.":
     "Проверка уровня показала {level}, поэтому {levels} мы засчитали вам. Ничего ниже вашего уровня проходить заново не придётся.",
   "You told us you're at {level}, so {levels} count as yours. You won't have to redo anything below your level.":
@@ -546,8 +546,8 @@ export const TODAY: Area = {
     "Повторить карточки на сегодня",
   "Next is {part} ({about}). It picks up where this one stopped, and it only asks about things you've already met.":
     "Дальше часть {part} ({about}). Она начинается там, где закончилась эта, и спрашивает только о том, что вы уже встречали.",
-  "That's the whole course, start to finish. Every word is in your reviews, and each one will come back just as you're about to forget it.":
-    "Это весь курс от начала до конца. Все слова в ваших повторениях, и каждое вернётся как раз тогда, когда вы начнёте его забывать.",
+  "Every word in the course is in your reviews, and each one will come back just as you're about to forget it.":
+    "Все слова курса в ваших повторениях, и каждое вернётся как раз тогда, когда вы начнёте его забывать.",
   "See what you could handle out there":
     "Что вам уже по силам в жизни",
   "Start {part}":
@@ -564,8 +564,8 @@ export const TODAY: Area = {
     "Возвращайтесь завтра: впереди {unit}.",
   "Come back tomorrow for {unit} ({english}).":
     "Возвращайтесь завтра: впереди {unit} ({english}).",
-  "Sleep does half the work of making today's words stick, so stopping here is part of the plan.":
-    "Половину работы по запоминанию сегодняшних слов сделает сон, так что остановиться сейчас тоже часть плана.",
+  "Stopping here gives today's words time to settle.":
+    "Если остановиться сейчас, сегодняшние слова успеют улечься.",
   "Hear today's words once more":
     "Послушать сегодняшние слова ещё раз",
   "Start the next one now":
@@ -596,8 +596,8 @@ export const TODAY: Area = {
     "Некоторых из них ещё нет в вашей колоде. Первый шаг их добавит.",
   "How a step gets checked off":
     "Как отмечается шаг",
-  "Meeting the words and the review at the end check themselves off as you answer. The others you check off yourself, because we can't tell which exercise an answer came from, and we'd rather admit that than pretend we were watching.":
-    "Знакомство со словами и повторение в конце отмечаются сами, пока вы отвечаете. Остальные шаги отмечаете вы, потому что мы не видим, из какого упражнения пришёл ответ, и лучше честно это признать, чем делать вид, что следили.",
+  "Meeting the words and the review at the end check themselves off as you answer. The others you check off yourself, because we can't tell which exercise an answer came from.":
+    "Знакомство со словами и повторение в конце отмечаются сами, пока вы отвечаете. Остальные шаги отмечаете вы, потому что мы не видим, из какого упражнения пришёл ответ.",
   "{done} of {total} evenings":
     "Вечеров: {done} из {total}",
   "This part":
@@ -608,8 +608,8 @@ export const TODAY: Area = {
     "вечер {n}",
   "The whole course, {parts}":
     "Весь курс, {parts}",
-  "This is the easy way in, not the only one.":
-    "Это простой способ начать, но не единственный.",
+  "You don't have to follow it.":
+    "Следовать ему не обязательно.",
   "{link} whenever you'd rather choose for yourself.":
     "{link}, когда захотите выбирать сами.",
   "Turn it off":
@@ -632,8 +632,8 @@ export const TODAY: Area = {
     "Выучить {newWords} и повторить знакомые ({met})",
   "Every one of these is from earlier in the course. Today they come back for what the page is about.":
     "Все эти слова уже были в курсе раньше. Сегодня они возвращаются ради того, о чём эта страница.",
-  "Hear each word and see what it means. A few minutes later you pick it out of four, and that's what makes it stay.":
-    "Послушайте каждое слово и посмотрите, что оно значит. Через несколько минут вы выберете его из четырёх, и именно это помогает ему запомниться.",
+  "Hear each word and see what it means. A few minutes later you pick it out of four.":
+    "Послушайте каждое слово и посмотрите, что оно значит. Через несколько минут вы выберете его из четырёх.",
   "See what each word means, pick it out of four a little later, then type it into a real Estonian sentence.":
     "Посмотрите, что значит каждое слово, чуть позже выберите его из четырёх, а потом впишите в настоящее эстонское предложение.",
   "Read how today's words work":
@@ -666,40 +666,40 @@ export const TODAY: Area = {
     "Поговорить по-эстонски",
   "You've had this one before. Today they talk to you the way they'd talk to anybody, and you've got far more to say back.":
     "Этот разговор у вас уже был. Сегодня с вами говорят так, как говорили бы с кем угодно, а ответить вы теперь можете куда больше.",
-  "Somebody wants something from you, and only Estonian will do. This is what all those words were for.":
-    "Кому-то что-то от вас нужно, и обойтись можно только эстонским. Вот для чего были все эти слова.",
+  "Somebody wants something from you, and only Estonian will do.":
+    "Кому-то что-то от вас нужно, и обойтись можно только эстонским.",
   "A quick review, then you're done":
     "Короткое повторение, и на сегодня всё",
-  "A few minutes on the words you're about to forget, today's included. This is the part that makes them stick.":
-    "Несколько минут на слова, которые вы вот-вот забудете, включая сегодняшние. Именно это помогает им закрепиться.",
-  "Pair each word with its meaning against the clock. It's quick, it's fun, and the meanings stick before you ever have to say them.":
-    "Соединяйте каждое слово с его значением на время. Это быстро и весело, и значения запоминаются ещё до того, как их придётся произносить.",
-  "The same words, but this time you only hear them. Reading a word and catching it when somebody says it are two different skills.":
-    "Те же слова, но теперь вы их только слышите. Прочитать слово и узнать его на слух совсем не одно и то же.",
-  "A race through the words you've met, and their endings once you've read about them. Answer fast enough and you stop working words out and simply know them.":
-    "Гонка по знакомым словам, а когда прочитаете про окончания, то и по окончаниям. Отвечайте быстро, и вы перестанете вычислять слова и начнёте просто их знать.",
-  "Put a real Estonian sentence back together, word by word. Do it a few times and you start to feel where things go.":
-    "Соберите настоящее эстонское предложение слово за словом. Сделайте так несколько раз, и вы начнёте чувствовать, что куда ставится.",
-  "Hear a whole sentence and write it down. This is where long and short vowels stop being a rule and start being a sound.":
-    "Послушайте целое предложение и запишите его. Именно здесь долгие и краткие гласные перестают быть правилом и становятся звуком.",
+  "A few minutes on the words you're about to forget, today's included.":
+    "Несколько минут на слова, которые вы вот-вот забудете, включая сегодняшние.",
+  "Pair each word with its meaning against the clock.":
+    "Соединяйте каждое слово с его значением на время.",
+  "The same words, but this time you only hear them.":
+    "Те же слова, но теперь вы их только слышите.",
+  "A race through the words you've met, and their endings once you've read about them.":
+    "Гонка по знакомым словам, а когда прочитаете про окончания, то и по окончаниям.",
+  "Put a real Estonian sentence back together, word by word.":
+    "Соберите настоящее эстонское предложение слово за словом.",
+  "Hear a whole sentence and write it down. It's good practice for hearing long and short vowels.":
+    "Послушайте целое предложение и запишите его. Это хорошая тренировка, чтобы различать долгие и краткие гласные на слух.",
   "Look at a picture and write one sentence of your own about it.":
     "Посмотрите на картинку и напишите о ней одно своё предложение.",
-  "Guess today's six-letter word. Three minutes, and Estonian letters start feeling like old friends.":
-    "Угадайте слово дня из шести букв. Три минуты, и эстонские буквы начинают казаться старыми знакомыми.",
+  "Guess today's six-letter word. About three minutes.":
+    "Угадайте слово дня из шести букв. Минуты три.",
   "Four versions of one word, and a question telling you which one to hit. Only the ending tells them apart, so you learn to read it fast.":
     "Четыре варианта одного слова и вопрос, который говорит, в какой попасть. Различаются они только окончанием, так что вы учитесь быстро его читать.",
-  "One verb, six people: I, you, she and the rest. If you can't change a verb for who's doing it, you can't really use it yet.":
-    "Один глагол, шесть лиц: я, ты, она и остальные. Пока вы не умеете менять глагол по лицам, по-настоящему пользоваться им ещё не получится.",
+  "One verb, six people: I, you, she and the rest.":
+    "Один глагол, шесть лиц: я, ты, она и остальные.",
   "Say today's words out loud: along with a native speaker, back from the recording, then from their meaning. You see which words were heard, and typing works too.":
     "Скажите вслух слова этого вечера: вместе с носителем языка, по записи, затем по значению. Вы видите, какие слова были услышаны, и можно печатать.",
   "Write a sentence of your own with the ending we ask for. We check that word against the dictionary before anything else.":
     "Напишите своё предложение с окончанием, которое мы просим. Это слово мы прежде всего сверяем со словарём.",
   "Aitan sind, but helistan sulle. Every verb chooses its own ending for whatever comes after it, and English gives you no clue, so you learn them one verb at a time.":
     "Aitan sind, но helistan sulle. Каждый глагол сам выбирает окончание для того, что идёт после него, и угадать его нельзя, так что их учат по одному глаголу.",
-  "The words that don't follow the usual ending rules. See each one, then write it yourself, and soon you won't need to look them up.":
-    "Слова, которые не подчиняются обычным правилам окончаний. Посмотрите на каждое, потом напишите его сами, и скоро заглядывать в справочник не придётся.",
-  "A word you know, with its letters shuffled. Put them back and õ, ä, ö and ü stop looking like plain a's, o's and u's.":
-    "Знакомое слово с перемешанными буквами. Расставьте их по местам, и буквы с точками и волной перестанут казаться просто a, o и u.",
+  "The words that don't follow the usual ending rules. See each one, then write it yourself.":
+    "Слова, которые не подчиняются обычным правилам окончаний. Посмотрите на каждое, потом напишите его сами.",
+  "A word you know, with its letters shuffled. Put them back in order.":
+    "Знакомое слово с перемешанными буквами. Расставьте их по порядку.",
   "Words you've already met, asked in new ways: read aloud, missing from a sentence, or in a sentence you write.":
     "Слова, которые вы уже встречали, в новых вопросах: на слух, с пропуском в предложении или в вашем собственном предложении.",
 
@@ -776,12 +776,12 @@ export const TODAY: Area = {
     "Глаголы на сегодня",
 
   // TRY IT: THE READING ASKS BACK.
-  "You just looked forms up in the table. That's exactly what it's there for.":
-    "Вы только что искали формы в таблице. Именно для этого она и нужна.",
+  "You looked the forms up in the table.":
+    "Вы нашли формы в таблице.",
   "You got every one right. Later today you'll get questions like these about today's words.":
     "Все ответы верные. Позже сегодня будут похожие вопросы о сегодняшних словах.",
-  "Glance back at the table whenever a form looks odd. It'll look a lot less odd by tomorrow.":
-    "Если форма кажется странной, загляните в таблицу. К завтрашнему дню она будет казаться куда менее странной.",
+  "Glance back at the table whenever a form looks odd.":
+    "Если форма кажется странной, загляните в таблицу.",
   "{n} of {total}, just practice":
     "{n} из {total}, просто тренировка",
   "Try it":
@@ -906,18 +906,18 @@ export const TODAY: Area = {
     "Пока запомнились {seen} из каждых ста слов этой части. Остальные ждут в повторениях и будут возвращаться, пока не закрепятся.",
   "Right now you're getting {seen} out of a hundred answers right. Moving on to a harder part would only bring that down.":
     "Сейчас вы отвечаете правильно на {seen} из ста. Переход к более трудной части только понизит эту цифру.",
-  "Give it a few more days of reviews and that number will climb on its own. You won't lose anything, and nothing has to be done twice.":
-    "Ещё несколько дней повторений, и эта цифра поднимется сама. Вы ничего не потеряете, и ничего не придётся делать дважды.",
-  "A few gentler days will sort this out. Your reviews already know which words are giving you trouble.":
-    "Несколько более спокойных дней всё исправят. Повторения уже знают, какие слова даются вам трудно.",
+  "Give it a few more days of reviews and that number will climb.":
+    "Ещё несколько дней повторений, и эта цифра поднимется.",
+  "Your reviews already know which words are giving you trouble.":
+    "Повторения уже знают, какие слова даются вам трудно.",
 
   // THE PARTS OF THE COURSE: WHAT EACH IS ABOUT, AND WHAT FINISHING IT MEANS.
   "Hello, you and me, the verb to be, and the people around you":
     "Приветствия, вы и я, глагол «быть» и люди вокруг вас",
   "Your name, numbers, your home, and the verbs you'll use every day":
     "Ваше имя, числа, ваш дом и глаголы на каждый день",
-  "Your name and where you live, how to count, the rooms of your home, and the eleven verbs you'll need in almost every sentence you ever say. By the end you can introduce yourself, count, and describe where you live.":
-    "Ваше имя и где вы живёте, как считать, комнаты вашего дома и одиннадцать глаголов, которые понадобятся почти в каждом вашем предложении. К концу вы сможете представиться, посчитать и описать, где живёте.",
+  "Your name and where you live, how to count, the rooms of your home, and the eleven commonest verbs. By the end you can introduce yourself, count, and describe where you live.":
+    "Ваше имя и где вы живёте, как считать, комнаты вашего дома и одиннадцать самых употребительных глаголов. К концу вы сможете представиться, посчитать и описать, где живёте.",
   "Food, the time, your day, and what things are like":
     "Еда, время, ваш день и описание вещей",
   "Food and drink, the days and the clock, what you do from morning to night, and your first words for what things look like, colors included. By the end you can say what you're doing, when, and what it's like.":
@@ -966,18 +966,18 @@ export const TODAY: Area = {
     "Часть открывается плюсквамперфектом, прошлым до прошлого, и учите вы его на истории, где он встречается чаще всего. Потом как понять незнакомое слово по уже знакомому и три темы, чтобы это опробовать. К концу вы сможете прочитать авторскую колонку на любую из этих тем, не открывая словарь.",
   "The arts, the law, the mind, working life, figures, and making a case":
     "Искусство, закон, психология, работа, цифры и аргументация",
-  "The end of B2: the arts, making a proper complaint, describing how people behave, working in Estonian, reading a table of figures, and building an argument that gives a little ground before it wins.":
-    "Конец B2: искусство, как подать настоящую жалобу, как описать поведение людей, работа на эстонском, чтение таблицы с цифрами и аргумент, который сначала немного уступает, а потом побеждает.",
+  "The end of B2: the arts, making a proper complaint, describing how people behave, working in Estonian, reading a table of figures, and building an argument that concedes a point.":
+    "Конец B2: искусство, как подать настоящую жалобу, как описать поведение людей, работа на эстонском, чтение таблицы с цифрами и аргумент, в котором вы признаёте правоту собеседника в чём-то одном.",
   "Saying more in fewer words, and long sentences that hold together":
     "Больше смысла в меньшем числе слов и длинные предложения, которые не разваливаются",
   "Ethics, persuasion, how formal to be, idioms, and holding a text together":
     "Этика, убеждение, насколько официально говорить, идиомы и связный текст",
-  "Knowing how formal to be and getting it right, winning over somebody who disagrees, and the set phrases no rule will ever explain.":
-    "Как выбрать нужную степень официальности и попасть в тон, как переубедить несогласного и устойчивые выражения, которые не объяснит никакое правило.",
+  "Knowing how formal to be and getting it right, winning over somebody who disagrees, and set phrases you learn whole.":
+    "Как выбрать нужную степень официальности и попасть в тон, как переубедить несогласного и устойчивые выражения, которые учат целиком.",
   "New ideas, the wider world, literature, and words that almost mean the same":
     "Новые идеи, большой мир, литература и почти синонимы",
-  "The last part of the course. By the end you've met everything in it, and what's left is reading Estonian because you want to.":
-    "Последняя часть курса. К концу вы встретите всё, что в нём есть, и останется только читать по-эстонски, потому что вам этого хочется.",
+  "The last part of the course. By the end you've met everything in it.":
+    "Последняя часть курса. К концу вы встретите всё, что в нём есть.",
   "{pct} percent of today's module done":
     "Сегодняшнее занятие пройдено на {pct}%",
   "to go today":
@@ -1152,8 +1152,8 @@ export const TODAY: Area = {
     "Пройдено {done} з {days}, вечорів поспіль: {run}",
   "{done} of {days} done":
     "Пройдено {done} з {days}",
-  "Today's module is done. Go and enjoy the rest of your day.":
-    "Заняття на сьогодні пройдено. Гарного вам дня!",
+  "Today's module is done.":
+    "Заняття на сьогодні пройдено.",
   "Tomorrow you'll continue with “{unit}”, part {n} of {of}.":
     "Завтра продовжимо розділ «{unit}», частина {n} з {of}.",
   "See you tomorrow for “{unit}”.":
@@ -1318,8 +1318,8 @@ export const TODAY: Area = {
     "Забракло слів на півдорозі",
   "Not yesterday":
     "Учора ні",
-  "You spoke Estonian to a real person. That's the hard part, and it's what all of this is for.":
-    "Ви говорили естонською з живою людиною. Це найважче, і саме заради цього все й затівалося.",
+  "You spoke Estonian to a real person.":
+    "Ви говорили естонською з живою людиною.",
   "How did it go?":
     "Як усе минуло?",
   "How the conversation went":
@@ -1336,8 +1336,8 @@ export const TODAY: Area = {
     "спершу потренуйтеся тут",
   "You spoke Estonian and they understood you.":
     "Ви говорили естонською, і вас зрозуміли.",
-  "Getting stuck is just what learning a language out loud looks like. It still counts, and it's on the board.":
-    "Збитися посеред розмови нормально: саме такий вигляд має мова, яку вчать вголос. Розмову все одно зараховано.",
+  "Getting stuck partway still counts, and it's on the board.":
+    "Збитися посеред розмови не страшно: розмову все одно зараховано.",
   "They switched to English. Next time, keep going in Estonian anyway. Most people switch back.":
     "Співрозмовник перейшов на англійську. Наступного разу все одно продовжуйте естонською: більшість повертаються до естонської.",
   "Running out of words costs nothing in a practice conversation, and the person there will wait while you find them.":
@@ -1530,8 +1530,8 @@ export const TODAY: Area = {
   // TODAY: THE WORD OF THE DAY.
   "Word of the day":
     "Слово дня",
-  "You've already met every word we could pick for today, which is a first. Have a browse in the dictionary, and there'll be a new one here tomorrow.":
-    "Ви вже зустрічали всі слова, які ми могли вибрати на сьогодні, і таке вперше. Загляньте до словника, а завтра тут буде нове.",
+  "You've already met every word we could pick for today. Have a browse in the dictionary, and there'll be a new one here tomorrow.":
+    "Ви вже зустрічали всі слова, які ми могли вибрати на сьогодні. Загляньте до словника, а завтра тут буде нове.",
   "Open the dictionary":
     "Відкрити словник",
   "new to you":
@@ -1570,8 +1570,8 @@ export const TODAY: Area = {
     "Ви пройшли {pct}% шляху від початку {start} до {target}. Суцільна частина росте, лише коли слово справді закріпилося в повтореннях, а не коли ви позначаєте вечір.",
   "Every level up to {target} counts as yours already, and the evenings check it word by word.":
     "Усі рівні до {target} уже зараховано вам, а вечори перевіряють їх слово за словом.",
-  "Pick a target in Settings and this becomes the one number worth keeping an eye on.":
-    "Виберіть мету в налаштуваннях, і це стане єдиним числом, за яким варто стежити.",
+  "Pick a target in Settings and this bar shows how far you are from it.":
+    "Виберіть мету в налаштуваннях, і ця шкала покаже, скільки вам до неї лишилося.",
   "Your level check put you at {level}, so {levels} count as yours. You won't have to redo anything below your level.":
     "Перевірка рівня показала {level}, тож {levels} ми зарахували вам. Нічого нижче вашого рівня проходити заново не доведеться.",
   "You told us you're at {level}, so {levels} count as yours. You won't have to redo anything below your level.":
@@ -1624,8 +1624,8 @@ export const TODAY: Area = {
     "Повторити картки на сьогодні",
   "Next is {part} ({about}). It picks up where this one stopped, and it only asks about things you've already met.":
     "Далі частина {part} ({about}). Вона починається там, де закінчилася ця, і питає лише про те, що ви вже зустрічали.",
-  "That's the whole course, start to finish. Every word is in your reviews, and each one will come back just as you're about to forget it.":
-    "Це весь курс від початку до кінця. Усі слова у ваших повтореннях, і кожне повернеться саме тоді, коли ви почнете його забувати.",
+  "Every word in the course is in your reviews, and each one will come back just as you're about to forget it.":
+    "Усі слова курсу у ваших повтореннях, і кожне повернеться саме тоді, коли ви почнете його забувати.",
   "See what you could handle out there":
     "Що вам уже під силу в житті",
   "Start {part}":
@@ -1642,8 +1642,8 @@ export const TODAY: Area = {
     "Повертайтеся завтра: попереду {unit}.",
   "Come back tomorrow for {unit} ({english}).":
     "Повертайтеся завтра: попереду {unit} ({english}).",
-  "Sleep does half the work of making today's words stick, so stopping here is part of the plan.":
-    "Половину роботи із запам'ятовування сьогоднішніх слів зробить сон, тож зупинка зараз теж входить у план.",
+  "Stopping here gives today's words time to settle.":
+    "Якщо зупинитися зараз, сьогоднішні слова встигнуть улягтися.",
   "Hear today's words once more":
     "Послухати сьогоднішні слова ще раз",
   "Start the next one now":
@@ -1674,8 +1674,8 @@ export const TODAY: Area = {
     "Деяких із них ще немає у вашій колоді. Перший крок їх додасть.",
   "How a step gets checked off":
     "Як позначається крок",
-  "Meeting the words and the review at the end check themselves off as you answer. The others you check off yourself, because we can't tell which exercise an answer came from, and we'd rather admit that than pretend we were watching.":
-    "Знайомство зі словами і повторення наприкінці позначаються самі, поки ви відповідаєте. Решту ви позначаєте самі, бо ми не бачимо, з якої вправи прийшла відповідь, і краще чесно це визнати, ніж вдавати, що стежили.",
+  "Meeting the words and the review at the end check themselves off as you answer. The others you check off yourself, because we can't tell which exercise an answer came from.":
+    "Знайомство зі словами і повторення наприкінці позначаються самі, поки ви відповідаєте. Решту ви позначаєте самі, бо ми не бачимо, з якої вправи прийшла відповідь.",
   "{done} of {total} evenings":
     "Вечорів: {done} з {total}",
   "This part":
@@ -1686,8 +1686,8 @@ export const TODAY: Area = {
     "вечір {n}",
   "The whole course, {parts}":
     "Увесь курс, {parts}",
-  "This is the easy way in, not the only one.":
-    "Це простий спосіб почати, але не єдиний.",
+  "You don't have to follow it.":
+    "Дотримуватися його не обов'язково.",
   "{link} whenever you'd rather choose for yourself.":
     "{link}, коли захочете вибирати самі.",
   "Turn it off":
@@ -1710,8 +1710,8 @@ export const TODAY: Area = {
     "Вивчити {newWords} і повторити знайомі ({met})",
   "Every one of these is from earlier in the course. Today they come back for what the page is about.":
     "Усі ці слова вже були в курсі раніше. Сьогодні вони повертаються заради того, про що ця сторінка.",
-  "Hear each word and see what it means. A few minutes later you pick it out of four, and that's what makes it stay.":
-    "Послухайте кожне слово й подивіться, що воно означає. За кілька хвилин ви виберете його з чотирьох, і саме це допомагає його запам'ятати.",
+  "Hear each word and see what it means. A few minutes later you pick it out of four.":
+    "Послухайте кожне слово й подивіться, що воно означає. За кілька хвилин ви виберете його з чотирьох.",
   "See what each word means, pick it out of four a little later, then type it into a real Estonian sentence.":
     "Подивіться, що означає кожне слово, трохи згодом виберіть його з чотирьох, а потім впишіть у справжнє естонське речення.",
   "Read how today's words work":
@@ -1744,40 +1744,40 @@ export const TODAY: Area = {
     "Поговорити естонською",
   "You've had this one before. Today they talk to you the way they'd talk to anybody, and you've got far more to say back.":
     "Ця розмова у вас уже була. Сьогодні з вами говорять так, як говорили б із будь-ким, а відповісти ви тепер можете значно більше.",
-  "Somebody wants something from you, and only Estonian will do. This is what all those words were for.":
-    "Комусь щось від вас потрібно, і впоратися можна лише естонською. Ось для чого були всі ці слова.",
+  "Somebody wants something from you, and only Estonian will do.":
+    "Комусь щось від вас потрібно, і впоратися можна лише естонською.",
   "A quick review, then you're done":
     "Коротке повторення, і на сьогодні все",
-  "A few minutes on the words you're about to forget, today's included. This is the part that makes them stick.":
-    "Кілька хвилин на слова, які ви ось-ось забудете, зокрема сьогоднішні. Саме це допомагає їм закріпитися.",
-  "Pair each word with its meaning against the clock. It's quick, it's fun, and the meanings stick before you ever have to say them.":
-    "З'єднуйте кожне слово з його значенням на час. Це швидко й весело, і значення запам'ятовуються ще до того, як їх доведеться вимовляти.",
-  "The same words, but this time you only hear them. Reading a word and catching it when somebody says it are two different skills.":
-    "Ті самі слова, але тепер ви їх лише чуєте. Прочитати слово і впізнати його на слух: дві різні навички.",
-  "A race through the words you've met, and their endings once you've read about them. Answer fast enough and you stop working words out and simply know them.":
-    "Перегони зі знайомими словами, а коли прочитаєте про закінчення, то й із закінченнями. Відповідайте швидко, і ви перестанете обмірковувати кожне слово й почнете просто його знати.",
-  "Put a real Estonian sentence back together, word by word. Do it a few times and you start to feel where things go.":
-    "Зберіть справжнє естонське речення слово за словом. Зробіть так кілька разів, і ви почнете відчувати, що куди ставиться.",
-  "Hear a whole sentence and write it down. This is where long and short vowels stop being a rule and start being a sound.":
-    "Послухайте ціле речення і запишіть його. Саме тут довгі й короткі голосні перестають бути правилом і стають звуком.",
+  "A few minutes on the words you're about to forget, today's included.":
+    "Кілька хвилин на слова, які ви ось-ось забудете, зокрема сьогоднішні.",
+  "Pair each word with its meaning against the clock.":
+    "З'єднуйте кожне слово з його значенням на час.",
+  "The same words, but this time you only hear them.":
+    "Ті самі слова, але тепер ви їх лише чуєте.",
+  "A race through the words you've met, and their endings once you've read about them.":
+    "Перегони зі знайомими словами, а коли прочитаєте про закінчення, то й із закінченнями.",
+  "Put a real Estonian sentence back together, word by word.":
+    "Зберіть справжнє естонське речення слово за словом.",
+  "Hear a whole sentence and write it down. It's good practice for hearing long and short vowels.":
+    "Послухайте ціле речення і запишіть його. Це добре тренування, щоб розрізняти довгі й короткі голосні на слух.",
   "Look at a picture and write one sentence of your own about it.":
     "Подивіться на картинку і напишіть про неї одне своє речення.",
-  "Guess today's six-letter word. Three minutes, and Estonian letters start feeling like old friends.":
-    "Вгадайте слово дня з шести літер. Три хвилини, і естонські літери починають здаватися старими знайомими.",
+  "Guess today's six-letter word. About three minutes.":
+    "Вгадайте слово дня з шести літер. Хвилини три.",
   "Four versions of one word, and a question telling you which one to hit. Only the ending tells them apart, so you learn to read it fast.":
     "Чотири варіанти одного слова і запитання, яке підказує, у який влучити. Відрізняються вони лише закінченням, тож ви вчитеся швидко його читати.",
-  "One verb, six people: I, you, she and the rest. If you can't change a verb for who's doing it, you can't really use it yet.":
-    "Одне дієслово, шість осіб: я, ти, вона й решта. Поки ви не вмієте змінювати дієслово за особами, по-справжньому користуватися ним ще не вийде.",
+  "One verb, six people: I, you, she and the rest.":
+    "Одне дієслово, шість осіб: я, ти, вона й решта.",
   "Say today's words out loud: along with a native speaker, back from the recording, then from their meaning. You see which words were heard, and typing works too.":
     "Скажіть вголос слова цього вечора: разом із носієм мови, за записом, потім за значенням. Ви бачите, які слова почуто, і можна друкувати.",
   "Write a sentence of your own with the ending we ask for. We check that word against the dictionary before anything else.":
     "Напишіть своє речення із закінченням, яке ми просимо. Це слово ми насамперед звіряємо зі словником.",
   "Aitan sind, but helistan sulle. Every verb chooses its own ending for whatever comes after it, and English gives you no clue, so you learn them one verb at a time.":
     "Aitan sind, але helistan sulle, хоча українською в обох випадках «тобі». Кожне дієслово саме вибирає закінчення для слова після нього, тож їх учать по одному дієслову.",
-  "The words that don't follow the usual ending rules. See each one, then write it yourself, and soon you won't need to look them up.":
-    "Слова, які не підкоряються звичайним правилам закінчень. Подивіться на кожне, потім напишіть його самі, і незабаром заглядати в довідник не доведеться.",
-  "A word you know, with its letters shuffled. Put them back and õ, ä, ö and ü stop looking like plain a's, o's and u's.":
-    "Знайоме слово з перемішаними літерами. Розставте їх на місця, і літери з крапками та тильдою перестануть здаватися просто a, o та u.",
+  "The words that don't follow the usual ending rules. See each one, then write it yourself.":
+    "Слова, які не підкоряються звичайним правилам закінчень. Подивіться на кожне, потім напишіть його самі.",
+  "A word you know, with its letters shuffled. Put them back in order.":
+    "Знайоме слово з перемішаними літерами. Розставте їх по порядку.",
   "Words you've already met, asked in new ways: read aloud, missing from a sentence, or in a sentence you write.":
     "Слова, які ви вже зустрічали, у нових запитаннях: на слух, із пропуском у реченні або у вашому власному реченні.",
 
@@ -1854,12 +1854,12 @@ export const TODAY: Area = {
     "Дієслова на сьогодні",
 
   // TRY IT: THE READING ASKS BACK.
-  "You just looked forms up in the table. That's exactly what it's there for.":
-    "Ви щойно шукали форми в таблиці. Саме для цього вона й потрібна.",
+  "You looked the forms up in the table.":
+    "Ви знайшли форми в таблиці.",
   "You got every one right. Later today you'll get questions like these about today's words.":
     "Усі відповіді правильні. Пізніше сьогодні будуть схожі запитання про сьогоднішні слова.",
-  "Glance back at the table whenever a form looks odd. It'll look a lot less odd by tomorrow.":
-    "Якщо форма здається дивною, загляньте в таблицю. До завтра вона здаватиметься значно менш дивною.",
+  "Glance back at the table whenever a form looks odd.":
+    "Якщо форма здається дивною, загляньте в таблицю.",
   "{n} of {total}, just practice":
     "{n} з {total}, просто тренування",
   "Try it":
@@ -1984,18 +1984,18 @@ export const TODAY: Area = {
     "Поки запам'яталися {seen} з кожної сотні слів цієї частини. Решта чекає в повтореннях і повертатиметься, доки не закріпиться.",
   "Right now you're getting {seen} out of a hundred answers right. Moving on to a harder part would only bring that down.":
     "Зараз ви відповідаєте правильно на {seen} зі ста. Перехід до складнішої частини лише знизить це число.",
-  "Give it a few more days of reviews and that number will climb on its own. You won't lose anything, and nothing has to be done twice.":
-    "Ще кілька днів повторень, і це число саме зросте. Ви нічого не втратите, і нічого не доведеться робити двічі.",
-  "A few gentler days will sort this out. Your reviews already know which words are giving you trouble.":
-    "Кілька спокійніших днів усе виправлять. Повторення вже знають, які слова даються вам важко.",
+  "Give it a few more days of reviews and that number will climb.":
+    "Ще кілька днів повторень, і це число зросте.",
+  "Your reviews already know which words are giving you trouble.":
+    "Повторення вже знають, які слова даються вам важко.",
 
   // THE PARTS OF THE COURSE: WHAT EACH IS ABOUT, AND WHAT FINISHING IT MEANS.
   "Hello, you and me, the verb to be, and the people around you":
     "Вітання, ви і я, дієслово «бути» і люди навколо вас",
   "Your name, numbers, your home, and the verbs you'll use every day":
     "Ваше ім'я, числа, ваш дім і дієслова на щодень",
-  "Your name and where you live, how to count, the rooms of your home, and the eleven verbs you'll need in almost every sentence you ever say. By the end you can introduce yourself, count, and describe where you live.":
-    "Ваше ім'я і де ви живете, як рахувати, кімнати вашого дому та одинадцять дієслів, які знадобляться майже в кожному вашому реченні. Наприкінці ви зможете представитися, порахувати й описати, де живете.",
+  "Your name and where you live, how to count, the rooms of your home, and the eleven commonest verbs. By the end you can introduce yourself, count, and describe where you live.":
+    "Ваше ім'я і де ви живете, як рахувати, кімнати вашого дому та одинадцять найуживаніших дієслів. Наприкінці ви зможете представитися, порахувати й описати, де живете.",
   "Food, the time, your day, and what things are like":
     "Їжа, час, ваш день і які бувають речі",
   "Food and drink, the days and the clock, what you do from morning to night, and your first words for what things look like, colors included. By the end you can say what you're doing, when, and what it's like.":
@@ -2044,18 +2044,18 @@ export const TODAY: Area = {
     "Частина відкривається плюсквамперфектом, минулим до минулого, і вчите ви його на історії, де він трапляється найчастіше. Потім як зрозуміти незнайоме слово за вже знайомим і три теми, щоб це випробувати. Наприкінці ви зможете прочитати авторську колонку на будь-яку з цих тем, не відкриваючи словника.",
   "The arts, the law, the mind, working life, figures, and making a case":
     "Мистецтво, право, психологія, робота, цифри й аргументація",
-  "The end of B2: the arts, making a proper complaint, describing how people behave, working in Estonian, reading a table of figures, and building an argument that gives a little ground before it wins.":
-    "Кінець B2: мистецтво, як подати справжню скаргу, як описати поведінку людей, робота естонською, читання таблиці з цифрами й аргумент, який спершу трохи поступається, а потім перемагає.",
+  "The end of B2: the arts, making a proper complaint, describing how people behave, working in Estonian, reading a table of figures, and building an argument that concedes a point.":
+    "Кінець B2: мистецтво, як подати справжню скаргу, як описати поведінку людей, робота естонською, читання таблиці з цифрами й аргумент, у якому ви визнаєте слушність співрозмовника в чомусь одному.",
   "Saying more in fewer words, and long sentences that hold together":
     "Сказати більше меншою кількістю слів і довгі речення, що тримаються купи",
   "Ethics, persuasion, how formal to be, idioms, and holding a text together":
     "Етика, переконання, наскільки офіційно говорити, ідіоми і зв'язний текст",
-  "Knowing how formal to be and getting it right, winning over somebody who disagrees, and the set phrases no rule will ever explain.":
-    "Розуміти, наскільки офіційно говорити, і влучати в тон, переконувати незгодних і сталі вирази, яких не пояснить жодне правило.",
+  "Knowing how formal to be and getting it right, winning over somebody who disagrees, and set phrases you learn whole.":
+    "Розуміти, наскільки офіційно говорити, і влучати в тон, переконувати незгодних і сталі вирази, які вчать цілком.",
   "New ideas, the wider world, literature, and words that almost mean the same":
     "Нові ідеї, великий світ, література й майже синоніми",
-  "The last part of the course. By the end you've met everything in it, and what's left is reading Estonian because you want to.":
-    "Остання частина курсу. Наприкінці ви зустрінете все, що в ньому є, і лишиться тільки читати естонською, бо вам цього хочеться.",
+  "The last part of the course. By the end you've met everything in it.":
+    "Остання частина курсу. Наприкінці ви зустрінете все, що в ньому є.",
   "{pct} percent of today's module done":
     "Сьогоднішнє заняття пройдено на {pct}%",
   "to go today":

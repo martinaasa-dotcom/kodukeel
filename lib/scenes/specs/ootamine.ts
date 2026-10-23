@@ -120,10 +120,10 @@ const WAITING: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "chatted", when: ["greet", "weather", "time", "when", "close"], says: "You talked about the weather and the bus with a stranger, which is most of the small talk anybody does here." },
-    { id: "chatted-thin", when: ["weather", "when"], says: "You agreed about the weather and found out when the bus comes. That's a real exchange." },
-    { id: "bus-came", when: ["greet", "weather"], says: "The bus came early for once, before you could ask anything. You'd already made a start." },
-    { id: "left", when: [], says: "You decided to walk. There'll be another stop and another chat." },
+    { id: "chatted", when: ["greet", "weather", "time", "when", "close"], says: "You talked about the weather and the bus with a stranger." },
+    { id: "chatted-thin", when: ["weather", "when"], says: "You agreed about the weather and found out when the bus comes." },
+    { id: "bus-came", when: ["greet", "weather"], says: "The bus came early for once, before you could ask anything." },
+    { id: "left", when: [], says: "You decided to walk." },
   ],
 };
 

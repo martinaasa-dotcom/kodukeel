@@ -223,7 +223,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
            something that did not happen is seen through at once. */
         line={<>
           {share >= 80 && <><span lang="et">Tubli töö.</span>{" "}</>}
-          {t("Writing your own sentences is slower going, but it’s what gets you speaking.")}
+          {t("Writing your own sentences is slower going, and closer to speaking.")}
         </>}
         figures={[
           { value: prompts.length, label: t("Written") },

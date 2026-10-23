@@ -212,7 +212,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
     return (
       <RoundDone
         title={t("That’s the round done")}
-        line={rich(t("In Estonian, how long you hold a sound changes the meaning: {a} and {b} aren’t the same thing said twice. Ears take a while to catch up with eyes, so be patient with them."), {
+        line={rich(t("In Estonian, how long you hold a sound changes the meaning: {a} and {b} aren’t the same thing said twice."), {
           a: <span lang="et">maja</span>,
           b: <span lang="et">majja</span>,
         })}

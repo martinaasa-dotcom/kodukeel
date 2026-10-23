@@ -138,7 +138,7 @@ export function WorkplaceView({ summary, sponsor, locale }: {
 
       {sponsor && (
         <Note tone="neutral">
-          {t("You see who’s practicing and roughly where they stand. You don’t see anybody’s deck, their searches, their answers, or which grammar they find hard. This page never even fetches those, so there’s nothing hidden here to find.")}
+          {t("You see who’s practicing and roughly where they stand. You don’t see anybody’s deck, their searches, their answers, or which grammar they find hard. This page never fetches those.")}
         </Note>
       )}
 

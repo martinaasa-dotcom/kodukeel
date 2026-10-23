@@ -1641,7 +1641,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
               {call ? <Phone size={16} aria-hidden /> : <Mic size={16} aria-hidden />} {t("Talk it through")}
             </Button>
             <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-              {t("Nothing to read: you hear them and answer out loud, the way it really goes.")}
+              {t("Nothing to read: you hear them and answer out loud.")}
             </p>
           </div>
         )}

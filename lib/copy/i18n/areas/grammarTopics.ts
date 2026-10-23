@@ -398,9 +398,9 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Small words like \"up\" and \"off\" underline that it's finished",
     "Маленькие слова при глаголе, вроде английских «up» и «off», подчёркивают, что дело сделано",
     "Маленькі слова при дієслові підкреслюють, що справу зроблено, як префікси в «з'їсти», «дочитати»"],
-  ["English shows this with the tense and Estonian with an ending, so the two never line up. It's the hardest single thing to carry over, so go easy on yourself.",
-    "В русском это показывает вид глагола: «съел торт» или «ел торт». В эстонском глагол в обоих случаях один и тот же, а разницу несёт окончание дополнения. Перестроиться непросто, так что не будьте к себе слишком строги.",
-    "В українській це показує вид дієслова: «з'їв торт» чи «їв торт». В естонській дієслово в обох випадках те саме, а різницю несе закінчення додатка. Переналаштуватися непросто, тож не будьте до себе надто суворі."],
+  ["English shows this with the tense and Estonian with an ending, so the two never line up. It's the hardest single thing to carry over.",
+    "В русском это показывает вид глагола: «съел торт» или «ел торт». В эстонском глагол в обоих случаях один и тот же, а разницу несёт окончание дополнения. Перестроиться здесь труднее всего.",
+    "В українській це показує вид дієслова: «з'їв торт» чи «їв торт». В естонській дієслово в обох випадках те саме, а різницю несе закінчення додатка. Переналаштуватися тут найважче."],
 
   // TOPICS: WORDS THAT TAKE ENDINGS.
 
@@ -824,9 +824,9 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Spoken forms that are fine out loud and wrong in an essay",
     "Разговорные формы, которые нормальны вслух и неуместны в эссе",
     "Розмовні форми, які нормальні вголос і недоречні в есе"],
-  ["It's not about knowing more words. A C1 speaker knows three ways to say something and picks one. A B2 speaker knows one and uses it everywhere.",
-    "Дело не в том, чтобы знать больше слов. Человек на уровне C1 знает три способа что-то сказать и выбирает один. На уровне B2 знают один и используют его везде.",
-    "Річ не в тому, щоб знати більше слів. Людина на рівні C1 знає три способи щось сказати й вибирає один. На рівні B2 знають один і вживають його всюди."],
+  ["A C1 speaker picks the right one of three ways to say something, where a B2 speaker uses one everywhere.",
+    "Человек на уровне C1 выбирает из трёх способов что-то сказать подходящий, а на уровне B2 используют один везде.",
+    "Людина на рівні C1 вибирає з трьох способів щось сказати доречний, а на рівні B2 вживають один усюди."],
 
   // collocation
   ["Words that go together",
@@ -841,9 +841,9 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Words that mean the same but can't swap places",
     "Слова с одинаковым значением, которые нельзя поменять местами",
     "Слова з однаковим значенням, які не можна поміняти місцями"],
-  ["The last thing learned, the first thing noticed",
-    "Выучивается последним, бросается в глаза первым",
-    "Вивчається останнім, кидається в око першим"],
+  ["Usually learned last, and noticed first by a native speaker",
+    "Обычно выучивается последним, а носитель языка замечает это первым",
+    "Зазвичай вивчається останнім, а носій мови помічає це першим"],
   ["Every word can be right and the sentence still sound translated. Dictionaries are weakest here, which is why real example sentences help most.",
     "Каждое слово может быть правильным, а предложение всё равно звучать как перевод. Здесь словари слабее всего, поэтому больше всего помогают настоящие примеры предложений.",
     "Кожне слово може бути правильним, а речення однаково звучати як переклад. Тут словники найслабші, тому найбільше допомагають справжні приклади речень."],

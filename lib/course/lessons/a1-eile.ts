@@ -114,7 +114,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       notes: [
         "Learn the past with the verb, the way you learned its I-form: {sööma, söön, sõin}. A few change a lot, and these are the commonest.",
         "{Käisin} is the usual way to say you went somewhere and came back: {Ma käisin poes}, I went to the shop.",
-        "{Mida sa eile tegid?} is what did you do yesterday. Take it whole tonight; the other persons are the next lesson.",
+        "{Mida sa eile tegid?} is what did you do yesterday. Take it whole for now; the other persons are the next lesson.",
       ],
       watchOut: "With {käisin}, the place is where you were, not where to: {Ma käisin poes}, never with {poodi}.",
       examples: [1, 3, 4],

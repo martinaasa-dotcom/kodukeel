@@ -47,7 +47,7 @@ export default async function TwinsReferencePage() {
             {t("Three kinds of look-alike, and each needs a different kind of help.")}
           </p>
           <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {t("Some pairs are one word with a suffix that changes who does what, and a rule unlocks dozens of them. Some are one English word that Estonian splits in two. The rest are a coincidence, and you learn them side by side.")}
+            {t("Some pairs are one word with a suffix that changes who does what, and one rule covers dozens of them. Some are one English word that Estonian splits in two. The rest are a coincidence, and you learn them side by side.")}
           </p>
         </Card>
 

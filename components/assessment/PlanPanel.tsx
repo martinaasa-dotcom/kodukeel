@@ -107,7 +107,7 @@ function verdictFor(plan: Projection, locale: Locale): { tone: "neutral" | "good
     case "arrived": return { tone: "good", headline: t("By this measure, you're already there.") };
     case "comfortable": return { tone: "good", headline: t("Your usual pace gets you there, with room to spare.") };
     case "tight": return { tone: "good", headline: fill(t("It fits. Plan on about {time} a week, all told."), { time: allIn }) };
-    case "possible": return { tone: "neutral", headline: fill(t("It fits if you really commit: about {time} a week, all told."), { time: allIn }) };
+    case "possible": return { tone: "neutral", headline: fill(t("It fits if you commit: about {time} a week, all told."), { time: allIn }) };
     case "short": return { tone: "warn", headline: t("Not by that date at any normal pace. Here's what would change that.") };
     case "open": return { tone: "neutral", headline: t("There's no deadline yet, so here's how far you have to go.") };
     default: return { tone: "neutral", headline: t("That date has already passed. Pick a new one and we can plan again.") };
@@ -507,7 +507,7 @@ function sentence(
   const rest = t(plan.verdict === "tight"
     ? "The rest can come from a class, some reading and the Estonian around you. That fits into a normal week."
     : plan.verdict === "possible"
-      ? "The rest means real work beyond this app, every week. People who put that in do get there."
+      ? "The rest means real work beyond this app, every week."
       : "The rest is more than most weeks can hold on top of everything else, so either the date or the pace needs to move.");
   /*
     Under an hour, one decimal place of hours is a zero that is not one: a

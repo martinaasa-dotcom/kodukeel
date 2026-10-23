@@ -127,7 +127,7 @@ const THREE_ASKS: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "three-rooms", when: ["greet", "friend", "manager", "official", "close"], says: "Three people, three ways of asking, and the right one each time. That's register, and it's what makes Estonian sound like you live here." },
+    { id: "three-rooms", when: ["greet", "friend", "manager", "official", "close"], says: "Three people, three ways of asking, and you picked the right one each time." },
     { id: "two-rooms", when: ["friend", "manager"], says: "You got the friend and the manager right. The official is the same move, with one more step of politeness." },
     { id: "one-room", when: ["greet", "friend"], says: "The friend was easy. The day ran out before work and the office." },
     { id: "left", when: [], says: "You left before asking anybody. The favor can wait until tomorrow." },

@@ -1093,6 +1093,18 @@ describe("the voice table catches what it claims to and nothing else", () => {
       "Every word has three forms you learn. Not fourteen, three.",
       "One honest note before you start: this is not a teacher.",
       "Learn the three forms, and that's it.",
+      // The third pass: a moral closing on what the learner just did.
+      "You bought both things, said how many, and knew what you paid. That's a market done in Estonian.",
+      "You said what was wrong, since when and how bad. That's a doctor's visit done properly.",
+      "You asked what happened and offered to help. That's being a friend in Estonian, which matters more than any ending.",
+      "Somebody wants something from you. This is what all those words were for.",
+      "And one conversation in Estonian. That's the number this whole app is for.",
+      "Every one of today's words got used on somebody, which is what makes them yours.",
+      "Every gap was a word a writer chose. Practice doesn't get much more real than that.",
+      "It's the hardest single thing to carry over, so go easy on yourself.",
+      "Run it again. Anu will be there, ready to help.",
+      "Each one works on its own, so no grammar yet, promise.",
+      "It is a real backup, which is what makes it portability rather than a gesture.",
     ];
     for (const line of generated) {
       expect(findTells(line).map((t) => t.name), `nothing caught: ${line}`).not.toEqual([]);
@@ -1124,9 +1136,13 @@ describe("the voice table catches what it claims to and nothing else", () => {
       "Not yet, but soon.",
       "Your one card is having a rest. It'll come back when it's time.",
       "Not quite. It'll come around again soon.",
-      "Based on your own answers, not a guess.",
+      "Based on your own answers.",
       "A reading is not a verdict on an answer.",
       "Interest, and a compliment on your Estonian.",
+      "{points} of {max} points, {pct} percent. That's a pass at {level}.",
+      "There's no it in {On külm}. Estonian says just \"is cold\", and that's a whole sentence.",
+      "Fill in the omastav, which is what makes the other cases work.",
+      "Settled, because a plan over unchanged rows usually is, and it is not a promise.",
     ];
     for (const line of written) {
       expect(findTells(line).map((t) => t.name), `false positive: ${line}`).toEqual([]);

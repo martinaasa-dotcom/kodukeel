@@ -190,16 +190,14 @@ export const CONTINUITY: readonly Continuity[] = [
     id: "learners-keep-theirs",
     claim:
       "Every learner can take their whole record out of it at any time, in one file, "
-      + "and put it back into another copy. That's a right on the privacy page, and it's "
-      + "built rather than just promised.",
+      + "and put it back into another copy. The privacy page names that right, and it is a "
+      + "button in Settings.",
     checkableAt: "app/api/export/route.ts",
   },
   {
     id: "works-shut",
     claim:
-      "The pages a learner has already opened keep opening with no network at all, "
-      + "and grades taken offline are held and replayed. A day of downtime is not a "
-      + "day of lost study.",
+      "The pages a learner has already opened keep opening with no network at all, and grades taken offline are held and replayed.",
     checkableAt: "lib/offline/db.ts",
   },
   {
