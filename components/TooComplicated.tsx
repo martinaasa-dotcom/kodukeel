@@ -107,7 +107,6 @@ export function TooComplicated({
       <button
         type="button"
         disabled={pending}
-        aria-label={fill(t("Ask about putting {word} aside for now"), { word: label })}
         className="tap-tint flex items-center gap-1.5 rounded-md px-1.5 py-1 text-sm font-semibold disabled:opacity-40"
         style={{ color: "var(--ink-3)" }}
         onClick={() => {
@@ -118,6 +117,8 @@ export function TooComplicated({
         {/* Icon alone on a phone, so the card's header stays one line. */}
         <CalendarClock size={13} aria-hidden />
         <span className="sr-only whitespace-nowrap sm:not-sr-only">{t("Too complicated")}</span>
+        {/* Text inside rather than an `aria-label` over it, so the name holds what the button shows (WCAG 2.5.3). */}
+        <span className="sr-only">. {fill(t("Put {word} aside?"), { word: label })}</span>
       </button>
 
       {asking && (

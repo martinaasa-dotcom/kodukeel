@@ -327,7 +327,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
                     text={task.et}
                     slow
                     voice={reader.id}
-                    label={t("Play it slowly")}
+                    label={`${t("Slow")}: ${t("Play the sentence")}`}
                     size={14}
                     className="press tap-tint inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold"
                     style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
