@@ -273,6 +273,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
       notes: [
         "Names and hello from part one, where you're from from part two, a time from part three, cooking from part four, and the invitation is lesson 46's command: {Tule laupäeval meile!}",
         "{Meile} is to us, and with {tule} it means come round to ours.",
+        "At the end, Mari stops you on the stairs and you answer her as yourself, one turn at a time, until you've held the whole conversation.",
         "If you can hold this conversation, you can meet somebody, say who you are, and make a plan.",
       ],
       watchOut: "{Ma õpin veel}, I'm still learning, is what to say when somebody compliments your Estonian. It keeps the conversation in Estonian.",
