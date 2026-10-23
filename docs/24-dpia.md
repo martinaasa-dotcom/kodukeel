@@ -58,7 +58,7 @@ not consent, and the service really does need most of this.
 | Purpose | What it needs | Article 6 basis | Why that one |
 | --- | --- | --- | --- |
 | Show a learner their own deck rather than somebody else's | Email address, user id | 6(1)(b), contract | Without an identity there is no account |
-| Schedule reviews | The append-only review log: grade, moment, duration, which facet was asked, and whether the answer was said aloud and sent as heard (`Review.spoken`) | 6(1)(b), contract | The scheduler is the product. An app that forgets how well you know each word is not the app anybody signed up for. The spoken flag changes no grade; it is read by "Said aloud this week" on Progress and by `npm run report:speech`, and a spoken conversation turn keeps two counts beside it, words heard and words changed, never the words (R18) |
+| Schedule reviews | The append-only review log: grade, moment, duration, which facet was asked, and whether the answer was said aloud and sent as heard (`Review.spoken`) | 6(1)(b), contract | The scheduler is the product. The spoken flag changes no grade; it is read by "Said aloud this week" on Progress and by `npm run report:speech`, and a spoken conversation turn keeps two counts beside it, words heard and words changed, never the words (R18) |
 | Keep tasks, calendar entries, starred words, settings | What the learner typed | 6(1)(b), contract | Each is a feature the learner asked for by using it |
 | Keep named decks, words put aside, and which steps of the course module are ticked | `Deck`, `DeckWord`, `Deferral`, `CourseStep` | 6(1)(b), contract | Each is a press the learner made. A put-aside word is also counted across learners to decide whether a word is taught one band later (`lib/progress/hard.ts`), which reads counts of people and never shows anybody's row |
 | Send the letters a learner can switch off | Email address, and `EmailSend`: which kind, which day, the provider's message id | 6(1)(b), contract | Each kind is switched off from a link in every footer (`lib/email/unsubscribe.ts`), and the daily word is off unless asked for (`DEFAULT_OFF` in `lib/email/letter.ts`). The row is the frequency cap and holds no subject and no body |
@@ -397,7 +397,7 @@ as well as passing. `/privacy` states the real limit rather than a comfortable o
 does with what we send is governed by their own terms, and some free tiers are free because the
 provider keeps the right to look.
 
-**Residual: medium.** It cannot be lower while the feature exists. The honest mitigation is that it
+**Residual: medium.** It cannot be lower while the feature exists. The mitigation is that it
 is optional and that the notice names who is on the other end.
 
 ### R5. Personal data crosses out of the EEA
@@ -537,7 +537,7 @@ the email address, the Google subject id and the sign-in history in Supabase Aut
 remove them and nothing on the page admitting it.
 
 **Mitigation.** `eraseAuthIdentity` in `lib/auth/erase.ts` removes it, using the service-role key.
-Where that key is not configured the identity genuinely cannot be removed from here, and the button
+Where that key is not configured the identity cannot be removed from here, and the button
 says so plainly and points at the operator's address rather than reporting a success. A deletion that
 quietly leaves something behind is worse than one that reports what it could not reach, because only
 the second can be followed up. The rows are deleted either way: a failure to reach the identity store
@@ -647,8 +647,7 @@ read once and never saved, and the feature is absent where there is no key.
 
 ### Risks recorded and not separately mitigated
 
-Two things are named here rather than assessed as controlled, because saying so is the point of the
-document.
+Two things are named here rather than assessed as controlled.
 
 **No age verification at sign-up.** §3.6.
 

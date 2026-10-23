@@ -105,7 +105,7 @@ on the course page ended up explaining itself at 2.63:1: the sentence saying
 "you can still open it" was the least readable thing on that screen, on every
 locked row of a 73-unit course. The badge shelf and the grammar reference had
 the same shape. A state that means "not yet" has a border, an icon and a
-sentence to say so with; where a fade genuinely helps, it goes on the icon,
+sentence to say so with; where a fade helps, it goes on the icon,
 which carries no words.
 
 Both gradients are pinned to contrast too. `.grad-accent` carries white text, so
@@ -288,10 +288,12 @@ highlight along its top edge rather than a gradient.
 
 ## 3. Type
 
-**Onest for everything a learner reads, Bricolage Grotesque for `h1` and `h2`.** Onest is built
-to be read small and carries Cyrillic, which the Russian and Ukrainian glosses need. Bricolage has
-an optical size axis, so a 40px heading is tighter and has more character than a 21px one without
-a third file. The display face never sets an answer, an option or a form the learner types.
+**Onest for everything a learner reads, Schibsted Grotesk for the few words set large.** Onest is
+built to be read small and carries Cyrillic, which the Russian and Ukrainian glosses need.
+Schibsted Grotesk sets the wordmark, the headings and the word set large on a card. It replaced
+Anybody and Bricolage Grotesque because its lowercase t ends in a curved tail rather than a flat
+cut. It has no Cyrillic, so a heading in Russian falls back to Onest rather than to a system face.
+The display face never sets an answer, an option or a form the learner types.
 
 Estonian used to be set in Fraunces, a second face carrying
 headings and the numbers a screen is about as well. It meant two typefaces inside one card
@@ -357,8 +359,7 @@ exists to protect.
 **The twelfth is the landing hero and nothing else.** 68px was the top of the scale and it was
 too small for the job: filling the window with the hero and centering the
 column in it left a 363px block of copy inside an 877px box, which reads as a postage stamp in a
-field rather than as a page with room to breathe. Air is generous around something with the
-weight to deserve it. So the display steps once more, the paragraph under it goes from 17 to 19,
+field rather than as a page with room to breathe. So the display steps once more, the paragraph under it goes from 17 to 19,
 and the block comes out about two thirds of the window instead of a third.
 
 88px is taken on **width and height together**, at 768 and 740, which is the part a breakpoint
@@ -404,8 +405,7 @@ word sitting on the ground behind a card.
   sits in and `scripts/test-invariants.ts` checks.
 - **`svg.lucide { flex: none }`.** An icon is a square and a flex item with no `flex` of its own
   both shrinks and grows: measured with the rule off, `lucide-eye-off` was drawn 0x15 in a deck row
-  and `lucide-sun` 28x16 in the rail. `shrink-0` was on about a fifth of the icons in the app,
-  which is what a rule kept by remembering looks like from the inside.
+  and `lucide-sun` 28x16 in the rail. `shrink-0` was on about a fifth of the icons in the app.
 - **`img, video, canvas, iframe, input, select, textarea { max-width: 100% }`.** The one thing
   wrapping cannot reach: a replaced element brings its own width. Settings' backup picker is an
   `<input type="file">`, laid out at 336px from its button label and room for a filename, and it

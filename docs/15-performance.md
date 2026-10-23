@@ -27,7 +27,7 @@ exists to make impossible, so it is worth stating the working command rather
 than a plausible one.
 
 `load-fixture.ts` writes synthetic learners under owner ids beginning
-`loadtest-`, which is the whole cleanup story: `--clean` removes exactly what it
+`loadtest-`, and that prefix is how it cleans up: `--clean` removes exactly what it
 wrote and nothing a person owns. It refuses to run against anything but a local
 database, by the same guard as every other destructive script here.
 
@@ -154,7 +154,7 @@ The page cache fills as a side effect of a navigation the worker intercepts,
 and the worker never serves the navigation that installed it: the page is
 fetched, the worker installs behind it, and `clients.claim()` takes over a
 client whose own page was never seen. So the first journey failed and the
-second worked, which is the worst possible shape for a bug to have.
+second worked.
 
 Measured rather than argued: after one visit the page cache held nothing, after
 two it held `/review`, and the same offline reload that had shown the fallback
@@ -184,7 +184,7 @@ three were made to fail before being trusted.
 
 Everything above says the queries are fast, and every one of those numbers is
 true. The section below it used to say that none of it measured "network
-latency to a hosted database", which was the honest caveat and was also where
+latency to a hosted database", which was a true caveat and was also where
 the whole cost had been sitting.
 
 Against a socket on the same machine, one load of Today ran forty queries for
@@ -285,7 +285,7 @@ default is `iad1`, in Washington, which against a Supabase project in Ireland is
 roughly 80ms a query: on the eight round trips Today cannot avoid, most of a
 second before the page has drawn anything. The README's deploy section says
 what to do when the two can move together, which for an app whose learners are
-almost all in Estonia means Stockholm, and says plainly that moving the easy
+almost all in Estonia means Stockholm, and says that moving the easy
 half first is the worst of the three arrangements.
 
 ## The sign-in page on a phone, and what moved it and what did not

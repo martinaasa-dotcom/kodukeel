@@ -128,7 +128,7 @@ git cat-file -e origin/main:lib/speech/reconcile.ts 2>/dev/null \
 | D8 | **Speaking is offered, never required.** Every screen that takes speech still takes typing, and the keyboard is never further than one press. A learner who will not or cannot speak meets the app exactly as it is today. The microphone is asked for on the first press of a microphone button, never on arrival. | Every item |
 | D9 | **No paid model call in this batch.** The scene judge (ADR-025 amendment 2) already reads a turn's meaning on the grader chain; it reads `understood` like a typed turn and is not asked anything new. Nobody re-runs a Gemini row of `measure:asr`. | Every item |
 | D10 | **The model files are served from the deployment's own storage**, not from Hugging Face, so a learner's IP address reaches no new company. `NEXT_PUBLIC_ASR_MODEL_BASE` names the base URL; Supabase Storage in the project's own region is the default; local development reads `public/asr/` (to be written), filled by a fetch script SP-1 adds, and git-ignored. | SP-1 |
-| D11 | **Fun comes from the conversation, not from points.** No XP, no badges, no streak for speaking (the app withdrew those; see `CLAUDE.md`). What is delightful is the other side answering what you said out loud, your own word lighting up as it is heard, and a phone call that feels like a phone call. | SP-3, SP-4, SP-7 |
+| D11 | **Fun comes from the conversation, not from points.** No XP, no badges, no streak for speaking (the app withdrew those; see `CLAUDE.md`). What makes it fun is the other side answering what you said out loud, your own word lighting up as it is heard, and a phone call that feels like a phone call. | SP-3, SP-4, SP-7 |
 
 ## 3. How the hearing is made better than the model
 
@@ -141,8 +141,8 @@ each of which is measured before it ships.
 
 Ask `getUserMedia` for `{ echoCancellation: true, noiseSuppression: true, autoGainControl: true,
 channelCount: 1 }`, resample to 16 kHz mono in an `AudioWorklet`, and feed the recognizer as the
-learner speaks: it is a streaming model, so the words appear while they are still talking, which is
-the single most alive thing this whole batch can do. Endpointing (sherpa-onnx's own rules) decides
+learner speaks: it is a streaming model, so the words appear while they are still talking.
+Endpointing (sherpa-onnx's own rules) decides
 when a turn is over; a press ends it too. Before decoding, a finished turn is prepared the way section
 3.6 measured: 0.5 s of silence in front, 0.8 s after, every pause over 0.25 s cut to 0.15 s, pauses
 measured against the clip's own loudest frame (-40 dB), and never a cut closer than 150 ms to the
@@ -225,7 +225,7 @@ measurement can count repairs that were wrong.
 
 ### 3.4 Accents
 
-There is no learner speech in any training set these models were built from, so the honest route to
+There is no learner speech in any training set these models were built from, so the route to
 "better at accents" is data, and it runs in three stages:
 
 1. **Measure** (SP-0): real learners, each of the app's three first languages (English, Russian,

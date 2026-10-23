@@ -27,7 +27,7 @@ raised later without embarrassment.
 
 Two rules about setting it. **Uncertainty rounds up**: if you cannot yet tell whether personal data
 was reached, it is S1 until you can. And **a control failing is S2 even when nothing has been
-exploited**, because the whole point of a control is that you do not find out afterwards.
+exploited**, because a control exists so that you do not find out afterwards.
 
 ## 2. Who does what
 
@@ -49,7 +49,7 @@ their behalf.
 personal account. Everything sent out is written down in the timeline.
 
 Nobody is on call. There is no 24/7 rota and pretending otherwise would be the first false claim in
-this document. Detection is described honestly in section 3, and the response starts when a person
+this document. Section 3 describes detection as it is, and the response starts when a person
 reads the mail.
 
 ## 3. Detect
@@ -69,7 +69,7 @@ What actually reaches a person, in the order it is likely to:
 - **A provider bill or a rate limit notice** from Vercel, Supabase, or a model provider.
 - **GitHub Dependabot and `npm audit`** in CI, for dependency advisories.
 
-Say so plainly: there is no intrusion detection and no alerting on the security signals. Section 6 of
+There is no intrusion detection and no alerting on the security signals. Section 6 of
 `docs/27-security.md` lists that among what has not been done.
 
 ## 4. Triage
@@ -245,7 +245,7 @@ are being refused when they should not be.
 
 ### 7.3 Restoring the database
 
-Read section 9 first. The honest recovery numbers are there.
+Read section 9 first. The recovery numbers as they stand are there.
 
 1. Stop writes. Put the deployment into maintenance, or take the functions down.
 2. Restore in the Supabase dashboard to the chosen point.
@@ -322,7 +322,7 @@ Supabase Auth is unreachable, or Google Sign-In is failing.
    repository has had, without a major upgrade. **Do not lower the audit level in CI.** The workflow
    says so in writing and the reason is that a blocking check people learn to click past is not a
    check.
-4. If it genuinely cannot be cleared, write the reason in `.github/workflows/ci.yml` beside the gate,
+4. If it cannot be cleared, write the reason in `.github/workflows/ci.yml` beside the gate,
    naming why the path is unreachable. That is the only acceptable exception and it is reviewable.
 5. Redeploy and confirm both gates pass.
 
@@ -340,7 +340,7 @@ Within a week of closing, and written down. Four questions:
 No blame on a person. The faults this repository has actually had were all faults of a rule stated in
 prose with nothing enforcing it, and the fix each time was to move the rule into something that runs.
 
-## 9. Backup and recovery, honestly
+## 9. Backup and recovery, as they stand
 
 What is true today rather than what would look better.
 

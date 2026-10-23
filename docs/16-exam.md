@@ -163,7 +163,7 @@ says that the marks on the texts are for length and the named words. The accurac
 what an examiner marks and nothing here may judge.
 
 **Where a part offers a choice, so does this.** Every brief a task offers is marked the same way, on
-its own words and its own length. That is the only honest way to offer a choice here: a mock where
+its own words and its own length. That is the only way this app can offer a choice: a mock where
 picking the letter scored differently would be inventing a judgment about somebody's Estonian.
 
 **An A1 paper exists here and nowhere else.** It follows the A2 paper's shape, one step easier, and
@@ -222,7 +222,7 @@ marked on the server. An answer kept from before the paper changed shape is not 
 **A paper changed under you is refused rather than mis-marked.** The server rebuilds a paper from
 its seed to mark it, so a change to what the builders set changes what a seed stands for.
 `PAPER_FORMAT` travels with the paper, and `submitExam` refuses a sitting built to another format,
-saying so plainly and saving nothing.
+saying so and saving nothing.
 
 **Blank answers are queried before a part closes.** On the real paper you cannot come back, and a
 guess is worth more than a blank on every question here.
@@ -252,7 +252,7 @@ the meaning questions carried a free elimination and 16% did afterwards, and 2% 
 questions had an option spelled like the answer against 77% afterwards.
 
 Nearer options need a stricter test of what counts as one answer. Two glosses sharing a content word
-are one answer, and a question that cannot find enough genuinely wrong options is not asked, which
+are one answer, and a question that cannot find enough options that are wrong is not asked, which
 the task reports as a shortfall like any other.
 
 ## 3. A short paper says so
@@ -278,8 +278,8 @@ computed in `lib/exam/readiness.ts`, in two steps, and both are published.
    its own record uses that record, blended in proportion to how much of one there is; a part with
    none falls back to overall recall accuracy.
 2. **A confidence that the total clears sixty**, as a logistic on the margin whose spread widens as
-   the evidence thins. Thin evidence does not make the app confident and wrong, it makes it visibly
-   unsure.
+   the evidence thins. So thin evidence makes the app visibly unsure rather than confident and
+   wrong.
 
 On top of that sits a **ceiling**, because a model cannot earn a claim it has not seen enough to
 make. Under 150 reviews, or with fewer than two skills practiced, confidence is capped at 60. Under
