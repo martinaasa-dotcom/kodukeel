@@ -394,7 +394,16 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
   /** A line the server filled in English, in the learner's interface language. */
   const onStage = (text: string) => onScreen(locale, text, templates);
   const [phase, setPhase] = useState<Phase>("briefing");
-  const [difficulty, setDifficulty] = useState<Difficulty>(() => defaultDifficultyFor(openAt));
+  /*
+    A LESSON'S OWN CONVERSATION IS NOT SET UP BY THE LEARNER. It is the end of
+    an A1 part, played by somebody eight lessons in, so it opens at the plainest
+    sentences on the easiest day and draws none of the dials below: three
+    choices about how the other side will behave are a decision a beginner has
+    no basis to make, and each is a way of making the finale harder than the
+    lessons that led up to it.
+  */
+  const lessonScene = Boolean(scene.lesson);
+  const [difficulty, setDifficulty] = useState<Difficulty>(() => (lessonScene ? "textbook" : defaultDifficultyFor(openAt)));
   /*
     HOW THE OTHER SIDE TALKS, WHICH IS THE LEARNER'S OWN LEVEL UNLESS THEY
     SAY OTHERWISE. A scene carries no band of its own: the person behind the
@@ -405,7 +414,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
     sits beside the difficulty dial rather than in Settings, and for the same
     reason.
   */
-  const [level, setLevel] = useState<Level>(openAt);
+  const [level, setLevel] = useState<Level>(lessonScene ? "A1" : openAt);
   const [opened, setOpened] = useState<Opened | null>(null);
   const [turns, setTurnsState] = useState<Turn[]>([]);
   /*
@@ -1549,7 +1558,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
             ABOUT THE CONVERSATION ITSELF: a conversation reached from today's
             module is one step of an evening, and a lesson is a door out of it.
             Somebody who chose this conversation still gets the door. */}
-        {unit && !inModule && (
+        {unit && !inModule && !lessonScene && (
           <CardLink href={`/learn/${unit.id}`} icon={<BookOpen size={16} aria-hidden />}>
             {fill(t("The lesson behind it: {title}"), { title: unit.title })}
           </CardLink>
@@ -1583,6 +1592,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
           are one decision, how this conversation will feel, so they sit
           together like every other settings group in the app.
         */}
+        {!lessonScene && (
         <Card className="flex flex-col gap-5">
         <ChoiceGroup
           label={t("How they talk to you")}
@@ -1625,6 +1635,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
         </ChoiceGroup>
         )}
         </Card>
+        )}
 
         {error && <p className="text-sm" style={{ color: "var(--blush-ink)" }}>{t(error)}</p>}
         {/*

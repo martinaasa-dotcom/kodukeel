@@ -776,12 +776,26 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
         )}
         {!inModule && scene.id !== CHAT_ID && (
           <div className="flex flex-wrap gap-2">
-            {/* A lesson's own conversation is not in the catalog, so the catalog is no way on from it. */}
-            {scene.lesson
-              ? <ButtonLink href="/course/lessons" variant="ghost">{t("All lessons")}</ButtonLink>
-              : <ButtonLink href="/situations" variant="ghost">{t("Rehearse a different conversation")}</ButtonLink>}
-            {/* Redoing it keeps this scene and redraws everything else. */}
-            <Button variant="primary" onClick={onAgain}>{t("Rehearse this conversation again")}</Button>
+            {/*
+              A lesson's own conversation is not in the catalog, so the catalog
+              is no way on from it. It is the end of its lesson: the way on is
+              back to that lesson, which reads the press as the lesson finished
+              (`?conversation=done`), and redoing it is the quiet choice.
+            */}
+            {scene.lesson ? (
+              <>
+                <Button variant="ghost" onClick={onAgain}>{t("Rehearse this conversation again")}</Button>
+                <ButtonLink href={`/course/lessons/${scene.lesson}?conversation=done`} variant="primary">
+                  {t("Back to the lesson")} <ArrowRight size={15} aria-hidden />
+                </ButtonLink>
+              </>
+            ) : (
+              <>
+                <ButtonLink href="/situations" variant="ghost">{t("Rehearse a different conversation")}</ButtonLink>
+                {/* Redoing it keeps this scene and redraws everything else. */}
+                <Button variant="primary" onClick={onAgain}>{t("Rehearse this conversation again")}</Button>
+              </>
+            )}
           </div>
         )}
 

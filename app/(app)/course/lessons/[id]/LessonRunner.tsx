@@ -79,13 +79,19 @@ const STEP_TITLE: Record<Step, string> = {
 /** The three teaching steps are finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, place }: {
+export function LessonRunner({ lesson, practice, review, next, scene, conversationDone, place }: {
   lesson: LessonSpec;
   practice: readonly PracticeItem[];
   review: readonly PracticeItem[];
   next: { id: string; title: string } | null;
   /** The lesson's own conversation, where it has one (`sceneForLesson`). */
   scene: string | null;
+  /**
+   * Back from the lesson's own conversation: the part has been put together,
+   * so the lesson opens on its finish and records it. Only the debrief of that
+   * conversation links here with it.
+   */
+  conversationDone: boolean;
   /** Where this lesson sits among its level's lessons, for the finish. */
   place: { at: number; of: number };
 }) {
@@ -95,7 +101,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, place }: {
   const moduleNext = useModuleNext();
   const [at, setAt] = useState(0);
   const [finished, setFinished] = useState<ReadonlySet<Step>>(new Set());
-  const [over, setOver] = useState(false);
+  const [over, setOver] = useState(() => conversationDone && isCapstone(lesson));
   /* Whether the finished lesson reached the server: null until it has been tried. */
   const [saved, setSaved] = useState<boolean | null>(null);
   const [saving, startSaving] = useTransition();
@@ -117,6 +123,16 @@ export function LessonRunner({ lesson, practice, review, next, scene, place }: {
     const result = await finishLesson(lesson.id).catch(() => null);
     setSaved(Boolean(result?.ok));
   });
+  // Back from the conversation, the lesson is over and is saved the way a finished one is.
+  const savedOnArrival = useRef(false);
+  useEffect(() => {
+    if (!conversationDone || !isCapstone(lesson) || savedOnArrival.current) return;
+    savedOnArrival.current = true;
+    save();
+    // Once, on arrival: `save` is the same press the Finish button makes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const go = (n: number) => {
     moved.current = true;
     if (n >= steps.length) {
@@ -165,7 +181,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, place }: {
                 <Button variant="secondary" size="sm" onClick={save}>{t("Try again")}</Button>
               </div>
             )}
-            {capstone && scene && (
+            {capstone && scene && !conversationDone && (
               <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-[var(--r-lg)] border px-5 py-4" style={{ borderColor: "var(--edge)", background: "var(--surface)" }} data-lesson-scene={scene}>
                 <p className="max-w-[44ch] text-base" style={{ color: "var(--ink-2)" }}>
                   {t("Still want more? Have the conversation for real: they answer whatever you say, in words you've been taught.")}

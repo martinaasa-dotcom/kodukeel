@@ -21,8 +21,8 @@ export const dynamic = "force-dynamic";
  * learner is asked. A1 is the lessons (phase P3): each one is an evening of the
  * planned course, and finishing it records the evening (`finishLesson`).
  */
-export default async function LessonPage({ params }: { params: Promise<{ id: string }> }) {
-  const [, { id }] = await Promise.all([requireUserId(), params]);
+export default async function LessonPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ conversation?: string | string[] }> }) {
+  const [, { id }, query] = await Promise.all([requireUserId(), params, searchParams]);
   const lesson = lessonById(id);
   if (!lesson) notFound();
   const before = ledgersBefore(LESSONS).get(lesson.id)!;
@@ -37,6 +37,8 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
       review={reviewFor(lesson, before)}
       next={next ? { id: next.id, title: next.title } : null}
       scene={sceneForLesson(lesson.id)?.id ?? null}
+      /* The debrief of the lesson's own conversation sends the learner back here, which is the lesson finished. */
+      conversationDone={query.conversation === "done"}
       place={{ at: ofLevel.indexOf(lesson) + 1, of: ofLevel.length }}
     />
   );
