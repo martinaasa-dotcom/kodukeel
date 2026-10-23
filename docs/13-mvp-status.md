@@ -3740,7 +3740,7 @@ translated like the rest of the page.
 the branch it arrived on; this is the record of the decisions under them.
 
 **Forms are named the plain way.** A noun's three stored forms are the 1st, 2nd and 3rd form, every
-other case is named by what it does with its ending beside it (`in-form (-s)`, `with-form (-ga)`),
+other case is named by what it does with its ending beside it (`in form (-s)`, `with form (-ga)`),
 and a verb's are the -ma form, the -da form and the I form, with the capital I set so it cannot be
 read as an l (`casePlainName`, `plainNameForEt`). No Latin and no Estonian grammar name on a screen,
 except quietly on the grammar reference under "In class".

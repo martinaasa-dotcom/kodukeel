@@ -403,7 +403,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Mitu} asks how many and takes the 3rd form too: {Mitu kraadi?} How many degrees?",
-        "{Pilves} is the in-form of {pilv}, cloud: the sky is \"in cloud\". {On pilves} means \"it's cloudy\".",
+        "{Pilves} is the in form of {pilv}, cloud: the sky is \"in cloud\". {On pilves} means \"it's cloudy\".",
         "{Õues} and {väljas} both mean outside. {Õues} is the yard or the open air, the everyday word for going out to play or to work in the yard.",
       ],
       watchOut: "{Kuum} means hot to the touch, or a hot day; warm is {soe}, from lesson 39.",

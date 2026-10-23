@@ -5,8 +5,8 @@ import { readableFront, readableHint } from "./caseHint";
 
 describe("readableHint", () => {
   it("turns the Latin name on a legacy case card into the question it answers", () => {
-    expect(readableHint("kaasaütlev, the comitative")).toBe("with-form (-ga)");
-    expect(readableHint("seesütlev · the inessive")).toBe("in-form (-s)");
+    expect(readableHint("kaasaütlev, the comitative")).toBe("with form (-ga)");
+    expect(readableHint("seesütlev · the inessive")).toBe("in form (-s)");
   });
 
   it("reads a name written without its article", () => {

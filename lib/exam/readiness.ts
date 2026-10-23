@@ -712,7 +712,7 @@ function gapsFrom(signals: ReadinessSignals, target: ExamLevel): Feedback[] {
   return out;
 }
 
-/** A case named the plain way ("in-form (-s)"), falling back to what the row held. */
+/** A case named the plain way ("in form (-s)"), falling back to what the row held. */
 function plainCase(key: string, et: string): string {
   const spec = caseByKey(key);
   return spec ? casePlainName(spec) : et;

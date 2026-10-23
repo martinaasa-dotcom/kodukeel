@@ -126,7 +126,7 @@ describe("plain case names", () => {
     expect(casePlainName(caseByKey("NOMINATIVE")!)).toBe("1st form");
     expect(casePlainName(caseByKey("GENITIVE")!)).toBe("2nd form");
     expect(casePlainName(caseByKey("PARTITIVE")!)).toBe("3rd form");
-    expect(casePlainName(caseByKey("INESSIVE")!)).toBe("in-form (-s)");
+    expect(casePlainName(caseByKey("INESSIVE")!)).toBe("in form (-s)");
   });
 
   it("names every case in every language, with no Latin name and no Estonian case name", () => {
@@ -145,7 +145,7 @@ describe("plain case names", () => {
   it("reads a table's row heading, number and all", () => {
     expect(plainNameForEt("omastav")).toBe("2nd form");
     expect(plainNameForEt("Omastav mitmus")).toBe("2nd form plural");
-    expect(plainNameForEt("lühike sisseütlev")).toBe("short to-form");
+    expect(plainNameForEt("lühike sisseütlev")).toBe("short to form");
     expect(plainNameForEt("osastav ainsus", "ru")).toBe("3-я форма ед. ч.");
     expect(plainNameForEt("tuba")).toBeNull();
     expect(plainNameForEt("omastav osastav")).toBeNull();

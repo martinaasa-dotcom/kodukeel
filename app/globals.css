@@ -1076,6 +1076,15 @@
   */
   .sonad-board { --sonad-cell: min(clamp(1.625rem, calc((100dvh - 24.5rem) / 7.3), 3.75rem), calc((100vw - 3.5rem) / 6.4)); }
   /*
+    On a phone the width used to decide, and six circles across a 390px screen
+    came out at 52px, so seven rows of them filled the screen and read as a
+    wall. A phone's circle stops at 36px, which still takes a thumb and a
+    letter, and leaves air round the board.
+  */
+  @media (max-width: 767px) {
+    .sonad-board { --sonad-cell: min(clamp(1.5rem, calc((100dvh - 30rem) / 7.6), 2.25rem), calc((100vw - 3.5rem) / 7.5)); }
+  }
+  /*
     A phone with its toolbar showing is about 660px tall. The keys are pinned
     over the board there, so what has to give is what is not the board or the
     keys: the promise of a clue, and a few pixels off each circle. The legend

@@ -218,15 +218,15 @@ export function sayLineIn(locale: Locale, slot: string, english: string | null |
   Once the answer is on the screen the card names the ending, so the learner
   has something to call it. It printed the Estonian class name, then "the
   “with” ending", and the operator's call is that the app names a case the
-  plain way everywhere: "2nd form", "with-form (-ga)". That name already says
+  plain way everywhere: "2nd form", "with form (-ga)". That name already says
   what the ending does and which ending it is, so it is the whole line.
 */
 
-/** The plain name of a case slot, "with-form (-ga)", or null for a slot that is not a case. */
+/** The plain name of a case slot, "with form (-ga)", or null for a slot that is not a case. */
 export function endingName(slot: string, locale: Locale = "en"): string | null {
   const spec = caseByKey(slot);
   if (!spec) return null;
-  // The plain name the app teaches, "in-form (-s)", which already says what
+  // The plain name the app teaches, "in form (-s)", which already says what
   // the ending does and which ending it is (`casePlainName`).
   return casePlainName(spec, locale);
 }

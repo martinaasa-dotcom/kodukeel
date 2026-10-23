@@ -11,7 +11,7 @@ import type { CaseLabelParts } from "@/lib/copy/caseLabel";
 /**
  * A CASE ON A SCREEN: ITS NAME, THE QUESTION IT ANSWERS, AND WHAT THAT ASKS.
  *
- * THE NAME IS THE PLAIN ONE: "2nd form", "in-form (-s)" (`casePlainName`).
+ * THE NAME IS THE PLAIN ONE: "2nd form", "in form (-s)" (`casePlainName`).
  * Callers still hand over the Estonian name, which is what a stored hint holds
  * and what identifies the case; this reads the plain name off it and draws
  * that. A string that names no case it knows is drawn as it came.

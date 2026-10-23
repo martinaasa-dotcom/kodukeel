@@ -19606,7 +19606,7 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     "a review note no longer leads with the learner's own word, or no longer says which turn it was in",
   );
   /*
-    The cross-reference is the plain name the app teaches ("in-form (-s)"),
+    The cross-reference is the plain name the app teaches ("in form (-s)"),
     the operator's call: a case is named that way on every screen
     (`casePlainName`), and the Estonian class name is kept for the grammar page.
   */

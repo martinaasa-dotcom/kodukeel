@@ -101,14 +101,14 @@ check("the mechanical verdict is always shown",
 */
 await page.goto(`${BASE}/review/government`, { waitUntil: "networkidle" });
 await startRound(page);
-const CASE_OPTION = /osastav|alaleütlev|seestütlev|kaasaütlev|seesütlev|sisseütlev|alalütlev/;
+const CASE_OPTION = /\b(?:1st|2nd|3rd) form\b|\b(?:in|to|from|as|with|without|becoming|until) form \(-/i;
 const options = app.getByRole("button", { name: CASE_OPTION });
 if ((await options.count()) === 0) {
   absent(3, "a deck with a verb whose government is recorded; this one asks nothing");
 } else {
   const verb = (await page.locator("p[lang=\"et\"]").first().textContent())?.trim() ?? "";
-  // Options are named the way a class names them: the question first, the
-  // Estonian case name under it. Any option will do, this is checking that the
+  // Options are named the plain way, "3rd form" or "to form (-le)", with the
+  // question it answers. Any option will do, this is checking that the
   // answer reveals the rule.
   await options.first().click();
   await page.waitForSelector("[aria-live='polite']", { timeout: 15000 });

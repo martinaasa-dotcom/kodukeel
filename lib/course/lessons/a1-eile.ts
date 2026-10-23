@@ -172,7 +172,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "Learn the past for {ma} with each verb, and the others follow it, except the {ta} form, which is learned too.",
-        "{Kohvikus} means in the café: {kohvik} in the in-form, from lesson 32.",
+        "{Kohvikus} means in the café: {kohvik} in the in form, from lesson 32.",
         "Ask with {kas}: {Kas ta käis ka?} means \"did he come too?\"",
       ],
       watchOut: "{Sa olid} and {nad olid} are the same word, and so are {sa tegid} and {nad tegid}. The person in front tells you which.",
@@ -295,7 +295,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       notes: [
         "The months look like the English ones and are said the Estonian way, every letter: {jaanuar}, {juuni}, {juuli}.",
         "Months and seasons take no capital letter, like the days.",
-        "{Juulis} is the in-form from lesson 32: in July.",
+        "{Juulis} is the in form from lesson 32: in July.",
       ],
       listen: [
         { words: [{ clip: "pair-juuni", en: "June", mark: "n" }, { clip: "pair-juuli", en: "July", mark: "l" }] },

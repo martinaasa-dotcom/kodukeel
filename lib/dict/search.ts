@@ -34,7 +34,7 @@ const CASE_SUFFIXES = CASES
   // `key` rides along so a suffix match can name its own form the way a stored
   // one does: what the panel under a sentence reads is the code rather than
   // the label, and working it back out of the label would be a second answer.
-  .map((c) => ({ suffix: c.suffix, en: c.asksEn, et: c.et, key: c.key }))
+  .map((c) => ({ suffix: c.suffix, key: c.key }))
   .sort((a, b) => b.suffix.length - a.suffix.length);
 
 /**
@@ -600,13 +600,12 @@ function rank(
       const stem = c.forms.find((f) => f.formType === formType)?.value;
       if (!stem) continue;
       const stemFolded = fold(stem);
-      for (const { suffix, en, et, key } of CASE_SUFFIXES) {
+      for (const { suffix, key } of CASE_SUFFIXES) {
         if (!folded.endsWith(suffix)) continue;
         if (folded.slice(0, folded.length - suffix.length) === stemFolded && meantBy(r, stem + suffix)) {
-          // Named the way a class names it. Estonian puts its word for the
-          // plural in front of the case name rather than after it, so the two
-          // halves cannot be concatenated the way the English pair can.
-          const name = plural ? `mitmuse ${et} (${en}, plural)` : `${et} (${en})`;
+          // Named the plain way every stored form is (`casePlainName`), so a
+          // form worked out from the stem and one Ekilex stored read alike.
+          const name = `${casePlainName({ key })}${plural ? " plural" : ""}`;
           return {
             score: 85,
             matchedAs: `${name} of ${c.lemma}`,

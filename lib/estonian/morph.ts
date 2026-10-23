@@ -283,7 +283,7 @@ export interface FormName {
    */
   readonly en: string;
   /**
-   * The name a learner reads, where the form has one: "2nd form", "in-form
+   * The name a learner reads, where the form has one: "2nd form", "in form
    * (-s)", "-ma form", "I form". The operator's call is that this leads and
    * the Estonian grammatical name stays off the screen (`casePlainName`), so
    * `formLabel` prints it alone wherever it is set.
@@ -294,7 +294,7 @@ export interface FormName {
 /** What a case asks, for the two tables below, so neither retypes it. */
 const asks = (key: string): string => caseByKey(key)?.asksEn ?? key.toLowerCase();
 /** The short illative's plain name: it does not take `-sse` (`tuppa`), so no ending. */
-const SHORT_TO_FORM = "short to-form";
+const SHORT_TO_FORM = "short to form";
 /** A case's plain name, for the two tables below. */
 const plain = (key: string): string => {
   const spec = caseByKey(key);

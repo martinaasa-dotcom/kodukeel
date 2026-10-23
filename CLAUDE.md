@@ -910,7 +910,7 @@ the dictionary by `lib/progress/caseExamples.ts` and rendered with its provenanc
 Estonian name leads.** The operator's call, off a learner's report: `omastav` and `seesütlev` are two more
 words to learn before the one somebody came for. The three forms a noun is learned in are the **1st, 2nd
 and 3rd form** (`käsi`, `käe`, `kätt`), every other case is named by what it does with its ending beside
-it, **in-form (-s)**, **to-form (-le)**, **with-form (-ga)**, and a verb's are the **-ma form**, the
+it, **in form (-s)**, **to form (-le)**, **with form (-ga)**, and a verb's are the **-ma form**, the
 **-da form** and the **I form** (`rääkima`, `rääkida`, `räägin`). `casePlainName` in
 `lib/estonian/cases.ts` is the one table, in all three languages, `CaseLabel` prints it in its pill,
 `formLabel` prints it for a form, and Anu and the grader are told to use it. The Estonian name is kept,

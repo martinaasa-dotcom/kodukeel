@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import type { InvariantKit } from "../lib/invariantKit";
 
 /**
- * A CASE IS NAMED THE PLAIN WAY: "2nd form", "in-form (-s)".
+ * A CASE IS NAMED THE PLAIN WAY: "2nd form", "in form (-s)".
  *
  * The operator's call, which supersedes leading with the Estonian name: the
  * three forms a noun is learned in are numbered, every other case is named by
@@ -31,7 +31,7 @@ export default function aCaseIsNamedThePlainWay({ check, ALL, code }: InvariantK
       assert.match(table, new RegExp(`\\n  ${locale}: \\{\\n    NOMINATIVE: "`), `the plain names have no ${locale} column`);
     }
     const reference = code("lib/copy/i18n/areas/reference.ts");
-    for (const name of ["3rd form", "in-form (-s)", "with-form (-ga)", "short to-form", "I form", "-da form"]) {
+    for (const name of ["3rd form", "in form (-s)", "with form (-ga)", "short to form", "I form", "-da form"]) {
       assert.ok(reference.includes(`["${name}", "`), `"${name}" has no translation, so a Russian or Ukrainian screen prints it in English`);
     }
   });

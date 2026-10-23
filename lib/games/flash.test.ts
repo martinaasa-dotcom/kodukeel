@@ -422,7 +422,7 @@ describe("markFlash", () => {
     expect(mark.right).toBe(false);
     expect(mark.rating).toBe(2);
     expect(mark.wroteSlot).toBe("ELATIVE");
-    expect(mark.note).toBe("That's the from-form (-st). This one wants the in-form (-s).");
+    expect(mark.note).toBe("That's the from form (-st). This one wants the in form (-s).");
   });
 
   it("counts a dropped diacritic as produced, and says which letter", () => {

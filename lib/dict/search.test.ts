@@ -102,10 +102,10 @@ describe("rankCandidates — inflected forms", () => {
   it.each([
     ["loen", "lugema", /I form/],
     ["lugesin", "lugema", /lihtminevik ma/],
-    ["tuppa", "tuba", /short to-form/],
-    ["toas", "tuba", /seesütlev/],
-    ["raamatuga", "raamat", /kaasaütlev/],
-    ["tubadega", "tuba", /mitmuse kaasaütlev/],
+    ["tuppa", "tuba", /short to form/],
+    ["toas", "tuba", /in form \(-s\)/],
+    ["raamatuga", "raamat", /with form \(-ga\)/],
+    ["tubadega", "tuba", /with form \(-ga\) plural/],
     ["raamatud", "raamat", /1st form plural/],
     ["need", "see", /1st form plural/],
   ])("finds %s as a form of %s", (query, lemma, why) => {
@@ -145,18 +145,17 @@ describe("rankCandidates — inflected forms", () => {
     expect(top("selled")?.matchedAs).toBeUndefined();
   });
 
-  it("names the form the way a class names it, and says what it asks", () => {
+  it("names the form the plain way, with its ending", () => {
     // A learner who searches `toas` and is told it is "the inessive" has been
-    // handed a word their own teacher does not say, and then one their English
-    // grammar says and they have not opened. The Estonian name leads and what
-    // the case asks follows it: see `lib/estonian/cases.ts`.
+    // handed a word their own teacher does not say. A form worked out from the
+    // stem is named exactly as a stored one is: see `casePlainName`.
     const inessive = top("toas")?.matchedAs ?? "";
-    expect(inessive).toContain("seesütlev (what is it in? where?)");
+    expect(inessive).toContain("in form (-s) of tuba");
     expect(inessive, "the Latin name is back").not.toContain("inessive");
     const past = top("lugesin")?.matchedAs ?? "";
     expect(past).toContain("lihtminevik ma");
     const plural = top("tubadega")?.matchedAs ?? "";
-    expect(plural).toContain("mitmuse kaasaütlev");
+    expect(plural).toContain("with form (-ga) plural");
   });
 
   it("does not label a headword match as an inflected form", () => {
@@ -335,7 +334,7 @@ describe("matchEstonianForm", () => {
   it("takes a regular case built on the genitive stem, which is most of a homework page", () => {
     const match = matchEstonianForm(DICT, "toas");
     expect(match?.lemma).toBe("tuba");
-    expect(match?.matchedAs).toContain("seesütlev");
+    expect(match?.matchedAs).toContain("in form (-s)");
   });
 
   describe("a diacritic somebody typed is a letter they meant", () => {

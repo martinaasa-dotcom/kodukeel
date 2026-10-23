@@ -18,6 +18,7 @@ import { addToDeck, recordSonad } from "@/app/actions";
 import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { loadBoard, saveBoard } from "./resume";
 import { WordLink } from "@/components/course/WordLink";
+import { useModuleFocus } from "@/components/course/moduleFocus";
 import { Speak } from "@/components/Speak";
 import { EMPTY, HUE, LEGEND, RING, SPOKEN } from "@/components/sonad/look";
 
@@ -87,6 +88,7 @@ export function SonadSession({ puzzle, day, guessable }: {
 }) {
   const t = useT();
   const locale = useLocale();
+  const inModule = useModuleFocus() !== null;
   const [guesses, setGuesses] = useState<string[]>([]);
   const [typed, setTyped] = useState("");
   const [refused, setRefused] = useState<string | null>(null);
@@ -287,12 +289,16 @@ export function SonadSession({ puzzle, day, guessable }: {
           A WORD NOBODY HAS TAUGHT THEM YET, AND THE DICTIONARY IS FAIR PLAY.
           It is a game rather than a lesson, and hunting through the dictionary
           for six letters that fit is exactly the kind of looking around that
-          teaches. A new tab, so the board stays where it is.
+          teaches. A new tab, so the board stays where it is. Inside the
+          module the word is said and not linked, since a step's screen leads
+          nowhere out of the evening (`useModuleFocus`).
         */}
         {!over && !puzzle.met && (
           <p className="w-full text-sm" style={{ color: "var(--ink-2)" }}>
             {rich(t("Maybe a new word for you. Looking in the {dictionary} is allowed."), {
-              dictionary: (
+              dictionary: inModule ? (
+                <span>{t("dictionary")}</span>
+              ) : (
                 <Link href="/dictionary" target="_blank" rel="noopener" className="underline underline-offset-2" style={{ color: "var(--accent-deep)" }}>
                   {t("dictionary")}
                 </Link>

@@ -101,11 +101,11 @@ check("government drill has real questions",
 // Assert the rule, not three case names. The distractors are drawn from the
 // cases the learner's own deck actually governs, so a legitimate round can
 // offer four cases and name none of the three that used to be hard-coded here.
-// That failed about one run in four, on an app that was working. Estonian
-// names, because that is what the buttons say now: a case is offered by the
-// question it answers and the name a class gives it, never by the Latin one.
+// That failed about one run in four, on an app that was working. Plain
+// names, because that is what the buttons say now: "2nd form", "in form (-s)",
+// with the question it answers, never the Estonian or the Latin name.
 const CASE_NAMES =
-  /nimetav|omastav|osastav|sisseütlev|seesütlev|seestütlev|alaleütlev|alalütlev|alaltütlev|saav|rajav|olev|ilmaütlev|kaasaütlev/i;
+  /\b(?:1st|2nd|3rd) form\b|\b(?:in|to|from|as|with|without|becoming|until) form \(-/i;
 check("government drill offers case options",
   (await page.getByRole("button", { name: CASE_NAMES }).count()) >= 3);
 

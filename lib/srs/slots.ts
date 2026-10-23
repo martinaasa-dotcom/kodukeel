@@ -1,4 +1,5 @@
 import { CASES, caseByKey, casePlainName } from "@/lib/estonian/cases";
+import type { Locale } from "@/lib/copy/locale";
 import { isOpenerSlot, openerBySlot } from "@/lib/estonian/openers";
 
 /**
@@ -197,9 +198,9 @@ export function conjugationSlotFromFront(front: string): string | null {
 }
 
 /** What a slot is called on a screen: a case by its plain name and its question. */
-export function slotLabel(slot: string): string {
+export function slotLabel(slot: string, locale: Locale = "en"): string {
   const spec = caseByKey(slot);
-  if (spec) return `${casePlainName(spec)}, ${spec.question}`;
+  if (spec) return `${casePlainName(spec, locale)}, ${spec.question}`;
 
   const verb = CONJUGATION_SLOTS.find((s) => s.code === slot);
   if (verb) return verb.label;
@@ -212,9 +213,9 @@ export function slotLabel(slot: string): string {
 }
 
 /** The short version, for a chip beside a word. */
-export function slotShort(slot: string): string {
+export function slotShort(slot: string, locale: Locale = "en"): string {
   const spec = caseByKey(slot);
-  if (spec) return casePlainName(spec);
+  if (spec) return casePlainName(spec, locale);
   return CONJUGATION_SLOTS.find((s) => s.code === slot)?.label
     ?? openerBySlot(slot)?.text ?? MEANING_LABELS[slot] ?? slot.toLowerCase();
 }

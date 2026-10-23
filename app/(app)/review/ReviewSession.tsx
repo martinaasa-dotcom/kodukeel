@@ -314,6 +314,7 @@ function WhyRow({ card, alsoRight }: {
 }) {
   const router = useRouter();
   const t = useT();
+  const locale = useLocale();
   // Named the way a class names it, because this question is going to a tutor
   // who is told to answer in the same words (lib/tutor/prompt.ts).
   const named = card.targetCase ? caseByKey(card.targetCase) : undefined;
@@ -321,7 +322,7 @@ function WhyRow({ card, alsoRight }: {
   // A conjugation card names its slot the same way, off `Card.slot`: the front
   // is a sentence now and carries no label, and the label is what the learner
   // wants the moment the answer appears and is not what they thought.
-  const verbSlot = card.slot ? slotLabel(card.slot) : null;
+  const verbSlot = card.slot ? slotLabel(card.slot, locale) : null;
   // Asked in the learner's language, since it is their question to Anu.
   const word = card.lemma ?? card.front;
   const question = alsoRight && card.lemma

@@ -78,7 +78,7 @@ describe("resolveScannedItems", () => {
   it("traces a retrieved form back to its headword", async () => {
     const [item] = await resolveScannedItems([{ et: "itest-scan-toas", en: "" }]);
     expect(item?.lemma).toBe(LEMMA);
-    expect(item?.matchedAs).toContain("seesütlev");
+    expect(item?.matchedAs).toContain("in form (-s)");
   });
 
   it("traces a case derived from the genitive stem, which no Form row holds", async () => {
@@ -86,7 +86,7 @@ describe("resolveScannedItems", () => {
     // to resolve, or most of a homework exercise would come back unrecognized.
     const [item] = await resolveScannedItems([{ et: "itest-scan-toale", en: "" }]);
     expect(item?.lemma).toBe(LEMMA);
-    expect(item?.matchedAs).toContain("alaleütlev");
+    expect(item?.matchedAs).toContain("to form (-le)");
   });
 
   it("traces a verb person worked out from the stored first person", async () => {

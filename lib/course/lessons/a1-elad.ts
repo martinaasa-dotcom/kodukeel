@@ -119,7 +119,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "Ukrainast", en: "from Ukraine" },
     ],
     how: {
-      point: "To say where you're from, use {pärit} and the country in its from-form, ending in -st or -lt: {Ma olen pärit Eestist}.",
+      point: "To say where you're from, use {pärit} and the country in its from form, ending in -st or -lt: {Ma olen pärit Eestist}.",
       table: {
         head: ["Country", "From there", "Somebody from there"],
         rows: [
@@ -136,7 +136,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
         "{Aga} is but: {Ma olen pärit Inglismaalt, aga ma elan Eestis}.",
         "A country has a capital letter and the person from it doesn't: {Eesti}, but {eestlane}.",
       ],
-      watchOut: "{Pärit} always takes the from-form: {Ma olen pärit Eestist}, never {Ma olen pärit Eesti}.",
+      watchOut: "{Pärit} always takes the from form: {Ma olen pärit Eestist}, never {Ma olen pärit Eesti}.",
       examples: [0, 1, 3],
     },
     answers: [
@@ -178,7 +178,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "sakslane", en: "a German" },
     ],
     how: {
-      point: "The same from-form as lesson 10: -st, or -lt for a country ending in -maa.",
+      point: "The same from form as lesson 10: -st, or -lt for a country ending in -maa.",
       table: {
         head: ["Country", "From there", "Somebody from there"],
         rows: [
@@ -190,7 +190,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "Somebody from a country is the country + -lane: {soomlane}, {lätlane}. You know {eestlane} already.",
-        "In a country is the in-form, the -s you met in lesson 9 with {Eestis}: {Rootsis}, in Sweden.",
+        "In a country is the in form, the -s you met in lesson 9 with {Eestis}: {Rootsis}, in Sweden.",
       ],
       watchOut: "{Saksamaa} is a -maa country, like {Inglismaa}: from Germany is {Saksamaalt}, never with -st.",
       examples: [1, 2, 4],

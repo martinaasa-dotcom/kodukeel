@@ -329,17 +329,17 @@ const PLAIN: Readonly<Record<Locale, Readonly<Record<CaseKey, string>>>> = {
     NOMINATIVE: "1st form",
     GENITIVE: "2nd form",
     PARTITIVE: "3rd form",
-    ILLATIVE: "to-form (-sse)",
-    INESSIVE: "in-form (-s)",
-    ELATIVE: "from-form (-st)",
-    ALLATIVE: "to-form (-le)",
-    ADESSIVE: "in-form (-l)",
-    ABLATIVE: "from-form (-lt)",
-    TRANSLATIVE: "becoming-form (-ks)",
-    TERMINATIVE: "until-form (-ni)",
-    ESSIVE: "as-form (-na)",
-    ABESSIVE: "without-form (-ta)",
-    COMITATIVE: "with-form (-ga)",
+    ILLATIVE: "to form (-sse)",
+    INESSIVE: "in form (-s)",
+    ELATIVE: "from form (-st)",
+    ALLATIVE: "to form (-le)",
+    ADESSIVE: "in form (-l)",
+    ABLATIVE: "from form (-lt)",
+    TRANSLATIVE: "becoming form (-ks)",
+    TERMINATIVE: "until form (-ni)",
+    ESSIVE: "as form (-na)",
+    ABESSIVE: "without form (-ta)",
+    COMITATIVE: "with form (-ga)",
   },
   ru: {
     NOMINATIVE: "1-я форма",
@@ -375,7 +375,7 @@ const PLAIN: Readonly<Record<Locale, Readonly<Record<CaseKey, string>>>> = {
   },
 };
 
-/** A case's plain name in the reader's language: "2nd form", "in-form (-s)". */
+/** A case's plain name in the reader's language: "2nd form", "in form (-s)". */
 export function casePlainName(spec: Pick<CaseSpec, "key">, locale: Locale = "en"): string {
   return PLAIN[locale][spec.key];
 }

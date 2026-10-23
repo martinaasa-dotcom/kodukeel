@@ -97,8 +97,8 @@ function SlowRow({ pace, locale }: { pace: SlotAnswerTime; locale: Locale }) {
   */
   // A case is named the plain way, in English, so it loses the `lang`; a verb
   // slot's name is still Estonian (`olevik, ma`).
-  const name = spec ? tr(locale, slotShort(pace.slot)) : slotShort(pace.slot);
-  const full = slotLabel(pace.slot);
+  const name = slotShort(pace.slot, locale);
+  const full = slotLabel(pace.slot, locale);
   const time = formatAnswerTime(pace.medianMs);
   const inside = (
     <>
@@ -150,7 +150,7 @@ function SlowRow({ pace, locale }: { pace: SlotAnswerTime; locale: Locale }) {
 function MixedRow({ confusion, locale }: { confusion: Confusion; locale: Locale }) {
   const t = (english: string) => tr(locale, english);
   const [a, b] = confusion.pair;
-  const named = (slot: string) => (caseByKey(slot as CaseKey) ? t(slotShort(slot)) : slotShort(slot));
+  const named = (slot: string) => slotShort(slot, locale);
   const first = named(a);
   const second = named(b);
   return (
@@ -158,7 +158,7 @@ function MixedRow({ confusion, locale }: { confusion: Confusion; locale: Locale 
       <span
         lang={caseByKey(a as CaseKey) && caseByKey(b as CaseKey) ? undefined : "et"}
         className="min-w-0 flex-1"
-        aria-label={fill(t("{a} and {b}, mixed up {n} times"), { a: slotLabel(a), b: slotLabel(b), n: confusion.times })}
+        aria-label={fill(t("{a} and {b}, mixed up {n} times"), { a: slotLabel(a, locale), b: slotLabel(b, locale), n: confusion.times })}
       >
         {first} <span aria-hidden style={{ color: "var(--ink-3)" }}>↔</span> {second}
       </span>
