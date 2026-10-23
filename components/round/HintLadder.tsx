@@ -116,19 +116,18 @@ export function HintLadder({
           onClick={onTake}
           data-hint
           /*
-            The accessible name is this rather than the words on the button, so
-            a suite looking for it by role and name finds "Get a hint for aeg".
-            `data-hint` is what `scripts/test-hints.mjs` anchors on: the first
-            version of that suite matched the visible text through the role,
-            found nothing on a round where the hint was on screen every time,
-            and waived eight checks saying the deck never repeated a word.
+            Named by what it shows and then which word it is for, as text inside
+            the button rather than an `aria-label` over it: a name laid over
+            visible text has to carry that text (WCAG 2.5.3, which axe 4.14
+            checks), and "Get a hint for aeg" over "Stuck? Take a hint" did not.
+            `data-hint` is what `scripts/test-hints.mjs` anchors on.
           */
-          aria-label={fill(t(taken === 0 ? "Get a hint for {word}" : "{hint} for {word}"), { word: t(label), hint: hintLabel(next, locale) })}
           className="tap-tint flex flex-wrap items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-semibold"
           style={{ color: "var(--ink-3)" }}
         >
           <Lightbulb size={14} aria-hidden />
           {taken === 0 ? t("Stuck? Take a hint") : hintLabel(next, locale)}
+          <span className="sr-only">: {t(label)}</span>
           {/*
             Not faded to say it is secondary: `opacity` on a box that holds
             words is the rule this app has about locked units, and the count is
