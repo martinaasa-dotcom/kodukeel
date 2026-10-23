@@ -977,7 +977,7 @@ check("a guess is answered with what the word really means and one line about it
   quip.length > 10 && !/!/.test(quip), quip);
 const verdict = await page.locator("main").innerText();
 check("and the verdict itself is plain, never the joke",
-  /You guessed it\.|Not that one, but now you know\./.test(verdict));
+  /^(You guessed it\.|Not that one\.)$/m.test(verdict));
 const lineFor = async (q) => {
   await page.goto(`${B}/dictionary?q=${encodeURIComponent(q)}`);
   await page.locator("main h1").waitFor({ timeout: 15_000 }).catch(() => {});
