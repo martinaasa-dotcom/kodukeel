@@ -4268,9 +4268,14 @@
     A LINE IS AS WIDE AS IT NEEDS AND NEVER THE WHOLE ROW, so the two sides of
     the conversation stay two sides on a phone: a bubble that spans the row
     has no edge to sit against.
+
+    Their side is marked by a class on the row rather than found with
+    `div:has(> [data-face="them"])`: that selector made every element on every
+    page a `:has` candidate, and the containment sweep on the exceptions page
+    went from 4.5 to 77 seconds a pass in CI for it.
   */
   .scene-thread .scene-say-you > div { max-width: min(85%, 34rem); }
-  .scene-thread .scene-log > div:has(> [data-face="them"]) > div { max-width: min(85%, 36rem); }
+  .scene-thread .scene-say-them > div { max-width: min(85%, 36rem); }
 
   /*
     THE THREAD. The learner's own face is the one the room already shows them,

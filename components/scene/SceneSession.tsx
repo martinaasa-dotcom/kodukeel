@@ -2175,7 +2175,10 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
               </div>
             </div>
           ) : (
-            <div key={index} className="flex items-start gap-2">
+            <div
+              key={index}
+              className={`flex items-start gap-2 ${turn.lines.some((line) => line.provenance !== "meanwhile") ? "scene-say-them" : ""}`}
+            >
               {/* A break in time on its own is nobody speaking, so no face beside it. */}
               {turn.lines.some((line) => line.provenance !== "meanwhile") && <SceneFace who="them" />}
               <div className={`flex min-w-0 flex-col items-start gap-2 ${turn.lines.every((line) => line.provenance === "meanwhile") ? "w-full" : ""}`}>
@@ -2407,7 +2410,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
           the dots are worth most.
         */}
         {busy && turns[turns.length - 1]?.who !== "them" && (
-          <div className="scene-say flex items-start gap-2">
+          <div className="scene-say scene-say-them flex items-start gap-2">
             {/* Beside the same face their lines arrive beside, or the wait
                 steps a bubble's width to the left of where they speak. */}
             <SceneFace who="them" />
