@@ -271,13 +271,17 @@ export function SpeakPair(props: Parameters<typeof SpeakPairButtons>[0]) {
 }
 
 function SpeakPairButtons({
-  text, label, slowLabel, disabled, onPlay, onUnavailable, size = 15, className = "", autoplay, voice, spaceKey,
+  text, label, disabled, onPlay, onUnavailable, size = 15, className = "", autoplay, voice, spaceKey,
 }: {
   text: string;
   /** A voice other than the learner's own, as on `Speak`; both halves read in it. */
   voice?: string;
+  /**
+   * What the normal half plays, for a screen reader. The slow half is named
+   * "Slow:" and then the same, so its name starts with the word it shows
+   * (WCAG 2.5.3, which axe holds a name over visible text to).
+   */
   label?: string;
-  slowLabel?: string;
   disabled?: boolean;
   size?: number;
   className?: string;
@@ -322,7 +326,7 @@ function SpeakPairButtons({
         text={text}
         slow
         size={size}
-        label={slowLabel ?? hear(t, text, true)}
+        label={`${t("Slow")}: ${label ?? hear(t, text, false)}`}
         disabled={disabled}
         onPlay={onPlay}
         onUnavailable={lost}

@@ -104,8 +104,13 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
         type="button"
         onClick={next}
         className="hero-word-press"
-        aria-label={t("Show the next ending on this word")}
       >
+      {/*
+        Named by text inside it rather than an `aria-label` over it: the card
+        under it is a word on show, not the button's label, and a name laid
+        over visible text has to carry that text (WCAG 2.5.3).
+      */}
+      <span className="sr-only">{t("Show the next ending on this word")}</span>
       {/*
         The card is a sticker on a sticker: a coral one tilted behind it and the
         word on top, so the thing the page is about is the most physical object

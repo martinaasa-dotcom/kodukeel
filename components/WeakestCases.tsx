@@ -66,12 +66,6 @@ export function WeakestCases({ cases, empty, locale }: {
           <li key={c.grammCase} className="flex min-w-0 items-center gap-1">
             <Link
               href={`/review?case=${c.grammCase}`}
-              aria-label={fill(
-                t(asks
-                  ? "Practice the {name}, which asks {asks}. Right {pct} percent of the time over {total} reviews"
-                  : "Practice the {name}. Right {pct} percent of the time over {total} reviews"),
-                { name, asks: asks ?? "", pct: c.accuracy, total: c.total },
-              )}
               className="pill tap-tint flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1 rounded-[var(--r)] px-2 py-1.5 text-sm"
             >
               {/*
@@ -119,8 +113,9 @@ export function WeakestCases({ cases, empty, locale }: {
                     {[spec.asksThing, spec.asksWhere].filter(Boolean).join(" ")}
                   </span>
                 )}
+                {asks && <span className="sr-only"> ({asks})</span>}
               </span>
-              <span className="min-w-[4rem] flex-1">
+              <span aria-hidden className="min-w-[4rem] flex-1">
                 <Meter
                   pct={c.accuracy}
                   label={`${name}${asks ? `, ${asks}` : ""}: ${c.accuracy}%`}
@@ -134,6 +129,9 @@ export function WeakestCases({ cases, empty, locale }: {
                 <span className="text-sm font-semibold" style={{ color: "var(--ink-2)" }}>{c.accuracy}%</span>
                 <span className="text-2xs" style={{ color: "var(--ink-3)" }}>{countOf(locale, c.total, "answer")}</span>
               </span>
+              {/* The name is what the row says, so it cannot drift from what
+                  is on screen (WCAG 2.5.3); what it is for is said last. */}
+              <span className="sr-only">, {t("Practice it")}</span>
             </Link>
             <Link
               href={`/grammar/${english}`}

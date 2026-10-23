@@ -98,12 +98,15 @@ function SlowRow({ pace, locale }: { pace: SlotAnswerTime; locale: Locale }) {
   // A case is named the plain way, in English, so it loses the `lang`; a verb
   // slot's name is still Estonian (`olevik, ma`).
   const name = slotShort(pace.slot, locale);
-  const full = slotLabel(pace.slot, locale);
+  const long = slotLabel(pace.slot, locale);
+  // The question the short name leaves out, for a screen reader.
+  const rest = long.startsWith(name) ? long.slice(name.length) : `, ${long}`;
   const time = formatAnswerTime(pace.medianMs);
   const inside = (
     <>
       <span lang={spec ? undefined : "et"} className="min-w-0 flex-1" style={{ color: "var(--ink-2)" }}>
         {name}
+        {rest && <span className="sr-only">{rest}</span>}
       </span>
       <span className="tnum shrink-0 text-sm font-semibold" style={{ color: "var(--butter-ink)" }}>
         {time}
@@ -114,23 +117,19 @@ function SlowRow({ pace, locale }: { pace: SlotAnswerTime; locale: Locale }) {
     </>
   );
 
-  const label = fill(
-    t("{name}: right {pct} percent of the time over {n} timed answers, taking {time} each"),
-    { name: full, pct: pace.accuracy, n: pace.answers, time },
-  );
-
   return (
     <li className="flex min-w-0 items-center">
       {spec ? (
         <Link
           href={`/review?case=${pace.slot}`}
-          aria-label={fill(t("{label}. Practice it."), { label })}
           className="pill tap-tint flex min-w-0 flex-1 items-center gap-3 rounded-[var(--r)] px-2 py-1.5 text-sm"
         >
           {inside}
+          {/* Named by what it shows, so the name cannot drift from the screen (WCAG 2.5.3). */}
+          <span className="sr-only">, {t("Practice it")}</span>
         </Link>
       ) : (
-        <span aria-label={label} className="flex min-w-0 flex-1 items-center gap-3 px-2 py-1.5 text-sm">
+        <span className="flex min-w-0 flex-1 items-center gap-3 px-2 py-1.5 text-sm">
           {inside}
         </span>
       )}
