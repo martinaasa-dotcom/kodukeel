@@ -20,7 +20,7 @@ copy actually has, and `/privacy` renders that list at request time. This docume
 same table and the reasoning behind it. Where the two differ, the generated list on the running
 deployment is the one that is right.
 
-Two properties of that module are worth stating, because they are what makes the list trustworthy:
+Two properties of that module are what make the list trustworthy:
 
 - **Labels only, never a model name and never anything derived from a key.** Which company is on the
   other end is the fact a reader needs. The rest is operational detail that would only date.
@@ -57,7 +57,7 @@ Supabase holds the whole of what §2 of `docs/24-dpia.md` inventories.
 
 **Where established.** A Supabase project's region is chosen when the project is created and is not
 readable from the running app. `lib/legal/recipients.ts` records it as unknown rather than guessing,
-and `/privacy` tells the reader to ask the operator. Saying so is more use than a guess.
+and `/privacy` tells the reader to ask the operator.
 
 **Safeguard.** Supabase's own data processing addendum, which incorporates the standard contractual
 clauses where the project region is outside the EEA. An operator who wants the transfer question

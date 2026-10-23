@@ -7,7 +7,7 @@ wrote the code.**
 
 Treat it as one thing only: a map from the control themes a procurement questionnaire asks about to
 the specific file or process in this repository that does something about them, so your engineer can
-open each one and judge it. Every line is checkable. Where the honest answer is "no", it says no,
+open each one and judge it. Every line is checkable. Where the answer is "no", it says no,
 and where a control is a provider's rather than ours it says whose.
 
 If you need a certificate, we do not have one. Section 5 says what one would cost and what would make
@@ -15,8 +15,8 @@ us go and get it. Saying that at the top is deliberate: a buyer who catches an o
 stops trusting page one, and rightly.
 
 Operator: **Upthink Solutions OÜ**, registry code **16683946**, Tallinn, Estonia. Security contact:
-**privacy@upthink.ee**. Read `docs/27-security.md` for the threat model and the residual risks it is
-honest about, `docs/28-incident-response.md` for what happens when something goes wrong,
+**privacy@upthink.ee**. Read `docs/27-security.md` for the threat model and the residual risks it
+states, `docs/28-incident-response.md` for what happens when something goes wrong,
 `docs/24-dpia.md` for the data protection impact assessment, `docs/25-data-retention.md` for the
 retention schedule, and `docs/26-subprocessors.md` for the recipient list.
 
@@ -45,7 +45,7 @@ of a small SaaS actually asks about, rather than reproducing the list.
 | Control | What this project does | Where | Status |
 | --- | --- | --- | --- |
 | 5.1 Policies for information security | This document, `docs/27-security.md`, `docs/28-incident-response.md` and `SECURITY.md`. Written down and in version control. There is no separate signed corporate ISMS policy set. | `docs/`, `SECURITY.md` | Partial |
-| 5.2 Roles and responsibilities | Stated in the incident plan, honestly: one lead, whoever has production access, one external voice. No rota, no on-call. | `docs/28-incident-response.md` section 2 | Partial |
+| 5.2 Roles and responsibilities | Stated in the incident plan: one lead, whoever has production access, one external voice. No rota, no on-call. | `docs/28-incident-response.md` section 2 | Partial |
 | 5.7 Threat intelligence | `npm audit` in CI as a blocking gate plus GitHub advisories. No commercial feed and no active monitoring. | `.github/workflows/ci.yml` | Partial |
 | 5.8 Information security in project management | Security rules are asserted in CI rather than reviewed by hand. A rule with no assertion is treated as a comment. The whole invariant suite runs on every push and prints its own total. | `scripts/test-invariants.ts` | Implemented |
 | 5.9 Inventory of assets | Ranked asset list, in a design document rather than a maintained register. | `docs/27-security.md` section 3 | Partial |
@@ -108,7 +108,7 @@ This is the theme where the work actually is, so it is the longest.
 | 8.13 Information backup | Provider backups for Postgres, inherited and untested by us. A learner's own export and restore, tested on every CI run. The dictionary is a build artifact and reseeds from the repository. | `docs/28-incident-response.md` section 9 | Partial |
 | 8.14 Redundancy | Vercel and Supabase defaults. Nothing multi-region and nothing failing over. | | Inherited |
 | 8.15 Logging | Structured JSON on stderr, retained by the platform, optionally forwarded to a webhook. Deliberately no analytics vendor, because the privacy page promises no third-party trackers. | `lib/observability/report.ts` | Partial |
-| 8.16 Monitoring activities | Nothing watches the logs continuously. No SIEM and no intrusion detection. Detection is described honestly in the incident plan. | `docs/28-incident-response.md` section 3 | Not done |
+| 8.16 Monitoring activities | Nothing watches the logs continuously. No SIEM and no intrusion detection. Detection is described in the incident plan. | `docs/28-incident-response.md` section 3 | Not done |
 | 8.17 Clock synchronisation | Platform time, UTC. Day boundaries are computed in the learner's own zone rather than the server's, which is a correctness rule with its own module. | `lib/time/day.ts` | Implemented |
 | 8.18 Use of privileged utility programs | The one workflow that maps a repository secret is the manual dictionary reseed, `workflow_dispatch` only, behind a typed confirmation, and it never pushes the schema. The deck audit workflow is written to the same rules and reports before it will delete anything. | `.github/workflows/seed-production.yml`, `audit-decks.yml` | Implemented |
 | 8.19 Software on operational systems | Deployment is a git push to the default branch through CI. Nothing installed by hand. | | Implemented |
@@ -135,13 +135,13 @@ been performed, there is no Type I and no Type II report, and no service auditor
 
 | Criterion | What this project does | Status |
 | --- | --- | --- |
-| CC1 Control environment | One company, roles stated honestly in the incident plan. No board, no independent oversight function, no formal management assertion. | Partial |
+| CC1 Control environment | One company, roles stated in the incident plan. No board, no independent oversight function, no formal management assertion. | Partial |
 | CC2 Communication and information | Policies in version control and public. Security contact published with response times. Privacy notice names the controller and the recipients, generated from configuration rather than described. | Implemented |
 | CC3 Risk assessment | Threat model with ranked assets, adversaries, controls and residual risk. Not a periodic formal risk assessment with a register and review dates. | Partial |
 | CC4 Monitoring of controls | CI runs the control assertions on every push, which is continuous in the sense that matters for code. Nothing monitors the running deployment. | Partial |
 | CC5 Control activities | Controls implemented in code and asserted, rather than described in a manual. | Implemented |
 | CC6 Logical and physical access | Authentication, authorization, credential handling, device forgetting on sign-out, and privileged access that cannot be granted at runtime. Physical is inherited from Vercel and Supabase. | Implemented for logical, Inherited for physical |
-| CC7 System operations | Detection described honestly, incident response with runbooks per incident type, and a review step that asks why nothing caught it. Detection itself is weak: no continuous monitoring. | Partial |
+| CC7 System operations | Detection described, incident response with runbooks per incident type, and a review step that asks why nothing caught it. Detection itself is weak: no continuous monitoring. | Partial |
 | CC8 Change management | Pull requests with CI on every push, to a default branch that is not protected. No separate approval body. | Partial |
 | CC9 Risk mitigation | Spend caps that fail closed, rate limits, append-only tables that cannot be edited away, and a restore path that cannot rewrite the shared dictionary. Vendor risk is not formally assessed. | Partial |
 
@@ -181,7 +181,7 @@ this size has. That combination is worth stating plainly rather than averaging i
 Strong, and you can verify each in one command: credential handling, owner scoping, CSRF, spend
 metering, append-only data, redaction, secure development lifecycle.
 
-Weak, and we are not going to dress it up: continuous monitoring, tested disaster recovery,
+Weak: continuous monitoring, tested disaster recovery,
 independent assurance of any kind, and every people control that assumes an HR function.
 
 If your procurement requires a certificate today, we do not meet it. If it allows a documented
@@ -205,7 +205,7 @@ running costs, which is why it has not happened rather than an oversight nobody 
 
 **What would trigger each, in the order we would actually do them.**
 
-*A penetration test* is first and is the cheapest thing that changes the honest answer in section 6
+*A penetration test* is first and is the cheapest thing that changes the answer in section 6
 of `docs/27-security.md`. Trigger: the first contract that funds it, or any deployment holding data
 for a school. That one is not negotiable against price for long.
 

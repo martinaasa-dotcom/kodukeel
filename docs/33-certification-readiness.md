@@ -1,6 +1,6 @@
 # Certification readiness: the gap analysis
 
-`docs/29-controls.md` says what this project does about each control and marks the honest answer:
+`docs/29-controls.md` says what this project does about each control and marks the answer:
 Implemented, Partial, Inherited, Not applicable, Not done. This document is the other half. It takes
 the rows that say Partial or Not done and turns each into a piece of work with a size, a cost, an
 artifact, and a place in a queue.
@@ -14,8 +14,7 @@ before a size means anything.
 **Nothing here is a claim that anything has been done.** A plan is not a control, and a dated plan is
 not a control either. Read this as the backlog, and read `docs/29-controls.md` for the state.
 
-Two things are worth saying before the tables. The engineering controls in this project are unusually
-checkable, because most of them are asserted in CI rather than described in a manual. The
+The engineering controls in this project are unusually checkable, because most of them are asserted in CI rather than described in a manual. The
 organizational controls are what one company with a very small number of people has, which is to say
 thin. A certification body cares about both, and the second is where nearly all of the work is.
 
@@ -92,9 +91,9 @@ table waits behind nothing.
 | **8.29, 5.35, and section 6 of `docs/27-security.md`.** No penetration test and no independent review of any kind. | A scoped web application test against the hosted deployment, with a retest after the fixes land. | 4,000 to 12,000 euro | The report, and a fix log against it | ISO Stage 2, SOC 2, and most procurement questionnaires |
 | **8.8.** Two blocking `npm audit` gates and no external scanning. | Continuous dependency and attack surface scanning on the deployed application. | Not priced yet | Scan history | Nothing formally. It raises the floor. |
 | **No Postgres row level security.** Ownership is enforced in application code and asserted in CI. | RLS as a second layer under the application check, not instead of it. | 3 to 5 days of engineering, no vendor cost | The migration, plus an integration test that a mis-scoped query returns nothing | Nothing. It closes a named residual risk. |
-| **No MFA on learner accounts.** Google sign-in inherits whatever the account has. A mailed link does not. | Decide, and write the decision down. The honest option is an operator setting that requires the OAuth path for a deployment holding a school's data. | 1 to 2 days | The setting, and a line on `/privacy` and in `docs/27-security.md` | Nothing. It is asked about constantly. |
+| **No MFA on learner accounts.** Google sign-in inherits whatever the account has. A mailed link does not. | Decide, and write the decision down. The preferred option is an operator setting that requires the OAuth path for a deployment holding a school's data. | 1 to 2 days | The setting, and a line on `/privacy` and in `docs/27-security.md` | Nothing. It is asked about constantly. |
 
-**The penetration test is the item that changes the most honest answers per euro.** It moves 8.29 and
+**The penetration test is the item that changes the most answers per euro.** It moves 8.29 and
 5.35, and it is the one thing section 6 of `docs/27-security.md` names first.
 
 ## 5. Phase 2: ISO/IEC 27001:2022
@@ -118,7 +117,7 @@ exists as something other than a design document. Items 2, 3, 6 and 7 of Phase 0
   The tables in `docs/29-controls.md` cover the ones a buyer asks about, which is fewer than 93.
 
 The people controls are the part that does not go away by writing a document. 6.1 screening stays Not
-done at this headcount, and the honest route is a documented justification and a compensating control
+done at this headcount, and the route is a documented justification and a compensating control
 rather than a background check nobody performs.
 
 ## 6. Phase 3: SOC 2 Type II
@@ -150,7 +149,7 @@ Written here rather than left for an auditor to find.
 control is CI on every change, with the security rules asserted rather than reviewed by eye.
 The default branch is not protected: GitHub's branch listing reported `protected: false` for
 `main` on 2026-09-24, so nothing stops the author merging past a red run. CI is a real control and
-it is not segregation of duties. Say so.
+it is not segregation of duties.
 
 **Background screening.** 6.1 is Not done and stays Not done until there is an HR function.
 

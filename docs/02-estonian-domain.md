@@ -5,7 +5,7 @@ described here. If the domain model is right, the app teaches Estonian; if it is
 tab bar with a chat window in it.
 
 **Design principle.** No model ever supplies an Estonian form. The app *retrieves* the forms that
-cannot be predicted from Ekilex, stores them as principal parts, and builds only what is genuinely a
+cannot be predicted from Ekilex, stores them as principal parts, and builds only what is a
 fixed ending on one of them: the ten regular cases on the genitive stem, the plural obliques on the
 genitive plural, and the present, negative, conditional and imperative on the stored first person.
 A derivation is wrong the same way for every word that takes the ending, so it is one bug found once,
@@ -78,7 +78,7 @@ why it is #5 and stored rather than derived: see §1.1.
 
 The dictionary UI renders this as a **generated table clearly marked as derived**, alongside the
 stored forms marked as authoritative. The learner sees which forms they must memorize and which
-they get for free. That framing *is* the pedagogy.
+they get for free.
 
 ### 1.2a Two sets of local cases, and which one a word takes
 

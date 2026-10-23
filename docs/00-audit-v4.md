@@ -93,7 +93,7 @@ given word never changes, so cache it forever). Web Speech API as a degraded fal
 Estonian, and the TartuNLP speech-to-text path did not resolve on probe.
 
 **Fix.** Move STT behind a **timeboxed Phase 4 spike**. Do not promise it in an early phase. If the
-spike fails, the honest fallback is typed input plus *pronunciation self-check*: record, play back
+spike fails, the fallback is typed input plus *pronunciation self-check*: record, play back
 against the reference TTS clip, self-score. That is pedagogically useful even without recognition.
 
 ---
@@ -210,7 +210,7 @@ Worth keeping explicitly, so the rewrite does not lose it:
 
 - **The core insight is correct and valuable.** A single workspace that removes tab-switching during
   study is a real problem worth solving, and the six chosen surfaces are the right six.
-- **Principal parts as a headline feature** is genuinely the right thing to center a beginner tool
+- **Principal parts as a headline feature** is the right thing to center a beginner tool
   on, even if the spec under-specifies it.
 - **The flashcard bridge**, one click from anything (dictionary hit, tutor example, import) into
   the deck, is the correct unifying interaction. v5 promotes it from a feature bullet to the

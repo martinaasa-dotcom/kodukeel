@@ -180,7 +180,7 @@ longer than its box is fixed by a shorter translation first, and by the layout w
 ## Ukrainian as the base language
 
 A Ukrainian reader thinks in Ukrainian, so the Ukrainian explains Estonian through Ukrainian where it
-genuinely helps: the partitive beside «налий води» and «не маю часу», the total and partial object
+helps: the partitive beside «налий води» and «не маю часу», the total and partial object
 beside perfective and imperfective aspect, «у мене є» for the -l ending, the instrumental that Estonian
 splits into -ga, -na and -ks. Where Ukrainian sets a trap (gender, dropping «olen», the genitive plural
 after numbers), the line names it. Facts about Estonian follow the English source and

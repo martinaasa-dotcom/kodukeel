@@ -146,7 +146,7 @@ been shown to exist.
 
 ### 3.2 What we do instead (ADR-006)
 
-- **Link out** to Speakly in a new tab. Honest, works today, no ToS exposure.
+- **Link out** to Speakly in a new tab. It works today and carries no ToS exposure.
 - **A generic importer** (`01-product-spec.md` §3.6) that accepts *any* pasted vocabulary: TSV, CSV,
   JSON, `word – translation` lines, or free text passed through Anu for structuring.
 - Optional **Ekilex enrichment** to fill in principal parts on import.
