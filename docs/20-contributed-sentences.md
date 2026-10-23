@@ -97,7 +97,7 @@ of words that learner can look up. A rejected sentence is a sentence to discuss.
 What is deliberately **not** checked is whether the sentence is good, whether it
 describes the picture, or whether the grammar is right. No machine here can
 judge any of those and no model is asked to. The contributor is the authority
-on their own language, which is the entire reason for asking a person.
+on their own language, which is why a person is asked.
 
 ## The rules this obeys
 

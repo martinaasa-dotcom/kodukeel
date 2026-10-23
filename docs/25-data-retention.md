@@ -4,10 +4,10 @@
 12915 Tallinn, Harju maakond, Estonia. Contact: privacy@upthink.ee.
 
 **Written 5 September 2026. Revised 22 September 2026**, out of cycle: two owner-scoped models had
-been added and this schedule named neither, and the one table with a genuine expiry was on no row.
+been added and this schedule named neither, and the one table with a real expiry was on no row.
 Reviewed with `docs/24-dpia.md`, on the same schedule and for the same triggers.
 
-## What this document is honest about first
+## What this document says first
 
 **Most of this app keeps data until the learner deletes their account, and there is no automatic
 expiry.** That is stated rather than dressed as a policy with a number in it, because a schedule

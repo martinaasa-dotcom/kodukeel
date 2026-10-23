@@ -20,7 +20,7 @@ Ordered by expected damage. "Status" was set during the audit and is brought up 
 | R12 | Single-user local DB means no access from another device | High | Low to Medium | Closed | Decided in `12-open-questions.md` Q1: hosted on Vercel and Supabase with sign-in (ADR-011), with local mode kept for one learner on one machine (ADR-013) |
 
 R10 deserves a note: the most likely way this project fails is not a technical one. It is a
-beautifully architected dashboard that gets opened twice. That is why Today is the default route,
+well-built dashboard that gets opened twice. That is why Today is the default route,
 why every phase ships something usable, and why the success criteria in `01-product-spec.md` §5
 measure behavior rather than feature count.
 
@@ -41,7 +41,7 @@ Full reasoning in `03-architecture.md` §6.
 
 ## 3. What would change the plan
 
-Honest triggers for revisiting, rather than defending, these decisions:
+Triggers for revisiting, rather than defending, these decisions:
 
 - **Ekilex key refused** → the dictionary becomes one the learner fills in by hand, with AI assistance and an explicit
   "unverified" posture throughout. This meaningfully weakens the product; it does not kill it.
@@ -50,7 +50,7 @@ Honest triggers for revisiting, rather than defending, these decisions:
 - **The learner wants phone access** → Phase 5 Postgres migration moves up; auth becomes real work
   (Q1). *This happened*: the app is hosted with sign-in (ADR-011).
 - **AI cost exceeds comfort** → route routine chips to a cheaper model and reserve `claude-opus-5`
-  for genuine explanation. Measure before switching; the ledger already provides the data. *This
+  for explanation. Measure before switching; the ledger already provides the data. *This
   happened, further than planned*: every job, the tutor included, is pinned to the cheapest model its
   own eval passed (`PURPOSE_CHAINS` in `lib/tutor/provider.ts`).
 - **Daily use does not materialize after Phase 3** → stop building features and investigate why.

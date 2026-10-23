@@ -51,7 +51,7 @@ time in Phase 4.
 
 The browser extension, the Speakly embed and the Sõnaveeb embed are gone, the last two because they
 are blocked by other people's servers, the first because it is a separate product. If the extension
-("highlight a word on any page, save it to the deck") is genuinely wanted, it is a real project and
+("highlight a word on any page, save it to the deck") is really wanted, it is a real project and
 should be planned as one after v1, not smuggled into a table cell.
 
 ### Q7: Who else, if anyone, will see this?

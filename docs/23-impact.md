@@ -37,7 +37,7 @@ The report does the same arithmetic in Postgres so it never reads a row per revi
 **A day that was answered is not a day that held a conversation.** Today asks whether any Estonian
 was spoken to anybody yesterday and takes "not yesterday" for an answer. `isConversation` is the
 one place that difference is decided, and both the app and this report read it, so a fortnight of
-honest noes is a fortnight of reports and no conversations.
+noes is a fortnight of reports and no conversations.
 
 ## 2. What the floors do
 
@@ -87,7 +87,7 @@ review, so it is proportional to how many people there are.
 
 The same block is in `/api/metrics`, which needs `METRICS_TOKEN` set and 404s when it is not.
 
-## 5. Quoting it honestly
+## 5. Quoting it accurately
 
 Four things to hold to.
 
@@ -96,9 +96,9 @@ earlier one. Every line of the report carries what it was measured over, and the
 day. Carry both into the application.
 
 **A missing figure means too little data, never none.** If the report withholds conversations, the
-honest sentence is that there is not yet enough to publish, and not that nobody had one.
+sentence to write is that there is not yet enough to publish, and not that nobody had one.
 
-**Self-reported is self-reported.** The conversation figure is what learners told the app about
+**Say that it is self-reported.** The conversation figure is what learners told the app about
 their own week. It is the number this project says it is measured by and it is the softest number
 in the report, so say where it came from. The research export labels the same column the same way
 (`docs/19-research-export.md`).

@@ -17,12 +17,12 @@ recover when it goes sideways. An app that sells the first as the third hands ou
 counter takes away in ten seconds, and the learner concludes, wrongly, that they are worse at
 Estonian than they are.
 
-This app already had the ingredients for the honest answer and had never combined them. Every one
+This app already had the ingredients for a better answer and had never combined them. Every one
 of the 82 course units carries a `canDo` claim written the way the CEFR writes one, "Describe a
 symptom to a doctor and understand the advice you are given", and not one of those claims had ever
 been checked against what the learner had done. The review log records, for every answer, what was
 asked (`Review.slot`), whether it was right, and how long it took (`Review.durationMs`), and the
-last of those had never been read by anything. The exam hub had an honest model of confidence
+last of those had never been read by anything. The exam hub had a model of confidence
 with an evidence tier beside every figure and a ceiling on what a thin log may claim. And the
 Situations design (`docs/21-situations.md`) had already mapped encounters to the units that supply
 their words and worked out which machinery every conversation runs on.
@@ -88,8 +88,8 @@ once. Unit ids, never words, exactly as the seasonal row names units (ADR-005).
 whether somebody can follow *speech* is the level check's listening section, and a mock paper's
 listening part after that. So a live situation is held off the top rung until one of those exists,
 with the sentence "nothing here has tested your ear", and held off it again when the check placed
-listening below the situation's level. That is the whole of what the app can honestly say about the
-shock of somebody speaking faster than a card, and it says exactly that rather than guessing.
+listening below the situation's level. That is all the app can say about the
+shock of somebody speaking faster than a card, and it says that rather than guessing.
 
 An own-pace situation, a reading or writing unit, is asked about none of the last three of those
 beyond its cases, because a learner reading a business page is not being spoken to.

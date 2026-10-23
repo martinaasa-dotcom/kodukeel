@@ -34,7 +34,7 @@ door is a list of tabs makes the user decide what to do before they have done an
 
 **`+ Add to Deck` is everywhere.** Dictionary entry, individual example, Anu message, import row,
 selected text. Same component, same confirmation, provenance recorded. This is the interaction that
-makes the dashboard more than six tabs in a trench coat.
+ties the tabs into one app.
 
 **Command palette (`Cmd/Ctrl-K`).** Search a word or jump to any screen, including every place the
 rail does not list. For a power tool used daily by one person, the palette is faster than any navigation.
@@ -113,7 +113,8 @@ on a round that opens cold.
 
 ## 5. Accessibility (audit C8)
 
-Target **WCAG 2.2 AA**. Not aspiration. This app is used for an hour a day.
+Target **WCAG 2.2 AA**, as a requirement rather than an aspiration, since this app is used for an
+hour a day.
 
 - **Full keyboard operation.** Every action reachable without a mouse; visible focus rings; logical
   tab order; no keyboard traps.
@@ -127,7 +128,7 @@ Target **WCAG 2.2 AA**. Not aspiration. This app is used for an hour a day.
 - **Audio never required.** Listening cards always offer a text alternative, and when the TTS
   proxy cannot produce any, Listening and Dictation say so and show the word rather than leaving a
   silent exercise with no question in it.
-- **Shortcuts are documented, not folklore.** `?` anywhere opens the shortcut sheet
+- **Shortcuts are documented.** `?` anywhere opens the shortcut sheet
   (`components/Shortcuts.tsx`), which lists every binding the app actually implements. It stays out
   of the way while a field has focus, because `?` is a character before it is a command. Nothing is
   keyboard-only: the sheet is a shortcut to what the tab order already reaches.
