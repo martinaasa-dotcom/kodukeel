@@ -92,7 +92,7 @@ export const BRIEFINGS = {
     what:
       "Words from one of the lists of what Estonians say most, counted from real films and TV " +
       "rather than picked by us.",
-    you: "Type each answer. A word comes back with a new ending each time, so you learn it the way it's really used.",
+    you: "A new word is shown to you first, then asked. A word you know comes back with a new ending each time, so you learn it the way it's really used.",
     action: "Start",
   },
   deck: {

@@ -100,8 +100,8 @@ export const RU: Readonly<Record<string, string>> = {
   "The words you'll hear most": "Слова, которые вы будете слышать чаще всего",
   "Words from one of the lists of what Estonians say most, counted from real films and TV rather than picked by us.":
     "Слова из списка того, что эстонцы говорят чаще всего. Список посчитан по настоящим фильмам и сериалам, а не составлен нами.",
-  "Type each answer. A word comes back with a new ending each time, so you learn it the way it's really used.":
-    "Впишите каждый ответ. Слово каждый раз возвращается с новым окончанием, так что вы учите его так, как его на самом деле используют.",
+  "A new word is shown to you first, then asked. A word you know comes back with a new ending each time, so you learn it the way it's really used.":
+    "Новое слово сначала показывается, потом спрашивается. Знакомое слово каждый раз возвращается с новым окончанием, так что вы учите его так, как его на самом деле используют.",
   "Your own deck": "Ваша колода",
   "The cards you put in this deck, one at a time, the most overdue first.":
     "Карточки, которые вы положили в эту колоду, по одной, начиная с самых просроченных.",

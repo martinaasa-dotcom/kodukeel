@@ -100,8 +100,8 @@ export const UK: Readonly<Record<string, string>> = {
   "The words you'll hear most": "Слова, які ви чутимете найчастіше",
   "Words from one of the lists of what Estonians say most, counted from real films and TV rather than picked by us.":
     "Слова зі списку того, що естонці кажуть найчастіше. Список пораховано за справжніми фільмами й серіалами, а не складено нами.",
-  "Type each answer. A word comes back with a new ending each time, so you learn it the way it's really used.":
-    "Впишіть кожну відповідь. Слово щоразу повертається з новим закінченням, тож ви вчите його таким, яким його справді вживають.",
+  "A new word is shown to you first, then asked. A word you know comes back with a new ending each time, so you learn it the way it's really used.":
+    "Нове слово спершу показується, потім запитується. Знайоме слово щоразу повертається з новим закінченням, тож ви вчите його таким, яким його справді вживають.",
   "Your own deck": "Ваша колода",
   "The cards you put in this deck, one at a time, the most overdue first.":
     "Картки, які ви поклали в цю колоду, по одній, починаючи з найбільш прострочених.",
