@@ -7,7 +7,7 @@ import { rich } from "@/components/round/rich";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CaseLabel } from "@/components/CaseLabel";
 import { caseLabelOf } from "@/lib/copy/caseLabel";
-import { Flame, Target, Timer, X } from "lucide-react";
+import { Check, Flame, Pause, Target, Timer, X } from "lucide-react";
 import { gradeCard } from "@/app/actions";
 import { useOffline } from "@/components/OfflineProvider";
 import { enqueueGrade } from "@/lib/offline/db";
@@ -24,7 +24,10 @@ import { EstonianInput } from "@/components/EstonianInput";
 import { RetypeBox, useRetype } from "@/components/round/Retype";
 import { caseByKey, plainNameForEt } from "@/lib/estonian/cases";
 import { BLANK, filledSentence, primaryAnswer } from "@/lib/estonian/cloze";
-import { OPTION_CLASS, VERDICT_CLASS, optionState, verdictOfCheck } from "@/lib/ux/verdict";
+import { OPTION_CLASS, VERDICT_CLASS, VERDICT_INK, optionState, verdictOfCheck, verdictOfRating } from "@/lib/ux/verdict";
+import { arrowFront } from "@/lib/copy/caseHint";
+import { estonianSide } from "@/lib/srs/estonianSide";
+import { sayLineIn } from "@/lib/estonian/plainAsk";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
 import { hintLadder, narrowLadder, struckOptions } from "@/lib/questions/hints";
@@ -55,6 +58,34 @@ export interface AimedCase {
  * with nothing to connect the two. See `ReviewSession`'s own `isGap`.
  */
 const isGap = (front: string) => front.includes(BLANK);
+
+/**
+ * One answer as the round took it, kept for the list at the end. The October
+ * feedback asked for exactly this: a timed round moves on, so the moment to
+ * study what came back is afterwards, every answer, right and wrong.
+ */
+interface QuestAnswer {
+  key: string;
+  /** The word asked about, or the sentence with its gap. */
+  word: string;
+  /** The plain instruction it was asked with, where it had one. */
+  ask: string | null;
+  /** A gap card's sentence with the answer put back, to read it whole. */
+  sentence: string | null;
+  sentenceEn: string | null;
+  /** What the learner picked or typed; null on a card they marked themselves. */
+  given: string | null;
+  answer: string;
+  rating: 1 | 2 | 3;
+  /** How the answer was given, which decides how the row words it. */
+  how: "picked" | "typed" | "flip";
+  /** Which of the two sides is Estonian, for `lang` and for the speaker. */
+  wordEt: boolean;
+  answerEt: boolean;
+}
+
+/** How long a right pick stays on the screen before the next card. */
+const RIGHT_PAUSE_MS = 1200;
 
 /**
  * THE DAILY QUEST.
@@ -92,6 +123,12 @@ const isGap = (front: string) => front.includes(BLANK);
  * genuinely nothing to compare, and `SELF_GRADES` is what makes that honest
  * (`lib/srs/scheduler.ts`).
  *
+ * THE CLOCK TIMES THE DECIDING, NOT THE READING. From the moment an answer is
+ * in, the clock stands still and the answer stays up: a right pick moves on
+ * by itself after a moment, a wrong one waits for "Next". And the finish
+ * screen lists every answer, misses first, so the studying a timed round has
+ * no room for happens afterwards. Both were the October feedback's ask.
+ *
  * Every answer grades through `gradeCard`, so a round played for the timer
  * still moves the schedule and the log records what happened (ADR-016). An
  * abandoned round writes only the cards actually answered, which is what the
@@ -116,8 +153,29 @@ export function QuestSession({
   const [bestStreak, setBestStreak] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(seconds);
   const [phase, setPhase] = useState<"ready" | "running" | "done">("ready");
-  const [busy, setBusy] = useState(false);
+  /*
+    Which card's answer has gone to the scheduler. A grade is sent in the
+    background while the answer stays on the screen, so the next card can be
+    up before the last one has reached the server; a flag for the whole round
+    would block that card on a slow network. One grade per card is the guard.
+  */
+  const gradedAt = useRef(-1);
+  /*
+    THE CLOCK STOPS WHILE AN ANSWER IS ON THE SCREEN.
+
+    The October feedback: a pick said "right" for half a second and the next
+    card was already up, which is a clock timing the reading of the answer
+    rather than the deciding. The clock runs while a card is being answered
+    and stands still from the moment an answer is in until the next card is
+    up, so the time is the learner's thinking and nothing else.
+  */
+  const [held, setHeld] = useState(false);
+  const [log, setLog] = useState<QuestAnswer[]>([]);
+  const onward = useRef<ReturnType<typeof setTimeout> | null>(null);
   const shownAt = useRef(Date.now());
+  // When the answer went in, so a typed card's time is the thinking and not
+  // the reading of the verdict after it.
+  const decidedAt = useRef<number | null>(null);
   const sound = useFeedbackSound();
 
   const card = cards.length > 0 ? cards[index % cards.length]! : null;
@@ -135,7 +193,15 @@ export function QuestSession({
   */
   const cue = card ? gapCue({ hint: card.hint, lemma: card.lemma, marked: meaning?.marked ?? false }) : null;
   const cueCase = caseLabelOf(cue);
-  const exhausted = cards.length > 0 && attempted >= cards.length;
+  // Every card asked and moved past, rather than every card graded: the last
+  // one's answer is still on the screen until the learner moves on.
+  const exhausted = cards.length > 0 && index >= cards.length;
+  // A bare form card leads with its word and asks in a plain sentence; the
+  // grammar name is never the whole question (`sayFor` in the quest's pool).
+  const split = card && !isGap(card.front) ? arrowFront(card.front) : null;
+  const say = card?.say ? sayLineIn(locale, card.say.slot, card.say.line) : null;
+  const frontEt = !!card && (isGap(card.front) || estonianSide(card.cardType, "front"));
+  const backEt = !!card && estonianSide(card.cardType, "back");
 
   /*
     THE WAY OUT OF BEING STUCK, ON THE ROUND BUILT OUT OF WHAT SOMEBODY IS
@@ -180,10 +246,12 @@ export function QuestSession({
   const struck = card?.choices ? struckOptions(options, answerText, hints.taken) : [];
 
   useEffect(() => {
-    if (phase !== "running") return;
+    if (phase !== "running" || held) return;
     const t = setInterval(() => setSecondsLeft((s) => Math.max(0, s - 1)), 1000);
     return () => clearInterval(t);
-  }, [phase]);
+  }, [phase, held]);
+
+  useEffect(() => () => { if (onward.current) clearTimeout(onward.current); }, []);
 
   const finish = useCallback(() => setPhase("done"), []);
 
@@ -198,9 +266,29 @@ export function QuestSession({
      lets go. The grade is what the marker said, so this is rehearsal only. */
   const retype = useRetype(card?.back ?? "", index);
   const needsRetype = !!card?.typed && !!check && check.verdict !== "correct" && !retype.ok;
-  const answer = useCallback(async (got: boolean, reached?: string | null, rating?: 1 | 2 | 3) => {
-    if (!card || busy) return;
-    setBusy(true);
+  /*
+    The next card, once the learner has looked at the answer. Separate from the
+    grade, which is written the moment the answer is in: what used to be one
+    step is two, so the answer can stay on the screen with the clock stopped.
+  */
+  const advance = useCallback(() => {
+    if (onward.current) { clearTimeout(onward.current); onward.current = null; }
+    setPicked(null);
+    setRevealed(false);
+    setTyped("");
+    setCheck(null);
+    setHeld(false);
+    setIndex((i) => i + 1);
+    shownAt.current = Date.now();
+    decidedAt.current = null;
+  }, []);
+
+  const grade = useCallback(async (
+    got: boolean, reached: string | null, rating: 1 | 2 | 3 | undefined,
+    given: string | null, how: QuestAnswer["how"],
+  ) => {
+    if (!card || gradedAt.current === index) return;
+    gradedAt.current = index;
     sound(got ? "right" : "wrong");
     setAttempted((a) => a + 1);
     if (got) {
@@ -218,8 +306,21 @@ export function QuestSession({
     */
     if (!got) hints.noteMiss();
     // A hint is paid for: see `lib/questions/hints.ts`.
-    const grade = Math.min(rating ?? (got ? 3 : 1), hints.ceiling) as 1 | 2 | 3;
-    const duration = Date.now() - shownAt.current;
+    const score = Math.min(rating ?? (got ? 3 : 1), hints.ceiling) as 1 | 2 | 3;
+    setLog((l) => [...l, {
+      key: `${card.id}:${l.length}`,
+      word: split ? split.word : card.front,
+      ask: say,
+      sentence: isGap(card.front) ? filledSentence(card.front, card.back) : null,
+      sentenceEn: isGap(card.front) ? card.sentenceEn : null,
+      given,
+      answer: primaryAnswer(card.back),
+      rating: score,
+      how,
+      wordEt: isGap(card.front) || estonianSide(card.cardType, "front"),
+      answerEt: estonianSide(card.cardType, "back"),
+    }]);
+    const duration = (decidedAt.current ?? Date.now()) - shownAt.current;
     const answeredAt = new Date().toISOString();
     // Chosen before asking, and reused if the answer is lost: see `writeGrade`.
     const reviewId = crypto.randomUUID();
@@ -235,7 +336,7 @@ export function QuestSession({
       // Anything queued earlier goes first, so the scheduler hears the answers in order.
       await drainFirst();
       const res = await gradeCard(
-        card.id, grade, duration, answeredAt,
+        card.id, score, duration, answeredAt,
         card.targetCase ?? undefined, reached ?? undefined, reviewId,
       );
       if (!res.ok) throw new Error(res.error);
@@ -244,7 +345,7 @@ export function QuestSession({
         await enqueueGrade({
           id: reviewId,
           cardId: card.id,
-          rating: grade,
+          rating: score,
           durationMs: duration,
           reviewedAt: Date.parse(answeredAt),
           slot: card.targetCase ?? undefined,
@@ -255,14 +356,20 @@ export function QuestSession({
         // No IndexedDB either: the answer is lost, and the round still goes on.
       }
     }
-    setPicked(null);
-    setRevealed(false);
-    setTyped("");
-    setCheck(null);
-    setIndex((i) => i + 1);
-    shownAt.current = Date.now();
-    setBusy(false);
-  }, [card, busy, sound, hints, refreshOutbox, drainFirst]);
+  }, [card, index, sound, hints, refreshOutbox, drainFirst, split, say]);
+
+  // Turning a self-marked card over is the decision; the clock stops there.
+  const flip = useCallback(() => {
+    setRevealed(true);
+    setHeld(true);
+    decidedAt.current = Date.now();
+  }, []);
+
+  // A card the learner marks themselves: the grade and the next card are one press.
+  const answer = useCallback((got: boolean) => {
+    void grade(got, null, undefined, null, "flip");
+    advance();
+  }, [grade, advance]);
 
   /*
     A pick marks itself. The option carries what it would mean, so a wrong one
@@ -272,13 +379,17 @@ export function QuestSession({
     `tuppa / toasse` and both are right.
   */
   const choose = useCallback((option: { text: string; slot: string | null }) => {
-    if (!card || busy || picked) return;
+    if (!card || picked) return;
     const right = acceptedAnswers(card.back, "et")
       .some((f) => f.toLocaleLowerCase("et") === option.text.toLocaleLowerCase("et"));
     setPicked(option.text);
     setRevealed(true);
-    void answer(right, right ? null : option.slot);
-  }, [card, busy, picked, answer]);
+    setHeld(true);
+    void grade(right, right ? null : option.slot, undefined, option.text, "picked");
+    /* A right pick moves on by itself after a moment; a wrong one waits for
+       the learner, because the correction is the one thing worth stopping for. */
+    if (right) onward.current = setTimeout(advance, RIGHT_PAUSE_MS);
+  }, [card, picked, grade, advance]);
 
   /*
     A TYPED CARD IS MARKED, NOT CLAIMED. `checkAnswer` against what the card
@@ -287,15 +398,18 @@ export function QuestSession({
     answer, and the next press grades what it said.
   */
   const markTyped = useCallback(() => {
-    if (!card?.typed || revealed || busy) return;
+    if (!card?.typed || revealed) return;
     const result = checkAnswer(typed, card.back, "et", card.rivals);
     setCheck(result);
     setRevealed(true);
-  }, [card, revealed, busy, typed]);
+    setHeld(true);
+    decidedAt.current = Date.now();
+  }, [card, revealed, typed]);
   const nextTyped = useCallback(() => {
     if (!check || needsRetype) return;
-    void answer(check.suggestedRating > 1, null, check.suggestedRating);
-  }, [check, answer, needsRetype]);
+    void grade(check.suggestedRating > 1, null, check.suggestedRating, typed.trim() || null, "typed");
+    advance();
+  }, [check, grade, advance, needsRetype, typed]);
 
   /* Keys, because a two-minute round is one a keyboard should be able to play:
      space or enter turns the card, then space says missed and enter says had it. Same two answers as a flip
@@ -327,6 +441,13 @@ export function QuestSession({
       }
       const options = card?.choices;
       if (options) {
+        // After a pick, the advance key moves on, right away rather than
+        // waiting out a right answer's pause.
+        if (revealed) {
+          const target = e.target as HTMLElement | null;
+          if (!target?.closest("button") && isAdvanceKey(e)) { e.preventDefault(); advance(); }
+          return;
+        }
         const at = Number(e.key) - 1;
         if (Number.isInteger(at) && at >= 0 && at < options.length) {
           e.preventDefault();
@@ -334,17 +455,17 @@ export function QuestSession({
         }
         return;
       }
-      if (isAdvanceKey(e) && !revealed) { e.preventDefault(); setRevealed(true); return; }
+      if (isAdvanceKey(e) && !revealed) { e.preventDefault(); flip(); return; }
       if (!revealed) return;
       // The two answers have a key each: Space is "Missed it" and Enter is
       // "Had it", as on every other card that asks the learner to judge. The
       // digits stay for anybody who has them under their fingers.
-      if (isNotYetKey(e) || e.key === "1") { e.preventDefault(); void answer(false); }
-      else if (isGotItKey(e) || e.key === "2") { e.preventDefault(); void answer(true); }
+      if (isNotYetKey(e) || e.key === "1") { e.preventDefault(); answer(false); }
+      else if (isGotItKey(e) || e.key === "2") { e.preventDefault(); answer(true); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [phase, revealed, answer, card, choose, nextTyped, needsRetype]);
+  }, [phase, revealed, answer, card, choose, nextTyped, needsRetype, flip, advance]);
 
   if (cards.length === 0) {
     return (
@@ -447,6 +568,79 @@ export function QuestSession({
             <ButtonLink href="/" variant="primary" size="lg">{t("Back to Today")}</ButtonLink>
           </WayOut>
         </div>
+        {/*
+          EVERY ANSWER, RIGHT AND WRONG, WITH NO CLOCK ON IT.
+
+          A timed round moves on, so the time to study what came back is
+          afterwards. The October feedback asked for exactly this list: each
+          card as it was asked, the answer it wanted, and what the learner gave,
+          misses first so the ones worth a second look are at the top.
+        */}
+        {log.length > 0 && (
+          <section aria-labelledby="quest-answers" className="mx-auto mt-10 w-full max-w-xl">
+            <h2 id="quest-answers" className="font-display text-xl font-bold" style={{ color: "var(--ink)" }}>
+              {t("Your answers")}
+            </h2>
+            <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
+              {t("Take your time with these. The ones you missed are at the top.")}
+            </p>
+            <ol className="mt-4 flex flex-col gap-3">
+              {[...log].sort((x, y) => x.rating - y.rating).map((row) => {
+                const verdict = verdictOfRating(row.rating);
+                const right = row.rating === 3;
+                return (
+                  <li
+                    key={row.key}
+                    data-quest-answer={verdict}
+                    className="flex items-start gap-3 rounded-[var(--r)] border p-4"
+                    style={{ borderColor: "var(--edge)", background: "var(--surface)" }}
+                  >
+                    <span aria-hidden className="mt-1" style={{ color: VERDICT_INK[verdict] }}>
+                      {right ? <Check size={18} /> : <X size={18} />}
+                    </span>
+                    <div className="flex min-w-0 flex-1 flex-col gap-1">
+                      <p className="sr-only">{right ? t("Right.") : verdict === "nearly" ? t("Nearly.") : t("Missed.")}</p>
+                      {row.sentence ? (
+                        <p lang="et" className="text-md leading-snug" style={{ color: "var(--ink)" }}>{row.sentence}</p>
+                      ) : (
+                        <p className="flex flex-wrap items-baseline gap-x-2">
+                          <span lang={row.wordEt ? "et" : undefined} className="text-md font-bold" style={{ color: "var(--ink)" }}>{row.word}</span>
+                          {row.ask && <span className="text-sm" style={{ color: "var(--ink-2)" }}>{row.ask}</span>}
+                        </p>
+                      )}
+                      {row.sentenceEn && (
+                        <p className="text-sm" style={{ color: "var(--ink-2)" }}>{row.sentenceEn}</p>
+                      )}
+                      <p className="text-base" style={{ color: "var(--ink)" }}>
+                        <span className="mr-2">{t("The answer:")}</span>
+                        <span lang={row.answerEt ? "et" : undefined} className="font-semibold" style={{ color: "var(--accent-deep)" }}>{row.answer}</span>
+                        {/* Heard only where the answer is Estonian: an English
+                            gloss read by an Estonian voice teaches nothing. */}
+                        {row.answerEt && (
+                          <Speak
+                            text={row.answer}
+                            label={fill(t("Hear {word}"), { word: row.answer })}
+                            className="press ml-1 inline-flex h-7 w-7 items-center justify-center rounded-full align-middle transition-colors hover:bg-[var(--raised)]"
+                          />
+                        )}
+                      </p>
+                      {!right && row.given && (
+                        <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+                          {rich(t(row.how === "typed" ? "You typed {given}." : "You picked {given}."), {
+                            given: <span lang={row.answerEt ? "et" : undefined} className="font-semibold">{row.given}</span>,
+                          })}
+                        </p>
+                      )}
+                      {!right && row.how === "flip" && (
+                        <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t("You said you missed this one.")}</p>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          </section>
+        )}
       </Page>
     );
   }
@@ -460,8 +654,9 @@ export function QuestSession({
       <div className="flex items-center justify-between gap-3">
         <span className="flex items-center gap-2 text-sm font-semibold tabular-nums"
           style={{ color: secondsLeft <= 15 ? "var(--again-ink)" : "var(--ink-2)" }}>
-          <Timer size={15} aria-hidden />
+          {held ? <Pause size={15} aria-hidden /> : <Timer size={15} aria-hidden />}
           {Math.floor(secondsLeft / 60)}:{String(secondsLeft % 60).padStart(2, "0")}
+          {held && <span className="font-normal" style={{ color: "var(--ink-3)" }}>{t("paused")}</span>}
         </span>
         <span className="flex items-center gap-3">
           {streak >= 3 && (
@@ -497,7 +692,37 @@ export function QuestSession({
           {card.targetsWeakCase && (
             <Chip tone="hard">{t("One you often miss")}</Chip>
           )}
-          <FitText as="p" text={card.front} lang="et" className="round-word font-bold" style={{ color: "var(--ink)" }} />
+          <FitText as="p" text={split ? split.word : card.front} lang={frontEt ? "et" : undefined} className="round-word font-bold" style={{ color: "var(--ink)" }} />
+          {/*
+            WHAT TO DO WITH THE WORD, SAID THE WAY A PERSON WOULD ASK IT.
+
+            The quest drew `juhtuma → lihtminevik, ma` whole, so the only
+            instruction on the card was the name of a form, which the October
+            feedback called out: it tells a learner nothing. The card asks the
+            way review asks the same card, `Say “it happened to me”`, and where
+            no such line can be built the form is a small label under the word
+            rather than half of the headline.
+          */}
+          {say && (
+            <p
+              data-say
+              className="rounded-full px-4 py-1.5 text-lg font-semibold"
+              style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
+            >
+              {say}
+            </p>
+          )}
+          {!say && split && !revealed && (() => {
+            const asked = cueCase ?? caseLabelOf(split.tail);
+            return asked ? (
+              <CaseLabel label={asked} className="text-sm" />
+            ) : (
+              <span lang="et" className="rounded-full px-3 py-1 text-sm font-semibold"
+                style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}>
+                {split.tail}
+              </span>
+            );
+          })()}
           {/*
             WHAT THE SENTENCE AROUND THE GAP SAYS, AND THE CUE ONLY WHERE IT
             DID NOT SAY IT.
@@ -509,7 +734,7 @@ export function QuestSession({
             dictionary already holds, so this costs the quest no call.
           */}
           {meaning && !revealed && <GapMeaning meaning={meaning} className="text-sm leading-snug" />}
-          {cue && !revealed && (
+          {cue && !revealed && !say && !(cueCase && split) && (
             <p className="text-sm" style={{ color: "var(--ink-3)" }}>
               {/* A stored hint naming a case is drawn as one label, the way
                   the review card draws it, never as the string it was stored as. */}
@@ -544,7 +769,7 @@ export function QuestSession({
                     type="button"
                     lang="et"
                     onClick={() => choose(option)}
-                    disabled={busy || picked !== null}
+                    disabled={picked !== null}
                     className={`choice-btn ${state} flex items-center justify-between gap-2 rounded-[var(--r)] border px-4 py-3 text-left text-lg font-semibold`}
                   >
                     <span className={!revealed && struck.includes(option.text) ? "line-through" : ""}>
@@ -581,6 +806,39 @@ export function QuestSession({
                   open={hints.open}
                   label={card.lemma ?? card.front}
                 />
+              )}
+              {/* A gap card's sentence read whole once the answer is in, with
+                  what it means: the gap was the question, the sentence is what
+                  the answer is an answer to. */}
+              {revealed && isGap(card.front) && (
+                <div className="mt-1 flex flex-col items-center gap-1.5 text-center">
+                  <div className="flex items-start justify-center gap-2">
+                    <p lang="et" className="text-md leading-snug" style={{ color: "var(--ink)" }}>
+                      {card.front.split(BLANK)[0]}
+                      <span style={{ color: "var(--accent-deep)", fontWeight: 600 }}>{primaryAnswer(card.back)}</span>
+                      {card.front.split(BLANK)[1]}
+                    </p>
+                    <Speak
+                      text={filledSentence(card.front, card.back)}
+                      label={t("Hear the whole sentence")}
+                      className="press inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
+                    />
+                  </div>
+                  <SentenceTranslation
+                    key={card.front}
+                    lexemeId={card.lexemeId}
+                    et={filledSentence(card.front, card.back)}
+                    en={card.sentenceEn}
+                    canTranslate={card.canTranslate}
+                  />
+                </div>
+              )}
+              {/* The clock is stopped while this is up; the learner says when
+                  to go on. A right pick also goes on by itself in a moment. */}
+              {revealed && (
+                <Button variant="primary" size="lg" autoFocus onClick={advance} className="mt-1">
+                  {t("Next")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+                </Button>
               )}
             </div>
           ) : revealed ? (
@@ -628,13 +886,13 @@ export function QuestSession({
                 </div>
               ) : (
                 <div className="flex items-center gap-2" role="status">
-                  <p lang="et" className="text-2xl font-semibold" style={{ color: "var(--accent-deep)" }}>
+                  <p lang={backEt ? "et" : undefined} className="text-2xl font-semibold" style={{ color: "var(--accent-deep)" }}>
                     {card.back}
                   </p>
                   {/* The answer, read aloud as it appears, the same rule
                       ReviewSession's own flip reveal states for itself: the
                       word you were trying to recall, said properly. */}
-                  <Speak text={primaryAnswer(card.back)} autoplay />
+                  <Speak text={backEt ? primaryAnswer(card.back) : (split ? split.word : card.front)} autoplay />
                 </div>
               )}
               {card.typed && check ? (
@@ -646,7 +904,7 @@ export function QuestSession({
                     {check.verdict === "correct" ? t("Right.") : answerNote(check.note, locale) || fill(t("It's {answer}."), { answer: primaryAnswer(card.back) })}
                   </p>
                   {check.verdict !== "correct" && <RetypeBox retype={retype} />}
-                  <Button variant="primary" size="lg" autoFocus disabled={busy} onClick={needsRetype ? retype.check : nextTyped}>
+                  <Button variant="primary" size="lg" autoFocus onClick={needsRetype ? retype.check : nextTyped}>
                     {needsRetype ? t("Check it again") : t("Next")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
                   </Button>
                 </div>
@@ -657,16 +915,14 @@ export function QuestSession({
                     to compare, which is the flip review keeps too. */}
                 <button
                   type="button"
-                  disabled={busy}
-                  onClick={() => void answer(false)}
+                  onClick={() => answer(false)}
                   className={`${VERDICT_CLASS.wrong} press rounded-[var(--r)] px-3 py-3 text-base font-bold transition-ui hover:scale-[1.02] disabled:opacity-40`}
                 >
                   {t("Missed it")} <SpaceKeyCap className="ml-1" />
                 </button>
                 <button
                   type="button"
-                  disabled={busy}
-                  onClick={() => void answer(true)}
+                  onClick={() => answer(true)}
                   className={`${VERDICT_CLASS.right} press rounded-[var(--r)] px-3 py-3 text-base font-bold transition-ui hover:scale-[1.02] disabled:opacity-40`}
                 >
                   {t("Had it")} <EnterKeyCap className="ml-1" />
@@ -688,7 +944,7 @@ export function QuestSession({
                 autoFocus
                 large
               />
-              <Button variant="primary" size="lg" disabled={busy} onClick={markTyped}>
+              <Button variant="primary" size="lg" onClick={markTyped}>
                 {t("Check it")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
               </Button>
               <HintLadder
@@ -700,7 +956,7 @@ export function QuestSession({
               />
             </div>
           ) : (
-            <Button variant="primary" size="lg" onClick={() => setRevealed(true)}>
+            <Button variant="primary" size="lg" onClick={flip}>
               {t("Show answer")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           )}

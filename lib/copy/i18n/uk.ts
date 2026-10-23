@@ -234,7 +234,7 @@ export const UK: Readonly<Record<string, string>> = {
   "The endings you keep missing": "Закінчення, у яких ви найчастіше помиляєтеся",
   "Cards from the cases you get wrong most, picked from your own answers, against the clock.":
     "Картки на відмінки, у яких ви найчастіше помиляєтеся, дібрані за вашими ж відповідями, на час.",
-  "Answer as many as you can before time runs out.": "Дайте якомога більше відповідей, поки не скінчиться час.",
+  "Answer as many as you can. The clock stops while each answer shows, and you'll see them all again at the end.": "Дайте якомога більше відповідей. Поки на екрані відповідь, годинник стоїть, а наприкінці ви побачите всі відповіді ще раз.",
   "Guess today's word": "Вгадайте слово дня",
   "One six-letter Estonian word a day, and seven tries to find it. After each guess, the letters show whether they're in the right spot, somewhere else, or not in the word at all.":
     "Одне естонське слово з шести літер на день і сім спроб його знайти. Після кожної спроби літери показують, чи стоять вони на своєму місці, чи є вони в слові в іншому місці, чи їх у слові немає зовсім.",

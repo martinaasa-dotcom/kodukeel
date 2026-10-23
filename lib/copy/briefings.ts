@@ -290,7 +290,7 @@ export const BRIEFINGS = {
   quest: {
     title: "The endings you keep missing",
     what: "Cards from the cases you get wrong most, picked from your own answers, against the clock.",
-    you: "Answer as many as you can before time runs out.",
+    you: "Answer as many as you can. The clock stops while each answer shows, and you'll see them all again at the end.",
     action: "Start",
   },
   sonad: {

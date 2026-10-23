@@ -903,6 +903,30 @@ export async function ladderReading(
 }
 
 /**
+ * Where each A1 lesson stands for this learner, for the list of lessons:
+ * done, the one to do next, or ahead (`lessonStates`). One read of their ticks
+ * on the lesson parts, beside the part they are following.
+ */
+export async function lessonListStates(ownerId: string): Promise<Map<string, LessonState>> {
+  const parts = PROGRAMMES.filter((p) => p.days.some((d) => d.lesson));
+  const [following, rows] = await Promise.all([
+    programmeFor(ownerId),
+    prisma.courseStep.findMany({
+      where: { ownerId, programmeId: { in: parts.map((p) => p.id) } },
+      select: { programmeId: true, dayId: true },
+      orderBy: { id: "asc" },
+    }),
+  ]);
+  const ticked = new Map<string, Set<string>>();
+  for (const row of rows) {
+    const days = ticked.get(row.programmeId) ?? new Set<string>();
+    days.add(row.dayId);
+    ticked.set(row.programmeId, days);
+  }
+  return lessonStates(parts, ticked, following?.id ?? null);
+}
+
+/**
  * HOW FAR ALONG THE LADDER SOMEBODY IS, FOR THE BAR ON TODAY.
  *
  * `lib/course/milestones.ts` is the rule; this counts the words. One grouped
@@ -982,28 +1006,4 @@ export const ladderPosition = cache(async (
 export function targetFrom(stored: string | null | undefined): Level {
   const wanted = (stored ?? "").trim().toUpperCase();
   return (LEVELS as readonly string[]).includes(wanted) ? (wanted as Level) : "B1";
-}
-
-/**
- * Where each A1 lesson stands for this learner, for the list of lessons:
- * done, the one to do next, or ahead (`lessonStates`). One read of their ticks
- * on the lesson parts, beside the part they are following.
- */
-export async function lessonListStates(ownerId: string): Promise<Map<string, LessonState>> {
-  const parts = PROGRAMMES.filter((p) => p.days.some((d) => d.lesson));
-  const [following, rows] = await Promise.all([
-    programmeFor(ownerId),
-    prisma.courseStep.findMany({
-      where: { ownerId, programmeId: { in: parts.map((p) => p.id) } },
-      select: { programmeId: true, dayId: true },
-      orderBy: { id: "asc" },
-    }),
-  ]);
-  const ticked = new Map<string, Set<string>>();
-  for (const row of rows) {
-    const days = ticked.get(row.programmeId) ?? new Set<string>();
-    days.add(row.dayId);
-    ticked.set(row.programmeId, days);
-  }
-  return lessonStates(parts, ticked, following?.id ?? null);
 }
