@@ -7,6 +7,7 @@ import { SceneMotif } from "./SceneMotif";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
+import { useSceneLook } from "./sceneLook";
 
 /**
  * The room a conversation happens in, and the website taken off the screen for
@@ -90,9 +91,10 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, as
   const inModule = useModuleFocus() !== null;
   const t = useT();
   const met = progress?.filter((one) => one.met).length ?? 0;
+  const look = useSceneLook();
 
   return (
-    <div className="scene-room relative flex min-h-screen flex-col" data-stage={stage ? "" : undefined}>
+    <div className="scene-room relative flex min-h-screen flex-col" data-night={look === "oo" ? "" : undefined} data-stage={stage ? "" : undefined} data-look={look}>
       {/* The room's own light, behind everything and fixed, so a long
           transcript does not drag it up the screen. */}
       <div aria-hidden className="scene-ground" />

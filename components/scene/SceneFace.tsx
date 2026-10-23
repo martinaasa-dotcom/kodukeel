@@ -41,6 +41,7 @@ export function SceneFace({ who, size = "sm" }: {
   return (
     <span
       aria-hidden
+      data-face={who}
       className={big
         ? "inline-flex h-24 w-24 shrink-0 items-center justify-center rounded-full"
         : "mt-1 inline-flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full"}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
-import { BookOpen, Clock, CornerDownLeft, DoorOpen, Heart, Info, LifeBuoy, ListChecks, MessageCircle, Mic, Phone, RotateCcw, Shuffle } from "lucide-react";
+import { BookOpen, Clock, CornerDownLeft, DoorOpen, Heart, Info, LifeBuoy, ListChecks, MessageCircle, Mic, Phone, RotateCcw, Shuffle, ArrowUp } from "lucide-react";
 import { RoundChip } from "@/components/round/RoundStart";
 import { Button } from "@/components/Button";
 import { ChoiceCard, ChoiceChip, ChoiceGroup } from "@/components/Choice";
@@ -22,6 +22,7 @@ import type { Difficulty } from "@/lib/scenes/curveballs";
 import { BUDGETS, defaultDifficultyFor } from "@/lib/scenes/curveballs";
 import { LEVELS, type Level } from "@/lib/collections/syllabus/types";
 import { SceneFace } from "./SceneFace";
+import { useSceneLook } from "./sceneLook";
 import { SceneDebrief, type Debrief } from "./SceneDebrief";
 import type { Errand } from "@/lib/collections/errands";
 import { SceneStage } from "./SceneStage";
@@ -389,6 +390,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
      components/course/moduleFocus.ts. */
   const inModule = useModuleFocus() !== null;
   const t = useT();
+  const look = useSceneLook();
   const locale = useLocale();
   const templates = useMemo(() => sceneTemplates(scene), [scene]);
   /** A line the server filled in English, in the learner's interface language. */
@@ -2024,7 +2026,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
         It grows with every line, because in the app the conversation is the
         page, and nothing inside it scrolls on its own.
       */}
-      <div className="night night-open scene-night flex flex-col gap-5 rounded-[var(--r-xl)] border p-3 sm:p-4 md:p-6">
+      <div className={`${look === "base" ? "night night-open scene-night" : "scene-panel"} flex flex-col gap-5 rounded-[var(--r-xl)] border p-3 sm:p-4 md:p-6`}>
       {/*
         A CALL LOOKS LIKE A CALL (VB-4). On the telephone, heard rather than
         read, the screen is what a phone shows mid-call: who is on the line,
@@ -2036,7 +2038,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
       {callLook && <CallScreen saying={saying} listening={mic.listening} thinking={mic.thinking} />}
       <div
         hidden={callLook}
-        className="flex flex-col gap-3 px-1 pt-1"
+        className="scene-log flex flex-col gap-3 px-1 pt-1"
         role="log"
         aria-live="polite"
         aria-relevant="additions"
@@ -2069,6 +2071,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
               <SceneFace who="you" />
               <div className="flex min-w-0 flex-col items-end">
               <span className="sr-only">{t("You said:")}{" "}</span>
+              <span aria-hidden className="scene-who">{t("You")}</span>
               {/*
                 What you typed, and a button to hear it said by a native
                 voice, which the design (§11) promised and nothing drew: a
@@ -2165,6 +2168,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
               {turn.lines.some((line) => line.provenance !== "meanwhile") && <SceneFace who="them" />}
               <div className={`flex min-w-0 flex-col items-start gap-2 ${turn.lines.every((line) => line.provenance === "meanwhile") ? "w-full" : ""}`}>
               <span className="sr-only">{t("They said:")}{" "}</span>
+              {turn.lines.some((line) => line.provenance !== "meanwhile") && <span aria-hidden className="scene-who">{t("They")}</span>}
               {inOneBreath(turn.lines).map((line, at) => (
                 spoken(line) ? (
                   /*
@@ -2432,7 +2436,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
         */}
         {/* Lit the way the room above it is, so the two ends of the screen
             are one conversation: the place you are in, and what you say in it. */}
-        <div className="scene-ask flex flex-col gap-3 rounded-[var(--r-xl)] p-4 md:p-5">
+        <div className="scene-ask flex flex-col gap-3 rounded-[var(--r-xl)] p-4 md:p-5" data-answer-by={answerBy}>
           {/*
             HOW THEY ARE HEARD, SAID WHERE THE LEARNER IS LOOKING. A label and
             a control at once: the chosen chip says which of the three this
@@ -2442,8 +2446,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
             turn would be the same sentence read at somebody each time the
             other side speaks.
           */}
-          {!talk && <SceneVoiceChoice value={voiceMode} onSelect={chooseVoice} compact />}
-          <div aria-live="polite">
+          {!talk && <div className="scene-voice"><SceneVoiceChoice value={voiceMode} onSelect={chooseVoice} compact /></div>}
+          <div aria-live="polite" className="scene-turnhead">
             {/*
               HOW FAR IN, WHERE THE LEARNER IS LOOKING.
 
@@ -2456,7 +2460,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
               disagree, and it is a count of ticks rather than a meter (§7):
               nothing fills, nothing drains, and nothing is running.
             */}
-            <p className="label-xs flex flex-wrap items-baseline justify-between gap-x-3" style={{ color: "var(--cta)" }}>
+            <p className="scene-turnlabel label-xs flex flex-wrap items-baseline justify-between gap-x-3" style={{ color: "var(--cta)" }}>
               <span>{t("Your turn")}</span>
               <span style={{ color: "var(--ink-3)" }}>{fill(t("{met} of {total}"), { met: metCount, total: objectives.length })}</span>
             </p>
@@ -2507,7 +2511,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                 {t("Show me what I'm trying to do")}
               </button>
             ) : (
-              <p className="mt-1 text-lg font-medium leading-snug">
+              <p className="scene-goal mt-1 text-lg font-medium leading-snug">
                 {goal ? onStage(goal) : t("Answer them.")}
                 {/*
                   AND THE VALUE THE CARD DEALT FOR IT, IN THE ONE PLACE THE
@@ -2518,7 +2522,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                   this a reminder rather than a second answer.
                 */}
                 {dealtNow.length > 0 && (
-                  <span style={{ color: "var(--accent-deep)" }}> {dealtNow.join(", ")}</span>
+                  <span className="scene-dealt" style={{ color: "var(--accent-deep)" }}> {dealtNow.join(", ")}</span>
                 )}
               </p>
             )}
@@ -2551,7 +2555,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
             360, which read as two choices and an afterthought.
           */}
           {!talk && (
-            <ChoiceGroup ariaLabel={t("How you answer")} className="flex flex-wrap gap-2">
+            <div className="scene-how"><ChoiceGroup ariaLabel={t("How you answer")} className="flex flex-wrap gap-2">
               {([
                 ...(chat ? [] : [{ id: "pick" as const, title: t("Pick a line"), icon: <ListChecks size={15} aria-hidden /> }]),
                 ...(speechHere ? [{ id: "say" as const, title: t("Say it"), icon: <Mic size={15} aria-hidden /> }] : []),
@@ -2567,7 +2571,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                   {one.title}
                 </ChoiceChip>
               ))}
-            </ChoiceGroup>
+            </ChoiceGroup></div>
           )}
           {answerBy === "pick" && picks.length > 0 ? (
             /*
@@ -2667,6 +2671,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                   onState={setMic}
                 />
               )}
+              <div className="scene-compose flex flex-col gap-3">
               <EstonianInput
                 value={draft}
                 onChange={(next) => { setDraft(next); if (!next) setPending(null); }}
@@ -2682,12 +2687,14 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                 controls are a row of their own underneath, which also keeps Leave
                 away from the button being pressed twenty times a conversation.
               */}
-              <Button onClick={say} disabled={busy || moving || !draft.trim()} variant="primary" className="w-full sm:w-auto sm:self-start">
+              <Button onClick={say} disabled={busy || moving || !draft.trim()} variant="primary" className="scene-send w-full sm:w-auto sm:self-start">
                 {ring === "box"
                   ? <SendRing onDone={ringDone} onStop={() => setRing(null)} announce={false} />
                   : <CornerDownLeft size={16} aria-hidden />}{" "}
-                {t("Say it")}
+                {ring !== "box" && <ArrowUp size={20} aria-hidden className="scene-send-up" />}
+                <span className="scene-send-label">{t("Say it")}</span>
               </Button>
+              </div>
               {ring === "box" && (
                 <p role="status" className="text-sm" style={{ color: "var(--ink-2)" }}>
                   {t("This goes in a moment. Press anywhere or any key to stop it and change the words.")}
@@ -2695,7 +2702,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
               )}
             </>
           )}
-          <div className="flex flex-wrap gap-2">
+          <div className="scene-tools flex flex-wrap gap-2">
             <Button variant="ghost" onClick={again} disabled={busy || moving || !heard}>
               <RotateCcw size={16} aria-hidden /> {t("Say that again")}
             </Button>
