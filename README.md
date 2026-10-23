@@ -1,7 +1,7 @@
 # Kodukeel. Estonian that finally sticks
 
-*Kodukeel* means "home language". It's an app for learning Estonian, and the whole point of it is
-that you eventually put it down. It teaches you the words properly, then sits you opposite
+*Kodukeel* means "home language". It's an app for learning Estonian, and it is built to be put
+down eventually. It teaches you the words properly, then sits you opposite
 somebody who wants something from you, and then counts the conversations you have out in the real
 world.
 
@@ -75,8 +75,8 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
   did, it asks how it went: they understood you, they switched to English, or you got stuck partway.
   If you didn't, it suggests one small errand for today, like ordering a coffee or asking the time,
   using words from units you've already started, with the scene that rehearses it one tap away.
-  Progress puts your count of real conversations above every chart, because a conversation you
-  actually had is the only measure that matters here.
+  Progress puts your count of real conversations above every chart, because that count is what
+  the app is measured by.
 - **Hearing the way people really talk.** A word you know well comes back fast, over café noise,
   down a phone line, starting halfway through, and in a different voice each time. The words never
   change, only the way they're said, because nobody at a counter sounds like a clean synthetic
@@ -98,7 +98,7 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
   ("Hotelli ____ on näha vanalinna.") and a word-order builder. Nothing is made up: the app only
   ever hides or reorders Estonian that a lexicographer wrote down.
 - **Review that asks properly.** Type your answer and it's checked. A missing `õ` is told apart
-  from a typo, and a typo from a genuinely wrong word, and each verdict suggests a grade you can
+  from a typo, and a typo from a wrong word, and each verdict suggests a grade you can
   change. New words are shown to you with their answer rather than guessed at, and multiple choice
   covers recognizing them. Press `u` to undo your last grade. The card goes back to how it was, and
   your answer stays in your review history, which is never edited.
@@ -108,7 +108,7 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
   flash cards over your whole deck, and the hundred most common words of each kind, counted from
   film and television subtitles rather than picked by anybody. Nine games: Tähed (put the
   letters of a word you know back in order), Tähthaaval (a word you know spelled out letter by letter in Estonian, the way a name comes down a phone line, for you to write down; it grades nothing), Sõnad (one six-letter word a day, in seven guesses),
-  Ristsõna (a crossword with English clues and Estonian answers), Map (a small picture of something moving or having or becoming, and the form of the word that matches it), Kaksikud (words that look alike, like `ostma` and `otsima`, told apart in a real sentence, with a reference page explaining the three kinds), Väljendid (a verb and one small word that change what it means, like `läks katki`: taken apart word by word, guessed before the answer is shown, matched five at a time, placed in a situation, then filled into a real sentence), Sõnamäng (compound words with very honest names, like `nahkhiir`, a leather mouse, taken apart and guessed, and words that only look or sound English, like `pea`, which is a head) and 20 küsimust (twenty
+  Ristsõna (a crossword with English clues and Estonian answers), Map (a small picture of something moving or having or becoming, and the form of the word that matches it), Kaksikud (words that look alike, like `ostma` and `otsima`, told apart in a real sentence, with a reference page explaining the three kinds), Väljendid (a verb and one small word that change what it means, like `läks katki`: taken apart word by word, guessed before the answer is shown, matched five at a time, placed in a situation, then filled into a real sentence), Sõnamäng (compound words with very literal names, like `nahkhiir`, a leather mouse, taken apart and guessed, and words that only look or sound English, like `pea`, which is a head) and 20 küsimust (twenty
   questions: you ask yes or no questions in Estonian to find what the game is thinking of, and every
   question comes back with a plain grammar tip where it could be better; it grades nothing). Töövihik,
   the workbook: a page of real sentences with a word in brackets to write in the form the sentence
@@ -138,9 +138,9 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
   which word you missed, and whether all you lost was its Estonian letters. Estonian glues its case
   endings onto the stem, so hearing a sentence perfectly and still writing the wrong ending is its
   own kind of mistake, and worth naming.
-- **Speaking that doesn't lie to you.** Say the word, then hear a native voice and your own
-  recording one after the other. There's no score, because there's no proven Estonian speech
-  recognizer this app can use, and a made-up confidence number would be believed.
+- **Speaking that doesn't score your accent.** Say the word, and the app tells you which words it
+  understood, then plays your recording beside a native voice. It never rates how a word sounded,
+  because no recognizer can judge that fairly, and a made-up number would be believed.
 - **A level check that measures rather than asks.** Eighty questions from A1 to C1: six reading and
   six writing at each level, three listening, and one spoken. It's built entirely from the
   dictionary, so the questions are meanings, sentences with a word taken out, dictation, and forms
@@ -184,7 +184,7 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
   case right, the cards that keep coming back, what you could hold a conversation about, and how
   much of each CEFR level's vocabulary you know. All of it is worked out live from your review
   history and never stored, so none of it can drift away from what you actually did. There's no XP
-  and there are no badges: a second score beside the numbers that mean something is just noise.
+  and there are no badges: they were a second score beside the numbers that mean something.
   Classes can turn on a weekly leaderboard. You're not on it until you set a name and join.
 - **How ready you really are, measured in situations rather than a percentage.** Every unit of the
   course makes a promise, like "describe a symptom to a doctor and understand the advice". The app
@@ -212,8 +212,8 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
   recognizes brings its own principal parts with it, and the photo itself is read once and never
   kept. The page then becomes a set you can practice on its own.
 - **Worksheets you can print.** Any unit becomes a sheet with its vocabulary, gap-fills built from
-  real recorded sentences and a table of principal parts, plus the answer key on its own page. For
-  the part of a class that happens in a room.
+  real recorded sentences and a table of principal parts, plus the answer key on its own page. They
+  are for the part of a class that happens in a room.
 - **Your real retention.** Not the raw rate of right answers, which counts the first time you ever
   see a new card, but how often a card the scheduler *thought* you knew actually came back to you,
   measured against the 90% FSRS aims for. You get one clear thing to do, rather than a chart to
@@ -230,7 +230,7 @@ time anybody looks it up, so the second time is instant and works offline. Words
 set are upgraded to the authoritative forms the first time you open them.
 
 Ekilex doesn't give English on a reader key, so translations come from a series of fallbacks: one
-you've already accepted, then Wiktionary, then Anu, then an honest blank for you to fill in. Each
+you've already accepted, then Wiktionary, then Anu, then a blank for you to fill in. Each
 one says where it came from, and you can always overwrite it.
 
 Ekilex does give Russian and Ukrainian, though, in the same answer as the forms, and the course
@@ -302,7 +302,7 @@ the things around you), and the two-minute chat after an evening.
 ## Turning on Anu, the tutor
 
 One free key turns on Anu, Situations and page scanning, and a second free key backs them up.
-Neither asks for a card. **Settings** in the app walks you through it, but in short:
+Neither asks for a card. **Settings** in the app walks you through it. The steps:
 
 1. Sign in at [aistudio.google.com](https://aistudio.google.com/apikey). It's free, and no card is needed.
 2. **Create API key**. Copy it.
@@ -439,7 +439,7 @@ made from its content, fetched once for everyone rather than once per server sta
 key it falls back to the local disk, and Settings tells you so plainly.
 
 **Set a spend cap.** The app is free for whoever uses it, and the caps are what make that
-affordable rather than a leap of faith. Anu is metered per person per day (ten answers,
+affordable. Anu is metered per person per day (ten answers,
 `AI_DAILY_CALLS_PER_USER`), and scenes, the graders, scanning and speech each get an allowance
 worked out from that same number in `lib/usage/ledger.ts`, larger where a call costs less.
 Everything sits under one daily ceiling for the whole site, `AI_DAILY_USD_GLOBAL`, which defaults to
@@ -609,7 +609,7 @@ other way round, off until somebody turned it on, on the argument that a form wh
 address and then emails nobody is worse than no form at all. The argument still holds, but the
 default didn't work out: the switch was one more thing to remember in a dashboard, and the one live
 deployment spent weeks offering Google as the only way in. Only turn it off for a site whose email
-genuinely doesn't go out, and set up SMTP before anybody but you is asking for links.
+doesn't go out, and set up SMTP before anybody but you is asking for links.
 
 ### Course reminders
 
@@ -725,7 +725,7 @@ are all still read in the one place they always were.
 ## The way it looks
 
 A visitor who isn't signed in lands on **/welcome**: a single-page tour with a working flashcard, a
-live case table and an honest comparison with the streak apps. Every Estonian form on that page is
+live case table and a comparison with the streak apps. Every Estonian form on that page is
 read from the real dictionary and worked out by the app's own code, not typed into marketing copy.
 
 Inside, the app uses a soft pastel palette built around the cornflower, *rukkilill*, Estonia's
@@ -741,7 +741,7 @@ panel can restore one. Restoring merges by default and can't delete anything, so
 file twice does no harm. Replacing everything sits behind a confirmation you have to type.
 
 Your review history is the one thing here that can't be recreated, so grab a copy now and then, and
-try restoring it once while nothing is at stake. A backup you've never restored is only a hope.
+try restoring it once while nothing is at stake.
 
 ## What learners get wrong, counted
 
@@ -766,7 +766,7 @@ always means too little data, never no mistakes. Anyone can leave their own answ
 rather than taken away afterwards.
 
 Read `docs/19-research-export.md` before sending a file to anybody. It explains what the tables can
-and can't tell you, which is the half that makes the rest worth having.
+and can't tell you.
 
 ## If you are assessing this rather than running it
 
@@ -777,13 +777,13 @@ reassurance, and each one says what hasn't been done in the same breath as what 
 | | |
 | --- | --- |
 | `docs/24-dpia.md` | The data protection impact assessment: what's stored, table by table, and fifteen risks, each with its mitigation and the file where that mitigation lives. |
-| `docs/25-data-retention.md` | The retention schedule, honest about the kinds of data kept until the learner deletes their account. |
+| `docs/25-data-retention.md` | The retention schedule, including the kinds of data kept until the learner deletes their account. |
 | `docs/26-subprocessors.md` | The list of who receives data, matching the list `lib/legal/recipients.ts` builds from the deployment's own settings. |
 | `docs/27-security.md` | The threat model and security review, including a section on the weaknesses it found. |
 | `docs/28-incident-response.md` | The incident plan, with the Article 33 clock and step-by-step guides for the incidents this app could really have. |
 | `docs/29-controls.md` | A map of the controls against ISO 27001 and SOC 2. It's a self-assessment, and it says so first. |
 | `docs/33-certification-readiness.md` | The gap analysis behind that map: every "Partial" and "Not done" turned into a piece of work with a size, a cost and a deliverable. |
-| `docs/23-impact.md` | What can honestly be claimed about usage, and the minimums that stop a small number being reported at all. |
+| `docs/23-impact.md` | What can be claimed about usage, and the minimums that stop a small number being reported at all. |
 | `/pilots` (summarized in `docs/30-pilots.md`) | What a pilot is, what it costs, and what isn't ready yet. |
 | `docs/31-grant-case.md` | The case a funding application would be built from, with every figure tied to the file or command behind it, and a list of what it can't claim. |
 | `docs/31-competitors.md` | Three other ways to learn Estonian, read from their own websites on a stated day and compared with Kodukeel row by row, with what closed each gap. |
@@ -824,7 +824,7 @@ tell you so rather than carrying on. They delete data on purpose (`test-restore`
 table to prove a backup brings it all back), and Prisma reads `DATABASE_URL` from the environment
 *before* it reads `.env`. So a terminal that already holds hosted credentials would otherwise point
 them at real data, while `.env` sat there saying `localhost`. Set `KODUKEEL_ALLOW_REMOTE_DB=1` if you
-genuinely mean it. `test-restore` also saves the backup to a file before deleting anything, so a run
+mean it. `test-restore` also saves the backup to a file before deleting anything, so a run
 that stops halfway can be recovered.
 
 ## How it is put together

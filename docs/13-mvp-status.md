@@ -198,7 +198,7 @@ deployment had quietly broken. This pass closes those.
   dictionary or Ekilex. The path references lemmas and `lib/collections/syllabus/syllabus.test.ts` fails if one
   does not exist, and an invented unit word would be an invented Estonian word by the back door.
 - **No cloze or sentence-building mode.** It needs example sentences the dictionary does not carry
-  for every word, and the honest source for those is Ekilex, not a model (ADR-005). Still shelved.
+  for every word, and the source for those has to be Ekilex, not a model (ADR-005). Still shelved.
 - **No speech-to-text.** Unverified for Estonian (audit A5). Unchanged.
 - **No hearts, no lost streaks, no punishment mechanics.** Quests only add. The streak shield already
   covers the anxiety a study app is entitled to create.
@@ -503,7 +503,7 @@ stops using a study app.
 | **The confirmation step** | Every word arrives ticked, editable, and labeled "in the dictionary" or "read from the photo" | This is the feature, not an obstacle in front of it. A model read the picture; the only person who can say what is printed on the paper is the one holding it |
 | **Inflected forms traced to headwords** | `toas` on an exercise sheet resolves to `tuba` and says it was the inessive | A textbook exercise is written in cases, not in citation forms. The inflected-form search the dictionary already had turns that from a problem into the lesson |
 | **A page as a set** (`/scan/[id]`) | A named group of words with its own progress, drilled by `/review?scan=` | The same shape as a learning-path unit, and references rather than copies for the same reason: correct a word once and it is corrected on every page it appears on |
-| **`lib/usage` kind `SCAN`** | A photograph is metered like anything else that costs money | A picture is a few thousand input tokens where a question is a few hundred. An unmetered path is one stranger away from an unbounded invoice, which is the whole argument of §2 |
+| **`lib/usage` kind `SCAN`** | A photograph is metered like anything else that costs money | A picture is a few thousand input tokens where a question is a few hundred. An unmetered path is one stranger away from an unbounded invoice, which is the argument of §2 |
 
 ### The one decision worth arguing about
 
@@ -537,7 +537,7 @@ fail on purpose before being made to pass.
 1. **A word outside the dictionary arrives with no verified forms.** It gets a recognition and a
    production card and nothing else, because there are no forms to build a case-form card from.
    With an Ekilex key the row's "look this up again" button fetches the real ones; without one,
-   the honest answer is two cards.
+   the answer is two cards.
 2. **The English on an unmatched word is the photograph's, not the dictionary's.** It is shown as
    unverified wherever it appears, and correcting the entry corrects it for everyone.
 3. **Sixty words a page.** A double-page spread of a vocabulary list will need two photographs. The
@@ -575,15 +575,15 @@ seeded entries has an empty `examples` array, because sentences arrive from Ekil
 once a word has been looked at with a key configured.
 
 Three of the task shapes need an attested sentence. Without a key that meant the reading part and
-the listening part came out completely empty, and the honest shortfall machinery dutifully reported
-half a paper as absent. Honest, and useless, on the install a stranger gets by default.
+the listening part came out completely empty, and the shortfall machinery reported
+half a paper as absent. Accurate, and useless, on the install a stranger gets by default.
 
 So a task that cannot be set falls back to one built from what the dictionary always holds: words,
 forms, glosses, and a speech synthesizer that needs no key. Listening becomes single words rather
 than sentences, which in Estonian is a harder test than it sounds, since hearing `toas` and writing
 `toa` is exactly the failure the exercise exists to catch. Reading becomes meaning and form
-recognition. The word-order task has no fallback and stays honestly empty, because rebuilding a
-sentence genuinely needs a sentence.
+recognition. The word-order task has no fallback and stays empty, because rebuilding a
+sentence needs a sentence.
 
 **Every substitution is declared**: on the briefing, per task, before the clock starts. A paper that
 quietly swapped in an easier shape would be worse than a short one.
@@ -632,7 +632,7 @@ the part costing you the most marks". They are ranked now and only the worst one
 ## 14. The ninth pass: a course rather than a shelf
 
 §6 added a learning path and §9 a teaching layer, and between them they left one
-honest gap that a direct question exposed: could somebody actually go from A1 to
+gap that a direct question exposed: could somebody actually go from A1 to
 C1 with this? No. The path was 18 units and 239 words, three quarters of them
 A1, with **one** B2 unit and **one** C1 unit of fourteen words each. Nothing
 gated anything, no unit named the grammar it taught, and there was no way to
@@ -734,7 +734,7 @@ there and because putting the narrowing in `resolveScan.ts` keeps `fold` and
 What survives from this side is the part the other had no equivalent of. That
 fix was verified by hand, against real words from the far end of the table, and
 carried no test. **The regression test asserts the narrowing rather than the
-outcome, and that distinction is the whole lesson.** "The right word resolves"
+outcome.** "The right word resolves"
 passes on a small dictionary, and on a large one whenever the row happens to
 land early, which is precisely why the existing tests were green on both
 branches while the scanner was losing a quarter of the dictionary. "An
@@ -755,8 +755,8 @@ Five explanations were measured and all five were wrong: the card's spring
 animation (a Playwright stability trap by reputation, still failing 2 in 10
 under `reducedMotion`), a network race, `ScanCapture`'s own `router.refresh()`,
 the Server Action's `revalidatePath("/scan")`, and the router dropping the
-navigation. The last of those was right and had been measured wrong, which is
-the part worth writing down: the run was scored on whether the whole suite
+navigation. The last of those was right and had been measured wrong, because
+the run was scored on whether the whole suite
 passed, and this suite has two independent faults, so a fix for one kept being
 marked a failure by the other. Score the check, not the suite.
 
@@ -777,8 +777,7 @@ arrives, where a router push swaps it only once the tree is applied, so two
 lines that counted chips immediately after the URL changed had been reading a
 page that had not rendered.
 
-The third only ever failed in CI, and what it was really about is worth the
-paragraph. Drilling a scanned page draws in the learner's existing cards for
+The third only ever failed in CI. Drilling a scanned page draws in the learner's existing cards for
 those words, deliberately, because a page is references rather than copies. So
 the first card can be new, or flip, or multiple choice, or typed, and the
 driver waited for the ratings as though it were always the first. Which one you
@@ -806,8 +805,7 @@ explicit `wrap` now, and nothing else in the app asks for it.
 ### The offline promise, which was not being kept on the first journey
 
 `smoke-offline.mjs` had been failing one check on main, and the reason it went
-unnoticed is that CI did not run it. It runs it now, which is the half of this
-that matters: the suite `CLAUDE.md` calls the one worth keeping green above all
+unnoticed is that CI did not run it. It runs it now. The suite `CLAUDE.md` calls the one worth keeping green above all
 was the only one nothing watched.
 
 The fault behind it was real and had the worst possible shape. `/review` is
@@ -836,8 +834,7 @@ and one redirecting URL would take the offline page down with it.
 1. **C2 is named, not delivered.** Its ten units cover the specialized registers,
    irony, dialect and nuance a C1 speaker still gets wrong, and the last unit
    says in as many words that C2 is finished by reading, arguing and living in
-   the language rather than by finishing units. An app can name the ground. It
-   cannot walk it for you.
+   the language rather than by finishing units.
 2. **1 266 words is a real course and not a real vocabulary.** It is over five
    times what was here before and roughly a fifth of what a C1 reader knows. The gap closes as the learner looks words up, because a live Ekilex
    key stores every word it fetches, but the *course* stops at what the syllabus
@@ -865,8 +862,8 @@ and one redirecting URL would take the offline page down with it.
 ## 15. The tenth pass: what a person has to be told, and what to stop asking twice
 
 Three passes over one branch, and they turned out to share a shape: in each
-one the app was doing the right thing and could not prove it, or was doing an
-honest thing that quietly cost something.
+one the app was doing the right thing and could not prove it, or was doing a
+correct thing that quietly cost something.
 
 ### The policy pages named nothing, and could not
 
@@ -874,7 +871,7 @@ honest thing that quietly cost something.
 sentence in them was true. What they had no way to say was who was answerable.
 Kodukeel is software somebody installs rather than a service with one address,
 so the controller is whoever runs the copy, and the pages said exactly that:
-"ask whoever runs this installation". That is honest and it is not an answer,
+"ask whoever runs this installation". That is true and it is not an answer,
 because there is no way to find out who that is.
 
 Article 13(1)(a) wants a name and a contact at the point of collection, and the
@@ -882,8 +879,8 @@ Information Society Services Act wants the same of anyone providing an online
 service. So the identity is configuration now, like the database URL:
 `OPERATOR_NAME`, `OPERATOR_ADDRESS`, `OPERATOR_EMAIL` and, for a company, the
 registry code. Both pages render it, and **a deployment that has not set it says
-so in as many words** rather than showing a plausible blank. That is the half
-worth defending: a page that quietly says nothing looks finished.
+so in as many words** rather than showing a plausible blank. A page that
+quietly says nothing looks finished.
 
 Six more things a reader is entitled to and was not being told: the lawful basis
 for each thing stored, who else sees it, whether any of it leaves the Union, how
@@ -894,7 +891,7 @@ reader is told which companies specifically, and whether they are in Estonia or
 not. A page that says "whichever AI provider this installation is configured
 with" answers the question in form only.
 
-The one genuinely Estonian detail, as opposed to the European ones: the age at
+The one Estonian detail, as opposed to the European ones: the age at
 which somebody can agree to this for themselves is 13 here, which the page now
 states rather than leaving to a reader's assumption about 16.
 
@@ -951,7 +948,7 @@ and the invariant is what the surviving fix did not come with.
 1. **A deployment can still run unnamed.** Nothing refuses to boot without an
    operator, and nothing should: a local single-learner install has no third
    party to inform, and a hard failure would push somebody toward a fake value.
-   The pages say the field is empty, which is the strongest honest move.
+   The pages say the field is empty.
 2. **Where Supabase hosts a project is not readable from here.** The region is
    chosen when the project is created, so the recipients list says it depends on
    how the installation was set up rather than guessing at a continent.
@@ -959,8 +956,8 @@ and the invariant is what the surviving fix did not come with.
    Some free tiers are free because the provider reserves the right to read what
    goes through them. The app can name who it sends to; it cannot bind them.
 4. **The miss marker is a per-word day, not a shared negative cache.** A word
-   nobody looks at twice never benefits from it, which is correct and worth
-   naming: it makes the second view cheap, not the first.
+   nobody looks at twice never benefits from it, which is correct:
+   it makes the second view cheap, not the first.
 
 ## 16. Multiple choice was every recognition card, not the hard ones
 
@@ -1086,7 +1083,7 @@ the instruction that already asked her to use both names.
 3. **A term nobody says is worse than an English one.** Roughly a third of the
    grammar points have no entry, because a settled classroom term for "irony" or
    "register" is not something this repository can invent, and `grammarTerm()`
-   returning nothing is the honest answer. Those points keep their English
+   returning nothing is the right answer. Those points keep their English
    description.
 4. **The English column headings over the tables stay English.** "Case",
    "Singular", "Answers" are labels on a table of Estonian, not names of
@@ -1095,7 +1092,7 @@ the instruction that already asked her to use both names.
 ## 18. The twelfth pass: less of it, in front of the person who has just arrived
 
 The report was one sentence: the site feels overwhelming for somebody just getting started. It was
-right, and the interesting part is that no single screen was at fault. Every screen showed
+right, and no single screen was at fault. Every screen showed
 everything the app can do, to everybody, from the first minute, because each one had decided that on
 its own and every one of them had decided the same way.
 
@@ -1142,7 +1139,7 @@ on. Three at a time, the rest counted in one line, and they go away on their own
 
 ### Found on the way, and fixed
 
-`scripts/e2e.mjs` checked that the tutor screen is honest about its key state by looking for one of
+`scripts/e2e.mjs` checked that the tutor screen is accurate about its key state by looking for one of
 three provider names. The chain has had five since Groq and Gemini joined `PROVIDER_KEY_ENV`, so on
 any machine carrying either of those keys the page was correct, the check was stale, and the failure
 read as a fault in the app. It matches the shape of the line now, which cannot fall behind a
@@ -1161,9 +1158,9 @@ provider list.
    the cost was navigational churn; adding a label above a cluster of existing sections, with no
    section moved out of view and no anchor broken, turned out not to carry that cost.
 
-## 19. The thirteenth pass: a course honest about where it stops
+## 19. The thirteenth pass: a course that says where it stops
 
-§14 built a course to C2 and named the honest gap plainly: "1,266 words is a real course and not a
+§14 built a course to C2 and named the gap plainly: "1,266 words is a real course and not a
 real vocabulary," and the C2 units themselves were the thinnest ten in the whole syllabus, existing
 mostly to say that C2 is earned by living in the language rather than by finishing units. A course
 whose last fifth is a well-written admission that it cannot teach what it claims to cover is not
@@ -1181,7 +1178,7 @@ as it stands today.
 **What this does not touch.** A dictionary entry can still carry a `C2` CEFR tag: that is Ekilex's
 own grading of a word's real difficulty, sourced live, not a claim this app makes about its course.
 `lib/estonian/types.ts`'s `CefrLevel` keeps all six bands for exactly that reason, and the add-word
-form still offers C2 as an honest label for a word a person hand-adds. The distinction is the same
+form still offers C2 as a label for a word a person hand-adds. The distinction is the same
 one ADR-005 draws everywhere else: Ekilex's own data is trusted as far as Ekilex vouches for it, and
 this project does not add to it from memory. Nobody re-verified whether the ten deleted units'
 vocabulary belongs in the general dictionary; it was seeded there already and stays, since removing
@@ -1192,7 +1189,7 @@ unrelated decision.
 headings, Study, Progress and sharing, Words and Anu, Device and data, and §18's limitation above is
 struck rather than left standing. Every section keeps its own heading, its own anchor and its own
 content in the same order as before; nothing is collapsed and nothing moved off the page, which is
-the whole reason this is a landmark added rather than a restructure. The distinction from what §18
+why this is a landmark added rather than a restructure. The distinction from what §18
 warned against: that entry was arguing against turning Settings into tabs or an accordion that would
 hide a control behind a click, which is a real cost for a page nobody reaches through a menu. A label
 above four sections is not that.
@@ -1285,7 +1282,7 @@ sends twice.
 ## 21. The fifteenth pass: the day a learner is actually having
 
 An audit of what was still missing, run against a database, a browser and CI rather than against the
-source alone. Six findings, all of them fixed here, and the shape they share is worth naming first:
+source alone. Six findings, all of them fixed here, and they share one shape:
 every one lived in the gap between a rule this repository had written down and the place the rule was
 actually enforced.
 
@@ -1480,7 +1477,7 @@ meaning "frost" and an adjective meaning "gray".
 ### What was deliberately not changed
 
 `rõõmus` is headed `===Noun===` with `{{et-noun}}` under it and glossed "happy". Both signals agree
-and both are wrong, so no rule separates it from a genuine noun, and writing one would be this
+and both are wrong, so no rule separates it from a real noun, and writing one would be this
 pipeline making the lexical judgment it does not get to make. It is the `kõrb` case in a new
 column, and it is left for a person, which the dictionary is editable for. The course harvest
 carries the correct adjective independently, so a learner meets the right one anyway.
@@ -1515,18 +1512,18 @@ and watching it fail. A second check of the same thing is how the first one rots
 ## 23. The seventeenth pass: the verb, heard, and the table a class runs down
 
 A pass over the whole app with one question, whether the Estonian on it is right at every point a
-learner meets it, and one finding worth the section: it was, and it stopped early. Every seeded
+learner meets it, and one finding: it was, and it stopped early. Every seeded
 verb held five principal parts and nothing else, so on a deployment without an Ekilex key, which is
 the default one, `lugema` was `loen` and no other person. The dictionary entry printed the five
 tiles and stopped, the `olevik` reference page explained the present tense in English and handed
 over to the units, and a conjugation card for `olevik · ta` could not be built because there was
-no `loeb` to put on it. A verb taught as one person is a verb taught as a noun.
+no `loeb` to put on it.
 
 ### What changed
 
 **The present tense, the negative, the conditional and the singular imperative are derived**, from
 the stored first person, by `lib/estonian/conjugate.ts`. That is the one part of the Estonian verb
-that genuinely is a suffix on a stored stem for every verb in the language but one, and it is the
+that is a suffix on a stored stem for every verb in the language but one, and it is the
 same license ADR-005 amendment 1 already gives the ten regular cases on the genitive. It was not
 reasoned about: `npm run audit:verbs` derives every slot for every verb in the shipped dictionary
 and compares it with every form Ekilex records for the same word, 797 verbs and thirteen slots
@@ -1821,7 +1818,7 @@ A card nobody can get wrong is worse than no card. The scheduler reads every pas
 stretches the interval, so the slot is spent for ever, and the learner is told they knew something
 they were shown.
 
-- **The case card.** Estonian genuinely spells some cases like the nominative: `kallis` has the
+- **The case card.** Estonian spells some cases like the nominative: `kallis` has the
   genitive `kalli`, so its seesütlev is `kalli` plus `s`, which is `kallis` again. 115 cards asked
   `kallis → milles? kus?` with `kallis` on the back.
 - **The gap-fill hint.** 2,468 cards, 302 of them in the course, gave the lemma as the hint for a
@@ -1835,7 +1832,7 @@ they were shown.
   fortnight, each showing a word and asking for a case of it. Eight of the 1,980 scene tasks and
   122 of the 51,447 case slots Target can fill were the word again.
 
-The test differs by screen, and the difference is the interesting part. A typed card accepts every
+The test differs by screen. A typed card accepts every
 spelling, so **any** accepted spelling showing makes it free. A target draws one string and the
 learner hits it, so the test is on **what is printed** rather than on what a marker would take.
 `voodi` in the illative is refused on a target for what the target would say; a word whose long
@@ -1892,7 +1889,7 @@ but the invariant to say so.
 ### And the page that says what this costs was stale the day it was written
 
 `/funding` is measured on a stated day and prints the command that gets the same number again,
-which is the whole reason a reader is asked to believe it. Its dictionary line was typed: **18 MB
+which is why a reader is asked to believe it. Its dictionary line was typed: **18 MB
 for 6,050 entries and 34,554 forms**, while the seed it describes holds **6,102 and 38,577**, the
 nominative plural having become a stored principal part in between. Re-measured against a freshly
 dropped and seeded database it is **20 MB**, and the two counts now come from `SEED_SET_SIZE`,
@@ -2115,7 +2112,7 @@ statement now.
 ## 30. The twenty-fourth pass: how ready you actually are
 
 Asked for directly. Not a vocabulary percentage sold as readiness, which is what most apps print
-and what a learner discovers is worthless at the first counter, but an honest reading of which
+and what a learner discovers is worthless at the first counter, but a reading of which
 real situations somebody could follow, take part in or lead, where each would go wrong, and what
 they could already go and try.
 
@@ -2188,7 +2185,7 @@ funder as much as for a contributor. This section is what was built and measured
   module and the exam may not use it. The errand table is held by its unit suite, which fails on
   an errand naming a word rather than a unit.
 
-### What is honest
+### What it does not claim
 
 Nothing here scores pronunciation, marks a conversation with a model, or writes Estonian. The
 switch-to-English figure is self-reported. The classroom has still not been piloted. And a keyless
@@ -2291,7 +2288,7 @@ a marking target, is an invariant now rather than a note, made to fail on each o
 ## 34. The twenty-eighth pass: six boxes on the page everybody opens
 
 Reported in four words by somebody using it: Today is "way too busy". It was. A settled learner
-opened fourteen cards, and the count is not the interesting part, because every one of them had a
+opened fourteen cards, and every one of them had a
 good argument behind it and most of those arguments are still in this file.
 
 What the count hid is that the cards were answering four questions at once, and only one of them is
@@ -2384,7 +2381,7 @@ does, so a bare noun-looking gloss over an adjective is a clue for a different w
 
 **Every other screen answers this by widening and a grid cannot.** A production card with two right
 answers puts both on the back, which is what `acceptedAnswers` is for. A crossword square takes one
-string, crossing other words at a fixed length, so a clue with two honest answers is a trick rather
+string, crossing other words at a fixed length, so a clue with two right answers is a trick rather
 than a question. The clue narrows instead, and `lib/games/clue.ts` is both halves of it. It holds
 no English of its own: every rule in it refuses a clue or labels one, which is what keeps the
 crossword inside ADR-005 exactly as before.
@@ -2453,7 +2450,7 @@ the next measurement.
 ## 38. The thirty-second pass: the screen in front of the reference
 
 **Asked for.** An interactive way in to the case system: the first three forms, the fact that
-everything else is built on the second of them, and what each ending truly means, with a real
+everything else is built on the second of them, and what each ending means, with a real
 example behind it.
 
 **What was there.** `/grammar` is fourteen cards, one per ending, which is the right shape for
@@ -2836,8 +2833,8 @@ them. What is left is a postposition the course does not teach (`puu otsas`, `aa
 jooksul`), which is the residual the claim index already names.
 
 **B1, B2 and C1 have their conversations back.** The fifteen scenes thin out above A2, so B1.1 had
-none, B2 had one and C1 went six weeks without a single conversation, in a course whose whole
-point is the conversation somebody has outside it. A run is pitched at the learner's own level, so
+none, B2 had one and C1 went six weeks without a single conversation, in a course built
+for the conversation somebody has outside it. A run is pitched at the learner's own level, so
 the same counter at C1 is a different conversation: the clerk who asked a beginner one short
 question at a time talks the way they would to anybody, and the learner has a year of words to
 answer with. Seven come back a level up, each on the unit closest to what it rehearses (the
@@ -2874,7 +2871,7 @@ sentence records the form, the word's own or one lent for that very spelling. Th
 were wrong in the same screen. The outside endings of a person read "onto it, or to someone",
 because the phrase was worked out in the browser, which did not know `laps` is a child; it is worked
 out on the server now, here and on the flash round and Describe, and build-a-word reads its own row.
-The osastav read "some of it", a portion of a son, and a sentence has an honest frame for it, the
+The osastav read "some of it", a portion of a son, and a sentence has a true frame for it, the
 object of looking for (`Ma otsin poega`), or "looking for something pleasant" for an adjective. And
 an adjective's other cases read "of the pleasant", which is "of the pleasant one" now
 (`sentenceAsk`).
@@ -2981,7 +2978,7 @@ forty-five seconds an exchange, and the module listed the same conversation at 8
 evening gives every conversation whatever its length. It is a minute an exchange now and one more
 for the card before and the review after (`minutesFor`), and the module step prints that figure
 (`DaySpec.sceneMinutes`), so the shop is 7 on the tile, the briefing and the evening. The slot still
-decides the words, so no day id moved, and an evening with a short conversation is honestly a
+decides the words, so no day id moved, and an evening with a short conversation is a
 minute or two shorter.
 
 **The evening's list lights Learn, as every step on it does.** It lived inside Today, so the rail's
@@ -3421,7 +3418,7 @@ one-character change for a native reader to overrule.
 ## 58. The fifty-second pass: good news without a model
 
 The operator's call: no model decides which ERR headline is good news, and what the word lists pass
-has to be genuinely good. So the model judge is gone, the card carries no English, and
+has to be plainly good. So the model judge is gone, the card carries no English, and
 nothing on its path may reach a provider or the ledger, asserted in
 `scripts/invariants/jokes-stay-on-their-card.ts`. This supersedes §57 wherever it describes the
 judge, its English and the keyless fallback.
@@ -3462,7 +3459,7 @@ down first, in `docs/18-voice.md` §3c: a true fact with a wink, never a joke at
 never on a wrong answer, the exam, the level check, an error or anything about their data. Every
 line was drafted here and is for the native Estonian speaker who develops the app to read.
 
-**Estonian names things honestly, and that is the joke.** `lib/estonian/literally.ts` holds 75
+**Estonian names things literally, and that is the joke.** `lib/estonian/literally.ts` holds 75
 compounds read word for word (`nahkhiir` is a leather mouse, `kilpkonn` a shield frog) and 27
 words that look or sound English and are not (`pea` is a head, `hai` is a shark). Each part is checked
 against the shipped dictionary and the forms list, so no reading invents a word. `WordFun`
@@ -3565,7 +3562,7 @@ is done in code (`docs/41-fifth-batch.md` section 4); what is left of it is the 
 **How long a spoken answer runs.** Progress prints the median words per spoken answer in conversations,
 month by month, beside "Said aloud this week", in the learner's own months and only once two months each
 hold three spoken turns (`lib/stats/spoken.ts`, read through `lib/progress/spokenTurns.ts`). It is the
-one fluency figure the log can honestly give: how much somebody says in one go, never whether it was
+one fluency figure the log can give: how much somebody says in one go, never whether it was
 right, which a conversation does not mark.
 
 **Following speech, counted.** A conversation turn said aloud records whether the line it answered was
@@ -3719,7 +3716,7 @@ of the soft section again, primed by the form that carries the softness (`halla`
 also added `kutsu` the puppy beside `kutsu` invite!, which replaces `kutse` against `kutsu` because a
 pair with one spelling is the stronger demonstration, and a soft s against a plain one (`pasun`,
 `poiss`, `buss`) and `pall`. The pairs it re-recorded keep their ids and play the new take, and
-`NATIVE_CUT` is 6. Both takes of `palk` were first cut short, and that is worth writing down. The k is released about a quarter second after the l, as an aspirated burst with low energy in it, and the spectral check read that burst as a breath and cut before it. The recognizer heard `palk` all the same, off the closure alone. The speaker heard the k missing at once. Cut 6 ends past that release. A recognizer that agrees is not proof that a stop is there; a native ear is.
+`NATIVE_CUT` is 6. Both takes of `palk` were first cut short. The k is released about a quarter second after the l, as an aspirated burst with low energy in it, and the spectral check read that burst as a breath and cut before it. The recognizer heard `palk` all the same, off the closure alone. The speaker heard the k missing at once. Cut 6 ends past that release. A recognizer that agrees is not proof that a stop is there; a native ear is.
 
 **One man's part in a conversation is his.** A lesson's conversation keeps its cast's voices, and the
 one part the native speaker may play, Tom's or Jaan's, plays his recording where every line of that

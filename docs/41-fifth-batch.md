@@ -114,13 +114,13 @@ builds on:
   (212 ms) and has to be re-measured on production after the deploy (C-1).
 - **A reader's suggestion is parked:** "Kas te olete siia just kolinud?" says "moved in" more exactly
   than "tulnud", and needs `kolima` taught somewhere the stairwell can vouch for it (C-4).
-- **The keyless ceiling is honest but real.** With no model, an off-script question gets "Ei tea." and
+- **The keyless ceiling is real.** With no model, an off-script question gets "Ei tea." and
   the conversation carries on. That is the stated behavior, and it is why VB-11's chat is not offered
   keyless.
 - **FB-7, the Android app,** is superseded by the native apps starting in November (above).
 
 **What the other apps do, read 2026-10-16.** `docs/31-competitors.md` section 6 holds the comparison
-with every claim's page and date. In short:
+with every claim's page and date. The summary:
 
 - **Already met, or met by this batch's integrations:**
   - speaking instead of typing in exercises and flashcards (Duolingo, Langua): VB-6 and VB-8;
@@ -414,7 +414,7 @@ are exactly as in `docs/38-third-batch.md` section 3.
 | D1 | **The speech order's decisions hold, except its D3 and its D9.** Everything runs on the device; no audio leaves it or is stored; two transcripts, `heard` and `understood`; the app never says a learner mispronounced anything; the machine only grades up; speaking is offered and never required; model files come from the deployment's own storage. **Hotwords stay off everywhere in this batch**, as the measured settings say (a hint made the right word harder to hear, 75.9% accepted against 87.8%); its D7's set biasing is not built, and a line on screen is matched after decoding instead (D8). Its D9 said no paid model call at all. That held for speech, and still does: recognition never calls a model. Two items here reuse paid chains the app already meters, and nothing else may: VB-11 composes on the scene chain (purpose `scenes`) and VB-13 reads a photo on the scanner's (purpose `scan`). Both go through the ledger, both are switched off by `PAID_OFF`, and a keyless deployment simply does not offer them. | Every item |
 | D2 | **Integrate before building.** A new screen is added only where nothing in the app teaches the thing at all. That test admits one round, numbers said aloud (VB-7). Everything else extends a screen a learner already uses: VB-11 is a kind of conversation, VB-12 is the reading page, VB-13 is the scanner. Section 7 lists what was considered and dropped. | Every item |
 | D3 | **With no real-voice panel, the bar is the edit, and claims about sounds wait.** This replaces the speech order's D3. Every transcript lands in a box the learner can change before it counts, so a misheard word costs one edit and never a grade, and features that only *understand* ship without the panel. Real learners are measured in the app instead, by how many heard words they change before sending (VB-14). Anything that tells a learner which *sound* they made waits until the operator says so: the pair judge and minimal pairs said aloud (VB-16). | VB-4 to VB-16 |
-| D4 | **Why out loud, stated honestly.** Speaking is the skill the conversations and the exam's spoken part ask for, and until now the app could only rehearse it in writing. Saying a word aloud is also remembered better than reading it silently (the production effect, MacLeod and colleagues, 2010); whether it beats *typing* for recall is not settled, which is why VB-14 measures it on this app's own log. A spoken answer goes through the same marker as a typed one and grades through `gradeCard` the same way, only ever up (D1). The one new column is `Review.spoken` (SP-8), a boolean, append-only, in the export and the erasure. | VB-5, VB-6, VB-14 |
+| D4 | **Why out loud.** Speaking is the skill the conversations and the exam's spoken part ask for, and until now the app could only rehearse it in writing. Saying a word aloud is also remembered better than reading it silently (the production effect, MacLeod and colleagues, 2010); whether it beats *typing* for recall is not settled, which is why VB-14 measures it on this app's own log. A spoken answer goes through the same marker as a typed one and grades through `gradeCard` the same way, only ever up (D1). The one new column is `Review.spoken` (SP-8), a boolean, append-only, in the export and the erasure. | VB-5, VB-6, VB-14 |
 | D5 | **One microphone, one hook.** `useSpeech()` from SP-1 and `components/speech/MicButton.tsx` (to be written) are the only way a screen listens. No component calls `getUserMedia` except through the hook; `components/Recorder.tsx` keeps playback only once VB-5 lands. An invariant holds it. | Every item |
 | D6 | **The microphone follows the download.** On the screens where speaking is the task (a conversation, the Speaking round, the numbers round, the Learn ladder's meet rung) the microphone is always offered. Everywhere else it appears only once the learner has downloaded the model, which is the act of saying yes to speech, and Settings can hide it again. Nobody meets a microphone in an answer box before choosing speech somewhere. | VB-2, VB-6, VB-8, VB-9 |
 | D7 | **The first download is asked for, once, with its size, and kept.** 74 MB is fetched on the first press of a microphone, after a sentence saying how large it is, on Wi-Fi unless the learner says otherwise (SP-1). The app then asks the browser to keep it (`navigator.storage.persist()`), because Safari clears a site's storage after a week of no visits; where it was cleared anyway, the next press says so in one line and asks again. The landing page follows the same rule and its script weight may not grow (`npm run check:landing`). | VB-1, VB-2, VB-15 |
@@ -957,7 +957,7 @@ Safari on a Mac, and in an iPhone's Safari once the app is installed to the home
   browser's endpoint and keys and nothing else. It is in the export and the erasure, and a subscription
   the push service reports gone is deleted.
 - `lib/push/`: sending, through the `web-push` protocol with VAPID keys held server-side
-  (`VAPID_PRIVATE_KEY` never gets a `NEXT_PUBLIC_` prefix; the public key is genuinely public). The
+  (`VAPID_PRIVATE_KEY` never gets a `NEXT_PUBLIC_` prefix; the public key is public by design). The
   payload is encrypted end to end as the protocol requires.
 - **Same kinds as the letters.** A notification is a short form of a letter the app already sends
   (`EMAIL_KINDS` in `lib/email/letter.ts`), decided by the same scheduler and switched off per kind in
@@ -1112,8 +1112,8 @@ screen show the others; never pick silently between two entries with different m
 
 ### VB-14. Speaking as evidence
 
-**Goal.** What is said aloud counts wherever the app counts things, and the batch finds out honestly
-whether it helps.
+**Goal.** What is said aloud counts wherever the app counts things, and the batch measures whether
+it helps.
 
 **Files.**
 - `prisma/schema.prisma`: `Review.spoken` (SP-8). A `SceneRun` turn records `spoken`, whether the line
@@ -1121,7 +1121,7 @@ whether it helps.
   sending. No audio, and no text beyond what a typed turn already stores (D1).
 - **Progress**: SP-8's reading, "Said aloud this week: 214 words in 23 minutes", in plain ink, derived
   from the log. Beside it, how long the learner's spoken turns have grown: the median words per spoken
-  turn by month, which is the one fluency figure the log can honestly give.
+  turn by month, which is the one fluency figure the log can support.
 - **Readiness** (`lib/readiness/`): a spoken scene turn answered to a line that was only heard (the
   `listen` or `cold` setting, words not revealed) is evidence the learner can follow speech. That is the
   evidence the "lead it" rung asks for, which only the level check and a sat paper supplied before this. Counted,
@@ -1255,8 +1255,8 @@ went.
   only prepares for them (D24, VB-3).
 - **Recognition on a server.** Not coming back (D1). A device that cannot run the small model keeps the
   typed path it has today.
-- **A leaderboard or a speaking streak.** The app withdrew XP and badges. Progress says how much was said
-  aloud, and that is all.
+- **A leaderboard or a speaking streak.** The app withdrew XP and badges. Progress only says how much was
+  said aloud.
 
 ## 8. Only the operator can do these
 
@@ -1270,7 +1270,7 @@ went.
   model now (section 8b), so there is nothing to do; the variable still wins where somebody sets it.
 - **Generate the VAPID key pair** for VB-10 and set it on the deployment.
 - **Try the desktop as a learner would**: a laptop with a headset, the hands-free round in a background
-  tab, a voice message dragged onto the reading page. It is the one client nobody gets for free.
+  tab, a voice message dragged onto the reading page.
 - **Choose the native framework before November.** A framework that runs TypeScript reuses `lib/speech/`
   (to be written) and the other pure layers as they are; one that does not ports them with their tests,
   and VB-3's golden file is how either proves it got the same answers.
@@ -1339,7 +1339,7 @@ Three findings.
    separates the two sets best it doubts 44% of the words said right, so it would tell a learner who
    spoke well that the app was not sure of them nearly half the time. That is the 34.8% precision of
    `docs/39-speech.md` section 3.6 seen from the other side.
-2. **One honest middle state.** `lightUp` compares after the folds an English ear makes, so `üks` heard
+2. **One middle state.** `lightUp` compares after the folds an English ear makes, so `üks` heard
    as `uks` and `kuus` heard as `kus` light. The model wrote the difference down, and the screen threw
    it away. Of the 87 native clips that lit, every one was heard as spelled; of the 148 wrong clips that
    lit, 43 were heard as another spelling. So `clarityOf` (lib/speech/lightUp.ts) keeps it: a lit word
