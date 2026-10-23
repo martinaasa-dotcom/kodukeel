@@ -178,7 +178,7 @@ const DOCTOR: SceneSpec = {
     {
       id: "close",
       goal: "Thank them and say goodbye.",
-      they: "They say goodbye.",
+      they: "They say they'll see you then, thank you, and say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],

@@ -33,7 +33,9 @@ import { installMeter } from "./lib/meter";
 // drives can compose, so a later change that hands it a link is capped from its first call.
 installMeter({ replay: false });
 import { playScripted, printEvents, type Event, type Floor } from "./lib/keylessPlay";
+import type { SpokenLine } from "../lib/scenes/line";
 import type { Level } from "../lib/collections/syllabus";
+import type { Composition, ModelTurn } from "../lib/progress/sceneTurn";
 
 const argv = process.argv.slice(2);
 const arg = (name: string) => { const i = argv.indexOf(`--${name}`); return i >= 0 ? argv[i + 1] : undefined; };
@@ -100,7 +102,34 @@ const LEARNERS: Record<string, Learner> = {
   decliner: (f, answer, first) => (first && (f.target.move === "offer" || f.target.counter) ? "Ei, see ei sobi." : answer),
   "early-bye": (f, answer) => (f.n === 2 ? "Aitäh, head aega!" : answer),
   wrong: (_f, answer, first) => (first ? "Ma ei tea." : answer),
+  /*
+    The two learners the first-day-at-work report was about: one who asks a
+    question just as the other side is about to leave, and one who has not
+    understood that the conversation is ending and says "what?".
+  */
+  "asks-at-close": (f, answer, first) => (first && f.target.move === "close" ? "Kui kaua te siin olete?" : answer),
+  "what-at-close": (f, answer, first) => (first && f.target.move === "close" ? "Mida?" : answer),
 };
+
+/*
+  A STAND-IN FOR THE MODEL, so the sweep can read the path a learner meets
+  when a model was asked. `down` withholds every line, which is a spent
+  allowance, a provider outage or a gate that refused all three drafts: the
+  run composes, so every keyless answer that waits for a model stands down,
+  and what is said is the net. `bare` writes a bare goodbye on every closing
+  beat and the prepared line elsewhere, which is the composed line the first
+  report was about.
+*/
+const MODEL = arg("model");
+const stubModel = MODEL === "down"
+  ? async ({ move }: ModelTurn): Promise<Composition> => ({ kind: "withheld", line: move, preBreak: null })
+  : MODEL === "bare"
+  ? async ({ move, line }: ModelTurn): Promise<Composition> => ({
+    kind: "composed",
+    line: line.beat.move === "close" ? { text: "Nägemist!", provenance: "composed" } : { ...move, provenance: "composed" },
+    preBreak: null,
+  })
+  : undefined;
 
 /** One flag: a line somebody should read, and why. */
 interface Flag { readonly rule: string; readonly at: string; readonly text: string; readonly context: string }
@@ -148,7 +177,7 @@ function flagsFor(scene: SceneSpec, events: readonly Event[], label: string, car
     // 2. "Sorry?" or thanks said to the wrong turn.
     // Except the apology for having misheard, which is what a correction is answered with.
     if (line.reaction && /^vabandust/i.test(text) && landed && lastTarget?.id !== "hurdle:misheard" && raised !== "interrupted") flags.push({ rule: "sorry-to-an-answer", at: where(), text, context: "the turn landed" });
-    if (line.reaction && /^aitäh/i.test(text) && asked && lastRead?.reading !== "complete") flags.push({ rule: "thanks-for-a-question", at: where(), text, context: `asked ${asked}, ${lastRead?.reading}` });
+    if (line.reaction && line.provenance !== "again" && /^aitäh/i.test(text) && asked && lastRead?.reading !== "complete") flags.push({ rule: "thanks-for-a-question", at: where(), text, context: `asked ${asked}, ${lastRead?.reading}` });
     // 3. Goodbye before the end, hello after the start.
     if (FAREWELL.test(text) && !youSaidBye) {
       const closing = events.slice(events.indexOf(e)).some((x) => x.kind === "over");
@@ -182,6 +211,50 @@ function flagsFor(scene: SceneSpec, events: readonly Event[], label: string, car
     }
   }
   if (!over) flags.push({ rule: "never-ends", at: label, text: lastYou, context: "ran out of turns" });
+  flags.push(...closingFlags(events, label));
+  return flags;
+}
+
+/*
+  HOW A CONVERSATION ENDS, READ PER TURN RATHER THAN PER LINE, because each of
+  these is about what one reply held together. All three came off one report:
+  a colleague who answered "how long have you worked here?" with a bare
+  `Nägemist!`, and said it again when the learner asked "what?".
+*/
+function closingFlags(events: readonly Event[], label: string): Flag[] {
+  const flags: Flag[] = [];
+  const turns: { said: string; asked: string | null; response: string; lines: SpokenLine[] }[] = [{ said: "", asked: null, response: "", lines: [] }];
+  for (const e of events) {
+    if (e.kind === "you") turns.push({ said: e.said, asked: null, response: "", lines: [] });
+    else if (e.kind === "read") { turns.at(-1)!.asked = e.asked; turns.at(-1)!.response = e.response; }
+    else if (e.kind === "them") turns.at(-1)!.lines.push(e.line);
+  }
+  const farewellsSaid = new Map<string, number>();
+  for (const turn of turns) {
+    const spoken = turn.lines.filter((l) => l.provenance !== "meanwhile" && l.provenance !== "unspoken");
+    const bye = spoken.find((l) => FAREWELL.test(l.text));
+    if (!bye) continue;
+    const at = `${label} after "${turn.said}"`;
+    const youSaidBye = FAREWELL.test(turn.said) || /\baitäh\b/i.test(turn.said);
+    // Everything said in the reply other than the farewell itself.
+    const rest = spoken.map((l) => l.text.replace(FAREWELL, "").replace(/[\s,.!?]+/g, " ").trim()).join(" ").trim();
+    const onlyBye = rest === "" || /^(aitäh|tänan|ja)( (aitäh|tänan|ja))*$/i.test(rest);
+    /*
+      Where the learner was lost or reached for English, the goodbye is the
+      word handed over and the reason for leaving was said the turn before;
+      those are read by the rules above, not these.
+    */
+    if (turn.response === "help" || turn.response === "english") continue;
+    // 1. A question on the way out met with nothing but a goodbye.
+    if (turn.asked && onlyBye && !youSaidBye) flags.push({ rule: "bye-ignores-question", at, text: bye.text, context: `asked ${turn.asked}` });
+    // 2. A goodbye out of nowhere: the learner did not say one, and the reply carries no reason, thanks or wrap.
+    if (!youSaidBye && rest === "") flags.push({ rule: "bare-goodbye", at, text: bye.text, context: "" });
+    // 3. The same goodbye twice in one conversation.
+    const key = bye.text.toLowerCase();
+    const seen = (farewellsSaid.get(key) ?? 0) + 1;
+    farewellsSaid.set(key, seen);
+    if (seen === 2) flags.push({ rule: "goodbye-twice", at, text: bye.text, context: "" });
+  }
   return flags;
 }
 
@@ -205,11 +278,11 @@ async function sweepScene(scene: SceneSpec) {
     for (const [name, learner] of Object.entries(LEARNERS)) {
       const draw: StoredDraw = {
         persona: run.persona.id, card: run.card, curveballs: c.id ? [{ id: c.id, at: c.at }] : [],
-        lines: "scripted", patience: run.patience,
+        lines: stubModel ? "composed" : "scripted", patience: run.patience,
       };
       const firsts = new Set<string>();
       const events = await playScripted({
-        scene, context, draw, runSeed: run.seed, level, maxTurns: 30,
+        scene, context, draw, runSeed: run.seed, level, maxTurns: 30, model: stubModel,
         next: (floor) => {
           const first = !firsts.has(floor.target.id);
           firsts.add(floor.target.id);

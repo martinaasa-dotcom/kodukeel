@@ -74,6 +74,13 @@ export interface PlayOptions {
   readonly maxTurns?: number;
   readonly links?: readonly Link[];
   readonly onDraft?: (line: string) => void;
+  /**
+   * A stand-in for the model step, for a sweep measuring what the app says
+   * when a model was asked and failed, or wrote something it should not
+   * have. The run composes, so every keyless answer that stands down for a
+   * model stands down here too; what comes back is this function's.
+   */
+  readonly model?: (turn: ModelTurn) => Promise<Composition>;
 }
 
 export async function playScripted(options: PlayOptions): Promise<Event[]> {
@@ -95,13 +102,13 @@ export async function playScripted(options: PlayOptions): Promise<Event[]> {
     */
     const plan = planTurn({
       scene, context: marking, draw, state, response, elsewhere, taken: turns.length, used, persona,
-      composing: draw.lines === "composed" && links.length > 0,
+      composing: draw.lines === "composed" && (links.length > 0 || options.model !== undefined),
       rotate: seedFrom(`${scene.id}:${options.runSeed}`),
       level,
     });
-    const { lines } = await speakTurn(plan, links.length > 0
+    const { lines } = await speakTurn(plan, options.model ?? (links.length > 0
       ? harnessModel(links, { vouch: (spellings) => vouchOf(context.lexicon, spellings), onDraft: options.onDraft })
-      : undefined);
+      : undefined));
     const { last, standing, current: beat } = plan;
     const inPlay = plan.card;
     if (last) {

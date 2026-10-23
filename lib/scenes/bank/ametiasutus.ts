@@ -50,6 +50,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "ametiasutus", beat: "wait", text: "Järjekord on pikk, oodake palun.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "ametiasutus", beat: "wait", text: "Oodake palun, järjekord on pikk.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "ametiasutus", beat: "wait", text: "Palun oodake natuke, järjekord on pikk.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
+  { scene: "ametiasutus", beat: "close", text: "Väga hea, kõik on tehtud. Head aega!", model: "authored", draftedAt: "2026-10-23" },
+  { scene: "ametiasutus", beat: "close", text: "Selge, aitäh teile. Nägemist!", model: "authored", draftedAt: "2026-10-23" },
 ];
 
 export default LINES;

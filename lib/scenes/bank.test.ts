@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { BANK } from "./bank";
+import { onlyFarewell } from "./farewell";
 import { SCENES as CATALOGUE, FALLBACK_PHRASE, sceneById } from "./catalogue";
 import { LESSON_SCENES } from "./lessonScenes";
 
@@ -29,6 +30,29 @@ import { LEVELS } from "@/lib/collections/syllabus";
  * row that no longer passes, which is the row a learner would otherwise meet.
  */
 describe("the scripted bank", () => {
+  /*
+    EVERY CONVERSATION ENDS ON SOMETHING SAID, NOT ON A GOODBYE OUT OF NOWHERE.
+    A colleague on a first day at work answered "how long have you worked
+    here?" with a bare `Nägemist!`, and said it again to "what?". The line
+    ladder leads a closing beat with a bank line that says something (thanks
+    for what, what happens next, why they have to go), so every scene on the
+    listing has to hold two of them, or the net under the model is the bare
+    courtesy again.
+  */
+  it("holds two closing lines that say more than goodbye for every scene on the listing", () => {
+    const short: string[] = [];
+    let closes = 0;
+    for (const scene of CATALOGUE) {
+      for (const beat of scene.beats.filter((b) => b.move === "close")) {
+        closes += 1;
+        const said = BANK.filter((row) => row.scene === scene.id && row.beat === beat.id && !onlyFarewell(row.text));
+        if (said.length < 2) short.push(`${scene.id}/${beat.id}: ${said.length}`);
+      }
+    }
+    expect(closes).toBeGreaterThan(40);
+    expect(short).toEqual([]);
+  });
+
   it("names only scenes and beats the catalog has", () => {
     for (const row of BANK) {
       const scene = sceneById(row.scene);

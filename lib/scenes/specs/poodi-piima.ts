@@ -91,7 +91,7 @@ const SHOP: SceneSpec = {
     {
       id: "close",
       goal: "Say goodbye before they hang up.",
-      they: "They say goodbye.",
+      they: "They say they'll talk to you soon, and say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],

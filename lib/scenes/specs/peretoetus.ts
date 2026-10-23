@@ -104,7 +104,7 @@ const FAMILY_BENEFIT: SceneSpec = {
     {
       id: "close",
       goal: "Thank them and say goodbye.",
-      they: "They say goodbye.",
+      they: "They say to call again if anything comes up, and say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],

@@ -117,7 +117,7 @@ const FRIENDS_WORRY: SceneSpec = {
     {
       id: "close",
       goal: "Say goodbye, and that you will see them then.",
-      they: "They say goodbye.",
+      they: "They say it was good to see you, and say goodbye.",
       move: "close",
       // A friend says "Nägemist!"; "Head aega!" is what you say to a clerk.
       topic: ["Nägemist!"],

@@ -41,6 +41,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "kohvikus", beat: "size", text: "Kas suur või väike?", model: "authored", draftedAt: "2026-09-12", reviewedAt: "2026-10-15" },
   { scene: "kohvikus", beat: "size", text: "Kas te soovite suurt või väikest?", model: "authored", draftedAt: "2026-09-12", reviewedAt: "2026-10-15" },
   { scene: "kohvikus", beat: "size", text: "Suur või väike?", model: "authored", draftedAt: "2026-09-12", reviewedAt: "2026-10-15" },
+  { scene: "kohvikus", beat: "close", text: "Head isu! Head aega!", model: "authored", draftedAt: "2026-10-23" },
+  { scene: "kohvikus", beat: "close", text: "Aitäh, tulge jälle! Nägemist!", model: "authored", draftedAt: "2026-10-23" },
 ];
 
 export default LINES;

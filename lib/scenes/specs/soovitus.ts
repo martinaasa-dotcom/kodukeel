@@ -87,7 +87,7 @@ const RECOMMENDATION: SceneSpec = {
     {
       id: "close",
       goal: "Say goodbye, and see you soon.",
-      they: "They say goodbye.",
+      they: "They say it was good to see you, and say goodbye.",
       move: "close",
       // A friend says "Nägemist!"; "Head aega!" is what you say to a clerk.
       topic: ["Nägemist!"],

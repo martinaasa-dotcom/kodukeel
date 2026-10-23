@@ -34,6 +34,9 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "bussipeatus", beat: "hurdle:place-instruction", text: "Palun ostke enne pilet.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15", about: "greet" },
   { scene: "bussipeatus", beat: "answer:hurdle:place-instruction", text: "See on seal ees.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "bussipeatus", beat: "answer:hurdle:place-instruction", text: "Siin kõrval, vaadake.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "bussipeatus", beat: "close", text: "Palun! Head aega!", model: "authored", draftedAt: "2026-10-23" },
+  { scene: "bussipeatus", beat: "close", text: "Pole midagi! Head aega!", model: "authored", draftedAt: "2026-10-23" },
+  { scene: "bussipeatus", beat: "close", text: "Palun, head teed!", model: "authored", draftedAt: "2026-10-23" },
 ];
 
 export default LINES;

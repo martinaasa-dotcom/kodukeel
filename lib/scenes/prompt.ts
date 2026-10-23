@@ -422,8 +422,9 @@ const COMPOSE_RULES = [
     and the gate withheld it every time: eight of thirty refusals in one sweep.
   */
   "Say goodbye or thank them for coming only when your move is to close, never before, and never",
-  "twice of your own accord: once you have said goodbye, answer anything else briefly, and say it",
-  "again only to answer their goodbye.",
+  "twice of your own accord: once you have said goodbye, answer anything else briefly (if they did not",
+  "follow, say again why the conversation is ending, without the goodbye), and say it again only to",
+  "answer their goodbye.",
   /*
     HOW THE NOTES AFTER THE CONVERSATION READ, SAID ONCE HERE RATHER THAN ON
     EVERY TURN. These sentences used to ride in the per-turn block, which no
@@ -624,7 +625,9 @@ export function composeLive(ask: ComposeAsk): string {
         + " in a sentence or two. Do not say goodbye, since nobody is leaving, and ask nothing more."
       : ask.move === "close"
       ? /goodbye|thank/i.test(ask.they)
-        ? "This ends the conversation: say goodbye now, in a sentence or two, and ask nothing more."
+        ? "This ends the conversation: in a sentence or two, wrap it up the way a person here would (thank"
+          + " them, say what happens next, or why you have to go) and then say goodbye. Never a goodbye on"
+          + " its own, and ask nothing more."
         : "This ends the conversation: do what the direction says in a sentence or two, ask nothing more, and do not say goodbye yet: they say it first, and you answer it."
       : "",
     ask.move === "close" && !ask.stillTalking

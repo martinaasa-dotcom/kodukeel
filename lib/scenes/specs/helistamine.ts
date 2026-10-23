@@ -102,7 +102,7 @@ const PHONE: SceneSpec = {
     {
       id: "close",
       goal: "Thank them and say goodbye.",
-      they: "They say goodbye.",
+      they: "They say they'll see you at the shop, and say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],

@@ -174,7 +174,7 @@ const RESTAURANT: SceneSpec = {
     {
       id: "close",
       goal: "Thank them and say goodbye.",
-      they: "They say goodbye.",
+      they: "They thank you, ask you to come again, and say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
