@@ -56,8 +56,12 @@ export default async function ExceptionsPage() {
     >
       <Stack>
         <Card tone="night">
-          <div className="flex flex-wrap items-end gap-x-8 gap-y-4">
-            <p className="font-display tnum text-6xl font-bold leading-none tracking-tight md:text-7xl" style={{ color: "var(--cta)" }}>
+          {/* The figure is centered against the text beside it, and on its own
+              row when the two wrap: sat at the bottom left it read as a figure
+              that had slipped. Its auto margins resolve to nothing while the
+              text beside it grows to fill the row. */}
+          <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
+            <p className="font-display tnum mx-auto text-center text-6xl font-bold leading-none tracking-tight md:text-7xl" style={{ color: "var(--cta)" }}>
               {grouped(locale, scale)}
             </p>
             <div className="min-w-0 flex-[1_1_20rem]">

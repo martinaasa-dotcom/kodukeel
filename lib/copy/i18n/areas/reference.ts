@@ -528,6 +528,8 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["which means", "то есть", "тобто"],
   ["Hear {word}", "Послушать {word}", "Послухати {word}"],
   ["In English: {hook}", "По-английски: {hook}", "Українською: {hook}"],
+  ["{word} means “{reading}”", "{word} значит «{reading}»", "{word} означає «{reading}»"],
+  ["More like it: {hook}", "Ещё примеры: {hook}", "Ще приклади: {hook}"],
   ["The same case, on a different word:", "Тот же падеж, но на другом слове:", "Той самий відмінок, але на іншому слові:"],
   ["{word}, {meaning}, recorded in Ekilex.", "{word}, {meaning}, запись из Ekilex.", "{word}, {meaning}, запис з Ekilex."],
   ["{word}, recorded in Ekilex.", "{word}, запись из Ekilex.", "{word}, запис з Ekilex."],

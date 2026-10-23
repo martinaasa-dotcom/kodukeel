@@ -375,7 +375,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       listen: [
         { words: [{ clip: "pair-kaheksa", en: "eight", mark: "ka" }, { clip: "pair-ueheksa", en: "nine", mark: "ü" }] },
         { words: [{ clip: "number-kuus", en: "six", mark: "uu" }, { clip: "pair-kus", en: "where", mark: "u" }] },
-        { words: [{ clip: "phone-number", en: "a phone number, one digit at a time" }] },
+        { words: [{ clip: "phone-number", en: "a phone number" }] },
       ],
       watchOut: "{Kuus}, six, has a long uu. Hold it, or it turns into another word.",
       examples: [0, 3],
