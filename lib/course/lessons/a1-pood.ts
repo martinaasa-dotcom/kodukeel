@@ -220,9 +220,9 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "mütsi", of: "müts", en: "a hat, after need" },
     ],
     how: {
-      point: "{Mul on vaja} + a noun means \"I need\", and the noun takes its 3rd form, as after {tahan}: {Mul on vaja jopet}.",
+      point: "{Mul on vaja} + a noun means \"I need\", and the noun takes its [osastav] (3rd form), as after {tahan}: {Mul on vaja jopet}.",
       table: {
-        head: ["1st form", "3rd form, after {vaja}"],
+        head: ["[nimetav] (1st form)", "[osastav] (3rd form), after {vaja}"],
         rows: [
           [{ et: "jope" }, { et: "jopet" }],
           [{ et: "särk" }, { et: "särki" }],
@@ -278,9 +278,9 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kampsunid", of: "kampsun", en: "sweaters, more than one" },
     ],
     how: {
-      point: "{Mul on vaja} + the 3rd form, from lesson 38, on warm clothes: {Mul on vaja mantlit}.",
+      point: "{Mul on vaja} + the [osastav] (3rd form), from lesson 38, on warm clothes: {Mul on vaja mantlit}.",
       table: {
-        head: ["1st form", "3rd form, after {vaja}"],
+        head: ["[nimetav] (1st form)", "[osastav] (3rd form), after {vaja}"],
         rows: [
           [{ et: "mantel" }, { et: "mantlit" }],
           [{ et: "kampsun" }, { et: "kampsunit" }],
@@ -346,7 +346,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Sajab vihma} means \"it's raining\". The rain is in its 3rd form, as after {tahan}.",
+        "{Sajab vihma} means \"it's raining\". The rain is in its [osastav] (3rd form), as after {tahan}.",
         "{Väljas} means outside: {Väljas on külm}.",
         "Estonians often open a chat with a neighbor on the weather, so this is one of the most useful lessons of the part.",
       ],
@@ -390,7 +390,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "õues", en: "outside, out of doors" },
     ],
     how: {
-      point: "A number of degrees is a number + the 3rd form, like {kaks kohvi}: {kaks kraadi}.",
+      point: "A number of degrees is a number + the [osastav] (3rd form), like {kaks kohvi}: {kaks kraadi}.",
       table: {
         head: ["Weather", "In English"],
         rows: [
@@ -402,8 +402,8 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Mitu} asks how many and takes the 3rd form too: {Mitu kraadi?} How many degrees?",
-        "{Pilves} is the in form of {pilv}, cloud: the sky is \"in cloud\". {On pilves} means \"it's cloudy\".",
+        "{Mitu} asks how many and takes the [osastav] (3rd form) too: {Mitu kraadi?} How many degrees?",
+        "{Pilves} is the [seesütlev] (-s, in) of {pilv}, cloud: the sky is \"in cloud\". {On pilves} means \"it's cloudy\".",
         "{Õues} and {väljas} both mean outside. {Õues} is the yard or the open air, the everyday word for going out to play or to work in the yard.",
       ],
       watchOut: "{Kuum} means hot to the touch, or a hot day; warm is {soe}, from lesson 39.",

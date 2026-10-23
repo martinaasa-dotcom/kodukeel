@@ -6,6 +6,7 @@ import { RollNumber } from "@/components/motion/RollNumber";
 import { WayOut } from "@/components/round/RoundExit";
 import { PrefetchLink } from "@/components/PrefetchLink";
 import { DESTINATIONS } from "@/lib/ux/nav";
+import { Braced } from "@/components/Braced";
 
 /**
  * One faint light in the top corner, fixed behind the page content.
@@ -24,6 +25,8 @@ export function Wash() {
   );
 }
 
+/* A lead may be a lesson's own line, with its Estonian in braces and a grammar
+   name in brackets; `Braced` draws both and hands any other string back as it was. */
 export function Page({ title, titleLang, titleMark, lead, leadLang, actions, children, eyebrow, route, compact }: {
   title: string;
   /**
@@ -98,7 +101,7 @@ export function Page({ title, titleLang, titleMark, lead, leadLang, actions, chi
               <span className={`flex h-[1.05em] shrink-0 items-center ${compact ? "text-xl" : "text-3xl"}`}>{titleMark}</span>
             )}
           </div>
-          {lead && <p lang={leadLang} className={`${compact ? "mt-0.5 hidden text-sm sm:block" : "mt-3 text-md"} max-w-[60ch] leading-relaxed`} style={{ color: "var(--ink-2)" }}>{lead}</p>}
+          {lead && <p lang={leadLang} className={`${compact ? "mt-0.5 hidden text-sm sm:block" : "mt-3 text-md"} max-w-[60ch] leading-relaxed`} style={{ color: "var(--ink-2)" }}><Braced text={lead} /></p>}
         </div>
         {actions && <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">{actions}</div>}
       </header>

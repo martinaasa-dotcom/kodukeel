@@ -333,7 +333,7 @@ function Listen({ lesson }: { lesson: LessonSpec }) {
 function kindOf(item: Taught, t: (english: string) => string): string | null {
   if (item.kind === "phrase") return item.et.includes(" ") ? t("phrase") : null;
   if (item.kind === "form") return fill(t("a form of {lemma}"), { lemma: item.of });
-  if (item.kind === "verb") return t("a verb: its -ma form and I form");
+  if (item.kind === "verb") return t("a verb: its ma-tegevusnimi (-ma) and olevik (I form)");
   return null;
 }
 

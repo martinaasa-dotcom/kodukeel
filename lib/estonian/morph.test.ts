@@ -36,7 +36,7 @@ describe("the shape a row is in", () => {
 describe("formName", () => {
   it("names a seeded retrieved form rather than printing its code", () => {
     expect(formName({ formType: "EKILEX:SgN", morphCode: null })?.et).toBe("nimetav");
-    expect(formLabel({ formType: "EKILEX:SgP", morphCode: null })).toBe("3rd form");
+    expect(formLabel({ formType: "EKILEX:SgP", morphCode: null })).toBe("osastav (3rd form)");
   });
 
   it("never lets an internal code reach a screen", () => {
@@ -118,8 +118,20 @@ describe("numberFromMorphCode", () => {
 */
 describe("the two tables that name a verb's present", () => {
   it("names the category in English and the person in Estonian, both ways", () => {
-    expect(formName({ formType: "PRES_1SG" })).toEqual({ et: "olevik ma", en: "present", plain: "I form" });
-    expect(formName({ formType: "EKILEX:IndPrSg3" })).toEqual({ et: "olevik ta", en: "present" });
+    expect(formName({ formType: "PRES_1SG" })).toMatchObject({ et: "olevik ma", en: "present" });
+    expect(formName({ formType: "EKILEX:IndPrSg1" })).toMatchObject({ et: "olevik ma", en: "present" });
+    expect(formName({ formType: "EKILEX:IndPrSg3" })).toMatchObject({ et: "olevik ta", en: "present" });
+  });
+
+  it("shows the operator's names: olevik (I form), and the others by their person", () => {
+    expect(formLabel({ formType: "PRES_1SG" })).toBe("olevik (I form)");
+    expect(formLabel({ formType: "EKILEX:IndPrSg1" })).toBe("olevik (I form)");
+    expect(formLabel({ formType: "EKILEX:IndPrSg3" })).toBe("olevik, ta (he/she form)");
+    expect(formLabel({ formType: "EKILEX:IndIpfSg3" })).toBe("lihtminevik, ta (past, he/she)");
+    expect(formLabel({ formType: "INF_MA" })).toBe("ma-tegevusnimi (-ma)");
+    expect(formLabel({ formType: "INF_DA" })).toBe("da-tegevusnimi (-da)");
+    expect(formLabel({ formType: "EKILEX:ImpPrPl2" })).toBe("käskiv kõneviis, te (-ge, polite command)");
+    expect(formLabel({ formType: "EKILEX:SgKom" }, undefined, "ru")).toBe("kaasaütlev (-ga, с)");
   });
 
   it("never says the pronoun twice on a label", () => {

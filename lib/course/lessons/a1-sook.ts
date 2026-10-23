@@ -106,9 +106,9 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "mida", of: "mis", en: "what, as the thing you do or want" },
     ],
     how: {
-      point: "After {tahan}, {joon} and {söön}, a noun takes its 3rd form, the \"some of it\" form: {Ma tahan kohvi}.",
+      point: "After {tahan}, {joon} and {söön}, a noun takes its [osastav] (3rd form), the \"some of it\" form: {Ma tahan kohvi}.",
       table: {
-        head: ["1st form", "3rd form, after {tahan}"],
+        head: ["[nimetav] (1st form)", "[osastav] (3rd form), after {tahan}"],
         rows: [
           [{ et: "kohv" }, { et: "kohvi" }],
           [{ et: "tee" }, { et: "teed" }],
@@ -125,7 +125,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
         "You've been saying this ending since lesson 11: {eesti keelt}, {raamatut}, {kaks aastat}. And {Mida sa teed?}: {mida} is {mis} with the same ending, because it's the thing you do.",
         "A no takes it too: {piima ei ole}, there's no milk. So does asking whether there's any: {Kas meil on piima?}",
       ],
-      watchOut: "The 3rd form is learned with each noun, the way a verb's forms are, and some change a lot: {vesi} becomes {vett}.",
+      watchOut: "The [osastav] (3rd form) is learned with each noun, the way a verb's forms are, and some change a lot: {vesi} becomes {vett}.",
       examples: [0, 1, 4],
     },
     answers: [
@@ -160,7 +160,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "klaasi", of: "klaas", en: "glasses, after a number" },
     ],
     how: {
-      point: "After a number from two up, a noun takes its 3rd form: {kaks kohvi}, {kolm saia}.",
+      point: "After a number from two up, a noun takes its [osastav] (3rd form): {kaks kohvi}, {kolm saia}.",
       table: {
         head: ["One", "More"],
         rows: [
@@ -171,8 +171,8 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Üks} keeps the 1st form: {üks kohv}. From {kaks} up, it changes. You met this in lesson 14: {kaks aastat}.",
-        "A cup of something is the cup + the something in its 3rd form: {tass teed}, {klaas vett}.",
+        "{Üks} keeps the [nimetav] (1st form): {üks kohv}. From {kaks} up, it changes. You met this in lesson 14: {kaks aastat}.",
+        "A cup of something is the cup + the something in its [osastav] (3rd form): {tass teed}, {klaas vett}.",
         "{Veel üks} means one more: {veel üks tass teed}.",
       ],
       watchOut: "The noun stays singular after a number: {kolm saia}, three buns, with no plural ending at all.",
@@ -222,9 +222,9 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "veini", of: "vein", en: "some wine, a glass of" },
     ],
     how: {
-      point: "The 3rd form again, on new food: what you eat or want takes it: {Ma söön kartulit}.",
+      point: "The [osastav] (3rd form) again, on new food: what you eat or want takes it: {Ma söön kartulit}.",
       table: {
-        head: ["1st form", "3rd form, some of it"],
+        head: ["[nimetav] (1st form)", "[osastav] (3rd form), some of it"],
         rows: [
           [{ et: "leib" }, { et: "leiba" }],
           [{ et: "juust" }, { et: "juustu" }],
@@ -234,7 +234,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Some nouns look the same in the 3rd form: {kala}, {liha} and {muna} don't change at all. {Ma söön kala} means \"I eat fish\".",
+        "Some nouns look the same in the [osastav] (3rd form): {kala}, {liha} and {muna} don't change at all. {Ma söön kala} means \"I eat fish\".",
         "{Toit} is food in general, the word on a menu or a shop sign.",
         "{Kas sa leiba tahad?} puts the noun before {tahad}. Both orders are fine: {Kas sa tahad leiba?} too.",
       ],
@@ -277,7 +277,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "sularahas", of: "sularaha", en: "in cash" },
     ],
     how: {
-      point: "A price is a number + {eurot}, the 3rd form, as in lesson 26: {kolm eurot}.",
+      point: "A price is a number + {eurot}, the [osastav] (3rd form), as in lesson 26: {kolm eurot}.",
       table: {
         head: ["Price", "Estonian"],
         rows: [
@@ -344,7 +344,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Learn {mulle meeldib} as a set phrase for \"I like\". What you like stays in its 1st form: {Mulle meeldib tee}, I like tea.",
+        "Learn {mulle meeldib} as a set phrase for \"I like\". What you like stays in its [nimetav] (1st form): {Mulle meeldib tee}, I like tea.",
         "Change {mulle} to change who likes it, the way {mul} changes in lesson 15: {sulle meeldib}, you like, {talle meeldib}, he or she likes.",
         "Ask with {kas}: {Kas sulle meeldib kohv?}",
       ],
@@ -382,7 +382,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
       point: "A whole evening at a café, made only of what this part taught.",
       notes: [
         "Notice how little you need: what you want, how many, and how you'll pay.",
-        "Mari's {kaks kooki} and her {Mulle meeldib kook} are the two halves of this part in one breath: after a number comes the 3rd form, and what you like stays in the 1st.",
+        "Mari's {kaks kooki} and her {Mulle meeldib kook} are the two halves of this part in one breath: after a number comes the [osastav] (3rd form), and what you like stays in the [nimetav] (1st form).",
       ],
       watchOut: "If the price comes too fast, you already have the line for it: {Aeglasemalt, palun}.",
       examples: [3, 6],

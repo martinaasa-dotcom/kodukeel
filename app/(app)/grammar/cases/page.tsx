@@ -446,7 +446,7 @@ export default async function GrammarIndexPage({ searchParams }: { searchParams:
         </section>
 
         <Note tone="neutral">
-          {t("The singular endings go on the 2nd form singular, and the plural ones on the 2nd form plural. If the dictionary has no 2nd form plural for a word, its table shows a gap rather than a guess.")}
+          {t("The singular endings go on the omastav (2nd form), and the plural ones on the mitmuse omastav (2nd form, plural). If the dictionary has no mitmuse omastav for a word, its table shows a gap rather than a guess.")}
         </Note>
 
         {viewer && <p className="text-xs" style={{ color: "var(--ink-3)" }}>

@@ -112,7 +112,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Learn the past with the verb, the way you learned its I form: {sööma, söön, sõin}. A few change a lot, and these are some of the most common ones.",
+        "Learn the [lihtminevik] (past) with the verb, the way you learned its [olevik] (I form): {sööma, söön, sõin}. A few change a lot, and these are some of the most common ones.",
         "{Käisin} is the usual way to say you went somewhere and came back: {Ma käisin poes}, I went to the shop.",
         "{Mida sa eile tegid?} means \"what did you do yesterday?\" Take it whole for now; the other persons come in the next lesson.",
       ],
@@ -172,7 +172,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "Learn the past for {ma} with each verb, and the others follow it, except the {ta} form, which is learned too.",
-        "{Kohvikus} means in the café: {kohvik} in the in form, from lesson 32.",
+        "{Kohvikus} means in the café: {kohvik} in the [seesütlev] (-s, in), from lesson 32.",
         "Ask with {kas}: {Kas ta käis ka?} means \"did he come too?\"",
       ],
       watchOut: "{Sa olid} and {nad olid} are the same word, and so are {sa tegid} and {nad tegid}. The person in front tells you which.",
@@ -215,7 +215,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "tähendama", first: "tähendan", en: "to mean", firstEn: "I mean" },
     ],
     how: {
-      point: "Every new verb works the way {elama} does: learn the I form, and the other persons follow from it.",
+      point: "Every new verb works the way {elama} does: learn the [olevik] (I form), and the other persons follow from it.",
       table: {
         head: ["Who", "{kirjutama}"],
         rows: [
@@ -228,7 +228,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The I form isn't always the -ma form minus -ma: {nägema} gives {näen}, {teadma} gives {tean}. That's why the Words step gives you both.",
+        "The [olevik] (I form) isn't always the [ma-tegevusnimi] (-ma) minus -ma: {nägema} gives {näen}, {teadma} gives {tean}. That's why the Words step gives you both.",
         "{Mida tähendab} + a word is how you ask what it means, in class or anywhere: {Mida tähendab tõesti?}",
       ],
       watchOut: "{Tean} is for knowing a fact, as in {Ma ei tea}. Knowing a person is a different verb, and it has a lesson of its own later.",
@@ -295,7 +295,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       notes: [
         "The months look like the English ones and are said the Estonian way, every letter: {jaanuar}, {juuni}, {juuli}.",
         "Months and seasons take no capital letter, like the days.",
-        "{Juulis} is the in form from lesson 32: in July.",
+        "{Juulis} is the [seesütlev] (-s, in) from lesson 32: in July.",
       ],
       listen: [
         { words: [{ clip: "pair-juuni", en: "June", mark: "n" }, { clip: "pair-juuli", en: "July", mark: "l" }] },

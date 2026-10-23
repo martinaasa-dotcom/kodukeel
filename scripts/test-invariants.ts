@@ -19606,13 +19606,12 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     "a review note no longer leads with the learner's own word, or no longer says which turn it was in",
   );
   /*
-    The cross-reference is the plain name the app teaches ("in form (-s)"),
-    the operator's call: a case is named that way on every screen
-    (`casePlainName`), and the Estonian class name is kept for the grammar page.
+    The cross-reference is the name the app teaches, the Estonian one with its
+    hint ("seesütlev (-s, in)"), in the reader's language (`casePlainName`).
   */
   assert.match(
-    review, /term: `\$\{tr\(locale, casePlainName\(spec\)\)\}/,
-    "the review's notes no longer carry the case's plain name, so the cross-reference has gone rather than moved",
+    review, /term: `\$\{casePlainName\(spec, locale\)\}/,
+    "the review's notes no longer carry the case's name, so the cross-reference has gone rather than moved",
   );
   /*
     And it says what was left undone once. It was on this screen three times:

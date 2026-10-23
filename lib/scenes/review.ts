@@ -243,7 +243,7 @@ function notesFrom(state: SceneState, locale: Locale): ReviewNote[] {
         said: slip.said,
         form: slip.form,
         what: whatFor(slip.kind, plain, spec?.suffix, locale),
-        ...(spec ? { term: `${tr(locale, casePlainName(spec))}, ${spec.asksWhere ?? spec.asksThing}` } : {}),
+        ...(spec ? { term: `${casePlainName(spec, locale)}, ${spec.asksWhere ?? spec.asksThing}` } : {}),
         ...(NOTE_BODY[slip.kind] ? { body: tr(locale, NOTE_BODY[slip.kind]!) } : {}),
         at: first.at,
         ...(rows.length > 1 ? { times: rows.length } : {}),

@@ -1,4 +1,6 @@
-import { caseByKey, casePlainName } from "./cases";
+import { caseByKey, caseNameWithNumber, casePlainName, shortIllativeName } from "./cases";
+import { PERSON_HINTS, verbFormNames, type Person, type VerbForm } from "./verbNames";
+import type { Locale } from "@/lib/copy/locale";
 import { isPrincipalFormType } from "./types";
 import type { CaseKey, PrincipalFormType } from "./types";
 
@@ -249,6 +251,13 @@ export const VERB_GROUP_LABELS: Record<VerbSlot["group"], { en: string; et: stri
   OTHER: { en: "Other forms", et: "muud vormid" },
 };
 
+/** Which named form each conjugated group is, for the names a learner reads. */
+const SLOT_FORMS: Partial<Record<VerbSlot["group"], VerbForm>> = {
+  PRESENT: "PRESENT",
+  PAST: "PAST",
+  CONDITIONAL: "CONDITIONAL",
+};
+
 export function verbSlot(code: string | null | undefined): VerbSlot | null {
   if (!code) return null;
   return VERB_SLOTS[code] ?? null;
@@ -283,35 +292,38 @@ export interface FormName {
    */
   readonly en: string;
   /**
-   * The name a learner reads, where the form has one: "2nd form", "in form
-   * (-s)", "-ma form", "I form". The operator's call is that this leads and
-   * the Estonian grammatical name stays off the screen (`casePlainName`), so
-   * `formLabel` prints it alone wherever it is set.
+   * The name a learner reads, in each of the three languages: the Estonian
+   * name a class uses with a hint after it, "omastav (2nd form)", "seesütlev
+   * (-s, in)", "ma-tegevusnimi (-ma, dictionary form)" (`casePlainName`,
+   * `verbFormName`). `formLabel` prints it alone wherever it is set.
    */
-  readonly plain?: string;
+  readonly shown?: Readonly<Record<Locale, string>>;
 }
 
 /** What a case asks, for the two tables below, so neither retypes it. */
 const asks = (key: string): string => caseByKey(key)?.asksEn ?? key.toLowerCase();
-/** The short illative's plain name: it does not take `-sse` (`tuppa`), so no ending. */
-const SHORT_TO_FORM = "short to form";
-/** A case's plain name, for the two tables below. */
-const plain = (key: string): string => {
+const LOCALES: readonly Locale[] = ["en", "ru", "uk"];
+const inEach = (name: (locale: Locale) => string): Readonly<Record<Locale, string>> =>
+  Object.fromEntries(LOCALES.map((l) => [l, name(l)])) as Record<Locale, string>;
+/** A case's name in every language, for the two tables below. */
+const shownCase = (key: string, number?: "mitmus"): Readonly<Record<Locale, string>> => {
   const spec = caseByKey(key);
-  return spec ? casePlainName(spec) : key.toLowerCase();
+  if (!spec) return inEach(() => key.toLowerCase());
+  return inEach((l) => (number ? caseNameWithNumber(spec, number, l) : casePlainName(spec, l)));
 };
+const SHORT_INTO = inEach((l) => shortIllativeName(l));
 
 /** The slots the seed stores by `formType`, which carry no morph code. */
 const STORED_NAMES: Record<string, FormName> = {
-  NOM_SG: { et: "nimetav", en: asks("NOMINATIVE"), plain: plain("NOMINATIVE") },
-  GEN_SG: { et: "omastav", en: asks("GENITIVE"), plain: plain("GENITIVE") },
-  PART_SG: { et: "osastav", en: asks("PARTITIVE"), plain: plain("PARTITIVE") },
-  ILL_SG_SHORT: { et: "lühike sisseütlev", en: `${asks("ILLATIVE")}, the short one`, plain: SHORT_TO_FORM },
-  NOM_PL: { et: "mitmuse nimetav", en: `${asks("NOMINATIVE")}, plural`, plain: `${plain("NOMINATIVE")} plural` },
-  PART_PL: { et: "mitmuse osastav", en: `${asks("PARTITIVE")}, plural`, plain: `${plain("PARTITIVE")} plural` },
-  GEN_PL: { et: "mitmuse omastav", en: `${asks("GENITIVE")}, plural`, plain: `${plain("GENITIVE")} plural` },
-  INF_MA: { et: "ma-tegevusnimi", en: "ma-infinitive", plain: "-ma form" },
-  INF_DA: { et: "da-tegevusnimi", en: "da-infinitive", plain: "-da form" },
+  NOM_SG: { et: "nimetav", en: asks("NOMINATIVE"), shown: shownCase("NOMINATIVE") },
+  GEN_SG: { et: "omastav", en: asks("GENITIVE"), shown: shownCase("GENITIVE") },
+  PART_SG: { et: "osastav", en: asks("PARTITIVE"), shown: shownCase("PARTITIVE") },
+  ILL_SG_SHORT: { et: "lühike sisseütlev", en: `${asks("ILLATIVE")}, the short one`, shown: SHORT_INTO },
+  NOM_PL: { et: "mitmuse nimetav", en: `${asks("NOMINATIVE")}, plural`, shown: shownCase("NOMINATIVE", "mitmus") },
+  PART_PL: { et: "mitmuse osastav", en: `${asks("PARTITIVE")}, plural`, shown: shownCase("PARTITIVE", "mitmus") },
+  GEN_PL: { et: "mitmuse omastav", en: `${asks("GENITIVE")}, plural`, shown: shownCase("GENITIVE", "mitmus") },
+  INF_MA: { et: "ma-tegevusnimi", en: "ma-infinitive", shown: verbFormNames("MA") },
+  INF_DA: { et: "da-tegevusnimi", en: "da-infinitive", shown: verbFormNames("DA") },
   /*
     Worded exactly as the derived verb-slot names below, so that one word
     resolving from a stored principal part and another from an Ekilex morph
@@ -326,23 +338,23 @@ const STORED_NAMES: Record<string, FormName> = {
     grammar. The comment above claimed the two were worded alike while they
     were not, which is the shape this file keeps finding in its own prose.
   */
-  PRES_1SG: { et: "olevik ma", en: "present", plain: "I form" },
-  PAST_1SG: { et: "lihtminevik ma", en: "simple past" },
-  PART_TUD: { et: "tud-kesksõna", en: "tud-participle" },
+  PRES_1SG: { et: "olevik ma", en: "present", shown: verbFormNames("PRESENT", "ma") },
+  PAST_1SG: { et: "lihtminevik ma", en: "simple past", shown: verbFormNames("PAST", "ma") },
+  PART_TUD: { et: "tud-kesksõna", en: "tud-participle", shown: verbFormNames("TUD") },
 };
 
 /** The non-finite verb codes, which have a name rather than a person. */
 const NON_FINITE_NAMES: Record<string, FormName> = {
-  Sup: { et: "ma-tegevusnimi", en: "ma-infinitive", plain: "-ma form" },
-  Inf: { et: "da-tegevusnimi", en: "da-infinitive", plain: "-da form" },
-  PtsPtPs: { et: "nud-kesksõna", en: "nud-participle" },
-  PtsPtIps: { et: "tud-kesksõna", en: "tud-participle" },
-  IndPrIps: { et: "umbisikuline olevik", en: "impersonal present" },
+  Sup: { et: "ma-tegevusnimi", en: "ma-infinitive", shown: verbFormNames("MA") },
+  Inf: { et: "da-tegevusnimi", en: "da-infinitive", shown: verbFormNames("DA") },
+  PtsPtPs: { et: "nud-kesksõna", en: "nud-participle", shown: verbFormNames("NUD") },
+  PtsPtIps: { et: "tud-kesksõna", en: "tud-participle", shown: verbFormNames("TUD") },
+  IndPrIps: { et: "umbisikuline olevik", en: "impersonal present", shown: verbFormNames("IMPERSONAL") },
 };
 
 /** Name for a noun or adjective form code, or null when it is not one. */
 function caseName(code: string): FormName | null {
-  if (code === "SgAdt") return { et: "lühike sisseütlev", en: `${asks("ILLATIVE")}, the short one`, plain: SHORT_TO_FORM };
+  if (code === "SgAdt") return { et: "lühike sisseütlev", en: `${asks("ILLATIVE")}, the short one`, shown: SHORT_INTO };
   const key = caseFromMorphCode(code);
   if (!key) return null;
   const spec = caseByKey(key);
@@ -351,7 +363,7 @@ function caseName(code: string): FormName | null {
   return {
     et: plural ? `mitmuse ${spec.et}` : spec.et,
     en: plural ? `${spec.asksEn}, plural` : spec.asksEn,
-    plain: plural ? `${casePlainName(spec)} plural` : casePlainName(spec),
+    shown: shownCase(key, plural ? "mitmus" : undefined),
   };
 }
 
@@ -395,9 +407,14 @@ export function formName(form: {
         pronoun is already in front of them, in the half that leads.
       */
       const name = { et: `${group.et} ${slot.en}`, en: group.en.toLowerCase() };
-      // The I form is the one slot a learner is taught by name (`räägin`), and
-      // it reads the same whether the row holds `PRES_1SG` or `IndPrSg1`.
-      return code === "IndPrSg1" ? { ...name, plain: "I form" } : name;
+      // Named the way a class names it, with the person after a comma and
+      // the hint after that, so `räägin` reads the same whether the row holds
+      // `PRES_1SG` or `IndPrSg1`: "olevik, ma (now, I)".
+      const person = slot.en.replace(/!$/, "") as Person;
+      const form = slot.group === "IMPERATIVE"
+        ? (person === "sa" ? "COMMAND" : person === "te" ? "POLITE_COMMAND" : undefined)
+        : SLOT_FORMS[slot.group];
+      return form && person in PERSON_HINTS ? { ...name, shown: verbFormNames(form, person) } : name;
     }
   }
   if (form.formType && STORED_NAMES[form.formType]) return STORED_NAMES[form.formType]!;
@@ -414,10 +431,10 @@ export function formLabel(form: {
   formType?: string | null;
   morphCode?: string | null;
   morphName?: string | null;
-}, say: (english: string) => string = (english) => english): string {
+}, say: (english: string) => string = (english) => english, locale: Locale = "en"): string {
   const name = formName(form);
   if (!name) return (form.formType ?? form.morphCode ?? "").replace(/^EKILEX:/, "");
-  if (name.plain) return sayEnglish(name.plain, say);
+  if (name.shown) return name.shown[locale];
   return name.et === name.en ? name.et : `${name.et} (${sayEnglish(name.en, say)})`;
 }
 
@@ -431,7 +448,5 @@ function sayEnglish(english: string, say: (english: string) => string): string {
     const marked = `, ${tail}`;
     if (english.endsWith(marked)) return `${say(english.slice(0, -marked.length))}, ${say(tail)}`;
   }
-  // A plain name takes its number after a space: "2nd form plural".
-  if (english.endsWith(" plural")) return `${say(english.slice(0, -" plural".length))} ${say("plural")}`;
   return say(english);
 }

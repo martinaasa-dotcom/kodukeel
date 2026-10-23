@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import { CASES, casePlainName } from "@/lib/estonian/cases";
+import { CASES, caseNameWithNumber, casePlainName } from "@/lib/estonian/cases";
 import { derivedVerbForms, possibleFirstPersons } from "@/lib/estonian/conjugate";
 import { formLabel, morphCodeFor } from "@/lib/estonian/morph";
 import { fold, FOLD_FROM, FOLD_TO } from "@/lib/estonian/fold";
@@ -603,9 +603,9 @@ function rank(
       for (const { suffix, key } of CASE_SUFFIXES) {
         if (!folded.endsWith(suffix)) continue;
         if (folded.slice(0, folded.length - suffix.length) === stemFolded && meantBy(r, stem + suffix)) {
-          // Named the plain way every stored form is (`casePlainName`), so a
-          // form worked out from the stem and one Ekilex stored read alike.
-          const name = `${casePlainName({ key })}${plural ? " plural" : ""}`;
+          // Named the way every stored form is (`casePlainName`), so a form
+          // worked out from the stem and one Ekilex stored read alike.
+          const name = plural ? caseNameWithNumber({ key }, "mitmus") : casePlainName({ key });
           return {
             score: 85,
             matchedAs: `${name} of ${c.lemma}`,
@@ -645,7 +645,7 @@ function rank(
         // outside that loop, so it kept "nominative plural" after the loop had
         // dropped every Latin name, and `toad` came back named in a grammar
         // this language does not use.
-        matchedAs: `${casePlainName(NOM)} plural of ${c.lemma}`,
+        matchedAs: `${caseNameWithNumber(NOM, "mitmus")} of ${c.lemma}`,
         form: { formType: "NOM_PL", morphCode: null },
       };
     }

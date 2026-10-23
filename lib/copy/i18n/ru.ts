@@ -184,7 +184,7 @@ export const RU: Readonly<Record<string, string>> = {
   "A ball next to it": "Мяч рядом с этим",
   "A ball floating above it, not touching": "Мяч парит над этим, не касаясь",
   "Place": "Место",
-  "The noun in its 2nd form, then {word}. {word} means {meaning}.": "Существительное во 2-й форме, потом {word}. {word} значит {meaning}.",
+  "The noun in its omastav (2nd form), then {word}. {word} means {meaning}.": "Существительное в omastav (2-я форма), потом {word}. {word} значит {meaning}.",
   "on top of": "на, сверху",
   "under": "под",
   "in front of": "перед",

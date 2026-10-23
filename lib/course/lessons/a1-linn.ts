@@ -147,7 +147,7 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
     part: "a1-linn",
     kind: "lesson",
     title: "In the room",
-    goal: "Say what something is in, with the in form (-s).",
+    goal: "Say what something is in, with the [seesütlev] (-s, in).",
     cast: { Tom: "kalev", Mari: "mari" },
     conversation: [
       { who: "Tom", et: "Mari, kus on minu telefon?", en: "Mari, where's my phone?" },
@@ -164,9 +164,9 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "voodis", of: "voodi", en: "in bed" },
     ],
     how: {
-      point: "The in form ends in -s and means in: {toas}, in the room, {köögis}, in the kitchen.",
+      point: "The [seesütlev] (-s, in) puts a word inside something: {toas}, in the room, {köögis}, in the kitchen.",
       table: {
-        head: ["1st form", "In-form"],
+        head: ["[nimetav] (1st form)", "[seesütlev] (-s, in)"],
         rows: [
           [{ et: "maja" }, { et: "majas" }],
           [{ et: "korter" }, { et: "korteris" }],
@@ -176,8 +176,8 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The in form answers {kus?}, where. {Tallinnas}, {Tartus} and {Eestis} from lesson 9 have the same ending.",
-        "The -s goes on the noun's 2nd form, the one you learn by heart, and that isn't always the dictionary form: {köök} gives {köögis}, and {tuba} gives {toas}.",
+        "The [seesütlev] (-s, in) answers {kus?}, where. {Tallinnas}, {Tartus} and {Eestis} from lesson 9 have the same ending.",
+        "The -s goes on the noun's [omastav] (2nd form), the one you learn by heart, and that isn't always the dictionary form: {köök} gives {köögis}, and {tuba} gives {toas}.",
         "A no works the usual way: {köögis ei ole}, it isn't in the kitchen.",
       ],
       watchOut: "This is \"in\", inside something. \"On a table\" is a different ending, and it has a lesson of its own later.",
@@ -226,9 +226,9 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kotis", of: "kott", en: "in the bag" },
     ],
     how: {
-      point: "The in form from lesson 32, on the rooms: {elutoas}, in the living room.",
+      point: "The [seesütlev] (-s, in) from lesson 32, on the rooms: {elutoas}, in the living room.",
       table: {
-        head: ["1st form", "In-form"],
+        head: ["[nimetav] (1st form)", "[seesütlev] (-s, in)"],
         rows: [
           [{ et: "elutuba" }, { et: "elutoas" }],
           [{ et: "magamistuba" }, { et: "magamistoas" }],
@@ -342,9 +342,9 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "tore", en: "nice, lovely" },
     ],
     how: {
-      point: "The with form ends in -ga and means with. With a bus or a train, it means by: {bussiga}, {rongiga}.",
+      point: "The [kaasaütlev] (-ga, with) means with. With a bus or a train, it means by: {bussiga}, {rongiga}.",
       table: {
-        head: ["1st form", "With-form"],
+        head: ["[nimetav] (1st form)", "[kaasaütlev] (-ga, with)"],
         rows: [
           [{ et: "buss" }, { et: "bussiga" }],
           [{ et: "tramm" }, { et: "trammiga" }],
@@ -354,7 +354,7 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Kaardiga} from lesson 27 has the same ending: with a card, by card.",
         "{Sõitma} means to go on something with wheels: {Ma sõidan bussiga}. Walking is another verb.",
-        "{Tartusse} means to Tartu. Take it whole for now; the to form has a lesson of its own later.",
+        "{Tartusse} means to Tartu. Take it whole for now; the [sisseütlev] (-sse, into) has a lesson of its own later.",
       ],
       watchOut: "By bus is one word, {bussiga}. Estonian has no separate word for by.",
       examples: [0, 1, 2],
@@ -402,9 +402,9 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "taksoga", of: "takso", en: "by taxi" },
     ],
     how: {
-      point: "Two forms you know, on new places: the in form for where you are, {koolis}, and the with form for how you go, {autoga}.",
+      point: "Two forms you know, on new places: the [seesütlev] (-s, in) for where you are, {koolis}, and the [kaasaütlev] (-ga, with) for how you go, {autoga}.",
       table: {
-        head: ["1st form", "With its ending"],
+        head: ["[nimetav] (1st form)", "With its ending"],
         rows: [
           [{ et: "kool" }, { et: "koolis" }],
           [{ et: "hotell" }, { et: "hotellis" }],

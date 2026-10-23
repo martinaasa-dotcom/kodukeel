@@ -104,7 +104,7 @@ function caseTitle(key: string, locale: Locale): string | null {
       ? fill(tr(locale, "Read about the -{suffix} ending, \"{plain}\""), { suffix: spec.suffix, plain })
       : fill(tr(locale, "Read about the -{suffix} ending"), { suffix: spec.suffix });
   }
-  const name = tr(locale, casePlainName(spec));
+  const name = casePlainName(spec, locale);
   return plain
     ? fill(tr(locale, "Read about {name}, \"{plain}\""), { name, plain })
     : fill(tr(locale, "Read about {name}"), { name });

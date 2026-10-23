@@ -131,7 +131,7 @@ check("it shows the case on real words", rowCount > 0, `${rowCount} words`);
 let labelled = 0;
 for (let i = 0; i < rowCount; i++) {
   const text = await rows.nth(i).innerText();
-  if (/recorded|memorized|from the 2nd form/i.test(text)) labelled++;
+  if (/recorded|memorized|from the omastav/i.test(text)) labelled++;
 }
 check("every form on it says where it came from", labelled === rowCount, `${labelled}/${rowCount}`);
 
@@ -221,8 +221,8 @@ check("the reference points at the screen that comes before it",
 await page.goto(`${B}/grammar/build-a-word`, { waitUntil: "networkidle" });
 const walkBody = (await page.textContent("body")) ?? "";
 check("it names the three forms that are stored, the way a class names them",
-  /1st form/.test(walkBody) && /2nd form/.test(walkBody) && /3rd form/.test(walkBody),
-  "the three are not named 1st, 2nd and 3rd form");
+  /nimetav \(1st form\)/.test(walkBody) && /omastav \(2nd form\)/.test(walkBody) && /osastav \(3rd form\)/.test(walkBody),
+  "the three are not named nimetav (1st form), omastav (2nd form) and osastav (3rd form)");
 check("and says which of them the endings are built on",
   /the one the endings go on/.test(walkBody), "nothing marks the stem");
 /*

@@ -13,7 +13,8 @@ import {
   buildCaseTable, followsEndingRule, shownForms, stemsFrom, type DerivedForm,
 } from "@/lib/estonian/derive";
 import type { CaseSubject } from "@/lib/estonian/caseQuestion";
-import { caseByKey, questionInEnglish } from "@/lib/estonian/cases";
+import { caseByKey, casePlainName, questionInEnglish } from "@/lib/estonian/cases";
+import { verbFormName } from "@/lib/estonian/verbNames";
 import { caseQuestionFor } from "@/lib/estonian/caseQuestion";
 import { toWalkWord } from "@/lib/estonian/caseBuild";
 import { ButtonLink } from "@/components/Button";
@@ -739,7 +740,7 @@ function eveningOne({ t, locale }: Say): { words: EveningWord[]; steps: EveningS
     words,
     steps: LESSON_SHAPE.map((s) => ({ title: t(s.title), minutes: s.minutes, why: t(s.why) })),
     title: day.title,
-    canDo: t(lesson.goal.replace(/[{}]/g, "")),
+    canDo: t(lesson.goal.replace(/[{}[\]]/g, "")),
     evenings: PROGRAMMES.reduce((n, p) => n + p.days.length, 0),
   };
 }
@@ -1503,12 +1504,11 @@ async function loadDemo(): Promise<{ words: DemoWord[]; stats: { words: number; 
         return questionInEnglish(question);
       };
       const principal = (isVerb
-        ? [["-ma form", form("INF_MA")], ["-da form", form("INF_DA")], ["I form", form("PRES_1SG")], ["past I form", form("PAST_1SG")]]
-        : [
-            [`nimetav, ${caseQuestionFor(caseByKey("NOMINATIVE")!, subject)}`, form("NOM_SG"), askedIn("NOMINATIVE")],
-            [`omastav, ${caseQuestionFor(caseByKey("GENITIVE")!, subject)}`, form("GEN_SG"), askedIn("GENITIVE")],
-            [`osastav, ${caseQuestionFor(caseByKey("PARTITIVE")!, subject)}`, form("PART_SG"), askedIn("PARTITIVE")],
-          ]
+        ? [[verbFormName("MA"), form("INF_MA")], [verbFormName("DA"), form("INF_DA")], [verbFormName("PRESENT", "en", "ma"), form("PRES_1SG")], [verbFormName("PAST", "en", "ma"), form("PAST_1SG")]]
+        : ([["NOMINATIVE", "NOM_SG"], ["GENITIVE", "GEN_SG"], ["PARTITIVE", "PART_SG"]] as const).map(([key, type]) => {
+            const spec = caseByKey(key)!;
+            return [`${casePlainName(spec)}, ${caseQuestionFor(spec, subject)}`, form(type), askedIn(key)];
+          })
       ).flatMap(([label, value, english]) => (label && value ? [{ label, value, english: english ?? null }] : []));
 
       const table = isVerb

@@ -142,7 +142,7 @@ export function PlaceCard({ q, index, paused, canTranslate, onAnswered, onNext }
             })}
           </p>
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            {fill(t("The noun in its 2nd form, then {word}. {word} means {meaning}."), {
+            {fill(t("The noun in its omastav (2nd form), then {word}. {word} means {meaning}."), {
               word: q.place, meaning: t(MEANINGS[q.place] ?? "where it is"),
             })}
           </p>

@@ -181,8 +181,8 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "Every verb in this lesson follows lesson 9. Learn the pair, {ärkama, ärkan}, and the persons follow: {ärkad}, {ärkab}, {ärkavad}.",
-        "{Minema} is the odd one: its I form is {lähen}, and the rest follow that, {lähed}, {läheb}, {lähevad}.",
-        "{Ma lähen magama} means \"I'm going to bed\": after {lähen}, the verb stays in its -ma form.",
+        "{Minema} is the odd one: its [olevik] (I form) is {lähen}, and the rest follow that, {lähed}, {läheb}, {lähevad}.",
+        "{Ma lähen magama} means \"I'm going to bed\": after {lähen}, the verb stays in its [ma-tegevusnimi] (-ma).",
         "The no works on every one of them, as in lesson 12: {Laupäeval ma ei tööta}.",
       ],
       watchOut: "At seven is {kell seitse}. There's no word for at: {kell} does that job.",
@@ -339,9 +339,9 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "süüa teha", en: "to cook" },
     ],
     how: {
-      point: "After {tahan}, {saan} and {oskan}, the next verb takes its -da form: {Ma tahan süüa}.",
+      point: "After {tahan}, {saan} and {oskan}, the next verb takes its [da-tegevusnimi] (-da): {Ma tahan süüa}.",
       table: {
-        head: ["-ma form", "-da form, after {tahan}"],
+        head: ["[ma-tegevusnimi] (-ma)", "[da-tegevusnimi] (-da), after {tahan}"],
         rows: [
           [{ et: "minema" }, { et: "minna" }],
           [{ et: "sööma" }, { et: "süüa" }],
@@ -353,11 +353,11 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "A verb now has three forms to learn: the -ma form, {rääkima}, the -da form, {rääkida}, and the I form, {räägin}. The -da form is learned with each verb, like the I form. Many really do end in -da, {lugeda}, and some are short: {minna}, {teha}, {tulla}.",
+        "A verb now has three forms to learn: the [ma-tegevusnimi] (-ma), {rääkima}, the [da-tegevusnimi] (-da), {rääkida}, and the [olevik] (I form), {räägin}. The -da one is learned with each verb too. Many really do end in -da, {lugeda}, and some are short: {minna}, {teha}, {tulla}.",
         "{Saan} is \"can\" as in being able to, today or tomorrow: {Kas sa saad tulla?} {Oskan} is \"can\" as in knowing how: {Ma oskan süüa teha}.",
         "{Süüa teha}, make food, is how Estonian says \"cook\".",
       ],
-      watchOut: "{Pean} is the one that's different: the verb after it stays in its -ma form. {Ma pean õppima} means \"I have to study\".",
+      watchOut: "{Pean} is the one that's different: the verb after it stays in its [ma-tegevusnimi] (-ma). {Ma pean õppima} means \"I have to study\".",
       examples: [0, 1, 2],
     },
     answers: [

@@ -119,7 +119,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "Ukrainast", en: "from Ukraine" },
     ],
     how: {
-      point: "To say where you're from, use {pärit} and the country in its from form, ending in -st or -lt: {Ma olen pärit Eestist}.",
+      point: "To say where you're from, use {pärit} and the country in its [seestütlev] (-st, out of): {Ma olen pärit Eestist}.",
       table: {
         head: ["Country", "From there", "Somebody from there"],
         rows: [
@@ -136,7 +136,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
         "{Aga} is but: {Ma olen pärit Inglismaalt, aga ma elan Eestis}.",
         "A country has a capital letter and the person from it doesn't: {Eesti}, but {eestlane}.",
       ],
-      watchOut: "{Pärit} always takes the from form: {Ma olen pärit Eestist}, never {Ma olen pärit Eesti}.",
+      watchOut: "{Pärit} always takes the [seestütlev] (-st, out of): {Ma olen pärit Eestist}, never {Ma olen pärit Eesti}.",
       examples: [0, 1, 3],
     },
     answers: [
@@ -190,7 +190,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "Somebody from a country is the country + -lane: {soomlane}, {lätlane}. You know {eestlane} already.",
-        "In a country is the in form, the -s you met in lesson 9 with {Eestis}: {Rootsis}, in Sweden.",
+        "In a country is the [seesütlev] (-s, in), the ending you met in lesson 9 with {Eestis}: {Rootsis}, in Sweden.",
       ],
       watchOut: "{Saksamaa} is a -maa country, like {Inglismaa}: from Germany is {Saksamaalt}, never with -st.",
       examples: [1, 2, 4],
@@ -240,7 +240,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "ukraina keelt", en: "Ukrainian, the language" },
     ],
     how: {
-      point: "Some verbs change in the middle when an ending goes on, so learn every verb as a pair: its -ma form, which the dictionary gives, and its I form, the one you say with {ma}.",
+      point: "Some verbs change in the middle when an ending goes on, so learn every verb as a pair: its [ma-tegevusnimi] (-ma), which the dictionary gives, and its [olevik] (I form), the one you say with {ma}.",
       table: {
         head: ["", "{rääkima}, to speak", "{õppima}, to learn"],
         rows: [
@@ -254,11 +254,11 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Rääkima} becomes {räägin}: the k softens to g. {Õppima} becomes {õpin}: the double p shortens to one. After that, the person endings are the same six as in lesson 9.",
-        "Once you have the I form, the other persons follow it: {räägin}, {räägid}, {räägib}. The dictionary only gives the -ma form, so learn each verb as a pair: {rääkima, räägin}. The -da form comes in lesson 22.",
+        "Once you have the [olevik] (I form), the other persons follow it: {räägin}, {räägid}, {räägib}. The dictionary only gives the [ma-tegevusnimi] (-ma), so learn each verb as a pair: {rääkima, räägin}. The [da-tegevusnimi] (-da) comes in lesson 22.",
         "A language is {eesti keelt}, {inglise keelt}, {vene keelt}. Learn them whole for now; lesson 25 explains why the second word ends in -t.",
         "{Räägime eesti keelt!} means \"let's speak Estonian\": the we-form said without {me} makes a suggestion.",
       ],
-      watchOut: "Keep the softer middle in every person: {räägin}, {räägid}, {räägivad}. Only the -ma form, {rääkima}, has the k.",
+      watchOut: "Keep the softer middle in every person: {räägin}, {räägid}, {räägivad}. Only the [ma-tegevusnimi] (-ma), {rääkima}, has the k.",
       examples: [0, 1, 3],
     },
     answers: [
@@ -293,7 +293,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "muidugi", en: "of course" },
     ],
     how: {
-      point: "To say no, put {ei} in front of the I form and drop its -n. It's the same for every person.",
+      point: "To say no, put {ei} in front of the [olevik] (I form) and drop its -n. It's the same for every person.",
       table: {
         head: ["Yes", "No"],
         rows: [
@@ -303,7 +303,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Take the -n off the I form and put {ei} in front: {elan} becomes {ei ela}. That one form is the no for {ma}, {sa}, {ta}, {me}, {te} and {nad} alike.",
+        "Take the -n off the [olevik] (I form) and put {ei} in front: {elan} becomes {ei ela}. That one form, the [eitav] (not), is the no for {ma}, {sa}, {ta}, {me}, {te} and {nad} alike.",
         "You've been doing this since lesson 6, where {olen} became {ei ole}.",
         "After a no, {veel} means yet: {Ma ei räägi veel hästi} is \"I don't speak it well yet\".",
       ],
@@ -541,9 +541,9 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "nende", en: "their" },
     ],
     how: {
-      point: "My, your and our are the 2nd form of the persons: {minu ema}, {sinu isa}, {meie poeg}.",
+      point: "My, your and our are the [omastav] (2nd form) of the persons: {minu ema}, {sinu isa}, {meie poeg}.",
       table: {
-        head: ["", "1st form", "2nd form"],
+        head: ["", "[nimetav] (1st form)", "[omastav] (2nd form)"],
         rows: [
           [{ en: "I, my" }, { et: "mina" }, { et: "minu" }],
           [{ en: "you, your" }, { et: "sina" }, { et: "sinu" }],

@@ -18,7 +18,7 @@ describe("learnerNote", () => {
       unit: { title: "Kodu", subtitle: "Home", level: "A1" }, scene: null,
     });
     expect(note).toContain("Their level is A2.");
-    expect(note).toContain("3rd form (in class: osastav)");
+    expect(note).toContain("osastav (3rd form)");
     expect(note).toContain("right 58% of 120 times");
     expect(note).toContain('"Kodu" (Home) at A1');
     // Offered for when it is relevant, never as a refrain.

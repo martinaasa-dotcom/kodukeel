@@ -40,6 +40,8 @@ import { useModuleFocus } from "@/components/course/moduleFocus";
 import { FitText } from "@/components/FitText";
 import { CaseLabel } from "@/components/CaseLabel";
 import { caseLabelOf } from "@/lib/copy/caseLabel";
+import { slotLabel } from "@/lib/srs/slots";
+import { verbFormName } from "@/lib/estonian/verbNames";
 
 /**
  * THE ROUND: MEET IT, TYPE IT, USE IT.
@@ -374,7 +376,7 @@ function Meeting({ task }: { task: ExceptionTask }) {
                 one time hearing it is worth more than reading it. */}
             <SpeakPair text={task.accepted[0] ?? task.lemma} autoplay />
           </div>
-          <SlotLabel label={task.label} className="mt-1 text-xs" />
+          <SlotLabel task={task} className="mt-1 text-xs" />
         </div>
       )}
 
@@ -524,7 +526,7 @@ function Asking({ task, answered }: { task: ExceptionTask; answered: boolean }) 
             </p>
           </>
         ) : caseLabelOf(task.label) ? (
-          <SlotLabel label={task.label} className="text-lg" />
+          <SlotLabel task={task} className="text-lg" />
         ) : (
           <p lang={t(task.label) === task.label ? "et" : undefined} className="text-2xl font-semibold" style={{ color: "var(--accent-deep)" }}>
             {t(task.label)}
@@ -576,7 +578,7 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
         >
           {task.accepted.join(PARTS)}
         </p>
-        <SlotLabel label={task.label} className="mt-1 text-xs" />
+        <SlotLabel task={task} className="mt-1 text-xs" />
       </div>
 
       {task.rung === "use" && task.sentence && (
@@ -618,18 +620,20 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
  * A case is drawn as one label by `CaseLabel`, never its name and question
  * joined here; any other slot (a verb form) prints as it is named.
  */
-function SlotLabel({ label, className }: { label: string; className: string }) {
-  const named = caseLabelOf(label);
-  // A verb slot is named in Estonian and prints as it is; the da and tud
-  // kinds are named in English ("da form") and are translated like any line.
-  const t = useT();
-  const shown = t(label);
+function SlotLabel({ task, className }: { task: Pick<ExceptionTask, "slot" | "kind" | "label">; className: string }) {
+  const named = caseLabelOf(task.label);
+  // A verb form is named off the same table as a case, in the reader's
+  // language: "olevik, ma (now, I)", "da-tegevusnimi (-da, to …)".
+  const locale = useLocale();
+  const shown = task.slot === "CONJUGATION"
+    ? task.kind === "DA_INFINITIVE" ? verbFormName("DA", locale) : task.kind === "TUD_PARTICIPLE" ? verbFormName("TUD", locale) : task.label
+    : slotLabel(task.slot, locale);
   return named ? (
     <p className={className} style={{ color: "var(--ink-3)" }}>
       <CaseLabel label={named} />
     </p>
   ) : (
-    <p lang={shown === label ? "et" : undefined} className={className} style={{ color: "var(--ink-3)" }}>
+    <p className={className} style={{ color: "var(--ink-3)" }}>
       {shown}
     </p>
   );

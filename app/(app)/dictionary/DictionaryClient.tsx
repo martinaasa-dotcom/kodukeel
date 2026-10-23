@@ -18,6 +18,7 @@ import { TrParts } from "@/components/TrParts";
 import { caseQuestionFor } from "@/lib/estonian/caseQuestion";
 import { parseGovernment, readableGovernment } from "@/lib/estonian/government";
 import { caseByKey, casePlainName } from "@/lib/estonian/cases";
+import { verbFormName, type Person, type VerbForm } from "@/lib/estonian/verbNames";
 import type { CaseKey } from "@/lib/estonian/types";
 import { CaseLabel } from "@/components/CaseLabel";
 import { Braced } from "@/components/Braced";
@@ -141,20 +142,18 @@ const NOUN_PARTS = [
 ] as const;
 
 /*
-  THE VERB KEEPS ITS ENGLISH, AND THAT IS THE ASYMMETRY RATHER THAN AN
-  OVERSIGHT. `ma-infinitive` is what both languages call it, and "present" and
-  "past" are categories an English speaker has a concept for and can look one
-  up under. "The inessive" is a word that means nothing until somebody has
-  already learned what it names, which is what makes it worth nothing here.
+  A VERB'S PARTS ARE NAMED THE WAY A CASE IS: the Estonian name a class uses,
+  with its hint after it (`verbFormName`), "ma-tegevusnimi (-ma)", "olevik
+  (I form)". `et` is the English-locale name, for the report form's dropdown;
+  the tile draws the name in the reader's language off `verb`.
 */
+const verbPart = (verb: VerbForm, person?: Person) => ({ et: verbFormName(verb, "en", person), question: null, en: null, verb, person });
 const VERB_PARTS = [
-  // A verb's parts are named the way the course names them: the -ma form,
-  // the -da form and the I form, in English, so no Estonian grammar term.
-  ["INF_MA", { et: "-ma form", question: null, en: null }],
-  ["INF_DA", { et: "-da form", question: null, en: null }],
-  ["PRES_1SG", { et: "I form", question: null, en: null }],
-  ["PAST_1SG", { et: "past I form", question: null, en: null }],
-  ["PART_TUD", { et: "-tud form", question: null, en: null }],
+  ["INF_MA", verbPart("MA")],
+  ["INF_DA", verbPart("DA")],
+  ["PRES_1SG", verbPart("PRESENT", "ma")],
+  ["PAST_1SG", verbPart("PAST", "ma")],
+  ["PART_TUD", verbPart("TUD")],
 ] as const;
 
 export function DictionaryClient({
@@ -456,7 +455,7 @@ export function DictionaryClient({
                   ? fill(t("No exact match for \"{query}\""), { query: initialQuery })
                   : fill(t("Nothing found for \"{query}\""), { query: initialQuery })}
             body={known
-              ? t("We just don't have an entry for it yet. Add it below with its 2nd form and it's yours.")
+              ? t("We just don't have an entry for it yet. Add it below with its omastav (2nd form) and it's yours.")
               : nearby[0]?.why === "translation"
                 ? t("Open the one you meant and it's saved here for next time.")
                 : nearby.length > 0
@@ -843,7 +842,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                       <CaseLabel label={{ et: label.et, question: label.question }} className="case-label-stack" />
                     </span>
                   ) : (
-                    <span className="label-xs mt-1.5 block" style={{ color: "var(--ink-3)", textTransform: "none" }}><Braced text={t(label.et)} /></span>
+                    <span className="label-xs mt-1.5 block" style={{ color: "var(--ink-3)", textTransform: "none" }}><Braced text={"verb" in label ? verbFormName(label.verb, locale, label.person) : t(label.et)} /></span>
                   )}
                   {label.en && (
                     <span className="mt-0.5 block text-2xs italic" style={{ color: "var(--ink-3)" }}>{t(label.en)}</span>
@@ -882,7 +881,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
       ) : isNominal && form("GEN_SG") && (
         <div>
           <h3 className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>
-            {t("The rest, built from the 2nd form")}
+            {t("The rest, built from the omastav (2nd form)")}
           </h3>
           {/*
             Counted rather than typed, because the short illative is stored and
@@ -951,8 +950,8 @@ function Entry({ entry, tutorReady, glossLanguage }: {
           {(!form("GEN_PL") || !form("NOM_PL")) && (
             <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
               {!form("GEN_PL")
-                ? t("Most plural forms are built on the 2nd form plural, and we don't have it for this word. So we've left a gap rather than guess one.")
-                : t("We don't have the 1st form plural for this word, and it isn't an ending we can work out. So we've left a gap rather than guess one.")}
+                ? t("Most plural forms are built on the mitmuse omastav (2nd form, plural), and we don't have it for this word. So we've left a gap rather than guess one.")
+                : t("We don't have the mitmuse nimetav (1st form, plural) for this word, and it isn't an ending we can work out. So we've left a gap rather than guess one.")}
             </p>
           )}
           {/* Only on a pronoun, and only where the entry has not been enriched.

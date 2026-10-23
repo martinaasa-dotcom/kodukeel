@@ -8,7 +8,7 @@ import {
 import { viewerId } from "@/lib/auth/session";
 import { PublicReference, referenceHref } from "@/components/grammar/PublicReference";
 import { resolvePublicLocale, shareCard } from "@/lib/progress/publicLocale";
-import { CASES, casePlainName, caseQuestionReading, type CaseSpec } from "@/lib/estonian/cases";
+import { CASES, caseByKey, caseHint, casePlainName, caseQuestionReading, type CaseSpec } from "@/lib/estonian/cases";
 import { localeFor } from "@/lib/progress/locale";
 import { fill, tr, type Locale } from "@/lib/copy/locale";
 import { fillNodes } from "@/components/reference/fillNodes";
@@ -79,8 +79,8 @@ const ORIGIN_LABEL: Record<CaseExample["origin"], { label: string; title: string
     title: "A form you learn by heart, because no rule gives it to you",
   },
   DERIVED: {
-    label: "from the 2nd form",
-    title: "Worked out for you: the 2nd form with this case's ending added on",
+    label: "from the omastav (2nd form)",
+    title: "Worked out for you: the omastav (2nd form) with this case's ending added on",
   },
 };
 
@@ -202,20 +202,20 @@ export default async function CasePage({
                     className="font-display font-bold leading-none tracking-tight [--fit-max:var(--text-7xl)] md:[--fit-max:var(--text-8xl)]"
                     style={{ color: "var(--cta)" }}
                   />
-                  <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("on the 2nd form")}</span>
+                  <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("on the omastav (2nd form)")}</span>
                 </p>
               )}
             </div>
             <dl className="grid min-w-0 flex-[1_1_18rem] gap-4 sm:grid-cols-2">
               <div className="min-w-0">
                 <dt className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Called")}</dt>
-                <dd className="font-display mt-1 text-2xl font-bold" style={{ color: "var(--ink)" }}>
-                  {casePlainName(ref.spec, locale)}
+                {/* The name a class uses leads, and its hint sits under it in
+                    the reader's language (`casePlainName`, `caseHint`). */}
+                <dd lang="et" className="font-display mt-1 text-2xl font-bold" style={{ color: "var(--ink)" }}>
+                  {ref.spec.et}
                 </dd>
-                {/* The name a teacher in Estonia uses, quietly, for somebody
-                    whose class says it: the plain name leads everywhere. */}
                 <dd className="mt-0.5 text-sm" style={{ color: "var(--ink-3)" }}>
-                  {fillNodes(t("In class: {name}"), { name: <span lang="et">{ref.spec.et}</span> })}
+                  {caseHint(ref.spec, locale)}
                 </dd>
               </div>
               <div className="min-w-0">
@@ -291,9 +291,9 @@ export default async function CasePage({
                       English word on a table of Estonian and is a term out of
                       a grammar this language does not use.
                     */}
-                    {[t("Word"), t("2nd form"), endingOf(ref, locale)].map((h, i) => (
+                    {[t("Word"), casePlainName(caseByKey("GENITIVE")!, locale), endingOf(ref, locale)].map((h, i) => (
                       <th
-                        // By place: on the 2nd form's own page two headings read alike.
+                        // By place: on the omastav's own page two headings read alike.
                         key={i}
                         className="label-xs px-3 py-2.5 text-left"
                         style={{

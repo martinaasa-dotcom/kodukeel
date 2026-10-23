@@ -21,9 +21,9 @@ import type { ReactNode } from "react";
  * since read aloud they are noise. They are English quotes, because the
  * sentence around them is English.
  *
- * AND THE I OF "I FORM" IS A CAPITAL I THAT LOOKS LIKE ONE. A verb's three
- * forms are named the way a class in Estonia names them: the -ma form, the -da
- * form and the I form, the one said with `ma` (`räägin`). In the app's sans
+ * AND THE I OF "I FORM" IS A CAPITAL I THAT LOOKS LIKE ONE. The present is
+ * named `olevik (I form)` (`verbFormName`), the form said with `ma`
+ * (`räägin`). In the app's sans
  * serif a capital I and a lowercase l are the same stroke, so "the I form"
  * read as "the l form", a form nobody has heard of. Neither committed face has
  * an alternate I, so this one glyph is set in the reader's own system serif,
@@ -31,11 +31,20 @@ import type { ReactNode } from "react";
  * appears in a lesson's English. It is the one named exemption from the face
  * rule (`scripts/invariants/the-agreed-fonts-and-palette.ts`).
  *
+ * AND A GRAMMAR NAME IS IN SQUARE BRACKETS, `[osastav] (3rd form)`. It is
+ * Estonian, the name a class uses (`casePlainName`, `verbFormName`), and it is
+ * not a word the lesson teaches, so it is neither held to the ledger nor set
+ * like one: no quotes and no accent, which would say "learn this word", only
+ * italic in the ink of the sentence and `lang="et"` so a screen reader says it
+ * with Estonian sounds. The hint after it is ordinary text in the reader's
+ * language. `lessons.test.ts` holds every bracket to a known name with its
+ * hint right after it.
+ *
  * No hooks, so a server page and a client round draw it the same way.
  */
 export function Braced({ text }: { text: string }) {
-  if (!text.includes("{") && !I_FORM.test(text)) return <>{text}</>;
-  const parts = text.split(/(\{[^{}]+\})/g);
+  if (!text.includes("{") && !TERM.test(text) && !I_FORM.test(text)) return <>{text}</>;
+  const parts = text.split(/(\{[^{}]+\}|\[[^[\]{}]+\])/g);
   return (
     <>
       {parts.map((part, i) =>
@@ -47,11 +56,16 @@ export function Braced({ text }: { text: string }) {
               <span aria-hidden>”</span>
             </span>
           )
-          : <span key={i}>{withSerifI(part)}</span>,
+          : part.startsWith("[") && part.endsWith("]")
+            ? <span key={i} lang="et" data-term className="italic">{part.slice(1, -1)}</span>
+            : <span key={i}>{withSerifI(part)}</span>,
       )}
     </>
   );
 }
+
+/** A grammar name in a lesson's English, `[osastav]`. */
+const TERM = /\[[^[\]{}]+\]/;
 
 /** "I form", whole words, the name of a verb's form said with `ma`. */
 const I_FORM = /\bI form\b/;

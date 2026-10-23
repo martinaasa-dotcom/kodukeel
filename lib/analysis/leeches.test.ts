@@ -141,7 +141,7 @@ describe("buildClinicQuestion", () => {
     const q = buildClinicQuestion(leech, ["tuli", "tulu"]);
     expect(q).toMatch(/interfering/);
     expect(q).toContain("tuli, tulu");
-    expect(q).toContain("in form (-s)");
+    expect(q).toContain("seesütlev (-s, in)");
   });
 
   it("names the case the plain way, and never the Latin one", () => {
@@ -151,7 +151,7 @@ describe("buildClinicQuestion", () => {
     // that forbids it on every screen. Both directions, because dropping the
     // Latin name and saying nothing in its place would pass the first half.
     const q = buildClinicQuestion(leech, []);
-    expect(q).toContain("It asks for the in form (-s), milles? kus?.");
+    expect(q).toContain("It asks for the seesütlev (-s, in), milles? kus?.");
     expect(q).not.toMatch(/inessive/i);
   });
 

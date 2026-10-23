@@ -5,12 +5,12 @@ import { readableFront, readableHint } from "./caseHint";
 
 describe("readableHint", () => {
   it("turns the Latin name on a legacy case card into the question it answers", () => {
-    expect(readableHint("kaasaütlev, the comitative")).toBe("with form (-ga)");
-    expect(readableHint("seesütlev · the inessive")).toBe("in form (-s)");
+    expect(readableHint("kaasaütlev, the comitative")).toBe("kaasaütlev (-ga, with)");
+    expect(readableHint("seesütlev · the inessive")).toBe("seesütlev (-s, in)");
   });
 
   it("reads a name written without its article", () => {
-    expect(readableHint("omastav, genitive")).toBe("2nd form");
+    expect(readableHint("omastav, genitive")).toBe("omastav (2nd form)");
   });
 
   it("names every case the table holds", () => {
@@ -32,8 +32,8 @@ describe("readableHint", () => {
     }
   });
 
-  it("names the case the plain way, with neither grammar name left", () => {
-    expect(readableHint("kaasaütlev, the comitative")).not.toContain("kaasaütlev");
+  it("names the case in Estonian with its hint, and drops the Latin name", () => {
+    expect(readableHint("kaasaütlev, the comitative")).not.toMatch(/comitative/i);
     expect(readableHint("the comitative")).toBe(endingName("COMITATIVE"));
   });
 });

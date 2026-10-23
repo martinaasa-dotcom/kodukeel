@@ -58,7 +58,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "Appi!", en: "Help!" },
     ],
     how: {
-      point: "To tell one person you know to do something, take the -n off the I form: {tulen} becomes {tule}. It's the same word you say after {ei}, said on its own.",
+      point: "To tell one person you know to do something, take the -n off the [olevik] (I form): {tulen} becomes {tule}. It's the same word you say after {ei}, said on its own.",
       table: {
         head: ["", "To a friend", "Polite, or to more than one"],
         rows: [
@@ -130,7 +130,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The part that hurts stays in its 1st form, like what you like in {Mulle meeldib kohv}.",
+        "The part that hurts stays in its [nimetav] (1st form), like what you like in {Mulle meeldib kohv}.",
         "{Haige} means sick: {Ma olen haige}. A fever is something you have: {Mul on palavik}.",
         "The doctor tells you what to do in the polite command form of lesson 46: {olge}, {jooge}.",
       ],
@@ -185,7 +185,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Mis on juhtunud?} means \"what's happened?\", which is what the person answering 112 asks. {Mis teil viga on?} from lesson 47 is the doctor's question.",
         "In Estonia one number, 112, reaches all three, and the people who answer speak English too.",
-        "After {vaja}, {politsei} takes its 3rd form, {politseid}. {Abi} and {kiirabi} look the same either way.",
+        "After {vaja}, {politsei} takes its [osastav] (3rd form), {politseid}. {Abi} and {kiirabi} look the same either way.",
         "{Kiirabi} is quick help, {kiire} + {abi} in one word. {Appi!} from lesson 46 is the shout, and {abi} is the noun.",
       ],
       watchOut: "{Tuli} means fire, and it's also how a verb you know says \"came\": listen to the sentence around it.",

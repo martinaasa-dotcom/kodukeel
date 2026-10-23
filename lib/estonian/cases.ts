@@ -309,75 +309,86 @@ export function caseQuestionReading(spec: CaseSpec, locale: Locale): string {
 }
 
 /**
- * WHAT A CASE IS CALLED ON A SCREEN: ITS NUMBER OR WHAT IT DOES.
+ * WHAT A CASE IS CALLED ON A SCREEN: ITS ESTONIAN NAME, WITH A HINT.
  *
- * The operator's call, and it supersedes leading with the Estonian name: a
- * learner meets `omastav` and `seesütlev` as two more words to learn before the
- * one they came for, and a Latin name is worse. So the three forms a word is
- * learned by heart in are numbered, the way a class teaching from the
- * dictionary's own principal parts numbers them (`käsi`, `käe`, `kätt`), and
- * every other case is named by what it does in plain English with its ending
- * beside it, since two cases can do the same job (`-s` and `-l` both answer
- * "where?") and the ending is what tells them apart.
+ * The operator's call, on a native speaker's advice, and it supersedes the
+ * plain names ("2nd form", "in form (-s)") this table held before: a class in
+ * Tallinn, a course book and the state examination all name a case by its
+ * Estonian name, so a learner who only knows the app's own names cannot follow
+ * their teacher. A bare `seesütlev` is a wall in the first week, though, so
+ * every name carries a hint in the reader's language: the three forms a noun
+ * is learned in say which of the three they are, and every other case says its
+ * ending and what it does, since two cases can do the same job (`-s` and `-l`
+ * both answer "where?") and the ending is what tells them apart.
  *
- * The Estonian name is kept, quietly, on the grammar reference pages, which is
- * where somebody whose teacher says `osastav` looks it up. Nothing here is
- * Estonian beyond an ending, which is a suffix rather than a word (ADR-005).
+ * Nothing here is Estonian beyond the class names and an ending, which is a
+ * suffix rather than a word (ADR-005).
  */
-const PLAIN: Readonly<Record<Locale, Readonly<Record<CaseKey, string>>>> = {
+const CASE_HINTS: Readonly<Record<Locale, Readonly<Record<CaseKey, string>>>> = {
   en: {
     NOMINATIVE: "1st form",
     GENITIVE: "2nd form",
     PARTITIVE: "3rd form",
-    ILLATIVE: "to form (-sse)",
-    INESSIVE: "in form (-s)",
-    ELATIVE: "from form (-st)",
-    ALLATIVE: "to form (-le)",
-    ADESSIVE: "in form (-l)",
-    ABLATIVE: "from form (-lt)",
-    TRANSLATIVE: "becoming form (-ks)",
-    TERMINATIVE: "until form (-ni)",
-    ESSIVE: "as form (-na)",
-    ABESSIVE: "without form (-ta)",
-    COMITATIVE: "with form (-ga)",
+    ILLATIVE: "-sse, into",
+    INESSIVE: "-s, in",
+    ELATIVE: "-st, out of",
+    ALLATIVE: "-le, onto/to",
+    ADESSIVE: "-l, on/at/has",
+    ABLATIVE: "-lt, off",
+    TRANSLATIVE: "-ks, becoming",
+    TERMINATIVE: "-ni, until",
+    ESSIVE: "-na, as",
+    ABESSIVE: "-ta, without",
+    COMITATIVE: "-ga, with",
   },
   ru: {
     NOMINATIVE: "1-я форма",
     GENITIVE: "2-я форма",
     PARTITIVE: "3-я форма",
-    ILLATIVE: "форма «куда» (-sse)",
-    INESSIVE: "форма «где» (-s)",
-    ELATIVE: "форма «откуда» (-st)",
-    ALLATIVE: "форма «куда» (-le)",
-    ADESSIVE: "форма «где» (-l)",
-    ABLATIVE: "форма «откуда» (-lt)",
-    TRANSLATIVE: "форма «кем стать» (-ks)",
-    TERMINATIVE: "форма «до» (-ni)",
-    ESSIVE: "форма «как» (-na)",
-    ABESSIVE: "форма «без» (-ta)",
-    COMITATIVE: "форма «с» (-ga)",
+    ILLATIVE: "-sse, в (куда)",
+    INESSIVE: "-s, в (где)",
+    ELATIVE: "-st, из",
+    ALLATIVE: "-le, на/к",
+    ADESSIVE: "-l, на/у/есть",
+    ABLATIVE: "-lt, с/от",
+    TRANSLATIVE: "-ks, становясь",
+    TERMINATIVE: "-ni, до",
+    ESSIVE: "-na, как",
+    ABESSIVE: "-ta, без",
+    COMITATIVE: "-ga, с",
   },
   uk: {
     NOMINATIVE: "1-ша форма",
     GENITIVE: "2-га форма",
     PARTITIVE: "3-тя форма",
-    ILLATIVE: "форма «куди» (-sse)",
-    INESSIVE: "форма «де» (-s)",
-    ELATIVE: "форма «звідки» (-st)",
-    ALLATIVE: "форма «куди» (-le)",
-    ADESSIVE: "форма «де» (-l)",
-    ABLATIVE: "форма «звідки» (-lt)",
-    TRANSLATIVE: "форма «ким стати» (-ks)",
-    TERMINATIVE: "форма «до» (-ni)",
-    ESSIVE: "форма «як» (-na)",
-    ABESSIVE: "форма «без» (-ta)",
-    COMITATIVE: "форма «з» (-ga)",
+    ILLATIVE: "-sse, у (куди)",
+    INESSIVE: "-s, у (де)",
+    ELATIVE: "-st, з",
+    ALLATIVE: "-le, на/до",
+    ADESSIVE: "-l, на/біля/є",
+    ABLATIVE: "-lt, з/від",
+    TRANSLATIVE: "-ks, стаючи",
+    TERMINATIVE: "-ni, до",
+    ESSIVE: "-na, як",
+    ABESSIVE: "-ta, без",
+    COMITATIVE: "-ga, з",
   },
 };
 
-/** A case's plain name in the reader's language: "2nd form", "in form (-s)". */
+/** A case's hint in the reader's language: "3rd form", "-s, in". */
+export function caseHint(spec: Pick<CaseSpec, "key">, locale: Locale = "en"): string {
+  return CASE_HINTS[locale][spec.key];
+}
+
+/**
+ * What a case is called on a screen: its Estonian name and its hint,
+ * "seesütlev (-s, in)". The function keeps the name it had when it returned
+ * the plain names, because forty callers read it and what they want from it
+ * has not changed: the one name a learner is shown for a case.
+ */
 export function casePlainName(spec: Pick<CaseSpec, "key">, locale: Locale = "en"): string {
-  return PLAIN[locale][spec.key];
+  const named = CASES.find((c) => c.key === spec.key);
+  return `${named?.et ?? spec.key.toLowerCase()} (${caseHint(spec, locale)})`;
 }
 
 const QUALIFIERS: Readonly<Record<Locale, Readonly<Record<"ainsus" | "mitmus" | "lühike", string>>>> = {
@@ -386,29 +397,46 @@ const QUALIFIERS: Readonly<Record<Locale, Readonly<Record<"ainsus" | "mitmus" | 
   uk: { ainsus: "одн.", mitmus: "мн.", lühike: "коротка" },
 };
 
+/** The short illative's name, `tuppa`: no ending in its hint, since it takes none. */
+export function shortIllativeName(locale: Locale = "en"): string {
+  const into = CASE_HINTS[locale].ILLATIVE.replace(/^-[^,]*,\s*/, "");
+  return `lühike sisseütlev (${QUALIFIERS[locale].lühike} ${into})`;
+}
+
 /**
- * The plain name for a case named by its Estonian name, or null for a string
- * that names none. A table of forms heads a row with the number as well
- * (`omastav ainsus`, `lühike sisseütlev`), and those words come back in the
- * reader's language after the plain name: "2nd form plural".
+ * A case's name with its number, "mitmuse kaasaütlev (-ga, with, plural)":
+ * the number goes in front the way a class says it, and into the hint. The
+ * singular is the name on its own, "omastav (2nd form)", since it is what a
+ * name means unless a plural is said, and "ainsuse omastav (2nd form,
+ * singular)" over a tile beside a plural one is the word said twice.
+ */
+export function caseNameWithNumber(spec: Pick<CaseSpec, "key">, number: "ainsus" | "mitmus", locale: Locale = "en"): string {
+  if (number === "ainsus") return casePlainName(spec, locale);
+  const named = CASES.find((c) => c.key === spec.key);
+  const et = named?.et ?? spec.key.toLowerCase();
+  return `mitmuse ${et} (${caseHint(spec, locale)}, ${QUALIFIERS[locale].mitmus})`;
+}
+
+/**
+ * The name a screen prints for a case given by its Estonian name, or null for
+ * a string that names none. A table of forms heads a row with the number as
+ * well (`omastav ainsus`, `mitmuse omastav`, `lühike sisseütlev`), and the
+ * number is said the way a class says it: "mitmuse omastav (2nd form, plural)".
  */
 export function plainNameForEt(et: string, locale: Locale = "en"): string | null {
   const words = et.trim().toLowerCase().split(/\s+/);
-  const extra: string[] = [];
+  let number: "ainsus" | "mitmus" | null = null;
   let short = false;
   let spec: CaseSpec | undefined;
   for (const word of words) {
     if (word === "lühike") { short = true; continue; }
-    if (word === "ainsus" || word === "mitmus") { extra.push(QUALIFIERS[locale][word]); continue; }
+    if (word === "ainsus" || word === "ainsuse") { number = "ainsus"; continue; }
+    if (word === "mitmus" || word === "mitmuse") { number = "mitmus"; continue; }
     const named = CASES.find((c) => c.et === word);
     if (!named || spec) return null;
     spec = named;
   }
   if (!spec) return null;
-  // The short form does not take the ending the plain name carries (`tuppa`,
-  // not `toasse`), so the ending comes off and "short" goes in front.
-  const name = short
-    ? `${QUALIFIERS[locale].lühike} ${casePlainName(spec, locale).replace(/\s*\(-[^)]*\)$/, "")}`
-    : casePlainName(spec, locale);
-  return [name, ...extra].join(" ");
+  if (short) return spec.key === "ILLATIVE" ? shortIllativeName(locale) : null;
+  return number ? caseNameWithNumber(spec, number, locale) : casePlainName(spec, locale);
 }

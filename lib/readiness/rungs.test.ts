@@ -208,7 +208,7 @@ describe("a situation, rung by rung", () => {
     const r = readSituation(DOCTOR, { ...ctx, cases });
     expect(r.rung).toBe("takePart");
     const c = r.struggles.find((s) => s.id === "case-ADESSIVE")!;
-    expect(c.title).toContain("in form (-l)");
+    expect(c.title).toContain("alalütlev (-l, on/at/has)");
     expect(c.href).toBe("/grammar/adessive");
   });
 

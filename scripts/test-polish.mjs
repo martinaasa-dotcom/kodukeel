@@ -23,12 +23,12 @@ check("every form in the table is marked as Estonian", marked >= 14, `${marked} 
 
 // Searching an inflected form — what a learner actually meets in class.
 for (const [query, lemma, why] of [
-  // The plain name with its ending, never the Latin one: a learner told `toas`
-  // is "the inessive" has been handed a word their teacher does not say. See
-  // `casePlainName` in `lib/estonian/cases.ts`.
-  ["toas", "tuba", /in form \(-s\)/i],
-  ["lugesin", "lugema", /lihtminevik ma/i],
-  ["tubadega", "tuba", /with form \(-ga\) plural/i],
+  // The name a class uses with its hint, never the Latin one: a learner told
+  // `toas` is "the inessive" has been handed a word their teacher does not
+  // say. See `casePlainName` in `lib/estonian/cases.ts`.
+  ["toas", "tuba", /seesütlev \(-s, in\)/i],
+  ["lugesin", "lugema", /lihtminevik, ma \(past, I\)/i],
+  ["tubadega", "tuba", /mitmuse kaasaütlev \(-ga, with, plural\)/i],
 ]) {
   await page.goto(`${B}/dictionary?q=${encodeURIComponent(query)}`, { waitUntil: "networkidle" });
   const heading = await page.locator('h2[lang="et"]').innerText().catch(() => "");
