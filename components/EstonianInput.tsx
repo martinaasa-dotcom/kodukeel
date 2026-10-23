@@ -35,10 +35,15 @@ import { DiacriticBar } from "@/components/DiacriticBar";
  * edge of that narrow box and was clipped mid-word, so `compact` drops to the
  * dense-UI type step and tighter padding, the same step `Button`'s own default
  * size reads from.
+ *
+ * `look` hands the field's surface to the caller's stylesheet: the field keeps
+ * its `field-lg` geometry and its focus ring, and paints no border, fill or
+ * shadow of its own, so a composer that draws the field as part of itself
+ * (the conversation's message pill) does not have to out-shout an inline style.
  */
 export function EstonianInput({
   value, onChange, placeholder, autoFocus, onEnter, id, ariaLabel, large, compact, inputRef, bar = true,
-  disabled,
+  disabled, look,
 }: {
   value: string;
   onChange: (next: string) => void;
@@ -58,6 +63,8 @@ export function EstonianInput({
    * drawn five times; the conjugation drill draws one and passes this.
    */
   bar?: boolean;
+  /** A class that draws the field's surface instead of the default one. */
+  look?: string;
 }) {
   const own = useRef<HTMLInputElement>(null);
   const ref = inputRef ?? own;
@@ -87,8 +94,8 @@ export function EstonianInput({
         onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
           if (e.key === "Enter" && onEnter) { e.preventDefault(); onEnter(); }
         }}
-        className={`w-full ${large ? "field-lg text-xl" : compact ? "field text-sm" : "field-lg text-md"}`}
-        style={{ borderColor: "var(--edge)", background: "var(--surface)", color: "var(--ink)", boxShadow: "var(--depth-sm)" }}
+        className={`w-full ${large ? "field-lg text-xl" : compact ? "field text-sm" : "field-lg text-md"} ${look ?? ""}`}
+        style={look ? undefined : { borderColor: "var(--edge)", background: "var(--surface)", color: "var(--ink)", boxShadow: "var(--depth-sm)" }}
       />
       {bar && !disabled && <div className="under-field"><DiacriticBar standalone={false} fallbackRef={ref} /></div>}
     </div>

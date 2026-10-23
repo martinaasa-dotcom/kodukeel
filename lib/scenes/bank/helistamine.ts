@@ -36,6 +36,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "helistamine", beat: "why", text: "Kuidas ma saan aidata?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "helistamine", beat: "why", text: "Kuidas ma teid aidata saan?", model: "authored", draftedAt: "2026-09-12", reviewedAt: "2026-10-15" },
   { scene: "helistamine", beat: "why", text: "Mida te soovite?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
+  { scene: "helistamine", beat: "close", text: "Hästi, siis näeme. Head aega!", model: "authored", draftedAt: "2026-10-23" },
+  { scene: "helistamine", beat: "close", text: "Selge, aitäh teile. Nägemist!", model: "authored", draftedAt: "2026-10-23" },
 ];
 
 export default LINES;

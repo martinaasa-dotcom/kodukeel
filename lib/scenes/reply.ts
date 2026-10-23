@@ -31,6 +31,7 @@
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
 import { FALLBACK_PHRASE, FAREWELLS, FEELINGS, MEETING, REACTIONS } from "./catalogue";
+import { HEARD_FAREWELLS } from "./farewell";
 import type { Feel } from "./types";
 import { CHOICE_WORD } from "./choice";
 import { coachFor, NUDGE_AFTER } from "./coach";
@@ -1289,7 +1290,14 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   // reply-row: help
   if (response === "help") {
     const word = input.offer;
-    const offered = word ? { ...reaction(word, "?"), provenance: "offered" as const } : null;
+    /*
+      On the closing beat the word handed over is a goodbye, and a goodbye
+      said is said: it is the move rather than a reaction, so it is what the
+      learner heard last, and their goodbye back is not answered with a
+      second one (`over-goodbye`).
+    */
+    const byeOffered = Boolean(word && answered?.move === "close" && isFarewell(word, answered));
+    const offered = word ? { ...reaction(word, "?"), provenance: "offered" as const, ...(byeOffered ? { reaction: undefined } : {}) } : null;
     // At an offer the offer comes first and then "jah või ei?", since the choice is about it.
     // reply-row: help-offer-first
     if (offered && !composed && (answered?.move === "offer" || answered?.counter) && again) {
@@ -1775,6 +1783,15 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       const theirs = FAREWELLS.find((bye) => plainWord(input.said).includes(plainWord(bye)));
       if (theirs) closing = { text: theirs, provenance: "attested" };
     }
+    /*
+      And where they were the ones leaving, their reason is not what is said
+      back to a goodbye: whatever the learner used, even a bare thanks, is
+      answered with the course's own farewell.
+    */
+    // reply-row: over-leaves
+    if (answered?.leaves && closing && !isFarewell(closing.text, answered)) {
+      closing = { text: FAREWELLS[1], provenance: "attested" };
+    }
     // reply-row: over-goodbye
     if (answered?.move === "close" && closing && closing.provenance !== "fallback"
         && closing.text.toLowerCase() !== last?.toLowerCase() && !(last !== undefined && isFarewell(last, answered))
@@ -1894,6 +1911,17 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     with the question met this beat, so the scene is over and the branch
     above says it back.
   */
+  // reply-row: close-leaves
+  if (beat.move === "close" && aside && line !== null && line.provenance !== "fallback" && !isFarewell(line.text, beat)
+      && !out.some((said) => said.text === line.text)) {
+    /*
+      Where the closing line is not a goodbye at all but the reason they are
+      leaving (`Mul on kiire, ma pean tööle minema.`) the answer is said and the
+      reason follows, because a learner who has been answered and then left in
+      silence has no idea the goodbye is theirs to say.
+    */
+    out.push(line);
+  }
   // reply-row: close-waits
   if (beat.move === "close" && aside) return out;
 
@@ -2068,14 +2096,6 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
  * closing beat takes as one, compared on its letters so `Head aega` offered
  * with a question mark is the same goodbye as `Head aega!`.
  */
-/**
- * Goodbyes a line may end on that the course does not teach as phrases, read
- * and never said: a closing line ending "Head päeva!" was not taken for a
- * goodbye, so a second one followed the learner's thanks.
- */
-const HEARD_FAREWELLS: readonly string[] = [
-  "head päeva", "head õhtut", "head ööd", "head nädalavahetust", "kõike head", "ilusat päeva", "ilusat õhtut",
-];
 
 function isFarewell(text: string, close: BeatSpec): boolean {
   const letters = (s: string) => (s.match(/\p{L}+/gu) ?? []).join(" ").toLowerCase();

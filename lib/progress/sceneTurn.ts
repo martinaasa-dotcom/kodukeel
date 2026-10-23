@@ -37,7 +37,8 @@ import { ASKS_ON } from "@/lib/scenes/curveballs";
 import { gateFor } from "@/lib/scenes/gate";
 import { OFFER_CHOICE, offerFor } from "@/lib/scenes/grades";
 import { words, type Lexicon } from "@/lib/scenes/lexicon";
-import { sceneLine, type LineRequest, type SpokenLine } from "@/lib/scenes/line";
+import { isSaid, sceneLine, type LineRequest, type SpokenLine } from "@/lib/scenes/line";
+import { onlyFarewell, saysFarewell, withoutGoodbye } from "@/lib/scenes/farewell";
 import type { PersonaSpec } from "@/lib/scenes/personas";
 import type { ComposeAsk, ComposeScene } from "@/lib/scenes/prompt";
 import { dealtNumbers } from "@/lib/scenes/props";
@@ -280,6 +281,16 @@ export function planTurn(input: TurnInput) {
   const readBack = !composing && sent && (response === "answer" || response === "narrow" || response === "repeat")
     ? readBackCorrection(answered, last?.said ?? "", card, context.lexicon) : null;
   let aside: SpokenLine | null = readBack ?? (wantsAside && !composing ? asideFor(asking) : null);
+  /*
+    AND WHERE THE MODEL WAS ASKED AND NOTHING OF ITS GOT THROUGH ON THE
+    CLOSING BEAT, THE NET STILL ANSWERS THE QUESTION. The aside stands down in
+    a run that composes because the model's line carries the answer; when that
+    line is withheld the net is the bank's goodbye, and a colleague asked "how
+    long have you worked here?" said `Nägemist!` and nothing else. Leaving with
+    a question unanswered is the one place the net may not be silent, so on a
+    close the keyless answer is kept for it (`respond`).
+  */
+  const netAside: SpokenLine | null = composing && wantsAside && speaking?.move === "close" ? asideFor(asking) : null;
   /*
     AND "SORRY, WHAT?" IS ANSWERED WITH THE LINE AGAIN, NEVER WITH A SHRUG.
     On a beat that takes anything the turn lands, the question word is left
@@ -581,8 +592,8 @@ export function planTurn(input: TurnInput) {
   function respond(said: SpokenLine | null, preBreak: SpokenLine | null = null): SpokenLine[] {
     const before = said?.provenance === "composed"
       ? preBreak
-      : preBreak ?? (shrugOwed ? shrug(asking) : aside);
-    return withoutRepeatedReaction(withoutRestatedCorrection(replyFor({
+      : preBreak ?? (shrugOwed ? shrug(asking) : aside ?? netAside);
+    return onceAtTheDoor(noSecondGoodbye(withoutRepeatedReaction(withoutRestatedCorrection(replyFor({
       beat: speaking,
       // A turn that answered a beat the other side had moved past is not a miss.
       landed: elsewhere > 0,
@@ -689,7 +700,53 @@ export function planTurn(input: TurnInput) {
             roll: state.turns.length, met: last?.met ?? [],
           })
         : null,
-    })), reactedBefore);
+    })), reactedBefore)));
+  }
+
+  /*
+    AT THE CLOSE, WHAT IS SAID AGAIN IS THE WHOLE OF IT. Asked "what?" as they
+    were leaving, the colleague said the reason again and then the bank's other
+    wording of the same reason straight after it, which is somebody saying they
+    have to go twice in one breath. The line said again stands and the second
+    wording goes.
+  */
+  function onceAtTheDoor(lines: SpokenLine[]): SpokenLine[] {
+    if (speaking?.move !== "close") return lines;
+    const again = lines.findIndex((l) => l.provenance === "again");
+    if (again < 0) return lines;
+    return lines.filter((l, i) => i <= again || l.reaction || l.provenance !== "scripted");
+  }
+
+  /*
+    NEVER THE SAME GOODBYE TWICE. Somebody who has said goodbye and is asked
+    "what?" says why they are going, not goodbye again: the colleague said
+    `Nägemist!`, heard "Mida?", and said `Nägemist!` a second time, which read
+    as the conversation ending with no explanation, twice. So where the line
+    the learner last heard said goodbye and their own turn did not, a goodbye
+    in this reply is taken off and what is left of its line stands; where
+    nothing is left the line goes, and only if that would leave the other side
+    silent is the goodbye said again.
+  */
+  function noSecondGoodbye(lines: SpokenLine[]): SpokenLine[] {
+    // Any goodbye this run, not only the last line heard: "what?" was answered with the reason alone, and the line after that is what the learner heard last.
+    const byeBefore = [heard, ...state.turns.map((t) => t.heard)].some((h) => h && saysFarewell(h));
+    if (!byeBefore) return lines;
+    const theirBye = saysGoodbye(last?.said ?? "", [...FAREWELLS, ...LEAVING]);
+    /*
+      Their goodbye is answered with a goodbye and nothing else: a second
+      closing line ("Väga hea, aitäh teile. Nägemist!") after the first one
+      was a second farewell speech to somebody already leaving.
+    */
+    if (theirBye) {
+      const said = FAREWELLS.find((bye) => (last?.said ?? "").toLowerCase().includes(bye.toLowerCase().replace(/[!.]/g, ""))) ?? FAREWELLS[1];
+      return lines.map((l) => (saysFarewell(l.text) && !onlyFarewell(l.text) ? { ...l, text: said, provenance: "attested" as const } : l));
+    }
+    const kept = lines.flatMap((l): SpokenLine[] => {
+      if (!saysFarewell(l.text)) return [l];
+      const rest = withoutGoodbye(l.text);
+      return rest ? [{ ...l, text: rest }] : [];
+    });
+    return kept.some((l) => isSaid(l.provenance)) ? kept : lines;
   }
 
   /*
@@ -837,6 +894,21 @@ export async function speakTurn(
       is kept where the net has nothing either, because that is the one case
       where the screen has something to explain.
     */
+    return { lines: plan.respond(move.provenance !== "fallback" ? move : composed.line, composed.preBreak), extra };
+  }
+  /*
+    A MODEL'S BARE GOODBYE DOES NOT STAND OVER SOMETHING STILL OPEN. The
+    prompt asks for the reason or the wrap before the farewell, and for the
+    learner's question to be answered first; a model that writes `Nägemist!`
+    and nothing else anyway, while the learner has just asked something or
+    told them something, or after a goodbye has already been said, is
+    answered by the net instead, which says the bank's closing line and answers
+    the question where the scene can.
+  */
+  const closing = line.beat.move === "close" || plan.speaking?.move === "close";
+  const youSaidBye = saysGoodbye(plan.last?.said ?? "", [...FAREWELLS, ...LEAVING]);
+  if (closing && !youSaidBye && onlyFarewell(composed.line.text)
+      && (plan.askedNow !== null || line.closingOnNews || (plan.heard !== null && saysFarewell(plan.heard)))) {
     return { lines: plan.respond(move.provenance !== "fallback" ? move : composed.line, composed.preBreak), extra };
   }
   return { lines: plan.respond(composed.line, composed.preBreak), extra };

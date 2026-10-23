@@ -1757,7 +1757,14 @@
     zero box, so `data-dock` comes off by itself and the notices that sit clear
     of it stop reserving room for a bar nobody can see.
   */
-  body:has(.scene-room) [data-chrome] { display: none !important; }
+  /*
+    Only the tutor's corner button leaves the room. The rail and the phone bar
+    stay, because a conversation that takes the whole of the navigation away
+    leaves the learner with nowhere to go but the browser's back button, and
+    that was reported: the way around the app does not disappear for a
+    conversation, a debrief or a briefing.
+  */
+  body:has(.scene-room) [data-chrome="anu"] { display: none !important; }
 
   /*
     AND A STEP OF TONIGHT'S MODULE IS A ROOM FOR THE SAME REASON.
@@ -1825,7 +1832,6 @@
   */
   body:has(.scene-room) { overflow-anchor: none; }
   body:has(.scene-room) #main { padding-right: 0; }
-  body:has(.scene-room) .dock-pad { padding-bottom: 0; }
 
   /*
     AND THE ROOM THE MODULE'S OWN BAR TAKES, WHICH IS THE LAST WORD ON THIS.
@@ -4174,28 +4180,52 @@
     background: linear-gradient(90deg, var(--butter), var(--blush), var(--accent), var(--sky));
   }
   /*
-    THE CAFÉ, INSIDE THE APP. The conversation is the same night the landing
-    page's café is lit by: the other side's lines are glass on it and the
-    learner's own are the gold of the button that sent them. Not the café's
-    window, though: in the app the conversation is the page, so the stage grows
-    downward with every line and nothing in it scrolls on its own.
+    KÕNELUS: THE CONVERSATION IS A MESSAGE THREAD.
+
+    The operator chose this from three looks photographed in the app (PR
+    #920): the conversation on the page's own light, the way every phone
+    already draws one, rather than in a night panel inset in a light page,
+    which read as a screen inside a screen.
+
+    Their lines are cards: the surface, a hairline in `--edge` and a shadow
+    that only lifts, so a white card reads on the warm ground in the light
+    theme and a lighter card reads on the dark one. Yours are the accent with
+    its own ink, which is the pairing the app already uses for "this is
+    yours" and the one `test-design.mjs` measures. The corner nearest the
+    speaker is tucked in, so the two sides are told apart by shape and by the
+    edge they sit against as well as by color: a color is never the only
+    thing carrying a distinction here.
   */
   .scene-bubble {
-    padding: 0.75rem 1rem;
-    border-radius: var(--r-lg);
-    font-size: var(--text-md); line-height: 1.4;
+    padding: 0.65rem 1.05rem;
+    border-radius: 1.375rem;
+    font-size: var(--text-md); line-height: 1.42;
   }
-  @media (min-width: 768px) { .scene-bubble { padding: 0.85rem 1.25rem; } }
+  @media (min-width: 768px) { .scene-bubble { padding: 0.7rem 1.15rem; } }
   /* Read back on the debrief, where a conversation is a record rather than a turn. */
   .scene-bubble.scene-bubble-sm { padding: 0.6rem 0.95rem; font-size: var(--text-sm); }
   .scene-bubble[data-who="them"] {
-    background: rgb(255 255 255 / 0.1); color: var(--ink);
-    border: 1px solid rgb(255 255 255 / 0.12);
-    border-bottom-left-radius: 6px;
+    background: var(--surface); color: var(--ink);
+    box-shadow: 0 0 0 1px var(--edge), 0 10px 24px -18px rgb(17 18 22 / 0.35);
+    border-bottom-left-radius: 0.45rem;
   }
   .scene-bubble[data-who="you"] {
-    background: var(--cta); color: var(--cta-ink); font-weight: 600;
-    border-bottom-right-radius: 6px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 88%, var(--surface)), var(--accent));
+    color: var(--accent-ink); font-weight: 500;
+    border-bottom-right-radius: 0.45rem;
+    box-shadow: 0 12px 26px -16px color-mix(in srgb, var(--accent) 80%, transparent);
+  }
+  /*
+    The same two bubbles read back on the page's own ground. The debrief's
+    record sat in a second dark stage in the middle of a light screen; here
+    their turns are the raised gray and the learner's the accent's tint, so
+    the whole screen is one set of surfaces and the shapes still say who spoke.
+  */
+  .scene-transcript .scene-bubble[data-who="them"] {
+    background: var(--raised); color: var(--ink); border: 1px solid var(--edge);
+  }
+  .scene-transcript .scene-bubble[data-who="you"] {
+    background: var(--accent-soft); color: var(--ink); font-weight: 500;
   }
   /*
     The same three lights as the café, sized in rem rather than in percent: the
@@ -4220,12 +4250,211 @@
       radial-gradient(16rem 12rem at 88% 0%, color-mix(in srgb, var(--butter) 7%, transparent), transparent 70%),
       var(--raised) !important;
   }
-  /* The place you say your line: glass on the same night, lifted a little. */
-  .scene-ask {
-    background: rgb(255 255 255 / 0.06);
-    border: 1px solid rgb(255 255 255 / 0.12);
+
+  /*
+    THE ROOM, ON THE SAME LIGHT AS THE THREAD. The band under the bar and the
+    column beside the conversation were night panels, a black slab at the top
+    of a light page; inside the conversation the room is drawn in ink on the
+    page's raised ground instead, a quiet card the thread reads under. The
+    drawing knocks out with `--ground`, so the panel lends it its own fill.
+  */
+  .scene-stage-panel {
+    --ground: var(--raised);
+    background: var(--raised);
+    box-shadow: inset 0 0 0 1px var(--edge);
   }
-  .scene-aside { background: rgb(255 255 255 / 0.08); color: var(--ink); border: 1px solid rgb(255 255 255 / 0.1); }
+
+  /*
+    A LINE IS AS WIDE AS IT NEEDS AND NEVER THE WHOLE ROW, so the two sides of
+    the conversation stay two sides on a phone: a bubble that spans the row
+    has no edge to sit against.
+
+    Their side is marked by a class on the row rather than found with
+    `div:has(> [data-face="them"])`: that selector made every element on every
+    page a `:has` candidate, and the containment sweep on the exceptions page
+    went from 4.5 to 77 seconds a pass in CI for it.
+  */
+  .scene-thread .scene-say-you > div { max-width: min(85%, 34rem); }
+  .scene-thread .scene-say-them > div { max-width: min(85%, 36rem); }
+
+  /*
+    THE THREAD. The learner's own face is the one the room already shows them,
+    so on the thread their bubbles carry no avatar, which is how a thread on a
+    phone is drawn: the other side's face says who is talking and the side a
+    bubble sits on says the rest. The meter's track is the page's rule rather
+    than the café's glass, which on the light ground is no track at all.
+  */
+  .scene-thread [data-face="you"] { display: none; }
+  .scene-thread [data-face="them"] { width: 32px; height: 32px; }
+  .scene-thread .scene-meter { max-width: 9rem; gap: 4px; }
+  .scene-thread .scene-meter > li { height: 0.3rem; min-width: 0.9rem; background: var(--rule); }
+
+  /*
+    THE COMPOSER WAITS AT THE FOOT OF THE WINDOW. A `position: sticky` box
+    inside the thread, so the conversation scrolls under it and it never
+    leaves the screen while a line is being written. Over a fade of the
+    page's own ground rather than a blur: a filtered layer over a transcript
+    that scrolls is re-filtered every frame, and this app puts none over
+    moving content. The offset is the phone bar's published clearance, never
+    a typed one, so the box sits just above the bar on a phone and just above
+    the window's edge on a desktop. With a list of lines to pick from it is
+    taller than a phone can spare, so then it sits in the flow instead.
+  */
+  .scene-thread > .dock-clear {
+    position: sticky;
+    bottom: calc(var(--dock-clearance, 0px) + 0.75rem);
+    z-index: 6;
+  }
+  .scene-thread > .dock-clear:has([data-picks]) { position: static; }
+  .scene-thread > .dock-clear:has([data-picks])::before { display: none; }
+  .scene-thread > .dock-clear::before {
+    content: ""; position: absolute; inset: -2.25rem -0.75rem -0.75rem; z-index: -1;
+    background: linear-gradient(to bottom, transparent, var(--ground) 2.25rem);
+    pointer-events: none;
+  }
+  .scene-ask {
+    gap: 0.85rem;
+    padding: 1rem 1rem 0.75rem;
+    border-radius: 1.75rem;
+    background: var(--surface);
+    box-shadow: 0 0 0 1px var(--edge), var(--shadow-float);
+  }
+  @media (min-width: 768px) { .scene-ask { padding: 1.15rem 1.25rem 0.85rem; } }
+  .scene-turnlabel { color: var(--accent-deep); letter-spacing: 0.02em; }
+  .scene-goal {
+    margin-top: 0.35rem;
+    font-size: var(--text-base); font-weight: 500; line-height: 1.4; color: var(--ink);
+    text-wrap: pretty;
+  }
+  /* The value the card dealt for this line, as a token in the sentence. */
+  .scene-dealt {
+    display: inline-block; white-space: nowrap;
+    padding: 0.05rem 0.6rem; border-radius: 999px;
+    background: var(--accent-soft); color: var(--accent-deep); font-weight: 600;
+  }
+
+  /*
+    TWO SEGMENTED CONTROLS ON ONE ROW. A radio group drawn as a recessed track
+    with the chosen option raised out of it: the thumb is the surface, lifted
+    by a hairline and a shadow, and its words go to the full ink and bold
+    while the others stay quiet, so the choice is carried by luminance, by
+    depth and by weight rather than by a hue. In the dark the surface is
+    darker than the track, so the thumb is drawn a step lighter instead.
+  */
+  .scene-modes {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .scene-seg {
+    display: inline-flex; align-items: center; gap: 2px; padding: 3px;
+    border-radius: 999px;
+    background: var(--raised);
+    box-shadow: inset 0 0 0 1px var(--edge);
+  }
+  .scene-seg .choice-chip {
+    border-color: transparent; background: transparent; box-shadow: none;
+    color: var(--ink-3); font-weight: 600;
+    padding: 0.3rem 0.8rem;
+  }
+  .scene-seg .choice-chip[data-on] {
+    background: var(--surface); color: var(--ink); font-weight: 700;
+    box-shadow: 0 0 0 1px var(--edge), 0 2px 6px -2px rgb(17 18 22 / 0.18);
+  }
+  [data-theme="dark"] .scene-seg .choice-chip[data-on] { background: color-mix(in srgb, var(--ink) 16%, var(--raised)); }
+  @media (hover: hover) {
+    .scene-seg .choice-chip:hover:not(:disabled) {
+      transform: none; border-color: transparent; box-shadow: none;
+      background: color-mix(in srgb, var(--surface) 55%, transparent); color: var(--ink);
+    }
+    .scene-seg .choice-chip[data-on]:hover:not(:disabled) {
+      background: var(--surface); filter: none;
+      box-shadow: 0 0 0 1px var(--edge), 0 2px 6px -2px rgb(17 18 22 / 0.18);
+    }
+    [data-theme="dark"] .scene-seg .choice-chip[data-on]:hover:not(:disabled) { background: color-mix(in srgb, var(--ink) 16%, var(--raised)); }
+  }
+
+  /*
+    THE MESSAGE PILL. The field and the button that sends it are one object:
+    a recessed pill with a round send button inside its right end, gold when
+    there is something to send and quiet when there is not, so whether the
+    turn can go is legible without reading a word. Focus lifts the pill onto
+    the surface and rings it in the accent, which is the field's focus ring
+    rather than a second one.
+  */
+  .scene-compose { position: relative; }
+  .scene-compose .scene-field {
+    height: 3.5rem;
+    padding: 0 3.9rem 0 1.25rem;
+    border-radius: 999px;
+    border-color: transparent;
+    background: var(--raised); color: var(--ink);
+    box-shadow: inset 0 0 0 1px var(--edge);
+    transition: background-color 180ms ease, box-shadow 180ms ease;
+  }
+  .scene-compose .scene-field::placeholder { color: var(--ink-3); }
+  .scene-compose .scene-field:focus {
+    outline: none;
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1.5px var(--accent), 0 0 0 4px var(--accent-soft);
+  }
+  .scene-compose .scene-send {
+    position: absolute; top: 0.375rem; right: 0.375rem;
+    width: 2.75rem; height: 2.75rem; min-height: 0; padding: 0; gap: 0;
+    border-radius: 999px; border-color: transparent;
+    transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1), background-color 180ms ease, color 180ms ease;
+  }
+  .scene-compose .scene-send:disabled {
+    opacity: 1;
+    transform: scale(0.9);
+    background: var(--surface) !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    color: var(--ink-3) !important;
+    box-shadow: 0 0 0 1px var(--edge) !important;
+  }
+  /* The letter keys, under the pill where a mouse is; where the bar is not
+     drawn (a touch screen, or the learner turned it off) its row takes no room. */
+  .scene-compose .under-field { display: none; margin-top: 0.6rem; padding-left: 0.5rem; }
+  @media (pointer: fine) { .scene-compose .under-field { display: block; } }
+  [data-letters="off"] .scene-compose .under-field { display: none; }
+
+  /*
+    Under the composer, only the room the phone bar takes and the same breath
+    the composer keeps above it, so at the end of the thread the box rests
+    exactly where it sticks rather than an inch above it.
+  */
+  :root[data-dock] body:has(.scene-room) .dock-pad { padding-bottom: calc(var(--dock-clearance) + 0.75rem); }
+
+  /*
+    On a phone the options close up a little, so the two controls share a row
+    where they fit. Where this deployment can hear and "Say it" is a third way
+    to answer, they do not, and the voice control drops to a row of its own
+    rather than pushing the panel past the edge of the screen.
+  */
+  @media (max-width: 639px) {
+    .scene-modes { gap: 0.5rem 0.375rem; }
+    .scene-seg .choice-chip { padding: 0.25rem 0.6rem; }
+  }
+
+  /*
+    The three ways out of a turn, quiet, under the box. On a phone they are
+    their icons, the words kept for a screen reader, since three labels at
+    the caption step are wider than the panel.
+  */
+  .scene-tools {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem;
+  }
+  .scene-tools .btn { border-radius: 999px; }
+  @media (max-width: 639px) {
+    .scene-tools { gap: 1.5rem; }
+    .scene-tools .btn { width: 2.75rem; height: 2.75rem; padding: 0; gap: 0; }
+  }
+  @media (hover: hover) {
+    .scene-tools .btn:hover:not(:disabled) { background: var(--raised); }
+  }
+
+  /* A break in time, a hint and an aside, drawn on the page's own light. */
+  .scene-aside { background: var(--raised); color: var(--ink); border: 1px solid var(--edge); }
   .scene-done { animation: cafe-pop 480ms cubic-bezier(0.34, 1.4, 0.64, 1) both; }
   @media (prefers-reduced-motion: reduce) {
     .scene-done { animation: none; }

@@ -347,6 +347,14 @@ export interface BeatSpec {
    */
   readonly awaits?: true;
   /**
+   * A `close` beat where the other side is the one leaving: they say why
+   * (`Mul on kiire, ma pean tööle minema.`) and wait, and the learner's
+   * goodbye is answered with one. Without it the beat's line is the bare
+   * courtesy `Nägemist!`, said out of nowhere and again when the learner
+   * asks what is going on.
+   */
+  readonly leaves?: true;
+  /**
    * THE WORD THIS BEAT IS THERE FOR THE LEARNER TO USE, WHICH THE OTHER SIDE
    * MAY NOT SAY FOR THEM.
    *

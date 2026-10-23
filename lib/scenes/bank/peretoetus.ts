@@ -40,6 +40,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "peretoetus", beat: "hurdle:contradiction", text: "Ei, vabandust, kõik dokumendid on meil.", model: "authored", draftedAt: "2026-10-15", about: "check", reviewedAt: "2026-10-16" },
   { scene: "peretoetus", beat: "hurdle:other-register", text: "Mis su avalduse number on?", model: "authored", draftedAt: "2026-10-16", about: "why", reviewedAt: "2026-10-16" },
   { scene: "peretoetus", beat: "hurdle:other-register", text: "Kas sa saad selle saata?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15", about: "check" },
+  { scene: "peretoetus", beat: "close", text: "Selge, aitäh teile. Head aega!", model: "authored", draftedAt: "2026-10-23" },
+  { scene: "peretoetus", beat: "close", text: "Kui midagi on, helistage jälle. Nägemist!", model: "authored", draftedAt: "2026-10-23" },
 ];
 
 export default LINES;

@@ -5609,6 +5609,7 @@ name. A ternary inside an arm belongs to that arm's row.
 | `let-go-word` | Not a question | `Hästi.` | Stands down |
 | `over` | The scene is over | Every path below returns | Stays |
 | `over-their-goodbye` | They said goodbye and the closing line is not one | Their goodbye takes the closing line's place | Stays |
+| `over-leaves` | The closing beat is the other side leaving, and the closing line is not a goodbye | `Nägemist!` | Stays |
 | `over-goodbye` | A closing line not yet said | The closing line | Stays |
 | `hurdle` | A curveball stands | Every path below returns | Stays |
 | `hurdle-meanwhile` | A fresh curveball on a beat with a break in time, arriving | The break in time | Stays |
@@ -5620,6 +5621,7 @@ name. A ternary inside an arm belongs to that arm's row.
 | `hurdle-then` | A question waiting behind the curveball, not the goodbye | That question | Stands down |
 | `hurdle-translate` | An English turn, and a persona who translates | The stage direction in English | Stays |
 | `meanwhile` | A beat with a break in time, arriving | The break in time | Stays |
+| `close-leaves` | The closing beat, an aside was said, and the closing line is the reason they are leaving | The reason, after the answer | Stays |
 | `close-waits` | The closing beat, and an aside was said | Nothing more; the goodbye waits | Stays |
 | `a-little` | An English turn that asked for English | `Natuke.` | Stands down |
 | `coach` | The nudge turn and a miss, and no choice could be built | Nothing yet; the row below decides | Stands down |
@@ -5827,3 +5829,33 @@ It is faster, at a p90 of about 3 seconds against
 conversation has warmed the cache, and about half as much again when nobody has, which is where things
 stand at today's traffic. Closing that last gap means putting a cheaper model or the bank on the easy
 turns, and the judge says that is the trade the operator would be making.
+
+## 88. Nobody leaves without saying why, and nobody says goodbye twice
+
+Reported off "Your first day at work" (`docs/screenshots/situations-debrief-before.jpg`): the learner asked
+the colleague `Jah, kui palju te töötate siin?`, the colleague answered with a bare `Nägemist!`, the learner
+said `Mida?` and got `Nägemist!` again. Three faults, and the sweep showed every scene had them.
+
+**The net dropped the answer.** In a run that composes, the keyless answer to a question stands down because
+the model's line carries it; when that line was withheld the net was the bank's goodbye alone. On a closing
+beat the keyless answer is kept for the net now (`netAside` in `lib/progress/sceneTurn.ts`).
+
+**A closing beat opened on a bare courtesy.** The recorded `Head aega!` keeps the top of the ladder
+everywhere else; on a close it now gives way to a bank line that says something (thanks for what, what happens
+next, why they have to go), and those lead the bank's own bare goodbyes (`lib/scenes/line.ts`,
+`lib/scenes/farewell.ts`). Every scene on the listing holds two such lines, asserted in `bank.test.ts`; 59 lines were
+written across 28 scenes, each through `npm run check:lines`, for the native speaker to read in the
+pull request. The first-day colleague is the one who leaves (`BeatSpec.leaves`): they say they have to get back
+to work, wait for the learner's goodbye, and say one back.
+
+**A goodbye was said again.** Once one has been said, "what?" gets the reason without the goodbye
+(`withoutGoodbye`), the learner's own goodbye gets a goodbye and nothing more, and a goodbye offered as a hint
+on the closing beat counts as said. A model's bare goodbye over an open question, over news, or after a
+goodbye already said is answered by the net instead; the composer is told to wrap up before a farewell and the
+consistency reviewer counts a bare or repeated goodbye as a problem.
+
+**Measured.** `npm run sweep:fallback` learned three closing rules (`bye-ignores-question`, `bare-goodbye`,
+`goodbye-twice`), two learners who ask or say "what?" at the close, and `--model down|bare`, which plays every
+conversation with a model that is asked and withholds everything or writes a bare goodbye. Over the same
+7,890 conversations: keyless 4,591 closing flags to none, model down 8,185 to none, a bad model 15,044 to none.
+What `--model bare` still flags is the stub's own doing, a repeated `Tere!` marked as composed.

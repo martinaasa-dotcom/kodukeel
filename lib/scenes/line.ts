@@ -29,6 +29,7 @@ import {
 } from "./gate";
 import { answerForms, fits, type Line } from "./retrieval";
 import { words, type Lexicon } from "./lexicon";
+import { onlyFarewell } from "./farewell";
 import type { BeatSpec } from "./types";
 
 /**
@@ -356,7 +357,18 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
   /* Which checks withheld the model's line, carried to the fallback so the run can say. */
   let withheld: readonly Check[] = [];
 
-  const attested = pickAttested(request);
+  /*
+    A CLOSING BEAT DOES NOT OPEN ON A BARE GOODBYE WHERE THE BANK SAYS WHY THE
+    CONVERSATION IS ENDING. The recorded `Head aega!` is a courtesy and keeps
+    the top everywhere else, but said on its own as the other side's move it
+    is somebody walking off mid-conversation: a colleague answered "how long
+    have you worked here?" with `Nägemist!` and nothing else. Where the bank
+    holds a closing line with something in it (thanks for what, what happens
+    next, why they have to go), that is the line.
+  */
+  const wraps = request.beat.move === "close"
+    && request.scripted.some((text) => !request.used.has(text) && !onlyFarewell(text));
+  const attested = wraps ? null : pickAttested(request);
   if (attested) return attested;
 
   /*
@@ -537,7 +549,12 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
     attested line, so a run that comes back to a beat does not hear the same
     sentence twice while another is left.
   */
-  const scripted = turned(request.scripted, request.rotate).find((text) => !request.used.has(text));
+  /* On a closing beat a line that says something leads a bare goodbye, for the reason `wraps` gives above. */
+  const order = turned(request.scripted, request.rotate);
+  const ranked = request.beat.move === "close"
+    ? [...order.filter((text) => !onlyFarewell(text)), ...order.filter((text) => onlyFarewell(text))]
+    : order;
+  const scripted = ranked.find((text) => !request.used.has(text));
   if (scripted) return { text: scripted, provenance: "scripted" };
   /*
     AND WHERE EVERY LINE FOR THE BEAT HAS BEEN SAID, ONE IS SAID AGAIN. A

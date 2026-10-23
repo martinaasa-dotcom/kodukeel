@@ -31,6 +31,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "turul", beat: "hurdle:faster", text: "Mul on kiire, öelge kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "turul", beat: "hurdle:small-talk", text: "Täna on ilus ilm, eks?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "turul", beat: "hurdle:small-talk", text: "Täna on turul külm, eks?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "turul", beat: "close", text: "Palun, siin see on.", model: "authored", draftedAt: "2026-10-23" },
+  { scene: "turul", beat: "close", text: "Palun, kõik on siin.", model: "authored", draftedAt: "2026-10-23" },
 ];
 
 export default LINES;
