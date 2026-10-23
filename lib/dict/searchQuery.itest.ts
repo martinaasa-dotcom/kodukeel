@@ -37,11 +37,11 @@ describe("searchLexemes against the seeded dictionary", () => {
   it("finds a word by an inflected form and says which form it was", async () => {
     const [top] = await searchLexemes("toas");
     expect(top?.lemma).toBe("tuba");
-    // The Estonian name a class uses, and then what the case asks rather than
-    // the Latin name: a learner who typed `toas` and is told it is "the
-    // inessive" has been handed a translation of a translation. See
-    // `asksEn` in `lib/estonian/cases.ts`.
-    expect(top?.matchedAs).toMatch(/seesütlev \(what is it in\? where\?\)/);
+    // The plain name with its ending rather than the Latin one: a learner who
+    // typed `toas` and is told it is "the inessive" has been handed a
+    // translation of a translation. See `casePlainName` in
+    // `lib/estonian/cases.ts`.
+    expect(top?.matchedAs).toMatch(/in form \(-s\) of tuba/);
     expect(top?.matchedAs, "the Latin name is back").not.toMatch(/inessive/);
   });
 
@@ -157,7 +157,7 @@ describe("searchLexemes against the seeded dictionary", () => {
     // this test exists to catch.
     const [top] = await searchLexemes("tubadega");
     expect(top?.lemma).toBe("tuba");
-    expect(top?.matchedAs).toMatch(/mitmuse kaasaütlev/);
+    expect(top?.matchedAs).toMatch(/with form \(-ga\) plural of tuba/);
   });
 
   /*
