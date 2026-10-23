@@ -1,5 +1,5 @@
 import type { SceneSpec } from "../types";
-import { COMMON, HELLOS, CLOSING_WORDS, FAREWELLS } from "./shared";
+import { COMMON, HELLOS, CLOSING_WORDS } from "./shared";
 
 const NEW_COLLEAGUE: SceneSpec = {
   id: "uus-kolleeg",
@@ -100,9 +100,18 @@ const NEW_COLLEAGUE: SceneSpec = {
     {
       id: "close",
       goal: "Say goodbye before they go back to work.",
-      they: "Their break is over, and they say goodbye.",
+      /*
+        The colleague says why they are leaving and then waits, so the learner
+        has a reason to say their own farewell. Written without the word the
+        composer reads as "say it now" (`lib/scenes/prompt.ts`): a bare
+        `Nägemist!` arriving out of nowhere, twice, was reported as the other
+        side ending the conversation with no explanation.
+      */
+      they: "Their break is over, so they say they have to get back to work, and wait for you to say your farewell.",
       move: "close",
-      topic: [...FAREWELLS],
+      leaves: true,
+      // Not the farewells: the line is why they are leaving, and a farewell in the pool is what a recorded `Nägemist!` is said from.
+      topic: ["töö", "minema", "kiire"],
       needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,

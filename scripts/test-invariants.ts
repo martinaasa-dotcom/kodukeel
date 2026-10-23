@@ -22485,13 +22485,22 @@ check("every line a scene says carries its rung", () => {
   standing in, and the field and the button are two different promises to a
   keyboard.
 */
-check("a conversation takes the website off the screen, and stops when the scene moves", () => {
+check("a conversation keeps the navigation on screen, and stops when the scene moves", () => {
   const css = read("app/globals.css");
   const stage = code("components/scene/SceneStage.tsx");
   assert.match(stage, /className="scene-room/, "SceneStage no longer draws the element the room is hidden by");
   assert.match(
-    css, /body:has\(\.scene-room\) \[data-chrome\] \{ display: none/,
-    "the shell is no longer hidden while a conversation is running, so a situation is a page again",
+    css, /body:has\(\.scene-room\) \[data-chrome="anu"\] \{ display: none/,
+    "the tutor's corner button is no longer hidden while a conversation is running",
+  );
+  /*
+    And the rail and the phone bar are NOT hidden: a learner reported the
+    navigation disappearing on a conversation and its review, and the way
+    around the app is the one thing a room does not take away.
+  */
+  assert.doesNotMatch(
+    css, /body:has\(\.scene-room\) \[data-chrome\] \{/,
+    "a conversation hides all of the shell again, the rail and the phone bar included",
   );
   /*
     AND THE BROWSER'S OWN SCROLLING IS OFF ON IT. Anchoring holds whatever you

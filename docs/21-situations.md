@@ -5609,6 +5609,7 @@ name. A ternary inside an arm belongs to that arm's row.
 | `let-go-word` | Not a question | `Hästi.` | Stands down |
 | `over` | The scene is over | Every path below returns | Stays |
 | `over-their-goodbye` | They said goodbye and the closing line is not one | Their goodbye takes the closing line's place | Stays |
+| `over-leaves` | The closing beat is the other side leaving, and the closing line is not a goodbye | `Nägemist!` | Stays |
 | `over-goodbye` | A closing line not yet said | The closing line | Stays |
 | `hurdle` | A curveball stands | Every path below returns | Stays |
 | `hurdle-meanwhile` | A fresh curveball on a beat with a break in time, arriving | The break in time | Stays |
@@ -5620,6 +5621,7 @@ name. A ternary inside an arm belongs to that arm's row.
 | `hurdle-then` | A question waiting behind the curveball, not the goodbye | That question | Stands down |
 | `hurdle-translate` | An English turn, and a persona who translates | The stage direction in English | Stays |
 | `meanwhile` | A beat with a break in time, arriving | The break in time | Stays |
+| `close-leaves` | The closing beat, an aside was said, and the closing line is the reason they are leaving | The reason, after the answer | Stays |
 | `close-waits` | The closing beat, and an aside was said | Nothing more; the goodbye waits | Stays |
 | `a-little` | An English turn that asked for English | `Natuke.` | Stands down |
 | `coach` | The nudge turn and a miss, and no choice could be built | Nothing yet; the row below decides | Stands down |

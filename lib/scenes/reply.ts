@@ -1775,6 +1775,15 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       const theirs = FAREWELLS.find((bye) => plainWord(input.said).includes(plainWord(bye)));
       if (theirs) closing = { text: theirs, provenance: "attested" };
     }
+    /*
+      And where they were the ones leaving, their reason is not what is said
+      back to a goodbye: whatever the learner used, even a bare thanks, is
+      answered with the course's own farewell.
+    */
+    // reply-row: over-leaves
+    if (answered?.leaves && closing && !isFarewell(closing.text, answered)) {
+      closing = { text: FAREWELLS[1], provenance: "attested" };
+    }
     // reply-row: over-goodbye
     if (answered?.move === "close" && closing && closing.provenance !== "fallback"
         && closing.text.toLowerCase() !== last?.toLowerCase() && !(last !== undefined && isFarewell(last, answered))
@@ -1894,6 +1903,17 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     with the question met this beat, so the scene is over and the branch
     above says it back.
   */
+  // reply-row: close-leaves
+  if (beat.move === "close" && aside && line !== null && line.provenance !== "fallback" && !isFarewell(line.text, beat)
+      && !out.some((said) => said.text === line.text)) {
+    /*
+      Where the closing line is not a goodbye at all but the reason they are
+      leaving (`Mul on kiire, ma pean tööle minema.`) the answer is said and the
+      reason follows, because a learner who has been answered and then left in
+      silence has no idea the goodbye is theirs to say.
+    */
+    out.push(line);
+  }
   // reply-row: close-waits
   if (beat.move === "close" && aside) return out;
 

@@ -610,6 +610,15 @@ export function composeLive(ask: ComposeAsk): string {
         + " not say goodbye in this line; leave room for them to finish, and say goodbye once they do."
         + " Never tell them what to say, and never quote a goodbye for them to use."
         + " If they have just said goodbye themselves, answer them and then say goodbye back."
+        /*
+          Where the direction is a reason for leaving rather than a goodbye, the
+          answer carries it: a person who answers a question on the way out says
+          why they have to go, or the learner is left not knowing the
+          conversation is over.
+        */
+        + (/goodbye|thank/i.test(ask.they)
+          ? ""
+          : ` After the answer, in the same line, say why you have to leave: ${ask.they}`)
       : ask.move === "close" && !/goodbye/i.test(ask.they) && /thank/i.test(ask.they)
       ? "This ends your part of the conversation: thank them warmly and do what the direction says,"
         + " in a sentence or two. Do not say goodbye, since nobody is leaving, and ask nothing more."

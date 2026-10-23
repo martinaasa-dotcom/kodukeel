@@ -1728,7 +1728,14 @@
     zero box, so `data-dock` comes off by itself and the notices that sit clear
     of it stop reserving room for a bar nobody can see.
   */
-  body:has(.scene-room) [data-chrome] { display: none !important; }
+  /*
+    Only the tutor's corner button leaves the room. The rail and the phone bar
+    stay, because a conversation that takes the whole of the navigation away
+    leaves the learner with nowhere to go but the browser's back button, and
+    that was reported: the way around the app does not disappear for a
+    conversation, a debrief or a briefing.
+  */
+  body:has(.scene-room) [data-chrome="anu"] { display: none !important; }
 
   /*
     AND A STEP OF TONIGHT'S MODULE IS A ROOM FOR THE SAME REASON.
@@ -1796,7 +1803,6 @@
   */
   body:has(.scene-room) { overflow-anchor: none; }
   body:has(.scene-room) #main { padding-right: 0; }
-  body:has(.scene-room) .dock-pad { padding-bottom: 0; }
 
   /*
     AND THE ROOM THE MODULE'S OWN BAR TAKES, WHICH IS THE LAST WORD ON THIS.
@@ -4167,6 +4173,18 @@
   .scene-bubble[data-who="you"] {
     background: var(--cta); color: var(--cta-ink); font-weight: 600;
     border-bottom-right-radius: 6px;
+  }
+  /*
+    The same two bubbles read back on the page's own ground. The debrief's
+    record sat in a second dark stage in the middle of a light screen; here
+    their turns are the raised gray and the learner's the accent's tint, so
+    the whole screen is one set of surfaces and the shapes still say who spoke.
+  */
+  .scene-transcript .scene-bubble[data-who="them"] {
+    background: var(--raised); color: var(--ink); border: 1px solid var(--edge);
+  }
+  .scene-transcript .scene-bubble[data-who="you"] {
+    background: var(--accent-soft); color: var(--ink); font-weight: 500;
   }
   /*
     The same three lights as the café, sized in rem rather than in percent: the

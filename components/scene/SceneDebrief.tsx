@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Button, ButtonLink } from "@/components/Button";
-import { Card, Chip, StatTile } from "@/components/ui";
+import { Card, StatTile } from "@/components/ui";
 import { ArrowRight, MessageCircleHeart, Sparkles } from "lucide-react";
 import { AddWordButton } from "@/components/AddWordButton";
 import { Speak } from "@/components/Speak";
@@ -104,9 +104,6 @@ export interface Debrief {
   heard?: readonly { heard: string; said: string }[];
 }
 
-/** Written out whole so the class names survive Tailwind's scan of this file. */
-const HIGHLIGHT_COLS = ["", "sm:grid-cols-2", "sm:grid-cols-3"] as const;
-
 export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: () => void }) {
   /* Whether this conversation is a step of today's module, which decides
      whether the debrief carries a way on of its own. */
@@ -200,34 +197,38 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
         ))}
       </div>
       {recap.highlights.length > 0 && (
-        <section data-recap-highlights>
-          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("What went well")}</h3>
+        <section data-recap-highlights className="recap-panel">
+          <h3 className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>{t("What went well")}</h3>
           {/*
-            As many columns as there are cards, up to the three the recap
-            ever writes: a fixed two left one card beside a blank half and a
-            third card alone on a row of its own.
+            One panel and one row per highlight, divided by a hairline, where
+            it was a grid of nested cards each carrying its own dark bubble:
+            four surfaces of three weights on a screen whose other panels are
+            one. The learner's own words are quoted in the raised ground,
+            because a highlight is something somebody recognizes about
+            themselves and does not need the conversation's stage to say it.
           */}
-          <ul className={`grid gap-3 ${HIGHLIGHT_COLS[Math.min(recap.highlights.length, 3) - 1]}`}>
-            {recap.highlights.map((highlight) => (
-              <li key={highlight.title}>
-                <Card className="flex h-full flex-col gap-2">
-                  <p className="flex items-center gap-2 font-medium">
-                    <Sparkles size={16} aria-hidden style={{ color: "var(--accent-deep)" }} />
-                    {highlight.title}
+          <ul className="flex flex-col">
+            {recap.highlights.map((highlight, at) => (
+              <li
+                key={highlight.title}
+                className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0"
+                style={at > 0 ? { borderTop: "1px solid var(--edge)" } : undefined}
+              >
+                <p className="flex items-center gap-2 font-medium">
+                  <Sparkles size={16} aria-hidden style={{ color: "var(--accent-deep)" }} />
+                  {highlight.title}
+                </p>
+                {highlight.said && (
+                  <p
+                    data-who="you"
+                    lang="et"
+                    className="self-start rounded-[var(--r-lg)] px-3 py-2 text-sm font-medium"
+                    style={{ background: "var(--accent-soft)", color: "var(--ink)" }}
+                  >
+                    <span className="sr-only">{t("You said:")}{" "}</span>{highlight.said}
                   </p>
-                  {highlight.said && (
-                    /*
-                      Their own words, in the bubble they typed them in, because a
-                      highlight is something somebody recognizes about themselves.
-                    */
-                    <div className="night scene-night self-start rounded-[var(--r-lg)] p-2">
-                      <p data-who="you" lang="et" className="scene-bubble scene-bubble-sm inline-block max-w-full">
-                        <span className="sr-only">{t("You said:")}{" "}</span>{highlight.said}
-                      </p>
-                    </div>
-                  )}
-                  <p className="text-sm" style={{ color: "var(--ink-2)" }}>{highlight.detail}</p>
-                </Card>
+                )}
+                <p className="text-sm" style={{ color: "var(--ink-2)" }}>{highlight.detail}</p>
               </li>
             ))}
           </ul>
@@ -468,10 +469,14 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
             words and finishes has learned more than one who gave up with none.
             So this is a list with a way to keep them, not a tally of mistakes.
           */}
-          <ul className="flex flex-wrap gap-2">
-            {gaps.map((gap) => (
-              <li key={gap.lemma} className="flex items-center gap-1">
-                <span lang="et"><Chip tone="neutral" caseSensitive>{gap.lemma}</Chip></span>
+          <ul className="flex flex-col">
+            {gaps.map((gap, at) => (
+              <li
+                key={gap.lemma}
+                className="flex items-center justify-between gap-3 py-2 first:pt-0 last:pb-0"
+                style={at > 0 ? { borderTop: "1px solid var(--edge)" } : undefined}
+              >
+                <span lang="et" className="font-medium">{gap.lemma}</span>
                 {/*
                   A word the dictionary holds can be kept; one it does not is
                   still listed, because "the conversation needed this and you
@@ -543,15 +548,15 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
         teaching at all.
       */}
       {turns.length > 0 && (
-        <section>
-          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("What was said")}</h3>
+        <section className="recap-panel">
+          <h3 className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>{t("What was said")}</h3>
           {/*
             Both sides rather than the learner's alone, because a turn only
             makes sense beside the line it answered, and reading the whole
             exchange back is how somebody notices that "poodi" was the right
             answer to the wrong question.
           */}
-          <ul className="night scene-night flex flex-col gap-2 rounded-[var(--r-xl)] border p-3 sm:p-4">
+          <ul className="scene-transcript flex flex-col gap-2">
             {(() => {
               /*
                 The learner's turns are numbered as they go past, because that
@@ -588,7 +593,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                       className="scene-bubble scene-bubble-sm inline-block max-w-full"
                       /* A ring set off the bubble by the stage's own ground, so it
                          reads on the gold of your turns and the glass of theirs. */
-                      style={here ? { boxShadow: "0 0 0 2px var(--stage), 0 0 0 4px var(--butter)" } : undefined}
+                      style={here ? { boxShadow: "0 0 0 2px var(--surface), 0 0 0 4px var(--butter)" } : undefined}
                     >
                       {/*
                         WHO SAID IT, FOR A READER WHO CANNOT SEE WHICH SIDE IT
