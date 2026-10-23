@@ -26,16 +26,6 @@ import { execFileSync } from "node:child_process";
 
 /** Advisories nobody can fix yet, each with why it cannot be reached. */
 const WAIVED = {
-  "GHSA-vfj7-8cjw-p6xm": {
-    package: "braces",
-    latest: "3.0.3",
-    why:
-      "Stack exhaustion on a deeply nested brace pattern, in every release of braces there is " +
-      "(<=3.0.3, and 3.0.3 is the latest). It is in the tree once, under eslint-config-next -> " +
-      "@next/eslint-plugin-next -> fast-glob -> micromatch, which globs the pages directories " +
-      "this repository's own lint config names. Nothing a user sends reaches it, it runs only " +
-      "while somebody lints, and it ships in no build.",
-  },
 };
 
 const BLOCKING = new Set(["high", "critical"]);
