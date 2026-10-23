@@ -111,9 +111,9 @@ export function ResultPanel({ result, heading = "Where you are", locale = "en" }
           )}
           <p className="mt-3 max-w-[58ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
             {t(result.overall === null
-              ? "Nothing got measured, so there's no level to show. That's a blank, not a zero."
+              ? "Nothing got measured, so there's no level to show."
               : result.overall === PRE_A1
-                ? "You're not at A1 yet, and that's where almost everybody starts. It's a starting point, not a verdict."
+                ? "You're not at A1 yet, and that's where almost everybody starts."
                 : result.nearly
                   ? "Your skills averaged out between two levels, so this shows the lower one. You're near the top of it, not the bottom."
                   : "This is the average of the skills we measured. One weak section doesn't drag the whole level down, and one strong one doesn't carry it.")}

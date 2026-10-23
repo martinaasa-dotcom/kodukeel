@@ -114,7 +114,7 @@ const SHOP: SceneSpec = {
     {
       id: "no-milk",
       when: ["greet", "going"],
-      says: "The shop was out of milk today. That happens, and it's nobody's fault.",
+      says: "The shop was out of milk today.",
     },
     { id: "left", when: [], says: "You put the phone down and went on your own. That's a perfectly good way to get milk too." },
   ],

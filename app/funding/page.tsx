@@ -430,7 +430,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
           {t("The fall is gradual because most of what this app is made of was never bought. The dictionary is Ekilex, the speech is TartuNLP, the English is Wiktionary, and all three are public institutions that decided this work should be available. The scheduler, the course, the exams, the games and the grammar run on a server and a database and nothing else. What money buys is the tutor, the polish, and somebody to work on it.")}
         </P>
         <P>
-          {fill(t("So the honest claim is not that this becomes profitable. It is that at ${floor} a month it can be kept alive by one person who has not been paid, and that it keeps teaching Estonian the whole way down."), {
+          {fill(t("This will not become profitable. At ${floor} a month it can be kept alive by one person who has not been paid, and it keeps teaching Estonian the whole way down."), {
             floor: floor.toFixed(0),
           })}
         </P>

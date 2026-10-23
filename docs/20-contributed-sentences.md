@@ -75,7 +75,7 @@ stale against the scene table, and re-running it after an import gives back a
 spreadsheet of what is still missing rather than a blank one.
 
 **Nothing in the template suggests a sentence.** Many sentences are right about
-three things, which is the whole point of the exercise, and a template carrying
+three things, which is what the exercise asks for, and a template carrying
 a suggestion would collect that suggestion back sixty times.
 
 ## How to import them

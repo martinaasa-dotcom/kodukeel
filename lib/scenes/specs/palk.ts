@@ -115,7 +115,7 @@ const RAISE: SceneSpec = {
   outcomes: [
     { id: "raised", when: ["greet", "topic", "did", "amount", "offer", "close"], says: "You asked for money, gave a reason, named a figure and settled it. That's the hardest talk at work, and you had it in Estonian." },
     { id: "raised-thin", when: ["topic", "amount", "offer"], says: "You got more. Saying what you did is what gets you the next one." },
-    { id: "not-this-year", when: ["greet", "topic"], says: "The budget is tight this year and you didn't get to a figure. That's the budget, not your Estonian; you've put it on the table for next year." },
+    { id: "not-this-year", when: ["greet", "topic"], says: "The budget is tight this year and you didn't get to a figure. You've put it on the table for next year." },
     { id: "left", when: [], says: "You left before you'd asked. The door's still open." },
   ],
 };

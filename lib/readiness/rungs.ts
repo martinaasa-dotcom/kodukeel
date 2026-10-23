@@ -306,7 +306,7 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
       id: "unmet",
       title: unmet === total ? say("None of these words has come up yet") : say("{unmet} of the {total} words haven't come up yet", { unmet, total }),
       detail: unmet === total
-        ? say("The course hasn't brought you these words yet, so there's nothing to go on. That's the course's pace, not yours.")
+        ? say("The course hasn't brought you these words yet, so there's nothing to go on.")
         : say("The word you've never met is the one the other person will use."),
       blocks: at.met === 0 ? "follow" : share(at.follow) >= FOLLOW_SHARE ? "takePart" : "follow",
       href: `/learn/${situation.id}`,

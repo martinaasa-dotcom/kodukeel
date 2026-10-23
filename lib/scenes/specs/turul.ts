@@ -146,7 +146,7 @@ const MARKET: SceneSpec = {
   outcomes: [
     { id: "bought", when: ["greet", "some", "weight", "pieces", "many", "price", "close"], says: "You bought both things, said how many, and knew what you paid. That's a market done in Estonian." },
     { id: "bought-thin", when: ["some", "pieces", "close"], says: "You got what you came for. Asking the price before you pay is the next step." },
-    { id: "sold-out", when: ["greet", "some"], says: "The stall ran out of the second thing before you got to it. That's markets, not your Estonian." },
+    { id: "sold-out", when: ["greet", "some"], says: "The stall ran out of the second thing before you got to it." },
     { id: "left", when: [], says: "You walked on to another stall. There's always another one." },
   ],
 };

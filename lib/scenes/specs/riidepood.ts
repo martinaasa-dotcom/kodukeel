@@ -167,7 +167,7 @@ const CLOTHES: SceneSpec = {
     {
       id: "not-in-stock",
       when: ["greet", "want"],
-      says: "Nothing in your size today. They suggest coming back next week, which is a real answer, not a mark against you.",
+      says: "Nothing in your size today. They suggest coming back next week.",
     },
     { id: "left", when: [], says: "You left the shop. People do, and you can always come back." },
   ],

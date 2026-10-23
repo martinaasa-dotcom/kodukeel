@@ -92,8 +92,8 @@ const BUS_STOP: SceneSpec = {
   ],
   outcomes: [
     { id: "on-board", when: ["greet", "this", "yes", "stops", "close"], says: "You checked it was the right bus and found out where to get off. You'll be there without guessing." },
-    { id: "on-board-thin", when: ["this", "stops"], says: "Right bus, and you know your stop. Thanking people is the easy half, and it'll come." },
-    { id: "wrong-bus", when: ["greet", "this"], says: "It wasn't your bus after all, and you found out before getting on, which is the whole point of asking." },
+    { id: "on-board-thin", when: ["this", "stops"], says: "Right bus, and you know your stop. Next time, thank them before you get on." },
+    { id: "wrong-bus", when: ["greet", "this"], says: "It wasn't your bus after all, and you found out before getting on." },
     { id: "left", when: [], says: "You let that bus go. There's another one in ten minutes." },
   ],
 };

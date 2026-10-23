@@ -212,7 +212,7 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
       {silent && (
         <div className="mt-4">
           <Note tone="sky">
-            {t("We couldn't make the audio. That's our problem, not a mark against your listening, so this section is left out rather than scored as zero.")}
+            {t("We couldn't make the audio, so this section is left out rather than scored as zero.")}
           </Note>
         </div>
       )}

@@ -3396,6 +3396,14 @@ gesturing at. `findTells` folds the curly apostrophe before matching, because th
 typeset with it and a pattern that knew only the straight one never saw it. `docs/18-voice.md`
 §3b has the before and after of every line that pass changed, and
 `scripts/invariants/a-sentence-ends-when-its-facts-do.ts` holds the table to it.
+A second pass read every English line the app translates rather than trusting the list, and found
+the reassurance tacked onto facts that had already made the point: twenty conversations ended on
+`That's the bank, not your Estonian` with the noun swapped, beside
+`a starting point, not a verdict`, `a trip, not a gamble`, `and it'll come` and
+`here's the honest reason`. They are the
+`not your fault` tell and the wider `FLOURISH` patterns now. **A list finds only what somebody
+thought to write down**, so after a copy pass, read the translated lines whole rather than
+grepping for the phrases you already know.
 
 **And the English is spelled the American way, everywhere a reader meets it.** `4. Practise` on a
 lesson step was reported off a screen whose neighbors said "practice", because the English came

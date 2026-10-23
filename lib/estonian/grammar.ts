@@ -184,7 +184,7 @@ export const CASE_NOTES: readonly CaseNote[] = [
     summary: "In the role of something, usually for now rather than forever.",
     uses: ["Working as something", "A role or a capacity you are in for now"],
     watchOut:
-      "The -ks ending is for getting into a role. This one means you're already in it. Keep those two apart and you've got it.",
+      "The -ks ending is for getting into a role. This one means you're already in it.",
     englishHook: "Working as a teacher, for as long as that lasts.",
   },
   {

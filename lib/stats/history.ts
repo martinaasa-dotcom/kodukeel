@@ -287,7 +287,7 @@ export function retentionReading(
       reviews: count, recalled, retention, target,
       verdict: "above",
       headline: "You're remembering more than expected",
-      advice: "That's a nice problem to have. You've got room for more new words each day, so raise your daily goal in Settings.",
+      advice: "You've got room for more new words each day, so raise your daily goal in Settings.",
     };
   }
 

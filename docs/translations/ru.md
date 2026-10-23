@@ -673,8 +673,8 @@ _lib/copy/i18n/areas/start.ts_
   → Свободно
 - [ ] **319.** Pretty much anything. You're here for the finer shades of meaning.  
   → Почти всё. Вы здесь ради тонких оттенков смысла.
-- [ ] **320.** Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. You don’t have to say them right yet. That comes with time.  
-  → В эстонском есть четыре буквы, которых нет в русском алфавите: {a}, {b}, {c} и {d}. Они встречаются повсюду. Произносить их правильно пока не обязательно. Это придёт со временем.
+- [ ] **320.** Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. For now, recognizing them is enough.  
+  → В эстонском есть четыре буквы, которых нет в русском алфавите: {a}, {b}, {c} и {d}. Они встречаются повсюду. Пока достаточно их узнавать.
 - [ ] **321.** How we worked that out  
   → Как мы это посчитали
 - [ ] **322.** Why Estonian?  
@@ -1371,8 +1371,8 @@ _lib/copy/i18n/areas/today.ts_
   → Вы прошли {pct}% пути от начала {start} до {target}. Сплошная часть растёт, только когда слово действительно закрепилось в повторениях, а не когда вы отмечаете вечер. Сейчас вы здесь: {part}.
 - [ ] **664.** You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you check off an evening.  
   → Вы прошли {pct}% пути от начала {start} до {target}. Сплошная часть растёт, только когда слово действительно закрепилось в повторениях, а не когда вы отмечаете вечер.
-- [ ] **665.** Every level up to {target} counts as yours already. What's left is proving it, and that's what the evenings are for.  
-  → Все уровни до {target} уже засчитаны вам. Осталось это подтвердить, для этого и нужны вечера.
+- [ ] **665.** Every level up to {target} counts as yours already, and the evenings check it word by word.  
+  → Все уровни до {target} уже засчитаны вам, а вечера проверяют их слово за словом.
 - [ ] **666.** Pick a target in Settings and this becomes the one number worth keeping an eye on.  
   → Выберите цель в настройках, и это станет главной цифрой, за которой стоит следить.
 - [ ] **667.** Your level check put you at {level}, so {levels} count as yours. You won't have to redo anything below your level.  
@@ -1405,10 +1405,10 @@ _lib/copy/i18n/areas/today.ts_
   → {evenings} от самого первого слова до C1. Все они короткие, и каждый мы уже спланировали.
 - [ ] **681.** You've been choosing what to do each evening. Starting this won't change anything else.  
   → Вы сами выбирали, чем заниматься каждый вечер. Если начать курс, больше ничего не изменится.
-- [ ] **682.** It starts at {start}, where you are now. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.  
-  → Курс начинается с {start}, там, где вы сейчас. Это план, на который можно опереться, а не колея, из которой не выбраться, и всё остальное в приложении остаётся на своих местах.
-- [ ] **683.** It starts at {start}, the level after the {level} you already have. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.  
-  → Курс начинается с {start}, следующего уровня после вашего {level}. Это план, на который можно опереться, а не колея, из которой не выбраться, и всё остальное в приложении остаётся на своих местах.
+- [ ] **682.** It starts at {start}, where you are now. You can step off it whenever you like, and everything else in the app stays where it is.  
+  → Курс начинается с {start}, там, где вы сейчас. Сойти с него можно в любой момент, и всё остальное в приложении остаётся на своих местах.
+- [ ] **683.** It starts at {start}, the level after the {level} you already have. You can step off it whenever you like, and everything else in the app stays where it is.  
+  → Курс начинается с {start}, следующего уровня после вашего {level}. Сойти с него можно в любой момент, и всё остальное в приложении остаётся на своих местах.
 - [ ] **684.** {part} is finished  
   → Часть «{part}» пройдена
 - [ ] **685.** All {total} evenings done. Every word you met is in your reviews now.  
@@ -1559,8 +1559,8 @@ _lib/copy/i18n/areas/today.ts_
   → Соберите настоящее эстонское предложение слово за словом. Сделайте так несколько раз, и вы начнёте чувствовать, что куда ставится.
 - [ ] **758.** Hear a whole sentence and write it down. This is where long and short vowels stop being a rule and start being a sound.  
   → Послушайте целое предложение и запишите его. Именно здесь долгие и краткие гласные перестают быть правилом и становятся звуком.
-- [ ] **759.** Look at a picture and write one sentence of your own about it. That's what all these words are for.  
-  → Посмотрите на картинку и напишите о ней одно своё предложение. Ради этого и нужны все эти слова.
+- [ ] **759.** Look at a picture and write one sentence of your own about it.  
+  → Посмотрите на картинку и напишите о ней одно своё предложение.
 - [ ] **760.** Guess today's six-letter word. Three minutes, and Estonian letters start feeling like old friends.  
   → Угадайте слово дня из шести букв. Три минуты, и эстонские буквы начинают казаться старыми знакомыми.
 - [ ] **761.** Four versions of one word, and a question telling you which one to hit. Only the ending tells them apart, so you learn to read it fast.  
@@ -3119,8 +3119,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Упражнение на то, что осталось
 - [ ] **1530.** What was said  
   → Что было сказано
-- [ ] **1531.** {places}. Nobody there has seen your card, so you'll say it your own way, which is the whole point. Tomorrow, the \[Today\] screen will ask how it went.  
-  → {places}. Там никто не видел вашу карточку, так что вы скажете это по-своему, в этом и смысл. Завтра на экране \[Сегодня\] вас спросят, как всё прошло.
+- [ ] **1531.** {places}. Nobody there has seen your card, so you'll say it your own way. Tomorrow, the \[Today\] screen will ask how it went.  
+  → {places}. Там никто не видел вашу карточку, так что вы скажете это по-своему. Завтра на экране \[Сегодня\] вас спросят, как всё прошло.
 - [ ] **1532.** No one to say it to? {name} runs language cafés, where people turn up hoping to be spoken to.  
   → Не с кем поговорить? {name} проводит языковые кафе, куда люди приходят как раз затем, чтобы с ними заговорили.
 - [ ] **1533.** Rehearse a different conversation  
@@ -3345,8 +3345,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вы дома с молоком, и друг всю дорогу знал, где вы.
 - [ ] **1643.** You're home with the milk. Your friend lost track of you for a while.  
   → Вы дома с молоком. Друг ненадолго потерял вас из виду.
-- [ ] **1644.** The shop was out of milk today. That happens, and it's nobody's fault.  
-  → Сегодня в магазине не было молока. Так бывает, и никто не виноват.
+- [ ] **1644.** The shop was out of milk today.  
+  → Сегодня в магазине не было молока.
 - [ ] **1645.** You put the phone down and went on your own. That's a perfectly good way to get milk too.  
   → Вы положили трубку и пошли сами. Так тоже вполне можно купить молоко.
 - [ ] **1646.** Booking a doctor's appointment  
@@ -3503,8 +3503,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Бланк сдан и заполнен именно так, как требовалось.
 - [ ] **1722.** They took the form, but something on it still needs filling in before anyone can look at it.  
   → Бланк взяли, но в нём ещё нужно кое-что заполнить, прежде чем его рассмотрят.
-- [ ] **1723.** They can't take it without the paper you don't have. That's their rule, not your Estonian.  
-  → Без бумаги, которой у вас нет, бланк не примут. Таковы их правила, дело не в вашем эстонском.
+- [ ] **1723.** They can't take it without the paper you don't have.  
+  → Без бумаги, которой у вас нет, бланк не примут.
 - [ ] **1724.** You left the counter. The form's still in your bag, and it'll keep.  
   → Вы ушли от окошка. Бланк всё ещё у вас в сумке, он подождёт.
 - [ ] **1725.** Ordering a drink  
@@ -3575,8 +3575,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вы знаете дорогу и поблагодарили за помощь.
 - [ ] **1758.** They told you the way. Whether you caught it is another matter.  
   → Вам объяснили дорогу, но поняли ли вы её, неясно.
-- [ ] **1759.** They didn't know the place either. That happens, and it wasn't your Estonian.  
-  → Прохожий тоже не знал этого места. Так бывает, и дело не в вашем эстонском.
+- [ ] **1759.** They didn't know the place either.  
+  → Прохожий тоже не знал этого места.
 - [ ] **1760.** You walked on. Somebody else will know.  
   → Вы пошли дальше. Кто-нибудь другой подскажет.
 - [ ] **1761.** Buying a bus ticket  
@@ -3615,8 +3615,8 @@ _lib/copy/i18n/areas/situations.ts_
   → У вас оплаченный билет на нужный автобус.
 - [ ] **1778.** You've got a ticket. They had to guess the time, so check it before you get on.  
   → Билет у вас есть. Время кассиру пришлось угадывать, так что проверьте его перед посадкой.
-- [ ] **1779.** There's no bus there today. Blame the schedule, not your Estonian.  
-  → Сегодня туда автобусов нет. Виновато расписание, а не ваш эстонский.
+- [ ] **1779.** There's no bus there today.  
+  → Сегодня туда автобусов нет.
 - [ ] **1780.** You stepped away from the window. The next bus is in an hour.  
   → Вы отошли от кассы. Следующий автобус через час.
 - [ ] **1781.** Ordering a meal  
@@ -3693,8 +3693,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Повторите время, чтобы убедиться, что расслышали верно.
 - [ ] **1817.** They tell you when they open tomorrow: {open}.  
   → Вам говорят, во сколько магазин откроется завтра: в {open}.
-- [ ] **1818.** They've got it, you know when they open, and you checked the time. Tomorrow's a trip, not a gamble.  
-  → Это у них есть, вы знаете, когда они открываются, и сверили время. Завтра вы едете наверняка, а не наугад.
+- [ ] **1818.** They've got it, you know when they open, and you checked the time.  
+  → Это у них есть, вы знаете, когда они открываются, и сверили время.
 - [ ] **1819.** They've got it and they told you when to come. You didn't say the time back, so double-check it before you set off.  
   → Это у них есть, и вам сказали, когда приходить. Время вы не повторили, так что перепроверьте его перед выходом.
 - [ ] **1820.** They're out of it until next week. You asked properly, and on the phone, which is the hardest way to do Estonian.  
@@ -3743,8 +3743,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Попрощайтесь, пока сосед не пошёл дальше вниз.
 - [ ] **1842.** They say goodbye and go on down.  
   → Сосед прощается и спускается дальше.
-- [ ] **1843.** You've got a neighbor now, and they know your floor. That's how a building starts to know you.  
-  → Теперь у вас есть сосед, и он знает ваш этаж. Так дом и начинает вас узнавать.
+- [ ] **1843.** You've got a neighbor now, and they know your floor.  
+  → Теперь у вас есть сосед, и он знает ваш этаж.
 - [ ] **1844.** They know you're new and where you're from. The rest can wait for the next flight of stairs.  
   → Сосед знает, что вы здесь недавно и откуда вы. Остальное подождёт до следующей встречи в подъезде.
 - [ ] **1845.** They had a bus to catch. You said hello, and there are more stairs tomorrow.  
@@ -3793,8 +3793,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Фармацевт объясняет, как принимать, и называет цену.
 - [ ] **1867.** They say goodbye and look past you at the line.  
   → Фармацевт прощается и смотрит мимо вас на очередь.
-- [ ] **1868.** You've got something for it and you know how to take it. Nobody switched to English, and the line survived.  
-  → У вас есть лекарство, и вы знаете, как его принимать. Никто не перешёл на английский, и очередь всё пережила.
+- [ ] **1868.** You've got something for it and you know how to take it. Nobody switched to English.  
+  → У вас есть лекарство, и вы знаете, как его принимать. Никто не перешёл на английский.
 - [ ] **1869.** You've got something for it. You didn't ask how often, so read the box before you take one.  
   → Лекарство у вас есть. Как часто принимать, вы не спросили, так что прочитайте на упаковке.
 - [ ] **1870.** They said this one needs a doctor, not a pharmacy. You explained it well enough for them to tell.  
@@ -3945,8 +3945,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вам предлагают ремонт или говорят, что можно написать жалобу.
 - [ ] **1943.** They're taking it back. You said what was wrong, when you bought it and what you wanted, and you didn't switch to English.  
   → Покупку принимают обратно. Вы сказали, что не так, когда купили и чего хотите, и не перешли на английский.
-- [ ] **1944.** They sent you to the maker rather than dealing with it here. That's the shop, not your Estonian, and you've got it in writing.  
-  → Вас отправили к производителю, вместо того чтобы решить всё здесь. Дело в магазине, а не в вашем эстонском, и у вас это есть на бумаге.
+- [ ] **1944.** They sent you to the maker rather than dealing with it here, and you've got that in writing.  
+  → Вас отправили к производителю, вместо того чтобы решить всё здесь, и у вас это есть на бумаге.
 - [ ] **1945.** They know what's wrong and what you want. The paperwork's their problem now.  
   → Там знают, что не так и чего вы хотите. Бумаги теперь их забота.
 - [ ] **1946.** You took it home again. It still doesn't work, and you can always come back.  
@@ -4005,8 +4005,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вещь у вас, вашего размера и нужного цвета, и вы знаете, сколько заплатили.
 - [ ] **1973.** You've got it. You never tried it on, so find out at home whether it fits.  
   → Вещь у вас. Вы её не примерили, так что дома узнаете, подходит ли.
-- [ ] **1974.** Nothing in your size today. They suggest coming back next week, which is a real answer, not a mark against you.  
-  → Сегодня вашего размера нет. Вам предлагают зайти на следующей неделе, и это нормальный ответ, а не упрёк вам.
+- [ ] **1974.** Nothing in your size today. They suggest coming back next week.  
+  → Сегодня вашего размера нет. Вам предлагают зайти на следующей неделе.
 - [ ] **1975.** You left the shop. People do, and you can always come back.  
   → Вы ушли из магазина. Так бывает, а вернуться можно всегда.
 - [ ] **1976.** They ask for something you were never given.  
@@ -4575,8 +4575,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Друг говорит, что тогда увидитесь, и прощается.
 - [ ] **2258.** You said no to their evening, gave your own, and settled a time. That's an arrangement made in Estonian.  
   → Вы отказались от его вечера, предложили свой и договорились о времени. Это договорённость на эстонском.
-- [ ] **2259.** You've got a day and a time. Saying no first is the harder half, and it'll come.  
-  → У вас есть день и время. Сначала отказать труднее всего, но и это придёт.
+- [ ] **2259.** You've got a day and a time. Turning down the first offer is what's left to practice.  
+  → У вас есть день и время. Осталось потренироваться отказываться от первого предложения.
 - [ ] **2260.** Something came up on their side and the plan fell through. You'd said yes, which was the part that was yours.  
   → У друга что-то случилось, и план сорвался. Вы согласились, а это была ваша часть.
 - [ ] **2261.** You hung up before anything was settled. Ring them back; friends don't mind.  
@@ -4613,8 +4613,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вы купили обе вещи, сказали, сколько штук, и знали, сколько заплатили. Вот и рынок на эстонском.
 - [ ] **2277.** You got what you came for. Asking the price before you pay is the next step.  
   → Вы купили то, за чем пришли. Спросить цену до оплаты будет следующим шагом.
-- [ ] **2278.** The stall ran out of the second thing before you got to it. That's markets, not your Estonian.  
-  → Второе закончилось на прилавке раньше, чем вы до него дошли. Таков рынок, а не ваш эстонский.
+- [ ] **2278.** The stall ran out of the second thing before you got to it.  
+  → Второе закончилось на прилавке раньше, чем вы до него дошли.
 - [ ] **2279.** You walked on to another stall. There's always another one.  
   → Вы пошли к другому прилавку. Другой всегда найдётся.
 - [ ] **2280.** Is this my bus?  
@@ -4645,10 +4645,10 @@ _lib/copy/i18n/areas/situations.ts_
   → Водитель кивает и отъезжает от остановки.
 - [ ] **2293.** You checked it was the right bus and found out where to get off. You'll be there without guessing.  
   → Вы проверили, что автобус нужный, и узнали, где выходить. Доедете без догадок.
-- [ ] **2294.** Right bus, and you know your stop. Thanking people is the easy half, and it'll come.  
-  → Автобус нужный, и вы знаете свою остановку. Благодарить проще всего, и это придёт.
-- [ ] **2295.** It wasn't your bus after all, and you found out before getting on, which is the whole point of asking.  
-  → Это всё-таки был не ваш автобус, и вы узнали это до посадки. Ради этого и стоит спрашивать.
+- [ ] **2294.** Right bus, and you know your stop. Next time, thank them before you get on.  
+  → Автобус нужный, и вы знаете свою остановку. В следующий раз поблагодарите, прежде чем сесть.
+- [ ] **2295.** It wasn't your bus after all, and you found out before getting on.  
+  → Это всё-таки был не ваш автобус, и вы узнали это до посадки.
 - [ ] **2296.** You let that bus go. There's another one in ten minutes.  
   → Вы пропустили этот автобус. Следующий будет через десять минут.
 - [ ] **2297.** Getting a library card  
@@ -4675,12 +4675,12 @@ _lib/copy/i18n/areas/situations.ts_
   → Библиотекарь просит номер телефона.
 - [ ] **2308.** They hand you the new card and say goodbye.  
   → Библиотекарь отдаёт вам новый билет и прощается.
-- [ ] **2309.** You've got a library card, and the number on it is right because you checked it. That's how a form gets filled in out loud.  
-  → У вас есть читательский билет, и номер в нём верный, потому что вы его проверили. Так анкета и заполняется вслух.
+- [ ] **2309.** You've got a library card, and the number on it is right because you checked it.  
+  → У вас есть читательский билет, и номер в нём верный, потому что вы его проверили.
 - [ ] **2310.** They have what they need for the card. Checking the number when they read it back is the next step.  
   → У библиотекаря есть всё нужное для билета. Проверить номер, когда его повторяют, будет следующим шагом.
-- [ ] **2311.** Their system went down before they could make the card. Not your Estonian; come back tomorrow.  
-  → Система отказала до того, как билет успели оформить. Дело не в вашем эстонском; приходите завтра.
+- [ ] **2311.** Their system went down before they could make the card. Come back tomorrow.  
+  → Система отказала до того, как билет успели оформить. Приходите завтра.
 - [ ] **2312.** You left before the card was made. Libraries open early, and you can try again.  
   → Вы ушли до того, как билет оформили. Библиотеки открываются рано, можно попробовать снова.
 - [ ] **2313.** How was your weekend?  
@@ -4845,8 +4845,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Помощь уже в пути, потому что вы сказали, что случилось и где именно. Такой звонок никто не хочет делать, но каждый должен уметь.
 - [ ] **2393.** They know what happened and where you are, which is what sends the ambulance. The rest is detail.  
   → Там знают, что случилось и где вы, а этого достаточно, чтобы выслать скорую. Остальное мелочи.
-- [ ] **2394.** The line cut out before you could say more. In a real emergency, call again straight away; it isn't your Estonian.  
-  → Связь прервалась раньше, чем вы успели сказать больше. В реальной экстренной ситуации сразу звоните снова; дело не в вашем эстонском.
+- [ ] **2394.** The line cut out before you could say more. In a real emergency, call again straight away.  
+  → Связь прервалась раньше, чем вы успели сказать больше. В реальной экстренной ситуации сразу звоните снова.
 - [ ] **2395.** You hung up. In a real emergency, call back: they'll speak slowly if you ask.  
   → Вы положили трубку. В реальной экстренной ситуации перезвоните: если попросить, с вами будут говорить медленно.
 - [ ] **2396.** Opening a bank account  
@@ -4879,12 +4879,12 @@ _lib/copy/i18n/areas/situations.ts_
   → Сотрудник распечатывает бланк и просит расписаться внизу.
 - [ ] **2410.** They say the card will come in the post, and goodbye.  
   → Вам говорят, что карта придёт по почте, и прощаются.
-- [ ] **2411.** You've got an account, and a card on its way. You did a bank in Estonian, which is most people's least favorite errand in any language.  
-  → У вас есть счёт, и карта уже в пути. Вы сходили в банк на эстонском, а это мало кто любит на любом языке.
+- [ ] **2411.** You've got an account, and a card on its way.  
+  → У вас есть счёт, и карта уже в пути.
 - [ ] **2412.** The account's open. The small talk around the edges can come later.  
   → Счёт открыт. Разговоры вокруг да около могут подождать.
-- [ ] **2413.** Their system wouldn't open accounts today. That's the bank, not your Estonian; you can book a time to come back.  
-  → Сегодня их система не открывала счета. Дело в банке, а не в вашем эстонском; можно записаться на другое время.
+- [ ] **2413.** Their system wouldn't open accounts today. You can book a time to come back.  
+  → Сегодня их система не открывала счета. Можно записаться на другое время.
 - [ ] **2414.** You left before anything was signed. The bank will still be there tomorrow.  
   → Вы ушли, ничего не подписав. Банк будет на месте и завтра.
 - [ ] **2415.** At the family doctor's  
@@ -4923,8 +4923,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вы сказали, что болит, с какого дня и насколько сильно, и уточнили, как принимать таблетки. Вот так и ходят к врачу.
 - [ ] **2432.** You've got what you need and you know how to take it. Saying how bad it is would have helped the doctor more.  
   → Вы получили нужное и знаете, как это принимать. Если бы вы сказали, насколько сильно болит, врачу было бы проще.
-- [ ] **2433.** They sent you to a specialist before you got any further. That's the system, not your Estonian.  
-  → Вас направили к специалисту раньше, чем вы успели продолжить. Так устроена система, а не ваш эстонский.
+- [ ] **2433.** They sent you to a specialist before you got any further.  
+  → Вас направили к специалисту раньше, чем вы успели продолжить.
 - [ ] **2434.** You left before the doctor had finished. You can always ring the surgery back.  
   → Вы ушли раньше, чем врач закончил. Врачу всегда можно перезвонить.
 - [ ] **2435.** saying what happened  
@@ -4995,12 +4995,12 @@ _lib/copy/i18n/areas/situations.ts_
   → Вместо этого вам предлагают {day2}, {time2}.
 - [ ] **2468.** They say goodbye and see you then.  
   → Консультант прощается до следующей встречи.
-- [ ] **2469.** You're registered, they know what you're looking for, and you've got your next visit. That's an office done in Estonian from start to finish.  
-  → Вы зарегистрированы, там знают, какую работу вы ищете, и у вас назначен следующий визит. Учреждение от начала до конца на эстонском.
+- [ ] **2469.** You're registered, they know what you're looking for, and you've got your next visit.  
+  → Вы зарегистрированы, там знают, какую работу вы ищете, и у вас назначен следующий визит.
 - [ ] **2470.** You're registered. What you're looking for can be sorted out at the next visit.  
   → Вы зарегистрированы. Какую работу вы ищете, можно обсудить в следующий раз.
-- [ ] **2471.** Their system couldn't register anybody today. That's the office, not your Estonian; they'll see you another day.  
-  → Сегодня их система никого не могла зарегистрировать. Дело в учреждении, а не в вашем эстонском; вас примут в другой день.
+- [ ] **2471.** Their system couldn't register anybody today. They'll see you another day.  
+  → Сегодня их система никого не могла зарегистрировать. Вас примут в другой день.
 - [ ] **2472.** You left before you were registered. The office will still be there tomorrow.  
   → Вы ушли, не зарегистрировавшись. Учреждение никуда не денется и завтра.
 - [ ] **2473.** Renewing a residence permit  
@@ -5037,8 +5037,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Заявление подано, и вы знаете, когда забрать карточку. Это самый официальный эстонский, какой бывает, и вы его поняли.
 - [ ] **2489.** Your application's in. They'll write to say when the card is ready.  
   → Заявление подано. Вам напишут, когда карточка будет готова.
-- [ ] **2490.** They couldn't take the application today. That's their system, not your Estonian; book another time.  
-  → Сегодня у вас не смогли принять заявление. Дело в их системе, а не в вашем эстонском; запишитесь на другое время.
+- [ ] **2490.** They couldn't take the application today. Book another time.  
+  → Сегодня у вас не смогли принять заявление. Запишитесь на другое время.
 - [ ] **2491.** You left before the application was in. Your booking can be moved.  
   → Вы ушли, не подав заявление. Запись можно перенести.
 - [ ] **2492.** Calling about family benefit  
@@ -5073,8 +5073,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вы знаете, почему деньги перестали приходить и что нужно прислать. Звонок в учреждение на эстонском, да ещё с номером: это один из самых трудных звонков.
 - [ ] **2507.** They found your case and you know what to send. The details can wait for the letter.  
   → Ваше дело нашли, и вы знаете, что прислать. Подробности подождут до письма.
-- [ ] **2508.** Their system couldn't find anything today. That's the office, not your Estonian; call again tomorrow.  
-  → Сегодня их система ничего не нашла. Дело в учреждении, а не в вашем эстонском; позвоните завтра.
+- [ ] **2508.** Their system couldn't find anything today. Call again tomorrow.  
+  → Сегодня их система ничего не нашла. Позвоните завтра.
 - [ ] **2509.** You hung up before they found your case. You can always call back.  
   → Вы положили трубку, пока ваше дело ещё искали. Позвонить снова можно всегда.
 - [ ] **2510.** Talking to your child's teacher  
@@ -5113,8 +5113,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вы задали уточняющий вопрос вместо того, чтобы кивать, рассказали, как дела дома, и знаете, над чем работать. Это родительское собрание на эстонском.
 - [ ] **2527.** You heard how your child is doing and what to practice. Saying more about home can come next time.  
   → Вы узнали, как дела у ребёнка и над чем работать. Рассказать больше о доме можно в следующий раз.
-- [ ] **2528.** The next parent was waiting and the teacher had to stop. That's the evening, not your Estonian.  
-  → Ждал следующий родитель, и учителю пришлось закончить. Дело в вечере, а не в вашем эстонском.
+- [ ] **2528.** The next parent was waiting and the teacher had to stop.  
+  → Ждал следующий родитель, и учителю пришлось закончить.
 - [ ] **2529.** You left before the talk had properly started. Teachers are used to a quick hello.  
   → Вы ушли, не дав разговору толком начаться. Учителя привыкли к коротким приветам.
 - [ ] **2530.** saying why you've come  
@@ -5191,8 +5191,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вы сказали, что не так, что видите и что пробовали, и всё снова работает. Описать неисправность по телефону на эстонском: это настоящее умение.
 - [ ] **2566.** It's working again. Saying what the screen showed would have got you there faster.  
   → Всё снова работает. Если бы вы сказали, что было на экране, получилось бы быстрее.
-- [ ] **2567.** They need to send somebody round. That's the line, not your Estonian.  
-  → Им нужно прислать мастера. Дело в линии, а не в вашем эстонском.
+- [ ] **2567.** They need to send somebody round.  
+  → Им нужно прислать мастера.
 - [ ] **2568.** You hung up before it was sorted. Support is there all day.  
   → Вы положили трубку, не решив проблему. Поддержка работает весь день.
 - [ ] **2569.** Disagreeing in a team meeting  
@@ -5231,8 +5231,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вы не согласились с руководителем, назвали причину, предложили свой день и добились его. На эстонском, вежливо, при всей команде.
 - [ ] **2586.** You got your day. Giving the reason out loud is what makes the next one easier.  
   → Ваш день приняли. Если назвать причину вслух, в следующий раз будет легче.
-- [ ] **2587.** The meeting ran out of time before anything changed. That's meetings, not your Estonian.  
-  → Время совещания вышло раньше, чем что-то изменилось. Дело в совещаниях, а не в вашем эстонском.
+- [ ] **2587.** The meeting ran out of time before anything changed.  
+  → Время совещания вышло раньше, чем что-то изменилось.
 - [ ] **2588.** You left the meeting early. It'll be in the notes.  
   → Вы ушли с совещания раньше. Всё будет в протоколе.
 - [ ] **2589.** Recommending something to a friend  
@@ -5273,8 +5273,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вы сказали, что это было, каким, лучше ли это прошлого и что стоит сходить. Это настоящая рекомендация на эстонском, и друг пойдёт.
 - [ ] **2607.** They're going to see it. Comparing it with the last one would have sealed it.  
   → Друг пойдёт посмотреть. Сравнение с прошлым разом убедило бы окончательно.
-- [ ] **2608.** Their phone went and they had to leave. That's them, not your Estonian.  
-  → Другу позвонили, и ему пришлось уйти. Дело в нём, а не в вашем эстонском.
+- [ ] **2608.** Their phone went and they had to leave.  
+  → Другу позвонили, и ему пришлось уйти.
 - [ ] **2609.** You left before you'd said what it was. Next coffee.  
   → Вы ушли, так и не сказав, что это было. В следующий раз за кофе.
 - [ ] **2610.** A friend has bad news  
@@ -5311,8 +5311,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вы спросили, что случилось, сказали, что вам жаль, и предложили помощь. Это и значит быть другом на эстонском, и это важнее любых окончаний.
 - [ ] **2626.** You asked and you offered help. Saying you're sorry first is the part people remember.  
   → Вы спросили и предложили помощь. А то, что вы сначала сказали «мне жаль», запоминается больше всего.
-- [ ] **2627.** They had to go before you could say much. That's the day they're having, not your Estonian.  
-  → Другу пришлось уйти, прежде чем вы успели многое сказать. Дело в его дне, а не в вашем эстонском.
+- [ ] **2627.** They had to go before you could say much.  
+  → Другу пришлось уйти, прежде чем вы успели многое сказать.
 - [ ] **2628.** You left before they could tell you. A message later would mean a lot.  
   → Вы ушли, не дав другу рассказать. Сообщение потом значило бы для него многое.
 - [ ] **2629.** Asking for a raise  
@@ -5357,8 +5357,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вы попросили денег, объяснили почему, назвали сумму и договорились. Это самый трудный разговор на работе, и вы провели его на эстонском.
 - [ ] **2649.** You got more. Saying what you did is what gets you the next one.  
   → Вам повысили. А то, что вы сделали, стоит сказать вслух, это поможет в следующий раз.
-- [ ] **2650.** There's no money in the budget this year. That's the budget, not your Estonian; you've put it on the table for next year.  
-  → В бюджете в этом году денег нет. Дело в бюджете, а не в вашем эстонском; вы подняли вопрос на следующий год.
+- [ ] **2650.** The budget is tight this year and you didn't get to a figure. You've put it on the table for next year.  
+  → В этом году бюджет ограничен, и до суммы вы не дошли. Вы подняли вопрос на следующий год.
 - [ ] **2651.** You left before you'd asked. The door's still open.  
   → Вы ушли, так и не попросив. Дверь всё ещё открыта.
 - [ ] **2652.** Getting your deposit back  
@@ -5399,8 +5399,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вы вежливо отстояли себя и вернули деньги. Стоять на своём, когда вам говорят «нет»: это самый трудный эстонский.
 - [ ] **2670.** They're paying something back. Saying you left it clean is what gets the rest.  
   → Часть вам вернут. Чтобы получить остальное, скажите, что квартира была чистой.
-- [ ] **2671.** They wouldn't agree to anything on the phone. That's them, not your Estonian; put it in writing next.  
-  → По телефону арендодатель ни на что не согласился. Дело в нём, а не в вашем эстонском; в следующий раз изложите это письменно.
+- [ ] **2671.** They wouldn't agree to anything on the phone. Put it in writing next.  
+  → По телефону арендодатель ни на что не согласился. В следующий раз изложите это письменно.
 - [ ] **2672.** You hung up before you'd asked. The deposit is still yours to ask for.  
   → Вы положили трубку, так и не попросив. Залог всё ещё можно потребовать.
 - [ ] **2673.** saying what isn't working  
@@ -5527,8 +5527,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вы пересказали прочитанное, сказали откуда и что не уверены. Так новости и рассказывают по-эстонски: с дистанцией внутри.
 - [ ] **2734.** They know what's opening and when. Saying where you read it is what makes it news rather than gossip.  
   → Сосед знает, что откроется и когда. А то, где вы это прочитали, отличает новость от сплетни.
-- [ ] **2735.** They were in a hurry and couldn't stop. That's the stairs, not your Estonian.  
-  → Сосед спешил и не мог остановиться. Дело в лестнице, а не в вашем эстонском.
+- [ ] **2735.** They were in a hurry and couldn't stop.  
+  → Сосед спешил и не мог остановиться.
 - [ ] **2736.** You went on up the stairs. There'll be another chance on the way down.  
   → Вы пошли дальше наверх. Шанс будет и на обратном пути.
 - [ ] **2737.** A residents' meeting about the yard  
@@ -5563,8 +5563,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вы сделали предложение, назвали причину, ответили на возражение и добились голосования. Убедить собравшихся соседей на эстонском: это настоящая гражданская жизнь.
 - [ ] **2752.** It's going to a vote. Answering the neighbor about money is what wins it.  
   → Это поставят на голосование. А победу принесёт ответ соседу насчёт денег.
-- [ ] **2753.** The meeting ran out of time. That's meetings, not your Estonian; it's on the list for next time.  
-  → Время собрания закончилось. Дело в собраниях, а не в вашем эстонском; вопрос перенесли на следующий раз.
+- [ ] **2753.** The meeting ran out of time. It's on the list for next time.  
+  → Время собрания закончилось. Вопрос перенесли на следующий раз.
 - [ ] **2754.** You left before proposing anything. There's a meeting every month.  
   → Вы ушли, ничего не предложив. Собрание бывает каждый месяц.
 - [ ] **2755.** Presenting a chart at work  
@@ -5601,8 +5601,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вы сказали, что показывает график, на сколько и почему, и ответили на вопрос. Это презентация на эстонском, с цифрами и всем остальным.
 - [ ] **2771.** They know what happened and by how much. The why is what they'll remember.  
   → Все знают, что произошло и на сколько. А запомнят причину.
-- [ ] **2772.** The meeting overran and your slot was cut. That's the agenda, not your Estonian.  
-  → Совещание затянулось, и ваше выступление сократили. Дело в повестке, а не в вашем эстонском.
+- [ ] **2772.** The meeting overran and your slot was cut.  
+  → Совещание затянулось, и ваше выступление сократили.
 - [ ] **2773.** You didn't present today. It'll keep until next month.  
   → Сегодня вы не выступили. Подождёт до следующего месяца.
 - [ ] **2774.** A book club  
@@ -5639,8 +5639,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вы сказали, что думаете о герое и концовке, и отстояли своё мнение. Это разговор о книге на эстонском.
 - [ ] **2790.** You said what you thought and what you'd change. Agreeing or not out loud is the next step.  
   → Вы сказали, что думаете и что бы изменили. Следующий шаг: вслух согласиться или нет.
-- [ ] **2791.** The café was closing before you got far. That's the café, not your Estonian.  
-  → Кафе закрывалось, и далеко вы не продвинулись. Дело в кафе, а не в вашем эстонском.
+- [ ] **2791.** The café was closing before you got far.  
+  → Кафе закрывалось, и далеко вы не продвинулись.
 - [ ] **2792.** You left before the book came up. Next month's is a short one.  
   → Вы ушли, не дойдя до книги. Книга следующего месяца короткая.
 - [ ] **2793.** asking a friend a favor  
@@ -7895,8 +7895,8 @@ _lib/copy/i18n/areas/app.ts_
   → Напоминание вечером, если вы ещё не занимались
 - [ ] **3910.** Sent at the time you pick below, and only if you haven't studied yet that day.  
   → Приходит в выбранное ниже время и только если в этот день вы ещё не занимались.
-- [ ] **3911.** A note when you've truly learned a level's words  
-  → Письмо, когда вы по-настоящему выучили слова уровня
+- [ ] **3911.** A note when you've learned a level's words  
+  → Письмо, когда вы выучили слова уровня
 - [ ] **3912.** Rare, and always a little late, because a word only counts once you still know it days later.  
   → Приходит редко и всегда с небольшим опозданием, ведь слово засчитывается, только если вы помните его и через несколько дней.
 - [ ] **3913.** A note when a shield saves your streak  
@@ -9711,8 +9711,8 @@ _lib/copy/i18n/areas/rounds.ts_
   → Каждое слово, которое вы добавили сами: из словаря, с фотографии, из вставленного списка или от Ану. Вы выбрали их сами, поэтому здесь до них доходит очередь, не дожидаясь курса.
 - [ ] **4814.** Words you keep missing  
   → Слова, в которых вы ошибаетесь
-- [ ] **4815.** The few cards you keep getting wrong, with a look at why. Sort them out here before they quietly pile up.  
-  → Те немногие карточки, в которых вы раз за разом ошибаетесь, с разбором причин. Разберитесь с ними здесь, пока они тихо не накопились.
+- [ ] **4815.** The few cards you keep getting wrong, with a look at why. Sort them out here before they pile up.  
+  → Те немногие карточки, в которых вы раз за разом ошибаетесь, с разбором причин. Разберитесь с ними здесь, пока они не накопились.
 - [ ] **4816.** Pairs against the clock, and a personal best to beat.  
   → Пары на время и личный рекорд, который можно побить.
 - [ ] **4817.** The crossword, for a Saturday with time to spare.  
@@ -10503,8 +10503,8 @@ _lib/copy/i18n/areas/progress.ts_
   → Ничего. На экзамене одна часть на нуле проваливает весь вариант, как бы ни прошло остальное.
 - [ ] **5207.** Nothing at {level} yet.  
   → На уровне {level} пока ничего.
-- [ ] **5208.** Nothing got measured, so there's no level to show. That's a blank, not a zero.  
-  → Ничего не измерено, поэтому уровня нет. Это пустое место, а не ноль.
+- [ ] **5208.** Nothing got measured, so there's no level to show.  
+  → Ничего не измерено, поэтому уровня нет.
 - [ ] **5209.** Nothing here has heard you speak, and no number on this page pretends it has. How you sound is yours to judge, in {link}.  
   → Здесь никто не слышал, как вы говорите, и ни одна цифра на этой странице не делает вид, что слышал. Как вы звучите, решать вам, в {link}.
 - [ ] **5210.** Nothing here is holding you back. Go sit the paper.  
@@ -10837,8 +10837,8 @@ _lib/copy/i18n/areas/progress.ts_
   → Падежи начинаются с A2. До тех пор курс даёт слова и фразы, а здесь всё заполнится, когда вы начнёте ставить окончания.
 - [ ] **5374.** The choices: {list}.  
   → Варианты: {list}.
-- [ ] **5375.** The course hasn't brought you these words yet, so there's nothing to go on. That's the course's pace, not yours.  
-  → Курс пока не дошёл до этих слов, так что опереться не на что. Это темп курса, а не ваш.
+- [ ] **5375.** The course hasn't brought you these words yet, so there's nothing to go on.  
+  → Курс пока не дошёл до этих слов, так что опереться не на что.
 - [ ] **5376.** The date you picked has gone, so choose a new one whenever you're ready.  
   → Выбранная дата прошла, так что выберите новую, когда будете готовы.
 - [ ] **5377.** The dictionary couldn't fill every task, so this percentage comes from a shorter paper than usual.  
@@ -10987,8 +10987,8 @@ _lib/copy/i18n/areas/progress.ts_
   → Этот результат больше не открыть
 - [ ] **5449.** We could only fill {pct} percent of this paper from the dictionary, so some tasks are shorter than usual. Each part is marked on what was actually set, and your result will say what was missing. Add more words to your deck and the paper fills in over time. Running your own copy of Kodukeel? Turning on live dictionary lookups fills it straight away.  
   → Из словаря удалось заполнить только {pct}% этого варианта, поэтому некоторые задания короче обычного. Каждая часть оценивается по тому, что было задано, а в результате будет сказано, чего не хватило. Добавляйте слова в колоду, и вариант со временем заполнится. Запускаете свою копию Kodukeel? Если включить живой поиск по словарю, он заполнится сразу.
-- [ ] **5450.** We couldn't make the audio. That's our problem, not a mark against your listening, so this section is left out rather than scored as zero.  
-  → Не удалось создать аудио. Это наша проблема, а не минус вашему аудированию, поэтому эта часть исключена, а не засчитана как ноль.
+- [ ] **5450.** We couldn't make the audio, so this section is left out rather than scored as zero.  
+  → Не удалось создать аудио, поэтому эта часть исключена, а не засчитана как ноль.
 - [ ] **5451.** We couldn't put a check together  
   → Не удалось составить проверку
 - [ ] **5452.** We couldn't read that.  
@@ -11163,8 +11163,8 @@ _lib/copy/i18n/areas/progress.ts_
   → Вы бы поняли, а потом застыли, когда настанет ваша очередь
 - [ ] **5537.** You're already at {level} or above. Pick a higher target, or keep your reviews going and take the check again in a couple of months.  
   → Вы уже на уровне {level} или выше. Выберите цель повыше или продолжайте повторять и пройдите проверку снова через пару месяцев.
-- [ ] **5538.** You're not at A1 yet, and that's where almost everybody starts. It's a starting point, not a verdict.  
-  → Вы пока не на уровне A1, и почти все начинают именно отсюда. Это точка отсчёта, а не приговор.
+- [ ] **5538.** You're not at A1 yet, and that's where almost everybody starts.  
+  → Вы пока не на уровне A1, и почти все начинают именно отсюда.
 - [ ] **5539.** You're sitting just this one part, with {n} minutes on the clock. The real exam marks all four parts together, so you'll get a mark for this part, not a pass or a fail. When the time's up, it closes. Your answers are saved on this device as you go.  
   → Вы проходите только эту часть, на часах {n} мин. Настоящий экзамен оценивает все четыре части вместе, так что вы получите балл за эту часть, а не оценку «сдано» или «не сдано». Когда время выйдет, она закроется. Ваши ответы сохраняются на этом устройстве по ходу.
 - [ ] **5540.** You're {short} points short. That's one part's worth, not four.  
@@ -12687,8 +12687,8 @@ _lib/copy/i18n/areas/progress.ts_
   → Пока мало данных
 - [ ] **6299.** You're remembering more than expected  
   → Вы запоминаете больше, чем ожидалось
-- [ ] **6300.** That's a nice problem to have. You've got room for more new words each day, so raise your daily goal in Settings.  
-  → Приятная проблема. У вас есть место для новых слов каждый день, так что поднимите дневную цель в настройках.
+- [ ] **6300.** You've got room for more new words each day, so raise your daily goal in Settings.  
+  → У вас есть место для новых слов каждый день, так что поднимите дневную цель в настройках.
 - [ ] **6301.** You're forgetting more than expected  
   → Вы забываете больше, чем ожидалось
 - [ ] **6302.** Usually too many new words at once, or words met before their grammar. Ease off for a week and read up on the case that keeps going wrong.  
@@ -12921,8 +12921,8 @@ _lib/copy/i18n/areas/course.ts_
   → От тринадцати до миллиона
 - [ ] **6412.** Say a price, a phone number, a floor and a year without running out of numbers.  
   → Называть любую цену, номер телефона, этаж и год: чисел теперь хватит на всё.
-- [ ] **6413.** Two patterns and you've got them all. Teens add -teist and tens add {e1}, so if you can say kolm you can say kolmteist and {e2}. Add -s to the omastav and you get fourth, fifth and so on, which is how you say floors and dates. Third, kolmas, you just learn.  
-  → Две схемы, и все числа ваши. К числам второго десятка добавляется -teist, к десяткам {e1}: умеете сказать kolm, скажете и kolmteist, и {e2}. Добавьте -s к omastav, и получатся «четвёртый», «пятый» и так далее, а с ними этажи и даты. «Третий», kolmas, просто запоминается.
+- [ ] **6413.** Two patterns cover every number. Teens add -teist and tens add {e1}, so if you can say kolm you can say kolmteist and {e2}. Add -s to the omastav and you get fourth, fifth and so on, which is how you say floors and dates. Third, kolmas, you just learn.  
+  → Двух схем хватает на все числа. К числам второго десятка добавляется -teist, к десяткам {e1}: умеете сказать kolm, скажете и kolmteist, и {e2}. Добавьте -s к omastav, и получатся «четвёртый», «пятый» и так далее, а с ними этажи и даты. «Третий», kolmas, просто запоминается.
 - [ ] **6414.** Shopping and getting around  
   → Покупки и как добраться
 - [ ] **6415.** Buy something, ask the price, and find your way to a place in town.  
@@ -14285,8 +14285,8 @@ _lib/copy/i18n/areas/grammarCases.ts_
   → Работать кем-то
 - [ ] **7085.** A role or a capacity you are in for now  
   → Роль или положение, в котором вы сейчас
-- [ ] **7086.** The -ks ending is for getting into a role. This one means you're already in it. Keep those two apart and you've got it.  
-  → По-русски и «стать учителем», и «работать учителем» стоят в творительном падеже, а в эстонском это два окончания: -ks значит, что вы входите в роль, а это окончание значит, что вы уже в ней. Различайте их, и всё получится.
+- [ ] **7086.** The -ks ending is for getting into a role. This one means you're already in it.  
+  → По-русски и «стать учителем», и «работать учителем» стоят в творительном падеже, а в эстонском это два окончания: -ks значит, что вы входите в роль, а это окончание значит, что вы уже в ней.
 - [ ] **7087.** Working as a teacher, for as long as that lasts.  
   → Работать учителем, пока это длится.
 - [ ] **7088.** Without something. The exact opposite of "with", the next one down.  
@@ -15069,8 +15069,8 @@ _lib/copy/i18n/areas/letters.ts_
   → Уже {days} подряд.
 - [ ] **7472.** Kodukeel. The four letters an English keyboard has no key for: o-tilde, a-umlaut, o-umlaut, u-umlaut.  
   → Kodukeel. Четыре буквы, которых нет в русском алфавите: o с тильдой, a, o и u с умлаутом.
-- [ ] **7473.** Your first cards are ready. Here's how it works.  
-  → Ваши первые карточки готовы. Вот как всё устроено.
+- [ ] **7473.** Your first cards are ready.  
+  → Ваши первые карточки готовы.
 - [ ] **7474.** {cards} are already waiting for you, made from the first lessons of your course. Your first evening is {title}, which is {subtitle}.  
   → В вашей колоде уже {cards} из первых уроков курса. Ваш первый вечер: {title}, {subtitle}.
 - [ ] **7475.** {cards} are already waiting for you, made from the first lessons of your course. Open the course and it'll show you where to start.  
@@ -15213,8 +15213,8 @@ _lib/copy/i18n/areas/letters.ts_
   → {places}. Всего одна фраза, и ответ по-английски тоже засчитывается.
 - [ ] **7544.** {phrase} to go until the date you picked.  
   → До выбранной вами даты осталось: {phrase}.
-- [ ] **7545.** You're aiming for {band}, the level where you can {label}. Here's how that's looking.  
-  → Вы идёте к уровню {band}, на котором можно {label}. Вот как обстоят дела.
+- [ ] **7545.** You're aiming for {band}, the level where you can {label}.  
+  → Вы идёте к уровню {band}, на котором можно {label}.
 - [ ] **7546.** A bar, about {pct} percent full, for your chances at {band}.  
   → Полоса заполнена примерно на {pct}%: ваши шансы на {band}.
 - [ ] **7547.** If you sat it today, we'd put your chances of passing at about {pct} percent. {evidence}  
@@ -16724,7 +16724,7 @@ _lib/copy/i18n/areas/legal.ts_
   → \*\*Ваши пробные экзамены.\*\* Сданный вариант сохраняется целиком: уровень, ваш результат и сама проверенная работа, вопрос за вопросом, с тем, что ожидалось, и тем, что ответили вы. Сюда входит и \*\*ваше сочинение\*\*, сохранённое вашими словами, потому что к тексту стоит возвращаться, только если это именно тот текст, который вы написали. Это самое длинное, что вы пишете в этом приложении, поэтому о нём здесь отдельная строка. Брошенный вариант в ваш аккаунт не сохраняется никогда. Устную часть вы оцениваете сами, и ничего из записанного не покидает ваше устройство.
 - [ ] **8290.** \*\*Your conversations in Situations.\*\* Each one you finish is kept whole: who was behind the desk, what was on the role card, what went wrong on purpose, every turn, and where each of the other side's lines came from. \*\*Nothing in a transcript is about you.\*\* You play a patient, a tenant, a customer, with a card of invented facts and a document number that is fiction, and you are never asked for your own. The words a conversation needed and you did not have are kept as a list, so they can be handed back. A conversation you walk out of is kept as one you walked out of; one you abandon by closing the tab is kept on your device only, and goes nowhere until you finish it.  
   → \*\*Ваши разговоры в «Ситуациях».\*\* Каждый законченный разговор сохраняется целиком: кто был по ту сторону стойки, что было в карточке роли, что пошло не так нарочно, каждая реплика и откуда взялась каждая реплика собеседника. \*\*Ничто в записи разговора не касается вас лично.\*\* Вы играете пациента, жильца, покупателя по карточке с выдуманными фактами и вымышленным номером документа, и ваш собственный у вас никогда не спрашивают. Слова, которые понадобились в разговоре и которых у вас не было, сохраняются списком, чтобы их можно было вам вернуть. Разговор, из которого вы ушли, сохраняется как разговор, из которого вы ушли; разговор, брошенный закрытием вкладки, остаётся только на вашем устройстве и никуда не уходит, пока вы его не закончите.
-- [ ] **8291.** \*\*What you said happened out there.\*\* Today asks each morning whether you spoke any Estonian to somebody yesterday. Where the answer is no, that is the whole of it; where it is yes, it asks how it went, in one of three words: they understood me, I got stuck partway, they switched to English. That word and the day are kept, and nothing else: not where you were, not who you spoke to, not what was said. The errand it offers on a day with none is not stored at all.  
+- [ ] **8291.** \*\*What you said happened out there.\*\* Today asks each morning whether you spoke any Estonian to somebody yesterday. Where the answer is no, nothing more is asked; where it is yes, it asks how it went, in one of three words: they understood me, I got stuck partway, they switched to English. That word and the day are kept, and nothing else: not where you were, not who you spoke to, not what was said. The errand it offers on a day with none is not stored at all.  
   → \*\*Что, по вашим словам, было в жизни.\*\* Каждое утро экран «Сегодня» спрашивает, говорили ли вы вчера с кем-нибудь по-эстонски. Если нет, на этом всё; если да, он спрашивает, как всё прошло, одним из трёх вариантов: меня поняли, я застрял на полпути, со мной перешли на английский. Сохраняются этот ответ и день, и больше ничего: ни где вы были, ни с кем говорили, ни что было сказано. Задание, которое он предлагает в день без разговоров, не сохраняется вовсе.
 - [ ] **8292.** \*\*Your class, if you are in one.\*\* Joining with a code stores which class you joined, when, and the name you chose to be known by in it, which is the one place you can be under a name of your own choosing rather than your account. If you run a class, its name and its join code are stored against you. What a teacher sees of a student is only ever effort, never contents: reviews this week, a streak, words known, when they were last here, which grammar the class as a whole is weakest at, and which grammar that student personally is weakest at, as a percentage rolled up over their own reviews. Never a deck, a search or a specific answer. Leaving a class removes your membership of it, and deleting your account removes every class you are in and every class you run.  
   → \*\*Ваша группа, если вы в ней состоите.\*\* При вступлении по коду сохраняется, в какую группу вы вступили, когда и под каким именем вы решили в ней значиться; это единственное место, где вы можете быть под именем по своему выбору, а не под именем аккаунта. Если вы ведёте группу, её название и код для вступления хранятся за вами. Учитель видит у ученика только усилия, никогда не содержимое: повторения за неделю, серию дней, известные слова, когда ученик заходил последний раз, в какой грамматике слабее всего группа в целом и в какой лично этот ученик, в виде процента, сведённого по его собственным повторениям. Никогда не колоду, не поиск и не конкретный ответ. Выход из группы удаляет ваше членство в ней, а удаление аккаунта удаляет все группы, в которых вы состоите, и все, которые вы ведёте.
@@ -17259,8 +17259,8 @@ _lib/copy/i18n/areas/public.ts_
   → Статус соответствия
 - [ ] **8555.** \*\*Partially conformant with WCAG 2.2 level AA.\*\* Partially conformant means most of the app meets the standard, and the parts named below do not.  
   → \*\*Частично соответствует WCAG 2.2, уровень AA.\*\* «Частично» означает, что большая часть приложения соответствует стандарту, а части, названные ниже, нет.
-- [ ] **8556.** It isn’t fully conformant, and here’s the honest reason: nobody who relies on assistive technology has yet been paid to sit down with it and try to use it. Everything below rests on automated checks and on the people who wrote the app testing their own work. That finds a great deal, and it’s still not the same as hearing from somebody the app was failing.  
-  → Полного соответствия нет, и вот честная причина: никому из тех, кто полагается на вспомогательные технологии, ещё не платили за то, чтобы сесть и попробовать им пользоваться. Всё, что ниже, опирается на автоматические проверки и на то, что авторы приложения проверяли собственную работу. Так находится очень многое, но это всё равно не то же самое, что услышать человека, которого приложение подводило.
+- [ ] **8556.** It isn’t fully conformant, because nobody who relies on assistive technology has yet been paid to sit down with it and try to use it. Everything below rests on automated checks and on the people who wrote the app testing their own work. That finds a great deal, and it’s still not the same as hearing from somebody the app was failing.  
+  → Полного соответствия нет, потому что никому из тех, кто полагается на вспомогательные технологии, ещё не платили за то, чтобы сесть и попробовать им пользоваться. Всё, что ниже, опирается на автоматические проверки и на то, что авторы приложения проверяли собственную работу. Так находится очень многое, но это всё равно не то же самое, что услышать человека, которого приложение подводило.
 - [ ] **8557.** How the claim was tested  
   → Как это проверялось
 - [ ] **8558.** Four suites run in the build on every change, against the real app in a real browser rather than against a component in isolation.  
@@ -17559,8 +17559,8 @@ _lib/copy/i18n/areas/public.ts_
   → Что уходит: {lost}
 - [ ] **8705.** The fall is gradual because most of what this app is made of was never bought. The dictionary is Ekilex, the speech is TartuNLP, the English is Wiktionary, and all three are public institutions that decided this work should be available. The scheduler, the course, the exams, the games and the grammar run on a server and a database and nothing else. What money buys is the tutor, the polish, and somebody to work on it.  
   → Спад постепенный, потому что большую часть того, из чего сделано это приложение, никогда не покупали. Словарь даёт Ekilex, озвучку TartuNLP, английский перевод Викисловарь, и все три являются общественными институтами, решившими, что эта работа должна быть доступна. Расписание, курс, экзамены, игры и грамматика работают на сервере и базе данных, и больше ни на чём. На деньги покупаются репетитор, доводка и человек, который над всем этим работает.
-- [ ] **8706.** So the honest claim is not that this becomes profitable. It is that at ${floor} a month it can be kept alive by one person who has not been paid, and that it keeps teaching Estonian the whole way down.  
-  → Поэтому честное утверждение не в том, что это станет прибыльным. А в том, что за {floor} $ в месяц его может поддерживать один человек, которому не платят, и что оно учит эстонскому на каждом шаге этого спада.
+- [ ] **8706.** This will not become profitable. At ${floor} a month it can be kept alive by one person who has not been paid, and it keeps teaching Estonian the whole way down.  
+  → Прибыльным это не станет. Но за {floor} $ в месяц его может поддерживать один человек, которому не платят, и оно учит эстонскому на каждом шаге этого спада.
 - [ ] **8707.** What survives even that  
   → Что переживёт даже это
 - [ ] **8708.** Six things, and every one of them is a file somebody can open rather than an intention somebody has stated.  
@@ -23756,7 +23756,7 @@ _lib/copy/i18n/areas/wordplay.ts_
   → лупа времени
 - [ ] **11782.** slow motion _(context: wordplay)_  
   → замедленная съёмка
-- [ ] **11783.** A magnifying glass held up to time. Quietly one of the loveliest words in the language. _(context: wordplay)_  
+- [ ] **11783.** A magnifying glass held up to time. One of the loveliest words in the language. _(context: wordplay)_  
   → Лупа, поднесённая ко времени. Пожалуй, одно из самых красивых слов в языке.
 - [ ] **11784.** magnifying glass _(context: wordplay)_  
   → лупа

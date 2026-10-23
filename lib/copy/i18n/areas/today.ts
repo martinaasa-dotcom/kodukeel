@@ -490,8 +490,8 @@ export const TODAY: Area = {
     "Вы прошли {pct}% пути от начала {start} до {target}. Сплошная часть растёт, только когда слово действительно закрепилось в повторениях, а не когда вы отмечаете вечер. Сейчас вы здесь: {part}.",
   "You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you check off an evening.":
     "Вы прошли {pct}% пути от начала {start} до {target}. Сплошная часть растёт, только когда слово действительно закрепилось в повторениях, а не когда вы отмечаете вечер.",
-  "Every level up to {target} counts as yours already. What's left is proving it, and that's what the evenings are for.":
-    "Все уровни до {target} уже засчитаны вам. Осталось это подтвердить, для этого и нужны вечера.",
+  "Every level up to {target} counts as yours already, and the evenings check it word by word.":
+    "Все уровни до {target} уже засчитаны вам, а вечера проверяют их слово за словом.",
   "Pick a target in Settings and this becomes the one number worth keeping an eye on.":
     "Выберите цель в настройках, и это станет главной цифрой, за которой стоит следить.",
   "Your level check put you at {level}, so {levels} count as yours. You won't have to redo anything below your level.":
@@ -526,10 +526,10 @@ export const TODAY: Area = {
     "{evenings} от самого первого слова до C1. Все они короткие, и каждый мы уже спланировали.",
   "You've been choosing what to do each evening. Starting this won't change anything else.":
     "Вы сами выбирали, чем заниматься каждый вечер. Если начать курс, больше ничего не изменится.",
-  "It starts at {start}, where you are now. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.":
-    "Курс начинается с {start}, там, где вы сейчас. Это план, на который можно опереться, а не колея, из которой не выбраться, и всё остальное в приложении остаётся на своих местах.",
-  "It starts at {start}, the level after the {level} you already have. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.":
-    "Курс начинается с {start}, следующего уровня после вашего {level}. Это план, на который можно опереться, а не колея, из которой не выбраться, и всё остальное в приложении остаётся на своих местах.",
+  "It starts at {start}, where you are now. You can step off it whenever you like, and everything else in the app stays where it is.":
+    "Курс начинается с {start}, там, где вы сейчас. Сойти с него можно в любой момент, и всё остальное в приложении остаётся на своих местах.",
+  "It starts at {start}, the level after the {level} you already have. You can step off it whenever you like, and everything else in the app stays where it is.":
+    "Курс начинается с {start}, следующего уровня после вашего {level}. Сойти с него можно в любой момент, и всё остальное в приложении остаётся на своих местах.",
   "{part} is finished":
     "Часть «{part}» пройдена",
   "All {total} evenings done. Every word you met is in your reviews now.":
@@ -682,8 +682,8 @@ export const TODAY: Area = {
     "Соберите настоящее эстонское предложение слово за словом. Сделайте так несколько раз, и вы начнёте чувствовать, что куда ставится.",
   "Hear a whole sentence and write it down. This is where long and short vowels stop being a rule and start being a sound.":
     "Послушайте целое предложение и запишите его. Именно здесь долгие и краткие гласные перестают быть правилом и становятся звуком.",
-  "Look at a picture and write one sentence of your own about it. That's what all these words are for.":
-    "Посмотрите на картинку и напишите о ней одно своё предложение. Ради этого и нужны все эти слова.",
+  "Look at a picture and write one sentence of your own about it.":
+    "Посмотрите на картинку и напишите о ней одно своё предложение.",
   "Guess today's six-letter word. Three minutes, and Estonian letters start feeling like old friends.":
     "Угадайте слово дня из шести букв. Три минуты, и эстонские буквы начинают казаться старыми знакомыми.",
   "Four versions of one word, and a question telling you which one to hit. Only the ending tells them apart, so you learn to read it fast.":
@@ -1568,8 +1568,8 @@ export const TODAY: Area = {
     "Ви пройшли {pct}% шляху від початку {start} до {target}. Суцільна частина росте, лише коли слово справді закріпилося в повтореннях, а не коли ви позначаєте вечір. Зараз ви тут: {part}.",
   "You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you check off an evening.":
     "Ви пройшли {pct}% шляху від початку {start} до {target}. Суцільна частина росте, лише коли слово справді закріпилося в повтореннях, а не коли ви позначаєте вечір.",
-  "Every level up to {target} counts as yours already. What's left is proving it, and that's what the evenings are for.":
-    "Усі рівні до {target} уже зараховано вам. Лишилося це підтвердити, для цього й потрібні вечори.",
+  "Every level up to {target} counts as yours already, and the evenings check it word by word.":
+    "Усі рівні до {target} уже зараховано вам, а вечори перевіряють їх слово за словом.",
   "Pick a target in Settings and this becomes the one number worth keeping an eye on.":
     "Виберіть мету в налаштуваннях, і це стане єдиним числом, за яким варто стежити.",
   "Your level check put you at {level}, so {levels} count as yours. You won't have to redo anything below your level.":
@@ -1604,10 +1604,10 @@ export const TODAY: Area = {
     "Від найпершого слова аж до C1: {evenings}. Усі вони короткі, і кожен ми вже спланували.",
   "You've been choosing what to do each evening. Starting this won't change anything else.":
     "Ви самі вибирали, чим займатися щовечора. Якщо почати курс, більше нічого не зміниться.",
-  "It starts at {start}, where you are now. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.":
-    "Курс починається з {start}, там, де ви зараз. Це план, на який можна спертися, а не колія, з якої не вибратися, і все інше в застосунку лишається на своїх місцях.",
-  "It starts at {start}, the level after the {level} you already have. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.":
-    "Курс починається з {start}, наступного рівня після вашого {level}. Це план, на який можна спертися, а не колія, з якої не вибратися, і все інше в застосунку лишається на своїх місцях.",
+  "It starts at {start}, where you are now. You can step off it whenever you like, and everything else in the app stays where it is.":
+    "Курс починається з {start}, там, де ви зараз. Зійти з нього можна будь-коли, і все інше в застосунку лишається на своїх місцях.",
+  "It starts at {start}, the level after the {level} you already have. You can step off it whenever you like, and everything else in the app stays where it is.":
+    "Курс починається з {start}, наступного рівня після вашого {level}. Зійти з нього можна будь-коли, і все інше в застосунку лишається на своїх місцях.",
   "{part} is finished":
     "Частину «{part}» пройдено",
   "All {total} evenings done. Every word you met is in your reviews now.":
@@ -1760,8 +1760,8 @@ export const TODAY: Area = {
     "Зберіть справжнє естонське речення слово за словом. Зробіть так кілька разів, і ви почнете відчувати, що куди ставиться.",
   "Hear a whole sentence and write it down. This is where long and short vowels stop being a rule and start being a sound.":
     "Послухайте ціле речення і запишіть його. Саме тут довгі й короткі голосні перестають бути правилом і стають звуком.",
-  "Look at a picture and write one sentence of your own about it. That's what all these words are for.":
-    "Подивіться на картинку і напишіть про неї одне своє речення. Саме для цього й потрібні всі ці слова.",
+  "Look at a picture and write one sentence of your own about it.":
+    "Подивіться на картинку і напишіть про неї одне своє речення.",
   "Guess today's six-letter word. Three minutes, and Estonian letters start feeling like old friends.":
     "Вгадайте слово дня з шести літер. Три хвилини, і естонські літери починають здаватися старими знайомими.",
   "Four versions of one word, and a question telling you which one to hit. Only the ending tells them apart, so you learn to read it fast.":

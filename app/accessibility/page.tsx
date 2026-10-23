@@ -91,7 +91,7 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
           {rich(t("**Partially conformant with WCAG 2.2 level AA.** Partially conformant means most of the app meets the standard, and the parts named below do not."))}
         </P>
         <P>
-          {t("It isn’t fully conformant, and here’s the honest reason: nobody who relies on assistive technology has yet been paid to sit down with it and try to use it. Everything below rests on automated checks and on the people who wrote the app testing their own work. That finds a great deal, and it’s still not the same as hearing from somebody the app was failing.")}
+          {t("It isn’t fully conformant, because nobody who relies on assistive technology has yet been paid to sit down with it and try to use it. Everything below rests on automated checks and on the people who wrote the app testing their own work. That finds a great deal, and it’s still not the same as hearing from somebody the app was failing.")}
         </P>
       </S>
 

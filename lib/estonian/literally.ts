@@ -270,7 +270,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "slow-motion", word: "aegluup",
     parts: [p("aeg", "aeg", "time"), p("luup", "luup", "magnifying glass")],
     literal: "time magnifying glass", means: "slow motion",
-    quip: "A magnifying glass held up to time. Quietly one of the loveliest words in the language.",
+    quip: "A magnifying glass held up to time. One of the loveliest words in the language.",
   },
   {
     id: "schadenfreude", word: "kahjurõõm",

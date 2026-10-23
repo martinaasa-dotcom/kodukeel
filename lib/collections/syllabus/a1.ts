@@ -909,7 +909,7 @@ export const A1 = [
     level: "A1",
     module: "Esimesed sammud",
     canDo: "Say a price, a phone number, a floor and a year without running out of numbers.",
-    blurb: "Two patterns and you've got them all. Teens add -teist and tens add -kümmend, so if you can say kolm you can say kolmteist and kolmkümmend. Add -s to the omastav and you get fourth, fifth and so on, which is how you say floors and dates. Third, kolmas, you just learn.",
+    blurb: "Two patterns cover every number. Teens add -teist and tens add -kümmend, so if you can say kolm you can say kolmteist and kolmkümmend. Add -s to the omastav and you get fourth, fifth and so on, which is how you say floors and dates. Third, kolmas, you just learn.",
     grammar: ["numerals", "partitive"],
     cardTypes: ["RECOGNITION", "PRODUCTION"],
     requires: ["arvud"],

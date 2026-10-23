@@ -121,7 +121,7 @@ const ARRANGING: SceneSpec = {
   ],
   outcomes: [
     { id: "settled", when: ["greet", "idea", "day", "free", "time", "close"], says: "You said no to their evening, gave your own, and settled a time. That's an arrangement made in Estonian." },
-    { id: "settled-thin", when: ["idea", "free", "time"], says: "You've got a day and a time. Saying no first is the harder half, and it'll come." },
+    { id: "settled-thin", when: ["idea", "free", "time"], says: "You've got a day and a time. Turning down the first offer is what's left to practice." },
     { id: "plans-changed", when: ["greet", "idea"], says: "Something came up on their side and the plan fell through. You'd said yes, which was the part that was yours." },
     { id: "left", when: [], says: "You hung up before anything was settled. Ring them back; friends don't mind." },
   ],

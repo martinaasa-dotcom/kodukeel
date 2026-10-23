@@ -700,7 +700,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
             <p className="mt-1.5 text-sm" style={{ color: "var(--sky-ink)" }}>
               {withLink(
                 fill(
-                  t("{places}. Nobody there has seen your card, so you'll say it your own way, which is the whole point. Tomorrow, the [Today] screen will ask how it went."),
+                  t("{places}. Nobody there has seen your card, so you'll say it your own way. Tomorrow, the [Today] screen will ask how it went."),
                   { places: placesIn(locale, errand, t) },
                 ),
                 (words) => <Link href="/">{words}</Link>,

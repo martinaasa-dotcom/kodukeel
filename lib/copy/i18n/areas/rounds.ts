@@ -695,7 +695,7 @@ export const ROUNDS: Area = {
     "From your own adds": "Из ваших добавлений",
     "Every word you added yourself, from the dictionary, a photo, a pasted list or Anu. You picked them, so here they get a turn without waiting behind the course.": "Каждое слово, которое вы добавили сами: из словаря, с фотографии, из вставленного списка или от Ану. Вы выбрали их сами, поэтому здесь до них доходит очередь, не дожидаясь курса.",
     "Words you keep missing": "Слова, в которых вы ошибаетесь",
-    "The few cards you keep getting wrong, with a look at why. Sort them out here before they quietly pile up.": "Те немногие карточки, в которых вы раз за разом ошибаетесь, с разбором причин. Разберитесь с ними здесь, пока они тихо не накопились.",
+    "The few cards you keep getting wrong, with a look at why. Sort them out here before they pile up.": "Те немногие карточки, в которых вы раз за разом ошибаетесь, с разбором причин. Разберитесь с ними здесь, пока они не накопились.",
     "Pairs against the clock, and a personal best to beat.": "Пары на время и личный рекорд, который можно побить.",
     "The crossword, for a Saturday with time to spare.": "Кроссворд для субботы, когда есть свободное время.",
     "Marked: {grade}":
@@ -1702,7 +1702,7 @@ export const ROUNDS: Area = {
     "From your own adds": "Додані вами",
     "Every word you added yourself, from the dictionary, a photo, a pasted list or Anu. You picked them, so here they get a turn without waiting behind the course.": "Кожне слово, яке ви додали самі: зі словника, з фотографії, зі вставленого списку чи від Ану. Ви вибрали їх самі, тож тут до них доходить черга, не чекаючи на курс.",
     "Words you keep missing": "Слова, у яких ви помиляєтеся",
-    "The few cards you keep getting wrong, with a look at why. Sort them out here before they quietly pile up.": "Ті кілька карток, у яких ви раз у раз помиляєтеся, з розбором причин. Розберіться з ними тут, доки вони тихо не накопичилися.",
+    "The few cards you keep getting wrong, with a look at why. Sort them out here before they pile up.": "Ті кілька карток, у яких ви раз у раз помиляєтеся, з розбором причин. Розберіться з ними тут, доки вони не накопичилися.",
     "A short round on whatever tripped you up this week.": "Короткий раунд на все, на чому ви спотикалися цього тижня.",
     "Pairs against the clock, and a personal best to beat.": "Пари на час і особистий рекорд, який можна побити.",
     "The crossword, for a Saturday with time to spare.": "Кросворд для суботи, коли є вільний час.",

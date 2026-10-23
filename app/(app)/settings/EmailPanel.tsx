@@ -40,7 +40,7 @@ const LETTERS: { kind: EmailKind; title: string; detail: string }[] = [
   },
   {
     kind: "milestone",
-    title: "A note when you've truly learned a level's words",
+    title: "A note when you've learned a level's words",
     detail:
       "Rare, and always a little late, because a word only counts once you still know it days later.",
   },

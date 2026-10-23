@@ -40,14 +40,14 @@ export default function aSentenceEndsWhenItsFactsDo({ check }: InvariantKit) {
   });
 
   check("the flourish is found through a curly apostrophe as well as a straight one", () => {
-    for (const line of ["That’s the whole trick.", "No date is set, so that's the whole story.", "Here’s the secret: three forms."]) {
+    for (const line of ["That’s the whole trick.", "No date is set, so that's the whole story.", "Here’s the secret: three forms.", "That’s markets, not your Estonian.", "It’s a starting point, not a verdict, and it’ll come."]) {
       assert.ok(findTells(line).length > 0, `nothing caught: ${line}`);
     }
   });
 
   check("Anu is told not to end on a flourish", () => {
     const rules = VOICE_RULES.join("\n");
-    for (const phrase of ["whole story", "Here's the secret", "and that's fine"]) {
+    for (const phrase of ["whole story", "Here's the secret", "and that's fine", "not your Estonian", "and it'll come"]) {
       assert.ok(rules.includes(phrase), `VOICE_RULES no longer names "${phrase}", so Anu may say what a screen may not`);
     }
   });

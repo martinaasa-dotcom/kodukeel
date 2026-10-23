@@ -47,7 +47,7 @@ export const LETTERS: Area = {
     // The first letter.
     "Kodukeel. The four letters an English keyboard has no key for: o-tilde, a-umlaut, o-umlaut, u-umlaut.":
       "Kodukeel. Четыре буквы, которых нет в русском алфавите: o с тильдой, a, o и u с умлаутом.",
-    "Your first cards are ready. Here's how it works.": "Ваши первые карточки готовы. Вот как всё устроено.",
+    "Your first cards are ready.": "Ваши первые карточки готовы.",
     "{cards} are already waiting for you, made from the first lessons of your course. Your first evening is “{title}”, which is {subtitle}.":
       "В вашей колоде уже {cards} из первых уроков курса. Ваш первый вечер: «{title}», {subtitle}.",
     "{cards} are already waiting for you, made from the first lessons of your course. Open the course and it'll show you where to start.":
@@ -159,8 +159,8 @@ export const LETTERS: Area = {
 
     // The date somebody set.
     "{phrase} to go until the date you picked.": "До выбранной вами даты осталось: {phrase}.",
-    "You're aiming for {band}, the level where you can {label}. Here's how that's looking.":
-      "Вы идёте к уровню {band}, на котором можно {label}. Вот как обстоят дела.",
+    "You're aiming for {band}, the level where you can {label}.":
+      "Вы идёте к уровню {band}, на котором можно {label}.",
     "A bar, about {pct} percent full, for your chances at {band}.": "Полоса заполнена примерно на {pct}%: ваши шансы на {band}.",
     "If you sat it today, we'd put your chances of passing at about {pct} percent. {evidence}":
       "Если бы вы сдавали сегодня, мы оценили бы шансы сдать примерно в {pct}%. {evidence}",
@@ -242,7 +242,7 @@ export const LETTERS: Area = {
     // The first letter.
     "Kodukeel. The four letters an English keyboard has no key for: o-tilde, a-umlaut, o-umlaut, u-umlaut.":
       "Kodukeel. Чотири літери, яких немає в українській абетці: o з тильдою, a, o та u з умлаутом.",
-    "Your first cards are ready. Here's how it works.": "Ваші перші картки готові. Ось як усе влаштовано.",
+    "Your first cards are ready.": "Ваші перші картки готові.",
     "{cards} are already waiting for you, made from the first lessons of your course. Your first evening is “{title}”, which is {subtitle}.":
       "У вашій колоді вже {cards} з перших уроків курсу. Ваш перший вечір: «{title}», {subtitle}.",
     "{cards} are already waiting for you, made from the first lessons of your course. Open the course and it'll show you where to start.":
@@ -354,8 +354,8 @@ export const LETTERS: Area = {
 
     // The date somebody set.
     "{phrase} to go until the date you picked.": "До обраної вами дати лишилося: {phrase}.",
-    "You're aiming for {band}, the level where you can {label}. Here's how that's looking.":
-      "Ви йдете до рівня {band}, на якому можна {label}. Ось як справи.",
+    "You're aiming for {band}, the level where you can {label}.":
+      "Ви йдете до рівня {band}, на якому можна {label}.",
     "A bar, about {pct} percent full, for your chances at {band}.": "Смуга заповнена приблизно на {pct}%: ваші шанси на {band}.",
     "If you sat it today, we'd put your chances of passing at about {pct} percent. {evidence}":
       "Якби ви складали сьогодні, ми оцінили б шанси скласти приблизно в {pct}%. {evidence}",

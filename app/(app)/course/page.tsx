@@ -117,8 +117,8 @@ export default async function CoursePage({
               {chosen
                 ? t("You've been choosing what to do each evening. Starting this won't change anything else.")
                 : opening.level === level
-                  ? fill(t("It starts at {start}, where you are now. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is."), { start: opening.level })
-                  : fill(t("It starts at {start}, the level after the {level} you already have. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is."), { start: opening.level, level })}
+                  ? fill(t("It starts at {start}, where you are now. You can step off it whenever you like, and everything else in the app stays where it is."), { start: opening.level })
+                  : fill(t("It starts at {start}, the level after the {level} you already have. You can step off it whenever you like, and everything else in the app stays where it is."), { start: opening.level, level })}
             </p>
           </Card>
 

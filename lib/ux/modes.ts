@@ -396,7 +396,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     tone: "blush", group: "targeted", note: "From your log",
     blurb:
       "The few cards you keep getting wrong, with a look at why. Sort them out here before " +
-      "they quietly pile up.",
+      "they pile up.",
     within: "/progress",
   },
 ];

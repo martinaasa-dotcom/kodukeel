@@ -120,7 +120,7 @@ const NEW_LETTERS = { a: "õ", b: "ä", c: "ö", d: "ü" } as const;
 function NewLettersNote({ t }: { t: (english: string) => string }) {
   return (
     <Note tone="sky">
-      {fill(t("Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. You don’t have to say them right yet. That comes with time."), NEW_LETTERS)}
+      {fill(t("Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. For now, recognizing them is enough."), NEW_LETTERS)}
     </Note>
   );
 }

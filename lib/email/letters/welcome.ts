@@ -57,7 +57,7 @@ export function welcomeLetter(input: WelcomeInput): Letter {
     alt: say("Kodukeel. The four letters an English keyboard has no key for: o-tilde, a-umlaut, o-umlaut, u-umlaut."),
   });
 
-  blocks.push({ t: "heading", text: say("Your first cards are ready. Here's how it works.") });
+  blocks.push({ t: "heading", text: say("Your first cards are ready.") });
 
   /*
     ENDOWED PROGRESS: THE DECK IS ALREADY THERE.

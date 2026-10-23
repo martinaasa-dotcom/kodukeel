@@ -1074,6 +1074,14 @@ describe("the voice table catches what it claims to and nothing else", () => {
       "Work on your accent before the exam.",
       // The line a reader reported off the landing page, and its family.
       "No date is set, so that's the whole story.",
+      "The stall ran out of the second thing before you got to it. That's markets, not your Estonian.",
+      "They didn't know the place either. That happens, and it wasn't your Estonian.",
+      "It wasn't your bus after all, and you found out before getting on, which is the whole point of asking.",
+      "It isn't fully conformant, and here's the honest reason: nobody has tested it.",
+      "You've got a day and a time. Saying no first is the harder half, and it'll come.",
+      "That's a nice problem to have.",
+      "Keep those two apart and you've got it.",
+      "Tomorrow's a trip, not a gamble.",
       "All eleven, from that one form. That’s the whole trick.",
       "Fourteen cases sounds like a lot. Here’s the secret: you learn three.",
       "No cards this week, and that's fine.",
@@ -1114,6 +1122,11 @@ describe("the voice table catches what it claims to and nothing else", () => {
       "Ask again, or ask for the short version.",
       "At the pace you said, plus the Estonian already in your week, B2 is about 104 weeks away.",
       "Not yet, but soon.",
+      "Your one card is having a rest. It'll come back when it's time.",
+      "Not quite. It'll come around again soon.",
+      "Based on your own answers, not a guess.",
+      "A reading is not a verdict on an answer.",
+      "Interest, and a compliment on your Estonian.",
     ];
     for (const line of written) {
       expect(findTells(line).map((t) => t.name), `false positive: ${line}`).toEqual([]);

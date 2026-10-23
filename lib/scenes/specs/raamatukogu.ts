@@ -108,9 +108,9 @@ const LIBRARY: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "card", when: ["greet", "want", "month", "phone", "check", "close"], says: "You've got a library card, and the number on it is right because you checked it. That's how a form gets filled in out loud." },
+    { id: "card", when: ["greet", "want", "month", "phone", "check", "close"], says: "You've got a library card, and the number on it is right because you checked it." },
     { id: "card-thin", when: ["want", "month", "phone"], says: "They have what they need for the card. Checking the number when they read it back is the next step." },
-    { id: "come-back", when: ["greet", "want"], says: "Their system went down before they could make the card. Not your Estonian; come back tomorrow." },
+    { id: "come-back", when: ["greet", "want"], says: "Their system went down before they could make the card. Come back tomorrow." },
     { id: "left", when: [], says: "You left before the card was made. Libraries open early, and you can try again." },
   ],
 };

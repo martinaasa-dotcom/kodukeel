@@ -386,12 +386,12 @@ const MACHINE: Tell[] = [
 const FLOURISH: Tell[] = [
   {
     name: "the whole story",
-    find: /\bthe whole story\b|\bthat('s| is| was) the whole (trick|point|idea|secret|thing|conversation|lesson)\b/i,
+    find: /\bthe whole story\b|\b(that|which)('s| is| was) the whole (trick|point|idea|secret|thing|conversation|lesson|of it)\b/i,
     instead: "Delete it. If the sentence before said everything, stop there.",
   },
   {
     name: "and that's it",
-    find: /\band that('s| is) it\b|\bthat('s| is) all there is to it\b/i,
+    find: /\band that('s| is) it\b|\bthat('s| is) all there is to it\b|\b(and|then) you('ve| have) got (it|them all)\./i,
     instead: "Delete it, or name the one thing that is left.",
   },
   {
@@ -406,7 +406,7 @@ const FLOURISH: Tell[] = [
   },
   {
     name: "long story short",
-    find: /\blong story short\b|\bin a nutshell\b|\bthe bottom line\b|\bthe short version[:,]|\bmake no mistake\b|\bbelieve it or not\b|\blet's be honest\b|\bto be honest,|\bit's no secret\b|\b(an|one) honest (note|word)\b/i,
+    find: /\blong story short\b|\bin a nutshell\b|\bthe bottom line\b|\bthe short version[:,]|\bmake no mistake\b|\bbelieve it or not\b|\blet's be honest\b|\bto be honest,|\bit's no secret\b|\b(an|one) honest (note|word)\b|\bthe honest (reason|claim)\b|\bhere('s| is) the honest\b/i,
     instead: "Delete the signpost and say the thing it points at.",
   },
   {
@@ -416,7 +416,7 @@ const FLOURISH: Tell[] = [
   },
   {
     name: "don't worry",
-    find: /\bdon't worry\b|\bdo not worry\b|\bno worries\b|\byou('ve)? got this\b|\bno pressure[.!,]/i,
+    find: /\bdon't worry\b|\bdo not worry\b|\bno worries\b|\byou('ve)? got this\b|\bno pressure[.!,]|, and it('ll| will) come\b|\bthat comes with time\b|\byou('ll| will) get there\b/i,
     instead: "Say what is still safe or what happens next: 'your turn is still here'.",
   },
   {
@@ -428,6 +428,11 @@ const FLOURISH: Tell[] = [
     name: "it's not you",
     find: /\byou didn't fail\b|\bit('s| is) not you\b/i,
     instead: "Say what the app does differently. A slogan about the reader's past is the advert.",
+  },
+  {
+    name: "not your fault",
+    find: /\b(not|wasn't|isn't|is not|was not) (in )?your Estonian\b|\bthat happens, and\b|\bnot a mark against\b|\bnot a gamble\b|\ba nice problem to have\b/i,
+    instead: "Say what happened. The facts already show whose doing it was, and a reassurance on top is the advert.",
   },
   {
     name: "straight to the point",
@@ -525,6 +530,7 @@ export const VOICE_RULES: readonly string[] = [
   `Never use an em dash (${EM_DASH}) or an en dash (${EN_DASH}). Use a comma, a period, or a pair of parentheses. A dash used as a clause break is the loudest sign a sentence was generated rather than written, and this learner is being taught by a person. Give one figure rather than a range, "about 3 weeks" rather than "2 to 4 weeks": a range reads as not knowing. Write years as "2028-2029".`,
   `Never open with "It's important to note that", "At the end of the day", "In essence", "Great question", "Moreover", "Furthermore" or anything else that carries no information. Start with the answer.`,
   `Never end on a flourish that adds no fact: "and that's the whole story", "that's the whole trick", "and that's it", "simple as that", "and that's fine", "don't worry". Never stage a reveal: "Here's the secret:", "the good news is", "the short version:", "now imagine". Stop when the facts stop. A reader hears the flourish as a machine finishing a paragraph.`,
+  `Never tack a reassurance or a slogan onto the facts: "That's the bank, not your Estonian", "a starting point, not a verdict", "a trip, not a gamble", "and it'll come", "the honest reason is". When something went wrong that was not the learner's doing, say what happened; the facts already show it.`,
   `Never inflate a small claim by denying it first. "Not just a rule, but a pattern" is "a rule, and a pattern". Say what a thing is.`,
   `Never reach for a brochure word: delve, leverage, utilize, seamless, cutting-edge, groundbreaking, holistic, bespoke, meticulously, a plethora of, embark on, unleash, empower, elevate. Use the plain word a teacher would use out loud.`,
   `Never say "paradigm". A learner has met "the forms of a word", "the case endings" and "the table" in class and has not met that one, so use theirs. The same goes for any other word that belongs to writing about a language rather than to teaching it.`,

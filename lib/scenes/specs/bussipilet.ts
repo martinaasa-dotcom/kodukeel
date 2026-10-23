@@ -118,7 +118,7 @@ const TICKET: SceneSpec = {
   outcomes: [
     { id: "ticket", when: ["greet", "want", "to", "when", "pay", "close"], says: "You've got a ticket for the right bus, and it's paid for." },
     { id: "ticket-thin", when: ["want", "to", "pay"], says: "You've got a ticket. They had to guess the time, so check it before you get on." },
-    { id: "no-bus", when: ["greet", "want", "to"], says: "There's no bus there today. Blame the schedule, not your Estonian." },
+    { id: "no-bus", when: ["greet", "want", "to"], says: "There's no bus there today." },
     { id: "left", when: [], says: "You stepped away from the window. The next bus is in an hour." },
   ],
 };

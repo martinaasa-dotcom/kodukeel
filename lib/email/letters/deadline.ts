@@ -77,7 +77,7 @@ export function deadlineLetter(input: DeadlineInput): Letter {
   blocks.push({ t: "heading", text: say("{phrase} to go until the date you picked.", { phrase: input.phrase }) });
   blocks.push({
     t: "text",
-    text: say("You're aiming for {band}, the level where you can {label}. Here's how that's looking.", {
+    text: say("You're aiming for {band}, the level where you can {label}.", {
       band: input.band,
       label: input.label.toLowerCase(),
     }),

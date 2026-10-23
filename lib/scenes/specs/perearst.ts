@@ -192,7 +192,7 @@ const FAMILY_DOCTOR: SceneSpec = {
   outcomes: [
     { id: "treated", when: ["greet", "hurts", "since", "bad", "take", "again", "close"], says: "You said what was wrong, since when and how bad, and you checked how to take the tablets. That's a doctor's visit done properly." },
     { id: "treated-thin", when: ["hurts", "since", "take"], says: "You've got what you need and you know how to take it. Saying how bad it is would have helped the doctor more." },
-    { id: "referred", when: ["greet", "hurts"], says: "They sent you to a specialist before you got any further. That's the system, not your Estonian." },
+    { id: "referred", when: ["greet", "hurts"], says: "They sent you to a specialist before you got any further." },
     { id: "left", when: [], says: "You left before the doctor had finished. You can always ring the surgery back." },
   ],
 };

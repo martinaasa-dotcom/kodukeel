@@ -303,6 +303,30 @@ ends at "away." now. The same pass took out its relatives across the app:
 | Something went wrong on our side. Don't worry, your turn is still here. | Something went wrong on our side. Your turn is still here. |
 | These terms are short because the deal is simple: use it to learn Estonian | Use it to learn Estonian |
 
+A second pass read every English line the app translates, not only the ones a list of phrases
+could find, and found the same habit in a quieter costume: a reassurance or a slogan tacked onto
+facts that already made the point. Twenty conversations ended on "That's the bank, not your
+Estonian", one per scene with the noun swapped, which is a template a reader spots by the third
+time. The facts before it ("Their system wouldn't open accounts today") already say whose doing it
+was.
+
+| Was | Is |
+| --- | --- |
+| Their system wouldn't open accounts today. That's the bank, not your Estonian; you can book a time to come back. | Their system wouldn't open accounts today. You can book a time to come back. |
+| They didn't know the place either. That happens, and it wasn't your Estonian. | They didn't know the place either. |
+| You're not at A1 yet, and that's where almost everybody starts. It's a starting point, not a verdict. | You're not at A1 yet, and that's where almost everybody starts. |
+| They've got it, you know when they open, and you checked the time. Tomorrow's a trip, not a gamble. | They've got it, you know when they open, and you checked the time. |
+| You've got a neighbor now, and they know your floor. That's how a building starts to know you. | You've got a neighbor now, and they know your floor. |
+| You've got a day and a time. Saying no first is the harder half, and it'll come. | You've got a day and a time. Turning down the first offer is what's left to practice. |
+| It isn't fully conformant, and here's the honest reason: nobody who relies on assistive technology | It isn't fully conformant, because nobody who relies on assistive technology |
+| That's a nice problem to have. You've got room for more new words each day | You've got room for more new words each day |
+| You don't have to say them right yet. That comes with time. | For now, recognizing them is enough. |
+| Two patterns and you've got them all. | Two patterns cover every number. |
+
+Where the tail was the only useful thing in the sentence, it became the useful thing said plainly:
+"Saying no first is the harder half, and it'll come" was gesturing at what to practice next, so
+the line now names it.
+
 The test is the same as for every line in this section: read it aloud to somebody across a table.
 Nobody closes a fact with "and that's the whole story" when the person in front of them can see
 the fact was complete. `lib/copy/voice.ts` holds the phrases a machine can find (the `FLOURISH`

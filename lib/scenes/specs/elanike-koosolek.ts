@@ -114,7 +114,7 @@ const RESIDENTS_MEETING: SceneSpec = {
   outcomes: [
     { id: "voted", when: ["greet", "idea", "why", "cost", "vote", "close"], says: "You proposed something, gave a reason, answered the objection and got a vote. Persuading a room of neighbors in Estonian is real civic life." },
     { id: "voted-thin", when: ["idea", "vote"], says: "It's going to a vote. Answering the neighbor about money is what wins it." },
-    { id: "next-time", when: ["greet", "idea"], says: "The meeting ran out of time. That's meetings, not your Estonian; it's on the list for next time." },
+    { id: "next-time", when: ["greet", "idea"], says: "The meeting ran out of time. It's on the list for next time." },
     { id: "left", when: [], says: "You left before proposing anything. There's a meeting every month." },
   ],
 };

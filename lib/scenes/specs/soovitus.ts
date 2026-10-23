@@ -100,7 +100,7 @@ const RECOMMENDATION: SceneSpec = {
   outcomes: [
     { id: "sold", when: ["greet", "seen", "like", "compare", "recommend", "close"], says: "You said what it was, what it was like, how it compared and that they should go. That's a recommendation in Estonian, and they're going." },
     { id: "sold-thin", when: ["seen", "like", "recommend"], says: "They're going to see it. Comparing it with the last one would have sealed it." },
-    { id: "busy", when: ["greet", "seen"], says: "Their phone went and they had to leave. That's them, not your Estonian." },
+    { id: "busy", when: ["greet", "seen"], says: "Their phone went and they had to leave." },
     { id: "left", when: [], says: "You left before you'd said what it was. Next coffee." },
   ],
 };

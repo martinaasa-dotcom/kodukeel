@@ -154,8 +154,8 @@ export const START: Area = {
     "Fluent": "Свободно",
     "Pretty much anything. You're here for the finer shades of meaning.":
       "Почти всё. Вы здесь ради тонких оттенков смысла.",
-    "Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. You don’t have to say them right yet. That comes with time.":
-      "В эстонском есть четыре буквы, которых нет в русском алфавите: {a}, {b}, {c} и {d}. Они встречаются повсюду. Произносить их правильно пока не обязательно. Это придёт со временем.",
+    "Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. For now, recognizing them is enough.":
+      "В эстонском есть четыре буквы, которых нет в русском алфавите: {a}, {b}, {c} и {d}. Они встречаются повсюду. Пока достаточно их узнавать.",
 
     // FIRST RUN: GOAL.
     "How we worked that out": "Как мы это посчитали",
@@ -449,8 +449,8 @@ export const START: Area = {
     "Fluent": "Вільно",
     "Pretty much anything. You're here for the finer shades of meaning.":
       "Майже все. Ви тут заради тонких відтінків значення.",
-    "Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. You don’t have to say them right yet. That comes with time.":
-      "В естонській є чотири літери, яких немає в українській абетці: {a}, {b}, {c} і {d}. Вони трапляються всюди. Вимовляти їх правильно поки не обов'язково. Це прийде з часом.",
+    "Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. For now, recognizing them is enough.":
+      "В естонській є чотири літери, яких немає в українській абетці: {a}, {b}, {c} і {d}. Вони трапляються всюди. Поки досить їх упізнавати.",
 
     // FIRST RUN: GOAL.
     "How we worked that out": "Як ми це порахували",

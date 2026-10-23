@@ -673,8 +673,8 @@ _lib/copy/i18n/areas/start.ts_
   → Вільно
 - [ ] **319.** Pretty much anything. You're here for the finer shades of meaning.  
   → Майже все. Ви тут заради тонких відтінків значення.
-- [ ] **320.** Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. You don’t have to say them right yet. That comes with time.  
-  → В естонській є чотири літери, яких немає в українській абетці: {a}, {b}, {c} і {d}. Вони трапляються всюди. Вимовляти їх правильно поки не обов'язково. Це прийде з часом.
+- [ ] **320.** Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. For now, recognizing them is enough.  
+  → В естонській є чотири літери, яких немає в українській абетці: {a}, {b}, {c} і {d}. Вони трапляються всюди. Поки досить їх упізнавати.
 - [ ] **321.** How we worked that out  
   → Як ми це порахували
 - [ ] **322.** Why Estonian?  
@@ -1395,8 +1395,8 @@ _lib/copy/i18n/areas/today.ts_
   → Ви пройшли {pct}% шляху від початку {start} до {target}. Суцільна частина росте, лише коли слово справді закріпилося в повтореннях, а не коли ви позначаєте вечір. Зараз ви тут: {part}.
 - [ ] **676.** You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you check off an evening.  
   → Ви пройшли {pct}% шляху від початку {start} до {target}. Суцільна частина росте, лише коли слово справді закріпилося в повтореннях, а не коли ви позначаєте вечір.
-- [ ] **677.** Every level up to {target} counts as yours already. What's left is proving it, and that's what the evenings are for.  
-  → Усі рівні до {target} уже зараховано вам. Лишилося це підтвердити, для цього й потрібні вечори.
+- [ ] **677.** Every level up to {target} counts as yours already, and the evenings check it word by word.  
+  → Усі рівні до {target} уже зараховано вам, а вечори перевіряють їх слово за словом.
 - [ ] **678.** Pick a target in Settings and this becomes the one number worth keeping an eye on.  
   → Виберіть мету в налаштуваннях, і це стане єдиним числом, за яким варто стежити.
 - [ ] **679.** Your level check put you at {level}, so {levels} count as yours. You won't have to redo anything below your level.  
@@ -1429,10 +1429,10 @@ _lib/copy/i18n/areas/today.ts_
   → Від найпершого слова аж до C1: {evenings}. Усі вони короткі, і кожен ми вже спланували.
 - [ ] **693.** You've been choosing what to do each evening. Starting this won't change anything else.  
   → Ви самі вибирали, чим займатися щовечора. Якщо почати курс, більше нічого не зміниться.
-- [ ] **694.** It starts at {start}, where you are now. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.  
-  → Курс починається з {start}, там, де ви зараз. Це план, на який можна спертися, а не колія, з якої не вибратися, і все інше в застосунку лишається на своїх місцях.
-- [ ] **695.** It starts at {start}, the level after the {level} you already have. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.  
-  → Курс починається з {start}, наступного рівня після вашого {level}. Це план, на який можна спертися, а не колія, з якої не вибратися, і все інше в застосунку лишається на своїх місцях.
+- [ ] **694.** It starts at {start}, where you are now. You can step off it whenever you like, and everything else in the app stays where it is.  
+  → Курс починається з {start}, там, де ви зараз. Зійти з нього можна будь-коли, і все інше в застосунку лишається на своїх місцях.
+- [ ] **695.** It starts at {start}, the level after the {level} you already have. You can step off it whenever you like, and everything else in the app stays where it is.  
+  → Курс починається з {start}, наступного рівня після вашого {level}. Зійти з нього можна будь-коли, і все інше в застосунку лишається на своїх місцях.
 - [ ] **696.** {part} is finished  
   → Частину «{part}» пройдено
 - [ ] **697.** All {total} evenings done. Every word you met is in your reviews now.  
@@ -1583,8 +1583,8 @@ _lib/copy/i18n/areas/today.ts_
   → Зберіть справжнє естонське речення слово за словом. Зробіть так кілька разів, і ви почнете відчувати, що куди ставиться.
 - [ ] **770.** Hear a whole sentence and write it down. This is where long and short vowels stop being a rule and start being a sound.  
   → Послухайте ціле речення і запишіть його. Саме тут довгі й короткі голосні перестають бути правилом і стають звуком.
-- [ ] **771.** Look at a picture and write one sentence of your own about it. That's what all these words are for.  
-  → Подивіться на картинку і напишіть про неї одне своє речення. Саме для цього й потрібні всі ці слова.
+- [ ] **771.** Look at a picture and write one sentence of your own about it.  
+  → Подивіться на картинку і напишіть про неї одне своє речення.
 - [ ] **772.** Guess today's six-letter word. Three minutes, and Estonian letters start feeling like old friends.  
   → Вгадайте слово дня з шести літер. Три хвилини, і естонські літери починають здаватися старими знайомими.
 - [ ] **773.** Four versions of one word, and a question telling you which one to hit. Only the ending tells them apart, so you learn to read it fast.  
@@ -3143,8 +3143,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вправа на те, що залишилося
 - [ ] **1542.** What was said  
   → Що було сказано
-- [ ] **1543.** {places}. Nobody there has seen your card, so you'll say it your own way, which is the whole point. Tomorrow, the \[Today\] screen will ask how it went.  
-  → {places}. Там ніхто не бачив вашої картки, тож ви скажете це по-своєму, у цьому й сенс. Завтра на екрані \[Сьогодні\] вас запитають, як усе минуло.
+- [ ] **1543.** {places}. Nobody there has seen your card, so you'll say it your own way. Tomorrow, the \[Today\] screen will ask how it went.  
+  → {places}. Там ніхто не бачив вашої картки, тож ви скажете це по-своєму. Завтра на екрані \[Сьогодні\] вас запитають, як усе минуло.
 - [ ] **1544.** No one to say it to? {name} runs language cafés, where people turn up hoping to be spoken to.  
   → Немає з ким поговорити? {name} проводить мовні кафе, куди люди приходять саме для того, щоб із ними заговорили.
 - [ ] **1545.** Rehearse a different conversation  
@@ -3367,8 +3367,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Ви вдома з молоком, і друг усю дорогу знав, де ви.
 - [ ] **1654.** You're home with the milk. Your friend lost track of you for a while.  
   → Ви вдома з молоком. Друг ненадовго втратив вас із поля зору.
-- [ ] **1655.** The shop was out of milk today. That happens, and it's nobody's fault.  
-  → Сьогодні в магазині не було молока. Так буває, і ніхто не винен.
+- [ ] **1655.** The shop was out of milk today.  
+  → Сьогодні в магазині не було молока.
 - [ ] **1656.** You put the phone down and went on your own. That's a perfectly good way to get milk too.  
   → Ви поклали слухавку й пішли самі. Так теж цілком можна купити молоко.
 - [ ] **1657.** Booking a doctor's appointment  
@@ -3525,8 +3525,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Бланк здано й заповнено саме так, як вимагалося.
 - [ ] **1733.** They took the form, but something on it still needs filling in before anyone can look at it.  
   → Бланк узяли, але в ньому ще треба дещо заповнити, перш ніж його розглянуть.
-- [ ] **1734.** They can't take it without the paper you don't have. That's their rule, not your Estonian.  
-  → Без документа, якого у вас немає, бланк не приймуть. Такі їхні правила, справа не у вашій естонській.
+- [ ] **1734.** They can't take it without the paper you don't have.  
+  → Без документа, якого у вас немає, бланк не приймуть.
 - [ ] **1735.** You left the counter. The form's still in your bag, and it'll keep.  
   → Ви пішли від віконця. Бланк досі у вас у сумці, він зачекає.
 - [ ] **1736.** Ordering a drink  
@@ -3597,8 +3597,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Ви знаєте дорогу й подякували за допомогу.
 - [ ] **1769.** They told you the way. Whether you caught it is another matter.  
   → Вам пояснили дорогу. А чи зрозуміли ви, то вже інше питання.
-- [ ] **1770.** They didn't know the place either. That happens, and it wasn't your Estonian.  
-  → Перехожий теж не знав цього місця. Так буває, і справа не у вашій естонській.
+- [ ] **1770.** They didn't know the place either.  
+  → Перехожий теж не знав цього місця.
 - [ ] **1771.** You walked on. Somebody else will know.  
   → Ви пішли далі. Хтось інший підкаже.
 - [ ] **1772.** Buying a bus ticket  
@@ -3637,8 +3637,8 @@ _lib/copy/i18n/areas/situations.ts_
   → У вас оплачений квиток на потрібний автобус.
 - [ ] **1789.** You've got a ticket. They had to guess the time, so check it before you get on.  
   → Квиток у вас є. Час касирові довелося вгадувати, тож перевірте його перед посадкою.
-- [ ] **1790.** There's no bus there today. Blame the schedule, not your Estonian.  
-  → Сьогодні туди автобусів немає. Винний розклад, а не ваша естонська.
+- [ ] **1790.** There's no bus there today.  
+  → Сьогодні туди автобусів немає.
 - [ ] **1791.** You stepped away from the window. The next bus is in an hour.  
   → Ви відійшли від каси. Наступний автобус за годину.
 - [ ] **1792.** Ordering a meal  
@@ -3715,8 +3715,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Повторіть час, щоб переконатися, що почули правильно.
 - [ ] **1828.** They tell you when they open tomorrow: {open}.  
   → Вам кажуть, о котрій магазин відчиниться завтра: о {open}.
-- [ ] **1829.** They've got it, you know when they open, and you checked the time. Tomorrow's a trip, not a gamble.  
-  → Це в них є, ви знаєте, коли вони відчиняються, і звірили час. Завтра ви їдете напевно, а не навмання.
+- [ ] **1829.** They've got it, you know when they open, and you checked the time.  
+  → Це в них є, ви знаєте, коли вони відчиняються, і звірили час.
 - [ ] **1830.** They've got it and they told you when to come. You didn't say the time back, so double-check it before you set off.  
   → Це в них є, і вам сказали, коли приходити. Час ви не повторили, тож перевірте його ще раз перед виходом.
 - [ ] **1831.** They're out of it until next week. You asked properly, and on the phone, which is the hardest way to do Estonian.  
@@ -3765,8 +3765,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Попрощайтеся, поки сусід не пішов далі вниз.
 - [ ] **1853.** They say goodbye and go on down.  
   → Сусід прощається і спускається далі.
-- [ ] **1854.** You've got a neighbor now, and they know your floor. That's how a building starts to know you.  
-  → Тепер у вас є сусід, і він знає ваш поверх. Так будинок і починає вас упізнавати.
+- [ ] **1854.** You've got a neighbor now, and they know your floor.  
+  → Тепер у вас є сусід, і він знає ваш поверх.
 - [ ] **1855.** They know you're new and where you're from. The rest can wait for the next flight of stairs.  
   → Сусід знає, що ви тут недавно і звідки ви. Решта зачекає до наступної зустрічі в під'їзді.
 - [ ] **1856.** They had a bus to catch. You said hello, and there are more stairs tomorrow.  
@@ -3815,8 +3815,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Фармацевт пояснює, як приймати, і називає ціну.
 - [ ] **1878.** They say goodbye and look past you at the line.  
   → Фармацевт прощається й дивиться повз вас на чергу.
-- [ ] **1879.** You've got something for it and you know how to take it. Nobody switched to English, and the line survived.  
-  → У вас є ліки, і ви знаєте, як їх приймати. Ніхто не перейшов на англійську, і черга все пережила.
+- [ ] **1879.** You've got something for it and you know how to take it. Nobody switched to English.  
+  → У вас є ліки, і ви знаєте, як їх приймати. Ніхто не перейшов на англійську.
 - [ ] **1880.** You've got something for it. You didn't ask how often, so read the box before you take one.  
   → Ліки у вас є. Як часто приймати, ви не запитали, тож прочитайте на упаковці.
 - [ ] **1881.** They said this one needs a doctor, not a pharmacy. You explained it well enough for them to tell.  
@@ -3967,8 +3967,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Вам кажуть, що можуть відремонтувати, або ви можете написати скаргу.
 - [ ] **1954.** They're taking it back. You said what was wrong, when you bought it and what you wanted, and you didn't switch to English.  
   → Покупку приймають назад. Ви сказали, що не так, коли купили і чого хочете, і не перейшли на англійську.
-- [ ] **1955.** They sent you to the maker rather than dealing with it here. That's the shop, not your Estonian, and you've got it in writing.  
-  → Вас відправили до виробника, замість того щоб розв'язати все тут. Справа в магазині, а не у вашій естонській, і ви маєте це письмово.
+- [ ] **1955.** They sent you to the maker rather than dealing with it here, and you've got that in writing.  
+  → Вас відправили до виробника, замість того щоб розв'язати все тут, і ви маєте це письмово.
 - [ ] **1956.** They know what's wrong and what you want. The paperwork's their problem now.  
   → Там знають, що не так і чого ви хочете. Папери тепер їхній клопіт.
 - [ ] **1957.** You took it home again. It still doesn't work, and you can always come back.  
@@ -4027,8 +4027,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Річ у вас, вашого розміру й потрібного кольору, і ви знаєте, скільки заплатили.
 - [ ] **1984.** You've got it. You never tried it on, so find out at home whether it fits.  
   → Річ у вас. Ви її не приміряли, тож удома дізнаєтеся, чи підходить.
-- [ ] **1985.** Nothing in your size today. They suggest coming back next week, which is a real answer, not a mark against you.  
-  → Сьогодні вашого розміру немає. Вам пропонують зайти наступного тижня, і це нормальна відповідь, а не докір вам.
+- [ ] **1985.** Nothing in your size today. They suggest coming back next week.  
+  → Сьогодні вашого розміру немає. Вам пропонують зайти наступного тижня.
 - [ ] **1986.** You left the shop. People do, and you can always come back.  
   → Ви пішли з магазину. Так буває, а повернутися можна завжди.
 - [ ] **1987.** They ask for something you were never given.  
@@ -4583,8 +4583,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Друг каже, що тоді побачитеся, і прощається.
 - [ ] **2262.** You said no to their evening, gave your own, and settled a time. That's an arrangement made in Estonian.  
   → Ви відмовилися від його вечора, запропонували свій і домовилися про час. Це домовленість естонською.
-- [ ] **2263.** You've got a day and a time. Saying no first is the harder half, and it'll come.  
-  → У вас є день і час. Спершу відмовити найважче, але й це прийде.
+- [ ] **2263.** You've got a day and a time. Turning down the first offer is what's left to practice.  
+  → У вас є день і час. Залишилося потренуватися відмовлятися від першої пропозиції.
 - [ ] **2264.** Something came up on their side and the plan fell through. You'd said yes, which was the part that was yours.  
   → У друга щось сталося, і план зірвався. Ви погодилися, а це була ваша частина.
 - [ ] **2265.** You hung up before anything was settled. Ring them back; friends don't mind.  
@@ -4621,8 +4621,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Ви купили обидві речі, сказали, скільки штук, і знали, скільки заплатили. Ось і ринок естонською.
 - [ ] **2281.** You got what you came for. Asking the price before you pay is the next step.  
   → Ви купили те, по що прийшли. Запитати ціну до оплати буде наступним кроком.
-- [ ] **2282.** The stall ran out of the second thing before you got to it. That's markets, not your Estonian.  
-  → Друге скінчилося на прилавку раніше, ніж ви до нього дійшли. Такий ринок, а не ваша естонська.
+- [ ] **2282.** The stall ran out of the second thing before you got to it.  
+  → Друге скінчилося на прилавку раніше, ніж ви до нього дійшли.
 - [ ] **2283.** You walked on to another stall. There's always another one.  
   → Ви пішли до іншого прилавка. Інший завжди знайдеться.
 - [ ] **2284.** Is this my bus?  
@@ -4653,10 +4653,10 @@ _lib/copy/i18n/areas/situations.ts_
   → Водій киває і від'їжджає від зупинки.
 - [ ] **2297.** You checked it was the right bus and found out where to get off. You'll be there without guessing.  
   → Ви перевірили, що автобус потрібний, і дізналися, де виходити. Доїдете без здогадок.
-- [ ] **2298.** Right bus, and you know your stop. Thanking people is the easy half, and it'll come.  
-  → Автобус потрібний, і ви знаєте свою зупинку. Дякувати найпростіше, і це прийде.
-- [ ] **2299.** It wasn't your bus after all, and you found out before getting on, which is the whole point of asking.  
-  → Це все-таки був не ваш автобус, і ви дізналися це до посадки. Заради цього й варто питати.
+- [ ] **2298.** Right bus, and you know your stop. Next time, thank them before you get on.  
+  → Автобус потрібний, і ви знаєте свою зупинку. Наступного разу подякуйте, перш ніж сісти.
+- [ ] **2299.** It wasn't your bus after all, and you found out before getting on.  
+  → Це все-таки був не ваш автобус, і ви дізналися це до посадки.
 - [ ] **2300.** You let that bus go. There's another one in ten minutes.  
   → Ви пропустили цей автобус. Наступний буде за десять хвилин.
 - [ ] **2301.** Getting a library card  
@@ -4683,12 +4683,12 @@ _lib/copy/i18n/areas/situations.ts_
   → Бібліотекар просить номер телефону.
 - [ ] **2312.** They hand you the new card and say goodbye.  
   → Бібліотекар віддає вам новий квиток і прощається.
-- [ ] **2313.** You've got a library card, and the number on it is right because you checked it. That's how a form gets filled in out loud.  
-  → У вас є читацький квиток, і номер у ньому правильний, бо ви його перевірили. Так анкета й заповнюється вголос.
+- [ ] **2313.** You've got a library card, and the number on it is right because you checked it.  
+  → У вас є читацький квиток, і номер у ньому правильний, бо ви його перевірили.
 - [ ] **2314.** They have what they need for the card. Checking the number when they read it back is the next step.  
   → У бібліотекаря є все потрібне для квитка. Перевірити номер, коли його повторюють, буде наступним кроком.
-- [ ] **2315.** Their system went down before they could make the card. Not your Estonian; come back tomorrow.  
-  → Система відмовила раніше, ніж квиток встигли оформити. Справа не у вашій естонській; приходьте завтра.
+- [ ] **2315.** Their system went down before they could make the card. Come back tomorrow.  
+  → Система відмовила раніше, ніж квиток встигли оформити. Приходьте завтра.
 - [ ] **2316.** You left before the card was made. Libraries open early, and you can try again.  
   → Ви пішли раніше, ніж квиток оформили. Бібліотеки відчиняються рано, можна спробувати знову.
 - [ ] **2317.** How was your weekend?  
@@ -4853,8 +4853,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Допомога вже в дорозі, бо ви сказали, що сталося і де саме. Такий дзвінок ніхто не хоче робити, але кожен має вміти.
 - [ ] **2397.** They know what happened and where you are, which is what sends the ambulance. The rest is detail.  
   → Там знають, що сталося і де ви, а цього досить, щоб вислати швидку. Решта дрібниці.
-- [ ] **2398.** The line cut out before you could say more. In a real emergency, call again straight away; it isn't your Estonian.  
-  → Зв'язок урвався раніше, ніж ви встигли сказати більше. У реальній екстреній ситуації одразу дзвоніть знову; справа не у вашій естонській.
+- [ ] **2398.** The line cut out before you could say more. In a real emergency, call again straight away.  
+  → Зв'язок урвався раніше, ніж ви встигли сказати більше. У реальній екстреній ситуації одразу дзвоніть знову.
 - [ ] **2399.** You hung up. In a real emergency, call back: they'll speak slowly if you ask.  
   → Ви поклали слухавку. У реальній екстреній ситуації передзвоніть: якщо попросити, з вами говоритимуть повільно.
 - [ ] **2400.** Opening a bank account  
@@ -4887,12 +4887,12 @@ _lib/copy/i18n/areas/situations.ts_
   → Працівник друкує бланк і просить розписатися внизу.
 - [ ] **2414.** They say the card will come in the post, and goodbye.  
   → Вам кажуть, що картка прийде поштою, і прощаються.
-- [ ] **2415.** You've got an account, and a card on its way. You did a bank in Estonian, which is most people's least favorite errand in any language.  
-  → У вас є рахунок, і картка вже в дорозі. Ви сходили до банку естонською, а це мало хто любить будь-якою мовою.
+- [ ] **2415.** You've got an account, and a card on its way.  
+  → У вас є рахунок, і картка вже в дорозі.
 - [ ] **2416.** The account's open. The small talk around the edges can come later.  
   → Рахунок відкрито. Балачки довкола справи можуть зачекати.
-- [ ] **2417.** Their system wouldn't open accounts today. That's the bank, not your Estonian; you can book a time to come back.  
-  → Сьогодні їхня система не відкривала рахунки. Справа в банку, а не у вашій естонській; можна записатися на інший час.
+- [ ] **2417.** Their system wouldn't open accounts today. You can book a time to come back.  
+  → Сьогодні їхня система не відкривала рахунки. Можна записатися на інший час.
 - [ ] **2418.** You left before anything was signed. The bank will still be there tomorrow.  
   → Ви пішли, нічого не підписавши. Банк буде на місці й завтра.
 - [ ] **2419.** At the family doctor's  
@@ -4931,8 +4931,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Ви сказали, що болить, з якого дня і наскільки сильно, і уточнили, як приймати таблетки. Ось так і ходять до лікаря.
 - [ ] **2436.** You've got what you need and you know how to take it. Saying how bad it is would have helped the doctor more.  
   → Ви отримали потрібне і знаєте, як це приймати. Якби ви сказали, наскільки сильно болить, лікарю було б простіше.
-- [ ] **2437.** They sent you to a specialist before you got any further. That's the system, not your Estonian.  
-  → Вас направили до фахівця раніше, ніж ви встигли продовжити. Так влаштована система, а не ваша естонська.
+- [ ] **2437.** They sent you to a specialist before you got any further.  
+  → Вас направили до фахівця раніше, ніж ви встигли продовжити.
 - [ ] **2438.** You left before the doctor had finished. You can always ring the surgery back.  
   → Ви пішли раніше, ніж лікар закінчив. Лікареві завжди можна передзвонити.
 - [ ] **2439.** saying what happened  
@@ -5003,12 +5003,12 @@ _lib/copy/i18n/areas/situations.ts_
   → Натомість вам пропонують {day2}, {time2}.
 - [ ] **2472.** They say goodbye and see you then.  
   → Консультант прощається до наступної зустрічі.
-- [ ] **2473.** You're registered, they know what you're looking for, and you've got your next visit. That's an office done in Estonian from start to finish.  
-  → Ви зареєстровані, там знають, яку роботу ви шукаєте, і у вас призначено наступний візит. Установа від початку до кінця естонською.
+- [ ] **2473.** You're registered, they know what you're looking for, and you've got your next visit.  
+  → Ви зареєстровані, там знають, яку роботу ви шукаєте, і у вас призначено наступний візит.
 - [ ] **2474.** You're registered. What you're looking for can be sorted out at the next visit.  
   → Ви зареєстровані. Яку роботу ви шукаєте, можна обговорити наступного разу.
-- [ ] **2475.** Their system couldn't register anybody today. That's the office, not your Estonian; they'll see you another day.  
-  → Сьогодні їхня система нікого не могла зареєструвати. Справа в установі, а не у вашій естонській; вас приймуть іншого дня.
+- [ ] **2475.** Their system couldn't register anybody today. They'll see you another day.  
+  → Сьогодні їхня система нікого не могла зареєструвати. Вас приймуть іншого дня.
 - [ ] **2476.** You left before you were registered. The office will still be there tomorrow.  
   → Ви пішли, не зареєструвавшись. Установа нікуди не дінеться й завтра.
 - [ ] **2477.** Renewing a residence permit  
@@ -5045,8 +5045,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Заяву подано, і ви знаєте, коли забрати картку. Це найофіційніша естонська, яка буває, і ви її зрозуміли.
 - [ ] **2493.** Your application's in. They'll write to say when the card is ready.  
   → Заяву подано. Вам напишуть, коли картка буде готова.
-- [ ] **2494.** They couldn't take the application today. That's their system, not your Estonian; book another time.  
-  → Сьогодні у вас не змогли прийняти заяву. Справа в їхній системі, а не у вашій естонській; запишіться на інший час.
+- [ ] **2494.** They couldn't take the application today. Book another time.  
+  → Сьогодні у вас не змогли прийняти заяву. Запишіться на інший час.
 - [ ] **2495.** You left before the application was in. Your booking can be moved.  
   → Ви пішли, не подавши заяви. Запис можна перенести.
 - [ ] **2496.** Calling about family benefit  
@@ -5081,8 +5081,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Ви знаєте, чому гроші перестали надходити і що треба надіслати. Дзвінок в установу естонською, ще й із номером: це один із найважчих дзвінків.
 - [ ] **2511.** They found your case and you know what to send. The details can wait for the letter.  
   → Вашу справу знайшли, і ви знаєте, що надіслати. Подробиці почекають до листа.
-- [ ] **2512.** Their system couldn't find anything today. That's the office, not your Estonian; call again tomorrow.  
-  → Сьогодні їхня система нічого не знайшла. Справа в установі, а не у вашій естонській; зателефонуйте завтра.
+- [ ] **2512.** Their system couldn't find anything today. Call again tomorrow.  
+  → Сьогодні їхня система нічого не знайшла. Зателефонуйте завтра.
 - [ ] **2513.** You hung up before they found your case. You can always call back.  
   → Ви поклали слухавку, поки вашу справу ще шукали. Зателефонувати знову можна завжди.
 - [ ] **2514.** Talking to your child's teacher  
@@ -5121,8 +5121,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Ви поставили уточнювальне запитання замість того, щоб кивати, розповіли, як справи вдома, і знаєте, над чим працювати. Це батьківські збори естонською.
 - [ ] **2531.** You heard how your child is doing and what to practice. Saying more about home can come next time.  
   → Ви дізналися, як справи в дитини і над чим працювати. Розповісти більше про дім можна наступного разу.
-- [ ] **2532.** The next parent was waiting and the teacher had to stop. That's the evening, not your Estonian.  
-  → Чекали наступні батьки, і вчителеві довелося закінчити. Справа у вечорі, а не у вашій естонській.
+- [ ] **2532.** The next parent was waiting and the teacher had to stop.  
+  → Чекали наступні батьки, і вчителеві довелося закінчити.
 - [ ] **2533.** You left before the talk had properly started. Teachers are used to a quick hello.  
   → Ви пішли, не давши розмові як слід початися. Учителі звикли до коротких привітань.
 - [ ] **2534.** saying why you've come  
@@ -5199,8 +5199,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Ви сказали, що не так, що бачите і що пробували, і все знову працює. Описати несправність телефоном естонською: це справжнє вміння.
 - [ ] **2570.** It's working again. Saying what the screen showed would have got you there faster.  
   → Усе знову працює. Якби ви сказали, що було на екрані, вийшло б швидше.
-- [ ] **2571.** They need to send somebody round. That's the line, not your Estonian.  
-  → Їм треба надіслати майстра. Справа в лінії, а не у вашій естонській.
+- [ ] **2571.** They need to send somebody round.  
+  → Їм треба надіслати майстра.
 - [ ] **2572.** You hung up before it was sorted. Support is there all day.  
   → Ви поклали слухавку, не розв'язавши проблему. Підтримка працює весь день.
 - [ ] **2573.** Disagreeing in a team meeting  
@@ -5239,8 +5239,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Ви не погодилися з керівником, назвали причину, запропонували свій день і домоглися його. Естонською, ввічливо, перед усією командою.
 - [ ] **2590.** You got your day. Giving the reason out loud is what makes the next one easier.  
   → Ваш день прийняли. Якщо назвати причину вголос, наступного разу буде легше.
-- [ ] **2591.** The meeting ran out of time before anything changed. That's meetings, not your Estonian.  
-  → Час наради скінчився раніше, ніж щось змінилося. Справа в нарадах, а не у вашій естонській.
+- [ ] **2591.** The meeting ran out of time before anything changed.  
+  → Час наради скінчився раніше, ніж щось змінилося.
 - [ ] **2592.** You left the meeting early. It'll be in the notes.  
   → Ви пішли з наради раніше. Усе буде в протоколі.
 - [ ] **2593.** Recommending something to a friend  
@@ -5281,8 +5281,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Ви сказали, що це було, яким, чи краще це за минуле і що варто піти. Це справжня рекомендація естонською, і друг піде.
 - [ ] **2611.** They're going to see it. Comparing it with the last one would have sealed it.  
   → Друг піде подивитися. Порівняння з минулим разом переконало б остаточно.
-- [ ] **2612.** Their phone went and they had to leave. That's them, not your Estonian.  
-  → Другові зателефонували, і йому довелося піти. Справа в ньому, а не у вашій естонській.
+- [ ] **2612.** Their phone went and they had to leave.  
+  → Другові зателефонували, і йому довелося піти.
 - [ ] **2613.** You left before you'd said what it was. Next coffee.  
   → Ви пішли, так і не сказавши, що це було. Наступного разу за кавою.
 - [ ] **2614.** A friend has bad news  
@@ -5319,8 +5319,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Ви запитали, що сталося, сказали, що вам шкода, і запропонували допомогу. Це й означає бути другом естонською, і це важливіше за будь-які закінчення.
 - [ ] **2630.** You asked and you offered help. Saying you're sorry first is the part people remember.  
   → Ви запитали й запропонували допомогу. А те, що ви спершу сказали «мені шкода», запам'ятовується найбільше.
-- [ ] **2631.** They had to go before you could say much. That's the day they're having, not your Estonian.  
-  → Другові довелося піти, перш ніж ви встигли багато сказати. Справа в його дні, а не у вашій естонській.
+- [ ] **2631.** They had to go before you could say much.  
+  → Другові довелося піти, перш ніж ви встигли багато сказати.
 - [ ] **2632.** You left before they could tell you. A message later would mean a lot.  
   → Ви пішли, не давши другові розповісти. Повідомлення потім багато б для нього значило.
 - [ ] **2633.** Asking for a raise  
@@ -5365,8 +5365,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Ви попросили грошей, пояснили чому, назвали суму й домовилися. Це найважча розмова на роботі, і ви провели її естонською.
 - [ ] **2653.** You got more. Saying what you did is what gets you the next one.  
   → Вам підвищили. А те, що ви зробили, варто сказати вголос, це допоможе наступного разу.
-- [ ] **2654.** There's no money in the budget this year. That's the budget, not your Estonian; you've put it on the table for next year.  
-  → У бюджеті цього року грошей немає. Справа в бюджеті, а не у вашій естонській; ви порушили питання на наступний рік.
+- [ ] **2654.** The budget is tight this year and you didn't get to a figure. You've put it on the table for next year.  
+  → Цього року бюджет обмежений, і до суми ви не дійшли. Ви порушили питання на наступний рік.
 - [ ] **2655.** You left before you'd asked. The door's still open.  
   → Ви пішли, так і не попросивши. Двері досі відчинені.
 - [ ] **2656.** Getting your deposit back  
@@ -5407,8 +5407,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Ви ввічливо відстояли себе й повернули гроші. Стояти на своєму, коли вам кажуть «ні»: це найважча естонська.
 - [ ] **2674.** They're paying something back. Saying you left it clean is what gets the rest.  
   → Частину вам повернуть. Щоб отримати решту, скажіть, що квартира була чистою.
-- [ ] **2675.** They wouldn't agree to anything on the phone. That's them, not your Estonian; put it in writing next.  
-  → Телефоном орендодавець ні на що не погодився. Справа в ньому, а не у вашій естонській; наступного разу викладіть це письмово.
+- [ ] **2675.** They wouldn't agree to anything on the phone. Put it in writing next.  
+  → Телефоном орендодавець ні на що не погодився. Наступного разу викладіть це письмово.
 - [ ] **2676.** You hung up before you'd asked. The deposit is still yours to ask for.  
   → Ви поклали слухавку, так і не попросивши. Заставу досі можна вимагати.
 - [ ] **2677.** saying what isn't working  
@@ -5535,8 +5535,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Ви переказали прочитане, сказали звідки і що не впевнені. Так новини й розповідають естонською: з дистанцією всередині.
 - [ ] **2738.** They know what's opening and when. Saying where you read it is what makes it news rather than gossip.  
   → Сусід знає, що відкриється і коли. А те, де ви це прочитали, відрізняє новину від плітки.
-- [ ] **2739.** They were in a hurry and couldn't stop. That's the stairs, not your Estonian.  
-  → Сусід поспішав і не міг зупинитися. Справа в сходах, а не у вашій естонській.
+- [ ] **2739.** They were in a hurry and couldn't stop.  
+  → Сусід поспішав і не міг зупинитися.
 - [ ] **2740.** You went on up the stairs. There'll be another chance on the way down.  
   → Ви пішли далі нагору. Нагода буде й на зворотному шляху.
 - [ ] **2741.** A residents' meeting about the yard  
@@ -5571,8 +5571,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Ви внесли пропозицію, назвали причину, відповіли на заперечення і домоглися голосування. Переконати збори сусідів естонською: це справжнє громадянське життя.
 - [ ] **2756.** It's going to a vote. Answering the neighbor about money is what wins it.  
   → Це поставлять на голосування. А перемогу принесе відповідь сусідові щодо грошей.
-- [ ] **2757.** The meeting ran out of time. That's meetings, not your Estonian; it's on the list for next time.  
-  → Час зборів скінчився. Справа у зборах, а не у вашій естонській; питання перенесли на наступний раз.
+- [ ] **2757.** The meeting ran out of time. It's on the list for next time.  
+  → Час зборів скінчився. Питання перенесли на наступний раз.
 - [ ] **2758.** You left before proposing anything. There's a meeting every month.  
   → Ви пішли, нічого не запропонувавши. Збори бувають щомісяця.
 - [ ] **2759.** Presenting a chart at work  
@@ -5609,8 +5609,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Ви сказали, що показує графік, на скільки і чому, і відповіли на запитання. Це презентація естонською, з цифрами й усім іншим.
 - [ ] **2775.** They know what happened and by how much. The why is what they'll remember.  
   → Усі знають, що сталося і на скільки. А запам'ятають причину.
-- [ ] **2776.** The meeting overran and your slot was cut. That's the agenda, not your Estonian.  
-  → Нарада затягнулася, і ваш виступ скоротили. Справа в порядку денному, а не у вашій естонській.
+- [ ] **2776.** The meeting overran and your slot was cut.  
+  → Нарада затягнулася, і ваш виступ скоротили.
 - [ ] **2777.** You didn't present today. It'll keep until next month.  
   → Сьогодні ви не виступили. Почекає до наступного місяця.
 - [ ] **2778.** A book club  
@@ -5647,8 +5647,8 @@ _lib/copy/i18n/areas/situations.ts_
   → Ви сказали, що думаєте про героя і кінцівку, і відстояли свою думку. Це розмова про книжку естонською.
 - [ ] **2794.** You said what you thought and what you'd change. Agreeing or not out loud is the next step.  
   → Ви сказали, що думаєте і що б змінили. Наступний крок: уголос погодитися чи ні.
-- [ ] **2795.** The café was closing before you got far. That's the café, not your Estonian.  
-  → Кав'ярня зачинялася, і далеко ви не просунулися. Справа в кав'ярні, а не у вашій естонській.
+- [ ] **2795.** The café was closing before you got far.  
+  → Кав'ярня зачинялася, і далеко ви не просунулися.
 - [ ] **2796.** You left before the book came up. Next month's is a short one.  
   → Ви пішли, не дійшовши до книжки. Книжка наступного місяця коротка.
 - [ ] **2797.** asking a friend a favor  
@@ -7951,8 +7951,8 @@ _lib/copy/i18n/areas/app.ts_
   → Нагадування ввечері, якщо ви ще не займалися
 - [ ] **3938.** Sent at the time you pick below, and only if you haven't studied yet that day.  
   → Приходить у вибраний нижче час і лише якщо цього дня ви ще не займалися.
-- [ ] **3939.** A note when you've truly learned a level's words  
-  → Лист, коли ви по-справжньому вивчили слова рівня
+- [ ] **3939.** A note when you've learned a level's words  
+  → Лист, коли ви вивчили слова рівня
 - [ ] **3940.** Rare, and always a little late, because a word only counts once you still know it days later.  
   → Приходить рідко й завжди трохи із запізненням, адже слово зараховується, лише якщо ви пам'ятаєте його й за кілька днів.
 - [ ] **3941.** A note when a shield saves your streak  
@@ -9727,8 +9727,8 @@ _lib/copy/i18n/areas/rounds.ts_
   → Кожне слово, яке ви додали самі: зі словника, з фотографії, зі вставленого списку чи від Ану. Ви вибрали їх самі, тож тут до них доходить черга, не чекаючи на курс.
 - [ ] **4822.** Words you keep missing  
   → Слова, у яких ви помиляєтеся
-- [ ] **4823.** The few cards you keep getting wrong, with a look at why. Sort them out here before they quietly pile up.  
-  → Ті кілька карток, у яких ви раз у раз помиляєтеся, з розбором причин. Розберіться з ними тут, доки вони тихо не накопичилися.
+- [ ] **4823.** The few cards you keep getting wrong, with a look at why. Sort them out here before they pile up.  
+  → Ті кілька карток, у яких ви раз у раз помиляєтеся, з розбором причин. Розберіться з ними тут, доки вони не накопичилися.
 - [ ] **4824.** A short round on whatever tripped you up this week.  
   → Короткий раунд на все, на чому ви спотикалися цього тижня.
 - [ ] **4825.** Pairs against the clock, and a personal best to beat.  
@@ -10521,8 +10521,8 @@ _lib/copy/i18n/areas/progress.ts_
   → Нічого. На іспиті одна частина на нулі провалює весь варіант, хоч як минула б решта.
 - [ ] **5216.** Nothing at {level} yet.  
   → На рівні {level} поки нічого.
-- [ ] **5217.** Nothing got measured, so there's no level to show. That's a blank, not a zero.  
-  → Нічого не виміряно, тому рівня немає. Це порожнє місце, а не нуль.
+- [ ] **5217.** Nothing got measured, so there's no level to show.  
+  → Нічого не виміряно, тому рівня немає.
 - [ ] **5218.** Nothing here has heard you speak, and no number on this page pretends it has. How you sound is yours to judge, in {link}.  
   → Тут ніхто не чув, як ви говорите, і жодна цифра на цій сторінці не вдає, що чув. Як ви звучите, вирішувати вам, у {link}.
 - [ ] **5219.** Nothing here is holding you back. Go sit the paper.  
@@ -10855,8 +10855,8 @@ _lib/copy/i18n/areas/progress.ts_
   → Відмінки починаються з A2. До того курс дає слова й фрази, а тут усе заповниться, коли ви почнете ставити закінчення.
 - [ ] **5383.** The choices: {list}.  
   → Варіанти: {list}.
-- [ ] **5384.** The course hasn't brought you these words yet, so there's nothing to go on. That's the course's pace, not yours.  
-  → Курс поки не дійшов до цих слів, тож спертися нема на що. Це темп курсу, а не ваш.
+- [ ] **5384.** The course hasn't brought you these words yet, so there's nothing to go on.  
+  → Курс поки не дійшов до цих слів, тож спертися нема на що.
 - [ ] **5385.** The date you picked has gone, so choose a new one whenever you're ready.  
   → Обрана дата минула, тож оберіть нову, коли будете готові.
 - [ ] **5386.** The dictionary couldn't fill every task, so this percentage comes from a shorter paper than usual.  
@@ -11005,8 +11005,8 @@ _lib/copy/i18n/areas/progress.ts_
   → Цей результат більше не відкрити
 - [ ] **5458.** We could only fill {pct} percent of this paper from the dictionary, so some tasks are shorter than usual. Each part is marked on what was actually set, and your result will say what was missing. Add more words to your deck and the paper fills in over time. Running your own copy of Kodukeel? Turning on live dictionary lookups fills it straight away.  
   → Зі словника вдалося заповнити лише {pct}% цього варіанта, тому деякі завдання коротші за звичайні. Кожна частина оцінюється за тим, що було задано, а в результаті буде сказано, чого бракувало. Додавайте слова до колоди, і варіант із часом заповниться. Запускаєте власну копію Kodukeel? Якщо ввімкнути живий пошук у словнику, він заповниться одразу.
-- [ ] **5459.** We couldn't make the audio. That's our problem, not a mark against your listening, so this section is left out rather than scored as zero.  
-  → Не вдалося створити аудіо. Це наша проблема, а не мінус вашому аудіюванню, тому цю частину вилучено, а не зараховано як нуль.
+- [ ] **5459.** We couldn't make the audio, so this section is left out rather than scored as zero.  
+  → Не вдалося створити аудіо, тому цю частину вилучено, а не зараховано як нуль.
 - [ ] **5460.** We couldn't put a check together  
   → Не вдалося скласти перевірку
 - [ ] **5461.** We couldn't read that.  
@@ -11181,8 +11181,8 @@ _lib/copy/i18n/areas/progress.ts_
   → Ви б зрозуміли, а потім заклякли, коли настане ваша черга
 - [ ] **5546.** You're already at {level} or above. Pick a higher target, or keep your reviews going and take the check again in a couple of months.  
   → Ви вже на рівні {level} або вище. Оберіть вищу мету або продовжуйте повторювати й пройдіть перевірку знову за пару місяців.
-- [ ] **5547.** You're not at A1 yet, and that's where almost everybody starts. It's a starting point, not a verdict.  
-  → Ви поки не на рівні A1, і майже всі починають саме звідси. Це точка відліку, а не вирок.
+- [ ] **5547.** You're not at A1 yet, and that's where almost everybody starts.  
+  → Ви поки не на рівні A1, і майже всі починають саме звідси.
 - [ ] **5548.** You're sitting just this one part, with {n} minutes on the clock. The real exam marks all four parts together, so you'll get a mark for this part, not a pass or a fail. When the time's up, it closes. Your answers are saved on this device as you go.  
   → Ви проходите лише цю частину, на годиннику {n} хв. Справжній іспит оцінює всі чотири частини разом, тож ви отримаєте бал за цю частину, а не оцінку «складено» чи «не складено». Коли час спливе, вона закриється. Ваші відповіді зберігаються на цьому пристрої по ходу.
 - [ ] **5549.** You're {short} points short. That's one part's worth, not four.  
@@ -12705,8 +12705,8 @@ _lib/copy/i18n/areas/progress.ts_
   → Поки замало даних
 - [ ] **6308.** You're remembering more than expected  
   → Ви запам'ятовуєте більше, ніж очікувалося
-- [ ] **6309.** That's a nice problem to have. You've got room for more new words each day, so raise your daily goal in Settings.  
-  → Приємна проблема. У вас є місце для нових слів щодня, тож підніміть денну мету в налаштуваннях.
+- [ ] **6309.** You've got room for more new words each day, so raise your daily goal in Settings.  
+  → У вас є місце для нових слів щодня, тож підніміть денну мету в налаштуваннях.
 - [ ] **6310.** You're forgetting more than expected  
   → Ви забуваєте більше, ніж очікувалося
 - [ ] **6311.** Usually too many new words at once, or words met before their grammar. Ease off for a week and read up on the case that keeps going wrong.  
@@ -12939,8 +12939,8 @@ _lib/copy/i18n/areas/course.ts_
   → Від тринадцяти до мільйона
 - [ ] **6421.** Say a price, a phone number, a floor and a year without running out of numbers.  
   → Називати будь-яку ціну, номер телефону, поверх і рік: чисел тепер вистачить на все.
-- [ ] **6422.** Two patterns and you've got them all. Teens add -teist and tens add {e1}, so if you can say kolm you can say kolmteist and {e2}. Add -s to the omastav and you get fourth, fifth and so on, which is how you say floors and dates. Third, kolmas, you just learn.  
-  → Дві схеми, і всі числа ваші. До чисел другого десятка додається -teist, до десятків {e1}: умієте сказати kolm, скажете й kolmteist, і {e2}. Додайте -s до omastav, і вийдуть «четвертий», «п'ятий» і так далі, а з ними поверхи й дати. «Третій», kolmas, просто запам'ятовується.
+- [ ] **6422.** Two patterns cover every number. Teens add -teist and tens add {e1}, so if you can say kolm you can say kolmteist and {e2}. Add -s to the omastav and you get fourth, fifth and so on, which is how you say floors and dates. Third, kolmas, you just learn.  
+  → Двох схем вистачає на всі числа. До чисел другого десятка додається -teist, до десятків {e1}: умієте сказати kolm, скажете й kolmteist, і {e2}. Додайте -s до omastav, і вийдуть «четвертий», «п'ятий» і так далі, а з ними поверхи й дати. «Третій», kolmas, просто запам'ятовується.
 - [ ] **6423.** Shopping and getting around  
   → Покупки і як дістатися
 - [ ] **6424.** Buy something, ask the price, and find your way to a place in town.  
@@ -14303,8 +14303,8 @@ _lib/copy/i18n/areas/grammarCases.ts_
   → Працювати кимось
 - [ ] **7094.** A role or a capacity you are in for now  
   → Роль чи становище, у якому ви зараз
-- [ ] **7095.** The -ks ending is for getting into a role. This one means you're already in it. Keep those two apart and you've got it.  
-  → Українською і «стати вчителем», і «працювати вчителем» стоять в орудному відмінку, а в естонській це два закінчення: -ks означає, що ви входите в роль, а це закінчення означає, що ви вже в ній. Розрізняйте їх, і все вийде.
+- [ ] **7095.** The -ks ending is for getting into a role. This one means you're already in it.  
+  → Українською і «стати вчителем», і «працювати вчителем» стоять в орудному відмінку, а в естонській це два закінчення: -ks означає, що ви входите в роль, а це закінчення означає, що ви вже в ній.
 - [ ] **7096.** Working as a teacher, for as long as that lasts.  
   → Працювати вчителем, поки це триває.
 - [ ] **7097.** Without something. The exact opposite of "with", the next one down.  
@@ -15087,8 +15087,8 @@ _lib/copy/i18n/areas/letters.ts_
   → Уже {days} поспіль.
 - [ ] **7481.** Kodukeel. The four letters an English keyboard has no key for: o-tilde, a-umlaut, o-umlaut, u-umlaut.  
   → Kodukeel. Чотири літери, яких немає в українській абетці: o з тильдою, a, o та u з умлаутом.
-- [ ] **7482.** Your first cards are ready. Here's how it works.  
-  → Ваші перші картки готові. Ось як усе влаштовано.
+- [ ] **7482.** Your first cards are ready.  
+  → Ваші перші картки готові.
 - [ ] **7483.** {cards} are already waiting for you, made from the first lessons of your course. Your first evening is {title}, which is {subtitle}.  
   → У вашій колоді вже {cards} з перших уроків курсу. Ваш перший вечір: {title}, {subtitle}.
 - [ ] **7484.** {cards} are already waiting for you, made from the first lessons of your course. Open the course and it'll show you where to start.  
@@ -15231,8 +15231,8 @@ _lib/copy/i18n/areas/letters.ts_
   → {places}. Лише одна фраза, і відповідь англійською теж зараховується.
 - [ ] **7553.** {phrase} to go until the date you picked.  
   → До обраної вами дати лишилося: {phrase}.
-- [ ] **7554.** You're aiming for {band}, the level where you can {label}. Here's how that's looking.  
-  → Ви йдете до рівня {band}, на якому можна {label}. Ось як справи.
+- [ ] **7554.** You're aiming for {band}, the level where you can {label}.  
+  → Ви йдете до рівня {band}, на якому можна {label}.
 - [ ] **7555.** A bar, about {pct} percent full, for your chances at {band}.  
   → Смуга заповнена приблизно на {pct}%: ваші шанси на {band}.
 - [ ] **7556.** If you sat it today, we'd put your chances of passing at about {pct} percent. {evidence}  
@@ -16742,7 +16742,7 @@ _lib/copy/i18n/areas/legal.ts_
   → \*\*Ваші пробні іспити.\*\* Складений варіант зберігається цілком: рівень, ваш результат і сама перевірена робота, запитання за запитанням, з тим, що очікувалося, і тим, що відповіли ви. Сюди входить і \*\*ваш твір\*\*, збережений вашими словами, бо до тексту варто повертатися, лише якщо це саме той текст, який ви написали. Це найдовше, що ви пишете в цьому застосунку, тому про нього тут окремий рядок. Покинутий варіант до вашого облікового запису не зберігається ніколи. Усну частину ви оцінюєте самі, і нічого із записаного не залишає ваш пристрій.
 - [ ] **8299.** \*\*Your conversations in Situations.\*\* Each one you finish is kept whole: who was behind the desk, what was on the role card, what went wrong on purpose, every turn, and where each of the other side's lines came from. \*\*Nothing in a transcript is about you.\*\* You play a patient, a tenant, a customer, with a card of invented facts and a document number that is fiction, and you are never asked for your own. The words a conversation needed and you did not have are kept as a list, so they can be handed back. A conversation you walk out of is kept as one you walked out of; one you abandon by closing the tab is kept on your device only, and goes nowhere until you finish it.  
   → \*\*Ваші розмови в «Ситуаціях».\*\* Кожна закінчена розмова зберігається цілком: хто був по той бік стійки, що було в картці ролі, що пішло не так навмисно, кожна репліка і звідки взялася кожна репліка співрозмовника. \*\*Ніщо в записі розмови не стосується вас особисто.\*\* Ви граєте пацієнта, мешканця, покупця за карткою з вигаданими фактами й вигаданим номером документа, і вашого власного у вас ніколи не питають. Слова, які знадобилися в розмові і яких у вас не було, зберігаються списком, щоб їх можна було вам повернути. Розмова, з якої ви пішли, зберігається як розмова, з якої ви пішли; розмова, покинута закриттям вкладки, лишається тільки на вашому пристрої й нікуди не йде, доки ви її не закінчите.
-- [ ] **8300.** \*\*What you said happened out there.\*\* Today asks each morning whether you spoke any Estonian to somebody yesterday. Where the answer is no, that is the whole of it; where it is yes, it asks how it went, in one of three words: they understood me, I got stuck partway, they switched to English. That word and the day are kept, and nothing else: not where you were, not who you spoke to, not what was said. The errand it offers on a day with none is not stored at all.  
+- [ ] **8300.** \*\*What you said happened out there.\*\* Today asks each morning whether you spoke any Estonian to somebody yesterday. Where the answer is no, nothing more is asked; where it is yes, it asks how it went, in one of three words: they understood me, I got stuck partway, they switched to English. That word and the day are kept, and nothing else: not where you were, not who you spoke to, not what was said. The errand it offers on a day with none is not stored at all.  
   → \*\*Що, за вашими словами, було в житті.\*\* Щоранку екран «Сьогодні» питає, чи говорили ви вчора з кимось естонською. Якщо ні, на цьому все; якщо так, він питає, як усе пройшло, одним із трьох варіантів: мене зрозуміли, я застряг на півдорозі, зі мною перейшли на англійську. Зберігаються ця відповідь і день, і більше нічого: ні де ви були, ні з ким говорили, ні що було сказано. Завдання, яке він пропонує в день без розмов, не зберігається зовсім.
 - [ ] **8301.** \*\*Your class, if you are in one.\*\* Joining with a code stores which class you joined, when, and the name you chose to be known by in it, which is the one place you can be under a name of your own choosing rather than your account. If you run a class, its name and its join code are stored against you. What a teacher sees of a student is only ever effort, never contents: reviews this week, a streak, words known, when they were last here, which grammar the class as a whole is weakest at, and which grammar that student personally is weakest at, as a percentage rolled up over their own reviews. Never a deck, a search or a specific answer. Leaving a class removes your membership of it, and deleting your account removes every class you are in and every class you run.  
   → \*\*Ваша група, якщо ви в ній.\*\* Під час вступу за кодом зберігається, до якої групи ви вступили, коли і під яким ім'ям ви вирішили в ній бути; це єдине місце, де ви можете бути під ім'ям на свій вибір, а не під ім'ям облікового запису. Якщо ви ведете групу, її назва і код для вступу зберігаються за вами. Учитель бачить в учня лише зусилля, ніколи не вміст: повторення за тиждень, серію днів, засвоєні слова, коли учень заходив востаннє, у якій граматиці найслабша група загалом і в якій особисто цей учень, у вигляді відсотка, зведеного за його власними повтореннями. Ніколи не колоду, не пошук і не конкретну відповідь. Вихід із групи видаляє ваше членство в ній, а видалення облікового запису видаляє всі групи, у яких ви є, і всі, які ви ведете.
@@ -17277,8 +17277,8 @@ _lib/copy/i18n/areas/public.ts_
   → Статус відповідності
 - [ ] **8564.** \*\*Partially conformant with WCAG 2.2 level AA.\*\* Partially conformant means most of the app meets the standard, and the parts named below do not.  
   → \*\*Частково відповідає WCAG 2.2, рівень AA.\*\* «Частково» означає, що більша частина застосунку відповідає стандарту, а частини, названі нижче, ні.
-- [ ] **8565.** It isn’t fully conformant, and here’s the honest reason: nobody who relies on assistive technology has yet been paid to sit down with it and try to use it. Everything below rests on automated checks and on the people who wrote the app testing their own work. That finds a great deal, and it’s still not the same as hearing from somebody the app was failing.  
-  → Повної відповідності немає, і ось чесна причина: нікому з тих, хто покладається на допоміжні технології, ще не платили за те, щоб сісти й спробувати ним користуватися. Усе, що нижче, спирається на автоматичні перевірки і на те, що автори застосунку перевіряли власну роботу. Так знаходиться дуже багато, але це все одно не те саме, що почути людину, яку застосунок підводив.
+- [ ] **8565.** It isn’t fully conformant, because nobody who relies on assistive technology has yet been paid to sit down with it and try to use it. Everything below rests on automated checks and on the people who wrote the app testing their own work. That finds a great deal, and it’s still not the same as hearing from somebody the app was failing.  
+  → Повної відповідності немає, бо нікому з тих, хто покладається на допоміжні технології, ще не платили за те, щоб сісти й спробувати ним користуватися. Усе, що нижче, спирається на автоматичні перевірки і на те, що автори застосунку перевіряли власну роботу. Так знаходиться дуже багато, але це все одно не те саме, що почути людину, яку застосунок підводив.
 - [ ] **8566.** How the claim was tested  
   → Як це перевірялося
 - [ ] **8567.** Four suites run in the build on every change, against the real app in a real browser rather than against a component in isolation.  
@@ -17577,8 +17577,8 @@ _lib/copy/i18n/areas/public.ts_
   → Що зникає: {lost}
 - [ ] **8714.** The fall is gradual because most of what this app is made of was never bought. The dictionary is Ekilex, the speech is TartuNLP, the English is Wiktionary, and all three are public institutions that decided this work should be available. The scheduler, the course, the exams, the games and the grammar run on a server and a database and nothing else. What money buys is the tutor, the polish, and somebody to work on it.  
   → Спад поступовий, бо більшу частину того, з чого зроблено цей застосунок, ніколи не купували. Словник дає Ekilex, озвучення TartuNLP, англійський переклад Вікісловник, і всі три є громадськими інституціями, які вирішили, що ця робота має бути доступною. Розклад, курс, іспити, ігри й граматика працюють на сервері й базі даних і більше ні на чому. За гроші купуються репетиторка, доведення до ладу й людина, яка над усім цим працює.
-- [ ] **8715.** So the honest claim is not that this becomes profitable. It is that at ${floor} a month it can be kept alive by one person who has not been paid, and that it keeps teaching Estonian the whole way down.  
-  → Тож чесне твердження не в тому, що це стане прибутковим. А в тому, що за {floor} $ на місяць його може підтримувати одна людина, якій не платять, і що він учить естонської на кожному кроці цього спаду.
+- [ ] **8715.** This will not become profitable. At ${floor} a month it can be kept alive by one person who has not been paid, and it keeps teaching Estonian the whole way down.  
+  → Прибутковим це не стане. Але за {floor} $ на місяць його може підтримувати одна людина, якій не платять, і він учить естонської на кожному кроці цього спаду.
 - [ ] **8716.** What survives even that  
   → Що переживе навіть це
 - [ ] **8717.** Six things, and every one of them is a file somebody can open rather than an intention somebody has stated.  
@@ -23881,7 +23881,7 @@ _lib/copy/i18n/areas/wordplay.ts_
   → лупа часу
 - [ ] **11842.** slow motion _(context: wordplay)_  
   → уповільнена зйомка
-- [ ] **11843.** A magnifying glass held up to time. Quietly one of the loveliest words in the language. _(context: wordplay)_  
+- [ ] **11843.** A magnifying glass held up to time. One of the loveliest words in the language. _(context: wordplay)_  
   → Лупа, піднесена до часу. Мабуть, одне з найгарніших слів у мові.
 - [ ] **11844.** magnifying glass _(context: wordplay)_  
   → лупа

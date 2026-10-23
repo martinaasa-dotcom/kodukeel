@@ -191,8 +191,8 @@ shape of 100 learners studying five times a week (`DEFAULT_SHAPE`, `retrenchment
 The shape of that answer is unusual and is the reason it is worth reading. Most of what this app is
 made of was given rather than bought: the dictionary, the speech and the glosses. The scheduler,
 the examinations, the games, the grammar and the whole course run on a server and a database. So
-the floor is low and the fall is gradual, and the honest claim is not that the project becomes
-profitable but that it becomes cheap enough to keep alive with nobody paid.
+the floor is low and the fall is gradual. The project will not become profitable; it becomes cheap
+enough to keep alive with nobody paid.
 
 Below even that, six continuity claims, each checkable in a named file (`CONTINUITY`): the license,
 the absence of lock-in, the rebuildable dictionary, every learner's right to take their whole record
