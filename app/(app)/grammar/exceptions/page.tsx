@@ -59,9 +59,11 @@ export default async function ExceptionsPage() {
           {/* The figure is centered against the text beside it, and on its own
               row when the two wrap: sat at the bottom left it read as a figure
               that had slipped. Its auto margins resolve to nothing while the
-              text beside it grows to fill the row. */}
+              text beside it grows to fill the row. And proportional figures:
+              tabular ones gave the comma a whole digit's width, so the figure
+              read "2 , 643". A lone figure lines up with nothing. */}
           <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
-            <p className="font-display tnum mx-auto text-center text-6xl font-bold leading-none tracking-tight md:text-7xl" style={{ color: "var(--cta)" }}>
+            <p className="font-display mx-auto text-center text-6xl font-bold leading-none tracking-tight md:text-7xl" style={{ color: "var(--cta)" }}>
               {grouped(locale, scale)}
             </p>
             <div className="min-w-0 flex-[1_1_20rem]">

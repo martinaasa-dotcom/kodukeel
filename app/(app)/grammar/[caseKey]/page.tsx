@@ -293,7 +293,8 @@ export default async function CasePage({
                     */}
                     {[t("Word"), t("2nd form"), endingOf(ref, locale)].map((h, i) => (
                       <th
-                        key={h}
+                        // By place: on the 2nd form's own page two headings read alike.
+                        key={i}
                         className="label-xs px-3 py-2.5 text-left"
                         style={{
                           background: "var(--raised)",
