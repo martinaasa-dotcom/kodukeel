@@ -645,6 +645,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       notes: [
         "Listen for the order people introduce themselves in: their name, where they're from, where they live, what they speak, who's at home.",
         "Mari says {teie} to everybody, because she's the teacher and they're new. In a class, both {teie} and {sina} are normal.",
+        "At the end, Mari goes round the room and you introduce yourself as you, one turn at a time, until you've held the whole conversation.",
       ],
       watchOut: "You don't need long sentences. {Ma olen pärit Inglismaalt} and {Ma elan Tallinnas} are two short ones, and two short ones are easier to say than one long one.",
       examples: [2, 4],
