@@ -100,8 +100,8 @@ export const RU: Readonly<Record<string, string>> = {
   "The words you'll hear most": "Слова, которые вы будете слышать чаще всего",
   "Words from one of the lists of what Estonians say most, counted from real films and TV rather than picked by us.":
     "Слова из списка того, что эстонцы говорят чаще всего. Список посчитан по настоящим фильмам и сериалам, а не составлен нами.",
-  "Type each answer. A word comes back with a new ending each time, so you learn it the way it's really used.":
-    "Впишите каждый ответ. Слово каждый раз возвращается с новым окончанием, так что вы учите его так, как его на самом деле используют.",
+  "A new word is shown to you first, then asked. A word you know comes back with a new ending each time, so you learn it the way it's really used.":
+    "Новое слово сначала показывается, потом спрашивается. Знакомое слово каждый раз возвращается с новым окончанием, так что вы учите его так, как его на самом деле используют.",
   "Your own deck": "Ваша колода",
   "The cards you put in this deck, one at a time, the most overdue first.":
     "Карточки, которые вы положили в эту колоду, по одной, начиная с самых просроченных.",
@@ -184,7 +184,7 @@ export const RU: Readonly<Record<string, string>> = {
   "A ball next to it": "Мяч рядом с этим",
   "A ball floating above it, not touching": "Мяч парит над этим, не касаясь",
   "Place": "Место",
-  "The noun in its omastav form, then {word}. {word} means {meaning}.": "Существительное в форме omastav, потом {word}. {word} значит {meaning}.",
+  "The noun in its omastav (2nd form), then {word}. {word} means {meaning}.": "Существительное в omastav (2-я форма), потом {word}. {word} значит {meaning}.",
   "on top of": "на, сверху",
   "under": "под",
   "in front of": "перед",
@@ -234,7 +234,7 @@ export const RU: Readonly<Record<string, string>> = {
   "The endings you keep missing": "Окончания, в которых вы чаще ошибаетесь",
   "Cards from the cases you get wrong most, picked from your own answers, against the clock.":
     "Карточки на падежи, в которых вы чаще всего ошибаетесь, отобранные по вашим же ответам, на время.",
-  "Answer as many as you can before time runs out.": "Ответьте на как можно больше вопросов, пока не закончится время.",
+  "Answer as many as you can. The clock stops while each answer shows, and you'll see them all again at the end.": "Ответьте на как можно больше вопросов. Пока на экране ответ, часы стоят, а в конце вы увидите все ответы ещё раз.",
   "Guess today's word": "Угадайте слово дня",
   "One six-letter Estonian word a day, and seven tries to find it. After each guess, the letters show whether they're in the right spot, somewhere else, or not in the word at all.":
     "Одно эстонское слово из шести букв в день и семь попыток его найти. После каждой попытки буквы показывают, стоят ли они на своём месте, есть ли они в слове в другом месте или их в слове нет совсем.",

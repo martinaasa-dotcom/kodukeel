@@ -921,3 +921,41 @@ describe("a part started over", () => {
     expect(await prisma.courseStep.count({ where: { ownerId: OWNER, programmeId: PROGRAMME.id } })).toBe(1);
   });
 });
+
+describe("a part's last evening", () => {
+  /*
+    A whole part has no current day, so the rule that finds the evening a
+    render just finished could not fire, and a lesson part finished tonight
+    read as finished on some other day: Today skipped "done for today" and
+    offered the next part at once. And the morning after, it must offer the
+    next part rather than fall back to the card for somebody with no course.
+  */
+  const LESSON_PART = PROGRAMMES.find((p) => p.days.some((d) => d.lesson))!;
+
+  async function finishPart(at: Date) {
+    await prisma.setting.upsert({
+      where: { ownerId_key: { ownerId: OWNER, key: SETTING_KEYS.programme } },
+      update: { value: LESSON_PART.id },
+      create: { ownerId: OWNER, key: SETTING_KEYS.programme, value: LESSON_PART.id },
+    });
+    await prisma.courseStep.createMany({
+      data: LESSON_PART.days.flatMap((d) => d.steps.map((s) => ({
+        ownerId: OWNER, programmeId: LESSON_PART.id, dayId: d.id, stepId: s.id, createdAt: at,
+      }))),
+    });
+  }
+
+  it("is an evening finished today when its last tick is today", async () => {
+    await finishPart(EVENING);
+    const reading = await courseReading(OWNER, LESSON_PART, CLOCK, NOW);
+    expect(reading.finished).toBe(true);
+    expect(reading.finishedToday).toBe(true);
+  });
+
+  it("is not finished today when its last tick was yesterday", async () => {
+    await finishPart(new Date(EVENING.getTime() - 24 * 3600_000));
+    const reading = await courseReading(OWNER, LESSON_PART, CLOCK, NOW);
+    expect(reading.finished).toBe(true);
+    expect(reading.finishedToday).toBe(false);
+  });
+});

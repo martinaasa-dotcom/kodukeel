@@ -133,8 +133,8 @@ describe("the review of a conversation", () => {
     expect(note?.what).toBe("the ending for \u201cin\u201d");
     // Counting the learner's own turns, which is the join the transcript has.
     expect(note?.at).toBe(1);
-    // The name a class uses is still there, one line down and one question word.
-    expect(note?.term).toBe("seesütlev, kus?");
+    // The plain name is still there, one line down and one question word.
+    expect(note?.term).toBe("seesütlev (-s, in), kus?");
   });
 
   /*

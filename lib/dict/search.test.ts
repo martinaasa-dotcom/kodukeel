@@ -100,14 +100,14 @@ function top(query: string) {
 
 describe("rankCandidates — inflected forms", () => {
   it.each([
-    ["loen", "lugema", /olevik ma/],
-    ["lugesin", "lugema", /lihtminevik ma/],
-    ["tuppa", "tuba", /lühike sisseütlev/],
-    ["toas", "tuba", /seesütlev/],
-    ["raamatuga", "raamat", /kaasaütlev/],
-    ["tubadega", "tuba", /mitmuse kaasaütlev/],
-    ["raamatud", "raamat", /mitmuse nimetav/],
-    ["need", "see", /mitmuse nimetav/],
+    ["loen", "lugema", /I form/],
+    ["lugesin", "lugema", /lihtminevik, ma \(past, I\)/],
+    ["tuppa", "tuba", /lühike sisseütlev \(short into\)/],
+    ["toas", "tuba", /seesütlev \(-s, in\)/],
+    ["raamatuga", "raamat", /kaasaütlev \(-ga, with\)/],
+    ["tubadega", "tuba", /mitmuse kaasaütlev \(-ga, with, plural\)/],
+    ["raamatud", "raamat", /mitmuse nimetav \(1st form, plural\)/],
+    ["need", "see", /mitmuse nimetav \(1st form, plural\)/],
   ])("finds %s as a form of %s", (query, lemma, why) => {
     expect(top(query)?.lemma).toBe(lemma);
     expect(top(query)?.matchedAs).toMatch(why);
@@ -145,18 +145,17 @@ describe("rankCandidates — inflected forms", () => {
     expect(top("selled")?.matchedAs).toBeUndefined();
   });
 
-  it("names the form the way a class names it, and says what it asks", () => {
+  it("names the form the way a class does, with its hint", () => {
     // A learner who searches `toas` and is told it is "the inessive" has been
-    // handed a word their own teacher does not say, and then one their English
-    // grammar says and they have not opened. The Estonian name leads and what
-    // the case asks follows it: see `lib/estonian/cases.ts`.
+    // handed a word their own teacher does not say. A form worked out from the
+    // stem is named exactly as a stored one is: see `casePlainName`.
     const inessive = top("toas")?.matchedAs ?? "";
-    expect(inessive).toContain("seesütlev (what is it in? where?)");
+    expect(inessive).toContain("seesütlev (-s, in) of tuba");
     expect(inessive, "the Latin name is back").not.toContain("inessive");
     const past = top("lugesin")?.matchedAs ?? "";
-    expect(past).toContain("lihtminevik ma");
+    expect(past).toContain("lihtminevik, ma (past, I)");
     const plural = top("tubadega")?.matchedAs ?? "";
-    expect(plural).toContain("mitmuse kaasaütlev");
+    expect(plural).toContain("mitmuse kaasaütlev (-ga, with, plural)");
   });
 
   it("does not label a headword match as an inflected form", () => {
@@ -329,13 +328,13 @@ describe("matchEstonianForm", () => {
   it("takes a stored principal part and says which one it was", () => {
     const match = matchEstonianForm(DICT, "lugesin");
     expect(match?.lemma).toBe("lugema");
-    expect(match?.matchedAs).toContain("lihtminevik ma");
+    expect(match?.matchedAs).toContain("lihtminevik, ma (past, I)");
   });
 
   it("takes a regular case built on the genitive stem, which is most of a homework page", () => {
     const match = matchEstonianForm(DICT, "toas");
     expect(match?.lemma).toBe("tuba");
-    expect(match?.matchedAs).toContain("seesütlev");
+    expect(match?.matchedAs).toContain("seesütlev (-s, in)");
   });
 
   describe("a diacritic somebody typed is a letter they meant", () => {
@@ -401,7 +400,7 @@ describe("matchEstonianForm", () => {
     const match = matchEstonianForm(DICT, "ta");
     expect(match?.lemma).toBe("tema");
     expect(match?.matchedAs).not.toContain("SgN");
-    expect(match?.matchedAs).toContain("nimetav");
+    expect(match?.matchedAs).toContain("1st form");
   });
 
   it("hands over which form it was, and the entry's own forms behind it", () => {

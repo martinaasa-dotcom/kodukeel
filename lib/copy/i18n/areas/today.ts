@@ -552,6 +552,18 @@ export const TODAY: Area = {
     "Что вам уже по силам в жизни",
   "Start {part}":
     "Начать часть {part}",
+  "Next up: {part}":
+    "Дальше: {part}",
+  "You finished {part}. {canDo}":
+    "Часть {part} пройдена. {canDo}",
+  "That was the last evening of {part}. Tomorrow you start {next}.":
+    "Это был последний вечер части {part}. Завтра начинается {next}.",
+  "The planned course is off, so this is what's due. {turnOn}":
+    "Курс по плану выключен, поэтому здесь то, что пора повторить. {turnOn}",
+  "Turn it back on":
+    "Включить снова",
+  "You've finished the whole course, so this is what's due.":
+    "Вы прошли весь курс, поэтому здесь то, что пора повторить.",
   "Open the course":
     "Открыть курс",
   "Today's module is done":
@@ -1630,6 +1642,18 @@ export const TODAY: Area = {
     "Що вам уже під силу в житті",
   "Start {part}":
     "Почати частину {part}",
+  "Next up: {part}":
+    "Далі: {part}",
+  "You finished {part}. {canDo}":
+    "Частину {part} пройдено. {canDo}",
+  "That was the last evening of {part}. Tomorrow you start {next}.":
+    "Це був останній вечір частини {part}. Завтра починається {next}.",
+  "The planned course is off, so this is what's due. {turnOn}":
+    "Курс за планом вимкнено, тож тут те, що час повторити. {turnOn}",
+  "Turn it back on":
+    "Увімкнути знову",
+  "You've finished the whole course, so this is what's due.":
+    "Ви пройшли весь курс, тож тут те, що час повторити.",
   "Open the course":
     "Відкрити курс",
   "Today's module is done":

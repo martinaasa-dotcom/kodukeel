@@ -19,7 +19,8 @@ import { TooComplicated } from "@/components/TooComplicated";
 import { WordIntro } from "@/components/WordIntro";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { GapMeaning } from "@/components/GapMeaning";
-import { readableHint } from "@/lib/copy/caseHint";
+import { arrowFront, readableHint } from "@/lib/copy/caseHint";
+import { estonianSide } from "@/lib/srs/estonianSide";
 import { caseLabelOf } from "@/lib/copy/caseLabel";
 import { CaseLabel } from "@/components/CaseLabel";
 import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
@@ -313,6 +314,7 @@ function WhyRow({ card, alsoRight }: {
 }) {
   const router = useRouter();
   const t = useT();
+  const locale = useLocale();
   // Named the way a class names it, because this question is going to a tutor
   // who is told to answer in the same words (lib/tutor/prompt.ts).
   const named = card.targetCase ? caseByKey(card.targetCase) : undefined;
@@ -320,7 +322,7 @@ function WhyRow({ card, alsoRight }: {
   // A conjugation card names its slot the same way, off `Card.slot`: the front
   // is a sentence now and carries no label, and the label is what the learner
   // wants the moment the answer appears and is not what they thought.
-  const verbSlot = card.slot ? slotLabel(card.slot) : null;
+  const verbSlot = card.slot ? slotLabel(card.slot, locale) : null;
   // Asked in the learner's language, since it is their question to Anu.
   const word = card.lemma ?? card.front;
   const question = alsoRight && card.lemma
@@ -463,12 +465,6 @@ const TYPE_LABEL: Record<string, string> = {
  */
 const spoken = (side: string) => primaryAnswer(side);
 
-/** Cards whose front or back is Estonian and therefore worth hearing. */
-const estonianSide = (type: string, side: "front" | "back") =>
-  side === "front"
-    ? type !== "PRODUCTION"
-    : type === "PRODUCTION" || type === "CASE_FORM" || type === "GRADATION" || type === "CLOZE"
-      || type === "CONJUGATION";
 
 /**
  * Card types whose answer is a single Estonian form, and so can be typed and
@@ -2410,16 +2406,4 @@ export function ReviewSession({
       <p className="sr-only" role="status">{spokenVerdict}</p>
     </div>
   );
-}
-
-/** Split a `word → form` front, or null where it is not one. */
-function arrowFront(front: string): { word: string; tail: string } | null {
-  const at = front.indexOf("\u2192");
-  if (at < 0) return null;
-  const word = front.slice(0, at).trim();
-  const tail = front.slice(at + 1).trim()
-    // Any separator a stored front carries between the two facts reads as a
-    // comma, which is the one this app draws; a question mark is kept.
-    .replace(/\s*[^\p{L}\p{N}\s?]\s*/gu, ", ");
-  return word && tail ? { word, tail } : null;
 }

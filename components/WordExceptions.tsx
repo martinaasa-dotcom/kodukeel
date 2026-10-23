@@ -101,7 +101,7 @@ export function ExceptionNote({ exception: ex, explained = false }: {
           <CaseLabel label={named} className="text-xs" />
         ) : (
           <span lang="et" className="text-xs" style={{ color: "var(--ink-3)" }}>
-            {slotLabel(ex.slot)}
+            {slotLabel(ex.slot, locale)}
           </span>
         )}
         {ex.note && (

@@ -4,7 +4,7 @@ import { bandsAround } from "@/lib/collections/levels";
 import type { Level } from "@/lib/collections/syllabus/types";
 import { guessableWords } from "@/lib/dict/acceptFacts";
 import { dayIndex } from "@/lib/random/dayHash";
-import { SONAD_LENGTH } from "@/lib/games/sonad";
+import { SONAD_LENGTH, SONAD_MIN_TAUGHT } from "@/lib/games/sonad";
 import { semanticCategory } from "@/lib/estonian/semantics";
 import { earliestStartOf, type DayKey } from "@/lib/time/day";
 
@@ -57,6 +57,12 @@ export interface Puzzle {
   category: string | null;
   /** Already in the deck, so finishing is evidence rather than an offer. */
   inDeck: boolean;
+  /**
+   * Drawn from the words the learner's evenings had taught, rather than from
+   * the dictionary at their level. The page says which, since "a word you've
+   * met" and "a word you may need the dictionary for" are two different games.
+   */
+  met: boolean;
 }
 
 /**
@@ -113,8 +119,7 @@ export async function puzzleFor(
     (`taughtAtDayStart`). An empty list is no puzzle yet, not the dictionary.
   */
   const taught = await taughtAtDayStart(ownerId, day);
-  if (taught && taught.length === 0) return null;
-  const draw = (cutoff: string | null) => taught
+  const draw = (cutoff: string | null, taught: readonly string[] | null) => taught
     ? prisma.$queryRaw<{ id: string }[]>`
         SELECT DISTINCT ON (lemma) id FROM "Lexeme"
         WHERE char_length(lemma) = ${SONAD_LENGTH}
@@ -133,8 +138,15 @@ export async function puzzleFor(
           AND (${cutoff}::timestamp IS NULL OR "createdAt" < ${cutoff}::timestamp)
         ORDER BY lemma, id
       `;
-  const settled = await draw(before);
-  const pool = settled.length > 0 ? settled : await draw(null);
+  /*
+    AND WHERE THE EVENINGS HAVE TAUGHT TOO FEW, A WORD AT THEIR LEVEL. Every
+    input to that choice is fixed for the day (the taught list and the cutoff),
+    so `recordSonad` makes the same choice when it marks the round.
+  */
+  const fromTaught = taught && taught.length > 0 ? await draw(before, taught) : [];
+  const met = fromTaught.length >= SONAD_MIN_TAUGHT;
+  const settled = met ? fromTaught : await draw(before, null);
+  const pool = settled.length > 0 ? settled : await draw(null, null);
   if (pool.length === 0) return null;
 
   /*
@@ -167,6 +179,7 @@ export async function puzzleFor(
     cefr: entry.cefr,
     category: semanticCategory(entry.semanticTypes),
     inDeck: card !== null,
+    met,
   };
 }
 

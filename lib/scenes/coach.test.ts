@@ -42,8 +42,8 @@ describe("the hint the app gives", () => {
   it("names the word and the case, and never the form", () => {
     const said = coachFor(BEAT, null);
     expect(said).toContain("pood");
-    // The case a class would name it by, not the Latin one.
-    expect(said).toContain("sisseütlev");
+    // The case by the plain name the app teaches, not the Latin one.
+    expect(said).toContain("sisseütlev (-sse, into)");
     /*
       And not `poodi`. The ending is the whole of what this beat is drilling,
       so a hint that spelled it would answer the question and then let the

@@ -15,7 +15,7 @@ import { Chip, KeyCap } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
-import { CASES } from "@/lib/estonian/cases";
+import { CASES, plainNameForEt } from "@/lib/estonian/cases";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
@@ -351,7 +351,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
                   cases: question.alsoGoverned.map((key, i) => (
                     <span key={key}>
                       {i > 0 && (i === question.alsoGoverned.length - 1 ? ` ${t("and")} ` : ", ")}
-                      {rich(t("the {case}"), { case: <span lang="et">{caseLabel(key)?.et}</span> })}
+                      {rich(t("the {case}"), { case: <span>{plainNameForEt(caseLabel(key)?.et ?? "", locale) ?? caseLabel(key)?.et}</span> })}
                       {caseLabel(key)?.question && <>, <span lang="et">{caseLabel(key)?.question}</span></>}
                     </span>
                   )),

@@ -15,6 +15,7 @@ import {
   creditedThrough, ladderVerdict, levelsTo, programmeById, programmeStanding, startingLevel, type CourseDay,
   type LadderProgress, type LadderVerdict, type Programme, type ProgrammeStanding,
 } from "@/lib/course";
+import { lessonStates, type LessonState } from "@/lib/course/lessonCourse";
 
 /**
  * WHERE A LEARNER IS IN A PLANNED PROGRAM, READ RATHER THAN STORED.
@@ -713,6 +714,14 @@ export async function courseReading(
   if (!justFinished && standing.current && standing.current.day.index > reached.index) {
     justFinished = reached.id;
   }
+  /*
+    And the same of a part's LAST evening, where there is no day after it to
+    stand on: a whole part has no current day at all, so the rule above could
+    never fire and a part finished tonight read as finished on some other day.
+    Today then skipped "done for today" and offered the next part at once,
+    which is the evening not ending.
+  */
+  if (!justFinished && standing.finished) justFinished = reached.id;
 
   /*
     "Come back tomorrow" is a claim about a day that finished *today*, so it is
@@ -899,6 +908,30 @@ export async function ladderReading(
   ]);
 
   return ladderVerdict({ taught, known, answers, right });
+}
+
+/**
+ * Where each A1 lesson stands for this learner, for the list of lessons:
+ * done, the one to do next, or ahead (`lessonStates`). One read of their ticks
+ * on the lesson parts, beside the part they are following.
+ */
+export async function lessonListStates(ownerId: string): Promise<Map<string, LessonState>> {
+  const parts = PROGRAMMES.filter((p) => p.days.some((d) => d.lesson));
+  const [following, rows] = await Promise.all([
+    programmeFor(ownerId),
+    prisma.courseStep.findMany({
+      where: { ownerId, programmeId: { in: parts.map((p) => p.id) } },
+      select: { programmeId: true, dayId: true },
+      orderBy: { id: "asc" },
+    }),
+  ]);
+  const ticked = new Map<string, Set<string>>();
+  for (const row of rows) {
+    const days = ticked.get(row.programmeId) ?? new Set<string>();
+    days.add(row.dayId);
+    ticked.set(row.programmeId, days);
+  }
+  return lessonStates(parts, ticked, following?.id ?? null);
 }
 
 /**

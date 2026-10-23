@@ -1,5 +1,5 @@
 import type { WritingTask } from "@/lib/estonian/writing";
-import { questionInEnglish } from "@/lib/estonian/cases";
+import { questionInEnglish, plainNameForEt } from "@/lib/estonian/cases";
 import { estimateTokens } from "@/lib/usage/pricing";
 import { VOICE_RULES } from "@/lib/copy/voice";
 import type { Locale } from "@/lib/copy/locale";
@@ -89,7 +89,7 @@ Your job is the rest of the sentence:
 RULES YOU MUST NOT BREAK
 - Every Estonian form you mention must be one that appears in KNOWN FORMS below, or a word the learner themselves wrote. You may not introduce an inflected form from your own knowledge. If the sentence needs a word you have not been given, describe it in plain English instead ("you'd need the form of 'laud' that answers onto what? here") and do not spell it.
 - If you are unsure whether something is an error, say the sentence is acceptable. A confident correction that is wrong is far more damaging than a missed nitpick, because the learner will believe you.
-- Give the reason in plain words when you correct something: "only some of it, because it's still going on", not "it sounds better". If you name a case, use its Estonian name (osastav, alaleütlev), never the Latin one.
+- Give the reason in plain words when you correct something: "only some of it, because it's still going on", not "it sounds better". If you name a case, use the Estonian name a class uses with its hint, the way this app names it (the osastav (3rd form), the alaleütlev (-le, onto/to)), never the Latin name.
 
 HOW YOU SOUND
 Like a warm teacher handing the page back in person: say what works before what does not, when both apply, then the one thing to fix. No praise that carries no information.
@@ -112,7 +112,7 @@ export function buildGraderUserPrompt(input: GraderInput, formWasUsed: boolean):
 
   return `LEARNER LEVEL: ${input.level}
 
-TASK SET: use "${input.task.lemma}" (${input.task.translation}) in the ${input.task.caseEt} (${input.task.caseQuestion}${questionInEnglish(input.task.caseQuestion) ? `, which asks ${questionInEnglish(input.task.caseQuestion)}` : ""}).
+TASK SET: use "${input.task.lemma}" (${input.task.translation}) in the ${plainNameForEt(input.task.caseEt) ?? input.task.caseEt} (${input.task.caseQuestion}${questionInEnglish(input.task.caseQuestion) ? `, which asks ${questionInEnglish(input.task.caseQuestion)}` : ""}).
 REQUIRED FORM: ${input.task.targetForm}
 MECHANICAL CHECK: the learner ${formWasUsed ? "DID" : "DID NOT"} use the required form.
 
@@ -457,7 +457,7 @@ WHAT YOU ARE NOT DOING
 Marking it. The marks were awarded before you saw this, mechanically, on length and on whether the required words were used. Do not award, estimate, or mention a score, and do not tell the learner whether they passed.
 
 RULES YOU MUST NOT BREAK
-- Every Estonian word you write must be one the learner themselves wrote. You may not spell a correction. If a word is wrong, name the problem in plain English: "that verb wants the osastav after it, the some-of-it form", never the form itself.
+- Every Estonian word you write must be one the learner themselves wrote. You may not spell a correction. If a word is wrong, name the problem in plain English: "that verb wants the osastav (3rd form) after it, the some-of-it form", never the form itself.
 - If you are unsure whether something is an error, leave it. A confident correction that is wrong is far more damaging than a missed one, because the learner will believe you.
 - Name the pattern, not every instance. One thing to fix beats nine.
 
@@ -583,7 +583,7 @@ Name every error you are sure of in a sentence, not only the first one. A learne
 RULES YOU MUST NOT BREAK
 - Every Estonian form you mention must appear in KNOWN FORMS or in FORMS OF THE WORDS THEY WROTE below, or be a word the learner themselves wrote. You may not introduce an inflected form from your own knowledge. If a sentence needs a word you have not been given, say so in plain English ("this verb needs the ending for she, not I") and do not spell it.
 - If you are unsure whether something is an error, say the sentence is acceptable. A confident correction that is wrong is far more damaging than a missed one, because the learner will believe you. This is about what you doubt: an error you are sure of is never left out.
-- Give the reason in plain words when you correct something, not the feeling: "only some of it, because it's still going on", never "it sounds better". If you name a case, use its Estonian name, never the Latin one.
+- Give the reason in plain words when you correct something, not the feeling: "only some of it, because it's still going on", never "it sounds better". If you name a case, use the Estonian name a class uses with its hint, the way this app names it (the omastav (2nd form), the seesütlev (-s, in)), never the Latin name.
 - Judge each sentence on its own. A sentence is not wrong for repeating a word another one used.
 
 HOW YOU SOUND

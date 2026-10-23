@@ -392,7 +392,7 @@ const TERE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Kuidas läheb?} is friendly. People ask it of friends and colleagues, not of the stranger at the till.",
+        "{Kuidas läheb?} is friendly. People ask it of friends and colleagues, not of the stranger at the checkout.",
         "Ask it back with {Ja sinul?}, and the answer is one word again.",
       ],
       watchOut: "Estonians answer {Kuidas läheb?} honestly, and {normaalselt} is a perfectly happy answer. It isn't a complaint.",

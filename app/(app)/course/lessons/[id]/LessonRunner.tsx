@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { Braced } from "@/components/Braced";
 import { RuleNote } from "@/components/RuleNote";
 import { Speak } from "@/components/Speak";
 import { nativePart } from "@/lib/audio/native";
@@ -80,7 +81,7 @@ const STEP_TITLE: Record<Step, string> = {
 /** The three teaching steps are finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, conversation, place }: {
+export function LessonRunner({ lesson, practice, review, next, scene, conversation, place, name, due = 0, check = null }: {
   lesson: LessonSpec;
   practice: readonly PracticeItem[];
   review: readonly PracticeItem[];
@@ -96,6 +97,12 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
   conversation: ConversationReturn | null;
   /** Where this lesson sits among its level's lessons, for the finish. */
   place: { at: number; of: number };
+  /** The learner's own first name, for a model answer about them (`ownAnswer.ts`). */
+  name: string | null;
+  /** Cards due in the learner's reviews now, for the nudge on the finished screen. */
+  due?: number;
+  /** The check that closes this lesson's part, where this is its last lesson. */
+  check?: { id: string; final: boolean; passed: boolean } | null;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -177,6 +184,58 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
               <StatTile value={lesson.conversation.filter((l) => l.et).length} label={t("lines heard")} tone="accent" />
               <StatTile value={place.at} label={fill(t("{level} lesson"), { level: lesson.level })} hint={fill(t("of {total}"), { total: String(place.of) })} tone="accent" />
             </div>
+            {/*
+              THE CONVERSATION, WHERE THE LESSON HAS ONE, IS THE NEXT THING.
+              A learner finished lesson 49, which says it ends in holding a
+              whole conversation, and found nowhere to have it: the only link
+              was a line under the last Say it card, and on a typed evening it
+              was easy to scroll past. So the lesson's own scene, played with
+              somebody who answers whatever is said in the words taught so far
+              (`lib/scenes/lessonScenes.ts`), is a card of its own here.
+            */}
+            {scene && (
+              <div className="mt-6 rounded-[var(--r-xl)] border px-5 py-5 text-left" style={{ background: "var(--accent-soft)", borderColor: "var(--edge)" }} data-lesson-scene-done={scene}>
+                <p className="font-display text-xl font-bold" style={{ color: "var(--ink)" }}>{t("Now have the conversation")}</p>
+                <p className="mt-1 max-w-[56ch] text-base" style={{ color: "var(--ink-2)" }}>
+                  {t("Somebody speaks first and answers whatever you say, in the words you've learned. Type or say your lines. Nothing is graded, and you can't get it wrong by saying it your own way.")}
+                </p>
+                <div className="mt-4">
+                  <ButtonLink href={`/situations/${scene}`} variant={(focus && moduleNext) || (check && !check.passed) ? "secondary" : "primary"}>
+                    {t("Have the conversation")} <ArrowRight size={15} aria-hidden />
+                  </ButtonLink>
+                </div>
+              </div>
+            )}
+            {/*
+              WHAT MAKES TODAY'S WORDS STAY IS GOING OVER THEM AGAIN. A learner
+              went through all 49 lessons without opening Review once, because
+              nothing on this screen said to. Where cards are due, it says so.
+            */}
+            {due > 0 && (
+              <div className="mt-4 rounded-[var(--r-xl)] border px-5 py-4 text-left" style={{ background: "var(--surface)", borderColor: "var(--edge)" }} data-lesson-due={due}>
+                <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
+                  {fill(t(due === 1 ? "{n} card is waiting in your reviews." : "{n} cards are waiting in your reviews."), { n: due })}
+                </p>
+                <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
+                  {t("A few minutes on them now is what makes today's words stick.")}
+                </p>
+                <div className="mt-3"><ButtonLink href="/review">{t("Review them")} <ArrowRight size={15} aria-hidden /></ButtonLink></div>
+              </div>
+            )}
+            {/* The last lesson of a part: the check that closes it, which opens the next part. */}
+            {check && !check.passed && (
+              <div className="mt-4 rounded-[var(--r-xl)] border px-5 py-4 text-left" style={{ background: "var(--butter-soft)", borderColor: "var(--edge)" }} data-lesson-check={check.id}>
+                <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
+                  {check.final ? t("That's the last A1 lesson. Next: the A1 check.") : t("That's the end of this part. Next: a short check.")}
+                </p>
+                <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
+                  {check.final
+                    ? t("Questions on everything A1 taught. Pass it to open A2.")
+                    : t("Questions on what this part taught. Pass it to open the next part.")}
+                </p>
+                <div className="mt-3"><ButtonLink href={`/course/check/${check.id}`} variant="primary">{t("Take the check")} <ArrowRight size={15} aria-hidden /></ButtonLink></div>
+              </div>
+            )}
             {saved === false && !saving && (
               <div className="mt-4 flex flex-wrap items-center justify-center gap-3" role="status">
                 <p className="text-base" style={{ color: "var(--again-ink)" }}>{t(NOT_REACHED)}</p>
@@ -198,7 +257,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
                 <>
                   <ButtonLink href="/course/lessons">{t("All lessons")}</ButtonLink>
                   {next && (
-                    <ButtonLink variant="primary" href={`/course/lessons/${next.id}`}>
+                    <ButtonLink variant={scene || (check && !check.passed) ? "secondary" : "primary"} href={`/course/lessons/${next.id}`}>
                       {t("Next:")} <LessonText text={next.title} locale={locale} /> <ArrowRight size={15} aria-hidden />
                     </ButtonLink>
                   )}
@@ -237,7 +296,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
           {step === "words" && <Words lesson={lesson} />}
           {step === "how" && <How lesson={lesson} />}
           {step === "practise" && <Quiz key="practise" items={practice} onFinished={() => finish("practise")} />}
-          {step === "say" && <SayIt lesson={lesson} scene={scene} sceneHref={scene ? lessonSceneHref(scene, focus) : null} capstone={capstone} onComplete={() => finish("say")} />}
+          {step === "say" && <SayIt lesson={lesson} scene={scene} sceneHref={scene ? lessonSceneHref(scene, focus) : null} capstone={capstone} name={name} onComplete={() => finish("say")} />}
           {step === "review" && (review.length > 0
             ? <Quiz key="review" items={review} onFinished={() => finish("review")} />
             : (
@@ -332,7 +391,7 @@ function Listen({ lesson }: { lesson: LessonSpec }) {
 function kindOf(item: Taught, t: (english: string) => string): string | null {
   if (item.kind === "phrase") return item.et.includes(" ") ? t("phrase") : null;
   if (item.kind === "form") return fill(t("a form of {lemma}"), { lemma: item.of });
-  if (item.kind === "verb") return t("a verb and its I-form");
+  if (item.kind === "verb") return t("a verb: its ma-tegevusnimi (-ma) and olevik (I form)");
   return null;
 }
 
@@ -387,7 +446,7 @@ function Words({ lesson }: { lesson: LessonSpec }) {
                       </span>
                     ))}
                   </span>
-                  {kind && <span className="mt-0.5 block text-sm" style={{ color: "var(--ink-3)" }}>{kind}</span>}
+                  {kind && <span className="mt-0.5 block text-sm" style={{ color: "var(--ink-3)" }}><Braced text={kind} /></span>}
                 </td>
                 <td className="px-4 py-3 align-top" style={{ color: "var(--ink-2)" }}>
                   <LessonText text={row[0]!.en} locale={locale} />

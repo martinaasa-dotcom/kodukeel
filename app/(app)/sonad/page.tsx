@@ -26,7 +26,11 @@ export const dynamic = "force-dynamic";
  * once because neither depends on the other.
  *
  * The word is banded on the learner's level, so the pool follows them up and
- * nobody is asked to deduce a C1 noun in their first week. The guess list is
+ * nobody is asked to deduce a C1 noun in their first week. The same at every
+ * level: for somebody the module holds it is a word their evenings taught,
+ * once they have taught enough six-letter words to vary the board
+ * (`SONAD_MIN_TAUGHT`), and a word at their level until then, with the
+ * dictionary offered as fair play rather than an empty screen. The guess list is
  * the whole language, because refusing a real Estonian word is the one thing a
  * game like this must never do, and it is handed to the browser rather than
  * checked over the wire: a round trip per guess is a round trip inside the one
@@ -50,7 +54,7 @@ export default async function SonadPage() {
         compact
         title="Sõnad"
         lead={fill(
-          tr(locale, taught ? "One word a day. {letters} letters, {guesses} guesses, a word you've met." : "One word a day. {letters} letters, {guesses} guesses, at your level."),
+          tr(locale, puzzle?.met ? "One word a day. {letters} letters, {guesses} guesses, a word you've met." : "One word a day. {letters} letters, {guesses} guesses, at your level."),
           { letters: SONAD_LENGTH, guesses: SONAD_GUESSES },
         )}
       >

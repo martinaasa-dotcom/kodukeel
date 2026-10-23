@@ -1,4 +1,7 @@
-import { CASES, caseByKey } from "@/lib/estonian/cases";
+import { CASES, caseByKey, casePlainName } from "@/lib/estonian/cases";
+import type { Locale } from "@/lib/copy/locale";
+import { formName } from "@/lib/estonian/morph";
+import { verbFormName } from "@/lib/estonian/verbNames";
 import { isOpenerSlot, openerBySlot } from "@/lib/estonian/openers";
 
 /**
@@ -196,13 +199,24 @@ export function conjugationSlotFromFront(front: string): string | null {
   return CONJUGATION_SLOTS.find((s) => s.label === tail)?.code ?? null;
 }
 
-/** What a slot is called on a screen. The Estonian name leads, as everywhere. */
-export function slotLabel(slot: string): string {
+/**
+ * A verb slot's name on a screen, "lihtminevik, ta (past, he/she)", off the
+ * one table in `lib/estonian/verbNames.ts`. The slot's own `label` stays what
+ * it is, because it is what an old card's front was built from and
+ * `conjugationSlotFromFront` reads it back; this is only what a reader sees.
+ */
+function verbSlotName(code: string, locale: Locale): string | null {
+  if (code === "IndPrPs_" || code === "IndPrPsN") return verbFormName("NEGATIVE", locale);
+  return formName({ morphCode: code })?.shown?.[locale] ?? null;
+}
+
+/** What a slot is called on a screen: a case by its name and its question. */
+export function slotLabel(slot: string, locale: Locale = "en"): string {
   const spec = caseByKey(slot);
-  if (spec) return `${spec.et}, ${spec.question}`;
+  if (spec) return `${casePlainName(spec, locale)}, ${spec.question}`;
 
   const verb = CONJUGATION_SLOTS.find((s) => s.code === slot);
-  if (verb) return verb.label;
+  if (verb) return verbSlotName(verb.code, locale) ?? verb.label;
 
   // An opener slot is named by the first words of the sentence it was about.
   const opener = openerBySlot(slot);
@@ -212,11 +226,12 @@ export function slotLabel(slot: string): string {
 }
 
 /** The short version, for a chip beside a word. */
-export function slotShort(slot: string): string {
+export function slotShort(slot: string, locale: Locale = "en"): string {
   const spec = caseByKey(slot);
-  if (spec) return spec.et;
-  return CONJUGATION_SLOTS.find((s) => s.code === slot)?.label
-    ?? openerBySlot(slot)?.text ?? MEANING_LABELS[slot] ?? slot.toLowerCase();
+  if (spec) return casePlainName(spec, locale);
+  const verb = CONJUGATION_SLOTS.find((s) => s.code === slot);
+  if (verb) return verbSlotName(verb.code, locale) ?? verb.label;
+  return openerBySlot(slot)?.text ?? MEANING_LABELS[slot] ?? slot.toLowerCase();
 }
 
 const MEANING_LABELS: Record<string, string> = {

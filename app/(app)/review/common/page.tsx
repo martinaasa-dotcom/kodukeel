@@ -112,9 +112,23 @@ export default async function CommonRoundsPage() {
                             {" "}{fill(tr(locale, "words {first} to {last}"), { first, last })}
                           </span>
                         </p>
+                        {/*
+                          WHAT A PART IS WORTH PRESSING FOR: how many of its
+                          words are learned, which is the scheduler's reading
+                          rather than a count of cards added. A bar as well as
+                          the words, since a column of four parts is read at
+                          a glance.
+                        */}
                         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                          {fill(tr(locale, "{n} of {total} in your deck"), { n: part.inDeck, total: part.found })}
+                          {part.inDeck === 0
+                            ? tr(locale, "Not in your deck yet")
+                            : fill(tr(locale, "{known} of {total} learned"), { known: part.known, total: part.found })}
                         </p>
+                        {part.inDeck > 0 && (
+                          <span aria-hidden className="mt-1.5 block h-1.5 w-full max-w-[12rem] overflow-hidden rounded-full" style={{ background: "var(--scale-track)" }}>
+                            <span className="block h-full rounded-full" style={{ width: `${Math.round((part.known / part.found) * 100)}%`, background: "var(--scale-3)" }} />
+                          </span>
+                        )}
                       </div>
                       {whole ? (
                         <ButtonLink href={href} variant={isLead(count.group, n) ? "primary" : "secondary"}>{tr(locale, "Start")}</ButtonLink>

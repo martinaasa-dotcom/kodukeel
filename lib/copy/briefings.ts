@@ -92,7 +92,7 @@ export const BRIEFINGS = {
     what:
       "Words from one of the lists of what Estonians say most, counted from real films and TV " +
       "rather than picked by us.",
-    you: "Type each answer. A word comes back with a new ending each time, so you learn it the way it's really used.",
+    you: "A new word is shown to you first, then asked. A word you know comes back with a new ending each time, so you learn it the way it's really used.",
     action: "Start",
   },
   deck: {
@@ -290,7 +290,7 @@ export const BRIEFINGS = {
   quest: {
     title: "The endings you keep missing",
     what: "Cards from the cases you get wrong most, picked from your own answers, against the clock.",
-    you: "Answer as many as you can before time runs out.",
+    you: "Answer as many as you can. The clock stops while each answer shows, and you'll see them all again at the end.",
     action: "Start",
   },
   sonad: {

@@ -3,12 +3,19 @@
 import { Fragment } from "react";
 
 import { questionIn } from "@/lib/copy/questionReading";
+import { plainNameForEt } from "@/lib/estonian/cases";
 import { useLocale } from "@/components/Locale";
 import { useCaseGloss } from "@/components/CaseGloss";
 import type { CaseLabelParts } from "@/lib/copy/caseLabel";
 
 /**
  * A CASE ON A SCREEN: ITS NAME, THE QUESTION IT ANSWERS, AND WHAT THAT ASKS.
+ *
+ * THE NAME IS THE ESTONIAN ONE WITH ITS HINT: "seesütlev (-s, in)"
+ * (`casePlainName`). Callers hand over the Estonian name, which is what a
+ * stored hint holds and what identifies the case; this reads the full name off
+ * it and draws the Estonian half as Estonian and the hint as the reader's own
+ * language. A string that names no case it knows is drawn as it came.
  *
  * One drawing for every screen that names a case beside its question, so the
  * two halves are never joined by a comma somebody typed: the name sits in a
@@ -35,9 +42,16 @@ export function CaseLabel({ label, className = "", reading = true }: {
   const wantsGloss = useCaseGloss();
   const locale = useLocale();
   const english = reading === "always" || (reading && wantsGloss) ? questionIn(locale, label.question) : null;
+  const full = plainNameForEt(label.et, locale);
+  const cut = full ? full.indexOf(" (") : -1;
+  const name = cut > 0 ? full!.slice(0, cut) : label.et;
+  const hint = cut > 0 ? full!.slice(cut + 1) : null;
   return (
-    <span className={`case-label ${className}`} data-case-label>
-      <span lang="et" className="case-label-name"><Words text={label.et} /></span>
+    <span className={`case-label ${className}`} data-case-label data-case-et={label.et}>
+      <span className="case-label-name">
+        <span lang="et"><Words text={name} /></span>
+        {hint && <>{" "}<Words text={hint} /></>}
+      </span>
       <span className="sr-only">{", "}</span>
       <span lang="et" className="case-label-ask"><Words text={label.question} /></span>
       {english && (

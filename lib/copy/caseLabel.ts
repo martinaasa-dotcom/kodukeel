@@ -53,7 +53,9 @@ const QUESTION_WORD = /^[\p{L}]+\?$/u;
  */
 export function caseLabelOf(text: string | null | undefined): CaseLabelParts | null {
   if (!text) return null;
-  const parts = text.split(SEPARATORS).map((p) => p.trim()).filter(Boolean);
+  // A name carries its hint in brackets, "seesütlev (-s, in)", whose comma is
+  // not a separator; the hint is the table's own and says nothing to read.
+  const parts = text.replace(/\s*\([^()]*\)/g, "").split(SEPARATORS).map((p) => p.trim()).filter(Boolean);
   let spec: CaseSpec | undefined;
   const questions: string[] = [];
   const rest: string[] = [];

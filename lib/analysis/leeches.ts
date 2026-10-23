@@ -14,7 +14,7 @@
  * the failure has.
  */
 
-import { caseByKey } from "@/lib/estonian/cases";
+import { caseByKey, casePlainName } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
 
 export interface LeechCandidate {
@@ -131,7 +131,7 @@ function caseLine(key: string | null): string {
   const spec = caseByKey(key as CaseKey);
   if (!spec) return "";
   const asks = [spec.asksThing, spec.asksWhere].filter(Boolean).join(" ");
-  return `It asks for the ${spec.et}${asks ? ` (${asks})` : ""}.`;
+  return `It asks for the ${casePlainName(spec)}${asks ? `, ${asks}` : ""}.`;
 }
 
 /**

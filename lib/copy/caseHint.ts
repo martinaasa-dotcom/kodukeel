@@ -116,3 +116,15 @@ export function caseFromFront(front: string): string | null {
   }
   return null;
 }
+
+/** Split a `word → form` front, or null where it is not one. */
+export function arrowFront(front: string): { word: string; tail: string } | null {
+  const at = front.indexOf("\u2192");
+  if (at < 0) return null;
+  const word = front.slice(0, at).trim();
+  const tail = front.slice(at + 1).trim()
+    // Any separator a stored front carries between the two facts reads as a
+    // comma, which is the one this app draws; a question mark is kept.
+    .replace(/\s*[^\p{L}\p{N}\s?]\s*/gu, ", ");
+  return word && tail ? { word, tail } : null;
+}

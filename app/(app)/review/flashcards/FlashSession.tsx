@@ -33,7 +33,7 @@ import { RetypeBox, useRetype } from "@/components/round/Retype";
 import { useHints } from "@/components/round/useHints";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import { asksInEnglish } from "@/lib/games/flash";
-import { caseByKey } from "@/lib/estonian/cases";
+import { caseByKey, casePlainName } from "@/lib/estonian/cases";
 import { VERDICT_CLASS, verdictLine, verdictOfMark } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { RoundDone } from "@/components/round/RoundDone";
@@ -788,7 +788,7 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
             className="font-semibold underline underline-offset-2"
             style={{ color: "var(--accent-deep)" }}
           >
-            {rich(t("What the {case} is for"), { case: spec.et })}
+            {rich(t("What the {case} is for"), { case: casePlainName(spec, locale) })}
           </Link>
         )}
       </p>

@@ -224,6 +224,7 @@ const ROUTES = [
   // The course as lessons, in preview for reviewers (docs/43-lessons.md).
   "/course/lessons",
   "/course/lessons/a1-04-persons",
+  "/course/check/check-a1.1",
 
   // Measurement, and the things built on it.
   "/progress",

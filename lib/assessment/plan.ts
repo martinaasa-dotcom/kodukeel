@@ -708,8 +708,8 @@ export const FACTS: readonly Fact[] = [
     id: "cases",
     icon: "Languages",
     claim:
-      "Estonian has fourteen cases, but eleven of them are one regular ending added to the omastav, the form " +
-      "meaning \"whose\". Learn a word's omastav and most of its forms follow. Only three have to be learned, not fourteen.",
+      "Estonian has fourteen cases, but eleven of them are one regular ending added to the omastav (2nd form), the " +
+      "form meaning \"whose\". Learn a word's omastav and most of its forms follow. Only three have to be learned, not fourteen.",
     source: "The Estonian case system, as this app models it in lib/estonian",
   },
   {

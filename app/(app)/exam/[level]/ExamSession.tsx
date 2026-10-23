@@ -1,5 +1,6 @@
 "use client";
 
+import { plainNameForEt } from "@/lib/estonian/cases";
 import { openingConversation } from "@/lib/exam/warmUp";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { questionIn } from "@/lib/copy/questionReading";
@@ -1181,7 +1182,7 @@ function ItemView({ item, number, marks, bank, response, canPlay, plays, voice, 
           <EstonianInput
             value={response?.kind === "typed" ? response.value : ""}
             onChange={(value) => onAnswer({ kind: "typed", value })}
-            ariaLabel={fill(t("{case} of {word}, {asks}"), { case: item.caseEt, word: item.lemma, asks: questionIn(locale, item.caseQuestion) ?? "" })}
+            ariaLabel={fill(t("{case} of {word}, {asks}"), { case: plainNameForEt(item.caseEt, locale) ?? item.caseEt, word: item.lemma, asks: questionIn(locale, item.caseQuestion) ?? "" })}
             placeholder={t("Write the form")}
           />
         </div>

@@ -370,7 +370,7 @@ await page.getByPlaceholder("word").fill("trial word");
 // The box is named the way a lesson names it, and the number tells it from
 // the plural one. A regex rather than the whole accessible name, since the
 // label also carries the question and its reading.
-const genitiveField = page.getByRole("textbox", { name: /^Omastav ainsus/ });
+const genitiveField = page.getByRole("textbox", { name: /^omastav \(2nd form\)/ });
 await genitiveField.fill(`${word}u`);
 await page.getByRole("button", { name: "Save word" }).click();
 // What the screen actually said, when it did not say this. A check that
@@ -394,7 +394,7 @@ check("and it can go straight into the deck",
 // The shared diacritic bar must type into whichever field has focus, and React
 // must see the change — a direct .value write would be silently discarded.
 await page.goto(`${B}/dictionary?q=zzznotaword`, { waitUntil: "networkidle" });
-const genField = page.getByRole("textbox", { name: /^Omastav ainsus/ });
+const genField = page.getByRole("textbox", { name: /^omastav \(2nd form\)/ });
 await genField.click();
 await genField.fill("s");
 await page.getByLabel("Insert an Estonian letter into the field you're typing in").getByLabel("Insert ä").click();

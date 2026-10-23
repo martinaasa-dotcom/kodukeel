@@ -221,8 +221,8 @@ check("the reference points at the screen that comes before it",
 await page.goto(`${B}/grammar/build-a-word`, { waitUntil: "networkidle" });
 const walkBody = (await page.textContent("body")) ?? "";
 check("it names the three forms that are stored, the way a class names them",
-  /nimetav/.test(walkBody) && /omastav/.test(walkBody) && /osastav/.test(walkBody),
-  "the three are not named in Estonian");
+  /nimetav \(1st form\)/.test(walkBody) && /omastav \(2nd form\)/.test(walkBody) && /osastav \(3rd form\)/.test(walkBody),
+  "the three are not named nimetav (1st form), omastav (2nd form) and osastav (3rd form)");
 check("and says which of them the endings are built on",
   /the one the endings go on/.test(walkBody), "nothing marks the stem");
 /*
