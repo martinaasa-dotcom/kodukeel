@@ -503,7 +503,8 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
                           data-active={active === i ? "" : undefined}
                           aria-label={typed[i]
                             ? fill(t("{person}: {form}. Press to put it back."), { person: blank.person, form: typed[i] })
-                            : fill(t("{person}: nothing yet"), { person: blank.person })}
+                            // "Goes here" is on the slot when it is the one in play, so the name says it too (WCAG 2.5.3).
+                            : `${fill(t("{person}: nothing yet"), { person: blank.person })}${active === i ? `, ${t("Goes here")}` : ""}`}
                           aria-current={active === i ? "true" : undefined}
                           onClick={() => (typed[i] ? unplace(i) : setTarget(i))}
                         >

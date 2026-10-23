@@ -603,7 +603,7 @@ function LinePlay({ at, playing, onPlay }: {
           type="button"
           className={`${half} whitespace-nowrap px-2.5 py-1.5 text-sm font-semibold`}
           style={{ color: "var(--ink-3)" }}
-          aria-label={playing === true ? t("Stop") : fill(t("Play from {at}, slowly"), { at })}
+          aria-label={playing === true ? t("Stop") : fill(t("Slow, from {at}"), { at })}
           onClick={() => onPlay(true)}
         >
           {playing === true ? <Square size={13} fill="currentColor" aria-hidden /> : t("Slow")}

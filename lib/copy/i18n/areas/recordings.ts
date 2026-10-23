@@ -58,7 +58,7 @@ export const RECORDINGS: Area = {
     "What was heard in {name}": "Что услышано в {name}",
     "Hear it all as it was": "Прослушать целиком, как есть",
     "Play from {at}, at your pace": "Воспроизвести с {at} в вашем темпе",
-    "Play from {at}, slowly": "Воспроизвести с {at} медленно",
+    "Slow, from {at}": "Медленно, с {at}",
     "heard least surely": "расслышано неуверенно",
     "Only the first {minutes} minutes were heard, which is as long as a recording can be here.":
       "Распознаны только первые {minutes} мин: длиннее запись здесь быть не может.",
@@ -165,7 +165,7 @@ export const RECORDINGS: Area = {
     "What was heard in {name}": "Що почуто в {name}",
     "Hear it all as it was": "Прослухати повністю, як є",
     "Play from {at}, at your pace": "Відтворити з {at} у вашому темпі",
-    "Play from {at}, slowly": "Відтворити з {at} повільно",
+    "Slow, from {at}": "Повільно, з {at}",
     "heard least surely": "розчуто непевно",
     "Only the first {minutes} minutes were heard, which is as long as a recording can be here.":
       "Розпізнано лише перші {minutes} хв: довшим запис тут бути не може.",

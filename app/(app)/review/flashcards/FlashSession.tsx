@@ -569,7 +569,6 @@ function Question({
             size={22}
             className="px-1 py-1"
             label={t("Play the sentence")}
-            slowLabel={t("Play the sentence slowly")}
             onUnavailable={onNoAudio}
             autoplay
           />

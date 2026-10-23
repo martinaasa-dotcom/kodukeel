@@ -279,7 +279,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
               text={question.heard}
               slow
               voice={voice}
-              label={t("Hear it slowly")}
+              label={`${t("Slow")}: ${t("Hear it")}`}
               size={14}
               className="press tap-tint inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold"
               style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
