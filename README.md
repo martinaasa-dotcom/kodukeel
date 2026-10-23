@@ -1,9 +1,8 @@
 # Kodukeel. Estonian that finally sticks
 
-*Kodukeel* means "home language". It's an app for learning Estonian, and it is built to be put
-down eventually. It teaches you the words properly, then sits you opposite
-somebody who wants something from you, and then counts the conversations you have out in the real
-world.
+*Kodukeel* means "home language". It's an app for learning Estonian that you're meant to
+outgrow. It teaches you the words properly, then sits you opposite somebody who wants something
+from you, and then counts the conversations you have out in the real world.
 
 Inside you'll find a dictionary that gives you every form of a word, a course you can work through
 evening by evening, and flashcards scheduled by FSRS. There's listening that sounds like the street
@@ -138,8 +137,8 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
   which word you missed, and whether all you lost was its Estonian letters. Estonian glues its case
   endings onto the stem, so hearing a sentence perfectly and still writing the wrong ending is its
   own kind of mistake, and worth naming.
-- **Speaking that doesn't score your accent.** Say the word, and the app tells you which words it
-  understood, then plays your recording beside a native voice. It never rates how a word sounded,
+- **Speaking that tells you what it understood.** Say the word, and the app shows which words it
+  heard, then plays your recording beside a native voice. It never rates how a word sounded,
   because no recognizer can judge that fairly, and a made-up number would be believed.
 - **A level check that measures rather than asks.** Eighty questions from A1 to C1: six reading and
   six writing at each level, three listening, and one spoken. It's built entirely from the

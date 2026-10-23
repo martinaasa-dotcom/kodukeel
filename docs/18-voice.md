@@ -342,6 +342,20 @@ there each time. That shape is the `moral tail` tell now, and Anu is asked never
 | Pair each word with its meaning against the clock. It's quick, it's fun, and the meanings stick before you ever have to say them. | Pair each word with its meaning against the clock. |
 | The topic every C1 exam essay is secretly about. | Ethics comes up in nearly every C1 exam essay. |
 
+A fourth pass read this repository's own README and every document under `docs/` line by line,
+about twenty-six thousand lines, and found the same habit in a writer's register: sincerity
+markers. "The honest answer is", "described honestly", "genuinely hard", "and that is the whole
+point". A document that has to say it is being honest has made the reader wonder. About two
+hundred and fifty lines lost the marker and kept their facts.
+
+| Was | Is |
+| --- | --- |
+| Where the honest answer is "no", it says no. | Where the answer is "no", it says no. |
+| Detection is described honestly in the incident plan. | Detection is described in the incident plan. |
+| Weak, and we are not going to dress it up: continuous monitoring, ... | Weak: continuous monitoring, ... |
+| The shape of that answer is unusual and is the reason it is worth reading. Most of what this app is made of... | Most of what this app is made of... |
+| An untested backup is a hypothesis. | A backup nobody has restored is not known to work. |
+
 Where the tail was the only useful thing in the sentence, it became the useful thing said plainly:
 "Saying no first is the harder half, and it'll come" was gesturing at what to practice next, so
 the line now names it.
