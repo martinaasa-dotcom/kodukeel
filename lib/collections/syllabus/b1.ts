@@ -17,7 +17,7 @@ export const B1 = [
     icon: "Target",
     level: "B1",
     module: "Grammatika süveneb",
-    canDo: "Choose between an osastav object and an omastav object, and explain why.",
+    canDo: "Choose between a 3rd form object and a 2nd form object, and explain why.",
     blurb: "Did you read the book, or were you reading it? Estonian shows the difference with an ending. It's the hardest thing in the grammar, and getting it right is what marks out a B1 speaker.",
     grammar: ["object", "partitive", "genitive", "aspect"],
     // Verbs, so the form worth drilling is a person and not a case. It asked

@@ -1,4 +1,4 @@
-import { CASES } from "@/lib/estonian/cases";
+import { CASES, casePlainName } from "@/lib/estonian/cases";
 import { plainAsk } from "@/lib/estonian/plainAsk";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { VOICE_RULES } from "@/lib/copy/voice";
@@ -101,7 +101,7 @@ export function buildSystemPrompt(): string {
     honest thing when she has not been handed one is to say she is not sure.
   */
   const caseTable = CASES.map((c) => {
-    const ending = c.suffix ? ` (genitive stem + -${c.suffix})` : " (principal part, memorized)";
+    const ending = c.suffix ? ` (2nd form + -${c.suffix})` : " (learned by heart)";
     const irregular = c.key === "ILLATIVE"
       ? ". BUT thousands of words have a short form (aditiiv) that this rule does"
         + " not produce: tuba goes to tuppa, aeg to aega. Use the form you were"
@@ -121,7 +121,7 @@ export function buildSystemPrompt(): string {
       writes about `milles?` and the line under the dictionary's own case table
       cannot say different things.
     */
-    return `${plain}${c.et} (${c.en}): ${c.question} = ${c.questionEn}${ending}${irregular}`;
+    return `${plain}${casePlainName(c)} (in class: ${c.et}; ${c.en}): ${c.question} = ${c.questionEn}${ending}${irregular}`;
   }).join("\n");
 
   const { tuba, sepp, loen, lugesin, aitan, sind, helistan, meeldin, raamatut, raamatu } = WORKED_FORMS;
@@ -152,8 +152,8 @@ HOW YOU TEACH
 - Meet the question where it is. If they got something right, name that specific thing before anything else, because they will not know it was right unless you say so. If the confusion is a reasonable one, say that it is (most of them are; this language is hard for an English speaker) and then clear it up.
 - Answer the question first, in one or two plain sentences. Explain after, and only as much as the question actually needs. Where they asked how to say something, the first line of your answer is the Estonian, in bold, and the explanation comes under it; an answer that explains the grammar and never says the sentence has not answered.
 - Simple beats thorough, every time. Explain the way you would to a friend across a table, in words anyone would use, not the way a textbook does. A learner who cannot use what you said has been given nothing, however correct it was: "because you mean some of it, not all of it" is a better answer than "because of aspect and the partitive object", every time, because it is the one they can actually hold onto. The reference table below gives you a plain sentence for each case and verb slot ("used when something is inside it"). Reach for that first, and where it is enough on its own, stop there.
-- A grammar term is a tool you pick up sometimes, never a habit. When you do name one, Estonian first, the way a class says it. Reach for it only when it genuinely helps them hold onto the pattern, when they are already using that word themselves, or when they ask what something is called. At most one term in an answer, and never a bare name with nothing plain said around it, not even in a worked example. Most answers are better with none at all.
-- When you name a case or a question word to this person, say what it is asking in English rather than what an English grammar calls it. The Latin name hands an English speaker a second name they have also never met, and the question is the thing they will actually hear in a shop. The table below gives the reading for every question word after an equals sign; use those words rather than inventing your own, and the Latin name only when they ask for it or are clearly reading an English grammar.
+- A grammar term is a tool you pick up sometimes, never a habit. When you do name one, use the names this app teaches: the 1st, 2nd and 3rd form for the three forms a noun is learned in, the in-form (-s), the with-form (-ga) and the rest exactly as the table below names them, and for a verb the -ma form, the -da form and the I form, the one said with ma. Never a Latin name, and the Estonian class name only when they use it themselves. Reach for it only when it genuinely helps them hold onto the pattern, when they are already using that word themselves, or when they ask what something is called. At most one term in an answer, and never a bare name with nothing plain said around it, not even in a worked example. Most answers are better with none at all.
+- When you name a question word to this person, say what it is asking in English: the question is the thing they will actually hear in a shop. The table below gives the reading for every question word after an equals sign; use those words rather than inventing your own.
 - Give a minimal pair when one genuinely helps, and let the pair itself do the teaching: "${lugesin.value} ${raamatut.value}" vs "${lugesin.value} ${raamatu.value} ${labi}" says more on its own than a paragraph explaining it would.
 - Correct mistakes directly, then say what was right. Softening a correction into vagueness is the worst thing you can do for a learner, and so is emptying every fault onto them at once. One or two things at a time, the ones that matter most, and leave the rest for another day. And a sentence that is right is right: say so and change nothing, because a "correction" of a correct sentence teaches them that being right is not enough. A correction changes only what was wrong: never reorder, reword or trim a sentence for style, since a learner reads every change as a mistake they made.
 - Teach one thing per answer. A question about one sentence is not an invitation to explain the whole case system.
@@ -319,7 +319,7 @@ export function learnerNote(note: LearnerNote): string {
     const clause = plainAsk(weak.key);
     const plain = clause ? ` (used ${clause})` : "";
     lines.push(
-      `- Over the last six months their weakest case is the ${weak.et} (${weak.en})${plain}, right ${note.weakestCase.accuracy}% of ${note.weakestCase.total} times. When a question touches it, say so in plain words before naming it, and build the example around it. Do not raise it unprompted in every answer.`,
+      `- Over the last six months their weakest case is the ${casePlainName(weak)} (in class: ${weak.et})${plain}, right ${note.weakestCase.accuracy}% of ${note.weakestCase.total} times. When a question touches it, say so in plain words before naming it, and build the example around it. Do not raise it unprompted in every answer.`,
     );
   }
   if (note.unit) {

@@ -8,9 +8,9 @@ import {
 import { viewerId } from "@/lib/auth/session";
 import { PublicReference, referenceHref } from "@/components/grammar/PublicReference";
 import { resolvePublicLocale, shareCard } from "@/lib/progress/publicLocale";
-import { CASES, caseQuestionReading } from "@/lib/estonian/cases";
+import { CASES, casePlainName, caseQuestionReading, type CaseSpec } from "@/lib/estonian/cases";
 import { localeFor } from "@/lib/progress/locale";
-import { fill, tr } from "@/lib/copy/locale";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
 import { fillNodes } from "@/components/reference/fillNodes";
 import { allCaseReferences, caseReference } from "@/lib/estonian/grammar";
 import { caseExamples, type CaseExample } from "@/lib/progress/caseExamples";
@@ -39,11 +39,12 @@ export function generateStaticParams() {
 }
 
 /** The ending, or the word "memorized" where there is no ending to give. */
-function endingOf(ref: { spec: { principal: boolean; suffix: string; et: string } }): string {
-  // A stored case has no ending to print, so it is named the way a class
-  // names it. "memorized" at the top of the page read as a heading about
-  // nothing: it is what a form is, not what the case is called.
-  return ref.spec.principal ? ref.spec.et : `-${ref.spec.suffix}`;
+function endingOf(ref: { spec: CaseSpec }, locale: Locale): string {
+  // A stored case has no ending to print, so it is named by its number, "2nd
+  // form", the way the course names it (`casePlainName`). "memorized" at the
+  // top of the page read as a heading about nothing: it is what a form is,
+  // not what the case is called.
+  return ref.spec.principal ? casePlainName(ref.spec, locale) : `-${ref.spec.suffix}`;
 }
 
 /** The plain meaning as a heading. Everything else about it stays as written. */
@@ -60,7 +61,7 @@ export async function generateMetadata({ params, searchParams }: {
   // The learner's own language signed in, the address's or English signed out.
   const { locale } = await resolvePublicLocale(searchParams);
   if (!ref) return { title: tr(locale, "Grammar") };
-  const title = fill(tr(locale, "{ending} means {meaning}, {name}"), { ending: endingOf(ref), meaning: tr(locale, ref.plain), name: ref.spec.et });
+  const title = fill(tr(locale, "{ending} means {meaning}"), { ending: endingOf(ref, locale), meaning: tr(locale, ref.plain) });
   // Its own share card, off the reference's own summary (FB-8).
   return { title, ...shareCard(locale, title, tr(locale, ref.summary), `/grammar/${ref.key.toLowerCase()}`) };
 }
@@ -78,8 +79,8 @@ const ORIGIN_LABEL: Record<CaseExample["origin"], { label: string; title: string
     title: "A form you learn by heart, because no rule gives it to you",
   },
   DERIVED: {
-    label: "from the omastav",
-    title: "Worked out for you: the omastav with this case's ending added on",
+    label: "from the 2nd form",
+    title: "Worked out for you: the 2nd form with this case's ending added on",
   },
 };
 
@@ -171,7 +172,7 @@ export default async function CasePage({
         // As written. `label-xs` uppercases, and an ending is a piece of
         // Estonian rather than a label: "-SSE" is not the ending. This is the
         // same rule `Chip`'s `caseSensitive` exists for.
-        <span lang="et" style={{ textTransform: "none" }}>{endingOf(ref)}</span>
+        <span lang={ref.spec.principal ? undefined : "et"} style={{ textTransform: "none" }}>{endingOf(ref, locale)}</span>
       }
       title={asTitle(t(ref.plain))}
       lead={t(ref.summary)}
@@ -201,15 +202,20 @@ export default async function CasePage({
                     className="font-display font-bold leading-none tracking-tight [--fit-max:var(--text-7xl)] md:[--fit-max:var(--text-8xl)]"
                     style={{ color: "var(--cta)" }}
                   />
-                  <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("on the omastav")}</span>
+                  <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("on the 2nd form")}</span>
                 </p>
               )}
             </div>
             <dl className="grid min-w-0 flex-[1_1_18rem] gap-4 sm:grid-cols-2">
               <div className="min-w-0">
                 <dt className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Called")}</dt>
-                <dd lang="et" className="font-display mt-1 text-2xl font-bold" style={{ color: "var(--ink)" }}>
-                  {ref.spec.et}
+                <dd className="font-display mt-1 text-2xl font-bold" style={{ color: "var(--ink)" }}>
+                  {casePlainName(ref.spec, locale)}
+                </dd>
+                {/* The name a teacher in Estonia uses, quietly, for somebody
+                    whose class says it: the plain name leads everywhere. */}
+                <dd className="mt-0.5 text-sm" style={{ color: "var(--ink-3)" }}>
+                  {fillNodes(t("In class: {name}"), { name: <span lang="et">{ref.spec.et}</span> })}
                 </dd>
               </div>
               <div className="min-w-0">
@@ -285,7 +291,7 @@ export default async function CasePage({
                       English word on a table of Estonian and is a term out of
                       a grammar this language does not use.
                     */}
-                    {[t("Word"), "Omastav", endingOf(ref)].map((h, i) => (
+                    {[t("Word"), t("2nd form"), endingOf(ref, locale)].map((h, i) => (
                       <th
                         key={h}
                         className="label-xs px-3 py-2.5 text-left"
@@ -401,7 +407,7 @@ export default async function CasePage({
                     <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
                       {fillNodes(t("Here {form} is the {case} of {lemma}."), {
                         form: <span lang="et" style={{ color: "var(--accent-deep)" }}>{example.sentenceForm ?? example.form}</span>,
-                        case: <span lang="et">{ref.spec.et}</span>,
+                        case: <span>{casePlainName(ref.spec, locale)}</span>,
                         lemma: <span lang="et">{example.lemma}</span>,
                       })}
                     </p>
@@ -471,7 +477,7 @@ export default async function CasePage({
               className="flex items-center gap-1.5 text-sm"
               style={{ color: "var(--ink-2)" }}
             >
-              <ArrowLeft size={14} aria-hidden /> {endingOf(previous)}
+              <ArrowLeft size={14} aria-hidden /> {endingOf(previous, locale)}
               <span style={{ color: "var(--ink-3)" }}>{t(previous.plain)}</span>
             </Link>
           ) : <span />}
@@ -481,7 +487,7 @@ export default async function CasePage({
               className="flex items-center gap-1.5 text-sm"
               style={{ color: "var(--ink-2)" }}
             >
-              {endingOf(next)} <span style={{ color: "var(--ink-3)" }}>{t(next.plain)}</span>
+              {endingOf(next, locale)} <span style={{ color: "var(--ink-3)" }}>{t(next.plain)}</span>
               <ArrowRight size={14} aria-hidden />
             </Link>
           )}

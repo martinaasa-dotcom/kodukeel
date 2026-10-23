@@ -1,4 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { casePlainName } from "@/lib/estonian/cases";
 import { CaseLabel } from "@/components/CaseLabel";
 import { ChevronRight, Languages, Puzzle, Sparkles, Target, TriangleAlert } from "lucide-react";
 import { viewerId } from "@/lib/auth/session";
@@ -260,7 +261,7 @@ export default async function GrammarIndexPage({ searchParams }: { searchParams:
                         <span className="block max-w-[320px]">
                           <Meter
                             pct={c.accuracy}
-                            label={fill(t("{case} accuracy"), { case: ref.spec.et })}
+                            label={fill(t("{case} accuracy"), { case: casePlainName(ref.spec, locale) })}
                             tone="var(--accent)"
                             height={5}
                           />
@@ -445,7 +446,7 @@ export default async function GrammarIndexPage({ searchParams }: { searchParams:
         </section>
 
         <Note tone="neutral">
-          {t("The singular endings go on the omastav singular, and the plural ones on the omastav plural. If the dictionary has no omastav plural for a word, its table shows a gap rather than a guess.")}
+          {t("The singular endings go on the 2nd form singular, and the plural ones on the 2nd form plural. If the dictionary has no 2nd form plural for a word, its table shows a gap rather than a guess.")}
         </Note>
 
         {viewer && <p className="text-xs" style={{ color: "var(--ink-3)" }}>

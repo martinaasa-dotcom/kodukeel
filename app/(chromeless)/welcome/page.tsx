@@ -1503,7 +1503,7 @@ async function loadDemo(): Promise<{ words: DemoWord[]; stats: { words: number; 
         return questionInEnglish(question);
       };
       const principal = (isVerb
-        ? [["ma-tegevusnimi", form("INF_MA")], ["da-tegevusnimi", form("INF_DA")], ["olevik, ma", form("PRES_1SG")], ["lihtminevik, ma", form("PAST_1SG")]]
+        ? [["-ma form", form("INF_MA")], ["-da form", form("INF_DA")], ["I form", form("PRES_1SG")], ["past I form", form("PAST_1SG")]]
         : [
             [`nimetav, ${caseQuestionFor(caseByKey("NOMINATIVE")!, subject)}`, form("NOM_SG"), askedIn("NOMINATIVE")],
             [`omastav, ${caseQuestionFor(caseByKey("GENITIVE")!, subject)}`, form("GEN_SG"), askedIn("GENITIVE")],

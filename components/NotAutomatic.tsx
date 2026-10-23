@@ -95,12 +95,14 @@ function SlowRow({ pace, locale }: { pace: SlotAnswerTime; locale: Locale }) {
     that says `seesütlev` reads as one list; the question is one panel below,
     on the grammar page the link opens, and in the label a screen reader gets.
   */
-  const name = slotShort(pace.slot);
+  // A case is named the plain way, in English, so it loses the `lang`; a verb
+  // slot's name is still Estonian (`olevik, ma`).
+  const name = spec ? tr(locale, slotShort(pace.slot)) : slotShort(pace.slot);
   const full = slotLabel(pace.slot);
   const time = formatAnswerTime(pace.medianMs);
   const inside = (
     <>
-      <span lang="et" className="min-w-0 flex-1" style={{ color: "var(--ink-2)" }}>
+      <span lang={spec ? undefined : "et"} className="min-w-0 flex-1" style={{ color: "var(--ink-2)" }}>
         {name}
       </span>
       <span className="tnum shrink-0 text-sm font-semibold" style={{ color: "var(--butter-ink)" }}>
@@ -148,12 +150,13 @@ function SlowRow({ pace, locale }: { pace: SlotAnswerTime; locale: Locale }) {
 function MixedRow({ confusion, locale }: { confusion: Confusion; locale: Locale }) {
   const t = (english: string) => tr(locale, english);
   const [a, b] = confusion.pair;
-  const first = slotShort(a);
-  const second = slotShort(b);
+  const named = (slot: string) => (caseByKey(slot as CaseKey) ? t(slotShort(slot)) : slotShort(slot));
+  const first = named(a);
+  const second = named(b);
   return (
     <li className="flex min-w-0 items-center gap-3 px-2 py-1.5 text-sm">
       <span
-        lang="et"
+        lang={caseByKey(a as CaseKey) && caseByKey(b as CaseKey) ? undefined : "et"}
         className="min-w-0 flex-1"
         aria-label={fill(t("{a} and {b}, mixed up {n} times"), { a: slotLabel(a), b: slotLabel(b), n: confusion.times })}
       >

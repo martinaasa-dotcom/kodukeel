@@ -12,7 +12,7 @@ import { CaseLabel } from "@/components/CaseLabel";
 import { Card, KeyCap, Note, SectionTitle, Stack } from "@/components/ui";
 import { WatchOut } from "@/components/RuleNote";
 import { EstonianSentence } from "@/components/EstonianSentence";
-import { caseByKey } from "@/lib/estonian/cases";
+import { caseByKey, casePlainName } from "@/lib/estonian/cases";
 import { CASE_GROUPS, caseReference } from "@/lib/estonian/grammar";
 import { sayPhrase } from "@/lib/estonian/sayIt";
 import { sayIn } from "@/lib/estonian/plainAsk";
@@ -592,6 +592,7 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
   onNext: () => void;
 }) {
   const t = useT();
+  const plainLocale = useLocale();
   const [at, setAt] = useState(0);
   const forms = word.derived;
   const form = forms[at] ?? forms[0];
@@ -674,9 +675,13 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
               className="pop-in rounded-[var(--r)] px-4 py-2"
               style={{ background: "var(--surface)" }}
             >
-              <span lang="et" className="text-2xl font-bold" style={{ color: "var(--accent-deep)" }}>
-                {form.stored ? ref?.spec.et : `-${form.suffix}`}
-              </span>
+              {form.stored ? (
+                <span className="text-2xl font-bold" style={{ color: "var(--accent-deep)" }}>
+                  {ref ? casePlainName(ref.spec, plainLocale) : ""}
+                </span>
+              ) : (
+                <span lang="et" className="text-2xl font-bold" style={{ color: "var(--accent-deep)" }}>-{form.suffix}</span>
+              )}
             </span>
             <span className="text-2xl" style={{ color: "var(--ink-3)" }} aria-hidden>=</span>
             <span className="sr-only">{t("makes")}</span>
@@ -922,7 +927,7 @@ function YourTurn({ word }: { word: WalkWord }) {
           {fill(t("Question {n} of {total}"), { n: at + 1, total: asks.length })}
         </p>
         <p className="mt-2 text-lg font-bold" style={{ color: "var(--ink)" }}>
-          {ask ?? fill(t("Which ending makes the {case}?"), { case: ref?.spec.et ?? "" })}
+          {ask ?? fill(t("Which ending means “{meaning}”?"), { meaning: ref ? t(ref.plain) : "" })}
         </p>
         <p className="mt-1 text-sm" data-ask={form.question} style={{ color: "var(--ink-3)" }}>
           <CaseQuestion question={form.question} inline />

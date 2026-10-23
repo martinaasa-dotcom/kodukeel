@@ -36,7 +36,7 @@ describe("the shape a row is in", () => {
 describe("formName", () => {
   it("names a seeded retrieved form rather than printing its code", () => {
     expect(formName({ formType: "EKILEX:SgN", morphCode: null })?.et).toBe("nimetav");
-    expect(formLabel({ formType: "EKILEX:SgP", morphCode: null })).toMatch(/^osastav \(/);
+    expect(formLabel({ formType: "EKILEX:SgP", morphCode: null })).toBe("3rd form");
   });
 
   it("never lets an internal code reach a screen", () => {
@@ -118,7 +118,7 @@ describe("numberFromMorphCode", () => {
 */
 describe("the two tables that name a verb's present", () => {
   it("names the category in English and the person in Estonian, both ways", () => {
-    expect(formName({ formType: "PRES_1SG" })).toEqual({ et: "olevik ma", en: "present" });
+    expect(formName({ formType: "PRES_1SG" })).toEqual({ et: "olevik ma", en: "present", plain: "I form" });
     expect(formName({ formType: "EKILEX:IndPrSg3" })).toEqual({ et: "olevik ta", en: "present" });
   });
 

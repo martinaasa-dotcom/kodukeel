@@ -906,6 +906,19 @@ form. (ADR-005, ADR-017.) The one module that writes *about* Estonian at length,
 `lib/estonian/grammar.ts`, holds no Estonian at all. Every form on the grammar pages is read from
 the dictionary by `lib/progress/caseExamples.ts` and rendered with its provenance.
 
+**And then a case is named the plain way, which supersedes the paragraphs below wherever they say the
+Estonian name leads.** The operator's call, off a learner's report: `omastav` and `seesütlev` are two more
+words to learn before the one somebody came for. The three forms a noun is learned in are the **1st, 2nd
+and 3rd form** (`käsi`, `käe`, `kätt`), every other case is named by what it does with its ending beside
+it, **in-form (-s)**, **to-form (-le)**, **with-form (-ga)**, and a verb's are the **-ma form**, the
+**-da form** and the **I form** (`rääkima`, `rääkida`, `räägin`). `casePlainName` in
+`lib/estonian/cases.ts` is the one table, in all three languages, `CaseLabel` prints it in its pill,
+`formLabel` prints it for a form, and Anu and the grader are told to use it. The Estonian name is kept,
+quietly, on the grammar reference page under "In class", for somebody whose teacher says it, and the
+question words (`kus?`) stay, since those are what a learner hears. The capital I of "I form" is set in
+the system serif by `Braced`, because in the app's sans it reads as a lowercase l.
+`scripts/invariants/a-case-is-named-the-plain-way.ts` holds it.
+
 **Estonian is taught in Estonian, and the question it answers is the English.** Nobody teaching
 this language says "the inessive". A course in Tallinn, a school textbook and the state examination
 all name a case by its Estonian name and, more often, by the question it answers: `kus?`. The verb

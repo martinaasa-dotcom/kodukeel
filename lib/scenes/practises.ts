@@ -26,8 +26,7 @@
  * Pure: no React, no Next, no Prisma. No Estonian: every label is English,
  * and a case's name is read off `CASES`.
  */
-import { CASES } from "@/lib/estonian/cases";
-import { CASE_NOTES } from "@/lib/estonian/grammar";
+import { CASES, casePlainName } from "@/lib/estonian/cases";
 import { leafNeeds, type SceneSpec } from "./types";
 
 /**
@@ -273,8 +272,7 @@ export function practises(scene: SceneSpec): string[] {
     for (const { need } of leafNeeds(beat.needs)) {
       if (need.kind !== "case") continue;
       const spec = CASES.find((c) => c.key === need.grammCase);
-      const note = CASE_NOTES.find((n) => n.key === need.grammCase);
-      if (spec) add(note ? `${spec.et} (${note.plain})` : spec.et);
+      if (spec) add(casePlainName(spec));
     }
   }
   // The exception, never the rule: nearly every scene is held in the formal

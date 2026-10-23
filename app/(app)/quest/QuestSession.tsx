@@ -22,7 +22,7 @@ import type { QuestCard } from "@/lib/progress/quest";
 import { acceptedAnswers, checkAnswer, type AnswerCheck } from "@/lib/estonian/answer";
 import { EstonianInput } from "@/components/EstonianInput";
 import { RetypeBox, useRetype } from "@/components/round/Retype";
-import { caseByKey } from "@/lib/estonian/cases";
+import { caseByKey, plainNameForEt } from "@/lib/estonian/cases";
 import { BLANK, filledSentence, primaryAnswer } from "@/lib/estonian/cloze";
 import { OPTION_CLASS, VERDICT_CLASS, optionState, verdictOfCheck } from "@/lib/ux/verdict";
 import { HintLadder } from "@/components/round/HintLadder";
@@ -406,7 +406,7 @@ export function QuestSession({
                     {c.question ? (
                       <CaseLabel label={{ et: c.et, question: c.question }} className="text-md" />
                     ) : (
-                      <span lang="et" className="font-display text-lg font-bold" style={{ color: "var(--ink)" }}>{c.et}</span>
+                      <span className="font-display text-lg font-bold" style={{ color: "var(--ink)" }}>{plainNameForEt(c.et, locale) ?? c.et}</span>
                     )}
                     <span className="tnum whitespace-nowrap text-sm font-semibold" style={{ color: "var(--ink)" }}>
                       {fill(t("{pct}% right"), { pct: c.accuracy })}

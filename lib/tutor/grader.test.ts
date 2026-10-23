@@ -95,7 +95,7 @@ describe("the grader prompt", () => {
     expect(prompt).toContain("DID use the required form");
     expect(prompt).toContain("toa");
     expect(prompt).toContain("Ma olen toas.");
-    expect(prompt).toContain("seesütlev");
+    expect(prompt).toContain("in-form (-s)");
   });
 
   it("says plainly when the required form was missing", () => {

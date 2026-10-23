@@ -1099,7 +1099,7 @@ function buildCaseForm(spec: TaskSpec, ctx: BuildContext): ExamTask {
       provenance: task.provenance,
     });
   }
-  return finish(spec, items, undefined, "a noun whose omastav is in the dictionary");
+  return finish(spec, items, undefined, "a noun whose 2nd form is in the dictionary");
 }
 
 function buildGovernment(spec: TaskSpec, ctx: BuildContext): ExamTask {

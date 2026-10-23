@@ -100,14 +100,14 @@ function top(query: string) {
 
 describe("rankCandidates — inflected forms", () => {
   it.each([
-    ["loen", "lugema", /olevik ma/],
+    ["loen", "lugema", /I form/],
     ["lugesin", "lugema", /lihtminevik ma/],
-    ["tuppa", "tuba", /lühike sisseütlev/],
+    ["tuppa", "tuba", /short to-form/],
     ["toas", "tuba", /seesütlev/],
     ["raamatuga", "raamat", /kaasaütlev/],
     ["tubadega", "tuba", /mitmuse kaasaütlev/],
-    ["raamatud", "raamat", /mitmuse nimetav/],
-    ["need", "see", /mitmuse nimetav/],
+    ["raamatud", "raamat", /1st form plural/],
+    ["need", "see", /1st form plural/],
   ])("finds %s as a form of %s", (query, lemma, why) => {
     expect(top(query)?.lemma).toBe(lemma);
     expect(top(query)?.matchedAs).toMatch(why);
@@ -401,7 +401,7 @@ describe("matchEstonianForm", () => {
     const match = matchEstonianForm(DICT, "ta");
     expect(match?.lemma).toBe("tema");
     expect(match?.matchedAs).not.toContain("SgN");
-    expect(match?.matchedAs).toContain("nimetav");
+    expect(match?.matchedAs).toContain("1st form");
   });
 
   it("hands over which form it was, and the entry's own forms behind it", () => {

@@ -17,9 +17,10 @@ import { WordExceptions } from "@/components/WordExceptions";
 import { TrParts } from "@/components/TrParts";
 import { caseQuestionFor } from "@/lib/estonian/caseQuestion";
 import { parseGovernment, readableGovernment } from "@/lib/estonian/government";
-import { caseByKey } from "@/lib/estonian/cases";
+import { caseByKey, casePlainName } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
 import { CaseLabel } from "@/components/CaseLabel";
+import { Braced } from "@/components/Braced";
 import { availableCardTypes, CARD_TYPES, type CardType } from "@/lib/srs/cards";
 import type { Example } from "@/lib/dict/examples";
 import { isPhrase } from "@/lib/dict/pos";
@@ -147,11 +148,13 @@ const NOUN_PARTS = [
   already learned what it names, which is what makes it worth nothing here.
 */
 const VERB_PARTS = [
-  ["INF_MA", { et: "ma-tegevusnimi", question: null, en: "ma-infinitive" }],
-  ["INF_DA", { et: "da-tegevusnimi", question: null, en: "da-infinitive" }],
-  ["PRES_1SG", { et: "olevik, ma", question: null, en: "present, I" }],
-  ["PAST_1SG", { et: "lihtminevik, ma", question: null, en: "simple past, I" }],
-  ["PART_TUD", { et: "umbisikuline", question: null, en: "tud-participle" }],
+  // A verb's parts are named the way the course names them: the -ma form,
+  // the -da form and the I form, in English, so no Estonian grammar term.
+  ["INF_MA", { et: "-ma form", question: null, en: null }],
+  ["INF_DA", { et: "-da form", question: null, en: null }],
+  ["PRES_1SG", { et: "I form", question: null, en: null }],
+  ["PAST_1SG", { et: "past I form", question: null, en: null }],
+  ["PART_TUD", { et: "-tud form", question: null, en: null }],
 ] as const;
 
 export function DictionaryClient({
@@ -453,7 +456,7 @@ export function DictionaryClient({
                   ? fill(t("No exact match for \"{query}\""), { query: initialQuery })
                   : fill(t("Nothing found for \"{query}\""), { query: initialQuery })}
             body={known
-              ? t("We just don't have an entry for it yet. Add it below with its omastav and it's yours.")
+              ? t("We just don't have an entry for it yet. Add it below with its 2nd form and it's yours.")
               : nearby[0]?.why === "translation"
                 ? t("Open the one you meant and it's saved here for next time.")
                 : nearby.length > 0
@@ -792,7 +795,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
               The list above says what each asks and not which one leads. */}
           {governs && (
             <p className="mt-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
-              {fillNodes(t("Most often it goes with the {case}."), { case: <span lang="et">{governs.et}</span> })}
+              {fillNodes(t("Most often it goes with the {case}."), { case: <span>{casePlainName(governs, locale)}</span> })}
             </p>
           )}
         </div>
@@ -840,7 +843,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                       <CaseLabel label={{ et: label.et, question: label.question }} className="case-label-stack" />
                     </span>
                   ) : (
-                    <span lang="et" className="label-xs mt-1.5 block" style={{ color: "var(--ink-3)", textTransform: "none" }}>{label.et}</span>
+                    <span className="label-xs mt-1.5 block" style={{ color: "var(--ink-3)", textTransform: "none" }}><Braced text={t(label.et)} /></span>
                   )}
                   {label.en && (
                     <span className="mt-0.5 block text-2xs italic" style={{ color: "var(--ink-3)" }}>{t(label.en)}</span>
@@ -879,7 +882,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
       ) : isNominal && form("GEN_SG") && (
         <div>
           <h3 className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>
-            {t("The rest, built from the omastav")}
+            {t("The rest, built from the 2nd form")}
           </h3>
           {/*
             Counted rather than typed, because the short illative is stored and
@@ -948,8 +951,8 @@ function Entry({ entry, tutorReady, glossLanguage }: {
           {(!form("GEN_PL") || !form("NOM_PL")) && (
             <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
               {!form("GEN_PL")
-                ? t("Most plural forms are built on the omastav plural, and we don't have it for this word. So we've left a gap rather than guess one.")
-                : t("We don't have the nimetav plural for this word, and it isn't an ending we can work out. So we've left a gap rather than guess one.")}
+                ? t("Most plural forms are built on the 2nd form plural, and we don't have it for this word. So we've left a gap rather than guess one.")
+                : t("We don't have the 1st form plural for this word, and it isn't an ending we can work out. So we've left a gap rather than guess one.")}
             </p>
           )}
           {/* Only on a pronoun, and only where the entry has not been enriched.

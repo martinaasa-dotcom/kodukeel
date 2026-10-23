@@ -1,4 +1,4 @@
-import { caseByKey } from "@/lib/estonian/cases";
+import { caseByKey, casePlainName } from "@/lib/estonian/cases";
 import { EXAM_LEVELS, PASS_PCT, type ExamLevel } from "./spec";
 import { SKILLS, SKILL_LABEL, type SkillKey } from "./types";
 import { say, sayEnglish, type Said } from "@/lib/copy/said";
@@ -579,7 +579,7 @@ function strengthsFrom(signals: ReadinessSignals, assessed: ExamLevel | null): F
         "{list}. You can stop worrying about those.",
         undefined,
         undefined,
-        { list: solid.map((c) => say("{case} at {pct} percent", { case: c.caseEt, pct: c.pct })) },
+        { list: solid.map((c) => say("{case} at {pct} percent", { pct: c.pct }, { case: plainCase(c.caseKey, c.caseEt) })) },
       ),
     }));
   }
@@ -682,7 +682,7 @@ function gapsFrom(signals: ReadinessSignals, target: ExamLevel): Feedback[] {
       id: `case-${c.caseKey}`,
       // Named the way a class names it, and then what it asks rather than
       // what an English grammar calls it: see `lib/estonian/cases.ts`.
-      title: say("The {case} ({asks}) is at {pct} percent", { case: c.caseEt, pct: c.pct }, { asks: caseByKey(c.caseKey)?.asksEn ?? c.caseKey.toLowerCase() }),
+      title: say("The {case} ({asks}) is at {pct} percent", { pct: c.pct }, { case: plainCase(c.caseKey, c.caseEt), asks: caseByKey(c.caseKey)?.asksEn ?? c.caseKey.toLowerCase() }),
       detail: say("It's still tripping you up after {n} reviews, and case endings earn marks in every written part.", { n: c.reviews }),
       href: `/grammar/${c.caseKey.toLowerCase()}`,
       cta: "Read the rule",
@@ -710,4 +710,10 @@ function gapsFrom(signals: ReadinessSignals, target: ExamLevel): Feedback[] {
   }
 
   return out;
+}
+
+/** A case named the plain way ("in-form (-s)"), falling back to what the row held. */
+function plainCase(key: string, et: string): string {
+  const spec = caseByKey(key);
+  return spec ? casePlainName(spec) : et;
 }

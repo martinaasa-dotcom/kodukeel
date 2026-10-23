@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import { CASES } from "@/lib/estonian/cases";
+import { CASES, casePlainName } from "@/lib/estonian/cases";
 import { derivedVerbForms, possibleFirstPersons } from "@/lib/estonian/conjugate";
 import { formLabel, morphCodeFor } from "@/lib/estonian/morph";
 import { fold, FOLD_FROM, FOLD_TO } from "@/lib/estonian/fold";
@@ -646,7 +646,7 @@ function rank(
         // outside that loop, so it kept "nominative plural" after the loop had
         // dropped every Latin name, and `toad` came back named in a grammar
         // this language does not use.
-        matchedAs: `mitmuse ${NOM.et} (${NOM.asksEn}, plural) of ${c.lemma}`,
+        matchedAs: `${casePlainName(NOM)} plural of ${c.lemma}`,
         form: { formType: "NOM_PL", morphCode: null },
       };
     }

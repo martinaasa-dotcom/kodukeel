@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { CASES, QUESTION_WORDS, caseByKey, questionInEnglish } from "./cases";
+import { CASES, QUESTION_WORDS, caseByKey, casePlainName, plainNameForEt, questionInEnglish } from "./cases";
 
 /**
  * The readings are what an English speaker gets instead of the Latin name, so
@@ -118,5 +118,36 @@ describe("reading a whole question", () => {
 
   it("drops a word it does not know rather than the words it does", () => {
     expect(questionInEnglish("milles? mingi?")).toBe("what is it in?");
+  });
+});
+
+describe("plain case names", () => {
+  it("numbers the three learned forms and names the rest by what they do", () => {
+    expect(casePlainName(caseByKey("NOMINATIVE")!)).toBe("1st form");
+    expect(casePlainName(caseByKey("GENITIVE")!)).toBe("2nd form");
+    expect(casePlainName(caseByKey("PARTITIVE")!)).toBe("3rd form");
+    expect(casePlainName(caseByKey("INESSIVE")!)).toBe("in-form (-s)");
+  });
+
+  it("names every case in every language, with no Latin name and no Estonian case name", () => {
+    let named = 0;
+    for (const locale of ["en", "ru", "uk"] as const) {
+      for (const spec of CASES) {
+        const plain = casePlainName(spec, locale);
+        expect(plain.toLowerCase()).not.toContain(spec.en.toLowerCase());
+        expect(plain).not.toContain(spec.et);
+        named += 1;
+      }
+    }
+    expect(named).toBe(42);
+  });
+
+  it("reads a table's row heading, number and all", () => {
+    expect(plainNameForEt("omastav")).toBe("2nd form");
+    expect(plainNameForEt("Omastav mitmus")).toBe("2nd form plural");
+    expect(plainNameForEt("lühike sisseütlev")).toBe("short to-form");
+    expect(plainNameForEt("osastav ainsus", "ru")).toBe("3-я форма ед. ч.");
+    expect(plainNameForEt("tuba")).toBeNull();
+    expect(plainNameForEt("omastav osastav")).toBeNull();
   });
 });

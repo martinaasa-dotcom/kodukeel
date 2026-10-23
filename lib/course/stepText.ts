@@ -1,6 +1,5 @@
-import { CASES } from "@/lib/estonian/cases";
+import { CASES, casePlainName } from "@/lib/estonian/cases";
 import { CASE_NOTES, grammarTopic } from "@/lib/estonian/grammar";
-import { grammarTerm } from "@/lib/estonian/terms";
 import { countOf, fill, tr, translated, type Locale } from "@/lib/copy/locale";
 import { modeAt } from "@/lib/ux/modes";
 import { lessonById } from "./lessons";
@@ -105,7 +104,7 @@ function caseTitle(key: string, locale: Locale): string | null {
       ? fill(tr(locale, "Read about the -{suffix} ending, \"{plain}\""), { suffix: spec.suffix, plain })
       : fill(tr(locale, "Read about the -{suffix} ending"), { suffix: spec.suffix });
   }
-  const name = grammarTerm(spec.key)?.et ?? spec.et;
+  const name = tr(locale, casePlainName(spec));
   return plain
     ? fill(tr(locale, "Read about {name}, \"{plain}\""), { name, plain })
     : fill(tr(locale, "Read about {name}"), { name });

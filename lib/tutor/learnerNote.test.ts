@@ -11,14 +11,14 @@ import { buildSystemPrompt, learnerNote } from "./prompt";
  * having no data.
  */
 describe("learnerNote", () => {
-  it("names the weakest case in Estonian first with its figures", () => {
+  it("names the weakest case by its plain name, with its figures", () => {
     const note = learnerNote({
       level: "A2",
       weakestCase: { grammCase: "PARTITIVE", accuracy: 58, total: 120 },
       unit: { title: "Kodu", subtitle: "Home", level: "A1" }, scene: null,
     });
     expect(note).toContain("Their level is A2.");
-    expect(note).toContain("osastav (Partitive)");
+    expect(note).toContain("3rd form (in class: osastav)");
     expect(note).toContain("right 58% of 120 times");
     expect(note).toContain('"Kodu" (Home) at A1');
     // Offered for when it is relevant, never as a refrain.
