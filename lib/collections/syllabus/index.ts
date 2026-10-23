@@ -21,7 +21,7 @@
  * somebody who wants to be led, no cage for somebody who does not.
  */
 import type { Level } from "./types";
-import { LEVELS, unit, type SyllabusUnit, type UnitSpec, type WordSpec, type Pos } from "./types";
+import { LEVELS, levelIndex, unit, type SyllabusUnit, type UnitSpec, type WordSpec, type Pos } from "./types";
 import { A1 } from "./a1";
 import { A2 } from "./a2";
 import { B1 } from "./b1";
@@ -30,7 +30,7 @@ import { C1 } from "./c1";
 import { PARTS } from "@/lib/course/plan";
 
 export type { Level, SyllabusUnit, UnitSpec, WordSpec, Pos };
-export { LEVELS, unit };
+export { LEVELS, levelIndex, unit };
 
 /*
   ONE ORDER, AND IT IS THE COURSE'S. The level files list their units in the
@@ -169,8 +169,6 @@ export function unitsAtLevel(level: Level): readonly SyllabusUnit[] {
   return SYLLABUS.filter((u) => u.level === level);
 }
 
-/** Level index, for comparisons. A1 is 0, C2 is 5. */
-export const levelIndex = (level: Level): number => LEVELS.indexOf(level);
 
 /**
  * Every distinct lemma the course teaches, with the unit that introduces it.

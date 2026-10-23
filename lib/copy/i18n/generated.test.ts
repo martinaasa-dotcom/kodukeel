@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { TABLES } from "./tables";
+import { TABLES } from "./merged";
 import { serializeTable } from "./table";
 
 /**

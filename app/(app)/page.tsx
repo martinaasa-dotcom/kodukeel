@@ -37,7 +37,8 @@ import { crosswordFor } from "@/lib/progress/crossword";
 import { WordOfDayCard } from "@/components/WordOfDay";
 import { offered } from "@/lib/tutor/provider";
 import { SayItToday } from "@/components/SayItToday";
-import { errandForDay, sceneForErrand } from "@/lib/collections/errands";
+import { errandForDay } from "@/lib/collections/errands";
+import { sceneForErrand } from "@/lib/collections/errandScenes";
 import { errandRehearsal } from "@/lib/scenes/rehearse";
 import { startedUnits } from "@/lib/collections/syllabus";
 import { courseReading, ladderPosition, moduleReached, programmeFor, targetFrom } from "@/lib/progress/course";
@@ -547,7 +548,7 @@ export default async function TodayPage() {
 
       Every other page draws the same card in the night's grays, so this is
       the one that is lit: what the learner can do by the end of it on the
-      left, and tonight's steps dealt out on the right, the finished ones ringed,
+      left, and today's steps dealt out on the right, the finished ones ringed,
       the next one lifted and breathing, the rest in the brand mix.
     */
     <HeroFan
@@ -615,7 +616,7 @@ export default async function TodayPage() {
       />
     </Card>
   ) : (
-    <Card className="flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-8">
+    <Card tone="night" className="flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-8">
       <div className="min-w-0 flex-1">{figures ?? opening}</div>
       {/*
         Nineteen rem, which is the width the primary button was always drawn
@@ -823,6 +824,7 @@ export default async function TodayPage() {
   const errandCard = errand && outside ? (
     <SayItToday
       errand={errand}
+      scene={sceneForErrand(errand)?.id ?? null}
       answered={outside.answered}
       conversations={outside.conversations}
       days={outside.days}
@@ -979,7 +981,7 @@ export default async function TodayPage() {
   ) : null;
 
   /*
-    THE WAY BACK TO THE CARDS, WHEN THE HERO IS TONIGHT'S MODULE.
+    THE WAY BACK TO THE CARDS, WHEN THE HERO IS TODAY'S MODULE.
 
     The line under the greeting used to say how many cards were due and that
     they would come up at the end of the module, and the feedback on it was

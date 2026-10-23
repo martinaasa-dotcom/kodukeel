@@ -39,11 +39,11 @@ export default async function ReviewPage({
   const params = firstParams(await searchParams);
   const { case: targetCase, unit: unitId, scan: scanId } = params;
   /*
-    THE MODULE'S CLOSING ROUND IS TONIGHT'S WORDS. This screen trickles new
+    THE MODULE'S CLOSING ROUND IS TODAY'S WORDS. This screen trickles new
     cards in beside what is due, which is right for somebody who opened it
     themselves and wrong for the last step of a planned evening, which is a
     quick review of the batch that evening taught and nothing else. Opened from
-    the module (`lib/course/scope.ts`) it asks tonight's own words once more
+    the module (`lib/course/scope.ts`) it asks today's own words once more
     and introduces nothing; see `tonightWhere`.
   */
   const scope = moduleScopeFrom(params);

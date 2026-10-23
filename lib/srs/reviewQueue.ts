@@ -145,8 +145,8 @@ export function dueWhere(ownerId: string, now: Date): Prisma.CardWhereInput {
  * answers. It used to open the whole queue, up to sixty cards due from
  * anywhere in the deck plus ten new ones, and then the whole queue narrowed to
  * everything the module had taught so far, which on the fortieth evening is
- * still most of the deck. Neither is quick and neither is tonight's evening.
- * So it is tonight's words (`tonightWhere`) and it stops here. Everything else
+ * still most of the deck. Neither is quick and neither is today's evening.
+ * So it is today's words (`tonightWhere`) and it stops here. Everything else
  * that is due is still due, on Review, where a learner who opens it from Today
  * chooses to meet it.
  *
@@ -156,7 +156,7 @@ export function dueWhere(ownerId: string, now: Date): Prisma.CardWhereInput {
 export const MODULE_SESSION = 8;
 
 /**
- * THE MODULE'S CLOSING ROUND IS TONIGHT'S OWN WORDS ASKED ONCE MORE, AND
+ * THE MODULE'S CLOSING ROUND IS TODAY'S OWN WORDS ASKED ONCE MORE, AND
  * NOTHING ELSE, WHICH IS WHAT A QUICK REVIEW AT THE END OF AN EVENING MEANS.
  *
  * It was the queue narrowed to what the module had taught so far, with these
@@ -168,7 +168,7 @@ export const MODULE_SESSION = 8;
  * Due or not. On the evening a word is met nothing of it is due, because Learn
  * walks the recognition card to Review and Tähed and the flash round do the
  * same to the production card, and a round that asked only what was due was
- * empty on the first evening of the course. A card of tonight's words that is
+ * empty on the first evening of the course. A card of today's words that is
  * due (one missed earlier tonight, back in relearning) is asked first.
  *
  * A card the learner has not met stays out (`state: { not: 0 }`), because a
@@ -185,7 +185,7 @@ export function tonightWhere(
   asideIds: ReadonlySet<string>,
   /**
    * When this evening's closing round opened, or null before it has. A card
-   * answered since then has been asked tonight's review already, so it is not
+   * answered since then has been asked today's review already, so it is not
    * asked again: that is what lets a round with only two cards to give be over
    * after two answers instead of asking the same pair for the rest of the five.
    */

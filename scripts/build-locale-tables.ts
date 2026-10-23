@@ -18,7 +18,7 @@
  */
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { TABLES } from "@/lib/copy/i18n/tables";
+import { TABLES } from "@/lib/copy/i18n/merged";
 import { serializeTable } from "@/lib/copy/i18n/table";
 
 for (const locale of ["ru", "uk"] as const) {

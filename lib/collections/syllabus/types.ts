@@ -18,6 +18,14 @@ export type Level = "A1" | "A2" | "B1" | "B2" | "C1";
 export const LEVELS: readonly Level[] = ["A1", "A2", "B1", "B2", "C1"];
 
 /**
+ * Level index, for comparisons. A1 is 0, C1 is 4.
+ *
+ * Here beside `LEVELS` rather than in the barrel, so a client component that
+ * only compares two levels imports this file and not every unit the course has.
+ */
+export const levelIndex = (level: Level): number => LEVELS.indexOf(level);
+
+/**
  * `PHRASE` is the one part of speech the harvest does not fetch. A multi-word
  * greeting is not a headword, so Ekilex has no forms for it; the phrases in
  * the course are the hand-checked ones the built-in dictionary already carried,

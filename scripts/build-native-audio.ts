@@ -20,6 +20,18 @@
  * its sound again, and a release, a final `h` or a long `l` can no longer fall
  * off the edge. Re-cut by hand and walk the ends the same way.
  *
+ * PASSES 2 TO 4 WERE PLACED BY EAR AS WELL AS BY LEVEL. Each line was found by
+ * running the app's own recognizer (`lib/speech/model.ts`) over every stretch
+ * of sound and aligning what it heard against the script, which is how the
+ * false start before one line and the lines that were never said were told
+ * apart from the lines that were. A cut then starts at the first frame that is
+ * plainly speech, walked back through a quiet onset, and ends where the sound
+ * has stayed down for 50 ms, past a stop's closure to its release; the edges
+ * sit halfway into the quiet on either side, never reaching a breath or the
+ * next word, because `trimSilence` keeps whatever sound the window holds. The
+ * built clips were then heard again, each against its own text, and their
+ * first and last frames checked to be quiet.
+ *
  * Each clip then goes through the pipeline every synthetic clip goes through
  * (`lib/audio/wav.ts`): trimmed to the same lead and release, its pauses
  * capped, leveled to the same loudness, and written as 16-bit PCM. So a word
@@ -45,13 +57,16 @@ const RECORDINGS = path.join(ROOT, "scripts/recordings");
 const OUT = path.join(ROOT, "public/audio/native");
 const RATE = 22_050;
 
+/**
+ * Each take is its own FLAC. A clip names the take it was cut from, and a clip
+ * that names none is from the first, which is what `source` at the top says.
+ */
 interface Cuts {
   readonly source: string;
-  readonly clips: readonly { readonly id: string; readonly from: number; readonly to: number }[];
+  readonly clips: readonly { readonly id: string; readonly source?: string; readonly from: number; readonly to: number }[];
 }
 
 const cuts = JSON.parse(readFileSync(path.join(RECORDINGS, "native-cuts.json"), "utf8")) as Cuts;
-const source = path.join(RECORDINGS, cuts.source);
 
 const catalog = new Set(NATIVE_CLIPS.map((clip) => clip.id));
 const cut = new Set(cuts.clips.map((clip) => clip.id));
@@ -63,10 +78,10 @@ if (missing.length > 0 || extra.length > 0) {
 }
 
 /** The stretch of the recording as mono floats at `RATE`. */
-function read(from: number, to: number): Float32Array {
+function read(source: string, from: number, to: number): Float32Array {
   const raw = execFileSync("ffmpeg", [
     "-hide_banner", "-loglevel", "error",
-    "-ss", from.toFixed(3), "-to", to.toFixed(3), "-i", source,
+    "-ss", from.toFixed(3), "-to", to.toFixed(3), "-i", path.join(RECORDINGS, source),
     "-ac", "1", "-ar", String(RATE), "-f", "f32le", "-",
   ], { maxBuffer: 64 * 1024 * 1024 });
   return new Float32Array(raw.buffer.slice(raw.byteOffset, raw.byteOffset + raw.byteLength));
@@ -76,8 +91,8 @@ mkdirSync(OUT, { recursive: true });
 for (const file of readdirSync(OUT)) if (file.endsWith(".wav")) rmSync(path.join(OUT, file));
 
 let bytes = 0;
-for (const { id, from, to } of cuts.clips) {
-  const pcm = normaliseLoudness(capPauses(trimSilence({ rate: RATE, samples: read(from, to) })));
+for (const { id, source = cuts.source, from, to } of cuts.clips) {
+  const pcm = normaliseLoudness(capPauses(trimSilence({ rate: RATE, samples: read(source, from, to) })));
   const wav = encodeWav16(pcm);
   writeFileSync(path.join(OUT, `${id}.wav`), wav);
   bytes += wav.byteLength;

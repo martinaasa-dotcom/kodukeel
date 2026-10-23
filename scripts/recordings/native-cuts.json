@@ -629,7 +629,1405 @@
   {
    "id": "letter-y",
    "from": 275.55,
-   "to": 276.17
+   "to": 276.40
+  },
+  {
+   "id": "soft-kutsu",
+   "source": "sounds-pass5.flac",
+   "from": 31.28,
+   "to": 32.32
+  },
+  {
+   "id": "soft-muets",
+   "source": "sounds-pass2.flac",
+   "from": 5.70,
+   "to": 6.92
+  },
+  {
+   "id": "soft-kass",
+   "source": "sounds-pass5.flac",
+   "from": 33.56,
+   "to": 34.44
+  },
+  {
+   "id": "soft-mets",
+   "source": "sounds-pass2.flac",
+   "from": 9.63,
+   "to": 10.74
+  },
+  {
+   "id": "soft-kas",
+   "source": "sounds-pass2.flac",
+   "from": 11.84,
+   "to": 12.92
+  },
+  {
+   "id": "soft-kutse",
+   "source": "sounds-pass2.flac",
+   "from": 13.86,
+   "to": 15.11
+  },
+  {
+   "id": "soft-palk-plain",
+   "source": "sounds-pass5.flac",
+   "from": 1.53,
+   "to": 2.36
+  },
+  {
+   "id": "soft-palk",
+   "source": "sounds-pass5.flac",
+   "from": 3.34,
+   "to": 4.17
+  },
+  {
+   "id": "length-kala",
+   "source": "sounds-pass5.flac",
+   "from": 21.81,
+   "to": 22.71
+  },
+  {
+   "id": "length-kalla",
+   "source": "sounds-pass5.flac",
+   "from": 23.43,
+   "to": 24.56
+  },
+  {
+   "id": "soft-kallis",
+   "source": "sounds-pass5.flac",
+   "from": 19.87,
+   "to": 20.94
+  },
+  {
+   "id": "length-tule",
+   "source": "sounds-pass5.flac",
+   "from": 25.38,
+   "to": 26.23
+  },
+  {
+   "id": "length-tulle",
+   "source": "sounds-pass5.flac",
+   "from": 27.08,
+   "to": 28.11
+  },
+  {
+   "id": "soft-tall-plain",
+   "source": "sounds-pass5.flac",
+   "from": 13.78,
+   "to": 14.91
+  },
+  {
+   "id": "soft-tall",
+   "source": "sounds-pass5.flac",
+   "from": 15.76,
+   "to": 16.89
+  },
+  {
+   "id": "length-kana",
+   "source": "sounds-pass2.flac",
+   "from": 50.28,
+   "to": 51.38
+  },
+  {
+   "id": "length-kanna",
+   "source": "sounds-pass2.flac",
+   "from": 51.77,
+   "to": 53.25
+  },
+  {
+   "id": "length-konn",
+   "source": "sounds-pass2.flac",
+   "from": 53.71,
+   "to": 54.97
+  },
+  {
+   "id": "length-konna",
+   "source": "sounds-pass2.flac",
+   "from": 55.38,
+   "to": 56.56
+  },
+  {
+   "id": "length-naeen-konna",
+   "source": "sounds-pass2.flac",
+   "from": 57.17,
+   "to": 59.06
+  },
+  {
+   "id": "length-nunnu",
+   "source": "sounds-pass2.flac",
+   "from": 59.55,
+   "to": 60.81
+  },
+  {
+   "id": "soft-kann-plain",
+   "source": "sounds-pass2.flac",
+   "from": 61.67,
+   "to": 62.61
+  },
+  {
+   "id": "soft-pann",
+   "source": "sounds-pass2.flac",
+   "from": 63.24,
+   "to": 64.30
+  },
+  {
+   "id": "pair-kouht",
+   "source": "sounds-pass2.flac",
+   "from": 68.49,
+   "to": 69.78
+  },
+  {
+   "id": "pair-koht",
+   "source": "sounds-pass2.flac",
+   "from": 70.43,
+   "to": 71.53
+  },
+  {
+   "id": "pair-suu",
+   "source": "sounds-pass2.flac",
+   "from": 72.22,
+   "to": 73.65
+  },
+  {
+   "id": "pair-suueue",
+   "source": "sounds-pass2.flac",
+   "from": 74.03,
+   "to": 75.30
+  },
+  {
+   "id": "pair-tuli",
+   "source": "sounds-pass2.flac",
+   "from": 76.08,
+   "to": 77.10
+  },
+  {
+   "id": "pair-tueli",
+   "source": "sounds-pass2.flac",
+   "from": 78.08,
+   "to": 79.09
+  },
+  {
+   "id": "pair-kueues",
+   "source": "sounds-pass2.flac",
+   "from": 80.12,
+   "to": 81.27
+  },
+  {
+   "id": "pair-kera",
+   "source": "sounds-pass2.flac",
+   "from": 82.45,
+   "to": 83.36
+  },
+  {
+   "id": "pair-kaera",
+   "source": "sounds-pass2.flac",
+   "from": 84.38,
+   "to": 85.27
+  },
+  {
+   "id": "length-sada",
+   "source": "sounds-pass2.flac",
+   "from": 88.69,
+   "to": 90.16
+  },
+  {
+   "id": "length-saada",
+   "source": "sounds-pass2.flac",
+   "from": 90.31,
+   "to": 91.74
+  },
+  {
+   "id": "length-tahan-saada",
+   "source": "sounds-pass2.flac",
+   "from": 92.26,
+   "to": 94.20
+  },
+  {
+   "id": "vowel-ouun",
+   "source": "sounds-pass2.flac",
+   "from": 95.07,
+   "to": 96.12
+  },
+  {
+   "id": "vowel-taeis",
+   "source": "sounds-pass2.flac",
+   "from": 96.73,
+   "to": 97.69
+  },
+  {
+   "id": "vowel-koeis",
+   "source": "sounds-pass2.flac",
+   "from": 98.60,
+   "to": 99.85
+  },
+  {
+   "id": "vowel-louug",
+   "source": "sounds-pass2.flac",
+   "from": 100.53,
+   "to": 101.69
+  },
+  {
+   "id": "length-lagi",
+   "source": "sounds-pass3.flac",
+   "from": 6.82,
+   "to": 8.37
+  },
+  {
+   "id": "length-laki",
+   "source": "sounds-pass3.flac",
+   "from": 8.65,
+   "to": 9.79
+  },
+  {
+   "id": "length-lakki",
+   "source": "sounds-pass3.flac",
+   "from": 10.16,
+   "to": 11.48
+  },
+  {
+   "id": "word-oude",
+   "source": "sounds-pass3.flac",
+   "from": 12.07,
+   "to": 12.96
+  },
+  {
+   "id": "word-nimi",
+   "source": "sounds-pass3.flac",
+   "from": 15.87,
+   "to": 16.89
+  },
+  {
+   "id": "word-on",
+   "source": "sounds-pass3.flac",
+   "from": 17.80,
+   "to": 18.68
+  },
+  {
+   "id": "word-minu",
+   "source": "sounds-pass3.flac",
+   "from": 19.37,
+   "to": 20.35
+  },
+  {
+   "id": "word-mu",
+   "source": "sounds-pass3.flac",
+   "from": 20.76,
+   "to": 21.59
+  },
+  {
+   "id": "word-sinu",
+   "source": "sounds-pass3.flac",
+   "from": 22.42,
+   "to": 23.38
+  },
+  {
+   "id": "word-su",
+   "source": "sounds-pass3.flac",
+   "from": 23.83,
+   "to": 24.77
+  },
+  {
+   "id": "word-mina",
+   "source": "sounds-pass3.flac",
+   "from": 25.46,
+   "to": 26.43
+  },
+  {
+   "id": "word-ma",
+   "source": "sounds-pass3.flac",
+   "from": 26.91,
+   "to": 27.69
+  },
+  {
+   "id": "word-sina",
+   "source": "sounds-pass3.flac",
+   "from": 28.49,
+   "to": 29.50
+  },
+  {
+   "id": "word-sa",
+   "source": "sounds-pass3.flac",
+   "from": 30.10,
+   "to": 30.91
+  },
+  {
+   "id": "word-tema",
+   "source": "sounds-pass3.flac",
+   "from": 31.77,
+   "to": 32.63
+  },
+  {
+   "id": "word-ta",
+   "source": "sounds-pass3.flac",
+   "from": 33.48,
+   "to": 34.18
+  },
+  {
+   "id": "word-meie",
+   "source": "sounds-pass3.flac",
+   "from": 34.83,
+   "to": 35.83
+  },
+  {
+   "id": "word-me",
+   "source": "sounds-pass3.flac",
+   "from": 36.37,
+   "to": 37.22
+  },
+  {
+   "id": "word-teie",
+   "source": "sounds-pass3.flac",
+   "from": 37.94,
+   "to": 38.79
+  },
+  {
+   "id": "word-te",
+   "source": "sounds-pass3.flac",
+   "from": 39.46,
+   "to": 40.20
+  },
+  {
+   "id": "word-nemad",
+   "source": "sounds-pass3.flac",
+   "from": 40.89,
+   "to": 41.78
+  },
+  {
+   "id": "word-nad",
+   "source": "sounds-pass3.flac",
+   "from": 42.40,
+   "to": 43.11
+  },
+  {
+   "id": "word-olema",
+   "source": "sounds-pass3.flac",
+   "from": 44.00,
+   "to": 44.92
+  },
+  {
+   "id": "word-olen",
+   "source": "sounds-pass3.flac",
+   "from": 45.59,
+   "to": 46.43
+  },
+  {
+   "id": "word-oled",
+   "source": "sounds-pass3.flac",
+   "from": 47.30,
+   "to": 48.20
+  },
+  {
+   "id": "word-oleme",
+   "source": "sounds-pass3.flac",
+   "from": 49.17,
+   "to": 50.11
+  },
+  {
+   "id": "word-olete",
+   "source": "sounds-pass3.flac",
+   "from": 50.88,
+   "to": 51.95
+  },
+  {
+   "id": "word-ja",
+   "source": "sounds-pass3.flac",
+   "from": 52.51,
+   "to": 53.61
+  },
+  {
+   "id": "word-oupetaja",
+   "source": "sounds-pass3.flac",
+   "from": 54.11,
+   "to": 55.31
+  },
+  {
+   "id": "word-oupilane",
+   "source": "sounds-pass3.flac",
+   "from": 63.53,
+   "to": 64.94
+  },
+  {
+   "id": "word-arst",
+   "source": "sounds-pass3.flac",
+   "from": 65.18,
+   "to": 66.41
+  },
+  {
+   "id": "word-see",
+   "source": "sounds-pass3.flac",
+   "from": 66.60,
+   "to": 67.94
+  },
+  {
+   "id": "word-mis",
+   "source": "sounds-pass3.flac",
+   "from": 68.19,
+   "to": 69.09
+  },
+  {
+   "id": "word-kes",
+   "source": "sounds-pass3.flac",
+   "from": 70.05,
+   "to": 70.91
+  },
+  {
+   "id": "word-raamat",
+   "source": "sounds-pass3.flac",
+   "from": 71.70,
+   "to": 73.03
+  },
+  {
+   "id": "word-telefon",
+   "source": "sounds-pass3.flac",
+   "from": 73.50,
+   "to": 74.63
+  },
+  {
+   "id": "word-souber",
+   "source": "sounds-pass3.flac",
+   "from": 75.11,
+   "to": 76.10
+  },
+  {
+   "id": "word-kas",
+   "source": "sounds-pass3.flac",
+   "from": 76.99,
+   "to": 77.73
+  },
+  {
+   "id": "word-ole",
+   "source": "sounds-pass3.flac",
+   "from": 78.66,
+   "to": 79.56
+  },
+  {
+   "id": "word-pole",
+   "source": "sounds-pass3.flac",
+   "from": 80.38,
+   "to": 81.23
+  },
+  {
+   "id": "word-eestlane",
+   "source": "sounds-pass3.flac",
+   "from": 82.16,
+   "to": 83.29
+  },
+  {
+   "id": "word-inglane",
+   "source": "sounds-pass3.flac",
+   "from": 83.79,
+   "to": 85.09
+  },
+  {
+   "id": "word-ameeriklane",
+   "source": "sounds-pass3.flac",
+   "from": 85.45,
+   "to": 86.88
+  },
+  {
+   "id": "word-venelane",
+   "source": "sounds-pass3.flac",
+   "from": 87.34,
+   "to": 88.55
+  },
+  {
+   "id": "word-ukrainlane",
+   "source": "sounds-pass3.flac",
+   "from": 89.00,
+   "to": 90.43
+  },
+  {
+   "id": "word-vaega",
+   "source": "sounds-pass3.flac",
+   "from": 91.04,
+   "to": 92.03
+  },
+  {
+   "id": "word-haesti",
+   "source": "sounds-pass3.flac",
+   "from": 92.76,
+   "to": 93.84
+  },
+  {
+   "id": "word-normaalselt",
+   "source": "sounds-pass3.flac",
+   "from": 94.50,
+   "to": 95.93
+  },
+  {
+   "id": "word-halvasti",
+   "source": "sounds-pass3.flac",
+   "from": 96.37,
+   "to": 97.66
+  },
+  {
+   "id": "word-mis-su-nimi-on",
+   "source": "sounds-pass3.flac",
+   "from": 105.37,
+   "to": 107.32
+  },
+  {
+   "id": "word-vaega-meeldiv",
+   "source": "sounds-pass3.flac",
+   "from": 107.60,
+   "to": 108.99
+  },
+  {
+   "id": "word-kuidas-seda-kirjutatakse",
+   "source": "sounds-pass3.flac",
+   "from": 110.13,
+   "to": 112.26
+  },
+  {
+   "id": "word-kuidas-laeheb",
+   "source": "sounds-pass3.flac",
+   "from": 113.04,
+   "to": 114.20
+  },
+  {
+   "id": "word-ja-sinul",
+   "source": "sounds-pass3.flac",
+   "from": 114.95,
+   "to": 115.98
+  },
+  {
+   "id": "word-vaega-haesti",
+   "source": "sounds-pass3.flac",
+   "from": 116.89,
+   "to": 118.00
+  },
+  {
+   "id": "line-minu-nimi-on-tom",
+   "source": "sounds-pass3.flac",
+   "from": 132.86,
+   "to": 134.61
+  },
+  {
+   "id": "line-tere-mina-olen-tom-ma-olen-oupilane",
+   "source": "sounds-pass3.flac",
+   "from": 145.01,
+   "to": 149.24
+  },
+  {
+   "id": "line-tema-on-jaan-ta-on-arst",
+   "source": "sounds-pass3.flac",
+   "from": 152.52,
+   "to": 155.19
+  },
+  {
+   "id": "line-mina-olen-tom",
+   "source": "sounds-pass3.flac",
+   "from": 160.30,
+   "to": 161.82
+  },
+  {
+   "id": "line-ma-olen-oupilane",
+   "source": "sounds-pass3.flac",
+   "from": 162.55,
+   "to": 164.15
+  },
+  {
+   "id": "line-mis-see-on",
+   "source": "sounds-pass3.flac",
+   "from": 169.59,
+   "to": 171.24
+  },
+  {
+   "id": "line-see-on-raamat",
+   "source": "sounds-pass3.flac",
+   "from": 172.26,
+   "to": 174.11
+  },
+  {
+   "id": "line-ja-see",
+   "source": "sounds-pass3.flac",
+   "from": 174.70,
+   "to": 175.68
+  },
+  {
+   "id": "line-kes-see-on",
+   "source": "sounds-pass3.flac",
+   "from": 179.00,
+   "to": 180.09
+  },
+  {
+   "id": "line-see-on-jaan",
+   "source": "sounds-pass3.flac",
+   "from": 185.99,
+   "to": 187.63
+  },
+  {
+   "id": "line-see-on-minu-souber",
+   "source": "sounds-pass3.flac",
+   "from": 188.70,
+   "to": 190.18
+  },
+  {
+   "id": "line-kas-sa-oled-eestlane",
+   "source": "sounds-pass3.flac",
+   "from": 193.30,
+   "to": 195.36
+  },
+  {
+   "id": "line-ei-ma-ei-ole-eestlane-ma-olen-inglane",
+   "source": "sounds-pass3.flac",
+   "from": 195.78,
+   "to": 200.17
+  },
+  {
+   "id": "line-jah-olen",
+   "source": "sounds-pass3.flac",
+   "from": 204.01,
+   "to": 205.49
+  },
+  {
+   "id": "line-ei-ta-pole-inglane-ta-on-eestlane",
+   "source": "sounds-pass3.flac",
+   "from": 210.76,
+   "to": 215.22
+  },
+  {
+   "id": "line-ma-olen-eestlane",
+   "source": "sounds-pass3.flac",
+   "from": 216.73,
+   "to": 218.49
+  },
+  {
+   "id": "line-ma-ei-ole-eestlane",
+   "source": "sounds-pass3.flac",
+   "from": 219.48,
+   "to": 221.46
+  },
+  {
+   "id": "line-sa-oled-eestlane",
+   "source": "sounds-pass3.flac",
+   "from": 222.46,
+   "to": 224.24
+  },
+  {
+   "id": "line-sa-ei-ole-eestlane",
+   "source": "sounds-pass3.flac",
+   "from": 224.88,
+   "to": 226.89
+  },
+  {
+   "id": "line-ta-on-eestlane",
+   "source": "sounds-pass3.flac",
+   "from": 227.97,
+   "to": 229.56
+  },
+  {
+   "id": "line-ta-ei-ole-eestlane",
+   "source": "sounds-pass3.flac",
+   "from": 230.46,
+   "to": 232.33
+  },
+  {
+   "id": "line-tere-jaan-kuidas-laeheb",
+   "source": "sounds-pass3.flac",
+   "from": 235.63,
+   "to": 238.73
+  },
+  {
+   "id": "line-vaega-haesti-aitaeh-ja-sinul",
+   "source": "sounds-pass3.flac",
+   "from": 240.18,
+   "to": 243.15
+  },
+  {
+   "id": "line-halvasti",
+   "source": "sounds-pass3.flac",
+   "from": 250.67,
+   "to": 252.25
+  },
+  {
+   "id": "line-haesti-aitaeh-ja-sinul",
+   "source": "sounds-pass3.flac",
+   "from": 253.22,
+   "to": 256.12
+  },
+  {
+   "id": "line-vaega-haesti-ja-sinul",
+   "source": "sounds-pass3.flac",
+   "from": 257.84,
+   "to": 260.28
+  },
+  {
+   "id": "line-ei-ma-olen-inglane",
+   "source": "sounds-pass3.flac",
+   "from": 271.21,
+   "to": 273.58
+  },
+  {
+   "id": "line-vabandust-ma-ei-saa-aru-aeglasemalt-palun",
+   "source": "sounds-pass3.flac",
+   "from": 274.95,
+   "to": 279.76
+  },
+  {
+   "id": "word-elama",
+   "source": "sounds-pass4.flac",
+   "from": 6.88,
+   "to": 7.75
+  },
+  {
+   "id": "word-elan",
+   "source": "sounds-pass4.flac",
+   "from": 8.47,
+   "to": 9.36
+  },
+  {
+   "id": "word-elad",
+   "source": "sounds-pass4.flac",
+   "from": 10.01,
+   "to": 11.01
+  },
+  {
+   "id": "word-elab",
+   "source": "sounds-pass4.flac",
+   "from": 11.44,
+   "to": 12.31
+  },
+  {
+   "id": "word-elame",
+   "source": "sounds-pass4.flac",
+   "from": 12.94,
+   "to": 14.22
+  },
+  {
+   "id": "word-elate",
+   "source": "sounds-pass4.flac",
+   "from": 14.56,
+   "to": 15.65
+  },
+  {
+   "id": "word-elavad",
+   "source": "sounds-pass4.flac",
+   "from": 16.18,
+   "to": 17.29
+  },
+  {
+   "id": "word-siin",
+   "source": "sounds-pass4.flac",
+   "from": 17.74,
+   "to": 18.91
+  },
+  {
+   "id": "word-seal",
+   "source": "sounds-pass4.flac",
+   "from": 19.37,
+   "to": 20.38
+  },
+  {
+   "id": "word-ka",
+   "source": "sounds-pass4.flac",
+   "from": 21.22,
+   "to": 22.02
+  },
+  {
+   "id": "word-tallinnas",
+   "source": "sounds-pass4.flac",
+   "from": 23.00,
+   "to": 24.11
+  },
+  {
+   "id": "word-tartus",
+   "source": "sounds-pass4.flac",
+   "from": 24.78,
+   "to": 25.84
+  },
+  {
+   "id": "word-eestis",
+   "source": "sounds-pass4.flac",
+   "from": 26.64,
+   "to": 27.69
+  },
+  {
+   "id": "word-paerit",
+   "source": "sounds-pass4.flac",
+   "from": 32.56,
+   "to": 33.88
+  },
+  {
+   "id": "word-aga",
+   "source": "sounds-pass4.flac",
+   "from": 33.99,
+   "to": 34.95
+  },
+  {
+   "id": "word-eesti",
+   "source": "sounds-pass4.flac",
+   "from": 35.39,
+   "to": 37.00
+  },
+  {
+   "id": "word-inglismaa",
+   "source": "sounds-pass4.flac",
+   "from": 36.98,
+   "to": 38.24
+  },
+  {
+   "id": "word-ameerika",
+   "source": "sounds-pass4.flac",
+   "from": 38.69,
+   "to": 39.96
+  },
+  {
+   "id": "word-venemaa",
+   "source": "sounds-pass4.flac",
+   "from": 40.50,
+   "to": 41.55
+  },
+  {
+   "id": "word-ukraina",
+   "source": "sounds-pass4.flac",
+   "from": 42.03,
+   "to": 43.29
+  },
+  {
+   "id": "word-eestist",
+   "source": "sounds-pass4.flac",
+   "from": 43.85,
+   "to": 45.12
+  },
+  {
+   "id": "word-inglismaalt",
+   "source": "sounds-pass4.flac",
+   "from": 45.68,
+   "to": 47.03
+  },
+  {
+   "id": "word-ameerikast",
+   "source": "sounds-pass4.flac",
+   "from": 47.64,
+   "to": 49.05
+  },
+  {
+   "id": "word-venemaalt",
+   "source": "sounds-pass4.flac",
+   "from": 49.62,
+   "to": 50.89
+  },
+  {
+   "id": "word-ukrainast",
+   "source": "sounds-pass4.flac",
+   "from": 51.45,
+   "to": 52.79
+  },
+  {
+   "id": "word-soome",
+   "source": "sounds-pass4.flac",
+   "from": 53.58,
+   "to": 54.72
+  },
+  {
+   "id": "word-rootsi",
+   "source": "sounds-pass4.flac",
+   "from": 55.37,
+   "to": 56.55
+  },
+  {
+   "id": "word-laeti",
+   "source": "sounds-pass4.flac",
+   "from": 57.41,
+   "to": 58.30
+  },
+  {
+   "id": "word-saksamaa",
+   "source": "sounds-pass4.flac",
+   "from": 59.04,
+   "to": 60.39
+  },
+  {
+   "id": "word-soomest",
+   "source": "sounds-pass4.flac",
+   "from": 61.09,
+   "to": 62.24
+  },
+  {
+   "id": "word-rootsist",
+   "source": "sounds-pass4.flac",
+   "from": 62.83,
+   "to": 64.17
+  },
+  {
+   "id": "word-laetist",
+   "source": "sounds-pass4.flac",
+   "from": 64.86,
+   "to": 66.00
+  },
+  {
+   "id": "word-saksamaalt",
+   "source": "sounds-pass4.flac",
+   "from": 66.70,
+   "to": 68.03
+  },
+  {
+   "id": "word-rootsis",
+   "source": "sounds-pass4.flac",
+   "from": 68.61,
+   "to": 69.82
+  },
+  {
+   "id": "word-soomlane",
+   "source": "sounds-pass4.flac",
+   "from": 70.42,
+   "to": 71.69
+  },
+  {
+   "id": "word-rootslane",
+   "source": "sounds-pass4.flac",
+   "from": 72.13,
+   "to": 73.45
+  },
+  {
+   "id": "word-laetlane",
+   "source": "sounds-pass4.flac",
+   "from": 73.90,
+   "to": 75.17
+  },
+  {
+   "id": "word-sakslane",
+   "source": "sounds-pass4.flac",
+   "from": 75.57,
+   "to": 76.72
+  },
+  {
+   "id": "word-raeaekima",
+   "source": "sounds-pass4.flac",
+   "from": 82.89,
+   "to": 84.27
+  },
+  {
+   "id": "word-raeaegin",
+   "source": "sounds-pass4.flac",
+   "from": 84.52,
+   "to": 86.15
+  },
+  {
+   "id": "word-raeaegid",
+   "source": "sounds-pass4.flac",
+   "from": 86.21,
+   "to": 87.72
+  },
+  {
+   "id": "word-raeaegib",
+   "source": "sounds-pass4.flac",
+   "from": 87.72,
+   "to": 88.92
+  },
+  {
+   "id": "word-raeaegime",
+   "source": "sounds-pass4.flac",
+   "from": 89.34,
+   "to": 90.76
+  },
+  {
+   "id": "word-raeaegite",
+   "source": "sounds-pass4.flac",
+   "from": 91.03,
+   "to": 92.50
+  },
+  {
+   "id": "word-raeaegivad",
+   "source": "sounds-pass4.flac",
+   "from": 92.88,
+   "to": 94.23
+  },
+  {
+   "id": "word-ouppima",
+   "source": "sounds-pass4.flac",
+   "from": 94.97,
+   "to": 96.07
+  },
+  {
+   "id": "word-oupin",
+   "source": "sounds-pass4.flac",
+   "from": 96.53,
+   "to": 97.54
+  },
+  {
+   "id": "word-oupid",
+   "source": "sounds-pass4.flac",
+   "from": 98.05,
+   "to": 98.96
+  },
+  {
+   "id": "word-oupib",
+   "source": "sounds-pass4.flac",
+   "from": 99.59,
+   "to": 100.54
+  },
+  {
+   "id": "word-oupime",
+   "source": "sounds-pass4.flac",
+   "from": 101.16,
+   "to": 102.21
+  },
+  {
+   "id": "word-oupite",
+   "source": "sounds-pass4.flac",
+   "from": 102.77,
+   "to": 103.94
+  },
+  {
+   "id": "word-oupivad",
+   "source": "sounds-pass4.flac",
+   "from": 104.48,
+   "to": 105.52
+  },
+  {
+   "id": "word-keel",
+   "source": "sounds-pass4.flac",
+   "from": 106.44,
+   "to": 107.40
+  },
+  {
+   "id": "word-eesti-keelt",
+   "source": "sounds-pass4.flac",
+   "from": 108.00,
+   "to": 109.67
+  },
+  {
+   "id": "word-inglise-keelt",
+   "source": "sounds-pass4.flac",
+   "from": 110.06,
+   "to": 111.80
+  },
+  {
+   "id": "word-vene-keelt",
+   "source": "sounds-pass4.flac",
+   "from": 112.32,
+   "to": 113.87
+  },
+  {
+   "id": "word-ukraina-keelt",
+   "source": "sounds-pass4.flac",
+   "from": 114.47,
+   "to": 116.22
+  },
+  {
+   "id": "word-ela",
+   "source": "sounds-pass4.flac",
+   "from": 116.94,
+   "to": 117.95
+  },
+  {
+   "id": "word-raeaegi",
+   "source": "sounds-pass4.flac",
+   "from": 118.27,
+   "to": 119.41
+  },
+  {
+   "id": "word-oupi",
+   "source": "sounds-pass4.flac",
+   "from": 119.96,
+   "to": 121.05
+  },
+  {
+   "id": "word-veel",
+   "source": "sounds-pass4.flac",
+   "from": 121.47,
+   "to": 122.50
+  },
+  {
+   "id": "word-muidugi",
+   "source": "sounds-pass4.flac",
+   "from": 123.17,
+   "to": 124.23
+  },
+  {
+   "id": "line-ma-elan-tallinnas-ja-sina",
+   "source": "sounds-pass4.flac",
+   "from": 130.22,
+   "to": 133.40
+  },
+  {
+   "id": "line-ja-jaan-ja-liis-kus-nemad-elavad",
+   "source": "sounds-pass4.flac",
+   "from": 134.36,
+   "to": 138.55
+  },
+  {
+   "id": "line-mina-elan-ka-siin",
+   "source": "sounds-pass4.flac",
+   "from": 139.54,
+   "to": 141.47
+  },
+  {
+   "id": "line-kus-sa-elad",
+   "source": "sounds-pass4.flac",
+   "from": 142.76,
+   "to": 144.23
+  },
+  {
+   "id": "line-ma-elan-tallinnas",
+   "source": "sounds-pass4.flac",
+   "from": 144.93,
+   "to": 146.77
+  },
+  {
+   "id": "line-kus-nemad-elavad",
+   "source": "sounds-pass4.flac",
+   "from": 147.61,
+   "to": 149.39
+  },
+  {
+   "id": "line-nad-elavad-siin",
+   "source": "sounds-pass4.flac",
+   "from": 149.98,
+   "to": 151.86
+  },
+  {
+   "id": "line-ma-elan-eestis",
+   "source": "sounds-pass4.flac",
+   "from": 152.68,
+   "to": 154.38
+  },
+  {
+   "id": "line-anna-on-paerit-ukrainast-ta-on-ukrainlane",
+   "source": "sounds-pass4.flac",
+   "from": 160.66,
+   "to": 165.23
+  },
+  {
+   "id": "line-kust-sa-paerit-oled",
+   "source": "sounds-pass4.flac",
+   "from": 166.01,
+   "to": 167.52
+  },
+  {
+   "id": "line-kust-te-paerit-olete",
+   "source": "sounds-pass4.flac",
+   "from": 168.67,
+   "to": 170.46
+  },
+  {
+   "id": "line-ma-olen-paerit-inglismaalt",
+   "source": "sounds-pass4.flac",
+   "from": 171.40,
+   "to": 173.50
+  },
+  {
+   "id": "line-ma-olen-paerit-inglismaalt-aga-ma-elan-eestis",
+   "source": "sounds-pass4.flac",
+   "from": 174.54,
+   "to": 178.46
+  },
+  {
+   "id": "line-anna-kust-sa-paerit-oled",
+   "source": "sounds-pass4.flac",
+   "from": 179.63,
+   "to": 181.91
+  },
+  {
+   "id": "line-minu-souber-on-ka-paerit-soomest-aga-ta-elab-rootsis",
+   "source": "sounds-pass4.flac",
+   "from": 183.23,
+   "to": 187.69
+  },
+  {
+   "id": "line-jah-aga-minu-oupetaja-on-paerit-laetist-ta-on-laetlane",
+   "source": "sounds-pass4.flac",
+   "from": 188.91,
+   "to": 194.73
+  },
+  {
+   "id": "line-ma-olen-paerit-soomest",
+   "source": "sounds-pass4.flac",
+   "from": 196.10,
+   "to": 198.22
+  },
+  {
+   "id": "line-minu-souber-elab-rootsis",
+   "source": "sounds-pass4.flac",
+   "from": 199.18,
+   "to": 201.18
+  },
+  {
+   "id": "line-ma-olen-paerit-saksamaalt-ma-olen-sakslane",
+   "source": "sounds-pass4.flac",
+   "from": 202.26,
+   "to": 206.14
+  },
+  {
+   "id": "line-kas-sa-raeaegid-eesti-keelt",
+   "source": "sounds-pass4.flac",
+   "from": 213.80,
+   "to": 216.48
+  },
+  {
+   "id": "line-natuke-ma-oupin-eesti-keelt",
+   "source": "sounds-pass4.flac",
+   "from": 217.03,
+   "to": 220.57
+  },
+  {
+   "id": "line-ma-raeaegin-inglise-keelt-ja-natuke-eesti-keelt",
+   "source": "sounds-pass4.flac",
+   "from": 221.41,
+   "to": 225.76
+  },
+  {
+   "id": "line-kas-sa-raeaegid-vene-keelt",
+   "source": "sounds-pass4.flac",
+   "from": 232.02,
+   "to": 234.08
+  },
+  {
+   "id": "line-tom-kas-sa-elad-tallinnas",
+   "source": "sounds-pass4.flac",
+   "from": 235.20,
+   "to": 237.38
+  },
+  {
+   "id": "line-ei-ma-ei-ela-tallinnas-ma-elan-tartus",
+   "source": "sounds-pass4.flac",
+   "from": 238.99,
+   "to": 242.61
+  },
+  {
+   "id": "line-natuke-ma-ei-raeaegi-veel-haesti",
+   "source": "sounds-pass4.flac",
+   "from": 244.28,
+   "to": 247.31
+  },
+  {
+   "id": "line-aga-sa-oupid",
+   "source": "sounds-pass4.flac",
+   "from": 248.65,
+   "to": 249.94
+  },
+  {
+   "id": "line-jah-muidugi",
+   "source": "sounds-pass4.flac",
+   "from": 251.17,
+   "to": 252.83
+  },
+  {
+   "id": "line-ma-elan-tartus",
+   "source": "sounds-pass4.flac",
+   "from": 253.91,
+   "to": 255.71
+  },
+  {
+   "id": "line-ma-ei-ela-tartus",
+   "source": "sounds-pass4.flac",
+   "from": 256.30,
+   "to": 258.30
+  },
+  {
+   "id": "line-sa-raeaegid-vene-keelt",
+   "source": "sounds-pass4.flac",
+   "from": 259.54,
+   "to": 261.37
+  },
+  {
+   "id": "line-sa-ei-raeaegi-vene-keelt",
+   "source": "sounds-pass4.flac",
+   "from": 261.92,
+   "to": 263.90
+  },
+  {
+   "id": "line-nad-oupivad-eesti-keelt",
+   "source": "sounds-pass4.flac",
+   "from": 264.75,
+   "to": 266.86
+  },
+  {
+   "id": "line-nad-ei-oupi-eesti-keelt",
+   "source": "sounds-pass4.flac",
+   "from": 267.54,
+   "to": 269.73
+  },
+  {
+   "id": "line-kas-sa-elad-tallinnas",
+   "source": "sounds-pass4.flac",
+   "from": 270.82,
+   "to": 272.51
+  },
+  {
+   "id": "line-ei-ma-ei-raeaegi-vene-keelt",
+   "source": "sounds-pass4.flac",
+   "from": 273.63,
+   "to": 276.02
+  },
+  {
+   "id": "line-ma-ei-raeaegi-veel-haesti-eesti-keelt",
+   "source": "sounds-pass4.flac",
+   "from": 277.16,
+   "to": 279.68
+  },
+  {
+   "id": "line-kas-sa-oupid-eesti-keelt",
+   "source": "sounds-pass4.flac",
+   "from": 281.43,
+   "to": 283.41
+  },
+  {
+   "id": "line-viis-kaks-null-ueks-kolm-seitse-kaheksa",
+   "source": "sounds-pass4.flac",
+   "from": 284.73,
+   "to": 290.48
+  },
+  {
+   "id": "soft-hall-plain",
+   "source": "sounds-pass5.flac",
+   "from": 5.55,
+   "to": 6.73
+  },
+  {
+   "id": "soft-hall",
+   "source": "sounds-pass5.flac",
+   "from": 7.30,
+   "to": 8.50
+  },
+  {
+   "id": "soft-vill-plain",
+   "source": "sounds-pass5.flac",
+   "from": 9.59,
+   "to": 10.59
+  },
+  {
+   "id": "soft-vill",
+   "source": "sounds-pass5.flac",
+   "from": 11.22,
+   "to": 12.82
+  },
+  {
+   "id": "soft-kalla",
+   "source": "sounds-pass5.flac",
+   "from": 17.93,
+   "to": 19.09
+  },
+  {
+   "id": "soft-kutsu-plain",
+   "source": "sounds-pass5.flac",
+   "from": 29.65,
+   "to": 30.58
+  },
+  {
+   "id": "soft-pasun",
+   "source": "sounds-pass5.flac",
+   "from": 35.23,
+   "to": 36.24
+  },
+  {
+   "id": "soft-poiss",
+   "source": "sounds-pass5.flac",
+   "from": 36.98,
+   "to": 38.00
+  },
+  {
+   "id": "soft-buss",
+   "source": "sounds-pass5.flac",
+   "from": 38.68,
+   "to": 39.74
+  },
+  {
+   "id": "soft-pall",
+   "source": "sounds-pass5.flac",
+   "from": 40.69,
+   "to": 41.84
   }
  ]
 }

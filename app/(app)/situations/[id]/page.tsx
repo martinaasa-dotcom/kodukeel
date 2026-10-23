@@ -8,6 +8,7 @@ import { adaptTiltFor } from "@/lib/progress/adapt";
 import { tiltedLevel } from "@/lib/course/adapt";
 import { uiText } from "@/lib/copy/uiLanguage";
 import { SceneSession } from "@/components/scene/SceneSession";
+import { errandForScene } from "@/lib/collections/errandScenes";
 import { tr } from "@/lib/copy/locale";
 import { localeFor } from "@/lib/progress/locale";
 import { finishedScene } from "@/lib/progress/scene";
@@ -78,6 +79,7 @@ export default async function ScenePage({ params }: { params: Promise<{ id: stri
       answeredLast={sceneAnswerFrom(answer)}
       finishedOnce={finished}
       opening={openingLines(scene, tiltedLevel(learnerLevel, tilt))}
+      rehearses={errandForScene(scene.id) ?? null}
     />
   );
 }

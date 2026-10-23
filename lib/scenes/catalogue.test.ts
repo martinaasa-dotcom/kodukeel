@@ -810,7 +810,7 @@ describe("an exam practice scene", () => {
 });
 
 /*
-  TONIGHT'S CHAT IS A SCENE OF A NEW KIND, built per evening and in no
+  TODAY'S CHAT IS A SCENE OF A NEW KIND, built per evening and in no
   catalog (`lib/scenes/specs/chat.ts`, docs/41-fifth-batch.md VB-11). The
   rules above iterate the catalog, so the ones that hold of any scene are
   asked again here of a chat built for every evening that offers one, read
@@ -819,7 +819,7 @@ describe("an exam practice scene", () => {
   include walking out, and every lemma it names is a word its own closed list
   holds, so a chat can no more introduce vocabulary than a scene can.
 */
-describe("tonight's chat, the new kind", () => {
+describe("today's chat, the new kind", () => {
   const gloss = new Map(HARVESTED.map((w) => [w.lemma, w.gloss.split(/[,;]/)[0]!.trim()]));
   const known = new Set(HARVESTED.map((w) => w.lemma));
   const chats = PROGRAMMES.flatMap((programme) => programme.days

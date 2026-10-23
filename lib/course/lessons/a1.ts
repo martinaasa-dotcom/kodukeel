@@ -245,7 +245,7 @@ const TERE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The short forms are what people usually say. The long form is for the person who matters in the sentence: {Mina olen Mari}, and that one's Jaan.",
+        "The short forms are what people usually say. Use the long form to stress the person: {Mina olen Mari} means \"I'm Mari\", as opposed to somebody else.",
         "Every person ends the verb differently, which is why Estonian can leave the person out: {Olen õpetaja} is \"I'm a teacher\".",
         "{Tema} is he and she. Estonian uses one word for both.",
       ],
@@ -433,7 +433,7 @@ const TERE_LESSONS: readonly LessonSpec[] = [
       notes: [
         "Everything in it is something you have said before. The new part is putting it together, one line after another.",
         "Notice how Mari leads and Tom answers, and how one line from lesson 2 keeps it going when Tom gets lost.",
-        "Tonight you take Tom's part. At the end, Mari speaks first and you answer as yourself, one turn at a time, until you've held the whole conversation.",
+        "Today you take Tom's part. At the end, Mari speaks first and you answer as yourself, one turn at a time, until you've held the whole conversation.",
       ],
       watchOut: "When you're lost, say so in Estonian. {Vabandust, ma ei saa aru} keeps the conversation going in Estonian.",
       examples: [2, 7],

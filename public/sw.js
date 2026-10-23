@@ -183,6 +183,8 @@ self.addEventListener("activate", (event) => {
           : k.startsWith("kodukeel-") && !k.startsWith(VERSION))
           .map((k) => caches.delete(k)),
       ))
+      .then(() => self.registration.navigationPreload?.enable())
+      .catch(() => undefined)
       .then(() => self.clients.claim())
       .then(() => warmOpenPages()),
   );
@@ -245,7 +247,20 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
 
   // Everything else under /api/ is live data and must never be served stale.
-  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/auth/")) return;
+  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/auth/")) {
+    // A navigation here is still answered, from the preloaded request, and
+    // kept nowhere. Left to the browser, the request navigation preload has
+    // already sent could be followed by a second one, and the sign-in
+    // callback spends its code on the first.
+    if (request.mode === "navigate") {
+      event.respondWith(
+        Promise.resolve(event.preloadResponse)
+          .catch(() => undefined)
+          .then((preloaded) => preloaded || fetch(request)),
+      );
+    }
+    return;
+  }
 
   // The speech runtime: fresh online, the last copy offline. The model files
   // under /asr/model/ are the worker's own to fetch, check and keep.
@@ -277,7 +292,7 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (request.mode === "navigate") {
-    event.respondWith(navigateWithFallback(request));
+    event.respondWith(navigateWithFallback(request, event.preloadResponse));
   }
 });
 
@@ -371,10 +386,19 @@ async function audioWithCache(request) {
  * The cached copy of /review is stale by definition, which is why the app
  * reloads its queue from IndexedDB on mount rather than trusting the HTML it
  * was served.
+ *
+ * THE REQUEST LEAVES BEFORE THIS WORKER HAS WOKEN UP. Without navigation
+ * preload a page is not asked for until the browser has started the worker
+ * and run this handler, and a worker idle since yesterday takes a noticeable
+ * moment to start on a phone: that wait sat in front of every first open of
+ * the app, before the network was even asked. With it enabled (on `activate`)
+ * the browser sends the request in parallel with starting the worker, and
+ * `preloadResponse` is that request's answer. A browser without preload
+ * resolves it to undefined and the page is fetched here as before.
  */
-async function navigateWithFallback(request) {
+async function navigateWithFallback(request, preloadResponse) {
   try {
-    const response = await fetch(request);
+    const response = (await preloadResponse?.catch(() => undefined)) || await fetch(request);
     if (keepable(response)) {
       const copy = response.clone();
       caches.open(PAGES)

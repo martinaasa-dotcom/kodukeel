@@ -12,7 +12,7 @@ import {
 import type { SceneSpec } from "@/lib/scenes/types";
 
 /**
- * TONIGHT'S CHAT, THE HALF THAT READS A DATABASE (docs/41-fifth-batch.md, VB-11).
+ * TODAY'S CHAT, THE HALF THAT READS A DATABASE (docs/41-fifth-batch.md, VB-11).
  *
  * `lib/scenes/specs/chat.ts` builds the scene from a plan and says nothing about
  * where the plan came from. This is where it comes from: which evening, which
@@ -88,7 +88,7 @@ export interface ChatMemory {
  * ask you something that lets you use the word for 'to be'" is the neighbor
  * repeating themselves, which is what happens when a short evening's words all
  * come round again. So the first meaning used well last time that is not one of
- * tonight's, or nothing, which is the opening every first chat has.
+ * today's, or nothing, which is the opening every first chat has.
  */
 export function rememberedFor(memory: ChatMemory, words: readonly ChatWord[]): string | null {
   return memory.remembered.find((meaning) => !words.some((word) => word.gloss === meaning)) ?? null;
@@ -193,7 +193,7 @@ export function firstSense(gloss: string): string {
 /**
  * THE PLAN FOR ONE EVENING'S CHAT, OR NULL WHERE THERE IS NO CHAT TO HAVE.
  *
- * Tonight's words, new ones first in the evening's own order and then any it
+ * Today's words, new ones first in the evening's own order and then any it
  * went over again; each with the dictionary's own English; and none the forms
  * list cannot read, since a beat asking for a word nobody can say is a beat
  * nobody can finish. Up to four survive (`chatWords`). Null where the

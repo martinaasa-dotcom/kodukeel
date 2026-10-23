@@ -279,7 +279,19 @@ jobs:
     # A shard rather than the whole list, so this is a ceiling on one of five
     # rather than on all of them. The old single job ran to 27 minutes against
     # a 30-minute limit, which is an intermittent red for everybody.
-    timeout-minutes: 20
+    #
+    # THE CEILING THAT MATTERS IS ON THE SUITES, NOT ON THE APT MIRROR.
+    #
+    # On 2026-10-22 Azure's Ubuntu mirror served `playwright install
+    # --with-deps` at 54.6 kB/s ("Fetched 25.9 MB in 7min 55s"), and a shard
+    # whose suites take eleven minutes was cancelled at twenty with every
+    # check it had reached passing, on main and on a pull request alike. A
+    # cancelled shard says nothing about the app. So the sixteen minutes a
+    # shard's suites may run is held by the suites step itself, which is what
+    # this number was always standing in for (it was twenty less about four of
+    # setup), and the job keeps a looser ceiling only so a mirror that stops
+    # answering altogether still ends the run.
+    timeout-minutes: 35
 
     # ONE RUNNER PER SHARD, BECAUSE THE WALL CLOCK WAS THE WHOLE LIST IN A ROW.
     #
@@ -524,6 +536,7 @@ jobs:
         # comparison to a number, and `null` and `""` are both 0, so this is
         # false for them and the step is skipped.
         if: matrix.shard.before != ''
+        timeout-minutes: 10
         run: |
           for suite in ${{ matrix.shard.before }}; do
             echo "::group::$suite"
@@ -538,6 +551,7 @@ jobs:
       # as a pass. See scripts/lib/checks.mjs. `-e` is the default shell here,
       # so the first suite to fail ends the step and names itself.
       - name: This shard's suites
+        timeout-minutes: 16
         env:
           # Which half of the containment suite this shard runs, where it runs one.
           CONTAIN_PART: ${{ matrix.shard.contain }}
@@ -550,7 +564,9 @@ jobs:
   signin:
     name: The sign-in screen
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # Looser than the suite it runs, for the mirror the browser job's comment
+    # describes: the suite itself is held to its own step's ceiling below.
+    timeout-minutes: 30
 
     # ITS OWN JOB, AND THAT IS ABOUT TIME RATHER THAN TIDINESS.
     #
@@ -605,6 +621,7 @@ jobs:
       - run: npx prisma db push
       - run: npm run db:seed:ensure
       - run: node scripts/test-signin.mjs
+        timeout-minutes: 18
 
   load:
     name: The derived queries, at a size somebody reaches

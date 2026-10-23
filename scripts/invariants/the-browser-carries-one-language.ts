@@ -31,6 +31,8 @@ import type { InvariantKit } from "../lib/invariantKit";
 const FULL_TABLES = [
   /^lib\/copy\/i18n\/index\.ts$/,
   /^lib\/copy\/i18n\/tables\.ts$/,
+  /^lib\/copy\/i18n\/merged\.ts$/,
+  /^lib\/copy\/i18n\/slice\.ts$/,
   /^lib\/copy\/i18n\/counted\.ts$/,
   /^lib\/copy\/i18n\/ru\.ts$/,
   /^lib\/copy\/i18n\/uk\.ts$/,
@@ -104,6 +106,28 @@ export default function theBrowserCarriesOneLanguage({ check, code, APP, COMPONE
     });
     assert.match(code("lib/copy/locale.ts"), /from "#i18n-tables"/);
     assert.doesNotMatch(code("lib/copy/locale.ts"), /from "\.\/i18n"|from "\.\/i18n\/index"/);
+  });
+
+  /*
+    THE SERVER'S TABLE READS THE GENERATED FILE AND NEVER THE AREAS.
+
+    Every route reaches `#i18n-tables` through `app/actions.ts`, so whatever
+    `tables.ts` imports is compiled on every cold start of every route, twice,
+    once for the server render and once for the client render. Importing the
+    areas there put 7.4 MB of Russian and Ukrainian in front of every English
+    page; the merge lives in `merged.ts`, for the generator and the tests.
+  */
+  check("the server's translation table reads the generated file, not the areas", () => {
+    const tables = code("lib/copy/i18n/tables.ts");
+    assert.match(tables, /generated/, "lib/copy/i18n/tables.ts no longer reads the generated file");
+    for (const spec of importsOf("lib/copy/i18n/tables.ts", code)) {
+      assert.ok(
+        !/(?:^|\/)(?:index|merged|slice|counted|ru|uk)$|\/areas\//.test(spec) && spec !== "./",
+        `lib/copy/i18n/tables.ts imports ${spec}, which puts every area of both languages on every cold start`,
+      );
+    }
+    const config = readFileSync("next.config.ts", "utf8");
+    assert.match(config, /lib\/copy\/i18n\/generated/, "next.config.ts no longer traces the generated tables into the deployment");
   });
 
   check("the locale provider waits for its table after its hooks, not before", () => {

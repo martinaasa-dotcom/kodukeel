@@ -726,7 +726,7 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
  * The rounds that ask a case off the word's own forms, which inside the
  * module lead with the case today's reading was about (`tonightsCase`): the
  * writing round, and the workbook, whose page on a case evening is a page of
- * tonight's case.
+ * today's case.
  * The sprint is not one: it turns over the deck's cards, and a module's deck
  * holds a word's meaning and its spelling, so on a module evening it asks no
  * ending at all.
@@ -858,6 +858,18 @@ export function ledgerBefore(spec: PartSpec): Ledger {
  * is what a2.1's first evening is dealt against.
  */
 export function buildProgrammes(): Programme[] {
+  return (BUILT ??= assemble());
+}
+
+/*
+  Built once per process. The ladder is a pure function of files in the
+  repository, so a second build is the same list, and two callers (the
+  barrel's `PROGRAMMES` and the milestone denominators) each building their
+  own was twice the cost on every cold start.
+*/
+let BUILT: Programme[] | null = null;
+
+function assemble(): Programme[] {
   const ledger = teachLessons(new Ledger());
   return [...lessonProgrammes(), ...PARTS.map((spec) => buildPart(spec, ledger))];
 }

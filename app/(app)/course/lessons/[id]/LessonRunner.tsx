@@ -6,6 +6,7 @@ import { Button, ButtonLink } from "@/components/Button";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { RuleNote } from "@/components/RuleNote";
 import { Speak } from "@/components/Speak";
+import { nativePart } from "@/lib/audio/native";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText, lessonTextLang } from "@/components/course/LessonText";
 import { Card, Chip, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
@@ -195,7 +196,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, place }: {
   return (
     <Page eyebrow={fill(t("Lesson {n}"), { n: lessonLabel(lesson) })} title={t(lesson.title)} titleLang={lessonTextLang(lesson.title, locale)} lead={t(lesson.goal)} leadLang={lessonTextLang(lesson.goal, locale)}>
       <Stack>
-        <nav aria-label={t("Tonight's steps")}>
+        <nav aria-label={t("Today's steps")}>
           <ol className="flex flex-wrap gap-2" data-lesson-steps>
             {steps.map((s, i) => (
               <li key={s}>
@@ -246,7 +247,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, place }: {
 }
 
 /**
- * How many different words tonight's conversation used. The figure for an
+ * How many different words today's conversation used. The figure for an
  * evening that teaches nothing new (a check-in, the end of a part), where
  * "0 new to say" would be the first thing on the finish screen.
  */
@@ -263,6 +264,8 @@ function Listen({ lesson }: { lesson: LessonSpec }) {
   const t = useT();
   const locale = useLocale();
   const [english, setEnglish] = useState(true);
+  // The one man's part the native speaker recorded in full plays in his voice; the rest keep the cast's.
+  const played = nativePart(lesson.conversation);
   return (
     <Card>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -277,7 +280,7 @@ function Listen({ lesson }: { lesson: LessonSpec }) {
             <span className="label-xs" style={{ color: "var(--ink-3)" }}>{line.who}</span>
             {line.et && (
               <div className="flex items-start gap-2">
-                <Speak text={line.et} voice={lesson.cast[line.who]} size={18} label={fill(t("Hear {who} say it"), { who: line.who })} />
+                <Speak text={line.et} voice={lesson.cast[line.who]} native={line.who === played} size={18} label={fill(t("Hear {who} say it"), { who: line.who })} />
                 <p lang="et" className="text-lg font-semibold" style={{ color: "var(--ink)" }}>{line.et}</p>
               </div>
             )}
@@ -325,7 +328,7 @@ function Words({ lesson }: { lesson: LessonSpec }) {
     return (
       <Card>
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          {t("No new words tonight. Everything in this lesson is something you've already met, put together.")}
+          {t("No new words today. Everything in this lesson is something you've already met, put together.")}
         </p>
       </Card>
     );
@@ -370,7 +373,7 @@ function Words({ lesson }: { lesson: LessonSpec }) {
   );
 }
 
-/** Step 3: the one idea of the evening, shown on tonight's own lines. */
+/** Step 3: the one idea of the evening, shown on today's own lines. */
 function How({ lesson }: { lesson: LessonSpec }) {
   const t = useT();
   const locale = useLocale();
@@ -442,12 +445,12 @@ function How({ lesson }: { lesson: LessonSpec }) {
       )}
       {examples.length > 0 && (
         <section>
-          <SectionTitle hint={t("from tonight's conversation")}>{t("Where you heard it")}</SectionTitle>
+          <SectionTitle hint={t("from today's conversation")}>{t("Where you heard it")}</SectionTitle>
           <ul className="flex flex-col gap-3">
             {examples.map((line, i) => (
               <li key={i} className="flex flex-col gap-0.5">
                 <span className="flex items-center gap-2">
-                  <Speak text={line!.et!} voice={lesson.cast[line!.who]} size={15} />
+                  <Speak text={line!.et!} voice={lesson.cast[line!.who]} native={line!.who === nativePart(lesson.conversation)} size={15} />
                   <span lang="et" className="text-lg font-semibold" style={{ color: "var(--ink)" }}>{line!.et}</span>
                 </span>
                 <span className="text-base" style={{ color: "var(--ink-2)" }}><LessonText text={line!.en ?? ""} locale={locale} /></span>

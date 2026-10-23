@@ -15,7 +15,13 @@ import { forgetThisDevice } from "@/lib/offline/forget";
 import { BAR, CORE, DESTINATIONS, isUnder, litRow, PINNABLE, SECTIONS, type Destination, type NavSection } from "@/lib/ux/nav";
 import { isCoreRow, railRows } from "@/lib/ux/navOrder";
 import { classRows, type RailClass } from "@/lib/ux/classRows";
-import { NavEditor } from "@/components/nav/NavEditor";
+import dynamic from "next/dynamic";
+/*
+  The editor for the rail's own order is drawn only while somebody is
+  rearranging it, which is a press made once a month, so it is fetched then
+  rather than downloaded with every page the rail is on.
+*/
+const NavEditor = dynamic(() => import("@/components/nav/NavEditor").then((m) => m.NavEditor), { ssr: false });
 import { NavMarker } from "@/components/NavMarker";
 import { Wordmark } from "@/components/brand";
 import { BrandLink } from "@/components/BrandLink";

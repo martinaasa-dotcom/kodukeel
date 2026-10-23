@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "regions": ["dub1"],
+  "fluid": true,
   "git": {
     "deploymentEnabled": {
       "claude/*": false

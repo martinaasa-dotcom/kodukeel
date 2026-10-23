@@ -5,7 +5,7 @@ import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { courseStandingFor } from "@/lib/progress/level";
 import {
   PROGRAMMES, adaptOffer, adaptReading, tiltFor, tiltedLevel,
-  type AdaptOffer, type AdaptReading, type LeanEffects, type Programme, type Tilt,
+  type AdaptOffer, type AdaptReading, type LeanEffects, type PartRef, type Programme, type Tilt,
 } from "@/lib/course";
 import { paceFrom } from "@/lib/audio/pace";
 
@@ -121,7 +121,7 @@ export async function adaptOfferFor(
   const snoozed = !Number.isNaN(until) && until > now.getTime();
   const offer = adaptOffer(reading, {
     part: { id: programme.id, level: programme.level },
-    ladder: LADDER,
+    ladder: ladder(),
     // The part in play is touched whether or not a step of it has been ticked
     // yet, since moving to where somebody already is would be no move at all.
     touched: new Set([...touched, programme.id]),
@@ -132,4 +132,7 @@ export async function adaptOfferFor(
 }
 
 /** The ladder as an offer needs it: an id and a level, in order. */
-const LADDER = PROGRAMMES.map((p) => ({ id: p.id, level: p.level }));
+let LADDER: PartRef[] | null = null;
+function ladder(): PartRef[] {
+  return (LADDER ??= PROGRAMMES.map((p) => ({ id: p.id, level: p.level })));
+}

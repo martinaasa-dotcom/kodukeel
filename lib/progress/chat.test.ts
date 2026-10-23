@@ -1,5 +1,5 @@
 /**
- * TONIGHT'S CHAT: WHEN IT IS OFFERED, WHO IT IS WITH, AND WHAT IT REMEMBERS
+ * TODAY'S CHAT: WHEN IT IS OFFERED, WHO IT IS WITH, AND WHAT IT REMEMBERS
  * (docs/41-fifth-batch.md, VB-11).
  *
  * The half of the chat that is not a database read, held without one. The
@@ -95,7 +95,7 @@ describe("what it remembers, derived from the runs", () => {
     expect(JSON.stringify(memory)).not.toContain("bbb");
   });
 
-  it("opens on a meaning that is not one of tonight's words, or on none", () => {
+  it("opens on a meaning that is not one of today's words, or on none", () => {
     const memory = { talked: new Set<string>(), remembered: ["to be", "to live"] };
     expect(rememberedFor(memory, [{ lemma: "olema", gloss: "to be" }, { lemma: "see", gloss: "this" }])).toBe("to live");
     expect(rememberedFor(memory, [{ lemma: "olema", gloss: "to be" }, { lemma: "elama", gloss: "to live" }])).toBeNull();

@@ -51,6 +51,33 @@ export function MapPicture({ scene }: { scene: MapScene }) {
             <span className="absolute bottom-3 left-1/2 -translate-x-1/2 text-3xl leading-none lg:bottom-4 lg:text-4xl">{layout.guest}</span>
           </span>
         )}
+        {layout.kind === "under" && (
+          <span className="flex flex-col items-center">
+            <Glyph glyph={layout.host} word />
+            <span className="-mt-2 text-5xl leading-none lg:text-6xl">{layout.guest}</span>
+          </span>
+        )}
+        {layout.kind === "above" && (
+          <span className="flex flex-col items-center gap-3">
+            <span className="text-5xl leading-none lg:text-6xl">{layout.guest}</span>
+            <Glyph glyph={layout.host} word />
+          </span>
+        )}
+        {/* In front is drawn over the host and behind is drawn under it, and both
+            are pushed to one side, so the one that is hidden shows by what is
+            missing of it. */}
+        {layout.kind === "front" && (
+          <span className="relative grid place-items-center">
+            <Glyph glyph={layout.host} word />
+            <span className="absolute -bottom-2 -right-3 z-10 text-5xl leading-none lg:text-6xl">{layout.guest}</span>
+          </span>
+        )}
+        {layout.kind === "behind" && (
+          <span className="relative grid place-items-center">
+            <span className="absolute -right-4 -top-3 z-0 text-5xl leading-none lg:text-6xl">{layout.guest}</span>
+            <span className="relative z-10"><Glyph glyph={layout.host} word /></span>
+          </span>
+        )}
         {layout.kind === "on" && (
           <span className="flex flex-col items-center">
             <span className="-mb-3 text-5xl leading-none lg:text-6xl">{layout.guest}</span>

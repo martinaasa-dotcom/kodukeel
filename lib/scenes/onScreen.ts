@@ -38,7 +38,7 @@ export function sceneTemplates(scene: SceneSpec): string[] {
     for (const one of [ball.they, ball.answer]) if (one && one.includes("{")) out.add(one);
   }
   for (const one of Object.values(COACH_TEMPLATES)) if (one.includes("{")) out.add(one);
-  // Tonight's chat fills its goals and directions from templates of its own (`lib/scenes/specs/chat.ts`).
+  // Today's chat fills its goals and directions from templates of its own (`lib/scenes/specs/chat.ts`).
   if (scene.id === CHAT_ID) for (const one of Object.values(CHAT_TEMPLATES)) out.add(one);
   return [...out];
 }

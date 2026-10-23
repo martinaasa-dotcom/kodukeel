@@ -6,7 +6,8 @@ import { errandRehearsal, openingLines, OPENING_LINES } from "./rehearse";
 import { isCall } from "./scenery";
 import { matchPick } from "@/lib/speech/matchPick";
 import { openingAnswer, sceneAnswerFrom } from "@/lib/ux/sceneAnswer";
-import { ERRANDS, sceneForErrand } from "@/lib/collections/errands";
+import { ERRANDS } from "@/lib/collections/errands";
+import { sceneForErrand } from "@/lib/collections/errandScenes";
 
 /*
   A CONVERSATION SAID ALOUD (docs/41-fifth-batch.md, VB-4): the pure halves of

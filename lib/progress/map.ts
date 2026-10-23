@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { CASES } from "@/lib/estonian/cases";
-import { asksAboutPerson, canPicturePlace, caseFitsInSentence, caseQuestionFor, placeKind } from "@/lib/estonian/caseQuestion";
+import { asksAboutPerson, canPicturePlace, caseFitsInSentence, caseQuestionFor, isPictureThing, placeKind } from "@/lib/estonian/caseQuestion";
 import { WORD_EMOJI } from "@/lib/collections/emoji";
 import { HOUR_LEMMAS } from "@/lib/scenes/props";
 import { mentions } from "@/lib/estonian/cloze";
@@ -12,7 +12,8 @@ import { bandsAround } from "@/lib/collections/levels";
 import { caseWithin, type ModuleScope } from "@/lib/course/scope";
 import { VOUCHED_ROW } from "@/lib/dict/search";
 import { borrowedSentences, sentenceReach } from "@/lib/dict/facts";
-import { lentFor, sentenceEnglish, sentenceWords, parseExamples, type Example } from "@/lib/dict/examples";
+import { lentFor, sentenceWords, parseExamples, type Example } from "@/lib/dict/examples";
+import { sentenceEnglish } from "@/lib/dict/sentenceEnglish";
 import { plainerFirst } from "@/lib/dict/plainness";
 import { formSentencesFor } from "@/lib/srs/cards";
 import { courseLevelFor } from "@/lib/progress/level";
@@ -24,6 +25,8 @@ import {
   MAP_CASES, MAP_QUESTIONS, dealByCase, pickWrong, rungFrom, sceneFor, trioOf,
   type FormChoice, type MapScene, type Rung,
 } from "@/lib/games/map";
+import { MAX_PLACE_QUESTIONS, PLACE_LEMMAS, PLACE_WORDS, pickWrongPlaces, placeScene } from "@/lib/games/place";
+import { sentenceContaining } from "@/lib/dict/examples";
 
 /**
  * THE QUESTIONS A MAP ROUND ASKS.
@@ -84,6 +87,7 @@ export interface MapOption {
 }
 
 export interface MapQuestion {
+  readonly kind: "case";
   /** The card this is evidence about, or null for a word the learner has no card for. */
   cardId: string | null;
   lexemeId: string;
@@ -118,6 +122,44 @@ export interface MapQuestion {
   answer: number;
 }
 
+/**
+ * A question about a place word: a picture, and the noun's genitive with three
+ * place words after it. The wrong answers are the other place words, so only
+ * the one the picture shows can be right.
+ */
+export interface PlaceQuestion {
+  readonly kind: "place";
+  /** The card of the place word, which is what a right answer is evidence about, or null. */
+  cardId: string | null;
+  /** The noun in the picture. Starring and the look back are about it. */
+  lexemeId: string;
+  starred: boolean;
+  lemma: string;
+  gloss: string;
+  scene: MapScene;
+  /** The place word the picture shows. */
+  place: string;
+  options: { text: string; key: string }[];
+  answer: number;
+  /** A sentence a lexicographer recorded holding the place word, and the word in it. */
+  sentence: string;
+  form: string;
+  en: string | null;
+}
+
+export type RoundQuestion = MapQuestion | PlaceQuestion;
+
+/** What the place questions need of a place word's entry. */
+export interface PlaceEntry {
+  lemma: string;
+  /** The place word's own recognition card, where the learner has met it. */
+  cardId: string | null;
+  /** A recorded sentence holding the word, which the question is not asked without. */
+  sentence: string;
+  form: string;
+  en: string | null;
+}
+
 interface WordRow {
   id: string;
   lemma: string;
@@ -132,7 +174,7 @@ interface WordRow {
 interface Candidate {
   row: WordRow;
   cardId: string | null;
-  question: Omit<MapQuestion, "starred" | "rung">;
+  question: Omit<MapQuestion, "starred" | "rung" | "kind">;
 }
 
 /**
@@ -147,7 +189,7 @@ export function questionsForWord(
   borrowed: readonly Example[],
   rank: ((a: Example, b: Example) => number) | undefined,
   scope: ModuleScope | null,
-): Omit<MapQuestion, "starred" | "cardId" | "rung">[] {
+): Omit<MapQuestion, "starred" | "cardId" | "rung" | "kind">[] {
   if (row.pos !== "NOUN") return [];
   const stems = stemsFrom(row.forms);
   const index = caseIndex(stems);
@@ -166,7 +208,7 @@ export function questionsForWord(
     answers.set(key, caseAnswer(stems, key));
   }
 
-  const out: Omit<MapQuestion, "starred" | "cardId" | "rung">[] = [];
+  const out: Omit<MapQuestion, "starred" | "cardId" | "rung" | "kind">[] = [];
   const spellings = formIndex({ lemma: row.lemma, pos: row.pos, forms: row.forms });
   for (const key of MAP_CASES) {
     if (!caseWithin(scope, key)) continue;
@@ -250,6 +292,66 @@ export function questionsForWord(
   return out;
 }
 
+/**
+ * Every place question one noun can be asked, one per place word.
+ *
+ * A noun is asked only if it has a picture, is a thing rather than a person,
+ * has a stored genitive, and the evenings (inside a module) have taught the
+ * genitive. A place word is offered only if it has a recorded sentence and, in
+ * a module, has been taught. Fewer than three offerable place words and there
+ * is nothing to choose between, so there is no question.
+ *
+ * Exported for `scripts/audit-questions.ts`, like `questionsForWord`.
+ */
+export function placeQuestionsForWord(
+  row: WordRow,
+  places: readonly PlaceEntry[],
+  scope: ModuleScope | null,
+): Omit<PlaceQuestion, "starred" | "kind">[] {
+  if (row.pos !== "NOUN") return [];
+  if (!caseWithin(scope, "GENITIVE")) return [];
+  const glyph = WORD_EMOJI[row.lemma] ?? null;
+  if (!glyph || hourOf(row.lemma) !== null) return [];
+  const stems = stemsFrom(row.forms);
+  const subject = { lemma: row.lemma, semanticTypes: row.semanticTypes, nomSg: stems.nomSg ?? null };
+  // A thing, and only where the Institute says so: a ball under a policeman is not a picture
+  // of anything, and a word called both a being and a place (`politseinik`) is not a thing.
+  if (!isPictureThing(subject)) return [];
+  const gen = stems.genSg?.trim();
+  if (!gen) return [];
+
+  const offered = places.filter((p) => !scope || scope.lemmas.includes(p.lemma));
+  if (offered.length < 3) return [];
+
+  const label = `${row.lemma}, ${row.translation}`;
+  const phrase = (lemma: string) => `${gen} ${lemma}`;
+  const out: Omit<PlaceQuestion, "starred" | "kind">[] = [];
+  for (const answer of offered) {
+    const word = PLACE_WORDS.find((w) => w.lemma === answer.lemma);
+    const scene = word ? placeScene(word, glyph) : null;
+    if (!scene) continue;
+    // The gloss on the label may not be one of the phrases: it would be the answer copied.
+    if (mentions(label, phrase(answer.lemma))) continue;
+    const wrong = pickWrongPlaces(answer.lemma, shuffle(offered.map((o) => o.lemma)));
+    if (!wrong) continue;
+    const options = shuffle([answer.lemma, ...wrong].map((lemma) => ({ text: phrase(lemma), key: lemma })));
+    out.push({
+      cardId: answer.cardId,
+      lexemeId: row.id,
+      lemma: row.lemma,
+      gloss: row.translation,
+      scene,
+      place: answer.lemma,
+      options,
+      answer: options.findIndex((o) => o.key === answer.lemma),
+      sentence: answer.sentence,
+      form: answer.form,
+      en: answer.en,
+    });
+  }
+  return out;
+}
+
 /** The ending a form carries, only where it really is the stem with it on. */
 function endingOf(text: string, key: CaseKey, stems: NounStems): string | null {
   const spec = CASES.find((c) => c.key === key);
@@ -261,7 +363,7 @@ function endingOf(text: string, key: CaseKey, stems: NounStems): string | null {
  * The round: ten words, each asked one case, cases dealt in turn so a rare one
  * is not drowned by the commonest.
  */
-export async function mapRound(ownerId: string, scope: ModuleScope | null = null): Promise<MapQuestion[]> {
+export async function mapRound(ownerId: string, scope: ModuleScope | null = null): Promise<RoundQuestion[]> {
   const select = {
     id: true, lemma: true, translation: true, pos: true, cefr: true,
     semanticTypes: true, examples: true,
@@ -309,25 +411,102 @@ export async function mapRound(ownerId: string, scope: ModuleScope | null = null
       questionsForWord(row, borrowed.get(row.id) ?? [], plainerFirst(row.cefr, reach), scope)
         .map((q) => ({ row, cardId, question: { ...q, cardId } })));
 
+  // A few place questions go first, so the case endings stay most of the round
+  // and a noun is asked once whichever kind it comes up as.
+  const places = await placeEntries(ownerId, scope, reach);
+  const placeChosen = dealPlaces(
+    [...have, ...topUp.slice(0, 160)].flatMap(({ row }) =>
+      placeQuestionsForWord(row, places, scope).map((q) => ({ id: row.id, q }))),
+    MAX_PLACE_QUESTIONS,
+  );
+  const placed = new Set(placeChosen.map((p) => p.id));
+  const caseTake = MAP_QUESTIONS - placeChosen.length;
+
   // The deck's words first. A round is taken from them alone where they are
   // enough, and only then from the rest, so what is graded leads.
-  const deckSide = build(shuffle(have));
-  let chosen = dealBy(deckSide, MAP_QUESTIONS);
-  if (chosen.length < MAP_QUESTIONS) {
-    const used = new Set(chosen.map((c) => c.row.id));
+  const deckSide = build(shuffle(have)).filter((c) => !placed.has(c.row.id));
+  let chosen = dealBy(deckSide, caseTake);
+  if (chosen.length < caseTake) {
+    const used = new Set([...chosen.map((c) => c.row.id), ...placed]);
     const more = build(topUp.slice(0, 160)).filter((c) => !used.has(c.row.id));
-    chosen = [...chosen, ...dealBy(more, MAP_QUESTIONS - chosen.length)];
+    chosen = [...chosen, ...dealBy(more, caseTake - chosen.length)];
   }
 
   const [starred, rungs] = await Promise.all([
-    starredAmong(ownerId, chosen.map((c) => c.row.id)),
+    starredAmong(ownerId, [...chosen.map((c) => c.row.id), ...placeChosen.map((p) => p.id)]),
     rungsFor(ownerId, chosen.map((c) => ({ lexemeId: c.row.id, caseKey: c.question.caseKey }))),
   ]);
-  return shuffle(chosen).map((c) => ({
+  const cases: RoundQuestion[] = chosen.map((c) => ({
+    kind: "case" as const,
     ...c.question,
     starred: starred.has(c.row.id),
     rung: rungs.get(`${c.row.id}|${c.question.caseKey}`) ?? 1,
   }));
+  const spots: RoundQuestion[] = placeChosen.map((p) => ({ kind: "place" as const, ...p.q, starred: starred.has(p.id) }));
+  return shuffle([...cases, ...spots]);
+}
+
+/**
+ * The place words with something to ask about: an entry, a recorded sentence
+ * that holds the word, and the learner's card for it where there is one.
+ */
+async function placeEntries(
+  ownerId: string, scope: ModuleScope | null, reach: Awaited<ReturnType<typeof sentenceReach>>,
+): Promise<PlaceEntry[]> {
+  const lemmas = scope ? PLACE_LEMMAS.filter((l) => scope.lemmas.includes(l)) : [...PLACE_LEMMAS];
+  if (lemmas.length === 0) return [];
+  // `(lemma, pos)` is the unique key, so keying on both is one entry per place word.
+  const found = await prisma.lexeme.findMany({
+    where: { pos: "ADVERB", ...VOUCHED_ROW, lemma: { in: lemmas } },
+    select: { id: true, lemma: true, pos: true, cefr: true, examples: true },
+    orderBy: [{ lemma: "asc" }, { id: "asc" }],
+  });
+  const rows = [...new Map(found.map((r) => [`${r.lemma}|${r.pos}`, r])).values()];
+  const cards = await prisma.card.findMany({
+    where: {
+      ownerId, suspended: false, state: { not: 0 }, cardType: "RECOGNITION",
+      lexemeId: { in: rows.map((r) => r.id) },
+    },
+    select: { id: true, lexemeId: true },
+    orderBy: { id: "asc" },
+  });
+  const cardOf = new Map<string, string>();
+  for (const c of cards) if (c.lexemeId && !cardOf.has(c.lexemeId)) cardOf.set(c.lexemeId, c.id);
+
+  const out: PlaceEntry[] = [];
+  for (const r of rows) {
+    const examples = parseExamples(r.examples);
+    const hit = sentenceContaining(examples, r.lemma, plainerFirst(r.cefr, reach));
+    if (!hit || sentenceWords(hit.et).length < 3) continue;
+    out.push({
+      lemma: r.lemma, cardId: cardOf.get(r.id) ?? null, sentence: hit.et, form: r.lemma,
+      en: sentenceEnglish(examples, hit.et) ?? hit.en ?? null,
+    });
+  }
+  return out;
+}
+
+/**
+ * The place questions of a round: no noun twice, and the place words dealt in
+ * turn, so a round of three is not three `peal`.
+ */
+function dealPlaces<T extends { id: string; q: { place: string } }>(candidates: T[], take: number): T[] {
+  const byWord = new Map<string, T[]>();
+  for (const c of shuffle(candidates)) byWord.set(c.q.place, [...(byWord.get(c.q.place) ?? []), c]);
+  const queues = shuffle([...byWord.values()]);
+  const out: T[] = [];
+  const used = new Set<string>();
+  while (out.length < take && queues.some((q) => q.length > 0)) {
+    for (const queue of queues) {
+      if (out.length >= take) break;
+      let next = queue.shift();
+      while (next && used.has(next.id)) next = queue.shift();
+      if (!next) continue;
+      used.add(next.id);
+      out.push(next);
+    }
+  }
+  return out;
 }
 
 function dealBy(candidates: Candidate[], take: number): Candidate[] {

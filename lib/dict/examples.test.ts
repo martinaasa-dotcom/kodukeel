@@ -1,10 +1,11 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
-  mergeExamples, parseExamples, sentenceContaining, sentenceEnglish, sentenceWords,
+  mergeExamples, parseExamples, sentenceContaining, sentenceWords,
   serialiseExamples, splitOnForm, teachingSentence, usableExamples,
   type Example,
 } from "./examples";
+import { sentenceEnglish } from "./sentenceEnglish";
 
 const ek = (et: string, en?: string): Example => ({ et, source: "EKILEX", ...(en ? { en } : {}) });
 

@@ -304,6 +304,20 @@ export async function middleware(request: NextRequest) {
   */
   if (!hasSessionCookie(request.cookies.getAll().map((cookie) => cookie.name))) {
     if (isPublicPath) return withCsp(NextResponse.next({ request }));
+    /*
+      THE FRONT DOOR IS THE LANDING PAGE ITSELF, NOT A REDIRECT TO IT.
+
+      Somebody typing the address has nothing to sign back in to, and a 307 to
+      /welcome made their first visit two round trips before a byte of the page:
+      the redirect, then the page, on the slowest connection the app ever
+      meets, a stranger's phone. Rewritten, `/` is answered with the landing
+      page's own prerendered HTML in one. The address stays the one they typed,
+      and the page names /welcome as its canonical address for a search engine.
+      A request that does carry a session and turns out signed out is still
+      redirected below, which is the rare case and the one where the address
+      should change.
+    */
+    if (path === "/") return withCsp(NextResponse.rewrite(new URL("/welcome", request.url)));
     return withCsp(signedOut());
   }
 

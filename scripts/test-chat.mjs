@@ -41,7 +41,7 @@ const S = `http://localhost:${PORT}`;
 const OWNER = "local-single-user";
 const TURN_MS = 30_000;
 
-const { check, done, absent } = suite("Tonight's chat", {
+const { check, done, absent } = suite("Today's chat", {
   /*
     Two keyless checks, five on the offer and the briefing, and per word one
     objective met and one line clean of the word, then the goodbye, the
@@ -191,7 +191,7 @@ try {
   await page.waitForSelector("main h1", { timeout: 30_000 });
   const brief = await page.locator("main").innerText();
   check("the chat names itself, and who it is with",
-    /Tonight.s chat/.test(brief) && /neighbou?r/i.test(brief), brief.slice(0, 160));
+    /Today.s chat/.test(brief) && /neighbou?r/i.test(brief), brief.slice(0, 160));
   check("it has no dial for how much goes wrong, since nothing does",
     (await page.getByRole("radiogroup", { name: /How tricky/i }).count()) === 0);
 
@@ -253,7 +253,7 @@ try {
   const debrief = await page.locator("main").innerText();
   check("the goodbye ends it, on the debrief", /Your conversation, reviewed/i.test(debrief), debrief.slice(0, 120));
   check("and every word was used, which the ending says",
-    /Every one of tonight.s words got used/.test(debrief), debrief.slice(0, 300));
+    /Every one of today.s words got used/.test(debrief), debrief.slice(0, 300));
   check("and the words used went into the reviews", /in \[?your reviews|now in your reviews/i.test(debrief));
   check("with the way out of the evening rather than another chat",
     (await page.getByRole("link", { name: /Back to Today/ }).count()) > 0

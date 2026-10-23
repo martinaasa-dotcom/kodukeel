@@ -1,6 +1,6 @@
 import { questionInEnglish, type CaseSpec } from "./cases";
 import { INSIDE_CASES, OUTSIDE_CASES, bothSetsOrdinary, takesOutsideCases } from "./place";
-import { bothLocalSetsOrdinary, isAnimate, isContainer, isPhysical, isPlace } from "./semantics";
+import { bothLocalSetsOrdinary, isAnimate, isContainer, isPhysical, isPlace, semanticGroup } from "./semantics";
 import type { CaseKey } from "./types";
 
 /**
@@ -245,6 +245,18 @@ export function caseQuestionFor(spec: CaseSpec, subject: CaseSubject): string {
  */
 export function canPicturePlace(subject: CaseSubject): boolean {
   return isAnimate(subject.semanticTypes) || isPhysical(subject.semanticTypes);
+}
+
+/**
+ * A THING, AND ONLY WHERE THE INSTITUTE SAYS SO, FOR A PICTURE OF SOMETHING
+ * BESIDE IT.
+ *
+ * A ball under a policeman is a picture of nothing, and a word called both a
+ * being and a place (`politseinik`) is not a thing. Unclassified words draw
+ * nothing, as with `canPicturePlace`.
+ */
+export function isPictureThing(subject: CaseSubject): boolean {
+  return semanticGroup(subject.semanticTypes) === "THING" && isPhysical(subject.semanticTypes);
 }
 
 /**

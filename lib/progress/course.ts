@@ -11,7 +11,7 @@ import { computeStreak } from "@/lib/stats/streak";
 import { closingLeft } from "@/lib/progress/closing";
 import { scopeFor } from "@/lib/course/scope";
 import {
-  DEFAULT_PROGRAMME, MEET_STEP, PROGRAMMES, REVIEW_STEP, dayById, dayReached, ladderProgress,
+  MEET_STEP, PROGRAMMES, REVIEW_STEP, dayById, dayReached, defaultProgramme, ladderProgress,
   creditedThrough, ladderVerdict, levelsTo, programmeById, programmeStanding, startingLevel, type CourseDay,
   type LadderProgress, type LadderVerdict, type Programme, type ProgrammeStanding,
 } from "@/lib/course";
@@ -117,7 +117,7 @@ export async function programmeFor(ownerId: string): Promise<Programme | null> {
  */
 export function openingPart(held: Level | null, target: string | null | undefined): Programme {
   const level = startingLevel(held, target);
-  return PROGRAMMES.find((p) => p.level === level) ?? DEFAULT_PROGRAMME;
+  return PROGRAMMES.find((p) => p.level === level) ?? defaultProgramme();
 }
 
 /**

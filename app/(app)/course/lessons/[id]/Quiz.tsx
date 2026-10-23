@@ -11,7 +11,8 @@ import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
 import { Card, SectionTitle } from "@/components/ui";
 import { fill } from "@/lib/copy/locale";
-import { markPhrase, type PracticeItem, type TypedMark } from "@/lib/course/lessons";
+// By its own module, never the barrel, which imports every lesson the course has.
+import { markPhrase, type PracticeItem, type TypedMark } from "@/lib/course/lessons/practice";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
 import { OPTION_CLASS, optionState, VERDICT_CLASS } from "@/lib/ux/verdict";
 

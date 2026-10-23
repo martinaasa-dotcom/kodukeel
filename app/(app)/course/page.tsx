@@ -143,7 +143,7 @@ export default async function CoursePage({
   ]);
   const total = programme.days.length;
   /*
-    TONIGHT'S CHAT, WHERE THE EVENING FINISHED TODAY MET ENOUGH NEW WORDS AND
+    TODAY'S CHAT, WHERE THE EVENING FINISHED TODAY MET ENOUGH NEW WORDS AND
     THIS DEPLOYMENT HAS A MODEL TO HOLD IT (VB-11). The same evening the
     action opens it for (`finishedEvening`), so the offer and the chat cannot
     be about two different nights.
@@ -428,10 +428,10 @@ export default async function CoursePage({
         <CourseFit offer={fit.offer} tilt={fit.tilt} snoozed={fit.snoozed} effects={fit.effects} locale={locale} />
 
         {/*
-          THE UNIT'S OWN CLAIM, AND WHICH EVENING OF IT THIS IS, WITH TONIGHT'S
+          THE UNIT'S OWN CLAIM, AND WHICH EVENING OF IT THIS IS, WITH TODAY'S
           STEPS DEALT OUT BESIDE IT.
 
-          The claim is the unit's rather than tonight's: a learner read "Say I,
+          The claim is the unit's rather than today's: a learner read "Say I,
           you, he, we and they" over an evening teaching four of the six and
           reported it, correctly, as the screen promising words it was not
           going to teach, so the eyebrow says which evening of the unit this
@@ -594,7 +594,7 @@ export default async function CoursePage({
                       </span>
                       {/* Pulled into the title's line rather than setting
                           its height: the chip is taller than a line of text,
-                          so tonight's title sat 3px below the titles beside
+                          so today's title sat 3px below the titles beside
                           it in the other column. */}
                       {state === "now" && <span className="-my-1 inline-flex"><Chip tone="accent">{t("Today")}</Chip></span>}
                     </span>

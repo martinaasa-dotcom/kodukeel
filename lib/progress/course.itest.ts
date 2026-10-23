@@ -759,7 +759,7 @@ describe("the closing round's own counter", () => {
 
   /*
     AND AN UNSEEN WORD IS NOT COUNTED, because the closing round introduces
-    nothing: it is tonight's words once more (`tonightWhere`), and a card the
+    nothing: it is today's words once more (`tonightWhere`), and a card the
     learner has never met is not one they can review.
   */
   it("counts no unseen word, since a review introduces nothing", async () => {
@@ -836,7 +836,7 @@ describe("the closing round's own counter", () => {
     card in it. A quick review of an evening is that evening's own words once
     more, so the round tops up from them (`tonightWhere`).
   */
-  it("asks tonight's own words once more when nothing is due", async () => {
+  it("asks today's own words once more when nothing is due", async () => {
     const one = PROGRAMME.days[0]!;
     await deck(one.words, 2);
     await tick(one.id, ticked(one), EVENING);

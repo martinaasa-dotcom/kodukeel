@@ -44,8 +44,8 @@ import {
  * lying across a card. `inset-0` is what keeps it a decoration.
  *
  * IT HEARS THE CARD. When the word under the letters changes the explorer
- * says so on `document` (`LETTER_CHEER_EVENT`), and every tile hops once, a
- * beat after the one before it. The hop is on the wrapper rather than the
+ * says so on `document` (`LETTER_CHEER_EVENT`), and every tile nods once, a
+ * few degrees, a beat after the one before it. The hop is on the wrapper rather than the
  * tile, as `scale` and `rotate`, which are the two properties the wrapper's
  * lean does not use: put on the tile it would replace the wander's animation
  * for its duration and restart it after, and a letter that jumps back to the

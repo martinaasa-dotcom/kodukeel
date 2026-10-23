@@ -153,7 +153,7 @@ export type Row = DictEntry & {
  */
 export async function sceneContext(sceneOrId: string | SceneSpec, level?: Level): Promise<SceneContext | null> {
   /*
-    A catalog scene by id, or a scene already built: tonight's chat is
+    A catalog scene by id, or a scene already built: today's chat is
     assembled per evening off its run's own draw and is in no catalog
     (`sceneOfRun`).
   */
@@ -1270,7 +1270,7 @@ export async function beginRun(input: {
    */
   lines: LineMode;
   /**
-   * Tonight's chat: the plan the scene is built from and the one persona the
+   * Today's chat: the plan the scene is built from and the one persona the
    * learner always talks to there (`lib/progress/chat.ts`). Absent on every
    * catalog scene.
    */

@@ -5,6 +5,7 @@ import { ArrowRight, Keyboard, Mic } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { Speak } from "@/components/Speak";
+import { nativePart } from "@/lib/audio/native";
 import { MicButton } from "@/components/speech/MicButton";
 import { ReadAloud } from "@/components/speech/ReadAloud";
 import { useSpeech } from "@/components/speech/useSpeech";
@@ -13,19 +14,23 @@ import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
 import { Card, Note, SectionTitle } from "@/components/ui";
 import { fill } from "@/lib/copy/locale";
-import { markPhrase, normalisePhrase, wordsOf, type LessonSpec, type Prompt, type TypedMark } from "@/lib/course/lessons";
+// The marker and the tokenizer by their own modules, never the barrel, which
+// imports every lesson the course has into this one lesson's browser bundle.
+import { markPhrase, normalisePhrase, type TypedMark } from "@/lib/course/lessons/practice";
+import { wordsOf } from "@/lib/course/lessons/ledger";
+import type { LessonSpec, Prompt } from "@/lib/course/lessons/types";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
 
 /**
  * SAY IT: THE HEADLINE OF THE EVENING, AND OPTIONAL (docs/43-lessons.md §2).
  *
- * Three parts. Say tonight's conversation along with the screen, the words
+ * Three parts. Say today's conversation along with the screen, the words
  * lighting as they are heard (`ReadAloud`). Answer questions about yourself
  * out loud. And on a check-in or a part's last lesson, a short role-play with
  * somebody who speaks first.
  *
  * OPTIONAL MEANS ONE PRESS AND NO PENALTY. Two buttons of the same size open
- * the step, "Say it" and "Type it instead tonight", and typing runs the same
+ * the step, "Say it" and "Type it instead today", and typing runs the same
  * questions with the keyboard. Saying the conversation along has no typed
  * version, because copying out lines you can see is not practice of anything,
  * so a typed evening goes straight to the questions. The choice lasts the
@@ -71,7 +76,7 @@ export function SayIt({ lesson, scene, capstone, onComplete }: { lesson: LessonS
   const [at, setAt] = useState(0);
   const [over, setOver] = useState(false);
   const [taken, setTaken] = useState<readonly Taken[]>([]);
-  // The other side's voice: whoever opens tonight's conversation.
+  // The other side's voice: whoever opens today's conversation.
   const opener = lesson.conversation[0]?.who ?? "";
   const voice = lesson.cast[opener] ?? undefined;
 
@@ -98,7 +103,7 @@ export function SayIt({ lesson, scene, capstone, onComplete }: { lesson: LessonS
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <Button size="lg" onClick={() => setMode("type")}>
-            <Keyboard size={16} aria-hidden /> {t("Type it instead tonight")}
+            <Keyboard size={16} aria-hidden /> {t("Type it instead today")}
           </Button>
           <Button size="lg" variant="primary" onClick={() => setMode("say")}>
             <Mic size={16} aria-hidden /> {t("Say it")}
@@ -115,7 +120,7 @@ export function SayIt({ lesson, scene, capstone, onComplete }: { lesson: LessonS
           <p role="status" className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
             {capstone
               ? t("You held the whole conversation.")
-              : mode === "say" ? t("You said tonight's Estonian out loud. That's the step most people skip, and the one that counts.") : t("Done. Tomorrow, try it out loud if you're somewhere you can.")}
+              : mode === "say" ? t("You said today's Estonian out loud. That's the step most people skip, and the one that counts.") : t("Done. Tomorrow, try it out loud if you're somewhere you can.")}
           </p>
           {capstone && taken.length > 0 && (
             <div className="mt-4">
@@ -165,11 +170,12 @@ export function SayIt({ lesson, scene, capstone, onComplete }: { lesson: LessonS
   );
 }
 
-/** Part one: every spoken line of tonight's conversation, heard and then said along. */
+/** Part one: every spoken line of today's conversation, heard and then said along. */
 function SayTheLines({ lesson, onNext }: { lesson: LessonSpec; onNext: () => void }) {
   const t = useT();
   const locale = useLocale();
   const lines = lesson.conversation.filter((l) => l.et);
+  const played = nativePart(lesson.conversation);
   return (
     <Card>
       <SectionTitle hint={t("listen, then say it along")}>{t("Say the conversation")}</SectionTitle>
@@ -178,10 +184,10 @@ function SayTheLines({ lesson, onNext }: { lesson: LessonSpec; onNext: () => voi
           <li key={i} className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
               <span className="label-xs" style={{ color: "var(--ink-3)" }}>{line.who}</span>
-              <Speak text={line.et!} voice={lesson.cast[line.who]} size={16} label={fill(t("Hear {who} say it"), { who: line.who })} />
+              <Speak text={line.et!} voice={lesson.cast[line.who]} native={line.who === played} size={16} label={fill(t("Hear {who} say it"), { who: line.who })} />
             </div>
             {/* The comparison says what it is for once, on the first line, rather than under every line of the list. */}
-            <ReadAloud line={line.et!} voice={lesson.cast[line.who]} compareHint={i === 0} />
+            <ReadAloud line={line.et!} voice={lesson.cast[line.who]} native={line.who === played} compareHint={i === 0} />
             <p className="text-sm" style={{ color: "var(--ink-2)" }}><LessonText text={line.en ?? ""} locale={locale} /></p>
           </li>
         ))}

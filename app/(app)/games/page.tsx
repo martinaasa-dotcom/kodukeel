@@ -159,7 +159,7 @@ function Spotlight({ game, isNew, tomorrow, weekday, done, locale }: {
       className="grid overflow-hidden rounded-[var(--r-xl)] border lg:grid-cols-[1.15fr_1fr]"
       style={{ borderColor: "var(--edge)", background: "var(--surface)" }}
     >
-      <div className="grid min-h-64 place-items-center p-8" style={{ background: `var(--${game.tone}-soft)` }}>
+      <div className="grid min-h-64 place-items-center p-5 sm:p-8" style={{ background: `var(--${game.tone}-soft)` }}>
         <GameArt href={game.href} size="lg" />
       </div>
       <div className="flex flex-col justify-center gap-3 p-7">

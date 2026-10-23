@@ -419,12 +419,42 @@ export function dealable(item: NumberItem, taught: ReadonlySet<string> | null): 
   return words.every((lemma) => taught.has(lemma));
 }
 
-/** How many items the taught words can carry, which is what opens the round in the module. */
+/**
+ * How many items the taught words can carry, which is what opens the round in the module.
+ *
+ * Read off each item's words worked out once rather than per call: the course
+ * builder asks this of every evening of the ladder, and recomputing the words
+ * of fifteen hundred items each time was most of what building the course cost,
+ * on every cold start of every route.
+ */
 export function dealableCount(taught: ReadonlySet<string> | null): number {
-  return EVERY_ITEM.filter((item) => dealable(item, taught)).length;
+  let count = 0;
+  for (const { words, items } of wordSets()) {
+    let open = true;
+    if (taught) for (const lemma of words) if (!taught.has(lemma)) { open = false; break; }
+    if (open) count += items;
+  }
+  return count;
 }
 
 const EVERY_ITEM = everyItem();
+
+/** Each distinct set of words an item is said with, and how many items say exactly that set. */
+let WORD_SETS: { words: readonly string[]; items: number }[] | null = null;
+function wordSets(): { words: readonly string[]; items: number }[] {
+  if (WORD_SETS) return WORD_SETS;
+  const byKey = new Map<string, { words: readonly string[]; items: number }>();
+  for (const item of EVERY_ITEM) {
+    const words = wordsFor(item);
+    if (!words) continue;
+    const distinct = [...new Set(words)].sort();
+    const key = distinct.join(" ");
+    const entry = byKey.get(key);
+    if (entry) entry.items += 1;
+    else byKey.set(key, { words: distinct, items: 1 });
+  }
+  return (WORD_SETS = [...byKey.values()]);
+}
 
 /**
  * One round: up to ten items, a mix of the three kinds where the taught words

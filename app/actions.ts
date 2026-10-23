@@ -98,7 +98,7 @@ import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { ONE_PER_WORD, addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
 import {
-  DEFAULT_PROGRAMME, LESSON_STEP, MODULE_HOME, continueHref, dayById, focusedSteps, lessonDayFor, levelHeldOnHandOff,
+  defaultProgramme, LESSON_STEP, MODULE_HOME, continueHref, dayById, focusedSteps, lessonDayFor, levelHeldOnHandOff,
   programmeById, stepCard, stepText,
 } from "@/lib/course";
 import { localeFor } from "@/lib/progress/locale";
@@ -1764,7 +1764,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
 }
 
 /**
- * Starts tonight's chat (docs/41-fifth-batch.md, VB-11).
+ * Starts today's chat (docs/41-fifth-batch.md, VB-11).
  *
  * `beginScene`'s shape, with the three things a chat decides differently, and
  * every one of them decided here rather than taken from the caller. WHICH
@@ -1784,7 +1784,7 @@ export async function beginChat(level?: unknown) {
   const busy = throttleAction(ownerId, "beginScene");
   if (busy) return await sayRefusal(ownerId, busy);
 
-  if (!chatOffered()) return { ok: false as const, error: "Tonight's chat needs a model, and this app has none set up." };
+  if (!chatOffered()) return { ok: false as const, error: "Today's chat needs a model, and this app has none set up." };
   if (!(await wouldAuthorise(ownerId, "SCENE"))) {
     return {
       ok: false as const,
@@ -1796,7 +1796,7 @@ export async function beginChat(level?: unknown) {
 
   const evening = await chatDay(ownerId);
   const plan = evening ? await planChat(ownerId, evening.programme, evening.day) : null;
-  if (!plan) return { ok: false as const, error: "There's no chat to have tonight. It comes after an evening with new words." };
+  if (!plan) return { ok: false as const, error: "There's no chat to have today. It comes after an evening with new words." };
 
   const opened = await beginRun({
     ownerId,
@@ -1872,8 +1872,8 @@ export async function sceneHelp(runId: unknown, turns: unknown) {
   */
   const typed = said.map((one) => one.said.toLowerCase()).join(" ");
   /*
-    A beat of tonight's chat has no topic of its own: it is there for one of
-    tonight's words, and that word is the one a stuck learner is handed.
+    A beat of today's chat has no topic of its own: it is there for one of
+    today's words, and that word is the one a stuck learner is handed.
   */
   const topic = beat.elicits ? [beat.elicits] : beat.topic;
   const fresh = topic.filter((lemma: string) => !typed.includes(lemma.toLowerCase()));
@@ -4743,7 +4743,7 @@ export async function setProgramme(value: string) {
     ? levelHeldOnHandOff(from.level, to.level, standing?.held ?? null)
     : null;
   await Promise.all([
-    writeSetting(ownerId, SETTING_KEYS.programme, wanted || DEFAULT_PROGRAMME.id),
+    writeSetting(ownerId, SETTING_KEYS.programme, wanted || defaultProgramme().id),
     held ? recordCourseLevel(ownerId, held) : Promise.resolve(),
   ]);
   revalidatePath("/course");

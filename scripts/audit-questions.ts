@@ -67,7 +67,8 @@ import { clueClashes, clueFrom, clueKey } from "../lib/games/clue";
 import { mentions } from "../lib/estonian/cloze";
 import { PARTS } from "../lib/copy/values";
 import { askableSlots, flashTask, type FlashWord } from "../lib/games/flash";
-import { questionsForWord } from "../lib/progress/map";
+import { placeQuestionsForWord, questionsForWord, type PlaceEntry } from "../lib/progress/map";
+import { PLACE_LEMMAS } from "../lib/games/place";
 import { TWIN_GROUPS, guessable } from "../lib/collections/twins";
 import { guessQuestionFor, sentenceQuestionsFor, type TwinRow } from "../lib/progress/twinQuestions";
 import { orderContextFrom } from "../lib/estonian/wordOrder";
@@ -216,6 +217,9 @@ const REACHES: Record<string, number> = {
     of nothing. Measured on 2026-10-10.
   */
   map: 128,
+  // Map's place words: a noun with a picture that is a thing, and a ball in one of six places.
+  // 912 measured on 2026-10-19, when the section was added.
+  place: 912,
   // Kaksikud, over the whole dictionary: every word of every look-alike group
   // in every recorded sentence it can be gapped from, and the guessing
   // question both ways round for the rule pairs. Measured at 2,351, after a
@@ -663,6 +667,36 @@ for (const e of entries) {
     ask(`map ${e.lemma} ${q.caseKey}`, `${q.lemma}, ${q.gloss} ${q.scene.ask}`, q.options[q.answer]!.text);
   }
 }
+});
+
+/* ── Map, place words ────────────────────────────────────────────────────── */
+/*
+  A picture of a ball and three phrases, the noun's genitive with a different
+  place word after each. What the learner is shown is the noun, its gloss and
+  the English question, and the answer is one of the three phrases, so the
+  fault to look for is the answer standing in what is shown, which the builder
+  refuses and this asks again. The place words' own sentences are the ones the
+  dictionary holds, taken as the first usage that holds the word.
+*/
+timed("place", () => {
+  const places: PlaceEntry[] = [];
+  for (const lemma of PLACE_LEMMAS) {
+    const e = entries.find((x) => x.lemma === lemma && x.pos === "ADVERB");
+    const sentence = (e?.examples ?? []).map((x) => (typeof x === "string" ? x : x.et))
+      .find((x) => x.toLocaleLowerCase("et").split(/[^\p{L}-]+/u).includes(lemma));
+    if (sentence) places.push({ lemma, cardId: null, sentence, form: lemma, en: null });
+  }
+  for (const e of entries) {
+    if (e.pos !== "NOUN") continue;
+    const row = {
+      id: e.lemma, lemma: e.lemma, translation: e.translation, pos: e.pos, cefr: e.cefr ?? null,
+      semanticTypes: e.semanticTypes ?? null, examples: JSON.stringify(e.examples ?? []),
+      forms: (e.forms ?? []).map((f) => ({ formType: f.formType, value: f.value, morphCode: null })),
+    };
+    for (const q of placeQuestionsForWord(row, places, null)) {
+      ask(`place ${e.lemma} ${q.place}`, `${q.lemma}, ${q.gloss} ${q.scene.ask}`, q.options[q.answer]!.text);
+    }
+  }
 });
 
 /* ── Kaksikud ────────────────────────────────────────────────────────────── */

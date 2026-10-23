@@ -35,7 +35,7 @@ describe("every conversation happens somewhere", () => {
   });
 
   it("and no room for a scene that is not there", () => {
-    // Tonight's chat is a scene built per evening and in no catalog (`lib/scenes/specs/chat.ts`).
+    // Today's chat is a scene built per evening and in no catalog (`lib/scenes/specs/chat.ts`).
     const ids = new Set([...SCENES.map((scene) => scene.id), CHAT_ID]);
     for (const id of Object.keys(SCENERY)) {
       expect(ids.has(id), `${id} has scenery and is not a scene`).toBe(true);

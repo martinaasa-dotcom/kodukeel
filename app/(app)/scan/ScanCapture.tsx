@@ -333,7 +333,7 @@ export function ScanCapture() {
     <div className="flex flex-col gap-4">
       <Card>
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          {t("Photograph a vocabulary list, a page from your textbook or last night's homework. We check every word against the dictionary, so the ones it knows come with all their real forms. And if a word on your page has an ending on it, we'll find the word it came from.")}
+          {t("Photograph a vocabulary list, a page from your textbook or yesterday's homework. We check every word against the dictionary, so the ones it knows come with all their real forms. And if a word on your page has an ending on it, we'll find the word it came from.")}
         </p>
 
         {phase === "reading" ? (

@@ -816,7 +816,7 @@ npm run forms            # rebuild the forms list: every spelling of every Eston
 npm run db:seed          # reload the built-in dictionary (always)
 npm run db:seed:ensure   # load it only if the dictionary is empty, what the deploy runs
 npm run asr:fetch        # fetch the 71 MB speech model for the app to serve, checked by hash
-npm run report:speech    # does saying it help: the edit rate, recall after a spoken answer, tonight's chat
+npm run report:speech    # does saying it help: the edit rate, recall after a spoken answer, today's chat
 ```
 
 The end-to-end suite and `npm run demo` refuse to run against anything but a local database, and

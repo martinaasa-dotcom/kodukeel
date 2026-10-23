@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { CASES } from "@/lib/estonian/cases";
-import { LETTER_CHEER_EVENT, LETTER_SCATTER_EVENT } from "@/lib/ux/letterMotion";
-import { ArrowRight, Check } from "lucide-react";
+import { LETTER_CHEER_EVENT } from "@/lib/ux/letterMotion";
+import { Check } from "lucide-react";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { FitText } from "@/components/FitText";
 import { rememberBuilt } from "./visit";
@@ -192,11 +192,9 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
     <div
       ref={root}
       {...reach}
-      // A press anywhere on the card throws the letters round it off and
-      // lets them land; the card itself gives a little under the press.
-      onPointerDown={() => document.dispatchEvent(new CustomEvent(LETTER_SCATTER_EVENT))}
-      data-hop-on="press"
-      data-hop-end="card-give"
+      // Nothing moves the card itself under a press. It used to give and throw
+      // the letters round it off on every click, which read as the page
+      // jumping rather than answering; what changes is the word, quietly.
       className="case-explorer word-builder overflow-hidden rounded-[var(--r-xl)] border"
       style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}
     >
@@ -209,7 +207,7 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
             onClick={() => { setActive(n); setEnding(0); }}
             aria-pressed={active === n}
             lang="et"
-            className={`press letter-key rounded-full px-3.5 py-1.5 text-base transition-ui ${active === n ? "chip-spring" : "tap-tint"}`}
+            className={`press rounded-full px-3.5 py-1.5 text-base transition-ui ${active === n ? "" : "tap-tint"}`}
             style={{
               background: active === n ? "var(--accent-deep)" : "var(--raised)",
               color: active === n ? "var(--accent-ink)" : "var(--ink-2)",
@@ -359,54 +357,6 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-/** The tutor, answering one real question, typed out on demand. */
-export function TutorPeek() {
-  const t = useT();
-  const [asked, setAsked] = useState(false);
-
-  return (
-    <div className="flex flex-col gap-3">
-      <div
-        className="ml-auto max-w-[85%] rounded-[var(--r-lg)] rounded-br-md px-4 py-3 text-sm"
-        style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
-      >
-        <TrParts
-          template="Why is it {a} and not {b}?"
-          parts={{
-            a: <span lang="et" className="font-semibold">raamatut</span>,
-            b: <span lang="et" className="font-semibold">raamatu</span>,
-          }}
-        />
-      </div>
-
-      {asked ? (
-        <div
-          className="fade-up max-w-[92%] rounded-[var(--r-lg)] rounded-bl-md border px-4 py-3 text-sm leading-relaxed"
-          style={{ background: "var(--surface)", borderColor: "var(--rule)", color: "var(--ink-2)" }}
-        >
-          <span className="label-xs mb-1.5 block" style={{ color: "var(--blush-ink)" }}>Anu</span>
-          <TrParts
-            template="Because you haven’t finished it yet. {reading} means “I’m reading a book”, and the osastav says you’re still at it. Swap in the omastav and you get {done}: the whole book, done. In Estonian, the object’s case tells you whether the action is finished."
-            parts={{
-              reading: <span lang="et" className="font-semibold">Ma loen raamatut</span>,
-              done: <span lang="et" className="font-semibold">Ma loen raamatu läbi</span>,
-            }}
-          />
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => setAsked(true)}
-          className="press mr-auto flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
-          style={{ background: "var(--surface)", borderColor: "var(--rule)", color: "var(--ink-2)" }}
-        >
-          {t("Ask Anu")} <ArrowRight size={14} aria-hidden />
-        </button>
-      )}
     </div>
   );
 }
