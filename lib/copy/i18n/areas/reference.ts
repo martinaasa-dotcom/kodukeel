@@ -545,6 +545,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["This was just to show you how it works, so none of it counts. The round below is the one that does.",
     "Это было только для того, чтобы показать, как всё работает, так что ничего не засчитывается. Засчитывается раунд ниже.",
     "Це було лише для того, щоб показати, як усе працює, тож нічого не зараховується. Зараховується раунд нижче."],
+  ["Start the round that counts", "Начать раунд, который засчитывается", "Почати раунд, який зараховується"],
   ["Try again", "Попробовать ещё раз", "Спробувати ще раз"],
 
   // THE PAGE SCANNER (scan/).

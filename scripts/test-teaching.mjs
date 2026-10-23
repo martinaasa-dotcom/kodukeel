@@ -451,6 +451,24 @@ check("a person is never asked for the inside trio", inside === 0 && questions >
   `${inside} of ${questions} questions asked a person where something is inside them`);
 
 /*
+  A FINISHED THIRD STEP HAS SOMEWHERE TO GO.
+
+  Four right answers used to end on a card whose only button was "Try again",
+  which read as an unfinished screen. The way on is the graded round, and it
+  is the last button in its row.
+*/
+await page.getByRole("radio", { name: "raamat", exact: true }).click();
+for (let i = 0; i < 4; i++) {
+  await page.keyboard.press("1");
+  const nxt = page.getByRole("button", { name: /^Next/ });
+  if ((await nxt.count()) > 0) await nxt.first().click().catch(() => {});
+}
+const wayOn = page.locator('a[href="/review/flashcards"]').filter({ hasText: /round that counts/ });
+check("a finished third step has a button on to the round that counts",
+  (await wayOn.count()) > 0 && (await page.getByRole("button", { name: /Try again/ }).count()) > 0,
+  "the finished card offers no way on");
+
+/*
   AND THE SECOND ACT SAYS WHY, RATHER THAN DRAWING THE FORM IN SILENCE.
 
   It draws all eleven, which is right for a reference, and three of them on a

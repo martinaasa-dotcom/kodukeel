@@ -3,7 +3,8 @@
 import { EnterKeyCap } from "@/components/KeyCaps";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check, RotateCcw } from "lucide-react";
-import { Button } from "@/components/Button";
+import { Button, ButtonLink } from "@/components/Button";
+import { usePublicReader } from "@/components/PublicReader";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { DrillLink } from "@/components/DrillLink";
 import { Speak } from "@/components/Speak";
@@ -850,6 +851,7 @@ const QUESTIONS = 4;
  */
 function YourTurn({ word }: { word: WalkWord }) {
   const t = useT();
+  const publicReader = usePublicReader();
   const locale = useLocale();
   const asks = useMemo(() => {
     const pool = word.derived.filter((f) => f.askable);
@@ -1024,6 +1026,13 @@ function YourTurn({ word }: { word: WalkWord }) {
               <Button onClick={() => { setAt(0); setPicked(null); setRight(0); }}>
                 <RotateCcw size={15} aria-hidden /> {t("Try again")}
               </Button>
+              {/* The way on, last in its row. Without it a learner who got all four
+                  right was left on a card with nothing to press but a redo. */}
+              {!publicReader && (
+                <ButtonLink variant="primary" href="/review/flashcards">
+                  {t("Start the round that counts")} <ArrowRight size={15} aria-hidden />
+                </ButtonLink>
+              )}
             </div>
           </Card>
           <DrillLink href="/review/flashcards" />
