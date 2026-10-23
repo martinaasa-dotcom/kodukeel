@@ -1294,7 +1294,6 @@ function Audible({ text, number, response, canPlay, plays, voice, onAnswer, slow
           <SpeakPair
             text={text}
             label={fill(t("Play recording {n}"), { n: number })}
-            slowLabel={fill(t("Play recording {n} slowly"), { n: number })}
             disabled={!canPlay || spent}
             voice={voice}
             onPlay={() => setPlayed((n) => n + 1)}

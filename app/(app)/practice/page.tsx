@@ -208,11 +208,7 @@ export default async function PracticePage() {
                         title={t(choice.title)}
                         meta={t(choice.meta)}
                         done={workbookDone.has(choice.theme ?? SET_FOR_YOU) ? t("Done today") : undefined}
-                        label={fill(t("{round}: {list}, {group}"), {
-                          round: inlineName(workbook, t),
-                          list: t(choice.title).toLowerCase(),
-                          group: t(choice.meta).toLowerCase(),
-                        })}
+                        context={inlineName(workbook, t)}
                       />
                     ))}
                   </Choices>
@@ -378,16 +374,20 @@ function AddChoice({ href, title }: { href: string; title: string }) {
  * One set of words to practice, as a button: a name and one quiet line under
  * it, no dot and no icon, and a tick where it has been finished today.
  */
-function Choice({ href, title, meta, label, done }: {
-  href: string; title: string; meta?: string; label?: string;
+function Choice({ href, title, meta, context, done }: {
+  href: string; title: string; meta?: string;
+  /**
+   * Which round this choice opens, said to a screen reader before the title.
+   * It is text inside the link rather than an `aria-label` over it, so the
+   * name always holds what the link shows (WCAG 2.5.3).
+   */
+  context?: string;
   /** Said under the name where this one has been finished today. */
   done?: string;
 }) {
-  const aria = [label, meta, done].filter(Boolean).join(", ");
   return (
     <Link
       href={href}
-      aria-label={label && meta ? aria : undefined}
       data-done={done ? "" : undefined}
       className="tap-tint flex min-h-11 flex-col justify-start rounded-[var(--r)] border px-3.5 py-2.5"
       style={done
@@ -395,7 +395,10 @@ function Choice({ href, title, meta, label, done }: {
         : { borderColor: "var(--rule-soft)", background: "var(--raised)" }}
     >
       {/* Balanced, so a line that has to wrap splits in the middle rather than leaving one word alone. */}
-      <span className="text-balance text-sm font-semibold" style={{ color: "var(--ink)" }}>{title}</span>
+      <span className="text-balance text-sm font-semibold" style={{ color: "var(--ink)" }}>
+        {context ? <span className="sr-only">{context}: </span> : null}
+        {title}
+      </span>
       {meta ? <span className="text-balance text-xs" style={{ color: "var(--ink-3)" }}>{meta}</span> : null}
       {done ? (
         <span className="mt-1 flex items-center gap-1 text-xs font-semibold" style={{ color: "var(--accent-deep)" }}>
