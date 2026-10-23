@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { requireUserId } from "@/lib/auth/session";
 import { lessonById, ledgersBefore, LESSONS, practiceFor, reviewFor } from "@/lib/course/lessons";
 import { titleFor } from "@/lib/progress/locale";
+import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
+import { sayableName } from "@/lib/course/lessons/ownAnswer";
 import { sceneForLesson } from "@/lib/scenes/lessonScenes";
 import { LessonRunner } from "./LessonRunner";
 
@@ -22,7 +24,7 @@ export const dynamic = "force-dynamic";
  * planned course, and finishing it records the evening (`finishLesson`).
  */
 export default async function LessonPage({ params }: { params: Promise<{ id: string }> }) {
-  const [, { id }] = await Promise.all([requireUserId(), params]);
+  const [ownerId, { id }] = await Promise.all([requireUserId(), params]);
   const lesson = lessonById(id);
   if (!lesson) notFound();
   const before = ledgersBefore(LESSONS).get(lesson.id)!;
@@ -30,6 +32,8 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
   const after = LESSONS[LESSONS.indexOf(lesson) + 1];
   const next = after && after.level === lesson.level ? after : null;
   const ofLevel = LESSONS.filter((l) => l.level === lesson.level);
+  // The learner's own name, so a model answer about them says it rather than Tom's.
+  const name = sayableName(await readSetting(ownerId, SETTING_KEYS.displayName));
   return (
     <LessonRunner
       lesson={lesson}
@@ -38,6 +42,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
       next={next ? { id: next.id, title: next.title } : null}
       scene={sceneForLesson(lesson.id)?.id ?? null}
       place={{ at: ofLevel.indexOf(lesson) + 1, of: ofLevel.length }}
+      name={name}
     />
   );
 }

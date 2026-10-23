@@ -16,7 +16,8 @@ import { Card, Note, SectionTitle } from "@/components/ui";
 import { fill } from "@/lib/copy/locale";
 // The marker and the tokenizer by their own modules, never the barrel, which
 // imports every lesson the course has into this one lesson's browser bundle.
-import { markPhrase, normalisePhrase, type TypedMark } from "@/lib/course/lessons/practice";
+import { markOwnAnswer, normalisePhrase, type TypedMark } from "@/lib/course/lessons/practice";
+import { hasStandIn, personal } from "@/lib/course/lessons/ownAnswer";
 import { wordsOf } from "@/lib/course/lessons/ledger";
 import type { LessonSpec, Prompt } from "@/lib/course/lessons/types";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
@@ -54,9 +55,9 @@ type Mode = "say" | "type";
 
 type SayCard =
   | { readonly kind: "lines" }
-  | { readonly kind: "answer"; readonly prompt: Prompt; readonly label: string; readonly scene?: string };
+  | { readonly kind: "answer"; readonly prompt: Prompt; readonly label: string; readonly scene?: string; readonly own: boolean };
 
-export function SayIt({ lesson, scene, onComplete }: { lesson: LessonSpec; scene: string | null; onComplete: () => void }) {
+export function SayIt({ lesson, scene, name, onComplete }: { lesson: LessonSpec; scene: string | null; name: string | null; onComplete: () => void }) {
   const t = useT();
   const [mode, setMode] = useState<Mode | null>(null);
   const [at, setAt] = useState(0);
@@ -66,11 +67,13 @@ export function SayIt({ lesson, scene, onComplete }: { lesson: LessonSpec; scene
 
   const cards = useMemo<SayCard[]>(() => {
     const answers = lesson.answers.map((prompt, i): SayCard => ({
-      kind: "answer", prompt, label: fill(t("About you, {n} of {total}"), { n: String(i + 1), total: String(lesson.answers.length) }),
+      kind: "answer", prompt, label: fill(t("About you, {n} of {total}"), { n: String(i + 1), total: String(lesson.answers.length) }), own: true,
     }));
     const turns = (lesson.roleplay?.turns ?? []).map((prompt, i): SayCard => ({
       kind: "answer", prompt, label: fill(t("Role-play, {n} of {total}"), { n: String(i + 1), total: String(lesson.roleplay!.turns.length) }),
       scene: i === 0 ? lesson.roleplay!.scene : undefined,
+      // A turn that asks them about themselves is theirs to answer their way.
+      own: /yourself|your own|your name|about you/i.test(prompt.cue) || hasStandIn(prompt.model.et),
     }));
     return [...(mode === "say" ? [{ kind: "lines" } as SayCard] : []), ...answers, ...turns];
   }, [lesson, mode, t]);
@@ -131,7 +134,7 @@ export function SayIt({ lesson, scene, onComplete }: { lesson: LessonSpec; scene
       {card.kind === "lines" ? (
         <SayTheLines lesson={lesson} onNext={next} />
       ) : (
-        <AnswerCard key={at} card={card} mode={mode} voice={voice} onNext={next} last={at >= cards.length - 1} />
+        <AnswerCard key={at} card={card} mode={mode} voice={voice} name={name} onNext={next} last={at >= cards.length - 1} />
       )}
     </div>
   );
@@ -189,10 +192,11 @@ function SayTheLines({ lesson, onNext }: { lesson: LessonSpec; onNext: () => voi
  * Nothing is graded either way (ADR-028). A spoken answer that is the model,
  * a slip of it or their line back checks itself the moment it is heard.
  */
-function AnswerCard({ card, mode, voice, onNext, last }: {
+function AnswerCard({ card, mode, voice, name, onNext, last }: {
   card: Extract<SayCard, { kind: "answer" }>;
   mode: Mode;
   voice: string | undefined;
+  name: string | null;
   onNext: () => void;
   last: boolean;
 }) {
@@ -200,18 +204,20 @@ function AnswerCard({ card, mode, voice, onNext, last }: {
   const locale = useLocale();
   const sound = useFeedbackSound();
   const { prompt } = card;
+  // The model with the learner's own name in it, where it named Tom.
+  const model = { et: personal(prompt.model.et, name) };
   const [text, setText] = useState("");
   const [shown, setShown] = useState(false);
   const [mark, setMark] = useState<TypedMark | null>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
-  const expect = useMemo(() => new Set(wordsOf(prompt.model.et).map((w) => w.low)), [prompt.model.et]);
+  const expect = useMemo(() => new Set(wordsOf(model.et).map((w) => w.low)), [model.et]);
   const said = normalisePhrase(text);
   const isEcho = (value: string) => prompt.ask !== undefined && normalisePhrase(value) === normalisePhrase(prompt.ask.et);
   // Their own line said back, which is the mistake this card used to invite.
   const echo = mark !== null && mark.verdict === "wrong" && isEcho(text);
 
   const reveal = (value: string = text) => {
-    const m = normalisePhrase(value).length > 0 ? markPhrase(value, [prompt.model.et]) : null;
+    const m = normalisePhrase(value).length > 0 ? markOwnAnswer(value, prompt.model.et, name) : null;
     if (m && m.verdict !== "wrong") sound("right");
     setMark(m);
     setShown(true);
@@ -228,7 +234,7 @@ function AnswerCard({ card, mode, voice, onNext, last }: {
     onHeard: (hearing) => {
       setText(hearing.understood);
       if (shown) return;
-      const m = markPhrase(hearing.understood, [prompt.model.et]);
+      const m = markOwnAnswer(hearing.understood, prompt.model.et, name);
       if (m.verdict !== "wrong" || isEcho(hearing.understood)) reveal(hearing.understood);
     },
   });
@@ -251,6 +257,22 @@ function AnswerCard({ card, mode, voice, onNext, last }: {
         </div>
       )}
 
+      {/*
+        WHAT TO SAY, IN ENGLISH, BEFORE ANYTHING IS ASKED. A learner on lesson
+        8 had no idea the card wanted a line from the conversation they had
+        just heard, and was then shown it as the answer. The English of one way
+        to answer is the instruction: say this in Estonian. An answer about
+        themselves says so, because their name and their country are theirs.
+      */}
+      <div className="mb-5 rounded-[var(--r-lg)] px-4 py-3" style={{ background: "var(--accent-soft)" }} data-say-target>
+        <p className="label-xs" style={{ color: "var(--accent-deep)" }}>{t("Say this in Estonian")}</p>
+        <p className="mt-1 text-lg font-semibold" style={{ color: "var(--ink)" }}>“<LessonText text={prompt.model.en} locale={locale} name={name} />”</p>
+        {card.own && (
+          <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
+            {hasStandIn(prompt.model.et) && !name ? t("Use your own name and your own details.") : t("Make it true for you: your own details are right.")}
+          </p>
+        )}
+      </div>
       <div className="flex flex-col gap-3">
         <span className="label-xs" style={{ color: "var(--ink-3)" }}>{t("You say")}</span>
         {mic && (
@@ -280,7 +302,7 @@ function AnswerCard({ card, mode, voice, onNext, last }: {
       </div>
 
       <div className="mt-4 flex flex-col gap-3" role="status" aria-live="polite">
-        {shown && mark !== null && (mark.verdict !== "wrong" || mark.close) && (
+        {shown && mark !== null && (mark.verdict !== "wrong" || (mark.close && !card.own)) && (
           <div className={`verdict-panel ${VERDICT_CLASS[mark.verdict === "wrong" ? "nearly" : mark.verdict]}`}>
             <p>{t(mark.note)}</p>
           </div>
@@ -292,12 +314,14 @@ function AnswerCard({ card, mode, voice, onNext, last }: {
         )}
         {shown && mark?.verdict !== "right" && (
           <div className="flex flex-col gap-1">
-            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("One way to say it")}</p>
+            <p className="label-xs" style={{ color: "var(--ink-3)" }}>
+              {card.own && mark?.verdict === "wrong" ? t("One way to say it. Yours can be different.") : t("One way to say it")}
+            </p>
             <div className="flex items-center gap-3">
-              <Speak text={prompt.model.et} size={16} />
-              <p lang="et" className="text-lg font-bold" style={{ color: "var(--ink)" }}>{prompt.model.et}</p>
+              <Speak text={model.et} size={16} />
+              <p lang="et" className="text-lg font-bold" style={{ color: "var(--ink)" }}>{model.et}</p>
             </div>
-            <p className="text-sm" style={{ color: "var(--ink-2)" }}><LessonText text={prompt.model.en} locale={locale} /></p>
+            <p className="text-sm" style={{ color: "var(--ink-2)" }}><LessonText text={prompt.model.en} locale={locale} name={name} /></p>
           </div>
         )}
       </div>

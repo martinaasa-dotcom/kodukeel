@@ -64,7 +64,7 @@ const STEP_TITLE: Record<Step, string> = {
 /** The three teaching steps are finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, place }: {
+export function LessonRunner({ lesson, practice, review, next, scene, place, name }: {
   lesson: LessonSpec;
   practice: readonly PracticeItem[];
   review: readonly PracticeItem[];
@@ -73,6 +73,8 @@ export function LessonRunner({ lesson, practice, review, next, scene, place }: {
   scene: string | null;
   /** Where this lesson sits among its level's lessons, for the finish. */
   place: { at: number; of: number };
+  /** The learner's own first name, for a model answer about them (`ownAnswer.ts`). */
+  name: string | null;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -193,7 +195,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, place }: {
           {step === "words" && <Words lesson={lesson} />}
           {step === "how" && <How lesson={lesson} />}
           {step === "practise" && <Quiz key="practise" items={practice} onFinished={() => finish("practise")} />}
-          {step === "say" && <SayIt lesson={lesson} scene={scene} onComplete={() => finish("say")} />}
+          {step === "say" && <SayIt lesson={lesson} scene={scene} name={name} onComplete={() => finish("say")} />}
           {step === "review" && (review.length > 0
             ? <Quiz key="review" items={review} onFinished={() => finish("review")} />
             : (

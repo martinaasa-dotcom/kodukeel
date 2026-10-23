@@ -35,6 +35,7 @@ import { fold } from "@/lib/estonian/fold";
 import { rng, seedFrom } from "@/lib/random/seeded";
 import { shuffle } from "@/lib/random/shuffle";
 import { estonianIn, unfold, wordsOf, type Asked, type Ledger } from "./ledger";
+import { STAND_IN, hasStandIn, personal } from "./ownAnswer";
 import type { LessonSpec } from "./types";
 
 /** What practice asks about: a verb is already its two spellings here. */
@@ -229,4 +230,29 @@ export function markPhrase(typed: string, accept: readonly string[]): TypedMark 
   if (fold(said) === fold(want)) return { verdict: "nearly", note: "Nearly: mind the letters with marks on them.", close: false };
   if (wants.some((w) => w.length >= SLIP_FLOOR && editDistance(said, w, 1) <= 1)) return { verdict: "nearly", note: "Nearly: one letter out.", close: false };
   return { verdict: "wrong", note: "Not quite.", close: wants.some((w) => nearMiss(said, w)) };
+}
+
+/**
+ * How an answer about yourself compares with the model: as `markPhrase` does,
+ * against the model with your name in it, and with the stand-in's place open
+ * to any one word, so `Minu nimi on Amanda` is "That's it."
+ */
+export function markOwnAnswer(typed: string, model: string, name: string | null): TypedMark {
+  const accept = name ? [personal(model, name), model] : [model];
+  const mark = markPhrase(typed, accept);
+  if (mark.verdict === "right" || !hasStandIn(model)) return mark;
+  const said = wordsOf(typed).map((w) => w.low);
+  const want = wordsOf(model).map((w) => w.low);
+  if (said.length !== want.length) return mark;
+  const slot = STAND_IN.toLowerCase();
+  let folded = false;
+  for (let i = 0; i < want.length; i++) {
+    if (want[i] === slot) continue;
+    if (said[i] === want[i]) continue;
+    if (fold(said[i]!) === fold(want[i]!)) { folded = true; continue; }
+    return mark;
+  }
+  return folded
+    ? { verdict: "nearly", note: "Nearly: mind the letters with marks on them.", close: false }
+    : { verdict: "right", note: "That's it.", close: false };
 }
