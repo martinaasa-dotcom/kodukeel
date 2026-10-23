@@ -3733,3 +3733,38 @@ consonants, with every pair tagged plain and soft in words, since the spelling c
 length with the new pairs and triples, each triple on a row of its own so it reads as one line. A row of
 links under the hero goes to each section. The glosses are in Russian and Ukrainian, machine
 translated like the rest of the page.
+
+## 67. The sixty-first pass: the October feedback, and A1 left by passing
+
+**The October feedback was gone through item by item**, and what it changed is in the commits on
+the branch it arrived on; this is the record of the decisions under them.
+
+**Forms are named the plain way.** A noun's three stored forms are the 1st, 2nd and 3rd form, every
+other case is named by what it does with its ending beside it (`in-form (-s)`, `with-form (-ga)`),
+and a verb's are the -ma form, the -da form and the I form, with the capital I set so it cannot be
+read as an l (`casePlainName`, `plainNameForEt`). No Latin and no Estonian grammar name on a screen,
+except quietly on the grammar reference under "In class".
+
+**The daily quest asks in plain words and stops its clock while an answer shows.** A form card is
+asked `Say “it happened to me”`, never by the form's name; a right pick moves on after a moment and
+a wrong one waits for Next; the finish screen lists every answer, misses first.
+
+**Today ends an evening and then opens the next part.** A part finished tonight reads as finished
+tonight (`courseReading` could not see a part's last evening), and the morning after the hero is the
+next part, or the check before it, rather than the card for somebody with no course.
+
+**Most common words asks twenty-five cards and meets new words first** (`meetingFirst`), and each
+part says how many of its words are learned. **Sõnad is never empty**: under `SONAD_MIN_TAUGHT`
+taught six-letter words the answer is a word at the learner's level, and the board offers the
+dictionary as fair play.
+
+**A learner who started at A1 moves up by passing** (`lib/course/checks.ts`), the operator's call,
+which amends "the ladder warns and never blocks" for the lesson parts alone. Each part of the A1
+lessons ends in a check of sixteen questions off its own lessons, the last part's is thirty off the
+whole of A1, and each passes at four in five, as often as anybody likes, a different selection each
+go. The server builds the paper it marks (`submitCheck`) and stores a pass as a setting. Every door
+up asks `moveBlockedFor`: the next part, the level picker and the module's skip ahead; going back is
+always open, a learner placed past A1 is never asked, and somebody in `ADMIN_EMAILS` on a hosted
+deployment moves freely (`movesFreely`, never true on a local install). A finished lesson points at
+the cards now due, since a learner went through all 49 without opening Review once, and the last
+lesson of a part points at its check.

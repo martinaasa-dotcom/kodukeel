@@ -6,6 +6,10 @@ import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { sayableName } from "@/lib/course/lessons/ownAnswer";
 import { sceneForLesson } from "@/lib/scenes/lessonScenes";
 import { LessonRunner } from "./LessonRunner";
+import { PROGRAMMES, lessonDayFor } from "@/lib/course";
+import { checkAfter } from "@/lib/course/checks";
+import { checksPassedFor } from "@/lib/progress/checks";
+import { reviewQueue } from "../../../review/queue";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const lesson = lessonById((await params).id);
@@ -32,8 +36,23 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
   const after = LESSONS[LESSONS.indexOf(lesson) + 1];
   const next = after && after.level === lesson.level ? after : null;
   const ofLevel = LESSONS.filter((l) => l.level === lesson.level);
+  /*
+    What the finished screen points at next, besides the next lesson: the
+    cards now due, since a lesson is learned by reviewing it afterwards and a
+    learner reported going through all 49 without ever opening Review; and, on
+    the last lesson of a part, the check that closes it (`lib/course/checks.ts`).
+  */
+  const placed = lessonDayFor(lesson.id);
+  const check = placed && placed.programme.days[placed.programme.days.length - 1]?.lesson === lesson.id
+    ? checkAfter(PROGRAMMES, placed.programme.id) ?? null
+    : null;
   // The learner's own name, so a model answer about them says it rather than Tom's.
-  const name = sayableName(await readSetting(ownerId, SETTING_KEYS.displayName));
+  const [nameSetting, queue, passed] = await Promise.all([
+    readSetting(ownerId, SETTING_KEYS.displayName),
+    reviewQueue(ownerId, null, new Date()),
+    check ? checksPassedFor(ownerId) : Promise.resolve(new Set<string>()),
+  ]);
+  const name = sayableName(nameSetting);
   return (
     <LessonRunner
       lesson={lesson}
@@ -43,6 +62,8 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
       scene={sceneForLesson(lesson.id)?.id ?? null}
       place={{ at: ofLevel.indexOf(lesson) + 1, of: ofLevel.length }}
       name={name}
+      due={queue.due.length}
+      check={check ? { id: check.id, final: check.final, passed: passed.has(check.id) } : null}
     />
   );
 }

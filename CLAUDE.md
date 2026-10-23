@@ -6606,6 +6606,18 @@ so those keep their pins and show nothing until the learner has met the verbs. K
 text like the pins, and the test fails on a key matching no point. The reference opened by hand is
 exactly what it was, and the case pages are not yet held to this.
 
+**And a learner who started at A1 leaves it by passing, which amends the paragraph above for the
+lessons alone.** The operator's call, off a learner who went through all 49 A1 lessons without
+practicing anything: every part of the A1 lessons ends in a check (`lib/course/checks.ts`), sixteen
+questions off its own lessons, the last part's thirty off the whole of A1, each passed at
+`CHECK_PASS` and taken as often as anybody likes. The paper is the lessons' own questions
+(`checkFor`), the server builds the one it marks (`submitCheck`), and a pass is a setting
+(`checksPassed`), since nothing in the log can say a check was passed. Every door up asks
+`moveBlockedFor` (the next part, the level picker, the module's skip ahead), going back is always
+open, somebody placed past A1 is never asked, and a name in `ADMIN_EMAILS` on a hosted deployment
+moves freely (`movesFreely`), never a local install, where `isAdmin` is everybody. The retention
+reading at the hand-off still never blocks. Asserted in `scripts/invariants/a1-is-left-by-passing.ts`.
+
 **It is a suggestion, not a track.** It is offered past the level the learner holds, and it is one
 setting to turn off. Off changes nothing else, and the work done the other way still counts toward a
 module the day it is turned back on.

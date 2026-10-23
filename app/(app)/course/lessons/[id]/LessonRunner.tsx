@@ -64,7 +64,7 @@ const STEP_TITLE: Record<Step, string> = {
 /** The three teaching steps are finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, place, name }: {
+export function LessonRunner({ lesson, practice, review, next, scene, place, name, due = 0, check = null }: {
   lesson: LessonSpec;
   practice: readonly PracticeItem[];
   review: readonly PracticeItem[];
@@ -75,6 +75,10 @@ export function LessonRunner({ lesson, practice, review, next, scene, place, nam
   place: { at: number; of: number };
   /** The learner's own first name, for a model answer about them (`ownAnswer.ts`). */
   name: string | null;
+  /** Cards due in the learner's reviews now, for the nudge on the finished screen. */
+  due?: number;
+  /** The check that closes this lesson's part, where this is its last lesson. */
+  check?: { id: string; final: boolean; passed: boolean } | null;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -159,10 +163,40 @@ export function LessonRunner({ lesson, practice, review, next, scene, place, nam
                   {t("Somebody speaks first and answers whatever you say, in the words you've learned. Type or say your lines. Nothing is graded, and you can't get it wrong by saying it your own way.")}
                 </p>
                 <div className="mt-4">
-                  <ButtonLink href={`/situations/${scene}`} variant={focus && moduleNext ? "secondary" : "primary"}>
+                  <ButtonLink href={`/situations/${scene}`} variant={(focus && moduleNext) || (check && !check.passed) ? "secondary" : "primary"}>
                     {t("Have the conversation")} <ArrowRight size={15} aria-hidden />
                   </ButtonLink>
                 </div>
+              </div>
+            )}
+            {/*
+              WHAT MAKES TODAY'S WORDS STAY IS GOING OVER THEM AGAIN. A learner
+              went through all 49 lessons without opening Review once, because
+              nothing on this screen said to. Where cards are due, it says so.
+            */}
+            {due > 0 && (
+              <div className="mt-4 rounded-[var(--r-xl)] border px-5 py-4 text-left" style={{ background: "var(--surface)", borderColor: "var(--edge)" }} data-lesson-due={due}>
+                <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
+                  {fill(t(due === 1 ? "{n} card is waiting in your reviews." : "{n} cards are waiting in your reviews."), { n: due })}
+                </p>
+                <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
+                  {t("A few minutes on them now is what makes today's words stick.")}
+                </p>
+                <div className="mt-3"><ButtonLink href="/review">{t("Review them")} <ArrowRight size={15} aria-hidden /></ButtonLink></div>
+              </div>
+            )}
+            {/* The last lesson of a part: the check that closes it, which opens the next part. */}
+            {check && !check.passed && (
+              <div className="mt-4 rounded-[var(--r-xl)] border px-5 py-4 text-left" style={{ background: "var(--butter-soft)", borderColor: "var(--edge)" }} data-lesson-check={check.id}>
+                <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
+                  {check.final ? t("That's the last A1 lesson. Next: the A1 check.") : t("That's the end of this part. Next: a short check.")}
+                </p>
+                <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
+                  {check.final
+                    ? t("Questions on everything A1 taught. Pass it to open A2.")
+                    : t("Questions on what this part taught. Pass it to open the next part.")}
+                </p>
+                <div className="mt-3"><ButtonLink href={`/course/check/${check.id}`} variant="primary">{t("Take the check")} <ArrowRight size={15} aria-hidden /></ButtonLink></div>
               </div>
             )}
             {saved === false && !saving && (
@@ -178,7 +212,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, place, nam
                 <>
                   <ButtonLink href="/course/lessons">{t("All lessons")}</ButtonLink>
                   {next && (
-                    <ButtonLink variant={scene ? "secondary" : "primary"} href={`/course/lessons/${next.id}`}>
+                    <ButtonLink variant={scene || (check && !check.passed) ? "secondary" : "primary"} href={`/course/lessons/${next.id}`}>
                       {t("Next:")} <LessonText text={next.title} locale={locale} /> <ArrowRight size={15} aria-hidden />
                     </ButtonLink>
                   )}

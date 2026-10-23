@@ -34,7 +34,7 @@ import { editDistance, nearMiss } from "@/lib/estonian/answer";
 import { fold } from "@/lib/estonian/fold";
 import { rng, seedFrom } from "@/lib/random/seeded";
 import { shuffle } from "@/lib/random/shuffle";
-import { estonianIn, unfold, wordsOf, type Asked, type Ledger } from "./ledger";
+import { estonianIn, ledgerThrough, unfold, wordsOf, type Asked, type Ledger } from "./ledger";
 import { STAND_IN, hasStandIn, personal } from "./ownAnswer";
 import type { LessonSpec } from "./types";
 
@@ -255,4 +255,77 @@ export function markOwnAnswer(typed: string, model: string, name: string | null)
   return folded
     ? { verdict: "nearly", note: "Nearly: mind the letters with marks on them.", close: false }
     : { verdict: "right", note: "That's it.", close: false };
+}
+
+/*
+  THE CHECK AT THE END OF A PART, AND AT THE END OF A1.
+
+  The October feedback: a learner flew through all 49 A1 lessons without
+  practicing anything, and asked for a short test after each part and a
+  bigger one at the end of A1 before A2 opens. A check is the lesson's own
+  questions, recognize then produce, drawn from every lesson of the part
+  rather than one evening, and marked here the same way the lesson marks
+  them. It is built from the lessons alone, so it asks nothing a lesson did
+  not teach, and seeded by its id and the attempt, so the server rebuilds the
+  very paper it marks and a second go asks a different selection.
+*/
+
+/** The share of a check that passes it. */
+export const CHECK_PASS = 0.8;
+
+/** How many questions of each kind a check asks. */
+export interface CheckSize {
+  readonly recognise: number;
+  readonly produce: number;
+}
+
+/** A part's check: about five minutes. */
+export const PART_CHECK: CheckSize = { recognise: 10, produce: 6 };
+/** The check at the end of a level: every part, about ten minutes. */
+export const LEVEL_CHECK: CheckSize = { recognise: 18, produce: 12 };
+
+/**
+ * The questions of one check: `scope` is the lessons it covers, in order, and
+ * `all` every lesson of the course, which is what the ledger is built over.
+ */
+export function checkFor(
+  all: readonly LessonSpec[], scope: readonly LessonSpec[], seed: string, size: CheckSize,
+): PracticeItem[] {
+  const last = scope[scope.length - 1];
+  if (!last) return [];
+  const ledger = ledgerThrough(all, last.id);
+  if (!ledger) return [];
+  const covered = new Set(scope.map((l) => l.n));
+  const subjects = onePerMeaning(ledger.items.filter((d) => covered.has(d.lesson)).map((d) => d.item))
+    .filter((item) => !meaningShows(item));
+  const random = rng(seedFrom(`check:${seed}`));
+  const pool = [...ledger.items].reverse().map((d) => d.item);
+  const recog = shuffle(subjects, random).slice(0, size.recognise)
+    .map((item) => recognise(item, neighboursFirst(item, ledger, pool), random));
+  const asked = shuffle(subjects.filter((item) => wordsOf(item.et).length <= TYPE_UP_TO_WORDS), random)
+    .slice(0, size.produce)
+    .map((item) => produce(item, pool));
+  return [...recog, ...asked];
+}
+
+export interface CheckResult {
+  /** Points, a right answer one and a nearly half. */
+  readonly score: number;
+  readonly total: number;
+  readonly passed: boolean;
+  /** Per question, in order. */
+  readonly marks: readonly ("right" | "nearly" | "wrong")[];
+}
+
+/** Marks a check from what was picked or typed for each question, in order. */
+export function markCheck(items: readonly PracticeItem[], responses: readonly (string | null)[]): CheckResult {
+  const marks = items.map((item, i) => {
+    const said = responses[i] ?? "";
+    if (item.kind !== "type") return said === item.answer ? "right" as const : "wrong" as const;
+    const mark = markPhrase(said, item.accept).verdict;
+    return mark === "right" ? "right" as const : mark === "nearly" ? "nearly" as const : "wrong" as const;
+  });
+  const score = marks.reduce((sum, m) => sum + (m === "right" ? 1 : m === "nearly" ? 0.5 : 0), 0);
+  const total = items.length;
+  return { score, total, passed: total > 0 && score / total >= CHECK_PASS, marks };
 }

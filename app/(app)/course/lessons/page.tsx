@@ -7,6 +7,9 @@ import { localeFor, titleFor } from "@/lib/progress/locale";
 import { lessonListStates } from "@/lib/progress/course";
 import { fill, tr } from "@/lib/copy/locale";
 import { CheckCircle2 } from "lucide-react";
+import { PROGRAMMES } from "@/lib/course";
+import { courseChecks } from "@/lib/course/checks";
+import { checksPassedFor } from "@/lib/progress/checks";
 import { ButtonLink } from "@/components/Button";
 
 export async function generateMetadata() {
@@ -31,7 +34,8 @@ export const dynamic = "force-dynamic";
  */
 export default async function LessonsPage() {
   const ownerId = await requireUserId();
-  const [locale, states] = await Promise.all([localeFor(ownerId), lessonListStates(ownerId)]);
+  const [locale, states, passed] = await Promise.all([localeFor(ownerId), lessonListStates(ownerId), checksPassedFor(ownerId)]);
+  const checks = courseChecks(PROGRAMMES);
   const t = (english: string) => tr(locale, english);
   const current = LESSONS.find((l) => states.get(l.id) === "current");
 
@@ -46,8 +50,10 @@ export default async function LessonsPage() {
       ) : undefined}
     >
       <Stack>
-        {LESSON_PARTS.map((part) => {
+        {LESSON_PARTS.map((part, at) => {
           const lessons = LESSONS.filter((l) => l.part === part.id);
+          // The course's own spelling of the part (`lessonProgrammes`), which is what a check names.
+          const check = checks.find((c) => c.programmeId === `${part.level.toLowerCase()}.${at + 1}`);
           const done = lessons.filter((l) => states.get(l.id) === "done").length;
           return (
             <section key={part.id} id={part.id} className="scroll-mt-20">
@@ -95,6 +101,33 @@ export default async function LessonsPage() {
                     </li>
                   );
                 })}
+                {/*
+                  THE CHECK THAT CLOSES THE PART, as the last row of it: a
+                  learner who started at A1 moves up by passing
+                  (`lib/course/checks.ts`), so the list says where each one is.
+                */}
+                {check && (
+                  <li>
+                    <Link href={`/course/check/${check.id}`} className="block rounded-[var(--r-xl)]" data-check-row={passed.has(check.id) ? "passed" : "open"}>
+                      <Card hover dense tone={passed.has(check.id) ? "accent" : "plain"}>
+                        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                          <p className="flex min-w-0 items-baseline gap-2 text-lg font-bold" style={{ color: "var(--ink)" }}>
+                            {passed.has(check.id) && (
+                              <CheckCircle2 size={18} aria-hidden className="self-center" style={{ color: "var(--accent-deep)" }} />
+                            )}
+                            <span>{check.final ? fill(t("The {level} check"), { level: part.level }) : t("The check for this part")}</span>
+                          </p>
+                          <Chip tone={passed.has(check.id) ? "accent" : "neutral"}>{passed.has(check.id) ? t("Passed") : t("Check")}</Chip>
+                        </div>
+                        <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
+                          {check.final
+                            ? t("Everything A1 taught. Pass it to open A2.")
+                            : t("What this part taught. Pass it to open the next part.")}
+                        </p>
+                      </Card>
+                    </Link>
+                  </li>
+                )}
               </ol>
             </section>
           );

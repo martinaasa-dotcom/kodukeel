@@ -54,6 +54,7 @@ import { unitById } from "@/lib/collections/syllabus";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 import { programmeAfter, stepCard, stepsIn } from "@/lib/course";
+import { moveBlockedFor } from "@/lib/progress/checks";
 import { HeroFan } from "@/components/HeroFan";
 import { fillNodes } from "@/components/TemplateNodes";
 import { JokeOfDayCard } from "@/components/JokeOfDay";
@@ -561,26 +562,38 @@ export default async function TodayPage() {
   */
   const nextPart = programme && courseNow?.finished ? programmeAfter(programme) ?? null : null;
   const nextPartDay = nextPart && !courseNow?.finishedToday ? nextPart.days[0] ?? null : null;
+  // A part of the A1 lessons ends in a check, and until it is passed the hero is the check.
+  const partCheck = nextPartDay && programme ? await moveBlockedFor(ownerId, programme, nextPart!) : null;
 
   const nextPartCard = nextPart && nextPartDay ? (
     <HeroFan
       bright
-      eyebrow={fill(t("Next up: {part}"), { part: nextPart.id.toUpperCase() })}
-      title={ui(nextPartDay.title, nextPartDay.subtitle)}
-      titleLang={uiWantsEnglish(placement) ? undefined : "et"}
-      text={fill(t("You finished {part}. {canDo}"), { part: programme!.id.toUpperCase(), canDo: t(nextPartDay.canDo) })}
+      eyebrow={partCheck
+        ? fill(t("Before {part}"), { part: nextPart.id.toUpperCase() })
+        : fill(t("Next up: {part}"), { part: nextPart.id.toUpperCase() })}
+      title={partCheck
+        ? (partCheck.final ? fill(t("The {level} check"), { level: programme!.level }) : t("A short check"))
+        : ui(nextPartDay.title, nextPartDay.subtitle)}
+      titleLang={partCheck || uiWantsEnglish(placement) ? undefined : "et"}
+      text={partCheck
+        ? fill(t("You finished {part}. Pass a short check of what it taught, and {next} opens."), { part: programme!.id.toUpperCase(), next: nextPart.id.toUpperCase() })
+        : fill(t("You finished {part}. {canDo}"), { part: programme!.id.toUpperCase(), canDo: t(nextPartDay.canDo) })}
       action={
-        <ButtonLink href="/course" variant="primary" size="lg" className="whitespace-nowrap">
-          {fill(t("Start {part}"), { part: nextPart.id.toUpperCase() })} <ArrowRight size={17} aria-hidden />
+        <ButtonLink href={partCheck ? `/course/check/${partCheck.id}` : "/course"} variant="primary" size="lg" className="whitespace-nowrap">
+          {partCheck ? t("Take the check") : fill(t("Start {part}"), { part: nextPart.id.toUpperCase() })} <ArrowRight size={17} aria-hidden />
         </ButtonLink>
       }
       nextLabel={t("Next")}
-      cardsLabel={fill(t("{minutes} min to go today"), { minutes: stepsIn(nextPartDay, locale).reduce((m, step) => m + step.minutes, 0) })}
-      cards={stepsIn(nextPartDay, locale).map((step, at) => ({
-        ...stepCard(step, locale),
-        detail: fill(t("{minutes} min"), { minutes: step.minutes }),
-        state: at === 0 ? "now" : "later",
-      }))}
+      cardsLabel={partCheck
+        ? t(partCheck.final ? "about ten minutes" : "about five minutes")
+        : fill(t("{minutes} min to go today"), { minutes: stepsIn(nextPartDay, locale).reduce((m, step) => m + step.minutes, 0) })}
+      cards={partCheck
+        ? [{ label: t("Check"), detail: t(partCheck.final ? "about ten minutes" : "about five minutes"), icon: "ClipboardCheck", state: "now" }]
+        : stepsIn(nextPartDay, locale).map((step, at) => ({
+          ...stepCard(step, locale),
+          detail: fill(t("{minutes} min"), { minutes: step.minutes }),
+          state: at === 0 ? "now" : "later",
+        }))}
     />
   ) : null;
 
