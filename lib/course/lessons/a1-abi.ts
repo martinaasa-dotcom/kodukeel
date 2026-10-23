@@ -273,6 +273,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
       notes: [
         "Part one gave you hello and names, part two where you're from, part three a time, part four cooking, and the invitation is lesson 46's command: {Tule laupäeval meile!}",
         "{Meile} means to us, and with {tule} it means \"come over to our place\".",
+        "At the end, Mari stops you on the stairs and you answer her as yourself, one turn at a time, until you've held the whole conversation.",
         "If you can hold this conversation, you can do what A1 promises: meet somebody, say who you are, and make a plan.",
       ],
       watchOut: "{Ma õpin veel} is the most useful thing to say when somebody compliments your Estonian: I'm still learning. It's true, it's modest, and it keeps the conversation in Estonian.",

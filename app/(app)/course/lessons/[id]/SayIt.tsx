@@ -44,6 +44,14 @@ import { VERDICT_CLASS } from "@/lib/ux/verdict";
  * different answer is never called wrong, and nothing reaches the review log.
  * Words light up when they are understood, and an unlit word is only unlit.
  *
+ * ON A CHECK-IN IT IS THE CAPSTONE, AND LOOKS LIKE ONE. A check-in teaches
+ * nothing new, so what it asks is the whole conversation with the learner in
+ * it: only the role-play turns, one after another, each added to a thread
+ * above the next, so the learner sees a conversation building from their own
+ * answers rather than five unrelated cards. It was the same cards as the
+ * questions about yourself, labeled in small type, and a learner went through
+ * the whole evening without noticing there had been a conversation.
+ *
  * AND WHERE THE LESSON HAS A CONVERSATION OF ITS OWN, THE END OFFERS IT
  * (`lib/scenes/lessonScenes.ts`). The role-play above is a script with one
  * way to say each turn; the scene is the same situation with somebody who
@@ -57,13 +65,27 @@ type SayCard =
   | { readonly kind: "lines" }
   | { readonly kind: "answer"; readonly prompt: Prompt; readonly label: string; readonly scene?: string; readonly own: boolean; readonly aboutYou: boolean };
 
-export function SayIt({ lesson, scene, name, onComplete }: { lesson: LessonSpec; scene: string | null; name: string | null; onComplete: () => void }) {
+/**
+ * One turn already taken: what they said, and what the learner answered, or
+ * the model line where they asked to be shown one with nothing in the box.
+ * The thread says which, because "You answered" over a line the app wrote is
+ * a small lie told at the moment the screen says they held the conversation.
+ */
+interface Taken {
+  readonly ask: string;
+  readonly said: string;
+  readonly shown: boolean;
+}
+
+export function SayIt({ lesson, scene, sceneHref, capstone, name, onComplete }: { lesson: LessonSpec; scene: string | null; sceneHref: string | null; capstone: boolean; name: string | null; onComplete: () => void }) {
   const t = useT();
   const [mode, setMode] = useState<Mode | null>(null);
   const [at, setAt] = useState(0);
   const [over, setOver] = useState(false);
+  const [taken, setTaken] = useState<readonly Taken[]>([]);
   // The other side's voice: whoever opens today's conversation.
-  const voice = lesson.cast[lesson.conversation[0]?.who ?? ""] ?? undefined;
+  const opener = lesson.conversation[0]?.who ?? "";
+  const voice = lesson.cast[opener] ?? undefined;
 
   const cards = useMemo<SayCard[]>(() => {
     const answers = lesson.answers.map((prompt, i): SayCard => ({
@@ -78,14 +100,18 @@ export function SayIt({ lesson, scene, name, onComplete }: { lesson: LessonSpec;
       // And one about themselves says so, since their name and country are theirs.
       aboutYou: /yourself|your own|your name|about you/i.test(prompt.cue) || hasStandIn(prompt.model.et),
     }));
+    // The capstone is the conversation alone: the questions about yourself were the practice.
+    if (capstone) return turns;
     return [...(mode === "say" ? [{ kind: "lines" } as SayCard] : []), ...answers, ...turns];
-  }, [lesson, mode, t]);
+  }, [lesson, mode, t, capstone]);
 
   if (mode === null) {
     return (
       <div className="flex flex-col gap-5" data-say-it="choose">
         <p className="max-w-[60ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {t("Words you've said out loud are the ones you remember. Say the conversation along with the screen, then answer a few questions about yourself out loud. A word lights up when it's understood, even said with an accent, so play yourself back beside the recording to hear how it sounded.")}
+          {capstone
+            ? fill(t("This is the whole conversation, with you in it. {who} speaks first and you answer as yourself, out loud or typed, one turn at a time. Each turn is added to the conversation, so by the end you've held all of it."), { who: opener })
+            : t("Words you've said out loud are the ones you remember. Say the conversation along with the screen, then answer a few questions about yourself out loud. A word lights up when it's understood, even said with an accent, so play yourself back beside the recording to hear how it sounded.")}
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <Button size="lg" onClick={() => setMode("type")}>
@@ -104,14 +130,23 @@ export function SayIt({ lesson, scene, name, onComplete }: { lesson: LessonSpec;
       <div data-say-it="done">
         <Card tone="sky">
           <p role="status" className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
-            {mode === "say" ? t("You said today's Estonian out loud. That's the step most people skip, and the one that counts.") : t("Done. Tomorrow, try it out loud if you're somewhere you can.")}
+            {capstone
+              ? t("You held the whole conversation.")
+              : mode === "say" ? t("You said today's Estonian out loud. That's the step most people skip, and the one that counts.") : t("Done. Tomorrow, try it out loud if you're somewhere you can.")}
           </p>
-          {scene && (
+          {capstone && taken.length > 0 && (
+            <div className="mt-4">
+              <Thread taken={taken} who={opener} voice={voice} title={t("Your conversation")} />
+            </div>
+          )}
+          {scene && sceneHref && (
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3" data-lesson-scene={scene}>
               <p className="max-w-[48ch] text-base" style={{ color: "var(--ink-2)" }}>
-                {t("The role-play is a real conversation too: they answer whatever you say, in words you've been taught.")}
+                {capstone
+                  ? fill(t("That one followed a script. Now have it for real: {who} answers whatever you say, in words you've been taught."), { who: opener })
+                  : t("The role-play is a real conversation too: they answer whatever you say, in words you've been taught.")}
               </p>
-              <ButtonLink href={`/situations/${scene}`}>{t("Have the conversation")} <ArrowRight size={15} aria-hidden /></ButtonLink>
+              <ButtonLink href={sceneHref} variant={capstone ? "primary" : undefined}>{t("Have the conversation")} <ArrowRight size={15} aria-hidden /></ButtonLink>
             </div>
           )}
         </Card>
@@ -120,7 +155,11 @@ export function SayIt({ lesson, scene, name, onComplete }: { lesson: LessonSpec;
   }
 
   const card = cards[Math.min(at, cards.length - 1)]!;
-  const next = () => {
+  const next = (said?: string) => {
+    if (capstone && card.kind === "answer" && card.prompt.ask) {
+      const own = (said ?? "").trim();
+      setTaken((all) => [...all, { ask: card.prompt.ask!.et, said: own || card.prompt.model.et, shown: own.length === 0 }]);
+    }
     if (at >= cards.length - 1) {
       setOver(true);
       onComplete();
@@ -134,8 +173,9 @@ export function SayIt({ lesson, scene, name, onComplete }: { lesson: LessonSpec;
       {mode === "type" && at === 0 && (
         <Note>{t("Typing works too. Speaking is what brings the words out when you need them, so try it aloud tomorrow if you can.")}</Note>
       )}
+      {capstone && taken.length > 0 && <Thread taken={taken} who={opener} voice={voice} title={t("The conversation so far")} />}
       {card.kind === "lines" ? (
-        <SayTheLines lesson={lesson} onNext={next} />
+        <SayTheLines lesson={lesson} onNext={() => next()} />
       ) : (
         <AnswerCard key={at} card={card} mode={mode} voice={voice} name={name} onNext={next} last={at >= cards.length - 1} />
       )}
@@ -200,7 +240,7 @@ function AnswerCard({ card, mode, voice, name, onNext, last }: {
   mode: Mode;
   voice: string | undefined;
   name: string | null;
-  onNext: () => void;
+  onNext: (said: string) => void;
   last: boolean;
 }) {
   const t = useT();
@@ -331,7 +371,7 @@ function AnswerCard({ card, mode, voice, name, onNext, last }: {
 
       <div className="mt-5 flex flex-wrap justify-end gap-3">
         {shown ? (
-          <Button ref={nextRef} variant="primary" onClick={onNext}>
+          <Button ref={nextRef} variant="primary" onClick={() => onNext(text)}>
             {last ? t("Done") : t("Next")} <ArrowRight size={15} aria-hidden />
           </Button>
         ) : (
@@ -344,5 +384,36 @@ function AnswerCard({ card, mode, voice, name, onNext, last }: {
         )}
       </div>
     </Card>
+  );
+}
+
+/**
+ * The conversation so far: what they said, and what the learner answered,
+ * as a thread. It is what makes five turns one conversation, and it is drawn
+ * with the other side leading and the learner's own words on the right.
+ */
+function Thread({ taken, who, voice, title }: { taken: readonly Taken[]; who: string; voice: string | undefined; title: string }) {
+  const t = useT();
+  return (
+    <section aria-label={title} data-say-thread>
+      <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{title}</p>
+      <ol className="flex flex-col gap-2">
+        {taken.map((turn, i) => (
+          <li key={i} className="flex flex-col gap-1.5">
+            <div className="inline-flex max-w-[85%] items-start gap-2 self-start rounded-2xl rounded-tl-sm px-3.5 py-2" style={{ background: "var(--raised)" }}>
+              <Speak text={turn.ask} voice={voice} size={14} label={fill(t("Hear {who} say it"), { who })} />
+              <div className="min-w-0">
+                <span className="label-xs block" style={{ color: "var(--ink-3)" }}>{who}</span>
+                <p lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>{turn.ask}</p>
+              </div>
+            </div>
+            <div className="max-w-[85%] self-end rounded-2xl rounded-tr-sm px-3.5 py-2" style={{ background: "var(--accent-soft)" }}>
+              <span className="label-xs block" style={{ color: "var(--ink-3)" }}>{turn.shown ? t("One way to say it") : t("You answered")}</span>
+              <p lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>{turn.said}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }

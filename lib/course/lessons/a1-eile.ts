@@ -381,6 +381,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       notes: [
         "Notice how the past and the future sit side by side: what you did on Saturday, and when you'll meet next week.",
         "{Saame järgmisel nädalal kokku?} puts the when in the middle, and it's still a plan to meet up.",
+        "At the end, Liis rings to ask about your weekend and you tell her, one turn at a time, until you've held the whole conversation.",
       ],
       watchOut: "A chat like this is mostly short answers. {Pühapäeval ma olin Tartus} is plenty.",
       examples: [3, 5, 6],

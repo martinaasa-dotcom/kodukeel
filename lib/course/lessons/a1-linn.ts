@@ -450,6 +450,7 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       notes: [
         "Notice how Tom asks: {Vabandust} first, then the question. That's all the politeness it needs.",
         "Liis asks {Kuhu te sõidate?} with {teie}, the polite you, because Tom is a stranger. He answers with {ma}, as usual.",
+        "At the end, you stop somebody in town and ask the way to the pharmacy, one turn at a time, until you've held the whole conversation.",
       ],
       watchOut: "You don't have to understand every word of the directions. Catch {otse}, {vasakule} and {paremale}, and the rest is pointing.",
       examples: [0, 3, 5],

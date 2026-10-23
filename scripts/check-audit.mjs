@@ -24,14 +24,8 @@
  */
 import { execFileSync } from "node:child_process";
 
-/**
- * Advisories nobody can fix yet, each with why it cannot be reached. Empty is
- * the state to keep it in: GHSA-vfj7-8cjw-p6xm (braces, under the lint plugin)
- * stood here from 2026-10-03 until the advisory database stopped reporting it
- * on 2026-10-23, and the gate said so by failing, which is what it is for.
- */
-const WAIVED = {
-};
+/** Advisories nobody can fix yet, each with why it cannot be reached. */
+const WAIVED = {};
 
 const BLOCKING = new Set(["high", "critical"]);
 
