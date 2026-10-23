@@ -143,6 +143,28 @@ export function LessonRunner({ lesson, practice, review, next, scene, place, nam
               <StatTile value={lesson.conversation.filter((l) => l.et).length} label={t("lines heard")} tone="accent" />
               <StatTile value={place.at} label={fill(t("{level} lesson"), { level: lesson.level })} hint={fill(t("of {total}"), { total: String(place.of) })} tone="accent" />
             </div>
+            {/*
+              THE CONVERSATION, WHERE THE LESSON HAS ONE, IS THE NEXT THING.
+              A learner finished lesson 49, which says it ends in holding a
+              whole conversation, and found nowhere to have it: the only link
+              was a line under the last Say it card, and on a typed evening it
+              was easy to scroll past. So the lesson's own scene, played with
+              somebody who answers whatever is said in the words taught so far
+              (`lib/scenes/lessonScenes.ts`), is a card of its own here.
+            */}
+            {scene && (
+              <div className="mt-6 rounded-[var(--r-xl)] border px-5 py-5 text-left" style={{ background: "var(--accent-soft)", borderColor: "var(--edge)" }} data-lesson-scene-done={scene}>
+                <p className="font-display text-xl font-bold" style={{ color: "var(--ink)" }}>{t("Now have the conversation")}</p>
+                <p className="mt-1 max-w-[56ch] text-base" style={{ color: "var(--ink-2)" }}>
+                  {t("Somebody speaks first and answers whatever you say, in the words you've learned. Type or say your lines. Nothing is graded, and you can't get it wrong by saying it your own way.")}
+                </p>
+                <div className="mt-4">
+                  <ButtonLink href={`/situations/${scene}`} variant={focus && moduleNext ? "secondary" : "primary"}>
+                    {t("Have the conversation")} <ArrowRight size={15} aria-hidden />
+                  </ButtonLink>
+                </div>
+              </div>
+            )}
             {saved === false && !saving && (
               <div className="mt-4 flex flex-wrap items-center justify-center gap-3" role="status">
                 <p className="text-base" style={{ color: "var(--again-ink)" }}>{t(NOT_REACHED)}</p>
@@ -156,7 +178,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, place, nam
                 <>
                   <ButtonLink href="/course/lessons">{t("All lessons")}</ButtonLink>
                   {next && (
-                    <ButtonLink variant="primary" href={`/course/lessons/${next.id}`}>
+                    <ButtonLink variant={scene ? "secondary" : "primary"} href={`/course/lessons/${next.id}`}>
                       {t("Next:")} <LessonText text={next.title} locale={locale} /> <ArrowRight size={15} aria-hidden />
                     </ButtonLink>
                   )}

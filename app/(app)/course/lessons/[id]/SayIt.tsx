@@ -55,7 +55,7 @@ type Mode = "say" | "type";
 
 type SayCard =
   | { readonly kind: "lines" }
-  | { readonly kind: "answer"; readonly prompt: Prompt; readonly label: string; readonly scene?: string; readonly own: boolean };
+  | { readonly kind: "answer"; readonly prompt: Prompt; readonly label: string; readonly scene?: string; readonly own: boolean; readonly aboutYou: boolean };
 
 export function SayIt({ lesson, scene, name, onComplete }: { lesson: LessonSpec; scene: string | null; name: string | null; onComplete: () => void }) {
   const t = useT();
@@ -67,13 +67,16 @@ export function SayIt({ lesson, scene, name, onComplete }: { lesson: LessonSpec;
 
   const cards = useMemo<SayCard[]>(() => {
     const answers = lesson.answers.map((prompt, i): SayCard => ({
-      kind: "answer", prompt, label: fill(t("About you, {n} of {total}"), { n: String(i + 1), total: String(lesson.answers.length) }), own: true,
+      kind: "answer", prompt, label: fill(t("About you, {n} of {total}"), { n: String(i + 1), total: String(lesson.answers.length) }), own: true, aboutYou: true,
     }));
     const turns = (lesson.roleplay?.turns ?? []).map((prompt, i): SayCard => ({
       kind: "answer", prompt, label: fill(t("Role-play, {n} of {total}"), { n: String(i + 1), total: String(lesson.roleplay!.turns.length) }),
       scene: i === 0 ? lesson.roleplay!.scene : undefined,
-      // A turn that asks them about themselves is theirs to answer their way.
-      own: /yourself|your own|your name|about you/i.test(prompt.cue) || hasStandIn(prompt.model.et),
+      // A role-play line can be said more than one way, so a different one is
+      // never painted as nearly: it gets one way to say it, and yours can differ.
+      own: true,
+      // And one about themselves says so, since their name and country are theirs.
+      aboutYou: /yourself|your own|your name|about you/i.test(prompt.cue) || hasStandIn(prompt.model.et),
     }));
     return [...(mode === "say" ? [{ kind: "lines" } as SayCard] : []), ...answers, ...turns];
   }, [lesson, mode, t]);
@@ -267,7 +270,7 @@ function AnswerCard({ card, mode, voice, name, onNext, last }: {
       <div className="mb-5 rounded-[var(--r-lg)] px-4 py-3" style={{ background: "var(--accent-soft)" }} data-say-target>
         <p className="label-xs" style={{ color: "var(--accent-deep)" }}>{t("Say this in Estonian")}</p>
         <p className="mt-1 text-lg font-semibold" style={{ color: "var(--ink)" }}>“<LessonText text={prompt.model.en} locale={locale} name={name} />”</p>
-        {card.own && (
+        {card.aboutYou && (
           <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
             {hasStandIn(prompt.model.et) && !name ? t("Use your own name and your own details.") : t("Make it true for you: your own details are right.")}
           </p>
