@@ -390,6 +390,13 @@ export const SETTING_KEYS = {
    * and the module screen still names it.
    */
   adaptSnoozedUntil: "adaptSnoozedUntil",
+  /**
+   * The checks between the parts of A1 this learner has passed, space
+   * separated (`lib/course/checks.ts`). A measurement, like a level check:
+   * nothing in the review log says a check was passed, so the pass is stored,
+   * written by the server after it has marked the paper itself.
+   */
+  checksPassed: "checksPassed",
 } as const;
 
 export type SettingKey = (typeof SETTING_KEYS)[keyof typeof SETTING_KEYS];

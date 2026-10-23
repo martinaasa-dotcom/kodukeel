@@ -1,7 +1,7 @@
 import { plainPhrase, sameSpelling, PARTS } from "@/lib/copy/values";
 import { lentFor, sentenceContaining, type Example } from "@/lib/dict/examples";
 import { checkAnswer } from "@/lib/estonian/answer";
-import { CASES, caseByKey } from "@/lib/estonian/cases";
+import { CASES, caseByKey, plainNameForEt } from "@/lib/estonian/cases";
 import { caseFits, caseQuestionFor, type CaseSubject } from "@/lib/estonian/caseQuestion";
 import { buildCloze, mentions } from "@/lib/estonian/cloze";
 import { derivedVerbForms, isFiniteVerbCode, pres1sgFrom } from "@/lib/estonian/conjugate";
@@ -11,7 +11,7 @@ import { caseIndex, readCase, tidyForm } from "@/lib/estonian/whichCase";
 import { sayShort } from "@/lib/estonian/plainAsk";
 import { looksLikeSentence } from "@/lib/estonian/writing";
 import { attestedForms, conjugationAnswer } from "@/lib/srs/cards";
-import { CONJUGATION_SLOTS, isFormSlot, slotLabel } from "@/lib/srs/slots";
+import { CONJUGATION_SLOTS, isFormSlot, slotLabel, slotShort } from "@/lib/srs/slots";
 import type { CaseKey } from "@/lib/estonian/types";
 import { maySortWords } from "@/lib/collections/levels";
 import type { Level } from "@/lib/collections/syllabus/types";
@@ -713,7 +713,7 @@ export function markForm(task: FormAsk, typed: string): FlashMark {
   if (named && named !== task.slot) {
     return {
       right: false, rating: 2, wrote: written, wroteSlot: named,
-      note: `That's the ${slotLabel(named)}. This one wants the ${task.label}.`,
+      note: `That's the ${slotShort(named)}. This one wants the ${plainNameForEt(task.label) ?? task.label}.`,
     };
   }
 
@@ -748,7 +748,7 @@ function markSentence(task: FlashTask, sentence: string): FlashMark {
     if (!named || named === task.slot) continue;
     return {
       right: false, rating: 2, wrote: written, wroteSlot: named,
-      note: `You wrote ${written}, which is the ${slotLabel(named)}. This one wants the ${task.label}.`,
+      note: `You wrote ${written}, which is the ${slotShort(named)}. This one wants the ${plainNameForEt(task.label) ?? task.label}.`,
     };
   }
   return {

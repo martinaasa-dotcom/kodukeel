@@ -12,6 +12,8 @@ import { BLANK, filledSentence, primaryAnswer } from "@/lib/estonian/cloze";
 import { offered } from "@/lib/tutor/provider";
 import { learnerScopeSoFar, moduleSpellings } from "@/lib/progress/moduleScope";
 import { reviewable } from "@/lib/course/scope";
+import { sayLine } from "@/lib/estonian/sayIt";
+import { conjugationSlotFromFront } from "@/lib/srs/slots";
 
 /**
  * THE DAILY QUEST'S POOL: WHAT IS GOING WRONG, ASKED AGAIN TODAY.
@@ -70,6 +72,13 @@ export interface QuestCard {
   sentenceEn: string | null;
   /** Whether this deployment has a model to ask for one. */
   canTranslate: boolean;
+  /**
+   * The plain instruction a bare form card is asked with (`Say “with the
+   * bird”`) and the slot it asks for, which is what a Russian or Ukrainian
+   * screen words its own line from (`sayLineIn`); null for a gap card or a
+   * card about meaning (`sayFor`).
+   */
+  say: { line: string; slot: string } | null;
   /** True when this card is here because its case is one of the weak ones. */
   targetsWeakCase: boolean;
   /**
@@ -148,7 +157,7 @@ export async function questFor(ownerId: string): Promise<Quest> {
       where: { ownerId, suspended: false, state: { not: 0 } },
       orderBy: [{ lapses: "desc" }, { due: "asc" }, { id: "asc" }],
       take: POOL,
-      include: { lexeme: { select: { lemma: true, examples: true } } },
+      include: { lexeme: { select: { lemma: true, examples: true, translation: true, semanticTypes: true } } },
     }),
     learnerScopeSoFar(ownerId),
   ]);
@@ -191,6 +200,7 @@ export async function questFor(ownerId: string): Promise<Quest> {
         ? sentenceEnglish(parseExamples(c.lexeme.examples), filledSentence(c.front, c.back))
         : null,
       canTranslate: offered("translate"),
+      say: sayFor(c),
       targetsWeakCase: Boolean(c.targetCase && weakKeys.includes(c.targetCase)),
       choices: options.get(c.id) ?? null,
       typed: !options.has(c.id) && TYPED.has(c.cardType),
@@ -199,6 +209,28 @@ export async function questFor(ownerId: string): Promise<Quest> {
         : [],
     })),
   };
+}
+
+/**
+ * THE ONE LINE A BARE FORM CARD ASKS WITH: `Say “it happened to me”`.
+ *
+ * The quest drew `juhtuma → lihtminevik, ma` and nothing else, which asks a
+ * learner to know what a form is called before they can produce it, and the
+ * October feedback said so in as many words. Review has asked these cards
+ * with a plain sentence since `sayLine` existed (`app/(app)/review/cards.ts`),
+ * and this is the same rule on the same deck: only a front naming a word and
+ * a form; a gap card is asked by its sentence.
+ */
+function sayFor(c: {
+  front: string; targetCase: string | null; slot: string | null;
+  lexeme: { lemma: string; translation: string; semanticTypes: string | null } | null;
+}): { line: string; slot: string } | null {
+  if (c.front.includes(BLANK) || !c.front.includes("\u2192")) return null;
+  const slot = c.targetCase ?? c.slot ?? conjugationSlotFromFront(c.front);
+  if (!slot) return null;
+  const lex = c.lexeme;
+  const line = sayLine(slot, lex?.translation ?? null, lex ? { lemma: lex.lemma, semanticTypes: lex.semanticTypes, nomSg: lex.lemma } : null);
+  return line ? { line, slot } : null;
 }
 
 /**

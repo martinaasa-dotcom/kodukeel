@@ -1,4 +1,4 @@
-import { caseByKey } from "./cases";
+import { caseByKey, casePlainName } from "./cases";
 import type { Locale } from "@/lib/copy/locale";
 
 /**
@@ -216,48 +216,19 @@ export function sayLineIn(locale: Locale, slot: string, english: string | null |
   THE NAME OF AN ENDING, AFTER THE ANSWER, IN THE FEWEST WORDS.
 
   Once the answer is on the screen the card names the ending, so the learner
-  has something to call it, by the Estonian name their class uses. It used to
-  print that name, then the two questions the case answers in Estonian, then
-  the same two in English, and a learner asked for that to be simpler too. The
-  name and the one English word it means is enough: "<name>: the “with”
-  ending". The name is read off `CASES`, so this file still types no Estonian.
+  has something to call it. It is the name the app gives a case everywhere,
+  the Estonian one with its hint, "kaasaütlev (-ga, with)", which already says
+  which ending it is and what it does, so it is the whole line.
 */
 
-/** The one English word each case means, for naming it after the answer. */
-const ENDING_WORD: Readonly<Record<string, string>> = {
-  GENITIVE: "of",
-  PARTITIVE: "some of",
-  ILLATIVE: "into",
-  INESSIVE: "in",
-  ELATIVE: "out of",
-  ALLATIVE: "onto, or to",
-  ADESSIVE: "on, or has",
-  ABLATIVE: "off, or from",
-  TRANSLATIVE: "becoming",
-  TERMINATIVE: "up to",
-  ESSIVE: "as",
-  ABESSIVE: "without",
-  COMITATIVE: "with",
-};
-
-/**
- * `<name>: the “with” ending`, or null for a slot that is not a case.
- *
- * The nominative is the plain word rather than an ending, so it says so.
- */
+/** The name of a case slot, "kaasaütlev (-ga, with)", or null for a slot that is not a case. */
 export function endingName(slot: string, locale: Locale = "en"): string | null {
   const spec = caseByKey(slot);
   if (!spec) return null;
-  if (locale !== "en") {
-    if (spec.key === "NOMINATIVE") return locale === "ru" ? `${spec.et}: слово как есть` : `${spec.et}: слово як є`;
-    const said = ENDING_WORD_IN[locale][spec.key];
-    if (!said) return spec.et;
-    return locale === "ru" ? `${spec.et}: окончание «${said}»` : `${spec.et}: закінчення «${said}»`;
-  }
-  if (spec.key === "NOMINATIVE") return `${spec.et}: the plain word`;
-  const word = ENDING_WORD[spec.key];
-  return word ? `${spec.et}: the “${word}” ending` : spec.et;
+  // The name the app teaches, "seesütlev (-s, in)" (`casePlainName`).
+  return casePlainName(spec, locale);
 }
+
 
 /*
   THE SAME FOUR TABLES IN RUSSIAN AND UKRAINIAN, KEYED BY THE SAME SLOTS.
@@ -407,35 +378,3 @@ const VERB_SHORT_IN: Readonly<Record<Translated, Readonly<Record<string, string>
   },
 };
 
-const ENDING_WORD_IN: Readonly<Record<Translated, Readonly<Record<string, string>>>> = {
-  ru: {
-    GENITIVE: "чего",
-    PARTITIVE: "часть",
-    ILLATIVE: "внутрь",
-    INESSIVE: "внутри",
-    ELATIVE: "изнутри",
-    ALLATIVE: "на, или кому",
-    ADESSIVE: "на, или у кого есть",
-    ABLATIVE: "с, или от",
-    TRANSLATIVE: "становясь",
-    TERMINATIVE: "до",
-    ESSIVE: "в качестве",
-    ABESSIVE: "без",
-    COMITATIVE: "с",
-  },
-  uk: {
-    GENITIVE: "чого",
-    PARTITIVE: "частина",
-    ILLATIVE: "всередину",
-    INESSIVE: "всередині",
-    ELATIVE: "зсередини",
-    ALLATIVE: "на, або кому",
-    ADESSIVE: "на, або в кого є",
-    ABLATIVE: "з, або від",
-    TRANSLATIVE: "стаючи",
-    TERMINATIVE: "до",
-    ESSIVE: "у ролі",
-    ABESSIVE: "без",
-    COMITATIVE: "з",
-  },
-};

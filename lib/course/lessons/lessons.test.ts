@@ -6,6 +6,8 @@ import { PLACE_SPELLINGS, estonianOf, ledgersBefore, lessonProblems, namesOf, te
 import { markPhrase, meaningShows, practiceFor, reviewFor } from "./practice";
 import { estonianIn } from "./ledger";
 import { LESSONS } from "./index";
+import { CASES, caseNameWithNumber, casePlainName, shortIllativeName } from "@/lib/estonian/cases";
+import { PERSON_HINTS, VERB_FORM_NAMES, verbFormName, type Person, type VerbForm } from "@/lib/estonian/verbNames";
 
 /**
  * THE LESSONS THEMSELVES, AGAINST THE TWO MECHANICAL CHECKS (ADR-005
@@ -60,10 +62,43 @@ describe("A1 lessons", () => {
         ...lesson.conversation.flatMap((l) => [l.en ?? "", l.stage ?? ""]),
         ...[...lesson.answers, ...(lesson.roleplay?.turns ?? [])].flatMap((p) => [p.ask?.en ?? "", p.model.en]),
       ];
-      // Braced Estonian is marked as such on screen and held to the ledger; anything else is a leak.
-      for (const e of english) if (ESTONIAN_LETTER.test(e.replace(/\{[^{}]*\}/g, ""))) leaks.push(`${lesson.id}: ${e}`);
+      // Braced Estonian is marked as such on screen and held to the ledger, and
+      // a grammar name in square brackets is drawn as Estonian; anything else is a leak.
+      for (const e of english) if (ESTONIAN_LETTER.test(e.replace(/\{[^{}]*\}/g, "").replace(/\[[^[\]]*\]/g, ""))) leaks.push(`${lesson.id}: ${e}`);
     }
     expect(leaks).toEqual([]);
+  });
+
+  it("name a form only by a name the app knows, with its agreed hint right after it", () => {
+    // The operator's list (`casePlainName`, `verbFormName`): a lesson writes
+    // `[osastav] (3rd form)`, and the bracket and the hint together have to be
+    // exactly one of the names every other screen prints.
+    const names = new Set<string>([
+      ...CASES.flatMap((spec) => [casePlainName(spec), caseNameWithNumber(spec, "mitmus"), caseNameWithNumber(spec, "ainsus")]),
+      shortIllativeName(),
+      ...(Object.keys(VERB_FORM_NAMES) as VerbForm[]).flatMap((form) => [
+        verbFormName(form),
+        ...(Object.keys(PERSON_HINTS) as Person[]).map((person) => verbFormName(form, "en", person)),
+      ]),
+    ]);
+    const strings: string[] = [];
+    const walk = (value: unknown): void => {
+      if (typeof value === "string") strings.push(value);
+      else if (Array.isArray(value)) value.forEach(walk);
+      else if (value && typeof value === "object") Object.values(value).forEach(walk);
+    };
+    walk(A1_LESSONS);
+    const bad: string[] = [];
+    let named = 0;
+    for (const text of strings) {
+      for (const m of text.matchAll(/\[([^[\]]+)\]( \([^()]*\))?/g)) {
+        named += 1;
+        const full = `${m[1]}${m[2] ?? ""}`;
+        if (!names.has(full)) bad.push(`${full}  in  ${text.slice(0, 80)}`);
+      }
+    }
+    expect(named).toBeGreaterThan(40);
+    expect(bad).toEqual([]);
   });
 
   it("read every speaker in a voice the app has", () => {

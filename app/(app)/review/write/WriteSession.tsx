@@ -14,7 +14,7 @@ import { DiacriticBar } from "@/components/DiacriticBar";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
 import { hintLadder } from "@/lib/questions/hints";
-import { caseByKey } from "@/lib/estonian/cases";
+import { caseByKey, plainNameForEt } from "@/lib/estonian/cases";
 import { Chip, KeyCap } from "@/components/ui";
 import { StarWord } from "@/components/StarWord";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
@@ -122,8 +122,9 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
   // since the gloss inside the English phrase cannot be carried over. Where
   // there is none the Estonian name stands in, and the `lang` says which.
   const said = prompt ? sayIn(locale, prompt.caseKey, prompt.say) : null;
-  const phrase = prompt ? said ?? prompt.caseEt : "";
-  const phraseLang = said ? locale : "et";
+  const plainName = prompt ? plainNameForEt(prompt.caseEt, locale) : null;
+  const phrase = prompt ? said ?? plainName ?? prompt.caseEt : "";
+  const phraseLang = said || plainName ? locale : "et";
   const firstSense = prompt?.translation.split(/[,;(]/)[0]?.trim().toLowerCase() ?? "";
   const saysGloss = firstSense.length > 0 && phrase.toLowerCase().includes(firstSense);
 
@@ -324,7 +325,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
 
           {marked && (
             <Feedback
-              caseName={endingName(prompt.caseKey) ?? prompt.caseEt}
+              caseName={endingName(prompt.caseKey, locale) ?? prompt.caseEt}
               form={prompt.shown}
               marked={marked}
             />

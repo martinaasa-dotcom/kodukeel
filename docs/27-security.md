@@ -397,15 +397,16 @@ the promise about what a contributor runs. They got there by clearing the chains
 `package.json` and a minor vitest upgrade, rather than by moving the bar, and the workflow says in
 writing that the number is not to be lowered.
 
-The second gate carries one written waiver and says so. On 2026-10-03 GHSA-vfj7-8cjw-p6xm arrived
-against every release of `braces` there is, reached only through the lint plugin
-(`eslint-config-next` down to `micromatch`), and `npm audit --audit-level=high` cannot waive one
-advisory, so it was red on main and every branch with nothing any of them could change.
-`scripts/check-audit.mjs` is the same gate with each waiver named by advisory id and written beside
-its reason. Each one fails again when the advisory leaves the tree or when its package publishes a
-release newer than the one recorded, so it cannot outlive the reason it was granted for. The
-deployed gate takes no waivers, so a waived advisory that ever reached the production tree would
-fail there. An invariant holds all of that, and was made to fail on each part.
+The second gate takes written waivers and holds none today. From 2026-10-03 it carried one,
+GHSA-vfj7-8cjw-p6xm against every release of `braces` there was, reached only through the lint
+plugin (`eslint-config-next` down to `micromatch`), because `npm audit --audit-level=high` cannot
+waive one advisory and it was red on main and every branch with nothing any of them could change.
+On 2026-10-23 the advisory database stopped reporting it, the gate failed on a waiver matching
+nothing, and the waiver came out. `scripts/check-audit.mjs` is the same gate with each waiver named
+by advisory id and written beside its reason. Each one fails again when the advisory leaves the
+tree or when its package publishes a release newer than the one recorded, so it cannot outlive the
+reason it was granted for. The deployed gate takes no waivers, so a waived advisory that ever
+reached the production tree would fail there. An invariant holds all of that, and was made to fail on each part.
 
 Two things sat beside that and were missing. Nothing **updated** anything: knowing about an advisory
 and having it patched are different states, and on a project with one maintainer they drift apart

@@ -36,7 +36,7 @@
  *
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
-import { caseByKey } from "@/lib/estonian/cases";
+import { caseByKey, casePlainName } from "@/lib/estonian/cases";
 import { CASE_NOTES } from "@/lib/estonian/grammar";
 import type { CaseKey } from "@/lib/estonian/types";
 import type { SceneState } from "./state";
@@ -243,7 +243,7 @@ function notesFrom(state: SceneState, locale: Locale): ReviewNote[] {
         said: slip.said,
         form: slip.form,
         what: whatFor(slip.kind, plain, spec?.suffix, locale),
-        ...(spec ? { term: `${spec.et}, ${spec.asksWhere ?? spec.asksThing}` } : {}),
+        ...(spec ? { term: `${casePlainName(spec, locale)}, ${spec.asksWhere ?? spec.asksThing}` } : {}),
         ...(NOTE_BODY[slip.kind] ? { body: tr(locale, NOTE_BODY[slip.kind]!) } : {}),
         at: first.at,
         ...(rows.length > 1 ? { times: rows.length } : {}),

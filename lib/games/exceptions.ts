@@ -4,6 +4,7 @@ import {
   KIND_NOTES, type ExceptionKind, type WordException,
 } from "@/lib/estonian/exceptions";
 import { slotLabel } from "@/lib/srs/slots";
+import { verbFormName } from "@/lib/estonian/verbNames";
 
 /**
  * THE ROUND THAT DRILLS THE WORDS THE PATTERN DOES NOT REACH.
@@ -149,6 +150,8 @@ export interface ExceptionTask {
  */
 function askLabel(exception: WordException): string {
   if (exception.slot !== "CONJUGATION") return slotLabel(exception.slot);
+  if (exception.kind === "DA_INFINITIVE") return verbFormName("DA");
+  if (exception.kind === "TUD_PARTICIPLE") return verbFormName("TUD");
   return KIND_NOTES[exception.kind].title.replace(/^The /, "");
 }
 

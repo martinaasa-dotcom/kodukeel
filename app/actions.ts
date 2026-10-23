@@ -1,5 +1,8 @@
 "use server";
 
+import { moveBlockedFor, recordCheckPassed } from "@/lib/progress/checks";
+import { checkById, checkPaper } from "@/lib/course/checks";
+import { markCheck } from "@/lib/course/lessons/practice";
 import { relearn, reportGaps, retireLearned } from "@/lib/progress/twentyLearned";
 import { reportable } from "@/lib/games/twentyLearned";
 import { revalidatePath } from "next/cache";
@@ -99,7 +102,7 @@ import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/s
 import { ONE_PER_WORD, addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
 import {
   defaultProgramme, LESSON_STEP, MODULE_HOME, continueHref, dayById, focusedSteps, lessonDayFor, levelHeldOnHandOff,
-  programmeById, stepCard, stepText,
+  PROGRAMMES, programmeById, stepCard, stepText,
 } from "@/lib/course";
 import { localeFor } from "@/lib/progress/locale";
 import { courseReading, dayIsInPlay, openingPart, openingPartFor, programmeFor } from "@/lib/progress/course";
@@ -3017,6 +3020,17 @@ export async function setCourseLevel(level: string) {
   if (!parsed.success) return { ok: false as const, error: "Pick a level from the list." };
 
   const now = new Date();
+  const following = await programmeFor(ownerId);
+  /*
+    A LEARNER WHO STARTED AT A1 MOVES UP BY PASSING, and the picker is a door
+    up like any other: from a part of the A1 lessons, a higher level waits on
+    the checks between (`lib/course/checks.ts`). Going down is always open.
+  */
+  const firstOfLevel = PROGRAMMES.find((p) => p.level === parsed.data);
+  const blocked = firstOfLevel ? await moveBlockedFor(ownerId, following, firstOfLevel) : null;
+  if (blocked) {
+    return { ok: false as const, error: "Pass the A1 checks to move up a level. Each part of A1 ends in one." };
+  }
   // Asked before the write, since what changed is the whole question below.
   const before = await courseLevelFor(ownerId);
   await recordCourseLevel(ownerId, parsed.data, now);
@@ -4631,6 +4645,38 @@ export async function advanceCourseStep(programmeId: string, dayId: string, step
 }
 
 /**
+ * MARKS A CHECK AT THE END OF A PART OF A1, AND RECORDS A PASS.
+ *
+ * The browser sends which check, which attempt and what was picked or typed
+ * for each question, never a mark: the server builds the same paper from the
+ * check and the attempt (`checkPaper`) and marks it itself (`markCheck`),
+ * which is ADR-022's rule for the mock exam. A pass is stored as a setting,
+ * since nothing in the review log can say a check was passed; a fail stores
+ * nothing, and the next attempt asks a different selection.
+ */
+export async function submitCheck(checkId: string, attempt: number, responses: (string | null)[]) {
+  const ownerId = await requireUserId();
+  const id = text(checkId);
+  const parsed = z.object({
+    checkId: z.string().max(40),
+    attempt: z.number().int().min(0).max(10_000),
+    responses: z.array(z.string().max(200).nullable()).max(60),
+  }).safeParse({ checkId: id, attempt, responses });
+  if (!parsed.success) return { ok: false as const, error: "We couldn't read that check, so it wasn't saved." };
+  const check = checkById(PROGRAMMES, parsed.data.checkId);
+  if (!check) return { ok: false as const, error: "We couldn't find that check." };
+  const paper = checkPaper(check, parsed.data.attempt);
+  if (paper.length === 0 || parsed.data.responses.length !== paper.length) {
+    return { ok: false as const, error: "That check didn't match the questions, so it wasn't saved. Reload and try again." };
+  }
+  const result = markCheck(paper, parsed.data.responses);
+  if (result.passed) await recordCheckPassed(ownerId, check.id);
+  revalidatePath("/course");
+  revalidatePath("/");
+  return { ok: true as const, score: result.score, total: result.total, passed: result.passed, marks: result.marks };
+}
+
+/**
  * A LESSON, FINISHED: ITS EVENING TICKED AND ITS WORDS IN THE DECK.
  *
  * A1 is the lessons (docs/43-lessons.md, phase P3), and an evening of A1 is
@@ -4739,6 +4785,15 @@ export async function setProgramme(value: string) {
   */
   const [from, standing] = await Promise.all([programmeFor(ownerId), courseStandingFor(ownerId)]);
   const to = programmeById(wanted);
+  /*
+    AND A LEARNER WHO STARTED AT A1 MOVES UP BY PASSING (`lib/course/checks.ts`).
+    The page offers the check rather than this button where one stands in the
+    way; this is the same rule where somebody calls the action directly.
+  */
+  const blocked = to ? await moveBlockedFor(ownerId, from, to) : null;
+  if (blocked) {
+    return { ok: false as const, error: "Pass the check at the end of the part first.", check: blocked.id };
+  }
   const held = from && to
     ? levelHeldOnHandOff(from.level, to.level, standing?.held ?? null)
     : null;
@@ -4785,6 +4840,11 @@ export async function acceptCourseMove(kind: string) {
   const move = offer?.move;
   if (!move || move.kind !== wanted) {
     return { ok: false as const, error: "That option isn't on offer any more, because your recent answers have changed. Reload to see what's there now." };
+  }
+  // The offer already leaves out a skip past an unpassed check; this is the same rule at the door.
+  const target = programmeById(move.to.id);
+  if (target && await moveBlockedFor(ownerId, programme, target)) {
+    return { ok: false as const, error: "Pass the check at the end of the part first." };
   }
 
   /*

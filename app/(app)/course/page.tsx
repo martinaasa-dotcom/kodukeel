@@ -1,4 +1,6 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { checkAfter } from "@/lib/course/checks";
+import { moveBlockedFor } from "@/lib/progress/checks";
 import { ArrowRight, CalendarCheck, Check } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { learnerDayClock } from "@/lib/progress/dayClock";
@@ -177,10 +179,52 @@ export default async function CoursePage({
       elsewhere and insufferable to everybody.
     */
     const verdict = after ? await ladderReading(ownerId, programme) : { kind: "ready" as const };
+    /*
+      AND A PART OF THE A1 LESSONS ENDS IN A CHECK, which is the operator's call
+      and amends the paragraph above for those parts alone: a learner who started
+      at A1 moves up by passing (`lib/course/checks.ts`). Until it is passed the
+      card is the check rather than the way on; an admin moves freely.
+    */
+    /* A part of the lessons is named in English and its subtitle is a sentence
+       about it, so its name is the title; a part of units reads `ui` as ever. */
+    const partName = programme.days.every((d) => d.lesson) ? t(programme.title) : ui(programme.title, programme.subtitle);
+    const check = checkAfter(PROGRAMMES, programme.id);
+    const checkDue = check && after ? await moveBlockedFor(ownerId, programme, after) : null;
+    if (check && checkDue) {
+      return (
+        <Page
+          eyebrow={<span>{programme.id.toUpperCase()}</span>}
+          title={fill(t("{part} is finished"), { part: partName })}
+          lead={fill(t("All {total} evenings done. Every word you met is in your reviews now."), { total })}
+        >
+          <Stack>
+            <Card tone="accent" data-check-due={check.id}>
+              <SectionTitle hint={check.final ? t("about ten minutes") : t("about five minutes")}>
+                {check.final
+                  ? fill(t("One step before {part}: the {level} check"), { part: after!.id.toUpperCase(), level: programme.level })
+                  : fill(t("One step before {part}: a short check"), { part: after!.id.toUpperCase() })}
+              </SectionTitle>
+              <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                {check.final
+                  ? fill(t("Questions on everything {level} taught, the way the lessons asked them. Pass it and {part} opens. You can take it as often as you like."), { level: programme.level, part: after!.id.toUpperCase() })
+                  : fill(t("Questions on what this part taught, the way the lessons asked them. Pass it and {part} opens. You can take it as often as you like."), { part: after!.id.toUpperCase() })}
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <ButtonLink href="/review">{t("Review your words first")}</ButtonLink>
+                <ButtonLink href={`/course/check/${check.id}`} variant="primary">
+                  {t("Take the check")} <ArrowRight size={15} aria-hidden />
+                </ButtonLink>
+              </div>
+            </Card>
+            {talkOver && <TalkItOver locale={locale} />}
+          </Stack>
+        </Page>
+      );
+    }
     return (
       <Page
         eyebrow={<span>{programme.id.toUpperCase()}</span>}
-        title={fill(t("{part} is finished"), { part: ui(programme.title, programme.subtitle) })}
+        title={fill(t("{part} is finished"), { part: partName })}
         lead={fill(t("All {total} evenings done. Every word you met is in your reviews now."), { total })}
       >
         <Stack>

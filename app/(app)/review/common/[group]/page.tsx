@@ -13,7 +13,8 @@ import { Empty, Page } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
 import { ReviewSession } from "../../ReviewSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
-import { include, notOnLadder, withChoices } from "../../cards";
+import { include, withChoices } from "../../cards";
+import { meetingFirst } from "@/lib/srs/reviewQueue";
 import { DeepenButton } from "../DeepenButton";
 
 export async function generateMetadata({ params }: { params: Promise<{ group: string }> }) {
@@ -49,10 +50,16 @@ export const dynamic = "force-dynamic";
  * business; this round is somebody deciding to work a named list, and the words
  * on it are new by construction the first time. A new card still opens with its
  * first meeting, which is `withChoices` and `askFor` doing what they already do.
- * `notOnLadder` still applies, though: a first meeting is the plain word and its
- * gloss, and a word whose recognition card has not graduated may not be asked
- * for a case or a conjugated form instead, which is a different word's worth of
- * memory (see `pastTheLadder`, one file over).
+ * `meetingFirst` decides which of a new word's cards may come up: its own
+ * recognition card, which the session opens as a first meeting, and none of
+ * its other cards, since a word whose recognition card has not graduated may
+ * not be asked for a case or a conjugated form instead (see `pastTheLadder`).
+ *
+ * IT WAS `notOnLadder`, WHICH KEEPS A NEW WORD OUT ENTIRELY, and the October
+ * feedback found it: "Add and start" put twenty-five words in the deck and the
+ * round asked nine, the nine already met, and asked them typed. A part is
+ * twenty-five words and a round is twenty-five cards, the new ones met first,
+ * seen and heard before anything is asked of them.
  *
  * And it does not filter to words that are unmastered. A hundred words is a
  * list you come back to, and a mastered word simply sorts to the back of a
@@ -103,7 +110,7 @@ export default async function CommonRoundPage({ params, searchParams }: {
   */
   const cards = lexemeIds.length === 0 ? [] : await prisma.card.findMany({
     where: {
-      ownerId, suspended: false, lexemeId: { in: lexemeIds }, ...notOnLadder(ownerId),
+      ownerId, suspended: false, lexemeId: { in: lexemeIds }, ...meetingFirst(ownerId),
     },
     orderBy: [{ lapses: "desc" }, { due: "asc" }, { id: "asc" }],
     // A part is twenty-five words and a deepened word carries a dozen cards.
@@ -118,9 +125,15 @@ export default async function CommonRoundPage({ params, searchParams }: {
     or due leads and what was done goes to the back, in a fresh order each time.
   */
   const now = Date.now();
-  const open = (c: { state: number; due: Date }) => c.state === 0 || c.due.getTime() <= now;
+  const fresh = (c: { state: number }) => c.state === 0;
+  const open = (c: { state: number; due: Date }) => c.state !== 0 && c.due.getTime() <= now;
   const shuffled = shuffle(leastPractisedSlot(cards, new Set(lexemeIds)));
-  const picked = [...shuffled.filter(open), ...shuffled.filter((c) => !open(c))];
+  // New words first, so a round opens on seeing a word rather than typing one.
+  const picked = [
+    ...shuffled.filter(fresh),
+    ...shuffled.filter(open),
+    ...shuffled.filter((c) => !fresh(c) && !open(c)),
+  ];
 
   if (picked.length === 0) {
     return (

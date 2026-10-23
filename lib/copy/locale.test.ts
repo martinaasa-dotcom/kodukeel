@@ -76,8 +76,11 @@ describe("the interface language", () => {
     it(`${locale}: holds no line left in English, and no empty one`, () => {
       for (const [en, out] of Object.entries(TABLES[locale])) {
         expect(out.trim(), en).not.toBe("");
-        // Cyrillic in every line except a name or a bare placeholder.
-        if (!/^[{}\w\s]*$/.test(en) || en === "Start") expect(/[Ѐ-ӿ]/.test(out), `${en} -> ${out}`).toBe(true);
+        // Cyrillic in every line except a name or a bare placeholder, or a
+        // grammar name with nothing but its ending, `[ma-tegevusnimi] (-ma)`,
+        // which reads the same in every language.
+        const bare = en.replace(/\[[^[\]]*\]/g, "").replace(/\(-\w+\)/g, "");
+        if (!/^[{}\w\s]*$/.test(bare) || en === "Start") expect(/[Ѐ-ӿ]/.test(out), `${en} -> ${out}`).toBe(true);
       }
     });
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { CASES, QUESTION_WORDS, caseByKey, questionInEnglish } from "./cases";
+import { CASES, QUESTION_WORDS, caseByKey, casePlainName, plainNameForEt, questionInEnglish } from "./cases";
 
 /**
  * The readings are what an English speaker gets instead of the Latin name, so
@@ -118,5 +118,49 @@ describe("reading a whole question", () => {
 
   it("drops a word it does not know rather than the words it does", () => {
     expect(questionInEnglish("milles? mingi?")).toBe("what is it in?");
+  });
+});
+
+describe("case names", () => {
+  // The operator's list: the Estonian name a class uses, with a hint after it.
+  it("names each case in Estonian, with the agreed hint", () => {
+    expect(casePlainName(caseByKey("NOMINATIVE")!)).toBe("nimetav (1st form)");
+    expect(casePlainName(caseByKey("GENITIVE")!)).toBe("omastav (2nd form)");
+    expect(casePlainName(caseByKey("PARTITIVE")!)).toBe("osastav (3rd form)");
+    expect(casePlainName(caseByKey("ILLATIVE")!)).toBe("sisseütlev (-sse, into)");
+    expect(casePlainName(caseByKey("INESSIVE")!)).toBe("seesütlev (-s, in)");
+    expect(casePlainName(caseByKey("ELATIVE")!)).toBe("seestütlev (-st, out of)");
+    expect(casePlainName(caseByKey("ALLATIVE")!)).toBe("alaleütlev (-le, onto/to)");
+    expect(casePlainName(caseByKey("ADESSIVE")!)).toBe("alalütlev (-l, on/at/has)");
+    expect(casePlainName(caseByKey("ABLATIVE")!)).toBe("alaltütlev (-lt, off)");
+    expect(casePlainName(caseByKey("TRANSLATIVE")!)).toBe("saav (-ks, becoming)");
+    expect(casePlainName(caseByKey("TERMINATIVE")!)).toBe("rajav (-ni, until)");
+    expect(casePlainName(caseByKey("ESSIVE")!)).toBe("olev (-na, as)");
+    expect(casePlainName(caseByKey("ABESSIVE")!)).toBe("ilmaütlev (-ta, without)");
+    expect(casePlainName(caseByKey("COMITATIVE")!)).toBe("kaasaütlev (-ga, with)");
+  });
+
+  it("names every case in every language, with its Estonian name and no Latin one", () => {
+    let named = 0;
+    for (const locale of ["en", "ru", "uk"] as const) {
+      for (const spec of CASES) {
+        const name = casePlainName(spec, locale);
+        expect(name.toLowerCase()).not.toContain(spec.en.toLowerCase());
+        expect(name.startsWith(`${spec.et} (`)).toBe(true);
+        expect(name.endsWith(")")).toBe(true);
+        named += 1;
+      }
+    }
+    expect(named).toBe(42);
+  });
+
+  it("reads a table's row heading, number and all", () => {
+    expect(plainNameForEt("omastav")).toBe("omastav (2nd form)");
+    expect(plainNameForEt("Omastav mitmus")).toBe("mitmuse omastav (2nd form, plural)");
+    expect(plainNameForEt("mitmuse kaasaütlev")).toBe("mitmuse kaasaütlev (-ga, with, plural)");
+    expect(plainNameForEt("lühike sisseütlev")).toBe("lühike sisseütlev (short into)");
+    expect(plainNameForEt("osastav ainsus", "ru")).toBe("osastav (3-я форма)");
+    expect(plainNameForEt("tuba")).toBeNull();
+    expect(plainNameForEt("omastav osastav")).toBeNull();
   });
 });

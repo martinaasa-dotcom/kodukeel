@@ -111,7 +111,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "kolmveerand", en: "three quarters" },
     ],
     how: {
-      point: "Half past is said on the way to the next hour: {pool viis} is half past four.",
+      point: "Half past is said on the way to the next hour: {pool viis} is half past four (4:30).",
       table: {
         head: ["Time", "Estonian"],
         rows: [
@@ -122,14 +122,14 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Veerand neli} is a quarter of the way to four: quarter past three. {Kolmveerand neli} is three quarters of the way: quarter to four.",
+        "{Veerand neli} is a quarter of the way to four: quarter past three (3:15). {Kolmveerand neli} is three quarters of the way: quarter to four (3:45).",
         "The digital way always works too: {kell kolm kolmkümmend} is 3:30, and it's all a timetable will show you.",
       ],
-      watchOut: "{Pool neli} is half past three, not half past four. The half is on the way to the hour it names.",
+      watchOut: "{Pool neli} is half past three (3:30), not half past four. The half is on the way to the hour it names.",
       examples: [0, 4, 6],
     },
     answers: [
-      { ask: { et: "Mis kell on?", en: "What time is it?" }, cue: "It's half past three. Say so.", model: { et: "Pool neli.", en: "Half past three." } },
+      { ask: { et: "Mis kell on?", en: "What time is it?" }, cue: "It's half past three (3:30). Say so.", model: { et: "Pool neli.", en: "Half past three." } },
       { ask: { et: "Mis kell on?", en: "What time is it?" }, cue: "It's seven o'clock. Say so.", model: { et: "Kell on seitse.", en: "It's seven o'clock." } },
       { cue: "Ask a stranger the time.", model: { et: "Vabandust, mis kell on?", en: "Excuse me, what time is it?" } },
     ],
@@ -167,7 +167,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "pühapäeval", en: "on Sunday" },
     ],
     how: {
-      point: "A time of day takes -l, and so does a day: {hommikul}, {õhtul}, {laupäeval}.",
+      point: "To say when, a time of day takes -l, and so does a day of the week: {hommikul}, {õhtul}, {laupäeval}.",
       table: {
         head: ["When", "Estonian"],
         rows: [
@@ -180,9 +180,9 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Every verb tonight follows lesson 9. Learn the pair, {ärkama, ärkan}, and the persons follow: {ärkad}, {ärkab}, {ärkavad}.",
-        "{Minema} is the odd one: its I-form is {lähen}, and the rest follow that, {lähed}, {läheb}, {lähevad}.",
-        "{Magama} after {lähen} is going to bed: {Ma lähen magama}.",
+        "Every verb in this lesson follows lesson 9. Learn the pair, {ärkama, ärkan}, and the persons follow: {ärkad}, {ärkab}, {ärkavad}.",
+        "{Minema} is the odd one: its [olevik] (I form) is {lähen}, and the rest follow that, {lähed}, {läheb}, {lähevad}.",
+        "{Ma lähen magama} means \"I'm going to bed\": after {lähen}, the verb stays in its [ma-tegevusnimi] (-ma).",
         "The no works on every one of them, as in lesson 12: {Laupäeval ma ei tööta}.",
       ],
       watchOut: "At seven is {kell seitse}. There's no word for at: {kell} does that job.",
@@ -235,9 +235,9 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Learn {raamatut}, {muusikat} and {telerit} whole for now. The ending is the same one as in {eesti keelt} and {kaks aastat}, and it has a lesson of its own soon.",
-        "{Mida sa teed?} is the everyday question. Its first word is what, in the form {tegema} takes, and that form is explained in the same lesson.",
-        "{Tegema} is do and make, and its pair is {tegema, teen}. The persons follow as ever: {teed}, {teeb}.",
+        "Learn {raamatut}, {muusikat} and {telerit} whole for now. The ending is the same one as in {eesti keelt} and {kaks aastat}, and lesson 25 explains it.",
+        "{Mida sa teed?} is the everyday question. Its first word means what, with the ending a verb like {tegema} puts on it, and lesson 25 explains that too.",
+        "{Tegema} is do and make, and its pair is {tegema, teen}. The persons follow from {teen}: {teed}, {teeb}.",
       ],
       watchOut: "{Ma loen} is both I read and I'm reading. Estonian has one present for both.",
       examples: [0, 1, 2],
@@ -339,9 +339,9 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "süüa teha", en: "to cook" },
     ],
     how: {
-      point: "After {tahan}, {saan} and {oskan}, the next verb takes its da-form: {Ma tahan süüa}.",
+      point: "After {tahan}, {saan} and {oskan}, the next verb takes its [da-tegevusnimi] (-da): {Ma tahan süüa}.",
       table: {
-        head: ["Dictionary form", "After {tahan}"],
+        head: ["[ma-tegevusnimi] (-ma)", "[da-tegevusnimi] (-da), after {tahan}"],
         rows: [
           [{ et: "minema" }, { et: "minna" }],
           [{ et: "sööma" }, { et: "süüa" }],
@@ -353,11 +353,11 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The da-form is learned with each verb, like the I-form. Most are short: {minna}, {teha}, {tulla}.",
-        "{Saan} is can as in being able to, today or tomorrow: {Kas sa saad tulla?} {Oskan} is can as in knowing how: {Ma oskan süüa teha}.",
-        "{Süüa teha}, make food, is how Estonian says cook.",
+        "A verb now has three forms to learn: the [ma-tegevusnimi] (-ma), {rääkima}, the [da-tegevusnimi] (-da), {rääkida}, and the [olevik] (I form), {räägin}. The -da one is learned with each verb too. Many really do end in -da, {lugeda}, and some are short: {minna}, {teha}, {tulla}.",
+        "{Saan} is \"can\" as in being able to, today or tomorrow: {Kas sa saad tulla?} {Oskan} is \"can\" as in knowing how: {Ma oskan süüa teha}.",
+        "{Süüa teha}, make food, is how Estonian says \"cook\".",
       ],
-      watchOut: "{Pean} is the one that's different: it takes the dictionary form. {Ma pean õppima} is I have to study.",
+      watchOut: "{Pean} is the one that's different: the verb after it stays in its [ma-tegevusnimi] (-ma). {Ma pean õppima} means \"I have to study\".",
       examples: [0, 1, 2],
     },
     answers: [
@@ -403,7 +403,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       { ask: { et: "Kell kuus?", en: "At six?" }, cue: "Say you can't at six, and offer seven.", model: { et: "Kell kuus ma ei saa. Kell seitse?", en: "I can't at six. Seven?" } },
     ],
     roleplay: {
-      scene: "Your friend Liis rings to ask you over at the weekend. Make a plan with her.",
+      scene: "Your friend Liis calls to invite you over this weekend. Make a plan with her.",
       turns: [
         { ask: { et: "Tere! Mida sa teed laupäeval?", en: "Hi! What are you doing on Saturday?" }, cue: "Say you're not working.", model: { et: "Ma ei tööta.", en: "I'm not working." } },
         { ask: { et: "Kas sa tahad tulla? Mina teen süüa.", en: "Do you want to come over? I'm cooking." }, cue: "Say yes, and ask what time.", model: { et: "Jah! Mis kell?", en: "Yes! What time?" } },

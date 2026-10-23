@@ -29,7 +29,7 @@
  *
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
-import { CASES } from "@/lib/estonian/cases";
+import { CASES, casePlainName } from "@/lib/estonian/cases";
 import { propBySlot, type RoleCard } from "./props";
 import { leafNeeds, type BeatSpec, type LeafRequirement } from "./types";
 import { fill } from "@/lib/copy/locale";
@@ -137,7 +137,7 @@ function hintFor(need: LeafRequirement, card: RoleCard | null, register?: "teie"
         said in English beside the Estonian, as on every screen that prints one.
       */
       return fill(COACH_TEMPLATES.case, {
-        lemma: need.lemma, case: spec.et, question: spec.question, questionEn: spec.questionEn,
+        lemma: need.lemma, case: casePlainName(spec), question: spec.question, questionEn: spec.questionEn,
       });
     }
     /*

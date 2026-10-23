@@ -135,3 +135,40 @@ export function lessonProgrammes(): Programme[] {
     };
   });
 }
+
+/** Where a lesson stands for one learner, for the list of lessons. */
+export type LessonState = "done" | "current" | "ahead";
+
+/**
+ * WHICH LESSONS ARE DONE, AND WHICH ONE IS NEXT.
+ *
+ * A lesson is one evening with one step, so a tick on its evening is the
+ * lesson finished, and every evening before the furthest ticked one in its part
+ * is done too, since walking past an evening is what finishing it means
+ * (`dayReached`). The current lesson is the first one not done in the part the
+ * learner is following, and there is none where they follow no lesson part
+ * (somebody placed at A2 has not done A1's lessons, and the list says so by
+ * marking nothing rather than pretending).
+ *
+ * `ticked` holds, per part id, the evening ids carrying any tick.
+ */
+export function lessonStates(
+  programmes: readonly Programme[],
+  ticked: ReadonlyMap<string, ReadonlySet<string>>,
+  following: string | null,
+): Map<string, LessonState> {
+  const states = new Map<string, LessonState>();
+  for (const programme of programmes) {
+    const marks = ticked.get(programme.id) ?? new Set<string>();
+    const furthest = programme.days.reduce((at, d) => (marks.has(d.id) ? d.index : at), 0);
+    for (const day of programme.days) {
+      if (!day.lesson) continue;
+      states.set(day.lesson, day.index <= furthest ? "done" : "ahead");
+    }
+    if (programme.id === following) {
+      const next = programme.days.find((d) => d.lesson && states.get(d.lesson) !== "done");
+      if (next?.lesson) states.set(next.lesson, "current");
+    }
+  }
+  return states;
+}

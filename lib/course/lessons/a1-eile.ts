@@ -60,10 +60,10 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "The word for when often goes first, and the rest follows as in any sentence: {Homme ma töötan}.",
-        "{Saame kokku} is let's meet up. {Kokku} with {saama} is getting together, not the total at the till from lesson 27.",
-        "{Võib-olla} is maybe, and the line in the middle is part of how it's written.",
+        "{Saame kokku} means \"let's meet up\". {Kokku} with {saama} is getting together, not the total at the checkout from lesson 27.",
+        "{Võib-olla} means maybe, and the hyphen in the middle is part of how it's written.",
       ],
-      watchOut: "Don't look for a word for will. {Laupäeval ma sõidan Tartusse} already says I'll go to Tartu on Saturday.",
+      watchOut: "Don't look for a word for \"will\". {Laupäeval ma sõidan Tartusse} already says \"I'll go to Tartu on Saturday\".",
       examples: [0, 1, 4],
     },
     answers: [
@@ -112,9 +112,9 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Learn the past with the verb, the way you learned its I-form: {sööma, söön, sõin}. A few change a lot, and these are the commonest.",
+        "Learn the [lihtminevik] (past) with the verb, the way you learned its [olevik] (I form): {sööma, söön, sõin}. A few change a lot, and these are some of the most common ones.",
         "{Käisin} is the usual way to say you went somewhere and came back: {Ma käisin poes}, I went to the shop.",
-        "{Mida sa eile tegid?} is what did you do yesterday. Take it whole tonight; the other persons are the next lesson.",
+        "{Mida sa eile tegid?} means \"what did you do yesterday?\" Take it whole for now; the other persons come in the next lesson.",
       ],
       watchOut: "With {käisin}, the place is where you were, not where to: {Ma käisin poes}, never with {poodi}.",
       examples: [1, 3, 4],
@@ -138,7 +138,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       { who: "Liis", et: "Tom, kus sa laupäeval olid?", en: "Tom, where were you on Saturday?" },
       { who: "Tom", et: "Ma olin Tartus. Ja Mari oli ka seal.", en: "I was in Tartu. And Mari was there too." },
       { who: "Liis", et: "Mida te seal tegite?", en: "What did you do there?" },
-      { who: "Tom", et: "Me käisime poes ja kohvikus.", en: "We went round the shops and to a café." },
+      { who: "Tom", et: "Me käisime poes ja kohvikus.", en: "We went to the shop and to a café." },
       { who: "Liis", et: "Ja Jaan? Kas ta käis ka?", en: "And Jaan? Did he come too?" },
       { who: "Tom", et: "Ei, Jaan oli tööl.", en: "No, Jaan was at work." },
     ],
@@ -171,9 +171,9 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Learn the I-form of the past with each verb, and the others follow it, all but the {ta} form, which is learned too.",
-        "{Kohvikus} is in the café: {kohvik} with lesson 32's -s.",
-        "Ask with {kas} as ever: {Kas ta käis ka?}, did he come too?",
+        "Learn the past for {ma} with each verb, and the others follow it, except the {ta} form, which is learned too.",
+        "{Kohvikus} means in the café: {kohvik} in the [seesütlev] (-s, in), from lesson 32.",
+        "Ask with {kas}: {Kas ta käis ka?} means \"did he come too?\"",
       ],
       watchOut: "{Sa olid} and {nad olid} are the same word, and so are {sa tegid} and {nad tegid}. The person in front tells you which.",
       examples: [0, 2, 3],
@@ -215,7 +215,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "tähendama", first: "tähendan", en: "to mean", firstEn: "I mean" },
     ],
     how: {
-      point: "Every new verb works the way {elama} does: learn the I-form, and the other persons follow from it.",
+      point: "Every new verb works the way {elama} does: learn the [olevik] (I form), and the other persons follow from it.",
       table: {
         head: ["Who", "{kirjutama}"],
         rows: [
@@ -228,10 +228,10 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The I-form is not always the ma-form without -ma: {nägema} gives {näen}, {teadma} gives {tean}. That is why the Words step gives you both.",
-        "{Mida tähendab} and a word is how you ask what it means, in class or anywhere: {Mida tähendab tõesti?}",
+        "The [olevik] (I form) isn't always the [ma-tegevusnimi] (-ma) minus -ma: {nägema} gives {näen}, {teadma} gives {tean}. That's why the Words step gives you both.",
+        "{Mida tähendab} + a word is how you ask what it means, in class or anywhere: {Mida tähendab tõesti?}",
       ],
-      watchOut: "{Tean} is knowing a fact, as in {Ma ei tea}. Knowing a person is a different verb, and it has a lesson of its own later.",
+      watchOut: "{Tean} is for knowing a fact, as in {Ma ei tea}. Knowing a person is a different verb, and it has a lesson of its own later.",
       examples: [0, 3, 5],
     },
     answers: [
@@ -295,7 +295,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       notes: [
         "The months look like the English ones and are said the Estonian way, every letter: {jaanuar}, {juuni}, {juuli}.",
         "Months and seasons take no capital letter, like the days.",
-        "{Juulis} is lesson 32's -s for in: in July.",
+        "{Juulis} is the [seesütlev] (-s, in) from lesson 32: in July.",
       ],
       listen: [
         { words: [{ clip: "pair-juuni", en: "June", mark: "n" }, { clip: "pair-juuli", en: "July", mark: "l" }] },
@@ -317,13 +317,13 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
     part: "a1-eile",
     kind: "lesson",
     title: "Special days",
-    goal: "Wish somebody a happy birthday, and say what you do at the weekend and at Christmas.",
+    goal: "Wish somebody a happy birthday, and say what you do on the weekend and at Christmas.",
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
       { who: "Mari", et: "Täna on minu sünnipäev!", en: "It's my birthday today!" },
       { who: "Tom", et: "Palju õnne! Kui vana sa oled?", en: "Happy birthday! How old are you?" },
       { who: "Mari", et: "Kakskümmend üheksa!", en: "Twenty-nine!" },
-      { who: "Tom", et: "Tõesti? Mida sa nädalavahetusel teed?", en: "Really? What are you doing at the weekend?" },
+      { who: "Tom", et: "Tõesti? Mida sa nädalavahetusel teed?", en: "Really? What are you doing this weekend?" },
       { who: "Mari", et: "Laupäeval me sööme kooki ja joome veini.", en: "On Saturday we're eating cake and drinking wine." },
       { who: "Tom", et: "Väga tore! Head pidu!", en: "Lovely! Have a good party!" },
     ],
@@ -335,7 +335,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "Head pidu!", en: "Have a good party!" },
       { kind: "phrase", et: "Palju õnne sünnipäevaks!", en: "Happy birthday! (the full wish)" },
       { kind: "word", et: "nädalavahetus", en: "weekend" },
-      { kind: "form", et: "nädalavahetusel", of: "nädalavahetus", en: "at the weekend" },
+      { kind: "form", et: "nädalavahetusel", of: "nädalavahetus", en: "on the weekend" },
       { kind: "word", et: "puhkepäev", en: "day off" },
       { kind: "word", et: "jõulud", en: "Christmas" },
       { kind: "word", et: "jaanipäev", en: "Midsummer Day" },
@@ -343,16 +343,16 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
     how: {
       point: "{Palju õnne!} is the one wish for every happy day: a birthday, a wedding, a new job.",
       notes: [
-        "{Nädalavahetusel} is at the weekend, with the same -l as {laupäeval} and {pühapäeval}.",
-        "{Jaanipäev} is 24 June, the biggest summer holiday in Estonia, and {jõulud} is Christmas, a plural word like {püksid}.",
+        "{Nädalavahetusel} means on the weekend, with the same -l as {laupäeval} and {pühapäeval}.",
+        "{Jaanipäev} is June 24, the biggest summer holiday in Estonia, and {jõulud} is Christmas, a plural word like {püksid}.",
         "{Head isu!} is what you say before anybody eats, at home or in a café.",
       ],
-      watchOut: "{Palju õnne!} word for word is a lot of luck. It is the wish for a birthday and for any happy day. The full birthday wish is {Palju õnne sünnipäevaks!}, but people usually just say {Palju õnne!}",
+      watchOut: "{Palju õnne!} is the wish for a birthday and for any happy day. The full birthday wish is {Palju õnne sünnipäevaks!}, but people usually just say {Palju õnne!}",
       examples: [0, 1, 3],
     },
     answers: [
       { ask: { et: "Täna on minu sünnipäev!", en: "It's my birthday today!" }, cue: "Wish them a happy birthday.", model: { et: "Palju õnne!", en: "Happy birthday!" } },
-      { ask: { et: "Mida sa nädalavahetusel teed?", en: "What are you doing at the weekend?" }, cue: "Say on Saturday you're going to the shop.", model: { et: "Laupäeval ma lähen poodi.", en: "On Saturday I'm going to the shop." } },
+      { ask: { et: "Mida sa nädalavahetusel teed?", en: "What are you doing this weekend?" }, cue: "Say on Saturday you're going to the shop.", model: { et: "Laupäeval ma lähen poodi.", en: "On Saturday I'm going to the shop." } },
       { cue: "Say it before somebody eats.", model: { et: "Head isu!", en: "Enjoy your meal!" } },
     ],
   },
@@ -363,7 +363,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
     part: "a1-eile",
     kind: "checkin",
     title: "The weekend",
-    goal: "Tell a friend what you did at the weekend, and make a plan for next week.",
+    goal: "Tell a friend what you did over the weekend, and make a plan for next week.",
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
       { who: "Liis", et: "Tere, Tom! Kuidas läheb?", en: "Hi, Tom! How's it going?" },
@@ -392,7 +392,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       { ask: { et: "Saame kokku?", en: "Shall we meet up?" }, cue: "Say yes, next week.", model: { et: "Jah, järgmisel nädalal.", en: "Yes, next week." } },
     ],
     roleplay: {
-      scene: "Your friend Liis rings on Monday to ask about your weekend.",
+      scene: "Your friend Liis calls on Monday to ask about your weekend.",
       turns: [
         { ask: { et: "Tere! Kuidas läheb?", en: "Hi! How's it going?" }, cue: "Say well, and ask back.", model: { et: "Hästi, aitäh! Ja sinul?", en: "Good, thanks! And you?" } },
         { ask: { et: "Normaalselt. Mida sa laupäeval tegid?", en: "Not bad. What did you do on Saturday?" }, cue: "Say what you did.", model: { et: "Ma käisin poes ja lugesin raamatut.", en: "I went to the shop and read a book." } },

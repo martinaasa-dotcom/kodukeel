@@ -49,6 +49,19 @@ export const SONAD_LENGTH = 6;
 export const SONAD_GUESSES = 7;
 
 /**
+ * How many six-letter words the evenings have to have taught before the
+ * answer is drawn from them alone.
+ *
+ * Under it the answer is a word at the learner's level instead. A pool of
+ * three taught words is the same three boards on a loop, and a pool of none
+ * was an empty screen saying "Not enough words yet", which the October
+ * feedback asked about in as many words: this is a game rather than a lesson,
+ * and a word nobody has met yet is a reason to open the dictionary. Ten is
+ * about a fortnight of different boards.
+ */
+export const SONAD_MIN_TAUGHT = 10;
+
+/**
  * What one letter of a guess turned out to be.
  *
  * Named for the app's hues rather than for colors, because
