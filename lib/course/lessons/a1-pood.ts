@@ -29,7 +29,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
     goal: "Say what something is like: big, small, new, old, good or nice.",
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
-      { who: "Mari", et: "Tom, kas su uus korter on suur?", en: "Tom, is your new flat big?" },
+      { who: "Mari", et: "Tom, kas su uus korter on suur?", en: "Tom, is your new apartment big?" },
       { who: "Tom", et: "Ei, see on väike. Aga see on ilus.", en: "No, it's small. But it's nice." },
       { who: "Mari", et: "Ja köök?", en: "And the kitchen?" },
       { who: "Tom", et: "Köök on väga väike! Aga aken on suur.", en: "The kitchen's really small! But the window's big." },
@@ -47,7 +47,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "odav", en: "cheap" },
     ],
     how: {
-      point: "A word that describes a thing stays as it is after {on}: {Korter on väike}.",
+      point: "After {on} (\"is\"), a describing word doesn't change: {Korter on väike}, the apartment is small.",
       table: {
         head: ["", "And its opposite"],
         rows: [
@@ -58,15 +58,15 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "In front of a thing, it's plain too: {uus korter}, {suur aken}.",
+        "Before a noun, it doesn't change either: {uus korter}, {suur aken}.",
         "Most of these come in pairs, so learn them as pairs and say them aloud together: {suur, väike}.",
-        "{Kallis} is expensive, and it's also dear: the word for somebody you love.",
+        "{Kallis} means expensive, and it's also dear: the word for somebody you love.",
       ],
-      watchOut: "When a thing takes an ending, the word describing it takes the ending too, so in a big house both words end in -s. That's a later lesson; after {on}, nothing changes.",
+      watchOut: "When a noun takes an ending, the word describing it takes the same ending, so \"in a big house\" ends both words in -s. That's a later lesson; after {on}, nothing changes.",
       examples: [0, 1, 5],
     },
     answers: [
-      { ask: { et: "Kas su korter on suur?", en: "Is your flat big?" }, cue: "Say no, it's small, but nice.", model: { et: "Ei, see on väike, aga ilus.", en: "No, it's small, but nice." } },
+      { ask: { et: "Kas su korter on suur?", en: "Is your apartment big?" }, cue: "Say no, it's small, but nice.", model: { et: "Ei, see on väike, aga ilus.", en: "No, it's small, but nice." } },
       { cue: "Say the coffee here is expensive.", model: { et: "Kohv on siin kallis.", en: "The coffee here is expensive." } },
       { ask: { et: "Kas see on uus?", en: "Is it new?" }, cue: "Say no, it's old.", model: { et: "Ei, see on vana.", en: "No, it's old." } },
     ],
@@ -117,9 +117,9 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Raske} is hard and heavy, and {kerge} is easy and light, the way English light means both.",
-        "{Kiire} is also busy: {Mul on kiire} is I'm in a hurry, built like {mul on}.",
-        "{Tund} is a lesson and an hour, which a language course often is.",
+        "{Raske} means hard and heavy, and {kerge} means easy and light, the way English \"light\" means both.",
+        "{Kiire} also means busy: {Mul on kiire} is \"I'm in a hurry\", built like {mul on}.",
+        "{Tund} means a lesson and an hour, which a language class often is.",
       ],
       watchOut: "{Lihtne} and {kerge} both mean easy. {Lihtne} is simple to do; {kerge} is also light to carry.",
       examples: [1, 4, 5],
@@ -175,11 +175,11 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Mis värvi su telefon on?} is what color is your phone? The answer is the color alone, or {Telefon on punane}.",
+        "{Mis värvi su telefon on?} means \"what color is your phone?\" The answer is the color alone, or {Telefon on punane}.",
         "Four of the colors end the same way: {punane}, {sinine}, {roheline}, {kollane}. Say them aloud as a list.",
-        "A color is a describing word like lesson 36's, so it stays plain after {on}.",
+        "A color is a describing word, like the ones in lesson 36, so it doesn't change after {on}.",
       ],
-      watchOut: "{Must} is black, and has nothing to do with the English must.",
+      watchOut: "{Must} means black, and has nothing to do with the English \"must\".",
       examples: [0, 2, 3],
     },
     answers: [
@@ -213,16 +213,16 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "särk", en: "shirt" },
       { kind: "word", et: "kleit", en: "dress" },
       { kind: "word", et: "müts", en: "hat" },
-      { kind: "word", et: "püksid", en: "trousers" },
+      { kind: "word", et: "püksid", en: "pants, trousers" },
       { kind: "word", et: "kingad", en: "shoes" },
       { kind: "form", et: "jopet", of: "jope", en: "a jacket, after need" },
       { kind: "form", et: "särki", of: "särk", en: "a shirt, after need" },
       { kind: "form", et: "mütsi", of: "müts", en: "a hat, after need" },
     ],
     how: {
-      point: "{Mul on vaja} and a thing is I need it, and the thing takes the {osastav}, as after {tahan}: {Mul on vaja jopet}.",
+      point: "{Mul on vaja} + a noun means \"I need\", and the noun takes its 3rd form, as after {tahan}: {Mul on vaja jopet}.",
       table: {
-        head: ["The thing", "After {vaja}"],
+        head: ["1st form", "3rd form, after {vaja}"],
         rows: [
           [{ et: "jope" }, { et: "jopet" }],
           [{ et: "särk" }, { et: "särki" }],
@@ -230,11 +230,11 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Mul on vaja} is built like {mul on}: whoever needs it is where the need is. {Sul on vaja} is you need.",
-        "{Püksid} and {kingad} are always plural, like trousers and shoes in English.",
-        "{See must jope} is this black jacket: the color sits between {see} and the thing.",
+        "{Mul on vaja} works like {mul on}: change {mul} to change who needs it. {Sul on vaja} is \"you need\".",
+        "{Püksid} and {kingad} are always plural, like pants and shoes in English.",
+        "{See must jope} means \"this black jacket\": the color sits between {see} and the noun.",
       ],
-      watchOut: "{Mul on} alone is I have. Listen for {vaja}: it's what makes it need.",
+      watchOut: "{Mul on} alone is \"I have\". Listen for {vaja}: it's what turns it into \"I need\".",
       examples: [1, 4, 7],
     },
     answers: [
@@ -264,7 +264,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [
       { kind: "word", et: "mantel", en: "coat" },
-      { kind: "word", et: "kampsun", en: "sweater, jumper" },
+      { kind: "word", et: "kampsun", en: "sweater" },
       { kind: "word", et: "sall", en: "scarf" },
       { kind: "word", et: "seelik", en: "skirt" },
       { kind: "word", et: "suurus", en: "size" },
@@ -278,9 +278,9 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kampsunid", of: "kampsun", en: "sweaters, more than one" },
     ],
     how: {
-      point: "{Mul on vaja} and the {osastav}, from lesson 38, on warm clothes: {Mul on vaja mantlit}.",
+      point: "{Mul on vaja} + the 3rd form, from lesson 38, on warm clothes: {Mul on vaja mantlit}.",
       table: {
-        head: ["The thing", "After {vaja}"],
+        head: ["1st form", "3rd form, after {vaja}"],
         rows: [
           [{ et: "mantel" }, { et: "mantlit" }],
           [{ et: "kampsun" }, { et: "kampsunit" }],
@@ -289,7 +289,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Sokid}, {kindad} and {saapad} come in pairs, so you meet them plural, like {kingad}.",
+        "{Sokid}, {kindad} and {saapad} come in pairs, so learn them in the plural, like {kingad}.",
         "A plural ends in -d: {kampsunid}, sweaters. You met it in {kingad} and {püksid}.",
       ],
       watchOut: "{Mantel} loses its e before the ending: {mantlit}. Learn the two together.",
@@ -346,11 +346,11 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Sajab vihma} is word for word \"falls rain\", and the rain is in the {osastav}, as after {tahan}.",
-        "{Väljas} is outside: {Väljas on külm}.",
+        "{Sajab vihma} means \"it's raining\". The rain is in its 3rd form, as after {tahan}.",
+        "{Väljas} means outside: {Väljas on külm}.",
         "Estonians often open a chat with a neighbor on the weather, so this is one of the most useful lessons of the part.",
       ],
-      watchOut: "There's no it in {On külm}. Estonian says just \"is cold\", and that's a whole sentence.",
+      watchOut: "There's no \"it\" in {On külm}. Estonian says just \"is cold\", and that's a whole sentence.",
       examples: [0, 1, 2],
     },
     answers: [
@@ -390,7 +390,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "õues", en: "outside, out of doors" },
     ],
     how: {
-      point: "A number of degrees is a number and the {osastav}, like {kaks kohvi}: {kaks kraadi}.",
+      point: "A number of degrees is a number + the 3rd form, like {kaks kohvi}: {kaks kraadi}.",
       table: {
         head: ["Weather", "In English"],
         rows: [
@@ -402,11 +402,11 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Mitu} asks how many and takes the {osastav} too: {Mitu kraadi?} How many degrees?",
-        "{Pilves} is the sky in cloud, with the -s that means in. {On pilves} is it's cloudy.",
-        "{Õues} and {väljas} both mean outside. {Õues} is the yard or the open air, the everyday word for going out to play or to work in the garden.",
+        "{Mitu} asks how many and takes the 3rd form too: {Mitu kraadi?} How many degrees?",
+        "{Pilves} is the in-form of {pilv}, cloud: the sky is \"in cloud\". {On pilves} means \"it's cloudy\".",
+        "{Õues} and {väljas} both mean outside. {Õues} is the yard or the open air, the everyday word for going out to play or to work in the yard.",
       ],
-      watchOut: "{Kuum} is hot to touch or a hot day; warm is {soe}, from lesson 39.",
+      watchOut: "{Kuum} means hot to the touch, or a hot day; warm is {soe}, from lesson 39.",
       examples: [1, 3, 5],
     },
     answers: [
@@ -440,7 +440,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       point: "A whole visit to a shop, made only of what this part and the ones before it taught.",
       notes: [
         "Tom opens with the weather and the shop assistant picks it up. That's how a lot of small talk in Estonia starts.",
-        "Notice {See hall müts}: this gray hat, with the color between {see} and the thing, from lesson 38.",
+        "Notice {See hall müts}: this gray hat, with the color between {see} and the noun, as in lesson 38.",
       ],
       watchOut: "You don't need to describe the thing perfectly. What you need, and a color, is enough to be shown it.",
       examples: [1, 4, 7],

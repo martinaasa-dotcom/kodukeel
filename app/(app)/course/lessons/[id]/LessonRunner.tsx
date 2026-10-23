@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { Braced } from "@/components/Braced";
 import { RuleNote } from "@/components/RuleNote";
 import { Speak } from "@/components/Speak";
 import { nativePart } from "@/lib/audio/native";
@@ -274,7 +275,7 @@ function Listen({ lesson }: { lesson: LessonSpec }) {
 function kindOf(item: Taught, t: (english: string) => string): string | null {
   if (item.kind === "phrase") return item.et.includes(" ") ? t("phrase") : null;
   if (item.kind === "form") return fill(t("a form of {lemma}"), { lemma: item.of });
-  if (item.kind === "verb") return t("a verb and its I-form");
+  if (item.kind === "verb") return t("a verb: its -ma form and I form");
   return null;
 }
 
@@ -329,7 +330,7 @@ function Words({ lesson }: { lesson: LessonSpec }) {
                       </span>
                     ))}
                   </span>
-                  {kind && <span className="mt-0.5 block text-sm" style={{ color: "var(--ink-3)" }}>{kind}</span>}
+                  {kind && <span className="mt-0.5 block text-sm" style={{ color: "var(--ink-3)" }}><Braced text={kind} /></span>}
                 </td>
                 <td className="px-4 py-3 align-top" style={{ color: "var(--ink-2)" }}>
                   <LessonText text={row[0]!.en} locale={locale} />

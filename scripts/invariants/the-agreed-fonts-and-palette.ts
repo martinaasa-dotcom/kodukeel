@@ -35,6 +35,7 @@ const FACE_EXEMPT: Record<string, string> = {
   "app/api/email/unsubscribe/route.ts": "a bare HTML page answered to a mail client's one-click unsubscribe",
   "lib/email/art.ts": "mail is drawn by the reader's mail client, which has none of our faces",
   "lib/email/render.ts": "mail is drawn by the reader's mail client, which has none of our faces",
+  "components/Braced.tsx": "one glyph, the capital I of \"I form\", in the system serif so it cannot read as a lowercase l; neither face has an alternate I and nothing is loaded",
 };
 
 const EVENING_FILES = ["app/(app)/course/page.tsx", "app/(app)/page.tsx"];

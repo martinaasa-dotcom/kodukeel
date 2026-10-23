@@ -58,7 +58,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "Appi!", en: "Help!" },
     ],
     how: {
-      point: "To tell one person you know to do something, take the -n off the I-form: {tulen}, {tule}. It's the no-form from lesson 12, said on its own.",
+      point: "To tell one person you know to do something, take the -n off the I form: {tulen} becomes {tule}. It's the same word you say after {ei}, said on its own.",
       table: {
         head: ["", "To a friend", "Polite, or to more than one"],
         rows: [
@@ -71,10 +71,10 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "The polite form is learned with each verb: {tulge}, {oodake}, {vaadake}. A stranger always gets this one.",
-        "{Palun} in front makes any of them a request: {Palun oodake}.",
-        "{Appi!} is help!, the word to shout when you need it.",
+        "{Palun} in front turns any of them into a request: {Palun oodake}.",
+        "{Appi!} means \"help!\", the word to shout when you need it.",
       ],
-      watchOut: "{Mine} is the odd one: go! is {mine}, and it isn't built on {lähen}.",
+      watchOut: "{Mine} is the odd one: \"go!\" is {mine}, and it isn't built on {lähen}.",
       examples: [0, 1, 5],
     },
     answers: [
@@ -95,7 +95,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
       { who: "Liis", et: "Tere! Mis teil viga on?", en: "Hello! What's the matter?" },
-      { who: "Tom", et: "Tere! Ma olen haige. Mul valutab pea.", en: "Hello! I'm ill. My head hurts." },
+      { who: "Tom", et: "Tere! Ma olen haige. Mul valutab pea.", en: "Hello! I'm sick. My head hurts." },
       { who: "Liis", et: "Kas teil on palavik?", en: "Do you have a temperature?" },
       { who: "Tom", et: "Jah, natuke. Ja kõht valutab ka.", en: "Yes, a little. And my stomach hurts too." },
       { who: "Liis", et: "Kas selg valutab?", en: "Does your back hurt?" },
@@ -105,7 +105,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [
       { kind: "phrase", et: "Mis teil viga on?", en: "What's the matter?" },
-      { kind: "word", et: "haige", en: "ill, sick" },
+      { kind: "word", et: "haige", en: "sick, ill" },
       { kind: "word", et: "valutama", en: "to hurt, to ache" },
       { kind: "form", et: "valutab", of: "valutama", en: "hurts, aches" },
       { kind: "form", et: "valuta", of: "valutama", en: "hurt, after {ei}" },
@@ -119,7 +119,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "jooge", of: "jooma", en: "drink!, polite" },
     ],
     how: {
-      point: "{Mul valutab pea} is my head hurts: word for word \"at me aches the head\", built like {mul on}.",
+      point: "{Mul valutab pea} means \"my head hurts\". It's built like {mul on}: {mul} first, then the verb, then what hurts.",
       table: {
         head: ["Where", "What you say"],
         rows: [
@@ -130,17 +130,17 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The part that hurts stays in its plain form, like the thing you like in {Mulle meeldib kohv}.",
-        "{Haige} is ill: {Ma olen haige}. A fever is something you have: {Mul on palavik}.",
+        "The part that hurts stays in its 1st form, like what you like in {Mulle meeldib kohv}.",
+        "{Haige} means sick: {Ma olen haige}. A fever is something you have: {Mul on palavik}.",
         "The doctor tells you what to do in the polite command form of lesson 46: {olge}, {jooge}.",
       ],
-      watchOut: "You aren't the one doing the aching in Estonian. It's {Mul valutab pea}, with the head as the one that aches.",
+      watchOut: "Don't start with {ma}. \"My head hurts\" is always {Mul valutab pea}: the head is the one that hurts.",
       examples: [1, 3, 6],
     },
     answers: [
       { ask: { et: "Mis teil viga on?", en: "What's the matter?" }, cue: "Say your head hurts.", model: { et: "Mul valutab pea.", en: "My head hurts." } },
       { ask: { et: "Kas teil on palavik?", en: "Do you have a temperature?" }, cue: "Say yes, a little.", model: { et: "Jah, natuke.", en: "Yes, a little." } },
-      { cue: "Say you're ill and your stomach hurts.", model: { et: "Ma olen haige. Mul valutab kõht.", en: "I'm ill. My stomach hurts." } },
+      { cue: "Say you're sick and your stomach hurts.", model: { et: "Ma olen haige. Mul valutab kõht.", en: "I'm sick. My stomach hurts." } },
     ],
   },
   {
@@ -151,12 +151,12 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
     part: "a1-abi",
     kind: "lesson",
     title: "In an emergency",
-    goal: "Ask for help on the phone, and say who you need: an ambulance, the police, the fire brigade.",
+    goal: "Ask for help on the phone, and say who you need: an ambulance, the police, the fire department.",
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
       { who: "Tom", et: "Tere! Mul on vaja abi!", en: "Hello! I need help!", stage: "On the phone, calling 112." },
       { who: "Liis", et: "Mis on juhtunud?", en: "What's happened?" },
-      { who: "Tom", et: "Minu sõber on haige. Tal valutab pea ja kõht.", en: "My friend is ill. His head and stomach hurt." },
+      { who: "Tom", et: "Minu sõber on haige. Tal valutab pea ja kõht.", en: "My friend is sick. His head and stomach hurt." },
       { who: "Liis", et: "Kus te olete?", en: "Where are you?" },
       { who: "Tom", et: "Kodus, kesklinnas.", en: "At home, in the town center." },
       { who: "Liis", et: "Kiirabi tuleb kohe.", en: "The ambulance is coming right away." },
@@ -167,28 +167,28 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "kiirabi", en: "ambulance" },
       { kind: "word", et: "politsei", en: "police" },
       { kind: "form", et: "politseid", of: "politsei", en: "the police, after need" },
-      { kind: "word", et: "tuletõrje", en: "fire brigade" },
+      { kind: "word", et: "tuletõrje", en: "fire department, firefighters" },
       { kind: "word", et: "tuli", en: "fire" },
       { kind: "word", et: "ohtlik", en: "dangerous" },
       { kind: "word", et: "varas", en: "thief" },
     ],
     how: {
-      point: "{Mul on vaja abi!} is the whole call for help, built like {Mul on vaja jopet}.",
+      point: "{Mul on vaja abi!}, \"I need help!\", is the whole call for help, built like {Mul on vaja jopet}.",
       table: {
         head: ["Who you need", "In English"],
         rows: [
           [{ et: "kiirabi" }, { en: "an ambulance" }],
           [{ et: "politsei" }, { en: "the police" }],
-          [{ et: "tuletõrje" }, { en: "the fire brigade" }],
+          [{ et: "tuletõrje" }, { en: "the fire department, firefighters" }],
         ],
       },
       notes: [
-        "{Mis on juhtunud?} is what's happened, which is what the person answering 112 asks. {Mis teil viga on?} from lesson 47 is the doctor's question.",
+        "{Mis on juhtunud?} means \"what's happened?\", which is what the person answering 112 asks. {Mis teil viga on?} from lesson 47 is the doctor's question.",
         "In Estonia one number, 112, reaches all three, and the people who answer speak English too.",
-        "After {vaja}, {politsei} takes the {osastav}, {politseid}. {Abi} and {kiirabi} look the same either way.",
-        "{Kiirabi} is quick help, {kiire} and {abi} in one word. {Appi!} from lesson 46 is the shout, and {abi} is the word.",
+        "After {vaja}, {politsei} takes its 3rd form, {politseid}. {Abi} and {kiirabi} look the same either way.",
+        "{Kiirabi} is quick help, {kiire} + {abi} in one word. {Appi!} from lesson 46 is the shout, and {abi} is the noun.",
       ],
-      watchOut: "{Tuli} is fire, and it is also how a verb you know says came: listen to the sentence around it.",
+      watchOut: "{Tuli} means fire, and it's also how a verb you know says \"came\": listen to the sentence around it.",
       examples: [0, 2, 5],
     },
     answers: [
@@ -217,7 +217,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
     teaches: [
       { kind: "phrase", et: "Halloo?", en: "Hello? (answering the phone)" },
       { kind: "phrase", et: "Üks hetk.", en: "One moment." },
-      { kind: "verb", et: "helistama", first: "helistan", en: "to call, to ring", firstEn: "I call" },
+      { kind: "verb", et: "helistama", first: "helistan", en: "to call (on the phone)", firstEn: "I call" },
       { kind: "word", et: "hiljem", en: "later" },
     ],
     how: {
@@ -233,7 +233,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Ma helistan hiljem} is I'll call later: the present and a word for when, as in lesson 41.",
+        "{Ma helistan hiljem} means \"I'll call later\": the present and a word for when, as in lesson 41.",
         "If the line is bad, you have the lines for it: {Palun korrake} and {Aeglasemalt, palun}.",
       ],
       watchOut: "{Halloo} is only for answering the phone. In person it's {Tere}.",
@@ -261,7 +261,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ma olen pärit Inglismaalt. Aga ma elan Eestis.", en: "I'm from England. But I live in Estonia." },
       { who: "Mari", et: "Sa räägid hästi eesti keelt!", en: "You speak Estonian well!" },
       { who: "Tom", et: "Aitäh! Ma õpin veel.", en: "Thank you! I'm still learning." },
-      { who: "Mari", et: "Tule laupäeval meile! Ma teen süüa.", en: "Come round to ours on Saturday! I'm cooking." },
+      { who: "Mari", et: "Tule laupäeval meile! Ma teen süüa.", en: "Come over to our place on Saturday! I'm cooking." },
       { who: "Tom", et: "Aitäh! Mis kell?", en: "Thank you! What time?" },
       { who: "Mari", et: "Kell kuus. Kas sa saad?", en: "At six. Can you?" },
       { who: "Tom", et: "Jah, kindlasti! Laupäeval kell kuus.", en: "Yes, definitely! Saturday at six." },
@@ -271,8 +271,8 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
     how: {
       point: "A whole first meeting with a neighbor, made of something from every part of A1.",
       notes: [
-        "Names and hello from part one, where you're from from part two, a time from part three, cooking from part four, and the invitation is lesson 46's command: {Tule laupäeval meile!}",
-        "{Meile} is to us, and with {tule} it means come round to ours.",
+        "Part one gave you hello and names, part two where you're from, part three a time, part four cooking, and the invitation is lesson 46's command: {Tule laupäeval meile!}",
+        "{Meile} means to us, and with {tule} it means \"come over to our place\".",
         "If you can hold this conversation, you can do what A1 promises: meet somebody, say who you are, and make a plan.",
       ],
       watchOut: "{Ma õpin veel} is the most useful thing to say when somebody compliments your Estonian: I'm still learning. It's true, it's modest, and it keeps the conversation in Estonian.",
@@ -281,7 +281,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
     answers: [
       { ask: { et: "Kust sa pärit oled?", en: "Where are you from?" }, cue: "Say where you're from, and that you live in Estonia.", model: { et: "Ma olen pärit Inglismaalt, aga ma elan Eestis.", en: "I'm from England, but I live in Estonia." } },
       { ask: { et: "Sa räägid hästi eesti keelt!", en: "You speak Estonian well!" }, cue: "Thank her, and say you're still learning.", model: { et: "Aitäh! Ma õpin veel.", en: "Thank you! I'm still learning." } },
-      { ask: { et: "Tule laupäeval meile!", en: "Come round to ours on Saturday!" }, cue: "Say thank you, and ask what time.", model: { et: "Aitäh! Mis kell?", en: "Thank you! What time?" } },
+      { ask: { et: "Tule laupäeval meile!", en: "Come over to our place on Saturday!" }, cue: "Say thank you, and ask what time.", model: { et: "Aitäh! Mis kell?", en: "Thank you! What time?" } },
     ],
     roleplay: {
       scene: "A new neighbor stops you on the stairs. She speaks first. Answer her as yourself.",
@@ -289,7 +289,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
         { ask: { et: "Tere! Mina olen Mari. Ma elan ka siin.", en: "Hello! I'm Mari. I live here too." }, cue: "Say hello, you're pleased to meet her, and your name.", model: { et: "Tere! Väga meeldiv! Mina olen Tom.", en: "Hello! Nice to meet you! I'm Tom." } },
         { ask: { et: "Kust sa pärit oled?", en: "Where are you from?" }, cue: "Say where you're from.", model: { et: "Ma olen pärit Inglismaalt.", en: "I'm from England." } },
         { ask: { et: "Sa räägid hästi eesti keelt!", en: "You speak Estonian well!" }, cue: "Thank her, and say you're still learning.", model: { et: "Aitäh! Ma õpin veel.", en: "Thank you! I'm still learning." } },
-        { ask: { et: "Tule laupäeval meile! Ma teen süüa.", en: "Come round to ours on Saturday! I'm cooking." }, cue: "Thank her and ask what time.", model: { et: "Aitäh! Mis kell?", en: "Thank you! What time?" } },
+        { ask: { et: "Tule laupäeval meile! Ma teen süüa.", en: "Come over to our place on Saturday! I'm cooking." }, cue: "Thank her and ask what time.", model: { et: "Aitäh! Mis kell?", en: "Thank you! What time?" } },
         { ask: { et: "Kell kuus. Kas sa saad?", en: "At six. Can you?" }, cue: "Say yes, definitely.", model: { et: "Jah, kindlasti!", en: "Yes, definitely!" } },
         { ask: { et: "Väga hea. Head aega!", en: "Lovely. Bye!" }, cue: "Say goodbye.", model: { et: "Nägemist!", en: "See you!" } },
       ],

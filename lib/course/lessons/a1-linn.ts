@@ -30,10 +30,10 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
     part: "a1-linn",
     kind: "lesson",
     title: "My home",
-    goal: "Show somebody round your home and say where things are.",
+    goal: "Show somebody around your home and say where things are.",
     cast: { Tom: "kalev", Mari: "mari" },
     conversation: [
-      { who: "Tom", et: "See on minu korter.", en: "This is my flat." },
+      { who: "Tom", et: "See on minu korter.", en: "This is my apartment." },
       { who: "Mari", et: "Ja kus on köök?", en: "And where's the kitchen?" },
       { who: "Tom", et: "Köök on siin. Ja seal on minu tuba.", en: "The kitchen's here. And my room's over there." },
       { who: "Mari", et: "Mis see on?", en: "What's this?" },
@@ -44,7 +44,7 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
     teaches: [
       { kind: "word", et: "kodu", en: "home" },
       { kind: "word", et: "maja", en: "house" },
-      { kind: "word", et: "korter", en: "flat, apartment" },
+      { kind: "word", et: "korter", en: "apartment" },
       { kind: "word", et: "tuba", en: "room" },
       { kind: "word", et: "köök", en: "kitchen" },
       { kind: "word", et: "laud", en: "table" },
@@ -54,11 +54,11 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "uks", en: "door" },
     ],
     how: {
-      point: "{Kus on} and a thing asks where it is, and {siin} or {seal} answers: {Köök on siin}.",
+      point: "{Kus on} + a noun asks where it is, and {siin} or {seal} answers: {Köök on siin}.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
-          [{ et: "korter" }, { en: "a flat" }],
+          [{ et: "korter" }, { en: "an apartment" }],
           [{ et: "tuba" }, { en: "a room" }],
           [{ et: "köök" }, { en: "a kitchen" }],
           [{ et: "laud" }, { en: "a table" }],
@@ -69,16 +69,16 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Kodu} is home, the place you mean when you go home. {Maja} is the building and {korter} the flat in it.",
+        "{Kodu} is home, the place you mean when you go home. {Maja} is the building and {korter} the apartment in it.",
         "{Siin} is here, near you, and {seal} is there, further off. Point as you say it.",
-        "No a, no the: {See on laud} is this is a table, or this is the table.",
+        "No a, no the: {See on laud} means \"this is a table\" or \"this is the table\".",
       ],
       watchOut: "{Tuba} is a room you live in. The kitchen is never a {tuba}, it's {köök}.",
       examples: [1, 2, 4],
     },
     answers: [
       { ask: { et: "Kus on köök?", en: "Where's the kitchen?" }, cue: "Say it's here.", model: { et: "Köök on siin.", en: "The kitchen's here." } },
-      { cue: "Say this is your flat.", model: { et: "See on minu korter.", en: "This is my flat." } },
+      { cue: "Say this is your apartment.", model: { et: "See on minu korter.", en: "This is my apartment." } },
       { ask: { et: "Mis see on?", en: "What's this?" }, cue: "It's a table. Say so.", model: { et: "See on laud.", en: "It's a table." } },
     ],
   },
@@ -126,9 +126,9 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "One question for being somewhere, one for going there, one for coming from there. It's the idea Estonian's place endings are built on, met here whole.",
+        "One question for being somewhere, one for going there, one for coming from there. Every place ending in Estonian is built on this idea, so it's worth meeting whole.",
         "Learn each place as its set of three, and say them aloud together: {kodus, koju, kodust}.",
-        "Some places take the endings for \"in\" and some the ones for \"at\": you're {poes}, in the shop, but {tööl}, at work. Learn which with the place.",
+        "Some places take the endings for \"in\" and some the ones for \"on\" or \"at\": you're {poes}, in the shop, but {tööl}, at work. Learn which with the place.",
       ],
       watchOut: "{Koju} and {poodi} are where to, never where. {Ma olen kodus}, but {Ma lähen koju}.",
       examples: [1, 2, 4],
@@ -147,7 +147,7 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
     part: "a1-linn",
     kind: "lesson",
     title: "In the room",
-    goal: "Say what something is in, with the ending that means \"in\".",
+    goal: "Say what something is in, with the in-form (-s).",
     cast: { Tom: "kalev", Mari: "mari" },
     conversation: [
       { who: "Tom", et: "Mari, kus on minu telefon?", en: "Mari, where's my phone?" },
@@ -157,17 +157,16 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Jah! Voodis! Aitäh!", en: "Yes! In bed! Thanks!" },
     ],
     teaches: [
-      { kind: "word", et: "seesütlev", en: "the \"in\" form, as a class calls it" },
       { kind: "form", et: "toas", of: "tuba", en: "in the room" },
       { kind: "form", et: "köögis", of: "köök", en: "in the kitchen" },
       { kind: "form", et: "majas", of: "maja", en: "in the house" },
-      { kind: "form", et: "korteris", of: "korter", en: "in the flat" },
+      { kind: "form", et: "korteris", of: "korter", en: "in the apartment" },
       { kind: "form", et: "voodis", of: "voodi", en: "in bed" },
     ],
     how: {
-      point: "The ending -s means in: {toas}, in the room, {köögis}, in the kitchen.",
+      point: "The in-form ends in -s and means in: {toas}, in the room, {köögis}, in the kitchen.",
       table: {
-        head: ["The word", "In it"],
+        head: ["1st form", "In-form"],
         rows: [
           [{ et: "maja" }, { et: "majas" }],
           [{ et: "korter" }, { et: "korteris" }],
@@ -177,17 +176,17 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "A class calls this the {seesütlev}, and asks for it with {kus?}. {Tallinnas}, {Tartus} and {Eestis} from lesson 9 are the same ending.",
-        "The -s goes on a form of the word that has to be learned, and it isn't always the dictionary form: {köök} gives {köögis}, and {tuba} gives {toas}.",
-        "A no works as ever: {köögis ei ole}, it isn't in the kitchen.",
+        "The in-form answers {kus?}, where. {Tallinnas}, {Tartus} and {Eestis} from lesson 9 have the same ending.",
+        "The -s goes on the noun's 2nd form, the one you learn by heart, and that isn't always the dictionary form: {köök} gives {köögis}, and {tuba} gives {toas}.",
+        "A no works the usual way: {köögis ei ole}, it isn't in the kitchen.",
       ],
-      watchOut: "This is in, inside something. On a table is a different ending, and it has a lesson of its own later.",
+      watchOut: "This is \"in\", inside something. \"On a table\" is a different ending, and it has a lesson of its own later.",
       examples: [1, 3, 4],
     },
     answers: [
       { ask: { et: "Kus on telefon?", en: "Where's the phone?" }, cue: "Say it's in the kitchen.", model: { et: "Köögis.", en: "In the kitchen." } },
       { cue: "Say you're in your room.", model: { et: "Ma olen toas.", en: "I'm in my room." } },
-      { cue: "Say you live in a flat in Tallinn.", model: { et: "Ma elan korteris Tallinnas.", en: "I live in a flat in Tallinn." } },
+      { cue: "Say you live in an apartment in Tallinn.", model: { et: "Ma elan korteris Tallinnas.", en: "I live in an apartment in Tallinn." } },
     ],
   },
   {
@@ -197,11 +196,11 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
     level: "A1",
     part: "a1-linn",
     kind: "lesson",
-    title: "The rooms of a flat",
-    goal: "Show somebody round a flat, and say where things are in it.",
+    title: "The rooms of an apartment",
+    goal: "Show somebody around an apartment, and say where things are in it.",
     cast: { Mari: "mari", Anna: "kylli" },
     conversation: [
-      { who: "Mari", et: "See on minu korter. Siin on elutuba.", en: "This is my flat. Here's the living room." },
+      { who: "Mari", et: "See on minu korter. Siin on elutuba.", en: "This is my apartment. Here's the living room." },
       { who: "Anna", et: "Ja kus sa magad?", en: "And where do you sleep?" },
       { who: "Mari", et: "Magamistoas. Magamistuba on seal.", en: "In the bedroom. The bedroom's there." },
       { who: "Anna", et: "Kus on vannituba?", en: "Where's the bathroom?" },
@@ -227,9 +226,9 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kotis", of: "kott", en: "in the bag" },
     ],
     how: {
-      point: "The -s that means in, from lesson 32, on the rooms: {elutoas}, in the living room.",
+      point: "The in-form from lesson 32, on the rooms: {elutoas}, in the living room.",
       table: {
-        head: ["The word", "In it"],
+        head: ["1st form", "In-form"],
         rows: [
           [{ et: "elutuba" }, { et: "elutoas" }],
           [{ et: "magamistuba" }, { et: "magamistoas" }],
@@ -238,7 +237,7 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Most rooms are a word and {tuba}: {elutuba}, {magamistuba}, {vannituba}. The ending goes on the last part, so it changes the way {tuba} changes: {toas}, {elutoas}.",
+        "Most rooms are a word + {tuba}: {elutuba}, {magamistuba}, {vannituba}. The ending goes on the last part, so it changes the way {tuba} changes: {toas}, {elutoas}.",
         "{Külmkapp} is a {kapp} that is cold, and it changes like {kapp}: {kapis}, {külmkapis}.",
       ],
       listen: [
@@ -334,7 +333,6 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "tramm", en: "tram" },
       { kind: "word", et: "rong", en: "train" },
       { kind: "word", et: "pilet", en: "ticket" },
-      { kind: "word", et: "kaasaütlev", en: "the \"with\" form, as a class calls it" },
       { kind: "form", et: "bussiga", of: "buss", en: "by bus" },
       { kind: "form", et: "trammiga", of: "tramm", en: "by tram" },
       { kind: "form", et: "rongiga", of: "rong", en: "by train" },
@@ -344,9 +342,9 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "tore", en: "nice, lovely" },
     ],
     how: {
-      point: "The ending -ga means with, and with a bus or a train it means by: {bussiga}, {rongiga}.",
+      point: "The with-form ends in -ga and means with. With a bus or a train, it means by: {bussiga}, {rongiga}.",
       table: {
-        head: ["The word", "By it"],
+        head: ["1st form", "With-form"],
         rows: [
           [{ et: "buss" }, { et: "bussiga" }],
           [{ et: "tramm" }, { et: "trammiga" }],
@@ -354,9 +352,9 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "A class calls this the {kaasaütlev}. {Kaardiga} from lesson 27 is the same ending: with a card.",
-        "{Sõitma} is to go on something with wheels: {Ma sõidan bussiga}. Walking is another verb.",
-        "{Tartusse} is to Tartu. Take it whole for now; going to a place has endings of its own later.",
+        "{Kaardiga} from lesson 27 has the same ending: with a card, by card.",
+        "{Sõitma} means to go on something with wheels: {Ma sõidan bussiga}. Walking is another verb.",
+        "{Tartusse} means to Tartu. Take it whole for now; the to-form has a lesson of its own later.",
       ],
       watchOut: "By bus is one word, {bussiga}. Estonian has no separate word for by.",
       examples: [0, 1, 2],
@@ -404,9 +402,9 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "taksoga", of: "takso", en: "by taxi" },
     ],
     how: {
-      point: "Two endings you have, on new places: -s for where you are, {koolis}, and -ga for how you go, {autoga}.",
+      point: "Two forms you know, on new places: the in-form for where you are, {koolis}, and the with-form for how you go, {autoga}.",
       table: {
-        head: ["The word", "With its ending"],
+        head: ["1st form", "With its ending"],
         rows: [
           [{ et: "kool" }, { et: "koolis" }],
           [{ et: "hotell" }, { et: "hotellis" }],
@@ -415,7 +413,7 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Estonian says in where English says at: {Ma töötan koolis}, I work at a school, and {ülikoolis}, at the university.",
+        "Estonian says \"in\" where English says \"at\": {Ma töötan koolis}, I work at a school, and {ülikoolis}, at the university.",
         "{Ülikool} is a big {kool}, and the ending goes on it the same way: {ülikoolis}.",
       ],
       watchOut: "Walking is {jalgsi}, a word of its own. There is no vehicle, so there is no -ga.",
@@ -451,7 +449,7 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       point: "A whole conversation with a stranger, made only of what this part taught.",
       notes: [
         "Notice how Tom asks: {Vabandust} first, then the question. That's all the politeness it needs.",
-        "Liis asks {Kuhu te sõidate?} with {teie}, the polite you, because Tom is a stranger. He answers with {ma} as ever.",
+        "Liis asks {Kuhu te sõidate?} with {teie}, the polite you, because Tom is a stranger. He answers with {ma}, as usual.",
       ],
       watchOut: "You don't have to understand every word of the directions. Catch {otse}, {vasakule} and {paremale}, and the rest is pointing.",
       examples: [0, 3, 5],
