@@ -22,7 +22,6 @@ import type { Difficulty } from "@/lib/scenes/curveballs";
 import { BUDGETS, defaultDifficultyFor } from "@/lib/scenes/curveballs";
 import { LEVELS, type Level } from "@/lib/collections/syllabus/types";
 import { SceneFace } from "./SceneFace";
-import { useSceneLook } from "./sceneLook";
 import { SceneDebrief, type Debrief } from "./SceneDebrief";
 import type { Errand } from "@/lib/collections/errands";
 import { SceneStage } from "./SceneStage";
@@ -390,7 +389,6 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
      components/course/moduleFocus.ts. */
   const inModule = useModuleFocus() !== null;
   const t = useT();
-  const look = useSceneLook();
   const locale = useLocale();
   const templates = useMemo(() => sceneTemplates(scene), [scene]);
   /** A line the server filled in English, in the learner's interface language. */
@@ -2019,14 +2017,16 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
         region that updates constantly reads a number a second at somebody.
       */}
       {/*
-        ONE NIGHT, FROM THE FIRST LINE TO THE BOX YOU ANSWER IN. The landing
-        page's café is lit this way and it was the part people loved: the
-        conversation and the place you say your line are one stage, so the
-        screen reads as a room you are in rather than as three panels stacked.
-        It grows with every line, because in the app the conversation is the
-        page, and nothing inside it scrolls on its own.
+        A MESSAGE THREAD, ON THE PAGE'S OWN LIGHT (KÕNELUS). The conversation
+        used to sit in a night panel inset in a light page, which read as a
+        screen inside a screen, and the operator chose the look every phone
+        already draws for a conversation instead: their lines on white cards,
+        yours in the accent, and one message pill that waits at the foot of
+        the window while the thread slides under it. It grows with every line,
+        because the conversation is the page, and nothing inside it scrolls on
+        its own (`.scene-thread` in the stylesheet).
       */}
-      <div className={`${look === "base" ? "night night-open scene-night" : "scene-panel"} flex flex-col gap-5 rounded-[var(--r-xl)] border p-3 sm:p-4 md:p-6`}>
+      <div className="scene-thread flex flex-col gap-6">
       {/*
         A CALL LOOKS LIKE A CALL (VB-4). On the telephone, heard rather than
         read, the screen is what a phone shows mid-call: who is on the line,
@@ -2071,7 +2071,6 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
               <SceneFace who="you" />
               <div className="flex min-w-0 flex-col items-end">
               <span className="sr-only">{t("You said:")}{" "}</span>
-              <span aria-hidden className="scene-who">{t("You")}</span>
               {/*
                 What you typed, and a button to hear it said by a native
                 voice, which the design (§11) promised and nothing drew: a
@@ -2097,8 +2096,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                     text={turn.text}
                     voice={voice}
                     size={14}
-                    className="press inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full hover:bg-[color-mix(in_srgb,var(--cta-ink)_14%,transparent)]"
-                    style={{ color: "var(--cta-ink)" }}
+                    className="press inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full hover:bg-[color-mix(in_srgb,var(--accent-ink)_16%,transparent)]"
+                    style={{ color: "var(--accent-ink)" }}
                   />}
                 </p>
               </div>
@@ -2168,7 +2167,6 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
               {turn.lines.some((line) => line.provenance !== "meanwhile") && <SceneFace who="them" />}
               <div className={`flex min-w-0 flex-col items-start gap-2 ${turn.lines.every((line) => line.provenance === "meanwhile") ? "w-full" : ""}`}>
               <span className="sr-only">{t("They said:")}{" "}</span>
-              {turn.lines.some((line) => line.provenance !== "meanwhile") && <span aria-hidden className="scene-who">{t("They")}</span>}
               {inOneBreath(turn.lines).map((line, at) => (
                 spoken(line) ? (
                   /*
@@ -2323,7 +2321,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                     <span
                       className="scene-break scene-aside inline-flex max-w-[85%] items-center gap-2.5 rounded-[var(--r-lg)] px-4 py-2.5 text-left text-sm"
                     >
-                      <Clock size={16} aria-hidden className="shrink-0" style={{ color: "var(--cta)" }} />
+                      <Clock size={16} aria-hidden className="shrink-0" style={{ color: "var(--accent-deep)" }} />
                       {onStage(line.text)}
                     </span>
                     <span
@@ -2436,53 +2434,41 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
         */}
         {/* Lit the way the room above it is, so the two ends of the screen
             are one conversation: the place you are in, and what you say in it. */}
-        <div className="scene-ask flex flex-col gap-3 rounded-[var(--r-xl)] p-4 md:p-5" data-answer-by={answerBy}>
-          {/*
-            HOW THEY ARE HEARD, SAID WHERE THE LEARNER IS LOOKING. A label and
-            a control at once: the chosen chip says which of the three this
-            conversation is, and a press on another changes it without leaving
-            the room. Outside the live region below, because a radio group
-            announces itself when it is used and announcing it again on every
-            turn would be the same sentence read at somebody each time the
-            other side speaks.
-          */}
-          {!talk && <div className="scene-voice"><SceneVoiceChoice value={voiceMode} onSelect={chooseVoice} compact /></div>}
+        <div className="scene-ask flex flex-col" data-answer-by={answerBy}>
           <div aria-live="polite" className="scene-turnhead">
             {/*
               HOW FAR IN, WHERE THE LEARNER IS LOOKING.
 
               The checklist marks the beat in play and counts what is behind
               you, and it stands above the conversation, so once the page has
-              come down to the box it is off the screen: the panel says what to
-              say now and nothing about where that sits in the whole thing. The
-              same count, in the same words, beside the eyebrow. It is the
-              checklist's own figure rather than a second one, so the two cannot
-              disagree, and it is a count of ticks rather than a meter (§7):
-              nothing fills, nothing drains, and nothing is running.
+              come down to the box it is off the screen. The same count, in the
+              same words, on the composer's own top line, and the same count as
+              a row of steps beside it, the ones behind you lit in the mix. The
+              steps say nothing the words do not, so they are hidden from a
+              screen reader rather than read twice, and nothing fills, drains
+              or runs (§7).
             */}
-            <p className="scene-turnlabel label-xs flex flex-wrap items-baseline justify-between gap-x-3" style={{ color: "var(--cta)" }}>
-              <span>{t("Your turn")}</span>
-              <span style={{ color: "var(--ink-3)" }}>{fill(t("{met} of {total}"), { met: metCount, total: objectives.length })}</span>
-            </p>
+            <div className="flex items-center justify-between gap-3">
+              <p className="scene-turnlabel label-xs">{t("Your turn")}</p>
+              <div className="flex items-center gap-2.5">
+                <ol aria-hidden className="scene-meter">
+                  {objectives.map((beat) => (
+                    <li
+                      key={beat.id}
+                      data-state={done.includes(beat.id) ? "done" : beat.id === beatId ? "now" : undefined}
+                    />
+                  ))}
+                </ol>
+                <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
+                  {fill(t("{met} of {total}"), { met: metCount, total: objectives.length })}
+                </span>
+              </div>
+            </div>
             {/*
-              The same count as a row of steps, the ones behind you lit in the
-              mix, which is the landing page's café brought inside. It says
-              nothing the words beside the eyebrow do not, so it is hidden from
-              a screen reader rather than read twice.
-            */}
-            <ol aria-hidden className="scene-meter mt-2">
-              {objectives.map((beat) => (
-                <li
-                  key={beat.id}
-                  data-state={done.includes(beat.id) ? "done" : beat.id === beatId ? "now" : undefined}
-                />
-              ))}
-            </ol>
-            {/*
-              Bigger than the conversation rather than smaller, because it is
-              read before every turn and the transcript is read once. Where the
-              server has no goal for the beat, the panel still says what the
-              box is for rather than standing empty.
+              What to say now, read before every turn, so it is the line on the
+              composer that carries weight. Where the server has no goal for
+              the beat, the panel still says what the box is for rather than
+              standing empty.
             */}
             {goal && goalHidden && !goalShown ? (
               /*
@@ -2505,13 +2491,13 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
               <button
                 type="button"
                 onClick={() => setGoalShown(true)}
-                className="tap-tint mt-1 block rounded-full px-3 py-1 text-lg font-medium"
+                className="tap-tint -ml-3 mt-1 block rounded-full px-3 py-1 text-md font-medium"
                 style={{ color: "var(--ink-2)" }}
               >
                 {t("Show me what I'm trying to do")}
               </button>
             ) : (
-              <p className="scene-goal mt-1 text-lg font-medium leading-snug">
+              <p className="scene-goal">
                 {goal ? onStage(goal) : t("Answer them.")}
                 {/*
                   AND THE VALUE THE CARD DEALT FOR IT, IN THE ONE PLACE THE
@@ -2522,7 +2508,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                   this a reminder rather than a second answer.
                 */}
                 {dealtNow.length > 0 && (
-                  <span className="scene-dealt" style={{ color: "var(--accent-deep)" }}> {dealtNow.join(", ")}</span>
+                  <>{" "}<span className="scene-dealt">{dealtNow.join(", ")}</span></>
                 )}
               </p>
             )}
@@ -2537,41 +2523,38 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
           {error && <p className="text-sm" style={{ color: "var(--blush-ink)" }}>{t(error)}</p>}
 
           {/*
-            Closed while the room is moving, and closed by the field itself
-            rather than only by the button beside it. A box that still takes
-            letters under a cover nobody can see through is a learner typing an
-            answer to a question that has not been asked yet, in a place they
-            have not been told they are standing in.
-          */}
-          {/*
-            THE SWITCH HAS THREE WAYS NOW (VB-4): pick a line, say it, or type
-            it, and it remembers which was used last. Saying it is offered
-            wherever this deployment can hear, and talking it through hides the
-            switch, because the answers in that mode are said.
-          */}
-          {/*
-            Small chips with the icons hidden on a phone, the way the row
-            above it is drawn: three ways at full size broke onto two lines at
-            360, which read as two choices and an afterthought.
+            HOW YOU ANSWER AND HOW YOU HEAR THEM, AS TWO SEGMENTED CONTROLS ON
+            ONE ROW. Each is a radio group (`components/Choice.tsx`), drawn as
+            the control a phone uses for one of a few: a recessed track and a
+            raised thumb under the chosen one. The voice control is outside the
+            live region above, because a radio group announces itself when it
+            is used and announcing it on every turn would read the same
+            sentence at somebody each time the other side speaks. On a phone
+            the voice control is its three icons, each named for a screen
+            reader and titled for a pointer, so both controls fit on one row
+            at 360.
           */}
           {!talk && (
-            <div className="scene-how"><ChoiceGroup ariaLabel={t("How you answer")} className="flex flex-wrap gap-2">
-              {([
-                ...(chat ? [] : [{ id: "pick" as const, title: t("Pick a line"), icon: <ListChecks size={15} aria-hidden /> }]),
-                ...(speechHere ? [{ id: "say" as const, title: t("Say it"), icon: <Mic size={15} aria-hidden /> }] : []),
-                { id: "type", title: t("Type it"), icon: <CornerDownLeft size={15} aria-hidden /> },
-              ] as const).map((one) => (
-                <ChoiceChip
-                  key={one.id}
-                  selected={answerBy === one.id}
-                  onSelect={() => chooseAnswer(one.id)}
-                  icon={<span className="hidden sm:inline-flex">{one.icon}</span>}
-                  small
-                >
-                  {one.title}
-                </ChoiceChip>
-              ))}
-            </ChoiceGroup></div>
+            <div className="scene-modes">
+              <ChoiceGroup ariaLabel={t("How you answer")} className="scene-seg">
+                {([
+                  ...(chat ? [] : [{ id: "pick" as const, title: t("Pick a line"), icon: <ListChecks size={15} aria-hidden /> }]),
+                  ...(speechHere ? [{ id: "say" as const, title: t("Say it"), icon: <Mic size={15} aria-hidden /> }] : []),
+                  { id: "type", title: t("Type it"), icon: <CornerDownLeft size={15} aria-hidden /> },
+                ] as const).map((one) => (
+                  <ChoiceChip
+                    key={one.id}
+                    selected={answerBy === one.id}
+                    onSelect={() => chooseAnswer(one.id)}
+                    icon={<span className="hidden sm:inline-flex">{one.icon}</span>}
+                    small
+                  >
+                    {one.title}
+                  </ChoiceChip>
+                ))}
+              </ChoiceGroup>
+              <SceneVoiceChoice value={voiceMode} onSelect={chooseVoice} compact />
+            </div>
           )}
           {answerBy === "pick" && picks.length > 0 ? (
             /*
@@ -2671,7 +2654,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                   onState={setMic}
                 />
               )}
-              <div className="scene-compose flex flex-col gap-3">
+              <div className="scene-compose">
               <EstonianInput
                 value={draft}
                 onChange={(next) => { setDraft(next); if (!next) setPending(null); }}
@@ -2680,6 +2663,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                 disabled={moving}
                 ariaLabel={t("What you say")}
                 placeholder={moving ? t("Just a moment…") : speaking && mic.offered ? t("Your words appear here") : t("Say it in Estonian")}
+                look="scene-field"
               />
               {/*
                 Alone in its row, so the one action a learner takes every turn is the
@@ -2687,12 +2671,11 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                 controls are a row of their own underneath, which also keeps Leave
                 away from the button being pressed twenty times a conversation.
               */}
-              <Button onClick={say} disabled={busy || moving || !draft.trim()} variant="primary" className="scene-send w-full sm:w-auto sm:self-start">
+              <Button onClick={say} disabled={busy || moving || !draft.trim()} variant="primary" className="scene-send">
                 {ring === "box"
                   ? <SendRing onDone={ringDone} onStop={() => setRing(null)} announce={false} />
-                  : <CornerDownLeft size={16} aria-hidden />}{" "}
-                {ring !== "box" && <ArrowUp size={20} aria-hidden className="scene-send-up" />}
-                <span className="scene-send-label">{t("Say it")}</span>
+                  : <ArrowUp size={20} strokeWidth={2.4} aria-hidden />}
+                <span className="sr-only">{t("Say it")}</span>
               </Button>
               </div>
               {ring === "box" && (
@@ -2702,9 +2685,9 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
               )}
             </>
           )}
-          <div className="scene-tools flex flex-wrap gap-2">
-            <Button variant="ghost" onClick={again} disabled={busy || moving || !heard}>
-              <RotateCcw size={16} aria-hidden /> {t("Say that again")}
+          <div className="scene-tools">
+            <Button variant="ghost" size="sm" onClick={again} disabled={busy || moving || !heard}>
+              <RotateCcw size={16} aria-hidden /> <span className="max-sm:sr-only">{t("Say that again")}</span>
             </Button>
             {/*
               Asking costs the turn its `helped` flag and nothing else: no
@@ -2715,11 +2698,11 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
               something the screen could work out: the client does not hold the
               lexicon and should not.
             */}
-            <Button variant="ghost" onClick={help} disabled={busy || moving || helped}>
-              <LifeBuoy size={16} aria-hidden /> {t("I need a word")}
+            <Button variant="ghost" size="sm" onClick={help} disabled={busy || moving || helped}>
+              <LifeBuoy size={16} aria-hidden /> <span className="max-sm:sr-only">{t("I need a word")}</span>
             </Button>
-            <Button variant="ghost" onClick={() => hangUp(sent, true)} disabled={busy || moving}>
-              <DoorOpen size={16} aria-hidden /> {t("Leave")}
+            <Button variant="ghost" size="sm" onClick={() => hangUp(sent, true)} disabled={busy || moving}>
+              <DoorOpen size={16} aria-hidden /> <span className="max-sm:sr-only">{t("Leave")}</span>
             </Button>
           </div>
           {/*

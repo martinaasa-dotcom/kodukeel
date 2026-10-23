@@ -7,7 +7,6 @@ import { SceneMotif } from "./SceneMotif";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
-import { useSceneLook } from "./sceneLook";
 
 /**
  * The room a conversation happens in, and the website taken off the screen for
@@ -91,10 +90,9 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, as
   const inModule = useModuleFocus() !== null;
   const t = useT();
   const met = progress?.filter((one) => one.met).length ?? 0;
-  const look = useSceneLook();
 
   return (
-    <div className="scene-room relative flex min-h-screen flex-col" data-night={look === "oo" ? "" : undefined} data-stage={stage ? "" : undefined} data-look={look}>
+    <div className="scene-room relative flex min-h-screen flex-col" data-stage={stage ? "" : undefined}>
       {/* The room's own light, behind everything and fixed, so a long
           transcript does not drag it up the screen. */}
       <div aria-hidden className="scene-ground" />
@@ -230,20 +228,20 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, as
               than being it, so the band keeps the height the sticky offsets
               under it are computed from.
             */}
-            <div className="night flex h-full w-full items-end justify-center rounded-[var(--r-lg)] border px-3 pt-2">
+            <div className="scene-stage-panel flex h-full w-full items-end justify-center rounded-[var(--r-lg)] px-3 pt-2">
               {stage}
             </div>
           </div>
         )}
       </header>
 
-      <div className={`mx-auto w-full flex-1 px-4 pb-16 pt-5 md:px-6 ${aside ? "max-w-3xl lg:max-w-6xl lg:pb-8 lg:pt-4" : "max-w-3xl"}`}>
+      <div className={`mx-auto w-full flex-1 px-4 pb-6 pt-5 md:px-6 ${aside ? "max-w-3xl lg:max-w-6xl lg:pb-8 lg:pt-4" : "max-w-3xl"}`}>
         {aside ? (
           <div className="lg:grid lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start lg:gap-4">
             {/* Below `lg` this column does not exist (`contents`), so the card
                 falls into the page above the conversation exactly where it was. */}
             <aside className="contents lg:sticky lg:top-[4.75rem] lg:flex lg:max-h-[calc(100dvh-5.5rem)] lg:flex-col lg:gap-3 lg:overflow-y-auto">
-              <div className="night hidden h-36 w-full shrink-0 items-end justify-center rounded-[var(--r-lg)] border px-3 pt-2 lg:flex">{stage}</div>
+              <div className="scene-stage-panel hidden h-36 w-full shrink-0 items-end justify-center rounded-[var(--r-lg)] px-3 pt-2 lg:flex">{stage}</div>
               {aside}
             </aside>
             <div>{children}</div>

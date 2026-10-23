@@ -35,19 +35,20 @@ export function SceneVoiceChoice({ value, onSelect, compact }: {
   const t = useT();
   if (compact) {
     return (
-      <ChoiceGroup ariaLabel={t("How you hear them")} className="scene-voice flex flex-wrap gap-1">
+      <ChoiceGroup ariaLabel={t("How you hear them")} className="scene-seg scene-voice">
         {SCENE_VOICES.map((one) => (
           <ChoiceChip
             key={one.id}
             selected={value === one.id}
             onSelect={() => onSelect(one.id)}
-            /* The word carries it on a phone, where three icons cost the
-               row it takes to keep the three chips on one line. */
-            icon={<span className="hidden sm:inline-flex">{ICONS[one.id]}</span>}
+            /* A segmented control beside the one for how you answer, so on a
+               phone it is its three icons: the word stays for a screen reader
+               and the title for a pointer, and both controls keep one row. */
+            icon={ICONS[one.id]}
             title={t(one.label)}
             small
           >
-            {t(one.short, "voice")}
+            <span className="max-sm:sr-only">{t(one.short, "voice")}</span>
           </ChoiceChip>
         ))}
       </ChoiceGroup>
