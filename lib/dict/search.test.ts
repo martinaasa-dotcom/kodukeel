@@ -101,7 +101,7 @@ function top(query: string) {
 describe("rankCandidates — inflected forms", () => {
   it.each([
     ["loen", "lugema", /I form/],
-    ["lugesin", "lugema", /lihtminevik, ma \(past, I\)/],
+    ["lugesin", "lugema", /lihtminevik, ma \(past\)/],
     ["tuppa", "tuba", /lühike sisseütlev \(short into\)/],
     ["toas", "tuba", /seesütlev \(-s, in\)/],
     ["raamatuga", "raamat", /kaasaütlev \(-ga, with\)/],
@@ -153,7 +153,7 @@ describe("rankCandidates — inflected forms", () => {
     expect(inessive).toContain("seesütlev (-s, in) of tuba");
     expect(inessive, "the Latin name is back").not.toContain("inessive");
     const past = top("lugesin")?.matchedAs ?? "";
-    expect(past).toContain("lihtminevik, ma (past, I)");
+    expect(past).toContain("lihtminevik, ma (past)");
     const plural = top("tubadega")?.matchedAs ?? "";
     expect(plural).toContain("mitmuse kaasaütlev (-ga, with, plural)");
   });
@@ -328,7 +328,7 @@ describe("matchEstonianForm", () => {
   it("takes a stored principal part and says which one it was", () => {
     const match = matchEstonianForm(DICT, "lugesin");
     expect(match?.lemma).toBe("lugema");
-    expect(match?.matchedAs).toContain("lihtminevik, ma (past, I)");
+    expect(match?.matchedAs).toContain("lihtminevik, ma (past)");
   });
 
   it("takes a regular case built on the genitive stem, which is most of a homework page", () => {

@@ -623,7 +623,7 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
 function SlotLabel({ task, className }: { task: Pick<ExceptionTask, "slot" | "kind" | "label">; className: string }) {
   const named = caseLabelOf(task.label);
   // A verb form is named off the same table as a case, in the reader's
-  // language: "olevik, ma (now, I)", "da-tegevusnimi (-da, to …)".
+  // language: "olevik (I form)", "da-tegevusnimi (-da, to …)".
   const locale = useLocale();
   const shown = task.slot === "CONJUGATION"
     ? task.kind === "DA_INFINITIVE" ? verbFormName("DA", locale) : task.kind === "TUD_PARTICIPLE" ? verbFormName("TUD", locale) : task.label

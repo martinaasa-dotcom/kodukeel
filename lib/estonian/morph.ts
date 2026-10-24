@@ -1,5 +1,5 @@
 import { caseByKey, caseNameWithNumber, casePlainName, shortIllativeName } from "./cases";
-import { PERSON_HINTS, verbFormNames, type Person, type VerbForm } from "./verbNames";
+import { PERSON_ENDINGS, verbFormNames, type Person, type VerbForm } from "./verbNames";
 import type { Locale } from "@/lib/copy/locale";
 import { isPrincipalFormType } from "./types";
 import type { CaseKey, PrincipalFormType } from "./types";
@@ -409,12 +409,12 @@ export function formName(form: {
       const name = { et: `${group.et} ${slot.en}`, en: group.en.toLowerCase() };
       // Named the way a class names it, with the person after a comma and
       // the hint after that, so `räägin` reads the same whether the row holds
-      // `PRES_1SG` or `IndPrSg1`: "olevik, ma (now, I)".
+      // `PRES_1SG` or `IndPrSg1`: "olevik (I form)", and `loeb` "olevik, ta (-b)".
       const person = slot.en.replace(/!$/, "") as Person;
       const form = slot.group === "IMPERATIVE"
         ? (person === "sa" ? "COMMAND" : person === "te" ? "POLITE_COMMAND" : undefined)
         : SLOT_FORMS[slot.group];
-      return form && person in PERSON_HINTS ? { ...name, shown: verbFormNames(form, person) } : name;
+      return form && person in PERSON_ENDINGS ? { ...name, shown: verbFormNames(form, person) } : name;
     }
   }
   if (form.formType && STORED_NAMES[form.formType]) return STORED_NAMES[form.formType]!;

@@ -145,7 +145,7 @@ const NOUN_PARTS = [
 /*
   A VERB'S PARTS ARE NAMED THE WAY A CASE IS: the Estonian name a class uses,
   with its hint after it (`verbFormName`), "ma-tegevusnimi (-ma)", "olevik
-  (I form)". `et` is the English-locale name, for the report form's dropdown;
+  (I form)", "olevik, ta (-b)". `et` is the English-locale name, for the report form's dropdown;
   the tile draws the name in the reader's language off `verb`.
 */
 const verbPart = (verb: VerbForm, person?: Person) => ({ et: verbFormName(verb, "en", person), question: null, en: null, verb, person });
