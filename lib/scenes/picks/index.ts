@@ -50,6 +50,14 @@ import { a1Tee } from "./a1-tee";
 import { a1Mutsipood } from "./a1-mutsipood";
 import { a1Nadal } from "./a1-nadal";
 import { a1Kutse } from "./a1-kutse";
+import { a2Raamatukogu } from "./a2-raamatukogu";
+import { a2Linnas } from "./a2-linnas";
+import { a2Suvi } from "./a2-suvi";
+import { a2Arst } from "./a2-arst";
+import { a2Piletikassa } from "./a2-piletikassa";
+import { a2Restoran } from "./a2-restoran";
+import { a2Intervjuu } from "./a2-intervjuu";
+import { a2VanaSober } from "./a2-vana-sober";
 import { curveballPicks } from "./curveballs";
 
 /** Every scene's picks, by scene id. One file per scene, so two people writing picks never touch one file. */
@@ -104,6 +112,14 @@ export const PICKS: Readonly<Record<string, ScenePicks>> = {
   "a1-mutsipood": a1Mutsipood,
   "a1-nadal": a1Nadal,
   "a1-kutse": a1Kutse,
+  "a2-raamatukogu": a2Raamatukogu,
+  "a2-linnas": a2Linnas,
+  "a2-suvi": a2Suvi,
+  "a2-arst": a2Arst,
+  "a2-piletikassa": a2Piletikassa,
+  "a2-restoran": a2Restoran,
+  "a2-intervjuu": a2Intervjuu,
+  "a2-vana-sober": a2VanaSober,
   "uus-kolleeg": uusKolleeg,
 };
 

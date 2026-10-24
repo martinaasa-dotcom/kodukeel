@@ -9,7 +9,8 @@ import { isSpokenEstonian } from "./line";
 import { caseKeyFor, type Lexicon } from "./lexicon";
 import { leafNeeds, type BeatSpec, type SceneSpec } from "./types";
 import { acceptFromRows, contextFromRows, sceneLemmas, type Row, type StoredDraw } from "@/lib/progress/scene";
-import { LESSONS, ledgerThrough, uncovered, NAMES, wordsOf } from "@/lib/course/lessons";
+import { LESSONS, ledgerThrough, lessonById, uncovered, NAMES, wordsOf } from "@/lib/course/lessons";
+import type { Level } from "@/lib/collections/syllabus";
 import { shippedDictionary } from "../../scripts/lib/dictionary";
 import { playScripted, type Event, type Floor } from "../../scripts/lib/keylessPlay";
 
@@ -64,15 +65,21 @@ const LEARNERS: Record<string, Learner> = {
   slower: (_f, answer, first) => (first ? "Aeglasemalt, palun." : answer),
 };
 
+function levelOf(scene: SceneSpec): Level {
+  return lessonById(scene.lesson ?? "")?.level ?? "A1";
+}
+
 async function play(scene: SceneSpec, seed: string, learner: Learner): Promise<{ events: Event[]; card: RoleCard }> {
   const lemmas = sceneLemmas(scene);
-  const base = contextFromRows(scene, ROWS.filter((r) => lemmas.has(r.lemma)), "A1");
+  // Played at its own lesson's level, so an A2 conversation is pitched the way an A2 learner meets it.
+  const level = levelOf(scene);
+  const base = contextFromRows(scene, ROWS.filter((r) => lemmas.has(r.lemma)), level);
   const context = { ...base, marker: { ...base.marker, ...acceptFromRows(scene, ROWS) } };
-  const run = planRun(scene, seed, "A1", "textbook");
+  const run = planRun(scene, seed, level, "textbook");
   const draw: StoredDraw = { persona: run.persona.id, card: run.card, curveballs: [], lines: "scripted", patience: run.patience };
   const firsts = new Set<string>();
   const events = await playScripted({
-    scene, context, draw, runSeed: run.seed, level: "A1", maxTurns: 30,
+    scene, context, draw, runSeed: run.seed, level, maxTurns: 30,
     next: (floor) => {
       const first = !firsts.has(floor.target.id);
       firsts.add(floor.target.id);

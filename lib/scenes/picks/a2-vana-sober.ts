@@ -1,0 +1,37 @@
+import type { ScenePicks } from "../picks";
+
+/**
+ * What a learner may pick to say in `a2-vana-sober`, beat by beat. See `lib/scenes/picks.ts`.
+ * Most are the lesson's own role-play answers, which the native speaker reads; every word is one
+ * the lessons have taught by this scene's lesson, which `lessonScenes.test.ts` asserts.
+ */
+export const a2VanaSober: ScenePicks = {
+  greet: [
+    { et: "Tere!", en: "Hello!" },
+    { et: "Tere päevast!", en: "Good afternoon!" },
+  ],
+  did: [
+    { et: "Ma olin Tartus. Ma töötasin seal.", en: "I was in Tartu. I worked there." },
+    { et: "Ma töötasin.", en: "I worked." },
+  ],
+  liked: [
+    { et: "Ma arvan, et see on Eesti kõige ilusam linn.", en: "I think it's the prettiest town in Estonia." },
+    { et: "Väga!", en: "A lot!" },
+  ],
+  plans: [
+    { et: "Suvel ma kavatsen Saaremaale minna.", en: "In the summer I plan to go to Saaremaa." },
+    { et: "Suvel ma lähen maale.", en: "In the summer I'm going to the country." },
+  ],
+  with: [
+    { et: "Jaaniga. Kas tuleksid ka kaasa?", en: "With Jaan. Would you come along too?" },
+    { et: "Kas tuleksid kaasa?", en: "Would you come along?" },
+  ],
+  meet: [
+    { et: "Kas sulle sobib laupäeval kell kuus?", en: "Does Saturday at six suit you?" },
+    { et: "Laupäeval.", en: "On Saturday." },
+  ],
+  close: [
+    { et: "Head aega!", en: "Goodbye!" },
+    { et: "Nägemist!", en: "See you!" },
+  ],
+};
