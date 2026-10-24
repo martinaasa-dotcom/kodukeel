@@ -51,7 +51,9 @@ export type PracticeItem =
    * The English, then the Estonian typed or said. `accept` is every taught
    * spelling with the same English, since `mina` and `ma` both answer "I".
    */
-  | { readonly kind: "type"; readonly en: string; readonly answer: string; readonly accept: readonly string[] };
+  | { readonly kind: "type"; readonly en: string; readonly answer: string; readonly accept: readonly string[];
+      /** One line of English saying what is wanted, where the meaning alone could be read two ways. */
+      readonly note?: string };
 
 /** Longest answer a learner is asked to produce whole, in words. */
 export const TYPE_UP_TO_WORDS = 4;
@@ -162,10 +164,73 @@ function onePerMeaning(items: readonly Taught[]): Taught[] {
   return out;
 }
 
+/**
+ * The English of the subject pronouns that name one person, so a verb in that
+ * person may be typed with its pronoun. "You" is left out: it is `sa` and `te`,
+ * and a verb for one must not be accepted with the other.
+ */
+const SUBJECTS = new Set(["i", "we", "they", "he she"]);
+
+/**
+ * "you were, they were" is one spelling for two persons, so it may be said
+ * once or with each pronoun, in either order: `sa olid nad olid`. The
+ * pronouns are the taught ones whose English opens each part; "you" means the
+ * one-person `sa` here, since the polite and plural `te` takes another ending.
+ */
+function eachWithItsPronoun(item: Taught, pool: readonly Taught[]): string[] {
+  const clean = (text: string) => text.replace(/,/g, "").trim().toLocaleLowerCase("en");
+  const perPart = item.en.split(/,\s+/).map((part) => {
+    const lead = clean(part).split(" ")[0] ?? "";
+    return pool
+      .filter((o) => wordsOf(o.et).length === 1 && !/polite|more than one/i.test(o.en) && SUBJECTS_ONE.has(clean(o.en).split(" ")[0] ?? "") && clean(o.en).split(" ")[0] === lead)
+      .map((o) => `${o.et} ${item.et}`);
+  });
+  if (perPart.length < 2 || perPart.length > 3 || perPart.some((p) => p.length === 0)) return [];
+  const sets = perPart.reduce<string[][]>((acc, options) => acc.flatMap((a) => options.map((o) => [...a, o])), [[]]);
+  const permute = (xs: string[]): string[][] => xs.length <= 1 ? [xs] : xs.flatMap((x, i) => permute([...xs.slice(0, i), ...xs.slice(i + 1)]).map((r) => [x, ...r]));
+  return sets.flatMap(permute).map((p) => p.join(" "));
+}
+
+const SUBJECTS_ONE = new Set(["i", "you", "he", "we", "they"]);
+
+/** What a typed question says it wants, where its English could be read two ways. */
+export const NOTE_ONE_WORD = "It's the one spelling for both. Type it alone, or with each pronoun.";
+export const NOTE_WITH_ON = "Just the word that goes with “on”. “… on” is fine too.";
+
+function noteFor(item: Taught): { note?: string } {
+  if (/^with \{on\}:/i.test(item.en)) return { note: NOTE_WITH_ON };
+  const parts = item.en.split(/,\s+/);
+  // "you were, they were": two meanings, one spelling, which reads as two answers to give.
+  if (parts.length > 1 && parts.every((part) => part.trim().split(/\s+/).length > 1) && wordsOf(item.et).length === 1) return { note: NOTE_ONE_WORD };
+  return {};
+}
+
 /** A produce question, taking every taught spelling with the same English. */
 function produce(item: Taught, pool: readonly Taught[]): PracticeItem {
   const accept = [...new Set([item.et, ...pool.filter((o) => sameEnglish(o.en, item.en)).map((o) => o.et)])];
-  return { kind: "type", en: item.en, answer: item.et, accept };
+  /* A person ending says who is meant, so Estonian drops the pronoun, and
+     `me oleme` is as right as `oleme` for "we are". The pronouns are the taught
+     items whose English is the first word of this one's, never a list of ours.
+     Only where the verb has one spelling: "you are" is `oled` and `olete`, and
+     crossing those with every "you" would accept a person the verb does not. */
+  if (accept.length === 1 && wordsOf(item.et).length === 1) {
+    const lead = (text: string) => text.replace(/,/g, "").replace(/\s+/g, " ").trim().toLocaleLowerCase("en");
+    const said = lead(item.en);
+    for (const o of pool) {
+      if (o.et === item.et || wordsOf(o.et).length !== 1) continue;
+      const names = [o.en, ...o.en.split(/,\s*/)].map(lead).filter(Boolean);
+      // The pronoun stands for the whole of the English before one last word, the verb.
+      if (names.some((n) => SUBJECTS.has(n) && said.startsWith(`${n} `) && !said.slice(n.length + 1).includes(" "))) {
+        const joined = `${o.et} ${item.et}`;
+        if (!accept.includes(joined)) accept.push(joined);
+      }
+    }
+    /* "with {on}: we have" is `meil`, said whole as `meil on`. */
+    if (/^with \{on\}:/i.test(item.en)) accept.push(`${item.et} on`);
+  }
+  const note = noteFor(item);
+  if (note.note === NOTE_ONE_WORD) accept.push(...eachWithItsPronoun(item, pool));
+  return { kind: "type", en: item.en, answer: item.et, accept, ...note };
 }
 
 /**
@@ -226,8 +291,17 @@ export function markPhrase(typed: string, accept: readonly string[]): TypedMark 
   const wants = accept.map(normalisePhrase);
   const want = wants.find((w) => w === said) ?? wants.find((w) => fold(w) === fold(said)) ?? wants[0] ?? "";
   if (said.length === 0) return { verdict: "wrong", note: "Nothing typed.", close: false };
+  // "sa olid ja nad olid": the joining word is not part of the answer.
+  if (!wants.includes(said)) {
+    const without = said.split(" ").filter((w) => w !== "ja" && w !== "ning").join(" ");
+    if (without !== said && wants.includes(without)) return { verdict: "right", note: "That's it.", close: false };
+  }
   if (said === want) return { verdict: "right", note: "That's it.", close: false };
   if (fold(said) === fold(want)) return { verdict: "nearly", note: "Nearly: mind the letters with marks on them.", close: false };
+  // The right word with more around it: half of it is right, which is worth saying.
+  if (said.split(" ").length > 1 && wants.some((w) => w.length > 0 && !w.includes(" ") && said.split(" ").includes(w))) {
+    return { verdict: "nearly", note: "Half right: the word is in there, but only that one word was asked for.", close: false };
+  }
   if (wants.some((w) => w.length >= SLIP_FLOOR && editDistance(said, w, 1) <= 1)) return { verdict: "nearly", note: "Nearly: one letter out.", close: false };
   return { verdict: "wrong", note: "Not quite.", close: wants.some((w) => nearMiss(said, w)) };
 }
