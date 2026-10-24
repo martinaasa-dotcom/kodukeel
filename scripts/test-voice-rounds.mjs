@@ -105,8 +105,16 @@ try {
           () => document.querySelector("#number-answer")?.value.trim() || document.querySelector("[data-numbers-verdict]"),
           null, { timeout: 240_000 },
         ).catch(() => undefined);
+        /*
+          A number heard right and as it is spelled is marked in the same
+          render that would have filled the box (NumbersSession's onHeard), so
+          the box is gone before anything can read it. That is the round
+          working, and whether it happens turns on the recognizer's own
+          confidence, so it is read as what it is: marked right at once.
+        */
         const heard = await box.inputValue().catch(() => "");
-        check("what was heard goes into the box", /\p{L}/u.test(heard), heard);
+        const markedAtOnce = await page.locator('[data-numbers-verdict="right"], [data-numbers-verdict="nearly"]').count();
+        check("what was heard goes into the box, or is marked right at once", /\p{L}/u.test(heard) || markedAtOnce > 0, heard || "marked at once");
         if (!(await page.locator("[data-numbers-verdict]").count())) await page.getByRole("button", { name: "Check" }).click();
         const verdict = await page.locator("[data-numbers-verdict]").innerText({ timeout: 8000 }).catch(() => "");
         check("and is marked, with the feedback in digits", /\d/.test(verdict), verdict.replace(/\n/g, " | "));

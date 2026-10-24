@@ -154,7 +154,7 @@ export const RU: Readonly<Record<string, string>> = {
     "Нажмите на слово, а потом на его значение, чтобы соединить их. Время идёт, пока поле не опустеет.",
   "Long or short": "Долгий или краткий",
   "Two words that sound almost the same, except one sound is held a little longer. You'll hear one of them.":
-    "Два слова звучат почти одинаково, только в одном звук тянется чуть дольше. Вы услышите одно из них.",
+    "Два слова звучат почти одинаково, только в одном звук тянется чуть дольше. В русском долгота звука не различает слова, а в эстонском различает. Вы услышите одно из них.",
   "Say which one you heard. Play it again if you need to, it's recorded in a quiet room.":
     "Выберите, какое вы услышали. Если нужно, включите ещё раз: запись сделана в тихой комнате.",
   "Put the sentence back in order": "Соберите предложение",

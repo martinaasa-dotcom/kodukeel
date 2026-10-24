@@ -128,10 +128,11 @@ export function classroomLetter(input: ClassroomInput): Letter {
       /*
         THE LESSON, NAMED THE WAY A CLASS NAMES IT.
 
-        `caseAccuracy` hands over the Estonian name because that is what the
-        column holds and what every screen in this app leads with, and a letter
-        to a teacher is the last place to translate it into a Latin one they do
-        not use in the room.
+        The column holds a `CaseKey` ("PARTITIVE"), so `lib/progress/mailout.ts`
+        hands over the Estonian name off `caseByKey` before it gets here: it is
+        what every screen in this app leads with, and a letter to a teacher is
+        the last place to print a key or a Latin name they do not use in the
+        room.
       */
       blocks.push({ t: "heading", text: say("The class finds {case} hardest.", { case: worst.grammCase }) });
       blocks.push({

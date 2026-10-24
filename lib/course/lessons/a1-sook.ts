@@ -320,8 +320,8 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
     teaches: [
       { kind: "word", et: "meeldima", en: "to be liked; with {mulle}: I like" },
       { kind: "form", et: "meeldib", of: "meeldima", en: "is liked; {mulle meeldib}: I like" },
-      { kind: "form", et: "meeldi", of: "meeldima", en: "liked, after {ei}" },
-      { kind: "form", et: "mulle", of: "mina", en: "to me; with {meeldib}: I like" },
+      { kind: "form", et: "meeldi", of: "meeldima", en: "like (as in “I don't like it”)" },
+      { kind: "form", et: "mulle", of: "mina", en: "to me (as in “I like it”)" },
       { kind: "form", et: "sulle", of: "sina", en: "to you" },
       { kind: "form", et: "talle", of: "tema", en: "to him, to her" },
       { kind: "form", et: "meile", of: "meie", en: "to us" },
