@@ -43,7 +43,12 @@ import { isPublicReference } from "@/lib/ux/publicReference";
  * rather than asking about it, and does so under a deadline.
  */
 export async function middleware(request: NextRequest) {
-  const csp = buildContentSecurityPolicy();
+  /* Behind a proxy that ends TLS the request arrives as HTTP and says so in the
+     header. Any hop saying HTTPS counts: a caller can add the directive to its
+     own page by writing the header and cannot take away the one a proxy adds. */
+  const secure = request.nextUrl.protocol === "https:"
+    || (request.headers.get("x-forwarded-proto") ?? "").split(",").some((hop) => hop.trim() === "https");
+  const csp = buildContentSecurityPolicy({ secure });
   const withCsp = <T extends NextResponse>(response: T): T => {
     response.headers.set("Content-Security-Policy", csp);
     return response;

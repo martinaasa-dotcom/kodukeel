@@ -445,7 +445,7 @@ being trusted.
 | Authorization | Public path allowlist is the only way past the gate | `middleware.ts` |
 | Authorization | Class and workplace rosters expose effort, never contents | `lib/classroom/roster.ts` |
 | Transport | HSTS, two years, includeSubDomains, preload | `lib/security/headers.ts` |
-| Transport | `upgrade-insecure-requests` in the CSP | `lib/security/headers.ts` |
+| Transport | `upgrade-insecure-requests` in the CSP, on a page served over HTTPS (WebKit applies it to `localhost` too) | `lib/security/headers.ts` |
 | Headers | CSP set per response, so it can read which Supabase project to allow | `middleware.ts` |
 | Headers | `frame-ancestors 'none'`, `frame-src 'none'` (Google's sign-in origin excepted when configured), `object-src 'none'`, `base-uri 'self'`, `form-action 'self'` | `lib/security/headers.ts` |
 | Headers | `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, COOP, cross domain policies | `next.config.ts` via `STATIC_SECURITY_HEADERS` |

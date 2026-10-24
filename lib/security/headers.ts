@@ -179,7 +179,7 @@ function appleIdentitySrc(): string[] {
  *   button inside an `accounts.google.com` iframe, so a deployment with a
  *   Google client ID configured allows that one origin and no other.
  */
-export function buildContentSecurityPolicy(): string {
+export function buildContentSecurityPolicy({ secure = true }: { readonly secure?: boolean } = {}): string {
   const isDev = process.env.NODE_ENV !== "production";
   const google = googleIdentitySrc();
 
@@ -215,6 +215,16 @@ export function buildContentSecurityPolicy(): string {
     "object-src 'none'",
     "worker-src 'self' blob:",
     "manifest-src 'self'",
-    "upgrade-insecure-requests",
+    /*
+      ONLY ON A PAGE SERVED OVER HTTPS. Chromium and Firefox leave a request to
+      `localhost` alone under `upgrade-insecure-requests`, and WebKit does not:
+      it rewrote every script on a page served over plain HTTP to `https://`,
+      none of them loaded, and the page never hydrated. Found by
+      `test-browsers.mjs`, where WebKit drew the server's skeleton and no
+      heading on every route that streams in. On a page served over HTTPS the
+      directive is what it always was; on one served over HTTP it has nothing
+      to upgrade to, so leaving it off loses nothing.
+    */
+    ...(secure ? ["upgrade-insecure-requests"] : []),
   ].join("; ");
 }
