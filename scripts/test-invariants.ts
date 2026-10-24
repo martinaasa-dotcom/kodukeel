@@ -22459,8 +22459,20 @@ check("every line a scene says carries its rung", () => {
   */
   assert.doesNotMatch(source, /<span>\{PROVENANCE\[line\.provenance\]\}<\/span>/,
     "the rung is not printed under every line of a conversation");
-  assert.doesNotMatch(source, /SuggestFix/,
-    "and a conversation carries no Report button under its lines");
+  /*
+    One report control for the whole conversation, and never one under a line
+    (R-2a). A store asks that a line a model wrote can be reported from inside
+    the app, which is a fact about the conversation rather than about every
+    bubble, so it sits in the panel under the thread, beside the sentence
+    naming the model, and offers the composed lines to pick from.
+  */
+  const reports = [...source.matchAll(/<SuggestFix\b[\s\S]*?\/>/g)].map(([usage]) => usage);
+  assert.equal(reports.length, 1,
+    "a conversation carries one report control for its composed lines, never one under each line");
+  assert.match(reports[0]!, /category="AI_ANSWER"/,
+    "and that one control reports a line a model wrote");
+  assert.ok(source.indexOf("<SuggestFix") > source.indexOf('className="scene-tools"'),
+    "and it sits in the panel under the conversation rather than in the thread");
   assert.match(source, /composedBy/,
     "the model composing is still named once, at the top (ADR-025)");
   const suite = readFileSync("scripts/test-scene.mjs", "utf8");

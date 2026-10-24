@@ -202,15 +202,29 @@ a dictionary of the whole language holds.
 | Unrestricted web access | No | A link to anything outside the app opens the system browser (`lib/links/routes.ts`); the app shows no web page of its own choosing. |
 | Users can talk to each other | No | No learner can send another a message. |
 | User-generated content shared with others | Yes, narrowly | In a class or a workplace group, the group's name reaches its members and each member's chosen display name reaches the teacher. Both are cleaned of invisible characters (`lib/security/visibleText.ts`), the teacher sees effort and never a deck, a search or an answer (`docs/24-dpia.md` §3.5), and a learner leaves a group from the same screen. A report a learner sends reaches the reviewers named by `ADMIN_EMAILS` and no other learner. |
-| A chatbot or generated content | Yes | Anu is a language model a learner types to, and a model writes what the other side says in a conversation where a key is configured. Both are told to talk about Estonian, and every answer of Anu's names the model that wrote it. See the gap below. |
+| A chatbot or generated content | Yes | Anu is a language model a learner types to, and a model writes what the other side says in a conversation where a key is configured. Both are told to talk about Estonian, and every answer of Anu's names the model that wrote it. Each of those answers can be reported from where it is read; see below. |
 | Location, personal information shared publicly | No | No location is read, and nothing a learner writes is public. |
 | Advertising, in-app purchases | No | Neither exists. |
 
-**A gap to close before Google Play.** Google Play's policy on generated content asks that a learner can
-flag an offensive answer from inside the app. Today the report button (`components/SuggestFix.tsx`) is
-offered under Anu's thread only once a question has failed, and a composed line in a conversation has
-none, so there is no way to flag one particular answer. A control under each of Anu's answers and each
-composed line, reaching the same report queue, would close it; it is not built here.
+**Reporting a generated answer, the gap that was here before Google Play, closed by R-2a.** Google Play's policy on AI-generated content asks that a
+learner can report or flag offensive generated content from inside the app, and Apple's guideline 1.2
+asks for a way to report objectionable content. Every answer a model writes that a learner reads now
+carries a quiet report control, reaching the same queue every other report reaches (`/admin/suggestions`,
+the "Model answers" tab, category `AI_ANSWER` in `lib/suggestions/model.ts`):
+
+- Each of Anu's replies, in the floating panel and on `/tutor`, has "Report this answer" at its foot
+  (`components/anu/AnuParts.tsx`). It carries the reply whole and, for the latest reply, the model that
+  wrote it.
+- A conversation whose other side a model is writing has "Report a line" beside the sentence naming the
+  model, and again over the transcript once it is over (`components/scene/SceneSession.tsx`,
+  `components/scene/SceneDebrief.tsx`). It offers the composed lines, newest first. It is one control
+  per conversation rather than one under every line, because learners asked for the thread to carry
+  nothing under its bubbles.
+- Anu's note on a finished conversation and her note on an exam composition each have "Report this
+  note" (`components/scene/SceneDebrief.tsx`, `app/(app)/exam/result/[id]/AnuReading.tsx`).
+
+A report carries where the answer stood, which model wrote it where the screen knows, and the text.
+Nothing is applied: a reviewer named by `ADMIN_EMAILS` reads it, and no other learner sees it.
 
 The expected result is 13+ on the App Store and Teen or its equivalent on Google Play, which agrees with
 the age of consent above. If a questionnaire comes out lower, choosing the higher age is the operator's
@@ -234,7 +248,9 @@ for the operator to paste once the native build exists:
 > a microphone button, and every exercise works with it refused.
 >
 > Anu, the tutor, is a language model reached through our server. Each answer names the model that
-> wrote it.
+> wrote it, and each carries a "Report this answer" button at its foot. A conversation whose other
+> side a model writes has "Report a line", and Anu's notes have "Report this note". A report reaches
+> the people who run the app and nobody else.
 
 **The reviewer account is the operator's to create**, because this app has no passwords: a learner
 signs in with Google, with Apple once N-3 lands, or with a link mailed to them, and a reviewer cannot
@@ -309,7 +325,8 @@ Nothing on this page is uploaded by the repository. Before the first submission:
    Information and Play's App access form.
 6. Run `npm run store:labels -- --from-env` with the hosted deployment's environment and answer the
    privacy label and the Data safety form from what it prints.
-7. Decide about the gap under "Age rating" before Google Play reviews a build with Anu in it.
+7. Name at least one reviewer in `ADMIN_EMAILS` on the hosted deployment, so a reported answer (see
+   "Age rating") reaches a person who reads the queue.
 
 ## Privacy labels
 

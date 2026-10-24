@@ -51,7 +51,7 @@ import { applyPatch } from "@/lib/suggestions/apply";
 import { resetCourseProgress, restartPart } from "@/lib/progress/courseReset";
 import {
   PATCH_POS, SUGGESTION_LIMITS, acknowledgement, groupKeyFor, isCategory, parsePatch, parsePatchValue,
-  patchFitsCategory,
+  patchFitsCategory, triggerLimit,
 } from "@/lib/suggestions/model";
 import { CEFR_LEVELS } from "@/lib/estonian/types";
 import { eraseAuthIdentity, remainingIdentityNote } from "@/lib/auth/erase";
@@ -5518,7 +5518,8 @@ export async function submitSuggestion(input: unknown) {
   const lemma = visibleLine(raw.lemma, SUGGESTION_LIMITS.lemma) || null;
   const lexemeId = capped(raw.lexemeId, 64) || null;
   const context = visibleProse(raw.context, SUGGESTION_LIMITS.context) || null;
-  const trigger = visibleLine(raw.trigger, SUGGESTION_LIMITS.trigger) || null;
+  // A reported answer from a model travels whole; any other trigger is a failure message.
+  const trigger = visibleLine(raw.trigger, triggerLimit(category)) || null;
 
   const groupKey = groupKeyFor({ category, lexemeId, lemma, context, trigger, patch });
 

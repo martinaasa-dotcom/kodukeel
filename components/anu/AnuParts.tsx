@@ -230,7 +230,22 @@ function displayUserContent(content: string): string {
   return meaning ? `${estonian}\n\n(${meaning})` : estonian;
 }
 
-export function Bubble({ message, streaming }: { message: Msg; streaming: boolean }) {
+/**
+ * The reply whose model the screen knows. `useAnuChat` reads the model off the
+ * latest reply's headers, so only that one can say who wrote it; an older
+ * reply, or one loaded with the page, is reported without a name.
+ */
+export function latestReplyIndex(messages: readonly Msg[]): number {
+  for (let i = messages.length - 1; i >= 0; i -= 1) if (messages[i]!.role === "assistant") return i;
+  return -1;
+}
+
+export function Bubble({ message, streaming, model = null }: {
+  message: Msg;
+  streaming: boolean;
+  /** The model that wrote this reply, where the screen knows: the latest reply's headers. */
+  model?: string | null;
+}) {
   const t = useT();
   const isUser = message.role === "user";
   const { body: withoutVocab, vocab } = splitVocab(message.content);
@@ -288,6 +303,24 @@ export function Bubble({ message, streaming }: { message: Msg; streaming: boolea
         )}
         {unverified.length > 0 && <UnverifiedNotice words={unverified} />}
         {vocab.length > 0 && <VocabBridge vocab={vocab} />}
+        {/*
+          EVERY ANSWER SHE WROTE CAN BE REPORTED, quietly, at its foot. Her
+          replies are the one text in the app nobody read before the learner
+          did, and a store asks that somebody offended by one can say so from
+          where they read it. A ghost button that arrives with the finished
+          reply, never while it is being written, and is the only control in
+          the bubble that is not about the Estonian.
+        */}
+        {/* A failure drawn in her bubble is the app's sentence, not hers, so it has the button under the thread. */}
+        {!isUser && !streaming && (rest || fix) && !message.content.startsWith("⚠") && (
+          <div className="mt-2 flex justify-end">
+            <SuggestFix
+              category="AI_ANSWER"
+              answers={{ where: "ANU", model, texts: [message.content] }}
+              label="Report this answer"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

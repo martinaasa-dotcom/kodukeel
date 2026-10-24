@@ -9,7 +9,7 @@ import { AnuFace } from "@/components/anu/AnuFace";
 import { useAnuChat, type Msg } from "@/components/anu/useAnuChat";
 import { useStickToBottom } from "@/components/anu/useStickToBottom";
 import { AnuMic } from "@/components/anu/AnuMic";
-import { AnuFailure, AnuOffline, Bubble, Provenance, SentenceCheck, Starters, sentenceCheckPrompt } from "@/components/anu/AnuParts";
+import { AnuFailure, AnuOffline, Bubble, latestReplyIndex, Provenance, SentenceCheck, Starters, sentenceCheckPrompt } from "@/components/anu/AnuParts";
 import { useT } from "@/components/Locale";
 import { filled } from "@/components/Filled";
 
@@ -32,6 +32,7 @@ export function TutorChat({
 }) {
   const t = useT();
   const { messages, streaming, answeredBy, failure, send, online } = useAnuChat(history);
+  const latestReply = latestReplyIndex(messages);
   const [input, setInput] = useState(initialQuestion ?? "");
   const [checkOpen, setCheckOpen] = useState(false);
   const [checkEt, setCheckEt] = useState("");
@@ -107,7 +108,7 @@ export function TutorChat({
           aria-live="polite"
           aria-label={t("Conversation with Anu")}
         >
-          {messages.map((m, i) => <Bubble key={i} message={m} streaming={streaming && i === messages.length - 1} />)}
+          {messages.map((m, i) => <Bubble key={i} message={m} streaming={streaming && i === messages.length - 1} model={i === latestReply ? answeredBy : null} />)}
         </div>
       )}
 

@@ -777,6 +777,9 @@ if (composed) {
     composed.text.split(/\s+/).length <= MAX_SPOKEN_WORDS
     && sentences(composed.text) <= MAX_SPOKEN_SENTENCES,
     composed.text);
+  // R-2a: a line a model wrote can be reported, by one control for the conversation.
+  check("a composed line can be reported, once for the conversation",
+    (await page.locator('[data-report-answer="SCENE_LINE"]').count()) === 1);
 } else {
   /*
     Says which state lifts it, which the house rule asks of every waiver: a key
@@ -784,7 +787,7 @@ if (composed) {
     reaches the composer at all, and a keyed run reaches it only where the
     dictionary had nothing, which is most beats and not the greeting.
   */
-  absent(1, "no line was composed here: that needs a provider key and a beat the dictionary could not fill");
+  absent(2, "no line was composed here, so there was none to compose and none to report: that needs a provider key and a beat the dictionary could not fill");
 }
 
 // ── A scripted line, where the bank holds one for a beat this run reached ───
