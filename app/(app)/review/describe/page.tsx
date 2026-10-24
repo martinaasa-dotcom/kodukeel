@@ -6,10 +6,10 @@ import { practiceScope } from "@/lib/progress/moduleScope";
 import { resolveProviders } from "@/lib/tutor/provider";
 import { DescribeSession, type PicturePrompt } from "./DescribeSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
-import { titleFor } from "@/lib/progress/locale";
+import { roundTitleFor } from "@/lib/progress/locale";
 
 export async function generateMetadata() {
-  return titleFor("Say what you see");
+  return roundTitleFor("/review/describe");
 }
 
 export const dynamic = "force-dynamic";

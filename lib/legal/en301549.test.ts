@@ -46,6 +46,8 @@ describe("the EN 301 549 table", () => {
     const byId = new Map(CRITERIA.map((c) => [c.id, c]));
     expect(byId.get("2.2.1")).toMatchObject({ status: "partial", reason: "exam-clock" });
     expect(byId.get("1.2.1")).toMatchObject({ status: "partial", reason: "hearing" });
-    expect(byId.get("2.1.4")).toMatchObject({ status: "partial", reason: "shortcuts" });
+    expect(byId.get("2.1.4")).toMatchObject({ status: "supports" });
+    expect(byId.get("1.4.2")).toMatchObject({ status: "supports" });
+    expect(byId.get("2.2.2")).toMatchObject({ status: "partial", reason: "moving" });
   });
 });

@@ -1,4 +1,4 @@
-import { localeFor, titleFor } from "@/lib/progress/locale";
+import { localeFor, roundTitleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
 import { sentenceReach } from "@/lib/dict/facts";
@@ -19,9 +19,10 @@ import { shuffle } from "@/lib/random/shuffle";
 import { offered } from "@/lib/tutor/provider";
 import { byRecency, recentLemmas } from "@/lib/course/scope";
 import { practiceScope } from "@/lib/progress/moduleScope";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export async function generateMetadata() {
-  return titleFor("Verb government");
+  return roundTitleFor("/review/government");
 }
 
 export const dynamic = "force-dynamic";
@@ -146,7 +147,7 @@ export default async function GovernmentPage({
   if (parsed.length === 0) {
     const locale = await localeFor(ownerId);
     return (
-      <Page title={tr(locale, "Verb government")} lead={tr(locale, "Every verb wants a certain case after it, and English won't tell you which.")}>
+      <Page {...roundPageTitle("/review/government", (english) => tr(locale, english))} lead={tr(locale, "Every verb wants a certain case after it, and English won't tell you which.")}>
         <Empty
           title={tr(locale, "No verbs to practice yet")}
           body={tr(locale, "Look up a few verbs in the dictionary. Each one comes with the case it takes.")}

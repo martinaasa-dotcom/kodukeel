@@ -6,6 +6,9 @@ import { KeyCap } from "@/components/ui";
 import { Explain } from "@/components/Explain";
 import { useModalFocus } from "@/components/useModalFocus";
 import { useT } from "@/components/Locale";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { SingleKeysPanel } from "@/components/SingleKeysPanel";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 
 /** The event the command palette fires to open this without a keyboard. */
 export const SHORTCUTS_EVENT = "kodukeel:shortcuts";
@@ -66,13 +69,17 @@ const GROUPS: Group[] = [
 /**
  * The shortcut sheet: `?` anywhere, or the command palette.
  *
- * Deliberately not a settings page. Nothing here is configurable, because a
+ * Deliberately not a settings page. No key here is remappable, because a
  * remappable shortcut in an app this size is a support burden rather than a
- * feature — this is documentation with a keyboard binding.
+ * feature. The one thing configurable is whether single character keys act at
+ * all (WCAG 2.1.4), offered here as well as in Settings because this is where
+ * somebody bothered by one goes looking. With them off, `?` is a character key
+ * too, so the sheet is reached from the command palette instead.
  */
 export function Shortcuts() {
   const t = useT();
   const [open, setOpen] = useState(false);
+  const singleKeys = useSingleKeys();
   const sheet = useRef<HTMLDivElement>(null);
   // The caret goes to the close button, Tab stays in the sheet, and closing
   // hands it back to whatever had it when `?` was pressed.
@@ -100,7 +107,7 @@ export function Shortcuts() {
         e.target instanceof HTMLTextAreaElement ||
         (e.target instanceof HTMLElement && e.target.isContentEditable);
       if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.key === "?") {
+      if (e.key === "?" && mayActOnKey(e, singleKeys)) {
         e.preventDefault();
         setOpen((o) => !o);
       }
@@ -113,7 +120,7 @@ export function Shortcuts() {
       window.removeEventListener("keydown", onKey, true);
       window.removeEventListener(SHORTCUTS_EVENT, onAsked);
     };
-  }, [open]);
+  }, [open, singleKeys]);
 
   if (!open) return null;
 
@@ -172,6 +179,10 @@ export function Shortcuts() {
           ))}
         </div>
 
+        <div className="border-t px-5 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Single-key shortcuts")}</h3>
+          <SingleKeysPanel current={singleKeys ? "on" : "off"} />
+        </div>
         <div className="border-t px-5 py-3" style={{ borderColor: "var(--rule-soft)" }}>
           <Explain label={t("Rather not use shortcuts?")}>
           {t("You can Tab to every control, and you'll always see which one you're on. Shortcuts are only a faster way in, never the only way.")}

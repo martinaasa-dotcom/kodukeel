@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { Check, X } from "lucide-react";
 import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
@@ -76,6 +78,7 @@ export function PlaceCard({ q, index, paused, canTranslate, onAnswered, onNext }
     setBusy(false);
   }, [answered, busy, q, hints, grade, sound, onAnswered]);
 
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     if (paused) return;
     const onKey = (e: KeyboardEvent) => {
@@ -84,12 +87,13 @@ export function PlaceCard({ q, index, paused, canTranslate, onAnswered, onNext }
         if (!inEditable(e.target) && isAdvanceKey(e)) { e.preventDefault(); onNext(); }
         return;
       }
+      if (!mayActOnKey(e, singleKeys)) return;
       const n = Number(e.key);
       if (n >= 1 && n <= q.options.length) { e.preventDefault(); void pick(n - 1); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [paused, answered, q, pick, onNext]);
+  }, [singleKeys, paused, answered, q, pick, onNext]);
 
   const wasRight = picked === q.answer;
   return (

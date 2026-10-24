@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import { SYLLABUS } from "@/lib/collections/syllabus";
 import { sceneTesting } from "@/lib/scenes/catalogue";
-import { EXAM_PARTS, EXAMINED, PREPARES, alignCourse } from "./align";
+import { PROGRAMMES } from "@/lib/course";
+import { courseChecks } from "@/lib/course/checks";
+import { LESSONS, LESSON_PARTS } from "@/lib/course/lessons";
+import { sceneForLesson } from "@/lib/scenes/lessonScenes";
+import { EXAM_PARTS, EXAMINED, PREPARES, alignCourse, courseMadeOf, lessonLevels, outlineLessons } from "./align";
 
 const aligned = alignCourse(SYLLABUS, sceneTesting);
 const PARTS = new Set(EXAM_PARTS.map((p) => p.part));
@@ -67,5 +71,46 @@ describe("curriculum alignment", () => {
     const withScene = aligned.flatMap((l) => l.units).filter((a) => a.scene);
     expect(withScene.length).toBeGreaterThan(0);
     for (const a of withScene) expect(sceneTesting(a.unit.id)?.id).toBe(a.scene!.id);
+  });
+});
+
+describe("A1 on /curriculum, drawn from the lessons", () => {
+  const outline = outlineLessons(LESSONS, LESSON_PARTS, courseChecks(PROGRAMMES), sceneForLesson);
+
+  it("names every lesson in LESSONS exactly once, in teaching order", () => {
+    const listed = outline.flatMap((p) => p.lessons.map((l) => l.id));
+    expect(listed.length).toBe(LESSONS.length);
+    expect(new Set(listed).size).toBe(LESSONS.length);
+    expect(listed).toEqual(LESSONS.filter((l) => LESSON_PARTS.some((p) => p.id === l.part)).map((l) => l.id));
+    expect(listed.length).toBeGreaterThan(0);
+  });
+
+  it("closes every part with its check, the last one on the whole level", () => {
+    expect(outline.length).toBe(LESSON_PARTS.length);
+    let checked = 0;
+    for (const [i, part] of outline.entries()) {
+      expect(part.check, `${part.part.id} has no check`).not.toBeNull();
+      expect(part.check!.final).toBe(i === outline.length - 1);
+      expect(part.check!.questions).toBeGreaterThan(0);
+      checked++;
+    }
+    expect(checked).toBe(LESSON_PARTS.length);
+    expect(outline.at(-1)!.check!.lessons).toBe(LESSONS.length);
+  });
+
+  it("names the live conversation of every role-play that has one", () => {
+    const roleplays = outline.flatMap((p) => p.roleplays);
+    expect(roleplays.length).toBe(LESSONS.filter((l) => l.roleplay).length);
+    expect(roleplays.length).toBeGreaterThan(0);
+    for (const r of roleplays) expect(r.scene?.id).toBe(sceneForLesson(r.lesson.id)?.id);
+  });
+
+  it("counts lessons where a level is taught as lessons and units only above it", () => {
+    const made = courseMadeOf(SYLLABUS, LESSONS);
+    const taught = lessonLevels(LESSONS);
+    expect(made.lessons).toBe(LESSONS.length);
+    expect(made.units).toBe(SYLLABUS.filter((u) => !taught.has(u.level)).length);
+    expect(taught.has("A1")).toBe(true);
+    expect(made.units).toBeLessThan(SYLLABUS.length);
   });
 });

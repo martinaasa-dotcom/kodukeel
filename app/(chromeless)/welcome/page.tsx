@@ -29,7 +29,8 @@ import { FirstEvening, type EveningStep, type EveningWord } from "./FirstEvening
 import { VisitRecap } from "./VisitRecap";
 import { PROGRAMMES, defaultProgramme } from "@/lib/course";
 import { LESSON_SHAPE } from "@/lib/course/lessonCourse";
-import { lessonById, unfold } from "@/lib/course/lessons";
+import { LESSONS, lessonById, unfold } from "@/lib/course/lessons";
+import { courseMadeOf } from "@/lib/curriculum/align";
 import { LetterTile } from "@/components/LetterTile";
 import { LandingAnu, type AnuLine } from "@/components/LandingAnu";
 import { oneEntryPerLemma } from "@/lib/dict/search";
@@ -338,8 +339,11 @@ function Hero({ say, stats, words }: { say: Say; stats: { words: number; forms: 
     reason to read; the same numbers beside the call to action are the reason to
     believe the sentence above them. The unit count and the level range are read
     from the course itself rather than written by hand, which is what kept this
-    line from going stale the way "eighteen units, A1 to C1" once did.
+    line from going stale the way "eighteen units, A1 to C1" once did. Since A1
+    became the lessons, what the course is made of is two lists: lessons at A1
+    and units above it, both counted off the code (`courseMadeOf`).
   */
+  const made = courseMadeOf(PATH, LESSONS);
   const claims = [
     /*
       "Every form from Ekilex" was one source too few, and the half it left out
@@ -351,8 +355,9 @@ function Hero({ say, stats, words }: { say: Say; stats: { words: number; forms: 
       sources one screen down; this line is the promise they add up to.
     */
     fill(t("{words}, {forms}, and not one of them made up by AI"), { words: counted(stats.words, "word"), forms: counted(stats.forms, "form") }),
-    fill(t("{units}, from your first hello at {first} all the way to {last}"), {
-      units: counted(PATH.length, "unit"), first: LEVELS[0]!, last: LEVELS[LEVELS.length - 1]!,
+    fill(t("{lessons} at {first}, then {units} all the way to {last}"), {
+      lessons: counted(made.lessons, "lesson"), units: counted(made.units, "unit"),
+      first: LEVELS[0]!, last: LEVELS[LEVELS.length - 1]!,
     }),
     t("Free, and it works offline"),
     t("Counts the real conversations you have, not the days you open the app"),

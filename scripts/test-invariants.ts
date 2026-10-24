@@ -13667,8 +13667,12 @@ check("the copy about the round pace names every round that reads it", () => {
   const rounds = APP.filter((f) => f.endsWith("/page.tsx") && !f.includes("/settings/"))
     .filter((f) => /\broundPaceFrom\(/.test(code(f)))
     .map((f) => {
-      // A signed-in page names itself through `titleFor` (lib/progress/locale.ts).
-      const title = (/titleFor\("([^"]+)"/.exec(read(f)) ?? /title:\s*"([^"]+)"/.exec(read(f)))?.[1];
+      // A signed-in page names itself through `titleFor` (lib/progress/locale.ts),
+      // and a round through `roundTitleFor`, whose agreed English name
+      // (lib/ux/roundNames.ts) is what the copy has to say.
+      const round = /roundTitleFor\("([^"]+)"/.exec(read(f))?.[1];
+      const agreed = round ? new RegExp(`"${round.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}": \\{ et: "[^"]+", en: "([^"]+)" \\}`).exec(read("lib/ux/roundNames.ts"))?.[1] : undefined;
+      const title = agreed ?? (/\btitleFor\("([^"]+)"/.exec(read(f)) ?? /title:\s*"([^"]+)"/.exec(read(f)))?.[1];
       assert.ok(title, `${f} reads the round pace and has no title to be named by`);
       return title!;
     });
@@ -14248,6 +14252,7 @@ check("a workflow that reads a secret never runs from a branch somebody pushed",
     "audit-decks.yml": ["workflow_dispatch"],
     "mailout.yml": ["schedule", "workflow_dispatch"],
     "reset-course.yml": ["workflow_dispatch"],
+    "reset-demo.yml": ["schedule", "workflow_dispatch"],
     "seed-production.yml": ["workflow_dispatch"],
   };
   const dir = ".github/workflows";

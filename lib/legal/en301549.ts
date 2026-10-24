@@ -31,9 +31,7 @@ export type Reason =
   | "hearing"
   | "no-video"
   | "no-motion-input"
-  | "shortcuts"
   | "moving"
-  | "autoplay"
   | "focus-text-only";
 
 export interface Criterion {
@@ -74,7 +72,7 @@ export const CRITERIA: readonly Criterion[] = [
   yes("1.3.4", "Orientation", "AA", "scripts/invariants/no-orientation-lock.ts"),
   no("1.3.5", "Identify Input Purpose", "AA"),
   no("1.4.1", "Use of Color", "A"),
-  no("1.4.2", "Audio Control", "A", "autoplay"),
+  yes("1.4.2", "Audio Control", "A", "lib/audio/clipAutoplay.test.ts"),
   yes("1.4.3", "Contrast (Minimum)", "AA", "scripts/test-design.mjs"),
   no("1.4.4", "Resize Text", "AA"),
   no("1.4.5", "Images of Text", "AA"),
@@ -84,7 +82,7 @@ export const CRITERIA: readonly Criterion[] = [
   no("1.4.13", "Content on Hover or Focus", "AA"),
   no("2.1.1", "Keyboard", "A"),
   yes("2.1.2", "No Keyboard Trap", "A", "scripts/invariants/dialogs-hold-focus.ts"),
-  no("2.1.4", "Character Key Shortcuts", "A", "shortcuts"),
+  yes("2.1.4", "Character Key Shortcuts", "A", "scripts/invariants/a-single-key-answers-to-the-setting.ts"),
   no("2.2.1", "Timing Adjustable", "A", "exam-clock"),
   no("2.2.2", "Pause, Stop, Hide", "A", "moving"),
   no("2.3.1", "Three Flashes or Below Threshold", "A"),
@@ -131,9 +129,7 @@ export const REASON_TEXT: Readonly<Record<Reason, string>> = {
   hearing: "The listening, dictation and minimal-pair rounds need hearing, as the statement above explains.",
   "no-video": "The app has no video.",
   "no-motion-input": "Nothing is operated by moving or shaking the device.",
-  shortcuts: "Some rounds answer a single key, such as a number to grade or B to look back, and these cannot yet be turned off.",
-  moving: "Some decorative letters keep moving and stop only when the system asks for reduced motion.",
-  autoplay: "A word plays on its own when a card appears. Settings turns that off, and nothing checks how long a clip is.",
+  moving: "The landing page’s letters rest after five seconds. Some other decoration still loops and stops only when the system asks for reduced motion.",
   "focus-text-only": "The visible focus ring is checked for text fields only.",
 };
 

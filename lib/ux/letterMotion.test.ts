@@ -149,3 +149,26 @@ describe("being seen", () => {
     for (const c of LETTER_CHARACTERS) expect(c.time).toBeLessThanOrEqual(5.5);
   });
 });
+
+describe("the letters rest after five seconds (WCAG 2.2.2)", () => {
+  it("plays whole cycles that end inside the limit, delay included, for every character at every delay", async () => {
+    const { LETTER_MOTION_LIMIT_S, wanderRun } = await import("./letterMotion");
+    let asked = 0;
+    for (const c of LETTER_CHARACTERS) {
+      for (const delay of [0, 0.7, 1.5, 2.2, 4.5, 9]) {
+        const run = wanderRun(c.time, delay);
+        expect(Number.isInteger(run.count) && run.count >= 1).toBe(true);
+        expect(run.delay + run.time * run.count).toBeLessThanOrEqual(LETTER_MOTION_LIMIT_S + 1e-9);
+        expect(run.time).toBeLessThanOrEqual(c.time);
+        asked++;
+      }
+    }
+    expect(asked).toBe(LETTER_CHARACTERS.length * 6);
+  });
+
+  it("carries the count and the fitted cycle on the letter, never forever", () => {
+    const vars = letterVars({ character: letterCharacter("tumble"), edge: "top", tilt: 10, travel: { x: 20, y: 3 }, delay: 2.2 });
+    expect(Number(vars["--drift-count"])).toBe(1);
+    expect(parseFloat(vars["--drift-time"]!) + parseFloat(vars["--drift-delay"]!)).toBeLessThanOrEqual(5);
+  });
+});

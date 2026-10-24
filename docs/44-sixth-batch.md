@@ -634,14 +634,14 @@ diligence asks for a risk register and an asset inventory. `docs/33-certificatio
 both as phase 0 work that costs a day and no money.
 
 **Files.**
-- `app/.well-known/security.txt/route.ts` (to be written): RFC 9116, built from the operator's contact
+- `app/.well-known/security.txt/route.ts`: RFC 9116, built from the operator's contact
   in `lib/legal/operator.ts`, with `Expires` a year from the build, `Policy` pointing at `/trust`,
   `Preferred-Languages: en, et`, and `Canonical`. It answers 404 where the deployment names nobody, so a
   fork does not publish somebody else's address. The path joins the middleware's public list (N-3 adds
   two more files under `/.well-known/`; whichever lands second merges).
-- `docs/47-risk-register` (to be written): one row per risk, seeded from `docs/27-security.md`
+- `docs/47-risk-register.md`: one row per risk, seeded from `docs/27-security.md`
   section 4 and the DPIA's register, with owner, likelihood, impact, treatment and review date.
-- `docs/48-asset-register` (to be written): `docs/27-security.md` section 3 as a register with owners
+- `docs/48-asset-register.md`: `docs/27-security.md` section 3 as a register with owners
   and review dates.
 - `docs/33-certification-readiness.md` and `docs/29-controls.md`: the two rows moved to done, dated.
 - `/trust`: last updated on 5 September 2026. Its security section read against `docs/27-security.md`
@@ -665,13 +665,13 @@ months of history. A demo deployment shows it on the first visit, costs nothing 
 on EKI's load.
 
 **Files.**
-- `components/DemoBanner.tsx` (to be written), drawn in the shell where `DEMO_DEPLOYMENT=1`: one line
+- `components/DemoBanner.tsx`, drawn in the shell where `DEMO_DEPLOYMENT=1`: one line
   saying this is a demo everybody shares, wiped every night, and that nothing personal should be typed.
   An invariant holds that the variable is read in exactly that component and the robots route, and
   nowhere near `lib/auth/`.
 - `app/robots.ts`: a demo deployment asks not to be indexed.
 - `lib/legal/operator.ts`: the demo host in `KNOWN_DEPLOYMENTS`, so its policy pages name the operator.
-- `.github/workflows/reset-demo.yml` (to be written): nightly and by hand, seeds the demo database and
+- `.github/workflows/reset-demo.yml`: nightly and by hand, seeds the demo database and
   runs `scripts/demo-data.ts` against it. It maps `DEMO_DATABASE_URL` into the steps that need it and no
   others, and refuses to run if its hash equals the production URL's.
 - `scripts/invariants/`: the workflow joins the closed list of workflows that read a secret, with its

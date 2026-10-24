@@ -38,6 +38,8 @@ import type { EngineError } from "@/lib/speech/engine";
 import {
   acceptedFor, checkSpoken, ratingFor, spokenVerdict, stepsFor, type SpeakingItem, type SpeakingStep,
 } from "@/lib/games/speaking";
+import { inlineName, roundName, roundPageTitle } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 /**
  * SAY IT OUT LOUD, THREE WAYS, AND HEAR WHAT CAME ACROSS (docs/41-fifth-batch.md VB-5).
@@ -180,7 +182,7 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
     }
     look.record({
       of: item.key,
-      label: t("Speaking"),
+      label: inlineName(roundName("/review/speaking"), t),
       question: item.en,
       answer: item.et,
       note: null,
@@ -266,7 +268,7 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
     if (!handsFree || !item || typeof navigator === "undefined" || !("mediaSession" in navigator)) return;
     const session = navigator.mediaSession;
     try {
-      session.metadata = new MediaMetadata({ title: item.et, artist: "Kodukeel", album: t("Speaking") });
+      session.metadata = new MediaMetadata({ title: item.et, artist: "Kodukeel", album: inlineName(roundName("/review/speaking"), t) });
       session.setActionHandler("pause", () => { setPaused(true); shadow.cancel(); });
       session.setActionHandler("play", () => setPaused(false));
       session.setActionHandler("nexttrack", () => moveOn.current());
@@ -337,7 +339,7 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
 
   if (items.length === 0) {
     return (
-      <Page title={t("Speaking")} lead={t("Say it out loud, then hear what came across.")}>
+      <Page {...roundPageTitle("/review/speaking", t)} lead={t("Say it out loud, then hear what came across.")}>
         <Empty
           title={t("Nothing to say yet")}
           body={t("This uses words from your deck, so learn a few first and come back.")}
@@ -389,7 +391,7 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
-      <h1 className="sr-only">{t("Speaking")}</h1>
+      <h1 className="sr-only"><RoundNameText name={roundName("/review/speaking")} translate={t} /></h1>
       <RoundProgress done={index} total={items.length} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (

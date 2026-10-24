@@ -24,6 +24,8 @@ import { quoted } from "@/lib/copy/values";
 import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
 import { MicButton } from "@/components/speech/MicButton";
 import { micInAnswerBox } from "@/components/speech/answerBoxMic";
+import { roundName } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 export interface PicturePrompt {
   pictureId: string;
@@ -209,7 +211,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
       {/* The heading a session screen has no room to draw. */}
-      <h1 className="sr-only">{t("Say what you see")}</h1>
+      <h1 className="sr-only"><RoundNameText name={roundName("/review/describe")} translate={t} /></h1>
       <RoundProgress done={index} total={prompts.length} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (

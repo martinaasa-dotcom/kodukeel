@@ -14,11 +14,10 @@ import { meetingFirst, notOnLadder, pastTheLadder } from "@/lib/srs/reviewQueue"
 import { include, withChoices } from "./cards";
 import { reviewQueue } from "./queue";
 import { firstParams } from "@/lib/ux/queryParam";
-import { localeFor } from "@/lib/progress/locale";
-import { tr } from "@/lib/copy/locale";
+import { localeFor, roundTitleFor } from "@/lib/progress/locale";
 
 export async function generateMetadata() {
-  return { title: tr(await localeFor(await requireUserId()), "Review") };
+  return roundTitleFor("/review");
 }
 
 export const dynamic = "force-dynamic";

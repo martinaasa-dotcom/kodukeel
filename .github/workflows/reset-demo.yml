@@ -1,0 +1,137 @@
+name: Reset the shared demo
+
+# Every night, and by hand.
+#
+# The demo (docs/44-sixth-batch.md, D18) is a second deployment in local mode:
+# no Supabase keys, so every visitor is the same learner, and two months of
+# invented history laid down by `scripts/demo-data.ts`. Whatever a visitor
+# typed yesterday is gone by morning, because this empties the demo's database,
+# pushes the schema, seeds the dictionary and lays the history down again.
+#
+# Written to the rules `audit-decks.yml` states, with three refusals in front
+# of anything that writes:
+#
+#   1. The demo's own site has to say it is the demo and carries no model key.
+#      `components/DemoBanner.tsx` writes `data-demo-banner="shared"` on a
+#      demo with no key and `data-demo-banner="unsafe"` where any key in
+#      `PROVIDER_KEY_ENV` is set beside `DEMO_DEPLOYMENT`. A page with neither
+#      is not the demo (or is down), and a reset is refused either way, so a
+#      DEMO_SITE_URL pointing at production can never get as far as step 2.
+#   2. The demo's connection string may not be production's. Compared by
+#      SHA-256, of the whole string and of the host, port and database name,
+#      so the step can say "they match" without printing either.
+#   3. `scripts/demo-data.ts` refuses a database that is not on loopback
+#      (`scripts/lib/local-db.mjs`). The allowance is passed in the one step
+#      that runs it, and only ever with the demo's connection string.
+#
+# The demo's connection string is mapped into the steps that need a database
+# and no others. Operator steps (docs/30-pilots.md, "The shared demo"): a
+# repository secret `DEMO_DATABASE_URL`, a repository variable `DEMO_SITE_URL`.
+
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: reset-demo
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  reset:
+    name: Reset
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+
+    steps:
+      - name: Check the demo says it is the demo and carries no model key
+        env:
+          SITE: ${{ vars.DEMO_SITE_URL }}
+        run: |
+          if [ -z "$SITE" ]; then
+            echo "No DEMO_SITE_URL repository variable, so there is no demo to check. Nothing was changed." >&2
+            exit 1
+          fi
+          if ! page=$(curl -fsSL --max-time 60 "${SITE%/}/dictionary"); then
+            echo "The demo at $SITE did not answer, so whether it carries a model key is unknown. Nothing was changed." >&2
+            exit 1
+          fi
+          if printf '%s' "$page" | grep -q 'data-demo-banner="unsafe"'; then
+            echo "The demo at $SITE has a model key set beside DEMO_DEPLOYMENT, so any visitor can spend the operator's money." >&2
+            echo "Remove the key from that deployment and run this again. Nothing was changed." >&2
+            exit 1
+          fi
+          if ! printf '%s' "$page" | grep -q 'data-demo-banner="shared"'; then
+            echo "$SITE does not draw the demo banner, so it is not a demo deployment (DEMO_DEPLOYMENT=1 unset, or the wrong address). Nothing was changed." >&2
+            exit 1
+          fi
+          echo "The demo at $SITE says it is the demo and carries no model key."
+
+      - name: Check the demo's database is not production's
+        env:
+          DEMO: ${{ secrets.DEMO_DATABASE_URL }}
+          PROD_DIRECT: ${{ secrets.DIRECT_URL }}
+          PROD_POOLED: ${{ secrets.DATABASE_URL }}
+        run: |
+          node --input-type=module -e '
+            import { createHash } from "node:crypto";
+            const sha = (s) => createHash("sha256").update(s).digest("hex");
+            const where = (s) => {
+              try { const u = new URL(s); return `${u.hostname}:${u.port || "5432"}${u.pathname}`; }
+              catch { return null; }
+            };
+            const demo = (process.env.DEMO ?? "").trim();
+            const prod = [process.env.PROD_DIRECT, process.env.PROD_POOLED].map((s) => (s ?? "").trim()).filter(Boolean);
+            if (!demo) { console.error("No DEMO_DATABASE_URL secret. Nothing was changed."); process.exit(1); }
+            if (prod.length === 0) {
+              console.error("No production connection string is visible to compare against, so this cannot prove the two differ. Nothing was changed.");
+              process.exit(1);
+            }
+            for (const p of prod) {
+              if (sha(demo) === sha(p) || (where(demo) && where(demo) === where(p))) {
+                console.error("DEMO_DATABASE_URL names the production database. Nothing was changed.");
+                process.exit(1);
+              }
+            }
+            console.log("The demo database is not the production one.");
+          '
+
+      - uses: actions/checkout@v7
+        with: { persist-credentials: false }
+
+      - uses: actions/setup-node@v7
+        with: { node-version: "22", cache: npm }
+
+      - run: npm ci
+
+      - run: npx prisma generate
+
+      # Empties the demo and lays the tables down again. Never production: the
+      # step above refuses that, and this step is handed no other string.
+      - name: Empty the demo and push the schema
+        env:
+          DATABASE_URL: ${{ secrets.DEMO_DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DEMO_DATABASE_URL }}
+        run: npx prisma db push --force-reset
+
+      - name: Seed the dictionary
+        env:
+          DATABASE_URL: ${{ secrets.DEMO_DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DEMO_DATABASE_URL }}
+        run: npm run db:seed
+
+      - name: Lay down two months of history
+        env:
+          DATABASE_URL: ${{ secrets.DEMO_DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DEMO_DATABASE_URL }}
+          KODUKEEL_ALLOW_REMOTE_DB: "1"
+        run: npm run demo
+
+      - name: Say what was done
+        run: echo "The demo was emptied, seeded and given two months of history again." >> "$GITHUB_STEP_SUMMARY"

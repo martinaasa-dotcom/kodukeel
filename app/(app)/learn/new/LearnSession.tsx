@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowRight, Check, Sparkles, X } from "lucide-react";
 import { gradeCard } from "@/app/actions";
@@ -754,6 +756,7 @@ export function LearnSession({
     knows about only some of the screens it is mounted on is the fault this app
     has already fixed once, on the first meeting.
   */
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
@@ -783,6 +786,7 @@ export function LearnSession({
       // Safe as a letter here because this handler has already returned above
       // if focus is in a text box, which is where `b` is the first letter of
       // `buss`. The review screen had to be corrected for exactly that.
+      if (!mayActOnKey(e, singleKeys)) return;
       if (e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (phase === "feedback") {
         if (isAdvanceKey(e)) { e.preventDefault(); carryOn(); }
@@ -798,7 +802,7 @@ export function LearnSession({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [phase, rung, word, met, pick, carryOn, look, showMeetIntro, showAnswerIntro]);
+  }, [singleKeys, phase, rung, word, met, pick, carryOn, look, showMeetIntro, showAnswerIntro]);
 
   /* The card's own Continue, brought into view once an answer is marked: the
      verdict grows the card past the fold on a phone (`useKeepInView`). */

@@ -31,6 +31,8 @@ const UNSET: Record<string, string> = {
   APPLE_TEAM_ID: "",
   ASR_BENCH: "",
   ASR_MODEL_BUNDLED: "",
+  KODUKEEL_BUILT_AT: "",
+  DEMO_DEPLOYMENT: "",
   ALLOWED_EMAILS: "",
   ALLOWED_EMAIL_DOMAINS: "",
   ANDROID_CERT_SHA256: "",

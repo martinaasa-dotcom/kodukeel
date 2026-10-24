@@ -18,6 +18,8 @@ import { Meaning } from "@/components/Meaning";
 import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 import { countOf, fill } from "@/lib/copy/locale";
 import { rich } from "@/components/round/rich";
+import { roundName, roundPageTitle } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 export interface MatchPair {
   cardId: string;
@@ -196,7 +198,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
 
   if (pairs.length === 0) {
     return (
-      <Page title={t("Match")} lead={t("Pair each Estonian word with its meaning, as fast as you can.")}>
+      <Page {...roundPageTitle("/review/match", t)} lead={t("Pair each Estonian word with its meaning, as fast as you can.")}>
         <Empty
           title={t("A few more words needed")}
           body={t("Match needs at least four words in your deck. Learn a couple more and come back.")}
@@ -210,7 +212,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
     return (
       <RoundStart
         icon={<Timer size={26} aria-hidden />}
-        title={t("Match")}
+        title={<RoundNameText name={roundName("/review/match")} translate={t} />}
         lead={t("Clear the board as fast as you can.")}
         hue="sky"
         chips={<>
@@ -265,7 +267,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
       {/* The heading a session screen has no room to draw. Same line as every
           other mode: the start screen and the finished screen each carry one
           and the round itself did not. */}
-      <h1 className="sr-only">{t("Match")}</h1>
+      <h1 className="sr-only"><RoundNameText name={roundName("/review/match")} translate={t} /></h1>
       <div className="mb-6 flex items-center justify-between gap-4">
         <EndSession label={t("End round")} />
         <div

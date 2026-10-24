@@ -232,7 +232,10 @@ export async function middleware(request: NextRequest) {
       the site is (app/llms.txt/route.ts); `/.well-known/` is where a crawler
       looks for files like an agent catalog, and there is none here, so it
       answers 404 rather than a sign-in form a checker then reads as a broken
-      catalog (PageSpeed's agentic browsing, 14 October 2026).
+      catalog (PageSpeed's agentic browsing, 14 October 2026). It is also where
+      a security researcher looks for `security.txt`
+      (app/.well-known/security.txt/route.ts), which has to be readable by
+      somebody with no account here and holds nothing about anybody.
     */
     path.startsWith("/llms.txt") ||
     /*

@@ -24,6 +24,8 @@ import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/Lo
 import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 import { rich } from "@/components/round/rich";
+import { roundName, roundPageTitle } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 /** A gap, plus the card it is practicing. */
 type Gap = ClozeItem & { cardId: string | null };
@@ -137,7 +139,7 @@ export function ClozeSession() {
   if (phase === "paste") {
     return (
       <Page
-        title={t("From your reading")}
+        {...roundPageTitle("/review/cloze", t)}
         lead={t("Paste in an article, a message or your homework. The words you're learning become gaps.")}
       >
         <div
@@ -234,7 +236,7 @@ export function ClozeSession() {
       {/* The heading a session screen has no room to draw. Same line as every
           other mode: the start screen and the finished screen each carry one
           and the round itself did not. */}
-      <h1 className="sr-only">{t("From your reading")}</h1>
+      <h1 className="sr-only"><RoundNameText name={roundName("/review/cloze")} translate={t} /></h1>
       <RoundProgress done={index} total={items.length} label={t("Passage progress")} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (

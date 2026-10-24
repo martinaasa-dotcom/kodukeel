@@ -78,3 +78,14 @@ export function nameOf(href: string): RoundName | undefined {
 export function inlineName(name: RoundName, translate: (english: string) => string = (english) => english): string {
   return `${name.et} (${translate(name.en)})`;
 }
+
+/**
+ * A round's page heading, spread onto `Page`: the Estonian name as the title,
+ * marked Estonian, and the English on the quieter line under it, the way a
+ * tile draws it. `translate` is the screen's own, so the gloss is in the
+ * reader's language.
+ */
+export function roundPageTitle(href: string, translate: (english: string) => string = (english) => english) {
+  const name = roundName(href);
+  return { title: name.et, titleLang: "et", titleGloss: translate(name.en) } as const;
+}

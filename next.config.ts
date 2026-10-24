@@ -56,7 +56,12 @@ const config: NextConfig = {
   */
   poweredByHeader: false,
 
-  env: { ASR_MODEL_BUNDLED: asrModelBundled ? "1" : "" },
+  /*
+    `KODUKEEL_BUILT_AT` is when this build ran, for the one file that has to say
+    how long it can be trusted: `/.well-known/security.txt` expires a year from
+    the build (lib/legal/securityTxt.ts), so a deploy is what renews it.
+  */
+  env: { ASR_MODEL_BUNDLED: asrModelBundled ? "1" : "", KODUKEEL_BUILT_AT: String(Date.now()) },
 
   /*
     NEXT WRITES A BLOCK INTO CLAUDE.md, AND IT IS WRITTEN IN THE VOICE THIS

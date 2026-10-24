@@ -1,4 +1,4 @@
-import { titleFor } from "@/lib/progress/locale";
+import { roundTitleFor } from "@/lib/progress/locale";
 import { requireUserId } from "@/lib/auth/session";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { buildWordplay } from "@/lib/games/wordplay";
@@ -6,7 +6,7 @@ import { BeforeYouStart } from "@/components/round/Briefing";
 import { WordplaySession } from "./WordplaySession";
 
 export async function generateMetadata() {
-  return titleFor("Sõnamäng");
+  return roundTitleFor("/review/wordplay");
 }
 
 export const dynamic = "force-dynamic";

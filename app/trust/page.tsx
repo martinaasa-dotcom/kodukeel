@@ -67,7 +67,7 @@ export default async function TrustPage({ searchParams }: { searchParams: Public
   };
 
   return (
-    <Legal title={t("Trust and security")} updated="5 September 2026" locale={locale} explicit={explicit} path="/trust">
+    <Legal title={t("Trust and security")} updated="24 October 2026" locale={locale} explicit={explicit} path="/trust">
       <P>
         {t("This page is for whoever decides whether Kodukeel is safe for a class, a team or a grant. The short answers come first, and each one takes you to the detail below.")}
       </P>
@@ -185,7 +185,7 @@ export default async function TrustPage({ searchParams }: { searchParams: Public
 
       <S id="security" title={t("Security posture")}>
         <P>
-          {t("The security work is written down in full rather than summarized for you. There are three documents, and each one names files you can open:")}
+          {t("The security work is written down in full rather than summarized for you. There are five documents, and each one names files you can open:")}
         </P>
         <ul className="space-y-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           <li>
@@ -203,9 +203,19 @@ export default async function TrustPage({ searchParams }: { searchParams: Public
               doc: doc("docs/29-controls.md", "Control map"),
             })}
           </li>
+          <li>
+            {rich(t("{doc}: one row per risk, with its owner, likelihood, impact, treatment and the date it is next reviewed. A risk that needs money or a person is left for the operator to decide."), {
+              doc: doc("docs/47-risk-register.md", "Risk register"),
+            })}
+          </li>
+          <li>
+            {rich(t("{doc}: what is worth protecting, where it lives, who runs the control around it, and when it is next reviewed."), {
+              doc: doc("docs/48-asset-register.md", "Asset register"),
+            })}
+          </li>
         </ul>
         {locale !== "en" && (
-          <P>{t("The three documents are in English.")}</P>
+          <P>{t("The five documents are in English.")}</P>
         )}
         <P>
           {rich(t("**What this project does not have, stated plainly.** There is no SOC 2 report. There is no ISO/IEC 27001 certificate. The control map is a self-assessment written by the people who wrote the code, and it has not been reviewed by anybody outside this project. No external penetration test has been commissioned, so nobody has attacked this application under contract, and no independent reviewer has read the source for security faults. The code being public is not the same thing as having been audited."))}
@@ -256,6 +266,13 @@ export default async function TrustPage({ searchParams }: { searchParams: Public
             policy: <a href={`${REPO}/SECURITY.md`} className="underline underline-offset-2" rel="noreferrer">SECURITY.md</a>,
           })}
         </P>
+        {operator.identified && (
+          <P>
+            {rich(t("The same address is published for scanners and researchers at {file}, in the standard form, renewed with every deploy."), {
+              file: <a href="/.well-known/security.txt" className="underline underline-offset-2">/.well-known/security.txt</a>,
+            })}
+          </P>
+        )}
         <P>
           {fill(t("If a breach ever affects personal data, the incident document above is the procedure we follow, and the supervisory authority for Estonia is the {authority} ({local})."), {
             authority: t(SUPERVISORY_AUTHORITY.name),

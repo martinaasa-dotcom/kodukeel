@@ -1,6 +1,8 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { Meaning } from "@/components/Meaning";
 import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 import { fill } from "@/lib/copy/locale";
@@ -25,6 +27,8 @@ import { RoundDone } from "@/components/round/RoundDone";
 import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { useKeepInView } from "@/components/round/useKeepInView";
+import { inlineName, roundName, roundPageTitle } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 /**
  * A different speaker for each word, the way the examination's listening part
@@ -156,7 +160,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
     if (card) {
       look.record({
         of: card.id,
-        label: t("Listening"),
+        label: inlineName(roundName("/review/listening"), t),
         question: card.lemma,
         answer: card.correct,
         note: null,
@@ -169,6 +173,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
     setIndex((i) => i + 1);
   }, [answered, card, look, t]);
 
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (finished) return;
@@ -178,6 +183,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
         if (isAdvanceKey(e)) { e.preventDefault(); look.forward(); }
         return;
       }
+      if (!mayActOnKey(e, singleKeys)) return;
       if (e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (answered) {
         if (isAdvanceKey(e)) { e.preventDefault(); next(); }
@@ -188,11 +194,11 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [finished, answered, card, pick, next, look]);
+  }, [singleKeys, finished, answered, card, pick, next, look]);
 
   if (wasEmptyAtStart) {
     return (
-      <Page title={t("Listening")} lead={t("Listen to a word, then pick what it means.")}>
+      <Page {...roundPageTitle("/review/listening", t)} lead={t("Listen to a word, then pick what it means.")}>
         <Empty
           title={t("Nothing to listen to yet")}
           body={t("It plays words that are due, or that tripped you up before, and right now there aren't any.")}
@@ -242,7 +248,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
           nothing back, while the four modes that happen to have a title bar
           answered fine. The `Empty` and finished states of these same files
           already carry one, which is how the gap survived a sweep. */}
-      <h1 className="sr-only">{t("Listening")}</h1>
+      <h1 className="sr-only"><RoundNameText name={roundName("/review/listening")} translate={t} /></h1>
       <RoundProgress done={index} total={cards.length} left={remaining} label={t("Session progress")} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (
@@ -251,7 +257,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-          <Chip tone="accent"><Headphones size={12} aria-hidden /> {t("Listening")}</Chip>
+          <Chip tone="accent"><Headphones size={12} aria-hidden /> <span lang="et">{roundName("/review/listening").et}</span></Chip>
           <span className="ml-auto text-xs" style={{ color: "var(--ink-3)" }}>{fill(t("{n} correct"), { n: correct })}</span>
           {/* ONLY ONCE THE ANSWER IS IN, WHICH IS NOT THE RULE ON ANY OTHER
               ROUND. The word here is played and deliberately never written

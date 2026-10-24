@@ -1,6 +1,8 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { Meaning } from "@/components/Meaning";
 import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 import { countOf, fill } from "@/lib/copy/locale";
@@ -42,6 +44,8 @@ import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/Lo
 import { FitText } from "@/components/FitText";
 import { CaseLabel } from "@/components/CaseLabel";
 import { caseLabelOf } from "@/lib/copy/caseLabel";
+import { roundName } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 /** A task, plus where the word stands, which is the thing the round is moving. */
 export interface FlashPrompt extends FlashTask {
@@ -286,6 +290,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     `build` is a textarea and takes the modifier, since a sentence sometimes
     wants a line break.
   */
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       /* While a look back is on screen the round is not, so its keys are not
@@ -295,6 +300,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
         if (isAdvanceKey(e) && !inEditable(e.target)) { e.preventDefault(); look.forward(); }
         return;
       }
+      if (!mayActOnKey(e, singleKeys)) return;
       if (e.key.toLowerCase() === "b" && !inEditable(e.target) && look.seen.length > 0) {
         e.preventDefault();
         look.open();
@@ -313,7 +319,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [mark, next, check, shape, look, needsRetype]);
+  }, [singleKeys, mark, next, check, shape, look, needsRetype]);
 
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
@@ -344,7 +350,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
       {/* The heading a session screen has no room to draw. Every mode carries
           one: the empty state had a heading and the round did not, so an
           accessibility run that met an empty deck saw one and passed. */}
-      <h1 className="sr-only">{t("Flash cards")}</h1>
+      <h1 className="sr-only"><RoundNameText name={roundName("/review/flashcards")} translate={t} /></h1>
       <RoundProgress done={index} total={prompts.length} endHref="/practice" />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (

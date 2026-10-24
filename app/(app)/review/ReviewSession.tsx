@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { useRouter } from "next/navigation";
 import { Check, Compass, Keyboard, MessageCircleQuestion, RotateCcw, Undo2, X, Zap } from "lucide-react";
@@ -66,6 +68,8 @@ import { twinTyped, type TwinGroup, type TwinWord } from "@/lib/collections/twin
 import type { ReviewCard } from "@/lib/review/card";
 
 import type { Contrast, ContrastWord } from "@/lib/progress/contrast";
+import { roundName, roundPageTitle } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 /** A look-alike typed for the card's own word, and the pair the two belong to. */
 interface TwinMixup {
@@ -422,7 +426,7 @@ interface Done {
 
 export function ReviewSession({
   cards: initialCards, drillCase, drillUnit, drillScan, totalCards, mode, nextDue,
-  waitingOnCourse = false, title = "Review",
+  waitingOnCourse = false, title,
 }: {
   cards: ReviewCard[];
   drillCase?: string;
@@ -1190,6 +1194,7 @@ export function ReviewSession({
     producedAt.current = Date.now();
   }, [card, chosen, cheer, answerLanguage]);
 
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (finished) return;
@@ -1263,6 +1268,7 @@ export function ReviewSession({
         Estonian: the flip, the choice and a first meeting. On a typed card
         the button in the footer is one press away and the letter is a letter.
       */
+      if (!mayActOnKey(e, singleKeys)) return;
       if (e.key.toLowerCase() === "b" && !typing && look.seen.length > 0) {
         e.preventDefault();
         look.open();
@@ -1327,11 +1333,11 @@ export function ReviewSession({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [answerShown, revealed, submit, finished, ask, verdict, checkTyped, chosen, card, pickChoice, meetDone, undo, history.length, needsRetype, retypeOk, look, answerLanguage]);
+  }, [singleKeys, answerShown, revealed, submit, finished, ask, verdict, checkTyped, chosen, card, pickChoice, meetDone, undo, history.length, needsRetype, retypeOk, look, answerLanguage]);
 
   if (wasEmptyAtStart) {
     return (
-      <Page title={t("Review")} lead={t("Each word comes back just as you're about to forget it.")}>
+      <Page {...roundPageTitle("/review", t)} lead={t("Each word comes back just as you're about to forget it.")}>
         {drillCase ? (
           <Empty
             // The Estonian name, like every other screen that names a case.
@@ -1533,7 +1539,7 @@ export function ReviewSession({
           nothing back, while the four modes that happen to have a title bar
           answered fine. The `Empty` and finished states of these same files
           already carry one, which is how the gap survived a sweep. */}
-      <h1 className="sr-only">{t(title)}</h1>
+      <h1 className="sr-only">{title ? t(title) : <RoundNameText name={roundName("/review")} translate={t} />}</h1>
       <div className="mb-7 flex items-center gap-4">
         <EndSession />
         <div className="flex-1">

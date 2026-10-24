@@ -1,4 +1,4 @@
-import { localeFor, titleFor } from "@/lib/progress/locale";
+import { localeFor, roundTitleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
@@ -14,9 +14,10 @@ import { BeforeYouStart } from "@/components/round/Briefing";
 import { byRecency, recentLemmas, slotWithin } from "@/lib/course/scope";
 import { practiceScope } from "@/lib/progress/moduleScope";
 import { SUBJECT_PRONOUN } from "@/lib/scenes/lexicon";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export async function generateMetadata() {
-  return titleFor("Conjugation");
+  return roundTitleFor("/review/conjugation");
 }
 
 export const dynamic = "force-dynamic";
@@ -178,7 +179,7 @@ export default async function ConjugationPage({
   if (questions.length === 0) {
     const locale = await localeFor(ownerId);
     return (
-      <Page title={tr(locale, "Conjugation")} lead={tr(locale, "One verb at a time: I, you, he or she, we, you all and they.")}>
+      <Page {...roundPageTitle("/review/conjugation", (english) => tr(locale, english))} lead={tr(locale, "One verb at a time: I, you, he or she, we, you all and they.")}>
         <Empty
           title={tr(locale, "No verbs to practice yet")}
           body={tr(locale, "Start a unit with verbs in it, or look a verb up in the dictionary.")}

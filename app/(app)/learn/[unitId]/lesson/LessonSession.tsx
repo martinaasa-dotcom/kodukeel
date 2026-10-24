@@ -1,6 +1,8 @@
 "use client";
 
 import { endingName, sayLineIn } from "@/lib/estonian/plainAsk";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { CaseQuestion } from "@/components/CaseQuestion";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
@@ -330,9 +332,11 @@ function Options({
   /** How an option is drawn, where a bare string is not the whole of it. */
   render?: (option: string) => ReactNode;
 }) {
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     if (chosen !== null) return;
     const onKey = (e: KeyboardEvent) => {
+      if (!mayActOnKey(e, singleKeys)) return;
       const n = Number(e.key);
       if (Number.isInteger(n) && n >= 1 && n <= options.length) {
         e.preventDefault();
@@ -341,7 +345,7 @@ function Options({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [chosen, onChoose, options.length]);
+  }, [singleKeys, chosen, onChoose, options.length]);
 
   return (
     <div className="flex flex-col gap-2">

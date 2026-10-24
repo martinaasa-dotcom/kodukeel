@@ -499,8 +499,10 @@ is a self-assessment and says so at the top in bold. *Plan and trigger:* set out
 with the cost, and `docs/33-certification-readiness.md` turns every gap in it into a sized piece of
 work in the order we would actually do them.
 
-**No formal risk register or asset inventory as separate documents.** Section 3 above is the closest
-thing, and it lives in a design document rather than in a register anybody reviews on a schedule.
+**A risk register and an asset register exist, and have not yet been reviewed with the operator.**
+Since 24 October 2026 they are `docs/47-risk-register.md` and `docs/48-asset-register.md`, seeded from
+sections 3 and 4 above and from the DPIA, with owners and quarterly review dates. They describe and
+decide nothing; the first scheduled review is 24 January 2027.
 
 **No security awareness training program, no background checks, no formal onboarding and offboarding
 procedure.** There is one company and a very small number of people. Section 2 of

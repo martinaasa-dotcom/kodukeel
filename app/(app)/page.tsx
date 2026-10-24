@@ -993,7 +993,7 @@ export default async function TodayPage() {
       <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{t(featured.why)}</p>
       <div className="mt-3 flex justify-center">
         <ButtonLink href={featured.href} variant="primary">
-          {t(featuredTitle(featured.href) ?? "Play")} <ArrowRight size={15} aria-hidden />
+          {featuredTitle(featured.href, t) ?? t("Play")} <ArrowRight size={15} aria-hidden />
         </ButtonLink>
       </div>
     </Card>
