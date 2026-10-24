@@ -32,6 +32,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } fr
 import { dirname } from "node:path";
 
 import { fetchEkilexDetails, searchEkilexAnswered } from "../lib/ekilex/client";
+import { ekilexJobs } from "./lib/ekilexJobs";
 import { mapEkilexDetails } from "../lib/ekilex/mapper";
 import { extractEstonianEntries, furtherSenses, type EstonianSense } from "../lib/dict/wiktionary";
 import { resolvePos } from "../lib/dict/pos";
@@ -81,6 +82,14 @@ const CATEGORIES: { category: string; pos: string }[] = [
  * source would not answer, and if that number climbs this is the knob.
  */
 const CONCURRENCY = 8;
+/*
+  Eight workers, and still at most two requests in flight to Ekilex: every
+  Ekilex request goes through the gate in lib/ekilex/client.ts, which holds
+  the two docs/05-integrations.md section 1.4 promised. The workers are for
+  Wiktionary, which answers far more pages than Ekilex is asked for. Past two
+  for Ekilex needs `--jobs=N --past-the-limit` (scripts/lib/ekilexJobs.ts).
+*/
+ekilexJobs();
 
 export interface ExpandedEntry {
   lemma: string;

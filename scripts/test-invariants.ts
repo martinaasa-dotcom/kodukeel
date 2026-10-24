@@ -23237,9 +23237,16 @@ check("the interview settles the wage before it asks for a start day, off the ca
 */
 check("the harvest tells a refusal from a miss and plans its write rather than taking it", () => {
   const harvest = code("scripts/harvest-ekilex.ts");
+  // Through the gate in lib/ekilex/client.ts since S-2, which reads every
+  // answer through readAnswer itself; so the harvest may ask either, and the
+  // gate is held to reading through it.
   assert.match(
-    harvest, /const answer = await readAnswer<T>\(/,
+    harvest, /const answer = await (?:readAnswer|ekilexRequest)<T>\(/,
     "the harvest's transport stopped reading its answers through readAnswer, so a 403 is a miss again",
+  );
+  assert.match(
+    code("lib/ekilex/client.ts"), /last = await readAnswer<T>\(/,
+    "the Ekilex gate stopped reading its answers through readAnswer, so a 403 is a miss again",
   );
   assert.match(
     harvest, /if \(answer\.kind === "refused"\) \{[\s\S]*?throw new NoAnswer/,

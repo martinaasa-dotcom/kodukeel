@@ -3,6 +3,7 @@ import { editExamples } from "@/lib/dict/editExamples";
 import { upsertLexemeWithForms } from "@/lib/dict/upsert";
 import { replaceForms } from "@/lib/dict/replaceForms";
 import { isPrincipalFormType } from "@/lib/estonian/types";
+import { PARTS } from "@/lib/copy/values";
 import { createWordClash, type Patch } from "./model";
 
 /**
@@ -31,7 +32,13 @@ import { createWordClash, type Patch } from "./model";
  * business rewriting a third party's cards.
  */
 export type ApplyOutcome =
-  | { ok: true; changed: true; lexemeId: string; summary: string }
+  /**
+   * `replaced` is what the field held before, where the change replaced a
+   * value: the English for a new translation, the old spelling for a new
+   * principal part. Stored on the report so the corrections sent back to EKI
+   * (`scripts/export-corrections.ts`) can say from what to what.
+   */
+  | { ok: true; changed: true; lexemeId: string; summary: string; replaced?: string | null }
   | { ok: true; changed: false; summary: string }
   | { ok: false; error: string };
 
@@ -92,6 +99,7 @@ export async function applyPatch(patch: Patch | null, reviewerId: string): Promi
         ok: true,
         changed: true,
         lexemeId: lexeme.id,
+        replaced: lexeme.translation,
         summary: `${lexeme.lemma} now reads "${patch.translation}".`,
       };
     }
@@ -113,6 +121,11 @@ export async function applyPatch(patch: Patch | null, reviewerId: string): Promi
       }
       const lexeme = await prisma.lexeme.findUnique({ where: { id: patch.lexemeId } });
       if (!lexeme) return { ok: false, error: "That entry isn't in the dictionary any more." };
+      const before = await prisma.form.findMany({
+        where: { lexemeId: lexeme.id, formType: patch.formType },
+        orderBy: { orderIndex: "asc" },
+        select: { value: true },
+      });
 
       // Under the entry's own row: two reviewers accepting two corrections to
       // one slot at once otherwise leave both values standing, since the value
@@ -131,6 +144,7 @@ export async function applyPatch(patch: Patch | null, reviewerId: string): Promi
         changed: true,
         lexemeId: lexeme.id,
         summary: `${lexeme.lemma}: ${patch.formType} is now ${patch.value}.`,
+        replaced: before.length > 0 ? before.map((f) => f.value).join(PARTS) : null,
       };
     }
 

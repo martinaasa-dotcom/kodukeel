@@ -51,20 +51,20 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { readExpanded, writeExpanded } from "./lib/expandedFile";
-import { primarySemanticTypes } from "../lib/ekilex/client";
+import { ekilexRequest, primarySemanticTypes } from "../lib/ekilex/client";
+import { ekilexJobs } from "./lib/ekilexJobs";
 import { SEMANTIC_GROUPS, semanticGroup } from "../lib/estonian/semantics";
 
 const ROOT = path.resolve(__dirname, "..");
 const CACHE = path.join(ROOT, ".ekilex-cache");
-const BASE = "https://ekilex.ee/api";
 const API_KEY = process.env.EKILEX_API_KEY ?? "";
 
 const WRITE = process.argv.includes("--write");
 const limitArg = process.argv.indexOf("--limit");
 const LIMIT = limitArg === -1 ? Infinity : Number(process.argv[limitArg + 1]);
 
-/** How many requests may be in flight against a service the Institute runs. */
-const CONCURRENCY = 5;
+/** How many requests may be in flight against a service the Institute runs: two, unless asked past it. */
+const CONCURRENCY = ekilexJobs();
 
 interface Entry {
   lemma: string;
@@ -98,23 +98,16 @@ async function cached<T>(name: string, fn: () => Promise<T | null>): Promise<T |
   return value;
 }
 
-async function call<T>(pathname: string, attempt = 0): Promise<T | null> {
-  try {
-    const res = await fetch(`${BASE}${pathname}`, {
-      headers: { "ekilex-api-key": API_KEY },
-      signal: AbortSignal.timeout(30_000),
-    });
-    if (res.status === 429 || res.status >= 500) throw new Error(`HTTP ${res.status}`);
-    if (!res.ok) return null;
-    return (await res.json()) as T;
-  } catch (err) {
-    if (attempt >= 4) {
-      console.warn(`  ! giving up on ${pathname}: ${(err as Error).message}`);
-      return null;
-    }
-    await new Promise((r) => setTimeout(r, 1_000 * 2 ** attempt));
-    return call<T>(pathname, attempt + 1);
-  }
+/**
+ * One request through the gate in `lib/ekilex/client.ts`, which holds two in
+ * flight, backs off on a 429 or a 5xx and gives up after three tries. A
+ * refusal or a give-up is null, as it was.
+ */
+async function call<T>(pathname: string): Promise<T | null> {
+  const answer = await ekilexRequest<T>(pathname);
+  if (answer.kind === "answered") return answer.value;
+  if (answer.kind === "failed") console.warn(`  ! giving up on ${pathname}: ${answer.reason}`);
+  return null;
 }
 
 async function main(): Promise<void> {

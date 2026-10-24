@@ -521,10 +521,10 @@ operator sends.
   under the forms and the sentences: the Institute, the license linked to its deed, and that cases and
   persons marked as derived were worked out from what Ekilex stores. Translated into Russian and
   Ukrainian.
-- `scripts/export-corrections.ts` (to be written): the accepted reports and hand edits on entries that
+- `scripts/export-corrections.ts`: the accepted reports and hand edits on entries that
   carry an `ekilexWordId`, as a CSV of word id, lemma, what changed from what to what, the reviewer's
   note and the date. Nothing about who reported it. It writes a file; sending it is the operator's.
-- `docs/45-ekilex` (to be written): a brief for EKI, in English and Estonian (the Estonian read by
+- `docs/45-ekilex.md`: a brief for EKI, in English and Estonian (the Estonian read by
   the native speaker, as D16): what Kodukeel takes from Ekilex and when (the 32-request word list, the
   course harvest, the expansion's ids, the live lookups), how it caches, the figures `/impact` shows and
   how to read them, the credit and where it appears, the corrections export, and what the operator would
@@ -1668,7 +1668,7 @@ way as the web.
 
 - **Run `scripts/check-show-ready.mjs` (to be written) against production** and send nothing
   until it passes.
-- **Write to EKI** with `/partners`, `docs/45-ekilex` (to be written), from S-2, and the first
+- **Write to EKI** with `/partners`, `docs/45-ekilex.md`, from S-2, and the first
   corrections file, before the app is shown to anybody else, so they hear about the load and the harvest
   from Kodukeel first.
 - **Read the Estonian** of S-3 and of the EKI brief, as the native speaker, before each merges.
