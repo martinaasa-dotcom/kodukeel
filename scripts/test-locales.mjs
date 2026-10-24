@@ -347,6 +347,7 @@ async function entryPages(locale) {
     ? [
       "/welcome/et", "/privacy?lang=et", "/terms?lang=et", "/trust?lang=et", "/accessibility?lang=et",
       "/funding?lang=et", "/impact?lang=et", "/partners?lang=et", "/curriculum?lang=et",
+      "/teachers?lang=et", "/state-exam?lang=et", "/help?lang=et", "/how-we-know?lang=et", "/pilots?lang=et",
     ]
     : [
       `/welcome/${locale}`, `/privacy?lang=${locale}`, `/terms?lang=${locale}`, `/trust?lang=${locale}`,

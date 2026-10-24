@@ -2,14 +2,14 @@ import { BookOpen, Headphones, Mic, PenLine } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { P, PublicFooter, PublicHeader, S } from "@/components/Legal";
 import { TranslationNotice } from "@/components/PublicLanguage";
-import { LOCALES, tr, type Locale } from "@/lib/copy/locale";
+import { PUBLIC_LOCALES, tr, type PublicLocale } from "@/lib/copy/locale";
 import { localeHref } from "@/lib/copy/publicLocale";
 import { GUIDE, MATERIALS, READ_ON, SOURCES, type Fact } from "@/lib/exam/official";
-import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicPageTitle, resolvePublicPage, type PublicSearch } from "@/lib/progress/publicLocale";
 import { publicCard } from "@/lib/copy/publicCards";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicTitle(searchParams, "The state examination", undefined, publicCard("/state-exam"));
+  return publicPageTitle(searchParams, "The state examination", undefined, publicCard("/state-exam"));
 }
 
 const MONTHS = [
@@ -17,10 +17,11 @@ const MONTHS = [
   "July", "August", "September", "October", "November", "December",
 ];
 
-/** "25 September 2026", with the month in the page's language and case. */
-function spelledDay(iso: string, locale: Locale): string {
+/** "25 September 2026", with the month in the page's language and case ("25. septembril 2026" in Estonian). */
+function spelledDay(iso: string, locale: PublicLocale): string {
   const [year, month, day] = iso.split("-").map(Number);
   const name = MONTHS[(month ?? 1) - 1] ?? "";
+  if (locale === "et") return `${day}. ${tr(locale, name, "date")} ${year}`;
   return `${day} ${locale === "en" ? name : tr(locale, name, "date")} ${year}`;
 }
 
@@ -31,18 +32,18 @@ function sourcesOf(facts: readonly Fact[]) {
 /**
  * What the state examination is, off the state's own pages.
  *
- * In Russian and Ukrainian the facts and the source labels are read through
+ * In Russian, Ukrainian and Estonian the facts and the source labels are read through
  * the public area (lib/copy/i18n/areas/public.ts); every link still goes to
  * the page the fact came from, which is in Estonian or English, and the page
  * says the facts were checked against those rather than against a translation.
  */
 export default async function StateExamPage({ searchParams }: { searchParams: PublicSearch }) {
-  const { locale, explicit } = await resolvePublicLocale(searchParams);
+  const { locale, explicit } = await resolvePublicPage(searchParams);
   const t = (english: string) => tr(locale, english);
   const href = (to: string) => localeHref(to, locale, explicit);
   return (
     <main lang={locale} className="mx-auto max-w-2xl px-5 py-10 md:px-8 md:py-16">
-      <PublicHeader locale={locale} path="/state-exam" drawnIn={LOCALES} />
+      <PublicHeader locale={locale} path="/state-exam" drawnIn={PUBLIC_LOCALES} />
       <h1 className="mt-8 text-3xl font-bold leading-tight tracking-tight" style={{ color: "var(--ink)" }}>
         {t("The state examination")}
       </h1>

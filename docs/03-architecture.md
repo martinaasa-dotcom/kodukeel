@@ -252,15 +252,17 @@ what it costs and what it keeps, and reads it more carefully in Estonian (decisi
 `docs/44-sixth-batch.md`). *Decision:* `PUBLIC_LOCALES` in `lib/copy/locale.ts` names Estonian
 beside English, Russian and Ukrainian, and `LOCALES`, which decides what a learner may choose and
 what every signed-in screen and letter is drawn in, does not. The landing page, `/privacy`,
-`/terms`, `/trust`, `/accessibility`, `/funding`, `/impact`, `/partners` and `/curriculum` read
+`/terms`, `/trust`, `/accessibility`, `/funding`, `/impact`, `/partners`, `/curriculum`, `/teachers`,
+`/state-exam`, `/how-we-know`, `/pilots` and `/help` read
 `?lang=et` or a browser that puts Estonian first, through `resolvePublicPage`; a signed-in learner
 keeps their own language and is never handed Estonian. The lines live under
 `lib/copy/i18n/areas/et/`, drafted by a model in a session and marked on every page as awaiting
 the native speaker, who reads them in the pull request before it merges. **They are about the app
 and teach nothing**: no line reaches a card, a lesson, a scene, the dictionary or a marking, the
 Estonian examples on the landing page stay the dictionary's in every language, and the course's
-own lessons and units stay in English on `/curriculum`, marked so. On the two policy pages the
-English prevails, and each says so first, in Estonian (`LEGAL_NOTICE`). The facts a page
+own lessons and units stay in English on `/curriculum`, marked so, as do the claims on
+`/how-we-know`. On the two policy pages and on `/pilots` the English prevails, and each says so
+first, in Estonian (`LEGAL_NOTICE`). The facts a page
 generates (the operator, the recipients, the authorities) are rendered from the same data in every
 language and never written into a line. *Consequences:* a learner is never offered the app in
 the language they are learning (`scripts/invariants/the-app-is-never-in-estonian.ts`), the voice

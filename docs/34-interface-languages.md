@@ -276,8 +276,9 @@ and reads it more carefully in Estonian (D16 in `docs/44-sixth-batch.md`, ADR-00
 the public pages can be read in Estonian, and nothing else can.
 
 - **Which pages.** The landing page (`/welcome/et`), `/privacy`, `/terms`, `/trust`,
-  `/accessibility`, `/funding`, `/impact`, `/partners` and `/curriculum`. `/curriculum` is drawn in
-  English and Estonian only, so its switch offers those two.
+  `/accessibility`, `/funding`, `/impact`, `/partners`, `/curriculum`, `/teachers`, `/state-exam`,
+  `/how-we-know`, `/pilots` and `/help`. `/curriculum`, `/how-we-know` and `/pilots` are drawn in
+  English and Estonian only, so their switch offers those two.
 - **How a page is read in Estonian.** `?lang=et` on the address, or a browser that puts Estonian
   ahead of English, Russian and Ukrainian (`asksForEstonian`, which reads the q weights). A
   signed-in learner keeps their own language on these pages and is never handed Estonian.
@@ -298,11 +299,12 @@ the public pages can be read in Estonian, and nothing else can.
 - **What stays as it is.** The landing page's Estonian examples are the dictionary's in every
   language; the English meanings beside them stay English and are marked `lang="en"`. On
   `/curriculum` the lessons and units describe themselves in English, as the course is written,
-  marked so, with a sentence saying it. "Settings" stays the English name, since it names a screen
+  marked so, with a sentence saying it, and so do the claims on `/how-we-know` and the sample class on
+  `/teachers`, which is the app's own drawing. "Settings" stays the English name, since it names a screen
   the reader meets in English once signed in. The facts a page generates (the operator, the
   recipients, the authorities, every figure) are rendered from the same data in every language
   and never written into a line.
-- **English prevails on the policy pages.** `/privacy` and `/terms` say so first, in Estonian
+- **English prevails on the policy pages.** `/privacy`, `/terms` and `/pilots` say so first, in Estonian
   (`LEGAL_NOTICE.et` in `lib/copy/publicLocale.ts`): the translation is for reading, and where it
   differs from the English, the English text applies.
 - **Not reviewed yet.** Every Estonian line was drafted by a model and waits for the native

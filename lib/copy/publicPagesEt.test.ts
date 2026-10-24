@@ -14,6 +14,8 @@ import { ASSUMPTIONS, DEFAULT_SHAPE, SCALE_LADDER, SERVICES, TUTOR_MODELS, billF
 import { MEASURED, SPEECH_MARKET } from "@/lib/funding/facts";
 import { CONTINUITY, STAGES } from "@/lib/funding/sustainability";
 import { SOURCE_CREDITS } from "@/lib/legal/credits";
+import { GUIDE, MATERIALS, SOURCES } from "@/lib/exam/official";
+import { UNIT_HOMEWORK_FROM } from "@/lib/copy/homework";
 
 /**
  * THE PUBLIC PAGES IN ESTONIAN, AND ONLY THE PUBLIC PAGES (D16 in
@@ -51,11 +53,17 @@ const FIRST = [
   "components/LandingAnu.tsx",
   ...readdirSync(join(ROOT, WELCOME)).filter((f) => f.endsWith(".tsx")).map((f) => `${WELCOME}/${f}`),
 ];
-const SECOND: readonly string[] = [];
+const SECOND = [
+  "app/teachers/page.tsx",
+  "app/state-exam/page.tsx",
+  "app/how-we-know/page.tsx",
+  "app/pilots/page.tsx",
+  "app/help/page.tsx",
+];
 const FILES = [...FIRST, ...SECOND];
 
 /** The paths whose share card is drawn in Estonian. */
-const CARDED = ["/trust", "/funding", "/privacy", "/accessibility", "/terms", "/impact", "/curriculum", "/partners"] as const;
+const CARDED = ["/trust", "/funding", "/privacy", "/accessibility", "/terms", "/impact", "/curriculum", "/partners", "/teachers", "/state-exam", "/how-we-know", "/pilots", "/help"] as const;
 
 /** Every literal a file hands the translator, with its context where it has one. */
 function literals(file: string): { english: string; context?: string }[] {
@@ -66,6 +74,8 @@ function literals(file: string): { english: string; context?: string }[] {
     new RegExp(String.raw`\bt\(\s*${str}(?:\s*,\s*"(\w+)")?\s*\)`, "g"),
     new RegExp(String.raw`\btr\(\s*\w+\s*,\s*${str}(?:\s*,\s*"(\w+)")?\s*\)`, "g"),
     new RegExp(String.raw`\btemplate=${str}`, "g"),
+    // /pilots names each link's text through its own two helpers.
+    new RegExp(String.raw`\b(?:page|doc)\(\s*"[^"]*"\s*,\s*${str}\s*\)`, "g"),
   ];
   for (const re of patterns) {
     for (const m of source.matchAll(re)) out.push({ english: JSON.parse(`"${m[1]}"`) as string, context: m[2] });
@@ -164,6 +174,14 @@ describe("the public pages in Estonian", () => {
         ])))),
       ...SOURCE_CREDITS.flatMap((c) => [c.gives, ...(c.by && c.by !== "Filosoft" ? [c.by] : [])]),
       ...CARDED.map((path) => PUBLIC_CARDS[path]),
+      // /state-exam's facts, the labels of the pages they came from, and its practice materials.
+      ...GUIDE.flatMap((section) => [section.title, ...section.facts.map((f) => f.text)]),
+      ...Object.values(SOURCES).map((source) => source.label),
+      ...MATERIALS.map((material) => material.label),
+      "Writing", "Listening", "Reading", "Speaking",
+      UNIT_HOMEWORK_FROM,
+      // Drawn on the Estonian /teachers alone, through tr("et", ...).
+      "The class below is drawn as the app draws it, and the app is in English, Russian or Ukrainian.",
     ].map((english) => ({ english }));
     expect(untranslated(lines), "untranslated in et").toEqual([]);
   });

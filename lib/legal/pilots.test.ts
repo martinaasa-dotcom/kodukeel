@@ -13,7 +13,9 @@ const page = readFileSync("app/pilots/page.tsx", "utf8").replace(/\s+/g, " ");
 
 describe("the pilots page", () => {
   it("keeps its section on what is not ready", () => {
-    expect(page).toContain('title="What this is not ready for"');
+    // The title is drawn through the page's language (D16), so it is read
+    // either as a literal or as the English handed to `t`.
+    expect(page).toMatch(/title=(?:"|\{t\(")What this is not ready for"/);
     expect(page).toContain("data-not-ready");
   });
 

@@ -1,17 +1,17 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Legal, P, S } from "@/components/Legal";
 import { RosterList } from "@/components/class/RosterList";
-import { LOCALES, tr } from "@/lib/copy/locale";
+import { tr } from "@/lib/copy/locale";
 import { localeHref } from "@/lib/copy/publicLocale";
 import { SAMPLE_CLASS } from "@/lib/classroom/sample";
 import { ClassFigures } from "@/components/class/ClassFigures";
 import { resolveOperator } from "@/lib/legal/operator";
-import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicPageTitle, resolvePublicPage, type PublicSearch } from "@/lib/progress/publicLocale";
 import { publicCard } from "@/lib/copy/publicCards";
 import { UNIT_HOMEWORK_FROM } from "@/lib/copy/homework";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicTitle(searchParams, "For teachers", undefined, publicCard("/teachers"));
+  return publicPageTitle(searchParams, "For teachers", undefined, publicCard("/teachers"));
 }
 
 /*
@@ -36,14 +36,19 @@ export const dynamic = "force-dynamic";
  * standing decision (docs/37-second-batch.md, D1).
  */
 export default async function TeachersPage({ searchParams }: { searchParams: PublicSearch }) {
-  const { locale, explicit } = await resolvePublicLocale(searchParams);
+  const { locale, explicit } = await resolvePublicPage(searchParams);
   const t = (english: string) => tr(locale, english);
+  // The class page is the app's, and the app is never in Estonian (D16), so on
+  // the Estonian page the sample is drawn as a teacher meets it, in English,
+  // and marked so.
+  const appLocale = locale === "et" ? "en" : locale;
+  const appLang = locale === "et" ? "en" : undefined;
   const href = (to: string) => localeHref(to, locale, explicit);
   const contact = resolveOperator().email;
   const subject = encodeURIComponent(t("A Kodukeel pilot"));
 
   return (
-    <Legal title={t("For teachers")} updated="14 October 2026" locale={locale} explicit={explicit} path="/teachers" drawnIn={LOCALES}>
+    <Legal title={t("For teachers")} updated="14 October 2026" locale={locale} explicit={explicit} path="/teachers">
       <P>{t("Put a code on the board. See who is practicing and what the group keeps getting wrong.")}</P>
 
       {/*
@@ -57,17 +62,19 @@ export default async function TeachersPage({ searchParams }: { searchParams: Pub
         </h2>
         <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
           {t("These learners are invented. Nobody here is real.")}
+          {/* Estonian alone, so read off its own table rather than handed to the Russian and Ukrainian. */}
+          {locale === "et" && <> {tr("et", "The class below is drawn as the app draws it, and the app is in English, Russian or Ukrainian.")}</>}
         </p>
-        <div className="mt-5">
+        <div className="mt-5" lang={appLang}>
           <ClassFigures
             joined={SAMPLE_CLASS.joined}
             active={SAMPLE_CLASS.activeThisWeek}
             reviews={SAMPLE_CLASS.totalReviewsThisWeek}
-            locale={locale}
+            locale={appLocale}
           />
         </div>
-        <div className="mt-5" data-sample-roster>
-          <RosterList entries={SAMPLE_CLASS.entries} viewerId="sample-viewer" isTeacher locale={locale} />
+        <div className="mt-5" data-sample-roster lang={appLang}>
+          <RosterList entries={SAMPLE_CLASS.entries} viewerId="sample-viewer" isTeacher locale={appLocale} />
         </div>
       </section>
 
@@ -106,12 +113,12 @@ export default async function TeachersPage({ searchParams }: { searchParams: Pub
           </Link>
         </li>
         <li>
-          <Link href="/pilots" className="underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>
+          <Link href={locale === "et" ? href("/pilots") : "/pilots"} className="underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>
             {t("How a pilot works")}
           </Link>
         </li>
         <li>
-          <Link href="/curriculum" className="underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>
+          <Link href={locale === "et" ? href("/curriculum") : "/curriculum"} className="underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>
             {t("What the course covers")}
           </Link>
         </li>
