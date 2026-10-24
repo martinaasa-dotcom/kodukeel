@@ -1,0 +1,377 @@
+/**
+ * A2, LESSONS 49 TO 55: PLAANID (docs/43-lessons.md §9.8).
+ *
+ * What you think and what you plan, which is what A2 is for once the endings
+ * and the past are in place: what you'll do with {hakkama}, what you think
+ * with {et} and {sest}, what happens if with {kui}, a day out in the forest,
+ * a message left on the phone, and a time agreed. It ends A2 on one
+ * conversation that uses every part of it.
+ *
+ * Read by the native speaker in the pull request that adds it, and held to
+ * the same two checks as every lesson (`lessons.test.ts`, `ledger.ts`).
+ */
+
+import type { LessonSpec, PartOfLessons } from "./types";
+
+export const A2_PLAANID_PART: PartOfLessons = {
+  id: "a2-plaanid",
+  level: "A2",
+  title: "Plans and opinions",
+  about: "What you'll do, what you think and why, what if, a day out, a message on the phone, and a time agreed.",
+};
+
+export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
+  {
+    id: "a2-49-will",
+    n: 49,
+    level: "A2",
+    part: "a2-plaanid",
+    kind: "lesson",
+    title: "What will you do?",
+    goal: "Say what you're going to do and what you plan, next week and in the summer.",
+    cast: { Mari: "mari", Tom: "kalev" },
+    conversation: [
+      { who: "Mari", et: "Tom, mis su plaanid on?", en: "Tom, what are your plans?" },
+      { who: "Tom", et: "Järgmisel nädalal hakkan uues firmas töötama.", en: "Next week I'm starting work at a new company." },
+      { who: "Mari", et: "Palju õnne! Ja suvel?", en: "Congratulations! And in the summer?" },
+      { who: "Tom", et: "Suvel on mul puhkus. Ma kavatsen maale minna. Ja sina?", en: "In the summer I have time off. I plan to go to the country. And you?" },
+      { who: "Mari", et: "Ma hakkan eesti keelt õpetama.", en: "I'm going to start teaching Estonian." },
+      { who: "Tom", et: "Tõesti? Siis ma tulen sinu tundi!", en: "Really? Then I'll come to your class!" },
+    ],
+    teaches: [
+      { kind: "word", et: "plaan", en: "plan" },
+      { kind: "form", et: "plaanid", of: "plaan", en: "plans" },
+      { kind: "verb", et: "hakkama", first: "hakkan", en: "to start to, to be going to", firstEn: "I start to" },
+      { kind: "form", et: "uues", of: "uus", en: "in a new one" },
+      { kind: "verb", et: "kavatsema", first: "kavatsen", en: "to plan to, to intend to", firstEn: "I plan to" },
+      { kind: "verb", et: "õpetama", first: "õpetan", en: "to teach", firstEn: "I teach" },
+      { kind: "word", et: "puhkus", en: "holiday, time off work" },
+      { kind: "form", et: "puhkust", of: "puhkus", en: "time off, as some of it" },
+    ],
+    how: {
+      point: "Going to do is {hakkama} and the -ma form: {Ma hakkan töötama}, I'm starting to work. Planning to is {kavatsema} and the -da form: {Ma kavatsen minna}.",
+      table: {
+        head: ["Estonian", "In English"],
+        rows: [
+          [{ et: "Ma hakkan uues firmas töötama." }, { en: "I'm starting work at a new company." }],
+          [{ et: "Ma hakkan eesti keelt õpetama." }, { en: "I'm going to start teaching Estonian." }],
+          [{ et: "Ma kavatsen maale minna." }, { en: "I plan to go to the country." }],
+        ],
+      },
+      notes: [
+        "Estonian has no will. The present does most of it: {Homme ma lähen}, I'll go tomorrow. {Hakkan} is for starting something new.",
+        "{Hakkama} takes the -ma form, like {pidama}. {Kavatsema} takes the -da form, like {tahtma}.",
+        "{Sinu tundi} is to your class: {tund} is an hour and a lesson both.",
+      ],
+      watchOut: "{Ma hakkan minema} is I'm about to leave. It's the -ma form after {hakkama}, every time.",
+      examples: [1, 3, 4],
+    },
+    answers: [
+      { ask: { et: "Mis su plaanid on?", en: "What are your plans?" }, cue: "Say next week you're starting work at a new company.", model: { et: "Järgmisel nädalal hakkan uues firmas töötama.", en: "Next week I'm starting work at a new company." } },
+      { ask: { et: "Ja suvel?", en: "And in the summer?" }, cue: "Say you plan to go to the country.", model: { et: "Suvel ma kavatsen maale minna.", en: "In the summer I plan to go to the country." } },
+      { cue: "Say you're going to start learning Estonian.", model: { et: "Ma hakkan eesti keelt õppima.", en: "I'm going to start learning Estonian." } },
+      { cue: "Say you're about to leave.", model: { et: "Ma hakkan minema.", en: "I'm about to leave." } },
+    ],
+  },
+  {
+    id: "a2-50-think",
+    n: 50,
+    level: "A2",
+    part: "a2-plaanid",
+    kind: "lesson",
+    title: "I think that, because",
+    goal: "Say what you think and why, and agree or disagree.",
+    cast: { Kati: "vesta", Tom: "kalev" },
+    conversation: [
+      { who: "Kati", et: "Sa käisid Tartus. Kuidas sulle Tartu meeldis?", en: "You went to Tartu. How did you like Tartu?" },
+      { who: "Tom", et: "Väga! Ma arvan, et Tartu on parem kui Tallinn, sest see on väiksem ja rahulikum.", en: "A lot! I think Tartu is better than Tallinn, because it's smaller and quieter." },
+      { who: "Kati", et: "Ma ei ole nõus. Tallinnas on rohkem tööd.", en: "I don't agree. There's more work in Tallinn." },
+      { who: "Tom", et: "Sul on õigus. Aga Tartu on ilusam.", en: "You're right. But Tartu is prettier." },
+      { who: "Kati", et: "See on tõsi.", en: "That's true." },
+    ],
+    teaches: [
+      { kind: "form", et: "meeldis", of: "meeldima", en: "liked, in the past" },
+      { kind: "word", et: "et", en: "that, joining what you think to the rest" },
+      { kind: "word", et: "sest", en: "because" },
+      { kind: "form", et: "rahulikum", of: "rahulik", en: "quieter, calmer" },
+      { kind: "word", et: "nõus", en: "agreed, in agreement" },
+      { kind: "word", et: "rohkem", en: "more" },
+      { kind: "phrase", et: "Sul on õigus.", en: "You're right." },
+      { kind: "phrase", et: "See on tõsi.", en: "That's true." },
+    ],
+    how: {
+      point: "What you think comes after {Ma arvan, et}, with a comma before {et}. Why comes after {sest}, with a comma too.",
+      table: {
+        head: ["Estonian", "In English"],
+        rows: [
+          [{ et: "Ma arvan, et Tartu on parem." }, { en: "I think Tartu is better." }],
+          [{ et: "Tartu on parem, sest see on väiksem." }, { en: "Tartu is better because it's smaller." }],
+          [{ et: "Ma olen nõus." }, { en: "I agree." }],
+          [{ et: "Ma ei ole nõus." }, { en: "I don't agree." }],
+        ],
+      },
+      notes: [
+        "Agree is {olema nõus}, to be in agreement: {Ma olen nõus}. Disagreeing is {ei ole}: {Ma ei ole nõus}.",
+        "{Sul on õigus} is you're right: you have the right of it, with {sul} like {sul on}.",
+        "{Et} and {sest} always take a comma in front of them. Estonian is strict about it.",
+      ],
+      watchOut: "English can drop that. Estonian can't: {Ma arvan, et...}, every time.",
+      examples: [1, 2, 3],
+    },
+    answers: [
+      { ask: { et: "Kuidas sulle Tartu meeldis?", en: "How did you like Tartu?" }, cue: "Say you think Tartu is better than Tallinn.", model: { et: "Ma arvan, et Tartu on parem kui Tallinn.", en: "I think Tartu is better than Tallinn." } },
+      { cue: "Say it's better because it's smaller.", model: { et: "See on parem, sest see on väiksem.", en: "It's better because it's smaller." } },
+      { ask: { et: "Tallinnas on rohkem tööd.", en: "There's more work in Tallinn." }, cue: "Say they're right.", model: { et: "Sul on õigus.", en: "You're right." } },
+      { ask: { et: "Tartu on kõige ilusam linn.", en: "Tartu is the prettiest town." }, cue: "Say you don't agree.", model: { et: "Ma ei ole nõus.", en: "I don't agree." } },
+    ],
+  },
+  {
+    id: "a2-51-if",
+    n: 51,
+    level: "A2",
+    part: "a2-plaanid",
+    kind: "lesson",
+    title: "If it rains",
+    goal: "Say what you'll do if: if the weather's nice, if it rains.",
+    cast: { Liis: "liivika", Tom: "kalev" },
+    conversation: [
+      { who: "Liis", et: "Mida me laupäeval teeme?", en: "What shall we do on Saturday?" },
+      { who: "Tom", et: "Kui ilm on ilus, lähme randa.", en: "If the weather's nice, let's go to the beach." },
+      { who: "Liis", et: "Ja kui sajab vihma?", en: "And if it rains?" },
+      { who: "Tom", et: "Siis jääme koju ja vaatame filmi.", en: "Then we'll stay at home and watch a film." },
+      { who: "Liis", et: "Hea plaan! Kui on soe, ma võtan ujumisriided kaasa.", en: "Good plan! If it's warm, I'll bring my swimming things." },
+    ],
+    teaches: [
+      { kind: "word", et: "rand", en: "beach" },
+      { kind: "form", et: "randa", of: "rand", en: "to the beach" },
+      { kind: "form", et: "jääme", of: "jääma", en: "we stay" },
+      { kind: "word", et: "ujumisriided", en: "swimming things, swimwear" },
+      { kind: "word", et: "kaasa", en: "along, with you" },
+    ],
+    how: {
+      point: "If is {kui}, at the start, with a comma after its half: {Kui ilm on ilus, lähme randa}. Then is {siis}.",
+      table: {
+        head: ["If", "Then"],
+        rows: [
+          [{ et: "Kui ilm on ilus," }, { et: "lähme randa." }],
+          [{ et: "Kui sajab vihma," }, { et: "jääme koju." }],
+          [{ et: "Kui on soe," }, { et: "ma võtan ujumisriided kaasa." }],
+        ],
+      },
+      notes: [
+        "{Kui} is the same word as in {kui palju} and {suurem kui}. At the start of a sentence it means if or when.",
+        "Both halves are in the present: {Kui sajab, jääme koju}. Estonian doesn't need will for the second half.",
+        "{Võtan kaasa} is I'll bring along: {kaasa} goes at the end.",
+      ],
+      watchOut: "{Randa} is to the beach, a short form of its own, like {koju} for home. Learn it as it is.",
+      examples: [1, 2, 3],
+    },
+    answers: [
+      { ask: { et: "Mida me laupäeval teeme?", en: "What shall we do on Saturday?" }, cue: "Say if the weather's nice, let's go to the beach.", model: { et: "Kui ilm on ilus, lähme randa.", en: "If the weather's nice, let's go to the beach." } },
+      { ask: { et: "Ja kui sajab vihma?", en: "And if it rains?" }, cue: "Say then you'll stay at home.", model: { et: "Siis jääme koju.", en: "Then we'll stay at home." } },
+      { cue: "Say if it's cold, you'll stay at home.", model: { et: "Kui on külm, jään koju.", en: "If it's cold, I'll stay at home." } },
+      { cue: "Say you'll bring your swimming things.", model: { et: "Ma võtan ujumisriided kaasa.", en: "I'll bring my swimming things." } },
+    ],
+  },
+  {
+    id: "a2-52-forest",
+    n: 52,
+    level: "A2",
+    part: "a2-plaanid",
+    kind: "lesson",
+    title: "A day in the forest",
+    goal: "Talk about a day out in nature: the forest, the lake, mushrooms and berries.",
+    cast: { Mari: "mari", Tom: "kalev" },
+    conversation: [
+      { who: "Mari", et: "Pühapäeval lähme metsa seeni korjama. Kas tuled kaasa?", en: "On Sunday we're going to the forest to pick mushrooms. Are you coming along?" },
+      { who: "Tom", et: "Hea meelega! Kus mets on?", en: "I'd love to! Where's the forest?" },
+      { who: "Mari", et: "Linnast väljas, järve ääres.", en: "Outside town, by a lake." },
+      { who: "Tom", et: "Kas seal on ka marju?", en: "Are there berries there too?" },
+      { who: "Mari", et: "Jah, mustikaid. Võta korv kaasa!", en: "Yes, blueberries. Bring a basket!" },
+      { who: "Tom", et: "Ma ei tunne seeni. Sa pead mind aitama.", en: "I don't know mushrooms. You'll have to help me." },
+    ],
+    teaches: [
+      { kind: "word", et: "mets", en: "forest, woods" },
+      { kind: "form", et: "metsa", of: "mets", en: "of the forest, into the forest", stem: true },
+      { kind: "word", et: "seen", en: "mushroom" },
+      { kind: "form", et: "seeni", of: "seen", en: "mushrooms, as an object" },
+      { kind: "verb", et: "korjama", first: "korjan", en: "to pick, to gather", firstEn: "I pick" },
+      { kind: "form", et: "linnast", of: "linn", en: "from the town, out of town" },
+      { kind: "word", et: "järv", en: "lake" },
+      { kind: "form", et: "järve", of: "järv", en: "of the lake", stem: true },
+      { kind: "form", et: "marju", of: "mari", en: "berries, as some" },
+      { kind: "form", et: "mustikaid", of: "mustikas", en: "blueberries, as some" },
+      { kind: "word", et: "korv", en: "basket" },
+      { kind: "form", et: "mind", of: "mina", en: "me, as an object" },
+      { kind: "verb", et: "tundma", first: "tunnen", en: "to know, to recognize, to feel", firstEn: "I know" },
+    ],
+    how: {
+      point: "Going to do something is -ma after a verb of going: {Lähme seeni korjama}, we're going mushrooming. It's the same -ma as after {pean}.",
+      table: {
+        head: ["Estonian", "In English"],
+        rows: [
+          [{ et: "Lähme metsa seeni korjama." }, { en: "We're going to the forest to pick mushrooms." }],
+          [{ et: "Mets on järve ääres." }, { en: "The forest is by a lake." }],
+          [{ et: "Kas seal on marju?" }, { en: "Are there berries there?" }],
+          [{ et: "Ma ei tunne seeni." }, { en: "I don't know mushrooms." }],
+        ],
+      },
+      notes: [
+        "{Metsa} is into the forest, the short form, like {randa} and {koju}: {lähme metsa}.",
+        "{Seeni}, {marju} and {mustikaid} are some of them, more than one. You pick some, never all.",
+        "{Tundma} is to know a person or a thing well enough to recognize it: {Ma ei tunne seeni}. To know a fact is {teadma}.",
+      ],
+      watchOut: "Estonians pick in the forest the way others go shopping: going mushrooming is a whole outing, and part of autumn.",
+      examples: [0, 2, 5],
+    },
+    answers: [
+      { ask: { et: "Kas tuled kaasa?", en: "Are you coming along?" }, cue: "Say you'd love to, and ask where the forest is.", model: { et: "Hea meelega! Kus mets on?", en: "I'd love to! Where's the forest?" } },
+      { cue: "Say you're going to the forest to pick mushrooms.", model: { et: "Ma lähen metsa seeni korjama.", en: "I'm going to the forest to pick mushrooms." } },
+      { cue: "Ask if there are berries there too.", model: { et: "Kas seal on ka marju?", en: "Are there berries there too?" } },
+      { cue: "Say you don't know mushrooms.", model: { et: "Ma ei tunne seeni.", en: "I don't know mushrooms." } },
+    ],
+  },
+  {
+    id: "a2-53-message",
+    n: 53,
+    level: "A2",
+    part: "a2-plaanid",
+    kind: "lesson",
+    title: "Can I leave a message?",
+    goal: "Ask for somebody on the phone, leave a message, and say you'll call back.",
+    cast: { Liis: "liivika", Tom: "kalev" },
+    conversation: [
+      { who: "Liis", et: "Tere, Liis kuuleb.", en: "Hello, Liis speaking.", stage: "On the phone." },
+      { who: "Tom", et: "Tere! Siin on Tom. Kas ma võiksin Mariga rääkida?", en: "Hello! It's Tom. Could I speak to Mari?" },
+      { who: "Liis", et: "Kahjuks ta ei ole praegu kodus.", en: "Unfortunately she isn't at home right now." },
+      { who: "Tom", et: "Kas ma saaksin talle sõnumi jätta?", en: "Could I leave her a message?" },
+      { who: "Liis", et: "Muidugi.", en: "Of course." },
+      { who: "Tom", et: "Palun öelge, et ma helistan õhtul tagasi.", en: "Please tell her I'll call back this evening." },
+    ],
+    teaches: [
+      { kind: "form", et: "kuuleb", of: "kuulma", en: "hears; on the phone, speaking" },
+      { kind: "word", et: "sõnum", en: "message" },
+      { kind: "form", et: "sõnumi", of: "sõnum", en: "a message, the whole of it", stem: true },
+      { kind: "verb", et: "jätma", first: "jätan", en: "to leave", firstEn: "I leave" },
+      { kind: "form", et: "jätta", of: "jätma", en: "to leave, after could" },
+      { kind: "form", et: "öelge", of: "ütlema", en: "tell!, say!, polite" },
+    ],
+    how: {
+      point: "On the phone, every ask takes the would form: {Kas ma võiksin...?}, {Kas ma saaksin...?} It's part six's politeness on the line.",
+      table: {
+        head: ["Estonian", "In English"],
+        rows: [
+          [{ et: "Kas ma võiksin Mariga rääkida?" }, { en: "Could I speak to Mari?" }],
+          [{ et: "Kas ma saaksin talle sõnumi jätta?" }, { en: "Could I leave her a message?" }],
+          [{ et: "Ma helistan õhtul tagasi." }, { en: "I'll call back this evening." }],
+        ],
+      },
+      notes: [
+        "Answering the phone, you say your name and {kuuleb}: {Liis kuuleb}, Liis is listening.",
+        "Speak to somebody is with somebody: {Mariga rääkida}, part two's -ga.",
+        "{Talle} is to him or to her. Estonian has one word for both.",
+      ],
+      watchOut: "A message you leave is the whole of it: {sõnumi jätta}, never some of a message.",
+      examples: [1, 3, 5],
+    },
+    answers: [
+      { cue: "Say who you are and ask to speak to Mari.", model: { et: "Siin on Tom. Kas ma võiksin Mariga rääkida?", en: "It's Tom. Could I speak to Mari?" } },
+      { ask: { et: "Kahjuks ta ei ole praegu kodus.", en: "Unfortunately she isn't at home right now." }, cue: "Ask if you could leave her a message.", model: { et: "Kas ma saaksin talle sõnumi jätta?", en: "Could I leave her a message?" } },
+      { cue: "Say you'll call back this evening.", model: { et: "Ma helistan õhtul tagasi.", en: "I'll call back this evening." } },
+      { cue: "Answer the phone with your name.", model: { et: "Tere, Tom kuuleb.", en: "Hello, Tom speaking." } },
+    ],
+  },
+  {
+    id: "a2-54-arrange",
+    n: 54,
+    level: "A2",
+    part: "a2-plaanid",
+    kind: "lesson",
+    title: "Let's agree on a time",
+    goal: "Agree a day, a time and a place to meet, and change it if it doesn't suit.",
+    cast: { Mari: "mari", Tom: "kalev" },
+    conversation: [
+      { who: "Mari", et: "Millal me kokku saame?", en: "When shall we meet?" },
+      { who: "Tom", et: "Kas sulle sobib reedel kell kuus?", en: "Does Friday at six suit you?" },
+      { who: "Mari", et: "Reedel ei sobi, mul on trenn. Aga laupäeval sobib.", en: "Friday doesn't suit, I have training. But Saturday's fine." },
+      { who: "Tom", et: "Hästi, laupäeval kell kuus. Kus?", en: "All right, Saturday at six. Where?" },
+      { who: "Mari", et: "Kohvikus kesklinnas, kiriku kõrval.", en: "At the café in the town center, next to the church." },
+      { who: "Tom", et: "Lepime kokku!", en: "It's a deal!" },
+    ],
+    teaches: [
+      { kind: "phrase", et: "Millal me kokku saame?", en: "When shall we meet?" },
+      { kind: "word", et: "trenn", en: "training, a workout" },
+      { kind: "phrase", et: "Lepime kokku!", en: "It's a deal! Agreed!" },
+    ],
+    how: {
+      point: "A time that works {sobib}, for somebody in -le: {Kas sulle sobib?}, does it suit you? And a time agreed is {Lepime kokku!}",
+      table: {
+        head: ["Estonian", "In English"],
+        rows: [
+          [{ et: "Kas sulle sobib reedel?" }, { en: "Does Friday suit you?" }],
+          [{ et: "Reedel ei sobi." }, { en: "Friday doesn't suit." }],
+          [{ et: "Aga laupäeval sobib." }, { en: "But Saturday's fine." }],
+          [{ et: "Lepime kokku!" }, { en: "It's a deal!" }],
+        ],
+      },
+      notes: [
+        "{Kokku saama} is to meet up, together: {Millal me kokku saame?}",
+        "Who it suits takes -le: {sulle}, {mulle}, {teile}. Part four's {sobib}, now with the person.",
+        "A place is part two: {kohvikus}, {kiriku kõrval}.",
+      ],
+      watchOut: "{Lepime kokku!} closes the plan. Said without a time in it, it's a promise to make one.",
+      examples: [1, 2, 5],
+    },
+    answers: [
+      { cue: "Ask when you'll meet.", model: { et: "Millal me kokku saame?", en: "When shall we meet?" } },
+      { cue: "Ask if Friday at six suits them.", model: { et: "Kas sulle sobib reedel kell kuus?", en: "Does Friday at six suit you?" } },
+      { ask: { et: "Kas sulle sobib reedel?", en: "Does Friday suit you?" }, cue: "Say Friday doesn't suit, but Saturday's fine.", model: { et: "Reedel ei sobi. Aga laupäeval sobib.", en: "Friday doesn't suit. But Saturday's fine." } },
+      { ask: { et: "Laupäeval kell kuus, kohvikus?", en: "Saturday at six, at the café?" }, cue: "Agree.", model: { et: "Lepime kokku!", en: "It's a deal!" } },
+    ],
+  },
+  {
+    id: "a2-55-end",
+    n: 55,
+    level: "A2",
+    part: "a2-plaanid",
+    kind: "partEnd",
+    title: "The end of A2",
+    goal: "Catch up with a friend: what you did, how you are, what you think and what you'll do.",
+    cast: { Mari: "mari", Tom: "kalev" },
+    conversation: [
+      { who: "Mari", et: "Tere, Tom! Kaua pole näinud! Mis sa tegid?", en: "Hi, Tom! Long time no see! What have you been doing?" },
+      { who: "Tom", et: "Ma olin Tartus. Ma töötasin seal programmeerijana.", en: "I was in Tartu. I worked there as a programmer." },
+      { who: "Mari", et: "Kuidas sulle Tartu meeldis?", en: "How did you like Tartu?" },
+      { who: "Tom", et: "Väga! Ma arvan, et see on Eesti kõige ilusam linn.", en: "Very much! I think it's the prettiest town in Estonia." },
+      { who: "Mari", et: "Mis su plaanid on?", en: "What are your plans?" },
+      { who: "Tom", et: "Suvel ma kavatsen Saaremaale minna. Kas tuleksid kaasa?", en: "In the summer I plan to go to Saaremaa. Would you come along?" },
+      { who: "Mari", et: "Hea meelega! Kui ma saan puhkust.", en: "I'd love to! If I get time off." },
+      { who: "Tom", et: "Lepime kokku!", en: "It's a deal!" },
+    ],
+    teaches: [],
+    how: {
+      point: "A whole catch-up, made of all of A2: the past, the endings on the stem, the would form, what you think and what you plan.",
+      notes: [
+        "Every part of A2 is in it: {Tartus} and {Saaremaale} are part two, {olin} and {töötasin} part three, {kõige ilusam} part six, {programmeerijana} part seven, {kavatsen} and {Ma arvan, et} part eight.",
+        "At the end, an old friend speaks to you. Answer as yourself, one turn at a time.",
+      ],
+      watchOut: "{Kas tuleksid kaasa?} is would you come along: the would form makes an invitation gentle.",
+      examples: [1, 3, 5],
+    },
+    answers: [
+      { ask: { et: "Mis sa tegid?", en: "What have you been doing?" }, cue: "Say where you were and what you did there.", model: { et: "Ma olin Tartus. Ma töötasin seal.", en: "I was in Tartu. I worked there." } },
+      { ask: { et: "Kuidas sulle Tartu meeldis?", en: "How did you like Tartu?" }, cue: "Say you think it's the prettiest town in Estonia.", model: { et: "Ma arvan, et see on Eesti kõige ilusam linn.", en: "I think it's the prettiest town in Estonia." } },
+      { ask: { et: "Mis su plaanid on?", en: "What are your plans?" }, cue: "Say what you plan to do in the summer.", model: { et: "Suvel ma kavatsen Saaremaale minna.", en: "In the summer I plan to go to Saaremaa." } },
+    ],
+    roleplay: {
+      scene: "You meet an old friend you haven't seen for a while. She speaks first. Answer as yourself.",
+      turns: [
+        { ask: { et: "Tere! Kaua pole näinud! Mis sa tegid?", en: "Hi! Long time no see! What have you been doing?" }, cue: "Say where you were, and what you did there.", model: { et: "Ma olin Tartus. Ma töötasin seal.", en: "I was in Tartu. I worked there." } },
+        { ask: { et: "Kuidas sulle Tartu meeldis?", en: "How did you like Tartu?" }, cue: "Say what you think of it.", model: { et: "Ma arvan, et see on Eesti kõige ilusam linn.", en: "I think it's the prettiest town in Estonia." } },
+        { ask: { et: "Mis su plaanid on?", en: "What are your plans?" }, cue: "Say what you plan to do in the summer.", model: { et: "Suvel ma kavatsen Saaremaale minna.", en: "In the summer I plan to go to Saaremaa." } },
+        { ask: { et: "Tore! Kellega sa lähed?", en: "Lovely! Who are you going with?" }, cue: "Say who with, and ask if she'd come along too.", model: { et: "Jaaniga. Kas tuleksid ka kaasa?", en: "With Jaan. Would you come along too?" } },
+        { ask: { et: "Hea meelega! Millal me kokku saame?", en: "I'd love to! When shall we meet?" }, cue: "Suggest a day and a time.", model: { et: "Kas sulle sobib laupäeval kell kuus?", en: "Does Saturday at six suit you?" } },
+      ],
+    },
+  },
+];
