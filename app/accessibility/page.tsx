@@ -169,11 +169,11 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
             {rich(t("**Screens behind data are less covered.** The automated sweep sees each page as it loads, plus one state a learner has to reach by doing something. A class roster with students in it, an examination part in progress and the puzzle grids in play are all reachable and all less tested than the pages around them."))}
           </li>
           <li>
-            {rich(t("**Some decoration still loops** (WCAG 2.2.2, Pause, Stop, Hide). The letters on the landing page’s case card rest after five seconds now. The headline’s color sweep, the glow behind its word and the mascot’s idle movement still loop, and stop only for anybody whose system asks for reduced motion."))}
+            {rich(t("**Some decoration inside the app still loops** (WCAG 2.2.2, Pause, Stop, Hide). On every public page, the landing page included, whatever moves by itself rests within five seconds: the letters, the mascot, Anu, the glow behind the word on the landing card and the cards that turn on their own. Inside the app the mark, Anu and the people in a conversation’s drawing keep a slow idle movement, and stop only for anybody whose system asks for reduced motion."))}
           </li>
         </ul>
         <P>
-          {t("Where a limitation above is ours rather than one the exercise requires, it is on the list to fix. The practice clocks, the phone sweep, the single-key shortcuts, the clips that played whatever their length and the landing page’s letters were all on this list and are fixed now. The examination clock stays, for the reason beside it.")}
+          {t("Where a limitation above is ours rather than one the exercise requires, it is on the list to fix. The practice clocks, the phone sweep, the single-key shortcuts, the clips that played whatever their length and the loops on the public pages were all on this list and are fixed now. The examination clock stays, for the reason beside it.")}
         </P>
       </S>
 

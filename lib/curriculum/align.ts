@@ -248,11 +248,21 @@ export function outlineLessons<L extends LessonLike, P extends LessonPartLike>(
   });
 }
 
+/**
+ * The units a learner can still be sent to: every unit at a level the course
+ * does not teach as lessons. A1 is the lessons, so an A1 unit is a request
+ * list for the dictionary rather than a place anybody is walked through, and
+ * homework set from one would send a class somewhere the course no longer goes.
+ */
+export function unitsAboveLessons<U extends UnitLike>(units: readonly U[], lessons: readonly LessonLike[]): U[] {
+  const taught = lessonLevels(lessons);
+  return units.filter((u) => !taught.has(u.level));
+}
+
 /** What the course is made of: lessons where a level is taught as lessons, units at the levels above. */
 export function courseMadeOf(units: readonly UnitLike[], lessons: readonly LessonLike[]): {
   readonly lessons: number;
   readonly units: number;
 } {
-  const taught = lessonLevels(lessons);
-  return { lessons: lessons.length, units: units.filter((u) => !taught.has(u.level)).length };
+  return { lessons: lessons.length, units: unitsAboveLessons(units, lessons).length };
 }

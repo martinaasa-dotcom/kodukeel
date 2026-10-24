@@ -284,6 +284,7 @@ const ROUTES = [
   "/curriculum",
   "/accessibility",
   "/impact",
+  "/partners",
   "/offline",
 ];
 

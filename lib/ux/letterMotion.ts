@@ -1,3 +1,5 @@
+import { MOTION_LIMIT_MS } from "./rest";
+
 /**
  * HOW A LOOSE LETTER MOVES, AND HOW IT ANSWERS A POINTER.
  *
@@ -147,7 +149,7 @@ export interface LetterPlacement {
  * on a press are under a second, answer something the reader did or watched,
  * and are not held to this.
  */
-export const LETTER_MOTION_LIMIT_S = 5;
+export const LETTER_MOTION_LIMIT_S = MOTION_LIMIT_MS / 1000;
 
 /** The cycles a letter plays and how long each takes, so the last one ends by the limit. */
 export function wanderRun(time: number, delay: number): { time: number; count: number; delay: number } {

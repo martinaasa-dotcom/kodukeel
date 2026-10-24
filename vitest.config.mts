@@ -33,6 +33,7 @@ const UNSET: Record<string, string> = {
   ASR_MODEL_BUNDLED: "",
   KODUKEEL_BUILT_AT: "",
   DEMO_DEPLOYMENT: "",
+  DEMO_URL: "",
   ALLOWED_EMAILS: "",
   ALLOWED_EMAIL_DOMAINS: "",
   ANDROID_CERT_SHA256: "",

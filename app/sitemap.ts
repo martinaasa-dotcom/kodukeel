@@ -38,6 +38,8 @@ const PUBLIC_PATHS = [
   { path: "/help", priority: 0.6 },
   { path: "/teachers", priority: 0.8 },
   { path: "/pilots", priority: 0.6 },
+  // Where a reviewer deciding whether to support it starts (S-7).
+  { path: "/partners", priority: 0.7 },
   { path: "/how-we-know", priority: 0.5 },
   { path: "/curriculum", priority: 0.5 },
   { path: "/accessibility", priority: 0.6 },

@@ -31,6 +31,7 @@ export const PUBLIC_CARDS = {
   "/impact": "What this installation of Kodukeel has done: how many people use it and how they are getting on, in figures that identify nobody.",
   "/curriculum": "The Kodukeel course by level: the A1 lessons part by part, then every unit above A1, what each says a learner can do and which part of the state examination it prepares for.",
   "/how-we-know": "Each claim Kodukeel makes about itself, the figure behind it, the day it was measured and the command that measures it again.",
+  "/partners": "Where to start if you are deciding whether to support Kodukeel: what it is, what it has done, the course, Ekilex, the cost, how it is checked and who runs it.",
   "/pilots": "What a Kodukeel pilot is, what it costs, what is asked of you and what happens to your people’s data.",
   // The grammar reference, readable with no account (FB-8). Each case page and
   // each topic page carries its own summary as its card, off the reference's

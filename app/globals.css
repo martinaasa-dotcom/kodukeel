@@ -6164,6 +6164,48 @@ a:focus-visible .wave-word::after {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
+
+/*
+  EVERY LOOP A PUBLIC PAGE DRAWS RESTS WITHIN FIVE SECONDS (WCAG 2.2.2).
+
+  The mark in a page's header, the mascot over the landing page's close, Anu
+  walking down beside it, the glow behind the hero's word and the steam off the
+  café's cup all looped for as long as the page was open, and the statement had
+  to admit it. Under `.motion-rests`, which the landing page, every public
+  page's header (`PublicHeader`) and sign-in carry, each runs a whole number of
+  cycles that ends inside five seconds of starting and then rests on its still
+  frame, which is where every one of these keyframes starts and ends, so
+  stopping is not a jump. A loop waiting for `data-awake` starts there and
+  still ends five seconds later; a loop whose cycle was longer than five
+  seconds plays one shorter cycle. `lib/ux/rest.ts` has the limit, and
+  `scripts/invariants/public-motion-rests.ts` holds every rule here to it and
+  every `infinite` in this file to a decision about where it may run.
+
+  Inside the app the brand keeps its idle loops: they are the app being alive
+  for somebody working in it, and the reduced-motion rule stops all of them.
+  A hover or a press still plays for as long as the pointer asks.
+*/
+.motion-rests .hero-word-back { animation: night-drift 2.5s ease-in-out 0s 2 alternate; }
+.motion-rests .float { animation: float 4.8s ease-in-out 0s 1; }
+.motion-rests .cafe-steam > span { animation: cafe-steam 2.4s ease-in-out 0s 1; }
+.motion-rests .cafe-steam > span:nth-child(2) { animation: cafe-steam 2.4s ease-in-out 0.6s 1; }
+.motion-rests .cafe-steam > span:nth-child(3) { animation: cafe-steam 2.4s ease-in-out 1.2s 1; }
+:root[data-awake] .motion-rests .mark-live .mark-body { animation: mark-sway 4.8s ease-in-out 0s 1; }
+/* The tilde has ten columns, so the last starts at nine times the step. */
+:root[data-awake] .motion-rests .mark-live.mark-happy .pixel-col { animation: pixel-type 3.4s ease-out calc(var(--c) * 0.09s) 1; }
+:root[data-awake] .motion-rests .mark-live.mark-cheer .pixel-col { animation: pixel-hop 1.7s ease-in-out calc(var(--c) * 0.06s) 2; }
+:root[data-awake] .motion-rests .mark-live.mark-thinking .pixel-col { animation: pixel-think 1.7s ease-in-out calc(var(--c) * 0.12s) 2; }
+:root[data-awake] .motion-rests .anu-live .anu-body { animation: anu-breathe 3.9s ease-in-out 0s 1; }
+:root[data-awake] .motion-rests .anu-live .anu-hair { animation: anu-hair 3.9s ease-in-out 0.18s 1; }
+:root[data-awake] .motion-rests .anu-live .anu-eye { animation: anu-blink 4.8s ease-in-out 0s 1; }
+:root[data-awake] .motion-rests .anu-live.anu-happy .anu-look { animation: anu-glance 4.8s ease-in-out 0s 1; }
+:root[data-awake] .motion-rests .anu-live.anu-cheer .anu-body { animation: anu-bounce 1.5s cubic-bezier(0.34, 1.4, 0.64, 1) 0s 3; }
+:root[data-awake] .motion-rests .anu-live.anu-cheer .anu-hair { animation: anu-hair-hop 1.5s ease-in-out 0.08s 3; }
+:root[data-awake] .motion-rests .anu-live.anu-cheer .anu-cheek { animation: anu-glow 1.5s ease-in-out 0s 3; }
+:root[data-awake] .motion-rests .anu-live.anu-thinking .anu-body { animation: anu-ponder 4.6s ease-in-out 0s 1; }
+:root[data-awake] .motion-rests .anu-live.anu-thinking .anu-hair { animation: anu-hair-think 4.6s ease-in-out 0s 1; }
+:root[data-awake] .motion-rests .anu-live.anu-talking .anu-talk { animation: anu-talk 0.46s ease-in-out 0s 10; }
+
 @layer utilities {
   /*
     THE NATIVE SPEAKER'S SOUNDS, AS KEYS AND WORDS (components/sounds/).
