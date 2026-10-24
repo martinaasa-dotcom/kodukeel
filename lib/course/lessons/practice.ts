@@ -51,7 +51,9 @@ export type PracticeItem =
    * The English, then the Estonian typed or said. `accept` is every taught
    * spelling with the same English, since `mina` and `ma` both answer "I".
    */
-  | { readonly kind: "type"; readonly en: string; readonly answer: string; readonly accept: readonly string[] };
+  | { readonly kind: "type"; readonly en: string; readonly answer: string; readonly accept: readonly string[];
+      /** One line of English saying what is wanted, where the meaning alone could be read two ways. */
+      readonly note?: string };
 
 /** Longest answer a learner is asked to produce whole, in words. */
 export const TYPE_UP_TO_WORDS = 4;
@@ -162,6 +164,25 @@ function onePerMeaning(items: readonly Taught[]): Taught[] {
   return out;
 }
 
+/**
+ * The English of the subject pronouns that name one person, so a verb in that
+ * person may be typed with its pronoun. "You" is left out: it is `sa` and `te`,
+ * and a verb for one must not be accepted with the other.
+ */
+const SUBJECTS = new Set(["i", "we", "they", "he she"]);
+
+/** What a typed question says it wants, where its English could be read two ways. */
+export const NOTE_ONE_WORD = "One Estonian word covers all of these.";
+export const NOTE_WITH_ON = "Just the word that goes with “on”. “… on” is fine too.";
+
+function noteFor(item: Taught): { note?: string } {
+  if (/^with \{on\}:/i.test(item.en)) return { note: NOTE_WITH_ON };
+  const parts = item.en.split(/,\s+/);
+  // "you were, they were": two meanings, one spelling, which reads as two answers to give.
+  if (parts.length > 1 && parts.every((part) => part.trim().split(/\s+/).length > 1) && wordsOf(item.et).length === 1) return { note: NOTE_ONE_WORD };
+  return {};
+}
+
 /** A produce question, taking every taught spelling with the same English. */
 function produce(item: Taught, pool: readonly Taught[]): PracticeItem {
   const accept = [...new Set([item.et, ...pool.filter((o) => sameEnglish(o.en, item.en)).map((o) => o.et)])];
@@ -170,13 +191,22 @@ function produce(item: Taught, pool: readonly Taught[]): PracticeItem {
      items whose English is the first word of this one's, never a list of ours.
      Only where the verb has one spelling: "you are" is `oled` and `olete`, and
      crossing those with every "you" would accept a person the verb does not. */
-  const [first, ...rest] = item.en.split(/\s+/);
-  if (accept.length === 1 && first && rest.length > 0 && wordsOf(item.et).length === 1) {
+  if (accept.length === 1 && wordsOf(item.et).length === 1) {
+    const lead = (text: string) => text.replace(/,/g, "").replace(/\s+/g, " ").trim().toLocaleLowerCase("en");
+    const said = lead(item.en);
     for (const o of pool) {
-      if (sameEnglish(o.en, first) && wordsOf(o.et).length === 1) accept.push(`${o.et} ${item.et}`);
+      if (o.et === item.et || wordsOf(o.et).length !== 1) continue;
+      const names = [o.en, ...o.en.split(/,\s*/)].map(lead).filter(Boolean);
+      // The pronoun stands for the whole of the English before one last word, the verb.
+      if (names.some((n) => SUBJECTS.has(n) && said.startsWith(`${n} `) && !said.slice(n.length + 1).includes(" "))) {
+        const joined = `${o.et} ${item.et}`;
+        if (!accept.includes(joined)) accept.push(joined);
+      }
     }
+    /* "with {on}: we have" is `meil`, said whole as `meil on`. */
+    if (/^with \{on\}:/i.test(item.en)) accept.push(`${item.et} on`);
   }
-  return { kind: "type", en: item.en, answer: item.et, accept };
+  return { kind: "type", en: item.en, answer: item.et, accept, ...noteFor(item) };
 }
 
 /**

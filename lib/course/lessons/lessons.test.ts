@@ -173,6 +173,20 @@ describe("A1 lessons", () => {
     expect(found).toBeGreaterThan(0);
   });
 
+  it("accept the whole phrase for a form said with on", () => {
+    const before = ledgersBefore(LESSONS);
+    let found = 0;
+    for (const lesson of A1_LESSONS) {
+      for (const item of practiceFor(lesson, before.get(lesson.id)!)) {
+        if (item.kind !== "type" || !/^with \{on\}:/.test(item.en)) continue;
+        found++;
+        expect(markPhrase(item.answer, item.accept).verdict).toBe("right");
+        expect(markPhrase(`${item.answer} on`, item.accept).verdict).toBe("right");
+      }
+    }
+    expect(found).toBeGreaterThan(0);
+  });
+
   it("give every lesson something to practice, and nothing on the first lesson's review", () => {
     const before = ledgersBefore(LESSONS);
     for (const lesson of A1_LESSONS) expect(practiceFor(lesson, before.get(lesson.id)!).length).toBeGreaterThan(3);

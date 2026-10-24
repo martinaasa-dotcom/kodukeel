@@ -158,6 +158,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
         ) : (
           <div className="mt-2 flex flex-col gap-3">
             <p className="text-xl font-bold" style={{ color: "var(--ink)" }}><LessonText text={item.en} locale={locale} /></p>
+            {item.note && <p className="text-base" style={{ color: "var(--ink-2)" }}>{t(item.note)}</p>}
             <input
               lang="et"
               className="field-lg w-full"
