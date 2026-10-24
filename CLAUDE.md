@@ -10617,10 +10617,11 @@ steps (Listen, Words, How it works, Practice, Say it, Review), the first three a
 `lib/course/lessons/` is the engine and `lessonProblems` is the rule: every spelling on every screen
 of a lesson has to be in the ledger by then, a phrase covering its words only where they stand
 together, and the unit suite fails otherwise. The conversations are written and read by the native
-speaker (ADR-005 amendment 6). A1 is the lessons and nothing else (P3): `lib/course/lessonCourse.ts` makes each lesson one evening
+speaker (ADR-005 amendment 6). A1 and A2 are the lessons and nothing else (P3, and §9 for A2's fifty-seven): `lib/course/lessonCourse.ts` makes each lesson one evening
 of the course with one step, finishing it ticks the evening and hands its words to the deck
-(`finishLesson`), and the builder's ledger is seeded with every lesson before A2 (`teachLessons`). The
-A1 units stay as the dictionary's request list and are no longer walked, so a link to one lands on
+(`finishLesson`), and the builder's ledger is seeded with every lesson before B1 (`teachLessons`). A lesson
+level is asked through `isLessonLevel`, never by naming A1 or A2. The
+A1 and A2 units stay as the dictionary's request list and are no longer walked, so a link to one lands on
 `/course/lessons`, and a beginner's first run builds no starter deck. Nobody was on the old A1, so the
 switch broke it rather than placing anybody (L4 not needed). Every lesson item becomes a card of
 something the seed writes (`lessonHeads.ts`): a headword once it has been taught, or the lesson's own
@@ -10630,11 +10631,11 @@ together on `öö` and `üks` before any evening teaches either. The lessons' En
 the operator's call, until somebody fluent reads it.
 
 **A lesson's role-play is also a live scene, and it says only what that lesson has taught.**
-`lib/scenes/lessonScenes.ts` holds one scene per A1 lesson that ends in a role-play, off the situations
+`lib/scenes/lessonScenes.ts` holds one scene per A1 and A2 lesson that ends in a role-play, off the situations
 listing (`sceneById` reads it after the catalog). `inLesson` takes the scene's word list from the
 lesson ledger instead of the old units, `lessonGate` hands the gate the `taught` check and the lesson's
 own spellings, and the app and the harness both read it (asserted). `lessonScenes.test.ts` plays every
-scene keyless as seven kinds of beginner and fails on any word the other side says that the lesson has
+scene keyless as seven kinds of beginner, at its own lesson's level, and fails on any word the other side says that the lesson has
 not taught, which is how the engine's own `või`, `aga` and `selge` were caught. A word a card deals must
 be a dictionary entry, or no answer can meet it.
 
