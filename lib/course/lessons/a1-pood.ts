@@ -208,7 +208,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Hästi. Ja mul on vaja ka mütsi.", en: "Fine. And I need a hat too." },
     ],
     teaches: [
-      { kind: "word", et: "vaja", en: "needed; with {mul on}, I need" },
+      { kind: "word", et: "vaja", en: "needed (as in “I need it”)" },
       { kind: "word", et: "jope", en: "jacket" },
       { kind: "word", et: "särk", en: "shirt" },
       { kind: "word", et: "kleit", en: "dress" },

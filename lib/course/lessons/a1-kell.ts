@@ -218,7 +218,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "lugema", first: "loen", en: "to read", firstEn: "I read" },
       { kind: "verb", et: "kuulama", first: "kuulan", en: "to listen", firstEn: "I listen" },
       { kind: "verb", et: "vaatama", first: "vaatan", en: "to watch, to look at", firstEn: "I watch" },
-      { kind: "phrase", et: "raamatut", en: "a book, after read" },
+      { kind: "phrase", et: "raamatut", en: "a book (as in “I read a book”)" },
       { kind: "phrase", et: "muusikat", en: "music, after listen" },
       { kind: "phrase", et: "telerit", en: "TV, after watch" },
       { kind: "word", et: "praegu", en: "now, right now" },
