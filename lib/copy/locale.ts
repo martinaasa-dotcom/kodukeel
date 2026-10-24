@@ -171,6 +171,8 @@ export type CountCase = "nom" | "acc" | "gen";
 
 const ENGLISH_FORMS: Readonly<Record<string, readonly [string, string]>> = {
   pages: ["page", "pages"],
+  "exam point": ["point", "points"],
+  "grammar point": ["point", "points"],
   clips: ["clip", "clips"],
   characters: ["character", "characters"],
   questions: ["question", "questions"],

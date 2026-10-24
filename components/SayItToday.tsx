@@ -350,7 +350,17 @@ export function SayItToday({ errand, scene, answered, conversations, days, unitT
  * Where an errand happens, in the reader's language: each place translated on
  * its own and joined the way that language says "or".
  */
+/**
+ * Where the errand happens, in the reader's language. A whole line where the
+ * area files hold one, because a list of places joined per place reads as a
+ * list of nouns in Russian and Ukrainian ("Остановка или коридор") where the
+ * sentence wants them in the locative, one preposition each ("На остановке или
+ * в коридоре"). Where no whole line exists yet, each place is translated on its
+ * own and joined the way the language says "or", which is better than English.
+ */
 function placesIn(locale: Locale, where: string, t: (english: string) => string): string {
+  const whole = t(where);
+  if (locale === "en" || whole !== where) return whole;
   const places = where.split(",").map((place) => place.trim()).filter(Boolean).map((line) => t(line));
   const said = new Intl.ListFormat(locale, { type: "disjunction" }).format(places);
   return said.charAt(0).toLocaleUpperCase(locale) + said.slice(1);

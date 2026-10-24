@@ -97,7 +97,7 @@ export interface Debrief {
     phonology. The live conversation gets this right through `spokenEstonian`;
     the debrief was the copy that did not.
   */
-  turns: readonly { who: "them" | "you"; text: string; lang: "et" | "en" }[];
+  turns: readonly { who: "them" | "you"; text: string; lang: "et" | Locale }[];
   /**
    * The turns said aloud where what the machine heard is not what was sent
    * (VB-4, "What we heard"). Absent or empty where nothing was said aloud, or

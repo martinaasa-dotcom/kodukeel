@@ -7,6 +7,7 @@ import { setCardSuspended } from "@/app/actions";
 import { Chip } from "@/components/ui";
 import { useLocale, useT } from "@/components/Locale";
 import { countOf, fill } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/TemplateNodes";
 import { stickingNote, type StickingPoint } from "@/lib/stats/sticking";
 import { caseByKey } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
@@ -138,8 +139,14 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
                     </span>
                   )}
                   <span aria-hidden className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
-                    {point.accuracy === null ? t("not seen for a while") : fill(t("{pct}% of {n}"), { pct: point.accuracy, n: point.reviews })}
-                    {point.siblings > 0 ? fill(t(", stuck on {cards} for this word"), { cards: countOf(locale, point.siblings + 1, "card") }) : ""}
+                    {/* One whole line per case, so the clause about the word's other
+                        cards is never a fragment stood after a figure. */}
+                    {fill(
+                      t(point.accuracy === null
+                        ? (point.siblings > 0 ? "not seen for a while, stuck on {cards} for this word" : "not seen for a while")
+                        : (point.siblings > 0 ? "{pct}% of {n}, stuck on {cards} for this word" : "{pct}% of {n}")),
+                      { pct: point.accuracy ?? 0, n: point.reviews, cards: countOf(locale, point.siblings + 1, "card") },
+                    )}
                   </span>
                 </p>
               )}
@@ -155,10 +162,14 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
                   {/* The Estonian name a class uses, never the Latin one. The
                       slug in the href above is the exception CLAUDE.md names;
                       this run of text is not. */}
-                  <Compass size={12} aria-hidden /> {t("The")}{" "}
-                  <span lang="et">
-                    {caseByKey(point.targetCase as CaseKey)?.et ?? point.targetCase.toLowerCase()}
-                  </span>
+                  <Compass size={12} aria-hidden />{" "}
+                  {fillNodes(t("The {case}"), {
+                    case: (
+                      <span lang="et">
+                        {caseByKey(point.targetCase as CaseKey)?.et ?? point.targetCase.toLowerCase()}
+                      </span>
+                    ),
+                  })}
                 </Link>
               )}
               <Link

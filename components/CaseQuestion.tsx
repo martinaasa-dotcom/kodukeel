@@ -1,8 +1,8 @@
 "use client";
 
-import { questionInEnglish } from "@/lib/estonian/cases";
+import { questionIn } from "@/lib/copy/questionReading";
 import { useCaseGloss } from "@/components/CaseGloss";
-import { useT } from "@/components/Locale";
+import { useLocale } from "@/components/Locale";
 
 /**
  * A CASE QUESTION, AND WHAT IT IS ASKING.
@@ -43,14 +43,14 @@ export function CaseQuestion({ question, className = "", inline = false }: {
   inline?: boolean;
 }) {
   const wantsGloss = useCaseGloss();
-  const t = useT();
+  const locale = useLocale();
   if (!question) return null;
-  /* Read word by word, so each question word's reading is said in the
-     learner's language; in English this is exactly `questionInEnglish`. */
-  const readings = wantsGloss
-    ? question.trim().split(/\s+/).map((word) => questionInEnglish(word)).filter((x): x is string => Boolean(x))
-    : [];
-  const english = readings.length > 0 ? readings.map((line) => t(line)).join(" ") : null;
+  /* Read word by word through the one locale-aware reader, so each question
+     word's reading is said in the learner's language and this screen cannot
+     drift from the others that read a case question; in English it is
+     exactly `questionInEnglish`. Every reading it can produce has a Russian
+     and a Ukrainian line (checked over QUESTION_WORDS). */
+  const english = wantsGloss ? questionIn(locale, question) : null;
   if (!english) {
     return <span lang="et" className={className}>{question}</span>;
   }

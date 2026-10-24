@@ -1301,8 +1301,10 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
         */
         return inOneBreath(turn.lines).filter(spoken).map((line) => ({
           who: "them" as const,
-          text: line.text,
-          lang: spokenEstonian(line) ? ("et" as const) : ("en" as const),
+          /* The line said in the learner's other language reads back as it
+             was drawn, for the reason the conversation draws it that way. */
+          text: spokenEstonian(line) ? line.text : t(line.text),
+          lang: spokenEstonian(line) ? ("et" as const) : t(line.text) === line.text ? ("en" as const) : locale,
         }));
       }),
     });
@@ -2279,8 +2281,17 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                           }}
                         />
                       ) : (
-                      <p lang={spokenEstonian(line) ? "et" : "en"} className="flex items-center gap-2">
-                        <span>{line.text}</span>
+                      /*
+                        THE OTHER SIDE GIVING UP ON ESTONIAN SPEAKS THE
+                        LEARNER'S OTHER LANGUAGE. In Tallinn somebody who hears
+                        a Russian speaker struggle switches to Russian, not to
+                        English, so for a Russian reader the one line a scene
+                        says in another language goes through the table and
+                        comes out in Russian. A line nobody translated stays
+                        English, and the debrief reads it back the same way.
+                      */
+                      <p lang={spokenEstonian(line) ? "et" : t(line.text) === line.text ? "en" : locale} className="flex items-center gap-2">
+                        <span>{spokenEstonian(line) ? line.text : t(line.text)}</span>
                         {aloud && spokenEstonian(line) && (
                           <Speak
                             text={line.text}
