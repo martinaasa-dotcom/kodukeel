@@ -3786,5 +3786,5 @@ from the lessons. Catalog conversations start at B1.
 
 **Two smaller things.** A spelling is taught again where it is a form of a different headword
 (`tuli`, `sai`), and the written sentences that no longer passed against the new order of teaching
-were dropped, 265 of them.
-
+were dropped, 265 of them. The A2 lessons' own English is machine translated into Russian and
+Ukrainian on the A1 terms (`areas/lessonText.ts`), 1,937 lines each, not yet read by anybody fluent.
