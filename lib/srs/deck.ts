@@ -417,3 +417,132 @@ export async function addPlanToDeck(
 
   return { added, words };
 }
+
+/**
+ * CARDS FOR ONE WORD, BUILT AND WRITTEN UNDER THE DECK LOCK.
+ *
+ * The body behind the dictionary's Add, a scanned page, a lesson's end and the
+ * import, and behind `POST /api/v1/deck` (D2 in docs/44-sixth-batch.md). It
+ * takes the owner as a parameter, so it lives here rather than in the
+ * `"use server"` file, where an exported owner would let one learner write
+ * into another's deck. The web's actions refresh their pages after it; a
+ * route has none to refresh.
+ */
+export async function addCardsFor(
+  owner: string, lexemeId: string, types: readonly CardType[], source: string,
+) {
+  const [lexeme, borrowed, reach, alsoAccepted] = await Promise.all([
+    prisma.lexeme.findUnique({
+      where: { id: lexemeId },
+      include: { forms: true },
+    }),
+    // The sentences this word may borrow for its case and conjugation cards,
+    // a cached fact about the shared dictionary. See lib/dict/borrow.ts.
+    borrowedSentences(),
+    // And how a beginner's word orders its own, which is the same kind of
+    // fact and cached the same way. See lib/dict/plainness.ts.
+    sentenceReach(),
+    /*
+      And which other words answer the same prompt, the fact `lib/srs/deck.ts`
+      reads for a unit. Without it a production card built one word at a time
+      took its own word alone: `pere` added from the dictionary got a back
+      of `pere` where a unit gives it `pere / perekond`, so a learner who wrote
+      `perekond` for "family" was marked wrong on a card that could not tell
+      them apart. The back reads `pere / perekond` now, read off a card
+      added in a browser; the invariant for it was made to fail on this line.
+    */
+    alsoAcceptedByLemma(),
+  ]);
+  if (!lexeme) return { ok: false as const, error: "That word isn't in the dictionary any more." };
+
+  /*
+    READ AND WRITE UNDER ONE LOCK, BECAUSE "IS IT ALREADY THERE" IS CHECK-THEN-ACT.
+
+    This read the learner's existing cards for the word, filtered the generated
+    ones against them, and inserted the rest. Two requests inside that gap both
+    see an empty deck and both insert. Measured against a real database, firing
+    the same shape concurrently: two adds gave two cards, four gave four, and
+    eight gave fourteen where two is right. A learner meets it by
+    double-tapping "Add to deck", which is the worst case rather than the
+    unlikely one.
+
+    The answer is `lib/usage/ledger.ts`'s, for the reasons its own header gives:
+    a *transaction* advisory lock, so a connection pooler cannot strand it, and
+    the blocking form, since the non-blocking one serializes nothing.
+
+    The key is `lockDeck`'s and is the learner rather than the learner and the
+    word, which is a widening this path did not need on its own and the batched
+    builder does. A key naming the word is safe against another add of the same
+    word and says nothing about `addUnitsToDeck` writing a unit that contains
+    it, so two keys would leave each path guarded against itself and neither
+    against the other. One definition, in `lib/srs/deck.ts`, because two spellings
+    of a lock key are a lock that is not held.
+
+    Held across one select and one insert, which is milliseconds, and the whole
+    of it is work this action was doing anyway.
+
+    A unique index would be the other answer and is the one not taken: an
+    existing deck that already holds duplicates from this bug would fail the
+    push, and the deployment's own build is what runs it.
+  */
+  const now = new Date();
+  const scheduling = emptyScheduling(now);
+  const added = await prisma.$transaction(async (tx) => {
+    await lockDeck(tx, owner);
+
+    const [existing, held] = await Promise.all([
+      tx.card.findMany({
+        where: { lexemeId, ownerId: owner },
+        select: { front: true, cardType: true },
+      }),
+      /*
+        AND A CARD FOR A WORD ALREADY PUT ASIDE IS BUILT PUT ASIDE.
+
+        The unit lesson is where a word is refused before it has a card: the
+        lesson teaches the unit's words and this builds them at the end, so
+        without this the word somebody said was too complicated would arrive
+        tomorrow with a card dated today. See lib/progress/deferrals.ts.
+      */
+      deferredDues(tx, owner, [lexemeId], now),
+    ]);
+    /* A recognition or production card is one per word whatever its front
+       says, or a deck built before a spelling fix gains a second copy at New
+       (`ONE_PER_WORD` in lib/srs/deck.ts). */
+    const seen = new Set(existing.flatMap((c) => ONE_PER_WORD.has(c.cardType)
+      ? [`${c.cardType}|${c.front}`, `${c.cardType}|*`]
+      : [`${c.cardType}|${c.front}`]));
+
+    const generated = generateCards(
+      {
+        ...(lexeme as LexemeForCards),
+        alsoAccepted: alsoAccepted.get(`${lexeme.lemma}|${lexeme.pos}`) ?? [],
+        borrowed: borrowed.get(lexemeId) ?? [],
+        plainest: plainerFirst(lexeme.cefr, reach),
+      }, types,
+    ).filter((c) => !seen.has(`${c.cardType}|${c.front}`) && !seen.has(`${c.cardType}|*`));
+    if (generated.length === 0) return 0;
+
+    await tx.card.createMany({
+      data: generated.map((c) => ({
+        ownerId: owner,
+        lexemeId,
+        cardType: c.cardType,
+        front: c.front,
+        back: c.back,
+        hint: c.hint,
+        targetCase: c.targetCase,
+        slot: c.slot,
+        source,
+        due: held.get(lexemeId) ?? scheduling.due,
+        stability: scheduling.stability,
+        difficulty: scheduling.difficulty,
+        state: scheduling.state,
+        learningSteps: scheduling.learningSteps,
+      })),
+    });
+    return generated.length;
+  });
+
+  if (added === 0) return { ok: true as const, added: 0, message: "That one's already in your deck." };
+  return { ok: true as const, added };
+}

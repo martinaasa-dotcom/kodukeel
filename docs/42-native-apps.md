@@ -172,13 +172,16 @@ The actions the speech features use, which are the first routes to build:
 | (none, the course screen) | Whether today is a lesson, a check, the web or nothing | Yes, `GET /api/v1/today` (N-7) |
 | `readEstonian` | Glosses a pasted or transcribed text | No |
 | `readHeard` | Glosses a recording's transcript, its words only (VB-12) | No |
-| `saveScan`, `addScanToDeck` | A photographed page or the things around you | No; the reading is `/api/scan` |
+| `saveScan`, `addScanToDeck` | A photographed page or the things around you | Yes, `POST /api/v1/scans` and `POST /api/v1/scans/{id}/deck`, behind the same allowances; the reading is `POST /api/v1/scan` (N-10) |
 | `setSpeechSendAtOnce`, `setSpeechInBoxes`, `setSceneAnswer` | The speaking choices, and how a conversation is answered | No |
-| (none) | Which heard words are Estonian spellings | Yes, `/api/speech/forms` |
-| (none) | A clip read aloud | Yes, `/api/tts` |
-| (none) | What was heard, read back and kept nowhere (VB-5) | Yes, `/api/tts?transient=1` |
-| (none) | The things in a photo, named in English (VB-13) | Yes, `/api/scan` with `mode: "things"` |
-| (none) | Anu | Yes, `/api/tutor` |
+| `addToDeck`, `toggleStar`, `putWordAside`, `bringWordBack` | Keeps a word, stars it, puts it aside and brings it back | Yes, `POST` and `DELETE /api/v1/deck`, behind the same allowances (N-6) |
+| (none, the dictionary page) | A search, and one entry with its forms, sentences and Ekilex's credit | Yes, `GET /api/v1/dictionary?q=` and `GET /api/v1/words/{id}`, the page's own `searchDictionary` and `openEntry` (N-6) |
+| (none) | Which heard words are Estonian spellings | Yes, `/api/speech/forms`, and `POST /api/v1/speech/forms` over the same body (N-6) |
+| (none) | A clip read aloud | Yes, `/api/tts`, and `POST /api/v1/tts` over the same body, limit and ledger (N-6) |
+| (none) | What was heard, read back and kept nowhere (VB-5) | Yes, `/api/tts?transient=1`, and `POST /api/v1/tts` with `transient: true` (N-6) |
+| (none) | The native speaker's recordings, and which spelling each answers for | Yes, `GET /api/v1/recordings`, public, every clip at its own speed (N-6) |
+| (none) | The things in a photo, named in English (VB-13) | Yes, `/api/scan` with `mode: "things"`, and `POST /api/v1/scan` (N-10) |
+| (none) | Anu | Yes, `/api/tutor`, and `POST /api/v1/tutor`, streamed, the model named in the same headers (N-10) |
 
 **A lesson's six steps, and what each needs.** `GET /api/v1/lessons/{id}` hands over the whole lesson
 with its practice and review already built, so Listen, Words, How it works, Practice and Review need

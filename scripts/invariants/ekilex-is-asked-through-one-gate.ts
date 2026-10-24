@@ -47,8 +47,12 @@ export default function ekilexIsAskedThroughOneGate({ check, code, read, sourceF
     assert.match(lookup, /searchEkilex\(query, gate\)/, "the live lookup's search stopped going through the counted gate");
     assert.match(lookup, /searchEkilex\(lexeme\.lemma, gate\)/, "the upgrade's search stopped going through the counted gate");
     const page = code("app/(app)/dictionary/page.tsx");
-    assert.match(page, /if \(entry && !fetched && !prefetch\) after\(\(\) => countStoredAnswer\(entry\)\)/,
-      "the dictionary stopped counting an answer from the stored copy, or counts a prefetch as one");
+    // The count moved with the entry into lib/progress/dictionaryEntry.ts, which
+    // the page and GET /api/v1/words/{id} both open an entry through; the page
+    // still decides that a prefetch is not an answer.
+    assert.match(code("lib/progress/dictionaryEntry.ts"), /if \(entry && !fetched && options\.countAnswer\) after\(\(\) => countStoredAnswer\(entry\)\)/,
+      "the dictionary stopped counting an answer from the stored copy");
+    assert.match(page, /countAnswer: !fetched && !prefetch/, "the dictionary counts a prefetch as an answer");
     const model = /model EkilexDay \{([\s\S]*?)\n\}/.exec(read("prisma/schema.prisma"))?.[1];
     assert.ok(model, "the EkilexDay model is gone, so nothing counts what Ekilex is asked");
     assert.doesNotMatch(model, /\bownerId\b/, "EkilexDay grew an owner: it is an aggregate and in no export or erasure");

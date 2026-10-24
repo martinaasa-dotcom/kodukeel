@@ -1,114 +1,19 @@
-import { createHash } from "node:crypto";
-import { NextResponse, after } from "next/server";
+import { NextResponse } from "next/server";
 import { requireUserId } from "@/lib/auth/session";
-import { bucketForRequest, rateLimited } from "@/lib/security/rateLimit";
+import { bucketForOwner, bucketForRequest, rateLimited } from "@/lib/security/rateLimit";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
-import { type AudioSource, readAudio, writeAudio } from "@/lib/audio/store";
-import { singleFlightTagged } from "@/lib/cache/singleFlight";
-import { recordUsage, authoriseCall, releaseReservation } from "@/lib/usage/ledger";
-import { DEFAULT_VOICE, voiceFrom, VOICES } from "@/lib/audio/voice";
-import { clipForStore } from "@/lib/audio/wav";
-import { spokenText } from "@/lib/audio/say";
-import { reportError } from "@/lib/observability/report";
-import { clip } from "@/lib/copy/clip";
+import { clipLimitKey, HEARD_PER_MINUTE, SPEECH_PER_MINUTE, speakClip, type ClipSource } from "@/lib/progress/speakClip";
 import { NO_STORE } from "@/lib/security/headers";
-
-const TARTU_NLP = "https://api.tartunlp.ai/text-to-speech/v2";
-const MAX_CHARS = 400;
-
-/*
-  How much of a free academic service one learner may use in a minute.
-
-  TartuNLP is run by the University of Tartu and asks nothing of us, which is
-  exactly why it gets a cap rather than nothing: the whole point of the disk
-  cache below is to be a polite consumer of it, and a retry loop with a
-  slightly different string each time walks straight past a cache.
-
-  A hundred and twenty is far above real use and far below abuse. Reviewing
-  with audio on plays roughly one clip a card, and the fastest anybody clears
-  a card is a few seconds, so a real session lands nearer twenty; a script
-  reaches this inside a second. The charge is per learner rather than per
-  address, so a classroom on one school network is twenty-five allowances
-  rather than one -- see lib/security/rateLimit.ts.
-*/
-const SPEECH_PER_MINUTE = 120;
-
-/*
-  ONE REQUEST UPSTREAM PER CLIP, HOWEVER MANY PEOPLE ASK AT ONCE.
-
-  A cache that is only consulted before the call and only written after it has
-  a gap exactly as wide as the call itself, and that gap is where the traffic
-  is: a class of twenty-five starting the same unit together asks for the same
-  word inside the same second, every one of them misses, and the free service
-  we are trying to be polite to gets twenty-five identical requests. The same
-  thing happens to one learner whose card renders a word and its example
-  sentence side by side.
-
-  The mechanism used to be a `Map` and a `finally` written out here. It moved
-  to lib/cache/singleFlight.ts when the dictionary turned out to need exactly
-  the same thing: a second copy of this is where the `finally` gets dropped and
-  a bad minute upstream is remembered as a failure until the next deploy.
-*/
 
 /**
  * Server-side proxy and cache for Estonian speech.
  *
- * A word's pronunciation never changes, so each clip is fetched once per
- * cache lifetime and then served from disk. That also keeps review sessions
- * working with audio when the network is gone, and keeps us a polite
- * consumer of a free academic service.
+ * The body is `speakClip` (lib/progress/speakClip.ts), which `POST /api/v1/tts`
+ * calls too: the shared store, the in-flight joining and the ledger are there,
+ * so one clip asked by a browser and a phone at once is one request to
+ * TartuNLP. What stays here is the web's door: the cookie session, and the
+ * limiter on the same key a phone's request is counted under.
  */
-/**
- * What shape a stored clip is, as part of its key.
- *
- * The store is content-addressed, shared across every instance and every
- * learner, and prunes nothing, so a clip written under an old key is served
- * for ever. Anything that changes what is kept, rather than what is said, has
- * to move this or the fix reaches new phrases only.
- *
- * A CONSTANT BECAUSE THE COMMENT AND THE KEY HAD ALREADY COME APART. The pass
- * that trims by frame, caps the pauses and levels by loudness says in its own
- * message that "the route's cache key and the worker's cache version both
- * move", and its whole diff here was one comment line: the worker went to v4
- * and the key stayed at v3. So every phrase spoken before it kept the 390ms of
- * vocoder hiss that pass measured, while the worker bump made every phone
- * throw away its local copy and fetch the stale one again. Two spellings of
- * one version is one spelling too many.
- *
- * v5 was the pass that made the lead a guarantee rather than a ceiling: a clip
- * carries exactly `LEAD_MS` of silence in front of its first sound instead of
- * up to that much of whatever the recording happened to have, which measured
- * anywhere from 40 ms to 370 ms across thirty words.
- *
- * v6 is the pass that stopped asking the service for a fragment. A word is sent
- * with a full stop on it now (lib/audio/say.ts), which is a different request
- * and so a different clip: measured over twenty words in six voices, the loud
- * body of the word comes back 1.13 times as long. Every clip stored under v5
- * was asked for the old way. The browser's own copy is keyed on the request
- * body rather than on this, and the client still sends the bare word, so
- * `public/sw.js` has to move with it or a phone goes on serving the fragment it
- * already holds.
- */
-const CLIP_SHAPE = "v6";
-
-/*
-  A READ-BACK OF WHAT WAS HEARD, WHICH NOBODY ELSE MAY EVER BE SERVED.
-
-  The Speaking round plays `heard` back in a native voice (docs/41-fifth-batch.md
-  VB-5): the words the recognizer wrote down, non-words and all, so a learner
-  hears what came across. That text is the learner's, and the store above is
-  content-addressed, shared by every learner and named by the text, so a
-  read-back may not touch it: nothing is read from it, nothing is written to it,
-  and no in-flight request is shared. It is asked of TartuNLP each time, which
-  `lib/legal/recipients.ts` already names as receiving "a phrase you asked to
-  hear read aloud", so no recipient is added.
-
-  Metered per learner like a miss, because it is one, and on a smaller shared
-  allowance of its own: a read-back follows a turn somebody said, which is a
-  few seconds of talking each, so twenty a minute is far above real use.
-*/
-const HEARD_PER_MINUTE = 20;
-
 export async function POST(request: Request) {
   const transient = new URL(request.url).searchParams.get("transient") === "1";
   const ownerId = await requireUserId().catch(() => null);
@@ -119,230 +24,35 @@ export async function POST(request: Request) {
     );
   }
   const limit = transient && ownerId
-    ? await checkSharedRateLimit(`tts-heard:o:${ownerId}`, HEARD_PER_MINUTE, 60_000)
-    : await checkSharedRateLimit(`tts:${bucketForRequest(request, ownerId)}`, SPEECH_PER_MINUTE, 60_000);
+    ? await checkSharedRateLimit(clipLimitKey(bucketForOwner(ownerId), true), HEARD_PER_MINUTE, 60_000)
+    : await checkSharedRateLimit(clipLimitKey(bucketForRequest(request, ownerId), false), SPEECH_PER_MINUTE, 60_000);
   if (!limit.ok) {
     return rateLimited(limit, transient
       ? "That's a lot of reading back at once. Give it a moment."
       : "That's a lot of audio at once. Give it a moment.");
   }
 
-  let text: string;
-  let voice: string | null = null;
+  let body: unknown;
   try {
-    /*
-      No speed. There used to be one, forwarded to the model, and it is gone
-      on purpose: TartuNLP applies it inside the acoustic model as a duration
-      regulator, so a "slow" clip was every phoneme held 1.6 times longer on
-      repeated frames, at the same pitch, which is the flat, buzzing stretch
-      a learner reported. Slow is a fact about playback now, not about the
-      clip: lib/audio/clip.ts plays the one clip slower with the pitch held.
-      One clip per word rather than two also halves what is asked of a free
-      service and what the caches hold.
-    */
-    const body = (await request.json()) as { text?: unknown; voice?: unknown };
-    if (typeof body.text !== "string" || !body.text.trim()) {
-      return NextResponse.json({ error: "There's nothing to say out loud." }, { headers: NO_STORE, status: 400 });
-    }
-    /*
-      Finished, rather than as typed. TartuNLP reads sentences, and a bare
-      headword with no stop on it is a fragment to its front end, which renders
-      it as one: measured, the word itself comes back an eighth shorter, which
-      is the "the word is incomplete" a learner reported. `spokenText` moves
-      punctuation and never a letter, and the store is keyed on what comes out
-      of it, so the cache and the request cannot come apart.
-    */
-    text = spokenText(clip(body.text.trim(), MAX_CHARS));
-    /*
-      The learner's chosen voice, checked against the allowlist rather than
-      passed to a third party as typed. A value that is not one of ours is
-      the deployment's default, never an error, because the request carries
-      it on behalf of a setting the learner may have set on another day.
-    */
-    if (typeof body.voice === "string" && VOICES.some((v) => v.id === body.voice)) voice = voiceFrom(body.voice);
+    body = await request.json();
   } catch {
     return NextResponse.json({ error: "Something went wrong sending that. Reload the page and try again." }, { headers: NO_STORE, status: 400 });
   }
 
-  const speaker = voice ?? voiceFrom(process.env.TTS_SPEAKER ?? DEFAULT_VOICE);
-  if (transient && ownerId) return readBack(ownerId, text, speaker);
-  const hash = createHash("sha256").update(`${CLIP_SHAPE}|${text}|${speaker}`).digest("hex");
-  // Content-addressed and shared across instances and users: a clip fetched
-  // once is available to everybody, forever. Writing to /tmp instead, as this
-  // did, is per-instance and wiped on every cold start — not a cache, just a
-  // comment claiming to be one. See lib/audio/store.ts.
-  const cached = await readAudio(hash).catch(() => null);
-  if (cached) return wav(cached.body, cached.from);
-
-  /*
-    A MISS IS METERED, BECAUSE A MISS COSTS SOMETHING.
-
-    Nothing but an in-process limiter stood in front of this, and that limiter
-    resets on every cold start, which the module says of itself. A miss makes
-    a request of TartuNLP, a free academic service this app promises to be a
-    polite consumer of, and writes a WAV into storage that nothing prunes, on
-    a key space of any text a client cares to send. `ALLOWANCE.TTS` in the
-    ledger has described the gate for this the whole time and nothing called
-    it, so the durable daily allowance was dead code. A hit and a joiner are
-    still free: neither asks anybody for anything.
-
-    AND A MISS WITH NOBODY TO CHARGE IS REFUSED RATHER THAN WAVED THROUGH.
-    `requireUserId` is caught above so a caller the auth service could not
-    answer for still gets a bucket and still gets a clip; the middleware lets
-    that state through deliberately, because taking somebody's deck away over
-    a bad minute at Supabase is worse than the alternative. What may not
-    follow from it is spending. Ternaried into `null`, the ledger was skipped
-    for exactly the caller nothing could bill, so during an auth outage a
-    request reached TartuNLP and wrote into a store nothing prunes with only
-    the per-instance limiter in front of it, which that module says of itself
-    is not the thing that bounds cost. `lib/usage` has no off switch and fails
-    closed, so this fails closed too: what is already stored still plays, and
-    a new clip waits for somebody the meter can name.
-  */
-  if (!ownerId) {
+  const spoken = await speakClip({ ownerId, body, transient });
+  if (!spoken.ok) {
     return Response.json(
-      { error: "We don't have that clip yet, and we couldn't check who was asking. Try again in a moment." },
-      { status: 503, headers: { ...NO_STORE, "retry-after": "30" } },
-    );
-  }
-  const decision = await authoriseCall(ownerId, "TTS");
-  if (!decision.allowed) {
-    return Response.json(
-      { error: decision.message, reason: decision.reason },
+      { error: spoken.message, ...(spoken.reason ? { reason: spoken.reason } : {}) },
       {
-        status: 429,
+        status: spoken.status,
         headers: {
           ...NO_STORE,
-          ...(decision.retryAfterSeconds ? { "retry-after": String(decision.retryAfterSeconds) } : {}),
+          ...(spoken.retryAfterSec ? { "retry-after": String(spoken.retryAfterSec) } : {}),
         },
       },
     );
   }
-
-  try {
-    /*
-      Whoever gets here first fetches; everybody who arrives while that is in
-      flight is handed the same promise. Which of the two this caller was
-      still matters below, so it is asked for rather than thrown away.
-    */
-    const { value: audio, joined } = await singleFlightTagged(
-      `tts:${hash}`, () => speak(text, speaker, hash),
-    );
-    // TartuNLP is free, so this costs nothing — it is recorded to show how
-    // heavily the app leans on somebody else's goodwill. Passing an explicit
-    // zero matters: the speaker name would otherwise price as an unknown model.
-    // Anonymous callers are possible here (the bucket falls back to the
-    // request), and the ledger is per learner, so an unattributed clip is
-    // simply not recorded rather than filed under nobody.
-    //
-    // A joiner is not recorded, for the same reason a cache hit above is not:
-    // this row counts requests actually made of TartuNLP, and a joiner made
-    // none. Counting them would tighten the speech allowance by the size of
-    // whatever burst the deduplication just absorbed.
-    const joinerBooking = joined ? decision.reservation : undefined;
-    if (joinerBooking) {
-      // A joiner made no request of anybody, so it hands its booking back.
-      after(() => releaseReservation(joinerBooking));
-    }
-    if (ownerId && !joined) {
-      after(() => recordUsage({
-        ownerId, kind: "TTS", provider: "tartunlp", model: speaker,
-        inputTokens: text.length, outputTokens: 0, costMicros: 0,
-        reservation: decision.reservation,
-      }));
-    }
-    return wav(audio, joined ? "joined" : "upstream");
-  } catch (error) {
-    // Nothing was spoken, so the booking goes back: a learner must not spend
-    // their day's allowance on a minute when TartuNLP was down.
-    const booking = decision.reservation;
-    if (booking) after(() => releaseReservation(booking));
-    const status = error instanceof SpeechError ? error.status : 503;
-    const message =
-      status === 502 ? "The speech service couldn't read that out." : "We couldn't reach the speech service.";
-    return NextResponse.json({ error: message }, { headers: NO_STORE, status });
-  }
-}
-
-/**
- * One read-back of what the recognizer heard: metered, never cached, never
- * stored. The request was checked and the learner's limit counted in `POST`.
- */
-async function readBack(ownerId: string, text: string, speaker: string) {
-  const decision = await authoriseCall(ownerId, "TTS");
-  if (!decision.allowed) {
-    return Response.json(
-      { error: decision.message, reason: decision.reason },
-      {
-        status: 429,
-        headers: {
-          ...NO_STORE,
-          ...(decision.retryAfterSeconds ? { "retry-after": String(decision.retryAfterSeconds) } : {}),
-        },
-      },
-    );
-  }
-  try {
-    const audio = await speak(text, speaker, null);
-    after(() => recordUsage({
-      ownerId, kind: "TTS", provider: "tartunlp", model: speaker,
-      inputTokens: text.length, outputTokens: 0, costMicros: 0,
-      reservation: decision.reservation,
-    }));
-    return wav(audio, "transient");
-  } catch (error) {
-    const booking = decision.reservation;
-    if (booking) after(() => releaseReservation(booking));
-    const status = error instanceof SpeechError ? error.status : 503;
-    const message =
-      status === 502 ? "The speech service couldn't read that out." : "We couldn't reach the speech service.";
-    return NextResponse.json({ error: message }, { headers: NO_STORE, status });
-  }
-}
-
-class SpeechError extends Error {
-  constructor(readonly status: number) {
-    super(`speech service ${status}`);
-  }
-}
-
-/**
- * Fetch one clip and write it to the cache. Throws SpeechError, never a Response.
- * A null hash is a read-back of what the learner said, which is never kept.
- */
-async function speak(
-  text: string,
-  speaker: string,
-  hash: string | null,
-): Promise<Buffer> {
-  let upstream: Response;
-  try {
-    upstream = await fetch(TARTU_NLP, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ text, speaker }),
-      signal: AbortSignal.timeout(15_000),
-    });
-  } catch {
-    throw new SpeechError(503);
-  }
-
-  if (!upstream.ok) throw new SpeechError(502);
-
-  const raw = new Uint8Array(await upstream.arrayBuffer());
-  // Nothing to play is a failed answer, not a clip; the booking goes back.
-  if (raw.byteLength === 0) throw new SpeechError(502);
-  const prepared = clipForStore(raw);
-  if (prepared.error) {
-    reportError(prepared.error, { at: "tts/prepare", extra: { bytes: raw.byteLength } });
-  }
-  const audio = Buffer.from(prepared.audio);
-  // Never throws: a failed cache write is a slower next play. And only a clip
-  // this route could read is kept, since the store answers before the service.
-  // A read-back of what the learner said is never kept (`readBack`).
-  if (hash === null) return audio;
-  if (prepared.keep) await writeAudio(hash, audio);
-  return audio;
+  return wav(spoken.audio, spoken.source);
 }
 
 /**
@@ -379,7 +89,7 @@ async function speak(
  * CDN log between here and the learner, which is a worse trade than one
  * accurate header.
  */
-function wav(body: Buffer, cache: AudioSource | "joined" | "transient") {
+function wav(body: Buffer, cache: ClipSource) {
   return new NextResponse(new Uint8Array(body), {
     headers: {
       "content-type": "audio/wav",

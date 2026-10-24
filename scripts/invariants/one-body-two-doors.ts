@@ -47,6 +47,9 @@ const LIB_API_MAY_IMPORT = [
   /^@\/lib\/security\/redact$/,
   /^@\/lib\/usage\/switches$/,
   /^@\/lib\/speech\/model$/,
+  // The native recordings are a pure catalog (D1: the clip list is the app's
+  // own and a phone reads it as it is), and GET /api/v1/recordings lists it.
+  /^@\/lib\/audio\/native$/,
 ];
 
 function routeFiles(dir: string): string[] {

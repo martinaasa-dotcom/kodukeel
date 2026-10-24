@@ -347,6 +347,7 @@
   "due": 33,
   "check": null,
   "locale": "ru",
+  "nativePart": "Jaan",
   "translations": {
     "Hello and thank you": "Привет и спасибо",
     "Say hello, thank you and goodbye, at any time of day.": "Здороваться, благодарить и прощаться в любое время дня.",

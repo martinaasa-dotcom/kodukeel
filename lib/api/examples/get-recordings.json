@@ -2,20 +2,38 @@
   "clips": [
     {
       "id": "sound-a",
+      "text": "a",
+      "kind": "sound",
       "src": "/audio/native/sound-a.wav?v=6",
       "key": null,
+      "slow": false,
       "atOwnSpeed": true
     },
     {
       "id": "sound-e",
+      "text": "e",
+      "kind": "sound",
       "src": "/audio/native/sound-e.wav?v=6",
       "key": null,
+      "slow": false,
       "atOwnSpeed": true
     },
     {
-      "id": "sound-i",
-      "src": "/audio/native/sound-i.wav?v=6",
-      "key": null,
+      "id": "vowel-pood",
+      "text": "pood",
+      "kind": "word",
+      "src": "/audio/native/vowel-pood.wav?v=6",
+      "key": "pood",
+      "slow": false,
+      "atOwnSpeed": true
+    },
+    {
+      "id": "vowel-tee",
+      "text": "tee",
+      "kind": "word",
+      "src": "/audio/native/vowel-tee.wav?v=6",
+      "key": "tee",
+      "slow": false,
       "atOwnSpeed": true
     }
   ]

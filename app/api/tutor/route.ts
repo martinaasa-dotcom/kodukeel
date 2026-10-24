@@ -1,344 +1,58 @@
-import { after } from "next/server";
-import { forTheModel } from "@/lib/tutor/transcript";
-import { forgetOldMessages } from "@/lib/tutor/history";
-import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
+import { askAnu, QUESTIONS_PER_MINUTE, questionLimitKey } from "@/lib/progress/askAnu";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
-import { candidatesFor } from "@/lib/dict/resolveScan";
-import { matchEstonianForm } from "@/lib/dict/search";
-import { ProseStream } from "@/lib/tutor/humanize";
-import { isStrayFix, sentenceRun } from "@/lib/tutor/fixLine";
-import { buildSystemPrompt, learnerNote, type LearnerNote } from "@/lib/tutor/prompt";
-import { learnerContextFor } from "@/lib/progress/tutorContext";
-import { wordsInQuestion } from "@/lib/progress/tutorWords";
-import { asksForForms, wordsNote } from "@/lib/tutor/words";
-import { chatEstonianTokens } from "@/lib/tutor/verify";
-import { screenFrom, screenWords, withScreen, type ScreenContext } from "@/lib/tutor/screen";
-import {
-  openWithFallback,
-  resolveProviders,
-  TUTOR_REPLY_TOKENS,
-  TutorError,
-  type ChatMessage,
-} from "@/lib/tutor/provider";
-import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
-import { reportError } from "@/lib/observability/report";
 import { NO_STORE } from "@/lib/security/headers";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
 
-/*
-  How many questions one learner may ask in a minute.
-
-  Anu costs either money or a free model's daily allowance, and both are
-  spent by whoever asks. Twelve is far more than a person types and far less
-  than a loop sends. Charged to the learner rather than to their address, so
-  a classroom on one school network is one allowance each.
-*/
-const QUESTIONS_PER_MINUTE = 12;
-
-/** What Anu is told when the learner's own log could not be read: the middle of the scale, and nothing else. */
-const UNKNOWN_LEARNER: LearnerNote = { level: "B1", weakestCase: null, unit: null, scene: null };
-
+/**
+ * A QUESTION TO ANU, FROM THE WEB.
+ *
+ * The body is `askAnu` (lib/progress/askAnu.ts), which `POST /api/v1/tutor`
+ * calls too: the chain, the ledger, the learner's own context, the cleaning
+ * pass, the check on her Estonian and the day's history are all there. What
+ * stays here is the web's door: the cookie session, the per-minute limiter on
+ * the key a phone's question is counted under, and the answer streamed with
+ * the model that wrote it named in its headers.
+ */
 export async function POST(request: Request) {
   const ownerId = await requireUserId();
 
-  const limit = checkRateLimit(`tutor:${bucketForOwner(ownerId)}`, QUESTIONS_PER_MINUTE, 60_000);
+  const limit = checkRateLimit(questionLimitKey(bucketForOwner(ownerId)), QUESTIONS_PER_MINUTE, 60_000);
   if (!limit.ok) {
     return rateLimited(limit, "Anu's still catching up on your last few questions. Give her a moment.");
   }
 
-  /*
-    Two limits, because they stop different things. The per-minute bucket above
-    stops a runaway client; this stops a bill. It is durable rather than
-    in-memory — a per-instance counter on serverless caps nothing across a cold
-    start — and it fails closed, because "the database hiccuped" is not a reason
-    to start spending without a ceiling.
-  */
-  /*
-    Started before the ledger is asked so the reads ride beside it, and
-    settled to null on failure rather than thrown: a pooler hiccup on one of
-    these reads must neither 500 a question nor escape the try below, where
-    the reservation is handed back. Anu then knows only the level she knew
-    before any of this existed.
-  */
-  const learnerPromise = learnerContextFor(ownerId).catch(() => null);
-
-  /*
-    Anu's own chain, which is Gemini and then Groq and nothing else.
-
-    Not the general chain: `resolveProviders()` with no purpose is still every
-    configured provider, and reading it here would put a scene composer's cheap
-    constrained-output model in front of the one question in this app where
-    being right about Estonian is the whole product. See `PURPOSE_CHAINS`.
-  */
-  const chain = resolveProviders({ purpose: "tutor" });
-  if (chain.length === 0) {
-    return Response.json(
-      { error: "There's no AI key set up yet. Add one in .env, or follow the two-minute walkthrough in Settings." },
-      { headers: NO_STORE, status: 503 },
-    );
-  }
-
-  /*
-    NOTHING IS BOOKED UNTIL THE REQUEST IS WORTH ANSWERING.
-
-    The ledger writes a call down when it authorizes it, which is what stops
-    ten tabs reading the same "under the limit"; the cost of that is that a
-    booking made before the body is read is a booking nothing hands back.
-    This route authorized first, so four POSTs of `{"messages":[]}` left four
-    pending calls against the global budget and spent four of the learner's
-    ten for the day, having answered nothing. /api/scan and /api/write
-    validate first and this now matches them.
-  */
-  let messages: ChatMessage[];
-  let screen: ScreenContext | null = null;
+  let body: unknown;
   try {
-    const body = (await request.json()) as { messages?: unknown; screen?: unknown };
-    if (!Array.isArray(body.messages) || body.messages.length === 0) {
-      return Response.json({ error: "Type a question first." }, { headers: NO_STORE, status: 400 });
-    }
-    messages = forTheModel(body.messages
-      .filter((m): m is ChatMessage =>
-        typeof m === "object" && m !== null &&
-        (("role" in m && (m.role === "user" || m.role === "assistant"))) &&
-        "content" in m && typeof (m as ChatMessage).content === "string"));
-    /*
-      What the learner was looking at when they asked, read off the page by
-      the panel (`components/anu/readScreen.ts`). Coerced and clipped here
-      whatever arrived, and absent is the ordinary case: the /tutor page has
-      no screen behind it. See `lib/tutor/screen.ts`.
-    */
-    screen = screenFrom(body.screen);
+    body = await request.json();
   } catch {
     return Response.json({ error: "Something went wrong sending that. Reload the page and try again." }, { headers: NO_STORE, status: 400 });
   }
-  // A transcript of nothing but the app's own failure bubbles is nothing to ask, and books nothing.
-  if (messages.length === 0) return Response.json({ error: "Type a question first." }, { headers: NO_STORE, status: 400 });
 
-  const decision = await authoriseCall(ownerId, "TUTOR");
-  if (!decision.allowed) {
+  const answer = await askAnu(ownerId, body);
+  if (!answer.ok) {
     return Response.json(
-      { error: decision.message, reason: decision.reason },
+      { error: answer.message, ...(answer.reason ? { reason: answer.reason } : {}) },
       {
-        status: 429,
+        status: answer.status,
         headers: {
           ...NO_STORE,
-          ...(decision.retryAfterSeconds ? { "retry-after": String(decision.retryAfterSeconds) } : {}),
+          ...(answer.retryAfterSec ? { "retry-after": String(answer.retryAfterSec) } : {}),
         },
       },
     );
   }
 
-  // The learner's text is user content, never spliced into the system prompt.
-  // The importer exists to paste text from elsewhere, so that boundary matters.
-  /*
-    Who is asking is the server's to know. The client used to post a level and
-    the route believed it, which made every learner B1. What she is told now
-    is read off this learner's own log, started beside the ledger's own
-    transaction above rather than after it: three round trips that do not
-    depend on the answer cost nothing extra when they are in flight together.
-  */
-  /*
-    And what the dictionary holds for the words the question names, read
-    beside the learner's log rather than after it. Asked for every case of
-    a word she was never handed, Anu built fourteen forms on a wrong
-    genitive; handed the dictionary's own principal parts, she builds on
-    those and is told to say she is not sure past them (`lib/tutor/words.ts`).
-    A read that fails leaves the block empty, which is what every question
-    got before this existed.
-  */
-  /*
-    The Estonian on the learner's screen is asked about with the question's
-    own words, after them, so "what does this mean" over a sentence is
-    answered with the dictionary's forms for the words in that sentence.
-  */
-  const wordsPromise = wordsInQuestion(messages, screenWords(screen)).catch(() => []);
-  const [known, words] = await Promise.all([learnerPromise, wordsPromise]);
-  const learner = known ?? UNKNOWN_LEARNER;
-  const system = buildSystemPrompt();
-  const live = [learnerNote(learner), wordsNote(words, asksForForms(messages))].filter(Boolean).join("\n\n");
-  const encoder = new TextEncoder();
-  let full = "";
-
-  /*
-    WHICH MODEL ANSWERED IS A FACT ABOUT THE ANSWER, SO IT TRAVELS WITH IT.
-
-    Not the head of the chain: `openWithFallback` walks past a provider that
-    is throttled, so the model configured first may not have written a word of
-    what the learner is reading, and a screen naming the wrong model is worse
-    than one naming none. The handshake finishes here, before the response
-    head is written, which is what lets the name go in a header at all. Every
-    reason to fall back arrives in the upstream response head, so nothing is
-    lost by settling it this early, and the alternative was a trailer no
-    browser exposes.
-  */
-  let open;
-  /*
-    SET BY THE SAME CALLBACK THAT RECORDS USAGE, READ ONCE THE STREAM IS DONE.
-
-    `onUsage` fires as the stream's own generator unwinds, which is exactly
-    when its `stop_reason`/`finish_reason` frame has been seen, so this is
-    known by the time the `for await` loop below has finished consuming
-    `open.chunks`. `TUTOR_REPLY_TOKENS` makes hitting the ceiling rare; it
-    does not make it impossible, and the honest thing on the rare turn that
-    still runs out is to say so rather than let a sentence stop mid-word with
-    nothing marking it as unfinished.
-  */
-  let truncated = false;
-  try {
-    // The screen rides in front of the last question and is sent, never stored.
-    open = await openWithFallback(chain, system, withScreen(messages, screen), (usage, config) => {
-      truncated = usage.truncated === true;
-      // Charged to the provider that actually answered, not the head of the
-      // chain: falling back to a dearer model must not go unmetered.
-      after(() => recordUsage({
-        ownerId, kind: "TUTOR", provider: config.name, model: config.model,
-        inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,
-      // Priced at the cache rates where the provider reported a split.
-      cachedInputTokens: usage.cachedInputTokens, cacheWriteTokens: usage.cacheWriteTokens,
-        // Settles the reservation `authoriseCall` already booked, rather than
-        // charging a second time. The call was written down before the chain
-        // was opened, which is what stops ten tabs reading the same "under the
-        // limit" while none of them has been recorded yet.
-        reservation: decision.reservation,
-      }));
-    }, live, TUTOR_REPLY_TOKENS,
-    /*
-      And the static half held on Google's side: Anu's prompt is the same
-      2,300 tokens for everybody, which is why the level moved out of it, and
-      on a Gemini link `lib/tutor/geminiCache.ts` serves it at a tenth of the
-      input rate. The reply then arrives as one chunk rather than a stream,
-      which the chat already waits for (`useAnuChat` shows the finished
-      reply), and a link that will not hold the prompt answers streamed.
-    */
-    true);
-  } catch (error) {
-    // Nothing was spent and nothing was answered, so the authorization is
-    // handed back: a deployment with a bad key must not ration its learners
-    // over calls none of them received.
-    const booking = decision.reservation;
-    if (booking) after(() => releaseReservation(booking));
-    const message = error instanceof TutorError ? error.message : "We couldn't reach Anu just now. Try again in a moment.";
-    const status = error instanceof TutorError ? error.status : 502;
-    return Response.json({ error: message }, { headers: NO_STORE, status });
-  }
-
-  const stream = new ReadableStream({
-    async start(controller) {
-      /*
-        Anu's English is cleaned on its way past: no dashes used as clause
-        breaks, no stock openers. `ProseStream` holds text back only where a
-        rule could still change it, so this costs the learner nothing they
-        would notice, and it never touches a word of Estonian. See
-        lib/tutor/humanize.ts.
-      */
-      /*
-        And a FIX: line under a question that had no sentence to correct is
-        dropped whole, decided from the learner's own message and how many
-        of its words the dictionary vouched for (`lib/tutor/fixLine.ts`):
-        every model measured puts one there, and the screen boxes it as a
-        correction of something the learner wrote.
-      */
-      const lastAsked = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
-      const vouched = sentenceRun(lastAsked, words.flatMap((w) => w.asked ?? []));
-      const prose = new ProseStream((fix) => !isStrayFix(fix, lastAsked, vouched));
-      const say = (text: string) => {
-        if (!text) return;
-        full += text;
-        controller.enqueue(encoder.encode(text));
-      };
-
-      try {
-        for await (const chunk of open.chunks) say(prose.push(chunk));
-        say(prose.end());
-        // The reply hit its own ceiling rather than finishing on its own, so
-        // what is on screen is a real prefix of an answer and not the whole
-        // of one. Say so rather than leaving a sentence stopped mid-word with
-        // nothing marking it as unfinished, which reads as Anu going quiet.
-        if (truncated) say("\n\n⚠ That ran long and got cut off. Ask again, or ask for the short version.");
-        await flagUnverifiedEstonian(say, full);
-      } catch (error) {
-        // A TutorError is an upstream condition already explained to the learner
-        // (a bad key, a 429, an unknown model). Anything else is ours.
-        if (!(error instanceof TutorError)) {
-          reportError(error, { at: "api/tutor", ownerId, extra: { model: open.config.model } });
-        }
-        // Whatever was held back still belongs to the learner: losing the last
-        // few words of an answer to report an error is losing both.
-        say(prose.end());
-        const message = error instanceof TutorError ? error.message : "We couldn't reach Anu just now. Try again in a moment.";
-        say(`\n\n\u26a0 ${message}`);
-      } finally {
-        /*
-          Handed to `after()` rather than floated, and before the close rather
-          than behind it: this is the write that keeps today's turn and forgets
-          yesterday's (`forgetOldMessages`), which is what the retention
-          schedule and /privacy promise, and the platform may suspend the
-          function the moment the last byte is out. `after()` is what keeps the
-          invocation alive until it lands, as it does for the settlement above.
-        */
-        after(() => persist(ownerId, messages, full));
-        controller.close();
-      }
-    },
-  });
-
-  return new Response(stream, {
+  return new Response(answer.stream, {
     headers: {
       "content-type": "text/plain; charset=utf-8",
       ...NO_STORE,
-      "x-model-provider": open.config.label,
-      "x-model-id": open.config.model,
+      // Which model answered is a fact about the answer, so it travels with it:
+      // the run that answered, never the head of the chain.
+      "x-model-provider": answer.provider,
+      "x-model-id": answer.model,
     },
   });
-}
-
-/**
- * A last, best-effort check over Anu's finished reply.
- *
- * `verifyComment` withholds a graded comment before it is ever shown, which
- * only a non-streaming answer can afford. This chat streams, on purpose, and
- * by the time a reply is complete most of it is already on the learner's
- * screen; there is no way to un-show it. So the check moves to after the
- * fact: any Estonian-looking word in Anu's own prose (never a FIX: or VOCAB:
- * line, both already boxed and tagged in the UI, so `chatEstonianTokens`
- * skips them) is looked up the dictionary the same way a word read off a
- * scanned page is (ADR-021), and anything it does not recognize gets named
- * in a trailing line the learner actually sees, rather than trusted in
- * silence.
- *
- * Best-effort in the literal sense: a lookup failure here must not turn an
- * answer the learner already has into an error. The reply already arrived.
- */
-async function flagUnverifiedEstonian(say: (text: string) => void, reply: string) {
-  const tokens = chatEstonianTokens(reply);
-  if (tokens.length === 0) return;
-  try {
-    const candidates = await candidatesFor(tokens);
-    const unverified = tokens.filter((token) => !matchEstonianForm(candidates, token));
-    if (unverified.length > 0) say(`\nUNVERIFIED: ${unverified.join(", ")}`);
-  } catch {
-    // Anu already answered. A second opinion that could not be reached is not
-    // a reason to put an error under an answer that worked.
-  }
-}
-
-async function persist(ownerId: string, messages: ChatMessage[], reply: string) {
-  const last = messages[messages.length - 1];
-  try {
-    if (last?.role === "user") {
-      await prisma.message.create({ data: { ownerId, role: "user", content: last.content } });
-    }
-    if (reply.trim()) {
-      await prisma.message.create({ data: { ownerId, role: "assistant", content: reply } });
-    }
-    // And yesterday's conversation goes: Anu remembers a day and starts
-    // fresh after it (`lib/tutor/lifetime.ts`).
-    await forgetOldMessages(ownerId);
-  } catch {
-    // Chat history is a convenience, not the irreplaceable data. Losing a row
-    // must never break the conversation the learner is having.
-  }
 }

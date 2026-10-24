@@ -34,8 +34,14 @@ const { lessonView } = await import("../lib/progress/lessonView");
 const { checkView } = await import("../lib/progress/lessons");
 const { translationsOf } = await import("../lib/api/lessonText");
 const { tr } = await import("../lib/copy/locale");
-const { NATIVE_CLIPS, nativeFor, nativeUrl } = await import("../lib/audio/native");
+const { nativePart } = await import("../lib/audio/native");
 const { dailyReview } = await import("../lib/progress/dailyQueue");
+const { searchDictionary } = await import("../lib/progress/dictionarySearch");
+const { openEntry } = await import("../lib/progress/dictionaryEntry");
+const { heardSpellings } = await import("../lib/progress/speechForms");
+const { recordingsList } = await import("../lib/api/recordings");
+const { resolveScannedItems } = await import("../lib/dict/resolveScan");
+const { summarise } = await import("../lib/scan/items");
 
 const DIR = "lib/api/examples";
 mkdirSync(DIR, { recursive: true });
@@ -85,6 +91,7 @@ const view = (await lessonView(LOCAL_USER_ID, lesson.id, now))!;
 write("get-lessons-id.json", {
   ...view,
   locale: "ru",
+  nativePart: nativePart(view.lesson.conversation),
   translations: translationsOf([view.lesson, view.practice, view.review, view.next], (english) => tr("ru", english)),
 });
 write("post-lessons-id-finish.json", { recorded: true });
@@ -114,34 +121,43 @@ write("get-export.json", { format: "kodukeel-backup", exportedAt: now.toISOStrin
 
 // ── Words and sound ─────────────────────────────────────────────────────────
 
-const word = await prisma.lexeme.findFirst({
-  where: { lemma: "tuba", pos: "NOUN" },
-  select: { id: true, lemma: true, pos: true, translation: true, cefr: true, government: true, forms: { select: { formType: true, value: true }, orderBy: [{ formType: "asc" }, { value: "asc" }] } },
-});
-if (word) {
-  const hit = { lexemeId: word.id, lemma: word.lemma, pos: word.pos, gloss: word.translation, cefr: word.cefr };
-  write("get-dictionary.json", { hits: [hit], formOf: [] });
-  write("get-words-id.json", {
-    ...hit,
-    forms: word.forms.slice(0, 4).map((f) => ({ slot: f.formType, value: f.value, origin: "stored" })),
-    sentences: [],
-    government: word.government,
-    equivalents: { ru: null, uk: null },
-    inDeck: false,
-    starred: false,
-  });
-  write("post-deck.json", { added: 2, starred: false, aside: false });
-  write("post-speech-forms.json", { estonian: [word.lemma] });
+// The routes' own bodies: a search, the entry it opens, and the catalog.
+const searched = await searchDictionary(LOCAL_USER_ID, "toas");
+write("get-dictionary.json", { hits: searched.hits.slice(0, 3), knownAs: searched.knownAs, fetched: searched.fetched });
+const opened = searched.hits[0]
+  ? (await openEntry(LOCAL_USER_ID, searched.hits[0].id, { countAnswer: false, dictionaryOnly: true })).entry
+  : null;
+if (opened) {
+  // Cut to a few forms and sentences so the example stays readable.
+  write("get-words-id.json", { ...opened, forms: opened.forms.slice(0, 6), examples: opened.examples.slice(0, 2) });
 }
-write("get-tts.json", { contentType: "audio/wav", note: "The body is a WAV clip, not JSON." });
+write("post-deck.json", { action: "keep", added: 3, starred: null, aside: null });
+write("delete-deck.json", { action: "unstar", added: 0, starred: false, aside: null });
+write("post-speech-forms.json", await (async () => {
+  const answer = await heardSpellings({ words: ["tere", "toas", "hommikust", "blorp"] });
+  return answer.ok ? { known: answer.known, asked: answer.asked } : { known: [], asked: [] };
+})());
+write("post-tts.json", { contentType: "audio/wav", note: "The body is a WAV clip, not JSON. `x-tts-cache` names which store answered." });
+const recordings = recordingsList();
 write("get-recordings.json", {
-  clips: NATIVE_CLIPS.slice(0, 3).map((clip) => ({
-    id: clip.id,
-    src: nativeUrl(clip.id),
-    key: nativeFor(clip.text)?.id === clip.id ? clip.text : null,
-    atOwnSpeed: true,
-  })),
+  // Two played by id and two found by spelling, so the example shows both.
+  clips: [
+    ...recordings.clips.filter((c) => c.key === null).slice(0, 2),
+    ...recordings.clips.filter((c) => c.key !== null).slice(0, 2),
+  ],
 });
+
+// ── Anu and the scanner ─────────────────────────────────────────────────────
+
+write("post-tutor.json", {
+  contentType: "text/plain; charset=utf-8",
+  note: "The body is Anu's reply as UTF-8 text, streamed. `x-model-provider` and `x-model-id` name the model that answered.",
+});
+// A page read, as `readScan` hands it on: the dictionary's own rows for two words, and one it would not vouch for.
+const read = await resolveScannedItems([{ et: "toas", en: "" }, { et: "kohv", en: "coffee" }, { et: "blorp", en: "" }]);
+write("post-scan.json", { items: read, summary: summarise(read) });
+write("post-scans.json", { id: "7c1d0e2a-5b9f-4e3a-8c6d-1f2e3a4b5c6d", words: read.length, cards: 4, created: 1 });
+write("post-scans-id-deck.json", { added: 2, words: read.length });
 
 // ── Conversations ───────────────────────────────────────────────────────────
 

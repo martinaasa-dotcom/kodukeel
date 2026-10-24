@@ -42,7 +42,8 @@ export default function speechGradesOnlyUp({ check, code }: InvariantKit) {
   });
 
   check("a read-back of what was heard is kept nowhere", () => {
-    const route = code("app/api/tts/route.ts");
+    // The body both speech doors share (app/api/tts and app/api/v1/tts).
+    const route = code("lib/progress/speakClip.ts");
     assert.match(route, /if \(hash === null\) return audio;\s*if \(prepared\.keep\) await writeAudio\(/, "a read-back reaches the shared store");
     assert.match(code("public/sw.js"), /searchParams\.get\("transient"\) !== "1"/, "the service worker keeps a read-back of what the learner said");
     assert.match(code("lib/audio/clip.ts"), /fetch\("\/api\/tts\?transient=1"/, "the read-back is asked for as an ordinary clip, which every cache keeps");

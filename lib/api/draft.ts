@@ -43,54 +43,11 @@ export const DraftExportResponse = z.record(z.string(), z.unknown()).describe("T
 
 // N-5's shapes shipped and are in `./contract.ts`.
 
-// ── N-6: words and sound ────────────────────────────────────────────────────
-
-const Hit = z.object({ lexemeId: z.string(), lemma: z.string(), pos: z.string(), gloss: z.string(), cefr: z.string().nullable() });
-export const DraftDictionaryQuery = z.object({ q: z.string().min(1).max(80) });
-export const DraftDictionaryResponse = z.object({
-  hits: z.array(Hit),
-  /** Where the spelling typed was a form of a headword, which one. */
-  formOf: z.array(z.string()),
-});
-export const DraftWordResponse = z.object({
-  lexemeId: z.string(),
-  lemma: z.string(),
-  pos: z.string(),
-  gloss: z.string(),
-  cefr: z.string().nullable(),
-  forms: z.array(z.object({ slot: z.string(), value: z.string(), origin: z.enum(["stored", "derived"]) })),
-  sentences: z.array(z.object({ et: z.string(), en: z.string().nullable() })),
-  government: z.string().nullable(),
-  equivalents: z.object({ ru: z.string().nullable(), uk: z.string().nullable() }),
-  inDeck: z.boolean(),
-  starred: z.boolean(),
-});
-export const DraftDeckRequest = z.object({
-  lexemeId: z.string().max(64),
-  action: z.enum(["keep", "star", "unstar", "aside", "back"]),
-});
-export const DraftDeckResponse = z.object({ added: z.number().int(), starred: z.boolean(), aside: z.boolean() });
-export const DraftTtsQuery = z.object({ text: z.string().max(400), voice: z.string().max(40).optional(), transient: z.literal("1").optional() });
-export const DraftFormsRequest = z.object({ words: z.array(z.string().max(60)).max(80) });
-export const DraftFormsResponse = z.object({ estonian: z.array(z.string()) });
-export const DraftRecordingsResponse = z.object({
-  clips: z.array(z.object({
-    id: z.string(),
-    src: z.string(),
-    key: z.string().nullable().describe("The text `nativeFor` finds this clip by, or null where it is played only by id."),
-    atOwnSpeed: z.boolean().describe("Played at the speed it was said, never at the learner's pace."),
-  })),
-});
+// N-6's shapes shipped and are in `./contract.ts`.
 
 // ── The planned routes ──────────────────────────────────────────────────────
 
 export const DRAFT_ROUTES: readonly RouteSpec[] = [
-  { method: "GET", path: "/api/v1/dictionary", auth: true, item: "N-6", summary: "A dictionary search.", query: DraftDictionaryQuery, response: DraftDictionaryResponse, example: "get-dictionary.json" },
-  { method: "GET", path: "/api/v1/words/{id}", auth: true, item: "N-6", summary: "One dictionary entry.", response: DraftWordResponse, example: "get-words-id.json" },
-  { method: "POST", path: "/api/v1/deck", auth: true, item: "N-6", summary: "A word kept, starred, put aside or brought back.", request: DraftDeckRequest, response: DraftDeckResponse, example: "post-deck.json" },
-  { method: "GET", path: "/api/v1/tts", auth: true, item: "N-6", summary: "A clip read aloud.", query: DraftTtsQuery, response: null, contentType: "audio/wav", example: "get-tts.json" },
-  { method: "POST", path: "/api/v1/speech/forms", auth: true, item: "N-6", summary: "Which heard words are Estonian spellings.", request: DraftFormsRequest, response: DraftFormsResponse, example: "post-speech-forms.json" },
-  { method: "GET", path: "/api/v1/recordings", auth: false, item: "N-6", summary: "The native speaker's clips and the text each answers for.", response: DraftRecordingsResponse, example: "get-recordings.json" },
   { method: "PATCH", path: "/api/v1/me", auth: true, item: "N-8", summary: "Settings changed.", request: DraftMePatchRequest, response: MeResponse, example: "patch-me.json" },
   { method: "DELETE", path: "/api/v1/me", auth: true, item: "N-8", summary: "The account deleted.", request: DraftDeleteMeRequest, response: DraftDeleteMeResponse, example: "delete-me.json" },
   { method: "GET", path: "/api/v1/export", auth: true, item: "N-8", summary: "The learner's backup.", response: DraftExportResponse, example: "get-export.json" },

@@ -3,6 +3,7 @@ import { translationsOf } from "@/lib/api/lessonText";
 import { apiJson } from "@/lib/api/respond";
 import type { LessonResponse } from "@/lib/api/contract";
 import { requireBearerUser } from "@/lib/auth/bearer";
+import { nativePart } from "@/lib/audio/native";
 import { tr } from "@/lib/copy/locale";
 import { lessonView } from "@/lib/progress/lessonView";
 import { localeFor } from "@/lib/progress/locale";
@@ -30,6 +31,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const body: LessonResponse = {
     ...view,
     locale,
+    // The part the native speaker recorded whole, as the lesson screen works it out (N-6).
+    nativePart: nativePart(view.lesson.conversation),
     translations: locale === "en"
       ? {}
       : translationsOf([view.lesson, view.practice, view.review, view.next], (english) => tr(locale, english)),
