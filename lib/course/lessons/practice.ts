@@ -34,7 +34,7 @@ import { editDistance, nearMiss } from "@/lib/estonian/answer";
 import { fold } from "@/lib/estonian/fold";
 import { rng, seedFrom } from "@/lib/random/seeded";
 import { shuffle } from "@/lib/random/shuffle";
-import { estonianIn, ledgerThrough, lessonRank, unfold, wordsOf, type Asked, type Ledger } from "./ledger";
+import { estonianIn, familiesOf, ledgerThrough, lessonRank, teach, unfold, wordsOf, type Asked, type Ledger } from "./ledger";
 import { STAND_IN, hasStandIn, personal } from "./ownAnswer";
 import type { LessonSpec } from "./types";
 
@@ -53,7 +53,39 @@ export type PracticeItem =
    */
   | { readonly kind: "type"; readonly en: string; readonly answer: string; readonly accept: readonly string[];
       /** One line of English saying what is wanted, where the meaning alone could be read two ways. */
-      readonly note?: string };
+      readonly note?: string }
+  /**
+   * Pairs to put together, Estonian with English, tapped one then the other.
+   * The quick warm-up a lesson's practice opens on, for words said alone.
+   */
+  | { readonly kind: "match"; readonly pairs: readonly { readonly et: string; readonly en: string }[] }
+  /**
+   * A line of a conversation the learner has heard, with one word taken out,
+   * and the forms of that same word to choose from: the evening's pattern put
+   * to work (`olen`, `oled` or `on`; `kodus`, `koju` or `kodust`). The English
+   * of the whole line says which is meant. `answer` is the word as the line
+   * spells it, so `before + answer + after` is the line again.
+   */
+  | { readonly kind: "gap"; readonly before: string; readonly after: string; readonly en: string;
+      readonly options: readonly string[]; readonly answer: string }
+  /**
+   * A question somebody asked in a conversation, and what was said back,
+   * among the answers to other questions: the conversation, rather than a
+   * word of it, is what is asked about.
+   */
+  | { readonly kind: "reply"; readonly ask: { readonly et: string; readonly en: string };
+      readonly options: readonly string[]; readonly answer: string; readonly answerEn: string };
+
+/** The Estonian a practice item asks about, which the ledger has to cover. */
+export function itemEstonian(item: PracticeItem): string[] {
+  switch (item.kind) {
+    case "type": return [item.answer];
+    case "match": return item.pairs.map((p) => p.et);
+    case "gap": return [`${item.before}${item.answer}${item.after}`, ...item.options];
+    case "reply": return [item.ask.et, ...item.options];
+    default: return [item.et];
+  }
+}
 
 /** Longest answer a learner is asked to produce whole, in words. */
 export const TYPE_UP_TO_WORDS = 4;
@@ -252,34 +284,225 @@ function produce(item: Taught, pool: readonly Taught[]): PracticeItem {
   return { kind: "type", en: item.en, answer: item.et, accept, ...note };
 }
 
+/*
+  THREE MORE SHAPES OF QUESTION, SO A PRACTICE STEP IS NOT ONE QUESTION
+  ASKED SIXTEEN TIMES.
+
+  Every lesson used to practice the same two ways, a meaning picked out of
+  four and then typed back, which is fair to every word and is also the same
+  screen a hundred and ten evenings running, and none of it asked about the
+  one thing the How it works step had just explained. So a practice step now
+  opens on a quick match, picks out the rest, puts the evening's pattern to
+  work in a gap cut from a line the learner has heard, asks what was said
+  back in a conversation, and ends on typing, which is recognize, then use,
+  then produce, in that order. Every option on every one of them is a
+  spelling the ledger covers, and the tests still ask that of each item.
+*/
+
+/** Pairs in a match. */
+export const MATCH_PAIRS = 5;
+/** Fewest pairs worth a match: three is a guess, four is a question. */
+const MATCH_AT_LEAST = 4;
+/** Gaps in a lesson's practice. */
+export const GAPS_AT_MOST = 3;
+/** "What do they say back?" questions in a lesson's practice. */
+export const REPLIES_AT_MOST = 2;
+
 /**
- * Step 4: recognize, then produce. In the order taught where everything fits,
- * since that is the order the Words step just showed; a seeded selection
- * where it does not.
+ * A match of words said alone, each with a short meaning: a phrase is heard
+ * and a long gloss is a sentence to read, and neither is what a quick pairing
+ * is for. Null where too few fit.
  */
-export function practiceFor(lesson: LessonSpec, before: Ledger): PracticeItem[] {
+function matchFrom(items: readonly Taught[], random: () => number): PracticeItem | null {
+  const fit: Taught[] = [];
+  for (const item of items) {
+    if (fit.length >= MATCH_PAIRS) break;
+    if (wordsOf(item.et).length !== 1 || item.en.length > 30 || /[{}]/.test(item.en)) continue;
+    if (fit.some((f) => sameEnglish(f.en, item.en) || f.et.toLocaleLowerCase("et") === item.et.toLocaleLowerCase("et"))) continue;
+    fit.push(item);
+  }
+  if (fit.length < MATCH_AT_LEAST) return null;
+  return { kind: "match", pairs: shuffle(fit, random).map((item) => ({ et: item.et, en: item.en })) };
+}
+
+/** A spoken line, Estonian and English. */
+interface Said { readonly who: string; readonly et: string; readonly en: string }
+
+/** The spoken lines of some lessons, in order. */
+function linesOf(lessons: readonly LessonSpec[]): Said[] {
+  return lessons.flatMap((l) => l.conversation.flatMap((line) => (line.et && line.en ? [{ who: line.who, et: line.et, en: line.en }] : [])));
+}
+
+/**
+ * Gaps cut from `lines`, a sentence at a time: one word taken out, with other forms of
+ * that word to choose from. A word is taken out only where the ledger knows
+ * at least two other forms of it that mean something else (`mina` and `ma`
+ * are one meaning, so neither is offered against the other), where it stands
+ * once in the line, and where it is the form of one word only. The long
+ * illative built by rule is never an option or a target, since `linna` and
+ * `linnasse` can both be right.
+ */
+function gapsFrom(lines: readonly Said[], ledger: Ledger, random: () => number, max: number): PracticeItem[] {
+  if (max <= 0) return [];
+  const families = familiesOf(ledger);
+  const meaning = new Map<string, string>();
+  for (const { item } of ledger.items) {
+    const low = item.et.toLocaleLowerCase("et");
+    if (wordsOf(item.et).length === 1 && !meaning.has(low)) meaning.set(low, item.en);
+  }
+  const longIllative = (s: string) => s.endsWith("sse") && !meaning.has(s);
+  const out: PracticeItem[] = [];
+  const usedLines = new Set<string>();
+  const usedWords = new Set<string>();
+  // One sentence of a line at a time, since `Mina olen Mari. Ma olen õpetaja.` says `olen` twice and either half alone asks it once.
+  const sentences = lines.flatMap((line) => line.et.split(/(?<=[.!?…])\s+/).filter((et) => wordsOf(et).length > 1).map((et) => ({ ...line, et })));
+  for (const line of shuffle(sentences, random)) {
+    if (out.length >= max) break;
+    if (usedLines.has(line.et)) continue;
+    const tokens = [...line.et.matchAll(/\p{L}+/gu)];
+    const lows = tokens.map((m) => m[0].toLocaleLowerCase("et"));
+    const candidates = tokens.flatMap((m, i) => {
+      const low = lows[i]!;
+      if (usedWords.has(low) || longIllative(low)) return [];
+      if (lows.filter((x) => x === low).length > 1) return [];
+      const lemma = families.of.get(low);
+      if (!lemma) return [];
+      const own = meaning.get(low);
+      const siblings = [...(families.forms.get(lemma) ?? [])].filter((s) =>
+        s !== low && families.of.get(s) === lemma && !longIllative(s) && !lows.includes(s) && !(own !== undefined && meaning.get(s) !== undefined && sameEnglish(meaning.get(s)!, own)));
+      return siblings.length >= 2 ? [{ m, low, lemma, siblings }] : [];
+    });
+    if (candidates.length === 0) continue;
+    // A form rather than the word as the dictionary heads it, where there is one: that is the pattern.
+    const forms = candidates.filter((c) => c.low !== c.lemma);
+    const pick = shuffle(forms.length > 0 ? forms : candidates, random)[0]!;
+    const raw = pick.m[0];
+    const at = pick.m.index ?? 0;
+    const cased = (s: string) => (/^\p{Lu}/u.test(raw) ? s.charAt(0).toLocaleUpperCase("et") + s.slice(1) : s);
+    const options = shuffle([raw, ...shuffle(pick.siblings, random).slice(0, OPTIONS - 1).map(cased)], random);
+    out.push({ kind: "gap", before: line.et.slice(0, at), after: line.et.slice(at + raw.length), en: line.en, options, answer: raw });
+    usedLines.add(line.et);
+    usedWords.add(pick.low);
+  }
+  return out;
+}
+
+/** The words a question can open on, so a reply is to a real question. */
+const QUESTION_WORDS = new Set([
+  "kes", "mis", "kus", "kuhu", "kust", "kuidas", "millal", "miks", "mitu", "mida", "kelle", "kellega",
+  "kellele", "milline", "mitmes", "kui", "kas", "mille", "millega", "mitmendal", "kelleks", "kuni",
+]);
+
+/** A question and what was said back, from one conversation. */
+interface Exchange { readonly ask: Said; readonly back: Said }
+
+/** Every question in `lessons` answered on the next line by somebody else. */
+function exchangesOf(lessons: readonly LessonSpec[]): Exchange[] {
+  const out: Exchange[] = [];
+  for (const lesson of lessons) {
+    const said = linesOf([lesson]);
+    for (let i = 0; i + 1 < said.length; i++) {
+      const ask = said[i]!;
+      const back = said[i + 1]!;
+      const first = wordsOf(ask.et)[0]?.low ?? "";
+      if (!ask.et.trim().endsWith("?") || !QUESTION_WORDS.has(first)) continue;
+      if (back.who === ask.who || back.et.trim().endsWith("?") || wordsOf(back.et).length > 8) continue;
+      out.push({ ask, back });
+    }
+  }
+  return out;
+}
+
+/**
+ * "What do they say back?": a question from `prompts`, its answer, and the
+ * answers to other questions from `pool`. An answer is offered against this
+ * question only where its own question opened on another question word and it
+ * shares no word with this question, so `Tallinnas.` is never a wrong answer
+ * to "do you live in Tallinn?".
+ */
+function repliesFrom(prompts: readonly Exchange[], pool: readonly Exchange[], random: () => number, max: number): PracticeItem[] {
+  const out: PracticeItem[] = [];
+  const asked = new Set<string>();
+  for (const ex of shuffle(prompts, random)) {
+    if (out.length >= max) break;
+    if (asked.has(ex.ask.et)) continue;
+    const askWords = new Set(wordsOf(ex.ask.et).map((w) => w.low));
+    const opener = wordsOf(ex.ask.et)[0]?.low;
+    const right = normalisePhrase(ex.back.et);
+    const wrong: string[] = [];
+    for (const other of shuffle(pool, random)) {
+      if (wrong.length >= OPTIONS - 1) break;
+      if (wordsOf(other.ask.et)[0]?.low === opener) continue;
+      const said = normalisePhrase(other.back.et);
+      if (said === right || wrong.some((w) => normalisePhrase(w) === said)) continue;
+      if (wordsOf(other.back.et).some((w) => askWords.has(w.low))) continue;
+      wrong.push(other.back.et);
+    }
+    if (wrong.length < 2) continue;
+    out.push({ kind: "reply", ask: { et: ex.ask.et, en: ex.ask.en }, options: shuffle([ex.back.et, ...wrong], random), answer: ex.back.et, answerEn: ex.back.en });
+    asked.add(ex.ask.et);
+  }
+  return out;
+}
+
+/**
+ * Step 4: a match to warm up, the rest picked out, the evening's pattern put
+ * to work in gaps, what was said back, and then typing. In the order taught
+ * where everything fits, since that is the order the Words step just showed;
+ * a seeded selection where it does not. `history` is the lessons before this
+ * one, whose conversations the dialogue questions draw on as well.
+ */
+export function practiceFor(lesson: LessonSpec, before: Ledger, history: readonly LessonSpec[] = []): PracticeItem[] {
   const random = rng(seedFrom(`practice:${lesson.id}`));
   const subjects = onePerMeaning(practiceSubjects(lesson, before)).filter((item) => !meaningShows(item));
   const tonight = lesson.teaches.flatMap(unfold);
   const pool = poolFor(tonight, before);
   const fits = tonight.length > 0 && subjects.length <= RECOGNISE_AT_MOST;
   const chosen = fits ? subjects : shuffle(subjects, random).slice(0, RECOGNISE_AT_MOST);
-  const recog = chosen.map((item) => recognise(item, tonight.includes(item) ? [...nearestFirst(item, tonight), ...pool] : neighboursFirst(item, before, pool), random));
+  const match = matchFrom(chosen, random);
+  const matched = new Set(match?.kind === "match" ? match.pairs.map((p) => p.et) : []);
+  const recog = chosen
+    .filter((item) => !matched.has(item.et))
+    .map((item) => recognise(item, tonight.includes(item) ? [...nearestFirst(item, tonight), ...pool] : neighboursFirst(item, before, pool), random));
+  const after = teach(before, lesson.teaches, lessonRank(lesson), lesson.patterns);
+  const gaps = gapsFrom(linesOf([lesson]), after, random, GAPS_AT_MOST);
+  const replies = repliesFrom(exchangesOf([lesson]), exchangesOf([...history, lesson]), random, REPLIES_AT_MOST);
   const asked = shuffle(chosen.filter((item) => wordsOf(item.et).length <= TYPE_UP_TO_WORDS), random)
     .slice(0, PRODUCE_AT_MOST)
     .map((item) => produce(item, pool));
-  return [...recog, ...asked];
+  return [...(match ? [match] : []), ...recog, ...gaps, ...replies, ...asked];
 }
 
-/** Step 6: older words, by ear and by eye. Empty on the first lesson. */
-export function reviewFor(lesson: LessonSpec, before: Ledger): PracticeItem[] {
+/**
+ * The typed question for every word and phrase a lesson could ask to have
+ * typed, not only the seeded few it does ask: what a test holds the marking to,
+ * since which few are asked is a selection and how each is marked is a rule.
+ */
+export function everyTypedQuestion(lesson: LessonSpec, before: Ledger): PracticeItem[] {
+  const tonight = lesson.teaches.flatMap(unfold);
+  const pool = poolFor(tonight, before);
+  return onePerMeaning(practiceSubjects(lesson, before))
+    .filter((item) => !meaningShows(item) && wordsOf(item.et).length <= TYPE_UP_TO_WORDS)
+    .map((item) => produce(item, pool));
+}
+
+/**
+ * Step 6: older words, matched and picked out, and a line from an older
+ * conversation with a gap in it. Empty on the first lesson.
+ */
+export function reviewFor(lesson: LessonSpec, before: Ledger, history: readonly LessonSpec[] = []): PracticeItem[] {
   const random = rng(seedFrom(`review:${lesson.id}`));
   const older = before.items.map((d) => d.item).filter((item) => !meaningShows(item));
   if (older.length === 0) return [];
   // The newest older lessons are likeliest to need it, so they are drawn from first.
   const recent = [...older].reverse().slice(0, REVIEW_ITEMS * 3);
   const picked = shuffle(recent, random).slice(0, REVIEW_ITEMS);
-  return picked.map((item) => recognise(item, neighboursFirst(item, before, [...older].reverse()), random));
+  const match = matchFrom(picked, random);
+  const matched = new Set(match?.kind === "match" ? match.pairs.map((p) => p.et) : []);
+  const rest = picked.filter((item) => !matched.has(item.et))
+    .map((item) => recognise(item, neighboursFirst(item, before, [...older].reverse()), random));
+  const gaps = gapsFrom(linesOf(history.slice(-CHECKIN_REACH)), before, random, 1);
+  return [...(match ? [match] : []), ...rest, ...gaps];
 }
 
 /** A phrase as it is compared: lower case, no punctuation, single spaces. */
@@ -369,13 +592,18 @@ export const CHECK_PASS = 0.8;
 /** How many questions of each kind a check asks. */
 export interface CheckSize {
   readonly recognise: number;
+  /** Lines of the part's conversations with a form taken out: the patterns, asked. */
+  readonly gap: number;
   readonly produce: number;
 }
 
 /** A part's check: about five minutes. */
-export const PART_CHECK: CheckSize = { recognise: 10, produce: 6 };
+export const PART_CHECK: CheckSize = { recognise: 10, gap: 4, produce: 6 };
 /** The check at the end of a level: every part, about ten minutes. */
-export const LEVEL_CHECK: CheckSize = { recognise: 18, produce: 12 };
+export const LEVEL_CHECK: CheckSize = { recognise: 18, gap: 6, produce: 12 };
+
+/** How many questions a check of this size asks, where the lessons can fill it. */
+export const checkLength = (size: CheckSize) => size.recognise + size.gap + size.produce;
 
 /**
  * The questions of one check: `scope` is the lessons it covers, in order, and
@@ -393,12 +621,32 @@ export function checkFor(
     .filter((item) => !meaningShows(item));
   const random = rng(seedFrom(`check:${seed}`));
   const pool = [...ledger.items].reverse().map((d) => d.item);
-  const recog = shuffle(subjects, random).slice(0, size.recognise)
+  /*
+    NO QUESTION PRINTS ANOTHER ONE'S ANSWER. A meaning picked out shows its
+    Estonian, so a typed question asking for that same Estonian later in the
+    paper is answered by scrolling up; and a gap shows its whole line. So the
+    typed questions are chosen first, the picks from what is left, and the
+    gaps from lines holding none of the typed answers wherever there are
+    enough of those.
+  */
+  const order = shuffle(subjects, random);
+  const typed = order.filter((item) => wordsOf(item.et).length <= TYPE_UP_TO_WORDS).slice(0, size.produce);
+  // By spelling, since `kino` the word and `kino` its [omastav] (2nd form) are two items and one answer.
+  const held = new Set(typed.map((item) => item.et.toLocaleLowerCase("et")));
+  const recog = order.filter((item) => !held.has(item.et.toLocaleLowerCase("et"))).slice(0, size.recognise)
     .map((item) => recognise(item, neighboursFirst(item, ledger, pool), random));
-  const asked = shuffle(subjects.filter((item) => wordsOf(item.et).length <= TYPE_UP_TO_WORDS), random)
-    .slice(0, size.produce)
-    .map((item) => produce(item, pool));
-  return [...recog, ...asked];
+  const answers = typed.map((item) => normalisePhrase(item.et));
+  const shows = (line: Said) => {
+    const said = ` ${normalisePhrase(line.et)} `;
+    return answers.some((a) => said.includes(` ${a} `));
+  };
+  const lines = linesOf(scope);
+  const clean = gapsFrom(lines.filter((l) => !shows(l)), ledger, random, size.gap);
+  const gaps = clean.length >= size.gap
+    ? clean
+    : [...clean, ...gapsFrom(lines.filter(shows), ledger, random, size.gap - clean.length)];
+  const asked = shuffle(typed, random).map((item) => produce(item, pool));
+  return [...recog, ...gaps, ...asked];
 }
 
 export interface CheckResult {
@@ -414,6 +662,8 @@ export interface CheckResult {
 export function markCheck(items: readonly PracticeItem[], responses: readonly (string | null)[]): CheckResult {
   const marks = items.map((item, i) => {
     const said = responses[i] ?? "";
+    // A match is never on a check: it is several answers in one, and a check marks one each.
+    if (item.kind === "match") return "wrong" as const;
     if (item.kind !== "type") return said === item.answer ? "right" as const : "wrong" as const;
     const mark = markPhrase(said, item.accept).verdict;
     return mark === "right" ? "right" as const : mark === "nearly" ? "nearly" as const : "wrong" as const;

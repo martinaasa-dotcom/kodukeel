@@ -22,6 +22,7 @@ import { courseWords } from "../lib/collections/syllabus/index";
 import { englishFor } from "../lib/dict/exampleEnglish";
 import { isRefusedSentence } from "../lib/dict/refused";
 import { lessonEntries } from "../lib/course/lessonHeads";
+import { lessonById } from "../lib/course/lessons";
 
 const prisma = newPrismaClient();
 
@@ -498,7 +499,8 @@ async function writeLessonEntries(client: PrismaClient): Promise<number> {
   const fresh = entries.filter((e) => !held.has(e.lemma));
   if (fresh.length === 0) return 0;
   const { count } = await client.lexeme.createMany({
-    data: fresh.map((e) => ({ lemma: e.lemma, pos: e.pos, translation: e.translation, cefr: "A1", provenance: "SEED" })),
+    // The level of the lesson that teaches it, so an A2 lesson's own entry is banded A2 and counts there.
+    data: fresh.map((e) => ({ lemma: e.lemma, pos: e.pos, translation: e.translation, cefr: lessonById(e.lesson)?.level ?? "A1", provenance: "SEED" })),
     skipDuplicates: true,
   });
   return count;

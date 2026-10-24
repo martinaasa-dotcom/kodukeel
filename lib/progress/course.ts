@@ -11,7 +11,7 @@ import { computeStreak } from "@/lib/stats/streak";
 import { closingLeft } from "@/lib/progress/closing";
 import { scopeFor } from "@/lib/course/scope";
 import {
-  MEET_STEP, PROGRAMMES, REVIEW_STEP, dayById, dayReached, defaultProgramme, ladderProgress,
+  MEET_STEP, PROGRAMMES, REVIEW_STEP, dayById, dayReached, defaultProgramme, ladderLemmasAt, ladderProgress,
   creditedThrough, ladderVerdict, levelsTo, programmeById, programmeStanding, startingLevel, type CourseDay,
   type LadderProgress, type LadderVerdict, type Programme, type ProgrammeStanding,
 } from "@/lib/course";
@@ -984,7 +984,8 @@ export const ladderPosition = cache(async (
     Promise.all(bands.map((band) => prisma.card.count({
       where: {
         ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 2,
-        lexeme: { cefr: band },
+        // A lesson level by what its lessons taught, every other level by the dictionary's band (`ladderLemmasAt`).
+        lexeme: ladderLemmasAt(band) ? { lemma: { in: [...ladderLemmasAt(band)!] } } : { cefr: band },
       },
     }))),
     courseStandingFor(ownerId),

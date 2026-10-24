@@ -224,6 +224,55 @@ export function teach(ledger: Ledger, items: readonly Taught[], lesson: number, 
   };
 }
 
+/**
+ * THE TAUGHT SPELLINGS OF ONE WORD, GROUPED, which is what a gap is asked
+ * among: `olen`, `oled` and `on` are one verb, `kodus`, `koju` and `kodust`
+ * one noun. Read off what the ledger already builds (a verb's persons off
+ * `conjugate.ts`, a stem's endings off `derive.ts`) and off every form taught
+ * by name, so the options under a gap are only ever spellings the learner has
+ * been given, and only ever forms of the word the sentence holds.
+ *
+ * `of` answers which word a spelling is a form of. A spelling that is a form
+ * of two words (`on` is `olema` and nothing else, but `tuli` is the fire and
+ * the past of `tulema`) answers nothing, so a gap is never cut on it.
+ */
+export interface Families {
+  readonly forms: ReadonlyMap<string, ReadonlySet<string>>;
+  readonly of: ReadonlyMap<string, string>;
+}
+
+export function familiesOf(ledger: Ledger): Families {
+  const forms = new Map<string, Set<string>>();
+  const owners = new Map<string, Set<string>>();
+  const add = (lemma: string, spelling: string) => {
+    const word = lemma.toLocaleLowerCase("et");
+    const low = spelling.toLocaleLowerCase("et");
+    if (!ledger.spellings.has(low)) return;
+    (forms.get(word) ?? forms.set(word, new Set()).get(word)!).add(low);
+    (owners.get(low) ?? owners.set(low, new Set()).get(low)!).add(word);
+  };
+  for (const verb of ledger.verbs) {
+    add(verb.lemma, verb.lemma);
+    add(verb.lemma, verb.first);
+    for (const form of builtForms(verb, ledger.patterns)) add(verb.lemma, form);
+  }
+  for (const stem of ledger.stems) {
+    add(stem.lemma, stem.lemma);
+    add(stem.lemma, stem.gen);
+    for (const form of builtCases(stem, ledger.patterns)) add(stem.lemma, form);
+  }
+  for (const { item } of ledger.items) {
+    if (item.kind !== "form" || wordsOf(item.et).length !== 1) continue;
+    add(item.of, item.et);
+    if (item.past && ledger.patterns.has("past")) {
+      for (const form of pastPersons(item.et)) add(item.of, form.value);
+    }
+  }
+  const of = new Map<string, string>();
+  for (const [spelling, lemmas] of owners) if (lemmas.size === 1) of.set(spelling, [...lemmas][0]!);
+  return { forms, of };
+}
+
 /** The names a lesson may use: the shared list and its own cast. */
 export function namesOf(lesson: Pick<LessonSpec, "cast">): ReadonlySet<string> {
   return new Set([...NAMES, ...Object.keys(lesson.cast)]);

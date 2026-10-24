@@ -25,12 +25,15 @@ import { LESSONS, type LessonSpec } from "./lessons";
 import { LEVEL_CHECK, PART_CHECK, checkFor, type CheckSize } from "./lessons/practice";
 import type { PracticeItem } from "./lessons/practice";
 import type { Programme } from "./types";
+import type { Level } from "@/lib/collections/syllabus/types";
 
 export interface CourseCheck {
   /** `check-a1.3`, after the part it closes. */
   readonly id: string;
   /** The part it closes. */
   readonly programmeId: string;
+  /** The level of the part it closes. */
+  readonly level: Level;
   /** True for the last part of a level, whose check covers the whole level. */
   readonly final: boolean;
   /** The lessons it asks about, in order. */
@@ -50,6 +53,7 @@ export function courseChecks(programmes: readonly Programme[]): CourseCheck[] {
     return {
       id: `check-${programme.id}`,
       programmeId: programme.id,
+      level: programme.level,
       final,
       lessons: final ? ofLevel.flatMap(lessonsOf) : lessonsOf(programme),
       size: final ? LEVEL_CHECK : PART_CHECK,

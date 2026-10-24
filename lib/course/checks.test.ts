@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { PROGRAMMES, programmeById } from "@/lib/course";
 import { LESSONS } from "@/lib/course/lessons";
 import { ledgerThrough, lessonRank } from "@/lib/course/lessons/ledger";
-import { CHECK_PASS, LEVEL_CHECK, PART_CHECK, markCheck } from "@/lib/course/lessons/practice";
+import { CHECK_PASS, LEVEL_CHECK, PART_CHECK, checkLength, itemEstonian, markCheck } from "@/lib/course/lessons/practice";
+import { uncovered } from "@/lib/course/lessons/ledger";
 import { blockedBy, checkAfter, checkPaper, courseChecks, passedFrom } from "./checks";
 
 const checks = courseChecks(PROGRAMMES);
@@ -28,7 +29,7 @@ describe("the checks between the parts of the lessons", () => {
   it("asks a full paper on every check, the same paper for one attempt and a different one for the next", () => {
     for (const check of checks) {
       const paper = checkPaper(check, 1);
-      expect(paper.length, check.id).toBe(check.size.recognise + check.size.produce);
+      expect(paper.length, check.id).toBe(checkLength(check.size));
       expect(checkPaper(check, 1)).toEqual(paper);
       expect(checkPaper(check, 2), check.id).not.toEqual(paper);
     }
@@ -43,15 +44,38 @@ describe("the checks between the parts of the lessons", () => {
       const taught = new Set(ledger.items.filter((d) => covered.has(d.lesson)).map((d) => d.item.et));
       for (const item of checkPaper(check, 1)) {
         asked += 1;
+        if (item.kind === "gap") {
+          // A gap is a line of the part's own conversations, every word of it taught by the part's end.
+          for (const et of itemEstonian(item)) expect(uncovered(et, ledger), `${check.id}: ${et}`).toEqual([]);
+          expect(check.lessons.some((l) => l.conversation.some((line) => line.et?.includes(`${item.before}${item.answer}${item.after}`)))).toBe(true);
+          continue;
+        }
+        expect(item.kind).not.toBe("match");
+        if (item.kind === "match" || item.kind === "reply") continue;
         expect(taught.has(item.kind === "type" ? item.answer : item.et), `${check.id}: ${JSON.stringify(item)}`).toBe(true);
       }
     }
     expect(asked).toBeGreaterThan(checks.length * 10);
   });
 
+  it("never prints an answer a typed question on the same paper asks for", () => {
+    let papers = 0;
+    for (const check of checks) {
+      for (const attempt of [1, 2, 3, 4, 5]) {
+        const paper = checkPaper(check, attempt);
+        const shown = paper.flatMap((item) => item.kind === "hear" || item.kind === "pick" ? [item.et.toLocaleLowerCase("et")] : []);
+        for (const item of paper) {
+          if (item.kind === "type") expect(shown, `${check.id}/${attempt}: ${item.answer}`).not.toContain(item.answer.toLocaleLowerCase("et"));
+        }
+        papers++;
+      }
+    }
+    expect(papers).toBe(checks.length * 5);
+  });
+
   it("passes at four in five, a nearly counting half", () => {
     const paper = checkPaper(checks[0]!, 1);
-    const right = paper.map((i) => (i.kind === "type" ? i.answer : i.answer));
+    const right = paper.map((i) => (i.kind === "match" ? null : i.answer));
     expect(markCheck(paper, right).passed).toBe(true);
     expect(markCheck(paper, paper.map(() => null)).passed).toBe(false);
     const needed = Math.ceil(paper.length * CHECK_PASS);

@@ -10,7 +10,8 @@ import { Speak } from "@/components/Speak";
 import { nativePart } from "@/lib/audio/native";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText, lessonTextLang } from "@/components/course/LessonText";
-import { Card, Chip, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
+import { Card, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
+import { LessonConversation } from "@/components/course/LessonConversation";
 import { Confetti } from "@/components/Confetti";
 import { Mascot } from "@/components/brand";
 import { fill } from "@/lib/copy/locale";
@@ -82,7 +83,7 @@ const STEP_TITLE: Record<Step, string> = {
 /** The three teaching steps are finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, conversation, place, name, due = 0, check = null }: {
+export function LessonRunner({ lesson, practice, review, next, scene, conversation, place, name, due = 0, check = null, part }: {
   lesson: LessonSpec;
   practice: readonly PracticeItem[];
   review: readonly PracticeItem[];
@@ -104,6 +105,8 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
   due?: number;
   /** The check that closes this lesson's part, where this is its last lesson. */
   check?: { id: string; final: boolean; passed: boolean } | null;
+  /** The part this lesson is in, lesson by lesson, for "4 of 8" and the track on the finish. */
+  part: { title: string; lessons: readonly { id: string; label: string; title: string; done: boolean }[] };
 }) {
   const t = useT();
   const locale = useLocale();
@@ -111,9 +114,13 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
   const moduleNext = useModuleNext();
   const [at, setAt] = useState(0);
   const [finished, setFinished] = useState<ReadonlySet<Step>>(new Set());
+  const [reached, setReached] = useState(0);
+  const [score, setScore] = useState<{ right: number; total: number } | null>(null);
   const [over, setOver] = useState(() => conversation !== null && isCapstone(lesson));
   /* Whether the finished lesson reached the server: null until it has been tried. */
   const [saved, setSaved] = useState<boolean | null>(null);
+  /* Whether finishing it counted toward the course, or was a lesson read ahead of it. */
+  const [recorded, setRecorded] = useState<boolean | null>(null);
   const [saving, startSaving] = useTransition();
   const heading = useRef<HTMLHeadingElement>(null);
   const moved = useRef(false);
@@ -132,6 +139,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
   const save = () => startSaving(async () => {
     const result = await finishLesson(lesson.id).catch(() => null);
     setSaved(Boolean(result?.ok));
+    setRecorded(result?.ok ? result.recorded : null);
   });
   // Back from the conversation, the lesson is over and is saved the way a finished one is.
   const savedOnArrival = useRef(false);
@@ -148,20 +156,39 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
     if (n >= steps.length) {
       setOver(true);
       save();
-    } else setAt(n);
+    } else {
+      setAt(n);
+      setReached((r) => Math.max(r, n));
+    }
   };
   const done = !ASKS.has(step) || finished.has(step) || (step === "review" && review.length === 0);
 
+  const inPart = part.lessons.findIndex((l) => l.id === lesson.id);
+  const partEnd = inPart === part.lessons.length - 1;
+  const eyebrow = (
+    <span>
+      {lesson.level}, <LessonText text={part.title} locale={locale} />, {fill(t("Lesson {n}"), { n: lessonLabel(lesson) })}
+    </span>
+  );
+
   if (over) {
+    const taught = lesson.teaches.flatMap((item) => (item.kind === "verb" ? [item.et, item.first] : [item.et]));
+    const conversationDone = conversation === "done";
     return (
-      <Page eyebrow={fill(t("Lesson {n}"), { n: lessonLabel(lesson) })} title={t(lesson.title)} titleLang={lessonTextLang(lesson.title, locale)}>
+      <Page eyebrow={eyebrow} title={t(lesson.title)} titleLang={lessonTextLang(lesson.title, locale)}>
         <Stack>
           {/*
             THE LITTLE CONFETTI PAGE. A lesson ends the way every round
             used to: a burst of confetti, the mascot cheering on the night
-            panel, and three figures about the evening, then the way on.
+            panel, and the evening said back, then the way on.
+
+            WHAT IS SAID BACK IS THE EVENING, NOT THE APP: the words met, the
+            practice and where this lesson sits in its part, with the lesson
+            just done lit on the track. The end of a part says so in the
+            heading, because finishing a part is a thing a person tells
+            somebody.
           */}
-          <Confetti count={40} />
+          <Confetti count={partEnd ? 80 : 40} />
           <section aria-labelledby="lesson-done" className="mx-auto w-full max-w-2xl" data-lesson-done>
             <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
               <Mascot size={68} mood="cheer" className="float mx-auto" />
@@ -172,19 +199,74 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
                 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl"
                 style={{ color: "var(--ink)", textWrap: "balance" }}
               >
-                {t("Lesson done")}
+                {partEnd
+                  ? <>{t("Part done:")} <LessonText text={part.title} locale={locale} /></>
+                  : t("Lesson done")}
               </h2>
               <p className="mx-auto mt-2 max-w-[44ch] text-base" style={{ color: "var(--ink-2)", textWrap: "pretty" }}>
                 <LessonText text={lesson.goal} locale={locale} />
               </p>
             </div>
-            <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
+
+            {/* The part, lesson by lesson, with this one lit. */}
+            <div className="mt-6 rounded-[var(--r-xl)] border px-5 py-4" style={{ background: "var(--surface)", borderColor: "var(--edge)" }} data-part-track>
+              <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
+                {fill(t("{n} of {total} in"), { n: String(inPart + 1), total: String(part.lessons.length) })}{" "}
+                <LessonText text={part.title} locale={locale} />
+              </p>
+              <ol className="mt-3 flex flex-wrap gap-1.5" aria-label={t("The lessons of this part")}>
+                {part.lessons.map((l, i) => {
+                  const here = i === inPart;
+                  const past = here || l.done;
+                  return (
+                    <li
+                      key={l.id}
+                      className={here ? "pop-in" : undefined}
+                      title={`${l.label}. ${l.title}`}
+                      style={{
+                        width: 28, height: 10, borderRadius: 999,
+                        background: past ? "var(--accent)" : "color-mix(in srgb, var(--ink) 10%, transparent)",
+                        boxShadow: here ? "0 0 0 3px var(--accent-soft)" : undefined,
+                      }}
+                    >
+                      <span className="sr-only">{`${l.label}. ${l.title}: ${past ? t("Done") : t("Ahead")}`}</span>
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
+
+            <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
               {lesson.teaches.length > 0
                 ? <StatTile value={lesson.teaches.length} label={t("new to say")} tone="accent" />
                 : <StatTile value={wordsUsed(lesson)} label={t("words put to use")} tone="accent" />}
               <StatTile value={lesson.conversation.filter((l) => l.et).length} label={t("lines heard")} tone="accent" />
-              <StatTile value={place.at} label={fill(t("{level} lesson"), { level: lesson.level })} hint={fill(t("of {total}"), { total: String(place.of) })} tone="accent" />
+              {score
+                ? <StatTile value={`${score.right}/${score.total}`} label={t("right first time")} tone="accent" />
+                : <StatTile value={lessonLabel(lesson)} label={fill(t("{level} lesson"), { level: lesson.level })} hint={fill(t("of {total}"), { total: String(place.of) })} tone="accent" />}
             </div>
+
+            {/* The words met, once more, out loud: the cheapest repetition there is, and the moment somebody is glad of it. */}
+            {taught.length > 0 && (
+              <div className="mt-4 rounded-[var(--r-xl)] border px-5 py-4" style={{ background: "var(--surface)", borderColor: "var(--edge)" }} data-lesson-words-done>
+                <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>{t("Say them once more")}</p>
+                <ul className="mt-3 flex flex-wrap gap-2">
+                  {taught.slice(0, 16).map((et) => (
+                    <li key={et} className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5" style={{ borderColor: "var(--edge)", background: "var(--raised)" }}>
+                      <Speak text={et} size={14} />
+                      <span lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>{et}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {recorded === false && (
+              <Note tone="neutral" className="mt-4">
+                {t("You're reading ahead, so this one isn't ticked yet. It counts when the course reaches it.")}
+              </Note>
+            )}
+
             {/*
               THE CONVERSATION, WHERE THE LESSON HAS ONE, IS THE NEXT THING.
               A learner finished lesson 49, which says it ends in holding a
@@ -192,16 +274,17 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
               was a line under the last Say it card, and on a typed evening it
               was easy to scroll past. So the lesson's own scene, played with
               somebody who answers whatever is said in the words taught so far
-              (`lib/scenes/lessonScenes.ts`), is a card of its own here.
+              (`lib/scenes/lessonScenes.ts`), is a card of its own here. Once,
+              and not once it has been had.
             */}
-            {scene && (
+            {scene && !conversationDone && (
               <div className="mt-6 rounded-[var(--r-xl)] border px-5 py-5 text-left" style={{ background: "var(--accent-soft)", borderColor: "var(--edge)" }} data-lesson-scene-done={scene}>
                 <p className="font-display text-xl font-bold" style={{ color: "var(--ink)" }}>{t("Now have the conversation")}</p>
                 <p className="mt-1 max-w-[56ch] text-base" style={{ color: "var(--ink-2)" }}>
                   {t("Somebody speaks first and answers whatever you say, in the words you've learned. Type or say your lines. Nothing is graded, and you can't get it wrong by saying it your own way.")}
                 </p>
                 <div className="mt-4">
-                  <ButtonLink href={`/situations/${scene}`} variant={(focus && moduleNext) || (check && !check.passed) ? "secondary" : "primary"}>
+                  <ButtonLink href={capstone ? lessonSceneHref(scene, focus) : `/situations/${scene}`} variant={(focus && moduleNext) || (check && !check.passed) ? "secondary" : "primary"}>
                     {t("Have the conversation")} <ArrowRight size={15} aria-hidden />
                   </ButtonLink>
                 </div>
@@ -243,14 +326,6 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
                 <Button variant="secondary" size="sm" onClick={save}>{t("Try again")}</Button>
               </div>
             )}
-            {capstone && scene && conversation !== "done" && (
-              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-[var(--r-lg)] border px-5 py-4" style={{ borderColor: "var(--edge)", background: "var(--surface)" }} data-lesson-scene={scene}>
-                <p className="max-w-[44ch] text-base" style={{ color: "var(--ink-2)" }}>
-                  {t("Still want more? Have the conversation for real: they answer whatever you say, in words you've been taught.")}
-                </p>
-                <ButtonLink href={lessonSceneHref(scene, focus)}>{t("Have the conversation")} <ArrowRight size={15} aria-hidden /></ButtonLink>
-              </div>
-            )}
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               {focus && moduleNext ? (
                 moduleNext
@@ -258,7 +333,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
                 <>
                   <ButtonLink href="/course/lessons">{t("All lessons")}</ButtonLink>
                   {next && (
-                    <ButtonLink variant={scene || (check && !check.passed) ? "secondary" : "primary"} href={`/course/lessons/${next.id}`}>
+                    <ButtonLink variant={(scene && !conversationDone) || (check && !check.passed) ? "secondary" : "primary"} href={`/course/lessons/${next.id}`}>
                       {t("Next:")} <LessonText text={next.title} locale={locale} /> <ArrowRight size={15} aria-hidden />
                     </ButtonLink>
                   )}
@@ -272,20 +347,54 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
   }
 
   return (
-    <Page eyebrow={fill(t("Lesson {n}"), { n: lessonLabel(lesson) })} title={t(lesson.title)} titleLang={lessonTextLang(lesson.title, locale)} lead={t(lesson.goal)} leadLang={lessonTextLang(lesson.goal, locale)}>
+    <Page eyebrow={eyebrow} title={t(lesson.title)} titleLang={lessonTextLang(lesson.title, locale)} lead={t(lesson.goal)} leadLang={lessonTextLang(lesson.goal, locale)}>
       <Stack>
+        {/*
+          THE SIX STEPS, AND THE WAY BACK TO ANY OF THEM. A step already
+          reached is a button, so somebody halfway through Practice who wants
+          the table again presses How it works rather than Back three times;
+          a step ahead is drawn and not pressable, since skipping is what the
+          button at the foot is for and says so.
+        */}
         <nav aria-label={t("Today's steps")}>
           <ol className="flex flex-wrap gap-2" data-lesson-steps>
-            {steps.map((s, i) => (
-              <li key={s}>
-                <Chip tone={i === at ? "accent" : finished.has(s) || i < at ? "sky" : "neutral"}>
-                  <span aria-current={i === at ? "step" : undefined}>
-                    {i < at && <Check size={12} aria-hidden className="mr-1 inline" />}
-                    {fill(t("{n}. {step}"), { n: String(i + 1), step: t(titleOf(s)) })}
-                  </span>
-                </Chip>
-              </li>
-            ))}
+            {steps.map((s, i) => {
+              const here = i === at;
+              const been = finished.has(s) || i < at || i <= reached;
+              const tone = here
+                ? { background: "var(--accent-soft)", color: "var(--accent-deep)", borderColor: "var(--accent)" }
+                : been
+                  ? { background: "var(--sky-soft)", color: "var(--sky-ink)", borderColor: "transparent" }
+                  : { background: "var(--raised)", color: "var(--ink-2)", borderColor: "transparent" };
+              const label = (
+                <>
+                  {i < at && !here && <Check size={12} aria-hidden className="mr-1 inline" />}
+                  {fill(t("{n}. {step}"), { n: String(i + 1), step: t(titleOf(s)) })}
+                </>
+              );
+              return (
+                <li key={s}>
+                  {been && !here ? (
+                    <button
+                      type="button"
+                      onClick={() => go(i)}
+                      className="tap-tint inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold"
+                      style={tone}
+                    >
+                      {label}
+                    </button>
+                  ) : (
+                    <span
+                      aria-current={here ? "step" : undefined}
+                      className="inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold"
+                      style={tone}
+                    >
+                      {label}
+                    </span>
+                  )}
+                </li>
+              );
+            })}
           </ol>
         </nav>
 
@@ -296,7 +405,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
           {step === "listen" && <Listen lesson={lesson} />}
           {step === "words" && <Words lesson={lesson} />}
           {step === "how" && <How lesson={lesson} />}
-          {step === "practise" && <Quiz key="practise" items={practice} onFinished={() => finish("practise")} />}
+          {step === "practise" && <Quiz key="practise" items={practice} onFinished={(result) => { setScore(result); finish("practise"); }} />}
           {step === "say" && <SayIt lesson={lesson} scene={scene} sceneHref={scene ? lessonSceneHref(scene, focus) : null} capstone={capstone} name={name} onComplete={() => finish("say")} />}
           {step === "review" && (review.length > 0
             ? <Quiz key="review" items={review} onFinished={() => finish("review")} />
@@ -353,10 +462,7 @@ function wordsUsed(lesson: LessonSpec): number {
 /** Step 1: the conversation, in the cast's voices, with the English under each line. */
 function Listen({ lesson }: { lesson: LessonSpec }) {
   const t = useT();
-  const locale = useLocale();
   const [english, setEnglish] = useState(true);
-  // The one man's part the native speaker recorded in full plays in his voice; the rest keep the cast's.
-  const played = nativePart(lesson.conversation);
   return (
     <Card>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -365,25 +471,7 @@ function Listen({ lesson }: { lesson: LessonSpec }) {
           {english ? t("Hide the English") : t("Show the English")}
         </Button>
       </div>
-      <ol className="flex flex-col gap-4" data-lesson-conversation>
-        {lesson.conversation.map((line, i) => (
-          <li key={i} className="flex flex-col gap-1">
-            <span className="label-xs" style={{ color: "var(--ink-3)" }}>{line.who}</span>
-            {line.et && (
-              <div className="flex items-start gap-2">
-                <Speak text={line.et} voice={lesson.cast[line.who]} native={line.who === played} size={18} label={fill(t("Hear {who} say it"), { who: line.who })} />
-                <p lang="et" className="text-lg font-semibold" style={{ color: "var(--ink)" }}>{line.et}</p>
-              </div>
-            )}
-            {line.et && english && line.en && (
-              <p className="text-base" style={{ color: "var(--ink-2)" }}><LessonText text={line.en} locale={locale} /></p>
-            )}
-            {line.stage && (
-              <p className="text-base italic" style={{ color: "var(--ink-3)" }}><LessonText text={line.stage} locale={locale} /></p>
-            )}
-          </li>
-        ))}
-      </ol>
+      <LessonConversation lines={lesson.conversation} cast={lesson.cast} english={english} />
     </Card>
   );
 }

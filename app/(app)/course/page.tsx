@@ -178,7 +178,16 @@ export default async function CoursePage({
       strength of a retention figure would be wrong about the person revising
       elsewhere and insufferable to everybody.
     */
-    const verdict = after ? await ladderReading(ownerId, programme) : { kind: "ready" as const };
+    /*
+      A PASSED CHECK OUTRANKS THE READING. A lesson part ends in a check of
+      what it taught, and somebody who has just passed it read "not ready for
+      the next part" here, because the scheduler had not yet graduated most of
+      the words met that week, which is true of everybody the week they meet
+      them. The check is the measurement the lessons chose, so where it exists
+      and is passed, the way on is open and says so.
+    */
+    const lessonCheck = checkAfter(PROGRAMMES, programme.id);
+    const verdict = after && !lessonCheck ? await ladderReading(ownerId, programme) : { kind: "ready" as const };
     /*
       AND A PART OF THE A1 LESSONS ENDS IN A CHECK, which is the operator's call
       and amends the paragraph above for those parts alone: a learner who started
@@ -188,7 +197,8 @@ export default async function CoursePage({
     /* A part of the lessons is named in English and its subtitle is a sentence
        about it, so its name is the title; a part of units reads `ui` as ever. */
     const partName = programme.days.every((d) => d.lesson) ? t(programme.title) : ui(programme.title, programme.subtitle);
-    const check = checkAfter(PROGRAMMES, programme.id);
+    const check = lessonCheck;
+    const afterName = after ? (after.level !== programme.level ? after.level : after.days.every((d) => d.lesson) ? t(after.title) : after.id.toUpperCase()) : "";
     const checkDue = check && after ? await moveBlockedFor(ownerId, programme, after) : null;
     if (check && checkDue) {
       return (
@@ -201,13 +211,13 @@ export default async function CoursePage({
             <Card tone="accent" data-check-due={check.id}>
               <SectionTitle hint={check.final ? t("about ten minutes") : t("about five minutes")}>
                 {check.final
-                  ? fill(t("One step before {part}: the {level} check"), { part: after!.id.toUpperCase(), level: programme.level })
-                  : fill(t("One step before {part}: a short check"), { part: after!.id.toUpperCase() })}
+                  ? fill(t("One step before {part}: the {level} check"), { part: afterName, level: programme.level })
+                  : fill(t("One step before {part}: a short check"), { part: afterName })}
               </SectionTitle>
               <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 {check.final
-                  ? fill(t("Questions on everything {level} taught, the way the lessons asked them. Pass it and {part} opens. You can take it as often as you like."), { level: programme.level, part: after!.id.toUpperCase() })
-                  : fill(t("Questions on what this part taught, the way the lessons asked them. Pass it and {part} opens. You can take it as often as you like."), { part: after!.id.toUpperCase() })}
+                  ? fill(t("Questions on everything {level} taught, the way the lessons asked them. Pass it and {part} opens. You can take it as often as you like."), { level: programme.level, part: afterName })
+                  : fill(t("Questions on what this part taught, the way the lessons asked them. Pass it and {part} opens. You can take it as often as you like."), { part: afterName })}
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <ButtonLink href="/review">{t("Review your words first")}</ButtonLink>
@@ -264,14 +274,20 @@ export default async function CoursePage({
                 <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                   {after
                     ? fill(t("Next is {part} ({about}). It picks up where this one stopped, and it only asks about things you've already met."), {
-                      part: after.id.toUpperCase(), about: t(after.subtitle),
+                      part: afterName, about: t(after.subtitle),
                     })
                     : t("Every word in the course is in your reviews, and each one will come back just as you're about to forget it.")}
                 </p>
+                {/* Out of the lessons and into the parts built from units: said once, here, before it happens. */}
+                {after && check && !after.days.some((d) => d.lesson) && (
+                  <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }} data-course-bridge>
+                    {t("From here an evening is built a little differently: the words of one topic, a short page on one point of grammar, a round or two that use them, and a review. The conversations carry on, and everything the lessons taught comes with you.")}
+                  </p>
+                )}
                 <div className="mt-4 flex flex-wrap gap-2">
                   <ButtonLink href="/progress/readiness">{t("See what you could handle out there")}</ButtonLink>
                   {after
-                    ? <NextPart programmeId={after.id} label={fill(t("Start {part}"), { part: after.id.toUpperCase() })} />
+                    ? <NextPart programmeId={after.id} label={fill(t("Start {part}"), { part: afterName })} />
                     : (
                       <ButtonLink href="/learn" variant="primary">
                         {t("Open the course")} <ArrowRight size={15} aria-hidden />
@@ -710,7 +726,7 @@ export default async function CoursePage({
 }
 
 /**
- * The whole ladder, seventeen parts from A1.1 to C1.3.
+ * The whole ladder, every part from A1's first to C1's last.
  *
  * On the screen for the same reason a day prints its eight words at the top:
  * what makes a course worth starting is being able to see that it ends, and a

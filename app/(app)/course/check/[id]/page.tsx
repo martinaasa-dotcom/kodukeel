@@ -7,6 +7,8 @@ import { checksPassedFor } from "@/lib/progress/checks";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
 import { Page } from "@/components/ui";
+import { LEVEL_INFO } from "@/lib/collections/syllabus";
+import { LESSON_PARTS, LESSONS, isLessonLevel } from "@/lib/course/lessons";
 import { CheckRunner } from "./CheckRunner";
 
 export async function generateMetadata() {
@@ -16,7 +18,7 @@ export async function generateMetadata() {
 export const dynamic = "force-dynamic";
 
 /**
- * THE CHECK AT THE END OF A PART OF A1 (`lib/course/checks.ts`).
+ * THE CHECK AT THE END OF A PART OF THE LESSONS (`lib/course/checks.ts`).
  *
  * The paper is built here from the check and the attempt, and the same pair
  * is what the action rebuilds to mark it, so nothing the browser sends decides
@@ -37,16 +39,44 @@ export default async function CheckPage({ params, searchParams }: {
   const next = programmeAfter(part) ?? null;
   const paper = checkPaper(check, attempt);
   const needed = Math.ceil(paper.length * CHECK_PASS);
+  /*
+    WHAT THE NEXT PART IS CALLED, by its name rather than its id: "Where you
+    live" says where the learner is going, `A1.2` says where it is filed. A
+    new level is named by its level, since its first part is not the point.
+  */
+  const nextName = !next ? null
+    : next.level !== part.level ? next.level
+    : isLessonLevel(next.level) ? tr(locale, next.title) : next.id.toUpperCase();
+  /*
+    THE END OF A LEVEL IS A THING THAT HAPPENED. Passing the last check of a
+    level used to read "B1.1 is open", the same sentence a part's check gets,
+    so the screen a learner reaches after a hundred evenings said less than
+    the screen after one. A final check carries what the level was (its parts
+    and what somebody can now do) and what the next one is, including that
+    from B1 on an evening is built differently.
+  */
+  const level = check.final ? {
+    level: part.level,
+    arrival: tr(locale, LEVEL_INFO[part.level].arrival),
+    parts: LESSON_PARTS.filter((p) => p.level === part.level).map((p) => tr(locale, p.title)),
+    lessons: LESSONS.filter((l) => l.level === part.level).length,
+    next: next ? {
+      level: next.level,
+      title: tr(locale, LEVEL_INFO[next.level].titleEn),
+      summary: tr(locale, LEVEL_INFO[next.level].summary),
+      lessons: isLessonLevel(next.level),
+    } : null,
+  } : null;
 
   return (
     <Page
-      eyebrow={<span>{part.id.toUpperCase()}</span>}
+      eyebrow={<span>{part.level}, {isLessonLevel(part.level) ? tr(locale, part.title) : part.id.toUpperCase()}</span>}
       title={check.final ? fill(tr(locale, "The {level} check"), { level: part.level }) : fill(tr(locale, "Check: {part}"), { part: tr(locale, part.title) })}
       lead={fill(
         tr(locale, check.final
           ? "{n} questions on all of {level}. Get {needed} right to open {next}. Try as often as you like."
           : "{n} questions on this part. Get {needed} right to open {next}. Try as often as you like."),
-        { n: paper.length, needed, level: part.level, next: next ? next.id.toUpperCase() : tr(locale, "the next part") },
+        { n: paper.length, needed, level: part.level, next: nextName ?? tr(locale, "the next part") },
       )}
     >
       <CheckRunner
@@ -56,7 +86,8 @@ export default async function CheckPage({ params, searchParams }: {
         items={paper}
         needed={needed}
         alreadyPassed={passed.has(check.id)}
-        next={next ? { id: next.id, label: next.id.toUpperCase() } : null}
+        next={next && nextName ? { id: next.id, label: nextName } : null}
+        level={level}
       />
     </Page>
   );

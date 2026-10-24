@@ -12,6 +12,7 @@ import { KeyCap } from "@/components/ui";
 import { useModalFocus } from "@/components/useModalFocus";
 import { useLocale, useT } from "@/components/Locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
+import { isLessonLevelName } from "@/lib/course/lessonLevels";
 
 interface Command {
   id: string;
@@ -97,14 +98,15 @@ const COMMANDS: Command[] = [
   top of the file, so it is not in the bundle every signed-in page ships
   whether or not anybody ever presses the key that opens it.
 */
+
 let unitCommands: Command[] | null = null;
 function loadUnitCommands(): Promise<Command[]> {
   if (unitCommands) return Promise.resolve(unitCommands);
   return import("@/lib/collections/syllabus").then(({ PATH }) => {
-    // A1 and A2 are the lessons (docs/43-lessons.md), and a link to one of their
-    // units lands on the lessons, so neither is offered here. Named rather than
-    // read off `isLessonLevel`, which would pull the lessons into this bundle.
-    unitCommands = PATH.filter((u) => u.level !== "A1" && u.level !== "A2").map((u) => ({
+    // A level taught as lessons (docs/43-lessons.md) sends a link to one of its
+    // units to the lessons, so none is offered here. Read off the light list
+    // rather than `isLessonLevel`, which would pull the lessons into this bundle.
+    unitCommands = PATH.filter((u) => !isLessonLevelName(u.level)).map((u) => ({
       id: `unit-${u.id}`,
       label: u.title,
       detail: u.subtitle,
