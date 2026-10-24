@@ -137,7 +137,12 @@ export function SituationsBoard({ tiles, firstPick }: {
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t("You've played every one of these.")}</p>
         ) : (
           <div className="@container">
-            {/* One column: a compact row each, with no room drawn. */}
+            {/*
+              One column: a compact row each, with no room drawn. Under 20rem of
+              column (a 320px phone) the minutes and the played mark go under the
+              title rather than beside it, or a long English word such as
+              Unemployment is broken mid-letter for want of room.
+            */}
             <ul className="situation-rows flex flex-col gap-2 @lg:hidden">
               {shown.map((tile) => <Row key={tile.id} tile={tile} />)}
             </ul>
@@ -258,7 +263,7 @@ function Row({ tile }: { tile: SituationTile }) {
     <li className="situation-in">
       <Link
         href={`/situations/${tile.id}`}
-        className="situation-tile situation-row lift grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 rounded-[var(--r-lg)] border px-4 py-3"
+        className="situation-tile situation-row lift grid grid-cols-1 gap-x-3 gap-y-1.5 rounded-[var(--r-lg)] border px-4 py-3 @xs:grid-cols-[minmax(0,1fr)_auto]"
         style={{ "--tile-hue": `var(--${hue})`, "--tile-soft": `var(--${hue}-soft)` } as CSSProperties}
       >
         <div className="flex min-w-0 flex-col gap-0.5">
@@ -269,7 +274,7 @@ function Row({ tile }: { tile: SituationTile }) {
           <h3 className="text-md font-bold leading-snug tracking-tight">{t(tile.title)}</h3>
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t(tile.place)}</p>
         </div>
-        <div className="flex flex-col items-end gap-1 pt-0.5 text-xs font-semibold" style={{ color: "var(--ink-2)" }} data-facts>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold @xs:flex-col @xs:flex-nowrap @xs:items-end @xs:pt-0.5" style={{ color: "var(--ink-2)" }} data-facts>
           <span className="inline-flex items-center gap-1 whitespace-nowrap">
             <Clock aria-hidden size={14} />
             {fill(t("about {minutes} min"), { minutes: tile.minutes })}
