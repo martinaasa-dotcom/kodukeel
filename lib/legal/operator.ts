@@ -116,6 +116,16 @@ const KNOWN_DEPLOYMENTS: Readonly<Record<string, Omit<Operator, "identified" | "
     address to every preview anybody ever deploys.
   */
   "kodukeel.vercel.app": UPTHINK,
+  /*
+    THE SHARED DEMO A REVIEWER IS POINTED AT (docs/44-sixth-batch.md, D18).
+
+    A second deployment of the same code, in local mode, run by the same
+    company, so its policy pages name the same controller rather than saying
+    nobody was named. The address is the planned one; it answers only once
+    the operator has set the deployment up and pointed the name at it, and
+    until then this row answers for nobody.
+  */
+  "demo.kodukeel.ee": UPTHINK,
 };
 
 /**

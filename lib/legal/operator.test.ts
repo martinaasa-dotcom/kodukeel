@@ -189,3 +189,16 @@ describe("both addresses a Vercel project answers on", () => {
     }
   });
 });
+
+describe("the shared demo", () => {
+  it("names the operator on the demo address and on no other subdomain", () => {
+    // docs/44-sixth-batch.md D18: the demo is the same company's deployment,
+    // so its policy pages name the controller. An exact host, never a pattern.
+    const demo = resolveOperator({ NEXT_PUBLIC_SITE_URL: "https://demo.kodukeel.ee" });
+    expect(demo.identified).toBe(true);
+    expect(demo.name).toBe("Upthink Solutions OÜ");
+    for (const host of ["other.kodukeel.ee", "demo.kodukeel.ee.example.com"]) {
+      expect(resolveOperator({ NEXT_PUBLIC_SITE_URL: `https://${host}` }).identified, host).toBe(false);
+    }
+  });
+});

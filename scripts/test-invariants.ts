@@ -14248,6 +14248,7 @@ check("a workflow that reads a secret never runs from a branch somebody pushed",
     "audit-decks.yml": ["workflow_dispatch"],
     "mailout.yml": ["schedule", "workflow_dispatch"],
     "reset-course.yml": ["workflow_dispatch"],
+    "reset-demo.yml": ["schedule", "workflow_dispatch"],
     "seed-production.yml": ["workflow_dispatch"],
   };
   const dir = ".github/workflows";

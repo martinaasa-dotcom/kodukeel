@@ -665,13 +665,13 @@ months of history. A demo deployment shows it on the first visit, costs nothing 
 on EKI's load.
 
 **Files.**
-- `components/DemoBanner.tsx` (to be written), drawn in the shell where `DEMO_DEPLOYMENT=1`: one line
+- `components/DemoBanner.tsx`, drawn in the shell where `DEMO_DEPLOYMENT=1`: one line
   saying this is a demo everybody shares, wiped every night, and that nothing personal should be typed.
   An invariant holds that the variable is read in exactly that component and the robots route, and
   nowhere near `lib/auth/`.
 - `app/robots.ts`: a demo deployment asks not to be indexed.
 - `lib/legal/operator.ts`: the demo host in `KNOWN_DEPLOYMENTS`, so its policy pages name the operator.
-- `.github/workflows/reset-demo.yml` (to be written): nightly and by hand, seeds the demo database and
+- `.github/workflows/reset-demo.yml`: nightly and by hand, seeds the demo database and
   runs `scripts/demo-data.ts` against it. It maps `DEMO_DATABASE_URL` into the steps that need it and no
   others, and refuses to run if its hash equals the production URL's.
 - `scripts/invariants/`: the workflow joins the closed list of workflows that read a secret, with its

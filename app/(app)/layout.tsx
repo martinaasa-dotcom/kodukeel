@@ -25,6 +25,7 @@ import { railClasses } from "@/lib/progress/classes";
 import { visibleLine } from "@/lib/security/visibleText";
 import { AudioPrefsProvider } from "@/components/AudioPrefs";
 import { SingleKeysProvider } from "@/components/SingleKeys";
+import { DemoBanner } from "@/components/DemoBanner";
 import { singleKeysFrom } from "@/lib/ux/shortcuts";
 import { SpeechPrefetch, SpeechProvider } from "@/components/speech/useSpeech";
 import { speechAvailability } from "@/lib/audio/speechAvailability";
@@ -174,6 +175,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       >
         {tr(locale, "Skip to content")}
       </a>
+      {/* Nothing at all unless this is the shared demo. See the component. */}
+      <DemoBanner locale={locale} />
       {/* Around the rail as well as the page, because inside a module the rail
           draws today's steps under Learn and has to know which step this is. */}
       <ModuleScope>
