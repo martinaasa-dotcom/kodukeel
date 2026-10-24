@@ -10617,7 +10617,7 @@ steps (Listen, Words, How it works, Practice, Say it, Review), the first three a
 `lib/course/lessons/` is the engine and `lessonProblems` is the rule: every spelling on every screen
 of a lesson has to be in the ledger by then, a phrase covering its words only where they stand
 together, and the unit suite fails otherwise. The conversations are written and read by the native
-speaker (ADR-005 amendment 6). A1 and A2 are the lessons and nothing else (P3, and §9 for A2's fifty-seven): `lib/course/lessonCourse.ts` makes each lesson one evening
+speaker (ADR-005 amendment 6). A1 and A2 are the lessons and nothing else (P3, and §9 for A2's sixty-one): `lib/course/lessonCourse.ts` makes each lesson one evening
 of the course with one step, finishing it ticks the evening and hands its words to the deck
 (`finishLesson`), and the builder's ledger is seeded with every lesson before B1 (`teachLessons`). A lesson
 level is asked through `isLessonLevel`, never by naming A1 or A2. The

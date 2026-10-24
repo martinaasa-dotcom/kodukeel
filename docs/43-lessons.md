@@ -478,7 +478,7 @@ lesson 4's words, which is where "and you?" first needs it.
 
 ## 9. A2, as built
 
-**Fifty-seven lessons in eight parts, the same shape as A1's**, and the same ledger walks both: an
+**Sixty-one lessons in eight parts, the same shape as A1's** (fifty-five core and six of more words), and the same ledger walks both: an
 A2 lesson may show nothing A1 or an earlier A2 lesson has not taught. A2 ends where a learner can
 book a doctor, buy a ticket out of town, order a meal and pay, sit a job interview, say what they
 did last summer and what they will do next, and leave a message, all in the cases they will meet
@@ -565,5 +565,10 @@ voices the app has, form names with their agreed hint) is asked of every level t
    from `LEVEL_INFO`, and the paragraph saying an evening is built differently from here on, on that
    screen and on the course page, shows only where the next level is not lessons; once C1 is
    lessons it is never drawn.
-9. **A native speaker reads the pull request** (ADR-005 amendment 6), and the role-plays are played
+9. **Read the commonest words against the level's last lesson.** A1 and A2 left 189 of the 400
+   commonest Estonian words untaught; four A2 lessons of more words (`a2-45a`, `a2-50a`, `a2-52a`,
+   `a2-53a`) teach the everyday ones (a question, money, look for, find, still, not anymore,
+   funny, important) so B1 can assume them. What is left is mostly subtitle vocabulary, a colonel
+   and a weapon, which no level should hurry.
+10. **A native speaker reads the pull request** (ADR-005 amendment 6), and the role-plays are played
    by hand once before it merges.
