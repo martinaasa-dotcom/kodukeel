@@ -113,3 +113,24 @@ describe("the machine the code runs on", () => {
     expect(transfersOutsideEea(resolveRecipients())).toBe(true);
   });
 });
+
+describe("Sign in with Apple", () => {
+  const KEEP = process.env.NEXT_PUBLIC_APPLE_SERVICES_ID;
+  afterEach(() => {
+    if (KEEP === undefined) delete process.env.NEXT_PUBLIC_APPLE_SERVICES_ID;
+    else process.env.NEXT_PUBLIC_APPLE_SERVICES_ID = KEEP;
+  });
+
+  it("names Apple where the button is drawn, as a transfer outside the Union", () => {
+    process.env.NEXT_PUBLIC_APPLE_SERVICES_ID = "ee.kodukeel.web";
+    const apple = resolveRecipients().filter((r) => r.id === "apple-sign-in");
+    expect(apple.length).toBe(1);
+    expect(apple[0]?.eea).toBe(false);
+    expect(apple[0]?.what).toMatch(/name and email/);
+  });
+
+  it("says nothing of Apple where the operator has not set it up", () => {
+    process.env.NEXT_PUBLIC_APPLE_SERVICES_ID = "";
+    expect(resolveRecipients().some((r) => r.id === "apple-sign-in")).toBe(false);
+  });
+});

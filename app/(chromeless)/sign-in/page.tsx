@@ -2,6 +2,7 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowLeft, Check } from "lucide-react";
 import { supabaseConfigured } from "@/lib/auth/mode";
 import { readSsoPolicy } from "@/lib/auth/sso";
+import { appleServicesId as readAppleServicesId } from "@/lib/auth/appleConfig";
 import { resolveOperator } from "@/lib/legal/operator";
 import { Note } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
@@ -95,6 +96,12 @@ export default async function SignInPage({ searchParams }: {
     variable, on the server, in `lib/security/headers.ts`.
   */
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim() || undefined;
+  /*
+    And Apple's, for the same reason and through the one reader the CSP and
+    /privacy use, so the button, the policy that lets its script load and the
+    page naming Apple as a recipient cannot disagree (lib/auth/appleConfig.ts).
+  */
+  const appleServicesId = readAppleServicesId();
   const denied = params.denied !== undefined;
   const failed = params.error !== undefined;
   /*
@@ -188,7 +195,7 @@ export default async function SignInPage({ searchParams }: {
               <>
                 {/* The form's own lines, which are all in the first-run area, and no more of the language. */}
                 <LocaleProvider locale={locale} table={locale === "en" ? undefined : areaTable(locale, [START])}>
-                  <SignInForm emailLink={emailLink} ssoDomains={ssoDomains} googleClientId={googleClientId} locale={locale} />
+                  <SignInForm emailLink={emailLink} ssoDomains={ssoDomains} googleClientId={googleClientId} appleServicesId={appleServicesId} locale={locale} />
                 </LocaleProvider>
                 <p className="mt-4 text-center text-sm">
                   <Link href={locale === "en" ? "/help#sign-in" : `/help?lang=${locale}#sign-in`} className="underline underline-offset-2" style={{ color: "var(--ink-2)" }}>

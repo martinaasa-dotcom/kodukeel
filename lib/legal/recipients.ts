@@ -1,6 +1,7 @@
 import { ekilexConfigured } from "@/lib/ekilex/client";
 import { resolveProviders } from "@/lib/tutor/provider";
 import { pushConfigured } from "@/lib/push/config";
+import { appleSignInConfigured } from "@/lib/auth/appleConfig";
 
 /**
  * Who this particular installation actually sends anything to, so the privacy
@@ -156,6 +157,26 @@ export function resolveRecipients(): Recipient[] {
       name: "The push services run by Google, Mozilla, Apple and Microsoft",
       what: "a reminder you asked to have on a computer, encrypted so that only that browser can read it",
       // All four companies are established in the United States.
+      eea: false,
+    });
+  }
+
+  /*
+    SIGN IN WITH APPLE, WHERE THE OPERATOR HAS SET IT UP (N-3).
+
+    Somebody who presses "Continue with Apple" tells Apple they are signing in
+    here, and when, and Apple hands back the name and the address they chose
+    to share, which may be a private relay address Apple makes for them. That
+    is both directions of a recipient, so it is named, and only where the
+    button is drawn: a deployment with no Services ID sends Apple nothing.
+  */
+  if (appleSignInConfigured()) {
+    recipients.push({
+      id: "apple-sign-in",
+      name: "Apple, if you sign in with Apple",
+      what: "that you sign in here and when, and the name and email address you let Apple share with us",
+      // Apple Inc. is established in the United States, and an account's
+      // sign-ins are handled there whichever Apple entity answers in Europe.
       eea: false,
     });
   }

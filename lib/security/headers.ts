@@ -8,6 +8,12 @@
  * asked for, and the policy needs to read the environment to know which
  * Supabase project to allow.
  */
+/*
+  Relative rather than through the `@/` alias, because `next.config.ts`
+  imports this file and is loaded before the alias means anything.
+*/
+import { appleSignInConfigured } from "../auth/appleConfig";
+import { APPLE_SCRIPT_ORIGIN } from "../auth/appleIdentity";
 
 export const STATIC_SECURITY_HEADERS: { key: string; value: string }[] = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
@@ -132,6 +138,19 @@ function googleIdentitySrc(): string[] {
 }
 
 /**
+ * Apple's sign-in script, only where the deployment has a Services ID
+ * (docs/44-sixth-batch.md, N-3). The script host alone, and that is all it
+ * needs, read off the script itself on 2026-10-24: in popup mode it opens
+ * Apple's sign-in at `appleid.apple.com` in a window of its own and listens
+ * for that window's message, which no directive here governs. It draws no
+ * iframe, fetches nothing and posts no form from this page, so `frame-src`,
+ * `connect-src` and `form-action` stay exactly as they were.
+ */
+function appleIdentitySrc(): string[] {
+  return appleSignInConfigured() ? [APPLE_SCRIPT_ORIGIN] : [];
+}
+
+/**
  * The policy.
  *
  * `'unsafe-inline'` in `script-src` is required rather than chosen: the app
@@ -168,7 +187,7 @@ export function buildContentSecurityPolicy(): string {
     worker runs the model in it (ADR-028). It is not `'unsafe-eval'`, which
     stays a development-only allowance, and the test reads the two as tokens.
   */
-  const scriptSrc = ["'self'", "'unsafe-inline'", "'wasm-unsafe-eval'", ...google, ...(isDev ? ["'unsafe-eval'"] : [])];
+  const scriptSrc = ["'self'", "'unsafe-inline'", "'wasm-unsafe-eval'", ...google, ...appleIdentitySrc(), ...(isDev ? ["'unsafe-eval'"] : [])];
   const connectSrc = [
     "'self'",
     ...supabaseConnectSrc(),

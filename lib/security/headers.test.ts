@@ -45,6 +45,23 @@ describe("the policy says what the app actually needs", () => {
     }
   });
 
+  it("allows Apple's sign-in script only where a Services ID is configured, and nothing else of Apple's", () => {
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_CLIENT_ID", "");
+    vi.stubEnv("NEXT_PUBLIC_APPLE_SERVICES_ID", "");
+    try {
+      expect(buildContentSecurityPolicy()).not.toContain("apple");
+      vi.stubEnv("NEXT_PUBLIC_APPLE_SERVICES_ID", "ee.kodukeel.web");
+      expect(directive("script-src")).toContain("https://appleid.cdn-apple.com");
+      // Popup mode opens Apple's page in a window of its own, so no frame,
+      // fetch or form of this page's needs to reach Apple.
+      expect(directive("frame-src")).toBe("frame-src 'none'");
+      expect(directive("connect-src")).not.toContain("apple");
+      expect(directive("form-action")).toBe("form-action 'self'");
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
   it("keeps the microphone and the camera, because two features need them", () => {
     // geolocation=() is a denial. The other two are not: speaking is heard on the
     // device through components/speech/, and scanning a page needs the

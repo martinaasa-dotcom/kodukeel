@@ -182,6 +182,45 @@ Signing in is the other half: Supabase Auth issues the same tokens to a native c
 above read them as a bearer header where the web reads the cookie. `lib/auth/identity.ts` is where that
 choice is made today.
 
+### How the native app signs in (N-3)
+
+No server route is needed for any of the three ways in. Each ends with the Supabase client on the phone
+holding a session, and the access token in that session is what every v1 route reads.
+
+| Way in | On the phone | On the web, for the same account (D9) |
+| --- | --- | --- |
+| Google | The platform's Google sign-in returns an ID token, handed to `signInWithIdToken({ provider: "google", token, nonce })` | Google Identity Services and the same call (`lib/auth/googleIdentity.ts`) |
+| Apple | `ASAuthorizationAppleIDProvider` on iOS, or Apple's web flow on Android, returns an ID token, handed to `signInWithIdToken({ provider: "apple", token, nonce })` | Apple's own script in a popup and the same call (`lib/auth/appleIdentity.ts`), drawn where `NEXT_PUBLIC_APPLE_SERVICES_ID` is set |
+| The emailed link | `signInWithOtp` asks for the link; the link opens the app because the domain claims `/auth/callback`, and the app finishes the session from the link itself: a `code` against the verifier the app kept when it asked, or the `token_hash` the email template carries (`verifyOtp`) | The same link, opened in the browser that asked, finished by `app/auth/callback/route.ts` |
+
+Four rules the native client keeps, all of them the web's already:
+
+- **The nonce is made on the device for each attempt.** The platform is handed its SHA-256 and Supabase
+  is handed the raw value, so a token minted for another attempt cannot be replayed into this one.
+  `randomNonce` and `hashNonce` are pure and can be imported as they are.
+- **Apple sends the name once.** The first sign-in carries the person's given and family name beside
+  the token and never again. The app stores it then, as `full_name` (and `given_name`) in the user's
+  metadata through `updateUser`, which is where the Google token puts a name and where
+  `learnerFromClaims` reads one. `appleNameMetadata` builds it and returns nothing on every later
+  sign-in, so a name somebody has changed since is never written over.
+- **The link the app claims is the sign-in link and nothing else**, until the native work order adds
+  the rows of `lib/links/routes.ts` marked native (`CLAIMED_PATHS` in `lib/auth/appLinks.ts`, whose
+  test holds each claimed path to a native row). `app/.well-known/apple-app-site-association/route.ts`
+  is built from `APPLE_TEAM_ID` and `IOS_BUNDLE_ID`, and `app/.well-known/assetlinks.json/route.ts`
+  from `ANDROID_PACKAGE_NAME` and `ANDROID_CERT_SHA256` (comma separated where Play signs with its own
+  key as well as the upload key). Each answers 404 until its variables are set, so a fork on its own
+  domain claims no app. Android's file cannot narrow the paths, so the app's intent filter names
+  `/auth/callback` with `autoVerify`.
+- **A link that arrives in the app is finished in the app.** The web's callback refuses a link that
+  would change who is signed in on a browser that already has a session, and the native app does the
+  same: a link for another account while one is signed in asks before switching.
+
+Not checked: whether Supabase treats an account made with Apple's private relay address and one made
+with the emailed link to that same relay address as one person. Supabase's documentation says an OAuth
+identity is linked automatically to an existing user with the same verified email, and nobody has tried
+it with a relay address on a Supabase project. Until somebody has, a learner who uses both doors may
+hold two accounts.
+
 ### Which link opens which screen (R-4)
 
 A native app meets links it did not make: a letter's button, the path a notification carries, an

@@ -38,7 +38,7 @@ import { reserveMicros } from "@/lib/usage/pricing";
 import { DEFAULT_LIMITS } from "@/lib/usage/quota";
 import { megabytes, modelBytes } from "@/lib/speech/model";
 import {
-  CLIP_KB, DAYS_PER_MONTH, DEVTOOLS, DOMAIN, EMAIL, ERRORS,
+  APPLE_DEVELOPER, CLIP_KB, DAYS_PER_MONTH, DEVTOOLS, DOMAIN, EMAIL, ERRORS,
   HTML_KB, REQUESTS_PER_PAGE, SHARED_JS_KB, SPEECH_MARKET, SUPABASE,
   TUTOR_MODELS, VERCEL,
   assumed, computeFor, distinctClips, gbOf, listOf, overageUsd, round2, usdFromEur,
@@ -407,6 +407,24 @@ export const SERVICES: readonly Service[] = [
         plan: "One a year",
         usd: round2(usdFromEur(DOMAIN.eurPerYear) / 12),
         why: DOMAIN.note,
+      };
+    },
+  },
+
+  {
+    id: "apple",
+    name: "Apple Developer Program",
+    who: "Apple, as the developer account behind Sign in with Apple",
+    does: "Lets people sign in with Apple, on the web and on an iPhone, and is what puts an iPhone app in the App Store.",
+    whenItIsGone: "Sign in with Apple stops, and so would an iPhone app. Anybody who only ever signed in with Apple needs the operator's help to get back in.",
+    setBy: "NEXT_PUBLIC_APPLE_SERVICES_ID",
+    ref: APPLE_DEVELOPER.ref,
+    bill(): ServiceCost {
+      return {
+        kind: "charged",
+        plan: "One a year",
+        usd: round2(APPLE_DEVELOPER.usdPerYear / 12),
+        why: "The developer account's yearly fee, spread over the months. It does not move with the number of learners.",
       };
     },
   },

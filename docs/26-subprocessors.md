@@ -5,7 +5,8 @@
 
 **Written 5 September 2026. Revised 22 September 2026**, out of cycle and for the reason the review
 section gives: two recipients had joined the generated list and this page still said neither was on
-it, and a provider had left the chain. Reviewed with `docs/24-dpia.md`.
+it, and a provider had left the chain. **Revised 24 October 2026** for Apple, which joins the list
+where Sign in with Apple is configured. Reviewed with `docs/24-dpia.md`.
 
 ## The list is generated, so this page and the app cannot quietly disagree
 
@@ -44,6 +45,7 @@ than inheriting this one.
 | The push services run by Google, Mozilla, Apple and Microsoft | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` are both set. With either unset nobody is offered reminders on a computer |
 | An error reporting endpoint | `ERROR_WEBHOOK_URL` is set |
 | Vercel | `VERCEL` is set by the platform itself, so it appears when somebody else owns the machine and not when the operator does |
+| Apple, for Sign in with Apple | `NEXT_PUBLIC_APPLE_SERVICES_ID` is set, which is also what draws the button. With none set, nothing on any page reaches Apple |
 
 ## The register
 
@@ -240,6 +242,37 @@ operator hosting this elsewhere substitutes their own platform here, and sees no
 their own privacy page.
 
 **Role.** Processor.
+
+### Apple, for Sign in with Apple
+
+**On the generated list where configured** (`apple-sign-in` in `lib/legal/recipients.ts`, added
+24 October 2026 with `docs/44-sixth-batch.md` N-3). Where `NEXT_PUBLIC_APPLE_SERVICES_ID` is set the
+sign-in page draws "Continue with Apple" and loads Apple's script from `appleid.cdn-apple.com`
+(`APPLE_SCRIPT_SRC` in `lib/auth/appleIdentity.ts`), which the CSP allows for that one origin
+(`appleIdentitySrc` in `lib/security/headers.ts`). Pressing it opens Apple's own sign-in in a popup.
+The native apps use the platform's own Sign in with Apple to the same end (`docs/42-native-apps.md`
+section 3).
+
+**What it processes.** Apple learns that the learner signs in to this app and when. Apple hands back
+an ID token, which the browser gives to Supabase, and on the first sign-in only the name the learner
+chose to share, which is stored as the account's display name in Supabase Auth. The email address
+may be a private relay address Apple makes, which forwards to the learner's own; a letter this app
+sends reaches them only while that forwarding stays on, and `/terms` says so.
+
+**Where established.** Apple Inc., in the United States, so the transfer paragraph on `/privacy`
+fires. Which Apple entity answers a European account's sign-in is not readable from the app.
+
+**Role.** Independent controller for the learner's own Apple account and its sign-in; this app
+receives what the learner lets Apple share. Not assessed further here.
+
+**Cost.** The Apple Developer Program, 99 US dollars a year, is on `/funding` as its own line
+(`apple` in `lib/funding/services.ts`).
+
+**Not checked.** Whether Supabase treats an account made with Apple and one made with the emailed
+link to the same relay address as one person. Supabase's documentation says an identity with the
+same verified email is linked to the existing user automatically; nobody has tried it with a relay
+address on a Supabase project, and until somebody has, a learner who uses both doors may have two
+accounts.
 
 ### Google, for sign-in
 
