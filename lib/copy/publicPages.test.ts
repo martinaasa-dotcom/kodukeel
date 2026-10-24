@@ -41,6 +41,8 @@ const FILES = [
   "app/state-exam/page.tsx",
   "app/funding/page.tsx",
   "app/funding/CostExplorer.tsx",
+  "app/partners/page.tsx",
+  "components/ImpactFigures.tsx",
   "components/Legal.tsx",
   "components/PublicLanguage.tsx",
   "components/LandingAnu.tsx",

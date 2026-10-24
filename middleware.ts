@@ -145,6 +145,9 @@ export async function middleware(request: NextRequest) {
     path.startsWith("/teachers") ||
     // What a pilot is, for an organization deciding whether to run one. English only.
     path.startsWith("/pilots") ||
+    // The one page a reviewer at the Institute or a ministry is sent to, which
+    // leads to everything else (docs/44-sixth-batch.md, S-7). Read with no account.
+    path.startsWith("/partners") ||
     path.startsWith("/how-we-know") ||
     path.startsWith("/curriculum") ||
     path.startsWith("/accessibility") ||

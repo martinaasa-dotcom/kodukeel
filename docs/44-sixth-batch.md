@@ -33,9 +33,9 @@ speech figures where the operator can read them.
 **Where the impact is.** The batch has 28 items, and they are not worth the same. Two outcomes are worth
 most, and each has a test that says whether it happened:
 
-- **Shown well.** The operator sends EKI and each ministry one email with one link, `/partners` (to be
-  written, S-7), and everything a reviewer reads from there is true today, in Estonian, and checked by a
-  script before the email goes (S-7). The items in order of what a reviewer meets first: S-2 (Ekilex is
+- **Shown well.** The operator sends EKI and each ministry one email with one link, `/partners` (S-7),
+  and everything a reviewer reads from there is true today, in Estonian, and checked by a script
+  before the email goes (S-7). The items in order of what a reviewer meets first: S-2 (Ekilex is
   EKI's first question), S-7 (the one page), S-1 (the course as it is), S-6 (the demo), S-3 (Estonian),
   then S-4 and S-5.
 - **November starts on day one.** A native developer can build every A1 screen against a written
@@ -701,11 +701,11 @@ it, wiped every night, costing nothing.
 
 **What it is for.** A reviewer at EKI or a ministry gives a link about ten minutes. Today the answers are
 spread over `/funding`, `/trust`, `/impact`, `/curriculum`, `/how-we-know`, `/accessibility` and
-`/privacy`, none of which says it is the place to start. `/partners` (to be written) is that place, and a
+`/privacy`, none of which says it is the place to start. `/partners` is that place, and a
 script checks that everything it points at is true on the deployment before the operator sends anything.
 
 **Files.**
-- `app/partners/page.tsx` (to be written), built with `Legal` like the other public pages, in every
+- `app/partners/page.tsx`, built with `Legal` like the other public pages, in every
   public language (S-3 adds the Estonian). In this order, with no figure typed by hand:
   1. What Kodukeel is, in three sentences, and who it is for (people living in Estonia who speak Russian,
      Ukrainian or English), read from the same copy the landing page uses.
@@ -721,7 +721,7 @@ script checks that everything it points at is true on the deployment before the 
   8. Who runs it and how to reach them, from `lib/legal/operator.ts`.
 - The landing page's footer and `/trust`: a link to `/partners`. `middleware.ts`: the path joins the
   public list.
-- `scripts/check-show-ready.mjs` (to be written): given a deployment's address, it asks over HTTP what a
+- `scripts/check-show-ready.mjs`: given a deployment's address, it asks over HTTP what a
   reviewer would see and prints a checklist with a pass or a fail per line: the operator named on
   `/privacy`; `security.txt` answering; `/partners`, `/curriculum`, `/privacy` and `/accessibility`
   answering in Estonian; `/curriculum` naming the A1 lessons and no A1 units; `/impact` carrying the
@@ -1666,7 +1666,7 @@ way as the web.
 
 **Before showing it to EKI and the state:**
 
-- **Run `scripts/check-show-ready.mjs` (to be written) against production** and send nothing
+- **Run `scripts/check-show-ready.mjs` against production** (`npm run check:show-ready -- https://kodukeel.ee --demo <the demo address>`) and send nothing
   until it passes.
 - **Write to EKI** with `/partners`, `docs/45-ekilex.md`, from S-2, and the first
   corrections file, before the app is shown to anybody else, so they hear about the load and the harvest

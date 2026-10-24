@@ -1,14 +1,13 @@
 import { Legal, P, S } from "@/components/Legal";
-import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
+import { EkilexSection, ImpactRows as Rows, impactWords } from "@/components/ImpactFigures";
+import { countOf, fill, tr } from "@/lib/copy/locale";
 import { publicCard } from "@/lib/copy/publicCards";
 import { heldImpact, impactIsListed } from "@/lib/progress/impactListed";
-import { ekilexImpact, type EkilexImpact } from "@/lib/dict/ekilexCount";
+import { ekilexImpact } from "@/lib/dict/ekilexCount";
 import { IMPACT_WINDOW_DAYS } from "@/lib/progress/impact";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
-import { MAX_LEARNER_SHARE, MIN_LEARNERS, MIN_REVIEWS, type SuppressionReason } from "@/lib/research/corpus";
-import {
-  impactListable, isWithheld, type Figure, type Headcount, type Impact, type Reported, type RetentionReading,
-} from "@/lib/research/impact";
+import { MAX_LEARNER_SHARE, MIN_LEARNERS, MIN_REVIEWS } from "@/lib/research/corpus";
+import { impactListable, type Impact, type RetentionReading } from "@/lib/research/impact";
 
 /*
   Force-dynamic: every figure is this deployment's own, read when the page is
@@ -36,13 +35,6 @@ const MONTHS = [
 function spelled(iso: string): string {
   const [year, month, day] = iso.slice(0, 10).split("-").map(Number);
   return `${day} ${MONTHS[(month ?? 1) - 1]} ${year}`;
-}
-
-const NUMBER_TAG: Record<Locale, string> = { en: "en-GB", ru: "ru-RU", uk: "uk-UA" };
-
-/** A count with its noun in the reader's language, and the digits grouped the way they write them. */
-function counted(locale: Locale, n: number, noun: string): string {
-  return countOf(locale, n, noun).replace(/^\d+/, n.toLocaleString(NUMBER_TAG[locale]));
 }
 
 /**
@@ -74,27 +66,7 @@ export default async function ImpactPage({ searchParams }: { searchParams: Publi
   const impact: Impact = read;
   const ekilex = await ekilexImpact(IMPACT_WINDOW_DAYS);
 
-  const why = (reason: SuppressionReason): string => {
-    switch (reason) {
-      case "learners": return fill(t("Not shown yet: fewer than {n} people behind it."), { n: MIN_LEARNERS });
-      case "reviews": return fill(t("Not shown yet: fewer than {n} records behind it."), { n: MIN_REVIEWS });
-      case "dominance": return fill(t("Not shown yet: one person is more than {pct}% of it."), { pct: Math.round(MAX_LEARNER_SHARE * 100) });
-    }
-  };
-  const people = (band: string) => fill(t("{band} people"), { band });
-  const headcount = (reported: Reported<Headcount>) =>
-    isWithheld(reported) ? why(reported) : people(reported.learners);
-  const quantity = (reported: Reported<Figure>, noun: string) =>
-    isWithheld(reported)
-      ? why(reported)
-      : fill(t("About {amount}, from {people}."), { amount: counted(locale, reported.value, noun), people: people(reported.learners) });
-  const comingBack = (reading: RetentionReading) =>
-    reading.pct === null
-      ? t("Not shown yet: too few people, or too little time has passed.")
-      : fill(t("{pct}% of {people}."), {
-        pct: reading.pct.toLocaleString(NUMBER_TAG[locale], { maximumFractionDigits: 1 }),
-        people: people(reading.learners),
-      });
+  const { headcount, quantity, comingBack } = impactWords(locale);
   const MILESTONE_LABEL: Record<RetentionReading["key"], string> = {
     d1: "Came back the next day",
     d7: "Came back a week later",
@@ -153,62 +125,5 @@ export default async function ImpactPage({ searchParams }: { searchParams: Publi
         </P>
       </S>
     </Legal>
-  );
-}
-
-/**
- * WHAT THIS INSTALLATION ASKED OF EKILEX, AS A COUNT AND NOTHING MORE.
- *
- * docs/44-sixth-batch.md D17: so the operator can tell the Institute the load
- * in numbers. Requests that reached Ekilex beside entries answered from the
- * copy stored here, and their share; and the corrections a reviewer here
- * accepted to entries Ekilex supplied, which is what the app gives back
- * (`scripts/export-corrections.ts` writes them out). Worded as counts, never as
- * a claim about Ekilex. Not gated like the figures above, because nothing in it
- * is about a learner: it is one installation's traffic to one service.
- */
-function EkilexSection({ ekilex, locale }: { ekilex: EkilexImpact | null; locale: Locale }) {
-  const t = (english: string) => tr(locale, english);
-  const n = (value: number) => value.toLocaleString(NUMBER_TAG[locale]);
-  if (!ekilex) {
-    return (
-      <S title={t("What this installation asked of Ekilex")}>
-        <P>{t("The figures could not be read just now. Try again in a few minutes.")}</P>
-      </S>
-    );
-  }
-  const days = countOf(locale, ekilex.windowDays, "day");
-  const { load } = ekilex;
-  return (
-    <S title={t("What this installation asked of Ekilex")}>
-      <P>
-        {fill(t("Ekilex is the Institute of the Estonian Language’s dictionary database, and every form and example sentence here comes from it. These are counts of what this installation asked of it in the last {days}."), { days })}
-      </P>
-      {load.empty && ekilex.correctionsEver === 0 ? (
-        <P>{fill(t("Nothing was asked of Ekilex in the last {days}, and nothing was answered from its stored copy."), { days })}</P>
-      ) : (
-        <Rows rows={[
-          [t("Requests sent to Ekilex"), n(load.live)],
-          [t("Entries answered from the copy stored here, with no request"), n(load.stored)],
-          [t("Share answered from the stored copy"), load.storedPct === null ? t("Nothing to count yet.") : fill(t("{pct}% of the two together"), { pct: n(load.storedPct) })],
-          [t("Requests Ekilex refused, or that went unanswered after three tries"), fill(t("{refused} refused, {failed} unanswered"), { refused: n(load.refused), failed: n(load.failed) })],
-          [t("Corrections to Ekilex’s entries accepted here"), fill(t("{recent} in the last {days}, {ever} since the start"), { recent: n(ekilex.correctionsInWindow), days, ever: n(ekilex.correctionsEver) })],
-        ]} />
-      )}
-      <P>{t("Looking a word up live is two requests: one to find it and one for its forms and sentences. A request counts once, however many tries it took.")}</P>
-    </S>
-  );
-}
-
-function Rows({ rows }: { rows: readonly (readonly [string, string])[] }) {
-  return (
-    <dl className="space-y-3">
-      {rows.map(([label, value]) => (
-        <div key={label}>
-          <dt className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{label}</dt>
-          <dd className="text-base" style={{ color: "var(--ink-2)" }}>{value}</dd>
-        </div>
-      ))}
-    </dl>
   );
 }

@@ -47,6 +47,7 @@ import { LANDING_HREF, langParam, localeHref } from "@/lib/copy/publicLocale";
 import { ENTRY_COPY, ENTRY_LOCALES, MACHINE_TRANSLATED_EN, type EntryLocale } from "@/lib/copy/entryLocales";
 import { questionReading } from "@/lib/estonian/cases";
 import { SCENES } from "@/lib/scenes/catalogue";
+import { PITCH } from "@/lib/copy/pitch";
 
 export const metadata: Metadata = {
   title: { absolute: "kodukeel. Estonian that finally sticks" },
@@ -1362,7 +1363,7 @@ function Footer({ say, copy }: { say: Say; copy: (typeof ENTRY_COPY)[EntryLocale
           <div>
             <Wordmark size={28} />
             <p className="mt-3 max-w-[46ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              {t("Kodukeel means home language. It’s free, and every Estonian form in it comes from a dictionary, never from AI.")}
+              {t(PITCH.promise)}
             </p>
             <p className="mt-3 max-w-[46ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
               {t("Teaching a class or running a group?")}{" "}
@@ -1381,6 +1382,7 @@ function Footer({ say, copy }: { say: Say; copy: (typeof ENTRY_COPY)[EntryLocale
             <FootGroup title={t("For schools")}>
               <FootLink say={say} href="/teachers">{t("For teachers")}</FootLink>
               <FootLink say={say} href="/pilots">{t("Running a pilot")}</FootLink>
+              <FootLink say={say} href="/partners">{t("For partners and funders")}</FootLink>
               <FootLink say={say} href="/how-we-know">{t("How we know")}</FootLink>
               <FootLink say={say} href="/funding">{t("What it costs to run")}</FootLink>
             </FootGroup>

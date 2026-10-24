@@ -55,7 +55,9 @@ export default function ekilexIsAskedThroughOneGate({ check, code, read, sourceF
   });
 
   check("every entry Ekilex supplied carries the credit CC BY 4.0 asks for, and /impact prints the load", () => {
-    const credit = code("app/(app)/dictionary/EkilexCredit.tsx");
+    // The component draws it and lib/legal/ekilexCredit.ts holds its words, which /partners quotes too.
+    const credit = code("app/(app)/dictionary/EkilexCredit.tsx") + code("lib/legal/ekilexCredit.ts");
+    assert.match(code("app/(app)/dictionary/EkilexCredit.tsx"), /t\(EKILEX_CREDIT\)/, "the entry's credit stopped reading lib/legal/ekilexCredit.ts");
     assert.match(credit, /https:\/\/creativecommons\.org\/licenses\/by\/4\.0\//, "the credit no longer links the license deed");
     assert.match(credit, /Institute of the Estonian Language/, "the credit no longer names the Institute");
     assert.match(code("app/(app)/dictionary/DictionaryClient.tsx"), /\{entry\.ekilexWordId != null && <EkilexCredit \/>\}/,

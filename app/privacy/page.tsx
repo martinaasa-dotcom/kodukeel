@@ -61,7 +61,7 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
 
       <S title={t("Who holds this")}>
         {operator.identified ? (
-          <>
+          <div data-operator="named" className="space-y-3">
             <P>
               {rich(t("The controller of your data, meaning the one who answers for it, is **{name}**{registry}{vat}, at {address}. Write to {email} about anything on this page, including any of the requests below."), {
                 name: operator.name,
@@ -78,12 +78,14 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
             <P>
               {t("There’s no data protection officer. This is a small installation, and the law only requires one of a public body or of a business built on monitoring people at scale, which this isn’t. The address above reaches a real person.")}
             </P>
-          </>
+          </div>
         ) : (
-          <P>
-            {/* Whoever runs this installation has not filled their name in. */}
-            {rich(t("**Whoever runs this installation has not filled their name in.** Kodukeel is software anyone can install, not a service with one address, so whoever runs this copy, a person or a school, is the one who answers for your data. They’re supposed to be named here and aren’t, which you can complain about to the authority named further down. Ask whoever gave you the link. If you’re running this yourself, set `OPERATOR_NAME`, `OPERATOR_ADDRESS` and `OPERATOR_EMAIL` and this paragraph will show your details instead."))}
-          </P>
+          <div data-operator="unset" className="space-y-3">
+            <P>
+              {/* Whoever runs this installation has not filled their name in. */}
+              {rich(t("**Whoever runs this installation has not filled their name in.** Kodukeel is software anyone can install, not a service with one address, so whoever runs this copy, a person or a school, is the one who answers for your data. They’re supposed to be named here and aren’t, which you can complain about to the authority named further down. Ask whoever gave you the link. If you’re running this yourself, set `OPERATOR_NAME`, `OPERATOR_ADDRESS` and `OPERATOR_EMAIL` and this paragraph will show your details instead."))}
+            </P>
+          </div>
         )}
       </S>
 

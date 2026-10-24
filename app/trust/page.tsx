@@ -71,6 +71,11 @@ export default async function TrustPage({ searchParams }: { searchParams: Public
       <P>
         {t("This page is for whoever decides whether Kodukeel is safe for a class, a team or a grant. The short answers come first, and each one takes you to the detail below.")}
       </P>
+      <P>
+        {rich(t("Reviewing Kodukeel for a funder or an institution? {partners} gathers what it is, what it has done and what it costs on one page."), {
+          partners: <Link href={href("/partners")} className="underline underline-offset-2">{t("For partners and funders")}</Link>,
+        })}
+      </P>
 
       {/*
         THE ANSWERS AT A GLANCE, THE WORKING UNDER THEM. Six questions a buyer
