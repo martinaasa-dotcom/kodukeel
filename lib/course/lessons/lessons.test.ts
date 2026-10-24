@@ -159,6 +159,20 @@ describe("A1 lessons", () => {
     expect(meaningShows({ kind: "form", et: "mul", of: "mina", en: "at me; with {on}, I have" })).toBe(false);
   });
 
+  it("accept the pronoun in front of a person ending, since Estonian may drop it", () => {
+    const before = ledgersBefore(LESSONS);
+    let found = 0;
+    for (const lesson of A1_LESSONS) {
+      for (const item of practiceFor(lesson, before.get(lesson.id)!)) {
+        if (item.kind !== "type" || item.answer !== "oleme") continue;
+        found++;
+        expect(markPhrase("oleme", item.accept).verdict).toBe("right");
+        expect(markPhrase("me oleme", item.accept).verdict).toBe("right");
+      }
+    }
+    expect(found).toBeGreaterThan(0);
+  });
+
   it("give every lesson something to practice, and nothing on the first lesson's review", () => {
     const before = ledgersBefore(LESSONS);
     for (const lesson of A1_LESSONS) expect(practiceFor(lesson, before.get(lesson.id)!).length).toBeGreaterThan(3);

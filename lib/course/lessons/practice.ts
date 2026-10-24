@@ -165,6 +165,17 @@ function onePerMeaning(items: readonly Taught[]): Taught[] {
 /** A produce question, taking every taught spelling with the same English. */
 function produce(item: Taught, pool: readonly Taught[]): PracticeItem {
   const accept = [...new Set([item.et, ...pool.filter((o) => sameEnglish(o.en, item.en)).map((o) => o.et)])];
+  /* A person ending says who is meant, so Estonian drops the pronoun, and
+     `me oleme` is as right as `oleme` for "we are". The pronouns are the taught
+     items whose English is the first word of this one's, never a list of ours.
+     Only where the verb has one spelling: "you are" is `oled` and `olete`, and
+     crossing those with every "you" would accept a person the verb does not. */
+  const [first, ...rest] = item.en.split(/\s+/);
+  if (accept.length === 1 && first && rest.length > 0 && wordsOf(item.et).length === 1) {
+    for (const o of pool) {
+      if (sameEnglish(o.en, first) && wordsOf(o.et).length === 1) accept.push(`${o.et} ${item.et}`);
+    }
+  }
   return { kind: "type", en: item.en, answer: item.et, accept };
 }
 
