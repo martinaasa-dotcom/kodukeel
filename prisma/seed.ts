@@ -14,7 +14,7 @@ import {
   fillExampleEnglish,
   repairCardSeparators, repairCaseFronts, repairCardSpelling, repairGovernmentBacks, repairProductionBacks,
   repairAmericanSpelling, repairThinExamples,
-  clearModelBands,
+  clearModelBands, fillEkilexIds,
 } from "./repair";
 import { ensureSearchIndexes } from "./indexes";
 import { classifyGradation, classifyVerbGradation, gradates } from "../lib/estonian/gradation";
@@ -214,6 +214,16 @@ async function main() {
     console.log(`Took the band off ${unbanded} words a model suggested and nobody has checked.`);
   }
 
+  /*
+    The Ekilex word behind each course entry, on a database seeded before the
+    seed wrote it, so the entry can credit the Institute (S-2). Above the
+    early return for the reason every repair here is.
+  */
+  const credited = await fillEkilexIds(prisma, HARVESTED);
+  if (credited > 0) {
+    console.log(`Recorded which Ekilex word ${credited} course entries came from.`);
+  }
+
   if (process.argv.includes("--only-if-empty")) {
     const existing = await prisma.lexeme.count();
     if (existing > 0) {
@@ -313,6 +323,7 @@ async function main() {
       // `õpetajasse`. Fetched in the same response as the forms; see
       // lib/estonian/semantics.ts.
       semanticTypes: word.semanticTypes.length > 0 ? word.semanticTypes.join(" ") : null,
+      ekilexWordId: word.ekilexWordId,
       // Ekilex's own proficiency code where it records one, and the level of the
       // unit that introduces the word where it does not. Both are honest; the
       // first is the authority's, and it wins.
