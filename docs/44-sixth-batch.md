@@ -634,14 +634,14 @@ diligence asks for a risk register and an asset inventory. `docs/33-certificatio
 both as phase 0 work that costs a day and no money.
 
 **Files.**
-- `app/.well-known/security.txt/route.ts` (to be written): RFC 9116, built from the operator's contact
+- `app/.well-known/security.txt/route.ts`: RFC 9116, built from the operator's contact
   in `lib/legal/operator.ts`, with `Expires` a year from the build, `Policy` pointing at `/trust`,
   `Preferred-Languages: en, et`, and `Canonical`. It answers 404 where the deployment names nobody, so a
   fork does not publish somebody else's address. The path joins the middleware's public list (N-3 adds
   two more files under `/.well-known/`; whichever lands second merges).
-- `docs/47-risk-register` (to be written): one row per risk, seeded from `docs/27-security.md`
+- `docs/47-risk-register.md`: one row per risk, seeded from `docs/27-security.md`
   section 4 and the DPIA's register, with owner, likelihood, impact, treatment and review date.
-- `docs/48-asset-register` (to be written): `docs/27-security.md` section 3 as a register with owners
+- `docs/48-asset-register.md`: `docs/27-security.md` section 3 as a register with owners
   and review dates.
 - `docs/33-certification-readiness.md` and `docs/29-controls.md`: the two rows moved to done, dated.
 - `/trust`: last updated on 5 September 2026. Its security section read against `docs/27-security.md`

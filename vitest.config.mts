@@ -30,6 +30,7 @@ const UNSET: Record<string, string> = {
   AI_RESERVE_CALLS_PER_USER: "",
   ASR_BENCH: "",
   ASR_MODEL_BUNDLED: "",
+  KODUKEEL_BUILT_AT: "",
   ALLOWED_EMAILS: "",
   ALLOWED_EMAIL_DOMAINS: "",
   ANTHROPIC_API_KEY: "",

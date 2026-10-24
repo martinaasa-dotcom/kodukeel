@@ -60,14 +60,14 @@ sampling step of a Type II examination read a file rather than interview a perso
 
 ## 3. Phase 0: costs a day at a time and no money at all
 
-Twelve items. Every one of them is work somebody here can do this quarter, and together they are most
+Twelve items, two of them done. Every one of them is work somebody here can do this quarter, and together they are most
 of what an ISO Stage 1 readiness review asks to see.
 
 | Gap | What closes it | Size | Artifact | Blocks |
 | --- | --- | --- | --- | --- |
 | **5.29, 5.30, 8.13, SOC 2 Availability.** Provider backups are inherited and have never been restored by us. Recovery objectives are written as untested. | Restore a production-shaped database from a Supabase backup into a scratch project, time it, and write down what broke. | 1 day | Section 9 of `docs/28-incident-response.md` rewritten with a dated run and a measured recovery time | ISO Stage 2, SOC 2 |
-| **CC3, 5.9.** Threat model with ranked assets, but no risk register anybody reviews on a schedule. | A register with one row per risk: description, owner, likelihood, impact, treatment, review date. Seeded from section 4 of `docs/27-security.md`, which already holds the analysis. | 1 day, then 2 hours a quarter | A risk register document of its own, not yet written | ISO Stage 1, SOC 2 |
-| **5.9.** Asset inventory lives in a design document rather than a register. | Extract section 3 of `docs/27-security.md` into a register with owners and review dates. | Half a day | A file of its own, reviewed with the risk register | ISO Stage 1 |
+| **Done 24 October 2026. CC3, 5.9.** A risk register with one row per risk: owner, likelihood, impact, treatment, review date. | Seeded from section 4 of `docs/27-security.md` and the DPIA. What is left is the quarterly review, the first due 24 January 2027. | 2 hours a quarter | `docs/47-risk-register.md` | ISO Stage 1, SOC 2 |
+| **Done 24 October 2026. 5.9.** An asset register with owners and review dates. | Extracted from section 3 of `docs/27-security.md`, reviewed with the risk register. | With the risk register | `docs/48-asset-register.md` | ISO Stage 1 |
 | **5.18.** Access rights are provisioned correctly and never reviewed. | A quarterly review of the GitHub organization, the Vercel team, the Supabase project and `ADMIN_EMAILS`, recorded with a date and an initial. | 1 hour a quarter | A dated record per review | ISO Stage 2, SOC 2 |
 | **6.5.** No offboarding procedure. | A joiner and leaver checklist naming the four places access exists, with a record per event. | Half a day | A checklist in `docs/`, plus the records | ISO Stage 2, SOC 2 |
 | **5.19 to 5.22, CC9.** Suppliers are on standard terms with no assessment process. | A supplier register built on `docs/26-subprocessors.md`: what each holds, which terms apply, where the data sits, and a yearly review date. | Half a day, then 2 hours a year | `docs/26-subprocessors.md` grown a review column, or a register beside it | ISO Stage 1, SOC 2 |
