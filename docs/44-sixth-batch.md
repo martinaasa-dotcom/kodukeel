@@ -342,8 +342,8 @@ exactly as in `docs/38-third-batch.md` section 3.
 | --- | --- | --- |
 | D1 | **The course is the lessons work's.** This batch changes nothing under `lib/course/`, `lib/collections/syllabus/` or `prisma/data/`, nor the lesson screens (`app/(app)/course/lessons/`), the lesson scenes (`lib/scenes/lessonScenes.ts`, `lib/scenes/inLesson.ts`), the lessons' translations (`lib/copy/i18n/areas/lessonText.ts`) or the recordings (`lib/audio/native.ts`, `public/audio/native/`). It may *call* what they export (`practiceScope`, `reviewable`, `lessonById`, `practiceFor`, `reviewFor`, `ledgersBefore`, `sceneForLesson`, `nativeFor`), and it may move code that calls them out of `app/actions.ts` or a page that is not a lesson screen, but it changes none of them. Where a route needs the course to answer differently, it stops and reports. | Every item |
 | D2 | **One body, two doors.** A v1 route and the Server Action or page that does the same thing call one function in `lib/`, which takes the owner as a parameter. The route resolves the owner from a token and parses its body; the action resolves it from the cookie and parses its arguments; neither does anything else. A route may not import the database client. An invariant holds it, so a second copy of a rule cannot arrive by the door that is easier to write. This is the rule `CLAUDE.md` already states for `"use server"` files ("if a helper needs [an owner] as a parameter, it belongs in `lib/`"), applied to routes. | N-1 to N-10 |
-| D3 | **v1 is bearer only, and never reads a cookie.** Routes under `app/api/v1/` (to be written) resolve the owner from `Authorization: Bearer <access token>` and nothing else. A cookie arriving with a request is ignored. That keeps the forged-request argument true (no ambient credential), keeps the web on its Server Actions, and means a stolen cookie cannot drive the API. No CORS headers are sent, so a page on another site cannot call a v1 route at all: the `Authorization` header needs a preflight the server never grants. The middleware lets `/api/v1/` through to gate itself, which is the lesson `CLAUDE.md` records about the cron route answering 401 before it read its own secret. | N-1, N-2 |
-| D4 | **Versioned, written down, and only ever widened.** The path carries the version (`/api/v1/`). Every request and response has a zod schema in `lib/api/contract.ts` (to be written), and the generated JSON Schema is committed. Within v1 a field or a route may be added and never removed or narrowed, held by a frozen baseline file that a test reads (N-1). A change that has to remove something is v2, which this batch does not need. A native app outlives a deploy, and this is what makes that safe. | N-1 and every route |
+| D3 | **v1 is bearer only, and never reads a cookie.** Routes under `app/api/v1/` resolve the owner from `Authorization: Bearer <access token>` and nothing else. A cookie arriving with a request is ignored. That keeps the forged-request argument true (no ambient credential), keeps the web on its Server Actions, and means a stolen cookie cannot drive the API. No CORS headers are sent, so a page on another site cannot call a v1 route at all: the `Authorization` header needs a preflight the server never grants. The middleware lets `/api/v1/` through to gate itself, which is the lesson `CLAUDE.md` records about the cron route answering 401 before it read its own secret. | N-1, N-2 |
+| D4 | **Versioned, written down, and only ever widened.** The path carries the version (`/api/v1/`). Every request and response has a zod schema in `lib/api/contract.ts`, and the generated JSON Schema is committed. Within v1 a field or a route may be added and never removed or narrowed, held by a frozen baseline file that a test reads (N-1). A change that has to remove something is v2, which this batch does not need. A native app outlives a deploy, and this is what makes that safe. | N-1 and every route |
 | D5 | **The same limits, the same ledger.** A v1 route goes through `lib/security/actionLimits.ts`, `lib/usage/sharedLimit.ts`, `authoriseCall` and `recordUsage` exactly as its action or route does today, keyed on the owner. `PAID_OFF` and the `speech` switch reach v1 the same way. The existing invariants that read actions and routes for these are widened to read the v1 routes too, never relaxed. | N-1 to N-10 |
 | D6 | **"The auth service did not answer" is 503, never 401.** `readIdentity` has three states for a reason: reading a timeout as signed out takes a learner's deck away over somebody else's bad minute. A native client signs out only on 401. A 503 carries `Retry-After` and the error code `auth_unavailable`. | N-2 |
 | D7 | **Sign in with Apple, on the phone and on the web.** Apple's 4.8 requires it once Google is offered (section 0). It goes on the web too, for D9's reason: an account made with Apple on an iPhone has to be able to sign in on a laptop the same way, and an Apple "hide my email" address makes the email link a poor second door. Shown only where the operator has configured it, the way `SSO_DOMAINS` is. | N-3 |
@@ -369,7 +369,7 @@ exactly as in `docs/38-third-batch.md` section 3.
 - **`docs/42-native-apps.md`** sections 3 and 7 are rewritten as the routes land: the table says which v1
   route answers each action, and versioning is settled.
 - **The fifth batch's section 8b** is amended by D10 in C-1. Its note there says so and points here.
-- **`lib/api/` (to be written)** joins the pure layers in `CLAUDE.md` and `PURE_LAYERS` in N-1.
+- **`lib/api/`** joins the pure layers in `CLAUDE.md` and `PURE_LAYERS` in N-1.
 - **`EmailSend.channel`** gains `native` in N-9; `NativePushDevice` (to be written in the schema) joins
   the export, the erasure and the restore in the same pull request.
 
@@ -386,10 +386,10 @@ The list in `docs/38-third-batch.md` section 3 applies in full. Nine additions:
 - **Every v1 response is `NO_STORE`** from `lib/security/headers.ts`. The existing cache invariant walks
   every route that resolves an owner; widen how it recognizes an owner so `requireBearerUser` counts.
 - **The contract and the code agree.** A route parses its request with the schema in
-  `lib/api/contract.ts` (to be written), and `scripts/test-api.mjs` (to be written) checks every response
+  `lib/api/contract.ts`, and `scripts/test-api.mjs` checks every response
   against its schema. A route with no schema, or a schema with no route, fails.
 - **Errors say a code and a safe sentence.** `{ "error": { "code": "...", "message": "..." } }`, the codes
-  a closed list in `lib/api/errors.ts` (to be written), the message through `safeMessage`. Never a stack,
+  a closed list in `lib/api/errors.ts`, the message through `safeMessage`. Never a stack,
   a Prisma message or a provider's body.
 - **A new table is in the export, the erasure and the restore.** The coverage invariant reads the schema,
   so it fails on its own; do not add the table to the exemptions.
@@ -1124,27 +1124,27 @@ for the routes.
 
 **Files.**
 - `docs/03-architecture.md`: ADR-029 (D2 to D4), and `CLAUDE.md`'s paragraph.
-- `lib/api/` (to be written), pure, added to `PURE_LAYERS`:
-  - `lib/api/contract.ts` (to be written): `API_VERSION = 1`, and a zod schema for every request and
+- `lib/api/`, pure, added to `PURE_LAYERS`:
+  - `lib/api/contract.ts`: `API_VERSION = 1`, and a zod schema for every request and
     response, starting with meta's;
-  - `lib/api/errors.ts` (to be written): the closed list of error codes (`unauthenticated`,
+  - `lib/api/errors.ts`: the closed list of error codes (`unauthenticated`,
     `auth_unavailable`, `forbidden`, `not_found`, `invalid`, `rate_limited`, `switched_off`,
     `too_old`) and the one error shape;
-  - `lib/api/fixtures/v1-baseline.json` (to be written): the schema of every route that has shipped.
+  - `lib/api/fixtures/v1-baseline.json`: the schema of every route that has shipped.
     It only grows: the pull request that lands a route adds that route's entry, and no pull request
     edits an entry already there. A unit test fails if any route or field in it is missing or narrower
     in the current schema (D4);
-  - `lib/api/draft.ts` (to be written): the planned shapes of the routes in N-4 to N-8 (`/api/v1/today`,
+  - `lib/api/draft.ts`: the planned shapes of the routes in N-4 to N-8 (`/api/v1/today`,
     the lesson and the check, the review and the grades, the conversation turns, the dictionary, an
     entry, the deck, the recordings and the account), marked draft and kept out of the baseline. Each
     N item moves its shapes from the draft into the contract, and may change them on the way, saying
     what changed in its pull request;
-  - `lib/api/examples/` (to be written): one example response for every drafted and every shipped
+  - `lib/api/examples/`: one example response for every drafted and every shipped
     route, written from the demo history, each checked against its schema by a unit test.
-- `scripts/api-schema.ts` (to be written), wired in `package.json` as `api:schema`: writes
-  `public/api/v1.schema.json` (to be written) from the zod schemas with `z.toJSONSchema`. A unit test
+- `scripts/api-schema.ts`, wired in `package.json` as `api:schema`: writes
+  `public/api/v1.schema.json` from the zod schemas with `z.toJSONSchema`. A unit test
   fails when the committed file differs from what the script would write.
-- `app/api/v1/meta/route.ts` (to be written), the one route that needs no token: the API version; the
+- `app/api/v1/meta/route.ts`, the one route that needs no token: the API version; the
   oldest native build each platform may still use (`NATIVE_MIN_BUILD_IOS`, `NATIVE_MIN_BUILD_ANDROID`,
   unset meaning any), so the operator can retire a broken build without a store release (every v1 route
   also reads the `X-Kodukeel-Build` header a native app sends and answers 426 `too_old` under that
@@ -1153,12 +1153,12 @@ for the routes.
   `lib/speech/model.ts`; the interface languages; and whether Apple and Google sign-in are configured.
   Nothing about any person.
 - `middleware.ts`: `/api/v1/` added to the paths that gate themselves, with the reason beside it.
-- `scripts/invariants/one-body-two-doors.ts` (to be written): D2's invariant, with a floor.
-- `scripts/api-mock.mjs` (to be written): a small HTTP server answering every drafted and shipped route
+- `scripts/invariants/one-body-two-doors.ts`: D2's invariant, with a floor.
+- `scripts/api-mock.mjs`: a small HTTP server answering every drafted and shipped route
   with its example, with the same error shape and the same `401` for a missing token, so a native app
   can be built and its screens tested before the real routes exist. It holds no data and runs nowhere
   but a developer's machine.
-- `scripts/test-api.mjs` (to be written): the contract suite, which every later N item extends. It calls
+- `scripts/test-api.mjs`: the contract suite, which every later N item extends. It calls
   each route over HTTP as a client written against the JSON Schema would, and checks status codes and
   shapes. Registered in a CI shard through `scripts/lib/suites.mjs`.
 

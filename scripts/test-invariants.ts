@@ -343,7 +343,7 @@ function chainTo(start: string, target: string): string | null {
  * which still named `lib/gamification/` a year after it was deleted.
  */
 const PURE_LAYERS = [
-  "assessment", "collections", "copy", "course", "curriculum", "email", "estonian", "evidence", "exam", "funding", "games",
+  "api", "assessment", "collections", "copy", "course", "curriculum", "email", "estonian", "evidence", "exam", "funding", "games",
   "learn", "offline", "push", "questions", "random", "readiness", "research", "review", "scan", "scenes", "security",
   "speech", "stats", "time", "ux",
 ] as const;
@@ -12574,7 +12574,7 @@ check("every npm command the documentation names is one package.json has", () =>
 
 check("CLAUDE.md names the pure layers the checks hold", () => {
   const claude = read("CLAUDE.md");
-  const start = claude.indexOf("- `lib/assessment/`");
+  const start = claude.indexOf("- `lib/api/`, `lib/assessment/`");
   assert.ok(start >= 0, "CLAUDE.md's list of pure layers moved; point this at it");
   const bullet = claude.slice(start, claude.indexOf("stay free of", start));
   const named = [...bullet.matchAll(/`lib\/([a-z]+)\/`/g)].map((m) => m[1]!).sort();
@@ -12680,7 +12680,11 @@ check("no server action returns an error message it has not redacted", () => {
     would satisfy the name and nothing else, which is this repository's oldest
     lesson about checks.
   */
-  const reporter = code(join("lib", "observability", "report.ts"));
+  /* It lives in lib/security/redact.ts since the v1 error shape needed it from a pure layer, and
+     report.ts re-exports it, so the log and every message a client reads share one definition. */
+  assert.match(code(join("lib", "observability", "report.ts")), /export \{ redact, safeMessage \}/,
+    "report.ts no longer hands on the one redactor, so the log could grow a second");
+  const reporter = code(join("lib", "security", "redact.ts"));
   assert.match(
     reporter,
     /function safeMessage[\s\S]{0,400}?redact\(/,
@@ -21071,6 +21075,8 @@ check("the ladder a new word climbs is the scheduler's own steps", () => {
     */
     "lib/srs/scheduler.ts", "lib/srs/grade.ts", "lib/srs/backfill.ts", "lib/srs/deck.ts",
     "app/actions.ts", "app/(app)/review/cards.ts",
+    // The v1 contract carries a card's scheduling to a phone and back for undo (ADR-029).
+    "lib/api/draft.ts",
     // The ladder reads it, and the two files that put a rung on a screen.
     "lib/learn/ladder.ts", "lib/progress/learn.ts",
     "app/(app)/learn/new/LearnSession.tsx",

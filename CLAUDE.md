@@ -4947,6 +4947,15 @@ rather than a person: the theme, the install prompt's memory, and the audio and 
 public endpoint. Resolve the owner with `requireUserId()`; if a helper needs one as a parameter, it
 belongs in `lib/`, not in `app/actions.ts`. See `addCardsFor` and `applyGradeBatch` for the shape.
 
+**A native app reaches the server through `/api/v1/`, and a v1 route is a second door over the same
+body (ADR-029).** It reads `Authorization: Bearer` through `requireBearerUser` and never a cookie,
+parses its body with the zod schema in `lib/api/contract.ts`, imports no database client, and calls
+only `lib/` functions the web's action or page calls too (`scripts/invariants/one-body-two-doors.ts`).
+Within v1 a field or a route is added and never removed or narrowed: `lib/api/fixtures/v1-baseline.json`
+freezes each route the day it ships and a test fails on a narrowing, and `npm run api:schema` keeps
+`public/api/v1.schema.json` current. Errors are a code from `lib/api/errors.ts` and a safe sentence, a
+bad minute at the auth service is 503 and never 401, and an old native build is answered 426.
+
 **A comparator that returns 0 is not a tie, it is the database deciding.** Two entries can share a
 lemma, by design and by accident: `hall` is a noun and an adjective, and a learner adding a word by
 hand or off a photograph gets their own row beside the seeded one. Both score 100 for the exact
@@ -10641,7 +10650,7 @@ be a dictionary entry, or no answer can meet it.
 ## Conventions
 
 - TypeScript `strict` plus `noUncheckedIndexedAccess`. No `any` without a comment justifying it.
-- `lib/assessment/`, `lib/collections/`, `lib/copy/`, `lib/course/`, `lib/curriculum/`,
+- `lib/api/`, `lib/assessment/`, `lib/collections/`, `lib/copy/`, `lib/course/`, `lib/curriculum/`,
   `lib/email/`, `lib/estonian/`, `lib/evidence/`, `lib/exam/`, `lib/funding/`, `lib/games/`, `lib/learn/`, `lib/offline/`,
   `lib/push/`, `lib/questions/`, `lib/random/`, `lib/readiness/`, `lib/research/`, `lib/review/`, `lib/scan/`, `lib/scenes/`,
   `lib/security/`, `lib/speech/`, `lib/stats/`, `lib/time/` and `lib/ux/` stay free of React, Next.js and Prisma,

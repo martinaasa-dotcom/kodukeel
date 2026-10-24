@@ -1,0 +1,62 @@
+{
+  "apiVersion": 1,
+  "mode": "hosted",
+  "minimumBuild": {
+    "ios": 12,
+    "android": null
+  },
+  "switches": {
+    "tutor": "on",
+    "scenes": "on",
+    "scan": "on",
+    "grader": "on",
+    "translate": "on",
+    "speech": "on"
+  },
+  "speech": {
+    "available": true,
+    "unavailable": null,
+    "modelBase": "/asr/model",
+    "model": {
+      "repo": "TalTechNLP/streaming-zipformer.et-en",
+      "revision": "7edbacc1d13a4bc8fba21307753569e8334938a0",
+      "licence": "MIT",
+      "files": [
+        {
+          "name": "encoder.int8.onnx",
+          "bytes": 70107780,
+          "sha256": "37b1eff8127447f192e3f8eae29fe3893be45a39283e444c9154b489bba6bbde"
+        },
+        {
+          "name": "decoder.int8.onnx",
+          "bytes": 796689,
+          "sha256": "9ef6b41fd1552ded37acb3b7805264d7650ea5d737846eeef1b3feda54b6e267"
+        },
+        {
+          "name": "joiner.int8.onnx",
+          "bytes": 517416,
+          "sha256": "7c8d02c85ea42ee6ff13b5a5207e935d001d98a561763ebbfd7a7a127ad374dd"
+        },
+        {
+          "name": "tokens.txt",
+          "bytes": 11493,
+          "sha256": "cbe23ea2ef76303d874ab45ef8471b570e565b9048ab0aeda1c7adf2c663ee97"
+        }
+      ]
+    }
+  },
+  "languages": {
+    "interface": [
+      "en",
+      "ru",
+      "uk"
+    ],
+    "fallback": "en"
+  },
+  "signIn": {
+    "google": true,
+    "apple": false,
+    "emailLink": true,
+    "sso": false
+  }
+}

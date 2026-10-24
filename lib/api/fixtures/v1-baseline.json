@@ -1,0 +1,252 @@
+{
+  "$comment": "The schema of every v1 route on the day it shipped (D4). Only ever grows: an entry is added by `npm run api:schema -- --baseline` when a route ships, and no entry is ever edited. lib/api/baseline.test.ts fails on any route or field here that the current schema removed or narrowed.",
+  "version": 1,
+  "routes": {
+    "GET /api/v1/meta": {
+      "contentType": "application/json",
+      "response": {
+        "type": "object",
+        "properties": {
+          "apiVersion": {
+            "type": "number",
+            "const": 1
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "hosted",
+              "local"
+            ]
+          },
+          "minimumBuild": {
+            "type": "object",
+            "properties": {
+              "ios": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "android": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "ios",
+              "android"
+            ]
+          },
+          "switches": {
+            "type": "object",
+            "properties": {
+              "tutor": {
+                "type": "string",
+                "enum": [
+                  "on",
+                  "off"
+                ]
+              },
+              "scenes": {
+                "type": "string",
+                "enum": [
+                  "on",
+                  "off"
+                ]
+              },
+              "scan": {
+                "type": "string",
+                "enum": [
+                  "on",
+                  "off"
+                ]
+              },
+              "grader": {
+                "type": "string",
+                "enum": [
+                  "on",
+                  "off"
+                ]
+              },
+              "translate": {
+                "type": "string",
+                "enum": [
+                  "on",
+                  "off"
+                ]
+              },
+              "speech": {
+                "type": "string",
+                "enum": [
+                  "on",
+                  "off"
+                ]
+              }
+            },
+            "required": [
+              "tutor",
+              "scenes",
+              "scan",
+              "grader",
+              "translate",
+              "speech"
+            ]
+          },
+          "speech": {
+            "type": "object",
+            "properties": {
+              "available": {
+                "type": "boolean"
+              },
+              "unavailable": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "off",
+                      "no-model"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "modelBase": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "model": {
+                "type": "object",
+                "properties": {
+                  "repo": {
+                    "type": "string"
+                  },
+                  "revision": {
+                    "type": "string"
+                  },
+                  "licence": {
+                    "type": "string"
+                  },
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "bytes": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "sha256": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "bytes",
+                        "sha256"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "repo",
+                  "revision",
+                  "licence",
+                  "files"
+                ]
+              }
+            },
+            "required": [
+              "available",
+              "unavailable",
+              "modelBase",
+              "model"
+            ]
+          },
+          "languages": {
+            "type": "object",
+            "properties": {
+              "interface": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "en",
+                    "ru",
+                    "uk"
+                  ]
+                }
+              },
+              "fallback": {
+                "type": "string",
+                "enum": [
+                  "en",
+                  "ru",
+                  "uk"
+                ]
+              }
+            },
+            "required": [
+              "interface",
+              "fallback"
+            ]
+          },
+          "signIn": {
+            "type": "object",
+            "properties": {
+              "google": {
+                "type": "boolean"
+              },
+              "apple": {
+                "type": "boolean"
+              },
+              "emailLink": {
+                "type": "boolean"
+              },
+              "sso": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "google",
+              "apple",
+              "emailLink",
+              "sso"
+            ]
+          }
+        },
+        "required": [
+          "apiVersion",
+          "mode",
+          "minimumBuild",
+          "switches",
+          "speech",
+          "languages",
+          "signIn"
+        ],
+        "description": "What this installation is, for a native app before it signs in. Nothing about any person."
+      }
+    }
+  }
+}

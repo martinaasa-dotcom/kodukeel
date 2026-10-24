@@ -1,0 +1,137 @@
+{
+  "builtAt": "2026-10-24T10:06:23.100Z",
+  "cards": [
+    {
+      "id": "c94b4133-d09c-4582-be1a-4eb84f67a51a",
+      "cardType": "PRODUCTION",
+      "front": "France",
+      "back": "Prantsusmaa",
+      "hint": "noun",
+      "targetCase": null,
+      "slot": null,
+      "lemma": "Prantsusmaa",
+      "lexemeId": "96dc798a-0783-41b5-ab24-fa118fab76c1",
+      "rivals": [],
+      "kin": [
+        "prantsusmaad",
+        "prantsusmaid",
+        "prantsusmaade",
+        "prantsusmaasse",
+        "prantsusmaas",
+        "prantsusmaast",
+        "prantsusmaale",
+        "prantsusmaal",
+        "prantsusmaalt",
+        "prantsusmaaks",
+        "prantsusmaani",
+        "prantsusmaana",
+        "prantsusmaata",
+        "prantsusmaaga"
+      ],
+      "starred": false,
+      "isNew": false,
+      "intro": null,
+      "meaning": null,
+      "choiceMeanings": null,
+      "sentenceEn": null,
+      "say": null,
+      "canTranslate": false,
+      "contrast": null,
+      "choices": null,
+      "scheduling": {
+        "due": "2026-08-31T10:14:48.327Z",
+        "stability": 2.3065,
+        "difficulty": 2.11810397,
+        "elapsedDays": 0,
+        "scheduledDays": 0,
+        "reps": 1,
+        "lapses": 0,
+        "state": 1,
+        "lastReview": "2026-08-31T10:04:48.327Z",
+        "learningSteps": 1
+      }
+    },
+    {
+      "id": "722055ac-59b4-4208-846b-535c81bc715f",
+      "cardType": "PRODUCTION",
+      "front": "to think, to reckon",
+      "back": "arvama",
+      "hint": "verb",
+      "targetCase": null,
+      "slot": null,
+      "lemma": "arvama",
+      "lexemeId": "e71aeb95-b6b4-4da6-8937-d5736a30aeea",
+      "rivals": [],
+      "kin": [
+        "arvasin",
+        "arvanud",
+        "arvake",
+        "arvatud",
+        "arvata",
+        "arvan",
+        "arvas",
+        "arvav",
+        "arvad",
+        "arvab",
+        "arvame",
+        "arvate",
+        "arvavad",
+        "arva",
+        "arvaksin",
+        "arvaksid",
+        "arvaks",
+        "arvaksime",
+        "arvaksite"
+      ],
+      "starred": false,
+      "isNew": false,
+      "intro": null,
+      "meaning": null,
+      "choiceMeanings": null,
+      "sentenceEn": null,
+      "say": null,
+      "canTranslate": false,
+      "contrast": {
+        "own": {
+          "lexemeId": "e71aeb95-b6b4-4da6-8937-d5736a30aeea",
+          "lemma": "arvama",
+          "gloss": "to think, to reckon",
+          "sentence": {
+            "et": "Mida sa arvad?",
+            "en": "What do you think?",
+            "form": null
+          }
+        },
+        "neighbours": [
+          {
+            "lexemeId": "8087a3c0-7a10-4ba0-9a38-32cc77c83eae",
+            "lemma": "mõtlema",
+            "gloss": "to think",
+            "sentence": {
+              "et": "Ma mõtlen sinule.",
+              "en": "I'm thinking of you.",
+              "form": null
+            }
+          }
+        ]
+      },
+      "choices": null,
+      "scheduling": {
+        "due": "2026-09-01T10:14:49.061Z",
+        "stability": 2.3065,
+        "difficulty": 2.11810397,
+        "elapsedDays": 0,
+        "scheduledDays": 0,
+        "reps": 1,
+        "lapses": 0,
+        "state": 1,
+        "lastReview": "2026-09-01T10:04:49.061Z",
+        "learningSteps": 1
+      }
+    }
+  ],
+  "totalCards": 69,
+  "mode": "type",
+  "nextDue": null,
+  "waitingOnCourse": false
+}

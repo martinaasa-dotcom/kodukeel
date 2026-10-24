@@ -157,8 +157,13 @@ kind arrives on one channel on a given day, never two.
 
 ## 7. What is not settled here
 
-- **The routes' versioning.** A native app outlives a web deploy, so each route above needs a version in
-  its path or its body before the first app ships. That is a decision for the native work order.
+- **The routes' versioning is settled** (ADR-029, `docs/44-sixth-batch.md` D2 to D4). Native clients
+  reach the server through `/api/v1/`, bearer only, every request and response a zod schema in
+  `lib/api/contract.ts`, and within v1 a field or a route is only ever added. The contract a native app
+  is built against is `public/api/v1.schema.json`; a route marked `draft` there is planned and may
+  still change until it ships, and `npm run api:mock` answers every route, drafted or shipped, with a
+  real example out of `lib/api/examples/`. Every request carries `X-Kodukeel-Build: ios/<build>` or
+  `android/<build>`, and a build below the operator's minimum is answered 426 `too_old`.
 - **Real learners' voices on real phones.** Nobody has measured either (`docs/41-fifth-batch.md`
   section 0). The operator times the phones before the native work leans on any figure here
   (section 8 of that page).

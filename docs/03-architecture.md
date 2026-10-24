@@ -1048,3 +1048,39 @@ exactly what it was. *Rejected:* a hosted recognizer, which would send a voice o
 biasing the decoder toward the lines on screen, which made the right line harder to hear and a
 garbled one easier to accept (a line is matched after decoding instead, `lib/speech/matchPick.ts`);
 and a threaded build, which needs cross-origin isolation and would stop Google's sign-in.
+
+**ADR-029: Native clients reach the server through `/api/v1/`, bearer only, versioned, and only ever
+widened. Each route is a second door over the function the web already calls.**
+*Context:* every write in this app is a Server Action, which is a POST to a page path carrying an id
+Next.js generates per build, so a native app can neither call one reliably nor version against it,
+and a phone has no cookie. The native apps start in November (`docs/42-native-apps.md`), and an app
+in a store outlives every deploy after it. *Decision:* `docs/44-sixth-batch.md`'s D2, D3, D4 and D6.
+- **One body, two doors** (D2). A v1 route and the action or page that does the same thing call one
+  function in `lib/`, which takes the owner as a parameter. The route resolves the owner from a token
+  and parses its body with the contract's schema, and does nothing else: it imports no database
+  client, and every `lib/` name it calls is one a web file calls too
+  (`scripts/invariants/one-body-two-doors.ts`).
+- **Bearer only** (D3). A v1 route reads `Authorization: Bearer <access token>` through
+  `requireBearerUser`, in `lib/auth/bearer.ts` (to be written), and never a cookie, so a stolen cookie drives nothing and
+  the forged-request argument stays true. No CORS headers are sent, so another site's page cannot
+  call a v1 route at all. The middleware lets `/api/v1/` through to gate itself.
+- **Written down and only ever widened** (D4). The path carries the version. Every request and
+  response has a zod schema in `lib/api/contract.ts`, the generated JSON Schema is committed
+  (`public/api/v1.schema.json`), and `lib/api/fixtures/v1-baseline.json` freezes every route the day
+  it ships: within v1 a field or a route may be added and never removed or narrowed, and a unit test
+  fails on either. A change that has to remove something is v2.
+- **Errors are a code and a safe sentence** (`lib/api/errors.ts`): a closed list of codes in one
+  shape, the message through `safeMessage`. "The auth service did not answer" is 503
+  `auth_unavailable` with `Retry-After`, never 401 (D6), and a client signs out only on 401.
+- **A broken build is stopped on the server.** Every v1 route reads the `X-Kodukeel-Build` header a
+  native app sends and answers 426 `too_old` under `NATIVE_MIN_BUILD_IOS` or
+  `NATIVE_MIN_BUILD_ANDROID`, so the operator retires a build without a store release.
+- **The same limits and the same ledger** (D5): a v1 route throttles, meters and switches off exactly
+  as its web door does, keyed on the owner, and every response is `NO_STORE`.
+*Consequences:* the web keeps its Server Actions unchanged and a phone gets a contract, a mock
+(`scripts/api-mock.mjs`) and a suite (`scripts/test-api.mjs`). Routes not built yet are drafted in
+`lib/api/draft.ts` and may still change; each item that builds one moves it into the contract.
+*Rejected:* calling Server Actions from a native app, which have no stable address; a cookie read as
+a fallback when the header is missing, which is the shape D3 exists to forbid; versioning in a header
+rather than the path, which a log and a mock cannot see; and an unversioned API that promises to stay
+compatible by care, which a test cannot hold.
