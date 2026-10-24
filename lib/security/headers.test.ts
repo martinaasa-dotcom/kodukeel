@@ -16,6 +16,14 @@ function header(key: string): string {
 }
 
 describe("the policy says what the app actually needs", () => {
+  it("upgrades insecure requests only on a page served over HTTPS", () => {
+    // WebKit applies the directive to localhost, so on plain HTTP every script
+    // went to https:// and the page never hydrated (test-browsers.mjs).
+    expect(buildContentSecurityPolicy().split("; ")).toContain("upgrade-insecure-requests");
+    expect(buildContentSecurityPolicy({ secure: true }).split("; ")).toContain("upgrade-insecure-requests");
+    expect(buildContentSecurityPolicy({ secure: false }).split("; ")).not.toContain("upgrade-insecure-requests");
+  });
+
   it("refuses to be framed, in both directions", () => {
     // Sõnaveeb and Ekilex send X-Frame-Options: DENY at us and this app sends
     // it back out. Nothing here is meant to be embedded anywhere.
