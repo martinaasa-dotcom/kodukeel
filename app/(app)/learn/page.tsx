@@ -20,7 +20,7 @@ import { LEARN_BATCH } from "@/lib/learn/ladder";
 import { Explain } from "@/components/Explain";
 import { splitIntoLessons } from "@/lib/collections/lesson";
 import { PROGRAMMES } from "@/lib/course";
-import { LESSONS, LESSON_PARTS } from "@/lib/course/lessons";
+import { LESSONS, LESSON_LEVELS, LESSON_PARTS, isLessonLevel } from "@/lib/course/lessons";
 import { LessonText } from "@/components/course/LessonText";
 
 export async function generateMetadata() {
@@ -88,26 +88,30 @@ export default async function LearnPage() {
   const countWords = (rows: typeof units) => courseWordCount(rows, snapshot.knownLemmas);
 
   /*
-    A1 IS THE LESSONS (docs/43-lessons.md, phase P3), so A1 on this page is
-    the lessons' parts rather than the units the old A1 was cut from. Its
+    A1 AND A2 ARE THE LESSONS (docs/43-lessons.md), so on this page each is
+    the lessons' parts rather than the units it was once cut from. Their
     words are the lessons' own, counted the same way.
   */
-  const lessonWordsA1 = [...new Set(PROGRAMMES.filter((p) => p.level === "A1").flatMap((p) => p.days.flatMap((d) => d.words)))];
-  const a1Known = lessonWordsA1.filter((w) => snapshot.knownLemmas.has(w)).length;
-  const unitWords = countWords(units.filter((u) => u.unit.level !== "A1"));
-  const totalWords = unitWords.words + lessonWordsA1.length;
-  const knownWords = unitWords.known + a1Known;
+  const lessonWordsOf = (level: string) =>
+    [...new Set(PROGRAMMES.filter((p) => p.level === level).flatMap((p) => p.days.flatMap((d) => d.words)))];
+  const lessonWords = new Map([...LESSON_LEVELS].map((level) => [level, lessonWordsOf(level)]));
+  const knownOf = (words: readonly string[]) => words.filter((w) => snapshot.knownLemmas.has(w)).length;
+  const unitWords = countWords(units.filter((u) => !isLessonLevel(u.unit.level)));
+  const allLessonWords = [...lessonWords.values()].flat();
+  const totalWords = unitWords.words + allLessonWords.length;
+  const knownWords = unitWords.known + knownOf(allLessonWords);
 
   const byLevel = LEVELS.map((level) => {
-    const rows = level === "A1" ? [] : units.filter((u) => u.unit.level === level);
-    const { words, known } = level === "A1" ? { words: lessonWordsA1.length, known: a1Known } : countWords(rows);
+    const lessonsHere = lessonWords.get(level);
+    const rows = lessonsHere ? [] : units.filter((u) => u.unit.level === level);
+    const { words, known } = lessonsHere ? { words: lessonsHere.length, known: knownOf(lessonsHere) } : countWords(rows);
     return {
       level,
       rows,
       words,
       known,
       pct: words > 0 ? Math.round((known / words) * 100) : 0,
-      finished: level === "A1" ? lessonWordsA1.length > 0 && a1Known === lessonWordsA1.length : rows.length > 0 && rows.every((u) => u.state === "done"),
+      finished: lessonsHere ? words > 0 && known === words : rows.length > 0 && rows.every((u) => u.state === "done"),
     };
   });
 
@@ -313,8 +317,8 @@ export default async function LearnPage() {
                         carries its figures in an `aria-label`, so this line is
                         the only place a sighted reader sees them. */}
                     <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
-                      {level === "A1"
-                        ? fill(t("{lessons}, {known}/{total} words"), { lessons: countOf(locale, LESSONS.length, "lesson"), known, total: words })
+                      {isLessonLevel(level)
+                        ? fill(t("{lessons}, {known}/{total} words"), { lessons: countOf(locale, LESSONS.filter((l) => l.level === level).length, "lesson"), known, total: words })
                         : fill(t(!open && inProgress > 0
                           ? "{units} units, {known}/{total} words, {progress} in progress"
                           : "{units} units, {known}/{total} words"), { units: rows.length, known, total: words, progress: inProgress })}
@@ -324,7 +328,7 @@ export default async function LearnPage() {
               </summary>
 
               <ol className="flex flex-col border-t px-2 py-2 sm:px-3" style={{ borderColor: "var(--rule)" }}>
-                {level === "A1" && LESSON_PARTS.map((part) => (
+                {LESSON_PARTS.filter((part) => part.level === level).map((part) => (
                   <li key={part.id} className="flex items-center gap-3 rounded-[var(--r-sm)] px-3 py-2.5">
                     <Link href={`/course/lessons#${part.id}`} className="group flex min-w-0 flex-1 items-center gap-3">
                       <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full" style={{ background: "var(--raised)", color: "var(--ink-3)" }}>

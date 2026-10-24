@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { isLessonLevel } from "@/lib/course/lessons";
 import { Lettered } from "@/components/HeroLetters";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { redirect } from "next/navigation";
@@ -337,8 +338,8 @@ export default async function TodayPage() {
     startedUnitIds: new Set(units.filter((u) => u.state === "learning").map((u) => u.unit.id)),
     placement,
   });
-  // A1 is the lessons rather than units (docs/43-lessons.md), so an A1 unit is never offered here.
-  const nextUnit = nextSyllabusUnit && nextSyllabusUnit.level !== "A1"
+  // A1 and A2 are the lessons rather than units (docs/43-lessons.md), so a unit of theirs is never offered here.
+  const nextUnit = nextSyllabusUnit && !isLessonLevel(nextSyllabusUnit.level)
     ? units.find((u) => u.unit.id === nextSyllabusUnit.id)
     : undefined;
 

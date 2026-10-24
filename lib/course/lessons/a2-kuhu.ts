@@ -170,7 +170,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kontserdi", of: "kontsert", en: "of a concert", stem: true },
     ],
     how: {
-      point: "A person takes the outside endings: {emale}, to Mum; {emal}, Mum has; {emalt}, from Mum. You've said it since A1 with {mulle} and {talle}.",
+      point: "A person takes the outside endings: {emale}, to Mom; {emal}, Mom has; {emalt}, from Mom. You've said it since A1 with {mulle} and {talle}.",
       table: {
         head: ["", "{kellele?} to", "{kellel?} has", "{kellelt?} from"],
         rows: [
@@ -181,7 +181,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Emal on auto} means Mum has a car: it's {mul on}, with a noun.",
+        "{Emal on auto} means Mom has a car: it's {mul on}, with a noun.",
         "{Ära} in front of a command says don't: {Ära unusta!}, don't forget!",
         "{Kinkima} is to give as a present, and {andma} just to give: {Anna see Marile!}",
         "{Kelle} from lesson 1 takes the endings too, and that's how the questions are made: {kellele?}, {kellel?}, {kellelt?}",

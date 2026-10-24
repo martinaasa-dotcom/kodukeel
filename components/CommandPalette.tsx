@@ -101,7 +101,10 @@ let unitCommands: Command[] | null = null;
 function loadUnitCommands(): Promise<Command[]> {
   if (unitCommands) return Promise.resolve(unitCommands);
   return import("@/lib/collections/syllabus").then(({ PATH }) => {
-    unitCommands = PATH.filter((u) => u.level !== "A1").map((u) => ({
+    // A1 and A2 are the lessons (docs/43-lessons.md), and a link to one of their
+    // units lands on the lessons, so neither is offered here. Named rather than
+    // read off `isLessonLevel`, which would pull the lessons into this bundle.
+    unitCommands = PATH.filter((u) => u.level !== "A1" && u.level !== "A2").map((u) => ({
       id: `unit-${u.id}`,
       label: u.title,
       detail: u.subtitle,

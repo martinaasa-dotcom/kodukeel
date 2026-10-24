@@ -102,6 +102,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kella", of: "kell", en: "of the clock", stem: true },
       { kind: "form", et: "viie", of: "viis", en: "of five", stem: true },
       { kind: "word", et: "kuni", en: "until, up to" },
+      { kind: "word", et: "Tartu", en: "Tartu, the university town" },
       { kind: "form", et: "Tartu", of: "Tartu", en: "of Tartu", stem: true },
       { kind: "word", et: "kontor", en: "office" },
       { kind: "form", et: "kontori", of: "kontor", en: "of the office", stem: true },

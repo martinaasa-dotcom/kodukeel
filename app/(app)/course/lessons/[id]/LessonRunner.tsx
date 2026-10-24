@@ -16,6 +16,7 @@ import { Mascot } from "@/components/brand";
 import { fill } from "@/lib/copy/locale";
 import type { LessonSpec, PracticeItem, Taught } from "@/lib/course/lessons";
 import { lessonLabel } from "@/lib/course/lessons/label";
+import { LEVELS, levelIndex } from "@/lib/collections/syllabus/types";
 import { finishLesson } from "@/app/actions";
 import { useModuleFocus, useModuleNext } from "@/components/course/moduleFocus";
 import { NOT_REACHED } from "@/lib/copy/values";
@@ -226,11 +227,11 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
             {check && !check.passed && (
               <div className="mt-4 rounded-[var(--r-xl)] border px-5 py-4 text-left" style={{ background: "var(--butter-soft)", borderColor: "var(--edge)" }} data-lesson-check={check.id}>
                 <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
-                  {check.final ? t("That's the last A1 lesson. Next: the A1 check.") : t("That's the end of this part. Next: a short check.")}
+                  {check.final ? fill(t("That's the last {level} lesson. Next: the {level} check."), { level: lesson.level }) : t("That's the end of this part. Next: a short check.")}
                 </p>
                 <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
                   {check.final
-                    ? t("Questions on everything A1 taught. Pass it to open A2.")
+                    ? fill(t("Questions on everything {level} taught. Pass it to open {next}."), { level: lesson.level, next: LEVELS[levelIndex(lesson.level) + 1] ?? lesson.level })
                     : t("Questions on what this part taught. Pass it to open the next part.")}
                 </p>
                 <div className="mt-3"><ButtonLink href={`/course/check/${check.id}`} variant="primary">{t("Take the check")} <ArrowRight size={15} aria-hidden /></ButtonLink></div>

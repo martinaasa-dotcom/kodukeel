@@ -179,8 +179,8 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "tabletid", of: "tablett", en: "tablets" },
       { kind: "form", et: "võtke", of: "võtma", en: "take!, polite" },
       { kind: "form", et: "päevas", of: "päev", en: "a day, as in three times a day" },
-      { kind: "word", et: "need", en: "these, they, those" },
-      { kind: "form", et: "neid", of: "need", en: "them, these, as an object" },
+      { kind: "form", et: "need", of: "see", en: "these, they, more than one" },
+      { kind: "form", et: "neid", of: "see", en: "them, these, as an object" },
       { kind: "word", et: "ilma", en: "without" },
       { kind: "word", et: "retsept", en: "prescription" },
       { kind: "form", et: "retsepti", of: "retsept", en: "of the prescription", stem: true },
@@ -229,7 +229,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
       { who: "Kati", et: "Ma olen väsinud ja natuke kurb.", en: "I'm tired and a bit sad." },
       { who: "Liis", et: "Miks?", en: "Why?" },
       { who: "Kati", et: "Mul on töö juures palju muret.", en: "I have a lot of worries at work." },
-      { who: "Liis", et: "Ära muretse! Kõik läheb hästi.", en: "Don't worry! Everything will be fine." },
+      { who: "Liis", et: "Ära muretse! Kõik läheb hästi.", en: "Stop worrying! Everything will be fine." },
       { who: "Kati", et: "Ma loodan küll.", en: "I really hope so." },
       { who: "Liis", et: "Lähme õhtul kinno? Siis oled jälle rõõmus.", en: "Shall we go to the cinema this evening? Then you'll be happy again." },
       { who: "Kati", et: "Hea mõte! Aitäh, Liis.", en: "Good idea! Thanks, Liis." },
@@ -252,7 +252,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "jälle", en: "again" },
     ],
     how: {
-      point: "Don't! is {ära} and then the command form: {Ära muretse!} is don't worry. It's the {ei} of a command.",
+      point: "Don't! is {ära} and then the command form: {Ära muretse!} is stop worrying. It's the {ei} of a command.",
       table: {
         head: ["Do it", "Don't"],
         rows: [
@@ -271,7 +271,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
     },
     answers: [
       { ask: { et: "Mis sul on?", en: "What's wrong?" }, cue: "Say you're tired and a bit sad.", model: { et: "Ma olen väsinud ja natuke kurb.", en: "I'm tired and a bit sad." } },
-      { cue: "Tell a friend not to worry, everything will be fine.", model: { et: "Ära muretse! Kõik läheb hästi.", en: "Don't worry! Everything will be fine." } },
+      { cue: "Tell a friend not to worry, everything will be fine.", model: { et: "Ära muretse! Kõik läheb hästi.", en: "Stop worrying! Everything will be fine." } },
       { ask: { et: "Kas sa oled õnnelik?", en: "Are you happy?" }, cue: "Say yes, really.", model: { et: "Jah, küll.", en: "Yes, really." } },
       { ask: { et: "Kõik läheb hästi.", en: "Everything will be fine." }, cue: "Say you really hope so.", model: { et: "Ma loodan küll.", en: "I really hope so." } },
     ],

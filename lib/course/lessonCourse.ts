@@ -1,15 +1,15 @@
 /**
- * A1 AS LESSONS: EACH LESSON ONE EVENING OF THE PLANNED COURSE.
+ * A1 AND A2 AS LESSONS: EACH LESSON ONE EVENING OF THE PLANNED COURSE.
  *
  * The old A1 cut each unit's word list into fives in the order the words were
  * typed, and an evening was those five words met, a reading, two rounds and a
- * review (docs/43-lessons.md §0). A1 is the lessons now (phase P3): an evening
+ * review (docs/43-lessons.md §0). A1 and A2 are the lessons now: an evening
  * is one lesson, and a lesson is its own six steps on its own screen, so the
  * evening has one step, the lesson, and finishing the lesson is finishing the
  * evening. Each part of the lessons is a part of the course, so the module
  * screen, Today, the rail and everything that reads what the course has
  * taught (`taughtThrough`, `grammarThrough`) read the lessons through the
- * same `Programme` shape as A2 to C1.
+ * same `Programme` shape as B1 to C1.
  *
  * What an evening has taught is the lesson's own list, as the dictionary heads
  * it (`lessonWords`).
@@ -76,6 +76,24 @@ export const LESSON_PAGES: Readonly<Record<string, { cases?: readonly string[]; 
   "a1-32-in": { cases: ["INESSIVE"] },
   "a1-34-bus": { cases: ["COMITATIVE"] },
   "a1-42-yesterday": { topics: ["imperfect"] },
+  /*
+    A2: the omastav as the stem every ending goes on, and the change in the
+    stem a word may make on the way; the -nud form and have-done; the would
+    form's politeness; and more and the most. The whole object of lesson 18
+    is shown on its own sentences and its page waits for B1, which is where
+    the object rule is read as a rule.
+  */
+  "a2-01-whose": { cases: ["GENITIVE"] },
+  "a2-02-which": { topics: ["gradation"] },
+  "a2-17-didnt": { topics: ["past-participle"] },
+  "a2-19-been-there": { topics: ["perfect"] },
+  "a2-26-advice": { topics: ["infinitives"] },
+  "a2-29-until": { topics: ["time-expressions"] },
+  "a2-32-far": { topics: ["numerals"] },
+  "a2-35-would": { topics: ["politeness"] },
+  "a2-38-compare": { topics: ["comparative"] },
+  "a2-39-best": { topics: ["superlative"] },
+  "a2-49-will": { topics: ["future"] },
 };
 
 /**

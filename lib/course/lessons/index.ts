@@ -19,3 +19,11 @@ export const LESSON_PARTS: readonly PartOfLessons[] = [...A1_LESSON_PARTS, ...A2
 export function lessonById(id: string): LessonSpec | null {
   return LESSONS.find((l) => l.id === id) ?? null;
 }
+
+/** The levels taught as lessons, whose units the course never walks. */
+export const LESSON_LEVELS: ReadonlySet<string> = new Set(LESSON_PARTS.map((p) => p.level));
+
+/** True for a level taught as lessons (A1 and A2), where a unit's page sends somebody to the lessons. */
+export function isLessonLevel(level: string): boolean {
+  return LESSON_LEVELS.has(level);
+}

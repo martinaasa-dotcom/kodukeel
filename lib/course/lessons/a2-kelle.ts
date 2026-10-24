@@ -52,7 +52,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "sõbra", of: "sõber", en: "a friend's, of a friend", stem: true },
       { kind: "form", et: "venna", of: "vend", en: "a brother's, of a brother", stem: true },
       { kind: "form", et: "õe", of: "õde", en: "a sister's, of a sister", stem: true },
-      { kind: "form", et: "ema", of: "ema", en: "a mother's, Mum's", stem: true },
+      { kind: "form", et: "ema", of: "ema", en: "a mother's, Mom's", stem: true },
       { kind: "form", et: "isa", of: "isa", en: "a father's, Dad's", stem: true },
       { kind: "form", et: "lapse", of: "laps", en: "a child's, of a child", stem: true },
       { kind: "form", et: "mehe", of: "mees", en: "a man's, a husband's", stem: true },
@@ -68,7 +68,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
           [{ et: "õde" }, { et: "õe raamat" }, { en: "a sister's book" }],
           [{ et: "laps" }, { et: "lapse tuba" }, { en: "a child's room" }],
           [{ et: "mees" }, { et: "mehe auto" }, { en: "a husband's car" }],
-          [{ et: "ema" }, { et: "ema telefon" }, { en: "Mum's phone" }],
+          [{ et: "ema" }, { et: "ema telefon" }, { en: "Mom's phone" }],
         ],
       },
       notes: [
@@ -277,7 +277,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Tom", et: "Mari, mitmes täna on?", en: "Mari, what's the date today?" },
       { who: "Mari", et: "Täna on neljas mai. Miks?", en: "It's the fourth of May. Why?" },
-      { who: "Tom", et: "Siis homme on minu ema sünnipäev!", en: "Then tomorrow's my mum's birthday!" },
+      { who: "Tom", et: "Siis homme on minu ema sünnipäev!", en: "Then tomorrow's my mom's birthday!" },
       { who: "Mari", et: "Viies mai? Kas sul on juba kingitus?", en: "The fifth of May? Have you got a present already?" },
       { who: "Tom", et: "Ei ole veel. Mida ma ostan?", en: "Not yet. What shall I buy?" },
       { who: "Mari", et: "Osta lilled! See on alati hea kingitus.", en: "Buy flowers! That's always a good present." },

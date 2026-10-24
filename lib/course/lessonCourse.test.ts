@@ -7,18 +7,23 @@ import { LESSON_STEP, PROGRAMMES, grammarThrough, lessonDayFor, taughtThrough, u
 import { scopeSoFar } from "./scope";
 
 /*
-  A1 IS THE LESSONS (docs/43-lessons.md, phase P3). Each lesson is one evening
+  A1 AND A2 ARE THE LESSONS (docs/43-lessons.md). Each lesson is one evening
   of the course, with one step, the lesson, and finishing it is the evening.
 */
 const PARTS = lessonProgrammes();
 const A1 = PROGRAMMES.filter((p) => p.level === "A1");
+const LESSON_LEVELS = PROGRAMMES.filter((p) => p.level === "A1" || p.level === "A2");
 
-describe("A1 as lessons", () => {
+describe("A1 and A2 as lessons", () => {
   it("is every lesson, once, in teaching order, one evening each", () => {
-    expect(A1.map((p) => p.id)).toEqual(PARTS.map((p) => p.id));
-    expect(A1.length).toBe(LESSON_PARTS.length);
-    expect(A1.flatMap((p) => p.days.map((d) => d.lesson))).toEqual(LESSONS.map((l) => l.id));
-    for (const programme of A1) {
+    expect(LESSON_LEVELS.map((p) => p.id)).toEqual(PARTS.map((p) => p.id));
+    expect(LESSON_LEVELS.length).toBe(LESSON_PARTS.length);
+    expect(LESSON_LEVELS.flatMap((p) => p.days.map((d) => d.lesson))).toEqual(LESSONS.map((l) => l.id));
+    // Each level's parts are counted from one: a1.1 to a1.8, then a2.1 to a2.8.
+    expect(PARTS.filter((p) => p.level === "A2").map((p) => p.id)).toEqual(
+      Array.from({ length: PARTS.filter((p) => p.level === "A2").length }, (_, i) => `a2.${i + 1}`),
+    );
+    for (const programme of LESSON_LEVELS) {
       programme.days.forEach((d, at) => {
         expect(d.index, d.id).toBe(at + 1);
         expect(d.id, d.id).toBe(d.lesson);
@@ -27,7 +32,7 @@ describe("A1 as lessons", () => {
   });
 
   it("gives a lesson evening one step, the lesson, which the learner finishes", () => {
-    for (const d of A1.flatMap((p) => p.days)) {
+    for (const d of LESSON_LEVELS.flatMap((p) => p.days)) {
       expect(d.steps, d.id).toHaveLength(1);
       const step = d.steps[0]!;
       expect(step.id).toBe(LESSON_STEP);
@@ -77,6 +82,14 @@ describe("A1 as lessons", () => {
     expect(grammarThrough(A1[0]!, 1).cases).toEqual([]);
     expect(end.cases).toEqual(expect.arrayContaining(["PARTITIVE", "INESSIVE", "COMITATIVE"]));
     expect(end.topics).toEqual(expect.arrayContaining(["present-tense", "negation", "imperative", "imperfect"]));
+    // And by the end of A2 every place ending, the stem they go on, the would form and the rest.
+    const a2last = LESSON_LEVELS.at(-1)!;
+    const a2end = grammarThrough(a2last, a2last.days.length);
+    expect(a2end.cases).toEqual(expect.arrayContaining([
+      "GENITIVE", "INESSIVE", "ILLATIVE", "ELATIVE", "ADESSIVE", "ALLATIVE", "ABLATIVE",
+      "TRANSLATIVE", "TERMINATIVE", "ESSIVE", "ABESSIVE", "COMITATIVE",
+    ]));
+    expect(a2end.topics).toEqual(expect.arrayContaining(["conditional", "perfect", "comparative", "superlative"]));
   });
 
   /*
@@ -95,22 +108,28 @@ describe("A1 as lessons", () => {
     for (const w of fresh) expect(before.lemmas, w).not.toContain(w);
   });
 
-  it("opens no catalog unit inside A1, and every A1 unit once the lessons are behind a learner", () => {
-    const last = A1.at(-1)!;
-    expect(unitsThrough(last, last.days.length)).toEqual([]);
-    const a2 = PROGRAMMES.find((p) => p.level === "A2")!;
-    const opened = unitsThrough(a2, 1);
-    expect(opened.length).toBeGreaterThan(20);
+  it("opens no catalog unit inside a level's lessons, and every unit of it once they are behind a learner", () => {
+    const a1last = A1.at(-1)!;
+    expect(unitsThrough(a1last, a1last.days.length)).toEqual([]);
+    const a2 = PROGRAMMES.filter((p) => p.level === "A2");
+    const a2first = a2[0]!;
+    const a1units = unitsThrough(a2first, 1);
+    expect(a1units.length).toBeGreaterThan(20);
+    // Inside A2's lessons, A2's own units are not opened yet.
+    const a2last = a2.at(-1)!;
+    expect(unitsThrough(a2last, a2last.days.length)).toEqual(a1units);
+    const b1 = PROGRAMMES.find((p) => p.level === "B1")!;
+    expect(unitsThrough(b1, 1)).toEqual(expect.arrayContaining(["korraldused", "minevik", "restoranis"]));
   });
 
-  it("hands A2 what the lessons taught, so its first evening marks those words as met before", () => {
-    const lessonWordsAll = new Set(A1.flatMap((p) => p.days.flatMap((d) => d.words)));
-    const a2 = PROGRAMMES.filter((p) => p.level === "A2").flatMap((p) => p.days);
-    const again = a2.flatMap((d) => d.again ?? []);
+  it("hands B1 what the lessons taught, so its first evening marks those words as met before", () => {
+    const lessonWordsAll = new Set(LESSON_LEVELS.flatMap((p) => p.days.flatMap((d) => d.words)));
+    const b1 = PROGRAMMES.filter((p) => p.level === "B1").flatMap((p) => p.days);
+    const again = b1.flatMap((d) => d.again ?? []);
     expect(again.length).toBeGreaterThan(0);
     expect(again.some((w) => lessonWordsAll.has(w))).toBe(true);
-    // And taughtThrough on A2's first evening credits every lesson's words.
-    const first = PROGRAMMES.find((p) => p.level === "A2")!;
+    // And taughtThrough on B1's first evening credits every lesson's words.
+    const first = PROGRAMMES.find((p) => p.level === "B1")!;
     const taught = new Set(taughtThrough(first, 1));
     for (const w of lessonWordsAll) expect(taught.has(w), w).toBe(true);
   });

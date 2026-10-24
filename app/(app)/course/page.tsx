@@ -701,7 +701,7 @@ export default async function CoursePage({
             ahead, from the whole list. */}
         {day.lesson && (
           <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-            <Link href="/course/lessons" className="underline">{t("Every A1 lesson, in order")}</Link>
+            <Link href="/course/lessons" className="underline">{t("Every lesson, in order")}</Link>
           </p>
         )}
       </Stack>

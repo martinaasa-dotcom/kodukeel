@@ -8,20 +8,22 @@ import { lessonListStates } from "@/lib/progress/course";
 import { fill, tr } from "@/lib/copy/locale";
 import { CheckCircle2 } from "lucide-react";
 import { PROGRAMMES } from "@/lib/course";
+import { lessonPartId } from "@/lib/course/lessonCourse";
+import { levelAfter } from "@/lib/course/placement";
 import { courseChecks } from "@/lib/course/checks";
 import { checksPassedFor } from "@/lib/progress/checks";
 import { ButtonLink } from "@/components/Button";
 
 export async function generateMetadata() {
-  return titleFor("The A1 lessons");
+  return titleFor("The lessons");
 }
 
 export const dynamic = "force-dynamic";
 
 /**
- * EVERY A1 LESSON, IN THE ORDER THEY ARE TAUGHT (docs/43-lessons.md).
+ * EVERY LESSON, IN THE ORDER THEY ARE TAUGHT (docs/43-lessons.md).
  *
- * A1 is the lessons (phase P3): the planned course walks them one evening at a
+ * A1 and A2 are the lessons: the planned course walks them one evening at a
  * time, and this is the whole list, for somebody who wants to look back at one
  * or read ahead. Reading ahead records nothing, since the course reaches a
  * lesson when the course reaches it (`finishLesson`).
@@ -41,7 +43,7 @@ export default async function LessonsPage() {
 
   return (
     <Page
-      title={t("The A1 lessons")}
+      title={t("The lessons")}
       lead={t("Each lesson teaches a whole idea before it asks you anything.")}
       actions={current ? (
         <ButtonLink href={`/course/lessons/${current.id}`} variant="primary">
@@ -50,10 +52,10 @@ export default async function LessonsPage() {
       ) : undefined}
     >
       <Stack>
-        {LESSON_PARTS.map((part, at) => {
+        {LESSON_PARTS.map((part) => {
           const lessons = LESSONS.filter((l) => l.part === part.id);
           // The course's own spelling of the part (`lessonProgrammes`), which is what a check names.
-          const check = checks.find((c) => c.programmeId === `${part.level.toLowerCase()}.${at + 1}`);
+          const check = checks.find((c) => c.programmeId === lessonPartId(part));
           const done = lessons.filter((l) => states.get(l.id) === "done").length;
           return (
             <section key={part.id} id={part.id} className="scroll-mt-20">
@@ -103,7 +105,7 @@ export default async function LessonsPage() {
                 })}
                 {/*
                   THE CHECK THAT CLOSES THE PART, as the last row of it: a
-                  learner who started at A1 moves up by passing
+                  learner who started in the lessons moves up by passing
                   (`lib/course/checks.ts`), so the list says where each one is.
                 */}
                 {check && (
@@ -121,7 +123,7 @@ export default async function LessonsPage() {
                         </div>
                         <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
                           {check.final
-                            ? t("Everything A1 taught. Pass it to open A2.")
+                            ? fill(t("Everything {level} taught. Pass it to open {next}."), { level: part.level, next: levelAfter(part.level) ?? part.level })
                             : t("What this part taught. Pass it to open the next part.")}
                         </p>
                       </Card>

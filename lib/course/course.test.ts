@@ -9,7 +9,7 @@ import { modeAt } from "@/lib/ux/modes";
 import {
   ACTIVITIES, type ActivitySpec, DAY_MINUTES, MAX_DAY_WORDS, MINUTES_PER_WORD,
   READ_MINUTES, TALK_MINUTES,
-  PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, dayStanding, ordinaryWords, programmeAfter,
+  EARLIER_SCENES_FOR_UNIT, PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, dayStanding, ordinaryWords, programmeAfter,
   programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, unitsThrough, activityTitle,
   MEET_STEP, REVIEW_STEP, NEEDS, PAGE_NEEDS, builtOnACase, supportedRounds, supportsRound, taughtFrom, grammarThrough, readingPlan,
   WORDS_FOR_LETTERS, NO_TAUGHT, rounds, FORMS_STEP, FORMS_PER_EVENING, CASE_ROUNDS, PAGE_ROUND, newWordsIn,
@@ -37,18 +37,22 @@ function taughtBy(programme: (typeof PROGRAMMES)[number], index: number) {
 }
 
 /**
- * The parts built from units, A2 up. A1 is the lessons (`lessonCourse.ts`),
+ * The parts built from units, B1 up. A1 and A2 are the lessons (`lessonCourse.ts`),
  * whose evenings are one step each and are held by `lessonCourse.test.ts`;
  * every assertion here about how a unit is sliced, read and rotated is about
  * these.
  */
 const BUILT = PROGRAMMES.filter((p) => !p.days.some((d) => d.lesson));
+/** The levels the lessons teach, whose units the ladder never walks. */
+const LESSON_LEVELS = new Set<string>(LESSON_PARTS.map((p) => p.level));
+/** Every unit of a lesson level, which a built part counts as met (`unitsThrough`). */
+const LESSON_UNITS = SYLLABUS.filter((u) => LESSON_LEVELS.has(u.level)).map((u) => u.id);
 const DAYS = BUILT.flatMap((p) => p.days.map((d) => ({ programme: p, day: d })));
 
 describe("the program is a request against the course, never a copy of it", () => {
-  it("builds every part from A2 up out of units, and only those", () => {
+  it("builds every part from B1 up out of units, and only those", () => {
     expect(BUILT.length).toBe(PARTS.length);
-    expect(BUILT.every((p) => p.level !== "A1")).toBe(true);
+    expect(BUILT.every((p) => !LESSON_LEVELS.has(p.level))).toBe(true);
     expect(DAYS.length).toBeGreaterThan(100);
   });
 
@@ -236,14 +240,14 @@ describe("the program is a request against the course, never a copy of it", () =
   */
   it("teaches the whole syllabus", () => {
     const planned = new Set(DAYS.flatMap(({ day }) => day.words));
-    // A1 is the lessons, which teach by goal rather than unit by unit (`lessonCourse.ts`).
-    const missing = SYLLABUS.filter((u) => u.level !== "A1").flatMap((u) => u.lemmas).filter((l) => !planned.has(l));
+    // A1 and A2 are the lessons, which teach by goal rather than unit by unit (`lessonCourse.ts`).
+    const missing = SYLLABUS.filter((u) => !LESSON_LEVELS.has(u.level)).flatMap((u) => u.lemmas).filter((l) => !planned.has(l));
     expect(new Set(missing).size).toBeLessThanOrEqual(2);
   });
 
   it("covers every unit the plan names, and nothing else", () => {
     const planned = new Set(PARTS.flatMap((p) => p.units));
-    for (const unit of SYLLABUS.filter((u) => u.level !== "A1")) {
+    for (const unit of SYLLABUS.filter((u) => !LESSON_LEVELS.has(u.level))) {
       expect(planned.has(unit.id), `${unit.id} is in no part`).toBe(true);
     }
     for (const id of planned) expect(unitById(id), id).toBeDefined();
@@ -308,8 +312,14 @@ describe("what a day reads and where it goes", () => {
   // the app has" with a count read off the catalog: a scene with no evening
   // is a scene the module never opens.
   it("puts every conversation the app has on an evening", () => {
-    const placed = new Set(Object.values(SCENE_FOR_UNIT));
+    const placed = new Set(DAYS.flatMap(({ day }) => (day.scene ? [day.scene] : [])));
     for (const scene of SCENES) expect(placed.has(scene.id), `${scene.id} has no evening`).toBe(true);
+    // And every scene the plan names is one an evening deals, so none of the
+    // errands moved off A2 waits for an evening with no page that never comes.
+    for (const scene of [...Object.values(SCENE_FOR_UNIT), ...Object.values(EARLIER_SCENES_FOR_UNIT).flat()]) {
+      expect(placed.has(scene), `${scene} is planned and never dealt`).toBe(true);
+    }
+    for (const unitId of Object.keys(EARLIER_SCENES_FOR_UNIT)) expect(unitById(unitId), unitId).toBeDefined();
   });
 
   /*
@@ -321,8 +331,8 @@ describe("what a day reads and where it goes", () => {
   */
   it("opens a conversation only once its units have been taught", () => {
     const order = BUILT.flatMap((p) => p.days.map((d) => ({ programme: p, day: d })));
-    // A1 is the lessons, behind every built part, and they count A1's units as met (`unitsThrough`).
-    const met = new Set<string>(SYLLABUS.filter((u) => u.level === "A1").map((u) => u.id));
+    // A1 and A2 are the lessons, behind every built part, and they count their units as met (`unitsThrough`).
+    const met = new Set<string>(LESSON_UNITS);
     for (const { day } of order) {
       met.add(day.unitId);
       if (!day.scene) continue;
@@ -491,7 +501,8 @@ describe("what a day reads and where it goes", () => {
         `${day.id} reads ${day.grammarCase ?? day.grammar}`,
       ).toBe(true);
     }
-    expect(walked).toBeGreaterThan(15);
+    // Most case pages are explained by the A2 lessons now, so B1 up reads fewer of them.
+    expect(walked).toBeGreaterThan(9);
   });
 
   /*
@@ -523,8 +534,8 @@ describe("what a day reads and where it goes", () => {
         expect(day.practice, `${day.id} reads ${day.grammarCase}`).toContain("workbook");
       });
     }
-    expect(walked).toBeGreaterThan(10);
-    for (const level of ["A2", "B1", "B2", "C1"]) {
+    expect(walked).toBeGreaterThan(4);
+    for (const level of ["B1", "B2", "C1"]) {
       expect(DAYS.some(({ programme, day }) => programme.level === level && day.practice.includes("workbook")), level).toBe(true);
     }
   });
@@ -536,9 +547,9 @@ describe("what a day reads and where it goes", () => {
   */
   it("reads a page once a level, and names a page read at an earlier level as read again", () => {
     const seenAt = new Map<string, string>();
-    // What the A1 lessons explained counts as read at A1.
+    // What the lessons explained counts as read at the lesson's level.
     for (const d of PROGRAMMES.flatMap((p) => p.days).filter((d) => d.lesson)) {
-      for (const page of [...(d.cases ?? []), ...(d.topics ?? [])]) seenAt.set(page, "A1");
+      for (const page of [...(d.cases ?? []), ...(d.topics ?? [])]) seenAt.set(page, d.level);
     }
     for (const { programme, day } of DAYS) {
       const page = day.grammarCase ?? day.grammar;
@@ -588,8 +599,8 @@ describe("what a day reads and where it goes", () => {
 
   /*
     A CASE IS ASKED ONLY AFTER ITS PAGE HAS BEEN READ, ON EVERY LEVEL. Write and the case board each ask for an ending,
-    and the first evening of A2 has read no case page; the first case page is
-    the inessive, in the third unit of A2.1. So those rounds wait for it, and
+    and the A2 lessons explain every case before B1's first evening, which is
+    therefore the first built evening with a case behind it. So those rounds wait for it, and
     dictation and word ordering wait for a sentence made entirely of taught
     words to exist, and government waits for its page and a handful of verbs.
   */
@@ -606,9 +617,10 @@ describe("what a day reads and where it goes", () => {
       }
     }
     expect(firstCase, "no evening ever reads a case page").not.toBeNull();
-    expect(firstCase!.startsWith("a2."), `the first case page is read on ${firstCase}`).toBe(true);
+    expect(firstCase, `the first case page is read on ${firstCase}`).toBe(DAYS[0]!.day.id);
     // And every case round is actually dealt somewhere, or the gate is a wall.
-    for (const key of [...caseRounds, "dictation", "sentences", "government", "letters"]) {
+    // Dictation was A2's, and A2 is the lessons now; it stays on Practice.
+    for (const key of [...caseRounds, "sentences", "government", "letters"]) {
       expect(DAYS.some(({ day }) => day.practice.includes(key as never)), `${key} is never dealt`).toBe(true);
     }
   });
@@ -623,10 +635,10 @@ describe("what a day reads and where it goes", () => {
     partitive and the time page is -l and -s, so the ladder's order (below)
     reads them after the case pages they rest on.
   */
-  it("knows which topic pages are built on a case, and reads case pages from A2", () => {
+  it("knows which topic pages are built on a case, and explains case pages from A2", () => {
     for (const name of ["numerals", "adjective-agreement", "time-expressions"]) expect(builtOnACase(name), name).toBe(true);
     expect(builtOnACase("present-tense")).toBe(false);
-    expect(DAYS.some(({ programme, day }) => programme.level === "A2" && day.grammarCase)).toBe(true);
+    expect(PROGRAMMES.some((p) => p.level === "A2" && p.days.some((d) => d.lesson && (d.cases?.length ?? 0) > 0))).toBe(true);
   });
 
   /*
@@ -648,11 +660,12 @@ describe("what a day reads and where it goes", () => {
     // No ending has been explained by then.
     expect(scope!.cases).toEqual([]);
 
-    // Deep into A2, the cases read so far and not the ones ahead.
-    const a2 = PROGRAMMES.find((p) => p.id === "a2.1")!;
-    const lastOfLoodus = [...a2.days].reverse().find((d) => d.unitId === "loodus")!;
-    const later = moduleScopeFrom({ module: `${a2.id}~${lastOfLoodus.id}~do:match~3~5~0` })!;
+    // Deep into A2, the cases explained so far and not the ones ahead.
+    const a2 = PROGRAMMES.find((p) => p.level === "A2" && p.days.some((d) => d.lesson === "a2-14-meet-in-town"))!;
+    const meet = a2.days.find((d) => d.lesson === "a2-14-meet-in-town")!;
+    const later = moduleScopeFrom({ module: `${a2.id}~${meet.id}~lesson~1~1~0` })!;
     expect(later.cases).toContain("INESSIVE");
+    expect(later.cases).not.toContain("TERMINATIVE");
     expect(later.lemmas).toContain("tere");
     expect(later.topics).toContain("imperative");
   });
@@ -676,9 +689,9 @@ describe("what a day reads and where it goes", () => {
     expect(slotWithin(later, "IndIpfSg3")).toBe(false);
     expect(slotWithin(later, "KndPrSg1")).toBe(false);
     // A code nobody listed fails closed, and a rule's page opens its forms.
-    const a2 = PROGRAMMES.find((p) => p.id === "a2.1")!;
-    const pastDay = [...a2.days].reverse().find((d) => d.unitId === "minevik")!;
-    const a2scope = moduleScopeFrom({ module: `${a2.id}~${pastDay.id}~do:flash~3~5~0` })!;
+    const a2 = PROGRAMMES.find((p) => p.level === "A2" && p.days.some((d) => d.lesson === "a2-15-lived"))!;
+    const pastDay = a2.days.find((d) => d.lesson === "a2-15-lived")!;
+    const a2scope = moduleScopeFrom({ module: `${a2.id}~${pastDay.id}~lesson~1~1~0` })!;
     expect(a2scope.topics).toContain("imperfect");
     expect(slotWithin(a2scope, "IndPrPs_")).toBe(true);
     expect(slotWithin(a2scope, "PtcPtPs")).toBe(false);
@@ -788,7 +801,7 @@ describe("what a day reads and where it goes", () => {
         expect(grammarTopic(name) || CASES.some((c) => c.key === name.toUpperCase()), name).toBeTruthy();
       }
     }
-    // What the A1 lessons explained is read before A2 begins.
+    // What the lessons explained is read before B1 begins.
     const read = new Set<string>(PROGRAMMES.flatMap((p) => p.days).filter((d) => d.lesson)
       .flatMap((d) => [...(d.topics ?? []), ...(d.cases ?? []).map((c) => c.toLowerCase())]));
     for (const { day } of DAYS) {
@@ -802,9 +815,10 @@ describe("what a day reads and where it goes", () => {
       }
       read.add(page);
     }
-    // And the genitive is the first case page anybody reads.
-    const firstCase = DAYS.find(({ day }) => day.grammarCase)!;
-    expect(firstCase.day.grammarCase).toBe("GENITIVE");
+    // And the genitive is the first case A2 explains, before any ending goes on it.
+    const a2 = PROGRAMMES.filter((p) => p.level === "A2").flatMap((p) => p.days);
+    const firstCase = a2.find((d) => (d.cases?.length ?? 0) > 0)!;
+    expect(firstCase.cases).toEqual(["GENITIVE"]);
   });
 
   it("does not read the B1 object rule at A2 either", () => {
@@ -824,7 +838,6 @@ describe("what a day reads and where it goes", () => {
       seen.set(day.unitId, rows);
     }
     let pairs = 0;
-    let tables = 0;
     for (const [unitId, rows] of seen) {
       const unit = unitById(unitId)!;
       if (!unit.cardTypes.includes("CONJUGATION")) continue;
@@ -834,10 +847,11 @@ describe("what a day reads and where it goes", () => {
         }
         pairs += 1;
       }
-      tables += rows.filter((r) => r.includes("conjugation")).length;
     }
-    expect(pairs).toBeGreaterThanOrEqual(6);
-    expect(tables).toBeGreaterThan(0);
+    // A2's units of verbs were the ones that dealt the table most; A2 is the
+    // lessons now, which drill the persons inside each lesson. The pinning
+    // itself is held by the tests of `rounds`.
+    expect(pairs).toBeGreaterThanOrEqual(4);
   });
 
   /*
@@ -848,9 +862,7 @@ describe("what a day reads and where it goes", () => {
   it("deals Tähed once four words with an order to find have been taught", () => {
     expect(supportsRound("letters", NO_TAUGHT, "A2")).toBe(false);
     expect(supportsRound("letters", { ...NO_TAUGHT, spellable: WORDS_FOR_LETTERS }, "A2")).toBe(true);
-    const a2 = BUILT.filter((p) => p.level === "A2").flatMap((p) => p.days);
-    const dealt = a2.filter((d) => d.practice.includes("letters")).length;
-    expect(dealt / a2.length).toBeGreaterThan(0.2);
+    expect(ROTATION.A2).toContain("letters");
   });
 
   it("stands in with a round the evening before did not deal, where the ledger allows one", () => {
@@ -881,8 +893,8 @@ describe("what a day reads and where it goes", () => {
     the syllabus file's.
   */
   it("teaches every unit after the units it says it requires", () => {
-    // A1 is the lessons, behind every part here, and they count A1's units as met (`unitsThrough`).
-    const met = new Set<string>(SYLLABUS.filter((u) => u.level === "A1").map((u) => u.id));
+    // A1 and A2 are the lessons, behind every part here, and they count their units as met (`unitsThrough`).
+    const met = new Set<string>(LESSON_UNITS);
     for (const part of PARTS) {
       for (const id of part.units) {
         for (const need of unitById(id)!.requires ?? []) {
@@ -929,12 +941,17 @@ describe("what a day reads and where it goes", () => {
     expect(readingPlan(keha, new Set())).toEqual(["partitive", "adessive", "gradation"]);
     expect(readingPlan(keha, new Set(["partitive"]))).toEqual(["adessive", "gradation"]);
     // And every page a unit declares above A1 is read somewhere on the ladder,
-    // except a page a unit with as many pages as evenings loses to the
-    // conversation on its last evening, which is named here rather than waived.
-    // Empty since the travel unit grew an evening; a name goes back in only
-    // with the scene that takes the page.
+    // or explained by the A2 lessons that replaced the unit, except a page a
+    // unit with as many pages as evenings loses to the conversation on its
+    // last evening, which is named here rather than waived. Empty since the
+    // travel unit grew an evening; a name goes back in only with the scene
+    // that takes the page.
     const LOST_TO_A_SCENE: Record<string, string> = {};
-    const everRead = new Set(DAYS.map(({ day }) => (day.grammarCase ?? day.grammar)?.toLowerCase()));
+    const everRead = new Set([
+      ...DAYS.map(({ day }) => (day.grammarCase ?? day.grammar)?.toLowerCase()),
+      ...PROGRAMMES.flatMap((p) => p.days).filter((d) => d.lesson)
+        .flatMap((d) => [...(d.topics ?? []), ...(d.cases ?? []).map((c) => c.toLowerCase())]),
+    ]);
     for (const unit of SYLLABUS) {
       if (unit.level === "A1") continue;
       for (const name of unit.grammar) {
@@ -957,40 +974,43 @@ describe("what a day reads and where it goes", () => {
       expect(day.grammar ?? day.grammarCase, `${day.id} reads a page nobody is shown`).toBeUndefined();
       expect(day.steps.some((s) => s.kind === "read"), day.id).toBe(false);
     }
-    expect(scenes).toBe(Object.keys(SCENE_FOR_UNIT).length);
+    expect(scenes).toBe(Object.keys(SCENE_FOR_UNIT).length + Object.values(EARLIER_SCENES_FOR_UNIT).flat().length);
   });
 
   it("holds a verb card in the closing review to the page teaching its part", () => {
-    const a2 = BUILT.find((p) => p.id === "a2.1")!;
-    const first = a2.days[0]!;
-    const scope = moduleScopeFrom({ module: `${a2.id}~${first.id}~do:review~3~5~0` })!;
     const past = { cardType: "CONJUGATION", targetCase: null, front: "Ta ____ eile.", back: "luges", slot: "IndIpfSg3" };
     const present = { ...past, slot: "IndPrSg3" };
     const spellings = new Set(["ta", "eile"]);
+    // The would form waits for the A2 lesson that explains it.
+    const a2 = PROGRAMMES.filter((p) => p.level === "A2");
+    const at = (lessonId: string) => {
+      const programme = a2.find((p) => p.days.some((d) => d.lesson === lessonId))!;
+      const day = programme.days.find((d) => d.lesson === lessonId)!;
+      return moduleScopeFrom({ module: `${programme.id}~${day.id}~lesson~1~1~0` })!;
+    };
+    const before = at("a2-34-ticket");
+    expect(before.topics).not.toContain("conditional");
+    expect(cardWithin(before, { ...past, slot: "KndPrSg1" }, spellings)).toBe(false);
+    expect(cardWithin(at("a2-35-would"), { ...past, slot: "KndPrSg1" }, spellings)).toBe(true);
+    // And a verb's past is learned verb by verb, so a card of one nothing has shown waits.
+    const b1 = BUILT.find((p) => p.id === "b1.1")!;
+    const scope = moduleScopeFrom({ module: `${b1.id}~${b1.days[0]!.id}~do:review~3~5~0` })!;
+    expect(scope.formsShown).not.toContain("lugema");
     expect(cardWithin(scope, past, spellings)).toBe(false);
     expect(cardWithin(scope, present, spellings)).toBe(true);
-    // The conditional waits for B1 even once A2's request unit has read its page.
-    const later = [...a2.days].reverse().find((d) => d.unitId === "korraldused")!;
-    const afterPage = moduleScopeFrom({ module: `${a2.id}~${later.id}~do:review~3~5~0` })!;
-    expect(afterPage.topics).toContain("conditional");
-    expect(cardWithin(afterPage, { ...past, slot: "KndPrSg1" }, spellings)).toBe(false);
-    const b1 = BUILT.find((p) => p.id === "b1.1")!;
-    const tingiv = [...b1.days].reverse().find((d) => d.unitId === "tingiv")!;
-    const b1scope = moduleScopeFrom({ module: `${b1.id}~${tingiv.id}~do:review~3~5~0` })!;
-    expect(cardWithin(b1scope, { ...past, slot: "KndPrSg1" }, spellings)).toBe(true);
   });
 
   it("reads the part off the front of a verb card built before Card.slot", () => {
-    const a2 = BUILT.find((p) => p.id === "a2.1")!;
-    const scope = moduleScopeFrom({ module: `${a2.id}~${a2.days[0]!.id}~do:review~3~5~0` })!;
+    const b1 = BUILT.find((p) => p.id === "b1.1")!;
+    const scope = moduleScopeFrom({ module: `${b1.id}~${b1.days[0]!.id}~do:review~3~5~0` })!;
     const old = { cardType: "CONJUGATION", targetCase: null, slot: null, back: "" };
     expect(cardWithin(scope, { ...old, front: "lugema \u2192 lihtminevik, ma" }, null)).toBe(false);
     expect(cardWithin(scope, { ...old, front: "lugema \u2192 olevik, ta" }, null)).toBe(true);
   });
 
   it("conjugates a unit of verbs, and not a grammar unit that happens to hold verbs", () => {
-    // `minevik` is mostly verbs and declares the table, so it is dealt one.
-    expect(DAYS.some(({ day }) => day.unitId === "minevik" && day.practice.includes("conjugation"))).toBe(true);
+    // A unit of verbs that declares the table is pinned to it (`rounds`).
+    expect(rounds("B1", 0, true)[1]).toBe("conjugation");
     // `rektsioon` is mostly verbs and is about government; it declares no
     // conjugation card, and above A1 the rotation carries no table, so it is
     // never dealt one.
@@ -1001,7 +1021,7 @@ describe("what a day reads and where it goes", () => {
     }
     expect(DAYS.some(({ day }) => day.unitId === "rektsioon" && !day.practice.includes("conjugation"))).toBe(true);
     // And a unit of nouns is not.
-    const nounDay = DAYS.find(({ day }) => day.unitId === "loodus")!;
+    const nounDay = DAYS.find(({ day }) => day.unitId === "inimsuhted")!;
     expect(nounDay.day.practice).not.toContain("conjugation");
   });
 
@@ -1299,7 +1319,6 @@ describe("an evening says how many of its words are new", () => {
       else expect(meet.title, d.id).toContain(`${fresh} new word`);
       expect(meet.title, d.id).not.toMatch(/\b0 new/);
     }
-    expect(walked.some((d) => newWordsIn(d) === 0)).toBe(true);
   });
 });
 
