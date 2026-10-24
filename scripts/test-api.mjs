@@ -29,7 +29,7 @@ const B = baseUrl();
 const published = JSON.parse(readFileSync("public/api/v1.schema.json", "utf8"));
 
 // Floor: measured against a local-mode build, which is what the browser job runs.
-const { check, absent, done } = suite("The v1 API", { floor: 62 });
+const { check, absent, done } = suite("The v1 API", { floor: 72 });
 
 async function call(method, path, { body, headers = {} } = {}) {
   const res = await fetch(`${B}${path}`, {
@@ -298,6 +298,50 @@ if (!hosted) {
   );
 } else {
   absent(19, "a signed-in token, which a hosted deployment needs and this suite does not mint (the 401 below is checked instead)");
+}
+
+// ── N-10: Anu and the scanner ────────────────────────────────────────────────
+
+/*
+  NOTHING HERE BOOKS A MODEL CALL UNLESS THE MODELS ARE STUBBED. A question to
+  Anu and a photograph each spend on a paid provider, so with no stub this asks
+  only what is refused before the ledger is reached. To ask the rest, start the
+  server with `scripts/lib/stub-models.mjs` preloaded (its header says how) and
+  run this with `KODUKEEL_STUB_MODELS=1`.
+*/
+const stubbed = process.env.KODUKEEL_STUB_MODELS === "1";
+const PIXEL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
+
+if (!hosted) {
+  const empty = await call("POST", "/api/v1/tutor", { body: { messages: [] } });
+  check("a question with nothing in it is refused before a call is booked", empty.status === 400 && empty.json?.error?.code === "invalid", `status ${empty.status}`);
+  const notAPicture = await call("POST", "/api/v1/scan", { body: { image: "not a picture" } });
+  // With no model at all the scanner says so before it looks at the picture.
+  check(
+    "a photograph nobody can read is refused before a call is booked",
+    errorShaped(notAPicture.json) && (notAPicture.status === 400 || (notAPicture.status === 503 && notAPicture.json.error.code === "switched_off")),
+    `status ${notAPicture.status}`,
+  );
+
+  const saved = await call("POST", "/api/v1/scans", { body: { title: "api suite", items: [{ et: "raamat", en: "book" }] } });
+  check("a ticked word list is kept, vouched for again on the server", saved.status === 200 && saved.json?.words === 1, `status ${saved.status}, ${saved.text.slice(0, 160)}`);
+  check("the kept list fits its published schema", misfit("POST /api/v1/scans", saved.json) === "", misfit("POST /api/v1/scans", saved.json));
+  const toDeck = saved.json?.id ? await call("POST", `/api/v1/scans/${saved.json.id}/deck`) : null;
+  check("a kept list goes into the deck", toDeck?.status === 200 && misfit("POST /api/v1/scans/{id}/deck", toDeck.json) === "", `status ${toDeck?.status}`);
+
+  if (stubbed) {
+    const asked = await call("POST", "/api/v1/tutor", { body: { messages: [{ role: "user", content: "How do I say hello?" }] } });
+    check("Anu answers one question, streamed as text", asked.status === 200 && asked.text.includes("stubbed answer"), `status ${asked.status}, ${asked.text.slice(0, 160)}`);
+    check("the answer names the model that wrote it", Boolean(asked.headers.get("x-model-provider")) && Boolean(asked.headers.get("x-model-id")));
+    check("the answer is never kept", asked.headers.get("cache-control") === "no-store");
+    const read = await call("POST", "/api/v1/scan", { body: { image: PIXEL } });
+    check("a photograph is read and fits its published schema", read.status === 200 && misfit("POST /api/v1/scan", read.json) === "", `status ${read.status}, ${misfit("POST /api/v1/scan", read.json)}`);
+    check("the dictionary vouches for what the stub read", (read.json?.items ?? []).some((i) => i.et === "raamat" && i.lexemeId !== null), JSON.stringify(read.json)?.slice(0, 200));
+  } else {
+    absent(5, "a stubbed model, which this run was not given (preload scripts/lib/stub-models.mjs and set KODUKEEL_STUB_MODELS=1)");
+  }
+} else {
+  absent(10, "a signed-in token, which a hosted deployment needs and this suite does not mint (the 401 below is checked instead)");
 }
 
 // ── Every route that needs a token refuses without one ────────────────────────

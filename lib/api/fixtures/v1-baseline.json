@@ -3165,6 +3165,405 @@
         ],
         "description": "The native speaker's recordings, and which spelling each one answers for."
       }
+    },
+    "POST /api/v1/tutor": {
+      "contentType": "text/plain; charset=utf-8",
+      "request": {
+        "type": "object",
+        "properties": {
+          "messages": {
+            "minItems": 1,
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "user",
+                    "assistant"
+                  ]
+                },
+                "content": {
+                  "type": "string",
+                  "maxLength": 20000
+                }
+              },
+              "required": [
+                "role",
+                "content"
+              ]
+            },
+            "description": "The conversation so far, the question last. The newest turns that fit are what Anu reads."
+          },
+          "screen": {
+            "description": "What was on the learner's screen when they asked, read as material and never as an instruction; never stored.",
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "maxLength": 400
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 400
+              },
+              "selection": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "estonian": {
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 1000
+                }
+              },
+              "visible": {
+                "type": "string",
+                "maxLength": 5000
+              },
+              "typed": {
+                "maxItems": 10,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 1000
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "messages"
+        ]
+      }
+    },
+    "POST /api/v1/scan": {
+      "contentType": "application/json",
+      "request": {
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": "string",
+            "maxLength": 12000000,
+            "description": "The photograph as a data URL; read once and never stored."
+          },
+          "mode": {
+            "description": "A page of words, or the things around the learner named in Estonian.",
+            "type": "string",
+            "enum": [
+              "page",
+              "things"
+            ]
+          }
+        },
+        "required": [
+          "image"
+        ]
+      },
+      "response": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "et": {
+                      "type": "string",
+                      "description": "The Estonian exactly as it was read off the page."
+                    },
+                    "en": {
+                      "type": "string",
+                      "description": "The gloss printed on the page, or empty."
+                    },
+                    "lexemeId": {
+                      "description": "The dictionary entry that vouches for this word, or null where none did: a guess for the person holding the paper to confirm.",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "lemma": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "translation": {
+                      "description": "The dictionary's English, where matched.",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "matchedAs": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "cefr": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "et",
+                    "en",
+                    "lexemeId",
+                    "lemma",
+                    "translation",
+                    "matchedAs",
+                    "cefr"
+                  ]
+                }
+              },
+              "summary": {
+                "type": "object",
+                "properties": {
+                  "total": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "known": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "unknown": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "inflected": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "total",
+                  "known",
+                  "unknown",
+                  "inflected"
+                ]
+              }
+            },
+            "required": [
+              "items",
+              "summary"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "things": {
+                "type": "array",
+                "items": {
+                  "readOnly": true,
+                  "type": "object",
+                  "properties": {
+                    "english": {
+                      "type": "string"
+                    },
+                    "picture": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "entries": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "readOnly": true,
+                        "type": "object",
+                        "properties": {
+                          "lexemeId": {
+                            "type": "string"
+                          },
+                          "lemma": {
+                            "type": "string"
+                          },
+                          "translation": {
+                            "type": "string"
+                          },
+                          "pos": {
+                            "type": "string"
+                          },
+                          "cefr": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "lexemeId",
+                          "lemma",
+                          "translation",
+                          "pos",
+                          "cefr"
+                        ]
+                      }
+                    },
+                    "spelledLikeAnother": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "english",
+                    "picture",
+                    "entries",
+                    "spelledLikeAnother"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "things"
+            ]
+          }
+        ],
+        "description": "A page read into words the dictionary vouched for or did not, or the things in a picture named. The model that read it is named in `x-model-provider` and `x-model-id`."
+      }
+    },
+    "POST /api/v1/scans": {
+      "contentType": "application/json",
+      "request": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 400
+          },
+          "items": {
+            "minItems": 1,
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "et": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "en": {
+                  "type": "string",
+                  "maxLength": 400
+                },
+                "lexemeId": {
+                  "description": "The dictionary entry that vouches for this word, or null where none did: a guess for the person holding the paper to confirm.",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "lemma": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "translation": {
+                  "description": "The dictionary's English, where matched.",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "matchedAs": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "cefr": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "et"
+              ]
+            },
+            "description": "The words ticked, as `POST /api/v1/scan` read them or as the learner corrected them; every one is vouched for again here."
+          },
+          "addCards": {
+            "description": "Whether to build cards now, or just keep the page.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The kept page, which `POST /api/v1/scans/{id}/deck` adds to the deck later."
+          },
+          "words": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "cards": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "created": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991,
+            "description": "Words the dictionary did not hold, kept as the learner's own entries."
+          }
+        },
+        "required": [
+          "id",
+          "words",
+          "cards",
+          "created"
+        ],
+        "description": "A page kept: the words ticked, never the photograph."
+      }
+    },
+    "POST /api/v1/scans/{id}/deck": {
+      "contentType": "application/json",
+      "response": {
+        "type": "object",
+        "properties": {
+          "added": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "words": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "added",
+          "words"
+        ],
+        "description": "Every word on a kept page that was not in the deck, added."
+      }
     }
   }
 }

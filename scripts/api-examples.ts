@@ -40,6 +40,8 @@ const { searchDictionary } = await import("../lib/progress/dictionarySearch");
 const { openEntry } = await import("../lib/progress/dictionaryEntry");
 const { heardSpellings } = await import("../lib/progress/speechForms");
 const { recordingsList } = await import("../lib/api/recordings");
+const { resolveScannedItems } = await import("../lib/dict/resolveScan");
+const { summarise } = await import("../lib/scan/items");
 
 const DIR = "lib/api/examples";
 mkdirSync(DIR, { recursive: true });
@@ -144,6 +146,18 @@ write("get-recordings.json", {
     ...recordings.clips.filter((c) => c.key !== null).slice(0, 2),
   ],
 });
+
+// ── Anu and the scanner ─────────────────────────────────────────────────────
+
+write("post-tutor.json", {
+  contentType: "text/plain; charset=utf-8",
+  note: "The body is Anu's reply as UTF-8 text, streamed. `x-model-provider` and `x-model-id` name the model that answered.",
+});
+// A page read, as `readScan` hands it on: the dictionary's own rows for two words, and one it would not vouch for.
+const read = await resolveScannedItems([{ et: "toas", en: "" }, { et: "kohv", en: "coffee" }, { et: "blorp", en: "" }]);
+write("post-scan.json", { items: read, summary: summarise(read) });
+write("post-scans.json", { id: "7c1d0e2a-5b9f-4e3a-8c6d-1f2e3a4b5c6d", words: read.length, cards: 4, created: 1 });
+write("post-scans-id-deck.json", { added: 2, words: read.length });
 
 // ── Conversations ───────────────────────────────────────────────────────────
 

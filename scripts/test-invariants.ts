@@ -3857,8 +3857,10 @@ check("the routes that spend somebody else's quota are capped", () => {
     "app/api/share/route.tsx",
     "app/api/export/route.ts",
     "app/api/scan/route.ts",
-    // And the door for a phone, which shares the body and the key (D5).
+    // And their doors for a phone, which share the body and the key (D5).
+    "app/api/v1/tutor/route.ts",
     "app/api/v1/tts/route.ts",
+    "app/api/v1/scan/route.ts",
   ]) {
     assert.match(
       code(route),
@@ -4002,7 +4004,7 @@ check("a cap is charged to the learner, never to their address alone", () => {
   */
   // The four CLAUDE.md names, read as code: this read one of them, raw, so the
   // word surviving in a comment was enough.
-  for (const file of ["app/api/tutor/route.ts", "app/api/tts/route.ts", "app/api/share/route.tsx", "app/api/export/route.ts", "app/api/v1/tts/route.ts"]) {
+  for (const file of ["app/api/tutor/route.ts", "app/api/tts/route.ts", "app/api/share/route.tsx", "app/api/export/route.ts", "app/api/v1/tutor/route.ts", "app/api/v1/tts/route.ts", "app/api/v1/scan/route.ts"]) {
     assert.match(code(file), /bucketForOwner\(|bucketForRequest\(/, `${file}'s cap is no longer per learner`);
   }
 });
@@ -4076,8 +4078,12 @@ check("a word read off a photograph reaches a card only through the dictionary",
     confident match (`matchEstonianForm`, at `VOUCHED_SCORE`) carries a
     lexeme id. Nothing else may mint one.
   */
-  const route = code("app/api/scan/route.ts");
+  // The scan route's body, which both of its doors call (lib/progress/scanRead.ts, ADR-029).
+  const route = code("lib/progress/scanRead.ts");
   assert.match(route, /resolveScannedItems/, "the scan route no longer consults the dictionary");
+  for (const door of ["app/api/scan/route.ts", "app/api/v1/scan/route.ts"]) {
+    assert.match(code(door), /\breadScan\(/, `${door} reads a photograph without the shared body that hands it to the dictionary`);
+  }
 
   const resolver = code("lib/dict/resolveScan.ts");
   assert.match(resolver, /matchEstonianForm\(/, "the resolver stopped using the vouched matcher");
@@ -4094,7 +4100,8 @@ check("a word read off a photograph reaches a card only through the dictionary",
     A page's own entries are principal-part-free by construction, which is why
     they can only ever produce a recognition and a production card.
   */
-  const saveScan = between(code("app/actions.ts"), "export async function saveScan");
+  // The save's body, which the action and `POST /api/v1/scans` both call (lib/progress/scans.ts).
+  const saveScan = between(code("lib/progress/scans.ts"), "export async function saveScanFor");
   assert.equal(
     /prisma\.form\.(create|createMany|upsert|update)/.test(saveScan),
     false,
@@ -4108,7 +4115,7 @@ check("a word read off a photograph reaches a card only through the dictionary",
     could point any word at any row. Every dictionary field is asked again
     before anything reads an id off a row.
   */
-  const body = between(code("app/actions.ts"), "export async function saveScan");
+  const body = between(code("lib/progress/scans.ts"), "export async function saveScanFor");
   const vouched = body.indexOf("vouchScanItems(");
   const firstId = body.indexOf(".lexemeId");
   assert.ok(vouched > 0 && firstId > vouched,
@@ -4808,8 +4815,10 @@ check("the photograph itself is never stored", () => {
   */
   const WRITE = /\.(\w+)\.(?:create|createMany|update|updateMany|upsert)\s*\(|\$executeRaw[\s\S]{0,120}?(?:INSERT\s+INTO|UPDATE)\s+"?(\w+)/g;
   const MAY_WRITE = new Set(["usageEvent", "UsageEvent", "rateLimit", "RateLimit", "errorEvent", "ErrorEvent"]);
-  const reached = new Set(["app/api/scan/route.ts"]);
-  const queue = ["app/api/scan/route.ts"];
+  // Both doors onto the photograph: the web route and POST /api/v1/scan, which
+  // share `readScan`. Saving the word list is a separate route on purpose.
+  const reached = new Set(["app/api/scan/route.ts", "app/api/v1/scan/route.ts"]);
+  const queue = ["app/api/scan/route.ts", "app/api/v1/scan/route.ts"];
   const writes: string[] = [];
   while (queue.length > 0) {
     const file = queue.shift()!;
@@ -4973,9 +4982,12 @@ check("the chat says which model actually replied", () => {
     configured first may not have written a word of what is on screen. A
     screen naming the wrong model is worse than one naming none.
   */
-  const route = code("app/api/tutor/route.ts");
-  assert.match(route, /x-model-provider/, "the reply no longer carries which model wrote it");
-  assert.match(route, /open\.config/, "the header names something other than the run that answered");
+  // Each door names the model in its headers; the body hands over the run that answered (lib/progress/askAnu.ts).
+  for (const door of ["app/api/tutor/route.ts", "app/api/v1/tutor/route.ts"]) {
+    assert.match(code(door), /x-model-provider/, `${door}: the reply no longer carries which model wrote it`);
+  }
+  const route = code("lib/progress/askAnu.ts");
+  assert.match(route, /provider: open\.config\.label, model: open\.config\.model/, "the header names something other than the run that answered");
   // Shared by the full `/tutor` page and the floating Anu button, so both
   // read it from the one place that actually asks the response for it.
   const chat = code("components/anu/useAnuChat.ts");
@@ -4983,7 +4995,7 @@ check("the chat says which model actually replied", () => {
 });
 
 check("Anu's prose is cleaned on its way to the learner", () => {
-  assert.match(code("app/api/tutor/route.ts"), /new ProseStream\(/, "the humanize pass is gone");
+  assert.match(code("lib/progress/askAnu.ts"), /new ProseStream\(/, "the humanize pass is gone");
 });
 
 check("Anu's reply is drawn as typography, shown once finished, and the marker lines have one shape", () => {
@@ -5047,10 +5059,11 @@ check("Anu's free chat prose is checked against the dictionary, not just her gra
     exactly this kind of question, which is the whole argument for a check
     here rather than a stronger request in the prompt.
   */
-  const route = code("app/api/tutor/route.ts");
+  // The chat route's body, which both of its doors call (lib/progress/askAnu.ts, ADR-029).
+  const route = code("lib/progress/askAnu.ts");
   assert.match(route, /chatEstonianTokens\(/, "the chat route no longer extracts candidate Estonian tokens");
   assert.match(route, /matchEstonianForm\(/, "the chat route no longer checks tokens against the dictionary");
-  assert.match(code("app/api/tutor/route.ts"), /UNVERIFIED:/, "the chat route no longer flags what it could not confirm");
+  assert.match(route, /UNVERIFIED:/, "the chat route no longer flags what it could not confirm");
 
   // Shared by the full `/tutor` page and the floating Anu button, so both
   // render the flag the same way.
@@ -6026,7 +6039,8 @@ check("the voice is one table, and everything that speaks reads from it", () => 
     weakest case and the open unit come from `learnerContextFor` now, in a
     block sent after the static prompt so the cached part stays cached.
   */
-  const tutorRoute = code("app/api/tutor/route.ts");
+  // The chat's body, which both of its doors call (lib/progress/askAnu.ts), and the two doors themselves.
+  const tutorRoute = code("lib/progress/askAnu.ts") + "\n" + code("app/api/tutor/route.ts") + "\n" + code("app/api/v1/tutor/route.ts");
   /*
     Read as any way a level comes off the request, not only `body.level`: a
     destructure (`const { messages, level } = await request.json()`) or an
@@ -8592,7 +8606,10 @@ check("an action that reaches a bulk builder, a paper rebuild or an append-only 
   // which nothing repairs, so a loop of them is permanent rather than slow.
   // `finishLessonFor` is `addPlanToDeck` behind a lesson, moved out of the action
   // so the v1 route and the action share it (ADR-029); reaching it is reaching that.
-  const BULK = ["addPlanToDeck", "addUnitsToDeck", "examPaperFor", "recordAttempt", "saveResult", "finishLessonFor"];
+  // `saveScanFor` and `addScanToDeckFor` are the scanner's two card loops,
+  // moved out of this file into lib/progress/scans.ts so POST /api/v1/scans
+  // shares them (ADR-029 D2); named here so both doors are still asked.
+  const BULK = ["addPlanToDeck", "addUnitsToDeck", "examPaperFor", "recordAttempt", "saveResult", "finishLessonFor", "saveScanFor", "addScanToDeckFor"];
 
   const bodies = source.split(/\n(?=export (?:async )?function )/).slice(1);
   const reaching: string[] = [];
@@ -10113,10 +10130,10 @@ check("a call is booked only once the request is worth answering", () => {
   const paid = ALL.filter((f) => /^app\/api\/.*route\.tsx?$/.test(f))
     .map((file) => ({ file, src: code(file) }))
     .filter(({ src }) => src.includes("authoriseCall("));
-  // Speech moved its body into lib/progress so a web door and an /api/v1 door
-  // share one (ADR-029 D2); the rule follows the body, where a refusal of the
-  // request is `refuse("invalid", 400, ...)`.
-  for (const file of ["lib/progress/speakClip.ts"]) {
+  // The tutor, the scanner and speech moved their bodies into lib/progress so a
+  // web door and an /api/v1 door share one (ADR-029 D2); the rule follows the
+  // body, where a refusal of the request is `refuse("invalid", 400, ...)`.
+  for (const file of ["lib/progress/askAnu.ts", "lib/progress/scanRead.ts", "lib/progress/speakClip.ts"]) {
     const src = code(file);
     assert.ok(src.includes("authoriseCall("), `${file} no longer books its call, so this list is stale`);
     paid.push({ file, src: src.replace(/refuse\("invalid",\s*(\d{3})/g, "status: $1") });
@@ -18373,7 +18390,7 @@ check("each routed purpose asks for its own chain", () => {
 
   const routed: Readonly<Record<string, "tutor" | "scene" | "grader">> = {
     // The routes and reads that must not take the general chain by accident.
-    "app/api/tutor/route.ts": "tutor",
+    "lib/progress/askAnu.ts": "tutor",
     "app/(app)/layout.tsx": "tutor",
     "app/(app)/tutor/page.tsx": "tutor",
     "app/actions.ts": "scene",
@@ -18936,7 +18953,7 @@ check("a cached input token is priced as one, and the cached prompt is the same 
     "recordUsage no longer hands the split to the price table");
 
   for (const file of [
-    "app/api/tutor/route.ts", "app/api/write/route.ts", "app/api/describe/route.ts",
+    "lib/progress/askAnu.ts", "app/api/write/route.ts", "app/api/describe/route.ts",
     "app/api/exam/write/route.ts", "app/api/scene/route.ts", "lib/tutor/translate.ts",
   ]) {
     assert.match(
@@ -19022,7 +19039,7 @@ check("a conversation with Anu lasts a day, on the read, on the write and on the
   const history = code("lib/tutor/history.ts");
   assert.match(history, /createdAt: \{ gte: conversationCutoff\(now\) \}/, "loadRecentMessages no longer stops at the day's cutoff");
   assert.match(history, /deleteMany\(\{\s*where: \{ ownerId, createdAt: \{ lt: conversationCutoff\(now\) \} \}/, "forgetOldMessages no longer deletes the turns older than a day");
-  assert.match(code("app/api/tutor/route.ts"), /await forgetOldMessages\(ownerId\);/, "the tutor route no longer forgets yesterday's conversation when it writes today's");
+  assert.match(code("lib/progress/askAnu.ts"), /await forgetOldMessages\(ownerId\);/, "the tutor route no longer forgets yesterday's conversation when it writes today's");
   /*
     And the write that forgets is held, not floated. `persist` runs in the
     stream's `finally`, after the last byte is handed over, which is exactly
@@ -19032,7 +19049,7 @@ check("a conversation with Anu lasts a day, on the read, on the write and on the
     promises. The rule `no ledger write is left to a promise` states for the
     ledger, applied to the one write the retention schedule rests on.
   */
-  const tutorRoute = code("app/api/tutor/route.ts");
+  const tutorRoute = code("lib/progress/askAnu.ts");
   assert.doesNotMatch(tutorRoute, /\bvoid\s+persist\s*\(/, "the tutor route leaves the write that forgets yesterday to a promise the platform may drop");
   assert.match(tutorRoute, /after\(\(\) => persist\(/, "the tutor route no longer hands the write that forgets yesterday to after()");
   assert.match(code("lib/tutor/lifetime.ts"), /CONVERSATION_LIFETIME_MS = 24 \* 60 \* 60 \* 1000/, "the lifetime is no longer a day");

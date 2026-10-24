@@ -23,7 +23,7 @@ import { NO_STORE } from "@/lib/security/headers";
  *   client says an update is needed and calls nothing else.
  * - `upstream`: a service the route leans on (the speech service, a model)
  *   did not answer or could not do it. Nothing was spent; wait `Retry-After`
- *   seconds and ask again. Added with N-6, which is a widening.
+ *   seconds and ask again. Added with N-6 and N-10, which is a widening.
  */
 export const API_ERROR_CODES = [
   "unauthenticated",

@@ -596,6 +596,84 @@ export const RecordingsResponse = z.object({
 
 export type RecordingsResponse = z.infer<typeof RecordingsResponse>;
 
+// ── N-10: Anu and the scanner ───────────────────────────────────────────────
+
+export const TutorRequest = z.object({
+  messages: z.array(z.object({
+    role: z.enum(["user", "assistant"]),
+    content: z.string().max(20_000),
+  })).min(1).max(200).describe("The conversation so far, the question last. The newest turns that fit are what Anu reads."),
+  screen: z.object({
+    path: z.string().max(400).optional(),
+    title: z.string().max(400).optional(),
+    selection: z.string().max(2000).optional(),
+    estonian: z.array(z.string().max(1000)).max(40).optional(),
+    visible: z.string().max(5000).optional(),
+    typed: z.array(z.string().max(1000)).max(10).optional(),
+  }).optional().describe("What was on the learner's screen when they asked, read as material and never as an instruction; never stored."),
+});
+
+const ScanItemSchema = z.object({
+  et: z.string().describe("The Estonian exactly as it was read off the page."),
+  en: z.string().describe("The gloss printed on the page, or empty."),
+  lexemeId: z.string().nullable().describe("The dictionary entry that vouches for this word, or null where none did: a guess for the person holding the paper to confirm."),
+  lemma: z.string().nullable(),
+  translation: z.string().nullable().describe("The dictionary's English, where matched."),
+  matchedAs: z.string().nullable(),
+  cefr: z.string().nullable(),
+});
+
+const ThingSchema = z.object({
+  english: z.string(),
+  picture: z.string().nullable(),
+  entries: z.array(z.object({
+    lexemeId: z.string(),
+    lemma: z.string(),
+    translation: z.string(),
+    pos: z.string(),
+    cefr: z.string().nullable(),
+  }).readonly()).readonly(),
+  spelledLikeAnother: z.boolean(),
+}).readonly();
+
+export const ScanRequest = z.object({
+  image: z.string().max(12_000_000).describe("The photograph as a data URL; read once and never stored."),
+  mode: z.enum(["page", "things"]).optional().describe("A page of words, or the things around the learner named in Estonian."),
+});
+
+export const ScanResponse = z.union([
+  z.object({
+    items: z.array(ScanItemSchema),
+    summary: z.object({ total: z.number().int(), known: z.number().int(), unknown: z.number().int(), inflected: z.number().int() }),
+  }),
+  z.object({ things: z.array(ThingSchema) }),
+]).describe("A page read into words the dictionary vouched for or did not, or the things in a picture named. The model that read it is named in `x-model-provider` and `x-model-id`.");
+
+export type ScanResponse = z.infer<typeof ScanResponse>;
+
+export const ScanSaveRequest = z.object({
+  title: z.string().max(400).optional(),
+  items: z.array(ScanItemSchema.partial().extend({ et: z.string().max(200), en: z.string().max(400).optional() })).min(1).max(200)
+    .describe("The words ticked, as `POST /api/v1/scan` read them or as the learner corrected them; every one is vouched for again here."),
+  addCards: z.boolean().optional().describe("Whether to build cards now, or just keep the page."),
+});
+
+export const ScanSaveResponse = z.object({
+  id: z.string().describe("The kept page, which `POST /api/v1/scans/{id}/deck` adds to the deck later."),
+  words: z.number().int(),
+  cards: z.number().int(),
+  created: z.number().int().describe("Words the dictionary did not hold, kept as the learner's own entries."),
+}).describe("A page kept: the words ticked, never the photograph.");
+
+export type ScanSaveResponse = z.infer<typeof ScanSaveResponse>;
+
+export const ScanDeckResponse = z.object({
+  added: z.number().int(),
+  words: z.number().int(),
+}).describe("Every word on a kept page that was not in the deck, added.");
+
+export type ScanDeckResponse = z.infer<typeof ScanDeckResponse>;
+
 // ── The routes that have shipped ────────────────────────────────────────────
 
 export const SHIPPED_ROUTES: readonly RouteSpec[] = [
@@ -761,5 +839,45 @@ export const SHIPPED_ROUTES: readonly RouteSpec[] = [
     item: "N-6",
     response: RecordingsResponse,
     example: "get-recordings.json",
+  },
+  {
+    method: "POST",
+    path: "/api/v1/tutor",
+    auth: true,
+    summary: "A question to Anu, answered as a stream of text, with the model that answered in `x-model-provider` and `x-model-id`.",
+    item: "N-10",
+    request: TutorRequest,
+    response: null,
+    contentType: "text/plain; charset=utf-8",
+    example: "post-tutor.json",
+  },
+  {
+    method: "POST",
+    path: "/api/v1/scan",
+    auth: true,
+    summary: "A photograph read: a page's words, or the things in it, vouched for by the dictionary. The photograph is never kept.",
+    item: "N-10",
+    request: ScanRequest,
+    response: ScanResponse,
+    example: "post-scan.json",
+  },
+  {
+    method: "POST",
+    path: "/api/v1/scans",
+    auth: true,
+    summary: "A page kept with the words the learner ticked, and their cards where asked.",
+    item: "N-10",
+    request: ScanSaveRequest,
+    response: ScanSaveResponse,
+    example: "post-scans.json",
+  },
+  {
+    method: "POST",
+    path: "/api/v1/scans/{id}/deck",
+    auth: true,
+    summary: "Every word on a kept page that is not in the deck yet, added.",
+    item: "N-10",
+    response: ScanDeckResponse,
+    example: "post-scans-id-deck.json",
   },
 ];

@@ -18,12 +18,18 @@ export function apiJson(data: unknown, status = 200, headers: Record<string, str
 }
 
 /**
- * An answer that is not JSON: a clip read aloud. Never kept, for the reason
- * `apiJson`'s answers are not, and with the headers a route names beside it
- * (which cache answered).
+ * An answer that is not JSON: a clip read aloud, or Anu's reply as it streams.
+ * Never kept, for the reason `apiJson`'s answers are not, and with the headers
+ * a route names beside it (which cache answered, which model wrote the reply).
+ * Two helpers rather than one so a route cannot hand over bytes it meant to
+ * stream or a stream it meant to buffer.
  */
 export function apiBytes(body: Uint8Array, contentType: string, headers: Record<string, string> = {}): Response {
   return new Response(new Uint8Array(body), { headers: { ...headers, "content-type": contentType, ...NO_STORE } });
+}
+
+export function apiStream(body: ReadableStream<Uint8Array>, contentType: string, headers: Record<string, string> = {}): Response {
+  return new Response(body, { headers: { ...headers, "content-type": contentType, ...NO_STORE } });
 }
 
 /** The ceiling on a v1 request body. A batch of fifty grades is about eight kilobytes. */

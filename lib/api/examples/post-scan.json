@@ -1,0 +1,37 @@
+{
+  "items": [
+    {
+      "et": "toas",
+      "en": "",
+      "lexemeId": "6695a810-64bd-445a-b595-2dd52e2df298",
+      "lemma": "tuba",
+      "translation": "room",
+      "matchedAs": "seesütlev (-s, in) of tuba",
+      "cefr": "A1"
+    },
+    {
+      "et": "kohv",
+      "en": "coffee",
+      "lexemeId": "33347965-ee21-4a1d-81ba-b8674036e580",
+      "lemma": "kohv",
+      "translation": "coffee",
+      "matchedAs": null,
+      "cefr": "A1"
+    },
+    {
+      "et": "blorp",
+      "en": "",
+      "lexemeId": null,
+      "lemma": null,
+      "translation": null,
+      "matchedAs": null,
+      "cefr": null
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "known": 2,
+    "unknown": 1,
+    "inflected": 1
+  }
+}
