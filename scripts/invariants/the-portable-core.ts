@@ -133,6 +133,22 @@ function parse(file: string): Parsed {
   const lineOf = (node: ts.Node) => source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1;
   const out: Parsed = { imports: [], faults: [] };
 
+  /*
+    A name the file declares itself is not the browser's. `practiceFor` takes a
+    parameter called `history` (the lessons before this one) and reads
+    `history.slice`, which is not `window.history`. Only the names that count
+    as the browser's when read are excused this way, and only by a binding in
+    the same file.
+  */
+  const declared = new Set<string>();
+  const collect = (node: ts.Node): void => {
+    if ((ts.isParameter(node) || ts.isVariableDeclaration(node) || ts.isBindingElement(node)) && ts.isIdentifier(node.name)) {
+      declared.add(node.name.text);
+    }
+    ts.forEachChild(node, collect);
+  };
+  collect(source);
+
   const visit = (node: ts.Node): void => {
     if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
       const clause = node.importClause;
@@ -160,7 +176,7 @@ function parse(file: string): Parsed {
       const parent = node.parent;
       const read = parent !== undefined && ts.isPropertyAccessExpression(parent) && parent.expression === node;
       if (BROWSER_GLOBALS.has(name)) out.faults.push({ file, line: lineOf(node), what: `the browser's \`${name}\`` });
-      else if (BROWSER_WHEN_READ.has(name) && read) out.faults.push({ file, line: lineOf(node), what: `the browser's \`${name}.\`` });
+      else if (BROWSER_WHEN_READ.has(name) && read && !declared.has(name)) out.faults.push({ file, line: lineOf(node), what: `the browser's \`${name}.\`` });
       else if (name === "process") out.faults.push({ file, line: lineOf(node), what: "Node's `process` (the environment is the server's)" });
       else if (name === "Buffer" || name === "__dirname" || name === "__filename" || name === "require") {
         out.faults.push({ file, line: lineOf(node), what: `Node's \`${name}\`` });

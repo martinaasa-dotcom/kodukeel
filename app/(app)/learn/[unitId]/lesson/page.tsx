@@ -1,4 +1,5 @@
 import { plainPhrase } from "@/lib/copy/values";
+import { isLessonLevel } from "@/lib/course/lessons";
 import { equivalentIn, firstSenses, meaningPrefsFrom } from "@/lib/collections/glossLanguage";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { notFound, redirect } from "next/navigation";
@@ -65,11 +66,11 @@ export default async function LessonPage({
   const unit = unitById(unitId);
   if (!unit) notFound();
   /*
-    A1 IS THE LESSONS (docs/43-lessons.md). The A1 units are still the
+    A1 AND A2 ARE THE LESSONS (docs/43-lessons.md). Their units are still the
     dictionary's request list and what A2 builds on, but they are no longer a
     course anybody walks, so a link to one lands on the lessons instead.
   */
-  if (unit.level === "A1") redirect("/course/lessons");
+  if (isLessonLevel(unit.level)) redirect("/course/lessons");
 
   const ownerId = await requireUserId();
   const locale = await localeFor(ownerId);

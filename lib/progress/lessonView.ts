@@ -1,4 +1,5 @@
-import { lessonById, type LessonSpec } from "@/lib/course/lessons";
+import { lessonById, lessonLabel, LESSON_PARTS, LESSONS, type LessonSpec } from "@/lib/course/lessons";
+import { lessonListStates } from "@/lib/progress/course";
 import type { PracticeItem } from "@/lib/course/lessons/practice";
 import { sayableName } from "@/lib/course/lessons/ownAnswer";
 import { lessonPlan } from "@/lib/progress/lessonPlan";
@@ -25,6 +26,8 @@ export interface LessonView {
   name: string | null;
   due: number;
   check: { id: string; final: boolean; passed: boolean } | null;
+  /** The part this lesson is in, lesson by lesson, for "4 of 8" and the track on the finish. */
+  part: { title: string; lessons: readonly { id: string; label: string; title: string; done: boolean }[] };
 }
 
 /**
@@ -39,14 +42,32 @@ export interface LessonView {
 export async function lessonView(ownerId: string, lessonId: string, now: Date = new Date()): Promise<LessonView | null> {
   const lesson = lessonById(lessonId);
   if (!lesson) return null;
-  const { closes, ...plan } = lessonPlan(lesson);
-  const [nameSetting, queue, passed] = await Promise.all([
+  const { closes, after, ...plan } = lessonPlan(lesson);
+  const [nameSetting, queue, passed, states] = await Promise.all([
     readSetting(ownerId, SETTING_KEYS.displayName),
     reviewQueue(ownerId, null, now),
     closes ? checksPassedFor(ownerId) : Promise.resolve(new Set<string>()),
+    lessonListStates(ownerId),
   ]);
+  /*
+    THE PART THIS LESSON IS IN, lesson by lesson, so the screen can say "4 of
+    8 in First words" and the finish can light the one just done. A lesson
+    opened from the list ahead of the course reads the same; what it records
+    is `finishLesson`'s decision.
+  */
+  const partSpec = LESSON_PARTS.find((p) => p.id === lesson.part)!;
+  const part = {
+    title: partSpec.title,
+    lessons: LESSONS.filter((l) => l.part === lesson.part).map((l) => ({
+      id: l.id, label: lessonLabel(l), title: l.title, done: states.get(l.id) === "done",
+    })),
+  };
+  /* Across a part's end the way on is its check, so "Next:" stops there until it is passed. */
+  const pastTheCheck = !closes || passed.has(closes.id);
   return {
     ...plan,
+    next: after && (!after.crossesPart || pastTheCheck) ? { id: after.id, title: after.title } : null,
+    part,
     name: sayableName(nameSetting),
     due: queue.due.length,
     check: closes ? { id: closes.id, final: closes.final, passed: passed.has(closes.id) } : null,

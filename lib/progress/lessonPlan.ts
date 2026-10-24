@@ -10,7 +10,11 @@ import type { LessonView } from "@/lib/progress/lessonView";
 */
 
 /** The half of a lesson's view that is the same for every learner, which is all of it but three fields. */
-export type LessonPlan = Omit<LessonView, "name" | "due" | "check"> & { closes: CourseCheck | null };
+export type LessonPlan = Omit<LessonView, "name" | "due" | "check" | "part" | "next"> & {
+  closes: CourseCheck | null;
+  /** The next lesson, and whether it opens another part, which waits behind this part's check. */
+  after: { id: string; title: string; crossesPart: boolean } | null;
+};
 
 /**
  * What a lesson asks, built from what the lessons before it taught, and where
@@ -30,11 +34,12 @@ export function lessonPlan(lesson: LessonSpec): LessonPlan {
   const closes = placed && placed.programme.days[placed.programme.days.length - 1]?.lesson === lesson.id
     ? checkAfter(PROGRAMMES, placed.programme.id) ?? null
     : null;
+  const history = LESSONS.slice(0, LESSONS.indexOf(lesson));
   return {
     lesson,
-    practice: practiceFor(lesson, before),
-    review: reviewFor(lesson, before),
-    next: next ? { id: next.id, title: next.title } : null,
+    practice: practiceFor(lesson, before, history),
+    review: reviewFor(lesson, before, history),
+    after: next ? { id: next.id, title: next.title, crossesPart: next.part !== lesson.part } : null,
     scene: sceneForLesson(lesson.id)?.id ?? null,
     place: { at: ofLevel.indexOf(lesson) + 1, of: ofLevel.length },
     closes,

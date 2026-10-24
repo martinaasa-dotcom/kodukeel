@@ -369,9 +369,9 @@ function Hero({ say, stats, words }: { say: Say; stats: { words: number; forms: 
       sources one screen down; this line is the promise they add up to.
     */
     fill(t("{words}, {forms}, and not one of them made up by AI"), { words: counted(stats.words, "word"), forms: counted(stats.forms, "form") }),
-    fill(t("{lessons} at {first}, then {units} all the way to {last}"), {
+    fill(t(made.through === LEVELS[0] ? "{lessons} at {first}, then {units} all the way to {last}" : "{lessons} from {first} to {through}, then {units} all the way to {last}"), {
       lessons: counted(made.lessons, "lesson"), units: counted(made.units, "unit"),
-      first: LEVELS[0]!, last: LEVELS[LEVELS.length - 1]!,
+      first: LEVELS[0]!, through: made.through, last: LEVELS[LEVELS.length - 1]!,
     }),
     t("Free, and it works offline"),
     t("Counts the real conversations you have, not the days you open the app"),

@@ -2257,7 +2257,16 @@
                   "enum": [
                     "present",
                     "negative",
-                    "imperative"
+                    "imperative",
+                    "inside",
+                    "outside",
+                    "comitative",
+                    "translative",
+                    "terminative",
+                    "essive",
+                    "abessive",
+                    "past",
+                    "conditional"
                   ]
                 }
               },
@@ -2546,6 +2555,121 @@
                   "properties": {
                     "kind": {
                       "type": "string",
+                      "const": "match"
+                    },
+                    "pairs": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "et": {
+                            "type": "string"
+                          },
+                          "en": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "et",
+                          "en"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "pairs"
+                  ],
+                  "description": "The quick warm-up a lesson's practice opens on: words said alone, each to be matched to its English."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "gap"
+                    },
+                    "before": {
+                      "type": "string"
+                    },
+                    "after": {
+                      "type": "string"
+                    },
+                    "en": {
+                      "type": "string"
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "answer": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "before",
+                    "after",
+                    "en",
+                    "options",
+                    "answer"
+                  ],
+                  "description": "A line of a conversation with one word taken out; `before + answer + after` is the line again."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "reply"
+                    },
+                    "ask": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "answerEn": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "ask",
+                    "options",
+                    "answer",
+                    "answerEn"
+                  ],
+                  "description": "A question from a conversation, and what was said back, among the answers to other questions."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
                       "const": "hear"
                     },
                     "et": {
@@ -2638,6 +2762,121 @@
             "type": "array",
             "items": {
               "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "match"
+                    },
+                    "pairs": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "et": {
+                            "type": "string"
+                          },
+                          "en": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "et",
+                          "en"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "pairs"
+                  ],
+                  "description": "The quick warm-up a lesson's practice opens on: words said alone, each to be matched to its English."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "gap"
+                    },
+                    "before": {
+                      "type": "string"
+                    },
+                    "after": {
+                      "type": "string"
+                    },
+                    "en": {
+                      "type": "string"
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "answer": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "before",
+                    "after",
+                    "en",
+                    "options",
+                    "answer"
+                  ],
+                  "description": "A line of a conversation with one word taken out; `before + answer + after` is the line again."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "reply"
+                    },
+                    "ask": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "answerEn": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "ask",
+                    "options",
+                    "answer",
+                    "answerEn"
+                  ],
+                  "description": "A question from a conversation, and what was said back, among the answers to other questions."
+                },
                 {
                   "type": "object",
                   "properties": {
@@ -2751,7 +2990,7 @@
                 "type": "null"
               }
             ],
-            "description": "The next lesson in the same level, or null at its end."
+            "description": "The next lesson in the same level, or null at its end and past a part's end until its check is passed."
           },
           "scene": {
             "description": "The lesson's own conversation, a scene id, where it has one.",
@@ -2819,6 +3058,46 @@
             ],
             "description": "The check that closes this lesson's part, where this is its last lesson."
           },
+          "part": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "lessons": {
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "done": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "label",
+                    "title",
+                    "done"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "title",
+              "lessons"
+            ],
+            "description": "The part this lesson is in, lesson by lesson, with the ones the learner has done."
+          },
           "locale": {
             "type": "string",
             "enum": [
@@ -2855,6 +3134,7 @@
           "name",
           "due",
           "check",
+          "part",
           "locale",
           "nativePart",
           "translations"
@@ -2922,6 +3202,121 @@
             "type": "array",
             "items": {
               "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "match"
+                    },
+                    "pairs": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "et": {
+                            "type": "string"
+                          },
+                          "en": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "et",
+                          "en"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "pairs"
+                  ],
+                  "description": "The quick warm-up a lesson's practice opens on: words said alone, each to be matched to its English."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "gap"
+                    },
+                    "before": {
+                      "type": "string"
+                    },
+                    "after": {
+                      "type": "string"
+                    },
+                    "en": {
+                      "type": "string"
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "answer": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "before",
+                    "after",
+                    "en",
+                    "options",
+                    "answer"
+                  ],
+                  "description": "A line of a conversation with one word taken out; `before + answer + after` is the line again."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "reply"
+                    },
+                    "ask": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "answerEn": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "ask",
+                    "options",
+                    "answer",
+                    "answerEn"
+                  ],
+                  "description": "A question from a conversation, and what was said back, among the answers to other questions."
+                },
                 {
                   "type": "object",
                   "properties": {

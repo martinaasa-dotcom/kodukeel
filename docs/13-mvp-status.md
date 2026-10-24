@@ -3770,7 +3770,30 @@ deployment moves freely (`movesFreely`, never true on a local install). A finish
 the cards now due, since a learner went through all 49 without opening Review once, and the last
 lesson of a part points at its check.
 
-## 68. The sixty-second pass: ready to be shown, and the door for the native apps
+## 68. The sixty-second pass: A2 is the lessons too
+
+**A2 is fifty-seven lessons in eight parts** (`lib/course/lessons/a2-*.ts`, `docs/43-lessons.md`
+§9), built to the same rules as A1's and walked by the same ledger, so nothing in A2 shows a word,
+a form or a pattern before an A1 or A2 lesson has taught it. It replaces the parts `a2.1` to `a2.3`
+outright; nobody is migrated, as with A1, and somebody on an old A2 part restarts A2 at lesson 1.
+
+**What a lesson level is, asked once.** `isLessonLevel` replaced every reader that knew A1 by name:
+the course builds both levels' parts from lessons (`lessonCourse.ts`), the builder's ledger is
+seeded with everything before B1, a unit's page at either level lands on the lessons, and each A2
+part closes on a check with the last one covering the level. The conditional is asked once its
+page has been read at any level, now that A2 reads it.
+
+**The catalog conversations moved up a level.** Eleven of them opened on A2 units, whose words now
+count as met only once the A2 lessons are behind somebody, so they open on a free evening of B1 or
+early B2 (`EARLIER_SCENES_FOR_UNIT`), and A2 has its own eight conversations, one per part, built
+from the lessons. Catalog conversations start at B1.
+
+**Two smaller things.** A spelling is taught again where it is a form of a different headword
+(`tuli`, `sai`), and the written sentences that no longer passed against the new order of teaching
+were dropped, 265 of them. The A2 lessons' own English is machine translated into Russian and
+Ukrainian on the A1 terms (`areas/lessonText.ts`), 1,937 lines each, not yet read by anybody fluent.
+
+## 69. The sixty-third pass: ready to be shown, and the door for the native apps
 
 **The sixth batch (`docs/44-sixth-batch.md`) landed as one pull request, one commit per item.** The
 order wanted a pull request each; the session could push to one branch, so each item is a commit

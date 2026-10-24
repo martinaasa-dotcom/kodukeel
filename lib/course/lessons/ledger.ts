@@ -26,7 +26,9 @@
  * Pure: no React, no Prisma, no clock.
  */
 
-import { imperativeSingular, negativePresent, presentTense } from "@/lib/estonian/conjugate";
+import { conditional, imperativeSingular, negativePresent, pastPersons, presentTense } from "@/lib/estonian/conjugate";
+import { buildCaseTable } from "@/lib/estonian/derive";
+import { levelIndex } from "@/lib/collections/syllabus/types";
 import { nativeClip } from "@/lib/audio/native";
 import { lessonLabel } from "./label";
 import type { LessonSpec, PatternId, Taught } from "./types";
@@ -58,7 +60,21 @@ const UNFOLDED = new WeakMap<Taught, readonly Asked[]>();
  * Estonian vocabulary, and every one here is a name an Estonian conversation
  * plausibly has in it. A lesson's cast is allowed on top of these.
  */
-export const NAMES: ReadonlySet<string> = new Set(["Mari", "Tom", "Jaan", "Anna", "Peeter", "Kati", "Liis"]);
+export const NAMES: ReadonlySet<string> = new Set([
+  "Mari", "Tom", "Jaan", "Anna", "Peeter", "Kati", "Liis", "Smith",
+  /*
+    And the same names with an ending on, from A2, where a name takes the
+    endings every noun does: {Jaani telefon}, {Marile}, {Peetriga}. Still not
+    vocabulary, and still the only words let through on that ground.
+  */
+  "Jaani", "Peetri", "Liisi", "Marit", "Marile", "Maril", "Marilt", "Mariga",
+  "Jaanile", "Jaaniga", "Liisile", "Liisiga", "Katile", "Katiga", "Annale", "Annaga", "Peetrile", "Peetriga",
+]);
+
+/** The word an item is about: a form's lemma, or the item itself. */
+function wordOf(item: Asked): string {
+  return item.kind === "form" ? item.of : item.et;
+}
 
 /**
  * Places, spelled with the capital a place takes. The forms list holds no
@@ -67,7 +83,7 @@ export const NAMES: ReadonlySet<string> = new Set(["Mari", "Tom", "Jaan", "Anna"
  * The ledger is not loosened by it: a place is still taught before it is
  * shown, like any word.
  */
-export const PLACE_SPELLINGS: ReadonlySet<string> = new Set(["Eestis", "Eestist", "Ameerikast", "Ukrainast", "Soomest", "Rootsist", "Rootsis", "Lätist"]);
+export const PLACE_SPELLINGS: ReadonlySet<string> = new Set(["Eestis", "Eestist", "Eestisse", "Ameerikast", "Ukrainast", "Soomest", "Rootsist", "Rootsis", "Lätist"]);
 
 export interface Ledger {
   /** Every single spelling taught, lower-cased. */
@@ -80,9 +96,56 @@ export interface Ledger {
   readonly patterns: ReadonlySet<PatternId>;
   /** Every verb taught as a pair, which a pattern builds more forms from. */
   readonly verbs: readonly { readonly lemma: string; readonly first: string }[];
+  /** Every noun whose [omastav] (2nd form) was taught as its stem, which the case patterns build on. */
+  readonly stems: readonly { readonly lemma: string; readonly gen: string }[];
+  /** Every past I form taught, which the `past` pattern builds the other persons from. */
+  readonly pasts: readonly string[];
 }
 
-export const EMPTY_LEDGER: Ledger = { spellings: new Set(), phrases: [], items: [], patterns: new Set(), verbs: [] };
+export const EMPTY_LEDGER: Ledger = { spellings: new Set(), phrases: [], items: [], patterns: new Set(), verbs: [], stems: [], pasts: [] };
+
+/**
+ * WHERE A LESSON STANDS IN THE WHOLE COURSE, AS ONE NUMBER.
+ *
+ * A lesson's `n` counts from 1 in its own level, so A2's lesson 5 and A1's
+ * lesson 5 share a number, and everything the ledger keys on a lesson (which
+ * lesson taught an item, how far back a check-in reaches, which lessons a
+ * check covers) would mix the two. The level goes in front, a thousand apart,
+ * which no level will ever fill.
+ */
+export function lessonRank(lesson: Pick<LessonSpec, "level" | "n">): number {
+  return levelIndex(lesson.level) * 1000 + lesson.n;
+}
+
+/** The case endings each pattern explains, by the case keys `derive.ts` builds them under. */
+const CASE_PATTERNS: Partial<Record<PatternId, readonly string[]>> = {
+  inside: ["INESSIVE", "ILLATIVE", "ELATIVE"],
+  outside: ["ADESSIVE", "ALLATIVE", "ABLATIVE"],
+  comitative: ["COMITATIVE"],
+  translative: ["TRANSLATIVE"],
+  terminative: ["TERMINATIVE"],
+  essive: ["ESSIVE"],
+  abessive: ["ABESSIVE"],
+};
+
+/** The case keys a pattern explains, for a screen naming the page it is. */
+export function casesOfPattern(pattern: PatternId): readonly string[] {
+  return CASE_PATTERNS[pattern] ?? [];
+}
+
+/**
+ * The forms the explained case patterns build on one taught stem, lower-cased.
+ * Read off `buildCaseTable`, the one place a suffix is joined to a stem, so
+ * the long illative is built (`linnasse`) and the short one, which no rule
+ * reaches, is left to be taught by name.
+ */
+function builtCases(stem: { lemma: string; gen: string }, patterns: ReadonlySet<PatternId>): string[] {
+  const keys = new Set([...patterns].flatMap((p) => CASE_PATTERNS[p] ?? []));
+  if (keys.size === 0) return [];
+  return buildCaseTable({ nomSg: stem.lemma, genSg: stem.gen, illSgShort: null, nomPl: null })
+    .filter((f) => keys.has(f.spec.key) && f.origin === "DERIVED" && f.singular)
+    .map((f) => f.singular!.toLocaleLowerCase("et"));
+}
 
 export interface Token {
   /** As written. */
@@ -122,6 +185,8 @@ function builtForms(verb: { lemma: string; first: string }, patterns: ReadonlySe
     const go = imperativeSingular(stems);
     if (go) out.push(go.value);
   }
+  // Would: `tahaksin`, `sooviks`. Regular for every verb, `olema` included (`oleksin`).
+  if (patterns.has("conditional")) out.push(...(conditional(stems) ?? []).map((f) => f.value));
   return out.map((f) => f.toLocaleLowerCase("et"));
 }
 
@@ -130,8 +195,12 @@ export function teach(ledger: Ledger, items: readonly Taught[], lesson: number, 
   const spellings = new Set(ledger.spellings);
   const phrases = [...ledger.phrases];
   const verbs = [...ledger.verbs];
+  const stems = [...ledger.stems];
+  const pasts = [...ledger.pasts];
   for (const item of items) {
     if (item.kind === "verb") verbs.push({ lemma: item.et, first: item.first });
+    if (item.kind === "form" && item.stem) stems.push({ lemma: item.of, gen: item.et });
+    if (item.kind === "form" && item.past) pasts.push(item.et);
     for (const part of unfold(item)) {
       const words = wordsOf(part.et).map((w) => w.low);
       if (part.kind === "phrase" && words.length > 1) phrases.push(words);
@@ -140,13 +209,68 @@ export function teach(ledger: Ledger, items: readonly Taught[], lesson: number, 
   }
   const known = new Set([...ledger.patterns, ...patterns]);
   for (const verb of verbs) for (const form of builtForms(verb, known)) spellings.add(form);
+  for (const stem of stems) for (const form of builtCases(stem, known)) spellings.add(form);
+  if (known.has("past")) {
+    for (const first of pasts) for (const form of pastPersons(first)) spellings.add(form.value.toLocaleLowerCase("et"));
+  }
   return {
     spellings,
     phrases,
     items: [...ledger.items, ...items.flatMap(unfold).map((item) => ({ item, lesson }))],
     patterns: known,
     verbs,
+    stems,
+    pasts,
   };
+}
+
+/**
+ * THE TAUGHT SPELLINGS OF ONE WORD, GROUPED, which is what a gap is asked
+ * among: `olen`, `oled` and `on` are one verb, `kodus`, `koju` and `kodust`
+ * one noun. Read off what the ledger already builds (a verb's persons off
+ * `conjugate.ts`, a stem's endings off `derive.ts`) and off every form taught
+ * by name, so the options under a gap are only ever spellings the learner has
+ * been given, and only ever forms of the word the sentence holds.
+ *
+ * `of` answers which word a spelling is a form of. A spelling that is a form
+ * of two words (`on` is `olema` and nothing else, but `tuli` is the fire and
+ * the past of `tulema`) answers nothing, so a gap is never cut on it.
+ */
+export interface Families {
+  readonly forms: ReadonlyMap<string, ReadonlySet<string>>;
+  readonly of: ReadonlyMap<string, string>;
+}
+
+export function familiesOf(ledger: Ledger): Families {
+  const forms = new Map<string, Set<string>>();
+  const owners = new Map<string, Set<string>>();
+  const add = (lemma: string, spelling: string) => {
+    const word = lemma.toLocaleLowerCase("et");
+    const low = spelling.toLocaleLowerCase("et");
+    if (!ledger.spellings.has(low)) return;
+    (forms.get(word) ?? forms.set(word, new Set()).get(word)!).add(low);
+    (owners.get(low) ?? owners.set(low, new Set()).get(low)!).add(word);
+  };
+  for (const verb of ledger.verbs) {
+    add(verb.lemma, verb.lemma);
+    add(verb.lemma, verb.first);
+    for (const form of builtForms(verb, ledger.patterns)) add(verb.lemma, form);
+  }
+  for (const stem of ledger.stems) {
+    add(stem.lemma, stem.lemma);
+    add(stem.lemma, stem.gen);
+    for (const form of builtCases(stem, ledger.patterns)) add(stem.lemma, form);
+  }
+  for (const { item } of ledger.items) {
+    if (item.kind !== "form" || wordsOf(item.et).length !== 1) continue;
+    add(item.of, item.et);
+    if (item.past && ledger.patterns.has("past")) {
+      for (const form of pastPersons(item.et)) add(item.of, form.value);
+    }
+  }
+  const of = new Map<string, string>();
+  for (const [spelling, lemmas] of owners) if (lemmas.size === 1) of.set(spelling, [...lemmas][0]!);
+  return { forms, of };
 }
 
 /** The names a lesson may use: the shared list and its own cast. */
@@ -226,7 +350,7 @@ export function ledgersBefore(lessons: readonly LessonSpec[]): Map<string, Ledge
   let ledger = EMPTY_LEDGER;
   for (const lesson of lessons) {
     out.set(lesson.id, ledger);
-    ledger = teach(ledger, lesson.teaches, lesson.n, lesson.patterns);
+    ledger = teach(ledger, lesson.teaches, lessonRank(lesson), lesson.patterns);
   }
   return out;
 }
@@ -241,7 +365,7 @@ export function ledgersBefore(lessons: readonly LessonSpec[]): Map<string, Ledge
 export function ledgerThrough(lessons: readonly LessonSpec[], lessonId: string): Ledger | null {
   let ledger = EMPTY_LEDGER;
   for (const lesson of lessons) {
-    ledger = teach(ledger, lesson.teaches, lesson.n, lesson.patterns);
+    ledger = teach(ledger, lesson.teaches, lessonRank(lesson), lesson.patterns);
     if (lesson.id === lessonId) return ledger;
   }
   return null;
@@ -288,10 +412,20 @@ export function lessonProblems(lessons: readonly LessonSpec[]): string[] {
   const ids = new Set<string>();
   let core = 0;
   let letter = "";
+  let level: string | null = null;
   lessons.forEach((lesson) => {
     const at = `Lesson ${lessonLabel(lesson)} (${lesson.id})`;
     if (ids.has(lesson.id)) problems.push(`${at}: the id is used twice`);
     ids.add(lesson.id);
+    // Each level counts its own lessons from 1, and the levels come in order.
+    if (lesson.level !== level) {
+      if (level !== null && levelIndex(lesson.level) < levelIndex(level as LessonSpec["level"])) {
+        problems.push(`${at}: ${lesson.level} comes after ${level}`);
+      }
+      level = lesson.level;
+      core = 0;
+      letter = "";
+    }
     // Core lessons count 1, 2, 3; a vocabulary lesson takes the number before it and the next letter.
     if (lesson.extra === undefined) {
       core += 1;
@@ -318,9 +452,18 @@ export function lessonProblems(lessons: readonly LessonSpec[]): string[] {
     }
     for (const item of lesson.teaches.flatMap(unfold)) {
       if (item.kind !== "phrase" && wordsOf(item.et).length !== 1) problems.push(`${at}: the ${item.kind} "${item.et}" is more than one word`);
-      if (ledger.items.some((done) => done.item.et.toLocaleLowerCase("et") === item.et.toLocaleLowerCase("et"))) {
-        problems.push(`${at}: "${item.et}" was taught already`);
-      }
+      /* A stem may be spelled like a word already taught, since `maja` is its own
+         [omastav] and saying so is new; and a past I form may restate one A1
+         taught by name (`sõin`), since what is new is that the other persons
+         follow it. A form of a different word spelled like one already taught is
+         a homograph (`tuli` the fire, and `tuli` he came), and saying so is new
+         too. A second stem, a second past, or the same word twice, is not. */
+      const again = ledger.items.filter((done) => done.item.et.toLocaleLowerCase("et") === item.et.toLocaleLowerCase("et"));
+      const restem = item.kind === "form" && item.stem && again.every((done) => !(done.item.kind === "form" && done.item.stem));
+      const repast = item.kind === "form" && item.past && again.every((done) => !(done.item.kind === "form" && done.item.past));
+      const homograph = item.kind === "form" && again.every((done) => wordOf(done.item) !== item.of);
+      if (again.length > 0 && !restem && !repast && !homograph) problems.push(`${at}: "${item.et}" was taught already`);
+      if (item.kind === "form" && item.stem && item.past) problems.push(`${at}: "${item.et}" is a noun's stem and a verb's past at once`);
     }
     for (const pattern of lesson.patterns ?? []) {
       if (ledger.patterns.has(pattern)) problems.push(`${at}: the ${pattern} pattern was explained already`);
@@ -328,7 +471,7 @@ export function lessonProblems(lessons: readonly LessonSpec[]): string[] {
     for (const item of lesson.teaches) {
       if (item.kind === "verb" && !item.et.endsWith("ma")) problems.push(`${at}: the verb "${item.et}" is not a ma-form`);
     }
-    const tonight = teach(ledger, lesson.teaches, lesson.n, lesson.patterns);
+    const tonight = teach(ledger, lesson.teaches, lessonRank(lesson), lesson.patterns);
     const names = namesOf(lesson);
     for (const { where, et, heard } of estonianOf(lesson)) {
       if (heard) continue;

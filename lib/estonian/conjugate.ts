@@ -399,3 +399,36 @@ export function finiteFormsFrom(
   }
   return out;
 }
+
+/** The past persons a stored past first person reaches, every one but the third. */
+export type PastCode = "IndIpfSg2" | "IndIpfPl1" | "IndIpfPl2" | "IndIpfPl3";
+
+const PAST: readonly (readonly [PastCode, string])[] = [
+  ["IndIpfSg2", "d"], ["IndIpfPl1", "me"], ["IndIpfPl2", "te"], ["IndIpfPl3", "d"],
+];
+
+/**
+ * THE SIMPLE PAST'S OTHER PERSONS, OFF THE PAST FIRST PERSON THE DICTIONARY
+ * STORES, AND NEVER THE THIRD.
+ *
+ * The header says the simple past is not derived, and of the third person
+ * that stays true for every verb in the language: `lugesin` goes to `luges`,
+ * `tahtsin` to `tahtis` and `võtsin` to `võttis`. The other four are not
+ * that kind of thing. Take the `n` off the stored first person and they are
+ * `d`, `me`, `te` and `d` again, for every verb the dictionary holds, the
+ * irregular ones included: `olin`, `olid`, `olime`, `olite`; `läksin`,
+ * `läksid`, `läksime`; `tõin`, `tõid`, `tõime`. That is the shape the present
+ * takes off `loen`, one bug for the whole language rather than one word wrong
+ * unpredictably, which is ADR-005 amendment 1.
+ *
+ * What reads it is the A2 lessons' ledger (`lib/course/lessons/ledger.ts`),
+ * which teaches a verb's past first person and third person by name and lets
+ * a later line use the other four once the pattern has been explained. A
+ * first person that does not end in `n` is not one this can read, and gets
+ * nothing.
+ */
+export function pastPersons(past1sg: string): { morphCode: PastCode; value: string }[] {
+  const parts = split(past1sg);
+  if (!parts) return [];
+  return PAST.map(([morphCode, ending]) => ({ morphCode, value: parts.stem + ending + parts.tail }));
+}

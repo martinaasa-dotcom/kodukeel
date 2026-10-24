@@ -375,7 +375,7 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
   },
   eluase: {
     live: true, needs: ["time", "numbers", "replies"], cases: ["INESSIVE", "ADESSIVE", "GENITIVE", "PARTITIVE"],
-    tryThis: "Tell your landlord something is broken, where it is and since when, and agree a time.",
+    tryThis: "Tell your landlord something is broken, where it is and since when, and agree on a time.",
     expect: "A no to the first time you suggest, and a question about what exactly is wrong.",
   },
   meedia: {

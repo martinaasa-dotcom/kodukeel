@@ -1,4 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { isLessonLevel } from "@/lib/course/lessons";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/db";
@@ -74,11 +75,11 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
   const unit = unitById(unitId);
   if (!unit) notFound();
   /*
-    A1 IS THE LESSONS (docs/43-lessons.md). The A1 units are still the
+    A1 AND A2 ARE THE LESSONS (docs/43-lessons.md). Their units are still the
     dictionary's request list and what A2 builds on, but they are no longer a
     course anybody walks, so a link to one lands on the lessons instead.
   */
-  if (unit.level === "A1") redirect("/course/lessons");
+  if (isLessonLevel(unit.level)) redirect("/course/lessons");
 
   // Signed in, like every other page here — a worksheet is generated from the
   // dictionary, not published.

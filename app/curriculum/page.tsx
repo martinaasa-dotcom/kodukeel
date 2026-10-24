@@ -54,10 +54,13 @@ export default async function CurriculumPage({ searchParams }: { searchParams: P
   const levels = alignCourse(SYLLABUS.filter((u) => !taught.has(u.level)), sceneTesting);
   const checks = courseChecks(PROGRAMMES);
   const lessonParts = outlineLessons(LESSONS, LESSON_PARTS, checks, sceneForLesson);
+  /* Each level taught as lessons is its own section, in the order the course reaches them. */
+  const lessonLevelList = [...taught];
+  const through = lessonLevelList[lessonLevelList.length - 1] ?? "A1";
   return (
     <Legal title={t("What the course covers")} updated="24 October 2026" locale={locale} explicit={explicit} path="/curriculum" drawnIn={ENGLISH_AND_ESTONIAN}>
       <P>
-        {fill(t("The whole course, by level. A1 is taught as {lessons} lessons in {parts} parts, and the levels above as units until each of them becomes lessons too."), { lessons: LESSONS.length, parts: LESSON_PARTS.length })}
+        {fill(t("The whole course, by level. The levels up to {through} are taught as {lessons} lessons in {parts} parts, and the levels above as units until each of them becomes lessons too."), { through, lessons: LESSONS.length, parts: LESSON_PARTS.length })}
       </P>
       <P>
         {t("For every lesson, what a learner can do afterwards. For every unit, what it says a learner can do, which part of the Estonian language examination it prepares for, and the conversation that tests it where there is one. The levels are the Council of Europe’s CEFR scale. The “can do” sentences are this course’s own, and this page does not claim to follow any official curriculum document.")}
@@ -73,16 +76,22 @@ export default async function CurriculumPage({ searchParams }: { searchParams: P
       <P>
         {t("The state examines A2, B1, B2 and C1, each in four parts: writing, listening, reading and speaking. There is no A1 examination, so the A1 lessons prepare for no part of one.")}{" "}
         <Link href={localeHref("/state-exam", locale, explicit)} className="underline underline-offset-2">{t("What each part sets is on the page about the examination.")}</Link>{" "}
-        {t("Under each level from A2, a part no unit is aimed at is named as a gap.")}
+        {t("Under each level taught as units, a part no unit is aimed at is named as a gap.")}
+        {taught.has("A2") && <>{" "}{t("The A2 lessons are not mapped to the parts of the A2 examination yet, so this page names no gap at A2.")}</>}
       </P>
-      {lessonParts.length > 0 && (
-        <S id="a1" title={fill(t("A1, {lessons} lessons in {parts} parts"), { lessons: LESSONS.length, parts: LESSON_PARTS.length })}>
-          <P>
-            {t("Each lesson is one evening: a conversation to listen to, the words, how it works, practice, saying it, and a review. Some parts end on a role-play with a live conversation, and every part ends in a check of what its lessons taught. Moving on from a part means passing its check, and the last check covers the whole of A1.")}
-          </P>
-          {lessonParts.map((outline) => <LessonPart key={outline.part.id} outline={outline} locale={locale} />)}
-        </S>
-      )}
+      {lessonLevelList.map((level) => {
+        const parts = lessonParts.filter((outline) => outline.part.level === level);
+        const lessons = LESSONS.filter((lesson) => lesson.level === level).length;
+        if (parts.length === 0) return null;
+        return (
+          <S key={level} id={level.toLowerCase()} title={fill(t("{level}, {lessons} lessons in {parts} parts"), { level, lessons, parts: parts.length })}>
+            <P>
+              {fill(t("Each lesson is one evening: a conversation to listen to, the words, how it works, practice, saying it, and a review. Some parts end on a role-play with a live conversation, and every part ends in a check of what its lessons taught. Moving on from a part means passing its check, and the last check covers the whole of {level}."), { level })}
+            </P>
+            {parts.map((outline) => <LessonPart key={outline.part.id} outline={outline} locale={locale} />)}
+          </S>
+        );
+      })}
       {levels.map((level) => <Level key={level.level} level={level} locale={locale} />)}
     </Legal>
   );

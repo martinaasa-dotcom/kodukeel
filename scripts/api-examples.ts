@@ -108,16 +108,21 @@ write("get-checks-id.json", {
   alreadyPassed: sat.alreadyPassed,
   next: sat.next ? { id: sat.next.id, label: sat.next.id.toUpperCase() } : null,
 });
-const marked = markCheck(paper, paper.map((item) => item.answer));
+const marked = markCheck(paper, paper.map((item) => (item.kind === "match" ? null : item.answer)));
 write("post-checks-id.json", { score: marked.score, total: marked.total, passed: marked.passed, marks: marked.marks });
 
 // ── Who is asking, and the account ──────────────────────────────────────────
 
-const me = { id: LOCAL_USER_ID, name: "you", email: null, locale: "en" };
+// The bodies the routes answer with: the settings Settings reads, and the backup Settings downloads (N-8).
+const { accountSettingsFor } = await import("../lib/settings/account");
+const { localeFor } = await import("../lib/progress/locale");
+const { backupFor } = await import("../lib/account/export");
+const me = { id: LOCAL_USER_ID, name: "you", email: null, locale: await localeFor(LOCAL_USER_ID), settings: await accountSettingsFor(LOCAL_USER_ID) };
 write("get-me.json", me);
 write("patch-me.json", me);
-write("delete-me.json", { deleted: true, identityErased: true });
-write("get-export.json", { format: "kodukeel-backup", exportedAt: now.toISOString(), cards: [], reviews: [] });
+// A local install has no sign-in service to erase an identity from, so the example says so.
+write("delete-me.json", { deleted: true, identityErased: false, remaining: null });
+write("get-export.json", await backupFor(LOCAL_USER_ID));
 
 // ── Words and sound ─────────────────────────────────────────────────────────
 

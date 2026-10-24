@@ -30,7 +30,7 @@ describe("lessonStates", () => {
   });
 
   it("marks nothing for somebody following no lesson part", () => {
-    const states = lessonStates(PARTS, new Map(), "a2.1");
+    const states = lessonStates(PARTS, new Map(), "b1.1");
     expect([...states.values()].every((s) => s === "ahead")).toBe(true);
     expect(states.size).toBeGreaterThan(40);
   });

@@ -19,7 +19,7 @@ export const A1_LINN_PART: PartOfLessons = {
   id: "a1-linn",
   level: "A1",
   title: "Home and city",
-  about: "Home and town: where things are, where you're going, and how you get there.",
+  about: "Rooms and places in town, where things are, where you're going, and how you get there.",
 };
 
 export const A1_LINN_LESSONS: readonly LessonSpec[] = [
@@ -374,14 +374,14 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
     kind: "lesson",
     title: "Places in town",
     goal: "Say where you work or study, and how you get there.",
-    cast: { Tom: "kalev", Anna: "kylli" },
+    cast: { Jaan: "meelis", Kati: "kylli" },
     conversation: [
-      { who: "Tom", et: "Kus sa töötad?", en: "Where do you work?" },
-      { who: "Anna", et: "Ma töötan koolis. Ma olen õpetaja. Ja sina?", en: "I work at a school. I'm a teacher. And you?" },
-      { who: "Tom", et: "Ma töötan hotellis, kesklinnas.", en: "I work at a hotel, in the town center." },
-      { who: "Anna", et: "Kuidas sa tööle sõidad?", en: "How do you get to work?" },
-      { who: "Tom", et: "Autoga. Või taksoga.", en: "By car. Or by taxi." },
-      { who: "Anna", et: "Mina lähen jalgsi. Kool on lähedal.", en: "I walk. The school is near." },
+      { who: "Jaan", et: "Kus sa töötad?", en: "Where do you work?" },
+      { who: "Kati", et: "Ma töötan koolis. Ma olen õpetaja. Ja sina?", en: "I work at a school. I'm a teacher. And you?" },
+      { who: "Jaan", et: "Ma töötan hotellis, kesklinnas.", en: "I work at a hotel, in the town center." },
+      { who: "Kati", et: "Kuidas sa tööle sõidad?", en: "How do you get to work?" },
+      { who: "Jaan", et: "Autoga. Või taksoga.", en: "By car. Or by taxi." },
+      { who: "Kati", et: "Mina lähen jalgsi. Kool on lähedal.", en: "I walk. The school is near." },
     ],
     teaches: [
       { kind: "word", et: "kool", en: "school" },

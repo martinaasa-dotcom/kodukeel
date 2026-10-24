@@ -85,6 +85,8 @@ export const LANDING_ET: readonly (readonly [en: string, et: string])[] = [
     "{words}, {forms} ja mitte ükski neist ei ole tehisintellekti välja mõeldud"],
   ["{lessons} at {first}, then {units} all the way to {last}",
     "{lessons} tasemel {first}, siis {units} kuni tasemeni {last}"],
+  ["{lessons} from {first} to {through}, then {units} all the way to {last}",
+    "{lessons} tasemetel {first} kuni {through}, siis {units} kuni tasemeni {last}"],
   ["Free, and it works offline",
     "Tasuta ja töötab ka võrguühenduseta"],
   ["Counts the real conversations you have, not the days you open the app",

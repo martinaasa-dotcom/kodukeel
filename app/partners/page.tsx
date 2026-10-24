@@ -129,7 +129,8 @@ export default async function PartnersPage({ searchParams }: { searchParams: Pub
 
       <S id="course" title={t("The course")}>
         <P>
-          {fill(t("A1 is {lessons}. They come in {parts}, and every part ends in a check of what its lessons taught. The levels above are {units} until each of them becomes lessons too."), {
+          {fill(t("The levels up to {through} are {lessons}. They come in {parts}, and every part ends in a check of what its lessons taught. The levels above are {units} until each of them becomes lessons too."), {
+            through: made.through,
             lessons: countOf(locale, made.lessons, "lesson"),
             parts: countOf(locale, LESSON_PARTS.length, "part"),
             units: countOf(locale, made.units, "unit"),

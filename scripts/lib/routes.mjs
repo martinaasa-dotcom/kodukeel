@@ -16,7 +16,7 @@ import { join } from "node:path";
   learner would reach by mistyping, which is worth rendering too.
 */
 export const FILL = {
-  "[unitId]": "loodus", "[situationId]": "tervitused", "[level]": "A1", "[id]": "partitive",
+  "[unitId]": "too-ja-raha", "[situationId]": "tervitused", "[level]": "A1", "[id]": "partitive",
   "[caseKey]": "partitive", "[case]": "partitive",
   "[code]": "AAAAAA", "[groupId]": "none",
 };

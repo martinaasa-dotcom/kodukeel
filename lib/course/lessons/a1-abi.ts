@@ -21,7 +21,7 @@ export const A1_ABI_PART: PartOfLessons = {
   id: "a1-abi",
   level: "A1",
   title: "Help",
-  about: "Help: telling and asking, the doctor, the phone, and the end of A1.",
+  about: "Telling and asking, the doctor, the phone, and the end of A1.",
 };
 
 export const A1_ABI_LESSONS: readonly LessonSpec[] = [
@@ -58,7 +58,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "Appi!", en: "Help!" },
     ],
     how: {
-      point: "To tell one person you know to do something, take the -n off the [olevik] (I form): {tulen} becomes {tule}. It's the same word you say after {ei}, said on its own.",
+      point: "To tell one person you know to do something, take the -n off the [olevik] (I form): {tulen} becomes {tule}. It's the same word you say after {ei}, said on its own. A class calls it the [käskiv kõneviis] (command).",
       table: {
         head: ["", "To a friend", "Polite, or to more than one"],
         rows: [
@@ -269,9 +269,9 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [],
     how: {
-      point: "A whole first meeting with a neighbor, made of something from every part of A1.",
+      point: "A whole first meeting with a neighbor, made of things from all over A1.",
       notes: [
-        "Part one gave you hello and names, part two where you're from, part three a time, part four cooking, and the invitation is lesson 46's command: {Tule laupäeval meile!}",
+        "Part one gave you hello and names, part two where you're from, part three a day and a time, and the invitation is lesson 46's command: {Tule laupäeval meile!}",
         "{Meile} means to us, and with {tule} it means \"come over to our place\".",
         "At the end, Mari stops you on the stairs and you answer her as yourself, one turn at a time, until you've held the whole conversation.",
         "If you can hold this conversation, you can meet somebody, say who you are, and make a plan.",

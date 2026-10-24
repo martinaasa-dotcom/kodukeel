@@ -74,7 +74,7 @@ describe("curriculum alignment", () => {
   });
 });
 
-describe("A1 on /curriculum, drawn from the lessons", () => {
+describe("the lesson levels on /curriculum, drawn from the lessons", () => {
   const outline = outlineLessons(LESSONS, LESSON_PARTS, courseChecks(PROGRAMMES), sceneForLesson);
 
   it("names every lesson in LESSONS exactly once, in teaching order", () => {
@@ -85,17 +85,20 @@ describe("A1 on /curriculum, drawn from the lessons", () => {
     expect(listed.length).toBeGreaterThan(0);
   });
 
-  it("closes every part with its check, the last one on the whole level", () => {
+  it("closes every part with its check, the last of each level on the whole level", () => {
     expect(outline.length).toBe(LESSON_PARTS.length);
     let checked = 0;
     for (const [i, part] of outline.entries()) {
+      const lastOfLevel = outline[i + 1]?.part.level !== part.part.level;
       expect(part.check, `${part.part.id} has no check`).not.toBeNull();
-      expect(part.check!.final).toBe(i === outline.length - 1);
+      expect(part.check!.final, part.part.id).toBe(lastOfLevel);
       expect(part.check!.questions).toBeGreaterThan(0);
+      if (lastOfLevel) {
+        expect(part.check!.lessons, part.part.id).toBe(LESSONS.filter((l) => l.level === part.part.level).length);
+      }
       checked++;
     }
     expect(checked).toBe(LESSON_PARTS.length);
-    expect(outline.at(-1)!.check!.lessons).toBe(LESSONS.length);
   });
 
   it("names the live conversation of every role-play that has one", () => {
@@ -111,6 +114,7 @@ describe("A1 on /curriculum, drawn from the lessons", () => {
     expect(made.lessons).toBe(LESSONS.length);
     expect(made.units).toBe(SYLLABUS.filter((u) => !taught.has(u.level)).length);
     expect(taught.has("A1")).toBe(true);
+    expect(made.through).toBe([...taught].at(-1));
     expect(made.units).toBeLessThan(SYLLABUS.length);
   });
 });

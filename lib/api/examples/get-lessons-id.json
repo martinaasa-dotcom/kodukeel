@@ -286,34 +286,10 @@
     },
     {
       "kind": "type",
-      "en": "Thank you!",
-      "answer": "Aitäh!",
-      "accept": [
-        "Aitäh!"
-      ]
-    },
-    {
-      "kind": "type",
       "en": "Good evening!",
       "answer": "Tere õhtust!",
       "accept": [
         "Tere õhtust!"
-      ]
-    },
-    {
-      "kind": "type",
-      "en": "Good afternoon!",
-      "answer": "Tere päevast!",
-      "accept": [
-        "Tere päevast!"
-      ]
-    },
-    {
-      "kind": "type",
-      "en": "Goodbye!",
-      "answer": "Head aega!",
-      "accept": [
-        "Head aega!"
       ]
     },
     {
@@ -326,22 +302,99 @@
     },
     {
       "kind": "type",
-      "en": "Good morning!",
-      "answer": "Tere hommikust!",
+      "en": "Goodbye!",
+      "answer": "Head aega!",
       "accept": [
-        "Tere hommikust!"
+        "Head aega!"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "Please. Here you are. You're welcome.",
+      "answer": "Palun!",
+      "accept": [
+        "Palun!"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "Thank you!",
+      "answer": "Aitäh!",
+      "accept": [
+        "Aitäh!"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "Good afternoon!",
+      "answer": "Tere päevast!",
+      "accept": [
+        "Tere päevast!"
       ]
     }
   ],
   "review": [],
-  "next": {
-    "id": "a1-02-stuck",
-    "title": "When you're stuck"
-  },
   "scene": null,
   "place": {
     "at": 1,
     "of": 61
+  },
+  "next": {
+    "id": "a1-02-stuck",
+    "title": "When you're stuck"
+  },
+  "part": {
+    "title": "First words",
+    "lessons": [
+      {
+        "id": "a1-01-hello",
+        "label": "1",
+        "title": "Hello and thank you",
+        "done": false
+      },
+      {
+        "id": "a1-02-stuck",
+        "label": "2",
+        "title": "When you're stuck",
+        "done": false
+      },
+      {
+        "id": "a1-03-name",
+        "label": "3",
+        "title": "Your name",
+        "done": false
+      },
+      {
+        "id": "a1-04-persons",
+        "label": "4",
+        "title": "I am, you are",
+        "done": false
+      },
+      {
+        "id": "a1-05-what-who",
+        "label": "5",
+        "title": "What is this, who is that?",
+        "done": false
+      },
+      {
+        "id": "a1-06-yes-no",
+        "label": "6",
+        "title": "Yes or no",
+        "done": false
+      },
+      {
+        "id": "a1-07-how-are-you",
+        "label": "7",
+        "title": "How are you?",
+        "done": false
+      },
+      {
+        "id": "a1-08-neighbour",
+        "label": "8",
+        "title": "Meeting somebody",
+        "done": false
+      }
+    ]
   },
   "name": null,
   "due": 33,

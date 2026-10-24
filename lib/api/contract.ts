@@ -343,7 +343,11 @@ export const LessonSpecSchema = z.object({
   cast: z.record(z.string(), z.string()).describe("Who speaks, by name, and the voice each is read in."),
   conversation: z.array(LessonLine).readonly(),
   teaches: z.array(LessonTaught).readonly(),
-  patterns: z.array(z.enum(["present", "negative", "imperative"])).readonly().optional(),
+  patterns: z.array(z.enum([
+    "present", "negative", "imperative",
+    "inside", "outside", "comitative", "translative", "terminative", "essive", "abessive",
+    "past", "conditional",
+  ])).readonly().optional(),
   how: z.object({
     point: z.string(),
     notes: z.array(z.string()).readonly().optional(),
@@ -379,6 +383,16 @@ export const LessonSpecSchema = z.object({
 );
 
 export const PracticeItemSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("match"), pairs: z.array(z.object({ et: z.string(), en: z.string() })).readonly() })
+    .describe("The quick warm-up a lesson's practice opens on: words said alone, each to be matched to its English."),
+  z.object({
+    kind: z.literal("gap"), before: z.string(), after: z.string(), en: z.string(),
+    options: z.array(z.string()).readonly(), answer: z.string(),
+  }).describe("A line of a conversation with one word taken out; `before + answer + after` is the line again."),
+  z.object({
+    kind: z.literal("reply"), ask: z.object({ et: z.string(), en: z.string() }),
+    options: z.array(z.string()).readonly(), answer: z.string(), answerEn: z.string(),
+  }).describe("A question from a conversation, and what was said back, among the answers to other questions."),
   z.object({ kind: z.literal("hear"), et: z.string(), options: z.array(z.string()).readonly(), answer: z.string() }),
   z.object({ kind: z.literal("pick"), et: z.string(), options: z.array(z.string()).readonly(), answer: z.string() }),
   z.object({
@@ -394,13 +408,17 @@ export const LessonResponse = z.object({
   lesson: LessonSpecSchema,
   practice: z.array(PracticeItemSchema).readonly(),
   review: z.array(PracticeItemSchema).readonly(),
-  next: z.object({ id: z.string(), title: z.string() }).nullable().describe("The next lesson in the same level, or null at its end."),
+  next: z.object({ id: z.string(), title: z.string() }).nullable().describe("The next lesson in the same level, or null at its end and past a part's end until its check is passed."),
   scene: z.string().nullable().describe("The lesson's own conversation, a scene id, where it has one."),
   place: z.object({ at: z.number().int(), of: z.number().int() }),
   name: z.string().nullable().describe("The learner's own first name, for a model answer about them."),
   due: z.number().int().min(0).describe("Cards due in the learner's reviews now."),
   check: z.object({ id: z.string(), final: z.boolean(), passed: z.boolean() }).nullable()
     .describe("The check that closes this lesson's part, where this is its last lesson."),
+  part: z.object({
+    title: z.string(),
+    lessons: z.array(z.object({ id: z.string(), label: z.string(), title: z.string(), done: z.boolean() })).readonly(),
+  }).describe("The part this lesson is in, lesson by lesson, with the ones the learner has done."),
   locale: InterfaceLanguage,
   nativePart: z.string().nullable().describe(
     "The one part of the conversation the native speaker recorded whole, which a phone plays in his voice by " +

@@ -45,9 +45,11 @@ describe("the v1 lesson contract", () => {
 
   it("builds every lesson's plan exactly as the lesson page built it", () => {
     let compared = 0;
+    // Built once: it walks every lesson, and asking it per lesson is the whole course squared.
+    const ledgers = ledgersBefore(LESSONS);
     for (const lesson of LESSONS) {
       // The page's own lines, as they stood before they moved into `lessonPlan`.
-      const before = ledgersBefore(LESSONS).get(lesson.id)!;
+      const before = ledgers.get(lesson.id)!;
       const after = LESSONS[LESSONS.indexOf(lesson) + 1];
       const next = after && after.level === lesson.level ? after : null;
       const ofLevel = LESSONS.filter((l) => l.level === lesson.level);
@@ -57,9 +59,10 @@ describe("the v1 lesson contract", () => {
         : null;
       const plan = lessonPlan(lesson);
       expect(plan.lesson).toBe(lesson);
-      expect(plan.practice).toEqual(practiceFor(lesson, before));
-      expect(plan.review).toEqual(reviewFor(lesson, before));
-      expect(plan.next).toEqual(next ? { id: next.id, title: next.title } : null);
+      const history = LESSONS.slice(0, LESSONS.indexOf(lesson));
+      expect(plan.practice).toEqual(practiceFor(lesson, before, history));
+      expect(plan.review).toEqual(reviewFor(lesson, before, history));
+      expect(plan.after).toEqual(next ? { id: next.id, title: next.title, crossesPart: next.part !== lesson.part } : null);
       expect(plan.scene).toBe(sceneForLesson(lesson.id)?.id ?? null);
       expect(plan.place).toEqual({ at: ofLevel.indexOf(lesson) + 1, of: ofLevel.length });
       expect(plan.closes?.id ?? null).toBe(check?.id ?? null);

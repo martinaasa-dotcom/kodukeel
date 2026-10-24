@@ -111,4 +111,58 @@ describe("the check over a level", () => {
     expect(uncovered("oota", after)).toEqual([]);
     expect(uncovered("mine lähe", after)).toEqual(["mine", "lähe"]);
   });
+
+  it("covers the endings a pattern explains on a taught stem, and no other", () => {
+    const linn = [
+      { kind: "word", et: "linn", en: "town" },
+      { kind: "form", et: "linna", of: "linn", en: "of the town", stem: true },
+    ] as const;
+    const before = teach(EMPTY_LEDGER, linn, 1);
+    expect(uncovered("linnas linnast", before)).toEqual(["linnas", "linnast"]);
+    const inside = teach(before, [], 2, ["inside"]);
+    expect(uncovered("linnas linnast linnasse", inside)).toEqual([]);
+    expect(uncovered("linnal", inside)).toEqual(["linnal"]);
+    expect(uncovered("linnal linnale linnalt", teach(inside, [], 3, ["outside"]))).toEqual([]);
+    // A stem taught after the pattern gets its endings straight away.
+    const later = teach(inside, [{ kind: "form", et: "kooli", of: "kool", en: "of the school", stem: true }], 4);
+    expect(uncovered("koolis koolist", later)).toEqual([]);
+  });
+
+  it("lets a stem be spelled like the word it is the stem of, and nothing else twice", () => {
+    const maja = lesson({
+      teaches: [{ kind: "word", et: "maja", en: "house" }],
+      conversation: [{ who: "Mari", et: "Maja.", en: "A house." }],
+      answers: [{ cue: "c", model: { et: "Maja.", en: "A house." } }],
+    });
+    const stem = lesson({
+      id: "t-2", n: 2,
+      teaches: [{ kind: "form", et: "maja", of: "maja", en: "of the house", stem: true }],
+      conversation: [{ who: "Mari", et: "Maja.", en: "A house." }],
+      answers: [{ cue: "c", model: { et: "Maja.", en: "A house." } }],
+    });
+    expect(lessonProblems([maja, stem])).toEqual([]);
+    expect(lessonProblems([maja, stem, { ...stem, id: "t-3", n: 3 }]).join(" ")).toMatch(/taught already/);
+  });
+
+  it("covers the past's persons off its I form once the pattern is explained, and never the third", () => {
+    const past = [{ kind: "form", et: "elasin", of: "elama", en: "I lived", past: true }] as const;
+    const before = teach(EMPTY_LEDGER, past, 1);
+    expect(uncovered("elasid", before)).toEqual(["elasid"]);
+    const after = teach(before, [], 2, ["past"]);
+    expect(uncovered("elasid elasime elasite", after)).toEqual([]);
+    expect(uncovered("elas", after)).toEqual(["elas"]);
+  });
+
+  it("covers the conditional of every taught verb once it is explained", () => {
+    const want = teach(EMPTY_LEDGER, [{ kind: "verb", et: "tahtma", first: "tahan", en: "to want", firstEn: "I want" }], 1);
+    expect(uncovered("tahaksin", want)).toEqual(["tahaksin"]);
+    expect(uncovered("tahaksin tahaksid tahaks", teach(want, [], 2, ["conditional"]))).toEqual([]);
+  });
+
+  it("numbers each level from 1, and keeps the levels in order", () => {
+    const a2 = lesson({ id: "t-a2", n: 1, level: "A2", teaches: [], how: { point: "p", watchOut: "w" } });
+    expect(lessonProblems([lesson({}), a2])).toEqual([]);
+    expect(lessonProblems([lesson({}), { ...a2, n: 2 }]).join(" ")).toMatch(/numbered 2 where the core lessons are at 1/);
+    expect(lessonProblems([a2, lesson({ id: "t-a1", teaches: [] })]).join(" ")).toMatch(/A1 comes after A2/);
+  });
 });

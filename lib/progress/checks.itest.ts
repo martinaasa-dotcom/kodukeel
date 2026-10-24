@@ -8,7 +8,7 @@ import { checksPassedFor, moveBlockedFor, recordCheckPassed } from "./checks";
  * stored once and kept, and a move up waits on it (`lib/course/checks.ts`).
  */
 const OWNER = "itest-owner-checks";
-const parts = PROGRAMMES.filter((p) => p.days.every((d) => d.lesson));
+const parts = PROGRAMMES.filter((p) => p.level === "A1" && p.days.every((d) => d.lesson));
 
 async function wipe() {
   await prisma.setting.deleteMany({ where: { ownerId: OWNER } });

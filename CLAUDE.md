@@ -10626,10 +10626,11 @@ steps (Listen, Words, How it works, Practice, Say it, Review), the first three a
 `lib/course/lessons/` is the engine and `lessonProblems` is the rule: every spelling on every screen
 of a lesson has to be in the ledger by then, a phrase covering its words only where they stand
 together, and the unit suite fails otherwise. The conversations are written and read by the native
-speaker (ADR-005 amendment 6). A1 is the lessons and nothing else (P3): `lib/course/lessonCourse.ts` makes each lesson one evening
+speaker (ADR-005 amendment 6). A1 and A2 are the lessons and nothing else (P3, and §9 for A2's sixty-one): `lib/course/lessonCourse.ts` makes each lesson one evening
 of the course with one step, finishing it ticks the evening and hands its words to the deck
-(`finishLesson`), and the builder's ledger is seeded with every lesson before A2 (`teachLessons`). The
-A1 units stay as the dictionary's request list and are no longer walked, so a link to one lands on
+(`finishLesson`), and the builder's ledger is seeded with every lesson before B1 (`teachLessons`). A lesson
+level is asked through `isLessonLevel`, never by naming A1 or A2. The
+A1 and A2 units stay as the dictionary's request list and are no longer walked, so a link to one lands on
 `/course/lessons`, and a beginner's first run builds no starter deck. Nobody was on the old A1, so the
 switch broke it rather than placing anybody (L4 not needed). Every lesson item becomes a card of
 something the seed writes (`lessonHeads.ts`): a headword once it has been taught, or the lesson's own
@@ -10638,12 +10639,25 @@ printed under it (`SoundRow.en`), there to be heard for its sound, so lesson 1 t
 together on `öö` and `üks` before any evening teaches either. The lessons' English is machine translated into Russian and Ukrainian (`areas/lessonText.ts`),
 the operator's call, until somebody fluent reads it.
 
+**And a level of lessons keeps one shape, which is asserted rather than remembered.** A reading of
+A2 found four parts ending on a "Check-in" where the rest said "End of part", finales claiming every
+part of the level, counts of "the last five lessons" gone stale, and lines with no Russian, while
+every lesson was right on its own. `lib/course/lessons/contract.ts` is the shape and
+`contract.test.ts` asks it of every level in `LESSON_LEVELS`: words taught before shown across the
+levels, core lessons numbered from 1, four to ten a part, each part ending on its own `partEnd`
+with a role-play and a live scene, at most `MOST_TAUGHT` new things an evening, a point explained
+once a level, `LEVEL_INFO` filled in, and every line in Russian and Ukrainian. The rest of
+`lessons.test.ts` is asked of every level too. `docs/43-lessons.md` §10 is the list for moving B1,
+B2 and C1 to lessons, starting with measuring what the level assumes against the lesson ledger
+rather than the old unit order. A finale says "made of what this part has taught" and never counts
+lessons, and a cross-reference names a part only after checking which part taught it.
+
 **A lesson's role-play is also a live scene, and it says only what that lesson has taught.**
-`lib/scenes/lessonScenes.ts` holds one scene per A1 lesson that ends in a role-play, off the situations
+`lib/scenes/lessonScenes.ts` holds one scene per A1 and A2 lesson that ends in a role-play, off the situations
 listing (`sceneById` reads it after the catalog). `inLesson` takes the scene's word list from the
 lesson ledger instead of the old units, `lessonGate` hands the gate the `taught` check and the lesson's
 own spellings, and the app and the harness both read it (asserted). `lessonScenes.test.ts` plays every
-scene keyless as seven kinds of beginner and fails on any word the other side says that the lesson has
+scene keyless as seven kinds of beginner, at its own lesson's level, and fails on any word the other side says that the lesson has
 not taught, which is how the engine's own `või`, `aga` and `selge` were caught. A word a card deals must
 be a dictionary entry, or no answer can meet it.
 

@@ -70,7 +70,7 @@ describe("submitCheckFor", () => {
     expect((await checksPassedFor(OWNER)).has(check.id)).toBe(false);
 
     const second = checkPaper(check, 2);
-    const passed = await submitCheckFor(OWNER, check.id, 2, second.map((item) => item.answer));
+    const passed = await submitCheckFor(OWNER, check.id, 2, second.map((item) => (item.kind === "match" ? null : item.answer)));
     expect(passed).toMatchObject({ ok: true, passed: true });
     expect((await checksPassedFor(OWNER)).has(check.id)).toBe(true);
   });

@@ -263,6 +263,9 @@ export function unitsAboveLessons<U extends UnitLike>(units: readonly U[], lesso
 export function courseMadeOf(units: readonly UnitLike[], lessons: readonly LessonLike[]): {
   readonly lessons: number;
   readonly units: number;
+  /** The highest level taught as lessons, which is where the units start above. */
+  readonly through: string;
 } {
-  return { lessons: lessons.length, units: unitsAboveLessons(units, lessons).length };
+  const taught = [...lessonLevels(lessons)];
+  return { lessons: lessons.length, units: unitsAboveLessons(units, lessons).length, through: taught[taught.length - 1] ?? "A1" };
 }

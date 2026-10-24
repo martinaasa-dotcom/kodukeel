@@ -1,7 +1,9 @@
 /**
- * THE WHOLE LADDER, PLANNED: A1.1 TO C1.3, EIGHTEEN PARTS.
+ * THE LADDER FROM B1 UP, PLANNED: B1.1 TO C1.3, NINE PARTS.
  *
- * This file is the judgment. Everything else in `lib/course/` is machinery
+ * A1 and A2 are the lessons (`lib/course/lessons/`, docs/43-lessons.md),
+ * eight parts each, which come in front of these. This file is the judgment
+ * for the rest. Everything else in `lib/course/` is machinery
  * that turns it into evenings, and the machinery has no opinions: it does not
  * choose a word, a round or a grammar page, it reads what is decided here and
  * what the syllabus already decided.
@@ -11,9 +13,10 @@
  * Not the words. `lib/collections/syllabus/` is the course, its units are in
  * teaching order and so are the words inside each one, and both were written
  * by somebody who knows the language. A program walks that order and slices
- * it into evenings. Every word of all 82 units is in exactly one evening of
- * exactly one part, which is a stronger claim than a hand-picked hundred, and
- * it means nothing in the course is quietly unreachable through the short way.
+ * it into evenings. Every word of every unit from B1 up is in exactly one
+ * evening of exactly one part, which is a stronger claim than a hand-picked
+ * hundred, and it means nothing there is quietly unreachable through the short
+ * way.
  *
  * Not the grammar page either. A unit already names the points it teaches, in
  * its own order, so an evening reads the next one on that list. `kus-ja-kuhu`
@@ -49,13 +52,13 @@ export const VERB_HEAVY = 0.5;
  * rotation carries writing a sentence of your own and verb government, which
  * are the two things that stop being optional there, and the game slot the
  * picture board used to fill is Tähed, which scrambles the level's own longer
- * words. A1 has none, since it is the lessons.
+ * words. A1 has none, since it is the lessons, and A2's is dealt on no evening.
  */
 export const ROTATION: Record<string, readonly ActivityKey[]> = {
   /*
     A1 HAS NO ROTATION: it is the lessons (`lessonCourse.ts`), and a lesson
     is its own six steps, practice and speaking included, rather than an
-    evening of two rounds. These start at A2.
+    evening of two rounds. A2 is the lessons as well (below).
   */
   /*
     AND SÕNAD IS ON NONE OF THEM. Its word is dealt off the dictionary at the
@@ -109,6 +112,12 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
     for a round of ten (`supportsRound`), and inside the module it waits for
     `kell` before a clock and `euro` before a price.
   */
+  /*
+    A2 IS THE LESSONS TOO NOW (docs/43-lessons.md §9), so the module deals
+    this list on no evening. It stays as the rotation `rounds` falls back to
+    for a level with none of its own, and dictation and numbers stay on
+    Practice, where a learner chooses them.
+  */
   A2: ["match", "dictation", "letters", "numbers", "sentences", "workbook"],
   B1: ["letters", "write", "sentences", "government", "match", "workbook"],
   B2: ["letters", "write", "match", "government", "sentences", "workbook"],
@@ -140,38 +149,18 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
  * every scene in the catalog to an entry here, so the count is the table's.
  */
 export const SCENE_FOR_UNIT: Record<string, string> = {
-  korraldused: "poodi-piima",
-  minevik: "trepikoda",
-  "kool-ja-keel": "keeletund",
-  reisimine: "bussipilet",
-  "linn-ja-teenused": "tee-kusimine",
-  restoranis: "kohvikus",
-  kirjeldamine: "restoranis-tellimine",
-  plaanid: "arsti-aeg",
-  suhtlemine: "helistamine",
-  tunded: "apteek",
+  /*
+    A2 IS THE LESSONS NOW (docs/43-lessons.md §9), and its role-plays are the
+    lessons' own conversations (`lib/scenes/lessonScenes.ts`). The catalog's
+    conversations declare A2 units, which count as taught once the A2 lessons
+    are behind a learner (`unitsThrough`), so B1 is the first place the module
+    can open one, and the five that used to come back from A2 a level up are
+    met here for the first time.
+  */
   haridus: "toovestlus",
   eluase: "uuri-remont",
   probleemid: "ametiasutus",
   oigus: "kaebus",
-  /*
-    The clothes shop rehearses `riided`, which is A1, and is dealt here
-    because no conversation can open before `korraldused`: every scene
-    declares it, and it is what makes asking for anything possible. This is
-    the first free evening after it that is not already carrying one.
-  */
-  "vaba-aeg": "riidepood",
-  /*
-    AND B1, B2 AND C1 COME BACK TO SEVEN OF THEM, because the first fifteen
-    thinned out above A2 and C1 used to go six weeks without a single conversation,
-    in a course whose whole point is the conversation somebody has outside
-    it. Nothing about the scene changes and everything about the run does: a
-    run is pitched at the learner's own level (`lib/scenes/pitch.ts`), so the
-    clerk who asked a beginner one short question at a time talks to a C1
-    speaker the way they would to anybody, and the learner has a year of
-    words to answer with. Each sits on the unit closest to what it rehearses,
-    and the step says it is a second time (`DaySpec.sceneAgain`).
-  */
   inimsuhted: "trepikoda",
   uhiskond: "bussipilet",
   tervishoid: "arsti-aeg",
@@ -181,24 +170,13 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
   rahvusvaheline: "helistamine",
   /*
     THE THIRD BATCH'S EVERYDAY SCENES (docs/38-third-batch.md, TB-10), each on
-    the last evening of the unit the brief names for it (D6): the errands with
-    no rehearsal until now, from the first day at work to the library desk.
+    the last evening of the unit the brief names for it (D6).
   */
-  vordlemine: "uus-kolleeg",
-  kodutood: "abi-palumine",
-  loodus: "ootamine",
-  kuivord: "kokkulepe",
   objekt: "turul",
   rektsioon: "bussipeatus",
   tingiv: "raamatukogu",
   /*
-    Not on `kesksonad`, which the brief named: that unit has two evenings and
-    the second is its only reading of the perfect, which a scene evening would
-    take (course.test.ts refuses it). Every B1 unit after it is the evening of a
-    later scene in the same batch, so per D6 this is the next free one.
-  */
-  /*
-    Three more moved off the unit the brief named, each because course.test.ts
+    Three moved off the unit the brief named, each because course.test.ts
     refused the placement, and each scene's own comment says why: `sobra-mure`
     is on `kunst` (its sorry beat needs `probleemid`, taught later than the
     unit named), `kuulsin` on `nominalisatsioon` (`kaudne` has one reading and
@@ -207,7 +185,6 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
     unit already carries a scene).
   */
   teadus: "nadalavahetus",
-  "keha-ja-tervis": "hadaabi",
   "too-ja-raha": "pangas",
   "des-vorm": "perearst",
   majandus: "tootukassa",
@@ -230,29 +207,56 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
 };
 
 /**
- * AND WHY THERE IS NO CONVERSATION IN THE WHOLE OF A1, WHICH IS A FINDING
- * RATHER THAN AN OMISSION.
+ * THE EVERYDAY ERRANDS THAT USED TO OPEN ON AN A2 UNIT, ON A FREE EVENING OF
+ * A B1 ONE.
  *
- * Every scene in the catalog declares `korraldused` among the units it
- * may draw on, which is the unit for asking, telling and offering, and it sits
- * in A2. That is not a mistake in the scenes: you cannot ask anybody for
- * anything without it, so a conversation before it is a conversation the
- * learner can only answer in single words. It was found by asking the question
- * mechanically rather than by reading, and `course.test.ts` is where the
- * question lives: a scene is opened only once every unit it declares has been
- * taught, checked over the whole ladder in order.
+ * Eleven conversations of the catalog rehearsed A2's own errands, the shop,
+ * the café, the pharmacy, the way to somewhere, and sat on the A2 units the
+ * lessons replaced. They still need a learner who has A2 behind them, so they
+ * go to B1 and the start of B2, on an evening of a unit that reads no page that night: a scene
+ * evening shows no reading (`day()` in types.ts), so an evening that had none
+ * to show loses nothing. The builder deals each, in order, on the unit's
+ * earliest evening with no page left to read and before its last, which is
+ * `SCENE_FOR_UNIT`'s (`build.ts`), and `course.test.ts` holds every one to
+ * having landed.
+ */
+export const EARLIER_SCENES_FOR_UNIT: Readonly<Record<string, readonly string[]>> = {
+  "too-ja-raha": ["uus-kolleeg"],
+  haridus: ["kokkulepe"],
+  eluase: ["abi-palumine"],
+  iseloom: ["ootamine"],
+  meedia: ["tee-kusimine"],
+  arvamus: ["restoranis-tellimine"],
+  keskkond: ["riidepood"],
+  probleemid: ["apteek"],
+  /*
+    B1 takes eight of them without three conversations running on one
+    unit, so the last three go one part on, each where it is nearest home:
+    the café among the society unit's people, the corner shop with the
+    economy, and the emergency call with health.
+  */
+  uhiskond: ["kohvikus"],
+  majandus: ["poodi-piima"],
+  tervishoid: ["hadaabi"],
+};
+
+/**
+ * AND WHY THE CATALOG'S CONVERSATIONS START AT B1, WHICH IS A FINDING RATHER
+ * THAN AN OMISSION.
  *
- * What it changed is where A2 starts. `korraldused` used to sit near the end
- * of A2 and now opens it, because it is the unit that makes a conversation
- * possible and everything after it is better for having it. The first
- * conversations fall inside A2 as a result, which is the right shape: A1 is
- * where you get the words, A2 is where you start using them on people.
+ * Every scene in the catalog declares `korraldused` among the units it may
+ * draw on, which is the unit for asking, telling and offering, and it is A2.
+ * A1 and A2 are the lessons, which teach by goal rather than unit by unit, so
+ * no unit of theirs counts as taught until the level's lessons are behind a
+ * learner (`unitsThrough`), and `course.test.ts` asks the question
+ * mechanically: a scene is opened only once every unit it declares has been
+ * taught.
  *
- * A1 is not left without anything to enjoy. Every A1 evening carries a game
- * off the rotation, which at that level is Match and Tähed, and those need no vocabulary the evening has not just
- * taught. It is the conversations that need a fortnight of function words
- * first, and pretending otherwise would be the false confidence the readiness
- * screen is built against.
+ * A1 and A2 are not left without conversations. Every part of the lessons
+ * ends on a role-play played live, held to what the lessons have taught
+ * (`lib/scenes/lessonScenes.ts`): A2 has eight, the library desk, meeting in
+ * town, the summer, the doctor, the ticket window, a restaurant, a job
+ * interview and an old friend.
  */
 
 /** One part of a level: a stretch of units, worked in order. */
@@ -270,7 +274,7 @@ export interface PartSpec {
 }
 
 /**
- * The parts from A2 up. A1 is the lessons (`lessonCourse.ts`).
+ * The parts from B1 up. A1 and A2 are the lessons (`lessonCourse.ts`).
  *
  * WHERE THE BREAKS FALL IS THE ONE THING ARITHMETIC COULD NOT DECIDE. A part
  * is two to three weeks of fifteen-minute evenings, which is short enough to
@@ -287,38 +291,12 @@ export interface PartSpec {
  */
 export const PARTS: readonly PartSpec[] = [
   /*
-    A1 IS THE LESSONS (docs/43-lessons.md, phase P3), built by
-    `lessonProgrammes` in `lessonCourse.ts`, and these parts start at A2. The
-    builder's ledger is handed what the lessons taught before A2.1 is built
-    (`teachLessons` in `build.ts`), so A2's first evening is dealt against the
-    A1 a learner actually had.
+    A1 AND A2 ARE THE LESSONS (docs/43-lessons.md), built by
+    `lessonProgrammes` in `lessonCourse.ts`, and these parts start at B1. The
+    builder's ledger is handed what the lessons taught before B1.1 is built
+    (`teachLessons` in `build.ts`), so B1's first evening is dealt against the
+    A1 and A2 a learner actually had.
   */
-  {
-    id: "a2.1", level: "A2",
-    title: "Palved ja eile", subtitle: "Asking for things, yesterday, the outdoors, the body and the house",
-    blurb:
-      "A2 starts with what makes a conversation possible: asking for something without sounding like a robot. Then the past tense, and your first case endings, starting with the one all the others are built on. By the end you can say what you did yesterday and what's wrong with you, and you can try your first conversations.",
-    units: ["korraldused", "minevik", "loodus", "keha-ja-tervis", "kodutood"],
-  },
-  {
-    id: "a2.2", level: "A2",
-    title: "Linn ja liikumine", subtitle: "School, travel, the town, a free afternoon, and comparing things",
-    blurb:
-      "Life outside your front door: school, trips, the town, your weekends, and saying which "
-      + "of two things is better. There are conversations to practice on along the way. By "
-      + "the end you can buy a ticket, ask the way and say what you did on Saturday.",
-    units: ["kool-ja-keel", "reisimine", "linn-ja-teenused", "vaba-aeg", "vordlemine"],
-  },
-  {
-    id: "a2.3", level: "A2",
-    title: "Söök, plaanid ja tunded", subtitle: "Eating out, making plans, keeping in touch, and how you feel",
-    blurb:
-      "Talking about what hasn't happened yet, keeping in touch, and saying how you feel about "
-      + "it all. It's full of conversations. By the end you can get "
-      + "through a whole meal in Estonian, book an appointment and call somebody about it.",
-    units: ["restoranis", "plaanid", "suhtlemine", "tunded", "kirjeldamine", "kuivord"],
-  },
-
   {
     id: "b1.1", level: "B1",
     title: "Sihitis ja rektsioon", subtitle: "Objects, the people in your life, what each verb asks for, money, and would",
