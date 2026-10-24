@@ -45,7 +45,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "uues", of: "uus", en: "in a new one" },
       { kind: "verb", et: "kavatsema", first: "kavatsen", en: "to plan to, to intend to", firstEn: "I plan to" },
       { kind: "verb", et: "õpetama", first: "õpetan", en: "to teach", firstEn: "I teach" },
-      { kind: "word", et: "puhkus", en: "holiday, time off work" },
+      { kind: "word", et: "puhkus", en: "vacation, time off work" },
       { kind: "form", et: "puhkust", of: "puhkus", en: "time off, as some of it" },
     ],
     how: {
@@ -135,7 +135,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
     goal: "Say what you'll do if: if the weather's nice, if it rains.",
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
-      { who: "Liis", et: "Mida me laupäeval teeme?", en: "What shall we do on Saturday?" },
+      { who: "Liis", et: "Mida me laupäeval teeme?", en: "What should we do on Saturday?" },
       { who: "Tom", et: "Kui ilm on ilus, lähme randa.", en: "If the weather's nice, let's go to the beach." },
       { who: "Liis", et: "Ja kui sajab vihma?", en: "And if it rains?" },
       { who: "Tom", et: "Siis jääme koju ja vaatame filmi.", en: "Then we'll stay at home and watch a film." },
@@ -167,7 +167,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       examples: [1, 2, 3],
     },
     answers: [
-      { ask: { et: "Mida me laupäeval teeme?", en: "What shall we do on Saturday?" }, cue: "Say if the weather's nice, let's go to the beach.", model: { et: "Kui ilm on ilus, lähme randa.", en: "If the weather's nice, let's go to the beach." } },
+      { ask: { et: "Mida me laupäeval teeme?", en: "What should we do on Saturday?" }, cue: "Say if the weather's nice, let's go to the beach.", model: { et: "Kui ilm on ilus, lähme randa.", en: "If the weather's nice, let's go to the beach." } },
       { ask: { et: "Ja kui sajab vihma?", en: "And if it rains?" }, cue: "Say then you'll stay at home.", model: { et: "Siis jääme koju.", en: "Then we'll stay at home." } },
       { cue: "Say if it's cold, you'll stay at home.", model: { et: "Kui on külm, jään koju.", en: "If it's cold, I'll stay at home." } },
       { cue: "Say you'll bring your swimming things.", model: { et: "Ma võtan ujumisriided kaasa.", en: "I'll bring my swimming things." } },
@@ -291,7 +291,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
     goal: "Agree a day, a time and a place to meet, and change it if it doesn't suit.",
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
-      { who: "Mari", et: "Millal me kokku saame?", en: "When shall we meet?" },
+      { who: "Mari", et: "Millal me kokku saame?", en: "When should we meet?" },
       { who: "Tom", et: "Kas sulle sobib reedel kell kuus?", en: "Does Friday at six suit you?" },
       { who: "Mari", et: "Reedel ei sobi, mul on trenn. Aga laupäeval sobib.", en: "Friday doesn't suit, I have training. But Saturday's fine." },
       { who: "Tom", et: "Hästi, laupäeval kell kuus. Kus?", en: "All right, Saturday at six. Where?" },
@@ -299,7 +299,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Lepime kokku!", en: "It's a deal!" },
     ],
     teaches: [
-      { kind: "phrase", et: "Millal me kokku saame?", en: "When shall we meet?" },
+      { kind: "phrase", et: "Millal me kokku saame?", en: "When should we meet?" },
       { kind: "word", et: "trenn", en: "training, a workout" },
       { kind: "phrase", et: "Lepime kokku!", en: "It's a deal! Agreed!" },
     ],
@@ -323,7 +323,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       examples: [1, 2, 5],
     },
     answers: [
-      { cue: "Ask when you'll meet.", model: { et: "Millal me kokku saame?", en: "When shall we meet?" } },
+      { cue: "Ask when you'll meet.", model: { et: "Millal me kokku saame?", en: "When should we meet?" } },
       { cue: "Ask if Friday at six suits them.", model: { et: "Kas sulle sobib reedel kell kuus?", en: "Does Friday at six suit you?" } },
       { ask: { et: "Kas sulle sobib reedel?", en: "Does Friday suit you?" }, cue: "Say Friday doesn't suit, but Saturday's fine.", model: { et: "Reedel ei sobi. Aga laupäeval sobib.", en: "Friday doesn't suit. But Saturday's fine." } },
       { ask: { et: "Laupäeval kell kuus, kohvikus?", en: "Saturday at six, at the café?" }, cue: "Agree.", model: { et: "Lepime kokku!", en: "It's a deal!" } },
@@ -350,9 +350,9 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [],
     how: {
-      point: "A whole catch-up, made of all of A2: the past, the endings on the stem, the would form, what you think and what you plan.",
+      point: "A whole catch-up, made of A2: the past, the endings on the stem, the would form, what you think and what you plan.",
       notes: [
-        "Every part of A2 is in it: {Tartus} and {Saaremaale} are part two, {olin} and {töötasin} part three, {kõige ilusam} part six, {programmeerijana} part seven, {kavatsen} and {Ma arvan, et} part eight.",
+        "Most of A2 is in it: {Tartus} and {Saaremaale} are part two, {olin} and {töötasin} part three, {kõige ilusam} part six, {programmeerijana} part seven, {kavatsen} and {Ma arvan, et} part eight.",
         "At the end, an old friend speaks to you. Answer as yourself, one turn at a time.",
       ],
       watchOut: "{Kas tuleksid kaasa?} is would you come along: the would form makes an invitation gentle.",
@@ -370,7 +370,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
         { ask: { et: "Kuidas sulle Tartu meeldis?", en: "How did you like Tartu?" }, cue: "Say what you think of it.", model: { et: "Ma arvan, et see on Eesti kõige ilusam linn.", en: "I think it's the prettiest town in Estonia." } },
         { ask: { et: "Mis su plaanid on?", en: "What are your plans?" }, cue: "Say what you plan to do in the summer.", model: { et: "Suvel ma kavatsen Saaremaale minna.", en: "In the summer I plan to go to Saaremaa." } },
         { ask: { et: "Tore! Kellega sa lähed?", en: "Lovely! Who are you going with?" }, cue: "Say who with, and ask if she'd come along too.", model: { et: "Jaaniga. Kas tuleksid ka kaasa?", en: "With Jaan. Would you come along too?" } },
-        { ask: { et: "Hea meelega! Millal me kokku saame?", en: "I'd love to! When shall we meet?" }, cue: "Suggest a day and a time.", model: { et: "Kas sulle sobib laupäeval kell kuus?", en: "Does Saturday at six suit you?" } },
+        { ask: { et: "Hea meelega! Millal me kokku saame?", en: "I'd love to! When should we meet?" }, cue: "Suggest a day and a time.", model: { et: "Kas sulle sobib laupäeval kell kuus?", en: "Does Saturday at six suit you?" } },
       ],
     },
   },

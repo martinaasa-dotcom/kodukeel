@@ -639,7 +639,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Väga meeldiv! Ja teie?", en: "Nice to meet you! And you?", stage: "She turns to Anna." },
       { who: "Anna", et: "Mina olen Anna. Ma olen pärit Ukrainast. Ma räägin ukraina keelt, vene keelt ja natuke eesti keelt.", en: "I'm Anna. I'm from Ukraine. I speak Ukrainian, Russian and a little Estonian." },
       { who: "Mari", et: "Väga hästi! Kas teil on siin pere?", en: "Very good! Do you have family here?" },
-      { who: "Anna", et: "Jah. Mul on abikaasa ja tütar.", en: "Yes. I have a husband and a daughter." },
+      { who: "Anna", et: "Jah. Mul on abikaasa, poeg ja tütar.", en: "Yes. I have a husband, a son and a daughter." },
       { who: "Mari", et: "Aitäh, Anna!", en: "Thank you, Anna!" },
     ],
     teaches: [],
@@ -648,7 +648,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       notes: [
         "Listen for the order people introduce themselves in: their name, where they're from, where they live, what they speak, who's at home.",
         "Mari says {teie} to everybody, because she's the teacher and they're new. In a class, both {teie} and {sina} are normal.",
-        "At the end, Mari goes round the room and you introduce yourself as you, one turn at a time, until you've held the whole conversation.",
+        "At the end, Mari goes around the room and you introduce yourself as you, one turn at a time, until you've held the whole conversation.",
       ],
       watchOut: "You don't need long sentences. {Ma olen pärit Inglismaalt} and {Ma elan Tallinnas} are two short ones, and two short ones are easier to say than one long one.",
       examples: [2, 4],
@@ -659,7 +659,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { ask: { et: "Kas te räägite eesti keelt?", en: "Do you speak Estonian?" }, cue: "Say a little, and that you're learning it.", model: { et: "Natuke. Ma õpin eesti keelt.", en: "A little. I'm learning Estonian." } },
     ],
     roleplay: {
-      scene: "It's the first evening of an Estonian course. The teacher, Mari, goes round the room. Introduce yourself as you.",
+      scene: "It's the first evening of an Estonian course. The teacher, Mari, goes around the room. Introduce yourself as you.",
       turns: [
         { ask: { et: "Tere õhtust! Mis teie nimi on?", en: "Good evening! What's your name?" }, cue: "Say your name.", model: { et: "Minu nimi on Tom.", en: "My name is Tom." } },
         { ask: { et: "Väga meeldiv! Kust te pärit olete?", en: "Nice to meet you! Where are you from?" }, cue: "Say where you're from.", model: { et: "Ma olen pärit Inglismaalt.", en: "I'm from England." } },

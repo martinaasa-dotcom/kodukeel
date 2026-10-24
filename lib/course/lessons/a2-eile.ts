@@ -57,9 +57,6 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "kolima", first: "kolin", en: "to move (house)", firstEn: "I move" },
       { kind: "form", et: "kolisin", of: "kolima", en: "I moved", past: true },
       { kind: "form", et: "kolis", of: "kolima", en: "he, she moved" },
-      { kind: "form", et: "olin", of: "olema", en: "I was", past: true },
-      { kind: "form", et: "tegin", of: "tegema", en: "I did, I made", past: true },
-      { kind: "form", et: "käisin", of: "käima", en: "I went, I visited", past: true },
       { kind: "form", et: "lugesin", of: "lugema", en: "I read (yesterday)", past: true },
       { kind: "form", et: "luges", of: "lugema", en: "he, she read" },
       { kind: "form", et: "sõin", of: "sööma", en: "I ate", past: true },
@@ -88,7 +85,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "The he and she form usually drops -in: {elasin}, {elas}; {rääkisin}, {rääkis}. Not always, so it's learned with each verb.",
-        "A1's {olin}, {tegin}, {käisin}, {sõin} and {jõin} are the same pattern with -in in place of -sin, and now their persons follow too: {sõid}, {jõime}, {lugesite}.",
+        "{Olin}, {tegin}, {käisin}, {sõin} and {jõin} from A1 work the same way, with -in in place of -sin: {sõid}, {jõime}, {lugesite}.",
         "{Kaua?} asks how long: {Kaua sa seal elasid?}",
       ],
       watchOut: "{Elasid} is both you lived and they lived: {sa elasid}, {nad elasid}. The pronoun says which.",
@@ -434,7 +431,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Ja seal sa kasvasid ka üles?", en: "And you grew up there too?" },
       { who: "Tom", et: "Jah. Kui ma olin kümme, kolisime Londonisse.", en: "Yes. When I was ten, we moved to London." },
       { who: "Mari", et: "Ja millal sa Eestisse tulid?", en: "And when did you come to Estonia?" },
-      { who: "Tom", et: "Viis aastat tagasi. Minu naine on eestlane.", en: "Five years ago. My wife is Estonian." },
+      { who: "Tom", et: "Viis aastat tagasi. Minu naine töötab siin.", en: "Five years ago. My wife works here." },
       { who: "Mari", et: "Selge!", en: "I see!" },
     ],
     teaches: [

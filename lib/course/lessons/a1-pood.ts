@@ -439,9 +439,9 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
     how: {
       point: "A whole visit to a shop, made only of what this part and the ones before it taught.",
       notes: [
-        "Tom opens with the weather and the shop assistant picks it up. That's how a lot of small talk in Estonia starts.",
+        "Tom opens with the weather and the salesperson picks it up. That's how a lot of small talk in Estonia starts.",
         "Notice {See hall müts}: this gray hat, with the color between {see} and the noun, as in lesson 38.",
-        "At the end, the shop assistant speaks first and you buy a hat, one turn at a time, until you've held the whole conversation.",
+        "At the end, the salesperson speaks first and you buy a hat, one turn at a time, until you've held the whole conversation.",
       ],
       watchOut: "What you need, and a color, is enough to be shown it.",
       examples: [1, 4, 7],
@@ -452,7 +452,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       { cue: "Say it's cheap and nice.", model: { et: "See on odav ja ilus.", en: "It's cheap and nice." } },
     ],
     roleplay: {
-      scene: "It's a cold day and you need a hat. The shop assistant speaks first.",
+      scene: "It's a cold day and you need a hat. The salesperson speaks first.",
       turns: [
         { ask: { et: "Tere! Mida soovite?", en: "Hello! What would you like?" }, cue: "Say you need a hat.", model: { et: "Mul on vaja mütsi.", en: "I need a hat." } },
         { ask: { et: "Jah, väljas on külm! Mis värvi?", en: "Yes, it's cold outside! What color?" }, cue: "Say gray or black.", model: { et: "Hall või must.", en: "Gray or black." } },

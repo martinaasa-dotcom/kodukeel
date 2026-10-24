@@ -195,7 +195,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
         "{Juures} also means at somebody's place: {sõbra juures}, at a friend's.",
         "{Siin see on!}, here it is, is what you say when you find something.",
       ],
-      watchOut: "The small word comes after: {laua peal}, never the other way round.",
+      watchOut: "The small word comes after: {laua peal}, never the other way around.",
       examples: [1, 3, 6],
     },
     answers: [
@@ -421,10 +421,10 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [],
     how: {
-      point: "A whole visit to a desk, made only of what the last six lessons taught.",
+      point: "A whole visit to a desk, made only of what this part has taught.",
       notes: [
         "Liis asks with just the word, {Teie aadress?}, and Tom answers with just the detail. That's normal at a desk.",
-        "At the end, the [omastav] (2nd form) does its first job: {kelle telefon}, whose phone.",
+        "Near the end, the [omastav] (2nd form) asks whose: {kelle telefon}, whose phone.",
         "At the end, Liis is at the desk and you're the one asking for a card. Answer as yourself, one turn at a time.",
       ],
       watchOut: "{Suur aitäh!} is a big thank you, for when somebody has done you a real favor, or you them.",

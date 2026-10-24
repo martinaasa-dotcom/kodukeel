@@ -100,7 +100,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Halloo, Tom! Kus sa oled?", en: "Hello, Tom! Where are you?", stage: "On the phone." },
       { who: "Tom", et: "Ma olen turul. Ostan kala ja kartulit.", en: "I'm at the market. I'm buying fish and potatoes." },
-      { who: "Mari", et: "Mina olen veel tööl. Kas saame kokku väljakul?", en: "I'm still at work. Shall we meet on the square?" },
+      { who: "Mari", et: "Mina olen veel tööl. Kas saame kokku väljakul?", en: "I'm still at work. Should we meet on the square?" },
       { who: "Tom", et: "Jah. Ma lähen turult otse väljakule.", en: "Yes. I'll go straight from the market to the square." },
       { who: "Mari", et: "Hästi. Ma ootan kohvikus kiriku kõrval.", en: "All right. I'll wait in the café next to the church." },
       { who: "Tom", et: "Selge! Kümne minuti pärast!", en: "Got it! See you in ten minutes!" },
@@ -303,7 +303,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
         "Their commands are the [olevik] (I form) without -n: {pane}, {too}, {vii}.",
         "{Tool tuleb siia} means the chair goes here: {tulema} is come, and also where a thing belongs.",
       ],
-      watchOut: "{Too} comes towards you and {vii} goes away: {too siia}, {vii sinna}.",
+      watchOut: "{Too} comes toward you and {vii} goes away: {too siia}, {vii sinna}.",
       examples: [1, 3, 5],
     },
     answers: [
@@ -381,7 +381,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
     part: "a2-kuhu",
     kind: "lesson",
     title: "A house in the country",
-    goal: "Show somebody round a house and garden: the roof, the walls, the garden, the sauna.",
+    goal: "Show somebody around a house and garden: the roof, the walls, the garden, the sauna.",
     cast: { Kati: "vesta", Tom: "kalev" },
     conversation: [
       { who: "Kati", et: "See on meie maja maal.", en: "This is our house in the country." },
@@ -449,7 +449,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Väga hea. Mina olen turul. Kas sa tuled siia?", en: "Great. I'm at the market. Are you coming here?" },
       { who: "Tom", et: "Jah. Kuidas ma turule saan?", en: "Yes. How do I get to the market?" },
       { who: "Mari", et: "Mine otse ja siis vasakule. Turg on kiriku taga.", en: "Go straight on and then left. The market's behind the church." },
-      { who: "Tom", et: "Selge. Kas me läheme pärast kohvikusse?", en: "Got it. Shall we go to a café afterwards?" },
+      { who: "Tom", et: "Selge. Kas me läheme pärast kohvikusse?", en: "Got it. Should we go to a café afterwards?" },
       { who: "Mari", et: "Jah! Turu kõrval on üks hea kohvik, teisel korrusel.", en: "Yes! There's a good café next to the market, on the second floor." },
       { who: "Tom", et: "Tore! Ma olen seal kümne minuti pärast.", en: "Great! I'll be there in ten minutes." },
       { who: "Mari", et: "Hästi, ootan!", en: "All right, I'll wait!" },
@@ -475,7 +475,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
       turns: [
         { ask: { et: "Halloo! Kus sa praegu oled?", en: "Hello! Where are you now?" }, cue: "Say you're in town, in front of the bank.", model: { et: "Ma olen kesklinnas, panga ees.", en: "I'm in town, in front of the bank." } },
         { ask: { et: "Mina olen turul. Kas sa tuled siia?", en: "I'm at the market. Are you coming here?" }, cue: "Say yes, and ask how you get to the market.", model: { et: "Jah. Kuidas ma turule saan?", en: "Yes. How do I get to the market?" } },
-        { ask: { et: "Mine otse ja siis vasakule. Turg on kiriku taga.", en: "Go straight on and then left. The market's behind the church." }, cue: "Say got it, and ask whether you'll go to a café afterwards.", model: { et: "Selge. Kas me läheme pärast kohvikusse?", en: "Got it. Shall we go to a café afterwards?" } },
+        { ask: { et: "Mine otse ja siis vasakule. Turg on kiriku taga.", en: "Go straight on and then left. The market's behind the church." }, cue: "Say got it, and ask whether you'll go to a café afterwards.", model: { et: "Selge. Kas me läheme pärast kohvikusse?", en: "Got it. Should we go to a café afterwards?" } },
         { ask: { et: "Jah! Turu kõrval on üks hea kohvik.", en: "Yes! There's a good café next to the market." }, cue: "Say you'll be there in ten minutes.", model: { et: "Tore! Ma olen seal kümne minuti pärast.", en: "Great! I'll be there in ten minutes." } },
         { ask: { et: "Hästi, ootan!", en: "All right, I'll wait!" }, cue: "Say goodbye for now.", model: { et: "Nägemist!", en: "See you!" } },
       ],

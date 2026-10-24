@@ -429,7 +429,7 @@ const TERE_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [],
     how: {
-      point: "A whole conversation, made only of what the last seven evenings taught.",
+      point: "A whole conversation, made only of what this part has taught.",
       notes: [
         "Everything in it is something you have said before. The new part is putting it together, one line after another.",
         "Notice how Mari leads and Tom answers, and how one line from lesson 2 keeps it going when Tom gets lost.",

@@ -6,7 +6,7 @@ import { FAREWELLS, HELLOS } from "./shared";
   RATHER THAN READ.
 
   Part five taught travel: a ticket there and back, when it leaves and how
-  long it takes. The seller asks where to, which bus, one way or return and
+  long it takes. The seller asks where to, which bus, one way or round trip and
   when the learner is coming back, and says the price off the card.
 
   Lemmas only, as in every scene file; the lines are in `bank/a2-piletikassa.ts`.

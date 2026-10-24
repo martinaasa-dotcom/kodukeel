@@ -37,7 +37,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Homme ma töötan. Ja laupäeval ma sõidan Tartusse.", en: "Tomorrow I'm working. And on Saturday I'm going to Tartu." },
       { who: "Mari", et: "Ja järgmisel nädalal?", en: "And next week?" },
       { who: "Tom", et: "Ma ei tea. Võib-olla ma olen kodus.", en: "I don't know. Maybe I'll be at home." },
-      { who: "Mari", et: "Mina olen järgmisel nädalal Tallinnas! Saame kokku?", en: "I'm in Tallinn next week! Shall we meet up?" },
+      { who: "Mari", et: "Mina olen järgmisel nädalal Tallinnas! Saame kokku?", en: "I'm in Tallinn next week! Should we meet up?" },
       { who: "Tom", et: "Jah, kindlasti!", en: "Yes, definitely!" },
     ],
     teaches: [
@@ -69,7 +69,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
     answers: [
       { ask: { et: "Mida sa homme teed?", en: "What are you doing tomorrow?" }, cue: "Say you're working tomorrow.", model: { et: "Homme ma töötan.", en: "Tomorrow I'm working." } },
       { ask: { et: "Ja järgmisel nädalal?", en: "And next week?" }, cue: "Say maybe you'll be in Tartu.", model: { et: "Võib-olla ma olen Tartus.", en: "Maybe I'll be in Tartu." } },
-      { ask: { et: "Saame kokku?", en: "Shall we meet up?" }, cue: "Say yes, definitely.", model: { et: "Jah, kindlasti!", en: "Yes, definitely!" } },
+      { ask: { et: "Saame kokku?", en: "Should we meet up?" }, cue: "Say yes, definitely.", model: { et: "Jah, kindlasti!", en: "Yes, definitely!" } },
     ],
   },
   {
@@ -372,16 +372,16 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ma käisin poes ja siis olin kodus. Ma lugesin raamatut.", en: "I went to the shop and then I was at home. I read a book." },
       { who: "Liis", et: "Ja pühapäeval?", en: "And on Sunday?" },
       { who: "Tom", et: "Pühapäeval ma olin Tartus.", en: "On Sunday I was in Tartu." },
-      { who: "Liis", et: "Tartus? Väga hea! Saame järgmisel nädalal kokku?", en: "In Tartu? How nice! Shall we meet up next week?" },
+      { who: "Liis", et: "Tartus? Väga hea! Saame järgmisel nädalal kokku?", en: "In Tartu? How nice! Should we meet up next week?" },
       { who: "Tom", et: "Jah, kindlasti!", en: "Yes, definitely!" },
     ],
     teaches: [],
     how: {
-      point: "A whole chat about the weekend, made only of what the last four lessons taught.",
+      point: "A whole chat about the weekend, made only of what this part has taught.",
       notes: [
         "Notice how the past and the future sit side by side: what you did on Saturday, and when you'll meet next week.",
         "{Saame järgmisel nädalal kokku?} puts the when in the middle, and it's still a plan to meet up.",
-        "At the end, Liis rings to ask about your weekend and you tell her, one turn at a time, until you've held the whole conversation.",
+        "At the end, Liis calls to ask about your weekend and you tell her, one turn at a time, until you've held the whole conversation.",
       ],
       watchOut: "A chat like this is mostly short answers. {Pühapäeval ma olin Tartus} is plenty.",
       examples: [3, 5, 6],
@@ -389,7 +389,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
     answers: [
       { ask: { et: "Mida sa laupäeval tegid?", en: "What did you do on Saturday?" }, cue: "Say you went to the shop.", model: { et: "Ma käisin poes.", en: "I went to the shop." } },
       { ask: { et: "Kus sa pühapäeval olid?", en: "Where were you on Sunday?" }, cue: "Say you were at home.", model: { et: "Ma olin kodus.", en: "I was at home." } },
-      { ask: { et: "Saame kokku?", en: "Shall we meet up?" }, cue: "Say yes, next week.", model: { et: "Jah, järgmisel nädalal.", en: "Yes, next week." } },
+      { ask: { et: "Saame kokku?", en: "Should we meet up?" }, cue: "Say yes, next week.", model: { et: "Jah, järgmisel nädalal.", en: "Yes, next week." } },
     ],
     roleplay: {
       scene: "Your friend Liis calls on Monday to ask about your weekend.",
@@ -397,7 +397,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
         { ask: { et: "Tere! Kuidas läheb?", en: "Hi! How's it going?" }, cue: "Say well, and ask back.", model: { et: "Hästi, aitäh! Ja sinul?", en: "Good, thanks! And you?" } },
         { ask: { et: "Normaalselt. Mida sa laupäeval tegid?", en: "Not bad. What did you do on Saturday?" }, cue: "Say what you did.", model: { et: "Ma käisin poes ja lugesin raamatut.", en: "I went to the shop and read a book." } },
         { ask: { et: "Ja pühapäeval?", en: "And on Sunday?" }, cue: "Say where you were.", model: { et: "Pühapäeval ma olin kodus.", en: "On Sunday I was at home." } },
-        { ask: { et: "Saame järgmisel nädalal kokku?", en: "Shall we meet up next week?" }, cue: "Say yes, definitely.", model: { et: "Jah, kindlasti!", en: "Yes, definitely!" } },
+        { ask: { et: "Saame järgmisel nädalal kokku?", en: "Should we meet up next week?" }, cue: "Say yes, definitely.", model: { et: "Jah, kindlasti!", en: "Yes, definitely!" } },
       ],
     },
   },

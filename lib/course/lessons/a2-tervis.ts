@@ -97,7 +97,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
     part: "a2-tervis",
     kind: "lesson",
     title: "An appointment",
-    goal: "Ring the health center, say what's wrong and book a time with your doctor.",
+    goal: "Call the health center, say what's wrong and book a time with your doctor.",
     cast: { Kati: "vesta", Tom: "kalev" },
     conversation: [
       { who: "Kati", et: "Tervisekeskus, tere!", en: "Health center, hello!", stage: "On the phone." },
@@ -231,7 +231,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
       { who: "Kati", et: "Mul on töö juures palju muret.", en: "I have a lot of worries at work." },
       { who: "Liis", et: "Ära muretse! Kõik läheb hästi.", en: "Stop worrying! Everything will be fine." },
       { who: "Kati", et: "Ma loodan küll.", en: "I really hope so." },
-      { who: "Liis", et: "Lähme õhtul kinno? Siis oled jälle rõõmus.", en: "Shall we go to the cinema this evening? Then you'll be happy again." },
+      { who: "Liis", et: "Lähme õhtul kinno? Siis oled jälle rõõmus.", en: "Should we go to the cinema this evening? Then you'll be happy again." },
       { who: "Kati", et: "Hea mõte! Aitäh, Liis.", en: "Good idea! Thanks, Liis." },
     ],
     teaches: [
@@ -266,7 +266,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
         "{Mis sul on?} is what's wrong, said to a friend. It's the {sina} side of {Mis teil viga on?}",
         "{Rõõmus} is cheerful, for today. {Õnnelik} is happy in your life, and is a bigger word.",
       ],
-      watchOut: "{Ära} here is not the {ära} of part two, away. Before a command it means don't, and to two people or politely it's another word, which the next lesson teaches.",
+      watchOut: "You met {ära} in part two: {Ära unusta!} It only goes to one person you say {sina} to. To two people, or politely, it's another word, which the next lesson teaches.",
       examples: [1, 4, 6],
     },
     answers: [
@@ -291,7 +291,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
       { who: "Peeter", et: "Te peate kolm päeva voodis olema. Jooge palju teed.", en: "You have to stay in bed for three days. Drink lots of tea." },
       { who: "Tom", et: "Kas ma tohin tööle minna?", en: "Am I allowed to go to work?" },
       { who: "Peeter", et: "Ei, tööle ei tohi minna. Ärge minge tööle.", en: "No, you mustn't go to work. Don't go to work." },
-      { who: "Tom", et: "Kas ma võin sporti teha?", en: "Can I do sport?" },
+      { who: "Tom", et: "Kas ma võin sporti teha?", en: "Can I play sports?" },
       { who: "Peeter", et: "Nädala pärast võite.", en: "In a week you can." },
       { who: "Tom", et: "Aitäh, doktor!", en: "Thank you, doctor!" },
     ],
@@ -326,7 +326,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
     answers: [
       { ask: { et: "Teil on gripp.", en: "You have the flu." }, cue: "Ask what you have to do.", model: { et: "Mida ma pean tegema?", en: "What do I have to do?" } },
       { cue: "Ask if you're allowed to go to work.", model: { et: "Kas ma tohin tööle minna?", en: "Am I allowed to go to work?" } },
-      { ask: { et: "Kas ma võin sporti teha?", en: "Can I do sport?" }, cue: "Say no, they mustn't.", model: { et: "Ei, sa ei tohi.", en: "No, you mustn't." } },
+      { ask: { et: "Kas ma võin sporti teha?", en: "Can I play sports?" }, cue: "Say no, they mustn't.", model: { et: "Ei, sa ei tohi.", en: "No, you mustn't." } },
       { cue: "Tell a patient politely not to go to work.", model: { et: "Ärge minge tööle.", en: "Don't go to work." } },
     ],
   },

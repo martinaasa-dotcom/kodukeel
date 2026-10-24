@@ -32,8 +32,8 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
     cast: { Kati: "vesta", Tom: "kalev" },
     conversation: [
       { who: "Tom", et: "Tere! Üks pilet Tartusse, palun.", en: "Hello! One ticket to Tartu, please." },
-      { who: "Kati", et: "Ühe otsa või edasi-tagasi?", en: "One way or return?" },
-      { who: "Tom", et: "Edasi-tagasi, palun. Millal rong väljub?", en: "Return, please. When does the train leave?" },
+      { who: "Kati", et: "Ühe otsa või edasi-tagasi?", en: "One way or round trip?" },
+      { who: "Tom", et: "Edasi-tagasi, palun. Millal rong väljub?", en: "Round trip, please. When does the train leave?" },
       { who: "Kati", et: "Kell kaheksa. Rong väljub esimeselt platvormilt.", en: "At eight. The train leaves from platform one." },
       { who: "Tom", et: "Ja millal see Tartusse saabub?", en: "And when does it arrive in Tartu?" },
       { who: "Kati", et: "Kell kümme.", en: "At ten." },
@@ -59,20 +59,20 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
           [{ et: "Rong väljub kell kaheksa." }, { en: "The train leaves at eight." }],
           [{ et: "Rong väljub esimeselt platvormilt." }, { en: "The train leaves from platform one." }],
           [{ et: "Rong saabub Tartusse kell kümme." }, { en: "The train arrives in Tartu at ten." }],
-          [{ et: "Üks pilet edasi-tagasi, palun." }, { en: "One return ticket, please." }],
+          [{ et: "Üks pilet edasi-tagasi, palun." }, { en: "One round-trip ticket, please." }],
         ],
       },
       notes: [
         "{Ühe otsa} is one way, and {edasi-tagasi} there and back. The ticket seller asks which.",
         "In everyday talk, {läheb} and {tuleb} work too: {Millal rong läheb?} {Väljub} is the word on the board.",
-        "Platform one is the first platform: {esimeselt platvormilt}, from part two's {esimene} with -lt on its stem.",
+        "Platform one is the first platform: {esimeselt platvormilt}, from part one's {esimene} with -lt on its stem.",
       ],
       watchOut: "Arrive is into a place: {saabub Tartusse}, with -sse, as English says arrive in.",
       examples: [1, 3, 4],
     },
     answers: [
       { cue: "Ask for one ticket to Tartu.", model: { et: "Üks pilet Tartusse, palun.", en: "One ticket to Tartu, please." } },
-      { ask: { et: "Ühe otsa või edasi-tagasi?", en: "One way or return?" }, cue: "Say return, please.", model: { et: "Edasi-tagasi, palun.", en: "Return, please." } },
+      { ask: { et: "Ühe otsa või edasi-tagasi?", en: "One way or round trip?" }, cue: "Say round trip, please.", model: { et: "Edasi-tagasi, palun.", en: "Round trip, please." } },
       { cue: "Ask when the train leaves.", model: { et: "Millal rong väljub?", en: "When does the train leave?" } },
       { cue: "Ask how much it is.", model: { et: "Kui palju see maksab?", en: "How much is it?" } },
     ],
@@ -225,7 +225,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "hotelli", of: "hotell", en: "of the hotel", stem: true },
     ],
     how: {
-      point: "A trip told afterwards is part three again: {sõitsime}, {ööbisite}, {käisime}. Learn the [olevik] (I form) and the he-and-she form, and the rest follow.",
+      point: "A trip told afterwards is part three again: {sõitsime}, {ööbisite}, {käisime}. Learn the [lihtminevik] (past) for I and for he or she, and the rest follow.",
       table: {
         head: ["I", "He, she", "We"],
         rows: [
@@ -386,7 +386,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
     how: {
       point: "A whole ticket bought, made of part five: where to, when it leaves, there and back, and how long.",
       notes: [
-        "The seller asks the questions in a fixed order: where, when, one way or return, when you're coming back.",
+        "The seller asks the questions in a fixed order: where, when, one way or round trip, when you're coming back.",
         "At the end, the seller speaks to you. Answer as yourself, one turn at a time.",
       ],
       watchOut: "{Kas homme on bussi?} is is there a bus tomorrow: whether something exists takes the [osastav] (3rd form) after {kas on}.",
@@ -402,7 +402,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       turns: [
         { ask: { et: "Tere! Kuhu te sõidate?", en: "Hello! Where are you traveling to?" }, cue: "Say where you're going.", model: { et: "Tere! Pärnusse.", en: "Hello! To Pärnu." } },
         { ask: { et: "Buss väljub kell kaheksa ja kell üheksa.", en: "The bus leaves at eight and at nine." }, cue: "Choose a time.", model: { et: "Kell kaheksa, palun.", en: "At eight, please." } },
-        { ask: { et: "Ühe otsa või edasi-tagasi?", en: "One way or return?" }, cue: "Say which.", model: { et: "Edasi-tagasi, palun.", en: "Return, please." } },
+        { ask: { et: "Ühe otsa või edasi-tagasi?", en: "One way or round trip?" }, cue: "Say which.", model: { et: "Edasi-tagasi, palun.", en: "Round trip, please." } },
         { ask: { et: "Millal te tagasi tulete?", en: "When are you coming back?" }, cue: "Say when, and ask how long the ride takes.", model: { et: "Pühapäeval. Kui kaua sõit kestab?", en: "On Sunday. How long does the ride take?" } },
         { ask: { et: "Kaks tundi. Buss väljub teiselt platvormilt.", en: "Two hours. The bus leaves from platform two." }, cue: "Thank them, and ask how much it is.", model: { et: "Aitäh! Kui palju see maksab?", en: "Thank you! How much is it?" } },
       ],

@@ -388,11 +388,11 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [],
     how: {
-      point: "A whole plan, made only of what the last five lessons taught.",
+      point: "A whole plan, made only of what this part has taught.",
       notes: [
         "Notice how a plan is built: what you're doing, whether you want to, whether you can, and what time.",
         "{Kas sa saad?} on its own is can you? The rest is understood from what came before.",
-        "At the end, Liis rings and you make a plan with her, one turn at a time, until you've held the whole conversation.",
+        "At the end, Liis calls and you make a plan with her, one turn at a time, until you've held the whole conversation.",
       ],
       watchOut: "When a time doesn't suit, say so and offer another: {Kell kuus ma ei saa. Kell seitse?}",
       examples: [2, 5],

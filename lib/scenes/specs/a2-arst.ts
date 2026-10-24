@@ -103,6 +103,6 @@ export default inLesson("a2-27-doctor", {
   outcomes: [
     { id: "seen", when: ["greet", "wrong", "temperature", "when", "work", "advice", "close"], says: "You told a doctor what was wrong and understood what to do, all in Estonian." },
     { id: "seen-thin", when: ["wrong", "when"], says: "You said what hurts and when it started. That's what a doctor needs first." },
-    { id: "left", when: [], says: "You left before you'd said what was wrong. Ring the health center for another time." },
+    { id: "left", when: [], says: "You left before you'd said what was wrong. Call the health center for another time." },
   ],
 });
