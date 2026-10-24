@@ -61,7 +61,7 @@ const OFF_PORT = PORT + 1;
 const GSI_PORT = PORT + 2;
 const DIST = ".next-signin";
 
-const { check, done, absent } = suite("The sign-in screen", { floor: 56 });
+const { check, done, absent } = suite("The sign-in screen", { floor: 71 });
 
 /*
   A project ref and a key shaped like the real thing, signed with nothing.
@@ -87,6 +87,22 @@ const OPERATOR_EMAIL = "hello@example.test";
   the box it hands it for, neither of which is Google's to get wrong.
 */
 const GOOGLE_CLIENT_ID = "000000000000-notarealclient.apps.googleusercontent.com";
+
+/*
+  A Services ID shaped like Apple's and belonging to nobody, for the third
+  server alone, so the other two are the state where Apple is not set up at
+  all. Apple's script is answered locally and a stub stands in for it, as
+  Google's does: what this suite measures is what this app hands Apple and
+  what it does with the answer (docs/44-sixth-batch.md, N-3).
+*/
+const APPLE_SERVICES_ID = "ee.kodukeel.signin-suite";
+/* The app-link files' values, on the same server, so the other two answer 404. */
+const APP_LINK_ENV = {
+  APPLE_TEAM_ID: "ABCDE12345",
+  IOS_BUNDLE_ID: "ee.kodukeel.app",
+  ANDROID_PACKAGE_NAME: "ee.kodukeel.app",
+  ANDROID_CERT_SHA256: "14:6D:E9:83:C5:73:06:50:D8:EE:B9:95:2F:34:FC:64:16:A0:83:42:E6:1D:BE:A8:8A:04:96:B2:3F:CF:44:E5",
+};
 
 /** Where this copy says it lives, for the one request that arrives elsewhere. */
 const SITE_URL = "https://kodukeel.example";
@@ -191,7 +207,7 @@ if (built.status !== 0) {
     suite waived 29 checks has something above it saying why.
   */
   console.log(buildFailure(built));
-  absent(29, `a hosted-mode build into ${DIST}, which did not complete on this machine`);
+  absent(44, `a hosted-mode build into ${DIST}, which did not complete on this machine`);
   done();
 }
 
@@ -208,7 +224,7 @@ if (built.status !== 0) {
   Detached makes the child a process group leader, so the group can be killed
   as a group and the server goes with it.
 */
-function serve(port, { emailLink = true, googleClientId = null } = {}) {
+function serve(port, { emailLink = true, googleClientId = null, apple = false } = {}) {
   const { EMAIL_SIGN_IN: _inherited, ...env } = hostedEnv;
   if (!emailLink) env.EMAIL_SIGN_IN = "off";
   /*
@@ -219,6 +235,9 @@ function serve(port, { emailLink = true, googleClientId = null } = {}) {
     one part of it nothing here can reach.
   */
   if (googleClientId) env.NEXT_PUBLIC_GOOGLE_CLIENT_ID = googleClientId;
+  /* Apple's Services ID and the app-link values, read per request for the same reason. */
+  for (const key of ["NEXT_PUBLIC_APPLE_SERVICES_ID", ...Object.keys(APP_LINK_ENV)]) delete env[key];
+  if (apple) Object.assign(env, { NEXT_PUBLIC_APPLE_SERVICES_ID: APPLE_SERVICES_ID }, APP_LINK_ENV);
   return spawn("npx", ["next", "start", "-p", String(port)], {
     env, stdio: "ignore", detached: true,
   });
@@ -244,7 +263,7 @@ async function waitFor(base) {
 
 const withMail = serve(PORT, { emailLink: true });
 const withoutMail = serve(OFF_PORT, { emailLink: false });
-const withGoogle = serve(GSI_PORT, { googleClientId: GOOGLE_CLIENT_ID });
+const withGoogle = serve(GSI_PORT, { googleClientId: GOOGLE_CLIENT_ID, apple: true });
 const B = `http://127.0.0.1:${PORT}`;
 const OFF = `http://127.0.0.1:${OFF_PORT}`;
 const GSI = `http://127.0.0.1:${GSI_PORT}`;
@@ -265,7 +284,7 @@ process.on("uncaughtException", (error) => {
 });
 
 if (!(await waitFor(B)) || !(await waitFor(OFF)) || !(await waitFor(GSI))) {
-  absent(29, `a server on ${PORT}, ${OFF_PORT} and ${GSI_PORT}, and they did not all come up`);
+  absent(44, `a server on ${PORT}, ${OFF_PORT} and ${GSI_PORT}, and they did not all come up`);
   stop();
   done();
 }
@@ -706,6 +725,132 @@ await hiddenPage.waitForTimeout(GOOGLE_FALLBACK_MS + 400);
 check("and the redirect door does not open over it once the fallback's own deadline has passed",
   (await hiddenPage.getByRole("button", { name: /Continue with Google/ }).count()) === 0);
 await hiddenCtx.close();
+
+/*
+  SIGN IN WITH APPLE, BESIDE GOOGLE, ONLY WHERE THE OPERATOR SET IT UP (N-3).
+
+  The first two servers have no Services ID, so they are the state most
+  deployments are in: no button, and nothing of Apple's in the policy. The
+  third has one. Apple's script is answered locally and a stub stands in for
+  `AppleID.auth`, recording the configuration it was handed and answering a
+  press with a token and a first-time name, the way Apple does. The token
+  request to Supabase is answered with a refusal, because what is measured is
+  what this app sends: the provider, the token, and the raw nonce whose hash
+  Apple was given. A refusal also shows the error path draws a sentence.
+*/
+const noApple = await (await browser.newContext({ viewport: { width: 360, height: 780 } })).newPage();
+const noAppleRes = await noApple.goto(`${B}/sign-in`, { waitUntil: "domcontentloaded" });
+check("with no Services ID there is no Apple button at all",
+  (await noApple.getByRole("button", { name: /Continue with Apple/ }).count()) === 0);
+check("and nothing of Apple's in the policy, so nothing on the page can reach Apple",
+  !/apple/i.test(noAppleRes?.headers()["content-security-policy"] ?? ""));
+await noApple.context().close();
+
+const appleCtx = await browser.newContext({ viewport: { width: 360, height: 780 } });
+const appleRequests = [];
+await appleCtx.route("https://appleid.cdn-apple.com/**", (route) => {
+  appleRequests.push(route.request().url());
+  return route.fulfill({ status: 200, contentType: "text/javascript", body: "" });
+});
+await appleCtx.route("https://accounts.google.com/gsi/client*", (route) =>
+  route.fulfill({ status: 200, contentType: "text/javascript", body: "" }));
+/** What the form posted to Supabase's token endpoint, read back below. */
+const tokenPosts = [];
+await appleCtx.route("**/auth/v1/token*", (route) => {
+  tokenPosts.push({ url: route.request().url(), body: route.request().postDataJSON() });
+  return route.fulfill({
+    status: 400, contentType: "application/json",
+    body: JSON.stringify({ code: 400, error_code: "bad_jwt", msg: "Test refusal" }),
+  });
+});
+await appleCtx.addInitScript(() => {
+  window.__apple = { inits: [], presses: 0 };
+  window.AppleID = {
+    auth: {
+      init(config) { window.__apple.inits.push(config); },
+      async signIn() {
+        window.__apple.presses += 1;
+        const last = window.__apple.inits[window.__apple.inits.length - 1];
+        return {
+          authorization: { id_token: "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.c2ln", code: "c", state: last.state },
+          user: { email: "x@privaterelay.appleid.com", name: { firstName: "Mari", lastName: "Tamm" } },
+        };
+      },
+    },
+  };
+});
+const applePage = await appleCtx.newPage();
+applePage.on("pageerror", (e) => errors.push(e.message));
+const appleRes = await applePage.goto(`${GSI}/sign-in`, { waitUntil: "domcontentloaded" });
+const appleButton = applePage.getByRole("button", { name: /Continue with Apple/ });
+await appleButton.waitFor({ timeout: 10_000 }).catch(() => {});
+check("with a Services ID the screen offers Apple", (await appleButton.count()) === 1);
+check("and the policy lets Apple's script load from its one host",
+  (appleRes?.headers()["content-security-policy"] ?? "").includes("https://appleid.cdn-apple.com"));
+await applePage.waitForFunction(() => window.__apple.inits.length > 0, null, { timeout: 10_000 }).catch(() => {});
+const init = await applePage.evaluate(() => window.__apple.inits[0] ?? null);
+check("Apple's script is asked for, in English like Google's",
+  appleRequests.some((url) => url.includes("/en_US/appleid.auth.js")), appleRequests[0] ?? "never requested");
+check("and handed the Services ID, the popup and this page as the return address before anybody presses",
+  !!init && init.clientId === APPLE_SERVICES_ID && init.usePopup === true
+    && init.redirectURI === `${GSI}/sign-in` && init.scope === "name email",
+  JSON.stringify(init));
+const appleBox = await appleButton.boundingBox();
+const appleColumn = await applePage.locator("[data-sign-in-column]").boundingBox();
+check("the Apple button clears the 44px floor and fills the column like the others",
+  !!appleBox && !!appleColumn && appleBox.height >= 44 && Math.abs(appleBox.width - appleColumn.width) < 1,
+  `${appleBox?.width}x${appleBox?.height} in ${appleColumn?.width}`);
+const below = await applePage.evaluate(() => {
+  const apple = document.querySelector("[data-apple-sign-in]");
+  const email = document.getElementById("sign-in-email");
+  return !!apple && !!email && (apple.compareDocumentPosition(email) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+});
+check("and sits beside Google, above the mailed link", below);
+
+await appleButton.click();
+await applePage.getByRole("alert").waitFor({ timeout: 10_000 }).catch(() => {});
+const post = tokenPosts[0];
+const nonceAgrees = post?.body?.nonce && init
+  ? await applePage.evaluate(async ({ raw, hashed }) => {
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(raw));
+    return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("") === hashed;
+  }, { raw: post.body.nonce, hashed: init.nonce })
+  : false;
+check("a press hands Supabase Apple's token as the apple provider",
+  !!post && post.url.includes("grant_type=id_token") && post.body.provider === "apple"
+    && post.body.id_token === "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.c2ln",
+  JSON.stringify(post?.body ?? null));
+check("with the raw nonce whose hash Apple was given, so a replayed token is refused", nonceAgrees);
+check("and a refusal says so in a sentence rather than leaving the button pending",
+  /Test refusal/.test(await applePage.getByRole("alert").innerText().catch(() => "")));
+await applePage.waitForFunction(() => window.__apple.inits.length > 1, null, { timeout: 5_000 }).catch(() => {});
+check("and the next try gets a fresh nonce, since one is good for one attempt",
+  await applePage.evaluate(() => window.__apple.inits.length > 1
+    && window.__apple.inits[1].nonce !== window.__apple.inits[0].nonce));
+await appleCtx.close();
+
+/*
+  THE APP-LINK FILES, ASKED OF A HOSTED BUILD, because a source check can say
+  the routes exist and only a request can say the middleware lets a phone with
+  no session reach them, unredirected, as JSON.
+*/
+const aasa = await fetch(`${GSI}/.well-known/apple-app-site-association`, { redirect: "manual" });
+const aasaBody = await aasa.json().catch(() => null);
+check("the Apple association file answers a request with no session, as JSON, with no redirect",
+  aasa.status === 200 && (aasa.headers.get("content-type") ?? "").startsWith("application/json")
+    && aasaBody?.applinks?.details?.[0]?.appIDs?.[0] === "ABCDE12345.ee.kodukeel.app",
+  `${aasa.status} ${aasa.headers.get("content-type")}`);
+const links = await fetch(`${GSI}/.well-known/assetlinks.json`, { redirect: "manual" });
+const linksBody = await links.json().catch(() => null);
+check("and so does Android's, naming the package",
+  links.status === 200 && linksBody?.[0]?.target?.package_name === "ee.kodukeel.app",
+  `${links.status} ${links.headers.get("content-type")}`);
+const unset = await Promise.all([
+  fetch(`${B}/.well-known/apple-app-site-association`, { redirect: "manual" }),
+  fetch(`${B}/.well-known/assetlinks.json`, { redirect: "manual" }),
+]);
+check("a copy with none of the values set claims no app: both answer 404",
+  unset.every((r) => r.status === 404), unset.map((r) => r.status).join(", "));
 
 /*
   THE GRAMMAR REFERENCE, READ BY SOMEBODY WITH NO ACCOUNT (FB-8). Local mode

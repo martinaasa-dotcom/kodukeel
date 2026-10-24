@@ -8,6 +8,9 @@ import { fillNodes } from "@/components/TemplateNodes";
 import { safeNext } from "@/lib/auth/access";
 import { ssoDomainFor } from "@/lib/auth/sso";
 import { GSI_LOCALE, GSI_SCRIPT_SRC, hashNonce, randomNonce } from "@/lib/auth/googleIdentity";
+import {
+  APPLE_SCRIPT_SRC, appleInit, appleNameMetadata, readAppleFailure, readAppleResponse, type AppleInit,
+} from "@/lib/auth/appleIdentity";
 import { fill, tr, type Locale } from "@/lib/copy/locale";
 
 /*
@@ -50,9 +53,19 @@ interface GoogleAccountsId {
   ): void;
 }
 
+/**
+ * The one shape of Apple's sign-in script this file reads, written out by hand
+ * for the reason Google's is: there is no type package for it.
+ */
+interface AppleIdAuth {
+  init(config: AppleInit): void;
+  signIn(): Promise<unknown>;
+}
+
 declare global {
   interface Window {
     google?: { accounts?: { id?: GoogleAccountsId } };
+    AppleID?: { auth?: AppleIdAuth };
   }
 }
 
@@ -185,6 +198,7 @@ export function SignInForm({
   emailLink,
   ssoDomains = [],
   googleClientId,
+  appleServicesId,
   locale = "en",
 }: {
   emailLink: boolean;
@@ -200,6 +214,12 @@ export function SignInForm({
     with different environments, exactly as `EMAIL_SIGN_IN` is read.
   */
   googleClientId?: string;
+  /*
+    Apple's Services ID, read on the server for the reason the Google client
+    ID is (lib/auth/appleConfig.ts). Absent, there is no Apple button at all,
+    which is a fork or a deployment whose operator has not enrolled with Apple.
+  */
+  appleServicesId?: string;
   /**
    * The language this screen was opened in, off its `?lang=` query, since
    * nobody signed in has a setting to read it from. Carried on to first run.
@@ -207,7 +227,7 @@ export function SignInForm({
   locale?: Locale;
 }) {
   const t = (english: string) => tr(locale, english);
-  const [pending, setPending] = useState<"google" | "email" | "sso" | null>(null);
+  const [pending, setPending] = useState<"google" | "apple" | "email" | "sso" | null>(null);
   const [error, setError] = useState<string | null>(null);
   /** The address we mailed, which is also the flag that we mailed anything. */
   const [sentTo, setSentTo] = useState<string | null>(null);
@@ -233,6 +253,14 @@ export function SignInForm({
   const columnRef = useRef<HTMLDivElement | null>(null);
   /** The width the button was last drawn at, so a resize knows to draw it again. */
   const drawnWidth = useRef<number | null>(null);
+  /**
+   * The raw nonce and the state of the Apple attempt that is ready to go, or
+   * null until Apple's script has answered. Prepared ahead of the press, so
+   * the press itself opens Apple's popup without waiting on anything: a
+   * browser lets a page open a window only while it is still answering the
+   * click, and Safari is strict about how long that is.
+   */
+  const appleAttempt = useRef<{ nonce: string; state: string } | null>(null);
 
   /* Warm the auth client once the page has painted and the browser is idle. */
   useEffect(() => {
@@ -468,6 +496,101 @@ export function SignInForm({
   }, [googleClientId]);
 
   /**
+   * Apple's script answered: make a nonce and a state for the next attempt and
+   * hand Apple their configuration, so the press has nothing left to wait for.
+   * Called again after every attempt, because a nonce is good for one try.
+   */
+  async function prepareApple(): Promise<void> {
+    const auth = window.AppleID?.auth;
+    if (!appleServicesId || !auth) return;
+    const nonce = randomNonce();
+    const state = randomNonce();
+    auth.init(appleInit({
+      servicesId: appleServicesId,
+      origin: window.location.origin,
+      hashedNonce: await hashNonce(nonce),
+      state,
+    }));
+    appleAttempt.current = { nonce, state };
+  }
+
+  useEffect(() => {
+    if (!appleServicesId) return;
+    let cancelled = false;
+    const poll = window.setInterval(() => {
+      if (window.AppleID?.auth) {
+        window.clearInterval(poll);
+        if (!cancelled) void prepareApple();
+      }
+    }, 100);
+    /* A script that never answers leaves the button saying so when pressed. */
+    const giveUp = window.setTimeout(() => window.clearInterval(poll), GOOGLE_BUTTON_TIMEOUT_MS * 3);
+    return () => {
+      cancelled = true;
+      window.clearInterval(poll);
+      window.clearTimeout(giveUp);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appleServicesId]);
+
+  /**
+   * Sign in with Apple, the way Google's ID token is handed over.
+   *
+   * Apple's popup answers with an ID token and, the first time only, the
+   * person's name. The token goes to Supabase with the raw nonce; the name is
+   * stored where the Google token puts one, as `full_name`, and the session is
+   * refreshed so the token this browser carries already holds it. A name that
+   * fails to save costs nothing but the name, so it never stops the sign-in.
+   */
+  async function signInWithApple() {
+    const attempt = appleAttempt.current;
+    const auth = window.AppleID?.auth;
+    setError(null);
+    if (!attempt || !auth) {
+      setError(t("Apple’s sign-in hasn’t loaded. Reload the page, or use another way in."));
+      return;
+    }
+    setPending("apple");
+    appleAttempt.current = null;
+    let raw: unknown;
+    try {
+      raw = await auth.signIn();
+    } catch (failure) {
+      if (readAppleFailure(failure) === "failed") {
+        setError(t("That Apple sign-in didn’t go through. Try again, or use another way in."));
+      }
+      setPending(null);
+      void prepareApple();
+      return;
+    }
+    const read = readAppleResponse(raw, attempt.state);
+    if (!read) {
+      setError(t("That Apple sign-in didn’t go through. Try again, or use another way in."));
+      setPending(null);
+      void prepareApple();
+      return;
+    }
+    const supabase = await supabaseClient();
+    const { error } = await supabase.auth.signInWithIdToken({
+      provider: "apple",
+      token: read.idToken,
+      nonce: attempt.nonce,
+    });
+    if (error) {
+      setError(`${error.message}. ${t("Try again, or reload the page.")}`);
+      setPending(null);
+      void prepareApple();
+      return;
+    }
+    const name = appleNameMetadata(read);
+    if (name) {
+      await supabase.auth.updateUser({ data: name }).catch(() => null);
+      await supabase.auth.refreshSession().catch(() => null);
+    }
+    window.location.assign(nextPath());
+  }
+
+  /**
    * Hand somebody over to their company's provider.
    *
    * Unlike the other two, this call returns a URL and stays where it is, so
@@ -564,6 +687,9 @@ export function SignInForm({
       {googleClientId && (
         <Script src={GSI_SCRIPT_SRC} strategy="afterInteractive" />
       )}
+      {appleServicesId && (
+        <Script src={APPLE_SCRIPT_SRC} strategy="afterInteractive" />
+      )}
 
       {/*
         Three states and only one is ever shown at once: a skeleton while
@@ -606,6 +732,33 @@ export function SignInForm({
           </Button>
         )}
       </div>
+
+      {/*
+        APPLE, BESIDE GOOGLE, WHERE THE OPERATOR HAS SET IT UP (D7).
+
+        Apple's own rules ask an app that offers Google to offer Sign in with
+        Apple beside it, and an account made with Apple on a phone has to be
+        able to come in the same way on a laptop. This app's own button
+        rather than one Apple's script draws, so it is the same height, edge
+        and contrast as every other key on this screen in both themes, and
+        the quiet one: Google stays the one loud action. The mark is Apple's
+        own glyph, which Apple's guidelines ask the button to carry.
+      */}
+      {appleServicesId && (
+        <Button
+          variant="secondary"
+          size="lg"
+          onClick={signInWithApple}
+          disabled={pending !== null}
+          className="w-full"
+          data-apple-sign-in
+        >
+          <svg aria-hidden viewBox="0 0 24 24" width="18" height="18" fill="currentColor" className="shrink-0">
+            <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701" />
+          </svg>
+          {pending === "apple" ? t("Opening Apple…") : t("Continue with Apple")}
+        </Button>
+      )}
 
       {(emailLink || sso) && (
         <>

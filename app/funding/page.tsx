@@ -19,7 +19,7 @@ import { DEFAULT_LIMITS } from "@/lib/usage/quota";
 import { SERVICES } from "@/lib/funding/model";
 import { CONTINUITY, floorUsd, retrenchment } from "@/lib/funding/sustainability";
 import {
-  COMPUTE, DEFAULT_SHAPE, DEVTOOLS, DOMAIN, EMAIL, ERRORS, FX, MEASURED, MEASURED_ON,
+  APPLE_DEVELOPER, COMPUTE, DEFAULT_SHAPE, DEVTOOLS, DOMAIN, EMAIL, ERRORS, FX, MEASURED, MEASURED_ON,
   PRICES_CHECKED, SPEECH_MARKET, SUPABASE, VERCEL,
 } from "@/lib/funding/facts";
 
@@ -372,6 +372,14 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
             <Priced href={DOMAIN.ref.source} label={t("A .ee domain")} />
             {": "}
             {fill(t("about {eur} euros a year."), { eur: DOMAIN.eurPerYear })}
+          </li>
+          <li>
+            <Priced href={APPLE_DEVELOPER.ref.source} label={t("Apple's developer account")} />
+            {": "}
+            {fill(t("{usd} dollars a year, read on {day}. It is what Sign in with Apple and an iPhone app need, whatever the number of learners."), {
+              usd: APPLE_DEVELOPER.usdPerYear,
+              day: dayOf(APPLE_DEVELOPER.ref.checked),
+            })}
           </li>
         </ul>
         <P>

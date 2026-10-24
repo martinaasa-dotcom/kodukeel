@@ -92,7 +92,7 @@ export const STAGES: readonly Stage[] = [
   {
     id: "floor",
     name: "Lights on",
-    drops: ["devtools", "errors", "news", "email", "domain", "model", "hearing"],
+    drops: ["devtools", "errors", "news", "email", "domain", "model", "hearing", "apple"],
     shape: { tutor: "off" },
     why:
       "A server and a database, at whatever address the host gives it. Everything "

@@ -335,6 +335,22 @@ export const DOMAIN = {
 } as const;
 
 /**
+ * Apple's developer account, which Sign in with Apple needs on the web and the
+ * iPhone app needs to be in the App Store at all (docs/44-sixth-batch.md, N-3).
+ *
+ * Read off Apple's own page on its own date rather than with the rest, since
+ * it was added a month after them. A dollar price, net of tax like every other
+ * line, and the operator's to pay whether one person or a thousand sign in.
+ */
+export const APPLE_DEVELOPER = {
+  ref: {
+    source: "https://developer.apple.com/programs/",
+    checked: "24 October 2026",
+  } satisfies PriceRef,
+  usdPerYear: 99,
+} as const;
+
+/**
  * The tooling that writes and maintains this, which is a real monthly bill and
  * was missing from the first version of this page.
  *
@@ -437,7 +453,7 @@ export const TUTOR_MODELS: readonly { readonly id: string; readonly name: string
 /** Every published price on this page, for the check that they all cite one. */
 export const PRICE_REFS: readonly PriceRef[] = [
   VERCEL.ref, SUPABASE.ref, COMPUTE.ref, SPEECH_MARKET.ref, DOMAIN.ref,
-  DEVTOOLS.ref, EMAIL.ref, ERRORS.ref, FX.ref,
+  DEVTOOLS.ref, EMAIL.ref, ERRORS.ref, FX.ref, APPLE_DEVELOPER.ref,
 ];
 
 /* ── What was measured, as numbers the arithmetic can use ─────────────────── */

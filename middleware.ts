@@ -235,6 +235,16 @@ export async function middleware(request: NextRequest) {
       catalog (PageSpeed's agentic browsing, 14 October 2026).
     */
     path.startsWith("/llms.txt") ||
+    /*
+      The two files a phone reads to open the sign-in link in the native app
+      (app/.well-known/, docs/44-sixth-batch.md N-3). iOS and Android fetch
+      them with no session, and Apple refuses a redirect, so a 307 to the
+      sign-in form here would be a domain that claims no app however the
+      operator set it up. The prefix below covers them today; named exactly,
+      so a later narrowing of that prefix cannot take them with it.
+    */
+    path === "/.well-known/apple-app-site-association" ||
+    path === "/.well-known/assetlinks.json" ||
     path.startsWith("/.well-known/") ||
     path.startsWith("/sitemap.xml") ||
     path.startsWith("/opengraph-image") ||

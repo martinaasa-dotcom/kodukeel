@@ -1223,7 +1223,7 @@ and D7 puts it on the web too. The emailed sign-in link should open the native a
 rather than a browser that is not signed in.
 
 **Files.**
-- `lib/auth/appleIdentity.ts` (to be written), pure like `lib/auth/googleIdentity.ts`: the nonce, its
+- `lib/auth/appleIdentity.ts`, pure like `lib/auth/googleIdentity.ts`: the nonce, its
   hash, and reading Apple's response, unit tested.
 - `app/(chromeless)/sign-in/SignInForm.tsx`: "Continue with Apple" beside Google, shown only where
   `NEXT_PUBLIC_APPLE_SERVICES_ID` is set, using Apple's JavaScript sign-in and `signInWithIdToken` with
@@ -1233,8 +1233,8 @@ rather than a browser that is not signed in.
   the others; `/privacy`, `/terms`, `docs/26-subprocessors.md` and `docs/24-dpia.md` follow.
 - `lib/funding/services.ts`: Apple sign-in as a service, under the registry's own rules (the developer
   program's yearly fee is the operator's, with its page and the day it was read).
-- `app/.well-known/apple-app-site-association/route.ts` (to be written) and
-  `app/.well-known/assetlinks.json/route.ts` (to be written): the files iOS and Android read to open a
+- `app/.well-known/apple-app-site-association/route.ts` and
+  `app/.well-known/assetlinks.json/route.ts`: the files iOS and Android read to open a
   link on this domain in the app, built from `APPLE_TEAM_ID`, `IOS_BUNDLE_ID`, `ANDROID_PACKAGE_NAME` and
   `ANDROID_CERT_SHA256`. Each answers 404 where its variables are unset, so a fork serving its own domain
   claims no app. Only `/auth/callback` is claimed, so every other link opens in the browser as now.

@@ -7,6 +7,7 @@ import { resolveOperator, SUPERVISORY_AUTHORITY } from "@/lib/legal/operator";
 import { resolveRecipients, transfersOutsideEea } from "@/lib/legal/recipients";
 import { recipientIn } from "@/lib/legal/recipientCopy";
 import { pushConfigured } from "@/lib/push/config";
+import { appleSignInConfigured } from "@/lib/auth/appleConfig";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
 import { publicCard } from "@/lib/copy/publicCards";
 
@@ -90,6 +91,12 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
         <P>
           {rich(t("**Your identity.** Signing in with Google gives us your email address and a user id, held by Supabase Auth. We never see your Google password, and we don’t ask for anything else in your Google account. Without this we couldn’t show you your own deck instead of somebody else’s, so we keep it to provide the service you asked for."))}
         </P>
+        {/* Only where the Apple button is drawn (N-3); a copy without it sends Apple nothing. */}
+        {appleSignInConfigured() && (
+          <P>
+            {rich(t("**Signing in with Apple.** If you choose Apple, it tells us your name, the first time only, and an email address, which can be a private one Apple makes that forwards to yours. We keep the name as what we call you and the address as above. Apple learns that you signed in here and when."))}
+          </P>
+        )}
         <P>
           {rich(t("**Your learning.** The cards in your deck, every review you have ever done (the grade, the moment, and how long you took), your tasks, your starred words, the words you have put aside as too complicated, your badges and your settings. The review log is what makes the scheduling work: it is the app’s memory of how well you know each word."))}
         </P>
