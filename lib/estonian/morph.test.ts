@@ -123,11 +123,11 @@ describe("the two tables that name a verb's present", () => {
     expect(formName({ formType: "EKILEX:IndPrSg3" })).toMatchObject({ et: "olevik ta", en: "present" });
   });
 
-  it("shows the operator's names: olevik (I form), and the others by their person", () => {
+  it("shows the operator's names: olevik (I form), and the others by their ending", () => {
     expect(formLabel({ formType: "PRES_1SG" })).toBe("olevik (I form)");
     expect(formLabel({ formType: "EKILEX:IndPrSg1" })).toBe("olevik (I form)");
-    expect(formLabel({ formType: "EKILEX:IndPrSg3" })).toBe("olevik, ta (he/she form)");
-    expect(formLabel({ formType: "EKILEX:IndIpfSg3" })).toBe("lihtminevik, ta (past, he/she)");
+    expect(formLabel({ formType: "EKILEX:IndPrSg3" })).toBe("olevik, ta (-b)");
+    expect(formLabel({ formType: "EKILEX:IndIpfSg3" })).toBe("lihtminevik, ta (past)");
     expect(formLabel({ formType: "INF_MA" })).toBe("ma-tegevusnimi (-ma)");
     expect(formLabel({ formType: "INF_DA" })).toBe("da-tegevusnimi (-da)");
     expect(formLabel({ formType: "EKILEX:ImpPrPl2" })).toBe("käskiv kõneviis, te (-ge, polite command)");
