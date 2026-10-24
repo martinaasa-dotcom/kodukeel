@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { isExactForm } from "@/lib/dict/forms";
 import { VOICES } from "@/lib/audio/voice";
-import { A1_LESSON_PARTS, A1_LESSONS } from "./a1";
+import { A1_LESSONS } from "./a1";
 import { NAMES, PLACE_SPELLINGS, estonianOf, familiesOf, ledgersBefore, lessonProblems, lessonRank, namesOf, teach, uncovered, wordsOf } from "./ledger";
 import { everyTypedQuestion, itemEstonian, markPhrase, meaningShows, practiceFor, reviewFor } from "./practice";
 import { estonianIn } from "./ledger";
