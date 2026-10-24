@@ -16,7 +16,7 @@ import { useT } from "@/components/Locale";
  * and coming back in March should offer A1.3 rather than have quietly started
  * it. One press, and the screen it lands on is the next part's first evening.
  */
-export function NextPart({ programmeId, label, quiet = false }: {
+export function NextPart({ programmeId, label, quiet = false, to }: {
   programmeId: string;
   label: string;
   /**
@@ -25,6 +25,13 @@ export function NextPart({ programmeId, label, quiet = false }: {
    * same thing either way, because the warning is a reading rather than a rule.
    */
   quiet?: boolean;
+  /**
+   * Where to go once the part is stored. The course screen is already the page
+   * that shows the part, so a refresh is enough there; anywhere else (a check's
+   * result) a refresh redraws the page the learner is on and nothing seems to
+   * happen.
+   */
+  to?: string;
 }) {
   const [failed, setFailed] = useState(false);
   const [pending, start] = useTransition();
@@ -41,7 +48,8 @@ export function NextPart({ programmeId, label, quiet = false }: {
           start(async () => {
             const result = await setProgramme(programmeId).catch(() => null);
             if (!result || !result.ok) { setFailed(true); return; }
-            router.refresh();
+            if (to) router.push(to);
+            else router.refresh();
           });
         }}
       >
