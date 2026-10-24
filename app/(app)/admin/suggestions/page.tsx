@@ -102,9 +102,14 @@ export default async function SuggestionsQueuePage({
       eyebrow={t("Review queue")}
       lead={lead}
       actions={
-        <Link href="/admin/errors" className="text-sm underline" style={{ color: "var(--accent-deep)" }}>
-          {t("Errors the app reported")}
-        </Link>
+        <span className="flex flex-wrap gap-x-4 gap-y-1">
+          <Link href="/admin/speech" className="text-sm underline" style={{ color: "var(--accent-deep)" }}>
+            {t("Speech figures")}
+          </Link>
+          <Link href="/admin/errors" className="text-sm underline" style={{ color: "var(--accent-deep)" }}>
+            {t("Errors the app reported")}
+          </Link>
+        </span>
       }
     >
       {!supabaseConfigured() && (

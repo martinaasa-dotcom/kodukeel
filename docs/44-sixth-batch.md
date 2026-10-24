@@ -840,9 +840,9 @@ few operators have to hand. The operator should be able to read it in the app, w
 on.
 
 **Files.**
-- `lib/progress/speechReport.ts` (to be written): the queries `scripts/report-speech.ts` runs today, moved
+- `lib/progress/speechReport.ts`: the queries `scripts/report-speech.ts` runs today, moved
   out so the script and a page share them (D2). The script keeps printing exactly what it prints now.
-- `app/(app)/admin/speech/page.tsx` (to be written): the same figures for a reviewer (`requireAdminId`),
+- `app/(app)/admin/speech/page.tsx`: the same figures for a reviewer (`requireAdminId`),
   linked from the admin pages that exist. Across the whole deployment: answers said aloud, the edit rate
   (heard words changed before sending) with its 200-turn line from the fifth batch's risk table, recall
   after a spoken answer against a typed one from the same learners, today's chat, turns answered by ear,

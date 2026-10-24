@@ -251,6 +251,7 @@ const ROUTES = [
   "/suggestions",
   "/admin/suggestions",
   "/admin/errors",
+  "/admin/speech",
   // The speech bench draws the microphone in every state it has (VB-2); CI sets ASR_BENCH=1.
   "/dev/asr",
 
