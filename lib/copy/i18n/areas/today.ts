@@ -29,7 +29,7 @@ export const TODAY: Area = {
   "You're all caught up, and every word you've added is learned. Time for a new unit.":
     "Всё повторено, и все добавленные слова уже выучены. Пора взяться за новый раздел.",
   "Your first cards are ready: {cards}. That's about {minutes}.":
-    "Ваши первые карточки готовы: {cards}. Это примерно {minutes}.",
+    "Ваши первые карточки готовы, всего: {cards}. Это примерно {minutes}.",
   "Cards waiting for you: {cards}. That's about {minutes}.":
     "Вас ждёт: {cards}. Это примерно {minutes}.",
   "Nothing else is due today. Enjoy the rest of your day.":
@@ -235,7 +235,7 @@ export const TODAY: Area = {
   "Your next unit":
     "Следующий раздел",
   "{unit}: {pct}% complete":
-    "{unit}: пройдено {pct}%",
+    "«{unit}»: пройдено {pct}%",
   "Pick up where you left off":
     "Продолжить с того же места",
   "Start this unit":
@@ -259,7 +259,7 @@ export const TODAY: Area = {
   "They understood me":
     "Меня поняли",
   "They switched to English":
-    "Перешли на английский",
+    "Перешли на русский или английский",
   "I got stuck partway":
     "Не хватило слов на полпути",
   "Not yesterday":
@@ -285,7 +285,7 @@ export const TODAY: Area = {
   "Getting stuck partway still counts, and it's on the board.":
     "Сбиться посреди разговора не страшно: разговор всё равно засчитан.",
   "They switched to English. Next time, keep going in Estonian anyway. Most people switch back.":
-    "Собеседник перешёл на английский. В следующий раз всё равно продолжайте по-эстонски: большинство возвращаются к эстонскому.",
+    "Собеседник перешёл на русский или английский. В следующий раз всё равно продолжайте по-эстонски: большинство потом возвращаются к эстонскому.",
   "Running out of words costs nothing in a practice conversation, and the person there will wait while you find them.":
     "В тренировочном разговоре не страшно, если не хватает слов: собеседник подождёт, пока вы их найдёте.",
   "They can switch to English in there too, so you can practice steering it back to Estonian.":
@@ -317,7 +317,7 @@ export const TODAY: Area = {
   "Ask somebody the time, even if you know it perfectly well.":
     "Спросите у кого-нибудь, который час, даже если прекрасно это знаете.",
   "Ask somebody where something is, and follow the answer without falling back on English.":
-    "Спросите у кого-нибудь, где что-то находится, и поймите ответ, не переходя на английский.",
+    "Спросите у кого-нибудь, где что-то находится, и поймите ответ, не переходя на русский или английский.",
   "Say one sentence about the weather to whoever's waiting next to you.":
     "Скажите одно предложение о погоде тому, кто ждёт рядом с вами.",
   "Tell a colleague or a neighbor one thing about your family.":
@@ -331,7 +331,7 @@ export const TODAY: Area = {
   "Make one phone call in Estonian. A short one counts.":
     "Сделайте один звонок по-эстонски. Короткий тоже считается.",
   "Book an appointment in Estonian, or just ask about one, and stay in Estonian even if they switch to English.":
-    "Запишитесь на приём по-эстонски или просто спросите о записи и не переходите с эстонского, даже если вам ответят по-английски.",
+    "Запишитесь на приём по-эстонски или просто спросите о записи и не переходите с эстонского, даже если вам ответят по-русски или по-английски.",
   "Arrange to meet somebody in Estonian, with a day and a time.":
     "Договоритесь с кем-нибудь о встрече по-эстонски, с днём и временем.",
   "Tell somebody one thing about your apartment, or ask about theirs.":
@@ -355,7 +355,7 @@ export const TODAY: Area = {
   "Before you get on, ask whether this bus or tram goes where you're going.":
     "Перед посадкой спросите, идёт ли этот автобус или трамвай туда, куда вам нужно.",
   "When you don't catch something, ask them to say it again instead of switching to English.":
-    "Если что-то не расслышали, попросите повторить, а не переходите на английский.",
+    "Если что-то не расслышали, попросите повторить, а не переходите на русский или английский.",
   "Introduce yourself to somebody new: your name, where you live and what you do.":
     "Представьтесь новому человеку: как вас зовут, где вы живёте и чем занимаетесь.",
   "Say a price or which floor you live on out loud in Estonian, and ask them to say it back.":
@@ -406,14 +406,6 @@ export const TODAY: Area = {
     "Окошко, магазин, работа",
   "Anywhere":
     "Где угодно",
-  "A bus stop":
-    "Остановка",
-  "a corridor":
-    "коридор",
-  "A queue":
-    "Очередь",
-  "a lift":
-    "лифт",
   "Work":
     "Работа",
   "the stairwell":
@@ -513,7 +505,7 @@ export const TODAY: Area = {
   "You can hold a simple conversation about your day, your family and your plans.":
     "Вы можете поддержать простой разговор о своём дне, семье и планах.",
   "You can explain, disagree and handle the unexpected without switching to English.":
-    "Вы можете объяснить, возразить и справиться с неожиданным, не переходя на английский.",
+    "Вы можете объяснить, возразить и справиться с неожиданным, не переходя на русский или английский.",
   "You can follow a public debate and argue your side of it in writing.":
     "Вы можете следить за публичной дискуссией и письменно отстаивать свою позицию.",
   "You can write academic and professional Estonian that reads as if it was written in Estonian, not translated.":
@@ -573,7 +565,7 @@ export const TODAY: Area = {
   "{done} of {total} evenings finished. See you tomorrow!":
     "Пройдено вечеров: {done} из {total}. До завтра!",
   "Come back tomorrow for {unit}.":
-    "Возвращайтесь завтра: впереди {unit}.",
+    "Возвращайтесь завтра: впереди раздел «{unit}».",
   "Come back tomorrow for {unit} ({english}).":
     "Возвращайтесь завтра: впереди {unit} ({english}).",
   "Stopping here gives today's words time to settle.":
@@ -581,7 +573,7 @@ export const TODAY: Area = {
   "Hear today's words once more":
     "Послушать сегодняшние слова ещё раз",
   "Start the next one now":
-    "Начать следующий сейчас",
+    "Начать следующий урок сейчас",
   "Back to Today":
     "На главную",
   "{done} of {total}":
@@ -811,7 +803,7 @@ export const TODAY: Area = {
   "{lemma} means {translation}. Which one is \"you would\", talking to one person?":
     "Слово {lemma} значит «{translation}». Какая форма для «ты бы», при обращении к одному человеку?",
   "{lemma} means {translation}. Which one is \"he or she\"?":
-    "Слово {lemma} значит «{translation}». Какая форма для «он или она»?",
+    "Слово {lemma} значит «{translation}». Какая форма для «он (она)»?",
   "{lemma} means {translation}. Which one is \"he or she would\"?":
     "Слово {lemma} значит «{translation}». Какая форма для «он (она) бы»?",
   "{lemma} means {translation}. Which one is \"we\"?":
@@ -969,7 +961,7 @@ export const TODAY: Area = {
   "Technology, opinions, the environment, things going wrong, and two-part verbs":
     "Технологии, мнения, экология, когда что-то идёт не так, и глаголы из двух частей",
   "Disagreeing with somebody, the things the papers argue about, and coping when something breaks. B1 ends on verbs that come in two parts, because they follow the same object rule you met at the start of B1. By the end you can argue your side without switching to English.":
-    "Как спорить с собеседником, о чём спорят в газетах и как справиться, когда что-то сломалось. B1 заканчивается глаголами из двух частей, потому что они подчиняются тому же правилу дополнения, которое вы встретили в начале B1. К концу вы сможете отстоять свою точку зрения, не переходя на английский.",
+    "Как спорить с собеседником, о чём спорят в газетах и как справиться, когда что-то сломалось. B1 заканчивается глаголами из двух частей, потому что они подчиняются тому же правилу дополнения, которое вы встретили в начале B1. К концу вы сможете отстоять свою точку зрения, не переходя на русский или английский.",
   "Leaving out who did it, society, hearsay, the economy, and doing two things at once":
     "Безличные формы, общество, пересказ, экономика и два действия сразу",
   "History, building new words, politics, health and science":
@@ -1496,14 +1488,6 @@ export const TODAY: Area = {
     "Віконце, магазин, робота",
   "Anywhere":
     "Будь-де",
-  "A bus stop":
-    "Зупинка",
-  "a corridor":
-    "коридор",
-  "A queue":
-    "Черга",
-  "a lift":
-    "ліфт",
   "Work":
     "Робота",
   "the stairwell":

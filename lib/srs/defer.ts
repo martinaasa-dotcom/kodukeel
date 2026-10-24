@@ -168,11 +168,26 @@ export function daysBetween(from: Date, to: Date): number {
  * which is why that screen prints the date itself rather than any of this.
  */
 export function awayIn(days: number): string {
+  const { n, unit } = awaySpan(days);
+  if (unit === "day") return n === 1 ? "1 day" : `${n} days`;
+  if (unit === "week") return `about ${n} weeks`;
+  return n === 1 ? "about a month" : `about ${n} months`;
+}
+
+/** The unit a span of days is said in. */
+export type AwayUnit = "day" | "week" | "month";
+
+/**
+ * The same span as `awayIn`, as parts rather than English, so a screen in
+ * another language says the same span in its own counted nouns: days up to a
+ * fortnight, weeks up to ten, months above, and the hedge on the two coarser
+ * units only. One rule with two writers would be two rules by the next edit.
+ */
+export function awaySpan(days: number): { n: number; unit: AwayUnit; about: boolean } {
   const safe = Math.max(1, Math.round(days));
-  if (safe < WEEKS_FROM_DAYS) return safe === 1 ? "1 day" : `${safe} days`;
-  if (safe < MONTHS_FROM_DAYS) return `about ${Math.round(safe / DAYS_PER_WEEK)} weeks`;
-  const months = Math.round(safe / DAYS_PER_MONTH);
-  return months === 1 ? "about a month" : `about ${months} months`;
+  if (safe < WEEKS_FROM_DAYS) return { n: safe, unit: "day", about: false };
+  if (safe < MONTHS_FROM_DAYS) return { n: Math.round(safe / DAYS_PER_WEEK), unit: "week", about: true };
+  return { n: Math.round(safe / DAYS_PER_MONTH), unit: "month", about: true };
 }
 
 /**

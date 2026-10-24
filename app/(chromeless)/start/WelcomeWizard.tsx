@@ -644,8 +644,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
               anybody meets an Estonian word, and unlike the letter bar it is
               asked on a phone too: it is not a fact about the keyboard.
 
-              English stays the default, so somebody who wants it presses
-              nothing. The equivalents come from Ekilex, so nothing here was
+              It follows the language the app is read in, so somebody reading
+              in Russian starts with Russian meanings and somebody reading in
+              English presses nothing. The equivalents come from Ekilex, so nothing here was
               written by this app or by a model.
             */}
             <div
