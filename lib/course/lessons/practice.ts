@@ -182,7 +182,7 @@ function eachWithItsPronoun(item: Taught, pool: readonly Taught[]): string[] {
   const perPart = item.en.split(/,\s+/).map((part) => {
     const lead = clean(part).split(" ")[0] ?? "";
     return pool
-      .filter((o) => wordsOf(o.et).length === 1 && !/polite|more than one/i.test(o.en) && SUBJECTS_ONE.has(clean(o.en).split(" ")[0] ?? "") && clean(o.en).split(" ")[0] === lead)
+      .filter((o) => wordsOf(o.et).length === 1 && PRONOUN_ENGLISH[lead] === clean(o.en))
       .map((o) => `${o.et} ${item.et}`);
   });
   if (perPart.length < 2 || perPart.length > 3 || perPart.some((p) => p.length === 0)) return [];
@@ -191,7 +191,16 @@ function eachWithItsPronoun(item: Taught, pool: readonly Taught[]): string[] {
   return sets.flatMap(permute).map((p) => p.join(" "));
 }
 
-const SUBJECTS_ONE = new Set(["i", "you", "he", "we", "they"]);
+/** The English a subject pronoun is taught under, by the word that opens its part of a prompt. */
+const PRONOUN_ENGLISH: Record<string, string> = {
+  i: "i", we: "we", they: "they", he: "he she", you: "you one person you know",
+};
+
+/** The person a part of a prompt is about, if it opens on a subject pronoun. */
+const personOf = (part: string) => {
+  const first = part.trim().split(/\s+/)[0]?.toLocaleLowerCase("en") ?? "";
+  return first in PRONOUN_ENGLISH ? first : null;
+};
 
 /** What a typed question says it wants, where its English could be read two ways. */
 export const NOTE_ONE_WORD = "It's the one spelling for both. Type it alone, or with each pronoun.";
@@ -201,7 +210,9 @@ function noteFor(item: Taught): { note?: string } {
   if (/^with \{on\}:/i.test(item.en)) return { note: NOTE_WITH_ON };
   const parts = item.en.split(/,\s+/);
   // "you were, they were": two meanings, one spelling, which reads as two answers to give.
-  if (parts.length > 1 && parts.every((part) => part.trim().split(/\s+/).length > 1) && wordsOf(item.et).length === 1) return { note: NOTE_ONE_WORD };
+  // Only where each part is a different person ("you were, they were"), never a qualifier or a synonym.
+  const people = parts.map(personOf);
+  if (parts.length > 1 && people.every((p) => p !== null) && new Set(people).size === parts.length && wordsOf(item.et).length === 1) return { note: NOTE_ONE_WORD };
   return {};
 }
 

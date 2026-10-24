@@ -199,10 +199,22 @@ describe("A1 lessons", () => {
           expect(markPhrase(typed, item.accept).verdict, typed).toBe("right");
         }
         expect(markPhrase("te olid, nad olid", item.accept).verdict).not.toBe("right");
+        expect(item.accept.filter((a) => a.split(" ").length === 4).every((a) => /^(sa|sina) olid (nad|nemad) olid$|^(nad|nemad) olid (sa|sina) olid$/.test(a))).toBe(true);
         expect(markPhrase("sa olid, nad on", item.accept).verdict).toBe("nearly");
       }
     }
     expect(found).toBeGreaterThan(0);
+  });
+
+  it("puts the one-spelling note only on a prompt of two different persons", () => {
+    const before = ledgersBefore(LESSONS);
+    const noted = new Set<string>();
+    for (const lesson of A1_LESSONS) {
+      for (const item of practiceFor(lesson, before.get(lesson.id)!)) {
+        if (item.kind === "type" && item.note?.startsWith("It's the one spelling")) noted.add(item.en);
+      }
+    }
+    expect([...noted].sort()).toEqual(["you went, they went", "you were, they were"]);
   });
 
   it("says half right when the word is there with more beside it", () => {
