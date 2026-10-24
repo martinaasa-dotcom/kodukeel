@@ -30,7 +30,7 @@ export default function situationsSpendIsHeld({ check, code, ALL }: InvariantKit
     assert.ok(/status === 429 \|\| error\.status === 402\)\) throw error/.test(provider),
       "a cached-path quota refusal falls to the plain transport on the same link, which is a second refused request");
     assert.ok(code("lib/tutor/grader.ts").includes("liveLinks(chain)"), "the judge and the graders walk into a model that is out of quota");
-    assert.ok(code("app/api/scene/route.ts").includes("sceneProviders({ answering: true }).length > 0"),
+    assert.ok(code("lib/progress/sceneRequest.ts").includes("sceneProviders({ answering: true }).length > 0"),
       "the scene route books a call where every scene model is out, rather than answering from the bank");
   });
 
@@ -59,8 +59,25 @@ export default function situationsSpendIsHeld({ check, code, ALL }: InvariantKit
     const scripts = readdirSync("scripts").filter((f) => /\.ts$/.test(f) && !f.startsWith("_") && f !== "test-invariants.ts");
     const spenders = scripts.filter((f) => reaches.test(code(`scripts/${f}`)));
     assert.ok(spenders.length >= 12, `found only ${spenders.length} scripts that reach a model; the pattern stopped matching`);
-    const bare = spenders.filter((f) => !/\binstallMeter\(\{ replay: (?:true|false) \}\)/.test(code(`scripts/${f}`)));
+    /*
+      Exempt by name, for a script that names a provider's host and can reach no
+      provider at all: it replaces `fetch` with a stub of its own before any app
+      code runs and never keeps the real one, so there is nothing for a meter to
+      count, and a meter installed under the stub would write the stub's calls
+      into the machine's shared day log. Held to that shape below, both ways.
+    */
+    const STUBBED: Record<string, string> = {
+      "diff-scene-route.harness.ts": "the scene route's before-and-after record (N-5), every model a stubbed fetch",
+    };
+    const bare = spenders.filter((f) => !STUBBED[f] && !/\binstallMeter\(\{ replay: (?:true|false) \}\)/.test(code(`scripts/${f}`)));
     assert.deepEqual(bare, [], `these reach a paid model with nothing counting or capping what they spend: ${bare.join(", ")}`);
+    for (const f of Object.keys(STUBBED)) {
+      const source = code(`scripts/${f}`);
+      assert.ok(spenders.includes(f), `${f} is exempt from the meter and no longer names a model; take it off`);
+      assert.ok(/globalThis\.fetch = stubFetch as typeof fetch;/.test(source), `${f} no longer replaces fetch with its stub, so its calls reach a provider unmetered`);
+      assert.ok(!/globalThis\.fetch\.bind|const \w+ = globalThis\.fetch\b|\bfetch\(/.test(source.replace(/function stubFetch\(/, "")),
+        `${f} keeps or calls the real fetch, so its exemption from the meter no longer holds`);
+    }
   });
 
   /*

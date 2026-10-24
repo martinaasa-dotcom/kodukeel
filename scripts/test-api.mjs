@@ -29,7 +29,7 @@ const B = baseUrl();
 const published = JSON.parse(readFileSync("public/api/v1.schema.json", "utf8"));
 
 // Floor: measured against a local-mode build, which is what the browser job runs.
-const { check, absent, done } = suite("The v1 API", { floor: 39 });
+const { check, absent, done } = suite("The v1 API", { floor: 51 });
 
 async function call(method, path, { body, headers = {} } = {}) {
   const res = await fetch(`${B}${path}`, {
@@ -210,6 +210,87 @@ if (!hosted) {
   */
 } else {
   absent(14, "a signed-in token, which a hosted deployment needs and this suite does not mint (the 401 below is checked instead)");
+}
+
+// ── Conversations (N-5) ──────────────────────────────────────────────────────
+
+/*
+  One scene from the situations list and one lesson's own role-play, each
+  played to its end over the v1 doors alone and finished, the way a client
+  would: every turn so far is sent with every request, the answer's `beatId`
+  goes back on the next turn, and what the answer concedes is written onto the
+  turn that earned it. The client keeps the conversation and the server keeps
+  nothing between turns. Keyless, as this suite's server runs, so every line
+  comes from the bank.
+*/
+async function playOverHttp(sceneId) {
+  const opened = await call("POST", "/api/v1/scenes", { body: { sceneId, difficulty: "textbook", level: "A1" } });
+  if (opened.status !== 200) return { opened, turnsFit: false, over: false, finished: null, help: null };
+  const runId = opened.json.runId;
+  const sent = [];
+  const used = [];
+  let last = null;
+  let heard = "";
+  let turnsFit = true;
+  let misfitSeen = "";
+  let help = null;
+  const asked = [];
+  for (let n = 0; n <= 40; n += 1) {
+    if (n > 0) {
+      const pick = last?.picks?.[0];
+      sent.push({ beatId: last?.beatId ?? "", said: pick?.et ?? "Jah.", heard, ...(pick ? { picked: true } : {}) });
+    }
+    if (n === 1) {
+      help = await call("POST", `/api/v1/scenes/${runId}/help`, { body: { turns: sent.slice(0, -1) } });
+      if (help.status === 200) asked.push({ lemma: help.json.lemma, lexemeId: help.json.lexemeId });
+    }
+    const answered = await call("POST", `/api/v1/scenes/${runId}/turns`, { body: { turns: sent, used } });
+    const wrong = answered.status === 200 ? misfit("POST /api/v1/scenes/{runId}/turns", answered.json) : `status ${answered.status}`;
+    if (wrong) { turnsFit = false; misfitSeen ||= wrong; break; }
+    last = answered.json;
+    for (const line of last.lines) used.push(line.text);
+    const spoken = last.lines.filter((l) => !["unspoken", "meanwhile", "coach"].includes(l.provenance));
+    if (spoken.length > 0) heard = spoken[spoken.length - 1].text;
+    const at = sent.length - 1;
+    if (at >= 0 && last.conceded?.length) sent[at] = { ...sent[at], conceded: last.conceded };
+    if (at >= 0 && last.alsoDone?.length) sent[at] = { ...sent[at], alsoDone: last.alsoDone };
+    if (last.over) break;
+  }
+  const finished = await call("POST", `/api/v1/scenes/${runId}/finish`, { body: { turns: sent, walkedOut: !last?.over, asked } });
+  return { opened, turnsFit, misfitSeen, over: last?.over === true, finished, help, turns: sent.length };
+}
+
+if (!hosted) {
+  const scene = await playOverHttp("poodi-piima");
+  check("a scene opens over v1", scene.opened.status === 200, `status ${scene.opened.status}, ${scene.opened.text.slice(0, 120)}`);
+  check("the opened scene fits its published schema", misfit("POST /api/v1/scenes", scene.opened.json) === "", misfit("POST /api/v1/scenes", scene.opened.json));
+  check("every turn of it fits its published schema", scene.turnsFit, scene.misfitSeen);
+  check("the scene is played to its end", scene.over, `${scene.turns} turns sent and not over`);
+  check("the help button hands over a word, or says the beat has none",
+    scene.help !== null && ((scene.help.status === 200 && misfit("POST /api/v1/scenes/{runId}/help", scene.help.json) === "") || scene.help.status === 404),
+    `status ${scene.help?.status}`);
+  check("the scene is finished and its review fits the schema",
+    scene.finished?.status === 200 && misfit("POST /api/v1/scenes/{runId}/finish", scene.finished.json) === "",
+    `status ${scene.finished?.status}, ${misfit("POST /api/v1/scenes/{runId}/finish", scene.finished?.json)}`);
+
+  const lesson = await playOverHttp("a1-trepil");
+  check("a lesson's role-play opens over v1 by the id the web takes", lesson.opened.status === 200, `status ${lesson.opened.status}`);
+  check("the lesson's role-play is played to its end, every turn in its schema", lesson.over && lesson.turnsFit, lesson.misfitSeen || `${lesson.turns} turns sent`);
+  check("the lesson's role-play is finished and its review fits the schema",
+    lesson.finished?.status === 200 && misfit("POST /api/v1/scenes/{runId}/finish", lesson.finished.json) === "",
+    `status ${lesson.finished?.status}`);
+
+  const stranger = await call("POST", "/api/v1/scenes/no-such-run/turns", { body: { turns: [] } });
+  check("a turn on a run that is not the learner's is not found", stranger.status === 404 && stranger.json?.error?.code === "not_found", `status ${stranger.status}`);
+  const unknown = await call("POST", "/api/v1/scenes", { body: { sceneId: "no-such-scene", difficulty: "textbook" } });
+  check("a scene nobody wrote is not found", unknown.status === 404 && errorShaped(unknown.json), `status ${unknown.status}`);
+
+  const chat = await call("POST", "/api/v1/chat", { body: { level: "A1" } });
+  check("today's chat is offered only where a model can play it",
+    (chat.status === 503 && chat.json?.error?.code === "switched_off") || (chat.status === 200 && misfit("POST /api/v1/chat", chat.json) === "") || chat.status === 404,
+    `status ${chat.status}, ${chat.text.slice(0, 120)}`);
+} else {
+  absent(12, "a signed-in token, which a hosted deployment needs and this suite does not mint (the 401 below is checked instead)");
 }
 
 // ── Every route that needs a token refuses without one ────────────────────────

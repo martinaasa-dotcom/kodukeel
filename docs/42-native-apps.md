@@ -160,9 +160,10 @@ The actions the speech features use, which are the first routes to build:
 | `replayGrades` | Replays the offline outbox in order | Yes, `POST /api/v1/grades` with a batch, idempotent by id (N-4) |
 | `undoGrade` | Takes back the last grade | Yes, `POST /api/v1/grades/undo` (N-4) |
 | (none, the review page) | Today's review sitting, held to what the course has taught | Yes, `GET /api/v1/review`, the page's own `dailyReview` (N-4) |
-| `beginScene`, `sceneHelp`, `finishScene` | Opens, helps and closes a conversation | No; each turn is already `/api/scene` |
+| `beginScene`, `sceneHelp`, `finishScene` | Opens, helps and closes a conversation | Yes, `POST /api/v1/scenes`, `/api/v1/scenes/{runId}/help` and `/api/v1/scenes/{runId}/finish`, behind the same allowances (N-5) |
+| (none, the web's `/api/scene`) | One turn of a conversation, every turn so far sent with it | Yes, `POST /api/v1/scenes/{runId}/turns`, the same body (`sceneTurnFor`) behind the same limit and ledger (N-5) |
 | `recordWorkbookGrades`, `recordMatchGrades`, `recordNumberGrades` | Grades a round in one request, a numbers round's spoken words included (VB-7) | No |
-| `beginChat` | Opens tonight's chat, the evening worked out on the server (VB-11) | No; its turns are `/api/scene` |
+| `beginChat` | Opens today's chat, the evening worked out on the server (VB-11) | Yes, `POST /api/v1/chat`, never offered where no model can play it (N-5); its turns are `/api/v1/scenes/{runId}/turns` |
 | `startCourseDay`, `markCourseStep`, `advanceCourseStep`, `tonightSteps` | Tonight's module | No |
 | `completeLesson` | A finished unit lesson | No |
 | `finishLesson` | A finished A1 lesson: today ticked where it is today's, its words in the deck | Yes, `POST /api/v1/lessons/{id}/finish`, behind the same allowance (N-7) |

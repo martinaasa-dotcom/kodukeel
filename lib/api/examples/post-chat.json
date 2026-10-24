@@ -1,8 +1,25 @@
 {
-  "runId": "4f0c9a52-7d0e-4c43-8a0b-2f1d3c4b5a69",
+  "runId": "1fa196e6-b2f3-4337-a4c3-36cbc0a8c14f",
   "briefing": {
-    "sceneId": "poodi-piima"
+    "you": "You've got ten minutes before your bus and you'd like something to drink. Your card says what you feel like.",
+    "props": [
+      {
+        "slot": "drink",
+        "card": "What you'd like to drink.",
+        "given": [
+          "water"
+        ]
+      },
+      {
+        "slot": "price",
+        "card": "What the board says the drink costs, in euros.",
+        "given": [
+          "5 €"
+        ]
+      }
+    ],
+    "persona": "They're in no hurry at all, and they'll want every last detail from you. Get comfortable."
   },
-  "plays": null,
-  "composed": false
+  "plays": 0,
+  "composed": true
 }

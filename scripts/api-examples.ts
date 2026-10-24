@@ -145,19 +145,42 @@ write("get-recordings.json", {
 
 // ── Conversations ───────────────────────────────────────────────────────────
 
-const scene = { runId: "4f0c9a52-7d0e-4c43-8a0b-2f1d3c4b5a69", briefing: { sceneId: "poodi-piima" }, plays: null, composed: false };
-write("post-scenes.json", scene);
-write("post-chat.json", scene);
-const greeting = lesson.conversation[0]!;
-write("post-scenes-runid-turns.json", {
-  lines: [{ who: "them", text: greeting.et ?? "", lang: "et", provenance: "scripted" }],
-  objectives: [{ goal: "Say hello.", done: true }],
-  finished: false,
-  composedBy: null,
-  modelDown: false,
-});
-write("post-scenes-runid-help.json", { hint: "Say hello back.", lines: [] });
-write("post-scenes-runid-finish.json", { recap: { headline: "Every turn was understood." } });
+/*
+  One conversation played keyless through the functions the routes call: opened,
+  its opening line, one turn picked off what the other side offered, a word
+  asked for, and finished. The run is the local learner's and is deleted again,
+  so the demo history is as it was. Today's chat needs a model, which this
+  script never has, so its example is the same briefing with `composed` true,
+  which is the one field a chat always answers differently.
+*/
+{
+  const { beginSceneFor, finishSceneFor, sceneHelpFor } = await import("../lib/progress/sceneRuns");
+  const { sceneTurnFor } = await import("../lib/progress/sceneRequest");
+  const later = (task: () => unknown) => { void Promise.resolve().then(task).catch(() => {}); };
+  const opened = await beginSceneFor(LOCAL_USER_ID, "kohvikus", "textbook", "A1");
+  if (!opened.ok) throw new Error(`the example scene did not open: ${opened.error}`);
+  const { ok: _opened, ...briefing } = opened;
+  write("post-scenes.json", briefing);
+  write("post-chat.json", { ...briefing, composed: true });
+  const first = await sceneTurnFor(LOCAL_USER_ID, { runId: opened.runId, turns: [], used: [] }, later);
+  if (!first.ok) throw new Error(`the example scene did not answer: ${first.message}`);
+  const firstBody = first.body as { beatId: string | null; picks: { et: string }[]; lines: { text: string }[] };
+  const sent = [{ beatId: firstBody.beatId ?? "", said: firstBody.picks[0]?.et ?? "", helped: false, heard: firstBody.lines[0]?.text ?? "" }];
+  const second = await sceneTurnFor(LOCAL_USER_ID, { runId: opened.runId, turns: sent, used: firstBody.lines.map((l) => l.text) }, later);
+  if (!second.ok) throw new Error(`the example scene did not answer: ${second.message}`);
+  write("post-scenes-runid-turns.json", second.body);
+  const help = await sceneHelpFor(LOCAL_USER_ID, opened.runId, sent);
+  if (help.ok) {
+    const { ok: _help, ...word } = help;
+    write("post-scenes-runid-help.json", word);
+  }
+  const finished = await finishSceneFor(LOCAL_USER_ID, { runId: opened.runId, turns: sent, walkedOut: true, asked: [] });
+  if (!finished.ok) throw new Error(`the example scene did not finish: ${finished.error}`);
+  const { ok: _finished, ...debrief } = finished;
+  write("post-scenes-runid-finish.json", debrief);
+  await prisma.sceneGap.deleteMany({ where: { runId: opened.runId } });
+  await prisma.sceneRun.deleteMany({ where: { id: opened.runId } });
+}
 
 await prisma.$disconnect();
 }

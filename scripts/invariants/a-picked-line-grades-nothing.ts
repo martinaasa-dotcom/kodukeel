@@ -20,13 +20,13 @@ export default function aPickedLineGradesNothing({ check, code }: InvariantKit) 
   });
 
   check("the flag survives the wire both ways a turn arrives", () => {
-    assert.match(code("app/api/scene/route.ts"), /one\.picked === true \? \{ picked: true \} : \{\}/, "the scene route drops the picked flag");
-    const actions = code("app/actions.ts");
-    assert.equal((actions.match(/row\.picked === true \? \{ picked: true \} : \{\}/g) ?? []).length, 2, "an action that replays a run drops the picked flag");
+    assert.match(code("lib/progress/sceneRequest.ts"), /one\.picked === true \? \{ picked: true \} : \{\}/, "the scene route drops the picked flag");
+    const runs = code("lib/progress/sceneRuns.ts");
+    assert.equal((runs.match(/row\.picked === true \? \{ picked: true \} : \{\}/g) ?? []).length, 2, "a door that replays a run drops the picked flag");
   });
 
   check("the route offers the picks off the scene's own dictionary, and the screen sends a pick as a turn", () => {
-    assert.match(code("app/api/scene/route.ts"), /picks: isOver\(scene, state\) \? \[\] : picksFor\(scene, standing \?\? current, card, marking\.lexicon\)/, "the route stopped offering picks, or offers them off something other than this run's card");
+    assert.match(code("lib/progress/sceneRequest.ts"), /picks: isOver\(scene, state\) \? \[\] : picksFor\(scene, standing \?\? current, card, marking\.lexicon\)/, "the route stopped offering picks, or offers them off something other than this run's card");
     const session = code("components/scene/SceneSession.tsx");
     assert.match(session, /onClick=\{\(\) => answer\(pick\.et, true(?:, [^}]*)?\)\}/, "a pick is no longer sent as a picked turn");
     // The switch remembers the learner's last way of answering (VB-4); with nothing remembered, A1 picks.
