@@ -1267,18 +1267,18 @@ let the native apps claim the sign-in link are served.
 must do. It needs the queue, the grade, the batch replay for offline grades, and undo.
 
 **Files.**
-- `lib/progress/dailyQueue.ts` (to be written): the queue as `app/(app)/review/page.tsx` and
+- `lib/progress/dailyQueue.ts`: the queue as `app/(app)/review/page.tsx` and
   `app/(app)/review/cards.ts` build it today (which cards, in what order, scoped through
   `lib/course/scope.ts`, with their choices, sentence English and first-meeting sentence), moved so the
   page and the route call one function (D2). The page renders exactly what it rendered.
-- `app/api/v1/review/route.ts` (to be written): `GET` returns the queue, in a shape the contract defines
+- `app/api/v1/review/route.ts`: `GET` returns the queue, in a shape the contract defines
   and a type test holds equal to what `ReviewSession` receives, plus the time it was built, so a native
   app can keep it as its offline session as the web does in IndexedDB.
-- `app/api/v1/grades/route.ts` (to be written): `POST` takes one grade or a batch, each with the client's
+- `app/api/v1/grades/route.ts`: `POST` takes one grade or a batch, each with the client's
   own id and the time it was answered, every field of `PendingGrade` (`lib/offline/outbox.ts`) including
   `spoken`, and applies them through `applyGradeBatch`. It is idempotent by id, so a native app replays
   its outbox exactly as `replayGrades` does, and it returns each grade's result.
-- `app/api/v1/grades/undo/route.ts` (to be written): `POST` takes a card and the scheduling it had
+- `app/api/v1/grades/undo/route.ts`: `POST` takes a card and the scheduling it had
   before the grade, as the web's undo does, and puts it back through `undoGrade`'s body, moved into
   `lib/srs/` beside `writeGrade`. The review log is append-only, so undo touches the card and never a
   `Review` row, on both doors.

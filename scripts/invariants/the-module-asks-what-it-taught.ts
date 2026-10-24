@@ -21,7 +21,7 @@ export default function theModuleAsksWhatItTaught({ check, code }: InvariantKit)
   });
 
   check("the module's closing round reads only tonight's words, and stops at MODULE_SESSION", () => {
-    const round = code("app/(app)/review/queue.ts");
+    const round = code("lib/progress/dailyQueue.ts");
     assert.match(round, /if \(scope\) \{/, "the review queue no longer has a closing round of its own");
     const closing = round.slice(round.indexOf("if (scope) {"), round.indexOf("const dueWindow"));
     assert.match(closing, /tonightWhere\(ownerId, now, scope\.day\.words,/, "the closing round reads more than tonight's words");

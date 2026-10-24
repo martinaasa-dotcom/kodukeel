@@ -13,7 +13,7 @@ import { Empty, Page } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
 import { ReviewSession } from "../../ReviewSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
-import { include, withChoices } from "../../cards";
+import { include, withChoices } from "@/lib/progress/reviewCards";
 import { meetingFirst } from "@/lib/srs/reviewQueue";
 import { DeepenButton } from "../DeepenButton";
 

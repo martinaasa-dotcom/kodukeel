@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
  * FROM A COPY.
  *
  * Today prints how many cards Review is about to ask, and Review asks exactly
- * that many (app/(app)/review/queue.ts). Every grade clears the browser's
+ * that many (lib/progress/dailyQueue.ts). Every grade clears the browser's
  * page cache (`revalidatePath` in the grading actions), so going back to Today
  * after a session is always a fresh render. What is not a mutation is time
  * and the other device. A copy of Today can be up to thirty seconds old when

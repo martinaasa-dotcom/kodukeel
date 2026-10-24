@@ -29,7 +29,7 @@ const B = baseUrl();
 const published = JSON.parse(readFileSync("public/api/v1.schema.json", "utf8"));
 
 // Floor: measured against a local-mode build, which is what the browser job runs.
-const { check, absent, done } = suite("The v1 API", { floor: 13 });
+const { check, absent, done } = suite("The v1 API", { floor: 25 });
 
 async function call(method, path, { body, headers = {} } = {}) {
   const res = await fetch(`${B}${path}`, {
@@ -101,6 +101,55 @@ if (!hosted) {
   check("me is never kept", me.headers.get("cache-control") === "no-store");
 } else {
   absent(3, "a signed-in token, which a hosted deployment needs and this suite does not mint (the 401 below is checked instead)");
+}
+
+// ── N-4: the daily review, graded, and a grade taken back ────────────────────
+
+if (!hosted) {
+  const review = await call("GET", "/api/v1/review");
+  check("the review sitting answers on a local install", review.status === 200, `status ${review.status}`);
+  check("the review sitting fits its published schema", misfit("GET /api/v1/review", review.json) === "", misfit("GET /api/v1/review", review.json));
+  check("the review sitting is never kept", review.headers.get("cache-control") === "no-store");
+
+  const cards = review.json?.cards ?? [];
+  if (cards.length >= 2) {
+    const [first, second] = cards;
+    const id = `api-${Date.now()}-a`;
+    const grade = { id, cardId: first.id, rating: 3, durationMs: 1800, reviewedAt: Date.now() };
+    const graded = await call("POST", "/api/v1/grades", { body: { grades: [grade] } });
+    check("a grade is recorded and says what it left the card at",
+      graded.status === 200 && graded.json?.settled?.includes(id) && graded.json?.results?.[0]?.scheduling?.reps === first.scheduling.reps + 1,
+      `status ${graded.status}, ${JSON.stringify(graded.json)?.slice(0, 200)}`);
+    check("the grade's answer fits its published schema", misfit("POST /api/v1/grades", graded.json) === "", misfit("POST /api/v1/grades", graded.json));
+
+    const resent = await call("POST", "/api/v1/grades", { body: { grades: [grade] } });
+    check("the same grade sent twice is recorded once and settled both times",
+      resent.status === 200 && resent.json?.settled?.includes(id) && resent.json?.results?.length === 0,
+      `status ${resent.status}, ${JSON.stringify(resent.json)?.slice(0, 200)}`);
+
+    // A device clock a year out is clamped, never refused: the learner did answer.
+    const old = { id: `api-${Date.now()}-b`, cardId: second.id, rating: 3, durationMs: 1500, reviewedAt: Date.now() - 400 * 86_400_000 };
+    const backdated = await call("POST", "/api/v1/grades", { body: { grades: [old] } });
+    const lastReview = Date.parse(backdated.json?.results?.[0]?.scheduling?.lastReview ?? "");
+    check("a grade dated a year back is clamped to the last thirty days",
+      backdated.status === 200 && lastReview >= Date.now() - 31 * 86_400_000,
+      `status ${backdated.status}, lastReview ${backdated.json?.results?.[0]?.scheduling?.lastReview}`);
+
+    const undone = await call("POST", "/api/v1/grades/undo", { body: { cardId: first.id, previous: first.scheduling } });
+    check("a grade is taken back with the scheduling the sitting handed out", undone.status === 200 && undone.json?.undone === true, `status ${undone.status}`);
+    check("the undo answer fits its published schema", misfit("POST /api/v1/grades/undo", undone.json) === "", misfit("POST /api/v1/grades/undo", undone.json));
+    // And the backdated one too, so the demo deck is left as this suite found it.
+    await call("POST", "/api/v1/grades/undo", { body: { cardId: second.id, previous: second.scheduling } });
+  } else {
+    absent(6, `two cards to grade in today's sitting, and it holds ${cards.length} (run \`npm run demo\` on this database)`);
+  }
+
+  const malformed = await call("POST", "/api/v1/grades", { body: { grades: [{ id: "short", cardId: "x", rating: 9 }] } });
+  check("a malformed grade is refused in the error shape", malformed.status === 400 && errorShaped(malformed.json) && malformed.json.error.code === "invalid", `status ${malformed.status}`);
+  const badUndo = await call("POST", "/api/v1/grades/undo", { body: { cardId: "no-such-card", previous: { due: "x" } } });
+  check("an undo with a scheduling nobody can read is refused", badUndo.status === 400 && badUndo.json?.error?.code === "invalid", `status ${badUndo.status}`);
+} else {
+  absent(11, "a signed-in token, which a hosted deployment needs and this suite does not mint (the 401 below is checked instead)");
 }
 
 // ── Every route that needs a token refuses without one ────────────────────────

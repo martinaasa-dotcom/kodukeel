@@ -19,47 +19,7 @@ import { InterfaceLanguage, MeResponse, type RouteSpec } from "./contract";
  * route's item decides it.
  */
 
-// ── N-4: the daily review ───────────────────────────────────────────────────
-
-export const Scheduling = z.object({
-  due: z.string(),
-  stability: z.number().min(0).max(100_000),
-  difficulty: z.number().min(0).max(20),
-  elapsedDays: z.number().int().min(0).max(100_000),
-  scheduledDays: z.number().int().min(0).max(100_000),
-  reps: z.number().int().min(0).max(100_000),
-  lapses: z.number().int().min(0).max(100_000),
-  state: z.number().int().min(0).max(3),
-  learningSteps: z.number().int().min(0).max(20),
-  lastReview: z.string().nullable(),
-}).describe("A card's scheduling, as a grade leaves it and as undo puts it back.");
-
-const Grade = z.object({
-  id: z.string().regex(/^[0-9A-Za-z-]{8,64}$/).describe("The id the device chose for this answer, before it asked."),
-  cardId: z.string().min(1).max(64),
-  rating: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]),
-  durationMs: z.number().min(0),
-  reviewedAt: z.number().describe("Epoch milliseconds on the device, clamped by the server to the last thirty days."),
-  slot: z.string().max(40).optional(),
-  reachedSlot: z.string().max(40).optional(),
-  spoken: z.boolean().optional().describe("True only where the answer marked is what the recognizer heard, word for word."),
-});
-
-export const DraftGradesRequest = z.object({ grades: z.array(Grade).min(1).max(50) });
-export const DraftGradesResponse = z.object({
-  settled: z.array(z.string()),
-  results: z.array(z.object({ id: z.string(), cardId: z.string(), scheduling: Scheduling.nullable() })),
-});
-export const DraftUndoRequest = z.object({ cardId: z.string().min(1).max(64), previous: Scheduling });
-export const DraftUndoResponse = z.object({ undone: z.literal(true) });
-export const DraftReviewResponse = z.object({
-  builtAt: z.string(),
-  cards: z.array(z.record(z.string(), z.unknown())).describe("ReviewCard, as the web's review session receives it."),
-  totalCards: z.number().int(),
-  mode: z.enum(["flip", "type"]),
-  nextDue: z.object({ at: z.string(), line: z.string() }).nullable(),
-  waitingOnCourse: z.boolean(),
-});
+// N-4's shapes shipped and are in `./contract.ts`.
 
 // ── N-7: today's lesson and the part checks ─────────────────────────────────
 
@@ -197,9 +157,6 @@ export const DraftRecordingsResponse = z.object({
 // ── The planned routes ──────────────────────────────────────────────────────
 
 export const DRAFT_ROUTES: readonly RouteSpec[] = [
-  { method: "GET", path: "/api/v1/review", auth: true, item: "N-4", summary: "Today's review queue, as the web's review session receives it.", response: DraftReviewResponse, example: "get-review.json" },
-  { method: "POST", path: "/api/v1/grades", auth: true, item: "N-4", summary: "One grade or a batch, idempotent by id, as the offline outbox replays them.", request: DraftGradesRequest, response: DraftGradesResponse, example: "post-grades.json" },
-  { method: "POST", path: "/api/v1/grades/undo", auth: true, item: "N-4", summary: "A card's scheduling put back; the review log is untouched.", request: DraftUndoRequest, response: DraftUndoResponse, example: "post-grades-undo.json" },
   { method: "GET", path: "/api/v1/today", auth: true, item: "N-7", summary: "Whether today is a lesson, a check, the web or nothing.", response: DraftTodayResponse, example: "get-today.json" },
   { method: "GET", path: "/api/v1/lessons/{id}", auth: true, item: "N-7", summary: "One lesson, as the web's lesson screen receives it.", response: DraftLessonResponse, example: "get-lessons-id.json" },
   { method: "POST", path: "/api/v1/lessons/{id}/finish", auth: true, item: "N-7", summary: "A finished lesson: today ticked and its words in the deck.", response: DraftFinishResponse, example: "post-lessons-id-finish.json" },

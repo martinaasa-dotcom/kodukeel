@@ -20,7 +20,7 @@ const READERS = [
   // The Learn ladder's meeting and gap rungs.
   "lib/progress/learn.ts",
   // The first meeting on the review card.
-  "app/(app)/review/cards.ts",
+  "lib/progress/reviewCards.ts",
   // The unit lesson's meeting step.
   "app/(app)/learn/[unitId]/lesson/page.tsx",
   // The lesson drawn when a learner types a second right word, which shows

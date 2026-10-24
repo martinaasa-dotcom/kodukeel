@@ -75,9 +75,10 @@ The actions the speech features use, which are the first routes to build:
 
 | Action in `app/actions.ts` | What it does | Already a route? |
 | --- | --- | --- |
-| `gradeCard` | Grades one card, spoken or typed | No |
-| `replayGrades` | Replays the offline outbox in order | No |
-| `undoGrade` | Takes back the last grade | No |
+| `gradeCard` | Grades one card, spoken or typed | Yes, `POST /api/v1/grades` with one grade (N-4) |
+| `replayGrades` | Replays the offline outbox in order | Yes, `POST /api/v1/grades` with a batch, idempotent by id (N-4) |
+| `undoGrade` | Takes back the last grade | Yes, `POST /api/v1/grades/undo` (N-4) |
+| (none, the review page) | Today's review sitting, held to what the course has taught | Yes, `GET /api/v1/review`, the page's own `dailyReview` (N-4) |
 | `beginScene`, `sceneHelp`, `finishScene` | Opens, helps and closes a conversation | No; each turn is already `/api/scene` |
 | `recordWorkbookGrades`, `recordMatchGrades`, `recordNumberGrades` | Grades a round in one request, a numbers round's spoken words included (VB-7) | No |
 | `beginChat` | Opens tonight's chat, the evening worked out on the server (VB-11) | No; its turns are `/api/scene` |

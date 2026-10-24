@@ -11,7 +11,7 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { ReviewSession } from "../ReviewSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
-import { include, notOnLadder, withChoices } from "../cards";
+import { include, notOnLadder, withChoices } from "@/lib/progress/reviewCards";
 
 /** Cards in one round. The same twenty Flash cards asks, for the same reason. */
 const ROUND = 20;

@@ -10,7 +10,7 @@ import { LessonRunner } from "./LessonRunner";
 import { PROGRAMMES, lessonDayFor } from "@/lib/course";
 import { checkAfter } from "@/lib/course/checks";
 import { checksPassedFor } from "@/lib/progress/checks";
-import { reviewQueue } from "../../../review/queue";
+import { reviewQueue } from "@/lib/progress/dailyQueue";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const lesson = lessonById((await params).id);

@@ -123,6 +123,152 @@ export const MeResponse = z.object({
 
 export type MeResponse = z.infer<typeof MeResponse>;
 
+// ── N-4: the daily review ───────────────────────────────────────────────────
+
+export const Scheduling = z.object({
+  due: z.string(),
+  stability: z.number().min(0).max(100_000),
+  difficulty: z.number().min(0).max(20),
+  elapsedDays: z.number().int().min(0).max(100_000),
+  scheduledDays: z.number().int().min(0).max(100_000),
+  reps: z.number().int().min(0).max(100_000),
+  lapses: z.number().int().min(0).max(100_000),
+  state: z.number().int().min(0).max(3),
+  learningSteps: z.number().int().min(0).max(20),
+  lastReview: z.string().nullable(),
+}).describe("A card's scheduling, as a grade leaves it and as undo puts it back.");
+
+/**
+ * The languages a meaning may lead in, which are the gloss languages rather
+ * than the interface languages: the same three today, and two lists because
+ * they are two questions (`lib/collections/glossLanguage.ts`).
+ */
+const GlossLang = z.enum(["en", "ru", "uk"]);
+
+const ShownMeaning = z.object({
+  lead: z.object({ text: z.string(), lang: GlossLang }),
+  english: z.string().nullable(),
+  also: z.object({ text: z.string(), lang: GlossLang }).nullable(),
+}).describe("A meaning as the learner's language leads it; the English is never dropped while an equivalent leads.");
+
+const GlossedToken = z.object({
+  text: z.string(),
+  word: z.boolean(),
+  taught: z.boolean(),
+  entry: z.object({
+    lexemeId: z.string(),
+    lemma: z.string(),
+    gloss: z.string(),
+    matchedAs: z.string().nullable(),
+    reading: z.string().nullable(),
+    clause: z.string().nullable(),
+    alsoSaid: z.object({ spelling: z.string(), everyday: z.boolean() }).nullable(),
+  }).nullable(),
+}).describe("One run of a sentence, with the dictionary entry it was vouched as, if any.");
+
+const ContrastWord = z.object({
+  lexemeId: z.string().nullable(),
+  lemma: z.string(),
+  gloss: z.string(),
+  sentence: z.object({ et: z.string(), en: z.string().nullable(), form: z.string().nullable() }).nullable(),
+});
+
+/**
+ * A review card exactly as the web's review session receives it.
+ *
+ * `lib/progress/reviewContract.test.ts` holds this schema and the session's
+ * own `ReviewCard` type to each other in both directions, so the web card
+ * cannot grow a field the contract does not name, and the contract cannot name
+ * one the web does not build. Field meanings are the session's; the comments
+ * on `ReviewCard` in app/(app)/review/ReviewSession.tsx are the reference.
+ */
+export const ReviewCardSchema = z.object({
+  id: z.string(),
+  cardType: z.string(),
+  front: z.string(),
+  back: z.string(),
+  hint: z.string().nullable(),
+  targetCase: z.string().nullable(),
+  slot: z.string().nullable(),
+  lemma: z.string().nullable(),
+  lexemeId: z.string().nullable(),
+  rivals: z.array(z.string()),
+  kin: z.array(z.string()),
+  starred: z.boolean(),
+  isNew: z.boolean(),
+  wordMet: z.boolean().optional(),
+  intro: z.object({
+    lemma: z.string(),
+    gloss: z.string(),
+    equivalent: z.object({ text: z.string(), lang: z.string() }).nullable(),
+    also: z.object({ text: z.string(), lang: z.string() }).nullable().optional(),
+    sentence: z.object({
+      et: z.string(), en: z.string().nullable(), form: z.string().nullable(), authored: z.boolean(),
+    }).nullable(),
+    lexemeId: z.string().nullable(),
+    tokens: z.array(GlossedToken).nullable(),
+    alsoSaid: z.string().nullable(),
+    canTranslate: z.boolean(),
+    isPhrase: z.boolean(),
+    cefr: z.string().nullable(),
+    firstCardEver: z.boolean(),
+  }).nullable().describe("What to show the first time this word is met; null on a card already seen."),
+  choices: z.array(z.string()).nullable(),
+  meaning: ShownMeaning.nullable().optional(),
+  choiceMeanings: z.array(ShownMeaning).nullable().optional(),
+  scheduling: Scheduling,
+  sentenceEn: z.string().nullable(),
+  say: z.string().nullable(),
+  canTranslate: z.boolean(),
+  contrast: z.object({ own: ContrastWord, neighbours: z.array(ContrastWord) }).nullable(),
+}).describe("One card of a review sitting, as the web's review session receives it.");
+
+export const ReviewResponse = z.object({
+  /** When the server built this sitting; a client holding it longer should ask again. */
+  builtAt: z.string(),
+  cards: z.array(ReviewCardSchema),
+  totalCards: z.number().int().min(0),
+  mode: z.enum(["flip", "type"]),
+  nextDue: z.object({ at: z.string(), line: z.string() }).nullable()
+    .describe("When the next card comes back, on an empty sitting alone; the line is in the learner's language."),
+  waitingOnCourse: z.boolean().describe("Whether unseen cards are held back until the course reaches them."),
+}).describe("Today's review sitting: due cards, then a capped trickle of new ones, held to what the course has taught.");
+
+export type ReviewResponse = z.infer<typeof ReviewResponse>;
+
+/** One answer, in the offline outbox's own shape (`PendingGrade` in lib/offline/outbox.ts). */
+export const GradeItem = z.object({
+  id: z.string().regex(/^[0-9A-Za-z-]{8,64}$/).describe("The id the device chose for this answer, before it asked. Sending it twice records it once."),
+  cardId: z.string().min(1).max(64),
+  rating: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]),
+  durationMs: z.number().min(0),
+  reviewedAt: z.number().describe("Epoch milliseconds on the device, clamped by the server to the last thirty days and to never after it heard."),
+  slot: z.string().max(40).optional().describe("What the round asked about, where narrower than the card; checked against a closed list."),
+  reachedSlot: z.string().max(40).optional().describe("The form that came back instead, where the round could name one."),
+  spoken: z.boolean().optional().describe("True only where the answer marked is what the recognizer heard, word for word."),
+});
+
+export const GradesRequest = z.object({ grades: z.array(GradeItem).min(1).max(50) });
+
+export const GradesResponse = z.object({
+  settled: z.array(z.string()).describe("Every id the client may now drop: recorded now, recorded before, or never recordable."),
+  results: z.array(z.object({
+    id: z.string(),
+    cardId: z.string(),
+    scheduling: Scheduling.nullable().describe("What this request left the card at, or null where it wrote nothing now."),
+  })).describe("One entry per grade written by this request, in the order they were applied."),
+});
+
+export const UndoRequest = z.object({
+  cardId: z.string().min(1).max(64),
+  previous: Scheduling.describe("The scheduling the card had before the grade being taken back, as the grade's own answer gave it."),
+});
+
+export const UndoResponse = z.object({ undone: z.literal(true) });
+
+export type GradesResponse = z.infer<typeof GradesResponse>;
+export type UndoResponse = z.infer<typeof UndoResponse>;
+
 // ── The routes that have shipped ────────────────────────────────────────────
 
 export const SHIPPED_ROUTES: readonly RouteSpec[] = [
@@ -143,5 +289,34 @@ export const SHIPPED_ROUTES: readonly RouteSpec[] = [
     item: "N-2",
     response: MeResponse,
     example: "get-me.json",
+  },
+  {
+    method: "GET",
+    path: "/api/v1/review",
+    auth: true,
+    summary: "Today's review sitting, as the web's review session receives it.",
+    item: "N-4",
+    response: ReviewResponse,
+    example: "get-review.json",
+  },
+  {
+    method: "POST",
+    path: "/api/v1/grades",
+    auth: true,
+    summary: "One grade or a batch, idempotent by id, as the offline outbox replays them.",
+    item: "N-4",
+    request: GradesRequest,
+    response: GradesResponse,
+    example: "post-grades.json",
+  },
+  {
+    method: "POST",
+    path: "/api/v1/grades/undo",
+    auth: true,
+    summary: "A card's scheduling put back; the review log is untouched.",
+    item: "N-4",
+    request: UndoRequest,
+    response: UndoResponse,
+    example: "post-grades-undo.json",
   },
 ];

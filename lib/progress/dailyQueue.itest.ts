@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { MAX_SESSION, MODULE_SESSION } from "@/lib/srs/reviewQueue";
 import { PROGRAMMES } from "@/lib/course";
 import { scopeFor } from "@/lib/course/scope";
-import { reviewQueue } from "./queue";
+import { reviewQueue } from "./dailyQueue";
 
 /**
  * THE QUEUE HOLDS EVERY CARD IT MAY ASK, WHEREVER THE FIRST PAGE ENDS.

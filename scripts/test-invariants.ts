@@ -9910,7 +9910,7 @@ check("the dictionary under a sentence is the learner's to refuse", () => {
     looks anyway is the fault this is for.
   */
   const producers = [
-    ["app/(app)/review/cards.ts", "a first meeting in review"],
+    ["lib/progress/reviewCards.ts", "a first meeting in review"],
     ["lib/progress/learn.ts", "a word on the learn ladder"],
     ["app/api/scene/route.ts", "a line said in a conversation"],
   ] as const;
@@ -10116,7 +10116,7 @@ check("a card never answers the card before it", () => {
     order a lesson teaches them, because a first meeting is a teaching screen
     rather than a retrieval.
   */
-  const review = (code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts"));
+  const review = (code("app/(app)/review/page.tsx") + "\n" + code("lib/progress/dailyQueue.ts"));
   assert.match(review, /spaceSiblings\(dueWithin,/, "the review queue no longer spaces a word's cards apart");
   assert.match(review, /inTeachingOrder\(fresh\)/, "new cards no longer arrive in teaching order");
 
@@ -10271,7 +10271,7 @@ check("a word the learner went and got is reachable, and the commonest lead", ()
   // scheduler: it renders the shared session like every other round (ADR-016).
   assert.match(round, /<ReviewSession/, "the lookups round grew a card runner of its own");
 
-  const review = (code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts"));
+  const review = (code("app/(app)/review/page.tsx") + "\n" + code("lib/progress/dailyQueue.ts"));
   assert.match(
     review, /aroundFirst\(commonFirst\(/,
     "the new-card trickle no longer puts the commonest words of their kind first, "
@@ -11735,13 +11735,14 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
     join("app", "(app)", "dictionary", "page.tsx"),
     join("app", "(app)", "dictionary", "DictionaryClient.tsx"),
     /*
-      The review screen reads them in `cards.ts` rather than in `page.tsx` now:
-      two routes render that session (the daily loop and the Flash cards round)
-      and a second copy of the select is two selects that drift apart. The page
+      The review screen reads them in `lib/progress/reviewCards.ts` rather than
+      in `page.tsx`: several routes render that session (the daily loop, the
+      Flash cards round and the v1 review route a native app reads) and a
+      second copy of the select is two selects that drift apart. The page
       itself no longer names the columns, so its entry is gone rather than left
       as a parking space.
     */
-    join("app", "(app)", "review", "cards.ts"),
+    join("lib", "progress", "reviewCards.ts"),
     /*
       And the Learn ladder reads them for the same screen the review session
       does. A first meeting is the one moment where a meaning in the language
@@ -11759,7 +11760,7 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
       the query that already loads the word and hands them to `meaningShown`
       or `meaningsShown` in lib/collections/glossLanguage.ts, which decides
       what is drawn; none of them writes either column, and none hands them to
-      a model. `review/cards.ts` imports the provider
+      a model. `lib/progress/reviewCards.ts` imports the provider
       check for an unrelated reason (whether a sentence may be offered in
       English), and pass it nothing from these columns.
 
@@ -12484,6 +12485,7 @@ const GONE_ON_PURPOSE: Record<string, string> = {
   "lib/anu/client.ts": "docs/06-anu-tutor.md says the page used to show it and why it stopped",
   "lib/copy/tour.ts": "CLAUDE.md records it going with /guide",
   "lib/scenes/onRails.ts": "docs/21-situations.md §77 records it being tried for cost and taken back for the experience",
+  "app/(app)/review/cards.ts": "docs/44-sixth-batch.md N-4 names it as where the daily queue used to be built, before it moved to lib/progress/reviewCards.ts",
 };
 
 check("every path the documentation names exists, or is named because it is gone", () => {
@@ -12925,8 +12927,18 @@ check("a route that spends something is throttled", () => {
              ceiling would be met by an app opening twice and by nobody else.
              The v1 routes take their limits from the web door they share a
              body with (D5), and the web reads the same facts with none.
+    review   is `GET /api/v1/review`, `dailyReview`, which the review page
+             reads with no ceiling: the queue is a handful of indexed reads a
+             learner opens once a sitting, and the page is the same work.
+    grades   is `POST /api/v1/grades`, `applyGradeBatch`, which the offline
+             outbox replays through with no ceiling. A grade is a single
+             indexed write, `lib/security/actionLimits.ts` says why a limit
+             there is felt by learners and nobody else, and a batch is capped
+             at fifty by the contract before anything is read.
+    undo     is `POST /api/v1/grades/undo`, one card's scheduling put back, the
+             `undoGrade` action's body, which has no ceiling for the same reason.
   */
-  const exempt = new Set(["metrics", "reminder", "research", "health", "send", "me"]);
+  const exempt = new Set(["metrics", "reminder", "research", "health", "send", "me", "review", "grades", "undo"]);
 
   for (const file of routes) {
     const name = file.split(/[\\/]/).slice(-2, -1)[0] ?? file;
@@ -16171,7 +16183,7 @@ check("a word chosen for a learner is banded by one table", () => {
     "lib/dict/suggest.ts",
     "app/(app)/review/pairs/page.tsx",
     "app/(app)/review/government/page.tsx",
-    "app/(app)/review/queue.ts",
+    "lib/progress/dailyQueue.ts",
   ];
   for (const file of readers) {
     assert.match(
@@ -17693,6 +17705,24 @@ check("a grade taken offline arrives with every field it was queued with", () =>
     missing, [],
     `the offline replay drops ${missing.join(", ")} on the way to the server. ` +
     "The row still lands, about the wrong thing, and nothing fails.",
+  );
+
+  /*
+    AND THE SAME FIELDS THROUGH THE OTHER DOOR (N-4, ADR-029). A native app
+    sends its outbox to `POST /api/v1/grades`, so the contract's grade has to
+    name every field the outbox holds, and the route has to hand the parsed
+    grades to `applyGradeBatch` whole rather than through a map of its own,
+    which is the shape that dropped `slot` above. The type test in
+    lib/progress/reviewContract.test.ts holds the two types equal; this holds
+    the route to passing them on.
+  */
+  const contractGrade = between(code("lib/api/contract.ts"), "export const GradeItem").split("});")[0]!;
+  const unnamed = fields.filter((f) => !new RegExp(`^\\s{2}${f}:`, "m").test(contractGrade));
+  assert.deepEqual(unnamed, [], `the v1 contract's grade does not name ${unnamed.join(", ")}, which the outbox holds`);
+  const route = code("app/api/v1/grades/route.ts");
+  assert.ok(
+    /applyGradeBatch\(\s*who\.ownerId,\s*body\.data\.grades\s*\)/.test(route),
+    "POST /api/v1/grades has to hand the parsed grades to applyGradeBatch whole, as the outbox's replay does",
   );
 });
 
@@ -21080,9 +21110,10 @@ check("the ladder a new word climbs is the scheduler's own steps", () => {
       card in Learning for ever.
     */
     "lib/srs/scheduler.ts", "lib/srs/grade.ts", "lib/srs/backfill.ts", "lib/srs/deck.ts",
-    "app/actions.ts", "app/(app)/review/cards.ts",
-    // The v1 contract carries a card's scheduling to a phone and back for undo (ADR-029).
-    "lib/api/draft.ts",
+    "app/actions.ts", "lib/progress/reviewCards.ts",
+    // The v1 contract carries a card's scheduling to a phone and back for undo
+    // (ADR-029), and the undo body moved out of the actions beside writeGrade.
+    "lib/api/contract.ts", "lib/srs/undo.ts",
     // The ladder reads it, and the two files that put a rung on a screen.
     "lib/learn/ladder.ts", "lib/progress/learn.ts",
     "app/(app)/learn/new/LearnSession.tsx",
@@ -21136,7 +21167,7 @@ check("learn teaches a word and practice drills it, never both at once", () => {
     "pastTheLadder names the ladder's states itself rather than reading the table",
   );
 
-  const review = (code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts"));
+  const review = (code("app/(app)/review/page.tsx") + "\n" + code("lib/progress/dailyQueue.ts"));
   assert.match(
     review, /where: (?:\{ AND: \[)?dueWhere\(ownerId, now[,)]/,
     "the review queue reads its own due clause rather than the shared one",
@@ -23499,7 +23530,7 @@ check("a word enough people put aside is offered later, not rewritten", () => {
 
   // And the reach: the two places that decide which word somebody is taught
   // next. A raise nobody reads is a count nobody acts on.
-  for (const file of ["app/(app)/review/queue.ts", "lib/progress/learn.ts"]) {
+  for (const file of ["lib/progress/dailyQueue.ts", "lib/progress/learn.ts"]) {
     assert.match(
       code(file), /offeredBand\(/,
       `${file} bands a word by what the dictionary recorded rather than by what `
@@ -23642,7 +23673,7 @@ check("a derived step asks for no more evidence than the app can supply", () => 
       + "module thinks is left and what the round shows can disagree",
     );
   }
-  const round = code("app/(app)/review/queue.ts");
+  const round = code("lib/progress/dailyQueue.ts");
   assert.ok(
     round.includes("tonightWhere("),
     "the closing round is drawn without tonightWhere(, so it is no longer the read its count makes",
@@ -23902,8 +23933,8 @@ check("every round a rotation can deal reads the module's scope off its address"
   }
   assert.ok(reads >= 11, `only ${reads} round pages read the scope; the table has more rounds than that`);
   // And the closing review reads it too, since it is the last step of every evening.
-  assert.match((code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts")), /moduleScopeFrom\(/, "the closing review stopped asking what the module has taught");
-  assert.match((code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts")), /reviewable\(/, "the closing review stopped holding a case card to the case pages read");
+  assert.match((code("app/(app)/review/page.tsx") + "\n" + code("lib/progress/dailyQueue.ts")), /moduleScopeFrom\(/, "the closing review stopped asking what the module has taught");
+  assert.match((code("app/(app)/review/page.tsx") + "\n" + code("lib/progress/dailyQueue.ts")), /reviewable\(/, "the closing review stopped holding a case card to the case pages read");
 });
 
 /*
@@ -23961,7 +23992,7 @@ check("nothing outside lib/course/scope.ts reads a scope's lists to answer the m
   teaching something.
 */
 check("the daily review introduces nothing the module has not taught", () => {
-  const page = (code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts"));
+  const page = (code("app/(app)/review/page.tsx") + "\n" + code("lib/progress/dailyQueue.ts"));
   assert.match(
     page, /learnerScopeSoFar\(/,
     "the daily review reads the module only off its address, so nothing holds it on the path a learner actually opens",
@@ -24093,7 +24124,7 @@ check("the Learn ladder introduces nothing the module has not taught", () => {
   anywhere else on the page is a guard on a different query.
 */
 check("every card read on the review page asks about the Learn ladder", () => {
-  const src = (code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts"));
+  const src = (code("app/(app)/review/page.tsx") + "\n" + code("lib/progress/dailyQueue.ts"));
   const blocks = src.split("prisma.card.findMany(").slice(1).map((b) => b.slice(0, 700));
   const guard = /\b(dueWhere|unseenWhere|notOnLadder|meetingFirst|tonightWhere)\(ownerId/;
   const loose = blocks.filter((b) => !guard.test(b));
@@ -28146,6 +28177,7 @@ check("every source file a comment in the code cites is one that exists", () => 
     "scripts/x.mjs": "a placeholder standing for any suite in a sentence about how CI names them",
     "lib/anu/client.ts": "the documentation-path check's own list of paths named because they are gone",
     "lib/scenes/onRails.ts": "the documentation-path check's own list, where its being taken back is recorded",
+    "app/(app)/review/cards.ts": "the documentation-path check's own list, where the daily queue's old home is recorded",
   };
   const haystack = [...ALL, ...sourceFiles("scripts", /\.(ts|mjs)$/), "prisma/schema.prisma"];
   let cited = 0;

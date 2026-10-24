@@ -348,9 +348,9 @@
       "method": "GET",
       "path": "/api/v1/review",
       "auth": true,
-      "draft": true,
+      "draft": false,
       "item": "N-4",
-      "summary": "Today's review queue, as the web's review session receives it.",
+      "summary": "Today's review sitting, as the web's review session receives it.",
       "example": "get-review.json",
       "contentType": "application/json",
       "response": {
@@ -363,16 +363,708 @@
             "type": "array",
             "items": {
               "type": "object",
-              "propertyNames": {
-                "type": "string"
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "cardType": {
+                  "type": "string"
+                },
+                "front": {
+                  "type": "string"
+                },
+                "back": {
+                  "type": "string"
+                },
+                "hint": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "targetCase": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "slot": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "lemma": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "lexemeId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "rivals": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "kin": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "starred": {
+                  "type": "boolean"
+                },
+                "isNew": {
+                  "type": "boolean"
+                },
+                "wordMet": {
+                  "type": "boolean"
+                },
+                "intro": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "lemma": {
+                          "type": "string"
+                        },
+                        "gloss": {
+                          "type": "string"
+                        },
+                        "equivalent": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "text": {
+                                  "type": "string"
+                                },
+                                "lang": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "text",
+                                "lang"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "also": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "text": {
+                                  "type": "string"
+                                },
+                                "lang": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "text",
+                                "lang"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "sentence": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "et": {
+                                  "type": "string"
+                                },
+                                "en": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "form": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "authored": {
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "et",
+                                "en",
+                                "form",
+                                "authored"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "lexemeId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "tokens": {
+                          "anyOf": [
+                            {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "word": {
+                                    "type": "boolean"
+                                  },
+                                  "taught": {
+                                    "type": "boolean"
+                                  },
+                                  "entry": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "lexemeId": {
+                                            "type": "string"
+                                          },
+                                          "lemma": {
+                                            "type": "string"
+                                          },
+                                          "gloss": {
+                                            "type": "string"
+                                          },
+                                          "matchedAs": {
+                                            "type": [
+                                              "string",
+                                              "null"
+                                            ]
+                                          },
+                                          "reading": {
+                                            "type": [
+                                              "string",
+                                              "null"
+                                            ]
+                                          },
+                                          "clause": {
+                                            "type": [
+                                              "string",
+                                              "null"
+                                            ]
+                                          },
+                                          "alsoSaid": {
+                                            "anyOf": [
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "spelling": {
+                                                    "type": "string"
+                                                  },
+                                                  "everyday": {
+                                                    "type": "boolean"
+                                                  }
+                                                },
+                                                "required": [
+                                                  "spelling",
+                                                  "everyday"
+                                                ]
+                                              },
+                                              {
+                                                "type": "null"
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "required": [
+                                          "lexemeId",
+                                          "lemma",
+                                          "gloss",
+                                          "matchedAs",
+                                          "reading",
+                                          "clause",
+                                          "alsoSaid"
+                                        ]
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "text",
+                                  "word",
+                                  "taught",
+                                  "entry"
+                                ],
+                                "description": "One run of a sentence, with the dictionary entry it was vouched as, if any."
+                              }
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "alsoSaid": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "canTranslate": {
+                          "type": "boolean"
+                        },
+                        "isPhrase": {
+                          "type": "boolean"
+                        },
+                        "cefr": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "firstCardEver": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "lemma",
+                        "gloss",
+                        "equivalent",
+                        "sentence",
+                        "lexemeId",
+                        "tokens",
+                        "alsoSaid",
+                        "canTranslate",
+                        "isPhrase",
+                        "cefr",
+                        "firstCardEver"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "What to show the first time this word is met; null on a card already seen."
+                },
+                "choices": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "meaning": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "lead": {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "type": "string"
+                            },
+                            "lang": {
+                              "type": "string",
+                              "enum": [
+                                "en",
+                                "ru",
+                                "uk"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "text",
+                            "lang"
+                          ]
+                        },
+                        "english": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "also": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "text": {
+                                  "type": "string"
+                                },
+                                "lang": {
+                                  "type": "string",
+                                  "enum": [
+                                    "en",
+                                    "ru",
+                                    "uk"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "text",
+                                "lang"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "lead",
+                        "english",
+                        "also"
+                      ],
+                      "description": "A meaning as the learner's language leads it; the English is never dropped while an equivalent leads."
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "choiceMeanings": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "lead": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string"
+                              },
+                              "lang": {
+                                "type": "string",
+                                "enum": [
+                                  "en",
+                                  "ru",
+                                  "uk"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "lang"
+                            ]
+                          },
+                          "english": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "also": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "lang": {
+                                    "type": "string",
+                                    "enum": [
+                                      "en",
+                                      "ru",
+                                      "uk"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "text",
+                                  "lang"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "lead",
+                          "english",
+                          "also"
+                        ],
+                        "description": "A meaning as the learner's language leads it; the English is never dropped while an equivalent leads."
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "scheduling": {
+                  "type": "object",
+                  "properties": {
+                    "due": {
+                      "type": "string"
+                    },
+                    "stability": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100000
+                    },
+                    "difficulty": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 20
+                    },
+                    "elapsedDays": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100000
+                    },
+                    "scheduledDays": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100000
+                    },
+                    "reps": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100000
+                    },
+                    "lapses": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100000
+                    },
+                    "state": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 3
+                    },
+                    "learningSteps": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 20
+                    },
+                    "lastReview": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "due",
+                    "stability",
+                    "difficulty",
+                    "elapsedDays",
+                    "scheduledDays",
+                    "reps",
+                    "lapses",
+                    "state",
+                    "learningSteps",
+                    "lastReview"
+                  ],
+                  "description": "A card's scheduling, as a grade leaves it and as undo puts it back."
+                },
+                "sentenceEn": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "say": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "canTranslate": {
+                  "type": "boolean"
+                },
+                "contrast": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "own": {
+                          "type": "object",
+                          "properties": {
+                            "lexemeId": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "lemma": {
+                              "type": "string"
+                            },
+                            "gloss": {
+                              "type": "string"
+                            },
+                            "sentence": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "et": {
+                                      "type": "string"
+                                    },
+                                    "en": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    },
+                                    "form": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "et",
+                                    "en",
+                                    "form"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "lexemeId",
+                            "lemma",
+                            "gloss",
+                            "sentence"
+                          ]
+                        },
+                        "neighbours": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "lexemeId": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "lemma": {
+                                "type": "string"
+                              },
+                              "gloss": {
+                                "type": "string"
+                              },
+                              "sentence": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "et": {
+                                        "type": "string"
+                                      },
+                                      "en": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "form": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "et",
+                                      "en",
+                                      "form"
+                                    ]
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "lexemeId",
+                              "lemma",
+                              "gloss",
+                              "sentence"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "own",
+                        "neighbours"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
               },
-              "additionalProperties": {}
-            },
-            "description": "ReviewCard, as the web's review session receives it."
+              "required": [
+                "id",
+                "cardType",
+                "front",
+                "back",
+                "hint",
+                "targetCase",
+                "slot",
+                "lemma",
+                "lexemeId",
+                "rivals",
+                "kin",
+                "starred",
+                "isNew",
+                "intro",
+                "choices",
+                "scheduling",
+                "sentenceEn",
+                "say",
+                "canTranslate",
+                "contrast"
+              ],
+              "description": "One card of a review sitting, as the web's review session receives it."
+            }
           },
           "totalCards": {
             "type": "integer",
-            "minimum": -9007199254740991,
+            "minimum": 0,
             "maximum": 9007199254740991
           },
           "mode": {
@@ -402,10 +1094,12 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "When the next card comes back, on an empty sitting alone; the line is in the learner's language."
           },
           "waitingOnCourse": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether unseen cards are held back until the course reaches them."
           }
         },
         "required": [
@@ -415,14 +1109,15 @@
           "mode",
           "nextDue",
           "waitingOnCourse"
-        ]
+        ],
+        "description": "Today's review sitting: due cards, then a capped trickle of new ones, held to what the course has taught."
       }
     },
     "POST /api/v1/grades": {
       "method": "POST",
       "path": "/api/v1/grades",
       "auth": true,
-      "draft": true,
+      "draft": false,
       "item": "N-4",
       "summary": "One grade or a batch, idempotent by id, as the offline outbox replays them.",
       "example": "post-grades.json",
@@ -440,7 +1135,7 @@
                 "id": {
                   "type": "string",
                   "pattern": "^[0-9A-Za-z-]{8,64}$",
-                  "description": "The id the device chose for this answer, before it asked."
+                  "description": "The id the device chose for this answer, before it asked. Sending it twice records it once."
                 },
                 "cardId": {
                   "type": "string",
@@ -473,13 +1168,15 @@
                 },
                 "reviewedAt": {
                   "type": "number",
-                  "description": "Epoch milliseconds on the device, clamped by the server to the last thirty days."
+                  "description": "Epoch milliseconds on the device, clamped by the server to the last thirty days and to never after it heard."
                 },
                 "slot": {
+                  "description": "What the round asked about, where narrower than the card; checked against a closed list.",
                   "type": "string",
                   "maxLength": 40
                 },
                 "reachedSlot": {
+                  "description": "The form that came back instead, where the round could name one.",
                   "type": "string",
                   "maxLength": 40
                 },
@@ -509,7 +1206,8 @@
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "description": "Every id the client may now drop: recorded now, recorded before, or never recordable."
           },
           "results": {
             "type": "array",
@@ -594,7 +1292,8 @@
                     {
                       "type": "null"
                     }
-                  ]
+                  ],
+                  "description": "What this request left the card at, or null where it wrote nothing now."
                 }
               },
               "required": [
@@ -602,7 +1301,8 @@
                 "cardId",
                 "scheduling"
               ]
-            }
+            },
+            "description": "One entry per grade written by this request, in the order they were applied."
           }
         },
         "required": [
@@ -615,7 +1315,7 @@
       "method": "POST",
       "path": "/api/v1/grades/undo",
       "auth": true,
-      "draft": true,
+      "draft": false,
       "item": "N-4",
       "summary": "A card's scheduling put back; the review log is untouched.",
       "example": "post-grades-undo.json",
@@ -693,7 +1393,7 @@
               "learningSteps",
               "lastReview"
             ],
-            "description": "A card's scheduling, as a grade leaves it and as undo puts it back."
+            "description": "The scheduling the card had before the grade being taken back, as the grade's own answer gave it."
           }
         },
         "required": [

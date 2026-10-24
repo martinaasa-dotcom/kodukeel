@@ -2297,7 +2297,7 @@ beginner keeps meeting, not the percentage.
 to find them all.** The first pass wired the card builders and called itself website wide. Reading
 every remaining `usableExamples` caller found the printable worksheet, the dictionary entry and the
 government drill. Reading `teachingSentence` and `sentenceContaining`, which is where the first two
-sweeps stopped, found four more, and one of them was the daily path: `app/(app)/review/cards.ts`
+sweeps stopped, found four more, and one of them was the daily path: `lib/progress/reviewCards.ts`
 builds the first meeting a review card shows, its own comment promises that `teachingSentence`
 introduces a word the same way wherever it is met, and until this it introduced `tere` as `No tere,
 Juhan.` there and as `Tere, mina olen Katrin.` in the unit lesson. **The lesson is a screenshot and
@@ -6014,7 +6014,7 @@ the first one. It was reported off that screen as making less sense than reviewi
 evening had just taught, and it does. Inside a module the round is `tonightWhere` alone, due or
 not, the due ones first, cut at `MODULE_SESSION`; it introduces nothing, and everything else that
 is due waits on Review, where a learner who opens it from Today chooses to meet it. The step's count
-in `lib/progress/closing.ts` is the same read, asserted, and `app/(app)/review/queue.itest.ts` fails
+in `lib/progress/closing.ts` is the same read, asserted, and `lib/progress/dailyQueue.itest.ts` fails
 on a card of an earlier evening reaching the round.
 
 **Meeting the words has the same shape of way out**, which is worth naming because it is the same

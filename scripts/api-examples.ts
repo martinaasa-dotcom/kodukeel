@@ -31,9 +31,7 @@ const { PROGRAMMES, programmeAfter, programmeById } = await import("../lib/cours
 const { courseChecks, checkPaper } = await import("../lib/course/checks");
 const { CHECK_PASS, markCheck } = await import("../lib/course/lessons/practice");
 const { NATIVE_CLIPS, nativeFor, nativeUrl } = await import("../lib/audio/native");
-const { reviewQueue } = await import("../app/(app)/review/queue");
-const { withChoices } = await import("../app/(app)/review/cards");
-const { meaningPrefsFrom } = await import("../lib/collections/glossLanguage");
+const { dailyReview, reviewQueue } = await import("../lib/progress/dailyQueue");
 
 const DIR = "lib/api/examples";
 mkdirSync(DIR, { recursive: true });
@@ -54,15 +52,16 @@ write("get-meta.json", buildMeta({
 // ── The review ──────────────────────────────────────────────────────────────
 
 const now = new Date();
-const queue = await reviewQueue(LOCAL_USER_ID, null, now);
-const cards = await withChoices(queue.cards.slice(0, 2), meaningPrefsFrom(undefined, undefined), LOCAL_USER_ID, null);
+// The route's own body, cut to two cards so the example stays readable.
+const sitting = await dailyReview(LOCAL_USER_ID, null, now);
+const cards = sitting.cards.slice(0, 2);
 write("get-review.json", {
   builtAt: now.toISOString(),
   cards,
-  totalCards: await prisma.card.count({ where: { ownerId: LOCAL_USER_ID } }),
-  mode: "type",
-  nextDue: null,
-  waitingOnCourse: false,
+  totalCards: sitting.totalCards,
+  mode: sitting.mode,
+  nextDue: sitting.nextDue ? { at: sitting.nextDue.at.toISOString(), line: sitting.nextDue.line } : null,
+  waitingOnCourse: sitting.waitingOnCourse,
 });
 const graded = cards[0];
 write("post-grades.json", {
@@ -88,7 +87,7 @@ write("get-lessons-id.json", {
   scene: null,
   place: { at: ofLevel.indexOf(lesson) + 1, of: ofLevel.length },
   name: null,
-  due: queue.due.length,
+  due: (await reviewQueue(LOCAL_USER_ID, null, now)).due.length,
   check: null,
   locale: "en",
   translations: {},
