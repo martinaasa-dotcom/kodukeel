@@ -1,6 +1,7 @@
 import { ekilexConfigured } from "@/lib/ekilex/client";
 import { resolveProviders } from "@/lib/tutor/provider";
 import { pushConfigured } from "@/lib/push/config";
+import { fcmConfigured } from "@/lib/push/fcm";
 import { appleSignInConfigured } from "@/lib/auth/appleConfig";
 import { googleScriptLoaded, googleSignInOffered } from "@/lib/auth/googleConfig";
 
@@ -158,6 +159,27 @@ export function resolveRecipients(): Recipient[] {
       name: "The push services run by Google, Mozilla, Apple and Microsoft",
       what: "a reminder you asked to have on a computer, encrypted so that only that browser can read it",
       // All four companies are established in the United States.
+      eea: false,
+    });
+  }
+
+  /*
+    FIREBASE CLOUD MESSAGING, WHICH CARRIES A REMINDER TO A PHONE (N-9).
+
+    A phone running the app is reminded through Google's Firebase Cloud
+    Messaging, which delivers an Android notification itself and an iPhone's
+    through Apple's service. Unlike the browsers' push services it reads what
+    it carries: a token that names the app on that phone, and the two lines of
+    the notification, which are a letter's subject and preview and never a
+    name or an answer. Named wherever the operator has set an account, for the
+    reason the push services above are.
+  */
+  if (fcmConfigured()) {
+    recipients.push({
+      id: "fcm",
+      name: "Google, through Firebase Cloud Messaging",
+      what: "a reminder you allowed on a phone with the app: the token that names the app on that phone, and the two lines the reminder says",
+      // Google LLC runs Firebase in the United States.
       eea: false,
     });
   }

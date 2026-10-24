@@ -156,6 +156,10 @@ async function populate(ownerId: string, lexemeId: string) {
   await prisma.pushSubscription.create({
     data: { ownerId, endpoint: `https://fcm.googleapis.com/fcm/send/itest-${ownerId}`, p256dh: "p", auth: "a" },
   });
+  // A phone token is unique across the table too.
+  await prisma.nativePushDevice.create({
+    data: { ownerId, platform: "android", token: `itest-native-token-${ownerId}` },
+  });
 }
 
 let lexemeId: string;

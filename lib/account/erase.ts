@@ -71,6 +71,8 @@ export async function deleteAccountFor(ownerId: string, confirmation: unknown): 
       // Every browser they asked to be reminded on, so nothing is pushed to
       // a person who is no longer here.
       await tx.pushSubscription.deleteMany({ where: { ownerId } });
+      // And every phone (N-9), for the same reason.
+      await tx.nativePushDevice.deleteMany({ where: { ownerId } });
       await tx.setting.deleteMany({ where: { ownerId } });
       forgetSettings(ownerId);
       await tx.usageEvent.deleteMany({ where: { ownerId } });

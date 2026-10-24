@@ -133,6 +133,7 @@ export const TABLE_SOURCES: Readonly<Record<string, Source>> = {
   ClassroomMember: { types: ["name", "interaction"], linked: true, why: "the name a learner shows a class they joined" },
   EmailSend: { types: ["otherUsage"], linked: true, why: "which letters were sent and when, which is the frequency cap" },
   PushSubscription: { types: ["deviceId"], linked: true, why: "the address a browser gave for reminders, only where the learner turned them on" },
+  NativePushDevice: { types: ["deviceId"], linked: true, why: "the token a phone running the app gave for reminders, only where the learner allowed notifications" },
   UsageEvent: {
     types: ["otherUsage"], linked: true,
     why: "the cost of each model call, kept to enforce the daily cap; not in the export, and deleted with the account",
@@ -164,6 +165,10 @@ export const RECIPIENT_SOURCES: Readonly<Record<string, Source>> = {
   "push-services": {
     types: ["deviceId"], linked: false,
     why: "a reminder encrypted so only the learner's browser can read it, posted to the push service that browser uses",
+  },
+  fcm: {
+    types: ["deviceId"], linked: false,
+    why: "a reminder's two lines and the token that names the app on the phone it is for, posted to Firebase Cloud Messaging",
   },
   "error-webhook": {
     types: ["crash", "diagnostics"], linked: true,
@@ -217,6 +222,12 @@ export const EVERY_RECIPIENT_ENV: Readonly<Record<string, string>> = {
   NEXT_PUBLIC_VAPID_PUBLIC_KEY: "B".repeat(87),
   VAPID_PRIVATE_KEY: "C".repeat(43),
   VAPID_SUBJECT: "mailto:operator@example.test",
+  FCM_SERVICE_ACCOUNT: JSON.stringify({
+    project_id: "stand-in",
+    client_email: "stand-in@stand-in.example.test",
+    // The shape `fcmConfigFrom` reads; it signs nothing, and the script sends nothing.
+    private_key: "-----BEGIN PRIVATE KEY-----\nstand-in\n-----END PRIVATE KEY-----\n",
+  }),
   ERROR_WEBHOOK_URL: "https://errors.example.test/hook",
   NEXT_PUBLIC_SUPABASE_URL: "https://project.example.test",
   VERCEL: "1",

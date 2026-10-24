@@ -430,6 +430,32 @@ export const SERVICES: readonly Service[] = [
   },
 
   {
+    id: "phones",
+    name: "Notifications on a phone",
+    who: "Google, through Firebase Cloud Messaging",
+    does: "Carries the reminders a learner allowed to a phone running the app, on Android itself and on an iPhone through Apple's service.",
+    whenItIsGone: "Reminders go to the computer the learner asked on, or by email, as they did before the app existed.",
+    setBy: "FCM_SERVICE_ACCOUNT",
+    ref: {
+      source: "https://firebase.google.com/pricing",
+      checked: "24 October 2026",
+    },
+    bill(): ServiceCost {
+      /*
+        Free of charge on every Firebase plan, read off Google's own price page
+        on the day above. Not `given`, which is a public institution's gift, and
+        never `charged` at nought, which this registry refuses: Google pays for
+        it, which is what `notOurs` says.
+      */
+      return {
+        kind: "notOurs",
+        who: "Google",
+        why: "Firebase Cloud Messaging carries no charge on any plan, so Google bears the cost of every message.",
+      };
+    },
+  },
+
+  {
     id: "news",
     name: "An Estonian news feed",
     who: "Whichever public feed the deployment points at",

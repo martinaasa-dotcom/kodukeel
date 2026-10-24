@@ -177,6 +177,7 @@ The actions the speech features use, which are the first routes to build:
 | `setCourseLevel` | The level, which asks the A1 checks first | Yes, `level` in `PATCH /api/v1/me`, refused with `forbidden` past an unpassed check, through `changeCourseLevel` (N-8) |
 | `deleteMyAccount` | Deletes the account and everything kept about it | Yes, `DELETE /api/v1/me` with the typed word as `confirmation`, through `deleteAccountFor` in `lib/account/erase.ts` (N-8) |
 | (none, `/api/export`) | The whole backup file | Yes, `GET /api/v1/export`, the web's `backupFor` under the web's `exportAllowance` (N-8) |
+| (none, native only) | Registers and forgets a phone for notifications | Yes, `POST` and `DELETE /api/v1/push-devices`, through `lib/progress/nativePush.ts` (N-9) |
 | (none) | Which heard words are Estonian spellings | Yes, `/api/speech/forms` |
 | (none) | A clip read aloud | Yes, `/api/tts` |
 | (none) | What was heard, read back and kept nowhere (VB-5) | Yes, `/api/tts?transient=1` |
@@ -197,8 +198,16 @@ web does. A lesson's English arrives with a table of its lines in the learner's 
 and its Estonian is drawn as it stands.
 
 `rememberPushDevice`, `forgetPushDevice` and `pushDeviceStatus` are Web Push's and stay the web's: a
-native app registers the platform's own notification token instead, which needs a table and a sender
-of its own under the same booking in `EmailSend` (section 6).
+native app registers the platform's own notification token instead (N-9). `POST /api/v1/push-devices`
+keeps it in `NativePushDevice` on every launch where the learner allowed notifications, with the
+platform in the body and the build read off `X-Kodukeel-Build`, and `DELETE` forgets it when they are
+turned off or the app signs out; both answer `switched_off` where the operator set no
+`FCM_SERVICE_ACCOUNT`. The run sends the four short kinds through Firebase Cloud Messaging
+(`lib/push/fcm.ts`, one provider for both platforms), in D13's order: the phone where one is
+registered, else a computer, else email, booked in `EmailSend` as `native` before the send, one channel
+a kind a day. The text is the letter's subject and preview (`lib/push/native.ts`), and `data` carries
+`link`, the path to open through `lib/links/routes.ts`, and `kind`. These two routes are the one-body
+invariant's stated native-only exception, since no web screen has a phone token to hand over.
 
 **Deleting an account without the app (N-8).** Google Play asks an app that makes accounts for a web
 link that explains how to delete one and works without the app. That link is `/account/delete`: public,

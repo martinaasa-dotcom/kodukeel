@@ -502,6 +502,32 @@ export const ExportResponse = z.looseObject({
 
 export type DeleteMeResponse = z.infer<typeof DeleteMeResponse>;
 
+// ── N-9: the phones a learner is reminded on ─────────────────────────────────
+
+/** A Firebase Cloud Messaging registration token, as the app was handed it. */
+const PushToken = z.string().min(20).max(4096).regex(/^[A-Za-z0-9_:.-]+$/)
+  .describe("The registration token Firebase Cloud Messaging gave the app on this phone.");
+
+export const PushDeviceRequest = z.object({
+  platform: z.enum(["ios", "android"]).describe("The platforms `X-Kodukeel-Build` names (`lib/api/build.ts`)."),
+  token: PushToken,
+}).describe("A phone to remind, registered on every launch so the server knows it was seen. The app build is read off `X-Kodukeel-Build`.");
+
+export const PushDeviceResponse = z.object({
+  registered: z.literal(true),
+}).describe("The phone will be reminded of the kinds its owner left switched on, on no second channel the same day.");
+
+export const PushDeviceForgetRequest = z.object({
+  token: PushToken,
+}).describe("A phone to stop reminding, sent when the learner turns notifications off or signs out.");
+
+export const PushDeviceForgetResponse = z.object({
+  forgotten: z.boolean().describe("Whether this learner had that phone registered."),
+});
+
+export type PushDeviceResponse = z.infer<typeof PushDeviceResponse>;
+export type PushDeviceForgetResponse = z.infer<typeof PushDeviceForgetResponse>;
+
 // ── The routes that have shipped ────────────────────────────────────────────
 
 export const SHIPPED_ROUTES: readonly RouteSpec[] = [
@@ -551,6 +577,26 @@ export const SHIPPED_ROUTES: readonly RouteSpec[] = [
     item: "N-8",
     response: ExportResponse,
     example: "get-export.json",
+  },
+  {
+    method: "POST",
+    path: "/api/v1/push-devices",
+    auth: true,
+    summary: "A phone registered for notifications; refused with `switched_off` where the operator has set none up.",
+    item: "N-9",
+    request: PushDeviceRequest,
+    response: PushDeviceResponse,
+    example: "post-push-devices.json",
+  },
+  {
+    method: "DELETE",
+    path: "/api/v1/push-devices",
+    auth: true,
+    summary: "A phone forgotten, so it is reminded of nothing more.",
+    item: "N-9",
+    request: PushDeviceForgetRequest,
+    response: PushDeviceForgetResponse,
+    example: "delete-push-devices.json",
   },
   {
     method: "GET",

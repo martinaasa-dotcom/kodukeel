@@ -7,6 +7,7 @@ import { resolveOperator, SUPERVISORY_AUTHORITY } from "@/lib/legal/operator";
 import { resolveRecipients, transfersOutsideEea } from "@/lib/legal/recipients";
 import { recipientIn } from "@/lib/legal/recipientCopy";
 import { pushConfigured } from "@/lib/push/config";
+import { fcmConfigured } from "@/lib/push/fcm";
 import { appleSignInConfigured } from "@/lib/auth/appleConfig";
 import { googleScriptLoaded } from "@/lib/auth/googleConfig";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
@@ -113,6 +114,11 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
         {pushConfigured() && (
           <P>
             {rich(t("**Reminders on a computer.** If you turn them on in Settings, your browser gives us an address at the push service its maker runs and two keys to encrypt a reminder with, and we keep exactly those. A reminder is then booked like an email, as which kind it was and when it went, and we keep no record of whether it was shown or clicked. Turning it off in Settings, or signing out in that browser, stops it."))}
+          </P>
+        )}
+        {fcmConfigured() && (
+          <P>
+            {rich(t("**Reminders on a phone.** If you allow notifications in the Kodukeel app, the phone gives us a token that names the app on it, and we keep that token, which kind of phone it is and the app's version. A reminder is sent through Google's Firebase Cloud Messaging with that token and the two lines it says, the ones an email's subject and preview carry. It is booked like an email, and we keep no record of whether it was shown or opened. Turning notifications off, or signing out in the app, stops it."))}
           </P>
         )}
         <P>

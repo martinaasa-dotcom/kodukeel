@@ -366,6 +366,7 @@ Every recipient the code can name is assumed on, which declares the most. The va
 - `NEXT_PUBLIC_VAPID_PUBLIC_KEY`
 - `VAPID_PRIVATE_KEY`
 - `VAPID_SUBJECT`
+- `FCM_SERVICE_ACCOUNT`
 - `ERROR_WEBHOOK_URL`
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `VERCEL`
@@ -378,6 +379,7 @@ Every recipient the code can name is assumed on, which declares the most. The va
 - Wikimedia, which runs Wiktionary
 - Resend, which sends our emails
 - The push services run by Google, Mozilla, Apple and Microsoft
+- Google, through Firebase Cloud Messaging
 - Google, if you sign in with Google
 - Apple, if you sign in with Apple
 - TartuNLP, at the University of Tartu
@@ -403,7 +405,9 @@ Every recipient the code can name is assumed on, which declares the most. The va
   - Supabase: the email address somebody signs in with and the id every table is keyed on, held by the database host
 - **Identifiers: Device ID.** Linked to the person: Yes. Used for: App Functionality.
   - PushSubscription (in the export): the address a browser gave for reminders, only where the learner turned them on
+  - NativePushDevice (in the export): the token a phone running the app gave for reminders, only where the learner allowed notifications
   - The push services run by Google, Mozilla, Apple and Microsoft: a reminder encrypted so only the learner's browser can read it, posted to the push service that browser uses
+  - Google, through Firebase Cloud Messaging: a reminder's two lines and the token that names the app on the phone it is for, posted to Firebase Cloud Messaging
 - **Usage Data: Product Interaction.** Linked to the person: Yes. Used for: App Functionality, Product Personalization.
   - StarredWord (in the export): the words the learner kept as favorites
   - DeckWord (in the export): which words the learner put in each deck
@@ -471,7 +475,9 @@ Every recipient the code can name is assumed on, which declares the most. The va
   - Supabase: the email address somebody signs in with and the id every table is keyed on, held by the database host
 - **Device or other IDs.** Collected: Yes. Processed only while answering: No. Optional: Yes. Used for: App functionality, Developer communications.
   - PushSubscription (in the export): the address a browser gave for reminders, only where the learner turned them on
+  - NativePushDevice (in the export): the token a phone running the app gave for reminders, only where the learner allowed notifications
   - The push services run by Google, Mozilla, Apple and Microsoft: a reminder encrypted so only the learner's browser can read it, posted to the push service that browser uses
+  - Google, through Firebase Cloud Messaging: a reminder's two lines and the token that names the app on the phone it is for, posted to Firebase Cloud Messaging
 - **App activity: App interactions.** Collected: Yes. Processed only while answering: No. Optional: No. Used for: App functionality, Personalization.
   - StarredWord (in the export): the words the learner kept as favorites
   - DeckWord (in the export): which words the learner put in each deck

@@ -49,6 +49,7 @@ const UNSET: Record<string, string> = {
   EMAIL_SIGN_IN: "",
   EMAIL_TOKEN_SECRET: "",
   ERROR_WEBHOOK_URL: "",
+  FCM_SERVICE_ACCOUNT: "",
   GEMINI_API_KEY: "",
   GEMINI_MODEL: "",
   GEMINI_VISION_MODEL: "",

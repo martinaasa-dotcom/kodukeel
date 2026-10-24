@@ -114,7 +114,7 @@ export async function backupFor(ownerId: string) {
     lexemes, cards, reviews, tasks, studyEvents, scans,
     settings, messages, assessments, stars, achievements,
     examAttempts, classrooms, classroomMembers, suggestions, sceneRuns, sceneGaps, encounters,
-    decks, deckWords, deferrals, courseSteps, emailSends, pushSubscriptions,
+    decks, deckWords, deferrals, courseSteps, emailSends, pushSubscriptions, nativePushDevices,
   ] = await Promise.all([
     prisma.lexeme.findMany({ where: { id: { in: [...mine] } }, include: { forms: true } }),
     prisma.card.findMany({ where: { ownerId } }),
@@ -180,6 +180,10 @@ export async function backupFor(ownerId: string) {
     // since a file opened on another machine must not switch notifications
     // back on in a browser nobody asked about.
     prisma.pushSubscription.findMany({ where: { ownerId }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] }),
+    // The phones running the app they asked to be reminded on (N-9): the token
+    // Firebase gave each, the platform and the app build. Never restored, for
+    // the browsers' reason, and because a token names one Firebase project.
+    prisma.nativePushDevice.findMany({ where: { ownerId }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] }),
   ]);
 
   const payload = {
@@ -199,11 +203,12 @@ export async function backupFor(ownerId: string) {
       courseSteps: courseSteps.length,
       emailSends: emailSends.length,
       pushSubscriptions: pushSubscriptions.length,
+      nativePushDevices: nativePushDevices.length,
     },
     lexemes, cards, reviews, tasks, studyEvents, scans,
     settings, messages, assessments, stars, achievements,
     examAttempts, classrooms, classroomMembers, suggestions, sceneRuns, sceneGaps, encounters,
-    decks, deckWords, deferrals, courseSteps, emailSends, pushSubscriptions,
+    decks, deckWords, deferrals, courseSteps, emailSends, pushSubscriptions, nativePushDevices,
   };
 
   return payload;

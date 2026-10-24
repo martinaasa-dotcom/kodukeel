@@ -29,7 +29,7 @@ const B = baseUrl();
 const published = JSON.parse(readFileSync("public/api/v1.schema.json", "utf8"));
 
 // Floor: measured against a local-mode build, which is what the browser job runs.
-const { check, absent, done } = suite("The v1 API", { floor: 52 });
+const { check, absent, done } = suite("The v1 API", { floor: 54 });
 
 async function call(method, path, { body, headers = {} } = {}) {
   const res = await fetch(`${B}${path}`, {
@@ -268,6 +268,22 @@ if (!hosted) {
   check("the backup is never kept", backup.headers.get("cache-control") === "no-store", backup.headers.get("cache-control") ?? "no cache-control");
 } else {
   absent(13, "a signed-in token, which a hosted deployment needs and this suite does not mint (the 401 below is checked instead)");
+}
+
+// ── N-9: the phones a learner is reminded on ─────────────────────────────────
+
+if (!hosted) {
+  // A local install sets no Firebase account, so a phone is refused rather than kept with nothing to send to it.
+  const token = "suite-phone-token-0123456789abcdef";
+  const phone = await call("POST", "/api/v1/push-devices", { body: { platform: "android", token } });
+  check("a phone is refused where no Firebase account is set, and nothing is kept",
+    phone.status === 503 && phone.json?.error?.code === "switched_off" && errorShaped(phone.json), `status ${phone.status}, ${phone.text.slice(0, 120)}`);
+  const forgot = await call("DELETE", "/api/v1/push-devices", { body: { token } });
+  check("forgetting a phone answers in its published shape",
+    forgot.status === 200 && forgot.json?.forgotten === false && misfit("DELETE /api/v1/push-devices", forgot.json) === "",
+    `status ${forgot.status}, ${misfit("DELETE /api/v1/push-devices", forgot.json)}`);
+} else {
+  absent(2, "a signed-in token, which a hosted deployment needs and this suite does not mint (the 401 below is checked instead)");
 }
 
 // ── Every route that needs a token refuses without one ────────────────────────

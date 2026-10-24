@@ -2784,6 +2784,77 @@
         "additionalProperties": {},
         "description": "The backup the web's export downloads, every table of the learner's own, which the web's restore reads back."
       }
+    },
+    "POST /api/v1/push-devices": {
+      "contentType": "application/json",
+      "request": {
+        "type": "object",
+        "properties": {
+          "platform": {
+            "type": "string",
+            "enum": [
+              "ios",
+              "android"
+            ]
+          },
+          "token": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 4096,
+            "pattern": "^[A-Za-z0-9_:.-]+$",
+            "description": "The registration token Firebase Cloud Messaging gave the app on this phone."
+          }
+        },
+        "required": [
+          "platform",
+          "token"
+        ],
+        "description": "A phone to remind, registered on every launch so the server knows it was seen. The app build is read off `X-Kodukeel-Build`."
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "registered": {
+            "type": "boolean",
+            "const": true
+          }
+        },
+        "required": [
+          "registered"
+        ],
+        "description": "The phone will be reminded of the kinds its owner left switched on, on no second channel the same day."
+      }
+    },
+    "DELETE /api/v1/push-devices": {
+      "contentType": "application/json",
+      "request": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 4096,
+            "pattern": "^[A-Za-z0-9_:.-]+$",
+            "description": "The registration token Firebase Cloud Messaging gave the app on this phone."
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "description": "A phone to stop reminding, sent when the learner turns notifications off or signs out."
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "forgotten": {
+            "type": "boolean",
+            "description": "Whether this learner had that phone registered."
+          }
+        },
+        "required": [
+          "forgotten"
+        ]
+      }
     }
   }
 }

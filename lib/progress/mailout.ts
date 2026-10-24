@@ -46,6 +46,8 @@ import {
 
 import { wordOfDay } from "@/lib/progress/wordOfDay";
 import { hasDevice } from "@/lib/progress/push";
+import { hasNativeDevice } from "@/lib/progress/nativePush";
+import { fcmConfigured } from "@/lib/push/fcm";
 import { pushConfigured } from "@/lib/push/config";
 import { outThere } from "@/lib/progress/outThere";
 import { dailySummary, deckSnapshot, SHIELD_MILESTONES } from "@/lib/progress/summary";
@@ -311,7 +313,7 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
   const clock = dayClock(settings[SETTING_KEYS.timeZone]);
   const weekAgo = new Date(now.getTime() - 7 * 86_400_000);
 
-  const [lastReview, sends, sentThisWeek, programme, pushable] = await Promise.all([
+  const [lastReview, sends, sentThisWeek, programme, pushable, nativeable] = await Promise.all([
     prisma.review.findFirst({
       where: { ownerId },
       orderBy: { reviewedAt: "desc" },
@@ -352,6 +354,12 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
       has since dropped its keys are not a channel.
     */
     pushConfigured() ? hasDevice(ownerId) : Promise.resolve(false),
+    /*
+      And whether a phone running the app is registered (N-9), asked only where
+      this deployment can reach Firebase: a token with no sender is not a
+      channel, and D13's order then falls to the computer or the letter.
+    */
+    fcmConfigured() ? hasNativeDevice(ownerId) : Promise.resolve(false),
   ]);
 
   /*
@@ -527,6 +535,7 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
     */
     undeliverable: false,
     pushable,
+    nativeable,
     prefs: emailPrefsFrom(settings[SETTING_KEYS.emailsOff], settings[SETTING_KEYS.emailsOn]),
     dayKey: clock.dayKey(now),
     localHour,

@@ -44,6 +44,7 @@ than inheriting this one.
 | Supabase | `NEXT_PUBLIC_SUPABASE_URL` is set. With no Supabase keys the app runs as a single local learner (ADR-013) |
 | Resend | `RESEND_API_KEY` is set. With none, the app sends no letters |
 | The push services run by Google, Mozilla, Apple and Microsoft | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` are both set. With either unset nobody is offered reminders on a computer |
+| Google, through Firebase Cloud Messaging | `FCM_SERVICE_ACCOUNT` is set. Unset, a phone's registration is refused and nothing is sent to a phone |
 | An error reporting endpoint | `ERROR_WEBHOOK_URL` is set |
 | Vercel | `VERCEL` is set by the platform itself, so it appears when somebody else owns the machine and not when the operator does |
 | Google, for sign-in | `NEXT_PUBLIC_SUPABASE_URL` is set, since every hosted sign-in page draws "Continue with Google". `NEXT_PUBLIC_GOOGLE_CLIENT_ID` changes what the entry says, because the page then loads Google's script as it opens |
@@ -209,6 +210,26 @@ learner. No transfer impact assessment has been carried out, the same open item 
 providers.
 
 **Role.** Recipient rather than processor: each runs the service for its own browser's users.
+
+### Google, through Firebase Cloud Messaging
+
+**Conditional**, on `FCM_SERVICE_ACCOUNT` holding a service account (N-9).
+
+**What it processes.** A reminder a learner allowed on a phone running the app: the short form of a
+letter the app already sends (`PUSH_KINDS` in `lib/push/kinds.ts`), which is the letter's subject and
+preview line, the path the app opens on a tap, and the registration token that names the app on that
+phone. Unlike the browsers' push services it can read the two lines, and it carries an iPhone's
+notification on through Apple's service with a key the operator uploads in the Firebase console. No
+name, email address or account id goes with it (`lib/push/native.ts`).
+
+**Where established.** Google LLC, in the United States. Outside the EEA.
+
+**Safeguard.** Firebase's terms, which include Google's data processing terms for Firebase, accepted
+by the operator when the project is made; the price page (https://firebase.google.com/pricing, read 24
+October 2026) lists Cloud Messaging at no charge on every plan. No transfer impact assessment has been
+carried out, the same open item as the model providers.
+
+**Role.** Processor.
 
 ### The error reporting endpoint
 

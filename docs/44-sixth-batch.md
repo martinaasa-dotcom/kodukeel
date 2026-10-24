@@ -370,7 +370,7 @@ exactly as in `docs/38-third-batch.md` section 3.
   route answers each action, and versioning is settled.
 - **The fifth batch's section 8b** is amended by D10 in C-1. Its note there says so and points here.
 - **`lib/api/`** joins the pure layers in `CLAUDE.md` and `PURE_LAYERS` in N-1.
-- **`EmailSend.channel`** gains `native` in N-9; `NativePushDevice` (to be written in the schema) joins
+- **`EmailSend.channel`** gains `native` in N-9; `NativePushDevice` joins
   the export, the erasure and the restore in the same pull request.
 
 ## 3. Rules that will fail your pull request if missed
@@ -1519,11 +1519,11 @@ notification, on the same switches.
 **Files.**
 - `prisma/schema.prisma`: `NativePushDevice` (owner, platform, token, app build, created and last seen).
   Unique on the token, in the export, the erasure and the restore.
-- `app/api/v1/push-devices/route.ts` (to be written): register and forget a device for the signed-in
+- `app/api/v1/push-devices/route.ts`: register and forget a device for the signed-in
   learner, under a per-owner limit.
-- `lib/push/native.ts` (to be written), pure: the notification's title, body and link for each kind, read
+- `lib/push/native.ts`, pure: the notification's title, body and link for each kind, read
   from the same copy `lib/push/notification.ts` uses, so a reminder says the same thing on every channel.
-- `lib/push/fcm.ts` (to be written): the sender, Firebase Cloud Messaging's HTTP v1 API, with its access
+- `lib/push/fcm.ts`: the sender, Firebase Cloud Messaging's HTTP v1 API, with its access
   token minted from `FCM_SERVICE_ACCOUNT` by signing a JWT with the platform's crypto (no new
   dependency). A token the service reports gone is deleted.
 - `lib/push/send.ts` and the mailout: D13's order of channels, one per kind per day, with
