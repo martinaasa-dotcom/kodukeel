@@ -1,4 +1,4 @@
-import { localeFor, titleFor } from "@/lib/progress/locale";
+import { localeFor, roundTitleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
@@ -33,9 +33,10 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { WorkbookSession, type WorkbookExercise } from "./WorkbookSession";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export async function generateMetadata() {
-  return titleFor("Töövihik");
+  return roundTitleFor("/review/workbook");
 }
 
 export const dynamic = "force-dynamic";
@@ -360,7 +361,7 @@ export default async function WorkbookPage({
   if (sheet.exercises.length === 0) {
     const locale = await localeFor(ownerId);
     return (
-      <Page title="Töövihik" lead={tr(locale, "A course book's exercise, set from your own words.")}>
+      <Page {...roundPageTitle("/review/workbook", (english) => tr(locale, english))} lead={tr(locale, "A course book's exercise, set from your own words.")}>
         <Empty
           title={tr(locale, "No page to set yet")}
           body={tr(locale, "It needs words you've met with real sentences behind them. Meet a few more and come back.")}

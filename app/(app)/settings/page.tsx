@@ -5,9 +5,10 @@ import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { supabaseConfigured } from "@/lib/auth/mode";
 import { resolveProviders } from "@/lib/tutor/provider";
 import { ekilexConfigured } from "@/lib/ekilex/client";
-import { dailyGoalFrom, readSettings, reviewModeFrom, SETTING_KEYS } from "@/lib/settings/store";
+import { readSettings, reviewModeFrom, SETTING_KEYS } from "@/lib/settings/store";
 import { letterBarFrom } from "@/lib/ux/letterBar";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
+import { singleKeysFrom } from "@/lib/ux/shortcuts";
 import { caseGlossFrom, caseGlossDefaultFor } from "@/lib/estonian/caseGloss";
 import { participationFrom, researchExportConfigured } from "@/lib/research/participation";
 import { emailPrefsFrom, kindStates } from "@/lib/email/prefs";
@@ -16,6 +17,7 @@ import { pushConfig } from "@/lib/push/config";
 import { goalsFor, latestFor } from "@/lib/progress/assessment";
 import { levelLabel } from "@/components/assessment/PlanPanel";
 import { courseLevelFor } from "@/lib/progress/level";
+import { accountSettingsFor } from "@/lib/settings/account";
 import { uiText } from "@/lib/copy/uiLanguage";
 import { Card, Chip, KeyCap, Page, SectionTitle, Stack } from "@/components/ui";
 import { Explain } from "@/components/Explain";
@@ -31,6 +33,7 @@ import { GoalsPanel } from "./GoalsPanel";
 import { ImportPanel } from "./ImportPanel";
 import { InstallPanel } from "./InstallPanel";
 import { CaseGlossPanel, ClassNamePanel, LetterBarPanel, ResearchPanel, ReviewModePanel, WordGlossPanel } from "./PreferencesPanel";
+import { SingleKeysPanel } from "@/components/SingleKeysPanel";
 import { EmailPanel } from "./EmailPanel";
 import { PushPanel } from "./PushPanel";
 import { AutoplayPanel, CurrentPaceSample, FeedbackSoundsPanel, HearingPanel, SpeechPacePanel, SupportPanel, VoicePanel } from "./AudioPanel";
@@ -40,12 +43,12 @@ import { InterfaceLanguagePanel } from "./InterfaceLanguagePanel";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { LOCALE_NAMES, REVIEWED, MACHINE_NOTICE, MACHINE_NOTICE_EN, countGrouped, countOf, fill, grouped, tr } from "@/lib/copy/locale";
 import { RoundPacePanel } from "./RoundPacePanel";
-import { ROUND_PACES, roundPaceFrom } from "@/lib/ux/roundClock";
+import { ROUND_PACES } from "@/lib/ux/roundClock";
 import { TodayOrderPanel } from "./TodayOrderPanel";
 import { hiddenSlotsFrom, isDefaultTodayOrder, todayOrderFrom } from "@/lib/ux/todayOrder";
 import { TODAY_CARDS } from "@/lib/ux/disclosure";
-import { GLOSS_LANGUAGES, alsoShowFrom, glossLanguageFrom } from "@/lib/collections/glossLanguage";
-import { autoplayFrom, feedbackSoundsFrom, voiceFrom, VOICES } from "@/lib/audio/voice";
+import { GLOSS_LANGUAGES, alsoShowFrom } from "@/lib/collections/glossLanguage";
+import { autoplayFrom, feedbackSoundsFrom, VOICES } from "@/lib/audio/voice";
 import { paceFor, paceFrom } from "@/lib/audio/pace";
 import { adaptTiltFor } from "@/lib/progress/adapt";
 import { RestorePanel } from "./RestorePanel";
@@ -136,7 +139,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const hosted = supabaseConfigured();
   const ekilexOn = ekilexConfigured();
 
-  const [words, cards, reviews, settings, learner, goals, latestCheck, courseLevel, [programme, programmeDay, opening], tilt] = await Promise.all([
+  const [words, cards, reviews, settings, account, learner, goals, latestCheck, courseLevel, [programme, programmeDay, opening], tilt] = await Promise.all([
     prisma.lexeme.count(),
     prisma.card.count({ where: { ownerId } }),
     prisma.review.count({ where: { ownerId } }),
@@ -147,11 +150,18 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       SETTING_KEYS.ttsVoice, SETTING_KEYS.autoplayAudio, SETTING_KEYS.feedbackSounds,
       SETTING_KEYS.hearing, SETTING_KEYS.support, SETTING_KEYS.speechPace,
       SETTING_KEYS.glossLanguage, SETTING_KEYS.glossAlso, SETTING_KEYS.wordGloss,
+      SETTING_KEYS.singleKeys,
       SETTING_KEYS.todayOrder,
       SETTING_KEYS.roundPace,
       SETTING_KEYS.caseQuestionGloss,
       SETTING_KEYS.emailsOff, SETTING_KEYS.emailsOn, SETTING_KEYS.reminderAt,
     ]),
+    /*
+      The settings a phone shows, through the reader `GET /api/v1/me` answers
+      with (N-8), so a value changed on one door reads the same on the other.
+      Served from the same one read of the settings table as the line above.
+    */
+    accountSettingsFor(ownerId),
     currentLearner(),
     goalsFor(ownerId),
     latestFor(ownerId),
@@ -181,7 +191,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     adaptTiltFor(ownerId),
   ]);
 
-  const dailyGoal = dailyGoalFrom(settings[SETTING_KEYS.dailyGoal]);
+  const dailyGoal = account.dailyGoal;
   const mode = reviewModeFrom(settings[SETTING_KEYS.reviewMode]);
   const letters = letterBarFrom(settings[SETTING_KEYS.letterBar]);
   const participation = participationFrom(settings[SETTING_KEYS.researchOptOut]);
@@ -201,7 +211,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const pushKey = pushConfig()?.publicKey ?? null;
 
   const researchExported = researchExportConfigured();
-  const voice = voiceFrom(settings[SETTING_KEYS.ttsVoice]);
+  const voice = account.voice;
   const voiceName = VOICES.find((v) => v.id === voice)?.name ?? voice;
   const autoplay = autoplayFrom(settings[SETTING_KEYS.autoplayAudio]);
   const sounds = feedbackSoundsFrom(settings[SETTING_KEYS.feedbackSounds]);
@@ -216,15 +226,16 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   */
   const speechPace = paceFrom(settings[SETTING_KEYS.speechPace], courseLevel, tilt);
   const levelPace = paceFor(courseLevel, tilt);
-  const glossLanguage = glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]);
+  const glossLanguage = account.glossLanguage;
   const glossAlso = alsoShowFrom(settings[SETTING_KEYS.glossAlso], glossLanguage);
   const locale = await localeFor(ownerId);
   const t = (english: string) => tr(locale, english);
   const wordGloss = wordGlossFrom(settings[SETTING_KEYS.wordGloss]);
+  const singleKeys = singleKeysFrom(settings[SETTING_KEYS.singleKeys]);
   const caseGlossPref = caseGlossFrom(settings[SETTING_KEYS.caseQuestionGloss]);
   const todayOrder = todayOrderFrom(settings[SETTING_KEYS.todayOrder]);
   const todayHidden = hiddenSlotsFrom(settings[SETTING_KEYS.todayOrder]);
-  const roundPace = roundPaceFrom(settings[SETTING_KEYS.roundPace]);
+  const roundPace = account.roundPace;
   const roundPaceName =
     t(ROUND_PACES.find((p) => p.id === roundPace)?.label ?? "Standard");
   const glossLanguageName =
@@ -378,7 +389,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <SectionTitle hint={roundPaceName}>{t("Time on the clock")}</SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                {t("The daily quest races the clock. Choose how much time you’d like. Everything else about it stays the same.")}
+                {t("The daily task races the clock. Choose how much time you’d like. Everything else about it stays the same.")}
               </p>
               <RoundPacePanel current={roundPace} />
               <Explain label={t("Why the mock exam keeps its own timing")}>
@@ -555,9 +566,10 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </section>
 
           <section>
-            <SectionTitle>{t("Keyboard")}</SectionTitle>
+            <SectionTitle hint={t(singleKeys === "on" ? "single keys on" : "single keys off")}>{t("Keyboard")}</SectionTitle>
             <Card>
-              <div className="flex items-start gap-3">
+              <SingleKeysPanel current={singleKeys} />
+              <div className="mt-4 flex items-start gap-3">
                 <Keyboard size={18} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm" style={{ color: "var(--ink-2)" }}>

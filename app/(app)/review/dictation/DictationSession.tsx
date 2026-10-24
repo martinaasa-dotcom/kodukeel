@@ -1,6 +1,8 @@
 "use client";
 
 import { EnterKeyCap } from "@/components/KeyCaps";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
 import { ArrowRight, Check, Ear, Volume2 } from "lucide-react";
@@ -27,6 +29,8 @@ import { RoundDone } from "@/components/round/RoundDone";
 import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { WordLink } from "@/components/course/WordLink";
+import { inlineName, roundName, roundPageTitle } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 export interface DictationTask {
   /** The card this counts against — every mode grades through the same log. */
@@ -180,7 +184,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
     if (task) {
       look.record({
         of: task.cardId,
-        label: t("Dictation"),
+        label: inlineName(roundName("/review/dictation"), t),
         question: task.lemma,
         answer: task.et,
         note: task.en,
@@ -195,6 +199,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
   /* Once the sentence is marked, Enter or Space is "next", the same two keys
      every other round takes for moving on. Before the mark the field owns
      Enter through `onEnter`, and a space is a letter in the sentence. */
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (look.looking) {
@@ -202,6 +207,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
         if (isAdvanceKey(e) && !inEditable(e.target)) { e.preventDefault(); look.forward(); }
         return;
       }
+      if (!mayActOnKey(e, singleKeys)) return;
       if (e.key.toLowerCase() === "b" && !inEditable(e.target) && look.seen.length > 0) {
         e.preventDefault();
         look.open();
@@ -217,11 +223,11 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [result, look, next]);
+  }, [singleKeys, result, look, next]);
 
   if (round.length === 0) {
     return (
-      <Page title={t("Dictation")} lead={t("Listen to a sentence, then write down what you heard.")}>
+      <Page {...roundPageTitle("/review/dictation", t)} lead={t("Listen to a sentence, then write down what you heard.")}>
         <Empty
           title={t("Not enough sentences yet")}
           body={t("This needs short sentences made of words in your deck. Add a few more words and come back.")}
@@ -266,7 +272,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
           nothing back, while the four modes that happen to have a title bar
           answered fine. The `Empty` and finished states of these same files
           already carry one, which is how the gap survived a sweep. */}
-      <h1 className="sr-only">{t("Dictation")}</h1>
+      <h1 className="sr-only"><RoundNameText name={roundName("/review/dictation")} translate={t} /></h1>
       <RoundProgress done={index} total={round.length} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (

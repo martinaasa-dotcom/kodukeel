@@ -4,9 +4,10 @@ import { ImageResponse } from "next/og";
  * The home-screen icon on iOS.
  *
  * iOS ignores the SVG in the manifest and wants a PNG at a fixed size, so this
- * draws the same mark at 180×180: the same gold tile, the same ring and
- * tilde in ink, as every other place the mark appears (app/icon.svg,
- * public/app-icon.svg, public/app-icon-maskable.svg, components/brand.tsx).
+ * draws the same mark at 180×180: the accent tile, a gradient from #9c8cff
+ * to #5b2eff, with the white stepped wave tilted seven degrees, as every other
+ * place the mark appears (app/icon.svg, public/app-icon.svg,
+ * public/app-icon-maskable.svg, components/brand.tsx).
  * It used to draw a bare õ glyph in a serif instead, so the browser tab, the
  * Android launcher and the iOS home screen each showed a different thing
  * and one of the three was a letter nobody had drawn.

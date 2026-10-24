@@ -24,10 +24,11 @@ import path from "node:path";
 import { HARVESTED } from "../prisma/data/harvested";
 import expanded from "../prisma/data/expanded.json";
 import { derivedVerbForms, type DerivedVerbCode } from "../lib/estonian/conjugate";
+import { ekilexRequest } from "../lib/ekilex/client";
+import { ekilexJobs } from "./lib/ekilexJobs";
 
 const ROOT = path.resolve(__dirname, "..");
 const CACHE = path.join(ROOT, ".ekilex-cache");
-const BASE = "https://ekilex.ee/api";
 const API_KEY = process.env.EKILEX_API_KEY ?? "";
 
 const limitArg = process.argv.indexOf("--limit");
@@ -54,23 +55,16 @@ async function cached<T>(name: string, fn: () => Promise<T | null>): Promise<T |
   return value;
 }
 
-async function call<T>(pathname: string, attempt = 0): Promise<T | null> {
-  try {
-    const res = await fetch(`${BASE}${pathname}`, {
-      headers: { "ekilex-api-key": API_KEY },
-      signal: AbortSignal.timeout(30_000),
-    });
-    if (res.status === 429 || res.status >= 500) throw new Error(`HTTP ${res.status}`);
-    if (!res.ok) return null;
-    return (await res.json()) as T;
-  } catch (err) {
-    if (attempt >= 4) {
-      console.warn(`  ! giving up on ${pathname}: ${(err as Error).message}`);
-      return null;
-    }
-    await new Promise((r) => setTimeout(r, 1_000 * 2 ** attempt));
-    return call<T>(pathname, attempt + 1);
-  }
+/**
+ * One request through the gate in `lib/ekilex/client.ts`, which holds two in
+ * flight, backs off on a 429 or a 5xx and gives up after three tries. A
+ * refusal or a give-up is null, as it was.
+ */
+async function call<T>(pathname: string): Promise<T | null> {
+  const answer = await ekilexRequest<T>(pathname);
+  if (answer.kind === "answered") return answer.value;
+  if (answer.kind === "failed") console.warn(`  ! giving up on ${pathname}: ${answer.reason}`);
+  return null;
 }
 
 interface Verb {
@@ -114,8 +108,8 @@ async function main() {
   const uncovered: { lemma: string; reason: string }[] = [];
   const perSlot = new Map<string, { ok: number; bad: number }>();
 
-  // A few at a time, out of politeness to a research institute's server.
-  const WORKERS = 4;
+  // Two at a time, the promise in docs/05-integrations.md section 1.4, unless asked past it.
+  const WORKERS = ekilexJobs();
   let next = 0;
   async function worker() {
     while (next < all.length) {

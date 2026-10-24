@@ -66,10 +66,6 @@ export const GAP_WITHOUT_MEANING: Readonly<Record<string, string>> = {
     "exactly as the scanner treats a photograph. There is no recorded sentence to hold an " +
     "English line and nothing of theirs to send anywhere for one.",
 
-  "app/(app)/review/cards.ts":
-    "Not a screen. It builds the cards a review session is handed, `sentenceEn` among " +
-    "them, and renders nothing; `ReviewSession` is what draws the line from it.",
-
 };
 
 /**

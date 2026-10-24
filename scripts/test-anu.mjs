@@ -1,8 +1,8 @@
 import { launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 const B = baseUrl();
-// Floor: five checks, all unconditional.
-const { check, done } = suite("Anu", { floor: 5 });
+// Floor: six checks, all unconditional.
+const { check, done } = suite("Anu", { floor: 6 });
 const browser = await launchChromium();
 const page = await (await browser.newContext({ viewport: { width: 1280, height: 1000 } })).newPage();
 
@@ -18,6 +18,9 @@ await page.waitForTimeout(18000);
 const reply = await page.locator("div").filter({ hasText: /^Anu/ }).last().innerText().catch(() => "");
 check("she answers, and the finished reply lands on the page", reply.length > 60, `${reply.length} chars`);
 check("and no markdown asterisk is left on screen", !/\*\*/.test(reply));
+// R-2a: an answer a model wrote can be reported from where it is read.
+check("and her answer carries a way to report it",
+  (await page.locator('[data-report-answer="ANU"]').count()) > 0);
 // Either name: she is briefed to give the question a case answers rather than
 // the Latin name, so a good answer may say `osastav` and never "partitive".
 check("the answer names the partitive rule", /partitiv|osastav|mida\?/i.test(reply),

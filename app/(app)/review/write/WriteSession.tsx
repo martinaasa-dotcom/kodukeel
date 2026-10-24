@@ -25,6 +25,8 @@ import { ADVANCE_KEY_GLYPH } from "@/lib/ux/advanceKey";
 import { RoundDone } from "@/components/round/RoundDone";
 import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
+import { roundName } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 export interface WritingPrompt {
   /** The card this exercise practices, so the round feeds the scheduler. */
@@ -241,7 +243,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
           other six modes: the empty state carries one and the round did not,
           which is why an accessibility run that happened to meet an empty deck
           saw a heading and passed. */}
-      <h1 className="sr-only">{t("Writing")}</h1>
+      <h1 className="sr-only"><RoundNameText name={roundName("/review/write")} translate={t} /></h1>
       <RoundProgress done={index} total={prompts.length} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (

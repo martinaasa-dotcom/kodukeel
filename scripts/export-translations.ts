@@ -110,7 +110,7 @@ function build(locale: L): { text: string; lines: number } {
     for (const [key, value] of rows) {
       const at = key.lastIndexOf("@");
       const hasContext = at > 0 && !key.slice(at + 1).includes(" ");
-      if (hasContext) item(key.slice(0, at), value, `context: ${key.slice(at + 1)}`);
+      if (hasContext) item(key.slice(0, at), value, `context: \`${key.slice(at + 1)}\``);
       else item(key, value);
     }
     if (counted.length > 0) {
@@ -206,7 +206,7 @@ function buildSince(locale: L, ref: string): { text: string; lines: number } {
     parts.push(`## ${area} (${list.length} lines)`, "", order.includes(area) ? `_${areaFile(area)}_` : "", "");
     for (const line of list) {
       n += 1;
-      const notes = [isChanged.has(line.key) ? "changed" : "new", line.context ? `context: ${line.context}` : null]
+      const notes = [isChanged.has(line.key) ? "changed" : "new", line.context ? `context: \`${line.context}\`` : null]
         .filter(Boolean)
         .join(", ");
       parts.push(`- [ ] **${n}.** ${quote(line.english)} _(${notes})_  \n  → ${quote(now[line.key]!)}`);

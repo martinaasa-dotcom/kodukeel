@@ -10,6 +10,7 @@ import {
   caseNameFor, endingFor, type FamiliarWord, type SpeakerPoint,
 } from "@/lib/estonian/ukrainian";
 import { modeAt } from "@/lib/ux/modes";
+import { inlineName, nameOf } from "@/lib/ux/roundNames";
 import { BackLink, Card, Page, SectionTitle, Stack } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { fillNodes } from "@/components/reference/fillNodes";
@@ -86,7 +87,7 @@ export default async function UkrainianSpeakersPage() {
             className="tap-tint mt-2 inline-flex items-center gap-1.5 rounded-[var(--r-sm)] px-1 text-sm font-semibold"
             style={{ color: "var(--accent-deep)" }}
           >
-            {fill(t("Practice it: {round}"), { round: t(mode.title) })}
+            {fill(t("Practice it: {round}"), { round: nameOf(mode.href) ? inlineName(nameOf(mode.href)!, t) : t(mode.title) })}
             <ArrowRight size={14} aria-hidden />
           </Link>
         )}

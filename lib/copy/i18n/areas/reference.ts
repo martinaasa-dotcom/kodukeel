@@ -133,6 +133,10 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
     "У местоимений есть и краткие формы, и именно их вы будете слышать чаще всего. Словарь сначала даёт длинные, поэтому здесь вы видите их. Верны и те, и другие.",
     "Займенники мають і короткі форми, і саме їх ви чутимете найчастіше. Словник спочатку подає довгі, тому тут ви бачите їх. Правильні обидві."],
   ["Spotted a mistake?", "Заметили ошибку?", "Помітили помилку?"],
+  // THE CREDIT CC BY 4.0 ASKS FOR, UNDER AN ENTRY EKILEX SUPPLIED (EkilexCredit.tsx).
+  ["Forms and example sentences from {source}, by the {institute}, under {license}. Any form shown as worked out was derived here from what Ekilex stores.",
+    "Формы и примеры предложений взяты из {source} ({institute}) по лицензии {license}. Форма, показанная как выведенная, получена здесь из того, что хранит Ekilex.",
+    "Форми й приклади речень узято з {source} ({institute}) за ліцензією {license}. Форму, показану як виведену, отримано тут із того, що зберігає Ekilex."],
   ["Suggest a correction", "Предложить исправление", "Запропонувати виправлення"],
 
   // ADDING A WORD TO THE DECK, AND THE KINDS OF CARD (lib/srs/cards.ts).

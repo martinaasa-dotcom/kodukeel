@@ -18,8 +18,8 @@ import type { CSSProperties } from "react";
  * tipped over, `talking` works her mouth while a reply is on its way. Every
  * keyframe ends where it began, so the global reduced-motion rule, which
  * plays an animation once in no time, leaves her still and smiling. Her idle
- * loops run on one clock shared by every copy of her (lib/ux/loopSync.ts), so
- * a new page or a reload picks her up mid-breath rather than from the top.
+ * loops wait for the page to settle (lib/ux/awake.ts) and rest within five
+ * seconds of starting (lib/ux/rest.ts), on the frame they began from.
  *
  * `--watch-x` and `--watch-y` on an ancestor aim her eyes (see
  * `MascotWatch`), and they default to nothing. Colors are four tokens,

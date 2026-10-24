@@ -193,6 +193,12 @@ export const SETTING_KEYS = {
   speechSendAtOnce: "speechSendAtOnce",
   speechInBoxes: "speechInBoxes",
   /**
+   * Whether a bare letter, digit or punctuation key does anything in a round
+   * (WCAG 2.2, 2.1.4 Character key shortcuts). On by default; the values and
+   * the reasoning live in lib/ux/shortcuts.ts.
+   */
+  singleKeys: "singleKeys",
+  /**
    * Whether the English reading of a case question (`in what? where?`) shows
    * beside the Estonian one (`milles? kus?`).
    *

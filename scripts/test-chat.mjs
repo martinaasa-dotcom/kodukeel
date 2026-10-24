@@ -47,8 +47,10 @@ const { check, done, absent } = suite("Today's chat", {
     objective met and one line clean of the word, then the goodbye, the
     debrief, the grades and the memory. The evening this ticks is the first
     built out of units, B1.1 since A2 became lessons, and asks five words.
+    Three more ask that a composed line can be reported (R-2a), and two that
+    one of Anu's answers can, so the floor moved from 27 to 32.
   */
-  floor: 27,
+  floor: 32,
 });
 
 const prisma = newPrismaClient();
@@ -247,11 +249,23 @@ try {
 
   const composed = await page.getByRole("log").locator('[data-rung="composed"]').count();
   check("its questions were composed for this turn", composed >= 2, `${composed} composed`);
+  /*
+    R-2a: a line a model wrote can be reported from where it was read, once for
+    the conversation beside the sentence naming the model, never under every
+    bubble (the learner asked for the thread to carry nothing under its lines).
+  */
+  check("a composed line can be reported, by one control for the conversation",
+    (await page.locator('[data-report-answer="SCENE_LINE"]').count()) === 1,
+    `${await page.locator('[data-report-answer="SCENE_LINE"]').count()} report controls`);
+  check("and none of it hangs under a bubble",
+    (await page.getByRole("log").locator("[data-report-answer]").count()) === 0);
 
   await say("Head aega!");
   await page.waitForSelector("text=Your conversation, reviewed", { timeout: TURN_MS }).catch(() => {});
   const debrief = await page.locator("main").innerText();
   check("the goodbye ends it, on the debrief", /Your conversation, reviewed/i.test(debrief), debrief.slice(0, 120));
+  check("and the transcript offers the same report once it is over",
+    (await page.locator('[data-report-answer="SCENE_LINE"]').count()) === 1);
   check("and every word was used, which the ending says",
     /Every one of today.s words got used/.test(debrief), debrief.slice(0, 300));
   check("and the words used went into the reviews", /in \[?your reviews|now in your reviews/i.test(debrief));
@@ -290,6 +304,35 @@ try {
   check("and never the word it is about to ask for, which would be the neighbor repeating themselves",
     remembering.length > 0 && remembering.every((_, i) => asking[i] !== "" && asking[i] !== recalled[i]),
     remembering.map((_, i) => `${recalled[i]} -> ${asking[i]}`).join(" | "));
+
+  /*
+    R-2a: each of Anu's answers can be reported from where it was read. This
+    server holds a key, so she is offered; her answer is stood in for in the
+    browser, with the model named on the reply the way the route names it, so
+    nothing reaches a provider and the report carries who wrote it.
+  */
+  await page.route("**/api/tutor", (route) => route.fulfill({
+    status: 200,
+    headers: { "content-type": "text/plain; charset=utf-8", "x-model-provider": "Stub", "x-model-id": "stub-model" },
+    body: "It is the partitive here, because the reading is not finished.",
+  }));
+  await page.goto(`${S}/tutor`, { waitUntil: "domcontentloaded" });
+  await page.waitForSelector("main h1", { timeout: 30_000 });
+  /* Pressed until the question leaves the box: a server-rendered button is inert until React attaches. */
+  const question = page.getByLabel("Ask Anu a question");
+  await eventually(async () => {
+    if (await question.inputValue().catch(() => "") === "") await question.fill("Why raamatut?").catch(() => {});
+    await page.getByRole("button", { name: /^Ask/ }).first().click().catch(() => {});
+    return (await question.inputValue().catch(() => "x")) === "";
+  }, { timeoutMs: 30_000, everyMs: 1_000 });
+  const reportable = await page.waitForSelector('[data-report-answer="ANU"]', { timeout: 15_000 })
+    .then(() => true, () => false);
+  check("each of Anu's answers carries a way to report it", reportable);
+  await page.locator('[data-report-answer="ANU"]').first().click().catch(() => {});
+  const form = await page.locator("main").innerText().catch(() => "");
+  check("and the report carries the answer and the model that wrote it",
+    /written by Stub, stub-model: It is the partitive here/.test(form), form.slice(0, 200));
+  await page.unroute("**/api/tutor");
 
   check("nothing on the way threw", errors.length === 0, errors.join(" | ").slice(0, 200));
 } finally {

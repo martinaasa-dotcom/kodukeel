@@ -167,6 +167,35 @@ describe("a situation, rung by rung", () => {
     }
   });
 
+  it("says how many answers by ear count so far, at nought, four and ten (C-4)", () => {
+    for (const [n, untested, placedLow] of [[0, true, true], [4, true, true], [10, false, false]] as const) {
+      const heard = new Map([[DOCTOR.level, n]]);
+      for (const placed of [null, "A1"] as const) {
+        const ctx = { ...leadReady(DOCTOR), listening: { placed, sittings: 0, heardTurns: heard } };
+        const ear = readSituation(DOCTOR, ctx).struggles.find((s) => s.id === "ear");
+        const expected = placed === null ? untested : placedLow;
+        if (!expected) {
+          expect(ear, `${n} turns, placed ${String(placed)}`).toBeUndefined();
+          continue;
+        }
+        expect(ear?.byEar).toEqual({ heard: n, need: HEARD_TURNS_FOR_EAR });
+        expect(ear?.detail).toContain(`${n} of the ${HEARD_TURNS_FOR_EAR} answers by ear this needs`);
+        // The template keeps the values, so a screen in another language fills them itself.
+        expect(ear?.said.detail.values).toMatchObject({ heard: n, need: HEARD_TURNS_FOR_EAR });
+        // A conversation is named as a way through, beside the check or the dictation.
+        expect(ear?.detail).toMatch(/conversation answered out loud/);
+      }
+    }
+  });
+
+  it("counts turns by ear above the situation's band toward the line, never below it", () => {
+    const lower = LOWER[DOCTOR.level] ?? "pre-A1";
+    const heard = new Map([[lower, 6], [DOCTOR.level, 2], ["C1", 1]]);
+    const ctx = { ...leadReady(DOCTOR), listening: { placed: null, sittings: 0, heardTurns: heard } };
+    const ear = readSituation(DOCTOR, ctx).struggles.find((s) => s.id === "ear");
+    expect(ear?.byEar?.heard).toBe(3);
+  });
+
   it("lets later turns by ear outrank a level check that put listening lower", () => {
     const heard = new Map([[DOCTOR.level, HEARD_TURNS_FOR_EAR]]);
     const ctx = { ...leadReady(DOCTOR), listening: { placed: "A1", sittings: 0, heardTurns: heard } };

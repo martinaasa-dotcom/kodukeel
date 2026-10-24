@@ -1,4 +1,4 @@
-import { localeFor, titleFor } from "@/lib/progress/locale";
+import { localeFor, roundTitleFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
 import { requireUserId } from "@/lib/auth/session";
 import { courseLevelFor } from "@/lib/progress/level";
@@ -10,9 +10,10 @@ import { Empty, Page } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
 import { SonadSession } from "./SonadSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export async function generateMetadata() {
-  return titleFor("Sõnad");
+  return roundTitleFor("/sonad");
 }
 
 export const dynamic = "force-dynamic";
@@ -52,7 +53,7 @@ export default async function SonadPage() {
     <BeforeYouStart id="sonad" ready={puzzle !== null}>
       <Page
         compact
-        title="Sõnad"
+        {...roundPageTitle("/sonad", (english) => tr(locale, english))}
         lead={fill(
           tr(locale, puzzle?.met ? "One word a day. {letters} letters, {guesses} guesses, a word you've met." : "One word a day. {letters} letters, {guesses} guesses, at your level."),
           { letters: SONAD_LENGTH, guesses: SONAD_GUESSES },

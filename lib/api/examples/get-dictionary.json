@@ -1,0 +1,15 @@
+{
+  "hits": [
+    {
+      "id": "6695a810-64bd-445a-b595-2dd52e2df298",
+      "lemma": "tuba",
+      "translation": "room",
+      "pos": "NOUN",
+      "cefr": "A1",
+      "gradationNote": "b : ∅",
+      "matchedAs": "seesütlev (-s, in) of tuba"
+    }
+  ],
+  "knownAs": [],
+  "fetched": false
+}

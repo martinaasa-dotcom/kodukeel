@@ -61,20 +61,19 @@ import { buildCaseTable, caseAnswer, stemsFromParts } from "../lib/estonian/deri
 import { EXPANDED_PATH, writeExpanded } from "./lib/expandedFile";
 import { isPrincipalFormType } from "../lib/estonian/types";
 import { formatGovernment } from "../lib/ekilex/mapper";
+import { ekilexRequest } from "../lib/ekilex/client";
+import { ekilexJobs } from "./lib/ekilexJobs";
 import type { CaseKey } from "../lib/estonian/types";
 
 const ROOT = path.resolve(__dirname, "..");
 const CACHE = path.join(ROOT, ".ekilex-cache");
-const BASE = "https://ekilex.ee/api";
 const API_KEY = process.env.EKILEX_API_KEY ?? "";
 
 const limitArg = process.argv.indexOf("--limit");
 const LIMIT = limitArg >= 0 ? Number(process.argv[limitArg + 1]) : Infinity;
 const WRITE = process.argv.includes("--write");
-/** A few at a time, out of politeness to a research institute's server. */
-const WORKERS = Number(
-  process.argv.find((a) => a.startsWith("--jobs="))?.slice("--jobs=".length) ?? 6,
-);
+/** Two at a time, the promise in docs/05-integrations.md section 1.4, unless asked past it. */
+const WORKERS = ekilexJobs();
 
 interface RawDetails {
   word?: { paradigms?: { forms?: { value: string; morphCode: string }[] }[] };
@@ -161,23 +160,16 @@ async function cached<T>(name: string, fn: () => Promise<T | null>): Promise<T |
   return value;
 }
 
-async function call<T>(pathname: string, attempt = 0): Promise<T | null> {
-  try {
-    const res = await fetch(`${BASE}${pathname}`, {
-      headers: { "ekilex-api-key": API_KEY },
-      signal: AbortSignal.timeout(30_000),
-    });
-    if (res.status === 429 || res.status >= 500) throw new Error(`HTTP ${res.status}`);
-    if (!res.ok) return null;
-    return (await res.json()) as T;
-  } catch (err) {
-    if (attempt >= 4) {
-      console.warn(`  ! giving up on ${pathname}: ${(err as Error).message}`);
-      return null;
-    }
-    await new Promise((r) => setTimeout(r, 1_000 * 2 ** attempt));
-    return call<T>(pathname, attempt + 1);
-  }
+/**
+ * One request through the gate in `lib/ekilex/client.ts`, which holds two in
+ * flight, backs off on a 429 or a 5xx and gives up after three tries. A
+ * refusal or a give-up is null, as it was.
+ */
+async function call<T>(pathname: string): Promise<T | null> {
+  const answer = await ekilexRequest<T>(pathname);
+  if (answer.kind === "answered") return answer.value;
+  if (answer.kind === "failed") console.warn(`  ! giving up on ${pathname}: ${answer.reason}`);
+  return null;
 }
 
 interface Nominal {

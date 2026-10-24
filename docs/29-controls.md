@@ -48,7 +48,7 @@ of a small SaaS actually asks about, rather than reproducing the list.
 | 5.2 Roles and responsibilities | Stated in the incident plan: one lead, whoever has production access, one external voice. No rota, no on-call. | `docs/28-incident-response.md` section 2 | Partial |
 | 5.7 Threat intelligence | `npm audit` in CI as a blocking gate plus GitHub advisories. No commercial feed and no active monitoring. | `.github/workflows/ci.yml` | Partial |
 | 5.8 Information security in project management | Security rules are asserted in CI rather than reviewed by hand. A rule with no assertion is treated as a comment. The whole invariant suite runs on every push and prints its own total. | `scripts/test-invariants.ts` | Implemented |
-| 5.9 Inventory of assets | Ranked asset list, in a design document rather than a maintained register. | `docs/27-security.md` section 3 | Partial |
+| 5.9 Inventory of assets | A register with owners and quarterly review dates, written 24 October 2026 and not yet reviewed with the operator. | `docs/48-asset-register.md`, from `docs/27-security.md` section 3 | Partial |
 | 5.10 Acceptable use | Terms of service on the deployment. | `/terms` | Implemented |
 | 5.12 Classification of information | Four categories with different handling: the review log, free text a learner wrote, identity, and reference data. Handling differs in code. | `docs/27-security.md` section 3 | Partial |
 | 5.14 Information transfer | Everything to the browser over HTTPS with HSTS preloaded. Third parties reachable only from the server. | `lib/security/headers.ts` | Implemented |
@@ -77,7 +77,7 @@ of a small SaaS actually asks about, rather than reproducing the list.
 | 6.5 Responsibilities after employment | No formal offboarding checklist. Access is two provider accounts and a GitHub organization. | | Not done |
 | 6.6 Confidentiality agreements | In place with the company. | | Implemented |
 | 6.7 Remote working | Everyone works remotely; devices are personal machines with full disk encryption. No managed device fleet and no MDM. | | Partial |
-| 6.8 Reporting security events | An address anybody can reach, with published response times and a safe harbor statement. | `SECURITY.md` | Implemented |
+| 6.8 Reporting security events | An address anybody can reach, with published response times and a safe harbor statement, and an RFC 9116 `security.txt` naming it on the deployment. | `SECURITY.md`, `app/.well-known/security.txt/route.ts` | Implemented |
 
 ### 7. Physical controls
 
@@ -137,7 +137,7 @@ been performed, there is no Type I and no Type II report, and no service auditor
 | --- | --- | --- |
 | CC1 Control environment | One company, roles stated in the incident plan. No board, no independent oversight function, no formal management assertion. | Partial |
 | CC2 Communication and information | Policies in version control and public. Security contact published with response times. Privacy notice names the controller and the recipients, generated from configuration rather than described. | Implemented |
-| CC3 Risk assessment | Threat model with ranked assets, adversaries, controls and residual risk. Not a periodic formal risk assessment with a register and review dates. | Partial |
+| CC3 Risk assessment | Threat model with ranked assets, adversaries, controls and residual risk, and since 24 October 2026 a risk register with owners and review dates (`docs/47-risk-register.md`). The first quarterly review has not happened yet. | Partial |
 | CC4 Monitoring of controls | CI runs the control assertions on every push, which is continuous in the sense that matters for code. Nothing monitors the running deployment. | Partial |
 | CC5 Control activities | Controls implemented in code and asserted, rather than described in a manual. | Implemented |
 | CC6 Logical and physical access | Authentication, authorization, credential handling, device forgetting on sign-out, and privileged access that cannot be granted at runtime. Physical is inherited from Vercel and Supabase. | Implemented for logical, Inherited for physical |

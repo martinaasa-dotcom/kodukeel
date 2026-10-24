@@ -24,7 +24,8 @@ import { prisma } from "@/lib/db";
 const searchEkilex = vi.fn();
 const fetchEkilexDetails = vi.fn();
 
-vi.mock("@/lib/ekilex/client", () => ({
+vi.mock("@/lib/ekilex/client", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/ekilex/client")>()),
   ekilexConfigured: () => true,
   searchEkilex: (...args: unknown[]) => searchEkilex(...args),
   fetchEkilexDetails: (...args: unknown[]) => fetchEkilexDetails(...args),
@@ -158,7 +159,7 @@ describe("a word pinned to one Ekilex homonym", () => {
 
     await enrichFromEkilex(lexeme.id);
     expect(searchEkilex).not.toHaveBeenCalled();
-    expect(fetchEkilexDetails).toHaveBeenCalledWith(283694);
+    expect(fetchEkilexDetails).toHaveBeenCalledWith(283694, expect.anything());
     const forms = await prisma.form.findMany({ where: { lexemeId: lexeme.id }, select: { value: true } });
     expect(forms.map((f) => f.value)).toEqual(["itestpinnedgen"]);
   });

@@ -1,3 +1,5 @@
+import { MOTION_LIMIT_MS } from "./rest";
+
 /**
  * HOW A LOOSE LETTER MOVES, AND HOW IT ANSWERS A POINTER.
  *
@@ -135,6 +137,29 @@ export interface LetterPlacement {
 }
 
 /**
+ * HOW LONG THEY MOVE, WHICH IS FIVE SECONDS AND THEN THEY REST (WCAG 2.2.2).
+ *
+ * Movement that starts by itself and goes on past five seconds needs a way to
+ * pause it, and decoration has no business carrying a pause button. So the
+ * wander is a whole number of cycles that ends inside five seconds of the
+ * page opening, delay included, and then the letter rests at its slant, which
+ * is where every character's keyframes start and end, so stopping is not a
+ * jump. A character whose cycle is longer than the room it has plays one
+ * cycle at the length that fits. The hop when the word changes and the nudge
+ * on a press are under a second, answer something the reader did or watched,
+ * and are not held to this.
+ */
+export const LETTER_MOTION_LIMIT_S = MOTION_LIMIT_MS / 1000;
+
+/** The cycles a letter plays and how long each takes, so the last one ends by the limit. */
+export function wanderRun(time: number, delay: number): { time: number; count: number; delay: number } {
+  const start = Math.min(Math.max(delay, 0), LETTER_MOTION_LIMIT_S - 1);
+  const room = LETTER_MOTION_LIMIT_S - start;
+  const count = Math.max(1, Math.floor(room / time));
+  return { time: Math.min(time, room / count), count, delay: start };
+}
+
+/**
  * The custom properties one letter carries.
  *
  * Written as a plain record rather than a style object so the caller decides
@@ -144,10 +169,12 @@ export interface LetterPlacement {
 export function letterVars(p: LetterPlacement): Record<string, string> {
   const room = p.room ?? 1;
   const back = returnLeg(p);
+  const run = wanderRun(p.character.time, p.delay ?? 0);
   return {
     "--float-tilt": `${p.tilt}deg`,
     "--drift-name": p.character.keyframes,
-    "--drift-time": `${p.character.time}s`,
+    "--drift-time": `${round(run.time)}s`,
+    "--drift-count": `${run.count}`,
     "--drift-ease": p.character.ease,
     "--drift-origin": p.character.origin,
     "--drift-turn": `${round(p.character.turn * room)}deg`,
@@ -156,7 +183,7 @@ export function letterVars(p: LetterPlacement): Record<string, string> {
     "--drift-y": `${round(p.travel.y)}px`,
     "--drift-x2": `${round(back.x)}px`,
     "--drift-y2": `${round(back.y)}px`,
-    "--drift-delay": `${p.delay ?? 0}s`,
+    "--drift-delay": `${run.delay}s`,
   };
 }
 

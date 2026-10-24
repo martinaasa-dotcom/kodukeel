@@ -38,7 +38,7 @@ import { reserveMicros } from "@/lib/usage/pricing";
 import { DEFAULT_LIMITS } from "@/lib/usage/quota";
 import { megabytes, modelBytes } from "@/lib/speech/model";
 import {
-  CLIP_KB, DAYS_PER_MONTH, DEVTOOLS, DOMAIN, EMAIL, ERRORS,
+  APPLE_DEVELOPER, CLIP_KB, DAYS_PER_MONTH, DEVTOOLS, DOMAIN, EMAIL, ERRORS,
   HTML_KB, REQUESTS_PER_PAGE, SHARED_JS_KB, SPEECH_MARKET, SUPABASE,
   TUTOR_MODELS, VERCEL,
   assumed, computeFor, distinctClips, gbOf, listOf, overageUsd, round2, usdFromEur,
@@ -267,7 +267,7 @@ export const SERVICES: readonly Service[] = [
     id: "hearing",
     name: "Hearing Estonian",
     who: "This site's own hosting, serving TalTech's speech model beside the pages",
-    does: "Turns what a learner says into text on their own device. The model is fetched once per device in the background and kept, so this line is the download and nothing else.",
+    does: "Turns what a learner says into text on their own device. The model is fetched once per device, on Wi-Fi or on first use, and kept, so this line is the download and nothing else.",
     whenItIsGone: "Every microphone disappears and everything is typed, exactly as before speaking existed.",
     setBy: "NEXT_PUBLIC_ASR_MODEL_BASE",
     ref: VERCEL.ref,
@@ -275,7 +275,8 @@ export const SERVICES: readonly Service[] = [
       // Priced at the host's transfer rate with none of the plan's allowance
       // counted, because the hosting line already counts that allowance and a
       // bill is never allowed to come out lower than the truth. Every learner
-      // fetches it now, not only those who reach for a microphone.
+      // is counted as fetching it, though a phone off Wi-Fi now waits for its
+      // first press (D10), so the line errs high rather than low.
       const downloads = shape.learners * assumed("speechDevices");
       // A fraction of a download is what a handful of learners comes to, so it is said as one.
       const said = downloads < 10 ? Math.round(downloads * 10) / 10 : Math.round(downloads);
@@ -406,6 +407,50 @@ export const SERVICES: readonly Service[] = [
         plan: "One a year",
         usd: round2(usdFromEur(DOMAIN.eurPerYear) / 12),
         why: DOMAIN.note,
+      };
+    },
+  },
+
+  {
+    id: "apple",
+    name: "Apple Developer Program",
+    who: "Apple, as the developer account behind Sign in with Apple",
+    does: "Lets people sign in with Apple, on the web and on an iPhone, and is what puts an iPhone app in the App Store.",
+    whenItIsGone: "Sign in with Apple stops, and so would an iPhone app. Anybody who only ever signed in with Apple needs the operator's help to get back in.",
+    setBy: "NEXT_PUBLIC_APPLE_SERVICES_ID",
+    ref: APPLE_DEVELOPER.ref,
+    bill(): ServiceCost {
+      return {
+        kind: "charged",
+        plan: "One a year",
+        usd: round2(APPLE_DEVELOPER.usdPerYear / 12),
+        why: "The developer account's yearly fee, spread over the months. It does not move with the number of learners.",
+      };
+    },
+  },
+
+  {
+    id: "phones",
+    name: "Notifications on a phone",
+    who: "Google, through Firebase Cloud Messaging",
+    does: "Carries the reminders a learner allowed to a phone running the app, on Android itself and on an iPhone through Apple's service.",
+    whenItIsGone: "Reminders go to the computer the learner asked on, or by email, as they did before the app existed.",
+    setBy: "FCM_SERVICE_ACCOUNT",
+    ref: {
+      source: "https://firebase.google.com/pricing",
+      checked: "24 October 2026",
+    },
+    bill(): ServiceCost {
+      /*
+        Free of charge on every Firebase plan, read off Google's own price page
+        on the day above. Not `given`, which is a public institution's gift, and
+        never `charged` at nought, which this registry refuses: Google pays for
+        it, which is what `notOurs` says.
+      */
+      return {
+        kind: "notOurs",
+        who: "Google",
+        why: "Firebase Cloud Messaging carries no charge on any plan, so Google bears the cost of every message.",
       };
     },
   },

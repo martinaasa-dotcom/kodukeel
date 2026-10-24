@@ -122,7 +122,9 @@
 .hero-fan-face .hero-fan-num { position: absolute; top: 0.5rem; left: 0.625rem; }
 .hero-fan-face .hero-fan-chip { width: 2.5rem; height: 2.5rem; }
 .hero-fan-body { display: none; }
-.hero-fan-now .hero-fan-face { animation: hero-fan-breathe 5s ease-in-out 1.4s infinite; }
+/* The next card breathes once as the hand settles and then holds still, inside
+   five seconds (WCAG 2.2.2, lib/ux/rest.ts). */
+.hero-fan-now .hero-fan-face { animation: hero-fan-breathe 3.6s ease-in-out 1.4s 1; }
 
 /* The line under the hand: which step is next, and how long it takes. */
 .hero-fan-caption { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 0.5rem; margin-top: 1rem; overflow-wrap: normal; }

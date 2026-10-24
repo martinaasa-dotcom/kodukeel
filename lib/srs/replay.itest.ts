@@ -104,6 +104,28 @@ describe("applyGradeBatch", () => {
   });
 
   /*
+    What `POST /api/v1/grades` hands back so a phone can offer undo: the state
+    each grade this call wrote left its card at, and nothing for a grade it
+    only settled. Read against the row, since the row is what undo puts back.
+  */
+  it("says what each grade it wrote left the card at, and nothing for a resend", async () => {
+    const card = await makeCard();
+    const batch = [{ id: "w1", cardId: card.id, rating: 3 as const, durationMs: 2000, reviewedAt: Date.now() }];
+
+    const first = await applyGradeBatch(OWNER, batch);
+    const row = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
+    expect(first.written).toHaveLength(1);
+    expect(first.written[0]).toMatchObject({ id: "w1", cardId: card.id });
+    expect(first.written[0]!.state.due.getTime()).toBe(row.due.getTime());
+    expect(first.written[0]!.state.reps).toBe(row.reps);
+    expect(first.written[0]!.state.learningSteps).toBe(row.learningSteps);
+
+    const again = await applyGradeBatch(OWNER, batch);
+    expect(again.settled).toEqual(["w1"]);
+    expect(again.written).toEqual([]);
+  });
+
+  /*
     A batch that repeats an id, which a device with a half-written queue can
     send. This used to work by accident: the second copy asked the database
     whether the id existed and found the row the first copy had just written.

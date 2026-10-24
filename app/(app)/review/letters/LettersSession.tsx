@@ -1,5 +1,7 @@
 "use client";
 
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { useT } from "@/components/Locale";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { fill } from "@/lib/copy/locale";
@@ -19,6 +21,7 @@ import { VERDICT_CLASS, type Verdict } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { lettersOf, ratingFor, tileForKey, type Tile } from "@/lib/games/letters";
 import { Lettered } from "@/components/HeroLetters";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export interface LettersWord {
   cardId: string;
@@ -114,7 +117,7 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
 
   if (wasEmptyAtStart) {
     return (
-      <Page title="Tähed" lead={t("A word you know, with its letters jumbled up. Put it back together.")}>
+      <Page {...roundPageTitle("/review/letters", t)} lead={t("A word you know, with its letters jumbled up. Put it back together.")}>
         <Empty
           title={t("No words to spell yet")}
           body={t("It uses words you've already met that are at least three letters long. Meet a few first.")}
@@ -262,6 +265,9 @@ function Board({ word, streak, correct, onSettled, onNext }: {
     setPlaced((p) => (p.length > floor ? p.slice(0, -1) : p));
   }, [answered, shaking, busy, misses]);
 
+  // A typed letter places a tile from anywhere on the page, so it answers to
+  // the single-key setting (lib/ux/shortcuts.ts); the tiles are still buttons.
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (answered) {
@@ -269,6 +275,7 @@ function Board({ word, streak, correct, onSettled, onNext }: {
         return;
       }
       if (e.key === "Backspace") { e.preventDefault(); takeBack(); return; }
+      if (!mayActOnKey(e, singleKeys)) return;
       if (e.key.length === 1 && !e.metaKey && !e.ctrlKey && !e.altKey) {
         const tile = tileForKey(tiles, used, e.key);
         if (tile) { e.preventDefault(); place(tile); }
@@ -276,7 +283,7 @@ function Board({ word, streak, correct, onSettled, onNext }: {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [answered, onNext, takeBack, tiles, used, place]);
+  }, [answered, onNext, takeBack, tiles, used, place, singleKeys]);
 
   return (
     <div

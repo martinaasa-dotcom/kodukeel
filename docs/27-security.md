@@ -86,7 +86,9 @@ loads Google Identity Services from `accounts.google.com` (`GSI_SCRIPT_SRC` in
 `lib/auth/googleIdentity.ts`), the one third-party script this app loads in a browser, and renders
 Google's button in an iframe from the same origin. The CSP adds that one origin to `script-src` and
 `frame-src` and only when the client ID is set (`googleIdentitySrc`). The ID token that comes back
-is handed to Supabase with `signInWithIdToken`.
+is handed to Supabase with `signInWithIdToken`. Google is on the generated recipients list on every
+hosted deployment, since the redirect door to Google is drawn on every sign-in page, and the entry
+says it learns of the page visit where the script loads (`lib/auth/googleConfig.ts`).
 
 ## 3. What is worth taking
 
@@ -443,7 +445,7 @@ being trusted.
 | Authorization | Public path allowlist is the only way past the gate | `middleware.ts` |
 | Authorization | Class and workplace rosters expose effort, never contents | `lib/classroom/roster.ts` |
 | Transport | HSTS, two years, includeSubDomains, preload | `lib/security/headers.ts` |
-| Transport | `upgrade-insecure-requests` in the CSP | `lib/security/headers.ts` |
+| Transport | `upgrade-insecure-requests` in the CSP, on a page served over HTTPS (WebKit applies it to `localhost` too) | `lib/security/headers.ts` |
 | Headers | CSP set per response, so it can read which Supabase project to allow | `middleware.ts` |
 | Headers | `frame-ancestors 'none'`, `frame-src 'none'` (Google's sign-in origin excepted when configured), `object-src 'none'`, `base-uri 'self'`, `form-action 'self'` | `lib/security/headers.ts` |
 | Headers | `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, COOP, cross domain policies | `next.config.ts` via `STATIC_SECURITY_HEADERS` |
@@ -499,8 +501,10 @@ is a self-assessment and says so at the top in bold. *Plan and trigger:* set out
 with the cost, and `docs/33-certification-readiness.md` turns every gap in it into a sized piece of
 work in the order we would actually do them.
 
-**No formal risk register or asset inventory as separate documents.** Section 3 above is the closest
-thing, and it lives in a design document rather than in a register anybody reviews on a schedule.
+**A risk register and an asset register exist, and have not yet been reviewed with the operator.**
+Since 24 October 2026 they are `docs/47-risk-register.md` and `docs/48-asset-register.md`, seeded from
+sections 3 and 4 above and from the DPIA, with owners and quarterly review dates. They describe and
+decide nothing; the first scheduled review is 24 January 2027.
 
 **No security awareness training program, no background checks, no formal onboarding and offboarding
 procedure.** There is one company and a very small number of people. Section 2 of

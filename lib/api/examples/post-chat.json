@@ -1,0 +1,25 @@
+{
+  "runId": "1fa196e6-b2f3-4337-a4c3-36cbc0a8c14f",
+  "briefing": {
+    "you": "You've got ten minutes before your bus and you'd like something to drink. Your card says what you feel like.",
+    "props": [
+      {
+        "slot": "drink",
+        "card": "What you'd like to drink.",
+        "given": [
+          "water"
+        ]
+      },
+      {
+        "slot": "price",
+        "card": "What the board says the drink costs, in euros.",
+        "given": [
+          "5 €"
+        ]
+      }
+    ],
+    "persona": "They're in no hurry at all, and they'll want every last detail from you. Get comfortable."
+  },
+  "plays": 0,
+  "composed": true
+}

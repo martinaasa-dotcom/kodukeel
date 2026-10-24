@@ -1,5 +1,5 @@
 import { refusedCardSentence } from "@/lib/srs/refusedCards";
-import { localeFor, titleFor } from "@/lib/progress/locale";
+import { localeFor, roundTitleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
@@ -11,7 +11,8 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { ReviewSession } from "../ReviewSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
-import { include, notOnLadder, withChoices } from "../cards";
+import { include, notOnLadder, withChoices } from "@/lib/progress/reviewCards";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 /** Cards in one round. The same twenty Flash cards asks, for the same reason. */
 const ROUND = 20;
@@ -28,7 +29,7 @@ const ROUND = 20;
 const POOL = ROUND * 8;
 
 export async function generateMetadata() {
-  return titleFor("Words you looked up");
+  return roundTitleFor("/review/lookups");
 }
 
 export const dynamic = "force-dynamic";
@@ -115,7 +116,7 @@ export default async function LookupsRoundPage() {
   if (picked.length === 0) {
     return (
       <Page
-        title={tr(locale, "Words you looked up")}
+        {...roundPageTitle("/review/lookups", (english) => tr(locale, english))}
         lead={tr(locale, "The words you picked up yourself, rather than the ones the course gave you.")}
       >
         <Empty

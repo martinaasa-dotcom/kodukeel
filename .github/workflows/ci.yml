@@ -176,6 +176,7 @@ jobs:
           CRON_SECRET: canary-CRON_SECRET-must-not-ship
           RESEND_WEBHOOK_SECRET: canary-RESEND_WEBHOOK_SECRET-must-not-ship
           VAPID_PRIVATE_KEY: canary-VAPID_PRIVATE_KEY-must-not-ship
+          FCM_SERVICE_ACCOUNT: canary-FCM_SERVICE_ACCOUNT-must-not-ship
           ERROR_WEBHOOK_URL: https://example.invalid/canary-ERROR_WEBHOOK_URL-must-not-ship
         run: npx next build
       - name: Grep the client bundle
@@ -286,8 +287,8 @@ jobs:
     # --with-deps` at 54.6 kB/s ("Fetched 25.9 MB in 7min 55s"), and a shard
     # whose suites take eleven minutes was cancelled at twenty with every
     # check it had reached passing, on main and on a pull request alike. A
-    # cancelled shard says nothing about the app. So the sixteen minutes a
-    # shard's suites may run is held by the suites step itself, which is what
+    # cancelled shard says nothing about the app. So the minutes a
+    # shard's suites may run are held by the suites step itself, which is what
     # this number was always standing in for (it was twenty less about four of
     # setup), and the job keeps a looser ceiling only so a mirror that stops
     # answering altogether still ends the run.
@@ -394,9 +395,17 @@ jobs:
 
           # Every route through axe in both themes, eleven minutes on its own,
           # which beside the rounds took that shard to 19.1 of its twenty.
+          #
+          # Since the sixth batch in two halves by width (`A11Y_PART`): the two
+          # passes at 768 took the whole sweep past twenty minutes, at the last
+          # of its checks, so they run on a runner of their own.
           - name: accessibility
+            a11y: rest
             suites: >-
               scripts/a11y-check.mjs
+          - name: accessibility at 768
+            suites: >-
+              scripts/a11y-check-tablet.mjs
 
           # The paths that cross a process boundary: a photograph to a card, a
           # paper sat and marked, a report accepted into the shared
@@ -431,8 +440,10 @@ jobs:
           # The suites that write, in the order they can be run in. The
           # calendar and the deck shelves add rows and take them off again;
           # the hint ladder and the offline outbox both grade, so they come
-          # after the ones that want the fixture as it was; and the backup is
-          # last, for the reason its own comment gives.
+          # after the ones that want the fixture as it was; the v1 contract
+          # suite grades and finishes a lesson over HTTP, so it comes after
+          # them too; and the backup is last, for the reason its own comment
+          # gives.
           - name: what writes, and the backup last
             suites: >-
               scripts/test-chat.mjs
@@ -443,6 +454,7 @@ jobs:
               scripts/test-rename.mjs
               scripts/test-hints.mjs
               scripts/smoke-offline.mjs
+              scripts/test-api.mjs
               scripts/test-error.mjs
               scripts/test-restore.mjs
 
@@ -551,16 +563,119 @@ jobs:
       # as a pass. See scripts/lib/checks.mjs. `-e` is the default shell here,
       # so the first suite to fail ends the step and names itself.
       - name: This shard's suites
-        timeout-minutes: 16
+        # Sixteen until the sixth batch added the public pages in Estonian and
+        # the 768 passes to the accessibility sweep, which then ran out of the
+        # step at its last checks, every one passing. That sweep is two shards
+        # now; twenty is the room that keeps, under the job's 35.
+        timeout-minutes: 20
         env:
           # Which half of the containment suite this shard runs, where it runs one.
           CONTAIN_PART: ${{ matrix.shard.contain }}
+          # And which half of the accessibility sweep, where it runs one.
+          A11Y_PART: ${{ matrix.shard.a11y }}
         run: |
           for suite in ${{ matrix.shard.suites }}; do
             echo "::group::$suite"
             node "$suite"
             echo "::endgroup::"
           done
+  engines:
+    name: Safari's engine and Firefox's
+    runs-on: ubuntu-latest
+    # Looser than the suites it runs, for the apt mirror the browser job's
+    # comment describes: the suites themselves are held to their own step's
+    # ceiling below.
+    timeout-minutes: 80
+
+    # THE PATHS MOST LIKELY TO DIFFER, IN THE TWO ENGINES NOTHING ELSE RUNS
+    # (docs/44-sixth-batch.md, C-2). Every shard above drives Chromium, and
+    # Safari is the browser on every iPhone. `scripts/test-browsers.mjs` is one
+    # suite run once per engine against one build: every route, a review card
+    # chosen and typed, the offline outbox, the speech worker hearing the
+    # golden clip, a turn played back beside a native line, an Ogg voice
+    # message, a refused microphone, Web Push's capability check, a name
+    # spelled letter by letter, and the conversation's composer on a phone.
+    #
+    # Its own job rather than a seventh shard, because it installs two other
+    # browsers with their system libraries and runs its list twice, and a
+    # shard is one Chromium list against one fixture.
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+      DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+      DEMO_OWNER_ID: local-single-user
+      BASE_URL: http://127.0.0.1:3000
+
+    steps:
+      - uses: actions/checkout@v7
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@v7
+        with: { node-version: "22", cache: npm }
+      - run: npm ci
+      - run: npx playwright install --with-deps webkit firefox
+      # The speech model from the cache the speech shard fills, under the same
+      # key, fetched before the build so `next start` serves it.
+      - name: The speech model, from the cache
+        uses: actions/cache@v6
+        with:
+          path: public/asr/model
+          key: asr-model-${{ hashFiles('lib/speech/model.ts') }}
+      - run: npm run asr:fetch
+      - name: Next's build cache, from the last run
+        uses: actions/cache/restore@v6
+        with:
+          path: .next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+            next-${{ runner.os }}-
+      # Reminders on a computer are on, as in every shard, so the capability
+      # check has a panel to draw where the engine has Web Push.
+      - name: A key pair for reminders on a computer
+        run: |
+          node -e 'const k = require("web-push").generateVAPIDKeys(); console.log("NEXT_PUBLIC_VAPID_PUBLIC_KEY=" + k.publicKey); console.log("VAPID_PRIVATE_KEY=" + k.privateKey);' >> "$GITHUB_ENV"
+          echo "VAPID_SUBJECT=mailto:ci@example.invalid" >> "$GITHUB_ENV"
+      - run: npm run build
+      - name: Start the server
+        # ASR_BENCH opens /dev/asr, where the speech checks hear the golden clip.
+        env:
+          ASR_BENCH: "1"
+        run: |
+          npm start &
+          for _ in $(seq 1 60); do
+            curl -sf -o /dev/null http://127.0.0.1:3000/ && exit 0
+            sleep 1
+          done
+          echo "::error::The server never came up."
+          exit 1
+      # Both engines run whatever the first one found, so one red run says
+      # what each engine thinks; the step fails if either did. Each starts
+      # from the deck `demo-data.ts` lays down, laid down again with --force,
+      # because the first engine's review and offline checks answer cards and
+      # the fixture refuses to replace a history it did not just write.
+      - name: The suite, once per engine
+        timeout-minutes: 55
+        run: |
+          failed=0
+          for engine in webkit firefox; do
+            echo "::group::$engine"
+            npx tsx scripts/demo-data.ts --force
+            node scripts/test-browsers.mjs --engine="$engine" || failed=1
+            echo "::endgroup::"
+          done
+          exit "$failed"
   signin:
     name: The sign-in screen
     runs-on: ubuntu-latest

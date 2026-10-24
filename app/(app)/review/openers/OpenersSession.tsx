@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { useFocusAnswer } from "@/components/round/useFocusAnswer";
 import { useRouter } from "next/navigation";
 import { Check, CircleAlert, Shuffle } from "lucide-react";
@@ -134,6 +136,7 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
     setIndex((i) => i + 1);
   }, [question, look, locale]);
 
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (finished || !question) return;
@@ -143,6 +146,7 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
         return;
       }
       const inField = e.target instanceof HTMLElement && e.target.tagName === "INPUT";
+      if (!mayActOnKey(e, singleKeys)) return;
       if (!inField && e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (revealed && isAdvanceKey(e)) { e.preventDefault(); next(); return; }
       if (revealed || mode !== "pick") return;
@@ -151,7 +155,7 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [finished, question, revealed, mode, choose, next, look]);
+  }, [singleKeys, finished, question, revealed, mode, choose, next, look]);
 
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));

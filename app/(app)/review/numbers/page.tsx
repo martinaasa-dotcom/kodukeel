@@ -1,4 +1,4 @@
-import { titleFor } from "@/lib/progress/locale";
+import { roundTitleFor } from "@/lib/progress/locale";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { practiceScope } from "@/lib/progress/moduleScope";
@@ -9,7 +9,7 @@ import { EURO_LEMMA, dealRound, itemKey, numberLemmas, shown, spokenAs } from "@
 import { NumbersSession, type NumbersItem } from "./NumbersSession";
 
 export async function generateMetadata() {
-  return titleFor("Arvud");
+  return roundTitleFor("/review/numbers");
 }
 
 export const dynamic = "force-dynamic";

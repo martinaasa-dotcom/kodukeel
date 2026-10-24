@@ -1,0 +1,443 @@
+{
+  "lesson": {
+    "id": "a1-01-hello",
+    "n": 1,
+    "level": "A1",
+    "part": "a1-tere",
+    "kind": "lesson",
+    "title": "Hello and thank you",
+    "goal": "Say hello, thank you and goodbye, at any time of day.",
+    "cast": {
+      "Mari": "mari",
+      "Jaan": "meelis"
+    },
+    "conversation": [
+      {
+        "who": "Mari",
+        "et": "Tere hommikust!",
+        "en": "Good morning!"
+      },
+      {
+        "who": "Jaan",
+        "et": "Tere, tere!",
+        "en": "Hi there!"
+      },
+      {
+        "who": "Mari",
+        "et": "Palun.",
+        "en": "Here you are.",
+        "stage": "She hands him a coffee."
+      },
+      {
+        "who": "Jaan",
+        "et": "Aitäh!",
+        "en": "Thank you!"
+      },
+      {
+        "who": "Mari",
+        "et": "Palun!",
+        "en": "You're welcome!"
+      },
+      {
+        "who": "Jaan",
+        "et": "Head aega!",
+        "en": "Goodbye!"
+      },
+      {
+        "who": "Mari",
+        "et": "Nägemist!",
+        "en": "Bye, see you!"
+      }
+    ],
+    "teaches": [
+      {
+        "kind": "phrase",
+        "et": "Tere!",
+        "en": "Hello! Hi!"
+      },
+      {
+        "kind": "phrase",
+        "et": "Tere hommikust!",
+        "en": "Good morning!"
+      },
+      {
+        "kind": "phrase",
+        "et": "Tere päevast!",
+        "en": "Good afternoon!"
+      },
+      {
+        "kind": "phrase",
+        "et": "Tere õhtust!",
+        "en": "Good evening!"
+      },
+      {
+        "kind": "phrase",
+        "et": "Aitäh!",
+        "en": "Thank you!"
+      },
+      {
+        "kind": "phrase",
+        "et": "Palun!",
+        "en": "Please. Here you are. You're welcome."
+      },
+      {
+        "kind": "phrase",
+        "et": "Head aega!",
+        "en": "Goodbye!"
+      },
+      {
+        "kind": "phrase",
+        "et": "Nägemist!",
+        "en": "See you! Bye!"
+      }
+    ],
+    "how": {
+      "point": "Estonian is said the way it is written: one letter is one sound, and every letter is said.",
+      "notes": [
+        "{Palun} does three jobs: please, here you are, and you're welcome."
+      ],
+      "sounds": [
+        {
+          "sound": "sound-ou",
+          "glyph": "õ",
+          "like": "an o said with the lips spread, not rounded",
+          "word": "stress-ouhtust",
+          "mark": "õ",
+          "en": "evening, as in good evening"
+        },
+        {
+          "sound": "sound-ae",
+          "glyph": "ä",
+          "like": "the a in cat",
+          "word": "word-aitaeh",
+          "mark": "ä",
+          "en": "thank you"
+        },
+        {
+          "sound": "sound-oe",
+          "glyph": "ö",
+          "like": "an e said with rounded lips",
+          "word": "vowel-oeoe",
+          "mark": "öö",
+          "en": "night"
+        },
+        {
+          "sound": "sound-ue",
+          "glyph": "ü",
+          "like": "an i said with rounded lips",
+          "word": "number-ueks",
+          "mark": "ü",
+          "en": "one"
+        },
+        {
+          "sound": "sound-mm",
+          "glyph": "mm",
+          "like": "a double letter is a long sound: hold the m",
+          "word": "stress-hommikust",
+          "mark": "mm",
+          "en": "morning, as in good morning"
+        },
+        {
+          "sound": "sound-h",
+          "glyph": "h",
+          "like": "always said, even at the end of a word",
+          "word": "word-aitaeh",
+          "mark": "h",
+          "en": "thank you"
+        }
+      ],
+      "watchOut": "Don't drop the h at the end of {aitäh}. Every letter is said, the last one too.",
+      "examples": [
+        0,
+        3
+      ]
+    },
+    "answers": [
+      {
+        "ask": {
+          "et": "Tere!",
+          "en": "Hello!"
+        },
+        "cue": "Say hello back.",
+        "model": {
+          "et": "Tere!",
+          "en": "Hello!"
+        }
+      },
+      {
+        "ask": {
+          "et": "Aitäh!",
+          "en": "Thank you!"
+        },
+        "cue": "They thank you. Say you're welcome.",
+        "model": {
+          "et": "Palun!",
+          "en": "You're welcome!"
+        }
+      },
+      {
+        "cue": "It's evening. Greet somebody.",
+        "model": {
+          "et": "Tere õhtust!",
+          "en": "Good evening!"
+        }
+      },
+      {
+        "ask": {
+          "et": "Head aega!",
+          "en": "Goodbye!"
+        },
+        "cue": "Say goodbye back.",
+        "model": {
+          "et": "Nägemist!",
+          "en": "See you!"
+        }
+      }
+    ]
+  },
+  "practice": [
+    {
+      "kind": "pick",
+      "et": "Tere!",
+      "options": [
+        "Good afternoon!",
+        "Good evening!",
+        "Hello! Hi!",
+        "Good morning!"
+      ],
+      "answer": "Hello! Hi!"
+    },
+    {
+      "kind": "hear",
+      "et": "Tere hommikust!",
+      "options": [
+        "Hello! Hi!",
+        "Good morning!",
+        "Good afternoon!",
+        "Good evening!"
+      ],
+      "answer": "Good morning!"
+    },
+    {
+      "kind": "hear",
+      "et": "Tere päevast!",
+      "options": [
+        "Good morning!",
+        "Hello! Hi!",
+        "Good afternoon!",
+        "Good evening!"
+      ],
+      "answer": "Good afternoon!"
+    },
+    {
+      "kind": "hear",
+      "et": "Tere õhtust!",
+      "options": [
+        "Thank you!",
+        "Good morning!",
+        "Good afternoon!",
+        "Good evening!"
+      ],
+      "answer": "Good evening!"
+    },
+    {
+      "kind": "pick",
+      "et": "Aitäh!",
+      "options": [
+        "Good afternoon!",
+        "Good evening!",
+        "Please. Here you are. You're welcome.",
+        "Thank you!"
+      ],
+      "answer": "Thank you!"
+    },
+    {
+      "kind": "pick",
+      "et": "Palun!",
+      "options": [
+        "Thank you!",
+        "Goodbye!",
+        "Good evening!",
+        "Please. Here you are. You're welcome."
+      ],
+      "answer": "Please. Here you are. You're welcome."
+    },
+    {
+      "kind": "hear",
+      "et": "Head aega!",
+      "options": [
+        "Goodbye!",
+        "See you! Bye!",
+        "Please. Here you are. You're welcome.",
+        "Thank you!"
+      ],
+      "answer": "Goodbye!"
+    },
+    {
+      "kind": "pick",
+      "et": "Nägemist!",
+      "options": [
+        "Thank you!",
+        "Goodbye!",
+        "Please. Here you are. You're welcome.",
+        "See you! Bye!"
+      ],
+      "answer": "See you! Bye!"
+    },
+    {
+      "kind": "type",
+      "en": "Good evening!",
+      "answer": "Tere õhtust!",
+      "accept": [
+        "Tere õhtust!"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "See you! Bye!",
+      "answer": "Nägemist!",
+      "accept": [
+        "Nägemist!"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "Goodbye!",
+      "answer": "Head aega!",
+      "accept": [
+        "Head aega!"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "Please. Here you are. You're welcome.",
+      "answer": "Palun!",
+      "accept": [
+        "Palun!"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "Thank you!",
+      "answer": "Aitäh!",
+      "accept": [
+        "Aitäh!"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "Good afternoon!",
+      "answer": "Tere päevast!",
+      "accept": [
+        "Tere päevast!"
+      ]
+    }
+  ],
+  "review": [],
+  "scene": null,
+  "place": {
+    "at": 1,
+    "of": 61
+  },
+  "next": {
+    "id": "a1-02-stuck",
+    "title": "When you're stuck"
+  },
+  "part": {
+    "title": "First words",
+    "lessons": [
+      {
+        "id": "a1-01-hello",
+        "label": "1",
+        "title": "Hello and thank you",
+        "done": false
+      },
+      {
+        "id": "a1-02-stuck",
+        "label": "2",
+        "title": "When you're stuck",
+        "done": false
+      },
+      {
+        "id": "a1-03-name",
+        "label": "3",
+        "title": "Your name",
+        "done": false
+      },
+      {
+        "id": "a1-04-persons",
+        "label": "4",
+        "title": "I am, you are",
+        "done": false
+      },
+      {
+        "id": "a1-05-what-who",
+        "label": "5",
+        "title": "What is this, who is that?",
+        "done": false
+      },
+      {
+        "id": "a1-06-yes-no",
+        "label": "6",
+        "title": "Yes or no",
+        "done": false
+      },
+      {
+        "id": "a1-07-how-are-you",
+        "label": "7",
+        "title": "How are you?",
+        "done": false
+      },
+      {
+        "id": "a1-08-neighbour",
+        "label": "8",
+        "title": "Meeting somebody",
+        "done": false
+      }
+    ]
+  },
+  "name": null,
+  "due": 33,
+  "check": null,
+  "locale": "ru",
+  "nativePart": "Jaan",
+  "translations": {
+    "Hello and thank you": "Привет и спасибо",
+    "Say hello, thank you and goodbye, at any time of day.": "Здороваться, благодарить и прощаться в любое время дня.",
+    "Good morning!": "Доброе утро!",
+    "Hi there!": "Привет!",
+    "Here you are.": "Вот, пожалуйста.",
+    "She hands him a coffee.": "Она протягивает ему кофе.",
+    "Thank you!": "Спасибо!",
+    "You're welcome!": "Пожалуйста!",
+    "Goodbye!": "До свидания!",
+    "Bye, see you!": "Пока, увидимся!",
+    "phrase": "фраза",
+    "Hello! Hi!": "Здравствуйте! Привет!",
+    "Good afternoon!": "Добрый день!",
+    "Good evening!": "Добрый вечер!",
+    "Please. Here you are. You're welcome.": "Пожалуйста. Вот, возьмите. Не за что.",
+    "See you! Bye!": "Увидимся! Пока!",
+    "Estonian is said the way it is written: one letter is one sound, and every letter is said.": "Эстонский читается так, как пишется: одна буква означает один звук, и произносится каждая буква.",
+    "{Palun} does three jobs: please, here you are, and you're welcome.": "У {Palun} три значения: «пожалуйста», «вот, возьмите» и «не за что».",
+    "an o said with the lips spread, not rounded": "o, произнесённое с растянутыми, а не округлёнными губами",
+    "evening, as in good evening": "вечер, как в «добрый вечер»",
+    "the a in cat": "a в слове cat",
+    "thank you": "спасибо",
+    "an e said with rounded lips": "э, сказанное с округлёнными губами",
+    "night": "ночь",
+    "an i said with rounded lips": "и, сказанное с округлёнными губами",
+    "one": "один",
+    "a double letter is a long sound: hold the m": "двойная буква означает долгий звук: потяните m",
+    "morning, as in good morning": "утро, как в «доброе утро»",
+    "always said, even at the end of a word": "произносится всегда, даже в конце слова",
+    "Don't drop the h at the end of {aitäh}. Every letter is said, the last one too.": "Не проглатывайте h в конце {aitäh}. Произносится каждая буква, и последняя тоже.",
+    "Hello!": "Здравствуйте!",
+    "Say hello back.": "Поздоровайтесь в ответ.",
+    "They thank you. Say you're welcome.": "Вас благодарят. Ответьте «пожалуйста».",
+    "It's evening. Greet somebody.": "Сейчас вечер. Поздоровайтесь с кем-нибудь.",
+    "Say goodbye back.": "Попрощайтесь в ответ.",
+    "See you!": "Увидимся!",
+    "When you're stuck": "Когда вы не понимаете"
+  }
+}

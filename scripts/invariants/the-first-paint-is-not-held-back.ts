@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 
-import { SYNCED_LOOPS } from "../../lib/ux/loopSync";
+import { IDLE_LOOPS } from "../../lib/ux/awake";
 import type { InvariantKit } from "../lib/invariantKit";
 
 /**
@@ -15,7 +15,7 @@ import type { InvariantKit } from "../lib/invariantKit";
  *   aliased to nothing (`lib/framework/noPolyfills.ts`).
  * - The brand's idle loops animate SVG groups, which no browser composites,
  *   so each frame of each loop was a layout on the main thread. They wait for
- *   `data-awake` on <html> (lib/ux/loopSync.ts).
+ *   `data-awake` on <html> (lib/ux/awake.ts).
  * - A fitted word measured each of its other forms in a hidden span, which was
  *   one forced layout per form inside the hydration task. It measures on a
  *   canvas.
@@ -44,14 +44,14 @@ export default function theFirstPaintIsNotHeldBack({ check, code, read }: Invari
   check("every idle loop waits for the page to settle", () => {
     const css = read("app/globals.css");
     let seen = 0;
-    for (const name of SYNCED_LOOPS) {
+    for (const name of IDLE_LOOPS) {
       for (const m of css.matchAll(new RegExp(`^([^\\n{}]*)\\{[^}]*animation:\\s*${name}\\s`, "gm"))) {
         seen++;
         assert.match(m[1]!, /^:root\[data-awake\] /, `the idle loop ${name} starts before the page has settled: ${m[1]!.trim()}`);
       }
     }
-    assert.ok(seen >= SYNCED_LOOPS.length, `found ${seen} idle loop rules for ${SYNCED_LOOPS.length} loops, so this check stopped reading them`);
-    const script = code("lib/ux/loopSync.ts");
+    assert.ok(seen >= IDLE_LOOPS.length, `found ${seen} idle loop rules for ${IDLE_LOOPS.length} loops, so this check stopped reading them`);
+    const script = code("lib/ux/awake.ts");
     assert.match(script, /setAttribute\('\$\{AWAKE_ATTR\}'/, "the inline script no longer sets the attribute the loops wait for");
     assert.match(script, /addEventListener\('load'/, "nothing wakes the loops for somebody who only reads");
   });

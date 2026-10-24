@@ -685,6 +685,16 @@ VAPID_SUBJECT=mailto:hei@your-domain  # optional; falls back to NEXT_PUBLIC_SITE
 
 With either key unset, nobody is offered it and `/privacy` names no push service.
 
+**Reminders on a phone running the app** (N-9) go through Firebase Cloud Messaging, ahead of a computer
+and of email for the same short kinds, one channel a kind a day. Set the service account file from the
+Firebase console; an iPhone also needs an APNs key uploaded there.
+
+```
+FCM_SERVICE_ACCOUNT='{"project_id":...,"client_email":...,"private_key":...}'  # a credential: server only; base64 also read
+```
+
+Unset, a phone's registration is refused, nothing is sent to a phone, and `/privacy` does not name Firebase.
+
 The sign-in link opens in the browser that asked for it, because that's where the security check
 lives, and the sign-in screen says so. If you'd rather the link still worked after being forwarded
 to a phone, change the magic-link email template to point at

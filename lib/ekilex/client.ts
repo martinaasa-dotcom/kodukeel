@@ -1,13 +1,38 @@
 /**
- * Ekilex API client. Server-side only — the key never reaches the browser.
+ * Ekilex API client. Server-side only: the key never reaches the browser.
  *
  * Ekilex is the Institute of the Estonian Language's lexicographic database, and
  * the authority for Estonian morphology. Everything it returns is stored with
  * `provenance: EKILEX`; nothing here is generated.
  *
- * Dictionary data is CC BY 4.0, so the UI credits it on every entry — attribution
- * is a condition of the license, not a courtesy.
+ * Dictionary data is CC BY 4.0, so the entry credits it on screen
+ * (`app/(app)/dictionary/EkilexCredit.tsx`): attribution is a condition of the
+ * license, not a courtesy.
+ *
+ * EVERY REQUEST GOES THROUGH ONE GATE, THE APP'S AND THE SCRIPTS' ALIKE.
+ *
+ * `docs/05-integrations.md` section 1.4 promised a concurrency cap of two and
+ * exponential backoff on 429 and 5xx, and for most of this app's life nothing
+ * did either: the harvest ran six workers, four scripts kept a fetch of their
+ * own, and no request said who sent it. `ekilexRequest` is now the only place a
+ * request to ekilex.ee is made. It holds at most `EKILEX_IN_FLIGHT` requests in
+ * flight per process, retries a 429 or a 5xx with exponential backoff and
+ * jitter up to `EKILEX_TRIES` tries, honors a deadline so a page never waits
+ * on a backoff it cannot afford, and names itself in a `User-Agent` built by
+ * `ekilexUserAgent` in `lib/legal/operator.ts`. A refusal (401, 403 and the
+ * rest of 4xx) is never retried, and a request that gives up comes back
+ * `failed`, which `lib/ekilex/harvestGuard.ts` already treats as "keep what we
+ * had".
+ *
+ * Counted by the caller, never in here: `lib/dict/lookup.ts` hands in an
+ * `EkilexTally`, the gate fills it, and the lookup writes it to `EkilexDay`.
+ * The scripts run on somebody's own machine against whatever database they
+ * point at, so a count written from them would land on the wrong installation.
  */
+import packageJson from "../../package.json";
+import { ekilexUserAgent } from "../legal/operator";
+import { readAnswer, type Answer, type ResponseLike } from "./harvestGuard";
+
 const BASE = "https://ekilex.ee/api";
 
 /** Datasets worth reading: the unified EKI dictionary plus the morphology base. */
@@ -91,25 +116,220 @@ export function ekilexConfigured(): boolean {
   return Boolean(process.env.EKILEX_API_KEY);
 }
 
-async function call<T>(path: string): Promise<T | null> {
-  const key = process.env.EKILEX_API_KEY;
-  if (!key) return null;
-  try {
-    const res = await fetch(`${BASE}${path}`, {
-      headers: { "ekilex-api-key": key },
-      signal: AbortSignal.timeout(15_000),
-    });
-    if (!res.ok) return null;
-    return (await res.json()) as T;
-  } catch {
-    // A dictionary lookup failing must never take the page down; the caller
-    // falls back to the local dictionary.
-    return null;
-  }
+/** At most this many requests in flight to Ekilex per process, as section 1.4 promised. */
+export const EKILEX_IN_FLIGHT = 2;
+
+/** Tries per request, the first one included, before it is recorded as failed. */
+export const EKILEX_TRIES = 3;
+
+/**
+ * The longest a page waits for an upgrade it does not need. The dictionary
+ * gives a live lookup this much, so a backoff happens inside it or not at all.
+ */
+export const PAGE_DEADLINE_MS = 2_500;
+
+/** The first backoff, doubled on each try after it and jittered by up to half again. */
+const BACKOFF_BASE_MS = 500;
+
+/** A `Retry-After` longer than this is a service asking to be left alone, and is not waited out. */
+const RETRY_AFTER_CAP_MS = 30_000;
+
+/** How long one request may take before it is abandoned. */
+const REQUEST_TIMEOUT_MS = 15_000;
+
+export type EkilexKind = "search" | "details";
+
+/**
+ * What a run of requests asked of Ekilex, filled in by the gate.
+ *
+ * `search` and `details` count requests that reached the network, once each
+ * however many tries they took. `refused` and `failed` count the ones of those
+ * that ended that way. A request that never got a slot before its deadline is
+ * in none of them, because Ekilex never saw it.
+ */
+export interface EkilexTally {
+  search: number;
+  details: number;
+  refused: number;
+  failed: number;
 }
 
-export async function searchEkilex(query: string): Promise<EkilexWordSummary[]> {
-  return (await searchEkilexAnswered(query)) ?? [];
+export function emptyTally(): EkilexTally {
+  return { search: 0, details: 0, refused: 0, failed: 0 };
+}
+
+export interface GateOptions {
+  /** Epoch milliseconds past which nothing waits: no slot, no backoff, no retry. */
+  deadline?: number;
+  /** Which kind of request this is, for the tally. */
+  kind?: EkilexKind;
+  /** Filled in as the request goes, for a caller that counts. */
+  tally?: EkilexTally;
+}
+
+/** What the gate needs from the world, handed in so a test can stub every piece. */
+export interface GateDeps {
+  fetch: (url: string, init: { headers: Record<string, string>; signal?: AbortSignal }) => Promise<ResponseLike & { headers?: { get(name: string): string | null } }>;
+  sleep: (ms: number) => Promise<void>;
+  now: () => number;
+  random: () => number;
+  key: () => string | undefined;
+  userAgent: () => string;
+  /** How many may be in flight at once. */
+  limit: number;
+  timeoutMs?: number;
+}
+
+export interface EkilexGate {
+  request<T>(path: string, options?: GateOptions): Promise<Answer<T>>;
+  /** Raise or lower the cap, for a script run with `--past-the-limit`. */
+  setLimit(limit: number): void;
+  /** How many requests are in flight right now. For tests. */
+  inFlight(): number;
+}
+
+/**
+ * The backoff before try `n` (1 for the second try): `BACKOFF_BASE_MS` doubled
+ * per try, plus up to half of that again at random so two instances that
+ * failed together do not come back together. A `Retry-After` the service sent
+ * is honored where it is longer, up to `RETRY_AFTER_CAP_MS`.
+ */
+export function backoffMs(n: number, random: number, retryAfterMs: number | null = null): number {
+  const base = BACKOFF_BASE_MS * 2 ** (n - 1);
+  const jittered = Math.round(base + base * 0.5 * random);
+  if (retryAfterMs !== null && retryAfterMs > jittered) return Math.min(retryAfterMs, RETRY_AFTER_CAP_MS);
+  return jittered;
+}
+
+/** A `Retry-After` in seconds or as an HTTP date, read into milliseconds. */
+function retryAfter(value: string | null | undefined, now: number): number | null {
+  if (!value) return null;
+  const seconds = Number(value);
+  if (Number.isFinite(seconds)) return Math.max(0, seconds * 1_000);
+  const at = Date.parse(value);
+  return Number.isFinite(at) ? Math.max(0, at - now) : null;
+}
+
+export function createEkilexGate(deps: GateDeps): EkilexGate {
+  let limit = Math.max(1, Math.floor(deps.limit));
+  let active = 0;
+  const waiting: { grant: () => void; cancel: () => void }[] = [];
+
+  const release = () => {
+    active -= 1;
+    while (active < limit && waiting.length > 0) {
+      const next = waiting.shift()!;
+      active += 1;
+      next.grant();
+    }
+  };
+
+  /** A slot, or false when the deadline passed first. */
+  const acquire = (deadline: number | undefined): Promise<boolean> => {
+    if (active < limit) {
+      active += 1;
+      return Promise.resolve(true);
+    }
+    return new Promise<boolean>((resolve) => {
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const entry = {
+        grant: () => { clearTimeout(timer); resolve(true); },
+        cancel: () => resolve(false),
+      };
+      waiting.push(entry);
+      if (deadline !== undefined) {
+        const left = deadline - deps.now();
+        timer = setTimeout(() => {
+          const i = waiting.indexOf(entry);
+          if (i >= 0) {
+            waiting.splice(i, 1);
+            entry.cancel();
+          }
+        }, Math.max(0, left));
+      }
+    });
+  };
+
+  return {
+    setLimit(next: number) {
+      limit = Math.max(1, Math.floor(next));
+      while (active < limit && waiting.length > 0) {
+        active += 1;
+        waiting.shift()!.grant();
+      }
+    },
+    inFlight: () => active,
+    async request<T>(path: string, options: GateOptions = {}): Promise<Answer<T>> {
+      const key = deps.key();
+      if (!key) return { kind: "refused", status: 0 };
+      const { deadline, kind, tally } = options;
+      let sent = false;
+      let last: Answer<T> = { kind: "failed", reason: "no slot before the deadline" };
+
+      for (let attempt = 1; attempt <= EKILEX_TRIES; attempt++) {
+        if (!(await acquire(deadline))) break;
+        let retryAfterMs: number | null = null;
+        try {
+          if (!sent && kind && tally) tally[kind] += 1;
+          sent = true;
+          last = await readAnswer<T>(async () => {
+            const res = await deps.fetch(`${BASE}${path}`, {
+              headers: { "ekilex-api-key": key, "user-agent": deps.userAgent() },
+              signal: AbortSignal.timeout(deps.timeoutMs ?? REQUEST_TIMEOUT_MS),
+            });
+            retryAfterMs = retryAfter(res.headers?.get("retry-after"), deps.now());
+            return res;
+          });
+        } finally {
+          release();
+        }
+        if (last.kind !== "failed" || attempt === EKILEX_TRIES) break;
+        const wait = backoffMs(attempt, deps.random(), retryAfterMs);
+        // A page waits for nothing it cannot afford: past the deadline the
+        // request is given up rather than slept on.
+        if (deadline !== undefined && deps.now() + wait >= deadline) break;
+        await deps.sleep(wait);
+      }
+
+      if (sent && tally) {
+        if (last.kind === "refused") tally.refused += 1;
+        if (last.kind === "failed") tally.failed += 1;
+      }
+      return last;
+    },
+  };
+}
+
+/** The app's one gate, built on first use from the environment. */
+let shared: EkilexGate | null = null;
+
+export function ekilexGate(): EkilexGate {
+  shared ??= createEkilexGate({
+    fetch: (url, init) => fetch(url, init),
+    sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+    now: () => Date.now(),
+    random: () => Math.random(),
+    key: () => process.env.EKILEX_API_KEY,
+    userAgent: () => ekilexUserAgent(packageJson.version),
+    limit: EKILEX_IN_FLIGHT,
+  });
+  return shared;
+}
+
+/** One request to Ekilex, through the gate. Every request in this repository comes through here. */
+export function ekilexRequest<T>(path: string, options?: GateOptions): Promise<Answer<T>> {
+  return ekilexGate().request<T>(path, options);
+}
+
+async function call<T>(path: string, options?: GateOptions): Promise<T | null> {
+  // A dictionary lookup failing must never take the page down; the caller
+  // falls back to the local dictionary.
+  const answer = await ekilexRequest<T>(path, options).catch(() => null);
+  return answer?.kind === "answered" ? answer.value : null;
+}
+
+export async function searchEkilex(query: string, options?: GateOptions): Promise<EkilexWordSummary[]> {
+  return (await searchEkilexAnswered(query, options)) ?? [];
 }
 
 /**
@@ -121,9 +341,13 @@ export async function searchEkilex(query: string): Promise<EkilexWordSummary[]> 
  * is the one that is wrong" about `laid`, whose homonym 192289 has exactly
  * the page's parts. A refusal is not a miss.
  */
-export async function searchEkilexAnswered(query: string): Promise<EkilexWordSummary[] | null> {
+export async function searchEkilexAnswered(
+  query: string,
+  options?: GateOptions,
+): Promise<EkilexWordSummary[] | null> {
   const data = await call<{ words?: EkilexWordSummary[] }>(
     `/word/search/${encodeURIComponent(query)}/${DATASETS}`,
+    { ...options, kind: "search" },
   );
   return data ? (data.words ?? []).filter((w) => w.lang === "est") : null;
 }
@@ -224,8 +448,8 @@ export function equivalentsText(words: readonly string[]): string | null {
   return words.length > 0 ? words.join(", ") : null;
 }
 
-export async function fetchEkilexDetails(wordId: number): Promise<EkilexDetails | null> {
-  const data = await call<RawDetails>(`/word/details/${wordId}`);
+export async function fetchEkilexDetails(wordId: number, options?: GateOptions): Promise<EkilexDetails | null> {
+  const data = await call<RawDetails>(`/word/details/${wordId}`, { ...options, kind: "details" });
   if (!data?.word) return null;
 
   const definitions: string[] = [];

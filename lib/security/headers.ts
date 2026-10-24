@@ -8,6 +8,13 @@
  * asked for, and the policy needs to read the environment to know which
  * Supabase project to allow.
  */
+/*
+  Relative rather than through the `@/` alias, because `next.config.ts`
+  imports this file and is loaded before the alias means anything.
+*/
+import { appleSignInConfigured } from "../auth/appleConfig";
+import { googleScriptLoaded } from "../auth/googleConfig";
+import { APPLE_SCRIPT_ORIGIN } from "../auth/appleIdentity";
 
 export const STATIC_SECURITY_HEADERS: { key: string; value: string }[] = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
@@ -128,7 +135,20 @@ function speechModelSrc(): string[] {
 }
 
 function googleIdentitySrc(): string[] {
-  return process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim() ? ["https://accounts.google.com"] : [];
+  return googleScriptLoaded() ? ["https://accounts.google.com"] : [];
+}
+
+/**
+ * Apple's sign-in script, only where the deployment has a Services ID
+ * (docs/44-sixth-batch.md, N-3). The script host alone, and that is all it
+ * needs, read off the script itself on 2026-10-24: in popup mode it opens
+ * Apple's sign-in at `appleid.apple.com` in a window of its own and listens
+ * for that window's message, which no directive here governs. It draws no
+ * iframe, fetches nothing and posts no form from this page, so `frame-src`,
+ * `connect-src` and `form-action` stay exactly as they were.
+ */
+function appleIdentitySrc(): string[] {
+  return appleSignInConfigured() ? [APPLE_SCRIPT_ORIGIN] : [];
 }
 
 /**
@@ -159,7 +179,7 @@ function googleIdentitySrc(): string[] {
  *   button inside an `accounts.google.com` iframe, so a deployment with a
  *   Google client ID configured allows that one origin and no other.
  */
-export function buildContentSecurityPolicy(): string {
+export function buildContentSecurityPolicy({ secure = true }: { readonly secure?: boolean } = {}): string {
   const isDev = process.env.NODE_ENV !== "production";
   const google = googleIdentitySrc();
 
@@ -168,7 +188,7 @@ export function buildContentSecurityPolicy(): string {
     worker runs the model in it (ADR-028). It is not `'unsafe-eval'`, which
     stays a development-only allowance, and the test reads the two as tokens.
   */
-  const scriptSrc = ["'self'", "'unsafe-inline'", "'wasm-unsafe-eval'", ...google, ...(isDev ? ["'unsafe-eval'"] : [])];
+  const scriptSrc = ["'self'", "'unsafe-inline'", "'wasm-unsafe-eval'", ...google, ...appleIdentitySrc(), ...(isDev ? ["'unsafe-eval'"] : [])];
   const connectSrc = [
     "'self'",
     ...supabaseConnectSrc(),
@@ -195,6 +215,16 @@ export function buildContentSecurityPolicy(): string {
     "object-src 'none'",
     "worker-src 'self' blob:",
     "manifest-src 'self'",
-    "upgrade-insecure-requests",
+    /*
+      ONLY ON A PAGE SERVED OVER HTTPS. Chromium and Firefox leave a request to
+      `localhost` alone under `upgrade-insecure-requests`, and WebKit does not:
+      it rewrote every script on a page served over plain HTTP to `https://`,
+      none of them loaded, and the page never hydrated. Found by
+      `test-browsers.mjs`, where WebKit drew the server's skeleton and no
+      heading on every route that streams in. On a page served over HTTPS the
+      directive is what it always was; on one served over HTTP it has nothing
+      to upgrade to, so leaving it off loses nothing.
+    */
+    ...(secure ? ["upgrade-insecure-requests"] : []),
   ].join("; ");
 }

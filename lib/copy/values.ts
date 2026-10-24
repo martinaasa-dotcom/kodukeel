@@ -415,3 +415,6 @@ export function keepUnits(text: string): string {
   return text.replace(/(\d) (MB|МБ)(?![\p{L}])/gu, "$1\u00a0$2");
 }
 
+
+/** What a refusal from the spend ledger says where the ledger gave no sentence of its own. */
+export const LIMIT_REACHED = "That's as much of this as today allows. Try again later.";

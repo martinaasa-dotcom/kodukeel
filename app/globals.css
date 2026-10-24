@@ -1295,7 +1295,10 @@
 
     The one round asked to "feel like a game", and the whole of what that means
     here is three: the target breathes before you press it, a card arrives
-    rather than appearing, and a run of right answers pops the counter.
+    rather than appearing, and a run of right answers pops the counter. The
+    breath is two breaths and then still (WCAG 2.2.2, `lib/ux/rest.ts`): a
+    button that pulses for as long as the screen is open is a thing moving
+    beside every word on it.
 
     All three are `transform` and `opacity` only, which is what the compositor
     can do without the main thread, and the main thread during a round is busy
@@ -1306,7 +1309,7 @@
     learner who has asked for less movement is asking for it most on the screen
     that moves most.
   */
-  .quest-pulse { animation: quest-pulse 2.4s ease-in-out infinite; }
+  .quest-pulse { animation: quest-pulse 2.4s ease-in-out 0s 2; }
   .quest-card { animation: quest-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both; }
   .quest-pop { animation: quest-pop 320ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
 
@@ -1668,17 +1671,19 @@
     bubble the punchline will arrive in, so nothing moves on the card but
     them, and the line lands with the same small pop a conversation's lines
     do. Under `prefers-reduced-motion` the dots sit still and the line simply
-    appears.
+    appears. The card waits for a tap for as long as Today is open, so the
+    dots breathe four times and hold their resting shade (WCAG 2.2.2,
+    `lib/ux/rest.ts`): a beat, not a light left blinking.
   */
   .joke-dots span {
     width: 0.4375rem;
     height: 0.4375rem;
     border-radius: 9999px;
     background: currentColor;
-    animation: twenty-dot 1100ms ease-in-out infinite;
+    animation: twenty-dot 1100ms ease-in-out 0s 4 both;
   }
-  .joke-dots span:nth-child(2) { animation-delay: 160ms; }
-  .joke-dots span:nth-child(3) { animation-delay: 320ms; }
+  .joke-dots span:nth-child(2) { animation: twenty-dot 1100ms ease-in-out 160ms 4 both; }
+  .joke-dots span:nth-child(3) { animation: twenty-dot 1100ms ease-in-out 320ms 4 both; }
   .joke-told { animation: scene-say-you 340ms cubic-bezier(0.22, 1, 0.36, 1) both; transform-origin: bottom right; }
   .joke-told-left { animation: scene-say 340ms cubic-bezier(0.22, 1, 0.36, 1) both; transform-origin: bottom left; }
 
@@ -2296,10 +2301,21 @@
     reader, and they all stop dead under `prefers-reduced-motion`, where the
     icon and the words beside it are the whole of the information.
   */
-  .amb-queue { animation: amb-queue 2800ms cubic-bezier(0.4, 0, 0.2, 1) infinite; }
-  .amb-1 { animation-delay: 0ms; }
-  .amb-2 { animation-delay: 900ms; }
-  .amb-3 { animation-delay: 1800ms; }
+  /*
+    AND IT ALL RESTS WITHIN FIVE SECONDS (WCAG 2.2.2, `lib/ux/rest.ts`).
+
+    The room breathed for as long as the scene was open, which over a
+    conversation is five minutes beside the box somebody is typing into. Each
+    movement now plays a whole number of its own cycles, or a fraction of one
+    that ends on a frame worth stopping on, inside five seconds of the room
+    being drawn, and then holds still: the queue steps up once and the next
+    person stands at the counter, the line out of a telephone rings out once
+    and stays drawn, the steam rises once and hangs. A fractional count with
+    `both` holds the frame it stopped on, which is how a ring or a wisp stays
+    on the screen rather than going out with the cycle. A room drawn again,
+    which a move to a new place does, plays again.
+  */
+  .amb-queue { animation: amb-queue 2800ms cubic-bezier(0.4, 0, 0.2, 1) 0s 1.5 both; }
 
   /* A step, a pause, a step. A queue does not glide. */
   @keyframes amb-queue {
@@ -2323,10 +2339,10 @@
     here that has to be sharper than the rest: a scissor at four steps a second
     reads as walking and at one reads as a fault.
   */
-  .stick-bob { animation: stick-bob 3600ms ease-in-out infinite; }
-  .stick-nod { animation: stick-nod 4200ms ease-in-out infinite; }
-  .stick-legs-a { animation: stick-legs 900ms steps(1, end) infinite; }
-  .stick-legs-b { animation: stick-legs 900ms steps(1, end) infinite reverse; }
+  .stick-bob { animation: stick-bob 3600ms ease-in-out 0s 1; }
+  .stick-nod { animation: stick-nod 4200ms ease-in-out 0s 1; }
+  .stick-legs-a { animation: stick-legs 900ms steps(1, end) 0s 5; }
+  .stick-legs-b { animation: stick-legs 900ms steps(1, end) 0s 5 reverse; }
   /*
     `both` rather than nothing, on this and on the steam, and it is the half
     that keeps them on the screen for somebody who asked for less movement.
@@ -2338,7 +2354,7 @@
     `helistamine` with the preference set it left the telephone line at nought
     on the three rooms where that line is the other side of the conversation.
   */
-  .stick-arc { animation: stick-arc 2600ms ease-out infinite both; }
+  .stick-arc { animation: stick-arc 2600ms ease-out 0s 0.3 both; }
   /*
     Somebody talking, which is the one thing in the drawing that is not
     ambience: it says whose floor it is while a conversation is running.
@@ -2409,7 +2425,16 @@
     way up a 120-unit drawing: the wisps left the cup behind and hung in the air
     above the counter. Here it is eight units and a lean.
   */
-  .stick-steam { animation: stick-steam 3800ms ease-in-out infinite both; }
+  .stick-steam { animation: stick-steam 3800ms ease-in-out 0s 0.35 both; }
+  /*
+    The three wisps and the three arcs each take one of these, and they come
+    after both shorthands on purpose: a shorthand resets the delay, so with
+    these above `.stick-steam` and `.stick-arc`, as they were, every wisp and
+    every arc started on the same frame.
+  */
+  .amb-1 { animation-delay: 0ms; }
+  .amb-2 { animation-delay: 900ms; }
+  .amb-3 { animation-delay: 1800ms; }
 
   @keyframes stick-bob {
     0%, 100% { transform: translateY(0); }
@@ -2430,7 +2455,8 @@
     35% { opacity: 0.8; }
     100% { opacity: 0; transform: translate(2px, -8px); }
   }
-  /* Out from the ear, and gone, which is a telephone from the outside. */
+  /* Out from the ear, which is a telephone from the outside; it rests at 30%,
+     with every arc drawn. */
   @keyframes stick-arc {
     0%, 60%, 100% { opacity: 0; }
     20%, 40% { opacity: 1; }
@@ -2703,19 +2729,6 @@
     color: transparent;
   }
 
-  /*
-    The headline's gradient, panning.
-
-    Only the position moves; the stops are the ones above, and the note there
-    says every one of them clears 4.5:1 against the page, so panning cannot
-    walk a failing color under the text. Nine seconds because this sits under
-    the first sentence anybody reads and a fast sweep would pull the eye off
-    the words it is painting.
-  */
-  .grad-sweep {
-    background-size: 220% 100%;
-    animation: grad-sweep 9s ease-in-out infinite;
-  }
 
   /*
     ONE GAP BETWEEN EVERY TWO BEATS OF THE LANDING PAGE, AND THE HERO IS ONE
@@ -2894,7 +2907,7 @@
     background: conic-gradient(from 120deg, var(--butter), var(--blush), var(--accent), var(--sky), var(--butter));
     filter: blur(56px);
     opacity: 0.55;
-    animation: night-drift 14s ease-in-out infinite alternate;
+    animation: night-drift 2.5s ease-in-out 0s 2 alternate;
   }
   .hero-word-card {
     position: relative;
@@ -3782,7 +3795,7 @@
      taller than the extension. */
   .reveal { animation: fade-up linear both; animation-timeline: view(block 0 -40%); animation-range: entry 0% entry 100%; }
   @supports not (animation-timeline: view()) { .reveal { animation: none; } }
-  .float { animation: float 6s ease-in-out infinite; }
+  .float { animation: float 4.8s ease-in-out 0s 1; }
   /*
     THE MASCOT BOBS; THE LETTERS HAVE CHARACTERS.
 
@@ -3826,8 +3839,10 @@
   .drift {
     rotate: var(--float-tilt, 0deg);
     transform-origin: var(--drift-origin, 50% 50%);
-    animation: var(--drift-name, letter-wander) var(--drift-time, 5.5s)
-      var(--drift-ease, ease-in-out) var(--drift-delay, 0s) infinite;
+    /* A count rather than `infinite`: the letters rest after five seconds
+       (WCAG 2.2.2), and `wanderRun` in lib/ux/letterMotion.ts works it out. */
+    animation: var(--drift-name, letter-wander) var(--drift-time, 4.6s)
+      var(--drift-ease, ease-in-out) var(--drift-delay, 0s) var(--drift-count, 1);
   }
 
   /*
@@ -4028,10 +4043,10 @@
   .cafe-steam { position: absolute; top: -0.9rem; left: 50%; display: flex; gap: 4px; transform: translateX(-50%); }
   .cafe-steam > span {
     width: 2.5px; height: 0.75rem; border-radius: 9999px; background: var(--ink);
-    animation: cafe-steam 2.4s ease-in-out infinite; opacity: 0;
+    animation: cafe-steam 2.4s ease-in-out 0s 1; opacity: 0;
   }
-  .cafe-steam > span:nth-child(2) { animation-delay: 0.6s; }
-  .cafe-steam > span:nth-child(3) { animation-delay: 1.2s; }
+  .cafe-steam > span:nth-child(2) { animation: cafe-steam 2.4s ease-in-out 0.6s 1; }
+  .cafe-steam > span:nth-child(3) { animation: cafe-steam 2.4s ease-in-out 1.2s 1; }
   @keyframes cafe-steam {
     0% { opacity: 0; transform: translateY(4px) scaleY(0.6); }
     40% { opacity: 0.8; }
@@ -4522,25 +4537,6 @@
     animation: word-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
     animation-delay: var(--w, 0ms);
   }
-  /*
-    THE LAST WORD ARRIVES, STICKS, AND THEN ITS GRADIENT PANS.
-
-    `sticks` wore `.word-in` and `.grad-sweep` together and each sets
-    `animation`, so whichever the build emitted later won: the arrival won
-    and the pan never ran, on the one word the headline is about. Three
-    animations on three different properties, listed once. The press in the
-    middle is `scale` alone, which `word-in` does not touch, so the word lands
-    from its arrival and then gets pushed down onto the page like a sticker,
-    which is what the word says. It waits for the arrival to finish and the
-    pan waits for the press, so nothing on the first sentence anybody reads
-    is doing two things at once.
-  */
-  .word-in.grad-sweep {
-    animation:
-      word-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) var(--w, 0ms) both,
-      word-stick 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--w, 0ms) + 0.7s) both,
-      grad-sweep 9s ease-in-out calc(var(--w, 0ms) + 1.2s) infinite;
-  }
   .anu-hop { animation: anu-hop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1); }
   .anu-say { animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both; transform-origin: 90% 100%; }
 
@@ -4567,6 +4563,8 @@
     raised gray so the panel still separates from the page, and turns them
     down to a hint: on a dark ground a glow at the light theme's strength
     reads as a smear rather than a lamp. Off for anybody who asks for less motion.
+    It drifts a fifth of its way at the same slow speed and holds there, so it
+    is still inside five seconds (WCAG 2.2.2, `lib/ux/rest.ts`).
   */
   .situation-stage {
     --lamp: 1;
@@ -4587,7 +4585,7 @@
       radial-gradient(26rem 20rem at 17% 17%, color-mix(in srgb, var(--stage-glow) calc(38% * var(--lamp)), transparent), transparent 70%),
       radial-gradient(24rem 18rem at 83% 83%, color-mix(in srgb, var(--sky) calc(28% * var(--lamp)), transparent), transparent 70%),
       radial-gradient(16rem 12rem at 63% 17%, color-mix(in srgb, var(--butter) calc(16% * var(--lamp)), transparent), transparent 70%);
-    animation: stage-lamps 24s ease-in-out infinite alternate;
+    animation: stage-lamps 24s ease-in-out 0s 0.2 both;
   }
   @keyframes stage-lamps {
     0% { transform: translate(-3%, -2%) rotate(-4deg); }
@@ -4797,14 +4795,6 @@
 @keyframes word-in {
   from { opacity: 0; transform: translateY(0.4em) rotate(-2deg); }
   to { opacity: 1; transform: translateY(0) rotate(0deg); }
-}
-
-/* A sticker pressed onto the page: a swell and a settle, size only. */
-@keyframes word-stick {
-  0% { scale: 1; }
-  40% { scale: 1.09; }
-  70% { scale: 0.97; }
-  100% { scale: 1; }
 }
 
 /* One hop with a squash on landing, the way the tilde already does it. */
@@ -5077,8 +5067,7 @@
    an SVG takes the view box as its box, so these origins are in its units.
    The press, the hover and the idle loop each have a layer of their own
    (components/brand.tsx), so a hand reaching for the mark never swaps out the
-   loop underneath: the loop is never restarted, and lib/ux/loopSync.ts keeps
-   it on one clock across pages and reloads. */
+   idle layer underneath or restarts it. */
 .mark-svg .mark-pop,
 .mark-svg .mark-giddy,
 .mark-svg .mark-body { transform-box: view-box; transform-origin: 50% 55%; }
@@ -5090,8 +5079,10 @@
 .mark-live .pixel-fly,
 .mark-live .pixel { transform-box: fill-box; transform-origin: 50% 50%; }
 
-/* Every idle loop waits for the page to settle (lib/ux/loopSync.ts says why). */
-:root[data-awake] .mark-live .mark-body { animation: mark-sway 6.8s ease-in-out infinite; }
+/* Every idle loop waits for the page to settle (lib/ux/awake.ts says why),
+   and rests within five seconds of starting (lib/ux/rest.ts): a whole number
+   of cycles, each ending where it began, so stopping is not a jump. */
+:root[data-awake] .mark-live .mark-body { animation: mark-sway 4.8s ease-in-out 0s 1; }
 /* The typing is two registered numbers rather than `opacity` and `transform`,
    so a hand on the mark can hold the tilde fully drawn without touching the
    loop: `--lit` goes to 1 under a hover or a press and each column shows the
@@ -5106,9 +5097,10 @@
   opacity: max(var(--pix-o), var(--lit));
   transform: scale(max(var(--pix-s), var(--lit)));
 }
-:root[data-awake] .mark-live.mark-happy .pixel-col { animation: pixel-type 3.4s ease-out calc(var(--c) * 0.09s) infinite; }
-:root[data-awake] .mark-live.mark-cheer .pixel-col { animation: pixel-hop 1.7s ease-in-out calc(var(--c) * 0.06s) infinite; }
-:root[data-awake] .mark-live.mark-thinking .pixel-col { animation: pixel-think 1.7s ease-in-out calc(var(--c) * 0.12s) infinite; }
+/* The tilde has ten columns, so the last starts at nine times the step. */
+:root[data-awake] .mark-live.mark-happy .pixel-col { animation: pixel-type 3.4s ease-out calc(var(--c) * 0.09s) 1; }
+:root[data-awake] .mark-live.mark-cheer .pixel-col { animation: pixel-hop 1.7s ease-in-out calc(var(--c) * 0.06s) 2; }
+:root[data-awake] .mark-live.mark-thinking .pixel-col { animation: pixel-think 1.7s ease-in-out calc(var(--c) * 0.12s) 2; }
 
 /* The hover. `data-play` is set by BrandLink rather than read off `:hover`,
    because `:hover` ends the moment the pointer leaves and takes the move with
@@ -5405,8 +5397,9 @@ a:focus-visible .wave-word::after {
   Anu's face (components/anu/AnuFace.tsx). She blinks, breathes, glances and
   her hair follows her head a beat late; a mood is an expression, not a
   speed. Every keyframe ends where it began, so the reduced-motion rule leaves
-  her still. Two clocks that do not divide into each other (5.3s blink, 3.9s
-  breath) are what stop her looking like a loop.
+  her still. She breathes once, blinks once and glances once when the page
+  settles or her mood changes, and then holds still: every one of these ends
+  inside five seconds of starting (WCAG 2.2.2, lib/ux/rest.ts).
 */
 .anu-face .anu-body { transform-box: view-box; transform-origin: 32px 58px; }
 .anu-face .anu-hair { transform-box: view-box; transform-origin: 32px 13px; }
@@ -5417,16 +5410,16 @@ a:focus-visible .wave-word::after {
   transform: translate(var(--watch-x, 0px), var(--watch-y, 0px));
   transition: transform 160ms ease-out;
 }
-:root[data-awake] .anu-live .anu-body { animation: anu-breathe 3.9s ease-in-out infinite; }
-:root[data-awake] .anu-live .anu-hair { animation: anu-hair 3.9s ease-in-out 0.18s infinite; }
-:root[data-awake] .anu-live .anu-eye { animation: anu-blink 5.3s ease-in-out infinite; }
-:root[data-awake] .anu-live.anu-happy .anu-look { animation: anu-glance 11.7s ease-in-out infinite; }
-:root[data-awake] .anu-live.anu-cheer .anu-body { animation: anu-bounce 1.5s cubic-bezier(0.34, 1.4, 0.64, 1) infinite; }
-:root[data-awake] .anu-live.anu-cheer .anu-hair { animation: anu-hair-hop 1.5s ease-in-out 0.08s infinite; }
-:root[data-awake] .anu-live.anu-cheer .anu-cheek { animation: anu-glow 1.5s ease-in-out infinite; }
-:root[data-awake] .anu-live.anu-thinking .anu-body { animation: anu-ponder 4.6s ease-in-out infinite; }
-:root[data-awake] .anu-live.anu-thinking .anu-hair { animation: anu-hair-think 4.6s ease-in-out infinite; }
-:root[data-awake] .anu-live.anu-talking .anu-talk { animation: anu-talk 0.46s ease-in-out infinite; }
+:root[data-awake] .anu-live .anu-body { animation: anu-breathe 3.9s ease-in-out 0s 1; }
+:root[data-awake] .anu-live .anu-hair { animation: anu-hair 3.9s ease-in-out 0.18s 1; }
+:root[data-awake] .anu-live .anu-eye { animation: anu-blink 4.8s ease-in-out 0s 1; }
+:root[data-awake] .anu-live.anu-happy .anu-look { animation: anu-glance 4.8s ease-in-out 0s 1; }
+:root[data-awake] .anu-live.anu-cheer .anu-body { animation: anu-bounce 1.5s cubic-bezier(0.34, 1.4, 0.64, 1) 0s 3; }
+:root[data-awake] .anu-live.anu-cheer .anu-hair { animation: anu-hair-hop 1.5s ease-in-out 0.08s 3; }
+:root[data-awake] .anu-live.anu-cheer .anu-cheek { animation: anu-glow 1.5s ease-in-out 0s 3; }
+:root[data-awake] .anu-live.anu-thinking .anu-body { animation: anu-ponder 4.6s ease-in-out 0s 1; }
+:root[data-awake] .anu-live.anu-thinking .anu-hair { animation: anu-hair-think 4.6s ease-in-out 0s 1; }
+:root[data-awake] .anu-live.anu-talking .anu-talk { animation: anu-talk 0.46s ease-in-out 0s 10; }
 .anu-still.anu-thinking .anu-hair { transform: rotate(-9deg); }
 /* A pointer over the button she sits in gets a wiggle and a flick of hair. */
 /* On layers of their own round the idle ones (components/anu/AnuFace.tsx), so
@@ -5494,11 +5487,6 @@ a:focus-visible .wave-word::after {
   0%, 100% { transform: rotate(0deg); }
   25% { transform: rotate(-7deg); }
   60% { transform: rotate(6deg); }
-}
-
-@keyframes grad-sweep {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
 }
 
 @keyframes flip-in {
@@ -5982,7 +5970,7 @@ a:focus-visible .wave-word::after {
 }
 .compare-play svg { margin-inline-start: 2px; }
 .compare-voices:not([data-playing="idle"]) .compare-play svg { margin-inline-start: 0; }
-.compare-voices:not([data-playing="idle"]) .compare-play { animation: compare-breathe 1.6s ease-in-out infinite; }
+.compare-voices:not([data-playing="idle"]) .compare-play { animation: compare-breathe 1.6s ease-in-out 0s 3; }
 .compare-body {
   display: flex;
   min-width: 0;
@@ -6132,12 +6120,12 @@ a:focus-visible .wave-word::after {
 /*
   A CALL IN PROGRESS (components/scene/SceneSpeech.tsx, CallScreen). While the
   other side speaks, a soft ring goes out from their face, which is how a phone
-  says who is talking; still, it is a ring drawn once, and the words under the
-  face say whose turn it is either way.
+  says who is talking; still, it is three rings and then still (lib/ux/rest.ts),
+  and the words under the face say whose turn it is either way.
 */
 .call-face { display: inline-flex; }
 .call-face[data-speaking="true"] {
-  animation: call-speaking 1.6s ease-out infinite;
+  animation: call-speaking 1.6s ease-out 0s 3;
 }
 @keyframes call-speaking {
   0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); }
@@ -6161,6 +6149,7 @@ a:focus-visible .wave-word::after {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent);
 }
+
 
 @layer utilities {
   /*

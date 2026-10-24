@@ -38,6 +38,12 @@
   instead of the letter and never beside it. `letterOwed` names the channel,
   the booking below is the same row either way, and the per-kind gap, the
   weekly ceiling and the unique key read it the same whichever way it went.
+
+  AND A THIRD, AHEAD OF BOTH (N-9, D13). A learner with the app registered on a
+  phone gets the same short form there, through Firebase Cloud Messaging, and
+  then not on a computer and not by email: the order is the scheduler's
+  (`channelFor`), and the booking, written before the send as for the other
+  two, is what makes "one channel a day" true on the database's side.
 */
 import { prisma } from "@/lib/db";
 import { reportError } from "@/lib/observability/report";
@@ -66,6 +72,9 @@ import { notificationFor } from "@/lib/push/notification";
 import { sendPush } from "@/lib/push/send";
 import { PUSH_TTL_SECONDS } from "@/lib/push/kinds";
 import { devicesFor, dropDevice } from "@/lib/progress/push";
+import { fcmConfig, sendNative, type FcmConfig } from "@/lib/push/fcm";
+import { nativeMessageFor } from "@/lib/push/native";
+import { dropNativeDevice, nativeDevicesFor } from "@/lib/progress/nativePush";
 
 /**
  * The most letters one invocation will send.
@@ -97,8 +106,10 @@ export interface RunReport {
    * `skipped` says why).
    */
   emailOff: string | null;
-  /** Of `sent`, how many went as a notification rather than a letter. */
+  /** Of `sent`, how many went as a notification to a computer rather than a letter. */
   pushed: number;
+  /** Of `sent`, how many went as a notification to a phone (N-9). */
+  phoned: number;
   byKind: Record<string, number>;
 }
 
@@ -108,6 +119,8 @@ export interface RunReport {
  */
 export interface RunDeps {
   readonly pushTransport?: typeof fetch;
+  /** Firebase's token address and its send address, both behind one stub (`lib/mailer/native.itest.ts`). */
+  readonly fcmTransport?: typeof fetch;
 }
 
 function letterFrom(
@@ -146,6 +159,7 @@ export async function runMailout(now = new Date(), deps: RunDeps = {}): Promise<
     skipped: null,
     emailOff: null,
     pushed: 0,
+    phoned: 0,
     byKind: {},
   };
 
@@ -154,6 +168,7 @@ export async function runMailout(now = new Date(), deps: RunDeps = {}): Promise<
   const origin = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   const admin = adminClient();
   const push = pushConfig();
+  const fcm = fcmConfig();
 
   /*
     Each of these is named separately rather than collapsed into one "not
@@ -174,7 +189,7 @@ export async function runMailout(now = new Date(), deps: RunDeps = {}): Promise<
     closed, every candidate read as having no address, and only the kinds with
     a short form can reach anybody.
   */
-  if (emailOff && !push) return { ...report, skipped: emailOff };
+  if (emailOff && !push && !fcm) return { ...report, skipped: emailOff };
   report.emailOff = emailOff;
   const mail = !emailOff && config && secret && origin && admin ? { config, secret, origin, admin } : null;
   // A letter's links are built on the canonical origin. A push-only deployment
@@ -280,9 +295,11 @@ export async function runMailout(now = new Date(), deps: RunDeps = {}): Promise<
       }
 
       let result: SendResult = { ok: false, reason: "no channel left to send by", badAddress: false };
-      if (decision.channel === "push" && push) {
+      if (decision.channel === "native" && fcm) {
+        result = await pushToPhones(ownerId, letter, siteOrigin, fcm, deps.fcmTransport, now);
+      } else if (decision.channel === "push" && push) {
         result = await pushToBrowsers(ownerId, letter, siteOrigin, push, deps.pushTransport);
-      } else if (mail && email) {
+      } else if (decision.channel === "email" && mail && email) {
         const chrome = chromeFor(ownerId, letter, mail.origin, mail.secret, operator.name);
         result = await send(
           {
@@ -299,6 +316,7 @@ export async function runMailout(now = new Date(), deps: RunDeps = {}): Promise<
       if (result.ok) {
         report.sent += 1;
         if (decision.channel === "push") report.pushed += 1;
+        if (decision.channel === "native") report.phoned += 1;
         report.byKind[letter.kind] = (report.byKind[letter.kind] ?? 0) + 1;
         /*
           AND THE HIGH-WATER MARK, WRITTEN HERE AND NOWHERE EARLIER.
@@ -419,4 +437,42 @@ async function pushToBrowsers(
   return delivered > 0
     ? { ok: true, messageId: null }
     : { ok: false, reason: `push: ${reasons.join("; ").slice(0, 300)}`, badAddress: false };
+}
+
+/**
+ * A letter's short form, sent to every phone the learner registered (N-9).
+ *
+ * `pushToBrowsers`' rule for a phone: one notification per phone, delivered to
+ * any one is the letter delivered, a token Firebase says is gone is taken out
+ * on the way past, and failing on all of them is a failed send with the slot
+ * already spent.
+ */
+async function pushToPhones(
+  ownerId: string,
+  letter: Letter,
+  origin: string,
+  config: FcmConfig,
+  transport: typeof fetch | undefined,
+  now: Date,
+): Promise<SendResult> {
+  const devices = await nativeDevicesFor(ownerId);
+  if (devices.length === 0) return { ok: false, reason: "no phone left to remind", badAddress: false };
+  const message = nativeMessageFor(letter, origin);
+  let delivered = 0;
+  const reasons: string[] = [];
+  for (const device of devices) {
+    const result = await sendNative(device, message, config, transport, now);
+    if (result.ok) {
+      delivered += 1;
+      continue;
+    }
+    reasons.push(result.reason);
+    if (result.gone) {
+      await dropNativeDevice(device.id).catch((error: unknown) =>
+        reportError(error, { at: "mailer/run: dropping a gone phone", ownerId }));
+    }
+  }
+  return delivered > 0
+    ? { ok: true, messageId: null }
+    : { ok: false, reason: `native: ${reasons.join("; ").slice(0, 300)}`, badAddress: false };
 }

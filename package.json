@@ -4,6 +4,7 @@
   "private": true,
   "imports": {
     "#i18n-tables": {
+      "react-native": "./lib/copy/i18n/tables.browser.ts",
       "browser": "./lib/copy/i18n/tables.browser.ts",
       "default": "./lib/copy/i18n/tables.ts"
     }
@@ -29,6 +30,8 @@
     "test:e2e": "node scripts/e2e.mjs && node scripts/test-modes.mjs && node scripts/test-calendar.mjs && node scripts/test-polish.mjs && node scripts/test-edit.mjs && node scripts/test-rename.mjs && node scripts/test-ekilex.mjs && node scripts/test-anu.mjs && node scripts/test-teaching.mjs && node scripts/test-assess.mjs && node scripts/test-exam.mjs && node scripts/test-suggestions.mjs && node scripts/test-push.mjs && node scripts/test-design.mjs && node scripts/test-mobile.mjs && node scripts/test-containment.mjs && node scripts/test-restore.mjs",
     "demo": "tsx scripts/demo-data.ts",
     "shoot": "node scripts/shoot.mjs",
+    "store:icons": "node scripts/build-store-icons.mjs",
+    "store:shots": "node scripts/shoot.mjs --store",
     "eval:anu": "tsx scripts/eval-tutor.ts",
     "build:ci": "prisma generate && next build",
     "check:secrets": "node scripts/check-secrets.mjs",
@@ -37,7 +40,8 @@
     "check:licences": "node scripts/check-licences.mjs",
     "check:audit": "node scripts/check-audit.mjs",
     "test:db": "vitest run --config vitest.integration.config.mts",
-    "test:browser": "node scripts/test-first-day.mjs && node scripts/test-hydration.mjs && node scripts/smoke-new.mjs && node scripts/smoke-interact.mjs && node scripts/smoke-offline.mjs && node scripts/test-assess.mjs && node scripts/test-scan.mjs && node scripts/test-flash.mjs && node scripts/test-workbook.mjs && node scripts/test-exam.mjs && node scripts/test-suggestions.mjs && node scripts/test-push.mjs && node scripts/test-decks.mjs && node scripts/test-hints.mjs && node scripts/test-scene.mjs && node scripts/test-chat.mjs && node scripts/test-module.mjs && node scripts/test-speech.mjs && node scripts/test-scene-speech.mjs && node scripts/test-speaking.mjs && node scripts/test-recordings.mjs && node scripts/test-voice-rounds.mjs && node scripts/test-error.mjs && node scripts/test-signin.mjs && node scripts/test-containment.mjs && node scripts/test-locales.mjs && node scripts/test-security.mjs && node scripts/test-today-fun.mjs && node scripts/a11y-check.mjs",
+    "check:show-ready": "node scripts/check-show-ready.mjs",
+    "test:browser": "node scripts/test-first-day.mjs && node scripts/test-hydration.mjs && node scripts/smoke-new.mjs && node scripts/smoke-interact.mjs && node scripts/smoke-offline.mjs && node scripts/test-assess.mjs && node scripts/test-scan.mjs && node scripts/test-flash.mjs && node scripts/test-workbook.mjs && node scripts/test-exam.mjs && node scripts/test-suggestions.mjs && node scripts/test-push.mjs && node scripts/test-decks.mjs && node scripts/test-hints.mjs && node scripts/test-scene.mjs && node scripts/test-chat.mjs && node scripts/test-module.mjs && node scripts/test-speech.mjs && node scripts/test-scene-speech.mjs && node scripts/test-speaking.mjs && node scripts/test-recordings.mjs && node scripts/test-voice-rounds.mjs && node scripts/test-error.mjs && node scripts/test-signin.mjs && node scripts/test-containment.mjs && node scripts/test-locales.mjs && node scripts/test-security.mjs && node scripts/test-api.mjs && node scripts/test-today-fun.mjs && node scripts/a11y-check.mjs",
     "test:invariants": "tsx scripts/test-invariants.ts",
     "audit:merge": "node scripts/audit-merge.mjs",
     "drill:restore": "node scripts/restore-drill.mjs",
@@ -49,6 +53,7 @@
     "course:ids": "tsx scripts/write-day-ids.ts",
     "audit:exceptions": "tsx scripts/audit-exceptions.ts",
     "test:mobile": "node scripts/test-mobile.mjs",
+    "test:engines": "node scripts/test-browsers.mjs --engine=webkit && node scripts/test-browsers.mjs --engine=firefox",
     "test:a11y": "node scripts/a11y-check.mjs",
     "evidence": "tsx scripts/measure-evidence.ts",
     "test:containment": "node scripts/test-containment.mjs",
@@ -112,13 +117,19 @@
     "audit:readable": "tsx scripts/audit-readable.ts",
     "audit:pins": "tsx scripts/audit-grammar-pins.ts",
     "check:authored": "tsx scripts/check-authored.ts",
+    "check:speech-golden": "tsx scripts/check-speech-golden.ts",
+    "store:labels": "tsx scripts/store-labels.ts",
+    "export:corrections": "tsx scripts/export-corrections.ts",
     "export:translations": "tsx scripts/export-translations.ts",
     "i18n:tables": "tsx scripts/build-locale-tables.ts",
     "asr:runtime": "node scripts/vendor-asr-runtime.mjs",
     "asr:fetch": "tsx scripts/fetch-asr-model.ts",
     "asr:fixtures": "tsx scripts/make-speech-fixtures.ts",
     "asr:golden": "tsx scripts/record-speech-golden.ts",
-    "review:lessons": "tsx scripts/lesson-review.ts"
+    "review:lessons": "tsx scripts/lesson-review.ts",
+    "api:schema": "tsx scripts/api-schema.ts",
+    "api:mock": "node scripts/api-mock.mjs",
+    "api:examples": "tsx scripts/api-examples.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.1",

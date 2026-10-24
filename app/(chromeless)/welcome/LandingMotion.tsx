@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAwake } from "@/components/motion/useAwake";
 import { PARTS } from "@/lib/copy/values";
 import { useT, useWholeLanguage } from "@/components/Locale";
 import { TrParts } from "@/components/TrParts";
 import { FitText } from "@/components/FitText";
 import { LETTER_SCATTER_EVENT } from "@/lib/ux/letterMotion";
+import { stepsWithin } from "@/lib/ux/rest";
 import type { DemoWord } from "./LandingDemo";
 
 /**
@@ -24,7 +25,14 @@ import type { DemoWord } from "./LandingDemo";
  * thing. It stops on hover, on focus inside the page's own card and for
  * anybody who asked for less movement, where it shows the first form and
  * holds it.
+ *
+ * And it rests on its own within five seconds of starting (WCAG 2.2.2,
+ * `lib/ux/rest.ts`): the turns that fit in that time, then the form it
+ * reached stays up. A press still deals the next one, because then somebody
+ * asked for it.
  */
+/** How often the card turns while it is turning by itself. */
+const TURN_MS = 1700;
 export function HeroWord({ words }: { words: DemoWord[] }) {
   const t = useT();
   // A press here can draw a line the page did not arrive with. See components/Locale.tsx.
@@ -51,14 +59,21 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
      (components/motion/useAwake.ts): until then it holds its first form,
      which is what it shows anybody who asked for less movement anyway. */
   const awake = useAwake();
+  /** Turns the card has taken by itself, which are spent once and never given back. */
+  const turned = useRef(0);
+  const [rested, setRested] = useState(false);
 
   useEffect(() => {
-    if (frames.length < 2 || held || !awake) return;
+    if (frames.length < 2 || held || !awake || rested) return;
     const still = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (still.matches) return;
-    const id = window.setInterval(() => setI((n) => (n + 1) % frames.length), 1700);
+    const id = window.setInterval(() => {
+      turned.current += 1;
+      setI((n) => (n + 1) % frames.length);
+      if (turned.current >= stepsWithin(TURN_MS)) setRested(true);
+    }, TURN_MS);
     return () => window.clearInterval(id);
-  }, [frames.length, held, taps, awake]);
+  }, [frames.length, held, taps, awake, rested]);
 
   /*
     A TAP DEALS THE NEXT FORM. The card was a picture of the machine and the
@@ -135,7 +150,7 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
           />
           <span key={`q-${i}`} className="hero-word-question">{frame.question}</span>
           <span className="hero-word-track">
-            <span key={`t-${i}`} className="hero-word-tick" data-held={held || !awake ? "" : undefined} />
+            <span key={`t-${i}`} className="hero-word-tick" data-held={held || !awake || rested ? "" : undefined} />
           </span>
         </span>
       </span>

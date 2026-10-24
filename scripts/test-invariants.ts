@@ -343,8 +343,8 @@ function chainTo(start: string, target: string): string | null {
  * which still named `lib/gamification/` a year after it was deleted.
  */
 const PURE_LAYERS = [
-  "assessment", "collections", "copy", "course", "curriculum", "email", "estonian", "evidence", "exam", "funding", "games",
-  "learn", "offline", "push", "questions", "random", "readiness", "research", "review", "scan", "scenes", "security",
+  "api", "assessment", "collections", "copy", "course", "curriculum", "email", "estonian", "evidence", "exam", "funding", "games",
+  "learn", "links", "offline", "push", "questions", "random", "readiness", "research", "review", "scan", "scenes", "security",
   "speech", "stats", "time", "ux",
 ] as const;
 
@@ -1084,7 +1084,8 @@ check("the mock paper's minutes and marks are the ones the exam doc cites", () =
   the stretch would be a second answer to how slow is done.
 */
 check("every rate is the one clip stretched in one place, and every clip is prepared before it is kept", () => {
-  const route = code("app/api/tts/route.ts");
+  // The speech route's body, which both of its doors call (lib/progress/speakClip.ts, ADR-029).
+  const route = code("app/api/tts/route.ts") + "\n" + code("lib/progress/speakClip.ts");
   assert.doesNotMatch(route, /\bspeed\b/, "the speech route is asking the model to slow down again");
   assert.match(route, /clipForStore\(raw\)/, "the route stopped preparing what the service sent");
   assert.match(code("lib/audio/wav.ts"), /export function clipForStore[\s\S]*?prepareClip\(bytes\)/,
@@ -1152,7 +1153,8 @@ check("every rate is the one clip stretched in one place, and every clip is prep
   and nothing had ever held them to it.
 */
 check("a word is asked for finished, in one place, and the two clip versions agree", () => {
-  const route = code("app/api/tts/route.ts");
+  // The speech route's body, which both of its doors call (lib/progress/speakClip.ts, ADR-029).
+  const route = code("lib/progress/speakClip.ts");
   assert.match(
     route,
     /text = spokenText\(clip\(body\.text\.trim\(\), MAX_CHARS\)\)/,
@@ -1190,7 +1192,7 @@ check("a word is asked for finished, in one place, and the two clip versions agr
     .sort();
   assert.deepEqual(
     callers,
-    ["app/api/tts/route.ts"],
+    ["lib/progress/speakClip.ts"],
     "a second place decides what the speech service is asked to read",
   );
 
@@ -1803,8 +1805,9 @@ check("a word borrows sentences under one rule, and every builder is handed them
   );
 
   const handed: Record<string, RegExp> = {
-    "lib/srs/deck.ts": /borrowedSentences\(\)/,
-    "app/actions.ts": /borrowedSentences\(\)/,
+    // Both the batched builder and `addCardsFor`, which moved here out of
+    // app/actions.ts so `POST /api/v1/deck` shares it (ADR-029).
+    "lib/srs/deck.ts": /export async function addCardsFor[\s\S]*?borrowedSentences\(\)/,
     "app/(app)/review/flashcards/page.tsx": /borrowedSentences\(\)/,
     "prisma/repair.ts": /borrowSentences\(/,
     "scripts/audit-decks.ts": /borrowSentences\(/,
@@ -1842,13 +1845,15 @@ check("every builder that can make a production card is handed the words sharing
     const src = code(file);
     const calls = [...src.matchAll(/\bgenerateCards\(/g)];
     if (calls.length === 0) continue;
-    const canProduce = calls.some((m) => {
+    const producing = calls.filter((m) => {
       const args = src.slice(m.index!, m.index! + 400);
       const literal = args.match(/,\s*\[([^\]]*)\]\s*\)/);
       return !literal || /PRODUCTION/.test(literal[1]!);
     });
-    if (!canProduce) continue;
-    callers.push(file);
+    if (producing.length === 0) continue;
+    // Counted per call rather than per file: the dictionary's Add moved into
+    // lib/srs/deck.ts beside the bulk builder, so two builders now share a file.
+    for (let i = 0; i < producing.length; i++) callers.push(file);
     assert.match(
       src,
       /alsoAccepted/,
@@ -1989,6 +1994,10 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     // no list for a rank to order.
     "lib/progress/sayings.ts": "looks the named sentences up to read their English back, picks none",
     "lib/progress/quest.ts": "reads back the English of the card's own sentence, picks none",
+    // `translateExample` finds the one sentence a screen asked about by its
+    // text. The card builder that used to share this file is `addCardsFor` in
+    // lib/srs/deck.ts now, which is handed the rank there.
+    "app/actions.ts": "looks one named sentence up to translate it, picks none",
     // Asks which cases a word can build a card for at all, as a set. No
     // sentence it could pick reaches a screen, only whether one exists.
     "lib/srs/retire.ts": "asks which cases a word can build, as a set, and picks no sentence",
@@ -3034,16 +3043,18 @@ check("a review is only ever deleted by something the learner asked for", () => 
   const deleters = ALL
     .filter((f) => !/\.(test|itest)\.tsx?$/.test(f))
     .filter((f) => /review\.delete|\bDELETE\s+FROM\s+"Review"|\bTRUNCATE\b[^;`]*"Review"/i.test(read(f)));
-  assert.deepEqual(deleters, ["app/actions.ts"], "a review is deleted outside the paths that may");
+  // The erasure is `deleteAccountFor` (lib/account/erase.ts), behind Settings and DELETE /api/v1/me.
+  assert.deepEqual(deleters, ["lib/account/erase.ts"], "a review is deleted outside the paths that may");
 
   const actions = code("app/actions.ts");
   assert.match(
-    actions,
-    // Coerced first, because the argument is JSON off the wire: see "a malformed
-    // argument to a server action is refused, not thrown or stored".
-    /!isConfirmed\(text\(confirmation\), "delete"\)/,
+    code("lib/account/erase.ts"),
+    /!isConfirmed\(confirmation, "delete"\)/,
     "account deletion no longer asks the learner to confirm",
   );
+  // Coerced first at the web door, because the argument is JSON off the wire:
+  // see "a malformed argument to a server action is refused, not thrown or stored".
+  assert.match(actions, /deleteAccountFor\(ownerId, text\(confirmation\)\)/, "Settings hands the erasure a confirmation it never coerced");
   /* The word is asked for in the reader's own language and the English is
      still accepted; what may not happen is the check accepting anything. */
   assert.match(
@@ -3846,8 +3857,13 @@ check("the routes that spend somebody else's quota are capped", () => {
     "app/api/tutor/route.ts",
     "app/api/tts/route.ts",
     "app/api/share/route.tsx",
-    "app/api/export/route.ts",
+    // The export's allowance is `exportAllowance`, which both of its doors ask (N-8).
+    "lib/account/export.ts",
     "app/api/scan/route.ts",
+    // And their doors for a phone, which share the body and the key (D5).
+    "app/api/v1/tutor/route.ts",
+    "app/api/v1/tts/route.ts",
+    "app/api/v1/scan/route.ts",
   ]) {
     assert.match(
       code(route),
@@ -3873,8 +3889,9 @@ check("the routes the spend ledger does not price are capped where every instanc
   */
   for (const route of [
     "app/api/tts/route.ts",
+    "app/api/v1/tts/route.ts",
     "app/api/share/route.tsx",
-    "app/api/export/route.ts",
+    "lib/account/export.ts",
     "app/api/restore/route.ts",
   ]) {
     assert.match(
@@ -3990,7 +4007,7 @@ check("a cap is charged to the learner, never to their address alone", () => {
   */
   // The four CLAUDE.md names, read as code: this read one of them, raw, so the
   // word surviving in a comment was enough.
-  for (const file of ["app/api/tutor/route.ts", "app/api/tts/route.ts", "app/api/share/route.tsx", "app/api/export/route.ts"]) {
+  for (const file of ["app/api/tutor/route.ts", "app/api/tts/route.ts", "app/api/share/route.tsx", "lib/account/export.ts", "app/api/v1/tutor/route.ts", "app/api/v1/tts/route.ts", "app/api/v1/scan/route.ts"]) {
     assert.match(code(file), /bucketForOwner\(|bucketForRequest\(/, `${file}'s cap is no longer per learner`);
   }
 });
@@ -4064,8 +4081,12 @@ check("a word read off a photograph reaches a card only through the dictionary",
     confident match (`matchEstonianForm`, at `VOUCHED_SCORE`) carries a
     lexeme id. Nothing else may mint one.
   */
-  const route = code("app/api/scan/route.ts");
+  // The scan route's body, which both of its doors call (lib/progress/scanRead.ts, ADR-029).
+  const route = code("lib/progress/scanRead.ts");
   assert.match(route, /resolveScannedItems/, "the scan route no longer consults the dictionary");
+  for (const door of ["app/api/scan/route.ts", "app/api/v1/scan/route.ts"]) {
+    assert.match(code(door), /\breadScan\(/, `${door} reads a photograph without the shared body that hands it to the dictionary`);
+  }
 
   const resolver = code("lib/dict/resolveScan.ts");
   assert.match(resolver, /matchEstonianForm\(/, "the resolver stopped using the vouched matcher");
@@ -4082,7 +4103,8 @@ check("a word read off a photograph reaches a card only through the dictionary",
     A page's own entries are principal-part-free by construction, which is why
     they can only ever produce a recognition and a production card.
   */
-  const saveScan = between(code("app/actions.ts"), "export async function saveScan");
+  // The save's body, which the action and `POST /api/v1/scans` both call (lib/progress/scans.ts).
+  const saveScan = between(code("lib/progress/scans.ts"), "export async function saveScanFor");
   assert.equal(
     /prisma\.form\.(create|createMany|upsert|update)/.test(saveScan),
     false,
@@ -4096,7 +4118,7 @@ check("a word read off a photograph reaches a card only through the dictionary",
     could point any word at any row. Every dictionary field is asked again
     before anything reads an id off a row.
   */
-  const body = between(code("app/actions.ts"), "export async function saveScan");
+  const body = between(code("lib/progress/scans.ts"), "export async function saveScanFor");
   const vouched = body.indexOf("vouchScanItems(");
   const firstId = body.indexOf(".lexemeId");
   assert.ok(vouched > 0 && firstId > vouched,
@@ -4143,7 +4165,8 @@ check("every path that adds cards reads and writes under one lock", () => {
   const lockedPaths = [
     {
       what: "addCardsFor",
-      body: /async function addCardsFor\(([\s\S]*?)\n\}/.exec(code("app/actions.ts"))?.[1] ?? "",
+      // In lib/srs/deck.ts beside the batched builder, which `POST /api/v1/deck` and the actions both call.
+      body: /export async function addCardsFor\(([\s\S]*?)\n\}/.exec(code("lib/srs/deck.ts"))?.[1] ?? "",
       read: "card.findMany",
       write: "card.createMany",
     },
@@ -4795,8 +4818,10 @@ check("the photograph itself is never stored", () => {
   */
   const WRITE = /\.(\w+)\.(?:create|createMany|update|updateMany|upsert)\s*\(|\$executeRaw[\s\S]{0,120}?(?:INSERT\s+INTO|UPDATE)\s+"?(\w+)/g;
   const MAY_WRITE = new Set(["usageEvent", "UsageEvent", "rateLimit", "RateLimit", "errorEvent", "ErrorEvent"]);
-  const reached = new Set(["app/api/scan/route.ts"]);
-  const queue = ["app/api/scan/route.ts"];
+  // Both doors onto the photograph: the web route and POST /api/v1/scan, which
+  // share `readScan`. Saving the word list is a separate route on purpose.
+  const reached = new Set(["app/api/scan/route.ts", "app/api/v1/scan/route.ts"]);
+  const queue = ["app/api/scan/route.ts", "app/api/v1/scan/route.ts"];
   const writes: string[] = [];
   while (queue.length > 0) {
     const file = queue.shift()!;
@@ -4960,9 +4985,12 @@ check("the chat says which model actually replied", () => {
     configured first may not have written a word of what is on screen. A
     screen naming the wrong model is worse than one naming none.
   */
-  const route = code("app/api/tutor/route.ts");
-  assert.match(route, /x-model-provider/, "the reply no longer carries which model wrote it");
-  assert.match(route, /open\.config/, "the header names something other than the run that answered");
+  // Each door names the model in its headers; the body hands over the run that answered (lib/progress/askAnu.ts).
+  for (const door of ["app/api/tutor/route.ts", "app/api/v1/tutor/route.ts"]) {
+    assert.match(code(door), /x-model-provider/, `${door}: the reply no longer carries which model wrote it`);
+  }
+  const route = code("lib/progress/askAnu.ts");
+  assert.match(route, /provider: open\.config\.label, model: open\.config\.model/, "the header names something other than the run that answered");
   // Shared by the full `/tutor` page and the floating Anu button, so both
   // read it from the one place that actually asks the response for it.
   const chat = code("components/anu/useAnuChat.ts");
@@ -4970,7 +4998,7 @@ check("the chat says which model actually replied", () => {
 });
 
 check("Anu's prose is cleaned on its way to the learner", () => {
-  assert.match(code("app/api/tutor/route.ts"), /new ProseStream\(/, "the humanize pass is gone");
+  assert.match(code("lib/progress/askAnu.ts"), /new ProseStream\(/, "the humanize pass is gone");
 });
 
 check("Anu's reply is drawn as typography, shown once finished, and the marker lines have one shape", () => {
@@ -5034,10 +5062,11 @@ check("Anu's free chat prose is checked against the dictionary, not just her gra
     exactly this kind of question, which is the whole argument for a check
     here rather than a stronger request in the prompt.
   */
-  const route = code("app/api/tutor/route.ts");
+  // The chat route's body, which both of its doors call (lib/progress/askAnu.ts, ADR-029).
+  const route = code("lib/progress/askAnu.ts");
   assert.match(route, /chatEstonianTokens\(/, "the chat route no longer extracts candidate Estonian tokens");
   assert.match(route, /matchEstonianForm\(/, "the chat route no longer checks tokens against the dictionary");
-  assert.match(code("app/api/tutor/route.ts"), /UNVERIFIED:/, "the chat route no longer flags what it could not confirm");
+  assert.match(route, /UNVERIFIED:/, "the chat route no longer flags what it could not confirm");
 
   // Shared by the full `/tutor` page and the floating Anu button, so both
   // render the flag the same way.
@@ -6013,7 +6042,8 @@ check("the voice is one table, and everything that speaks reads from it", () => 
     weakest case and the open unit come from `learnerContextFor` now, in a
     block sent after the static prompt so the cached part stays cached.
   */
-  const tutorRoute = code("app/api/tutor/route.ts");
+  // The chat's body, which both of its doors call (lib/progress/askAnu.ts), and the two doors themselves.
+  const tutorRoute = code("lib/progress/askAnu.ts") + "\n" + code("app/api/tutor/route.ts") + "\n" + code("app/api/v1/tutor/route.ts");
   /*
     Read as any way a level comes off the request, not only `body.level`: a
     destructure (`const { messages, level } = await request.json()`) or an
@@ -7331,11 +7361,12 @@ check("a sat check is never edited, and is deleted only on request", () => {
     const hit = /(prisma|tx)\.assessment\.(update|updateMany|upsert)/.exec(read(file));
     assert.equal(hit, null, `${file} rewrites a stored assessment`);
   }
+  // The erasure's body is `deleteAccountFor` (lib/account/erase.ts), behind both doors since N-8.
   const deleters = product.filter((f) => /(prisma|tx)\.assessment\.delete/.test(read(f)));
-  assert.deepEqual(deleters, ["app/actions.ts"], "a level check is deleted outside account deletion");
+  assert.deepEqual(deleters, ["lib/account/erase.ts"], "a level check is deleted outside account deletion");
   assert.match(
-    code("app/actions.ts"),
-    /deleteMyAccount[\s\S]*?tx\.assessment\.deleteMany/,
+    code("lib/account/erase.ts"),
+    /deleteAccountFor[\s\S]*?tx\.assessment\.deleteMany/,
     "account deletion no longer removes the level checks it promises to",
   );
 });
@@ -7887,16 +7918,22 @@ check("a deletion that leaves something behind says so", () => {
     left rather than shown a success. A button that reports a deletion it did
     not entirely do is worse than one that refuses.
   */
-  const actions = code("app/actions.ts");
+  // The erasure's body is `deleteAccountFor`, which both doors call (N-8).
+  const erase = code("lib/account/erase.ts");
   assert.match(
-    actions,
-    /deleteMyAccount[\s\S]*?eraseAuthIdentity/,
+    erase,
+    /deleteAccountFor[\s\S]*?eraseAuthIdentity/,
     "account deletion no longer erases the sign-in identity",
   );
   assert.match(
-    actions,
-    /deleteMyAccount[\s\S]*?remainingIdentityNote/,
+    erase,
+    /deleteAccountFor[\s\S]*?remainingIdentityNote/,
     "account deletion no longer reports what it could not reach",
+  );
+  assert.match(
+    between(code("app/actions.ts"), "export async function deleteMyAccount"),
+    /deleteAccountFor\(ownerId[\s\S]*?result\.remaining/,
+    "the Settings door no longer hands back what the erasure left behind",
   );
   const danger = code("app/(app)/settings/DangerZone.tsx");
   assert.match(danger, /result\.remaining/, "the screen ignores what the deletion left behind");
@@ -8518,8 +8555,9 @@ check("the security doc's per-instance residual names no route the shared counte
   assert.ok(residual, "docs/27-security.md has no per-instance residual to read");
   const SHARED: Record<string, string> = {
     speech: "app/api/tts/route.ts",
+    "speech for a phone": "app/api/v1/tts/route.ts",
     "share card": "app/api/share/route.tsx",
-    export: "app/api/export/route.ts",
+    export: "lib/account/export.ts",
     restore: "app/api/restore/route.ts",
   };
   for (const [noun, file] of Object.entries(SHARED)) {
@@ -8576,7 +8614,12 @@ check("an action that reaches a bulk builder, a paper rebuild or an append-only 
   const source = code("app/actions.ts");
   // `recordAttempt` and `saveResult` append to `ExamAttempt` and `Assessment`,
   // which nothing repairs, so a loop of them is permanent rather than slow.
-  const BULK = ["addPlanToDeck", "addUnitsToDeck", "examPaperFor", "recordAttempt", "saveResult"];
+  // `finishLessonFor` is `addPlanToDeck` behind a lesson, moved out of the action
+  // so the v1 route and the action share it (ADR-029); reaching it is reaching that.
+  // `saveScanFor` and `addScanToDeckFor` are the scanner's two card loops,
+  // moved out of this file into lib/progress/scans.ts so POST /api/v1/scans
+  // shares them (ADR-029 D2); named here so both doors are still asked.
+  const BULK = ["addPlanToDeck", "addUnitsToDeck", "examPaperFor", "recordAttempt", "saveResult", "finishLessonFor", "saveScanFor", "addScanToDeckFor"];
 
   const bodies = source.split(/\n(?=export (?:async )?function )/).slice(1);
   const reaching: string[] = [];
@@ -8602,6 +8645,17 @@ check("an action that reaches a bulk builder, a paper rebuild or an append-only 
   // version of this check found seven of them, because a loop body with a
   // brace in it ended the match before the write.
   assert.ok(reaching.length >= 9, `expected the bulk callers, found ${reaching.length}: ${reaching.join(", ")}`);
+
+  /*
+    AND THE SAME RULE THROUGH THE OTHER DOOR. A v1 route that reaches a bulk
+    builder takes the allowance the action it shares a body with takes (D5),
+    or a native client could press finish as fast as it liked.
+  */
+  const v1 = APP.filter((file) => /[\\/]api[\\/]v1[\\/].*route\.ts$/.test(file));
+  const v1Bulk = v1.filter((file) => BULK.some((helper) => new RegExp(`\\b${helper}\\(`).test(code(file))));
+  const v1Open = v1Bulk.filter((file) => !/\bthrottleAction\(/.test(code(file)));
+  assert.deepEqual(v1Open, [], `these v1 routes reach a bulk card build with no allowance in front of it: ${v1Open.join(", ")}`);
+  assert.ok(v1Bulk.length >= 1, "no v1 route reaches a bulk builder, so this half of the check stopped looking");
 });
 
 check("every dead end in the app offers a way to report it", () => {
@@ -9217,7 +9271,7 @@ check("the scene's word list is cached, and a run keeps one voice", () => {
     the list's cache entry every time.
   */
   assert.match(
-    code("app/api/scene/route.ts"),
+    code("lib/progress/sceneRequest.ts"),
     /composeSystemLayers\(\{[\s\S]{0,240}?words: input\.words,?\s*\}\)/,
     "the scene route stopped putting the list behind the cache breakpoint",
   );
@@ -9231,7 +9285,7 @@ check("the scene's word list is cached, and a run keeps one voice", () => {
     "the route decides for itself whether to compose instead of reading the run's own choice",
   );
   assert.match(
-    code("app/actions.ts"), /lines: sceneProviders\(\)\.length > 0 \? "composed" : "scripted"/,
+    code("lib/progress/sceneRuns.ts"), /lines: sceneProviders\(\)\.length > 0 \? "composed" : "scripted"/,
     "the run no longer settles composed-or-scripted when it opens",
   );
 });
@@ -9347,15 +9401,15 @@ check("the other side talks at the run's band, and every composer says which ban
   assert.ok(specFiles.length >= 15, `only ${specFiles.length} scene files under lib/scenes/specs, so the band check reads too little`);
   for (const file of specFiles) assert.doesNotMatch(code(file), /^\s*level: "/m, `${file} names a band`);
   assert.match(
-    code("app/actions.ts"), /level: pitched,/,
-    "beginScene stopped opening the run at the band the learner chose",
+    code("lib/progress/sceneRuns.ts"), /level: pitched,/,
+    "beginSceneFor stopped opening the run at the band the learner chose",
   );
   assert.match(
     code("components/scene/SceneSession.tsx"), /beginScene\(scene\.id, difficulty, level\)/,
     "the briefing no longer sends the band the learner picked",
   );
   assert.match(
-    code("app/api/scene/route.ts"), /includes\(row!\.level\)/,
+    code("lib/progress/sceneRequest.ts"), /includes\(row!\.level\)/,
     "the scene route stopped reading the band the run was opened at",
   );
   /*
@@ -9367,7 +9421,7 @@ check("the other side talks at the run's band, and every composer says which ban
     one deployment that has no model to fall back on.
   */
   assert.match(
-    code("app/api/scene/route.ts"), /sceneContext\(scene(?:\.id)?, level\)/,
+    code("lib/progress/sceneRequest.ts"), /sceneContext\(scene(?:\.id)?, level\)/,
     "the scene route builds its context for no band, so the bank's pitched lines are never read first",
   );
   /*
@@ -9497,7 +9551,7 @@ check("nothing reaches a paid provider without going through the ledger", () => 
     outcome rather than an error, and a booking left standing there rations a
     learner over a line nobody was shown.
   */
-  const scene = code("app/api/scene/route.ts");
+  const scene = code("lib/progress/sceneRequest.ts");
   assert.match(
     scene, /releaseReservation\(/,
     "the scene books a turn it may not compose and never hands the booking back",
@@ -9510,7 +9564,7 @@ check("nothing reaches a paid provider without going through the ledger", () => 
   */
   for (const call of ["recordUsage", "releaseReservation"]) {
     assert.match(
-      code("app/api/scene/route.ts"),
+      code("lib/progress/sceneRequest.ts"),
       new RegExp(`after\\(\\(\\) => ${call}\\(`),
       `the scene leaves ${call} to a promise nobody is holding`,
     );
@@ -9529,7 +9583,7 @@ check("nothing reaches a paid provider without going through the ledger", () => 
     never released. Asserted on the route, because the fault was in how the
     route wired an ordinary helper, and on every settlement and release there.
   */
-  const sceneCode = code("app/api/scene/route.ts");
+  const sceneCode = code("lib/progress/sceneRequest.ts");
   assert.match(sceneCode, /turnBooking\(/, "the scene settles a turn's several model calls against one booking without `turnBooking`, so each takes the whole reserve off again");
   const settlements = [...sceneCode.matchAll(/recordUsage\(\{[\s\S]*?\}\)/g)].map((m) => m[0]);
   assert.ok(settlements.length >= 3, `only ${settlements.length} settlements found in the scene route, so this check stopped looking`);
@@ -9572,7 +9626,8 @@ check("an export holds every category the account holds", () => {
     carry a written reason, so appending a model name is no longer a way to
     make this pass. UsageEvent is the one that earns it.
   */
-  const route = code("app/api/export/route.ts");
+  // The backup is `backupFor` (lib/account/export.ts), which both export doors call (N-8).
+  const route = code("lib/account/export.ts");
   for (const model of ownerScopedModels()) {
     if (Object.hasOwn(NOT_EXPORTED, model)) continue;
     assert.match(
@@ -9617,7 +9672,8 @@ check("erasure has no exemptions at all", () => {
     a transaction that named ten tables. So the one category of long-form
     writing in the whole app survived its author asking for it to be gone.
   */
-  const action = between(code("app/actions.ts"), "export async function deleteMyAccount");
+  // Since N-8 the erasure is `deleteAccountFor`, behind the Settings door and DELETE /api/v1/me.
+  const action = between(code("lib/account/erase.ts"), "export async function deleteAccountFor");
   for (const model of ownerScopedModels()) {
     assert.match(
       action,
@@ -9910,9 +9966,9 @@ check("the dictionary under a sentence is the learner's to refuse", () => {
     looks anyway is the fault this is for.
   */
   const producers = [
-    ["app/(app)/review/cards.ts", "a first meeting in review"],
+    ["lib/progress/reviewCards.ts", "a first meeting in review"],
     ["lib/progress/learn.ts", "a word on the learn ladder"],
-    ["app/api/scene/route.ts", "a line said in a conversation"],
+    ["lib/progress/sceneRequest.ts", "a line said in a conversation"],
   ] as const;
   for (const [file, what] of producers) {
     const producer = code(file);
@@ -9929,7 +9985,7 @@ check("the dictionary under a sentence is the learner's to refuse", () => {
       and above the `glossSentences` that draws the other side's line, while
       the turn's own reading further down the file is untouched.
     */
-    const route = code("app/api/scene/route.ts");
+    const route = code("lib/progress/sceneRequest.ts");
     const refusal = route.indexOf("SETTING_KEYS.wordGloss");
     const reading = route.indexOf('glossSentences([{ et: text, form: null }])');
     assert.ok(refusal > 0 && reading > refusal, "the scene route no longer refuses before it looks");
@@ -10035,7 +10091,8 @@ check("a response built out of one learner's own rows is never cacheable", () =>
   };
 
   const routes = ALL.filter((f) => /^app\/api\/.*route\.tsx?$/.test(f));
-  const owned = routes.filter((f) => /requireUserId\(/.test(code(f)));
+  // A v1 route resolves its owner from a bearer token (ADR-029) and is one learner's rows all the same.
+  const owned = routes.filter((f) => /requireUserId\(|requireBearerUser\(/.test(code(f)));
   assert.ok(owned.length >= 9, `only ${owned.length} route handlers resolve an owner, the sweep stopped finding them`);
 
   let responses = 0;
@@ -10085,6 +10142,14 @@ check("a call is booked only once the request is worth answering", () => {
   const paid = ALL.filter((f) => /^app\/api\/.*route\.tsx?$/.test(f))
     .map((file) => ({ file, src: code(file) }))
     .filter(({ src }) => src.includes("authoriseCall("));
+  // The tutor, the scanner and speech moved their bodies into lib/progress so a
+  // web door and an /api/v1 door share one (ADR-029 D2); the rule follows the
+  // body, where a refusal of the request is `refuse("invalid", 400, ...)`.
+  for (const file of ["lib/progress/askAnu.ts", "lib/progress/scanRead.ts", "lib/progress/speakClip.ts"]) {
+    const src = code(file);
+    assert.ok(src.includes("authoriseCall("), `${file} no longer books its call, so this list is stale`);
+    paid.push({ file, src: src.replace(/refuse\("invalid",\s*(\d{3})/g, "status: $1") });
+  }
   assert.ok(paid.length >= 6, `expected the routes that spend on a model or a service, found ${paid.length}`);
   for (const { file, src } of paid) {
     const after = src.slice(src.indexOf("authoriseCall("));
@@ -10094,7 +10159,7 @@ check("a call is booked only once the request is worth answering", () => {
       `${file} refuses a request after booking a call for it, so the booking stands against the budget`,
       );
       const before = src.slice(0, src.indexOf("authoriseCall("));
-      assert.match(before, /safeParse\(|\.json\(\)|formData\(\)/, `${file} books a call before it has read the request`);
+      assert.match(before, /safeParse\(|\.json\(\)|formData\(\)|typeof input/, `${file} books a call before it has read the request`);
       assert.match(
         before, /status:\s*400/,
         `${file} books a call before it could have refused a malformed request`,
@@ -10115,7 +10180,7 @@ check("a card never answers the card before it", () => {
     order a lesson teaches them, because a first meeting is a teaching screen
     rather than a retrieval.
   */
-  const review = (code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts"));
+  const review = (code("app/(app)/review/page.tsx") + "\n" + code("lib/progress/dailyQueue.ts"));
   assert.match(review, /spaceSiblings\(dueWithin,/, "the review queue no longer spaces a word's cards apart");
   assert.match(review, /inTeachingOrder\(fresh\)/, "new cards no longer arrive in teaching order");
 
@@ -10270,7 +10335,7 @@ check("a word the learner went and got is reachable, and the commonest lead", ()
   // scheduler: it renders the shared session like every other round (ADR-016).
   assert.match(round, /<ReviewSession/, "the lookups round grew a card runner of its own");
 
-  const review = (code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts"));
+  const review = (code("app/(app)/review/page.tsx") + "\n" + code("lib/progress/dailyQueue.ts"));
   assert.match(
     review, /aroundFirst\(commonFirst\(/,
     "the new-card trickle no longer puts the commonest words of their kind first, "
@@ -10472,7 +10537,10 @@ check("one upstream request per thing, however many callers ask at once", () => 
     ["lib/cache/singleFlight.ts"],
     "somebody wrote a second in-flight map instead of using lib/cache/singleFlight.ts",
   );
-  for (const file of ["app/api/tts/route.ts", "lib/dict/lookup.ts"]) {
+  // The speech route's body, which both of its doors call (ADR-029), and both doors call it.
+  assert.match(code("app/api/tts/route.ts"), /\bspeakClip\(/, "the web's speech route stopped going through the shared body");
+  assert.match(code("app/api/v1/tts/route.ts"), /\bspeakClip\(/, "the v1 speech route stopped going through the shared body");
+  for (const file of ["lib/progress/speakClip.ts", "lib/dict/lookup.ts"]) {
     const source = read(file);
     // Both halves, because the import path alone is not evidence of a call:
     // the first version of this check matched the string "singleFlight" inside
@@ -11728,19 +11796,29 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
     // The seed's write, split out of seed.ts so a test can drive it, and that
     // test, whose fixtures write null into both: no model is upstream of either.
     join("prisma", "seedWrite.itest.ts"),
-    // Read here: the choice of language, and the four screens that print it.
+    // Read here: the choice of language, and the screens that print it. The
+    // dictionary's own screen reads the entry's shape off
+    // lib/progress/dictionaryEntry.ts and hands it to `meaningShown` without
+    // naming either column, so it is no longer on this list.
     join("lib", "collections", "glossLanguage.ts"),
     join("lib", "collections", "glossLanguage.test.ts"),
-    join("app", "(app)", "dictionary", "page.tsx"),
-    join("app", "(app)", "dictionary", "DictionaryClient.tsx"),
     /*
-      The review screen reads them in `cards.ts` rather than in `page.tsx` now:
-      two routes render that session (the daily loop and the Flash cards round)
-      and a second copy of the select is two selects that drift apart. The page
+      The entry the dictionary page and `GET /api/v1/words/{id}` both read
+      (ADR-029), which selects the row whole and hands the two columns on as
+      they are, and the contract that publishes them to a phone. Neither writes
+      either column, and neither reaches a model.
+    */
+    join("lib", "progress", "dictionaryEntry.ts"),
+    join("lib", "api", "contract.ts"),
+    /*
+      The review screen reads them in `lib/progress/reviewCards.ts` rather than
+      in `page.tsx`: several routes render that session (the daily loop, the
+      Flash cards round and the v1 review route a native app reads) and a
+      second copy of the select is two selects that drift apart. The page
       itself no longer names the columns, so its entry is gone rather than left
       as a parking space.
     */
-    join("app", "(app)", "review", "cards.ts"),
+    join("lib", "progress", "reviewCards.ts"),
     /*
       And the Learn ladder reads them for the same screen the review session
       does. A first meeting is the one moment where a meaning in the language
@@ -11758,7 +11836,7 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
       the query that already loads the word and hands them to `meaningShown`
       or `meaningsShown` in lib/collections/glossLanguage.ts, which decides
       what is drawn; none of them writes either column, and none hands them to
-      a model. `review/cards.ts` imports the provider
+      a model. `lib/progress/reviewCards.ts` imports the provider
       check for an unrelated reason (whether a sentence may be offered in
       English), and pass it nothing from these columns.
 
@@ -12483,6 +12561,7 @@ const GONE_ON_PURPOSE: Record<string, string> = {
   "lib/anu/client.ts": "docs/06-anu-tutor.md says the page used to show it and why it stopped",
   "lib/copy/tour.ts": "CLAUDE.md records it going with /guide",
   "lib/scenes/onRails.ts": "docs/21-situations.md §77 records it being tried for cost and taken back for the experience",
+  "app/(app)/review/cards.ts": "docs/44-sixth-batch.md N-4 names it as where the daily queue used to be built, before it moved to lib/progress/reviewCards.ts",
 };
 
 check("every path the documentation names exists, or is named because it is gone", () => {
@@ -12574,7 +12653,7 @@ check("every npm command the documentation names is one package.json has", () =>
 
 check("CLAUDE.md names the pure layers the checks hold", () => {
   const claude = read("CLAUDE.md");
-  const start = claude.indexOf("- `lib/assessment/`");
+  const start = claude.indexOf("- `lib/api/`, `lib/assessment/`");
   assert.ok(start >= 0, "CLAUDE.md's list of pure layers moved; point this at it");
   const bullet = claude.slice(start, claude.indexOf("stay free of", start));
   const named = [...bullet.matchAll(/`lib\/([a-z]+)\/`/g)].map((m) => m[1]!).sort();
@@ -12680,7 +12759,11 @@ check("no server action returns an error message it has not redacted", () => {
     would satisfy the name and nothing else, which is this repository's oldest
     lesson about checks.
   */
-  const reporter = code(join("lib", "observability", "report.ts"));
+  /* It lives in lib/security/redact.ts since the v1 error shape needed it from a pure layer, and
+     report.ts re-exports it, so the log and every message a client reads share one definition. */
+  assert.match(code(join("lib", "observability", "report.ts")), /export \{ redact, safeMessage \}/,
+    "report.ts no longer hands on the one redactor, so the log could grow a second");
+  const reporter = code(join("lib", "security", "redact.ts"));
   assert.match(
     reporter,
     /function safeMessage[\s\S]{0,400}?redact\(/,
@@ -12801,7 +12884,29 @@ check("a transaction's own time limit fits inside the function that runs it", ()
     const limit = [...body.matchAll(/\{ timeout: ([\d_]+) \}/g)].map((m) => Number(m[1]!.replace(/_/g, "")));
     if (name && limit.length > 0) timed.push([name, Math.max(...limit)]);
   }
+  /*
+    And a body moved out of an action into lib/ (N-8's erasure) keeps its
+    limit: each action that calls it inherits it, and each route that imports
+    it is held to its own budget like any other caller below.
+  */
+  const routesCalling: [string, string, number][] = [];
+  for (const file of ["lib/account/erase.ts"]) {
+    for (const body of code(file).split(/\n(?=export (?:async )?function )/).slice(1)) {
+      const name = /^export (?:async )?function (\w+)/.exec(body)?.[1];
+      const limit = [...body.matchAll(/\{ timeout: ([\d_]+) \}/g)].map((m) => Number(m[1]!.replace(/_/g, "")));
+      if (!name || limit.length === 0) continue;
+      const most = Math.max(...limit);
+      for (const action of bodies) {
+        const actionName = /^export (?:async )?function (\w+)/.exec(action)?.[1];
+        if (actionName && new RegExp(`\\b${name}\\(`).test(action)) timed.push([actionName, most]);
+      }
+      for (const route of APP.filter((f) => /\/route\.tsx?$/.test(f) && new RegExp(`\\b${name}\\b`).test(code(f)))) {
+        routesCalling.push([name, route, most]);
+      }
+    }
+  }
   assert.ok(timed.length >= 2, `only ${timed.length} actions with a transaction timeout found`);
+  assert.ok(routesCalling.length >= 1, "no route calls the erasure, so the moved body is followed nowhere");
 
   const budgetOf = (file: string): number | null => {
     const hit = /export const maxDuration = (\d+);/.exec(code(file));
@@ -12829,6 +12934,13 @@ check("a transaction's own time limit fits inside the function that runs it", ()
       if (budget === null || budget <= limitMs) {
         short.push(`${name} (${limitMs / 1000}s) runs inside ${host ?? caller} at ${budget === null ? "the platform default" : `${budget / 1000}s`}`);
       }
+    }
+  }
+  for (const [name, route, limitMs] of routesCalling) {
+    const budget = budgetOf(route);
+    reached += 1;
+    if (budget === null || budget <= limitMs) {
+      short.push(`${name} (${limitMs / 1000}s) runs inside ${route} at ${budget === null ? "the platform default" : `${budget / 1000}s`}`);
     }
   }
   assert.ok(reached >= 2, `only ${reached} callers followed`);
@@ -12915,13 +13027,76 @@ check("a route that spends something is throttled", () => {
              instance, so two invocations cannot both work, a ceiling on how
              many letters one run sends, and a per-learner gap in `EmailSend`
              that a second run reads before it sends anything.
+    me       is `GET /api/v1/me`, the token's own claims and one indexed read
+             of the interface language, which is `reminder`'s argument: a
+             ceiling would be met by an app opening twice and by nobody else.
+             Its `PATCH` is `changeAccountSettings`, the body of the Settings
+             switches, a handful of indexed writes none of which the web
+             throttles, and its `DELETE` is `deleteAccountFor`, which ends the
+             account it would be counted against.
+             The v1 routes take their limits from the web door they share a
+             body with (D5), and the web reads the same facts with none.
+    review   is `GET /api/v1/review`, `dailyReview`, which the review page
+             reads with no ceiling: the queue is a handful of indexed reads a
+             learner opens once a sitting, and the page is the same work.
+    grades   is `POST /api/v1/grades`, `applyGradeBatch`, which the offline
+             outbox replays through with no ceiling. A grade is a single
+             indexed write, `lib/security/actionLimits.ts` says why a limit
+             there is felt by learners and nobody else, and a batch is capped
+             at fifty by the contract before anything is read.
+    undo     is `POST /api/v1/grades/undo`, one card's scheduling put back, the
+             `undoGrade` action's body, which has no ceiling for the same reason.
   */
-  const exempt = new Set(["metrics", "reminder", "research", "health", "send"]);
+  const exempt = new Set(["metrics", "reminder", "research", "health", "send", "me", "review", "grades", "undo", "today", "dictionary"]);
+  /*
+    And by path where a directory name says nothing (`[id]`), each for the
+    reason its web door has no ceiling either (D5):
+
+    lessons/[id]  is `lessonView`, which the lesson page reads with none: a
+                  lesson's plan is pure and the learner's three facts are three
+                  indexed reads.
+    checks/[id]   is `checkView` and `submitCheckFor`, the check page and the
+                  `submitCheck` action, neither throttled: a paper is built from
+                  the shipped course, and a pass is one setting written.
+    words/[id]    is `openEntry`, which the dictionary page renders with no
+                  ceiling: one entry by its id, and where it reaches Ekilex it
+                  does so through `lookupAndStore`'s own per-owner cap of thirty
+                  a minute, the same one the page meets.
+    dictionary    (by name, above) is `searchDictionary`, the page's own search,
+                  with the same live-lookup cap underneath and none in front.
+
+    `today` above reads the course screen's own reading and writes nothing.
+  */
+  const exemptPaths = new Set([
+    join("app", "api", "v1", "lessons", "[id]", "route.ts"),
+    join("app", "api", "v1", "checks", "[id]", "route.ts"),
+    join("app", "api", "v1", "words", "[id]", "route.ts"),
+  ]);
 
   for (const file of routes) {
     const name = file.split(/[\\/]/).slice(-2, -1)[0] ?? file;
-    if (exempt.has(name)) continue;
-    const source = code(file);
+    if (exempt.has(name) || exemptPaths.has(file)) continue;
+    /*
+      A conversation's turn has one body behind two doors (N-5): the web's
+      `/api/scene` and `POST /api/v1/scenes/{runId}/turns` both hand the request
+      to `sceneTurnFor`, which takes the ceiling itself, charged to the owner the
+      door resolved. Such a door is read with that body, so the ceiling has to
+      be there and the door has to call it.
+    */
+    const handsOff = /\bsceneTurnFor\(/.test(code(file));
+    const source = handsOff ? `${code(file)}\n${code(join("lib", "progress", "sceneRequest.ts"))}` : code(file);
+    /*
+      `throttleAction` is the web action's own allowance, charged to the owner
+      it resolved (lib/security/actionLimits.ts), which a v1 route takes where it
+      shares a body with an action (D5), so it answers both questions below.
+    */
+    if (/\bthrottleAction\(\s*who\.ownerId,/.test(source)) continue;
+    /*
+      The export's allowance is `exportAllowance`, shared by its web door and
+      its v1 door (N-8); what it counts and against whom is asserted on
+      lib/account/export.ts below the loop.
+    */
+    if (/\bexportAllowance\(\s*(?:ownerId|who\.ownerId)\s*\)/.test(source)) continue;
     assert.match(
       source,
       /check(Shared)?RateLimit\(/,
@@ -12944,6 +13119,9 @@ check("a route that spends something is throttled", () => {
     `request.text()` reads whatever arrives, which is one signed-in account
     away from holding an arbitrary amount of a server's memory per request.
   */
+  const allowance = between(code("lib/account/export.ts"), "export async function exportAllowance(");
+  assert.match(allowance, /checkSharedRateLimit\(`export:\$\{bucketForOwner\(ownerId\)\}`/, "the export's allowance is no longer counted per learner where every instance sees it");
+
   const restore = code(join("app", "api", "restore", "route.ts"));
   assert.match(restore, /MAX_BACKUP_BYTES/, "the restore route reads an upload of any size again");
   assert.match(restore, /content-length/, "the restore route no longer refuses an oversized upload before reading it");
@@ -13002,6 +13180,7 @@ check("every route group says it is loading rather than showing nothing", () => 
     [join("app", "(chromeless)", "welcome")]: (src) => /export const revalidate = \d+/.test(src),
     [join("app", "(chromeless)", "welcome", "ru")]: (src) => /export const revalidate = \d+/.test(src),
     [join("app", "(chromeless)", "welcome", "uk")]: (src) => /export const revalidate = \d+/.test(src),
+    [join("app", "(chromeless)", "welcome", "et")]: (src) => /export const revalidate = \d+/.test(src),
     // Reads its query string and the deployment's own settings, and nothing else.
     [join("app", "(chromeless)", "sign-in")]: (src) =>
       !/@\/lib\/db|prisma|requireUserId|@\/lib\/progress\//.test(src),
@@ -13013,8 +13192,12 @@ check("every route group says it is loading rather than showing nothing", () => 
       as having none.
     */
     ...Object.fromEntries(
-      ["privacy", "terms", "accessibility", "trust", "funding", "state-exam", "teachers", "pilots", "help"].map((page) => [
-        join("app", page),
+      [
+        ["privacy"], ["terms"], ["accessibility"], ["trust"], ["funding"], ["state-exam"], ["teachers"], ["pilots"], ["help"],
+        // How to delete an account (N-8), which also asks whether somebody is signed in.
+        ["(chromeless)", "account", "delete"],
+      ].map((page) => [
+        join("app", ...page),
         (src: string) =>
           !/@\/lib\/db|\bprisma\.|requireUserId|@\/lib\/progress\/(?!publicLocale")/.test(src),
       ]),
@@ -13667,8 +13850,12 @@ check("the copy about the round pace names every round that reads it", () => {
   const rounds = APP.filter((f) => f.endsWith("/page.tsx") && !f.includes("/settings/"))
     .filter((f) => /\broundPaceFrom\(/.test(code(f)))
     .map((f) => {
-      // A signed-in page names itself through `titleFor` (lib/progress/locale.ts).
-      const title = (/titleFor\("([^"]+)"/.exec(read(f)) ?? /title:\s*"([^"]+)"/.exec(read(f)))?.[1];
+      // A signed-in page names itself through `titleFor` (lib/progress/locale.ts),
+      // and a round through `roundTitleFor`, whose agreed English name
+      // (lib/ux/roundNames.ts) is what the copy has to say.
+      const round = /roundTitleFor\("([^"]+)"/.exec(read(f))?.[1];
+      const agreed = round ? new RegExp(`"${round.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}": \\{ et: "[^"]+", en: "([^"]+)" \\}`).exec(read("lib/ux/roundNames.ts"))?.[1] : undefined;
+      const title = agreed ?? (/\btitleFor\("([^"]+)"/.exec(read(f)) ?? /title:\s*"([^"]+)"/.exec(read(f)))?.[1];
       assert.ok(title, `${f} reads the round pace and has no title to be named by`);
       return title!;
     });
@@ -14248,6 +14435,7 @@ check("a workflow that reads a secret never runs from a branch somebody pushed",
     "audit-decks.yml": ["workflow_dispatch"],
     "mailout.yml": ["schedule", "workflow_dispatch"],
     "reset-course.yml": ["workflow_dispatch"],
+    "reset-demo.yml": ["schedule", "workflow_dispatch"],
     "seed-production.yml": ["workflow_dispatch"],
   };
   const dir = ".github/workflows";
@@ -14471,14 +14659,14 @@ check("first run builds a deck in a fixed number of queries, not one set per wor
   reads the state the one before left behind.
 */
 check("a finished scene reads the cards it grades once, not one query per grade", () => {
-  const finish = between(code("app/actions.ts"), "export async function finishScene");
-  assert.match(finish, /cardsForGrades\(/, "finishScene stopped matching its grades in one pass");
+  const finish = between(code("lib/progress/sceneRuns.ts"), "export async function finishSceneFor");
+  assert.match(finish, /cardsForGrades\(/, "finishSceneFor stopped matching its grades in one pass");
   assert.doesNotMatch(
     // Lazy to the `) {` rather than `[^)]*`, which stops at the first `)`: the
     // loop header here is `.entries()`, so the narrower pattern never saw the
     // loop at all and this arm passed with a query put back inside it.
     finish, /for\s*\([\s\S]*?\)\s*\{[\s\S]{0,400}?await\s+prisma\./,
-    "finishScene is querying inside its grading loop again, a round trip per grade before a single write",
+    "finishSceneFor is querying inside its grading loop again, a round trip per grade before a single write",
   );
 });
 
@@ -16161,7 +16349,7 @@ check("a word chosen for a learner is banded by one table", () => {
     "lib/dict/suggest.ts",
     "app/(app)/review/pairs/page.tsx",
     "app/(app)/review/government/page.tsx",
-    "app/(app)/review/queue.ts",
+    "lib/progress/dailyQueue.ts",
   ];
   for (const file of readers) {
     assert.match(
@@ -16502,9 +16690,18 @@ check("nothing grades a card outside lib/srs/grade.ts", () => {
     /at < createdAt \? createdAt : at/,
     "lib/srs/grade.ts stopped flooring a grade at the moment its card was created",
   );
-  for (const caller of ["app/actions.ts", "lib/srs/replay.ts"]) {
+  /*
+    `gradeCard` and the rounds the server marks grade through `gradeFor` and
+    `gradeOnce`, which moved into `lib/progress/grading.ts` so the v1 doors call
+    the same two (N-5). The writer is asked of that file, and the actions are
+    held to reaching it rather than writing a grade of their own.
+  */
+  for (const caller of ["lib/progress/grading.ts", "lib/srs/replay.ts"]) {
     assert.match(code(caller), /\bwriteGrade\(/, `${caller} stopped writing its grade through lib/srs/grade.ts`);
   }
+  const actionsCode = code("app/actions.ts");
+  assert.match(actionsCode, /import \{[^}]*\bgradeFor\b[^}]*\} from "@\/lib\/progress\/grading"/, "app/actions.ts no longer grades through lib/progress/grading.ts");
+  assert.match(actionsCode, /\breturn gradeFor\(ownerId,/, "gradeCard stopped grading through gradeFor");
 });
 
 /*
@@ -16544,7 +16741,7 @@ check("a backup carries every word the learner's own rows point at", () => {
     .filter(([, , body]) => /^\s+ownerId\s/m.test(body!) && /^\s+lexemeId\s/m.test(body!))
     .map(([, name]) => name!.charAt(0).toLowerCase() + name!.slice(1));
   assert.ok(models.length >= 7, `expected the owner-scoped tables that point at a word, found ${models.length}`);
-  const exported = code("app/api/export/route.ts");
+  const exported = code("lib/account/export.ts");
   const gather = exported.slice(0, exported.indexOf("const mine"));
   assert.ok(gather.length > 0, "could not find where the export gathers its words");
   const missing = models.filter((model) => !new RegExp(
@@ -17684,6 +17881,24 @@ check("a grade taken offline arrives with every field it was queued with", () =>
     `the offline replay drops ${missing.join(", ")} on the way to the server. ` +
     "The row still lands, about the wrong thing, and nothing fails.",
   );
+
+  /*
+    AND THE SAME FIELDS THROUGH THE OTHER DOOR (N-4, ADR-029). A native app
+    sends its outbox to `POST /api/v1/grades`, so the contract's grade has to
+    name every field the outbox holds, and the route has to hand the parsed
+    grades to `applyGradeBatch` whole rather than through a map of its own,
+    which is the shape that dropped `slot` above. The type test in
+    lib/progress/reviewContract.test.ts holds the two types equal; this holds
+    the route to passing them on.
+  */
+  const contractGrade = between(code("lib/api/contract.ts"), "export const GradeItem").split("});")[0]!;
+  const unnamed = fields.filter((f) => !new RegExp(`^\\s{2}${f}:`, "m").test(contractGrade));
+  assert.deepEqual(unnamed, [], `the v1 contract's grade does not name ${unnamed.join(", ")}, which the outbox holds`);
+  const route = code("app/api/v1/grades/route.ts");
+  assert.ok(
+    /applyGradeBatch\(\s*who\.ownerId,\s*body\.data\.grades\s*\)/.test(route),
+    "POST /api/v1/grades has to hand the parsed grades to applyGradeBatch whole, as the outbox's replay does",
+  );
 });
 
 /**
@@ -18251,10 +18466,13 @@ check("each routed purpose asks for its own chain", () => {
 
   const routed: Readonly<Record<string, "tutor" | "scene" | "grader">> = {
     // The routes and reads that must not take the general chain by accident.
-    "app/api/tutor/route.ts": "tutor",
+    "lib/progress/askAnu.ts": "tutor",
     "app/(app)/layout.tsx": "tutor",
     "app/(app)/tutor/page.tsx": "tutor",
-    "app/actions.ts": "scene",
+    // The briefing's promise, which moved out of `app/actions.ts` with the body
+    // both doors open a run through (N-5).
+    "lib/progress/sceneRuns.ts": "scene",
+    "lib/progress/sceneRequest.ts": "scene",
     // The three graders and the translation fallback: metered as GRADER and
     // pinned to the model `eval:grader` measured, so none may take the
     // general head, which is whatever the environment happened to make it.
@@ -18269,7 +18487,7 @@ check("each routed purpose asks for its own chain", () => {
     /*
       `sceneProviders` counts as asking for the scene chain, because the block
       above has just asserted that it is built on that purpose. A scene path may
-      reach it either way and `app/actions.ts` reaches it through the wrapper:
+      reach it either way and `lib/progress/sceneRuns.ts` reaches it through the wrapper:
       the briefing has to promise exactly what `/api/scene` will attempt, and the
       wrapper is what carries the per-provider `*_SCENE_MODEL` override the route
       also honors. Asking the bare purpose there would promise composition on a
@@ -18814,8 +19032,8 @@ check("a cached input token is priced as one, and the cached prompt is the same 
     "recordUsage no longer hands the split to the price table");
 
   for (const file of [
-    "app/api/tutor/route.ts", "app/api/write/route.ts", "app/api/describe/route.ts",
-    "app/api/exam/write/route.ts", "app/api/scene/route.ts", "lib/tutor/translate.ts",
+    "lib/progress/askAnu.ts", "app/api/write/route.ts", "app/api/describe/route.ts",
+    "app/api/exam/write/route.ts", "lib/progress/sceneRequest.ts", "lib/tutor/translate.ts",
   ]) {
     assert.match(
       code(file),
@@ -18900,7 +19118,7 @@ check("a conversation with Anu lasts a day, on the read, on the write and on the
   const history = code("lib/tutor/history.ts");
   assert.match(history, /createdAt: \{ gte: conversationCutoff\(now\) \}/, "loadRecentMessages no longer stops at the day's cutoff");
   assert.match(history, /deleteMany\(\{\s*where: \{ ownerId, createdAt: \{ lt: conversationCutoff\(now\) \} \}/, "forgetOldMessages no longer deletes the turns older than a day");
-  assert.match(code("app/api/tutor/route.ts"), /await forgetOldMessages\(ownerId\);/, "the tutor route no longer forgets yesterday's conversation when it writes today's");
+  assert.match(code("lib/progress/askAnu.ts"), /await forgetOldMessages\(ownerId\);/, "the tutor route no longer forgets yesterday's conversation when it writes today's");
   /*
     And the write that forgets is held, not floated. `persist` runs in the
     stream's `finally`, after the last byte is handed over, which is exactly
@@ -18910,7 +19128,7 @@ check("a conversation with Anu lasts a day, on the read, on the write and on the
     promises. The rule `no ledger write is left to a promise` states for the
     ledger, applied to the one write the retention schedule rests on.
   */
-  const tutorRoute = code("app/api/tutor/route.ts");
+  const tutorRoute = code("lib/progress/askAnu.ts");
   assert.doesNotMatch(tutorRoute, /\bvoid\s+persist\s*\(/, "the tutor route leaves the write that forgets yesterday to a promise the platform may drop");
   assert.match(tutorRoute, /after\(\(\) => persist\(/, "the tutor route no longer hands the write that forgets yesterday to after()");
   assert.match(code("lib/tutor/lifetime.ts"), /CONVERSATION_LIFETIME_MS = 24 \* 60 \* 60 \* 1000/, "the lifetime is no longer a day");
@@ -18921,7 +19139,7 @@ check("a conversation with Anu lasts a day, on the read, on the write and on the
 
 check("the scene prompt is served off a cache entry, by one module, on the route and in the harness", () => {
   assert.match(
-    code("app/api/scene/route.ts"),
+    code("lib/progress/sceneRequest.ts"),
     /SCENE_REPLY_TOKENS,\s*true,\s*\);/,
     "the scene route stopped asking for the system prompt to be held on the provider's side, so every turn re-reads the word list at full price",
   );
@@ -19031,7 +19249,7 @@ check("a scripted line is drafted by a script, said after a recorded one, and ma
   const modelAt = turnModule.indexOf("await model(");
   assert.ok(netAt > 0 && modelAt > 0 && netAt < modelAt,
     "the model step is handed over before the net is worked out, so the net is assembled while somebody is waiting");
-  const sceneRouteCode = code("app/api/scene/route.ts");
+  const sceneRouteCode = code("lib/progress/sceneRequest.ts");
   const speakAt = sceneRouteCode.indexOf("speakTurn(plan");
   const bookAt = sceneRouteCode.indexOf('authoriseCall(ownerId, "SCENE")');
   assert.ok(speakAt > 0 && bookAt > 0 && speakAt < bookAt,
@@ -19274,10 +19492,18 @@ check("a scene is marked by the server, and its grades go to the shared log", ()
     the body. It found nothing and reported that the action no longer marks,
     which is a check reporting its own regex. The helper was already here.
   */
+  /*
+    The body is `finishSceneFor`, which the action and `POST
+    /api/v1/scenes/{runId}/finish` both call (N-5), so it is read there, and
+    both doors are held to calling it.
+  */
   const actions = code("app/actions.ts");
-  const action = between(actions, "export async function finishScene(");
-  assert.ok(action, "finishScene has gone, or changed shape past recognition");
-  assert.match(action, /finishRun\(/, "finishScene no longer re-marks on the server");
+  const runs = code("lib/progress/sceneRuns.ts");
+  const action = between(runs, "export async function finishSceneFor(");
+  assert.ok(action, "finishSceneFor has gone, or changed shape past recognition");
+  assert.match(between(actions, "export async function finishScene("), /finishSceneFor\(ownerId,/, "finishScene no longer finishes through the shared body");
+  assert.match(code("app/api/v1/scenes/[runId]/finish/route.ts"), /finishSceneFor\(who\.ownerId,/, "the v1 finish no longer finishes through the shared body");
+  assert.match(action, /finishRun\(/, "finishSceneFor no longer re-marks on the server");
   /*
     Through `gradeOnce`, which is `writeGrade` behind an id: the same writer
     `gradeCard` uses, with the run and the grade's place in it naming the
@@ -19293,12 +19519,17 @@ check("a scene is marked by the server, and its grades go to the shared log", ()
     perfectly correct `gradeCard(card.id, grade.rating, 0)` inside, and a check
     that fires on honest code is a check people waive.
   */
-  const signature = /export async function finishScene\(([\s\S]*?)\)\s*\{/
-    .exec(actions)?.[1] ?? "";
-  assert.doesNotMatch(
-    signature, /rating|score|grade|objectives|outcome/i,
-    "finishScene takes a mark from its caller, which is a result anybody can type",
-  );
+  for (const [source, name] of [[actions, "finishScene"], [runs, "finishSceneFor"]] as const) {
+    const signature = new RegExp(`export async function ${name}\\(([\\s\\S]*?)\\)(?::[^{]*)?\\s*\\{`).exec(source)?.[1] ?? "";
+    assert.ok(signature.length > 0, `${name}'s signature was not found, so this check reads nothing`);
+    assert.doesNotMatch(
+      signature, /rating|score|grade|objectives|outcome/i,
+      `${name} takes a mark from its caller, which is a result anybody can type`,
+    );
+  }
+  assert.match(code("lib/api/contract.ts"), /export const SceneFinishRequest = z\.object\(\{\s*turns:[^]*?\}\);/, "the v1 finish request is gone");
+  assert.doesNotMatch(/export const SceneFinishRequest = z\.object\(\{([^]*?)\}\);/.exec(code("lib/api/contract.ts"))?.[1] ?? "", /\b(rating|score|grade|objectives|outcome)\b/i,
+    "the v1 finish takes a mark from its caller, which is a result anybody can type");
 
   // And one replay, reached from both ends, rather than a marker per door.
   const server = code("lib/progress/scene.ts");
@@ -19309,7 +19540,7 @@ check("a scene is marked by the server, and its grades go to the shared log", ()
     "finishRun marks a run some other way than the replay the learner saw",
   );
   assert.match(
-    code("app/api/scene/route.ts"), /replay\(/,
+    code("lib/progress/sceneRequest.ts"), /replay\(/,
     "the route reads a turn some other way than the replay that writes the record",
   );
 });
@@ -19578,7 +19809,7 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     shared log at all.
   */
   assert.match(
-    code("app/actions.ts"), /practisedSlot: grade\.grammCase[\s\S]{0,120}reachedSlot: grade\.reachedCase/,
+    code("lib/progress/sceneRuns.ts"), /practisedSlot: grade\.grammCase[\s\S]{0,120}reachedSlot: grade\.reachedCase/,
     "a scene's grades no longer carry the case that came back instead, so the confusion is lost",
   );
 
@@ -20096,7 +20327,7 @@ check("a learner who says they are lost is handed the word, never the question a
     + "is answered with the repair phrase",
   );
   for (const [file, calls] of [
-    ["app/api/scene/route.ts", 1],
+    ["lib/progress/sceneRequest.ts", 1],
     ["lib/progress/scene.ts", 2],
   ] as const) {
     const source = code(file);
@@ -20202,7 +20433,7 @@ check("a learner who says they are lost is handed the word, never the question a
     scene, and the line that comes back is still checked four ways by the gate.
   */
   {
-    const route = code("app/api/scene/route.ts");
+    const route = code("lib/progress/sceneRequest.ts");
     assert.match(
       route, /(const readingOf = async|async function readingOf)/,
       "the composer is no longer told what the learner's turn means, so its line answers the beat "
@@ -20408,7 +20639,7 @@ check("a learner who says they are lost is handed the word, never the question a
       harness reported the hint as an Estonian line with a digit in it, which
       is what a list copied three times always does.
     */
-    for (const file of ["components/scene/SceneSession.tsx", "app/api/scene/route.ts", "scripts/fuzz-scenes.ts"]) {
+    for (const file of ["components/scene/SceneSession.tsx", "lib/progress/sceneRequest.ts", "scripts/fuzz-scenes.ts"]) {
       assert.match(
         code(file), /isSpokenEstonian|isSaid/,
         `${file} decides for itself which lines are spoken, so it can disagree with the others`,
@@ -20486,7 +20717,7 @@ check("a learner who says they are lost is handed the word, never the question a
     + "composed line",
   );
   assert.match(
-    code("app/api/scene/route.ts"), /after\(\(\) => growDictionary\(/,
+    code("lib/progress/sceneRequest.ts"), /after\(\(\) => growDictionary\(/,
     "the scene route fetches new words on the request's own clock, so a learner waits on Ekilex for "
     + "a line that is already written",
   );
@@ -20876,7 +21107,7 @@ check("a run reads a beat's lines from its own place in them", () => {
     + "run can never reach half of a beat's bank",
   );
   assert.match(
-    code("app/api/scene/route.ts"), /rotate: seedFrom\(/,
+    code("lib/progress/sceneRequest.ts"), /rotate: seedFrom\(/,
     "the scene route stopped handing the ladder this run's own place in the bank, so every learner "
     + "opens every scene with the same sentence",
   );
@@ -20946,7 +21177,7 @@ check("nothing but the dictionary can advance a scene", () => {
     scene's reviewer chain, metered as a GRADER call, and its module holds no Estonian
     and reaches no provider.
   */
-  const route = code("app/api/scene/route.ts");
+  const route = code("lib/progress/sceneRequest.ts");
   const replayAt = route.indexOf("replay(marking, draw, turns)");
   const judgeAt = route.indexOf("parseJudgement(");
   assert.ok(replayAt > 0 && judgeAt > replayAt, "the scene route asks the judge before the dictionary has read the turn, or not at all.");
@@ -21070,7 +21301,10 @@ check("the ladder a new word climbs is the scheduler's own steps", () => {
       card in Learning for ever.
     */
     "lib/srs/scheduler.ts", "lib/srs/grade.ts", "lib/srs/backfill.ts", "lib/srs/deck.ts",
-    "app/actions.ts", "app/(app)/review/cards.ts",
+    "app/actions.ts", "lib/progress/reviewCards.ts",
+    // The v1 contract carries a card's scheduling to a phone and back for undo
+    // (ADR-029), and the undo body moved out of the actions beside writeGrade.
+    "lib/api/contract.ts", "lib/srs/undo.ts",
     // The ladder reads it, and the two files that put a rung on a screen.
     "lib/learn/ladder.ts", "lib/progress/learn.ts",
     "app/(app)/learn/new/LearnSession.tsx",
@@ -21124,7 +21358,7 @@ check("learn teaches a word and practice drills it, never both at once", () => {
     "pastTheLadder names the ladder's states itself rather than reading the table",
   );
 
-  const review = (code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts"));
+  const review = (code("app/(app)/review/page.tsx") + "\n" + code("lib/progress/dailyQueue.ts"));
   assert.match(
     review, /where: (?:\{ AND: \[)?dueWhere\(ownerId, now[,)]/,
     "the review queue reads its own due clause rather than the shared one",
@@ -22454,8 +22688,20 @@ check("every line a scene says carries its rung", () => {
   */
   assert.doesNotMatch(source, /<span>\{PROVENANCE\[line\.provenance\]\}<\/span>/,
     "the rung is not printed under every line of a conversation");
-  assert.doesNotMatch(source, /SuggestFix/,
-    "and a conversation carries no Report button under its lines");
+  /*
+    One report control for the whole conversation, and never one under a line
+    (R-2a). A store asks that a line a model wrote can be reported from inside
+    the app, which is a fact about the conversation rather than about every
+    bubble, so it sits in the panel under the thread, beside the sentence
+    naming the model, and offers the composed lines to pick from.
+  */
+  const reports = [...source.matchAll(/<SuggestFix\b[\s\S]*?\/>/g)].map(([usage]) => usage);
+  assert.equal(reports.length, 1,
+    "a conversation carries one report control for its composed lines, never one under each line");
+  assert.match(reports[0]!, /category="AI_ANSWER"/,
+    "and that one control reports a line a model wrote");
+  assert.ok(source.indexOf("<SuggestFix") > source.indexOf('className="scene-tools"'),
+    "and it sits in the panel under the conversation rather than in the thread");
   assert.match(source, /composedBy/,
     "the model composing is still named once, at the top (ADR-025)");
   const suite = readFileSync("scripts/test-scene.mjs", "utf8");
@@ -22619,7 +22865,7 @@ check("a conversation draws the room it is had in, for the whole of it", () => {
     alone leaves the room silent about the very thing it was put there for.
   */
   assert.match(
-    code("app/api/scene/route.ts"), /hurdle: state\.hurdle\?\.id \?\? null/,
+    code("lib/progress/sceneRequest.ts"), /hurdle: state\.hurdle\?\.id \?\? null/,
     "the route no longer says which curveball is standing, so the room cannot draw it",
   );
   assert.match(
@@ -22713,7 +22959,7 @@ check("a conversation draws the room it is had in, for the whole of it", () => {
     }
     for (const name of ["stick-arc", "stick-steam"]) {
       assert.match(
-        code("app/globals.css"), new RegExp(`\\.${name} \\{ animation:[^}]*infinite both;`),
+        code("app/globals.css"), new RegExp(`\\.${name} \\{ animation:[^}]* both;`),
         `.${name} no longer fills backwards, so the mark it draws is at full strength through its `
         + "own delay or at nought once the animation is taken away",
       );
@@ -23237,9 +23483,16 @@ check("the interview settles the wage before it asks for a start day, off the ca
 */
 check("the harvest tells a refusal from a miss and plans its write rather than taking it", () => {
   const harvest = code("scripts/harvest-ekilex.ts");
+  // Through the gate in lib/ekilex/client.ts since S-2, which reads every
+  // answer through readAnswer itself; so the harvest may ask either, and the
+  // gate is held to reading through it.
   assert.match(
-    harvest, /const answer = await readAnswer<T>\(/,
+    harvest, /const answer = await (?:readAnswer|ekilexRequest)<T>\(/,
     "the harvest's transport stopped reading its answers through readAnswer, so a 403 is a miss again",
+  );
+  assert.match(
+    code("lib/ekilex/client.ts"), /last = await readAnswer<T>\(/,
+    "the Ekilex gate stopped reading its answers through readAnswer, so a 403 is a miss again",
   );
   assert.match(
     harvest, /if \(answer\.kind === "refused"\) \{[\s\S]*?throw new NoAnswer/,
@@ -23487,7 +23740,7 @@ check("a word enough people put aside is offered later, not rewritten", () => {
 
   // And the reach: the two places that decide which word somebody is taught
   // next. A raise nobody reads is a count nobody acts on.
-  for (const file of ["app/(app)/review/queue.ts", "lib/progress/learn.ts"]) {
+  for (const file of ["lib/progress/dailyQueue.ts", "lib/progress/learn.ts"]) {
     assert.match(
       code(file), /offeredBand\(/,
       `${file} bands a word by what the dictionary recorded rather than by what `
@@ -23514,10 +23767,23 @@ check("a card built for a word put aside is built put aside", () => {
     the word's deferral said. Read through `code()`, so a comment naming the
     insert is not a builder.
   */
+  /*
+    One file inserts cards and builds none. `restoreBackup` writes back the
+    cards a backup holds with the schedule they were saved with, so a due date
+    there is the learner's own record rather than a card being made today. The
+    dictionary's Add, which used to share the file, moved into lib/srs/deck.ts
+    (`addCardsFor`) and is swept there. Held for staleness: it still inserts.
+  */
+  const restoresOnly = new Set(["app/actions.ts"]);
+  for (const file of restoresOnly) {
+    assert.match(code(file), /\bcard\.createMany\(/, `${file} no longer inserts cards; take it off the restore exemption`);
+  }
   const builders: [string, string][] = [...APP, ...LIB]
+    .filter((file) => !restoresOnly.has(file.split("\\").join("/")))
     .filter((file) => !/\.(i?test)\.tsx?$/.test(file) && /\bcard\.createMany\(/.test(code(file)))
     .map((file) => [file, "a card builder"]);
-  assert.ok(builders.length >= 3, `found ${builders.length} files that insert cards; the sweep has stopped finding them`);
+  // Two left once the dictionary's Add joined the bulk builder in lib/srs/deck.ts.
+  assert.ok(builders.length >= 2, `found ${builders.length} files that insert cards; the sweep has stopped finding them`);
   for (const [file, what] of builders) {
     const body = code(file);
     assert.match(
@@ -23630,7 +23896,7 @@ check("a derived step asks for no more evidence than the app can supply", () => 
       + "module thinks is left and what the round shows can disagree",
     );
   }
-  const round = code("app/(app)/review/queue.ts");
+  const round = code("lib/progress/dailyQueue.ts");
   assert.ok(
     round.includes("tonightWhere("),
     "the closing round is drawn without tonightWhere(, so it is no longer the read its count makes",
@@ -23890,8 +24156,8 @@ check("every round a rotation can deal reads the module's scope off its address"
   }
   assert.ok(reads >= 11, `only ${reads} round pages read the scope; the table has more rounds than that`);
   // And the closing review reads it too, since it is the last step of every evening.
-  assert.match((code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts")), /moduleScopeFrom\(/, "the closing review stopped asking what the module has taught");
-  assert.match((code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts")), /reviewable\(/, "the closing review stopped holding a case card to the case pages read");
+  assert.match((code("app/(app)/review/page.tsx") + "\n" + code("lib/progress/dailyQueue.ts")), /moduleScopeFrom\(/, "the closing review stopped asking what the module has taught");
+  assert.match((code("app/(app)/review/page.tsx") + "\n" + code("lib/progress/dailyQueue.ts")), /reviewable\(/, "the closing review stopped holding a case card to the case pages read");
 });
 
 /*
@@ -23949,7 +24215,7 @@ check("nothing outside lib/course/scope.ts reads a scope's lists to answer the m
   teaching something.
 */
 check("the daily review introduces nothing the module has not taught", () => {
-  const page = (code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts"));
+  const page = (code("app/(app)/review/page.tsx") + "\n" + code("lib/progress/dailyQueue.ts"));
   assert.match(
     page, /learnerScopeSoFar\(/,
     "the daily review reads the module only off its address, so nothing holds it on the path a learner actually opens",
@@ -24081,7 +24347,7 @@ check("the Learn ladder introduces nothing the module has not taught", () => {
   anywhere else on the page is a guard on a different query.
 */
 check("every card read on the review page asks about the Learn ladder", () => {
-  const src = (code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts"));
+  const src = (code("app/(app)/review/page.tsx") + "\n" + code("lib/progress/dailyQueue.ts"));
   const blocks = src.split("prisma.card.findMany(").slice(1).map((b) => b.slice(0, 700));
   const guard = /\b(dueWhere|unseenWhere|notOnLadder|meetingFirst|tonightWhere)\(ownerId/;
   const loose = blocks.filter((b) => !guard.test(b));
@@ -27210,7 +27476,7 @@ check("a game graded on the server writes one review however often its round is 
       `${name} grades without an id derived from the round, so a resent round is a second review`);
     assert.doesNotMatch(body, /\bgradeCard\(|\bgradeFor\(/, `${name} grades through a door that takes no derived id`);
   }
-  const once = between(actions, "async function gradeOnce(");
+  const once = between(code("lib/progress/grading.ts"), "export async function gradeOnce(");
   assert.match(once, /isRepeatedReview\(/, "gradeOnce no longer reads a repeat as done");
   const card = between(actions, "export async function gradeCard(");
   assert.match(card, /return gradeFor\([^;]*\breviewId\b/,
@@ -27691,7 +27957,8 @@ check("which letters a learner gets is changed only under their lock", () => {
       /writeSetting\([^)]*SETTING_KEYS\.emails(?:Off|On)|ownerId_key:\s*\{[^}]*SETTING_KEYS\.emails(?:Off|On)/.test(code(f)),
   );
   assert.deepEqual(writers, [], `${writers.join(", ")} writes the email preferences outside changeEmailPrefs`);
-  for (const file of ["app/actions.ts", "app/api/email/unsubscribe/route.ts", "app/api/email/bounce/route.ts"]) {
+  // The Settings switch's body is `changeAccountSettings` (lib/settings/account.ts) since N-8.
+  for (const file of ["lib/settings/account.ts", "app/api/email/unsubscribe/route.ts", "app/api/email/bounce/route.ts"]) {
     assert.match(code(file), /changeEmailPrefs\(/, `${file} no longer changes the email preferences through the lock`);
   }
 });
@@ -28134,6 +28401,7 @@ check("every source file a comment in the code cites is one that exists", () => 
     "scripts/x.mjs": "a placeholder standing for any suite in a sentence about how CI names them",
     "lib/anu/client.ts": "the documentation-path check's own list of paths named because they are gone",
     "lib/scenes/onRails.ts": "the documentation-path check's own list, where its being taken back is recorded",
+    "app/(app)/review/cards.ts": "the documentation-path check's own list, where the daily queue's old home is recorded",
   };
   const haystack = [...ALL, ...sourceFiles("scripts", /\.(ts|mjs)$/), "prisma/schema.prisma"];
   let cited = 0;
@@ -28226,7 +28494,7 @@ check("the scene judge is asked about the beat the turn was aimed at", () => {
     with patience one, or with the brisk persona, is every miss. The beat and
     the row are read off the state before the turn.
   */
-  const route = code("app/api/scene/route.ts");
+  const route = code("lib/progress/sceneRequest.ts");
   assert.match(route, /const before = replay\(marking, draw, turns\.slice\(0, -1\)\)\.state;/,
     "the scene route no longer replays the run up to the turn it is about to judge");
   assert.match(route, /const judged = before\.hurdle \? hurdleBeat\(before\.hurdle\) : currentBeat\(scene, before\);/,

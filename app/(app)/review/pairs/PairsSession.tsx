@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { useGrade } from "@/components/round/useGrade";
 import { Check, Ear, Loader2, Volume2 } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
@@ -20,6 +22,8 @@ import { useT } from "@/components/Locale";
 import { filled } from "@/components/Filled";
 import { fill } from "@/lib/copy/locale";
 import { rich } from "@/components/round/rich";
+import { inlineName, roundName } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 export interface PairQuestion {
   /** The form that is actually played. */
@@ -153,7 +157,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
       const heard = question.options.find((o) => o.value === question.heard);
       look.record({
         of: question.cardId ?? question.heard,
-        label: t("Minimal pairs"),
+        label: inlineName(roundName("/review/pairs"), t),
         question: question.options.map((o) => o.value).join(" ,  "),
         answer: question.heard,
         note: heard ? `${heard.lemma}, ${heard.translation}` : null,
@@ -166,6 +170,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
     setIndex((i) => i + 1);
   }, [question, look, t]);
 
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (finished || !question) return;
@@ -174,6 +179,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
         if (isAdvanceKey(e)) { e.preventDefault(); look.forward(); }
         return;
       }
+      if (!mayActOnKey(e, singleKeys)) return;
       if (e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (e.key === "r" || e.key === "R") { e.preventDefault(); void play(question.heard); return; }
       // Space is free until the answer is in, and then it moves on, so it
@@ -188,7 +194,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [finished, question, revealed, choose, next, play, look]);
+  }, [singleKeys, finished, question, revealed, choose, next, play, look]);
 
   if (audioFailed) {
     return (
@@ -240,7 +246,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
       {/* The heading a session screen has no room to draw. Same line as every
           other mode: the start screen and the finished screen each carry one
           and the round itself did not. */}
-      <h1 className="sr-only">{t("Minimal pairs")}</h1>
+      <h1 className="sr-only"><RoundNameText name={roundName("/review/pairs")} translate={t} /></h1>
       <RoundProgress done={index} total={questions.length} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (

@@ -103,6 +103,12 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
   const hearingNow = useRef(false);
   const latest = useRef(speech);
   const downloadThenHear = useRef<(file: File) => Promise<void>>(async () => undefined);
+  /* The file the model was last fetched for. A recording that finds the model
+     gone again straight after a download is a browser that is not keeping the
+     files, and fetching 71 MB again would not change that: measured in
+     WebKit with a session that keeps nothing between pages (Playwright's), it
+     fetched the model over and over and never opened the recording. So one download per file, then a sentence. */
+  const fetchedFor = useRef<File | null>(null);
   latest.current = speech;
 
   const active = stage.kind !== "idle";
@@ -196,6 +202,11 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
       hearingNow.current = false;
       const why = failure instanceof EngineFailure ? failure.error : "failed";
       if (why === "not-downloaded" || why === "cleared" || why === "hash-failed") {
+        if (fetchedFor.current === file) {
+          setError(t("This browser didn't keep the speech files it downloaded, so the recording couldn't be opened. Pasting the text still works."));
+          setStage({ kind: "idle" });
+          return;
+        }
         void downloadThenHear.current(file);
         return;
       }
@@ -245,6 +256,7 @@ export function Recording({ onActive }: { readonly onActive: (active: boolean) =
   const download = async (file: File) => {
     setStage({ kind: "downloading", file });
     await latest.current.download();
+    fetchedFor.current = file;
     if (latest.current.phase === "ready") void hear(file);
     else {
       setError(t("The download stopped. Check your connection and try again."));

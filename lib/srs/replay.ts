@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { writeGrade } from "@/lib/srs/grade";
-import { type RatingValue } from "@/lib/srs/scheduler";
+import { type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { REPLAY_BATCH, clampReviewedAt, isValidPending, orderForReplay } from "@/lib/offline/outbox";
 
 export interface ReplayItem {
@@ -20,6 +20,14 @@ export interface ReplayItem {
 export interface ReplayResult {
   ok: boolean;
   settled: string[];
+  /**
+   * The grades this call wrote, in the order it wrote them, with the scheduling
+   * each left its card at. A grade settled without a write (already recorded,
+   * its card gone, a row that could not be applied) is not here. The offline
+   * replay ignores it; `POST /api/v1/grades` hands it back so a native client
+   * can offer undo on a grade the server recorded.
+   */
+  written: { id: string; cardId: string; state: SchedulingState }[];
   error?: string;
 }
 
@@ -43,13 +51,14 @@ export async function applyGradeBatch(
   ownerId: string,
   batch: ReplayItem[],
 ): Promise<ReplayResult> {
-  if (batch.length === 0) return { ok: true, settled: [] };
+  if (batch.length === 0) return { ok: true, settled: [], written: [] };
   if (batch.length > REPLAY_BATCH) {
-    return { ok: false, settled: [], error: "Too many grades in one batch." };
+    return { ok: false, settled: [], written: [], error: "Too many grades in one batch." };
   }
 
   const now = Date.now();
   const settled: string[] = [];
+  const written: ReplayResult["written"] = [];
 
   /*
     ONE QUESTION ASKED ONCE, NOT FIFTY TIMES.
@@ -185,7 +194,8 @@ export async function applyGradeBatch(
     cards.set(item.cardId, { ...card, ...next });
 
     settled.push(item.id);
+    written.push({ id: item.id, cardId: item.cardId, state: next });
   }
 
-  return { ok: true, settled };
+  return { ok: true, settled, written };
 }

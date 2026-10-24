@@ -10,7 +10,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   AWAY_DAYS, DEADLINE_WEEKS_MAX, DEADLINE_WEEKS_MIN, letterOwed, MAX_PER_WEEK, MIN_GAP_HOURS,
-  QUIET_CONVERSATIONS, type Candidate,
+  QUIET_CONVERSATIONS, UNCAPPED, type Candidate, type Channel,
 } from "./schedule";
 import { emailPrefsFrom, switchOff } from "./prefs";
 import { PUSH_KINDS } from "@/lib/push/kinds";
@@ -27,6 +27,7 @@ function candidate(over: Partial<Candidate> = {}): Candidate {
     email: "mari@example.ee",
     undeliverable: false,
     pushable: false,
+    nativeable: false,
     prefs: emailPrefsFrom(null),
     dayKey: "2026-09-16",
     localHour: 19,
@@ -577,5 +578,85 @@ describe("a notification instead of a letter (VB-10)", () => {
     const morning = candidate({ pushable: true, localHour: 9, milestoneReached: "A1" });
     expect(letterOwed(morning, NOW)).toMatchObject({ kind: "milestone", channel: "push" });
     expect(PUSH_KINDS).toEqual(["tonight", "milestone", "shield", "wordday"]);
+  });
+});
+
+describe("a phone first, then a computer, then email (N-9, D13)", () => {
+  it("sends a short form to the phone where one is registered, ahead of a computer", () => {
+    expect(letterOwed(candidate({ nativeable: true, pushable: true }), NOW)).toMatchObject({ kind: "tonight", channel: "native" });
+    expect(letterOwed(candidate({ nativeable: true }), NOW)?.channel).toBe("native");
+  });
+
+  it("keeps a letter with no short form a letter, phone or not", () => {
+    const away = candidate({ nativeable: true, lastReviewAt: daysAgo(AWAY_DAYS + 1) });
+    expect(letterOwed(away, NOW)).toMatchObject({ kind: "comeback", channel: "email" });
+  });
+
+  it("reaches somebody with no usable address through their phone", () => {
+    expect(letterOwed(candidate({ nativeable: true, email: null }), NOW)?.channel).toBe("native");
+  });
+
+  it("sends nothing to a phone for a kind switched off in Settings", () => {
+    const off = switchOff(emailPrefsFrom(null), ["tonight"]);
+    expect(letterOwed(candidate({ nativeable: true, prefs: off }), NOW)).toBeNull();
+  });
+
+  /*
+    THE RULE A LEARNER NOTICES WHEN IT BREAKS, DRIVEN OVER A WEEK.
+
+    Hour by hour, the way the run would ask on hourly runs, with every send
+    booked as the run books it: one row per learner, kind and day, read back as
+    the last send of that kind and as the week's count. The phone is forgotten
+    on the fourth day and the computer on the sixth, so the week walks all three
+    channels. What may never happen is a kind going twice on one day, or going
+    a way the order does not name.
+  */
+  it("books one channel per kind per day across a week, in D13's order", () => {
+    const start = new Date("2026-09-14T00:00:00Z");
+    const booked = new Map<string, Channel>();
+    const sends: { at: Date; kind: EmailKind }[] = [];
+    const prefs = emailPrefsFrom(null, "wordday");
+    let told = false;
+    for (let h = 0; h < 7 * 24; h++) {
+      const now = new Date(start.getTime() + h * 3_600_000);
+      const day = Math.floor(h / 24);
+      const dayKey = now.toISOString().slice(0, 10);
+      const lastSent = new Map<EmailKind, Date>();
+      for (const send of sends) lastSent.set(send.kind, send.at);
+      const weekAgo = now.getTime() - 7 * 86_400_000;
+      const who = candidate({
+        nativeable: day < 3,
+        pushable: day < 5,
+        prefs,
+        dayKey,
+        localHour: now.getUTCHours(),
+        localWeekday: now.getUTCDay(),
+        lastSent,
+        sentThisWeek: sends.filter((s) => s.at.getTime() >= weekAgo && !UNCAPPED.includes(s.kind)).length,
+        lastReviewAt: new Date(now.getTime() - 20 * 3_600_000),
+        milestoneReached: day === 2 && now.getUTCHours() >= 8 && !told ? "A1" : null,
+      });
+      const decision = letterOwed(who, now);
+      if (!decision) continue;
+      const key = `${dayKey} ${decision.kind}`;
+      expect(booked.has(key), `${key} went twice`).toBe(false);
+      booked.set(key, decision.channel);
+      sends.push({ at: now, kind: decision.kind });
+      // The run writes the mark after the send, so the level is not news again.
+      if (decision.kind === "milestone") told = true;
+    }
+    const channels = [...booked.entries()];
+    // The word goes every day, uncapped, so it walks all three channels; the
+    // capped kinds stop at the weekly ceiling, whichever way they went.
+    expect(channels.filter(([k]) => k.endsWith(" wordday")).map(([, c]) => c))
+      .toEqual(["native", "native", "native", "push", "push", "email", "email"]);
+    expect(channels.filter(([k]) => !UNCAPPED.some((kind) => k.endsWith(` ${kind}`))).length).toBeLessThanOrEqual(MAX_PER_WEEK);
+    expect(channels.filter(([k]) => k.endsWith(" tonight")).length).toBeGreaterThanOrEqual(3);
+    for (const [key, channel] of channels) {
+      const day = Math.floor((Date.parse(key.slice(0, 10)) - start.getTime()) / 86_400_000);
+      const short = PUSH_KINDS.some((kind) => key.endsWith(` ${kind}`));
+      const expected = !short ? "email" : day < 3 ? "native" : day < 5 ? "push" : "email";
+      expect(channel, key).toBe(expected);
+    }
   });
 });

@@ -43,7 +43,12 @@ import { isPublicReference } from "@/lib/ux/publicReference";
  * rather than asking about it, and does so under a deadline.
  */
 export async function middleware(request: NextRequest) {
-  const csp = buildContentSecurityPolicy();
+  /* Behind a proxy that ends TLS the request arrives as HTTP and says so in the
+     header. Any hop saying HTTPS counts: a caller can add the directive to its
+     own page by writing the header and cannot take away the one a proxy adds. */
+  const secure = request.nextUrl.protocol === "https:"
+    || (request.headers.get("x-forwarded-proto") ?? "").split(",").some((hop) => hop.trim() === "https");
+  const csp = buildContentSecurityPolicy({ secure });
   const withCsp = <T extends NextResponse>(response: T): T => {
     response.headers.set("Content-Security-Policy", csp);
     return response;
@@ -140,11 +145,17 @@ export async function middleware(request: NextRequest) {
     // What to try when somebody cannot sign in, and whether the app is working,
     // for exactly the reader who has no session to read anything else with.
     path.startsWith("/help") ||
+    // How to delete an account, for Google Play's web link, which has to work
+    // for somebody who no longer has the app (N-8). It deletes nothing itself.
+    path.startsWith("/account/delete") ||
     // What a teacher sees, drawn over an invented class, for somebody deciding
     // whether to put a code on a board before they have a class.
     path.startsWith("/teachers") ||
     // What a pilot is, for an organization deciding whether to run one. English only.
     path.startsWith("/pilots") ||
+    // The one page a reviewer at the Institute or a ministry is sent to, which
+    // leads to everything else (docs/44-sixth-batch.md, S-7). Read with no account.
+    path.startsWith("/partners") ||
     path.startsWith("/how-we-know") ||
     path.startsWith("/curriculum") ||
     path.startsWith("/accessibility") ||
@@ -232,9 +243,22 @@ export async function middleware(request: NextRequest) {
       the site is (app/llms.txt/route.ts); `/.well-known/` is where a crawler
       looks for files like an agent catalog, and there is none here, so it
       answers 404 rather than a sign-in form a checker then reads as a broken
-      catalog (PageSpeed's agentic browsing, 14 October 2026).
+      catalog (PageSpeed's agentic browsing, 14 October 2026). It is also where
+      a security researcher looks for `security.txt`
+      (app/.well-known/security.txt/route.ts), which has to be readable by
+      somebody with no account here and holds nothing about anybody.
     */
     path.startsWith("/llms.txt") ||
+    /*
+      The two files a phone reads to open the sign-in link in the native app
+      (app/.well-known/, docs/44-sixth-batch.md N-3). iOS and Android fetch
+      them with no session, and Apple refuses a redirect, so a 307 to the
+      sign-in form here would be a domain that claims no app however the
+      operator set it up. The prefix below covers them today; named exactly,
+      so a later narrowing of that prefix cannot take them with it.
+    */
+    path === "/.well-known/apple-app-site-association" ||
+    path === "/.well-known/assetlinks.json" ||
     path.startsWith("/.well-known/") ||
     path.startsWith("/sitemap.xml") ||
     path.startsWith("/opengraph-image") ||
@@ -251,6 +275,20 @@ export async function middleware(request: NextRequest) {
     // would be a session with nothing to say about whether the caller may
     // read a deployment-wide aggregate.
     path.startsWith("/api/research") ||
+    /*
+      THE NATIVE APPS' DOOR, WHICH GATES ITSELF (ADR-029).
+
+      A v1 route reads `Authorization: Bearer <access token>` and never a
+      cookie, so a phone carries no session this gate could find: answering it
+      here would refuse every native request 401 before the route had read its
+      own token, which is the lesson `/api/email/send` taught about a cron.
+      Past this line `requireBearerUser` verifies the token, checks the
+      allowlist and answers 401 or 503 itself, and `/api/v1/meta` holds nothing
+      about anybody. The schema file beside it is the contract a native
+      developer reads, and it is public for the same reason.
+    */
+    path.startsWith("/api/v1/") ||
+    path === "/api/v1.schema.json" ||
     /*
       THE GRAMMAR REFERENCE, READ BY SOMEBODY ARRIVING FROM A SEARCH (FB-8).
 

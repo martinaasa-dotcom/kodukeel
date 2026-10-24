@@ -145,7 +145,7 @@ function SpeakButton({
         round paid for it: its own copy of this caught both and told a learner
         their connection was down. `playClip` is the one answer now.
       */
-      const outcome = await playClip({ text, slow, voice, condition, rate, pace, native: native ?? !askedVoice }, { unasked });
+      const outcome = await playClip({ text, slow, voice, condition, rate, pace, native: native ?? !askedVoice }, { unasked, chosen: !!insist });
       setState("idle");
       if (outcome === "played") onPlay?.();
     } catch {

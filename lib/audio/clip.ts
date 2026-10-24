@@ -300,6 +300,43 @@ export function warmNative(ids: readonly string[]): void {
  */
 export type PlayOutcome = "played" | "blocked";
 
+/**
+ * THE LONGEST CLIP THAT PLAYS ON ITS OWN (WCAG 2.2, 1.4.2 Audio Control).
+ *
+ * Audio that starts by itself and lasts more than three seconds needs a way to
+ * stop it, and a clip played as a card appears has none beyond the page. So an
+ * unasked play is held to under three seconds of sound: a longer clip is not
+ * played, and the caller hears `blocked`, which already means "leave the
+ * button to be pressed". A word and a short sentence are well under it; a
+ * dialogue line read slowly is the case it catches. Measured on the clip as it
+ * will play, after the stretch, so a slow pace is counted at its own length.
+ * A line the learner chose to hear rather than read is not held to it: that is
+ * sound they asked for, and turning the voice mode off is the way to stop it.
+ */
+export const AUTOPLAY_MAX_SECONDS = 3;
+
+/**
+ * How long a WAV clip plays, in seconds, or null where the bytes are not a WAV
+ * this can read. Read off the header and the data chunk, not by decoding.
+ */
+export function wavSeconds(bytes: Uint8Array): number | null {
+  try {
+    const pcm = decodeWav(bytes);
+    return pcm.rate > 0 ? pcm.samples.length / pcm.rate : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Whether a clip nobody asked for may play: only one known to be under
+ * `AUTOPLAY_MAX_SECONDS`. A clip whose length cannot be read waits for a
+ * press, which is the safe side of a rule about sound starting by itself.
+ */
+export function mayAutoplay(seconds: number | null): boolean {
+  return seconds !== null && seconds < AUTOPLAY_MAX_SECONDS;
+}
+
 /*
   WHETHER ANYTHING IS BEING SAID ALOUD RIGHT NOW, so a screen can wait for it.
 
@@ -368,11 +405,17 @@ export function untilQuiet(capMs: number): Promise<void> {
 
 export async function playClip(
   request: ClipRequest,
-  { unasked = false }: { unasked?: boolean } = {},
+  { unasked = false, chosen = false }: { unasked?: boolean; chosen?: boolean } = {},
 ): Promise<PlayOutcome> {
   const end = beginSpeech();
   try {
     const clip = await stretchedClip(request, rateFor(request));
+    // `chosen` is a line the learner asked to hear rather than read (a voice
+    // mode in a conversation, `Speak`'s `insist`), which is not unasked sound.
+    if (unasked && !chosen && !mayAutoplay(wavSeconds(new Uint8Array(await clip.blob.arrayBuffer())))) {
+      end();
+      return "blocked";
+    }
     // The rate is already in the clip; the room is the mixer's job. A slow
     // play is heard in a quiet room, because it was asked for by somebody who
     // wants to hear the word and not the café.

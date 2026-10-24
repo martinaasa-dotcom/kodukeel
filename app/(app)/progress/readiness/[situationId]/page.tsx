@@ -11,6 +11,8 @@ import { ButtonLink } from "@/components/Button";
 import { SituationDetail } from "@/components/readiness/SituationDetail";
 import { localeFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
+import { sceneHistoryFor } from "@/lib/progress/scene";
+import { sceneForEar } from "@/lib/readiness/rehearsal";
 
 export async function generateMetadata({ params }: { params: Promise<{ situationId: string }> }) {
   const { situationId } = await params;
@@ -35,7 +37,7 @@ export default async function SituationPage({ params }: { params: Promise<{ situ
   if (!situation) notFound();
 
   const ownerId = await requireUserId();
-  const [reading, picture, rows, locale] = await Promise.all([
+  const [reading, picture, rows, locale, history] = await Promise.all([
     readingFor(ownerId, situationId),
     readinessPicture(ownerId),
     prisma.lexeme.findMany({
@@ -43,6 +45,7 @@ export default async function SituationPage({ params }: { params: Promise<{ situ
       select: { id: true, lemma: true, translation: true, pos: true, provenance: true, forms: { select: { formType: true } } },
     }),
     localeFor(ownerId),
+    sceneHistoryFor(ownerId),
   ]);
   const t = (english: string) => tr(locale, english);
   if (!reading) notFound();
@@ -55,6 +58,18 @@ export default async function SituationPage({ params }: { params: Promise<{ situ
     gloss: l.translation,
     evidence: picture.evidence.get(l.lemma),
   }));
+
+  /*
+    THE CONVERSATION THAT CAN PROVE AN EAR HERE (C-4). Where an "ear" blocker
+    stands, the scene whose units include this situation's, the one played
+    least, is offered beside the level check; it opens its briefing with the
+    words hidden for this run (`?voice=listen`), which the briefing reads and
+    never stores. The play counts come from the runs, never a counter.
+  */
+  const earBlocked = reading.struggles.some((s) => s.byEar);
+  const plays = new Map([...history].map(([id, h]) => [id, h.plays]));
+  const ear = earBlocked ? sceneForEar(situation.id, plays) : null;
+  const earScene = ear ? { id: ear.id, title: ear.title } : null;
 
   return (
     <Page
@@ -74,7 +89,7 @@ export default async function SituationPage({ params }: { params: Promise<{ situ
         </span>
       }
     >
-      <SituationDetail reading={reading} words={words} locale={locale} />
+      <SituationDetail reading={reading} words={words} locale={locale} earScene={earScene} />
     </Page>
   );
 }

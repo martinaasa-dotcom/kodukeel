@@ -1,18 +1,14 @@
 import { InsideHere } from "@/components/InsideHere";
 import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
-import { dictionaryEntries, sentenceReach } from "@/lib/dict/facts";
-import { plainerFirst } from "@/lib/dict/plainness";
+import { dictionaryEntries } from "@/lib/dict/facts";
 import { mergeNearby, nearbyEntries, type Nearby } from "@/lib/dict/nearby";
 import { looksEnglish } from "@/lib/dict/english";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
-import { searchLexemes } from "@/lib/dict/search";
-import { enrichWithinDeadline, lookupAndStore } from "@/lib/dict/lookup";
-import { didYouMean, knownAs as knownLemmas, vouchedTranslations } from "@/lib/dict/known";
-import { backfillClozeCards } from "@/lib/srs/backfill";
+import { headers } from "next/headers";
+import { didYouMean, vouchedTranslations } from "@/lib/dict/known";
 import { ekilexConfigured } from "@/lib/ekilex/client";
-import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { offered, resolveProviders } from "@/lib/tutor/provider";
 import { suggestWords, type Suggestions } from "@/lib/dict/suggest";
 import { readableHeadlines } from "@/lib/dict/headlines";
@@ -20,7 +16,9 @@ import { feedHost } from "@/lib/news/feed";
 import { Page } from "@/components/ui";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countGrouped, fill, tr } from "@/lib/copy/locale";
-import { DictionaryClient, type EntryView } from "./DictionaryClient";
+import { searchDictionary } from "@/lib/progress/dictionarySearch";
+import { openEntry } from "@/lib/progress/dictionaryEntry";
+import { DictionaryClient } from "./DictionaryClient";
 import { firstParams } from "@/lib/ux/queryParam";
 
 export async function generateMetadata() {
@@ -50,48 +48,14 @@ export default async function DictionaryPage({
     rather than an index, so a link keeps working when the ranking changes.
   */
   const { q = "", entry: wanted } = firstParams(await searchParams);
-  let hits = q ? await searchLexemes(q) : [];
-
   /*
-    NOTHING LOCALLY, SO ASK WHICH WORD THAT SPELLING IS A FORM OF.
-
-    The search strips a case ending to find a genitive stem and a person
-    ending to find a first person, and that reaches every form the dictionary
-    holds. It reaches nothing for a word the dictionary has no entry for, and
-    that is where a form used to become a dead end twice over: `põhjas` is not
-    a headword, so Ekilex's search answered nothing for it too, and the screen
-    said nothing was found about the seesütlev of `põhi`. The forms list
-    (`lib/dict/forms.ts`) says which headwords a spelling belongs to, so the
-    live lookup below asks for the word rather than for the form.
+    The search, the forms list where the spelling is a form of a headword, and
+    Ekilex asked live where a key is set, in `searchDictionary`, which
+    `GET /api/v1/dictionary` calls too (lib/progress/dictionarySearch.ts).
   */
-  const knownAs = q && hits.length === 0 ? await knownLemmas(q) : [];
-  /*
-    The first few and not all of them, because a spelling can belong to
-    several: `koolis` is the seesütlev of `kool` and a person of `koolma`, and
-    the list is ordered with the likeliest first. Each one is a query and each
-    one below is a request to a free academic service, so the cap is what
-    stops an ambiguous spelling costing five of each.
-  */
-  const WORTH_TRYING = 3;
-  for (const lemma of knownAs.slice(0, WORTH_TRYING)) {
-    if (hits.length > 0 || lemma === q.trim()) break;
-    hits = await searchLexemes(lemma);
-  }
-
-  // Still nothing: ask Ekilex, store what comes back, and search again. The
-  // second lookup of the same word never leaves the machine. The headword
-  // first, since that is what Ekilex is keyed on, then the spelling as typed.
-  let fetched = false;
-  if (q && hits.length === 0 && ekilexConfigured()) {
-    for (const wanted of [...knownAs.slice(0, WORTH_TRYING), q]) {
-      const found = await lookupAndStore(ownerId, wanted);
-      if (found) {
-        hits = await searchLexemes(found.lemma);
-        fetched = true;
-        break;
-      }
-    }
-  }
+  const found = await searchDictionary(ownerId, q);
+  const { hits, knownAs } = found;
+  let fetched = found.fetched;
 
   /*
     STILL NOTHING, SO ASK WHAT THEY MIGHT HAVE MEANT.
@@ -162,23 +126,24 @@ export default async function DictionaryPage({
   // entry for the same lemma can be opened at all.
   const opened = (wanted ? hits.find((h) => h.id === wanted) : undefined) ?? hits[0];
 
-  // A seeded word we are about to display: upgrade it to the real forms first.
-  if (opened && ekilexConfigured()) {
-    const upgraded = await enrichWithinDeadline(opened.id);
-    if (upgraded) {
-      fetched = true;
-      // The sentences that just arrived can support a gap-fill card this word
-      // could not have had when it was added to the deck.
-      await backfillClozeCards(ownerId, opened.id);
-    }
-  }
-
   const matchedAs = opened?.matchedAs ?? null;
 
   // The entry beside the three landing reads rather than before them: none of
   // the four depends on another, and on a hosted database each is a round trip.
-  const [entry, total, suggestions, starred, headlines, settings] = await Promise.all([
-    opened ? loadEntry(opened.id, ownerId) : Promise.resolve(null),
+  /*
+    AN ENTRY EKILEX SUPPLIED, ANSWERED FROM THE COPY STORED HERE, IS COUNTED.
+
+    /impact prints what this installation asked of Ekilex beside what it
+    answered without asking (docs/44-sixth-batch.md D17). Only where nothing
+    was fetched live for the entry in this render, since that lookup counted
+    its own requests, and never for a prefetch: `PrefetchLink` renders a whole
+    page when a pointer rests on a link, and a pointer resting is not a lookup.
+    `openEntry` upgrades the entry first and counts in `after()`
+    (lib/progress/dictionaryEntry.ts), and `GET /api/v1/words/{id}` calls it too.
+  */
+  const prefetch = (await headers()).get("next-router-prefetch") !== null;
+  const [opening, total, suggestions, starred, headlines, settings] = await Promise.all([
+    opened ? openEntry(ownerId, opened.id, { countAnswer: !fetched && !prefetch }) : Promise.resolve(null),
     prisma.lexeme.count(),
     /*
       Only for the landing view, like the starred list below it. What used to
@@ -203,6 +168,9 @@ export default async function DictionaryPage({
     readSettings(ownerId, [SETTING_KEYS.glossLanguage]),
   ]);
   const glossLanguage = glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]);
+  const entry = opening?.entry ?? null;
+  if (opening?.fetched) fetched = true;
+
   const locale = await localeFor(ownerId);
 
   return (
@@ -244,53 +212,4 @@ export default async function DictionaryPage({
       )}
     </Page>
   );
-}
-
-async function loadEntry(id: string, ownerId: string): Promise<EntryView | null> {
-  const [lex, reach] = await Promise.all([
-    prisma.lexeme.findUnique({
-      where: { id },
-      include: {
-        forms: { orderBy: { orderIndex: "asc" } },
-        cards: { where: { ownerId }, select: { id: true } },
-        stars: { where: { ownerId }, select: { ownerId: true } },
-      },
-    }),
-    /*
-      And how a beginner's word orders its own sentences, so the entry leads
-      with the one they can read rather than the one ten characters shorter.
-      The entry prints them all, so nothing is hidden by this: what it decides
-      is which sentence somebody looking a word up reads first. See
-      lib/dict/plainness.ts.
-    */
-    sentenceReach(),
-  ]);
-  if (!lex) return null;
-  return {
-    id: lex.id,
-    lemma: lex.lemma,
-    translation: lex.translation,
-    translationRu: lex.translationRu,
-    translationUk: lex.translationUk,
-    pos: lex.pos,
-    cefr: lex.cefr,
-    gradation: lex.gradation,
-    gradationNote: lex.gradationNote,
-    government: lex.government,
-    semanticTypes: lex.semanticTypes,
-    notes: lex.notes,
-    definition: lex.definition,
-    provenance: lex.provenance,
-    inDeck: lex.cards.length > 0,
-    starred: lex.stars.length > 0,
-    examples: usableExamples(parseExamples(lex.examples), plainerFirst(lex.cefr, reach)),
-    forms: lex.forms.map((f) => ({
-      formType: f.formType,
-      value: f.value,
-      isPrincipal: f.isPrincipal,
-      morphCode: f.morphCode,
-      morphName: f.morphName,
-      orderIndex: f.orderIndex,
-    })),
-  };
 }

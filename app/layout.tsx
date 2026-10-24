@@ -5,7 +5,7 @@ import { OfflineProvider } from "@/components/OfflineProvider";
 import { OpenOnArrival } from "@/components/OpenOnArrival";
 import { PlayOnce } from "@/components/motion/PlayOnce";
 import { canonicalOrigin } from "@/lib/auth/canonical";
-import { LOOP_SYNC_SCRIPT } from "@/lib/ux/loopSync";
+import { AWAKE_SCRIPT } from "@/lib/ux/awake";
 import "./globals.css";
 
 /**
@@ -274,9 +274,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" style={FONT_VARIABLES} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
-        {/* The brand's idle loops on one clock, so a reload or a new page
-            picks them up where they were (lib/ux/loopSync.ts). */}
-        <script dangerouslySetInnerHTML={{ __html: LOOP_SYNC_SCRIPT }} />
+        {/* The brand's idle loops wait until the page has settled
+            (lib/ux/awake.ts). */}
+        <script dangerouslySetInnerHTML={{ __html: AWAKE_SCRIPT }} />
       </head>
       <body className="min-h-screen">
         {/* Registers the service worker and drains the offline grade queue, so

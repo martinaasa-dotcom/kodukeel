@@ -172,3 +172,100 @@ export function alignCourse<U extends UnitLike>(
     return { level, examined, units: here, byPart, gaps: byPart.filter((p) => p.units.length === 0).map((p) => p.part) };
   });
 }
+
+/**
+ * A1 AS IT IS TAUGHT: LESSONS IN PARTS, EACH PART ENDING IN A CHECK.
+ *
+ * Since 2026-10-17 A1 is the lessons (`lib/course/lessons/`), not syllabus
+ * units, and `/curriculum` draws it from them: each part, its lessons in
+ * teaching order, the role-play the part ends on and the check that closes
+ * it. The levels above are still units, aligned by `alignCourse`, until each
+ * becomes lessons. Nothing here decides anything about the course; the
+ * lessons, the parts, the scenes and the checks are handed in as they are.
+ */
+
+export interface LessonLike {
+  readonly id: string;
+  readonly n: number;
+  readonly extra?: string;
+  readonly level: string;
+  readonly part: string;
+  readonly kind: string;
+  readonly title: string;
+  readonly goal: string;
+  readonly roleplay?: unknown;
+}
+
+export interface LessonPartLike {
+  readonly id: string;
+  readonly level: string;
+  readonly title: string;
+  readonly about: string;
+}
+
+export interface CheckLike {
+  readonly final: boolean;
+  readonly lessons: readonly { readonly part: string }[];
+  readonly size: { readonly recognise: number; readonly produce: number };
+}
+
+export interface PartOutline<L extends LessonLike, P extends LessonPartLike> {
+  readonly part: P;
+  readonly lessons: readonly L[];
+  /** The lessons that end on a role-play, with the live conversation each opens where there is one. */
+  readonly roleplays: readonly { readonly lesson: L; readonly scene: { readonly id: string; readonly title: string } | null }[];
+  /** The check that closes the part, or null where the part has none. */
+  readonly check: { readonly final: boolean; readonly questions: number; readonly lessons: number } | null;
+}
+
+/** The levels taught as lessons, so the outline draws them from the lessons rather than from the units. */
+export function lessonLevels(lessons: readonly LessonLike[]): Set<string> {
+  return new Set(lessons.map((l) => l.level));
+}
+
+/** Each part of the lessons at a level, with its lessons, its role-plays and its check. */
+export function outlineLessons<L extends LessonLike, P extends LessonPartLike>(
+  lessons: readonly L[],
+  parts: readonly P[],
+  checks: readonly CheckLike[],
+  sceneFor: (lessonId: string) => { id: string; title: string } | undefined,
+): PartOutline<L, P>[] {
+  return parts.map((part) => {
+    const here = lessons.filter((l) => l.part === part.id);
+    /* A check closes the part its last lesson belongs to; the final one's lessons are the whole level. */
+    const check = checks.find((c) => c.lessons[c.lessons.length - 1]?.part === part.id);
+    return {
+      part,
+      lessons: here,
+      roleplays: here.filter((l) => l.roleplay).map((lesson) => {
+        const scene = sceneFor(lesson.id);
+        return { lesson, scene: scene ? { id: scene.id, title: scene.title } : null };
+      }),
+      check: check
+        ? { final: check.final, questions: check.size.recognise + check.size.produce, lessons: check.lessons.length }
+        : null,
+    };
+  });
+}
+
+/**
+ * The units a learner can still be sent to: every unit at a level the course
+ * does not teach as lessons. A1 is the lessons, so an A1 unit is a request
+ * list for the dictionary rather than a place anybody is walked through, and
+ * homework set from one would send a class somewhere the course no longer goes.
+ */
+export function unitsAboveLessons<U extends UnitLike>(units: readonly U[], lessons: readonly LessonLike[]): U[] {
+  const taught = lessonLevels(lessons);
+  return units.filter((u) => !taught.has(u.level));
+}
+
+/** What the course is made of: lessons where a level is taught as lessons, units at the levels above. */
+export function courseMadeOf(units: readonly UnitLike[], lessons: readonly LessonLike[]): {
+  readonly lessons: number;
+  readonly units: number;
+  /** The highest level taught as lessons, which is where the units start above. */
+  readonly through: string;
+} {
+  const taught = [...lessonLevels(lessons)];
+  return { lessons: lessons.length, units: unitsAboveLessons(units, lessons).length, through: taught[taught.length - 1] ?? "A1" };
+}

@@ -1,6 +1,8 @@
 "use client";
 
 import { EnterKeyCap } from "@/components/KeyCaps";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check, RotateCcw } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
@@ -902,6 +904,7 @@ function YourTurn({ word }: { word: WalkWord }) {
     drawn as a cap and bound to nothing is the app promising a shortcut it
     does not have, which is the rule one file over in `lib/ux/advanceKey.ts`.
   */
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (inEditable(e.target)) return;
@@ -917,6 +920,7 @@ function YourTurn({ word }: { word: WalkWord }) {
         setAt((n) => Math.min(n + 1, asks.length - 1));
         return;
       }
+      if (!mayActOnKey(e, singleKeys)) return;
       const n = Number(e.key);
       if (!Number.isInteger(n) || n < 1 || n > options.length) return;
       const option = options[n - 1];
@@ -924,7 +928,7 @@ function YourTurn({ word }: { word: WalkWord }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [options, pick, picked, at, asks.length]);
+  }, [singleKeys, options, pick, picked, at, asks.length]);
 
   /*
     When the last answer is in, the way on takes focus. The "Next" button the

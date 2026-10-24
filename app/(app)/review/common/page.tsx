@@ -1,4 +1,4 @@
-import { localeFor, titleFor } from "@/lib/progress/locale";
+import { localeFor, roundTitleFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
 import { TrendingUp } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
@@ -8,9 +8,10 @@ import { commonCounts } from "@/lib/progress/common";
 import { Card, Chip, Empty, Page, Stack } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
 import { DeepenButton } from "./DeepenButton";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export async function generateMetadata() {
-  return titleFor("Most common words");
+  return roundTitleFor("/review/common");
 }
 
 export const dynamic = "force-dynamic";
@@ -54,7 +55,7 @@ export default async function CommonRoundsPage() {
 
   return (
     <Page
-      title={tr(locale, "Most common words")}
+      {...roundPageTitle("/review/common", (english) => tr(locale, english))}
       lead={tr(locale, "Counted from film and TV subtitles, so these are the words people really say.")}
     >
       {found === 0 ? (

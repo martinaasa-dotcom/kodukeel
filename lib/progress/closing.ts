@@ -88,7 +88,7 @@ const reachable = cache(async (
   const [spellings, aside] = await Promise.all([moduleSpellings(scope), deferredWordIds(ownerId, now)]);
   const tonight = await prisma.card.findMany({
     where: { AND: [tonightWhere(ownerId, now, scope.day.words, aside, openedMs > 0 ? new Date(openedMs) : null), taughtWhere(scope)] },
-    // The round's own order (`app/(app)/review/queue.ts`).
+    // The round's own order (`lib/progress/dailyQueue.ts`).
     orderBy: [{ due: "asc" }, { id: "asc" }],
     take: MODULE_SESSION * 2,
     select: SELECT,

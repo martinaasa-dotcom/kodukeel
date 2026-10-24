@@ -308,6 +308,18 @@ function watchErrors(page) {
 const TABLE_CHUNK = 20_000;
 
 /**
+ * Whether a script body is the whole table of `locale`. The Estonian table is
+ * a few hundred lines, and the landing page's own chunks carry Estonian of
+ * their own (the dictionary's examples), so a count of letters cannot tell the
+ * two apart. The table is the one chunk carrying the policy pages' Estonian,
+ * which nothing on the landing page draws.
+ */
+function isTable(locale, body) {
+  if (locale === "et") return body.includes("Andmekaitse Inspektsioon") && (body.match(/[õäöüšž]/gi) ?? []).length > 1_000;
+  return (body.match(/[\u0400-\u04FF]/g) ?? []).length > TABLE_CHUNK;
+}
+
+/**
  * THE PAGES A STRANGER MEETS BEFORE SIGNING IN, in both languages: hydrated
  * without a mismatch, and the landing page carrying only its own lines until
  * somebody reaches for a demo, at which point the whole language arrives and
@@ -322,14 +334,26 @@ async function entryPages(locale) {
     if (!/\/_next\/static\/.+\.js/.test(response.url())) return;
     try {
       const body = await response.text();
-      if ((body.match(/[\u0400-\u04FF]/g) ?? []).length > TABLE_CHUNK) tableLoads += 1;
+      if (isTable(locale, body)) tableLoads += 1;
     } catch { /* a response with no body */ }
   });
-  const pages = [
-    `/welcome/${locale}`, `/privacy?lang=${locale}`, `/terms?lang=${locale}`, `/trust?lang=${locale}`,
-    `/accessibility?lang=${locale}`, `/funding?lang=${locale}`, `/state-exam?lang=${locale}`,
-    `/teachers?lang=${locale}`, `/help?lang=${locale}`, `/sign-in?lang=${locale}`,
-  ];
+  /*
+    Estonian is a language of the public pages alone (D16 in
+    docs/44-sixth-batch.md): it is offered on the landing page and the pages
+    built on `Legal`, and never on sign-in, which hands a learner the app in
+    English.
+  */
+  const pages = locale === "et"
+    ? [
+      "/welcome/et", "/privacy?lang=et", "/terms?lang=et", "/trust?lang=et", "/accessibility?lang=et",
+      "/funding?lang=et", "/impact?lang=et", "/partners?lang=et", "/curriculum?lang=et",
+      "/teachers?lang=et", "/state-exam?lang=et", "/help?lang=et", "/how-we-know?lang=et", "/pilots?lang=et",
+    ]
+    : [
+      `/welcome/${locale}`, `/privacy?lang=${locale}`, `/terms?lang=${locale}`, `/trust?lang=${locale}`,
+      `/accessibility?lang=${locale}`, `/funding?lang=${locale}`, `/state-exam?lang=${locale}`,
+      `/teachers?lang=${locale}`, `/help?lang=${locale}`, `/sign-in?lang=${locale}`,
+    ];
   for (const path of pages) {
     thrown.length = 0;
     tableLoads = 0;
@@ -455,7 +479,7 @@ const browser = await launchChromium();
 const started = Date.now();
 try {
   for (const p of unmade) absent(40, `a row for ${p}, which scripts/test-containment.mjs makes before this in CI`);
-  for (const locale of LOCALES) await entryPages(locale);
+  for (const locale of [...LOCALES, "et"]) await entryPages(locale);
   await helpPage();
   await teachersPage();
   for (const locale of LOCALES) {

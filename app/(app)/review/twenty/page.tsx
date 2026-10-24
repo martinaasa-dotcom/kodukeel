@@ -1,5 +1,5 @@
 import { requireUserId } from "@/lib/auth/session";
-import { localeFor, titleFor } from "@/lib/progress/locale";
+import { localeFor, roundTitleFor } from "@/lib/progress/locale";
 import { meaningPrefsFor } from "@/lib/progress/meaningPrefs";
 import { meaningShown } from "@/lib/collections/glossLanguage";
 import { tr } from "@/lib/copy/locale";
@@ -16,9 +16,10 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { TwentySession } from "./TwentySession";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export async function generateMetadata() {
-  return titleFor("20 küsimust");
+  return roundTitleFor("/review/twenty");
 }
 
 export const dynamic = "force-dynamic";
@@ -66,7 +67,7 @@ export default async function TwentyPage({
 
   if (!round) {
     return (
-      <Page title="20 küsimust" lead={tr(locale, "Twenty questions, in Estonian.")}>
+      <Page {...roundPageTitle("/review/twenty", (english) => tr(locale, english))} lead={tr(locale, "Twenty questions, in Estonian.")}>
         <Empty
           title={tr(locale, "Nothing to think of yet")}
           body={tr(locale, "The dictionary holds none of the words this game uses.")}

@@ -21,3 +21,24 @@ What the page covers, in its own order:
 
 To change what a pilot is, change `app/pilots/page.tsx`, and keep every figure on it one the
 repository already states.
+
+## The shared demo
+
+A reviewer who wants to see the app with history behind it, before deciding on a pilot, is pointed at
+`https://demo.kodukeel.ee` (docs/44-sixth-batch.md, D18). It is the same code in local mode: no
+Supabase keys, so every visitor is one learner, with two months of invented history, and
+`.github/workflows/reset-demo.yml` empties it and lays that history down again every night at 02:17 UTC.
+`DEMO_DEPLOYMENT=1` draws a banner saying so and asks crawlers to stay out, and does nothing else. It
+carries no model key and no Ekilex key, so it costs nothing and adds nothing to EKI's load; with a model
+key set the banner turns into a warning and the nightly reset refuses to run.
+
+What the operator sets up, once:
+
+- A second Vercel project from this repository with `DEMO_DEPLOYMENT=1`, `NEXT_PUBLIC_SITE_URL` set
+  to `https://demo.kodukeel.ee`, its own Postgres in `DATABASE_URL` and `DIRECT_URL`, and no Supabase,
+  model or Ekilex key. The address resolves to the demo project.
+- The demo database's connection string as the repository secret `DEMO_DATABASE_URL`, and
+  `https://demo.kodukeel.ee` as the repository variable `DEMO_SITE_URL`.
+- One run of the reset workflow by hand, then the address handed to the reviewer.
+
+The address answers once that is done. Until then this paragraph describes a plan, not a site.

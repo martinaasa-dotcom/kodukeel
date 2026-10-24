@@ -55,10 +55,11 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { ekilexRequest } from "../lib/ekilex/client";
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CACHE = path.join(ROOT, ".ekilex-cache", "wordlist");
 const OUT = path.join(ROOT, "prisma/data/wordlist.txt");
-const BASE = "https://ekilex.ee/api";
 const KEY = process.env.EKILEX_API_KEY;
 
 /** Every letter an Estonian word can start with. */
@@ -86,12 +87,15 @@ async function search(prefix: string, refresh: boolean): Promise<Word[]> {
     return JSON.parse(await readFile(file, "utf8")).words ?? [];
   }
 
-  const url = `${BASE}/word/search/${encodeURIComponent(`${prefix}*`)}?datasets=eki,mab`;
-  const res = await fetch(url, { headers: { "ekilex-api-key": KEY ?? "" } });
-  if (!res.ok) throw new Error(`Ekilex returned ${res.status} for ${prefix}*`);
-  const body = await res.text();
-  await writeFile(file, body);
-  return JSON.parse(body).words ?? [];
+  // One request at a time, through the gate in lib/ekilex/client.ts, which
+  // names this app, backs off on a 429 or a 5xx and gives up after three tries.
+  const answer = await ekilexRequest<{ words?: Word[] }>(
+    `/word/search/${encodeURIComponent(`${prefix}*`)}?datasets=eki,mab`,
+  );
+  if (answer.kind === "refused") throw new Error(`Ekilex returned ${answer.status} for ${prefix}*`);
+  if (answer.kind === "failed") throw new Error(`Ekilex did not answer for ${prefix}*: ${answer.reason}`);
+  await writeFile(file, JSON.stringify(answer.value));
+  return answer.value.words ?? [];
 }
 
 async function main() {

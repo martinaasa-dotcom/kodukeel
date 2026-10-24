@@ -1,5 +1,7 @@
 "use client";
 
+import { nameOf } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 import { usePublicReader } from "@/components/PublicReader";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { useLocale, useT } from "@/components/Locale";
@@ -32,6 +34,7 @@ export function DrillLink({ href }: { href: string }) {
   // A round is the app's; a reader with no account is reading the reference (FB-8).
   const publicReader = usePublicReader();
   const mode = modeAt(href);
+  const name = nameOf(href);
   if (publicReader) return null;
   // Rather than throwing on a page whose drill has been retired. The invariant
   // suite is what catches a stale href; a learner should not meet it.
@@ -54,7 +57,10 @@ export function DrillLink({ href }: { href: string }) {
           card's whole width under both, rather than a column the icon has
           already narrowed. */}
       <span className="min-w-0">
-        <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>{t(mode.title)}</span>
+        {/* The round's agreed name, Estonian first, as its tile and its page draw it. */}
+        <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>
+          {name ? <RoundNameText name={name} translate={t} /> : t(mode.title)}
+        </span>
         <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{t(mode.subtitle)}</span>
       </span>
       <span className="col-span-2 block text-sm sm:col-span-1 sm:col-start-2" style={{ color: "var(--ink-2)" }}>{t(mode.blurb)}</span>

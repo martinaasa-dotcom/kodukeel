@@ -1,0 +1,4 @@
+{
+  "contentType": "audio/wav",
+  "note": "The body is a WAV clip, not JSON. `x-tts-cache` names which store answered."
+}

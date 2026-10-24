@@ -1,12 +1,13 @@
 import { Legal, P, S } from "@/components/Legal";
-import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
+import { EkilexSection, ImpactRows as Rows, impactWords } from "@/components/ImpactFigures";
+import { countOf, fill, tr } from "@/lib/copy/locale";
 import { publicCard } from "@/lib/copy/publicCards";
 import { heldImpact, impactIsListed } from "@/lib/progress/impactListed";
-import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
-import { MAX_LEARNER_SHARE, MIN_LEARNERS, MIN_REVIEWS, type SuppressionReason } from "@/lib/research/corpus";
-import {
-  impactListable, isWithheld, type Figure, type Headcount, type Impact, type Reported, type RetentionReading,
-} from "@/lib/research/impact";
+import { ekilexImpact } from "@/lib/dict/ekilexCount";
+import { IMPACT_WINDOW_DAYS } from "@/lib/progress/impact";
+import { publicPageTitle, resolvePublicPage, type PublicSearch } from "@/lib/progress/publicLocale";
+import { MAX_LEARNER_SHARE, MIN_LEARNERS, MIN_REVIEWS } from "@/lib/research/corpus";
+import { impactListable, type Impact, type RetentionReading } from "@/lib/research/impact";
 
 /*
   Force-dynamic: every figure is this deployment's own, read when the page is
@@ -16,7 +17,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  const meta = await publicTitle(searchParams, "What this installation has done", undefined, publicCard("/impact"));
+  const meta = await publicPageTitle(searchParams, "What this installation has done", undefined, publicCard("/impact"));
   /*
     Listed nowhere until the headline clears the floors (docs/38-third-batch.md,
     D3), and asked not to be indexed for the same reason: a page that is mostly
@@ -36,13 +37,6 @@ function spelled(iso: string): string {
   return `${day} ${MONTHS[(month ?? 1) - 1]} ${year}`;
 }
 
-const NUMBER_TAG: Record<Locale, string> = { en: "en-GB", ru: "ru-RU", uk: "uk-UA" };
-
-/** A count with its noun in the reader's language, and the digits grouped the way they write them. */
-function counted(locale: Locale, n: number, noun: string): string {
-  return countOf(locale, n, noun).replace(/^\d+/, n.toLocaleString(NUMBER_TAG[locale]));
-}
-
 /**
  * WHAT ONE INSTALLATION HAS DONE, IN FIGURES THAT CANNOT IDENTIFY ANYBODY.
  *
@@ -59,7 +53,7 @@ function counted(locale: Locale, n: number, noun: string): string {
  * spoke Estonian yesterday.
  */
 export default async function ImpactPage({ searchParams }: { searchParams: PublicSearch }) {
-  const { locale, explicit } = await resolvePublicLocale(searchParams);
+  const { locale, explicit } = await resolvePublicPage(searchParams);
   const t = (english: string) => tr(locale, english);
   const read = await heldImpact();
   if (!read) {
@@ -70,28 +64,9 @@ export default async function ImpactPage({ searchParams }: { searchParams: Publi
     );
   }
   const impact: Impact = read;
+  const ekilex = await ekilexImpact(IMPACT_WINDOW_DAYS);
 
-  const why = (reason: SuppressionReason): string => {
-    switch (reason) {
-      case "learners": return fill(t("Not shown yet: fewer than {n} people behind it."), { n: MIN_LEARNERS });
-      case "reviews": return fill(t("Not shown yet: fewer than {n} records behind it."), { n: MIN_REVIEWS });
-      case "dominance": return fill(t("Not shown yet: one person is more than {pct}% of it."), { pct: Math.round(MAX_LEARNER_SHARE * 100) });
-    }
-  };
-  const people = (band: string) => fill(t("{band} people"), { band });
-  const headcount = (reported: Reported<Headcount>) =>
-    isWithheld(reported) ? why(reported) : people(reported.learners);
-  const quantity = (reported: Reported<Figure>, noun: string) =>
-    isWithheld(reported)
-      ? why(reported)
-      : fill(t("About {amount}, from {people}."), { amount: counted(locale, reported.value, noun), people: people(reported.learners) });
-  const comingBack = (reading: RetentionReading) =>
-    reading.pct === null
-      ? t("Not shown yet: too few people, or too little time has passed.")
-      : fill(t("{pct}% of {people}."), {
-        pct: reading.pct.toLocaleString(NUMBER_TAG[locale], { maximumFractionDigits: 1 }),
-        people: people(reading.learners),
-      });
+  const { headcount, quantity, comingBack } = impactWords(locale);
   const MILESTONE_LABEL: Record<RetentionReading["key"], string> = {
     d1: "Came back the next day",
     d7: "Came back a week later",
@@ -135,6 +110,7 @@ export default async function ImpactPage({ searchParams }: { searchParams: Publi
           </S>
         </>
       )}
+      <EkilexSection ekilex={ekilex} locale={locale} />
       <S title={t("How to read it")}>
         <P>
           {fill(t("Every figure rests on at least {people} and {records}, and no one person is more than {pct}% of any of them. Anything under that says so instead of showing a small number."), {
@@ -149,18 +125,5 @@ export default async function ImpactPage({ searchParams }: { searchParams: Publi
         </P>
       </S>
     </Legal>
-  );
-}
-
-function Rows({ rows }: { rows: readonly (readonly [string, string])[] }) {
-  return (
-    <dl className="space-y-3">
-      {rows.map(([label, value]) => (
-        <div key={label}>
-          <dt className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{label}</dt>
-          <dd className="text-base" style={{ color: "var(--ink-2)" }}>{value}</dd>
-        </div>
-      ))}
-    </dl>
   );
 }

@@ -25,8 +25,18 @@ import { canonicalOrigin } from "@/lib/auth/canonical";
  * that has not set the variable gets a robots file with no sitemap in it,
  * which is the honest answer rather than a wrong one, and the same shape
  * `lib/legal/operator.ts` takes about an operator nobody named.
+ *
+ * A demo deployment (`DEMO_DEPLOYMENT=1`, docs/44-sixth-batch.md D18) asks
+ * not to be indexed at all and carries no sitemap. It is the app with two
+ * months of invented history, wiped every night, and a search result pointing
+ * at it would send a stranger to somebody else's made-up deck instead of the
+ * real address. This file and `components/DemoBanner.tsx` are the only two
+ * readers of the variable, which an invariant holds.
  */
 export default function robots(): MetadataRoute.Robots {
+  if (process.env.DEMO_DEPLOYMENT === "1") {
+    return { rules: [{ userAgent: "*", disallow: "/" }] };
+  }
   const origin = canonicalOrigin();
   return {
     rules: [{ userAgent: "*", allow: "/", disallow: ["/api/", "/auth/"] }],

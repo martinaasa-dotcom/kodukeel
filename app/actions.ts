@@ -1,8 +1,10 @@
 "use server";
 
-import { moveBlockedFor, recordCheckPassed } from "@/lib/progress/checks";
-import { checkById, checkPaper } from "@/lib/course/checks";
-import { markCheck } from "@/lib/course/lessons/practice";
+import { moveBlockedFor } from "@/lib/progress/checks";
+import { COURSE_DAY_CARDS, finishLessonFor, submitCheckFor } from "@/lib/progress/lessons";
+import { LESSONS } from "@/lib/course/lessons";
+import { lessonLevels } from "@/lib/curriculum/align";
+import { UNIT_HOMEWORK_FROM } from "@/lib/copy/homework";
 import { relearn, reportGaps, retireLearned } from "@/lib/progress/twentyLearned";
 import { reportable } from "@/lib/games/twentyLearned";
 import { revalidatePath } from "next/cache";
@@ -14,19 +16,12 @@ import { visibleLine, visibleProse } from "@/lib/security/visibleText";
 import { glossSentences } from "@/lib/dict/glossed";
 import { MAX_READING_CHARS, readingParagraphs } from "@/lib/estonian/readingText";
 import { setTaskDone } from "@/lib/progress/tasks";
-import { deferredDues, deferWord, undoDeferral } from "@/lib/progress/deferrals";
 import { keepBest } from "@/lib/progress/personalBest";
 import { deleteOwnReminder } from "@/lib/progress/reminders";
 import { classworkMarker } from "@/lib/ux/agenda";
 import { sceneById } from "@/lib/scenes/catalogue";
-import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
-import { cardsForGrades } from "@/lib/scenes/grades";
-import { alsoDoneOf, beatNow, beginRun, concededOf, finishRun, MAX_TURNS, MAX_TURN_CHARS, spokenOf } from "@/lib/progress/scene";
-import { chatOffered, chatPersona, planChat } from "@/lib/progress/chat";
-import { wouldAuthorise } from "@/lib/usage/ledger";
-import { chatDay } from "@/lib/progress/chatDay";
-import { CHAT_ID } from "@/lib/scenes/specs/chat";
-import { sceneProviders } from "@/lib/tutor/provider";
+import { beginChatFor, beginSceneFor, finishSceneFor, sceneHelpFor } from "@/lib/progress/sceneRuns";
+import { gradeFor, gradeOnce } from "@/lib/progress/grading";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { formName } from "@/lib/estonian/morph";
 import {
@@ -39,51 +34,54 @@ import { cohortKind } from "@/lib/classroom/cohort";
 import { EXAM_LEVELS, type ExamLevel } from "@/lib/exam/spec";
 import { loadRecentMessages } from "@/lib/tutor/history";
 import { isExactForm } from "@/lib/dict/forms";
-import { mergeExamples, parseExamples, MAX_CHARS as EXAMPLE_MAX_CHARS } from "@/lib/dict/examples";
-import { alsoAcceptedByLemma, borrowedSentences, sentenceReach } from "@/lib/dict/facts";
-import { plainerFirst } from "@/lib/dict/plainness";
+import { mergeExamples, parseExamples } from "@/lib/dict/examples";
 import { restoredEntry } from "@/lib/dict/restoredEntry";
 import { lookupAndStore } from "@/lib/dict/lookup";
 import { upsertLexemeWithForms } from "@/lib/dict/upsert";
 import { editExamples } from "@/lib/dict/editExamples";
 import { requireAdminId } from "@/lib/auth/admin";
 import { applyPatch } from "@/lib/suggestions/apply";
-import { resetCourseProgress, restartPart } from "@/lib/progress/courseReset";
+import { resetCourseProgress } from "@/lib/progress/courseReset";
 import {
   PATCH_POS, SUGGESTION_LIMITS, acknowledgement, groupKeyFor, isCategory, parsePatch, parsePatchValue,
-  patchFitsCategory,
+  patchFitsCategory, triggerLimit,
 } from "@/lib/suggestions/model";
 import { CEFR_LEVELS } from "@/lib/estonian/types";
-import { eraseAuthIdentity, remainingIdentityNote } from "@/lib/auth/erase";
-import { NEEDS_TRANSLATION } from "@/lib/copy/values";
-import { resolveOneWord, vouchScanItems } from "@/lib/dict/resolveScan";
-import { guessPos, MAX_ITEMS as SCAN_MAX_ITEMS } from "@/lib/scan/extract";
-import { parseItems, sanitiseItems, serialiseItems } from "@/lib/scan/items";
+import { LIMITS, MAX_SCAN_TITLE } from "@/lib/progress/fieldLimits";
+import { resolveOneWord } from "@/lib/dict/resolveScan";
+import { MAX_ITEMS as SCAN_MAX_ITEMS } from "@/lib/scan/extract";
+import { parseItems, serialiseItems } from "@/lib/scan/items";
+import { deleteAccountFor } from "@/lib/account/erase";
+import { changeCourseLevel } from "@/lib/progress/courseLevel";
+import { changeAccountSettings } from "@/lib/settings/account";
 import { translateSentenceWithAnu } from "@/lib/tutor/translate";
 import {
   createDeck, decksForWord, deleteDeck, fileWordInDeck, listDecks,
-  removeWordFromDeck, renameDeck, setDecksForWord, wordsInDeck, wordsToFile,
+  removeWordFromDeck, renameDeck, wordsInDeck, wordsToFile,
 } from "@/lib/progress/decks";
-import { canonicalZone } from "@/lib/time/day";
+
 import { markSayingsShown } from "@/lib/progress/sayings";
+import { bringBack, keepWord, putAside, setStar } from "@/lib/progress/wordActions";
+import { addScanToDeckFor, saveScanFor } from "@/lib/progress/scans";
 import {
   forgetSettings, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
-import { isEmailKind } from "@/lib/email/letter";
-import { switchOff, switchOn } from "@/lib/email/prefs";
-import { changeEmailPrefs } from "@/lib/progress/emailPrefs";
+
+
+
 import { deviceKnown, forgetDevice, rememberDevice } from "@/lib/progress/push";
 import { pushConfigured } from "@/lib/push/config";
 import { readEndpoint, readSubscription } from "@/lib/push/subscription";
-import { parseReminderTime } from "@/lib/time/reminder";
+
 import { letterBarFrom, type LetterBar } from "@/lib/ux/letterBar";
 import { wordGlossFrom, type WordGloss } from "@/lib/ux/wordGloss";
+import { singleKeysFrom } from "@/lib/ux/shortcuts";
 import { caseGlossFrom } from "@/lib/estonian/caseGloss";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
 import { hearingFrom, hidesWords, supportFrom } from "@/lib/audio/conditions";
 import { sceneVoiceFrom } from "@/lib/audio/sceneVoice";
-import { sceneAnswerFrom } from "@/lib/ux/sceneAnswer";
-import { SPEECH_PACES } from "@/lib/audio/pace";
+
+
 import { kindFrom } from "@/lib/ux/schedule";
 import { participationValue } from "@/lib/research/participation";
 import { alsoShowFrom, glossLanguageFrom } from "@/lib/collections/glossLanguage";
@@ -92,28 +90,28 @@ import { hiddenSlotsFrom, serialiseTodayOrder, todayOrderFrom } from "@/lib/ux/t
 import { serialiseNavOrder } from "@/lib/ux/navOrder";
 import { roundPaceFrom } from "@/lib/ux/roundClock";
 import {
-  availableCardTypes, CARD_TYPES, generateCards, type CardType, type LexemeForCards,
+  CARD_TYPES, type CardType,
 } from "@/lib/srs/cards";
-import { boundedRestoredReview, isRepeatedReview, stableReviewId, writeGrade } from "@/lib/srs/grade";
+import { boundedRestoredReview, stableReviewId } from "@/lib/srs/grade";
 import { asRestoredMeasurement } from "@/lib/security/restoredMeasurement";
 import { createAbsent, resolveLexemes, restoreLexemes, restoreOwned } from "@/lib/progress/restoreRows";
 import { errandById, outcomeFrom } from "@/lib/collections/errands";
-import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
-import { ONE_PER_WORD, addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
+import { type RatingValue } from "@/lib/srs/scheduler";
+import { undoGradeFor, type SchedulingSnapshot } from "@/lib/srs/undo";
+import { addCardsFor as addWordCards, addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
 import {
   defaultProgramme, LESSON_STEP, MODULE_HOME, continueHref, dayById, focusedSteps, lessonDayFor, levelHeldOnHandOff,
-  PROGRAMMES, programmeById, stepCard, stepText,
+  programmeById, stepCard, stepText,
 } from "@/lib/course";
 import { localeFor } from "@/lib/progress/locale";
-import { courseReading, dayIsInPlay, openingPart, openingPartFor, programmeFor } from "@/lib/progress/course";
+import { courseReading, dayIsInPlay, openingPart, programmeFor } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { doneKeyFrom, doneToday, withDone } from "@/lib/ux/workbookDone";
 import { notePlayed } from "@/lib/progress/gamesPlayed";
 import { adaptOfferFor, SNOOZE_DAYS } from "@/lib/progress/adapt";
 import { clip } from "@/lib/copy/clip";
-import { isConfirmed } from "@/lib/copy/confirmWord";
 
-import { CARD_SOURCES as KNOWN_SOURCES, DEFAULT_SOURCE } from "@/lib/srs/sources";
+import { DEFAULT_SOURCE } from "@/lib/srs/sources";
 import { ratingFor, SONAD_GUESSES } from "@/lib/games/sonad";
 import { solvedEntries } from "@/lib/games/crossword";
 import { crosswordFor } from "@/lib/progress/crossword";
@@ -150,24 +148,6 @@ import { safeMessage } from "@/lib/observability/report";
  * Cards are per-user (`ownerId`) even though the Lexeme they're generated from is the shared
  * dictionary — see docs/03-architecture.md ADR-012.
  */
-/**
- * The card sources a caller may name.
- *
- * `Card.source` is not decoration: `lib/progress/wordOfDay.ts` counts the
- * words a learner kept from the almanac by querying it, and `/words` groups
- * by it. It is also a free-text column on a row a signed-in stranger can
- * create, and this endpoint was passing whatever arrived straight into it, so
- * one caller could file a card under a source nothing else in the app has
- * ever written and quietly break a count that is supposed to be derived from
- * facts. A closed list costs nothing: every caller in the tree already names
- * one of these.
- *
- * The list itself is `lib/srs/sources.ts` rather than a set typed here, because
- * `/review/lookups` reads the same values to decide which words were the
- * learner's own idea, and a second copy is how a source ends up on one side of
- * that line in this file and the other side in that round.
- */
-const CARD_SOURCES = new Set<string>(KNOWN_SOURCES);
 
 /**
  * A throttle refusal in the language the learner reads the app in.
@@ -209,30 +189,12 @@ export async function addToDeck(
   lexemeId: string, types: CardType[], source = "LOOKUP", deckIds?: string[],
 ) {
   lexemeId = text(lexemeId);
-  const known = new Set(CARD_TYPES.map((t) => t.type));
-  const wanted = [...new Set(Array.isArray(types) ? types : [])]
-    .filter((t): t is CardType => known.has(t as CardType));
   const ownerId = await requireUserId();
-  const result = await addCardsFor(
-    ownerId,
-    lexemeId,
-    wanted,
-    CARD_SOURCES.has(source) ? source : DEFAULT_SOURCE,
-  );
-  /*
-    Filed under a shelf only where the caller actually offered one to choose,
-    and `deckIds` says which by being present at all rather than by being
-    non-empty. A screen with nothing to choose between (zero or one deck)
-    never sends the argument, and a word going into a deck-less learner's
-    collection stays exactly what it was before this feature existed:
-    unfiled, and still fully theirs. A screen that *did* offer a choice and
-    got back an empty list is a different fact — every box was unticked —
-    and `setDecksForWord` already means that as "take it off every shelf",
-    which has to reach the database rather than being read as "nothing to
-    do" the way the length-0 case above is.
-  */
-  if (result.ok && Array.isArray(deckIds)) {
-    await setDecksForWord(ownerId, lexemeId, deckIds.filter((id) => typeof id === "string"));
+  // The body is `keepWord`, which `POST /api/v1/deck` calls too (lib/progress/wordActions.ts).
+  const result = await keepWord(ownerId, lexemeId, types, source, deckIds);
+  if (result.ok && result.added > 0) {
+    revalidatePath("/");
+    revalidatePath("/words");
   }
   return result;
 }
@@ -346,145 +308,23 @@ export async function deleteMyDeck(deckId: string) {
  * Deliberately not exported: this file is `"use server"`, so every export is an
  * endpoint any signed-in user can call with arguments of their choosing. An
  * exported `ownerId` parameter would therefore let one learner write cards into
- * another's deck. Owner comes from the session, never from the caller.
+ * another's deck. Owner comes from the session, never from the caller. The
+ * build itself is `addCardsFor` in lib/srs/deck.ts, which `POST /api/v1/deck`
+ * calls too; what stays here is refreshing the pages that count the deck.
  */
 async function addCardsFor(
-  owner: string, lexemeId: string, types: CardType[], source: string,
+  owner: string, lexemeId: string, types: readonly CardType[], source: string,
 ) {
-  const [lexeme, borrowed, reach, alsoAccepted] = await Promise.all([
-    prisma.lexeme.findUnique({
-      where: { id: lexemeId },
-      include: { forms: true },
-    }),
-    // The sentences this word may borrow for its case and conjugation cards,
-    // a cached fact about the shared dictionary. See lib/dict/borrow.ts.
-    borrowedSentences(),
-    // And how a beginner's word orders its own, which is the same kind of
-    // fact and cached the same way. See lib/dict/plainness.ts.
-    sentenceReach(),
-    /*
-      And which other words answer the same prompt, the fact `lib/srs/deck.ts`
-      reads for a unit. Without it a production card built one word at a time
-      took its own word alone: `pere` added from the dictionary got a back
-      of `pere` where a unit gives it `pere / perekond`, so a learner who wrote
-      `perekond` for "family" was marked wrong on a card that could not tell
-      them apart. The back reads `pere / perekond` now, read off a card
-      added in a browser; the invariant for it was made to fail on this line.
-    */
-    alsoAcceptedByLemma(),
-  ]);
-  if (!lexeme) return { ok: false as const, error: "That word isn't in the dictionary any more." };
-
-  /*
-    READ AND WRITE UNDER ONE LOCK, BECAUSE "IS IT ALREADY THERE" IS CHECK-THEN-ACT.
-
-    This read the learner's existing cards for the word, filtered the generated
-    ones against them, and inserted the rest. Two requests inside that gap both
-    see an empty deck and both insert. Measured against a real database, firing
-    the same shape concurrently: two adds gave two cards, four gave four, and
-    eight gave fourteen where two is right. A learner meets it by
-    double-tapping "Add to deck", which is the worst case rather than the
-    unlikely one.
-
-    The answer is `lib/usage/ledger.ts`'s, for the reasons its own header gives:
-    a *transaction* advisory lock, so a connection pooler cannot strand it, and
-    the blocking form, since the non-blocking one serializes nothing.
-
-    The key is `lockDeck`'s and is the learner rather than the learner and the
-    word, which is a widening this path did not need on its own and the batched
-    builder does. A key naming the word is safe against another add of the same
-    word and says nothing about `addUnitsToDeck` writing a unit that contains
-    it, so two keys would leave each path guarded against itself and neither
-    against the other. One definition, in `lib/srs/deck.ts`, because two spellings
-    of a lock key are a lock that is not held.
-
-    Held across one select and one insert, which is milliseconds, and the whole
-    of it is work this action was doing anyway.
-
-    A unique index would be the other answer and is the one not taken: an
-    existing deck that already holds duplicates from this bug would fail the
-    push, and the deployment's own build is what runs it.
-  */
-  const now = new Date();
-  const scheduling = emptyScheduling(now);
-  const added = await prisma.$transaction(async (tx) => {
-    await lockDeck(tx, owner);
-
-    const [existing, held] = await Promise.all([
-      tx.card.findMany({
-        where: { lexemeId, ownerId: owner },
-        select: { front: true, cardType: true },
-      }),
-      /*
-        AND A CARD FOR A WORD ALREADY PUT ASIDE IS BUILT PUT ASIDE.
-
-        The unit lesson is where a word is refused before it has a card: the
-        lesson teaches the unit's words and this builds them at the end, so
-        without this the word somebody said was too complicated would arrive
-        tomorrow with a card dated today. See lib/progress/deferrals.ts.
-      */
-      deferredDues(tx, owner, [lexemeId], now),
-    ]);
-    /* A recognition or production card is one per word whatever its front
-       says, or a deck built before a spelling fix gains a second copy at New
-       (`ONE_PER_WORD` in lib/srs/deck.ts). */
-    const seen = new Set(existing.flatMap((c) => ONE_PER_WORD.has(c.cardType)
-      ? [`${c.cardType}|${c.front}`, `${c.cardType}|*`]
-      : [`${c.cardType}|${c.front}`]));
-
-    const generated = generateCards(
-      {
-        ...(lexeme as LexemeForCards),
-        alsoAccepted: alsoAccepted.get(`${lexeme.lemma}|${lexeme.pos}`) ?? [],
-        borrowed: borrowed.get(lexemeId) ?? [],
-        plainest: plainerFirst(lexeme.cefr, reach),
-      }, types,
-    ).filter((c) => !seen.has(`${c.cardType}|${c.front}`) && !seen.has(`${c.cardType}|*`));
-    if (generated.length === 0) return 0;
-
-    await tx.card.createMany({
-      data: generated.map((c) => ({
-        ownerId: owner,
-        lexemeId,
-        cardType: c.cardType,
-        front: c.front,
-        back: c.back,
-        hint: c.hint,
-        targetCase: c.targetCase,
-        slot: c.slot,
-        source,
-        due: held.get(lexemeId) ?? scheduling.due,
-        stability: scheduling.stability,
-        difficulty: scheduling.difficulty,
-        state: scheduling.state,
-        learningSteps: scheduling.learningSteps,
-      })),
-    });
-    return generated.length;
-  });
-
-  if (added === 0) return { ok: true as const, added: 0, message: "That one's already in your deck." };
-
-  revalidatePath("/");
-  revalidatePath("/words");
-  return { ok: true as const, added };
+  const result = await addWordCards(owner, lexemeId, types, source);
+  if (result.ok && result.added > 0) {
+    revalidatePath("/");
+    revalidatePath("/words");
+  }
+  return result;
 }
 
-/** The scheduling fields a client hands back to undo a grade. */
-const SchedulingSchema = z.object({
-  due: z.string(),
-  stability: z.number().min(0).max(100_000),
-  difficulty: z.number().min(0).max(20),
-  elapsedDays: z.number().int().min(0).max(100_000),
-  scheduledDays: z.number().int().min(0).max(100_000),
-  reps: z.number().int().min(0).max(100_000),
-  lapses: z.number().int().min(0).max(100_000),
-  state: z.number().int().min(0).max(3),
-  learningSteps: z.number().int().min(0).max(20),
-  lastReview: z.string().nullable(),
-});
-
-export type SchedulingSnapshot = z.infer<typeof SchedulingSchema>;
+/** The scheduling fields a client hands back to undo a grade, in lib/srs/undo.ts beside the body that reads them. */
+export type { SchedulingSnapshot };
 
 /**
  * Records a grade. Writes the Review row first: the review log is append-only and
@@ -539,112 +379,6 @@ export async function gradeCard(
   return gradeFor(ownerId, cardId, rating, durationMs, { reviewedAt, practisedSlot, reachedSlot, reviewId, spoken: spoken === true });
 }
 
-/**
- * `gradeCard` for a caller that has already resolved the owner, which is every
- * mode graded on the server. `reviewId` is for the games that report a round
- * once and may report it again (`stableReviewId`): it is never taken from the
- * caller of a public action, only derived here from what the grade is about.
- * A second write of it throws on the primary key; `gradeOnce` is the caller
- * that reads that as the same answer arriving twice.
- */
-async function gradeFor(
-  ownerId: string, cardId: string, rating: RatingValue, durationMs: number,
-  options: { reviewedAt?: string; practisedSlot?: string; reachedSlot?: string; reviewId?: string; spoken?: boolean } = {},
-) {
-  const { reviewedAt, practisedSlot, reachedSlot, reviewId, spoken } = options;
-
-  if (reviewId !== undefined && !isClientReviewId(reviewId)) {
-    return { ok: false as const, error: "That answer didn't come through properly, so it wasn't saved." };
-  }
-
-  /*
-    `Review` IS APPEND-ONLY, SO A BAD ROW IS PERMANENT.
-
-    `rating` is typed here and is a number off a POST body at runtime. Nothing
-    checked it, so a 7 or a NaN would have been written into the one table this
-    app cannot repair, read back by every chart and fed to the scheduler. The
-    four values are the four the scheduler defines.
-  */
-  if (rating !== 1 && rating !== 2 && rating !== 3 && rating !== 4) {
-    return { ok: false as const, error: "That isn't one of the ratings." };
-  }
-
-  const card = await prisma.card.findFirst({ where: { id: cardId, ownerId } });
-  if (!card) return { ok: false as const, error: "We couldn't find that card. It may have been removed." };
-
-  /*
-    A grade carries the time it was actually answered, because the offline
-    outbox replays in order with the timestamp it was given (ADR-015), and a
-    device's clock is whatever its owner set it to. `writeGrade` bounds it at
-    both ends and is the one place either door writes a grade: this one had the
-    floor at the card's own creation and the replay path, which is the door
-    those timestamps actually come through, did not.
-  */
-  const next = await writeGrade(ownerId, {
-    card,
-    rating,
-    durationMs,
-    reviewedAt: reviewedAt ? new Date(reviewedAt) : new Date(),
-    practisedSlot,
-    reachedSlot,
-    reviewId,
-    spoken,
-  });
-
-  revalidatePath("/");
-  /*
-    The state the server just wrote, so the session can hand it back to undo.
-
-    `cards` is snapshotted on mount and its scheduling is never refreshed,
-    which is right for the queue and was wrong for undo: an "Again" puts a card
-    back into the same session, so a card can be graded twice, and both grades
-    recorded the same mount-time state as the one to restore. Undoing the
-    second rewound past the first as well, dropping a lapse the learner really
-    had and sending a card they had just failed away on its old interval.
-  */
-  return { ok: true as const, due: next.due, scheduling: snapshotOf(next) };
-}
-
-/**
- * `gradeFor` with an id derived from what the grade is about, where a repeat is
- * the same answer reported twice and is done rather than failed. `repeat` says
- * so, so a caller counting new grades does not count it again.
- */
-async function gradeOnce(
-  ownerId: string, cardId: string, rating: RatingValue, reviewId: string,
-  slots: { practisedSlot?: string; reachedSlot?: string; spoken?: boolean } = {},
-) {
-  /*
-    Asked first rather than only caught, so the answer does not depend on how
-    `writeGrade` treats an id it has already written: a repeat that is read
-    here never reaches it, and the catch below is the two reports racing.
-  */
-  const seen = await prisma.review.findUnique({ where: { id: reviewId }, select: { id: true } });
-  if (seen) return { ok: true as const, repeat: true };
-  try {
-    const result = await gradeFor(ownerId, cardId, rating, 0, { ...slots, reviewId });
-    return { ...result, repeat: false };
-  } catch (error) {
-    if (isRepeatedReview(error)) return { ok: true as const, repeat: true };
-    throw error;
-  }
-}
-
-/** A scheduling state in the shape that crosses the wire, which `undoGrade` takes back. */
-function snapshotOf(state: SchedulingState): SchedulingSnapshot {
-  return {
-    due: state.due.toISOString(),
-    stability: state.stability,
-    difficulty: state.difficulty,
-    elapsedDays: state.elapsedDays,
-    scheduledDays: state.scheduledDays,
-    reps: state.reps,
-    lapses: state.lapses,
-    state: state.state,
-    learningSteps: state.learningSteps,
-    lastReview: state.lastReview?.toISOString() ?? null,
-  };
-}
 
 /**
  * Applies grades taken while the connection was down.
@@ -670,53 +404,15 @@ export async function replayGrades(batch: ReplayItem[]) {
 }
 
 /**
- * Puts a card back the way it was before the last grade.
- *
- * The Review row stays. `Review` is append-only and is the input to FSRS
- * parameter optimization, so deleting a row to make a mistake disappear would
- * corrupt the one table we cannot rebuild — and it would also be a lie: the
- * card really was shown, and really was answered. What undo restores is the
- * *scheduling*, which is derived state and safe to rewind.
- *
- * The previous state comes from the client because that is the only place it
- * still exists; it is validated and range-clamped on the way in, and can only
- * ever be applied to a card the caller already owns.
+ * Puts a card back the way it was before the last grade. The body, and why the
+ * Review row stays, is `undoGradeFor` in lib/srs/undo.ts, which
+ * `POST /api/v1/grades/undo` calls too.
  */
 export async function undoGrade(cardId: string, previous: SchedulingSnapshot) {
   cardId = text(cardId);
   const ownerId = await requireUserId();
-  const parsed = SchedulingSchema.safeParse(previous);
-  if (!parsed.success) return { ok: false as const, error: "That card's details didn't come through properly." };
-
-  const card = await prisma.card.findFirst({ where: { id: cardId, ownerId }, select: { id: true } });
-  if (!card) return { ok: false as const, error: "We couldn't find that card. It may have been removed." };
-
-  const p = parsed.data;
-  const due = new Date(p.due);
-  if (Number.isNaN(due.getTime())) return { ok: false as const, error: "That card's details didn't come through properly." };
-  // The last review is a date for the same reason `due` is: an unparseable one
-  // reached the update as an Invalid Date and came back as a 500.
-  const lastReview = p.lastReview ? new Date(p.lastReview) : null;
-  if (lastReview && Number.isNaN(lastReview.getTime())) {
-    return { ok: false as const, error: "That card's details didn't come through properly." };
-  }
-
-  await prisma.card.update({
-    where: { id: cardId },
-    data: {
-      due,
-      stability: p.stability,
-      difficulty: p.difficulty,
-      elapsedDays: p.elapsedDays,
-      scheduledDays: p.scheduledDays,
-      reps: p.reps,
-      lapses: p.lapses,
-      state: p.state,
-      learningSteps: p.learningSteps,
-      lastReview,
-    },
-  });
-
+  const undone = await undoGradeFor(ownerId, cardId, previous);
+  if (!undone.ok) return { ok: false as const, error: undone.error };
   revalidatePath("/");
   return { ok: true as const };
 }
@@ -861,24 +557,7 @@ export async function addExample(lexemeId: string, sentence: string, translation
 
 // ─────────────────────────────── Words ────────────────────────────────────
 
-/**
- * Length caps on anything a person types into shared or stored text.
- *
- * Not a formatting preference — without them a single request can push
- * megabytes into the database, and a lemma is a word. Truncating rather than
- * rejecting: over-long input is almost always a paste accident, and losing the
- * whole entry to a stray clipboard is the worse outcome.
- */
-const LIMITS = {
-  lemma: 80,
-  translation: 200,
-  /** One sentence: the same ceiling the reader applies, so nothing is stored unshowable. */
-  example: EXAMPLE_MAX_CHARS,
-  form: 80,
-  government: 300,
-  taskTitle: 200,
-  taskNotes: 2000,
-} as const;
+/* Length caps on anything a person types are `LIMITS`, in lib/progress/fieldLimits.ts. */
 
 /** What a class member is called on the roster. */
 const DISPLAY_NAME_MAX = 32;
@@ -1123,20 +802,9 @@ export async function createLexemeWithForms(input: {
  */
 export async function toggleStar(lexemeId: unknown, starred?: unknown) {
   const ownerId = await requireUserId();
-  const id = text(lexemeId).slice(0, 64);
-  if (!id) return { ok: false as const, error: "We couldn't tell which word you meant." };
-  const exists = await prisma.lexeme.findUnique({ where: { id }, select: { id: true } });
-  if (!exists) return { ok: false as const, error: "That word isn't in the dictionary." };
-
-  const key = { ownerId_lexemeId: { ownerId, lexemeId: id } };
-  const existing = await prisma.starredWord.findUnique({ where: key });
-  const want = typeof starred === "boolean" ? starred : !existing;
-  if (want && !existing) {
-    // A second tab pressing at the same moment has already written it.
-    await prisma.starredWord.createMany({ data: [{ ownerId, lexemeId: id }], skipDuplicates: true });
-  } else if (!want && existing) {
-    await prisma.starredWord.deleteMany({ where: { ownerId, lexemeId: id } });
-  }
+  // The body is `setStar`, which `POST` and `DELETE /api/v1/deck` call too.
+  const result = await setStar(ownerId, lexemeId, starred);
+  if (!result.ok) return result;
   /*
     The dictionary is where a star used to be set from and the only place it
     could be read; the mastery page is where the favorites are listed now,
@@ -1146,7 +814,7 @@ export async function toggleStar(lexemeId: unknown, starred?: unknown) {
   */
   revalidatePath("/dictionary");
   revalidatePath("/words/mastery");
-  return { ok: true as const, starred: want };
+  return result;
 }
 
 /**
@@ -1174,14 +842,8 @@ export async function putWordAside(lexemeId: string, context: string) {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "putAside");
   if (busy) return await sayRefusal(ownerId, busy);
-  const id = text(lexemeId).slice(0, 64);
-  if (!id) return { ok: false as const, error: "We couldn't tell which word you meant." };
-
-  // The level is read here rather than inside, so `lib/progress/deferrals.ts`
-  // and `lib/progress/level.ts` stay one-way: the second calls the first when
-  // a learner moves up.
-  const level = await courseLevelFor(ownerId);
-  const result = await deferWord(ownerId, id, level, text(context).slice(0, 200) || null);
+  // The body is `putAside`, which `POST /api/v1/deck` calls too (lib/progress/wordActions.ts).
+  const result = await putAside(ownerId, lexemeId, context);
   if (!result.ok) return result;
 
   /*
@@ -1202,13 +864,7 @@ export async function putWordAside(lexemeId: string, context: string) {
   */
   revalidatePath("/");
   revalidatePath("/words/mastery");
-  /* The span and the band ride along, so a Russian or Ukrainian screen can
-     say the sentence in its own words rather than print the English note. */
-  return {
-    ok: true as const,
-    note: result.note,
-    deferral: { reason: result.deferral.reason, days: result.deferral.days, untilLevel: result.deferral.untilLevel },
-  };
+  return result;
 }
 
 /**
@@ -1222,11 +878,9 @@ export async function putWordAside(lexemeId: string, context: string) {
 export async function bringWordBack(lexemeId: string) {
   lexemeId = text(lexemeId);
   const ownerId = await requireUserId();
-  const id = text(lexemeId).slice(0, 64);
-  if (!id) return { ok: false as const, error: "We couldn't tell which word you meant." };
-
-  const done = await undoDeferral(ownerId, id);
-  if (!done) return { ok: false as const, error: "That word wasn't put aside, so there's nothing to bring back." };
+  // The body is `bringBack`, which `DELETE /api/v1/deck` calls too.
+  const result = await bringBack(ownerId, lexemeId);
+  if (!result.ok) return result;
 
   /*
     The list this is pressed from drops the row itself, for the reason above:
@@ -1235,7 +889,7 @@ export async function bringWordBack(lexemeId: string) {
   */
   revalidatePath("/");
   revalidatePath("/review");
-  return { ok: true as const };
+  return result;
 }
 
 /** Bulk import from pasted text. Returns per-row outcomes so nothing fails silently. */
@@ -1369,14 +1023,12 @@ export async function getTutorHistory() {
 /** Sets the review count that fills the daily-goal ring on Today. */
 export async function setDailyGoal(goal: number) {
   const ownerId = await requireUserId();
-  // `Math.max(5, NaN)` is NaN, so without this "NaN" was stored as somebody's
-  // goal: the fault the comment below records the personal bests having had.
-  if (!Number.isFinite(goal)) return { ok: false as const, error: "Pick a daily goal from the list." };
-  const clamped = Math.min(200, Math.max(5, Math.round(goal)));
-  await writeSetting(ownerId, SETTING_KEYS.dailyGoal, String(clamped));
+  // The clamp and the NaN guard are `saveDailyGoal`'s, which PATCH /api/v1/me calls too.
+  const saved = await changeAccountSettings(ownerId, { dailyGoal: goal });
+  if (!saved.ok) return { ok: false as const, error: saved.error };
   revalidatePath("/");
   revalidatePath("/settings");
-  return { ok: true as const, goal: clamped };
+  return { ok: true as const, goal: saved.saved.dailyGoal! };
 }
 
 /*
@@ -1672,24 +1324,9 @@ export async function recordSonad(day: string, guesses: unknown) {
  * in an append-only table, which is the size of one review session.
  */
 /**
- * Starts a conversation: draws it and writes it down.
- *
- * It books nothing. §16 said a scene should book **one call rather than one per
- * turn**, on the argument that running out of allowance halfway through a
- * conversation is the worst failure available here, and that half of it is
- * right and is not what a booking buys: the ledger writes a call down when it
- * authorizes one because two of its three limits count `CALL` rows, so a dozen
- * turns behind one booking is eleven calls the allowance never saw. The route
- * books each composed turn instead, and the mid-scene refusal is survivable for
- * the reason it was always survivable: the rung below the model is a real
- * conversational move rather than an error.
- *
- * **A refusal is never a refusal to run the scene.** A deployment with no key,
- * and a learner who has spent the day's allowance, both get a real conversation
- * built from the beats retrieval can fill, and the screen says so.
- *
- * The seed is the server's. A seed a learner picks is a learner picking their
- * persona, their card and their curveballs, which is every axis of §5 at once.
+ * Starts a conversation: draws it and writes it down. The body is
+ * `beginSceneFor` (`lib/progress/sceneRuns.ts`), which `POST /api/v1/scenes`
+ * calls too; this door resolves the owner and takes the allowance.
  */
 export async function beginScene(sceneId: unknown, difficulty: unknown, level?: unknown) {
   const ownerId = await requireUserId();
@@ -1697,237 +1334,43 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
   // `lib/security/actionLimits.ts`.
   const busy = throttleAction(ownerId, "beginScene");
   if (busy) return await sayRefusal(ownerId, busy);
-
-  const scene = sceneById(text(sceneId).slice(0, 64));
-  if (!scene) return { ok: false as const, error: "We couldn't find that conversation." };
-  const chosen = text(difficulty);
-  // `in` walks the prototype, so `constructor` and `toString` passed it and
-  // reached a SceneRun.difficulty Int column as a function. Own keys only.
-  if (!Object.hasOwn(BUDGETS, chosen)) return { ok: false as const, error: "Pick one of the difficulty levels." };
-  /*
-    THE BAND THE OTHER SIDE TALKS AT IS THE LEARNER'S, UNLESS THEY MOVED IT. A
-    scene carries no level of its own: the selector on the briefing defaults
-    to the learner's level and lets them go lower for plainer sentences or
-    higher to be spoken to like anybody else. Checked against the closed list
-    rather than trusted, since this is a public endpoint, and absent reads as
-    the learner's own rather than as a band of ours.
-  */
-  const pitched = level === undefined ? await courseLevelFor(ownerId) : text(level);
-  if (!(LEVELS as readonly string[]).includes(pitched)) return { ok: false as const, error: "Pick a level from the list." };
-
-  const opened = await beginRun({
-    ownerId,
-    sceneId: scene.id,
-    level: pitched,
-    difficulty: chosen as Difficulty,
-    /*
-      WHETHER THIS CONVERSATION IS SPOKEN LIVE OR OUT OF THE BANK, DECIDED HERE
-      AND ONCE (`LineMode`). A run whose lines came from whichever rung happened
-      to be available on each turn is a character who changes voice mid-scene,
-      and the likeliest cause of that is the ordinary one on a small budget: the
-      day's allowance running out at turn six.
-
-      Decided on whether a provider is configured at all, which is the one thing
-      knowable here that does not change under a run in flight, and asked of
-      `sceneProviders` rather than the whole chain because that is what the
-      route will actually use: `/api/scene` asks the scene chain since the
-      purpose split, so an Anthropic-only deployment would otherwise promise
-      composition the route is never going to attempt. Everything that *can*
-      change under a run, the allowance and a provider having a bad minute, is
-      handled where it happens: the ladder falls to the bank, which is the same
-      Estonian this run would have been speaking under the other mode.
-    */
-    lines: sceneProviders().length > 0 ? "composed" : "scripted",
-  });
-  if (!opened) return { ok: false as const, error: "We couldn't set up that conversation. Try again in a moment." };
-
-  /*
-    Only the briefing crosses, never the plan: the curveballs and the persona's
-    leans are what is supposed to happen to somebody rather than be read off a
-    card, and nothing here is bought by sending them, because the route marks
-    every turn on the server anyway. `Briefing` is where that is written down.
-
-    And nothing is booked here either. A run is many turns and the ledger books
-    a call when it authorizes one, so one booking at the door would let a whole
-    conversation through on the burst allowance for a single call, which is the
-    limit's own arithmetic broken rather than bent. The route books each
-    composed turn and hands the booking back where nothing was composed. What
-    this reports is the only part that is a fact about the deployment rather
-    than about the next minute: whether a provider is configured at all.
-  */
-  return {
-    ok: true as const,
-    runId: opened.runId,
-    briefing: opened.briefing,
-    // How many times they have had this one before, which is what opens the
-    // hearing pool for the other side's lines.
-    plays: opened.plays,
-    /*
-      Read off the run's own decision rather than asking the chain a second
-      time, because two reads of one question is where the screen and the
-      conversation start disagreeing about whether anybody is composing. The
-      chain was asked once, above, and it was the scene chain.
-    */
-    composed: opened.lines === "composed",
-  };
+  const result = await beginSceneFor(ownerId, sceneId, difficulty, level);
+  if (!result.ok) return { ok: false as const, error: result.error };
+  return result;
 }
 
 /**
- * Starts today's chat (docs/41-fifth-batch.md, VB-11).
- *
- * `beginScene`'s shape, with the three things a chat decides differently, and
- * every one of them decided here rather than taken from the caller. WHICH
- * EVENING: the one this learner finished today (`chatDay`), never a day id off
- * the wire, which could name an evening whose words nobody has met. WHETHER
- * AT ALL: only on a deployment whose scene chain has a model on it and with
- * `PAID_OFF=scenes` not set (`chatOffered`), since the bank cannot hold lines
- * for words nobody knew in advance, so a keyless deployment is refused here as
- * well as never shown the button. WHO: always the same persona for this
- * learner (`chatPersona`), so the neighbor who remembers you is one person.
- *
- * The band is the learner's, or the one they chose on the briefing, checked
- * against the closed list as `beginScene` checks it.
+ * Starts today's chat (docs/41-fifth-batch.md, VB-11). The body is
+ * `beginChatFor`, which asks `chatOffered` before anything else and which
+ * `POST /api/v1/chat` calls too.
  */
 export async function beginChat(level?: unknown) {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "beginScene");
   if (busy) return await sayRefusal(ownerId, busy);
-
-  if (!chatOffered()) return { ok: false as const, error: "Today's chat needs a model, and this app has none set up." };
-  if (!(await wouldAuthorise(ownerId, "SCENE"))) {
-    return {
-      ok: false as const,
-      error: "That's all the help from Anu and the other AI features for today. They're back at midnight UTC, and your cards, the dictionary and everything else work as normal until then.",
-    };
-  }
-  const pitched = level === undefined ? await courseLevelFor(ownerId) : text(level);
-  if (!(LEVELS as readonly string[]).includes(pitched)) return { ok: false as const, error: "Pick a level from the list." };
-
-  const evening = await chatDay(ownerId);
-  const plan = evening ? await planChat(ownerId, evening.programme, evening.day) : null;
-  if (!plan) return { ok: false as const, error: "There's no chat to have today. It comes after an evening with new words." };
-
-  const opened = await beginRun({
-    ownerId,
-    sceneId: CHAT_ID,
-    level: pitched,
-    difficulty: "textbook",
-    lines: "composed",
-    chat: { plan, persona: chatPersona(ownerId) },
-  });
-  if (!opened) return { ok: false as const, error: "We couldn't set up that conversation. Try again in a moment." };
-  return {
-    ok: true as const,
-    runId: opened.runId,
-    briefing: opened.briefing,
-    plays: opened.plays,
-    composed: true,
-  };
+  const result = await beginChatFor(ownerId, level);
+  if (!result.ok) return { ok: false as const, error: result.error };
+  return result;
 }
 
 /**
- * One word the current beat is about, for the "I need a word" button.
- *
- * A LEARNER WHO ASKS IS NOT PENALIZED, and this is where that is paid for: the
- * scene's own beats declare what they are about as lemmas, so the help is a
- * word out of the closed list rather than anything a model wrote, and the whole
- * cost is that `advance` sees the next turn as helped. Nothing is deducted, no
- * objective is withheld, and the word goes on the debrief with a button to keep
- * it. Somebody who asks for four words and finishes has learned more than
- * somebody who gave up with none (`docs/21-situations.md` §12).
- *
- * The first version of this button recorded the *beat id* as the word needed,
- * so a debrief listed `reason` and `greet` under "words this conversation
- * needed" and offered no way to keep any of them, which is the one screen in
- * the feature whose whole job is turning a gap into a card.
- *
- * It reaches no provider and books nothing: it is the beat's own topic and one
- * indexed read. The English gloss is the dictionary's, which is the only
- * language this project may write.
+ * One word the current beat is about, for the "I need a word" button. The body
+ * is `sceneHelpFor`, which `POST /api/v1/scenes/{runId}/help` calls too.
  */
 export async function sceneHelp(runId: unknown, turns: unknown) {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "sceneHelp");
   if (busy) return await sayRefusal(ownerId, busy);
-
-  const id = text(runId).slice(0, 64);
-  if (!id) return { ok: false as const, error: "That conversation has already ended." };
-
-  const said = Array.isArray(turns)
-    ? turns.slice(0, MAX_TURNS).map((one) => {
-        const row = (one ?? {}) as Record<string, unknown>;
-        const said = clip(text(row.said), MAX_TURN_CHARS);
-        const spoken = spokenOf(row.spoken, said);
-        return {
-          beatId: text(row.beatId).slice(0, 64),
-          said,
-          helped: row.helped === true,
-          ...(row.picked === true ? { picked: true } : {}),
-          ...(spoken ? { spoken } : {}),
-          heard: clip(text(row.heard), MAX_TURN_CHARS),
-          conceded: concededOf(row.conceded),
-          alsoDone: alsoDoneOf(row.alsoDone),
-        };
-      })
-    : [];
-
-  const beat = await beatNow({ ownerId, runId: id, turns: said });
-  if (!beat) return { ok: false as const, error: "That conversation has already ended." };
-
-  /*
-    A word they have not already used, so pressing it twice on one beat is not
-    the same word twice. Ordered, because two entries can share a lemma and the
-    debrief offers exactly one to keep.
-  */
-  const typed = said.map((one) => one.said.toLowerCase()).join(" ");
-  /*
-    A beat of today's chat has no topic of its own: it is there for one of
-    today's words, and that word is the one a stuck learner is handed.
-  */
-  const topic = beat.elicits ? [beat.elicits] : beat.topic;
-  const fresh = topic.filter((lemma: string) => !typed.includes(lemma.toLowerCase()));
-  const wanted = (fresh.length > 0 ? fresh : topic).slice(0, 12);
-  if (wanted.length === 0) return { ok: false as const, error: "There's no word to hand you here." };
-
-  /*
-    Through `oneEntryPerLemma`, because a lemma can hold two entries and this
-    hands one of them to a button that keeps it. `hall` is a noun meaning frost
-    and an adjective meaning gray; a word confirmed off a photograph makes a
-    pair for any lemma at all, with no forms behind it. `bySubstance` is the
-    rule the dictionary itself leads with, so the entry the help offers and the
-    entry a search would show are the same entry.
-  */
-  const rows = await prisma.lexeme.findMany({
-    where: { lemma: { in: wanted } },
-    select: {
-      id: true, lemma: true, translation: true, pos: true, provenance: true,
-      forms: { select: { id: true } },
-    },
-    orderBy: [{ lemma: "asc" }, { id: "asc" }],
-  });
-  const entry = oneEntryPerLemma(rows, wanted)[0];
-  if (!entry) return { ok: false as const, error: "There's no word to hand you here." };
-
-  return {
-    ok: true as const,
-    lemma: entry.lemma,
-    gloss: entry.translation,
-    lexemeId: entry.id,
-  };
+  const result = await sceneHelpFor(ownerId, runId, turns);
+  if (!result.ok) return { ok: false as const, error: result.error };
+  return result;
 }
 
 /**
- * A finished conversation, marked by the server and written down.
- *
- * `recordSonad`'s shape over a whole scene, and the same rule behind it: the
- * client sends what it typed and the server rebuilds the run from its seed and
- * reads every turn again (ADR-022). A result anybody can type is not a
- * measurement, and here it would be worse than that, because a conversation
- * writes into the review log and a forged one would schedule words nobody said.
- *
- * Nothing in the transcript is true about the learner. The role card is fiction
- * (`docs/21-situations.md` §3), which is what makes a table of somebody's
- * practice sentences about a doctor's appointment safe to hold at all.
+ * A finished conversation, marked by the server and written down. The body is
+ * `finishSceneFor`, which `POST /api/v1/scenes/{runId}/finish` calls too: the
+ * client sends what it typed, never a mark, and the server replays the run and
+ * grades through `gradeOnce`.
  */
 export async function finishScene(input: {
   runId: unknown;
@@ -1938,118 +1381,10 @@ export async function finishScene(input: {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "finishScene");
   if (busy) return await sayRefusal(ownerId, busy);
-  input = fieldsOf(input);
-
-  /*
-    Off the wire, whatever the types say: every export of this file is a public
-    endpoint and its arguments are JSON. What has to be stopped here is the size
-    rather than the shape, since a turn that is not a string is read as an empty
-    one and marked as nothing.
-  */
-  const runId = text(input.runId).slice(0, 64);
-  if (!runId) return { ok: false as const, error: "We couldn't tell which conversation that was." };
-
-  const turns = Array.isArray(input.turns)
-    ? input.turns.slice(0, MAX_TURNS).map((turn) => {
-        const row = (turn ?? {}) as Record<string, unknown>;
-        const said = clip(text(row.said), MAX_TURN_CHARS);
-        const spoken = spokenOf(row.spoken, said);
-        return {
-          beatId: text(row.beatId).slice(0, 64),
-          said,
-          helped: row.helped === true,
-          ...(row.picked === true ? { picked: true } : {}),
-          ...(spoken ? { spoken } : {}),
-          heard: clip(text(row.heard), MAX_TURN_CHARS),
-          conceded: concededOf(row.conceded),
-          alsoDone: alsoDoneOf(row.alsoDone),
-        };
-      })
-    : [];
-
-  const asked = Array.isArray(input.asked)
-    ? input.asked.slice(0, MAX_TURNS).map((one) => {
-        const row = (one ?? {}) as Record<string, unknown>;
-        return {
-          lemma: text(row.lemma).slice(0, 64),
-          lexemeId: typeof row.lexemeId === "string" ? row.lexemeId : null,
-        };
-      }).filter((one) => one.lemma)
-    : [];
-
-  const finished = await finishRun({
-    ownerId, runId, turns, walkedOut: input.walkedOut === true, asked,
-  });
-  if (!finished) return { ok: false as const, error: "That conversation has already ended." };
-
-  /*
-    EVERY MODE GRADES THROUGH `gradeCard` (ADR-016), and a scene is no
-    exception. What is conservative is which turns earn a row rather than where
-    the row goes: `gradesFor` writes only where the retrieval was unambiguous,
-    and where the beat asked for a case the row carries it, so the case somebody
-    fails under pressure lands in the same weak-case charts as the case they
-    fail on a card.
-  */
-  /*
-    Every candidate card read once, and matched in `cardsForGrades`. This was a
-    `findFirst` per grade inside the loop below, so a conversation that met ten
-    requirements made ten round trips before its first write, on the screen
-    that says how it went. Bounded by this learner's own cards for the words
-    the run graded.
-  */
-  const lemmas = [...new Set(finished.grades.map((grade) => grade.lemma))];
-  const candidates = lemmas.length === 0 ? [] : await prisma.card.findMany({
-    where: { ownerId, lexeme: { lemma: { in: lemmas } }, cardType: { in: ["CASE_FORM", "PRODUCTION"] } },
-    select: { id: true, cardType: true, targetCase: true, lexeme: { select: { lemma: true } } },
-    orderBy: { id: "asc" },
-  });
-  const cardIds = cardsForGrades(finished.grades, candidates);
-
-  let graded = 0;
-  for (const [index, grade] of finished.grades.entries()) {
-    const cardId = cardIds[index];
-    if (!cardId) continue;
-    /*
-      The case that came back instead travels with the grade, so the pair
-      somebody mixes up at a counter is counted beside the pair they mix up
-      on a card. `writeGrade` checks both against the closed list rather than
-      trusting them, which is what it does for every other caller.
-    */
-    /*
-      Named by the run and the grade's place in it, so a finish arriving twice
-      is graded once. `finishRun` closes a run once and a second finish gets
-      nothing to grade; the id is the second lock on the same door.
-    */
-    /*
-      A turn said aloud writes its row as spoken, so `npm run report:speech`
-      counts a conversation's spoken recalls beside the cards'. A requirement
-      met by a word the dictionary repaired never reaches here (D13).
-    */
-    const result = await gradeOnce(
-      ownerId, cardId, grade.rating as RatingValue,
-      stableReviewId("scene", ownerId, finished.runId, String(index)),
-      {
-        ...(grade.grammCase ? { practisedSlot: grade.grammCase } : {}),
-        ...(grade.reachedCase ? { reachedSlot: grade.reachedCase } : {}),
-        ...(grade.spoken ? { spoken: true } : {}),
-      },
-    );
-    if (result.ok && !result.repeat) graded += 1;
-  }
-
+  const result = await finishSceneFor(ownerId, fieldsOf(input));
+  if (!result.ok) return { ok: false as const, error: result.error };
   revalidatePath("/situations");
-  return {
-    ok: true as const,
-    runId: finished.runId,
-    objectives: finished.objectives,
-    hurdles: finished.hurdles,
-    outcome: finished.outcome,
-    turns: finished.turns,
-    recap: finished.recap,
-    gaps: finished.gaps,
-    review: finished.review,
-    graded,
-  };
+  return result;
 }
 
 export async function recordCrossword(day: string, typed: unknown, helped: unknown) {
@@ -2132,10 +1467,9 @@ export async function setTimeZone(zone: string) {
   const ownerId = await requireUserId();
   // Stored in the spelling `Intl` resolves it to, so one zone is one value
   // whatever casing the caller sent (lib/time/day.ts, `canonicalZone`).
-  const canonical = canonicalZone(zone);
-  if (!canonical) return { ok: false as const, error: "We didn't recognize that time zone." };
-  await writeSetting(ownerId, SETTING_KEYS.timeZone, canonical);
-  return { ok: true as const, zone: canonical };
+  const saved = await changeAccountSettings(ownerId, { timeZone: zone });
+  if (!saved.ok) return { ok: false as const, error: saved.error };
+  return { ok: true as const, zone: saved.saved.timeZone! };
 }
 
 
@@ -2170,10 +1504,9 @@ export async function setLetterBar(value: LetterBar) {
  */
 export async function setVoice(voice: string) {
   const ownerId = await requireUserId();
-  const value = voiceFrom(voice);
-  await writeSetting(ownerId, SETTING_KEYS.ttsVoice, value);
+  const saved = await changeAccountSettings(ownerId, { voice });
   revalidatePath("/", "layout");
-  return { ok: true as const, voice: value };
+  return { ok: true as const, voice: saved.ok ? saved.saved.voice! : voiceFrom(null) };
 }
 
 export async function setAutoplay(value: string) {
@@ -2194,11 +1527,9 @@ export async function setAutoplay(value: string) {
  */
 export async function setSpeechPace(value: string) {
   const ownerId = await requireUserId();
-  const known = SPEECH_PACES.find((p) => p.id === text(value));
-  const stored = known?.id ?? "auto";
-  await writeSetting(ownerId, SETTING_KEYS.speechPace, stored);
+  const saved = await changeAccountSettings(ownerId, { speechPace: value });
   revalidatePath("/", "layout");
-  return { ok: true as const, value: stored };
+  return { ok: true as const, value: saved.ok ? saved.saved.speechPace! : "auto" };
 }
 
 /**
@@ -2212,10 +1543,9 @@ export async function setSpeechPace(value: string) {
  */
 export async function setGlossLanguage(value: string) {
   const ownerId = await requireUserId();
-  const normalised = glossLanguageFrom(text(value));
-  await writeSetting(ownerId, SETTING_KEYS.glossLanguage, normalised);
+  const saved = await changeAccountSettings(ownerId, { glossLanguage: value });
   revalidatePath("/", "layout");
-  return { ok: true as const, value: normalised };
+  return { ok: true as const, value: saved.ok ? saved.saved.glossLanguage! : glossLanguageFrom(null) };
 }
 
 /**
@@ -2258,17 +1588,10 @@ export async function dismissLocaleNotice(value: string) {
  */
 export async function setUiLocale(value: string) {
   const ownerId = await requireUserId();
-  const normalised = localeFrom(text(value));
-  await writeSetting(ownerId, SETTING_KEYS.uiLocale, normalised);
-  /* Somebody who reads the app in Russian or Ukrainian wants a word's meaning
-     there too, and the Institute records one for most of the course. Only
-     where they have never chosen: a stored choice is theirs and is left alone,
-     and the English is printed beside it either way. */
-  if (normalised !== "en" && (await readSetting(ownerId, SETTING_KEYS.glossLanguage)) === null) {
-    await writeSetting(ownerId, SETTING_KEYS.glossLanguage, glossLanguageFrom(normalised));
-  }
+  /* `saveUiLocale` also gives the meaning language a lead where none was ever chosen. */
+  const saved = await changeAccountSettings(ownerId, { locale: value });
   revalidatePath("/", "layout");
-  return { ok: true as const, value: normalised };
+  return { ok: true as const, value: saved.ok ? saved.saved.locale! : localeFrom(null) };
 }
 
 /**
@@ -2280,16 +1603,26 @@ export async function setUiLocale(value: string) {
  */
 export async function setSpeechSendAtOnce(value: string) {
   const ownerId = await requireUserId();
-  const normalised = value === "on" ? "on" : "off";
-  await writeSetting(ownerId, SETTING_KEYS.speechSendAtOnce, normalised);
+  const saved = await changeAccountSettings(ownerId, { speechSendAtOnce: value });
   revalidatePath("/", "layout");
-  return { ok: true as const, value: normalised };
+  return { ok: true as const, value: saved.ok ? saved.saved.speechSendAtOnce! : ("off" as const) };
 }
 
 export async function setSpeechInBoxes(value: string) {
   const ownerId = await requireUserId();
-  const normalised = value === "off" ? "off" : "on";
-  await writeSetting(ownerId, SETTING_KEYS.speechInBoxes, normalised);
+  const saved = await changeAccountSettings(ownerId, { speechInBoxes: value });
+  revalidatePath("/", "layout");
+  return { ok: true as const, value: saved.ok ? saved.saved.speechInBoxes! : ("on" as const) };
+}
+
+/**
+ * Whether a bare character key acts in a round (WCAG 2.1.4, lib/ux/shortcuts.ts).
+ * Revalidated at the layout, since the shell publishes it to every round.
+ */
+export async function setSingleKeys(value: unknown) {
+  const ownerId = await requireUserId();
+  const normalised = singleKeysFrom(text(value));
+  await writeSetting(ownerId, SETTING_KEYS.singleKeys, normalised);
   revalidatePath("/", "layout");
   return { ok: true as const, value: normalised };
 }
@@ -2364,10 +1697,9 @@ export async function setNavOrder(value: string) {
  */
 export async function setRoundPace(value: string) {
   const ownerId = await requireUserId();
-  const normalised = roundPaceFrom(text(value));
-  await writeSetting(ownerId, SETTING_KEYS.roundPace, normalised);
+  const saved = await changeAccountSettings(ownerId, { roundPace: value });
   revalidatePath("/", "layout");
-  return { ok: true as const, value: normalised };
+  return { ok: true as const, value: saved.ok ? saved.saved.roundPace! : roundPaceFrom(null) };
 }
 
 export async function setFeedbackSounds(value: string) {
@@ -2427,10 +1759,9 @@ export async function setSceneVoice(value: unknown) {
  */
 export async function setSceneAnswer(value: unknown) {
   const ownerId = await requireUserId();
-  const normalised = sceneAnswerFrom(value);
-  if (!normalised) return { ok: false as const };
-  await writeSetting(ownerId, SETTING_KEYS.sceneAnswer, normalised);
-  return { ok: true as const, value: normalised };
+  const saved = await changeAccountSettings(ownerId, { sceneAnswer: value });
+  if (!saved.ok) return { ok: false as const };
+  return { ok: true as const, value: saved.saved.sceneAnswer! };
 }
 
 export async function setHearing(value: string) {
@@ -2477,13 +1808,6 @@ export async function setResearchParticipation(value: string) {
 export async function setEmailKind(input: { kind: string; on: boolean }) {
   const ownerId = await requireUserId();
   input = fieldsOf(input);
-  if (!isEmailKind(input?.kind) || input.kind === "system") {
-    return { ok: false as const, error: "That isn't one of the emails we send." };
-  }
-  // A string "false" is truthy, so anything but a real boolean was read as on.
-  if (typeof input.on !== "boolean") {
-    return { ok: false as const, error: "That needs a yes or a no." };
-  }
 
   /*
     BOTH ROWS, BECAUSE THERE ARE TWO DEFAULTS AND ONE ROW CANNOT CARRY THEM.
@@ -2494,10 +1818,8 @@ export async function setEmailKind(input: { kind: string; on: boolean }) {
     up refused and requested at once, which is the state a single write would
     leave behind if the second one failed.
   */
-  const kind = input.kind;
-  await changeEmailPrefs(ownerId, (current) =>
-    input.on ? switchOn(current, kind) : switchOff(current, [kind]),
-  );
+  const saved = await changeAccountSettings(ownerId, { letters: { [text(input?.kind)]: input?.on } });
+  if (!saved.ok) return { ok: false as const, error: saved.error };
   revalidatePath("/settings");
   return { ok: true as const, on: input.on };
 }
@@ -2514,11 +1836,9 @@ export async function setEmailKind(input: { kind: string; on: boolean }) {
  */
 export async function setReminderHour(input: { at: string }) {
   const ownerId = await requireUserId();
-  const { hour, minute } = parseReminderTime(text(input?.at));
-  const at = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
-  await writeSetting(ownerId, SETTING_KEYS.reminderAt, at);
+  const saved = await changeAccountSettings(ownerId, { reminderAt: fieldsOf(input)?.at });
   revalidatePath("/settings");
-  return { ok: true as const, at };
+  return { ok: true as const, at: saved.ok ? saved.saved.reminderAt! : "" };
 }
 
 /**
@@ -3022,61 +2342,10 @@ export async function completeLesson(
  */
 export async function setCourseLevel(level: string) {
   const ownerId = await requireUserId();
-  const parsed = z.enum(["A1", "A2", "B1", "B2", "C1"]).safeParse(text(level).toUpperCase());
-  if (!parsed.success) return { ok: false as const, error: "Pick a level from the list." };
-
-  const now = new Date();
-  const following = await programmeFor(ownerId);
-  /*
-    A LEARNER WHO STARTED AT A1 MOVES UP BY PASSING, and the picker is a door
-    up like any other: from a part of the A1 lessons, a higher level waits on
-    the checks between (`lib/course/checks.ts`). Going down is always open.
-  */
-  const firstOfLevel = PROGRAMMES.find((p) => p.level === parsed.data);
-  const blocked = firstOfLevel ? await moveBlockedFor(ownerId, following, firstOfLevel) : null;
-  if (blocked) {
-    return { ok: false as const, error: "Pass the checks to move up a level. Each part of the lessons ends in one." };
-  }
-  // Asked before the write, since what changed is the whole question below.
-  const before = await courseLevelFor(ownerId);
-  await recordCourseLevel(ownerId, parsed.data, now);
-
-  /*
-    AND THE COURSE MOVES WITH IT, WHICH IS WHAT THE PICKER PROMISES.
-
-    The part a learner is on is its own setting, and a level written here used
-    to leave it alone: somebody who had been walked onto A2 and then said "A1"
-    stayed on A2, and the module went on asking for the simple past of a verb
-    nobody had shown them, under a screen that said A1. It was reported off
-    exactly that card. So where the level now opens on a different level of
-    the ladder than the part in play, the course moves to the first part of it,
-    the way an accepted move on the module screen does. Re-picking the level
-    already held is not asking to start again. "off" is a
-    learner who picks their own evenings and is never put back on the course.
-  */
-  /*
-    AND A NEW LEVEL STARTS THE MODULE OVER, ON ITS FIRST EVENING.
-
-    "Going back to a part picks up where its own ticks left off" was the rule,
-    and it was reported as wrong by somebody who had just changed level: the
-    module resumed an old evening and Review still held eighteen cards from
-    the course they had left. Changing level is a fresh start, so the course
-    moves to the first part of the new level and that part's own ticks are
-    cleared (`restartPart`), so it opens on its first evening. Every other
-    part's ticks and the whole review log stay. Review follows on its
-    own, because it asks only what the module has taught (`reviewable`), and a
-    card held back keeps its schedule for the evening that reaches it.
-    Re-picking the level already held is not asking to start again and moves
-    nothing.
-  */
-  const [current, opening] = await Promise.all([programmeFor(ownerId), openingPartFor(ownerId)]);
-  if (current && (before !== parsed.data || current.level !== opening.level)) {
-    await Promise.all([
-      writeSetting(ownerId, SETTING_KEYS.programme, opening.id),
-      restartPart(ownerId, opening.id),
-      writeSetting(ownerId, SETTING_KEYS.adaptMovedAt, now.toISOString()),
-      writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, ""),
-    ]);
+  /* The body, the door up and the course moving with the level are `changeCourseLevel`'s. */
+  const changed = await changeCourseLevel(ownerId, level, new Date());
+  if (!changed.ok) return { ok: false as const, error: changed.error };
+  if (changed.moved) {
     revalidatePath("/course");
     revalidatePath("/course/learn");
   }
@@ -3093,7 +2362,7 @@ export async function setCourseLevel(level: string) {
   revalidatePath("/review");
   revalidatePath("/practice");
   revalidatePath("/");
-  return { ok: true as const, level: parsed.data };
+  return { ok: true as const, level: changed.level };
 }
 
 /**
@@ -3318,6 +2587,10 @@ export async function assignUnit(rawClassroomId: unknown, rawUnitId: unknown, ra
 
   const unit = unitById(unitId);
   if (!unit) return { ok: false as const, error: "We couldn't find that unit." };
+  // The picker offers only the units above the lessons; this is a public
+  // endpoint and refuses an A1 unit too, or a class is sent somewhere the
+  // course no longer walks anybody. Homework already set from one stays a task.
+  if (lessonLevels(LESSONS).has(unit.level)) return { ok: false as const, error: UNIT_HOMEWORK_FROM };
 
   const members = await prisma.classroomMember.findMany({
     where: { classroomId: classroom.id },
@@ -3842,146 +3115,15 @@ export async function buildClozeFromText(passageIn: string) {
 /**
  * Deletes everything belonging to this account.
  *
- * The privacy page promises this, so it has to exist — a promise about data the
- * software cannot keep is worse than no promise.
- *
- * The review log is deleted here and only here. Append-only means no updates and
- * no incidental deletes, not that a person cannot ask for their own history to
- * be erased, which is the one request that outranks the invariant. It all goes
- * in one transaction, so a half-deleted account is not a reachable state.
- *
- * The shared dictionary stays: removing a word other learners hold cards for
- * would delete *their* data to satisfy this request. The attribution on anything
- * this person edited is cleared instead.
+ * The body is `deleteAccountFor` in lib/account/erase.ts, which
+ * `DELETE /api/v1/me` calls too (D2): one erasure behind both doors, with no
+ * exemptions, and the word the learner types asked there.
  */
 export async function deleteMyAccount(confirmation: string) {
   const ownerId = await requireUserId();
-  /* The word in any of the three languages: the screen asks in the reader's own. */
-  if (!isConfirmed(text(confirmation), "delete")) {
-    return { ok: false as const, error: 'Type "delete" to confirm.' };
-  }
-
-  try {
-    await prisma.$transaction(async (tx) => {
-      await tx.review.deleteMany({ where: { ownerId } });
-      await tx.card.deleteMany({ where: { ownerId } });
-      await tx.task.deleteMany({ where: { ownerId } });
-      await tx.studyEvent.deleteMany({ where: { ownerId } });
-      await tx.message.deleteMany({ where: { ownerId } });
-      await tx.starredWord.deleteMany({ where: { ownerId } });
-      // Their own shelves. `onDelete: Cascade` on DeckWord.deck would take the
-      // membership rows with each deck; deleted explicitly anyway, since a
-      // promise this absolute is not left to a foreign key to keep. The
-      // words themselves, their cards and every review are untouched, since
-      // a deck was only ever a label.
-      await tx.deckWord.deleteMany({ where: { ownerId } });
-      await tx.deck.deleteMany({ where: { ownerId } });
-      await tx.achievement.deleteMany({ where: { ownerId } });
-      /*
-        Letters before settings, and the order is load-bearing. The unsubscribe
-        link and the bounce webhook write a setting with no session behind them,
-        and `writeSettingsWhileMailed` holds this person's `EmailSend` row while
-        it does. Deleting that row first makes such a write either wait for this
-        transaction and then find nobody, or finish first and be swept by the
-        next line, so no setting outlives the account.
-      */
-      await tx.emailSend.deleteMany({ where: { ownerId } });
-      // Every browser they asked to be reminded on, so nothing is pushed to
-      // a person who is no longer here.
-      await tx.pushSubscription.deleteMany({ where: { ownerId } });
-      await tx.setting.deleteMany({ where: { ownerId } });
-      forgetSettings(ownerId);
-      await tx.usageEvent.deleteMany({ where: { ownerId } });
-      await tx.scan.deleteMany({ where: { ownerId } });
-      /*
-        Append-only means never edited, not never erased on request. A level
-        check is a measurement of this person and it goes with the rest of
-        them, or the deletion promise on /privacy is not one.
-      */
-      await tx.assessment.deleteMany({ where: { ownerId } });
-      /*
-        And a mock sitting, for the same reason and more strongly. It is the
-        only table holding something the learner composed at length: the
-        marked paper carries the writing part back verbatim. That was left
-        behind by every deletion this app performed until now, which made the
-        one category of free-form writing in the schema the one category that
-        survived "delete everything".
-      */
-      await tx.examAttempt.deleteMany({ where: { ownerId } });
-      /*
-        Their membership of somebody else's class, which carries the name they
-        chose to be known by in it. A class they run goes too, and its roster
-        rows cascade with it: the code, the name and the roster all hang off a
-        teacher who no longer exists, and there is no owner to hand them to. It
-        costs the pupils nothing they own — a membership row is a display name
-        and a join date, and every card, review and level check any of them
-        made is theirs and stays where it is.
-      */
-      await tx.classroomMember.deleteMany({ where: { ownerId } });
-      await tx.classroom.deleteMany({ where: { ownerId } });
-      /*
-        What they reported as wrong. Their own words, and a reply written to
-        them, so it goes with the rest of them. A report they sent that was
-        already accepted has changed the shared dictionary and that change
-        stays, exactly as an edit they made by hand does: undoing it would
-        delete other learners' data to satisfy this request. What is removed
-        is the row that ties the report to a person.
-      */
-      await tx.suggestion.deleteMany({ where: { ownerId } });
-      /*
-        Every conversation they had and every word one of them needed.
-        `SceneRun` is append-only like `Review` and `Assessment`, and this is
-        the single exception all three share: the promise on /privacy outranks
-        the rule. The gaps go first because they point at a run.
-      */
-      await tx.sceneGap.deleteMany({ where: { ownerId } });
-      await tx.sceneRun.deleteMany({ where: { ownerId } });
-      // And every real conversation they reported having outside the app.
-      await tx.encounter.deleteMany({ where: { ownerId } });
-      // And every word they put aside. What the deployment counted from it
-      // goes with the row, which is the right way round: the count is a
-      // reading of how many people said a thing, and this person is leaving.
-      await tx.deferral.deleteMany({ where: { ownerId } });
-      await tx.courseStep.deleteMany({ where: { ownerId } });
-      /*
-        Every record that this deployment wrote to them went above, before the
-        settings: it is the row that decides whether they are written to again,
-        and the row the mail routes check before they write a setting.
-      */
-      await tx.lexeme.updateMany({ where: { editedBy: ownerId }, data: { editedBy: null } });
-      /*
-        And the attribution on anything they reviewed, for the same reason the
-        line above clears `editedBy`: a decision stays on the record, the name
-        against it does not.
-      */
-      await tx.suggestion.updateMany({ where: { reviewedBy: ownerId }, data: { reviewedBy: null } });
-    }, { timeout: 120_000 });
-  } catch (error) {
-    return {
-      ok: false as const,
-      // Redacted: what the database says can name the deployment's own host and
-      // user, and this sentence goes to a browser. See lib/observability/report.
-      error: `${tr(await localeFor(ownerId), "Something went wrong partway, so nothing was deleted.")} ${safeMessage(error)}`.trim(),
-    };
-  }
-
-  /*
-    AND THEN THE IDENTITY, WHICH IS NOT IN ANY OF THOSE TABLES.
-
-    Everything above is this app's schema. The email address, the Google
-    subject id and the sign-in history live in Supabase Auth, and deleting the
-    rows left all of it behind with no route to remove it and nothing on the
-    page saying so. An email address is personal data wherever it is kept, so
-    "delete everything" that keeps it is not the promise /privacy makes.
-
-    Deliberately after the transaction and outside it: the rows are already
-    gone and must stay gone whatever the auth store answers. A failure here is
-    reported to the learner as what is left rather than as a failed deletion,
-    because those are different facts and only one of them needs following up.
-  */
-  const identity = await eraseAuthIdentity(ownerId);
-
-  return { ok: true as const, remaining: remainingIdentityNote(identity) };
+  const result = await deleteAccountFor(ownerId, text(confirmation));
+  if (!result.ok) return { ok: false as const, error: result.error };
+  return { ok: true as const, remaining: result.remaining };
 }
 
 // ────────────────────────────── Backup restore ─────────────────────────────
@@ -4475,16 +3617,7 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
 
 // ──────────────────────────── The planned course ──────────────────────────
 
-/**
- * The cards a day's words arrive with.
- *
- * Recognition and production and no more, which is the same trade the
- * frequency page makes for the same reason: a day is eight words, a case card
- * apiece would be sixty-odd cards for one press, and the day's own rounds are
- * where the forms get asked. The unit those words came from is still there on
- * `/learn` for anybody who wants the whole thing.
- */
-const COURSE_DAY_CARDS = ["RECOGNITION", "PRODUCTION"] as const;
+// The cards a day's words arrive with, beside the lesson body that reads them (lib/progress/lessons.ts).
 
 /**
  * Put today's words in the deck, so the ladder has something to teach.
@@ -4653,12 +3786,10 @@ export async function advanceCourseStep(programmeId: string, dayId: string, step
 /**
  * MARKS A CHECK AT THE END OF A PART OF A1, AND RECORDS A PASS.
  *
- * The browser sends which check, which attempt and what was picked or typed
- * for each question, never a mark: the server builds the same paper from the
- * check and the attempt (`checkPaper`) and marks it itself (`markCheck`),
- * which is ADR-022's rule for the mock exam. A pass is stored as a setting,
- * since nothing in the review log can say a check was passed; a fail stores
- * nothing, and the next attempt asks a different selection.
+ * The browser sends which check, which attempt and what was picked or typed,
+ * never a mark. The body, which rebuilds the paper and marks it on the server
+ * (ADR-022's rule), is `submitCheckFor` in lib/progress/lessons.ts, which
+ * `POST /api/v1/checks/{id}` calls too.
  */
 export async function submitCheck(checkId: string, attempt: number, responses: (string | null)[]) {
   const ownerId = await requireUserId();
@@ -4669,14 +3800,8 @@ export async function submitCheck(checkId: string, attempt: number, responses: (
     responses: z.array(z.string().max(200).nullable()).max(60),
   }).safeParse({ checkId: id, attempt, responses });
   if (!parsed.success) return { ok: false as const, error: "We couldn't read that check, so it wasn't saved." };
-  const check = checkById(PROGRAMMES, parsed.data.checkId);
-  if (!check) return { ok: false as const, error: "We couldn't find that check." };
-  const paper = checkPaper(check, parsed.data.attempt);
-  if (paper.length === 0 || parsed.data.responses.length !== paper.length) {
-    return { ok: false as const, error: "That check didn't match the questions, so it wasn't saved. Reload and try again." };
-  }
-  const result = markCheck(paper, parsed.data.responses);
-  if (result.passed) await recordCheckPassed(ownerId, check.id);
+  const result = await submitCheckFor(ownerId, parsed.data.checkId, parsed.data.attempt, parsed.data.responses);
+  if (!result.ok) return { ok: false as const, error: result.error };
   revalidatePath("/course");
   revalidatePath("/");
   return { ok: true as const, score: result.score, total: result.total, passed: result.passed, marks: result.marks };
@@ -4685,50 +3810,23 @@ export async function submitCheck(checkId: string, attempt: number, responses: (
 /**
  * A LESSON, FINISHED: ITS EVENING TICKED AND ITS WORDS IN THE DECK.
  *
- * A1 is the lessons (docs/43-lessons.md, phase P3), and an evening of A1 is
- * one lesson with one step. The lesson runs its six steps on its own screen
- * and ends on "Finish the lesson", which is this: the step is ticked, which is
- * what moves the course on (`dayReached`), and the lesson's words go into the
- * deck as recognition and production, so Review and Practice repeat what the
- * lesson taught and nothing it did not.
- *
- * The lesson is named by id and resolved here, so a caller cannot name an
- * evening it is not on: a lesson ahead of the learner's evening is still a
- * lesson they may read, and finishing it records nothing and builds nothing,
- * since the course reaches it when the course reaches it. A learner who has
- * turned the planned course off is not on any evening, so their deck gets the
- * words and nothing is ticked.
+ * The lesson runs its six steps on its own screen and ends on "Finish the
+ * lesson", which is this. The body, and why a lesson ahead of the learner's
+ * evening records nothing, is `finishLessonFor` in lib/progress/lessons.ts,
+ * which `POST /api/v1/lessons/{id}/finish` calls too, behind the same throttle.
  */
 export async function finishLesson(lessonId: string) {
   lessonId = text(lessonId);
   const ownerId = await requireUserId();
-  const found = lessonDayFor(lessonId);
-  if (!found) return { ok: false as const, error: "That lesson isn't part of the course." };
+  if (!lessonDayFor(lessonId)) return { ok: false as const, error: "That lesson isn't part of the course." };
   const busy = throttleAction(ownerId, "finishLesson");
   if (busy) return await sayRefusal(ownerId, busy);
-  const { programme, day } = found;
-  const [following, inPlay] = await Promise.all([
-    programmeFor(ownerId),
-    dayIsInPlay(ownerId, programme, day),
-  ]);
-  if (!inPlay && following) return { ok: true as const, recorded: false };
-
-  await addPlanToDeck(ownerId, planLemmas(day.words, COURSE_DAY_CARDS), "COURSE");
-  if (inPlay) {
-    await prisma.courseStep.upsert({
-      where: {
-        ownerId_programmeId_dayId_stepId: {
-          ownerId, programmeId: programme.id, dayId: day.id, stepId: LESSON_STEP,
-        },
-      },
-      update: {},
-      create: { ownerId, programmeId: programme.id, dayId: day.id, stepId: LESSON_STEP },
-    });
-  }
+  const result = await finishLessonFor(ownerId, lessonId);
+  if (!result.ok) return { ok: false as const, error: result.error };
   revalidatePath("/course");
   revalidatePath("/");
   revalidatePath("/words");
-  return { ok: true as const, recorded: inPlay };
+  return { ok: true as const, recorded: result.recorded };
 }
 
 /**
@@ -4943,7 +4041,6 @@ export async function recordEncounter(errandId: string | null, outcome: string) 
  * with recognition and production cards only, exactly like a pasted line: no
  * case-form card, because there are no forms to derive one from.
  */
-const MAX_SCAN_TITLE = 80;
 
 export async function saveScan(input: {
   title: string;
@@ -4955,128 +4052,14 @@ export async function saveScan(input: {
 
   const busy = throttleAction(ownerId, "saveScan");
   if (busy) return await sayRefusal(ownerId, busy);
-  input = fieldsOf(input);
-  const sent = sanitiseItems(input.items, SCAN_MAX_ITEMS);
-  if (sent.length === 0) {
-    return { ok: false as const, error: "Check at least one word on that page first." };
-  }
-  // What the dictionary says about each spelling, asked again here rather
-  // than taken from the request: see `vouchScanItems`.
-  const items = await vouchScanItems(sent);
-
-  const title = capped(input.title, MAX_SCAN_TITLE) || "A page";
-
-  /*
-    Every id here came from `vouchScanItems` rather than from the request.
-    Reading them back still means a row can only ever point at a Lexeme that
-    exists, and a row the dictionary would not vouch for is treated as a new
-    word rather than silently attaching cards to whatever holds some id.
-  */
-  const claimed = items.map((i) => i.lexemeId).filter((id): id is string => id !== null);
-  /*
-    With the paradigm attached, because the card-building branch below needs it
-    and used to ask for it a second time, once per word. A page carries up to
-    `MAX_ITEMS` words: that was sixty round trips for rows this query already
-    had, plus another sixty for the words it did not.
-  */
-  const known = claimed.length
-    ? await prisma.lexeme.findMany({ where: { id: { in: claimed } }, include: { forms: true } })
-    : [];
-  const byId = new Map(known.map((l) => [l.id, l]));
-
-  /*
-    And one question for every word the dictionary would not vouch for, asked
-    before the loop rather than inside it. The key is `(lemma, pos)`, which is
-    `Lexeme`'s own unique key, so a word that is already there under another
-    learner's hand is found rather than re-created. `createMany` with
-    `skipDuplicates` then writes only what is genuinely new, and the count it
-    returns is what `created` used to tally one row at a time.
-  */
-  let created = 0;
-  const unvouched = new Map<string, { lemma: string; pos: string; en: string }>();
-  // What a ticked word would be filed under if the dictionary does not already
-  // hold it. `(lemma, pos)` is `Lexeme`'s own unique key, so this is the same
-  // question the loop below asks and the same one the write below settles.
-  const keyOf = (et: string) => {
-    const lemma = visibleLine(et, LIMITS.lemma);
-    const pos = guessPos(lemma);
-    return { lemma, pos, key: `${lemma}|${pos}` };
-  };
-  for (const item of items) {
-    if (item.lexemeId && byId.has(item.lexemeId)) continue;
-    const { lemma, pos, key } = keyOf(item.et);
-    if (!unvouched.has(key)) unvouched.set(key, { lemma, pos, en: item.en });
-  }
-
-  const byKey = new Map<string, (typeof known)[number]>();
-  if (unvouched.size) {
-    const rows = await prisma.lexeme.findMany({
-      where: { OR: [...unvouched.values()].map((w) => ({ lemma: w.lemma, pos: w.pos })) },
-      include: { forms: true },
-    });
-    for (const row of rows) byKey.set(`${row.lemma}|${row.pos}`, row);
-
-    const missing = [...unvouched.entries()].filter(([key]) => !byKey.has(key));
-    if (missing.length) {
-      const written = await prisma.lexeme.createMany({
-        data: missing.map(([, w]) => ({
-          lemma: w.lemma,
-          pos: w.pos,
-          translation: visibleLine(w.en, LIMITS.translation) || NEEDS_TRANSLATION,
-          provenance: "USER" as const,
-          editedBy: ownerId,
-          editedAt: new Date(),
-        })),
-        skipDuplicates: true,
-      });
-      created = written.count;
-      const fresh = await prisma.lexeme.findMany({
-        where: { OR: missing.map(([, w]) => ({ lemma: w.lemma, pos: w.pos })) },
-        include: { forms: true },
-      });
-      for (const row of fresh) byKey.set(`${row.lemma}|${row.pos}`, row);
-    }
-  }
-
-  const stored: typeof items = [];
-  let cards = 0;
-  const carded = new Set<string>();
-
-  for (const item of items) {
-    const vouched = item.lexemeId ? byId.get(item.lexemeId) : undefined;
-    // Not in the dictionary, and ticked anyway. Stored as the learner's own
-    // entry, attributed to them, with the page's gloss as its English.
-    const row = vouched ?? byKey.get(keyOf(item.et).key);
-    if (!row) {
-      // Nothing to point at: the write above lost a race with a hand edit.
-      // Kept on the page as an unmatched word rather than dropped.
-      stored.push({ ...item, lexemeId: null, lemma: null, translation: null });
-      continue;
-    }
-
-    stored.push({ ...item, lexemeId: row.id, lemma: row.lemma, translation: row.translation });
-
-    // Only what the word can actually support. A hand-added entry has no
-    // forms, so asking for a case-form card would produce nothing; a matched
-    // one may carry every form and deserves the lot.
-    if (input.addCards && !carded.has(row.id)) {
-      carded.add(row.id);
-      const result = await addCardsFor(
-        ownerId, row.id, availableCardTypes(row as LexemeForCards), "SCAN",
-      );
-      if (result.ok) cards += result.added ?? 0;
-    }
-  }
-
-  const scan = await prisma.scan.create({
-    data: { ownerId, title, items: serialiseItems(stored) },
-    select: { id: true },
-  });
+  // The body is `saveScanFor`, which `POST /api/v1/scans` calls too (lib/progress/scans.ts).
+  const saved = await saveScanFor(ownerId, input);
+  if (!saved.ok) return saved;
 
   revalidatePath("/scan");
   revalidatePath("/words");
   revalidatePath("/");
-  return { ok: true as const, id: scan.id, words: stored.length, cards, created };
+  return saved;
 }
 
 /** Adds every word on a saved page that is not in the deck yet. */
@@ -5085,50 +4068,14 @@ export async function addScanToDeck(scanId: string) {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "addScanToDeck");
   if (busy) return await sayRefusal(ownerId, busy);
-  const scan = await prisma.scan.findFirst({
-    where: { id: scanId, ownerId },
-    select: { items: true },
-  });
-  if (!scan) return { ok: false as const, error: "That page isn't here any more." };
-
-  const items = parseItems(scan.items, SCAN_MAX_ITEMS);
-
-  /*
-    One query for the words, not sixty.
-
-    A page carries up to `MAX_ITEMS` words and this asked the dictionary about
-    each one on its own, with its whole paradigm attached. None of those reads
-    depends on what the previous word did: they are the same question sixty
-    times over, and a deployment asks it through a pooler while somebody
-    watches the button they just pressed. `importWords` and the offline replay
-    had the same shape for the same reason.
-
-    The `addCardsFor` below stays per word, because that one is the write and
-    it takes an advisory lock on (owner, word) to keep a double tap from
-    building two decks.
-  */
-  const wanted = [...new Set(items.map((i) => i.lexemeId).filter((id): id is string => !!id))];
-  const byId = new Map(
-    (wanted.length
-      ? await prisma.lexeme.findMany({ where: { id: { in: wanted } }, include: { forms: true } })
-      : []
-    ).map((l) => [l.id, l]),
-  );
-
-  let added = 0;
-  for (const id of wanted) {
-    const lexeme = byId.get(id);
-    if (!lexeme) continue;
-    const result = await addCardsFor(
-      ownerId, lexeme.id, availableCardTypes(lexeme as LexemeForCards), "SCAN",
-    );
-    if (result.ok) added += result.added ?? 0;
-  }
+  // The body is `addScanToDeckFor`, which `POST /api/v1/scans/{id}/deck` calls too.
+  const result = await addScanToDeckFor(ownerId, scanId);
+  if (!result.ok) return result;
 
   revalidatePath(`/scan/${scanId}`);
   revalidatePath("/words");
   revalidatePath("/");
-  return { ok: true as const, added, words: items.length };
+  return result;
 }
 
 export async function renameScan(scanId: string, title: string) {
@@ -5505,7 +4452,8 @@ export async function submitSuggestion(input: unknown) {
   const lemma = visibleLine(raw.lemma, SUGGESTION_LIMITS.lemma) || null;
   const lexemeId = capped(raw.lexemeId, 64) || null;
   const context = visibleProse(raw.context, SUGGESTION_LIMITS.context) || null;
-  const trigger = visibleLine(raw.trigger, SUGGESTION_LIMITS.trigger) || null;
+  // A reported answer from a model travels whole; any other trigger is a failure message.
+  const trigger = visibleLine(raw.trigger, triggerLimit(category)) || null;
 
   const groupKey = groupKeyFor({ category, lexemeId, lemma, context, trigger, patch });
 
@@ -5564,6 +4512,7 @@ export async function reviewSuggestion(input: unknown) {
   if (!row) return { ok: false as const, error: "That suggestion isn't here any more." };
 
   let applied: string | null = null;
+  let replaced: string | null = null;
   if (decision === "ACCEPT" && parsed.data.apply) {
     const outcome = await applyPatch(parsePatch(row.patch), reviewerId);
     /*
@@ -5574,6 +4523,8 @@ export async function reviewSuggestion(input: unknown) {
     */
     if (!outcome.ok) return { ok: false as const, error: outcome.error };
     applied = outcome.summary;
+    // What the change replaced, kept for the corrections sent back to EKI.
+    if (outcome.changed) replaced = outcome.replaced ?? null;
   }
 
   const resolved = await prisma.suggestion.updateMany({
@@ -5583,6 +4534,7 @@ export async function reviewSuggestion(input: unknown) {
       reviewedBy: reviewerId,
       reviewedAt: new Date(),
       decision: visibleProse(parsed.data.note, SUGGESTION_LIMITS.decision) || null,
+      ...(replaced !== null ? { replaced } : {}),
     },
   });
 

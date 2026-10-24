@@ -31,7 +31,7 @@ function sinc(x: number): number {
 }
 
 /** A Blackman window over `[-1, 1]`, which keeps the ripple down where speech is. */
-function window(t: number): number {
+function blackman(t: number): number {
   if (t <= -1 || t >= 1) return 0;
   const x = (t + 1) / 2;
   return 0.42 - 0.5 * Math.cos(2 * Math.PI * x) + 0.08 * Math.cos(4 * Math.PI * x);
@@ -88,7 +88,7 @@ export class StreamResampler {
       const local = i - this.historyStart;
       if (local < 0 || local >= buffer.length) continue;
       const distance = at - i;
-      sum += buffer[local]! * sinc(distance * this.scale) * window(distance / (this.reach + 1));
+      sum += buffer[local]! * sinc(distance * this.scale) * blackman(distance / (this.reach + 1));
     }
     return sum * this.scale;
   }
