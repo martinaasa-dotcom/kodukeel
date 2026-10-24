@@ -1,12 +1,15 @@
 {
   "hits": [
     {
-      "lexemeId": "6695a810-64bd-445a-b595-2dd52e2df298",
+      "id": "6695a810-64bd-445a-b595-2dd52e2df298",
       "lemma": "tuba",
+      "translation": "room",
       "pos": "NOUN",
-      "gloss": "room",
-      "cefr": "A1"
+      "cefr": "A1",
+      "gradationNote": "b : ∅",
+      "matchedAs": "seesütlev (-s, in) of tuba"
     }
   ],
-  "formOf": []
+  "knownAs": [],
+  "fetched": false
 }

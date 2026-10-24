@@ -29,7 +29,7 @@ const B = baseUrl();
 const published = JSON.parse(readFileSync("public/api/v1.schema.json", "utf8"));
 
 // Floor: measured against a local-mode build, which is what the browser job runs.
-const { check, absent, done } = suite("The v1 API", { floor: 39 });
+const { check, absent, done } = suite("The v1 API", { floor: 62 });
 
 async function call(method, path, { body, headers = {} } = {}) {
   const res = await fetch(`${B}${path}`, {
@@ -210,6 +210,94 @@ if (!hosted) {
   */
 } else {
   absent(14, "a signed-in token, which a hosted deployment needs and this suite does not mint (the 401 below is checked instead)");
+}
+
+// ── N-6: words and sound ─────────────────────────────────────────────────────
+
+/*
+  The recordings are public, so they are asked in either mode. Everything else
+  here needs the local learner, and writes to the demo deck only what it then
+  takes back: a star is unstarred and a word put aside is brought back.
+*/
+const recordings = await call("GET", "/api/v1/recordings");
+check("the native recordings are listed to somebody with no token", recordings.status === 200, `status ${recordings.status}`);
+check("the recordings fit their published schema", misfit("GET /api/v1/recordings", recordings.json) === "", misfit("GET /api/v1/recordings", recordings.json));
+const clips = recordings.json?.clips ?? [];
+check(
+  "every clip plays at its own speed from the app's own files",
+  clips.length > 0 && clips.every((c) => c.atOwnSpeed === true && c.src.startsWith("/audio/native/")),
+  `${clips.length} clips`,
+);
+const firstClip = clips.find((c) => c.key !== null);
+const clipFile = firstClip ? await fetch(`${B}${firstClip.src}`) : null;
+check("a listed clip is served where the list says", clipFile?.status === 200, `status ${clipFile?.status} for ${firstClip?.src}`);
+
+if (!hosted) {
+  const search = await call("GET", "/api/v1/dictionary?q=toas");
+  check("a search answers on a local install", search.status === 200, `status ${search.status}`);
+  check("the search fits its published schema", misfit("GET /api/v1/dictionary", search.json) === "", misfit("GET /api/v1/dictionary", search.json));
+  check("the search is never kept", search.headers.get("cache-control") === "no-store");
+  const tuba = (search.json?.hits ?? []).find((h) => h.lemma === "tuba");
+  check("an inflected form finds its headword, as the dictionary page does", tuba !== undefined, JSON.stringify(search.json)?.slice(0, 200));
+  const blank = await call("GET", "/api/v1/dictionary");
+  check("a search with nothing typed is refused in the error shape", blank.status === 400 && errorShaped(blank.json), `status ${blank.status}`);
+
+  if (tuba) {
+    const entry = await call("GET", `/api/v1/words/${tuba.id}`);
+    check("an entry is served with its forms and sentences", entry.status === 200 && entry.json?.lemma === "tuba" && entry.json?.forms?.length > 0, `status ${entry.status}`);
+    check("the entry fits its published schema", misfit("GET /api/v1/words/{id}", entry.json) === "", misfit("GET /api/v1/words/{id}", entry.json));
+
+    const star = await call("POST", "/api/v1/deck", { body: { action: "star", lexemeId: tuba.id } });
+    check("a word is starred", star.status === 200 && star.json?.starred === true, `status ${star.status}`);
+    check("the deck answer fits its published schema", misfit("POST /api/v1/deck", star.json) === "", misfit("POST /api/v1/deck", star.json));
+    const unstar = await call("DELETE", "/api/v1/deck", { body: { action: "star", lexemeId: tuba.id } });
+    check("and unstarred again", unstar.status === 200 && unstar.json?.action === "unstar" && unstar.json?.starred === false, `status ${unstar.status}`);
+
+    const aside = await call("POST", "/api/v1/deck", { body: { action: "aside", lexemeId: tuba.id, context: "review" } });
+    check("a word is put aside and the answer says until when", aside.status === 200 && aside.json?.aside?.days > 0, `status ${aside.status}, ${aside.text.slice(0, 160)}`);
+    const back = await call("DELETE", "/api/v1/deck", { body: { action: "aside", lexemeId: tuba.id } });
+    check("and brought back", back.status === 200 && back.json?.action === "back", `status ${back.status}`);
+
+    const kept = await call("POST", "/api/v1/deck", { body: { action: "keep", lexemeId: tuba.id, types: ["RECOGNITION"] } });
+    check("a word is kept, and the answer counts the cards it added", kept.status === 200 && Number.isInteger(kept.json?.added), `status ${kept.status}`);
+  } else {
+    absent(8, "the dictionary finding tuba for toas, which needs the seeded dictionary (`npm run db:seed`)");
+  }
+  const missingWord = await call("GET", "/api/v1/words/no-such-entry");
+  check("an entry the dictionary does not hold is not found", missingWord.status === 404 && missingWord.json?.error?.code === "not_found", `status ${missingWord.status}`);
+  const badDeck = await call("POST", "/api/v1/deck", { body: { action: "burn", lexemeId: "x" } });
+  check("a deck action nobody wrote is refused", badDeck.status === 400 && badDeck.json?.error?.code === "invalid", `status ${badDeck.status}`);
+
+  const forms = await call("POST", "/api/v1/speech/forms", { body: { words: ["toas", "xqzvw"] } });
+  check(
+    "the forms list says which heard spellings are Estonian",
+    forms.status === 200 && misfit("POST /api/v1/speech/forms", forms.json) === "" && forms.json.known.includes("toas") && !forms.json.known.includes("xqzvw"),
+    `status ${forms.status}, ${forms.text.slice(0, 160)}`,
+  );
+
+  /*
+    Speech calls TartuNLP on a cache miss, a free service this suite does not
+    control. A clip or the 503 `upstream` refusal are both honest answers; what
+    may not happen is anything else.
+  */
+  const clip = await call("POST", "/api/v1/tts", { body: { text: "tere" } });
+  check(
+    "a clip is audio that is never kept, or the speech service is said to be down",
+    (clip.status === 200 && clip.headers.get("content-type") === "audio/wav" && clip.headers.get("cache-control") === "no-store")
+      || (clip.status === 503 && errorShaped(clip.json)),
+    `status ${clip.status}, ${clip.headers.get("content-type")}`,
+  );
+  const noText = await call("POST", "/api/v1/tts", { body: { text: "" } });
+  check("a clip with nothing to say is refused before anything is asked", noText.status === 400 && noText.json?.error?.code === "invalid", `status ${noText.status}`);
+
+  const lessonView = await call("GET", "/api/v1/lessons/a1-01-hello");
+  check(
+    "a lesson names which part of its conversation the native speaker recorded",
+    lessonView.status === 200 && (lessonView.json?.nativePart === null || typeof lessonView.json?.nativePart === "string"),
+    `nativePart ${JSON.stringify(lessonView.json?.nativePart)}`,
+  );
+} else {
+  absent(19, "a signed-in token, which a hosted deployment needs and this suite does not mint (the 401 below is checked instead)");
 }
 
 // ── Every route that needs a token refuses without one ────────────────────────

@@ -13,7 +13,6 @@ import { visibleLine, visibleProse } from "@/lib/security/visibleText";
 import { glossSentences } from "@/lib/dict/glossed";
 import { MAX_READING_CHARS, readingParagraphs } from "@/lib/estonian/readingText";
 import { setTaskDone } from "@/lib/progress/tasks";
-import { deferredDues, deferWord, undoDeferral } from "@/lib/progress/deferrals";
 import { keepBest } from "@/lib/progress/personalBest";
 import { deleteOwnReminder } from "@/lib/progress/reminders";
 import { classworkMarker } from "@/lib/ux/agenda";
@@ -38,9 +37,7 @@ import { cohortKind } from "@/lib/classroom/cohort";
 import { EXAM_LEVELS, type ExamLevel } from "@/lib/exam/spec";
 import { loadRecentMessages } from "@/lib/tutor/history";
 import { isExactForm } from "@/lib/dict/forms";
-import { mergeExamples, parseExamples, MAX_CHARS as EXAMPLE_MAX_CHARS } from "@/lib/dict/examples";
-import { alsoAcceptedByLemma, borrowedSentences, sentenceReach } from "@/lib/dict/facts";
-import { plainerFirst } from "@/lib/dict/plainness";
+import { mergeExamples, parseExamples } from "@/lib/dict/examples";
 import { restoredEntry } from "@/lib/dict/restoredEntry";
 import { lookupAndStore } from "@/lib/dict/lookup";
 import { upsertLexemeWithForms } from "@/lib/dict/upsert";
@@ -55,16 +52,18 @@ import {
 import { CEFR_LEVELS } from "@/lib/estonian/types";
 import { eraseAuthIdentity, remainingIdentityNote } from "@/lib/auth/erase";
 import { NEEDS_TRANSLATION } from "@/lib/copy/values";
+import { LIMITS, MAX_SCAN_TITLE } from "@/lib/progress/fieldLimits";
 import { resolveOneWord, vouchScanItems } from "@/lib/dict/resolveScan";
 import { guessPos, MAX_ITEMS as SCAN_MAX_ITEMS } from "@/lib/scan/extract";
 import { parseItems, sanitiseItems, serialiseItems } from "@/lib/scan/items";
 import { translateSentenceWithAnu } from "@/lib/tutor/translate";
 import {
   createDeck, decksForWord, deleteDeck, fileWordInDeck, listDecks,
-  removeWordFromDeck, renameDeck, setDecksForWord, wordsInDeck, wordsToFile,
+  removeWordFromDeck, renameDeck, wordsInDeck, wordsToFile,
 } from "@/lib/progress/decks";
 import { canonicalZone } from "@/lib/time/day";
 import { markSayingsShown } from "@/lib/progress/sayings";
+import { bringBack, keepWord, putAside, setStar } from "@/lib/progress/wordActions";
 import {
   forgetSettings, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
@@ -92,15 +91,15 @@ import { hiddenSlotsFrom, serialiseTodayOrder, todayOrderFrom } from "@/lib/ux/t
 import { serialiseNavOrder } from "@/lib/ux/navOrder";
 import { roundPaceFrom } from "@/lib/ux/roundClock";
 import {
-  availableCardTypes, CARD_TYPES, generateCards, type CardType, type LexemeForCards,
+  availableCardTypes, CARD_TYPES, type CardType, type LexemeForCards,
 } from "@/lib/srs/cards";
 import { boundedRestoredReview, isRepeatedReview, stableReviewId, writeGrade } from "@/lib/srs/grade";
 import { asRestoredMeasurement } from "@/lib/security/restoredMeasurement";
 import { createAbsent, resolveLexemes, restoreLexemes, restoreOwned } from "@/lib/progress/restoreRows";
 import { errandById, outcomeFrom } from "@/lib/collections/errands";
-import { emptyScheduling, type RatingValue } from "@/lib/srs/scheduler";
+import { type RatingValue } from "@/lib/srs/scheduler";
 import { snapshotOf, undoGradeFor, type SchedulingSnapshot } from "@/lib/srs/undo";
-import { ONE_PER_WORD, addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
+import { addCardsFor as addWordCards, addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
 import {
   defaultProgramme, LESSON_STEP, MODULE_HOME, continueHref, dayById, focusedSteps, lessonDayFor, levelHeldOnHandOff,
   PROGRAMMES, programmeById, stepCard, stepText,
@@ -114,7 +113,7 @@ import { adaptOfferFor, SNOOZE_DAYS } from "@/lib/progress/adapt";
 import { clip } from "@/lib/copy/clip";
 import { isConfirmed } from "@/lib/copy/confirmWord";
 
-import { CARD_SOURCES as KNOWN_SOURCES, DEFAULT_SOURCE } from "@/lib/srs/sources";
+import { DEFAULT_SOURCE } from "@/lib/srs/sources";
 import { ratingFor, SONAD_GUESSES } from "@/lib/games/sonad";
 import { solvedEntries } from "@/lib/games/crossword";
 import { crosswordFor } from "@/lib/progress/crossword";
@@ -151,24 +150,6 @@ import { safeMessage } from "@/lib/observability/report";
  * Cards are per-user (`ownerId`) even though the Lexeme they're generated from is the shared
  * dictionary — see docs/03-architecture.md ADR-012.
  */
-/**
- * The card sources a caller may name.
- *
- * `Card.source` is not decoration: `lib/progress/wordOfDay.ts` counts the
- * words a learner kept from the almanac by querying it, and `/words` groups
- * by it. It is also a free-text column on a row a signed-in stranger can
- * create, and this endpoint was passing whatever arrived straight into it, so
- * one caller could file a card under a source nothing else in the app has
- * ever written and quietly break a count that is supposed to be derived from
- * facts. A closed list costs nothing: every caller in the tree already names
- * one of these.
- *
- * The list itself is `lib/srs/sources.ts` rather than a set typed here, because
- * `/review/lookups` reads the same values to decide which words were the
- * learner's own idea, and a second copy is how a source ends up on one side of
- * that line in this file and the other side in that round.
- */
-const CARD_SOURCES = new Set<string>(KNOWN_SOURCES);
 
 /**
  * A throttle refusal in the language the learner reads the app in.
@@ -210,30 +191,12 @@ export async function addToDeck(
   lexemeId: string, types: CardType[], source = "LOOKUP", deckIds?: string[],
 ) {
   lexemeId = text(lexemeId);
-  const known = new Set(CARD_TYPES.map((t) => t.type));
-  const wanted = [...new Set(Array.isArray(types) ? types : [])]
-    .filter((t): t is CardType => known.has(t as CardType));
   const ownerId = await requireUserId();
-  const result = await addCardsFor(
-    ownerId,
-    lexemeId,
-    wanted,
-    CARD_SOURCES.has(source) ? source : DEFAULT_SOURCE,
-  );
-  /*
-    Filed under a shelf only where the caller actually offered one to choose,
-    and `deckIds` says which by being present at all rather than by being
-    non-empty. A screen with nothing to choose between (zero or one deck)
-    never sends the argument, and a word going into a deck-less learner's
-    collection stays exactly what it was before this feature existed:
-    unfiled, and still fully theirs. A screen that *did* offer a choice and
-    got back an empty list is a different fact — every box was unticked —
-    and `setDecksForWord` already means that as "take it off every shelf",
-    which has to reach the database rather than being read as "nothing to
-    do" the way the length-0 case above is.
-  */
-  if (result.ok && Array.isArray(deckIds)) {
-    await setDecksForWord(ownerId, lexemeId, deckIds.filter((id) => typeof id === "string"));
+  // The body is `keepWord`, which `POST /api/v1/deck` calls too (lib/progress/wordActions.ts).
+  const result = await keepWord(ownerId, lexemeId, types, source, deckIds);
+  if (result.ok && result.added > 0) {
+    revalidatePath("/");
+    revalidatePath("/words");
   }
   return result;
 }
@@ -347,128 +310,19 @@ export async function deleteMyDeck(deckId: string) {
  * Deliberately not exported: this file is `"use server"`, so every export is an
  * endpoint any signed-in user can call with arguments of their choosing. An
  * exported `ownerId` parameter would therefore let one learner write cards into
- * another's deck. Owner comes from the session, never from the caller.
+ * another's deck. Owner comes from the session, never from the caller. The
+ * build itself is `addCardsFor` in lib/srs/deck.ts, which `POST /api/v1/deck`
+ * calls too; what stays here is refreshing the pages that count the deck.
  */
 async function addCardsFor(
-  owner: string, lexemeId: string, types: CardType[], source: string,
+  owner: string, lexemeId: string, types: readonly CardType[], source: string,
 ) {
-  const [lexeme, borrowed, reach, alsoAccepted] = await Promise.all([
-    prisma.lexeme.findUnique({
-      where: { id: lexemeId },
-      include: { forms: true },
-    }),
-    // The sentences this word may borrow for its case and conjugation cards,
-    // a cached fact about the shared dictionary. See lib/dict/borrow.ts.
-    borrowedSentences(),
-    // And how a beginner's word orders its own, which is the same kind of
-    // fact and cached the same way. See lib/dict/plainness.ts.
-    sentenceReach(),
-    /*
-      And which other words answer the same prompt, the fact `lib/srs/deck.ts`
-      reads for a unit. Without it a production card built one word at a time
-      took its own word alone: `pere` added from the dictionary got a back
-      of `pere` where a unit gives it `pere / perekond`, so a learner who wrote
-      `perekond` for "family" was marked wrong on a card that could not tell
-      them apart. The back reads `pere / perekond` now, read off a card
-      added in a browser; the invariant for it was made to fail on this line.
-    */
-    alsoAcceptedByLemma(),
-  ]);
-  if (!lexeme) return { ok: false as const, error: "That word isn't in the dictionary any more." };
-
-  /*
-    READ AND WRITE UNDER ONE LOCK, BECAUSE "IS IT ALREADY THERE" IS CHECK-THEN-ACT.
-
-    This read the learner's existing cards for the word, filtered the generated
-    ones against them, and inserted the rest. Two requests inside that gap both
-    see an empty deck and both insert. Measured against a real database, firing
-    the same shape concurrently: two adds gave two cards, four gave four, and
-    eight gave fourteen where two is right. A learner meets it by
-    double-tapping "Add to deck", which is the worst case rather than the
-    unlikely one.
-
-    The answer is `lib/usage/ledger.ts`'s, for the reasons its own header gives:
-    a *transaction* advisory lock, so a connection pooler cannot strand it, and
-    the blocking form, since the non-blocking one serializes nothing.
-
-    The key is `lockDeck`'s and is the learner rather than the learner and the
-    word, which is a widening this path did not need on its own and the batched
-    builder does. A key naming the word is safe against another add of the same
-    word and says nothing about `addUnitsToDeck` writing a unit that contains
-    it, so two keys would leave each path guarded against itself and neither
-    against the other. One definition, in `lib/srs/deck.ts`, because two spellings
-    of a lock key are a lock that is not held.
-
-    Held across one select and one insert, which is milliseconds, and the whole
-    of it is work this action was doing anyway.
-
-    A unique index would be the other answer and is the one not taken: an
-    existing deck that already holds duplicates from this bug would fail the
-    push, and the deployment's own build is what runs it.
-  */
-  const now = new Date();
-  const scheduling = emptyScheduling(now);
-  const added = await prisma.$transaction(async (tx) => {
-    await lockDeck(tx, owner);
-
-    const [existing, held] = await Promise.all([
-      tx.card.findMany({
-        where: { lexemeId, ownerId: owner },
-        select: { front: true, cardType: true },
-      }),
-      /*
-        AND A CARD FOR A WORD ALREADY PUT ASIDE IS BUILT PUT ASIDE.
-
-        The unit lesson is where a word is refused before it has a card: the
-        lesson teaches the unit's words and this builds them at the end, so
-        without this the word somebody said was too complicated would arrive
-        tomorrow with a card dated today. See lib/progress/deferrals.ts.
-      */
-      deferredDues(tx, owner, [lexemeId], now),
-    ]);
-    /* A recognition or production card is one per word whatever its front
-       says, or a deck built before a spelling fix gains a second copy at New
-       (`ONE_PER_WORD` in lib/srs/deck.ts). */
-    const seen = new Set(existing.flatMap((c) => ONE_PER_WORD.has(c.cardType)
-      ? [`${c.cardType}|${c.front}`, `${c.cardType}|*`]
-      : [`${c.cardType}|${c.front}`]));
-
-    const generated = generateCards(
-      {
-        ...(lexeme as LexemeForCards),
-        alsoAccepted: alsoAccepted.get(`${lexeme.lemma}|${lexeme.pos}`) ?? [],
-        borrowed: borrowed.get(lexemeId) ?? [],
-        plainest: plainerFirst(lexeme.cefr, reach),
-      }, types,
-    ).filter((c) => !seen.has(`${c.cardType}|${c.front}`) && !seen.has(`${c.cardType}|*`));
-    if (generated.length === 0) return 0;
-
-    await tx.card.createMany({
-      data: generated.map((c) => ({
-        ownerId: owner,
-        lexemeId,
-        cardType: c.cardType,
-        front: c.front,
-        back: c.back,
-        hint: c.hint,
-        targetCase: c.targetCase,
-        slot: c.slot,
-        source,
-        due: held.get(lexemeId) ?? scheduling.due,
-        stability: scheduling.stability,
-        difficulty: scheduling.difficulty,
-        state: scheduling.state,
-        learningSteps: scheduling.learningSteps,
-      })),
-    });
-    return generated.length;
-  });
-
-  if (added === 0) return { ok: true as const, added: 0, message: "That one's already in your deck." };
-
-  revalidatePath("/");
-  revalidatePath("/words");
-  return { ok: true as const, added };
+  const result = await addWordCards(owner, lexemeId, types, source);
+  if (result.ok && result.added > 0) {
+    revalidatePath("/");
+    revalidatePath("/words");
+  }
+  return result;
 }
 
 /** The scheduling fields a client hands back to undo a grade, in lib/srs/undo.ts beside the body that reads them. */
@@ -795,24 +649,7 @@ export async function addExample(lexemeId: string, sentence: string, translation
 
 // ─────────────────────────────── Words ────────────────────────────────────
 
-/**
- * Length caps on anything a person types into shared or stored text.
- *
- * Not a formatting preference — without them a single request can push
- * megabytes into the database, and a lemma is a word. Truncating rather than
- * rejecting: over-long input is almost always a paste accident, and losing the
- * whole entry to a stray clipboard is the worse outcome.
- */
-const LIMITS = {
-  lemma: 80,
-  translation: 200,
-  /** One sentence: the same ceiling the reader applies, so nothing is stored unshowable. */
-  example: EXAMPLE_MAX_CHARS,
-  form: 80,
-  government: 300,
-  taskTitle: 200,
-  taskNotes: 2000,
-} as const;
+/* Length caps on anything a person types are `LIMITS`, in lib/progress/fieldLimits.ts. */
 
 /** What a class member is called on the roster. */
 const DISPLAY_NAME_MAX = 32;
@@ -1057,20 +894,9 @@ export async function createLexemeWithForms(input: {
  */
 export async function toggleStar(lexemeId: unknown, starred?: unknown) {
   const ownerId = await requireUserId();
-  const id = text(lexemeId).slice(0, 64);
-  if (!id) return { ok: false as const, error: "We couldn't tell which word you meant." };
-  const exists = await prisma.lexeme.findUnique({ where: { id }, select: { id: true } });
-  if (!exists) return { ok: false as const, error: "That word isn't in the dictionary." };
-
-  const key = { ownerId_lexemeId: { ownerId, lexemeId: id } };
-  const existing = await prisma.starredWord.findUnique({ where: key });
-  const want = typeof starred === "boolean" ? starred : !existing;
-  if (want && !existing) {
-    // A second tab pressing at the same moment has already written it.
-    await prisma.starredWord.createMany({ data: [{ ownerId, lexemeId: id }], skipDuplicates: true });
-  } else if (!want && existing) {
-    await prisma.starredWord.deleteMany({ where: { ownerId, lexemeId: id } });
-  }
+  // The body is `setStar`, which `POST` and `DELETE /api/v1/deck` call too.
+  const result = await setStar(ownerId, lexemeId, starred);
+  if (!result.ok) return result;
   /*
     The dictionary is where a star used to be set from and the only place it
     could be read; the mastery page is where the favorites are listed now,
@@ -1080,7 +906,7 @@ export async function toggleStar(lexemeId: unknown, starred?: unknown) {
   */
   revalidatePath("/dictionary");
   revalidatePath("/words/mastery");
-  return { ok: true as const, starred: want };
+  return result;
 }
 
 /**
@@ -1108,14 +934,8 @@ export async function putWordAside(lexemeId: string, context: string) {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "putAside");
   if (busy) return await sayRefusal(ownerId, busy);
-  const id = text(lexemeId).slice(0, 64);
-  if (!id) return { ok: false as const, error: "We couldn't tell which word you meant." };
-
-  // The level is read here rather than inside, so `lib/progress/deferrals.ts`
-  // and `lib/progress/level.ts` stay one-way: the second calls the first when
-  // a learner moves up.
-  const level = await courseLevelFor(ownerId);
-  const result = await deferWord(ownerId, id, level, text(context).slice(0, 200) || null);
+  // The body is `putAside`, which `POST /api/v1/deck` calls too (lib/progress/wordActions.ts).
+  const result = await putAside(ownerId, lexemeId, context);
   if (!result.ok) return result;
 
   /*
@@ -1136,13 +956,7 @@ export async function putWordAside(lexemeId: string, context: string) {
   */
   revalidatePath("/");
   revalidatePath("/words/mastery");
-  /* The span and the band ride along, so a Russian or Ukrainian screen can
-     say the sentence in its own words rather than print the English note. */
-  return {
-    ok: true as const,
-    note: result.note,
-    deferral: { reason: result.deferral.reason, days: result.deferral.days, untilLevel: result.deferral.untilLevel },
-  };
+  return result;
 }
 
 /**
@@ -1156,11 +970,9 @@ export async function putWordAside(lexemeId: string, context: string) {
 export async function bringWordBack(lexemeId: string) {
   lexemeId = text(lexemeId);
   const ownerId = await requireUserId();
-  const id = text(lexemeId).slice(0, 64);
-  if (!id) return { ok: false as const, error: "We couldn't tell which word you meant." };
-
-  const done = await undoDeferral(ownerId, id);
-  if (!done) return { ok: false as const, error: "That word wasn't put aside, so there's nothing to bring back." };
+  // The body is `bringBack`, which `DELETE /api/v1/deck` calls too.
+  const result = await bringBack(ownerId, lexemeId);
+  if (!result.ok) return result;
 
   /*
     The list this is pressed from drops the row itself, for the reason above:
@@ -1169,7 +981,7 @@ export async function bringWordBack(lexemeId: string) {
   */
   revalidatePath("/");
   revalidatePath("/review");
-  return { ok: true as const };
+  return result;
 }
 
 /** Bulk import from pasted text. Returns per-row outcomes so nothing fails silently. */
@@ -4845,7 +4657,6 @@ export async function recordEncounter(errandId: string | null, outcome: string) 
  * with recognition and production cards only, exactly like a pasted line: no
  * case-form card, because there are no forms to derive one from.
  */
-const MAX_SCAN_TITLE = 80;
 
 export async function saveScan(input: {
   title: string;

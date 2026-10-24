@@ -1084,7 +1084,8 @@ check("the mock paper's minutes and marks are the ones the exam doc cites", () =
   the stretch would be a second answer to how slow is done.
 */
 check("every rate is the one clip stretched in one place, and every clip is prepared before it is kept", () => {
-  const route = code("app/api/tts/route.ts");
+  // The speech route's body, which both of its doors call (lib/progress/speakClip.ts, ADR-029).
+  const route = code("app/api/tts/route.ts") + "\n" + code("lib/progress/speakClip.ts");
   assert.doesNotMatch(route, /\bspeed\b/, "the speech route is asking the model to slow down again");
   assert.match(route, /clipForStore\(raw\)/, "the route stopped preparing what the service sent");
   assert.match(code("lib/audio/wav.ts"), /export function clipForStore[\s\S]*?prepareClip\(bytes\)/,
@@ -1152,7 +1153,8 @@ check("every rate is the one clip stretched in one place, and every clip is prep
   and nothing had ever held them to it.
 */
 check("a word is asked for finished, in one place, and the two clip versions agree", () => {
-  const route = code("app/api/tts/route.ts");
+  // The speech route's body, which both of its doors call (lib/progress/speakClip.ts, ADR-029).
+  const route = code("lib/progress/speakClip.ts");
   assert.match(
     route,
     /text = spokenText\(clip\(body\.text\.trim\(\), MAX_CHARS\)\)/,
@@ -1190,7 +1192,7 @@ check("a word is asked for finished, in one place, and the two clip versions agr
     .sort();
   assert.deepEqual(
     callers,
-    ["app/api/tts/route.ts"],
+    ["lib/progress/speakClip.ts"],
     "a second place decides what the speech service is asked to read",
   );
 
@@ -1803,8 +1805,9 @@ check("a word borrows sentences under one rule, and every builder is handed them
   );
 
   const handed: Record<string, RegExp> = {
-    "lib/srs/deck.ts": /borrowedSentences\(\)/,
-    "app/actions.ts": /borrowedSentences\(\)/,
+    // Both the batched builder and `addCardsFor`, which moved here out of
+    // app/actions.ts so `POST /api/v1/deck` shares it (ADR-029).
+    "lib/srs/deck.ts": /export async function addCardsFor[\s\S]*?borrowedSentences\(\)/,
     "app/(app)/review/flashcards/page.tsx": /borrowedSentences\(\)/,
     "prisma/repair.ts": /borrowSentences\(/,
     "scripts/audit-decks.ts": /borrowSentences\(/,
@@ -1842,13 +1845,15 @@ check("every builder that can make a production card is handed the words sharing
     const src = code(file);
     const calls = [...src.matchAll(/\bgenerateCards\(/g)];
     if (calls.length === 0) continue;
-    const canProduce = calls.some((m) => {
+    const producing = calls.filter((m) => {
       const args = src.slice(m.index!, m.index! + 400);
       const literal = args.match(/,\s*\[([^\]]*)\]\s*\)/);
       return !literal || /PRODUCTION/.test(literal[1]!);
     });
-    if (!canProduce) continue;
-    callers.push(file);
+    if (producing.length === 0) continue;
+    // Counted per call rather than per file: the dictionary's Add moved into
+    // lib/srs/deck.ts beside the bulk builder, so two builders now share a file.
+    for (let i = 0; i < producing.length; i++) callers.push(file);
     assert.match(
       src,
       /alsoAccepted/,
@@ -1989,6 +1994,10 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     // no list for a rank to order.
     "lib/progress/sayings.ts": "looks the named sentences up to read their English back, picks none",
     "lib/progress/quest.ts": "reads back the English of the card's own sentence, picks none",
+    // `translateExample` finds the one sentence a screen asked about by its
+    // text. The card builder that used to share this file is `addCardsFor` in
+    // lib/srs/deck.ts now, which is handed the rank there.
+    "app/actions.ts": "looks one named sentence up to translate it, picks none",
     // Asks which cases a word can build a card for at all, as a set. No
     // sentence it could pick reaches a screen, only whether one exists.
     "lib/srs/retire.ts": "asks which cases a word can build, as a set, and picks no sentence",
@@ -3848,6 +3857,8 @@ check("the routes that spend somebody else's quota are capped", () => {
     "app/api/share/route.tsx",
     "app/api/export/route.ts",
     "app/api/scan/route.ts",
+    // And the door for a phone, which shares the body and the key (D5).
+    "app/api/v1/tts/route.ts",
   ]) {
     assert.match(
       code(route),
@@ -3873,6 +3884,7 @@ check("the routes the spend ledger does not price are capped where every instanc
   */
   for (const route of [
     "app/api/tts/route.ts",
+    "app/api/v1/tts/route.ts",
     "app/api/share/route.tsx",
     "app/api/export/route.ts",
     "app/api/restore/route.ts",
@@ -3990,7 +4002,7 @@ check("a cap is charged to the learner, never to their address alone", () => {
   */
   // The four CLAUDE.md names, read as code: this read one of them, raw, so the
   // word surviving in a comment was enough.
-  for (const file of ["app/api/tutor/route.ts", "app/api/tts/route.ts", "app/api/share/route.tsx", "app/api/export/route.ts"]) {
+  for (const file of ["app/api/tutor/route.ts", "app/api/tts/route.ts", "app/api/share/route.tsx", "app/api/export/route.ts", "app/api/v1/tts/route.ts"]) {
     assert.match(code(file), /bucketForOwner\(|bucketForRequest\(/, `${file}'s cap is no longer per learner`);
   }
 });
@@ -4143,7 +4155,8 @@ check("every path that adds cards reads and writes under one lock", () => {
   const lockedPaths = [
     {
       what: "addCardsFor",
-      body: /async function addCardsFor\(([\s\S]*?)\n\}/.exec(code("app/actions.ts"))?.[1] ?? "",
+      // In lib/srs/deck.ts beside the batched builder, which `POST /api/v1/deck` and the actions both call.
+      body: /export async function addCardsFor\(([\s\S]*?)\n\}/.exec(code("lib/srs/deck.ts"))?.[1] ?? "",
       read: "card.findMany",
       write: "card.createMany",
     },
@@ -8518,6 +8531,7 @@ check("the security doc's per-instance residual names no route the shared counte
   assert.ok(residual, "docs/27-security.md has no per-instance residual to read");
   const SHARED: Record<string, string> = {
     speech: "app/api/tts/route.ts",
+    "speech for a phone": "app/api/v1/tts/route.ts",
     "share card": "app/api/share/route.tsx",
     export: "app/api/export/route.ts",
     restore: "app/api/restore/route.ts",
@@ -10099,6 +10113,14 @@ check("a call is booked only once the request is worth answering", () => {
   const paid = ALL.filter((f) => /^app\/api\/.*route\.tsx?$/.test(f))
     .map((file) => ({ file, src: code(file) }))
     .filter(({ src }) => src.includes("authoriseCall("));
+  // Speech moved its body into lib/progress so a web door and an /api/v1 door
+  // share one (ADR-029 D2); the rule follows the body, where a refusal of the
+  // request is `refuse("invalid", 400, ...)`.
+  for (const file of ["lib/progress/speakClip.ts"]) {
+    const src = code(file);
+    assert.ok(src.includes("authoriseCall("), `${file} no longer books its call, so this list is stale`);
+    paid.push({ file, src: src.replace(/refuse\("invalid",\s*(\d{3})/g, "status: $1") });
+  }
   assert.ok(paid.length >= 6, `expected the routes that spend on a model or a service, found ${paid.length}`);
   for (const { file, src } of paid) {
     const after = src.slice(src.indexOf("authoriseCall("));
@@ -10108,7 +10130,7 @@ check("a call is booked only once the request is worth answering", () => {
       `${file} refuses a request after booking a call for it, so the booking stands against the budget`,
       );
       const before = src.slice(0, src.indexOf("authoriseCall("));
-      assert.match(before, /safeParse\(|\.json\(\)|formData\(\)/, `${file} books a call before it has read the request`);
+      assert.match(before, /safeParse\(|\.json\(\)|formData\(\)|typeof input/, `${file} books a call before it has read the request`);
       assert.match(
         before, /status:\s*400/,
         `${file} books a call before it could have refused a malformed request`,
@@ -10486,7 +10508,10 @@ check("one upstream request per thing, however many callers ask at once", () => 
     ["lib/cache/singleFlight.ts"],
     "somebody wrote a second in-flight map instead of using lib/cache/singleFlight.ts",
   );
-  for (const file of ["app/api/tts/route.ts", "lib/dict/lookup.ts"]) {
+  // The speech route's body, which both of its doors call (ADR-029), and both doors call it.
+  assert.match(code("app/api/tts/route.ts"), /\bspeakClip\(/, "the web's speech route stopped going through the shared body");
+  assert.match(code("app/api/v1/tts/route.ts"), /\bspeakClip\(/, "the v1 speech route stopped going through the shared body");
+  for (const file of ["lib/progress/speakClip.ts", "lib/dict/lookup.ts"]) {
     const source = read(file);
     // Both halves, because the import path alone is not evidence of a call:
     // the first version of this check matched the string "singleFlight" inside
@@ -11742,11 +11767,20 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
     // The seed's write, split out of seed.ts so a test can drive it, and that
     // test, whose fixtures write null into both: no model is upstream of either.
     join("prisma", "seedWrite.itest.ts"),
-    // Read here: the choice of language, and the four screens that print it.
+    // Read here: the choice of language, and the screens that print it. The
+    // dictionary's own screen reads the entry's shape off
+    // lib/progress/dictionaryEntry.ts and hands it to `meaningShown` without
+    // naming either column, so it is no longer on this list.
     join("lib", "collections", "glossLanguage.ts"),
     join("lib", "collections", "glossLanguage.test.ts"),
-    join("app", "(app)", "dictionary", "page.tsx"),
-    join("app", "(app)", "dictionary", "DictionaryClient.tsx"),
+    /*
+      The entry the dictionary page and `GET /api/v1/words/{id}` both read
+      (ADR-029), which selects the row whole and hands the two columns on as
+      they are, and the contract that publishes them to a phone. Neither writes
+      either column, and neither reaches a model.
+    */
+    join("lib", "progress", "dictionaryEntry.ts"),
+    join("lib", "api", "contract.ts"),
     /*
       The review screen reads them in `lib/progress/reviewCards.ts` rather than
       in `page.tsx`: several routes render that session (the daily loop, the
@@ -12951,7 +12985,7 @@ check("a route that spends something is throttled", () => {
     undo     is `POST /api/v1/grades/undo`, one card's scheduling put back, the
              `undoGrade` action's body, which has no ceiling for the same reason.
   */
-  const exempt = new Set(["metrics", "reminder", "research", "health", "send", "me", "review", "grades", "undo", "today"]);
+  const exempt = new Set(["metrics", "reminder", "research", "health", "send", "me", "review", "grades", "undo", "today", "dictionary"]);
   /*
     And by path where a directory name says nothing (`[id]`), each for the
     reason its web door has no ceiling either (D5):
@@ -12962,12 +12996,19 @@ check("a route that spends something is throttled", () => {
     checks/[id]   is `checkView` and `submitCheckFor`, the check page and the
                   `submitCheck` action, neither throttled: a paper is built from
                   the shipped course, and a pass is one setting written.
+    words/[id]    is `openEntry`, which the dictionary page renders with no
+                  ceiling: one entry by its id, and where it reaches Ekilex it
+                  does so through `lookupAndStore`'s own per-owner cap of thirty
+                  a minute, the same one the page meets.
+    dictionary    (by name, above) is `searchDictionary`, the page's own search,
+                  with the same live-lookup cap underneath and none in front.
 
     `today` above reads the course screen's own reading and writes nothing.
   */
   const exemptPaths = new Set([
     join("app", "api", "v1", "lessons", "[id]", "route.ts"),
     join("app", "api", "v1", "checks", "[id]", "route.ts"),
+    join("app", "api", "v1", "words", "[id]", "route.ts"),
   ]);
 
   for (const file of routes) {
@@ -23617,10 +23658,23 @@ check("a card built for a word put aside is built put aside", () => {
     the word's deferral said. Read through `code()`, so a comment naming the
     insert is not a builder.
   */
+  /*
+    One file inserts cards and builds none. `restoreBackup` writes back the
+    cards a backup holds with the schedule they were saved with, so a due date
+    there is the learner's own record rather than a card being made today. The
+    dictionary's Add, which used to share the file, moved into lib/srs/deck.ts
+    (`addCardsFor`) and is swept there. Held for staleness: it still inserts.
+  */
+  const restoresOnly = new Set(["app/actions.ts"]);
+  for (const file of restoresOnly) {
+    assert.match(code(file), /\bcard\.createMany\(/, `${file} no longer inserts cards; take it off the restore exemption`);
+  }
   const builders: [string, string][] = [...APP, ...LIB]
+    .filter((file) => !restoresOnly.has(file.split("\\").join("/")))
     .filter((file) => !/\.(i?test)\.tsx?$/.test(file) && /\bcard\.createMany\(/.test(code(file)))
     .map((file) => [file, "a card builder"]);
-  assert.ok(builders.length >= 3, `found ${builders.length} files that insert cards; the sweep has stopped finding them`);
+  // Two left once the dictionary's Add joined the bulk builder in lib/srs/deck.ts.
+  assert.ok(builders.length >= 2, `found ${builders.length} files that insert cards; the sweep has stopped finding them`);
   for (const [file, what] of builders) {
     const body = code(file);
     assert.match(

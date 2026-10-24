@@ -34,7 +34,7 @@ type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
 const specAgrees: Same<z.infer<typeof LessonSpecSchema>, LessonSpec> = true;
 const itemAgrees: Same<z.infer<typeof PracticeItemSchema>, PracticeItem> = true;
 const resultAgrees: Same<z.infer<typeof CheckResultSchema>, CheckResult> = true;
-const viewAgrees: Same<Omit<z.infer<typeof LessonResponse>, "locale" | "translations">, LessonView> = true;
+const viewAgrees: Same<Omit<z.infer<typeof LessonResponse>, "locale" | "translations" | "nativePart">, LessonView> = true;
 const runnerAgrees: Same<LessonView, Required<Omit<ComponentProps<typeof LessonRunner>, "conversation">>> = true;
 const paperAgrees: Same<z.infer<typeof CheckResponse>["items"], ComponentProps<typeof CheckRunner>["items"]> = true;
 

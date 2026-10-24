@@ -1,37 +1,81 @@
 {
-  "lexemeId": "6695a810-64bd-445a-b595-2dd52e2df298",
+  "id": "6695a810-64bd-445a-b595-2dd52e2df298",
   "lemma": "tuba",
+  "translation": "room",
+  "translationRu": "комната, жилище",
+  "translationUk": "кімната, житло",
   "pos": "NOUN",
-  "gloss": "room",
   "cefr": "A1",
-  "forms": [
+  "gradation": "QUALITATIVE",
+  "gradationNote": "b : ∅",
+  "government": null,
+  "semanticTypes": "koht_hoone",
+  "notes": null,
+  "definition": "elamiseks kasutatav ruum majas või korteris",
+  "provenance": "SEED",
+  "ekilexWordId": null,
+  "inDeck": false,
+  "starred": false,
+  "examples": [
     {
-      "slot": "GEN_PL",
-      "value": "tubade",
-      "origin": "stored"
+      "et": "Hotellis on sada tuba.",
+      "en": "The hotel has one hundred rooms.",
+      "source": "EKILEX"
     },
     {
-      "slot": "GEN_SG",
-      "value": "toa",
-      "origin": "stored"
-    },
-    {
-      "slot": "ILL_SG_SHORT",
-      "value": "tuppa",
-      "origin": "stored"
-    },
-    {
-      "slot": "NOM_PL",
-      "value": "toad",
-      "origin": "stored"
+      "et": "Mitu tuba nende uues korteris on?",
+      "en": "How many rooms are in their new apartment?",
+      "source": "EKILEX"
     }
   ],
-  "sentences": [],
-  "government": null,
-  "equivalents": {
-    "ru": "комната, жилище",
-    "uk": "кімната, житло"
-  },
-  "inDeck": false,
-  "starred": false
+  "forms": [
+    {
+      "formType": "NOM_SG",
+      "value": "tuba",
+      "isPrincipal": true,
+      "morphCode": null,
+      "morphName": null,
+      "orderIndex": 0
+    },
+    {
+      "formType": "GEN_SG",
+      "value": "toa",
+      "isPrincipal": true,
+      "morphCode": null,
+      "morphName": null,
+      "orderIndex": 0
+    },
+    {
+      "formType": "PART_SG",
+      "value": "tuba",
+      "isPrincipal": true,
+      "morphCode": null,
+      "morphName": null,
+      "orderIndex": 0
+    },
+    {
+      "formType": "ILL_SG_SHORT",
+      "value": "tuppa",
+      "isPrincipal": true,
+      "morphCode": null,
+      "morphName": null,
+      "orderIndex": 0
+    },
+    {
+      "formType": "NOM_PL",
+      "value": "toad",
+      "isPrincipal": true,
+      "morphCode": null,
+      "morphName": null,
+      "orderIndex": 0
+    },
+    {
+      "formType": "PART_PL",
+      "value": "tube",
+      "isPrincipal": true,
+      "morphCode": null,
+      "morphName": null,
+      "orderIndex": 0
+    }
+  ]
 }

@@ -376,6 +376,10 @@ export const LessonResponse = z.object({
   check: z.object({ id: z.string(), final: z.boolean(), passed: z.boolean() }).nullable()
     .describe("The check that closes this lesson's part, where this is its last lesson."),
   locale: InterfaceLanguage,
+  nativePart: z.string().nullable().describe(
+    "The one part of the conversation the native speaker recorded whole, which a phone plays in his voice by " +
+    "`GET /api/v1/recordings`; every other part keeps the cast's synthetic voice, as on the web (N-6).",
+  ),
   translations: z.record(z.string(), z.string()).describe(
     "The lesson's own English in the learner's language, keyed by the English it replaces, for every line " +
     "a translation exists for; empty in English. The Estonian is never in it and never changes.",
@@ -438,6 +442,159 @@ export const CheckResultSchema = z.object({
 }).describe("The attempt marked on the server. A right answer is one point and a nearly half.");
 
 export type CheckResultResponse = z.infer<typeof CheckResultSchema>;
+
+// ── N-6: words and sound ────────────────────────────────────────────────────
+
+/*
+  AN ENTRY'S SHAPE IS `openEntry`'s, AND A HIT'S IS `searchLexemes`', NAMED HERE
+  FIELD FOR FIELD.
+
+  `lib/progress/wordsContract.test.ts` holds each schema below and the type it
+  names to each other in both directions, as the review card's test does, so
+  the entry a phone is handed and the entry the web's dictionary draws cannot
+  grow apart.
+*/
+
+export const DictionaryQuery = z.object({
+  q: z.string().min(1).max(80).describe("What was typed: a headword, an inflected form, or English."),
+});
+
+export const SearchHitSchema = z.object({
+  id: z.string(),
+  lemma: z.string(),
+  translation: z.string(),
+  pos: z.string(),
+  cefr: z.string().nullable(),
+  gradationNote: z.string().nullable(),
+  matchedAs: z.string().optional().describe("Set where the query was an inflected form rather than the headword, the form named the way a class names it."),
+});
+
+export const DictionaryResponse = z.object({
+  hits: z.array(SearchHitSchema).describe("The entries found, the likeliest first; `GET /api/v1/words/{id}` opens one."),
+  knownAs: z.array(z.string()).describe("Where nothing matched directly, the headwords the spelling typed is a form of, the likeliest first."),
+  fetched: z.boolean().describe("Whether the dictionary asked Ekilex live to answer this search."),
+}).describe("A dictionary search, as the web's dictionary page runs it.");
+
+export type DictionaryResponse = z.infer<typeof DictionaryResponse>;
+
+const EntryFormSchema = z.object({
+  formType: z.string(),
+  value: z.string(),
+  isPrincipal: z.boolean(),
+  morphCode: z.string().nullable(),
+  morphName: z.string().nullable(),
+  orderIndex: z.number().int(),
+});
+
+const EntryExample = z.object({
+  et: z.string().describe("The Estonian sentence, exactly as recorded."),
+  en: z.string().nullable().optional().describe("Its English, where the dictionary holds one."),
+  enRefused: z.boolean().optional().describe("A reviewer read the English and said it was wrong; none is offered."),
+  source: z.enum(["EKILEX", "SEED", "USER", "AI", "AUTHORED"]),
+  via: z.array(z.string()).readonly().optional(),
+});
+
+export const WordResponse = z.object({
+  id: z.string(),
+  lemma: z.string(),
+  translation: z.string(),
+  translationRu: z.string().nullable().describe("The Institute's own Russian, where Ekilex recorded one; never a model's."),
+  translationUk: z.string().nullable().describe("The Institute's own Ukrainian, where Ekilex recorded one; never a model's."),
+  pos: z.string(),
+  cefr: z.string().nullable(),
+  gradation: z.string(),
+  gradationNote: z.string().nullable(),
+  government: z.string().nullable(),
+  semanticTypes: z.string().nullable(),
+  notes: z.string().nullable().describe("Further English senses."),
+  definition: z.string().nullable().describe("The Institute's own Estonian definition."),
+  provenance: z.string(),
+  ekilexWordId: z.number().int().nullable().describe(
+    "The Ekilex word this entry was read from, or null where Ekilex supplied none of it. Where it is set, the " +
+    "entry carries the credit CC BY 4.0 asks for, as the web draws it: forms and example sentences from Ekilex " +
+    "(https://ekilex.ee), by the Institute of the Estonian Language, under CC BY 4.0 " +
+    "(https://creativecommons.org/licenses/by/4.0/), and any form shown as worked out was derived from what Ekilex stores.",
+  ),
+  inDeck: z.boolean(),
+  starred: z.boolean(),
+  examples: z.array(EntryExample).describe("Recorded sentences, the one a beginner reads most easily first. A refused sentence never arrives."),
+  forms: z.array(EntryFormSchema).describe("The forms the dictionary stores; the rest are worked out on the device from these, as the web does."),
+}).describe("One dictionary entry, as the web's entry screen reads it. Nothing in it was written by a model.");
+
+export type WordResponse = z.infer<typeof WordResponse>;
+
+const CardTypeName = z.enum(["RECOGNITION", "PRODUCTION", "CASE_FORM", "GRADATION", "GOVERNMENT", "CLOZE", "CONJUGATION"]);
+
+export const DeckPostRequest = z.discriminatedUnion("action", [
+  z.object({
+    action: z.literal("keep"),
+    lexemeId: z.string().min(1).max(64),
+    types: z.array(CardTypeName).min(1).max(7).default(["RECOGNITION", "PRODUCTION", "CLOZE"])
+      .describe("Which cards to build; a word builds only the ones it can support. The three the dictionary ticks by default."),
+  }),
+  z.object({ action: z.literal("star"), lexemeId: z.string().min(1).max(64) }),
+  z.object({
+    action: z.literal("aside"),
+    lexemeId: z.string().min(1).max(64),
+    context: z.string().max(200).optional().describe("Where the word was when it was put aside, for the reading the operator sees."),
+  }),
+]);
+
+export const DeckDeleteRequest = z.object({
+  action: z.enum(["star", "aside"]).describe("`star` takes the star off; `aside` brings a word put aside back."),
+  lexemeId: z.string().min(1).max(64),
+});
+
+export const DeckResponse = z.object({
+  action: z.enum(["keep", "star", "unstar", "aside", "back"]),
+  added: z.number().int().min(0).describe("Cards built by a keep; 0 otherwise, and 0 where the word was already in the deck."),
+  starred: z.boolean().nullable().describe("Whether the word is starred now, after a star or an unstar; null otherwise."),
+  aside: z.object({
+    reason: z.enum(["SOON", "BAND"]),
+    days: z.number().int(),
+    untilLevel: z.string().nullable(),
+    note: z.string().describe("The English sentence saying how long the word is away."),
+  }).nullable().describe("How long a word put aside is away for; null otherwise. Nothing is graded."),
+}).describe("A word kept, starred, put aside or brought back.");
+
+export type DeckResponse = z.infer<typeof DeckResponse>;
+
+export const TtsRequest = z.object({
+  text: z.string().min(1).max(400).describe("What to read aloud, finished into a sentence on the server."),
+  voice: z.string().max(40).optional().describe("One of the voices Settings offers; any other value is the deployment's own."),
+  transient: z.boolean().optional().describe("A read-back of what the recognizer heard: never cached, never stored, and refused while speaking is switched off."),
+});
+
+export const SpeechFormsRequest = z.object({
+  words: z.array(z.string().max(200)).max(200).describe("The words heard, and nothing else; at most sixty are asked, each up to forty letters."),
+});
+
+export const SpeechFormsResponse = z.object({
+  known: z.array(z.string()).describe("Those of `asked` that are Estonian spellings."),
+  asked: z.array(z.string()).describe("The words asked about, lowercased and deduplicated."),
+}).describe("Which words just heard are Estonian spellings at all.");
+
+export type SpeechFormsResponse = z.infer<typeof SpeechFormsResponse>;
+
+export const RecordingsResponse = z.object({
+  clips: z.array(z.object({
+    id: z.string(),
+    text: z.string().describe("What is said, as it is written; for a letter, the letter."),
+    kind: z.enum(["sound", "word", "length", "pair", "soft", "month", "number", "phone", "stress", "line", "letter"]),
+    src: z.string().describe("Where the clip is served, under this site."),
+    key: z.string().nullable().describe(
+      "The spelling a speaker button finds this clip by, folded as `utteranceKey` folds it, or null where the clip is " +
+      "played by id alone: a sound, a letter's name, and a spelling that hides two words.",
+    ),
+    slow: z.boolean().describe("A take said slowly on purpose; a speaker asked to play slowly takes it before the take at speed."),
+    atOwnSpeed: z.boolean().describe(
+      "Played at the speed it was said: by id always, and a slow take asked for slowly. Found by `key` at the learner's " +
+      "everyday pace, the player slows it as it slows a synthetic clip.",
+    ),
+  })),
+}).describe("The native speaker's recordings, and which spelling each one answers for.");
+
+export type RecordingsResponse = z.infer<typeof RecordingsResponse>;
 
 // ── The routes that have shipped ────────────────────────────────────────────
 
@@ -535,5 +692,74 @@ export const SHIPPED_ROUTES: readonly RouteSpec[] = [
     request: CheckRequest,
     response: CheckResultSchema,
     example: "post-checks-id.json",
+  },
+  {
+    method: "GET",
+    path: "/api/v1/dictionary",
+    auth: true,
+    summary: "A dictionary search, the forms list and Ekilex asked as the web's dictionary asks them.",
+    item: "N-6",
+    query: DictionaryQuery,
+    response: DictionaryResponse,
+    example: "get-dictionary.json",
+  },
+  {
+    method: "GET",
+    path: "/api/v1/words/{id}",
+    auth: true,
+    summary: "One dictionary entry, as the web's entry screen reads it.",
+    item: "N-6",
+    response: WordResponse,
+    example: "get-words-id.json",
+  },
+  {
+    method: "POST",
+    path: "/api/v1/deck",
+    auth: true,
+    summary: "A word kept, starred or put aside.",
+    item: "N-6",
+    request: DeckPostRequest,
+    response: DeckResponse,
+    example: "post-deck.json",
+  },
+  {
+    method: "DELETE",
+    path: "/api/v1/deck",
+    auth: true,
+    summary: "A star taken off, or a word put aside brought back.",
+    item: "N-6",
+    request: DeckDeleteRequest,
+    response: DeckResponse,
+    example: "delete-deck.json",
+  },
+  {
+    method: "POST",
+    path: "/api/v1/tts",
+    auth: true,
+    summary: "A clip read aloud, from the same store and under the same allowance as the web's.",
+    item: "N-6",
+    request: TtsRequest,
+    response: null,
+    contentType: "audio/wav",
+    example: "post-tts.json",
+  },
+  {
+    method: "POST",
+    path: "/api/v1/speech/forms",
+    auth: true,
+    summary: "Which heard words are Estonian spellings.",
+    item: "N-6",
+    request: SpeechFormsRequest,
+    response: SpeechFormsResponse,
+    example: "post-speech-forms.json",
+  },
+  {
+    method: "GET",
+    path: "/api/v1/recordings",
+    auth: false,
+    summary: "The native speaker's clips and the spelling each answers for.",
+    item: "N-6",
+    response: RecordingsResponse,
+    example: "get-recordings.json",
   },
 ];

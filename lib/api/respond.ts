@@ -13,8 +13,17 @@ import { apiError } from "./errors";
  * phone (ADR-029). One helper rather than a header object spread at every
  * call, so a route cannot answer without it.
  */
-export function apiJson(data: unknown, status = 200): Response {
-  return Response.json(data, { status, headers: { ...NO_STORE } });
+export function apiJson(data: unknown, status = 200, headers: Record<string, string> = {}): Response {
+  return Response.json(data, { status, headers: { ...headers, ...NO_STORE } });
+}
+
+/**
+ * An answer that is not JSON: a clip read aloud. Never kept, for the reason
+ * `apiJson`'s answers are not, and with the headers a route names beside it
+ * (which cache answered).
+ */
+export function apiBytes(body: Uint8Array, contentType: string, headers: Record<string, string> = {}): Response {
+  return new Response(new Uint8Array(body), { headers: { ...headers, "content-type": contentType, ...NO_STORE } });
 }
 
 /** The ceiling on a v1 request body. A batch of fifty grades is about eight kilobytes. */
@@ -41,6 +50,22 @@ export async function readBody<T extends z.ZodType>(
     return { ok: false, response: apiError("invalid") };
   }
   const parsed = schema.safeParse(json);
+  if (!parsed.success) return { ok: false, response: apiError("invalid") };
+  return { ok: true, data: parsed.data };
+}
+
+/**
+ * A GET's query read against its schema, or the refusal to return. Only the
+ * names the schema knows are read, each as the one value it was given.
+ */
+export function readQuery<T extends z.ZodType>(
+  request: Request,
+  schema: T,
+): { ok: true; data: z.infer<T> } | { ok: false; response: Response } {
+  const params = new URL(request.url).searchParams;
+  const raw: Record<string, string> = {};
+  for (const [name, value] of params) if (!(name in raw)) raw[name] = value;
+  const parsed = schema.safeParse(raw);
   if (!parsed.success) return { ok: false, response: apiError("invalid") };
   return { ok: true, data: parsed.data };
 }

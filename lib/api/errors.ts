@@ -21,6 +21,9 @@ import { NO_STORE } from "@/lib/security/headers";
  *   sign-out (D6); wait `Retry-After` seconds and ask again.
  * - `too_old`: this native build is below the minimum the operator set. The
  *   client says an update is needed and calls nothing else.
+ * - `upstream`: a service the route leans on (the speech service, a model)
+ *   did not answer or could not do it. Nothing was spent; wait `Retry-After`
+ *   seconds and ask again. Added with N-6, which is a widening.
  */
 export const API_ERROR_CODES = [
   "unauthenticated",
@@ -31,6 +34,7 @@ export const API_ERROR_CODES = [
   "rate_limited",
   "switched_off",
   "too_old",
+  "upstream",
 ] as const;
 
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];
@@ -45,6 +49,7 @@ export const API_ERROR_STATUS: Readonly<Record<ApiErrorCode, number>> = {
   rate_limited: 429,
   switched_off: 503,
   too_old: 426,
+  upstream: 503,
 };
 
 /** What a person reads where the route has nothing more particular to say. */
@@ -57,6 +62,7 @@ export const API_ERROR_MESSAGE: Readonly<Record<ApiErrorCode, string>> = {
   rate_limited: "That was a lot at once. Give it a moment.",
   switched_off: "This installation has that switched off.",
   too_old: "This version of the app is too old. Update it from the store to carry on.",
+  upstream: "A service this needs didn't answer just now. Try again in a moment.",
 };
 
 export const ApiErrorBody = z.object({

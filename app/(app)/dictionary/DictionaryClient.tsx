@@ -23,7 +23,6 @@ import type { CaseKey } from "@/lib/estonian/types";
 import { CaseLabel } from "@/components/CaseLabel";
 import { Braced } from "@/components/Braced";
 import { availableCardTypes, CARD_TYPES, type CardType } from "@/lib/srs/cards";
-import type { Example } from "@/lib/dict/examples";
 import { isPhrase } from "@/lib/dict/pos";
 import { SAME_SPELLING, sameSpelling, PARTS } from "@/lib/copy/values";
 import { WordFun } from "@/components/WordFun";
@@ -51,14 +50,12 @@ import { countOf, fill } from "@/lib/copy/locale";
 import { matchedAsIn } from "@/lib/copy/matchedAs";
 import { fillNodes } from "@/components/reference/fillNodes";
 
-export interface EntryForm {
-  formType: string;
-  value: string;
-  isPrincipal: boolean;
-  morphCode: string | null;
-  morphName: string | null;
-  orderIndex: number;
-}
+/*
+  The entry's shape is `openEntry`'s, which the page and `GET /api/v1/words/{id}`
+  both call (lib/progress/dictionaryEntry.ts), so it is declared there once.
+*/
+import type { EntryView } from "@/lib/progress/dictionaryEntry";
+export type { EntryForm, EntryView } from "@/lib/progress/dictionaryEntry";
 
 /**
  * The three facts `lib/estonian/caseQuestion.ts` needs about a word.
@@ -75,44 +72,6 @@ function subjectOf(entry: EntryView) {
   };
 }
 
-export interface EntryView {
-  id: string;
-  lemma: string;
-  translation: string;
-  /**
-   * The Institute's own Russian and Ukrainian, where Ekilex recorded them.
-   *
-   * Not a translation this app or a model made: they come from the same
-   * response as the forms and the sentences. Null on most of the built
-   * expansion, which is drawn from Wiktionary and has none.
-   */
-  translationRu: string | null;
-  translationUk: string | null;
-  pos: string;
-  cefr: string | null;
-  gradation: string;
-  gradationNote: string | null;
-  government: string | null;
-  /**
-   * The Institute's semantic type codes, which decide which of the two sets of
-   * local cases this word takes and whether it answers `kes?` or `mis?`.
-   * See lib/estonian/caseQuestion.ts.
-   */
-  semanticTypes: string | null;
-  notes: string | null;
-  definition: string | null;
-  provenance: string;
-  /**
-   * The Ekilex word this entry was read from, or null where Ekilex supplied
-   * none of it. Decides whether the entry carries the Institute's credit, and
-   * whether opening it counts as an answer from the stored copy.
-   */
-  ekilexWordId: number | null;
-  inDeck: boolean;
-  starred: boolean;
-  examples: Example[];
-  forms: EntryForm[];
-}
 
 /**
  * THE PARTS A LEARNER MEMORIZES, AND WHAT EACH ONE ANSWERS.
