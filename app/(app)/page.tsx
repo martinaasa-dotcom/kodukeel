@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { isLessonLevel } from "@/lib/course/lessons";
 import { Lettered } from "@/components/HeroLetters";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { redirect } from "next/navigation";
@@ -337,8 +338,8 @@ export default async function TodayPage() {
     startedUnitIds: new Set(units.filter((u) => u.state === "learning").map((u) => u.unit.id)),
     placement,
   });
-  // A1 is the lessons rather than units (docs/43-lessons.md), so an A1 unit is never offered here.
-  const nextUnit = nextSyllabusUnit && nextSyllabusUnit.level !== "A1"
+  // A1 and A2 are the lessons rather than units (docs/43-lessons.md), so a unit of theirs is never offered here.
+  const nextUnit = nextSyllabusUnit && !isLessonLevel(nextSyllabusUnit.level)
     ? units.find((u) => u.unit.id === nextSyllabusUnit.id)
     : undefined;
 
@@ -562,25 +563,38 @@ export default async function TodayPage() {
   */
   const nextPart = programme && courseNow?.finished ? programmeAfter(programme) ?? null : null;
   const nextPartDay = nextPart && !courseNow?.finishedToday ? nextPart.days[0] ?? null : null;
-  // A part of the A1 lessons ends in a check, and until it is passed the hero is the check.
-  const partCheck = nextPartDay && programme ? await moveBlockedFor(ownerId, programme, nextPart!) : null;
+  // A part of the lessons ends in a check, and until it is passed the way on is the check, today and tomorrow alike.
+  const checkDue = nextPart && programme ? await moveBlockedFor(ownerId, programme, nextPart) : null;
+  const partCheck = nextPartDay ? checkDue : null;
+  /*
+    WHAT A PART AND AN EVENING ARE CALLED. A lesson part is named in English
+    (`lessonCourse.ts`) and an evening of it is the lesson's title, so neither
+    is ever Estonian, whatever the learner's level; a part built from units is
+    named by its id and an evening by the unit's Estonian name from A2 up.
+  */
+  const partName = (p: { id: string; title: string; days: readonly { lesson?: string }[] }) =>
+    p.days.some((d) => d.lesson) ? t(p.title) : p.id.toUpperCase();
+  const dayName = (day: { title: string; subtitle: string; lesson?: string }) =>
+    day.lesson ? { text: t(day.subtitle), lang: undefined } : { text: ui(day.title, day.subtitle), lang: uiWantsEnglish(placement) ? undefined : "et" as const };
 
   const nextPartCard = nextPart && nextPartDay ? (
     <HeroFan
       bright
       eyebrow={partCheck
-        ? fill(t("Before {part}"), { part: nextPart.id.toUpperCase() })
-        : fill(t("Next up: {part}"), { part: nextPart.id.toUpperCase() })}
+        ? fill(t("Before {part}"), { part: nextPart.level !== programme!.level ? nextPart.level : partName(nextPart) })
+        : fill(t("Next up: {part}"), { part: partName(nextPart) })}
       title={partCheck
         ? (partCheck.final ? fill(t("The {level} check"), { level: programme!.level }) : t("A short check"))
-        : ui(nextPartDay.title, nextPartDay.subtitle)}
-      titleLang={partCheck || uiWantsEnglish(placement) ? undefined : "et"}
+        : dayName(nextPartDay).text}
+      titleLang={partCheck ? undefined : dayName(nextPartDay).lang}
       text={partCheck
-        ? fill(t("You finished {part}. Pass a short check of what it taught, and {next} opens."), { part: programme!.id.toUpperCase(), next: nextPart.id.toUpperCase() })
-        : fill(t("You finished {part}. {canDo}"), { part: programme!.id.toUpperCase(), canDo: t(nextPartDay.canDo) })}
+        ? partCheck.final
+          ? fill(t("You finished the {level} lessons. Pass the check on everything {level} taught, and {next} opens."), { level: programme!.level, next: nextPart.level })
+          : fill(t("You finished {part}. Pass a short check of what it taught, and {next} opens."), { part: partName(programme!), next: partName(nextPart) })
+        : fill(t("You finished {part}. {canDo}"), { part: partName(programme!), canDo: t(nextPartDay.canDo) })}
       action={
         <ButtonLink href={partCheck ? `/course/check/${partCheck.id}` : "/course"} variant="primary" size="lg" className="whitespace-nowrap">
-          {partCheck ? t("Take the check") : fill(t("Start {part}"), { part: nextPart.id.toUpperCase() })} <ArrowRight size={17} aria-hidden />
+          {partCheck ? t("Take the check") : fill(t("Start {part}"), { part: partName(nextPart) })} <ArrowRight size={17} aria-hidden />
         </ButtonLink>
       }
       nextLabel={t("Next")}
@@ -609,8 +623,8 @@ export default async function TodayPage() {
     <HeroFan
       bright
       eyebrow={`${t("Today’s module")}, ${fill(t("day {day} of {days}"), { day: courseDay.day.index, days: programme!.days.length })}`}
-      title={ui(courseDay.day.title, courseDay.day.subtitle)}
-      titleLang={uiWantsEnglish(placement) ? undefined : "et"}
+      title={dayName(courseDay.day).text}
+      titleLang={dayName(courseDay.day).lang}
       text={t(courseDay.day.canDo)}
       action={
         <ButtonLink href="/course" variant="primary" size="lg" className="whitespace-nowrap">
@@ -648,21 +662,31 @@ export default async function TodayPage() {
                 unit: <b lang={uiWantsEnglish(placement) ? undefined : "et"}>{ui(courseDay.day.title, courseDay.day.subtitle)}</b>,
                 n: courseDay.day.part.n, of: courseDay.day.part.of,
               })
-              : uiWantsEnglish(placement)
+              : uiWantsEnglish(placement) || courseDay.day.lesson
                 ? fillNodes(t("See you tomorrow for “{unit}”."), { unit: <b>{t(courseDay.day.subtitle)}</b> })
                 : fillNodes(t("See you tomorrow for “{unit}” ({english})."), { unit: <b lang="et">{courseDay.day.title}</b>, english: t(courseDay.day.subtitle) })
-            : nextPart
-              ? fillNodes(t("That was the last evening of {part}. Tomorrow you start {next}."), {
-                part: <b>{programme!.id.toUpperCase()}</b>,
-                next: <b>{nextPart.id.toUpperCase()}</b>,
-              })
-              : t("That was the very last evening of the course. Every word you met along the way will keep coming back in your reviews.")}
+            : nextPart && checkDue
+              ? checkDue.final
+                ? fill(t("That was the last {level} lesson. Next is the {level} check, about ten minutes, whenever you're ready."), { level: programme!.level })
+                : fillNodes(t("That was the last lesson of {part}. Next is its check, about five minutes, whenever you're ready."), { part: <b>{partName(programme!)}</b> })
+              : nextPart
+                ? fillNodes(t("That was the last evening of {part}. Tomorrow you start {next}."), {
+                  part: <b>{partName(programme!)}</b>,
+                  next: <b>{partName(nextPart)}</b>,
+                })
+                : t("That was the very last evening of the course. Every word you met along the way will keep coming back in your reviews.")}
         </p>
       </div>
       <div className="flex flex-col gap-3 lg:w-[19rem] lg:shrink-0">
-        <ButtonLink href="/course" variant="secondary" className="w-full justify-center">
-          {t("See what’s next")} <ArrowRight size={16} aria-hidden />
-        </ButtonLink>
+        {checkDue ? (
+          <ButtonLink href={`/course/check/${checkDue.id}`} variant="secondary" className="w-full justify-center">
+            {t("Take the check")} <ArrowRight size={16} aria-hidden />
+          </ButtonLink>
+        ) : (
+          <ButtonLink href="/course" variant="secondary" className="w-full justify-center">
+            {t("See what’s next")} <ArrowRight size={16} aria-hidden />
+          </ButtonLink>
+        )}
       </div>
     </Card>
   ) : null);

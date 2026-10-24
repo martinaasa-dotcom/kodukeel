@@ -208,9 +208,9 @@ const ROUTES = [
   // The course.
   "/learn",
   "/learn/new",
-  "/learn/loodus",
-  "/learn/loodus/lesson",
-  "/learn/loodus/worksheet",
+  "/learn/too-ja-raha",
+  "/learn/too-ja-raha/lesson",
+  "/learn/too-ja-raha/worksheet",
   "/learn/checkpoint/A1",
   "/course",
   "/course/learn",
@@ -441,11 +441,11 @@ const SPARSE = new Map([
 const { check, absent, done } = suite(PART ? `Containment, the ${PART} half` : "Containment", { floor: PART ? 1200 : 2425 });
 
 /**
- * An A2 unit, whose lesson meets words with their sentence under them: A1
- * words are met without one (`components/WordIntro.tsx`). The first A2 unit,
- * because it is the one every conversation needs and is not going anywhere.
+ * A unit whose lesson meets words with their sentence under them. A1 and A2
+ * are the lessons now (docs/43-lessons.md) and a link to one of their units
+ * lands on `/course/lessons`, so this is a B1 unit, one of nouns with cases.
  */
-const A2_UNIT = "korraldused";
+const UNIT = "too-ja-raha";
 
 const browser = await launchChromium();
 
@@ -1540,12 +1540,12 @@ async function askedForStates(ctx, at) {
     "Ready" as well, and the key cap makes that button's name "Ready ↵", so
     it could not have got past the first screen even on a deck that had one.
 
-    An A2 unit's lesson meets words that carry a sentence whatever the deck
+    A B1 unit's lesson meets words that carry a sentence whatever the deck
     holds, because a lesson plans from the unit rather than from the queue,
     and the dictionary is seeded wherever this suite runs. So a panel that
     does not open there is the markup failing, and is reported as that.
   */
-  await page.goto(`${B}/learn/${A2_UNIT}/lesson`, { waitUntil: "networkidle", timeout: 60000 });
+  await page.goto(`${B}/learn/${UNIT}/lesson`, { waitUntil: "networkidle", timeout: 60000 });
   await startRound(page);
   let opened = false;
   for (let tries = 0; tries < 12 && !opened; tries += 1) {
@@ -1594,7 +1594,7 @@ async function askedForStates(ctx, at) {
     await measure(page, `a word opened out of a teaching sentence ${at}`);
   } else {
     check(`a word opened out of a teaching sentence ${at}`, false,
-      `/learn/${A2_UNIT}/lesson met no word whose sentence opened a panel with "Add to my deck"`);
+      `/learn/${UNIT}/lesson met no word whose sentence opened a panel with "Add to my deck"`);
   }
 
   /*

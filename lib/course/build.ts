@@ -22,7 +22,7 @@ import { sceneById as conversationById } from "@/lib/scenes/catalogue";
 import { minutesFor } from "@/lib/scenes/run";
 import { unitById, type SyllabusUnit } from "@/lib/collections/syllabus";
 import { HARVESTED } from "@/prisma/data/harvested";
-import { PARTS, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, type PartSpec } from "./plan";
+import { EARLIER_SCENES_FOR_UNIT, PARTS, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, type PartSpec } from "./plan";
 import { lessonProgrammes } from "./lessonCourse";
 import {
   ACTIVITIES, day, ordinaryWords,
@@ -594,6 +594,9 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
 
     const verbs = isVerbHeavy(unit);
     const scene = SCENE_FOR_UNIT[unitId];
+    /* The errands that used to open on an A2 unit (`EARLIER_SCENES_FOR_UNIT`),
+       each on the earliest evening before the last that has no page to read. */
+    const earlier = [...(EARLIER_SCENES_FOR_UNIT[unitId] ?? [])];
 
     const chunks = evenings(unit, words, perDay);
     const plan = readingPlan(unit, readInPart);
@@ -620,7 +623,10 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
         const entry = unit.vocabulary.find((v) => v.lemma === lemma);
         if (entry) ledger.teach(entry.lemma, entry.pos);
       }
-      const name = last && scene ? undefined : plan[nextPage++];
+      const here = last && scene
+        ? scene
+        : !last && plan[nextPage] === undefined ? earlier.shift() : undefined;
+      const name = here ? undefined : plan[nextPage++];
       const fresh = name ? readingFor(name) : {};
       /*
         A PAGE READ AT AN EARLIER LEVEL SAYS SO. The plan reads a page once per
@@ -659,7 +665,7 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
          government are about which ending a noun takes, and an evening that
          read one drilled verb pasts beside it. */
       const caseEvening = Boolean(reading.grammarCase || (reading.grammar && builtOnACase(reading.grammar)));
-      const forms = (last && scene)
+      const forms = here
         || (!ladderEnd && (caseEvening || (days.at(-1)?.forms?.length ?? 0) > 0))
         ? []
         /* The last evening of the ladder shows everything still waiting,
@@ -694,13 +700,13 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
             ? withForms(dealt, spec.level, ledger.taught(), days.at(-1)?.practice ?? [])
             : dealt,
           ...(forms.length > 0 ? { forms } : {}),
-          ...(last && scene
+          ...(here
             ? {
-              scene,
-              ...(conversationById(scene)
-                ? { sceneTitle: conversationById(scene)!.title, sceneMinutes: minutesFor(conversationById(scene)!) }
+              scene: here,
+              ...(conversationById(here)
+                ? { sceneTitle: conversationById(here)!.title, sceneMinutes: minutesFor(conversationById(here)!) }
                 : {}),
-              ...(ledger.talk(scene) ? { sceneAgain: true as const } : {}),
+              ...(ledger.talk(here) ? { sceneAgain: true as const } : {}),
             }
             : {}),
         },
@@ -708,7 +714,7 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
         { n: n + 1, of: chunks.length },
       ));
       turn += 1;
-      if (forms.length === 0 && !(last && scene)) drillTurn += 1;
+      if (forms.length === 0 && !here) drillTurn += 1;
     });
   }
 
@@ -821,8 +827,8 @@ export function withForms(
 /**
  * WHAT THE A1 LESSONS TAUGHT, HANDED TO THE LEDGER BEFORE A2 IS BUILT.
  *
- * A1 is the lessons (`lessonCourse.ts`), and A2's first evening is dealt
- * against what a learner had when it began: every word an A1 lesson taught,
+ * A1 and A2 are the lessons (`lessonCourse.ts`), and B1's first evening is dealt
+ * against what a learner had when it began: every word a lesson taught,
  * as the harvest holds it (its part of speech is whichever the harvest found
  * it under first, and a phrase the harvest does not hold teaches its own
  * spelling), and every page a lesson explained.
@@ -844,7 +850,7 @@ const POS_OF: ReadonlyMap<string, string> = (() => {
   return out;
 })();
 
-/** The ledger as it stands at the start of a part: the A1 lessons and every part before it, built. */
+/** The ledger as it stands at the start of a part: the lessons and every part before it, built. */
 export function ledgerBefore(spec: PartSpec): Ledger {
   const ledger = teachLessons(new Ledger());
   const at = PARTS.findIndex((p) => p.id === spec.id);
@@ -853,9 +859,9 @@ export function ledgerBefore(spec: PartSpec): Ledger {
 }
 
 /**
- * The whole ladder: the A1 lessons, then every part from A2 built in order over
- * one ledger that starts with what the lessons taught, so what A1 handed over
- * is what a2.1's first evening is dealt against.
+ * The whole ladder: the A1 and A2 lessons, then every part from B1 built in
+ * order over one ledger that starts with what the lessons taught, so what the
+ * lessons handed over is what b1.1's first evening is dealt against.
  */
 export function buildProgrammes(): Programme[] {
   return (BUILT ??= assemble());

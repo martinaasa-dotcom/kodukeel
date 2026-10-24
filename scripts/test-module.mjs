@@ -63,11 +63,11 @@ const prisma = newPrismaClient();
 await requireLocalDatabase(prisma);
 
 /*
-  THE WALK RUNS ON A PART BUILT OUT OF UNITS, AND A1 IS THE LESSONS.
+  THE WALK RUNS ON A PART BUILT OUT OF UNITS, AND A1 AND A2 ARE THE LESSONS.
 
   An A1 evening is one step, the lesson, whose own six steps happen inside the
-  lesson screen (docs/43-lessons.md, P3), so a fixture whose learner opens on
-  A1 would hand this walk a one-step evening and nothing to walk. The learner's
+  lesson screen (docs/43-lessons.md, P3, and A2 the same way since §9), so a
+  fixture whose learner opens on A1 or A2 would hand this walk a one-step evening and nothing to walk. The learner's
   part is pinned to the first part built out of units for the walk and put back
   afterwards; the A1 evening is asked its own two questions at the end.
 */
@@ -81,7 +81,7 @@ async function pinProgramme(value) {
     update: { value },
   });
 }
-await pinProgramme("a2.1");
+await pinProgramme("b1.1");
 
 /*
   THE FLOOR IS WHAT THE SHORTEST HONEST EVENING REACHES, NOT WHAT TONIGHT DID.

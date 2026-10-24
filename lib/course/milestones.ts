@@ -51,22 +51,55 @@
 import { LEVELS, levelIndex, type Level } from "@/lib/collections/syllabus";
 import { PARTS } from "./plan";
 import { buildProgrammes } from "./build";
+import { isLessonLevel } from "./lessons";
 
 /** What the ladder teaches at a level, which is the denominator of a stop. */
 let WORDS_AT: Record<string, number> | null = null;
+let LESSON_WORDS_AT: Record<string, readonly string[]> | null = null;
 
 function wordsAt(): Record<string, number> {
   if (WORDS_AT) return WORDS_AT;
   const byLevel: Record<string, number> = {};
   for (const programme of buildProgrammes()) {
+    if (isLessonLevel(programme.level)) continue;
     const words = new Set(programme.days.flatMap((d) => d.words));
     byLevel[programme.level] = (byLevel[programme.level] ?? 0) + words.size;
   }
+  for (const [level, lemmas] of Object.entries(lessonWordsAt())) byLevel[level] = lemmas.length;
   return (WORDS_AT = byLevel);
+}
+
+/*
+  A LEVEL TAUGHT AS LESSONS IS COUNTED BY WHAT ITS LESSONS TAUGHT, NOT BY THE
+  DICTIONARY'S BAND. An A2 lesson teaches `kodus` and `koju` on `kodu`, and
+  `kodu` is an A1 word the dictionary bands A1, so counting A2 by band left
+  the A2 stop unable to fill from the lessons that make A2 and padded A1 with
+  them instead. Each lesson level's words are the headwords its evenings
+  hand over, less every earlier lesson level's, so a word counts once, at the
+  level that first taught it.
+*/
+function lessonWordsAt(): Record<string, readonly string[]> {
+  if (LESSON_WORDS_AT) return LESSON_WORDS_AT;
+  const seen = new Set<string>();
+  const out: Record<string, string[]> = {};
+  for (const programme of buildProgrammes()) {
+    if (!isLessonLevel(programme.level)) continue;
+    const list = (out[programme.level] ??= []);
+    for (const word of programme.days.flatMap((d) => d.words)) {
+      if (seen.has(word)) continue;
+      seen.add(word);
+      list.push(word);
+    }
+  }
+  return (LESSON_WORDS_AT = out);
 }
 
 /** Read the first time a stop is drawn rather than when this file loads, which is building the course. */
 export const ladderWordsAt = (level: string): number => wordsAt()[level] ?? 0;
+
+/** The headwords a lesson level counts by, or null for a level counted by the dictionary's band. */
+export const ladderLemmasAt = (level: string): readonly string[] | null =>
+  isLessonLevel(level) ? lessonWordsAt()[level] ?? [] : null;
 
 /** Two decimals, which is as fine as a percentage width on a phone can be. */
 const round2 = (n: number): number => Math.round(n * 100) / 100;

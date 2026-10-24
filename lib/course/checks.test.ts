@@ -1,29 +1,35 @@
 import { describe, expect, it } from "vitest";
 import { PROGRAMMES, programmeById } from "@/lib/course";
-import { LESSONS } from "@/lib/course/lessons";
-import { ledgerThrough } from "@/lib/course/lessons/ledger";
-import { CHECK_PASS, LEVEL_CHECK, PART_CHECK, markCheck } from "@/lib/course/lessons/practice";
+import { LESSONS, LESSON_LEVELS } from "@/lib/course/lessons";
+import { ledgerThrough, lessonRank } from "@/lib/course/lessons/ledger";
+import { CHECK_PASS, LEVEL_CHECK, PART_CHECK, checkLength, itemEstonian, markCheck } from "@/lib/course/lessons/practice";
+import { uncovered } from "@/lib/course/lessons/ledger";
 import { blockedBy, checkAfter, checkPaper, courseChecks, passedFrom } from "./checks";
 
 const checks = courseChecks(PROGRAMMES);
 const lessonParts = PROGRAMMES.filter((p) => p.days.every((d) => d.lesson));
 
-describe("the checks between the parts of A1", () => {
-  it("closes every lesson part with one check, and the last one is the whole level", () => {
+describe("the checks between the parts of the lessons", () => {
+  it("closes every lesson part with one check, and the last of each level is the whole level", () => {
     expect(checks.map((c) => c.programmeId)).toEqual(lessonParts.map((p) => p.id));
+    const levels = [...new Set(lessonParts.map((p) => p.level))];
+    expect(levels).toEqual([...LESSON_LEVELS]);
     const finals = checks.filter((c) => c.final);
-    expect(finals).toHaveLength(1);
-    const final = finals[0]!;
-    expect(final.programmeId).toBe(lessonParts[lessonParts.length - 1]!.id);
-    expect(final.lessons.map((l) => l.id)).toEqual(LESSONS.filter((l) => l.level === "A1").map((l) => l.id));
-    expect(final.size).toBe(LEVEL_CHECK);
+    expect(finals).toHaveLength(levels.length);
+    for (const level of levels) {
+      const ofLevel = lessonParts.filter((p) => p.level === level);
+      const final = finals.find((c) => c.programmeId === ofLevel[ofLevel.length - 1]!.id)!;
+      expect(final, level).toBeDefined();
+      expect(final.lessons.map((l) => l.id)).toEqual(LESSONS.filter((l) => l.level === level).map((l) => l.id));
+      expect(final.size).toBe(LEVEL_CHECK);
+    }
     for (const c of checks.filter((c) => !c.final)) expect(c.size).toBe(PART_CHECK);
   });
 
   it("asks a full paper on every check, the same paper for one attempt and a different one for the next", () => {
     for (const check of checks) {
       const paper = checkPaper(check, 1);
-      expect(paper.length, check.id).toBe(check.size.recognise + check.size.produce);
+      expect(paper.length, check.id).toBe(checkLength(check.size));
       expect(checkPaper(check, 1)).toEqual(paper);
       expect(checkPaper(check, 2), check.id).not.toEqual(paper);
     }
@@ -33,20 +39,43 @@ describe("the checks between the parts of A1", () => {
     let asked = 0;
     for (const check of checks) {
       const last = check.lessons[check.lessons.length - 1]!;
-      const covered = new Set(check.lessons.map((l) => l.n));
+      const covered = new Set(check.lessons.map(lessonRank));
       const ledger = ledgerThrough(LESSONS, last.id)!;
       const taught = new Set(ledger.items.filter((d) => covered.has(d.lesson)).map((d) => d.item.et));
       for (const item of checkPaper(check, 1)) {
         asked += 1;
+        if (item.kind === "gap") {
+          // A gap is a line of the part's own conversations, every word of it taught by the part's end.
+          for (const et of itemEstonian(item)) expect(uncovered(et, ledger), `${check.id}: ${et}`).toEqual([]);
+          expect(check.lessons.some((l) => l.conversation.some((line) => line.et?.includes(`${item.before}${item.answer}${item.after}`)))).toBe(true);
+          continue;
+        }
+        expect(item.kind).not.toBe("match");
+        if (item.kind === "match" || item.kind === "reply") continue;
         expect(taught.has(item.kind === "type" ? item.answer : item.et), `${check.id}: ${JSON.stringify(item)}`).toBe(true);
       }
     }
     expect(asked).toBeGreaterThan(checks.length * 10);
   });
 
+  it("never prints an answer a typed question on the same paper asks for", () => {
+    let papers = 0;
+    for (const check of checks) {
+      for (const attempt of [1, 2, 3, 4, 5]) {
+        const paper = checkPaper(check, attempt);
+        const shown = paper.flatMap((item) => item.kind === "hear" || item.kind === "pick" ? [item.et.toLocaleLowerCase("et")] : []);
+        for (const item of paper) {
+          if (item.kind === "type") expect(shown, `${check.id}/${attempt}: ${item.answer}`).not.toContain(item.answer.toLocaleLowerCase("et"));
+        }
+        papers++;
+      }
+    }
+    expect(papers).toBe(checks.length * 5);
+  });
+
   it("passes at four in five, a nearly counting half", () => {
     const paper = checkPaper(checks[0]!, 1);
-    const right = paper.map((i) => (i.kind === "type" ? i.answer : i.answer));
+    const right = paper.map((i) => (i.kind === "match" ? null : i.answer));
     expect(markCheck(paper, right).passed).toBe(true);
     expect(markCheck(paper, paper.map(() => null)).passed).toBe(false);
     const needed = Math.ceil(paper.length * CHECK_PASS);
@@ -65,10 +94,15 @@ describe("the checks between the parts of A1", () => {
     // Back is open, and so is a first choice.
     expect(blockedBy(PROGRAMMES, third, first!, new Set())).toBeNull();
     expect(blockedBy(PROGRAMMES, null, third!, new Set())).toBeNull();
-    // Somebody placed past A1 is not asked to pass A1's checks.
+    // Somebody placed past the lessons is not asked to pass their checks.
     const a2 = PROGRAMMES.find((p) => p.level === "A2")!;
-    const a2next = PROGRAMMES[PROGRAMMES.indexOf(a2) + 1]!;
-    expect(blockedBy(PROGRAMMES, a2, a2next, new Set())).toBeNull();
+    const b1 = PROGRAMMES.find((p) => p.level === "B1")!;
+    const b1next = PROGRAMMES[PROGRAMMES.indexOf(b1) + 1]!;
+    expect(blockedBy(PROGRAMMES, b1, b1next, new Set())).toBeNull();
+    // And B1 waits on A2's last check, the whole of A2, as A2 waits on A1's.
+    const a2checks = checks.filter((c) => PROGRAMMES.find((p) => p.id === c.programmeId)?.level === "A2");
+    expect(blockedBy(PROGRAMMES, a2, b1, new Set(a2checks.filter((c) => !c.final).map((c) => c.id)))?.final).toBe(true);
+    expect(blockedBy(PROGRAMMES, a2, b1, new Set(a2checks.map((c) => c.id)))).toBeNull();
     // A2 waits on every A1 check, the last of them the whole level.
     const all = new Set(checks.map((c) => c.id));
     expect(blockedBy(PROGRAMMES, first, a2, all)).toBeNull();

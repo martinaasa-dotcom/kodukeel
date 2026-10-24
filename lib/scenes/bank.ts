@@ -65,6 +65,14 @@ import A1_PLAAN_LINES from "./bank/a1-plaan";
 import A1_MUTSIPOOD_LINES from "./bank/a1-mutsipood";
 import A1_NADAL_LINES from "./bank/a1-nadal";
 import A1_KUTSE_LINES from "./bank/a1-kutse";
+import A2_RAAMATUKOGU_LINES from "./bank/a2-raamatukogu";
+import A2_LINNAS_LINES from "./bank/a2-linnas";
+import A2_SUVI_LINES from "./bank/a2-suvi";
+import A2_ARST_LINES from "./bank/a2-arst";
+import A2_PILETIKASSA_LINES from "./bank/a2-piletikassa";
+import A2_RESTORAN_LINES from "./bank/a2-restoran";
+import A2_INTERVJUU_LINES from "./bank/a2-intervjuu";
+import A2_VANA_SOBER_LINES from "./bank/a2-vana-sober";
 
 /** Every scene's prepared lines, one file a scene under `lib/scenes/bank/`, in scene order. */
 export const BANK: readonly ScriptedLine[] = [
@@ -119,4 +127,12 @@ export const BANK: readonly ScriptedLine[] = [
   ...A1_MUTSIPOOD_LINES,
   ...A1_NADAL_LINES,
   ...A1_KUTSE_LINES,
+  ...A2_RAAMATUKOGU_LINES,
+  ...A2_LINNAS_LINES,
+  ...A2_SUVI_LINES,
+  ...A2_ARST_LINES,
+  ...A2_PILETIKASSA_LINES,
+  ...A2_RESTORAN_LINES,
+  ...A2_INTERVJUU_LINES,
+  ...A2_VANA_SOBER_LINES,
 ];

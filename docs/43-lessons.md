@@ -256,11 +256,11 @@ items where an evening taught five.
 The same six steps and the same ledger at every level. What changes is the spine each level is built
 round. Each level gets its own approval round, lesson by lesson, the way A1 does in section 4.
 
-- **A2: the case system, whole.** The genitive as the stem every other case is built on (`toa`,
-  `aja`), then the six local cases as the three questions of lesson 31 times inside and outside, then
-  `-ks`, `-ni`, `-na`, `-ta`; the full simple past; the perfect (`olen käinud`); `tahaksin` as a
-  polite phrase and then the conditional as a pattern; the total and partial object introduced.
-  Situations: the doctor, the landlord, the bank, a job.
+- **A2: the case system, whole.** Built, and section 9 is what it became. The genitive as the stem
+  every other case is built on (`toa`, `aja`), then the six local cases as the three questions of
+  lesson 31 times inside and outside, then `-ks`, `-ni`, `-na`, `-ta`; the full simple past; the
+  perfect (`olen käinud`); `tahaksin` as a polite phrase and then the conditional as a pattern.
+  Situations: the doctor, the station, the restaurant, a job.
 - **B1: how verbs hold sentences together.** The object rule, verb government (`aitama` + partitive,
   `huvituma` + `-st`), participles, the impersonal (`tehakse`, `tehti`), plural cases, comparison,
   relative clauses.
@@ -475,3 +475,100 @@ and both are taught later (lessons 5 and 7). The first draft of lesson 7 put `Ma
 which is lesson 15's pattern. Three slips in seven short conversations, by somebody who had just
 written section 3, is the argument for that check being a test rather than a habit. `ja` now joins
 lesson 4's words, which is where "and you?" first needs it.
+
+## 9. A2, as built
+
+**Sixty-one lessons in eight parts, the same shape as A1's** (fifty-five core and six of more words), and the same ledger walks both: an
+A2 lesson may show nothing A1 or an earlier A2 lesson has not taught. A2 ends where a learner can
+book a doctor, buy a ticket out of town, order a meal and pay, sit a job interview, say what they
+did last summer and what they will do next, and leave a message, all in the cases they will meet
+on every sign. The A1 lessons stay exactly as they were; A2 builds on them.
+
+| Part | Lessons | What it teaches | Ends in |
+| --- | --- | --- | --- |
+| `a2-kelle` Whose and where | 1 to 7 | the genitive as a stem, gradation, postpositions (on, under, before), ordinals and dates, your details | the library |
+| `a2-kuhu` In, on, to and from | 8 to 14 | the inside and outside sets as patterns, to and from a person, where things go, floors | meeting a friend in town |
+| `a2-eile` What happened | 15 to 21 | the simple past, the negative past, the whole object or some of it, the perfect, telling a story | how was your summer |
+| `a2-tervis` Body and health | 22 to 27 | the body, the plural, making an appointment, `-ta` (without), feelings, may and mustn't | the doctor |
+| `a2-reis` Travel | 28 to 34 | the station, `-ni` (until), a hotel, a trip in the past, distance, boats and planes | the ticket window |
+| `a2-restoran` Eating out and shopping | 35 to 41 | the conditional (`tahaksin`, `oleks`), ordering, the bill, comparatives and superlatives, trying on | dinner out |
+| `a2-too` Work and home | 42 to 48 | `-na` (as), `-ks` (becoming), housework, things that break, the bank, an interview | the new job |
+| `a2-plaanid` Plans and opinions | 49 to 55 | the future with `hakkama`, `et` and `sest`, `kui` (if), a day in the forest, messages, arranging a time | the end of A2 |
+
+**Every part ends in a conversation played live.** The part's last lesson opens a scene built only from that part's ledger (`lib/scenes/specs/a2-*.ts`), the way A1's do, and
+every scene is played keyless as seven kinds of beginner in `lessonScenes.test.ts`, at A2's own pitch.
+
+**The engine learned two things on the way.** A lesson knows its level (`LESSON_LEVELS`,
+`isLessonLevel`), and every reader that said "A1 is the lessons" asks that instead, so the course,
+`/learn`, Today, a unit's page and the command palette treat A2 the same way. And a spelling that is
+a form of a word already taught counts as new where it belongs to a different headword (`tuli` the
+fire beside `tuli` the past of `tulema`, `sai` the bread beside `sai` the past of `saama`): the
+ledger compares the headword a form is of, not the letters alone.
+
+**What A2 replaced, and what moved.** The old A2 parts `a2.1` to `a2.3` are gone and their day ids
+with them, the way A1's went, and a learner on one restarts A2 at its first lesson. The A2 units
+stay as the dictionary's request list. The eleven catalog conversations that opened on an A2 unit
+open on a free evening of B1 or early B2 instead (`EARLIER_SCENES_FOR_UNIT`), the first evening
+before a unit's last with no page to read, so no evening carries two. The checks follow the lessons:
+a check closes each A2 part and the last one covers the whole level, as A1's do, and the reference
+pages A2 explains (the genitive, gradation, the perfect, the conditional, comparison and the rest,
+`LESSON_PAGES`) count as read. 265 written sentences no longer passed the checker against the new
+order of teaching and were dropped, which is the A1 precedent.
+
+
+## 10. Moving a level to lessons: the contract, and the list
+
+**A1 and A2 are one shape, and the shape is asserted.** `lib/course/lessons/contract.ts` is the
+level contract and `contract.test.ts` asks it of every level in `LESSON_LEVELS`, so B1, B2 and C1
+meet it the day they are lessons. It holds what a reading of A2 found broken while each lesson was
+right on its own:
+
+- every word is taught before it is shown, across the levels as one course (`lessonProblems`);
+- a level's core lessons are numbered from 1 without a gap;
+- a part holds four to ten core lessons, extras aside, and ends on its own evening, a `partEnd`
+  with a role-play, and on no other (four parts ended on a "Check-in" while the rest said "End of
+  part");
+- an evening teaches at most `MOST_TAUGHT` things, and a role-play is at least three turns;
+- a grammar point is explained once in a level;
+- a part's line says more than its title;
+- every role-play has a live scene (`sceneForLesson`);
+- `LEVEL_INFO` says what the level is for and where it leaves somebody;
+- every line a lesson draws is in Russian and Ukrainian (a number, a clock time, a bare ending and
+  braced Estonian are exempt, since they read the same in every language).
+
+The rest of `lessons.test.ts` (spellings the forms list knows, Estonian kept out of the English,
+voices the app has, form names with their agreed hint) is asked of every level too.
+
+**The list, for B1 and every level after it.** In this order, each a step a reviewer can tick:
+
+1. **Measure what the level assumes.** Read B1's units against `ledgerThrough` of A2's last lesson
+   rather than against the old `unitsThrough` order. Today's B1 opens with words no lesson taught
+   (`turul` on its second evening), and in the lessons a word nobody taught cannot be shown at all.
+   Teach it in a B1 lesson, or in an A2 vocabulary lesson (a lettered extra) if it belongs earlier.
+2. **Plan it in this document**, part by part, for the operator's approval, as sections 4 and 9 were.
+3. **Write the parts** in `lib/course/lessons/b1-*.ts` and `b1.ts`, add them to `LESSONS` and
+   `LESSON_PARTS`, and add the level to `LESSON_LEVEL_LIST` in `lib/course/lessonLevels.ts` (its
+   test pairs the two). The cast is the course's: Tom is from England, lives in Tallinn, is a
+   programmer and is married to Anna, who is from Ukraine; they have a son of five and a daughter of
+   two. Mari is his neighbor, Liis a friend. A stranger with a job is a role name or a new name.
+4. **A scene per role-play** in `lib/scenes/specs/b1-*.ts`, registered in `LESSON_SCENES`;
+   `lessonScenes.test.ts` plays each as seven kinds of learner at the level's own pitch.
+5. **The old B1 parts go**, their day ids with them, and a learner on one restarts B1 at its first
+   lesson, which is the A1 and A2 precedent. Catalog conversations that opened on a B1 unit move to a
+   free evening of the level after (`EARLIER_SCENES_FOR_UNIT`), and the reference pages B1 explains
+   join `LESSON_PAGES`.
+6. **Re-run `npm run check:authored`**, since a written sentence that passed against the old order
+   of teaching can fail against the new one, and drop what fails.
+7. **Translate every new line** into `lib/copy/i18n/areas/lessonText.ts` and run
+   `npm run i18n:tables`; the contract fails until it is done.
+8. **The end of the level before it changes by itself.** The level-done screen names the next level
+   from `LEVEL_INFO`, and the paragraph saying an evening is built differently from here on, on that
+   screen and on the course page, shows only where the next level is not lessons; once C1 is
+   lessons it is never drawn.
+9. **Read the commonest words against the level's last lesson.** A1 and A2 left 189 of the 400
+   commonest Estonian words untaught; four A2 lessons of more words (`a2-45a`, `a2-50a`, `a2-52a`,
+   `a2-53a`) teach the everyday ones (a question, money, look for, find, still, not anymore,
+   funny, important) so B1 can assume them. What is left is mostly subtitle vocabulary, a colonel
+   and a weapon, which no level should hurry.
+10. **A native speaker reads the pull request** (ADR-005 amendment 6), and the role-plays are played
+   by hand once before it merges.

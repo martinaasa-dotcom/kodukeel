@@ -181,6 +181,14 @@ export const SCENERY: Readonly<Record<string, Scenery>> = {
   "a1-mutsipood": { icon: "Shirt", setting: "shop" },
   "a1-nadal": { icon: "MessagesSquare", setting: "home_phone" },
   "a1-kutse": { icon: "Footprints", setting: "stairwell" },
+  "a2-raamatukogu": { icon: "BookOpen", setting: "office" },
+  "a2-linnas": { icon: "Compass", setting: "street" },
+  "a2-suvi": { icon: "Sun", setting: "street" },
+  "a2-arst": { icon: "Stethoscope", setting: "clinic" },
+  "a2-piletikassa": { icon: "Bus", setting: "bus" },
+  "a2-restoran": { icon: "Utensils", setting: "restaurant" },
+  "a2-intervjuu": { icon: "Briefcase", setting: "office" },
+  "a2-vana-sober": { icon: "MessagesSquare", setting: "street" },
 };
 
 /**

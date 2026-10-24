@@ -20,7 +20,7 @@ export const A1_KELL_PART: PartOfLessons = {
   id: "a1-kell",
   level: "A1",
   title: "Time and day",
-  about: "Days and the time, your day, and what you want, can and have to do.",
+  about: "What day it is and what time, your day, and what you want, can and have to do.",
 };
 
 export const A1_KELL_LESSONS: readonly LessonSpec[] = [
@@ -372,7 +372,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
     n: 23,
     level: "A1",
     part: "a1-kell",
-    kind: "checkin",
+    kind: "partEnd",
     title: "Making a plan",
     goal: "Make a plan with a friend: what you're doing, whether you can, and what time.",
     cast: { Liis: "liivika", Tom: "kalev" },
@@ -388,11 +388,11 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [],
     how: {
-      point: "A whole plan, made only of what the last five lessons taught.",
+      point: "A whole plan, made only of what this part has taught.",
       notes: [
         "Notice how a plan is built: what you're doing, whether you want to, whether you can, and what time.",
         "{Kas sa saad?} on its own is can you? The rest is understood from what came before.",
-        "At the end, Liis rings and you make a plan with her, one turn at a time, until you've held the whole conversation.",
+        "At the end, Liis calls and you make a plan with her, one turn at a time, until you've held the whole conversation.",
       ],
       watchOut: "When a time doesn't suit, say so and offer another: {Kell kuus ma ei saa. Kell seitse?}",
       examples: [2, 5],

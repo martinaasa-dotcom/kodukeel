@@ -144,7 +144,7 @@ const FILL = {
   "/exam/result/[id]": await firstId("examAttempt", { ownerId: owner }),
 };
 const SEGMENT = {
-  "[level]": "B1", "[caseKey]": "partitive", "[kind]": "stem", "[unitId]": "loodus",
+  "[level]": "B1", "[caseKey]": "partitive", "[kind]": "stem", "[unitId]": "too-ja-raha",
   "[situationId]": "sook-ja-jook", "[group]": "noun",
 };
 const ROUTES = [];

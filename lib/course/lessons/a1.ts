@@ -30,7 +30,7 @@ import { A1_ABI_LESSONS, A1_ABI_PART } from "./a1-abi";
 import type { LessonSpec, PartOfLessons } from "./types";
 
 export const A1_LESSON_PARTS: readonly PartOfLessons[] = [
-  { id: "a1-tere", level: "A1", title: "First words", about: "First words: hello, your name, who you are, and how it's going." },
+  { id: "a1-tere", level: "A1", title: "First words", about: "Hello and thanks, your name, who you are, and how it's going." },
   A1_ELAD_PART,
   A1_KELL_PART,
   A1_SOOK_PART,
@@ -409,7 +409,7 @@ const TERE_LESSONS: readonly LessonSpec[] = [
     n: 8,
     level: "A1",
     part: "a1-tere",
-    kind: "checkin",
+    kind: "partEnd",
     title: "Meeting somebody",
     goal: "Hold a first conversation with somebody new, start to finish.",
     cast: { Mari: "mari", Tom: "kalev" },
@@ -429,7 +429,7 @@ const TERE_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [],
     how: {
-      point: "A whole conversation, made only of what the last seven evenings taught.",
+      point: "A whole conversation, made only of what this part has taught.",
       notes: [
         "Everything in it is something you have said before. The new part is putting it together, one line after another.",
         "Notice how Mari leads and Tom answers, and how one line from lesson 2 keeps it going when Tom gets lost.",

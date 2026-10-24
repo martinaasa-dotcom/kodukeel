@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireUserId } from "@/lib/auth/session";
-import { lessonById, ledgersBefore, LESSONS, practiceFor, reviewFor } from "@/lib/course/lessons";
+import { lessonById, lessonLabel, ledgersBefore, LESSON_PARTS, LESSONS, practiceFor, reviewFor } from "@/lib/course/lessons";
+import { lessonListStates } from "@/lib/progress/course";
 import { titleFor } from "@/lib/progress/locale";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { sayableName } from "@/lib/course/lessons/ownAnswer";
@@ -48,18 +49,35 @@ export default async function LessonPage({ params, searchParams }: { params: Pro
     ? checkAfter(PROGRAMMES, placed.programme.id) ?? null
     : null;
   // The learner's own name, so a model answer about them says it rather than Tom's.
-  const [nameSetting, queue, passed] = await Promise.all([
+  const [nameSetting, queue, passed, states] = await Promise.all([
     readSetting(ownerId, SETTING_KEYS.displayName),
     reviewQueue(ownerId, null, new Date()),
     check ? checksPassedFor(ownerId) : Promise.resolve(new Set<string>()),
+    lessonListStates(ownerId),
   ]);
   const name = sayableName(nameSetting);
+  /*
+    THE PART THIS LESSON IS IN, lesson by lesson, so the screen can say "4 of
+    8 in First words" and the finish can light the one just done. A lesson
+    opened from the list ahead of the course reads the same; what it records
+    is `finishLesson`'s decision.
+  */
+  const partSpec = LESSON_PARTS.find((p) => p.id === lesson.part)!;
+  const part = {
+    title: partSpec.title,
+    lessons: LESSONS.filter((l) => l.part === lesson.part).map((l) => ({
+      id: l.id, label: lessonLabel(l), title: l.title, done: states.get(l.id) === "done",
+    })),
+  };
+  /* Across a part's end the way on is its check, so "Next:" stops there until it is passed. */
+  const pastTheCheck = !check || passed.has(check.id);
   return (
     <LessonRunner
       lesson={lesson}
-      practice={practiceFor(lesson, before)}
-      review={reviewFor(lesson, before)}
-      next={next ? { id: next.id, title: next.title } : null}
+      practice={practiceFor(lesson, before, LESSONS.slice(0, LESSONS.indexOf(lesson)))}
+      review={reviewFor(lesson, before, LESSONS.slice(0, LESSONS.indexOf(lesson)))}
+      next={next && (next.part === lesson.part || pastTheCheck) ? { id: next.id, title: next.title } : null}
+      part={part}
       scene={sceneForLesson(lesson.id)?.id ?? null}
       /* The lesson's own conversation sends the learner back here, finished or left partway (`lessonReturn.ts`). */
       conversation={conversationFrom(query.conversation)}

@@ -129,18 +129,18 @@ await page.goto(`${B}/learn`, { waitUntil: "networkidle" });
 // The unit's own name shows in English until the learner reaches A2
 // (lib/copy/uiLanguage.ts), so a suite that does not know this account's
 // level checks for either name rather than assuming Estonian always shows.
-// A1 is the lessons (docs/43-lessons.md), so its parts link to them; the
-// units start at A2.
+// A1 and A2 are the lessons (docs/43-lessons.md), so their parts link to
+// them; the units start at B1, and a link to an A2 unit lands on the lessons.
 check("path shows A1 as lessons", (await page.locator('a[href^="/course/lessons#"]').count()) > 0);
 check(
   "path shows units",
-  (await page.getByText("Loodus").count()) > 0
-    || (await page.getByText("Nature and animals").count()) > 0,
+  (await page.getByText("Inimsuhted").count()) > 0
+    || (await page.getByText("Relationships").count()) > 0,
 );
 check("path reports overall progress", (await page.getByText(/words known/).count()) > 0);
 
-await page.goto(`${B}/learn/loodus`, { waitUntil: "networkidle" });
-check("a unit lists its words", (await page.getByText("mets", { exact: true }).count()) > 0);
+await page.goto(`${B}/learn/inimsuhted`, { waitUntil: "networkidle" });
+check("a unit lists its words", (await page.getByText("suhe", { exact: true }).count()) > 0);
 check("a unit says which card types it makes", (await page.getByText(/recognition, production/i).count()) > 0);
 
 // 2 — Practice keeps the words fresh and Games is for play, each round named

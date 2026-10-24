@@ -3035,7 +3035,7 @@ export async function setCourseLevel(level: string) {
   const firstOfLevel = PROGRAMMES.find((p) => p.level === parsed.data);
   const blocked = firstOfLevel ? await moveBlockedFor(ownerId, following, firstOfLevel) : null;
   if (blocked) {
-    return { ok: false as const, error: "Pass the A1 checks to move up a level. Each part of A1 ends in one." };
+    return { ok: false as const, error: "Pass the checks to move up a level. Each part of the lessons ends in one." };
   }
   // Asked before the write, since what changed is the whole question below.
   const before = await courseLevelFor(ownerId);

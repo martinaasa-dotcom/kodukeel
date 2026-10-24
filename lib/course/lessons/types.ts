@@ -65,7 +65,25 @@ export interface Line {
  */
 export type Taught =
   | { readonly kind: "word"; readonly et: string; readonly en: string }
-  | { readonly kind: "form"; readonly et: string; readonly of: string; readonly en: string }
+  | {
+      readonly kind: "form"; readonly et: string; readonly of: string; readonly en: string;
+      /**
+       * The [omastav] (2nd form), the stem every other ending goes on (A2).
+       * Once a lesson has explained an ending (`inside`, `outside` and the
+       * rest of `PatternId`), the ledger covers that ending on this stem
+       * without listing it, read off `lib/estonian/derive.ts`, the rule every
+       * case table in the app is built with. A stem may be spelled like a word
+       * already taught (`maja` is its own omastav), since saying so is new.
+       */
+      readonly stem?: true;
+      /**
+       * The [lihtminevik] (past) I form (A2). Once the `past` pattern is
+       * explained, the other persons but the third are covered off it
+       * (`lib/estonian/conjugate.ts`), and the third is taught by name, since
+       * no rule reaches it (`tahtsin` but `tahtis`).
+       */
+      readonly past?: true;
+    }
   | { readonly kind: "phrase"; readonly et: string; readonly en: string }
   /**
    * A verb learned as the pair a learner actually needs: the ma-form the
@@ -78,8 +96,18 @@ export type Taught =
    */
   | { readonly kind: "verb"; readonly et: string; readonly first: string; readonly en: string; readonly firstEn: string };
 
-/** A pattern a lesson explains, which lets later lessons use forms it builds. */
-export type PatternId = "present" | "negative" | "imperative";
+/**
+ * A pattern a lesson explains, which lets later lessons use forms it builds.
+ *
+ * A1 explains three, on verbs. A2 explains the case endings on a noun's
+ * [omastav] (2nd form), `inside` being -s, -sse and -st, `outside` -l, -le
+ * and -lt, and the rest one ending each; the past's persons off its I form;
+ * and the conditional off the present I form.
+ */
+export type PatternId =
+  | "present" | "negative" | "imperative"
+  | "inside" | "outside" | "comitative" | "translative" | "terminative" | "essive" | "abessive"
+  | "past" | "conditional";
 
 /** A cell of a pattern's table: Estonian or English, never both. */
 export type Cell = { readonly et: string } | { readonly en: string };

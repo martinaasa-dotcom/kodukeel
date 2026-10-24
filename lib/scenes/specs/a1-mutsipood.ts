@@ -30,7 +30,7 @@ export default inLesson("a1-40-clothes-shop", {
     {
       id: "greet",
       goal: "Say hello back.",
-      they: "The shop assistant says hello.",
+      they: "The salesperson says hello.",
       move: "greet",
       topic: [...HELLOS],
       needs: [{ kind: "lemma", oneOf: [...HELLOS] }],

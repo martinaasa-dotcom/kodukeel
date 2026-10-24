@@ -6,7 +6,7 @@ import { CLOSING_WORDS, HELLOS } from "./shared";
   RATHER THAN READ.
 
   The part taught where you're from and where you live, the people at home,
-  and saying you're learning. The teacher goes round the room and asks just
+  and saying you're learning. The teacher goes around the room and asks just
   that, in `teie`, as a teacher does on the first evening. Where the learner is
   from is dealt, so the country is one the lessons named; where they live and
   who's at home are their own.

@@ -3211,7 +3211,7 @@ export const SAYINGS: readonly Saying[] = [
     id: "hoidma-alles", phrase: "hoia alles", particle: "alles", verb: HOI,
     means: "keep it, hold on to it", literal: "hold still there",
     parts: ["hold", "still there"],
-    when: "The shop assistant hands you the receipt for the warranty.",
+    when: "The salesperson hands you the receipt for the warranty.",
     sentences: [
       { lemma: "tšekk", et: "Hoia tšekk alles, muidu garantii ei kehti.", run: "Hoia tšekk alles" },
       { lemma: "kviitung", et: "Kviitung tuleb alles hoida.", run: "alles hoida" },

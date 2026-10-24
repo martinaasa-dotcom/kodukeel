@@ -30,8 +30,15 @@ import { SETTING_KEYS } from "@/lib/settings/store";
 
 const OWNER = "itest-owner-course";
 const CLOCK = dayClock("Europe/Tallinn");
-/* A1 is the lessons, one step an evening (docs/43-lessons.md, P3); these readings are about an evening of units. */
-const PROGRAMME = PROGRAMMES.find((p) => !p.days.some((d) => d.lesson))!;
+/*
+  A1 and A2 are the lessons, one step an evening (docs/43-lessons.md, P3 and
+  §9); these readings are about an evening of units, and about a second
+  evening with two rounds to tick, so the first part built out of units whose
+  second evening is not a conversation (one press finishes that one).
+*/
+const PROGRAMME = PROGRAMMES.find(
+  (p) => !p.days.some((d) => d.lesson) && (p.days[1]?.steps.filter((s) => !s.derived).length ?? 0) >= 2,
+)!;
 
 /*
   A CLOCK THE TEST OWNS, which is this repository's own rule about a unit test

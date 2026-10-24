@@ -8,6 +8,8 @@ import { LessonText } from "@/components/course/LessonText";
 import { ButtonLink } from "@/components/Button";
 import { Card, Note } from "@/components/ui";
 import { NextPart } from "@/components/course/NextPart";
+import { Confetti } from "@/components/Confetti";
+import { Mascot } from "@/components/brand";
 import { fill } from "@/lib/copy/locale";
 import { NOT_REACHED } from "@/lib/copy/values";
 import type { PracticeItem } from "@/lib/course/lessons/practice";
@@ -21,13 +23,24 @@ import { Quiz } from "../../lessons/[id]/Quiz";
  * answers go to `submitCheck`, which rebuilds the paper and marks it, and the
  * screen says whether it passed, how close it was, and what to do next.
  */
-export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, next }: {
+/** A finished level, said back on the screen that finishes it. */
+export interface LevelDone {
+  readonly level: string;
+  readonly arrival: string;
+  readonly parts: readonly string[];
+  readonly lessons: number;
+  readonly next: { readonly level: string; readonly title: string; readonly summary: string; readonly lessons: boolean } | null;
+}
+
+export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, next, level = null }: {
   checkId: string;
   attempt: number;
   items: readonly PracticeItem[];
   needed: number;
   alreadyPassed: boolean;
   next: { id: string; label: string } | null;
+  /** Set on the last check of a level: what the level was and what comes next. */
+  level?: LevelDone | null;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -67,6 +80,8 @@ export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, ne
           <button type="button" className="tap-tint underline" onClick={finish}>{t("Try sending it again")}</button>
         </div>
       )}
+      {result?.passed && level && <LevelFinished level={level} score={`${formatScore(result.score)} / ${result.total}`} />}
+      {result && !(result.passed && level) && result.passed && <Confetti count={50} />}
       {result && (
         <Card tone={result.passed ? "sky" : "butter"} data-check-result={result.passed ? "passed" : "not-yet"}>
           <p role="status" className="flex items-center gap-2 text-lg font-semibold" style={{ color: "var(--ink)" }}>
@@ -82,7 +97,7 @@ export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, ne
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {result.passed ? (
-              next ? <NextPart programmeId={next.id} to="/course" label={fill(t("Start {part}"), { part: next.label })} /> : null
+              next ? <NextPart programmeId={next.id} to="/course" label={level?.next ? fill(t("Start {level}"), { level: level.next.level }) : fill(t("Start {part}"), { part: next.label })} /> : null
             ) : (
               <>
                 <ButtonLink href="/review">{t("Review your words")}</ButtonLink>
@@ -104,10 +119,22 @@ export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, ne
           <ul className="mt-2 flex flex-col gap-2">
             {items.map((item, i) => result.marks[i] === "right" ? null : (
               <li key={i} className="flex flex-wrap items-baseline gap-x-2 rounded-[var(--r)] border px-4 py-2.5" style={{ borderColor: "var(--edge)", background: "var(--surface)" }}>
-                {item.kind === "type" ? (
+                {item.kind === "match" ? null : item.kind === "type" ? (
                   <>
                     <span style={{ color: "var(--ink-2)" }}><LessonText text={item.en} locale={locale} /></span>
                     <span lang="et" className="font-semibold" style={{ color: "var(--accent-deep)" }}>{item.answer}</span>
+                  </>
+                ) : item.kind === "gap" ? (
+                  <>
+                    <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>
+                      {item.before}<span style={{ color: "var(--accent-deep)" }}>{item.answer}</span>{item.after}
+                    </span>
+                    <span style={{ color: "var(--ink-2)" }}><LessonText text={item.en} locale={locale} /></span>
+                  </>
+                ) : item.kind === "reply" ? (
+                  <>
+                    <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{item.ask.et}</span>
+                    <span lang="et" style={{ color: "var(--accent-deep)" }}>{item.answer}</span>
                   </>
                 ) : (
                   <>
@@ -127,4 +154,57 @@ export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, ne
 /** A score with a half in it (a nearly) says so; a whole one does not print ".0". */
 function formatScore(score: number): string {
   return Number.isInteger(score) ? String(score) : score.toFixed(1);
+}
+
+/**
+ * THE END OF A LEVEL, SAID BACK: the mascot and the confetti a lesson gets,
+ * more of both, the parts of the level ticked off by name, what somebody can
+ * now do in one sentence (`LEVEL_INFO.arrival`), and what the next level is.
+ *
+ * WHERE THE NEXT LEVEL IS BUILT DIFFERENTLY, IT SAYS SO. A1 and A2 are
+ * lessons; from B1 an evening is a topic's words, a short page on one point
+ * of grammar, a round or two and a review. A learner who walked a hundred
+ * lessons and arrived on a checklist with no word about why would read it as
+ * something broken, so the change is named here, once, before it happens.
+ */
+function LevelFinished({ level, score }: { level: LevelDone; score: string }) {
+  const t = useT();
+  return (
+    <section aria-labelledby="level-done" className="flex flex-col gap-4" data-level-done={level.level}>
+      <Confetti count={120} />
+      <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
+        <Mascot size={76} mood="cheer" className="float mx-auto" />
+        <h2 id="level-done" className="font-display mt-5 text-3xl font-bold leading-tight tracking-tight md:text-4xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
+          {fill(t("{level} is done"), { level: level.level })}
+        </h2>
+        <p className="mx-auto mt-3 max-w-[48ch] text-lg" style={{ color: "var(--ink-2)", textWrap: "pretty" }}>{level.arrival}</p>
+        <p className="mt-3 text-base font-semibold" style={{ color: "var(--ink-2)" }}>
+          {fill(t("{lessons} lessons, {parts} parts, and the check passed at {score}."), { lessons: level.lessons, parts: level.parts.length, score })}
+        </p>
+      </div>
+      <Card>
+        <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>{fill(t("What {level} covered"), { level: level.level })}</p>
+        <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+          {level.parts.map((part) => (
+            <li key={part} className="flex items-center gap-2 text-base" style={{ color: "var(--ink)" }}>
+              <Check size={16} aria-hidden style={{ color: "var(--accent-deep)" }} /> {part}
+            </li>
+          ))}
+        </ul>
+      </Card>
+      {level.next && (
+        <Card tone="accent" data-level-next={level.next.level}>
+          <p className="font-display text-xl font-bold" style={{ color: "var(--ink)" }}>
+            {fill(t("Next: {level}, {title}"), { level: level.next.level, title: level.next.title })}
+          </p>
+          <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>{level.next.summary}</p>
+          {!level.next.lessons && (
+            <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
+              {t("From here an evening is built a little differently: the words of one topic, a short page on one point of grammar, a round or two that use them, and a review. The conversations carry on, and everything the lessons taught comes with you.")}
+            </p>
+          )}
+        </Card>
+      )}
+    </section>
+  );
 }
