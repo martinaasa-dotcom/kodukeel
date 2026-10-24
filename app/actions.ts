@@ -78,6 +78,7 @@ import { readEndpoint, readSubscription } from "@/lib/push/subscription";
 import { parseReminderTime } from "@/lib/time/reminder";
 import { letterBarFrom, type LetterBar } from "@/lib/ux/letterBar";
 import { wordGlossFrom, type WordGloss } from "@/lib/ux/wordGloss";
+import { singleKeysFrom } from "@/lib/ux/shortcuts";
 import { caseGlossFrom } from "@/lib/estonian/caseGloss";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
 import { hearingFrom, hidesWords, supportFrom } from "@/lib/audio/conditions";
@@ -2290,6 +2291,18 @@ export async function setSpeechInBoxes(value: string) {
   const ownerId = await requireUserId();
   const normalised = value === "off" ? "off" : "on";
   await writeSetting(ownerId, SETTING_KEYS.speechInBoxes, normalised);
+  revalidatePath("/", "layout");
+  return { ok: true as const, value: normalised };
+}
+
+/**
+ * Whether a bare character key acts in a round (WCAG 2.1.4, lib/ux/shortcuts.ts).
+ * Revalidated at the layout, since the shell publishes it to every round.
+ */
+export async function setSingleKeys(value: unknown) {
+  const ownerId = await requireUserId();
+  const normalised = singleKeysFrom(text(value));
+  await writeSetting(ownerId, SETTING_KEYS.singleKeys, normalised);
   revalidatePath("/", "layout");
   return { ok: true as const, value: normalised };
 }

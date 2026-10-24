@@ -1,6 +1,8 @@
 "use client";
 
 import { usePublicReader } from "@/components/PublicReader";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/Button";
@@ -56,11 +58,13 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
     listener is added once and always sees the question on the screen.
   */
   const live = useRef({ options: [] as readonly string[], picked: null as string | null, pick: (_: string) => {}, next: () => {}, over: false });
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const now = live.current;
       if (now.over || inEditable(e.target) || e.metaKey || e.ctrlKey || e.altKey) return;
       if (now.picked === null) {
+        if (!mayActOnKey(e, singleKeys)) return;
         const n = Number(e.key);
         const option = Number.isInteger(n) && n >= 1 ? now.options[n - 1] : undefined;
         if (option !== undefined) { e.preventDefault(); now.pick(option); }
@@ -71,7 +75,7 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [singleKeys]);
 
   if (asks.length === 0) return null;
   const ask = asks[Math.min(at, asks.length - 1)]!;

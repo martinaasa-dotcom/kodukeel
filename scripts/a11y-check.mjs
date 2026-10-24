@@ -373,8 +373,13 @@ for (const g of groups) {
   And 764 rather than 773: Picture match was taken out of the app as
   pointless, and `/review/emoji` was one of the routes this walks. Nine
   checks, counted off the route list rather than off a run.
+
+  And 946 rather than 740: every route at 768 in both themes, which is two
+  passes over the 103 routes the list names before any is read off a page,
+  counted off the list rather than off a run. Not yet confirmed against a run,
+  so the first central run says whether the slack is still forty-two.
 */
-const { check, absent, done } = suite("Accessibility", { floor: 740 });
+const { check, absent, done } = suite("Accessibility", { floor: 946 });
 if (!shelf) absent(11, "a round over one shelf: no shelf on /words/decks holds a word. Run `npm run demo`");
 if (groups.length === 0) absent(11, "a classroom: /class lists no group. Run `npm run demo`");
 
@@ -605,8 +610,29 @@ await dark.close();
   narrow its own claim to the states a sweep cannot reach.
 */
 const PHONE = { width: 390, height: 844 };
+/*
+  AND AT 768, IN BOTH THEMES (docs/44-sixth-batch.md, S-4).
+
+  768 is the width the rail appears at, so the content column is at its
+  narrowest there, and it is where the containment suite found five faults the
+  two ends never showed. The statement used to name it as a width axe did not
+  sweep; it sweeps it now, in the light and the dark, with the same eight
+  checks a phone route gets, and the floor rose by two passes over the route
+  list. It is not a second phone pass: the rail is drawn here, so the More
+  sheet below is not, and it is opened at 390 alone.
+*/
+const TABLET = { width: 768, height: 1024 };
 
 for (const theme of ["light", "dark"]) {
+  const wide = await measuring(TABLET);
+  if (theme === "dark") await chooseDark(wide);
+  for (const route of ROUTES) {
+    await open(wide, route, 200);
+    const violations = await axeViolations(wide);
+    check(`${route}: axe finds nothing at ${TABLET.width} in ${theme}`,
+      violations.length === 0, violations.slice(0, 2).join("; "));
+  }
+  await wide.close();
   const phone = await measuring(PHONE);
   if (theme === "dark") await chooseDark(phone);
   for (const route of ROUTES) {

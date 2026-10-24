@@ -24,6 +24,8 @@ import { navOrderFrom } from "@/lib/ux/navOrder";
 import { railClasses } from "@/lib/progress/classes";
 import { visibleLine } from "@/lib/security/visibleText";
 import { AudioPrefsProvider } from "@/components/AudioPrefs";
+import { SingleKeysProvider } from "@/components/SingleKeys";
+import { singleKeysFrom } from "@/lib/ux/shortcuts";
 import { SpeechPrefetch, SpeechProvider } from "@/components/speech/useSpeech";
 import { speechAvailability } from "@/lib/audio/speechAvailability";
 import { micInBoxesFrom, sendAtOnceFrom } from "@/lib/ux/speechPrefs";
@@ -107,7 +109,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         SETTING_KEYS.hearing, SETTING_KEYS.support, SETTING_KEYS.sceneVoice, SETTING_KEYS.speechPace,
         SETTING_KEYS.caseQuestionGloss, SETTING_KEYS.navOrder, SETTING_KEYS.displayName,
         SETTING_KEYS.uiLocale, SETTING_KEYS.uiLocaleNoticed,
-        SETTING_KEYS.speechSendAtOnce, SETTING_KEYS.speechInBoxes,
+        SETTING_KEYS.speechSendAtOnce, SETTING_KEYS.speechInBoxes, SETTING_KEYS.singleKeys,
       ],
     ),
     courseLevelFor(ownerId),
@@ -154,6 +156,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <UiLanguageProvider level={level}>
     <CaseGlossProvider on={caseGloss}>
     <AudioPrefsProvider value={audio}>
+    {/* Whether a bare letter or digit acts in a round (WCAG 2.1.4). See lib/ux/shortcuts.ts. */}
+    <SingleKeysProvider on={singleKeysFrom(settings[SETTING_KEYS.singleKeys]) === "on"}>
     <SpeechProvider value={speech}>
     <LetterBarScope value={letters} dismissible>
       <DeviceOwner owner={ownerDigest(ownerId)} />
@@ -247,6 +251,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <AnuFab configured={chain.length > 0} readerCanConfigure={!supabaseConfigured()} />
     </LetterBarScope>
     </SpeechProvider>
+    </SingleKeysProvider>
     </AudioPrefsProvider>
     </CaseGlossProvider>
     </UiLanguageProvider>

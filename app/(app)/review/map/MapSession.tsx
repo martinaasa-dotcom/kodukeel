@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { useFocusAnswer } from "@/components/round/useFocusAnswer";
 import { RetypeBox, useRetype } from "@/components/round/Retype";
 import { PARTS } from "@/lib/copy/values";
@@ -181,6 +183,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
     else setMissed((m) => [...m, q]);
   }, [q]);
 
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (finished) return;
@@ -190,6 +193,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
         return;
       }
       if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (!mayActOnKey(e, singleKeys)) return;
       if (!inEditable(e.target) && e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       /* A place question listens for its own keys. */
       if (!cq) return;
@@ -209,7 +213,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [finished, answered, cq, typedRung, pick, check, next, look, needsRetype]);
+  }, [singleKeys, finished, answered, cq, typedRung, pick, check, next, look, needsRetype]);
 
   if (wasEmptyAtStart) {
     return (

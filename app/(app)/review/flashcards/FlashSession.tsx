@@ -1,6 +1,8 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { Meaning } from "@/components/Meaning";
 import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 import { countOf, fill } from "@/lib/copy/locale";
@@ -286,6 +288,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     `build` is a textarea and takes the modifier, since a sentence sometimes
     wants a line break.
   */
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       /* While a look back is on screen the round is not, so its keys are not
@@ -295,6 +298,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
         if (isAdvanceKey(e) && !inEditable(e.target)) { e.preventDefault(); look.forward(); }
         return;
       }
+      if (!mayActOnKey(e, singleKeys)) return;
       if (e.key.toLowerCase() === "b" && !inEditable(e.target) && look.seen.length > 0) {
         e.preventDefault();
         look.open();
@@ -313,7 +317,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [mark, next, check, shape, look, needsRetype]);
+  }, [singleKeys, mark, next, check, shape, look, needsRetype]);
 
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));

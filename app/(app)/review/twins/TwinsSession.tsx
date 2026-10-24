@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { Check, Scale, X } from "lucide-react";
 import { useT } from "@/components/Locale";
@@ -118,6 +120,7 @@ export function TwinsSession({ questions: initialQuestions, canTranslate, focusT
     setIndex((n) => n + 1);
   }, [answered, q, index, correct, look]);
 
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (finished) return;
@@ -127,6 +130,7 @@ export function TwinsSession({ questions: initialQuestions, canTranslate, focusT
         return;
       }
       if (e.metaKey || e.ctrlKey || e.altKey || inEditable(e.target)) return;
+      if (!mayActOnKey(e, singleKeys)) return;
       if (e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (answered) { if (isAdvanceKey(e)) { e.preventDefault(); next(); } return; }
       const n = Number(e.key);
@@ -134,7 +138,7 @@ export function TwinsSession({ questions: initialQuestions, canTranslate, focusT
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [finished, answered, texts.length, pick, next, look]);
+  }, [singleKeys, finished, answered, texts.length, pick, next, look]);
 
   if (wasEmptyAtStart) {
     return (

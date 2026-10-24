@@ -1,6 +1,8 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { fill } from "@/lib/copy/locale";
 import { answerNote } from "@/lib/copy/answerNote";
 import { rich } from "@/components/round/rich";
@@ -414,6 +416,7 @@ export function QuestSession({
   /* Keys, because a two-minute round is one a keyboard should be able to play:
      space or enter turns the card, then space says missed and enter says had it. Same two answers as a flip
      card in review, for the same reason. */
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     if (phase !== "running") return;
     const onKey = (e: KeyboardEvent) => {
@@ -448,6 +451,7 @@ export function QuestSession({
           if (!target?.closest("button") && isAdvanceKey(e)) { e.preventDefault(); advance(); }
           return;
         }
+        if (!mayActOnKey(e, singleKeys)) return;
         const at = Number(e.key) - 1;
         if (Number.isInteger(at) && at >= 0 && at < options.length) {
           e.preventDefault();
@@ -465,7 +469,7 @@ export function QuestSession({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [phase, revealed, answer, card, choose, nextTyped, needsRetype, flip, advance]);
+  }, [singleKeys, phase, revealed, answer, card, choose, nextTyped, needsRetype, flip, advance]);
 
   if (cards.length === 0) {
     return (

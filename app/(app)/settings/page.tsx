@@ -8,6 +8,7 @@ import { ekilexConfigured } from "@/lib/ekilex/client";
 import { dailyGoalFrom, readSettings, reviewModeFrom, SETTING_KEYS } from "@/lib/settings/store";
 import { letterBarFrom } from "@/lib/ux/letterBar";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
+import { singleKeysFrom } from "@/lib/ux/shortcuts";
 import { caseGlossFrom, caseGlossDefaultFor } from "@/lib/estonian/caseGloss";
 import { participationFrom, researchExportConfigured } from "@/lib/research/participation";
 import { emailPrefsFrom, kindStates } from "@/lib/email/prefs";
@@ -31,6 +32,7 @@ import { GoalsPanel } from "./GoalsPanel";
 import { ImportPanel } from "./ImportPanel";
 import { InstallPanel } from "./InstallPanel";
 import { CaseGlossPanel, ClassNamePanel, LetterBarPanel, ResearchPanel, ReviewModePanel, WordGlossPanel } from "./PreferencesPanel";
+import { SingleKeysPanel } from "@/components/SingleKeysPanel";
 import { EmailPanel } from "./EmailPanel";
 import { PushPanel } from "./PushPanel";
 import { AutoplayPanel, CurrentPaceSample, FeedbackSoundsPanel, HearingPanel, SpeechPacePanel, SupportPanel, VoicePanel } from "./AudioPanel";
@@ -147,6 +149,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       SETTING_KEYS.ttsVoice, SETTING_KEYS.autoplayAudio, SETTING_KEYS.feedbackSounds,
       SETTING_KEYS.hearing, SETTING_KEYS.support, SETTING_KEYS.speechPace,
       SETTING_KEYS.glossLanguage, SETTING_KEYS.glossAlso, SETTING_KEYS.wordGloss,
+      SETTING_KEYS.singleKeys,
       SETTING_KEYS.todayOrder,
       SETTING_KEYS.roundPace,
       SETTING_KEYS.caseQuestionGloss,
@@ -221,6 +224,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const locale = await localeFor(ownerId);
   const t = (english: string) => tr(locale, english);
   const wordGloss = wordGlossFrom(settings[SETTING_KEYS.wordGloss]);
+  const singleKeys = singleKeysFrom(settings[SETTING_KEYS.singleKeys]);
   const caseGlossPref = caseGlossFrom(settings[SETTING_KEYS.caseQuestionGloss]);
   const todayOrder = todayOrderFrom(settings[SETTING_KEYS.todayOrder]);
   const todayHidden = hiddenSlotsFrom(settings[SETTING_KEYS.todayOrder]);
@@ -555,9 +559,10 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </section>
 
           <section>
-            <SectionTitle>{t("Keyboard")}</SectionTitle>
+            <SectionTitle hint={t(singleKeys === "on" ? "single keys on" : "single keys off")}>{t("Keyboard")}</SectionTitle>
             <Card>
-              <div className="flex items-start gap-3">
+              <SingleKeysPanel current={singleKeys} />
+              <div className="mt-4 flex items-start gap-3">
                 <Keyboard size={18} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm" style={{ color: "var(--ink-2)" }}>

@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { Check, Laugh, Sparkles, X } from "lucide-react";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { useLocale, useT } from "@/components/Locale";
@@ -157,6 +159,7 @@ export function WordplaySession({ plan: initial }: { plan: WordplayPlan | null }
     setPhase(plan.friends.length > 0 ? "friends" : "done");
   }, [phase, nameQueue.length, plan]);
 
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     if (!plan) return;
     const onKey = (e: KeyboardEvent) => {
@@ -185,6 +188,7 @@ export function WordplaySession({ plan: initial }: { plan: WordplayPlan | null }
           return;
         }
         if (guess === null) {
+          if (!mayActOnKey(e, singleKeys)) return;
           const option = step.guesses[Number(e.key) - 1];
           if (option) { e.preventDefault(); pickGuess(option); }
           return;
@@ -208,7 +212,7 @@ export function WordplaySession({ plan: initial }: { plan: WordplayPlan | null }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [
+  }, [singleKeys, 
     plan, phase, step, turned, allTurned, guess, nameQuestion, nameRevealed, friend, friendRevealed,
     turn, pickGuess, nextApart, chooseName, nextName, chooseFriend, nextFriend,
   ]);

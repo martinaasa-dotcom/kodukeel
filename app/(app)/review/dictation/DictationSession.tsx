@@ -1,6 +1,8 @@
 "use client";
 
 import { EnterKeyCap } from "@/components/KeyCaps";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
 import { ArrowRight, Check, Ear, Volume2 } from "lucide-react";
@@ -195,6 +197,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
   /* Once the sentence is marked, Enter or Space is "next", the same two keys
      every other round takes for moving on. Before the mark the field owns
      Enter through `onEnter`, and a space is a letter in the sentence. */
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (look.looking) {
@@ -202,6 +205,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
         if (isAdvanceKey(e) && !inEditable(e.target)) { e.preventDefault(); look.forward(); }
         return;
       }
+      if (!mayActOnKey(e, singleKeys)) return;
       if (e.key.toLowerCase() === "b" && !inEditable(e.target) && look.seen.length > 0) {
         e.preventDefault();
         look.open();
@@ -217,7 +221,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [result, look, next]);
+  }, [singleKeys, result, look, next]);
 
   if (round.length === 0) {
     return (

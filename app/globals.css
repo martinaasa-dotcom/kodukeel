@@ -3826,8 +3826,10 @@
   .drift {
     rotate: var(--float-tilt, 0deg);
     transform-origin: var(--drift-origin, 50% 50%);
-    animation: var(--drift-name, letter-wander) var(--drift-time, 5.5s)
-      var(--drift-ease, ease-in-out) var(--drift-delay, 0s) infinite;
+    /* A count rather than `infinite`: the letters rest after five seconds
+       (WCAG 2.2.2), and `wanderRun` in lib/ux/letterMotion.ts works it out. */
+    animation: var(--drift-name, letter-wander) var(--drift-time, 4.6s)
+      var(--drift-ease, ease-in-out) var(--drift-delay, 0s) var(--drift-count, 1);
   }
 
   /*

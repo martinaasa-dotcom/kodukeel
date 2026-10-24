@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { useGrade } from "@/components/round/useGrade";
 import { Check, Ear, Loader2, Volume2 } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
@@ -166,6 +168,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
     setIndex((i) => i + 1);
   }, [question, look, t]);
 
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (finished || !question) return;
@@ -174,6 +177,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
         if (isAdvanceKey(e)) { e.preventDefault(); look.forward(); }
         return;
       }
+      if (!mayActOnKey(e, singleKeys)) return;
       if (e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (e.key === "r" || e.key === "R") { e.preventDefault(); void play(question.heard); return; }
       // Space is free until the answer is in, and then it moves on, so it
@@ -188,7 +192,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [finished, question, revealed, choose, next, play, look]);
+  }, [singleKeys, finished, question, revealed, choose, next, play, look]);
 
   if (audioFailed) {
     return (

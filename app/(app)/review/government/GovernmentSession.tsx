@@ -1,6 +1,8 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { questionIn } from "@/lib/copy/questionReading";
 import { fill } from "@/lib/copy/locale";
 import { filled } from "@/components/Filled";
@@ -165,6 +167,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
     setIndex((i) => i + 1);
   }, [question, look]);
 
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (finished || !question) return;
@@ -176,6 +179,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
         if (isAdvanceKey(e)) { e.preventDefault(); look.forward(); }
         return;
       }
+      if (!mayActOnKey(e, singleKeys)) return;
       if (e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (revealed && isAdvanceKey(e)) { e.preventDefault(); next(); return; }
       if (revealed) return;
@@ -185,7 +189,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [finished, question, revealed, choose, next, look]);
+  }, [singleKeys, finished, question, revealed, choose, next, look]);
 
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));

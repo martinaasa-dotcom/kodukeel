@@ -1,6 +1,8 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { useFocusAnswer } from "@/components/round/useFocusAnswer";
 import { RetypeBox, useRetype } from "@/components/round/Retype";
 import { fill } from "@/lib/copy/locale";
@@ -189,6 +191,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
     shownAt.current = Date.now();
   }, [task, look]);
 
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (look.looking) {
@@ -196,6 +199,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
         if (isAdvanceKey(e) && !inEditable(e.target)) { e.preventDefault(); look.forward(); }
         return;
       }
+      if (!mayActOnKey(e, singleKeys)) return;
       if (e.key.toLowerCase() === "b" && !inEditable(e.target) && look.seen.length > 0) {
         e.preventDefault();
         look.open();
@@ -211,7 +215,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [mark, meeting, next, check, look, needsRetype]);
+  }, [singleKeys, mark, meeting, next, check, look, needsRetype]);
 
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));

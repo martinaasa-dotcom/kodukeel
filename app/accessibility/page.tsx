@@ -3,7 +3,7 @@ import { Legal, P, S } from "@/components/Legal";
 import { rich } from "@/components/Rich";
 import { tr } from "@/lib/copy/locale";
 import { localeHref } from "@/lib/copy/publicLocale";
-import { resolveOperator, SUPERVISORY_AUTHORITY } from "@/lib/legal/operator";
+import { ACCESSIBILITY_AUTHORITY, resolveOperator, SUPERVISORY_AUTHORITY } from "@/lib/legal/operator";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
 import { publicCard } from "@/lib/copy/publicCards";
 import { CRITERIA, clauseOf, REASON_TEXT, STATUS_TEXT } from "@/lib/legal/en301549";
@@ -75,7 +75,7 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
   );
 
   return (
-    <Legal title={t("Accessibility statement")} updated="15 October 2026" locale={locale} explicit={explicit} path="/accessibility">
+    <Legal title={t("Accessibility statement")} updated="24 October 2026" locale={locale} explicit={explicit} path="/accessibility">
       <P>
         {t("Kodukeel is for people learning Estonian, and plenty of them are learning it because they have to. This page says what standard we’re aiming for, what we’ve checked and how, where we fall short today, and how to tell us.")}
       </P>
@@ -102,6 +102,11 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
         <ul className="space-y-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           <li>
             {rich(t("**axe over every route.** {suite} loads every page the app has, not a chosen sample, and runs axe over each one, including its best-practice rules. Two screens are the exception so far, a marked paper and a scanned page, because each needs a row made before it exists; the containment suite below makes both and measures them, and axe does not reach them yet. It runs the whole sweep again in the dark theme, because light and dark are two palettes and a color that clears the bar in one says nothing about the other. It runs it twice more at 390 pixels wide, which is a phone, because a phone here is different markup rather than the same markup narrower: the navigation rail is not drawn at all and a bar with a sheet behind it is drawn instead. That sheet is opened and swept too, since no address reaches it. It counts a one-character run of text as text, which is how a check mark measured at 2.52 against a bar of 4.5 was found. Beyond axe it asserts exactly one main landmark and one heading per screen, a page title that is not the landing page’s, and Estonian marked so a screen reader does not read it with English phonics."), {
+              suite: suite("a11y-check.mjs"),
+            })}
+          </li>
+          <li>
+            {rich(t("**axe at 768 pixels as well.** {suite} sweeps every route at 768 wide in both themes too, which is where the navigation rail appears and the content column is at its narrowest."), {
               suite: suite("a11y-check.mjs"),
             })}
           </li>
@@ -133,6 +138,12 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
           {rich(t("**The timed practice round can be set to run longer** (WCAG 2.2.1, Timing Adjustable). The daily quest is two minutes to start with, and one setting stretches it up to ten times as long, which is the figure the criterion asks for. It is chosen before the round starts, in Settings, and the start screen links to it."))}
         </P>
         <P>
+          {rich(t("**Single-key shortcuts can be turned off** (WCAG 2.1.4, Character Key Shortcuts). One setting, in Settings and on the shortcut sheet, stops every letter, digit and symbol key from doing anything, and every action they did is still a button."))}
+        </P>
+        <P>
+          {rich(t("**A clip plays on its own only when it is under three seconds** (WCAG 1.4.2, Audio Control). A longer one waits for a press, and Settings turns playing on its own off altogether. A conversation somebody chose to hear rather than read plays its lines because they asked for that."))}
+        </P>
+        <P>
           {rich(t("**No audit by a person with a disability using assistive technology has been commissioned.** No screen reader user has been paid to test this, and there has been no third-party accessibility audit. Automated tools find perhaps a third of what is wrong with a page, and the third they find is the mechanical third."))}
         </P>
       </S>
@@ -152,23 +163,17 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
             {rich(t("**Speaking is heard by a machine** on the device, which says which words came across and never how they sounded. It is new and has not been measured on learners' own voices yet. Every step of the Speaking round can be answered by typing, so a learner with no microphone, or who would rather not use one, still has a way through it."))}
           </li>
           <li>
-            {rich(t("**axe is swept at two widths, not at every width.** It runs at 1280 and at 390, which is either side of the one breakpoint that swaps the navigation, so the phone bar and the sheet behind it are covered now. The widths between them, 360, 430 and 768, are measured for targets, overflow and containment and are not swept by axe. A fault in markup that appears at one of those and at neither of these would be found by a person rather than by the build."))}
+            {rich(t("**axe is swept at three widths, not at every width.** It runs at 1280, 768 and 390, in both themes. The widths between them, 360 and 430, are measured for targets, overflow and containment and are not swept by axe, so a fault in markup at one of those alone would be found by a person rather than by the build."))}
           </li>
           <li>
             {rich(t("**Screens behind data are less covered.** The automated sweep sees each page as it loads, plus one state a learner has to reach by doing something. A class roster with students in it, an examination part in progress and the puzzle grids in play are all reachable and all less tested than the pages around them."))}
           </li>
           <li>
-            {rich(t("**Single-key shortcuts cannot be turned off** (WCAG 2.1.4, Character Key Shortcuts). A round answers a number to grade a card or B to look back, which helps on a keyboard and can be set off by speech input saying one letter. There is no setting yet to turn them off."))}
-          </li>
-          <li>
-            {rich(t("**Some decorative letters keep moving** (WCAG 2.2.2, Pause, Stop, Hide). The four letters on the landing page’s case card wander for as long as the page is open. They stop for anybody whose system asks for reduced motion, and there is no control on the page itself."))}
-          </li>
-          <li>
-            {rich(t("**A word plays on its own when a card appears** (WCAG 1.4.2, Audio Control). Settings turns that off, and a clip is one word or one sentence, but nothing checks that every clip is under three seconds."))}
+            {rich(t("**Some decoration still loops** (WCAG 2.2.2, Pause, Stop, Hide). The letters on the landing page’s case card rest after five seconds now. The headline’s color sweep, the glow behind its word and the mascot’s idle movement still loop, and stop only for anybody whose system asks for reduced motion."))}
           </li>
         </ul>
         <P>
-          {t("Where a limitation above is ours rather than one the exercise requires, it is on the list to fix. The practice clocks were the first and are adjustable now, and the phone sweep was the second: it used to be on this list and it runs in the build. The examination clock stays, for the reason beside it.")}
+          {t("Where a limitation above is ours rather than one the exercise requires, it is on the list to fix. The practice clocks, the phone sweep, the single-key shortcuts, the clips that played whatever their length and the landing page’s letters were all on this list and are fixed now. The examination clock stays, for the reason beside it.")}
         </P>
       </S>
 
@@ -211,7 +216,7 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
 
       <S title={t("When this was prepared")}>
         <P>
-          {t("Prepared on 5 September 2026 by the people who wrote the app, from the automated suites described above and from reading the source, and the table of criteria was added on 15 October 2026. It is reviewed whenever a screen changes enough to move one of the claims on it. There has been no external review.")}
+          {t("Prepared on 5 September 2026 by the people who wrote the app, from the automated suites described above and from reading the source. The table of criteria was added on 15 October 2026, and three failures were fixed and moved on 24 October 2026. It is reviewed whenever a screen changes enough to move one of the claims on it. There has been no external review.")}
         </P>
       </S>
 
@@ -238,7 +243,15 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
 
       <S title={t("If that gets you nowhere")}>
         <P>
-          {rich(t("The enforcement route for accessibility in Estonia runs through the state authority responsible for the Web Accessibility Directive, and a complaint about how personal data is handled goes to the **{authority}** ({local}), {address}, {email}. Do write to us first, though. A real person reads it, and a fix is usually quicker than a complaint."), {
+          {rich(t("The enforcement route for accessibility in Estonia runs through the **{a11y}** ({a11yLocal}), {a11yAddress}, {a11yPhone}, which supervises the accessibility of public sector websites and apps."), {
+            a11y: tr(locale, ACCESSIBILITY_AUTHORITY.name),
+            a11yLocal: ACCESSIBILITY_AUTHORITY.localName,
+            a11yAddress: ACCESSIBILITY_AUTHORITY.address,
+            a11yPhone: ACCESSIBILITY_AUTHORITY.phone,
+          })}
+        </P>
+        <P>
+          {rich(t("A complaint about how personal data is handled goes to the **{authority}** ({local}), {address}, {email}. Do write to us first, though. A real person reads it, and a fix is usually quicker than a complaint."), {
             authority: tr(locale, SUPERVISORY_AUTHORITY.name, "to"),
             local: SUPERVISORY_AUTHORITY.localName,
             address: SUPERVISORY_AUTHORITY.address,

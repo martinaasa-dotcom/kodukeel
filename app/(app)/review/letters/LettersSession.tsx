@@ -1,5 +1,7 @@
 "use client";
 
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { useT } from "@/components/Locale";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { fill } from "@/lib/copy/locale";
@@ -262,6 +264,9 @@ function Board({ word, streak, correct, onSettled, onNext }: {
     setPlaced((p) => (p.length > floor ? p.slice(0, -1) : p));
   }, [answered, shaking, busy, misses]);
 
+  // A typed letter places a tile from anywhere on the page, so it answers to
+  // the single-key setting (lib/ux/shortcuts.ts); the tiles are still buttons.
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (answered) {
@@ -269,6 +274,7 @@ function Board({ word, streak, correct, onSettled, onNext }: {
         return;
       }
       if (e.key === "Backspace") { e.preventDefault(); takeBack(); return; }
+      if (!mayActOnKey(e, singleKeys)) return;
       if (e.key.length === 1 && !e.metaKey && !e.ctrlKey && !e.altKey) {
         const tile = tileForKey(tiles, used, e.key);
         if (tile) { e.preventDefault(); place(tile); }
@@ -276,7 +282,7 @@ function Board({ word, streak, correct, onSettled, onNext }: {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [answered, onNext, takeBack, tiles, used, place]);
+  }, [answered, onNext, takeBack, tiles, used, place, singleKeys]);
 
   return (
     <div

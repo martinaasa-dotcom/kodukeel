@@ -1,6 +1,8 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { Meaning } from "@/components/Meaning";
 import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 import { fill } from "@/lib/copy/locale";
@@ -169,6 +171,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
     setIndex((i) => i + 1);
   }, [answered, card, look, t]);
 
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (finished) return;
@@ -178,6 +181,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
         if (isAdvanceKey(e)) { e.preventDefault(); look.forward(); }
         return;
       }
+      if (!mayActOnKey(e, singleKeys)) return;
       if (e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (answered) {
         if (isAdvanceKey(e)) { e.preventDefault(); next(); }
@@ -188,7 +192,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [finished, answered, card, pick, next, look]);
+  }, [singleKeys, finished, answered, card, pick, next, look]);
 
   if (wasEmptyAtStart) {
     return (

@@ -1,6 +1,8 @@
 "use client";
 
 import { EnterKeyCap } from "@/components/KeyCaps";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
 import { shuffle } from "@/lib/random/shuffle";
@@ -241,6 +243,7 @@ export function SentenceSession(
   /* Once the sentence is marked, Enter or Space is "next", as on every other
      round. The tiles are buttons, so before the mark a Space on a focused tile
      is the browser pressing that tile and is left to it. */
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (look.looking) {
@@ -248,13 +251,14 @@ export function SentenceSession(
         if (isAdvanceKey(e)) { e.preventDefault(); look.forward(); }
         return;
       }
+      if (!mayActOnKey(e, singleKeys)) return;
       if (e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (!checked) return;
       if (isAdvanceKey(e)) { e.preventDefault(); next(); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [checked, look, next]);
+  }, [singleKeys, checked, look, next]);
 
   if (initialTasks.length === 0) {
     return (
