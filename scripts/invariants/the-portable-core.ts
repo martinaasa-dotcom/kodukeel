@@ -46,9 +46,10 @@ const ENTRY_FILES = [
   "lib/copy/locale.ts",
   "lib/srs/scheduler.ts",
   "lib/review/card.ts",
+  "lib/links/routes.ts",
 ];
 /** Entries still being written, without their extension; each joins the walk the day it exists. */
-const ENTRIES_TO_COME = ["lib/api/contract", "lib/links/routes"];
+const ENTRIES_TO_COME = ["lib/api/contract"];
 
 /** The packages the portable core may reach, each a decision rather than an accident. */
 const PACKAGES = new Set(["ts-fsrs", "zod"]);

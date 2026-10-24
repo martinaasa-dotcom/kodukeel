@@ -78,7 +78,7 @@ reached the fault. The fix is always to move the browser or server half out, nev
 | `lib/copy/locale.ts` | `tr`, `fill` and the counted nouns, over the interface tables |
 | `lib/srs/scheduler.ts` | The ratings and the scheduler's own vocabulary, over `ts-fsrs` |
 | `lib/review/card.ts` | A review card as the server sends it, and the cached session a device keeps |
-| `lib/links/routes.ts` (to be written) | Which web paths a native screen answers (R-4, section 3) |
+| `lib/links/routes.ts` | Which web paths a native screen answers (R-4, section 3) |
 | `lib/api/contract.ts` (to be written) | The v1 contract (N-1), in the walk from the day the file exists |
 
 Today the walk reaches about 290 files. The packages it may reach are `ts-fsrs` and `zod`; a third is a
@@ -149,6 +149,35 @@ of its own under the same booking in `EmailSend` (section 6).
 Signing in is the other half: Supabase Auth issues the same tokens to a native client, and the routes
 above read them as a bearer header where the web reads the cookie. `lib/auth/identity.ts` is where that
 choice is made today.
+
+### Which link opens which screen (R-4)
+
+A native app meets links it did not make: a letter's button, the path a notification carries, an
+address somebody shared. `lib/links/routes.ts` is the one table of where each opens on a phone, and
+`resolveLink(path)` reads it, first row wins:
+
+| Web path | On a phone |
+| --- | --- |
+| `/course`, `/course/learn`, `/course/lessons`, `/learn` | Today's screen. At A1 that is a lesson; above it, the web (D15). The table names the screen and `/api/v1/today` says which |
+| `/course/lessons/[id]` | The lesson |
+| `/review` | The review |
+| `/situations/[id]` | A conversation |
+| `/dictionary` | The dictionary, or an entry where the link carries `?q=` |
+| `/progress` | Progress |
+| `/settings` | Settings, with the link's query (`?tab=account`) handed over |
+| `/auth/callback`, `/sign-in` | Signing in |
+| Everything else the web has | The browser, until the native work order moves it |
+
+There is no row that matches every path. A path no row matches resolves to null, and
+`lib/links/routes.test.ts` fails on any page route under `app/`, any link a letter builds and any path
+a notification carries that resolves to null, so a new letter cannot link to a path nobody decided.
+Moving a screen to the phone is a change to that table and nothing else. The first candidates are the
+part check (`/course/check/[id]`) and today's chat (`/course/chat`), which the first day of an A1
+learner reaches.
+
+The app-link files (N-3's `apple-app-site-association` and `assetlinks.json`) claim only
+`/auth/callback` until a native app exists, so a sign-in link opens it. From the day it ships they claim
+the paths this table marks native, and no others, so a link the app cannot answer stays in the browser.
 
 ## 4. What a native app can do that the web cannot
 
