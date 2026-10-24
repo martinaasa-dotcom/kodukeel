@@ -25,7 +25,7 @@ interface VerbFormName {
 export const VERB_FORM_NAMES: Readonly<Record<VerbForm, VerbFormName>> = {
   MA: { et: "ma-tegevusnimi", hint: { en: "-ma", ru: "-ma", uk: "-ma" } },
   DA: { et: "da-tegevusnimi", hint: { en: "-da", ru: "-da", uk: "-da" } },
-  PRESENT: { et: "olevik", hint: { en: "present", ru: "настоящее", uk: "теперішній" } },
+  PRESENT: { et: "olevik", hint: { en: "-n, -d, -b...", ru: "-n, -d, -b...", uk: "-n, -d, -b..." } },
   NEGATIVE: { et: "eitav", hint: { en: "not", ru: "не", uk: "не" } },
   PAST: { et: "lihtminevik", hint: { en: "past", ru: "прошлое", uk: "минуле" } },
   PERFECT: { et: "täisminevik", hint: { en: "have done", ru: "сделал", uk: "зробив" } },
@@ -39,44 +39,41 @@ export const VERB_FORM_NAMES: Readonly<Record<VerbForm, VerbFormName>> = {
   IMPERSONAL: { et: "umbisikuline", hint: { en: "-takse, people do", ru: "-takse, делают", uk: "-takse, роблять" } },
 };
 
-/** The six persons a verb is said in, and what each pronoun means. */
-export const PERSON_HINTS: Readonly<Record<"ma" | "sa" | "ta" | "me" | "te" | "nad", Readonly<Record<Locale, string>>>> = {
-  ma: { en: "I", ru: "я", uk: "я" },
-  sa: { en: "you", ru: "ты", uk: "ти" },
-  ta: { en: "he/she", ru: "он/она", uk: "він/вона" },
-  me: { en: "we", ru: "мы", uk: "ми" },
-  te: { en: "you all", ru: "вы", uk: "ви" },
-  nad: { en: "they", ru: "они", uk: "вони" },
+/**
+ * The six persons a verb is said in, and the ending the present takes in each:
+ * the hint of "olevik, ta (-b)". An ending rather than a pronoun's meaning,
+ * because the pronoun is already in the name and the ending is the thing a
+ * learner has to produce; it is also what tells olevik apart from the -ma and
+ * -da forms, which never change with the person. `olema` says `on` rather than
+ * `ob`, which is the one verb the hint is not true of, the way `tuppa` is the
+ * word "sisseütlev (-sse)" is not true of.
+ */
+export const PERSON_ENDINGS: Readonly<Record<"ma" | "sa" | "ta" | "me" | "te" | "nad", string>> = {
+  ma: "-n", sa: "-d", ta: "-b", me: "-me", te: "-te", nad: "-vad",
 };
 
-export type Person = keyof typeof PERSON_HINTS;
+export type Person = keyof typeof PERSON_ENDINGS;
 
-/** "I form", "he/she form": what the present is called in a person, in each language. */
-const PERSON_FORM: Readonly<Record<Locale, (pronoun: string) => string>> = {
-  en: (p) => `${p} form`,
-  ru: (p) => `форма «${p}»`,
-  uk: (p) => `форма «${p}»`,
-};
+/** "I form": what the present said with `ma` is called, the form every verb is learned by. */
+const I_FORM: Readonly<Record<Locale, string>> = { en: "I form", ru: "форма «я»", uk: "форма «я»" };
 
 /**
  * A verb form's name on a screen: "lihtminevik (past)", and with a person
- * "lihtminevik, ta (past, he/she)". The person is the pronoun a class names it
- * by, after a comma, and its meaning joins the hint. Two shapes are the
- * operator's own: the present is named by its person, "olevik (I form)", since
- * the I form is the one every verb is learned by, and the others follow it,
- * "olevik, ta (he/she form)"; and a command already says who is told.
+ * "lihtminevik, ta (past)". The person is the pronoun a class names it by,
+ * after a comma, and the hint says what the form is rather than repeating who.
+ * Two shapes are the operator's own: the present with `ma` is "olevik (I form)",
+ * since that is the form every verb is learned by, and the other persons carry
+ * their own ending, "olevik, ta (-b)"; with no person the present lists them,
+ * "olevik (-n, -d, -b...)", which is what sets it apart from the -ma and -da
+ * forms. A command already says who is told.
  */
 export function verbFormName(form: VerbForm, locale: Locale = "en", person?: Person): string {
   const name = VERB_FORM_NAMES[form];
   if (!person) return `${name.et} (${name.hint[locale]})`;
   if (form === "PRESENT") {
-    const shape = PERSON_FORM[locale](PERSON_HINTS[person][locale]);
-    return person === "ma" ? `${name.et} (${shape})` : `${name.et}, ${person} (${shape})`;
+    return person === "ma" ? `${name.et} (${I_FORM[locale]})` : `${name.et}, ${person} (${PERSON_ENDINGS[person]})`;
   }
-  // A command is named by who is told, `sa` or `te`, and the hint already
-  // says which: "käskiv kõneviis, te (-ge, polite command)".
-  if (form === "COMMAND" || form === "POLITE_COMMAND") return `${name.et}, ${person} (${name.hint[locale]})`;
-  return `${name.et}, ${person} (${name.hint[locale]}, ${PERSON_HINTS[person][locale]})`;
+  return `${name.et}, ${person} (${name.hint[locale]})`;
 }
 
 /** The same name in all three languages, for a table that is not handed a locale. */
