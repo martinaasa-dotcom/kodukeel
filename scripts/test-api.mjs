@@ -29,7 +29,7 @@ const B = baseUrl();
 const published = JSON.parse(readFileSync("public/api/v1.schema.json", "utf8"));
 
 // Floor: measured against a local-mode build, which is what the browser job runs.
-const { check, absent, done } = suite("The v1 API", { floor: 10 });
+const { check, absent, done } = suite("The v1 API", { floor: 13 });
 
 async function call(method, path, { body, headers = {} } = {}) {
   const res = await fetch(`${B}${path}`, {
@@ -91,6 +91,17 @@ const preflight = await fetch(`${B}/api/v1/meta`, {
   headers: { origin: "https://elsewhere.example", "access-control-request-method": "GET", "access-control-request-headers": "authorization" },
 });
 check("no CORS grant is ever sent, so another site's page cannot read a v1 answer", preflight.headers.get("access-control-allow-origin") === null);
+
+// ── GET /api/v1/me ───────────────────────────────────────────────────────────
+
+if (!hosted) {
+  const me = await call("GET", "/api/v1/me");
+  check("me answers the local learner on a local install", me.status === 200 && me.json?.id === "local-single-user", `status ${me.status}`);
+  check("me fits its published schema", misfit("GET /api/v1/me", me.json) === "", misfit("GET /api/v1/me", me.json));
+  check("me is never kept", me.headers.get("cache-control") === "no-store");
+} else {
+  absent(3, "a signed-in token, which a hosted deployment needs and this suite does not mint (the 401 below is checked instead)");
+}
 
 // ── Every route that needs a token refuses without one ────────────────────────
 

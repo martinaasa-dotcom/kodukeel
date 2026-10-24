@@ -110,6 +110,19 @@ export const MetaResponse = z.object({
 
 export type MetaResponse = z.infer<typeof MetaResponse>;
 
+// ── GET /api/v1/me ──────────────────────────────────────────────────────────
+
+export const MeResponse = z.object({
+  id: z.string(),
+  /** The name the sign-in provider gave, the email's local part, or "you". */
+  name: z.string(),
+  email: z.string().nullable(),
+  /** The interface language this learner reads the app in. */
+  locale: InterfaceLanguage,
+}).describe("Who the token belongs to.");
+
+export type MeResponse = z.infer<typeof MeResponse>;
+
 // ── The routes that have shipped ────────────────────────────────────────────
 
 export const SHIPPED_ROUTES: readonly RouteSpec[] = [
@@ -121,5 +134,14 @@ export const SHIPPED_ROUTES: readonly RouteSpec[] = [
     item: "N-1",
     response: MetaResponse,
     example: "get-meta.json",
+  },
+  {
+    method: "GET",
+    path: "/api/v1/me",
+    auth: true,
+    summary: "Who the token belongs to, and the language they read the app in.",
+    item: "N-2",
+    response: MeResponse,
+    example: "get-me.json",
   },
 ];

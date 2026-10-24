@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { InterfaceLanguage, type RouteSpec } from "./contract";
+import { InterfaceLanguage, MeResponse, type RouteSpec } from "./contract";
 
 /**
  * DRAFT. THE ROUTES THAT ARE PLANNED AND NOT BUILT, AND THE SHAPES THEY ARE
@@ -103,14 +103,8 @@ export const DraftCheckResult = z.object({
   marks: z.array(z.enum(["right", "nearly", "wrong"])),
 });
 
-// ── N-2 and N-8: who is asking, and the account ─────────────────────────────
+// ── N-8: the account ─────────────────────────────
 
-export const DraftMeResponse = z.object({
-  id: z.string(),
-  name: z.string(),
-  email: z.string().nullable(),
-  locale: InterfaceLanguage,
-});
 export const DraftMePatchRequest = z.object({
   level: z.enum(["A1", "A2", "B1", "B2", "C1"]).optional(),
   dailyGoal: z.number().int().min(1).max(500).optional(),
@@ -203,7 +197,6 @@ export const DraftRecordingsResponse = z.object({
 // ── The planned routes ──────────────────────────────────────────────────────
 
 export const DRAFT_ROUTES: readonly RouteSpec[] = [
-  { method: "GET", path: "/api/v1/me", auth: true, item: "N-2", summary: "Who the token belongs to.", response: DraftMeResponse, example: "get-me.json" },
   { method: "GET", path: "/api/v1/review", auth: true, item: "N-4", summary: "Today's review queue, as the web's review session receives it.", response: DraftReviewResponse, example: "get-review.json" },
   { method: "POST", path: "/api/v1/grades", auth: true, item: "N-4", summary: "One grade or a batch, idempotent by id, as the offline outbox replays them.", request: DraftGradesRequest, response: DraftGradesResponse, example: "post-grades.json" },
   { method: "POST", path: "/api/v1/grades/undo", auth: true, item: "N-4", summary: "A card's scheduling put back; the review log is untouched.", request: DraftUndoRequest, response: DraftUndoResponse, example: "post-grades-undo.json" },
@@ -223,7 +216,7 @@ export const DRAFT_ROUTES: readonly RouteSpec[] = [
   { method: "GET", path: "/api/v1/tts", auth: true, item: "N-6", summary: "A clip read aloud.", query: DraftTtsQuery, response: null, contentType: "audio/wav", example: "get-tts.json" },
   { method: "POST", path: "/api/v1/speech/forms", auth: true, item: "N-6", summary: "Which heard words are Estonian spellings.", request: DraftFormsRequest, response: DraftFormsResponse, example: "post-speech-forms.json" },
   { method: "GET", path: "/api/v1/recordings", auth: false, item: "N-6", summary: "The native speaker's clips and the text each answers for.", response: DraftRecordingsResponse, example: "get-recordings.json" },
-  { method: "PATCH", path: "/api/v1/me", auth: true, item: "N-8", summary: "Settings changed.", request: DraftMePatchRequest, response: DraftMeResponse, example: "patch-me.json" },
+  { method: "PATCH", path: "/api/v1/me", auth: true, item: "N-8", summary: "Settings changed.", request: DraftMePatchRequest, response: MeResponse, example: "patch-me.json" },
   { method: "DELETE", path: "/api/v1/me", auth: true, item: "N-8", summary: "The account deleted.", request: DraftDeleteMeRequest, response: DraftDeleteMeResponse, example: "delete-me.json" },
   { method: "GET", path: "/api/v1/export", auth: true, item: "N-8", summary: "The learner's backup.", response: DraftExportResponse, example: "get-export.json" },
 ];

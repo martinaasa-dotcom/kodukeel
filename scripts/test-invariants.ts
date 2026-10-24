@@ -10035,7 +10035,8 @@ check("a response built out of one learner's own rows is never cacheable", () =>
   };
 
   const routes = ALL.filter((f) => /^app\/api\/.*route\.tsx?$/.test(f));
-  const owned = routes.filter((f) => /requireUserId\(/.test(code(f)));
+  // A v1 route resolves its owner from a bearer token (ADR-029) and is one learner's rows all the same.
+  const owned = routes.filter((f) => /requireUserId\(|requireBearerUser\(/.test(code(f)));
   assert.ok(owned.length >= 9, `only ${owned.length} route handlers resolve an owner, the sweep stopped finding them`);
 
   let responses = 0;
@@ -12919,8 +12920,13 @@ check("a route that spends something is throttled", () => {
              instance, so two invocations cannot both work, a ceiling on how
              many letters one run sends, and a per-learner gap in `EmailSend`
              that a second run reads before it sends anything.
+    me       is `GET /api/v1/me`, the token's own claims and one indexed read
+             of the interface language, which is `reminder`'s argument: a
+             ceiling would be met by an app opening twice and by nobody else.
+             The v1 routes take their limits from the web door they share a
+             body with (D5), and the web reads the same facts with none.
   */
-  const exempt = new Set(["metrics", "reminder", "research", "health", "send"]);
+  const exempt = new Set(["metrics", "reminder", "research", "health", "send", "me"]);
 
   for (const file of routes) {
     const name = file.split(/[\\/]/).slice(-2, -1)[0] ?? file;

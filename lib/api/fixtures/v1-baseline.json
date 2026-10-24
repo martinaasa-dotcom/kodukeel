@@ -1,5 +1,5 @@
 {
-  "$comment": "The schema of every v1 route on the day it shipped (D4). Only ever grows: an entry is added by `npm run api:schema -- --baseline` when a route ships, and no entry is ever edited. lib/api/baseline.test.ts fails on any route or field here that the current schema removed or narrowed.",
+  "$comment": "The schema of every v1 route on the day it shipped (D4). Only ever grows: an entry is added by `npm run api:schema -- --baseline` when a route ships, and no entry is ever edited. lib/api/contract.test.ts fails on any route or field here that the current schema removed or narrowed.",
   "version": 1,
   "routes": {
     "GET /api/v1/meta": {
@@ -246,6 +246,41 @@
           "signIn"
         ],
         "description": "What this installation is, for a native app before it signs in. Nothing about any person."
+      }
+    },
+    "GET /api/v1/me": {
+      "contentType": "application/json",
+      "response": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "en",
+              "ru",
+              "uk"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "locale"
+        ],
+        "description": "Who the token belongs to."
       }
     }
   }

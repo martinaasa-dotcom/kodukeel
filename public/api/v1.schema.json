@@ -306,9 +306,9 @@
       "method": "GET",
       "path": "/api/v1/me",
       "auth": true,
-      "draft": true,
+      "draft": false,
       "item": "N-2",
-      "summary": "Who the token belongs to.",
+      "summary": "Who the token belongs to, and the language they read the app in.",
       "example": "get-me.json",
       "contentType": "application/json",
       "response": {
@@ -340,7 +340,8 @@
           "name",
           "email",
           "locale"
-        ]
+        ],
+        "description": "Who the token belongs to."
       }
     },
     "GET /api/v1/review": {
@@ -1931,7 +1932,8 @@
           "name",
           "email",
           "locale"
-        ]
+        ],
+        "description": "Who the token belongs to."
       }
     },
     "DELETE /api/v1/me": {

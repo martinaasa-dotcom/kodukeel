@@ -379,7 +379,7 @@ The list in `docs/38-third-batch.md` section 3 applies in full. Nine additions:
 
 - **A v1 route reads no cookie.** No v1 route may import `requireUserId`, `viewerId`,
   `currentLearner` or `cookies()`. It resolves the owner through `requireBearerUser` in
-  `lib/auth/bearer.ts` (to be written) or answers 401. N-2 adds the invariant.
+  `lib/auth/bearer.ts` or answers 401. N-2 adds the invariant.
 - **A v1 route holds no logic.** It imports no database client, and every `lib/` function it calls to do
   its work is also called from `app/actions.ts`, a page, or another route the web uses (D2). N-1 adds the
   invariant. Moving a body out of an action is a move, not a rewrite: the web's suites pass unchanged.
@@ -1184,18 +1184,18 @@ the suite, and a native developer can run the mock and see every A1 screen's dat
 the same allowlist, the same three states and the same speed as the web.
 
 **Files.**
-- `lib/auth/bearer.ts` (to be written): `readBearer(request)` returns the same three-state `Identity` as
+- `lib/auth/bearer.ts`: `readBearer(request)` returns the same three-state `Identity` as
   `readIdentity`. It takes the access token from the `Authorization` header and verifies it with
   Supabase's `getClaims(token)` through `boundedTransport`, so the deadline and the "did not answer"
   state are the web's. `isAllowedEmail` runs on every request, so revoking access works as it does on
   the web. `requireBearerUser(request)` answers the route with 401 `unauthenticated`, or 503
   `auth_unavailable` with `Retry-After` (D6), or the owner's id. In local mode (no Supabase keys,
   ADR-013) it returns the local learner, as every web route does there.
-- `lib/auth/bearer.test.ts` (to be written): tokens signed in the test with a generated ES256 key and a
+- `lib/auth/bearer.test.ts`: tokens signed in the test with a generated ES256 key and a
   stubbed key set: a good token, an expired one, one signed by another key, one for an address the
   allowlist refuses, a missing header, a malformed one, and a key set that never answers (the 503).
-- `scripts/invariants/v1-reads-no-cookie.ts` (to be written): section 3's first rule.
-- `app/api/v1/me/route.ts` (to be written), `GET` only for now: who the token belongs to (id, name, email,
+- `scripts/invariants/v1-reads-no-cookie.ts`: section 3's first rule.
+- `app/api/v1/me/route.ts`, `GET` only for now: who the token belongs to (id, name, email,
   interface language). It is the smallest route that proves the door, and N-8 widens it.
 - `scripts/test-security.mjs`: in hosted mode, every v1 route except meta answers 401 with no token and
   with a valid web cookie and no token; in local mode the check is waived naming the mode, as that suite

@@ -1061,7 +1061,7 @@ in a store outlives every deploy after it. *Decision:* `docs/44-sixth-batch.md`'
   client, and every `lib/` name it calls is one a web file calls too
   (`scripts/invariants/one-body-two-doors.ts`).
 - **Bearer only** (D3). A v1 route reads `Authorization: Bearer <access token>` through
-  `requireBearerUser`, in `lib/auth/bearer.ts` (to be written), and never a cookie, so a stolen cookie drives nothing and
+  `requireBearerUser`, in `lib/auth/bearer.ts`, and never a cookie, so a stolen cookie drives nothing and
   the forged-request argument stays true. No CORS headers are sent, so another site's page cannot
   call a v1 route at all. The middleware lets `/api/v1/` through to gate itself.
 - **Written down and only ever widened** (D4). The path carries the version. Every request and
