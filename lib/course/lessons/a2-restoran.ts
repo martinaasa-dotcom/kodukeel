@@ -60,7 +60,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Take the I form, drop the -n, and add -ksin, -ksid, -ks, -ksime, -ksite, -ksid: {võta} and then {võtaksin}, {võtaks}.",
+        "Take the [olevik] (I form), drop the -n, and add -ksin, -ksid, -ks, -ksime, -ksite, -ksid: {võta} and then {võtaksin}, {võtaks}.",
         "{Kas me võiksime...?} is could we, the softest way to ask for something. A waiter says {Kas te sooviksite...?}",
         "To be has it too: {See oleks tore} is that would be nice.",
       ],

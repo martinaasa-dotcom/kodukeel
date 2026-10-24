@@ -300,7 +300,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Panema} is to put, {tooma} to bring here, and {viima} to take somewhere else.",
-        "Their commands are the I form without -n: {pane}, {too}, {vii}.",
+        "Their commands are the [olevik] (I form) without -n: {pane}, {too}, {vii}.",
         "{Tool tuleb siia} means the chair goes here: {tulema} is come, and also where a thing belongs.",
       ],
       watchOut: "{Too} comes towards you and {vii} goes away: {too siia}, {vii sinna}.",

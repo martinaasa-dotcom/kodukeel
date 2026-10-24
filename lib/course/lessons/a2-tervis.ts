@@ -78,7 +78,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
       notes: [
         "When more than one thing hurts, the verb says so too: {Mul valutab pea}, but {Mul valutavad jalad}.",
         "{Käsi} is a hand and an arm, and {jalg} a foot and a leg. Estonian doesn't split them.",
-        "{Sa pead puhkama} is you need to rest: {pidama} and then the -ma form, as in A1.",
+        "{Sa pead puhkama} is you need to rest: {pidama} and then the [ma-tegevusnimi] (-ma), as in A1.",
       ],
       watchOut: "Don't guess the plural from the word you look up. {Hammas} is {hambad}, never hammasd: find the stem first, then add -d.",
       examples: [1, 4, 5],
@@ -316,7 +316,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Careful: {pidama} takes the -ma form ({pean olema}), while {võima} and {tohtima} take the -da form ({võin minna}).",
+        "Careful: {pidama} takes the [ma-tegevusnimi] (-ma) ({pean olema}), while {võima} and {tohtima} take the [da-tegevusnimi] (-da) ({võin minna}).",
         "{Ei tohi} is mustn't, the strongest no a doctor gives. {Ei pea} is only don't have to.",
         "{Ärge} is {ära} to two people or politely, and the command after it is the polite one too: {Ärge minge!}",
       ],

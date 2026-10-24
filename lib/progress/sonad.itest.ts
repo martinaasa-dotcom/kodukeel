@@ -113,9 +113,10 @@ describe("a learner the module holds", () => {
   const HELD = "itest-owner-puzzle-held";
   const ARRIVED = "itest-owner-puzzle-arrived";
   const day = "2027-03-10" as DayKey;
-  /* A1 is the lessons, one step an evening (docs/43-lessons.md, P3); these readings are about an evening of units. */
+  /* A1 and A2 are the lessons, one step an evening (docs/43-lessons.md, P3 and §9); these readings are about an evening of units. */
   const programme = PROGRAMMES.find((p) => !p.days.some((d) => d.lesson))!;
-  const reached = programme.days.find((d) => d.index === 18)!;
+  /* Its next-to-last evening, so the one after it is there to tick today. */
+  const reached = programme.days[programme.days.length - 2]!;
 
   async function clear() {
     await prisma.courseStep.deleteMany({ where: { ownerId: { in: [HELD, ARRIVED] } } });
@@ -134,7 +135,7 @@ describe("a learner the module holds", () => {
     });
     const taught = new Set(taughtThrough(programme, reached.index));
     const word = await puzzleFor(HELD, day, "B1");
-    expect(word, "a module learner eighteen evenings in has a six-letter word to guess").not.toBeNull();
+    expect(word, "a module learner most of a part in has a six-letter word to guess").not.toBeNull();
     expect(taught.has(word!.answer)).toBe(true);
     expect(word!.met, "drawn from what the evenings taught").toBe(true);
     // A tick written today is a word met today, and the day's word does not move for it.

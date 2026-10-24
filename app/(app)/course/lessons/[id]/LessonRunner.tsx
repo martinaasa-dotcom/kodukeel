@@ -393,7 +393,7 @@ function kindOf(item: Taught, t: (english: string) => string): string | null {
   if (item.kind === "phrase") return item.et.includes(" ") ? t("phrase") : null;
   /* The omastav and the past are forms that more are built on (A2), so they say which. */
   if (item.kind === "form" && item.stem) return fill(t("omastav (2nd form) of {lemma}: the endings go on it"), { lemma: item.of });
-  if (item.kind === "form" && item.past) return fill(t("lihtminevik (past), I form, of {lemma}"), { lemma: item.of });
+  if (item.kind === "form" && item.past) return fill(t("lihtminevik, ma (past, I did), of {lemma}"), { lemma: item.of });
   if (item.kind === "form") return fill(t("a form of {lemma}"), { lemma: item.of });
   if (item.kind === "verb") return t("a verb: its ma-tegevusnimi (-ma) and olevik (I form)");
   return null;

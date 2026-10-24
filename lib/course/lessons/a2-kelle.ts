@@ -24,7 +24,7 @@ export const A2_KELLE_PART: PartOfLessons = {
   id: "a2-kelle",
   level: "A2",
   title: "Whose and where",
-  about: "The omastav (2nd form): whose things are, which one, where things stand, and the dates.",
+  about: "The [omastav] (2nd form): whose things are, which one, where things stand, and the dates.",
 };
 
 export const A2_KELLE_LESSONS: readonly LessonSpec[] = [

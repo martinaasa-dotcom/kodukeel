@@ -225,7 +225,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "hotelli", of: "hotell", en: "of the hotel", stem: true },
     ],
     how: {
-      point: "A trip told afterwards is part three again: {sõitsime}, {ööbisite}, {käisime}. Learn the I form and the he-and-she form, and the rest follow.",
+      point: "A trip told afterwards is part three again: {sõitsime}, {ööbisite}, {käisime}. Learn the [olevik] (I form) and the he-and-she form, and the rest follow.",
       table: {
         head: ["I", "He, she", "We"],
         rows: [

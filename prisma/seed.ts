@@ -219,7 +219,7 @@ async function main() {
     if (existing > 0) {
       console.log(`Dictionary already has ${existing} entries. Leaving it alone.`);
       /*
-        The A1 lessons' own entries, which an existing deployment needs as much
+        The lessons' own entries, A1's and A2's, which an existing deployment needs as much
         as a new one: a phrase or a chunk the course harvest does not head
         (`Tere päevast!`, `hommikul`), so a finished lesson has a card to hand
         the deck for it (lib/course/lessonHeads.ts). Here rather than above the
@@ -399,7 +399,7 @@ async function main() {
     console.log(`Added ${expanded.added} entries and ${expanded.forms} forms from Ekilex and Wiktionary.`);
   }
 
-  /* The A1 lessons' own entries, last, so they never stand beside one the dictionary already heads. */
+  /* The lessons' own entries, last, so they never stand beside one the dictionary already heads. */
   await reportLessonEntries(prisma);
 
   await clearDuplicatedNotes(prisma);
@@ -408,7 +408,7 @@ async function main() {
 
 async function reportLessonEntries(client: PrismaClient): Promise<void> {
   const added = await writeLessonEntries(client);
-  if (added > 0) console.log(`Added ${added} entries the A1 lessons teach.`);
+  if (added > 0) console.log(`Added ${added} entries the lessons teach.`);
 }
 
 /**

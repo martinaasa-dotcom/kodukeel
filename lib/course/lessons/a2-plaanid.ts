@@ -49,7 +49,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "puhkust", of: "puhkus", en: "time off, as some of it" },
     ],
     how: {
-      point: "Going to do is {hakkama} and the -ma form: {Ma hakkan töötama}, I'm starting to work. Planning to is {kavatsema} and the -da form: {Ma kavatsen minna}.",
+      point: "Going to do is {hakkama} and the [ma-tegevusnimi] (-ma): {Ma hakkan töötama}, I'm starting to work. Planning to is {kavatsema} and the [da-tegevusnimi] (-da): {Ma kavatsen minna}.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -60,10 +60,10 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "Estonian has no will. The present does most of it: {Homme ma lähen}, I'll go tomorrow. {Hakkan} is for starting something new.",
-        "{Hakkama} takes the -ma form, like {pidama}. {Kavatsema} takes the -da form, like {tahtma}.",
+        "{Hakkama} takes the [ma-tegevusnimi] (-ma), like {pidama}. {Kavatsema} takes the [da-tegevusnimi] (-da), like {tahtma}.",
         "{Sinu tundi} is to your class: {tund} is an hour and a lesson both.",
       ],
-      watchOut: "{Ma hakkan minema} is I'm about to leave. It's the -ma form after {hakkama}, every time.",
+      watchOut: "{Ma hakkan minema} is I'm about to leave. It's the [ma-tegevusnimi] (-ma) after {hakkama}, every time.",
       examples: [1, 3, 4],
     },
     answers: [
