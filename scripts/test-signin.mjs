@@ -808,7 +808,13 @@ const below = await applePage.evaluate(() => {
 check("and sits beside Google, above the mailed link", below);
 
 await appleButton.click();
-await applePage.getByRole("alert").waitFor({ timeout: 10_000 }).catch(() => {});
+/*
+  The form's own alert, found by what it says: Next mounts a route announcer
+  with the same role, so a bare role locator matches two elements, and in
+  strict mode that throws before any text is read.
+*/
+const appleRefusal = applePage.getByRole("alert").filter({ hasText: /Test refusal/ });
+await appleRefusal.first().waitFor({ timeout: 10_000 }).catch(() => {});
 const post = tokenPosts[0];
 const nonceAgrees = post?.body?.nonce && init
   ? await applePage.evaluate(async ({ raw, hashed }) => {
@@ -822,7 +828,7 @@ check("a press hands Supabase Apple's token as the apple provider",
   JSON.stringify(post?.body ?? null));
 check("with the raw nonce whose hash Apple was given, so a replayed token is refused", nonceAgrees);
 check("and a refusal says so in a sentence rather than leaving the button pending",
-  /Test refusal/.test(await applePage.getByRole("alert").innerText().catch(() => "")));
+  (await appleRefusal.count()) === 1);
 await applePage.waitForFunction(() => window.__apple.inits.length > 1, null, { timeout: 5_000 }).catch(() => {});
 check("and the next try gets a fresh nonce, since one is good for one attempt",
   await applePage.evaluate(() => window.__apple.inits.length > 1
