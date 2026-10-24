@@ -52,6 +52,8 @@ import { appRoutes } from "./lib/routes.mjs";
 
 const ENGINE = engineName();
 const B = baseUrl();
+/* The server's own host, so a fetch of its own file cut short is told apart from a fault. */
+const OWN_HOST = new URL(B).host;
 const OWNER = "local-single-user";
 const ROUTES = appRoutes();
 /*
@@ -438,9 +440,11 @@ try {
          being gone, and WebKit reports each one to the page as an error: a
          chunk, a font subset or a word's recording the page first asked for
          while offline, which arrives as nothing but its URL. What is asked is
-         that the app's own code threw nothing. */
+         that the app's own code threw nothing. The server's own host is read
+         off the base URL rather than typed: CI serves on 127.0.0.1, where a filter
+         that knew only `localhost` read two font subsets as the app's fault. */
       const own = errors.filter((e) => !/Load failed|Cannot load|respondWith received an error|access control checks|internal error/.test(e)
-        && !/^threw: \S*localhost:\d+\/\S+$/.test(e));
+        && !(e.startsWith("threw: ") && /^\S+$/.test(e.slice(7)) && e.includes(`${OWN_HOST}/`)));
       check("nothing threw offline", own.length === 0, own.slice(0, 2).join(" | "));
     }
     await context.close();
