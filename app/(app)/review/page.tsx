@@ -1,6 +1,4 @@
 import { meaningPrefsFrom } from "@/lib/collections/glossLanguage";
-import { learnerDayClock } from "@/lib/progress/dayClock";
-import { nextCardLine } from "@/lib/time/day";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { unitById } from "@/lib/collections/syllabus";
@@ -10,9 +8,9 @@ import { readSettings, reviewModeFrom, SETTING_KEYS } from "@/lib/settings/store
 import { ReviewSession } from "./ReviewSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { moduleScopeFrom } from "@/lib/course/scope";
-import { meetingFirst, notOnLadder, pastTheLadder } from "@/lib/srs/reviewQueue";
-import { include, withChoices } from "./cards";
-import { reviewQueue } from "./queue";
+import { meetingFirst, notOnLadder } from "@/lib/srs/reviewQueue";
+import { include, withChoices } from "@/lib/progress/reviewCards";
+import { dailyReview } from "@/lib/progress/dailyQueue";
 import { firstParams } from "@/lib/ux/queryParam";
 import { localeFor, roundTitleFor } from "@/lib/progress/locale";
 
@@ -82,9 +80,13 @@ export default async function ReviewPage({
   // Started here and awaited where it is read, so the one settings row rides
   // beside the deck reads below rather than in front of them. On a hosted
   // database that is a round trip off the daily path.
-  const settingsPromise = readSettings(ownerId, [
-    SETTING_KEYS.reviewMode, SETTING_KEYS.glossLanguage, SETTING_KEYS.glossAlso,
-  ]);
+  // On a drill only: the daily path below reads its own, inside `dailyReview`,
+  // and a promise started here and never awaited there is a rejection nobody
+  // is holding.
+  const drilling = Boolean(targetCase || unitId || scanId);
+  const settingsPromise = drilling
+    ? readSettings(ownerId, [SETTING_KEYS.reviewMode, SETTING_KEYS.glossLanguage, SETTING_KEYS.glossAlso])
+    : Promise.resolve({} as Awaited<ReturnType<typeof readSettings>>);
   const modeChosen = async () => reviewModeFrom((await settingsPromise)[SETTING_KEYS.reviewMode]);
   /*
     Which language a meaning leads in, on every card rather than on the first
@@ -199,66 +201,16 @@ export default async function ReviewPage({
   }
 
   /*
-    THE SITTING IS `./queue.ts`'s, which Today and Practice count too, so the
-    number on the button that brought somebody here is the number of cards
-    they are about to be asked. See that file's header for what two readings
-    of one queue cost. Due first, then a capped trickle of new cards: uncapped
-    new cards is the classic way an SRS becomes an unsustainable workload
-    three weeks in.
+    THE SITTING IS `lib/progress/dailyQueue.ts`'s, which Today and Practice
+    count too, so the number on the button that brought somebody here is the
+    number of cards they are about to be asked, and `dailyReview` there is what
+    this screen and `GET /api/v1/review` are both handed (ADR-029). Due first,
+    then a capped trickle of new cards: uncapped new cards is the classic way an
+    SRS becomes an unsustainable workload three weeks in. When the queue is
+    empty it also says when the next card comes back, and whether the course
+    rather than the clock is what is holding the rest.
   */
-  const [queue, totalCards, mode, gloss] = await Promise.all([
-    reviewQueue(ownerId, scope, now),
-    prisma.card.count({ where: { ownerId } }),
-    modeChosen(),
-    glossChosen(),
-  ]);
-  const taught = queue.taught;
-  const cards = await withChoices(queue.cards, gloss, ownerId, scope?.lemmas ?? null);
-
-  /*
-    WHEN THE NEXT CARD COMES BACK, WHICH IS THE ONLY QUESTION AN EMPTY QUEUE
-    RAISES.
-
-    The caught-up screen said "All 312 cards are scheduled for later", which is
-    the count somebody already knows and not the thing they came to find out.
-    `docs/18-voice.md` uses this exact screen as its worked example and the
-    answer it gives is a date.
-
-    Asked only on the path where it is going to be shown, and that is the
-    point rather than a saving: this is one more round trip on a page whose
-    daily job is to open fast, and on the day there is something to review it
-    would answer a question nobody is asking.
-  */
-  const caughtUp = cards.length === 0 && totalCards > 0;
-  /*
-    AND WHY THERE IS NOTHING, WHICH IS NOT ALWAYS THE CLOCK.
-
-    "Nothing due, you're caught up" over a date is the right answer when the
-    scheduler is what is holding everything, and the wrong one the moment the
-    module is: a learner whose deck holds unseen words the course has not
-    reached is not caught up, they are ahead of today's evening, and sending
-    them to Learn instead would hand them a round that is held back for the
-    same reason. One count, on the caught-up path alone, beside the two reads
-    that were already there.
-  */
-  const [next, clock, unseenAnywhere] = caughtUp
-    ? await Promise.all([
-        prisma.card.findFirst({
-          where: { ownerId, suspended: false, due: { gt: now } },
-          orderBy: [{ due: "asc" }, { id: "asc" }],
-          select: { due: true },
-        }),
-        learnerDayClock(ownerId),
-        taught
-          ? prisma.card.count({
-              where: {
-                ownerId, suspended: false, state: 0, due: { lte: now },
-                ...pastTheLadder(ownerId),
-              },
-            })
-          : Promise.resolve(0),
-      ])
-    : [null, null, 0];
+  const { cards, totalCards, mode, nextDue, waitingOnCourse } = await dailyReview(ownerId, scope, now);
 
   return (
     <BeforeYouStart id={scope ? "closing" : "review"} ready={cards.length > 0} count={{ n: cards.length, noun: "card" }}>
@@ -266,8 +218,8 @@ export default async function ReviewPage({
         cards={cards}
         totalCards={totalCards}
         mode={mode}
-        nextDue={next && clock ? nextCardLine(next.due, now, clock, await localeFor(ownerId)) : null}
-        waitingOnCourse={unseenAnywhere > 0}
+        nextDue={nextDue?.line ?? null}
+        waitingOnCourse={waitingOnCourse}
       />
     </BeforeYouStart>
   );

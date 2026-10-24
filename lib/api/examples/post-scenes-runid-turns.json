@@ -1,0 +1,19 @@
+{
+  "lines": [
+    {
+      "who": "them",
+      "text": "Tere hommikust!",
+      "lang": "et",
+      "provenance": "scripted"
+    }
+  ],
+  "objectives": [
+    {
+      "goal": "Say hello.",
+      "done": true
+    }
+  ],
+  "finished": false,
+  "composedBy": null,
+  "modelDown": false
+}

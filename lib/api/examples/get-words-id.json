@@ -1,0 +1,37 @@
+{
+  "lexemeId": "6695a810-64bd-445a-b595-2dd52e2df298",
+  "lemma": "tuba",
+  "pos": "NOUN",
+  "gloss": "room",
+  "cefr": "A1",
+  "forms": [
+    {
+      "slot": "GEN_PL",
+      "value": "tubade",
+      "origin": "stored"
+    },
+    {
+      "slot": "GEN_SG",
+      "value": "toa",
+      "origin": "stored"
+    },
+    {
+      "slot": "ILL_SG_SHORT",
+      "value": "tuppa",
+      "origin": "stored"
+    },
+    {
+      "slot": "NOM_PL",
+      "value": "toad",
+      "origin": "stored"
+    }
+  ],
+  "sentences": [],
+  "government": null,
+  "equivalents": {
+    "ru": "комната, жилище",
+    "uk": "кімната, житло"
+  },
+  "inDeck": false,
+  "starred": false
+}

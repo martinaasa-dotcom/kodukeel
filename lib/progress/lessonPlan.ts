@@ -1,0 +1,43 @@
+import { ledgersBefore, LESSONS, practiceFor, reviewFor, type LessonSpec } from "@/lib/course/lessons";
+import { PROGRAMMES, lessonDayFor } from "@/lib/course";
+import { checkAfter, type CourseCheck } from "@/lib/course/checks";
+import { sceneForLesson } from "@/lib/scenes/lessonScenes";
+import type { LessonView } from "@/lib/progress/lessonView";
+
+/*
+  The half of `lessonView` that touches no database, kept apart so a unit test
+  can build every lesson's plan without one (`lessonPlan.test.ts`).
+*/
+
+/** The half of a lesson's view that is the same for every learner, which is all of it but three fields. */
+export type LessonPlan = Omit<LessonView, "name" | "due" | "check"> & { closes: CourseCheck | null };
+
+/**
+ * What a lesson asks, built from what the lessons before it taught, and where
+ * it stands in its level. Pure, so it is unit tested lesson by lesson.
+ */
+export function lessonPlan(lesson: LessonSpec): LessonPlan {
+  const before = ledgersBefore(LESSONS).get(lesson.id)!;
+  // The one after it in teaching order, which after lesson 26 may be 26a; never into another level.
+  const after = LESSONS[LESSONS.indexOf(lesson) + 1];
+  const next = after && after.level === lesson.level ? after : null;
+  const ofLevel = LESSONS.filter((l) => l.level === lesson.level);
+  /*
+    On the last lesson of a part, the check that closes it
+    (`lib/course/checks.ts`), which the finished screen points at.
+  */
+  const placed = lessonDayFor(lesson.id);
+  const closes = placed && placed.programme.days[placed.programme.days.length - 1]?.lesson === lesson.id
+    ? checkAfter(PROGRAMMES, placed.programme.id) ?? null
+    : null;
+  return {
+    lesson,
+    practice: practiceFor(lesson, before),
+    review: reviewFor(lesson, before),
+    next: next ? { id: next.id, title: next.title } : null,
+    scene: sceneForLesson(lesson.id)?.id ?? null,
+    place: { at: ofLevel.indexOf(lesson) + 1, of: ofLevel.length },
+    closes,
+  };
+}
+

@@ -12,12 +12,18 @@ import { spaceSiblings } from "@/lib/srs/queue";
 import { reviewable, type ModuleScope } from "@/lib/course/scope";
 import { learnerScopeSoFar, moduleSpellings } from "@/lib/progress/moduleScope";
 import {
-  MAX_SESSION, MODULE_SESSION, NEW_CANDIDATES, dueWhere, roomFor, taughtWhere, tonightWhere,
-  unseenWhere,
+  MAX_SESSION, MODULE_SESSION, NEW_CANDIDATES, dueWhere, pastTheLadder, roomFor, taughtWhere,
+  tonightWhere, unseenWhere,
 } from "@/lib/srs/reviewQueue";
 import { deferredWordIds } from "@/lib/progress/deferrals";
 import { closingOpenedAt } from "@/lib/progress/course";
-import { askableRows, include, type CardRow } from "./cards";
+import { askableRows, include, withChoices, type CardRow } from "@/lib/progress/reviewCards";
+import type { ReviewCard } from "@/lib/review/card";
+import { meaningPrefsFrom } from "@/lib/collections/glossLanguage";
+import { learnerDayClock } from "@/lib/progress/dayClock";
+import { localeFor } from "@/lib/progress/locale";
+import { readSettings, reviewModeFrom, SETTING_KEYS, type ReviewMode } from "@/lib/settings/store";
+import { nextCardLine } from "@/lib/time/day";
 
 /**
  * WHAT ONE SITTING OF REVIEW HOLDS, DECIDED IN ONE PLACE.
@@ -254,3 +260,82 @@ function atLevelFirst(
 
 
 
+
+/**
+ * WHAT THE DAILY REVIEW SCREEN IS HANDED, BUILT ONCE FOR BOTH DOORS.
+ *
+ * The review page and `GET /api/v1/review` read this one function (D2 in
+ * docs/44-sixth-batch.md, ADR-029), so the cards a phone is asked and the cards
+ * the web is asked are one list: the same queue, the same gate, the same
+ * choices and the same English, worked out by the same code. It is the page's
+ * own daily branch moved here and nothing else; the drills on that page (a
+ * case, a unit, a photographed page) stay on the page.
+ */
+export interface DailyReview {
+  cards: ReviewCard[];
+  /** Every card the learner holds, which the caught-up screen counts. */
+  totalCards: number;
+  mode: ReviewMode;
+  /** When the next card comes back, on the caught-up path alone; null otherwise. */
+  nextDue: { at: Date; line: string } | null;
+  /** Whether unseen cards are waiting on the course rather than on the clock. */
+  waitingOnCourse: boolean;
+}
+
+export async function dailyReview(
+  ownerId: string,
+  /** The step's own scope where the module opened the round; null on the daily path. */
+  scope: ModuleScope | null,
+  now: Date,
+): Promise<DailyReview> {
+  // Started first and read where it is needed, so the one settings row rides
+  // beside the deck reads rather than in front of them.
+  const settingsPromise = readSettings(ownerId, [
+    SETTING_KEYS.reviewMode, SETTING_KEYS.glossLanguage, SETTING_KEYS.glossAlso,
+  ]);
+  const [queue, totalCards, settings] = await Promise.all([
+    reviewQueue(ownerId, scope, now),
+    prisma.card.count({ where: { ownerId } }),
+    settingsPromise,
+  ]);
+  const mode = reviewModeFrom(settings[SETTING_KEYS.reviewMode]);
+  const gloss = meaningPrefsFrom(settings[SETTING_KEYS.glossLanguage], settings[SETTING_KEYS.glossAlso]);
+  const taught = queue.taught;
+  const cards = await withChoices(queue.cards, gloss, ownerId, scope?.lemmas ?? null);
+
+  /*
+    WHEN THE NEXT CARD COMES BACK, AND WHETHER THE COURSE IS WHAT IS HOLDING
+    THE REST. Asked only on the caught-up path, where it is shown: on a day
+    with something to review it would answer a question nobody is asking, at
+    the cost of a round trip on the screen whose daily job is to open fast.
+    The count is the learner's unseen cards past the ladder, which the module
+    has not reached yet; see the review page for why that is not "caught up".
+  */
+  const caughtUp = cards.length === 0 && totalCards > 0;
+  const [next, clock, unseenAnywhere] = caughtUp
+    ? await Promise.all([
+        prisma.card.findFirst({
+          where: { ownerId, suspended: false, due: { gt: now } },
+          orderBy: [{ due: "asc" }, { id: "asc" }],
+          select: { due: true },
+        }),
+        learnerDayClock(ownerId),
+        taught
+          ? prisma.card.count({
+              where: {
+                ownerId, suspended: false, state: 0, due: { lte: now },
+                ...pastTheLadder(ownerId),
+              },
+            })
+          : Promise.resolve(0),
+      ])
+    : [null, null, 0];
+
+  return {
+    cards,
+    totalCards,
+    mode,
+    nextDue: next && clock ? { at: next.due, line: nextCardLine(next.due, now, clock, await localeFor(ownerId)) } : null,
+    waitingOnCourse: unseenAnywhere > 0,
+  };
+}

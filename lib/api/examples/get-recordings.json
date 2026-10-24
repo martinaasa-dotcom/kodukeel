@@ -1,0 +1,22 @@
+{
+  "clips": [
+    {
+      "id": "sound-a",
+      "src": "/audio/native/sound-a.wav?v=6",
+      "key": null,
+      "atOwnSpeed": true
+    },
+    {
+      "id": "sound-e",
+      "src": "/audio/native/sound-e.wav?v=6",
+      "key": null,
+      "atOwnSpeed": true
+    },
+    {
+      "id": "sound-i",
+      "src": "/audio/native/sound-i.wav?v=6",
+      "key": null,
+      "atOwnSpeed": true
+    }
+  ]
+}

@@ -265,6 +265,20 @@ export async function middleware(request: NextRequest) {
     // read a deployment-wide aggregate.
     path.startsWith("/api/research") ||
     /*
+      THE NATIVE APPS' DOOR, WHICH GATES ITSELF (ADR-029).
+
+      A v1 route reads `Authorization: Bearer <access token>` and never a
+      cookie, so a phone carries no session this gate could find: answering it
+      here would refuse every native request 401 before the route had read its
+      own token, which is the lesson `/api/email/send` taught about a cron.
+      Past this line `requireBearerUser` verifies the token, checks the
+      allowlist and answers 401 or 503 itself, and `/api/v1/meta` holds nothing
+      about anybody. The schema file beside it is the contract a native
+      developer reads, and it is public for the same reason.
+    */
+    path.startsWith("/api/v1/") ||
+    path === "/api/v1.schema.json" ||
+    /*
       THE GRAMMAR REFERENCE, READ BY SOMEBODY ARRIVING FROM A SEARCH (FB-8).
 
       An exact predicate rather than a prefix, because three pages under

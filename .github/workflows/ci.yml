@@ -431,8 +431,10 @@ jobs:
           # The suites that write, in the order they can be run in. The
           # calendar and the deck shelves add rows and take them off again;
           # the hint ladder and the offline outbox both grade, so they come
-          # after the ones that want the fixture as it was; and the backup is
-          # last, for the reason its own comment gives.
+          # after the ones that want the fixture as it was; the v1 contract
+          # suite grades and finishes a lesson over HTTP, so it comes after
+          # them too; and the backup is last, for the reason its own comment
+          # gives.
           - name: what writes, and the backup last
             suites: >-
               scripts/test-chat.mjs
@@ -443,6 +445,7 @@ jobs:
               scripts/test-rename.mjs
               scripts/test-hints.mjs
               scripts/smoke-offline.mjs
+              scripts/test-api.mjs
               scripts/test-error.mjs
               scripts/test-restore.mjs
 

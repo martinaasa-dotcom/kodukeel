@@ -2297,7 +2297,7 @@ beginner keeps meeting, not the percentage.
 to find them all.** The first pass wired the card builders and called itself website wide. Reading
 every remaining `usableExamples` caller found the printable worksheet, the dictionary entry and the
 government drill. Reading `teachingSentence` and `sentenceContaining`, which is where the first two
-sweeps stopped, found four more, and one of them was the daily path: `app/(app)/review/cards.ts`
+sweeps stopped, found four more, and one of them was the daily path: `lib/progress/reviewCards.ts`
 builds the first meeting a review card shows, its own comment promises that `teachingSentence`
 introduces a word the same way wherever it is met, and until this it introduced `tere` as `No tere,
 Juhan.` there and as `Tere, mina olen Katrin.` in the unit lesson. **The lesson is a screenshot and
@@ -4947,6 +4947,15 @@ rather than a person: the theme, the install prompt's memory, and the audio and 
 public endpoint. Resolve the owner with `requireUserId()`; if a helper needs one as a parameter, it
 belongs in `lib/`, not in `app/actions.ts`. See `addCardsFor` and `applyGradeBatch` for the shape.
 
+**A native app reaches the server through `/api/v1/`, and a v1 route is a second door over the same
+body (ADR-029).** It reads `Authorization: Bearer` through `requireBearerUser` and never a cookie,
+parses its body with the zod schema in `lib/api/contract.ts`, imports no database client, and calls
+only `lib/` functions the web's action or page calls too (`scripts/invariants/one-body-two-doors.ts`).
+Within v1 a field or a route is added and never removed or narrowed: `lib/api/fixtures/v1-baseline.json`
+freezes each route the day it ships and a test fails on a narrowing, and `npm run api:schema` keeps
+`public/api/v1.schema.json` current. Errors are a code from `lib/api/errors.ts` and a safe sentence, a
+bad minute at the auth service is 503 and never 401, and an old native build is answered 426.
+
 **A comparator that returns 0 is not a tie, it is the database deciding.** Two entries can share a
 lemma, by design and by accident: `hall` is a noun and an adjective, and a learner adding a word by
 hand or off a photograph gets their own row beside the seeded one. Both score 100 for the exact
@@ -6005,7 +6014,7 @@ the first one. It was reported off that screen as making less sense than reviewi
 evening had just taught, and it does. Inside a module the round is `tonightWhere` alone, due or
 not, the due ones first, cut at `MODULE_SESSION`; it introduces nothing, and everything else that
 is due waits on Review, where a learner who opens it from Today chooses to meet it. The step's count
-in `lib/progress/closing.ts` is the same read, asserted, and `app/(app)/review/queue.itest.ts` fails
+in `lib/progress/closing.ts` is the same read, asserted, and `lib/progress/dailyQueue.itest.ts` fails
 on a card of an earlier evening reaching the round.
 
 **Meeting the words has the same shape of way out**, which is worth naming because it is the same
@@ -10641,7 +10650,7 @@ be a dictionary entry, or no answer can meet it.
 ## Conventions
 
 - TypeScript `strict` plus `noUncheckedIndexedAccess`. No `any` without a comment justifying it.
-- `lib/assessment/`, `lib/collections/`, `lib/copy/`, `lib/course/`, `lib/curriculum/`,
+- `lib/api/`, `lib/assessment/`, `lib/collections/`, `lib/copy/`, `lib/course/`, `lib/curriculum/`,
   `lib/email/`, `lib/estonian/`, `lib/evidence/`, `lib/exam/`, `lib/funding/`, `lib/games/`, `lib/learn/`, `lib/links/`, `lib/offline/`,
   `lib/push/`, `lib/questions/`, `lib/random/`, `lib/readiness/`, `lib/research/`, `lib/review/`, `lib/scan/`, `lib/scenes/`,
   `lib/security/`, `lib/speech/`, `lib/stats/`, `lib/time/` and `lib/ux/` stay free of React, Next.js and Prisma,

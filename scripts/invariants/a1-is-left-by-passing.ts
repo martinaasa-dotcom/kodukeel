@@ -32,15 +32,26 @@ export default function a1IsLeftByPassing({ check, code }: InvariantKit) {
   });
 
   check("a check is marked on the server from the paper it builds, and only a pass there records one", () => {
-    const actions = code("app/actions.ts");
-    const start = actions.indexOf("export async function submitCheck(");
-    assert.ok(start >= 0, "submitCheck is gone");
-    const body = actions.slice(start, actions.indexOf("\nexport ", start + 10));
-    assert.match(body, /checkPaper\(check, parsed\.data\.attempt\)/, "submitCheck no longer rebuilds the paper it marks");
-    assert.match(body, /markCheck\(paper, /, "submitCheck no longer marks the paper itself");
+    /*
+      The body is `submitCheckFor` in lib/progress/lessons.ts, which the web's
+      `submitCheck` and `POST /api/v1/checks/{id}` both call (ADR-029), so the
+      rule is read there and both doors are held to calling it.
+    */
+    const lessons = code("lib/progress/lessons.ts");
+    const start = lessons.indexOf("export async function submitCheckFor(");
+    assert.ok(start >= 0, "submitCheckFor is gone");
+    const end = lessons.indexOf("\nexport ", start + 10);
+    const body = lessons.slice(start, end < 0 ? undefined : end);
+    assert.match(body, /checkPaper\(check, attempt\)/, "submitCheckFor no longer rebuilds the paper it marks");
+    assert.match(body, /markCheck\(paper, /, "submitCheckFor no longer marks the paper itself");
     assert.match(body, /if \(result\.passed\) await recordCheckPassed\(/, "a check is recorded passed on something other than the server's own mark");
-    const writers = ["app/actions.ts", "lib/progress/checks.ts"];
+    for (const door of ["app/actions.ts", "app/api/v1/checks/[id]/route.ts"]) {
+      assert.match(code(door), /submitCheckFor\(/, `${door} marks a check some other way than submitCheckFor`);
+    }
+    const writers = ["lib/progress/lessons.ts", "lib/progress/checks.ts"];
     for (const file of writers) assert.ok(code(file).includes("recordCheckPassed"), `${file} should name recordCheckPassed`);
+    const elsewhere = ["app/actions.ts", "app/api/v1/checks/[id]/route.ts"].filter((file) => /recordCheckPassed\(/.test(code(file)));
+    assert.deepEqual(elsewhere, [], "a door records a pass itself rather than through submitCheckFor");
   });
 
   check("moving freely is for a named admin on a hosted deployment, never for everybody on a local one", () => {

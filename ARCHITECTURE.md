@@ -22,6 +22,7 @@ tested without a database (`PURE_LAYERS` in `scripts/test-invariants.ts` asserts
 | --- | --- | --- |
 | `lib/account/` | no | The account deletion integration test. |
 | `lib/analysis/` | no | What a learner keeps getting wrong, read off their own answers. |
+| `lib/api/` | pure | The v1 contract a native app is built against: schemas, error codes, the build check and the examples (ADR-029). |
 | `lib/assessment/` | pure | The level check: items, marking, the placement ladder, goals and the study plan. |
 | `lib/audio/` | no | Speech clips: fetching, trimming, slowing, caching and the hearing conditions. |
 | `lib/auth/` | no | Who is signed in, local mode, SSO, the canonical host, admin and erasure. |

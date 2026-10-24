@@ -30,7 +30,7 @@ export interface DeckSnapshot {
     `newForPractice`), a tally over the whole deck reasoning about the review
     queue, and it printed "20 due" over a session that asked one card. Every
     screen that says how many cards Review holds now counts the queue itself:
-    see app/(app)/review/queue.ts.
+    see lib/progress/dailyQueue.ts.
   */
   /**
    * Words waiting on the Learn ladder, counted as words rather than cards.

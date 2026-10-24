@@ -1,0 +1,174 @@
+{
+  "checkId": "check-a1.1",
+  "attempt": 1,
+  "final": false,
+  "items": [
+    {
+      "kind": "pick",
+      "et": "oleme",
+      "options": [
+        "I am",
+        "we are",
+        "you are, to one person you know",
+        "you are, polite or more than one"
+      ],
+      "answer": "we are"
+    },
+    {
+      "kind": "pick",
+      "et": "väga",
+      "options": [
+        "How's it going?",
+        "very, really",
+        "well, good",
+        "okay, not bad"
+      ],
+      "answer": "very, really"
+    },
+    {
+      "kind": "pick",
+      "et": "normaalselt",
+      "options": [
+        "okay, not bad",
+        "very, really",
+        "well, good",
+        "badly, not great"
+      ],
+      "answer": "okay, not bad"
+    },
+    {
+      "kind": "pick",
+      "et": "ei",
+      "options": [
+        "clear; got it",
+        "yes",
+        "a little",
+        "no"
+      ],
+      "answer": "no"
+    },
+    {
+      "kind": "hear",
+      "et": "Tere õhtust!",
+      "options": [
+        "Good morning!",
+        "Good afternoon!",
+        "Good evening!",
+        "Thank you!"
+      ],
+      "answer": "Good evening!"
+    },
+    {
+      "kind": "pick",
+      "et": "oled",
+      "options": [
+        "you are, to one person you know",
+        "to be",
+        "I am",
+        "we are"
+      ],
+      "answer": "you are, to one person you know"
+    },
+    {
+      "kind": "pick",
+      "et": "Nägemist!",
+      "options": [
+        "See you! Bye!",
+        "Thank you!",
+        "Goodbye!",
+        "Please. Here you are. You're welcome."
+      ],
+      "answer": "See you! Bye!"
+    },
+    {
+      "kind": "pick",
+      "et": "teie",
+      "options": [
+        "we",
+        "he, she",
+        "you, polite or more than one",
+        "they"
+      ],
+      "answer": "you, polite or more than one"
+    },
+    {
+      "kind": "pick",
+      "et": "sinu",
+      "options": [
+        "is",
+        "my",
+        "your",
+        "What's your name?"
+      ],
+      "answer": "your"
+    },
+    {
+      "kind": "hear",
+      "et": "Mis su nimi on?",
+      "options": [
+        "your",
+        "How do you spell that?",
+        "What's your name?",
+        "Nice to meet you!"
+      ],
+      "answer": "What's your name?"
+    },
+    {
+      "kind": "type",
+      "en": "we are",
+      "answer": "oleme",
+      "accept": [
+        "oleme",
+        "me oleme",
+        "meie oleme"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "an Estonian",
+      "answer": "eestlane",
+      "accept": [
+        "eestlane"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "Thank you!",
+      "answer": "Aitäh!",
+      "accept": [
+        "Aitäh!"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "we",
+      "answer": "meie",
+      "accept": [
+        "meie",
+        "me"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "Goodbye!",
+      "answer": "Head aega!",
+      "accept": [
+        "Head aega!"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "very, really",
+      "answer": "väga",
+      "accept": [
+        "väga"
+      ]
+    }
+  ],
+  "needed": 13,
+  "alreadyPassed": false,
+  "next": {
+    "id": "a1.2",
+    "label": "A1.2"
+  }
+}

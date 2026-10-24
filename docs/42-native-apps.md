@@ -156,14 +156,19 @@ The actions the speech features use, which are the first routes to build:
 
 | Action in `app/actions.ts` | What it does | Already a route? |
 | --- | --- | --- |
-| `gradeCard` | Grades one card, spoken or typed | No |
-| `replayGrades` | Replays the offline outbox in order | No |
-| `undoGrade` | Takes back the last grade | No |
+| `gradeCard` | Grades one card, spoken or typed | Yes, `POST /api/v1/grades` with one grade (N-4) |
+| `replayGrades` | Replays the offline outbox in order | Yes, `POST /api/v1/grades` with a batch, idempotent by id (N-4) |
+| `undoGrade` | Takes back the last grade | Yes, `POST /api/v1/grades/undo` (N-4) |
+| (none, the review page) | Today's review sitting, held to what the course has taught | Yes, `GET /api/v1/review`, the page's own `dailyReview` (N-4) |
 | `beginScene`, `sceneHelp`, `finishScene` | Opens, helps and closes a conversation | No; each turn is already `/api/scene` |
 | `recordWorkbookGrades`, `recordMatchGrades`, `recordNumberGrades` | Grades a round in one request, a numbers round's spoken words included (VB-7) | No |
 | `beginChat` | Opens tonight's chat, the evening worked out on the server (VB-11) | No; its turns are `/api/scene` |
 | `startCourseDay`, `markCourseStep`, `advanceCourseStep`, `tonightSteps` | Tonight's module | No |
 | `completeLesson` | A finished unit lesson | No |
+| `finishLesson` | A finished A1 lesson: today ticked where it is today's, its words in the deck | Yes, `POST /api/v1/lessons/{id}/finish`, behind the same allowance (N-7) |
+| `submitCheck` | A part's check marked on the server, and a pass recorded | Yes, `POST /api/v1/checks/{id}` (N-7) |
+| (none, the lesson and check pages) | One lesson as the lesson screen receives it; one attempt's paper | Yes, `GET /api/v1/lessons/{id}` and `GET /api/v1/checks/{id}` (N-7) |
+| (none, the course screen) | Whether today is a lesson, a check, the web or nothing | Yes, `GET /api/v1/today` (N-7) |
 | `readEstonian` | Glosses a pasted or transcribed text | No |
 | `readHeard` | Glosses a recording's transcript, its words only (VB-12) | No |
 | `saveScan`, `addScanToDeck` | A photographed page or the things around you | No; the reading is `/api/scan` |
@@ -173,6 +178,19 @@ The actions the speech features use, which are the first routes to build:
 | (none) | What was heard, read back and kept nowhere (VB-5) | Yes, `/api/tts?transient=1` |
 | (none) | The things in a photo, named in English (VB-13) | Yes, `/api/scan` with `mode: "things"` |
 | (none) | Anu | Yes, `/api/tutor` |
+
+**A lesson's six steps, and what each needs.** `GET /api/v1/lessons/{id}` hands over the whole lesson
+with its practice and review already built, so Listen, Words, How it works, Practice and Review need
+nothing more than that route to be drawn and answered; Practice and Review are marked on the device,
+as the web marks them, and grade nothing. What the steps also need is sound: Listen, Words and How it
+works play the native speaker's recordings by id and fall back to a clip read aloud, which are the
+recordings and clip routes (N-6), and Say it reads what was heard against the forms list, which is the
+forms route (N-6). The role-play that ends a check-in and a part is a conversation, which is the scene
+routes (N-5). On the web the conversation sends the learner back to the lesson when it ends
+(`lib/scenes/lessonReturn.ts`); a native app does the same in its own navigation, returning to the
+lesson's finish whether the conversation was finished or left, and then finishing the lesson as the
+web does. A lesson's English arrives with a table of its lines in the learner's language beside it,
+and its Estonian is drawn as it stands.
 
 `rememberPushDevice`, `forgetPushDevice` and `pushDeviceStatus` are Web Push's and stay the web's: a
 native app registers the platform's own notification token instead, which needs a table and a sender
@@ -332,8 +350,13 @@ kind arrives on one channel on a given day, never two.
 
 ## 7. What is not settled here
 
-- **The routes' versioning.** A native app outlives a web deploy, so each route above needs a version in
-  its path or its body before the first app ships. That is a decision for the native work order.
+- **The routes' versioning is settled** (ADR-029, `docs/44-sixth-batch.md` D2 to D4). Native clients
+  reach the server through `/api/v1/`, bearer only, every request and response a zod schema in
+  `lib/api/contract.ts`, and within v1 a field or a route is only ever added. The contract a native app
+  is built against is `public/api/v1.schema.json`; a route marked `draft` there is planned and may
+  still change until it ships, and `npm run api:mock` answers every route, drafted or shipped, with a
+  real example out of `lib/api/examples/`. Every request carries `X-Kodukeel-Build: ios/<build>` or
+  `android/<build>`, and a build below the operator's minimum is answered 426 `too_old`.
 - **Real learners' voices on real phones.** Nobody has measured either (`docs/41-fifth-batch.md`
   section 0). The operator times the phones before the native work leans on any figure here
   (section 8 of that page).

@@ -1,8 +1,7 @@
 "use server";
 
-import { moveBlockedFor, recordCheckPassed } from "@/lib/progress/checks";
-import { checkById, checkPaper } from "@/lib/course/checks";
-import { markCheck } from "@/lib/course/lessons/practice";
+import { moveBlockedFor } from "@/lib/progress/checks";
+import { COURSE_DAY_CARDS, finishLessonFor, submitCheckFor } from "@/lib/progress/lessons";
 import { relearn, reportGaps, retireLearned } from "@/lib/progress/twentyLearned";
 import { reportable } from "@/lib/games/twentyLearned";
 import { revalidatePath } from "next/cache";
@@ -99,7 +98,8 @@ import { boundedRestoredReview, isRepeatedReview, stableReviewId, writeGrade } f
 import { asRestoredMeasurement } from "@/lib/security/restoredMeasurement";
 import { createAbsent, resolveLexemes, restoreLexemes, restoreOwned } from "@/lib/progress/restoreRows";
 import { errandById, outcomeFrom } from "@/lib/collections/errands";
-import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
+import { emptyScheduling, type RatingValue } from "@/lib/srs/scheduler";
+import { snapshotOf, undoGradeFor, type SchedulingSnapshot } from "@/lib/srs/undo";
 import { ONE_PER_WORD, addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
 import {
   defaultProgramme, LESSON_STEP, MODULE_HOME, continueHref, dayById, focusedSteps, lessonDayFor, levelHeldOnHandOff,
@@ -471,21 +471,8 @@ async function addCardsFor(
   return { ok: true as const, added };
 }
 
-/** The scheduling fields a client hands back to undo a grade. */
-const SchedulingSchema = z.object({
-  due: z.string(),
-  stability: z.number().min(0).max(100_000),
-  difficulty: z.number().min(0).max(20),
-  elapsedDays: z.number().int().min(0).max(100_000),
-  scheduledDays: z.number().int().min(0).max(100_000),
-  reps: z.number().int().min(0).max(100_000),
-  lapses: z.number().int().min(0).max(100_000),
-  state: z.number().int().min(0).max(3),
-  learningSteps: z.number().int().min(0).max(20),
-  lastReview: z.string().nullable(),
-});
-
-export type SchedulingSnapshot = z.infer<typeof SchedulingSchema>;
+/** The scheduling fields a client hands back to undo a grade, in lib/srs/undo.ts beside the body that reads them. */
+export type { SchedulingSnapshot };
 
 /**
  * Records a grade. Writes the Review row first: the review log is append-only and
@@ -631,22 +618,6 @@ async function gradeOnce(
   }
 }
 
-/** A scheduling state in the shape that crosses the wire, which `undoGrade` takes back. */
-function snapshotOf(state: SchedulingState): SchedulingSnapshot {
-  return {
-    due: state.due.toISOString(),
-    stability: state.stability,
-    difficulty: state.difficulty,
-    elapsedDays: state.elapsedDays,
-    scheduledDays: state.scheduledDays,
-    reps: state.reps,
-    lapses: state.lapses,
-    state: state.state,
-    learningSteps: state.learningSteps,
-    lastReview: state.lastReview?.toISOString() ?? null,
-  };
-}
-
 /**
  * Applies grades taken while the connection was down.
  *
@@ -671,53 +642,15 @@ export async function replayGrades(batch: ReplayItem[]) {
 }
 
 /**
- * Puts a card back the way it was before the last grade.
- *
- * The Review row stays. `Review` is append-only and is the input to FSRS
- * parameter optimization, so deleting a row to make a mistake disappear would
- * corrupt the one table we cannot rebuild — and it would also be a lie: the
- * card really was shown, and really was answered. What undo restores is the
- * *scheduling*, which is derived state and safe to rewind.
- *
- * The previous state comes from the client because that is the only place it
- * still exists; it is validated and range-clamped on the way in, and can only
- * ever be applied to a card the caller already owns.
+ * Puts a card back the way it was before the last grade. The body, and why the
+ * Review row stays, is `undoGradeFor` in lib/srs/undo.ts, which
+ * `POST /api/v1/grades/undo` calls too.
  */
 export async function undoGrade(cardId: string, previous: SchedulingSnapshot) {
   cardId = text(cardId);
   const ownerId = await requireUserId();
-  const parsed = SchedulingSchema.safeParse(previous);
-  if (!parsed.success) return { ok: false as const, error: "That card's details didn't come through properly." };
-
-  const card = await prisma.card.findFirst({ where: { id: cardId, ownerId }, select: { id: true } });
-  if (!card) return { ok: false as const, error: "We couldn't find that card. It may have been removed." };
-
-  const p = parsed.data;
-  const due = new Date(p.due);
-  if (Number.isNaN(due.getTime())) return { ok: false as const, error: "That card's details didn't come through properly." };
-  // The last review is a date for the same reason `due` is: an unparseable one
-  // reached the update as an Invalid Date and came back as a 500.
-  const lastReview = p.lastReview ? new Date(p.lastReview) : null;
-  if (lastReview && Number.isNaN(lastReview.getTime())) {
-    return { ok: false as const, error: "That card's details didn't come through properly." };
-  }
-
-  await prisma.card.update({
-    where: { id: cardId },
-    data: {
-      due,
-      stability: p.stability,
-      difficulty: p.difficulty,
-      elapsedDays: p.elapsedDays,
-      scheduledDays: p.scheduledDays,
-      reps: p.reps,
-      lapses: p.lapses,
-      state: p.state,
-      learningSteps: p.learningSteps,
-      lastReview,
-    },
-  });
-
+  const undone = await undoGradeFor(ownerId, cardId, previous);
+  if (!undone.ok) return { ok: false as const, error: undone.error };
   revalidatePath("/");
   return { ok: true as const };
 }
@@ -4488,16 +4421,7 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
 
 // ──────────────────────────── The planned course ──────────────────────────
 
-/**
- * The cards a day's words arrive with.
- *
- * Recognition and production and no more, which is the same trade the
- * frequency page makes for the same reason: a day is eight words, a case card
- * apiece would be sixty-odd cards for one press, and the day's own rounds are
- * where the forms get asked. The unit those words came from is still there on
- * `/learn` for anybody who wants the whole thing.
- */
-const COURSE_DAY_CARDS = ["RECOGNITION", "PRODUCTION"] as const;
+// The cards a day's words arrive with, beside the lesson body that reads them (lib/progress/lessons.ts).
 
 /**
  * Put today's words in the deck, so the ladder has something to teach.
@@ -4666,12 +4590,10 @@ export async function advanceCourseStep(programmeId: string, dayId: string, step
 /**
  * MARKS A CHECK AT THE END OF A PART OF A1, AND RECORDS A PASS.
  *
- * The browser sends which check, which attempt and what was picked or typed
- * for each question, never a mark: the server builds the same paper from the
- * check and the attempt (`checkPaper`) and marks it itself (`markCheck`),
- * which is ADR-022's rule for the mock exam. A pass is stored as a setting,
- * since nothing in the review log can say a check was passed; a fail stores
- * nothing, and the next attempt asks a different selection.
+ * The browser sends which check, which attempt and what was picked or typed,
+ * never a mark. The body, which rebuilds the paper and marks it on the server
+ * (ADR-022's rule), is `submitCheckFor` in lib/progress/lessons.ts, which
+ * `POST /api/v1/checks/{id}` calls too.
  */
 export async function submitCheck(checkId: string, attempt: number, responses: (string | null)[]) {
   const ownerId = await requireUserId();
@@ -4682,14 +4604,8 @@ export async function submitCheck(checkId: string, attempt: number, responses: (
     responses: z.array(z.string().max(200).nullable()).max(60),
   }).safeParse({ checkId: id, attempt, responses });
   if (!parsed.success) return { ok: false as const, error: "We couldn't read that check, so it wasn't saved." };
-  const check = checkById(PROGRAMMES, parsed.data.checkId);
-  if (!check) return { ok: false as const, error: "We couldn't find that check." };
-  const paper = checkPaper(check, parsed.data.attempt);
-  if (paper.length === 0 || parsed.data.responses.length !== paper.length) {
-    return { ok: false as const, error: "That check didn't match the questions, so it wasn't saved. Reload and try again." };
-  }
-  const result = markCheck(paper, parsed.data.responses);
-  if (result.passed) await recordCheckPassed(ownerId, check.id);
+  const result = await submitCheckFor(ownerId, parsed.data.checkId, parsed.data.attempt, parsed.data.responses);
+  if (!result.ok) return { ok: false as const, error: result.error };
   revalidatePath("/course");
   revalidatePath("/");
   return { ok: true as const, score: result.score, total: result.total, passed: result.passed, marks: result.marks };
@@ -4698,50 +4614,23 @@ export async function submitCheck(checkId: string, attempt: number, responses: (
 /**
  * A LESSON, FINISHED: ITS EVENING TICKED AND ITS WORDS IN THE DECK.
  *
- * A1 is the lessons (docs/43-lessons.md, phase P3), and an evening of A1 is
- * one lesson with one step. The lesson runs its six steps on its own screen
- * and ends on "Finish the lesson", which is this: the step is ticked, which is
- * what moves the course on (`dayReached`), and the lesson's words go into the
- * deck as recognition and production, so Review and Practice repeat what the
- * lesson taught and nothing it did not.
- *
- * The lesson is named by id and resolved here, so a caller cannot name an
- * evening it is not on: a lesson ahead of the learner's evening is still a
- * lesson they may read, and finishing it records nothing and builds nothing,
- * since the course reaches it when the course reaches it. A learner who has
- * turned the planned course off is not on any evening, so their deck gets the
- * words and nothing is ticked.
+ * The lesson runs its six steps on its own screen and ends on "Finish the
+ * lesson", which is this. The body, and why a lesson ahead of the learner's
+ * evening records nothing, is `finishLessonFor` in lib/progress/lessons.ts,
+ * which `POST /api/v1/lessons/{id}/finish` calls too, behind the same throttle.
  */
 export async function finishLesson(lessonId: string) {
   lessonId = text(lessonId);
   const ownerId = await requireUserId();
-  const found = lessonDayFor(lessonId);
-  if (!found) return { ok: false as const, error: "That lesson isn't part of the course." };
+  if (!lessonDayFor(lessonId)) return { ok: false as const, error: "That lesson isn't part of the course." };
   const busy = throttleAction(ownerId, "finishLesson");
   if (busy) return await sayRefusal(ownerId, busy);
-  const { programme, day } = found;
-  const [following, inPlay] = await Promise.all([
-    programmeFor(ownerId),
-    dayIsInPlay(ownerId, programme, day),
-  ]);
-  if (!inPlay && following) return { ok: true as const, recorded: false };
-
-  await addPlanToDeck(ownerId, planLemmas(day.words, COURSE_DAY_CARDS), "COURSE");
-  if (inPlay) {
-    await prisma.courseStep.upsert({
-      where: {
-        ownerId_programmeId_dayId_stepId: {
-          ownerId, programmeId: programme.id, dayId: day.id, stepId: LESSON_STEP,
-        },
-      },
-      update: {},
-      create: { ownerId, programmeId: programme.id, dayId: day.id, stepId: LESSON_STEP },
-    });
-  }
+  const result = await finishLessonFor(ownerId, lessonId);
+  if (!result.ok) return { ok: false as const, error: result.error };
   revalidatePath("/course");
   revalidatePath("/");
   revalidatePath("/words");
-  return { ok: true as const, recorded: inPlay };
+  return { ok: true as const, recorded: result.recorded };
 }
 
 /**

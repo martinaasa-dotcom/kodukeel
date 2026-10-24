@@ -217,7 +217,7 @@ export async function questFor(ownerId: string): Promise<Quest> {
  * The quest drew `juhtuma → lihtminevik, ma` and nothing else, which asks a
  * learner to know what a form is called before they can produce it, and the
  * October feedback said so in as many words. Review has asked these cards
- * with a plain sentence since `sayLine` existed (`app/(app)/review/cards.ts`),
+ * with a plain sentence since `sayLine` existed (`lib/progress/reviewCards.ts`),
  * and this is the same rule on the same deck: only a front naming a word and
  * a form; a gap card is asked by its sentence.
  */
@@ -280,7 +280,7 @@ async function optionsFor(
     /* The back's own spelling rather than `accepted[0]`, which is folded to
        lower case: offered folded, `eestis` stood out among `Eestist` and
        `Eestiks` as the one option written differently, which is the answer
-       printed on the button. `app/(app)/review/cards.ts` learned this first. */
+       printed on the button. `lib/progress/reviewCards.ts` learned this first. */
     const answer = primaryAnswer(card.back) || accepted[0] || card.back;
     /*
       A form more than one slot spells is named as none of them, which is

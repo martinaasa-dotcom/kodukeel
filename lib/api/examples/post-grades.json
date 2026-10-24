@@ -1,0 +1,23 @@
+{
+  "settled": [
+    "b6f1c0de-0001-4c4e-9a11-1a2b3c4d5e6f"
+  ],
+  "results": [
+    {
+      "id": "b6f1c0de-0001-4c4e-9a11-1a2b3c4d5e6f",
+      "cardId": "c94b4133-d09c-4582-be1a-4eb84f67a51a",
+      "scheduling": {
+        "due": "2026-08-31T10:14:48.327Z",
+        "stability": 2.3065,
+        "difficulty": 2.11810397,
+        "elapsedDays": 0,
+        "scheduledDays": 0,
+        "reps": 1,
+        "lapses": 0,
+        "state": 1,
+        "lastReview": "2026-08-31T10:04:48.327Z",
+        "learningSteps": 1
+      }
+    }
+  ]
+}
