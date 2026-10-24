@@ -423,7 +423,7 @@ stops. Size is the work in one pull request: a day, a few days, or a week or mor
 | S-6 A demo a reviewer can walk | S | Day | Done in PR #929 (f655638); the demo deployment is the operator's |
 | S-7 One page for a reviewer, and the check before the email | S | Days | Done in PR #929 (f22f45f) |
 | C-1 The voice model and mobile data | 0: what batch 5 left | Day | Done in PR #929 (4b5170f, 769dcf0) |
-| C-2 Safari and Firefox in CI | 0 | Days | In progress |
+| C-2 Safari and Firefox in CI | 0 | Days | Done in PR #929 (1690f00, a630638, 8371950, 9bf3df7); the `engines` CI job first runs on this PR |
 | C-3 The speech figures on an admin page | 0 | Day | Done in PR #929 (7c54ed3) |
 | C-4 The ear, worded on the situation pages | 0 | Day | Done in PR #929 (1224886) |
 | C-5 The situations list on a phone | 0 | Day | Done in PR #929 (554e632, 8adb981) |
