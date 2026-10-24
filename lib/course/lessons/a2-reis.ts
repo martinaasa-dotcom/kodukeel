@@ -83,7 +83,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
     level: "A2",
     part: "a2-reis",
     kind: "lesson",
-    title: "Until Friday, as far as the station",
+    title: "Until Friday",
     goal: "Say how far something goes and until when: until Friday, as far as the station.",
     patterns: ["terminative"],
     cast: { Mari: "mari", Tom: "kalev" },

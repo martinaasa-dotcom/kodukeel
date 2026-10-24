@@ -99,7 +99,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "jõin", of: "jooma", en: "I drank" },
     ],
     how: {
-      point: "The past for I ends in -in, and the rest of the word is learned with each verb: {olin}, {tegin}, {sõin}.",
+      point: "The past for I ends in -in, and the rest of the word is learned with each verb: {olin}, {tegin}, {sõin}. A class calls it the [lihtminevik] (past).",
       table: {
         head: ["Verb", "Now", "Yesterday"],
         rows: [

@@ -94,7 +94,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
     part: "a2-kuhu",
     kind: "lesson",
     title: "On, onto, off",
-    goal: "Say where you are, where you're going and where from, for places that take the outside endings.",
+    goal: "Say you're at the market, the station or work, where you're going, and where you've come from.",
     patterns: ["outside"],
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [

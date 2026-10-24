@@ -293,7 +293,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "muidugi", en: "of course" },
     ],
     how: {
-      point: "To say no, put {ei} in front of the [olevik] (I form) and drop its -n. It's the same for every person.",
+      point: "To say no, put {ei} in front of the [olevik] (I form) and drop its -n. It's the same for every person. A class calls it the [eitav] (not).",
       table: {
         head: ["Yes", "No"],
         rows: [

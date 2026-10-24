@@ -205,7 +205,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "parem", en: "better; right (not left)" },
     ],
     how: {
-      point: "No in the past is {ei} and the -nud form, the same for every person: {Ma ei tulnud}, {Nad ei tulnud}.",
+      point: "No in the past is {ei} and the -nud form, the same for every person: {Ma ei tulnud}, {Nad ei tulnud}. A class calls it the [nud-kesksõna] (-nud, done).",
       table: {
         head: ["", "Yes", "No"],
         rows: [
@@ -240,7 +240,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
     part: "a2-eile",
     kind: "lesson",
     title: "The whole thing, or some of it",
-    goal: "Say what you bought and what you're reading, with the right form for each.",
+    goal: "Say what you bought and what you're still reading.",
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
       { who: "Liis", et: "Mis sul kotis on?", en: "What have you got in your bag?" },
@@ -320,7 +320,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "kuskil", en: "somewhere; after {ei}, anywhere" },
     ],
     how: {
-      point: "{Olen käinud} is have been: {olema} in the present and the -nud form. It's for what you've done at some time, without saying when.",
+      point: "{Olen käinud} is have been: {olema} in the present and the -nud form. It's for what you've done at some time, without saying when. A class calls it the [täisminevik] (have done).",
       table: {
         head: ["Estonian", "In English"],
         rows: [

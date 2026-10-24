@@ -58,7 +58,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "Appi!", en: "Help!" },
     ],
     how: {
-      point: "To tell one person you know to do something, take the -n off the [olevik] (I form): {tulen} becomes {tule}. It's the same word you say after {ei}, said on its own.",
+      point: "To tell one person you know to do something, take the -n off the [olevik] (I form): {tulen} becomes {tule}. It's the same word you say after {ei}, said on its own. A class calls it the [käskiv kõneviis] (command).",
       table: {
         head: ["", "To a friend", "Polite, or to more than one"],
         rows: [

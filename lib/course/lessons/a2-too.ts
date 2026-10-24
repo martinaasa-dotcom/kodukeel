@@ -85,7 +85,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
     level: "A2",
     part: "a2-too",
     kind: "lesson",
-    title: "For your birthday, to become a doctor",
+    title: "For a birthday, and becoming",
     goal: "Say what you want to become, and what something is for: for a birthday, for tomorrow.",
     patterns: ["translative"],
     cast: { Mari: "mari", Kati: "vesta" },

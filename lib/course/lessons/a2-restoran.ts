@@ -29,7 +29,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
     part: "a2-restoran",
     kind: "lesson",
     title: "We would like a table",
-    goal: "Ask for a table and for what you'd like, politely, with the would form.",
+    goal: "Ask for a table and say what you'd like, politely.",
     patterns: ["conditional"],
     cast: { Peeter: "peeter", Tom: "kalev" },
     conversation: [
@@ -49,7 +49,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "oleks", of: "olema", en: "would be" },
     ],
     how: {
-      point: "Would is -ks- before the ending: {võtan} and then {võtaksin}, {saan} and then {saaksin}. It turns any ask into a polite one, and it works for every verb you know.",
+      point: "Would is -ks- before the ending: {võtan} and then {võtaksin}, {saan} and then {saaksin}. It turns any ask into a polite one, and it works for every verb you know. A class calls it the [tingiv kõneviis] (-ks, would).",
       table: {
         head: ["I do", "I would", "We would"],
         rows: [

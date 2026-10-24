@@ -336,7 +336,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
     level: "A2",
     part: "a2-tervis",
     kind: "partEnd",
-    title: "At the doctor's",
+    title: "A visit to the doctor",
     goal: "Tell a doctor what's wrong, answer their questions and understand what to do.",
     cast: { Peeter: "peeter", Tom: "kalev" },
     conversation: [
