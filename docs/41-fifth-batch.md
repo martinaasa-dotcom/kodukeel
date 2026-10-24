@@ -1313,6 +1313,14 @@ microphone opens only on a press, the sound never leaves the device, and speech 
 browser driven by a test (`navigator.webdriver`) is skipped by the background download, so every suite
 does not fetch 71 MB; `scripts/test-speech.mjs` clears the flag on one page to check the download itself.
 
+**Amended by the sixth batch's D10 (docs/44-sixth-batch.md, C-1).** The background download no longer
+runs on every device. It runs only where the browser says the connection is Wi-Fi or wired, or on a
+computer whose browser says nothing (`mayPrefetch` in `lib/speech/prefetch.ts`). A phone on mobile data,
+on Save-Data, or that cannot say (every iPhone) waits for the first press of a microphone, which fetches
+it with progress on the button as before, or for "Download now" in Settings, which is drawn only where
+the download was held back. `SpeechPrefetch` asks again whenever the connection changes, so a phone that
+joins Wi-Fi later fetches it then. Still nothing is asked: a press is not a question.
+
 ## 8c. After the batch: "every word was heard" is not "you said it right"
 
 Reported by the operator on 2026-10-18: `aitäh` said on purpose as "eye-toy", and `palun` with the

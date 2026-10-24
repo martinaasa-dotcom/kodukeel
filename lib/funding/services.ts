@@ -267,7 +267,7 @@ export const SERVICES: readonly Service[] = [
     id: "hearing",
     name: "Hearing Estonian",
     who: "This site's own hosting, serving TalTech's speech model beside the pages",
-    does: "Turns what a learner says into text on their own device. The model is fetched once per device in the background and kept, so this line is the download and nothing else.",
+    does: "Turns what a learner says into text on their own device. The model is fetched once per device, on Wi-Fi or on first use, and kept, so this line is the download and nothing else.",
     whenItIsGone: "Every microphone disappears and everything is typed, exactly as before speaking existed.",
     setBy: "NEXT_PUBLIC_ASR_MODEL_BASE",
     ref: VERCEL.ref,
@@ -275,7 +275,8 @@ export const SERVICES: readonly Service[] = [
       // Priced at the host's transfer rate with none of the plan's allowance
       // counted, because the hosting line already counts that allowance and a
       // bill is never allowed to come out lower than the truth. Every learner
-      // fetches it now, not only those who reach for a microphone.
+      // is counted as fetching it, though a phone off Wi-Fi now waits for its
+      // first press (D10), so the line errs high rather than low.
       const downloads = shape.learners * assumed("speechDevices");
       // A fraction of a download is what a handful of learners comes to, so it is said as one.
       const said = downloads < 10 ? Math.round(downloads * 10) / 10 : Math.round(downloads);

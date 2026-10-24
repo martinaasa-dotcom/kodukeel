@@ -755,7 +755,7 @@ every device, whatever the connection. On a phone on mobile data that is a large
 somebody who may never press a microphone. D10 decides the rule; this item builds it.
 
 **Files.**
-- `lib/speech/prefetch.ts` (to be written), pure: `mayPrefetch({ type, saveData, coarsePointer })` returns
+- `lib/speech/prefetch.ts`, pure: `mayPrefetch({ type, saveData, coarsePointer })` returns
   whether the background download may run. Save-Data or a `cellular` type: never. `wifi` or `ethernet`:
   yes. No type reported: yes on a fine pointer (a computer), no on a coarse one (a phone or a tablet,
   every iPhone included). Unit tested over every combination.

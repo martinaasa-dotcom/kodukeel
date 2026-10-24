@@ -107,7 +107,7 @@ None of this is on a server and none of it is shared. All of it is removed by si
 | Digest of which account last used this browser | Until sign-out, or a different account signs in | Either | `forgetIfOwnerChanged` |
 | Session cookie | The session | Sign-out or expiry | Supabase Auth |
 | This browser's reminder subscription (Web Push) | Until reminders are turned off in this browser, or sign-out | Sign-out unsubscribes it at the push service, so the next reminder tried is answered gone and the server's row goes | `forgetReminders` in `lib/offline/forget.ts` |
-| The speech model, 71 MB, and the mark that it is downloaded | Until the browser evicts it; it is fetched again in the background on the next visit | Clearing browser storage. Not cleared by sign-out | Deliberate: the same pinned file for everybody (`lib/speech/model.ts`), saying nothing about who used it. What the microphone hears is held in memory for the turn and never stored |
+| The speech model, 71 MB, and the mark that it is downloaded | Until the browser evicts it; it is fetched again on the next visit on Wi-Fi, or on the next press of a microphone (docs/44-sixth-batch.md, D10) | Clearing browser storage. Not cleared by sign-out | Deliberate: the same pinned file for everybody (`lib/speech/model.ts`), saying nothing about who used it. What the microphone hears is held in memory for the turn and never stored |
 | Theme, install prompt memory, audio and build caches | Not cleared by sign-out | Clearing browser storage | Deliberate. These are facts about the device, the same for whoever signs in next |
 
 Nobody signing out is the other case and is covered: a different account appearing on the same
