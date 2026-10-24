@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { chromium } from "playwright";
+import { chromium, firefox, webkit } from "playwright";
 
 /*
   Launch Chromium wherever this machine keeps it.
@@ -43,6 +43,38 @@ function executablePath() {
 export function launchChromium(options = {}) {
   const path = executablePath();
   return chromium.launch(path ? { executablePath: path, ...options } : options);
+}
+
+/*
+  AND THE OTHER TWO ENGINES, BY NAME (docs/44-sixth-batch.md, C-2).
+
+  Every suite here runs in Chromium, and Safari is the browser on every iPhone.
+  Playwright ships its own WebKit and Firefox builds, installed by
+  `npx playwright install --with-deps webkit firefox`, and those are what this
+  launches: there is no system copy worth looking for, because a system
+  Firefox or a macOS Safari is not the build Playwright drives. Chromium still
+  goes through `launchChromium`, so a suite run with `chromium` named is the
+  same browser every other suite uses.
+
+  The name is read from `--engine=<name>` or `ENGINE`, so one suite can be run
+  once per engine by CI without a second file.
+*/
+export const ENGINES = ["chromium", "webkit", "firefox"];
+
+/** The engine a suite was asked to run in: `--engine=webkit`, or `ENGINE`, or Chromium. */
+export function engineName(argv = process.argv) {
+  const flag = argv.find((a) => a.startsWith("--engine="))?.slice("--engine=".length);
+  const named = (flag ?? process.env.ENGINE ?? "chromium").trim().toLowerCase();
+  if (!ENGINES.includes(named)) throw new Error(`no engine called "${named}": name one of ${ENGINES.join(", ")}`);
+  return named;
+}
+
+/** Launch the named engine. Chromium goes through `launchChromium`; the other two through Playwright's own builds. */
+export function launchEngine(name, options = {}) {
+  if (name === "chromium") return launchChromium(options);
+  if (name === "webkit") return webkit.launch(options);
+  if (name === "firefox") return firefox.launch(options);
+  throw new Error(`no engine called "${name}"`);
 }
 
 /**

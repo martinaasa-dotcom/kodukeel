@@ -789,7 +789,7 @@ fifth batch's own report says Safari's handling of the new speech code is untest
 check is Playwright's WebKit and Firefox builds, on every run of CI, over the paths most likely to differ.
 
 **Files.**
-- `scripts/test-browsers.mjs` (to be written): one suite, run once per engine, that checks:
+- `scripts/test-browsers.mjs`: one suite, run once per engine, that checks:
   - every route the app has answers with one `main` and one `h1` and no client error, which is
     `test-first-day.mjs`'s question asked of two more engines;
   - a review card answered by typing and by choice, and the grade landing;
@@ -1616,7 +1616,7 @@ way as the web.
 | A breaking change slips into v1 | The baseline test fails the pull request (N-1). If one ships anyway, `NATIVE_MIN_BUILD_*` in meta tells older builds to update, without a store release. |
 | A native app ships with a bug that corrupts grades | The operator raises the minimum build; every v1 route answers that build `too_old` until it is updated, and the web is untouched. |
 | Apple rejects the iOS app over sign-in anyway | N-3 is built to Apple's text as read on 2026-10-17; the reviewer's message goes into the native work order and this page. |
-| WebKit in CI passes and a real iPhone fails | D12 says this will happen sometimes. The operator's iPhone check (section 8) is the second net; each fault found there becomes a check in `scripts/test-browsers.mjs` (to be written) where WebKit can see it. |
+| WebKit in CI passes and a real iPhone fails | D12 says this will happen sometimes. The operator's iPhone check (section 8) is the second net; each fault found there becomes a check in `scripts/test-browsers.mjs` where WebKit can see it. |
 | Firebase is unreachable or unconfigured | No native notifications go out; the mailout falls back to Web Push and email as D13 orders, and nothing waits on it. |
 | An A2 lessons pull request lands while N-4 or N-7 is open | Merge main in, keep the scope and the lesson shape as the lessons work wrote them, and run the review and module suites. Never rewrite the lessons work's code from this side. |
 | The lessons work changes a lesson's shape after N-7 ships | N-7's type test fails on their pull request, which is the point: the change and the contract move together, and a field is only ever added (D4). |

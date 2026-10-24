@@ -49,6 +49,7 @@
     "course:ids": "tsx scripts/write-day-ids.ts",
     "audit:exceptions": "tsx scripts/audit-exceptions.ts",
     "test:mobile": "node scripts/test-mobile.mjs",
+    "test:engines": "node scripts/test-browsers.mjs --engine=webkit && node scripts/test-browsers.mjs --engine=firefox",
     "test:a11y": "node scripts/a11y-check.mjs",
     "evidence": "tsx scripts/measure-evidence.ts",
     "test:containment": "node scripts/test-containment.mjs",

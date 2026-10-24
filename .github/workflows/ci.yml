@@ -561,6 +561,103 @@ jobs:
             node "$suite"
             echo "::endgroup::"
           done
+  engines:
+    name: Safari's engine and Firefox's
+    runs-on: ubuntu-latest
+    # Looser than the suites it runs, for the apt mirror the browser job's
+    # comment describes: the suites themselves are held to their own step's
+    # ceiling below.
+    timeout-minutes: 80
+
+    # THE PATHS MOST LIKELY TO DIFFER, IN THE TWO ENGINES NOTHING ELSE RUNS
+    # (docs/44-sixth-batch.md, C-2). Every shard above drives Chromium, and
+    # Safari is the browser on every iPhone. `scripts/test-browsers.mjs` is one
+    # suite run once per engine against one build: every route, a review card
+    # chosen and typed, the offline outbox, the speech worker hearing the
+    # golden clip, a turn played back beside a native line, an Ogg voice
+    # message, a refused microphone, Web Push's capability check, a name
+    # spelled letter by letter, and the conversation's composer on a phone.
+    #
+    # Its own job rather than a seventh shard, because it installs two other
+    # browsers with their system libraries and runs its list twice, and a
+    # shard is one Chromium list against one fixture.
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+      DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+      DEMO_OWNER_ID: local-single-user
+      BASE_URL: http://127.0.0.1:3000
+
+    steps:
+      - uses: actions/checkout@v7
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@v7
+        with: { node-version: "22", cache: npm }
+      - run: npm ci
+      - run: npx playwright install --with-deps webkit firefox
+      # The speech model from the cache the speech shard fills, under the same
+      # key, fetched before the build so `next start` serves it.
+      - name: The speech model, from the cache
+        uses: actions/cache@v6
+        with:
+          path: public/asr/model
+          key: asr-model-${{ hashFiles('lib/speech/model.ts') }}
+      - run: npm run asr:fetch
+      - name: Next's build cache, from the last run
+        uses: actions/cache/restore@v6
+        with:
+          path: .next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+            next-${{ runner.os }}-
+      # Reminders on a computer are on, as in every shard, so the capability
+      # check has a panel to draw where the engine has Web Push.
+      - name: A key pair for reminders on a computer
+        run: |
+          node -e 'const k = require("web-push").generateVAPIDKeys(); console.log("NEXT_PUBLIC_VAPID_PUBLIC_KEY=" + k.publicKey); console.log("VAPID_PRIVATE_KEY=" + k.privateKey);' >> "$GITHUB_ENV"
+          echo "VAPID_SUBJECT=mailto:ci@example.invalid" >> "$GITHUB_ENV"
+      - run: npm run build
+      - name: Start the server
+        # ASR_BENCH opens /dev/asr, where the speech checks hear the golden clip.
+        env:
+          ASR_BENCH: "1"
+        run: |
+          npm start &
+          for _ in $(seq 1 60); do
+            curl -sf -o /dev/null http://127.0.0.1:3000/ && exit 0
+            sleep 1
+          done
+          echo "::error::The server never came up."
+          exit 1
+      # Both engines run whatever the first one found, so one red run says
+      # what each engine thinks; the step fails if either did. Each starts
+      # from the deck `demo-data.ts` lays down, laid down again with --force,
+      # because the first engine's review and offline checks answer cards and
+      # the fixture refuses to replace a history it did not just write.
+      - name: The suite, once per engine
+        timeout-minutes: 55
+        run: |
+          failed=0
+          for engine in webkit firefox; do
+            echo "::group::$engine"
+            npx tsx scripts/demo-data.ts --force
+            node scripts/test-browsers.mjs --engine="$engine" || failed=1
+            echo "::endgroup::"
+          done
+          exit "$failed"
   signin:
     name: The sign-in screen
     runs-on: ubuntu-latest
