@@ -10630,6 +10630,19 @@ printed under it (`SoundRow.en`), there to be heard for its sound, so lesson 1 t
 together on `öö` and `üks` before any evening teaches either. The lessons' English is machine translated into Russian and Ukrainian (`areas/lessonText.ts`),
 the operator's call, until somebody fluent reads it.
 
+**And a level of lessons keeps one shape, which is asserted rather than remembered.** A reading of
+A2 found four parts ending on a "Check-in" where the rest said "End of part", finales claiming every
+part of the level, counts of "the last five lessons" gone stale, and lines with no Russian, while
+every lesson was right on its own. `lib/course/lessons/contract.ts` is the shape and
+`contract.test.ts` asks it of every level in `LESSON_LEVELS`: words taught before shown across the
+levels, core lessons numbered from 1, four to ten a part, each part ending on its own `partEnd`
+with a role-play and a live scene, at most `MOST_TAUGHT` new things an evening, a point explained
+once a level, `LEVEL_INFO` filled in, and every line in Russian and Ukrainian. The rest of
+`lessons.test.ts` is asked of every level too. `docs/43-lessons.md` §10 is the list for moving B1,
+B2 and C1 to lessons, starting with measuring what the level assumes against the lesson ledger
+rather than the old unit order. A finale says "made of what this part has taught" and never counts
+lessons, and a cross-reference names a part only after checking which part taught it.
+
 **A lesson's role-play is also a live scene, and it says only what that lesson has taught.**
 `lib/scenes/lessonScenes.ts` holds one scene per A1 and A2 lesson that ends in a role-play, off the situations
 listing (`sceneById` reads it after the catalog). `inLesson` takes the scene's word list from the

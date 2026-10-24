@@ -66,7 +66,10 @@ const LEARNERS: Record<string, Learner> = {
 };
 
 function levelOf(scene: SceneSpec): Level {
-  return lessonById(scene.lesson ?? "")?.level ?? "A1";
+  // Every lesson scene names its lesson (the first test asserts it), so there is no default to fall to.
+  const level = lessonById(scene.lesson ?? "")?.level;
+  if (!level) throw new Error(`${scene.id}: names no lesson, so its level is unknown`);
+  return level;
 }
 
 async function play(scene: SceneSpec, seed: string, learner: Learner): Promise<{ events: Event[]; card: RoleCard }> {

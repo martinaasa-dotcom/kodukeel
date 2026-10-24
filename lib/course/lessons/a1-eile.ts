@@ -361,7 +361,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
     n: 45,
     level: "A1",
     part: "a1-eile",
-    kind: "checkin",
+    kind: "partEnd",
     title: "The weekend",
     goal: "Tell a friend what you did over the weekend, and make a plan for next week.",
     cast: { Liis: "liivika", Tom: "kalev" },

@@ -401,7 +401,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
     n: 7,
     level: "A2",
     part: "a2-kelle",
-    kind: "checkin",
+    kind: "partEnd",
     title: "At the library",
     goal: "Get a library card, give your details, and find who something belongs to.",
     cast: { Liis: "liivika", Tom: "kalev" },

@@ -5,7 +5,7 @@ import { A1_LESSON_PARTS, A1_LESSONS } from "./a1";
 import { NAMES, PLACE_SPELLINGS, estonianOf, familiesOf, ledgersBefore, lessonProblems, lessonRank, namesOf, teach, uncovered, wordsOf } from "./ledger";
 import { everyTypedQuestion, itemEstonian, markPhrase, meaningShows, practiceFor, reviewFor } from "./practice";
 import { estonianIn } from "./ledger";
-import { LESSONS } from "./index";
+import { LESSONS, LESSON_PARTS } from "./index";
 import { CASES, caseNameWithNumber, casePlainName, shortIllativeName } from "@/lib/estonian/cases";
 import { PERSON_ENDINGS, VERB_FORM_NAMES, verbFormName, type Person, type VerbForm } from "@/lib/estonian/verbNames";
 
@@ -16,8 +16,10 @@ import { PERSON_ENDINGS, VERB_FORM_NAMES, verbFormName, type Person, type VerbFo
  */
 
 const ESTONIAN_LETTER = /[õäöüšž]/i;
+/** The capitalized words a lesson teaches as words of their own: places, by their name. */
+const TAUGHT_NAMES = new Set(LESSONS.flatMap((l) => l.teaches.map((t) => t.et)).filter((et) => /^\p{Lu}\p{Ll}+$/u.test(et)));
 
-describe("A1 lessons", () => {
+describe("the lessons, A1 and on", () => {
   it("never show a word before it is taught", () => {
     expect(lessonProblems(A1_LESSONS)).toEqual([]);
   });
@@ -38,7 +40,7 @@ describe("A1 lessons", () => {
 
   it("write only spellings the forms list knows", async () => {
     const unknown: string[] = [];
-    for (const lesson of A1_LESSONS) {
+    for (const lesson of LESSONS) {
       const names = namesOf(lesson);
       const texts = [...estonianOf(lesson).map((e) => e.et), ...lesson.teaches.flatMap((t) => (t.kind === "verb" ? [t.et, t.first] : [t.et]))];
       for (const text of texts) {
@@ -55,7 +57,7 @@ describe("A1 lessons", () => {
 
   it("keep Estonian out of the English, except in braces", () => {
     const leaks: string[] = [];
-    for (const lesson of A1_LESSONS) {
+    for (const lesson of LESSONS) {
       const english = [
         lesson.title, lesson.goal,
         ...lesson.teaches.flatMap((t) => (t.kind === "verb" ? [t.firstEn] : [])),
@@ -64,7 +66,9 @@ describe("A1 lessons", () => {
       ];
       // Braced Estonian is marked as such on screen and held to the ledger, and
       // a grammar name in square brackets is drawn as Estonian; anything else is a leak.
-      for (const e of english) if (ESTONIAN_LETTER.test(e.replace(/\{[^{}]*\}/g, "").replace(/\[[^[\]]*\]/g, ""))) leaks.push(`${lesson.id}: ${e}`);
+      // A place a lesson teaches by name keeps its spelling in English too: Pärnu is Pärnu.
+      const bare = (e: string) => e.replace(/\{[^{}]*\}/g, "").replace(/\[[^[\]]*\]/g, "").split(/\s+/).filter((w) => !TAUGHT_NAMES.has(w.replace(/[^\p{L}-]/gu, ""))).join(" ");
+      for (const e of english) if (ESTONIAN_LETTER.test(bare(e))) leaks.push(`${lesson.id}: ${e}`);
     }
     expect(leaks).toEqual([]);
   });
@@ -103,12 +107,12 @@ describe("A1 lessons", () => {
 
   it("read every speaker in a voice the app has", () => {
     const voices = new Set(VOICES.map((v) => v.id));
-    for (const lesson of A1_LESSONS) for (const voice of Object.values(lesson.cast)) expect(voices.has(voice)).toBe(true);
+    for (const lesson of LESSONS) for (const voice of Object.values(lesson.cast)) expect(voices.has(voice), lesson.id).toBe(true);
   });
 
   it("belong to a part that exists", () => {
-    const parts = new Set(A1_LESSON_PARTS.map((p) => p.id));
-    for (const lesson of A1_LESSONS) expect(parts.has(lesson.part)).toBe(true);
+    const parts = new Set(LESSON_PARTS.map((p) => p.id));
+    for (const lesson of LESSONS) expect(parts.has(lesson.part), lesson.id).toBe(true);
   });
 
   it("practice and review only what has been taught, at every level", () => {

@@ -372,7 +372,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
     n: 23,
     level: "A1",
     part: "a1-kell",
-    kind: "checkin",
+    kind: "partEnd",
     title: "Making a plan",
     goal: "Make a plan with a friend: what you're doing, whether you can, and what time.",
     cast: { Liis: "liivika", Tom: "kalev" },

@@ -409,7 +409,7 @@ const TERE_LESSONS: readonly LessonSpec[] = [
     n: 8,
     level: "A1",
     part: "a1-tere",
-    kind: "checkin",
+    kind: "partEnd",
     title: "Meeting somebody",
     goal: "Hold a first conversation with somebody new, start to finish.",
     cast: { Mari: "mari", Tom: "kalev" },

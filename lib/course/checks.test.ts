@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { PROGRAMMES, programmeById } from "@/lib/course";
-import { LESSONS } from "@/lib/course/lessons";
+import { LESSONS, LESSON_LEVELS } from "@/lib/course/lessons";
 import { ledgerThrough, lessonRank } from "@/lib/course/lessons/ledger";
 import { CHECK_PASS, LEVEL_CHECK, PART_CHECK, checkLength, itemEstonian, markCheck } from "@/lib/course/lessons/practice";
 import { uncovered } from "@/lib/course/lessons/ledger";
@@ -13,7 +13,7 @@ describe("the checks between the parts of the lessons", () => {
   it("closes every lesson part with one check, and the last of each level is the whole level", () => {
     expect(checks.map((c) => c.programmeId)).toEqual(lessonParts.map((p) => p.id));
     const levels = [...new Set(lessonParts.map((p) => p.level))];
-    expect(levels).toEqual(["A1", "A2"]);
+    expect(levels).toEqual([...LESSON_LEVELS]);
     const finals = checks.filter((c) => c.final);
     expect(finals).toHaveLength(levels.length);
     for (const level of levels) {
