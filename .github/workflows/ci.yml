@@ -287,8 +287,8 @@ jobs:
     # --with-deps` at 54.6 kB/s ("Fetched 25.9 MB in 7min 55s"), and a shard
     # whose suites take eleven minutes was cancelled at twenty with every
     # check it had reached passing, on main and on a pull request alike. A
-    # cancelled shard says nothing about the app. So the sixteen minutes a
-    # shard's suites may run is held by the suites step itself, which is what
+    # cancelled shard says nothing about the app. So the minutes a
+    # shard's suites may run are held by the suites step itself, which is what
     # this number was always standing in for (it was twenty less about four of
     # setup), and the job keeps a looser ceiling only so a mirror that stops
     # answering altogether still ends the run.
@@ -555,7 +555,10 @@ jobs:
       # as a pass. See scripts/lib/checks.mjs. `-e` is the default shell here,
       # so the first suite to fail ends the step and names itself.
       - name: This shard's suites
-        timeout-minutes: 16
+        # Sixteen until the sixth batch added the public pages in Estonian to
+        # the accessibility sweep, which then ran to 98% of its checks at 16:00,
+        # every one passing. Twenty is that sweep with room, under the job's 35.
+        timeout-minutes: 20
         env:
           # Which half of the containment suite this shard runs, where it runs one.
           CONTAIN_PART: ${{ matrix.shard.contain }}
