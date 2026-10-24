@@ -108,7 +108,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "haige", en: "sick, ill" },
       { kind: "word", et: "valutama", en: "to hurt, to ache" },
       { kind: "form", et: "valutab", of: "valutama", en: "hurts, aches" },
-      { kind: "form", et: "valuta", of: "valutama", en: "hurt, after {ei}" },
+      { kind: "form", et: "valuta", of: "valutama", en: "hurt (as in “it doesn't hurt”)" },
       { kind: "word", et: "pea", en: "head" },
       { kind: "word", et: "kõht", en: "stomach, tummy" },
       { kind: "word", et: "selg", en: "back" },
