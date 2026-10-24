@@ -31,7 +31,6 @@ export type Reason =
   | "hearing"
   | "no-video"
   | "no-motion-input"
-  | "moving"
   | "focus-text-only";
 
 export interface Criterion {
@@ -84,7 +83,7 @@ export const CRITERIA: readonly Criterion[] = [
   yes("2.1.2", "No Keyboard Trap", "A", "scripts/invariants/dialogs-hold-focus.ts"),
   yes("2.1.4", "Character Key Shortcuts", "A", "scripts/invariants/a-single-key-answers-to-the-setting.ts"),
   no("2.2.1", "Timing Adjustable", "A", "exam-clock"),
-  no("2.2.2", "Pause, Stop, Hide", "A", "moving"),
+  yes("2.2.2", "Pause, Stop, Hide", "A", "scripts/invariants/motion-rests.ts"),
   no("2.3.1", "Three Flashes or Below Threshold", "A"),
   yes("2.4.1", "Bypass Blocks", "A", AXE),
   yes("2.4.2", "Page Titled", "A", AXE),
@@ -129,7 +128,6 @@ export const REASON_TEXT: Readonly<Record<Reason, string>> = {
   hearing: "The listening, dictation and minimal-pair rounds need hearing, as the statement above explains.",
   "no-video": "The app has no video.",
   "no-motion-input": "Nothing is operated by moving or shaking the device.",
-  moving: "Every public page rests its motion within five seconds. Inside the app some decoration still loops and stops only when the system asks for reduced motion.",
   "focus-text-only": "The visible focus ring is checked for text fields only.",
 };
 

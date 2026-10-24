@@ -627,6 +627,8 @@ browser; the statement page in three languages.
 **Done when.** The statement lists three fewer failures, every one of them fixed rather than reworded,
 and names where a complaint goes.
 
+**Follow-up (S-4c).** 2.2.2 is met for the whole app now, not only the public pages: the mark, Anu, a scene's people, the situations board's lamps, Today's leading card and the quest's button rest within five seconds, held by `scripts/invariants/motion-rests.ts`.
+
 ### S-5. `security.txt`, and the registers a reviewer asks for
 
 **What it is for.** A security reviewer looks for `/.well-known/security.txt` first, and a funder's due

@@ -92,7 +92,7 @@ export function PublicHeader({ locale, path, oneLanguage = false }: { locale: Lo
       takes the second, so the header is two rows rather than three; the button
       says "Start" there, as the landing page's own does under 420.
     */
-    <header className="motion-rests flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+    <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
       <BrandLink href={LANDING_HREF[locale]} label={t("Kodukeel, home")} className="flex min-h-11 items-center">
         <Wordmark size={28} />
       </BrandLink>

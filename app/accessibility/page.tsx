@@ -144,6 +144,9 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
           {rich(t("**A clip plays on its own only when it is under three seconds** (WCAG 1.4.2, Audio Control). A longer one waits for a press, and Settings turns playing on its own off altogether. A conversation somebody chose to hear rather than read plays its lines because they asked for that."))}
         </P>
         <P>
+          {rich(t("**Nothing moves by itself for more than five seconds** (WCAG 2.2.2, Pause, Stop, Hide). The mark, Anu, the mascot, the people in a conversation’s drawing and every other piece of decoration play a few beats when a screen opens and then hold still. A spinner or a row of dots shown while something loads, and a movement a pointer started, run as long as they are needed."))}
+        </P>
+        <P>
           {rich(t("**No audit by a person with a disability using assistive technology has been commissioned.** No screen reader user has been paid to test this, and there has been no third-party accessibility audit. Automated tools find perhaps a third of what is wrong with a page, and the third they find is the mechanical third."))}
         </P>
       </S>
@@ -167,9 +170,6 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
           </li>
           <li>
             {rich(t("**Screens behind data are less covered.** The automated sweep sees each page as it loads, plus one state a learner has to reach by doing something. A class roster with students in it, an examination part in progress and the puzzle grids in play are all reachable and all less tested than the pages around them."))}
-          </li>
-          <li>
-            {rich(t("**Some decoration inside the app still loops** (WCAG 2.2.2, Pause, Stop, Hide). On every public page, the landing page included, whatever moves by itself rests within five seconds: the letters, the mascot, Anu, the glow behind the word on the landing card and the cards that turn on their own. Inside the app the mark, Anu and the people in a conversation’s drawing keep a slow idle movement, and stop only for anybody whose system asks for reduced motion."))}
           </li>
         </ul>
         <P>
@@ -216,7 +216,7 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
 
       <S title={t("When this was prepared")}>
         <P>
-          {t("Prepared on 5 September 2026 by the people who wrote the app, from the automated suites described above and from reading the source. The table of criteria was added on 15 October 2026, and three failures were fixed and moved on 24 October 2026. It is reviewed whenever a screen changes enough to move one of the claims on it. There has been no external review.")}
+          {t("Prepared on 5 September 2026 by the people who wrote the app, from the automated suites described above and from reading the source. The table of criteria was added on 15 October 2026, and four failures were fixed and moved on 24 October 2026. It is reviewed whenever a screen changes enough to move one of the claims on it. There has been no external review.")}
         </P>
       </S>
 

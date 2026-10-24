@@ -48,6 +48,6 @@ describe("the EN 301 549 table", () => {
     expect(byId.get("1.2.1")).toMatchObject({ status: "partial", reason: "hearing" });
     expect(byId.get("2.1.4")).toMatchObject({ status: "supports" });
     expect(byId.get("1.4.2")).toMatchObject({ status: "supports" });
-    expect(byId.get("2.2.2")).toMatchObject({ status: "partial", reason: "moving" });
+    expect(byId.get("2.2.2")).toMatchObject({ status: "supports", checkedBy: "scripts/invariants/motion-rests.ts" });
   });
 });
