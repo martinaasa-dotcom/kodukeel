@@ -343,6 +343,8 @@ Every recipient the code can name is assumed on, which declares the most. The va
 - `OPENAI_API_KEY`
 - `EKILEX_API_KEY`
 - `RESEND_API_KEY`
+- `NEXT_PUBLIC_APPLE_SERVICES_ID`
+- `NEXT_PUBLIC_GOOGLE_CLIENT_ID`
 - `NEXT_PUBLIC_VAPID_PUBLIC_KEY`
 - `VAPID_PRIVATE_KEY`
 - `VAPID_SUBJECT`
@@ -358,6 +360,8 @@ Every recipient the code can name is assumed on, which declares the most. The va
 - Wikimedia, which runs Wiktionary
 - Resend, which sends our emails
 - The push services run by Google, Mozilla, Apple and Microsoft
+- Google, if you sign in with Google
+- Apple, if you sign in with Apple
 - TartuNLP, at the University of Tartu
 - The error reporting endpoint at errors.example.test
 - Supabase
@@ -370,8 +374,12 @@ Every recipient the code can name is assumed on, which declares the most. The va
 - **Contact Info: Name.** Linked to the person: Yes. Used for: App Functionality.
   - Setting (in the export): the name the learner asked to be called and their preferences
   - ClassroomMember (in the export): the name a learner shows a class they joined
+  - Google, if you sign in with Google: the name and the email address on the Google account a learner signs in with, handed back by Google and kept with the account
+  - Apple, if you sign in with Apple: the name and the email address, or the private address Apple makes, that a learner lets Apple share when they sign in with Apple, kept with the account
 - **Contact Info: Email Address.** Linked to the person: Yes. Used for: App Functionality.
   - Resend, which sends our emails: the address a letter about the learner's own course is sent to; every kind of letter can be switched off
+  - Google, if you sign in with Google: the name and the email address on the Google account a learner signs in with, handed back by Google and kept with the account
+  - Apple, if you sign in with Apple: the name and the email address, or the private address Apple makes, that a learner lets Apple share when they sign in with Apple, kept with the account
   - Supabase: the email address somebody signs in with and the id every table is keyed on, held by the database host
 - **Identifiers: User ID.** Linked to the person: Yes. Used for: App Functionality.
   - Supabase: the email address somebody signs in with and the id every table is keyed on, held by the database host
@@ -434,8 +442,12 @@ Every recipient the code can name is assumed on, which declares the most. The va
 - **Personal info: Name.** Collected: Yes. Processed only while answering: No. Optional: Yes. Used for: App functionality, Account management.
   - Setting (in the export): the name the learner asked to be called and their preferences
   - ClassroomMember (in the export): the name a learner shows a class they joined
+  - Google, if you sign in with Google: the name and the email address on the Google account a learner signs in with, handed back by Google and kept with the account
+  - Apple, if you sign in with Apple: the name and the email address, or the private address Apple makes, that a learner lets Apple share when they sign in with Apple, kept with the account
 - **Personal info: Email address.** Collected: Yes. Processed only while answering: No. Optional: No. Used for: App functionality, Account management, Developer communications.
   - Resend, which sends our emails: the address a letter about the learner's own course is sent to; every kind of letter can be switched off
+  - Google, if you sign in with Google: the name and the email address on the Google account a learner signs in with, handed back by Google and kept with the account
+  - Apple, if you sign in with Apple: the name and the email address, or the private address Apple makes, that a learner lets Apple share when they sign in with Apple, kept with the account
   - Supabase: the email address somebody signs in with and the id every table is keyed on, held by the database host
 - **Personal info: User IDs.** Collected: Yes. Processed only while answering: No. Optional: No. Used for: App functionality, Account management.
   - Supabase: the email address somebody signs in with and the id every table is keyed on, held by the database host

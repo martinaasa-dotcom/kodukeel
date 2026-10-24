@@ -3,6 +3,7 @@ import { ArrowLeft, Check } from "lucide-react";
 import { supabaseConfigured } from "@/lib/auth/mode";
 import { readSsoPolicy } from "@/lib/auth/sso";
 import { appleServicesId as readAppleServicesId } from "@/lib/auth/appleConfig";
+import { googleClientId as readGoogleClientId } from "@/lib/auth/googleConfig";
 import { resolveOperator } from "@/lib/legal/operator";
 import { Note } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
@@ -93,9 +94,10 @@ export default async function SignInPage({ searchParams }: {
     one build can only ever serve one of the two states. That is what kept the
     whole Google door outside `scripts/test-signin.mjs`, which makes one build
     and starts it twice with different environments. The CSP reads the same
-    variable, on the server, in `lib/security/headers.ts`.
+    variable, on the server, in `lib/security/headers.ts`, and /privacy names
+    Google as a recipient off the same reader (`lib/auth/googleConfig.ts`).
   */
-  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim() || undefined;
+  const googleClientId = readGoogleClientId();
   /*
     And Apple's, for the same reason and through the one reader the CSP and
     /privacy use, so the button, the policy that lets its script load and the

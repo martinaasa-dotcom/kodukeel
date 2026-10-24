@@ -44,6 +44,7 @@ practice mode, an optional AI tutor, and optional class or workplace groups.
 | The data subject, directly | Everything they type: answers, tasks, calendar entries, tutor messages, exam compositions, reports of things that are wrong, the display name they choose for a class |
 | The data subject, by using the app | Every grade and its timestamp, how long an answer took, which cards exist in their deck, level check results, mock exam results |
 | Supabase Auth, on sign-in | Email address and an opaque user id. The password is never seen by this app, and no Google scope beyond identity is requested |
+| Google, on sign-in with Google, on every hosted deployment | An ID token Supabase verifies, carrying the name and email address on the Google account. Kept as the account's email and display name in Supabase Auth. Where `NEXT_PUBLIC_GOOGLE_CLIENT_ID` is set, the sign-in page loads Google's script as it opens |
 | Apple, on Sign in with Apple, where configured | An ID token Supabase verifies, an email address that may be a private relay address Apple makes, and the name the learner chose to share, on the first sign-in only. Kept as the account's email and display name in Supabase Auth |
 | The device | Time zone, reported by the browser and stored so a day boundary is the learner's own (`components/TimeZoneSync.tsx`) |
 
@@ -407,7 +408,10 @@ is optional and that the notice names who is on the other end.
 
 **Mitigation and the state of it.** `PROVIDER_HOME` in `lib/legal/recipients.ts` records where each
 provider is established, and every AI provider in the table is outside the EEA. Wikimedia, reached
-for an English gloss on a single word with no account attached, is in the United States. Apple,
+for an English gloss on a single word with no account attached, is in the United States. Google,
+named on every hosted deployment because every sign-in page draws its button, is in the United
+States and learns that a learner signed in here and when, and, where its script loads, that they
+opened the sign-in page. Apple,
 named where Sign in with Apple is configured, is in the United States and learns that a learner
 signed in here and when. Ekilex and
 TartuNLP are in Estonia. Supabase's region is chosen when a project is created and is not readable

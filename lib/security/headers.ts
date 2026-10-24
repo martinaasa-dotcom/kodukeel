@@ -13,6 +13,7 @@
   imports this file and is loaded before the alias means anything.
 */
 import { appleSignInConfigured } from "../auth/appleConfig";
+import { googleScriptLoaded } from "../auth/googleConfig";
 import { APPLE_SCRIPT_ORIGIN } from "../auth/appleIdentity";
 
 export const STATIC_SECURITY_HEADERS: { key: string; value: string }[] = [
@@ -134,7 +135,7 @@ function speechModelSrc(): string[] {
 }
 
 function googleIdentitySrc(): string[] {
-  return process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim() ? ["https://accounts.google.com"] : [];
+  return googleScriptLoaded() ? ["https://accounts.google.com"] : [];
 }
 
 /**

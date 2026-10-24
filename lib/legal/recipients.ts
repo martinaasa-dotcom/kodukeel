@@ -2,6 +2,7 @@ import { ekilexConfigured } from "@/lib/ekilex/client";
 import { resolveProviders } from "@/lib/tutor/provider";
 import { pushConfigured } from "@/lib/push/config";
 import { appleSignInConfigured } from "@/lib/auth/appleConfig";
+import { googleScriptLoaded, googleSignInOffered } from "@/lib/auth/googleConfig";
 
 /**
  * Who this particular installation actually sends anything to, so the privacy
@@ -157,6 +158,33 @@ export function resolveRecipients(): Recipient[] {
       name: "The push services run by Google, Mozilla, Apple and Microsoft",
       what: "a reminder you asked to have on a computer, encrypted so that only that browser can read it",
       // All four companies are established in the United States.
+      eea: false,
+    });
+  }
+
+  /*
+    SIGN IN WITH GOOGLE, ON EVERY PAGE THAT DRAWS THE BUTTON (N-3a).
+
+    It was the one sign-in provider this list did not name, which
+    `docs/26-subprocessors.md` called a gap. Somebody who presses "Continue
+    with Google" tells Google they are signing in here, and when, and Google
+    hands back the name and the email address on their account, which the
+    account keeps. Every hosted sign-in page draws the button
+    (`lib/auth/googleConfig.ts`), so it is named wherever that page exists.
+    And where the Client ID is set, the page loads Google's own script as it
+    opens, so Google learns of the visit before anybody presses anything,
+    which is said in its own words.
+  */
+  if (googleSignInOffered()) {
+    recipients.push({
+      id: "google-sign-in",
+      name: "Google, if you sign in with Google",
+      what: googleScriptLoaded()
+        ? "that you opened the sign-in page and from what address, and if you sign in with Google, when, with the name and email address on your Google account"
+        : "that you sign in here and when, and the name and email address on your Google account",
+      // Google LLC, in the United States, runs Identity Services; which Google
+      // entity answers a European account is not readable from here, so the
+      // transfer is disclosed rather than assumed away.
       eea: false,
     });
   }
