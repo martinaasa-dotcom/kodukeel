@@ -159,6 +159,60 @@ describe("A1 lessons", () => {
     expect(meaningShows({ kind: "form", et: "mul", of: "mina", en: "at me; with {on}, I have" })).toBe(false);
   });
 
+  it("accept the pronoun in front of a person ending, since Estonian may drop it", () => {
+    const before = ledgersBefore(LESSONS);
+    let found = 0;
+    for (const lesson of A1_LESSONS) {
+      for (const item of practiceFor(lesson, before.get(lesson.id)!)) {
+        if (item.kind !== "type" || item.answer !== "oleme") continue;
+        found++;
+        expect(markPhrase("oleme", item.accept).verdict).toBe("right");
+        expect(markPhrase("me oleme", item.accept).verdict).toBe("right");
+      }
+    }
+    expect(found).toBeGreaterThan(0);
+  });
+
+  it("accept the whole phrase for a form said with on", () => {
+    const before = ledgersBefore(LESSONS);
+    let found = 0;
+    for (const lesson of A1_LESSONS) {
+      for (const item of practiceFor(lesson, before.get(lesson.id)!)) {
+        if (item.kind !== "type" || !/^with \{on\}:/.test(item.en)) continue;
+        found++;
+        expect(markPhrase(item.answer, item.accept).verdict).toBe("right");
+        expect(markPhrase(`${item.answer} on`, item.accept).verdict).toBe("right");
+      }
+    }
+    expect(found).toBeGreaterThan(0);
+  });
+
+  it("accepts the shared spelling alone or with each pronoun, however it is joined", () => {
+    const before = ledgersBefore(LESSONS);
+    let found = 0;
+    for (const lesson of A1_LESSONS) {
+      for (const item of practiceFor(lesson, before.get(lesson.id)!)) {
+        if (item.kind !== "type" || item.en !== "you were, they were") continue;
+        found++;
+        expect(item.note).toMatch(/one spelling for both/);
+        for (const typed of ["olid", "sa olid, nad olid", "sa olid ja nad olid", "nad olid ja sina olid", "Sa olid ning nemad olid."]) {
+          expect(markPhrase(typed, item.accept).verdict, typed).toBe("right");
+        }
+        expect(markPhrase("te olid, nad olid", item.accept).verdict).not.toBe("right");
+        expect(markPhrase("sa olid, nad on", item.accept).verdict).toBe("nearly");
+      }
+    }
+    expect(found).toBeGreaterThan(0);
+  });
+
+  it("says half right when the word is there with more beside it", () => {
+    const m = markPhrase("sa olid, nad on", ["olid"]);
+    expect(m.verdict).toBe("nearly");
+    expect(m.note).toMatch(/^Half right/);
+    expect(markPhrase("olid", ["olid"]).verdict).toBe("right");
+    expect(markPhrase("nad on", ["olid"]).verdict).toBe("wrong");
+  });
+
   it("give every lesson something to practice, and nothing on the first lesson's review", () => {
     const before = ledgersBefore(LESSONS);
     for (const lesson of A1_LESSONS) expect(practiceFor(lesson, before.get(lesson.id)!).length).toBeGreaterThan(3);
