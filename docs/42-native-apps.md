@@ -60,6 +60,38 @@ passes them.
 - **The cache.** The service worker's caches (`public/sw.js`) become the platform's own storage, with
   the model in a place the system does not clear.
 
+### The native outbox and the model cache, written out (R-5)
+
+The web's outbox is `lib/offline/db.ts` over IndexedDB, with its rules in `lib/offline/outbox.ts`, which
+a native app imports as it is. Its own store keeps the same records under the same rules:
+
+- **Every field of `PendingGrade` is kept.** `id`, `cardId`, `rating`, `durationMs`, `reviewedAt`, and
+  `slot`, `reachedSlot` and `spoken` where the round set them. A field the store does not keep is a
+  field the server never hears about, silently, for exactly the learners who were on a train.
+- **Idempotent by id.** The id is made on the device (`isClientReviewId` is the shape the server
+  accepts), so a replay that half succeeded and is sent again writes nothing twice: the server answers
+  with the ids it has settled, and those leave the store (`withoutSettled`).
+- **Replayed in order.** `orderForReplay` puts a batch in the order the server applies it, by when it
+  was answered and then by id; `nextBatch` sends `REPLAY_BATCH` at a time. The time is the device's own
+  and the server clamps it (`clampReviewedAt`), so a wrong clock costs an interval rather than a grade.
+- **An unsendable row is dropped, not skipped.** A row `isValidPending` refuses is deleted by its id
+  rather than read past, or the count of grades waiting never reaches nought. A row too broken to have
+  an id is left alone.
+- **An undo takes a queued grade out.** `undoOutcome` is the rule: a grade still in the store is undone
+  by removing it, whatever the server can say.
+- **The store is wiped when another account signs in**, after the outbox has had its chance to drain,
+  as `lib/offline/forget.ts` does on the web: the queued grades, the kept session and anything cached
+  from the last learner's screens.
+- **The kept session** is `StashedSession` from `lib/review/card.ts`, and `stashedCards` says whether it
+  is still worth reviewing (`STASH_MAX_AGE_MS`, three days).
+
+The model is the other thing a device keeps. A native app downloads the four files named in
+`lib/speech/model.ts` from the same base, checks each against its SHA-256 before using it, and keeps
+them in its own container, where the system does not clear them the way Safari clears a site's storage
+after a week. The name `ASR_CACHE` is derived from the hashes, so a new model is a new cache; a native
+app keys its copy the same way and deletes any other, which is what the service worker does
+(`public/sw.js`).
+
 ### What a native app imports, and how (R-1)
 
 A native app written in TypeScript imports these as they are, from this repository, and a check holds
@@ -210,6 +242,32 @@ Produce `lib/speech/fixtures/golden.json` from the same clips:
 A native engine that passes this hears what the web hears and grades what the web grades. A difference
 in the raw turns is a difference in the engine or its settings, and is the thing to fix before anything
 is built on top.
+
+**Running the check with no browser (R-5).** `npm run check:speech-golden` runs step 3 and step 4 on
+stored turns: `scripts/check-speech-golden.ts` hands each clip's turns to `decide` and compares the
+result with the golden file's `expect`, field by field, through `checkGolden` in
+`lib/speech/goldenCheck.ts`. It needs no browser, no model and no audio, and it never writes the golden
+file. With no argument it uses the golden file's own turns, which is the check that the rules have not
+moved; `lib/speech/goldenCheck.test.ts` runs it that way on every commit.
+
+A native port records its own turns in the golden file's shape and passes the file with `--run`:
+
+```json
+{
+  "engine": "<the engine and its version>",
+  "model": "<repo>@<revision>, as lib/speech/model.ts names it",
+  "clips": [
+    { "file": "scripts/fixtures/speech/tere.wav", "sha256": "<the bytes decoded>", "turns": [ "<one RawTurn per piece>" ] }
+  ]
+}
+```
+
+Each `turns` entry is a `RawTurn` (`lib/speech/engine.ts`): the greedy and the beam reading with their
+tokens, timestamps and log probabilities, and the seconds of speech. The check refuses a clip whose hash
+is not the golden clip's, a run that names another model, a clip it does not hold and a clip the run
+leaves out, and for the rest names each field that came out different. A native port written in
+TypeScript can call `checkGolden` itself; one written in Swift or Kotlin writes the JSON and runs the
+script.
 
 ## 6. Parity, both ways (D25)
 

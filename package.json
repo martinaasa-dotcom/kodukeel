@@ -113,6 +113,7 @@
     "audit:readable": "tsx scripts/audit-readable.ts",
     "audit:pins": "tsx scripts/audit-grammar-pins.ts",
     "check:authored": "tsx scripts/check-authored.ts",
+    "check:speech-golden": "tsx scripts/check-speech-golden.ts",
     "export:translations": "tsx scripts/export-translations.ts",
     "i18n:tables": "tsx scripts/build-locale-tables.ts",
     "asr:runtime": "node scripts/vendor-asr-runtime.mjs",
