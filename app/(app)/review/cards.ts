@@ -31,7 +31,7 @@ import { sentenceFronts } from "@/lib/progress/formCards";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
 
-import type { ReviewCard } from "./ReviewSession";
+import type { ReviewCard } from "@/lib/review/card";
 
 /*
   THE LADDER'S OWN WHERE-FRAGMENTS LIVE IN `lib/srs/reviewQueue.ts` NOW, beside

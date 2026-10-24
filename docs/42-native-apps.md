@@ -60,6 +60,55 @@ passes them.
 - **The cache.** The service worker's caches (`public/sw.js`) become the platform's own storage, with
   the model in a place the system does not clear.
 
+### What a native app imports, and how (R-1)
+
+A native app written in TypeScript imports these as they are, from this repository, and a check holds
+them portable: `scripts/invariants/the-portable-core.ts` walks the runtime imports from each one and
+fails on a browser global, a `node:` module or another Node built-in, a read of `process`, a package
+nobody decided the phone carries, or an import from `app/` or `components/`. It names the chain that
+reached the fault. The fix is always to move the browser or server half out, never an exemption.
+
+| Entry | What it gives a native app |
+| --- | --- |
+| `lib/speech/` | The whole speech pure layer: preparing, cutting, reconciling, the verdict, lighting a line, the golden rules |
+| `lib/estonian/` | Every rule a screen asks about Estonian, the marker included |
+| `lib/scenes/` | The conversations and their machine |
+| `lib/offline/outbox.ts` | The outbox's record (`PendingGrade`), its order and its checks |
+| `lib/push/notification.ts` | The words a reminder says, read from the same letter |
+| `lib/copy/locale.ts` | `tr`, `fill` and the counted nouns, over the interface tables |
+| `lib/srs/scheduler.ts` | The ratings and the scheduler's own vocabulary, over `ts-fsrs` |
+| `lib/review/card.ts` | A review card as the server sends it, and the cached session a device keeps |
+| `lib/links/routes.ts` (to be written) | Which web paths a native screen answers (R-4, section 3) |
+| `lib/api/contract.ts` (to be written) | The v1 contract (N-1), in the walk from the day the file exists |
+
+Today the walk reaches about 290 files. The packages it may reach are `ts-fsrs` and `zod`; a third is a
+decision, made in the check's own list.
+
+Four things a native project has to mirror:
+
+- **The `@/` alias.** Every import here is written from the repository's root (`@/lib/...`), as
+  `tsconfig.json` declares it. The native project maps `@/` to the same root, in its bundler and in
+  its own `tsconfig.json`.
+- **No DOM library.** The web's `tsconfig.json` carries `dom`, so the web's type check cannot see a
+  browser global in shared code; the native project leaves `dom` out, which is what makes the check
+  above and the native compiler agree.
+- **The `react-native` condition.** `#i18n-tables` is a package import (`package.json`, "imports").
+  Under `react-native` and `browser` it resolves to `lib/copy/i18n/tables.browser.ts`, a registry
+  that holds whatever has been handed to it. The `default` variant reads the generated files with
+  `node:fs`, which a phone has not got. React Native's bundler asks for `react-native` first.
+- **The tables are handed over.** A native app registers the learner's language with
+  `registerTable(locale, table, true)` from `lib/copy/i18n/tables.browser.ts`, out of
+  `lib/copy/i18n/generated/ru.json` or `uk.json`, bundled with the app or fetched from the site. Each
+  file is a `PackedTable` (`lib/copy/i18n/table.ts`): `{ "packed": 1, "lines", "counted", "cases" }`,
+  where `lines` maps `lineKey(english)` (a 53-bit hash in base 36) to the line, `counted` maps a noun
+  to its three plural forms, and `cases` to its genitive and accusative singular. English needs no
+  table, since the English is the key. `npm run i18n:tables` writes the files, so a native build
+  copies them at build time rather than keeping a copy of its own.
+
+What stays out of the portable core, and is the web's or the server's: `lib/offline/db.ts` (the web's
+IndexedDB store), and `lib/push/config.ts`, `lib/security/rateLimit.ts` and `lib/email/webhook.ts`,
+which read the environment. None of them is reached from an entry above.
+
 ## 3. What will not work as it is, and is the native work order's first item
 
 **Every write in this app is a Server Action, and only the web app can call one.** A Server Action is a

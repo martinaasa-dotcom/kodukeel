@@ -4,6 +4,7 @@
   "private": true,
   "imports": {
     "#i18n-tables": {
+      "react-native": "./lib/copy/i18n/tables.browser.ts",
       "browser": "./lib/copy/i18n/tables.browser.ts",
       "default": "./lib/copy/i18n/tables.ts"
     }
