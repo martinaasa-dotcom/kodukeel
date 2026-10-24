@@ -46,7 +46,7 @@ function routes(dir, prefix = "") {
 /* A value each dynamic segment can be answered for, as `test-first-day.mjs`
    fills them, so the walk meets the screen rather than the not-found. */
 const FILL = {
-  "[unitId]": "loodus", "[situationId]": "tervitused", "[level]": "A1", "[id]": "partitive",
+  "[unitId]": "too-ja-raha", "[situationId]": "tervitused", "[level]": "A1", "[id]": "partitive",
   "[caseKey]": "partitive", "[case]": "partitive",
   "[code]": "AAAAAA", "[groupId]": "none",
 };
