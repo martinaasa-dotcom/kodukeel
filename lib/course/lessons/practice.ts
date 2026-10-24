@@ -218,7 +218,15 @@ function noteFor(item: Taught): { note?: string } {
 
 /** A produce question, taking every taught spelling with the same English. */
 function produce(item: Taught, pool: readonly Taught[]): PracticeItem {
-  const accept = [...new Set([item.et, ...pool.filter((o) => sameEnglish(o.en, item.en)).map((o) => o.et)])];
+  /* "outside/outdoors" is two English words for one meaning, so a taught word
+     glossed with either one is right as well. Only a slash says so: a comma
+     joins senses ("juice, some juice") and must not. */
+  const senses = (en: string) => en.split("/").map((sense) => sense.trim().toLocaleLowerCase("en"));
+  const sharesSense = (o: Taught) => {
+    const mine = senses(item.en);
+    return senses(o.en).some((sense) => mine.includes(sense)) && (mine.length > 1 || senses(o.en).length > 1);
+  };
+  const accept = [...new Set([item.et, ...pool.filter((o) => sameEnglish(o.en, item.en) || sharesSense(o)).map((o) => o.et)])];
   /* A person ending says who is meant, so Estonian drops the pronoun, and
      `me oleme` is as right as `oleme` for "we are". The pronouns are the taught
      items whose English is the first word of this one's, never a list of ours.

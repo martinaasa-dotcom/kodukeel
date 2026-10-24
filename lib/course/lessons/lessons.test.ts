@@ -217,6 +217,18 @@ describe("A1 lessons", () => {
     expect([...noted].sort()).toEqual(["you went, they went", "you were, they were"]);
   });
 
+  it("takes either word of an outside/outdoors gloss", () => {
+    const before = ledgersBefore(LESSONS);
+    const seen: string[][] = [];
+    for (const lesson of A1_LESSONS) {
+      for (const item of practiceFor(lesson, before.get(lesson.id)!)) {
+        if (item.kind === "type" && item.en.includes("outdoors")) seen.push([...item.accept]);
+      }
+    }
+    expect(seen.length).toBeGreaterThan(0);
+    for (const accept of seen) expect(accept).toEqual(expect.arrayContaining(["õues", "väljas"]));
+  });
+
   it("says half right when the word is there with more beside it", () => {
     const m = markPhrase("sa olid, nad on", ["olid"]);
     expect(m.verdict).toBe("nearly");

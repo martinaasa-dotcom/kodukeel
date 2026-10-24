@@ -387,7 +387,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "kuum", en: "hot" },
       { kind: "word", et: "kuiv", en: "dry" },
       { kind: "word", et: "märg", en: "wet" },
-      { kind: "word", et: "õues", en: "outdoors" },
+      { kind: "word", et: "õues", en: "outside/outdoors" },
     ],
     how: {
       point: "A number of degrees is a number + the [osastav] (3rd form), like {kaks kohvi}: {kaks kraadi}.",
