@@ -82,7 +82,7 @@ export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, ne
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {result.passed ? (
-              next ? <NextPart programmeId={next.id} label={fill(t("Start {part}"), { part: next.label })} /> : null
+              next ? <NextPart programmeId={next.id} to="/course" label={fill(t("Start {part}"), { part: next.label })} /> : null
             ) : (
               <>
                 <ButtonLink href="/review">{t("Review your words")}</ButtonLink>
