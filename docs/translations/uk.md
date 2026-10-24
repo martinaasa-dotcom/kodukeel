@@ -488,7 +488,7 @@ _lib/copy/i18n/{ru,uk}.ts_
   → Повторень: {total}. Днів із заняттями: {active} з {days}.
 - [ ] **229.** Quiet  
   → Мало
-- [ ] **230.** You _(context: person)_  
+- [ ] **230.** You _(context: `person`)_  
   → Ви
 - [ ] **231.** Busy  
   → Багато
@@ -1981,11 +1981,11 @@ _lib/copy/i18n/areas/today.ts_
   → Сховати англійську
 - [ ] **969.** Tap for the punchline  
   → Натисніть, щоб дізнатися кінцівку
-- [ ] **970.** Another one _(context: joke)_  
+- [ ] **970.** Another one _(context: `joke`)_  
   → Ще один
 - [ ] **971.** Good news today  
   → Добра новина дня
-- [ ] **972.** Another one _(context: news)_  
+- [ ] **972.** Another one _(context: `news`)_  
   → Ще одну
 - [ ] **973.** Read it on ERR  
   → Читати на ERR
@@ -2825,11 +2825,11 @@ _lib/copy/i18n/areas/situations.ts_
   → Голос і текст
 - [ ] **1383.** Voice only  
   → Лише голос
-- [ ] **1384.** Text _(context: voice)_  
+- [ ] **1384.** Text _(context: `voice`)_  
   → Текст
-- [ ] **1385.** Voice + text _(context: voice)_  
+- [ ] **1385.** Voice + text _(context: `voice`)_  
   → Голос і текст
-- [ ] **1386.** Voice _(context: voice)_  
+- [ ] **1386.** Voice _(context: `voice`)_  
   → Голос
 - [ ] **1387.** You read each line. Nothing is played aloud.  
   → Ви читаєте кожну репліку. Вголос нічого не звучить.
@@ -6181,7 +6181,7 @@ _lib/copy/i18n/areas/reference.ts_
   → Додати відсутні ({n})
 - [ ] **3057.** All in your deck  
   → Усі вже в колоді
-- [ ] **3058.** Practice _(context: verb)_  
+- [ ] **3058.** Practice _(context: `verb`)_  
   → Тренуватися
 - [ ] **3059.** See the list  
   → Переглянути список
@@ -7085,7 +7085,7 @@ _lib/copy/i18n/areas/app.ts_
   → Додати
 - [ ] **3505.** this week  
   → цього тижня
-- [ ] **3506.** {n} back _(context: time)_  
+- [ ] **3506.** {n} back _(context: `time`)_  
   → {n} тому
 - [ ] **3507.** {n} ahead  
   → через {n}
@@ -8249,7 +8249,7 @@ _lib/copy/i18n/areas/app.ts_
   → Скільки карток ви хочете проходити щодня. Зробити більше можна завжди.
 - [ ] **4087.** day {day} of {total}  
   → день {day} з {total}
-- [ ] **4088.** off _(context: setting)_  
+- [ ] **4088.** off _(context: `setting`)_  
   → вимкнено
 - [ ] **4089.** The planned course  
   → Курс за планом
@@ -8751,7 +8751,7 @@ _lib/copy/i18n/areas/rounds.ts_
   → Завершити раунд
 - [ ] **4334.** {estonian} on the lilac tiles, its meaning on the white ones. A wrong tap just costs you a little time.  
   → {estonian} на бузкових плитках, значення на білих. Хибне натискання просто забере трохи часу.
-- [ ] **4335.** Estonian _(context: match)_  
+- [ ] **4335.** Estonian _(context: `match`)_  
   → Естонські слова
 - [ ] **4336.** Listening  
   → Аудіювання
@@ -9709,7 +9709,7 @@ _lib/copy/i18n/areas/rounds.ts_
   → у слові
 - [ ] **4813.** not in it  
   → немає в слові
-- [ ] **4814.** Delete _(context: key)_  
+- [ ] **4814.** Delete _(context: `key`)_  
   → Стерти
 - [ ] **4815.** Guess  
   → Перевірити
@@ -9765,7 +9765,7 @@ _lib/copy/i18n/areas/rounds.ts_
   → про те, як людина почувається
 - [ ] **4841.** weather or nature  
   → про погоду чи природу
-- [ ] **4842.** language _(context: clue)_  
+- [ ] **4842.** language _(context: `clue`)_  
   → про мову
 - [ ] **4843.** a measurement  
   → міра
@@ -10689,7 +10689,7 @@ _lib/copy/i18n/areas/progress.ts_
   → Завантажуємо рейтинг групи
 - [ ] **5299.** Loading…  
   → Завантаження…
-- [ ] **5300.** Marking _(context: busy)_  
+- [ ] **5300.** Marking _(context: `busy`)_  
   → Перевіряємо
 - [ ] **5301.** Measured {date}  
   → Виміряно: {date}
@@ -10831,7 +10831,7 @@ _lib/copy/i18n/areas/progress.ts_
   → Одне слово. Запишіть його.
 - [ ] **5370.** Only {answers} answers so far, so this stays at "{rung}" for now  
   → Відповідей поки лише {answers}, тому тут поки залишається «{rung}»
-- [ ] **5371.** Open _(context: hours)_  
+- [ ] **5371.** Open _(context: `hours`)_  
   → Відчинено
 - [ ] **5372.** Open the class  
   → Відкрити групу
@@ -10849,7 +10849,7 @@ _lib/copy/i18n/areas/progress.ts_
   → Варіанти, які ви писали
 - [ ] **5379.** Part {n}  
   → Частина {n}
-- [ ] **5380.** Passed _(context: exam)_  
+- [ ] **5380.** Passed _(context: `exam`)_  
   → Складено
 - [ ] **5381.** Pick a date that's still ahead of you and we can plan again.  
   → Оберіть дату, яка ще попереду, і ми знову все розрахуємо.
@@ -10951,7 +10951,7 @@ _lib/copy/i18n/areas/progress.ts_
   → Правильно
 - [ ] **5430.** Right, with a note  
   → Правильно, із зауваженням
-- [ ] **5431.** Sat _(context: exam)_  
+- [ ] **5431.** Sat _(context: `exam`)_  
   → Здавали
 - [ ] **5432.** See every situation, and what would trip you up in each  
   → Усі ситуації і те, що може збити вас у кожній
@@ -11241,7 +11241,7 @@ _lib/copy/i18n/areas/progress.ts_
   → Час говорити
 - [ ] **5575.** Time's up. This part is closed now, the way it would be in a real exam hall. Anything you left blank scores nothing.  
   → Час сплив. Ця частина тепер закрита, як було б у справжній екзаменаційній залі. Усе, що залишилося порожнім, не приносить балів.
-- [ ] **5576.** Town _(context: form)_  
+- [ ] **5576.** Town _(context: `form`)_  
   → Місто
 - [ ] **5577.** True, that's what it said  
   → Правильно, саме це там і було
@@ -11585,7 +11585,7 @@ _lib/copy/i18n/areas/progress.ts_
   → за останні {days}
 - [ ] **5747.** learned and forgotten more than once  
   → вивчено й забуто не раз
-- [ ] **5748.** left out _(context: word)_  
+- [ ] **5748.** left out _(context: `word`)_  
   → пропущено
 - [ ] **5749.** level check screen  
   → сторінці перевірки рівня
@@ -13009,7 +13009,7 @@ _lib/copy/i18n/areas/progress.ts_
   → слово й інші значення, щоб перемішати з його власним
 - [ ] **6459.** All  
   → Усі
-- [ ] **6460.** Due _(context: cards)_  
+- [ ] **6460.** Due _(context: `cards`)_  
   → Час повторити
 - [ ] **6461.** Struggling  
   → Складні
@@ -14401,7 +14401,7 @@ _lib/copy/i18n/areas/grammarCases.ts_
   → стан
 - [ ] **7142.** Whether the sentence says who did it. It looks like the English passive but works differently, so keep the two apart.  
   → Чи каже речення, хто це зробив. Схоже на пасив, але влаштовано інакше, тож не плутайте їх: це ближче до українського «тут говорять естонською», де того, хто діє, просто не названо.
-- [ ] **7143.** person _(context: grammar)_  
+- [ ] **7143.** person _(context: `grammar`)_  
   → особа
 - [ ] **7144.** Six persons, each with its own verb ending, so "I" and "you" can often be left out. "He", "she" and "they" usually stay.  
   → Шість осіб, у кожної своє закінчення, тож «я» і «ти» часто пропускають, як і в українському «читаю». «Він», «вона» і «вони» зазвичай лишаються.
@@ -15677,27 +15677,27 @@ _lib/copy/i18n/areas/landing.ts_
   → {done} з {all} зібрано з {word}
 - [ ] **7771.** Estonians also say {form}, which no ending gives you, so learn that one too.  
   → Естонці ще кажуть {form}, а цього не дає жодне закінчення, тож вивчіть і цю форму.
-- [ ] **7772.** into _(context: ending)_  
+- [ ] **7772.** into _(context: `ending`)_  
   → всередину
-- [ ] **7773.** in _(context: ending)_  
+- [ ] **7773.** in _(context: `ending`)_  
   → всередині
-- [ ] **7774.** out of _(context: ending)_  
+- [ ] **7774.** out of _(context: `ending`)_  
   → з (зсередини)
-- [ ] **7775.** onto _(context: ending)_  
+- [ ] **7775.** onto _(context: `ending`)_  
   → на (поверхню)
-- [ ] **7776.** on _(context: ending)_  
+- [ ] **7776.** on _(context: `ending`)_  
   → на (поверхні)
-- [ ] **7777.** off _(context: ending)_  
+- [ ] **7777.** off _(context: `ending`)_  
   → з (поверхні)
-- [ ] **7778.** becoming _(context: ending)_  
+- [ ] **7778.** becoming _(context: `ending`)_  
   → стаючи
-- [ ] **7779.** up to _(context: ending)_  
+- [ ] **7779.** up to _(context: `ending`)_  
   → до
-- [ ] **7780.** as _(context: ending)_  
+- [ ] **7780.** as _(context: `ending`)_  
   → у ролі
-- [ ] **7781.** without _(context: ending)_  
+- [ ] **7781.** without _(context: `ending`)_  
   → без
-- [ ] **7782.** with _(context: ending)_  
+- [ ] **7782.** with _(context: `ending`)_  
   → з, разом із
 - [ ] **7783.** Your first evening  
   → Ваш перший вечір
@@ -15753,21 +15753,21 @@ _lib/copy/i18n/areas/landing.ts_
   → Спробувати ще раз
 - [ ] **7809.** Not quite. {word} means {meaning}. It’ll come around again soon.  
   → Не зовсім. {word} означає «{meaning}». Незабаром воно повернеться.
-- [ ] **7810.** Hello! _(context: gloss)_  
+- [ ] **7810.** Hello! _(context: `gloss`)_  
   → Привіт!
-- [ ] **7811.** Good morning! _(context: gloss)_  
+- [ ] **7811.** Good morning! _(context: `gloss`)_  
   → Доброго ранку!
-- [ ] **7812.** Good afternoon! _(context: gloss)_  
+- [ ] **7812.** Good afternoon! _(context: `gloss`)_  
   → Добрий день!
-- [ ] **7813.** Good evening! _(context: gloss)_  
+- [ ] **7813.** Good evening! _(context: `gloss`)_  
   → Добрий вечір!
-- [ ] **7814.** Thank you! _(context: gloss)_  
+- [ ] **7814.** Thank you! _(context: `gloss`)_  
   → Дякую!
-- [ ] **7815.** Please. _(context: gloss)_  
+- [ ] **7815.** Please. _(context: `gloss`)_  
   → Будь ласка.
-- [ ] **7816.** Goodbye! _(context: gloss)_  
+- [ ] **7816.** Goodbye! _(context: `gloss`)_  
   → До побачення!
-- [ ] **7817.** See you! _(context: gloss)_  
+- [ ] **7817.** See you! _(context: `gloss`)_  
   → Побачимося!
 - [ ] **7818.** Say it to somebody  
   → Скажіть це комусь
@@ -15781,17 +15781,17 @@ _lib/copy/i18n/areas/landing.ts_
   → Ваш автобус відходить за десять хвилин.
 - [ ] **7823.** Step {n} of {all}  
   → Крок {n} з {all}
-- [ ] **7824.** Hello _(context: step)_  
+- [ ] **7824.** Hello _(context: `step`)_  
   → Привітання
-- [ ] **7825.** Order _(context: step)_  
+- [ ] **7825.** Order _(context: `step`)_  
   → Замовлення
-- [ ] **7826.** Size _(context: step)_  
+- [ ] **7826.** Size _(context: `step`)_  
   → Розмір
-- [ ] **7827.** Bill _(context: step)_  
+- [ ] **7827.** Bill _(context: `step`)_  
   → Рахунок
-- [ ] **7828.** Pay _(context: step)_  
+- [ ] **7828.** Pay _(context: `step`)_  
   → Оплата
-- [ ] **7829.** Bye _(context: step)_  
+- [ ] **7829.** Bye _(context: `step`)_  
   → Прощання
 - [ ] **7830.** On the board  
   → На дошці
@@ -15859,13 +15859,13 @@ _lib/copy/i18n/areas/landing.ts_
   → Бувайте!
 - [ ] **7862.** Now pay for it.  
   → Тепер заплатіть.
-- [ ] **7863.** coffee _(context: ordered)_  
+- [ ] **7863.** coffee _(context: `ordered`)_  
   → каву
-- [ ] **7864.** tea _(context: ordered)_  
+- [ ] **7864.** tea _(context: `ordered`)_  
   → чай
-- [ ] **7865.** water _(context: ordered)_  
+- [ ] **7865.** water _(context: `ordered`)_  
   → воду
-- [ ] **7866.** juice _(context: ordered)_  
+- [ ] **7866.** juice _(context: `ordered`)_  
   → сік
 - [ ] **7867.** Questions  
   → Питання
@@ -15917,9 +15917,9 @@ _lib/copy/i18n/areas/landing.ts_
   → Дає змогу відрепетирувати розмову з людиною, якій від вас щось потрібно
 - [ ] **7891.** Counts the conversations you have outside it  
   → Рахує розмови, які у вас бувають поза застосунком
-- [ ] **7892.** yes _(context: mark)_  
+- [ ] **7892.** yes _(context: `mark`)_  
   → так
-- [ ] **7893.** no _(context: mark)_  
+- [ ] **7893.** no _(context: `mark`)_  
   → ні
 - [ ] **7894.** we could not tell  
   → ми не змогли визначити
@@ -15943,7 +15943,7 @@ _lib/copy/i18n/areas/landing.ts_
   → П'ятнадцять хвилин тут.
 - [ ] **7904.** Then {say} to somebody.  
   → А потім {say} комусь.
-- [ ] **7905.** say it _(context: sticker)_  
+- [ ] **7905.** say it _(context: `sticker`)_  
   → скажіть це
 - [ ] **7906.** Next time somebody speaks to you in Estonian, you’ll have something to say back, and you’ll have said it before.  
   → Коли наступного разу з вами заговорять естонською, вам буде що відповісти, і ви це вже казали.
@@ -16195,7 +16195,7 @@ _lib/copy/i18n/areas/twenty.ts_
   → Здатися
 - [ ] **8026.** Hint, costs a question  
   → Підказка за одне запитання
-- [ ] **8027.** Ask _(context: question)_  
+- [ ] **8027.** Ask _(context: `question`)_  
   → Запитати
 - [ ] **8028.** Not sure what to ask?  
   → Не знаєте, що запитати?
@@ -16283,11 +16283,11 @@ _lib/copy/i18n/areas/twenty.ts_
   → Воно більше, ніж «{thing}»?
 - [ ] **8070.** Is it smaller than “{thing}”?  
   → Воно менше, ніж «{thing}»?
-- [ ] **8071.** Is it {word}? _(context: colour)_  
+- [ ] **8071.** Is it {word}? _(context: `colour`)_  
   → Воно {word}?
-- [ ] **8072.** Does it have {word}? _(context: part)_  
+- [ ] **8072.** Does it have {word}? _(context: `part`)_  
   → У нього є {word}?
-- [ ] **8073.** Is it made of {word}? _(context: material)_  
+- [ ] **8073.** Is it made of {word}? _(context: `material`)_  
   → Воно зроблене з {word}?
 - [ ] **8074.** Is it big?  
   → Воно велике?
@@ -16457,111 +16457,111 @@ _lib/copy/i18n/areas/twenty.ts_
   → Воно світить?
 - [ ] **8157.** Does it smell?  
   → Воно пахне?
-- [ ] **8158.** red _(context: colour)_  
+- [ ] **8158.** red _(context: `colour`)_  
   → червоне
-- [ ] **8159.** blue _(context: colour)_  
+- [ ] **8159.** blue _(context: `colour`)_  
   → синє
-- [ ] **8160.** yellow _(context: colour)_  
+- [ ] **8160.** yellow _(context: `colour`)_  
   → жовте
-- [ ] **8161.** green _(context: colour)_  
+- [ ] **8161.** green _(context: `colour`)_  
   → зелене
-- [ ] **8162.** white _(context: colour)_  
+- [ ] **8162.** white _(context: `colour`)_  
   → біле
-- [ ] **8163.** black _(context: colour)_  
+- [ ] **8163.** black _(context: `colour`)_  
   → чорне
-- [ ] **8164.** brown _(context: colour)_  
+- [ ] **8164.** brown _(context: `colour`)_  
   → коричневе
-- [ ] **8165.** gray _(context: colour)_  
+- [ ] **8165.** gray _(context: `colour`)_  
   → сіре
-- [ ] **8166.** pink _(context: colour)_  
+- [ ] **8166.** pink _(context: `colour`)_  
   → рожеве
-- [ ] **8167.** orange _(context: colour)_  
+- [ ] **8167.** orange _(context: `colour`)_  
   → помаранчеве
-- [ ] **8168.** purple _(context: colour)_  
+- [ ] **8168.** purple _(context: `colour`)_  
   → фіолетове
-- [ ] **8169.** legs _(context: part)_  
+- [ ] **8169.** legs _(context: `part`)_  
   → ноги
-- [ ] **8170.** wings _(context: part)_  
+- [ ] **8170.** wings _(context: `part`)_  
   → крила
-- [ ] **8171.** a tail _(context: part)_  
+- [ ] **8171.** a tail _(context: `part`)_  
   → хвіст
-- [ ] **8172.** wheels _(context: part)_  
+- [ ] **8172.** wheels _(context: `part`)_  
   → колеса
-- [ ] **8173.** a door _(context: part)_  
+- [ ] **8173.** a door _(context: `part`)_  
   → двері
-- [ ] **8174.** a window _(context: part)_  
+- [ ] **8174.** a window _(context: `part`)_  
   → вікно
-- [ ] **8175.** feathers _(context: part)_  
+- [ ] **8175.** feathers _(context: `part`)_  
   → пір'я
-- [ ] **8176.** fur _(context: part)_  
+- [ ] **8176.** fur _(context: `part`)_  
   → хутро
-- [ ] **8177.** leaves or pages _(context: part)_  
+- [ ] **8177.** leaves or pages _(context: `part`)_  
   → листя або сторінки
-- [ ] **8178.** a beak _(context: part)_  
+- [ ] **8178.** a beak _(context: `part`)_  
   → дзьоб
-- [ ] **8179.** eyes _(context: part)_  
+- [ ] **8179.** eyes _(context: `part`)_  
   → очі
-- [ ] **8180.** ears _(context: part)_  
+- [ ] **8180.** ears _(context: `part`)_  
   → вуха
-- [ ] **8181.** a nose _(context: part)_  
+- [ ] **8181.** a nose _(context: `part`)_  
   → ніс
-- [ ] **8182.** a mouth _(context: part)_  
+- [ ] **8182.** a mouth _(context: `part`)_  
   → рот
-- [ ] **8183.** a head _(context: part)_  
+- [ ] **8183.** a head _(context: `part`)_  
   → голова
-- [ ] **8184.** teeth _(context: part)_  
+- [ ] **8184.** teeth _(context: `part`)_  
   → зуби
-- [ ] **8185.** a belly _(context: part)_  
+- [ ] **8185.** a belly _(context: `part`)_  
   → живіт
-- [ ] **8186.** a back _(context: part)_  
+- [ ] **8186.** a back _(context: `part`)_  
   → спина
-- [ ] **8187.** horns _(context: part)_  
+- [ ] **8187.** horns _(context: `part`)_  
   → роги
-- [ ] **8188.** skin _(context: part)_  
+- [ ] **8188.** skin _(context: `part`)_  
   → шкіра
-- [ ] **8189.** a peel, bark or crust _(context: part)_  
+- [ ] **8189.** a peel, bark or crust _(context: `part`)_  
   → шкірка, кора або скоринка
-- [ ] **8190.** seeds _(context: part)_  
+- [ ] **8190.** seeds _(context: `part`)_  
   → насіння
-- [ ] **8191.** roots _(context: part)_  
+- [ ] **8191.** roots _(context: `part`)_  
   → коріння
-- [ ] **8192.** branches _(context: part)_  
+- [ ] **8192.** branches _(context: `part`)_  
   → гілки
-- [ ] **8193.** a steering wheel or handlebars _(context: part)_  
+- [ ] **8193.** a steering wheel or handlebars _(context: `part`)_  
   → кермо
-- [ ] **8194.** a screen _(context: part)_  
+- [ ] **8194.** a screen _(context: `part`)_  
   → екран
-- [ ] **8195.** buttons _(context: part)_  
+- [ ] **8195.** buttons _(context: `part`)_  
   → кнопки
-- [ ] **8196.** a keyboard _(context: part)_  
+- [ ] **8196.** a keyboard _(context: `part`)_  
   → клавіатура
-- [ ] **8197.** a cover _(context: part)_  
+- [ ] **8197.** a cover _(context: `part`)_  
   → кришка
-- [ ] **8198.** fins _(context: part)_  
+- [ ] **8198.** fins _(context: `part`)_  
   → плавці
-- [ ] **8199.** paws _(context: part)_  
+- [ ] **8199.** paws _(context: `part`)_  
   → лапи
-- [ ] **8200.** hooves _(context: part)_  
+- [ ] **8200.** hooves _(context: `part`)_  
   → копита
-- [ ] **8201.** wood _(context: material)_  
+- [ ] **8201.** wood _(context: `material`)_  
   → дерева
-- [ ] **8202.** metal _(context: material)_  
+- [ ] **8202.** metal _(context: `material`)_  
   → металу
-- [ ] **8203.** glass _(context: material)_  
+- [ ] **8203.** glass _(context: `material`)_  
   → скла
-- [ ] **8204.** paper _(context: material)_  
+- [ ] **8204.** paper _(context: `material`)_  
   → паперу
-- [ ] **8205.** stone _(context: material)_  
+- [ ] **8205.** stone _(context: `material`)_  
   → каменю
-- [ ] **8206.** iron _(context: material)_  
+- [ ] **8206.** iron _(context: `material`)_  
   → заліза
-- [ ] **8207.** gold _(context: material)_  
+- [ ] **8207.** gold _(context: `material`)_  
   → золота
-- [ ] **8208.** rubber _(context: material)_  
+- [ ] **8208.** rubber _(context: `material`)_  
   → гуми
-- [ ] **8209.** wool _(context: material)_  
+- [ ] **8209.** wool _(context: `material`)_  
   → вовни
-- [ ] **8210.** cotton _(context: material)_  
+- [ ] **8210.** cotton _(context: `material`)_  
   → бавовни
 - [ ] **8211.** Thinking  
   → Думаю
@@ -16725,9 +16725,9 @@ _lib/copy/i18n/areas/twenty.ts_
   → Воно живе поруч із людьми?
 - [ ] **8291.** Is it high up?  
   → Воно високо?
-- [ ] **8292.** Does it have {word} legs? _(context: count)_  
+- [ ] **8292.** Does it have {word} legs? _(context: `count`)_  
   → У нього {word} ніг?
-- [ ] **8293.** Does it have {word} that stand out? _(context: part)_  
+- [ ] **8293.** Does it have {word} that stand out? _(context: `part`)_  
   → У нього помітні {word}?
 - [ ] **8294.** Is it longer than “{thing}”?  
   → Воно довше, ніж «{thing}»?
@@ -16743,51 +16743,51 @@ _lib/copy/i18n/areas/twenty.ts_
   → Воно швидше, ніж «{thing}»?
 - [ ] **8300.** Is it slower than “{thing}”?  
   → Воно повільніше, ніж «{thing}»?
-- [ ] **8301.** a neck _(context: part)_  
+- [ ] **8301.** a neck _(context: `part`)_  
   → шия
-- [ ] **8302.** claws _(context: part)_  
+- [ ] **8302.** claws _(context: `part`)_  
   → кігті
-- [ ] **8303.** scales _(context: part)_  
+- [ ] **8303.** scales _(context: `part`)_  
   → луска
-- [ ] **8304.** blossoms _(context: part)_  
+- [ ] **8304.** blossoms _(context: `part`)_  
   → квіти
-- [ ] **8305.** a trunk _(context: part)_  
+- [ ] **8305.** a trunk _(context: `part`)_  
   → хобот
-- [ ] **8306.** an engine _(context: part)_  
+- [ ] **8306.** an engine _(context: `part`)_  
   → двигун
-- [ ] **8307.** a roof _(context: part)_  
+- [ ] **8307.** a roof _(context: `part`)_  
   → дах
-- [ ] **8308.** a handle _(context: part)_  
+- [ ] **8308.** a handle _(context: `part`)_  
   → ручка
-- [ ] **8309.** a tongue or strings _(context: part)_  
+- [ ] **8309.** a tongue or strings _(context: `part`)_  
   → язик або струни
-- [ ] **8310.** a shell _(context: part)_  
+- [ ] **8310.** a shell _(context: `part`)_  
   → панцир або шкаралупа
-- [ ] **8311.** pockets _(context: part)_  
+- [ ] **8311.** pockets _(context: `part`)_  
   → кишені
-- [ ] **8312.** sleeves _(context: part)_  
+- [ ] **8312.** sleeves _(context: `part`)_  
   → рукави
-- [ ] **8313.** a blade _(context: part)_  
+- [ ] **8313.** a blade _(context: `part`)_  
   → лезо
-- [ ] **8314.** a cable _(context: part)_  
+- [ ] **8314.** a cable _(context: `part`)_  
   → дріт
-- [ ] **8315.** bones _(context: part)_  
+- [ ] **8315.** bones _(context: `part`)_  
   → кістки
-- [ ] **8316.** a heart _(context: part)_  
+- [ ] **8316.** a heart _(context: `part`)_  
   → серце
-- [ ] **8317.** fingers _(context: part)_  
+- [ ] **8317.** fingers _(context: `part`)_  
   → пальці
-- [ ] **8318.** a stalk _(context: part)_  
+- [ ] **8318.** a stalk _(context: `part`)_  
   → стебло
-- [ ] **8319.** a crown _(context: part)_  
+- [ ] **8319.** a crown _(context: `part`)_  
   → крона
-- [ ] **8320.** spines or needles _(context: part)_  
+- [ ] **8320.** spines or needles _(context: `part`)_  
   → колючки або голки
-- [ ] **8321.** plastic _(context: material)_  
+- [ ] **8321.** plastic _(context: `material`)_  
   → пластику
-- [ ] **8322.** fabric _(context: material)_  
+- [ ] **8322.** fabric _(context: `material`)_  
   → тканини
-- [ ] **8323.** leather _(context: material)_  
+- [ ] **8323.** leather _(context: `material`)_  
   → шкіри
 - [ ] **8324.** Your best so far: {questions}.  
   → Ваш найкращий результат: {questions}.
@@ -16819,7 +16819,7 @@ _lib/copy/i18n/areas/twenty.ts_
   → Слово починається на {letter}.
 - [ ] **8338.** The word has {n} letters: {pattern}  
   → Літер у слові: {n}. {pattern}
-- [ ] **8339.** It is usually {word}. _(context: colour)_  
+- [ ] **8339.** It is usually {word}. _(context: `colour`)_  
   → Зазвичай воно {word}.
 - [ ] **8340.** It is a bird.  
   → Це птах.
@@ -16936,29 +16936,29 @@ _lib/copy/i18n/areas/legal.ts_
   → Естонська граматика
 - [ ] **8394.** Language  
   → Мова
-- [ ] **8395.** January _(context: date)_  
+- [ ] **8395.** January _(context: `date`)_  
   → січня
-- [ ] **8396.** February _(context: date)_  
+- [ ] **8396.** February _(context: `date`)_  
   → лютого
-- [ ] **8397.** March _(context: date)_  
+- [ ] **8397.** March _(context: `date`)_  
   → березня
-- [ ] **8398.** April _(context: date)_  
+- [ ] **8398.** April _(context: `date`)_  
   → квітня
-- [ ] **8399.** May _(context: date)_  
+- [ ] **8399.** May _(context: `date`)_  
   → травня
-- [ ] **8400.** June _(context: date)_  
+- [ ] **8400.** June _(context: `date`)_  
   → червня
-- [ ] **8401.** July _(context: date)_  
+- [ ] **8401.** July _(context: `date`)_  
   → липня
-- [ ] **8402.** August _(context: date)_  
+- [ ] **8402.** August _(context: `date`)_  
   → серпня
-- [ ] **8403.** September _(context: date)_  
+- [ ] **8403.** September _(context: `date`)_  
   → вересня
-- [ ] **8404.** October _(context: date)_  
+- [ ] **8404.** October _(context: `date`)_  
   → жовтня
-- [ ] **8405.** November _(context: date)_  
+- [ ] **8405.** November _(context: `date`)_  
   → листопада
-- [ ] **8406.** December _(context: date)_  
+- [ ] **8406.** December _(context: `date`)_  
   → грудня
 - [ ] **8407.** registry code {code}  
   → реєстраційний код {code}
@@ -17094,7 +17094,7 @@ _lib/copy/i18n/areas/legal.ts_
   → Департамент захисту прав споживачів і технічного нагляду
 - [ ] **8473.** Estonian Data Protection Inspectorate  
   → Інспекція із захисту даних Естонії
-- [ ] **8474.** Estonian Data Protection Inspectorate _(context: to)_  
+- [ ] **8474.** Estonian Data Protection Inspectorate _(context: `to`)_  
   → Інспекції із захисту даних Естонії
 - [ ] **8475.** Children  
   → Діти
@@ -17671,7 +17671,7 @@ _lib/copy/i18n/areas/public.ts_
   → Чотири частини на кожному рівні
 - [ ] **8759.** Every fact below links to the page it came from. Rules and dates do change, so check that page before you register.  
   → Кожен факт нижче посилається на сторінку, звідки його взято. Правила й дати змінюються, тож перевірте цю сторінку перед реєстрацією.
-- [ ] **8760.** From _(context: source)_  
+- [ ] **8760.** From _(context: `source`)_  
   → Джерело:
 - [ ] **8761.** The best free preparation there is  
   → Найкраща безплатна підготовка
@@ -17809,7 +17809,7 @@ _lib/copy/i18n/areas/public.ts_
   → увімкнено, тож у кожного учня своя колода
 - [ ] **8828.** off, so this copy is one local learner  
   → вимкнено, тож у цій копії один локальний учень
-- [ ] **8829.** on _(context: switch)_  
+- [ ] **8829.** on _(context: `switch`)_  
   → увімкнено
 - [ ] **8830.** off, so the built-in dictionary answers by itself  
   → вимкнено, тож відповідає вбудований словник
@@ -17919,7 +17919,7 @@ _lib/copy/i18n/areas/public.ts_
   → Ніщо про учня не продається, не передається й не використовується для навчання будь-чого. Що вчитель бачить в учня, вирішено вузько й окремо, і відповідь: зусилля, а не вміст. Кожна з цих обіцянок коштує грошей.
 - [ ] **8883.** under a tenth of a cent  
   → менше за десяту частку цента
-- [ ] **8884.** cents _(context: fraction)_  
+- [ ] **8884.** cents _(context: `fraction`)_  
   → цента
 - [ ] **8885.** {n} min  
   → {n} хв
@@ -17957,19 +17957,19 @@ _lib/copy/i18n/areas/public.ts_
   → {each} на учня, і кожен цент із цього чийсь справжній рахунок. У доларах США і без ПДВ, так, як постачальники називають свої ціни.
 - [ ] **8902.** How hard they study  
   → Наскільки старанно займаються
-- [ ] **8903.** Lightly _(context: study)_  
+- [ ] **8903.** Lightly _(context: `study`)_  
   → Потроху
-- [ ] **8904.** The default _(context: study)_  
+- [ ] **8904.** The default _(context: `study`)_  
   → Звичайно
-- [ ] **8905.** Hard _(context: study)_  
+- [ ] **8905.** Hard _(context: `study`)_  
   → Старанно
 - [ ] **8906.** Cards read themselves aloud  
   → Картки читаються вголос
-- [ ] **8907.** On _(context: switch)_  
+- [ ] **8907.** On _(context: `switch`)_  
   → Увімк.
-- [ ] **8908.** Off _(context: switch)_  
+- [ ] **8908.** Off _(context: `switch`)_  
   → Вимк.
-- [ ] **8909.** No key _(context: switch)_  
+- [ ] **8909.** No key _(context: `switch`)_  
   → Немає ключа
 - [ ] **8910.** The tutor  
   → Репетитор
@@ -18133,23 +18133,23 @@ _lib/copy/i18n/areas/public.ts_
   → Без нього застосунку немає. Це єдина частина, за яку тут ніхто не може заплатити.
 - [ ] **8990.** Funded  
   → Є фінансування
-- [ ] **8991.** Funded _(context: stage)_  
+- [ ] **8991.** Funded _(context: `stage`)_  
   → Є фінансування
 - [ ] **8992.** Somebody is paid to work on it, and every part of it is switched on.  
   → Комусь платять за роботу над ним, і ввімкнено всі його частини.
 - [ ] **8993.** Unstaffed  
   → Без людей
-- [ ] **8994.** Unstaffed _(context: stage)_  
+- [ ] **8994.** Unstaffed _(context: `stage`)_  
   → Без людей
 - [ ] **8995.** The grant ends and nobody works on it any more. Learners don't lose a thing at this step: the software keeps running when the developer stops.  
   → Грант закінчується, і над застосунком більше ніхто не працює. На цьому кроці учні нічого не втрачають: програма працює далі, коли розробник зупиняється.
-- [ ] **8996.** Quiet _(context: stage)_  
+- [ ] **8996.** Quiet _(context: `stage`)_  
   → Тихо
 - [ ] **8997.** The error reports only the operator reads, and the emails with sign-in links, both go. Google sign-in still works, so nobody already using it gets shut out.  
   → Зникають і звіти про помилки, які читає лише оператор, і листи з посиланнями для входу. Вхід через Google, як і раніше, працює, тож ніхто з тих, хто вже ним користується, не опиниться за дверима.
 - [ ] **8998.** Lights on  
   → Світло горить
-- [ ] **8999.** Lights on _(context: stage)_  
+- [ ] **8999.** Lights on _(context: `stage`)_  
   → Світло горить
 - [ ] **9000.** A server and a database, at whatever address the host gives it. Everything the course is made of still works, because none of it was ever bought.  
   → Сервер і база даних за тією адресою, яку дасть хостинг. Усе, з чого зроблено курс, як і раніше працює, бо нічого з цього ніколи не купували.
@@ -18620,1227 +18620,1227 @@ _lib/copy/i18n/areas/exam.ts_
   → Оберіть одну з двох тем. На підготовку у вас {prep}, можна робити нотатки. Потім говоріть {time} і дайте відповідь на запитання після виступу.
 - [ ] **9222.** Discuss the question as if with a partner, for {time}. Cover the thoughts on the card, and keep it a conversation rather than a speech.  
   → Обговорюйте запитання {time}, ніби з партнером. Торкніться думок із картки й ведіть розмову, а не виголошуйте промову.
-- [ ] **9223.** The business card _(context: brief)_  
+- [ ] **9223.** The business card _(context: `brief`)_  
   → Візитна картка
-- [ ] **9224.** A note _(context: brief)_  
+- [ ] **9224.** A note _(context: `brief`)_  
   → Записка
-- [ ] **9225.** A description _(context: brief)_  
+- [ ] **9225.** A description _(context: `brief`)_  
   → Опис
-- [ ] **9226.** A story _(context: brief)_  
+- [ ] **9226.** A story _(context: `brief`)_  
   → Розповідь
-- [ ] **9227.** A personal letter _(context: brief)_  
+- [ ] **9227.** A personal letter _(context: `brief`)_  
   → Особистий лист
-- [ ] **9228.** A semi-formal letter _(context: brief)_  
+- [ ] **9228.** A semi-formal letter _(context: `brief`)_  
   → Напівофіційний лист
-- [ ] **9229.** An informal letter _(context: brief)_  
+- [ ] **9229.** An informal letter _(context: `brief`)_  
   → Неофіційний лист
-- [ ] **9230.** A summary with your comment _(context: brief)_  
+- [ ] **9230.** A summary with your comment _(context: `brief`)_  
   → Огляд із вашим коментарем
-- [ ] **9231.** An argument _(context: brief)_  
+- [ ] **9231.** An argument _(context: `brief`)_  
   → Аргументований текст
-- [ ] **9232.** A summary of the figures _(context: brief)_  
+- [ ] **9232.** A summary of the figures _(context: `brief`)_  
   → Огляд цифр
-- [ ] **9233.** An opinion piece _(context: brief)_  
+- [ ] **9233.** An opinion piece _(context: `brief`)_  
   → Колонка з власною думкою
-- [ ] **9234.** about 45 seconds _(context: brief)_  
+- [ ] **9234.** about 45 seconds _(context: `brief`)_  
   → близько 45 секунд
-- [ ] **9235.** about a minute _(context: brief)_  
+- [ ] **9235.** about a minute _(context: `brief`)_  
   → близько хвилини
-- [ ] **9236.** about a minute and a half _(context: brief)_  
+- [ ] **9236.** about a minute and a half _(context: `brief`)_  
   → близько півтори хвилини
-- [ ] **9237.** about 2 minutes _(context: brief)_  
+- [ ] **9237.** about 2 minutes _(context: `brief`)_  
   → близько 2 хвилин
-- [ ] **9238.** about 3 minutes _(context: brief)_  
+- [ ] **9238.** about 3 minutes _(context: `brief`)_  
   → близько 3 хвилин
-- [ ] **9239.** 2 minutes _(context: brief)_  
+- [ ] **9239.** 2 minutes _(context: `brief`)_  
   → 2 хвилини
-- [ ] **9240.** 3 minutes _(context: brief)_  
+- [ ] **9240.** 3 minutes _(context: `brief`)_  
   → 3 хвилини
-- [ ] **9241.** Monday to Friday, 9:00 to 17:00 _(context: brief)_  
+- [ ] **9241.** Monday to Friday, 9:00 to 17:00 _(context: `brief`)_  
   → З понеділка до п'ятниці, з 9:00 до 17:00
-- [ ] **9242.** Monday to Thursday, 8:00 to 16:00 _(context: brief)_  
+- [ ] **9242.** Monday to Thursday, 8:00 to 16:00 _(context: `brief`)_  
   → З понеділка до четверга, з 8:00 до 16:00
-- [ ] **9243.** Tuesday to Saturday, 10:00 to 18:00 _(context: brief)_  
+- [ ] **9243.** Tuesday to Saturday, 10:00 to 18:00 _(context: `brief`)_  
   → З вівторка до суботи, з 10:00 до 18:00
-- [ ] **9244.** Every day, 12:00 to 20:00 _(context: brief)_  
+- [ ] **9244.** Every day, 12:00 to 20:00 _(context: `brief`)_  
   → Щодня, з 12:00 до 20:00
-- [ ] **9245.** what happened, and when _(context: brief)_  
+- [ ] **9245.** what happened, and when _(context: `brief`)_  
   → що сталося і коли
-- [ ] **9246.** why it happened _(context: brief)_  
+- [ ] **9246.** why it happened _(context: `brief`)_  
   → чому це сталося
-- [ ] **9247.** what you think of it now _(context: brief)_  
+- [ ] **9247.** what you think of it now _(context: `brief`)_  
   → що ви думаєте про це тепер
-- [ ] **9248.** greet them and ask how they are _(context: brief)_  
+- [ ] **9248.** greet them and ask how they are _(context: `brief`)_  
   → привітайтеся й запитайте, як у нього справи
-- [ ] **9249.** tell them your news on the topic _(context: brief)_  
+- [ ] **9249.** tell them your news on the topic _(context: `brief`)_  
   → розкажіть свої новини на цю тему
-- [ ] **9250.** ask them something _(context: brief)_  
+- [ ] **9250.** ask them something _(context: `brief`)_  
   → запитайте його про щось
-- [ ] **9251.** sign off _(context: brief)_  
+- [ ] **9251.** sign off _(context: `brief`)_  
   → попрощайтеся й підпишіться
-- [ ] **9252.** Write a summary of the figures in the table for the general public, then say what you think they mean. _(context: brief)_  
+- [ ] **9252.** Write a summary of the figures in the table for the general public, then say what you think they mean. _(context: `brief`)_  
   → Напишіть для широкої публіки огляд цифр із таблиці, а потім скажіть, що, на вашу думку, вони означають.
-- [ ] **9253.** Write a general summary of the figures in the table for the readers of a newspaper. Keep your own opinion out of it. _(context: brief)_  
+- [ ] **9253.** Write a general summary of the figures in the table for the readers of a newspaper. Keep your own opinion out of it. _(context: `brief`)_  
   → Напишіть для читачів газети загальний огляд цифр із таблиці. Власної думки не висловлюйте.
-- [ ] **9254.** compare the figures _(context: brief)_  
+- [ ] **9254.** compare the figures _(context: `brief`)_  
   → порівняйте цифри
-- [ ] **9255.** say what has changed or stands out _(context: brief)_  
+- [ ] **9255.** say what has changed or stands out _(context: `brief`)_  
   → скажіть, що змінилося або вирізняється
-- [ ] **9256.** give your own comment, with a reason _(context: brief)_  
+- [ ] **9256.** give your own comment, with a reason _(context: `brief`)_  
   → дайте свій коментар і обґрунтуйте його
-- [ ] **9257.** compare the two columns _(context: brief)_  
+- [ ] **9257.** compare the two columns _(context: `brief`)_  
   → порівняйте два стовпці
-- [ ] **9258.** pick out what matters most _(context: brief)_  
+- [ ] **9258.** pick out what matters most _(context: `brief`)_  
   → виокремте найважливіше
-- [ ] **9259.** say what follows from the figures, without an opinion _(context: brief)_  
+- [ ] **9259.** say what follows from the figures, without an opinion _(context: `brief`)_  
   → скажіть, що випливає з цифр, не висловлюючи власної думки
-- [ ] **9260.** say where you stand _(context: brief)_  
+- [ ] **9260.** say where you stand _(context: `brief`)_  
   → скажіть, якою є ваша позиція
-- [ ] **9261.** give two reasons, each with an example _(context: brief)_  
+- [ ] **9261.** give two reasons, each with an example _(context: `brief`)_  
   → наведіть два аргументи, кожен із прикладом
-- [ ] **9262.** answer one argument on the other side _(context: brief)_  
+- [ ] **9262.** answer one argument on the other side _(context: `brief`)_  
   → дайте відповідь на один аргумент іншої сторони
-- [ ] **9263.** end with a conclusion _(context: brief)_  
+- [ ] **9263.** end with a conclusion _(context: `brief`)_  
   → завершіть висновком
-- [ ] **9264.** introduce the issue _(context: brief)_  
+- [ ] **9264.** introduce the issue _(context: `brief`)_  
   → представте проблему
-- [ ] **9265.** end with a short conclusion _(context: brief)_  
+- [ ] **9265.** end with a short conclusion _(context: `brief`)_  
   → завершіть коротким висновком
-- [ ] **9266.** Answer the examiner's questions and say why. Then read the situation, talk the choices over as if with a partner, and agree on one. _(context: brief)_  
+- [ ] **9266.** Answer the examiner's questions and say why. Then read the situation, talk the choices over as if with a partner, and agree on one. _(context: `brief`)_  
   → Дайте відповідь на запитання екзаменатора й поясніть чому. Потім прочитайте ситуацію, обговоріть варіанти ніби з партнером і домовтеся про один.
-- [ ] **9267.** Give your view on the examiner's questions. Then read the situation, argue it out using both sides of the card and arguments of your own, and end with a decision. _(context: brief)_  
+- [ ] **9267.** Give your view on the examiner's questions. Then read the situation, argue it out using both sides of the card and arguments of your own, and end with a decision. _(context: `brief`)_  
   → Висловіть свою думку щодо запитань екзаменатора. Потім прочитайте ситуацію, обговоріть її, спираючись на обидва боки картки й власні аргументи, і наприкінці ухваліть рішення.
-- [ ] **9268.** a note to a neighbor who took in a package for you _(context: brief)_  
+- [ ] **9268.** a note to a neighbor who took in a package for you _(context: `brief`)_  
   → записку сусідові, який прийняв для вас посилку
-- [ ] **9269.** say who you are _(context: brief)_  
+- [ ] **9269.** say who you are _(context: `brief`)_  
   → скажіть, хто ви
-- [ ] **9270.** say what you're picking up _(context: brief)_  
+- [ ] **9270.** say what you're picking up _(context: `brief`)_  
   → скажіть, що ви заберете
-- [ ] **9271.** say when you'll come by _(context: brief)_  
+- [ ] **9271.** say when you'll come by _(context: `brief`)_  
   → скажіть, коли зайдете
-- [ ] **9272.** an e-mail canceling an appointment you can't keep _(context: brief)_  
+- [ ] **9272.** an e-mail canceling an appointment you can't keep _(context: `brief`)_  
   → електронного листа зі скасуванням запису, на який ви не можете прийти
-- [ ] **9273.** say which appointment _(context: brief)_  
+- [ ] **9273.** say which appointment _(context: `brief`)_  
   → скажіть, про який запис ідеться
-- [ ] **9274.** give a reason _(context: brief)_  
+- [ ] **9274.** give a reason _(context: `brief`)_  
   → назвіть причину
-- [ ] **9275.** suggest another time _(context: brief)_  
+- [ ] **9275.** suggest another time _(context: `brief`)_  
   → запропонуйте інший час
-- [ ] **9276.** a message to your landlord about something broken in the apartment _(context: brief)_  
+- [ ] **9276.** a message to your landlord about something broken in the apartment _(context: `brief`)_  
   → повідомлення орендодавцеві про те, що в квартирі щось зламалося
-- [ ] **9277.** say what is broken _(context: brief)_  
+- [ ] **9277.** say what is broken _(context: `brief`)_  
   → скажіть, що зламалося
-- [ ] **9278.** say how long it has been broken _(context: brief)_  
+- [ ] **9278.** say how long it has been broken _(context: `brief`)_  
   → скажіть, як давно це зламалося
-- [ ] **9279.** ask what happens next _(context: brief)_  
+- [ ] **9279.** ask what happens next _(context: `brief`)_  
   → запитайте, що буде далі
-- [ ] **9280.** a note to a colleague who will cover your work tomorrow _(context: brief)_  
+- [ ] **9280.** a note to a colleague who will cover your work tomorrow _(context: `brief`)_  
   → записку колезі, який завтра вас підмінятиме
-- [ ] **9281.** say why you're away _(context: brief)_  
+- [ ] **9281.** say why you're away _(context: `brief`)_  
   → скажіть, чому вас не буде
-- [ ] **9282.** say what needs doing _(context: brief)_  
+- [ ] **9282.** say what needs doing _(context: `brief`)_  
   → скажіть, що треба зробити
-- [ ] **9283.** say how to reach you _(context: brief)_  
+- [ ] **9283.** say how to reach you _(context: `brief`)_  
   → скажіть, як із вами зв'язатися
-- [ ] **9284.** an invitation to a friend to come somewhere with you _(context: brief)_  
+- [ ] **9284.** an invitation to a friend to come somewhere with you _(context: `brief`)_  
   → запрошення другові сходити з вами кудись
-- [ ] **9285.** say where and when _(context: brief)_  
+- [ ] **9285.** say where and when _(context: `brief`)_  
   → скажіть, де й коли
-- [ ] **9286.** say what you'll do there _(context: brief)_  
+- [ ] **9286.** say what you'll do there _(context: `brief`)_  
   → скажіть, що ви там робитимете
-- [ ] **9287.** ask them to let you know _(context: brief)_  
+- [ ] **9287.** ask them to let you know _(context: `brief`)_  
   → попросіть дати вам відповідь
-- [ ] **9288.** an e-mail to a course you want to join _(context: brief)_  
+- [ ] **9288.** an e-mail to a course you want to join _(context: `brief`)_  
   → електронного листа організаторам курсу, на який ви хочете записатися
-- [ ] **9289.** give your name and details _(context: brief)_  
+- [ ] **9289.** give your name and details _(context: `brief`)_  
   → назвіть своє ім'я та контактні дані
-- [ ] **9290.** say which course _(context: brief)_  
+- [ ] **9290.** say which course _(context: `brief`)_  
   → скажіть, який курс
-- [ ] **9291.** ask what it costs _(context: brief)_  
+- [ ] **9291.** ask what it costs _(context: `brief`)_  
   → запитайте, скільки це коштує
-- [ ] **9292.** a note to a shop about something you bought that is faulty _(context: brief)_  
+- [ ] **9292.** a note to a shop about something you bought that is faulty _(context: `brief`)_  
   → листа до магазину про куплену річ, яка виявилася бракованою
-- [ ] **9293.** say what you bought and when _(context: brief)_  
+- [ ] **9293.** say what you bought and when _(context: `brief`)_  
   → скажіть, що й коли ви купили
-- [ ] **9294.** say what is wrong _(context: brief)_  
+- [ ] **9294.** say what is wrong _(context: `brief`)_  
   → скажіть, у чому проблема
-- [ ] **9295.** say what you want done _(context: brief)_  
+- [ ] **9295.** say what you want done _(context: `brief`)_  
   → скажіть, що, на вашу думку, треба зробити
-- [ ] **9296.** a message to a doctor's surgery asking for an appointment _(context: brief)_  
+- [ ] **9296.** a message to a doctor's surgery asking for an appointment _(context: `brief`)_  
   → повідомлення до поліклініки з проханням записати вас на прийом
-- [ ] **9297.** give your name _(context: brief)_  
+- [ ] **9297.** give your name _(context: `brief`)_  
   → назвіть своє ім'я
-- [ ] **9298.** say when you can come _(context: brief)_  
+- [ ] **9298.** say when you can come _(context: `brief`)_  
   → скажіть, коли ви можете прийти
-- [ ] **9299.** an invitation to your birthday party _(context: brief)_  
+- [ ] **9299.** an invitation to your birthday party _(context: `brief`)_  
   → запрошення на ваш день народження
-- [ ] **9300.** say when and where _(context: brief)_  
+- [ ] **9300.** say when and where _(context: `brief`)_  
   → скажіть, коли й де
-- [ ] **9301.** say what you're planning _(context: brief)_  
+- [ ] **9301.** say what you're planning _(context: `brief`)_  
   → скажіть, що ви плануєте
-- [ ] **9302.** say what to bring _(context: brief)_  
+- [ ] **9302.** say what to bring _(context: `brief`)_  
   → скажіть, що принести
-- [ ] **9303.** a note to your roommate about what to buy for dinner _(context: brief)_  
+- [ ] **9303.** a note to your roommate about what to buy for dinner _(context: `brief`)_  
   → записку сусідові по квартирі про те, що купити на вечерю
-- [ ] **9304.** say what you're cooking _(context: brief)_  
+- [ ] **9304.** say what you're cooking _(context: `brief`)_  
   → скажіть, що ви готуєте
-- [ ] **9305.** list what to buy _(context: brief)_  
+- [ ] **9305.** list what to buy _(context: `brief`)_  
   → перелічіть, що купити
-- [ ] **9306.** say when you'll eat _(context: brief)_  
+- [ ] **9306.** say when you'll eat _(context: `brief`)_  
   → скажіть, коли будете їсти
-- [ ] **9307.** a message to a friend who is picking you up from the station _(context: brief)_  
+- [ ] **9307.** a message to a friend who is picking you up from the station _(context: `brief`)_  
   → повідомлення другові, який зустрічає вас на вокзалі
-- [ ] **9308.** say which train you're on _(context: brief)_  
+- [ ] **9308.** say which train you're on _(context: `brief`)_  
   → скажіть, яким потягом ви їдете
-- [ ] **9309.** say when it arrives _(context: brief)_  
+- [ ] **9309.** say when it arrives _(context: `brief`)_  
   → скажіть, коли він прибуває
-- [ ] **9310.** say how they'll recognize you _(context: brief)_  
+- [ ] **9310.** say how they'll recognize you _(context: `brief`)_  
   → скажіть, як вас упізнати
-- [ ] **9311.** a note to your neighbors about a change in the building _(context: brief)_  
+- [ ] **9311.** a note to your neighbors about a change in the building _(context: `brief`)_  
   → записку сусідам про зміни в будинку
-- [ ] **9312.** say what is changing _(context: brief)_  
+- [ ] **9312.** say what is changing _(context: `brief`)_  
   → скажіть, що змінюється
-- [ ] **9313.** say when _(context: brief)_  
+- [ ] **9313.** say when _(context: `brief`)_  
   → скажіть, коли
-- [ ] **9314.** say what they need to do _(context: brief)_  
+- [ ] **9314.** say what they need to do _(context: `brief`)_  
   → скажіть, що їм треба зробити
-- [ ] **9315.** your home _(context: brief)_  
+- [ ] **9315.** your home _(context: `brief`)_  
   → ваш дім
-- [ ] **9316.** where it is _(context: brief)_  
+- [ ] **9316.** where it is _(context: `brief`)_  
   → де це розташовано
-- [ ] **9317.** what it is like inside _(context: brief)_  
+- [ ] **9317.** what it is like inside _(context: `brief`)_  
   → як там усередині
-- [ ] **9318.** what you like about it _(context: brief)_  
+- [ ] **9318.** what you like about it _(context: `brief`)_  
   → що вам у цьому подобається
-- [ ] **9319.** the town you live in _(context: brief)_  
+- [ ] **9319.** the town you live in _(context: `brief`)_  
   → місто, у якому ви живете
-- [ ] **9320.** what there is to do _(context: brief)_  
+- [ ] **9320.** what there is to do _(context: `brief`)_  
   → чим там можна зайнятися
-- [ ] **9321.** what you would change _(context: brief)_  
+- [ ] **9321.** what you would change _(context: `brief`)_  
   → що б ви змінили
-- [ ] **9322.** your usual weekday _(context: brief)_  
+- [ ] **9322.** your usual weekday _(context: `brief`)_  
   → ваш звичайний будній день
-- [ ] **9323.** when you get up _(context: brief)_  
+- [ ] **9323.** when you get up _(context: `brief`)_  
   → коли ви встаєте
-- [ ] **9324.** what you do during the day _(context: brief)_  
+- [ ] **9324.** what you do during the day _(context: `brief`)_  
   → що ви робите вдень
-- [ ] **9325.** how you spend the evening _(context: brief)_  
+- [ ] **9325.** how you spend the evening _(context: `brief`)_  
   → як ви проводите вечір
-- [ ] **9326.** your favorite way to spend a free day _(context: brief)_  
+- [ ] **9326.** your favorite way to spend a free day _(context: `brief`)_  
   → ваш улюблений спосіб провести вільний день
-- [ ] **9327.** what you do _(context: brief)_  
+- [ ] **9327.** what you do _(context: `brief`)_  
   → що ви робите
-- [ ] **9328.** who with _(context: brief)_  
+- [ ] **9328.** who with _(context: `brief`)_  
   → з ким
-- [ ] **9329.** why you like it _(context: brief)_  
+- [ ] **9329.** why you like it _(context: `brief`)_  
   → чому вам це подобається
-- [ ] **9330.** somebody close to you _(context: brief)_  
+- [ ] **9330.** somebody close to you _(context: `brief`)_  
   → близьку вам людину
-- [ ] **9331.** who they are _(context: brief)_  
+- [ ] **9331.** who they are _(context: `brief`)_  
   → хто ця людина
-- [ ] **9332.** what they are like _(context: brief)_  
+- [ ] **9332.** what they are like _(context: `brief`)_  
   → яка це людина
-- [ ] **9333.** what you do together _(context: brief)_  
+- [ ] **9333.** what you do together _(context: `brief`)_  
   → що ви робите разом
-- [ ] **9334.** a meal you like _(context: brief)_  
+- [ ] **9334.** a meal you like _(context: `brief`)_  
   → страву, яка вам подобається
-- [ ] **9335.** what it is _(context: brief)_  
+- [ ] **9335.** what it is _(context: `brief`)_  
   → що це за страва
-- [ ] **9336.** when you eat it _(context: brief)_  
+- [ ] **9336.** when you eat it _(context: `brief`)_  
   → коли ви її їсте
-- [ ] **9337.** the weather where you live _(context: brief)_  
+- [ ] **9337.** the weather where you live _(context: `brief`)_  
   → погоду там, де ви живете
-- [ ] **9338.** what it is like now _(context: brief)_  
+- [ ] **9338.** what it is like now _(context: `brief`)_  
   → яка погода зараз
-- [ ] **9339.** your favorite season _(context: brief)_  
+- [ ] **9339.** your favorite season _(context: `brief`)_  
   → ваша улюблена пора року
-- [ ] **9340.** what you do when it rains _(context: brief)_  
+- [ ] **9340.** what you do when it rains _(context: `brief`)_  
   → що ви робите, коли йде дощ
-- [ ] **9341.** a place you have visited _(context: brief)_  
+- [ ] **9341.** a place you have visited _(context: `brief`)_  
   → місце, де ви побували
-- [ ] **9342.** what you saw _(context: brief)_  
+- [ ] **9342.** what you saw _(context: `brief`)_  
   → що ви там бачили
-- [ ] **9343.** whether you would go again _(context: brief)_  
+- [ ] **9343.** whether you would go again _(context: `brief`)_  
   → чи поїхали б ви туди знову
-- [ ] **9344.** a letter to your housing association about building work that keeps you awake _(context: brief)_  
+- [ ] **9344.** a letter to your housing association about building work that keeps you awake _(context: `brief`)_  
   → листа до об'єднання співвласників будинку про будівельні роботи, через які ви не можете спати
-- [ ] **9345.** say what the problem is _(context: brief)_  
+- [ ] **9345.** say what the problem is _(context: `brief`)_  
   → скажіть, у чому полягає проблема
-- [ ] **9346.** say how it affects you _(context: brief)_  
+- [ ] **9346.** say how it affects you _(context: `brief`)_  
   → скажіть, як це на вас позначається
-- [ ] **9347.** say what you want them to do _(context: brief)_  
+- [ ] **9347.** say what you want them to do _(context: `brief`)_  
   → скажіть, що, на вашу думку, вони мають зробити
-- [ ] **9348.** a letter to a language school asking about a course for your team at work _(context: brief)_  
+- [ ] **9348.** a letter to a language school asking about a course for your team at work _(context: `brief`)_  
   → листа до мовної школи із запитанням про курс для вашої команди на роботі
-- [ ] **9349.** say who you are and what your team does _(context: brief)_  
+- [ ] **9349.** say who you are and what your team does _(context: `brief`)_  
   → скажіть, хто ви і чим займається ваша команда
-- [ ] **9350.** say what the team needs _(context: brief)_  
+- [ ] **9350.** say what the team needs _(context: `brief`)_  
   → скажіть, що потрібно команді
-- [ ] **9351.** ask about times, length and price _(context: brief)_  
+- [ ] **9351.** ask about times, length and price _(context: `brief`)_  
   → запитайте про час занять, тривалість і ціну
-- [ ] **9352.** a letter to your manager asking to change your working hours _(context: brief)_  
+- [ ] **9352.** a letter to your manager asking to change your working hours _(context: `brief`)_  
   → листа керівникові з проханням змінити ваш робочий графік
-- [ ] **9353.** say what you'd like to change _(context: brief)_  
+- [ ] **9353.** say what you'd like to change _(context: `brief`)_  
   → скажіть, що ви хотіли б змінити
-- [ ] **9354.** explain why _(context: brief)_  
+- [ ] **9354.** explain why _(context: `brief`)_  
   → поясніть чому
-- [ ] **9355.** say how your work will still be done _(context: brief)_  
+- [ ] **9355.** say how your work will still be done _(context: `brief`)_  
   → скажіть, як вашу роботу все одно буде зроблено
-- [ ] **9356.** a letter to a hotel about a stay that went wrong _(context: brief)_  
+- [ ] **9356.** a letter to a hotel about a stay that went wrong _(context: `brief`)_  
   → листа до готелю про невдале перебування
-- [ ] **9357.** say when you stayed _(context: brief)_  
+- [ ] **9357.** say when you stayed _(context: `brief`)_  
   → скажіть, коли ви там зупинялися
-- [ ] **9358.** say what went wrong _(context: brief)_  
+- [ ] **9358.** say what went wrong _(context: `brief`)_  
   → скажіть, що пішло не так
-- [ ] **9359.** say what you expect them to do _(context: brief)_  
+- [ ] **9359.** say what you expect them to do _(context: `brief`)_  
   → скажіть, чого ви від них очікуєте
-- [ ] **9360.** a letter to your town council about the state of a local park _(context: brief)_  
+- [ ] **9360.** a letter to your town council about the state of a local park _(context: `brief`)_  
   → листа до міської ради про стан місцевого парку
-- [ ] **9361.** describe the problem _(context: brief)_  
+- [ ] **9361.** describe the problem _(context: `brief`)_  
   → опишіть проблему
-- [ ] **9362.** say who it affects _(context: brief)_  
+- [ ] **9362.** say who it affects _(context: `brief`)_  
   → скажіть, кого це стосується
-- [ ] **9363.** suggest what could be done _(context: brief)_  
+- [ ] **9363.** suggest what could be done _(context: `brief`)_  
   → запропонуйте, що можна зробити
-- [ ] **9364.** a letter to your sports club about a change you'd like to see _(context: brief)_  
+- [ ] **9364.** a letter to your sports club about a change you'd like to see _(context: `brief`)_  
   → листа до вашого спортивного клубу про зміни, які ви хотіли б побачити
-- [ ] **9365.** say how long you've been a member _(context: brief)_  
+- [ ] **9365.** say how long you've been a member _(context: `brief`)_  
   → скажіть, як давно ви в клубі
-- [ ] **9366.** say why it would help others too _(context: brief)_  
+- [ ] **9366.** say why it would help others too _(context: `brief`)_  
   → скажіть, чому це допоможе й іншим
-- [ ] **9367.** a letter to a friend who is moving to Estonia _(context: brief)_  
+- [ ] **9367.** a letter to a friend who is moving to Estonia _(context: `brief`)_  
   → листа другові, який переїжджає до Естонії
-- [ ] **9368.** give advice on finding somewhere to live _(context: brief)_  
+- [ ] **9368.** give advice on finding somewhere to live _(context: `brief`)_  
   → порадьте, як знайти житло
-- [ ] **9369.** invite them to visit you _(context: brief)_  
+- [ ] **9369.** invite them to visit you _(context: `brief`)_  
   → запросіть його в гості
-- [ ] **9370.** a letter to a friend you haven't seen for a year _(context: brief)_  
+- [ ] **9370.** a letter to a friend you haven't seen for a year _(context: `brief`)_  
   → листа другові, якого ви не бачили рік
-- [ ] **9371.** say what has changed in your life _(context: brief)_  
+- [ ] **9371.** say what has changed in your life _(context: `brief`)_  
   → розкажіть, що змінилося у вашому житті
-- [ ] **9372.** ask about theirs _(context: brief)_  
+- [ ] **9372.** ask about theirs _(context: `brief`)_  
   → запитайте, як справи в нього
-- [ ] **9373.** suggest a time to meet _(context: brief)_  
+- [ ] **9373.** suggest a time to meet _(context: `brief`)_  
   → запропонуйте час для зустрічі
-- [ ] **9374.** a letter thanking a friend for a weekend at their place _(context: brief)_  
+- [ ] **9374.** a letter thanking a friend for a weekend at their place _(context: `brief`)_  
   → листа другові з подякою за вихідні в нього в гостях
-- [ ] **9375.** say what you enjoyed most _(context: brief)_  
+- [ ] **9375.** say what you enjoyed most _(context: `brief`)_  
   → скажіть, що вам сподобалося найбільше
-- [ ] **9376.** say what has happened since _(context: brief)_  
+- [ ] **9376.** say what has happened since _(context: `brief`)_  
   → розкажіть, що сталося відтоді
-- [ ] **9377.** invite them back _(context: brief)_  
+- [ ] **9377.** invite them back _(context: `brief`)_  
   → запросіть його до себе у відповідь
-- [ ] **9378.** a letter to a friend about your new job _(context: brief)_  
+- [ ] **9378.** a letter to a friend about your new job _(context: `brief`)_  
   → листа другові про вашу нову роботу
-- [ ] **9379.** say what the job is _(context: brief)_  
+- [ ] **9379.** say what the job is _(context: `brief`)_  
   → скажіть, що це за робота
-- [ ] **9380.** say what you like and don't like about it _(context: brief)_  
+- [ ] **9380.** say what you like and don't like about it _(context: `brief`)_  
   → скажіть, що вам у ній подобається, а що ні
-- [ ] **9381.** ask for their advice on something _(context: brief)_  
+- [ ] **9381.** ask for their advice on something _(context: `brief`)_  
   → попросіть у нього поради
-- [ ] **9382.** a letter to a friend who has had a hard month _(context: brief)_  
+- [ ] **9382.** a letter to a friend who has had a hard month _(context: `brief`)_  
   → листа другові, у якого був важкий місяць
-- [ ] **9383.** say you heard what happened _(context: brief)_  
+- [ ] **9383.** say you heard what happened _(context: `brief`)_  
   → скажіть, що ви чули про те, що сталося
-- [ ] **9384.** say something that might help _(context: brief)_  
+- [ ] **9384.** say something that might help _(context: `brief`)_  
   → скажіть щось, що може допомогти
-- [ ] **9385.** offer to do something together _(context: brief)_  
+- [ ] **9385.** offer to do something together _(context: `brief`)_  
   → запропонуйте чимось зайнятися разом
-- [ ] **9386.** How people in one town get to work _(context: brief)_  
+- [ ] **9386.** How people in one town get to work _(context: `brief`)_  
   → Як мешканці одного міста добираються на роботу
-- [ ] **9387.** percent of people who work _(context: brief)_  
+- [ ] **9387.** percent of people who work _(context: `brief`)_  
   → відсоток тих, хто працює
-- [ ] **9388.** By car _(context: brief)_  
+- [ ] **9388.** By car _(context: `brief`)_  
   → Автомобілем
-- [ ] **9389.** By bus _(context: brief)_  
+- [ ] **9389.** By bus _(context: `brief`)_  
   → Автобусом
-- [ ] **9390.** By bicycle _(context: brief)_  
+- [ ] **9390.** By bicycle _(context: `brief`)_  
   → Велосипедом
-- [ ] **9391.** On foot _(context: brief)_  
+- [ ] **9391.** On foot _(context: `brief`)_  
   → Пішки
-- [ ] **9392.** Working from home _(context: brief)_  
+- [ ] **9392.** Working from home _(context: `brief`)_  
   → Працюють із дому
-- [ ] **9393.** Hours a week spent reading, by age _(context: brief)_  
+- [ ] **9393.** Hours a week spent reading, by age _(context: `brief`)_  
   → Скільки годин на тиждень люди читають, за віком
-- [ ] **9394.** hours a week _(context: brief)_  
+- [ ] **9394.** hours a week _(context: `brief`)_  
   → години на тиждень
-- [ ] **9395.** Printed books _(context: brief)_  
+- [ ] **9395.** Printed books _(context: `brief`)_  
   → Друковані книжки
-- [ ] **9396.** On a screen _(context: brief)_  
+- [ ] **9396.** On a screen _(context: `brief`)_  
   → З екрана
-- [ ] **9397.** Aged 15 to 24 _(context: brief)_  
+- [ ] **9397.** Aged 15 to 24 _(context: `brief`)_  
   → Від 15 до 24 років
-- [ ] **9398.** Aged 25 to 44 _(context: brief)_  
+- [ ] **9398.** Aged 25 to 44 _(context: `brief`)_  
   → Від 25 до 44 років
-- [ ] **9399.** Aged 45 to 64 _(context: brief)_  
+- [ ] **9399.** Aged 45 to 64 _(context: `brief`)_  
   → Від 45 до 64 років
-- [ ] **9400.** Aged 65 and over _(context: brief)_  
+- [ ] **9400.** Aged 65 and over _(context: `brief`)_  
   → 65 років і більше
-- [ ] **9401.** Where households buy their food _(context: brief)_  
+- [ ] **9401.** Where households buy their food _(context: `brief`)_  
   → Де родини купують продукти
-- [ ] **9402.** percent of households, main place _(context: brief)_  
+- [ ] **9402.** percent of households, main place _(context: `brief`)_  
   → відсоток родин, основне місце
-- [ ] **9403.** Large supermarket _(context: brief)_  
+- [ ] **9403.** Large supermarket _(context: `brief`)_  
   → Великий супермаркет
-- [ ] **9404.** Small local shop _(context: brief)_  
+- [ ] **9404.** Small local shop _(context: `brief`)_  
   → Невелика крамниця біля дому
-- [ ] **9405.** Market _(context: brief)_  
+- [ ] **9405.** Market _(context: `brief`)_  
   → Ринок
-- [ ] **9406.** Online _(context: brief)_  
+- [ ] **9406.** Online _(context: `brief`)_  
   → Через інтернет
-- [ ] **9407.** Where households get their heating _(context: brief)_  
+- [ ] **9407.** Where households get their heating _(context: `brief`)_  
   → Як родини опалюють житло
-- [ ] **9408.** percent of households _(context: brief)_  
+- [ ] **9408.** percent of households _(context: `brief`)_  
   → відсоток родин
-- [ ] **9409.** District heating _(context: brief)_  
+- [ ] **9409.** District heating _(context: `brief`)_  
   → Централізоване опалення
-- [ ] **9410.** Wood _(context: brief)_  
+- [ ] **9410.** Wood _(context: `brief`)_  
   → Дрова
-- [ ] **9411.** Electricity and heat pumps _(context: brief)_  
+- [ ] **9411.** Electricity and heat pumps _(context: `brief`)_  
   → Електрика й теплові насоси
-- [ ] **9412.** Gas _(context: brief)_  
+- [ ] **9412.** Gas _(context: `brief`)_  
   → Газ
-- [ ] **9413.** How satisfied students are with their course _(context: brief)_  
+- [ ] **9413.** How satisfied students are with their course _(context: `brief`)_  
   → Наскільки студенти задоволені своїм навчанням
-- [ ] **9414.** percent satisfied _(context: brief)_  
+- [ ] **9414.** percent satisfied _(context: `brief`)_  
   → відсоток задоволених
-- [ ] **9415.** First year _(context: brief)_  
+- [ ] **9415.** First year _(context: `brief`)_  
   → Перший курс
-- [ ] **9416.** Final year _(context: brief)_  
+- [ ] **9416.** Final year _(context: `brief`)_  
   → Останній курс
-- [ ] **9417.** Teaching _(context: brief)_  
+- [ ] **9417.** Teaching _(context: `brief`)_  
   → Викладання
-- [ ] **9418.** Course materials _(context: brief)_  
+- [ ] **9418.** Course materials _(context: `brief`)_  
   → Навчальні матеріали
-- [ ] **9419.** Online tools _(context: brief)_  
+- [ ] **9419.** Online tools _(context: `brief`)_  
   → Онлайн-інструменти
-- [ ] **9420.** Support and advice _(context: brief)_  
+- [ ] **9420.** Support and advice _(context: `brief`)_  
   → Підтримка й консультації
-- [ ] **9421.** Time spent online each day, by age _(context: brief)_  
+- [ ] **9421.** Time spent online each day, by age _(context: `brief`)_  
   → Скільки часу на день люди проводять в інтернеті, за віком
-- [ ] **9422.** hours a day _(context: brief)_  
+- [ ] **9422.** hours a day _(context: `brief`)_  
   → години на день
-- [ ] **9423.** Weekdays _(context: brief)_  
+- [ ] **9423.** Weekdays _(context: `brief`)_  
   → Будні
-- [ ] **9424.** Weekends _(context: brief)_  
+- [ ] **9424.** Weekends _(context: `brief`)_  
   → Вихідні
-- [ ] **9425.** Visitors to a national park, by season _(context: brief)_  
+- [ ] **9425.** Visitors to a national park, by season _(context: `brief`)_  
   → Відвідувачі національного парку, за сезонами
-- [ ] **9426.** thousands of visitors _(context: brief)_  
+- [ ] **9426.** thousands of visitors _(context: `brief`)_  
   → тисячі відвідувачів
-- [ ] **9427.** Winter _(context: brief)_  
+- [ ] **9427.** Winter _(context: `brief`)_  
   → Зима
-- [ ] **9428.** Spring _(context: brief)_  
+- [ ] **9428.** Spring _(context: `brief`)_  
   → Весна
-- [ ] **9429.** Summer _(context: brief)_  
+- [ ] **9429.** Summer _(context: `brief`)_  
   → Літо
-- [ ] **9430.** Fall _(context: brief)_  
+- [ ] **9430.** Fall _(context: `brief`)_  
   → Осінь
-- [ ] **9431.** How people found their current job _(context: brief)_  
+- [ ] **9431.** How people found their current job _(context: `brief`)_  
   → Як люди знайшли свою теперішню роботу
-- [ ] **9432.** percent of people in work _(context: brief)_  
+- [ ] **9432.** percent of people in work _(context: `brief`)_  
   → відсоток людей, які працюють
-- [ ] **9433.** Under 30 _(context: brief)_  
+- [ ] **9433.** Under 30 _(context: `brief`)_  
   → До 30 років
-- [ ] **9434.** 30 and over _(context: brief)_  
+- [ ] **9434.** 30 and over _(context: `brief`)_  
   → 30 років і більше
-- [ ] **9435.** A job website _(context: brief)_  
+- [ ] **9435.** A job website _(context: `brief`)_  
   → Сайт вакансій
-- [ ] **9436.** Friends or family _(context: brief)_  
+- [ ] **9436.** Friends or family _(context: `brief`)_  
   → Друзі або родичі
-- [ ] **9437.** Contacting the employer directly _(context: brief)_  
+- [ ] **9437.** Contacting the employer directly _(context: `brief`)_  
   → Напряму через роботодавця
-- [ ] **9438.** A recruitment agency _(context: brief)_  
+- [ ] **9438.** A recruitment agency _(context: `brief`)_  
   → Кадрова агенція
-- [ ] **9439.** Social media _(context: brief)_  
+- [ ] **9439.** Social media _(context: `brief`)_  
   → Соціальні мережі
-- [ ] **9440.** How often adults exercise _(context: brief)_  
+- [ ] **9440.** How often adults exercise _(context: `brief`)_  
   → Як часто дорослі займаються спортом
-- [ ] **9441.** percent of adults _(context: brief)_  
+- [ ] **9441.** percent of adults _(context: `brief`)_  
   → відсоток дорослих
-- [ ] **9442.** Several times a week _(context: brief)_  
+- [ ] **9442.** Several times a week _(context: `brief`)_  
   → Кілька разів на тиждень
-- [ ] **9443.** About once a week _(context: brief)_  
+- [ ] **9443.** About once a week _(context: `brief`)_  
   → Приблизно раз на тиждень
-- [ ] **9444.** Now and then _(context: brief)_  
+- [ ] **9444.** Now and then _(context: `brief`)_  
   → Час від часу
-- [ ] **9445.** Never _(context: brief)_  
+- [ ] **9445.** Never _(context: `brief`)_  
   → Ніколи
-- [ ] **9446.** Everybody who can should work from home at least two days a week. _(context: brief)_  
+- [ ] **9446.** Everybody who can should work from home at least two days a week. _(context: `brief`)_  
   → Кожен, хто має таку змогу, має працювати з дому принаймні два дні на тиждень.
-- [ ] **9447.** Public transport in towns should be free for everybody. _(context: brief)_  
+- [ ] **9447.** Public transport in towns should be free for everybody. _(context: `brief`)_  
   → Громадський транспорт у містах має бути безкоштовним для всіх.
-- [ ] **9448.** Children shouldn't have their own phone before they're twelve. _(context: brief)_  
+- [ ] **9448.** Children shouldn't have their own phone before they're twelve. _(context: `brief`)_  
   → Діти не повинні мати власного телефона до дванадцяти років.
-- [ ] **9449.** Shops should be closed on Sundays. _(context: brief)_  
+- [ ] **9449.** Shops should be closed on Sundays. _(context: `brief`)_  
   → У неділю магазини мають бути зачинені.
-- [ ] **9450.** A language is learned better online than in a classroom. _(context: brief)_  
+- [ ] **9450.** A language is learned better online than in a classroom. _(context: `brief`)_  
   → Мову краще вчити онлайн, ніж у класі.
-- [ ] **9451.** Cars should not be allowed in town centers. _(context: brief)_  
+- [ ] **9451.** Cars should not be allowed in town centers. _(context: `brief`)_  
   → Автомобілям не слід дозволяти в'їзд до центру міста.
-- [ ] **9452.** Every young person should work for a year before going to university. _(context: brief)_  
+- [ ] **9452.** Every young person should work for a year before going to university. _(context: `brief`)_  
   → Кожна молода людина має рік попрацювати, перш ніж вступати до університету.
-- [ ] **9453.** Tourism does a small town more good than harm. _(context: brief)_  
+- [ ] **9453.** Tourism does a small town more good than harm. _(context: `brief`)_  
   → Туризм приносить невеликому місту більше користі, ніж шкоди.
-- [ ] **9454.** Sport should be a bigger part of every school day. _(context: brief)_  
+- [ ] **9454.** Sport should be a bigger part of every school day. _(context: `brief`)_  
   → У кожному шкільному дні має бути більше спорту.
-- [ ] **9455.** Your town council plans to close two small libraries and build one large one in the center. _(context: brief)_  
+- [ ] **9455.** Your town council plans to close two small libraries and build one large one in the center. _(context: `brief`)_  
   → Міська рада планує закрити дві невеликі бібліотеки й збудувати одну велику в центрі.
-- [ ] **9456.** what the town would gain _(context: brief)_  
+- [ ] **9456.** what the town would gain _(context: `brief`)_  
   → що місто виграє
-- [ ] **9457.** what it would lose _(context: brief)_  
+- [ ] **9457.** what it would lose _(context: `brief`)_  
   → що воно втратить
-- [ ] **9458.** A large employer wants all its staff back in the office five days a week. _(context: brief)_  
+- [ ] **9458.** A large employer wants all its staff back in the office five days a week. _(context: `brief`)_  
   → Великий роботодавець хоче, щоб усі працівники знову працювали в офісі п'ять днів на тиждень.
-- [ ] **9459.** the effect on productivity _(context: brief)_  
+- [ ] **9459.** the effect on productivity _(context: `brief`)_  
   → вплив на продуктивність
-- [ ] **9460.** the effect on people's lives _(context: brief)_  
+- [ ] **9460.** the effect on people's lives _(context: `brief`)_  
   → вплив на життя людей
-- [ ] **9461.** The government is considering a four day working week. _(context: brief)_  
+- [ ] **9461.** The government is considering a four day working week. _(context: `brief`)_  
   → Уряд розглядає перехід на чотириденний робочий тиждень.
-- [ ] **9462.** what it would mean for the economy _(context: brief)_  
+- [ ] **9462.** what it would mean for the economy _(context: `brief`)_  
   → що це означало б для економіки
-- [ ] **9463.** what it would mean for wellbeing _(context: brief)_  
+- [ ] **9463.** what it would mean for wellbeing _(context: `brief`)_  
   → що це означало б для самопочуття людей
-- [ ] **9464.** Universities may start teaching master's courses only in English. _(context: brief)_  
+- [ ] **9464.** Universities may start teaching master's courses only in English. _(context: `brief`)_  
   → Університети можуть почати викладати в магістратурі лише англійською мовою.
-- [ ] **9465.** the international benefits _(context: brief)_  
+- [ ] **9465.** the international benefits _(context: `brief`)_  
   → міжнародні переваги
-- [ ] **9466.** the future of the national language in science _(context: brief)_  
+- [ ] **9466.** the future of the national language in science _(context: `brief`)_  
   → майбутнє національної мови в науці
-- [ ] **9467.** Social media platforms may be required to check the age of every user. _(context: brief)_  
+- [ ] **9467.** Social media platforms may be required to check the age of every user. _(context: `brief`)_  
   → Соціальні мережі можуть зобов'язати перевіряти вік кожного користувача.
-- [ ] **9468.** protecting children _(context: brief)_  
+- [ ] **9468.** protecting children _(context: `brief`)_  
   → захист дітей
-- [ ] **9469.** privacy _(context: brief)_  
+- [ ] **9469.** privacy _(context: `brief`)_  
   → приватність
-- [ ] **9470.** Your city wants to build housing on the site of a large park. _(context: brief)_  
+- [ ] **9470.** Your city wants to build housing on the site of a large park. _(context: `brief`)_  
   → Ваше місто хоче збудувати житло на місці великого парку.
-- [ ] **9471.** the need for housing _(context: brief)_  
+- [ ] **9471.** the need for housing _(context: `brief`)_  
   → потреба в житлі
-- [ ] **9472.** the value of green space _(context: brief)_  
+- [ ] **9472.** the value of green space _(context: `brief`)_  
   → цінність зелених зон
-- [ ] **9473.** Schools may replace printed textbooks with tablets. _(context: brief)_  
+- [ ] **9473.** Schools may replace printed textbooks with tablets. _(context: `brief`)_  
   → Школи можуть замінити друковані підручники планшетами.
-- [ ] **9474.** what students would gain _(context: brief)_  
+- [ ] **9474.** what students would gain _(context: `brief`)_  
   → що виграють учні
-- [ ] **9475.** what they might lose _(context: brief)_  
+- [ ] **9475.** what they might lose _(context: `brief`)_  
   → що вони можуть втратити
-- [ ] **9476.** Supermarkets may be required to give their unsold food away. _(context: brief)_  
+- [ ] **9476.** Supermarkets may be required to give their unsold food away. _(context: `brief`)_  
   → Супермаркети можуть зобов'язати безкоштовно віддавати непродані продукти.
-- [ ] **9477.** the case against waste _(context: brief)_  
+- [ ] **9477.** the case against waste _(context: `brief`)_  
   → аргументи проти того, щоб викидати їжу
-- [ ] **9478.** the cost and the practical problems _(context: brief)_  
+- [ ] **9478.** the cost and the practical problems _(context: `brief`)_  
   → витрати й практичні труднощі
-- [ ] **9479.** Your country is considering lowering the voting age to sixteen. _(context: brief)_  
+- [ ] **9479.** Your country is considering lowering the voting age to sixteen. _(context: `brief`)_  
   → У вашій країні обговорюють зниження віку голосування до шістнадцяти років.
-- [ ] **9480.** young people's voice _(context: brief)_  
+- [ ] **9480.** young people's voice _(context: `brief`)_  
   → голос молоді
-- [ ] **9481.** whether sixteen is ready _(context: brief)_  
+- [ ] **9481.** whether sixteen is ready _(context: `brief`)_  
   → чи готові шістнадцятирічні
-- [ ] **9482.** Where might you see these things together? _(context: brief)_  
+- [ ] **9482.** Where might you see these things together? _(context: `brief`)_  
   → Де можна побачити всі ці речі разом?
-- [ ] **9483.** When did you last see or use one of them? Tell me about it. _(context: brief)_  
+- [ ] **9483.** When did you last see or use one of them? Tell me about it. _(context: `brief`)_  
   → Коли ви востаннє бачили або використовували одну з них? Розкажіть про це.
-- [ ] **9484.** Do you like this kind of place? Why, or why not? _(context: brief)_  
+- [ ] **9484.** Do you like this kind of place? Why, or why not? _(context: `brief`)_  
   → Вам подобаються такі місця? Чому так або чому ні?
-- [ ] **9485.** Breakfast _(context: brief)_  
+- [ ] **9485.** Breakfast _(context: `brief`)_  
   → Сніданок
-- [ ] **9486.** At the market _(context: brief)_  
+- [ ] **9486.** At the market _(context: `brief`)_  
   → На ринку
-- [ ] **9487.** Getting to work _(context: brief)_  
+- [ ] **9487.** Getting to work _(context: `brief`)_  
   → Дорога на роботу
-- [ ] **9488.** The house _(context: brief)_  
+- [ ] **9488.** The house _(context: `brief`)_  
   → Будинок
-- [ ] **9489.** Pets _(context: brief)_  
+- [ ] **9489.** Pets _(context: `brief`)_  
   → Домашні тварини
-- [ ] **9490.** Fruit _(context: brief)_  
+- [ ] **9490.** Fruit _(context: `brief`)_  
   → Фрукти
-- [ ] **9491.** In the classroom _(context: brief)_  
+- [ ] **9491.** In the classroom _(context: `brief`)_  
   → У класі
-- [ ] **9492.** The family _(context: brief)_  
+- [ ] **9492.** The family _(context: `brief`)_  
   → Родина
-- [ ] **9493.** Setting off _(context: brief)_  
+- [ ] **9493.** Setting off _(context: `brief`)_  
   → У дорогу
-- [ ] **9494.** Something cold _(context: brief)_  
+- [ ] **9494.** Something cold _(context: `brief`)_  
   → Щось холодне
-- [ ] **9495.** The bathroom _(context: brief)_  
+- [ ] **9495.** The bathroom _(context: `brief`)_  
   → Ванна кімната
-- [ ] **9496.** Cooking _(context: brief)_  
+- [ ] **9496.** Cooking _(context: `brief`)_  
   → Готуємо їжу
-- [ ] **9497.** The face _(context: brief)_  
+- [ ] **9497.** The face _(context: `brief`)_  
   → Обличчя
-- [ ] **9498.** An evening in _(context: brief)_  
+- [ ] **9498.** An evening in _(context: `brief`)_  
   → Вечір удома
-- [ ] **9499.** Sport _(context: brief)_  
+- [ ] **9499.** Sport _(context: `brief`)_  
   → Спорт
-- [ ] **9500.** In town _(context: brief)_  
+- [ ] **9500.** In town _(context: `brief`)_  
   → У місті
-- [ ] **9501.** On the farm _(context: brief)_  
+- [ ] **9501.** On the farm _(context: `brief`)_  
   → На фермі
-- [ ] **9502.** The children _(context: brief)_  
+- [ ] **9502.** The children _(context: `brief`)_  
   → Діти
-- [ ] **9503.** Lunch _(context: brief)_  
+- [ ] **9503.** Lunch _(context: `brief`)_  
   → Обід
-- [ ] **9504.** By the fire _(context: brief)_  
+- [ ] **9504.** By the fire _(context: `brief`)_  
   → Біля вогню
-- [ ] **9505.** Getting dressed _(context: brief)_  
+- [ ] **9505.** Getting dressed _(context: `brief`)_  
   → Одягаємося
-- [ ] **9506.** At the doctor _(context: brief)_  
+- [ ] **9506.** At the doctor _(context: `brief`)_  
   → У лікаря
-- [ ] **9507.** Farm animals _(context: brief)_  
+- [ ] **9507.** Farm animals _(context: `brief`)_  
   → Тварини на фермі
-- [ ] **9508.** In the forest _(context: brief)_  
+- [ ] **9508.** In the forest _(context: `brief`)_  
   → У лісі
-- [ ] **9509.** News and dates _(context: brief)_  
+- [ ] **9509.** News and dates _(context: `brief`)_  
   → Новини й дати
-- [ ] **9510.** Flowers _(context: brief)_  
+- [ ] **9510.** Flowers _(context: `brief`)_  
   → Квіти
-- [ ] **9511.** On vacation _(context: brief)_  
+- [ ] **9511.** On vacation _(context: `brief`)_  
   → У відпустці
-- [ ] **9512.** Washing _(context: brief)_  
+- [ ] **9512.** Washing _(context: `brief`)_  
   → Миття
-- [ ] **9513.** Strong flavors _(context: brief)_  
+- [ ] **9513.** Strong flavors _(context: `brief`)_  
   → Яскраві смаки
-- [ ] **9514.** Small animals _(context: brief)_  
+- [ ] **9514.** Small animals _(context: `brief`)_  
   → Маленькі тварини
-- [ ] **9515.** An emergency _(context: brief)_  
+- [ ] **9515.** An emergency _(context: `brief`)_  
   → Надзвичайна ситуація
-- [ ] **9516.** At the bank _(context: brief)_  
+- [ ] **9516.** At the bank _(context: `brief`)_  
   → У банку
-- [ ] **9517.** Birds _(context: brief)_  
+- [ ] **9517.** Birds _(context: `brief`)_  
   → Птахи
-- [ ] **9518.** Something sweet _(context: brief)_  
+- [ ] **9518.** Something sweet _(context: `brief`)_  
   → Щось солодке
-- [ ] **9519.** Old buildings _(context: brief)_  
+- [ ] **9519.** Old buildings _(context: `brief`)_  
   → Старі будівлі
-- [ ] **9520.** Music _(context: brief)_  
+- [ ] **9520.** Music _(context: `brief`)_  
   → Музика
-- [ ] **9521.** At the zoo _(context: brief)_  
+- [ ] **9521.** At the zoo _(context: `brief`)_  
   → У зоопарку
-- [ ] **9522.** Tools _(context: brief)_  
+- [ ] **9522.** Tools _(context: `brief`)_  
   → Інструменти
-- [ ] **9523.** Waiting _(context: brief)_  
+- [ ] **9523.** Waiting _(context: `brief`)_  
   → Очікування
-- [ ] **9524.** In the water _(context: brief)_  
+- [ ] **9524.** In the water _(context: `brief`)_  
   → У воді
-- [ ] **9525.** Insects _(context: brief)_  
+- [ ] **9525.** Insects _(context: `brief`)_  
   → Комахи
-- [ ] **9526.** Leaving the house _(context: brief)_  
+- [ ] **9526.** Leaving the house _(context: `brief`)_  
   → Виходимо з дому
-- [ ] **9527.** A wedding _(context: brief)_  
+- [ ] **9527.** A wedding _(context: `brief`)_  
   → Весілля
-- [ ] **9528.** After the rain _(context: brief)_  
+- [ ] **9528.** After the rain _(context: `brief`)_  
   → Після дощу
-- [ ] **9529.** Large birds _(context: brief)_  
+- [ ] **9529.** Large birds _(context: `brief`)_  
   → Великі птахи
-- [ ] **9530.** Mending something _(context: brief)_  
+- [ ] **9530.** Mending something _(context: `brief`)_  
   → Лагодимо щось
-- [ ] **9531.** Slow creatures _(context: brief)_  
+- [ ] **9531.** Slow creatures _(context: `brief`)_  
   → Повільні істоти
-- [ ] **9532.** Subway _(context: brief)_  
+- [ ] **9532.** Subway _(context: `brief`)_  
   → У метро
-- [ ] **9533.** Farm work _(context: brief)_  
+- [ ] **9533.** Farm work _(context: `brief`)_  
   → Робота на фермі
-- [ ] **9534.** Late evening _(context: brief)_  
+- [ ] **9534.** Late evening _(context: `brief`)_  
   → Пізній вечір
-- [ ] **9535.** Camping _(context: brief)_  
+- [ ] **9535.** Camping _(context: `brief`)_  
   → У поході
-- [ ] **9536.** Far from here _(context: brief)_  
+- [ ] **9536.** Far from here _(context: `brief`)_  
   → Далеко звідси
-- [ ] **9537.** Out at sea _(context: brief)_  
+- [ ] **9537.** Out at sea _(context: `brief`)_  
   → У відкритому морі
-- [ ] **9538.** Building _(context: brief)_  
+- [ ] **9538.** Building _(context: `brief`)_  
   → Будівництво
-- [ ] **9539.** Across town _(context: brief)_  
+- [ ] **9539.** Across town _(context: `brief`)_  
   → Через усе місто
-- [ ] **9540.** After dark _(context: brief)_  
+- [ ] **9540.** After dark _(context: `brief`)_  
   → Коли стемніло
-- [ ] **9541.** Looking up _(context: brief)_  
+- [ ] **9541.** Looking up _(context: `brief`)_  
   → Погляд угору
-- [ ] **9542.** Made by hand _(context: brief)_  
+- [ ] **9542.** Made by hand _(context: `brief`)_  
   → Ручна робота
-- [ ] **9543.** In the garden _(context: brief)_  
+- [ ] **9543.** In the garden _(context: `brief`)_  
   → У саду
-- [ ] **9544.** free time _(context: brief)_  
+- [ ] **9544.** free time _(context: `brief`)_  
   → вільний час
-- [ ] **9545.** what they like doing _(context: brief)_  
+- [ ] **9545.** what they like doing _(context: `brief`)_  
   → що ви любите робити
-- [ ] **9546.** when _(context: brief)_  
+- [ ] **9546.** when _(context: `brief`)_  
   → коли
-- [ ] **9547.** how much it costs _(context: brief)_  
+- [ ] **9547.** how much it costs _(context: `brief`)_  
   → скільки це коштує
-- [ ] **9548.** food _(context: brief)_  
+- [ ] **9548.** food _(context: `brief`)_  
   → їжа
-- [ ] **9549.** what they like to eat _(context: brief)_  
+- [ ] **9549.** what they like to eat _(context: `brief`)_  
   → що ви любите їсти
-- [ ] **9550.** where they shop _(context: brief)_  
+- [ ] **9550.** where they shop _(context: `brief`)_  
   → де ви купуєте продукти
-- [ ] **9551.** who cooks at home _(context: brief)_  
+- [ ] **9551.** who cooks at home _(context: `brief`)_  
   → хто у вас удома готує
-- [ ] **9552.** what they ate today _(context: brief)_  
+- [ ] **9552.** what they ate today _(context: `brief`)_  
   → що ви їли сьогодні
-- [ ] **9553.** a trip _(context: brief)_  
+- [ ] **9553.** a trip _(context: `brief`)_  
   → поїздка
-- [ ] **9554.** where they went _(context: brief)_  
+- [ ] **9554.** where they went _(context: `brief`)_  
   → куди ви їздили
-- [ ] **9555.** how they got there _(context: brief)_  
+- [ ] **9555.** how they got there _(context: `brief`)_  
   → як ви туди добиралися
-- [ ] **9556.** how long they stayed _(context: brief)_  
+- [ ] **9556.** how long they stayed _(context: `brief`)_  
   → скільки ви там пробули
-- [ ] **9557.** what they liked _(context: brief)_  
+- [ ] **9557.** what they liked _(context: `brief`)_  
   → що вам сподобалося
-- [ ] **9558.** home _(context: brief)_  
+- [ ] **9558.** home _(context: `brief`)_  
   → дім
-- [ ] **9559.** where they live _(context: brief)_  
+- [ ] **9559.** where they live _(context: `brief`)_  
   → де ви живете
-- [ ] **9560.** how many rooms there are _(context: brief)_  
+- [ ] **9560.** how many rooms there are _(context: `brief`)_  
   → скільки у вас кімнат
-- [ ] **9561.** who they live with _(context: brief)_  
+- [ ] **9561.** who they live with _(context: `brief`)_  
   → з ким ви живете
-- [ ] **9562.** what they like about it _(context: brief)_  
+- [ ] **9562.** what they like about it _(context: `brief`)_  
   → що вам подобається у вашому домі
-- [ ] **9563.** work _(context: brief)_  
+- [ ] **9563.** work _(context: `brief`)_  
   → робота
-- [ ] **9564.** what they do _(context: brief)_  
+- [ ] **9564.** what they do _(context: `brief`)_  
   → ким ви працюєте
-- [ ] **9565.** where they work _(context: brief)_  
+- [ ] **9565.** where they work _(context: `brief`)_  
   → де ви працюєте
-- [ ] **9566.** when they start and finish _(context: brief)_  
+- [ ] **9566.** when they start and finish _(context: `brief`)_  
   → коли ви починаєте й закінчуєте роботу
-- [ ] **9567.** whether they like it _(context: brief)_  
+- [ ] **9567.** whether they like it _(context: `brief`)_  
   → чи подобається вам ваша робота
-- [ ] **9568.** shopping _(context: brief)_  
+- [ ] **9568.** shopping _(context: `brief`)_  
   → покупки
-- [ ] **9569.** what they buy most often _(context: brief)_  
+- [ ] **9569.** what they buy most often _(context: `brief`)_  
   → що ви купуєте найчастіше
-- [ ] **9570.** where _(context: brief)_  
+- [ ] **9570.** where _(context: `brief`)_  
   → де
-- [ ] **9571.** how they pay _(context: brief)_  
+- [ ] **9571.** how they pay _(context: `brief`)_  
   → як ви платите
-- [ ] **9572.** what they bought last _(context: brief)_  
+- [ ] **9572.** what they bought last _(context: `brief`)_  
   → що ви купили востаннє
-- [ ] **9573.** staying healthy _(context: brief)_  
+- [ ] **9573.** staying healthy _(context: `brief`)_  
   → здоровий спосіб життя
-- [ ] **9574.** what sport they do _(context: brief)_  
+- [ ] **9574.** what sport they do _(context: `brief`)_  
   → яким спортом ви займаєтеся
-- [ ] **9575.** how often _(context: brief)_  
+- [ ] **9575.** how often _(context: `brief`)_  
   → як часто
-- [ ] **9576.** when they go to the doctor _(context: brief)_  
+- [ ] **9576.** when they go to the doctor _(context: `brief`)_  
   → коли ви ходите до лікаря
-- [ ] **9577.** how they sleep _(context: brief)_  
+- [ ] **9577.** how they sleep _(context: `brief`)_  
   → як ви спите
-- [ ] **9578.** the weekend _(context: brief)_  
+- [ ] **9578.** the weekend _(context: `brief`)_  
   → вихідні
-- [ ] **9579.** when they get up _(context: brief)_  
+- [ ] **9579.** when they get up _(context: `brief`)_  
   → коли ви встаєте
-- [ ] **9580.** who they meet _(context: brief)_  
+- [ ] **9580.** who they meet _(context: `brief`)_  
   → з ким ви зустрічаєтеся
-- [ ] **9581.** what they did last weekend _(context: brief)_  
+- [ ] **9581.** what they did last weekend _(context: `brief`)_  
   → що ви робили минулих вихідних
-- [ ] **9582.** What do you do in your free time? _(context: brief)_  
+- [ ] **9582.** What do you do in your free time? _(context: `brief`)_  
   → Чим ви займаєтеся у вільний час?
-- [ ] **9583.** Do you prefer staying in or going out? Why? _(context: brief)_  
+- [ ] **9583.** Do you prefer staying in or going out? Why? _(context: `brief`)_  
   → Ви більше любите проводити час удома чи кудись виходити? Чому?
-- [ ] **9584.** What did you do last weekend? _(context: brief)_  
+- [ ] **9584.** What did you do last weekend? _(context: `brief`)_  
   → Що ви робили минулих вихідних?
-- [ ] **9585.** A friend is visiting you for one weekend. Decide together what to do on Saturday. _(context: brief)_  
+- [ ] **9585.** A friend is visiting you for one weekend. Decide together what to do on Saturday. _(context: `brief`)_  
   → До вас на вихідні приїжджає друг. Вирішіть разом, чим зайнятися в суботу.
-- [ ] **9586.** a museum _(context: brief)_  
+- [ ] **9586.** a museum _(context: `brief`)_  
   → музей
-- [ ] **9587.** a walk in the forest _(context: brief)_  
+- [ ] **9587.** a walk in the forest _(context: `brief`)_  
   → прогулянка лісом
-- [ ] **9588.** a concert _(context: brief)_  
+- [ ] **9588.** a concert _(context: `brief`)_  
   → концерт
-- [ ] **9589.** What do you usually eat in a day? _(context: brief)_  
+- [ ] **9589.** What do you usually eat in a day? _(context: `brief`)_  
   → Що ви зазвичай їсте за день?
-- [ ] **9590.** Do you like cooking? Why or why not? _(context: brief)_  
+- [ ] **9590.** Do you like cooking? Why or why not? _(context: `brief`)_  
   → Ви любите готувати? Чому так або чому ні?
-- [ ] **9591.** Where did you last eat out? _(context: brief)_  
+- [ ] **9591.** Where did you last eat out? _(context: `brief`)_  
   → Де ви востаннє їли не вдома?
-- [ ] **9592.** Your course is ending and the group wants to celebrate. Decide together where. _(context: brief)_  
+- [ ] **9592.** Your course is ending and the group wants to celebrate. Decide together where. _(context: `brief`)_  
   → Ваш курс закінчується, і група хоче це відзначити. Вирішіть разом, де.
-- [ ] **9593.** a café _(context: brief)_  
+- [ ] **9593.** a café _(context: `brief`)_  
   → кав'ярня
-- [ ] **9594.** a picnic in the park _(context: brief)_  
+- [ ] **9594.** a picnic in the park _(context: `brief`)_  
   → пікнік у парку
-- [ ] **9595.** somebody's home _(context: brief)_  
+- [ ] **9595.** somebody's home _(context: `brief`)_  
   → у когось удома
-- [ ] **9596.** Where do you usually shop? _(context: brief)_  
+- [ ] **9596.** Where do you usually shop? _(context: `brief`)_  
   → Де ви зазвичай робите покупки?
-- [ ] **9597.** What do you buy online? _(context: brief)_  
+- [ ] **9597.** What do you buy online? _(context: `brief`)_  
   → Що ви купуєте в інтернеті?
-- [ ] **9598.** What was the last thing you bought for somebody else? _(context: brief)_  
+- [ ] **9598.** What was the last thing you bought for somebody else? _(context: `brief`)_  
   → Що ви востаннє купували для іншої людини?
-- [ ] **9599.** A colleague is leaving. Decide together on a present. _(context: brief)_  
+- [ ] **9599.** A colleague is leaving. Decide together on a present. _(context: `brief`)_  
   → Колега йде з роботи. Вирішіть разом, що йому подарувати.
-- [ ] **9600.** flowers _(context: brief)_  
+- [ ] **9600.** flowers _(context: `brief`)_  
   → квіти
-- [ ] **9601.** a book _(context: brief)_  
+- [ ] **9601.** a book _(context: `brief`)_  
   → книжка
-- [ ] **9602.** a gift card _(context: brief)_  
+- [ ] **9602.** a gift card _(context: `brief`)_  
   → подарункова картка
-- [ ] **9603.** Where did you last travel? _(context: brief)_  
+- [ ] **9603.** Where did you last travel? _(context: `brief`)_  
   → Куди ви востаннє їздили?
-- [ ] **9604.** How do you prefer to travel, and why? _(context: brief)_  
+- [ ] **9604.** How do you prefer to travel, and why? _(context: `brief`)_  
   → Як ви волієте подорожувати і чому?
-- [ ] **9605.** Where would you like to go next? _(context: brief)_  
+- [ ] **9605.** Where would you like to go next? _(context: `brief`)_  
   → Куди ви хотіли б поїхати наступного разу?
-- [ ] **9606.** You and a friend have three days off. Decide together where to go. _(context: brief)_  
+- [ ] **9606.** You and a friend have three days off. Decide together where to go. _(context: `brief`)_  
   → У вас із другом три вихідні дні. Вирішіть разом, куди поїхати.
-- [ ] **9607.** a city you don't know _(context: brief)_  
+- [ ] **9607.** a city you don't know _(context: `brief`)_  
   → незнайоме місто
-- [ ] **9608.** an island by the sea _(context: brief)_  
+- [ ] **9608.** an island by the sea _(context: `brief`)_  
   → острів у морі
-- [ ] **9609.** a spa hotel _(context: brief)_  
+- [ ] **9609.** a spa hotel _(context: `brief`)_  
   → спа-готель
-- [ ] **9610.** What do you do to stay healthy? _(context: brief)_  
+- [ ] **9610.** What do you do to stay healthy? _(context: `brief`)_  
   → Що ви робите, щоб залишатися здоровими?
-- [ ] **9611.** How often do you do sport? _(context: brief)_  
+- [ ] **9611.** How often do you do sport? _(context: `brief`)_  
   → Як часто ви займаєтеся спортом?
-- [ ] **9612.** What do you do when you're ill? _(context: brief)_  
+- [ ] **9612.** What do you do when you're ill? _(context: `brief`)_  
   → Що ви робите, коли хворієте?
-- [ ] **9613.** You both want to get fitter this year. Decide together how. _(context: brief)_  
+- [ ] **9613.** You both want to get fitter this year. Decide together how. _(context: `brief`)_  
   → Ви обоє хочете цього року покращити свою фізичну форму. Вирішіть разом, як.
-- [ ] **9614.** running together _(context: brief)_  
+- [ ] **9614.** running together _(context: `brief`)_  
   → спільні пробіжки
-- [ ] **9615.** joining a gym _(context: brief)_  
+- [ ] **9615.** joining a gym _(context: `brief`)_  
   → абонемент у спортзал
-- [ ] **9616.** cycling to work _(context: brief)_  
+- [ ] **9616.** cycling to work _(context: `brief`)_  
   → поїздки на роботу велосипедом
-- [ ] **9617.** Describe where you live. _(context: brief)_  
+- [ ] **9617.** Describe where you live. _(context: `brief`)_  
   → Опишіть, де ви живете.
-- [ ] **9618.** What do you like about your neighborhood? _(context: brief)_  
+- [ ] **9618.** What do you like about your neighborhood? _(context: `brief`)_  
   → Що вам подобається у вашому районі?
-- [ ] **9619.** Would you rather live in town or in the country? Why? _(context: brief)_  
+- [ ] **9619.** Would you rather live in town or in the country? Why? _(context: `brief`)_  
   → Де б ви воліли жити: у місті чи за містом? Чому?
-- [ ] **9620.** You share an apartment and have money for one new thing. Decide together what to buy. _(context: brief)_  
+- [ ] **9620.** You share an apartment and have money for one new thing. Decide together what to buy. _(context: `brief`)_  
   → Ви разом винаймаєте квартиру, і у вас є гроші на одну нову річ. Вирішіть разом, що купити.
-- [ ] **9621.** a new sofa _(context: brief)_  
+- [ ] **9621.** a new sofa _(context: `brief`)_  
   → новий диван
-- [ ] **9622.** a dishwasher _(context: brief)_  
+- [ ] **9622.** a dishwasher _(context: `brief`)_  
   → посудомийна машина
-- [ ] **9623.** bicycles for both of you _(context: brief)_  
+- [ ] **9623.** bicycles for both of you _(context: `brief`)_  
   → велосипеди для вас обох
-- [ ] **9624.** when there is a free appointment _(context: brief)_  
+- [ ] **9624.** when there is a free appointment _(context: `brief`)_  
   → коли можна записатися на прийом
-- [ ] **9625.** what a check-up costs _(context: brief)_  
+- [ ] **9625.** what a check-up costs _(context: `brief`)_  
   → скільки коштує огляд
-- [ ] **9626.** where the surgery is _(context: brief)_  
+- [ ] **9626.** where the surgery is _(context: `brief`)_  
   → де розташована клініка
-- [ ] **9627.** what to bring _(context: brief)_  
+- [ ] **9627.** what to bring _(context: `brief`)_  
   → що взяти із собою
-- [ ] **9628.** somebody who works at a sports club _(context: brief)_  
+- [ ] **9628.** somebody who works at a sports club _(context: `brief`)_  
   → працівник спортивного клубу
-- [ ] **9629.** Open every day, 7:00 to 22:00 _(context: brief)_  
+- [ ] **9629.** Open every day, 7:00 to 22:00 _(context: `brief`)_  
   → Відчинено щодня з 7:00 до 22:00
-- [ ] **9630.** A month's membership costs 45 euros _(context: brief)_  
+- [ ] **9630.** A month's membership costs 45 euros _(context: `brief`)_  
   → Абонемент на місяць коштує 45 євро
-- [ ] **9631.** No need to book, just come in _(context: brief)_  
+- [ ] **9631.** No need to book, just come in _(context: `brief`)_  
   → Записуватися не треба, просто приходьте
-- [ ] **9632.** Bring sports shoes and a towel _(context: brief)_  
+- [ ] **9632.** Bring sports shoes and a towel _(context: `brief`)_  
   → Візьміть спортивне взуття й рушник
-- [ ] **9633.** when the next course starts _(context: brief)_  
+- [ ] **9633.** when the next course starts _(context: `brief`)_  
   → коли починається наступний курс
-- [ ] **9634.** how many hours a week it is _(context: brief)_  
+- [ ] **9634.** how many hours a week it is _(context: `brief`)_  
   → скільки годин на тиждень тривають заняття
-- [ ] **9635.** what it costs _(context: brief)_  
+- [ ] **9635.** what it costs _(context: `brief`)_  
   → скільки це коштує
-- [ ] **9636.** how to sign up _(context: brief)_  
+- [ ] **9636.** how to sign up _(context: `brief`)_  
   → як записатися
-- [ ] **9637.** somebody who works at a library _(context: brief)_  
+- [ ] **9637.** somebody who works at a library _(context: `brief`)_  
   → працівник бібліотеки
-- [ ] **9638.** Open Monday to Saturday, 10:00 to 19:00 _(context: brief)_  
+- [ ] **9638.** Open Monday to Saturday, 10:00 to 19:00 _(context: `brief`)_  
   → Відчинено з понеділка до суботи, з 10:00 до 19:00
-- [ ] **9639.** Joining is free _(context: brief)_  
+- [ ] **9639.** Joining is free _(context: `brief`)_  
   → Записатися можна безкоштовно
-- [ ] **9640.** You can borrow ten books for three weeks _(context: brief)_  
+- [ ] **9640.** You can borrow ten books for three weeks _(context: `brief`)_  
   → Можна взяти десять книжок на три тижні
-- [ ] **9641.** Bring an ID card _(context: brief)_  
+- [ ] **9641.** Bring an ID card _(context: `brief`)_  
   → Візьміть із собою посвідчення особи
-- [ ] **9642.** whether there is a free time on Friday _(context: brief)_  
+- [ ] **9642.** whether there is a free time on Friday _(context: `brief`)_  
   → чи є вільний час у п'ятницю
-- [ ] **9643.** what a haircut costs _(context: brief)_  
+- [ ] **9643.** what a haircut costs _(context: `brief`)_  
   → скільки коштує стрижка
-- [ ] **9644.** how long it takes _(context: brief)_  
+- [ ] **9644.** how long it takes _(context: `brief`)_  
   → скільки це триває
-- [ ] **9645.** whether you can pay by card _(context: brief)_  
+- [ ] **9645.** whether you can pay by card _(context: `brief`)_  
   → чи можна заплатити карткою
-- [ ] **9646.** somebody who works at a theater box office _(context: brief)_  
+- [ ] **9646.** somebody who works at a theater box office _(context: `brief`)_  
   → касир театру
-- [ ] **9647.** Tickets cost 15 and 25 euros _(context: brief)_  
+- [ ] **9647.** Tickets cost 15 and 25 euros _(context: `brief`)_  
   → Квитки коштують 15 і 25 євро
-- [ ] **9648.** The show starts at 19:00 _(context: brief)_  
+- [ ] **9648.** The show starts at 19:00 _(context: `brief`)_  
   → Вистава починається о 19:00
-- [ ] **9649.** It lasts two and a half hours _(context: brief)_  
+- [ ] **9649.** It lasts two and a half hours _(context: `brief`)_  
   → Вона триває дві з половиною години
-- [ ] **9650.** Children under 12 pay half _(context: brief)_  
+- [ ] **9650.** Children under 12 pay half _(context: `brief`)_  
   → Діти до 12 років платять половину
-- [ ] **9651.** whether a room is free next weekend _(context: brief)_  
+- [ ] **9651.** whether a room is free next weekend _(context: `brief`)_  
   → чи є вільний номер на наступні вихідні
-- [ ] **9652.** what a night costs _(context: brief)_  
+- [ ] **9652.** what a night costs _(context: `brief`)_  
   → скільки коштує одна ніч
-- [ ] **9653.** whether breakfast is included _(context: brief)_  
+- [ ] **9653.** whether breakfast is included _(context: `brief`)_  
   → чи входить сніданок у ціну
-- [ ] **9654.** how far it is from the station _(context: brief)_  
+- [ ] **9654.** how far it is from the station _(context: `brief`)_  
   → чи далеко це від вокзалу
-- [ ] **9655.** somebody who works at a car hire company _(context: brief)_  
+- [ ] **9655.** somebody who works at a car hire company _(context: `brief`)_  
   → працівник компанії з прокату автомобілів
-- [ ] **9656.** A small car costs 35 euros a day _(context: brief)_  
+- [ ] **9656.** A small car costs 35 euros a day _(context: `brief`)_  
   → Невеликий автомобіль коштує 35 євро на день
-- [ ] **9657.** Open 8:00 to 20:00 _(context: brief)_  
+- [ ] **9657.** Open 8:00 to 20:00 _(context: `brief`)_  
   → Відчинено з 8:00 до 20:00
-- [ ] **9658.** You need a driving license and a bank card _(context: brief)_  
+- [ ] **9658.** You need a driving license and a bank card _(context: `brief`)_  
   → Потрібні посвідчення водія й банківська картка
-- [ ] **9659.** Bring the car back with a full tank _(context: brief)_  
+- [ ] **9659.** Bring the car back with a full tank _(context: `brief`)_  
   → Поверніть автомобіль із повним баком
-- [ ] **9660.** when it is open _(context: brief)_  
+- [ ] **9660.** when it is open _(context: `brief`)_  
   → коли він відчинений
-- [ ] **9661.** what a ticket costs _(context: brief)_  
+- [ ] **9661.** what a ticket costs _(context: `brief`)_  
   → скільки коштує квиток
-- [ ] **9662.** whether there are guided tours _(context: brief)_  
+- [ ] **9662.** whether there are guided tours _(context: `brief`)_  
   → чи є екскурсії з гідом
-- [ ] **9663.** whether you can take photos _(context: brief)_  
+- [ ] **9663.** whether you can take photos _(context: `brief`)_  
   → чи можна фотографувати
-- [ ] **9664.** somebody who works at a doctor's surgery _(context: brief)_  
+- [ ] **9664.** somebody who works at a doctor's surgery _(context: `brief`)_  
   → працівник поліклініки
-- [ ] **9665.** The doctor sees patients 8:00 to 16:00 _(context: brief)_  
+- [ ] **9665.** The doctor sees patients 8:00 to 16:00 _(context: `brief`)_  
   → Лікар приймає з 8:00 до 16:00
-- [ ] **9666.** Book by phone or online _(context: brief)_  
+- [ ] **9666.** Book by phone or online _(context: `brief`)_  
   → Записатися можна телефоном або онлайн
-- [ ] **9667.** The next free time is Thursday at 10:30 _(context: brief)_  
+- [ ] **9667.** The next free time is Thursday at 10:30 _(context: `brief`)_  
   → Найближчий вільний час: четвер, 10:30
-- [ ] **9668.** Bring your ID card _(context: brief)_  
+- [ ] **9668.** Bring your ID card _(context: `brief`)_  
   → Візьміть своє посвідчення особи
-- [ ] **9669.** whether they are free on the 15th _(context: brief)_  
+- [ ] **9669.** whether they are free on the 15th _(context: `brief`)_  
   → чи вільні вони 15-го числа
-- [ ] **9670.** what a small apartment costs to move _(context: brief)_  
+- [ ] **9670.** what a small apartment costs to move _(context: `brief`)_  
   → скільки коштує перевезти невелику квартиру
-- [ ] **9671.** whether they bring boxes _(context: brief)_  
+- [ ] **9671.** whether they bring boxes _(context: `brief`)_  
   → чи привозять вони коробки
-- [ ] **9672.** how to pay _(context: brief)_  
+- [ ] **9672.** how to pay _(context: `brief`)_  
   → як платити
-- [ ] **9673.** somebody who works at a swimming pool _(context: brief)_  
+- [ ] **9673.** somebody who works at a swimming pool _(context: `brief`)_  
   → працівник басейну
-- [ ] **9674.** Open 6:30 to 21:00, closed on Mondays _(context: brief)_  
+- [ ] **9674.** Open 6:30 to 21:00, closed on Mondays _(context: `brief`)_  
   → Відчинено з 6:30 до 21:00, у понеділок зачинено
-- [ ] **9675.** One swim costs 7 euros _(context: brief)_  
+- [ ] **9675.** One swim costs 7 euros _(context: `brief`)_  
   → Одне відвідування коштує 7 євро
-- [ ] **9676.** A swimming cap is required _(context: brief)_  
+- [ ] **9676.** A swimming cap is required _(context: `brief`)_  
   → Потрібна шапочка для плавання
-- [ ] **9677.** Lessons for adults on Tuesdays at 18:00 _(context: brief)_  
+- [ ] **9677.** Lessons for adults on Tuesdays at 18:00 _(context: `brief`)_  
   → Заняття для дорослих щовівторка о 18:00
-- [ ] **9678.** At a team meeting, give a short talk on why your team should try working from home two days a week. _(context: brief)_  
+- [ ] **9678.** At a team meeting, give a short talk on why your team should try working from home two days a week. _(context: `brief`)_  
   → На нараді команди коротко розкажіть, чому вашій команді варто спробувати працювати з дому два дні на тиждень.
-- [ ] **9679.** What would be the hardest part to organize? _(context: brief)_  
+- [ ] **9679.** What would be the hardest part to organize? _(context: `brief`)_  
   → Що було б найважче організувати?
-- [ ] **9680.** A new colleague starts on Monday. Give a short talk on what they need to know in their first week. _(context: brief)_  
+- [ ] **9680.** A new colleague starts on Monday. Give a short talk on what they need to know in their first week. _(context: `brief`)_  
   → У понеділок виходить новий колега. Коротко розкажіть, що йому треба знати першого тижня.
-- [ ] **9681.** What mistake do newcomers make most often? _(context: brief)_  
+- [ ] **9681.** What mistake do newcomers make most often? _(context: `brief`)_  
   → Якої помилки новачки припускаються найчастіше?
-- [ ] **9682.** At a staff meeting, propose one change that would make your workplace greener. _(context: brief)_  
+- [ ] **9682.** At a staff meeting, propose one change that would make your workplace greener. _(context: `brief`)_  
   → На зборах працівників запропонуйте одну зміну, яка зробить вашу роботу екологічнішою.
-- [ ] **9683.** How much would it cost, and who would pay? _(context: brief)_  
+- [ ] **9683.** How much would it cost, and who would pay? _(context: `brief`)_  
   → Скільки б це коштувало і хто б за це заплатив?
-- [ ] **9684.** At a training day, give a short talk on a skill that matters in your work and how to learn it. _(context: brief)_  
+- [ ] **9684.** At a training day, give a short talk on a skill that matters in your work and how to learn it. _(context: `brief`)_  
   → На навчальному семінарі коротко розкажіть про навичку, важливу у вашій роботі, і про те, як її опанувати.
-- [ ] **9685.** How long does it take to learn it well? _(context: brief)_  
+- [ ] **9685.** How long does it take to learn it well? _(context: `brief`)_  
   → Скільки часу треба, щоб добре її опанувати?
-- [ ] **9686.** Your company is choosing between a team trip and a bonus for everyone. Speak for one of them. _(context: brief)_  
+- [ ] **9686.** Your company is choosing between a team trip and a bonus for everyone. Speak for one of them. _(context: `brief`)_  
   → Ваша компанія обирає між поїздкою всією командою та премією для всіх. Виступіть на підтримку одного з варіантів.
-- [ ] **9687.** What would the others say against it? _(context: brief)_  
+- [ ] **9687.** What would the others say against it? _(context: `brief`)_  
   → Що інші сказали б проти?
-- [ ] **9688.** Give a short talk on how meetings at work could take less time. _(context: brief)_  
+- [ ] **9688.** Give a short talk on how meetings at work could take less time. _(context: `brief`)_  
   → Коротко розкажіть, як зробити робочі наради коротшими.
-- [ ] **9689.** Which meeting would you get rid of first? _(context: brief)_  
+- [ ] **9689.** Which meeting would you get rid of first? _(context: `brief`)_  
   → Від якої наради ви відмовилися б насамперед?
-- [ ] **9690.** Present a tool or an app that makes work easier. _(context: brief)_  
+- [ ] **9690.** Present a tool or an app that makes work easier. _(context: `brief`)_  
   → Представте інструмент або застосунок, який полегшує роботу.
-- [ ] **9691.** What would you change about it? _(context: brief)_  
+- [ ] **9691.** What would you change about it? _(context: `brief`)_  
   → Що б ви в ньому змінили?
-- [ ] **9692.** What does your town need most? _(context: brief)_  
+- [ ] **9692.** What does your town need most? _(context: `brief`)_  
   → Чого найбільше потребує ваше місто?
-- [ ] **9693.** Who should decide how its money is spent? _(context: brief)_  
+- [ ] **9693.** Who should decide how its money is spent? _(context: `brief`)_  
   → Хто має вирішувати, на що витрачати його гроші?
-- [ ] **9694.** Your town has money for one project this year: a new sports hall or better bus connections. Debate it and agree on one. _(context: brief)_  
+- [ ] **9694.** Your town has money for one project this year: a new sports hall or better bus connections. Debate it and agree on one. _(context: `brief`)_  
   → Цього року у вашого міста є гроші на один проєкт: новий спортивний зал або краще автобусне сполучення. Обговоріть це й оберіть щось одне.
-- [ ] **9695.** A sports hall _(context: brief)_  
+- [ ] **9695.** A sports hall _(context: `brief`)_  
   → Спортивний зал
-- [ ] **9696.** keeps young people active _(context: brief)_  
+- [ ] **9696.** keeps young people active _(context: `brief`)_  
   → молодь більше рухатиметься
-- [ ] **9697.** can hold events that bring visitors _(context: brief)_  
+- [ ] **9697.** can hold events that bring visitors _(context: `brief`)_  
   → у ньому можна проводити заходи, що приваблять гостей
-- [ ] **9698.** Better buses _(context: brief)_  
+- [ ] **9698.** Better buses _(context: `brief`)_  
   → Кращі автобуси
-- [ ] **9699.** help everybody get to work _(context: brief)_  
+- [ ] **9699.** help everybody get to work _(context: `brief`)_  
   → усім буде простіше добиратися на роботу
-- [ ] **9700.** mean fewer cars and cleaner air _(context: brief)_  
+- [ ] **9700.** mean fewer cars and cleaner air _(context: `brief`)_  
   → менше машин і чистіше повітря
-- [ ] **9701.** Is it better to rent a home or to buy one? _(context: brief)_  
+- [ ] **9701.** Is it better to rent a home or to buy one? _(context: `brief`)_  
   → Що краще: винаймати житло чи купити своє?
-- [ ] **9702.** Why do people move house? _(context: brief)_  
+- [ ] **9702.** Why do people move house? _(context: `brief`)_  
   → Чому люди переїжджають?
-- [ ] **9703.** A friend has saved enough for a deposit. Debate whether they should buy now or keep renting, and agree on your advice. _(context: brief)_  
+- [ ] **9703.** A friend has saved enough for a deposit. Debate whether they should buy now or keep renting, and agree on your advice. _(context: `brief`)_  
   → Ваш друг накопичив на перший внесок. Обговоріть, чи варто йому купувати житло зараз, чи поки що винаймати, і домовтеся, що йому порадити.
-- [ ] **9704.** Buy now _(context: brief)_  
+- [ ] **9704.** Buy now _(context: `brief`)_  
   → Купити зараз
-- [ ] **9705.** paying off a loan is a kind of saving _(context: brief)_  
+- [ ] **9705.** paying off a loan is a kind of saving _(context: `brief`)_  
   → виплачувати кредит теж своєрідне заощадження
-- [ ] **9706.** you can make the home your own _(context: brief)_  
+- [ ] **9706.** you can make the home your own _(context: `brief`)_  
   → житло можна облаштувати по-своєму
-- [ ] **9707.** Keep renting _(context: brief)_  
+- [ ] **9707.** Keep renting _(context: `brief`)_  
   → Поки що винаймати
-- [ ] **9708.** you can move easily for a new job _(context: brief)_  
+- [ ] **9708.** you can move easily for a new job _(context: `brief`)_  
   → заради нової роботи легко переїхати
-- [ ] **9709.** repairs are not your problem _(context: brief)_  
+- [ ] **9709.** repairs are not your problem _(context: `brief`)_  
   → ремонт не ваш клопіт
-- [ ] **9710.** Do children spend too much time on screens? _(context: brief)_  
+- [ ] **9710.** Do children spend too much time on screens? _(context: `brief`)_  
   → Чи не забагато часу діти проводять біля екранів?
-- [ ] **9711.** What did children do before phones? _(context: brief)_  
+- [ ] **9711.** What did children do before phones? _(context: `brief`)_  
   → Чим займалися діти, коли телефонів ще не було?
-- [ ] **9712.** A school is deciding whether to ban phones for the whole school day. Debate it and agree on a position. _(context: brief)_  
+- [ ] **9712.** A school is deciding whether to ban phones for the whole school day. Debate it and agree on a position. _(context: `brief`)_  
   → Школа вирішує, чи заборонити телефони на весь навчальний день. Обговоріть це й дійдіть спільної думки.
-- [ ] **9713.** Ban them _(context: brief)_  
+- [ ] **9713.** Ban them _(context: `brief`)_  
   → Заборонити
-- [ ] **9714.** students concentrate better _(context: brief)_  
+- [ ] **9714.** students concentrate better _(context: `brief`)_  
   → учні краще зосереджуються
-- [ ] **9715.** breaks become more social _(context: brief)_  
+- [ ] **9715.** breaks become more social _(context: `brief`)_  
   → на перервах більше спілкуються
-- [ ] **9716.** Allow them _(context: brief)_  
+- [ ] **9716.** Allow them _(context: `brief`)_  
   → Дозволити
-- [ ] **9717.** phones help in an emergency _(context: brief)_  
+- [ ] **9717.** phones help in an emergency _(context: `brief`)_  
   → телефон допомагає в надзвичайній ситуації
-- [ ] **9718.** students have to learn to use them sensibly _(context: brief)_  
+- [ ] **9718.** students have to learn to use them sensibly _(context: `brief`)_  
   → учням треба вчитися користуватися ними розумно
-- [ ] **9719.** How long should a working week be? _(context: brief)_  
+- [ ] **9719.** How long should a working week be? _(context: `brief`)_  
   → Якої тривалості має бути робочий тиждень?
-- [ ] **9720.** What makes a good employer? _(context: brief)_  
+- [ ] **9720.** What makes a good employer? _(context: `brief`)_  
   → Яким має бути добрий роботодавець?
-- [ ] **9721.** Your workplace wants a four day week with longer days. Debate it and agree on a position. _(context: brief)_  
+- [ ] **9721.** Your workplace wants a four day week with longer days. Debate it and agree on a position. _(context: `brief`)_  
   → На вашій роботі хочуть запровадити чотириденний тиждень із довшими робочими днями. Обговоріть це й дійдіть спільної думки.
-- [ ] **9722.** Four longer days _(context: brief)_  
+- [ ] **9722.** Four longer days _(context: `brief`)_  
   → Чотири довші дні
-- [ ] **9723.** three days off leave time for family _(context: brief)_  
+- [ ] **9723.** three days off leave time for family _(context: `brief`)_  
   → три вихідні залишають час для родини
-- [ ] **9724.** fewer journeys to work _(context: brief)_  
+- [ ] **9724.** fewer journeys to work _(context: `brief`)_  
   → менше поїздок на роботу
-- [ ] **9725.** Keep five days _(context: brief)_  
+- [ ] **9725.** Keep five days _(context: `brief`)_  
   → Залишити п'ять днів
-- [ ] **9726.** long days are tiring _(context: brief)_  
+- [ ] **9726.** long days are tiring _(context: `brief`)_  
   → довгі дні втомлюють
-- [ ] **9727.** customers expect service every weekday _(context: brief)_  
+- [ ] **9727.** customers expect service every weekday _(context: `brief`)_  
   → клієнти чекають обслуговування щобудня
-- [ ] **9728.** Do you prefer vacations at home or abroad? _(context: brief)_  
+- [ ] **9728.** Do you prefer vacations at home or abroad? _(context: `brief`)_  
   → Де ви більше любите відпочивати: удома чи за кордоном?
-- [ ] **9729.** What makes a team work well together? _(context: brief)_  
+- [ ] **9729.** What makes a team work well together? _(context: `brief`)_  
   → Що допомагає команді добре працювати разом?
-- [ ] **9730.** Your company offers the team either a trip abroad or a summer party at home. Debate it and agree on one. _(context: brief)_  
+- [ ] **9730.** Your company offers the team either a trip abroad or a summer party at home. Debate it and agree on one. _(context: `brief`)_  
   → Ваша компанія пропонує команді на вибір поїздку за кордон або літнє свято вдома. Обговоріть це й оберіть щось одне.
-- [ ] **9731.** A trip abroad _(context: brief)_  
+- [ ] **9731.** A trip abroad _(context: `brief`)_  
   → Поїздка за кордон
-- [ ] **9732.** it builds a team _(context: brief)_  
+- [ ] **9732.** it builds a team _(context: `brief`)_  
   → вона згуртовує команду
-- [ ] **9733.** people remember it for years _(context: brief)_  
+- [ ] **9733.** people remember it for years _(context: `brief`)_  
   → її пам'ятають роками
-- [ ] **9734.** A party at home _(context: brief)_  
+- [ ] **9734.** A party at home _(context: `brief`)_  
   → Свято вдома
-- [ ] **9735.** more people can come _(context: brief)_  
+- [ ] **9735.** more people can come _(context: `brief`)_  
   → прийти зможе більше людей
-- [ ] **9736.** it costs much less _(context: brief)_  
+- [ ] **9736.** it costs much less _(context: `brief`)_  
   → це набагато дешевше
-- [ ] **9737.** Should cities be built for people or for cars? _(context: brief)_  
+- [ ] **9737.** Should cities be built for people or for cars? _(context: `brief`)_  
   → Для кого треба будувати міста: для людей чи для машин?
-- [ ] **9738.** How do you get around your town? _(context: brief)_  
+- [ ] **9738.** How do you get around your town? _(context: `brief`)_  
   → Як ви пересуваєтеся своїм містом?
-- [ ] **9739.** Your city is deciding whether to close its old town to cars. Debate it and agree on a position. _(context: brief)_  
+- [ ] **9739.** Your city is deciding whether to close its old town to cars. Debate it and agree on a position. _(context: `brief`)_  
   → Ваше місто вирішує, чи закрити старе місто для автомобілів. Обговоріть це й дійдіть спільної думки.
-- [ ] **9740.** Close it _(context: brief)_  
+- [ ] **9740.** Close it _(context: `brief`)_  
   → Закрити
-- [ ] **9741.** it's safer for people on foot _(context: brief)_  
+- [ ] **9741.** it's safer for people on foot _(context: `brief`)_  
   → пішоходам безпечніше
-- [ ] **9742.** cafés and shops get more customers _(context: brief)_  
+- [ ] **9742.** cafés and shops get more customers _(context: `brief`)_  
   → у кав'ярень і крамниць більше відвідувачів
-- [ ] **9743.** Keep it open _(context: brief)_  
+- [ ] **9743.** Keep it open _(context: `brief`)_  
   → Залишити відкритим
-- [ ] **9744.** older people find it harder to get around _(context: brief)_  
+- [ ] **9744.** older people find it harder to get around _(context: `brief`)_  
   → літнім людям важче пересуватися
-- [ ] **9745.** delivery vans need to get in _(context: brief)_  
+- [ ] **9745.** delivery vans need to get in _(context: `brief`)_  
   → фургонам доставки треба проїжджати
-- [ ] **9746.** How to keep a team motivated when the work gets hard _(context: brief)_  
+- [ ] **9746.** How to keep a team motivated when the work gets hard _(context: `brief`)_  
   → Як підтримувати мотивацію команди, коли робота стає важкою
-- [ ] **9747.** What a good manager does differently _(context: brief)_  
+- [ ] **9747.** What a good manager does differently _(context: `brief`)_  
   → Що добрий керівник робить інакше
-- [ ] **9748.** What is the most common mistake here? _(context: brief)_  
+- [ ] **9748.** What is the most common mistake here? _(context: `brief`)_  
   → Яка помилка тут трапляється найчастіше?
-- [ ] **9749.** How would you know whether it was working? _(context: brief)_  
+- [ ] **9749.** How would you know whether it was working? _(context: `brief`)_  
   → Як зрозуміти, що це працює?
-- [ ] **9750.** The benefits and risks of working from home _(context: brief)_  
+- [ ] **9750.** The benefits and risks of working from home _(context: `brief`)_  
   → Переваги й ризики роботи з дому
-- [ ] **9751.** How technology is changing a profession you know _(context: brief)_  
+- [ ] **9751.** How technology is changing a profession you know _(context: `brief`)_  
   → Як технології змінюють знайому вам професію
-- [ ] **9752.** Which change matters most? _(context: brief)_  
+- [ ] **9752.** Which change matters most? _(context: `brief`)_  
   → Яка зміна найважливіша?
-- [ ] **9753.** What should employers do about it? _(context: brief)_  
+- [ ] **9753.** What should employers do about it? _(context: `brief`)_  
   → Що з цим робити роботодавцям?
-- [ ] **9754.** Why learning never stops in working life _(context: brief)_  
+- [ ] **9754.** Why learning never stops in working life _(context: `brief`)_  
   → Чому в професійному житті навчання не закінчується
-- [ ] **9755.** How to bring young people into your field _(context: brief)_  
+- [ ] **9755.** How to bring young people into your field _(context: `brief`)_  
   → Як залучити молодь у вашу галузь
-- [ ] **9756.** Who should pay for it? _(context: brief)_  
+- [ ] **9756.** Who should pay for it? _(context: `brief`)_  
   → Хто має за це платити?
-- [ ] **9757.** What stands in the way? _(context: brief)_  
+- [ ] **9757.** What stands in the way? _(context: `brief`)_  
   → Що цьому заважає?
-- [ ] **9758.** How a workplace can cut its environmental footprint _(context: brief)_  
+- [ ] **9758.** How a workplace can cut its environmental footprint _(context: `brief`)_  
   → Як організації зменшити свій екологічний слід
-- [ ] **9759.** Why every company should report its energy use _(context: brief)_  
+- [ ] **9759.** Why every company should report its energy use _(context: `brief`)_  
   → Чому кожна компанія має звітувати про споживання енергії
-- [ ] **9760.** What would be the first step? _(context: brief)_  
+- [ ] **9760.** What would be the first step? _(context: `brief`)_  
   → Яким був би перший крок?
-- [ ] **9761.** What would it cost? _(context: brief)_  
+- [ ] **9761.** What would it cost? _(context: `brief`)_  
   → Скільки б це коштувало?
-- [ ] **9762.** What makes a meeting worth having _(context: brief)_  
+- [ ] **9762.** What makes a meeting worth having _(context: `brief`)_  
   → Коли нарада справді потрібна
-- [ ] **9763.** How to give and take feedback well _(context: brief)_  
+- [ ] **9763.** How to give and take feedback well _(context: `brief`)_  
   → Як правильно давати й отримувати зворотний зв'язок
-- [ ] **9764.** What goes wrong most often? _(context: brief)_  
+- [ ] **9764.** What goes wrong most often? _(context: `brief`)_  
   → Що найчастіше йде не так?
-- [ ] **9765.** How would you train people in it? _(context: brief)_  
+- [ ] **9765.** How would you train people in it? _(context: `brief`)_  
   → Як би ви цього навчали?
-- [ ] **9766.** Artificial intelligence at work: a help or a threat? _(context: brief)_  
+- [ ] **9766.** Artificial intelligence at work: a help or a threat? _(context: `brief`)_  
   → Штучний інтелект на роботі: допомога чи загроза?
-- [ ] **9767.** How to plan a large project _(context: brief)_  
+- [ ] **9767.** How to plan a large project _(context: `brief`)_  
   → Як спланувати великий проєкт
-- [ ] **9768.** What would you warn people about? _(context: brief)_  
+- [ ] **9768.** What would you warn people about? _(context: `brief`)_  
   → Про що б ви попередили людей?
-- [ ] **9769.** Where should a beginner start? _(context: brief)_  
+- [ ] **9769.** Where should a beginner start? _(context: `brief`)_  
   → З чого почати новачкові?
-- [ ] **9770.** Should higher education be free for everybody? _(context: brief)_  
+- [ ] **9770.** Should higher education be free for everybody? _(context: `brief`)_  
   → Чи має вища освіта бути безкоштовною для всіх?
-- [ ] **9771.** who pays now, and who would pay _(context: brief)_  
+- [ ] **9771.** who pays now, and who would pay _(context: `brief`)_  
   → хто платить зараз і хто платив би тоді
-- [ ] **9772.** the quality of teaching _(context: brief)_  
+- [ ] **9772.** the quality of teaching _(context: `brief`)_  
   → якість викладання
-- [ ] **9773.** fairness between people from different backgrounds _(context: brief)_  
+- [ ] **9773.** fairness between people from different backgrounds _(context: `brief`)_  
   → рівні можливості для людей із різних верств суспільства
-- [ ] **9774.** Does social media do more good than harm to public debate? _(context: brief)_  
+- [ ] **9774.** Does social media do more good than harm to public debate? _(context: `brief`)_  
   → Чи приносять соціальні мережі громадській дискусії більше користі, ніж шкоди?
-- [ ] **9775.** access to information _(context: brief)_  
+- [ ] **9775.** access to information _(context: `brief`)_  
   → доступ до інформації
-- [ ] **9776.** misinformation _(context: brief)_  
+- [ ] **9776.** misinformation _(context: `brief`)_  
   → дезінформація
-- [ ] **9777.** what can be regulated, and by whom _(context: brief)_  
+- [ ] **9777.** what can be regulated, and by whom _(context: `brief`)_  
   → що можна регулювати і хто має це робити
-- [ ] **9778.** Should cities be built around people rather than cars? _(context: brief)_  
+- [ ] **9778.** Should cities be built around people rather than cars? _(context: `brief`)_  
   → Чи треба будувати міста довкола людей, а не машин?
-- [ ] **9779.** safety and health _(context: brief)_  
+- [ ] **9779.** safety and health _(context: `brief`)_  
   → безпека та здоров'я
-- [ ] **9780.** business and deliveries _(context: brief)_  
+- [ ] **9780.** business and deliveries _(context: `brief`)_  
   → бізнес і доставка
-- [ ] **9781.** people who live outside the city _(context: brief)_  
+- [ ] **9781.** people who live outside the city _(context: `brief`)_  
   → люди, які живуть за містом
-- [ ] **9782.** Is it the state's job to make people live more healthily? _(context: brief)_  
+- [ ] **9782.** Is it the state's job to make people live more healthily? _(context: `brief`)_  
   → Чи має держава дбати про те, щоб люди жили здоровіше?
-- [ ] **9783.** taxes on sugar and alcohol _(context: brief)_  
+- [ ] **9783.** taxes on sugar and alcohol _(context: `brief`)_  
   → податки на цукор і алкоголь
-- [ ] **9784.** personal freedom _(context: brief)_  
+- [ ] **9784.** personal freedom _(context: `brief`)_  
   → особиста свобода
-- [ ] **9785.** the cost of health care _(context: brief)_  
+- [ ] **9785.** the cost of health care _(context: `brief`)_  
   → вартість охорони здоров'я
-- [ ] **9786.** Should everybody retire at the same age? _(context: brief)_  
+- [ ] **9786.** Should everybody retire at the same age? _(context: `brief`)_  
   → Чи мають усі виходити на пенсію в однаковому віці?
-- [ ] **9787.** physical work and office work _(context: brief)_  
+- [ ] **9787.** physical work and office work _(context: `brief`)_  
   → фізична й офісна праця
-- [ ] **9788.** pensions _(context: brief)_  
+- [ ] **9788.** pensions _(context: `brief`)_  
   → пенсії
-- [ ] **9789.** experience in the workplace _(context: brief)_  
+- [ ] **9789.** experience in the workplace _(context: `brief`)_  
   → досвід на робочому місці
-- [ ] **9790.** Can a small language thrive in a global world? _(context: brief)_  
+- [ ] **9790.** Can a small language thrive in a global world? _(context: `brief`)_  
   → Чи може невелика мова процвітати в глобальному світі?
-- [ ] **9791.** education _(context: brief)_  
+- [ ] **9791.** education _(context: `brief`)_  
   → освіта
-- [ ] **9792.** the internet and entertainment _(context: brief)_  
+- [ ] **9792.** the internet and entertainment _(context: `brief`)_  
   → інтернет і розваги
-- [ ] **9793.** what each of us can do _(context: brief)_  
+- [ ] **9793.** what each of us can do _(context: `brief`)_  
   → що може зробити кожен із нас
-- [ ] **9794.** who they are and what they do _(context: card)_  
+- [ ] **9794.** who they are and what they do _(context: `card`)_  
   → хто ця людина і чим займається
-- [ ] **9795.** where they work _(context: card)_  
+- [ ] **9795.** where they work _(context: `card`)_  
   → місце роботи
-- [ ] **9796.** when and how to get in touch _(context: card)_  
+- [ ] **9796.** when and how to get in touch _(context: `card`)_  
   → коли і як можна зв'язатися
-- [ ] **9797.** your family and the people close to you _(context: about)_  
+- [ ] **9797.** your family and the people close to you _(context: `about`)_  
   → про вашу родину й близьких вам людей
-- [ ] **9798.** where you live _(context: about)_  
+- [ ] **9798.** where you live _(context: `about`)_  
   → про те, де ви живете
-- [ ] **9799.** an ordinary day _(context: about)_  
+- [ ] **9799.** an ordinary day _(context: `about`)_  
   → про звичайний день
-- [ ] **9800.** free time _(context: about)_  
+- [ ] **9800.** free time _(context: `about`)_  
   → про вільний час
-- [ ] **9801.** travel _(context: about)_  
+- [ ] **9801.** travel _(context: `about`)_  
   → про подорожі
-- [ ] **9802.** health _(context: about)_  
+- [ ] **9802.** health _(context: `about`)_  
   → про здоров'я
-- [ ] **9803.** studying _(context: about)_  
+- [ ] **9803.** studying _(context: `about`)_  
   → про навчання
-- [ ] **9804.** shopping _(context: about)_  
+- [ ] **9804.** shopping _(context: `about`)_  
   → про покупки
-- [ ] **9805.** food and drink _(context: about)_  
+- [ ] **9805.** food and drink _(context: `about`)_  
   → про їжу та напої
-- [ ] **9806.** your town and its services _(context: about)_  
+- [ ] **9806.** your town and its services _(context: `about`)_  
   → про ваше місто та його служби
-- [ ] **9807.** the weather and nature _(context: about)_  
+- [ ] **9807.** the weather and nature _(context: `about`)_  
   → про погоду й природу
-- [ ] **9808.** work _(context: about)_  
+- [ ] **9808.** work _(context: `about`)_  
   → про роботу
-- [ ] **9809.** people and how they feel _(context: about)_  
+- [ ] **9809.** people and how they feel _(context: `about`)_  
   → про людей та їхні почуття
-- [ ] **9810.** media and technology _(context: about)_  
+- [ ] **9810.** media and technology _(context: `about`)_  
   → про медіа й технології
-- [ ] **9811.** the environment _(context: about)_  
+- [ ] **9811.** the environment _(context: `about`)_  
   → про довкілля
-- [ ] **9812.** society _(context: about)_  
+- [ ] **9812.** society _(context: `about`)_  
   → про суспільство
-- [ ] **9813.** the economy _(context: about)_  
+- [ ] **9813.** the economy _(context: `about`)_  
   → про економіку
-- [ ] **9814.** science and new ideas _(context: about)_  
+- [ ] **9814.** science and new ideas _(context: `about`)_  
   → про науку й нові ідеї
-- [ ] **9815.** culture and the arts _(context: about)_  
+- [ ] **9815.** culture and the arts _(context: `about`)_  
   → про культуру й мистецтво
-- [ ] **9816.** food _(context: about)_  
+- [ ] **9816.** food _(context: `about`)_  
   → про їжу
-- [ ] **9817.** a trip _(context: about)_  
+- [ ] **9817.** a trip _(context: `about`)_  
   → про поїздку
-- [ ] **9818.** home _(context: about)_  
+- [ ] **9818.** home _(context: `about`)_  
   → про дім
-- [ ] **9819.** staying healthy _(context: about)_  
+- [ ] **9819.** staying healthy _(context: `about`)_  
   → про здоровий спосіб життя
-- [ ] **9820.** the weekend _(context: about)_  
+- [ ] **9820.** the weekend _(context: `about`)_  
   → про вихідні
-- [ ] **9821.** a dentist's surgery _(context: ring)_  
+- [ ] **9821.** a dentist's surgery _(context: `ring`)_  
   → до стоматологічної клініки
-- [ ] **9822.** a language school _(context: ring)_  
+- [ ] **9822.** a language school _(context: `ring`)_  
   → до мовної школи
-- [ ] **9823.** a hairdresser _(context: ring)_  
+- [ ] **9823.** a hairdresser _(context: `ring`)_  
   → до перукарні
-- [ ] **9824.** a hotel _(context: ring)_  
+- [ ] **9824.** a hotel _(context: `ring`)_  
   → до готелю
-- [ ] **9825.** a museum _(context: ring)_  
+- [ ] **9825.** a museum _(context: `ring`)_  
   → до музею
-- [ ] **9826.** a removal company _(context: ring)_  
+- [ ] **9826.** a removal company _(context: `ring`)_  
   → до компанії з перевезень
-- [ ] **9827.** the readers of the local paper _(context: for)_  
+- [ ] **9827.** the readers of the local paper _(context: `for`)_  
   → читачів місцевої газети
-- [ ] **9828.** the company's management _(context: for)_  
+- [ ] **9828.** the company's management _(context: `for`)_  
   → керівництва компанії
-- [ ] **9829.** the readers of a national paper _(context: for)_  
+- [ ] **9829.** the readers of a national paper _(context: `for`)_  
   → читачів загальнонаціональної газети
-- [ ] **9830.** the ministry of education _(context: for)_  
+- [ ] **9830.** the ministry of education _(context: `for`)_  
   → міністерства освіти
-- [ ] **9831.** the readers of a news website _(context: for)_  
+- [ ] **9831.** the readers of a news website _(context: `for`)_  
   → читачів новинного сайту
-- [ ] **9832.** the city government _(context: for)_  
+- [ ] **9832.** the city government _(context: `for`)_  
   → міської влади
-- [ ] **9833.** the readers of an education magazine _(context: for)_  
+- [ ] **9833.** the readers of an education magazine _(context: `for`)_  
   → читачів журналу про освіту
 
 ## heroes (39 lines)
@@ -20976,13 +20976,13 @@ _lib/copy/i18n/areas/sayings.ts_
   → зносило час
 - [ ] **10395.** wore  
   → зносило
-- [ ] **10396.** down _(context: saying)_  
+- [ ] **10396.** down _(context: `saying`)_  
   → униз
-- [ ] **10397.** back _(context: saying)_  
+- [ ] **10397.** back _(context: `saying`)_  
   → назад
-- [ ] **10398.** ill _(context: saying)_  
+- [ ] **10398.** ill _(context: `saying`)_  
   → хворим
-- [ ] **10399.** time _(context: saying)_  
+- [ ] **10399.** time _(context: `saying`)_  
   → час
 - [ ] **10400.** Tap each word. What does it say?  
   → Натисніть на кожне слово. Що воно каже?
@@ -21230,7 +21230,7 @@ _lib/copy/i18n/areas/sayings.ts_
   → Підліток бурмоче відповідь, яку ніхто толком не чує.
 - [ ] **10522.** mumbled  
   → пробурмотів
-- [ ] **10523.** good _(context: saying)_  
+- [ ] **10523.** good _(context: `saying`)_  
   → добрі
 - [ ] **10524.** left behind  
   → залишив
@@ -21580,7 +21580,7 @@ _lib/copy/i18n/areas/sayings.ts_
   → ти заспокоїшся
 - [ ] **10697.** onto the ground  
   → на землю
-- [ ] **10698.** in _(context: saying)_  
+- [ ] **10698.** in _(context: `saying`)_  
   → всередину
 - [ ] **10699.** I clear my throat  
   → я прочищаю горло
@@ -21738,9 +21738,9 @@ _lib/copy/i18n/areas/sayings.ts_
   → зарплату
 - [ ] **10776.** on top  
   → зверху
-- [ ] **10777.** language _(context: saying)_  
+- [ ] **10777.** language _(context: `saying`)_  
   → мову
-- [ ] **10778.** makes _(context: saying)_  
+- [ ] **10778.** makes _(context: `saying`)_  
   → робить
 - [ ] **10779.** seems, appears  
   → здається, виглядає
@@ -24066,1979 +24066,1979 @@ _lib/copy/i18n/areas/wordplay.ts_
   → Слова з чесними назвами
 - [ ] **11930.** Compound words read piece by piece, like a bat that's a leather mouse, and words that only look or sound English. Take each one apart, guess what it means, then name it from what it says.  
   → Складні слова, прочитані частинами, як-от кажан, що тут «шкіряна миша», і слова, які лише виглядають або звучать як англійські. Розберіть кожне, вгадайте значення, потім назвіть його за дослівним змістом.
-- [ ] **11931.** taking _(context: wordplay)_  
+- [ ] **11931.** taking _(context: `wordplay`)_  
   → взяття
-- [ ] **11932.** Cash is the liquid kind of money, and it has a way of melting in a wallet. _(context: wordplay)_  
+- [ ] **11932.** Cash is the liquid kind of money, and it has a way of melting in a wallet. _(context: `wordplay`)_  
   → Готівка це найліквідніші гроші, і в гаманці вона має звичку танути.
-- [ ] **11933.** a shoemaker, cobbler _(context: wordplay)_  
+- [ ] **11933.** a shoemaker, cobbler _(context: `wordplay`)_  
   → швець
-- [ ] **11934.** The usual explanation is that Lent ended and meat could be taken again. _(context: wordplay)_  
+- [ ] **11934.** The usual explanation is that Lent ended and meat could be taken again. _(context: `wordplay`)_  
   → Зазвичай пояснюють так: піст скінчився, і м'ясо знову можна було брати.
-- [ ] **11935.** A folk name for the month, since Candlemas falls early in it. _(context: wordplay)_  
+- [ ] **11935.** A folk name for the month, since Candlemas falls early in it. _(context: `wordplay`)_  
   → Народна назва місяця: на його початок припадає Стрітення.
-- [ ] **11936.** English named it after a crow instead, probably for the bent, beak-like end. _(context: wordplay)_  
+- [ ] **11936.** English named it after a crow instead, probably for the bent, beak-like end. _(context: `wordplay`)_  
   → Англійська назвала його на честь ворони, мабуть, за вигнутий, схожий на дзьоб кінець.
-- [ ] **11937.** mother (the German word) _(context: wordplay)_  
+- [ ] **11937.** mother (the German word) _(context: `wordplay`)_  
   → мати (німецькою)
-- [ ] **11938.** pearl mother _(context: wordplay)_  
+- [ ] **11938.** pearl mother _(context: `wordplay`)_  
   → перлова мати
-- [ ] **11939.** Borrowed whole from German. German calls a bolt's nut a mother too, which is how the hardware ended up with the same word. _(context: wordplay)_  
+- [ ] **11939.** Borrowed whole from German. German calls a bolt's nut a mother too, which is how the hardware ended up with the same word. _(context: `wordplay`)_  
   → Узято цілком із німецької. Гайку німці теж звуть матір'ю, так залізяка й отримала те саме слово. Український перламутр узято звідти ж.
-- [ ] **11940.** hair, pile _(context: wordplay)_  
+- [ ] **11940.** hair, pile _(context: `wordplay`)_  
   → шерсть, ворс
-- [ ] **11941.** hair berry _(context: wordplay)_  
+- [ ] **11941.** hair berry _(context: `wordplay`)_  
   → волосяна ягода
-- [ ] **11942.** Gooseberry skins are faintly hairy, which is the likely reason for the name. Why English brought a goose into it has never been settled. _(context: wordplay)_  
+- [ ] **11942.** Gooseberry skins are faintly hairy, which is the likely reason for the name. Why English brought a goose into it has never been settled. _(context: `wordplay`)_  
   → Шкірка в ягід трохи волохата, звідси, найпевніше, і назва. Чому англійська приплела сюди гуску, так і не з'ясували.
-- [ ] **11943.** werewolf _(context: wordplay)_  
+- [ ] **11943.** werewolf _(context: `wordplay`)_  
   → перевертень
-- [ ] **11944.** werewolf wolf _(context: wordplay)_  
+- [ ] **11944.** werewolf wolf _(context: `wordplay`)_  
   → перевертень-вовк
-- [ ] **11945.** The first half alone already means a werewolf, so the wolf is said twice. Folklore agrees there is a person underneath. _(context: wordplay)_  
+- [ ] **11945.** The first half alone already means a werewolf, so the wolf is said twice. Folklore agrees there is a person underneath. _(context: `wordplay`)_  
   → Перша половина сама по собі вже означає перевертня, тож вовка названо двічі. Фольклор згоден: усередині людина.
-- [ ] **11946.** clove _(context: wordplay)_  
+- [ ] **11946.** clove _(context: `wordplay`)_  
   → гвоздика (прянощі)
-- [ ] **11947.** clove pepper _(context: wordplay)_  
+- [ ] **11947.** clove pepper _(context: `wordplay`)_  
   → перець-гвоздика
-- [ ] **11948.** German gave it the same name, and cloves are much of what it tastes of. _(context: wordplay)_  
+- [ ] **11948.** German gave it the same name, and cloves are much of what it tastes of. _(context: `wordplay`)_  
   → Німці назвали його так само, і смак у нього здебільшого гвоздиковий.
-- [ ] **11949.** The fish that got away was always this wide, and the story that goes with it is usually a lie. _(context: wordplay)_  
+- [ ] **11949.** The fish that got away was always this wide, and the story that goes with it is usually a lie. _(context: `wordplay`)_  
   → Риба, що зірвалася, завжди була ось такої ширини, а розповідь про неї зазвичай брехня («lie»).
-- [ ] **11950.** mug, gravel _(context: wordplay)_  
+- [ ] **11950.** mug, gravel _(context: `wordplay`)_  
   → кухоль, гравій
-- [ ] **11951.** Gravel and a mug share the word. Only one of them is welcome on a cruise. _(context: wordplay)_  
+- [ ] **11951.** Gravel and a mug share the word. Only one of them is welcome on a cruise. _(context: `wordplay`)_  
   → Гравій і кухоль ділять одне слово. У круїзі («cruise») раді лише одному з них.
-- [ ] **11952.** To step into a bucket is the Estonian way to blunder, much as English puts a foot in it. Amber only traps insects. _(context: wordplay)_  
+- [ ] **11952.** To step into a bucket is the Estonian way to blunder, much as English puts a foot in it. Amber only traps insects. _(context: `wordplay`)_  
   → Ступити у відро по-естонськи означає сісти в калюжу, як англійське put a foot in it. Бурштин («amber») ловить хіба що комах.
-- [ ] **11953.** smelt, ink _(context: wordplay)_  
+- [ ] **11953.** smelt, ink _(context: `wordplay`)_  
   → корюшка, чорнило
-- [ ] **11954.** The ink will tint anything it touches. The fish is silver, with fins. _(context: wordplay)_  
+- [ ] **11954.** The ink will tint anything it touches. The fish is silver, with fins. _(context: `wordplay`)_  
   → Чорнило забарвить («tint») усе, чого торкнеться. А рибка срібляста, з плавцями.
-- [ ] **11955.** a protractor, a pattern _(context: wordplay)_  
+- [ ] **11955.** a protractor, a pattern _(context: `wordplay`)_  
   → транспортир, зразок
-- [ ] **11956.** tax, liver _(context: wordplay)_  
+- [ ] **11956.** tax, liver _(context: `wordplay`)_  
   → податок, печінка
-- [ ] **11957.** Neither the tax nor the liver enjoys being squeezed to the max. _(context: wordplay)_  
+- [ ] **11957.** Neither the tax nor the liver enjoys being squeezed to the max. _(context: `wordplay`)_  
   → Ні податку, ні печінці не подобається, коли їх вичавлюють по максимуму («max»).
-- [ ] **11958.** Latin named it the unbounded form, since it is tied to no person and no number. _(context: wordplay)_  
+- [ ] **11958.** Latin named it the unbounded form, since it is tied to no person and no number. _(context: `wordplay`)_  
   → Латина назвала її необмеженою формою: у неї немає ні особи, ні числа.
-- [ ] **11959.** English cornflower means the same, since in Britain corn is any grain. It is Estonia's national flower. _(context: wordplay)_  
+- [ ] **11959.** English cornflower means the same, since in Britain corn is any grain. It is Estonia's national flower. _(context: `wordplay`)_  
   → Англійське cornflower означає те саме: у Британії corn це будь-яке зерно. Це національна квітка Естонії.
-- [ ] **11960.** English tablet first meant a slab to write on too, so both languages named the gadget after something you write on. _(context: wordplay)_  
+- [ ] **11960.** English tablet first meant a slab to write on too, so both languages named the gadget after something you write on. _(context: `wordplay`)_  
   → Англійське tablet теж спершу означало дощечку для письма, тож обидві мови назвали ґаджет на честь того, на чому пишуть.
-- [ ] **11961.** the crown (top of the skull) _(context: wordplay)_  
+- [ ] **11961.** the crown (top of the skull) _(context: `wordplay`)_  
   → тім'я (верх черепа)
-- [ ] **11962.** Ask the greengrocer for some and you are talking to a seller of seller. _(context: wordplay)_  
+- [ ] **11962.** Ask the greengrocer for some and you are talking to a seller of seller. _(context: `wordplay`)_  
   → Попросіть її в зеленяра, і ви говорите з продавцем («seller») селери.
-- [ ] **11963.** A needle that went to the trouble of growing a head. _(context: wordplay)_  
+- [ ] **11963.** A needle that went to the trouble of growing a head. _(context: `wordplay`)_  
   → Голка, яка потрудилася виростити собі голівку.
-- [ ] **11964.** A smith who swapped the anvil for a last. _(context: wordplay)_  
+- [ ] **11964.** A smith who swapped the anvil for a last. _(context: `wordplay`)_  
   → Коваль, що змінив ковадло на колодку.
-- [ ] **11965.** A debt settled by hand, and nobody ever asks for a receipt. _(context: wordplay)_  
+- [ ] **11965.** A debt settled by hand, and nobody ever asks for a receipt. _(context: `wordplay`)_  
   → Борг, повернутий особисто в руки, і квитанції ніхто не просить.
-- [ ] **11966.** Breaking is the job description. Entering is implied. _(context: wordplay)_  
+- [ ] **11966.** Breaking is the job description. Entering is implied. _(context: `wordplay`)_  
   → Злам входить у посадові обов'язки. Проникнення мається на увазі.
-- [ ] **11967.** Somehow it is always the trousers that get the blame. _(context: wordplay)_  
+- [ ] **11967.** Somehow it is always the trousers that get the blame. _(context: `wordplay`)_  
   → Чомусь завжди винними виявляються штани.
-- [ ] **11968.** One rosebush can host thousands of them by midsummer. _(context: wordplay)_  
+- [ ] **11968.** One rosebush can host thousands of them by midsummer. _(context: `wordplay`)_  
   → Один трояндовий кущ до середини літа може прихистити їх тисячі.
-- [ ] **11969.** Through an aunt the word changes, and for a daughter it changes again. Each cousin is named by the route to them. _(context: wordplay)_  
+- [ ] **11969.** Through an aunt the word changes, and for a daughter it changes again. Each cousin is named by the route to them. _(context: `wordplay`)_  
   → Через тітку слово змінюється, а для доньки змінюється знову. Кожного двоюрідного називають за тим, через кого він вам рідня.
-- [ ] **11970.** It is frost as well. An unheated hall in January manages both at once. _(context: wordplay)_  
+- [ ] **11970.** It is frost as well. An unheated hall in January manages both at once. _(context: `wordplay`)_  
   → Це ще й «приморозок». Нетоплений хол («hall») у січні впорається з обома одразу.
-- [ ] **11971.** The newest member of the flock, which is short by any measure. _(context: wordplay)_  
+- [ ] **11971.** The newest member of the flock, which is short by any measure. _(context: `wordplay`)_  
   → Найновіший член отари, і «високим» («tall») його ніяк не назвеш.
-- [ ] **11972.** Some are as cuddly as the bear. _(context: wordplay)_  
+- [ ] **11972.** Some are as cuddly as the bear. _(context: `wordplay`)_  
   → Деяких так само хочеться обійняти, як плюшевого ведмедика («teddy»).
-- [ ] **11973.** Says what it does and leaves the French at home. _(context: wordplay)_  
+- [ ] **11973.** Says what it does and leaves the French at home. _(context: `wordplay`)_  
   → Каже, що робить. Український бюстгальтер, до речі, німецьке слово й буквально означає «тримач бюста».
-- [ ] **11974.** It is a beetle, not a worm, but the date is right: it glows in the warm nights around Midsummer. _(context: wordplay)_  
+- [ ] **11974.** It is a beetle, not a worm, but the date is right: it glows in the warm nights around Midsummer. _(context: `wordplay`)_  
   → Це жук, а не черв'як, але дата правильна: він світиться теплими ночами біля Івана Купала.
-- [ ] **11975.** Jumble a sentence and this is what comes back from the front of the class. _(context: wordplay)_  
+- [ ] **11975.** Jumble a sentence and this is what comes back from the front of the class. _(context: `wordplay`)_  
   → Перемішайте («mix») слова в реченні, і від учительського столу прилетить саме це.
-- [ ] **11976.** The plural of bone looks identical. Sweep those up with this one. _(context: wordplay)_  
+- [ ] **11976.** The plural of bone looks identical. Sweep those up with this one. _(context: `wordplay`)_  
   → Множина від «кістка» пишеться точнісінько так само. Їх і підметіть цією мітлою (а «lewd» тут ні до чого).
-- [ ] **11977.** The good mood you say yes in, without asking what the favor is. _(context: wordplay)_  
+- [ ] **11977.** The good mood you say yes in, without asking what the favor is. _(context: `wordplay`)_  
   → Той гарний настрій, у якому погоджуєшся, не спитавши, про яку послугу йдеться.
-- [ ] **11978.** A birthday, an anniversary, a national holiday: the days it is unwise to forget. _(context: wordplay)_  
+- [ ] **11978.** A birthday, an anniversary, a national holiday: the days it is unwise to forget. _(context: `wordplay`)_  
   → День народження, річниця, державне свято: дні, які нерозумно забувати.
-- [ ] **11979.** Everything in the house is for sale, apart from the house. _(context: wordplay)_  
+- [ ] **11979.** Everything in the house is for sale, apart from the house. _(context: `wordplay`)_  
   → У цьому будинку продається все, крім самого будинку.
-- [ ] **11980.** One boggy national park in the south-west claims a fifth, when spring floods turn its roads into rivers. _(context: wordplay)_  
+- [ ] **11980.** One boggy national park in the south-west claims a fifth, when spring floods turn its roads into rivers. _(context: `wordplay`)_  
   → Один болотистий національний парк на південному заході додає п'яту, коли весняна повінь перетворює його дороги на річки.
-- [ ] **11981.** German bakes it under the same name, and in both countries December smells of it. _(context: wordplay)_  
+- [ ] **11981.** German bakes it under the same name, and in both countries December smells of it. _(context: `wordplay`)_  
   → Німці печуть його під тією самою назвою, і в обох країнах ним пахне грудень.
-- [ ] **11982.** a male cousin _(context: wordplay)_  
+- [ ] **11982.** a male cousin _(context: `wordplay`)_  
   → двоюрідний брат
-- [ ] **11983.** The same first half leads a choir or a company. On the road it means whoever holds the wheel. _(context: wordplay)_  
+- [ ] **11983.** The same first half leads a choir or a company. On the road it means whoever holds the wheel. _(context: `wordplay`)_  
   → Та сама перша половина керує хором або фірмою. На дорозі це просто той, хто тримає кермо.
-- [ ] **11984.** Every leaf has two, which is how a book of a hundred pages is only fifty leaves thick. _(context: wordplay)_  
+- [ ] **11984.** Every leaf has two, which is how a book of a hundred pages is only fifty leaves thick. _(context: `wordplay`)_  
   → На кожному аркуші їх дві, тому книжка на сто сторінок завтовшки лише п'ятдесят аркушів.
-- [ ] **11985.** A letter from the times that turns up every week or month, whether or not you wrote back. _(context: wordplay)_  
+- [ ] **11985.** A letter from the times that turns up every week or month, whether or not you wrote back. _(context: `wordplay`)_  
   → Лист від часу, що приходить щотижня чи щомісяця, відповіли ви на попередній чи ні.
-- [ ] **11986.** German has the same name for it. Cotton grows on a bush, but both languages saw the fleece first. _(context: wordplay)_  
+- [ ] **11986.** German has the same name for it. Cotton grows on a bush, but both languages saw the fleece first. _(context: `wordplay`)_  
   → У німецькій у нього та сама назва. Бавовна росте на кущі, але обидві мови насамперед побачили руно.
-- [ ] **11987.** It stays out in front however far you walk, which is what an aim is for. _(context: wordplay)_  
+- [ ] **11987.** It stays out in front however far you walk, which is what an aim is for. _(context: `wordplay`)_  
   → Скільки не йди, вона все попереду, для того мета й потрібна.
-- [ ] **11988.** Related by name only, the one relative who never asks you to help them move. _(context: wordplay)_  
+- [ ] **11988.** Related by name only, the one relative who never asks you to help them move. _(context: `wordplay`)_  
   → Рідня лише за ім'ям, єдиний родич, який ніколи не попросить допомогти з переїздом.
-- [ ] **11989.** The English name begs to be remembered. This one only notices the bright yellow eye in the middle. _(context: wordplay)_  
+- [ ] **11989.** The English name begs to be remembered. This one only notices the bright yellow eye in the middle. _(context: `wordplay`)_  
   → Англійська назва просить її не забувати. А ця помічає лише яскраве жовте вічко посередині.
-- [ ] **11990.** If your head has a ceiling, a hat is the roof over it. _(context: wordplay)_  
+- [ ] **11990.** If your head has a ceiling, a hat is the roof over it. _(context: `wordplay`)_  
   → Якщо в голови є стеля, то капелюх над нею дах.
-- [ ] **11991.** It grows on a vine as a gourd, dries out, and ends up scrubbing your back. _(context: wordplay)_  
+- [ ] **11991.** It grows on a vine as a gourd, dries out, and ends up scrubbing your back. _(context: `wordplay`)_  
   → Росте гарбузом на ліані, висихає і врешті тре вам спину.
-- [ ] **11992.** screw, spiral _(context: wordplay)_  
+- [ ] **11992.** screw, spiral _(context: `wordplay`)_  
   → гвинт, спіраль
-- [ ] **11993.** screw gun _(context: wordplay)_  
+- [ ] **11993.** screw gun _(context: `wordplay`)_  
   → гвинтова рушниця
-- [ ] **11994.** The screw is the spiral cut inside the barrel that spins the bullet. Russian named its rifle after the same screw. _(context: wordplay)_  
+- [ ] **11994.** The screw is the spiral cut inside the barrel that spins the bullet. Russian named its rifle after the same screw. _(context: `wordplay`)_  
   → Гвинт тут це спіральна нарізка в стволі, що закручує кулю. Українська гвинтівка названа за тим самим гвинтом.
-- [ ] **11995.** It remembers where you stopped reading better than you do. _(context: wordplay)_  
+- [ ] **11995.** It remembers where you stopped reading better than you do. _(context: `wordplay`)_  
   → Вона пам'ятає, де ви зупинилися, краще за вас самих.
-- [ ] **11996.** Get on the wrong one and you will have said both words before the next stop. _(context: wordplay)_  
+- [ ] **11996.** Get on the wrong one and you will have said both words before the next stop. _(context: `wordplay`)_  
   → Сядьте не в той («wrong»), і до наступної зупинки ви вимовите обидва слова.
-- [ ] **11997.** Locked out, you give it a very long look. _(context: wordplay)_  
+- [ ] **11997.** Locked out, you give it a very long look. _(context: `wordplay`)_  
   → Опинившись за дверима, ви дивитеся («look») на нього дуже довго.
-- [ ] **11998.** Like a scruffy dog it digs up the lawn, but it never comes when called. _(context: wordplay)_  
+- [ ] **11998.** Like a scruffy dog it digs up the lawn, but it never comes when called. _(context: `wordplay`)_  
   → Як кудлата дворняга («mutt»), він риє газон, але на поклик не приходить.
-- [ ] **11999.** Every chef hopes a good menu leads to one. _(context: wordplay)_  
+- [ ] **11999.** Every chef hopes a good menu leads to one. _(context: `wordplay`)_  
   → Кожен шеф сподівається, що добре меню («menu») до нього приведе.
-- [ ] **12000.** year time _(context: wordplay)_  
+- [ ] **12000.** year time _(context: `wordplay`)_  
   → рік-час
-- [ ] **12001.** Midsummer worm _(context: wordplay)_  
+- [ ] **12001.** Midsummer worm _(context: `wordplay`)_  
   → купальський черв'як
-- [ ] **12002.** tree wool _(context: wordplay)_  
+- [ ] **12002.** tree wool _(context: `wordplay`)_  
   → вовна з дерева
-- [ ] **12003.** water boiler _(context: wordplay)_  
+- [ ] **12003.** water boiler _(context: `wordplay`)_  
   → кип'ятильник для води
-- [ ] **12004.** Ask any owner. There was never a contest. _(context: wordplay)_  
+- [ ] **12004.** Ask any owner. There was never a contest. _(context: `wordplay`)_  
   → Спитайте будь-якого господаря. Вибирати не довелося.
-- [ ] **12005.** cold cupboard _(context: wordplay)_  
+- [ ] **12005.** cold cupboard _(context: `wordplay`)_  
   → холодна шафа
-- [ ] **12006.** fridge _(context: wordplay)_  
+- [ ] **12006.** fridge _(context: `wordplay`)_  
   → холодильник
-- [ ] **12007.** cold _(context: wordplay)_  
+- [ ] **12007.** cold _(context: `wordplay`)_  
   → холодний
-- [ ] **12008.** cupboard _(context: wordplay)_  
+- [ ] **12008.** cupboard _(context: `wordplay`)_  
   → шафа
-- [ ] **12009.** foot wheel _(context: wordplay)_  
+- [ ] **12009.** foot wheel _(context: `wordplay`)_  
   → ножне колесо
-- [ ] **12010.** bicycle _(context: wordplay)_  
+- [ ] **12010.** bicycle _(context: `wordplay`)_  
   → велосипед
-- [ ] **12011.** foot _(context: wordplay)_  
+- [ ] **12011.** foot _(context: `wordplay`)_  
   → нога, ступня
-- [ ] **12012.** wheel _(context: wordplay)_  
+- [ ] **12012.** wheel _(context: `wordplay`)_  
   → колесо
-- [ ] **12013.** foot dish _(context: wordplay)_  
+- [ ] **12013.** foot dish _(context: `wordplay`)_  
   → посуд для ноги
-- [ ] **12014.** a shoe, any footwear _(context: wordplay)_  
+- [ ] **12014.** a shoe, any footwear _(context: `wordplay`)_  
   → черевик, будь-яке взуття
-- [ ] **12015.** dish, vessel _(context: wordplay)_  
+- [ ] **12015.** dish, vessel _(context: `wordplay`)_  
   → посуд, посудина
-- [ ] **12016.** capital city _(context: wordplay)_  
+- [ ] **12016.** capital city _(context: `wordplay`)_  
   → столиця
-- [ ] **12017.** town _(context: wordplay)_  
+- [ ] **12017.** town _(context: `wordplay`)_  
   → місто
-- [ ] **12018.** town head _(context: wordplay)_  
+- [ ] **12018.** town head _(context: `wordplay`)_  
   → місто-голова
-- [ ] **12019.** mayor _(context: wordplay)_  
+- [ ] **12019.** mayor _(context: `wordplay`)_  
   → мер
-- [ ] **12020.** help life _(context: wordplay)_  
+- [ ] **12020.** help life _(context: `wordplay`)_  
   → життя-допомога
-- [ ] **12021.** marriage _(context: wordplay)_  
+- [ ] **12021.** marriage _(context: `wordplay`)_  
   → шлюб
-- [ ] **12022.** help _(context: wordplay)_  
+- [ ] **12022.** help _(context: `wordplay`)_  
   → допомога
-- [ ] **12023.** life _(context: wordplay)_  
+- [ ] **12023.** life _(context: `wordplay`)_  
   → життя
-- [ ] **12024.** spouse _(context: wordplay)_  
+- [ ] **12024.** spouse _(context: `wordplay`)_  
   → чоловік або дружина
-- [ ] **12025.** world _(context: wordplay)_  
+- [ ] **12025.** world _(context: `wordplay`)_  
   → світ
-- [ ] **12026.** land _(context: wordplay)_  
+- [ ] **12026.** land _(context: `wordplay`)_  
   → земля
-- [ ] **12027.** cat's son _(context: wordplay)_  
+- [ ] **12027.** cat's son _(context: `wordplay`)_  
   → котячий син
-- [ ] **12028.** kitten _(context: wordplay)_  
+- [ ] **12028.** kitten _(context: `wordplay`)_  
   → кошеня
-- [ ] **12029.** cat _(context: wordplay)_  
+- [ ] **12029.** cat _(context: `wordplay`)_  
   → кіт
-- [ ] **12030.** son _(context: wordplay)_  
+- [ ] **12030.** son _(context: `wordplay`)_  
   → син
-- [ ] **12031.** south meal _(context: wordplay)_  
+- [ ] **12031.** south meal _(context: `wordplay`)_  
   → південна їжа
-- [ ] **12032.** lunch _(context: wordplay)_  
+- [ ] **12032.** lunch _(context: `wordplay`)_  
   → обід
-- [ ] **12033.** The first half means both south and noon, because at noon the sun is in the south. _(context: wordplay)_  
+- [ ] **12033.** The first half means both south and noon, because at noon the sun is in the south. _(context: `wordplay`)_  
   → Перша половина означає і «південь», і «полудень», бо опівдні сонце на півдні.
-- [ ] **12034.** south, noon _(context: wordplay)_  
+- [ ] **12034.** south, noon _(context: `wordplay`)_  
   → південь, полудень
-- [ ] **12035.** after south _(context: wordplay)_  
+- [ ] **12035.** after south _(context: `wordplay`)_  
   → після півдня
-- [ ] **12036.** afternoon _(context: wordplay)_  
+- [ ] **12036.** afternoon _(context: `wordplay`)_  
   → друга половина дня
-- [ ] **12037.** kitchen fruit _(context: wordplay)_  
+- [ ] **12037.** kitchen fruit _(context: `wordplay`)_  
   → кухонний плід
-- [ ] **12038.** vegetable _(context: wordplay)_  
+- [ ] **12038.** vegetable _(context: `wordplay`)_  
   → овоч
-- [ ] **12039.** A fruit that ended up in the kitchen. Ask any tomato how that feels. _(context: wordplay)_  
+- [ ] **12039.** A fruit that ended up in the kitchen. Ask any tomato how that feels. _(context: `wordplay`)_  
   → Плід, що потрапив на кухню. Спитайте будь-який помідор, як це.
-- [ ] **12040.** tooth _(context: wordplay)_  
+- [ ] **12040.** tooth _(context: `wordplay`)_  
   → зуб
-- [ ] **12041.** door clock _(context: wordplay)_  
+- [ ] **12041.** door clock _(context: `wordplay`)_  
   → дверний годинник
-- [ ] **12042.** doorbell _(context: wordplay)_  
+- [ ] **12042.** doorbell _(context: `wordplay`)_  
   → дверний дзвінок
-- [ ] **12043.** clock, bell _(context: wordplay)_  
+- [ ] **12043.** clock, bell _(context: `wordplay`)_  
   → годинник, дзвоник
-- [ ] **12044.** sand clock _(context: wordplay)_  
+- [ ] **12044.** sand clock _(context: `wordplay`)_  
   → пісок-годинник
-- [ ] **12045.** hourglass _(context: wordplay)_  
+- [ ] **12045.** hourglass _(context: `wordplay`)_  
   → пісочний годинник
-- [ ] **12046.** sand _(context: wordplay)_  
+- [ ] **12046.** sand _(context: `wordplay`)_  
   → пісок
-- [ ] **12047.** clock _(context: wordplay)_  
+- [ ] **12047.** clock _(context: `wordplay`)_  
   → годинник
-- [ ] **12048.** week change _(context: wordplay)_  
+- [ ] **12048.** week change _(context: `wordplay`)_  
   → зміна тижня
-- [ ] **12049.** weekend _(context: wordplay)_  
+- [ ] **12049.** weekend _(context: `wordplay`)_  
   → вихідні
-- [ ] **12050.** The weekend as a shift change between one week and the next. _(context: wordplay)_  
+- [ ] **12050.** The weekend as a shift change between one week and the next. _(context: `wordplay`)_  
   → Вихідні як перезмінка між тижнями.
-- [ ] **12051.** week _(context: wordplay)_  
+- [ ] **12051.** week _(context: `wordplay`)_  
   → тиждень
-- [ ] **12052.** change, changing _(context: wordplay)_  
+- [ ] **12052.** change, changing _(context: `wordplay`)_  
   → зміна, переміна
-- [ ] **12053.** over yesterday _(context: wordplay)_  
+- [ ] **12053.** over yesterday _(context: `wordplay`)_  
   → через учора
-- [ ] **12054.** the day before yesterday _(context: wordplay)_  
+- [ ] **12054.** the day before yesterday _(context: `wordplay`)_  
   → позавчора
-- [ ] **12055.** over tomorrow _(context: wordplay)_  
+- [ ] **12055.** over tomorrow _(context: `wordplay`)_  
   → через завтра
-- [ ] **12056.** the day after tomorrow _(context: wordplay)_  
+- [ ] **12056.** the day after tomorrow _(context: `wordplay`)_  
   → післязавтра
-- [ ] **12057.** Hop over tomorrow and you land here. Handy for putting things off. _(context: wordplay)_  
+- [ ] **12057.** Hop over tomorrow and you land here. Handy for putting things off. _(context: `wordplay`)_  
   → Перестрибніть через завтра, і ви тут. Зручно, щоб щось відкласти.
-- [ ] **12058.** tomorrow _(context: wordplay)_  
+- [ ] **12058.** tomorrow _(context: `wordplay`)_  
   → завтра
-- [ ] **12059.** moon day _(context: wordplay)_  
+- [ ] **12059.** moon day _(context: `wordplay`)_  
   → місячний день
-- [ ] **12060.** date _(context: wordplay)_  
+- [ ] **12060.** date _(context: `wordplay`)_  
   → дата, число
-- [ ] **12061.** The word for month is the word for moon, from when the moon was the calendar. _(context: wordplay)_  
+- [ ] **12061.** The word for month is the word for moon, from when the moon was the calendar. _(context: `wordplay`)_  
   → Слово для місяця року тут те саме, що для місяця на небі, з тих часів, коли календарем був місяць.
-- [ ] **12062.** moon, month _(context: wordplay)_  
+- [ ] **12062.** moon, month _(context: `wordplay`)_  
   → місяць на небі, місяць року
-- [ ] **12063.** day _(context: wordplay)_  
+- [ ] **12063.** day _(context: `wordplay`)_  
   → день
-- [ ] **12064.** character (a person's) _(context: wordplay)_  
+- [ ] **12064.** character (a person's) _(context: `wordplay`)_  
   → характер (людини)
-- [ ] **12065.** self _(context: wordplay)_  
+- [ ] **12065.** self _(context: `wordplay`)_  
   → сам
-- [ ] **12066.** animal _(context: wordplay)_  
+- [ ] **12066.** animal _(context: `wordplay`)_  
   → тварина
-- [ ] **12067.** fire damage _(context: wordplay)_  
+- [ ] **12067.** fire damage _(context: `wordplay`)_  
   → вогняна шкода
-- [ ] **12068.** fire (one that burns a house down) _(context: wordplay)_  
+- [ ] **12068.** fire (one that burns a house down) _(context: `wordplay`)_  
   → пожежа
-- [ ] **12069.** A house fire, named after the bill that comes afterwards. _(context: wordplay)_  
+- [ ] **12069.** A house fire, named after the bill that comes afterwards. _(context: `wordplay`)_  
   → Пожежа, названа на честь рахунку, що приходить потім.
-- [ ] **12070.** damage _(context: wordplay)_  
+- [ ] **12070.** damage _(context: `wordplay`)_  
   → шкода
-- [ ] **12071.** rain shade _(context: wordplay)_  
+- [ ] **12071.** rain shade _(context: `wordplay`)_  
   → дощова тінь
-- [ ] **12072.** umbrella _(context: wordplay)_  
+- [ ] **12072.** umbrella _(context: `wordplay`)_  
   → парасолька
-- [ ] **12073.** rain _(context: wordplay)_  
+- [ ] **12073.** rain _(context: `wordplay`)_  
   → дощ
-- [ ] **12074.** shadow, shade _(context: wordplay)_  
+- [ ] **12074.** shadow, shade _(context: `wordplay`)_  
   → тінь
-- [ ] **12075.** vodka berry _(context: wordplay)_  
+- [ ] **12075.** vodka berry _(context: `wordplay`)_  
   → горілчана ягода
-- [ ] **12076.** grape _(context: wordplay)_  
+- [ ] **12076.** grape _(context: `wordplay`)_  
   → виноград
-- [ ] **12077.** vodka _(context: wordplay)_  
+- [ ] **12077.** vodka _(context: `wordplay`)_  
   → горілка
-- [ ] **12078.** berry _(context: wordplay)_  
+- [ ] **12078.** berry _(context: `wordplay`)_  
   → ягода
-- [ ] **12079.** nail onion _(context: wordplay)_  
+- [ ] **12079.** nail onion _(context: `wordplay`)_  
   → нігтьова цибуля
-- [ ] **12080.** garlic _(context: wordplay)_  
+- [ ] **12080.** garlic _(context: `wordplay`)_  
   → часник
-- [ ] **12081.** nail _(context: wordplay)_  
+- [ ] **12081.** nail _(context: `wordplay`)_  
   → ніготь
-- [ ] **12082.** allium, onion _(context: wordplay)_  
+- [ ] **12082.** allium, onion _(context: `wordplay`)_  
   → цибуля
-- [ ] **12083.** fish berry _(context: wordplay)_  
+- [ ] **12083.** fish berry _(context: `wordplay`)_  
   → риб'яча ягода
-- [ ] **12084.** roe _(context: wordplay)_  
+- [ ] **12084.** roe _(context: `wordplay`)_  
   → ікра
-- [ ] **12085.** sleep _(context: wordplay)_  
+- [ ] **12085.** sleep _(context: `wordplay`)_  
   → сон
-- [ ] **12086.** child knee _(context: wordplay)_  
+- [ ] **12086.** child knee _(context: `wordplay`)_  
   → дитяче коліно
-- [ ] **12087.** childhood _(context: wordplay)_  
+- [ ] **12087.** childhood _(context: `wordplay`)_  
   → дитинство
-- [ ] **12088.** The second half means a generation here. It also means a knee, and childhood is mostly grazed knees anyway. _(context: wordplay)_  
+- [ ] **12088.** The second half means a generation here. It also means a knee, and childhood is mostly grazed knees anyway. _(context: `wordplay`)_  
   → Друга половина тут означає «покоління». Ще вона означає «коліно», а дитинство й так здебільшого складається зі збитих колін.
-- [ ] **12089.** knee, generation _(context: wordplay)_  
+- [ ] **12089.** knee, generation _(context: `wordplay`)_  
   → коліно, покоління
-- [ ] **12090.** deadline _(context: wordplay)_  
+- [ ] **12090.** deadline _(context: `wordplay`)_  
   → термін
-- [ ] **12091.** time magnifying glass _(context: wordplay)_  
+- [ ] **12091.** time magnifying glass _(context: `wordplay`)_  
   → лупа часу
-- [ ] **12092.** slow motion _(context: wordplay)_  
+- [ ] **12092.** slow motion _(context: `wordplay`)_  
   → уповільнена зйомка
-- [ ] **12093.** A magnifying glass held up to time. _(context: wordplay)_  
+- [ ] **12093.** A magnifying glass held up to time. _(context: `wordplay`)_  
   → Лупа, піднесена до часу.
-- [ ] **12094.** magnifying glass _(context: wordplay)_  
+- [ ] **12094.** magnifying glass _(context: `wordplay`)_  
   → лупа
-- [ ] **12095.** damage joy _(context: wordplay)_  
+- [ ] **12095.** damage joy _(context: `wordplay`)_  
   → радість від шкоди
-- [ ] **12096.** schadenfreude _(context: wordplay)_  
+- [ ] **12096.** schadenfreude _(context: `wordplay`)_  
   → зловтіха
-- [ ] **12097.** damage, pity _(context: wordplay)_  
+- [ ] **12097.** damage, pity _(context: `wordplay`)_  
   → шкода, жаль
-- [ ] **12098.** joy _(context: wordplay)_  
+- [ ] **12098.** joy _(context: `wordplay`)_  
   → радість
-- [ ] **12099.** fire mountain _(context: wordplay)_  
+- [ ] **12099.** fire mountain _(context: `wordplay`)_  
   → вогняна гора
-- [ ] **12100.** volcano _(context: wordplay)_  
+- [ ] **12100.** volcano _(context: `wordplay`)_  
   → вулкан
-- [ ] **12101.** Exactly as alarming as it sounds. Estonia, happily, has none. _(context: wordplay)_  
+- [ ] **12101.** Exactly as alarming as it sounds. Estonia, happily, has none. _(context: `wordplay`)_  
   → Рівно так тривожно, як звучить. В Естонії їх, на щастя, немає.
-- [ ] **12102.** mountain _(context: wordplay)_  
+- [ ] **12102.** mountain _(context: `wordplay`)_  
   → гора
-- [ ] **12103.** day flower _(context: wordplay)_  
+- [ ] **12103.** day flower _(context: `wordplay`)_  
   → денна квітка
-- [ ] **12104.** sunflower _(context: wordplay)_  
+- [ ] **12104.** sunflower _(context: `wordplay`)_  
   → соняшник
-- [ ] **12105.** flower _(context: wordplay)_  
+- [ ] **12105.** flower _(context: `wordplay`)_  
   → квітка
-- [ ] **12106.** wind pocket _(context: wordplay)_  
+- [ ] **12106.** wind pocket _(context: `wordplay`)_  
   → кишеня вітру
-- [ ] **12107.** cream puff _(context: wordplay)_  
+- [ ] **12107.** cream puff _(context: `wordplay`)_  
   → заварне тістечко
-- [ ] **12108.** Mostly air, wrapped in pastry. _(context: wordplay)_  
+- [ ] **12108.** Mostly air, wrapped in pastry. _(context: `wordplay`)_  
   → Здебільшого повітря в тісті.
-- [ ] **12109.** wind _(context: wordplay)_  
+- [ ] **12109.** wind _(context: `wordplay`)_  
   → вітер
-- [ ] **12110.** pocket _(context: wordplay)_  
+- [ ] **12110.** pocket _(context: `wordplay`)_  
   → кишеня
-- [ ] **12111.** stomach wind _(context: wordplay)_  
+- [ ] **12111.** stomach wind _(context: `wordplay`)_  
   → вітер у животі
-- [ ] **12112.** breaking wind (flatus) _(context: wordplay)_  
+- [ ] **12112.** breaking wind (flatus) _(context: `wordplay`)_  
   → гази в кишківнику
-- [ ] **12113.** the Earth _(context: wordplay)_  
+- [ ] **12113.** the Earth _(context: `wordplay`)_  
   → наша планета
-- [ ] **12114.** The whole planet, as an egg. _(context: wordplay)_  
+- [ ] **12114.** The whole planet, as an egg. _(context: `wordplay`)_  
   → Уся планета у вигляді яйця.
-- [ ] **12115.** land, earth _(context: wordplay)_  
+- [ ] **12115.** land, earth _(context: `wordplay`)_  
   → земля
-- [ ] **12116.** egg _(context: wordplay)_  
+- [ ] **12116.** egg _(context: `wordplay`)_  
   → яйце
-- [ ] **12117.** eye egg _(context: wordplay)_  
+- [ ] **12117.** eye egg _(context: `wordplay`)_  
   → очне яйце
-- [ ] **12118.** eyeball _(context: wordplay)_  
+- [ ] **12118.** eyeball _(context: `wordplay`)_  
   → очне яблуко
-- [ ] **12119.** lawn egg _(context: wordplay)_  
+- [ ] **12119.** lawn egg _(context: `wordplay`)_  
   → газонне яйце
-- [ ] **12120.** puffball (a mushroom) _(context: wordplay)_  
+- [ ] **12120.** puffball (a mushroom) _(context: `wordplay`)_  
   → дощовик (гриб)
-- [ ] **12121.** A mushroom that looks as if somebody lost an egg on the grass. _(context: wordplay)_  
+- [ ] **12121.** A mushroom that looks as if somebody lost an egg on the grass. _(context: `wordplay`)_  
   → Гриб, схожий на яйце, яке хтось загубив у траві.
-- [ ] **12122.** lawn _(context: wordplay)_  
+- [ ] **12122.** lawn _(context: `wordplay`)_  
   → газон
-- [ ] **12123.** river horse _(context: wordplay)_  
+- [ ] **12123.** river horse _(context: `wordplay`)_  
   → річковий кінь
-- [ ] **12124.** hippopotamus _(context: wordplay)_  
+- [ ] **12124.** hippopotamus _(context: `wordplay`)_  
   → бегемот
-- [ ] **12125.** The Greek name says the same thing. _(context: wordplay)_  
+- [ ] **12125.** The Greek name says the same thing. _(context: `wordplay`)_  
   → Грецька назва каже те саме.
-- [ ] **12126.** river _(context: wordplay)_  
+- [ ] **12126.** river _(context: `wordplay`)_  
   → річка
-- [ ] **12127.** horse _(context: wordplay)_  
+- [ ] **12127.** horse _(context: `wordplay`)_  
   → кінь
-- [ ] **12128.** nose horned one _(context: wordplay)_  
+- [ ] **12128.** nose horned one _(context: `wordplay`)_  
   → той, у кого ріг на носі
-- [ ] **12129.** rhinoceros _(context: wordplay)_  
+- [ ] **12129.** rhinoceros _(context: `wordplay`)_  
   → носоріг
-- [ ] **12130.** nose _(context: wordplay)_  
+- [ ] **12130.** nose _(context: `wordplay`)_  
   → ніс
-- [ ] **12131.** horned one _(context: wordplay)_  
+- [ ] **12131.** horned one _(context: `wordplay`)_  
   → рогатий
-- [ ] **12132.** shield frog _(context: wordplay)_  
+- [ ] **12132.** shield frog _(context: `wordplay`)_  
   → жаба зі щитом
-- [ ] **12133.** turtle _(context: wordplay)_  
+- [ ] **12133.** turtle _(context: `wordplay`)_  
   → черепаха
-- [ ] **12134.** A frog that brought its own shield. _(context: wordplay)_  
+- [ ] **12134.** A frog that brought its own shield. _(context: `wordplay`)_  
   → Жаба, яка прийшла зі своїм щитом.
-- [ ] **12135.** shield _(context: wordplay)_  
+- [ ] **12135.** shield _(context: `wordplay`)_  
   → щит
-- [ ] **12136.** frog _(context: wordplay)_  
+- [ ] **12136.** frog _(context: `wordplay`)_  
   → жаба
-- [ ] **12137.** scab frog _(context: wordplay)_  
+- [ ] **12137.** scab frog _(context: `wordplay`)_  
   → струпна жаба
-- [ ] **12138.** toad _(context: wordplay)_  
+- [ ] **12138.** toad _(context: `wordplay`)_  
   → ропуха
-- [ ] **12139.** Harsh. But you have seen a toad. _(context: wordplay)_  
+- [ ] **12139.** Harsh. But you have seen a toad. _(context: `wordplay`)_  
   → Жорстко. Але ж ви бачили ропуху.
-- [ ] **12140.** scab _(context: wordplay)_  
+- [ ] **12140.** scab _(context: `wordplay`)_  
   → струп
-- [ ] **12141.** leather mouse _(context: wordplay)_  
+- [ ] **12141.** leather mouse _(context: `wordplay`)_  
   → шкіряна миша
-- [ ] **12142.** bat _(context: wordplay)_  
+- [ ] **12142.** bat _(context: `wordplay`)_  
   → кажан
-- [ ] **12143.** Named for what it looks like up close. _(context: wordplay)_  
+- [ ] **12143.** Named for what it looks like up close. _(context: `wordplay`)_  
   → Названий за тим, як виглядає зблизька.
-- [ ] **12144.** skin, leather _(context: wordplay)_  
+- [ ] **12144.** skin, leather _(context: `wordplay`)_  
   → шкіра
-- [ ] **12145.** mouse _(context: wordplay)_  
+- [ ] **12145.** mouse _(context: `wordplay`)_  
   → миша
-- [ ] **12146.** giraffe _(context: wordplay)_  
+- [ ] **12146.** giraffe _(context: `wordplay`)_  
   → жирафа
-- [ ] **12147.** Two facts about a giraffe, and Estonian kept both. _(context: wordplay)_  
+- [ ] **12147.** Two facts about a giraffe, and Estonian kept both. _(context: `wordplay`)_  
   → Два факти про жирафу, і естонська залишила обидва.
-- [ ] **12148.** neck _(context: wordplay)_  
+- [ ] **12148.** neck _(context: `wordplay`)_  
   → шия
-- [ ] **12149.** spotted one _(context: wordplay)_  
+- [ ] **12149.** spotted one _(context: `wordplay`)_  
   → плямистий
-- [ ] **12150.** sea pig _(context: wordplay)_  
+- [ ] **12150.** sea pig _(context: `wordplay`)_  
   → морська свиня
-- [ ] **12151.** guinea pig _(context: wordplay)_  
+- [ ] **12151.** guinea pig _(context: `wordplay`)_  
   → морська свинка
-- [ ] **12152.** It has never seen the sea and it isn't a pig. In fairness, the English one isn't from Guinea either. _(context: wordplay)_  
+- [ ] **12152.** It has never seen the sea and it isn't a pig. In fairness, the English one isn't from Guinea either. _(context: `wordplay`)_  
   → Вона ніколи не бачила моря і зовсім не свиня. Справедливості заради, українською вона теж «морська».
-- [ ] **12153.** sea _(context: wordplay)_  
+- [ ] **12153.** sea _(context: `wordplay`)_  
   → море
-- [ ] **12154.** pig _(context: wordplay)_  
+- [ ] **12154.** pig _(context: `wordplay`)_  
   → свиня
-- [ ] **12155.** needle pig _(context: wordplay)_  
+- [ ] **12155.** needle pig _(context: `wordplay`)_  
   → голкова свиня
-- [ ] **12156.** porcupine _(context: wordplay)_  
+- [ ] **12156.** porcupine _(context: `wordplay`)_  
   → їжатець
-- [ ] **12157.** needle, thorn _(context: wordplay)_  
+- [ ] **12157.** needle, thorn _(context: `wordplay`)_  
   → голка, колючка
-- [ ] **12158.** washing bear _(context: wordplay)_  
+- [ ] **12158.** washing bear _(context: `wordplay`)_  
   → ведмідь-прач
-- [ ] **12159.** raccoon _(context: wordplay)_  
+- [ ] **12159.** raccoon _(context: `wordplay`)_  
   → єнот
-- [ ] **12160.** washing _(context: wordplay)_  
+- [ ] **12160.** washing _(context: `wordplay`)_  
   → прання
-- [ ] **12161.** bear _(context: wordplay)_  
+- [ ] **12161.** bear _(context: `wordplay`)_  
   → ведмідь
-- [ ] **12162.** ant hedgehog _(context: wordplay)_  
+- [ ] **12162.** ant hedgehog _(context: `wordplay`)_  
   → мурашиний їжак
-- [ ] **12163.** echidna _(context: wordplay)_  
+- [ ] **12163.** echidna _(context: `wordplay`)_  
   → єхидна
-- [ ] **12164.** ant _(context: wordplay)_  
+- [ ] **12164.** ant _(context: `wordplay`)_  
   → мураха
-- [ ] **12165.** hedgehog _(context: wordplay)_  
+- [ ] **12165.** hedgehog _(context: `wordplay`)_  
   → їжак
-- [ ] **12166.** beak animal _(context: wordplay)_  
+- [ ] **12166.** beak animal _(context: `wordplay`)_  
   → дзьобатий звір
-- [ ] **12167.** platypus _(context: wordplay)_  
+- [ ] **12167.** platypus _(context: `wordplay`)_  
   → качкодзьоб
-- [ ] **12168.** Of all the strange things about a platypus, Estonian went with the beak. _(context: wordplay)_  
+- [ ] **12168.** Of all the strange things about a platypus, Estonian went with the beak. _(context: `wordplay`)_  
   → З усіх дивацтв качкодзьоба естонська обрала дзьоб.
-- [ ] **12169.** beak _(context: wordplay)_  
+- [ ] **12169.** beak _(context: `wordplay`)_  
   → дзьоб
-- [ ] **12170.** night hawk _(context: wordplay)_  
+- [ ] **12170.** night hawk _(context: `wordplay`)_  
   → нічний яструб
-- [ ] **12171.** owl _(context: wordplay)_  
+- [ ] **12171.** owl _(context: `wordplay`)_  
   → сова
-- [ ] **12172.** A hawk on the night shift. _(context: wordplay)_  
+- [ ] **12172.** A hawk on the night shift. _(context: `wordplay`)_  
   → Яструб на нічній зміні.
-- [ ] **12173.** night _(context: wordplay)_  
+- [ ] **12173.** night _(context: `wordplay`)_  
   → ніч
-- [ ] **12174.** hawk _(context: wordplay)_  
+- [ ] **12174.** hawk _(context: `wordplay`)_  
   → яструб
-- [ ] **12175.** night butterfly _(context: wordplay)_  
+- [ ] **12175.** night butterfly _(context: `wordplay`)_  
   → ніч-метелик
-- [ ] **12176.** moth _(context: wordplay)_  
+- [ ] **12176.** moth _(context: `wordplay`)_  
   → нічний метелик
-- [ ] **12177.** butterfly _(context: wordplay)_  
+- [ ] **12177.** butterfly _(context: `wordplay`)_  
   → метелик
-- [ ] **12178.** book moth _(context: wordplay)_  
+- [ ] **12178.** book moth _(context: `wordplay`)_  
   → книжкова міль
-- [ ] **12179.** bookworm _(context: wordplay)_  
+- [ ] **12179.** bookworm _(context: `wordplay`)_  
   → книжковий хробак
-- [ ] **12180.** Same reader, different insect. _(context: wordplay)_  
+- [ ] **12180.** Same reader, different insect. _(context: `wordplay`)_  
   → Той самий читач, інша комаха.
-- [ ] **12181.** clothes moth _(context: wordplay)_  
+- [ ] **12181.** clothes moth _(context: `wordplay`)_  
   → міль
-- [ ] **12182.** gold beak _(context: wordplay)_  
+- [ ] **12182.** gold beak _(context: `wordplay`)_  
   → золотий дзьоб
-- [ ] **12183.** starling _(context: wordplay)_  
+- [ ] **12183.** starling _(context: `wordplay`)_  
   → шпак
-- [ ] **12184.** gold _(context: wordplay)_  
+- [ ] **12184.** gold _(context: `wordplay`)_  
   → золото
-- [ ] **12185.** silk tail _(context: wordplay)_  
+- [ ] **12185.** silk tail _(context: `wordplay`)_  
   → шовковий хвіст
-- [ ] **12186.** waxwing _(context: wordplay)_  
+- [ ] **12186.** waxwing _(context: `wordplay`)_  
   → омелюх
-- [ ] **12187.** silk _(context: wordplay)_  
+- [ ] **12187.** silk _(context: `wordplay`)_  
   → шовк
-- [ ] **12188.** beard knife _(context: wordplay)_  
+- [ ] **12188.** beard knife _(context: `wordplay`)_  
   → ніж для бороди
-- [ ] **12189.** razor _(context: wordplay)_  
+- [ ] **12189.** razor _(context: `wordplay`)_  
   → бритва
-- [ ] **12190.** Says exactly what it's for, which is reassuring in something that sharp. _(context: wordplay)_  
+- [ ] **12190.** Says exactly what it's for, which is reassuring in something that sharp. _(context: `wordplay`)_  
   → Назва прямо каже, для чого він потрібен, і для такої гострої речі це заспокоює.
-- [ ] **12191.** knife _(context: wordplay)_  
+- [ ] **12191.** knife _(context: `wordplay`)_  
   → ніж
-- [ ] **12192.** dust sucker _(context: wordplay)_  
+- [ ] **12192.** dust sucker _(context: `wordplay`)_  
   → смоктун пилу
-- [ ] **12193.** vacuum cleaner _(context: wordplay)_  
+- [ ] **12193.** vacuum cleaner _(context: `wordplay`)_  
   → пилосос
-- [ ] **12194.** dust _(context: wordplay)_  
+- [ ] **12194.** dust _(context: `wordplay`)_  
   → пил
-- [ ] **12195.** sucker _(context: wordplay)_  
+- [ ] **12195.** sucker _(context: `wordplay`)_  
   → смоктун
-- [ ] **12196.** arm _(context: wordplay)_  
+- [ ] **12196.** arm _(context: `wordplay`)_  
   → рука
-- [ ] **12197.** clothes hanger _(context: wordplay)_  
+- [ ] **12197.** clothes hanger _(context: `wordplay`)_  
   → вішак
-- [ ] **12198.** cloth _(context: wordplay)_  
+- [ ] **12198.** cloth _(context: `wordplay`)_  
   → тканина
-- [ ] **12199.** tree _(context: wordplay)_  
+- [ ] **12199.** tree _(context: `wordplay`)_  
   → дерево
-- [ ] **12200.** line board _(context: wordplay)_  
+- [ ] **12200.** line board _(context: `wordplay`)_  
   → дошка-лінія
-- [ ] **12201.** ruler _(context: wordplay)_  
+- [ ] **12201.** ruler _(context: `wordplay`)_  
   → лінійка
-- [ ] **12202.** line _(context: wordplay)_  
+- [ ] **12202.** line _(context: `wordplay`)_  
   → лінія
-- [ ] **12203.** table, board _(context: wordplay)_  
+- [ ] **12203.** table, board _(context: `wordplay`)_  
   → стіл, дошка
-- [ ] **12204.** name word _(context: wordplay)_  
+- [ ] **12204.** name word _(context: `wordplay`)_  
   → слово-ім'я
-- [ ] **12205.** name _(context: wordplay)_  
+- [ ] **12205.** name _(context: `wordplay`)_  
   → ім'я
-- [ ] **12206.** doing word _(context: wordplay)_  
+- [ ] **12206.** doing word _(context: `wordplay`)_  
   → слово-дія
-- [ ] **12207.** Grammar that explains itself. _(context: wordplay)_  
+- [ ] **12207.** Grammar that explains itself. _(context: `wordplay`)_  
   → Граматика, що пояснює сама себе.
-- [ ] **12208.** deed, doing _(context: wordplay)_  
+- [ ] **12208.** deed, doing _(context: `wordplay`)_  
   → діло, дія
-- [ ] **12209.** shout word _(context: wordplay)_  
+- [ ] **12209.** shout word _(context: `wordplay`)_  
   → слово-крик
-- [ ] **12210.** nest ball _(context: wordplay)_  
+- [ ] **12210.** nest ball _(context: `wordplay`)_  
   → гніздовий м'яч
-- [ ] **12211.** baseball _(context: wordplay)_  
+- [ ] **12211.** baseball _(context: `wordplay`)_  
   → бейсбол
-- [ ] **12212.** The bases are nests, which makes running home sound rather cozy. _(context: wordplay)_  
+- [ ] **12212.** The bases are nests, which makes running home sound rather cozy. _(context: `wordplay`)_  
   → Бази тут називаються гніздами, і біг додому звучить дуже затишно.
-- [ ] **12213.** nest _(context: wordplay)_  
+- [ ] **12213.** nest _(context: `wordplay`)_  
   → гніздо
-- [ ] **12214.** ball _(context: wordplay)_  
+- [ ] **12214.** ball _(context: `wordplay`)_  
   → м'яч
-- [ ] **12215.** pea _(context: wordplay)_  
+- [ ] **12215.** pea _(context: `wordplay`)_  
   → горошина
-- [ ] **12216.** head _(context: wordplay)_  
+- [ ] **12216.** head _(context: `wordplay`)_  
   → голова
-- [ ] **12217.** cool _(context: wordplay)_  
+- [ ] **12217.** cool _(context: `wordplay`)_  
   → крутий
-- [ ] **12218.** school _(context: wordplay)_  
+- [ ] **12218.** school _(context: `wordplay`)_  
   → школа
-- [ ] **12219.** must _(context: wordplay)_  
+- [ ] **12219.** must _(context: `wordplay`)_  
   → мусиш
-- [ ] **12220.** black _(context: wordplay)_  
+- [ ] **12220.** black _(context: `wordplay`)_  
   → чорний
-- [ ] **12221.** all _(context: wordplay)_  
+- [ ] **12221.** all _(context: `wordplay`)_  
   → усі
-- [ ] **12222.** under, below _(context: wordplay)_  
+- [ ] **12222.** under, below _(context: `wordplay`)_  
   → під, унизу
-- [ ] **12223.** tool _(context: wordplay)_  
+- [ ] **12223.** tool _(context: `wordplay`)_  
   → інструмент
-- [ ] **12224.** chair _(context: wordplay)_  
+- [ ] **12224.** chair _(context: `wordplay`)_  
   → стілець
-- [ ] **12225.** seen _(context: wordplay)_  
+- [ ] **12225.** seen _(context: `wordplay`)_  
   → побачений
-- [ ] **12226.** mushroom _(context: wordplay)_  
+- [ ] **12226.** mushroom _(context: `wordplay`)_  
   → гриб
-- [ ] **12227.** cook _(context: wordplay)_  
+- [ ] **12227.** cook _(context: `wordplay`)_  
   → кухар
-- [ ] **12228.** cake _(context: wordplay)_  
+- [ ] **12228.** cake _(context: `wordplay`)_  
   → торт, пиріг
-- [ ] **12229.** sink _(context: wordplay)_  
+- [ ] **12229.** sink _(context: `wordplay`)_  
   → раковина
-- [ ] **12230.** ham _(context: wordplay)_  
+- [ ] **12230.** ham _(context: `wordplay`)_  
   → шинка
-- [ ] **12231.** vend _(context: wordplay)_  
+- [ ] **12231.** vend _(context: `wordplay`)_  
   → торгувати
-- [ ] **12232.** brother _(context: wordplay)_  
+- [ ] **12232.** brother _(context: `wordplay`)_  
   → брат
-- [ ] **12233.** hunt _(context: wordplay)_  
+- [ ] **12233.** hunt _(context: `wordplay`)_  
   → полювання
-- [ ] **12234.** wolf _(context: wordplay)_  
+- [ ] **12234.** wolf _(context: `wordplay`)_  
   → вовк
-- [ ] **12235.** loo _(context: wordplay)_  
+- [ ] **12235.** loo _(context: `wordplay`)_  
   → туалет
-- [ ] **12236.** bone _(context: wordplay)_  
+- [ ] **12236.** bone _(context: `wordplay`)_  
   → кістка
-- [ ] **12237.** hi _(context: wordplay)_  
+- [ ] **12237.** hi _(context: `wordplay`)_  
   → привіт
-- [ ] **12238.** shark _(context: wordplay)_  
+- [ ] **12238.** shark _(context: `wordplay`)_  
   → акула
-- [ ] **12239.** rand _(context: wordplay)_  
+- [ ] **12239.** rand _(context: `wordplay`)_  
   → ранд (валюта)
-- [ ] **12240.** beach _(context: wordplay)_  
+- [ ] **12240.** beach _(context: `wordplay`)_  
   → пляж
-- [ ] **12241.** tee _(context: wordplay)_  
+- [ ] **12241.** tee _(context: `wordplay`)_  
   → підставка для м'яча в гольфі
-- [ ] **12242.** road, tea _(context: wordplay)_  
+- [ ] **12242.** road, tea _(context: `wordplay`)_  
   → дорога, чай
-- [ ] **12243.** pall _(context: wordplay)_  
+- [ ] **12243.** pall _(context: `wordplay`)_  
   → смуток
-- [ ] **12244.** laud _(context: wordplay)_  
+- [ ] **12244.** laud _(context: `wordplay`)_  
   → хвала
-- [ ] **12245.** table _(context: wordplay)_  
+- [ ] **12245.** table _(context: `wordplay`)_  
   → стіл
-- [ ] **12246.** pill _(context: wordplay)_  
+- [ ] **12246.** pill _(context: `wordplay`)_  
   → пігулка
-- [ ] **12247.** musical instrument _(context: wordplay)_  
+- [ ] **12247.** musical instrument _(context: `wordplay`)_  
   → музичний інструмент
-- [ ] **12248.** torn _(context: wordplay)_  
+- [ ] **12248.** torn _(context: `wordplay`)_  
   → порваний
-- [ ] **12249.** tower _(context: wordplay)_  
+- [ ] **12249.** tower _(context: `wordplay`)_  
   → вежа
-- [ ] **12250.** vale _(context: wordplay)_  
+- [ ] **12250.** vale _(context: `wordplay`)_  
   → долина
-- [ ] **12251.** wrong _(context: wordplay)_  
+- [ ] **12251.** wrong _(context: `wordplay`)_  
   → неправильний
-- [ ] **12252.** very _(context: wordplay)_  
+- [ ] **12252.** very _(context: `wordplay`)_  
   → дуже
-- [ ] **12253.** blood _(context: wordplay)_  
+- [ ] **12253.** blood _(context: `wordplay`)_  
   → кров
-- [ ] **12254.** scar _(context: wordplay)_  
+- [ ] **12254.** scar _(context: `wordplay`)_  
   → шрам
-- [ ] **12255.** kits _(context: wordplay)_  
+- [ ] **12255.** kits _(context: `wordplay`)_  
   → набори
-- [ ] **12256.** goat _(context: wordplay)_  
+- [ ] **12256.** goat _(context: `wordplay`)_  
   → коза
-- [ ] **12257.** food, a meal _(context: wordplay)_  
+- [ ] **12257.** food, a meal _(context: `wordplay`)_  
   → їжа, трапеза
-- [ ] **12258.** after _(context: wordplay)_  
+- [ ] **12258.** after _(context: `wordplay`)_  
   → після
-- [ ] **12259.** kitchen _(context: wordplay)_  
+- [ ] **12259.** kitchen _(context: `wordplay`)_  
   → кухня
-- [ ] **12260.** door _(context: wordplay)_  
+- [ ] **12260.** door _(context: `wordplay`)_  
   → двері
-- [ ] **12261.** over _(context: wordplay)_  
+- [ ] **12261.** over _(context: `wordplay`)_  
   → через, понад
-- [ ] **12262.** yesterday _(context: wordplay)_  
+- [ ] **12262.** yesterday _(context: `wordplay`)_  
   → учора
-- [ ] **12263.** fire _(context: wordplay)_  
+- [ ] **12263.** fire _(context: `wordplay`)_  
   → вогонь
-- [ ] **12264.** fish _(context: wordplay)_  
+- [ ] **12264.** fish _(context: `wordplay`)_  
   → риба
-- [ ] **12265.** child _(context: wordplay)_  
+- [ ] **12265.** child _(context: `wordplay`)_  
   → дитина
-- [ ] **12266.** time _(context: wordplay)_  
+- [ ] **12266.** time _(context: `wordplay`)_  
   → час
-- [ ] **12267.** stomach _(context: wordplay)_  
+- [ ] **12267.** stomach _(context: `wordplay`)_  
   → живіт
-- [ ] **12268.** eye _(context: wordplay)_  
+- [ ] **12268.** eye _(context: `wordplay`)_  
   → око
-- [ ] **12269.** book _(context: wordplay)_  
+- [ ] **12269.** book _(context: `wordplay`)_  
   → книга
-- [ ] **12270.** tail _(context: wordplay)_  
+- [ ] **12270.** tail _(context: `wordplay`)_  
   → хвіст
-- [ ] **12271.** beard _(context: wordplay)_  
+- [ ] **12271.** beard _(context: `wordplay`)_  
   → борода
-- [ ] **12272.** noun _(context: wordplay)_  
+- [ ] **12272.** noun _(context: `wordplay`)_  
   → іменник
-- [ ] **12273.** word _(context: wordplay)_  
+- [ ] **12273.** word _(context: `wordplay`)_  
   → слово
-- [ ] **12274.** verb _(context: wordplay)_  
+- [ ] **12274.** verb _(context: `wordplay`)_  
   → дієслово
-- [ ] **12275.** pronoun _(context: wordplay)_  
+- [ ] **12275.** pronoun _(context: `wordplay`)_  
   → займенник
-- [ ] **12276.** interjection _(context: wordplay)_  
+- [ ] **12276.** interjection _(context: `wordplay`)_  
   → вигук
-- [ ] **12277.** word book _(context: wordplay)_  
+- [ ] **12277.** word book _(context: `wordplay`)_  
   → книга слів
-- [ ] **12278.** dictionary _(context: wordplay)_  
+- [ ] **12278.** dictionary _(context: `wordplay`)_  
   → словник
-- [ ] **12279.** snow granny _(context: wordplay)_  
+- [ ] **12279.** snow granny _(context: `wordplay`)_  
   → снігова бабуся
-- [ ] **12280.** snowman _(context: wordplay)_  
+- [ ] **12280.** snowman _(context: `wordplay`)_  
   → сніговик
-- [ ] **12281.** English builds a snowman. Estonian builds a granny. _(context: wordplay)_  
+- [ ] **12281.** English builds a snowman. Estonian builds a granny. _(context: `wordplay`)_  
   → Англійською ліплять сніжного чоловіка, а естонською, як і українською, бабу.
-- [ ] **12282.** snow _(context: wordplay)_  
+- [ ] **12282.** snow _(context: `wordplay`)_  
   → сніг
-- [ ] **12283.** granny _(context: wordplay)_  
+- [ ] **12283.** granny _(context: `wordplay`)_  
   → бабуся
-- [ ] **12284.** butter flower _(context: wordplay)_  
+- [ ] **12284.** butter flower _(context: `wordplay`)_  
   → масляна квітка
-- [ ] **12285.** dandelion _(context: wordplay)_  
+- [ ] **12285.** dandelion _(context: `wordplay`)_  
   → кульбаба
-- [ ] **12286.** As yellow as butter, and every lawn in May agrees. _(context: wordplay)_  
+- [ ] **12286.** As yellow as butter, and every lawn in May agrees. _(context: `wordplay`)_  
   → Жовта, як масло, і кожен газон у травні з цим згоден.
-- [ ] **12287.** butter _(context: wordplay)_  
+- [ ] **12287.** butter _(context: `wordplay`)_  
   → масло
-- [ ] **12288.** old mother _(context: wordplay)_  
+- [ ] **12288.** old mother _(context: `wordplay`)_  
   → стара мати
-- [ ] **12289.** grandmother _(context: wordplay)_  
+- [ ] **12289.** grandmother _(context: `wordplay`)_  
   → бабуся
-- [ ] **12290.** Honest, if not exactly tactful. Best not to translate it for her. _(context: wordplay)_  
+- [ ] **12290.** Honest, if not exactly tactful. Best not to translate it for her. _(context: `wordplay`)_  
   → Чесно, хоч і не надто тактовно. Краще не перекладати їй це.
-- [ ] **12291.** old _(context: wordplay)_  
+- [ ] **12291.** old _(context: `wordplay`)_  
   → старий
-- [ ] **12292.** mother _(context: wordplay)_  
+- [ ] **12292.** mother _(context: `wordplay`)_  
   → мати
-- [ ] **12293.** animal garden _(context: wordplay)_  
+- [ ] **12293.** animal garden _(context: `wordplay`)_  
   → сад тварин
-- [ ] **12294.** zoo _(context: wordplay)_  
+- [ ] **12294.** zoo _(context: `wordplay`)_  
   → зоопарк
-- [ ] **12295.** garden _(context: wordplay)_  
+- [ ] **12295.** garden _(context: `wordplay`)_  
   → сад
-- [ ] **12296.** children garden _(context: wordplay)_  
+- [ ] **12296.** children garden _(context: `wordplay`)_  
   → сад дітей
-- [ ] **12297.** kindergarten _(context: wordplay)_  
+- [ ] **12297.** kindergarten _(context: `wordplay`)_  
   → дитячий садок
-- [ ] **12298.** tooth doctor _(context: wordplay)_  
+- [ ] **12298.** tooth doctor _(context: `wordplay`)_  
   → зуб-лікар
-- [ ] **12299.** dentist _(context: wordplay)_  
+- [ ] **12299.** dentist _(context: `wordplay`)_  
   → стоматолог
-- [ ] **12300.** doctor _(context: wordplay)_  
+- [ ] **12300.** doctor _(context: `wordplay`)_  
   → лікар
-- [ ] **12301.** wristwatch _(context: wordplay)_  
+- [ ] **12301.** wristwatch _(context: `wordplay`)_  
   → наручний годинник
-- [ ] **12302.** pocket lamp _(context: wordplay)_  
+- [ ] **12302.** pocket lamp _(context: `wordplay`)_  
   → кишенькова лампа
-- [ ] **12303.** torch, flashlight _(context: wordplay)_  
+- [ ] **12303.** torch, flashlight _(context: `wordplay`)_  
   → ліхтарик
-- [ ] **12304.** lamp _(context: wordplay)_  
+- [ ] **12304.** lamp _(context: `wordplay`)_  
   → лампа
-- [ ] **12305.** spider net _(context: wordplay)_  
+- [ ] **12305.** spider net _(context: `wordplay`)_  
   → павукова сітка
-- [ ] **12306.** spiderweb, cobweb _(context: wordplay)_  
+- [ ] **12306.** spiderweb, cobweb _(context: `wordplay`)_  
   → павутиння
-- [ ] **12307.** spider _(context: wordplay)_  
+- [ ] **12307.** spider _(context: `wordplay`)_  
   → павук
-- [ ] **12308.** net _(context: wordplay)_  
+- [ ] **12308.** net _(context: `wordplay`)_  
   → сітка
-- [ ] **12309.** tuba _(context: wordplay)_  
+- [ ] **12309.** tuba _(context: `wordplay`)_  
   → туба
-- [ ] **12310.** room _(context: wordplay)_  
+- [ ] **12310.** room _(context: `wordplay`)_  
   → кімната
-- [ ] **12311.** seal _(context: wordplay)_  
+- [ ] **12311.** seal _(context: `wordplay`)_  
   → тюлень
-- [ ] **12312.** there _(context: wordplay)_  
+- [ ] **12312.** there _(context: `wordplay`)_  
   → там
-- [ ] **12313.** pool _(context: wordplay)_  
+- [ ] **12313.** pool _(context: `wordplay`)_  
   → басейн
-- [ ] **12314.** half _(context: wordplay)_  
+- [ ] **12314.** half _(context: `wordplay`)_  
   → половина
-- [ ] **12315.** mood _(context: wordplay)_  
+- [ ] **12315.** mood _(context: `wordplay`)_  
   → настрій
-- [ ] **12316.** fashion _(context: wordplay)_  
+- [ ] **12316.** fashion _(context: `wordplay`)_  
   → мода
-- [ ] **12317.** max _(context: wordplay)_  
+- [ ] **12317.** max _(context: `wordplay`)_  
   → максимум
-- [ ] **12318.** son, young one _(context: wordplay)_  
+- [ ] **12318.** son, young one _(context: `wordplay`)_  
   → син, дитинча
-- [ ] **12319.** The first half once meant the sun as well as the day, which a sunflower would agree with. _(context: wordplay)_  
+- [ ] **12319.** The first half once meant the sun as well as the day, which a sunflower would agree with. _(context: `wordplay`)_  
   → Перша половина колись означала не лише «день», а й «сонце», і соняшник із цим погодився б.
-- [ ] **12320.** chief town _(context: wordplay)_  
+- [ ] **12320.** chief town _(context: `wordplay`)_  
   → голова-місто
-- [ ] **12321.** The first half is the head, as in the one in charge. Put the town first and you get its mayor. _(context: wordplay)_  
+- [ ] **12321.** The first half is the head, as in the one in charge. Put the town first and you get its mayor. _(context: `wordplay`)_  
   → Перша половина означає «голова», тобто головний. Поставте місто першим, і вийде його мер.
-- [ ] **12322.** chief, head _(context: wordplay)_  
+- [ ] **12322.** chief, head _(context: `wordplay`)_  
   → головний, голова
-- [ ] **12323.** help companion _(context: wordplay)_  
+- [ ] **12323.** help companion _(context: `wordplay`)_  
   → допомога-супутник
-- [ ] **12324.** companion _(context: wordplay)_  
+- [ ] **12324.** companion _(context: `wordplay`)_  
   → супутник
-- [ ] **12325.** self nature _(context: wordplay)_  
+- [ ] **12325.** self nature _(context: `wordplay`)_  
   → сам-природа
-- [ ] **12326.** Here the second half means your nature. The same word is also an animal, which some characters live up to. _(context: wordplay)_  
+- [ ] **12326.** Here the second half means your nature. The same word is also an animal, which some characters live up to. _(context: `wordplay`)_  
   → Тут друга половина означає природу людини. Те саме слово означає й «тварина», і деякі характери цьому відповідають.
-- [ ] **12327.** nature _(context: wordplay)_  
+- [ ] **12327.** nature _(context: `wordplay`)_  
   → природа
-- [ ] **12328.** sleep sight _(context: wordplay)_  
+- [ ] **12328.** sleep sight _(context: `wordplay`)_  
   → видіння уві сні
-- [ ] **12329.** sight, face _(context: wordplay)_  
+- [ ] **12329.** sight, face _(context: `wordplay`)_  
   → видіння, обличчя
-- [ ] **12330.** marked time _(context: wordplay)_  
+- [ ] **12330.** marked time _(context: `wordplay`)_  
   → позначений час
-- [ ] **12331.** mark, fixed point _(context: wordplay)_  
+- [ ] **12331.** mark, fixed point _(context: `wordplay`)_  
   → позначка, фіксована точка
-- [ ] **12332.** land egg _(context: wordplay)_  
+- [ ] **12332.** land egg _(context: `wordplay`)_  
   → земляне яйце
-- [ ] **12333.** hand shaft _(context: wordplay)_  
+- [ ] **12333.** hand shaft _(context: `wordplay`)_  
   → кисть-стрижень
-- [ ] **12334.** instead word _(context: wordplay)_  
+- [ ] **12334.** instead word _(context: `wordplay`)_  
   → замість-слово
-- [ ] **12335.** stead, place _(context: wordplay)_  
+- [ ] **12335.** stead, place _(context: `wordplay`)_  
   → місце, замість
-- [ ] **12336.** hind _(context: wordplay)_  
+- [ ] **12336.** hind _(context: `wordplay`)_  
   → задній
-- [ ] **12337.** price _(context: wordplay)_  
+- [ ] **12337.** price _(context: `wordplay`)_  
   → ціна
-- [ ] **12338.** half, side _(context: wordplay)_  
+- [ ] **12338.** half, side _(context: `wordplay`)_  
   → половина, бік
-- [ ] **12339.** A life of helping each other. _(context: wordplay)_  
+- [ ] **12339.** A life of helping each other. _(context: `wordplay`)_  
   → Життя, у якому допомагають одне одному.
-- [ ] **12340.** Here the second half is the wood a coat hangs on, but it is also the word for a tree. Picture one that grows coats. _(context: wordplay)_  
+- [ ] **12340.** Here the second half is the wood a coat hangs on, but it is also the word for a tree. Picture one that grows coats. _(context: `wordplay`)_  
   → Друга половина означає «дерево», і як матеріал, і в лісі. Уявіть дерево, на якому ростуть пальта.
-- [ ] **12341.** It's famous for dunking its food in water first, which is more than some of us manage. _(context: wordplay)_  
+- [ ] **12341.** It's famous for dunking its food in water first, which is more than some of us manage. _(context: `wordplay`)_  
   → Він відомий тим, що спершу занурює їжу у воду, а це більше, ніж вдається деяким із нас.
-- [ ] **12342.** Its beak turns yellow in spring, which may be how it earned the gold. _(context: wordplay)_  
+- [ ] **12342.** Its beak turns yellow in spring, which may be how it earned the gold. _(context: `wordplay`)_  
   → Навесні його дзьоб жовтіє, і, можливо, так він і заслужив золото.
-- [ ] **12343.** Its feathers really are silky. English named it for the wings, Estonian for the tail. _(context: wordplay)_  
+- [ ] **12343.** Its feathers really are silky. English named it for the wings, Estonian for the tail. _(context: `wordplay`)_  
   → Пір'я в нього справді шовковисте. Англійська назвала його за крилами, естонська за хвостом.
-- [ ] **12344.** One word where English needs four, and it has a twin for the other direction. _(context: wordplay)_  
+- [ ] **12344.** One word where English needs four, and it has a twin for the other direction. _(context: `wordplay`)_  
   → Одне слово там, де англійській потрібно чотири, і в нього є близнюк в інший бік.
-- [ ] **12345.** Sounds like breakfast, means anatomy. _(context: wordplay)_  
+- [ ] **12345.** Sounds like breakfast, means anatomy. _(context: `wordplay`)_  
   → Звучить як сніданок, а насправді анатомія.
-- [ ] **12346.** Translated piece by piece from the German, so it's the same mean little joy in another language. _(context: wordplay)_  
+- [ ] **12346.** Translated piece by piece from the German, so it's the same mean little joy in another language. _(context: `wordplay`)_  
   → Перекладено з німецької частинами, тож це та сама зла маленька радість, тільки іншою мовою.
-- [ ] **12347.** cloth wood _(context: wordplay)_  
+- [ ] **12347.** cloth wood _(context: `wordplay`)_  
   → тканина-дерево
-- [ ] **12348.** great, lovely _(context: wordplay)_  
+- [ ] **12348.** great, lovely _(context: `wordplay`)_  
   → чудовий, гарний
-- [ ] **12349.** spotted neck one _(context: wordplay)_  
+- [ ] **12349.** spotted neck one _(context: `wordplay`)_  
   → плямиста шия
-- [ ] **12350.** tore _(context: wordplay)_  
+- [ ] **12350.** tore _(context: `wordplay`)_  
   → порвав
-- [ ] **12351.** wood _(context: wordplay)_  
+- [ ] **12351.** wood _(context: `wordplay`)_  
   → дерево (матеріал)
-- [ ] **12352.** wrong, false _(context: wordplay)_  
+- [ ] **12352.** wrong, false _(context: `wordplay`)_  
   → неправильний, хибний
-- [ ] **12353.** A tuba would fill one nicely. _(context: wordplay)_  
+- [ ] **12353.** A tuba would fill one nicely. _(context: `wordplay`)_  
   → Туба заповнила б її якраз.
-- [ ] **12354.** If it's torn as well, something has gone very wrong with the building. _(context: wordplay)_  
+- [ ] **12354.** If it's torn as well, something has gone very wrong with the building. _(context: `wordplay`)_  
   → Якщо вона ще й порвана, із будівлею щось дуже не так.
-- [ ] **12355.** Just the one goat, and no assembly required. _(context: wordplay)_  
+- [ ] **12355.** Just the one goat, and no assembly required. _(context: `wordplay`)_  
   → Лише одна коза, і збирати нічого не треба.
-- [ ] **12356.** Most teenagers would say it can't be both. _(context: wordplay)_  
+- [ ] **12356.** Most teenagers would say it can't be both. _(context: `wordplay`)_  
   → Більшість підлітків скажуть, що одне з іншим не поєднати.
-- [ ] **12357.** Named for the one thing you'd notice first, from a safe distance. _(context: wordplay)_  
+- [ ] **12357.** Named for the one thing you'd notice first, from a safe distance. _(context: `wordplay`)_  
   → Названий за тим, що помітиш першим, із безпечної відстані.
-- [ ] **12358.** Planted with animals. Please don't water them. _(context: wordplay)_  
+- [ ] **12358.** Planted with animals. Please don't water them. _(context: `wordplay`)_  
   → Засаджений тваринами. Поливати їх, будь ласка, не треба.
-- [ ] **12359.** The same word means your phone's network, so every spider is online. _(context: wordplay)_  
+- [ ] **12359.** The same word means your phone's network, so every spider is online. _(context: `wordplay`)_  
   → Те саме слово означає й мережу в телефоні, тож кожен павук на зв'язку.
-- [ ] **12360.** Ouch, wow, hey. Every one of them is meant to be shouted. _(context: wordplay)_  
+- [ ] **12360.** Ouch, wow, hey. Every one of them is meant to be shouted. _(context: `wordplay`)_  
   → Ой, ого, гей. Кожне так і проситься, щоб його крикнули.
-- [ ] **12361.** The second half is a son, and also the young of any animal. So every kitten is a son, even the daughters. _(context: wordplay)_  
+- [ ] **12361.** The second half is a son, and also the young of any animal. So every kitten is a son, even the daughters. _(context: `wordplay`)_  
   → Друга половина означає «син», а ще дитинча будь-якої тварини. Тож кожне кошеня тут син, навіть якщо це донька.
-- [ ] **12362.** Under the sofa is where everything ends up eventually. _(context: wordplay)_  
+- [ ] **12362.** Under the sofa is where everything ends up eventually. _(context: `wordplay`)_  
   → Під диваном урешті опиняється все.
-- [ ] **12363.** It's what people head into the forest for every autumn, basket in hand. _(context: wordplay)_  
+- [ ] **12363.** It's what people head into the forest for every autumn, basket in hand. _(context: `wordplay`)_  
   → Це те, за чим щоосені йдуть до лісу з кошиком.
-- [ ] **12364.** Somebody else did the cooking. You just eat it. _(context: wordplay)_  
+- [ ] **12364.** Somebody else did the cooking. You just eat it. _(context: `wordplay`)_  
   → Готував хтось інший. Вам лишається тільки їсти.
-- [ ] **12365.** To be fair, it is the one doing the hunting. _(context: wordplay)_  
+- [ ] **12365.** To be fair, it is the one doing the hunting. _(context: `wordplay`)_  
   → Справедливості заради, полює якраз він.
-- [ ] **12366.** If you ever meet one, a wave from the shore is plenty. _(context: wordplay)_  
+- [ ] **12366.** If you ever meet one, a wave from the shore is plenty. _(context: `wordplay`)_  
   → Якщо зустрінете її, помахайте з берега, цього досить.
-- [ ] **12367.** Which one depends on the sentence, and golf never comes into it. _(context: wordplay)_  
+- [ ] **12367.** Which one depends on the sentence, and golf never comes into it. _(context: `wordplay`)_  
   → Що саме, залежить від речення, а гольф тут узагалі ні до чого.
-- [ ] **12368.** It can also mean a lie. English keeps vale for poems about valleys. _(context: wordplay)_  
+- [ ] **12368.** It can also mean a lie. English keeps vale for poems about valleys. _(context: `wordplay`)_  
   → Ще це слово означає «брехня». А англійська береже «vale» для віршів про долини.
-- [ ] **12369.** Point at one on the rocks and the word is right either way. _(context: wordplay)_  
+- [ ] **12369.** Point at one on the rocks and the word is right either way. _(context: `wordplay`)_  
   → Покажіть на тюленя на каменях, і слово підійде в будь-якому разі.
-- [ ] **12370.** Order half a cake and nobody will hand you a towel. _(context: wordplay)_  
+- [ ] **12370.** Order half a cake and nobody will hand you a towel. _(context: `wordplay`)_  
   → Попросіть половину торта, і рушника вам ніхто не подасть.
-- [ ] **12371.** He might still have a snack for you. _(context: wordplay)_  
+- [ ] **12371.** He might still have a snack for you. _(context: `wordplay`)_  
   → Хоча щось перекусити він вам, може, і дасть.
-- [ ] **12372.** dream _(context: wordplay)_  
+- [ ] **12372.** dream _(context: `wordplay`)_  
   → сновидіння
-- [ ] **12373.** shout _(context: wordplay)_  
+- [ ] **12373.** shout _(context: `wordplay`)_  
   → крик
-- [ ] **12374.** hand _(context: wordplay)_  
+- [ ] **12374.** hand _(context: `wordplay`)_  
   → кисть
-- [ ] **12375.** The name says what it is, plainly. _(context: wordplay)_  
+- [ ] **12375.** The name says what it is, plainly. _(context: `wordplay`)_  
   → Назва прямо каже, що це таке. Українською теж вийшло «пило-сос».
-- [ ] **12376.** Everything a fridge does, in two words. _(context: wordplay)_  
+- [ ] **12376.** Everything a fridge does, in two words. _(context: `wordplay`)_  
   → Усе, що робить холодильник, двома словами.
-- [ ] **12377.** Not calamari, though it sounds close. Look at roe on a plate and you'll see why. _(context: wordplay)_  
+- [ ] **12377.** Not calamari, though it sounds close. Look at roe on a plate and you'll see why. _(context: `wordplay`)_  
   → Не кальмари, хоча звучить схоже. Погляньте на ікру на тарілці, і все стане ясно.
-- [ ] **12378.** In an Estonian summer you may need it for sun and rain on the same day. _(context: wordplay)_  
+- [ ] **12378.** In an Estonian summer you may need it for sun and rain on the same day. _(context: `wordplay`)_  
   → Естонського літа парасолька може знадобитися і від сонця, і від дощу того самого дня.
-- [ ] **12379.** Your name is one. So is your cat's. _(context: wordplay)_  
+- [ ] **12379.** Your name is one. So is your cat's. _(context: `wordplay`)_  
   → Ваше ім'я одне з них. І ім'я вашого кота теж.
-- [ ] **12380.** It comes up at every till, usually just before you wince. _(context: wordplay)_  
+- [ ] **12380.** It comes up at every till, usually just before you wince. _(context: `wordplay`)_  
   → Її називають на кожній касі, зазвичай перед тим, як ви скривитеся.
-- [ ] **12381.** Fall off a bike and you may come home with one on your arm. Then both words fit. _(context: wordplay)_  
+- [ ] **12381.** Fall off a bike and you may come home with one on your arm. Then both words fit. _(context: `wordplay`)_  
   → Впадіть із велосипеда, і, можливо, повернетеся додому зі шрамом на руці. Тоді пасують обидва слова.
-- [ ] **12382.** Tell a doctor your pea hurts and they'll check your head, not your soup. _(context: wordplay)_  
+- [ ] **12382.** Tell a doctor your pea hurts and they'll check your head, not your soup. _(context: `wordplay`)_  
   → Скажіть лікареві, що у вас болить «pea», і він перевірить вашу голову, а не ваш суп.
-- [ ] **12383.** In English it's a cloud of gloom. This one bounces. _(context: wordplay)_  
+- [ ] **12383.** In English it's a cloud of gloom. This one bounces. _(context: `wordplay`)_  
   → В англійській це хмара смутку. А цей стрибає.
-- [ ] **12384.** Ask for the toilet by name. It saves everybody a confusing minute. _(context: wordplay)_  
+- [ ] **12384.** Ask for the toilet by name. It saves everybody a confusing minute. _(context: `wordplay`)_  
   → Питайте туалет прямо. Це вбереже всіх від хвилини подиву.
-- [ ] **12385.** Order a sink sandwich with confidence. You'll get ham. _(context: wordplay)_  
+- [ ] **12385.** Order a sink sandwich with confidence. You'll get ham. _(context: `wordplay`)_  
   → Сміливо замовляйте бутерброд із «sink». Вам дадуть шинку.
-- [ ] **12386.** A single clove is still called a nail, which makes peeling one sound worse than it is. _(context: wordplay)_  
+- [ ] **12386.** A single clove is still called a nail, which makes peeling one sound worse than it is. _(context: `wordplay`)_  
   → Навіть один зубчик тут називають нігтем, і від цього чищення звучить страшніше, ніж є.
-- [ ] **12387.** The first half is vodka today, but it was borrowed from the German for wine. Wrong drink, right idea. _(context: wordplay)_  
+- [ ] **12387.** The first half is vodka today, but it was borrowed from the German for wine. Wrong drink, right idea. _(context: `wordplay`)_  
   → Сьогодні перша половина означає «горілка», але її взяли з німецького слова «вино». Напій не той, думка правильна.
-- [ ] **12388.** The right coat can do wonders for your mood as well. _(context: wordplay)_  
+- [ ] **12388.** The right coat can do wonders for your mood as well. _(context: `wordplay`)_  
   → Вдале пальто творить дива і з настроєм.
-- [ ] **12389.** The second half is the word for a table, shrunk to fit a pencil case. _(context: wordplay)_  
+- [ ] **12389.** The second half is the word for a table, shrunk to fit a pencil case. _(context: `wordplay`)_  
   → Друга половина означає «стіл», тільки зменшений, щоб влізти в пенал.
-- [ ] **12390.** Every town has one, and on a good day it uses it. _(context: wordplay)_  
+- [ ] **12390.** Every town has one, and on a good day it uses it. _(context: `wordplay`)_  
   → Вона є в кожного міста, і в добрий день воно нею навіть користується.
-- [ ] **12391.** Those needles are really hairs, grown stiff. _(context: wordplay)_  
+- [ ] **12391.** Those needles are really hairs, grown stiff. _(context: `wordplay`)_  
   → Ці голки насправді волосся, тільки жорстке.
-- [ ] **12392.** It only starts when you turn it upside down, which is more than most clocks ask. _(context: wordplay)_  
+- [ ] **12392.** It only starts when you turn it upside down, which is more than most clocks ask. _(context: `wordplay`)_  
   → Він іде, тільки якщо його перевернути, а більшість годинників про таке не просять.
-- [ ] **12393.** Two wheels, and the name says whose legs do the work. _(context: wordplay)_  
+- [ ] **12393.** Two wheels, and the name says whose legs do the work. _(context: `wordplay`)_  
   → Два колеса, і назва одразу каже, чиї ноги тут працюють.
-- [ ] **12394.** The wrist doesn't get a mention. In Estonian the hand covers it. _(context: wordplay)_  
+- [ ] **12394.** The wrist doesn't get a mention. In Estonian the hand covers it. _(context: `wordplay`)_  
   → Зап'ястя навіть не згадано: естонською вистачає й «кисті».
-- [ ] **12395.** On a December afternoon here, it's the most useful thing in your coat. _(context: wordplay)_  
+- [ ] **12395.** On a December afternoon here, it's the most useful thing in your coat. _(context: `wordplay`)_  
   → Тутешнього грудневого дня це найкорисніша річ у кишені пальта.
-- [ ] **12396.** It also lays eggs, which the name politely leaves out. _(context: wordplay)_  
+- [ ] **12396.** It also lays eggs, which the name politely leaves out. _(context: `wordplay`)_  
   → Ще вона відкладає яйця, про що назва ввічливо мовчить.
-- [ ] **12397.** The second half is a vessel, the word that gives you the dishes you wash. A little bowl for your foot, then. _(context: wordplay)_  
+- [ ] **12397.** The second half is a vessel, the word that gives you the dishes you wash. A little bowl for your foot, then. _(context: `wordplay`)_  
   → Друга половина означає «посудина», від цього слова й посуд, який миють. Виходить, мисочка для ноги.
-- [ ] **12398.** The first half is a mark you set on a calendar. It can mean a star too, but deadlines are rarely written in the stars. _(context: wordplay)_  
+- [ ] **12398.** The first half is a mark you set on a calendar. It can mean a star too, but deadlines are rarely written in the stars. _(context: `wordplay`)_  
   → Перша половина означає «позначка» в календарі. Може означати й «зірка», але терміни зорі зазвичай не призначають.
-- [ ] **12399.** A towel, cut down to the size of one sneeze. _(context: wordplay)_  
+- [ ] **12399.** A towel, cut down to the size of one sneeze. _(context: `wordplay`)_  
   → Рушник, урізаний до розміру одного чхання.
-- [ ] **12400.** It does sound very dramatic. _(context: wordplay)_  
+- [ ] **12400.** It does sound very dramatic. _(context: `wordplay`)_  
   → Звучить і справді дуже драматично.
-- [ ] **12401.** Say it about somebody's cooking and you'll be asked back. _(context: wordplay)_  
+- [ ] **12401.** Say it about somebody's cooking and you'll be asked back. _(context: `wordplay`)_  
   → Скажіть так про чиюсь кухню, і вас покличуть знову.
-- [ ] **12402.** The German word, translated piece by piece, so the children are still in a garden. _(context: wordplay)_  
+- [ ] **12402.** The German word, translated piece by piece, so the children are still in a garden. _(context: `wordplay`)_  
   → Німецьке слово, перекладене частинами, тож діти досі в саду.
-- [ ] **12403.** The first half here is quick, not the ray of light it can also be. Dial 112 and that's what turns up. _(context: wordplay)_  
+- [ ] **12403.** The first half here is quick, not the ray of light it can also be. Dial 112 and that's what turns up. _(context: `wordplay`)_  
   → Перша половина тут означає «швидкий», а не промінь світла, як буває. Наберіть 112, і вона приїде.
-- [ ] **12404.** The first half means in place of, as in instead. So he, she and it are all just standing in for somebody. _(context: wordplay)_  
+- [ ] **12404.** The first half means in place of, as in instead. So he, she and it are all just standing in for somebody. _(context: `wordplay`)_  
   → Перша половина означає «замість». Тож «він», «вона» і «воно» просто стоять замість когось.
-- [ ] **12405.** The one thing in a long meeting nobody complains about. _(context: wordplay)_  
+- [ ] **12405.** The one thing in a long meeting nobody complains about. _(context: `wordplay`)_  
   → Єдине на довгій нараді, на що ніхто не скаржиться.
-- [ ] **12406.** The second half is a clock and a bell at once. This one only ever tells you somebody's at the door. _(context: wordplay)_  
+- [ ] **12406.** The second half is a clock and a bell at once. This one only ever tells you somebody's at the door. _(context: `wordplay`)_  
   → Друга половина означає і «годинник», і «дзвін». А цей лише повідомляє, що хтось прийшов.
-- [ ] **12407.** The second half is also lunch, so officially the afternoon starts the moment lunch is over. _(context: wordplay)_  
+- [ ] **12407.** The second half is also lunch, so officially the afternoon starts the moment lunch is over. _(context: `wordplay`)_  
   → Друга половина означає ще й «обід», тож офіційно друга половина дня починається, щойно обід закінчився.
-- [ ] **12408.** ambulance _(context: wordplay)_  
+- [ ] **12408.** ambulance _(context: `wordplay`)_  
   → швидка допомога
-- [ ] **12409.** box _(context: wordplay)_  
+- [ ] **12409.** box _(context: `wordplay`)_  
   → коробка
-- [ ] **12410.** cast _(context: wordplay)_  
+- [ ] **12410.** cast _(context: `wordplay`)_  
   → акторський склад
-- [ ] **12411.** handkerchief _(context: wordplay)_  
+- [ ] **12411.** handkerchief _(context: `wordplay`)_  
   → носова хустинка
-- [ ] **12412.** iron _(context: wordplay)_  
+- [ ] **12412.** iron _(context: `wordplay`)_  
   → залізо
-- [ ] **12413.** iron road _(context: wordplay)_  
+- [ ] **12413.** iron road _(context: `wordplay`)_  
   → дорога із заліза
-- [ ] **12414.** pocket towel _(context: wordplay)_  
+- [ ] **12414.** pocket towel _(context: `wordplay`)_  
   → кишеньковий рушник
-- [ ] **12415.** quick _(context: wordplay)_  
+- [ ] **12415.** quick _(context: `wordplay`)_  
   → швидкий
-- [ ] **12416.** quick help _(context: wordplay)_  
+- [ ] **12416.** quick help _(context: `wordplay`)_  
   → швидка поміч
-- [ ] **12417.** railway _(context: wordplay)_  
+- [ ] **12417.** railway _(context: `wordplay`)_  
   → залізниця
-- [ ] **12418.** road _(context: wordplay)_  
+- [ ] **12418.** road _(context: `wordplay`)_  
   → дорога
-- [ ] **12419.** towel _(context: wordplay)_  
+- [ ] **12419.** towel _(context: `wordplay`)_  
   → рушник
-- [ ] **12420.** A butterfly that keeps late hours and can't fly past a lit window. _(context: wordplay)_  
+- [ ] **12420.** A butterfly that keeps late hours and can't fly past a lit window. _(context: `wordplay`)_  
   → Метелик, що пізно лягає і не може пролетіти повз освітлене вікно.
-- [ ] **12421.** English calls it wind too. Estonian adds where it blows from. _(context: wordplay)_  
+- [ ] **12421.** English calls it wind too. Estonian adds where it blows from. _(context: `wordplay`)_  
   → В англійській це теж вітер. Естонська додає, звідки він дме.
-- [ ] **12422.** Estonia's first trains ran on one in 1870. The rails have been steel for well over a century, and nobody has suggested renaming it. _(context: wordplay)_  
+- [ ] **12422.** Estonia's first trains ran on one in 1870. The rails have been steel for well over a century, and nobody has suggested renaming it. _(context: `wordplay`)_  
   → Перші потяги в Естонії пішли нею в 1870 році. Рейки вже понад століття сталеві, але перейменувати її ніхто не пропонував.
-- [ ] **12423.** For some people a black coffee is a must before anything else. _(context: wordplay)_  
+- [ ] **12423.** For some people a black coffee is a must before anything else. _(context: `wordplay`)_  
   → Для когось чорна кава обов'язкова раніше за все інше.
-- [ ] **12424.** Moving house takes dozens of them. Not one of them can act. _(context: wordplay)_  
+- [ ] **12424.** Moving house takes dozens of them. Not one of them can act. _(context: `wordplay`)_  
   → Під час переїзду їх потрібно десятки. І жодна не вміє грати на сцені.
-- [ ] **12425.** Plenty of people would call music a kind of medicine. _(context: wordplay)_  
+- [ ] **12425.** Plenty of people would call music a kind of medicine. _(context: `wordplay`)_  
   → Багато хто назвав би музику свого роду ліками.
-- [ ] **12426.** The one book whose name you can look up inside it. _(context: wordplay)_  
+- [ ] **12426.** The one book whose name you can look up inside it. _(context: `wordplay`)_  
   → Єдина книжка, назву якої можна знайти в ній самій.
-- [ ] **12427.** hand clock _(context: wordplay)_  
+- [ ] **12427.** hand clock _(context: `wordplay`)_  
   → кисть-годинник
-- [ ] **12428.** The second half is the word for a face, but here it means what you see. By breakfast the dream has usually faded. _(context: wordplay)_  
+- [ ] **12428.** The second half is the word for a face, but here it means what you see. By breakfast the dream has usually faded. _(context: `wordplay`)_  
   → Друга половина означає «обличчя», але тут означає те, що бачиш. До сніданку сон зазвичай уже тане.
-- [ ] **12429.** A doctor for one part of you only, the part that bites. Open wide. _(context: wordplay)_  
+- [ ] **12429.** A doctor for one part of you only, the part that bites. Open wide. _(context: `wordplay`)_  
   → Лікар лише для однієї вашої частини, тієї, що кусається. Відкрийте ширше.
-- [ ] **12430.** A plant's stalk is spelled the same, which makes your hand the flower on top. _(context: wordplay)_  
+- [ ] **12430.** A plant's stalk is spelled the same, which makes your hand the flower on top. _(context: `wordplay`)_  
   → Стебло рослини пишеться так само, тож ваша кисть виходить квіткою на верхівці.
-- [ ] **12431.** Alone, the second half is an old word for the world. Today it mostly means the weather, which some days is the whole world. _(context: wordplay)_  
+- [ ] **12431.** Alone, the second half is an old word for the world. Today it mostly means the weather, which some days is the whole world. _(context: `wordplay`)_  
   → Сама по собі друга половина по-старому означає «світ». Сьогодні вона частіше означає погоду, а деякими днями погода і є весь світ.
-- [ ] **12432.** The second half alone can already mean a spouse. The help is a promise added on top. _(context: wordplay)_  
+- [ ] **12432.** The second half alone can already mean a spouse. The help is a promise added on top. _(context: `wordplay`)_  
   → Друга половина сама по собі вже може означати «чоловік чи дружина». А допомогу додано зверху як обіцянку.
-- [ ] **12433.** land realm _(context: wordplay)_  
+- [ ] **12433.** land realm _(context: `wordplay`)_  
   → царство землі
-- [ ] **12434.** realm _(context: wordplay)_  
+- [ ] **12434.** realm _(context: `wordplay`)_  
   → царство
-- [ ] **12435.** shaft _(context: wordplay)_  
+- [ ] **12435.** shaft _(context: `wordplay`)_  
   → стрижень
-- [ ] **12436.** fruit, produce _(context: wordplay)_  
+- [ ] **12436.** fruit, produce _(context: `wordplay`)_  
   → плід, урожай
-- [ ] **12437.** keel _(context: wordplay)_  
+- [ ] **12437.** keel _(context: `wordplay`)_  
   → кіль
-- [ ] **12438.** language, tongue _(context: wordplay)_  
+- [ ] **12438.** language, tongue _(context: `wordplay`)_  
   → мова, язик
-- [ ] **12439.** The English one keeps a ship on course. This one keeps a conversation going. _(context: wordplay)_  
+- [ ] **12439.** The English one keeps a ship on course. This one keeps a conversation going. _(context: `wordplay`)_  
   → Англійський («keel», кіль) тримає корабель на курсі. А цей підтримує розмову.
-- [ ] **12440.** part _(context: wordplay)_  
+- [ ] **12440.** part _(context: `wordplay`)_  
   → частина, роль
-- [ ] **12441.** duck _(context: wordplay)_  
+- [ ] **12441.** duck _(context: `wordplay`)_  
   → качка
-- [ ] **12442.** Every pond has one or two playing their part. _(context: wordplay)_  
+- [ ] **12442.** Every pond has one or two playing their part. _(context: `wordplay`)_  
   → На кожному ставку одна-дві виконують свою роль («part»).
-- [ ] **12443.** male _(context: wordplay)_  
+- [ ] **12443.** male _(context: `wordplay`)_  
   → чоловічий
-- [ ] **12444.** chess _(context: wordplay)_  
+- [ ] **12444.** chess _(context: `wordplay`)_  
   → шахи
-- [ ] **12445.** Kings and queens both play, so the look-alike gets it only half right. _(context: wordplay)_  
+- [ ] **12445.** Kings and queens both play, so the look-alike gets it only half right. _(context: `wordplay`)_  
   → Грають і королі, і ферзі-королеви, тож двійник («male», чоловічий) правий лише наполовину.
-- [ ] **12446.** vein _(context: wordplay)_  
+- [ ] **12446.** vein _(context: `wordplay`)_  
   → вена
-- [ ] **12447.** wine _(context: wordplay)_  
+- [ ] **12447.** wine _(context: `wordplay`)_  
   → вино
-- [ ] **12448.** Red runs through the English one too. _(context: wordplay)_  
+- [ ] **12448.** Red runs through the English one too. _(context: `wordplay`)_  
   → Двійником («vein», вена) теж тече червоне.
-- [ ] **12449.** manner _(context: wordplay)_  
+- [ ] **12449.** manner _(context: `wordplay`)_  
   → манера
-- [ ] **12450.** continent _(context: wordplay)_  
+- [ ] **12450.** continent _(context: `wordplay`)_  
   → континент
-- [ ] **12451.** Each has its own, as anybody who has crossed one will tell you. _(context: wordplay)_  
+- [ ] **12451.** Each has its own, as anybody who has crossed one will tell you. _(context: `wordplay`)_  
   → У кожного свої манери («manner»), це скаже будь-хто, хто його перетинав.
-- [ ] **12452.** menu _(context: wordplay)_  
+- [ ] **12452.** menu _(context: `wordplay`)_  
   → меню
-- [ ] **12453.** success _(context: wordplay)_  
+- [ ] **12453.** success _(context: `wordplay`)_  
   → успіх
-- [ ] **12454.** mall _(context: wordplay)_  
+- [ ] **12454.** mall _(context: `wordplay`)_  
   → торговий центр
-- [ ] **12455.** Found in pencil cases, not on the edge of town. _(context: wordplay)_  
+- [ ] **12455.** Found in pencil cases, not on the edge of town. _(context: `wordplay`)_  
   → Лежить у пеналі, а не стоїть на околиці міста, як торговий центр («mall»).
-- [ ] **12456.** lame _(context: wordplay)_  
+- [ ] **12456.** lame _(context: `wordplay`)_  
   → кульгавий, непереконливий
-- [ ] **12457.** flat _(context: wordplay)_  
+- [ ] **12457.** flat _(context: `wordplay`)_  
   → плаский
-- [ ] **12458.** A flat joke is a lame one in English too, so the two do meet. _(context: wordplay)_  
+- [ ] **12458.** A flat joke is a lame one in English too, so the two do meet. _(context: `wordplay`)_  
   → Плаский жарт і англійською «lame», тож тут вони зустрічаються.
-- [ ] **12459.** auk _(context: wordplay)_  
+- [ ] **12459.** auk _(context: `wordplay`)_  
   → гагарка
-- [ ] **12460.** hole _(context: wordplay)_  
+- [ ] **12460.** hole _(context: `wordplay`)_  
   → діра
-- [ ] **12461.** The great auk died out long ago and left one in the list of birds. _(context: wordplay)_  
+- [ ] **12461.** The great auk died out long ago and left one in the list of birds. _(context: `wordplay`)_  
   → Безкрила гагарка («auk») давно вимерла і залишила діру в списку птахів.
-- [ ] **12462.** seller _(context: wordplay)_  
+- [ ] **12462.** seller _(context: `wordplay`)_  
   → продавець
-- [ ] **12463.** celery _(context: wordplay)_  
+- [ ] **12463.** celery _(context: `wordplay`)_  
   → селера
-- [ ] **12464.** soon _(context: wordplay)_  
+- [ ] **12464.** soon _(context: `wordplay`)_  
   → скоро
-- [ ] **12465.** A nurse will find one, sooner or later. _(context: wordplay)_  
+- [ ] **12465.** A nurse will find one, sooner or later. _(context: `wordplay`)_  
   → Медсестра знайде її рано чи пізно («soon»).
-- [ ] **12466.** last _(context: wordplay)_  
+- [ ] **12466.** last _(context: `wordplay`)_  
   → останній
-- [ ] **12467.** cargo _(context: wordplay)_  
+- [ ] **12467.** cargo _(context: `wordplay`)_  
   → вантаж
-- [ ] **12468.** The last thing a ship wants is to lose it overboard. _(context: wordplay)_  
+- [ ] **12468.** The last thing a ship wants is to lose it overboard. _(context: `wordplay`)_  
   → Останнє («last»), чого хоче корабель, це загубити його за бортом.
-- [ ] **12469.** keep _(context: wordplay)_  
+- [ ] **12469.** keep _(context: `wordplay`)_  
   → тримати
-- [ ] **12470.** cloak _(context: wordplay)_  
+- [ ] **12470.** cloak _(context: `wordplay`)_  
   → плащ
-- [ ] **12471.** A good one keeps the rain off. _(context: wordplay)_  
+- [ ] **12471.** A good one keeps the rain off. _(context: `wordplay`)_  
   → Добрий плащ убереже («keep») від дощу.
-- [ ] **12472.** pale _(context: wordplay)_  
+- [ ] **12472.** pale _(context: `wordplay`)_  
   → блідий
-- [ ] **12473.** cheek _(context: wordplay)_  
+- [ ] **12473.** cheek _(context: `wordplay`)_  
   → щока
-- [ ] **12474.** Turn pale and it shows there first. _(context: wordplay)_  
+- [ ] **12474.** Turn pale and it shows there first. _(context: `wordplay`)_  
   → Зблідніте («pale»), і першою це покаже вона.
-- [ ] **12475.** purse _(context: wordplay)_  
+- [ ] **12475.** purse _(context: `wordplay`)_  
   → гаманець
-- [ ] **12476.** outburst _(context: wordplay)_  
+- [ ] **12476.** outburst _(context: `wordplay`)_  
   → спалах
-- [ ] **12477.** Lose your purse and you may well have one. _(context: wordplay)_  
+- [ ] **12477.** Lose your purse and you may well have one. _(context: `wordplay`)_  
   → Загубіть гаманець («purse»), і він цілком може статися.
-- [ ] **12478.** marked day _(context: wordplay)_  
+- [ ] **12478.** marked day _(context: `wordplay`)_  
   → позначений день
-- [ ] **12479.** Estonian makes them so freely that this very word is one. _(context: wordplay)_  
+- [ ] **12479.** Estonian makes them so freely that this very word is one. _(context: `wordplay`)_  
   → Естонська ліпить їх так охоче, що й саме це слово таке.
-- [ ] **12480.** Good for the soup and, some cooks swear, the soul. _(context: wordplay)_  
+- [ ] **12480.** Good for the soup and, some cooks swear, the soul. _(context: `wordplay`)_  
   → Корисна для супу, а деякі кухарі клянуться, що й для душі («soul»).
-- [ ] **12481.** The first half is also what you call your sweetheart, so every gem is a small endearment. _(context: wordplay)_  
+- [ ] **12481.** The first half is also what you call your sweetheart, so every gem is a small endearment. _(context: `wordplay`)_  
   → Перша половина ще й ласкаве звертання до коханої людини, тож кожен самоцвіт звучить трохи ніжно.
-- [ ] **12482.** The second half also means the whole, so in principle every book. The shelves are working on it. _(context: wordplay)_  
+- [ ] **12482.** The second half also means the whole, so in principle every book. The shelves are working on it. _(context: `wordplay`)_  
   → Друга половина означає й «усе ціле», тож у принципі тут усі книжки. Полиці над цим працюють.
-- [ ] **12483.** Optimistic about the metal: on a modern car it is mostly plastic. _(context: wordplay)_  
+- [ ] **12483.** Optimistic about the metal: on a modern car it is mostly plastic. _(context: `wordplay`)_  
   → Щодо заліза оптимістично: на сучасній машині він майже весь пластиковий.
-- [ ] **12484.** Resin from forests long gone. Now and then a fly is trapped inside. _(context: wordplay)_  
+- [ ] **12484.** Resin from forests long gone. Now and then a fly is trapped inside. _(context: `wordplay`)_  
   → Смола давно зниклих лісів. Іноді всередині застрягла муха.
-- [ ] **12485.** The second half clears a path or founds a town, and a pioneer does both. _(context: wordplay)_  
+- [ ] **12485.** The second half clears a path or founds a town, and a pioneer does both. _(context: `wordplay`)_  
   → Друга половина і прокладає шлях, і засновує місто, а першопроходець робить і те, і те.
-- [ ] **12486.** Cinderella lost one and became royalty. _(context: wordplay)_  
+- [ ] **12486.** Cinderella lost one and became royalty. _(context: `wordplay`)_  
   → Попелюшка загубила одну й увійшла в королівську родину («king»).
-- [ ] **12487.** Till the garden in May and you'll have it on new potatoes by July. _(context: wordplay)_  
+- [ ] **12487.** Till the garden in May and you'll have it on new potatoes by July. _(context: `wordplay`)_  
   → Скопайте («till») грядку в травні, і до липня він буде на молодій картоплі.
-- [ ] **12488.** Lug the empties back to the shop and you'll pant, but you get it back. _(context: wordplay)_  
+- [ ] **12488.** Lug the empties back to the shop and you'll pant, but you get it back. _(context: `wordplay`)_  
   → Дотягніть порожні пляшки до магазину, захекаєтеся («pant»), зате заставу повернуть.
-- [ ] **12489.** Its look-alike is the hottest place going. This one is a soft touch. _(context: wordplay)_  
+- [ ] **12489.** Its look-alike is the hottest place going. This one is a soft touch. _(context: `wordplay`)_  
   → Його двійник («hell», пекло) найгарячіше місце на світі. А це слово сама м'якість.
-- [ ] **12490.** leader, driver _(context: wordplay)_  
+- [ ] **12490.** leader, driver _(context: `wordplay`)_  
   → ватажок, шофер
-- [ ] **12491.** Every sale sign in town has at least one, and usually three. _(context: wordplay)_  
+- [ ] **12491.** Every sale sign in town has at least one, and usually three. _(context: `wordplay`)_  
   → На кожній вивісці про розпродаж у місті є хоча б один, а зазвичай три.
-- [ ] **12492.** It handles your reflexes before your brain has even heard about it. _(context: wordplay)_  
+- [ ] **12492.** It handles your reflexes before your brain has even heard about it. _(context: `wordplay`)_  
   → Рефлекси він відпрацьовує раніше, ніж мозок узагалі про це дізнається.
-- [ ] **12493.** The only deer whose females grow antlers too. _(context: wordplay)_  
+- [ ] **12493.** The only deer whose females grow antlers too. _(context: `wordplay`)_  
   → Єдиний олень, у якого роги ростуть і в самиць.
-- [ ] **12494.** one's place in a row _(context: wordplay)_  
+- [ ] **12494.** one's place in a row _(context: `wordplay`)_  
   → своє місце в ряду
-- [ ] **12495.** place keeper _(context: wordplay)_  
+- [ ] **12495.** place keeper _(context: `wordplay`)_  
   → охоронець місця
-- [ ] **12496.** English see points with the eyes. This one points with a finger. _(context: wordplay)_  
+- [ ] **12496.** English see points with the eyes. This one points with a finger. _(context: `wordplay`)_  
   → Англійське see показує очима. А це слово пальцем.
-- [ ] **12497.** The look-alike means unfeeling, the very last thing to call somebody you love. _(context: wordplay)_  
+- [ ] **12497.** The look-alike means unfeeling, the very last thing to call somebody you love. _(context: `wordplay`)_  
   → Двійник («callous») означає «безсердечний», останнє, що скажеш коханій людині.
-- [ ] **12498.** Grandparents load their best stories with it. _(context: wordplay)_  
+- [ ] **12498.** Grandparents load their best stories with it. _(context: `wordplay`)_  
   → Бабусі й дідусі заряджають ним, як набоями («ammo»), свої найкращі історії.
-- [ ] **12499.** leaf _(context: wordplay)_  
+- [ ] **12499.** leaf _(context: `wordplay`)_  
   → аркуш
-- [ ] **12500.** time leaf _(context: wordplay)_  
+- [ ] **12500.** time leaf _(context: `wordplay`)_  
   → аркуш часу
-- [ ] **12501.** newspaper _(context: wordplay)_  
+- [ ] **12501.** newspaper _(context: `wordplay`)_  
   → газета
-- [ ] **12502.** A leaf of the times, fresh every morning and old news by night. _(context: wordplay)_  
+- [ ] **12502.** A leaf of the times, fresh every morning and old news by night. _(context: `wordplay`)_  
   → Аркуш свого часу: уранці свіжий, увечері вже вчорашні новини.
-- [ ] **12503.** game, play _(context: wordplay)_  
+- [ ] **12503.** game, play _(context: `wordplay`)_  
   → гра
-- [ ] **12504.** thing _(context: wordplay)_  
+- [ ] **12504.** thing _(context: `wordplay`)_  
   → річ
-- [ ] **12505.** game thing _(context: wordplay)_  
+- [ ] **12505.** game thing _(context: `wordplay`)_  
   → ігрова річ
-- [ ] **12506.** a toy _(context: wordplay)_  
+- [ ] **12506.** a toy _(context: `wordplay`)_  
   → іграшка
-- [ ] **12507.** Anything at all can be one, as every cardboard box knows. _(context: wordplay)_  
+- [ ] **12507.** Anything at all can be one, as every cardboard box knows. _(context: `wordplay`)_  
   → Нею може стати будь-що, це знає кожна картонна коробка.
-- [ ] **12508.** four _(context: wordplay)_  
+- [ ] **12508.** four _(context: `wordplay`)_  
   → чотири
-- [ ] **12509.** four day _(context: wordplay)_  
+- [ ] **12509.** four day _(context: `wordplay`)_  
   → день чотири
-- [ ] **12510.** Thursday _(context: wordplay)_  
+- [ ] **12510.** Thursday _(context: `wordplay`)_  
   → четвер
-- [ ] **12511.** Monday to Thursday are counted off, one to four. Friday gets a name of its own. _(context: wordplay)_  
+- [ ] **12511.** Monday to Thursday are counted off, one to four. Friday gets a name of its own. _(context: `wordplay`)_  
   → З понеділка по четвер дні просто лічать, від одного до чотирьох. У п'ятниці своє ім'я.
-- [ ] **12512.** bread _(context: wordplay)_  
+- [ ] **12512.** bread _(context: `wordplay`)_  
   → хліб
-- [ ] **12513.** butter bread _(context: wordplay)_  
+- [ ] **12513.** butter bread _(context: `wordplay`)_  
   → масляний хліб
-- [ ] **12514.** a sandwich _(context: wordplay)_  
+- [ ] **12514.** a sandwich _(context: `wordplay`)_  
   → бутерброд
-- [ ] **12515.** The first half also means or, though nobody has ever had to choose between them. _(context: wordplay)_  
+- [ ] **12515.** The first half also means or, though nobody has ever had to choose between them. _(context: `wordplay`)_  
   → Перша половина означає ще й «або», хоча обирати між ними нікому не доводилося.
-- [ ] **12516.** melted, thawed _(context: wordplay)_  
+- [ ] **12516.** melted, thawed _(context: `wordplay`)_  
   → розталий, талий
-- [ ] **12517.** money _(context: wordplay)_  
+- [ ] **12517.** money _(context: `wordplay`)_  
   → гроші
-- [ ] **12518.** melted money _(context: wordplay)_  
+- [ ] **12518.** melted money _(context: `wordplay`)_  
   → талі гроші
-- [ ] **12519.** cash _(context: wordplay)_  
+- [ ] **12519.** cash _(context: `wordplay`)_  
   → готівка
-- [ ] **12520.** below, underneath _(context: wordplay)_  
+- [ ] **12520.** below, underneath _(context: `wordplay`)_  
   → внизу, знизу
-- [ ] **12521.** writing, letter _(context: wordplay)_  
+- [ ] **12521.** writing, letter _(context: `wordplay`)_  
   → письмо, напис
-- [ ] **12522.** under writing _(context: wordplay)_  
+- [ ] **12522.** under writing _(context: `wordplay`)_  
   → письмо знизу
-- [ ] **12523.** a signature _(context: wordplay)_  
+- [ ] **12523.** a signature _(context: `wordplay`)_  
   → підпис
-- [ ] **12524.** Where it goes on every form: at the bottom, below everything you agreed to. _(context: wordplay)_  
+- [ ] **12524.** Where it goes on every form: at the bottom, below everything you agreed to. _(context: `wordplay`)_  
   → Де його ставлять на будь-якому бланку: у самому низу, під усім, на що ви погодилися.
-- [ ] **12525.** holy _(context: wordplay)_  
+- [ ] **12525.** holy _(context: `wordplay`)_  
   → святий
-- [ ] **12526.** holy day _(context: wordplay)_  
+- [ ] **12526.** holy day _(context: `wordplay`)_  
   → святий день
-- [ ] **12527.** Sunday _(context: wordplay)_  
+- [ ] **12527.** Sunday _(context: `wordplay`)_  
   → неділя
-- [ ] **12528.** English built its word holiday from the same two pieces. _(context: wordplay)_  
+- [ ] **12528.** English built its word holiday from the same two pieces. _(context: `wordplay`)_  
   → Англійське holiday, «свято», складене з тих самих двох частин.
-- [ ] **12529.** favorite _(context: wordplay)_  
+- [ ] **12529.** favorite _(context: `wordplay`)_  
   → улюблений
-- [ ] **12530.** favorite animal _(context: wordplay)_  
+- [ ] **12530.** favorite animal _(context: `wordplay`)_  
   → улюблена тварина
-- [ ] **12531.** a pet _(context: wordplay)_  
+- [ ] **12531.** a pet _(context: `wordplay`)_  
   → домашній вихованець
-- [ ] **12532.** blackboard _(context: wordplay)_  
+- [ ] **12532.** blackboard _(context: `wordplay`)_  
   → шкільна дошка
-- [ ] **12533.** computer _(context: wordplay)_  
+- [ ] **12533.** computer _(context: `wordplay`)_  
   → комп'ютер
-- [ ] **12534.** blackboard computer _(context: wordplay)_  
+- [ ] **12534.** blackboard computer _(context: `wordplay`)_  
   → комп'ютер-дошка
-- [ ] **12535.** a tablet _(context: wordplay)_  
+- [ ] **12535.** a tablet _(context: `wordplay`)_  
   → планшет
-- [ ] **12536.** year _(context: wordplay)_  
+- [ ] **12536.** year _(context: `wordplay`)_  
   → рік
-- [ ] **12537.** a season _(context: wordplay)_  
+- [ ] **12537.** a season _(context: `wordplay`)_  
   → сезон
-- [ ] **12538.** story _(context: wordplay)_  
+- [ ] **12538.** story _(context: `wordplay`)_  
   → оповідь
-- [ ] **12539.** time story _(context: wordplay)_  
+- [ ] **12539.** time story _(context: `wordplay`)_  
   → оповідь про час
-- [ ] **12540.** history _(context: wordplay)_  
+- [ ] **12540.** history _(context: `wordplay`)_  
   → історія
-- [ ] **12541.** English hides a story inside its word as well, and the two are related. _(context: wordplay)_  
+- [ ] **12541.** English hides a story inside its word as well, and the two are related. _(context: `wordplay`)_  
   → Англійське history теж ховає всередині story, «оповідь», і це споріднені слова.
-- [ ] **12542.** pepper _(context: wordplay)_  
+- [ ] **12542.** pepper _(context: `wordplay`)_  
   → перець
-- [ ] **12543.** pepper cake _(context: wordplay)_  
+- [ ] **12543.** pepper cake _(context: `wordplay`)_  
   → перцевий пиріг
-- [ ] **12544.** gingerbread _(context: wordplay)_  
+- [ ] **12544.** gingerbread _(context: `wordplay`)_  
   → імбирний пряник
-- [ ] **12545.** uncle _(context: wordplay)_  
+- [ ] **12545.** uncle _(context: `wordplay`)_  
   → дядько
-- [ ] **12546.** uncle son _(context: wordplay)_  
+- [ ] **12546.** uncle son _(context: `wordplay`)_  
   → син дядька
-- [ ] **12547.** permission _(context: wordplay)_  
+- [ ] **12547.** permission _(context: `wordplay`)_  
   → дозвіл
-- [ ] **12548.** leader permission _(context: wordplay)_  
+- [ ] **12548.** leader permission _(context: `wordplay`)_  
   → дозвіл керівника
-- [ ] **12549.** a driving license _(context: wordplay)_  
+- [ ] **12549.** a driving license _(context: `wordplay`)_  
   → водійські права
-- [ ] **12550.** strength _(context: wordplay)_  
+- [ ] **12550.** strength _(context: `wordplay`)_  
   → сила
-- [ ] **12551.** hall _(context: wordplay)_  
+- [ ] **12551.** hall _(context: `wordplay`)_  
   → зала
-- [ ] **12552.** strength hall _(context: wordplay)_  
+- [ ] **12552.** strength hall _(context: `wordplay`)_  
   → зала сили
-- [ ] **12553.** a gym _(context: wordplay)_  
+- [ ] **12553.** a gym _(context: `wordplay`)_  
   → спортзал
-- [ ] **12554.** You go in hoping the name rubs off. _(context: wordplay)_  
+- [ ] **12554.** You go in hoping the name rubs off. _(context: `wordplay`)_  
   → Заходиш із надією, що назва перейде й на тебе.
-- [ ] **12555.** on top of _(context: wordplay)_  
+- [ ] **12555.** on top of _(context: `wordplay`)_  
   → зверху, на
-- [ ] **12556.** support _(context: wordplay)_  
+- [ ] **12556.** support _(context: `wordplay`)_  
   → опора
-- [ ] **12557.** support chair _(context: wordplay)_  
+- [ ] **12557.** support chair _(context: `wordplay`)_  
   → опорний стілець
-- [ ] **12558.** an armchair _(context: wordplay)_  
+- [ ] **12558.** an armchair _(context: `wordplay`)_  
   → крісло
-- [ ] **12559.** The seat that props you up on both sides after a long day. _(context: wordplay)_  
+- [ ] **12559.** The seat that props you up on both sides after a long day. _(context: `wordplay`)_  
   → Сидіння, яке підтримує вас з обох боків після довгого дня.
-- [ ] **12560.** shy, timid _(context: wordplay)_  
+- [ ] **12560.** shy, timid _(context: `wordplay`)_  
   → сором'язливий, несміливий
-- [ ] **12561.** trousers _(context: wordplay)_  
+- [ ] **12561.** trousers _(context: `wordplay`)_  
   → штани
-- [ ] **12562.** timid trousers _(context: wordplay)_  
+- [ ] **12562.** timid trousers _(context: `wordplay`)_  
   → несміливі штани
-- [ ] **12563.** a coward _(context: wordplay)_  
+- [ ] **12563.** a coward _(context: `wordplay`)_  
   → боягуз
-- [ ] **12564.** dear, expensive _(context: wordplay)_  
+- [ ] **12564.** dear, expensive _(context: `wordplay`)_  
   → дорогий
-- [ ] **12565.** stone _(context: wordplay)_  
+- [ ] **12565.** stone _(context: `wordplay`)_  
   → камінь
-- [ ] **12566.** dear stone _(context: wordplay)_  
+- [ ] **12566.** dear stone _(context: `wordplay`)_  
   → дорогий камінь
-- [ ] **12567.** a gem, jewel _(context: wordplay)_  
+- [ ] **12567.** a gem, jewel _(context: `wordplay`)_  
   → самоцвіт, коштовність
-- [ ] **12568.** side _(context: wordplay)_  
+- [ ] **12568.** side _(context: `wordplay`)_  
   → бік
-- [ ] **12569.** leaf side _(context: wordplay)_  
+- [ ] **12569.** leaf side _(context: `wordplay`)_  
   → бік аркуша
-- [ ] **12570.** a page _(context: wordplay)_  
+- [ ] **12570.** a page _(context: `wordplay`)_  
   → сторінка
-- [ ] **12571.** letter, writing _(context: wordplay)_  
+- [ ] **12571.** letter, writing _(context: `wordplay`)_  
   → лист, письмо
-- [ ] **12572.** time letter _(context: wordplay)_  
+- [ ] **12572.** time letter _(context: `wordplay`)_  
   → лист часу
-- [ ] **12573.** a magazine _(context: wordplay)_  
+- [ ] **12573.** a magazine _(context: `wordplay`)_  
   → журнал
-- [ ] **12574.** shoe _(context: wordplay)_  
+- [ ] **12574.** shoe _(context: `wordplay`)_  
   → черевик
-- [ ] **12575.** smith _(context: wordplay)_  
+- [ ] **12575.** smith _(context: `wordplay`)_  
   → коваль
-- [ ] **12576.** shoe smith _(context: wordplay)_  
+- [ ] **12576.** shoe smith _(context: `wordplay`)_  
   → взуттєвий коваль
-- [ ] **12577.** rye _(context: wordplay)_  
+- [ ] **12577.** rye _(context: `wordplay`)_  
   → жито
-- [ ] **12578.** rye flower _(context: wordplay)_  
+- [ ] **12578.** rye flower _(context: `wordplay`)_  
   → житня квітка
-- [ ] **12579.** a cornflower _(context: wordplay)_  
+- [ ] **12579.** a cornflower _(context: `wordplay`)_  
   → волошка
-- [ ] **12580.** sign _(context: wordplay)_  
+- [ ] **12580.** sign _(context: `wordplay`)_  
   → значок
-- [ ] **12581.** shout sign _(context: wordplay)_  
+- [ ] **12581.** shout sign _(context: `wordplay`)_  
   → значок крику
-- [ ] **12582.** an exclamation point _(context: wordplay)_  
+- [ ] **12582.** an exclamation point _(context: `wordplay`)_  
   → знак оклику
-- [ ] **12583.** tap _(context: wordplay)_  
+- [ ] **12583.** tap _(context: `wordplay`)_  
   → кран
-- [ ] **12584.** bowl _(context: wordplay)_  
+- [ ] **12584.** bowl _(context: `wordplay`)_  
   → миска
-- [ ] **12585.** tap bowl _(context: wordplay)_  
+- [ ] **12585.** tap bowl _(context: `wordplay`)_  
   → миска під краном
-- [ ] **12586.** a sink, washbasin _(context: wordplay)_  
+- [ ] **12586.** a sink, washbasin _(context: `wordplay`)_  
   → раковина, умивальник
-- [ ] **12587.** The bowl that sits under the tap, named the way a plumber would name it. _(context: wordplay)_  
+- [ ] **12587.** The bowl that sits under the tap, named the way a plumber would name it. _(context: `wordplay`)_  
   → Миска під краном, названа так, як назвав би її сантехнік.
-- [ ] **12588.** island _(context: wordplay)_  
+- [ ] **12588.** island _(context: `wordplay`)_  
   → острів
-- [ ] **12589.** half island _(context: wordplay)_  
+- [ ] **12589.** half island _(context: `wordplay`)_  
   → половина острова
-- [ ] **12590.** a peninsula _(context: wordplay)_  
+- [ ] **12590.** a peninsula _(context: `wordplay`)_  
   → півострів
-- [ ] **12591.** Latin said almost an island. Estonian settles for half. _(context: wordplay)_  
+- [ ] **12591.** Latin said almost an island. Estonian settles for half. _(context: `wordplay`)_  
   → Латина казала «майже острів». Естонська, як і українська, задовольняється половиною.
-- [ ] **12592.** chest _(context: wordplay)_  
+- [ ] **12592.** chest _(context: `wordplay`)_  
   → груди
-- [ ] **12593.** holder _(context: wordplay)_  
+- [ ] **12593.** holder _(context: `wordplay`)_  
   → тримач
-- [ ] **12594.** chest holder _(context: wordplay)_  
+- [ ] **12594.** chest holder _(context: `wordplay`)_  
   → тримач грудей
-- [ ] **12595.** a bra _(context: wordplay)_  
+- [ ] **12595.** a bra _(context: `wordplay`)_  
   → бюстгальтер
-- [ ] **12596.** old word _(context: wordplay)_  
+- [ ] **12596.** old word _(context: `wordplay`)_  
   → старе слово
-- [ ] **12597.** a proverb _(context: wordplay)_  
+- [ ] **12597.** a proverb _(context: `wordplay`)_  
   → прислів'я
-- [ ] **12598.** Advice handed down because it kept turning out to be right. _(context: wordplay)_  
+- [ ] **12598.** Advice handed down because it kept turning out to be right. _(context: `wordplay`)_  
   → Порада, яку передають далі, бо вона знову й знову виявляється слушною.
-- [ ] **12599.** meat _(context: wordplay)_  
+- [ ] **12599.** meat _(context: `wordplay`)_  
   → м'ясо
-- [ ] **12600.** meat takings _(context: wordplay)_  
+- [ ] **12600.** meat takings _(context: `wordplay`)_  
   → взяття м'яса
-- [ ] **12601.** Easter _(context: wordplay)_  
+- [ ] **12601.** Easter _(context: `wordplay`)_  
   → Великдень
-- [ ] **12602.** head bone _(context: wordplay)_  
+- [ ] **12602.** head bone _(context: `wordplay`)_  
   → кістка голови
-- [ ] **12603.** the skull _(context: wordplay)_  
+- [ ] **12603.** the skull _(context: `wordplay`)_  
   → череп
-- [ ] **12604.** As anatomy goes, it saves a great deal of Latin. _(context: wordplay)_  
+- [ ] **12604.** As anatomy goes, it saves a great deal of Latin. _(context: `wordplay`)_  
   → Як для анатомії, це неабияка економія латини.
-- [ ] **12605.** wool _(context: wordplay)_  
+- [ ] **12605.** wool _(context: `wordplay`)_  
   → вовна
-- [ ] **12606.** cotton _(context: wordplay)_  
+- [ ] **12606.** cotton _(context: `wordplay`)_  
   → бавовна
-- [ ] **12607.** growth _(context: wordplay)_  
+- [ ] **12607.** growth _(context: `wordplay`)_  
   → ріст
-- [ ] **12608.** building _(context: wordplay)_  
+- [ ] **12608.** building _(context: `wordplay`)_  
   → будівля
-- [ ] **12609.** growth building _(context: wordplay)_  
+- [ ] **12609.** growth building _(context: `wordplay`)_  
   → будівля росту
-- [ ] **12610.** a greenhouse _(context: wordplay)_  
+- [ ] **12610.** a greenhouse _(context: `wordplay`)_  
   → теплиця
-- [ ] **12611.** Tomatoes do their growing in here while summer is making up its mind. _(context: wordplay)_  
+- [ ] **12611.** Tomatoes do their growing in here while summer is making up its mind. _(context: `wordplay`)_  
   → Тут ростуть помідори, поки літо вирішує, чи наставати йому.
-- [ ] **12612.** study, learning _(context: wordplay)_  
+- [ ] **12612.** study, learning _(context: `wordplay`)_  
   → навчання
-- [ ] **12613.** strength, force _(context: wordplay)_  
+- [ ] **12613.** strength, force _(context: `wordplay`)_  
   → сила, міць
-- [ ] **12614.** learning force _(context: wordplay)_  
+- [ ] **12614.** learning force _(context: `wordplay`)_  
   → навчальна сила
-- [ ] **12615.** a lecturer, professor _(context: wordplay)_  
+- [ ] **12615.** a lecturer, professor _(context: `wordplay`)_  
   → викладач, професор
-- [ ] **12616.** The person powering a lecture hall, or trying to, at nine in the morning. _(context: wordplay)_  
+- [ ] **12616.** The person powering a lecture hall, or trying to, at nine in the morning. _(context: `wordplay`)_  
   → Людина, яка заряджає енергією аудиторію, або намагається, о дев'ятій ранку.
-- [ ] **12617.** burning _(context: wordplay)_  
+- [ ] **12617.** burning _(context: `wordplay`)_  
   → палаючий
-- [ ] **12618.** burning stone _(context: wordplay)_  
+- [ ] **12618.** burning stone _(context: `wordplay`)_  
   → палаючий камінь
-- [ ] **12619.** oil shale _(context: wordplay)_  
+- [ ] **12619.** oil shale _(context: `wordplay`)_  
   → горючий сланець
-- [ ] **12620.** A rock that burns. Estonia has been digging it up for over a century. _(context: wordplay)_  
+- [ ] **12620.** A rock that burns. Estonia has been digging it up for over a century. _(context: `wordplay`)_  
   → Камінь, який горить. Естонія добуває його понад століття.
-- [ ] **12621.** shout, cry _(context: wordplay)_  
+- [ ] **12621.** shout, cry _(context: `wordplay`)_  
   → крик, оклик
-- [ ] **12622.** shout name _(context: wordplay)_  
+- [ ] **12622.** shout name _(context: `wordplay`)_  
   → ім'я-оклик
-- [ ] **12623.** a nickname _(context: wordplay)_  
+- [ ] **12623.** a nickname _(context: `wordplay`)_  
   → прізвисько
-- [ ] **12624.** The name people call across the playground. _(context: wordplay)_  
+- [ ] **12624.** The name people call across the playground. _(context: `wordplay`)_  
   → Ім'я, яке гукають через усе шкільне подвір'я.
-- [ ] **12625.** bench _(context: wordplay)_  
+- [ ] **12625.** bench _(context: `wordplay`)_  
   → лава
-- [ ] **12626.** neighbor _(context: wordplay)_  
+- [ ] **12626.** neighbor _(context: `wordplay`)_  
   → сусід
-- [ ] **12627.** bench neighbor _(context: wordplay)_  
+- [ ] **12627.** bench neighbor _(context: `wordplay`)_  
   → сусід по лаві
-- [ ] **12628.** a deskmate _(context: wordplay)_  
+- [ ] **12628.** a deskmate _(context: `wordplay`)_  
   → той, хто сидить з тобою за партою
-- [ ] **12629.** The person you share a school bench with, and on a lucky day their answers. _(context: wordplay)_  
+- [ ] **12629.** The person you share a school bench with, and on a lucky day their answers. _(context: `wordplay`)_  
   → Той, з ким ділиш шкільну лаву, а в щасливий день і відповіді.
-- [ ] **12630.** Christmas _(context: wordplay)_  
+- [ ] **12630.** Christmas _(context: `wordplay`)_  
   → Різдво
-- [ ] **12631.** Saturday _(context: wordplay)_  
+- [ ] **12631.** Saturday _(context: `wordplay`)_  
   → субота
-- [ ] **12632.** Christmas Saturday _(context: wordplay)_  
+- [ ] **12632.** Christmas Saturday _(context: `wordplay`)_  
   → різдвяна субота
-- [ ] **12633.** Christmas Eve _(context: wordplay)_  
+- [ ] **12633.** Christmas Eve _(context: `wordplay`)_  
   → Святвечір
-- [ ] **12634.** It keeps the name even in years when it falls on a Wednesday. _(context: wordplay)_  
+- [ ] **12634.** It keeps the name even in years when it falls on a Wednesday. _(context: `wordplay`)_  
   → Назва лишається навіть у ті роки, коли він припадає на середу.
-- [ ] **12635.** into the hand _(context: wordplay)_  
+- [ ] **12635.** into the hand _(context: `wordplay`)_  
   → в руку
-- [ ] **12636.** payment, tax _(context: wordplay)_  
+- [ ] **12636.** payment, tax _(context: `wordplay`)_  
   → плата, податок
-- [ ] **12637.** into-hand payment _(context: wordplay)_  
+- [ ] **12637.** into-hand payment _(context: `wordplay`)_  
   → плата в руку
-- [ ] **12638.** revenge _(context: wordplay)_  
+- [ ] **12638.** revenge _(context: `wordplay`)_  
   → помста
-- [ ] **12639.** piece _(context: wordplay)_  
+- [ ] **12639.** piece _(context: `wordplay`)_  
   → шматок
-- [ ] **12640.** head piece _(context: wordplay)_  
+- [ ] **12640.** head piece _(context: `wordplay`)_  
   → шматок голови
-- [ ] **12641.** a chapter _(context: wordplay)_  
+- [ ] **12641.** a chapter _(context: `wordplay`)_  
   → розділ
-- [ ] **12642.** English chapter grew from a Latin word for a little head as well. _(context: wordplay)_  
+- [ ] **12642.** English chapter grew from a Latin word for a little head as well. _(context: `wordplay`)_  
   → Англійське chapter теж виросло з латинського слова «голівка».
-- [ ] **12643.** shadow _(context: wordplay)_  
+- [ ] **12643.** shadow _(context: `wordplay`)_  
   → тінь
-- [ ] **12644.** place _(context: wordplay)_  
+- [ ] **12644.** place _(context: `wordplay`)_  
   → місце
-- [ ] **12645.** shadow place _(context: wordplay)_  
+- [ ] **12645.** shadow place _(context: `wordplay`)_  
   → місце тіні
-- [ ] **12646.** a shelter, refuge _(context: wordplay)_  
+- [ ] **12646.** a shelter, refuge _(context: `wordplay`)_  
   → притулок, сховок
-- [ ] **12647.** Somewhere out of the sun, the rain, or trouble. _(context: wordplay)_  
+- [ ] **12647.** Somewhere out of the sun, the rain, or trouble. _(context: `wordplay`)_  
   → Місце, де ховаються від сонця, дощу чи біди.
-- [ ] **12648.** union _(context: wordplay)_  
+- [ ] **12648.** union _(context: `wordplay`)_  
   → союз
-- [ ] **12649.** union word _(context: wordplay)_  
+- [ ] **12649.** union word _(context: `wordplay`)_  
   → слово-об'єднання
-- [ ] **12650.** a compound _(context: wordplay)_  
+- [ ] **12650.** a compound _(context: `wordplay`)_  
   → композит
-- [ ] **12651.** good _(context: wordplay)_  
+- [ ] **12651.** good _(context: `wordplay`)_  
   → добрий
-- [ ] **12652.** mind, mood _(context: wordplay)_  
+- [ ] **12652.** mind, mood _(context: `wordplay`)_  
   → розум, настрій
-- [ ] **12653.** good mind _(context: wordplay)_  
+- [ ] **12653.** good mind _(context: `wordplay`)_  
   → добрий настрій
-- [ ] **12654.** gladness, pleasure _(context: wordplay)_  
+- [ ] **12654.** gladness, pleasure _(context: `wordplay`)_  
   → радість, задоволення
-- [ ] **12655.** oath _(context: wordplay)_  
+- [ ] **12655.** oath _(context: `wordplay`)_  
   → клятва
-- [ ] **12656.** advice, a plan _(context: wordplay)_  
+- [ ] **12656.** advice, a plan _(context: `wordplay`)_  
   → порада, план
-- [ ] **12657.** oath advice _(context: wordplay)_  
+- [ ] **12657.** oath advice _(context: `wordplay`)_  
   → порада під клятвою
-- [ ] **12658.** a conspiracy _(context: wordplay)_  
+- [ ] **12658.** a conspiracy _(context: `wordplay`)_  
   → змова
-- [ ] **12659.** A plan sworn to in secret, which is the dangerous part. _(context: wordplay)_  
+- [ ] **12659.** A plan sworn to in secret, which is the dangerous part. _(context: `wordplay`)_  
   → План, скріплений таємною клятвою, і в цьому вся небезпека.
-- [ ] **12660.** kin, gender _(context: wordplay)_  
+- [ ] **12660.** kin, gender _(context: `wordplay`)_  
   → рідство, стать
-- [ ] **12661.** thicket _(context: wordplay)_  
+- [ ] **12661.** thicket _(context: `wordplay`)_  
   → хащі
-- [ ] **12662.** kin thicket _(context: wordplay)_  
+- [ ] **12662.** kin thicket _(context: `wordplay`)_  
   → хащі рідства
-- [ ] **12663.** the extended family _(context: wordplay)_  
+- [ ] **12663.** the extended family _(context: `wordplay`)_  
   → рідня
-- [ ] **12664.** English draws a family tree. Estonian lets the whole thing grow wild. _(context: wordplay)_  
+- [ ] **12664.** English draws a family tree. Estonian lets the whole thing grow wild. _(context: `wordplay`)_  
   → Англійська малює родовідне дерево. Естонська дає всьому розростися в хащі.
-- [ ] **12665.** blossom, flower _(context: wordplay)_  
+- [ ] **12665.** blossom, flower _(context: `wordplay`)_  
   → цвіт, квітка
-- [ ] **12666.** blossom dust _(context: wordplay)_  
+- [ ] **12666.** blossom dust _(context: `wordplay`)_  
   → пил квітів
-- [ ] **12667.** pollen _(context: wordplay)_  
+- [ ] **12667.** pollen _(context: `wordplay`)_  
   → пилок
-- [ ] **12668.** Every spring it coats the windowsills and sets half the country sneezing. _(context: wordplay)_  
+- [ ] **12668.** Every spring it coats the windowsills and sets half the country sneezing. _(context: `wordplay`)_  
   → Щовесни він укриває підвіконня, і півкраїни починає чхати.
-- [ ] **12669.** in front of _(context: wordplay)_  
+- [ ] **12669.** in front of _(context: `wordplay`)_  
   → попереду
-- [ ] **12670.** sign, mark _(context: wordplay)_  
+- [ ] **12670.** sign, mark _(context: `wordplay`)_  
   → знак, мітка
-- [ ] **12671.** front mark _(context: wordplay)_  
+- [ ] **12671.** front mark _(context: `wordplay`)_  
   → передній знак
-- [ ] **12672.** a goal, aim _(context: wordplay)_  
+- [ ] **12672.** a goal, aim _(context: `wordplay`)_  
   → мета
-- [ ] **12673.** view, look _(context: wordplay)_  
+- [ ] **12673.** view, look _(context: `wordplay`)_  
   → вигляд, погляд
-- [ ] **12674.** corner _(context: wordplay)_  
+- [ ] **12674.** corner _(context: `wordplay`)_  
   → кут
-- [ ] **12675.** view corner _(context: wordplay)_  
+- [ ] **12675.** view corner _(context: `wordplay`)_  
   → кут погляду
-- [ ] **12676.** a standpoint, angle _(context: wordplay)_  
+- [ ] **12676.** a standpoint, angle _(context: `wordplay`)_  
   → точка зору, ракурс
-- [ ] **12677.** Stand in another one and the whole room looks different. _(context: wordplay)_  
+- [ ] **12677.** Stand in another one and the whole room looks different. _(context: `wordplay`)_  
   → Станьте в інший, і вся кімната виглядає інакше.
-- [ ] **12678.** bird _(context: wordplay)_  
+- [ ] **12678.** bird _(context: `wordplay`)_  
   → птах
-- [ ] **12679.** free _(context: wordplay)_  
+- [ ] **12679.** free _(context: `wordplay`)_  
   → вільний
-- [ ] **12680.** bird free _(context: wordplay)_  
+- [ ] **12680.** bird free _(context: `wordplay`)_  
   → пташино-вільний
-- [ ] **12681.** an outlaw _(context: wordplay)_  
+- [ ] **12681.** an outlaw _(context: `wordplay`)_  
   → вигнанець, людина поза законом
-- [ ] **12682.** Free as a bird sounds lovely. Borrowed from German, it means nobody has to protect you. _(context: wordplay)_  
+- [ ] **12682.** Free as a bird sounds lovely. Borrowed from German, it means nobody has to protect you. _(context: `wordplay`)_  
   → «Вільний як птах» звучить чудово. Це калька з німецької: захищати вас ніхто не зобов'язаний.
-- [ ] **12683.** lively, living _(context: wordplay)_  
+- [ ] **12683.** lively, living _(context: `wordplay`)_  
   → живий
-- [ ] **12684.** silver _(context: wordplay)_  
+- [ ] **12684.** silver _(context: `wordplay`)_  
   → срібло
-- [ ] **12685.** living silver _(context: wordplay)_  
+- [ ] **12685.** living silver _(context: `wordplay`)_  
   → живе срібло
-- [ ] **12686.** mercury _(context: wordplay)_  
+- [ ] **12686.** mercury _(context: `wordplay`)_  
   → ртуть
-- [ ] **12687.** English once said quicksilver, and quick meant alive back then. _(context: wordplay)_  
+- [ ] **12687.** English once said quicksilver, and quick meant alive back then. _(context: `wordplay`)_  
   → Англійською колись казали quicksilver, а quick тоді означало «живий».
-- [ ] **12688.** hay _(context: wordplay)_  
+- [ ] **12688.** hay _(context: `wordplay`)_  
   → сіно
-- [ ] **12689.** month _(context: wordplay)_  
+- [ ] **12689.** month _(context: `wordplay`)_  
   → місяць
-- [ ] **12690.** hay month _(context: wordplay)_  
+- [ ] **12690.** hay month _(context: `wordplay`)_  
   → сінний місяць
-- [ ] **12691.** July _(context: wordplay)_  
+- [ ] **12691.** July _(context: `wordplay`)_  
   → липень
-- [ ] **12692.** From the folk calendar, when there was hay to make and no time to spare. _(context: wordplay)_  
+- [ ] **12692.** From the folk calendar, when there was hay to make and no time to spare. _(context: `wordplay`)_  
   → З народного календаря: час заготівлі сіна, коли не до чого іншого.
-- [ ] **12693.** button _(context: wordplay)_  
+- [ ] **12693.** button _(context: `wordplay`)_  
   → ґудзик
-- [ ] **12694.** needle _(context: wordplay)_  
+- [ ] **12694.** needle _(context: `wordplay`)_  
   → голка
-- [ ] **12695.** button needle _(context: wordplay)_  
+- [ ] **12695.** button needle _(context: `wordplay`)_  
   → ґудзикова голка
-- [ ] **12696.** a pin _(context: wordplay)_  
+- [ ] **12696.** a pin _(context: `wordplay`)_  
   → шпилька
-- [ ] **12697.** horse iron _(context: wordplay)_  
+- [ ] **12697.** horse iron _(context: `wordplay`)_  
   → кінське залізо
-- [ ] **12698.** a horseshoe _(context: wordplay)_  
+- [ ] **12698.** a horseshoe _(context: `wordplay`)_  
   → підкова
-- [ ] **12699.** Hung over doors for luck across half of Europe. _(context: wordplay)_  
+- [ ] **12699.** Hung over doors for luck across half of Europe. _(context: `wordplay`)_  
   → Її вішають над дверима на щастя в половині Європи.
-- [ ] **12700.** honey _(context: wordplay)_  
+- [ ] **12700.** honey _(context: `wordplay`)_  
   → мед
-- [ ] **12701.** honey tree _(context: wordplay)_  
+- [ ] **12701.** honey tree _(context: `wordplay`)_  
   → медове дерево
-- [ ] **12702.** a beehive _(context: wordplay)_  
+- [ ] **12702.** a beehive _(context: `wordplay`)_  
   → вулик
-- [ ] **12703.** The first hives were hollow trees, and the name never moved out. _(context: wordplay)_  
+- [ ] **12703.** The first hives were hollow trees, and the name never moved out. _(context: `wordplay`)_  
   → Першими вуликами були дупла дерев, і назва так там і лишилася.
-- [ ] **12704.** candle _(context: wordplay)_  
+- [ ] **12704.** candle _(context: `wordplay`)_  
   → свічка
-- [ ] **12705.** candle month _(context: wordplay)_  
+- [ ] **12705.** candle month _(context: `wordplay`)_  
   → свічковий місяць
-- [ ] **12706.** February _(context: wordplay)_  
+- [ ] **12706.** February _(context: `wordplay`)_  
   → лютий
-- [ ] **12707.** sword _(context: wordplay)_  
+- [ ] **12707.** sword _(context: `wordplay`)_  
   → меч
-- [ ] **12708.** whale _(context: wordplay)_  
+- [ ] **12708.** whale _(context: `wordplay`)_  
   → кит
-- [ ] **12709.** sword whale _(context: wordplay)_  
+- [ ] **12709.** sword whale _(context: `wordplay`)_  
   → кит-меч
-- [ ] **12710.** an orca _(context: wordplay)_  
+- [ ] **12710.** an orca _(context: `wordplay`)_  
   → косатка
-- [ ] **12711.** That tall fin on its back does look like a blade. _(context: wordplay)_  
+- [ ] **12711.** That tall fin on its back does look like a blade. _(context: `wordplay`)_  
   → Високий плавець на спині і справді схожий на клинок.
-- [ ] **12712.** a special date, anniversary _(context: wordplay)_  
+- [ ] **12712.** a special date, anniversary _(context: `wordplay`)_  
   → пам'ятна дата, річниця
-- [ ] **12713.** resin _(context: wordplay)_  
+- [ ] **12713.** resin _(context: `wordplay`)_  
   → смола
-- [ ] **12714.** amber _(context: wordplay)_  
+- [ ] **12714.** amber _(context: `wordplay`)_  
   → бурштин
-- [ ] **12715.** sea resin _(context: wordplay)_  
+- [ ] **12715.** sea resin _(context: `wordplay`)_  
   → морська смола
-- [ ] **12716.** relative _(context: wordplay)_  
+- [ ] **12716.** relative _(context: `wordplay`)_  
   → родич
-- [ ] **12717.** name relative _(context: wordplay)_  
+- [ ] **12717.** name relative _(context: `wordplay`)_  
   → родич за ім'ям
-- [ ] **12718.** a namesake _(context: wordplay)_  
+- [ ] **12718.** a namesake _(context: `wordplay`)_  
   → тезка
-- [ ] **12719.** nest egg _(context: wordplay)_  
+- [ ] **12719.** nest egg _(context: `wordplay`)_  
   → гніздове яйце
-- [ ] **12720.** the lastborn, youngest child _(context: wordplay)_  
+- [ ] **12720.** the lastborn, youngest child _(context: `wordplay`)_  
   → наймолодша дитина, мізинчик
-- [ ] **12721.** English uses the same two words for savings. Here they mean the baby of the family. _(context: wordplay)_  
+- [ ] **12721.** English uses the same two words for savings. Here they mean the baby of the family. _(context: `wordplay`)_  
   → В англійській ті самі два слова, nest egg, означають заощадження. Тут це наймолодший у родині.
-- [ ] **12722.** cloven hoof _(context: wordplay)_  
+- [ ] **12722.** cloven hoof _(context: `wordplay`)_  
   → роздвоєне копито
-- [ ] **12723.** bar _(context: wordplay)_  
+- [ ] **12723.** bar _(context: `wordplay`)_  
   → прут, брус
-- [ ] **12724.** hoof bar _(context: wordplay)_  
+- [ ] **12724.** hoof bar _(context: `wordplay`)_  
   → ратичний прут
-- [ ] **12725.** a crowbar _(context: wordplay)_  
+- [ ] **12725.** a crowbar _(context: `wordplay`)_  
   → лом
-- [ ] **12726.** bounce _(context: wordplay)_  
+- [ ] **12726.** bounce _(context: `wordplay`)_  
   → відскок
-- [ ] **12727.** bounce iron _(context: wordplay)_  
+- [ ] **12727.** bounce iron _(context: `wordplay`)_  
   → залізо для відскоку
-- [ ] **12728.** a bumper _(context: wordplay)_  
+- [ ] **12728.** a bumper _(context: `wordplay`)_  
   → бампер
-- [ ] **12729.** tea _(context: wordplay)_  
+- [ ] **12729.** tea _(context: `wordplay`)_  
   → чай
-- [ ] **12730.** sand tea _(context: wordplay)_  
+- [ ] **12730.** sand tea _(context: `wordplay`)_  
   → піщаний чай
-- [ ] **12731.** wild thyme _(context: wordplay)_  
+- [ ] **12731.** wild thyme _(context: `wordplay`)_  
   → чебрець
-- [ ] **12732.** It grows on sandy ground and makes a fine herbal brew. _(context: wordplay)_  
+- [ ] **12732.** It grows on sandy ground and makes a fine herbal brew. _(context: `wordplay`)_  
   → Він росте на піщаному ґрунті, і з нього виходить чудовий трав'яний відвар.
-- [ ] **12733.** hat _(context: wordplay)_  
+- [ ] **12733.** hat _(context: `wordplay`)_  
   → шапка
-- [ ] **12734.** beak hat _(context: wordplay)_  
+- [ ] **12734.** beak hat _(context: `wordplay`)_  
   → шапка з дзьобом
-- [ ] **12735.** a baseball cap _(context: wordplay)_  
+- [ ] **12735.** a baseball cap _(context: `wordplay`)_  
   → бейсболка
-- [ ] **12736.** Seen in profile, the peak sticks out like a bird's. _(context: wordplay)_  
+- [ ] **12736.** Seen in profile, the peak sticks out like a bird's. _(context: `wordplay`)_  
   → У профіль козирок стирчить, як пташиний дзьоб.
-- [ ] **12737.** back _(context: wordplay)_  
+- [ ] **12737.** back _(context: `wordplay`)_  
   → спина
-- [ ] **12738.** brain _(context: wordplay)_  
+- [ ] **12738.** brain _(context: `wordplay`)_  
   → мозок
-- [ ] **12739.** back brain _(context: wordplay)_  
+- [ ] **12739.** back brain _(context: `wordplay`)_  
   → мозок спини
-- [ ] **12740.** the spinal cord _(context: wordplay)_  
+- [ ] **12740.** the spinal cord _(context: `wordplay`)_  
   → спинний мозок
-- [ ] **12741.** the whole, a gathering _(context: wordplay)_  
+- [ ] **12741.** the whole, a gathering _(context: `wordplay`)_  
   → ціле, зібрання
-- [ ] **12742.** book gathering _(context: wordplay)_  
+- [ ] **12742.** book gathering _(context: `wordplay`)_  
   → зібрання книжок
-- [ ] **12743.** a library _(context: wordplay)_  
+- [ ] **12743.** a library _(context: `wordplay`)_  
   → бібліотека
-- [ ] **12744.** lark _(context: wordplay)_  
+- [ ] **12744.** lark _(context: `wordplay`)_  
   → жайворонок
-- [ ] **12745.** lark eye _(context: wordplay)_  
+- [ ] **12745.** lark eye _(context: `wordplay`)_  
   → око жайворонка
-- [ ] **12746.** a forget-me-not _(context: wordplay)_  
+- [ ] **12746.** a forget-me-not _(context: `wordplay`)_  
   → незабудка
-- [ ] **12747.** founder _(context: wordplay)_  
+- [ ] **12747.** founder _(context: `wordplay`)_  
   → засновник
-- [ ] **12748.** road founder _(context: wordplay)_  
+- [ ] **12748.** road founder _(context: `wordplay`)_  
   → засновник дороги
-- [ ] **12749.** a pioneer, trailblazer _(context: wordplay)_  
+- [ ] **12749.** a pioneer, trailblazer _(context: `wordplay`)_  
   → першопроходець
-- [ ] **12750.** goods _(context: wordplay)_  
+- [ ] **12750.** goods _(context: `wordplay`)_  
   → товари
-- [ ] **12751.** house _(context: wordplay)_  
+- [ ] **12751.** house _(context: `wordplay`)_  
   → дім
-- [ ] **12752.** goods house _(context: wordplay)_  
+- [ ] **12752.** goods house _(context: `wordplay`)_  
   → дім товарів
-- [ ] **12753.** a department store _(context: wordplay)_  
+- [ ] **12753.** a department store _(context: `wordplay`)_  
   → універмаг
-- [ ] **12754.** Midsummer _(context: wordplay)_  
+- [ ] **12754.** Midsummer _(context: `wordplay`)_  
   → Іван Купала
-- [ ] **12755.** worm _(context: wordplay)_  
+- [ ] **12755.** worm _(context: `wordplay`)_  
   → черв'як
-- [ ] **12756.** a glowworm _(context: wordplay)_  
+- [ ] **12756.** a glowworm _(context: `wordplay`)_  
   → світлячок
-- [ ] **12757.** ceiling _(context: wordplay)_  
+- [ ] **12757.** ceiling _(context: `wordplay`)_  
   → стеля
-- [ ] **12758.** head ceiling _(context: wordplay)_  
+- [ ] **12758.** head ceiling _(context: `wordplay`)_  
   → стеля голови
-- [ ] **12759.** activity _(context: wordplay)_  
+- [ ] **12759.** activity _(context: `wordplay`)_  
   → діяльність, дія
-- [ ] **12760.** activity name _(context: wordplay)_  
+- [ ] **12760.** activity name _(context: `wordplay`)_  
   → ім'я дії
-- [ ] **12761.** the infinitive _(context: wordplay)_  
+- [ ] **12761.** the infinitive _(context: `wordplay`)_  
   → інфінітив
-- [ ] **12762.** swing _(context: wordplay)_  
+- [ ] **12762.** swing _(context: `wordplay`)_  
   → гойдалка
-- [ ] **12763.** net swing _(context: wordplay)_  
+- [ ] **12763.** net swing _(context: `wordplay`)_  
   → сіткова гойдалка
-- [ ] **12764.** a hammock _(context: wordplay)_  
+- [ ] **12764.** a hammock _(context: `wordplay`)_  
   → гамак
-- [ ] **12765.** Built for summer afternoons with nothing planned. _(context: wordplay)_  
+- [ ] **12765.** Built for summer afternoons with nothing planned. _(context: `wordplay`)_  
   → Створений для літніх днів, на які нічого не заплановано.
-- [ ] **12766.** sponge _(context: wordplay)_  
+- [ ] **12766.** sponge _(context: `wordplay`)_  
   → губка
-- [ ] **12767.** pumpkin _(context: wordplay)_  
+- [ ] **12767.** pumpkin _(context: `wordplay`)_  
   → гарбуз
-- [ ] **12768.** sponge pumpkin _(context: wordplay)_  
+- [ ] **12768.** sponge pumpkin _(context: `wordplay`)_  
   → губчастий гарбуз
-- [ ] **12769.** a loofah _(context: wordplay)_  
+- [ ] **12769.** a loofah _(context: `wordplay`)_  
   → люфа
-- [ ] **12770.** north _(context: wordplay)_  
+- [ ] **12770.** north _(context: `wordplay`)_  
   → північ
-- [ ] **12771.** elk, moose _(context: wordplay)_  
+- [ ] **12771.** elk, moose _(context: `wordplay`)_  
   → лось
-- [ ] **12772.** north elk _(context: wordplay)_  
+- [ ] **12772.** north elk _(context: `wordplay`)_  
   → північний лось
-- [ ] **12773.** a reindeer _(context: wordplay)_  
+- [ ] **12773.** a reindeer _(context: `wordplay`)_  
   → північний олень
-- [ ] **12774.** blade, grain _(context: wordplay)_  
+- [ ] **12774.** blade, grain _(context: `wordplay`)_  
   → лезо, зерно
-- [ ] **12775.** eye grain _(context: wordplay)_  
+- [ ] **12775.** eye grain _(context: `wordplay`)_  
   → зерно ока
-- [ ] **12776.** the pupil _(context: wordplay)_  
+- [ ] **12776.** the pupil _(context: `wordplay`)_  
   → зіниця
-- [ ] **12777.** It also means the person you love most, and the English apple of the eye first meant the pupil too. _(context: wordplay)_  
+- [ ] **12777.** It also means the person you love most, and the English apple of the eye first meant the pupil too. _(context: `wordplay`)_  
   → Так ще називають найдорожчу людину, і українською теж: бережуть як зіницю ока.
-- [ ] **12778.** the unfamiliar, strangers _(context: wordplay)_  
+- [ ] **12778.** the unfamiliar, strangers _(context: `wordplay`)_  
   → чужі, незнайомці
-- [ ] **12779.** strangers' house _(context: wordplay)_  
+- [ ] **12779.** strangers' house _(context: `wordplay`)_  
   → дім чужинців
-- [ ] **12780.** a guesthouse, inn _(context: wordplay)_  
+- [ ] **12780.** a guesthouse, inn _(context: `wordplay`)_  
   → гостиниця, заїзд
-- [ ] **12781.** You check in a stranger and leave a guest. _(context: wordplay)_  
+- [ ] **12781.** You check in a stranger and leave a guest. _(context: `wordplay`)_  
   → Заселяєшся чужинцем, а їдеш гостем.
-- [ ] **12782.** water _(context: wordplay)_  
+- [ ] **12782.** water _(context: `wordplay`)_  
   → вода
-- [ ] **12783.** boiler _(context: wordplay)_  
+- [ ] **12783.** boiler _(context: `wordplay`)_  
   → кип'ятильник
-- [ ] **12784.** a kettle _(context: wordplay)_  
+- [ ] **12784.** a kettle _(context: `wordplay`)_  
   → чайник
-- [ ] **12785.** Every office has one, and every office argues about who refills it. _(context: wordplay)_  
+- [ ] **12785.** Every office has one, and every office argues about who refills it. _(context: `wordplay`)_  
   → Він є в кожному офісі, і в кожному офісі сперечаються, хто його наповнює.
-- [ ] **12786.** gun _(context: wordplay)_  
+- [ ] **12786.** gun _(context: `wordplay`)_  
   → рушниця
-- [ ] **12787.** a rifle _(context: wordplay)_  
+- [ ] **12787.** a rifle _(context: `wordplay`)_  
   → гвинтівка
-- [ ] **12788.** breaking, fracture _(context: wordplay)_  
+- [ ] **12788.** breaking, fracture _(context: `wordplay`)_  
   → ламання, перелом
-- [ ] **12789.** thief _(context: wordplay)_  
+- [ ] **12789.** thief _(context: `wordplay`)_  
   → злодій
-- [ ] **12790.** break thief _(context: wordplay)_  
+- [ ] **12790.** break thief _(context: `wordplay`)_  
   → злодій-ламач
-- [ ] **12791.** a burglar _(context: wordplay)_  
+- [ ] **12791.** a burglar _(context: `wordplay`)_  
   → зломщик
-- [ ] **12792.** a gooseberry _(context: wordplay)_  
+- [ ] **12792.** a gooseberry _(context: `wordplay`)_  
   → аґрус
-- [ ] **12793.** a werewolf _(context: wordplay)_  
+- [ ] **12793.** a werewolf _(context: `wordplay`)_  
   → перевертень
-- [ ] **12794.** allspice, pimento _(context: wordplay)_  
+- [ ] **12794.** allspice, pimento _(context: `wordplay`)_  
   → запашний перець
-- [ ] **12795.** bow _(context: wordplay)_  
+- [ ] **12795.** bow _(context: `wordplay`)_  
   → лук
-- [ ] **12796.** hunter _(context: wordplay)_  
+- [ ] **12796.** hunter _(context: `wordplay`)_  
   → мисливець
-- [ ] **12797.** bow hunter _(context: wordplay)_  
+- [ ] **12797.** bow hunter _(context: `wordplay`)_  
   → мисливець з луком
-- [ ] **12798.** an archer _(context: wordplay)_  
+- [ ] **12798.** an archer _(context: `wordplay`)_  
   → лучник
-- [ ] **12799.** Robin Hood, summed up. _(context: wordplay)_  
+- [ ] **12799.** Robin Hood, summed up. _(context: `wordplay`)_  
   → Робін Гуд, якщо коротко.
-- [ ] **12800.** louse _(context: wordplay)_  
+- [ ] **12800.** louse _(context: `wordplay`)_  
   → воша
-- [ ] **12801.** leaf louse _(context: wordplay)_  
+- [ ] **12801.** leaf louse _(context: `wordplay`)_  
   → листова воша
-- [ ] **12802.** an aphid _(context: wordplay)_  
+- [ ] **12802.** an aphid _(context: `wordplay`)_  
   → попелиця
-- [ ] **12803.** keeper _(context: wordplay)_  
+- [ ] **12803.** keeper _(context: `wordplay`)_  
   → охоронець
-- [ ] **12804.** a bookmark _(context: wordplay)_  
+- [ ] **12804.** a bookmark _(context: `wordplay`)_  
   → закладка
-- [ ] **12805.** pearl _(context: wordplay)_  
+- [ ] **12805.** pearl _(context: `wordplay`)_  
   → перлина
-- [ ] **12806.** nut (for a bolt) _(context: wordplay)_  
+- [ ] **12806.** nut (for a bolt) _(context: `wordplay`)_  
   → гайка
-- [ ] **12807.** nacre _(context: wordplay)_  
+- [ ] **12807.** nacre _(context: `wordplay`)_  
   → перламутр
-- [ ] **12808.** pink _(context: wordplay)_  
+- [ ] **12808.** pink _(context: `wordplay`)_  
   → рожевий
-- [ ] **12809.** Paint one rose-colored and you've covered both meanings. _(context: wordplay)_  
+- [ ] **12809.** Paint one rose-colored and you've covered both meanings. _(context: `wordplay`)_  
   → Пофарбуйте її в рожевий («pink»), і обидва значення на місці.
-- [ ] **12810.** sigh _(context: wordplay)_  
+- [ ] **12810.** sigh _(context: `wordplay`)_  
   → зітхання
-- [ ] **12811.** white bread _(context: wordplay)_  
+- [ ] **12811.** white bread _(context: `wordplay`)_  
   → білий хліб
-- [ ] **12812.** Breathe out at a bakery counter and you've half ordered a loaf. _(context: wordplay)_  
+- [ ] **12812.** Breathe out at a bakery counter and you've half ordered a loaf. _(context: `wordplay`)_  
   → Зітхніть («sigh») біля прилавка пекарні, і батон уже наполовину замовлено.
-- [ ] **12813.** Set a good one for your guests and they will praise you to the skies. _(context: wordplay)_  
+- [ ] **12813.** Set a good one for your guests and they will praise you to the skies. _(context: `wordplay`)_  
   → Накрийте його як слід для гостей, і вас вихвалятимуть («laud») до небес.
-- [ ] **12814.** king _(context: wordplay)_  
+- [ ] **12814.** king _(context: `wordplay`)_  
   → король
-- [ ] **12815.** lie _(context: wordplay)_  
+- [ ] **12815.** lie _(context: `wordplay`)_  
   → брехня
-- [ ] **12816.** wide _(context: wordplay)_  
+- [ ] **12816.** wide _(context: `wordplay`)_  
   → широкий
-- [ ] **12817.** laps _(context: wordplay)_  
+- [ ] **12817.** laps _(context: `wordplay`)_  
   → кола
-- [ ] **12818.** One will happily run them round the garden all afternoon. _(context: wordplay)_  
+- [ ] **12818.** One will happily run them round the garden all afternoon. _(context: `wordplay`)_  
   → Воно радо намотує кола («laps») садом увесь день.
-- [ ] **12819.** lips _(context: wordplay)_  
+- [ ] **12819.** lips _(context: `wordplay`)_  
   → губи
-- [ ] **12820.** tie, necktie _(context: wordplay)_  
+- [ ] **12820.** tie, necktie _(context: `wordplay`)_  
   → краватка
-- [ ] **12821.** Worn a little lower down, from the collar to the belt. _(context: wordplay)_  
+- [ ] **12821.** Worn a little lower down, from the collar to the belt. _(context: `wordplay`)_  
   → Носять трохи нижче за губи («lips»), від коміра до паска.
-- [ ] **12822.** In South Africa it's money. Here it's sand and the Baltic. _(context: wordplay)_  
+- [ ] **12822.** In South Africa it's money. Here it's sand and the Baltic. _(context: `wordplay`)_  
   → У Південній Африці це гроші. Тут це пісок і Балтика.
-- [ ] **12823.** gray _(context: wordplay)_  
+- [ ] **12823.** gray _(context: `wordplay`)_  
   → сірий
-- [ ] **12824.** coo _(context: wordplay)_  
+- [ ] **12824.** coo _(context: `wordplay`)_  
   → воркувати
-- [ ] **12825.** Lovers coo under it about once a month, give or take. _(context: wordplay)_  
+- [ ] **12825.** Lovers coo under it about once a month, give or take. _(context: `wordplay`)_  
   → Закохані воркують («coo») під ним приблизно раз на місяць, плюс-мінус.
-- [ ] **12826.** see _(context: wordplay)_  
+- [ ] **12826.** see _(context: `wordplay`)_  
   → бачити
-- [ ] **12827.** this, it _(context: wordplay)_  
+- [ ] **12827.** this, it _(context: `wordplay`)_  
   → це, цей
-- [ ] **12828.** tort _(context: wordplay)_  
+- [ ] **12828.** tort _(context: `wordplay`)_  
   → цивільне правопорушення
-- [ ] **12829.** layer cake _(context: wordplay)_  
+- [ ] **12829.** layer cake _(context: `wordplay`)_  
   → торт
-- [ ] **12830.** Lawyers in Estonia have one at birthdays, like everybody else. _(context: wordplay)_  
+- [ ] **12830.** Lawyers in Estonia have one at birthdays, like everybody else. _(context: `wordplay`)_  
   → Юристи в Естонії теж їдять його («tort», англійською правопорушення) на днях народження, як і всі.
-- [ ] **12831.** sue _(context: wordplay)_  
+- [ ] **12831.** sue _(context: `wordplay`)_  
   → подати до суду
-- [ ] **12832.** mouth _(context: wordplay)_  
+- [ ] **12832.** mouth _(context: `wordplay`)_  
   → рот
-- [ ] **12833.** Open it carefully, before anybody decides to take you to court. _(context: wordplay)_  
+- [ ] **12833.** Open it carefully, before anybody decides to take you to court. _(context: `wordplay`)_  
   → Відкривайте його обережно, поки ніхто не вирішив подати на вас до суду («sue»).
-- [ ] **12834.** loss _(context: wordplay)_  
+- [ ] **12834.** loss _(context: `wordplay`)_  
   → втрата
-- [ ] **12835.** castle _(context: wordplay)_  
+- [ ] **12835.** castle _(context: `wordplay`)_  
   → замок
-- [ ] **12836.** Owning one would be anything but. _(context: wordplay)_  
+- [ ] **12836.** Owning one would be anything but. _(context: `wordplay`)_  
   → Якщо у вас є замок, це аж ніяк не втрата («loss»).
-- [ ] **12837.** mix _(context: wordplay)_  
+- [ ] **12837.** mix _(context: `wordplay`)_  
   → змішувати
-- [ ] **12838.** why _(context: wordplay)_  
+- [ ] **12838.** why _(context: `wordplay`)_  
   → чому
-- [ ] **12839.** tall _(context: wordplay)_  
+- [ ] **12839.** tall _(context: `wordplay`)_  
   → високий
-- [ ] **12840.** lamb _(context: wordplay)_  
+- [ ] **12840.** lamb _(context: `wordplay`)_  
   → ягня
-- [ ] **12841.** train _(context: wordplay)_  
+- [ ] **12841.** train _(context: `wordplay`)_  
   → потяг
-- [ ] **12842.** look _(context: wordplay)_  
+- [ ] **12842.** look _(context: `wordplay`)_  
   → дивитися
-- [ ] **12843.** lock _(context: wordplay)_  
+- [ ] **12843.** lock _(context: `wordplay`)_  
   → замок
-- [ ] **12844.** cease _(context: wordplay)_  
+- [ ] **12844.** cease _(context: `wordplay`)_  
   → припиняти
-- [ ] **12845.** then _(context: wordplay)_  
+- [ ] **12845.** then _(context: `wordplay`)_  
   → потім, тоді
-- [ ] **12846.** It never stops anything. It only leads on to what comes next. _(context: wordplay)_  
+- [ ] **12846.** It never stops anything. It only leads on to what comes next. _(context: `wordplay`)_  
   → Воно нічого не припиняє («cease»). Воно лише веде до того, що далі.
-- [ ] **12847.** lend _(context: wordplay)_  
+- [ ] **12847.** lend _(context: `wordplay`)_  
   → позичати
-- [ ] **12848.** flight _(context: wordplay)_  
+- [ ] **12848.** flight _(context: `wordplay`)_  
   → політ, рейс
-- [ ] **12849.** No airline will lend you one. It is paid for before you board. _(context: wordplay)_  
+- [ ] **12849.** No airline will lend you one. It is paid for before you board. _(context: `wordplay`)_  
   → Жодна авіакомпанія не позичить («lend») вам переліт. Платять до посадки.
-- [ ] **12850.** prune _(context: wordplay)_  
+- [ ] **12850.** prune _(context: `wordplay`)_  
   → чорнослив
-- [ ] **12851.** brown _(context: wordplay)_  
+- [ ] **12851.** brown _(context: `wordplay`)_  
   → коричневий
-- [ ] **12852.** Dried plums are this color, which helps it stick. _(context: wordplay)_  
+- [ ] **12852.** Dried plums are this color, which helps it stick. _(context: `wordplay`)_  
   → Чорнослив («prune») якраз цього кольору, так легше запам'ятати.
-- [ ] **12853.** till _(context: wordplay)_  
+- [ ] **12853.** till _(context: `wordplay`)_  
   → каса; скопувати
-- [ ] **12854.** dill _(context: wordplay)_  
+- [ ] **12854.** dill _(context: `wordplay`)_  
   → кріп
-- [ ] **12855.** knee _(context: wordplay)_  
+- [ ] **12855.** knee _(context: `wordplay`)_  
   → коліно
-- [ ] **12856.** so, like this _(context: wordplay)_  
+- [ ] **12856.** so, like this _(context: `wordplay`)_  
   → так, ось так
-- [ ] **12857.** Show how a thing is done and say it. Kneeling is optional. _(context: wordplay)_  
+- [ ] **12857.** Show how a thing is done and say it. Kneeling is optional. _(context: `wordplay`)_  
   → Покажіть, як щось робиться, і скажіть це. Ставати на коліно («knee») необов'язково.
-- [ ] **12858.** callous _(context: wordplay)_  
+- [ ] **12858.** callous _(context: `wordplay`)_  
   → безсердечний
-- [ ] **12859.** mull _(context: wordplay)_  
+- [ ] **12859.** mull _(context: `wordplay`)_  
   → обмірковувати
-- [ ] **12860.** bubble _(context: wordplay)_  
+- [ ] **12860.** bubble _(context: `wordplay`)_  
   → бульбашка
-- [ ] **12861.** Blow one and watch it think things over before it pops. _(context: wordplay)_  
+- [ ] **12861.** Blow one and watch it think things over before it pops. _(context: `wordplay`)_  
   → Надуйте її і дивіться, як вона все обмірковує («mull»), перш ніж луснути.
-- [ ] **12862.** ammo _(context: wordplay)_  
+- [ ] **12862.** ammo _(context: `wordplay`)_  
   → набої
-- [ ] **12863.** long ago _(context: wordplay)_  
+- [ ] **12863.** long ago _(context: `wordplay`)_  
   → давно
-- [ ] **12864.** kiwi _(context: wordplay)_  
+- [ ] **12864.** kiwi _(context: `wordplay`)_  
   → ківі
-- [ ] **12865.** Bite into one and you'll soon find out it isn't fruit. _(context: wordplay)_  
+- [ ] **12865.** Bite into one and you'll soon find out it isn't fruit. _(context: `wordplay`)_  
   → Відкусіть, і швидко зрозумієте, що це не фрукт («kiwi»).
-- [ ] **12866.** pull _(context: wordplay)_  
+- [ ] **12866.** pull _(context: `wordplay`)_  
   → тягнути
-- [ ] **12867.** bull _(context: wordplay)_  
+- [ ] **12867.** bull _(context: `wordplay`)_  
   → бик
-- [ ] **12868.** Grab one by the horns and you'll be doing a lot of that too. _(context: wordplay)_  
+- [ ] **12868.** Grab one by the horns and you'll be doing a lot of that too. _(context: `wordplay`)_  
   → Візьміть його за роги, і тягнути («pull») доведеться чимало.
-- [ ] **12869.** valley _(context: wordplay)_  
+- [ ] **12869.** valley _(context: `wordplay`)_  
   → долина
-- [ ] **12870.** loud _(context: wordplay)_  
+- [ ] **12870.** loud _(context: `wordplay`)_  
   → гучний
-- [ ] **12871.** Shout across one and the echo agrees with you. _(context: wordplay)_  
+- [ ] **12871.** Shout across one and the echo agrees with you. _(context: `wordplay`)_  
   → Крикніть через долину («valley»), і луна з вами погодиться.
-- [ ] **12872.** miss _(context: wordplay)_  
+- [ ] **12872.** miss _(context: `wordplay`)_  
   → схибити, пропустити
-- [ ] **12873.** what _(context: wordplay)_  
+- [ ] **12873.** what _(context: `wordplay`)_  
   → що
-- [ ] **12874.** Fail to catch a word and this is what you'll ask. _(context: wordplay)_  
+- [ ] **12874.** Fail to catch a word and this is what you'll ask. _(context: `wordplay`)_  
   → Не розчуєте («miss») слово, і спитаєте саме це.
-- [ ] **12875.** hull _(context: wordplay)_  
+- [ ] **12875.** hull _(context: `wordplay`)_  
   → корпус судна
-- [ ] **12876.** crazy, mad _(context: wordplay)_  
+- [ ] **12876.** crazy, mad _(context: `wordplay`)_  
   → божевільний
-- [ ] **12877.** Weeks at sea inside one can do that to a sailor. _(context: wordplay)_  
+- [ ] **12877.** Weeks at sea inside one can do that to a sailor. _(context: `wordplay`)_  
   → Тижні в морі всередині корпусу («hull») можуть довести до цього будь-якого моряка.
-- [ ] **12878.** teddy _(context: wordplay)_  
+- [ ] **12878.** teddy _(context: `wordplay`)_  
   → плюшевий ведмедик
-- [ ] **12879.** aunt _(context: wordplay)_  
+- [ ] **12879.** aunt _(context: `wordplay`)_  
   → тітка
-- [ ] **12880.** cows _(context: wordplay)_  
+- [ ] **12880.** cows _(context: `wordplay`)_  
   → корови
-- [ ] **12881.** A farm would need an enormous one for the herd. _(context: wordplay)_  
+- [ ] **12881.** A farm would need an enormous one for the herd. _(context: `wordplay`)_  
   → Фермі для всіх корів («cows») знадобилася б величезна.
-- [ ] **12882.** hell _(context: wordplay)_  
+- [ ] **12882.** hell _(context: `wordplay`)_  
   → пекло
-- [ ] **12883.** gentle, tender _(context: wordplay)_  
+- [ ] **12883.** gentle, tender _(context: `wordplay`)_  
   → ніжний, лагідний
-- [ ] **12884.** lewd _(context: wordplay)_  
+- [ ] **12884.** lewd _(context: `wordplay`)_  
   → непристойний
-- [ ] **12885.** broom _(context: wordplay)_  
+- [ ] **12885.** broom _(context: `wordplay`)_  
   → мітла
-- [ ] **12886.** goose _(context: wordplay)_  
+- [ ] **12886.** goose _(context: `wordplay`)_  
   → гуска
-- [ ] **12887.** Geese are many things, but sweet is rarely one of them. _(context: wordplay)_  
+- [ ] **12887.** Geese are many things, but sweet is rarely one of them. _(context: `wordplay`)_  
   → Гуси бувають усякими, але солодкими («honey») рідко.
-- [ ] **12888.** pant _(context: wordplay)_  
+- [ ] **12888.** pant _(context: `wordplay`)_  
   → важко дихати
-- [ ] **12889.** pledge, deposit _(context: wordplay)_  
+- [ ] **12889.** pledge, deposit _(context: `wordplay`)_  
   → застава
-- [ ] **12890.** mutt _(context: wordplay)_  
+- [ ] **12890.** mutt _(context: `wordplay`)_  
   → дворняга
-- [ ] **12891.** mole _(context: wordplay)_  
+- [ ] **12891.** mole _(context: `wordplay`)_  
   → кріт
-- [ ] **12892.** soul _(context: wordplay)_  
+- [ ] **12892.** soul _(context: `wordplay`)_  
   → душа
-- [ ] **12893.** salt _(context: wordplay)_  
+- [ ] **12893.** salt _(context: `wordplay`)_  
   → сіль
-- [ ] **12894.** vats _(context: wordplay)_  
+- [ ] **12894.** vats _(context: `wordplay`)_  
   → чани
-- [ ] **12895.** belly _(context: wordplay)_  
+- [ ] **12895.** belly _(context: `wordplay`)_  
   → живіт, пузо
-- [ ] **12896.** After a big dinner it can feel the size of a barrel. _(context: wordplay)_  
+- [ ] **12896.** After a big dinner it can feel the size of a barrel. _(context: `wordplay`)_  
   → Після великого обіду він може здаватися завбільшки з чан («vat»).
-- [ ] **12897.** lout _(context: wordplay)_  
+- [ ] **12897.** lout _(context: `wordplay`)_  
   → грубіян
-- [ ] **12898.** cowshed, barn _(context: wordplay)_  
+- [ ] **12898.** cowshed, barn _(context: `wordplay`)_  
   → хлів
-- [ ] **12899.** The cows live in here, whatever their manners. _(context: wordplay)_  
+- [ ] **12899.** The cows live in here, whatever their manners. _(context: `wordplay`)_  
   → Тут живуть корови, якими б грубіянками («lout») вони не були.
-- [ ] **12900.** koi _(context: wordplay)_  
+- [ ] **12900.** koi _(context: `wordplay`)_  
   → короп кої
-- [ ] **12901.** Keep your woollens well away from this one. The pond fish is harmless. _(context: wordplay)_  
+- [ ] **12901.** Keep your woollens well away from this one. The pond fish is harmless. _(context: `wordplay`)_  
   → Тримайте вовняні речі від неї подалі. Ставкова рибка («koi») безневинна.
-- [ ] **12902.** lint _(context: wordplay)_  
+- [ ] **12902.** lint _(context: `wordplay`)_  
   → ворс, катишки
-- [ ] **12903.** ribbon, tape _(context: wordplay)_  
+- [ ] **12903.** ribbon, tape _(context: `wordplay`)_  
   → стрічка
-- [ ] **12904.** It ties up presents instead of clogging the dryer. _(context: wordplay)_  
+- [ ] **12904.** It ties up presents instead of clogging the dryer. _(context: `wordplay`)_  
   → Нею перев'язують подарунки, а не забивають сушарку, як ворсом («lint»).
-- [ ] **12905.** cruise _(context: wordplay)_  
+- [ ] **12905.** cruise _(context: `wordplay`)_  
   → круїз
-- [ ] **12906.** bucket _(context: wordplay)_  
+- [ ] **12906.** bucket _(context: `wordplay`)_  
   → відро
-- [ ] **12907.** tint _(context: wordplay)_  
+- [ ] **12907.** tint _(context: `wordplay`)_  
   → відтінок
-- [ ] **12908.** peal _(context: wordplay)_  
+- [ ] **12908.** peal _(context: `wordplay`)_  
   → дзвін дзвонів
-- [ ] **12909.** Church bells ring from up there, which suits the look-alike. _(context: wordplay)_  
+- [ ] **12909.** Church bells ring from up there, which suits the look-alike. _(context: `wordplay`)_  
   → Згори дзвонять церковні дзвони, що пасує англійському двійникові («peal», тобто «дзвін»).
-- [ ] **12910.** yoke _(context: wordplay)_  
+- [ ] **12910.** yoke _(context: `wordplay`)_  
   → ярмо
-- [ ] **12911.** drink _(context: wordplay)_  
+- [ ] **12911.** drink _(context: `wordplay`)_  
   → напій
-- [ ] **12912.** Far lighter than what oxen wear, and better company once evening comes. _(context: wordplay)_  
+- [ ] **12912.** Far lighter than what oxen wear, and better company once evening comes. _(context: `wordplay`)_  
   → Куди легший за ярмо («yoke») на волах, і приємніший надвечір.
-- [ ] **12913.** mutter _(context: wordplay)_  
+- [ ] **12913.** mutter _(context: `wordplay`)_  
   → бурмотіти
-- [ ] **12914.** Tighten it properly and nobody grumbles under their breath. _(context: wordplay)_  
+- [ ] **12914.** Tighten it properly and nobody grumbles under their breath. _(context: `wordplay`)_  
   → Затягніть її як слід, і ніхто не бурмотітиме («mutter») собі під ніс.
-- [ ] **12915.** van _(context: wordplay)_  
+- [ ] **12915.** van _(context: `wordplay`)_  
   → фургон
-- [ ] **12916.** bath, bathtub _(context: wordplay)_  
+- [ ] **12916.** bath, bathtub _(context: `wordplay`)_  
   → ванна
-- [ ] **12917.** Fit one inside a van and you'd have a camper. _(context: wordplay)_  
+- [ ] **12917.** Fit one inside a van and you'd have a camper. _(context: `wordplay`)_  
   → Поставте її у фургон («van»), і вийде будинок на колесах.
 
 ## speaking (55 lines)
@@ -30669,9 +30669,9 @@ _lib/copy/i18n/areas/sounds.ts_
   → Пишуться однаково, звучать по-різному
 - [ ] **15205.** Plain beside soft  
   → Твердий поруч із м'яким
-- [ ] **15206.** soft _(context: sound)_  
+- [ ] **15206.** soft _(context: `sound`)_  
   → м'який
-- [ ] **15207.** plain _(context: sound)_  
+- [ ] **15207.** plain _(context: `sound`)_  
   → твердий
 - [ ] **15208.** Hear "{text}", {tag}, in Estonian  
   → Послухати «{text}», {tag}, естонською
@@ -30687,7 +30687,7 @@ _lib/copy/i18n/areas/sounds.ts_
   → Довго, коротше і знову довго
 - [ ] **15214.** an apple  
   → яблуко
-- [ ] **15215.** full _(context: gloss)_  
+- [ ] **15215.** full _(context: `gloss`)_  
   → повний
 - [ ] **15216.** a rope  
   → мотузка
@@ -30699,7 +30699,7 @@ _lib/copy/i18n/areas/sounds.ts_
   → рот
 - [ ] **15220.** guilt  
   → провина
-- [ ] **15221.** fire _(context: gloss)_  
+- [ ] **15221.** fire _(context: `gloss`)_  
   → вогонь
 - [ ] **15222.** a quarrel  
   → сварка

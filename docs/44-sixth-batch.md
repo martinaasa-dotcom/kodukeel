@@ -415,34 +415,34 @@ stops. Size is the work in one pull request: a day, a few days, or a week or mor
 
 | Item | Milestone | Size | Status |
 | --- | --- | --- | --- |
-| S-1 The public pages describe the course as it is | S: ready to be shown | Day | Not started |
-| S-2 Ekilex, used as promised, credited and counted | S | Days | Not started |
-| S-3 The public pages in Estonian | S | Week | Not started |
-| S-4 What the accessibility statement admits, fixed | S | Days | Not started |
-| S-5 `security.txt`, and the registers a reviewer asks for | S | Day | Not started |
-| S-6 A demo a reviewer can walk | S | Day | Not started |
-| S-7 One page for a reviewer, and the check before the email | S | Days | Not started |
-| C-1 The voice model and mobile data | 0: what batch 5 left | Day | Not started |
-| C-2 Safari and Firefox in CI | 0 | Days | Not started |
-| C-3 The speech figures on an admin page | 0 | Day | Not started |
-| C-4 The ear, worded on the situation pages | 0 | Day | Not started |
-| C-5 The situations list on a phone | 0 | Day | Not started |
-| C-6 What the status log left | 0 | Day | Not started |
-| R-1 The portable core | R: before the native code | Days | Not started |
-| R-2 Store icons, screenshots and the listing | R | Days | Not started |
-| R-3 The privacy labels, derived from the recipients | R | Day | Not started |
-| R-4 One table of links | R | Day | Not started |
-| R-5 The speech golden test without a browser | R | Day | Not started |
-| N-1 ADR-029, the contract, and `/api/v1/meta` | 1: the door | Days | Not started |
-| N-2 Who is asking, without a cookie | 1 | Days | Not started |
-| N-3 Sign in with Apple, and links that open the app | 1 | Days | Not started |
-| N-4 The daily review over HTTP | 2: the daily path | Week | Not started |
-| N-5 Conversations over HTTP | 2 | Days | Not started |
-| N-6 Words and sound over HTTP | 2 | Days | Not started |
-| N-7 Today's lesson and the part checks over HTTP | 2 | Days | Not started |
-| N-8 The account over HTTP, and deletion without the app | 2 | Days | Not started |
-| N-9 Native notifications | 3: reach | Week | Not started |
-| N-10 Anu and the scanner over HTTP | 3 | Day | Not started |
+| S-1 The public pages describe the course as it is | S: ready to be shown | Day | Done in PR #929 (6702c9c, 5f8e075) |
+| S-2 Ekilex, used as promised, credited and counted | S | Days | Done in PR #929 (8a713c9, f567f5e) |
+| S-3 The public pages in Estonian | S | Week | Done in PR #929 (ec8898b, a32a578, 21a27d7); the Estonian awaits the native speaker, and /curriculum, /how-we-know and /pilots are English and Estonian only |
+| S-4 What the accessibility statement admits, fixed | S | Days | Done in PR #929 (9411936, d25952e, 0852f31); 2.2.2 is met app-wide |
+| S-5 `security.txt`, and the registers a reviewer asks for | S | Day | Done in PR #929 (fc9fbe3) |
+| S-6 A demo a reviewer can walk | S | Day | Done in PR #929 (f655638); the demo deployment is the operator's |
+| S-7 One page for a reviewer, and the check before the email | S | Days | Done in PR #929 (f22f45f) |
+| C-1 The voice model and mobile data | 0: what batch 5 left | Day | Done in PR #929 (4b5170f, 769dcf0) |
+| C-2 Safari and Firefox in CI | 0 | Days | In progress |
+| C-3 The speech figures on an admin page | 0 | Day | Done in PR #929 (7c54ed3) |
+| C-4 The ear, worded on the situation pages | 0 | Day | Done in PR #929 (1224886) |
+| C-5 The situations list on a phone | 0 | Day | Done in PR #929 (554e632, 8adb981) |
+| C-6 What the status log left | 0 | Day | Done in PR #929 (c2f8d83, 8adb981, b64d0cc, cb3a4c8) |
+| R-1 The portable core | R: before the native code | Days | Done in PR #929 (96e9eff) |
+| R-2 Store icons, screenshots and the listing | R | Days | Done in PR #929 (556f48b, 45dc01e) |
+| R-3 The privacy labels, derived from the recipients | R | Day | Done in PR #929 (2f3249f) |
+| R-4 One table of links | R | Day | Done in PR #929 (47ed7e7, 914a723) |
+| R-5 The speech golden test without a browser | R | Day | Done in PR #929 (f200a10) |
+| N-1 ADR-029, the contract, and `/api/v1/meta` | 1: the door | Days | Done in PR #929 (f53d4a7) |
+| N-2 Who is asking, without a cookie | 1 | Days | Done in PR #929 (bafd187) |
+| N-3 Sign in with Apple, and links that open the app | 1 | Days | Done in PR #929 (552d227, 8529611, de4b4df); Apple and Android setup is the operator's |
+| N-4 The daily review over HTTP | 2: the daily path | Week | Done in PR #929 (f1166ff) |
+| N-5 Conversations over HTTP | 2 | Days | Done in PR #929 (f63b291) |
+| N-6 Words and sound over HTTP | 2 | Days | Done in PR #929 (dfbb574) |
+| N-7 Today's lesson and the part checks over HTTP | 2 | Days | Done in PR #929 (e7a9d8d) |
+| N-8 The account over HTTP, and deletion without the app | 2 | Days | Done in PR #929 (32ef386) |
+| N-9 Native notifications | 3: reach | Week | Done in PR #929 (f9f3d2a, ce48d1e); Firebase and APNs keys are the operator's |
+| N-10 Anu and the scanner over HTTP | 3 | Day | Done in PR #929 (57c73b3) |
 
 **Ready to be shown** when milestone S is on main, `scripts/check-show-ready.mjs` (to be written)
 passes against the production address, and the operator has done section 8's first group.
