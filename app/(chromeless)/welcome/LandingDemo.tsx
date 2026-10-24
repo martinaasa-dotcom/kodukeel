@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CASES } from "@/lib/estonian/cases";
 import { LETTER_CHEER_EVENT } from "@/lib/ux/letterMotion";
+import { stepsWithin } from "@/lib/ux/rest";
 import { Check } from "lucide-react";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { FitText } from "@/components/FitText";
@@ -112,9 +113,13 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
     reader, and the first press, key or focus inside the card ends it for
     good. It runs only while the card is mostly on screen and the tab is
     visible, and not at all for a reader who asked for less movement.
+
+    And never for more than five seconds of steps in all (WCAG 2.2.2,
+    `lib/ux/rest.ts`): the endings that fit in that time snap on, and the card
+    rests on the last one. Every ending after that is a press away.
   */
   const touched = useRef(false);
-  const walk = useRef({ word: 0, ending: 0, laps: 0 });
+  const walk = useRef({ word: 0, ending: 0, laps: 0, steps: 0 });
   useEffect(() => {
     const el = root.current;
     if (!el || words.length === 0) return;
@@ -125,6 +130,8 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
     const stepOnce = () => {
       if (touched.current || document.hidden) return;
       const at = walk.current;
+      if (at.steps >= stepsWithin(BUILD_STEP_MS)) { touched.current = true; stop(); return; }
+      at.steps += 1;
       const count = words[at.word]?.cases.filter((c) => !c.principal).length ?? 0;
       if (at.ending + 1 < count) {
         at.ending += 1;

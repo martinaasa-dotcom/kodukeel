@@ -117,7 +117,7 @@ export default async function WelcomePage({ params }: { params?: Promise<{ lang?
       loads the rest of the language before anything new is drawn.
     */
     <LocaleProvider locale={locale} table={locale === "en" ? undefined : areaTable(locale, [LANDING], LANDING_BORROWS)}>
-    <div lang={locale} className="landing relative overflow-x-hidden" style={{ background: "var(--ground)" }}>
+    <div lang={locale} className="landing motion-rests relative overflow-x-hidden" style={{ background: "var(--ground)" }}>
       {/*
         One faint light at the top of the page, in the accent's own tint. It
         was three drifting pastel blobs, which banded into rings on a warm

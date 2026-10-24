@@ -129,7 +129,7 @@ export const REASON_TEXT: Readonly<Record<Reason, string>> = {
   hearing: "The listening, dictation and minimal-pair rounds need hearing, as the statement above explains.",
   "no-video": "The app has no video.",
   "no-motion-input": "Nothing is operated by moving or shaking the device.",
-  moving: "The landing page’s letters rest after five seconds. Some other decoration still loops and stops only when the system asks for reduced motion.",
+  moving: "Every public page rests its motion within five seconds. Inside the app some decoration still loops and stops only when the system asks for reduced motion.",
   "focus-text-only": "The visible focus ring is checked for text fields only.",
 };
 

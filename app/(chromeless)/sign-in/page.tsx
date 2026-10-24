@@ -122,7 +122,7 @@ export default async function SignInPage({ searchParams }: {
   const bounced = params.bounced !== undefined;
 
   return (
-    <main lang={locale === "en" ? undefined : locale} className="night relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-12">
+    <main lang={locale === "en" ? undefined : locale} className="night motion-rests relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-12">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
