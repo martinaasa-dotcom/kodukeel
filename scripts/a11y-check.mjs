@@ -381,9 +381,71 @@ for (const g of groups) {
   counted off the list rather than off a run. Not yet confirmed against a run,
   so the first central run says whether the slack is still forty-two.
 */
-const { check, absent, done } = suite("Accessibility", { floor: 946 });
-if (!shelf) absent(11, "a round over one shelf: no shelf on /words/decks holds a word. Run `npm run demo`");
-if (groups.length === 0) absent(11, "a classroom: /class lists no group. Run `npm run demo`");
+/*
+  AND IN TWO PARTS ON CI, BECAUSE THE 768 PASS DOUBLED THE SWEEP.
+
+  Whole, this is twenty minutes on a CI runner: the two passes at 768 took it
+  from eleven to past the step's ceiling, at the last of its checks, every one
+  passing. `A11Y_PART` splits it the way `CONTAIN_PART` splits the containment
+  suite, by width rather than by route, so every route is still swept at every
+  width somewhere: `tablet` is the two passes at 768 and nothing else, `rest`
+  is everything but them, and unset is the whole suite, which is what a local
+  run gets. `scripts/a11y-check-tablet.mjs` names the first half so the two
+  can be told apart in the workflow. Each part's floor is its share of the
+  946: two checks a route at 768, eleven everywhere else.
+*/
+const PART = process.env.A11Y_PART ?? "";
+const TABLET_PASSES = PART !== "rest";
+const OTHER_PASSES = PART !== "tablet";
+const PER_ROUTE = (TABLET_PASSES ? 2 : 0) + (OTHER_PASSES ? 11 : 0);
+const { check, absent, done } = suite(
+  PART === "tablet" ? "Accessibility at 768" : "Accessibility",
+  { floor: PART === "tablet" ? 206 : PART === "rest" ? 740 : 946 },
+);
+if (!shelf) absent(PER_ROUTE, "a round over one shelf: no shelf on /words/decks holds a word. Run `npm run demo`");
+if (groups.length === 0) absent(PER_ROUTE, "a classroom: /class lists no group. Run `npm run demo`");
+
+/*
+  The dark theme is chosen rather than inherited: the palette reads
+  `data-theme` alone and never the system preference (app/globals.css), so
+  emulating `prefers-color-scheme` here would sweep the light theme twice.
+  Storing the choice is what the toggle does, and the inline script in
+  app/layout.tsx reads it back before first paint, which is the path a real
+  reader who chose dark takes.
+*/
+const chooseDark = (page) =>
+  page.addInitScript(() => { try { localStorage.setItem("theme", "dark"); } catch { /* private mode */ } });
+
+/*
+  AND AT 768, IN BOTH THEMES (docs/44-sixth-batch.md, S-4).
+
+  768 is the width the rail appears at, so the content column is at its
+  narrowest there, and it is where the containment suite found five faults the
+  two ends never showed. The statement used to name it as a width axe did not
+  sweep; it sweeps it now, in the light and the dark, with the same checks a
+  phone route gets, and the floor rose by two passes over the route list. It
+  is not a second phone pass: the rail is drawn here, so the More sheet is
+  not, and it is opened at 390 alone.
+*/
+const TABLET = { width: 768, height: 1024 };
+if (TABLET_PASSES) {
+  for (const theme of ["light", "dark"]) {
+    const wide = await measuring(TABLET);
+    if (theme === "dark") await chooseDark(wide);
+    for (const route of ROUTES) {
+      await open(wide, route, 200);
+      const violations = await axeViolations(wide);
+      check(`${route}: axe finds nothing at ${TABLET.width} in ${theme}`,
+        violations.length === 0, violations.slice(0, 2).join("; "));
+    }
+    await wide.close();
+  }
+}
+if (!OTHER_PASSES) {
+  await page.close();
+  await browser.close();
+  done();
+}
 
 /*
   OPENING A ROUTE, INCLUDING THE PART THAT IS NOT THE NETWORK.
@@ -556,17 +618,6 @@ for (const route of ROUTES) {
   The structural checks above are not repeated: a landmark, a heading and a
   title are the same markup whichever palette is painted over them.
 */
-/*
-  The dark theme is chosen rather than inherited: the palette reads
-  `data-theme` alone and never the system preference (app/globals.css), so
-  emulating `prefers-color-scheme` here would sweep the light theme twice.
-  Storing the choice is what the toggle does, and the inline script in
-  app/layout.tsx reads it back before first paint, which is the path a real
-  reader who chose dark takes.
-*/
-const chooseDark = (page) =>
-  page.addInitScript(() => { try { localStorage.setItem("theme", "dark"); } catch { /* private mode */ } });
-
 const dark = await measuring({ width: 1280, height: 1000 });
 await chooseDark(dark);
 for (const route of ROUTES) {
@@ -612,29 +663,8 @@ await dark.close();
   narrow its own claim to the states a sweep cannot reach.
 */
 const PHONE = { width: 390, height: 844 };
-/*
-  AND AT 768, IN BOTH THEMES (docs/44-sixth-batch.md, S-4).
-
-  768 is the width the rail appears at, so the content column is at its
-  narrowest there, and it is where the containment suite found five faults the
-  two ends never showed. The statement used to name it as a width axe did not
-  sweep; it sweeps it now, in the light and the dark, with the same eight
-  checks a phone route gets, and the floor rose by two passes over the route
-  list. It is not a second phone pass: the rail is drawn here, so the More
-  sheet below is not, and it is opened at 390 alone.
-*/
-const TABLET = { width: 768, height: 1024 };
 
 for (const theme of ["light", "dark"]) {
-  const wide = await measuring(TABLET);
-  if (theme === "dark") await chooseDark(wide);
-  for (const route of ROUTES) {
-    await open(wide, route, 200);
-    const violations = await axeViolations(wide);
-    check(`${route}: axe finds nothing at ${TABLET.width} in ${theme}`,
-      violations.length === 0, violations.slice(0, 2).join("; "));
-  }
-  await wide.close();
   const phone = await measuring(PHONE);
   if (theme === "dark") await chooseDark(phone);
   for (const route of ROUTES) {

@@ -395,9 +395,17 @@ jobs:
 
           # Every route through axe in both themes, eleven minutes on its own,
           # which beside the rounds took that shard to 19.1 of its twenty.
+          #
+          # Since the sixth batch in two halves by width (`A11Y_PART`): the two
+          # passes at 768 took the whole sweep past twenty minutes, at the last
+          # of its checks, so they run on a runner of their own.
           - name: accessibility
+            a11y: rest
             suites: >-
               scripts/a11y-check.mjs
+          - name: accessibility at 768
+            suites: >-
+              scripts/a11y-check-tablet.mjs
 
           # The paths that cross a process boundary: a photograph to a card, a
           # paper sat and marked, a report accepted into the shared
@@ -555,13 +563,16 @@ jobs:
       # as a pass. See scripts/lib/checks.mjs. `-e` is the default shell here,
       # so the first suite to fail ends the step and names itself.
       - name: This shard's suites
-        # Sixteen until the sixth batch added the public pages in Estonian to
-        # the accessibility sweep, which then ran to 98% of its checks at 16:00,
-        # every one passing. Twenty is that sweep with room, under the job's 35.
+        # Sixteen until the sixth batch added the public pages in Estonian and
+        # the 768 passes to the accessibility sweep, which then ran out of the
+        # step at its last checks, every one passing. That sweep is two shards
+        # now; twenty is the room that keeps, under the job's 35.
         timeout-minutes: 20
         env:
           # Which half of the containment suite this shard runs, where it runs one.
           CONTAIN_PART: ${{ matrix.shard.contain }}
+          # And which half of the accessibility sweep, where it runs one.
+          A11Y_PART: ${{ matrix.shard.a11y }}
         run: |
           for suite in ${{ matrix.shard.suites }}; do
             echo "::group::$suite"
