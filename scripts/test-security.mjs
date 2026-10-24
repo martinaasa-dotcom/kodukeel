@@ -326,16 +326,29 @@ for (const path of ["/privacy", "/terms", "/trust", "/accessibility", "/funding"
   const ref = (() => {
     try { return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").hostname.split(".")[0]; } catch { return ""; }
   })() || "project";
+  /*
+    One check over every route rather than one each: the routes grew to 29 as
+    the native door was built, and a check per route meant a local run waived
+    more than half the suite for a property only a hosted run can see. Every
+    route is still asked, a route that answers anything but 401 is named in
+    the detail, and a route added later is in the list the day it ships.
+  */
   if (hosted) {
+    const wrong = [];
     for (const route of guarded) {
       const path = route.path.replace(/\{\w+\}/g, "x");
       const init = { method: route.method, headers: { "content-type": "application/json" }, body: route.method === "GET" ? undefined : "{}" };
       const bare = await status(path, init);
       const withCookie = await status(path, { ...init, headers: { ...init.headers, cookie: `sb-${ref}-auth-token=base64-eyJhY2Nlc3NfdG9rZW4iOiJ4In0` } });
-      check(`${route.method} ${route.path} answers 401 with no token, cookie or not`, bare === 401 && withCookie === 401, `${bare} without, ${withCookie} with a cookie`);
+      if (bare !== 401 || withCookie !== 401) wrong.push(`${route.method} ${route.path}: ${bare} without, ${withCookie} with a cookie`);
     }
+    check(
+      `every one of the ${guarded.length} guarded v1 routes answers 401 with no token, cookie or not`,
+      guarded.length > 20 && wrong.length === 0,
+      wrong.length > 0 ? wrong.join("; ") : `${guarded.length} routes`,
+    );
   } else {
-    absent(guarded.length, "a hosted deployment, where a v1 route refuses a request with no token (local mode has one learner and no tokens)");
+    absent(1, "a hosted deployment, where a v1 route refuses a request with no token (local mode has one learner and no tokens)");
   }
 }
 
