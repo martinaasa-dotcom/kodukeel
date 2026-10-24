@@ -187,6 +187,24 @@ describe("A1 lessons", () => {
     expect(found).toBeGreaterThan(0);
   });
 
+  it("accepts the shared spelling alone or with each pronoun, however it is joined", () => {
+    const before = ledgersBefore(LESSONS);
+    let found = 0;
+    for (const lesson of A1_LESSONS) {
+      for (const item of practiceFor(lesson, before.get(lesson.id)!)) {
+        if (item.kind !== "type" || item.en !== "you were, they were") continue;
+        found++;
+        expect(item.note).toMatch(/one spelling for both/);
+        for (const typed of ["olid", "sa olid, nad olid", "sa olid ja nad olid", "nad olid ja sina olid", "Sa olid ning nemad olid."]) {
+          expect(markPhrase(typed, item.accept).verdict, typed).toBe("right");
+        }
+        expect(markPhrase("te olid, nad olid", item.accept).verdict).not.toBe("right");
+        expect(markPhrase("sa olid, nad on", item.accept).verdict).toBe("nearly");
+      }
+    }
+    expect(found).toBeGreaterThan(0);
+  });
+
   it("says half right when the word is there with more beside it", () => {
     const m = markPhrase("sa olid, nad on", ["olid"]);
     expect(m.verdict).toBe("nearly");
