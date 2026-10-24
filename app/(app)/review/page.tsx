@@ -12,7 +12,7 @@ import { meetingFirst, notOnLadder } from "@/lib/srs/reviewQueue";
 import { include, withChoices } from "@/lib/progress/reviewCards";
 import { dailyReview } from "@/lib/progress/dailyQueue";
 import { firstParams } from "@/lib/ux/queryParam";
-import { localeFor, roundTitleFor } from "@/lib/progress/locale";
+import { roundTitleFor } from "@/lib/progress/locale";
 
 export async function generateMetadata() {
   return roundTitleFor("/review");
