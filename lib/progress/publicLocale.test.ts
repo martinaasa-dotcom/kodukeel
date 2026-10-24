@@ -90,8 +90,9 @@ describe("every public page has a share card of its own", () => {
       expect(Object.keys(PUBLIC_CARDS)).toContain(path);
       const card = publicCard(path as keyof typeof PUBLIC_CARDS);
       // The page itself has to hand that card over, by its own path.
-      // The grammar reference lives in the signed-in group and draws a public frame signed out (FB-8).
-      const file = [`app${path}/page.tsx`, `app/(app)${path}/page.tsx`].find((f) => existsSync(f)) ?? `app${path}/page.tsx`;
+      // The grammar reference lives in the signed-in group and draws a public frame signed out (FB-8);
+      // the account deletion page owns its whole screen (N-8).
+      const file = [`app${path}/page.tsx`, `app/(app)${path}/page.tsx`, `app/(chromeless)${path}/page.tsx`].find((f) => existsSync(f)) ?? `app${path}/page.tsx`;
       const page = readFileSync(file, "utf8");
       expect(page.includes(`publicCard("${path}")`) || page.includes(`PUBLIC_CARDS["${path}"]`)).toBe(true);
       const meta = await publicTitle(Promise.resolve({}), "A page", undefined, card);

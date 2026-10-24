@@ -223,4 +223,6 @@ export const PAGES_ET: readonly (readonly [en: string, et: string])[] = [
     "See, kes käitab seda Kodukeele koopiat, ei ole veel aadressi nimetanud, nii et sellel lehel pole kedagi, kellele kirjutada. Leht „{trust}“ ütleb, mida ta peab täitma."],
   ["The trust page",
     "Usaldus ja turvalisus"],
+  ["{link} says what goes and what stays, and works without the app.",
+    "Leht „{link}“ ütleb, mis kustutatakse ja mis jääb, ning töötab ka ilma rakenduseta."],
 ];

@@ -320,4 +320,10 @@ export const LEGAL_ET: readonly (readonly [en: string, et: string])[] = [
     "Muudatused"],
   ["If these terms change in a way that affects what happens to your data, the {privacy} changes with them and both carry the date of the change.",
     "Kui need tingimused muutuvad nii, et see mõjutab teie andmetega toimuvat, muutub koos nendega ka leht „{privacy}“ ning mõlemal on muudatuse kuupäev."],
+  ["**Reminders on a phone.** If you allow notifications in the Kodukeel app, the phone gives us a token that names the app on it, and we keep that token, which kind of phone it is and the app's version. A reminder is sent through Google's Firebase Cloud Messaging with that token and the two lines it says, the ones an email's subject and preview carry. It is booked like an email, and we keep no record of whether it was shown or opened. Turning notifications off, or signing out in the app, stops it.",
+    "**Meeldetuletused telefonis.** Kui lubate Kodukeele rakenduses teavitused, annab telefon meile tunnuse, mis tähistab seal olevat rakendust, ja me hoiame seda tunnust, telefoni tüüpi ja rakenduse versiooni. Meeldetuletus saadetakse Google'i Firebase Cloud Messagingu kaudu selle tunnuse ja kahe reaga, mida see ütleb, samadega, mis on e-kirja teemas ja eelvaates. See kirjendatakse nagu e-kiri ja me ei hoia andmeid selle kohta, kas seda näidati või avati. Teavituste väljalülitamine või rakenduses välja logimine lõpetab selle."],
+  ["Without the app, or before you have signed in, {link} says where the button is and what it removes.",
+    "Ilma rakenduseta või enne sisselogimist ütleb leht „{link}“, kus nupp on ja mida see eemaldab."],
+  ["Deleting your account",
+    "Konto kustutamine"],
 ];
