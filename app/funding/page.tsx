@@ -5,6 +5,7 @@ import { rich } from "@/components/Rich";
 import { LocaleProvider } from "@/components/Locale";
 import { areaTable } from "@/lib/copy/i18n/slice";
 import { PUBLIC } from "@/lib/copy/i18n/areas/public";
+import { PHONES_AREA } from "@/lib/copy/i18n/areas/phones";
 import { fill, tr } from "@/lib/copy/locale";
 import { localeHref } from "@/lib/copy/publicLocale";
 import { publicPageTitle, resolvePublicPage, type PublicSearch } from "@/lib/progress/publicLocale";
@@ -251,11 +252,13 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
         {/*
           The public area and no more of the language: every line the
           calculator draws, its services, stages and assumptions included, is
-          translated there (lib/copy/i18n/areas/public.ts). Without the slice a
+          translated there (lib/copy/i18n/areas/public.ts), and the phone push
+          service's row with the rest of the phones (lib/copy/i18n/areas/phones.ts),
+          or the browser draws that row in English over the server's. Without the slice a
           Russian reader downloaded the whole signed-in app's language to read
           one calculator. scripts/test-locales.mjs names a line the slice misses.
         */}
-        <LocaleProvider locale={locale} table={locale === "en" ? undefined : areaTable(locale, [PUBLIC])}>
+        <LocaleProvider locale={locale} table={locale === "en" ? undefined : areaTable(locale, [PUBLIC, PHONES_AREA])}>
           <CostExplorer />
         </LocaleProvider>
       </S>
