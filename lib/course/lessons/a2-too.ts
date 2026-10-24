@@ -363,7 +363,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
     level: "A2",
     part: "a2-too",
     kind: "lesson",
-    title: "A job interview",
+    title: "Your experience",
     goal: "Say what experience you have, what you're good at, and when you could start.",
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [

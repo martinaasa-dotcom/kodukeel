@@ -3801,6 +3801,7 @@ export const LESSON_TEXT_AREA: Area = {
     "Say you're sure.": "Скажите, что вы уверены.",
     "I'm sure.": "Я уверен.",
     "I'm looking for my phone.": "Я ищу свой телефон.",
+    "Your experience": "Ваш опыт",
   },
   uk: {
     "Hi there!": "Привіт!",
@@ -7585,5 +7586,6 @@ export const LESSON_TEXT_AREA: Area = {
     "Say you're sure.": "Скажіть, що ви певні.",
     "I'm sure.": "Я певен.",
     "I'm looking for my phone.": "Я шукаю свій телефон.",
+    "Your experience": "Ваш досвід",
   },
 };
