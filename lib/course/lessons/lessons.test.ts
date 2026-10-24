@@ -7,7 +7,7 @@ import { markPhrase, meaningShows, practiceFor, reviewFor } from "./practice";
 import { estonianIn } from "./ledger";
 import { LESSONS } from "./index";
 import { CASES, caseNameWithNumber, casePlainName, shortIllativeName } from "@/lib/estonian/cases";
-import { PERSON_HINTS, VERB_FORM_NAMES, verbFormName, type Person, type VerbForm } from "@/lib/estonian/verbNames";
+import { PERSON_ENDINGS, VERB_FORM_NAMES, verbFormName, type Person, type VerbForm } from "@/lib/estonian/verbNames";
 
 /**
  * THE LESSONS THEMSELVES, AGAINST THE TWO MECHANICAL CHECKS (ADR-005
@@ -78,7 +78,7 @@ describe("A1 lessons", () => {
       shortIllativeName(),
       ...(Object.keys(VERB_FORM_NAMES) as VerbForm[]).flatMap((form) => [
         verbFormName(form),
-        ...(Object.keys(PERSON_HINTS) as Person[]).map((person) => verbFormName(form, "en", person)),
+        ...(Object.keys(PERSON_ENDINGS) as Person[]).map((person) => verbFormName(form, "en", person)),
       ]),
     ]);
     const strings: string[] = [];

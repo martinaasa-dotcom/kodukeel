@@ -74,7 +74,7 @@ describe("searchLexemes against the seeded dictionary", () => {
   it("finds a verb by a stored principal part", async () => {
     const [top] = await searchLexemes("lugesin");
     expect(top?.lemma).toBe("lugema");
-    expect(top?.matchedAs).toMatch(/lihtminevik, ma \(past, I\)/);
+    expect(top?.matchedAs).toMatch(/lihtminevik, ma \(past\)/);
   });
 
   /*
@@ -91,7 +91,7 @@ describe("searchLexemes against the seeded dictionary", () => {
   it("finds a verb by a person the rule works out from its stored first person", async () => {
     const [third] = await searchLexemes("helistab");
     expect(third?.lemma).toBe("helistama");
-    expect(third?.matchedAs).toMatch(/olevik, ta \(he\/she form\)/);
+    expect(third?.matchedAs).toMatch(/olevik, ta \(-b\)/);
 
     const [plural] = await searchLexemes("helistame");
     expect(plural?.lemma).toBe("helistama");
@@ -110,7 +110,7 @@ describe("searchLexemes against the seeded dictionary", () => {
   it("finds a verb by its conditional, and names the mood a class names", async () => {
     const [hit] = await searchLexemes("loeksin");
     expect(hit?.lemma).toBe("lugema");
-    expect(hit?.matchedAs).toMatch(/tingiv kõneviis, ma \(-ks, would, I\)/);
+    expect(hit?.matchedAs).toMatch(/tingiv kõneviis, ma \(-ks, would\)/);
   });
 
   it("reaches a person nothing has ever stored, off the first person alone", async () => {
@@ -124,7 +124,7 @@ describe("searchLexemes against the seeded dictionary", () => {
 
     const [third] = await searchLexemes("zurptab");
     expect(third?.lemma).toBe(INVENTED);
-    expect(third?.matchedAs).toMatch(/olevik, ta \(he\/she form\)/);
+    expect(third?.matchedAs).toMatch(/olevik, ta \(-b\)/);
 
     const [cond] = await searchLexemes("zurptaksime");
     expect(cond?.lemma).toBe(INVENTED);
@@ -136,7 +136,7 @@ describe("searchLexemes against the seeded dictionary", () => {
 
   it("names the person in Estonian and the category in English, without repeating the pronoun", async () => {
     const [hit] = await searchLexemes("helistab");
-    expect(hit?.matchedAs).toMatch(/olevik, ta \(he\/she form\)/);
+    expect(hit?.matchedAs).toMatch(/olevik, ta \(-b\)/);
   });
 
   it("does not label a headword match as an inflected form", async () => {

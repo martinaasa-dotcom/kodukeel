@@ -27,7 +27,7 @@ for (const [query, lemma, why] of [
   // `toas` is "the inessive" has been handed a word their teacher does not
   // say. See `casePlainName` in `lib/estonian/cases.ts`.
   ["toas", "tuba", /seesütlev \(-s, in\)/i],
-  ["lugesin", "lugema", /lihtminevik, ma \(past, I\)/i],
+  ["lugesin", "lugema", /lihtminevik, ma \(past\)/i],
   ["tubadega", "tuba", /mitmuse kaasaütlev \(-ga, with, plural\)/i],
 ]) {
   await page.goto(`${B}/dictionary?q=${encodeURIComponent(query)}`, { waitUntil: "networkidle" });

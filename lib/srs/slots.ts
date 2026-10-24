@@ -200,7 +200,7 @@ export function conjugationSlotFromFront(front: string): string | null {
 }
 
 /**
- * A verb slot's name on a screen, "lihtminevik, ta (past, he/she)", off the
+ * A verb slot's name on a screen, "lihtminevik, ta (past)", off the
  * one table in `lib/estonian/verbNames.ts`. The slot's own `label` stays what
  * it is, because it is what an old card's front was built from and
  * `conjugationSlotFromFront` reads it back; this is only what a reader sees.

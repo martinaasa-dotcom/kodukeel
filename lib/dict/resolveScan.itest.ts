@@ -95,7 +95,7 @@ describe("resolveScannedItems", () => {
     // in, fetched no candidate at all and came back for them to type by hand.
     const [item] = await resolveScannedItems([{ et: "itest-scan-zurptab", en: "" }]);
     expect(item?.lemma).toBe(VERB);
-    expect(item?.matchedAs).toContain("olevik, ta (he/she form)");
+    expect(item?.matchedAs).toContain("olevik, ta (-b)");
   });
 
   it("hands back a word it cannot vouch for, marked as exactly that", async () => {

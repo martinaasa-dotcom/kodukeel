@@ -918,8 +918,9 @@ operator's own list: **nimetav (1st form)**, **omastav (2nd form)**, **osastav (
 **alalütlev (-l, on/at/has)**, **alaltütlev (-lt, off)**, **saav (-ks, becoming)**, **rajav (-ni,
 until)**, **olev (-na, as)**, **ilmaütlev (-ta, without)**, **kaasaütlev (-ga, with)**, **lühike sisseütlev
 (short into)**, a plural as **mitmuse kaasaütlev (-ga, with, plural)**; and for a verb **ma-tegevusnimi
-(-ma)**, **da-tegevusnimi (-da)**, **olevik (I form)** with the other persons as **olevik, ta (he/she
-form)**, **eitav (not)**, **lihtminevik (past)**, **täisminevik (have done)**, **enneminevik (had done)**,
+(-ma)**, **da-tegevusnimi (-da)**, **olevik (I form)** with the other persons by their ending, **olevik, ta (-b)**, and
+**olevik (-n, -d, -b...)** with no person, since the changing ending is what sets it apart from the
+-ma and -da forms, **eitav (not)**, **lihtminevik (past)**, **täisminevik (have done)**, **enneminevik (had done)**,
 **tingiv kõneviis (-ks, would)**, **käskiv kõneviis, sa (command)**, **käskiv kõneviis, te (-ge, polite
 command)**, **kaudne kõneviis (-vat, reportedly)**, **nud-kesksõna (-nud, done)**, **tud-kesksõna (-tud,
 done to)** and **umbisikuline (-takse, people do)**. `casePlainName` in `lib/estonian/cases.ts` and
