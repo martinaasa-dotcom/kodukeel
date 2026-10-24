@@ -15,7 +15,7 @@ export const A1_POOD_PART: PartOfLessons = {
   id: "a1-pood",
   level: "A1",
   title: "In the shop",
-  about: "Describing things: size, color, clothes, and the weather.",
+  about: "Size and color, clothes, and the weather: describing what you see.",
 };
 
 export const A1_POOD_LESSONS: readonly LessonSpec[] = [

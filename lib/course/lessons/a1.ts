@@ -30,7 +30,7 @@ import { A1_ABI_LESSONS, A1_ABI_PART } from "./a1-abi";
 import type { LessonSpec, PartOfLessons } from "./types";
 
 export const A1_LESSON_PARTS: readonly PartOfLessons[] = [
-  { id: "a1-tere", level: "A1", title: "First words", about: "First words: hello, your name, who you are, and how it's going." },
+  { id: "a1-tere", level: "A1", title: "First words", about: "Hello and thanks, your name, who you are, and how it's going." },
   A1_ELAD_PART,
   A1_KELL_PART,
   A1_SOOK_PART,

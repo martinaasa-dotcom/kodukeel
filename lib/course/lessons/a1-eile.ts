@@ -19,7 +19,7 @@ export const A1_EILE_PART: PartOfLessons = {
   id: "a1-eile",
   level: "A1",
   title: "Yesterday and tomorrow",
-  about: "Tomorrow and yesterday: plans, what you did, and the months of the year.",
+  about: "Plans for tomorrow, what you did yesterday, and the months of the year.",
 };
 
 export const A1_EILE_LESSONS: readonly LessonSpec[] = [

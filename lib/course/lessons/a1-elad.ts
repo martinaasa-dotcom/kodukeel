@@ -19,7 +19,7 @@ export const A1_ELAD_PART: PartOfLessons = {
   id: "a1-elad",
   level: "A1",
   title: "Where you live",
-  about: "Where you live and where you're from, your languages, numbers, and your family.",
+  about: "Your town and where you're from, the languages you speak, numbers, and your family.",
 };
 
 export const A1_ELAD_LESSONS: readonly LessonSpec[] = [

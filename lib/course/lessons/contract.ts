@@ -69,7 +69,9 @@ export function levelContractProblems(lessons: readonly LessonSpec[], parts: rea
       for (const l of inPart.slice(0, -1)) if (l.kind === "partEnd") problems.push(`${at}: ${l.id} is a partEnd before the part's last lesson`);
       if (inPart.some((l) => l.level !== level)) problems.push(`${at}: holds a lesson of another level`);
       if (!part.title.trim() || !part.about.trim()) problems.push(`${at}: needs a title and a line saying what it is about`);
-      if (part.about.trim() === part.title.trim()) problems.push(`${at}: its line only repeats its title`);
+      // The title is printed right above the line, so the line says what the title does not.
+      const opening = part.title.toLowerCase().split(/\s+/).slice(0, 2).join(" ");
+      if (part.about.toLowerCase().startsWith(opening)) problems.push(`${at}: its line opens by repeating its title`);
     }
   }
   for (const lesson of lessons) {

@@ -18,7 +18,7 @@ export const A1_SOOK_PART: PartOfLessons = {
   id: "a1-sook",
   level: "A1",
   title: "Food and drink",
-  about: "Food and drink, ordering and paying, and your first case.",
+  about: "Ordering and paying in a café, what you eat and drink, and your first case.",
 };
 
 export const A1_SOOK_LESSONS: readonly LessonSpec[] = [

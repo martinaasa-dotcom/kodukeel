@@ -20,7 +20,7 @@ export const A1_KELL_PART: PartOfLessons = {
   id: "a1-kell",
   level: "A1",
   title: "Time and day",
-  about: "Days and the time, your day, and what you want, can and have to do.",
+  about: "What day it is and what time, your day, and what you want, can and have to do.",
 };
 
 export const A1_KELL_LESSONS: readonly LessonSpec[] = [

@@ -19,7 +19,7 @@ export const A1_LINN_PART: PartOfLessons = {
   id: "a1-linn",
   level: "A1",
   title: "Home and city",
-  about: "Home and town: where things are, where you're going, and how you get there.",
+  about: "Rooms and places in town, where things are, where you're going, and how you get there.",
 };
 
 export const A1_LINN_LESSONS: readonly LessonSpec[] = [

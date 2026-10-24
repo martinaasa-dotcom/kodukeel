@@ -44,7 +44,13 @@ describe("every level of lessons", () => {
     const sayable = (line: string) =>
       !/^[-\d:.,\s]*[a-zõäöü]*$/.test(line) && /[A-Za-z]{2,}/.test(line.replace(/\{[^{}]*\}|\[[^[\]]*\]|\([^()]*\)|€[\d.]+/g, ""));
     for (const line of new Set(lines.filter(sayable))) {
-      for (const locale of ["ru", "uk"] as const) if (tr(locale, line) === line) missing.push(`${locale}: ${line}`);
+      for (const locale of ["ru", "uk"] as const) {
+        // The Russian interface never mentions Ukraine and the Ukrainian never names
+        // Russia (purity-ru.test.ts, purity-uk.test.ts): those lines stay English there.
+        if (locale === "ru" && /ukrain/i.test(line)) continue;
+        if (locale === "uk" && /russia/i.test(line)) continue;
+        if (tr(locale, line) === line) missing.push(`${locale}: ${line}`);
+      }
     }
     expect(missing).toEqual([]);
   });
@@ -68,8 +74,8 @@ describe("the contract itself", () => {
     expect(levelContractProblems([at(1, "lesson"), at(2, "partEnd")], [part]).join(" ")).toMatch(/2 core lessons/);
   });
 
-  it("refuses a part whose line only repeats its title", () => {
+  it("refuses a part whose line opens by repeating its title", () => {
     const lessons = [at(1, "lesson"), at(2, "lesson"), at(3, "lesson"), at(4, "partEnd")];
-    expect(levelContractProblems(lessons, [{ ...part, about: "Test" }]).join(" ")).toMatch(/repeats its title/);
+    expect(levelContractProblems(lessons, [{ ...part, about: "Test: a part." }]).join(" ")).toMatch(/repeating its title/);
   });
 });
