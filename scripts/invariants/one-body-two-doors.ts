@@ -86,8 +86,10 @@ export default function oneBodyTwoDoors({ check, code, APP, LIB }: InvariantKit)
   const routes = routeFiles(join("app", "api", "v1"));
 
   check("a v1 route imports no database client and nothing from a page", () => {
-    assert.ok(routes.length >= SHIPPED_ROUTES.length && routes.length >= 1,
-      `found ${routes.length} v1 route files for ${SHIPPED_ROUTES.length} shipped routes, so this stopped looking`);
+    // One file per path, which may answer more than one method.
+    const paths = new Set(SHIPPED_ROUTES.map((r) => r.path)).size;
+    assert.ok(routes.length >= paths && routes.length >= 1,
+      `found ${routes.length} v1 route files for ${paths} shipped paths, so this stopped looking`);
     for (const file of routes) {
       const src = code(file);
       assert.doesNotMatch(src, /from ["']@\/lib\/db["']|from ["']@prisma\/client["']|\bprisma\./, `${file} reaches the database itself; call the function the web calls instead`);

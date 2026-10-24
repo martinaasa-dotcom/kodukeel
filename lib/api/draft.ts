@@ -21,47 +21,7 @@ import { InterfaceLanguage, MeResponse, type RouteSpec } from "./contract";
 
 // N-4's shapes shipped and are in `./contract.ts`.
 
-// ── N-7: today's lesson and the part checks ─────────────────────────────────
-
-export const DraftTodayResponse = z.discriminatedUnion("kind", [
-  z.object({ kind: z.literal("lesson"), lessonId: z.string(), finished: z.boolean() }),
-  z.object({ kind: z.literal("check"), checkId: z.string(), final: z.boolean(), passed: z.boolean() }),
-  z.object({ kind: z.literal("web"), href: z.string() }),
-  z.object({ kind: z.literal("nothing"), reason: z.enum(["off", "finished"]) }),
-]);
-export const DraftLessonResponse = z.object({
-  lesson: z.record(z.string(), z.unknown()),
-  practice: z.array(z.record(z.string(), z.unknown())),
-  review: z.array(z.record(z.string(), z.unknown())),
-  next: z.object({ id: z.string(), title: z.string() }).nullable(),
-  scene: z.string().nullable(),
-  place: z.object({ at: z.number().int(), of: z.number().int() }),
-  name: z.string().nullable(),
-  due: z.number().int(),
-  check: z.object({ id: z.string(), final: z.boolean(), passed: z.boolean() }).nullable(),
-  locale: InterfaceLanguage,
-  translations: z.record(z.string(), z.string()),
-});
-export const DraftFinishResponse = z.object({ recorded: z.boolean() });
-export const DraftCheckResponse = z.object({
-  checkId: z.string(),
-  attempt: z.number().int(),
-  final: z.boolean(),
-  items: z.array(z.record(z.string(), z.unknown())),
-  needed: z.number().int(),
-  alreadyPassed: z.boolean(),
-  next: z.object({ id: z.string(), label: z.string() }).nullable(),
-});
-export const DraftCheckRequest = z.object({
-  attempt: z.number().int().min(0).max(10_000),
-  responses: z.array(z.string().max(200).nullable()).max(60),
-});
-export const DraftCheckResult = z.object({
-  score: z.number(),
-  total: z.number().int(),
-  passed: z.boolean(),
-  marks: z.array(z.enum(["right", "nearly", "wrong"])),
-});
+// N-7's shapes shipped and are in `./contract.ts`.
 
 // ── N-8: the account ─────────────────────────────
 
@@ -157,11 +117,6 @@ export const DraftRecordingsResponse = z.object({
 // ── The planned routes ──────────────────────────────────────────────────────
 
 export const DRAFT_ROUTES: readonly RouteSpec[] = [
-  { method: "GET", path: "/api/v1/today", auth: true, item: "N-7", summary: "Whether today is a lesson, a check, the web or nothing.", response: DraftTodayResponse, example: "get-today.json" },
-  { method: "GET", path: "/api/v1/lessons/{id}", auth: true, item: "N-7", summary: "One lesson, as the web's lesson screen receives it.", response: DraftLessonResponse, example: "get-lessons-id.json" },
-  { method: "POST", path: "/api/v1/lessons/{id}/finish", auth: true, item: "N-7", summary: "A finished lesson: today ticked and its words in the deck.", response: DraftFinishResponse, example: "post-lessons-id-finish.json" },
-  { method: "GET", path: "/api/v1/checks/{id}", auth: true, item: "N-7", summary: "One attempt's paper at a part's check.", query: z.object({ attempt: z.string().optional() }), response: DraftCheckResponse, example: "get-checks-id.json" },
-  { method: "POST", path: "/api/v1/checks/{id}", auth: true, item: "N-7", summary: "An attempt marked on the server.", request: DraftCheckRequest, response: DraftCheckResult, example: "post-checks-id.json" },
   { method: "POST", path: "/api/v1/scenes", auth: true, item: "N-5", summary: "A conversation begun.", request: DraftBeginSceneRequest, response: DraftBeginSceneResponse, example: "post-scenes.json" },
   { method: "POST", path: "/api/v1/scenes/{runId}/turns", auth: true, item: "N-5", summary: "One turn taken.", request: DraftTurnRequest, response: DraftTurnResponse, example: "post-scenes-runid-turns.json" },
   { method: "POST", path: "/api/v1/scenes/{runId}/help", auth: true, item: "N-5", summary: "Help asked for in a conversation.", response: DraftHelpResponse, example: "post-scenes-runid-help.json" },

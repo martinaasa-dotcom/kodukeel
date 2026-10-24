@@ -8576,7 +8576,9 @@ check("an action that reaches a bulk builder, a paper rebuild or an append-only 
   const source = code("app/actions.ts");
   // `recordAttempt` and `saveResult` append to `ExamAttempt` and `Assessment`,
   // which nothing repairs, so a loop of them is permanent rather than slow.
-  const BULK = ["addPlanToDeck", "addUnitsToDeck", "examPaperFor", "recordAttempt", "saveResult"];
+  // `finishLessonFor` is `addPlanToDeck` behind a lesson, moved out of the action
+  // so the v1 route and the action share it (ADR-029); reaching it is reaching that.
+  const BULK = ["addPlanToDeck", "addUnitsToDeck", "examPaperFor", "recordAttempt", "saveResult", "finishLessonFor"];
 
   const bodies = source.split(/\n(?=export (?:async )?function )/).slice(1);
   const reaching: string[] = [];
@@ -8602,6 +8604,17 @@ check("an action that reaches a bulk builder, a paper rebuild or an append-only 
   // version of this check found seven of them, because a loop body with a
   // brace in it ended the match before the write.
   assert.ok(reaching.length >= 9, `expected the bulk callers, found ${reaching.length}: ${reaching.join(", ")}`);
+
+  /*
+    AND THE SAME RULE THROUGH THE OTHER DOOR. A v1 route that reaches a bulk
+    builder takes the allowance the action it shares a body with takes (D5),
+    or a native client could press finish as fast as it liked.
+  */
+  const v1 = APP.filter((file) => /[\\/]api[\\/]v1[\\/].*route\.ts$/.test(file));
+  const v1Bulk = v1.filter((file) => BULK.some((helper) => new RegExp(`\\b${helper}\\(`).test(code(file))));
+  const v1Open = v1Bulk.filter((file) => !/\bthrottleAction\(/.test(code(file)));
+  assert.deepEqual(v1Open, [], `these v1 routes reach a bulk card build with no allowance in front of it: ${v1Open.join(", ")}`);
+  assert.ok(v1Bulk.length >= 1, "no v1 route reaches a bulk builder, so this half of the check stopped looking");
 });
 
 check("every dead end in the app offers a way to report it", () => {
@@ -12938,12 +12951,35 @@ check("a route that spends something is throttled", () => {
     undo     is `POST /api/v1/grades/undo`, one card's scheduling put back, the
              `undoGrade` action's body, which has no ceiling for the same reason.
   */
-  const exempt = new Set(["metrics", "reminder", "research", "health", "send", "me", "review", "grades", "undo"]);
+  const exempt = new Set(["metrics", "reminder", "research", "health", "send", "me", "review", "grades", "undo", "today"]);
+  /*
+    And by path where a directory name says nothing (`[id]`), each for the
+    reason its web door has no ceiling either (D5):
+
+    lessons/[id]  is `lessonView`, which the lesson page reads with none: a
+                  lesson's plan is pure and the learner's three facts are three
+                  indexed reads.
+    checks/[id]   is `checkView` and `submitCheckFor`, the check page and the
+                  `submitCheck` action, neither throttled: a paper is built from
+                  the shipped course, and a pass is one setting written.
+
+    `today` above reads the course screen's own reading and writes nothing.
+  */
+  const exemptPaths = new Set([
+    join("app", "api", "v1", "lessons", "[id]", "route.ts"),
+    join("app", "api", "v1", "checks", "[id]", "route.ts"),
+  ]);
 
   for (const file of routes) {
     const name = file.split(/[\\/]/).slice(-2, -1)[0] ?? file;
-    if (exempt.has(name)) continue;
+    if (exempt.has(name) || exemptPaths.has(file)) continue;
     const source = code(file);
+    /*
+      `throttleAction` is the web action's own allowance, charged to the owner
+      it resolved (lib/security/actionLimits.ts), which a v1 route takes where it
+      shares a body with an action (D5), so it answers both questions below.
+    */
+    if (/\bthrottleAction\(\s*who\.ownerId,/.test(source)) continue;
     assert.match(
       source,
       /check(Shared)?RateLimit\(/,

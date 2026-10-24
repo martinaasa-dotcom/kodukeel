@@ -84,6 +84,10 @@ The actions the speech features use, which are the first routes to build:
 | `beginChat` | Opens tonight's chat, the evening worked out on the server (VB-11) | No; its turns are `/api/scene` |
 | `startCourseDay`, `markCourseStep`, `advanceCourseStep`, `tonightSteps` | Tonight's module | No |
 | `completeLesson` | A finished unit lesson | No |
+| `finishLesson` | A finished A1 lesson: today ticked where it is today's, its words in the deck | Yes, `POST /api/v1/lessons/{id}/finish`, behind the same allowance (N-7) |
+| `submitCheck` | A part's check marked on the server, and a pass recorded | Yes, `POST /api/v1/checks/{id}` (N-7) |
+| (none, the lesson and check pages) | One lesson as the lesson screen receives it; one attempt's paper | Yes, `GET /api/v1/lessons/{id}` and `GET /api/v1/checks/{id}` (N-7) |
+| (none, the course screen) | Whether today is a lesson, a check, the web or nothing | Yes, `GET /api/v1/today` (N-7) |
 | `readEstonian` | Glosses a pasted or transcribed text | No |
 | `readHeard` | Glosses a recording's transcript, its words only (VB-12) | No |
 | `saveScan`, `addScanToDeck` | A photographed page or the things around you | No; the reading is `/api/scan` |
@@ -93,6 +97,19 @@ The actions the speech features use, which are the first routes to build:
 | (none) | What was heard, read back and kept nowhere (VB-5) | Yes, `/api/tts?transient=1` |
 | (none) | The things in a photo, named in English (VB-13) | Yes, `/api/scan` with `mode: "things"` |
 | (none) | Anu | Yes, `/api/tutor` |
+
+**A lesson's six steps, and what each needs.** `GET /api/v1/lessons/{id}` hands over the whole lesson
+with its practice and review already built, so Listen, Words, How it works, Practice and Review need
+nothing more than that route to be drawn and answered; Practice and Review are marked on the device,
+as the web marks them, and grade nothing. What the steps also need is sound: Listen, Words and How it
+works play the native speaker's recordings by id and fall back to a clip read aloud, which are the
+recordings and clip routes (N-6), and Say it reads what was heard against the forms list, which is the
+forms route (N-6). The role-play that ends a check-in and a part is a conversation, which is the scene
+routes (N-5). On the web the conversation sends the learner back to the lesson when it ends
+(`lib/scenes/lessonReturn.ts`); a native app does the same in its own navigation, returning to the
+lesson's finish whether the conversation was finished or left, and then finishing the lesson as the
+web does. A lesson's English arrives with a table of its lines in the learner's language beside it,
+and its Estonian is drawn as it stands.
 
 `rememberPushDevice`, `forgetPushDevice` and `pushDeviceStatus` are Web Push's and stay the web's: a
 native app registers the platform's own notification token instead, which needs a table and a sender

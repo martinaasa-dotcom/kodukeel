@@ -26,12 +26,16 @@ async function main() {
 const { prisma } = await import("../lib/db");
 const { LOCAL_USER_ID } = await import("../lib/auth/mode");
 const { buildMeta } = await import("../lib/api/meta");
-const { LESSONS, ledgersBefore, practiceFor, reviewFor } = await import("../lib/course/lessons");
-const { PROGRAMMES, programmeAfter, programmeById } = await import("../lib/course");
-const { courseChecks, checkPaper } = await import("../lib/course/checks");
-const { CHECK_PASS, markCheck } = await import("../lib/course/lessons/practice");
+const { LESSONS } = await import("../lib/course/lessons");
+const { PROGRAMMES } = await import("../lib/course");
+const { courseChecks } = await import("../lib/course/checks");
+const { markCheck } = await import("../lib/course/lessons/practice");
+const { lessonView } = await import("../lib/progress/lessonView");
+const { checkView } = await import("../lib/progress/lessons");
+const { translationsOf } = await import("../lib/api/lessonText");
+const { tr } = await import("../lib/copy/locale");
 const { NATIVE_CLIPS, nativeFor, nativeUrl } = await import("../lib/audio/native");
-const { dailyReview, reviewQueue } = await import("../lib/progress/dailyQueue");
+const { dailyReview } = await import("../lib/progress/dailyQueue");
 
 const DIR = "lib/api/examples";
 mkdirSync(DIR, { recursive: true });
@@ -75,37 +79,27 @@ write("post-grades-undo.json", { undone: true });
 // ── Today's lesson and the checks ───────────────────────────────────────────
 
 const lesson = LESSONS[0]!;
-const before = ledgersBefore(LESSONS).get(lesson.id)!;
-const after = LESSONS[1];
-const ofLevel = LESSONS.filter((l) => l.level === lesson.level);
 write("get-today.json", { kind: "lesson", lessonId: lesson.id, finished: false });
+// The route's own body, read in Russian so the example shows the table beside the lesson.
+const view = (await lessonView(LOCAL_USER_ID, lesson.id, now))!;
 write("get-lessons-id.json", {
-  lesson,
-  practice: practiceFor(lesson, before),
-  review: reviewFor(lesson, before),
-  next: after && after.level === lesson.level ? { id: after.id, title: after.title } : null,
-  scene: null,
-  place: { at: ofLevel.indexOf(lesson) + 1, of: ofLevel.length },
-  name: null,
-  due: (await reviewQueue(LOCAL_USER_ID, null, now)).due.length,
-  check: null,
-  locale: "en",
-  translations: {},
+  ...view,
+  locale: "ru",
+  translations: translationsOf([view.lesson, view.practice, view.review, view.next], (english) => tr("ru", english)),
 });
 write("post-lessons-id-finish.json", { recorded: true });
 
 const check = courseChecks(PROGRAMMES)[0]!;
-const paper = checkPaper(check, 1);
-const part = programmeById(check.programmeId)!;
-const next = programmeAfter(part);
+const sat = (await checkView(LOCAL_USER_ID, check.id, 1))!;
+const paper = sat.paper;
 write("get-checks-id.json", {
-  checkId: check.id,
-  attempt: 1,
-  final: check.final,
+  checkId: sat.check.id,
+  attempt: sat.attempt,
+  final: sat.check.final,
   items: paper,
-  needed: Math.ceil(paper.length * CHECK_PASS),
-  alreadyPassed: false,
-  next: next ? { id: next.id, label: next.id.toUpperCase() } : null,
+  needed: sat.needed,
+  alreadyPassed: sat.alreadyPassed,
+  next: sat.next ? { id: sat.next.id, label: sat.next.id.toUpperCase() } : null,
 });
 const marked = markCheck(paper, paper.map((item) => item.answer));
 write("post-checks-id.json", { score: marked.score, total: marked.total, passed: marked.passed, marks: marked.marks });

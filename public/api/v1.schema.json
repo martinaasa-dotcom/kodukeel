@@ -1418,9 +1418,9 @@
       "method": "GET",
       "path": "/api/v1/today",
       "auth": true,
-      "draft": true,
+      "draft": false,
       "item": "N-7",
-      "summary": "Whether today is a lesson, a check, the web or nothing.",
+      "summary": "Whether today is a lesson, a check, the web or nothing planned.",
       "example": "get-today.json",
       "contentType": "application/json",
       "response": {
@@ -1436,7 +1436,8 @@
                 "type": "string"
               },
               "finished": {
-                "type": "boolean"
+                "type": "boolean",
+                "description": "True where today's lesson is already done; the next one waits for tomorrow."
               }
             },
             "required": [
@@ -1456,17 +1457,27 @@
                 "type": "string"
               },
               "final": {
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Whether this is the check on the whole of the level."
               },
               "passed": {
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Whether the part after it is open; false until the check is passed."
+              },
+              "next": {
+                "description": "The part a pass opens.",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
               "kind",
               "checkId",
               "final",
-              "passed"
+              "passed",
+              "next"
             ]
           },
           {
@@ -1477,7 +1488,8 @@
                 "const": "web"
               },
               "href": {
-                "type": "string"
+                "type": "string",
+                "description": "The path of today on the web, under the deployment's own address."
               }
             },
             "required": [
@@ -1505,16 +1517,17 @@
               "reason"
             ]
           }
-        ]
+        ],
+        "description": "Whether today is a lesson, a check, the web or nothing planned."
       }
     },
     "GET /api/v1/lessons/{id}": {
       "method": "GET",
       "path": "/api/v1/lessons/{id}",
       "auth": true,
-      "draft": true,
+      "draft": false,
       "item": "N-7",
-      "summary": "One lesson, as the web's lesson screen receives it.",
+      "summary": "One lesson, as the web's lesson screen receives it, with its English in the learner's language.",
       "example": "get-lessons-id.json",
       "contentType": "application/json",
       "response": {
@@ -1522,29 +1535,658 @@
         "properties": {
           "lesson": {
             "type": "object",
-            "propertyNames": {
-              "type": "string"
-            },
-            "additionalProperties": {}
-          },
-          "practice": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "propertyNames": {
+            "properties": {
+              "id": {
                 "type": "string"
               },
-              "additionalProperties": {}
+              "n": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "extra": {
+                "type": "string"
+              },
+              "level": {
+                "type": "string",
+                "enum": [
+                  "A1",
+                  "A2",
+                  "B1",
+                  "B2",
+                  "C1"
+                ]
+              },
+              "part": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "lesson",
+                  "checkin",
+                  "partEnd"
+                ]
+              },
+              "title": {
+                "type": "string"
+              },
+              "goal": {
+                "type": "string"
+              },
+              "cast": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "Who speaks, by name, and the voice each is read in."
+              },
+              "conversation": {
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "who": {
+                      "type": "string"
+                    },
+                    "et": {
+                      "type": "string"
+                    },
+                    "en": {
+                      "type": "string"
+                    },
+                    "stage": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "who"
+                  ]
+                }
+              },
+              "teaches": {
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "word"
+                        },
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "et",
+                        "en"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "form"
+                        },
+                        "et": {
+                          "type": "string"
+                        },
+                        "of": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "et",
+                        "of",
+                        "en"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "phrase"
+                        },
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "et",
+                        "en"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "verb"
+                        },
+                        "et": {
+                          "type": "string"
+                        },
+                        "first": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        },
+                        "firstEn": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "et",
+                        "first",
+                        "en",
+                        "firstEn"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "patterns": {
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "present",
+                    "negative",
+                    "imperative"
+                  ]
+                }
+              },
+              "how": {
+                "type": "object",
+                "properties": {
+                  "point": {
+                    "type": "string"
+                  },
+                  "notes": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "table": {
+                    "type": "object",
+                    "properties": {
+                      "head": {
+                        "readOnly": true,
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "rows": {
+                        "readOnly": true,
+                        "type": "array",
+                        "items": {
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "et": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "et"
+                                ]
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "en": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "en"
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "required": [
+                      "head",
+                      "rows"
+                    ]
+                  },
+                  "sounds": {
+                    "description": "Recordings by id, as `GET /api/v1/recordings` names them.",
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "sound": {
+                          "type": "string"
+                        },
+                        "glyph": {
+                          "type": "string"
+                        },
+                        "like": {
+                          "type": "string"
+                        },
+                        "word": {
+                          "type": "string"
+                        },
+                        "mark": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "sound",
+                        "glyph",
+                        "like",
+                        "word",
+                        "mark"
+                      ]
+                    }
+                  },
+                  "listen": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "words": {
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "clip": {
+                                "type": "string"
+                              },
+                              "en": {
+                                "type": "string"
+                              },
+                              "mark": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "clip",
+                              "en"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "words"
+                      ]
+                    }
+                  },
+                  "spell": {
+                    "type": "boolean"
+                  },
+                  "watchOut": {
+                    "type": "string"
+                  },
+                  "examples": {
+                    "description": "Lines of the conversation, by index.",
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  }
+                },
+                "required": [
+                  "point",
+                  "watchOut"
+                ]
+              },
+              "answers": {
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "ask": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    },
+                    "cue": {
+                      "type": "string"
+                    },
+                    "model": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "cue",
+                    "model"
+                  ]
+                }
+              },
+              "roleplay": {
+                "type": "object",
+                "properties": {
+                  "scene": {
+                    "type": "string"
+                  },
+                  "turns": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "ask": {
+                          "type": "object",
+                          "properties": {
+                            "et": {
+                              "type": "string"
+                            },
+                            "en": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "et",
+                            "en"
+                          ]
+                        },
+                        "cue": {
+                          "type": "string"
+                        },
+                        "model": {
+                          "type": "object",
+                          "properties": {
+                            "et": {
+                              "type": "string"
+                            },
+                            "en": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "et",
+                            "en"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "cue",
+                        "model"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "scene",
+                  "turns"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "n",
+              "level",
+              "part",
+              "kind",
+              "title",
+              "goal",
+              "cast",
+              "conversation",
+              "teaches",
+              "how",
+              "answers"
+            ],
+            "description": "One lesson as the web's lesson screen receives it. Two conventions run through its English, and a native screen draws them as the web's `Braced` does: Estonian inside an English sentence is written in braces, `{mina}`, and is marked as Estonian; a form's name in square brackets, `[osastav] (3rd form)`, is Estonian too and is not a word the lesson teaches. A capital I in a form's English hint is set in a face where it cannot be read as a lower-case l. The stand-in name Tom in a model answer is replaced by the learner's own `name` after translating. The Estonian was written for a beginner and read by a native speaker; a client draws it as it stands and never joins, respells or builds a line."
+          },
+          "practice": {
+            "readOnly": true,
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "hear"
+                    },
+                    "et": {
+                      "type": "string"
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "answer": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "et",
+                    "options",
+                    "answer"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "pick"
+                    },
+                    "et": {
+                      "type": "string"
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "answer": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "et",
+                    "options",
+                    "answer"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "type"
+                    },
+                    "en": {
+                      "type": "string"
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "accept": {
+                      "readOnly": true,
+                      "description": "Every spelling that counts, the asked one first.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "note": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "en",
+                    "answer",
+                    "accept"
+                  ]
+                }
+              ],
+              "description": "One question, built on the server; the client never decides what a learner is asked."
             }
           },
           "review": {
+            "readOnly": true,
             "type": "array",
             "items": {
-              "type": "object",
-              "propertyNames": {
-                "type": "string"
-              },
-              "additionalProperties": {}
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "hear"
+                    },
+                    "et": {
+                      "type": "string"
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "answer": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "et",
+                    "options",
+                    "answer"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "pick"
+                    },
+                    "et": {
+                      "type": "string"
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "answer": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "et",
+                    "options",
+                    "answer"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "type"
+                    },
+                    "en": {
+                      "type": "string"
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "accept": {
+                      "readOnly": true,
+                      "description": "Every spelling that counts, the asked one first.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "note": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "en",
+                    "answer",
+                    "accept"
+                  ]
+                }
+              ],
+              "description": "One question, built on the server; the client never decides what a learner is asked."
             }
           },
           "next": {
@@ -1567,9 +2209,11 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "The next lesson in the same level, or null at its end."
           },
           "scene": {
+            "description": "The lesson's own conversation, a scene id, where it has one.",
             "type": [
               "string",
               "null"
@@ -1595,6 +2239,7 @@
             ]
           },
           "name": {
+            "description": "The learner's own first name, for a model answer about them.",
             "type": [
               "string",
               "null"
@@ -1602,8 +2247,9 @@
           },
           "due": {
             "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Cards due in the learner's reviews now."
           },
           "check": {
             "anyOf": [
@@ -1629,7 +2275,8 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "The check that closes this lesson's part, where this is its last lesson."
           },
           "locale": {
             "type": "string",
@@ -1646,7 +2293,8 @@
             },
             "additionalProperties": {
               "type": "string"
-            }
+            },
+            "description": "The lesson's own English in the learner's language, keyed by the English it replaces, for every line a translation exists for; empty in English. The Estonian is never in it and never changes."
           }
         },
         "required": [
@@ -1661,23 +2309,25 @@
           "check",
           "locale",
           "translations"
-        ]
+        ],
+        "description": "One lesson, as the web's lesson screen receives it."
       }
     },
     "POST /api/v1/lessons/{id}/finish": {
       "method": "POST",
       "path": "/api/v1/lessons/{id}/finish",
       "auth": true,
-      "draft": true,
+      "draft": false,
       "item": "N-7",
-      "summary": "A finished lesson: today ticked and its words in the deck.",
+      "summary": "A finished lesson: today ticked where it is today's, and its words in the deck.",
       "example": "post-lessons-id-finish.json",
       "contentType": "application/json",
       "response": {
         "type": "object",
         "properties": {
           "recorded": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether today's evening was ticked; false for a lesson ahead of today, which records nothing."
           }
         },
         "required": [
@@ -1689,7 +2339,7 @@
       "method": "GET",
       "path": "/api/v1/checks/{id}",
       "auth": true,
-      "draft": true,
+      "draft": false,
       "item": "N-7",
       "summary": "One attempt's paper at a part's check.",
       "example": "get-checks-id.json",
@@ -1698,7 +2348,8 @@
         "type": "object",
         "properties": {
           "attempt": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^\\d{1,5}$"
           }
         }
       },
@@ -1710,26 +2361,115 @@
           },
           "attempt": {
             "type": "integer",
-            "minimum": -9007199254740991,
+            "minimum": 1,
             "maximum": 9007199254740991
           },
           "final": {
             "type": "boolean"
           },
           "items": {
+            "readOnly": true,
+            "description": "The attempt's questions as the web's check screen receives them, the right answers included, which the web uses for feedback too; the mark is the server's.",
             "type": "array",
             "items": {
-              "type": "object",
-              "propertyNames": {
-                "type": "string"
-              },
-              "additionalProperties": {}
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "hear"
+                    },
+                    "et": {
+                      "type": "string"
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "answer": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "et",
+                    "options",
+                    "answer"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "pick"
+                    },
+                    "et": {
+                      "type": "string"
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "answer": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "et",
+                    "options",
+                    "answer"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "type"
+                    },
+                    "en": {
+                      "type": "string"
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "accept": {
+                      "readOnly": true,
+                      "description": "Every spelling that counts, the asked one first.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "note": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "en",
+                    "answer",
+                    "accept"
+                  ]
+                }
+              ],
+              "description": "One question, built on the server; the client never decides what a learner is asked."
             }
           },
           "needed": {
             "type": "integer",
             "minimum": -9007199254740991,
-            "maximum": 9007199254740991
+            "maximum": 9007199254740991,
+            "description": "How many marks a pass takes."
           },
           "alreadyPassed": {
             "type": "boolean"
@@ -1765,16 +2505,17 @@
           "needed",
           "alreadyPassed",
           "next"
-        ]
+        ],
+        "description": "One attempt's paper at a part's check."
       }
     },
     "POST /api/v1/checks/{id}": {
       "method": "POST",
       "path": "/api/v1/checks/{id}",
       "auth": true,
-      "draft": true,
+      "draft": false,
       "item": "N-7",
-      "summary": "An attempt marked on the server.",
+      "summary": "An attempt marked on the server, and a pass recorded.",
       "example": "post-checks-id.json",
       "contentType": "application/json",
       "request": {
@@ -1783,7 +2524,8 @@
           "attempt": {
             "type": "integer",
             "minimum": 0,
-            "maximum": 10000
+            "maximum": 10000,
+            "description": "The attempt the paper was fetched for; the server builds that paper again to mark it."
           },
           "responses": {
             "maxItems": 60,
@@ -1798,7 +2540,8 @@
                   "type": "null"
                 }
               ]
-            }
+            },
+            "description": "What was picked or typed for each question, in order; null where nothing was."
           }
         },
         "required": [
@@ -1821,6 +2564,7 @@
             "type": "boolean"
           },
           "marks": {
+            "readOnly": true,
             "type": "array",
             "items": {
               "type": "string",
@@ -1837,7 +2581,8 @@
           "total",
           "passed",
           "marks"
-        ]
+        ],
+        "description": "The attempt marked on the server. A right answer is one point and a nearly half."
       }
     },
     "POST /api/v1/scenes": {

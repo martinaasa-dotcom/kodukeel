@@ -269,6 +269,176 @@ export const UndoResponse = z.object({ undone: z.literal(true) });
 export type GradesResponse = z.infer<typeof GradesResponse>;
 export type UndoResponse = z.infer<typeof UndoResponse>;
 
+// ── N-7: today's lesson and the part checks ─────────────────────────────────
+
+/*
+  A LESSON'S SHAPE IS `lib/course/lessons/types.ts`, NAMED HERE FIELD FOR FIELD.
+
+  `lib/progress/lessonContract.test.ts` holds each schema below and the type it
+  names to each other in both directions, so a change the lessons work makes to
+  a lesson's shape fails that test rather than a native app in a learner's
+  hand. Field meanings are the types' own and their comments are the reference.
+*/
+
+const CEFR = z.enum(["A1", "A2", "B1", "B2", "C1"]);
+const EtEn = z.object({ et: z.string(), en: z.string() });
+
+const LessonLine = z.object({
+  who: z.string(),
+  et: z.string().optional(),
+  en: z.string().optional(),
+  stage: z.string().optional(),
+});
+
+const LessonTaught = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("word"), et: z.string(), en: z.string() }),
+  z.object({ kind: z.literal("form"), et: z.string(), of: z.string(), en: z.string() }),
+  z.object({ kind: z.literal("phrase"), et: z.string(), en: z.string() }),
+  z.object({ kind: z.literal("verb"), et: z.string(), first: z.string(), en: z.string(), firstEn: z.string() }),
+]);
+
+const LessonCell = z.union([z.object({ et: z.string() }), z.object({ en: z.string() })]);
+
+const LessonPrompt = z.object({
+  ask: EtEn.optional(),
+  cue: z.string(),
+  model: EtEn,
+});
+
+export const LessonSpecSchema = z.object({
+  id: z.string(),
+  n: z.number().int(),
+  extra: z.string().optional(),
+  level: CEFR,
+  part: z.string(),
+  kind: z.enum(["lesson", "checkin", "partEnd"]),
+  title: z.string(),
+  goal: z.string(),
+  cast: z.record(z.string(), z.string()).describe("Who speaks, by name, and the voice each is read in."),
+  conversation: z.array(LessonLine).readonly(),
+  teaches: z.array(LessonTaught).readonly(),
+  patterns: z.array(z.enum(["present", "negative", "imperative"])).readonly().optional(),
+  how: z.object({
+    point: z.string(),
+    notes: z.array(z.string()).readonly().optional(),
+    table: z.object({
+      head: z.array(z.string()).readonly(),
+      rows: z.array(z.array(LessonCell).readonly()).readonly(),
+    }).optional(),
+    sounds: z.array(z.object({
+      sound: z.string(),
+      glyph: z.string(),
+      like: z.string(),
+      word: z.string(),
+      mark: z.string(),
+      en: z.string().optional(),
+    })).readonly().optional().describe("Recordings by id, as `GET /api/v1/recordings` names them."),
+    listen: z.array(z.object({
+      words: z.array(z.object({ clip: z.string(), en: z.string(), mark: z.string().optional() })).readonly(),
+    })).readonly().optional(),
+    spell: z.boolean().optional(),
+    watchOut: z.string(),
+    examples: z.array(z.number().int()).readonly().optional().describe("Lines of the conversation, by index."),
+  }),
+  answers: z.array(LessonPrompt).readonly(),
+  roleplay: z.object({ scene: z.string(), turns: z.array(LessonPrompt).readonly() }).optional(),
+}).describe(
+  "One lesson as the web's lesson screen receives it. Two conventions run through its English, and a " +
+  "native screen draws them as the web's `Braced` does: Estonian inside an English sentence is written in " +
+  "braces, `{mina}`, and is marked as Estonian; a form's name in square brackets, `[osastav] (3rd form)`, " +
+  "is Estonian too and is not a word the lesson teaches. A capital I in a form's English hint is set in a " +
+  "face where it cannot be read as a lower-case l. The stand-in name Tom in a model answer is replaced by the " +
+  "learner's own `name` after translating. The Estonian was written for a beginner and read by a native " +
+  "speaker; a client draws it as it stands and never joins, respells or builds a line.",
+);
+
+export const PracticeItemSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("hear"), et: z.string(), options: z.array(z.string()).readonly(), answer: z.string() }),
+  z.object({ kind: z.literal("pick"), et: z.string(), options: z.array(z.string()).readonly(), answer: z.string() }),
+  z.object({
+    kind: z.literal("type"),
+    en: z.string(),
+    answer: z.string(),
+    accept: z.array(z.string()).readonly().describe("Every spelling that counts, the asked one first."),
+    note: z.string().optional(),
+  }),
+]).describe("One question, built on the server; the client never decides what a learner is asked.");
+
+export const LessonResponse = z.object({
+  lesson: LessonSpecSchema,
+  practice: z.array(PracticeItemSchema).readonly(),
+  review: z.array(PracticeItemSchema).readonly(),
+  next: z.object({ id: z.string(), title: z.string() }).nullable().describe("The next lesson in the same level, or null at its end."),
+  scene: z.string().nullable().describe("The lesson's own conversation, a scene id, where it has one."),
+  place: z.object({ at: z.number().int(), of: z.number().int() }),
+  name: z.string().nullable().describe("The learner's own first name, for a model answer about them."),
+  due: z.number().int().min(0).describe("Cards due in the learner's reviews now."),
+  check: z.object({ id: z.string(), final: z.boolean(), passed: z.boolean() }).nullable()
+    .describe("The check that closes this lesson's part, where this is its last lesson."),
+  locale: InterfaceLanguage,
+  translations: z.record(z.string(), z.string()).describe(
+    "The lesson's own English in the learner's language, keyed by the English it replaces, for every line " +
+    "a translation exists for; empty in English. The Estonian is never in it and never changes.",
+  ),
+}).describe("One lesson, as the web's lesson screen receives it.");
+
+export type LessonResponse = z.infer<typeof LessonResponse>;
+
+export const FinishLessonResponse = z.object({
+  recorded: z.boolean().describe("Whether today's evening was ticked; false for a lesson ahead of today, which records nothing."),
+});
+
+export type FinishLessonResponse = z.infer<typeof FinishLessonResponse>;
+
+export const TodayResponse = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("lesson"),
+    lessonId: z.string(),
+    finished: z.boolean().describe("True where today's lesson is already done; the next one waits for tomorrow."),
+  }),
+  z.object({
+    kind: z.literal("check"),
+    checkId: z.string(),
+    final: z.boolean().describe("Whether this is the check on the whole of the level."),
+    passed: z.boolean().describe("Whether the part after it is open; false until the check is passed."),
+    next: z.string().nullable().describe("The part a pass opens."),
+  }),
+  z.object({
+    kind: z.literal("web"),
+    href: z.string().describe("The path of today on the web, under the deployment's own address."),
+  }),
+  z.object({ kind: z.literal("nothing"), reason: z.enum(["off", "finished"]) }),
+]).describe("Whether today is a lesson, a check, the web or nothing planned.");
+
+export type TodayResponse = z.infer<typeof TodayResponse>;
+
+export const CheckResponse = z.object({
+  checkId: z.string(),
+  attempt: z.number().int().min(1),
+  final: z.boolean(),
+  items: z.array(PracticeItemSchema).readonly()
+    .describe("The attempt's questions as the web's check screen receives them, the right answers included, which the web uses for feedback too; the mark is the server's."),
+  needed: z.number().int().describe("How many marks a pass takes."),
+  alreadyPassed: z.boolean(),
+  next: z.object({ id: z.string(), label: z.string() }).nullable(),
+}).describe("One attempt's paper at a part's check.");
+
+export type CheckResponse = z.infer<typeof CheckResponse>;
+
+export const CheckRequest = z.object({
+  attempt: z.number().int().min(0).max(10_000).describe("The attempt the paper was fetched for; the server builds that paper again to mark it."),
+  responses: z.array(z.string().max(200).nullable()).max(60).describe("What was picked or typed for each question, in order; null where nothing was."),
+});
+
+export const CheckResultSchema = z.object({
+  score: z.number(),
+  total: z.number().int(),
+  passed: z.boolean(),
+  marks: z.array(z.enum(["right", "nearly", "wrong"])).readonly(),
+}).describe("The attempt marked on the server. A right answer is one point and a nearly half.");
+
+export type CheckResultResponse = z.infer<typeof CheckResultSchema>;
+
 // ── The routes that have shipped ────────────────────────────────────────────
 
 export const SHIPPED_ROUTES: readonly RouteSpec[] = [
@@ -318,5 +488,52 @@ export const SHIPPED_ROUTES: readonly RouteSpec[] = [
     request: UndoRequest,
     response: UndoResponse,
     example: "post-grades-undo.json",
+  },
+  {
+    method: "GET",
+    path: "/api/v1/today",
+    auth: true,
+    summary: "Whether today is a lesson, a check, the web or nothing planned.",
+    item: "N-7",
+    response: TodayResponse,
+    example: "get-today.json",
+  },
+  {
+    method: "GET",
+    path: "/api/v1/lessons/{id}",
+    auth: true,
+    summary: "One lesson, as the web's lesson screen receives it, with its English in the learner's language.",
+    item: "N-7",
+    response: LessonResponse,
+    example: "get-lessons-id.json",
+  },
+  {
+    method: "POST",
+    path: "/api/v1/lessons/{id}/finish",
+    auth: true,
+    summary: "A finished lesson: today ticked where it is today's, and its words in the deck.",
+    item: "N-7",
+    response: FinishLessonResponse,
+    example: "post-lessons-id-finish.json",
+  },
+  {
+    method: "GET",
+    path: "/api/v1/checks/{id}",
+    auth: true,
+    summary: "One attempt's paper at a part's check.",
+    item: "N-7",
+    query: z.object({ attempt: z.string().regex(/^\d{1,5}$/).optional() }),
+    response: CheckResponse,
+    example: "get-checks-id.json",
+  },
+  {
+    method: "POST",
+    path: "/api/v1/checks/{id}",
+    auth: true,
+    summary: "An attempt marked on the server, and a pass recorded.",
+    item: "N-7",
+    request: CheckRequest,
+    response: CheckResultSchema,
+    example: "post-checks-id.json",
   },
 ];

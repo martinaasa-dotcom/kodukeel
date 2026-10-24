@@ -1396,30 +1396,30 @@ cannot sit a check holds them at the end of the first part for good. Both are bu
 already, so routes can serve them without touching what the lessons work owns (D1, D15).
 
 **Files.**
-- `lib/progress/lessons.ts` (to be written): `finishLesson`'s and `submitCheck`'s bodies moved out of
+- `lib/progress/lessons.ts`: `finishLesson`'s and `submitCheck`'s bodies moved out of
   `app/actions.ts`, taking the owner and otherwise unchanged (`lessonDayFor`, `dayIsInPlay`,
   `addPlanToDeck` and the `CourseStep` upsert for one; `checkPaper`, `markCheck` and
   `recordCheckPassed` for the other). The actions keep their throttles and their `revalidatePath`
   calls and call the moved functions, and so do the routes.
-- `lib/progress/lessonView.ts` (to be written): what the lesson page hands `LessonRunner`, as one
+- `lib/progress/lessonView.ts`: what the lesson page hands `LessonRunner`, as one
   function the page and the route both call: the lesson, its practice and review built through
   `practiceFor` and `reviewFor` against `ledgersBefore`, the next lesson in the same level, its scene id
   from `sceneForLesson`, its place in the level, the learner's sayable name, the cards now due, and the
   check that closes the part where this is its last lesson, with whether it is passed. The page keeps
   its markup and changes by exactly the lines that call it. If that is more than a handful of lines,
   stop and report, since the page is a lesson screen (D1).
-- `app/api/v1/today/route.ts` (to be written): `GET` reads `courseReading` and answers one of four
+- `app/api/v1/today/route.ts`: `GET` reads `courseReading` and answers one of four
   shapes: a lesson (its id and whether it is finished), a check (its id, whether it is the last of A1,
   and what `moveBlockedFor` says about the part after it), a module evening (`{ kind: "web", href }`,
   the address of today's module on the web, and nothing about its steps), or nothing planned (the
   learner turned the planned course off, or has finished it).
-- `app/api/v1/lessons/[id]/route.ts` (to be written): `GET` returns the lesson view above, with its
+- `app/api/v1/lessons/[id]/route.ts`: `GET` returns the lesson view above, with its
   English lines in the learner's interface language read through the area the lesson screen reads
   (`lessonText`), and the Estonian untouched. Any lesson may be read, as on the web; reading one ahead
   of today records nothing.
-- `app/api/v1/lessons/[id]/finish/route.ts` (to be written): `POST` through the moved function, with
+- `app/api/v1/lessons/[id]/finish/route.ts`: `POST` through the moved function, with
   the same `throttleAction` key as the action (D5). It answers `{ recorded }` exactly as the action does.
-- `app/api/v1/checks/[id]/route.ts` (to be written): `GET ?attempt=n` returns that attempt's paper
+- `app/api/v1/checks/[id]/route.ts`: `GET ?attempt=n` returns that attempt's paper
   through `checkPaper`, the questions only; `POST` takes the attempt and the responses and marks them
   through the moved body, answering the score, the total, the pass and the marks, as `submitCheck` does.
   The client never sends a mark (ADR-022's rule, which the web door already keeps).

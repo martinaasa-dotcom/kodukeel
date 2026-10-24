@@ -29,7 +29,7 @@ const B = baseUrl();
 const published = JSON.parse(readFileSync("public/api/v1.schema.json", "utf8"));
 
 // Floor: measured against a local-mode build, which is what the browser job runs.
-const { check, absent, done } = suite("The v1 API", { floor: 25 });
+const { check, absent, done } = suite("The v1 API", { floor: 39 });
 
 async function call(method, path, { body, headers = {} } = {}) {
   const res = await fetch(`${B}${path}`, {
@@ -150,6 +150,66 @@ if (!hosted) {
   check("an undo with a scheduling nobody can read is refused", badUndo.status === 400 && badUndo.json?.error?.code === "invalid", `status ${badUndo.status}`);
 } else {
   absent(11, "a signed-in token, which a hosted deployment needs and this suite does not mint (the 401 below is checked instead)");
+}
+
+// ── N-7: today, the lesson, and the part checks ──────────────────────────────
+
+if (!hosted) {
+  const today = await call("GET", "/api/v1/today");
+  check("today answers on a local install", today.status === 200, `status ${today.status}`);
+  check("today fits its published schema", misfit("GET /api/v1/today", today.json) === "", misfit("GET /api/v1/today", today.json));
+
+  const first = "a1-01-hello";
+  const lesson = await call("GET", `/api/v1/lessons/${first}`);
+  check("a lesson is served as the web's lesson screen receives it",
+    lesson.status === 200 && lesson.json?.lesson?.id === first && Array.isArray(lesson.json?.practice),
+    `status ${lesson.status}`);
+  check("the lesson fits its published schema", misfit("GET /api/v1/lessons/{id}", lesson.json) === "", misfit("GET /api/v1/lessons/{id}", lesson.json));
+  const missing = await call("GET", "/api/v1/lessons/no-such-lesson");
+  check("a lesson the course does not hold is not found", missing.status === 404 && missing.json?.error?.code === "not_found", `status ${missing.status}`);
+
+  // The last lesson of A1 is never today on the demo learner's evening, so finishing it records nothing.
+  const ahead = await call("POST", "/api/v1/lessons/a1-49-invite/finish");
+  check("a lesson ahead of today records nothing", ahead.status === 200 && ahead.json?.recorded === false, `status ${ahead.status}, ${ahead.text.slice(0, 120)}`);
+
+  if (today.json?.kind === "lesson" && !today.json.finished) {
+    const cardsBefore = (await call("GET", "/api/v1/review")).json?.totalCards ?? 0;
+    const done = await call("POST", `/api/v1/lessons/${today.json.lessonId}/finish`);
+    const cardsAfter = (await call("GET", "/api/v1/review")).json?.totalCards ?? 0;
+    check("today's lesson finished is recorded, and its words are cards",
+      done.status === 200 && done.json?.recorded === true && cardsAfter >= cardsBefore,
+      `status ${done.status}, recorded ${done.json?.recorded}, cards ${cardsBefore} then ${cardsAfter}`);
+    const after = await call("GET", "/api/v1/today");
+    check("today then says the lesson is done", after.json?.kind !== "lesson" || after.json.finished === true || after.json.lessonId !== today.json.lessonId,
+      JSON.stringify(after.json));
+  } else {
+    absent(2, `today being a lesson not yet finished, and today is ${JSON.stringify(today.json)}`);
+  }
+
+  const checkId = "check-a1.1";
+  const paper = await call("GET", `/api/v1/checks/${checkId}?attempt=7`);
+  check("a check's paper is served for the attempt asked", paper.status === 200 && paper.json?.attempt === 7 && paper.json?.items?.length > 0, `status ${paper.status}`);
+  check("the paper fits its published schema", misfit("GET /api/v1/checks/{id}", paper.json) === "", misfit("GET /api/v1/checks/{id}", paper.json));
+  if (paper.status === 200) {
+    const failed = await call("POST", `/api/v1/checks/${checkId}`, { body: { attempt: 7, responses: paper.json.items.map(() => null) } });
+    check("an attempt with nothing answered is marked and not passed", failed.status === 200 && failed.json?.passed === false && failed.json?.score === 0, `status ${failed.status}`);
+    check("the mark fits its published schema", misfit("POST /api/v1/checks/{id}", failed.json) === "", misfit("POST /api/v1/checks/{id}", failed.json));
+    const next = await call("GET", `/api/v1/checks/${checkId}?attempt=8`);
+    const passed = await call("POST", `/api/v1/checks/${checkId}`, { body: { attempt: 8, responses: next.json.items.map((item) => item.answer) } });
+    check("the next attempt answered right passes", passed.status === 200 && passed.json?.passed === true, `status ${passed.status}, ${passed.text.slice(0, 120)}`);
+    const mismatch = await call("POST", `/api/v1/checks/${checkId}`, { body: { attempt: 8, responses: [null] } });
+    check("responses that do not fit the paper are refused", mismatch.status === 400 && mismatch.json?.error?.code === "invalid", `status ${mismatch.status}`);
+  } else {
+    absent(4, "a check paper to sit, which the request above did not return");
+  }
+  /*
+    Not asked here, and why: a lesson read in Russian and the refusal to skip a
+    part without its check both need the learner's settings changed over HTTP,
+    which is `PATCH /api/v1/me` (N-8). `lib/api/today.test.ts` holds the A2
+    answer, and `lib/api/lessonText.test.ts` the translations beside a lesson.
+  */
+} else {
+  absent(14, "a signed-in token, which a hosted deployment needs and this suite does not mint (the 401 below is checked instead)");
 }
 
 // ── Every route that needs a token refuses without one ────────────────────────

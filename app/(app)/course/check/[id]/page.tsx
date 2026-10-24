@@ -1,9 +1,6 @@
 import { notFound } from "next/navigation";
 import { requireUserId } from "@/lib/auth/session";
-import { PROGRAMMES, programmeAfter, programmeById } from "@/lib/course";
-import { checkById, checkPaper } from "@/lib/course/checks";
-import { CHECK_PASS } from "@/lib/course/lessons/practice";
-import { checksPassedFor } from "@/lib/progress/checks";
+import { checkView } from "@/lib/progress/lessons";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
 import { Page } from "@/components/ui";
@@ -28,15 +25,14 @@ export default async function CheckPage({ params, searchParams }: {
   searchParams: Promise<{ try?: string | string[] }>;
 }) {
   const [ownerId, { id }, query] = await Promise.all([requireUserId(), params, searchParams]);
-  const check = checkById(PROGRAMMES, id);
-  if (!check) notFound();
   const raw = Array.isArray(query.try) ? query.try[0] : query.try;
-  const attempt = Math.min(10_000, Math.max(1, Number.parseInt(raw ?? "1", 10) || 1));
-  const [passed, locale] = await Promise.all([checksPassedFor(ownerId), localeFor(ownerId)]);
-  const part = programmeById(check.programmeId)!;
-  const next = programmeAfter(part) ?? null;
-  const paper = checkPaper(check, attempt);
-  const needed = Math.ceil(paper.length * CHECK_PASS);
+  // Built in `checkView`, which `GET /api/v1/checks/{id}` answers with too.
+  const [view, locale] = await Promise.all([
+    checkView(ownerId, id, Number.parseInt(raw ?? "1", 10) || 1),
+    localeFor(ownerId),
+  ]);
+  if (!view) notFound();
+  const { check, attempt, paper, needed, part, next } = view;
 
   return (
     <Page
@@ -55,7 +51,7 @@ export default async function CheckPage({ params, searchParams }: {
         attempt={attempt}
         items={paper}
         needed={needed}
-        alreadyPassed={passed.has(check.id)}
+        alreadyPassed={view.alreadyPassed}
         next={next ? { id: next.id, label: next.id.toUpperCase() } : null}
       />
     </Page>
