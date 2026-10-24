@@ -19,6 +19,12 @@ import { pushConfigured } from "@/lib/push/config";
  */
 
 export interface Recipient {
+  /**
+   * A stable name for the recipient, never shown: what the store labels
+   * (`lib/legal/storeLabels.ts`) key their answers on, since `name` is copy
+   * and changes with the wording.
+   */
+  id: string;
   name: string;
   /** What of theirs goes there, in the reader's terms. */
   what: string;
@@ -35,6 +41,14 @@ export interface Recipient {
  * a region setting on somebody's account, which is why the two that offer a
  * choice are recorded as unknown rather than guessed.
  */
+/** The id each provider's recipient carries; a label not here is `ai:` and the label. */
+const PROVIDER_ID: Record<string, string> = {
+  Groq: "groq",
+  "Google Gemini": "gemini",
+  Anthropic: "anthropic",
+  OpenAI: "openai",
+};
+
 const PROVIDER_HOME: Record<string, boolean | null> = {
   Groq: false,
   "Google Gemini": false,
@@ -61,6 +75,7 @@ export function resolveRecipients(): Recipient[] {
 
   for (const label of [...new Set(resolveProviders().map((p) => p.label))]) {
     recipients.push({
+      id: PROVIDER_ID[label] ?? `ai:${label}`,
       name: label,
       what: "what you type to Anu, and any page you photograph",
       eea: PROVIDER_HOME[label] ?? null,
@@ -69,6 +84,7 @@ export function resolveRecipients(): Recipient[] {
 
   if (ekilexConfigured()) {
     recipients.push({
+      id: "ekilex",
       name: "Ekilex, at the Institute of the Estonian Language",
       what: "a single word you looked up, with no account attached",
       eea: true,
@@ -84,6 +100,7 @@ export function resolveRecipients(): Recipient[] {
       an entry it names can only be opened through Ekilex.
     */
     recipients.push({
+      id: "wikimedia",
       name: "Wikimedia, which runs Wiktionary",
       what: "the same single word, asked for its English meaning, or an English word you searched for, asked for its Estonian, with no account attached",
       // Wikimedia Foundation is established in the United States.
@@ -110,6 +127,7 @@ export function resolveRecipients(): Recipient[] {
   */
   if (process.env.RESEND_API_KEY?.trim()) {
     recipients.push({
+      id: "resend",
       name: "Resend, which sends our emails",
       what: "your email address, and whatever a message to you says about your own course",
       // Resend Inc. is established in the United States.
@@ -134,6 +152,7 @@ export function resolveRecipients(): Recipient[] {
   */
   if (pushConfigured()) {
     recipients.push({
+      id: "push-services",
       name: "The push services run by Google, Mozilla, Apple and Microsoft",
       what: "a reminder you asked to have on a computer, encrypted so that only that browser can read it",
       // All four companies are established in the United States.
@@ -142,6 +161,7 @@ export function resolveRecipients(): Recipient[] {
   }
 
   recipients.push({
+    id: "tartunlp",
     name: "TartuNLP, at the University of Tartu",
     what: "a phrase you asked to hear read aloud, with no account attached",
     eea: true,
@@ -165,6 +185,7 @@ export function resolveRecipients(): Recipient[] {
   const webhook = process.env.ERROR_WEBHOOK_URL?.trim();
   if (webhook) {
     recipients.push({
+      id: "error-webhook",
       name: `The error reporting endpoint at ${hostOf(webhook)}`,
       what: "a description of anything that breaks, with your user id and never your email",
       // Wherever the operator pointed it. Nothing here can tell.
@@ -174,6 +195,7 @@ export function resolveRecipients(): Recipient[] {
 
   if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
     recipients.push({
+      id: "supabase",
       name: "Supabase",
       what: "your email address and everything in the database, as the host of both",
       // The project's region is chosen when it is created and is not readable
@@ -204,6 +226,7 @@ export function resolveRecipients(): Recipient[] {
   */
   if (process.env.VERCEL === "1") {
     recipients.push({
+      id: "vercel",
       name: "Vercel, which runs the servers this app lives on",
       what:
         "every request you make, while it's being answered, and a log of it "
