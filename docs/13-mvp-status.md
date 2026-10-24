@@ -280,9 +280,10 @@ lexicographer wrote (ADR-017).
 4. **Classes need sign-in.** In local mode there is one learner, so `/class` explains that rather
    than offering forms that could not work.
 5. **Installable, but not in the App Store.** Kodukeel installs to a home screen as a PWA and works
-   offline there. An actual App Store listing needs a native shell (Capacitor or similar) around
-   this same web app, which is a packaging and review exercise rather than a rewrite, and it has not been
-   done.
+   offline there. What is planned instead of a shell around the web app is a native app for iOS and
+   Android over `/api/v1/`, bearer only and versioned (ADR-029, `docs/44-sixth-batch.md`), sharing the
+   pure layers as they are and its own speech engine held to the golden file
+   (`docs/42-native-apps.md`). It has not been built.
 
 ## 8. The merge: one app, not two
 

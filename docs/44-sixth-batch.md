@@ -1010,7 +1010,7 @@ the SVG master and the running app, so the first native build waits on nothing e
   phone at their pixel sizes and scale), in the light theme, in English, Russian, Ukrainian and Estonian,
   over the demo history from `scripts/demo-data.ts`. A list of the screens to shoot (today's lesson, a
   review card, a conversation, the dictionary entry, Progress, a check result), kept beside it.
-- `docs/46-store-listing` (to be written): the app name and subtitle, keywords, the short and long
+- `docs/46-store-listing.md`: the app name and subtitle, keywords, the short and long
   description in the four languages (the Estonian read by the native speaker, as D16; the Russian and
   Ukrainian machine-written and marked as such), the category, the support address (`/help`), the
   marketing address (`/welcome`), the privacy address (`/privacy`), the age-rating answers with the
@@ -1046,7 +1046,7 @@ once and drift.
   reason.
 - A unit test: every recipient and every exported model maps to an answer, so adding either fails until
   somebody decides its label.
-- `docs/46-store-listing` (to be written), from R-2: the generated answers for the hosted deployment,
+- `docs/46-store-listing.md`, from R-2: the generated answers for the hosted deployment,
   printed by a script beside the icon script, with the date.
 
 **Trip hazards.**
@@ -1712,7 +1712,7 @@ way as the web.
 - **Create the store accounts' app records** and **settle the bundle id and package name**
   (`docs/40-fourth-batch.md` FB-7 proposed `ee.kodukeel.app`), then upload R-2's icons, screenshots and
   listing and R-3's labels.
-- **Create an App Review account** for Apple's reviewers, as `docs/46-store-listing` (to be written)
+- **Create an App Review account** for Apple's reviewers, as `docs/46-store-listing.md`
   describes.
 - **Choose the native framework** before November. One that runs TypeScript reuses N-1's contract,
   `lib/speech/` and the other pure layers as they are; one that does not ports them with their tests.

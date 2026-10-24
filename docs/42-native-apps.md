@@ -60,6 +60,87 @@ passes them.
 - **The cache.** The service worker's caches (`public/sw.js`) become the platform's own storage, with
   the model in a place the system does not clear.
 
+### The native outbox and the model cache, written out (R-5)
+
+The web's outbox is `lib/offline/db.ts` over IndexedDB, with its rules in `lib/offline/outbox.ts`, which
+a native app imports as it is. Its own store keeps the same records under the same rules:
+
+- **Every field of `PendingGrade` is kept.** `id`, `cardId`, `rating`, `durationMs`, `reviewedAt`, and
+  `slot`, `reachedSlot` and `spoken` where the round set them. A field the store does not keep is a
+  field the server never hears about, silently, for exactly the learners who were on a train.
+- **Idempotent by id.** The id is made on the device (`isClientReviewId` is the shape the server
+  accepts), so a replay that half succeeded and is sent again writes nothing twice: the server answers
+  with the ids it has settled, and those leave the store (`withoutSettled`).
+- **Replayed in order.** `orderForReplay` puts a batch in the order the server applies it, by when it
+  was answered and then by id; `nextBatch` sends `REPLAY_BATCH` at a time. The time is the device's own
+  and the server clamps it (`clampReviewedAt`), so a wrong clock costs an interval rather than a grade.
+- **An unsendable row is dropped, not skipped.** A row `isValidPending` refuses is deleted by its id
+  rather than read past, or the count of grades waiting never reaches nought. A row too broken to have
+  an id is left alone.
+- **An undo takes a queued grade out.** `undoOutcome` is the rule: a grade still in the store is undone
+  by removing it, whatever the server can say.
+- **The store is wiped when another account signs in**, after the outbox has had its chance to drain,
+  as `lib/offline/forget.ts` does on the web: the queued grades, the kept session and anything cached
+  from the last learner's screens.
+- **The kept session** is `StashedSession` from `lib/review/card.ts`, and `stashedCards` says whether it
+  is still worth reviewing (`STASH_MAX_AGE_MS`, three days).
+
+The model is the other thing a device keeps. A native app downloads the four files named in
+`lib/speech/model.ts` from the same base, checks each against its SHA-256 before using it, and keeps
+them in its own container, where the system does not clear them the way Safari clears a site's storage
+after a week. The name `ASR_CACHE` is derived from the hashes, so a new model is a new cache; a native
+app keys its copy the same way and deletes any other, which is what the service worker does
+(`public/sw.js`).
+
+### What a native app imports, and how (R-1)
+
+A native app written in TypeScript imports these as they are, from this repository, and a check holds
+them portable: `scripts/invariants/the-portable-core.ts` walks the runtime imports from each one and
+fails on a browser global, a `node:` module or another Node built-in, a read of `process`, a package
+nobody decided the phone carries, or an import from `app/` or `components/`. It names the chain that
+reached the fault. The fix is always to move the browser or server half out, never an exemption.
+
+| Entry | What it gives a native app |
+| --- | --- |
+| `lib/speech/` | The whole speech pure layer: preparing, cutting, reconciling, the verdict, lighting a line, the golden rules |
+| `lib/estonian/` | Every rule a screen asks about Estonian, the marker included |
+| `lib/scenes/` | The conversations and their machine |
+| `lib/offline/outbox.ts` | The outbox's record (`PendingGrade`), its order and its checks |
+| `lib/push/notification.ts` | The words a reminder says, read from the same letter |
+| `lib/copy/locale.ts` | `tr`, `fill` and the counted nouns, over the interface tables |
+| `lib/srs/scheduler.ts` | The ratings and the scheduler's own vocabulary, over `ts-fsrs` |
+| `lib/review/card.ts` | A review card as the server sends it, and the cached session a device keeps |
+| `lib/links/routes.ts` | Which web paths a native screen answers (R-4, section 3) |
+| `lib/api/contract.ts` (to be written) | The v1 contract (N-1), in the walk from the day the file exists |
+
+Today the walk reaches about 290 files. The packages it may reach are `ts-fsrs` and `zod`; a third is a
+decision, made in the check's own list.
+
+Four things a native project has to mirror:
+
+- **The `@/` alias.** Every import here is written from the repository's root (`@/lib/...`), as
+  `tsconfig.json` declares it. The native project maps `@/` to the same root, in its bundler and in
+  its own `tsconfig.json`.
+- **No DOM library.** The web's `tsconfig.json` carries `dom`, so the web's type check cannot see a
+  browser global in shared code; the native project leaves `dom` out, which is what makes the check
+  above and the native compiler agree.
+- **The `react-native` condition.** `#i18n-tables` is a package import (`package.json`, "imports").
+  Under `react-native` and `browser` it resolves to `lib/copy/i18n/tables.browser.ts`, a registry
+  that holds whatever has been handed to it. The `default` variant reads the generated files with
+  `node:fs`, which a phone has not got. React Native's bundler asks for `react-native` first.
+- **The tables are handed over.** A native app registers the learner's language with
+  `registerTable(locale, table, true)` from `lib/copy/i18n/tables.browser.ts`, out of
+  `lib/copy/i18n/generated/ru.json` or `uk.json`, bundled with the app or fetched from the site. Each
+  file is a `PackedTable` (`lib/copy/i18n/table.ts`): `{ "packed": 1, "lines", "counted", "cases" }`,
+  where `lines` maps `lineKey(english)` (a 53-bit hash in base 36) to the line, `counted` maps a noun
+  to its three plural forms, and `cases` to its genitive and accusative singular. English needs no
+  table, since the English is the key. `npm run i18n:tables` writes the files, so a native build
+  copies them at build time rather than keeping a copy of its own.
+
+What stays out of the portable core, and is the web's or the server's: `lib/offline/db.ts` (the web's
+IndexedDB store), and `lib/push/config.ts`, `lib/security/rateLimit.ts` and `lib/email/webhook.ts`,
+which read the environment. None of them is reached from an entry above.
+
 ## 3. What will not work as it is, and is the native work order's first item
 
 **Every write in this app is a Server Action, and only the web app can call one.** A Server Action is a
@@ -101,6 +182,35 @@ Signing in is the other half: Supabase Auth issues the same tokens to a native c
 above read them as a bearer header where the web reads the cookie. `lib/auth/identity.ts` is where that
 choice is made today.
 
+### Which link opens which screen (R-4)
+
+A native app meets links it did not make: a letter's button, the path a notification carries, an
+address somebody shared. `lib/links/routes.ts` is the one table of where each opens on a phone, and
+`resolveLink(path)` reads it, first row wins:
+
+| Web path | On a phone |
+| --- | --- |
+| `/course`, `/course/learn`, `/course/lessons`, `/learn` | Today's screen. At A1 that is a lesson; above it, the web (D15). The table names the screen and `/api/v1/today` says which |
+| `/course/lessons/[id]` | The lesson |
+| `/review` | The review |
+| `/situations/[id]` | A conversation |
+| `/dictionary` | The dictionary, or an entry where the link carries `?q=` |
+| `/progress` | Progress |
+| `/settings` | Settings, with the link's query (`?tab=account`) handed over |
+| `/auth/callback`, `/sign-in` | Signing in |
+| Everything else the web has | The browser, until the native work order moves it |
+
+There is no row that matches every path. A path no row matches resolves to null, and
+`lib/links/routes.test.ts` fails on any page route under `app/`, any link a letter builds and any path
+a notification carries that resolves to null, so a new letter cannot link to a path nobody decided.
+Moving a screen to the phone is a change to that table and nothing else. The first candidates are the
+part check (`/course/check/[id]`) and today's chat (`/course/chat`), which the first day of an A1
+learner reaches.
+
+The app-link files (N-3's `apple-app-site-association` and `assetlinks.json`) claim only
+`/auth/callback` until a native app exists, so a sign-in link opens it. From the day it ships they claim
+the paths this table marks native, and no others, so a link the app cannot answer stays in the browser.
+
 ## 4. What a native app can do that the web cannot
 
 The fifth batch left these out because a browser cannot do them, and they are the native work order's
@@ -132,6 +242,32 @@ Produce `lib/speech/fixtures/golden.json` from the same clips:
 A native engine that passes this hears what the web hears and grades what the web grades. A difference
 in the raw turns is a difference in the engine or its settings, and is the thing to fix before anything
 is built on top.
+
+**Running the check with no browser (R-5).** `npm run check:speech-golden` runs step 3 and step 4 on
+stored turns: `scripts/check-speech-golden.ts` hands each clip's turns to `decide` and compares the
+result with the golden file's `expect`, field by field, through `checkGolden` in
+`lib/speech/goldenCheck.ts`. It needs no browser, no model and no audio, and it never writes the golden
+file. With no argument it uses the golden file's own turns, which is the check that the rules have not
+moved; `lib/speech/goldenCheck.test.ts` runs it that way on every commit.
+
+A native port records its own turns in the golden file's shape and passes the file with `--run`:
+
+```json
+{
+  "engine": "<the engine and its version>",
+  "model": "<repo>@<revision>, as lib/speech/model.ts names it",
+  "clips": [
+    { "file": "scripts/fixtures/speech/tere.wav", "sha256": "<the bytes decoded>", "turns": [ "<one RawTurn per piece>" ] }
+  ]
+}
+```
+
+Each `turns` entry is a `RawTurn` (`lib/speech/engine.ts`): the greedy and the beam reading with their
+tokens, timestamps and log probabilities, and the seconds of speech. The check refuses a clip whose hash
+is not the golden clip's, a run that names another model, a clip it does not hold and a clip the run
+leaves out, and for the rest names each field that came out different. A native port written in
+TypeScript can call `checkGolden` itself; one written in Swift or Kotlin writes the JSON and runs the
+script.
 
 ## 6. Parity, both ways (D25)
 

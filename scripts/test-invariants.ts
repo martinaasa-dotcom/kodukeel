@@ -344,7 +344,7 @@ function chainTo(start: string, target: string): string | null {
  */
 const PURE_LAYERS = [
   "assessment", "collections", "copy", "course", "curriculum", "email", "estonian", "evidence", "exam", "funding", "games",
-  "learn", "offline", "push", "questions", "random", "readiness", "research", "review", "scan", "scenes", "security",
+  "learn", "links", "offline", "push", "questions", "random", "readiness", "research", "review", "scan", "scenes", "security",
   "speech", "stats", "time", "ux",
 ] as const;
 

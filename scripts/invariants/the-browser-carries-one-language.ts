@@ -100,7 +100,14 @@ export default function theBrowserCarriesOneLanguage({ check, code, APP, COMPONE
 
   check("`#i18n-tables` is the registry in a browser and the full tables everywhere else", () => {
     const pkg = JSON.parse(readFileSync("package.json", "utf8")) as { imports?: Record<string, Record<string, string>> };
+    /*
+      A native bundle (React Native's Metro) asks for `react-native` first, and
+      the full tables read `node:fs`, which a phone has not got; so it is
+      pointed at the registry, which is what the portable core needs
+      (docs/42-native-apps.md, section 2).
+    */
     assert.deepEqual(pkg.imports?.["#i18n-tables"], {
+      "react-native": "./lib/copy/i18n/tables.browser.ts",
       browser: "./lib/copy/i18n/tables.browser.ts",
       default: "./lib/copy/i18n/tables.ts",
     });
