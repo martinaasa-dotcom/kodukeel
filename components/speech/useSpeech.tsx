@@ -106,7 +106,7 @@ function downloadModel(base: string, quiet: boolean): Promise<void> {
   set({ phase: "downloading", done: 0, total: 0, error: null });
   downloading = (async () => {
     try {
-      await engineFor(base).download((done, total) => set({ done, total }));
+      await engineFor(base).download((done, total) => set({ done, total }), { quiet });
       set({ phase: "ready", error: null });
     } catch (e) {
       const why = errorOf(e);

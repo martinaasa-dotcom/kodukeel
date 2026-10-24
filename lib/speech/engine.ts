@@ -121,8 +121,12 @@ export interface ListenOptions {
 export interface SpeechEngine {
   /** Whether this device holds the current model files. Read from where they are kept, never from a setting. */
   isDownloaded(): Promise<boolean>;
-  /** Fetch and check every file, reporting progress, and ask the platform to keep them. */
-  download(onProgress: (done: number, total: number) => void): Promise<void>;
+  /**
+   * Fetch and check every file, reporting progress, and ask the platform to keep them.
+   * A `quiet` download (the background one nobody pressed for) asks nothing a
+   * browser might turn into a prompt, and the asking never holds the download up.
+   */
+  download(onProgress: (done: number, total: number) => void, options?: { readonly quiet?: boolean }): Promise<void>;
   /** Load the model and check the device can run it in real time. */
   load(): Promise<void>;
   /** Open the microphone and start hearing. Events arrive through `onEvent` until a `final`. */
