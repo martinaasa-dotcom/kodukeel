@@ -157,8 +157,11 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
           {/* A column of its own beside the unit only where the card has
               room for both. Sized by the window it took 208px at 768 out of a
               320px card, and `flex-1` above it grows from nothing, so the
-              unit's own sentence was laid out 0px wide, a letter a line. */}
-          <div className="flex w-full flex-col gap-2 @lg:w-52">
+              unit's own sentence was laid out 0px wide, a letter a line. And
+              as wide as its widest button rather than a fixed 208px: a label
+              is one line, and "Try it in a conversation" (longer still in
+              Russian) ran its icon out of the button at 1024. */}
+          <div className="flex w-full flex-col gap-2 @lg:w-auto">
             {/*
               One way in, and it is the lesson.
 
