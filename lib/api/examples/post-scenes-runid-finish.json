@@ -1,5 +1,84 @@
 {
+  "runId": "1fa196e6-b2f3-4337-a4c3-36cbc0a8c14f",
+  "objectives": {
+    "met": [
+      "greet"
+    ],
+    "missed": [
+      "order",
+      "size",
+      "bill",
+      "pay",
+      "close"
+    ]
+  },
+  "hurdles": [],
+  "outcome": {
+    "id": "left",
+    "says": "You left the counter before it was done."
+  },
+  "turns": [
+    {
+      "beatId": "greet",
+      "said": "Tere!",
+      "reading": "complete",
+      "met": [
+        true
+      ],
+      "helped": false,
+      "produced": [
+        "tere"
+      ],
+      "substituted": [],
+      "heard": "Tere!",
+      "matched": [
+        "tere"
+      ]
+    }
+  ],
   "recap": {
-    "headline": "Every turn was understood."
-  }
+    "headline": "You got 1 of the 6 things done.",
+    "stats": [
+      {
+        "label": "Things done",
+        "value": 1
+      },
+      {
+        "label": "Turns understood",
+        "value": 1
+      },
+      {
+        "label": "Right first time",
+        "value": 1
+      },
+      {
+        "label": "Surprises handled",
+        "value": 0
+      }
+    ],
+    "highlights": [],
+    "moments": [
+      {
+        "at": 0,
+        "said": "Tere!",
+        "heard": "Tere!",
+        "goal": "Say hello back over the counter.",
+        "fixes": [],
+        "tone": "right",
+        "label": "Understood"
+      }
+    ],
+    "nextTime": [
+      {
+        "title": "One thing left to get done",
+        "detail": "Tell them what you'd like to drink. It was the first of 5 things left, and the one to start with."
+      }
+    ]
+  },
+  "gaps": [],
+  "review": {
+    "lead": "The one thing you said answered the question. Nothing needed putting right.",
+    "notes": []
+  },
+  "graded": 0
 }

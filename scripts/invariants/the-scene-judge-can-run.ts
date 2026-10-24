@@ -20,7 +20,7 @@ import type { InvariantKit } from "../lib/invariantKit";
  */
 export default function theSceneJudgeCanRun({ check, code }: InvariantKit) {
   check("no hoisted function in the scene route reads a let before it is written", () => {
-    const route = code("app/api/scene/route.ts");
+    const route = code("lib/progress/sceneRequest.ts");
     const word = (name: string) => new RegExp(`(?<![\\w$./])${name.replace(/\$/g, "\\$")}(?![\\w$])`, "g");
     // Every function declaration with its body, found by brace matching from its opening brace.
     const functions: { name: string; body: string; params: string }[] = [];

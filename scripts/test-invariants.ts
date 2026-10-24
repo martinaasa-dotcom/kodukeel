@@ -9230,7 +9230,7 @@ check("the scene's word list is cached, and a run keeps one voice", () => {
     the list's cache entry every time.
   */
   assert.match(
-    code("app/api/scene/route.ts"),
+    code("lib/progress/sceneRequest.ts"),
     /composeSystemLayers\(\{[\s\S]{0,240}?words: input\.words,?\s*\}\)/,
     "the scene route stopped putting the list behind the cache breakpoint",
   );
@@ -9244,7 +9244,7 @@ check("the scene's word list is cached, and a run keeps one voice", () => {
     "the route decides for itself whether to compose instead of reading the run's own choice",
   );
   assert.match(
-    code("app/actions.ts"), /lines: sceneProviders\(\)\.length > 0 \? "composed" : "scripted"/,
+    code("lib/progress/sceneRuns.ts"), /lines: sceneProviders\(\)\.length > 0 \? "composed" : "scripted"/,
     "the run no longer settles composed-or-scripted when it opens",
   );
 });
@@ -9360,15 +9360,15 @@ check("the other side talks at the run's band, and every composer says which ban
   assert.ok(specFiles.length >= 15, `only ${specFiles.length} scene files under lib/scenes/specs, so the band check reads too little`);
   for (const file of specFiles) assert.doesNotMatch(code(file), /^\s*level: "/m, `${file} names a band`);
   assert.match(
-    code("app/actions.ts"), /level: pitched,/,
-    "beginScene stopped opening the run at the band the learner chose",
+    code("lib/progress/sceneRuns.ts"), /level: pitched,/,
+    "beginSceneFor stopped opening the run at the band the learner chose",
   );
   assert.match(
     code("components/scene/SceneSession.tsx"), /beginScene\(scene\.id, difficulty, level\)/,
     "the briefing no longer sends the band the learner picked",
   );
   assert.match(
-    code("app/api/scene/route.ts"), /includes\(row!\.level\)/,
+    code("lib/progress/sceneRequest.ts"), /includes\(row!\.level\)/,
     "the scene route stopped reading the band the run was opened at",
   );
   /*
@@ -9380,7 +9380,7 @@ check("the other side talks at the run's band, and every composer says which ban
     one deployment that has no model to fall back on.
   */
   assert.match(
-    code("app/api/scene/route.ts"), /sceneContext\(scene(?:\.id)?, level\)/,
+    code("lib/progress/sceneRequest.ts"), /sceneContext\(scene(?:\.id)?, level\)/,
     "the scene route builds its context for no band, so the bank's pitched lines are never read first",
   );
   /*
@@ -9510,7 +9510,7 @@ check("nothing reaches a paid provider without going through the ledger", () => 
     outcome rather than an error, and a booking left standing there rations a
     learner over a line nobody was shown.
   */
-  const scene = code("app/api/scene/route.ts");
+  const scene = code("lib/progress/sceneRequest.ts");
   assert.match(
     scene, /releaseReservation\(/,
     "the scene books a turn it may not compose and never hands the booking back",
@@ -9523,7 +9523,7 @@ check("nothing reaches a paid provider without going through the ledger", () => 
   */
   for (const call of ["recordUsage", "releaseReservation"]) {
     assert.match(
-      code("app/api/scene/route.ts"),
+      code("lib/progress/sceneRequest.ts"),
       new RegExp(`after\\(\\(\\) => ${call}\\(`),
       `the scene leaves ${call} to a promise nobody is holding`,
     );
@@ -9542,7 +9542,7 @@ check("nothing reaches a paid provider without going through the ledger", () => 
     never released. Asserted on the route, because the fault was in how the
     route wired an ordinary helper, and on every settlement and release there.
   */
-  const sceneCode = code("app/api/scene/route.ts");
+  const sceneCode = code("lib/progress/sceneRequest.ts");
   assert.match(sceneCode, /turnBooking\(/, "the scene settles a turn's several model calls against one booking without `turnBooking`, so each takes the whole reserve off again");
   const settlements = [...sceneCode.matchAll(/recordUsage\(\{[\s\S]*?\}\)/g)].map((m) => m[0]);
   assert.ok(settlements.length >= 3, `only ${settlements.length} settlements found in the scene route, so this check stopped looking`);
@@ -9925,7 +9925,7 @@ check("the dictionary under a sentence is the learner's to refuse", () => {
   const producers = [
     ["lib/progress/reviewCards.ts", "a first meeting in review"],
     ["lib/progress/learn.ts", "a word on the learn ladder"],
-    ["app/api/scene/route.ts", "a line said in a conversation"],
+    ["lib/progress/sceneRequest.ts", "a line said in a conversation"],
   ] as const;
   for (const [file, what] of producers) {
     const producer = code(file);
@@ -9942,7 +9942,7 @@ check("the dictionary under a sentence is the learner's to refuse", () => {
       and above the `glossSentences` that draws the other side's line, while
       the turn's own reading further down the file is untouched.
     */
-    const route = code("app/api/scene/route.ts");
+    const route = code("lib/progress/sceneRequest.ts");
     const refusal = route.indexOf("SETTING_KEYS.wordGloss");
     const reading = route.indexOf('glossSentences([{ et: text, form: null }])');
     assert.ok(refusal > 0 && reading > refusal, "the scene route no longer refuses before it looks");
@@ -12973,7 +12973,15 @@ check("a route that spends something is throttled", () => {
   for (const file of routes) {
     const name = file.split(/[\\/]/).slice(-2, -1)[0] ?? file;
     if (exempt.has(name) || exemptPaths.has(file)) continue;
-    const source = code(file);
+    /*
+      A conversation's turn has one body behind two doors (N-5): the web's
+      `/api/scene` and `POST /api/v1/scenes/{runId}/turns` both hand the request
+      to `sceneTurnFor`, which takes the ceiling itself, charged to the owner the
+      door resolved. Such a door is read with that body, so the ceiling has to
+      be there and the door has to call it.
+    */
+    const handsOff = /\bsceneTurnFor\(/.test(code(file));
+    const source = handsOff ? `${code(file)}\n${code(join("lib", "progress", "sceneRequest.ts"))}` : code(file);
     /*
       `throttleAction` is the web action's own allowance, charged to the owner
       it resolved (lib/security/actionLimits.ts), which a v1 route takes where it
@@ -14534,14 +14542,14 @@ check("first run builds a deck in a fixed number of queries, not one set per wor
   reads the state the one before left behind.
 */
 check("a finished scene reads the cards it grades once, not one query per grade", () => {
-  const finish = between(code("app/actions.ts"), "export async function finishScene");
-  assert.match(finish, /cardsForGrades\(/, "finishScene stopped matching its grades in one pass");
+  const finish = between(code("lib/progress/sceneRuns.ts"), "export async function finishSceneFor");
+  assert.match(finish, /cardsForGrades\(/, "finishSceneFor stopped matching its grades in one pass");
   assert.doesNotMatch(
     // Lazy to the `) {` rather than `[^)]*`, which stops at the first `)`: the
     // loop header here is `.entries()`, so the narrower pattern never saw the
     // loop at all and this arm passed with a query put back inside it.
     finish, /for\s*\([\s\S]*?\)\s*\{[\s\S]{0,400}?await\s+prisma\./,
-    "finishScene is querying inside its grading loop again, a round trip per grade before a single write",
+    "finishSceneFor is querying inside its grading loop again, a round trip per grade before a single write",
   );
 });
 
@@ -16565,9 +16573,18 @@ check("nothing grades a card outside lib/srs/grade.ts", () => {
     /at < createdAt \? createdAt : at/,
     "lib/srs/grade.ts stopped flooring a grade at the moment its card was created",
   );
-  for (const caller of ["app/actions.ts", "lib/srs/replay.ts"]) {
+  /*
+    `gradeCard` and the rounds the server marks grade through `gradeFor` and
+    `gradeOnce`, which moved into `lib/progress/grading.ts` so the v1 doors call
+    the same two (N-5). The writer is asked of that file, and the actions are
+    held to reaching it rather than writing a grade of their own.
+  */
+  for (const caller of ["lib/progress/grading.ts", "lib/srs/replay.ts"]) {
     assert.match(code(caller), /\bwriteGrade\(/, `${caller} stopped writing its grade through lib/srs/grade.ts`);
   }
+  const actionsCode = code("app/actions.ts");
+  assert.match(actionsCode, /import \{[^}]*\bgradeFor\b[^}]*\} from "@\/lib\/progress\/grading"/, "app/actions.ts no longer grades through lib/progress/grading.ts");
+  assert.match(actionsCode, /\breturn gradeFor\(ownerId,/, "gradeCard stopped grading through gradeFor");
 });
 
 /*
@@ -18335,7 +18352,10 @@ check("each routed purpose asks for its own chain", () => {
     "app/api/tutor/route.ts": "tutor",
     "app/(app)/layout.tsx": "tutor",
     "app/(app)/tutor/page.tsx": "tutor",
-    "app/actions.ts": "scene",
+    // The briefing's promise, which moved out of `app/actions.ts` with the body
+    // both doors open a run through (N-5).
+    "lib/progress/sceneRuns.ts": "scene",
+    "lib/progress/sceneRequest.ts": "scene",
     // The three graders and the translation fallback: metered as GRADER and
     // pinned to the model `eval:grader` measured, so none may take the
     // general head, which is whatever the environment happened to make it.
@@ -18350,7 +18370,7 @@ check("each routed purpose asks for its own chain", () => {
     /*
       `sceneProviders` counts as asking for the scene chain, because the block
       above has just asserted that it is built on that purpose. A scene path may
-      reach it either way and `app/actions.ts` reaches it through the wrapper:
+      reach it either way and `lib/progress/sceneRuns.ts` reaches it through the wrapper:
       the briefing has to promise exactly what `/api/scene` will attempt, and the
       wrapper is what carries the per-provider `*_SCENE_MODEL` override the route
       also honors. Asking the bare purpose there would promise composition on a
@@ -18896,7 +18916,7 @@ check("a cached input token is priced as one, and the cached prompt is the same 
 
   for (const file of [
     "app/api/tutor/route.ts", "app/api/write/route.ts", "app/api/describe/route.ts",
-    "app/api/exam/write/route.ts", "app/api/scene/route.ts", "lib/tutor/translate.ts",
+    "app/api/exam/write/route.ts", "lib/progress/sceneRequest.ts", "lib/tutor/translate.ts",
   ]) {
     assert.match(
       code(file),
@@ -19002,7 +19022,7 @@ check("a conversation with Anu lasts a day, on the read, on the write and on the
 
 check("the scene prompt is served off a cache entry, by one module, on the route and in the harness", () => {
   assert.match(
-    code("app/api/scene/route.ts"),
+    code("lib/progress/sceneRequest.ts"),
     /SCENE_REPLY_TOKENS,\s*true,\s*\);/,
     "the scene route stopped asking for the system prompt to be held on the provider's side, so every turn re-reads the word list at full price",
   );
@@ -19112,7 +19132,7 @@ check("a scripted line is drafted by a script, said after a recorded one, and ma
   const modelAt = turnModule.indexOf("await model(");
   assert.ok(netAt > 0 && modelAt > 0 && netAt < modelAt,
     "the model step is handed over before the net is worked out, so the net is assembled while somebody is waiting");
-  const sceneRouteCode = code("app/api/scene/route.ts");
+  const sceneRouteCode = code("lib/progress/sceneRequest.ts");
   const speakAt = sceneRouteCode.indexOf("speakTurn(plan");
   const bookAt = sceneRouteCode.indexOf('authoriseCall(ownerId, "SCENE")');
   assert.ok(speakAt > 0 && bookAt > 0 && speakAt < bookAt,
@@ -19355,10 +19375,18 @@ check("a scene is marked by the server, and its grades go to the shared log", ()
     the body. It found nothing and reported that the action no longer marks,
     which is a check reporting its own regex. The helper was already here.
   */
+  /*
+    The body is `finishSceneFor`, which the action and `POST
+    /api/v1/scenes/{runId}/finish` both call (N-5), so it is read there, and
+    both doors are held to calling it.
+  */
   const actions = code("app/actions.ts");
-  const action = between(actions, "export async function finishScene(");
-  assert.ok(action, "finishScene has gone, or changed shape past recognition");
-  assert.match(action, /finishRun\(/, "finishScene no longer re-marks on the server");
+  const runs = code("lib/progress/sceneRuns.ts");
+  const action = between(runs, "export async function finishSceneFor(");
+  assert.ok(action, "finishSceneFor has gone, or changed shape past recognition");
+  assert.match(between(actions, "export async function finishScene("), /finishSceneFor\(ownerId,/, "finishScene no longer finishes through the shared body");
+  assert.match(code("app/api/v1/scenes/[runId]/finish/route.ts"), /finishSceneFor\(who\.ownerId,/, "the v1 finish no longer finishes through the shared body");
+  assert.match(action, /finishRun\(/, "finishSceneFor no longer re-marks on the server");
   /*
     Through `gradeOnce`, which is `writeGrade` behind an id: the same writer
     `gradeCard` uses, with the run and the grade's place in it naming the
@@ -19374,12 +19402,17 @@ check("a scene is marked by the server, and its grades go to the shared log", ()
     perfectly correct `gradeCard(card.id, grade.rating, 0)` inside, and a check
     that fires on honest code is a check people waive.
   */
-  const signature = /export async function finishScene\(([\s\S]*?)\)\s*\{/
-    .exec(actions)?.[1] ?? "";
-  assert.doesNotMatch(
-    signature, /rating|score|grade|objectives|outcome/i,
-    "finishScene takes a mark from its caller, which is a result anybody can type",
-  );
+  for (const [source, name] of [[actions, "finishScene"], [runs, "finishSceneFor"]] as const) {
+    const signature = new RegExp(`export async function ${name}\\(([\\s\\S]*?)\\)(?::[^{]*)?\\s*\\{`).exec(source)?.[1] ?? "";
+    assert.ok(signature.length > 0, `${name}'s signature was not found, so this check reads nothing`);
+    assert.doesNotMatch(
+      signature, /rating|score|grade|objectives|outcome/i,
+      `${name} takes a mark from its caller, which is a result anybody can type`,
+    );
+  }
+  assert.match(code("lib/api/contract.ts"), /export const SceneFinishRequest = z\.object\(\{\s*turns:[^]*?\}\);/, "the v1 finish request is gone");
+  assert.doesNotMatch(/export const SceneFinishRequest = z\.object\(\{([^]*?)\}\);/.exec(code("lib/api/contract.ts"))?.[1] ?? "", /\b(rating|score|grade|objectives|outcome)\b/i,
+    "the v1 finish takes a mark from its caller, which is a result anybody can type");
 
   // And one replay, reached from both ends, rather than a marker per door.
   const server = code("lib/progress/scene.ts");
@@ -19390,7 +19423,7 @@ check("a scene is marked by the server, and its grades go to the shared log", ()
     "finishRun marks a run some other way than the replay the learner saw",
   );
   assert.match(
-    code("app/api/scene/route.ts"), /replay\(/,
+    code("lib/progress/sceneRequest.ts"), /replay\(/,
     "the route reads a turn some other way than the replay that writes the record",
   );
 });
@@ -19659,7 +19692,7 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     shared log at all.
   */
   assert.match(
-    code("app/actions.ts"), /practisedSlot: grade\.grammCase[\s\S]{0,120}reachedSlot: grade\.reachedCase/,
+    code("lib/progress/sceneRuns.ts"), /practisedSlot: grade\.grammCase[\s\S]{0,120}reachedSlot: grade\.reachedCase/,
     "a scene's grades no longer carry the case that came back instead, so the confusion is lost",
   );
 
@@ -20177,7 +20210,7 @@ check("a learner who says they are lost is handed the word, never the question a
     + "is answered with the repair phrase",
   );
   for (const [file, calls] of [
-    ["app/api/scene/route.ts", 1],
+    ["lib/progress/sceneRequest.ts", 1],
     ["lib/progress/scene.ts", 2],
   ] as const) {
     const source = code(file);
@@ -20283,7 +20316,7 @@ check("a learner who says they are lost is handed the word, never the question a
     scene, and the line that comes back is still checked four ways by the gate.
   */
   {
-    const route = code("app/api/scene/route.ts");
+    const route = code("lib/progress/sceneRequest.ts");
     assert.match(
       route, /(const readingOf = async|async function readingOf)/,
       "the composer is no longer told what the learner's turn means, so its line answers the beat "
@@ -20489,7 +20522,7 @@ check("a learner who says they are lost is handed the word, never the question a
       harness reported the hint as an Estonian line with a digit in it, which
       is what a list copied three times always does.
     */
-    for (const file of ["components/scene/SceneSession.tsx", "app/api/scene/route.ts", "scripts/fuzz-scenes.ts"]) {
+    for (const file of ["components/scene/SceneSession.tsx", "lib/progress/sceneRequest.ts", "scripts/fuzz-scenes.ts"]) {
       assert.match(
         code(file), /isSpokenEstonian|isSaid/,
         `${file} decides for itself which lines are spoken, so it can disagree with the others`,
@@ -20567,7 +20600,7 @@ check("a learner who says they are lost is handed the word, never the question a
     + "composed line",
   );
   assert.match(
-    code("app/api/scene/route.ts"), /after\(\(\) => growDictionary\(/,
+    code("lib/progress/sceneRequest.ts"), /after\(\(\) => growDictionary\(/,
     "the scene route fetches new words on the request's own clock, so a learner waits on Ekilex for "
     + "a line that is already written",
   );
@@ -20957,7 +20990,7 @@ check("a run reads a beat's lines from its own place in them", () => {
     + "run can never reach half of a beat's bank",
   );
   assert.match(
-    code("app/api/scene/route.ts"), /rotate: seedFrom\(/,
+    code("lib/progress/sceneRequest.ts"), /rotate: seedFrom\(/,
     "the scene route stopped handing the ladder this run's own place in the bank, so every learner "
     + "opens every scene with the same sentence",
   );
@@ -21027,7 +21060,7 @@ check("nothing but the dictionary can advance a scene", () => {
     scene's reviewer chain, metered as a GRADER call, and its module holds no Estonian
     and reaches no provider.
   */
-  const route = code("app/api/scene/route.ts");
+  const route = code("lib/progress/sceneRequest.ts");
   const replayAt = route.indexOf("replay(marking, draw, turns)");
   const judgeAt = route.indexOf("parseJudgement(");
   assert.ok(replayAt > 0 && judgeAt > replayAt, "the scene route asks the judge before the dictionary has read the turn, or not at all.");
@@ -22715,7 +22748,7 @@ check("a conversation draws the room it is had in, for the whole of it", () => {
     alone leaves the room silent about the very thing it was put there for.
   */
   assert.match(
-    code("app/api/scene/route.ts"), /hurdle: state\.hurdle\?\.id \?\? null/,
+    code("lib/progress/sceneRequest.ts"), /hurdle: state\.hurdle\?\.id \?\? null/,
     "the route no longer says which curveball is standing, so the room cannot draw it",
   );
   assert.match(
@@ -27313,7 +27346,7 @@ check("a game graded on the server writes one review however often its round is 
       `${name} grades without an id derived from the round, so a resent round is a second review`);
     assert.doesNotMatch(body, /\bgradeCard\(|\bgradeFor\(/, `${name} grades through a door that takes no derived id`);
   }
-  const once = between(actions, "async function gradeOnce(");
+  const once = between(code("lib/progress/grading.ts"), "export async function gradeOnce(");
   assert.match(once, /isRepeatedReview\(/, "gradeOnce no longer reads a repeat as done");
   const card = between(actions, "export async function gradeCard(");
   assert.match(card, /return gradeFor\([^;]*\breviewId\b/,
@@ -28330,7 +28363,7 @@ check("the scene judge is asked about the beat the turn was aimed at", () => {
     with patience one, or with the brisk persona, is every miss. The beat and
     the row are read off the state before the turn.
   */
-  const route = code("app/api/scene/route.ts");
+  const route = code("lib/progress/sceneRequest.ts");
   assert.match(route, /const before = replay\(marking, draw, turns\.slice\(0, -1\)\)\.state;/,
     "the scene route no longer replays the run up to the turn it is about to judge");
   assert.match(route, /const judged = before\.hurdle \? hurdleBeat\(before\.hurdle\) : currentBeat\(scene, before\);/,

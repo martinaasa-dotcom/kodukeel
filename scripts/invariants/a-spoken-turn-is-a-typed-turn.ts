@@ -7,8 +7,9 @@ import type { InvariantKit } from "../lib/invariantKit";
  *
  * What a source check can hold of it:
  *
- *   - every door a scene's turns come in by (the route, `sceneHelp` and
- *     `finishScene`) reads the `spoken` field through `spokenOf`, or a run
+ *   - every door a scene's turns come in by (`sceneTurnFor`, `sceneHelpFor`
+ *     and `finishSceneFor`, behind the web's and v1's doors) reads the
+ *     `spoken` field through `spokenOf`, or a run
  *     re-marked at the end would grade a word the route had refused to;
  *   - `gradesFor` reads `repaired`, and nothing in the reply does (D26: the
  *     one new field is the grades' alone, and the reply's written order is
@@ -20,9 +21,10 @@ import type { InvariantKit } from "../lib/invariantKit";
  */
 export default function aSpokenTurnIsATypedTurn({ check, code }: InvariantKit) {
   check("every door a scene's turns come in by reads what was said aloud", () => {
-    assert.match(code("app/api/scene/route.ts"), /spokenOf\(one\.spoken, said\)/, "the scene route drops the spoken field");
-    const actions = code("app/actions.ts");
-    assert.equal((actions.match(/spokenOf\(row\.spoken, said\)/g) ?? []).length, 2, "an action that replays a run drops the spoken field");
+    assert.match(code("lib/progress/sceneRequest.ts"), /spokenOf\(one\.spoken, said\)/, "the scene route drops the spoken field");
+    // `sceneHelp` and `finishScene`'s bodies, which their v1 doors call too (N-5).
+    const runs = code("lib/progress/sceneRuns.ts");
+    assert.equal((runs.match(/spokenOf\(row\.spoken, said\)/g) ?? []).length, 2, "a door that replays a run drops the spoken field");
   });
 
   check("a repaired word is read by the grades and by nothing in the reply", () => {

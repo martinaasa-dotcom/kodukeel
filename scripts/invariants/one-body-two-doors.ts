@@ -98,8 +98,23 @@ export default function oneBodyTwoDoors({ check, code, APP, LIB }: InvariantKit)
   });
 
   check("every lib function a v1 route calls is one the web calls too", () => {
-    const web = APP.filter((f) => !f.startsWith("app/api/v1/") && /\.(ts|tsx)$/.test(f) && !/\.(test|itest)\./.test(f))
-      .map((f) => code(f)).join("\n");
+    /*
+      Read with the web: `lib/progress/grading.ts`, which is `gradeCard`'s own
+      body moved out of `app/actions.ts` so a conversation's finish could grade
+      the same way from either door (N-5). What it calls the web calls, through
+      the one action, and the action is held to calling it, so a moved body
+      does not read as a second one.
+    */
+    const MOVED_WEB_BODIES: Record<string, RegExp> = {
+      "lib/progress/grading.ts": /\breturn gradeFor\(ownerId,/,
+    };
+    for (const [body, call] of Object.entries(MOVED_WEB_BODIES)) {
+      assert.match(code("app/actions.ts"), call, `app/actions.ts no longer calls ${body}, so it is not the web's body any more; take it off`);
+    }
+    const web = [
+      ...APP.filter((f) => !f.startsWith("app/api/v1/") && /\.(ts|tsx)$/.test(f) && !/\.(test|itest)\./.test(f)),
+      ...Object.keys(MOVED_WEB_BODIES),
+    ].map((f) => code(f)).join("\n");
     let looked = 0;
     const alone: string[] = [];
     for (const file of routes) {

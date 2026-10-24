@@ -1,19 +1,42 @@
 {
+  "voice": "tambet",
+  "speed": 0.95,
+  "response": "answer",
+  "beatId": "order",
+  "goal": "Tell them what you'd like to drink.",
+  "done": [
+    "greet"
+  ],
+  "over": false,
+  "reading": "complete",
+  "slips": [],
+  "conceded": null,
+  "alsoDone": null,
+  "chosen": [],
+  "picks": [
+    {
+      "id": "order#0",
+      "et": "Vett, palun.",
+      "en": "Some water, please."
+    },
+    {
+      "id": "order#1",
+      "et": "Ma sooviksin vett.",
+      "en": "I'd like some water."
+    },
+    {
+      "id": "order#2",
+      "et": "Ma võtan vett.",
+      "en": "I'll have water."
+    }
+  ],
+  "hurdle": null,
+  "queued": false,
+  "composer": null,
   "lines": [
     {
-      "who": "them",
-      "text": "Tere hommikust!",
-      "lang": "et",
+      "text": "Palun, mida te soovite tellida?",
       "provenance": "scripted"
     }
-  ],
-  "objectives": [
-    {
-      "goal": "Say hello.",
-      "done": true
-    }
-  ],
-  "finished": false,
-  "composedBy": null,
-  "modelDown": false
+  ]
 }

@@ -1307,12 +1307,12 @@ the web's review is byte for byte what it was.
 them spoken. A native app needs to open one, take turns, ask for help, finish it and open today's chat.
 
 **Files.**
-- `lib/progress/sceneRequest.ts` (to be written): the body of `app/api/scene/route.ts`, taking the owner,
+- `lib/progress/sceneRequest.ts`: the body of `app/api/scene/route.ts`, taking the owner,
   so the web route and the v1 route call one function. `lib/progress/sceneTurn.ts` is untouched; this is
   the layer above it that resolves the run and the ledger.
 - The bodies of `beginScene`, `sceneHelp`, `finishScene` and `beginChat` moved out of `app/actions.ts` the
   same way, into `lib/progress/` beside the scene code.
-- `app/api/v1/scenes/route.ts` (to be written) and the routes under it: begin a run, take a turn, ask for
+- `app/api/v1/scenes/route.ts` and the routes under it: begin a run, take a turn, ask for
   help, finish, and begin today's chat, each through the moved function. A spoken turn carries its
   repaired words, its two counts and whether the line it answered was only heard (`unseen`, coerced to an
   exact true as the web's is), and never the words heard. A native client that sends `unseen` without

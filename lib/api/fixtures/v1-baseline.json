@@ -2467,6 +2467,1688 @@
         ],
         "description": "The attempt marked on the server. A right answer is one point and a nearly half."
       }
+    },
+    "POST /api/v1/scenes": {
+      "contentType": "application/json",
+      "request": {
+        "type": "object",
+        "properties": {
+          "sceneId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "description": "A scene from the situations list, or a lesson's own role-play, which `GET /api/v1/lessons/{id}` names as `scene`."
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": [
+              "textbook",
+              "good",
+              "ordinary",
+              "bad"
+            ],
+            "description": "How many things go wrong on the other side, from none to most."
+          },
+          "level": {
+            "description": "The band the other side talks at; the learner's own level where absent.",
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1",
+              "B2",
+              "C1"
+            ]
+          }
+        },
+        "required": [
+          "sceneId",
+          "difficulty"
+        ]
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "runId": {
+            "type": "string"
+          },
+          "briefing": {
+            "type": "object",
+            "properties": {
+              "you": {
+                "type": "string",
+                "description": "Who the learner is in this scene, in English."
+              },
+              "props": {
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "slot": {
+                      "type": "string"
+                    },
+                    "card": {
+                      "type": "string",
+                      "description": "The card's line, in English."
+                    },
+                    "returned": {
+                      "description": "Dealt because the learner reached for this word in a recent scene and did not have it.",
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "given": {
+                      "readOnly": true,
+                      "description": "What the card dealt, in English; the learner says it in Estonian.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "slot",
+                    "card",
+                    "given"
+                  ]
+                }
+              },
+              "persona": {
+                "type": "string",
+                "description": "Who is on the other side, as the learner is introduced to them."
+              }
+            },
+            "required": [
+              "you",
+              "props",
+              "persona"
+            ]
+          },
+          "plays": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "How many times this learner has had this conversation before."
+          },
+          "composed": {
+            "type": "boolean",
+            "description": "Whether a model writes the other side's lines in this run; false is the built-in lines throughout."
+          }
+        },
+        "required": [
+          "runId",
+          "briefing",
+          "plays",
+          "composed"
+        ],
+        "description": "A conversation opened: the briefing a person walking in would have, and nothing about what is going to happen."
+      }
+    },
+    "POST /api/v1/scenes/{runId}/turns": {
+      "contentType": "application/json",
+      "request": {
+        "type": "object",
+        "properties": {
+          "turns": {
+            "maxItems": 60,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "beatId": {
+                  "type": "string",
+                  "maxLength": 64,
+                  "description": "The `beatId` the answer before this turn named."
+                },
+                "said": {
+                  "type": "string",
+                  "maxLength": 1000,
+                  "description": "What the learner sent, typed or said; the server reads at most 300 characters."
+                },
+                "helped": {
+                  "description": "Whether the help button handed over a word for this turn.",
+                  "type": "boolean"
+                },
+                "picked": {
+                  "description": "Picked from the offered lines rather than typed, which grades nothing.",
+                  "type": "boolean"
+                },
+                "heard": {
+                  "description": "The other side's Estonian line this turn answers; never what a recognizer heard.",
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "conceded": {
+                  "description": "Echoed from the answer that conceded them.",
+                  "maxItems": 16,
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 15
+                  }
+                },
+                "alsoDone": {
+                  "description": "Echoed from the answer that named them.",
+                  "maxItems": 8,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "maxLength": 64
+                  }
+                },
+                "spoken": {
+                  "type": "object",
+                  "properties": {
+                    "repairs": {
+                      "description": "Only the repaired words, never what the recognizer heard; a repaired word earns no grade.",
+                      "maxItems": 16,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "to": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "description": "The word the dictionary read a heard word as, which went into the box."
+                          },
+                          "rule": {
+                            "type": "string",
+                            "enum": [
+                              "sound",
+                              "boundary",
+                              "joined",
+                              "hesitation"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "to"
+                        ]
+                      }
+                    },
+                    "wordsHeard": {
+                      "description": "How many words the recognizer heard.",
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "wordsChanged": {
+                      "description": "How many of them the learner changed before sending.",
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "unseen": {
+                      "description": "True only where the line this turn answered was hidden on screen behind a press the learner did not press, so the turn was answered by ear. It is the evidence that somebody can follow spoken Estonian, so a client sends true only where it really hid the line; anything but an exact true reads as the line was shown.",
+                      "type": "boolean"
+                    }
+                  },
+                  "description": "A turn said aloud: its repaired words and its two counts, never the words heard."
+                }
+              },
+              "required": [
+                "beatId",
+                "said"
+              ],
+              "description": "One of the learner's turns, as the client keeps it and sends it back with every later one."
+            },
+            "description": "Every turn so far, the newest last; empty for the other side's opening line."
+          },
+          "used": {
+            "description": "The other side's lines said so far, so a line is not said twice.",
+            "maxItems": 240,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 1200
+            }
+          }
+        },
+        "required": [
+          "turns"
+        ]
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "provenance": {
+                  "type": "string",
+                  "enum": [
+                    "attested",
+                    "scripted",
+                    "composed",
+                    "fallback",
+                    "again",
+                    "echo",
+                    "recast",
+                    "offered",
+                    "english",
+                    "unspoken",
+                    "meanwhile",
+                    "coach"
+                  ],
+                  "description": "Where the line came from. `unspoken`, `meanwhile` and `coach` are English from the app rather than the other side."
+                },
+                "from": {
+                  "type": "string"
+                },
+                "withheld": {
+                  "readOnly": true,
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "stretched": {
+                  "readOnly": true,
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "reaction": {
+                  "description": "A reaction to the learner's turn rather than the line they now answer.",
+                  "type": "boolean",
+                  "const": true
+                },
+                "tokens": {
+                  "description": "The dictionary under the line, where the learner asked for it.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string"
+                      },
+                      "word": {
+                        "type": "boolean"
+                      },
+                      "taught": {
+                        "type": "boolean"
+                      },
+                      "entry": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "lexemeId": {
+                                "type": "string"
+                              },
+                              "lemma": {
+                                "type": "string"
+                              },
+                              "gloss": {
+                                "type": "string"
+                              },
+                              "matchedAs": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "reading": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "clause": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "alsoSaid": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "spelling": {
+                                        "type": "string"
+                                      },
+                                      "everyday": {
+                                        "type": "boolean"
+                                      }
+                                    },
+                                    "required": [
+                                      "spelling",
+                                      "everyday"
+                                    ]
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "lexemeId",
+                              "lemma",
+                              "gloss",
+                              "matchedAs",
+                              "reading",
+                              "clause",
+                              "alsoSaid"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "text",
+                      "word",
+                      "taught",
+                      "entry"
+                    ],
+                    "description": "One run of a sentence, with the dictionary entry it was vouched as, if any."
+                  }
+                }
+              },
+              "required": [
+                "text",
+                "provenance"
+              ]
+            },
+            "description": "What the other side says now, in order."
+          },
+          "voice": {
+            "type": "string"
+          },
+          "speed": {
+            "type": "number"
+          },
+          "response": {
+            "type": "string",
+            "enum": [
+              "answer",
+              "narrow",
+              "repeat",
+              "wait",
+              "moveOn",
+              "english",
+              "counter",
+              "help"
+            ]
+          },
+          "beatId": {
+            "description": "The beat the next turn answers; send it back as that turn's `beatId`.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "goal": {
+            "description": "What the learner is trying to do now, in English.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "done": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "over": {
+            "type": "boolean"
+          },
+          "reading": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "complete",
+                  "incomplete",
+                  "offtarget",
+                  "unrecognised",
+                  "english",
+                  "echo",
+                  "fragment",
+                  "lost",
+                  "declined"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "slips": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "spelling",
+                    "case",
+                    "form",
+                    "person",
+                    "english"
+                  ]
+                },
+                "said": {
+                  "type": "string"
+                },
+                "form": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "lemma": {
+                  "type": "string"
+                },
+                "grammCase": {
+                  "type": "string",
+                  "enum": [
+                    "NOMINATIVE",
+                    "GENITIVE",
+                    "PARTITIVE",
+                    "ILLATIVE",
+                    "INESSIVE",
+                    "ELATIVE",
+                    "ALLATIVE",
+                    "ADESSIVE",
+                    "ABLATIVE",
+                    "TRANSLATIVE",
+                    "TERMINATIVE",
+                    "ESSIVE",
+                    "ABESSIVE",
+                    "COMITATIVE"
+                  ]
+                },
+                "reached": {
+                  "type": "string",
+                  "enum": [
+                    "NOMINATIVE",
+                    "GENITIVE",
+                    "PARTITIVE",
+                    "ILLATIVE",
+                    "INESSIVE",
+                    "ELATIVE",
+                    "ALLATIVE",
+                    "ADESSIVE",
+                    "ABLATIVE",
+                    "TRANSLATIVE",
+                    "TERMINATIVE",
+                    "ESSIVE",
+                    "ABESSIVE",
+                    "COMITATIVE"
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "said",
+                "form",
+                "lemma"
+              ],
+              "description": "What a turn was understood despite."
+            }
+          },
+          "conceded": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Write these onto the last turn sent, and send them back."
+          },
+          "alsoDone": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Write these onto the last turn sent, and send them back."
+          },
+          "chosen": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "slot": {
+                  "type": "string"
+                },
+                "given": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "slot",
+                "given"
+              ]
+            },
+            "description": "Card values the learner changed by saying another."
+          },
+          "picks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "et": {
+                  "type": "string"
+                },
+                "en": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "et",
+                "en"
+              ]
+            },
+            "description": "Lines the learner may pick instead of typing."
+          },
+          "hurdle": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "missing-document",
+                  "slot-gone",
+                  "misheard",
+                  "english",
+                  "interrupted",
+                  "faster",
+                  "small-talk",
+                  "their-order",
+                  "not-possible",
+                  "other-register",
+                  "wrong-price",
+                  "queue",
+                  "contradiction",
+                  "place-instruction"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The curveball standing now, if one is."
+          },
+          "queued": {
+            "type": "boolean"
+          },
+          "composer": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "model": {
+                    "type": "string"
+                  },
+                  "primary": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "label",
+                  "model",
+                  "primary"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Who will write the other side's lines, where a model will."
+          },
+          "composed": {
+            "type": "boolean"
+          },
+          "composedBy": {
+            "description": "The model that wrote this turn's line.",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "model": {
+                    "type": "string"
+                  },
+                  "primary": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "label",
+                  "model",
+                  "primary"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "modelDown": {
+            "description": "Every model link failed, so the other side speaks from prepared lines.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "lines",
+          "voice",
+          "speed",
+          "response",
+          "beatId",
+          "goal",
+          "done",
+          "over",
+          "reading",
+          "slips",
+          "conceded",
+          "alsoDone",
+          "chosen",
+          "picks",
+          "hurdle",
+          "queued",
+          "composer"
+        ],
+        "description": "One turn answered: what the other side says, and where the conversation now is."
+      }
+    },
+    "POST /api/v1/scenes/{runId}/help": {
+      "contentType": "application/json",
+      "request": {
+        "type": "object",
+        "properties": {
+          "turns": {
+            "maxItems": 60,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "beatId": {
+                  "type": "string",
+                  "maxLength": 64,
+                  "description": "The `beatId` the answer before this turn named."
+                },
+                "said": {
+                  "type": "string",
+                  "maxLength": 1000,
+                  "description": "What the learner sent, typed or said; the server reads at most 300 characters."
+                },
+                "helped": {
+                  "description": "Whether the help button handed over a word for this turn.",
+                  "type": "boolean"
+                },
+                "picked": {
+                  "description": "Picked from the offered lines rather than typed, which grades nothing.",
+                  "type": "boolean"
+                },
+                "heard": {
+                  "description": "The other side's Estonian line this turn answers; never what a recognizer heard.",
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "conceded": {
+                  "description": "Echoed from the answer that conceded them.",
+                  "maxItems": 16,
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 15
+                  }
+                },
+                "alsoDone": {
+                  "description": "Echoed from the answer that named them.",
+                  "maxItems": 8,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "maxLength": 64
+                  }
+                },
+                "spoken": {
+                  "type": "object",
+                  "properties": {
+                    "repairs": {
+                      "description": "Only the repaired words, never what the recognizer heard; a repaired word earns no grade.",
+                      "maxItems": 16,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "to": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "description": "The word the dictionary read a heard word as, which went into the box."
+                          },
+                          "rule": {
+                            "type": "string",
+                            "enum": [
+                              "sound",
+                              "boundary",
+                              "joined",
+                              "hesitation"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "to"
+                        ]
+                      }
+                    },
+                    "wordsHeard": {
+                      "description": "How many words the recognizer heard.",
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "wordsChanged": {
+                      "description": "How many of them the learner changed before sending.",
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "unseen": {
+                      "description": "True only where the line this turn answered was hidden on screen behind a press the learner did not press, so the turn was answered by ear. It is the evidence that somebody can follow spoken Estonian, so a client sends true only where it really hid the line; anything but an exact true reads as the line was shown.",
+                      "type": "boolean"
+                    }
+                  },
+                  "description": "A turn said aloud: its repaired words and its two counts, never the words heard."
+                }
+              },
+              "required": [
+                "beatId",
+                "said"
+              ],
+              "description": "One of the learner's turns, as the client keeps it and sends it back with every later one."
+            },
+            "description": "Every turn so far, as the next turn request would carry them."
+          }
+        },
+        "required": [
+          "turns"
+        ]
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "lemma": {
+            "type": "string"
+          },
+          "gloss": {
+            "type": "string"
+          },
+          "lexemeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "lemma",
+          "gloss",
+          "lexemeId"
+        ],
+        "description": "One word the beat standing now is about; the next turn is sent with `helped: true`."
+      }
+    },
+    "POST /api/v1/scenes/{runId}/finish": {
+      "contentType": "application/json",
+      "request": {
+        "type": "object",
+        "properties": {
+          "turns": {
+            "maxItems": 60,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "beatId": {
+                  "type": "string",
+                  "maxLength": 64,
+                  "description": "The `beatId` the answer before this turn named."
+                },
+                "said": {
+                  "type": "string",
+                  "maxLength": 1000,
+                  "description": "What the learner sent, typed or said; the server reads at most 300 characters."
+                },
+                "helped": {
+                  "description": "Whether the help button handed over a word for this turn.",
+                  "type": "boolean"
+                },
+                "picked": {
+                  "description": "Picked from the offered lines rather than typed, which grades nothing.",
+                  "type": "boolean"
+                },
+                "heard": {
+                  "description": "The other side's Estonian line this turn answers; never what a recognizer heard.",
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "conceded": {
+                  "description": "Echoed from the answer that conceded them.",
+                  "maxItems": 16,
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 15
+                  }
+                },
+                "alsoDone": {
+                  "description": "Echoed from the answer that named them.",
+                  "maxItems": 8,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "maxLength": 64
+                  }
+                },
+                "spoken": {
+                  "type": "object",
+                  "properties": {
+                    "repairs": {
+                      "description": "Only the repaired words, never what the recognizer heard; a repaired word earns no grade.",
+                      "maxItems": 16,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "to": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "description": "The word the dictionary read a heard word as, which went into the box."
+                          },
+                          "rule": {
+                            "type": "string",
+                            "enum": [
+                              "sound",
+                              "boundary",
+                              "joined",
+                              "hesitation"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "to"
+                        ]
+                      }
+                    },
+                    "wordsHeard": {
+                      "description": "How many words the recognizer heard.",
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "wordsChanged": {
+                      "description": "How many of them the learner changed before sending.",
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "unseen": {
+                      "description": "True only where the line this turn answered was hidden on screen behind a press the learner did not press, so the turn was answered by ear. It is the evidence that somebody can follow spoken Estonian, so a client sends true only where it really hid the line; anything but an exact true reads as the line was shown.",
+                      "type": "boolean"
+                    }
+                  },
+                  "description": "A turn said aloud: its repaired words and its two counts, never the words heard."
+                }
+              },
+              "required": [
+                "beatId",
+                "said"
+              ],
+              "description": "One of the learner's turns, as the client keeps it and sends it back with every later one."
+            }
+          },
+          "walkedOut": {
+            "description": "True where the learner left before the conversation was over.",
+            "type": "boolean"
+          },
+          "asked": {
+            "description": "The words the help button handed over.",
+            "maxItems": 60,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "lemma": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "lexemeId": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 64
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "lemma",
+                "lexemeId"
+              ]
+            }
+          }
+        },
+        "required": [
+          "turns"
+        ]
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "runId": {
+            "type": "string"
+          },
+          "objectives": {
+            "type": "object",
+            "properties": {
+              "met": {
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "missed": {
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "met",
+              "missed"
+            ]
+          },
+          "hurdles": {
+            "readOnly": true,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "enum": [
+                    "missing-document",
+                    "slot-gone",
+                    "misheard",
+                    "english",
+                    "interrupted",
+                    "faster",
+                    "small-talk",
+                    "their-order",
+                    "not-possible",
+                    "other-register",
+                    "wrong-price",
+                    "queue",
+                    "contradiction",
+                    "place-instruction"
+                  ]
+                },
+                "beat": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "met": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "beat",
+                "met"
+              ]
+            }
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "says": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "says"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "turns": {
+            "readOnly": true,
+            "description": "Every turn as the server read it the second time.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "beatId": {
+                  "type": "string"
+                },
+                "said": {
+                  "type": "string"
+                },
+                "heard": {
+                  "type": "string"
+                },
+                "reading": {
+                  "type": "string",
+                  "enum": [
+                    "complete",
+                    "incomplete",
+                    "offtarget",
+                    "unrecognised",
+                    "english",
+                    "echo",
+                    "fragment",
+                    "lost",
+                    "declined"
+                  ]
+                },
+                "met": {
+                  "readOnly": true,
+                  "type": "array",
+                  "items": {
+                    "type": "boolean"
+                  }
+                },
+                "matched": {
+                  "readOnly": true,
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "produced": {
+                  "readOnly": true,
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "substituted": {
+                  "readOnly": true,
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "conceded": {
+                  "readOnly": true,
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "chose": {
+                  "readOnly": true,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "slot": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "string"
+                      },
+                      "lemma": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "slot",
+                      "value"
+                    ]
+                  }
+                },
+                "slips": {
+                  "readOnly": true,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "spelling",
+                          "case",
+                          "form",
+                          "person",
+                          "english"
+                        ]
+                      },
+                      "said": {
+                        "type": "string"
+                      },
+                      "form": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "lemma": {
+                        "type": "string"
+                      },
+                      "grammCase": {
+                        "type": "string",
+                        "enum": [
+                          "NOMINATIVE",
+                          "GENITIVE",
+                          "PARTITIVE",
+                          "ILLATIVE",
+                          "INESSIVE",
+                          "ELATIVE",
+                          "ALLATIVE",
+                          "ADESSIVE",
+                          "ABLATIVE",
+                          "TRANSLATIVE",
+                          "TERMINATIVE",
+                          "ESSIVE",
+                          "ABESSIVE",
+                          "COMITATIVE"
+                        ]
+                      },
+                      "reached": {
+                        "type": "string",
+                        "enum": [
+                          "NOMINATIVE",
+                          "GENITIVE",
+                          "PARTITIVE",
+                          "ILLATIVE",
+                          "INESSIVE",
+                          "ELATIVE",
+                          "ALLATIVE",
+                          "ADESSIVE",
+                          "ABLATIVE",
+                          "TRANSLATIVE",
+                          "TERMINATIVE",
+                          "ESSIVE",
+                          "ABESSIVE",
+                          "COMITATIVE"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "said",
+                      "form",
+                      "lemma"
+                    ],
+                    "description": "What a turn was understood despite."
+                  }
+                },
+                "asked": {
+                  "type": "string"
+                },
+                "helped": {
+                  "type": "boolean"
+                },
+                "wantsEnglish": {
+                  "type": "boolean"
+                },
+                "repaired": {
+                  "readOnly": true,
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "spoken": {
+                  "type": "boolean",
+                  "const": true
+                },
+                "wordsHeard": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "wordsChanged": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "unseen": {
+                  "type": "boolean",
+                  "const": true
+                },
+                "edited": {
+                  "type": "boolean",
+                  "const": true
+                }
+              },
+              "required": [
+                "beatId",
+                "said",
+                "reading",
+                "met",
+                "helped"
+              ]
+            }
+          },
+          "recap": {
+            "type": "object",
+            "properties": {
+              "headline": {
+                "type": "string"
+              },
+              "stats": {
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "value"
+                  ]
+                }
+              },
+              "highlights": {
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "said": {
+                      "type": "string"
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "detail"
+                  ]
+                }
+              },
+              "moments": {
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "at": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "said": {
+                      "type": "string"
+                    },
+                    "heard": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "goal": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "tone": {
+                      "type": "string",
+                      "enum": [
+                        "right",
+                        "nearly",
+                        "neutral"
+                      ]
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "fixes": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "said": {
+                            "type": "string"
+                          },
+                          "form": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "said",
+                          "form"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "at",
+                    "said",
+                    "heard",
+                    "goal",
+                    "tone",
+                    "label",
+                    "fixes"
+                  ]
+                }
+              },
+              "nextTime": {
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "detail"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "headline",
+              "stats",
+              "highlights",
+              "moments",
+              "nextTime"
+            ],
+            "description": "The debrief's own summary, in the learner's language; it gives no grade."
+          },
+          "gaps": {
+            "readOnly": true,
+            "description": "Words the conversation needed and the learner did not have.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "lemma": {
+                  "type": "string"
+                },
+                "lexemeId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "lemma",
+                "lexemeId"
+              ]
+            }
+          },
+          "review": {
+            "type": "object",
+            "properties": {
+              "lead": {
+                "type": "string"
+              },
+              "notes": {
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "said": {
+                      "type": "string"
+                    },
+                    "form": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "what": {
+                      "type": "string"
+                    },
+                    "term": {
+                      "type": "string"
+                    },
+                    "body": {
+                      "type": "string"
+                    },
+                    "at": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "times": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "hunch": {
+                      "type": "object",
+                      "properties": {
+                        "says": {
+                          "type": "string"
+                        },
+                        "sure": {
+                          "type": "string",
+                          "enum": [
+                            "likely",
+                            "possible"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "says",
+                        "sure"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "said",
+                    "form",
+                    "what",
+                    "at"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "lead",
+              "notes"
+            ]
+          },
+          "graded": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "How many reviews this finish wrote into the learner's log."
+          }
+        },
+        "required": [
+          "runId",
+          "objectives",
+          "hurdles",
+          "outcome",
+          "turns",
+          "recap",
+          "gaps",
+          "review",
+          "graded"
+        ],
+        "description": "A conversation finished, marked again on the server and graded; a second finish of the same run is refused."
+      }
+    },
+    "POST /api/v1/chat": {
+      "contentType": "application/json",
+      "request": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "description": "The band the other side talks at; the learner's own level where absent.",
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1",
+              "B2",
+              "C1"
+            ]
+          }
+        }
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "runId": {
+            "type": "string"
+          },
+          "briefing": {
+            "type": "object",
+            "properties": {
+              "you": {
+                "type": "string",
+                "description": "Who the learner is in this scene, in English."
+              },
+              "props": {
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "slot": {
+                      "type": "string"
+                    },
+                    "card": {
+                      "type": "string",
+                      "description": "The card's line, in English."
+                    },
+                    "returned": {
+                      "description": "Dealt because the learner reached for this word in a recent scene and did not have it.",
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "given": {
+                      "readOnly": true,
+                      "description": "What the card dealt, in English; the learner says it in Estonian.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "slot",
+                    "card",
+                    "given"
+                  ]
+                }
+              },
+              "persona": {
+                "type": "string",
+                "description": "Who is on the other side, as the learner is introduced to them."
+              }
+            },
+            "required": [
+              "you",
+              "props",
+              "persona"
+            ]
+          },
+          "plays": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "How many times this learner has had this conversation before."
+          },
+          "composed": {
+            "type": "boolean",
+            "description": "Whether a model writes the other side's lines in this run; false is the built-in lines throughout."
+          }
+        },
+        "required": [
+          "runId",
+          "briefing",
+          "plays",
+          "composed"
+        ],
+        "description": "A conversation opened: the briefing a person walking in would have, and nothing about what is going to happen."
+      }
     }
   }
 }

@@ -439,6 +439,231 @@ export const CheckResultSchema = z.object({
 
 export type CheckResultResponse = z.infer<typeof CheckResultSchema>;
 
+// ── N-5: conversations ──────────────────────────────────────────────────────
+
+/*
+  A CONVERSATION IS PLAYED ON THE DEVICE AND MARKED ON THE SERVER, TURN BY TURN.
+
+  The server keeps nothing between turns: a client opens a run, keeps every turn
+  it has sent, and sends all of them with each new one, as the web's screen
+  does, and the server replays the lot through the one marker and answers. A
+  concession or a beat met further along comes back on a turn's answer
+  (`conceded`, `alsoDone`), and the client writes it onto the turn it sent last
+  so the next request carries it. Finishing sends the same turns once more and
+  the server marks the run again before it grades anything. Every shape below
+  is the one the web's own screen sends and reads, and
+  `lib/progress/sceneContract.test.ts` holds the shapes the server builds to the
+  types the web's code uses.
+*/
+
+export const SCENE_DIFFICULTIES = ["textbook", "good", "ordinary", "bad"] as const;
+const CaseKeyEnum = z.enum([
+  "NOMINATIVE", "GENITIVE", "PARTITIVE", "ILLATIVE", "INESSIVE", "ELATIVE", "ALLATIVE",
+  "ADESSIVE", "ABLATIVE", "TRANSLATIVE", "TERMINATIVE", "ESSIVE", "ABESSIVE", "COMITATIVE",
+]);
+const CurveballIdEnum = z.enum([
+  "missing-document", "slot-gone", "misheard", "english", "interrupted", "faster", "small-talk",
+  "their-order", "not-possible", "other-register", "wrong-price", "queue", "contradiction",
+  "place-instruction",
+]);
+const TurnReadingEnum = z.enum([
+  "complete", "incomplete", "offtarget", "unrecognised", "english", "echo", "fragment", "lost", "declined",
+]);
+
+export const BeginSceneRequest = z.object({
+  sceneId: z.string().min(1).max(64).describe(
+    "A scene from the situations list, or a lesson's own role-play, which `GET /api/v1/lessons/{id}` names as `scene`.",
+  ),
+  difficulty: z.enum(SCENE_DIFFICULTIES).describe("How many things go wrong on the other side, from none to most."),
+  level: CEFR.optional().describe("The band the other side talks at; the learner's own level where absent."),
+});
+
+export const BeginChatRequest = z.object({
+  level: CEFR.optional().describe("The band the other side talks at; the learner's own level where absent."),
+});
+
+export const SceneOpenedResponse = z.object({
+  runId: z.string(),
+  briefing: z.object({
+    you: z.string().describe("Who the learner is in this scene, in English."),
+    props: z.array(z.object({
+      slot: z.string(),
+      card: z.string().describe("The card's line, in English."),
+      returned: z.literal(true).optional().describe("Dealt because the learner reached for this word in a recent scene and did not have it."),
+      given: z.array(z.string()).readonly().describe("What the card dealt, in English; the learner says it in Estonian."),
+    })).readonly(),
+    persona: z.string().describe("Who is on the other side, as the learner is introduced to them."),
+  }),
+  plays: z.number().int().min(0).describe("How many times this learner has had this conversation before."),
+  composed: z.boolean().describe("Whether a model writes the other side's lines in this run; false is the built-in lines throughout."),
+}).describe("A conversation opened: the briefing a person walking in would have, and nothing about what is going to happen.");
+
+export type SceneOpenedResponse = z.infer<typeof SceneOpenedResponse>;
+
+const SpokenTurnWire = z.object({
+  repairs: z.array(z.object({
+    to: z.string().max(64).describe("The word the dictionary read a heard word as, which went into the box."),
+    rule: z.enum(["sound", "boundary", "joined", "hesitation"]).optional(),
+  })).max(16).optional().describe("Only the repaired words, never what the recognizer heard; a repaired word earns no grade."),
+  wordsHeard: z.number().int().min(0).optional().describe("How many words the recognizer heard."),
+  wordsChanged: z.number().int().min(0).optional().describe("How many of them the learner changed before sending."),
+  unseen: z.boolean().optional().describe(
+    "True only where the line this turn answered was hidden on screen behind a press the learner did not press, " +
+    "so the turn was answered by ear. It is the evidence that somebody can follow spoken Estonian, so a client " +
+    "sends true only where it really hid the line; anything but an exact true reads as the line was shown.",
+  ),
+}).describe("A turn said aloud: its repaired words and its two counts, never the words heard.");
+
+export const SentTurnSchema = z.object({
+  beatId: z.string().max(64).describe("The `beatId` the answer before this turn named."),
+  said: z.string().max(1000).describe("What the learner sent, typed or said; the server reads at most 300 characters."),
+  helped: z.boolean().optional().describe("Whether the help button handed over a word for this turn."),
+  picked: z.boolean().optional().describe("Picked from the offered lines rather than typed, which grades nothing."),
+  heard: z.string().max(1000).optional().describe("The other side's Estonian line this turn answers; never what a recognizer heard."),
+  conceded: z.array(z.number().int().min(0).max(15)).max(16).optional().describe("Echoed from the answer that conceded them."),
+  alsoDone: z.array(z.string().max(64)).max(8).optional().describe("Echoed from the answer that named them."),
+  spoken: SpokenTurnWire.optional(),
+}).describe("One of the learner's turns, as the client keeps it and sends it back with every later one.");
+
+export const SceneTurnRequest = z.object({
+  turns: z.array(SentTurnSchema).max(60).describe("Every turn so far, the newest last; empty for the other side's opening line."),
+  used: z.array(z.string().max(1200)).max(240).optional().describe("The other side's lines said so far, so a line is not said twice."),
+});
+
+const SceneWriter = z.object({ label: z.string(), model: z.string(), primary: z.boolean() });
+
+const SceneSlip = z.object({
+  kind: z.enum(["spelling", "case", "form", "person", "english"]),
+  said: z.string(),
+  form: z.string().nullable(),
+  lemma: z.string(),
+  grammCase: CaseKeyEnum.optional(),
+  reached: CaseKeyEnum.optional(),
+}).describe("What a turn was understood despite.");
+
+export const SceneLineSchema = z.object({
+  text: z.string(),
+  provenance: z.enum([
+    "attested", "scripted", "composed", "fallback", "again", "echo", "recast", "offered", "english",
+    "unspoken", "meanwhile", "coach",
+  ]).describe("Where the line came from. `unspoken`, `meanwhile` and `coach` are English from the app rather than the other side."),
+  from: z.string().optional(),
+  withheld: z.array(z.string()).readonly().optional(),
+  stretched: z.array(z.string()).readonly().optional(),
+  reaction: z.literal(true).optional().describe("A reaction to the learner's turn rather than the line they now answer."),
+  tokens: z.array(GlossedToken).optional().describe("The dictionary under the line, where the learner asked for it."),
+});
+
+export const SceneTurnResponse = z.object({
+  lines: z.array(SceneLineSchema).describe("What the other side says now, in order."),
+  voice: z.string(),
+  speed: z.number(),
+  response: z.enum(["answer", "narrow", "repeat", "wait", "moveOn", "english", "counter", "help"]),
+  beatId: z.string().nullable().describe("The beat the next turn answers; send it back as that turn's `beatId`."),
+  goal: z.string().nullable().describe("What the learner is trying to do now, in English."),
+  done: z.array(z.string()),
+  over: z.boolean(),
+  reading: TurnReadingEnum.nullable(),
+  slips: z.array(SceneSlip),
+  conceded: z.array(z.number().int()).nullable().describe("Write these onto the last turn sent, and send them back."),
+  alsoDone: z.array(z.string()).nullable().describe("Write these onto the last turn sent, and send them back."),
+  chosen: z.array(z.object({ slot: z.string(), given: z.array(z.string()) })).describe("Card values the learner changed by saying another."),
+  picks: z.array(z.object({ id: z.string(), et: z.string(), en: z.string() })).describe("Lines the learner may pick instead of typing."),
+  hurdle: CurveballIdEnum.nullable().describe("The curveball standing now, if one is."),
+  queued: z.boolean(),
+  composer: SceneWriter.nullable().describe("Who will write the other side's lines, where a model will."),
+  composed: z.boolean().optional(),
+  composedBy: SceneWriter.nullable().optional().describe("The model that wrote this turn's line."),
+  note: z.string().nullable().optional(),
+  modelDown: z.boolean().optional().describe("Every model link failed, so the other side speaks from prepared lines."),
+}).describe("One turn answered: what the other side says, and where the conversation now is.");
+
+export type SceneTurnResponse = z.infer<typeof SceneTurnResponse>;
+
+export const SceneHelpRequest = z.object({
+  turns: z.array(SentTurnSchema).max(60).describe("Every turn so far, as the next turn request would carry them."),
+});
+
+export const SceneHelpResponse = z.object({
+  lemma: z.string(),
+  gloss: z.string(),
+  lexemeId: z.string(),
+}).describe("One word the beat standing now is about; the next turn is sent with `helped: true`.");
+
+export type SceneHelpResponse = z.infer<typeof SceneHelpResponse>;
+
+export const SceneFinishRequest = z.object({
+  turns: z.array(SentTurnSchema).max(60),
+  walkedOut: z.boolean().optional().describe("True where the learner left before the conversation was over."),
+  asked: z.array(z.object({ lemma: z.string().max(64), lexemeId: z.string().max(64).nullable() })).max(60).optional()
+    .describe("The words the help button handed over."),
+});
+
+const SceneTurnRecord = z.object({
+  beatId: z.string(),
+  said: z.string(),
+  heard: z.string().optional(),
+  reading: TurnReadingEnum,
+  met: z.array(z.boolean()).readonly(),
+  matched: z.array(z.string()).readonly().optional(),
+  produced: z.array(z.string()).readonly().optional(),
+  substituted: z.array(z.number().int()).readonly().optional(),
+  conceded: z.array(z.number().int()).readonly().optional(),
+  chose: z.array(z.object({ slot: z.string(), value: z.string(), lemma: z.string().optional() })).readonly().optional(),
+  slips: z.array(SceneSlip).readonly().optional(),
+  asked: z.string().optional(),
+  helped: z.boolean(),
+  wantsEnglish: z.boolean().optional(),
+  repaired: z.array(z.string()).readonly().optional(),
+  spoken: z.literal(true).optional(),
+  wordsHeard: z.number().int().optional(),
+  wordsChanged: z.number().int().optional(),
+  unseen: z.literal(true).optional(),
+  edited: z.literal(true).optional(),
+});
+
+export const SceneFinishResponse = z.object({
+  runId: z.string(),
+  objectives: z.object({ met: z.array(z.string()).readonly(), missed: z.array(z.string()).readonly() }),
+  hurdles: z.array(z.object({ id: CurveballIdEnum, beat: z.number().int(), met: z.boolean() })).readonly(),
+  outcome: z.object({ id: z.string(), says: z.string() }).nullable(),
+  turns: z.array(SceneTurnRecord).readonly().describe("Every turn as the server read it the second time."),
+  recap: z.object({
+    headline: z.string(),
+    stats: z.array(z.object({ label: z.string(), value: z.number() })).readonly(),
+    highlights: z.array(z.object({ title: z.string(), said: z.string().optional(), detail: z.string() })).readonly(),
+    moments: z.array(z.object({
+      at: z.number().int(),
+      said: z.string(),
+      heard: z.string().nullable(),
+      goal: z.string().nullable(),
+      tone: z.enum(["right", "nearly", "neutral"]),
+      label: z.string(),
+      fixes: z.array(z.object({ said: z.string(), form: z.string() })).readonly(),
+    })).readonly(),
+    nextTime: z.array(z.object({ title: z.string(), detail: z.string() })).readonly(),
+  }).describe("The debrief's own summary, in the learner's language; it gives no grade."),
+  gaps: z.array(z.object({ lemma: z.string(), lexemeId: z.string().nullable() })).readonly()
+    .describe("Words the conversation needed and the learner did not have."),
+  review: z.object({
+    lead: z.string(),
+    notes: z.array(z.object({
+      id: z.string(),
+      said: z.string(),
+      form: z.string().nullable(),
+      what: z.string(),
+      term: z.string().optional(),
+      body: z.string().optional(),
+      at: z.number().int(),
+      times: z.number().int().optional(),
+      hunch: z.object({ says: z.string(), sure: z.enum(["likely", "possible"]) }).optional(),
+    })).readonly(),
+  }),
+  graded: z.number().int().min(0).describe("How many reviews this finish wrote into the learner's log."),
+}).describe("A conversation finished, marked again on the server and graded; a second finish of the same run is refused.");
+
+export type SceneFinishResponse = z.infer<typeof SceneFinishResponse>;
+
 // ── The routes that have shipped ────────────────────────────────────────────
 
 export const SHIPPED_ROUTES: readonly RouteSpec[] = [
@@ -535,5 +760,55 @@ export const SHIPPED_ROUTES: readonly RouteSpec[] = [
     request: CheckRequest,
     response: CheckResultSchema,
     example: "post-checks-id.json",
+  },
+  {
+    method: "POST",
+    path: "/api/v1/scenes",
+    auth: true,
+    summary: "A conversation opened, from the situations list or a lesson's own role-play.",
+    item: "N-5",
+    request: BeginSceneRequest,
+    response: SceneOpenedResponse,
+    example: "post-scenes.json",
+  },
+  {
+    method: "POST",
+    path: "/api/v1/scenes/{runId}/turns",
+    auth: true,
+    summary: "One turn taken: every turn so far sent, the newest marked, and the other side's answer.",
+    item: "N-5",
+    request: SceneTurnRequest,
+    response: SceneTurnResponse,
+    example: "post-scenes-runid-turns.json",
+  },
+  {
+    method: "POST",
+    path: "/api/v1/scenes/{runId}/help",
+    auth: true,
+    summary: "One word the beat standing now is about.",
+    item: "N-5",
+    request: SceneHelpRequest,
+    response: SceneHelpResponse,
+    example: "post-scenes-runid-help.json",
+  },
+  {
+    method: "POST",
+    path: "/api/v1/scenes/{runId}/finish",
+    auth: true,
+    summary: "A conversation finished, marked again on the server and graded.",
+    item: "N-5",
+    request: SceneFinishRequest,
+    response: SceneFinishResponse,
+    example: "post-scenes-runid-finish.json",
+  },
+  {
+    method: "POST",
+    path: "/api/v1/chat",
+    auth: true,
+    summary: "Today's chat opened, only where a model is configured; its turns go to the scene routes.",
+    item: "N-5",
+    request: BeginChatRequest,
+    response: SceneOpenedResponse,
+    example: "post-chat.json",
   },
 ];
