@@ -3,6 +3,9 @@
 import { moveBlockedFor, recordCheckPassed } from "@/lib/progress/checks";
 import { checkById, checkPaper } from "@/lib/course/checks";
 import { markCheck } from "@/lib/course/lessons/practice";
+import { LESSONS } from "@/lib/course/lessons";
+import { lessonLevels } from "@/lib/curriculum/align";
+import { UNIT_HOMEWORK_FROM } from "@/lib/copy/homework";
 import { relearn, reportGaps, retireLearned } from "@/lib/progress/twentyLearned";
 import { reportable } from "@/lib/games/twentyLearned";
 import { revalidatePath } from "next/cache";
@@ -3331,6 +3334,10 @@ export async function assignUnit(rawClassroomId: unknown, rawUnitId: unknown, ra
 
   const unit = unitById(unitId);
   if (!unit) return { ok: false as const, error: "We couldn't find that unit." };
+  // The picker offers only the units above the lessons; this is a public
+  // endpoint and refuses an A1 unit too, or a class is sent somewhere the
+  // course no longer walks anybody. Homework already set from one stays a task.
+  if (lessonLevels(LESSONS).has(unit.level)) return { ok: false as const, error: UNIT_HOMEWORK_FROM };
 
   const members = await prisma.classroomMember.findMany({
     where: { classroomId: classroom.id },

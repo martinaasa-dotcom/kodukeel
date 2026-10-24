@@ -2,6 +2,7 @@ import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { prisma } from "@/lib/db";
 import { LOCAL_USER_ID } from "@/lib/auth/mode";
 import { SYLLABUS } from "@/lib/collections/syllabus";
+import { UNIT_HOMEWORK_FROM } from "@/lib/copy/homework";
 
 /**
  * The class actions, against the real functions: an argument off the wire is
@@ -52,6 +53,15 @@ describe("class actions", () => {
     const unit = SYLLABUS[0]!.id;
     expect((await assignUnit(archived.id, unit)).ok).toBe(false);
     expect((await assignHomework(archived.id, "Read", "itest-class-actions")).ok).toBe(false);
+  });
+
+  it("refuse an A1 unit, because A1 is taught as lessons", async () => {
+    const live = await room(false);
+    const a1 = SYLLABUS.find((u) => u.level === "A1")!.id;
+    const before = await prisma.task.count({ where: { ownerId: LOCAL_USER_ID } });
+    const result = await assignUnit(live.id, a1);
+    expect(result).toEqual({ ok: false, error: UNIT_HOMEWORK_FROM });
+    expect(await prisma.task.count({ where: { ownerId: LOCAL_USER_ID } })).toBe(before);
   });
 });
 
