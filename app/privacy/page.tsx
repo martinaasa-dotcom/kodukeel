@@ -266,6 +266,11 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
           })}
         </P>
         <P>
+          {rich(t("Without the app, or before you have signed in, {link} says where the button is and what it removes."), {
+            link: <Link href={href("/account/delete")} className="underline underline-offset-2">{t("Deleting your account")}</Link>,
+          })}
+        </P>
+        <P>
           {rich(t("**Correction.** Anything you can see, you can change: your settings, your cards, your tasks, your goal. A dictionary entry can be corrected too, and because the dictionary is shared, that correction is attributed to you until you delete your account. Where you would rather somebody looked at it first, the same entry has a button to suggest the change instead of making it."))}
         </P>
         <P>

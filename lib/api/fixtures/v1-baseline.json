@@ -2467,6 +2467,323 @@
         ],
         "description": "The attempt marked on the server. A right answer is one point and a nearly half."
       }
+    },
+    "PATCH /api/v1/me": {
+      "contentType": "application/json",
+      "request": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "description": "Asked of the A1 checks first, as the web's level picker asks: a move up past an unpassed check is refused with `forbidden`.",
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1",
+              "B2",
+              "C1"
+            ]
+          },
+          "dailyGoal": {
+            "description": "Clamped to 5 to 200, as the web clamps it.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "en",
+              "ru",
+              "uk"
+            ]
+          },
+          "glossLanguage": {
+            "type": "string",
+            "enum": [
+              "en",
+              "ru",
+              "uk"
+            ]
+          },
+          "voice": {
+            "description": "A voice id; one the server does not offer is stored as its default.",
+            "type": "string",
+            "maxLength": 40
+          },
+          "speechPace": {
+            "description": "A pace id, or `auto`; anything else is stored as `auto`.",
+            "type": "string",
+            "maxLength": 20
+          },
+          "speech": {
+            "type": "object",
+            "properties": {
+              "sendAtOnce": {
+                "type": "boolean"
+              },
+              "inBoxes": {
+                "type": "boolean"
+              }
+            }
+          },
+          "sceneAnswer": {
+            "type": "string",
+            "enum": [
+              "pick",
+              "say",
+              "type"
+            ]
+          },
+          "timeZone": {
+            "description": "An IANA zone name; one the server cannot read refuses the whole change.",
+            "type": "string",
+            "maxLength": 64
+          },
+          "roundPace": {
+            "type": "string",
+            "maxLength": 20
+          },
+          "reminderAt": {
+            "description": "`HH:MM`; a malformed time is clamped to one, never refused.",
+            "type": "string",
+            "maxLength": 5
+          },
+          "letters": {
+            "description": "Kinds switched on or off; a kind the server does not send refuses the whole change.",
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "maxLength": 20
+            },
+            "additionalProperties": {
+              "type": "boolean"
+            }
+          }
+        },
+        "description": "Some of the settings a phone shows, each normalized as its Settings control normalizes it. Nothing is written unless every field can be."
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "en",
+              "ru",
+              "uk"
+            ]
+          },
+          "settings": {
+            "type": "object",
+            "properties": {
+              "level": {
+                "type": "string",
+                "enum": [
+                  "A1",
+                  "A2",
+                  "B1",
+                  "B2",
+                  "C1"
+                ],
+                "description": "The level the course opens at, measured or stated."
+              },
+              "dailyGoal": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991,
+                "description": "Reviews a day that fill the goal ring, 5 to 200."
+              },
+              "glossLanguage": {
+                "type": "string",
+                "enum": [
+                  "en",
+                  "ru",
+                  "uk"
+                ],
+                "description": "The language a meaning leads in beside the English."
+              },
+              "voice": {
+                "type": "string",
+                "description": "The voice that reads Estonian aloud, by id."
+              },
+              "speechPace": {
+                "type": "string",
+                "description": "A pace's id, or `auto` where it follows the level."
+              },
+              "speech": {
+                "type": "object",
+                "properties": {
+                  "sendAtOnce": {
+                    "type": "boolean",
+                    "description": "Whether a line the microphone matched is sent without the countdown."
+                  },
+                  "inBoxes": {
+                    "type": "boolean",
+                    "description": "Whether the microphone appears in answer boxes."
+                  }
+                },
+                "required": [
+                  "sendAtOnce",
+                  "inBoxes"
+                ]
+              },
+              "sceneAnswer": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "pick",
+                      "say",
+                      "type"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "How a conversation is answered, or null where never chosen."
+              },
+              "timeZone": {
+                "description": "An IANA zone name, or null where the device never said.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "roundPace": {
+                "type": "string",
+                "description": "How long a timed round runs, as a pace's id."
+              },
+              "reminderAt": {
+                "description": "The evening reminder's time, `HH:MM`, or null where never set.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "letters": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "type": "boolean"
+                },
+                "description": "Every kind of letter and notification a learner may switch, and whether it is on."
+              }
+            },
+            "required": [
+              "level",
+              "dailyGoal",
+              "glossLanguage",
+              "voice",
+              "speechPace",
+              "speech",
+              "sceneAnswer",
+              "timeZone",
+              "roundPace",
+              "reminderAt",
+              "letters"
+            ],
+            "description": "The settings a phone shows."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "locale",
+          "settings"
+        ],
+        "description": "Who the token belongs to, and the settings a phone shows."
+      }
+    },
+    "DELETE /api/v1/me": {
+      "contentType": "application/json",
+      "request": {
+        "type": "object",
+        "properties": {
+          "confirmation": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "The word the learner typed: `delete`, or its Russian or Ukrainian, as Settings asks."
+          }
+        },
+        "required": [
+          "confirmation"
+        ]
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "deleted": {
+            "type": "boolean",
+            "const": true
+          },
+          "identityErased": {
+            "type": "boolean",
+            "description": "Whether the sign-in record went too; false on a local install and where the operator holds no key that can."
+          },
+          "remaining": {
+            "description": "What is left and who to ask, in English, or null where nothing is.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "deleted",
+          "identityErased",
+          "remaining"
+        ]
+      }
+    },
+    "GET /api/v1/export": {
+      "contentType": "application/json",
+      "response": {
+        "type": "object",
+        "properties": {
+          "exportedAt": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string",
+            "const": "kodukeel-v1"
+          },
+          "counts": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          }
+        },
+        "required": [
+          "exportedAt",
+          "format",
+          "counts"
+        ],
+        "additionalProperties": {},
+        "description": "The backup the web's export downloads, every table of the learner's own, which the web's restore reads back."
+      }
     }
   }
 }

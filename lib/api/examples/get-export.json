@@ -1,6 +1,268 @@
 {
-  "format": "kodukeel-backup",
-  "exportedAt": "2026-10-24T10:06:23.100Z",
-  "cards": [],
-  "reviews": []
+  "exportedAt": "2026-10-24T11:58:23.768Z",
+  "format": "kodukeel-v1",
+  "counts": {
+    "words": 31,
+    "cards": 69,
+    "reviews": 335,
+    "tasks": 5,
+    "scans": 0,
+    "settings": 2,
+    "messages": 0,
+    "assessments": 0,
+    "stars": 0,
+    "achievements": 0,
+    "examAttempts": 0,
+    "classrooms": 2,
+    "classroomMembers": 2,
+    "suggestions": 0,
+    "studyEvents": 0,
+    "sceneRuns": 3,
+    "sceneGaps": 0,
+    "encounters": 5,
+    "decks": 1,
+    "deckWords": 6,
+    "deferrals": 0,
+    "courseSteps": 0,
+    "emailSends": 0,
+    "pushSubscriptions": 0
+  },
+  "lexemes": [
+    {
+      "id": "cdb52568-994d-4a36-acfc-8a22f8dfe8ce",
+      "lemma": "aadress",
+      "pos": "NOUN",
+      "translation": "address",
+      "translationRu": "почтовый адрес, адрес",
+      "translationUk": "адреса, адреса електронної пошти",
+      "cefr": "A1",
+      "gradation": "NONE",
+      "gradationNote": null,
+      "government": null,
+      "examples": "[{\"et\":\"Kodune aadress.\",\"en\":\"Home address.\",\"source\":\"EKILEX\"},{\"et\":\"Mis su aadress on?\",\"en\":\"What is your address?\",\"source\":\"EKILEX\"},{\"et\":\"Kirjutasin ümbrikule aadressi: Ehitajate tee 102–60, 13517, Tallinn, Eesti.\",\"en\":\"I wrote the address on the envelope: Ehitajate tee 102-60, 13517, Tallinn, Estonia.\",\"source\":\"EKILEX\"},{\"et\":\"Kodulehekülje aadress.\",\"en\":\"Website address.\",\"source\":\"EKILEX\"}]",
+      "notes": null,
+      "definition": "inimese elupaiga või asutuse asukoha andmed (nt postisaadetise sihtkohana)",
+      "semanticTypes": "esitus_info",
+      "provenance": "SEED",
+      "ekilexWordId": null,
+      "editedBy": null,
+      "editedAt": null,
+      "fetchedAt": null,
+      "lookupMissAt": null,
+      "createdAt": "2026-10-24T09:41:33.901Z",
+      "updatedAt": "2026-10-24T09:41:33.901Z",
+      "forms": [
+        {
+          "id": "61b614ab-7c86-4a1a-8fc5-d2939dcd9068",
+          "lexemeId": "cdb52568-994d-4a36-acfc-8a22f8dfe8ce",
+          "formType": "NOM_SG",
+          "value": "aadress",
+          "isPrincipal": true,
+          "morphCode": null,
+          "morphName": null,
+          "orderIndex": 0
+        },
+        {
+          "id": "0ee4008d-d6be-4eb1-8c23-8fce136fec4c",
+          "lexemeId": "cdb52568-994d-4a36-acfc-8a22f8dfe8ce",
+          "formType": "GEN_SG",
+          "value": "aadressi",
+          "isPrincipal": true,
+          "morphCode": null,
+          "morphName": null,
+          "orderIndex": 0
+        },
+        {
+          "id": "1a89e05b-57e5-4093-b88f-adbbc88111de",
+          "lexemeId": "cdb52568-994d-4a36-acfc-8a22f8dfe8ce",
+          "formType": "PART_SG",
+          "value": "aadressi",
+          "isPrincipal": true,
+          "morphCode": null,
+          "morphName": null,
+          "orderIndex": 0
+        },
+        {
+          "id": "f010b742-7419-4c85-be0f-de8990013b32",
+          "lexemeId": "cdb52568-994d-4a36-acfc-8a22f8dfe8ce",
+          "formType": "ILL_SG_SHORT",
+          "value": "aadressi",
+          "isPrincipal": true,
+          "morphCode": null,
+          "morphName": null,
+          "orderIndex": 0
+        },
+        {
+          "id": "73e12252-4ad0-4b5e-b2e0-8e26c69b19b8",
+          "lexemeId": "cdb52568-994d-4a36-acfc-8a22f8dfe8ce",
+          "formType": "NOM_PL",
+          "value": "aadressid",
+          "isPrincipal": true,
+          "morphCode": null,
+          "morphName": null,
+          "orderIndex": 0
+        },
+        {
+          "id": "de470df9-371e-4020-9aaf-a00c03b6fcee",
+          "lexemeId": "cdb52568-994d-4a36-acfc-8a22f8dfe8ce",
+          "formType": "PART_PL",
+          "value": "aadresse",
+          "isPrincipal": true,
+          "morphCode": null,
+          "morphName": null,
+          "orderIndex": 0
+        },
+        {
+          "id": "fd3787fa-f1e0-4326-b1c4-940d08f89d4a",
+          "lexemeId": "cdb52568-994d-4a36-acfc-8a22f8dfe8ce",
+          "formType": "GEN_PL",
+          "value": "aadresside",
+          "isPrincipal": true,
+          "morphCode": null,
+          "morphName": null,
+          "orderIndex": 0
+        }
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "id": "4aa6c5d8-dc81-45a8-bb90-a7cd03196959",
+      "ownerId": "local-single-user",
+      "lexemeId": "bb061b6c-dedf-473d-8f11-01405ca24ce3",
+      "cardType": "RECOGNITION",
+      "front": "Ameerika",
+      "back": "America",
+      "hint": null,
+      "targetCase": null,
+      "slot": null,
+      "source": "DICTIONARY",
+      "suspended": false,
+      "due": "2026-12-27T15:04:48.008Z",
+      "stability": 93.06892071,
+      "difficulty": 2.95819605,
+      "elapsedDays": 6,
+      "scheduledDays": 88,
+      "reps": 6,
+      "lapses": 0,
+      "state": 2,
+      "learningSteps": 0,
+      "lastReview": "2026-09-30T15:04:48.008Z",
+      "classWeek": null,
+      "createdAt": "2026-10-24T10:04:48.018Z"
+    }
+  ],
+  "reviews": [
+    {
+      "id": "1681288e-d9bf-49c0-a005-d031d93225fc",
+      "ownerId": "local-single-user",
+      "cardId": "4aa6c5d8-dc81-45a8-bb90-a7cd03196959",
+      "lexemeId": "bb061b6c-dedf-473d-8f11-01405ca24ce3",
+      "rating": 3,
+      "reviewedAt": "2026-08-31T10:04:47.996Z",
+      "durationMs": 4200,
+      "stateBefore": 0,
+      "targetCase": null,
+      "slot": "RECOGNITION",
+      "reachedSlot": null,
+      "receivedAt": null,
+      "spoken": false
+    }
+  ],
+  "tasks": [
+    {
+      "id": "ce6908b8-3eca-46c6-8845-cf766437401e",
+      "ownerId": "local-single-user",
+      "title": "Exercise 4B, partitive plural",
+      "notes": null,
+      "tag": "HOMEWORK",
+      "classWeek": null,
+      "sceneId": null,
+      "dueAt": "2026-10-26T10:04:49.229Z",
+      "completed": false,
+      "completedAt": null,
+      "createdAt": "2026-10-24T10:04:49.233Z"
+    }
+  ],
+  "studyEvents": [],
+  "scans": [],
+  "settings": [
+    {
+      "ownerId": "local-single-user",
+      "key": "goalTarget",
+      "value": "B1"
+    }
+  ],
+  "messages": [],
+  "assessments": [],
+  "stars": [],
+  "achievements": [],
+  "examAttempts": [],
+  "classrooms": [
+    {
+      "id": "d59fc8ec-c9c5-4c77-8f69-d68ae0168f7a",
+      "name": "Eesti keel A2, teisipäev",
+      "code": "DEMOAA",
+      "ownerId": "local-single-user",
+      "kind": "CLASS",
+      "targetLevel": "B1",
+      "archived": false,
+      "createdAt": "2026-10-24T10:04:49.293Z"
+    }
+  ],
+  "classroomMembers": [
+    {
+      "classroomId": "d59fc8ec-c9c5-4c77-8f69-d68ae0168f7a",
+      "ownerId": "local-single-user",
+      "role": "TEACHER",
+      "displayName": "You",
+      "joinedAt": "2026-10-24T10:04:49.318Z"
+    }
+  ],
+  "suggestions": [],
+  "sceneRuns": [
+    {
+      "id": "3fa0a48b-60d0-4e6e-9573-4fb99894428e",
+      "ownerId": "local-single-user",
+      "sceneId": "pangas",
+      "seed": "demo-spoken-0",
+      "level": "A2",
+      "difficulty": 0,
+      "transcript": "{\"persona\":\"by-the-book\",\"card\":{\"you\":\"You've started a new job and need a bank account for your wages. You're at the desk at the bank. Your card says what you've brought with you.\",\"props\":[{\"slot\":\"brought\",\"card\":\"What you've brought with you.\",\"literal\":[],\"lemmas\":[\"dokument\"],\"shown\":[],\"value\":\"dokument\"}]},\"curveballs\":[],\"lines\":\"scripted\",\"patience\":[2,3,2,2,2,2,1],\"turns\":[{\"beatId\":\"greet\",\"said\":\"demo demo\",\"reading\":\"complete\",\"met\":[true],\"helped\":false,\"repaired\":[],\"spoken\":true,\"wordsHeard\":2,\"wordsChanged\":0,\"unseen\":true},{\"beatId\":\"want\",\"said\":\"demo demo demo\",\"reading\":\"complete\",\"met\":[true],\"helped\":false,\"repaired\":[],\"spoken\":true,\"wordsHeard\":3,\"wordsChanged\":0,\"unseen\":true},{\"beatId\":\"for\",\"said\":\"demo demo demo\",\"reading\":\"complete\",\"met\":[true],\"helped\":false,\"repaired\":[],\"spoken\":true,\"wordsHeard\":3,\"wordsChanged\":0,\"unseen\":true},{\"beatId\":\"brought\",\"said\":\"demo demo\",\"reading\":\"complete\",\"met\":[true],\"helped\":false,\"repaired\":[],\"spoken\":true,\"wordsHeard\":2,\"wordsChanged\":0,\"unseen\":true}]}",
+      "outcome": "{\"met\":[\"greet\",\"want\",\"for\",\"brought\"],\"missed\":[\"card\",\"sign\",\"close\"],\"hurdles\":[],\"outcome\":null}",
+      "startedAt": "2026-08-23T09:04:49.419Z",
+      "endedAt": "2026-08-23T09:14:49.419Z"
+    }
+  ],
+  "sceneGaps": [],
+  "encounters": [
+    {
+      "id": "615a36ca-a3a0-4133-b5f2-ab34d282039c",
+      "ownerId": "local-single-user",
+      "errandId": null,
+      "outcome": "BAILED",
+      "createdAt": "2026-10-15T10:04:47.572Z"
+    }
+  ],
+  "decks": [
+    {
+      "id": "60cbfe98-2842-4111-ab42-8fefe64c1cb2",
+      "ownerId": "local-single-user",
+      "name": "Kitchen words",
+      "createdAt": "2026-10-24T10:04:49.389Z"
+    }
+  ],
+  "deckWords": [
+    {
+      "id": "9b2758b2-3231-448b-ba8c-5795ff7ac816",
+      "deckId": "60cbfe98-2842-4111-ab42-8fefe64c1cb2",
+      "ownerId": "local-single-user",
+      "lexemeId": "0638e83e-8d72-420d-9d17-1ee5c4fce95f",
+      "createdAt": "2026-10-24T10:04:49.403Z"
+    }
+  ],
+  "deferrals": [],
+  "courseSteps": [],
+  "emailSends": [],
+  "pushSubscriptions": []
 }

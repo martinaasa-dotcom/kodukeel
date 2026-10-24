@@ -29,6 +29,7 @@ const PAGES: readonly (readonly [string, string, string])[] = [
   ["/terms", "Terms", "the terms of use and where the dictionary data comes from"],
   ["/trust", "Trust", "security, data protection and the controls behind them"],
   ["/help", "Help", "what to try when you cannot sign in, and whether the app is working"],
+  ["/account/delete", "Deleting your account", "what is deleted, what is not, and where the button is"],
   ["/teachers", "For teachers", "what a teacher sees of a class, shown over an invented one"],
   ["/pilots", "Running a pilot", "what a pilot costs, what is asked, and what is not ready yet"],
   ["/curriculum", "What the course covers", "the A1 lessons part by part, then every unit above A1 by CEFR level, what each claims a learner can do, and which part of the state examination it prepares for"],

@@ -172,7 +172,11 @@ The actions the speech features use, which are the first routes to build:
 | `readEstonian` | Glosses a pasted or transcribed text | No |
 | `readHeard` | Glosses a recording's transcript, its words only (VB-12) | No |
 | `saveScan`, `addScanToDeck` | A photographed page or the things around you | No; the reading is `/api/scan` |
-| `setSpeechSendAtOnce`, `setSpeechInBoxes`, `setSceneAnswer` | The speaking choices, and how a conversation is answered | No |
+| `setSpeechSendAtOnce`, `setSpeechInBoxes`, `setSceneAnswer` | The speaking choices, and how a conversation is answered | Yes, `PATCH /api/v1/me`, through `changeAccountSettings` in `lib/settings/account.ts`, which the actions call too (N-8) |
+| `setDailyGoal`, `setTimeZone`, `setVoice`, `setSpeechPace`, `setGlossLanguage`, `setUiLocale`, `setRoundPace`, `setReminderHour`, `setEmailKind` | The rest of the settings a phone shows | Yes, `PATCH /api/v1/me`; `GET /api/v1/me` reads them back through `accountSettingsFor`, which the Settings page reads (N-8) |
+| `setCourseLevel` | The level, which asks the A1 checks first | Yes, `level` in `PATCH /api/v1/me`, refused with `forbidden` past an unpassed check, through `changeCourseLevel` (N-8) |
+| `deleteMyAccount` | Deletes the account and everything kept about it | Yes, `DELETE /api/v1/me` with the typed word as `confirmation`, through `deleteAccountFor` in `lib/account/erase.ts` (N-8) |
+| (none, `/api/export`) | The whole backup file | Yes, `GET /api/v1/export`, the web's `backupFor` under the web's `exportAllowance` (N-8) |
 | (none) | Which heard words are Estonian spellings | Yes, `/api/speech/forms` |
 | (none) | A clip read aloud | Yes, `/api/tts` |
 | (none) | What was heard, read back and kept nowhere (VB-5) | Yes, `/api/tts?transient=1` |
@@ -195,6 +199,13 @@ and its Estonian is drawn as it stands.
 `rememberPushDevice`, `forgetPushDevice` and `pushDeviceStatus` are Web Push's and stay the web's: a
 native app registers the platform's own notification token instead, which needs a table and a sender
 of its own under the same booking in `EmailSend` (section 6).
+
+**Deleting an account without the app (N-8).** Google Play asks an app that makes accounts for a web
+link that explains how to delete one and works without the app. That link is `/account/delete`: public,
+in English, Russian and Ukrainian, saying what goes and what stays in `/privacy`'s words, and sending a
+signed-in reader to Settings and anybody else to sign in first. It deletes nothing itself. It is linked
+from `/privacy`, `/help` and the landing page's footer, and it goes in the Data safety form
+(`docs/46-store-listing.md`).
 
 Signing in is the other half: Supabase Auth issues the same tokens to a native client, and the routes
 above read them as a bearer header where the web reads the cookie. `lib/auth/identity.ts` is where that

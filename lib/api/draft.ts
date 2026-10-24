@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { InterfaceLanguage, MeResponse, type RouteSpec } from "./contract";
+import { type RouteSpec } from "./contract";
 
 /**
  * DRAFT. THE ROUTES THAT ARE PLANNED AND NOT BUILT, AND THE SHAPES THEY ARE
@@ -23,23 +23,7 @@ import { InterfaceLanguage, MeResponse, type RouteSpec } from "./contract";
 
 // N-7's shapes shipped and are in `./contract.ts`.
 
-// ── N-8: the account ─────────────────────────────
-
-export const DraftMePatchRequest = z.object({
-  level: z.enum(["A1", "A2", "B1", "B2", "C1"]).optional(),
-  dailyGoal: z.number().int().min(1).max(500).optional(),
-  locale: InterfaceLanguage.optional(),
-  glossLanguage: z.enum(["en", "ru", "uk"]).optional(),
-  voice: z.string().max(40).optional(),
-  speechPace: z.string().max(10).optional(),
-  timeZone: z.string().max(64).optional(),
-  roundPace: z.string().max(10).optional(),
-  reminderHour: z.number().int().min(0).max(23).nullable().optional(),
-  letters: z.record(z.string(), z.boolean()).optional(),
-}).describe("Draft: every field optional, each validated as its Settings action validates it.");
-export const DraftDeleteMeRequest = z.object({ confirmation: z.string().max(40) });
-export const DraftDeleteMeResponse = z.object({ deleted: z.literal(true), identityErased: z.boolean() });
-export const DraftExportResponse = z.record(z.string(), z.unknown()).describe("The backup the web's export downloads.");
+// N-8's shapes shipped and are in `./contract.ts`.
 
 // ── N-5: conversations ──────────────────────────────────────────────────────
 
@@ -128,7 +112,4 @@ export const DRAFT_ROUTES: readonly RouteSpec[] = [
   { method: "GET", path: "/api/v1/tts", auth: true, item: "N-6", summary: "A clip read aloud.", query: DraftTtsQuery, response: null, contentType: "audio/wav", example: "get-tts.json" },
   { method: "POST", path: "/api/v1/speech/forms", auth: true, item: "N-6", summary: "Which heard words are Estonian spellings.", request: DraftFormsRequest, response: DraftFormsResponse, example: "post-speech-forms.json" },
   { method: "GET", path: "/api/v1/recordings", auth: false, item: "N-6", summary: "The native speaker's clips and the text each answers for.", response: DraftRecordingsResponse, example: "get-recordings.json" },
-  { method: "PATCH", path: "/api/v1/me", auth: true, item: "N-8", summary: "Settings changed.", request: DraftMePatchRequest, response: MeResponse, example: "patch-me.json" },
-  { method: "DELETE", path: "/api/v1/me", auth: true, item: "N-8", summary: "The account deleted.", request: DraftDeleteMeRequest, response: DraftDeleteMeResponse, example: "delete-me.json" },
-  { method: "GET", path: "/api/v1/export", auth: true, item: "N-8", summary: "The learner's backup.", response: DraftExportResponse, example: "get-export.json" },
 ];

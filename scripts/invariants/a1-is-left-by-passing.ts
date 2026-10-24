@@ -19,10 +19,28 @@ import type { InvariantKit } from "../lib/invariantKit";
 export default function a1IsLeftByPassing({ check, code }: InvariantKit) {
   check("every door up from a part of the A1 lessons asks whether its checks are passed", () => {
     const actions = code("app/actions.ts");
-    for (const name of ["setProgramme", "setCourseLevel", "acceptCourseMove"]) {
-      const start = actions.indexOf(`export async function ${name}(`);
+    /*
+      The level picker's body is `changeCourseLevel` (lib/progress/courseLevel.ts),
+      which the web's `setCourseLevel` calls and `PATCH /api/v1/me` reaches
+      through `changeAccountSettings` (N-8), so the rule is read there and both
+      doors are held to reaching it.
+    */
+    const level = code("lib/progress/courseLevel.ts");
+    const body = (file: string, name: string) => {
+      const src = code(file);
+      const start = src.indexOf(`export async function ${name}(`);
+      assert.ok(start >= 0, `${name} is gone from ${file}`);
+      const end = src.indexOf("\nexport ", start + 10);
+      return src.slice(start, end < 0 ? undefined : end);
+    };
+    assert.match(body("app/actions.ts", "setCourseLevel"), /changeCourseLevel\(/, "setCourseLevel changes a level without changeCourseLevel, the body that asks the checks first");
+    assert.match(body("lib/settings/account.ts", "changeAccountSettings"), /changeCourseLevel\(/, "a level patched from a phone is written without changeCourseLevel");
+    assert.match(body("app/api/v1/me/route.ts", "PATCH"), /changeAccountSettings\(/, "PATCH /api/v1/me writes settings without the body the web's actions call");
+    for (const [src, name] of [[actions, "setProgramme"], [level, "changeCourseLevel"], [actions, "acceptCourseMove"]] as const) {
+      const start = src.indexOf(`export async function ${name}(`);
       assert.ok(start >= 0, `${name} is gone`);
-      const body = actions.slice(start, actions.indexOf("\nexport ", start + 10));
+      const end = src.indexOf("\nexport ", start + 10);
+      const body = src.slice(start, end < 0 ? undefined : end);
       const asked = body.indexOf("moveBlockedFor(");
       assert.ok(asked >= 0, `${name} moves a learner without asking whether a check stands in the way`);
       const writes = body.search(/writeSetting\(ownerId, SETTING_KEYS\.programme|recordCourseLevel\(ownerId, parsed/);

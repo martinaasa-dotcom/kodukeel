@@ -112,6 +112,31 @@ export type MetaResponse = z.infer<typeof MetaResponse>;
 
 // ── GET /api/v1/me ──────────────────────────────────────────────────────────
 
+/**
+ * The settings a phone shows, as the web's Settings screen reads them
+ * (`accountSettingsFor` in lib/settings/account.ts). Lists that may grow, the
+ * voices and the paces, are strings here rather than closed enums, so a value
+ * added on the web is never one a phone was told could not arrive.
+ */
+export const AccountSettingsSchema = z.object({
+  level: z.enum(["A1", "A2", "B1", "B2", "C1"]).describe("The level the course opens at, measured or stated."),
+  dailyGoal: z.number().int().describe("Reviews a day that fill the goal ring, 5 to 200."),
+  glossLanguage: z.enum(["en", "ru", "uk"]).describe("The language a meaning leads in beside the English."),
+  voice: z.string().describe("The voice that reads Estonian aloud, by id."),
+  speechPace: z.string().describe("A pace's id, or `auto` where it follows the level."),
+  speech: z.object({
+    sendAtOnce: z.boolean().describe("Whether a line the microphone matched is sent without the countdown."),
+    inBoxes: z.boolean().describe("Whether the microphone appears in answer boxes."),
+  }),
+  sceneAnswer: z.enum(["pick", "say", "type"]).nullable().describe("How a conversation is answered, or null where never chosen."),
+  timeZone: z.string().nullable().describe("An IANA zone name, or null where the device never said."),
+  roundPace: z.string().describe("How long a timed round runs, as a pace's id."),
+  reminderAt: z.string().nullable().describe("The evening reminder's time, `HH:MM`, or null where never set."),
+  letters: z.record(z.string(), z.boolean()).describe("Every kind of letter and notification a learner may switch, and whether it is on."),
+}).describe("The settings a phone shows.");
+
+export type AccountSettingsResponse = z.infer<typeof AccountSettingsSchema>;
+
 export const MeResponse = z.object({
   id: z.string(),
   /** The name the sign-in provider gave, the email's local part, or "you". */
@@ -119,7 +144,8 @@ export const MeResponse = z.object({
   email: z.string().nullable(),
   /** The interface language this learner reads the app in. */
   locale: InterfaceLanguage,
-}).describe("Who the token belongs to.");
+  settings: AccountSettingsSchema,
+}).describe("Who the token belongs to, and the settings a phone shows.");
 
 export type MeResponse = z.infer<typeof MeResponse>;
 
@@ -439,6 +465,43 @@ export const CheckResultSchema = z.object({
 
 export type CheckResultResponse = z.infer<typeof CheckResultSchema>;
 
+// ── N-8: the account ────────────────────────────────────────────────────────
+
+export const MePatchRequest = z.object({
+  level: z.enum(["A1", "A2", "B1", "B2", "C1"]).optional()
+    .describe("Asked of the A1 checks first, as the web's level picker asks: a move up past an unpassed check is refused with `forbidden`."),
+  dailyGoal: z.number().int().min(1).max(500).optional().describe("Clamped to 5 to 200, as the web clamps it."),
+  locale: InterfaceLanguage.optional(),
+  glossLanguage: z.enum(["en", "ru", "uk"]).optional(),
+  voice: z.string().max(40).optional().describe("A voice id; one the server does not offer is stored as its default."),
+  speechPace: z.string().max(20).optional().describe("A pace id, or `auto`; anything else is stored as `auto`."),
+  speech: z.object({ sendAtOnce: z.boolean().optional(), inBoxes: z.boolean().optional() }).optional(),
+  sceneAnswer: z.enum(["pick", "say", "type"]).optional(),
+  timeZone: z.string().max(64).optional().describe("An IANA zone name; one the server cannot read refuses the whole change."),
+  roundPace: z.string().max(20).optional(),
+  reminderAt: z.string().max(5).optional().describe("`HH:MM`; a malformed time is clamped to one, never refused."),
+  letters: z.record(z.string().max(20), z.boolean()).optional()
+    .describe("Kinds switched on or off; a kind the server does not send refuses the whole change."),
+}).describe("Some of the settings a phone shows, each normalized as its Settings control normalizes it. Nothing is written unless every field can be.");
+
+export const DeleteMeRequest = z.object({
+  confirmation: z.string().max(40).describe("The word the learner typed: `delete`, or its Russian or Ukrainian, as Settings asks."),
+});
+
+export const DeleteMeResponse = z.object({
+  deleted: z.literal(true),
+  identityErased: z.boolean().describe("Whether the sign-in record went too; false on a local install and where the operator holds no key that can."),
+  remaining: z.string().nullable().describe("What is left and who to ask, in English, or null where nothing is."),
+});
+
+export const ExportResponse = z.looseObject({
+  exportedAt: z.string(),
+  format: z.literal("kodukeel-v1"),
+  counts: z.record(z.string(), z.number().int()),
+}).describe("The backup the web's export downloads, every table of the learner's own, which the web's restore reads back.");
+
+export type DeleteMeResponse = z.infer<typeof DeleteMeResponse>;
+
 // ── The routes that have shipped ────────────────────────────────────────────
 
 export const SHIPPED_ROUTES: readonly RouteSpec[] = [
@@ -459,6 +522,35 @@ export const SHIPPED_ROUTES: readonly RouteSpec[] = [
     item: "N-2",
     response: MeResponse,
     example: "get-me.json",
+  },
+  {
+    method: "PATCH",
+    path: "/api/v1/me",
+    auth: true,
+    summary: "Settings changed, each as its Settings control changes it; a level asks the A1 checks first.",
+    item: "N-8",
+    request: MePatchRequest,
+    response: MeResponse,
+    example: "patch-me.json",
+  },
+  {
+    method: "DELETE",
+    path: "/api/v1/me",
+    auth: true,
+    summary: "The account deleted, everything the app holds and the sign-in record where it can be.",
+    item: "N-8",
+    request: DeleteMeRequest,
+    response: DeleteMeResponse,
+    example: "delete-me.json",
+  },
+  {
+    method: "GET",
+    path: "/api/v1/export",
+    auth: true,
+    summary: "The learner's backup, the file the web's export downloads, under the same allowance.",
+    item: "N-8",
+    response: ExportResponse,
+    example: "get-export.json",
   },
   {
     method: "GET",

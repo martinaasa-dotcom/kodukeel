@@ -140,6 +140,9 @@ export async function middleware(request: NextRequest) {
     // What to try when somebody cannot sign in, and whether the app is working,
     // for exactly the reader who has no session to read anything else with.
     path.startsWith("/help") ||
+    // How to delete an account, for Google Play's web link, which has to work
+    // for somebody who no longer has the app (N-8). It deletes nothing itself.
+    path.startsWith("/account/delete") ||
     // What a teacher sees, drawn over an invented class, for somebody deciding
     // whether to put a code on a board before they have a class.
     path.startsWith("/teachers") ||

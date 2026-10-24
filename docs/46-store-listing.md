@@ -180,7 +180,7 @@ Ekilex.
 | Support address | `/help` on the hosted deployment, which answers signed out. |
 | Marketing address | `/welcome`, the landing page. |
 | Privacy policy | `/privacy`, which names the operator and generates its list of recipients from the deployment's own configuration. |
-| Account deletion (Google Play) | Settings, under "Your data" and then "Deleting your data", for a signed-in learner. The public page Google Play asks for, where somebody without the app can start a deletion, is N-8's and is entered in the Data safety form once it is deployed (section 8 of `docs/44-sixth-batch.md`). |
+| Account deletion (Google Play) | `/account/delete` on the hosted deployment, entered in the Data safety form as the web link for deleting an account. It works without the app and without a session: it says what is deleted and what is not, in the words of `/privacy`, and sends a signed-in reader to Settings and anybody else to sign in first. It deletes nothing itself. In the app the same button is Settings, under "Your data" and then "Deleting your data". |
 
 ## Age rating
 
@@ -240,7 +240,8 @@ for the operator to paste once the native build exists:
 > account has already been through the four setup questions, so the app opens on today's lesson.
 >
 > Account deletion is in the app: Settings, "Your data", "Deleting your data", "Delete everything".
-> It deletes the account and everything kept about it, with no exemptions.
+> It deletes the account and everything kept about it, with no exemptions. Without the app,
+> /account/delete on the website says how.
 >
 > Speech recognition runs on the device. When a learner says an answer out loud, the recording is
 > heard by a model stored in the app and is neither sent anywhere nor kept. Only the words recognized
@@ -452,7 +453,7 @@ Every recipient the code can name is assumed on, which declares the most. The va
 
 **Encrypted in transit:** Yes. Every request goes over HTTPS, to this app's own server and from it to every recipient.
 
-**A way to ask for deletion:** Yes. Settings deletes the account and everything kept about it, with no exemptions, and Settings is the same page in the app and on the web.
+**A way to ask for deletion:** Yes. Settings deletes the account and everything kept about it, with no exemptions, and Settings is the same page in the app and on the web. The web link the form asks for is /account/delete, which says what goes and what stays and sends somebody without the app to sign in and press the button.
 
 **Shared with third parties:** No, for every type. Every recipient is a service provider working on this app's behalf or receives a word or a phrase with no account attached, which neither store counts as sharing.
 

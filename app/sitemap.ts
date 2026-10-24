@@ -36,6 +36,8 @@ const PUBLIC_PATHS = [
   // class, and the one written for somebody deciding whether to fund it.
   { path: "/trust", priority: 0.8 },
   { path: "/help", priority: 0.6 },
+  // How to delete an account, the address the store's data safety form names (N-8).
+  { path: "/account/delete", priority: 0.4 },
   { path: "/teachers", priority: 0.8 },
   { path: "/pilots", priority: 0.6 },
   { path: "/how-we-know", priority: 0.5 },

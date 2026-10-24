@@ -3034,16 +3034,18 @@ check("a review is only ever deleted by something the learner asked for", () => 
   const deleters = ALL
     .filter((f) => !/\.(test|itest)\.tsx?$/.test(f))
     .filter((f) => /review\.delete|\bDELETE\s+FROM\s+"Review"|\bTRUNCATE\b[^;`]*"Review"/i.test(read(f)));
-  assert.deepEqual(deleters, ["app/actions.ts"], "a review is deleted outside the paths that may");
+  // The erasure is `deleteAccountFor` (lib/account/erase.ts), behind Settings and DELETE /api/v1/me.
+  assert.deepEqual(deleters, ["lib/account/erase.ts"], "a review is deleted outside the paths that may");
 
   const actions = code("app/actions.ts");
   assert.match(
-    actions,
-    // Coerced first, because the argument is JSON off the wire: see "a malformed
-    // argument to a server action is refused, not thrown or stored".
-    /!isConfirmed\(text\(confirmation\), "delete"\)/,
+    code("lib/account/erase.ts"),
+    /!isConfirmed\(confirmation, "delete"\)/,
     "account deletion no longer asks the learner to confirm",
   );
+  // Coerced first at the web door, because the argument is JSON off the wire:
+  // see "a malformed argument to a server action is refused, not thrown or stored".
+  assert.match(actions, /deleteAccountFor\(ownerId, text\(confirmation\)\)/, "Settings hands the erasure a confirmation it never coerced");
   /* The word is asked for in the reader's own language and the English is
      still accepted; what may not happen is the check accepting anything. */
   assert.match(
@@ -3846,7 +3848,8 @@ check("the routes that spend somebody else's quota are capped", () => {
     "app/api/tutor/route.ts",
     "app/api/tts/route.ts",
     "app/api/share/route.tsx",
-    "app/api/export/route.ts",
+    // The export's allowance is `exportAllowance`, which both of its doors ask (N-8).
+    "lib/account/export.ts",
     "app/api/scan/route.ts",
   ]) {
     assert.match(
@@ -3874,7 +3877,7 @@ check("the routes the spend ledger does not price are capped where every instanc
   for (const route of [
     "app/api/tts/route.ts",
     "app/api/share/route.tsx",
-    "app/api/export/route.ts",
+    "lib/account/export.ts",
     "app/api/restore/route.ts",
   ]) {
     assert.match(
@@ -3990,7 +3993,7 @@ check("a cap is charged to the learner, never to their address alone", () => {
   */
   // The four CLAUDE.md names, read as code: this read one of them, raw, so the
   // word surviving in a comment was enough.
-  for (const file of ["app/api/tutor/route.ts", "app/api/tts/route.ts", "app/api/share/route.tsx", "app/api/export/route.ts"]) {
+  for (const file of ["app/api/tutor/route.ts", "app/api/tts/route.ts", "app/api/share/route.tsx", "lib/account/export.ts"]) {
     assert.match(code(file), /bucketForOwner\(|bucketForRequest\(/, `${file}'s cap is no longer per learner`);
   }
 });
@@ -7331,11 +7334,12 @@ check("a sat check is never edited, and is deleted only on request", () => {
     const hit = /(prisma|tx)\.assessment\.(update|updateMany|upsert)/.exec(read(file));
     assert.equal(hit, null, `${file} rewrites a stored assessment`);
   }
+  // The erasure's body is `deleteAccountFor` (lib/account/erase.ts), behind both doors since N-8.
   const deleters = product.filter((f) => /(prisma|tx)\.assessment\.delete/.test(read(f)));
-  assert.deepEqual(deleters, ["app/actions.ts"], "a level check is deleted outside account deletion");
+  assert.deepEqual(deleters, ["lib/account/erase.ts"], "a level check is deleted outside account deletion");
   assert.match(
-    code("app/actions.ts"),
-    /deleteMyAccount[\s\S]*?tx\.assessment\.deleteMany/,
+    code("lib/account/erase.ts"),
+    /deleteAccountFor[\s\S]*?tx\.assessment\.deleteMany/,
     "account deletion no longer removes the level checks it promises to",
   );
 });
@@ -7887,16 +7891,22 @@ check("a deletion that leaves something behind says so", () => {
     left rather than shown a success. A button that reports a deletion it did
     not entirely do is worse than one that refuses.
   */
-  const actions = code("app/actions.ts");
+  // The erasure's body is `deleteAccountFor`, which both doors call (N-8).
+  const erase = code("lib/account/erase.ts");
   assert.match(
-    actions,
-    /deleteMyAccount[\s\S]*?eraseAuthIdentity/,
+    erase,
+    /deleteAccountFor[\s\S]*?eraseAuthIdentity/,
     "account deletion no longer erases the sign-in identity",
   );
   assert.match(
-    actions,
-    /deleteMyAccount[\s\S]*?remainingIdentityNote/,
+    erase,
+    /deleteAccountFor[\s\S]*?remainingIdentityNote/,
     "account deletion no longer reports what it could not reach",
+  );
+  assert.match(
+    between(code("app/actions.ts"), "export async function deleteMyAccount"),
+    /deleteAccountFor\(ownerId[\s\S]*?result\.remaining/,
+    "the Settings door no longer hands back what the erasure left behind",
   );
   const danger = code("app/(app)/settings/DangerZone.tsx");
   assert.match(danger, /result\.remaining/, "the screen ignores what the deletion left behind");
@@ -8519,7 +8529,7 @@ check("the security doc's per-instance residual names no route the shared counte
   const SHARED: Record<string, string> = {
     speech: "app/api/tts/route.ts",
     "share card": "app/api/share/route.tsx",
-    export: "app/api/export/route.ts",
+    export: "lib/account/export.ts",
     restore: "app/api/restore/route.ts",
   };
   for (const [noun, file] of Object.entries(SHARED)) {
@@ -9585,7 +9595,8 @@ check("an export holds every category the account holds", () => {
     carry a written reason, so appending a model name is no longer a way to
     make this pass. UsageEvent is the one that earns it.
   */
-  const route = code("app/api/export/route.ts");
+  // The backup is `backupFor` (lib/account/export.ts), which both export doors call (N-8).
+  const route = code("lib/account/export.ts");
   for (const model of ownerScopedModels()) {
     if (Object.hasOwn(NOT_EXPORTED, model)) continue;
     assert.match(
@@ -9630,7 +9641,8 @@ check("erasure has no exemptions at all", () => {
     a transaction that named ten tables. So the one category of long-form
     writing in the whole app survived its author asking for it to be gone.
   */
-  const action = between(code("app/actions.ts"), "export async function deleteMyAccount");
+  // Since N-8 the erasure is `deleteAccountFor`, behind the Settings door and DELETE /api/v1/me.
+  const action = between(code("lib/account/erase.ts"), "export async function deleteAccountFor");
   for (const model of ownerScopedModels()) {
     assert.match(
       action,
@@ -12821,7 +12833,29 @@ check("a transaction's own time limit fits inside the function that runs it", ()
     const limit = [...body.matchAll(/\{ timeout: ([\d_]+) \}/g)].map((m) => Number(m[1]!.replace(/_/g, "")));
     if (name && limit.length > 0) timed.push([name, Math.max(...limit)]);
   }
+  /*
+    And a body moved out of an action into lib/ (N-8's erasure) keeps its
+    limit: each action that calls it inherits it, and each route that imports
+    it is held to its own budget like any other caller below.
+  */
+  const routesCalling: [string, string, number][] = [];
+  for (const file of ["lib/account/erase.ts"]) {
+    for (const body of code(file).split(/\n(?=export (?:async )?function )/).slice(1)) {
+      const name = /^export (?:async )?function (\w+)/.exec(body)?.[1];
+      const limit = [...body.matchAll(/\{ timeout: ([\d_]+) \}/g)].map((m) => Number(m[1]!.replace(/_/g, "")));
+      if (!name || limit.length === 0) continue;
+      const most = Math.max(...limit);
+      for (const action of bodies) {
+        const actionName = /^export (?:async )?function (\w+)/.exec(action)?.[1];
+        if (actionName && new RegExp(`\\b${name}\\(`).test(action)) timed.push([actionName, most]);
+      }
+      for (const route of APP.filter((f) => /\/route\.tsx?$/.test(f) && new RegExp(`\\b${name}\\b`).test(code(f)))) {
+        routesCalling.push([name, route, most]);
+      }
+    }
+  }
   assert.ok(timed.length >= 2, `only ${timed.length} actions with a transaction timeout found`);
+  assert.ok(routesCalling.length >= 1, "no route calls the erasure, so the moved body is followed nowhere");
 
   const budgetOf = (file: string): number | null => {
     const hit = /export const maxDuration = (\d+);/.exec(code(file));
@@ -12849,6 +12883,13 @@ check("a transaction's own time limit fits inside the function that runs it", ()
       if (budget === null || budget <= limitMs) {
         short.push(`${name} (${limitMs / 1000}s) runs inside ${host ?? caller} at ${budget === null ? "the platform default" : `${budget / 1000}s`}`);
       }
+    }
+  }
+  for (const [name, route, limitMs] of routesCalling) {
+    const budget = budgetOf(route);
+    reached += 1;
+    if (budget === null || budget <= limitMs) {
+      short.push(`${name} (${limitMs / 1000}s) runs inside ${route} at ${budget === null ? "the platform default" : `${budget / 1000}s`}`);
     }
   }
   assert.ok(reached >= 2, `only ${reached} callers followed`);
@@ -12938,6 +12979,10 @@ check("a route that spends something is throttled", () => {
     me       is `GET /api/v1/me`, the token's own claims and one indexed read
              of the interface language, which is `reminder`'s argument: a
              ceiling would be met by an app opening twice and by nobody else.
+             Its `PATCH` is `changeAccountSettings`, the body of the Settings
+             switches, a handful of indexed writes none of which the web
+             throttles, and its `DELETE` is `deleteAccountFor`, which ends the
+             account it would be counted against.
              The v1 routes take their limits from the web door they share a
              body with (D5), and the web reads the same facts with none.
     review   is `GET /api/v1/review`, `dailyReview`, which the review page
@@ -12980,6 +13025,12 @@ check("a route that spends something is throttled", () => {
       shares a body with an action (D5), so it answers both questions below.
     */
     if (/\bthrottleAction\(\s*who\.ownerId,/.test(source)) continue;
+    /*
+      The export's allowance is `exportAllowance`, shared by its web door and
+      its v1 door (N-8); what it counts and against whom is asserted on
+      lib/account/export.ts below the loop.
+    */
+    if (/\bexportAllowance\(\s*(?:ownerId|who\.ownerId)\s*\)/.test(source)) continue;
     assert.match(
       source,
       /check(Shared)?RateLimit\(/,
@@ -13002,6 +13053,9 @@ check("a route that spends something is throttled", () => {
     `request.text()` reads whatever arrives, which is one signed-in account
     away from holding an arbitrary amount of a server's memory per request.
   */
+  const allowance = between(code("lib/account/export.ts"), "export async function exportAllowance(");
+  assert.match(allowance, /checkSharedRateLimit\(`export:\$\{bucketForOwner\(ownerId\)\}`/, "the export's allowance is no longer counted per learner where every instance sees it");
+
   const restore = code(join("app", "api", "restore", "route.ts"));
   assert.match(restore, /MAX_BACKUP_BYTES/, "the restore route reads an upload of any size again");
   assert.match(restore, /content-length/, "the restore route no longer refuses an oversized upload before reading it");
@@ -13071,8 +13125,12 @@ check("every route group says it is loading rather than showing nothing", () => 
       as having none.
     */
     ...Object.fromEntries(
-      ["privacy", "terms", "accessibility", "trust", "funding", "state-exam", "teachers", "pilots", "help"].map((page) => [
-        join("app", page),
+      [
+        ["privacy"], ["terms"], ["accessibility"], ["trust"], ["funding"], ["state-exam"], ["teachers"], ["pilots"], ["help"],
+        // How to delete an account (N-8), which also asks whether somebody is signed in.
+        ["(chromeless)", "account", "delete"],
+      ].map((page) => [
+        join("app", ...page),
         (src: string) =>
           !/@\/lib\/db|\bprisma\.|requireUserId|@\/lib\/progress\/(?!publicLocale")/.test(src),
       ]),
@@ -16607,7 +16665,7 @@ check("a backup carries every word the learner's own rows point at", () => {
     .filter(([, , body]) => /^\s+ownerId\s/m.test(body!) && /^\s+lexemeId\s/m.test(body!))
     .map(([, name]) => name!.charAt(0).toLowerCase() + name!.slice(1));
   assert.ok(models.length >= 7, `expected the owner-scoped tables that point at a word, found ${models.length}`);
-  const exported = code("app/api/export/route.ts");
+  const exported = code("lib/account/export.ts");
   const gather = exported.slice(0, exported.indexOf("const mine"));
   assert.ok(gather.length > 0, "could not find where the export gathers its words");
   const missing = models.filter((model) => !new RegExp(
@@ -27794,7 +27852,8 @@ check("which letters a learner gets is changed only under their lock", () => {
       /writeSetting\([^)]*SETTING_KEYS\.emails(?:Off|On)|ownerId_key:\s*\{[^}]*SETTING_KEYS\.emails(?:Off|On)/.test(code(f)),
   );
   assert.deepEqual(writers, [], `${writers.join(", ")} writes the email preferences outside changeEmailPrefs`);
-  for (const file of ["app/actions.ts", "app/api/email/unsubscribe/route.ts", "app/api/email/bounce/route.ts"]) {
+  // The Settings switch's body is `changeAccountSettings` (lib/settings/account.ts) since N-8.
+  for (const file of ["lib/settings/account.ts", "app/api/email/unsubscribe/route.ts", "app/api/email/bounce/route.ts"]) {
     assert.match(code(file), /changeEmailPrefs\(/, `${file} no longer changes the email preferences through the lock`);
   }
 });

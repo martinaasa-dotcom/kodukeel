@@ -1483,14 +1483,14 @@ let them delete the account, which both stores require (D8).
   moved into `lib/settings/` where it is not already there. A change of level asks `moveBlockedFor`
   first, as the web's level picker does, so a learner on the A1 lessons cannot step past an unpassed
   check from a phone (N-7).
-- `app/api/v1/export/route.ts` (to be written): the backup, through the function `app/api/export/route.ts`
+- `app/api/v1/export/route.ts`: the backup, through the function `app/api/export/route.ts`
   uses, moved out of the route so both call it, with the same shared limit.
-- `lib/account/erase.ts` (to be written): `deleteMyAccount`'s body moved out of `app/actions.ts`, taking
+- `lib/account/erase.ts`: `deleteMyAccount`'s body moved out of `app/actions.ts`, taking
   the owner, with `eraseAuthIdentity` from `lib/auth/erase.ts` at its end. `lib/account/deletion.itest.ts`
   drives the moved function, and the erasure invariant reads its new home.
 - `DELETE /api/v1/me`: the account deleted, with a confirmation field in the body, as the web asks the
   learner to type one.
-- `app/(chromeless)/account/delete/page.tsx` (to be written): a public page for Google Play's web link,
+- `app/(chromeless)/account/delete/page.tsx`: a public page for Google Play's web link,
   in three languages. It says what is deleted and what is not (in the words `/privacy` already uses), and
   sends a signed-in learner to the deletion in Settings and a signed-out one to sign in first. It deletes
   nothing itself. Linked from `/privacy` and `/help`, and added to the middleware's public list.

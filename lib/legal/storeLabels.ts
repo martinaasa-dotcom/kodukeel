@@ -275,7 +275,8 @@ const SHARED_WHY =
 const ENCRYPTED_WHY = "Every request goes over HTTPS, to this app's own server and from it to every recipient.";
 const DELETION_WHY =
   "Settings deletes the account and everything kept about it, with no exemptions, and Settings is the same page "
-  + "in the app and on the web.";
+  + "in the app and on the web. The web link the form asks for is /account/delete, which says what goes and what "
+  + "stays and sends somebody without the app to sign in and press the button.";
 
 function from(source: string, entry: Source): { source: string; entry: Source } {
   return { source, entry };

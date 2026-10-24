@@ -12,10 +12,12 @@ import type { InvariantKit } from "../lib/invariantKit";
  */
 export default function theModuleAsksWhatItTaught({ check, code }: InvariantKit) {
   check("picking a level in Settings moves the course when it opens on another level", () => {
-    const actions = code("app/actions.ts");
-    const start = actions.indexOf("export async function setCourseLevel");
-    assert.ok(start >= 0, "setCourseLevel is gone");
-    const body = actions.slice(start, actions.indexOf("export async function", start + 10));
+    // The picker's body is `changeCourseLevel`, which both doors call (N-8).
+    const level = code("lib/progress/courseLevel.ts");
+    const start = level.indexOf("export async function changeCourseLevel");
+    assert.ok(start >= 0, "changeCourseLevel is gone");
+    const end = level.indexOf("export async function", start + 10);
+    const body = level.slice(start, end < 0 ? undefined : end);
     assert.match(body, /openingPartFor\(ownerId\)/, "setCourseLevel no longer works out where the new level opens");
     assert.match(body, /SETTING_KEYS\.programme,\s*opening\.id/, "setCourseLevel no longer moves the course");
   });

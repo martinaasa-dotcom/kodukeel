@@ -3,11 +3,17 @@ import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { prisma } from "@/lib/db";
 
 /**
- * Account deletion, against the database, through the action itself.
+ * Account deletion, against the database, through the erasure itself.
  *
  * The privacy page makes a specific promise about what disappears and what does
  * not. This checks the promise, table by table: a deletion that quietly misses
  * one of them is the kind of bug nobody notices until it matters.
+ *
+ * IT CALLS THE ERASURE, NOT A COPY OF IT. Since N-8 the body is
+ * `deleteAccountFor` in lib/account/erase.ts, which the web's
+ * `deleteMyAccount` and `DELETE /api/v1/me` both call, so it is driven here
+ * directly, and the action once more to show it is a door over the same body.
+ * What follows is how this file came to call the real thing at all.
  *
  * IT CALLS `deleteMyAccount`, NOT A COPY OF IT. The first version of this file
  * ran "the same statements `deleteMyAccount` runs" out of a list typed in here,
@@ -44,6 +50,7 @@ vi.mock("@/lib/auth/erase", async (importOriginal) => ({
 }));
 
 const { deleteMyAccount } = await import("@/app/actions");
+const { deleteAccountFor } = await import("@/lib/account/erase");
 
 const MINE = "itest-owner-delete";
 const THEIRS = "itest-owner-keep";
@@ -166,7 +173,7 @@ beforeEach(async () => {
 
 afterAll(async () => { await wipe(); await prisma.$disconnect(); });
 
-describe("deleteMyAccount", () => {
+describe("deleteAccountFor, behind both doors", () => {
   it("is handed a row in every owner-scoped table, so the checks below can fail", async () => {
     expect(OWNED.length).toBeGreaterThanOrEqual(20);
     expect(emptyIn(await countsFor(MINE))).toEqual([]);
@@ -174,31 +181,41 @@ describe("deleteMyAccount", () => {
   });
 
   it("refuses without the typed confirmation, and deletes nothing", async () => {
-    const result = await deleteMyAccount("yes please");
+    const result = await deleteAccountFor(MINE, "yes please");
     expect(result.ok).toBe(false);
+    expect(emptyIn(await countsFor(MINE))).toEqual([]);
+    expect((await deleteAccountFor(MINE, 1)).ok).toBe(false);
     expect(emptyIn(await countsFor(MINE))).toEqual([]);
   });
 
   it("empties every owner-scoped table the schema has, named or not", async () => {
     // Read off the generated client rather than off a list, so a table added to
-    // the schema and not to the action fails here on the day it is added.
-    const result = await deleteMyAccount("delete");
+    // the schema and not to the erasure fails here on the day it is added.
+    const result = await deleteAccountFor(MINE, "delete");
     expect(result.ok).toBe(true);
     expect(heldIn(await countsFor(MINE))).toEqual([]);
   });
 
+  it("is the body the web's action runs, confirmation included", async () => {
+    expect((await deleteMyAccount("yes please")).ok).toBe(false);
+    expect(emptyIn(await countsFor(MINE))).toEqual([]);
+    const result = await deleteMyAccount("delete");
+    expect(result).toEqual({ ok: true, remaining: null });
+    expect(heldIn(await countsFor(MINE))).toEqual([]);
+  });
+
   it("leaves every other account untouched", async () => {
-    await deleteMyAccount("delete");
+    await deleteAccountFor(MINE, "delete");
     expect(emptyIn(await countsFor(THEIRS))).toEqual([]);
   });
 
   it("keeps the shared dictionary, which other learners have cards on", async () => {
-    await deleteMyAccount("delete");
+    await deleteAccountFor(MINE, "delete");
     expect(await prisma.lexeme.findUnique({ where: { id: lexemeId } })).not.toBeNull();
   });
 
   it("stops attributing an edited entry to the deleted account", async () => {
-    await deleteMyAccount("delete");
+    await deleteAccountFor(MINE, "delete");
     const lexeme = await prisma.lexeme.findUniqueOrThrow({ where: { id: lexemeId } });
     expect(lexeme.editedBy).toBeNull();
   });
@@ -210,7 +227,7 @@ describe("deleteMyAccount", () => {
       data: { status: "ACCEPTED", reviewedBy: MINE, reviewedAt: new Date() },
     });
 
-    await deleteMyAccount("delete");
+    await deleteAccountFor(MINE, "delete");
 
     const after = await prisma.suggestion.findUniqueOrThrow({ where: { id: theirs.id } });
     expect(after.status).toBe("ACCEPTED");
