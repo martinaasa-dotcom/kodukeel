@@ -83,7 +83,7 @@ export default async function TeachersPage({ searchParams }: { searchParams: Pub
           <li>{t("Sign in and open Classes.")}</li>
           <li>{t("Create a class and print the poster.")}</li>
           <li>{t("Learners scan the code or open the link, sign in and press Join.")}</li>
-          <li>{t("Set homework from any unit when you are ready.")}</li>
+          <li>{t("Set homework from any unit above A1, or write your own, when you are ready.")}</li>
         </ol>
       </S>
 
