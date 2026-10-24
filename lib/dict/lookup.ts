@@ -1,7 +1,10 @@
 import { bucketForOwner, checkRateLimit } from "@/lib/security/rateLimit";
 import { editExamples } from "./editExamples";
 import { prisma } from "@/lib/db";
-import { ekilexConfigured, fetchEkilexDetails, searchEkilex } from "@/lib/ekilex/client";
+import {
+  PAGE_DEADLINE_MS, emptyTally, ekilexConfigured, fetchEkilexDetails, searchEkilex, type GateOptions,
+} from "@/lib/ekilex/client";
+import { recordEkilexTally, recordStoredAnswer } from "./ekilexCount";
 import { mapEkilexDetails } from "@/lib/ekilex/mapper";
 import { mergeExamples, serialiseExamples } from "./examples";
 import { fetchEnglishGloss } from "./wiktionary";
@@ -83,7 +86,7 @@ export interface LookupResult {
  * request that was in flight still finishes and still writes its cache, and
  * the next visit either finds it there or tries again.
  */
-const UPGRADE_DEADLINE_MS = 2_500;
+const UPGRADE_DEADLINE_MS = PAGE_DEADLINE_MS;
 
 /**
  * The upgrade, given up on rather than waited for.
@@ -96,6 +99,9 @@ export async function enrichWithinDeadline(
   lexemeId: string,
   deadlineMs = UPGRADE_DEADLINE_MS,
 ): Promise<boolean> {
+  // The same deadline reaches the gate, so a backoff the page cannot wait
+  // for is not slept at all (lib/ekilex/client.ts).
+  const deadline = Date.now() + deadlineMs;
   let timer: ReturnType<typeof setTimeout> | undefined;
   const gaveUp = new Promise<boolean>((resolve) => {
     timer = setTimeout(() => resolve(false), deadlineMs);
@@ -105,7 +111,7 @@ export async function enrichWithinDeadline(
       // A failure here is already handled inside enrichFromEkilex; this catch
       // is so an unexpected one degrades to "not upgraded" rather than to an
       // error page over a word the reader can already see.
-      enrichFromEkilex(lexemeId).catch(() => false),
+      enrichFromEkilex(lexemeId, deadline).catch(() => false),
       gaveUp,
     ]);
   } finally {
@@ -113,7 +119,7 @@ export async function enrichWithinDeadline(
   }
 }
 
-export async function enrichFromEkilex(lexemeId: string): Promise<boolean> {
+export async function enrichFromEkilex(lexemeId: string, deadline?: number): Promise<boolean> {
   if (!ekilexConfigured()) return false;
   /*
     One upgrade per word at a time. Two renders of the same entry arriving
@@ -121,10 +127,10 @@ export async function enrichFromEkilex(lexemeId: string): Promise<boolean> {
     `deleteMany` plus `createMany` pairs racing over the same word's forms.
     Joining the one already running costs nothing and removes both.
   */
-  return singleFlight(`ekilex:enrich:${lexemeId}`, () => runEnrich(lexemeId));
+  return singleFlight(`ekilex:enrich:${lexemeId}`, () => counted(deadline, (gate) => runEnrich(lexemeId, gate)));
 }
 
-async function runEnrich(lexemeId: string): Promise<boolean> {
+async function runEnrich(lexemeId: string, gate: GateOptions): Promise<boolean> {
   const lexeme = await prisma.lexeme.findUnique({
     where: { id: lexemeId },
     select: {
@@ -166,13 +172,13 @@ async function runEnrich(lexemeId: string): Promise<boolean> {
   */
   let wordId = lexeme.ekilexWordId;
   if (wordId == null) {
-    const matches = await searchEkilex(lexeme.lemma);
+    const matches = await searchEkilex(lexeme.lemma, gate);
     const first = matches.find((m) => m.wordValue === lexeme.lemma) ?? matches[0];
     if (!first) return recordMiss(lexeme.id);
     wordId = first.wordId;
   }
 
-  const details = await fetchEkilexDetails(wordId);
+  const details = await fetchEkilexDetails(wordId, gate);
   const mapped = details ? mapEkilexDetails(details) : null;
   if (!mapped || mapped.lemma !== lexeme.lemma) return recordMiss(lexeme.id);
 
@@ -295,20 +301,53 @@ export async function lookupAndStore(
     rule speech follows: the class of twenty-five who all look up the unit's
     new word cost one lookup and one gloss, billed to whoever asked first.
   */
-  return singleFlight(`ekilex:lookup:${trimmed}`, () => runLookup(ownerId, trimmed));
+  return singleFlight(`ekilex:lookup:${trimmed}`, () =>
+    counted(Date.now() + PAGE_DEADLINE_MS, (gate) => runLookup(ownerId, trimmed, gate)));
 }
 
-async function runLookup(ownerId: string, query: string): Promise<LookupResult | null> {
+/**
+ * EVERY LIVE REQUEST COUNTED ONCE, THROUGH THE GATE, AND WRITTEN DOWN ONCE.
+ *
+ * The gate fills the tally as it sends (`lib/ekilex/client.ts`), so a request
+ * is counted however many tries it took, and a request that never got a slot
+ * is not counted at all. The day's row gets the whole tally in one statement
+ * once the work is over, in a `finally` so a lookup that threw still counts
+ * what it asked. Inside the single flight, so twenty-five people joining one
+ * lookup count the one request that was made rather than twenty-five.
+ */
+async function counted<T>(deadline: number | undefined, work: (gate: GateOptions) => Promise<T>): Promise<T> {
+  const tally = emptyTally();
+  try {
+    return await work({ deadline, tally });
+  } finally {
+    await recordEkilexTally(tally);
+  }
+}
+
+/**
+ * An entry Ekilex supplied, opened and answered from this database, which is
+ * the other half of what /impact says about Ekilex: how often this
+ * installation needed the Institute's data and asked nobody. Called by the
+ * dictionary page only where nothing was fetched live for the entry in the
+ * same render, and never on a prefetch, so a pointer resting on a link is not
+ * a lookup.
+ */
+export async function countStoredAnswer(entry: { ekilexWordId: number | null } | null): Promise<void> {
+  if (!entry || entry.ekilexWordId == null) return;
+  await recordStoredAnswer();
+}
+
+async function runLookup(ownerId: string, query: string, gate: GateOptions): Promise<LookupResult | null> {
   const missKey = `ekilex:q:${query}`;
 
-  const matches = await searchEkilex(query);
+  const matches = await searchEkilex(query, gate);
   const first = matches[0];
   if (!first) {
     rememberMiss(missKey, QUERY_MISS_TTL_MS);
     return null;
   }
 
-  const details = await fetchEkilexDetails(first.wordId);
+  const details = await fetchEkilexDetails(first.wordId, gate);
   if (!details) {
     rememberMiss(missKey, QUERY_MISS_TTL_MS);
     return null;

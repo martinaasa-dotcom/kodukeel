@@ -115,6 +115,7 @@
     "check:authored": "tsx scripts/check-authored.ts",
     "check:speech-golden": "tsx scripts/check-speech-golden.ts",
     "store:labels": "tsx scripts/store-labels.ts",
+    "export:corrections": "tsx scripts/export-corrections.ts",
     "export:translations": "tsx scripts/export-translations.ts",
     "i18n:tables": "tsx scripts/build-locale-tables.ts",
     "asr:runtime": "node scripts/vendor-asr-runtime.mjs",

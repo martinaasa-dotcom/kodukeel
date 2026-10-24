@@ -29,6 +29,7 @@ import { SAME_SPELLING, sameSpelling, PARTS } from "@/lib/copy/values";
 import { WordFun } from "@/components/WordFun";
 import { Examples } from "./Examples";
 import { DerivedVerbForms, WordForms } from "./Forms";
+import { EkilexCredit } from "./EkilexCredit";
 import type { SearchHit } from "@/lib/dict/search";
 import type { Nearby, NearbyReason } from "@/lib/dict/nearby";
 import { AddWord, type WordDraft } from "./AddWord";
@@ -101,6 +102,12 @@ export interface EntryView {
   notes: string | null;
   definition: string | null;
   provenance: string;
+  /**
+   * The Ekilex word this entry was read from, or null where Ekilex supplied
+   * none of it. Decides whether the entry carries the Institute's credit, and
+   * whether opening it counts as an answer from the stored copy.
+   */
+  ekilexWordId: number | null;
   inDeck: boolean;
   starred: boolean;
   examples: Example[];
@@ -972,6 +979,9 @@ function Entry({ entry, tutorReady, glossLanguage }: {
           )}
         </div>
       )}
+
+      {/* Once, under the sentences and the forms, on an entry Ekilex supplied. */}
+      {entry.ekilexWordId != null && <EkilexCredit />}
     </Card>
   );
 }

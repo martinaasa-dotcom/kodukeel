@@ -251,6 +251,19 @@ export function chatReading(input: {
   };
 }
 
+/**
+ * Under this many turns or pairs a share is not printed on the admin page
+ * (`app/(app)/admin/speech/page.tsx`), which says how many there are instead:
+ * a percentage of three is a figure somebody will read as one of three hundred.
+ * The command keeps printing the share with its counts beside it, as it did.
+ */
+export const SPEECH_FLOOR = 20;
+
+/** Whether a share over `n` turns or pairs is worth printing as a percentage. */
+export function enoughToShow(n: number): boolean {
+  return n >= SPEECH_FLOOR;
+}
+
 /** A share as a whole percentage, or "n/a" where there is none. */
 export function percent(share: number | null): string {
   return share === null ? "n/a" : `${Math.round(share * 100)}%`;

@@ -220,6 +220,32 @@ export function resolveOperator(
 export const IDENTIFIED_DEPLOYMENTS: readonly string[] = Object.keys(KNOWN_DEPLOYMENTS);
 
 /**
+ * WHO A REQUEST TO EKILEX SAYS IT IS FROM.
+ *
+ * `Kodukeel/<version> (+https://<host>/trust; <email>)`, where the host is the
+ * canonical one this deployment names itself by and the email is the
+ * operator's. A free academic service that sees a load it does not like
+ * should be able to tell whose it is and write to them, rather than block an
+ * address and wonder (docs/44-sixth-batch.md, D17).
+ *
+ * Only what is configured is said. A deployment that names no operator sends
+ * no email, and one with no canonical host sends no page, so an unconfigured
+ * fork is never made to claim this project's contact address.
+ */
+export function ekilexUserAgent(
+  version: string,
+  env: Record<string, string | undefined> = process.env,
+): string {
+  const operator = resolveOperator(env);
+  const host = canonicalHost(env);
+  const parts = [
+    host ? `+https://${host}/trust` : null,
+    operator.identified ? operator.email : null,
+  ].filter((part): part is string => Boolean(part));
+  return parts.length > 0 ? `Kodukeel/${version} (${parts.join("; ")})` : `Kodukeel/${version}`;
+}
+
+/**
  * The supervisory authority a learner in Estonia complains to, named because
  * Article 13(2)(d) requires that they be told they can.
  *

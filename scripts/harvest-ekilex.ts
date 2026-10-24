@@ -37,11 +37,12 @@ import { courseWords, type CourseWord } from "../lib/collections/syllabus/index"
 import { RETIRED_WORDS } from "../lib/collections/syllabus/retired";
 import { GAME_WORDS } from "../lib/collections/syllabus/gameWords";
 import { inferPos } from "../lib/collections/syllabus/types";
-import { primarySemanticTypes } from "../lib/ekilex/client";
+import { ekilexRequest, primarySemanticTypes } from "../lib/ekilex/client";
+import { ekilexJobs } from "./lib/ekilexJobs";
 import { formatGovernment } from "../lib/ekilex/mapper";
 import { unreachableSlots } from "../lib/estonian/conjugate";
 import { unreachableCaseForms } from "../lib/estonian/derive";
-import { planHarvestWrite, readAnswer, rowKey } from "../lib/ekilex/harvestGuard";
+import { planHarvestWrite, rowKey } from "../lib/ekilex/harvestGuard";
 import { HARVESTED } from "../prisma/data/harvested";
 import { isRefusedSentence } from "../lib/dict/refused";
 
@@ -49,7 +50,6 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CACHE = path.join(ROOT, ".ekilex-cache");
 const OUT = path.join(ROOT, "prisma/data/harvested.ts");
 
-const BASE = "https://ekilex.ee/api";
 const DATASETS = "eki,mab";
 const KEY = process.env.EKILEX_API_KEY;
 
@@ -84,13 +84,17 @@ const REFRESH = args.includes("--refresh");
 const ONLY = args.find((a) => a.startsWith("--only="))?.slice("--only=".length);
 /** Write a harvest that drops more than half the file. See `planHarvestWrite`. */
 const FORCE = args.includes("--force");
-const CONCURRENCY = Number(args.find((a) => a.startsWith("--jobs="))?.slice("--jobs=".length) ?? 6);
+/**
+ * Two by default, the promise in docs/05-integrations.md section 1.4, and the
+ * gate in `lib/ekilex/client.ts` holds it whatever is asked; `--jobs` above two
+ * needs `--past-the-limit` as well (`scripts/lib/ekilexJobs.ts`).
+ */
+const CONCURRENCY = ekilexJobs(args);
 
 if (!KEY) {
   console.error("EKILEX_API_KEY is not set. This script cannot invent the data it is missing.");
   process.exit(1);
 }
-const API_KEY: string = KEY;
 
 interface RawForm { value?: string; morphCode?: string }
 /** One set of forms, as Ekilex groups them. Their JSON's own key is `paradigms`. */
@@ -165,25 +169,22 @@ const REFUSED = new Map<number, number>();
 /** Requests that failed after every retry. */
 let FAILED = 0;
 
-async function call<T>(pathname: string, attempt = 0): Promise<T> {
-  const answer = await readAnswer<T>(() => fetch(`${BASE}${pathname}`, {
-    headers: { "ekilex-api-key": API_KEY },
-    signal: AbortSignal.timeout(30_000),
-  }));
+async function call<T>(pathname: string): Promise<T> {
+  // The gate retries a 429 or a 5xx with backoff and gives up after three
+  // tries, so what reaches here is the final answer. Ekilex is a public
+  // service run by a research institute, not a CDN. Being patient with it is
+  // the whole etiquette of a bulk read.
+  const answer = await ekilexRequest<T>(pathname, {
+    kind: pathname.startsWith("/word/search") ? "search" : "details",
+  });
   if (answer.kind === "answered") return answer.value;
   if (answer.kind === "refused") {
     REFUSED.set(answer.status, (REFUSED.get(answer.status) ?? 0) + 1);
     throw new NoAnswer(`Ekilex refused ${pathname}: HTTP ${answer.status}`);
   }
-  // Ekilex is a public service run by a research institute, not a CDN. Being
-  // patient with it is the whole etiquette of a bulk read.
-  if (attempt >= 4) {
-    FAILED += 1;
-    console.warn(`  ! giving up on ${pathname}: ${answer.reason}`);
-    throw new NoAnswer(`Ekilex did not answer ${pathname}: ${answer.reason}`);
-  }
-  await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt));
-  return call<T>(pathname, attempt + 1);
+  FAILED += 1;
+  console.warn(`  ! giving up on ${pathname}: ${answer.reason}`);
+  throw new NoAnswer(`Ekilex did not answer ${pathname}: ${answer.reason}`);
 }
 
 const search = (lemma: string) =>

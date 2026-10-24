@@ -8,7 +8,9 @@ import { looksEnglish } from "@/lib/dict/english";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { searchLexemes } from "@/lib/dict/search";
-import { enrichWithinDeadline, lookupAndStore } from "@/lib/dict/lookup";
+import { countStoredAnswer, enrichWithinDeadline, lookupAndStore } from "@/lib/dict/lookup";
+import { after } from "next/server";
+import { headers } from "next/headers";
 import { didYouMean, knownAs as knownLemmas, vouchedTranslations } from "@/lib/dict/known";
 import { backfillClozeCards } from "@/lib/srs/backfill";
 import { ekilexConfigured } from "@/lib/ekilex/client";
@@ -203,6 +205,19 @@ export default async function DictionaryPage({
     readSettings(ownerId, [SETTING_KEYS.glossLanguage]),
   ]);
   const glossLanguage = glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]);
+
+  /*
+    AN ENTRY EKILEX SUPPLIED, ANSWERED FROM THE COPY STORED HERE, IS COUNTED.
+
+    /impact prints what this installation asked of Ekilex beside what it
+    answered without asking (docs/44-sixth-batch.md D17). Only where nothing
+    was fetched live for the entry in this render, since that lookup counted
+    its own requests, and never for a prefetch: `PrefetchLink` renders a whole
+    page when a pointer rests on a link, and a pointer resting is not a lookup.
+    In `after()`, so the count costs the reader nothing and still lands.
+  */
+  const prefetch = (await headers()).get("next-router-prefetch") !== null;
+  if (entry && !fetched && !prefetch) after(() => countStoredAnswer(entry));
   const locale = await localeFor(ownerId);
 
   return (
@@ -281,6 +296,7 @@ async function loadEntry(id: string, ownerId: string): Promise<EntryView | null>
     notes: lex.notes,
     definition: lex.definition,
     provenance: lex.provenance,
+    ekilexWordId: lex.ekilexWordId,
     inDeck: lex.cards.length > 0,
     starred: lex.stars.length > 0,
     examples: usableExamples(parseExamples(lex.examples), plainerFirst(lex.cefr, reach)),

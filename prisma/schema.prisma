@@ -824,6 +824,11 @@ model Suggestion {
   /// What the reviewer decided, in their words. Kept with the row so a second
   /// admin meeting the same report can see it was already answered and why.
   decision   String?
+  /// What the entry held before an accepted change replaced it, so the
+  /// corrections sent back to EKI (`scripts/export-corrections.ts`) can say
+  /// from what to what. Null on a report that changed nothing, and on every
+  /// row accepted before this column existed.
+  replaced   String?
 
   @@index([status, category, createdAt])
   @@index([status, groupKey])
@@ -938,6 +943,35 @@ model CourseStep {
 
   @@unique([ownerId, programmeId, dayId, stepId])
   @@index([ownerId, createdAt])
+}
+
+/// What this installation asked of Ekilex on one day, counted, never per learner.
+///
+/// docs/44-sixth-batch.md D17: EKI runs Ekilex as a free academic service, and
+/// the operator should be able to say in numbers rather than adjectives how
+/// much this app asks of it, and how much it answers from its own stored copy
+/// instead. `search` and `details` are requests that reached Ekilex, counted
+/// once each however many tries the gate in `lib/ekilex/client.ts` took;
+/// `refused` and `failed` are those of them that ended that way; `stored` is a
+/// dictionary entry Ekilex supplied, opened and answered from this database
+/// with no request at all. `/impact` prints the last thirty days.
+///
+/// The day is UTC, because this is an operational count about a service, read
+/// by an operator, rather than anybody's study day.
+///
+/// AGGREGATE AND OWNER-FREE, LIKE `RateLimit`. A count per day carries nobody's
+/// id, so it is in no export and no erasure: there is nothing in it to find a
+/// person by. Written one statement per count, `INSERT ... ON CONFLICT DO
+/// UPDATE`, in `lib/dict/ekilexCount.ts`.
+model EkilexDay {
+  /// `YYYY-MM-DD`, UTC.
+  day       String   @id
+  search    Int      @default(0)
+  details   Int      @default(0)
+  refused   Int      @default(0)
+  failed    Int      @default(0)
+  stored    Int      @default(0)
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 /// One fixed window of a rate limit, counted where every instance can see it.

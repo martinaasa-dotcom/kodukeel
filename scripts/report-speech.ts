@@ -3,128 +3,36 @@
  *
  * Three readings off this deployment's own log, as text for the operator:
  * the edit rate (how much of what was heard learners changed before sending,
- * D3), recall after a spoken answer against a typed one (D4), and tonight's
- * chat (VB-11). The arithmetic is `lib/stats/speechReport.ts`; this reads the
- * rows. Every figure says what it was measured over and when, and each
+ * D3), recall after a spoken answer against a typed one (D4), and today's
+ * chat (VB-11). The arithmetic is `lib/stats/speechReport.ts`; the reading
+ * of the rows is `lib/progress/speechReport.ts`, which the admin page at
+ * /admin/speech reads too (docs/44-sixth-batch.md C-3), so the two cannot
+ * disagree. Every figure says what it was measured over and when, and each
  * reading says what it cannot show, because a figure quoted without that is a
  * figure somebody will over-read.
  *
- * A command rather than a screen, like `report:impact`: it reads the whole
+ * A command as well as a screen, like `report:impact`: it reads the whole
  * deployment, and section 0 of the batch doc records each run.
  */
 import { prisma } from "../lib/db";
-import { SETTING_KEYS } from "../lib/settings/store";
+import { speechReport, type SpeechReport } from "../lib/progress/speechReport";
 import {
-  CHAT_NEXT_AFTER_MS, EDIT_ALARM_SHARE, EDIT_ALARM_TURNS, chatReading, editReading, percent, recallReading, spokenTurnCounts,
-  type ChatEveningRow, type ChatRun, type EditRow, type SpokenTurn,
+  CHAT_NEXT_AFTER_MS, EDIT_ALARM_SHARE, EDIT_ALARM_TURNS, percent, type EditRow,
 } from "../lib/stats/speechReport";
-import { dayById, newWordsIn, programmeById } from "../lib/course";
-import { CHAT_ID, CHAT_MIN_NEW } from "../lib/scenes/specs/chat";
-import { readChatPlan } from "../lib/progress/chat";
-
-function turnsOf(transcript: string): unknown[] {
-  try {
-    const parsed = JSON.parse(transcript) as { turns?: unknown };
-    return Array.isArray(parsed.turns) ? parsed.turns : [];
-  } catch {
-    return [];
-  }
-}
+import { CHAT_MIN_NEW } from "../lib/scenes/specs/chat";
 
 function rowLine(r: EditRow): string {
   return `  ${r.key.padEnd(8)} ${String(r.turns).padStart(6)} turns, ${String(r.wordsChanged).padStart(6)} of ${String(r.wordsHeard).padStart(6)} heard words changed (${percent(r.share)})`;
 }
 
-async function main() {
-  const measuredOn = new Date().toISOString().slice(0, 10);
-  const [runs, languages, answers] = await Promise.all([
-    prisma.sceneRun.findMany({ select: { ownerId: true, level: true, transcript: true } }),
-    prisma.setting.findMany({ where: { key: SETTING_KEYS.glossLanguage }, select: { ownerId: true, value: true } }),
-    prisma.review.findMany({
-      select: { ownerId: true, cardId: true, reviewedAt: true, rating: true, spoken: true },
-      orderBy: [{ reviewedAt: "asc" }, { id: "asc" }],
-    }),
-  ]);
-  const languageOf = new Map(languages.map((s) => [s.ownerId, s.value]));
-
-  const turns: SpokenTurn[] = [];
-  for (const run of runs) {
-    for (const turn of turnsOf(run.transcript)) {
-      const counts = spokenTurnCounts(turn);
-      if (counts) turns.push({ band: run.level, glossLanguage: languageOf.get(run.ownerId) ?? "en", ...counts });
-    }
-  }
-  const edits = editReading(turns);
-
-  /*
-    TONIGHT'S CHAT (VB-11). An evening could have had one where every step a
-    learner ticks was ticked and it met at least three new words; the two
-    steps the log proves are left out, since they are not always written.
-  */
-  const [steps, chatRuns] = await Promise.all([
-    prisma.courseStep.findMany({ select: { ownerId: true, programmeId: true, dayId: true, stepId: true } }),
-    prisma.sceneRun.findMany({
-      where: { sceneId: CHAT_ID },
-      select: { ownerId: true, transcript: true, endedAt: true },
-      orderBy: [{ startedAt: "asc" }, { id: "asc" }],
-    }),
-  ]);
-  const ticked = new Map<string, Set<string>>();
-  for (const step of steps) {
-    const key = `${step.ownerId}|${step.programmeId}|${step.dayId}`;
-    ticked.set(key, (ticked.get(key) ?? new Set<string>()).add(step.stepId));
-  }
-  const offered: ChatEveningRow[] = [];
-  for (const [key, done] of ticked) {
-    const [ownerId, programmeId, dayId] = key.split("|") as [string, string, string];
-    const programme = programmeById(programmeId);
-    const day = programme ? dayById(programme, dayId) : undefined;
-    if (!day || newWordsIn(day) < CHAT_MIN_NEW) continue;
-    if (day.steps.filter((s) => !s.derived).every((s) => done.has(s.id))) offered.push({ ownerId, dayId });
-  }
-  const opened: ChatEveningRow[] = [];
-  const chats: ChatRun[] = [];
-  for (const run of chatRuns) {
-    let plan = null;
-    try {
-      plan = readChatPlan((JSON.parse(run.transcript) as { chat?: unknown }).chat);
-    } catch {
-      plan = null;
-    }
-    if (!plan) continue;
-    opened.push({ ownerId: run.ownerId, dayId: plan.dayId });
-    const programme = programmeById(plan.programmeId);
-    const day = programme ? dayById(programme, plan.dayId) : undefined;
-    if (run.endedAt && day) {
-      chats.push({ ownerId: run.ownerId, dayId: plan.dayId, evening: day.words, asked: plan.words.map((w) => w.lemma), endedAt: run.endedAt });
-    }
-  }
-  // `Review` has no relation to `Lexeme` on purpose, so the lemmas are read apart.
-  const chatOwners = [...new Set(chats.map((c) => c.ownerId))];
-  const eveningLemmas = [...new Set(chats.flatMap((c) => c.evening))];
-  const lexemes = eveningLemmas.length === 0 ? [] : await prisma.lexeme.findMany({
-    where: { lemma: { in: eveningLemmas } },
-    select: { id: true, lemma: true },
-  });
-  const lemmaOf = new Map(lexemes.map((l) => [l.id, l.lemma]));
-  const wordAnswers = chatOwners.length === 0 || lemmaOf.size === 0 ? [] : await prisma.review.findMany({
-    where: { ownerId: { in: chatOwners }, lexemeId: { in: [...lemmaOf.keys()] } },
-    select: { ownerId: true, reviewedAt: true, rating: true, lexemeId: true },
-    orderBy: [{ reviewedAt: "asc" }, { id: "asc" }],
-  });
-  const chat = chatReading({
-    offered,
-    opened,
-    chats,
-    answers: wordAnswers.flatMap((a) => {
-      const lemma = a.lexemeId ? lemmaOf.get(a.lexemeId) : undefined;
-      return lemma ? [{ ownerId: a.ownerId, lemma, reviewedAt: a.reviewedAt, rating: a.rating }] : [];
-    }),
-  });
-  const recall = recallReading(answers);
-  const spokenAnswers = answers.filter((a) => a.spoken).length;
-
-  const out: string[] = [`Kodukeel: does saying it help? Measured on ${measuredOn}, from this installation's own log.`, ""];
+/**
+ * The text this command prints, unchanged by the move: the same three
+ * readings in the same words. The two readings the admin page adds are not in
+ * it, so the operator's runs recorded in the batch docs stay comparable.
+ */
+function speechReportLines(report: SpeechReport): string[] {
+  const { edits, recall, chat, spokenAnswers } = report;
+  const out: string[] = [`Kodukeel: does saying it help? Measured on ${report.measuredOn}, from this installation's own log.`, ""];
   if (edits.alarm) {
     out.push(
       `ATTENTION: learners changed ${percent(edits.all.share)} of heard words over ${edits.all.turns} spoken turns,`,
@@ -164,7 +72,12 @@ async function main() {
         + ` and the same evenings' other words ${percent(chat.otherWords.share)} (${chat.otherWords.recalled} of ${chat.otherWords.pairs}).`,
     "  Observational: a chat asks the words it can, which are not a random half of the evening. Not a trial.",
   );
-  console.log(out.join("\n"));
+  return out;
+}
+
+
+async function main() {
+  console.log(speechReportLines(await speechReport()).join("\n"));
 }
 
 main()

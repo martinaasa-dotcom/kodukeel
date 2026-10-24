@@ -5,7 +5,8 @@ import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
   different queries to one headword without a network. Everything from there
   down, the reads, the writes and the unique keys, is the real database.
 */
-vi.mock("@/lib/ekilex/client", () => ({
+vi.mock("@/lib/ekilex/client", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/ekilex/client")>()),
   ekilexConfigured: () => true,
   searchEkilex: async () => [{ wordId: 990001, wordValue: "itest-race-lookup" }],
   fetchEkilexDetails: async () => ({ stub: true }),

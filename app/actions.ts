@@ -5564,6 +5564,7 @@ export async function reviewSuggestion(input: unknown) {
   if (!row) return { ok: false as const, error: "That suggestion isn't here any more." };
 
   let applied: string | null = null;
+  let replaced: string | null = null;
   if (decision === "ACCEPT" && parsed.data.apply) {
     const outcome = await applyPatch(parsePatch(row.patch), reviewerId);
     /*
@@ -5574,6 +5575,8 @@ export async function reviewSuggestion(input: unknown) {
     */
     if (!outcome.ok) return { ok: false as const, error: outcome.error };
     applied = outcome.summary;
+    // What the change replaced, kept for the corrections sent back to EKI.
+    if (outcome.changed) replaced = outcome.replaced ?? null;
   }
 
   const resolved = await prisma.suggestion.updateMany({
@@ -5583,6 +5586,7 @@ export async function reviewSuggestion(input: unknown) {
       reviewedBy: reviewerId,
       reviewedAt: new Date(),
       decision: visibleProse(parsed.data.note, SUGGESTION_LIMITS.decision) || null,
+      ...(replaced !== null ? { replaced } : {}),
     },
   });
 
