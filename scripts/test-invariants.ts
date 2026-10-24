@@ -22842,7 +22842,7 @@ check("a conversation draws the room it is had in, for the whole of it", () => {
     }
     for (const name of ["stick-arc", "stick-steam"]) {
       assert.match(
-        code("app/globals.css"), new RegExp(`\\.${name} \\{ animation:[^}]*infinite both;`),
+        code("app/globals.css"), new RegExp(`\\.${name} \\{ animation:[^}]* both;`),
         `.${name} no longer fills backwards, so the mark it draws is at full strength through its `
         + "own delay or at nought once the animation is taken away",
       );
