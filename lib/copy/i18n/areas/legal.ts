@@ -1,4 +1,5 @@
 import type { Area } from "../area";
+import { LEGAL_ET } from "./et/legal";
 
 /**
  * THE PRIVACY NOTICE AND THE TERMS IN RUSSIAN AND UKRAINIAN.
@@ -331,4 +332,6 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
 export const LEGAL: Area = {
   ru: Object.fromEntries(LINES.map(([en, ru]) => [en, ru])),
   uk: Object.fromEntries(LINES.map(([en, , uk]) => [en, uk])),
+  // Estonian, for the public pages alone (D16), drafted and awaiting the native speaker: ./et/legal.ts.
+  et: Object.fromEntries(LEGAL_ET),
 };

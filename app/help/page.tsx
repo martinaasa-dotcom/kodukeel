@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Legal, P, S } from "@/components/Legal";
 import { rich } from "@/components/Rich";
-import { tr, type Locale } from "@/lib/copy/locale";
+import { LOCALES, tr, type Locale } from "@/lib/copy/locale";
 import { localeHref } from "@/lib/copy/publicLocale";
 import { databaseAnswersRecently } from "@/lib/health";
 import { resolveOperator } from "@/lib/legal/operator";
@@ -49,7 +49,7 @@ export default async function HelpPage({ searchParams }: { searchParams: PublicS
   const contact = resolveOperator().email;
 
   return (
-    <Legal title={t("Help")} updated="14 October 2026" locale={locale} explicit={explicit} path="/help">
+    <Legal title={t("Help")} updated="14 October 2026" locale={locale} explicit={explicit} path="/help" drawnIn={LOCALES}>
       <S id="status" title={t("Is it working?")}>
         <Suspense fallback={<P>{t("Checking…")}</P>}>
           <Status locale={locale} />

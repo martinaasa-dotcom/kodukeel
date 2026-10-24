@@ -47,7 +47,7 @@ export default function PilotsPage() {
   );
 
   return (
-    <Legal title="Running a pilot" updated="14 October 2026" path="/pilots" oneLanguage>
+    <Legal title="Running a pilot" updated="14 October 2026" path="/pilots" drawnIn={["en"]}>
       <P>
         For a company, a school, a ministry or a university deciding whether to put Kodukeel in front of
         a group of people. It says what a pilot is, what it costs, what is asked of you, what you get

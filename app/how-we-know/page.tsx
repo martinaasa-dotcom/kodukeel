@@ -28,7 +28,7 @@ const REPO = "https://github.com/martinaasa-dotcom/kodukeel/blob/main";
 export default function HowWeKnowPage() {
   const rows = evidenceRows(measured as Measured);
   return (
-    <Legal title="How we know" updated="15 October 2026" path="/how-we-know" oneLanguage>
+    <Legal title="How we know" updated="15 October 2026" path="/how-we-know" drawnIn={["en"]}>
       <P>
         Each claim this project makes about itself, the figure behind it, the day it was measured, and the
         command that measures it again. Run the command on a copy of the repository and you should get the

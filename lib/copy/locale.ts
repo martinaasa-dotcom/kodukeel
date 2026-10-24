@@ -5,7 +5,7 @@
   places and none of the seventy modules that call `tr` had to change.
 */
 import { caseFormsFor, formsFor, lineFor } from "#i18n-tables";
-import { keyOf, type TranslatedLocale } from "./i18n/table";
+import { keyOf } from "./i18n/table";
 
 /**
  * THE LANGUAGE THE APP ITSELF IS WRITTEN IN, FOR A LEARNER WHO READS RUSSIAN
@@ -43,15 +43,49 @@ export const LOCALES = ["en", "ru", "uk"] as const;
 export type Locale = (typeof LOCALES)[number];
 
 /**
- * The languages a page in `locale` may offer a link to, itself included.
- * English offers all three; Russian and Ukrainian each offer English and
- * themselves and never name the other, because a reader of either would find
- * the other language on their own page a slight. Switching between the two
- * goes through English, one press away.
+ * THE LANGUAGES A PUBLIC PAGE CAN BE READ IN, WHICH IS ONE MORE THAN THE APP.
+ *
+ * Estonian is here and not in `LOCALES` (docs/44-sixth-batch.md, D16): a
+ * reviewer at the Institute or a ministry reads what the app is, what it
+ * costs and what it keeps in Estonian, and a learner is never offered the app
+ * itself in the language they are learning. `LOCALES` decides what a learner
+ * can choose, what every letter and every signed-in screen is drawn in and
+ * what every translation check walks; this list decides only what the pages
+ * built on `Legal` and the landing page can be read in. A signed-in screen
+ * holds a `Locale`, which cannot be Estonian, and
+ * `scripts/invariants/the-app-is-never-in-estonian.ts` holds the line.
+ *
+ * The Estonian lines are drafted by a model and wait for the native speaker
+ * who develops this app to read them (docs/34-interface-languages.md). They
+ * are prose about the app and never Estonian that teaches (ADR-005,
+ * amendment 7).
  */
-export function languagesBeside(locale: Locale): readonly Locale[] {
-  return locale === "en" ? LOCALES : (["en", locale] as const);
+export const PUBLIC_LOCALES = ["en", "ru", "uk", "et"] as const;
+export type PublicLocale = (typeof PUBLIC_LOCALES)[number];
+
+/**
+ * The languages a public page in `locale` offers a link to, itself included,
+ * out of the ones it is drawn in. English offers every one; each other
+ * language offers English and itself and never names another, because a
+ * reader of Russian would find Ukrainian on their own page a slight, and the
+ * other way round. Switching between two of them goes through English, one
+ * press away.
+ */
+export function publicLanguagesBeside(
+  locale: PublicLocale,
+  drawnIn: readonly PublicLocale[] = PUBLIC_LOCALES,
+): readonly PublicLocale[] {
+  const offered = locale === "en" ? PUBLIC_LOCALES : (["en", locale] as const);
+  return offered.filter((l) => drawnIn.includes(l));
 }
+
+/** Each public language's own name for itself, for a public page's switcher. */
+export const PUBLIC_LOCALE_NAMES: Readonly<Record<PublicLocale, string>> = {
+  en: "English",
+  ru: "Русский",
+  uk: "Українська",
+  et: "Eesti",
+};
 
 /** Each language's own name for itself, for the picker. */
 export const LOCALE_NAMES: Readonly<Record<Locale, string>> = {
@@ -94,7 +128,7 @@ export function localeFrom(stored: string | null | undefined): Locale {
  * tables and a strength on a job-interview card. Such a line is stored under
  * `english@context` (`person@grammar`) and looked up there first.
  */
-export function tr(locale: Locale, english: string, context?: string): string {
+export function tr(locale: PublicLocale, english: string, context?: string): string {
   if (locale === "en") return english;
   const key = keyOf(english);
   if (context) {
@@ -112,7 +146,7 @@ export function tr(locale: Locale, english: string, context?: string): string {
 }
 
 /** Whether a line has a translation in this locale. English always has. */
-export function translated(locale: Locale, english: string): boolean {
+export function translated(locale: PublicLocale, english: string): boolean {
   const key = keyOf(english);
   if (locale === "en" || lineFor(locale, key) !== undefined) return true;
   const slotted = estonianSlots(key);
@@ -197,12 +231,12 @@ const ENGLISH_FORMS: Readonly<Record<string, readonly [string, string]>> = {
  * its counts and the dictionary and the course printed the same count as
  * "6274", which reads as a different kind of number.
  */
-export function grouped(locale: Locale, n: number): string {
+export function grouped(locale: PublicLocale, n: number): string {
   return n.toLocaleString(locale === "en" ? "en-GB" : locale);
 }
 
 /** `countOf` with its figure grouped: "6,274 words", "6 274 слова". */
-export function countGrouped(locale: Locale, n: number, noun: string, grammaticalCase: CountCase = "nom"): string {
+export function countGrouped(locale: PublicLocale, n: number, noun: string, grammaticalCase: CountCase = "nom"): string {
   return countOf(locale, n, noun, grammaticalCase).replace(String(n), grouped(locale, n));
 }
 
@@ -223,7 +257,7 @@ function categoryOf(locale: Exclude<Locale, "en">, n: number): "one" | "few" | "
  * genitive singular) and is the nearest of the three in Ukrainian; `countOf`
  * itself takes the genitive singular from `COUNT_CASES`.
  */
-export function pluralIndex(locale: TranslatedLocale, n: number): 0 | 1 | 2 {
+export function pluralIndex(locale: Exclude<Locale, "en">, n: number): 0 | 1 | 2 {
   const category = categoryOf(locale, n);
   return category === "one" ? 0 : category === "many" ? 2 : 1;
 }
@@ -236,7 +270,15 @@ export function pluralIndex(locale: TranslatedLocale, n: number): 0 | 1 | 2 {
  * "до" ("не хватает 2 слов"). Nominative is the default and is what a count
  * standing as the subject, or after a colon, takes.
  */
-export function countOf(locale: Locale, n: number, noun: string, grammaticalCase: CountCase = "nom"): string {
+export function countOf(locale: PublicLocale, n: number, noun: string, grammaticalCase: CountCase = "nom"): string {
+  if (locale === "et") {
+    // Estonian has two: the nominative after one and the partitive singular
+    // after every other count ("1 sõna", "5 sõna", "1 õppija", "5 õppijat"),
+    // whatever case the sentence is in, so `grammaticalCase` is not read.
+    const forms = formsFor("et", noun);
+    if (forms) return `${n.toLocaleString("et")} ${n === 1 ? forms[0] : forms[1]}`;
+    return `${n} ${englishForms(noun)[n === 1 ? 0 : 1]}`;
+  }
   if (locale !== "en" && formsFor(locale, noun)) {
     return `${figure(locale, n)} ${countedNoun(locale, n, noun, grammaticalCase)}`;
   }

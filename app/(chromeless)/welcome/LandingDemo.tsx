@@ -10,7 +10,7 @@ import { FitText } from "@/components/FitText";
 import { rememberBuilt } from "./visit";
 import { PARTS, spelledCount } from "@/lib/copy/values";
 import { fill } from "@/lib/copy/locale";
-import { useLocale, useT, useWholeLanguage } from "@/components/Locale";
+import { usePublicLocale, useT, useWholeLanguage } from "@/components/Locale";
 import { TrParts } from "@/components/TrParts";
 
 /**
@@ -90,7 +90,7 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
   const t = useT();
   // A press here can draw a line the page did not arrive with. See components/Locale.tsx.
   const reach = useWholeLanguage();
-  const locale = useLocale();
+  const locale = usePublicLocale();
   // A count in prose: spelled out in English, a figure in Russian and Ukrainian.
   const num = (n: number) => (locale === "en" ? counted(n) : String(n));
   const [active, setActive] = useState(0);

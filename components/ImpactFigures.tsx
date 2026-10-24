@@ -1,5 +1,5 @@
 import { P, S } from "@/components/Legal";
-import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
+import { countOf, fill, tr, type PublicLocale as Locale } from "@/lib/copy/locale";
 import type { EkilexImpact } from "@/lib/dict/ekilexCount";
 import { MAX_LEARNER_SHARE, MIN_LEARNERS, MIN_REVIEWS, type SuppressionReason } from "@/lib/research/corpus";
 import {
@@ -16,7 +16,7 @@ import {
  * gives, and the counts sent to Ekilex all live here, and both pages read them.
  */
 
-const NUMBER_TAG: Record<Locale, string> = { en: "en-GB", ru: "ru-RU", uk: "uk-UA" };
+const NUMBER_TAG: Record<Locale, string> = { en: "en-GB", ru: "ru-RU", uk: "uk-UA", et: "et-EE" };
 
 /** A count with its noun in the reader's language, and the digits grouped the way they write them. */
 function counted(locale: Locale, n: number, noun: string): string {

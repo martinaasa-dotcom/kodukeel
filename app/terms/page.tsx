@@ -6,12 +6,12 @@ import { localeHref } from "@/lib/copy/publicLocale";
 import { resolveOperator } from "@/lib/legal/operator";
 import { appleSignInConfigured } from "@/lib/auth/appleConfig";
 import { googleSignInOffered } from "@/lib/auth/googleConfig";
-import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicPageTitle, resolvePublicPage, type PublicSearch } from "@/lib/progress/publicLocale";
 import { publicCard } from "@/lib/copy/publicCards";
 import { ASR_MODEL, PAIR_JUDGE } from "@/lib/speech/model";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicTitle(searchParams, "Terms", undefined, publicCard("/terms"));
+  return publicPageTitle(searchParams, "Terms", undefined, publicCard("/terms"));
 }
 
 /*
@@ -31,7 +31,7 @@ function Source({ href, children }: { href: string; children: string }) {
 }
 
 export default async function TermsPage({ searchParams }: { searchParams: PublicSearch }) {
-  const { locale, explicit } = await resolvePublicLocale(searchParams);
+  const { locale, explicit } = await resolvePublicPage(searchParams);
   const t = (english: string) => tr(locale, english);
   const href = (to: string) => localeHref(to, locale, explicit);
   const operator = resolveOperator();

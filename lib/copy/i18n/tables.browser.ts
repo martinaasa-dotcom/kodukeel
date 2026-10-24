@@ -34,7 +34,7 @@ interface Held {
 }
 
 const blank = (): Held => ({ lines: {}, counted: {}, cases: {} });
-const HELD: Record<TranslatedLocale, Held> = { ru: blank(), uk: blank() };
+const HELD: Record<TranslatedLocale, Held> = { ru: blank(), uk: blank(), et: blank() };
 
 /** The languages whose whole table is here, not a slice of it. */
 const COMPLETE = new Set<TranslatedLocale>();

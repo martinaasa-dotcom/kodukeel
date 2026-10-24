@@ -49,6 +49,7 @@ const PUBLIC_PATHS = [
   { path: "/state-exam", priority: 0.8 },
   { path: "/welcome/ru", priority: 0.7 },
   { path: "/welcome/uk", priority: 0.7 },
+  { path: "/welcome/et", priority: 0.5 },
   // The grammar reference, readable with no account (FB-8): what somebody
   // searching "Estonian cases" or "seesütlev" is looking for.
   { path: "/grammar", priority: 0.8 },

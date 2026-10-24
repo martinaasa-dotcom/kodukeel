@@ -1,7 +1,7 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Legal, P, S } from "@/components/Legal";
 import { RosterList } from "@/components/class/RosterList";
-import { tr } from "@/lib/copy/locale";
+import { LOCALES, tr } from "@/lib/copy/locale";
 import { localeHref } from "@/lib/copy/publicLocale";
 import { SAMPLE_CLASS } from "@/lib/classroom/sample";
 import { ClassFigures } from "@/components/class/ClassFigures";
@@ -43,7 +43,7 @@ export default async function TeachersPage({ searchParams }: { searchParams: Pub
   const subject = encodeURIComponent(t("A Kodukeel pilot"));
 
   return (
-    <Legal title={t("For teachers")} updated="14 October 2026" locale={locale} explicit={explicit} path="/teachers">
+    <Legal title={t("For teachers")} updated="14 October 2026" locale={locale} explicit={explicit} path="/teachers" drawnIn={LOCALES}>
       <P>{t("Put a code on the board. See who is practicing and what the group keeps getting wrong.")}</P>
 
       {/*

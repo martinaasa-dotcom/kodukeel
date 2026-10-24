@@ -246,6 +246,27 @@ ledger rather than typed, so they cannot ask what was not taught. Whether a line
 Estonian is the person's reading, and anything that reads as unnatural is replaced rather than
 defended.
 
+*Amendment 7: the public pages may be read in Estonian, and that Estonian is prose about the app,
+never Estonian that teaches.* A reviewer at the Institute or a ministry reads what the app is,
+what it costs and what it keeps, and reads it more carefully in Estonian (decision D16 in
+`docs/44-sixth-batch.md`). *Decision:* `PUBLIC_LOCALES` in `lib/copy/locale.ts` names Estonian
+beside English, Russian and Ukrainian, and `LOCALES`, which decides what a learner may choose and
+what every signed-in screen and letter is drawn in, does not. The landing page, `/privacy`,
+`/terms`, `/trust`, `/accessibility`, `/funding`, `/impact`, `/partners` and `/curriculum` read
+`?lang=et` or a browser that puts Estonian first, through `resolvePublicPage`; a signed-in learner
+keeps their own language and is never handed Estonian. The lines live under
+`lib/copy/i18n/areas/et/`, drafted by a model in a session and marked on every page as awaiting
+the native speaker, who reads them in the pull request before it merges. **They are about the app
+and teach nothing**: no line reaches a card, a lesson, a scene, the dictionary or a marking, the
+Estonian examples on the landing page stay the dictionary's in every language, and the course's
+own lessons and units stay in English on `/curriculum`, marked so. On the two policy pages the
+English prevails, and each says so first, in Estonian (`LEGAL_NOTICE`). The facts a page
+generates (the operator, the recipients, the authorities) are rendered from the same data in every
+language and never written into a line. *Consequences:* a learner is never offered the app in
+the language they are learning (`scripts/invariants/the-app-is-never-in-estonian.ts`), the voice
+and dash rules hold the Estonian lines as they hold every other (`lib/copy/publicPagesEt.test.ts`),
+and whether a line is natural Estonian is the person's reading, exactly as for amendments 4 to 6.
+
 **ADR-006: Generic importer instead of a Speakly integration.**
 *Context:* Speakly has no public API and no verifiable export (audit A3). *Decision:* one
 paste-and-parse importer handling TSV/CSV/JSON/dash-separated lines, with Ekilex enrichment.

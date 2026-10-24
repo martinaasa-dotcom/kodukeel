@@ -5,7 +5,7 @@ import { publicCard } from "@/lib/copy/publicCards";
 import { heldImpact, impactIsListed } from "@/lib/progress/impactListed";
 import { ekilexImpact } from "@/lib/dict/ekilexCount";
 import { IMPACT_WINDOW_DAYS } from "@/lib/progress/impact";
-import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicPageTitle, resolvePublicPage, type PublicSearch } from "@/lib/progress/publicLocale";
 import { MAX_LEARNER_SHARE, MIN_LEARNERS, MIN_REVIEWS } from "@/lib/research/corpus";
 import { impactListable, type Impact, type RetentionReading } from "@/lib/research/impact";
 
@@ -17,7 +17,7 @@ import { impactListable, type Impact, type RetentionReading } from "@/lib/resear
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  const meta = await publicTitle(searchParams, "What this installation has done", undefined, publicCard("/impact"));
+  const meta = await publicPageTitle(searchParams, "What this installation has done", undefined, publicCard("/impact"));
   /*
     Listed nowhere until the headline clears the floors (docs/38-third-batch.md,
     D3), and asked not to be indexed for the same reason: a page that is mostly
@@ -53,7 +53,7 @@ function spelled(iso: string): string {
  * spoke Estonian yesterday.
  */
 export default async function ImpactPage({ searchParams }: { searchParams: PublicSearch }) {
-  const { locale, explicit } = await resolvePublicLocale(searchParams);
+  const { locale, explicit } = await resolvePublicPage(searchParams);
   const t = (english: string) => tr(locale, english);
   const read = await heldImpact();
   if (!read) {

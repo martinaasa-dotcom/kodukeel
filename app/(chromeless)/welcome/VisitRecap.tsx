@@ -2,7 +2,7 @@
 
 import { useVisit } from "./visit";
 import { countOf, fill } from "@/lib/copy/locale";
-import { useLocale, useT } from "@/components/Locale";
+import { usePublicLocale, useT } from "@/components/Locale";
 
 /**
  * The close, said to the person who did something on the way down.
@@ -17,7 +17,7 @@ import { useLocale, useT } from "@/components/Locale";
 export function VisitRecap() {
   const { built, ordered } = useVisit();
   const t = useT();
-  const locale = useLocale();
+  const locale = usePublicLocale();
   if (built.length === 0 && !ordered) return null;
   const shown = built.slice(-8);
   // One form is "a form" in English and a counted noun in the other two.

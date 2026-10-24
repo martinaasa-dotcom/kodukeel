@@ -2,7 +2,7 @@ import { BookOpen, Headphones, Mic, PenLine } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { P, PublicFooter, PublicHeader, S } from "@/components/Legal";
 import { TranslationNotice } from "@/components/PublicLanguage";
-import { tr, type Locale } from "@/lib/copy/locale";
+import { LOCALES, tr, type Locale } from "@/lib/copy/locale";
 import { localeHref } from "@/lib/copy/publicLocale";
 import { GUIDE, MATERIALS, READ_ON, SOURCES, type Fact } from "@/lib/exam/official";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
@@ -42,7 +42,7 @@ export default async function StateExamPage({ searchParams }: { searchParams: Pu
   const href = (to: string) => localeHref(to, locale, explicit);
   return (
     <main lang={locale} className="mx-auto max-w-2xl px-5 py-10 md:px-8 md:py-16">
-      <PublicHeader locale={locale} path="/state-exam" />
+      <PublicHeader locale={locale} path="/state-exam" drawnIn={LOCALES} />
       <h1 className="mt-8 text-3xl font-bold leading-tight tracking-tight" style={{ color: "var(--ink)" }}>
         {t("The state examination")}
       </h1>

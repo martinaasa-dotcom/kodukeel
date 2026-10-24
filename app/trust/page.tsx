@@ -8,11 +8,11 @@ import { localeHref } from "@/lib/copy/publicLocale";
 import { resolveOperator, SUPERVISORY_AUTHORITY } from "@/lib/legal/operator";
 import { resolveRecipients, transfersOutsideEea } from "@/lib/legal/recipients";
 import { recipientIn } from "@/lib/legal/recipientCopy";
-import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicPageTitle, resolvePublicPage, type PublicSearch } from "@/lib/progress/publicLocale";
 import { publicCard } from "@/lib/copy/publicCards";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicTitle(searchParams, "Trust", undefined, publicCard("/trust"));
+  return publicPageTitle(searchParams, "Trust", undefined, publicCard("/trust"));
 }
 
 /*
@@ -48,7 +48,7 @@ const REPO = "https://github.com/martinaasa-dotcom/kodukeel/blob/main";
  * English, and the links say so.
  */
 export default async function TrustPage({ searchParams }: { searchParams: PublicSearch }) {
-  const { locale, explicit } = await resolvePublicLocale(searchParams);
+  const { locale, explicit } = await resolvePublicPage(searchParams);
   const t = (english: string) => tr(locale, english);
   const href = (to: string) => localeHref(to, locale, explicit);
   const operator = resolveOperator();
@@ -160,7 +160,7 @@ export default async function TrustPage({ searchParams }: { searchParams: Public
         </P>
         <P>
           {rich(t("**Deleting everything.** The same screen deletes the account and everything in it, including the sign-in record, in one action and with no request to write. Where an installation is not configured to remove the sign-in record itself, the button says so plainly instead of reporting a success it did not achieve. Both live under {settings}."), {
-            settings: <Link href="/settings" className="underline underline-offset-2">{t("Settings")}</Link>,
+            settings: <Link href="/settings" lang={locale === "et" ? "en" : undefined} className="underline underline-offset-2">{t("Settings")}</Link>,
           })}
         </P>
         <P>

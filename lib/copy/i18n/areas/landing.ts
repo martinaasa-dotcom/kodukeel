@@ -1,4 +1,5 @@
 import type { Area } from "../area";
+import { LANDING_ET } from "./et/landing";
 import { ENDING_GLOSS_ROWS } from "../caseGlosses";
 
 /**
@@ -375,6 +376,8 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
 export const LANDING: Area = {
   ru: Object.fromEntries(LINES.map(([en, ru]) => [en, ru])),
   uk: Object.fromEntries(LINES.map(([en, , uk]) => [en, uk])),
+  // Estonian, for the public pages alone (D16), drafted and awaiting the native speaker: ./et/landing.ts.
+  et: Object.fromEntries(LANDING_ET),
   counted: {
     form: { en: ["form", "forms"], ru: ["форма", "формы", "форм"], uk: ["форма", "форми", "форм"] },
     month: { en: ["month", "months"], ru: ["месяц", "месяца", "месяцев"], uk: ["місяць", "місяці", "місяців"] },

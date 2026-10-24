@@ -4,12 +4,12 @@ import { rich } from "@/components/Rich";
 import { tr } from "@/lib/copy/locale";
 import { localeHref } from "@/lib/copy/publicLocale";
 import { ACCESSIBILITY_AUTHORITY, resolveOperator, SUPERVISORY_AUTHORITY } from "@/lib/legal/operator";
-import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicPageTitle, resolvePublicPage, type PublicSearch } from "@/lib/progress/publicLocale";
 import { publicCard } from "@/lib/copy/publicCards";
 import { CRITERIA, clauseOf, REASON_TEXT, STATUS_TEXT } from "@/lib/legal/en301549";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicTitle(searchParams, "Accessibility", undefined, publicCard("/accessibility"));
+  return publicPageTitle(searchParams, "Accessibility", undefined, publicCard("/accessibility"));
 }
 
 /*
@@ -64,7 +64,7 @@ const REPO = "https://github.com/martinaasa-dotcom/kodukeel/blob/main";
  * screens use in that language.
  */
 export default async function AccessibilityPage({ searchParams }: { searchParams: PublicSearch }) {
-  const { locale, explicit } = await resolvePublicLocale(searchParams);
+  const { locale, explicit } = await resolvePublicPage(searchParams);
   const t = (english: string) => tr(locale, english);
   const href = (to: string) => localeHref(to, locale, explicit);
   const operator = resolveOperator();

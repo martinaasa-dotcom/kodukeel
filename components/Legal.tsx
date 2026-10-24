@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { LanguageSwitcher, TranslationNotice } from "@/components/PublicLanguage";
-import { LOCALES, tr, type Locale } from "@/lib/copy/locale";
-import { LANDING_HREF, localeHref } from "@/lib/copy/publicLocale";
+import { PUBLIC_LOCALES, tr, type PublicLocale } from "@/lib/copy/locale";
+import { LANDING_HREF, localeHref, signInHref } from "@/lib/copy/publicLocale";
 import { resolveOperator } from "@/lib/legal/operator";
 import { impactIsListed } from "@/lib/progress/impactListed";
 import { BrandLink } from "@/components/BrandLink";
@@ -13,38 +13,50 @@ import { ButtonLink } from "@/components/Button";
  * "2 September 2026" in the page's language. The months are a table in the
  * legal area (`September@date`), so the date reads as a person writes it in
  * Russian or Ukrainian, in the genitive, and the English stays exactly as typed.
+ * Estonian writes the day with a stop and the month in the adessive after
+ * "Uuendatud", "2. septembril 2026".
  */
-export function updatedIn(updated: string, locale: Locale): string {
+export function updatedIn(updated: string, locale: PublicLocale): string {
   if (locale === "en") return updated;
   const m = /^(\d{1,2}) ([A-Z][a-z]+) (\d{4})$/.exec(updated);
-  return m ? `${m[1]} ${tr(locale, m[2]!, "date")} ${m[3]}` : updated;
+  if (!m) return updated;
+  const month = tr(locale, m[2]!, "date");
+  return locale === "et" ? `${m[1]}. ${month} ${m[3]}` : `${m[1]} ${month} ${m[3]}`;
 }
 
-/** The three addresses this page lives at, one per language, for the switcher. */
-export function switcherHrefs(path: string): Record<Locale, string> {
-  return Object.fromEntries(LOCALES.map((l) => [l, localeHref(path, l, true)])) as Record<Locale, string>;
+/** The addresses this page lives at, one per language it is drawn in, for the switcher. */
+export function switcherHrefs(path: string, drawnIn: readonly PublicLocale[] = PUBLIC_LOCALES): Partial<Record<PublicLocale, string>> {
+  return Object.fromEntries(drawnIn.map((l) => [l, localeHref(path, l, true)])) as Partial<Record<PublicLocale, string>>;
 }
+
+/**
+ * The two shapes of a public page's languages: every one, and English with
+ * Estonian, for a page whose English is not yet in Russian and Ukrainian
+ * (/curriculum, /how-we-know, /pilots). A page offers only the languages it
+ * is drawn in.
+ */
+export const ENGLISH_AND_ESTONIAN: readonly PublicLocale[] = ["en", "et"];
 
 /**
  * Shared shell for the policy pages, which are reachable without a session.
  *
- * Drawn in English, Russian or Ukrainian (lib/copy/publicLocale.ts): the page
- * hands in the language it resolved, whether the address asked for it, and its
- * own path, so the switcher and every link at the foot stay in the language the
- * reader chose. `legal` is the two pages whose translation has to say that the
- * English prevails.
+ * Drawn in English, Russian, Ukrainian or Estonian (lib/copy/publicLocale.ts):
+ * the page hands in the language it resolved, whether the address asked for
+ * it, and its own path, so the switcher and every link at the foot stay in the
+ * language the reader chose. `legal` is the two pages whose translation has to
+ * say that the English prevails.
  */
-export function Legal({ title, updated, children, locale = "en", explicit = false, path, legal = false, oneLanguage = false }: {
+export function Legal({ title, updated, children, locale = "en", explicit = false, path, legal = false, drawnIn = PUBLIC_LOCALES }: {
   title: string;
   updated: string;
   children: ReactNode;
-  locale?: Locale;
+  locale?: PublicLocale;
   explicit?: boolean;
   /** This page's own address, for the language switcher. */
   path: string;
   legal?: boolean;
-  /** A page written in English only, which offers no language it would not draw. */
-  oneLanguage?: boolean;
+  /** The languages this page is drawn in, which are all it offers. */
+  drawnIn?: readonly PublicLocale[];
 }) {
   const t = (english: string) => tr(locale, english);
   const href = (to: string) => localeHref(to, locale, explicit);
@@ -57,7 +69,7 @@ export function Legal({ title, updated, children, locale = "en", explicit = fals
   */
   return (
     <main lang={locale} className="mx-auto max-w-2xl px-5 py-10 md:px-8 md:py-16">
-      <PublicHeader locale={locale} path={path} oneLanguage={oneLanguage} />
+      <PublicHeader locale={locale} path={path} drawnIn={drawnIn} />
       <h1
         className="mt-8 text-3xl font-bold leading-tight tracking-tight"
         style={{ color: "var(--ink)" }}
@@ -84,7 +96,16 @@ export function Legal({ title, updated, children, locale = "en", explicit = fals
  * Quiet on purpose: the page is a document and the reader's one job on it is
  * reading, so the loud action stays the landing page's.
  */
-export function PublicHeader({ locale, path, oneLanguage = false }: { locale: Locale; path: string; oneLanguage?: boolean }) {
+export function PublicHeader({ locale, path, drawnIn }: {
+  locale: PublicLocale;
+  path: string;
+  /**
+   * The languages the page is drawn in, said by every caller: the grammar
+   * reference is drawn in the three interface languages and never Estonian,
+   * and a page built on `Legal` in whichever of the four it has.
+   */
+  drawnIn: readonly PublicLocale[];
+}) {
   const t = (english: string) => tr(locale, english);
   return (
     /*
@@ -96,11 +117,14 @@ export function PublicHeader({ locale, path, oneLanguage = false }: { locale: Lo
       <BrandLink href={LANDING_HREF[locale]} label={t("Kodukeel, home")} className="flex min-h-11 items-center">
         <Wordmark size={28} />
       </BrandLink>
-      {oneLanguage
-        ? <span className="order-3 sm:order-2 sm:ml-auto" />
-        : <LanguageSwitcher locale={locale} hrefs={switcherHrefs(path)} className="order-3 w-full sm:order-2 sm:ml-auto sm:w-auto" />}
+      <LanguageSwitcher
+        locale={locale}
+        hrefs={switcherHrefs(path, drawnIn)}
+        drawnIn={drawnIn}
+        className="order-3 w-full sm:order-2 sm:ml-auto sm:w-auto"
+      />
       <ButtonLink
-        href={locale === "en" ? "/sign-in" : `/sign-in?lang=${locale}`}
+        href={signInHref(locale)}
         variant="secondary"
         size="sm"
         className="order-2 sm:order-3"
@@ -124,7 +148,7 @@ export function PublicHeader({ locale, path, oneLanguage = false }: { locale: Lo
  * "not enough data yet", and a footer link to it would send every reader there.
  */
 export async function PublicFooter({ locale, href, short = false }: {
-  locale: Locale;
+  locale: PublicLocale;
   explicit?: boolean;
   href: (to: string) => string;
   /** The state examination's page carries four of them rather than seven. */
@@ -147,7 +171,7 @@ export async function PublicFooter({ locale, href, short = false }: {
           {", "}
         </span>
       ))}
-      <Link href={locale === "en" ? "/sign-in" : `/sign-in?lang=${locale}`} className="underline underline-offset-2">
+      <Link href={signInHref(locale)} className="underline underline-offset-2">
         {t("Sign in")}
       </Link>
       {/*

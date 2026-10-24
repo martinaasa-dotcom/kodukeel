@@ -15,7 +15,7 @@ import { serializeTable } from "./table";
  * fails here rather than on somebody's screen.
  */
 describe("the generated tables", () => {
-  for (const locale of ["ru", "uk"] as const) {
+  for (const locale of ["ru", "uk", "et"] as const) {
     it(`${locale}.json is what the areas say today (npm run i18n:tables writes it)`, () => {
       const onDisk = readFileSync(join(import.meta.dirname, "generated", `${locale}.json`), "utf8");
       expect(onDisk === serializeTable(TABLES[locale]), "run npm run i18n:tables").toBe(true);

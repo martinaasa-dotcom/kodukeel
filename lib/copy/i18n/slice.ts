@@ -6,7 +6,7 @@ import { keyOf, type LocaleTable, type TranslatedLocale } from "./table";
 export function linesOf(locale: TranslatedLocale, areas: readonly Area[]): Record<string, string> {
   const lines: Record<string, string> = {};
   for (const area of areas) {
-    for (const [english, line] of Object.entries(area[locale])) lines[keyOf(english)] = line;
+    for (const [english, line] of Object.entries(area[locale] ?? {})) lines[keyOf(english)] = line;
   }
   return lines;
 }

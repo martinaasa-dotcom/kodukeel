@@ -3,7 +3,7 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { LocaleProvider } from "@/components/Locale";
 import { PublicReader } from "@/components/PublicReader";
 import { PublicFooter, PublicHeader } from "@/components/Legal";
-import { tr, type Locale } from "@/lib/copy/locale";
+import { LOCALES, tr, type Locale } from "@/lib/copy/locale";
 import { localeHref } from "@/lib/copy/publicLocale";
 
 /**
@@ -33,7 +33,7 @@ export async function PublicReference({ locale, explicit, path, children }: {
     <LocaleProvider locale={locale}>
       <div lang={locale} className="min-h-screen">
         <div className="mx-auto max-w-4xl px-5 pt-6 md:px-10 md:pt-8">
-          <PublicHeader locale={locale} path={path} />
+          <PublicHeader locale={locale} path={path} drawnIn={LOCALES} />
         </div>
         <main id="main" data-public-reference>
           <PublicReader>{children}</PublicReader>
