@@ -153,6 +153,10 @@ export const RECIPIENT_SOURCES: Readonly<Record<string, Source>> = {
     types: ["email"], linked: true,
     why: "the address a letter about the learner's own course is sent to; every kind of letter can be switched off",
   },
+  "google-sign-in": {
+    types: ["name", "email"], linked: true,
+    why: "the name and the email address on the Google account a learner signs in with, handed back by Google and kept with the account",
+  },
   "apple-sign-in": {
     types: ["name", "email"], linked: true,
     why: "the name and the email address, or the private address Apple makes, that a learner lets Apple share when they sign in with Apple, kept with the account",
@@ -209,6 +213,7 @@ export const EVERY_RECIPIENT_ENV: Readonly<Record<string, string>> = {
   EKILEX_API_KEY: "stand-in",
   RESEND_API_KEY: "stand-in",
   NEXT_PUBLIC_APPLE_SERVICES_ID: "stand-in",
+  NEXT_PUBLIC_GOOGLE_CLIENT_ID: "stand-in",
   NEXT_PUBLIC_VAPID_PUBLIC_KEY: "B".repeat(87),
   VAPID_PRIVATE_KEY: "C".repeat(43),
   VAPID_SUBJECT: "mailto:operator@example.test",

@@ -24,6 +24,7 @@ const TOUCHED = [
   "GROQ_API_KEY",
   "GEMINI_API_KEY",
   "GOOGLE_API_KEY",
+  "NEXT_PUBLIC_GOOGLE_CLIENT_ID",
 ];
 
 const saved = new Map(TOUCHED.map((key) => [key, process.env[key]]));
@@ -132,5 +133,30 @@ describe("Sign in with Apple", () => {
   it("says nothing of Apple where the operator has not set it up", () => {
     process.env.NEXT_PUBLIC_APPLE_SERVICES_ID = "";
     expect(resolveRecipients().some((r) => r.id === "apple-sign-in")).toBe(false);
+  });
+});
+
+describe("Sign in with Google", () => {
+  const google = () => resolveRecipients().filter((r) => r.id === "google-sign-in");
+
+  it("names Google on every hosted deployment, since every sign-in page draws the button", () => {
+    only({ NEXT_PUBLIC_SUPABASE_URL: "https://project.example.test" });
+    const found = google();
+    expect(found.length).toBe(1);
+    expect(found[0]?.eea).toBe(false);
+    expect(found[0]?.what).toMatch(/name and email address on your Google account/);
+    expect(found[0]?.what).not.toMatch(/opened the sign-in page/);
+  });
+
+  it("says Google learns of the visit where the page loads Google's own script", () => {
+    only({ NEXT_PUBLIC_SUPABASE_URL: "https://project.example.test", NEXT_PUBLIC_GOOGLE_CLIENT_ID: "abc.apps.googleusercontent.com" });
+    const found = google();
+    expect(found.length).toBe(1);
+    expect(found[0]?.what).toMatch(/opened the sign-in page/);
+  });
+
+  it("says nothing of Google on a local copy, which has no sign-in page", () => {
+    only();
+    expect(google().length).toBe(0);
   });
 });

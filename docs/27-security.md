@@ -86,7 +86,9 @@ loads Google Identity Services from `accounts.google.com` (`GSI_SCRIPT_SRC` in
 `lib/auth/googleIdentity.ts`), the one third-party script this app loads in a browser, and renders
 Google's button in an iframe from the same origin. The CSP adds that one origin to `script-src` and
 `frame-src` and only when the client ID is set (`googleIdentitySrc`). The ID token that comes back
-is handed to Supabase with `signInWithIdToken`.
+is handed to Supabase with `signInWithIdToken`. Google is on the generated recipients list on every
+hosted deployment, since the redirect door to Google is drawn on every sign-in page, and the entry
+says it learns of the page visit where the script loads (`lib/auth/googleConfig.ts`).
 
 ## 3. What is worth taking
 

@@ -5,6 +5,7 @@ import { fill, tr } from "@/lib/copy/locale";
 import { localeHref } from "@/lib/copy/publicLocale";
 import { resolveOperator } from "@/lib/legal/operator";
 import { appleSignInConfigured } from "@/lib/auth/appleConfig";
+import { googleSignInOffered } from "@/lib/auth/googleConfig";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
 import { publicCard } from "@/lib/copy/publicCards";
 import { ASR_MODEL, PAIR_JUDGE } from "@/lib/speech/model";
@@ -90,6 +91,11 @@ export default async function TermsPage({ searchParams }: { searchParams: Public
         <P>
           {t("Use one account, and use it yourself. Please don’t use the tutor for things that have nothing to do with learning Estonian. It runs on a key that costs money every time it’s used, so each account has a daily limit, to stop one person using it all up for everyone else.")}
         </P>
+        {googleSignInOffered() && (
+          <P>
+            {t("If you sign in with Google, Google’s own terms cover that step too.")}
+          </P>
+        )}
         {appleSignInConfigured() && (
           <P>
             {t("If you sign in with Apple, Apple’s own terms cover that step too. An address Apple hides for you forwards our emails only while forwarding stays turned on in your Apple account, so keep it on if you want to hear from us.")}
