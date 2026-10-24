@@ -176,6 +176,13 @@ export interface Struggle {
   blocks: Rung;
   href?: string;
   cta?: string;
+  /**
+   * On the two "ear" struggles: answers by ear at or above the situation's band
+   * so far, against what clears it. A screen that can find the conversation
+   * rehearsing this situation offers it as a way through beside `href`
+   * (`lib/readiness/rehearsal.ts`). Only worded here; the counting is VB-14's.
+   */
+  byEar?: { heard: number; need: number };
 }
 
 export interface Pace {
@@ -427,26 +434,30 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
         followed ten lines of it, unseen, has shown what the check could not
         see then.
       */
-      const byEar = heardAtOrAbove(heardTurns, needRank) >= HEARD_TURNS_FOR_EAR;
+      const heard = heardAtOrAbove(heardTurns, needRank);
+      const byEar = heard >= HEARD_TURNS_FOR_EAR;
+      const count = { heard, need: HEARD_TURNS_FOR_EAR };
       if (!byEar && placed === null && sittings === 0) {
         leads = false;
         struggles.push(struggle({
           id: "ear",
           title: say("Your ear hasn't been tested yet"),
-          detail: say("Everything above was typed or read. Spoken Estonian comes at you faster than a card, and only once. The level check measures whether you can follow it, and so do conversations you answer out loud without showing the other side's words."),
+          detail: say("Everything above was typed or read. Spoken Estonian comes at you faster than a card, and only once. You have {heard} of the {need} answers by ear this needs: a conversation answered out loud with the other side's words hidden counts, and so does the level check.", count),
           blocks: "lead",
           href: "/assess",
           cta: "Take the level check",
+          byEar: count,
         }));
       } else if (!byEar && placedRank !== null && placedRank < needRank) {
         leads = false;
         struggles.push(struggle({
           id: "ear",
           title: say("The level check put your listening at {placed}, and this is {level}", { placed: placed ?? "", level: situation.level }),
-          detail: say("You may know the words. That check measured whether you can follow them when somebody else says them, at their speed."),
+          detail: say("That check measured whether you can follow the words when somebody else says them, at their speed. You have {heard} of the {need} answers by ear this needs, and a conversation answered out loud with their words hidden can make up the rest.", count),
           blocks: "lead",
           href: "/review/dictation",
           cta: "Take a dictation",
+          byEar: count,
         }));
       }
     }

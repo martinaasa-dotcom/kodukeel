@@ -311,8 +311,16 @@ function moveIn(lines: readonly Line[]): string | null {
   return null;
 }
 
-export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answeredLast, finishedOnce, opening, chat, rehearses = null }: {
+export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answeredLast, finishedOnce, opening, chat, rehearses = null, startVoice = null }: {
   scene: SceneSpec;
+  /**
+   * How the other side reaches the learner for this run, where the page that
+   * sent them asked for one: the readiness page opens a conversation with the
+   * words hidden, since only a turn answered by ear counts toward an ear
+   * (docs/44-sixth-batch.md, C-4). A starting value the briefing reads and
+   * never stores; a change the learner makes is remembered as usual.
+   */
+  startVoice?: SceneVoice | null;
   /**
    * The errand this scene rehearses, found on the server through
    * `errandForScene` (`lib/collections/errandScenes.ts`), which reads the
@@ -617,7 +625,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
     lands, since a setting that failed to save is not a reason to change how a
     conversation already under way sounds.
   */
-  const [voiceMode, setVoiceMode] = useState<SceneVoice>(sceneVoice);
+  const [voiceMode, setVoiceMode] = useState<SceneVoice>(startVoice ?? sceneVoice);
   const chooseVoice = useCallback((next: SceneVoice) => {
     setVoiceMode(next);
     void setSceneVoice(next).catch(() => null);

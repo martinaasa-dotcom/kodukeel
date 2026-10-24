@@ -29,7 +29,7 @@ export default function aClassSeesSpeechAsACount({ check, code }: InvariantKit) 
       "a line only heard is read off the wire as anything but an exact true");
     assert.match(code("lib/progress/readiness.ts"), /heardTurns: heardTurnsByLevel\(spoken\)/,
       "the readiness rungs no longer receive the turns answered by ear");
-    assert.match(code("lib/readiness/rungs.ts"), /heardAtOrAbove\(heardTurns, needRank\) >= HEARD_TURNS_FOR_EAR/,
+    assert.match(code("lib/readiness/rungs.ts"), /const heard = heardAtOrAbove\(heardTurns, needRank\);\s*const byEar = heard >= HEARD_TURNS_FOR_EAR;/,
       "turns by ear no longer count at or above the situation's band");
   });
 }
