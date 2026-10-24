@@ -13180,6 +13180,7 @@ check("every route group says it is loading rather than showing nothing", () => 
     [join("app", "(chromeless)", "welcome")]: (src) => /export const revalidate = \d+/.test(src),
     [join("app", "(chromeless)", "welcome", "ru")]: (src) => /export const revalidate = \d+/.test(src),
     [join("app", "(chromeless)", "welcome", "uk")]: (src) => /export const revalidate = \d+/.test(src),
+    [join("app", "(chromeless)", "welcome", "et")]: (src) => /export const revalidate = \d+/.test(src),
     // Reads its query string and the deployment's own settings, and nothing else.
     [join("app", "(chromeless)", "sign-in")]: (src) =>
       !/@\/lib\/db|prisma|requireUserId|@\/lib\/progress\//.test(src),

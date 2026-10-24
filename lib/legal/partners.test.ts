@@ -18,7 +18,8 @@ const code = source.replace(/\/\*[^]*?\*\//g, "").replace(/(?<!:)\/\/[^\n]*/g, "
 
 describe("the partners page", () => {
   it("is built with Legal in the language the request asked for", () => {
-    expect(code).toMatch(/const \{ locale, explicit \} = await resolvePublicLocale\(searchParams\)/);
+    // resolvePublicPage is the public pages' reading, Estonian included (D16).
+    expect(code).toMatch(/const \{ locale, explicit \} = await resolvePublic(?:Locale|Page)\(searchParams\)/);
     expect(code).toMatch(/<Legal title=\{t\("For partners and funders"\)\}[^>]*locale=\{locale\} explicit=\{explicit\} path="\/partners"/);
     expect(code).toMatch(/publicCard\("\/partners"\)/);
   });

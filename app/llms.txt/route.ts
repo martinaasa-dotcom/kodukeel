@@ -39,6 +39,7 @@ const PAGES: readonly (readonly [string, string, string])[] = [
   ["/funding", "Funding", "what it costs to run, and where every figure comes from"],
   ["/welcome/ru", "Kodukeel in Russian", "the front page for somebody who reads Russian first"],
   ["/welcome/uk", "Kodukeel in Ukrainian", "the front page for somebody who reads Ukrainian first"],
+  ["/welcome/et", "Kodukeel in Estonian", "the front page for a reviewer who reads Estonian, beside the public pages, which take ?lang=et"],
   ["/grammar", "Estonian grammar", "how the grammar works in four stops, readable with no account"],
   ["/grammar/cases", "The fourteen cases", "every ending, what it means and the question it answers, with a page per case and per verb topic"],
   ["/grammar/build-a-word", "Build a word", "one word walked through the three stored forms and the eleven endings, with real sentences"],

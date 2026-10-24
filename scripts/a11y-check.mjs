@@ -139,7 +139,9 @@ const BASE = baseUrl();
 const ROUTES = [
   "/", "/learn", "/learn/new", "/practice", "/games", "/progress", "/words", "/words/decks", "/dictionary",
   "/grammar", "/grammar/cases", "/grammar/inessive", "/grammar/build-a-word", "/grammar/ukrainian", "/settings", "/settings?tab=sound", "/settings?tab=words", "/settings?tab=account", "/scan", "/read", "/class", "/tutor",
-  "/assess", "/assess?take=1", "/exam", "/exam/B1/papers", "/privacy", "/terms", "/funding", "/state-exam", "/welcome/ru", "/welcome/uk", "/offline",
+  "/assess", "/assess?take=1", "/exam", "/exam/B1/papers", "/privacy", "/terms", "/funding", "/state-exam", "/welcome/ru", "/welcome/uk", "/welcome/et", "/offline",
+  "/privacy?lang=et", "/trust?lang=et", "/funding?lang=et", "/partners?lang=et", "/curriculum?lang=et", "/accessibility?lang=et",
+  "/teachers?lang=et", "/state-exam?lang=et", "/help?lang=et", "/how-we-know?lang=et", "/pilots?lang=et",
   "/welcome", "/sign-in", "/start", "/suggestions", "/admin/suggestions", "/admin/errors", "/admin/speech", "/dev/asr",
   "/course", "/course/learn", "/course/forms", "/course/chat", "/course/lessons", "/course/lessons/a1-04-persons", "/course/check/check-a1.1", "/review/letters", "/review/workbook", "/review/numbers", "/review/sayings", "/review/wordplay", "/review/lookups",
   "/exam/A1", "/grammar/topic/object", "/learn/checkpoint/A1",

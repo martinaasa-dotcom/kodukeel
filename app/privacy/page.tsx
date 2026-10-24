@@ -10,11 +10,11 @@ import { pushConfigured } from "@/lib/push/config";
 import { fcmConfigured } from "@/lib/push/fcm";
 import { appleSignInConfigured } from "@/lib/auth/appleConfig";
 import { googleScriptLoaded } from "@/lib/auth/googleConfig";
-import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicPageTitle, resolvePublicPage, type PublicSearch } from "@/lib/progress/publicLocale";
 import { publicCard } from "@/lib/copy/publicCards";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicTitle(searchParams, "Privacy", undefined, publicCard("/privacy"));
+  return publicPageTitle(searchParams, "Privacy", undefined, publicCard("/privacy"));
 }
 
 /*
@@ -47,13 +47,15 @@ export const dynamic = "force-dynamic";
  * authority) is rendered from the same data in every language.
  */
 export default async function PrivacyPage({ searchParams }: { searchParams: PublicSearch }) {
-  const { locale, explicit } = await resolvePublicLocale(searchParams);
+  const { locale, explicit } = await resolvePublicPage(searchParams);
   const t = (english: string) => tr(locale, english);
   const href = (to: string) => localeHref(to, locale, explicit);
   const operator = resolveOperator();
   const recipients = resolveRecipients();
   const leavesTheUnion = transfersOutsideEea(recipients);
-  const settingRow = (row: string) => <strong>{t("Settings")} → {t(row)}</strong>;
+  // The app is never in Estonian (D16), so on the Estonian page the screen is
+  // named as the reader will find it, in English, and marked so.
+  const settingRow = (row: string) => <strong lang={locale === "et" ? "en" : undefined}>{t("Settings")} → {t(row)}</strong>;
 
   return (
     <Legal title={t("Privacy")} updated="2 September 2026" locale={locale} explicit={explicit} path="/privacy" legal>

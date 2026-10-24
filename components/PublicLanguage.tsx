@@ -1,32 +1,36 @@
 import { Languages } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { languagesBeside, LOCALE_NAMES, REVIEWED, tr, type Locale } from "@/lib/copy/locale";
+import { PUBLIC_LOCALE_NAMES, PUBLIC_LOCALES, publicLanguagesBeside, REVIEWED, tr, type PublicLocale } from "@/lib/copy/locale";
 import { MACHINE_TRANSLATED_EN, ENTRY_COPY } from "@/lib/copy/entryLocales";
 import { LEGAL_NOTICE, LEGAL_NOTICE_EN } from "@/lib/copy/publicLocale";
 
 /**
- * The languages a public page can be read in, as real links: all three on the
- * English page, and English beside its own on a Russian or Ukrainian one
- * (`languagesBeside`).
+ * The languages a public page can be read in, as real links: every one the
+ * page is drawn in on the English page, and English beside its own on any
+ * other (`publicLanguagesBeside`).
  *
  * Each is the language's own name, marked with its own `lang`, so a screen
  * reader says «Русский» in Russian whatever the page around it is in, and the
  * one being read is marked as the current page rather than drawn as a link
  * back to itself. `hrefs` is worked out by the page, because only the page
- * knows its own address (`localeHref` in lib/copy/publicLocale.ts).
+ * knows its own address (`localeHref` in lib/copy/publicLocale.ts). The name
+ * is the link's whole text and it has no `aria-label`, so what a reader sees
+ * and what a screen reader says are one name (WCAG 2.5.3).
  */
-export function LanguageSwitcher({ locale, hrefs, className = "" }: {
-  locale: Locale;
-  hrefs: Readonly<Record<Locale, string>>;
+export function LanguageSwitcher({ locale, hrefs, drawnIn = PUBLIC_LOCALES, className = "" }: {
+  locale: PublicLocale;
+  hrefs: Readonly<Partial<Record<PublicLocale, string>>>;
+  /** The languages this page is drawn in. */
+  drawnIn?: readonly PublicLocale[];
   className?: string;
 }) {
   return (
     <nav aria-label={tr(locale, "Language")} className={`flex flex-wrap items-center gap-1 text-sm ${className}`}>
       <Languages size={15} aria-hidden style={{ color: "var(--ink-3)" }} />
-      {languagesBeside(locale).map((l) => (
+      {publicLanguagesBeside(locale, drawnIn).map((l) => (
         <Link
           key={l}
-          href={hrefs[l]}
+          href={hrefs[l] ?? "#"}
           lang={l}
           hrefLang={l}
           aria-current={l === locale ? "page" : undefined}
@@ -36,7 +40,7 @@ export function LanguageSwitcher({ locale, hrefs, className = "" }: {
             fontWeight: l === locale ? 700 : 500,
           }}
         >
-          {LOCALE_NAMES[l]}
+          {PUBLIC_LOCALE_NAMES[l]}
         </Link>
       ))}
     </nav>
@@ -54,12 +58,15 @@ export function LanguageSwitcher({ locale, hrefs, className = "" }: {
  * original.
  */
 export function TranslationNotice({ locale, legal = false, className = "" }: {
-  locale: Locale;
+  locale: PublicLocale;
   legal?: boolean;
   className?: string;
 }) {
   if (locale === "en") return null;
-  if (!legal && REVIEWED[locale]) return null;
+  // Estonian has no `REVIEWED` row, because it is no interface language: its
+  // own flag is `reviewed` on its entry copy, false until the native speaker
+  // has read the public pages.
+  if (!legal && (locale === "et" ? ENTRY_COPY.et.reviewed : REVIEWED[locale])) return null;
   return (
     <p
       role="note"

@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useLocale, useT } from "@/components/Locale";
-import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
+import { usePublicLocale, useT } from "@/components/Locale";
+import { countOf, fill, tr, type PublicLocale as Locale } from "@/lib/copy/locale";
 import { Meter } from "@/components/ui";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { TrParts } from "@/components/TrParts";
@@ -67,6 +67,7 @@ const BYTES: Record<Locale, readonly [string, string, string]> = {
   en: ["MB", "GB", "TB"],
   ru: ["МБ", "ГБ", "ТБ"],
   uk: ["МБ", "ГБ", "ТБ"],
+  et: ["MB", "GB", "TB"],
 };
 
 /**
@@ -175,7 +176,7 @@ type T = (english: string, context?: string) => string;
 
 export function CostExplorer() {
   const t = useT();
-  const locale = useLocale();
+  const locale = usePublicLocale();
   const [shape, setShape] = useState<Shape>(DEFAULT_SHAPE);
   const set = <K extends keyof Shape>(key: K, value: Shape[K]) =>
     setShape((was) => ({ ...was, [key]: value }));

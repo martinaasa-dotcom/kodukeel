@@ -2,15 +2,15 @@ import { Suspense } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Legal, P, S } from "@/components/Legal";
 import { rich } from "@/components/Rich";
-import { tr, type Locale } from "@/lib/copy/locale";
-import { localeHref } from "@/lib/copy/publicLocale";
+import { tr, type PublicLocale } from "@/lib/copy/locale";
+import { localeHref, signInHref } from "@/lib/copy/publicLocale";
 import { databaseAnswersRecently } from "@/lib/health";
 import { resolveOperator } from "@/lib/legal/operator";
-import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicPageTitle, resolvePublicPage, type PublicSearch } from "@/lib/progress/publicLocale";
 import { publicCard } from "@/lib/copy/publicCards";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicTitle(searchParams, "Help", undefined, publicCard("/help"));
+  return publicPageTitle(searchParams, "Help", undefined, publicCard("/help"));
 }
 
 /*
@@ -43,7 +43,7 @@ export const dynamic = "force-dynamic";
  * under it back.
  */
 export default async function HelpPage({ searchParams }: { searchParams: PublicSearch }) {
-  const { locale, explicit } = await resolvePublicLocale(searchParams);
+  const { locale, explicit } = await resolvePublicPage(searchParams);
   const t = (english: string) => tr(locale, english);
   const href = (to: string) => localeHref(to, locale, explicit);
   const contact = resolveOperator().email;
@@ -64,7 +64,7 @@ export default async function HelpPage({ searchParams }: { searchParams: PublicS
           <li>{t("Check the address the link went to is the one you typed. If it was mistyped, use a different address and ask again.")}</li>
         </ul>
         <P>
-          <Link href={locale === "en" ? "/sign-in" : `/sign-in?lang=${locale}`} className="underline underline-offset-2">
+          <Link href={signInHref(locale)} className="underline underline-offset-2">
             {t("Back to sign in")}
           </Link>
         </P>
@@ -106,7 +106,7 @@ export default async function HelpPage({ searchParams }: { searchParams: PublicS
   );
 }
 
-async function Status({ locale }: { locale: Locale }) {
+async function Status({ locale }: { locale: PublicLocale }) {
   const working = await databaseAnswersRecently();
   return (
     <P>

@@ -25,7 +25,12 @@ export interface LocaleTable {
   readonly cases: Readonly<Record<string, CaseForms>>;
 }
 
-export type TranslatedLocale = "ru" | "uk";
+/**
+ * Every language a table exists for. Estonian is one, for the public pages
+ * alone (`PUBLIC_LOCALES` in lib/copy/locale.ts); no signed-in screen holds a
+ * locale that can name it.
+ */
+export type TranslatedLocale = "ru" | "uk" | "et";
 
 /**
  * The English as the tables hold it: with the straight apostrophe. The screen

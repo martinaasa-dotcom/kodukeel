@@ -1,4 +1,6 @@
 import type { Area } from "../area";
+import { PUBLIC_ET } from "./et/public";
+import { PAGES_ET } from "./et/pages";
 
 /**
  * THE OTHER PUBLIC PAGES IN RUSSIAN AND UKRAINIAN: /trust, /accessibility,
@@ -1236,6 +1238,8 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
 export const PUBLIC: Area = {
   ru: Object.fromEntries(LINES.map(([en, ru]) => [en, ru])),
   uk: Object.fromEntries(LINES.map(([en, , uk]) => [en, uk])),
+  // Estonian, for the public pages alone (D16), drafted and awaiting the native speaker: ./et/public.ts.
+  et: Object.fromEntries([...PUBLIC_ET, ...PAGES_ET]),
   counted: {
     cent: { en: ["cent", "cents"], ru: ["цент", "цента", "центов"], uk: ["цент", "центи", "центів"] },
     "pages": { en: ["page", "pages"], ru: ["страница", "страницы", "страниц"], uk: ["сторінка", "сторінки", "сторінок"] },

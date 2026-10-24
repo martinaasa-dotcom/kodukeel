@@ -8,7 +8,8 @@ import type { DemoOption, DemoReply, DemoTurn } from "@/lib/progress/demoScene";
 import { rememberOrdered } from "./visit";
 import type { CafeVoiceProps } from "./CafeVoice";
 import { fill } from "@/lib/copy/locale";
-import { useLocale, useT, useWholeLanguage } from "@/components/Locale";
+import { signInHref } from "@/lib/copy/publicLocale";
+import { usePublicLocale, useT, useWholeLanguage } from "@/components/Locale";
 
 interface Said {
   readonly who: "them" | "you" | "app";
@@ -74,7 +75,7 @@ export function CafeScene({ scenes, voiceBase = null }: {
   const t = useT();
   // A press here can draw a line the page did not arrive with. See components/Locale.tsx.
   const reach = useWholeLanguage();
-  const locale = useLocale();
+  const locale = usePublicLocale();
   /*
     The server answers in English, which is the scene's own: the goal, the
     stage direction, the outcome and the English beside each pick are lines
@@ -83,7 +84,10 @@ export function CafeScene({ scenes, voiceBase = null }: {
     table does not hold prints its English.
   */
   const en = (line: string | null | undefined) => (line ? t(line) : line ?? null);
-  const signIn = locale === "en" ? "/sign-in" : `/sign-in?lang=${locale}`;
+  const signIn = signInHref(locale);
+  // On the Estonian page the English beside each Estonian line stays English, as a
+  // learner sees it (D16): it is marked so, rather than translated into the line itself.
+  const meaningLang = locale === "et" ? "en" : undefined;
   const [seed, setSeed] = useState<string | null>(null);
   const [turns, setTurns] = useState<DemoTurn[]>([]);
   const [said, setSaid] = useState<Said[]>([]);
@@ -345,7 +349,7 @@ export function CafeScene({ scenes, voiceBase = null }: {
                     <span className="cafe-drink-icon shrink-0" aria-hidden><Icon size={18} /></span>
                     <span className="min-w-0 flex-1">
                       <span lang="et" className="block text-md font-bold" style={{ color: "var(--ink)" }}>{item.lemma}</span>
-                      <span className="block text-sm" style={{ color: "var(--ink-2)" }}>{t(item.en)}</span>
+                      <span className="block text-sm" lang={meaningLang} style={{ color: "var(--ink-2)" }}>{t(item.en)}</span>
                     </span>
                     <span className="cafe-price shrink-0 text-sm font-bold">{item.price} €</span>
                     {mine && <Check size={16} aria-label={t("Your order")} />}
@@ -398,7 +402,7 @@ export function CafeScene({ scenes, voiceBase = null }: {
                     <div key={n} className={`cafe-line ${line.who === "you" ? "self-end" : "self-start"}`} data-who={line.who}>
                       <span className="sr-only">{line.who === "you" ? t("You said:") : t("They said:")}{" "}</span>
                       <span lang="et">{line.text}</span>
-                      {line.en && <span className="cafe-line-en">{line.en}</span>}
+                      {line.en && <span className="cafe-line-en" lang={meaningLang}>{line.en}</span>}
                     </div>
                   ),
                 )}
@@ -445,7 +449,7 @@ export function CafeScene({ scenes, voiceBase = null }: {
                       data-lit={lit === n ? "" : undefined}
                       style={{ "--i": n } as React.CSSProperties}>
                       <span lang="et" className="text-md font-bold">{option.et}</span>
-                      <span className="text-sm" style={{ color: "var(--ink-2)" }}>{t(option.en)}</span>
+                      <span className="text-sm" lang={meaningLang} style={{ color: "var(--ink-2)" }}>{t(option.en)}</span>
                       {lit === n && counting && (
                         <span className="cafe-send" aria-hidden style={{ "--send-ms": `${SEND_LIT_MS}ms` } as React.CSSProperties} />
                       )}

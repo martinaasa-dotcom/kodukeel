@@ -3,7 +3,7 @@
 import {
   createContext, use, useCallback, useContext, useMemo, useState, type ReactNode,
 } from "react";
-import { tr, type Locale } from "@/lib/copy/locale";
+import { tr, type Locale, type PublicLocale } from "@/lib/copy/locale";
 import { registerTable } from "#i18n-tables";
 import { loadTable, tableReady } from "@/lib/copy/i18n/load";
 import type { LocaleTable } from "@/lib/copy/i18n/table";
@@ -18,7 +18,8 @@ import type { LocaleTable } from "@/lib/copy/i18n/table";
  * See lib/copy/locale.ts for the tables, the fallback and the notice.
  */
 interface LocaleState {
-  locale: Locale;
+  /** Estonian only under a public page's provider (D16); never under the shell. */
+  locale: PublicLocale;
   /** Moves when more of the language arrives, so everything under it draws again. */
   version: number;
   /** Asks for the whole language, for a page that started with a slice of it. */
@@ -55,7 +56,7 @@ export function LocaleProvider({
   table,
   children,
 }: {
-  locale: Locale;
+  locale: PublicLocale;
   /** A slice of the language, for a static page that says little. Without one, the whole language loads. */
   table?: LocaleTable;
   children: ReactNode;
@@ -83,7 +84,19 @@ export function LocaleProvider({
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }
 
+/**
+ * The interface language, which is never Estonian. Under a public page drawn
+ * in Estonian this answers English, which is what every app component it
+ * reaches (a case label, a question's reading) has a table for; the public
+ * page's own components ask `usePublicLocale` instead.
+ */
 export function useLocale(): Locale {
+  const locale = useContext(Context).locale;
+  return locale === "et" ? "en" : locale;
+}
+
+/** The language a public page is drawn in, Estonian included (D16). */
+export function usePublicLocale(): PublicLocale {
   return useContext(Context).locale;
 }
 

@@ -18,11 +18,11 @@ import { demoUrl } from "@/lib/legal/demo";
 import { resolveOperator } from "@/lib/legal/operator";
 import { IMPACT_WINDOW_DAYS } from "@/lib/progress/impact";
 import { heldImpact } from "@/lib/progress/impactListed";
-import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicPageTitle, resolvePublicPage, type PublicSearch } from "@/lib/progress/publicLocale";
 import { impactListable } from "@/lib/research/impact";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicTitle(searchParams, "For partners and funders", undefined, publicCard("/partners"));
+  return publicPageTitle(searchParams, "For partners and funders", undefined, publicCard("/partners"));
 }
 
 /*
@@ -54,13 +54,13 @@ const REPO = "https://github.com/martinaasa-dotcom/kodukeel/blob/main";
  * the calls, so a figure typed in by hand fails before it can disagree with
  * its page.
  *
- * Drawn in every public language through `resolvePublicLocale`, like every
+ * Drawn in every public language through `resolvePublicPage`, like every
  * other page built with `Legal`, so a fourth one arrives here the way it
  * arrives on the rest. Pages it links to that are English only say so in the
  * link, in the other languages.
  */
 export default async function PartnersPage({ searchParams }: { searchParams: PublicSearch }) {
-  const { locale, explicit } = await resolvePublicLocale(searchParams);
+  const { locale, explicit } = await resolvePublicPage(searchParams);
   const t = (english: string) => tr(locale, english);
   const href = (to: string) => localeHref(to, locale, explicit);
   const link = (to: string, label: string) => (

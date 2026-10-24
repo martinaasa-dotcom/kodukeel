@@ -3,8 +3,9 @@ import { ENTRY_COPY, ENTRY_LOCALES, type EntryLocale } from "@/lib/copy/entryLoc
 import { shareCard } from "@/lib/progress/publicLocale";
 
 /**
- * The title and description of the landing page in Russian or Ukrainian, and
- * the two other languages it is in, for a search engine and a link preview.
+ * The title and description of the landing page in Russian, Ukrainian or
+ * Estonian, and the other languages it is in, for a search engine and a link
+ * preview.
  * The page itself is `../page.tsx`, rendered with the language in `params`.
  */
 export function entryMetadata(locale: EntryLocale): Metadata {

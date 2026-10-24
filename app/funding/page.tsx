@@ -7,7 +7,7 @@ import { areaTable } from "@/lib/copy/i18n/slice";
 import { PUBLIC } from "@/lib/copy/i18n/areas/public";
 import { fill, tr } from "@/lib/copy/locale";
 import { localeHref } from "@/lib/copy/publicLocale";
-import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicPageTitle, resolvePublicPage, type PublicSearch } from "@/lib/progress/publicLocale";
 import { publicCard } from "@/lib/copy/publicCards";
 import { resolveOperator } from "@/lib/legal/operator";
 import { audioCacheIsDurable } from "@/lib/audio/store";
@@ -24,7 +24,7 @@ import {
 } from "@/lib/funding/facts";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicTitle(searchParams, "Funding", undefined, publicCard("/funding"));
+  return publicPageTitle(searchParams, "Funding", undefined, publicCard("/funding"));
 }
 
 /*
@@ -72,7 +72,7 @@ export const dynamic = "force-dynamic";
  * stale one in its own header.
  */
 export default async function FundingPage({ searchParams }: { searchParams: PublicSearch }) {
-  const { locale, explicit } = await resolvePublicLocale(searchParams);
+  const { locale, explicit } = await resolvePublicPage(searchParams);
   const operator = resolveOperator();
   // Anu's own chain rather than the general one: the general chain carries the
   // paid tail, which a tutor chain never reaches, so naming it here told a
