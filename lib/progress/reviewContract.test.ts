@@ -12,7 +12,7 @@
 import { describe, expect, it } from "vitest";
 import type { z } from "zod";
 
-import type { ReviewCard } from "@/app/(app)/review/ReviewSession";
+import type { ReviewCard } from "@/lib/review/card";
 import type { ReviewCardSchema, ReviewResponse } from "@/lib/api/contract";
 import type { DailyReview } from "@/lib/progress/dailyQueue";
 import type { ReplayItem } from "@/lib/srs/replay";
