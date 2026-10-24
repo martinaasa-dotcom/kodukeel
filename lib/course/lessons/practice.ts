@@ -34,7 +34,7 @@ import { editDistance, nearMiss } from "@/lib/estonian/answer";
 import { fold } from "@/lib/estonian/fold";
 import { rng, seedFrom } from "@/lib/random/seeded";
 import { shuffle } from "@/lib/random/shuffle";
-import { estonianIn, ledgerThrough, unfold, wordsOf, type Asked, type Ledger } from "./ledger";
+import { estonianIn, ledgerThrough, lessonRank, unfold, wordsOf, type Asked, type Ledger } from "./ledger";
 import { STAND_IN, hasStandIn, personal } from "./ownAnswer";
 import type { LessonSpec } from "./types";
 
@@ -153,7 +153,7 @@ function neighboursFirst(item: Taught, before: Ledger, rest: readonly Taught[]):
 /** What today's practice goes over: today's new things, or for a check-in the last few lessons'. */
 export function practiceSubjects(lesson: LessonSpec, before: Ledger): Taught[] {
   if (lesson.teaches.length > 0) return lesson.teaches.flatMap(unfold);
-  const since = lesson.n - CHECKIN_REACH;
+  const since = lessonRank(lesson) - CHECKIN_REACH;
   return before.items.filter((d) => d.lesson >= since).map((d) => d.item);
 }
 
@@ -369,7 +369,7 @@ export function checkFor(
   if (!last) return [];
   const ledger = ledgerThrough(all, last.id);
   if (!ledger) return [];
-  const covered = new Set(scope.map((l) => l.n));
+  const covered = new Set(scope.map(lessonRank));
   const subjects = onePerMeaning(ledger.items.filter((d) => covered.has(d.lesson)).map((d) => d.item))
     .filter((item) => !meaningShows(item));
   const random = rng(seedFrom(`check:${seed}`));

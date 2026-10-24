@@ -19,7 +19,7 @@
  * Pure: no React, no Prisma, no clock.
  */
 
-import { LESSONS, LESSON_PARTS, type LessonSpec, type PatternId } from "./lessons";
+import { LESSONS, LESSON_PARTS, casesOfPattern, type LessonSpec, type PartOfLessons, type PatternId } from "./lessons";
 import { lessonHeads } from "./lessonHeads";
 import { lessonLabel } from "./lessons/label";
 import { LESSON_STEP, type CourseDay, type Programme } from "./types";
@@ -44,11 +44,17 @@ export const LESSON_SHAPE: readonly { title: string; minutes: number; why: strin
   { title: "Review", minutes: 2, why: "Words from earlier lessons come back, so they stay." },
 ];
 
-/** The reference page each pattern a lesson explains is, by topic id. */
-export const PATTERN_PAGE: Readonly<Record<PatternId, string>> = {
+/**
+ * The reference topic each verb pattern a lesson explains is, by id. A case
+ * pattern is a case page instead (`casesOfPattern`), since every ending has a
+ * page of its own.
+ */
+export const PATTERN_PAGE: Readonly<Partial<Record<PatternId, string>>> = {
   present: "present-tense",
   negative: "negation",
   imperative: "imperative",
+  past: "imperfect",
+  conditional: "conditional",
 };
 
 /**
@@ -87,7 +93,11 @@ const plain = (text: string) => text.replace(/[{}]/g, "");
 /** One lesson as an evening of the course. */
 export function lessonDay(lesson: LessonSpec, index: number, partTitle: string): CourseDay {
   const pages = LESSON_PAGES[lesson.id] ?? {};
-  const topics = [...(lesson.patterns ?? []).map((p) => PATTERN_PAGE[p]), ...(pages.topics ?? [])];
+  const topics = [...new Set([
+    ...(lesson.patterns ?? []).flatMap((p) => (PATTERN_PAGE[p] ? [PATTERN_PAGE[p]] : [])),
+    ...(pages.topics ?? []),
+  ])];
+  const cases = [...new Set([...(lesson.patterns ?? []).flatMap(casesOfPattern), ...(pages.cases ?? [])])];
   return {
     id: lesson.id,
     title: plain(partTitle),
@@ -98,7 +108,7 @@ export function lessonDay(lesson: LessonSpec, index: number, partTitle: string):
     words: lessonWords(lesson),
     practice: [],
     lesson: lesson.id,
-    ...(pages.cases ? { cases: pages.cases } : {}),
+    ...(cases.length > 0 ? { cases } : {}),
     ...(topics.length > 0 ? { topics } : {}),
     index,
     part: { n: 1, of: 1 },
@@ -123,10 +133,10 @@ export function lessonDay(lesson: LessonSpec, index: number, partTitle: string):
  * lesson files name.
  */
 export function lessonProgrammes(): Programme[] {
-  return LESSON_PARTS.map((part, n) => {
+  return LESSON_PARTS.map((part) => {
     const lessons = LESSONS.filter((l) => l.part === part.id);
     return {
-      id: `${part.level.toLowerCase()}.${n + 1}`,
+      id: lessonPartId(part),
       title: plain(part.title),
       subtitle: plain(part.about),
       level: part.level,
@@ -134,6 +144,15 @@ export function lessonProgrammes(): Programme[] {
       days: lessons.map((lesson, i) => lessonDay(lesson, i + 1, part.title)),
     };
   });
+}
+
+/**
+ * A lesson part's id as the course spells it: `a1.3` for the third part of
+ * A1's lessons, counted within its own level, so A2's first part is `a2.1`.
+ */
+export function lessonPartId(part: PartOfLessons): string {
+  const ofLevel = LESSON_PARTS.filter((p) => p.level === part.level);
+  return `${part.level.toLowerCase()}.${ofLevel.indexOf(part) + 1}`;
 }
 
 /** Where a lesson stands for one learner, for the list of lessons. */
