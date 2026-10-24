@@ -187,6 +187,14 @@ describe("A1 lessons", () => {
     expect(found).toBeGreaterThan(0);
   });
 
+  it("says half right when the word is there with more beside it", () => {
+    const m = markPhrase("sa olid, nad on", ["olid"]);
+    expect(m.verdict).toBe("nearly");
+    expect(m.note).toMatch(/^Half right/);
+    expect(markPhrase("olid", ["olid"]).verdict).toBe("right");
+    expect(markPhrase("nad on", ["olid"]).verdict).toBe("wrong");
+  });
+
   it("give every lesson something to practice, and nothing on the first lesson's review", () => {
     const before = ledgersBefore(LESSONS);
     for (const lesson of A1_LESSONS) expect(practiceFor(lesson, before.get(lesson.id)!).length).toBeGreaterThan(3);

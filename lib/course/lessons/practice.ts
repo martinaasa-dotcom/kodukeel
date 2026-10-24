@@ -269,6 +269,10 @@ export function markPhrase(typed: string, accept: readonly string[]): TypedMark 
   if (said.length === 0) return { verdict: "wrong", note: "Nothing typed.", close: false };
   if (said === want) return { verdict: "right", note: "That's it.", close: false };
   if (fold(said) === fold(want)) return { verdict: "nearly", note: "Nearly: mind the letters with marks on them.", close: false };
+  // The right word with more around it: half of it is right, which is worth saying.
+  if (said.split(" ").length > 1 && wants.some((w) => w.length > 0 && !w.includes(" ") && said.split(" ").includes(w))) {
+    return { verdict: "nearly", note: "Half right: the word is in there, but only that one word was asked for.", close: false };
+  }
   if (wants.some((w) => w.length >= SLIP_FLOOR && editDistance(said, w, 1) <= 1)) return { verdict: "nearly", note: "Nearly: one letter out.", close: false };
   return { verdict: "wrong", note: "Not quite.", close: wants.some((w) => nearMiss(said, w)) };
 }
