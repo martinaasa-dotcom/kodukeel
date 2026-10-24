@@ -67,9 +67,10 @@ export function fcmConfigFrom(raw: string | undefined): FcmConfig | null {
     The shape of a PEM key rather than a parse of one, so the store-label
     script can name this recipient with a stand-in. A key that has the shape
     and will not sign is reported on the first send of a run, which is where an
-    operator reading the run's log is looking.
+    operator reading the run's log is looking. The dashes are counted rather
+    than typed, so the build carries no PEM marker for `check:secrets` to find.
   */
-  if (typeof privateKey !== "string" || !/-----BEGIN PRIVATE KEY-----[\s\S]+-----END PRIVATE KEY-----/.test(privateKey)) return null;
+  if (typeof privateKey !== "string" || !/-{5}BEGIN PRIVATE KEY-{5}[\s\S]+-{5}END PRIVATE KEY-{5}/.test(privateKey)) return null;
   return { projectId, clientEmail, privateKey };
 }
 

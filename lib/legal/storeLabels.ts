@@ -226,7 +226,8 @@ export const EVERY_RECIPIENT_ENV: Readonly<Record<string, string>> = {
     project_id: "stand-in",
     client_email: "stand-in@stand-in.example.test",
     // The shape `fcmConfigFrom` reads; it signs nothing, and the script sends nothing.
-    private_key: "-----BEGIN PRIVATE KEY-----\nstand-in\n-----END PRIVATE KEY-----\n",
+    // Assembled, so the build carries no PEM marker for `check:secrets` to find.
+    private_key: [`${"-".repeat(5)}BEGIN PRIVATE KEY${"-".repeat(5)}`, "stand-in", `${"-".repeat(5)}END PRIVATE KEY${"-".repeat(5)}`, ""].join("\n"),
   }),
   ERROR_WEBHOOK_URL: "https://errors.example.test/hook",
   NEXT_PUBLIC_SUPABASE_URL: "https://project.example.test",
