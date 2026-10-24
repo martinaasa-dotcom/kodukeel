@@ -330,7 +330,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "Sajab vihma.", en: "It's raining." },
       { kind: "phrase", et: "Sajab lund.", en: "It's snowing." },
       { kind: "phrase", et: "lund", en: "snow, after falls" },
-      { kind: "word", et: "väljas", en: "outside" },
+      { kind: "word", et: "väljas", en: "outside/out" },
       { kind: "word", et: "tõesti", en: "really, truly" },
     ],
     how: {
@@ -387,7 +387,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "kuum", en: "hot" },
       { kind: "word", et: "kuiv", en: "dry" },
       { kind: "word", et: "märg", en: "wet" },
-      { kind: "word", et: "õues", en: "outside, out of doors" },
+      { kind: "word", et: "õues", en: "outside/outdoors, in the open air" },
     ],
     how: {
       point: "A number of degrees is a number + the [osastav] (3rd form), like {kaks kohvi}: {kaks kraadi}.",
