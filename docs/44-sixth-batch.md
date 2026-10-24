@@ -998,9 +998,9 @@ listing in each language and the answers to the age-rating questions. All of it 
 the SVG master and the running app, so the first native build waits on nothing else.
 
 **Files.**
-- `scripts/build-store-icons.mjs` (to be written): renders the master (`public/app-icon.svg`,
+- `scripts/build-store-icons.mjs`: renders the master (`public/app-icon.svg`,
   `public/app-icon-maskable.svg`) with the Chromium the suites already use, so no new dependency, into
-  `store/icons/` (to be written): the iOS 1024 marketing icon with no transparency, the Android adaptive
+  `store/icons/`: the iOS 1024 marketing icon with no transparency, the Android adaptive
   foreground and background layers inside the safe zone, the Play 512 icon, the Play feature graphic
   (1024 by 500, the mark and the name on the brand ground), and 192 and 512 PNGs for the web manifest.
   The sizes come from each store's own page, read on the day and written beside the script with the

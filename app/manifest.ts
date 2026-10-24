@@ -35,6 +35,11 @@ export default function manifest(): MetadataRoute.Manifest {
       // maskable drawing is square to the edge and its tilde is drawn smaller,
       // with its corners inside that circle.
       { src: "/app-icon-maskable.svg", sizes: "any", type: "image/svg+xml", purpose: "maskable" },
+      // The same tile as PNGs, for the launchers and install prompts that read
+      // no SVG. Rendered from public/app-icon.svg by `npm run store:icons`,
+      // never drawn by hand, so the three can only differ by being stale.
+      { src: "/app-icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/app-icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
     ],
     shortcuts: [
       { name: "Review", short_name: "Review", url: "/review" },
