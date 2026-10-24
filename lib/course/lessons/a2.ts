@@ -22,12 +22,18 @@
 import { A2_KELLE_LESSONS, A2_KELLE_PART } from "./a2-kelle";
 import { A2_KUHU_LESSONS, A2_KUHU_PART } from "./a2-kuhu";
 import { A2_EILE_LESSONS, A2_EILE_PART } from "./a2-eile";
+import { A2_TERVIS_LESSONS, A2_TERVIS_PART } from "./a2-tervis";
+import { A2_REIS_LESSONS, A2_REIS_PART } from "./a2-reis";
+import { A2_RESTORAN_LESSONS, A2_RESTORAN_PART } from "./a2-restoran";
 import type { LessonSpec, PartOfLessons } from "./types";
 
 export const A2_LESSON_PARTS: readonly PartOfLessons[] = [
   A2_KELLE_PART,
   A2_KUHU_PART,
   A2_EILE_PART,
+  A2_TERVIS_PART,
+  A2_REIS_PART,
+  A2_RESTORAN_PART,
 ];
 
 /** A2 in teaching order, part by part. */
@@ -35,4 +41,7 @@ export const A2_LESSONS: readonly LessonSpec[] = [
   ...A2_KELLE_LESSONS,
   ...A2_KUHU_LESSONS,
   ...A2_EILE_LESSONS,
+  ...A2_TERVIS_LESSONS,
+  ...A2_REIS_LESSONS,
+  ...A2_RESTORAN_LESSONS,
 ];
