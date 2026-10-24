@@ -2,5 +2,32 @@
   "id": "local-single-user",
   "name": "you",
   "email": null,
-  "locale": "en"
+  "locale": "en",
+  "settings": {
+    "level": "A1",
+    "dailyGoal": 20,
+    "glossLanguage": "en",
+    "voice": "mari",
+    "speechPace": "auto",
+    "speech": {
+      "sendAtOnce": false,
+      "inBoxes": true
+    },
+    "sceneAnswer": null,
+    "timeZone": null,
+    "roundPace": "standard",
+    "reminderAt": "19:30",
+    "letters": {
+      "welcome": true,
+      "tonight": true,
+      "comeback": true,
+      "weekly": true,
+      "errand": true,
+      "milestone": true,
+      "shield": true,
+      "deadline": true,
+      "classroom": true,
+      "wordday": false
+    }
+  }
 }

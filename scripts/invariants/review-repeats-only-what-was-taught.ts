@@ -99,10 +99,12 @@ export default function reviewRepeatsOnlyWhatWasTaught(kit: InvariantKit) {
  */
 function aNewLevelStartsOver({ check, code }: InvariantKit) {
   check("changing level restarts the module on the new level's first evening", () => {
-    const actions = code("app/actions.ts");
-    const start = actions.indexOf("export async function setCourseLevel");
-    assert.ok(start >= 0, "setCourseLevel is gone");
-    const body = actions.slice(start, actions.indexOf("export async function", start + 10));
+    // The picker's body is `changeCourseLevel`, which both doors call (N-8).
+    const level = code("lib/progress/courseLevel.ts");
+    const start = level.indexOf("export async function changeCourseLevel");
+    assert.ok(start >= 0, "changeCourseLevel is gone");
+    const end = level.indexOf("export async function", start + 10);
+    const body = level.slice(start, end < 0 ? undefined : end);
     assert.match(body, /const before = await courseLevelFor\(ownerId\);[\s\S]*recordCourseLevel/,
       "setCourseLevel no longer reads the level it is changing from");
     assert.match(body, /before !== parsed\.data/, "a level change no longer restarts the course");

@@ -193,7 +193,7 @@ const ROUTES = [
     it does not walk makes that page wrong about itself, which is the one
     claim on it that has to be checkable.
   */
-  "/trust", "/teachers", "/pilots", "/how-we-know", "/curriculum", "/help", "/accessibility", "/impact", "/partners",
+  "/trust", "/teachers", "/pilots", "/how-we-know", "/curriculum", "/help", "/account/delete", "/accessibility", "/impact", "/partners",
 ];
 
 const browser = await launchChromium();

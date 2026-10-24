@@ -41,36 +41,38 @@ import { upsertLexemeWithForms } from "@/lib/dict/upsert";
 import { editExamples } from "@/lib/dict/editExamples";
 import { requireAdminId } from "@/lib/auth/admin";
 import { applyPatch } from "@/lib/suggestions/apply";
-import { resetCourseProgress, restartPart } from "@/lib/progress/courseReset";
+import { resetCourseProgress } from "@/lib/progress/courseReset";
 import {
   PATCH_POS, SUGGESTION_LIMITS, acknowledgement, groupKeyFor, isCategory, parsePatch, parsePatchValue,
   patchFitsCategory, triggerLimit,
 } from "@/lib/suggestions/model";
 import { CEFR_LEVELS } from "@/lib/estonian/types";
-import { eraseAuthIdentity, remainingIdentityNote } from "@/lib/auth/erase";
 import { LIMITS, MAX_SCAN_TITLE } from "@/lib/progress/fieldLimits";
 import { resolveOneWord } from "@/lib/dict/resolveScan";
 import { MAX_ITEMS as SCAN_MAX_ITEMS } from "@/lib/scan/extract";
 import { parseItems, serialiseItems } from "@/lib/scan/items";
+import { deleteAccountFor } from "@/lib/account/erase";
+import { changeCourseLevel } from "@/lib/progress/courseLevel";
+import { changeAccountSettings } from "@/lib/settings/account";
 import { translateSentenceWithAnu } from "@/lib/tutor/translate";
 import {
   createDeck, decksForWord, deleteDeck, fileWordInDeck, listDecks,
   removeWordFromDeck, renameDeck, wordsInDeck, wordsToFile,
 } from "@/lib/progress/decks";
-import { canonicalZone } from "@/lib/time/day";
+
 import { markSayingsShown } from "@/lib/progress/sayings";
 import { bringBack, keepWord, putAside, setStar } from "@/lib/progress/wordActions";
 import { addScanToDeckFor, saveScanFor } from "@/lib/progress/scans";
 import {
   forgetSettings, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
-import { isEmailKind } from "@/lib/email/letter";
-import { switchOff, switchOn } from "@/lib/email/prefs";
-import { changeEmailPrefs } from "@/lib/progress/emailPrefs";
+
+
+
 import { deviceKnown, forgetDevice, rememberDevice } from "@/lib/progress/push";
 import { pushConfigured } from "@/lib/push/config";
 import { readEndpoint, readSubscription } from "@/lib/push/subscription";
-import { parseReminderTime } from "@/lib/time/reminder";
+
 import { letterBarFrom, type LetterBar } from "@/lib/ux/letterBar";
 import { wordGlossFrom, type WordGloss } from "@/lib/ux/wordGloss";
 import { singleKeysFrom } from "@/lib/ux/shortcuts";
@@ -78,8 +80,8 @@ import { caseGlossFrom } from "@/lib/estonian/caseGloss";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
 import { hearingFrom, hidesWords, supportFrom } from "@/lib/audio/conditions";
 import { sceneVoiceFrom } from "@/lib/audio/sceneVoice";
-import { sceneAnswerFrom } from "@/lib/ux/sceneAnswer";
-import { SPEECH_PACES } from "@/lib/audio/pace";
+
+
 import { kindFrom } from "@/lib/ux/schedule";
 import { participationValue } from "@/lib/research/participation";
 import { alsoShowFrom, glossLanguageFrom } from "@/lib/collections/glossLanguage";
@@ -99,16 +101,15 @@ import { undoGradeFor, type SchedulingSnapshot } from "@/lib/srs/undo";
 import { addCardsFor as addWordCards, addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
 import {
   defaultProgramme, LESSON_STEP, MODULE_HOME, continueHref, dayById, focusedSteps, lessonDayFor, levelHeldOnHandOff,
-  PROGRAMMES, programmeById, stepCard, stepText,
+  programmeById, stepCard, stepText,
 } from "@/lib/course";
 import { localeFor } from "@/lib/progress/locale";
-import { courseReading, dayIsInPlay, openingPart, openingPartFor, programmeFor } from "@/lib/progress/course";
+import { courseReading, dayIsInPlay, openingPart, programmeFor } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { doneKeyFrom, doneToday, withDone } from "@/lib/ux/workbookDone";
 import { notePlayed } from "@/lib/progress/gamesPlayed";
 import { adaptOfferFor, SNOOZE_DAYS } from "@/lib/progress/adapt";
 import { clip } from "@/lib/copy/clip";
-import { isConfirmed } from "@/lib/copy/confirmWord";
 
 import { DEFAULT_SOURCE } from "@/lib/srs/sources";
 import { ratingFor, SONAD_GUESSES } from "@/lib/games/sonad";
@@ -1022,14 +1023,12 @@ export async function getTutorHistory() {
 /** Sets the review count that fills the daily-goal ring on Today. */
 export async function setDailyGoal(goal: number) {
   const ownerId = await requireUserId();
-  // `Math.max(5, NaN)` is NaN, so without this "NaN" was stored as somebody's
-  // goal: the fault the comment below records the personal bests having had.
-  if (!Number.isFinite(goal)) return { ok: false as const, error: "Pick a daily goal from the list." };
-  const clamped = Math.min(200, Math.max(5, Math.round(goal)));
-  await writeSetting(ownerId, SETTING_KEYS.dailyGoal, String(clamped));
+  // The clamp and the NaN guard are `saveDailyGoal`'s, which PATCH /api/v1/me calls too.
+  const saved = await changeAccountSettings(ownerId, { dailyGoal: goal });
+  if (!saved.ok) return { ok: false as const, error: saved.error };
   revalidatePath("/");
   revalidatePath("/settings");
-  return { ok: true as const, goal: clamped };
+  return { ok: true as const, goal: saved.saved.dailyGoal! };
 }
 
 /*
@@ -1468,10 +1467,9 @@ export async function setTimeZone(zone: string) {
   const ownerId = await requireUserId();
   // Stored in the spelling `Intl` resolves it to, so one zone is one value
   // whatever casing the caller sent (lib/time/day.ts, `canonicalZone`).
-  const canonical = canonicalZone(zone);
-  if (!canonical) return { ok: false as const, error: "We didn't recognize that time zone." };
-  await writeSetting(ownerId, SETTING_KEYS.timeZone, canonical);
-  return { ok: true as const, zone: canonical };
+  const saved = await changeAccountSettings(ownerId, { timeZone: zone });
+  if (!saved.ok) return { ok: false as const, error: saved.error };
+  return { ok: true as const, zone: saved.saved.timeZone! };
 }
 
 
@@ -1506,10 +1504,9 @@ export async function setLetterBar(value: LetterBar) {
  */
 export async function setVoice(voice: string) {
   const ownerId = await requireUserId();
-  const value = voiceFrom(voice);
-  await writeSetting(ownerId, SETTING_KEYS.ttsVoice, value);
+  const saved = await changeAccountSettings(ownerId, { voice });
   revalidatePath("/", "layout");
-  return { ok: true as const, voice: value };
+  return { ok: true as const, voice: saved.ok ? saved.saved.voice! : voiceFrom(null) };
 }
 
 export async function setAutoplay(value: string) {
@@ -1530,11 +1527,9 @@ export async function setAutoplay(value: string) {
  */
 export async function setSpeechPace(value: string) {
   const ownerId = await requireUserId();
-  const known = SPEECH_PACES.find((p) => p.id === text(value));
-  const stored = known?.id ?? "auto";
-  await writeSetting(ownerId, SETTING_KEYS.speechPace, stored);
+  const saved = await changeAccountSettings(ownerId, { speechPace: value });
   revalidatePath("/", "layout");
-  return { ok: true as const, value: stored };
+  return { ok: true as const, value: saved.ok ? saved.saved.speechPace! : "auto" };
 }
 
 /**
@@ -1548,10 +1543,9 @@ export async function setSpeechPace(value: string) {
  */
 export async function setGlossLanguage(value: string) {
   const ownerId = await requireUserId();
-  const normalised = glossLanguageFrom(text(value));
-  await writeSetting(ownerId, SETTING_KEYS.glossLanguage, normalised);
+  const saved = await changeAccountSettings(ownerId, { glossLanguage: value });
   revalidatePath("/", "layout");
-  return { ok: true as const, value: normalised };
+  return { ok: true as const, value: saved.ok ? saved.saved.glossLanguage! : glossLanguageFrom(null) };
 }
 
 /**
@@ -1594,17 +1588,10 @@ export async function dismissLocaleNotice(value: string) {
  */
 export async function setUiLocale(value: string) {
   const ownerId = await requireUserId();
-  const normalised = localeFrom(text(value));
-  await writeSetting(ownerId, SETTING_KEYS.uiLocale, normalised);
-  /* Somebody who reads the app in Russian or Ukrainian wants a word's meaning
-     there too, and the Institute records one for most of the course. Only
-     where they have never chosen: a stored choice is theirs and is left alone,
-     and the English is printed beside it either way. */
-  if (normalised !== "en" && (await readSetting(ownerId, SETTING_KEYS.glossLanguage)) === null) {
-    await writeSetting(ownerId, SETTING_KEYS.glossLanguage, glossLanguageFrom(normalised));
-  }
+  /* `saveUiLocale` also gives the meaning language a lead where none was ever chosen. */
+  const saved = await changeAccountSettings(ownerId, { locale: value });
   revalidatePath("/", "layout");
-  return { ok: true as const, value: normalised };
+  return { ok: true as const, value: saved.ok ? saved.saved.locale! : localeFrom(null) };
 }
 
 /**
@@ -1616,18 +1603,16 @@ export async function setUiLocale(value: string) {
  */
 export async function setSpeechSendAtOnce(value: string) {
   const ownerId = await requireUserId();
-  const normalised = value === "on" ? "on" : "off";
-  await writeSetting(ownerId, SETTING_KEYS.speechSendAtOnce, normalised);
+  const saved = await changeAccountSettings(ownerId, { speechSendAtOnce: value });
   revalidatePath("/", "layout");
-  return { ok: true as const, value: normalised };
+  return { ok: true as const, value: saved.ok ? saved.saved.speechSendAtOnce! : ("off" as const) };
 }
 
 export async function setSpeechInBoxes(value: string) {
   const ownerId = await requireUserId();
-  const normalised = value === "off" ? "off" : "on";
-  await writeSetting(ownerId, SETTING_KEYS.speechInBoxes, normalised);
+  const saved = await changeAccountSettings(ownerId, { speechInBoxes: value });
   revalidatePath("/", "layout");
-  return { ok: true as const, value: normalised };
+  return { ok: true as const, value: saved.ok ? saved.saved.speechInBoxes! : ("on" as const) };
 }
 
 /**
@@ -1712,10 +1697,9 @@ export async function setNavOrder(value: string) {
  */
 export async function setRoundPace(value: string) {
   const ownerId = await requireUserId();
-  const normalised = roundPaceFrom(text(value));
-  await writeSetting(ownerId, SETTING_KEYS.roundPace, normalised);
+  const saved = await changeAccountSettings(ownerId, { roundPace: value });
   revalidatePath("/", "layout");
-  return { ok: true as const, value: normalised };
+  return { ok: true as const, value: saved.ok ? saved.saved.roundPace! : roundPaceFrom(null) };
 }
 
 export async function setFeedbackSounds(value: string) {
@@ -1775,10 +1759,9 @@ export async function setSceneVoice(value: unknown) {
  */
 export async function setSceneAnswer(value: unknown) {
   const ownerId = await requireUserId();
-  const normalised = sceneAnswerFrom(value);
-  if (!normalised) return { ok: false as const };
-  await writeSetting(ownerId, SETTING_KEYS.sceneAnswer, normalised);
-  return { ok: true as const, value: normalised };
+  const saved = await changeAccountSettings(ownerId, { sceneAnswer: value });
+  if (!saved.ok) return { ok: false as const };
+  return { ok: true as const, value: saved.saved.sceneAnswer! };
 }
 
 export async function setHearing(value: string) {
@@ -1825,13 +1808,6 @@ export async function setResearchParticipation(value: string) {
 export async function setEmailKind(input: { kind: string; on: boolean }) {
   const ownerId = await requireUserId();
   input = fieldsOf(input);
-  if (!isEmailKind(input?.kind) || input.kind === "system") {
-    return { ok: false as const, error: "That isn't one of the emails we send." };
-  }
-  // A string "false" is truthy, so anything but a real boolean was read as on.
-  if (typeof input.on !== "boolean") {
-    return { ok: false as const, error: "That needs a yes or a no." };
-  }
 
   /*
     BOTH ROWS, BECAUSE THERE ARE TWO DEFAULTS AND ONE ROW CANNOT CARRY THEM.
@@ -1842,10 +1818,8 @@ export async function setEmailKind(input: { kind: string; on: boolean }) {
     up refused and requested at once, which is the state a single write would
     leave behind if the second one failed.
   */
-  const kind = input.kind;
-  await changeEmailPrefs(ownerId, (current) =>
-    input.on ? switchOn(current, kind) : switchOff(current, [kind]),
-  );
+  const saved = await changeAccountSettings(ownerId, { letters: { [text(input?.kind)]: input?.on } });
+  if (!saved.ok) return { ok: false as const, error: saved.error };
   revalidatePath("/settings");
   return { ok: true as const, on: input.on };
 }
@@ -1862,11 +1836,9 @@ export async function setEmailKind(input: { kind: string; on: boolean }) {
  */
 export async function setReminderHour(input: { at: string }) {
   const ownerId = await requireUserId();
-  const { hour, minute } = parseReminderTime(text(input?.at));
-  const at = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
-  await writeSetting(ownerId, SETTING_KEYS.reminderAt, at);
+  const saved = await changeAccountSettings(ownerId, { reminderAt: fieldsOf(input)?.at });
   revalidatePath("/settings");
-  return { ok: true as const, at };
+  return { ok: true as const, at: saved.ok ? saved.saved.reminderAt! : "" };
 }
 
 /**
@@ -2370,61 +2342,10 @@ export async function completeLesson(
  */
 export async function setCourseLevel(level: string) {
   const ownerId = await requireUserId();
-  const parsed = z.enum(["A1", "A2", "B1", "B2", "C1"]).safeParse(text(level).toUpperCase());
-  if (!parsed.success) return { ok: false as const, error: "Pick a level from the list." };
-
-  const now = new Date();
-  const following = await programmeFor(ownerId);
-  /*
-    A LEARNER WHO STARTED AT A1 MOVES UP BY PASSING, and the picker is a door
-    up like any other: from a part of the A1 lessons, a higher level waits on
-    the checks between (`lib/course/checks.ts`). Going down is always open.
-  */
-  const firstOfLevel = PROGRAMMES.find((p) => p.level === parsed.data);
-  const blocked = firstOfLevel ? await moveBlockedFor(ownerId, following, firstOfLevel) : null;
-  if (blocked) {
-    return { ok: false as const, error: "Pass the A1 checks to move up a level. Each part of A1 ends in one." };
-  }
-  // Asked before the write, since what changed is the whole question below.
-  const before = await courseLevelFor(ownerId);
-  await recordCourseLevel(ownerId, parsed.data, now);
-
-  /*
-    AND THE COURSE MOVES WITH IT, WHICH IS WHAT THE PICKER PROMISES.
-
-    The part a learner is on is its own setting, and a level written here used
-    to leave it alone: somebody who had been walked onto A2 and then said "A1"
-    stayed on A2, and the module went on asking for the simple past of a verb
-    nobody had shown them, under a screen that said A1. It was reported off
-    exactly that card. So where the level now opens on a different level of
-    the ladder than the part in play, the course moves to the first part of it,
-    the way an accepted move on the module screen does. Re-picking the level
-    already held is not asking to start again. "off" is a
-    learner who picks their own evenings and is never put back on the course.
-  */
-  /*
-    AND A NEW LEVEL STARTS THE MODULE OVER, ON ITS FIRST EVENING.
-
-    "Going back to a part picks up where its own ticks left off" was the rule,
-    and it was reported as wrong by somebody who had just changed level: the
-    module resumed an old evening and Review still held eighteen cards from
-    the course they had left. Changing level is a fresh start, so the course
-    moves to the first part of the new level and that part's own ticks are
-    cleared (`restartPart`), so it opens on its first evening. Every other
-    part's ticks and the whole review log stay. Review follows on its
-    own, because it asks only what the module has taught (`reviewable`), and a
-    card held back keeps its schedule for the evening that reaches it.
-    Re-picking the level already held is not asking to start again and moves
-    nothing.
-  */
-  const [current, opening] = await Promise.all([programmeFor(ownerId), openingPartFor(ownerId)]);
-  if (current && (before !== parsed.data || current.level !== opening.level)) {
-    await Promise.all([
-      writeSetting(ownerId, SETTING_KEYS.programme, opening.id),
-      restartPart(ownerId, opening.id),
-      writeSetting(ownerId, SETTING_KEYS.adaptMovedAt, now.toISOString()),
-      writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, ""),
-    ]);
+  /* The body, the door up and the course moving with the level are `changeCourseLevel`'s. */
+  const changed = await changeCourseLevel(ownerId, level, new Date());
+  if (!changed.ok) return { ok: false as const, error: changed.error };
+  if (changed.moved) {
     revalidatePath("/course");
     revalidatePath("/course/learn");
   }
@@ -2441,7 +2362,7 @@ export async function setCourseLevel(level: string) {
   revalidatePath("/review");
   revalidatePath("/practice");
   revalidatePath("/");
-  return { ok: true as const, level: parsed.data };
+  return { ok: true as const, level: changed.level };
 }
 
 /**
@@ -3194,146 +3115,15 @@ export async function buildClozeFromText(passageIn: string) {
 /**
  * Deletes everything belonging to this account.
  *
- * The privacy page promises this, so it has to exist — a promise about data the
- * software cannot keep is worse than no promise.
- *
- * The review log is deleted here and only here. Append-only means no updates and
- * no incidental deletes, not that a person cannot ask for their own history to
- * be erased, which is the one request that outranks the invariant. It all goes
- * in one transaction, so a half-deleted account is not a reachable state.
- *
- * The shared dictionary stays: removing a word other learners hold cards for
- * would delete *their* data to satisfy this request. The attribution on anything
- * this person edited is cleared instead.
+ * The body is `deleteAccountFor` in lib/account/erase.ts, which
+ * `DELETE /api/v1/me` calls too (D2): one erasure behind both doors, with no
+ * exemptions, and the word the learner types asked there.
  */
 export async function deleteMyAccount(confirmation: string) {
   const ownerId = await requireUserId();
-  /* The word in any of the three languages: the screen asks in the reader's own. */
-  if (!isConfirmed(text(confirmation), "delete")) {
-    return { ok: false as const, error: 'Type "delete" to confirm.' };
-  }
-
-  try {
-    await prisma.$transaction(async (tx) => {
-      await tx.review.deleteMany({ where: { ownerId } });
-      await tx.card.deleteMany({ where: { ownerId } });
-      await tx.task.deleteMany({ where: { ownerId } });
-      await tx.studyEvent.deleteMany({ where: { ownerId } });
-      await tx.message.deleteMany({ where: { ownerId } });
-      await tx.starredWord.deleteMany({ where: { ownerId } });
-      // Their own shelves. `onDelete: Cascade` on DeckWord.deck would take the
-      // membership rows with each deck; deleted explicitly anyway, since a
-      // promise this absolute is not left to a foreign key to keep. The
-      // words themselves, their cards and every review are untouched, since
-      // a deck was only ever a label.
-      await tx.deckWord.deleteMany({ where: { ownerId } });
-      await tx.deck.deleteMany({ where: { ownerId } });
-      await tx.achievement.deleteMany({ where: { ownerId } });
-      /*
-        Letters before settings, and the order is load-bearing. The unsubscribe
-        link and the bounce webhook write a setting with no session behind them,
-        and `writeSettingsWhileMailed` holds this person's `EmailSend` row while
-        it does. Deleting that row first makes such a write either wait for this
-        transaction and then find nobody, or finish first and be swept by the
-        next line, so no setting outlives the account.
-      */
-      await tx.emailSend.deleteMany({ where: { ownerId } });
-      // Every browser they asked to be reminded on, so nothing is pushed to
-      // a person who is no longer here.
-      await tx.pushSubscription.deleteMany({ where: { ownerId } });
-      await tx.setting.deleteMany({ where: { ownerId } });
-      forgetSettings(ownerId);
-      await tx.usageEvent.deleteMany({ where: { ownerId } });
-      await tx.scan.deleteMany({ where: { ownerId } });
-      /*
-        Append-only means never edited, not never erased on request. A level
-        check is a measurement of this person and it goes with the rest of
-        them, or the deletion promise on /privacy is not one.
-      */
-      await tx.assessment.deleteMany({ where: { ownerId } });
-      /*
-        And a mock sitting, for the same reason and more strongly. It is the
-        only table holding something the learner composed at length: the
-        marked paper carries the writing part back verbatim. That was left
-        behind by every deletion this app performed until now, which made the
-        one category of free-form writing in the schema the one category that
-        survived "delete everything".
-      */
-      await tx.examAttempt.deleteMany({ where: { ownerId } });
-      /*
-        Their membership of somebody else's class, which carries the name they
-        chose to be known by in it. A class they run goes too, and its roster
-        rows cascade with it: the code, the name and the roster all hang off a
-        teacher who no longer exists, and there is no owner to hand them to. It
-        costs the pupils nothing they own — a membership row is a display name
-        and a join date, and every card, review and level check any of them
-        made is theirs and stays where it is.
-      */
-      await tx.classroomMember.deleteMany({ where: { ownerId } });
-      await tx.classroom.deleteMany({ where: { ownerId } });
-      /*
-        What they reported as wrong. Their own words, and a reply written to
-        them, so it goes with the rest of them. A report they sent that was
-        already accepted has changed the shared dictionary and that change
-        stays, exactly as an edit they made by hand does: undoing it would
-        delete other learners' data to satisfy this request. What is removed
-        is the row that ties the report to a person.
-      */
-      await tx.suggestion.deleteMany({ where: { ownerId } });
-      /*
-        Every conversation they had and every word one of them needed.
-        `SceneRun` is append-only like `Review` and `Assessment`, and this is
-        the single exception all three share: the promise on /privacy outranks
-        the rule. The gaps go first because they point at a run.
-      */
-      await tx.sceneGap.deleteMany({ where: { ownerId } });
-      await tx.sceneRun.deleteMany({ where: { ownerId } });
-      // And every real conversation they reported having outside the app.
-      await tx.encounter.deleteMany({ where: { ownerId } });
-      // And every word they put aside. What the deployment counted from it
-      // goes with the row, which is the right way round: the count is a
-      // reading of how many people said a thing, and this person is leaving.
-      await tx.deferral.deleteMany({ where: { ownerId } });
-      await tx.courseStep.deleteMany({ where: { ownerId } });
-      /*
-        Every record that this deployment wrote to them went above, before the
-        settings: it is the row that decides whether they are written to again,
-        and the row the mail routes check before they write a setting.
-      */
-      await tx.lexeme.updateMany({ where: { editedBy: ownerId }, data: { editedBy: null } });
-      /*
-        And the attribution on anything they reviewed, for the same reason the
-        line above clears `editedBy`: a decision stays on the record, the name
-        against it does not.
-      */
-      await tx.suggestion.updateMany({ where: { reviewedBy: ownerId }, data: { reviewedBy: null } });
-    }, { timeout: 120_000 });
-  } catch (error) {
-    return {
-      ok: false as const,
-      // Redacted: what the database says can name the deployment's own host and
-      // user, and this sentence goes to a browser. See lib/observability/report.
-      error: `${tr(await localeFor(ownerId), "Something went wrong partway, so nothing was deleted.")} ${safeMessage(error)}`.trim(),
-    };
-  }
-
-  /*
-    AND THEN THE IDENTITY, WHICH IS NOT IN ANY OF THOSE TABLES.
-
-    Everything above is this app's schema. The email address, the Google
-    subject id and the sign-in history live in Supabase Auth, and deleting the
-    rows left all of it behind with no route to remove it and nothing on the
-    page saying so. An email address is personal data wherever it is kept, so
-    "delete everything" that keeps it is not the promise /privacy makes.
-
-    Deliberately after the transaction and outside it: the rows are already
-    gone and must stay gone whatever the auth store answers. A failure here is
-    reported to the learner as what is left rather than as a failed deletion,
-    because those are different facts and only one of them needs following up.
-  */
-  const identity = await eraseAuthIdentity(ownerId);
-
-  return { ok: true as const, remaining: remainingIdentityNote(identity) };
+  const result = await deleteAccountFor(ownerId, text(confirmation));
+  if (!result.ok) return { ok: false as const, error: result.error };
+  return { ok: true as const, remaining: result.remaining };
 }
 
 // ────────────────────────────── Backup restore ─────────────────────────────

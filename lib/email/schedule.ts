@@ -207,6 +207,15 @@ export interface Candidate {
    * per learner, kind and day whichever channel it is.
    */
   readonly pushable: boolean;
+  /**
+   * Whether this learner has a phone with the app on it registered for
+   * notifications, and this deployment can reach one (N-9).
+   *
+   * Ahead of `pushable` in D13's order: a kind with a short form goes to the
+   * phone where there is one, to a computer where there is not, and by email
+   * otherwise. One channel, whichever it is.
+   */
+  readonly nativeable: boolean;
   readonly prefs: EmailPrefs;
   /** Their own clock, since "already had one today" is their today. */
   readonly dayKey: string;
@@ -294,8 +303,11 @@ export interface Candidate {
   readonly deadlineWeeks: number | null;
 }
 
-/** How a letter goes: posted to an inbox, or pushed to a browser in its short form. */
-export type Channel = "email" | "push";
+/**
+ * How a letter goes: posted to an inbox, pushed to a browser in its short form,
+ * or sent to a phone running the app in the same short form (N-9).
+ */
+export type Channel = "email" | "push" | "native";
 
 export interface Decision {
   readonly kind: EmailKind;
@@ -349,13 +361,16 @@ export const MIN_HOURS_BETWEEN_LETTERS = 8;
 /**
  * Which way a kind would reach this learner, or null where it cannot.
  *
- * A notification wherever the learner has asked for one and the kind has a
- * short form, because they asked for it on the screen they are looking at;
- * otherwise a letter, where there is an address that has not bounced. One
- * preference, `wants`, gates both, so a kind switched off in Settings is off
- * on every channel at once and there is one list of what may reach somebody.
+ * D13's order. A notification wherever the learner has asked for one and the
+ * kind has a short form, on the phone first where the app is registered on
+ * one, then on a computer, because they asked for it on a screen they carry
+ * or look at; otherwise a letter, where there is an address that has not
+ * bounced. One preference, `wants`, gates all three, so a kind switched off in
+ * Settings is off on every channel at once and there is one list of what may
+ * reach somebody.
  */
 export function channelFor(who: Candidate, kind: EmailKind): Channel | null {
+  if (who.nativeable && hasShortForm(kind)) return "native";
   if (who.pushable && hasShortForm(kind)) return "push";
   if (who.email && !who.undeliverable) return "email";
   return null;
@@ -405,7 +420,7 @@ export function letterOwed(who: Candidate, now: Date): Decision | null {
 type Owed = Omit<Decision, "channel">;
 
 function decide(who: Candidate, now: Date): Owed | null {
-  if (!who.pushable && (!who.email || who.undeliverable)) return null;
+  if (!who.pushable && !who.nativeable && (!who.email || who.undeliverable)) return null;
 
   /*
     THE WELCOME, FIRST AND ONCE.

@@ -65,6 +65,7 @@ not consent, and the service really does need most of this.
 | Keep named decks, words put aside, and which steps of the course module are ticked | `Deck`, `DeckWord`, `Deferral`, `CourseStep` | 6(1)(b), contract | Each is a press the learner made. A put-aside word is also counted across learners to decide whether a word is taught one band later (`lib/progress/hard.ts`), which reads counts of people and never shows anybody's row |
 | Send the letters a learner can switch off | Email address, and `EmailSend`: which kind, which day, the provider's message id | 6(1)(b), contract | Each kind is switched off from a link in every footer (`lib/email/unsubscribe.ts`), and the daily word is off unless asked for (`DEFAULT_OFF` in `lib/email/letter.ts`). The row is the frequency cap and holds no subject and no body |
 | Remind a learner on a computer, where they asked | `PushSubscription`: the push service address of one browser and the two keys a reminder is encrypted to, and `EmailSend` with `channel` set to `push` | 6(1)(b), contract | Asked for by a press in Settings and the browser's own permission prompt, never on arrival. The same switches as the letters decide which kinds, and a kind goes as a notification or a letter on a day, never both. R17 |
+| Remind a learner on a phone running the app, where they allowed it | `NativePushDevice`: the Firebase Cloud Messaging token that names the app on one phone, the platform and the app build, and `EmailSend` with `channel` set to `native` | 6(1)(b), contract | Asked for by the phone's own permission prompt in the app, never by the server. The same switches decide which kinds, and D13 sends a kind to the phone first, a computer second and by email last, on one channel a day. R20 |
 | Rate limit the routes the spending ledger does not price | `RateLimit`: a SHA-256 digest of the caller and endpoint, a window, a count | 6(1)(f), legitimate interest | Speech, the share card, the export and the restore otherwise have no limit shared across instances. §2.1 says what the digest is and is not |
 | Keep level checks and mock exam papers | The sitting, the marked paper, the composition | 6(1)(b), contract | A measurement that cannot be recomputed from the review log, and the reason for sitting one is to compare it with the next |
 | Answer a tutor question, read a photographed page | The message or image, sent to the configured AI provider | 6(1)(b), contract | The learner pressed the button that sends it. Both features are avoidable and using neither means nothing of theirs leaves |
@@ -157,6 +158,7 @@ are deleted on erasure.
 | `Deferral` | Which words they said were too complicated, when each comes back, and how often they have said it. One row per word | Until the account is deleted | Yes | Yes |
 | `EmailSend` | One line per letter sent: the kind and the moment. Never a subject, never a body, and nothing about whether it was opened, because there is no tracking pixel | Until the account is deleted | Yes | Yes |
 | `PushSubscription` | A browser they asked to be reminded on: the push service address and the two keys a reminder is encrypted to. Nothing about the device, and nothing about whether a notification was shown or clicked | Until turned off, reported gone by the push service, or the account is deleted | Yes | Yes |
+| `NativePushDevice` | A phone running the app they allowed reminders on: the Firebase token, which platform, and the app build. Nothing about the device beyond that, and nothing about whether a notification was shown or opened | Until the app forgets it, Firebase reports it gone, or the account is deleted | Yes | Yes |
 | `Suggestion` | A report of something wrong: category, screen, what the app said, their proposal, their note, and a reviewer's decision | Until the account is deleted | Yes | Yes |
 | `Classroom` | A class or workplace group they run: name, join code, whether it is archived | Until the owner deletes their account. Archiving (`archiveClassroom` in `app/actions.ts`) stops the code working and keeps the group and its roster; there is no action that deletes a group on its own | Yes | Yes |
 | `ClassroomMember` | Which group they joined, when, and the display name they chose for it | Until they leave, or with their account, or with the group when its owner deletes their account (the relation cascades) | Yes | Yes |
@@ -165,6 +167,7 @@ are deleted on erasure.
 | `CourseStep` | Which steps of the course module they ticked, and when. Append-only | Until the account is deleted | Yes | Yes |
 | `EmailSend` | Append-only. One row per letter sent to them: the kind, their day, the moment, the provider's message id. Never the subject or the body, and nothing about whether it was opened | Until the account is deleted | Yes | Yes |
 | `PushSubscription` | A browser they asked to be reminded on: the address its push service gave it and the two keys a reminder is encrypted to. Nothing about the browser or the device, and nothing about whether a notification was shown or clicked | Until they turn it off, the push service reports it gone, or the account is deleted | Yes | Yes |
+| `NativePushDevice` | A phone running the app they allowed reminders on: the Firebase token, which platform, the app build, and when it was first and last registered. Nothing about the device beyond that, and nothing about whether a notification was shown or opened | Until the app forgets it, Firebase reports it gone, or the account is deleted | Yes | Yes |
 | `UsageEvent` | Append-only spending ledger: which model, token counts, estimated cost, the day | The running year. See §2.3 | **No** | Yes |
 
 ### 2.3 The one export exclusion, and why
@@ -651,6 +654,27 @@ held by `scripts/invariants/one-microphone.ts`. `/privacy` says both in those te
 **Residual: low** for recordings, since nothing leaves but text the learner can see. **Medium** for the
 photo, which crosses to the vision provider like any scanned page (R5); the screen says the picture is
 read once and never saved, and the feature is absent where there is no key.
+
+### R20. A reminder on a phone shows on a locked screen, or tells Google what it says
+
+**Likelihood before: medium. Severity: low.** A phone shows a notification on its locked screen,
+where somebody else may see it, and unlike a browser's push service Firebase Cloud Messaging reads
+what it carries: the two lines, and the token that names the app on that phone. A token kept after
+the app is gone would be a request sent on the learner's behalf to an install nobody uses.
+
+**Mitigation (N-9).** The phone asks its owner first, through the platform's own prompt, and the app
+registers a token only after a yes; the server refuses a token outright where no Firebase account is
+set. Only the four kinds with a short form go (`PUSH_KINDS`), and the text is the letter's own subject
+and preview (`lib/push/native.ts`, through `notificationFor`), which is what an inbox shows before a
+letter is opened and never a name, an answer or another person. Android is asked to keep it private
+on a secure lock screen; an iPhone follows its owner's preview setting. A token Firebase reports gone
+is deleted on the next send (`lib/push/fcm.ts`), the app forgets its token when notifications are
+turned off or it signs out, and erasure removes every token. Nothing records a notification being
+delivered, shown or opened. `scripts/invariants/reminders-on-a-phone.ts` holds the sender to the run,
+the order to D13 and the row to its seven columns.
+
+**Residual: low**, plus the transfer: Google LLC runs Firebase in the United States, named on
+`/privacy` wherever the account is set.
 
 ### Risks recorded and not separately mitigated
 

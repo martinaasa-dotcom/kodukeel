@@ -2468,1101 +2468,392 @@
         "description": "The attempt marked on the server. A right answer is one point and a nearly half."
       }
     },
-    "GET /api/v1/dictionary": {
-      "contentType": "application/json",
-      "query": {
-        "type": "object",
-        "properties": {
-          "q": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 80,
-            "description": "What was typed: a headword, an inflected form, or English."
-          }
-        },
-        "required": [
-          "q"
-        ]
-      },
-      "response": {
-        "type": "object",
-        "properties": {
-          "hits": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "lemma": {
-                  "type": "string"
-                },
-                "translation": {
-                  "type": "string"
-                },
-                "pos": {
-                  "type": "string"
-                },
-                "cefr": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
-                },
-                "gradationNote": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
-                },
-                "matchedAs": {
-                  "description": "Set where the query was an inflected form rather than the headword, the form named the way a class names it.",
-                  "type": "string"
-                }
-              },
-              "required": [
-                "id",
-                "lemma",
-                "translation",
-                "pos",
-                "cefr",
-                "gradationNote"
-              ]
-            },
-            "description": "The entries found, the likeliest first; `GET /api/v1/words/{id}` opens one."
-          },
-          "knownAs": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Where nothing matched directly, the headwords the spelling typed is a form of, the likeliest first."
-          },
-          "fetched": {
-            "type": "boolean",
-            "description": "Whether the dictionary asked Ekilex live to answer this search."
-          }
-        },
-        "required": [
-          "hits",
-          "knownAs",
-          "fetched"
-        ],
-        "description": "A dictionary search, as the web's dictionary page runs it."
-      }
-    },
-    "GET /api/v1/words/{id}": {
-      "contentType": "application/json",
-      "response": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "lemma": {
-            "type": "string"
-          },
-          "translation": {
-            "type": "string"
-          },
-          "translationRu": {
-            "description": "The Institute's own Russian, where Ekilex recorded one; never a model's.",
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "translationUk": {
-            "description": "The Institute's own Ukrainian, where Ekilex recorded one; never a model's.",
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "pos": {
-            "type": "string"
-          },
-          "cefr": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "gradation": {
-            "type": "string"
-          },
-          "gradationNote": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "government": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "semanticTypes": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "notes": {
-            "description": "Further English senses.",
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "definition": {
-            "description": "The Institute's own Estonian definition.",
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "provenance": {
-            "type": "string"
-          },
-          "ekilexWordId": {
-            "anyOf": [
-              {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "The Ekilex word this entry was read from, or null where Ekilex supplied none of it. Where it is set, the entry carries the credit CC BY 4.0 asks for, as the web draws it: forms and example sentences from Ekilex (https://ekilex.ee), by the Institute of the Estonian Language, under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), and any form shown as worked out was derived from what Ekilex stores."
-          },
-          "inDeck": {
-            "type": "boolean"
-          },
-          "starred": {
-            "type": "boolean"
-          },
-          "examples": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "et": {
-                  "type": "string",
-                  "description": "The Estonian sentence, exactly as recorded."
-                },
-                "en": {
-                  "description": "Its English, where the dictionary holds one.",
-                  "type": [
-                    "string",
-                    "null"
-                  ]
-                },
-                "enRefused": {
-                  "description": "A reviewer read the English and said it was wrong; none is offered.",
-                  "type": "boolean"
-                },
-                "source": {
-                  "type": "string",
-                  "enum": [
-                    "EKILEX",
-                    "SEED",
-                    "USER",
-                    "AI",
-                    "AUTHORED"
-                  ]
-                },
-                "via": {
-                  "readOnly": true,
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              },
-              "required": [
-                "et",
-                "source"
-              ]
-            },
-            "description": "Recorded sentences, the one a beginner reads most easily first. A refused sentence never arrives."
-          },
-          "forms": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "formType": {
-                  "type": "string"
-                },
-                "value": {
-                  "type": "string"
-                },
-                "isPrincipal": {
-                  "type": "boolean"
-                },
-                "morphCode": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
-                },
-                "morphName": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
-                },
-                "orderIndex": {
-                  "type": "integer",
-                  "minimum": -9007199254740991,
-                  "maximum": 9007199254740991
-                }
-              },
-              "required": [
-                "formType",
-                "value",
-                "isPrincipal",
-                "morphCode",
-                "morphName",
-                "orderIndex"
-              ]
-            },
-            "description": "The forms the dictionary stores; the rest are worked out on the device from these, as the web does."
-          }
-        },
-        "required": [
-          "id",
-          "lemma",
-          "translation",
-          "translationRu",
-          "translationUk",
-          "pos",
-          "cefr",
-          "gradation",
-          "gradationNote",
-          "government",
-          "semanticTypes",
-          "notes",
-          "definition",
-          "provenance",
-          "ekilexWordId",
-          "inDeck",
-          "starred",
-          "examples",
-          "forms"
-        ],
-        "description": "One dictionary entry, as the web's entry screen reads it. Nothing in it was written by a model."
-      }
-    },
-    "POST /api/v1/deck": {
+    "PATCH /api/v1/me": {
       "contentType": "application/json",
       "request": {
-        "oneOf": [
-          {
-            "type": "object",
-            "properties": {
-              "action": {
-                "type": "string",
-                "const": "keep"
-              },
-              "lexemeId": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 64
-              },
-              "types": {
-                "default": [
-                  "RECOGNITION",
-                  "PRODUCTION",
-                  "CLOZE"
-                ],
-                "description": "Which cards to build; a word builds only the ones it can support. The three the dictionary ticks by default.",
-                "minItems": 1,
-                "maxItems": 7,
-                "type": "array",
-                "items": {
-                  "type": "string",
-                  "enum": [
-                    "RECOGNITION",
-                    "PRODUCTION",
-                    "CASE_FORM",
-                    "GRADATION",
-                    "GOVERNMENT",
-                    "CLOZE",
-                    "CONJUGATION"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "action",
-              "lexemeId"
-            ]
-          },
-          {
-            "type": "object",
-            "properties": {
-              "action": {
-                "type": "string",
-                "const": "star"
-              },
-              "lexemeId": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 64
-              }
-            },
-            "required": [
-              "action",
-              "lexemeId"
-            ]
-          },
-          {
-            "type": "object",
-            "properties": {
-              "action": {
-                "type": "string",
-                "const": "aside"
-              },
-              "lexemeId": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 64
-              },
-              "context": {
-                "description": "Where the word was when it was put aside, for the reading the operator sees.",
-                "type": "string",
-                "maxLength": 200
-              }
-            },
-            "required": [
-              "action",
-              "lexemeId"
-            ]
-          }
-        ]
-      },
-      "response": {
         "type": "object",
         "properties": {
-          "action": {
+          "level": {
+            "description": "Asked of the A1 checks first, as the web's level picker asks: a move up past an unpassed check is refused with `forbidden`.",
             "type": "string",
             "enum": [
-              "keep",
-              "star",
-              "unstar",
-              "aside",
-              "back"
+              "A1",
+              "A2",
+              "B1",
+              "B2",
+              "C1"
             ]
           },
-          "added": {
+          "dailyGoal": {
+            "description": "Clamped to 5 to 200, as the web clamps it.",
             "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991,
-            "description": "Cards built by a keep; 0 otherwise, and 0 where the word was already in the deck."
+            "minimum": 1,
+            "maximum": 500
           },
-          "starred": {
-            "description": "Whether the word is starred now, after a star or an unstar; null otherwise.",
-            "type": [
-              "boolean",
-              "null"
-            ]
-          },
-          "aside": {
-            "anyOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "reason": {
-                    "type": "string",
-                    "enum": [
-                      "SOON",
-                      "BAND"
-                    ]
-                  },
-                  "days": {
-                    "type": "integer",
-                    "minimum": -9007199254740991,
-                    "maximum": 9007199254740991
-                  },
-                  "untilLevel": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "note": {
-                    "type": "string",
-                    "description": "The English sentence saying how long the word is away."
-                  }
-                },
-                "required": [
-                  "reason",
-                  "days",
-                  "untilLevel",
-                  "note"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "How long a word put aside is away for; null otherwise. Nothing is graded."
-          }
-        },
-        "required": [
-          "action",
-          "added",
-          "starred",
-          "aside"
-        ],
-        "description": "A word kept, starred, put aside or brought back."
-      }
-    },
-    "DELETE /api/v1/deck": {
-      "contentType": "application/json",
-      "request": {
-        "type": "object",
-        "properties": {
-          "action": {
+          "locale": {
             "type": "string",
             "enum": [
-              "star",
-              "aside"
-            ],
-            "description": "`star` takes the star off; `aside` brings a word put aside back."
+              "en",
+              "ru",
+              "uk"
+            ]
           },
-          "lexemeId": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          }
-        },
-        "required": [
-          "action",
-          "lexemeId"
-        ]
-      },
-      "response": {
-        "type": "object",
-        "properties": {
-          "action": {
+          "glossLanguage": {
             "type": "string",
             "enum": [
-              "keep",
-              "star",
-              "unstar",
-              "aside",
-              "back"
+              "en",
+              "ru",
+              "uk"
             ]
-          },
-          "added": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991,
-            "description": "Cards built by a keep; 0 otherwise, and 0 where the word was already in the deck."
-          },
-          "starred": {
-            "description": "Whether the word is starred now, after a star or an unstar; null otherwise.",
-            "type": [
-              "boolean",
-              "null"
-            ]
-          },
-          "aside": {
-            "anyOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "reason": {
-                    "type": "string",
-                    "enum": [
-                      "SOON",
-                      "BAND"
-                    ]
-                  },
-                  "days": {
-                    "type": "integer",
-                    "minimum": -9007199254740991,
-                    "maximum": 9007199254740991
-                  },
-                  "untilLevel": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "note": {
-                    "type": "string",
-                    "description": "The English sentence saying how long the word is away."
-                  }
-                },
-                "required": [
-                  "reason",
-                  "days",
-                  "untilLevel",
-                  "note"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "How long a word put aside is away for; null otherwise. Nothing is graded."
-          }
-        },
-        "required": [
-          "action",
-          "added",
-          "starred",
-          "aside"
-        ],
-        "description": "A word kept, starred, put aside or brought back."
-      }
-    },
-    "POST /api/v1/tts": {
-      "contentType": "audio/wav",
-      "request": {
-        "type": "object",
-        "properties": {
-          "text": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 400,
-            "description": "What to read aloud, finished into a sentence on the server."
           },
           "voice": {
-            "description": "One of the voices Settings offers; any other value is the deployment's own.",
+            "description": "A voice id; one the server does not offer is stored as its default.",
             "type": "string",
             "maxLength": 40
           },
-          "transient": {
-            "description": "A read-back of what the recognizer heard: never cached, never stored, and refused while speaking is switched off.",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "text"
-        ]
-      }
-    },
-    "POST /api/v1/speech/forms": {
-      "contentType": "application/json",
-      "request": {
-        "type": "object",
-        "properties": {
-          "words": {
-            "maxItems": 200,
-            "type": "array",
-            "items": {
-              "type": "string",
-              "maxLength": 200
-            },
-            "description": "The words heard, and nothing else; at most sixty are asked, each up to forty letters."
-          }
-        },
-        "required": [
-          "words"
-        ]
-      },
-      "response": {
-        "type": "object",
-        "properties": {
-          "known": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Those of `asked` that are Estonian spellings."
+          "speechPace": {
+            "description": "A pace id, or `auto`; anything else is stored as `auto`.",
+            "type": "string",
+            "maxLength": 20
           },
-          "asked": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "The words asked about, lowercased and deduplicated."
-          }
-        },
-        "required": [
-          "known",
-          "asked"
-        ],
-        "description": "Which words just heard are Estonian spellings at all."
-      }
-    },
-    "GET /api/v1/recordings": {
-      "contentType": "application/json",
-      "response": {
-        "type": "object",
-        "properties": {
-          "clips": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "text": {
-                  "type": "string",
-                  "description": "What is said, as it is written; for a letter, the letter."
-                },
-                "kind": {
-                  "type": "string",
-                  "enum": [
-                    "sound",
-                    "word",
-                    "length",
-                    "pair",
-                    "soft",
-                    "month",
-                    "number",
-                    "phone",
-                    "stress",
-                    "line",
-                    "letter"
-                  ]
-                },
-                "src": {
-                  "type": "string",
-                  "description": "Where the clip is served, under this site."
-                },
-                "key": {
-                  "description": "The spelling a speaker button finds this clip by, folded as `utteranceKey` folds it, or null where the clip is played by id alone: a sound, a letter's name, and a spelling that hides two words.",
-                  "type": [
-                    "string",
-                    "null"
-                  ]
-                },
-                "slow": {
-                  "type": "boolean",
-                  "description": "A take said slowly on purpose; a speaker asked to play slowly takes it before the take at speed."
-                },
-                "atOwnSpeed": {
-                  "type": "boolean",
-                  "description": "Played at the speed it was said: by id always, and a slow take asked for slowly. Found by `key` at the learner's everyday pace, the player slows it as it slows a synthetic clip."
-                }
-              },
-              "required": [
-                "id",
-                "text",
-                "kind",
-                "src",
-                "key",
-                "slow",
-                "atOwnSpeed"
-              ]
-            }
-          }
-        },
-        "required": [
-          "clips"
-        ],
-        "description": "The native speaker's recordings, and which spelling each one answers for."
-      }
-    },
-    "POST /api/v1/tutor": {
-      "contentType": "text/plain; charset=utf-8",
-      "request": {
-        "type": "object",
-        "properties": {
-          "messages": {
-            "minItems": 1,
-            "maxItems": 200,
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "role": {
-                  "type": "string",
-                  "enum": [
-                    "user",
-                    "assistant"
-                  ]
-                },
-                "content": {
-                  "type": "string",
-                  "maxLength": 20000
-                }
-              },
-              "required": [
-                "role",
-                "content"
-              ]
-            },
-            "description": "The conversation so far, the question last. The newest turns that fit are what Anu reads."
-          },
-          "screen": {
-            "description": "What was on the learner's screen when they asked, read as material and never as an instruction; never stored.",
+          "speech": {
             "type": "object",
             "properties": {
-              "path": {
-                "type": "string",
-                "maxLength": 400
+              "sendAtOnce": {
+                "type": "boolean"
               },
-              "title": {
-                "type": "string",
-                "maxLength": 400
-              },
-              "selection": {
-                "type": "string",
-                "maxLength": 2000
-              },
-              "estonian": {
-                "maxItems": 40,
-                "type": "array",
-                "items": {
-                  "type": "string",
-                  "maxLength": 1000
-                }
-              },
-              "visible": {
-                "type": "string",
-                "maxLength": 5000
-              },
-              "typed": {
-                "maxItems": 10,
-                "type": "array",
-                "items": {
-                  "type": "string",
-                  "maxLength": 1000
-                }
+              "inBoxes": {
+                "type": "boolean"
               }
             }
-          }
-        },
-        "required": [
-          "messages"
-        ]
-      }
-    },
-    "POST /api/v1/scan": {
-      "contentType": "application/json",
-      "request": {
-        "type": "object",
-        "properties": {
-          "image": {
-            "type": "string",
-            "maxLength": 12000000,
-            "description": "The photograph as a data URL; read once and never stored."
           },
-          "mode": {
-            "description": "A page of words, or the things around the learner named in Estonian.",
+          "sceneAnswer": {
             "type": "string",
             "enum": [
-              "page",
-              "things"
-            ]
-          }
-        },
-        "required": [
-          "image"
-        ]
-      },
-      "response": {
-        "anyOf": [
-          {
-            "type": "object",
-            "properties": {
-              "items": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "et": {
-                      "type": "string",
-                      "description": "The Estonian exactly as it was read off the page."
-                    },
-                    "en": {
-                      "type": "string",
-                      "description": "The gloss printed on the page, or empty."
-                    },
-                    "lexemeId": {
-                      "description": "The dictionary entry that vouches for this word, or null where none did: a guess for the person holding the paper to confirm.",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "lemma": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "translation": {
-                      "description": "The dictionary's English, where matched.",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "matchedAs": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "cefr": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "et",
-                    "en",
-                    "lexemeId",
-                    "lemma",
-                    "translation",
-                    "matchedAs",
-                    "cefr"
-                  ]
-                }
-              },
-              "summary": {
-                "type": "object",
-                "properties": {
-                  "total": {
-                    "type": "integer",
-                    "minimum": -9007199254740991,
-                    "maximum": 9007199254740991
-                  },
-                  "known": {
-                    "type": "integer",
-                    "minimum": -9007199254740991,
-                    "maximum": 9007199254740991
-                  },
-                  "unknown": {
-                    "type": "integer",
-                    "minimum": -9007199254740991,
-                    "maximum": 9007199254740991
-                  },
-                  "inflected": {
-                    "type": "integer",
-                    "minimum": -9007199254740991,
-                    "maximum": 9007199254740991
-                  }
-                },
-                "required": [
-                  "total",
-                  "known",
-                  "unknown",
-                  "inflected"
-                ]
-              }
-            },
-            "required": [
-              "items",
-              "summary"
+              "pick",
+              "say",
+              "type"
             ]
           },
-          {
-            "type": "object",
-            "properties": {
-              "things": {
-                "type": "array",
-                "items": {
-                  "readOnly": true,
-                  "type": "object",
-                  "properties": {
-                    "english": {
-                      "type": "string"
-                    },
-                    "picture": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "entries": {
-                      "readOnly": true,
-                      "type": "array",
-                      "items": {
-                        "readOnly": true,
-                        "type": "object",
-                        "properties": {
-                          "lexemeId": {
-                            "type": "string"
-                          },
-                          "lemma": {
-                            "type": "string"
-                          },
-                          "translation": {
-                            "type": "string"
-                          },
-                          "pos": {
-                            "type": "string"
-                          },
-                          "cefr": {
-                            "type": [
-                              "string",
-                              "null"
-                            ]
-                          }
-                        },
-                        "required": [
-                          "lexemeId",
-                          "lemma",
-                          "translation",
-                          "pos",
-                          "cefr"
-                        ]
-                      }
-                    },
-                    "spelledLikeAnother": {
-                      "type": "boolean"
-                    }
-                  },
-                  "required": [
-                    "english",
-                    "picture",
-                    "entries",
-                    "spelledLikeAnother"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "things"
-            ]
-          }
-        ],
-        "description": "A page read into words the dictionary vouched for or did not, or the things in a picture named. The model that read it is named in `x-model-provider` and `x-model-id`."
-      }
-    },
-    "POST /api/v1/scans": {
-      "contentType": "application/json",
-      "request": {
-        "type": "object",
-        "properties": {
-          "title": {
+          "timeZone": {
+            "description": "An IANA zone name; one the server cannot read refuses the whole change.",
             "type": "string",
-            "maxLength": 400
+            "maxLength": 64
           },
-          "items": {
-            "minItems": 1,
-            "maxItems": 200,
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "et": {
-                  "type": "string",
-                  "maxLength": 200
-                },
-                "en": {
-                  "type": "string",
-                  "maxLength": 400
-                },
-                "lexemeId": {
-                  "description": "The dictionary entry that vouches for this word, or null where none did: a guess for the person holding the paper to confirm.",
-                  "type": [
-                    "string",
-                    "null"
-                  ]
-                },
-                "lemma": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
-                },
-                "translation": {
-                  "description": "The dictionary's English, where matched.",
-                  "type": [
-                    "string",
-                    "null"
-                  ]
-                },
-                "matchedAs": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
-                },
-                "cefr": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
-                }
-              },
-              "required": [
-                "et"
-              ]
+          "roundPace": {
+            "type": "string",
+            "maxLength": 20
+          },
+          "reminderAt": {
+            "description": "`HH:MM`; a malformed time is clamped to one, never refused.",
+            "type": "string",
+            "maxLength": 5
+          },
+          "letters": {
+            "description": "Kinds switched on or off; a kind the server does not send refuses the whole change.",
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "maxLength": 20
             },
-            "description": "The words ticked, as `POST /api/v1/scan` read them or as the learner corrected them; every one is vouched for again here."
-          },
-          "addCards": {
-            "description": "Whether to build cards now, or just keep the page.",
-            "type": "boolean"
+            "additionalProperties": {
+              "type": "boolean"
+            }
           }
         },
-        "required": [
-          "items"
-        ]
+        "description": "Some of the settings a phone shows, each normalized as its Settings control normalizes it. Nothing is written unless every field can be."
       },
       "response": {
         "type": "object",
         "properties": {
           "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "locale": {
             "type": "string",
-            "description": "The kept page, which `POST /api/v1/scans/{id}/deck` adds to the deck later."
+            "enum": [
+              "en",
+              "ru",
+              "uk"
+            ]
           },
-          "words": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
-          },
-          "cards": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
-          },
-          "created": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991,
-            "description": "Words the dictionary did not hold, kept as the learner's own entries."
+          "settings": {
+            "type": "object",
+            "properties": {
+              "level": {
+                "type": "string",
+                "enum": [
+                  "A1",
+                  "A2",
+                  "B1",
+                  "B2",
+                  "C1"
+                ],
+                "description": "The level the course opens at, measured or stated."
+              },
+              "dailyGoal": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991,
+                "description": "Reviews a day that fill the goal ring, 5 to 200."
+              },
+              "glossLanguage": {
+                "type": "string",
+                "enum": [
+                  "en",
+                  "ru",
+                  "uk"
+                ],
+                "description": "The language a meaning leads in beside the English."
+              },
+              "voice": {
+                "type": "string",
+                "description": "The voice that reads Estonian aloud, by id."
+              },
+              "speechPace": {
+                "type": "string",
+                "description": "A pace's id, or `auto` where it follows the level."
+              },
+              "speech": {
+                "type": "object",
+                "properties": {
+                  "sendAtOnce": {
+                    "type": "boolean",
+                    "description": "Whether a line the microphone matched is sent without the countdown."
+                  },
+                  "inBoxes": {
+                    "type": "boolean",
+                    "description": "Whether the microphone appears in answer boxes."
+                  }
+                },
+                "required": [
+                  "sendAtOnce",
+                  "inBoxes"
+                ]
+              },
+              "sceneAnswer": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "pick",
+                      "say",
+                      "type"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "How a conversation is answered, or null where never chosen."
+              },
+              "timeZone": {
+                "description": "An IANA zone name, or null where the device never said.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "roundPace": {
+                "type": "string",
+                "description": "How long a timed round runs, as a pace's id."
+              },
+              "reminderAt": {
+                "description": "The evening reminder's time, `HH:MM`, or null where never set.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "letters": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "type": "boolean"
+                },
+                "description": "Every kind of letter and notification a learner may switch, and whether it is on."
+              }
+            },
+            "required": [
+              "level",
+              "dailyGoal",
+              "glossLanguage",
+              "voice",
+              "speechPace",
+              "speech",
+              "sceneAnswer",
+              "timeZone",
+              "roundPace",
+              "reminderAt",
+              "letters"
+            ],
+            "description": "The settings a phone shows."
           }
         },
         "required": [
           "id",
-          "words",
-          "cards",
-          "created"
+          "name",
+          "email",
+          "locale",
+          "settings"
         ],
-        "description": "A page kept: the words ticked, never the photograph."
+        "description": "Who the token belongs to, and the settings a phone shows."
       }
     },
-    "POST /api/v1/scans/{id}/deck": {
+    "DELETE /api/v1/me": {
+      "contentType": "application/json",
+      "request": {
+        "type": "object",
+        "properties": {
+          "confirmation": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "The word the learner typed: `delete`, or its Russian or Ukrainian, as Settings asks."
+          }
+        },
+        "required": [
+          "confirmation"
+        ]
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "deleted": {
+            "type": "boolean",
+            "const": true
+          },
+          "identityErased": {
+            "type": "boolean",
+            "description": "Whether the sign-in record went too; false on a local install and where the operator holds no key that can."
+          },
+          "remaining": {
+            "description": "What is left and who to ask, in English, or null where nothing is.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "deleted",
+          "identityErased",
+          "remaining"
+        ]
+      }
+    },
+    "GET /api/v1/export": {
       "contentType": "application/json",
       "response": {
         "type": "object",
         "properties": {
-          "added": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
+          "exportedAt": {
+            "type": "string"
           },
-          "words": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
+          "format": {
+            "type": "string",
+            "const": "kodukeel-v1"
+          },
+          "counts": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
           }
         },
         "required": [
-          "added",
-          "words"
+          "exportedAt",
+          "format",
+          "counts"
         ],
-        "description": "Every word on a kept page that was not in the deck, added."
+        "additionalProperties": {},
+        "description": "The backup the web's export downloads, every table of the learner's own, which the web's restore reads back."
+      }
+    },
+    "POST /api/v1/push-devices": {
+      "contentType": "application/json",
+      "request": {
+        "type": "object",
+        "properties": {
+          "platform": {
+            "type": "string",
+            "enum": [
+              "ios",
+              "android"
+            ]
+          },
+          "token": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 4096,
+            "pattern": "^[A-Za-z0-9_:.-]+$",
+            "description": "The registration token Firebase Cloud Messaging gave the app on this phone."
+          }
+        },
+        "required": [
+          "platform",
+          "token"
+        ],
+        "description": "A phone to remind, registered on every launch so the server knows it was seen. The app build is read off `X-Kodukeel-Build`."
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "registered": {
+            "type": "boolean",
+            "const": true
+          }
+        },
+        "required": [
+          "registered"
+        ],
+        "description": "The phone will be reminded of the kinds its owner left switched on, on no second channel the same day."
+      }
+    },
+    "DELETE /api/v1/push-devices": {
+      "contentType": "application/json",
+      "request": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 4096,
+            "pattern": "^[A-Za-z0-9_:.-]+$",
+            "description": "The registration token Firebase Cloud Messaging gave the app on this phone."
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "description": "A phone to stop reminding, sent when the learner turns notifications off or signs out."
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "forgotten": {
+            "type": "boolean",
+            "description": "Whether this learner had that phone registered."
+          }
+        },
+        "required": [
+          "forgotten"
+        ]
       }
     },
     "POST /api/v1/scenes": {
@@ -5245,6 +4536,1103 @@
           "composed"
         ],
         "description": "A conversation opened: the briefing a person walking in would have, and nothing about what is going to happen."
+      }
+    },
+    "GET /api/v1/dictionary": {
+      "contentType": "application/json",
+      "query": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "description": "What was typed: a headword, an inflected form, or English."
+          }
+        },
+        "required": [
+          "q"
+        ]
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "hits": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "lemma": {
+                  "type": "string"
+                },
+                "translation": {
+                  "type": "string"
+                },
+                "pos": {
+                  "type": "string"
+                },
+                "cefr": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "gradationNote": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "matchedAs": {
+                  "description": "Set where the query was an inflected form rather than the headword, the form named the way a class names it.",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "lemma",
+                "translation",
+                "pos",
+                "cefr",
+                "gradationNote"
+              ]
+            },
+            "description": "The entries found, the likeliest first; `GET /api/v1/words/{id}` opens one."
+          },
+          "knownAs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Where nothing matched directly, the headwords the spelling typed is a form of, the likeliest first."
+          },
+          "fetched": {
+            "type": "boolean",
+            "description": "Whether the dictionary asked Ekilex live to answer this search."
+          }
+        },
+        "required": [
+          "hits",
+          "knownAs",
+          "fetched"
+        ],
+        "description": "A dictionary search, as the web's dictionary page runs it."
+      }
+    },
+    "GET /api/v1/words/{id}": {
+      "contentType": "application/json",
+      "response": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "lemma": {
+            "type": "string"
+          },
+          "translation": {
+            "type": "string"
+          },
+          "translationRu": {
+            "description": "The Institute's own Russian, where Ekilex recorded one; never a model's.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "translationUk": {
+            "description": "The Institute's own Ukrainian, where Ekilex recorded one; never a model's.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "pos": {
+            "type": "string"
+          },
+          "cefr": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "gradation": {
+            "type": "string"
+          },
+          "gradationNote": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "government": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "semanticTypes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "notes": {
+            "description": "Further English senses.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "definition": {
+            "description": "The Institute's own Estonian definition.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "provenance": {
+            "type": "string"
+          },
+          "ekilexWordId": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The Ekilex word this entry was read from, or null where Ekilex supplied none of it. Where it is set, the entry carries the credit CC BY 4.0 asks for, as the web draws it: forms and example sentences from Ekilex (https://ekilex.ee), by the Institute of the Estonian Language, under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), and any form shown as worked out was derived from what Ekilex stores."
+          },
+          "inDeck": {
+            "type": "boolean"
+          },
+          "starred": {
+            "type": "boolean"
+          },
+          "examples": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "et": {
+                  "type": "string",
+                  "description": "The Estonian sentence, exactly as recorded."
+                },
+                "en": {
+                  "description": "Its English, where the dictionary holds one.",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "enRefused": {
+                  "description": "A reviewer read the English and said it was wrong; none is offered.",
+                  "type": "boolean"
+                },
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "EKILEX",
+                    "SEED",
+                    "USER",
+                    "AI",
+                    "AUTHORED"
+                  ]
+                },
+                "via": {
+                  "readOnly": true,
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "et",
+                "source"
+              ]
+            },
+            "description": "Recorded sentences, the one a beginner reads most easily first. A refused sentence never arrives."
+          },
+          "forms": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "formType": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                },
+                "isPrincipal": {
+                  "type": "boolean"
+                },
+                "morphCode": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "morphName": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "orderIndex": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "formType",
+                "value",
+                "isPrincipal",
+                "morphCode",
+                "morphName",
+                "orderIndex"
+              ]
+            },
+            "description": "The forms the dictionary stores; the rest are worked out on the device from these, as the web does."
+          }
+        },
+        "required": [
+          "id",
+          "lemma",
+          "translation",
+          "translationRu",
+          "translationUk",
+          "pos",
+          "cefr",
+          "gradation",
+          "gradationNote",
+          "government",
+          "semanticTypes",
+          "notes",
+          "definition",
+          "provenance",
+          "ekilexWordId",
+          "inDeck",
+          "starred",
+          "examples",
+          "forms"
+        ],
+        "description": "One dictionary entry, as the web's entry screen reads it. Nothing in it was written by a model."
+      }
+    },
+    "POST /api/v1/deck": {
+      "contentType": "application/json",
+      "request": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "const": "keep"
+              },
+              "lexemeId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "types": {
+                "default": [
+                  "RECOGNITION",
+                  "PRODUCTION",
+                  "CLOZE"
+                ],
+                "description": "Which cards to build; a word builds only the ones it can support. The three the dictionary ticks by default.",
+                "minItems": 1,
+                "maxItems": 7,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "RECOGNITION",
+                    "PRODUCTION",
+                    "CASE_FORM",
+                    "GRADATION",
+                    "GOVERNMENT",
+                    "CLOZE",
+                    "CONJUGATION"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "action",
+              "lexemeId"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "const": "star"
+              },
+              "lexemeId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              }
+            },
+            "required": [
+              "action",
+              "lexemeId"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "const": "aside"
+              },
+              "lexemeId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "context": {
+                "description": "Where the word was when it was put aside, for the reading the operator sees.",
+                "type": "string",
+                "maxLength": 200
+              }
+            },
+            "required": [
+              "action",
+              "lexemeId"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "keep",
+              "star",
+              "unstar",
+              "aside",
+              "back"
+            ]
+          },
+          "added": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Cards built by a keep; 0 otherwise, and 0 where the word was already in the deck."
+          },
+          "starred": {
+            "description": "Whether the word is starred now, after a star or an unstar; null otherwise.",
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "aside": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "enum": [
+                      "SOON",
+                      "BAND"
+                    ]
+                  },
+                  "days": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "untilLevel": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "note": {
+                    "type": "string",
+                    "description": "The English sentence saying how long the word is away."
+                  }
+                },
+                "required": [
+                  "reason",
+                  "days",
+                  "untilLevel",
+                  "note"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How long a word put aside is away for; null otherwise. Nothing is graded."
+          }
+        },
+        "required": [
+          "action",
+          "added",
+          "starred",
+          "aside"
+        ],
+        "description": "A word kept, starred, put aside or brought back."
+      }
+    },
+    "DELETE /api/v1/deck": {
+      "contentType": "application/json",
+      "request": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "star",
+              "aside"
+            ],
+            "description": "`star` takes the star off; `aside` brings a word put aside back."
+          },
+          "lexemeId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "action",
+          "lexemeId"
+        ]
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "keep",
+              "star",
+              "unstar",
+              "aside",
+              "back"
+            ]
+          },
+          "added": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Cards built by a keep; 0 otherwise, and 0 where the word was already in the deck."
+          },
+          "starred": {
+            "description": "Whether the word is starred now, after a star or an unstar; null otherwise.",
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "aside": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "enum": [
+                      "SOON",
+                      "BAND"
+                    ]
+                  },
+                  "days": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "untilLevel": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "note": {
+                    "type": "string",
+                    "description": "The English sentence saying how long the word is away."
+                  }
+                },
+                "required": [
+                  "reason",
+                  "days",
+                  "untilLevel",
+                  "note"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How long a word put aside is away for; null otherwise. Nothing is graded."
+          }
+        },
+        "required": [
+          "action",
+          "added",
+          "starred",
+          "aside"
+        ],
+        "description": "A word kept, starred, put aside or brought back."
+      }
+    },
+    "POST /api/v1/tts": {
+      "contentType": "audio/wav",
+      "request": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 400,
+            "description": "What to read aloud, finished into a sentence on the server."
+          },
+          "voice": {
+            "description": "One of the voices Settings offers; any other value is the deployment's own.",
+            "type": "string",
+            "maxLength": 40
+          },
+          "transient": {
+            "description": "A read-back of what the recognizer heard: never cached, never stored, and refused while speaking is switched off.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "text"
+        ]
+      }
+    },
+    "POST /api/v1/speech/forms": {
+      "contentType": "application/json",
+      "request": {
+        "type": "object",
+        "properties": {
+          "words": {
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "description": "The words heard, and nothing else; at most sixty are asked, each up to forty letters."
+          }
+        },
+        "required": [
+          "words"
+        ]
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "known": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Those of `asked` that are Estonian spellings."
+          },
+          "asked": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The words asked about, lowercased and deduplicated."
+          }
+        },
+        "required": [
+          "known",
+          "asked"
+        ],
+        "description": "Which words just heard are Estonian spellings at all."
+      }
+    },
+    "GET /api/v1/recordings": {
+      "contentType": "application/json",
+      "response": {
+        "type": "object",
+        "properties": {
+          "clips": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string",
+                  "description": "What is said, as it is written; for a letter, the letter."
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "sound",
+                    "word",
+                    "length",
+                    "pair",
+                    "soft",
+                    "month",
+                    "number",
+                    "phone",
+                    "stress",
+                    "line",
+                    "letter"
+                  ]
+                },
+                "src": {
+                  "type": "string",
+                  "description": "Where the clip is served, under this site."
+                },
+                "key": {
+                  "description": "The spelling a speaker button finds this clip by, folded as `utteranceKey` folds it, or null where the clip is played by id alone: a sound, a letter's name, and a spelling that hides two words.",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "slow": {
+                  "type": "boolean",
+                  "description": "A take said slowly on purpose; a speaker asked to play slowly takes it before the take at speed."
+                },
+                "atOwnSpeed": {
+                  "type": "boolean",
+                  "description": "Played at the speed it was said: by id always, and a slow take asked for slowly. Found by `key` at the learner's everyday pace, the player slows it as it slows a synthetic clip."
+                }
+              },
+              "required": [
+                "id",
+                "text",
+                "kind",
+                "src",
+                "key",
+                "slow",
+                "atOwnSpeed"
+              ]
+            }
+          }
+        },
+        "required": [
+          "clips"
+        ],
+        "description": "The native speaker's recordings, and which spelling each one answers for."
+      }
+    },
+    "POST /api/v1/tutor": {
+      "contentType": "text/plain; charset=utf-8",
+      "request": {
+        "type": "object",
+        "properties": {
+          "messages": {
+            "minItems": 1,
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "user",
+                    "assistant"
+                  ]
+                },
+                "content": {
+                  "type": "string",
+                  "maxLength": 20000
+                }
+              },
+              "required": [
+                "role",
+                "content"
+              ]
+            },
+            "description": "The conversation so far, the question last. The newest turns that fit are what Anu reads."
+          },
+          "screen": {
+            "description": "What was on the learner's screen when they asked, read as material and never as an instruction; never stored.",
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "maxLength": 400
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 400
+              },
+              "selection": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "estonian": {
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 1000
+                }
+              },
+              "visible": {
+                "type": "string",
+                "maxLength": 5000
+              },
+              "typed": {
+                "maxItems": 10,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 1000
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "messages"
+        ]
+      }
+    },
+    "POST /api/v1/scan": {
+      "contentType": "application/json",
+      "request": {
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": "string",
+            "maxLength": 12000000,
+            "description": "The photograph as a data URL; read once and never stored."
+          },
+          "mode": {
+            "description": "A page of words, or the things around the learner named in Estonian.",
+            "type": "string",
+            "enum": [
+              "page",
+              "things"
+            ]
+          }
+        },
+        "required": [
+          "image"
+        ]
+      },
+      "response": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "et": {
+                      "type": "string",
+                      "description": "The Estonian exactly as it was read off the page."
+                    },
+                    "en": {
+                      "type": "string",
+                      "description": "The gloss printed on the page, or empty."
+                    },
+                    "lexemeId": {
+                      "description": "The dictionary entry that vouches for this word, or null where none did: a guess for the person holding the paper to confirm.",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "lemma": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "translation": {
+                      "description": "The dictionary's English, where matched.",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "matchedAs": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "cefr": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "et",
+                    "en",
+                    "lexemeId",
+                    "lemma",
+                    "translation",
+                    "matchedAs",
+                    "cefr"
+                  ]
+                }
+              },
+              "summary": {
+                "type": "object",
+                "properties": {
+                  "total": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "known": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "unknown": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "inflected": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "total",
+                  "known",
+                  "unknown",
+                  "inflected"
+                ]
+              }
+            },
+            "required": [
+              "items",
+              "summary"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "things": {
+                "type": "array",
+                "items": {
+                  "readOnly": true,
+                  "type": "object",
+                  "properties": {
+                    "english": {
+                      "type": "string"
+                    },
+                    "picture": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "entries": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "readOnly": true,
+                        "type": "object",
+                        "properties": {
+                          "lexemeId": {
+                            "type": "string"
+                          },
+                          "lemma": {
+                            "type": "string"
+                          },
+                          "translation": {
+                            "type": "string"
+                          },
+                          "pos": {
+                            "type": "string"
+                          },
+                          "cefr": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "lexemeId",
+                          "lemma",
+                          "translation",
+                          "pos",
+                          "cefr"
+                        ]
+                      }
+                    },
+                    "spelledLikeAnother": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "english",
+                    "picture",
+                    "entries",
+                    "spelledLikeAnother"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "things"
+            ]
+          }
+        ],
+        "description": "A page read into words the dictionary vouched for or did not, or the things in a picture named. The model that read it is named in `x-model-provider` and `x-model-id`."
+      }
+    },
+    "POST /api/v1/scans": {
+      "contentType": "application/json",
+      "request": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 400
+          },
+          "items": {
+            "minItems": 1,
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "et": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "en": {
+                  "type": "string",
+                  "maxLength": 400
+                },
+                "lexemeId": {
+                  "description": "The dictionary entry that vouches for this word, or null where none did: a guess for the person holding the paper to confirm.",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "lemma": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "translation": {
+                  "description": "The dictionary's English, where matched.",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "matchedAs": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "cefr": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "et"
+              ]
+            },
+            "description": "The words ticked, as `POST /api/v1/scan` read them or as the learner corrected them; every one is vouched for again here."
+          },
+          "addCards": {
+            "description": "Whether to build cards now, or just keep the page.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The kept page, which `POST /api/v1/scans/{id}/deck` adds to the deck later."
+          },
+          "words": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "cards": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "created": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991,
+            "description": "Words the dictionary did not hold, kept as the learner's own entries."
+          }
+        },
+        "required": [
+          "id",
+          "words",
+          "cards",
+          "created"
+        ],
+        "description": "A page kept: the words ticked, never the photograph."
+      }
+    },
+    "POST /api/v1/scans/{id}/deck": {
+      "contentType": "application/json",
+      "response": {
+        "type": "object",
+        "properties": {
+          "added": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "words": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "added",
+          "words"
+        ],
+        "description": "Every word on a kept page that was not in the deck, added."
       }
     }
   }

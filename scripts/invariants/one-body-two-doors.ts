@@ -40,6 +40,23 @@ const DOOR = [
   /^@\/lib\/observability\//,
 ];
 
+/**
+ * The work only a phone has, so there is no web door to share a body with.
+ *
+ * Each with its reason, and each held both ways below: a name here has to be
+ * one a v1 route still imports, and none may be named by a web file, since
+ * the day the web does the same work the exception is over and the shared
+ * body is the rule again.
+ */
+const NATIVE_ONLY: Readonly<Record<string, string>> = {
+  registerNativeDevice:
+    "Keeps a phone's Firebase token (N-9). A browser registers its own push address through "
+    + "Web Push's actions, and no web screen holds a phone token to hand over.",
+  forgetNativeDevice:
+    "Forgets a phone's Firebase token (N-9), sent by the app when notifications are turned off "
+    + "or it signs out. Erasure removes every token with the account on both doors.",
+};
+
 const LIB_API_MAY_IMPORT = [
   /^zod$/,
   /^\.\//,
@@ -125,12 +142,25 @@ export default function oneBodyTwoDoors({ check, code, APP, LIB }: InvariantKit)
         if (!from.startsWith("@/lib/") || DOOR.some((door) => door.test(from))) continue;
         for (const name of names) {
           looked += 1;
+          if (name in NATIVE_ONLY) continue;
           if (!new RegExp(`(?<![\\w$.])${name.replace(/\$/g, "\\$")}(?![\\w$])`).test(web)) alone.push(`${file}: ${name} from ${from}`);
         }
       }
     }
     assert.ok(looked >= 2, `only ${looked} lib names read off the v1 routes, so this stopped looking`);
     assert.deepEqual(alone, [], "a v1 route calls a lib function no web door calls, which is a second body for the same work");
+  });
+
+  check("the work only a phone has is named with a reason, and is still only a phone's", () => {
+    const web = APP.filter((f) => !f.startsWith("app/api/v1/") && /\.(ts|tsx)$/.test(f) && !/\.(test|itest)\./.test(f))
+      .map((f) => code(f)).join("\n");
+    const imported = new Set(routes.flatMap((file) => importsOf(code(file)).flatMap((i) => i.names)));
+    for (const [name, why] of Object.entries(NATIVE_ONLY)) {
+      assert.ok(why.length >= 60, `${name} is excused from sharing a body with no argument`);
+      assert.ok(imported.has(name), `${name} is excused as native only and no v1 route imports it, so the line is stale`);
+      assert.doesNotMatch(web, new RegExp(`(?<![\\w$.])${name}(?![\\w$])`),
+        `${name} is excused as native only and a web file now names it, so it is a shared body and the exception is over`);
+    }
   });
 
   check("every v1 route checks the native build before anything else", () => {

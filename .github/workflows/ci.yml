@@ -176,6 +176,7 @@ jobs:
           CRON_SECRET: canary-CRON_SECRET-must-not-ship
           RESEND_WEBHOOK_SECRET: canary-RESEND_WEBHOOK_SECRET-must-not-ship
           VAPID_PRIVATE_KEY: canary-VAPID_PRIVATE_KEY-must-not-ship
+          FCM_SERVICE_ACCOUNT: canary-FCM_SERVICE_ACCOUNT-must-not-ship
           ERROR_WEBHOOK_URL: https://example.invalid/canary-ERROR_WEBHOOK_URL-must-not-ship
         run: npx next build
       - name: Grep the client bundle

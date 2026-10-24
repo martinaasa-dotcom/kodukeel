@@ -103,6 +103,7 @@ export const ROUTES: readonly RouteRow[] = [
   { pattern: "/partners", home: "browser" },
   { pattern: "/accessibility", home: "browser" },
   { pattern: "/help", home: "browser" },
+  { pattern: "/account/delete", home: "browser" },
   { pattern: "/curriculum", home: "browser" },
   { pattern: "/how-we-know", home: "browser" },
   { pattern: "/impact", home: "browser" },

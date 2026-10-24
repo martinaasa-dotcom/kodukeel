@@ -74,6 +74,11 @@ export default async function HelpPage({ searchParams }: { searchParams: PublicS
         <P>
           {rich(t("Both are in Settings, once you’re signed in. **Download a backup** under “Your data” gives you everything as one file, and **Delete everything** under “Deleting your data” removes your account and all of it."))}
         </P>
+        <P>
+          {rich(t("{link} says what goes and what stays, and works without the app."), {
+            link: <Link href={href("/account/delete")} className="underline underline-offset-2">{t("Deleting your account")}</Link>,
+          })}
+        </P>
       </S>
 
       <S id="report" title={t("A word or a translation looks wrong.")}>

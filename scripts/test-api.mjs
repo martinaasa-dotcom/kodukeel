@@ -29,7 +29,7 @@ const B = baseUrl();
 const published = JSON.parse(readFileSync("public/api/v1.schema.json", "utf8"));
 
 // Floor: measured against a local-mode build, which is what the browser job runs.
-const { check, absent, done } = suite("The v1 API", { floor: 84 });
+const { check, absent, done } = suite("The v1 API", { floor: 99 });
 
 async function call(method, path, { body, headers = {} } = {}) {
   const res = await fetch(`${B}${path}`, {
@@ -202,12 +202,6 @@ if (!hosted) {
   } else {
     absent(4, "a check paper to sit, which the request above did not return");
   }
-  /*
-    Not asked here, and why: a lesson read in Russian and the refusal to skip a
-    part without its check both need the learner's settings changed over HTTP,
-    which is `PATCH /api/v1/me` (N-8). `lib/api/today.test.ts` holds the A2
-    answer, and `lib/api/lessonText.test.ts` the translations beside a lesson.
-  */
 } else {
   absent(14, "a signed-in token, which a hosted deployment needs and this suite does not mint (the 401 below is checked instead)");
 }
@@ -423,6 +417,86 @@ if (!hosted) {
   }
 } else {
   absent(10, "a signed-in token, which a hosted deployment needs and this suite does not mint (the 401 below is checked instead)");
+}
+
+// ── N-8: the account a phone shows, its backup and its deletion ─────────────
+
+if (!hosted) {
+  const before = await call("GET", "/api/v1/me");
+  const was = before.json?.settings ?? {};
+  check("me carries the settings a phone shows", typeof was.dailyGoal === "number" && typeof was.level === "string",
+    JSON.stringify(was).slice(0, 160));
+
+  const goal = was.dailyGoal === 33 ? 34 : 33;
+  const patched = await call("PATCH", "/api/v1/me", { body: { dailyGoal: goal } });
+  check("a setting changed over v1 is written and answered", patched.status === 200 && patched.json?.settings?.dailyGoal === goal,
+    `status ${patched.status}, ${patched.text.slice(0, 120)}`);
+  check("the PATCH answer fits its published schema", misfit("PATCH /api/v1/me", patched.json) === "", misfit("PATCH /api/v1/me", patched.json));
+  // The web's own reader of the goal is the calendar reminder, which prints it.
+  const ics = await call("GET", "/api/reminder");
+  check("the web's own reader reads the setting v1 wrote", ics.text.includes(`${goal} cards`), ics.text.match(/DESCRIPTION:[^\r\n]*/)?.[0] ?? `status ${ics.status}`);
+
+  const refused = await call("PATCH", "/api/v1/me", { body: { dailyGoal: goal + 1, timeZone: "Mars/Olympus" } });
+  const still = await call("GET", "/api/v1/me");
+  check("a change carrying one value nobody can store changes nothing",
+    refused.status === 400 && refused.json?.error?.code === "invalid" && still.json?.settings?.dailyGoal === goal,
+    `status ${refused.status}, goal now ${still.json?.settings?.dailyGoal}`);
+
+  const russian = await call("PATCH", "/api/v1/me", { body: { locale: "ru" } });
+  const read = await call("GET", "/api/v1/lessons/a1-01-hello");
+  check("a lesson reads in Russian once the interface is Russian",
+    russian.json?.locale === "ru" && read.json?.locale === "ru" && Object.keys(read.json?.translations ?? {}).length > 0,
+    `me ${russian.json?.locale}, lesson ${read.json?.locale}, ${Object.keys(read.json?.translations ?? {}).length} translations`);
+
+  if (was.level === "A1") {
+    const skip = await call("PATCH", "/api/v1/me", { body: { level: "B1" } });
+    const after = await call("GET", "/api/v1/me");
+    check("a move up past an unpassed A1 check is refused", skip.status === 403 && skip.json?.error?.code === "forbidden" && errorShaped(skip.json),
+      `status ${skip.status}, ${skip.text.slice(0, 120)}`);
+    check("and the level stays where it was", after.json?.settings?.level === "A1", `level now ${after.json?.settings?.level}`);
+    if (after.json?.settings?.level !== "A1") await call("PATCH", "/api/v1/me", { body: { level: "A1" } });
+  } else {
+    absent(2, `a learner on A1, where a move up asks for the part checks, and this one is on ${was.level}`);
+  }
+
+  // Put back what this suite changed, so the suites after it read the demo learner as it was.
+  await call("PATCH", "/api/v1/me", { body: { dailyGoal: was.dailyGoal, locale: before.json?.locale ?? "en", glossLanguage: was.glossLanguage ?? "en" } });
+
+  const unconfirmed = await call("DELETE", "/api/v1/me", { body: { confirmation: "yes" } });
+  const stillHere = await call("GET", "/api/v1/me");
+  check("a deletion without the typed word is refused in the error shape",
+    unconfirmed.status === 400 && unconfirmed.json?.error?.code === "invalid" && errorShaped(unconfirmed.json), `status ${unconfirmed.status}`);
+  check("and the learner is still here", stillHere.status === 200 && stillHere.json?.id === before.json?.id, `status ${stillHere.status}`);
+  /*
+    The real deletion is not asked here: on a local install the one learner is
+    the demo deck every later suite in this shard reads. It is asked against a
+    real database in `app/api/v1/me/route.itest.ts`, and the erasure itself in
+    `lib/account/deletion.itest.ts`.
+  */
+
+  // One backup, from the allowance the web's export shares; test-restore takes its own later.
+  const backup = await call("GET", "/api/v1/export");
+  check("the backup answers on a local install", backup.status === 200 && typeof backup.json?.counts === "object", `status ${backup.status}`);
+  check("the backup fits its published schema", misfit("GET /api/v1/export", backup.json) === "", misfit("GET /api/v1/export", backup.json));
+  check("the backup is never kept", backup.headers.get("cache-control") === "no-store", backup.headers.get("cache-control") ?? "no cache-control");
+} else {
+  absent(13, "a signed-in token, which a hosted deployment needs and this suite does not mint (the 401 below is checked instead)");
+}
+
+// ── N-9: the phones a learner is reminded on ─────────────────────────────────
+
+if (!hosted) {
+  // A local install sets no Firebase account, so a phone is refused rather than kept with nothing to send to it.
+  const token = "suite-phone-token-0123456789abcdef";
+  const phone = await call("POST", "/api/v1/push-devices", { body: { platform: "android", token } });
+  check("a phone is refused where no Firebase account is set, and nothing is kept",
+    phone.status === 503 && phone.json?.error?.code === "switched_off" && errorShaped(phone.json), `status ${phone.status}, ${phone.text.slice(0, 120)}`);
+  const forgot = await call("DELETE", "/api/v1/push-devices", { body: { token } });
+  check("forgetting a phone answers in its published shape",
+    forgot.status === 200 && forgot.json?.forgotten === false && misfit("DELETE /api/v1/push-devices", forgot.json) === "",
+    `status ${forgot.status}, ${misfit("DELETE /api/v1/push-devices", forgot.json)}`);
+} else {
+  absent(2, "a signed-in token, which a hosted deployment needs and this suite does not mint (the 401 below is checked instead)");
 }
 
 // ── Every route that needs a token refuses without one ────────────────────────

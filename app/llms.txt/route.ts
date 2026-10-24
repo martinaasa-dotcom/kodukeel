@@ -29,6 +29,7 @@ const PAGES: readonly (readonly [string, string, string])[] = [
   ["/terms", "Terms", "the terms of use and where the dictionary data comes from"],
   ["/trust", "Trust", "security, data protection and the controls behind them"],
   ["/help", "Help", "what to try when you cannot sign in, and whether the app is working"],
+  ["/account/delete", "Deleting your account", "what is deleted, what is not, and where the button is"],
   ["/teachers", "For teachers", "what a teacher sees of a class, shown over an invented one"],
   ["/pilots", "Running a pilot", "what a pilot costs, what is asked, and what is not ready yet"],
   ["/partners", "For partners and funders", "where a reviewer starts: what it is, what this installation has done, the course, how it uses Ekilex, what it costs, how it is checked and who runs it"],

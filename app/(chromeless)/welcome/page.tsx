@@ -1393,6 +1393,7 @@ function Footer({ say, copy }: { say: Say; copy: (typeof ENTRY_COPY)[EntryLocale
               <FootLink say={say} href="/terms">{t("Terms")}</FootLink>
               <FootLink say={say} href="/trust">{t("Security and trust")}</FootLink>
               <FootLink say={say} href="/accessibility">{t("Accessibility")}</FootLink>
+              <FootLink say={say} href="/account/delete">{t("Deleting your account")}</FootLink>
             </FootGroup>
           </nav>
         </div>

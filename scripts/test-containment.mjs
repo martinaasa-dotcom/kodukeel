@@ -278,6 +278,7 @@ const ROUTES = [
   "/welcome/ru", "/welcome/uk",
   "/trust",
   "/help",
+  "/account/delete",
   "/teachers",
   "/pilots",
   "/how-we-know",
