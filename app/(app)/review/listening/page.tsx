@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { localeFor, titleFor } from "@/lib/progress/locale";
+import { localeFor, roundTitleFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
 import { plainPhrase } from "@/lib/copy/values";
 import { requireUserId } from "@/lib/auth/session";
@@ -18,9 +18,10 @@ import {
 import { practiceScope } from "@/lib/progress/moduleScope";
 import { meaningPrefsFor } from "@/lib/progress/meaningPrefs";
 import { meaningsShown } from "@/lib/collections/glossLanguage";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export async function generateMetadata() {
-  return titleFor("Listening");
+  return roundTitleFor("/review/listening");
 }
 
 export const dynamic = "force-dynamic";
@@ -131,7 +132,7 @@ export default async function ListeningPage({
     if (pool.length < MIN_LEXEMES_FOR_CHOICES) {
       const locale = await localeFor(ownerId);
       return (
-        <Page title={tr(locale, "Listening")} lead={tr(locale, "Listen to a word, then pick what it means.")}>
+        <Page {...roundPageTitle("/review/listening", (english) => tr(locale, english))} lead={tr(locale, "Listen to a word, then pick what it means.")}>
           <Empty
             title={tr(locale, "A few more words needed")}
             body={fill(tr(locale, "The wrong answers come from your other words, so you'll need at least {n} in your deck."), { n: MIN_LEXEMES_FOR_CHOICES })}

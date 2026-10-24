@@ -3649,8 +3649,11 @@ speak, write, talk). The grammar drills stay on the grammar pages they practice.
 **Every round is named the Estonian way, at every level**: `Paarid (Pairs)`, `Kordamine
 (Review)`, on a tile and in the command palette (`lib/ux/roundNames.ts`), while the rail stays in
 English. The operator chose the names, the frequency lists as `Levinud sõnad`.
-Not done: the round pages' own titles and the course's step names still use the older titles in
-`lib/ux/modes.ts`, and `lib/ux/weekGames.ts` still rotates Today's own card.
+The round pages' own titles, their tab titles and the course's step names read the same names
+since the sixth batch (C-6), and `lib/ux/modes.ts` carries each round's English half. Today's own
+card is Sõnad on the operator's call (`GAME_OF_THE_DAY`); the Games board reads `GAME_WEEK`, and
+the week table in `lib/ux/weekGames.ts` is kept for the day Today's card turns dynamic again. No
+behavior changed.
 
 ## 65. The fifty-ninth pass: a person says the sounds
 

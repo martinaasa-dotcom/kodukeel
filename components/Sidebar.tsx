@@ -1,5 +1,6 @@
 "use client";
 
+import { StepTitle } from "@/components/course/StepTitle";
 import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
@@ -688,7 +689,7 @@ function TonightRows({ steps, at }: { steps: readonly ModuleStepRow[]; at: strin
                 background: now ? "var(--accent-soft)" : undefined,
               }}
             >
-              <span className="min-w-0 flex-1 py-1.5">{step.title}</span>
+              <span className="min-w-0 flex-1 py-1.5"><StepTitle title={step.title} to={step.href} /></span>
               {now ? (
                 <span className="shrink-0 text-xs font-medium">{t("now")}</span>
               ) : step.done ? (

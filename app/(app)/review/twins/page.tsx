@@ -1,4 +1,4 @@
-import { titleFor } from "@/lib/progress/locale";
+import { roundTitleFor } from "@/lib/progress/locale";
 import { requireUserId } from "@/lib/auth/session";
 import { practiceScope } from "@/lib/progress/moduleScope";
 import { twinsRound } from "@/lib/progress/twins";
@@ -7,7 +7,7 @@ import { BeforeYouStart } from "@/components/round/Briefing";
 import { TwinsSession } from "./TwinsSession";
 
 export async function generateMetadata() {
-  return titleFor("Kaksikud");
+  return roundTitleFor("/review/twins");
 }
 
 export const dynamic = "force-dynamic";

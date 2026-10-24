@@ -28,6 +28,7 @@ import { OPTION_CLASS, VERDICT_CLASS, optionState, type Verdict } from "@/lib/ux
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { DRIFTED_NOTE, KIND_COPY, letterRuns, splitAtGap, twinGroup } from "@/lib/collections/twins";
 import type { TwinQuestion } from "@/lib/progress/twinQuestions";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export type TwinsQuestion = TwinQuestion & { cardId: string | null; starred: boolean };
 
@@ -142,7 +143,7 @@ export function TwinsSession({ questions: initialQuestions, canTranslate, focusT
 
   if (wasEmptyAtStart) {
     return (
-      <Page title="Kaksikud" lead={t("Words that look alike and mean different things.")}>
+      <Page {...roundPageTitle("/review/twins", t)} lead={t("Words that look alike and mean different things.")}>
         <Empty
           title={t("No pairs to practice yet")}
           body={t("The pairs open as the course teaches both words of them.")}

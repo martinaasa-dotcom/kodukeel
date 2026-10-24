@@ -382,7 +382,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <SectionTitle hint={roundPaceName}>{t("Time on the clock")}</SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                {t("The daily quest races the clock. Choose how much time you’d like. Everything else about it stays the same.")}
+                {t("The daily task races the clock. Choose how much time you’d like. Everything else about it stays the same.")}
               </p>
               <RoundPacePanel current={roundPace} />
               <Explain label={t("Why the mock exam keeps its own timing")}>

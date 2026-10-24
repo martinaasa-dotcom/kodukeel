@@ -23,6 +23,7 @@ import {
   isFit, isGuessRight, isMatch, isRight,
   type FillQuestion, type FitQuestion, type SayingsPlan, type SeeStep,
 } from "@/lib/games/sayings";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 /** How long a wrong pair stays marked before the board hands it back. Matches `shake`. */
 const SHAKE_MS = 420;
@@ -276,7 +277,7 @@ export function SayingsSession({ plan: initial, canTranslate }: {
 
   if (!plan) {
     return (
-      <Page title="Väljendid" lead={t("Verb pairs that don't mean what they say.")}>
+      <Page {...roundPageTitle("/review/sayings", t)} lead={t("Verb pairs that don't mean what they say.")}>
         <Empty
           title={t("No sayings to show yet")}
           body={t("They need the full dictionary.")}

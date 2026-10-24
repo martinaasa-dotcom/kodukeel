@@ -1,6 +1,6 @@
 import { meaningPrefsFor } from "@/lib/progress/meaningPrefs";
 import { meaningShown } from "@/lib/collections/glossLanguage";
-import { localeFor, titleFor } from "@/lib/progress/locale";
+import { localeFor, roundTitleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
@@ -20,9 +20,10 @@ import { FlashSession, type FlashPrompt } from "./FlashSession";
 import { sentenceWithin, slotWithin, type ModuleScope } from "@/lib/course/scope";
 import { moduleSpellings, practiceScope } from "@/lib/progress/moduleScope";
 import { BeforeYouStart } from "@/components/round/Briefing";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export async function generateMetadata() {
-  return titleFor("Flash cards");
+  return roundTitleFor("/review/flashcards");
 }
 
 export const dynamic = "force-dynamic";
@@ -87,7 +88,7 @@ export default async function FlashcardsPage({
   if (unfinished.length === 0) {
     const locale = await localeFor(ownerId);
     return (
-      <Page title={tr(locale, "Flash cards")} lead={tr(locale, "Words you've met, asked in a way you haven't seen yet.")}>
+      <Page {...roundPageTitle("/review/flashcards", (english) => tr(locale, english))} lead={tr(locale, "Words you've met, asked in a way you haven't seen yet.")}>
         <Empty
           title={words.length === 0 ? tr(locale, "No words to practice yet") : tr(locale, "You've mastered every word you've met")}
           body={
@@ -192,7 +193,7 @@ export default async function FlashcardsPage({
   if (prompts.length === 0) {
     const locale = await localeFor(ownerId);
     return (
-      <Page title={tr(locale, "Flash cards")} lead={tr(locale, "Words you've met, asked in a way you haven't seen yet.")}>
+      <Page {...roundPageTitle("/review/flashcards", (english) => tr(locale, english))} lead={tr(locale, "Words you've met, asked in a way you haven't seen yet.")}>
         <Empty
           title={tr(locale, "Nothing left to ask right now")}
           body={tr(locale, "Every word you've met is either mastered or has been asked every way we can, for now.")}

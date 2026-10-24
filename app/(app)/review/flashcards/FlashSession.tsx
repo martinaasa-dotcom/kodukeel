@@ -44,6 +44,8 @@ import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/Lo
 import { FitText } from "@/components/FitText";
 import { CaseLabel } from "@/components/CaseLabel";
 import { caseLabelOf } from "@/lib/copy/caseLabel";
+import { roundName } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 /** A task, plus where the word stands, which is the thing the round is moving. */
 export interface FlashPrompt extends FlashTask {
@@ -348,7 +350,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
       {/* The heading a session screen has no room to draw. Every mode carries
           one: the empty state had a heading and the round did not, so an
           accessibility run that met an empty deck saw one and passed. */}
-      <h1 className="sr-only">{t("Flash cards")}</h1>
+      <h1 className="sr-only"><RoundNameText name={roundName("/review/flashcards")} translate={t} /></h1>
       <RoundProgress done={index} total={prompts.length} endHref="/practice" />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (

@@ -45,6 +45,7 @@
 
 import type { Level } from "@/lib/collections/syllabus";
 import { modeAt } from "@/lib/ux/modes";
+import { inlineName, nameOf } from "@/lib/ux/roundNames";
 
 /**
  * What a step does to a learner, which is what decides how it is drawn and
@@ -356,12 +357,17 @@ export interface Programme extends Omit<ProgrammeSpec, "days"> {
 /**
  * What a step is called.
  *
- * A practice mode's title comes out of `PRACTICE_MODES` and nowhere else, so
- * the program cannot end up calling Match something Practice does not. A
+ * A round's name comes out of `lib/ux/roundNames.ts` and a practice mode's
+ * title out of `PRACTICE_MODES`, and nowhere else, so the program cannot end
+ * up calling a round something Practice and its own page do not. A
  * route that is not a mode carries its own, and `course.test.ts` fails on a
  * step with neither, and on one with both.
  */
 export function activityTitle(spec: ActivitySpec): string {
+  // A round with an agreed name is called that, Estonian first, as its tile
+  // and its page call it (lib/ux/roundNames.ts).
+  const name = nameOf(spec.href);
+  if (name) return inlineName(name);
   return modeAt(spec.href)?.title ?? spec.title ?? spec.href;
 }
 

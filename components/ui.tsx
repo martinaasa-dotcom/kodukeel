@@ -27,7 +27,7 @@ export function Wash() {
 
 /* A lead may be a lesson's own line, with its Estonian in braces and a grammar
    name in brackets; `Braced` draws both and hands any other string back as it was. */
-export function Page({ title, titleLang, titleMark, lead, leadLang, actions, children, eyebrow, route, compact }: {
+export function Page({ title, titleLang, titleGloss, titleMark, lead, leadLang, actions, children, eyebrow, route, compact }: {
   title: string;
   /**
    * A small mark drawn after the title, on its first line: the tick on a
@@ -41,6 +41,12 @@ export function Page({ title, titleLang, titleMark, lead, leadLang, actions, chi
    * titles it, and a screen reader needs telling which language to say it in.
    */
   titleLang?: string;
+  /**
+   * The English under an Estonian title, on a quieter line of its own: a
+   * round's page is headed `Paarid` with `(Pairs)` under it, as its tile is.
+   * See `roundPageTitle` in lib/ux/roundNames.ts.
+   */
+  titleGloss?: string;
   lead?: string; actions?: ReactNode; children: ReactNode;
   /** The lead's language where it is not the page's, as `titleLang` is the title's. */
   leadLang?: string;
@@ -97,10 +103,20 @@ export function Page({ title, titleLang, titleMark, lead, leadLang, actions, chi
             {/* A page title is often one Estonian word, a unit or a case, and
                 a long one broke across lines on a phone: it shrinks instead. */}
             <FitText as="h1" text={title} max={compact ? "var(--text-xl)" : "var(--text-3xl)"} lang={titleLang} className="min-w-0 font-bold leading-[1.05]" style={{ color: "var(--ink)" }} />
+            {titleGloss && compact && (
+              <span className="flex h-[1.05em] shrink-0 items-center whitespace-nowrap text-xl">
+                <span className="text-sm font-semibold" style={{ color: "var(--ink-3)" }}>({titleGloss})</span>
+              </span>
+            )}
             {titleMark && (
               <span className={`flex h-[1.05em] shrink-0 items-center ${compact ? "text-xl" : "text-3xl"}`}>{titleMark}</span>
             )}
           </div>
+          {/* A board's page (compact) keeps it on the title's own line, since a
+              line of its own would push the board's last row off a phone. */}
+          {titleGloss && !compact && (
+            <p className="mt-1 text-base font-semibold" style={{ color: "var(--ink-3)" }}>({titleGloss})</p>
+          )}
           {lead && <p lang={leadLang} className={`${compact ? "mt-0.5 hidden text-sm sm:block" : "mt-3 text-md"} max-w-[60ch] leading-relaxed`} style={{ color: "var(--ink-2)" }}><Braced text={lead} /></p>}
         </div>
         {actions && <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">{actions}</div>}

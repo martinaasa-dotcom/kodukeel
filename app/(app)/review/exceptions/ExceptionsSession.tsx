@@ -44,6 +44,8 @@ import { CaseLabel } from "@/components/CaseLabel";
 import { caseLabelOf } from "@/lib/copy/caseLabel";
 import { slotLabel } from "@/lib/srs/slots";
 import { verbFormName } from "@/lib/estonian/verbNames";
+import { roundName } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 /**
  * THE ROUND: MEET IT, TYPE IT, USE IT.
@@ -243,7 +245,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
       {/* The heading a session screen has no room to draw. Every mode carries
           one, since an empty state with a heading and a round without it is an
           accessibility run that passes on the wrong screen. */}
-      <h1 className="sr-only">{t("Exceptions")}</h1>
+      <h1 className="sr-only"><RoundNameText name={roundName("/review/exceptions")} translate={t} /></h1>
       <RoundProgress done={index} total={tasks.length} endHref="/practice" />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (

@@ -1,14 +1,15 @@
 import { prisma } from "@/lib/db";
-import { localeFor, titleFor } from "@/lib/progress/locale";
+import { localeFor, roundTitleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { requireUserId } from "@/lib/auth/session";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { ClozeSession } from "./ClozeSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export async function generateMetadata() {
-  return titleFor("From your reading");
+  return roundTitleFor("/review/cloze");
 }
 
 export const dynamic = "force-dynamic";
@@ -30,7 +31,7 @@ export default async function ClozePage() {
 
   if (deckSize === 0) {
     return (
-      <Page title={tr(locale, "From your reading")} lead={tr(locale, "Paste in some real Estonian and practice the words you're learning inside it.")}>
+      <Page {...roundPageTitle("/review/cloze", (english) => tr(locale, english))} lead={tr(locale, "Paste in some real Estonian and practice the words you're learning inside it.")}>
         <Empty
           title={tr(locale, "Your deck is empty")}
           body={tr(locale, "It turns the words you're learning into gaps, so add a few from the dictionary first.")}

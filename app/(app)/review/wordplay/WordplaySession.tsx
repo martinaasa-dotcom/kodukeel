@@ -25,6 +25,7 @@ import {
   fellFor, isGuessRight, isNamed, isSeenThrough,
   type ApartStep, type FriendQuestion, type NameQuestion, type WordplayPlan,
 } from "@/lib/games/wordplay";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 type Phase = "apart" | "name" | "friends" | "done";
 
@@ -219,7 +220,7 @@ export function WordplaySession({ plan: initial }: { plan: WordplayPlan | null }
 
   if (!plan) {
     return (
-      <Page title="Sõnamäng" lead={t("Words that say exactly what they are, and a few that only look or sound English.")}>
+      <Page {...roundPageTitle("/review/wordplay", t)} lead={t("Words that say exactly what they are, and a few that only look or sound English.")}>
         <Empty
           title={t("No words to play with today")}
           action={<ButtonLink href="/practice" variant="primary">{t("Back to practice")}</ButtonLink>}

@@ -1,6 +1,6 @@
 import { refusedCardSentence } from "@/lib/srs/refusedCards";
 import { prisma } from "@/lib/db";
-import { localeFor, titleFor } from "@/lib/progress/locale";
+import { localeFor, roundTitleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { readableFront } from "@/lib/copy/caseHint";
 import { readableBack } from "@/lib/estonian/government";
@@ -10,9 +10,10 @@ import { LEECH_LAPSES, findConfusable, rankLeeches, type LeechCandidate } from "
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { ClinicList, type ClinicItem } from "./ClinicList";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export async function generateMetadata() {
-  return titleFor("Leech clinic");
+  return roundTitleFor("/review/clinic");
 }
 
 export const dynamic = "force-dynamic";
@@ -50,7 +51,7 @@ export default async function ClinicPage() {
 
   if (cards.length === 0) {
     return (
-      <Page title={tr(locale, "Leech clinic")} lead={tr(locale, "The words that just won't stick, and a good guess at why.")}>
+      <Page {...roundPageTitle("/review/clinic", (english) => tr(locale, english))} lead={tr(locale, "The words that just won't stick, and a good guess at why.")}>
         <Empty
           title={tr(locale, "Nothing's stuck.")}
           body={fill(tr(locale, "No card has slipped your mind {times} or more, so there's nothing to fix."), { times: countOf(locale, LEECH_LAPSES, "time") })}

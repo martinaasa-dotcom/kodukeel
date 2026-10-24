@@ -1,5 +1,6 @@
 "use client";
 
+import { StepTitle } from "@/components/course/StepTitle";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Lock } from "lucide-react";
@@ -156,7 +157,7 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
                 </span>
 
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold" style={{ color: "var(--ink)" }}>{step.title}</p>
+                  <p className="font-semibold" style={{ color: "var(--ink)" }}><StepTitle title={step.title} to={step.href} /></p>
                   {(isNext || isDone) && (
                     <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                       {step.why}

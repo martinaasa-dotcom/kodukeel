@@ -230,6 +230,8 @@ export interface ReviewCard {
 }
 
 import type { Contrast, ContrastWord } from "@/lib/progress/contrast";
+import { roundName, roundPageTitle } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 /** A look-alike typed for the card's own word, and the pair the two belong to. */
 interface TwinMixup {
@@ -586,7 +588,7 @@ interface Done {
 
 export function ReviewSession({
   cards: initialCards, drillCase, drillUnit, drillScan, totalCards, mode, nextDue,
-  waitingOnCourse = false, title = "Review",
+  waitingOnCourse = false, title,
 }: {
   cards: ReviewCard[];
   drillCase?: string;
@@ -1497,7 +1499,7 @@ export function ReviewSession({
 
   if (wasEmptyAtStart) {
     return (
-      <Page title={t("Review")} lead={t("Each word comes back just as you're about to forget it.")}>
+      <Page {...roundPageTitle("/review", t)} lead={t("Each word comes back just as you're about to forget it.")}>
         {drillCase ? (
           <Empty
             // The Estonian name, like every other screen that names a case.
@@ -1699,7 +1701,7 @@ export function ReviewSession({
           nothing back, while the four modes that happen to have a title bar
           answered fine. The `Empty` and finished states of these same files
           already carry one, which is how the gap survived a sweep. */}
-      <h1 className="sr-only">{t(title)}</h1>
+      <h1 className="sr-only">{title ? t(title) : <RoundNameText name={roundName("/review")} translate={t} />}</h1>
       <div className="mb-7 flex items-center gap-4">
         <EndSession />
         <div className="flex-1">

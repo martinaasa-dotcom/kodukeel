@@ -29,6 +29,8 @@ import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { FitText } from "@/components/FitText";
 import { CaseLabel } from "@/components/CaseLabel";
+import { roundName } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 export interface GovernmentQuestion {
   /** The card this question practices, when the verb is already in the deck. */
@@ -217,7 +219,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
           in the other five modes: an `Empty` state and a finished state each
           carry one, so the only screen without a heading was the one a learner
           spends the round on. */}
-      <h1 className="sr-only">{t("Verb government")}</h1>
+      <h1 className="sr-only"><RoundNameText name={roundName("/review/government")} translate={t} /></h1>
       <RoundProgress done={index} total={questions.length} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (

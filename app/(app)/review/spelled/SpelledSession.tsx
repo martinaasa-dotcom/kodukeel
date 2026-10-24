@@ -18,6 +18,7 @@ import { useSpeller } from "@/components/sounds/useSpeller";
 import { compareSpelling, spellOut } from "@/lib/collections/spelling";
 import { VERDICT_CLASS, type Verdict } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export interface SpelledWord {
   /** The card the word was drawn through, as a key. Nothing is graded on it. */
@@ -78,7 +79,7 @@ export function SpelledSession({ words: initial }: { words: SpelledWord[] }) {
 
   if (words.length === 0) {
     return (
-      <Page title="Tähthaaval" lead={t("A word you know, spelled out letter by letter. Write it down.")}>
+      <Page {...roundPageTitle("/review/spelled", t)} lead={t("A word you know, spelled out letter by letter. Write it down.")}>
         <Empty
           title={t("No words to spell yet")}
           body={t("It spells words you've already met. Meet a few first.")}

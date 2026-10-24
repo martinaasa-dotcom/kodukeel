@@ -2,6 +2,7 @@ import { CASES, casePlainName } from "@/lib/estonian/cases";
 import { CASE_NOTES, grammarTopic } from "@/lib/estonian/grammar";
 import { countOf, fill, tr, translated, type Locale } from "@/lib/copy/locale";
 import { modeAt } from "@/lib/ux/modes";
+import { inlineName, nameOf } from "@/lib/ux/roundNames";
 import { lessonById } from "./lessons";
 import { lessonLabel } from "./lessons/label";
 import {
@@ -64,7 +65,10 @@ function titleOf(day: CourseDay, step: CourseStep, locale: Locale): string {
   if (step.id === REVIEW_STEP) return tr(locale, step.title);
   if (step.id.startsWith("do:")) {
     const activity = ACTIVITIES[step.id.slice(3) as ActivityKey];
-    if (activity) return tr(locale, activityTitle(activity));
+    if (activity) {
+      const name = nameOf(activity.href);
+      return name ? inlineName(name, (english) => tr(locale, english)) : tr(locale, activityTitle(activity));
+    }
   }
   return tr(locale, step.title);
 }
@@ -127,6 +131,9 @@ export function stepCard(step: CourseStep, locale: Locale): { label: string; ico
   if (step.id === TALK_STEP) return { label: tr(locale, "Talk"), icon: "MessagesSquare" };
   if (step.id === REVIEW_STEP) return { label: tr(locale, "Review"), icon: "Repeat" };
   const mode = step.id.startsWith("do:") ? modeAt(ACTIVITIES[step.id.slice(3) as ActivityKey]?.href ?? "") : undefined;
-  if (mode) return { label: tr(locale, mode.title), icon: mode.icon };
+  if (mode) {
+    const name = nameOf(mode.href);
+    return { label: name ? inlineName(name, (english) => tr(locale, english)) : tr(locale, mode.title), icon: mode.icon };
+  }
   return { label: tr(locale, step.title), icon: "Sparkles" };
 }

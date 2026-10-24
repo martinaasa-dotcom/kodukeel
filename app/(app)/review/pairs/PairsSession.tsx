@@ -22,6 +22,8 @@ import { useT } from "@/components/Locale";
 import { filled } from "@/components/Filled";
 import { fill } from "@/lib/copy/locale";
 import { rich } from "@/components/round/rich";
+import { inlineName, roundName } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 export interface PairQuestion {
   /** The form that is actually played. */
@@ -155,7 +157,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
       const heard = question.options.find((o) => o.value === question.heard);
       look.record({
         of: question.cardId ?? question.heard,
-        label: t("Minimal pairs"),
+        label: inlineName(roundName("/review/pairs"), t),
         question: question.options.map((o) => o.value).join(" ,  "),
         answer: question.heard,
         note: heard ? `${heard.lemma}, ${heard.translation}` : null,
@@ -244,7 +246,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
       {/* The heading a session screen has no room to draw. Same line as every
           other mode: the start screen and the finished screen each carry one
           and the round itself did not. */}
-      <h1 className="sr-only">{t("Minimal pairs")}</h1>
+      <h1 className="sr-only"><RoundNameText name={roundName("/review/pairs")} translate={t} /></h1>
       <RoundProgress done={index} total={questions.length} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (

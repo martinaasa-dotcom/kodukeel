@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import { localeFor, titleFor } from "@/lib/progress/locale";
+import { localeFor, roundTitleFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
 import { sentenceReach } from "@/lib/dict/facts";
@@ -25,9 +25,10 @@ import { ExceptionsSession } from "./ExceptionsSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { firstParams } from "@/lib/ux/queryParam";
 import { practiceScope } from "@/lib/progress/moduleScope";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export async function generateMetadata() {
-  return titleFor("Exceptions");
+  return roundTitleFor("/review/exceptions");
 }
 
 export const dynamic = "force-dynamic";
@@ -232,7 +233,7 @@ async function NothingToDrill() {
   const ownerId = await requireUserId();
   const locale = await localeFor(ownerId);
   return (
-    <Page title={tr(locale, "Exceptions")} lead={tr(locale, "Words that don't follow the usual pattern, so you just have to know them.")}>
+    <Page {...roundPageTitle("/review/exceptions", (english) => tr(locale, english))} lead={tr(locale, "Words that don't follow the usual pattern, so you just have to know them.")}>
       <Empty
         title={tr(locale, "Nothing to practice here yet")}
         body={tr(locale, "None of the rule-breakers are near your level yet. Have a look through the full list instead.")}
@@ -255,7 +256,7 @@ async function FamilyChooser({ ownerId }: { ownerId: string }) {
   const [locale, standings] = await Promise.all([localeFor(ownerId), familyStandings(ownerId)]);
   const t = (english: string) => tr(locale, english);
   return (
-    <Page title={t("Exceptions")} lead={t("Pick one area and work through it, easiest words first.")}>
+    <Page {...roundPageTitle("/review/exceptions", t)} lead={t("Pick one area and work through it, easiest words first.")}>
       <Stack>
         <ul className="grid gap-3 sm:grid-cols-2">
           {FAMILY_ORDER.map((family, i) => {

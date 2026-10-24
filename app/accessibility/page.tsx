@@ -135,7 +135,7 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
           {t("Alongside those, the app is built out of real buttons and links with a visible focus ring. Animation is turned off for anybody whose system asks for reduced motion, and no part of it needs a dragging movement. Color is never the only thing carrying a distinction, so a correct answer says so in words as well as in color.")}
         </P>
         <P>
-          {rich(t("**The timed practice round can be set to run longer** (WCAG 2.2.1, Timing Adjustable). The daily quest is two minutes to start with, and one setting stretches it up to ten times as long, which is the figure the criterion asks for. It is chosen before the round starts, in Settings, and the start screen links to it."))}
+          {rich(t("**The timed practice round can be set to run longer** (WCAG 2.2.1, Timing Adjustable). The daily task is two minutes to start with, and one setting stretches it up to ten times as long, which is the figure the criterion asks for. It is chosen before the round starts, in Settings, and the start screen links to it."))}
         </P>
         <P>
           {rich(t("**Single-key shortcuts can be turned off** (WCAG 2.1.4, Character Key Shortcuts). One setting, in Settings and on the shortcut sheet, stops every letter, digit and symbol key from doing anything, and every action they did is still a button."))}

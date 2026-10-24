@@ -21,6 +21,7 @@ import { VERDICT_CLASS, type Verdict } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { lettersOf, ratingFor, tileForKey, type Tile } from "@/lib/games/letters";
 import { Lettered } from "@/components/HeroLetters";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export interface LettersWord {
   cardId: string;
@@ -116,7 +117,7 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
 
   if (wasEmptyAtStart) {
     return (
-      <Page title="Tähed" lead={t("A word you know, with its letters jumbled up. Put it back together.")}>
+      <Page {...roundPageTitle("/review/letters", t)} lead={t("A word you know, with its letters jumbled up. Put it back together.")}>
         <Empty
           title={t("No words to spell yet")}
           body={t("It uses words you've already met that are at least three letters long. Meet a few first.")}

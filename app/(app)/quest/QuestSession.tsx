@@ -41,6 +41,8 @@ import { WayOut } from "@/components/round/RoundExit";
 import { BriefingSteps } from "@/components/round/Briefing";
 import { RoundStart } from "@/components/round/RoundStart";
 import { FitText } from "@/components/FitText";
+import { roundName, roundPageTitle } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 export interface AimedCase {
   key: string;
@@ -473,7 +475,7 @@ export function QuestSession({
 
   if (cards.length === 0) {
     return (
-      <Page title={t("Daily quest")} lead={lead}>
+      <Page {...roundPageTitle("/quest", t)} lead={lead}>
         <Empty
           title={t("Nothing to work on yet")}
           body={t("It picks the endings you miss most, so it needs a few of your answers first.")}
@@ -487,7 +489,7 @@ export function QuestSession({
     return (
       <RoundStart
         icon={<Timer size={26} aria-hidden />}
-        title={t("Daily quest")}
+        title={<RoundNameText name={roundName("/quest")} translate={t} />}
         lead={lead}
         hue="blush"
         actions={<>
@@ -555,7 +557,7 @@ export function QuestSession({
   if (phase === "done") {
     const accuracy = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
     return (
-      <Page title={t("Daily quest")} lead={t("That's today's quest done.")}>
+      <Page {...roundPageTitle("/quest", t)} lead={t("That's today's quest done.")}>
         <div className="mx-auto flex max-w-md flex-col items-center gap-5 text-center">
           <div className="grid w-full grid-cols-3 gap-2 sm:gap-3">
             <StatTile value={correct} label={t("Right")} tone="sky" />
@@ -653,7 +655,7 @@ export function QuestSession({
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
-      <h1 className="sr-only">{t("Daily quest")}</h1>
+      <h1 className="sr-only"><RoundNameText name={roundName("/quest")} translate={t} /></h1>
 
       <div className="flex items-center justify-between gap-3">
         <span className="flex items-center gap-2 text-sm font-semibold tabular-nums"
