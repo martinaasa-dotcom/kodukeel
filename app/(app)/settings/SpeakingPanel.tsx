@@ -84,7 +84,7 @@ export function SpeakingPanel() {
       </p>
 
       <div className="flex flex-wrap items-center gap-3" data-speaking-status={speech.phase} data-speaking-held={heldBack ? "" : undefined}>
-        <p className="min-w-0 flex-1 text-sm" style={{ color: "var(--ink)" }}>
+        <p className="min-w-0 grow basis-60 text-sm" style={{ color: "var(--ink)" }}>
           {speech.phase === "checking"
             ? t("Checking this device.")
             : downloaded
