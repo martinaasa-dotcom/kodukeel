@@ -9,6 +9,7 @@ import { ArrowRight, MessageCircleHeart, Sparkles } from "lucide-react";
 import { AddWordButton } from "@/components/AddWordButton";
 import { Speak } from "@/components/Speak";
 import { DrillLink } from "@/components/DrillLink";
+import { SuggestFix } from "@/components/SuggestFix";
 import type { SceneSpec } from "@/lib/scenes/types";
 import { drillFor } from "@/lib/scenes/drills";
 import { splitOnForm } from "@/lib/dict/splitOnForm";
@@ -104,6 +105,8 @@ export interface Debrief {
    * everything was sent exactly as heard.
    */
   heard?: readonly { heard: string; said: string }[];
+  /** The lines a model composed for the other side, newest first, and who wrote them. */
+  composed?: { readonly lines: readonly string[]; readonly model: string | null };
 }
 
 export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: () => void }) {
@@ -158,7 +161,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
     reached for Estonian nobody used and was withheld whole. Then the card
     simply is not there, rather than apologizing for itself.
   */
-  const [note, setNote] = useState<{ comment: string; rule: string; improve?: readonly string[] } | null | "waiting">("waiting");
+  const [note, setNote] = useState<{ comment: string; rule: string; improve?: readonly string[]; model?: string } | null | "waiting">("waiting");
   useEffect(() => {
     let live = true;
     fetch("/api/scene/note", {
@@ -172,7 +175,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
         met: objectives.met,
       }),
     })
-      .then((res) => (res.ok ? res.json() as Promise<{ note: { comment: string; rule: string; improve?: readonly string[] } | null }> : { note: null }))
+      .then((res) => (res.ok ? res.json() as Promise<{ note: { comment: string; rule: string; improve?: readonly string[]; model?: string } | null }> : { note: null }))
       .then((data) => { if (live) setNote(data.note && data.note.comment ? data.note : null); })
       .catch(() => { if (live) setNote(null); });
     return () => { live = false; };
@@ -268,6 +271,18 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                     </ul>
                   </div>
                 )}
+                {/* Her note is a model's writing, so it can be reported like her answers. */}
+                <div className="flex justify-end">
+                  <SuggestFix
+                    category="AI_ANSWER"
+                    answers={{
+                      where: "COACH_NOTE",
+                      model: note.model ?? null,
+                      texts: [[note.comment, note.rule, ...(note.improve ?? [])].filter(Boolean).join(" ")],
+                    }}
+                    label="Report this note"
+                  />
+                </div>
               </>
             )}
           </Card>
@@ -554,6 +569,16 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
       {turns.length > 0 && (
         <section className="recap-panel">
           <h3 className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>{t("What was said")}</h3>
+          {/* The lines a model wrote can be reported from the record too, once the conversation is over. */}
+          {debrief.composed && debrief.composed.lines.length > 0 && (
+            <div className="mb-3">
+              <SuggestFix
+                category="AI_ANSWER"
+                answers={{ where: "SCENE_LINE", model: debrief.composed.model, texts: debrief.composed.lines }}
+                label="Report a line"
+              />
+            </div>
+          )}
           {/*
             Both sides rather than the learner's alone, because a turn only
             makes sense beside the line it answered, and reading the whole

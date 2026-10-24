@@ -127,6 +127,8 @@ export async function POST(request: Request) {
 
     return Response.json({
       comment: verified.graded.comment, rule: verified.graded.rule, aiAvailable: true,
+      // Who wrote it, so a learner reporting the note can say.
+      model: answered.model,
     }, { headers: NO_STORE });
   } catch (error) {
     const booking = decision.reservation;

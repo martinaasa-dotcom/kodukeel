@@ -8,10 +8,10 @@
  *
  * Two ideas hold the whole feature up.
  *
- * **A category decides what accepting means.** Four of the eight carry a
+ * **A category decides what accepting means.** Five of them carry a
  * machine-applicable proposal: a missing word becomes an entry, a wrong gloss
  * becomes a translation, a wrong principal part becomes a form, a bad example
- * is dropped. The other four are reports of something a person has to go and
+ * is dropped, a wrong translation is cleared. The rest are reports of something a person has to go and
  * look at, and they say so rather than pretending an "Accept" button will fix
  * a grammar page. An admin panel whose accept button sometimes changes nothing
  * and never says which time is which is worse than no panel.
@@ -32,7 +32,7 @@
 import { isPrincipalFormType } from "@/lib/estonian/types";
 import { clip } from "@/lib/copy/clip";
 
-/** The eight things that can go wrong, as a learner would name them. */
+/** What can go wrong, as a learner would name it. */
 export const SUGGESTION_CATEGORIES = {
   MISSING_WORD: {
     label: "Missing word",
@@ -95,6 +95,23 @@ export const SUGGESTION_CATEGORIES = {
     group: "Faults",
     applies: null,
   },
+  /*
+    AN ANSWER A MODEL WROTE, REPORTED BY THE PERSON IT WAS WRITTEN TO.
+
+    Anu's replies, the lines a model composed for the other side of a
+    conversation, and her notes on a conversation and on a composition are the
+    only text in this app nobody read before a learner did. Google Play asks
+    that a learner can flag an offensive answer like that from inside the app,
+    and Apple asks for a way to report objectionable content, so each of those
+    carries this button. There is nothing to apply: a reviewer reads the
+    answer, and nothing in the dictionary changes whatever they decide.
+  */
+  AI_ANSWER: {
+    label: "A model's answer",
+    lead: "Something a language model wrote here is offensive, harmful or wrong.",
+    group: "Model answers",
+    applies: null,
+  },
   OTHER: {
     label: "Something else",
     lead: "Anything that doesn't fit the others.",
@@ -112,7 +129,7 @@ export function isCategory(value: string): value is SuggestionCategory {
 }
 
 /** The queue's tabs, in reading order, each with the categories under it. */
-export const CATEGORY_GROUPS = ["Dictionary", "Marking", "Teaching", "Faults"] as const;
+export const CATEGORY_GROUPS = ["Dictionary", "Marking", "Teaching", "Model answers", "Faults"] as const;
 export type CategoryGroup = (typeof CATEGORY_GROUPS)[number];
 
 export function categoriesInGroup(group: CategoryGroup): SuggestionCategory[] {
@@ -142,8 +159,41 @@ export const SUGGESTION_LIMITS = {
   sentence: 400,
   context: 200,
   trigger: 400,
+  /** A reported answer travels whole, because the line worth reporting may be its last. */
+  answer: 4000,
   decision: 500,
 } as const;
+
+/** How much of what the app had said a report may carry. */
+export function triggerLimit(category: SuggestionCategory): number {
+  return category === "AI_ANSWER" ? SUGGESTION_LIMITS.answer : SUGGESTION_LIMITS.trigger;
+}
+
+// ─────────────────────────────── Model answers ──────────────────────────────
+
+/**
+ * Where an answer a model wrote was standing, named for the reviewer.
+ *
+ * English and untranslated, like every trigger: it is read by the person
+ * working the queue rather than by the learner who sent it.
+ */
+export const AI_ANSWER_WHERE = {
+  ANU: "Anu's answer",
+  SCENE_LINE: "A line the other side said in a conversation",
+  COACH_NOTE: "Anu's note on a conversation",
+  EXAM_NOTE: "Anu's note on a composition",
+} as const;
+
+export type AiAnswerWhere = keyof typeof AI_ANSWER_WHERE;
+
+/**
+ * The trigger an answer report carries: where it was, which model wrote it
+ * where the screen knows, and the answer itself, whole up to the cap.
+ */
+export function aiAnswerTrigger(where: AiAnswerWhere, text: string, model?: string | null): string {
+  const who = model?.trim() ? `, written by ${model.trim()}` : "";
+  return clip(`${AI_ANSWER_WHERE[where]}${who}: ${text.trim()}`, SUGGESTION_LIMITS.answer);
+}
 
 // ───────────────────────────────── Patches ─────────────────────────────────
 
@@ -397,6 +447,16 @@ export function groupKeyFor(input: {
     return `${category}|${subject ?? "?"}|${shorten(input.patch.sentence)}`;
   }
   if (subject) return `${category}|${subject}`;
+  /*
+    One answer is one thing whichever screen it was reported from: Anu's panel
+    floats over every page, so the path would split one reply into as many
+    groups as there were pages it was read on. The prefix naming where and who
+    is part of the key, and so is more of the answer than a failure message
+    gets, so two different replies that open the same way stay apart.
+  */
+  if (category === "AI_ANSWER") {
+    return `${category}|${fold(input.trigger ?? "").replace(/\d+/g, "#").slice(0, 240)}`;
+  }
 
   return `${category}|${foldPath(input.context ?? "")}|${shorten(input.trigger ?? "")}`;
 }

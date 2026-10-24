@@ -9,8 +9,8 @@ import { EstonianInput } from "@/components/EstonianInput";
 import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 import {
-  PATCH_POS, SUGGESTION_CATEGORIES, SUGGESTION_LIMITS,
-  type Patch, type SuggestionCategory,
+  PATCH_POS, SUGGESTION_CATEGORIES, SUGGESTION_LIMITS, aiAnswerTrigger,
+  type AiAnswerWhere, type Patch, type SuggestionCategory,
 } from "@/lib/suggestions/model";
 
 /**
@@ -79,6 +79,7 @@ function SuggestFixButton({
   examples,
   label,
   tone = "quiet",
+  answers,
 }: {
   /** What is wrong, as the app already knows it. Preselected in the form. */
   category: SuggestionCategory;
@@ -97,6 +98,13 @@ function SuggestFixButton({
   label?: string;
   /** `loud` where the failure is the whole screen and this is the way on. */
   tone?: "quiet" | "loud";
+  /**
+   * An answer a model wrote, for an `AI_ANSWER` report: where it stood, which
+   * model wrote it where the screen knows, and the text. Several texts are a
+   * conversation's composed lines, offered newest first to pick from, so the
+   * thread itself carries no button under every line.
+   */
+  answers?: { where: AiAnswerWhere; model?: string | null; texts: readonly string[] };
 }) {
   const t = useT();
   const [open, setOpen] = useState(false);
@@ -146,6 +154,11 @@ function SuggestFixButton({
   const [formType, setFormType] = useState(formTypes?.[0]?.formType ?? "");
   const [formValue, setFormValue] = useState(formTypes?.[0]?.value ?? "");
   const [sentence, setSentence] = useState(examples?.[0] ?? "");
+  const [answer, setAnswer] = useState(0);
+
+  // The answer being reported is what the app had said, so it rides as the trigger.
+  const chosen = answers?.texts[Math.min(answer, answers.texts.length - 1)];
+  const sentWith = answers && chosen ? aiAnswerTrigger(answers.where, chosen, answers.model) : trigger;
 
   const choices = categories && categories.length > 1 ? categories : null;
 
@@ -192,7 +205,7 @@ function SuggestFixButton({
           lemma: lemma ?? (kind === "MISSING_WORD" ? word : undefined),
           lexemeId: lexemeId ?? undefined,
           context: whereWeAre(),
-          trigger: trigger ?? undefined,
+          trigger: sentWith ?? undefined,
           patch: patch() ?? undefined,
         });
         if (!result.ok) {
@@ -231,6 +244,8 @@ function SuggestFixButton({
         variant={tone === "loud" ? "secondary" : "ghost"}
         size={tone === "loud" ? "md" : "sm"}
         onClick={() => setOpen(true)}
+        /* A hook for the browser suites: a report on an answer a model wrote. */
+        data-report-answer={answers ? answers.where : undefined}
       >
         <MessageSquareWarning size={15} aria-hidden />
         {t(label ?? "Suggest a fix")}
@@ -258,13 +273,35 @@ function SuggestFixButton({
         </Button>
       </div>
 
-      {trigger && (
+      {sentWith && (
+        /* Clamped, because a reported answer can be paragraphs long and the
+           form under it is the part being asked about. */
         <p
-          className="mt-3 rounded-[var(--r)] px-3 py-2 text-xs"
+          className={`mt-3 rounded-[var(--r)] px-3 py-2 text-xs ${answers ? "line-clamp-4" : ""}`}
           style={{ background: "var(--raised)", color: "var(--ink-3)" }}
         >
-          {fill(t("Sent with this: {trigger}"), { trigger })}
+          {fill(t("Sent with this: {trigger}"), { trigger: sentWith })}
         </p>
+      )}
+
+      {kind === "AI_ANSWER" && answers && answers.texts.length > 1 && (
+        <div className="mt-4">
+          <label htmlFor={idFor("answer")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
+            {t("Which line")}
+          </label>
+          <select
+            id={idFor("answer")} name="suggest-answer"
+            value={answer}
+            onChange={(e) => setAnswer(Number(e.target.value))}
+            lang="et"
+            className="field w-full text-sm"
+            style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
+          >
+            {answers.texts.map((text, at) => (
+              <option key={`${at}:${text}`} value={at}>{text}</option>
+            ))}
+          </select>
+        </div>
       )}
 
       {choices && (

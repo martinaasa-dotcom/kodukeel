@@ -115,9 +115,11 @@ export async function POST(request: Request) {
         at: "api/scene/note/verify", ownerId, extra: { model: config.model, unverified: verified.unverified },
       });
       // Only the sentences carrying it go; the rest of the note still reaches the learner.
-      return Response.json({ note: withoutUnverified({ ...note, improve }, verified.unverified) }, { headers: NO_STORE });
+      const kept = withoutUnverified({ ...note, improve }, verified.unverified);
+      return Response.json({ note: kept && { ...kept, model: config.model } }, { headers: NO_STORE });
     }
-    return Response.json({ note: { ...verified.graded, improve } }, { headers: NO_STORE });
+    // The model rides with the note, so a learner reporting it says who wrote it.
+    return Response.json({ note: { ...verified.graded, improve, model: config.model } }, { headers: NO_STORE });
   } catch (error) {
     if (!settled) after(() => releaseReservation(reservation));
     if (!(error instanceof TutorError)) reportError(error, { at: "api/scene/note", ownerId });
