@@ -99,6 +99,7 @@ export const SHELL: Area = {
     // What a server action says when it says no.
     "That deck belongs to somebody else.": "Эта колода принадлежит другому человеку.",
     "That word isn't in the dictionary any more.": "Этого слова больше нет в словаре.",
+    "Somebody else added that word with a different meaning, so it can't be kept from here yet.": "Это слово уже добавил кто-то другой с другим значением, поэтому отсюда его пока нельзя сохранить.",
     "That one's already in your deck.": "Это слово уже есть в вашей колоде.",
     "That answer didn't come through properly, so it wasn't saved.": "Ответ дошёл не полностью, поэтому он не сохранён.",
     "That isn't one of the ratings.": "Такой оценки нет.",
@@ -277,6 +278,7 @@ export const SHELL: Area = {
     // What a server action says when it says no.
     "That deck belongs to somebody else.": "Ця колода належить іншій людині.",
     "That word isn't in the dictionary any more.": "Цього слова більше немає в словнику.",
+    "Somebody else added that word with a different meaning, so it can't be kept from here yet.": "Це слово вже додав хтось інший з іншим значенням, тому звідси його поки не можна зберегти.",
     "That one's already in your deck.": "Це слово вже є у вашій колоді.",
     "That answer didn't come through properly, so it wasn't saved.": "Відповідь дійшла не повністю, тож її не збережено.",
     "That isn't one of the ratings.": "Такої оцінки немає.",

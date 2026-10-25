@@ -4,6 +4,7 @@ import { checkView } from "@/lib/progress/lessons";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
 import { Page } from "@/components/ui";
+import { ButtonLink } from "@/components/Button";
 import { isLessonLevel } from "@/lib/course/lessons";
 import { CheckRunner } from "./CheckRunner";
 
@@ -47,10 +48,28 @@ export default async function CheckPage({ params, searchParams }: {
     },
   };
 
+  const eyebrow = <span>{part.level}, {isLessonLevel(part.level) ? tr(locale, part.title) : part.id.toUpperCase()}</span>;
+  const title = check.final ? fill(tr(locale, "The {level} check"), { level: part.level }) : fill(tr(locale, "Check: {part}"), { part: tr(locale, part.title) });
+  /*
+    NOT YET, SAID BEFORE THE PAPER RATHER THAN AFTER IT. A check further up
+    than the part the learner stands on is refused when it is handed in
+    (`submitCheckFor`), so drawing its questions would ask thirty answers of
+    somebody and then tell them none of it counted.
+  */
+  if (!view.open) {
+    return (
+      <Page eyebrow={eyebrow} title={title} lead={tr(locale, "This check opens once you reach this part of the lessons.")}>
+        <div>
+          <ButtonLink href="/course/lessons" variant="primary">{tr(locale, "Back to the lessons")}</ButtonLink>
+        </div>
+      </Page>
+    );
+  }
+
   return (
     <Page
-      eyebrow={<span>{part.level}, {isLessonLevel(part.level) ? tr(locale, part.title) : part.id.toUpperCase()}</span>}
-      title={check.final ? fill(tr(locale, "The {level} check"), { level: part.level }) : fill(tr(locale, "Check: {part}"), { part: tr(locale, part.title) })}
+      eyebrow={eyebrow}
+      title={title}
       lead={fill(
         tr(locale, check.final
           ? "{n} questions on all of {level}. Get {needed} right to open {next}. Try as often as you like."

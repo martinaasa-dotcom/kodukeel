@@ -59,11 +59,42 @@ export async function moveBlockedFor(
 }
 
 /** The part somebody last ticked a step of, or null where they never have. */
-async function lastTickedPart(ownerId: string): Promise<Programme | null> {
+export async function lastTickedPart(ownerId: string): Promise<Programme | null> {
   const last = await prisma.courseStep.findFirst({
     where: { ownerId },
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     select: { programmeId: true },
   });
   return (last && PROGRAMMES.find((p) => p.id === last.programmeId)) || null;
+}
+
+/**
+ * Which of the parts a backup names the checks would let this learner reach,
+ * asked from where they stand before the restore and before its transaction
+ * opens, so the restore reads one answer and holds one connection.
+ *
+ * AN ACCOUNT THAT HAS NEVER TICKED A STEP IS STILL PLACING. First run sets a
+ * part the moment somebody finishes it, so a learner who moves to a new device,
+ * walks through first run and then restores their own file would otherwise be
+ * held on A1.1 by checks the file cannot prove they passed, and lose every
+ * evening they had done above it. Placement is open to that account already
+ * (erasing it and choosing a higher level at first run is the same move), so
+ * opening the restore to it grants nothing a forged file did not have another
+ * door to. A learner who has ticked an evening is climbing, and the checks hold.
+ */
+export async function restorableParts(ownerId: string, ids: Iterable<string>): Promise<Set<string>> {
+  const wanted = [...new Set(ids)].flatMap((id) => {
+    const programme = PROGRAMMES.find((p) => p.id === id);
+    return programme ? [programme] : [];
+  });
+  if (wanted.length === 0) return new Set();
+  const climbing = await prisma.courseStep.findFirst({ where: { ownerId }, select: { id: true } });
+  if (!climbing) return new Set(wanted.map((p) => p.id));
+  const stored = await readSetting(ownerId, SETTING_KEYS.programme);
+  const standing = stored ? PROGRAMMES.find((p) => p.id === stored) ?? null : null;
+  const open = new Set<string>();
+  for (const programme of wanted) {
+    if (!await moveBlockedFor(ownerId, standing, programme)) open.add(programme.id);
+  }
+  return open;
 }

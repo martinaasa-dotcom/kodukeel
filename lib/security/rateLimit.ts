@@ -174,12 +174,19 @@ export function windowStartMs(now: number, windowMs: number): number {
  * The secret has to be the same on every instance, or one caller hashes two
  * ways and the shared limit stops being shared. So it is `RATE_LIMIT_SECRET`
  * where a deployment sets one, otherwise a key derived from a server-only
- * secret it already has, and only on a deployment with none of them (a local
- * install, which is one process) a random key held for the life of the process.
+ * secret it already has (the database's connection string at the last), and
+ * only where even that is missing, which is a process that cannot answer a
+ * limit anyway, a random key held for the life of the process.
  * A derived key is an HMAC of a label under the other secret, so the digest
  * never uses that secret directly and cannot be used to check it.
  */
-const BUCKET_SECRETS = ["RATE_LIMIT_SECRET", "CRON_SECRET", "SUPABASE_SERVICE_ROLE_KEY", "EMAIL_TOKEN_SECRET"] as const;
+/*
+  The connection string is last because it is the one server-only secret every
+  instance is certain to share: a deployment that set none of the others still
+  reaches the same database from every instance, and a random key per process
+  would multiply each "shared" limit by however many instances were warm.
+*/
+const BUCKET_SECRETS = ["RATE_LIMIT_SECRET", "CRON_SECRET", "SUPABASE_SERVICE_ROLE_KEY", "EMAIL_TOKEN_SECRET", "DATABASE_URL"] as const;
 
 let processKey: Buffer | null = null;
 const derivedKeys = new Map<string, Buffer>();

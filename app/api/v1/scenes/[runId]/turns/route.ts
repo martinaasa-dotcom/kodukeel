@@ -5,6 +5,7 @@ import { apiJson, readBody } from "@/lib/api/respond";
 import { SceneTurnRequest } from "@/lib/api/contract";
 import { requireBearerUser } from "@/lib/auth/bearer";
 import { sceneTurnFor } from "@/lib/progress/sceneRequest";
+import { SCENE_BODY_BYTES } from "@/lib/security/body";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -24,7 +25,7 @@ export const maxDuration = 60;
 export async function POST(request: Request, { params }: { params: Promise<{ runId: string }> }) {
   const who = await requireBearerUser(request);
   if (who instanceof Response) return who;
-  const body = await readBody(request, SceneTurnRequest);
+  const body = await readBody(request, SceneTurnRequest, SCENE_BODY_BYTES);
   if (!body.ok) return body.response;
   const { runId } = await params;
   const turn = await sceneTurnFor(who.ownerId, { ...body.data, runId }, after);

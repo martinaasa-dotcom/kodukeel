@@ -3,7 +3,7 @@ import { LESSON_STEP, PROGRAMMES, lessonDayFor, programmeAfter, programmeById, t
 import { checkById, checkPaper, whereAPassLeads, type CourseCheck, type LevelEnd } from "@/lib/course/checks";
 import { CHECK_PASS, markCheck, type CheckResult, type PracticeItem } from "@/lib/course/lessons/practice";
 import { dayIsInPlay, programmeFor } from "@/lib/progress/course";
-import { checksPassedFor, recordCheckPassed } from "@/lib/progress/checks";
+import { checksPassedFor, lastTickedPart, recordCheckPassed } from "@/lib/progress/checks";
 import { addPlanToDeck, planLemmas } from "@/lib/srs/deck";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 
@@ -93,6 +93,25 @@ const CHECKS_PER_HOUR = 30;
  * The three arguments are checked by the door that took them off the wire, the
  * action with its own schema and the route with the contract's.
  */
+const NOT_YOURS_YET = "That check isn't the one for the part you're on.";
+
+/**
+ * Whether a check is this learner's to sit: the one for the part they stand
+ * on, or one for a part they have left. The page and `GET /api/v1/checks/{id}`
+ * ask it before building a paper and the mark asks it again, so nobody answers
+ * thirty questions to be told afterwards the check was never theirs.
+ *
+ * A learner who has turned the course off stands where they last ticked a step,
+ * which is the reading `moveBlockedFor` takes, and one who has ticked nothing
+ * stands at the start: turning the course off is not a way to lose the checks.
+ */
+export async function checkIsOpen(ownerId: string, check: CourseCheck): Promise<boolean> {
+  const at = (await programmeFor(ownerId)) ?? (await lastTickedPart(ownerId)) ?? PROGRAMMES[0] ?? null;
+  const here = at ? PROGRAMMES.findIndex((p) => p.id === at.id) : -1;
+  const closes = PROGRAMMES.findIndex((p) => p.id === check.programmeId);
+  return closes >= 0 && here >= 0 && closes <= here;
+}
+
 export async function submitCheckFor(
   ownerId: string, checkId: string, attempt: number, responses: readonly (string | null)[],
 ): Promise<SubmitCheckResult> {
@@ -107,11 +126,8 @@ export async function submitCheckFor(
     one further up is not theirs yet. And papers are counted on both doors
     together, so trying again is a person trying again.
   */
-  const at = await programmeFor(ownerId);
-  const here = at ? PROGRAMMES.findIndex((p) => p.id === at.id) : -1;
-  const closes = PROGRAMMES.findIndex((p) => p.id === check.programmeId);
-  if (closes < 0 || here < 0 || closes > here) {
-    return { ok: false, reason: "not_found", error: "That check isn't the one for the part you're on." };
+  if (!await checkIsOpen(ownerId, check)) {
+    return { ok: false, reason: "not_found", error: NOT_YOURS_YET };
   }
   const allowed = await checkSharedRateLimit(`check:o:${ownerId}`, CHECKS_PER_HOUR, 60 * 60 * 1000);
   if (!allowed.ok) return { ok: false, reason: "rate_limited", error: "That's a lot of tries in an hour. Have a break and come back to it." };
@@ -132,6 +148,8 @@ export interface CheckView {
   /** How many marks a pass takes. */
   needed: number;
   alreadyPassed: boolean;
+  /** Whether it is theirs to sit yet (`checkIsOpen`); a paper is built only where it is. */
+  open: boolean;
   /** The part this check closes, and the part a pass opens. */
   part: Programme;
   next: Programme | null;
@@ -159,9 +177,9 @@ export async function checkView(ownerId: string, checkId: string, attempt: numbe
   const check = checkById(PROGRAMMES, checkId);
   if (!check) return null;
   const at = Math.min(10_000, Math.max(1, Number.isFinite(attempt) ? Math.trunc(attempt) : 1));
-  const passed = await checksPassedFor(ownerId);
+  const [passed, open] = await Promise.all([checksPassedFor(ownerId), checkIsOpen(ownerId, check)]);
   const part = programmeById(check.programmeId)!;
-  const paper = checkPaper(check, at);
+  const paper = open ? checkPaper(check, at) : [];
   const next = programmeAfter(part) ?? null;
   return {
     check,
@@ -169,6 +187,7 @@ export async function checkView(ownerId: string, checkId: string, attempt: numbe
     paper,
     needed: Math.ceil(paper.length * CHECK_PASS),
     alreadyPassed: passed.has(check.id),
+    open,
     part,
     next,
     ...whereAPassLeads(check, part, next),

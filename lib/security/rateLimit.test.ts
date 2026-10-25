@@ -319,6 +319,12 @@ describe("the pieces the shared counter is built out of", () => {
     expect(bucketKey({ RATE_LIMIT_SECRET: "short", ...cron })).toEqual(bucketKey(cron));
   });
 
+  it("falls back to the database's address, which every instance shares, before a key of its own", () => {
+    const db = { DATABASE_URL: "postgresql://someone:a-password@db.example:5432/app" };
+    expect(bucketKey(db)).toEqual(bucketKey({ ...db }));
+    expect(bucketKey(db).toString("utf8")).not.toContain("a-password");
+  });
+
   it("keeps one caller's two endpoints in two buckets", () => {
     const owner = "o:8f14e45f-ea8b-4d1e-9b3a-2c5d7e0a1b42";
     expect(bucketDigest(`tts:${owner}`)).not.toBe(bucketDigest(`export:${owner}`));

@@ -1,6 +1,6 @@
 "use server";
 
-import { moveBlockedFor } from "@/lib/progress/checks";
+import { moveBlockedFor, restorableParts } from "@/lib/progress/checks";
 import { throttleShared } from "@/lib/usage/sharedThrottle";
 import { COURSE_DAY_CARDS, finishLessonFor, submitCheckFor } from "@/lib/progress/lessons";
 import { LESSONS } from "@/lib/course/lessons";
@@ -658,6 +658,12 @@ const entryLevelFrom = (value: unknown): string | null | undefined => {
 };
 
 
+/** Two glosses as one claim: the same words, whatever the case and spacing. */
+function sameGloss(a: string, b: string): boolean {
+  const fold = (value: string) => value.trim().replace(/\s+/g, " ").toLocaleLowerCase("en");
+  return fold(a) === fold(b);
+}
+
 /**
  * Adds a word to the shared dictionary.
  *
@@ -692,7 +698,23 @@ export async function createLexeme(input: { lemma: string; translation: string }
   const existing = await prisma.lexeme.findUnique({
     where: { lemma_pos: { lemma, pos } },
   });
-  if (existing) return { ok: true as const, id: existing.id, existed: true };
+  if (existing) {
+    if (await wordReaches(ownerId, existing.id)) return { ok: true as const, id: existing.id, existed: true };
+    /*
+      SOMEBODY ELSE KEPT THIS WORD FIRST, and a word another learner added is
+      theirs until a reviewer passes it (`wordReaches`). Where it is a model's
+      suggestion under the very meaning Anu just offered, it is the same claim
+      this learner is making, so they adopt it with a card of their own, which
+      is what lets the keep that follows go through. Under another meaning it is
+      a stranger's text, and handing it over would put words they wrote on this
+      learner's card.
+    */
+    if (existing.provenance === "AI" && sameGloss(existing.translation, translation)) {
+      await addCardsFor(ownerId, existing.id, ["RECOGNITION"], "TUTOR");
+      return { ok: true as const, id: existing.id, existed: true };
+    }
+    return { ok: false as const, error: "Somebody else added that word with a different meaning, so it can't be kept from here yet." };
+  }
 
   /*
     `createMany` with `skipDuplicates` rather than `create`, because the read
@@ -3485,6 +3507,16 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
   if (!check.ok) return { ok: false as const, error: check.error };
 
   const backup = BackupSchema.parse(JSON.parse(json));
+  /*
+    Which parts of the course the file may put the learner on, decided before
+    the transaction opens: from where they stand now, and on the connection the
+    rest of the app reads with rather than a second one held for two minutes
+    beside the restore's own (`restorableParts`).
+  */
+  const reachableParts = await restorableParts(ownerId, [
+    ...(backup.settings ?? []).flatMap((row) => row.key === SETTING_KEYS.programme ? [String(row.value ?? "")] : []),
+    ...(backup.courseSteps ?? []).map((row) => String(row.programmeId ?? "")),
+  ]);
 
   try {
     await prisma.$transaction(async (tx) => {
@@ -3675,7 +3707,7 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
       if (restoredPart !== undefined) {
         const to = programmeById(restoredPart);
         if (restoredPart !== "off" && !to) settings.delete(SETTING_KEYS.programme);
-        else if (to && await moveBlockedFor(ownerId, partFrom(await readSetting(ownerId, SETTING_KEYS.programme)), to)) {
+        else if (to && !reachableParts.has(to.id)) {
           settings.delete(SETTING_KEYS.programme);
         }
       }
@@ -3796,8 +3828,6 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         of C1 was every check passed at once. Each part named is asked once,
         from where the learner stands before the restore.
       */
-      const standing = partFrom(await readSetting(ownerId, SETTING_KEYS.programme));
-      const reachable = new Map<string, boolean>();
       const steps: Array<Record<string, unknown>> = [];
       for (const raw of backup.courseSteps ?? []) {
         const data = revive(raw, ["createdAt"]);
@@ -3805,10 +3835,7 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         const day = programme?.days.find((d) => d.id === String(data.dayId ?? ""));
         const stepId = String(data.stepId ?? "");
         if (!programme || !day || !day.steps.some((st) => st.id === stepId)) continue;
-        if (!reachable.has(programme.id)) {
-          reachable.set(programme.id, !await moveBlockedFor(ownerId, standing, programme));
-        }
-        if (!reachable.get(programme.id)) continue;
+        if (!reachableParts.has(programme.id)) continue;
         const at = data.createdAt instanceof Date && !Number.isNaN(data.createdAt.getTime()) && data.createdAt <= restoredAt
           ? data.createdAt : restoredAt;
         steps.push({ ownerId, programmeId: programme.id, dayId: day.id, stepId, createdAt: at });

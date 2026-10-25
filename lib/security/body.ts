@@ -70,3 +70,11 @@ export async function readJsonCapped(request: Request, maxBytes: number): Promis
 
 /** The ceiling most routes read under: a question, a sentence, a short composition. */
 export const JSON_BODY_BYTES = 64 * 1024;
+
+/**
+ * The ceiling a conversation's turn reads under. A turn carries the run so far,
+ * up to sixty lines either way of Estonian at two bytes a letter, and a long
+ * free conversation reaches the general ceiling before it reaches its own end,
+ * where a learner would be told nothing more useful than that the turn failed.
+ */
+export const SCENE_BODY_BYTES = 256 * 1024;

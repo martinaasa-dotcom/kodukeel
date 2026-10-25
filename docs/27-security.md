@@ -809,18 +809,28 @@ personal data. Every finding was read against the code before it was fixed. Fixe
 - **Nine web routes read bodies of any size.** Each is capped (`readJsonCapped`).
 - **Limits that lived in one server's memory** now also count across instances for the expensive
   actions on both doors (`throttleShared`), batches of grades (120 a minute), homework per class (20
-  a day), puzzle grades (a day near today) and the stored-answer count.
+  a day), puzzle grades (a day near today) and the stored-answer count. Each press is counted once,
+  in one bucket: the first version counted it twice and halved every allowance, which a test now
+  holds.
 - **A conversation's second and third attempts at a line** were made without asking the budget.
   They ask it now (`wouldAuthorise`).
 - **A picture's type was read off its label.** Its first bytes are checked.
 - **Rate-limit keys digested IP addresses without a key**, which is reversible. They are an HMAC
-  (`RATE_LIMIT_SECRET`, or a key derived from another server secret).
+  (`RATE_LIMIT_SECRET`, or a key derived from another server secret, the database's address at the
+  last, so every instance digests the same way).
 - **The error webhook** neutralizes mentions and caps each value, and stored errors are capped per
   fingerprint. A database error in a public run summary or the health log no longer names the host.
 - **An allowlist trusted any sign-in method.** With `ALLOWED_EMAIL_DOMAINS` set, a session must have
   proved its address on both doors (`addressProvedForAllowlist`).
 - **Native clients met refusals they could not read.** The middleware answers `/api/v1` in the
   contract's error shape.
+- **A review of these fixes found three that broke an honest learner**, and they are put right. A
+  learner restoring their own file onto a new device, straight after first run, lost every evening
+  above A1.1: an account that has never ticked a step is still placing, which is open, and the
+  restore's answer is worked out before its transaction. Anu's "Add" did nothing for a word another
+  learner had kept first: the same meaning is adopted, and a different one says why it cannot be.
+  And a check further up than the learner was refused only after it was sat: the page and the API
+  now say it is not open yet instead of drawing the paper.
 - **CI hygiene.** Workflows name the environment secret, Dependabot waits seven days before
   proposing a release, and `.gitignore` covers keys and test output.
 
@@ -840,6 +850,12 @@ Accepted, with the reasoning:
 - **Erasure does not revoke a Sign in with Apple token**, which the App Store will require once the
   native app offers it. **Supabase's own audit log** keeps the address and IP of a deleted account
   for its retention.
+- **A page that is not found is served without the per-request nonce**, because it is built ahead
+  of time, so its scripts do not run. It is a heading and links, which still work.
+- **A word a learner typed in counts as theirs and nobody else's.** It reaches their own deck, and
+  it no longer vouches for a spelling on their scanned pages or under their sentences, because
+  those readings are shared between learners and a typed row is anybody's text. Re-scanning a page
+  asks them to tick that word again.
 - **Loading Google's sign-in script tells Google of the visit** before anybody presses the button,
   because its button is drawn by its script. The recipients list names it.
 
