@@ -106,10 +106,24 @@ export async function backupFor(ownerId: string) {
     prisma.deferral.findMany({ where: { ownerId }, select: { lexemeId: true } }),
     prisma.sceneGap.findMany({ where: { ownerId }, select: { lexemeId: true } }),
   ]);
+  /*
+    AND THE WORDS THEY WROTE INTO, WHICH NONE OF THOSE ROWS POINT AT.
+
+    A sentence a learner typed onto a shared word lives inside that word's
+    `examples` (`by` is them), and a word they added by hand or confirmed off a
+    photograph carries their id in `editedBy`, and neither needs a card behind
+    it. Both are their own writing (Articles 15 and 20), so both travel. The
+    sentences are filtered to theirs below, the same as on every other word.
+  */
+  const [typedOn, created] = await Promise.all([
+    prisma.lexeme.findMany({ where: { examples: { contains: typedBy(ownerId) } }, select: { id: true } }),
+    prisma.lexeme.findMany({ where: { editedBy: ownerId }, select: { id: true } }),
+  ]);
   const mine = new Set<string>();
   for (const row of wordRows.flat()) {
     if (row.lexemeId) mine.add(row.lexemeId);
   }
+  for (const row of [...typedOn, ...created]) mine.add(row.id);
 
   const [
     lexemes, cards, reviews, tasks, studyEvents, scans,
@@ -236,6 +250,15 @@ export async function backupFor(ownerId: string) {
   };
 
   return payload;
+}
+
+/**
+ * The text a learner's own typed sentence leaves in a word's `examples`
+ * column, which is JSON written by `serialiseExamples` with no spaces: what
+ * the export and the erasure look for to find the words they wrote into.
+ */
+export function typedBy(ownerId: string): string {
+  return `"by":${JSON.stringify(ownerId)}`;
 }
 
 /** What `backupFor` hands back, which both doors serialize as it stands. */

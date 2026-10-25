@@ -332,7 +332,7 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
           >
             {card.question}
           </p>
-          {card.speak && card.questionLang === "et" && <Speak text={card.speak} />}
+          {card.speak && card.questionLang === "et" && <Speak text={card.speak} transient={card.speakTransient} />}
         </div>
         {card.note && (
           <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t(card.note)}</p>
@@ -345,7 +345,7 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
             className="round-word font-bold tracking-tight"
             style={{ color: "var(--ink)" }}
           />
-          {card.speak && card.questionLang !== "et" && <Speak text={card.speak} />}
+          {card.speak && card.questionLang !== "et" && <Speak text={card.speak} transient={card.speakTransient} />}
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 import { bearerMatches } from "@/lib/security/bearerSecret";
 import { runMailout } from "@/lib/mailer/run";
 import { reportError } from "@/lib/observability/report";
+import { pruneExpired } from "@/lib/progress/prune";
 
 export const dynamic = "force-dynamic";
 
@@ -45,8 +46,22 @@ export async function GET(request: Request) {
     return new Response("Not found", { status: 404 });
   }
 
+  /*
+    THE DAILY RUN IS ALSO WHERE WHAT /privacy SAYS IS DELETED GETS DELETED:
+    yesterday's turns with Anu and ledger rows past thirteen months
+    (`lib/progress/prune.ts`). First, and on its own, so a failure here is
+    reported and the letters still go, and a failed mail run does not leave
+    the prune undone.
+  */
+  let pruned: Awaited<ReturnType<typeof pruneExpired>> | null = null;
   try {
-    const report = await runMailout();
+    pruned = await pruneExpired();
+  } catch (error) {
+    reportError(error, { at: "api/email/send prune" });
+  }
+
+  try {
+    const report = { ...(await runMailout()), pruned };
     return Response.json(report, {
       headers: { "cache-control": "no-store" },
     });

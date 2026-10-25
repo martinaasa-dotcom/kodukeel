@@ -2,6 +2,15 @@ import { requireUserId } from "@/lib/auth/session";
 import { askAnu, QUESTIONS_PER_MINUTE, questionLimitKey } from "@/lib/progress/askAnu";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
 import { NO_STORE } from "@/lib/security/headers";
+import { readJsonCapped } from "@/lib/security/body";
+
+/*
+  A question, the turns before it and what is on the screen behind Anu's panel,
+  each clipped by `askAnu` and `lib/tutor/screen.ts`. A quarter of a megabyte
+  is well past the sum of those clips and far short of what a caller could
+  otherwise make the server hold before reading any of it.
+*/
+const TUTOR_BODY_BYTES = 256 * 1024;
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -26,7 +35,7 @@ export async function POST(request: Request) {
 
   let body: unknown;
   try {
-    body = await request.json();
+    body = await readJsonCapped(request, TUTOR_BODY_BYTES);
   } catch {
     return Response.json({ error: "Something went wrong sending that. Reload the page and try again." }, { headers: NO_STORE, status: 400 });
   }

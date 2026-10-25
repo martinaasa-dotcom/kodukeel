@@ -387,11 +387,19 @@ describes:
    `P1001: Can't reach database server`. The poolers use IPv4. `DIRECT_URL` needs the *session*
    pooler in particular, because that's a full Postgres session, so `prisma db push` can make
    schema changes through it. The transaction pooler can't.
-2. In Vercel, import this repo and set the environment variables (for Production, and Preview too
-   if you want preview deploys to work): `DATABASE_URL`, `DIRECT_URL`, plus whichever of
+2. In Vercel, import this repo and set the environment variables for Production only. A preview
+   needs a database of its own or none at all, because every build runs `prisma db push`, so a
+   preview handed the production connection reshapes production from an unmerged branch.
+   The variables: `DATABASE_URL`, `DIRECT_URL`, plus whichever of
    `GROQ_API_KEY` / `GEMINI_API_KEY` / `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` and `EKILEX_API_KEY`
    you're using.
    Never put `NEXT_PUBLIC_` in front of any of these. They have to stay on the server.
+
+   Optionally set `RATE_LIMIT_SECRET` to 32 random bytes. The shared rate limiter stores a keyed
+   digest of each caller instead of the caller, so its table cannot be turned back into IP
+   addresses, and the key has to be the same on every instance. Unset, it is derived from
+   `CRON_SECRET`, then `SUPABASE_SERVICE_ROLE_KEY`, then `EMAIL_TOKEN_SECRET`; with none of those
+   set it is a random key per process, which is only right for a local install.
 
    **Run the app in the same region as the database, and put the two as close to Estonia as you
    can.** Those are two rules, and the first matters more, because you pay the two distances a

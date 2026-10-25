@@ -29,7 +29,15 @@ export async function recordCheckPassed(ownerId: string, checkId: string): Promi
 export async function moveBlockedFor(
   ownerId: string, from: Programme | null | undefined, to: Programme,
 ): Promise<CourseCheck | null> {
-  const blocked = blockedBy(PROGRAMMES, from, to, await checksPassedFor(ownerId));
+  /*
+    "OFF" IS NOT A WAY ROUND THE CHECKS. A learner who turns the course off is
+    on no part, and `blockedBy` reads no part as a first choice, which is
+    placement and open. Somebody who has ticked an evening has had their first
+    choice already, so where they are is the part they last ticked a step of,
+    the same reading `programmeFor` takes where nothing is stored.
+  */
+  const origin = from ?? await lastTickedPart(ownerId);
+  const blocked = blockedBy(PROGRAMMES, origin, to, await checksPassedFor(ownerId));
   if (!blocked) return null;
   if (await movesFreely(ownerId)) return null;
   /*
@@ -48,4 +56,14 @@ export async function moveBlockedFor(
     orderBy: { id: "asc" },
   });
   return beenAbove ? null : blocked;
+}
+
+/** The part somebody last ticked a step of, or null where they never have. */
+async function lastTickedPart(ownerId: string): Promise<Programme | null> {
+  const last = await prisma.courseStep.findFirst({
+    where: { ownerId },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    select: { programmeId: true },
+  });
+  return (last && PROGRAMMES.find((p) => p.id === last.programmeId)) || null;
 }

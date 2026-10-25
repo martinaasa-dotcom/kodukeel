@@ -2,7 +2,7 @@ import type { z } from "zod";
 
 import { prisma } from "@/lib/db";
 import { Scheduling } from "@/lib/api/contract";
-import type { SchedulingState } from "@/lib/srs/scheduler";
+import { grade, type SchedulingState } from "@/lib/srs/scheduler";
 
 /**
  * A card's scheduling in the shape that crosses the wire, which a grade hands
@@ -52,12 +52,27 @@ export type UndoResult =
  */
 const DAY_MS = 24 * 60 * 60 * 1000;
 const CENTURY_MS = 100 * 365 * DAY_MS;
+/** How long after the server heard a grade it can still be taken back. */
+const UNDO_WINDOW_MS = 6 * 60 * 60 * 1000;
+/** How many of a card's latest grades an undo may be the reverse of. */
+const UNDO_DEPTH = 12;
+
+/** Whether two schedulings are the same, to the precision the database keeps. */
+export function sameScheduling(a: SchedulingState, b: SchedulingState): boolean {
+  const close = (x: number, y: number) => Math.abs(x - y) <= 1e-6 * Math.max(1, Math.abs(x), Math.abs(y));
+  const time = (x: Date | null, y: Date | null) =>
+    x === null || y === null ? x === y : Math.abs(x.getTime() - y.getTime()) < 1000;
+  return a.state === b.state && a.reps === b.reps && a.lapses === b.lapses
+    && a.learningSteps === b.learningSteps && a.scheduledDays === b.scheduledDays
+    && close(a.stability, b.stability) && close(a.difficulty, b.difficulty)
+    && time(a.due, b.due) && time(a.lastReview, b.lastReview);
+}
 
 export async function undoGradeFor(ownerId: string, cardId: string, previous: unknown): Promise<UndoResult> {
   const parsed = Scheduling.safeParse(previous);
   if (!parsed.success) return { ok: false, reason: "invalid", error: "That card's details didn't come through properly." };
 
-  const card = await prisma.card.findFirst({ where: { id: cardId, ownerId }, select: { id: true } });
+  const card = await prisma.card.findFirst({ where: { id: cardId, ownerId } });
   if (!card) return { ok: false, reason: "not_found", error: "We couldn't find that card. It may have been removed." };
 
   const p = parsed.data;
@@ -80,6 +95,38 @@ export async function undoGradeFor(ownerId: string, cardId: string, previous: un
   const outOfRange = (d: Date, latest: number) => d.getTime() < now - CENTURY_MS || d.getTime() > latest;
   if (outOfRange(due, now + CENTURY_MS) || (lastReview && outOfRange(lastReview, now + DAY_MS))) {
     return { ok: false, reason: "invalid", error: "That card's details didn't come through properly." };
+  }
+
+  /*
+    AND IT IS THE STATE THE CARD REALLY HAD. Undo took whatever scheduling the
+    caller sent and wrote it onto any card they held, so one request a card,
+    with no grade behind it, marked a whole deck as known and a century away,
+    and a teacher's "words known" read straight off it. The scheduler is a
+    pure function of a state, a rating and a moment, and every grade stores the
+    rating and the moment it was scheduled at, so a true "before" is the one
+    state that, graded the way one of this card's recent answers was, comes out
+    as the card as it stands now. Anything else is refused. A grade the server
+    has not written yet (an answer still in the offline queue) has nothing to
+    undo here, and a card moved since by something other than a grade, put
+    aside or graded again, is no longer the card that grade left behind.
+  */
+  const recent = await prisma.review.findMany({
+    where: { ownerId, cardId, receivedAt: { gte: new Date(now - UNDO_WINDOW_MS) } },
+    orderBy: [{ receivedAt: "desc" }, { id: "desc" }],
+    take: UNDO_DEPTH,
+    select: { rating: true, reviewedAt: true },
+  });
+  const before: SchedulingState = {
+    due, stability: p.stability, difficulty: p.difficulty, elapsedDays: p.elapsedDays,
+    scheduledDays: p.scheduledDays, reps: p.reps, lapses: p.lapses, state: p.state,
+    learningSteps: p.learningSteps, lastReview,
+  };
+  const reproduces = recent.some((r) => {
+    if (r.rating !== 1 && r.rating !== 2 && r.rating !== 3 && r.rating !== 4) return false;
+    return sameScheduling(grade(before, r.rating, r.reviewedAt), card);
+  });
+  if (!reproduces) {
+    return { ok: false, reason: "invalid", error: "That answer can't be taken back any more." };
   }
 
   await prisma.card.update({

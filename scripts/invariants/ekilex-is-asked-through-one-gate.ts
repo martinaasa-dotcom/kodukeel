@@ -50,7 +50,7 @@ export default function ekilexIsAskedThroughOneGate({ check, code, read, sourceF
     // The count moved with the entry into lib/progress/dictionaryEntry.ts, which
     // the page and GET /api/v1/words/{id} both open an entry through; the page
     // still decides that a prefetch is not an answer.
-    assert.match(code("lib/progress/dictionaryEntry.ts"), /if \(entry && !fetched && options\.countAnswer\) after\(\(\) => countStoredAnswer\(entry\)\)/,
+    assert.match(code("lib/progress/dictionaryEntry.ts"), /if \(entry && !fetched && options\.countAnswer\) \{[\s\S]{0,300}?after\([\s\S]{0,300}?countStoredAnswer\(entry\)/,
       "the dictionary stopped counting an answer from the stored copy");
     assert.match(page, /countAnswer: !fetched && !prefetch/, "the dictionary counts a prefetch as an answer");
     const model = /model EkilexDay \{([\s\S]*?)\n\}/.exec(read("prisma/schema.prisma"))?.[1];

@@ -537,16 +537,18 @@ accounts.
 **No Postgres row level security.** Ownership is enforced in application code and asserted in CI.
 Adding RLS as a second layer is on the list and has not been done.
 
-**`'unsafe-inline'` in `script-src`.** Required rather than chosen, and the reason is written out in
-`lib/security/headers.ts`: the app shell is prerendered and CDN cached, and Next stamps a nonce only
-on markup it renders per request, so a fresh nonce against cached inline Flight scripts means the
-page never hydrates. A nonce would also silently disable `'unsafe-inline'` for the theme script.
-This is the weakest line in the policy and it is a real residual risk against an injected script. In
-full, `script-src` is `'self' 'unsafe-inline'`, plus `https://accounts.google.com` where a Google
-client ID is set and `'unsafe-eval'` in development only, so a deployment with Google sign-in trusts
-Google's own script as well. `style-src` also carries `'unsafe-inline'`, and `img-src` takes any
-`https:` host because a Google avatar is served from whichever host that account is on. The rest of
-the policy is as tight as the app allows.
+**`'unsafe-inline'` remains on four cached pages and in `style-src`.** Every page rendered per
+request runs its scripts on a nonce minted for that request by `middleware.ts`, with
+`'strict-dynamic'`, so a script runs only if a nonced script loaded it; the root layout's two inline
+scripts are allowed by their SHA-256 (`lib/security/inlineScripts.ts`), and an injected inline
+script is refused. `'self'`, the Google and Apple sign-in hosts and `'unsafe-inline'` stay in the
+policy only as the fallback a browser that predates nonces reads, and a browser that supports them
+ignores the lot. The exception is the four landing pages that are prerendered and cached
+(`/welcome` and its three translations): a cached page carries no nonce, so they keep the older
+policy (`policyKindFor` in `lib/security/headers.ts`). They are the same for every visitor and
+render nothing from the request. The prerendered 404 is answered under the nonce policy and draws
+its text and links without hydrating. `style-src` keeps `'unsafe-inline'`, which lets injected markup
+restyle a page and runs no script. `img-src` is `'self' data: blob:`.
 
 **Session freshness is traded for speed.** With asymmetric signing keys the access token is verified
 locally, so a session revoked elsewhere survives until that token expires, an hour by default. The
@@ -743,12 +745,102 @@ Accepted, with the reasoning, and to be revisited before the native apps ship:
   key in hand. It sets their own starting level and nothing anybody else reads.
 - **A revoked session lives until its token expires**, about an hour (section 6).
 - **Session cookies are readable by script**, because the Supabase browser client reads them. The
-  Content Security Policy is what stands in front of that.
+  Content Security Policy is what stands in front of that: every page rendered per request runs its
+  scripts on a nonce minted for that request and `'strict-dynamic'`, the root layout's two inline
+  scripts are allowed by their SHA-256, and nothing else inline runs, so an injected `<script>` is
+  refused. The four prerendered landing pages (`/welcome` and its three translations) keep
+  `'unsafe-inline'`, because a cached page carries no nonce; they are the same for every reader and
+  render nothing from the request (`policyKindFor` in `lib/security/headers.ts`). The prerendered
+  404 for an address no route matches is answered under the nonce policy, so it draws its text and
+  links without hydrating.
 - **Speech clips are cached by phrase**, so timing can tell whether somebody has heard a phrase
   before. It reveals no account.
 - **Deleting an account needs only a signed-in session and a typed confirmation.** A step-up check
   is on the list for the native apps.
 - **An admin's bulk course reset** writes one structured line to the server log and nothing more
   durable. An audit table is on the list.
+
+### The third review, 25 October 2026
+
+A second pass the same day, over what the first did not reach: the native API, every Server Action
+argument, outbound requests, the browser, CI and the supply chain, the AI paths, and the life of
+personal data. Every finding was read against the code before it was fixed. Fixed:
+
+- **Anu read other people's data off the screen.** She sends the text of the page with each
+  question, and on a class roster, a workplace view or the admin queue that was other people's names
+  and figures, sent to a model provider outside the EEA. Nothing on `/class`, `/admin`, `/settings`,
+  `/suggestions`, `/dev`, `/privacy` or `/terms` is read, nor anything marked `data-private`
+  (`screenIsPrivate` in `lib/tutor/screen.ts`, checked on the server too).
+- **A learner's own word could answer for other learners' spellings.** A `USER` row with one form
+  vouched as an exact headword, so its gloss reached other learners' sentences and their
+  conversation's model. Only seeded and Ekilex rows vouch now (`vouchable`). Building cards, starring
+  or putting aside by id is held to what the entry page shows (`wordReaches`), and a word a learner
+  added goes for review once anybody else holds a card on it.
+- **One learner's sentence could delete everybody else's from a word.** The per-learner cap was
+  applied to the stored column across authors. It is per author now, reviewed sentences are never
+  dropped, and one word holds at most `MAX_TYPED_STORED` typed sentences.
+- **Undo wrote any scheduling onto any card the learner held**, which inflated "words known" on a
+  teacher's roster. A "before" state is accepted only if grading it the way one of the card's recent
+  answers was reproduces the card as it stands (`undoGradeFor`).
+- **A restore could plant text on a teacher's screen and fabricate history.** A restored card's type,
+  source, case and slot, and a review's case, are held to their closed lists; encounters to the
+  answers Today offers and its daily cap; course ticks to days the course has and parts the checks
+  allow; and the part of the course only where `moveBlockedFor` would allow it.
+- **The A1 checks could be walked round**, by turning the course off and choosing again, by running
+  first run again, through a backup, or by sitting a later part's check by script. A learner on no
+  part is placed where they last ticked a step; first run, restore and the checks all ask
+  `moveBlockedFor`; a check is sat only for the part the learner is on or has left, thirty papers an
+  hour on both doors.
+- **A workplace sponsor saw more than employees were told.** The view and its file now show a name,
+  whether they practiced this week, and a band. An archived class shows names only.
+- **Personal data outlived its promises.** Erasure takes a learner's typed sentences off shared
+  words and deletes the words they added that nobody else uses, and the export carries both. Anu's
+  messages and spending records are pruned daily, as the privacy page says. A pasted text is spoken
+  without being stored. The privacy page now names every feature that sends text to a model.
+- **The Content Security Policy allowed inline scripts** on every page. See section 6 for the nonce
+  policy that replaced it.
+- **The service worker cached the page a sign-in link opens on**, token included, and third-party
+  sign-in scripts ran on it. Neither happens now, and the token leaves the address bar. The confirm
+  screen tells somebody to continue only if they asked for the link. Device data is cleared on the
+  sign-in page after the server ends a session, as it is after the Sign out button.
+- **API keys could follow a redirect**, the Gemini key traveled in a URL, and a provider's error
+  body could reach the error log. Every keyed request refuses redirects (asserted), the key is a
+  header, and only an error code is logged.
+- **Nine web routes read bodies of any size.** Each is capped (`readJsonCapped`).
+- **Limits that lived in one server's memory** now also count across instances for the expensive
+  actions on both doors (`throttleShared`), batches of grades (120 a minute), homework per class (20
+  a day), puzzle grades (a day near today) and the stored-answer count.
+- **A conversation's second and third attempts at a line** were made without asking the budget.
+  They ask it now (`wouldAuthorise`).
+- **A picture's type was read off its label.** Its first bytes are checked.
+- **Rate-limit keys digested IP addresses without a key**, which is reversible. They are an HMAC
+  (`RATE_LIMIT_SECRET`, or a key derived from another server secret).
+- **The error webhook** neutralizes mentions and caps each value, and stored errors are capped per
+  fingerprint. A database error in a public run summary or the health log no longer names the host.
+- **An allowlist trusted any sign-in method.** With `ALLOWED_EMAIL_DOMAINS` set, a session must have
+  proved its address on both doors (`addressProvedForAllowlist`).
+- **Native clients met refusals they could not read.** The middleware answers `/api/v1` in the
+  contract's error shape.
+- **CI hygiene.** Workflows name the environment secret, Dependabot waits seven days before
+  proposing a release, and `.gitignore` covers keys and test output.
+
+Accepted, with the reasoning:
+
+- **The end-of-part checks and the level checkpoint are marked in the browser** with the answers on
+  the page, and a forged client can mark a conversation's objectives met. Each changes only the
+  learner's own course or record, writes no grade and nothing anybody else reads, and is bounded by
+  the limits above.
+- **A model-written English gloss** for a word Wiktionary has no entry for is stored on the shared
+  row. The word and its forms are Ekilex's; only the gloss is the model's.
+- **Twenty Questions stores a model's yes and no answers** for a word it had not met, served to other
+  players before a reviewer has read them. The input is held to real spellings.
+- **A review id can be as short as eight characters.** Clients generate UUIDs.
+- **Actions are pinned to a tag rather than a commit**, and `main` has no branch protection in the
+  repository settings. Both are the operator's to change.
+- **Erasure does not revoke a Sign in with Apple token**, which the App Store will require once the
+  native app offers it. **Supabase's own audit log** keeps the address and IP of a deleted account
+  for its retention.
+- **Loading Google's sign-in script tells Google of the visit** before anybody presses the button,
+  because its button is drawn by its script. The recipients list names it.
 
 If you find something not on this list, `SECURITY.md` says where to send it.

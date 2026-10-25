@@ -54,7 +54,7 @@ jobs:
         run: |
           if [ -z "$DB_URL" ]; then
             echo "No database configured. Add DIRECT_URL (the direct connection," >&2
-            echo "port 5432, not the pooler) as a repository secret, or DATABASE_URL" >&2
+            echo "port 5432, not the pooler) as a secret of the 'production' environment, or DATABASE_URL" >&2
             echo "if that is the only one you have. Nothing was changed." >&2
             exit 1
           fi

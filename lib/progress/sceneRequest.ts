@@ -1,6 +1,6 @@
 import { seedFrom } from "@/lib/random/seeded";
 import { prisma } from "@/lib/db";
-import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
+import { authoriseCall, recordUsage, releaseReservation, wouldAuthorise } from "@/lib/usage/ledger";
 import { turnBooking, type TurnBooking } from "@/lib/usage/turnBooking";
 import { bucketForOwner, checkRateLimit, type RateLimitResult } from "@/lib/security/rateLimit";
 import { reportError } from "@/lib/observability/report";
@@ -178,6 +178,15 @@ export async function sceneTurnFor(
     written down when they stop come from one function over one input. The route
     therefore holds no state, and a client that lies about its own turns changes
     only what it shows itself, because `finishRun` runs this again.
+
+    WHAT THE CLIENT ECHOES BACK IS ITS OWN WORD, AND THAT IS STATED RATHER
+    THAN IMPLIED. `conceded`, `alsoDone` and `spoken.unseen` are handed back
+    by the client on each turn and `finishRun` reads them as sent, so a forged
+    client can mark its own objectives met and its own listening evidence
+    stronger. None of them writes a grade (`gradesFor` skips a conceded
+    requirement) or anything another person reads; it is the learner's own
+    record of their own conversation, the same trade the placement check
+    makes (docs/27-security.md §8).
   */
   const turns = Array.isArray(body.turns)
     ? body.turns.slice(0, MAX_TURNS).map((turn) => {
@@ -883,6 +892,16 @@ async function compose(
     are the same on every turn of this run and they are nine tenths of the
     prompt (`lib/scenes/prompt.ts`).
   */
+  /*
+    A SECOND OR THIRD ATTEMPT IS ASKED ONLY WHILE THE BUDGET HOLDS. Only the
+    first attempt was authorized; the rest were filed at their whole cost after
+    the fact, so a turn written to provoke long withheld lines spent three
+    replies against one booking, and the day's cap only saw them once the
+    settlements landed. Once a report has settled the booking, the next
+    attempt asks the ledger first, and a spent budget falls to the bank, which
+    is a conversation rather than an error.
+  */
+  if (input.booking.settled && !await wouldAuthorise(input.ownerId, "SCENE")) return null;
   const system = composeSystemLayers({
     scene: input.scene, place: input.place, level: input.level, persona: input.persona,
     situation: input.situation, register: input.register, voice: input.voice, words: input.words,

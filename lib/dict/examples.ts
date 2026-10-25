@@ -240,6 +240,31 @@ export function usableExamples(examples: Example[], plainest?: Rank, reader: Exa
   const attested = out.filter((e) => e.source !== "USER" && e.source !== "AI");
   const mine = out.filter((e) => e.source === "USER" || e.source === "AI");
   const byLength = (a: Example, b: Example) => a.et.length - b.et.length;
+  /*
+    AND THE STORED COLUMN IS CAPPED PER PERSON, NEVER ACROSS PEOPLE. A write
+    reads the column back whole and keeps what this returns, and the cap below
+    is for a reader: applied to the column, one learner adding two short
+    sentences pushed every other learner's typed sentence off the word for
+    good, a reviewer's passed one included, and eight attested sentences took
+    every typed one with them. So the stored list keeps every attested
+    sentence the reader cap would, every reviewed one, and each author's own
+    shortest `MAX_USER_PER_WORD`; how many authors one word can hold is
+    `MAX_TYPED_STORED`, enforced where a sentence is added.
+  */
+  if (reader.keepTyped) {
+    const perAuthor = new Map<string, Example[]>();
+    const kept: Example[] = [];
+    for (const example of mine.sort(byLength)) {
+      if (example.reviewed === true) { kept.push(example); continue; }
+      const author = example.by ?? "";
+      const theirs = perAuthor.get(author) ?? [];
+      if (theirs.length >= MAX_USER_PER_WORD) continue;
+      theirs.push(example);
+      perAuthor.set(author, theirs);
+      kept.push(example);
+    }
+    return [...attested.sort(plainest ?? byLength).slice(0, MAX_PER_WORD), ...kept];
+  }
   return [
     ...attested.sort(plainest ?? byLength),
     ...mine.sort(byLength).slice(0, MAX_USER_PER_WORD),
@@ -266,6 +291,9 @@ export type Rank = (a: Example, b: Example) => number;
 
 /** How many of a shared word's sentences one learner may occupy. */
 export const MAX_USER_PER_WORD = 2;
+
+/** How many typed sentences one shared word may hold, from everybody together. */
+export const MAX_TYPED_STORED = 40;
 
 /**
  * Merges freshly fetched sentences into what is already stored.

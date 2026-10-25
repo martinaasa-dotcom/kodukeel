@@ -1,5 +1,6 @@
 import { singleFlight } from "@/lib/cache/singleFlight";
 import { prisma } from "@/lib/db";
+import { safeMessage } from "@/lib/security/redact";
 
 /**
  * WHETHER THE DATABASE ANSWERS, ASKED ONE WAY FOR EVERY READER.
@@ -29,17 +30,30 @@ export async function databaseAnswers(): Promise<boolean> {
       timer = setTimeout(() => resolve(false), DB_TIMEOUT_MS);
     });
     const query = prisma.$queryRaw`SELECT 1`.then(() => true).catch((error: unknown) => {
-      // Logged, never returned: what the driver says can quote the datasource.
-      console.error("[health] database check failed", error);
+      // Logged, never returned, and scrubbed on the way: what the driver says can quote the datasource.
+      console.error("[health] database check failed", described(error));
       return false;
     });
     return await Promise.race([query, timeout]);
   } catch (error) {
-    console.error("[health] database check threw", error);
+    console.error("[health] database check threw", described(error));
     return false;
   } finally {
     if (timer) clearTimeout(timer);
   }
+}
+
+/**
+ * The driver's error as a log may carry it. `redact` takes a connection string
+ * with its password; a Prisma initialization error also names the host and the
+ * port it could not reach, which is the deployment's own address in a log a
+ * webhook may be reading, so a `host:port` is taken out too.
+ */
+function described(error: unknown): { name: string; code?: string; message: string } {
+  const name = error instanceof Error ? error.name : typeof error;
+  const code = typeof error === "object" && error && "code" in error && typeof error.code === "string" ? error.code : undefined;
+  const message = safeMessage(error, 300).replace(/\b[A-Za-z0-9.-]+\.[A-Za-z]{2,}:\d{2,5}\b/g, "[host]");
+  return code ? { name, code, message } : { name, message };
 }
 
 /*

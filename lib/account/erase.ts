@@ -7,6 +7,7 @@ import { localeFor } from "@/lib/progress/locale";
 import { forgetSettings } from "@/lib/settings/store";
 import { ERASED_OWNER, ERASED_PREFIX, erasedOwnerKey } from "@/lib/usage/erasedSpend";
 import { utcDay } from "@/lib/usage/quota";
+import { typedBy } from "@/lib/account/export";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 
 const ERASURES_PER_DAY = 10;
@@ -162,6 +163,62 @@ export async function deleteAccountFor(ownerId: string, confirmation: unknown): 
         settings: it is the row that decides whether they are written to again,
         and the row the mail routes check before they write a setting.
       */
+      /*
+        THE SENTENCES THEY TYPED ONTO SHARED WORDS GO, AND SO DO WORDS ONLY THEY USED.
+
+        A sentence a learner added from class lives inside the word's own
+        `examples` JSON with `by` set to them, so no `deleteMany` above reached
+        it: it is their writing on a row everybody shares. Each such word is
+        found by the text the serializer leaves (`typedBy`) and rewritten
+        without their sentences, everybody else's left exactly as they were.
+
+        And a word they added by hand or confirmed off a photograph (provenance
+        USER or AI, `editedBy` them) is their own entry, not the shared
+        dictionary's. It is deleted where nothing of anybody else's points at
+        it, which by now is the test for "anybody", since every row of theirs
+        is already gone; its forms cascade with it. A word another learner
+        holds a card for, starred, shelved, reviewed, put aside, met in a
+        conversation or reported keeps existing, because deleting it would
+        delete their data, and only the attribution is cleared below.
+      */
+      const typedOn = await tx.lexeme.findMany({
+        where: { examples: { contains: typedBy(ownerId) } },
+        select: { id: true, examples: true },
+      });
+      for (const row of typedOn) {
+        let list: unknown;
+        try {
+          list = JSON.parse(row.examples);
+        } catch {
+          continue;
+        }
+        if (!Array.isArray(list)) continue;
+        const kept = list.filter((e) => !(e && typeof e === "object" && (e as { by?: unknown }).by === ownerId));
+        if (kept.length !== list.length) {
+          await tx.lexeme.update({ where: { id: row.id }, data: { examples: JSON.stringify(kept) } });
+        }
+      }
+      const created = await tx.lexeme.findMany({
+        where: {
+          editedBy: ownerId,
+          provenance: { in: ["USER", "AI"] },
+          cards: { none: {} }, stars: { none: {} }, deckWords: { none: {} },
+        },
+        select: { id: true },
+      });
+      if (created.length > 0) {
+        const ids = created.map((l) => l.id);
+        // The four tables that point at a word by a plain column, with no relation to ask through.
+        const [reviewed, deferred, gaps, reported] = await Promise.all([
+          tx.review.groupBy({ by: ["lexemeId"], where: { lexemeId: { in: ids } } }),
+          tx.deferral.groupBy({ by: ["lexemeId"], where: { lexemeId: { in: ids } } }),
+          tx.sceneGap.groupBy({ by: ["lexemeId"], where: { lexemeId: { in: ids } } }),
+          tx.suggestion.groupBy({ by: ["lexemeId"], where: { lexemeId: { in: ids } } }),
+        ]);
+        const held = new Set([...reviewed, ...deferred, ...gaps, ...reported].map((r) => r.lexemeId));
+        const unheld = ids.filter((id) => !held.has(id));
+        if (unheld.length > 0) await tx.lexeme.deleteMany({ where: { id: { in: unheld } } });
+      }
       await tx.lexeme.updateMany({ where: { editedBy: ownerId }, data: { editedBy: null } });
       /*
         And the attribution on anything they reviewed, for the same reason the

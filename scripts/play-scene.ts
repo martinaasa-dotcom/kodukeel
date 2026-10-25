@@ -272,8 +272,8 @@ async function simulatedLearner(kind: string, title: string, role: string, card:
     ...talk,
     "You:",
   ].filter(Boolean).join("\n");
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`, {
-    method: "POST", headers: { "content-type": "application/json" },
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent`, {
+    method: "POST", redirect: "error", headers: { "content-type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY ?? "" },
     body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 60, thinkingConfig: thinkingFor("gemini-3.1-flash-lite") } }),
   }).catch(() => null);
   const data = res && res.ok ? await res.json() as { candidates?: { content?: { parts?: { text?: string }[] } }[] } : null;

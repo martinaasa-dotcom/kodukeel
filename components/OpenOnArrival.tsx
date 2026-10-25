@@ -18,7 +18,17 @@ import { useEffect } from "react";
 export function OpenOnArrival() {
   useEffect(() => {
     const open = () => {
-      const id = decodeURIComponent(window.location.hash.slice(1));
+      /*
+        A hash is whatever was typed or linked, and `#%` is not valid
+        percent-encoding: decoding it throws, and a throw in this effect took
+        the whole page down to the error screen over a bad link.
+      */
+      let id: string;
+      try {
+        id = decodeURIComponent(window.location.hash.slice(1));
+      } catch {
+        return;
+      }
       if (!id) return;
       const target = document.getElementById(id);
       if (!target) return;

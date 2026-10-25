@@ -1454,8 +1454,14 @@ async function callOpenAiCompatible(
   // which pushes a provider onto the chain exactly when this key was set.
   const key = process.env[keyEnv]!;
 
+  /*
+    `redirect: "error"` on every request carrying a key. A followed redirect
+    keeps the headers it was sent with, so a provider (or anything between
+    us and it) answering 30x would be handed the key along with the request.
+  */
   const res = await withRetry(() => fetch(url, {
     method: "POST",
+    redirect: "error",
     headers: {
       "content-type": "application/json",
       authorization: `Bearer ${key}`,
@@ -1575,6 +1581,7 @@ async function callAnthropic(
 ) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
+    redirect: "error",
     headers: anthropicHeaders(),
     body: JSON.stringify({
       model: config.model,
@@ -1647,6 +1654,32 @@ export function anthropicMessages(messages: readonly ChatMessage[], live = "") {
   return turns;
 }
 
+/**
+ * The provider's own name for what went wrong, read off its error body, and
+ * nothing else of it: `error.type`, `error.code` or `error.status` (Anthropic,
+ * OpenAI-shaped and Google respectively), or a top-level `type` or `code`.
+ * Only a short identifier is kept, so a body that put prose where a code goes
+ * leaves nothing behind. Null where there is none.
+ */
+export function upstreamErrorCode(body: string): string | null {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(body);
+  } catch {
+    return null;
+  }
+  const record = (value: unknown): Record<string, unknown> | null =>
+    value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
+  const top = record(parsed);
+  if (!top) return null;
+  const inner = record(top.error);
+  for (const candidate of [inner?.type, inner?.code, inner?.status, top.type, top.code]) {
+    const text = typeof candidate === "number" ? String(candidate) : candidate;
+    if (typeof text === "string" && /^[A-Za-z0-9_.-]{1,64}$/.test(text)) return text;
+  }
+  return null;
+}
+
 async function assertOk(res: Response, config: ProviderConfig) {
   if (res.ok) return;
   const detail = await res.text().catch(() => "");
@@ -1696,13 +1729,15 @@ async function assertOk(res: Response, config: ProviderConfig) {
     );
   }
   /*
-    Everything else. The upstream text goes to the log rather than to the
-    screen: it is provider JSON, it can carry the request back verbatim, and
-    it means nothing to a learner. The status is what the caller needs.
+    Everything else. The status and the provider's own error code go to the
+    log, and the body does not, to the log or to the screen: it is provider
+    JSON that can carry the request back verbatim, which here is a learner's
+    own sentences, and the error log is posted to a webhook. The code is what
+    an operator needs to tell a quota from a bad request.
   */
-  reportError(new Error(`${config.label} returned ${res.status}: ${detail.slice(0, 500)}`), {
+  reportError(new Error(`${config.label} returned ${res.status}`), {
     at: "tutor/provider",
-    extra: { provider: config.label, model: config.model, status: res.status },
+    extra: { provider: config.label, model: config.model, status: res.status, code: upstreamErrorCode(detail) },
   });
   throw new TutorError(
     `${config.label} couldn't answer just now (${res.status}). Try again in a moment.`,
@@ -1943,6 +1978,7 @@ async function readImageOpenAiCompatible(
 
   const res = await fetch(url, {
     method: "POST",
+    redirect: "error",
     headers: {
       "content-type": "application/json",
       authorization: `Bearer ${key}`,
@@ -2005,6 +2041,7 @@ async function readImageAnthropic(
 ): Promise<CompletedReply> {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
+    redirect: "error",
     headers: anthropicHeaders(),
     body: JSON.stringify({
       model: config.model,

@@ -130,8 +130,17 @@ export interface CohortMember {
   band: ReadinessBand;
   /** What the band rests on, carried so no screen can show one without it. */
   evidence: Evidence;
-  reviewsThisWeek: number;
-  daysSinceLastReview: number | null;
+  /**
+   * Whether they reviewed at all in the last `QUIET_DAYS`, and nothing finer.
+   *
+   * The join screen tells a colleague that whoever runs the group sees their
+   * name, whether they have been practicing, and one of four bands. It used to
+   * carry how many reviews they did this week and how many days since the
+   * last, which is a timesheet rather than "whether", so the counts stop at
+   * the query (`CohortInput`) and only the yes or no reaches a screen or the
+   * roster file.
+   */
+  practicedRecently: boolean;
 }
 
 export interface CohortSummary {
@@ -143,6 +152,12 @@ export interface CohortSummary {
   active: number;
   /** The weakest tier behind any band here, which is what the group's figure is worth. */
   evidence: Evidence;
+  /**
+   * The group was archived, so nobody's practice is read: every member is
+   * drawn by name alone, with no band. There is no archive date to read up to
+   * (`Classroom.archived` is a flag), so the honest freeze is to read nothing.
+   */
+  archived?: boolean;
 }
 
 /** How many days without a review before a member reads as having stopped. */
@@ -173,8 +188,7 @@ export function summariseCohort(input: CohortInput[], level: ExamLevel): CohortS
       displayName: row.displayName,
       band: at ? bandFor(at.confidence, evidence) : "unknown",
       evidence,
-      reviewsThisWeek: row.reviewsThisWeek,
-      daysSinceLastReview: row.daysSinceLastReview,
+      practicedRecently: row.daysSinceLastReview !== null && row.daysSinceLastReview < QUIET_DAYS,
     };
   });
 
@@ -208,7 +222,7 @@ export function summariseCohort(input: CohortInput[], level: ExamLevel): CohortS
     level,
     members,
     counts,
-    active: members.filter((m) => m.daysSinceLastReview !== null && m.daysSinceLastReview < QUIET_DAYS).length,
+    active: members.filter((m) => m.practicedRecently).length,
     evidence,
   };
 }
@@ -245,9 +259,7 @@ export function withoutMember(summary: CohortSummary, ownerId: string): CohortSu
     ...summary,
     members,
     counts,
-    active: summary.members
-      .filter((m) => m.ownerId !== ownerId)
-      .filter((m) => m.daysSinceLastReview !== null && m.daysSinceLastReview < QUIET_DAYS).length,
+    active: members.filter((m) => m.practicedRecently).length,
     evidence: members.reduce<Evidence>((worst, member) => (
       EVIDENCE_RANK[member.evidence] < EVIDENCE_RANK[worst] ? member.evidence : worst
     ), members.length > 0 ? "good" : "thin"),

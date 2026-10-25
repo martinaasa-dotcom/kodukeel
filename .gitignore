@@ -59,3 +59,11 @@ __pycache__/
 
 # The lessons laid out for the native speaker to read (npm run review:lessons): generated, never committed.
 /*-lesson-review.md
+
+# Keys and certificates never belong in the repository, and neither does what a
+# test run writes about itself.
+*.pem
+*.key
+coverage/
+playwright-report/
+test-results/

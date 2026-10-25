@@ -121,7 +121,7 @@ Model by model from `prisma/schema.prisma`. "Export" means the file `/api/export
 | `Lexeme` | The dictionary. Shared by everybody. `editedBy` holds a user id where somebody corrected an entry by hand | Indefinite. It is the app's content | The subset the learner's own rows point at, so a restore works | Not deleted. Attribution in `editedBy` is cleared, so a correction stops being attributed |
 | `Form` | None. Inflected forms of dictionary words | Indefinite | With their lexeme | Not deleted |
 | `KnownWord` | None. 154,995 Estonian headwords, one column | Indefinite | No | No |
-| `RateLimit` | A SHA-256 digest of a caller and an endpoint, a window start, a count. The caller is a user id where one is signed in and an IP address otherwise. The digest is unsalted (`bucketDigest` in `lib/security/rateLimit.ts`), so it does not hold the id or the address, and anybody holding a candidate id or address can confirm a match by hashing it; an IPv4 address can be recovered by trying them all | Until its window has passed, then deleted by the next prune, which runs at most once a minute per instance while a limited route is being called (`lib/usage/sharedLimit.ts`). No scheduled job | No | Not by account. It holds no owner id to delete by, and the window is at most an hour |
+| `RateLimit` | A keyed digest (HMAC-SHA256 under a server secret) of a caller and an endpoint, a window start, a count. The caller is a user id where one is signed in and an IP address otherwise. It does not hold the id or the address, and without the secret it cannot be reversed by trying every address (`bucketDigest` and `bucketKey` in `lib/security/rateLimit.ts`); whoever holds the secret and a candidate can confirm a match | Until its window has passed, then deleted by the next prune, which runs at most once a minute per instance while a limited route is being called (`lib/usage/sharedLimit.ts`). No scheduled job | No | Not by account. It holds no owner id to delete by, and the window is at most an hour |
 
 `RateLimit` is here because it carries no `ownerId`, not because it holds nothing about a person: a
 digest of a user id is pseudonymous data rather than anonymous data, since the operator holds the ids
@@ -168,7 +168,7 @@ are deleted on erasure.
 | `EmailSend` | Append-only. One row per letter sent to them: the kind, their day, the moment, the provider's message id. Never the subject or the body, and nothing about whether it was opened | Until the account is deleted | Yes | Yes |
 | `PushSubscription` | A browser they asked to be reminded on: the address its push service gave it and the two keys a reminder is encrypted to. Nothing about the browser or the device, and nothing about whether a notification was shown or clicked | Until they turn it off, the push service reports it gone, or the account is deleted | Yes | Yes |
 | `NativePushDevice` | A phone running the app they allowed reminders on: the Firebase token, which platform, the app build, and when it was first and last registered. Nothing about the device beyond that, and nothing about whether a notification was shown or opened | Until the app forgets it, Firebase reports it gone, or the account is deleted | Yes | Yes |
-| `UsageEvent` | Append-only spending ledger: which model, token counts, estimated cost, the day | The running year. See §2.3 | **No** | Yes |
+| `UsageEvent` | Append-only spending ledger: which model, token counts, estimated cost, the day | Thirteen months, cut by the daily scheduled run. See §2.3 | **No** | Yes |
 
 ### 2.3 The one export exclusion, and why
 

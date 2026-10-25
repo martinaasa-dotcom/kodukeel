@@ -45,3 +45,28 @@ export async function readCapped(request: Request, maxBytes: number): Promise<st
   }
   return new TextDecoder().decode(joined);
 }
+
+/** A body that did not arrive under its ceiling: too long, or a stream that failed. */
+export class BodyTooLargeError extends Error {
+  constructor() {
+    super("request body over its ceiling");
+    this.name = "BodyTooLargeError";
+  }
+}
+
+/**
+ * A JSON body read through `readCapped`, for a route that used to call
+ * `request.json()`, which reads whatever arrives before parsing any of it.
+ * Throws where `request.json()` threw, so a caller's existing `try` answers a
+ * body that will not parse exactly as before, and throws `BodyTooLargeError`
+ * for one over the ceiling, so a caller that can say something better about
+ * size can tell the two apart.
+ */
+export async function readJsonCapped(request: Request, maxBytes: number): Promise<unknown> {
+  const raw = await readCapped(request, maxBytes);
+  if (raw === null) throw new BodyTooLargeError();
+  return JSON.parse(raw) as unknown;
+}
+
+/** The ceiling most routes read under: a question, a sentence, a short composition. */
+export const JSON_BODY_BYTES = 64 * 1024;

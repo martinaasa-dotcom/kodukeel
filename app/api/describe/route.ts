@@ -17,6 +17,7 @@ import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledg
 import { courseLevelFor } from "@/lib/progress/level";
 import { clip } from "@/lib/copy/clip";
 import { NO_STORE } from "@/lib/security/headers";
+import { readJsonCapped, JSON_BODY_BYTES } from "@/lib/security/body";
 import { localeFor } from "@/lib/progress/locale";
 
 export const dynamic = "force-dynamic";
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
   let pictureId: string;
   let sentences: string[];
   try {
-    const body = (await request.json()) as Record<string, unknown>;
+    const body = (await readJsonCapped(request, JSON_BODY_BYTES)) as Record<string, unknown>;
     if (typeof body.pictureId !== "string" || !Array.isArray(body.sentences)
         || body.sentences.length !== SENTENCES_PER_PICTURE
         || body.sentences.some((s) => typeof s !== "string")) return bad();

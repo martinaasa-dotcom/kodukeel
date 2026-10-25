@@ -55,6 +55,9 @@ const { deleteAccountFor } = await import("@/lib/account/erase");
 const MINE = "itest-owner-delete";
 const THEIRS = "itest-owner-keep";
 const LEMMA = "itest-delete-word";
+// Words the account added itself, invented so no seeded word is touched.
+const OWN_WORD = "itest-delete-own";
+const SHARED_WORD = "itest-delete-shared";
 
 /** Every model carrying an `ownerId`, read off the schema rather than typed. */
 const OWNED = Prisma.dmmf.datamodel.models
@@ -90,8 +93,8 @@ async function wipe() {
     await prisma.classroomMember.deleteMany({ where: { ownerId: owner } });
     for (const model of OWNED) await table(model).deleteMany({ where: { ownerId: owner } });
   }
-  const lexeme = await prisma.lexeme.findFirst({ where: { lemma: LEMMA } });
-  if (lexeme) {
+  const lexemes = await prisma.lexeme.findMany({ where: { lemma: { in: [LEMMA, OWN_WORD, SHARED_WORD] } } });
+  for (const lexeme of lexemes) {
     await prisma.form.deleteMany({ where: { lexemeId: lexeme.id } });
     await prisma.lexeme.delete({ where: { id: lexeme.id } });
   }
@@ -236,5 +239,40 @@ describe("deleteAccountFor, behind both doors", () => {
     const after = await prisma.suggestion.findUniqueOrThrow({ where: { id: theirs.id } });
     expect(after.status).toBe("ACCEPTED");
     expect(after.reviewedBy).toBeNull();
+  });
+
+  it("takes the sentences they typed off a shared word and leaves everybody else's", async () => {
+    await prisma.lexeme.update({
+      where: { id: lexemeId },
+      data: {
+        examples: JSON.stringify([
+          { et: "Recorded.", source: "EKILEX" },
+          { et: "Mine.", source: "USER", by: MINE },
+          { et: "Theirs.", source: "USER", by: THEIRS },
+        ]),
+      },
+    });
+
+    await deleteAccountFor(MINE, "delete");
+
+    const after = await prisma.lexeme.findUniqueOrThrow({ where: { id: lexemeId } });
+    const kept = (JSON.parse(after.examples) as { et: string }[]).map((e) => e.et);
+    expect(kept).toEqual(["Recorded.", "Theirs."]);
+  });
+
+  it("deletes a word they added that nobody else uses, and keeps one somebody else does", async () => {
+    const own = await prisma.lexeme.create({
+      data: { lemma: OWN_WORD, pos: "NOUN", translation: "x", provenance: "USER", editedBy: MINE },
+    });
+    const shared = await prisma.lexeme.create({
+      data: { lemma: SHARED_WORD, pos: "NOUN", translation: "x", provenance: "USER", editedBy: MINE },
+    });
+    await prisma.card.create({ data: { ownerId: THEIRS, lexemeId: shared.id, cardType: "RECOGNITION", front: "a", back: "b" } });
+
+    await deleteAccountFor(MINE, "delete");
+
+    expect(await prisma.lexeme.findUnique({ where: { id: own.id } })).toBeNull();
+    const kept = await prisma.lexeme.findUniqueOrThrow({ where: { id: shared.id } });
+    expect(kept.editedBy).toBeNull();
   });
 });

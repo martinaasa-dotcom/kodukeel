@@ -16,7 +16,8 @@ export default function routeBodyMayBeNull({ check, APP, code }: InvariantKit) {
     const loose: string[] = [];
     for (const file of routes) {
       const source = code(file);
-      for (const m of source.matchAll(/(\w+)\s*(?::[^=;\n]+)?=\s*\(?\s*await (?:request|req)\.json\(\)/g)) {
+      // `readJsonCapped` is how a route reads its body now (lib/security/body.ts), and it is the same read.
+      for (const m of source.matchAll(/(\w+)\s*(?::[^=;\n]+)?=\s*\(?\s*await (?:(?:request|req)\.json\(\)|readJsonCapped\((?:request|req)\b[^)]*\))/g)) {
         asked += 1;
         const name = m[1]!;
         let depth = 0;

@@ -1,6 +1,7 @@
 "use server";
 
 import { moveBlockedFor } from "@/lib/progress/checks";
+import { throttleShared } from "@/lib/usage/sharedThrottle";
 import { COURSE_DAY_CARDS, finishLessonFor, submitCheckFor } from "@/lib/progress/lessons";
 import { LESSONS } from "@/lib/course/lessons";
 import { lessonLevels } from "@/lib/curriculum/align";
@@ -36,7 +37,7 @@ import { EXAM_LEVELS, type ExamLevel } from "@/lib/exam/spec";
 import { loadRecentMessages } from "@/lib/tutor/history";
 import { coldBudget, isExactForm } from "@/lib/dict/forms";
 import { COLD_SHARDS_PER_REQUEST } from "@/lib/progress/speechForms";
-import { mergeExamples, parseExamples } from "@/lib/dict/examples";
+import { MAX_TYPED_STORED, mergeExamples, parseExamples } from "@/lib/dict/examples";
 import { restoredEntry } from "@/lib/dict/restoredEntry";
 import { lookupAndStore } from "@/lib/dict/lookup";
 import { upsertLexemeWithForms } from "@/lib/dict/upsert";
@@ -64,7 +65,7 @@ import {
 } from "@/lib/progress/decks";
 
 import { markSayingsShown } from "@/lib/progress/sayings";
-import { bringBack, keepWord, putAside, setStar } from "@/lib/progress/wordActions";
+import { bringBack, keepWord, putAside, setStar, wordReaches } from "@/lib/progress/wordActions";
 import { addScanToDeckFor, saveScanFor } from "@/lib/progress/scans";
 import {
   forgetSettings, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
@@ -95,7 +96,7 @@ import { roundPaceFrom } from "@/lib/ux/roundClock";
 import {
   CARD_TYPES, type CardType,
 } from "@/lib/srs/cards";
-import { boundedRestoredReview, stableReviewId } from "@/lib/srs/grade";
+import { boundedRestoredCard, boundedRestoredReview, stableReviewId } from "@/lib/srs/grade";
 import { asRestoredMeasurement } from "@/lib/security/restoredMeasurement";
 import { createAbsent, resolveLexemes, restoreLexemes, restoreOwned } from "@/lib/progress/restoreRows";
 import { errandById, outcomeFrom } from "@/lib/collections/errands";
@@ -224,6 +225,7 @@ export async function openerCard(lexemeId: string) {
   let card = await find();
   let made = false;
   if (!card) {
+    if (!await wordReaches(ownerId, lexemeId)) return { ok: false as const };
     const added = await addCardsFor(ownerId, lexemeId, ["RECOGNITION", "PRODUCTION"], DEFAULT_SOURCE);
     if (!added.ok) return { ok: false as const };
     card = await find();
@@ -563,10 +565,17 @@ export async function addExample(lexemeId: string, sentence: string, translation
   const admin = await isAdmin();
   const saved = await editExamples(
     typeof lexemeId === "string" ? lexemeId : "",
-    (now) => ({ next: mergeExamples(now, [{ et, en, source: "USER", by: ownerId, ...(admin ? { reviewed: true } : {}) }]), result: null }),
+    (now) => {
+      // A word holds so many typed sentences from everybody together and no
+      // more, so it stays bounded without anybody's sentence being dropped.
+      const others = now.filter((e) => (e.source === "USER" || e.source === "AI") && e.by !== ownerId).length;
+      if (!admin && others >= MAX_TYPED_STORED) return { next: null, result: "full" as const };
+      return { next: mergeExamples(now, [{ et, en, source: "USER", by: ownerId, ...(admin ? { reviewed: true } : {}) }]), result: null };
+    },
     admin ? { editedBy: ownerId, editedAt: new Date() } : {},
   );
   if (!saved.found) return { ok: false as const, error: "That word isn't in the dictionary any more." };
+  if (saved.result === "full") return { ok: false as const, error: "This word already holds as many sentences as it can." };
   revalidatePath("/dictionary");
   return { ok: true as const };
 }
@@ -801,7 +810,18 @@ export async function createLexemeWithForms(input: {
     },
   });
   if (id && !target) return { ok: false as const, error: "That entry isn't in the dictionary any more." };
-  const theirs = target !== null && (target.provenance === "USER" || target.provenance === "AI") && target.editedBy === ownerId;
+  /*
+    AND ONLY WHILE NOBODY ELSE IS LEARNING IT. A word somebody added is shared
+    the moment another learner's scan, import or "add this word" lands on the
+    same headword and builds cards from it, and from then on changing it
+    changes what those learners are drilled on. So their own word goes for
+    review too, the way a seeded one does, once anybody else holds a card.
+  */
+  const ownWord = target !== null && (target.provenance === "USER" || target.provenance === "AI") && target.editedBy === ownerId;
+  const theirs = ownWord && !await prisma.card.findFirst({
+    where: { lexemeId: target!.id, ownerId: { not: ownerId } },
+    select: { id: true },
+  });
   if (target && !admin && !theirs) {
     const now = {
       ...target,
@@ -1349,13 +1369,27 @@ export async function recordMatchTime(seconds: number) {
  * word, which grades a different card of the learner's own deck at a rating
  * they earned on a board they played.
  */
+/*
+  A daily puzzle is graded for its own day. The day comes from the board, so
+  it is checked to be today or near it, in any time zone, with a day either
+  side for a board left open over midnight: the puzzle is rebuilt from the
+  date, and a caller naming any date it liked could grade a word once for
+  every day of the calendar.
+*/
+function nearToday(day: string): boolean {
+  const at = Date.parse(`${day}T12:00:00Z`);
+  return Number.isFinite(at) && Math.abs(at - Date.now()) <= 2.5 * 24 * 60 * 60 * 1000;
+}
+
 export async function recordSonad(day: string, guesses: unknown) {
   const ownerId = await requireUserId();
   const played = Array.isArray(guesses)
     ? guesses.filter((g): g is string => typeof g === "string").slice(0, SONAD_GUESSES)
     : [];
   if (played.length === 0) return { ok: false as const, error: "There's nothing to save yet." };
-  if (!isDayKey(day)) return { ok: false as const, error: "That isn't a day we recognize." };
+  if (!isDayKey(day) || !nearToday(day)) return { ok: false as const, error: "That isn't a day we recognize." };
+  const busy = throttleAction(ownerId, "personalWrite");
+  if (busy) return await sayRefusal(ownerId, busy);
 
   const puzzle = await puzzleFor(ownerId, day as DayKey, await courseLevelFor(ownerId));
   if (!puzzle) return { ok: false as const, error: "There's no puzzle for that day." };
@@ -1410,7 +1444,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
   const ownerId = await requireUserId();
   // Its own allowance, not the one finishing a conversation needs: see
   // `lib/security/actionLimits.ts`.
-  const busy = throttleAction(ownerId, "beginScene");
+  const busy = await throttleShared(ownerId, "beginScene");
   if (busy) return await sayRefusal(ownerId, busy);
   const result = await beginSceneFor(ownerId, sceneId, difficulty, level);
   if (!result.ok) return { ok: false as const, error: result.error };
@@ -1424,7 +1458,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
  */
 export async function beginChat(level?: unknown) {
   const ownerId = await requireUserId();
-  const busy = throttleAction(ownerId, "beginScene");
+  const busy = await throttleShared(ownerId, "beginScene");
   if (busy) return await sayRefusal(ownerId, busy);
   const result = await beginChatFor(ownerId, level);
   if (!result.ok) return { ok: false as const, error: result.error };
@@ -1437,7 +1471,7 @@ export async function beginChat(level?: unknown) {
  */
 export async function sceneHelp(runId: unknown, turns: unknown) {
   const ownerId = await requireUserId();
-  const busy = throttleAction(ownerId, "sceneHelp");
+  const busy = await throttleShared(ownerId, "sceneHelp");
   if (busy) return await sayRefusal(ownerId, busy);
   const result = await sceneHelpFor(ownerId, runId, turns);
   if (!result.ok) return { ok: false as const, error: result.error };
@@ -1457,7 +1491,7 @@ export async function finishScene(input: {
   asked: unknown;
 }) {
   const ownerId = await requireUserId();
-  const busy = throttleAction(ownerId, "finishScene");
+  const busy = await throttleShared(ownerId, "finishScene");
   if (busy) return await sayRefusal(ownerId, busy);
   const result = await finishSceneFor(ownerId, fieldsOf(input));
   if (!result.ok) return { ok: false as const, error: result.error };
@@ -1467,7 +1501,9 @@ export async function finishScene(input: {
 
 export async function recordCrossword(day: string, typed: unknown, helped: unknown) {
   const ownerId = await requireUserId();
-  if (!isDayKey(day)) return { ok: false as const, error: "That isn't a day we recognize." };
+  if (!isDayKey(day) || !nearToday(day)) return { ok: false as const, error: "That isn't a day we recognize." };
+  const busy = throttleAction(ownerId, "personalWrite");
+  if (busy) return await sayRefusal(ownerId, busy);
 
   /*
     Off the wire, whatever the types say. A cell index that is not a number and
@@ -2062,7 +2098,7 @@ export async function completeOnboarding(input: {
     return { ok: false as const, error: "Pick a level from the list." };
   }
   const cefr = text(input.cefr) as HeldChoice;
-  const busy = throttleAction(ownerId, "completeOnboarding");
+  const busy = await throttleShared(ownerId, "completeOnboarding");
   if (busy) return await sayRefusal(ownerId, busy);
   const goal = Math.min(200, Math.max(5, Math.round(input.dailyGoal)));
 
@@ -2125,11 +2161,18 @@ export async function completeOnboarding(input: {
     the batch above, which is what wrote the declaration it reads.
   */
   const answer = await currentLevelAnswer(ownerId);
-  await writeSetting(
-    ownerId,
-    SETTING_KEYS.programme,
-    openingPart(heldLevel(answer), input.goals?.target ?? null, text(input.startOn) === "held").id,
-  );
+  const opening = openingPart(heldLevel(answer), input.goals?.target ?? null, text(input.startOn) === "held");
+  /*
+    AND RUN AGAIN IT IS NOT A WAY PAST THE CHECKS. Every export here is a
+    public endpoint, and this one can be called after set-up as readily as
+    during it: a learner climbing the A1 lessons who sent it again with a
+    higher level was moved straight onto that part. Somebody on no part yet
+    places freely, which is what first run is for; somebody already on one
+    moves only where `setProgramme` would let them.
+  */
+  if (!await moveBlockedFor(ownerId, partFrom(await readSetting(ownerId, SETTING_KEYS.programme)), opening)) {
+    await writeSetting(ownerId, SETTING_KEYS.programme, opening.id);
+  }
 
   /*
     One batched build rather than a call per unit.
@@ -2165,7 +2208,7 @@ export async function completeOnboarding(input: {
  */
 export async function addCommonWords(group: string) {
   const ownerId = await requireUserId();
-  const busy = throttleAction(ownerId, "addCommonWords");
+  const busy = await throttleShared(ownerId, "addCommonWords");
   if (busy) return await sayRefusal(ownerId, busy);
   if (!FREQUENCY_GROUPS.includes(group as FrequencyGroup)) {
     return { ok: false as const, error: "We couldn't find that word list." };
@@ -2215,7 +2258,7 @@ export async function deepenCommonWords(group: string, part?: number) {
     return { ok: false as const, error: "We couldn't find that word list." };
   }
 
-  const busy = throttleAction(ownerId, "deepenCommonWords");
+  const busy = await throttleShared(ownerId, "deepenCommonWords");
   if (busy) return await sayRefusal(ownerId, busy);
 
   const wanted = readPart(part === undefined ? undefined : String(part));
@@ -2367,7 +2410,7 @@ export async function completeLesson(
 ) {
   unitId = text(unitId);
   const ownerId = await requireUserId();
-  const busy = throttleAction(ownerId, "completeLesson");
+  const busy = await throttleShared(ownerId, "completeLesson");
   if (busy) return await sayRefusal(ownerId, busy);
   const unit = unitById(unitId);
   if (!unit) return { ok: false as const, error: "We couldn't find that unit." };
@@ -2483,11 +2526,15 @@ export async function setCourseStart(which: string) {
  * nothing at all — a checkpoint is a measurement, and a bad evening is not
  * evidence that somebody has lost a level they already had.
  *
- * The score is re-checked here rather than trusted. Every export in this file is
- * a public endpoint, so `recordCheckpoint("c1", 20, 20)` is a call anybody can
- * make; what it can buy is only the level marker the path uses to decide what to
- * open by default, and nothing in the review log moves, but a stored level that
- * no exam produced is still a lie the whole course is arranged around.
+ * THE SCORE IS MARKED IN THE BROWSER AND ONLY ITS SHAPE IS CHECKED HERE, which
+ * is the placement check's accepted trade (docs/27-security.md §8). Every export
+ * in this file is a public endpoint, so `recordCheckpoint("A2", 20, 20)` is a
+ * call anybody can make. What it can buy is bounded: the learner's own held
+ * level, which sets the pace a clip is read at and the band a conversation
+ * opens at, one step above the checkpoint taken. It does not move the part of
+ * the course they are on (`setCourseLevel` and `setProgramme` ask
+ * `moveBlockedFor` for that), writes nothing anybody else reads, and grades
+ * only words the level teaches.
  */
 export async function recordCheckpoint(
   level: string,
@@ -2690,6 +2737,20 @@ export async function archiveClassroom(rawClassroomId: unknown) {
  * they owe lives, and homework from class belongs in it. Nobody's deck is
  * touched — the task says what to do, the student decides when.
  */
+/** How many pieces of homework one class may be set in a day, by unit, page or scene together. */
+const HOMEWORK_PER_CLASS_PER_DAY = 20;
+
+/*
+  A teacher's homework lands as a row in every member's list, and a member may
+  not delete classwork, so the per-minute throttle alone let one class's lists
+  be filled faster than anybody could work through them. Counted per class
+  across every instance, since the rows land in other people's lists.
+*/
+async function homeworkRoomFor(classroomId: string) {
+  const room = await checkSharedRateLimit(`homework:c:${classroomId}`, HOMEWORK_PER_CLASS_PER_DAY, 24 * 60 * 60 * 1000);
+  return room.ok ? null : { ok: false as const, error: "That's as much homework as one class can be set in a day." };
+}
+
 export async function assignUnit(rawClassroomId: unknown, rawUnitId: unknown, rawDueAt?: unknown) {
   const ownerId = await requireUserId();
   const classroomId = text(rawClassroomId).slice(0, 64);
@@ -2716,6 +2777,8 @@ export async function assignUnit(rawClassroomId: unknown, rawUnitId: unknown, ra
   // course no longer walks anybody. Homework already set from one stays a task.
   if (lessonLevels(LESSONS).has(unit.level)) return { ok: false as const, error: UNIT_HOMEWORK_FROM };
 
+  const full = await homeworkRoomFor(classroom.id);
+  if (full) return full;
   const members = await prisma.classroomMember.findMany({
     where: { classroomId: classroom.id },
     select: { ownerId: true },
@@ -2774,6 +2837,8 @@ export async function assignHomework(
   if (!cleanTitle) return { ok: false as const, error: "Give the homework a title." };
   const cleanNotes = visibleProse(notes, LIMITS.taskNotes - classworkMarker(classroom.name).length - 1);
 
+  const full = await homeworkRoomFor(classroom.id);
+  if (full) return full;
   const members = await prisma.classroomMember.findMany({
     where: { classroomId: classroom.id },
     select: { ownerId: true },
@@ -2825,6 +2890,8 @@ export async function assignScene(rawClassroomId: unknown, rawSceneId: unknown, 
   const scene = sceneById(sceneId);
   if (!scene) return { ok: false as const, error: "We couldn't find that conversation." };
 
+  const full = await homeworkRoomFor(classroom.id);
+  if (full) return full;
   const members = await prisma.classroomMember.findMany({
     where: { classroomId: classroom.id },
     select: { ownerId: true },
@@ -3402,13 +3469,17 @@ const NOT_RESTORED = [
   SETTING_KEYS.shieldToldFor,
   SETTING_KEYS.emailUndeliverable,
 ] as const;
+/** The part a stored programme setting names, or null for "off" and nothing. */
+function partFrom(stored: string | null | undefined) {
+  return stored && stored !== "off" ? programmeById(stored) ?? null : null;
+}
 /** The longest setting a backup may write. The longest real one is a list of ids. */
 const MAX_RESTORED_SETTING = 4000;
 
 export async function restoreBackup(json: string, mode: "merge" | "replace") {
   const ownerId = await requireUserId();
 
-  const busy = throttleAction(ownerId, "restoreBackup");
+  const busy = await throttleShared(ownerId, "restoreBackup");
   if (busy) return await sayRefusal(ownerId, busy);
   const check = await inspectBackup(json);
   if (!check.ok) return { ok: false as const, error: check.error };
@@ -3477,7 +3548,8 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
       // Cards/tasks are always attributed to the person restoring them, regardless
       // of what the backup file says — restoring "my backup" always means "my data".
       const cards = backup.cards.flatMap((raw) => {
-        const data = revive(raw, ["due", "lastReview", "createdAt"]);
+        const data = boundedRestoredCard(revive(raw, ["due", "lastReview", "createdAt"]));
+        if (!data) return [];
         data.ownerId = ownerId;
         if (data.lexemeId != null) {
           data.lexemeId = wordOf(data.lexemeId);
@@ -3594,6 +3666,19 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         const key = String(data.key ?? "");
         if (key && restorable.has(key)) settings.set(key, String(data.value ?? "").slice(0, MAX_RESTORED_SETTING));
       }
+      /*
+        THE PART OF THE COURSE COMES BACK ONLY WHERE THE CHECKS WOULD LET THEM
+        MOVE THERE. A file is not a way past `moveBlockedFor`: a learner
+        climbing the A1 lessons who restored a backup naming C1.1 was on C1.1.
+      */
+      const restoredPart = settings.get(SETTING_KEYS.programme);
+      if (restoredPart !== undefined) {
+        const to = programmeById(restoredPart);
+        if (restoredPart !== "off" && !to) settings.delete(SETTING_KEYS.programme);
+        else if (to && await moveBlockedFor(ownerId, partFrom(await readSetting(ownerId, SETTING_KEYS.programme)), to)) {
+          settings.delete(SETTING_KEYS.programme);
+        }
+      }
       const heldKeys = new Set((await tx.setting.findMany({
         where: { ownerId, key: { in: [...settings.keys()] } }, select: { key: true },
       })).map((row) => row.key));
@@ -3647,8 +3732,30 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         (chunk) => tx.sceneGap.createMany({ data: chunk as never, skipDuplicates: true }),
       );
 
+      /*
+        A report about a conversation outside the app, held to what the live
+        path accepts: one of the answers Today offers, a time that has passed,
+        and no more of them in a day than `recordEncounter` takes. It is the
+        number the app says it is measured by, so a file does not get to add
+        a hundred.
+      */
+      const perDay = new Map<string, number>();
       await createAbsent(
-        (backup.encounters ?? []).map((raw) => ({ ...revive(raw, ["createdAt"]), ownerId })),
+        (backup.encounters ?? []).flatMap((raw) => {
+          const data = revive(raw, ["createdAt"]);
+          const outcome = outcomeFrom(data.outcome);
+          const at = data.createdAt instanceof Date && !Number.isNaN(data.createdAt.getTime()) && data.createdAt <= restoredAt
+            ? data.createdAt : restoredAt;
+          const day = at.toISOString().slice(0, 10);
+          const count = (perDay.get(day) ?? 0) + 1;
+          if (!outcome || count > OWN_ROWS.encounterPerDay) return [];
+          perDay.set(day, count);
+          return [{
+            id: typeof data.id === "string" ? data.id.slice(0, 64) : undefined,
+            ownerId, outcome, createdAt: at,
+            errandId: typeof data.errandId === "string" ? data.errandId.slice(0, 64) : null,
+          }];
+        }),
         (chunk) => tx.encounter.createMany({ data: chunk as never, skipDuplicates: true }),
       );
 
@@ -3682,18 +3789,32 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         all-or-nothing. `StarredWord` and `Achievement` are the same shape two
         loops down and already did it this way.
       */
+      /*
+        A TICK NAMES A DAY THE COURSE HAS, AND A PART THE CHECKS WOULD LET THEM
+        REACH. A tick is what `dayReached` walks and what `moveBlockedFor` reads
+        as having been above the lessons, so a forged one on the last evening
+        of C1 was every check passed at once. Each part named is asked once,
+        from where the learner stands before the restore.
+      */
+      const standing = partFrom(await readSetting(ownerId, SETTING_KEYS.programme));
+      const reachable = new Map<string, boolean>();
+      const steps: Array<Record<string, unknown>> = [];
+      for (const raw of backup.courseSteps ?? []) {
+        const data = revive(raw, ["createdAt"]);
+        const programme = programmeById(String(data.programmeId ?? ""));
+        const day = programme?.days.find((d) => d.id === String(data.dayId ?? ""));
+        const stepId = String(data.stepId ?? "");
+        if (!programme || !day || !day.steps.some((st) => st.id === stepId)) continue;
+        if (!reachable.has(programme.id)) {
+          reachable.set(programme.id, !await moveBlockedFor(ownerId, standing, programme));
+        }
+        if (!reachable.get(programme.id)) continue;
+        const at = data.createdAt instanceof Date && !Number.isNaN(data.createdAt.getTime()) && data.createdAt <= restoredAt
+          ? data.createdAt : restoredAt;
+        steps.push({ ownerId, programmeId: programme.id, dayId: day.id, stepId, createdAt: at });
+      }
       await createAbsent(
-        (backup.courseSteps ?? []).flatMap((raw) => {
-          const data = revive(raw, ["createdAt"]);
-          const programmeId = String(data.programmeId ?? "");
-          const dayId = String(data.dayId ?? "");
-          const stepId = String(data.stepId ?? "");
-          if (!programmeId || !dayId || !stepId) return [];
-          return [{
-            ownerId, programmeId, dayId, stepId,
-            ...(data.createdAt ? { createdAt: data.createdAt as Date } : {}),
-          }];
-        }),
+        steps,
         (chunk) => tx.courseStep.createMany({ data: chunk as never, skipDuplicates: true }),
       );
 
@@ -3862,7 +3983,7 @@ export async function markCourseStep(programmeId: string, dayId: string, stepId:
   }
 
   if (step.id === LESSON_STEP) {
-    const busy = throttleAction(ownerId, "finishLesson");
+    const busy = await throttleShared(ownerId, "finishLesson");
     if (busy) return await sayRefusal(ownerId, busy);
     await addPlanToDeck(ownerId, planLemmas(day.words, COURSE_DAY_CARDS), "COURSE");
   }
@@ -3927,7 +4048,7 @@ export async function advanceCourseStep(programmeId: string, dayId: string, step
   }
 
   if (step.id === LESSON_STEP) {
-    const busy = throttleAction(ownerId, "finishLesson");
+    const busy = await throttleShared(ownerId, "finishLesson");
     if (busy) return await sayRefusal(ownerId, busy);
     await addPlanToDeck(ownerId, planLemmas(day.words, COURSE_DAY_CARDS), "COURSE");
   }
@@ -3984,7 +4105,7 @@ export async function finishLesson(lessonId: string) {
   lessonId = text(lessonId);
   const ownerId = await requireUserId();
   if (!lessonDayFor(lessonId)) return { ok: false as const, error: "That lesson isn't part of the course." };
-  const busy = throttleAction(ownerId, "finishLesson");
+  const busy = await throttleShared(ownerId, "finishLesson");
   if (busy) return await sayRefusal(ownerId, busy);
   const result = await finishLessonFor(ownerId, lessonId);
   if (!result.ok) return { ok: false as const, error: result.error };
@@ -4221,7 +4342,7 @@ export async function saveScan(input: {
 }) {
   const ownerId = await requireUserId();
 
-  const busy = throttleAction(ownerId, "saveScan");
+  const busy = await throttleShared(ownerId, "saveScan");
   if (busy) return await sayRefusal(ownerId, busy);
   // The body is `saveScanFor`, which `POST /api/v1/scans` calls too (lib/progress/scans.ts).
   const saved = await saveScanFor(ownerId, input);
@@ -4237,7 +4358,7 @@ export async function saveScan(input: {
 export async function addScanToDeck(scanId: string) {
   scanId = text(scanId);
   const ownerId = await requireUserId();
-  const busy = throttleAction(ownerId, "addScanToDeck");
+  const busy = await throttleShared(ownerId, "addScanToDeck");
   if (busy) return await sayRefusal(ownerId, busy);
   // The body is `addScanToDeckFor`, which `POST /api/v1/scans/{id}/deck` calls too.
   const result = await addScanToDeckFor(ownerId, scanId);

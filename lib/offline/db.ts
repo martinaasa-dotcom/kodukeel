@@ -197,6 +197,15 @@ export async function stashSession(cards: ReviewCard[]): Promise<void> {
   );
 }
 
+/**
+ * The stash alone, for a device left signed out with grades still queued:
+ * the cards one learner was shown go, and the outbox stays to be replayed
+ * when they sign back in (`forgetIfSignedOut` in lib/offline/forget.ts).
+ */
+export async function forgetStashedSession(): Promise<void> {
+  await run(SESSION, "readwrite", (s) => s.delete("latest"), undefined);
+}
+
 export async function readStashedSession(): Promise<ReviewCard[]> {
   const stash = await run<StashedSession | undefined>(
     SESSION, "readonly", (s) => s.get("latest"), undefined,

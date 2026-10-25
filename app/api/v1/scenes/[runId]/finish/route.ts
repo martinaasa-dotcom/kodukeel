@@ -3,7 +3,7 @@ import { apiJson, readBody } from "@/lib/api/respond";
 import { SceneFinishRequest, type SceneFinishResponse } from "@/lib/api/contract";
 import { requireBearerUser } from "@/lib/auth/bearer";
 import { finishSceneFor } from "@/lib/progress/sceneRuns";
-import { throttleAction } from "@/lib/security/actionLimits";
+import { throttleShared } from "@/lib/usage/sharedThrottle";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -23,7 +23,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ run
   const body = await readBody(request, SceneFinishRequest);
   if (!body.ok) return body.response;
   const { runId } = await params;
-  const busy = throttleAction(who.ownerId, "finishScene");
+  const busy = await throttleShared(who.ownerId, "finishScene");
   if (busy) return apiError("rate_limited", { retryAfterSec: busy.retryAfterSec });
   const result = await finishSceneFor(who.ownerId, {
     runId, turns: body.data.turns, walkedOut: body.data.walkedOut, asked: body.data.asked,

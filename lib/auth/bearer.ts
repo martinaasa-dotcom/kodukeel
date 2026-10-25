@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 
 import { refuseOldBuild } from "@/lib/api/build";
 import { apiError } from "@/lib/api/errors";
+import { addressProvedForAllowlist } from "@/lib/auth/allowlistProof";
 import { isAllowedEmail } from "@/lib/auth/access";
 import {
   AUTH_TIMEOUT_MS,
@@ -119,7 +120,13 @@ export async function requireBearerUser(
   const who = await readBearer(request, deps);
   if (who.state === "unreachable") return apiError("auth_unavailable", { retryAfterSec: AUTH_RETRY_AFTER_SEC });
   if (who.state === "out") return apiError("unauthenticated");
-  if (!isAllowedEmail(who.learner.email)) {
+  /*
+    An allowlist is a list of addresses, so it means something only where the
+    session proves the address: a password sign-up is open with the anon key
+    and puts any address it likes on the token. The cookie door asks the same
+    question (`middleware.ts`).
+  */
+  if (!isAllowedEmail(who.learner.email) || !addressProvedForAllowlist(who.learner)) {
     return apiError("unauthenticated", { message: "This address isn't allowed to use this installation." });
   }
   return { ownerId: who.learner.id, learner: who.learner };

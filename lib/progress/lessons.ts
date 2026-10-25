@@ -5,6 +5,7 @@ import { CHECK_PASS, markCheck, type CheckResult, type PracticeItem } from "@/li
 import { dayIsInPlay, programmeFor } from "@/lib/progress/course";
 import { checksPassedFor, recordCheckPassed } from "@/lib/progress/checks";
 import { addPlanToDeck, planLemmas } from "@/lib/srs/deck";
+import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 
 /**
  * A LESSON FINISHED AND A CHECK MARKED, FOR AN OWNER ALREADY RESOLVED.
@@ -74,7 +75,10 @@ export async function finishLessonFor(ownerId: string, lessonId: string): Promis
 
 export type SubmitCheckResult =
   | ({ ok: true } & CheckResult)
-  | { ok: false; reason: "not_found" | "invalid"; error: string };
+  | { ok: false; reason: "not_found" | "invalid" | "rate_limited"; error: string };
+
+/** How many check papers one learner may hand in an hour, on both doors together. */
+const CHECKS_PER_HOUR = 30;
 
 /**
  * MARKS A CHECK AT THE END OF A PART OF A1, AND RECORDS A PASS.
@@ -94,6 +98,23 @@ export async function submitCheckFor(
 ): Promise<SubmitCheckResult> {
   const check = checkById(PROGRAMMES, checkId);
   if (!check) return { ok: false, reason: "not_found", error: "We couldn't find that check." };
+  /*
+    A CHECK IS SAT WHERE THE LEARNER STANDS. The checks are the way up out of
+    the A1 lessons, and the paper is rebuilt from its attempt number, so a
+    script that handed in papers for parts ahead of the learner, as often as it
+    liked, could pass every check between them and C1 before sitting a single
+    lesson. A check for the part they are on, or one they have left, is open;
+    one further up is not theirs yet. And papers are counted on both doors
+    together, so trying again is a person trying again.
+  */
+  const at = await programmeFor(ownerId);
+  const here = at ? PROGRAMMES.findIndex((p) => p.id === at.id) : -1;
+  const closes = PROGRAMMES.findIndex((p) => p.id === check.programmeId);
+  if (closes < 0 || here < 0 || closes > here) {
+    return { ok: false, reason: "not_found", error: "That check isn't the one for the part you're on." };
+  }
+  const allowed = await checkSharedRateLimit(`check:o:${ownerId}`, CHECKS_PER_HOUR, 60 * 60 * 1000);
+  if (!allowed.ok) return { ok: false, reason: "rate_limited", error: "That's a lot of tries in an hour. Have a break and come back to it." };
   const paper = checkPaper(check, attempt);
   if (paper.length === 0 || responses.length !== paper.length) {
     return { ok: false, reason: "invalid", error: "That check didn't match the questions, so it wasn't saved. Reload and try again." };

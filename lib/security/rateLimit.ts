@@ -43,7 +43,7 @@
  * rather than this paragraph.
  */
 
-import { createHash } from "node:crypto";
+import { createHmac, randomBytes } from "node:crypto";
 
 type Bucket = { count: number; resetAt: number };
 
@@ -159,19 +159,49 @@ export function windowStartMs(now: number, windowMs: number): number {
 /**
  * What the shared table stores instead of the key.
  *
- * The key is `tts:o:<uuid>`, so it carries an owner id, and a table of those
- * is a record of who was awake and when that nothing needs and nobody asked
- * for. A digest tells two callers apart, which is the whole job, and does not
- * hold the id. It is not anonymous: anybody holding the list of user ids can
- * hash each and match, and an IPv4 bucket can be recovered by trying them all.
+ * The key is `tts:o:<uuid>` or an IP address, so it says who was awake and
+ * when, which nothing needs and nobody asked for. A digest tells two callers
+ * apart, which is the whole job, and does not hold the id.
  *
- * Unsalted on purpose. A salt defends against somebody who has the table and
- * wants to confirm a guess, and anybody who has this table has the rows it was
- * derived from; what a salt would cost is that the same caller hashes
- * differently on two instances, which is the one property this needs.
+ * KEYED, BECAUSE AN UNKEYED DIGEST OF AN ADDRESS IS THE ADDRESS. There are
+ * about four billion IPv4 addresses, and hashing all of them takes a laptop
+ * minutes, so a plain SHA-256 of `tts:ip:203.0.113.7` could be turned straight
+ * back into the address by anybody holding the table. An HMAC under a server
+ * secret cannot be: without the secret there is nothing to try guesses
+ * against. It stays pseudonymous rather than anonymous, since whoever holds the
+ * secret and a candidate can still confirm a match, and the row lives an hour.
+ *
+ * The secret has to be the same on every instance, or one caller hashes two
+ * ways and the shared limit stops being shared. So it is `RATE_LIMIT_SECRET`
+ * where a deployment sets one, otherwise a key derived from a server-only
+ * secret it already has, and only on a deployment with none of them (a local
+ * install, which is one process) a random key held for the life of the process.
+ * A derived key is an HMAC of a label under the other secret, so the digest
+ * never uses that secret directly and cannot be used to check it.
  */
-export function bucketDigest(key: string): string {
-  return createHash("sha256").update(key).digest("hex");
+const BUCKET_SECRETS = ["RATE_LIMIT_SECRET", "CRON_SECRET", "SUPABASE_SERVICE_ROLE_KEY", "EMAIL_TOKEN_SECRET"] as const;
+
+let processKey: Buffer | null = null;
+const derivedKeys = new Map<string, Buffer>();
+
+/** The key bucket digests are made under, from the first server secret this deployment sets. */
+export function bucketKey(env: Record<string, string | undefined> = process.env): Buffer {
+  for (const name of BUCKET_SECRETS) {
+    const value = env[name]?.trim();
+    if (!value || value.length < 16) continue;
+    const cacheKey = `${name}\u0000${value}`;
+    const held = derivedKeys.get(cacheKey);
+    if (held) return held;
+    const key = createHmac("sha256", value).update("kodukeel rate limit bucket v1").digest();
+    derivedKeys.set(cacheKey, key);
+    return key;
+  }
+  processKey ??= randomBytes(32);
+  return processKey;
+}
+
+export function bucketDigest(key: string, env: Record<string, string | undefined> = process.env): string {
+  return createHmac("sha256", bucketKey(env)).update(key).digest("hex");
 }
 
 /**

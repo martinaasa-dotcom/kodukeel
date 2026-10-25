@@ -98,6 +98,14 @@ export interface ClassSummary {
   joined: number;
   totalReviewsThisWeek: number;
   activeThisWeek: number;
+  /**
+   * The class was archived, so nobody's practice is read: the entries carry a
+   * name, a role and the day each joined, every figure is zero and no case is
+   * named. `Classroom.archived` is a flag with no date, so there is no archive
+   * day to read up to, and showing a class that has ended its members' live
+   * activity is a view of people who are no longer in a class.
+   */
+  archived?: boolean;
 }
 
 /** Whether a roster row is somebody who joined, rather than whoever runs the class. */
@@ -109,9 +117,30 @@ export async function classRoster(
   const members = await prisma.classroomMember.findMany({
     where: { classroomId },
     orderBy: { joinedAt: "asc" },
+    include: { classroom: { select: { archived: true } } },
   });
   if (members.length === 0) {
     return { entries: [], weakestCases: [], sharedCases: [], joined: 0, totalReviewsThisWeek: 0, activeThisWeek: 0 };
+  }
+  // An archived class reads nobody's log: names only (see `ClassSummary.archived`).
+  if (members[0]!.classroom.archived) {
+    const entries: RosterEntry[] = members.map((member) => ({
+      ownerId: member.ownerId,
+      displayName: member.displayName,
+      role: member.role,
+      joinedAt: member.joinedAt,
+      reviewsThisWeek: 0,
+      spokenThisWeek: 0,
+      streak: 0,
+      wordsKnown: 0,
+      daysSinceLastReview: null,
+      weakestCase: null,
+    }));
+    entries.sort((a, b) => a.displayName.localeCompare(b.displayName) || a.ownerId.localeCompare(b.ownerId));
+    return {
+      entries, weakestCases: [], sharedCases: [],
+      joined: entries.filter(joinedMember).length, totalReviewsThisWeek: 0, activeThisWeek: 0, archived: true,
+    };
   }
 
   const ids = members.map((m) => m.ownerId);
@@ -299,9 +328,23 @@ export async function workplaceRoster(
   const members = await prisma.classroomMember.findMany({
     where: { classroomId },
     orderBy: [{ joinedAt: "asc" }, { ownerId: "asc" }],
-    select: { ownerId: true, displayName: true },
+    select: { ownerId: true, displayName: true, classroom: { select: { archived: true } } },
   });
   if (members.length === 0) return summariseCohort([], level);
+  /*
+    An archived group reads nobody's practice: every member by name, with no
+    band and no activity, for the reason `ClassSummary.archived` gives.
+  */
+  if (members[0]!.classroom.archived) {
+    const frozen = summariseCohort(members.map((member) => ({
+      ownerId: member.ownerId,
+      displayName: member.displayName,
+      readiness: null,
+      reviewsThisWeek: 0,
+      daysSinceLastReview: null,
+    })), level);
+    return { ...frozen, archived: true };
+  }
 
   const ids = members.map((m) => m.ownerId);
   const weekAgo = new Date(now.getTime() - 7 * 86_400_000);

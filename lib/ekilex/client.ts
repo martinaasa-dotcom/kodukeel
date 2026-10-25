@@ -169,7 +169,7 @@ export interface GateOptions {
 
 /** What the gate needs from the world, handed in so a test can stub every piece. */
 export interface GateDeps {
-  fetch: (url: string, init: { headers: Record<string, string>; signal?: AbortSignal }) => Promise<ResponseLike & { headers?: { get(name: string): string | null } }>;
+  fetch: (url: string, init: { headers: Record<string, string>; signal?: AbortSignal; redirect?: RequestRedirect }) => Promise<ResponseLike & { headers?: { get(name: string): string | null } }>;
   sleep: (ms: number) => Promise<void>;
   now: () => number;
   random: () => number;
@@ -275,6 +275,9 @@ export function createEkilexGate(deps: GateDeps): EkilexGate {
           last = await readAnswer<T>(async () => {
             const res = await deps.fetch(`${BASE}${path}`, {
               headers: { "ekilex-api-key": key, "user-agent": deps.userAgent() },
+              // The key travels in a header, and a redirect would carry it to
+              // wherever the redirect pointed (see lib/tutor/provider.ts).
+              redirect: "error",
               signal: AbortSignal.timeout(deps.timeoutMs ?? REQUEST_TIMEOUT_MS),
             });
             retryAfterMs = retryAfter(res.headers?.get("retry-after"), deps.now());

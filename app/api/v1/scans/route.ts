@@ -3,7 +3,7 @@ import { apiJson, readBody } from "@/lib/api/respond";
 import { ScanSaveRequest, type ScanSaveResponse } from "@/lib/api/contract";
 import { requireBearerUser } from "@/lib/auth/bearer";
 import { saveScanFor } from "@/lib/progress/scans";
-import { throttleAction } from "@/lib/security/actionLimits";
+import { throttleShared } from "@/lib/usage/sharedThrottle";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -20,7 +20,7 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   const who = await requireBearerUser(request);
   if (who instanceof Response) return who;
-  const busy = throttleAction(who.ownerId, "saveScan");
+  const busy = await throttleShared(who.ownerId, "saveScan");
   if (busy) return apiError("rate_limited", { retryAfterSec: busy.retryAfterSec });
   const body = await readBody(request, ScanSaveRequest);
   if (!body.ok) return body.response;

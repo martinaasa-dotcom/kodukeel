@@ -4,6 +4,7 @@ import { bucketForOwner, bucketForRequest, rateLimited } from "@/lib/security/ra
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 import { clipLimitKey, HEARD_PER_MINUTE, SPEECH_PER_MINUTE, speakClip, type ClipSource } from "@/lib/progress/speakClip";
 import { NO_STORE } from "@/lib/security/headers";
+import { readJsonCapped, JSON_BODY_BYTES } from "@/lib/security/body";
 
 /**
  * Server-side proxy and cache for Estonian speech.
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
 
   let body: unknown;
   try {
-    body = await request.json();
+    body = await readJsonCapped(request, JSON_BODY_BYTES);
   } catch {
     return NextResponse.json({ error: "Something went wrong sending that. Reload the page and try again." }, { headers: NO_STORE, status: 400 });
   }

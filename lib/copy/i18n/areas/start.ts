@@ -29,8 +29,8 @@ export const START: Area = {
       "С этим адресом нельзя войти в эту копию Kodukeel: она настроена для определённой группы. Попробуйте аккаунт, на который вас пригласили.",
     "That link would have signed you in as someone else, so to be safe we signed you out and didn’t follow it. If the link is yours, sign in below. If you didn’t ask for it, you can safely ignore it.":
       "По этой ссылке вы вошли бы в чужой аккаунт, поэтому для надёжности мы вышли из аккаунта и не стали её открывать. Если ссылка ваша, войдите ниже. Если вы её не запрашивали, просто не обращайте на неё внимания.",
-    "You opened a sign-in link from your email. Press the button to finish signing in on this device.":
-      "Вы открыли ссылку для входа из письма. Нажмите кнопку, чтобы завершить вход на этом устройстве.",
+    "Only continue if you asked for this sign-in link yourself just now. If you didn’t, close this page.":
+      "Продолжайте, только если вы сами только что запросили эту ссылку для входа. Если нет, закройте эту страницу.",
     "Finish signing in": "Завершить вход",
     "This browser couldn’t finish that sign-in. Either the link was opened in a different browser from the one that asked for it, or you ended up on a different address from the one you started on. Try again from here.":
       "Этот браузер не смог завершить вход. Либо ссылку открыли не в том браузере, в котором её запросили, либо вы оказались на другом адресе сайта, не на том, с которого начинали. Попробуйте ещё раз отсюда.",
@@ -344,8 +344,8 @@ export const START: Area = {
       "З цією адресою не можна увійти в цю копію Kodukeel, бо її налаштовано для певної групи. Спробуйте обліковий запис, на який вас запросили.",
     "That link would have signed you in as someone else, so to be safe we signed you out and didn’t follow it. If the link is yours, sign in below. If you didn’t ask for it, you can safely ignore it.":
       "За цим посиланням ви увійшли б у чужий обліковий запис, тож для безпеки ми завершили ваш сеанс і не стали відкривати це посилання. Якщо посилання ваше, увійдіть нижче. Якщо ви його не запитували, просто не зважайте на нього.",
-    "You opened a sign-in link from your email. Press the button to finish signing in on this device.":
-      "Ви відкрили посилання для входу з листа. Натисніть кнопку, щоб завершити вхід на цьому пристрої.",
+    "Only continue if you asked for this sign-in link yourself just now. If you didn’t, close this page.":
+      "Продовжуйте, лише якщо ви самі щойно запитали це посилання для входу. Якщо ні, закрийте цю сторінку.",
     "Finish signing in": "Завершити вхід",
     "This browser couldn’t finish that sign-in. Either the link was opened in a different browser from the one that asked for it, or you ended up on a different address from the one you started on. Try again from here.":
       "Цей браузер не зміг завершити вхід. Або посилання відкрили не в тому браузері, де його запитували, або ви опинилися не на тій адресі, з якої починали. Спробуйте ще раз звідси.",

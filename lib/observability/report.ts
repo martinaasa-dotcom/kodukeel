@@ -100,10 +100,53 @@ export function reportError(error: unknown, context: ErrorContext): void {
   if (!webhook) return;
   void fetch(webhook, {
     method: "POST",
+    redirect: "error",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify(record),
+    body: JSON.stringify(webhookPayload(record)),
     signal: AbortSignal.timeout(3000),
   }).catch(() => {
     // A reporting channel that is down must not become a second incident.
   });
+}
+
+/** The longest any one value in `extra` is posted at. */
+export const WEBHOOK_VALUE_MAX = 200;
+const WEBHOOK_MESSAGE_MAX = 1_000;
+const WEBHOOK_STACK_MAX = 4_000;
+
+/**
+ * What the webhook is sent, which is the record made safe to land in a chat.
+ *
+ * `extra` carries values a caller handed over (a provider's name, a status, a
+ * scene id, sometimes a word somebody typed), and the usual webhook is a Slack
+ * or Discord channel, where `@here`, `<!channel>` and `<@U123>` in a message
+ * page people. A learner's text arriving in an error could do exactly that,
+ * so every string has its `@` and its `<!` broken with a zero-width space,
+ * which reads the same and pings nobody, and every value in `extra` is cut to
+ * `WEBHOOK_VALUE_MAX` characters. The server log and the database keep the
+ * record as `buildRecord` made it.
+ */
+export function webhookPayload(record: ErrorRecord): ErrorRecord {
+  return {
+    ...record,
+    at: quiet(record.at, WEBHOOK_VALUE_MAX),
+    message: quiet(record.message, WEBHOOK_MESSAGE_MAX),
+    stack: record.stack === undefined ? undefined : quiet(record.stack, WEBHOOK_STACK_MAX),
+    extra: record.extra === undefined ? undefined : quietValues(record.extra, 0),
+  };
+}
+
+function quiet(text: string, max: number): string {
+  const safe = text.replace(/@/g, "@\u200b").replace(/<!/g, "<\u200b!");
+  // Cut after breaking the mentions, so the cut cannot land between the two halves of one.
+  return safe.length > max ? `${safe.slice(0, max).replace(/@$/, "")}...` : safe;
+}
+
+function quietValues(value: unknown, depth: number): unknown {
+  if (typeof value === "string") return quiet(value, WEBHOOK_VALUE_MAX);
+  if (depth > 4 || value === null || typeof value !== "object") return value;
+  if (Array.isArray(value)) return value.slice(0, 20).map((item) => quietValues(item, depth + 1));
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).slice(0, 30).map(([key, item]) => [quiet(key, 60), quietValues(item, depth + 1)]),
+  );
 }

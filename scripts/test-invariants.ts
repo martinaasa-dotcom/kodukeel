@@ -2004,6 +2004,9 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     // The backup writes every sentence the learner may see, in the order the
     // column holds them; a restore puts them back and every reader re-ranks.
     "lib/account/export.ts": "copies a learner's own entries into their backup, picks none",
+    // Erasure rewrites a shared word's column without the leaving learner's
+    // own sentences, in the order it found the rest.
+    "lib/account/erase.ts": "takes a leaving learner's own sentences off shared words, picks none",
     // Asks whether a form is recorded in any sentence at all, to lead a round
     // with a word said in that case. Which sentence it is never reaches a screen.
     "app/(app)/review/write/page.tsx": "asks whether a form is recorded in a sentence, and picks none",
@@ -8507,7 +8510,8 @@ check("the actions that do real work per call are throttled", () => {
   );
 
   for (const key of keys) {
-    const applied = new RegExp(`throttleAction\\((\\w+), "${key}"\\)`).exec(source);
+    // `throttleShared` is `throttleAction` counted across instances as well (lib/usage/sharedThrottle.ts).
+    const applied = new RegExp(`throttle(?:Action|Shared)\\((\\w+), "${key}"\\)`).exec(source);
     assert.ok(applied, `${key} has an allowance in the table and no action applying it`);
     assert.ok(
       resolvedIds.has(applied[1]!),
@@ -8643,7 +8647,7 @@ check("an action that reaches a bulk builder, a paper rebuild or an append-only 
     const looped = /\bfor \([^)]*\)\s*\{[\s\S]{0,800}?\baddCardsFor\(/.test(own);
     if (!bulk && !looped) continue;
     reaching.push(name);
-    if (!/\bthrottleAction\(/.test(own)) unthrottled.push(name);
+    if (!/\bthrottle(?:Action|Shared)\(/.test(own)) unthrottled.push(name);
   }
   assert.deepEqual(
     unthrottled, [],
@@ -8662,7 +8666,7 @@ check("an action that reaches a bulk builder, a paper rebuild or an append-only 
   */
   const v1 = APP.filter((file) => /[\\/]api[\\/]v1[\\/].*route\.ts$/.test(file));
   const v1Bulk = v1.filter((file) => BULK.some((helper) => new RegExp(`\\b${helper}\\(`).test(code(file))));
-  const v1Open = v1Bulk.filter((file) => !/\bthrottleAction\(/.test(code(file)));
+  const v1Open = v1Bulk.filter((file) => !/\bthrottle(?:Action|Shared)\(/.test(code(file)));
   assert.deepEqual(v1Open, [], `these v1 routes reach a bulk card build with no allowance in front of it: ${v1Open.join(", ")}`);
   assert.ok(v1Bulk.length >= 1, "no v1 route reaches a bulk builder, so this half of the check stopped looking");
 });
@@ -9714,7 +9718,8 @@ check("nothing is stored on a device that would need asking first", () => {
   const allowed = [
     "components/InstallPrompt.tsx",
     "components/Sidebar.tsx",
-    "app/layout.tsx",
+    // The theme script the root layout runs before paint, kept here so the policy can hash it.
+    "lib/ux/themeScript.ts",
     "lib/offline/db.ts",
     // The sign-out that removes all of the above, and so has to name them.
     "lib/offline/forget.ts",
@@ -9818,12 +9823,12 @@ check("browser storage is read and written inside a try, because a blocked store
     ladder, dictation, speaking and the sentence builder each failed to draw
     at all for that reader. Asked of every call rather than of a list of
     files, and lexically: the call has to sit inside an open `try` block.
-    `app/layout.tsx` is a string the browser runs and carries its own try.
+    `lib/ux/themeScript.ts` is a string the browser runs and carries its own try.
   */
   const call = /\b(?:window\.)?(?:localStorage|sessionStorage)\b(?:\s*\.\s*(?:getItem|setItem|removeItem|key|clear)\b|\s*;)/g;
   let seen = 0;
   const bare: string[] = [];
-  for (const file of ALL.filter((f) => !/\.(test|itest)\.tsx?$/.test(f) && f !== "app/layout.tsx")) {
+  for (const file of ALL.filter((f) => !/\.(test|itest)\.tsx?$/.test(f) && f !== "lib/ux/themeScript.ts")) {
     const src = code(file);
     for (const m of src.matchAll(call)) {
       seen++;
@@ -10174,7 +10179,7 @@ check("a call is booked only once the request is worth answering", () => {
       `${file} refuses a request after booking a call for it, so the booking stands against the budget`,
       );
       const before = src.slice(0, src.indexOf("authoriseCall("));
-      assert.match(before, /safeParse\(|\.json\(\)|formData\(\)|typeof input/, `${file} books a call before it has read the request`);
+      assert.match(before, /safeParse\(|\.json\(\)|readJsonCapped\(|formData\(\)|typeof input/, `${file} books a call before it has read the request`);
       assert.match(
         before, /status:\s*400/,
         `${file} books a call before it could have refused a malformed request`,
@@ -13105,7 +13110,7 @@ check("a route that spends something is throttled", () => {
       it resolved (lib/security/actionLimits.ts), which a v1 route takes where it
       shares a body with an action (D5), so it answers both questions below.
     */
-    if (/\bthrottleAction\(\s*who\.ownerId,/.test(source)) continue;
+    if (/\bthrottle(?:Action|Shared)\(\s*who\.ownerId,/.test(source)) continue;
     /*
       The export's allowance is `exportAllowance`, shared by its web door and
       its v1 door (N-8); what it counts and against whom is asserted on

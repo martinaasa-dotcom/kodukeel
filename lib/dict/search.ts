@@ -780,10 +780,18 @@ export interface FormMatch {
  * Pure, like `rankCandidates`, so the boundary can be tested over fixtures.
  */
 export function vouchable(candidate: Candidate): boolean {
-  if (candidate.provenance === "AI") return false;
-  return candidate.forms.length > 0
-    || candidate.provenance === "SEED"
-    || candidate.provenance === "EKILEX";
+  /*
+    AND NOR DOES ONE A LEARNER TYPED. A `USER` row with a form used to vouch,
+    on the argument that somebody had at least typed the parts, and any account
+    can type them: a row named `poodi` with one form scored as an exact
+    headword, above the real `pood`'s stored form, so its gloss, up to two
+    hundred characters of whatever the author wrote, was printed under every
+    other learner's sentences and handed to their conversation's model as what
+    they had said. What vouches for a spelling is a source: the seed and
+    Ekilex, which is `VOUCHED_ROW` below. A learner's own word still reaches
+    their own deck by id; it no longer answers for anybody's spelling.
+  */
+  return candidate.provenance === "SEED" || candidate.provenance === "EKILEX";
 }
 
 /**
