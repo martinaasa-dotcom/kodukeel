@@ -16,8 +16,8 @@ import type { Area } from "../area";
 export const LETTERS: Area = {
   ru: {
     // Every letter is signed off.
-    "Whenever you're ready,": "Когда будешь готов,",
-    "Talk soon,": "До скорой встречи,",
+    "Whenever you're ready,": "Когда тебе будет удобно,",
+    "Talk soon,": "До связи,",
     "We're so glad you're here,": "Мы очень рады, что ты с нами,",
     "So proud of you,": "Мы так гордимся тобой,",
     "Have a lovely week,": "Хорошей тебе недели,",
@@ -34,9 +34,9 @@ export const LETTERS: Area = {
     "Just one step left in {title}": "В занятии {title} остался всего один шаг",
     "{steps} left in {title}": "В занятии {title} ещё {steps}",
     "{what}, part {n} of {of}": "{what}, часть {n} из {of}",
-    "{shape}. Only about {minutes} minutes left, whenever it suits you.": "{shape}. Осталось всего около {minutes} мин., когда тебе удобно.",
-    "{shape}. About {minutes} minutes, whenever it suits you.": "{shape}. Около {minutes} мин., когда тебе удобно.",
-    "You're so close to finishing today.": "Ты почти закончил на сегодня.",
+    "{shape}. Only about {minutes} minutes left, whenever it suits you.": "{shape}. Осталось примерно {minutes} мин., в любое удобное время.",
+    "{shape}. About {minutes} minutes, whenever it suits you.": "{shape}. Примерно {minutes} мин., в любое удобное время.",
+    "You're so close to finishing today.": "На сегодня осталось совсем чуть-чуть.",
     "Only about {minutes} minutes to go.": "Осталось всего около {minutes} мин.",
     "{name}, you've already done {steps} of {where}. The rest is waiting right where you left it.":
       "{name}, у тебя позади уже {steps} в занятии {where}. Остальное ждёт тебя на том же месте.",
@@ -47,7 +47,7 @@ export const LETTERS: Area = {
       "{name}, сегодня занятие {title}, {evening}. К концу ты сможешь {canDo}",
     "Today's module is {title}, {evening}. By the end you'll be able to {canDo}":
       "Сегодня занятие {title}, {evening}. К концу ты сможешь {canDo}",
-    "In your own words, when you started:": "Твои собственные слова, когда ты начинал:",
+    "In your own words, when you started:": "Твои слова в самом начале:",
     "[done]": "[готово]",
     "And a little word for today, whether you study or not:":
       "И маленькое слово на сегодня, будешь ты заниматься или нет:",
@@ -66,13 +66,13 @@ export const LETTERS: Area = {
     "Each day's module is a short reading, two quick exercises and a few cards to go over. It takes about a quarter of an hour at any level, and the app tells you when you're done.":
       "Каждое занятие: короткое чтение, два быстрых упражнения и несколько карточек на повторение. На любом уровне это около четверти часа, и приложение подскажет, когда ты закончишь.",
     "You picked {time}. Add it to your calendar and your phone will gently remind you, which works far better than an email from us.":
-      "Ты выбрал {time}. Добавь это время в календарь, и телефон напомнит сам: это работает куда лучше, чем письмо от нас.",
+      "Твоё время: {time}. Добавь его в календарь, и телефон сам напомнит: это работает куда лучше, чем письмо от нас.",
     "Add the daily reminder to your calendar": "Добавить ежедневное напоминание в календарь",
     "Pick a time that already has a gap in it: after dinner, on the train, before bed. Which hour you choose matters much less than keeping it the same every day.":
       "Выбери время, когда у тебя и так бывает свободная минута: после ужина, в поезде, перед сном. Сам час важен куда меньше, чем то, чтобы он каждый день был одним и тем же.",
     "Start your first module": "Начать первое занятие",
     "What we'll send you: a gentle nudge on days you haven't studied yet, a look back at your week on Sundays, and now and then a note when there's real news, like finishing a level. The link at the bottom of any of them turns them off, and the course works just the same without them.":
-      "Что мы будем присылать: мягкое напоминание в дни, когда ты ещё не занимался, взгляд на твою неделю по воскресеньям и иногда письмо, когда есть настоящая новость, например пройденный уровень. Ссылка внизу любого письма отключает их, а курс работает точно так же и без них.",
+      "Что мы будем присылать: мягкое напоминание в дни, когда занятия ещё не было, взгляд на твою неделю по воскресеньям и иногда письмо, когда есть настоящая новость, например пройденный уровень. Ссылка внизу любого письма отключает их, а курс работает точно так же и без них.",
     "Welcome to Kodukeel": "Добро пожаловать в Kodukeel",
     "{cards} are ready for you, and your first module is {subtitle}.": "В колоде уже {cards}, а первое занятие: {subtitle}.",
     "{cards} are ready for you, and your first module takes about fifteen minutes.":
@@ -81,13 +81,13 @@ export const LETTERS: Area = {
     // Coming back after a while away.
     "Your Estonian waited for you.": "Твой эстонский тебя дождался.",
     "You still know {words}. The words you've learned stay safe while you're away, so you can pick up exactly where you stopped.":
-      "Ты по-прежнему знаешь {words}. Выученные слова никуда не деваются, пока тебя нет, так что ты продолжишь ровно с того места, где остановился.",
+      "Ты по-прежнему знаешь {words}. Выученные слова никуда не деваются, пока тебя нет, так что продолжишь ровно с того же места.",
     "A shield you'd saved up covered the days off, so your {run} run is still going.":
       "Перерыв прикрыл твой запасной щит, так что серия ({run} подряд) продолжается.",
     "There's nothing to make up for. If you'd like a gentle way back in, one short round takes about {minutes} minutes.":
       "Наверстывать ничего не нужно. Если хочется мягко вернуться, один короткий раунд займёт около {minutes} мин.",
     "Or open today's module": "Или открыть занятие на сегодня",
-    "And a little word for today, whatever you decide:": "И маленькое слово на сегодня, что бы ты ни решил:",
+    "And a little word for today, whatever you decide:": "И маленькое слово на сегодня, в любом случае:",
     "Your Estonian is still here": "Твой эстонский никуда не делся",
     "You still know {words}, and a two-minute round is all it takes to say hello again.":
       "Ты по-прежнему знаешь {words}, и чтобы снова поздороваться, хватит двухминутного раунда.",
@@ -96,7 +96,7 @@ export const LETTERS: Area = {
     // A shield spent.
     "A shield kept your run going.": "Щит сохранил твою серию.",
     "You had a day off yesterday, so one of the shields you'd earned quietly stepped in. Your run of {days} is still going.":
-      "Вчера ты отдыхал, и один из заработанных щитов тихо пришёл на помощь. Твоя серия, {days} подряд, продолжается.",
+      "Вчера у тебя был выходной, и один из заработанных щитов тихо пришёл на помощь. Твоя серия, {days} подряд, продолжается.",
     "studied": "занятие",
     "day off": "выходной",
     "You've got {more} more saved up.": "В запасе ещё {more}.",
@@ -104,7 +104,7 @@ export const LETTERS: Area = {
       "Это был последний. Следующий получишь на {nextAt}-й день серии.",
     "That was your last one.": "Это был последний.",
     "Rest days are part of learning a language. Your words will be right where you left them.":
-      "Дни отдыха тоже часть изучения языка. Твои слова будут ждать там, где ты их оставил.",
+      "Дни отдыха тоже входят в изучение языка. Твои слова никуда не денутся.",
     "Open today's module": "Открыть занятие на сегодня",
     "A shield kept your run going": "Щит сохранил твою серию",
     "Your run of {days} is still going, and you've got {more} saved.":
@@ -115,7 +115,7 @@ export const LETTERS: Area = {
     // A level passed.
     "You've made it through {level}.": "Уровень {level} пройден.",
     "That's {words} that are truly yours now. Each one came back days after you first met it, and you still knew it. This letter comes a little after the hard work, because that's how long it takes to be sure.":
-      "Теперь по-настоящему твои уже {words}. Каждое вернулось через несколько дней после знакомства, и ты его всё ещё помнил. Это письмо приходит немного позже самой работы, потому что именно столько времени нужно, чтобы быть уверенными.",
+      "Теперь по-настоящему твои уже {words}. Каждое вернулось через несколько дней после знакомства, и оказалось, что ты его помнишь. Это письмо приходит немного позже самой работы, потому что именно столько времени нужно, чтобы быть уверенными.",
     "About {pct} percent of the way to {target}.": "Пройдено около {pct}% пути до {target}.",
     "Next stop is {level}, about {words} away.": "Следующая остановка: {level}, до неё осталось примерно {words}.",
     "That was the level you set out to reach. The course keeps going if you want more.":
@@ -130,7 +130,7 @@ export const LETTERS: Area = {
     "You answered {cards}. {words} are properly yours now, and that number only grows when a word comes back days later and you still know it.":
       "За неделю позади {cards}. По-настоящему твоих уже {words}, и это число растёт, только когда слово возвращается через несколько дней, а ты его всё ещё помнишь.",
     "No cards this week. Nothing piles up while you're away, and one short session puts you right back where you were.":
-      "На этой неделе карточек не было. Пока тебя нет, ничего не копится, а одно короткое занятие возвращает тебя туда, где ты был.",
+      "На этой неделе карточек не было. Пока тебя нет, ничего не копится, а одно короткое занятие вернёт всё на свои места.",
     "And one conversation in Estonian with a real person.":
       "А ещё один разговор на эстонском с живым человеком.",
     "And {conversations} in Estonian with real people.":
@@ -214,14 +214,14 @@ export const LETTERS: Area = {
     "{title} is ready for you":
       "Занятие {title} ждёт тебя",
     "Today you'll use words you already know, in about {minutes} minutes.":
-      "Сегодня ты будешь использовать уже знакомые слова, примерно за {minutes} мин.",
+      "Сегодня только знакомые слова, примерно {minutes} мин.",
     "Start today's module":
       "Начать занятие",
   },
   uk: {
     // Every letter is signed off.
-    "Whenever you're ready,": "Коли будеш готовий,",
-    "Talk soon,": "До зустрічі,",
+    "Whenever you're ready,": "Коли тобі буде зручно,",
+    "Talk soon,": "На зв'язку,",
     "We're so glad you're here,": "Ми дуже раді, що ти з нами,",
     "So proud of you,": "Ми так пишаємося тобою,",
     "Have a lovely week,": "Гарного тобі тижня,",
@@ -238,20 +238,20 @@ export const LETTERS: Area = {
     "Just one step left in {title}": "У занятті {title} лишився лише один крок",
     "{steps} left in {title}": "У занятті {title} ще {steps}",
     "{what}, part {n} of {of}": "{what}, частина {n} з {of}",
-    "{shape}. Only about {minutes} minutes left, whenever it suits you.": "{shape}. Лишилося лише близько {minutes} хв., коли тобі зручно.",
-    "{shape}. About {minutes} minutes, whenever it suits you.": "{shape}. Близько {minutes} хв., коли тобі зручно.",
-    "You're so close to finishing today.": "Ти майже закінчив на сьогодні.",
+    "{shape}. Only about {minutes} minutes left, whenever it suits you.": "{shape}. Лишилося приблизно {minutes} хв., у будь-який зручний час.",
+    "{shape}. About {minutes} minutes, whenever it suits you.": "{shape}. Приблизно {minutes} хв., у будь-який зручний час.",
+    "You're so close to finishing today.": "На сьогодні лишилося зовсім трохи.",
     "Only about {minutes} minutes to go.": "Лишилося лише близько {minutes} хв.",
     "{name}, you've already done {steps} of {where}. The rest is waiting right where you left it.":
-      "{name}, у тебе позаду вже {steps} у занятті {where}. Решта чекає на тебе там само.",
+      "{name}, у тебе позаду вже {steps} у занятті {where}. Решта чекає на тебе на тому самому місці.",
     "You've already done {steps} of {where}. The rest is waiting right where you left it.":
-      "У тебе позаду вже {steps} у занятті {where}. Решта чекає на тебе там само.",
+      "У тебе позаду вже {steps} у занятті {where}. Решта чекає на тебе на тому самому місці.",
     "{newWords}, in about {minutes} minutes.": "{newWords}, приблизно за {minutes} хв.",
     "{name}, today's module is {title}, {evening}. By the end you'll be able to {canDo}":
       "{name}, сьогодні заняття {title}, {evening}. Наприкінці ти зможеш {canDo}",
     "Today's module is {title}, {evening}. By the end you'll be able to {canDo}":
       "Сьогодні заняття {title}, {evening}. Наприкінці ти зможеш {canDo}",
-    "In your own words, when you started:": "Твої власні слова, коли ти починав:",
+    "In your own words, when you started:": "Твої слова на самому початку:",
     "[done]": "[готово]",
     "And a little word for today, whether you study or not:":
       "І маленьке слово на сьогодні, займатимешся ти чи ні:",
@@ -270,13 +270,13 @@ export const LETTERS: Area = {
     "Each day's module is a short reading, two quick exercises and a few cards to go over. It takes about a quarter of an hour at any level, and the app tells you when you're done.":
       "Кожне заняття: коротке читання, дві швидкі вправи та кілька карток на повторення. На будь-якому рівні це близько чверті години, і застосунок підкаже, коли ти закінчиш.",
     "You picked {time}. Add it to your calendar and your phone will gently remind you, which works far better than an email from us.":
-      "Ти обрав {time}. Додай цей час до календаря, і телефон нагадає сам: це працює набагато краще, ніж лист від нас.",
+      "Твій час: {time}. Додай його до календаря, і телефон нагадає сам: це працює набагато краще, ніж лист від нас.",
     "Add the daily reminder to your calendar": "Додати щоденне нагадування до календаря",
     "Pick a time that already has a gap in it: after dinner, on the train, before bed. Which hour you choose matters much less than keeping it the same every day.":
       "Обери час, коли в тебе й так буває вільна хвилина: після вечері, у потязі, перед сном. Сама година важить набагато менше, ніж те, щоб вона щодня була та сама.",
     "Start your first module": "Почати перше заняття",
     "What we'll send you: a gentle nudge on days you haven't studied yet, a look back at your week on Sundays, and now and then a note when there's real news, like finishing a level. The link at the bottom of any of them turns them off, and the course works just the same without them.":
-      "Що ми надсилатимемо: м'яке нагадування в дні, коли ти ще не займався, погляд на твій тиждень щонеділі й іноді лист, коли є справжня новина, наприклад пройдений рівень. Посилання внизу будь-якого листа вимикає їх, а курс працює так само і без них.",
+      "Що ми надсилатимемо: м'яке нагадування в дні, коли заняття ще не було, погляд на твій тиждень щонеділі й іноді лист, коли є справжня новина, наприклад пройдений рівень. Посилання внизу будь-якого листа вимикає їх, а курс працює так само й без них.",
     "Welcome to Kodukeel": "Ласкаво просимо до Kodukeel",
     "{cards} are ready for you, and your first module is {subtitle}.": "У колоді вже {cards}, а перше заняття: {subtitle}.",
     "{cards} are ready for you, and your first module takes about fifteen minutes.":
@@ -285,13 +285,13 @@ export const LETTERS: Area = {
     // Coming back after a while away.
     "Your Estonian waited for you.": "Твоя естонська на тебе дочекалася.",
     "You still know {words}. The words you've learned stay safe while you're away, so you can pick up exactly where you stopped.":
-      "Ти й досі знаєш {words}. Вивчені слова нікуди не зникають, поки тебе немає, тож ти продовжиш саме з того місця, де зупинився.",
+      "Ти й досі знаєш {words}. Вивчені слова нікуди не зникають, поки тебе немає, тож продовжиш рівно з того самого місця.",
     "A shield you'd saved up covered the days off, so your {run} run is still going.":
       "Перерву прикрив твій запасний щит, тож серія ({run} поспіль) триває.",
     "There's nothing to make up for. If you'd like a gentle way back in, one short round takes about {minutes} minutes.":
       "Надолужувати нічого не потрібно. Якщо хочеться м'яко повернутися, один короткий раунд триватиме близько {minutes} хв.",
     "Or open today's module": "Або відкрити заняття на сьогодні",
-    "And a little word for today, whatever you decide:": "І маленьке слово на сьогодні, хоч би що ти вирішив:",
+    "And a little word for today, whatever you decide:": "І маленьке слово на сьогодні, хай там як:",
     "Your Estonian is still here": "Твоя естонська нікуди не поділася",
     "You still know {words}, and a two-minute round is all it takes to say hello again.":
       "Ти й досі знаєш {words}, і щоб знову привітатися, вистачить двохвилинного раунду.",
@@ -300,7 +300,7 @@ export const LETTERS: Area = {
     // A shield spent.
     "A shield kept your run going.": "Щит зберіг твою серію.",
     "You had a day off yesterday, so one of the shields you'd earned quietly stepped in. Your run of {days} is still going.":
-      "Учора ти відпочивав, і один із зароблених щитів тихо прийшов на допомогу. Твоя серія, {days} поспіль, триває.",
+      "Учора в тебе був вихідний, і один із зароблених щитів тихо прийшов на допомогу. Твоя серія, {days} поспіль, триває.",
     "studied": "заняття",
     "day off": "вихідний",
     "You've got {more} more saved up.": "У запасі ще {more}.",
@@ -308,7 +308,7 @@ export const LETTERS: Area = {
       "Це був останній. Наступний отримаєш на {nextAt}-й день серії.",
     "That was your last one.": "Це був останній.",
     "Rest days are part of learning a language. Your words will be right where you left them.":
-      "Дні відпочинку теж частина вивчення мови. Твої слова чекатимуть там, де ти їх залишив.",
+      "Дні відпочинку теж входять у вивчення мови. Твої слова нікуди не подінуться.",
     "Open today's module": "Відкрити заняття на сьогодні",
     "A shield kept your run going": "Щит зберіг твою серію",
     "Your run of {days} is still going, and you've got {more} saved.":
@@ -319,7 +319,7 @@ export const LETTERS: Area = {
     // A level passed.
     "You've made it through {level}.": "Рівень {level} пройдено.",
     "That's {words} that are truly yours now. Each one came back days after you first met it, and you still knew it. This letter comes a little after the hard work, because that's how long it takes to be sure.":
-      "Тепер по-справжньому твої вже {words}. Кожне повернулося через кілька днів після знайомства, і ти його досі пам'ятав. Цей лист приходить трохи пізніше за саму роботу, бо саме стільки часу потрібно, щоб бути певними.",
+      "Тепер по-справжньому твої вже {words}. Кожне повернулося через кілька днів після знайомства, і виявилося, що ти його пам'ятаєш. Цей лист приходить трохи пізніше за саму роботу, бо саме стільки часу потрібно, щоб бути певними.",
     "About {pct} percent of the way to {target}.": "Пройдено близько {pct}% шляху до {target}.",
     "Next stop is {level}, about {words} away.": "Наступна зупинка: {level}, до неї лишилося приблизно {words}.",
     "That was the level you set out to reach. The course keeps going if you want more.":
@@ -334,7 +334,7 @@ export const LETTERS: Area = {
     "You answered {cards}. {words} are properly yours now, and that number only grows when a word comes back days later and you still know it.":
       "За тиждень позаду {cards}. По-справжньому твоїх уже {words}, і це число зростає, лише коли слово повертається через кілька днів, а ти його досі пам'ятаєш.",
     "No cards this week. Nothing piles up while you're away, and one short session puts you right back where you were.":
-      "Цього тижня карток не було. Поки тебе немає, нічого не накопичується, а одне коротке заняття повертає тебе туди, де ти був.",
+      "Цього тижня карток не було. Поки тебе немає, нічого не накопичується, а одне коротке заняття все поверне на свої місця.",
     "And one conversation in Estonian with a real person.":
       "А ще одна розмова естонською з живою людиною.",
     "And {conversations} in Estonian with real people.":
@@ -350,7 +350,7 @@ export const LETTERS: Area = {
     "See all your progress": "Переглянути весь прогрес",
     "A quiet week, and the course is right where you left it": "Тихий тиждень, а курс чекає на тебе на тому самому місці",
     "{days} of Estonian this week": "{days} з естонською цього тижня",
-    "Nothing to catch up on. One short session and you're back in.": "Надолужувати нічого. Одне коротке заняття, і ти знову в ділі.",
+    "Nothing to catch up on. One short session and you're back in.": "Надолужувати нічого. Одне коротке заняття, і ти знову в грі.",
     "{cards} answered, and {words} that are properly yours.": "{cards} за тиждень і {words}, які по-справжньому твої.",
 
     // One thing to say out loud.
@@ -418,7 +418,7 @@ export const LETTERS: Area = {
     "{title} is ready for you":
       "Заняття {title} чекає на тебе",
     "Today you'll use words you already know, in about {minutes} minutes.":
-      "Сьогодні ти використовуватимеш уже знайомі слова, приблизно за {minutes} хв.",
+      "Сьогодні лише знайомі слова, приблизно {minutes} хв.",
     "Start today's module":
       "Почати заняття",
   },

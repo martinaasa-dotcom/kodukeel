@@ -74,7 +74,8 @@ When you say an answer out loud, your speech is recognized on your phone. Your v
 anywhere and is not stored.
 
 The screens can be read in English, Russian or Ukrainian. The Russian and Ukrainian were translated by
-machine and then read and corrected by a fluent speaker.
+machine, then reviewed and corrected by a fluent speaker, who used AI to flag possible mistakes and made
+every decision themselves.
 
 There are no ads and nothing to buy. Settings lets you download everything the app keeps about you, or
 delete your account.
@@ -102,8 +103,9 @@ vastuse juures on kirjas, milline mudel selle kirjutas.
 Kui ütled vastuse valjult välja, tunneb telefon su kõne ise ära. Sinu häält ei saadeta kuhugi ega
 salvestata.
 
-Rakendus on inglise, vene ja ukraina keeles. Vene- ja ukrainakeelse tõlke on teinud masin ning selle on
-üle vaadanud ja parandanud keelt valdav inimene.
+Rakendus on inglise, vene ja ukraina keeles. Vene- ja ukrainakeelse tõlke on teinud masin. Selle on üle
+vaadanud ja parandanud keelt valdav inimene, kes kasutas võimalike vigade leidmiseks tehisintellekti, kuid
+tegi iga otsuse ise.
 
 Reklaame ei ole ja midagi ei pea ostma. Seadetes saad alla laadida kõik, mida rakendus sinu kohta
 hoiab, või oma konto kustutada.
@@ -133,7 +135,8 @@ Kodukeel для тех, кто учит эстонский, потому что 
 и не сохраняется.
 
 Приложение работает на английском, русском и украинском. Русскую и украинскую версии перевела машина, а
-потом их проверил и поправил человек, свободно владеющий языком.
+потом их проверил и поправил человек, свободно владеющий языком. ИИ помогал ему находить возможные
+ошибки, но каждое решение он принимал сам.
 
 Здесь нет рекламы и ничего не нужно покупать. В настройках можно скачать всё, что приложение хранит о
 тебе, или удалить аккаунт.
@@ -163,7 +166,8 @@ Kodukeel для тих, хто вчить естонську, бо чує її �
 надсилається й не зберігається.
 
 Застосунок працює англійською, російською та українською. Російську та українську версії переклала
-машина, а потім їх перевірила й виправила людина, яка вільно володіє мовою.
+машина, а потім їх перевірила й виправила людина, яка вільно володіє мовою. ШІ допомагав їй знаходити
+можливі помилки, але кожне рішення вона ухвалювала сама.
 
 Тут немає реклами й нічого не треба купувати. У налаштуваннях можна завантажити все, що застосунок
 зберігає про тебе, або видалити обліковий запис.

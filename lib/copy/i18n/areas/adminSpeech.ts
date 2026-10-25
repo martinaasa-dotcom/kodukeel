@@ -38,7 +38,7 @@ export const ADMIN_SPEECH: Area = {
     "After a typed answer, from the same learners": "После набранного ответа, у тех же учеников",
     "Observational: people choose when to speak, and an easy card is likelier to be said aloud. Not a trial.":
       "Это наблюдение: люди сами выбирают, когда говорить, и лёгкую карточку чаще произносят вслух. Это не эксперимент.",
-    "Today’s chat": "Сегодняшний чат",
+    "Today’s chat": "Разговор на сегодня",
     "Finished days that met at least {n} new words": "Завершённых дней, где новых слов было не меньше {n}",
     "A chat opened": "Чат открыт",
     "A chat finished": "Чат завершён",
@@ -84,7 +84,7 @@ export const ADMIN_SPEECH: Area = {
     "After a typed answer, from the same learners": "Після набраної відповіді, у тих самих учнів",
     "Observational: people choose when to speak, and an easy card is likelier to be said aloud. Not a trial.":
       "Це спостереження: люди самі обирають, коли говорити, і легку картку частіше вимовляють вголос. Це не експеримент.",
-    "Today’s chat": "Сьогоднішній чат",
+    "Today’s chat": "Розмова на сьогодні",
     "Finished days that met at least {n} new words": "Завершених днів, у яких нових слів було щонайменше {n}",
     "A chat opened": "Чат відкрито",
     "A chat finished": "Чат завершено",

@@ -72,3 +72,24 @@ chose other attested sentences, each one Ekilex recorded:
 - ET-W592 reads the ambiguous English as the learner losing nothing.
 - Nine Ukrainian ids had no Ukrainian line in the file; the fix written for them was dropped.
 - Lines that add a note for a Russian or Ukrainian reader the English lacks were left in.
+
+## The second sheet
+
+Every line above that the session wrote, and the 68 per language left unconfirmed, went back on a second
+sheet the same day. It came back with these changes, all applied:
+
+- Russian 19 and Ukrainian 23 table lines corrected, the rest confirmed: most rephrase a line that made
+  the learner male (`ты решил`, `где ты остановился`), and «Сегодняшний чат» is «Разговор на сегодня»
+  like its twin. Both tables are confirmed in full.
+- The policy notice in Russian and Ukrainian reads more naturally: «Этот перевод сделан с помощью ИИ,
+  чтобы текст было удобнее читать. Юрист его не проверял.»
+- `plainAsk.ts` writes the feminine out: «что ты сделал (сделала) бы», «що ти зробив (зробила) б».
+- The store listing says how the review was done. The sheet proposed "checked by AI"; Martin Aasa
+  reviewed every line himself, using AI to flag possible problems and deciding every change. In all four
+  languages it now reads that a fluent speaker reviewed and corrected the translations, used AI to flag
+  possible mistakes and made every decision themselves. The session wrote these sentences:
+  "Selle on üle vaadanud ja parandanud keelt valdav inimene, kes kasutas võimalike vigade leidmiseks
+  tehisintellekti, kuid tegi iga otsuse ise.", «ИИ помогал ему находить возможные ошибки, но каждое
+  решение он принимал сам.», «ШІ допомагав їй знаходити можливі помилки, але кожне рішення вона
+  ухвалювала сама.»
+

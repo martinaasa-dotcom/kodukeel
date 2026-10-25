@@ -104,8 +104,8 @@ export function signInHref(locale: PublicLocale): string {
  * whoever has read it.
  */
 export const LEGAL_NOTICE: Readonly<Record<Exclude<PublicLocale, "en">, string>> = {
-  ru: "Этот перевод сделан для удобства с помощью ИИ. Его не проверял юрист. Если перевод расходится с английским текстом, действует английский текст.",
-  uk: "Цей переклад зроблено для зручності за допомогою ШІ. Його не перевіряв юрист. Якщо переклад розходиться з англійським текстом, чинним є англійський текст.",
+  ru: "Этот перевод сделан с помощью ИИ, чтобы текст было удобнее читать. Юрист его не проверял. Если перевод расходится с английским текстом, действует английский.",
+  uk: "Цей переклад зроблено за допомогою ШІ, щоб текст було зручніше читати. Юрист його не перевіряв. Якщо переклад розходиться з англійським текстом, чинним є англійський.",
   // Read by the native speaker with the rest of the public pages (D16); the
   // English prevails whoever has read it.
   et: "See tõlge on mõeldud lugemise hõlbustamiseks ja koostatud tehisintellekti abil. Jurist ei ole seda üle vaadanud. Kui tõlge erineb ingliskeelsest tekstist, kehtib ingliskeelne tekst.",
