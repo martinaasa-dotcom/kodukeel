@@ -117,7 +117,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
       notes: [
         "A menu runs {eelroog}, {praad}, {magustoit}: starter, main, dessert. {Praad} is any main course, not only a roast.",
         "{Mida te soovitate?} is what do you recommend, and a waiter is always glad to be asked.",
-        "{Mulle} with nothing after it is the quickest order there is: {Mulle kala, palun}.",
+        "{Mulle} with no verb after it is the quickest order there is: {Mulle kala, palun}.",
       ],
       watchOut: "{Kala} looks the same as what you order, but that's because its [osastav] (3rd form) is {kala} too. {Supp} and {praad} change: {suppi}, {praadi}.",
       examples: [1, 3, 4],
@@ -203,13 +203,15 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "suure", of: "suur", en: "of the big one", stem: true },
       { kind: "form", et: "odava", of: "odav", en: "of the cheap one", stem: true },
       { kind: "form", et: "uue", of: "uus", en: "of the new one", stem: true },
-      { kind: "form", et: "kalli", of: "kallis", en: "of the dear one", stem: true },
+      { kind: "form", et: "kalli", of: "kallis", en: "of the expensive one", stem: true },
       { kind: "form", et: "suurem", of: "suur", en: "bigger" },
       { kind: "form", et: "väiksem", of: "väike", en: "smaller" },
       { kind: "form", et: "kallim", of: "kallis", en: "more expensive" },
       { kind: "form", et: "odavam", of: "odav", en: "cheaper" },
       { kind: "form", et: "uuem", of: "uus", en: "newer" },
+      { kind: "form", et: "halva", of: "halb", en: "of the bad one", stem: true },
       { kind: "form", et: "halvem", of: "halb", en: "worse" },
+      { kind: "form", et: "vanem", of: "vana", en: "older" },
       { kind: "verb", et: "arvama", first: "arvan", en: "to think, to reckon", firstEn: "I think" },
     ],
     how: {
@@ -224,8 +226,8 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Stems ending in -a or -e keep it: {odava} gives {odavam}. A stem ending in -i drops it: {kalli} gives {kallim}.",
-        "Good and bad are their own words, like in English: {hea} and {parem}, {halb} and {halvem}.",
+        "Most words just add -m to the [omastav] (2nd form): {odava} gives {odavam}, {kalli} gives {kallim}. A short word whose [omastav] (2nd form) ends in -a changes the -a to -e: {vana} gives {vanem}.",
+        "Good has its own word, like in English: {hea} and {parem}. Bad follows the rule: {halb}, {halva}, {halvem}.",
         "{Kumb} asks which of two: {Kumb on parem?} For more than two, it's {mis}.",
       ],
       watchOut: "{Väike} is irregular too: {väiksem}, smaller, with an -s- in the middle.",
@@ -278,7 +280,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
         "{Minu arvates} is in my opinion, the way to say what you think: {Minu arvates Pärnu}.",
         "{Suuruselt teine} is the second biggest, second by size.",
       ],
-      watchOut: "{Kõige} never changes and never stands alone. It always comes before a word with -m on it.",
+      watchOut: "In the most form, {kõige} doesn't change, and it comes before a word with -m on it: {kõige suurem}.",
       examples: [0, 2, 4],
     },
     answers: [
@@ -299,7 +301,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
     cast: { Kati: "vesta", Tom: "kalev" },
     conversation: [
       { who: "Kati", et: "Tere! Kuidas ma saan aidata?", en: "Hello! How can I help?" },
-      { who: "Tom", et: "Jah. Kas ma võiksin seda jopet proovida?", en: "Yes. Could I try this jacket on?" },
+      { who: "Tom", et: "Tere! Kas ma võiksin seda jopet proovida?", en: "Hello! Could I try this jacket on?" },
       { who: "Kati", et: "Muidugi. Proovikabiin on seal.", en: "Of course. The fitting room is over there." },
       { who: "Tom", et: "See on liiga väike. Kas teil on suuremat?", en: "It's too small. Do you have a bigger one?" },
       { who: "Kati", et: "Jah, see on suurem.", en: "Yes, this one is bigger." },
@@ -335,7 +337,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
       { cue: "Ask if you could try this jacket on.", model: { et: "Kas ma võiksin seda jopet proovida?", en: "Could I try this jacket on?" } },
       { cue: "Say it's too small, and ask for a bigger one.", model: { et: "See on liiga väike. Kas teil on suuremat?", en: "It's too small. Do you have a bigger one?" } },
       { cue: "Ask for a smaller one.", model: { et: "Kas teil on väiksemat?", en: "Do you have a smaller one?" } },
-      { ask: { et: "Kuidas see sobib?", en: "How does it fit?" }, cue: "Say it fits well, you'll take it.", model: { et: "See sobib hästi. Ma võtan selle.", en: "It fits well. I'll take it." } },
+      { ask: { et: "Kas see sobib?", en: "Does it fit?" }, cue: "Say it fits well, you'll take it.", model: { et: "See sobib hästi. Ma võtan selle.", en: "It fits well. I'll take it." } },
     ],
   },
   {

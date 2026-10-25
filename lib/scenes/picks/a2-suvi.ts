@@ -24,7 +24,7 @@ export const a2Suvi: ScenePicks = {
   ],
   her: [
     { et: "Kahju!", en: "What a pity!" },
-    { et: "Kahju! Järgmine suvi tule ka Saaremaale!", en: "What a pity! Next summer come to Saaremaa too!" },
+    { et: "Kahju! Järgmisel suvel tule ka Saaremaale!", en: "What a pity! Next summer come to Saaremaa too!" },
   ],
   close: [
     { et: "Head aega!", en: "Goodbye!" },

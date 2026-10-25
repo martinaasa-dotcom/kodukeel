@@ -154,7 +154,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Liis", et: "Homme on Mari sünnipäev. Mida sa talle kingid?", en: "Tomorrow's Mari's birthday. What are you giving her?" },
       { who: "Tom", et: "Ma ei tea veel. Mis talle meeldib?", en: "I don't know yet. What does she like?" },
-      { who: "Liis", et: "Talle meeldib muusika. Kingi talle kontserdi pilet!", en: "She likes music. Give her a concert ticket!" },
+      { who: "Liis", et: "Talle meeldib muusika. Kingi talle kontserdipilet!", en: "She likes music. Give her a concert ticket!" },
       { who: "Tom", et: "Hea mõte! Ma küsin tema vennalt, mis kontsert on hea.", en: "Good idea! I'll ask her brother which concert's good." },
       { who: "Liis", et: "Ja ära unusta talle helistada!", en: "And don't forget to call her!" },
       { who: "Tom", et: "Ei unusta! Ma helistan talle hommikul.", en: "I won't! I'll call her in the morning." },
@@ -168,6 +168,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "muusika", en: "music" },
       { kind: "word", et: "kontsert", en: "concert" },
       { kind: "form", et: "kontserdi", of: "kontsert", en: "of a concert", stem: true },
+      { kind: "word", et: "kontserdipilet", en: "concert ticket" },
     ],
     how: {
       point: "A person takes the outside endings: {emale}, to Mom; {emal}, Mom has; {emalt}, from Mom. You've said it since A1 with {mulle} and {talle}.",
@@ -186,7 +187,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
         "{Kinkima} is to give as a present, and {andma} just to give: {Anna see Marile!}",
         "{Kelle} from lesson 1 takes the endings too, and that's how the questions are made: {kellele?}, {kellel?}, {kellelt?}",
       ],
-      watchOut: "You give something {emale} and ask it {emalt}. A person never takes -sse.",
+      watchOut: "You give something {emale} and ask for it {emalt}. With a person it's -le and -lt, not -sse and -st.",
       examples: [0, 3, 4],
     },
     answers: [
@@ -241,7 +242,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
       notes: [
         "Into the cinema is the short form {kinno}: {Ma lähen kinno}.",
         "{Pidu}'s [omastav] (2nd form) is {peo}, so at a party is {peol}.",
-        "{Eesti keele tund} is an Estonian lesson: {eesti keele} says which lesson, the way {köögi uks} said which door. Before a noun, Estonian is {eesti}, with a small e.",
+        "An Estonian lesson is {eesti keele tund}: {eesti keele} says which lesson, the way {köögi uks} said which door. Before a noun, Estonian is {eesti}, with a small e.",
         "{Kahjuks} is the polite way into a no: {Kahjuks ma ei saa}.",
       ],
       watchOut: "A concert and a party are events, so {kontserdil} and {peol}, even though they happen indoors.",

@@ -52,7 +52,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "rongi", of: "rong", en: "of the train", stem: true },
     ],
     how: {
-      point: "A timetable says {väljub} and {saabub}: leaves and arrives. A train leaves from somewhere, with -lt, and arrives into somewhere, with -sse.",
+      point: "A timetable says {väljub} and {saabub}: leaves and arrives. A train leaves from a platform with -lt, and arrives into a town with -sse.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -178,7 +178,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
         "{Eks} at the end asks for a yes: {Kaks ööd, eks?} is two nights, right?",
         "{Tasuta} is free of charge, and {vaba} free to use, as in part four: {Kas tuba on vaba?}",
       ],
-      watchOut: "A room is {tuba}, and in the room is {toas}, on its stem {toa}. The ending never goes on {tuba} itself.",
+      watchOut: "A room is {tuba}, and in the room is {toas}, on its stem {toa}. The -s ending goes on {toa}, not on {tuba} itself.",
       examples: [0, 1, 5],
     },
     answers: [
@@ -263,7 +263,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Tallinnast Pärnuni on umbes sada kolmkümmend kilomeetrit.", en: "From Tallinn to Pärnu it's about a hundred and thirty kilometers." },
       { who: "Tom", et: "Kas sinna saab bussiga?", en: "Can you get there by bus?" },
       { who: "Mari", et: "Jah, buss sõidab iga tund. Sõit kestab kaks tundi.", en: "Yes, the bus goes every hour. The ride takes two hours." },
-      { who: "Tom", et: "Mis linn see on?", en: "What kind of town is it?" },
+      { who: "Tom", et: "Milline linn Pärnu on?", en: "What kind of town is it?" },
       { who: "Mari", et: "Väike ja ilus. Pärnu on mere ääres.", en: "Small and pretty. Pärnu is by the sea." },
       { who: "Tom", et: "Suvel lähen kindlasti!", en: "I'll definitely go in the summer!" },
     ],
@@ -272,6 +272,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "Pärnu", of: "Pärnu", en: "of Pärnu", stem: true },
       { kind: "form", et: "Tallinnast", of: "Tallinn", en: "from Tallinn" },
       { kind: "word", et: "umbes", en: "about, roughly" },
+      { kind: "word", et: "milline", en: "which, what kind of" },
       { kind: "word", et: "kilomeeter", en: "kilometer" },
       { kind: "form", et: "kilomeetrit", of: "kilomeeter", en: "kilometers, after a number" },
       { kind: "word", et: "meri", en: "sea" },
@@ -284,7 +285,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
         head: ["Estonian", "In English"],
         rows: [
           [{ et: "Kui kaugel Pärnu on?" }, { en: "How far is Pärnu?" }],
-          [{ et: "Tallinnast Pärnuni on umbes sada kilomeetrit." }, { en: "From Tallinn to Pärnu it's about a hundred kilometers." }],
+          [{ et: "Tallinnast Pärnuni on umbes sada kolmkümmend kilomeetrit." }, { en: "From Tallinn to Pärnu it's about a hundred and thirty kilometers." }],
           [{ et: "Kas sinna saab bussiga?" }, { en: "Can you get there by bus?" }],
           [{ et: "Pärnu on mere ääres." }, { en: "Pärnu is by the sea." }],
         ],
@@ -330,6 +331,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "sadama", of: "sadam", en: "of the port", stem: true },
       { kind: "verb", et: "lendama", first: "lendan", en: "to fly", firstEn: "I fly" },
       { kind: "word", et: "lennuk", en: "plane" },
+      { kind: "form", et: "lennu", of: "lend", en: "of a flight", stem: true },
       { kind: "form", et: "lennuki", of: "lennuk", en: "of the plane", stem: true },
       { kind: "word", et: "lennujaam", en: "airport" },
       { kind: "form", et: "lennujaama", of: "lennujaam", en: "of the airport", stem: true },
@@ -339,7 +341,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "valmis", en: "ready" },
     ],
     how: {
-      point: "How you go is -ga: {laevaga}, {lennukiga}, {rongiga}. Where you go is -sse, and where from is -st: {sadamast}, {lennujaama}.",
+      point: "How you go is -ga: {laevaga}, {lennukiga}, {rongiga}. Where from is -st: {sadamast}. Where to is -sse, and some words have a short form too: {lennujaama} is the same as {lennujaamasse}.",
       table: {
         head: ["By", "At", "From"],
         rows: [
@@ -349,11 +351,11 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Lennujaam} is a station for planes: {lennuk} plus {jaam}. The endings go on its last part, {lennujaama}.",
+        "{Lennujaam} is a flight station, {lennu} plus {jaam}, and {lennuk} comes from the same word. The endings go on its last part, {lennujaama}.",
         "{Ma lendan} is I fly. But you can always say {Ma sõidan lennukiga} too.",
         "{Valmis} is ready, and it never changes: {Pass on valmis}, {Ma olen valmis}.",
       ],
-      watchOut: "A ferry to Helsinki is a {laev}, however small: the word is for any boat that carries people across the sea.",
+      watchOut: "A ferry to Helsinki is a {laev}: the word covers any ship or ferry that carries people across the sea.",
       examples: [1, 3, 4],
     },
     answers: [
@@ -389,7 +391,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
         "The seller asks the questions in a fixed order: where, when, one way or round trip, when you're coming back.",
         "At the end, the seller speaks to you. Answer as yourself, one turn at a time.",
       ],
-      watchOut: "{Kas homme on bussi?} is is there a bus tomorrow: whether something exists takes the [osastav] (3rd form) after {kas on}.",
+      watchOut: "{Kas homme on bussi?} is is there a bus tomorrow: when you ask whether there is any at all, the thing often takes the [osastav] (3rd form) after {kas on}.",
       examples: [1, 3, 5],
     },
     answers: [

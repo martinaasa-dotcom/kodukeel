@@ -24,7 +24,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "a2-intervjuu", beat: "before", text: "Kus te enne töötasite?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-intervjuu", beat: "before", text: "Ja kus te enne töötasite?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-intervjuu", beat: "experience", text: "Kas teil on kogemust?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
-  { scene: "a2-intervjuu", beat: "experience", text: "Kas teil on kogemust ka?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
+  { scene: "a2-intervjuu", beat: "experience", text: "Kas teil on ka kogemust?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-intervjuu", beat: "estonian", text: "Kas te räägite eesti keelt?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-intervjuu", beat: "estonian", text: "Kas te räägite ka eesti keelt?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-intervjuu", beat: "start", text: "Millal te saaksite alustada?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },

@@ -140,7 +140,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
         "An appointment is time: {aega}, the [osastav] (3rd form) of {aeg} you met in part three. {Arsti juurde} is to the doctor, with {juurde} from part two.",
         "{Millal see algas?} is when did it start, the question every doctor asks. {Algas} is the past of {algama}, learned by name like the verbs of part three.",
         "{Sobib} is the word for a time that works: {Kas homme sobib?} And no is {ei sobi}.",
-        "{Köha}, {nohu} and a sore throat are what you have, so they go after {mul on}, like {palavik} in A1.",
+        "{Köha} and {nohu} are what you have, so they go after {mul on}, like {palavik} in A1. A sore throat is said with the verb: {kurk valutab}.",
       ],
       watchOut: "{Tahaksin} asks; {tahan} demands. To a receptionist, use {tahaksin}.",
       examples: [1, 6, 7],
@@ -272,7 +272,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
     answers: [
       { ask: { et: "Mis sul on?", en: "What's wrong?" }, cue: "Say you're tired and a bit sad.", model: { et: "Ma olen väsinud ja natuke kurb.", en: "I'm tired and a bit sad." } },
       { cue: "Tell a friend not to worry, everything will be fine.", model: { et: "Ära muretse! Kõik läheb hästi.", en: "Stop worrying! Everything will be fine." } },
-      { ask: { et: "Kas sa oled õnnelik?", en: "Are you happy?" }, cue: "Say yes, really.", model: { et: "Jah, küll.", en: "Yes, really." } },
+      { ask: { et: "Kas sa oled õnnelik?", en: "Are you happy?" }, cue: "Say yes, really.", model: { et: "Jah, olen küll.", en: "Yes, I really am." } },
       { ask: { et: "Kõik läheb hästi.", en: "Everything will be fine." }, cue: "Say you really hope so.", model: { et: "Ma loodan küll.", en: "I really hope so." } },
     ],
   },
@@ -305,7 +305,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "doktor", en: "doctor, said to one" },
     ],
     how: {
-      point: "{Võin} is I can or I may, {tohin} I'm allowed to, and {pean} I have to. All three take the da-form after them: {Kas ma tohin minna?}",
+      point: "{Võin} is I can or I may, {tohin} I'm allowed to, and {pean} I have to. {Võin} and {tohin} take the da-form after them: {Kas ma tohin minna?}",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -326,7 +326,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
     answers: [
       { ask: { et: "Teil on gripp.", en: "You have the flu." }, cue: "Ask what you have to do.", model: { et: "Mida ma pean tegema?", en: "What do I have to do?" } },
       { cue: "Ask if you're allowed to go to work.", model: { et: "Kas ma tohin tööle minna?", en: "Am I allowed to go to work?" } },
-      { ask: { et: "Kas ma võin sporti teha?", en: "Can I play sports?" }, cue: "Say no, they mustn't.", model: { et: "Ei, sa ei tohi.", en: "No, you mustn't." } },
+      { ask: { et: "Kas ma võin sporti teha?", en: "Can I play sports?" }, cue: "Say no, they mustn't.", model: { et: "Ei, te ei tohi.", en: "No, you mustn't." } },
       { cue: "Tell a patient politely not to go to work.", model: { et: "Ärge minge tööle.", en: "Don't go to work." } },
     ],
   },
