@@ -150,6 +150,16 @@ export const START: Area = {
     "Guess your level": "Оцените свой уровень",
     "Just starting": "Только начинаю",
     "{words}, and not much else yet.": "{words}, а больше пока почти ничего.",
+    "The basics": "Основы",
+    "You can greet people, count and say a few things about yourself.": "Можете поздороваться, посчитать и немного рассказать о себе.",
+    "You’ll start on {level}.": "Начнёте с уровня {level}.",
+    "You’ll go over {level} first.": "Сначала вы повторите уровень {level}.",
+    "Rather go over {level} before moving on?": "Хотите сначала повторить уровень {level}?",
+    "Start on {level} instead": "Начать с уровня {level}",
+    "Your level check put you at {level}, and you asked to go over it before moving on.":
+      "Проверка показала уровень {level}, и вы решили сначала его повторить.",
+    "You said you’re at {level}, and you asked to go over it before moving on.":
+      "Вы указали уровень {level} и решили сначала его повторить.",
     "I get by": "Могу объясниться",
     "You can shop, order things and put a simple sentence together.":
       "Можете сходить в магазин, что-нибудь заказать и составить простое предложение.",
@@ -452,6 +462,16 @@ export const START: Area = {
     "Guess your level": "Оцініть свій рівень",
     "Just starting": "Тільки починаю",
     "{words}, and not much else yet.": "{words}, а більше поки майже нічого.",
+    "The basics": "Основи",
+    "You can greet people, count and say a few things about yourself.": "Можете привітатися, порахувати й трохи розповісти про себе.",
+    "You’ll start on {level}.": "Почнете з рівня {level}.",
+    "You’ll go over {level} first.": "Спершу ви повторите рівень {level}.",
+    "Rather go over {level} before moving on?": "Хочете спершу повторити рівень {level}?",
+    "Start on {level} instead": "Почати з рівня {level}",
+    "Your level check put you at {level}, and you asked to go over it before moving on.":
+      "Перевірка показала рівень {level}, і ви вирішили спершу його повторити.",
+    "You said you’re at {level}, and you asked to go over it before moving on.":
+      "Ви вказали рівень {level} і вирішили спершу його повторити.",
     "I get by": "Можу порозумітися",
     "You can shop, order things and put a simple sentence together.":
       "Можете сходити в магазин, щось замовити й скласти просте речення.",

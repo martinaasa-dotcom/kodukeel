@@ -1,10 +1,10 @@
 import { latestFor } from "@/lib/progress/assessment";
 import { readSettings, SETTING_KEYS, writeSetting } from "@/lib/settings/store";
 import { wakeForLevel } from "@/lib/progress/deferrals";
-import { LEVELS, type Level } from "@/lib/collections/syllabus";
+import type { Level } from "@/lib/collections/syllabus";
 import { BANDS, PRE_A1, type Level as AssessedLevel } from "@/lib/assessment/types";
 import type { LadderStanding } from "@/lib/course/milestones";
-import { heldLevel } from "@/lib/course/placement";
+import { declaredFrom, heldLevel, HELD_MEANING, NOTHING_HELD, type HeldChoice } from "@/lib/course/placement";
 
 /**
  * The level the course opens at.
@@ -62,17 +62,17 @@ export type LevelAnswer =
       /** The same, by name, for a screen or a briefing that says which is which. */
       bySkill: SkillLevels;
     }
-  | { kind: "declared"; level: Level };
+  /** A0 is "nothing yet": `HeldChoice` rather than `Level`, because a beginner is a real answer. */
+  | { kind: "declared"; level: HeldChoice };
 
 export async function currentLevelAnswer(ownerId: string): Promise<LevelAnswer | null> {
   const [assessed, settings] = await Promise.all([
     latestFor(ownerId).catch(() => null),
-    readSettings(ownerId, [SETTING_KEYS.cefrPlacement, SETTING_KEYS.cefrPlacementAt]),
+    readSettings(ownerId, [SETTING_KEYS.cefrPlacement, SETTING_KEYS.cefrPlacementAt, SETTING_KEYS.cefrPlacementMeaning]),
   ]);
 
   const measured = isAssessed(assessed?.overall) ? assessed!.overall : null;
-  const declaredRaw = settings[SETTING_KEYS.cefrPlacement];
-  const declared = isLevel(declaredRaw) ? declaredRaw : null;
+  const declared = declaredFrom(settings[SETTING_KEYS.cefrPlacement], settings[SETTING_KEYS.cefrPlacementMeaning]);
   const declaredAt = Date.parse(settings[SETTING_KEYS.cefrPlacementAt] ?? "");
   const measuredAt = assessed?.takenAt?.getTime() ?? Number.NEGATIVE_INFINITY;
 
@@ -117,7 +117,8 @@ export async function courseStandingFor(ownerId: string): Promise<CourseStanding
   const answer = await currentLevelAnswer(ownerId);
   if (!answer) return null;
   const held = heldLevel(answer);
-  if (answer.kind === "declared") return { level: answer.level, kind: "declared", held };
+  // A0 is pitched at A1, which is where somebody who holds nothing starts.
+  if (answer.kind === "declared") return { level: answer.level === NOTHING_HELD ? "A1" : answer.level, kind: "declared", held };
   return { level: answer.level === PRE_A1 ? "A1" : answer.level, kind: "measured", held };
 }
 
@@ -125,8 +126,6 @@ export async function courseLevelFor(ownerId: string): Promise<Level> {
   return (await courseStandingFor(ownerId))?.level ?? "A1";
 }
 
-const isLevel = (value: string | null | undefined): value is Level =>
-  typeof value === "string" && (LEVELS as readonly string[]).includes(value);
 
 const isAssessed = (value: string | null | undefined): value is AssessedLevel =>
   value === PRE_A1 || (typeof value === "string" && (BANDS as readonly string[]).includes(value));
@@ -144,10 +143,11 @@ const isAssessed = (value: string | null | undefined): value is AssessedLevel =>
  * The owner is resolved by the caller and never sent to it: every export in
  * `app/actions.ts` is a public endpoint, so a level belongs to whoever asked.
  */
-export async function recordCourseLevel(ownerId: string, level: Level, now = new Date()): Promise<void> {
+export async function recordCourseLevel(ownerId: string, level: HeldChoice, now = new Date()): Promise<void> {
   await Promise.all([
     writeSetting(ownerId, SETTING_KEYS.cefrPlacement, level),
     writeSetting(ownerId, SETTING_KEYS.cefrPlacementAt, now.toISOString()),
+    writeSetting(ownerId, SETTING_KEYS.cefrPlacementMeaning, HELD_MEANING),
     /*
       AND THE WORDS THAT WERE WAITING FOR THIS LEVEL COME BACK.
 
@@ -159,6 +159,7 @@ export async function recordCourseLevel(ownerId: string, level: Level, now = new
       untouched, and so is a card the scheduler had honestly put further out
       (`lib/progress/deferrals.ts`).
     */
-    wakeForLevel(ownerId, level, now),
+    // Nothing waits for A0, and a step down to it wakes nothing.
+    level === NOTHING_HELD ? Promise.resolve(0) : wakeForLevel(ownerId, level, now),
   ]);
 }

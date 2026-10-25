@@ -6693,8 +6693,21 @@ off `currentLevelAnswer` rather than off the level a browser sent, the wizard sh
 off the same function and says in one sentence why, and `openingPartFor` is the one reader for the
 course screen, Settings and the fallback. **The climb credits the level held**, capped below the
 level of the part in play (`creditedThrough`), because a bar calling B1 done over an evening
-teaching B1 is two answers on one screen. A declared A1 reads as a beginner rather than as A1 held,
-since the chip that stores it says "tere, aitäh, and not much else yet".
+teaching B1 is two answers on one screen.
+
+**And "just starting" is A0, so every chip means the level held.** The bottom chip used to be A1 and
+mean "just starting" while every chip above it meant "I have this", so A1 opened A1, A2 opened B1,
+and no chip in first run or Settings reached A2 at all; a learner reported A2 as missing from the
+course. `HELD_CHOICES` is A0 then A1 to C1, A0 is held as nothing (`heldFromChoice`), and every chip
+says where it sends you ("You'll start on A2"), because landing one level above the chip you
+pressed is a surprise unless it is said. **The other start is offered beside it**: `goOverAgain` is
+the level held, for somebody who would rather go over it first, on first run's last screen
+(`startOn`) and under the Settings picker (`changeCourseStart`), and only where it differs from
+where the level opens. **A stored A1 from before A0 is still a beginner**: `declaredFrom` reads an A1
+with no `cefrPlacementMeaning` marker beside it as A0, and every writer of a declaration writes the
+marker now, so nobody who ticked "just starting" is moved to A2 by this. The door up out of the A1
+lessons is asked of where the choice *sends* you, and a refused pick is said in the panel rather
+than leaving the chip moved and the course where it was.
 
 **And believing somebody is only kind if the app then watches whether it was right.**
 `lib/course/adapt.ts` reads the last fortnight of answers, or since the last move, into struggling,

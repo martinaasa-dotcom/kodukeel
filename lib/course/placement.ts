@@ -35,21 +35,80 @@ import { LEVELS, type Level } from "@/lib/collections/syllabus/types";
  */
 
 /**
+ * WHAT SOMEBODY CAN SAY THEY HOLD: NOTHING YET, OR A LEVEL OF THE LADDER.
+ *
+ * A0 is "nothing yet", and it is a choice of its own rather than a reading of
+ * A1. Without it the bottom chip had to mean "just starting" while every chip
+ * above it meant "I have this", so picking A1 opened A1 and picking A2 opened
+ * B1, and A2 was a level nobody could pick their way onto. With A0 every chip
+ * means the same thing: the level held, and the course opens on the next one.
+ * A0 is not a CEFR band and the course has no part for it; it is the answer
+ * "I hold none of them", which is what a beginner says.
+ */
+export const NOTHING_HELD = "A0" as const;
+export type HeldChoice = typeof NOTHING_HELD | Level;
+export const HELD_CHOICES: readonly HeldChoice[] = [NOTHING_HELD, ...LEVELS];
+
+export function isHeldChoice(value: unknown): value is HeldChoice {
+  return typeof value === "string" && (HELD_CHOICES as readonly string[]).includes(value);
+}
+
+/** The marker every write of a declaration carries now (`SETTING_KEYS.cefrPlacementMeaning`). */
+export const HELD_MEANING = "held";
+
+/**
+ * A stored declaration, read under the rule it was written under.
+ *
+ * The bottom chip used to store A1 and mean "just starting", because there was
+ * no A0 to pick. A stored A1 with no "held" marker beside it was written that
+ * way, so it reads as A0 and the beginner who ticked it is not moved to A2 by
+ * this change. Every other stored level meant the level held all along.
+ */
+export function declaredFrom(stored: string | null | undefined, meaning: string | null | undefined): HeldChoice | null {
+  if (!isHeldChoice(stored)) return null;
+  if (stored === "A1" && meaning !== HELD_MEANING) return NOTHING_HELD;
+  return stored;
+}
+
+/** The level a choice holds, or null for A0. */
+export function heldFromChoice(choice: HeldChoice): Level | null {
+  return choice === NOTHING_HELD ? null : choice;
+}
+
+/**
  * The level the learner holds, or null for somebody who holds none yet.
  *
- * A declared A1 reads as null. The chip that stores it says "just starting:
- * tere, aitäh, and not much else yet", which is a beginner, and crediting a
- * beginner with A1 would put a full bar under a level they have not started.
- * A *measured* A1 is a band a paper passed and is held; a measured result
- * under A1 is null. The caller says which, because only it knows.
+ * A declared A0 and a measured result under A1 are both nothing held. Every
+ * other level, declared or measured, is a level held. (A declared A1 used to
+ * read as "just starting", because there was no A0 to pick; rows written that
+ * way are read as A0 by `currentLevelAnswer`, so this rule has no exception.)
  */
 export function heldLevel(
   answer: { kind: "measured" | "declared"; level: string } | null,
 ): Level | null {
   if (!answer) return null;
   if (!isLadderLevel(answer.level)) return null;
-  if (answer.kind === "declared" && answer.level === "A1") return null;
   return answer.level;
+}
+
+/** Where a choice opens the course: `startingLevel` for the level it holds. */
+export function opensOn(choice: HeldChoice, target: string | null | undefined): Level {
+  return startingLevel(heldFromChoice(choice), target);
+}
+
+/**
+ * THE LEVEL "GO OVER IT AGAIN" OPENS, OR NONE WHERE THERE IS NOTHING TO OFFER.
+ *
+ * A level held opens the course one past it, and some people would rather go
+ * over the level they hold before moving on: a certificate taken two years ago,
+ * a class that went faster than they did. So the level held is offered as a
+ * second start, and only where it differs from the first: nobody who holds
+ * nothing has a level to go over, and somebody aiming at the level they hold,
+ * or holding C1, is already opened on it.
+ */
+export function goOverAgain(held: Level | null, target: string | null | undefined): Level | null {
+  if (held === null) return null;
+  return startingLevel(held, target) === held ? null : held;
 }
 
 /** The level whose first part the course opens on. */
@@ -104,14 +163,13 @@ export function creditedThrough(held: Level | null, working: Level | null): Leve
  *
  * Only ever up and only one step: a jump in Settings to a part far above is
  * somebody looking, not somebody who has walked anything, and going back down
- * to refresh a level says nothing about what they hold. And never A1, which
- * cannot be written as held: a declared A1 reads as "just starting" (above),
- * and a beginner who finished A1 is already read as A1 by everything that asks.
+ * to refresh a level says nothing about what they hold. Walking out of A1 is
+ * holding A1, now that a beginner says A0 rather than A1.
  */
 export function levelHeldOnHandOff(
   from: Level, to: Level, held: Level | null,
 ): Level | null {
-  if (levelAfter(from) !== to || from === "A1") return null;
+  if (levelAfter(from) !== to) return null;
   if (held !== null && LEVELS.indexOf(held) >= LEVELS.indexOf(from)) return null;
   return from;
 }

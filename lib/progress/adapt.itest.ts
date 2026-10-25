@@ -74,7 +74,23 @@ describe("where the course opens", () => {
   });
 
   it("is the first part of A1 for somebody just starting", async () => {
+    await recordCourseLevel(MINE, "A0");
+    expect((await openingPartFor(MINE)).id).toBe(PROGRAMMES[0]!.id);
+  });
+
+  it("is the first part of A2 for somebody who has A1, which no chip reached before A0", async () => {
     await recordCourseLevel(MINE, "A1");
+    expect((await openingPartFor(MINE)).level).toBe("A2");
+  });
+
+  it("reads an A1 stated before A0 existed as the beginner it was", async () => {
+    // The rows the old bottom chip left: A1, stamped, and no "held" marker.
+    await prisma.setting.deleteMany({ where: { ownerId: MINE, key: SETTING_KEYS.cefrPlacementMeaning } });
+    for (const [key, value] of [[SETTING_KEYS.cefrPlacement, "A1"], [SETTING_KEYS.cefrPlacementAt, new Date().toISOString()]] as const) {
+      await prisma.setting.upsert({
+        where: { ownerId_key: { ownerId: MINE, key } }, update: { value }, create: { ownerId: MINE, key, value },
+      });
+    }
     expect((await openingPartFor(MINE)).id).toBe(PROGRAMMES[0]!.id);
   });
 });

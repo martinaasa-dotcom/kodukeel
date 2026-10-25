@@ -16,7 +16,8 @@ import { mailerConfig } from "@/lib/mailer/transport";
 import { pushConfig } from "@/lib/push/config";
 import { goalsFor, latestFor } from "@/lib/progress/assessment";
 import { levelLabel } from "@/components/assessment/PlanPanel";
-import { courseLevelFor } from "@/lib/progress/level";
+import { courseLevelFor, courseStandingFor } from "@/lib/progress/level";
+import { goOverAgain, HELD_CHOICES, opensOn, startingLevel, type HeldChoice } from "@/lib/course/placement";
 import { accountSettingsFor } from "@/lib/settings/account";
 import { uiText } from "@/lib/copy/uiLanguage";
 import { Card, Chip, KeyCap, Page, SectionTitle, Stack } from "@/components/ui";
@@ -139,7 +140,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const hosted = supabaseConfigured();
   const ekilexOn = ekilexConfigured();
 
-  const [words, cards, reviews, settings, account, learner, goals, latestCheck, courseLevel, [programme, programmeDay, opening], tilt] = await Promise.all([
+  const [words, cards, reviews, settings, account, learner, goals, latestCheck, courseLevel, [programme, programmeDay, opening], tilt, standing] = await Promise.all([
     prisma.lexeme.count(),
     prisma.card.count({ where: { ownerId } }),
     prisma.review.count({ where: { ownerId } }),
@@ -189,6 +190,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     // Which way the course is leaning the delivery, so the row that follows
     // the level names the pace actually being played. See lib/course/adapt.ts.
     adaptTiltFor(ownerId),
+    // The level held, which the picker shows as its chips name it (A0 for none).
+    courseStandingFor(ownerId),
   ]);
 
   const dailyGoal = account.dailyGoal;
@@ -249,6 +252,18 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     be the app arguing with itself about a number both agree on.
   */
   const measuredIsCurrent = (latestCheck?.overall ?? null) === courseLevel;
+  /*
+    WHAT EACH CHIP OPENS, AND THE ONE START BELOW IT. A level picked is a level
+    held and the course opens past it, so every chip says where it sends you;
+    and where the learner is led and holds a level, the start that goes over
+    that level first is offered beside the one it opens (`goOverAgain`).
+  */
+  const heldChoice: HeldChoice = standing?.held ?? "A0";
+  const destinations = Object.fromEntries(HELD_CHOICES.map((c) => [c, opensOn(c, goals.target)])) as Record<HeldChoice, string>;
+  const again = programme ? goOverAgain(standing?.held ?? null, goals.target) : null;
+  const courseStart = again
+    ? { held: again, next: startingLevel(standing?.held ?? null, goals.target), goingOver: programme?.level === again }
+    : null;
 
   return (
     <Page route="/settings"
@@ -298,7 +313,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               {t("Your level")}
             </SectionTitle>
             <Card>
-              <LevelPanel current={courseLevel} measured={measuredIsCurrent} />
+              <LevelPanel current={heldChoice} measured={measuredIsCurrent} destinations={destinations} start={courseStart} />
             </Card>
           </section>
 
