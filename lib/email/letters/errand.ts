@@ -171,6 +171,8 @@ export function errandLetter(input: ErrandInput): Letter {
     });
   }
 
+  blocks.push({ t: "signoff", text: say("Rooting for you,") });
+
   return {
     kind: "errand",
     locale,

@@ -132,7 +132,7 @@ export function weeklyLetter(input: WeeklyInput): Letter {
     blocks.push({
       t: "text",
       text: say(
-        "No cards this week. Nothing piles up while you're away, and one evening puts you right back where you were.",
+        "No cards this week. Nothing piles up while you're away, and one short session puts you right back where you were.",
       ),
     });
   }
@@ -223,6 +223,7 @@ export function weeklyLetter(input: WeeklyInput): Letter {
     label: say("See all your progress"),
     href: `${input.origin}/progress`,
   });
+  blocks.push({ t: "signoff", text: say("Have a lovely week,") });
 
   return {
     kind: "weekly",
@@ -232,7 +233,7 @@ export function weeklyLetter(input: WeeklyInput): Letter {
       : say("{days} of Estonian this week", { days: spelled(locale, studied, "day", { capital: true }) }),
     preheader:
       studied === 0
-        ? say("Nothing to catch up on. One evening and you're back in.")
+        ? say("Nothing to catch up on. One short session and you're back in.")
         : say("{cards} answered, and {words} that are properly yours.", { cards, words }),
     blocks,
   };

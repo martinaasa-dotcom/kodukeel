@@ -92,7 +92,12 @@ export const DARK = {
   raised: "#1f232d",
   ink: "#eeeff3",
   ink2: "#c3c5d1",
+  ink3: "#a5a8b8",
+  accent: "#a594ff",
   accentSoft: "#353351",
+  accentDeep: "#c4baff",
+  sky: "#6ad6ec",
+  skySoft: "#22353f",
 } as const;
 
 export const DARK_TOKEN_OF: Readonly<Record<keyof typeof DARK, string>> = {
@@ -101,5 +106,19 @@ export const DARK_TOKEN_OF: Readonly<Record<keyof typeof DARK, string>> = {
   raised: "--raised",
   ink: "--ink",
   ink2: "--ink-2",
+  ink3: "--ink-3",
+  accent: "--accent",
   accentSoft: "--accent-soft",
+  accentDeep: "--accent-deep",
+  sky: "--sky",
+  skySoft: "--sky-soft",
 };
+
+/**
+ * The type every letter is set in: the reader's own system face, which on an
+ * iPhone is San Francisco. Named once, because a drawing in `art.ts` that
+ * forgot it fell back to the client's default serif, which on Apple Mail is
+ * Times, and a step list in Times under a heading in San Francisco reads as
+ * two letters pasted together.
+ */
+export const FONT = "-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif";

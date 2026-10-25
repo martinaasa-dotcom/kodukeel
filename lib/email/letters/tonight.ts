@@ -111,13 +111,13 @@ function subjectFor(input: TonightInput): string {
   const left = input.day.steps.length - done;
   if (done > 0 && left > 0) {
     return left === 1
-      ? say("One step left in {title}", { title })
+      ? say("Just one step left in {title}", { title })
       : say("{steps} left in {title}", {
           steps: spelled(input.locale, left, "step", { capital: true }),
           title,
         });
   }
-  return newWordsLine(input.locale, input.day.newWords) ?? say("Back to {title} today", { title });
+  return newWordsLine(input.locale, input.day.newWords) ?? say("{title} is ready for you", { title });
 }
 
 /**
@@ -147,7 +147,7 @@ function addressable(input: TonightInput): string | null {
  */
 function newWordsLine(locale: Locale, n: number): string | null {
   if (n <= 0) return null;
-  return sayer(locale)("{newWords} today", {
+  return sayer(locale)("{newWords} for today", {
     newWords: spelled(locale, n, "new word", { capital: true }),
   });
 }
@@ -173,8 +173,8 @@ function preheaderFor(input: TonightInput): string {
   const shape = partOf(input, input.day.subtitle);
   const started = input.day.steps.some((s) => s.done);
   return started
-    ? say("{shape}. About {minutes} minutes left.", { shape, minutes: left })
-    : say("{shape}. About {minutes} minutes, start to finish.", { shape, minutes: left });
+    ? say("{shape}. Only about {minutes} minutes left, whenever it suits you.", { shape, minutes: left })
+    : say("{shape}. About {minutes} minutes, whenever it suits you.", { shape, minutes: left });
 }
 
 export function tonightLetter(input: TonightInput): Letter {
@@ -199,7 +199,7 @@ export function tonightLetter(input: TonightInput): Letter {
   if (done > 0) {
     blocks.push({
       t: "heading",
-      text: left <= 1 ? say("You're nearly done for today.") : say("About {minutes} minutes to go today.", { minutes: left }),
+      text: left <= 1 ? say("You're so close to finishing today.") : say("Only about {minutes} minutes to go.", { minutes: left }),
     });
     const steps = spelled(locale, done, "step");
     const where = partOf(input, titled(input));
@@ -207,8 +207,8 @@ export function tonightLetter(input: TonightInput): Letter {
     blocks.push({
       t: "text",
       text: name
-        ? say("{name}, you're {steps} into {where}. The rest is right where you left it.", { name, steps, where })
-        : say("You're {steps} into {where}. The rest is right where you left it.", { steps, where }),
+        ? say("{name}, you've already done {steps} of {where}. The rest is waiting right where you left it.", { name, steps, where })
+        : say("You've already done {steps} of {where}. The rest is waiting right where you left it.", { steps, where }),
     });
   } else {
     const fresh = newWordsLine(locale, day.newWords);
@@ -216,7 +216,7 @@ export function tonightLetter(input: TonightInput): Letter {
       t: "heading",
       text: fresh
         ? say("{newWords}, in about {minutes} minutes.", { newWords: fresh, minutes: left })
-        : say("Words you know, put to work today, in about {minutes} minutes.", { minutes: left }),
+        : say("Today you'll use words you already know, in about {minutes} minutes.", { minutes: left }),
     });
     const evening = partOf(input, subtitle);
     /* The can-do opens on a verb in all three, so lowering it sets it after "able to". */
@@ -225,10 +225,10 @@ export function tonightLetter(input: TonightInput): Letter {
     blocks.push({
       t: "text",
       text: name
-        ? say("{name}, this is {title}, {evening}. By the end you'll be able to {canDo}", {
+        ? say("{name}, today's module is {title}, {evening}. By the end you'll be able to {canDo}", {
             name, title: titled(input), evening, canDo,
           })
-        : say("{title}, {evening}. By the end you'll be able to {canDo}", { title: titled(input), evening, canDo }),
+        : say("Today's module is {title}, {evening}. By the end you'll be able to {canDo}", { title: titled(input), evening, canDo }),
     });
   }
 
@@ -241,7 +241,7 @@ export function tonightLetter(input: TonightInput): Letter {
     a footnote.
   */
   if (input.theirWords) {
-    blocks.push({ t: "quiet", text: say("What you told yourself when you started:") });
+    blocks.push({ t: "quiet", text: say("In your own words, when you started:") });
     blocks.push({ t: "theirs", text: input.theirWords });
   }
 
@@ -269,7 +269,7 @@ export function tonightLetter(input: TonightInput): Letter {
   */
   if (input.word) {
     blocks.push({ t: "rule" });
-    blocks.push({ t: "quiet", text: say("And a word for you, whether you study today or not:") });
+    blocks.push({ t: "quiet", text: say("And a little word for today, whether you study or not:") });
     blocks.push({
       t: "art",
       html: wordCard(input.word.lemma, input.word.translation, input.word.occasion ?? undefined),
@@ -298,6 +298,8 @@ export function tonightLetter(input: TonightInput): Letter {
       text: say("That's {days} in a row so far.", { days: spelled(locale, input.streak, "day") }),
     });
   }
+
+  blocks.push({ t: "signoff", text: say("Talk soon,") });
 
   return {
     kind: "tonight",

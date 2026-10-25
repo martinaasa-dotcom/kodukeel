@@ -34,11 +34,10 @@
 */
 import { fill, tr, type Locale } from "@/lib/copy/locale";
 import { esc, html, join, raw, type Html } from "./html";
-import { PALETTE as P } from "./palette";
+import { FONT, PALETTE as P } from "./palette";
 
-/** The tick, and the empty circle it sits against. Named so nothing types one. */
+/** The tick. Named so nothing types one. */
 export const TICK = "✓";
-const RING = "○";
 
 /** Inline styles are what a mail client keeps. A helper so they read as CSS. */
 const css = (declarations: Record<string, string>): Html =>
@@ -76,7 +75,7 @@ export function letterTiles(letters: readonly string[] = ["õ", "ä", "ö", "ü"
         "background-color": bg,
         color: ink,
         "border-radius": "10px",
-        "font-family": "Georgia, 'Times New Roman', serif",
+        "font-family": FONT,
         "font-size": "22px",
         "line-height": "40px",
         "font-weight": "700",
@@ -104,38 +103,62 @@ export interface StepRow {
  *
  * Drawn as the app draws it, so that the letter and the screen it opens are
  * recognisably the same object. What is done is sky with a tick; what is
- * waiting is the ordinary ink with an open circle. Neither is red, and nothing
+ * waiting is an open ring. Neither is red, and nothing
  * here is scolded: a step not yet taken is a step waiting, which is what it is.
  */
 export function stepLadder(steps: readonly StepRow[], locale: Locale = "en"): Html {
-  const rows = steps.map((step) => {
-    const mark = step.done ? TICK : RING;
-    const markInk = step.done ? P.skyInk : P.ink3;
+  const rows = steps.map((step, i) => {
     const titleInk = step.done ? P.ink3 : P.ink;
+    /* A dot the size of a fingertip: sky with a tick where it is done, an
+       open ring where it is waiting. A cell rather than a glyph, so it is the
+       same round shape in every client whatever font the tick falls back to. */
+    const dot = step.done
+      ? css({
+          width: "22px",
+          height: "22px",
+          "border-radius": "11px",
+          "background-color": P.skySoft,
+          color: P.skyInk,
+          "font-family": FONT,
+          "font-size": "13px",
+          "line-height": "22px",
+          "font-weight": "700",
+          "text-align": "center",
+        })
+      : css({
+          width: "20px",
+          height: "20px",
+          "border-radius": "11px",
+          border: `1px solid ${P.ink3}`,
+          "font-size": "0",
+          "line-height": "20px",
+        });
+    const rule: Record<string, string> = i === 0 ? {} : { "border-top": `1px solid ${P.raised}` };
     return html`<tr>
-      <td width="28" valign="top" style="${css({
-        color: markInk,
-        "font-size": "15px",
-        "line-height": "22px",
-        "padding": "5px 0",
-      })}">${mark}</td>
-      <td valign="top" style="${css({
+      <td width="34" valign="middle" class="k-line" style="${css({ padding: "11px 0", ...rule })}"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td style="${dot}" class="${step.done ? "k-day-on" : "k-ring"}">${step.done ? TICK : raw("&nbsp;")}</td></tr></table></td>
+      <td valign="middle" style="${css({
         color: titleInk,
+        "font-family": FONT,
         "font-size": "15px",
         "line-height": "22px",
-        "padding": "5px 0",
-        ...(step.done ? { "text-decoration": "line-through" } : {}),
-      })}">${step.title}</td>
-      <td align="right" valign="top" style="${css({
+        padding: "11px 12px 11px 0",
+        ...rule,
+      })}" class="${step.done ? "k-ink3 k-line" : "k-ink k-line"}">${step.title}</td>
+      <td align="right" valign="middle" style="${css({
         color: P.ink3,
+        "font-family": FONT,
         "font-size": "13px",
         "line-height": "22px",
-        "padding": "5px 0",
+        padding: "11px 0",
         "white-space": "nowrap",
-      })}">${fill(tr(locale, "{n} min"), { n: step.minutes })}</td>
+        ...rule,
+      })}" class="k-ink3 k-line">${fill(tr(locale, "{n} min"), { n: step.minutes })}</td>
     </tr>`;
   });
-  return html`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${join(rows)}</table>`;
+  return html`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="k-line" style="${css({
+    border: `1px solid ${P.raised}`,
+    "border-radius": "16px",
+  })}"><tr><td style="${css({ padding: "4px 16px" })}"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${join(rows)}</table></td></tr></table>`;
 }
 
 /**
@@ -155,7 +178,7 @@ export function meter(pct: number): Html {
   const fill = P.accent;
   return html`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="${css(
     { "border-radius": "6px", overflow: "hidden", "background-color": P.raised },
-  )}"><tr>
+  )}" class="k-track"><tr>
     <td width="${filled}%" style="${css({
       "background-color": fill,
       height: "8px",
@@ -180,19 +203,20 @@ export function wordCard(word: string, meaning: string, note?: string): Html {
   return html`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="${css(
     {
       "background-color": P.accentSoft,
-      "border-radius": "14px",
+      "border-radius": "18px",
     },
-  )}"><tr><td style="${css({ padding: "18px 20px" })}">
+  )}" class="k-soft"><tr><td style="${css({ padding: "22px 24px", "font-family": FONT })}">
     <div style="${css({
       color: P.accentDeep,
-      "font-family": "Georgia, 'Times New Roman', serif",
-      "font-size": "26px",
-      "line-height": "32px",
+      "font-family": FONT,
+      "font-size": "30px",
+      "line-height": "36px",
       "font-weight": "700",
-    })}">${word}</div>
-    <div style="${css({ color: P.ink2, "font-size": "15px", "line-height": "22px", "padding-top": "2px" })}">${meaning}</div>
+      "letter-spacing": "-0.02em",
+    })}" class="k-soft-ink">${word}</div>
+    <div style="${css({ color: P.ink2, "font-family": FONT, "font-size": "16px", "line-height": "24px", "padding-top": "2px" })}" class="k-ink2">${meaning}</div>
     ${note
-      ? html`<div style="${css({ color: P.ink3, "font-size": "13px", "line-height": "19px", "padding-top": "8px" })}">${note}</div>`
+      ? html`<div style="${css({ color: P.ink2, "font-family": FONT, "font-size": "14px", "line-height": "21px", "padding-top": "10px" })}" class="k-ink2">${note}</div>`
       : raw("")}
   </td></tr></table>`;
 }
@@ -208,17 +232,19 @@ export function wordCard(word: string, meaning: string, note?: string): Html {
  */
 export function weekStrip(days: readonly { label: string; studied: boolean }[]): Html {
   const cells = days.map(
-    (day) => html`<td align="center" width="14%" style="${css({ padding: "0 3px" })}">
-      <div style="${css({ color: P.ink3, "font-size": "11px", "line-height": "16px", "letter-spacing": "0.04em" })}">${day.label}</div>
+    (day) => html`<td align="center" width="14%" style="${css({ padding: "0 3px", "font-family": FONT })}">
+      <div style="${css({ color: P.ink3, "font-family": FONT, "font-size": "12px", "line-height": "16px", "font-weight": "600" })}" class="k-ink3">${day.label}</div>
       <div style="${css({
         "background-color": day.studied ? P.skySoft : P.raised,
         color: day.studied ? P.skyInk : P.ink3,
-        "border-radius": "8px",
+        "border-radius": "10px",
+        "font-family": FONT,
         "font-size": "14px",
-        "line-height": "30px",
-        height: "30px",
-        "margin-top": "4px",
-      })}">${day.studied ? TICK : " "}</div>
+        "font-weight": "700",
+        "line-height": "34px",
+        height: "34px",
+        "margin-top": "6px",
+      })}" class="${day.studied ? "k-day-on" : "k-day"}">${day.studied ? TICK : " "}</div>
     </td>`,
   );
   return html`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>${join(cells)}</tr></table>`;

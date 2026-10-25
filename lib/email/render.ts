@@ -30,7 +30,7 @@
 */
 import { esc, html, join, raw, url, type Html } from "./html";
 import type { Block, Letter } from "./letter";
-import { DARK, PALETTE as P } from "./palette";
+import { DARK, FONT, PALETTE as P } from "./palette";
 import { fill, MACHINE_SHORT, tr, type Locale } from "@/lib/copy/locale";
 
 const CARD = 600;
@@ -42,37 +42,36 @@ const css = (declarations: Record<string, string>): Html =>
       .join(";"),
   );
 
-const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
 
 function blockHtml(block: Block): Html {
   switch (block.t) {
     case "heading":
       return html`<tr><td style="${css({
-        padding: "0 0 14px",
+        padding: "0 0 12px",
         color: P.ink,
         "font-family": FONT,
-        "font-size": "24px",
-        "line-height": "31px",
+        "font-size": "25px",
+        "line-height": "32px",
         "font-weight": "700",
-        "letter-spacing": "-0.01em",
+        "letter-spacing": "-0.02em",
       })}" class="k-ink">${block.text}</td></tr>`;
 
     case "text":
       return html`<tr><td style="${css({
-        padding: "0 0 14px",
+        padding: "0 0 16px",
         color: P.ink,
         "font-family": FONT,
         "font-size": "16px",
-        "line-height": "25px",
+        "line-height": "26px",
       })}" class="k-ink">${block.text}</td></tr>`;
 
     case "quiet":
       return html`<tr><td style="${css({
-        padding: "0 0 14px",
+        padding: "0 0 16px",
         color: P.ink2,
         "font-family": FONT,
-        "font-size": "14px",
-        "line-height": "22px",
+        "font-size": "15px",
+        "line-height": "23px",
       })}" class="k-ink2">${block.text}</td></tr>`;
 
     case "theirs":
@@ -101,15 +100,15 @@ function blockHtml(block: Block): Html {
         styled anchor. Word ignores padding on an inline element, so a styled
         anchor there is underlined text with no button around it.
       */
-      return html`<tr><td style="${css({ padding: "6px 0 16px" })}">
+      return html`<tr><td style="${css({ padding: "8px 0 18px" })}">
         <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
           <td align="center" style="${css({
             "background-color": P.accent,
-            "border-radius": "12px",
+            "border-radius": "14px",
           })}">
             <a href="${url(block.href)}" style="${css({
               display: "inline-block",
-              padding: "14px 26px",
+              padding: "15px 28px",
               color: P.accentInk,
               "font-family": FONT,
               "font-size": "16px",
@@ -123,13 +122,14 @@ function blockHtml(block: Block): Html {
 
     case "link":
       return html`<tr><td style="${css({
-        padding: "0 0 14px",
+        padding: "0 0 16px",
         "font-family": FONT,
-        "font-size": "14px",
-        "line-height": "22px",
+        "font-size": "15px",
+        "line-height": "23px",
       })}"><a href="${url(block.href)}" style="${css({
         color: P.accentDeep,
-        "text-decoration": "underline",
+        "font-weight": "600",
+        "text-decoration": "none",
       })}" class="k-link">${block.label}</a></td></tr>`;
 
     case "art":
@@ -140,12 +140,30 @@ function blockHtml(block: Block): Html {
         sentence, and the sentence is what the text part carries, so the
         drawing is hidden from it here and said there.
       */
-      return html`<tr><td style="${css({ padding: "2px 0 18px" })}" role="presentation">${block.html}</td></tr>`;
+      return html`<tr><td style="${css({ padding: "4px 0 20px", "font-family": FONT })}" role="presentation">${block.html}</td></tr>`;
 
     case "rule":
-      return html`<tr><td style="${css({ padding: "6px 0 20px" })}"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="${css(
+      return html`<tr><td style="${css({ padding: "8px 0 24px" })}"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="${css(
         { height: "1px", "line-height": "1px", "font-size": "0", "background-color": P.raised },
       )}" class="k-rule">&nbsp;</td></tr></table></td></tr>`;
+
+    case "signoff":
+      /*
+        The goodbye and the name under it, a little apart from the body, the
+        way a note is signed. The name is the app's, in the accent, because it
+        is the app writing; nothing here pretends a person typed it.
+      */
+      return html`<tr><td style="${css({
+        padding: "10px 0 0",
+        color: P.ink2,
+        "font-family": FONT,
+        "font-size": "16px",
+        "line-height": "24px",
+      })}" class="k-ink2">${block.text}<br><span style="${css({
+        color: P.accentDeep,
+        "font-weight": "700",
+        "letter-spacing": "-0.01em",
+      })}" class="k-link">Kodukeel</span></td></tr>`;
   }
 }
 
@@ -171,6 +189,8 @@ function blockText(block: Block): string | null {
       return block.alt;
     case "rule":
       return null;
+    case "signoff":
+      return `${block.text}\nKodukeel`;
   }
 }
 
@@ -200,10 +220,23 @@ export interface Chrome {
  *
  * Two things, and the padding is the one people leave out. The text is hidden
  * with the usual pile of properties, because no two clients respect the same
- * one; the run of zero-width spaces after it stops the client reaching past
- * the preheader and pulling in the first words of the body, which is how a
- * letter ends up previewed as "Kodukeel View in browser Tonight is".
+ * one; the run after it stops the client reaching past the preheader and
+ * pulling in the first words of the body, which is how a letter ends up
+ * previewed as "Kodukeel View in browser Tonight is".
+ *
+ * THE PADDING HAS NO WIDTH, AND THAT IS THE HALF THAT WAS WRONG. It used to be
+ * a zero-width non-joiner and a non-breaking space, sixty times, which is the
+ * recipe most email templates copy. A non-breaking space is a space: the iPhone
+ * lock screen and the Gmail app's notification draw every one of them, so the
+ * preview read "One round takes two minutes." followed by a line of blank
+ * space and then the first words of the body. Nothing in `PREHEADER_PAD` can
+ * be seen anywhere: the combining grapheme joiner and the zero-width
+ * non-joiner render as nothing, so the preview is the sentence and only the
+ * sentence, and a client that counts characters still finds enough of them to
+ * stop before the body.
  */
+export const PREHEADER_PAD = "&#847;&zwnj;".repeat(160);
+
 function preheader(text: string): Html {
   return html`<div style="${css({
     display: "none",
@@ -214,7 +247,8 @@ function preheader(text: string): Html {
     "max-width": "0",
     opacity: "0",
     overflow: "hidden",
-  })}">${text}${raw("&#8204;&nbsp;".repeat(60))}</div>`;
+    "mso-hide": "all",
+  })}">${text}${raw(PREHEADER_PAD)}</div>`;
 }
 
 /**
@@ -259,21 +293,34 @@ export function renderHtml(letter: Letter, chrome: Chrome): string {
     .k-card { background-color: ${DARK.surface} !important; }
     .k-ink { color: ${DARK.ink} !important; }
     .k-ink2 { color: ${DARK.ink2} !important; }
-    .k-rule { background-color: ${DARK.accentSoft} !important; }
-    .k-link { color: ${P.accent} !important; }
+    .k-rule { background-color: ${DARK.raised} !important; }
+    .k-link { color: ${DARK.accentDeep} !important; }
+    .k-ink3 { color: ${DARK.ink3} !important; }
+    .k-card { border-color: ${DARK.raised} !important; }
+    .k-soft { background-color: ${DARK.accentSoft} !important; }
+    .k-soft-ink { color: ${DARK.accentDeep} !important; }
+    .k-track { background-color: ${DARK.raised} !important; }
+    .k-day { background-color: ${DARK.raised} !important; color: ${DARK.ink3} !important; }
+    .k-day-on { background-color: ${DARK.skySoft} !important; color: ${DARK.sky} !important; }
+    .k-ring { border-color: ${DARK.ink3} !important; }
+    .k-line { border-color: ${DARK.raised} !important; }
   }
   @media (max-width: 620px) {
-    .k-card { width: 100% !important; }
-    .k-pad { padding: 24px 20px !important; }
+    .k-card { width: 100% !important; border-radius: 20px !important; }
+    .k-pad { padding: 28px 22px 24px !important; }
+    .k-pad-x { padding-left: 22px !important; padding-right: 22px !important; }
   }
 </style>
 </head>
 <body class="k-body" style="margin:0;padding:0;background-color:${P.ground};-webkit-font-smoothing:antialiased">
 ${preheader(letter.preheader).__html}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${P.ground}" class="k-body">
-  <tr><td align="center" style="padding:28px 12px">
-    <table role="presentation" width="${CARD}" cellpadding="0" cellspacing="0" border="0" class="k-card" style="width:${CARD}px;max-width:100%;background-color:${P.surface};border-radius:20px">
-      <tr><td class="k-pad" style="padding:32px 36px">
+  <tr><td align="center" style="padding:32px 12px 40px;font-family:${FONT}">
+    <table role="presentation" width="${CARD}" cellpadding="0" cellspacing="0" border="0" style="width:${CARD}px;max-width:100%">
+      <tr><td class="k-pad-x" style="padding:0 36px 16px;font-family:${FONT};font-size:17px;line-height:22px;font-weight:700;letter-spacing:-0.02em;color:${P.accentDeep}"><span class="k-link">Kodukeel</span></td></tr>
+    </table>
+    <table role="presentation" width="${CARD}" cellpadding="0" cellspacing="0" border="0" class="k-card" style="width:${CARD}px;max-width:100%;background-color:${P.surface};border:1px solid ${P.raised};border-radius:24px">
+      <tr><td class="k-pad" style="padding:36px 36px 32px;font-family:${FONT};color:${P.ink}">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
           ${body.__html}
         </table>
@@ -281,14 +328,16 @@ ${preheader(letter.preheader).__html}
     </table>
 
     <table role="presentation" width="${CARD}" cellpadding="0" cellspacing="0" border="0" style="width:${CARD}px;max-width:100%">
-      <tr><td class="k-pad" style="padding:20px 36px;font-family:${FONT};font-size:12px;line-height:19px;color:${P.ink3}" class="k-ink2">
-        ${esc(foot.signed).__html}
-        <br>
-        <a href="${url(chrome.unsubscribeUrl).__html}" style="color:${P.ink3};text-decoration:underline">${esc(foot.unsubscribe).__html}</a>
-        &nbsp;&nbsp;&nbsp;
-        <a href="${url(`${chrome.origin}/privacy`).__html}" style="color:${P.ink3};text-decoration:underline">${esc(foot.privacy).__html}</a>${foot.machine ? `
+      <tr><td class="k-pad-x k-ink3" style="padding:24px 36px 0;font-family:${FONT};font-size:13px;line-height:21px;color:${P.ink3}">
+        ${esc(foot.signed).__html}${foot.machine ? `
         <br>
         ${esc(foot.machine).__html}` : ""}
+      </td></tr>
+      <tr><td class="k-pad-x" style="padding:8px 36px 0;font-family:${FONT};font-size:13px;line-height:21px">
+        <a href="${url(chrome.unsubscribeUrl).__html}" style="color:${P.ink3};text-decoration:underline" class="k-ink3">${esc(foot.unsubscribe).__html}</a>
+      </td></tr>
+      <tr><td class="k-pad-x" style="padding:2px 36px 0;font-family:${FONT};font-size:13px;line-height:21px">
+        <a href="${url(`${chrome.origin}/privacy`).__html}" style="color:${P.ink3};text-decoration:underline" class="k-ink3">${esc(foot.privacy).__html}</a>
       </td></tr>
     </table>
   </td></tr>

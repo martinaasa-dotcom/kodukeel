@@ -207,6 +207,7 @@ export function classroomLetter(input: ClassroomInput): Letter {
     were told about.
   */
   blocks.push({ t: "button", label: say("Open the group's board"), href: `${input.origin}/class` });
+  blocks.push({ t: "signoff", text: say("With thanks,") });
 
   return {
     kind: "classroom",

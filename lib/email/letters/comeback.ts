@@ -67,13 +67,13 @@ export function comebackLetter(input: ComebackInput): Letter {
     spaced repetition works. It is the true fact that answers the fear, so it
     leads.
   */
-  blocks.push({ t: "heading", text: say("You haven't lost your Estonian.") });
+  blocks.push({ t: "heading", text: say("Your Estonian waited for you.") });
 
   blocks.push({
     t: "text",
     text: say(
-      "You still know {words}. Spaced-out cards stay put while you're away, " +
-        "so you pick up where you stopped.",
+      "You still know {words}. The words you've learned stay safe while you're away, " +
+        "so you can pick up exactly where you stopped.",
       { words },
     ),
   });
@@ -88,7 +88,7 @@ export function comebackLetter(input: ComebackInput): Letter {
     */
     blocks.push({
       t: "text",
-      text: say("A shield you'd saved up covered the gap, so your {run} run is still going.", {
+      text: say("A shield you'd saved up covered the days off, so your {run} run is still going.", {
         run: locale === "en" ? `${input.streak}-day` : figured(locale, input.streak, "day"),
       }),
     });
@@ -101,7 +101,7 @@ export function comebackLetter(input: ComebackInput): Letter {
   blocks.push({
     t: "text",
     text: say(
-      "No need for a whole evening. One quick round takes about {minutes} minutes.",
+      "There's nothing to make up for. If you'd like a gentle way back in, one short round takes about {minutes} minutes.",
       { minutes: input.smallStep.minutes },
     ),
   });
@@ -109,13 +109,13 @@ export function comebackLetter(input: ComebackInput): Letter {
   blocks.push({ t: "button", label: input.smallStep.title, href: input.smallStep.href });
   blocks.push({
     t: "link",
-    label: say("Or jump straight into today's fifteen minutes"),
+    label: say("Or open today's module"),
     href: `${input.origin}/course`,
   });
 
   if (input.word) {
     blocks.push({ t: "rule" });
-    blocks.push({ t: "quiet", text: say("And today's word, whatever you decide:") });
+    blocks.push({ t: "quiet", text: say("And a little word for today, whatever you decide:") });
     blocks.push({
       t: "art",
       html: wordCard(input.word.lemma, input.word.translation, input.word.occasion ?? undefined),
@@ -125,11 +125,13 @@ export function comebackLetter(input: ComebackInput): Letter {
     });
   }
 
+  blocks.push({ t: "signoff", text: say("Whenever you're ready,") });
+
   return {
     kind: "comeback",
     locale,
-    subject: say("You still know your words"),
-    preheader: say("You still know {words}. One round takes two minutes.", { words }),
+    subject: say("Your Estonian is still here"),
+    preheader: say("You still know {words}, and a two-minute round is all it takes to say hello again.", { words }),
     blocks,
   };
 }
