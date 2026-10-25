@@ -11,7 +11,8 @@ Three readers are needed, and none of the work is interchangeable between them:
 - **Russian**: somebody fluent in Russian. Section 1.
 - **Ukrainian**: somebody fluent in Ukrainian. Section 1.
 
-Section 3 is the native recordings, which are a speaker's work rather than a reader's.
+Section 3, the native recordings, is on the later list: the speaker started a recording session on
+2026-10-25, so it waits until that take is cut and in.
 
 ## Summary
 
@@ -32,7 +33,8 @@ Section 3 is the native recordings, which are a speaker's work rather than a rea
 | Workbook lines | ET | 1,942 lines (751 already read) | `npm run reading:workbook` |
 | One sentence per picture scene | ET | 60 to write, none yet | `npm run scenes:template` |
 | Twins, grammar examples, sounds page | ET | No reading recorded | Section 2.10 |
-| **Recordings** | ET | A1 lessons 14 to 49, all of A2, every woman's part | Section 3 |
+
+Later: the recordings (section 3).
 
 ## 1. Russian and Ukrainian
 
@@ -168,9 +170,10 @@ each one works as an exercise.
 Already done, for completeness: the sentences written for beginners (`lib/dict/authored.ts`, 738,
 read), the catalog scene lines (1,127 read) and the A1 lessons (read on 2026-10-17).
 
-## 3. Native voice recordings still to make
+## 3. Later: native voice recordings still to make
 
-**More voice lines need recording.** One male native speaker recorded 359 clips over five takes:
+**More voice lines need recording.** A session was under way on 2026-10-25; once that take is cut,
+recount this section against `nativeFor` and keep what is still missing here. One male native speaker recorded 359 clips over five takes:
 sounds, letters, months, numbers, soft consonants and the lines of A1 lessons 1 to 13. A recording
 plays wherever its text is on screen, and a lesson's conversation plays in his voice only for a man's
 part whose every line is recorded.
